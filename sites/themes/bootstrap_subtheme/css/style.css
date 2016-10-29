@@ -1,3 +1,52 @@
 /**
  * Place your custom styles here.
  */
+/* Carousel*/
+.carousel-caption {
+    background-color:#337AB7;
+}
+/* Footer */
+footer > div > nav {
+    width:33%;
+    float:left;
+}
+footer > div > nav  > h2 {
+    font-size:14px;
+}
+footer > div > nav > ul {
+    list-style-type: none;
+}
+footer > div > nav > ul > li {
+    line-height: 0.5;
+}
+footer > div > nav > ul > li > a {
+    padding: 0px;
+}
+footer > div > nav > ul.nav > li > a {
+    display: block;
+    padding: 10px 0px;
+    position: relative;
+}
+#block-footermiddle {
+    padding-top:50px;
+}
+#block-footermiddle > ul > li {
+    float: left;
+}
+#block-footermiddle > ul > li:not(:last-child) {
+    border-right:1px solid grey;
+    margin-right:10px;
+    padding-right:10px;
+}
+#block-footermiddle > ul > li:nth-child(3) {
+    list-style-type: circle;
+}
+#block-footerright {
+    padding-left:250px ;
+}
+
+.input-group {
+    width:585px;
+    padding-left:350px;
+    padding-top:10px;
+}

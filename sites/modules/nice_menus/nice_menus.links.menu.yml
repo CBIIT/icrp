@@ -1,0 +1,5 @@
+nice_menus.admin:
+  title: Nice Menus
+  description: 'CSS/jQuery drop-down, drop-right and drop-left menus to be placed in blocks..'
+  route_name: nice_menus.admin
+  parent: system.admin_config_ui

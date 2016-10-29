@@ -1,0 +1,7 @@
+nice_menus.admin:
+  path: 'admin/config/user-interface/nice_menus'
+  defaults:
+    _form: '\Drupal\nice_menus\Form\NiceMenusSettingsForm'
+    _title: 'Nice menus'
+  requirements:
+    _permission: 'administer site configuration'

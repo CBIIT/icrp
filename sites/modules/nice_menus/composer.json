@@ -1,0 +1,21 @@
+{
+  "name": "drupal/nice_menus",
+  "description": "CSS/jQuery drop-down, drop-right and drop-left menus to be placed in blocks.",
+  "type": "drupal-module",
+  "homepage": "https://drupal.org/project/nice_menus",
+  "authors": [
+    {
+      "name": "Xiukun zhou",
+      "homepage": "https://www.drupal.org/u/xiukun.zhou",
+      "role": "Maintainer"
+    }
+  ],
+  "support": {
+    "issues": "https://drupal.org/project/issues/nice_menus",
+    "irc": "irc://irc.freenode.org/drupal-contribute",
+    "source": "http://cgit.drupalcode.org/nice_menus"
+  },
+  "license": "GPL-2.0+",
+  "minimum-stability": "dev",
+  "require": { }
+}
