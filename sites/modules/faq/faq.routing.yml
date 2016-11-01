@@ -1,0 +1,63 @@
+faq.faq-page:
+    path: '/faq-page'
+    defaults:
+        _title: 'Frequently Asked Questions'
+        _controller: 'Drupal\faq\Controller\FaqController::faqPage'
+    requirements:
+        _permission: 'view faq page'
+
+faq.faq-page-category:
+    path: '/faq-page/{tid}'
+    defaults:
+        _title: 'Frequently Asked Questions'
+        _controller: 'Drupal\faq\Controller\FaqController::faqPage'
+    requirements:
+        _permission: 'view faq page'
+
+faq.faq-page.order:
+    path: '/faq-page/order'
+    defaults:
+        _title: 'Order'
+        _controller: 'Drupal\faq\Controller\FaqController::orderPage'
+    requirements:
+        _permission: 'administer faq order'
+
+faq.faq-page.order-category:
+    path: '/faq-page/{tid}/order'
+    defaults:
+        _title: 'Order'
+        _controller: 'Drupal\faq\Controller\FaqController::orderPage'
+    requirements:
+        _permission: 'administer faq order'
+
+faq.faq-admin:
+    path: '/admin/config/content/faq'
+    defaults:
+        _title: 'General'
+        _controller: 'Drupal\faq\Controller\FaqController::generalSettings'
+    requirements:
+        _permission: 'administer faq'
+
+faq.faq-admin.general:
+    path: '/admin/config/content/faq/general'
+    defaults:
+        _title: 'General'
+        _controller: 'Drupal\faq\Controller\FaqController::generalSettings'
+    requirements:
+        _permission: 'administer faq'
+
+faq.faq-admin.questions:
+    path: '/admin/config/content/faq/questions'
+    defaults:
+        _title: 'Questions'
+        _controller: 'Drupal\faq\Controller\FaqController::questionsSettings'
+    requirements:
+        _permission: 'administer faq'
+
+faq.faq-admin.categories:
+    path: '/admin/config/content/faq/categories'
+    defaults:
+        _title: 'Categories'
+        _controller: 'Drupal\faq\Controller\FaqController::categoriesSettings'
+    requirements:
+        _permission: 'administer faq'

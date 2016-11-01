@@ -1,0 +1,208 @@
+<?php
+
+/**
+ * @file
+ * The FAQ module allows users to create a FAQ page, with questions and answers
+ * displayed in different styles, according to the settings.
+ */
+
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Render\Element;
+use Drupal\taxonomy\Entity\Term;
+use Drupal\faq\FaqHelper;
+
+/**
+ * Implements hook_help().
+ */
+function faq_help($route_name, \Drupal\Core\Routing\RouteMatchInterface $route_match) {
+  $output = '';
+  switch ($route_name) {
+    case 'help.page.faq':
+      $output .= '<p>' . t("This module allows users with the 'administer faq' permission to create question and answer pairs which will be displayed on the faq page.  The faq page is automatically generated from the FAQ nodes configured and the layout of this page can be modified on the settings page.  Users will need the 'view faq page' permission in order to view the faq page.") . '</p>' .
+        '<p>' . t("To create a question and answer, the user must create a 'FAQ' node (Create content >> FAQ).  This screen allows the user to edit the question and answer text.  If the 'Taxonomy' module is enabled and there are some terms configured for the FAQ node type, it will also be possible to put the questions into different categories when editing.") . '</p>' .
+        '<p>' . t("The 'Frequently Asked Questions' settings configuration screen will allow users with 'administer faq' permissions to specify different layouts of the questions and answers.") . '</p>' .
+        '<p>' . t("All users with 'view faq page' permissions will be able to view the generated FAQ page.") . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_node_access().
+ */
+function faq_node_access(\Drupal\node\NodeInterface $node, $op, $account, $langcode) {
+  // Ignore non-FAQ node.
+  if ($node->getType() !== 'faq') {
+    return AccessResult::neutral();
+  }
+  
+  if ($op == 'view') {
+    return AccessResult::neutral();
+  }
+  elseif ($op == 'create' || $op == 'update' || $op == 'delete') {
+    if(\Drupal::currentUser()->hasPermission('administer faq')) {
+      return AccessResult::allowed();
+    }
+  }
+  
+  return AccessResult::neutral();
+}
+
+/**
+ * Implements hook_theme().
+ */
+function faq_theme() {
+    return array(
+    'faq_draggable_question_order_table' => array(
+      'template' => 'faq-draggable-question-order-table',
+      'render element' => 'form',
+    ),
+    'faq_questions_top' => array(
+      'file' => '/includes/faq.questions_top.inc',
+      'template' => 'faq-questions-top',
+      'variables' => array('data' => NULL),
+    ),
+    'faq_category_questions_top' => array(
+      'file' => '/includes/faq.questions_top.inc',
+      'template' => 'faq-category-questions-top',
+      'variables' => array('data' => NULL, 'display_header' => 0, 'category_display' => NULL, 'term' => NULL, 'class' => NULL, 'parent_term' => NULL),
+    ),
+    'faq_category_questions_top_answers' => array(
+      'file' => '/includes/faq.questions_top.inc',
+      'template' => 'faq-category-questions-top-answers',
+      'variables' => array('data' => NULL, 'display_header' => 0, 'category_display' => NULL, 'term' => NULL, 'class' => NULL, 'parent_term' => NULL),
+    ),
+    'faq_hide_answer' => array(
+      'file' => '/includes/faq.hide_answer.inc',
+      'template' => 'faq-hide-answer',
+      'variables' => array('data' => NULL),
+    ),
+    'faq_category_hide_answer' => array(
+      'file' => '/includes/faq.hide_answer.inc',
+      'template' => 'faq-category-hide-answer',
+      'variables' => array('data' => NULL, 'display_header' => 0, 'category_display' => NULL, 'term' => NULL, 'class' => NULL, 'parent_term' => NULL),
+    ),
+    'faq_questions_inline' => array(
+      'file' => '/includes/faq.questions_inline.inc',
+      'template' => 'faq-questions-inline',
+      'variables' => array('data' => NULL),
+    ),
+    'faq_category_questions_inline' => array(
+      'file' => '/includes/faq.questions_inline.inc',
+      'template' => 'faq-category-questions-inline',
+      'variables' => array('data' => NULL, 'display_header' => 0, 'category_display' => NULL, 'term' => NULL, 'class' => NULL, 'parent_term' => NULL),
+    ),
+    'faq_new_page' => array(
+      'file' => '/includes/faq.new_page.inc',
+      'template' => 'faq-new-page',
+      'variables' => array('data' => NULL),
+    ),
+    'faq_category_new_page' => array(
+      'file' => '/includes/faq.new_page.inc',
+      'template' => 'faq-category-new-page',
+      'variables' => array('data' => NULL, 'display_header' => 0, 'category_display' => NULL, 'term' => NULL, 'class' => NULL, 'parent_term' => NULL),
+    ),
+    'faq_page' => array(
+      'variables' => array('content' => '', 'answers' => '', 'description' => NULL),
+      'template' => 'faq-page',
+    ),
+  );
+}
+
+/**
+ * Theme function for question ordering drag and drop table.
+ */
+function template_preprocess_faq_draggable_question_order_table(&$variables){
+  $form = $variables['form'];
+  $options = array(
+    'table_id' => 'question-sort',
+    'action' => 'order',
+    'relationship' => 'sibling',
+    'group' => 'sort',
+  );
+  $header = array('', t('Question'), '', t('Sort'));
+  $rows = array();
+  foreach (Element::children($form) as $key) {
+    // Add class to group weight fields for drag and drop.
+    $form[$key]['sort']['#attributes']['class'] = array('sort');
+    $form[$key]['nid']['#attributes']['class'] = array('hidden-nid');
+    $row = array('');
+    $row[] = drupal_render($form[$key]['title']);
+    $row[] = drupal_render($form[$key]['nid']);
+    $row[] = drupal_render($form[$key]['sort']);
+    
+    $rows[] = array(
+      'data' => $row,
+      'class' => array('draggable'),
+    );
+  }
+  
+  $table = array(
+    '#type' => 'table',
+    '#header' => $header,
+    '#rows' => $rows,
+    '#attributes' => array(
+      'id' => 'question-sort',
+    ),
+  );
+  drupal_attach_tabledrag($table, $options);
+  
+  $variables['order_table'] = $table;
+}
+
+/**
+ * Theme function for faq page wrapper divs.
+ */
+function template_preprocess_faq_page(&$variables) {
+  $faq_settings = \Drupal::config('faq.settings');
+  if($faq_settings->get('show_expand_all')) {
+    $variables['faq_expand'] = true;
+  } else {
+    $variables['faq_expand'] = false;
+  }
+}
+
+/**
+ * Function set the rebuild of the form in the FAQ Settings - Weight tab.
+ *
+ * @param $form
+ *   Array, containing the form structure.
+ * @param &$form_state
+ *   The 'rebuild' key inside $form_state['rebuild'] structure, overrides the
+ *   'redirect' key: when it is set to TRUE, the form will be rebuilt from
+ *   scratch and displayed on screen.
+ */
+function faq_order_settings_choose_cat_form_submit($form, &$form_state) {
+  $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Implements template_preprocess_page().
+ * 
+ * Overrider breadcrumbs for faq pages.
+ */
+function faq_preprocess_page(&$variables){
+  $faq_settings = \Drupal::config('faq.settings');
+  $use_categories = $faq_settings->get('use_categories');
+  
+  $route_match = \Drupal::service('current_route_match');
+  $tid = $route_match->getRawParameter('tid');
+
+  if (FaqHelper::searchInArgs('faq-page') && $use_categories && is_numeric($tid) && $current_term = Term::load($tid)) {
+    $breadcrumb = FaqHelper::setFaqBreadcrumb($current_term);
+    if (!empty($breadcrumb)) {
+      $variables['breadcrumb']['#breadcrumb'] = $breadcrumb;
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ * 
+ * If question_long_form is disabled, hide the 'detailed question' from node editing.
+ */
+function faq_form_node_faq_edit_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  $faq_settings = \Drupal::config('faq.settings');
+  if (!$faq_settings->get('question_long_form')) {
+    $form['field_detailed_question']['#access'] = FALSE;
+  }
+}

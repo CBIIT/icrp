@@ -1,0 +1,2 @@
+.views-align-left{text-align:left;}.views-align-right{text-align:right;}.views-align-center{text-align:center;}.views-view-grid .views-col{float:left;}.views-view-grid .views-row{clear:both;float:left;width:100%;}
+.caption{display:table;}.caption > *{display:block;max-width:100%;}.caption > figcaption{display:table-caption;caption-side:bottom;max-width:none;}.caption > figcaption[contenteditable=true]:empty:before{content:attr(data-placeholder);font-style:italic;}

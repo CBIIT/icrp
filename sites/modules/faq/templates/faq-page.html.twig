@@ -1,0 +1,35 @@
+{#
+/**
+ * @file
+ * Template file for wrapping FAQ pages
+ * 
+ * Available variables:
+ * - description: Rendered description of the FAQ-page.
+ * - content: Rendered content.
+ * - answers: Rendered answers.
+ * - faq_expand: True or false, depends on 
+ * 'Show "expand / collapse all" links for collapsed questions' setting.
+ * 
+ * @see template_preprocess_faq_page()
+ * 
+ * @ingroup themable
+ */
+#}
+
+<div class="faq-content">
+    <div class="faq">
+        {% if description is not empty %}
+            <div class="faq-description">
+                {{ description }}
+            </div>
+        {% endif %}
+        {% if faq_expand %}
+            <div id="faq-expand-all">
+                <a class="faq-expand-all-link" href="#faq-expand-all-link">[{{ 'expand all'|t }}]</a>
+                <a class="faq-collapse-all-link" href="#faq-collapse-all-link">[{{ 'collapse all'|t }}]</a>
+            </div>
+        {% endif %}
+        {{ content }}
+        {{ answers }}
+    </div>
+</div>

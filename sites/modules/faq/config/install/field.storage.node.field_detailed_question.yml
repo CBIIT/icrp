@@ -1,0 +1,16 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - text
+id: node.field_detailed_question
+field_name: field_detailed_question
+entity_type: node
+type: text_long
+settings: {  }
+module: text
+locked: true
+cardinality: 1
+translatable: true
+indexes: {  }
