@@ -1,0 +1,10 @@
+icrp-corescripts:
+  version: VERSION
+  js:
+    js/icrp.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal.ajax
+    - core/drupal
+    - core/drupalSettings
+    - core/jquery.once

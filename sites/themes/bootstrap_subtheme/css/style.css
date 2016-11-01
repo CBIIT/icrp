@@ -20,7 +20,26 @@
 .carousel-caption {
     background-color:#337AB7;
 }
+
+/* Search */
+.search-well {
+    background-color: #f8f8f8;
+    border:none;
+}
+/* Header */
+header {
+    margin-bottom:0px;
+}
+
+.navbar-default {
+    margin-bottom:0px;
+    background-color: #f8f8f8;
+}
+
 /* Footer */
+footer {
+    background-color: #f8f8f8;
+}
 footer > div > nav {
     width:33%;
     float:left;
@@ -60,9 +79,16 @@ footer > div > nav > ul.nav > li > a {
 #block-footerright {
     padding-left:250px ;
 }
-
+/*
 .input-group {
     width:585px;
     padding-left:350px;
     padding-top:10px;
+}
+*/
+/* Home Page */
+#icrp-blue-icons {
+    width:800;
+    margin-top:20px;
+    margin-left:100px;
 }
