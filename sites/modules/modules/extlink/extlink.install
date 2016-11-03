@@ -1,0 +1,23 @@
+<?php
+
+/**
+ * @file
+ * Install hook for the External Links module.
+ */
+
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_install().
+ */
+function extlink_install() {
+  // Weight needs to be 1 for compatibility with SpamSpan.
+  module_set_weight('extlink', 1);
+
+  // Be friendly to your users: what to do after install?
+  $url = Url::fromRoute('extlink_admin.settings');
+  if (PHP_SAPI != 'cli') {
+    drupal_set_message(t('You can now <a href="@extlink_admin">configure the External Links module</a> for your site.',
+      ['@extlink_admin' => $url->toString()]), 'status');
+  }
+}

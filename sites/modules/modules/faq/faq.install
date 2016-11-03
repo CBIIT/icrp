@@ -1,0 +1,67 @@
+<?php
+
+/**
+ * @file
+ * FAQ module install file.
+ */
+use Drupal\node\Entity\Node;
+use Drupal\node\Entity\NodeType;
+
+/**
+ * Implements hook_schema().
+ */
+function faq_schema() {
+  $schema = array();
+  $schema['faq_weights'] = array(
+    'description' => 'A table containing the weight of each faq node by category.',
+    'fields' => array(
+      'tid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The primary identifier for a term or category.  This will be 0 for non-categorized nodes.',
+      ),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The primary identifier for a node.',
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'A number representing the weight of a node.  Nodes with lower weight values will appear above those with higher weight values.',
+      ),
+    ),
+    'primary key' => array('nid', 'tid'),
+  );
+  return $schema;
+}
+
+/**
+ * Implements hook_install()
+ */
+function faq_install(){
+    $locked = Drupal::state()->get('node.type.locked');
+    $locked['faq'] = 'faq';
+    Drupal::state()->set('node.type.locked', $locked);
+}
+
+function faq_uninstall(){
+  $info = NodeType::load('faq');
+  if ($info) {
+    $info->delete();
+    field_purge_batch(500);
+    $nids = \Drupal::entityQuery('node')
+      ->condition('type', 'faq')
+      ->execute();
+    foreach ($nids as $nid) {
+      $faqNode = Node::load($nid);
+      $faqNode->delete();
+    }
+  }
+}

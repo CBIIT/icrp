@@ -1,0 +1,5 @@
+faq.admin:
+    title: 'Frequently Asked Questions'
+    description: 'Allows the user to configure the layout of questions and answers on a FAQ page.'
+    parent: system.admin_config_content
+    route_name: faq.faq-admin

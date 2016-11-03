@@ -1,0 +1,18 @@
+<div class="row">
+  {% if content.sidebar_left %}
+  <div class="col-sm-4">
+    {{ content.sidebar_left }}
+  </div>
+  {% endif %}
+  {% if content.main %}
+  <div class="col-sm-4">
+    {{ content.main }}
+  </div>
+  {% endif %}
+
+  {% if content.sidebar_right %}
+  <div class="col-sm-4">
+    {{ content.sidebar_right }}
+  </div>
+  {% endif %}
+</div>

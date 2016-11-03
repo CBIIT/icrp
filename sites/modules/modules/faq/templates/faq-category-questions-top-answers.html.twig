@@ -1,0 +1,109 @@
+{#
+/**
+ * @file
+ * Template file for the answers section of the FAQ page if set to show
+ * categorized questions at the top of the page.
+ * 
+ * Available variables:
+ * - display_answers: Whether or not there should be any output.
+ * - display_header: Boolean value controlling whether a header should be displayed.
+ * - header_title: The category title.
+ * - category_name: The name of the category.
+ * - answer_category_name: Whether the category name should be displayed with the answers.
+ * - group_questions_top: Whether the questions and answers should be grouped together.
+ * - category_depth: The term or category depth.
+ * - description: The current page's description.
+ * - term_image: The HTML for the category image. This is empty if the taxonomy image module
+ *   is not enabled or there is no image associated with the term.
+ * - display_faq_count: Boolean value controlling whether or not the number of faqs in a category should be displayed.
+ * - question_count: The number of questions in category.
+ * - nodes: The array of nodes to be displayed. Each node stored in the $nodes array has the following information:
+ *   - question: The question text.
+ *   - body: The answer text.
+ *   - links: Represents the node links, e.g. "Read more".
+ * - use_teaser: Tells whether node.body contains the full body or just the teaser
+ * - question_label: The question label, intended to be pre-pended to the question text.
+ * - answer_label: The answer label, intended to be pre-pended to the answer text.
+ * - container_class: The class attribute of the element containing the sub-categories, either
+ *   'faq-qa' or 'faq-qa-hide'. This is used by javascript to open/hide a category's faqs.
+ * - subcat_body_list: The sub-categories faqs, recursively themed (by this template).
+ * 
+ * @see template_preprocess_faq_category_questions_top_answers()
+ * 
+ * @ingroup themable
+ */
+#}
+
+{% if category_depth > 0 %}
+    {% set hdr = 'h4' %}
+{% else %}
+    {% set hdr = 'h3' %}
+{% endif %}
+
+{% if display_answers %}
+    {% if answer_category_name %}
+        {% for i in 0..category_depth %}
+            <div class="faq-category-indent">
+        {% endfor %}
+    {% endif %}
+    
+    <div class="faq-category-menu">
+        {% if display_header %}
+            <{{ hdr }} class="faq-header">
+                {{ term_image }}
+                {{ category_name }}
+            </{{ hdr }}>
+            <div class="clear-block"></div>
+            <div class="faq-category-group">
+            <div>
+        {% endif %}
+        
+        {% if not answer_category_name or display_header %}
+            <!-- Include subcategories. -->
+            {% if subcat_body_list|length > 0 %}
+            {% for subcat_html in subcat_body_list %}
+                {{ subcat_html }}
+            {% endfor %}
+            {% endif %}
+            
+            
+            {% if not display_header %}
+                <div class="faq-category-group">
+                <div>
+            {% endif %}
+            
+            <!-- List questions (in title link) and answers (in body). -->
+            {% if nodes|length > 0 %}
+            {% for node in nodes %}
+                <div class="faq-question">
+                    {% if question_label is not empty %}
+                        <strong class="faq-question-label">
+                            {{ question_label }}
+                        </strong>
+                    {% endif %}
+                    {{ node.question }}
+                </div><!-- Close div: faq-question -->
+                <div class="faq-answer">
+                    {% if answer_label is not empty %}
+                        <strong class="faq-answer-label">
+                            {{ answer_label }}
+                        </strong>
+                    {% endif %}
+                    {{ node.body }}
+                    {% if node.links is defined %}
+                        {{ node.links }}
+                    {% endif %}
+                </div><!-- Close div: faq-answer -->
+            {% endfor %}
+            {% endif %}
+        {% endif %}
+    </div> <!-- Close div -->
+    </div> <!-- Close div: faq-category-group -->
+    </div>
+    
+    {% if answer_category_name %}
+    {% for i in 0..category_depth %}
+        </div><!-- Close div: faq-category-indent -->
+    {% endfor %}
+    {% endif %}
+{% endif %}

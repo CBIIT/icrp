@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains bootstrap_layouts.module..
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function bootstrap_layouts_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the bootstrap_layouts module.
+    case 'help.page.bootstrap_layouts':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('This module is going to generate layouts with Bootstrap grid system.') . '</p>';
+      return $output;
+
+    default:
+  }
+}

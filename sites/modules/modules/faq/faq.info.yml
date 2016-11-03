@@ -1,0 +1,14 @@
+name: 'Frequently Asked Questions'
+type: module
+description: 'Manages configuration of questions for a FAQ page.'
+# core: 8.x
+# version: VERSION
+package: FAQ
+dependencies:
+  - node
+configure: faq.faq-admin
+# Information added by Drupal.org packaging script on 2016-07-20
+version: '8.x-1.x-dev'
+core: '8.x'
+project: 'faq'
+datestamp: 1469008741
