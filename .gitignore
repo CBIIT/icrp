@@ -33,3 +33,8 @@ xmlrpc.php
 /profiles
 /scripts
 /themes
+
+#These showed up with php Storm
+../.idea/
+.idea/
+.sql
