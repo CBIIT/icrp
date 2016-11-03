@@ -1,6 +1,0 @@
-langcode: en
-status: true
-dependencies: {  }
-id: country_codes
-label: 'Country codes'
-options: ''

@@ -1,6 +1,0 @@
-icrp.content:
-  path: '/icrp'
-  defaults:
-    _controller: '\Drupal\icrp\Controller\IcrpController:sayhello'
-  requirements:
-    _permission: 'TRUE'
