@@ -1,0 +1,146 @@
+<form class="well">
+  <div class="form-group text-right">
+    <button type="button" class="btn btn-default btn-sm">Clear</button>
+    <button type="button" class="btn btn-primary btn-sm" (click)="search(keywords.value)">Search</button>
+  </div>
+
+  <div class="form-group" [tooltipPopupDelay]="500" tooltip="Return awards that contain the terms provided">
+    <label for="keywords" class="sr-only">Keywords</label>
+    <input type="text" class="form-control input-sm" id="keywords" placeholder="Keywords" #keywords>
+  </div>
+
+  <div class="form-group row small">
+    <div class="col-md-6" tooltip="Return awards that contain any of the provided keywords.">
+      <div class="radio"><label><input type="radio" name="keyword-type" #any>Any of the words</label></div>
+    </div>
+
+    <div class="col-md-6" tooltip="Return awards that do not contain any of the provided keywords.">
+      <div class="radio"><label><input type="radio" name="keyword-type" #none>None of the words</label></div>
+    </div>
+
+    <div class="col-md-6" tooltip="Return awards that contain the exact phrase provided.">
+      <div class="radio"><label><input type="radio" name="keyword-type" #exact>Exact phrase</label></div>
+    </div>
+
+    <div class="col-md-6" tooltip="Return awards that contain all of the provided keywords.">
+      <div class="radio"><label><input type="radio" name="keyword-type" #all>All of the words</label></div>
+    </div>
+  </div>
+
+  <div class="form-group" style="max-width: 200px" [tooltipPopupDelay]="500" tooltip="Calendar year(s) in which the awards are active">
+    <label for="year" class="sr-only">Year</label>
+    <ng-select id="year" [items]="fields.years" [multiple]="true" placeholder="No year selected"></ng-select>
+  </div>
+
+  <hr>
+
+  <div class="form-group">
+    <label for="institution">Institution Name</label>
+    <input type="text" class="form-control input-sm" id="institution" 
+      placeholder="Full or partial name"
+      tooltip="The host institution of the principle investigator"
+      [tooltipPopupDelay]="500"
+      #institution>
+  </div>
+
+  <div class="form-group" >
+    <label for="piFirstName">Principal Investigator</label>
+    <label for="piLastName" class="sr-only">Principal Investigator</label>
+
+    <div class="row">
+      <div class="col-md-6 less-padding">
+        <input type="text" class="form-control input-sm" id="piFirstName" 
+          placeholder="First name or initial"
+          tooltip="All or part of the principal investigator's first name" 
+          [tooltipPopupDelay]="500" 
+          #piFirstName>
+      </div>
+      <div class="col-md-6 less-padding">
+        <input type="text" class="form-control input-sm" id="piLastName" 
+        placeholder="Last name" 
+        tooltip="All or part of the principal investigator's last name" 
+        [tooltipPopupDelay]="500" 
+        #piLastName>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group row" >
+    <div class="col-md-3 less-padding"><label for="piORCiD" class="inline-label">ORCID iD</label></div>
+    <div class="col-md-9 less-padding">
+      <input type="text" class="form-control input-sm" id="piORCiD" 
+        placeholder="nnnn-nnnn-nnnn-nnnn" 
+        tooltip="ORCID is an open, non-profit, community-driven effort to create and maintain a registry of unique researcher identifiers and a transparent method of linking research activities and outputs to these identifiers. More information about ORCiD is available at their website: http://orcid.org."
+        [tooltipPopupDelay]="500" 
+        #piORCiD>
+      </div>
+  </div>
+
+  <div class="form-group row">
+    <div class="col-md-5 less-padding"><label for="code" class="inline-label">Project Award Code</label></div>
+    <div class="col-md-7 less-padding">
+      <input type="text" class="form-control input-sm" id="code" 
+        placeholder="Award code"
+        tooltip="Project award code" 
+        [tooltipPopupDelay]="500" 
+        #code>
+      </div>
+  </div>
+
+  <div class="form-group" [tooltipPopupDelay]="500" tooltip="Select one or more countries">
+    <label for="country" class="sr-only">Country</label>
+    <ng-select id="countries" [items]="fields.countries" [multiple]="true" (data)="updateFilters('countries', $event)" placeholder="All countries"></ng-select>
+  </div>
+
+  <div class="form-group row" >
+    <div class="col-md-6 less-padding" [tooltipPopupDelay]="500" tooltip="Select one or more states">
+      <label for="state" class="sr-only">State/Territory</label>
+      <ng-select id="states" [items]="fields.states" [multiple]="true" [disabled]="!fields.states.length || !filters.countries.length" (data)="updateFilters('states', $event)" placeholder="All states"></ng-select>
+    </div>
+
+    <div class="col-md-6 less-padding" [tooltipPopupDelay]="500" tooltip="Select one or more cities">
+      <label for="city" class="sr-only">City</label>
+      <ng-select id="cities" [items]="fields.cities" [multiple]="true" [disabled]="!fields.cities.length || !filters.countries.length" placeholder="All cities"></ng-select>
+    </div>
+  </div>
+
+  <div class="form-group" [tooltipPopupDelay]="500" tooltip="Currency placeholder">
+    <ng-select id="currencies" [items]="fields.currencies" [multiple]="true" (data)="updateFilters('currencies', $event)" placeholder="All currencies"></ng-select>
+  </div>
+
+  <div class="form-group row">
+
+    <div class="col-md-7 less-padding" [tooltipPopupDelay]="500" tooltip="Select one or more types of cancer">
+      <label for="cancerTypes" class="sr-only">Cancer Type</label>
+      <ng-select id="cancerTypes" [items]="fields.cancerSites" [multiple]="true" placeholder="Cancer Types"></ng-select>
+    </div>
+
+    <div class="col-md-5 less-padding" [tooltipPopupDelay]="500" tooltip="Select one or more project types">
+      <label for="projectTypes" class="sr-only">Project Type</label>
+      <ng-select id="projectTypes" [items]="fields.projectTypes" [multiple]="true" placeholder="Project Types"></ng-select>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="fundingOrganizations">Funding Organizations</label>
+    <select class="form-control input-sm" id="fundingOrganizations" size="20" multiple #fundingOrganizations  [tooltipPopupDelay]="500" tooltip="Available funding organizations organized by country.">
+      <option>All Funding Organizations</option>
+      <option *ngFor="let sponsor of fields.fundingOrgs">{{sponsor.text}}</option>
+    </select>
+  </div>
+
+
+  <div class="form-group">
+    <label for="cso">Common Scientific Outline - Research Area</label>
+    <select class="form-control input-sm" id="cso" size="18" multiple #csoAreas [tooltipPopupDelay]="500" tooltip="Select one or more Common Scientific Outline (CSO) research areas">
+      <option>All Areas</option>
+      <option *ngFor="let csoArea of fields.csoAreas">{{csoArea.text}}</option>
+    </select>
+  </div>
+
+  <div class="form-group text-right">
+    <button type="button" class="btn btn-default btn-sm">Clear</button>
+    <button type="button" class="btn btn-primary btn-sm" (click)="search()">Search</button>
+  </div>
+
+</form>
