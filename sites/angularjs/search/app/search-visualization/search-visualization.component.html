@@ -1,0 +1,17 @@
+<div class="chart-carousel">
+  <div class="chart-container">
+    <p-chart type="pie" [data]="projectsByCountry" [options]="options.projectsByCountry"></p-chart>
+  </div>
+
+  <div class="chart-container">
+    <p-chart type="horizontalBar" [data]="projectsByCategory" [options]="options.projectsByCategory"></p-chart>
+  </div>
+
+  <div class="chart-container">
+    <p-chart type="pie" [data]="topCancerSites" [options]="options.topCancerSites"></p-chart>
+  </div>
+
+  <div class="chart-container">
+    <p-chart type="line" [data]="fundingAmounts" [options]="options.fundingAmounts"></p-chart>
+  </div>
+</div>

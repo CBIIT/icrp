@@ -1,0 +1,53 @@
+<h4>Search Results</h4>
+<p *ngIf="showMessage">{{ message }}</p>
+
+<div *ngIf="summaryMessage">
+  {{ summaryMessage }}
+</div>
+
+<br>
+<app-search-visualization></app-search-visualization>
+<br>
+<br>
+
+<div class="clearfix" *ngIf="results && results.data">
+
+  <span class="pull-left">
+    <button class="btn btn-xs btn-default">
+      <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>
+      Email results
+    </button>
+    <button class="btn btn-xs btn-default">
+      <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+      Export to Excel
+    </button>
+  </span>
+
+  <p-paginator 
+    rows="25"
+    totalRecords="100" 
+    [rowsPerPageOptions]="[25, 50, 100]" 
+    (onPageChange)="paginate($event)">
+  </p-paginator>
+</div>
+
+<div class="table-responsive" *ngIf="results && results.data">
+  <p-dataTable [value]="results.data" [rows]="table.numRows">
+      <p-column field="title" header="Project Title" [sortable]="true" ></p-column>
+      <p-column field="pi" header="Principal Investigator" [sortable]="true" ></p-column>
+      <p-column field="institution" header="Institution" [sortable]="true" ></p-column>
+      <p-column field="city" header="City" [sortable]="true" ></p-column>
+      <p-column field="state" header="State" [sortable]="true" ></p-column>
+      <p-column field="country" header="Country" [sortable]="true" ></p-column>
+      <p-column field="fundingOrg" header="Funding Organization" [sortable]="true" ></p-column>
+      <p-column field="awardCode" header="Award Code" [sortable]="true" ></p-column>
+  </p-dataTable>
+</div>
+
+<div class="clearfix">
+  
+  <br>
+
+
+
+</div>

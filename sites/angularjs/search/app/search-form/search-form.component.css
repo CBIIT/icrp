@@ -1,0 +1,46 @@
+label {
+    color: #444;
+    font-size: 12px;
+}
+
+.radio {
+    margin-top: 0px;
+    margin-bottom: 3px;
+}
+
+.inline-label {
+    margin-top: 7px;
+}
+
+.input-sm {
+  padding-left: 6px;
+  padding-right: 0px;
+}
+
+.row .less-padding {
+  padding-right: 4px !important;
+  padding-left: 4px !important;
+}
+
+.row .less-padding:first-child {
+  padding-left: 15px !important;
+  padding-right: 4px !important;
+}
+
+.row .less-padding:last-child {
+  padding-left: 4px !important;
+  padding-right: 15px !important;
+}
+
+@media screen and (max-width: 992px) {
+  .row .less-padding,
+  .row .less-padding:first-child,
+  .row .less-padding:last-child {
+    padding-right: 15px !important;
+    padding-left: 15px !important;
+  }
+}
+
+
+
+

@@ -1,0 +1,21 @@
+.chart-carousel {
+     overflow-x: auto; 
+     white-space: nowrap;
+}
+
+.chart-container {
+    display: inline-block;
+    width: 600px;
+    margin: 10px 25px;
+    padding: -10px;
+    padding-left: -20px;
+}
+
+.chart-container:first-child {
+    margin-left: 0;
+    padding-left: 0;
+}
+
+.chart-container:last-child {
+    margin-right: 0;
+}

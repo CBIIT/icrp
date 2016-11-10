@@ -1,0 +1,131 @@
+/* You can add global styles to this file, and also import other style files */
+
+body {
+    font-size: 12px;
+}
+
+
+.loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -25px 0 0 -25px;
+
+	border-bottom: 6px solid rgba(0, 0, 0, .1);
+	border-left: 6px solid rgba(0, 0, 0, .1);
+	border-right: 6px solid rgba(0, 0, 0, .1);
+	border-top: 6px solid rgba(0, 0, 0, .4);
+	border-radius: 100%;
+	height: 50px;
+	width: 50px;
+	animation: rotate .75s infinite linear;
+}
+
+@keyframes rotate {
+	from {transform: rotate(0deg);}
+	to {transform: rotate(359deg);}
+}
+
+.well {
+    background-color: #FDFDFD;
+    box-shadow: 1px 1px 6px #EFEFEF;
+}
+
+.form-control {
+    box-shadow: 1px 1px 5px #EFEFEF;
+}
+
+.tooltip-arrow {
+    border: 1px solid white;
+    border-top-color: #CCC !important;
+/*    border-top-color: #3A539B !important; */
+}
+
+.tooltip-inner {
+    color: #666;
+    background-color: white;
+    border: 1px solid #CCC;
+/*    color: white;
+    background-color: #3A539B;
+*/
+}
+
+
+
+.ui-datatable-tablewrapper > table {
+    border: 1px solid #EFEFEF;
+    font-size: 12.5px;
+    width: 100%;
+}
+
+.ui-datatable-tablewrapper > table > thead > tr > th {
+    background-color: #EEE;
+    border-right: 1px solid #CCC;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.ui-datatable-tablewrapper > table > tbody > tr {
+    border-bottom: 1px solid #EFEFEF;
+}
+
+
+.ui-datatable-tablewrapper > table > thead > tr > th,
+.ui-datatable-tablewrapper > table > tbody > tr > td {
+    padding: 3px 7px;
+    color: #555;
+    border-right: 1px solid #EEE;
+
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 400px;
+}
+
+.ui-datatable-tablewrapper > table > tbody > tr:nth-child(2n+0) {
+    background-color: #F5F5F5;
+}
+
+.ui-datatable-tablewrapper > table > tbody > tr:hover {
+    background-color: #EDEDED;
+}
+
+.ui-paginator {
+    color: #555 !important;
+    float: right;
+    margin: 6px 0;
+}
+
+.ui-paginator-element {
+    font-size: 13px !important;
+    padding: 4px;
+}
+
+.ui-paginator-element a {
+    color: #555;
+    
+}
+
+
+/*
+.ui-paginator-element {
+    margin: 4px;
+    padding: 4px;
+    background-color: steelblue;
+    color: white;
+}
+
+
+.ui-paginator-last {
+    content: ">>"
+}
+
+
+
+
+
+
+
+
+
+*/
