@@ -11,6 +11,9 @@ import { SearchVisualizationComponent } from './search-visualization/search-visu
 
 import { SelectModule } from 'ng2-select/ng2-select';
 import { TooltipModule } from 'ng2-bootstrap/components/tooltip';
+import { CollapseModule } from 'ng2-bootstrap/components/collapse';
+import { AccordionModule } from 'ng2-bootstrap/components/accordion';
+
 import { DataTableModule, PaginatorModule, SharedModule, ChartModule, CarouselModule } from 'primeng/primeng';
 
 @NgModule({
@@ -28,6 +31,8 @@ import { DataTableModule, PaginatorModule, SharedModule, ChartModule, CarouselMo
     HttpModule,
     SelectModule,
     TooltipModule,
+    CollapseModule,
+    AccordionModule,
     SharedModule,
     DataTableModule,
     PaginatorModule,

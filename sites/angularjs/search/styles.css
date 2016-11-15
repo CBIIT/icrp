@@ -35,6 +35,37 @@ body {
     box-shadow: 1px 1px 5px #EFEFEF;
 }
 
+.panel {
+    margin-top: 10px;
+}
+
+
+.panel-default>.panel-heading>.panel-title>a {
+    text-decoration: none !important;
+}
+
+
+.panel-default>.panel-heading>.panel-title>a:hover {
+    text-decoration: none;
+}
+
+
+
+.panel-default>.panel-heading:hover {
+    background-color: #1b7daf;
+    color: white;
+}
+
+.panel-default>.panel-heading {
+    background-color: #1E8BC3;
+    color: white;
+}
+
+.panel-heading {
+    padding: 5px 5px;
+
+}
+
 .tooltip-arrow {
     border: 1px solid white;
     border-top-color: #CCC !important;

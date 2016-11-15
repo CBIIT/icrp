@@ -12,6 +12,12 @@ label {
     margin-top: 7px;
 }
 
+.panel-heading {
+  font-size: 14px;
+  font-weight: normal;
+
+}
+
 .input-sm {
   padding-left: 6px;
   padding-right: 0px;

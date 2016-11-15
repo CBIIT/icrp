@@ -5,10 +5,10 @@
 
 .chart-container {
     display: inline-block;
-    width: 600px;
+/*    width: 400px;
     margin: 10px 25px;
     padding: -10px;
-    padding-left: -20px;
+    padding-left: -20px; */
 }
 
 .chart-container:first-child {
