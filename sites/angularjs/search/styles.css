@@ -32,7 +32,7 @@ body {
 }
 
 .form-control {
-    box-shadow: 1px 1px 5px #EFEFEF;
+    box-shadow: 1px 1px 5px #e8f3f9;
 }
 
 .panel {
@@ -90,8 +90,15 @@ body {
 }
 
 .ui-datatable-tablewrapper > table > thead > tr > th {
+    background-color: #1b7daf;
+    color: white !important;
+    padding: 5px 7px 3px !important;
+    /*
+
     background-color: #EEE;
     border-right: 1px solid #CCC;
+
+*/
     cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
@@ -114,11 +121,11 @@ body {
 }
 
 .ui-datatable-tablewrapper > table > tbody > tr:nth-child(2n+0) {
-    background-color: #F5F5F5;
+    background-color: #ebeff7;
 }
 
 .ui-datatable-tablewrapper > table > tbody > tr:hover {
-    background-color: #EDEDED;
+    background-color: #dde4f2;
 }
 
 .ui-paginator {
