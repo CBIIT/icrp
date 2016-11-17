@@ -1,0 +1,301 @@
+<?php
+
+/* modules/views_bootstrap/templates/views_bootstrap_carousel/views-bootstrap-carousel.html.twig */
+class __TwigTemplate_3115feaa94ea846e13d3eace9878fc0a899bc74be183933405a7194a83a40d75 extends Twig_Template
+{
+    public function __construct(Twig_Environment $env)
+    {
+        parent::__construct($env);
+
+        $this->parent = false;
+
+        $this->blocks = array(
+        );
+    }
+
+    protected function doDisplay(array $context, array $blocks = array())
+    {
+        $__internal_ee1b5c52168ca43f4c1e5c752cd959eb76a2ffa8c2b9b2ad6d390c27d25c60e9 = $this->env->getExtension("native_profiler");
+        $__internal_ee1b5c52168ca43f4c1e5c752cd959eb76a2ffa8c2b9b2ad6d390c27d25c60e9->enter($__internal_ee1b5c52168ca43f4c1e5c752cd959eb76a2ffa8c2b9b2ad6d390c27d25c60e9_prof = new Twig_Profiler_Profile($this->getTemplateName(), "template", "modules/views_bootstrap/templates/views_bootstrap_carousel/views-bootstrap-carousel.html.twig"));
+
+        $tags = array("if" => 25, "for" => 27, "set" => 28);
+        $filters = array("join" => 29, "t" => 58);
+        $functions = array();
+
+        try {
+            $this->env->getExtension('sandbox')->checkSecurity(
+                array('if', 'for', 'set'),
+                array('join', 't'),
+                array()
+            );
+        } catch (Twig_Sandbox_SecurityError $e) {
+            $e->setTemplateFile($this->getTemplateName());
+
+            if ($e instanceof Twig_Sandbox_SecurityNotAllowedTagError && isset($tags[$e->getTagName()])) {
+                $e->setTemplateLine($tags[$e->getTagName()]);
+            } elseif ($e instanceof Twig_Sandbox_SecurityNotAllowedFilterError && isset($filters[$e->getFilterName()])) {
+                $e->setTemplateLine($filters[$e->getFilterName()]);
+            } elseif ($e instanceof Twig_Sandbox_SecurityNotAllowedFunctionError && isset($functions[$e->getFunctionName()])) {
+                $e->setTemplateLine($functions[$e->getFunctionName()]);
+            }
+
+            throw $e;
+        }
+
+        // line 22
+        echo "<div id=\"";
+        echo $this->env->getExtension('sandbox')->ensureToStringAllowed($this->env->getExtension('drupal_core')->escapeFilter($this->env, (isset($context["id"]) ? $context["id"] : null), "html", null, true));
+        echo "\" class=\"carousel slide\" data-ride=\"carousel\" data-interval=\"";
+        echo $this->env->getExtension('sandbox')->ensureToStringAllowed($this->env->getExtension('drupal_core')->escapeFilter($this->env, (isset($context["interval"]) ? $context["interval"] : null), "html", null, true));
+        echo "\" data-pause=\"";
+        echo $this->env->getExtension('sandbox')->ensureToStringAllowed($this->env->getExtension('drupal_core')->escapeFilter($this->env, (isset($context["pause"]) ? $context["pause"] : null), "html", null, true));
+        echo "\" data-wrap=\"";
+        echo $this->env->getExtension('sandbox')->ensureToStringAllowed($this->env->getExtension('drupal_core')->escapeFilter($this->env, (isset($context["wrap"]) ? $context["wrap"] : null), "html", null, true));
+        echo "\">
+
+  ";
+        // line 25
+        echo "  ";
+        if ((isset($context["indicators"]) ? $context["indicators"] : null)) {
+            // line 26
+            echo "    <ol class=\"carousel-indicators\">
+      ";
+            // line 27
+            $context['_parent'] = $context;
+            $context['_seq'] = twig_ensure_traversable((isset($context["rows"]) ? $context["rows"] : null));
+            $context['loop'] = array(
+              'parent' => $context['_parent'],
+              'index0' => 0,
+              'index'  => 1,
+              'first'  => true,
+            );
+            if (is_array($context['_seq']) || (is_object($context['_seq']) && $context['_seq'] instanceof Countable)) {
+                $length = count($context['_seq']);
+                $context['loop']['revindex0'] = $length - 1;
+                $context['loop']['revindex'] = $length;
+                $context['loop']['length'] = $length;
+                $context['loop']['last'] = 1 === $length;
+            }
+            foreach ($context['_seq'] as $context["key"] => $context["row"]) {
+                // line 28
+                echo "        ";
+                $context["indicator_classes"] = array(0 => (($this->getAttribute($context["loop"], "first", array())) ? ("active") : ("")));
+                // line 29
+                echo "        <li class=\"";
+                echo $this->env->getExtension('sandbox')->ensureToStringAllowed($this->env->getExtension('drupal_core')->escapeFilter($this->env, twig_join_filter((isset($context["indicator_classes"]) ? $context["indicator_classes"] : null), " "), "html", null, true));
+                echo "\" data-target=\"#";
+                echo $this->env->getExtension('sandbox')->ensureToStringAllowed($this->env->getExtension('drupal_core')->escapeFilter($this->env, (isset($context["id"]) ? $context["id"] : null), "html", null, true));
+                echo "\" data-slide-to=\"";
+                echo $this->env->getExtension('sandbox')->ensureToStringAllowed($this->env->getExtension('drupal_core')->escapeFilter($this->env, $context["key"], "html", null, true));
+                echo "\"></li>
+      ";
+                ++$context['loop']['index0'];
+                ++$context['loop']['index'];
+                $context['loop']['first'] = false;
+                if (isset($context['loop']['length'])) {
+                    --$context['loop']['revindex0'];
+                    --$context['loop']['revindex'];
+                    $context['loop']['last'] = 0 === $context['loop']['revindex0'];
+                }
+            }
+            $_parent = $context['_parent'];
+            unset($context['_seq'], $context['_iterated'], $context['key'], $context['row'], $context['_parent'], $context['loop']);
+            $context = array_intersect_key($context, $_parent) + $_parent;
+            // line 31
+            echo "    </ol>
+  ";
+        }
+        // line 33
+        echo "
+  ";
+        // line 35
+        echo "  <div class=\"carousel-inner\" role=\"listbox\">
+    ";
+        // line 36
+        $context['_parent'] = $context;
+        $context['_seq'] = twig_ensure_traversable((isset($context["rows"]) ? $context["rows"] : null));
+        $context['loop'] = array(
+          'parent' => $context['_parent'],
+          'index0' => 0,
+          'index'  => 1,
+          'first'  => true,
+        );
+        if (is_array($context['_seq']) || (is_object($context['_seq']) && $context['_seq'] instanceof Countable)) {
+            $length = count($context['_seq']);
+            $context['loop']['revindex0'] = $length - 1;
+            $context['loop']['revindex'] = $length;
+            $context['loop']['length'] = $length;
+            $context['loop']['last'] = 1 === $length;
+        }
+        foreach ($context['_seq'] as $context["_key"] => $context["row"]) {
+            // line 37
+            echo "      ";
+            $context["row_classes"] = array(0 => "item", 1 => (($this->getAttribute($context["loop"], "first", array())) ? ("active") : ("")));
+            // line 38
+            echo "      <div class=\"";
+            echo $this->env->getExtension('sandbox')->ensureToStringAllowed($this->env->getExtension('drupal_core')->escapeFilter($this->env, twig_join_filter((isset($context["row_classes"]) ? $context["row_classes"] : null), " "), "html", null, true));
+            echo "\">
+        ";
+            // line 39
+            echo $this->env->getExtension('sandbox')->ensureToStringAllowed($this->env->getExtension('drupal_core')->escapeFilter($this->env, $this->getAttribute($context["row"], "image", array()), "html", null, true));
+            echo "
+        ";
+            // line 40
+            if (($this->getAttribute($context["row"], "title", array()) || $this->getAttribute($context["row"], "description", array()))) {
+                // line 41
+                echo "          <div class=\"carousel-caption\">
+            ";
+                // line 42
+                if ($this->getAttribute($context["row"], "title", array())) {
+                    // line 43
+                    echo "              <h3>";
+                    echo $this->env->getExtension('sandbox')->ensureToStringAllowed($this->env->getExtension('drupal_core')->escapeFilter($this->env, $this->getAttribute($context["row"], "title", array()), "html", null, true));
+                    echo "</h3>
+            ";
+                }
+                // line 45
+                echo "            ";
+                if ($this->getAttribute($context["row"], "description", array())) {
+                    // line 46
+                    echo "              <p>";
+                    echo $this->env->getExtension('sandbox')->ensureToStringAllowed($this->env->getExtension('drupal_core')->escapeFilter($this->env, $this->getAttribute($context["row"], "description", array()), "html", null, true));
+                    echo "</p>
+            ";
+                }
+                // line 48
+                echo "          </div>
+        ";
+            }
+            // line 50
+            echo "      </div>
+    ";
+            ++$context['loop']['index0'];
+            ++$context['loop']['index'];
+            $context['loop']['first'] = false;
+            if (isset($context['loop']['length'])) {
+                --$context['loop']['revindex0'];
+                --$context['loop']['revindex'];
+                $context['loop']['last'] = 0 === $context['loop']['revindex0'];
+            }
+        }
+        $_parent = $context['_parent'];
+        unset($context['_seq'], $context['_iterated'], $context['_key'], $context['row'], $context['_parent'], $context['loop']);
+        $context = array_intersect_key($context, $_parent) + $_parent;
+        // line 52
+        echo "  </div>
+
+  ";
+        // line 55
+        echo "  ";
+        if ((isset($context["navigation"]) ? $context["navigation"] : null)) {
+            // line 56
+            echo "    <a class=\"left carousel-control\" href=\"#";
+            echo $this->env->getExtension('sandbox')->ensureToStringAllowed($this->env->getExtension('drupal_core')->escapeFilter($this->env, (isset($context["id"]) ? $context["id"] : null), "html", null, true));
+            echo "\" role=\"button\" data-slide=\"prev\">
+      <span class=\"glyphicon glyphicon-chevron-left\" aria-hidden=\"true\"></span>
+      <span class=\"sr-only\">";
+            // line 58
+            echo $this->env->getExtension('sandbox')->ensureToStringAllowed($this->env->getExtension('drupal_core')->renderVar(t("Previous")));
+            echo "</span>
+    </a>
+    <a class=\"right carousel-control\" href=\"#";
+            // line 60
+            echo $this->env->getExtension('sandbox')->ensureToStringAllowed($this->env->getExtension('drupal_core')->escapeFilter($this->env, (isset($context["id"]) ? $context["id"] : null), "html", null, true));
+            echo "\" role=\"button\" data-slide=\"next\">
+      <span class=\"glyphicon glyphicon-chevron-right\" aria-hidden=\"true\"></span>
+      <span class=\"sr-only\">";
+            // line 62
+            echo $this->env->getExtension('sandbox')->ensureToStringAllowed($this->env->getExtension('drupal_core')->renderVar(t("Next")));
+            echo "</span>
+    </a>
+  ";
+        }
+        // line 65
+        echo "</div>
+";
+        
+        $__internal_ee1b5c52168ca43f4c1e5c752cd959eb76a2ffa8c2b9b2ad6d390c27d25c60e9->leave($__internal_ee1b5c52168ca43f4c1e5c752cd959eb76a2ffa8c2b9b2ad6d390c27d25c60e9_prof);
+
+    }
+
+    public function getTemplateName()
+    {
+        return "modules/views_bootstrap/templates/views_bootstrap_carousel/views-bootstrap-carousel.html.twig";
+    }
+
+    public function isTraitable()
+    {
+        return false;
+    }
+
+    public function getDebugInfo()
+    {
+        return array (  214 => 65,  208 => 62,  203 => 60,  198 => 58,  192 => 56,  189 => 55,  185 => 52,  170 => 50,  166 => 48,  160 => 46,  157 => 45,  151 => 43,  149 => 42,  146 => 41,  144 => 40,  140 => 39,  135 => 38,  132 => 37,  115 => 36,  112 => 35,  109 => 33,  105 => 31,  84 => 29,  81 => 28,  64 => 27,  61 => 26,  58 => 25,  46 => 22,);
+    }
+}
+/* {#*/
+/* /***/
+/*  * @file*/
+/*  * Default theme implementation for displaying a view as a bootstrap carousel.*/
+/*  **/
+/*  * Available variables:*/
+/*  * - view: The view object.*/
+/*  * - rows: A list of the view's row items.*/
+/*  * - id: A valid HTML ID and guaranteed to be unique.*/
+/*  * - interval: The amount of time to delay between automatically cycling a*/
+/*  *   slide item. If false, carousel will not automatically cycle.*/
+/*  * - pause: Pauses the cycling of the carousel on mouseenter and*/
+/*  *   resumes the cycling of the carousel on mouseleave.*/
+/*  * - wrap: Whether the carousel should cycle continuously or have*/
+/*  *   hard stops.*/
+/*  **/
+/*  * @see template_preprocess_views_bootstrap_carousel()*/
+/*  **/
+/*  * @ingroup themeable*/
+/*  *//* */
+/* #}*/
+/* <div id="{{ id }}" class="carousel slide" data-ride="carousel" data-interval="{{ interval }}" data-pause="{{ pause }}" data-wrap="{{ wrap }}">*/
+/* */
+/*   {# Carousel indicators #}*/
+/*   {% if indicators %}*/
+/*     <ol class="carousel-indicators">*/
+/*       {% for key, row in rows %}*/
+/*         {% set indicator_classes = [loop.first ? 'active'] %}*/
+/*         <li class="{{ indicator_classes|join(' ') }}" data-target="#{{ id }}" data-slide-to="{{ key }}"></li>*/
+/*       {% endfor %}*/
+/*     </ol>*/
+/*   {% endif %}*/
+/* */
+/*   {# Carousel rows #}*/
+/*   <div class="carousel-inner" role="listbox">*/
+/*     {% for row in rows %}*/
+/*       {% set row_classes = ['item', loop.first ? 'active'] %}*/
+/*       <div class="{{ row_classes|join(' ') }}">*/
+/*         {{ row.image }}*/
+/*         {% if row.title or row.description %}*/
+/*           <div class="carousel-caption">*/
+/*             {% if row.title %}*/
+/*               <h3>{{ row.title }}</h3>*/
+/*             {% endif %}*/
+/*             {% if row.description %}*/
+/*               <p>{{ row.description }}</p>*/
+/*             {% endif %}*/
+/*           </div>*/
+/*         {% endif %}*/
+/*       </div>*/
+/*     {% endfor %}*/
+/*   </div>*/
+/* */
+/*   {# Carousel navigation #}*/
+/*   {% if navigation %}*/
+/*     <a class="left carousel-control" href="#{{ id }}" role="button" data-slide="prev">*/
+/*       <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>*/
+/*       <span class="sr-only">{{ 'Previous'|t }}</span>*/
+/*     </a>*/
+/*     <a class="right carousel-control" href="#{{ id }}" role="button" data-slide="next">*/
+/*       <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>*/
+/*       <span class="sr-only">{{ 'Next'|t }}</span>*/
+/*     </a>*/
+/*   {% endif %}*/
+/* </div>*/
+/* */
