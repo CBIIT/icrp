@@ -7,6 +7,8 @@ import { Component, OnInit, AfterViewInit } from '@angular/core';
 })
 export class SearchVisualizationComponent implements OnInit, AfterViewInit {
 
+  collapsed = true;
+
   projectsByCountry: any = {
     labels: [],
     datasets: []
@@ -31,11 +33,11 @@ export class SearchVisualizationComponent implements OnInit, AfterViewInit {
     projectsByCountry: {
       title: {
         display: true,
-        text: 'Number of projects by country'
+        text: 'Projects by country'
       },
 
       legend: {
-        position: 'bottom'
+        display: false
       }
 
     },
@@ -43,7 +45,7 @@ export class SearchVisualizationComponent implements OnInit, AfterViewInit {
     projectsByCategory: {
       title: {
         display: true,
-        text: 'Number of projects in each CSO category'
+        text: 'Projects by CSO category'
       },
 
       legend: {
@@ -59,7 +61,7 @@ export class SearchVisualizationComponent implements OnInit, AfterViewInit {
 
 
       legend: {
-        position: 'bottom'
+        display: false,
       }
     },
 
@@ -84,6 +86,10 @@ export class SearchVisualizationComponent implements OnInit, AfterViewInit {
   visualizationParameters = [
     1, 2, 3, 4
   ]
+
+  toggleCollapse() {
+    this.collapsed = !this.collapsed
+  }
 
 
   constructor() { }

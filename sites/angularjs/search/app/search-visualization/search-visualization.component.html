@@ -1,17 +1,57 @@
-<div class="chart-carousel">
-  <div class="chart-container">
+<div class="row">
+
+  <div class="col-md-4">
     <p-chart type="pie" [data]="projectsByCountry" [options]="options.projectsByCountry"></p-chart>
   </div>
 
-  <div class="chart-container">
-    <p-chart type="horizontalBar" [data]="projectsByCategory" [options]="options.projectsByCategory"></p-chart>
+  <div class="col-md-4">
+    <p-chart type="pie" [data]="projectsByCategory" [options]="options.projectsByCategory"></p-chart>
   </div>
 
-  <div class="chart-container">
+
+  <div class="col-md-4">
     <p-chart type="pie" [data]="topCancerSites" [options]="options.topCancerSites"></p-chart>
   </div>
+</div>
 
-  <div class="chart-container">
+
+<div class="row" [collapse]="collapsed" style="margin-top: 20px">
+
+  <div class="col-md-2"></div>
+
+  <div class="col-md-8">
     <p-chart type="line" [data]="fundingAmounts" [options]="options.fundingAmounts"></p-chart>
   </div>
+
+  <div class="col-md-2"></div>
+
 </div>
+
+<br>
+
+
+<div class="btn-wrapper">
+  <div class="btn-center"><hr></div>
+
+  <div class="btn-center">
+    <button class="btn btn-default btn-sm" (click)="collapsed = !collapsed">
+      Show {{collapsed ? "More" : "Less"}}
+    </button>
+  </div>
+
+  <div class="btn-center"><hr></div>
+</div>
+<!--
+
+<div class="text-center" style="margin-top: 20px">
+  <hr>
+  <button class="btn btn-default btn-sm" (click)="collapsed = !collapsed">
+    Show {{collapsed ? "More" : "Less"}}
+  </button>
+</div>
+
+
+
+mysqldump -uroot -p  --add-drop-table --comments --complete-insert --dump-date --verbose $DATABASE_NAME > icrp.sql
+
+-->

@@ -1,0 +1,7 @@
+services:
+  entity_notification.subscriber:
+    class: Drupal\entity_notification\EntitySubscriber
+    arguments: ['@config.factory', '@plugin.manager.mail']
+  entity_notification.mail:
+    class: Drupal\entity_notification\NotificationMail
+    arguments: ['@token']

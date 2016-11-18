@@ -1,0 +1,82 @@
+<?php
+
+/**
+ * @file
+ * Module to enable CSS dropdown and flyout menus.
+ *
+ * Maintainer: Addison Berry (add1sun)
+ * Originally written by Jake Gordon (jakeg)
+ */
+
+use Drupal\Core\Menu\MenuTreeParameters;
+
+/**
+ * Implements hook_help().
+ */
+function nice_menus_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    case 'admin/config/modules#description':
+      $output .= t('Make drop down/flyout CSS menus for site and admin menus.');
+      break;
+
+    case 'admin/config/user-interface/nice_menus':
+      $output .= t('<p>This is a simple module that enables the site to have drop down/flyout CSS menus for site and admin navigation.</p><p>Remember to activate and configure the menu blocks in !link</p>', array('!link' => l(t('admin/structure/block'), 'admin/structure/block')));
+      break;
+  }
+  return $output;
+}
+
+/**
+ * Implements hook_theme().
+ *
+ * @param $existing
+ * @param $type
+ * @param $theme
+ * @param $path
+ *
+ * @return array
+ */
+function nice_menus_theme($existing, $type, $theme, $path) {
+  return array(
+    'nice_menus' => array(
+      'template'  => 'nice_menus',
+      'variables' => array(
+        'menu_output' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * @param array $config
+ *
+ * @return mixed
+ */
+function nice_menus_build_tree(array $config) {
+  $menu_tree = \Drupal::service('toolbar.menu_tree');
+  $parameters = new MenuTreeParameters();
+
+  // set menu root.
+  if ($config['menu_mlid']) {
+    $parameters->setRoot($config['menu_mlid']);
+  }
+
+  // set menu depth.
+  if ($config['nice_menus_depth'] > 0) {
+    $parameters->setMaxDepth($config['nice_menus_depth']);
+  }
+
+  // TODO support nice_menus_respect_expand.
+
+  $parameters->excludeRoot()->onlyEnabledLinks();
+
+  $tree = $menu_tree->load($config['menu_name'], $parameters);
+  $manipulators = array(
+    array('callable' => 'menu.default_tree_manipulators:checkAccess'),
+    array('callable' => 'menu.default_tree_manipulators:generateIndexAndSort'),
+    array('callable' => 'toolbar_tools_menu_navigation_links'),
+  );
+  $tree = $menu_tree->transform($tree, $manipulators);
+  return $menu_tree->build($tree);
+}

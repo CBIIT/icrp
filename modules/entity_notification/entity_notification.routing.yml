@@ -1,0 +1,6 @@
+entity_notification.settings:
+  path: '/admin/config/content/entity-notification'
+  defaults:
+    _form: Drupal\entity_notification\Form\SettingsForm
+  requirements:
+    _permission: 'administer site configuration'
