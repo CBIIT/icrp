@@ -47,17 +47,14 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
 
   search(term) {
     this.onSearch.emit({
-      keywords: term,
-      year: 2015,
-      pageSize: 50
+      keywords: term.value,
+      page_size: 50
     })
   }
 
   ngAfterViewInit() {
    this.onSearch.emit({
-      keywords: 'cancer',
-      year: 2015,
-      pageSize: 50
+      page_size: 50
     })
   }
 
