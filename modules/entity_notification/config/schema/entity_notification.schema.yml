@@ -1,0 +1,19 @@
+entity_notification.settings:
+  type: config_object
+  mapping:
+    configuration:
+      type: sequence
+      sequence:
+        type: sequence
+        sequence:
+          type: mapping
+          mapping:
+            to:
+              type: string
+              label: To address
+            subject:
+              type: string
+              label: Mail subject
+            body:
+              type: string
+              label: Mail body

@@ -1,0 +1,31 @@
+faq.admin.categories:
+    title: 'Categories'
+    route_name: faq.faq-admin.categories
+    base_route: system.admin_config_content
+    weight: 10
+faq.admin.questions:
+    title: 'Questions'
+    route_name: faq.faq-admin.questions
+    base_route: system.admin_config_content
+    weight: 5
+faq.admin:
+    title: 'General'
+    route_name: faq.faq-admin
+    base_route: system.admin_config_content
+    weight: 0
+faq.faq-page:
+    title: 'List'
+    route_name: faq.faq-page
+    base_route: faq.faq-page
+faq.faq-order:
+    title: 'Order'
+    route_name: faq.faq-page.order
+    base_route: faq.faq-page
+faq.category-faq-page:
+    title: 'List'
+    route_name: faq.faq-page-category
+    base_route: faq.faq-page-category
+faq.category-faq-order:
+    title: 'Order'
+    route_name: faq.faq-page.order-category
+    base_route: faq.faq-page-category

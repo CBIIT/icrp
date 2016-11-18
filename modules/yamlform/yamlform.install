@@ -1,0 +1,201 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the YAML Form module.
+ */
+
+use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Render\Element;
+use Drupal\yamlform\Entity\YamlForm;
+use Drupal\yamlform\Plugin\YamlFormElement\ManagedFile;
+use Drupal\yamlform\Utility\YamlFormElementHelper;
+
+// Using require_once instead of module_load_include() to make sure all
+// update hooks are loaded even when a module is not fully installed.
+// @see https://www.drupal.org/node/2813333
+require_once 'includes/yamlform.update.inc';
+
+/**
+ * Implements hook_uninstall().
+ */
+function yamlform_uninstall() {
+  // Issue #2793597: uninstall error You have requested a non-existent service
+  // "yamlform.email_provider".
+  // Workaround: Don't use the yamlform.email_provider in hook_uninstall().
+  // @see \Drupal\yamlform\YamlFormEmailProvider::uninstall()
+  $config = \Drupal::configFactory()->getEditable('system.mail');
+  $mail_plugins = $config->get('interface');
+  unset($mail_plugins['yamlform']);
+  $config->set('interface', $mail_plugins)->save();
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function yamlform_requirements($phase) {
+  if ($phase != 'runtime') {
+    return [];
+  }
+
+  $requirements = [];
+
+  // Check HTML email handling.
+  /** @var \Drupal\yamlform\YamlFormEmailProviderInterface $email_provider */
+  $email_provider = \Drupal::service('yamlform.email_provider');
+  $email_provider->check();
+  if ($module = $email_provider->getModuleName()) {
+    $requirements['yamlform_email'] = [
+      'title' => t('YAML Form: HTML email support'),
+      'value' => t('Provided by the @module module', ['@module' => $module]),
+      'severity' => REQUIREMENT_OK,
+    ];
+  }
+  elseif ($mail_plugin_id = $email_provider->getModuleName()) {
+    $requirements['yamlform_email'] = [
+      'title' => t('YAML Form: HTML email support'),
+      'value' => t('Provided by @plugin_id mail plugin', ['@plugin_id' => $mail_plugin_id]),
+      'severity' => REQUIREMENT_OK,
+    ];
+  }
+  else {
+    $requirements['yamlform_email'] = [
+      'title' => t('YAML Form: HTML email support'),
+      'value' => t('Unable to determine email module and/o provider'),
+      'severity' => REQUIREMENT_ERROR,
+    ];
+  }
+
+  // Check private file upload.
+  $scheme_options = ManagedFile::getVisibleStreamWrappers();
+  if (isset($scheme_options['private'])) {
+    $requirements['yamlform_file_private'] = [
+      'title' => t('YAML Form: Private files'),
+      'value' => t('Private file system is set.'),
+    ];
+  }
+  else {
+    $requirements['yamlform_file_private'] = [
+      'title' => t('YAML Form: Private files'),
+      'value' => t('Private file system is not set.'),
+      'description' => t('This must be changed in <a href="https://www.drupal.org/documentation/modules/file">settings.php</a>. For more information see: <a href="https://www.drupal.org/psa-2016-003">DRUPAL-PSA-2016-003</a>'),
+      'severity' => REQUIREMENT_WARNING,
+    ];
+  }
+
+  // Check third party libraries status.
+  $requirements += _yamlform_libraries_requirements();
+
+  return $requirements;
+}
+
+/******************************************************************************/
+// Helper functions
+/******************************************************************************/
+
+/**
+ * Update form setting to reflect changes in the default settings.
+ *
+ * This function can be used to apply new form settings to all existing
+ * forms.
+ *
+ * @see \Drupal\yamlform\Entity\YamlForm::setSettings
+ */
+function _yamlform_update_settings() {
+  $default_settings = YamlForm::getDefaultSettings();
+  $config_factory = \Drupal::configFactory();
+  // Update 'yamlform.yamlform.*' configuration.
+  foreach ($config_factory->listAll('yamlform.yamlform.') as $yamlform_config_name) {
+    $yamlform_config = $config_factory->getEditable($yamlform_config_name);
+
+    // Get data.
+    $data = $yamlform_config->getRawData();
+
+    // Always apply the default settings.
+    $settings = $default_settings;
+    // Now apply custom settings.
+    foreach ($data['settings'] as $name => $value) {
+      $settings[$name] = $value;
+    }
+
+    // Set settings and save data.
+    $data['settings'] = $settings;
+    \Drupal::configFactory()->getEditable($yamlform_config_name)->setData($data)->save();
+  }
+}
+
+/******************************************************************************/
+// Update hooks: YAML Form 8.x-1.0-beta22+ - 8066+
+// All previous update hooks are archived in includes/yamlform.update.inc.
+/******************************************************************************/
+
+/**
+ * Issue #2825278: Add settings to suppress CDN warning on Status Report.
+ */
+function yamlform_update_8066(&$sandbox) {
+  // Update 'yamlform.settings' configuration.
+  $settings_config = \Drupal::configFactory()->getEditable('yamlform.settings');
+  $settings_config->set('library.cdn', FALSE);
+  $settings_config->save();
+}
+
+/**
+ * Issue #2825410: Allow forms labels to be translatable.
+ *
+ * @see \Drupal\config_translation\Form\ConfigTranslationFormBase::submitForm
+ */
+function yamlform_update_8067(&$sandbox) {
+  // Skip updates if the Configuration translation module is not enabled.
+  if (!\Drupal::moduleHandler()->moduleExists('config_translation')) {
+    return;
+  }
+
+  $language_manager = \Drupal::languageManager();
+
+  /** @var \Drupal\yamlform\YamlFormElementManagerInterface $element_manager */
+  $element_manager = \Drupal::service('plugin.manager.yamlform.element');
+
+  $languages = $language_manager->getLanguages();
+  unset($languages[$language_manager->getDefaultLanguage()->getId()]);
+
+  foreach ($languages as $langcode => $language) {
+    $config_factory = \Drupal::configFactory();
+    foreach ($config_factory->listAll('yamlform.yamlform.') as $yamlform_config_name) {
+      /** @var Drupal\language\Config\LanguageConfigOverride $config_translation */
+      $config_translation = $language_manager->getLanguageConfigOverride($langcode, $yamlform_config_name);
+      $config_elements = $config_translation->get('elements');
+      if (empty($config_elements)) {
+        continue;
+      }
+
+      // Flatten and get any array containging translatable properties.
+      // @see \Drupal\yamlform\YamlFormTranslationManager::getBaseElements()
+      $elements = Yaml::decode($config_elements);
+      $elements = YamlFormElementHelper::getFlattened($elements);
+      $translatable_properties = YamlFormElementHelper::addPrefix($element_manager->getTranslatableProperties());
+      foreach ($elements as $element_key => &$element) {
+        foreach ($element as $property_key => $property_value) {
+          $translatable_property_key = $property_key;
+          if (preg_match('/^.*__(.*)$/', $translatable_property_key, $match)) {
+            $translatable_property_key = '#' . $match[1];
+          }
+
+          if (in_array($translatable_property_key, ['#options', '#answers']) && is_string($property_value)) {
+            unset($element[$property_key]);
+          }
+          elseif (!isset($translatable_properties[$translatable_property_key])) {
+            unset($element[$property_key]);
+          }
+        }
+        if (empty($element)) {
+          unset($elements[$element_key]);
+        }
+      }
+
+      // DEBUG:
+      // drush_print($yamlform_config_name); drush_print($config_elements); drush_print(Yaml::encode($elements));
+      $config_translation->set('elements', Yaml::encode($elements))->save();
+    }
+  }
+}

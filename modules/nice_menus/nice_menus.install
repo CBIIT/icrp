@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * Update and install functions for Nice menus.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function nice_menus_uninstall() {
+  // Remove all the block configurations of the module.
+
+}

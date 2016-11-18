@@ -1,0 +1,5 @@
+entity_notification.settings:
+  title: 'Entity notification settings'
+  description: 'Configuration form for entity notifications'
+  route_name: entity_notification.settings
+  parent: system.admin_config_content
