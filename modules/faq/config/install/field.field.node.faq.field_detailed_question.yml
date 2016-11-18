@@ -1,0 +1,19 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_detailed_question
+    - node.type.faq
+id: node.faq.field_detailed_question
+label: 'Detailed Question'
+field_name: field_detailed_question
+entity_type: node
+bundle: faq
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_function: ''
+settings:
+  text_processing: '0'
+field_type: text_long

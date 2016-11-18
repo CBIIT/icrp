@@ -1,0 +1,117 @@
+{#
+/**
+ * @file
+ * Template file for the FAQ page if set to show/hide categorized answers when
+ * the question is clicked.
+ * 
+ * Available variables:
+ * - display_header: Boolean value controlling whether a header should be displayed.
+ * - header_title: The category title.
+ * - category_depth: The term or category depth.
+ * - description: The current page's description.
+ * - term_image: The HTML for the category image. This is empty if the taxonomy image module
+ *   is not enabled or there is no image associated with the term.
+ * - display_faq_count: Boolean value controlling whether or not the number of faqs in a category
+ *   should be displayed.
+ * - question_count: The number of questions in category.
+ * - nodes: An array of nodes to be displayed.
+ *   Each node stored in the $nodes array has the following information
+ *   - question: The question text.
+ *   - body: The answer text.
+ *   - links: Represents the node links, e.g. "Read more".
+ * - use_teaser: Whether node.body contains the full body or just the teaser text.
+ * - container_class: The class attribute of the element containing the sub-categories, either
+ *   'faq-qa' or 'faq-qa-hide'. This is used by javascript to open/hide
+ *   a category's faqs.
+ * - subcat_list: An array of sub-categories.  Each sub-category stored in the $subcat_list
+ *   array has the following information:
+ *   - link: The link to the sub-category.
+ *   - description: The sub-category description.
+ *   - count: The number of questions in the sub-category.
+ *   - term_image: The sub-category (taxonomy) image.
+ * - subcat_list_style: The style of the sub-category list, either ol or ul (ordered or unordered).
+ * - subcat_body_list: The sub-categories faqs, recursively themed (by this template).
+ * 
+ * @see template_preprocess_faq_category_hide_answer()
+ * 
+ * @ingroup themable
+ */
+#}
+
+{% if category_depth > 0 %}
+    {% set hdr = 'h4' %}
+{% else %}
+    {% set hdr = 'h3' %}
+{% endif %}
+
+<div class="faq-category-group">
+    <!-- category header with title, link, image, description, and count of questions inside -->
+    <div class="faq-qa-header">
+        {% if display_header %}
+            <{{ hdr }} class="faq-header">
+                {{ term_image }}
+                {{ header_title }}
+                {% if display_faq_count %}
+                  ({{ question_count }})
+                {% endif %}
+            </{{ hdr }}>
+        {% else %}
+            {{ term_image }}
+        {% endif %}
+        
+        {% if description is not empty %}
+            <div class="faq-qa-description">{{ description }}</div>
+        {% endif %}
+        {% if term_image is not empty %}
+            <div class="clear-block"></div>
+        {% endif %}
+    </div><!-- Close div: faq-qa-header -->
+    
+    {% if subcat_list is not empty %}
+        <!-- list subcategories, with title, link, description, count -->
+        <div class="item-list">
+            <{{ subcat_list_style }} class="faq-category-list">
+            {% for subcat in subcat_list %}
+                <li>
+                    {{ subcat.link }}
+                    {% if display_faq_count %}
+                        ({{ subcat.count }})
+                    {% endif %}
+                    {% if subcat.description is not empty %}
+                        <div class="faq-qa-description">{{ subcat.description }}</div>
+                    {% endif %}
+                    <div class="clear-block"></div>
+                </li>
+            {% endfor %}
+            </{{ subcat_list_style }}>
+        </div><!-- Close div: item-list -->
+    {% endif %}
+    
+    <div class="{{ container_class }}">
+        <!-- include subcategories -->
+        {% if subcat_body_list|length > 0 %}
+        {% for subcat_html in subcat_body_list %}
+            <div class="faq-category-indent">{{ subcat_html }}</div>
+        {% endfor %}
+        {% endif %}
+        
+        <!-- list questions (in title link) and answers (in body) -->
+        <div class="faq-dl-hide-answer">
+            {% if nodes|length > 0 %}
+            {% for node in nodes %}
+                <div class="faq-question-answer">
+                    <div class="faq-question faq-dt-hide-answer">
+                        {{ node.question }}
+                    </div><!-- Close div: faq-question faq-dt-hide-answer -->
+                    <div class="faq-answer faq-dd-hide-answer">
+                        {{ node.body }}
+                        {% if node.links is defined %}
+                            {{ node.links }}
+                        {% endif %}
+                    </div><!-- Close div: faq-answer faq-dd-hide-answer -->
+                </div><!-- Close div: faq-question-answer -->
+            {% endfor %}
+            {% endif %}
+        </div><!-- Close div: faq-dl-hide-answer -->
+    </div><!-- Close div: faq-qa / faq-qa-hide -->
+</div><!-- Close div: faq-category-group -->

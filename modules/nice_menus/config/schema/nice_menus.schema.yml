@@ -1,0 +1,16 @@
+nice_menus.settings:
+  type: mapping
+  label: Settings
+  mapping:
+    nice_menus_number:
+      type: string
+    nice_menus_js:
+      type: integer
+    nice_menus_sf_delay:
+      type: integer
+    nice_menus_sf_speed:
+      type: string
+    nice_menus_ie:
+      type: integer
+    nice_menus_custom_css:
+      type: integer
