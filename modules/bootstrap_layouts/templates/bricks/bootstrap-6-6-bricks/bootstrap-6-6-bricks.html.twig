@@ -1,0 +1,43 @@
+<div class="row">
+  {% if content.top %}
+  <div class="col-sm-12">
+    {{ content.top }}
+  </div>
+  {% endif %}
+
+  {% if content.upper_left %}
+  <div class="col-sm-6">
+    {{ content.upper_left }}
+  </div>
+  {% endif %}
+
+  {% if content.upper_right %}
+  <div class="col-sm-6">
+    {{ content.upper_right }}
+  </div>
+  {% endif %}
+
+  {% if content.middle %}
+  <div class="col-sm-12">
+    {{ content.middle }}
+  </div>
+  {% endif %}
+
+  {% if content.lower_left %}
+  <div class="col-sm-6">
+    {{ content.lower_left }}
+  </div>
+  {% endif %}
+
+  {% if content.lower_right %}
+  <div class="col-sm-6">
+    {{ content.lower_right }}
+  </div>
+  {% endif %}
+
+  {% if content.bottom %}
+  <div class="col-sm-12">
+    {{ content.bottom }}
+  </div>
+  {% endif %}
+</div>
