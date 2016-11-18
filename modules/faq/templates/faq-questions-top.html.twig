@@ -1,0 +1,48 @@
+{#
+/**
+ * @file
+ * Template file for the FAQ page if set to show the questions 
+ * in a list at the top
+ * 
+ * Available variables:
+ * - questions_list: Pre-formatted list of questions.
+ * - questions: An array of questions to use for producing the question list at the top.
+ * - answers: An array of answers to use for producing the main body of text.
+ *   - question: The question text.
+ *   - body: The answer text.
+ *   - links: Represents the node links, e.g. "Read more".
+ * - use_teaser: Is true if $answer['body'] is a teaser.
+ * - list_style: Represents the style of list, ul for unordered, ol for ordered.
+ * - question_label: The question label, intended to be pre-pended to the question text.
+ * - answer_label: The answer label, intended to be pre-pended to the answer text.
+ * - limit: Represents the number of items.
+ * 
+ * @see template_preprocess_faq_questions_top()
+ * 
+ * @ingroup themable
+ */
+#}
+
+<a id="top"></a>
+
+{{ questions_list }}
+<br />
+{% for item in answers|slice(0, limit) %}
+    <div class="faq-question">
+        {% if question_label is not empty %}
+            <strong class="faq-question-label">
+                {{ question_label }}
+            </strong>
+        {% endif %}
+        {{ item.question }}
+    </div>
+    <div class="faq-answer">
+        {% if answer_label is not empty %}
+            <strong class="faq-answer-label">
+                {{ answer_label }}
+            </strong>
+        {% endif %}
+        {{ item.body }}
+        {{ item.links }}
+    </div>
+{% endfor %}

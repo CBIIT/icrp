@@ -1,0 +1,40 @@
+<?php
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\entity_notification\NotificationMail;
+
+/**
+ * Implements hook_entity_insert().
+ */
+function entity_notification_entity_insert(EntityInterface $entity) {
+  /** @var \Drupal\entity_notification\EntitySubscriber $subscriber */
+  $subscriber = \Drupal::service('entity_notification.subscriber');
+  $subscriber->onCreate($entity);
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function entity_notification_entity_update(EntityInterface $entity) {
+  /** @var \Drupal\entity_notification\EntitySubscriber $subscriber */
+  $subscriber = \Drupal::service('entity_notification.subscriber');
+  $subscriber->onUpdate($entity);
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function entity_notification_entity_delete(EntityInterface $entity) {
+  /** @var \Drupal\entity_notification\EntitySubscriber $subscriber */
+  $subscriber = \Drupal::service('entity_notification.subscriber');
+  $subscriber->onDelete($entity);
+}
+
+/**
+ * Implements hook_mail().
+ */
+function entity_notification_mail($key, &$message, $params) {
+  /** @var \Drupal\entity_notification\NotificationMail $mail */
+  $mail = \Drupal::service('entity_notification.mail');
+  $mail->mail($key, $message, $params);
+}

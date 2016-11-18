@@ -1,0 +1,47 @@
+{#
+/**
+ * @file
+ * Template file for the FAQ page if set to show the questions inline.
+ * 
+ * Available variables:
+ * - nodes: The array of nodes to be displayed. Each node stored in the $nodes array has the following information:
+ *   - question: The question text.
+ *   - body: The answer text.
+ *   - links: Represents the node links, e.g. "Read more".
+ * - question_label: The question label, intended to be pre-pended to the question text.
+ * - answer_label: The answer label, intended to be pre-pended to the answer text.
+ * - use_teaser: Tells whether $node['body'] contains the full body or just the teaser
+ * 
+ * @see template_preprocess_faq_questions_inline()
+ * 
+ * @ingroup themable
+ */
+#}
+
+<a id="top"></a>
+<div>
+{% if nodes|length > 0 %}
+    {% for node in nodes %}
+        <br />
+        <div class="faq-question">
+            {% if question_label is not empty %}
+                <strong>
+                    {{ question_label }}
+                </strong>
+            {% endif %}
+            {{ node.question }}
+        </div><!-- Close div: faq-question -->
+        <div class="faq-answer">
+            {% if answer_label is not empty %}
+                <strong>
+                    {{ answer_label }}
+                </strong>
+            {% endif %}
+            {{ node.body }}
+            {% if node.links is defined %}
+                {{ node.links }}
+            {% endif %}
+        </div><!-- Close div: faq-answer -->
+    {% endfor %}
+{% endif %}
+</div><!-- Close div -->

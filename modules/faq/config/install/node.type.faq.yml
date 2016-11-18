@@ -1,0 +1,21 @@
+type: faq
+name: FAQ
+description: 'A frequently asked question and its answer.'
+help: ''
+has_title: true
+title_label: Question
+settings:
+  node:
+    options:
+      status: true
+      promote: false
+      sticky: false
+      revision: false
+    preview: true
+    submitted: true
+status: true
+langcode: en
+new_revision: true
+preview_mode: 1
+display_submitted: true
+dependencies: {  }

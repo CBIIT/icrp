@@ -1,0 +1,31 @@
+jquery.hoverIntent:
+  version: 1.8.0
+  js:
+    libraries/js/jquery.hoverIntent.js: {}
+  dependencies:
+    - core/jquery
+
+superfish:
+  version: 1.7.9
+  js:
+    libraries/js/superfish.js: {}
+  dependencies:
+    - core/jquery
+    - nice_menus/jquery.bgiframe
+    - nice_menus/jquery.hoverIntent
+
+nice_menus:
+  version: 1.0
+  css:
+    theme:
+      libraries/css/nice_menus.css: {}
+  js:
+    libraries/js/nice_menus.js: {}
+  dependencies:
+    - core/jquery
+    - nice_menus/superfish
+
+nice_menus_default:
+  css:
+    theme:
+      libraries/css/nice_menus_default.css: {}

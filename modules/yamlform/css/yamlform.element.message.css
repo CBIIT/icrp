@@ -1,0 +1,12 @@
+/**
+ * @file
+ * Messages element styles.
+ */
+
+.messages {
+  box-shadow: -8px 0 0 #3b3b3b; /* LTR */
+}
+[dir="rtl"] .messages {
+  box-shadow: 8px 0 0 #3b3b3b;
+  margin-left: 0;
+}

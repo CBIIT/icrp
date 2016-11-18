@@ -1,7 +1,13 @@
 label {
-    color: #444;
+    color: #555;
     font-size: 12px;
+    font-weight: bold;
 }
+
+.radio label {
+  font-weight: normal;
+}
+
 
 .radio {
     margin-top: 0px;
@@ -10,6 +16,12 @@ label {
 
 .inline-label {
     margin-top: 7px;
+}
+
+.panel-heading {
+  font-size: 14px;
+  font-weight: normal;
+
 }
 
 .input-sm {

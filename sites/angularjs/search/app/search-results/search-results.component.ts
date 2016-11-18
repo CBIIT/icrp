@@ -18,7 +18,7 @@ export class SearchResultsComponent implements OnInit {
   }
 
   summaryMessage: string  
-  message = 'The default search is shown (all awards, all years). Use the search boxes on the left or the dashboard below to refine your search.'
+  message = 'The default search is shown (all awards, all years). Use the search form on the left or the dashboard below to refine your search.'
   showMessage = true;
 
   constructor() {

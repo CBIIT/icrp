@@ -1,0 +1,15 @@
+name: 'Nice Menus'
+description: 'CSS/jQuery drop-down, drop-right and drop-left menus to be placed in blocks.'
+package: 'User interface'
+# core: 8.x
+type: module
+configure: admin/config/user-interface/nice_menus
+
+dependencies:
+ - drupal:menu_link_content
+
+# Information added by Drupal.org packaging script on 2016-10-23
+version: '8.x-1.0-beta1'
+core: '8.x'
+project: 'nice_menus'
+datestamp: 1477198447

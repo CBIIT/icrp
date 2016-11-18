@@ -28,6 +28,13 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
    "countries": string[],
    "states": string[]
  }
+  
+ hiddenSections = {
+   institution: false,
+   fundingOrg: true,
+   cancerAndProjectType: true,
+   csoArea: true,
+ }
 
  constructor() {
     this.onSearch = new EventEmitter();

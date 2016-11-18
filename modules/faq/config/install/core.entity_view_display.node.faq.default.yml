@@ -1,0 +1,39 @@
+langcode: en
+status: true
+dependencies:
+  entity:
+    - field.instance.node.faq.body
+    - field.instance.node.faq.field_detailed_question
+    - node.type.faq
+  module:
+    - path
+    - text
+id: node.faq.default
+targetEntityType: node
+bundle: faq
+mode: default
+content:
+  title:
+    type: string
+    weight: 0
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_detailed_question:
+    type: text_default
+    weight: 2
+    settings: {  }
+    third_party_settings: {  }
+  path:
+    type: path
+    weight: 2
+    settings: {  }
+    third_party_settings: {  }
+  body:
+    type: text_default
+    weight: 0
+    settings: {  }
+    third_party_settings: {  }
+    label: hidden
+hidden: {  }
