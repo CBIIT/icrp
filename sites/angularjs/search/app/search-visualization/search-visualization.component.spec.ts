@@ -1,11 +1,28 @@
 /* tslint:disable:no-unused-variable */
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { DebugElement } from '@angular/core';
 
-import { TestBed, async } from '@angular/core/testing';
 import { SearchVisualizationComponent } from './search-visualization.component';
 
-describe('Component: SearchVisualization', () => {
-  it('should create an instance', () => {
-    let component = new SearchVisualizationComponent();
+describe('SearchVisualizationComponent', () => {
+  let component: SearchVisualizationComponent;
+  let fixture: ComponentFixture<SearchVisualizationComponent>;
+
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [ SearchVisualizationComponent ]
+    })
+    .compileComponents();
+  }));
+
+  beforeEach(() => {
+    fixture = TestBed.createComponent(SearchVisualizationComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 });

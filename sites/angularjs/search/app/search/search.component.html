@@ -1,10 +1,9 @@
-<div class="container-fluid">
-  <div class="col-md-3">
+<div class="ui stackable grid">
+  <div class="four wide column">
     <app-search-form (onSearch)="handleSearch($event)"></app-search-form>
   </div>
 
-  <div class="col-md-9" style="min-height: 800px">
-    <app-search-results [results]="searchResults"></app-search-results>
-    <div class="loading" *ngIf="loading"></div>
+  <div class="twelve wide column">
+    <app-search-results [results]="searchResults" [message]="summaryMessage"></app-search-results>
   </div>
 </div>

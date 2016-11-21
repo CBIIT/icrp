@@ -1,44 +1,38 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { FormsModule, ReactiveFormsModule  } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
-import { SearchFormComponent } from './search-form/search-form.component';
 import { SearchComponent } from './search/search.component';
+import { SearchFormComponent } from './search-form/search-form.component';
 import { SearchResultsComponent } from './search-results/search-results.component';
 import { SearchVisualizationComponent } from './search-visualization/search-visualization.component';
 
-import { SelectModule } from 'ng2-select/ng2-select';
-import { TooltipModule } from 'ng2-bootstrap/components/tooltip';
-import { CollapseModule } from 'ng2-bootstrap/components/collapse';
-import { AccordionModule } from 'ng2-bootstrap/components/accordion';
+import { NgSemanticModule } from 'ng-semantic';
+import { ChartModule, DataTableModule, PaginatorModule, SharedModule  } from 'primeng/primeng';
 
-import { DataTableModule, PaginatorModule, SharedModule, ChartModule, CarouselModule } from 'primeng/primeng';
 
 @NgModule({
   declarations: [
     AppComponent,
-    SearchFormComponent,
     SearchComponent,
+    SearchFormComponent,
     SearchResultsComponent,
-    SearchVisualizationComponent,
-    
+    SearchVisualizationComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
+    ReactiveFormsModule,
     HttpModule,
-    SelectModule,
-    TooltipModule,
-    CollapseModule,
-    AccordionModule,
-    SharedModule,
+    NgSemanticModule,
+    ChartModule,
     DataTableModule,
     PaginatorModule,
-    ChartModule,
-    CarouselModule
+    SharedModule
   ],
+  schemas: [ CUSTOM_ELEMENTS_SCHEMA ],
   providers: [],
   bootstrap: [AppComponent]
 })

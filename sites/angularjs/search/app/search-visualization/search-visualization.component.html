@@ -1,3 +1,51 @@
+
+
+<div class="ui stackable grid">
+  <div class="three column row">
+    <div class="column">
+      <p-chart type="pie" [data]="projectsByCountry" [options]="options.projectsByCountry"></p-chart>
+    </div>
+
+    <div class="column">
+      <p-chart type="pie" [data]="projectsByCategory" [options]="options.projectsByCategory"></p-chart>
+    </div>
+    <div class="column">
+      <p-chart type="pie" [data]="cancerSites" [options]="options.cancerSites"></p-chart>
+    </div>
+  </div>
+</div>
+
+<div class="ui stackable grid" *ngIf="!collapsed">
+  <div class="four wide column"></div>
+  <div class="eight wide column">
+    <p-chart type="line" [data]="projectsByYear" [options]="options.projectsByYear"></p-chart>
+  </div>
+  <div class="four wide column"></div>
+</div>
+
+<br>
+
+<div style="text-align: center">
+    <button class="ui small basic button" (click)="collapsed = !collapsed">
+      Show {{collapsed ? "More" : "Less"}}
+    </button>
+</div>
+
+
+<br>
+
+<!--
+
+<div class="btn-wrapper">
+  <div class="btn-center"><hr></div>
+
+  <div class="btn-center">
+
+  </div>
+
+  <div class="btn-center"><hr></div>
+</div>
+
 <div class="row">
 
   <div class="col-md-4">
@@ -41,17 +89,5 @@
 
   <div class="btn-center"><hr></div>
 </div>
-<!--
-
-<div class="text-center" style="margin-top: 20px">
-  <hr>
-  <button class="btn btn-default btn-sm" (click)="collapsed = !collapsed">
-    Show {{collapsed ? "More" : "Less"}}
-  </button>
-</div>
-
-
-
-mysqldump -uroot -p  --add-drop-table --comments --complete-insert --dump-date --verbose $DATABASE_NAME > icrp.sql
 
 -->

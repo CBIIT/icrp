@@ -3,7 +3,6 @@ import { Http, Response, Headers } from '@angular/http';
 import { Observable } from 'rxjs';
 import 'rxjs/add/operator/map';
 
-
 @Component({
   selector: 'app-search',
   templateUrl: './search.component.html',
@@ -11,15 +10,52 @@ import 'rxjs/add/operator/map';
 })
 export class SearchComponent implements OnInit {
   loading: boolean;
-  searchResults: Object; 
-  displayHeaders = ['Title', 'Principal Investigator', 'Institution', 'City', 'State', 'Ctry.', 'Funding Org.', 'Award Code']
+  searchResults: any;
+  summaryMessage: string;
 
+  queryMap = {
+    'keywords': 'Key Words',
+    'institution': 'Institution',
+    'piFirstName': 'First Name',
+    'piLastName': 'Last Name',
+    'city': 'Cities',
+    'state': 'States/Territories',
+    'country': 'Country'
+  }
+  
   constructor(public http: Http) {
     this.searchResults = null;
     this.loading = true;
   }
 
+  ngOnInit() {
+  }
+
   handleSearch(query: Object) {
+
+    for (var key in query) {
+      if (!query[key])
+        delete query[key];
+    }
+
+    if (Object.keys(query).length == 1) {
+      this.summaryMessage = 'The default search is shown (all awards, all years). Use the search form on the left or the dashboard below to refine your search.'
+    } else {
+      this.summaryMessage = 'The following filters were applied to the search: ';
+
+      for (var key in query) {
+
+        if (key != 'page_size') {
+          this.summaryMessage += '<br>'
+
+          this.summaryMessage += "<b>" + this.queryMap[key] + "</b>: " + query[key]
+          
+        }       
+
+      }
+
+    }
+
 
     this.loading = true;
     const endpoint = window.location.protocol + '//' + window.location.hostname + ':9000/search/';
@@ -33,9 +69,8 @@ export class SearchComponent implements OnInit {
         data => {
           this.loading = false;
 
-          this.searchResults = {
-            headers: this.displayHeaders,
-            data: data.map(function (line) {
+          this.searchResults =
+            data.map(function (line) {
               return {
                 title: line[1],
                 pi: [line[3], line[4]].join(', '),
@@ -47,15 +82,10 @@ export class SearchComponent implements OnInit {
                 awardCode: line[2],
               }
             })
-          }
         },
         error => console.error(error),
         () => console.log('done')
     );
-  }
-
-
-  ngOnInit() {
   }
 
 }
