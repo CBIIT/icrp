@@ -1,0 +1,29 @@
+/* CSO Page */
+#cso-document-container {
+  height: 700px;
+  overflow: auto;
+  border: 2px solid #dddddd;
+  margin-top:15px;
+  margin-bottom:15px;
+}
+div#cso-document-container > div > h2 {
+    color:DarkBlue;
+    font-size:18px;
+}
+div#cso-document-container > div > h1 {
+    color:DarkBlue;
+    font-size:24px;
+    font-weight: bold;
+}
+#cso-container > div > div > button {
+  width:210px;
+  margin-top:5px;
+}
+.nav-pills > li > a {
+    margin-right: 15px;
+}
+.btn-example {
+  /*background-color: LightGrey; */
+  color: LightGrey;
+  margin-left: 5px;
+}
