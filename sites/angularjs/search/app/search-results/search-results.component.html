@@ -1,38 +1,38 @@
 <h4>Search Results</h4>
-<p *ngIf="showMessage">{{ message }}</p>
 
-<div *ngIf="summaryMessage">
-  {{ summaryMessage }}
+<div [innerHTML]="message">
 </div>
 
 <br>
+
 <app-search-visualization></app-search-visualization>
-<br>
-<br>
 
-<div class="clearfix" *ngIf="results && results.data">
-
-  <span class="pull-left">
-    <button class="btn btn-xs btn-default">
-      <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span>
-      Email results
+<div class="ui grid" *ngIf="results">
+  <div class="eight wide column">
+    <button class="ui mini basic button">
+      <i class="icon mail"></i>
+      Email Results
     </button>
-    <button class="btn btn-xs btn-default">
-      <span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+
+    <button class="ui mini basic button">
+      <i class="icon download"></i>
       Export to Excel
     </button>
-  </span>
+  </div>
 
-  <p-paginator 
-    rows="25"
-    totalRecords="100" 
-    [rowsPerPageOptions]="[25, 50, 100]" 
-    (onPageChange)="paginate($event)">
-  </p-paginator>
+  <div class="eight wide column" style="text-align: right">
+    <p-paginator 
+      rows="25"
+      totalRecords="100" 
+      [rowsPerPageOptions]="[25, 50, 100]" 
+      (onPageChange)="paginate($event)">
+    </p-paginator>
+  </div>
 </div>
 
-<div class="table-responsive" *ngIf="results && results.data">
-  <p-dataTable [value]="results.data" [rows]="table.numRows">
+<div *ngIf="results" style="overflow-x: auto">
+
+  <p-dataTable [value]="results" [rows]="25">
       <p-column field="title" header="Project Title" [sortable]="true" ></p-column>
       <p-column field="pi" header="Principal Investigator" [sortable]="true" ></p-column>
       <p-column field="institution" header="Institution" [sortable]="true" ></p-column>
@@ -42,12 +42,4 @@
       <p-column field="fundingOrg" header="Funding Organization" [sortable]="true" ></p-column>
       <p-column field="awardCode" header="Award Code" [sortable]="true" ></p-column>
   </p-dataTable>
-</div>
-
-<div class="clearfix">
-  
-  <br>
-
-
-
 </div>

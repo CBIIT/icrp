@@ -7,32 +7,13 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 export class SearchResultsComponent implements OnInit {
 
-  @Input() results = {
-      headers: null,
-      data: null
-  }
-  
+  @Input() results: any[];
+  @Input() message: string;
 
-  table = {
-    numRows: 25
-  }
+  constructor() { }
 
-  summaryMessage: string  
-  message = 'The default search is shown (all awards, all years). Use the search form on the left or the dashboard below to refine your search.'
-  showMessage = true;
+  paginate(event: any) {
 
-  constructor() {
-    this.generateSummary()
-
-  }
-
-  paginate(event) {
-    console.log('paginating')
-    console.log(event);
-  }
-
-  generateSummary() {
-    this.summaryMessage = 'Summary message placeholder'
   }
 
   ngOnInit() {
