@@ -82,3 +82,28 @@ sm-checkbox > div {
     color: #555 !important;
     
 }
+
+.ui-widget-header {
+    border: none !important;
+    background-color: white !important;
+
+}
+
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default, .ui-button, html .ui-button.ui-state-disabled:hover, html .ui-button.ui-state-disabled:active {
+    background-color: white !important;
+    border: none !important;
+
+}
+
+a.ui-paginator-page.ui-paginator-element.ui-state-default.ui-corner-all.ui-state-active {
+    background-color: #1e77ba !important;
+    color: white !important;
+}
+
+p-datatable > div > div > table > thead > tr > th {
+    color: white !important;
+}
+
+.ui-datatable-tablewrapper > table > thead > tr > th {
+    color: white !important;
+}
