@@ -1,11 +1,26 @@
 /* You can add global styles to this file, and also import other style files */
 
-.ui.form .field>label {
-    color: #666 !important;
+sm-accordion .title {
+    background-color: #F2F2F2 !important;
+}
+
+sm-accordion .title:hover {
+    background-color: #F5F5F5 !important;
 }
 
 
+sm-checkbox > div {
+    margin: 0 !important;
+    margin-bottom: 3px !important;
+    margin-top: 3px !important;
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
+    margin-right: 5px !important;
+}
 
+.ui.form .field>label {
+    color: #666 !important;
+}
 
 .ui-datatable-tablewrapper > table {
     border: 1px solid #EFEFEF;

@@ -1,0 +1,8 @@
+.less-padding {
+    display: inline-block;
+    margin: 0 !important;
+    margin-bottom: 0;
+    margin-top: 0;
+    padding-bottom: 0;
+    padding-top: 0;
+}

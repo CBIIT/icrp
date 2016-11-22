@@ -16,8 +16,9 @@ export class SearchComponent implements OnInit {
   queryMap = {
     'keywords': 'Key Words',
     'institution': 'Institution',
-    'piFirstName': 'First Name',
-    'piLastName': 'Last Name',
+    'pi_first_name': 'First Name',
+    'pi_last_name': 'Last Name',
+    'pi_orcid': 'ORCiD',
     'city': 'Cities',
     'state': 'States/Territories',
     'country': 'Country'
@@ -31,7 +32,7 @@ export class SearchComponent implements OnInit {
   ngOnInit() {
   }
 
-  handleSearch(query: Object) {
+  handleSearch(query: any) {
 
     for (var key in query) {
       if (!query[key])
@@ -41,18 +42,21 @@ export class SearchComponent implements OnInit {
     if (Object.keys(query).length == 1) {
       this.summaryMessage = 'The default search is shown (all awards, all years). Use the search form on the left or the dashboard below to refine your search.'
     } else {
-      this.summaryMessage = 'The following filters were applied to the search: ';
-
+        this.summaryMessage = '';
+      
+      if (query.keywords)
+        this.summaryMessage = '<b>Search Terms</b>: ' + query.keywords + '<br>';
+      
+      let filters = [];
+      
       for (var key in query) {
-
-        if (key != 'page_size') {
-          this.summaryMessage += '<br>'
-
-          this.summaryMessage += "<b>" + this.queryMap[key] + "</b>: " + query[key]
-          
-        }       
-
+        if (key != 'page_size' && key != 'keywords') {
+          filters.push("<b>" + (this.queryMap[key] || key) + "</b>: (" + query[key] + ")")
+        }
       }
+
+      if (filters.length)
+        this.summaryMessage += filters.join(', ')
 
     }
 
