@@ -32,7 +32,6 @@ xmlrpc.php
 /misc
 /profiles
 /scripts
-/themes
 
 #These showed up with php Storm
 ../.idea/
