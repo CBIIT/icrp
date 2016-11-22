@@ -1,0 +1,31 @@
+<?php
+/**
+ * @file
+ * Bootstrap sub-theme.
+ *
+ * Place your custom PHP code in this file.
+ */
+/**
+ * Implements hook_theme_suggestions_HOOK_alter() for block templates.
+ */
+//drupal_set_message("Hello bootstrap sub-theme");
+
+//drupal_set_message("So how often does this happen?");
+//kint("Hello");
+
+function bootstrap_subtheme_suggestions_block_alter(array &$suggestions, array $variables) {
+
+    $block_id = $variables['elements']['#id'];
+    kint($block_id);
+    /* Uncomment the line below to see variables you can use to target a block */
+    // print $block_id . '<br/>';
+
+    /* Add classes based on the block id. */
+    drupal_set_message("Hello");
+    switch ($block_id) {
+        /* Account Menu block */
+        case 'account_menu':
+            $suggestions[] = 'block__fancy';
+            break;
+    }
+}
