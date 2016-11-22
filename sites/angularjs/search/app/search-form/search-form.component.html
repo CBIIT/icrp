@@ -1,39 +1,33 @@
 
 
 <form class="ui form" [formGroup]="form">
-  <div style="text-align: right; margin-bottom: 10px; margin-right: -3px;">
-      <sm-button class="small normal">Clear</sm-button>
-      <sm-button class="small primary" (click)="submit()">Search</sm-button>
-  </div>
-
   <sm-accordion class="styled" [options]="{ exclusive: false, animateChildren: false }">
       <sm-accordion-item class="active">
-          <accordion-title>Search Terms</accordion-title>
+          <accordion-title >Search Terms</accordion-title>
           <accordion-content>
-            <div style="border-top: 1px solid #EEE; margin-bottom: 15px;"></div>
-            
+
             <div smDirTooltip="Search by project title (todo: full-text search)" >
               <sm-input icon="search" class="left" placeholder="Enter search terms" [control]="form.controls.search_keywords" ></sm-input>
             </div>
 
             <div class="field">
               <div class="grouped fields">
-                <div smDirTooltip="Return awards that contain any of the provided keywords." smDirPosition="right center" style="display: inline-block">
+                <div smDirTooltip="Return awards that contain any of the provided keywords." smDirPosition="right center" class="less-padding">
                   <sm-checkbox label="Any of the words" [control]="form.controls.search_filter" type="radio" name="filter" value="any"></sm-checkbox>
                 </div>
                 <br>
 
-                <div smDirTooltip="Return awards that do not contain any of the provided keywords." smDirPosition="right center" style="display: inline-block">
+                <div smDirTooltip="Return awards that do not contain any of the provided keywords." smDirPosition="right center" class="less-padding">
                   <sm-checkbox label="None of the words" [control]="form.controls.search_filter" type="radio" name="filter" value="none"></sm-checkbox>
                 </div>
                 <br>
 
-                <div smDirTooltip="Return awards that contain all of the provided keywords." smDirPosition="right center" style="display: inline-block">
+                <div smDirTooltip="Return awards that contain all of the provided keywords." smDirPosition="right center" class="less-padding">
                   <sm-checkbox label="All of the words" [control]="form.controls.search_filter" type="radio" name="filter" value="all"></sm-checkbox>
                 </div>
                 <br>
 
-                <div smDirTooltip="Return awards that contain the exact phrase provided." smDirPosition="right center" style="display: inline-block">
+                <div smDirTooltip="Return awards that contain the exact phrase provided." smDirPosition="right center" class="less-padding">
                   <sm-checkbox label="Exact phrase" [control]="form.controls.search_filter" type="radio" name="filter" value="exact"></sm-checkbox>
                 </div>
                 <br>
@@ -56,7 +50,7 @@
       <sm-accordion-item>
           <accordion-title>Institution Receiving Award</accordion-title>
           <accordion-content>
-            <div style="border-top: 1px solid #EEE; margin-bottom: 15px;"></div>
+
 
             <div class="field" smDirTooltip="The host institution of the principle investigator">
               <sm-input label="Institution Name" class="left" placeholder="Full or partial name" [control]="form.controls.institution"></sm-input>
@@ -135,7 +129,7 @@
       <sm-accordion-item>
           <accordion-title>Funding Organizations</accordion-title>
           <accordion-content>
-            <div style="border-top: 1px solid #EEE; margin-bottom: 15px;"></div>
+
 
             <div class="field">
               <select id="FundingOrg" multiple="multiple" name="FundingOrg" size="21" title="Available funding organizations organized by country&nbsp;">
@@ -544,7 +538,7 @@
           <accordion-title>Cancer and Project Type</accordion-title>
 
           <accordion-content>
-            <div style="border-top: 1px solid #EEE; margin-bottom: 15px;"></div>
+
 
             <div class="field" smDirTooltip="Select one or more types of cancer">
               <sm-select
@@ -573,7 +567,7 @@
       <sm-accordion-item>
           <accordion-title>Common Scientific Outline</accordion-title>
           <accordion-content>
-            <div style="border-top: 1px solid #EEE; margin-bottom: 15px;"></div>
+
 
             <div class="field">
               <select id="CSOCode" multiple="multiple" name="CSOCode" size="21" title="Select one or more Common Scientific Outline (CSO) research areas">
