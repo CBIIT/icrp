@@ -40,7 +40,7 @@ export class SearchComponent implements OnInit {
     }
 
     if (Object.keys(query).length == 1) {
-      this.summaryMessage = 'The default search is shown (all awards, all years). Use the search form on the left or the dashboard below to refine your search.'
+      this.summaryMessage = '<h4>The default search is shown (all awards, all years). Use the search form on the left or the dashboard below to refine your search.</h4>'
     } else {
         this.summaryMessage = '';
       
