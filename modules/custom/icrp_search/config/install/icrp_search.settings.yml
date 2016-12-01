@@ -1,0 +1,4 @@
+icrp_search_hostname: "localhost:3306"
+icrp_search_username: drupal
+icrp_search_password: password
+langcode: en
