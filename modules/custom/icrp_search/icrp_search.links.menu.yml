@@ -1,0 +1,12 @@
+icrp_search.admin_config:
+  title: 'ICRP Search'
+  route_name: icrp_search.admin_config
+  parent: system.admin_config
+  description: 'ICRP Search Custom Module Configuration Section'
+  weight: 0
+icrp_search.icrp_search_settings:
+  title: 'ICRP Search Settings'
+  parent: icrp_search.admin_config
+  description: 'Change settings of ICRP Search Module.'
+  route_name: icrp_search.settings
+  weight: 0

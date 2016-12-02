@@ -1,0 +1,6 @@
+name: ICRP Search
+type: module
+configure: icrp_search.settings
+description: Custom ICRP Search module to support ICRP database search capability
+author: Ye Wu
+core: 8.x
