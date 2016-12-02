@@ -47,6 +47,10 @@ header {
     margin-bottom:0px;
     margin-top:10px;
 }
+/* breadcrumb */
+.region-header {
+    margin-top:10px;
+}
 
 /* Footer */
 footer {
