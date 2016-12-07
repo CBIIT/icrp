@@ -1,0 +1,6 @@
+db_search.admin:
+  title: 'Icrp DB Search'
+  description: 'Allows loading js and css assest on the DB Search page'
+  parent: system.admin_config_development
+  route_name: db_search.content
+  weight: 100

@@ -1,0 +1,7 @@
+db_search.content:
+  path: '/db_search'
+  defaults:
+    _controller: '\Drupal\db_search\Controller\DbSearchController::content'
+    _title: 'DB Search'
+  requirements:
+    _permission: 'access content'

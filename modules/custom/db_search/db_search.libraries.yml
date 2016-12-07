@@ -1,0 +1,9 @@
+custom:
+  version: 1.0
+  css:
+    theme:
+      css/style.css: {}
+  js:
+    js/inline.bundle.js: {}
+    js/styles.bundle.js: {}
+    js/main.bundle.js: {}
