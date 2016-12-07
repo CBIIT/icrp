@@ -11,5 +11,15 @@ class IcrpController extends ControllerBase {
             '#markup' => hello_hello_world(),
         );
     }
-
+  public function dbSearch() {
+    return array(
+      '#type' => 'markup',
+      '#markup' => t('<app-root>Loading...</app-root>'),
+      '#attached' => array(
+        'library' => array(
+          'hello_world/custom'
+        ),
+      ),
+    );
+  }
 }

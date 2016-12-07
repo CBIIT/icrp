@@ -1,0 +1,30 @@
+datatables:
+  version: 1.x
+  js:
+    js/datatables.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once
+    - core/drupalSettings
+
+datatables_core:
+  version: 1.9
+  js:
+    /libraries/datatables/media/js/jquery.dataTables.js: {}
+  css:
+    component:
+      /libraries/datatables/media/css/demo_table.css: {}
+  dependencies:
+    - core/jquery
+
+datatables_tabletools:
+  version: 1.1.4
+  js:
+    /libraries/datatables/extras/TableTools/media/js/TableTools.js: {}
+    /libraries/datatables/extras/TableTools/media/js/ZeroClipboard.js: {}
+  css:
+    component:
+       /libraries/datatables/extras/TableTools/media/css/TableTools.css: {}
+  dependencies:
+    - core/jquery
+    - datatables/datatables_core

@@ -1,0 +1,13 @@
+name: DataTables
+description: 'Provides integration of the jquery DataTables plugin into views.'
+package: Views
+# core: 8.x
+dependencies:
+  - views
+type: module
+
+# Information added by Drupal.org packaging script on 2016-08-28
+version: '8.x-1.0-rc1'
+core: '8.x'
+project: 'datatables'
+datestamp: 1472406240

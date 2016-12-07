@@ -1,0 +1,193 @@
+<?php
+
+/**
+ * @file
+ * Provides Views integration for the jQuery DataTables plugin.
+ */
+
+use Drupal\Component\Utility\Html;
+use Drupal\Component\Utility\Unicode;
+use Drupal\field\Entity\FieldStorageConfig;
+
+/**
+ * Implements hook_theme().
+ */
+function datatables_theme($existing, $type, $theme, $path) {
+  return [
+    'datatable' => [
+      'variables' => [
+        'header' => NULL,
+        'rows' => NULL,
+        'attributes' => NULL,
+        'caption' => NULL,
+      ],
+      'file' => 'datatables.theme.inc',
+    ],
+  ];
+}
+
+/**
+ * Display a view as a DataTables style.
+ *
+ * @see template_preprocess_views_view_table()
+ */
+function template_preprocess_views_view_datatables(&$variables) {
+  template_preprocess_views_view_table($variables);
+
+  $view = $variables['view'];
+
+  $options = $view->style_plugin->options;
+  $handler = $view->style_plugin;
+
+  $fields = &$view->field;
+  $columns = $handler->sanitizeColumns($options['columns'], $fields);
+
+  $position = 0;
+  foreach ($columns as $field => $column) {
+    $column_options = NULL;
+
+    if (isset($options['hidden_columns'][$field])) {
+      switch ($options['hidden_columns'][$field]) {
+        case 'expandable':
+          $datatable_options['bExpandable'] = TRUE;
+        // ... and fall through, since expandable columns are also hidden.
+        case 'hidden':
+          // Hidden or expandable columns get the bVisible init option set to
+          // false.
+          $column_options['bVisible'] = FALSE;
+      }
+    }
+
+    // Render the header labels.
+    if ($field == $column && empty($fields[$field]->options['exclude'])) {
+      // Overrides clicksort head defined in
+      // template_preprocess_views_view_table().
+      $variables['header'][$field]['content'] = Html::escape(!empty($fields[$field]) ? $fields[$field]->label() : '');
+      unset($variables['header'][$field]['url']);
+      unset($variables['header'][$field]['sort_indicator']);
+
+      if (empty($options['info'][$field]['sortable']) || !$fields[$field]->clickSortable()) {
+        $column_options['bSortable'] = FALSE;
+      }
+      else {
+        $info = FieldStorageConfig::loadByName($fields[$field]->getEntityType(), $field);
+
+        // Attempt to autodetect the type of field in order to handle sorting
+        // correctly.
+        if (is_object($fields[$field]->last_render)) {
+          if (is_numeric($fields[$field]->last_render->__toString())) {
+            $column_options['sType'] = 'numeric';
+          }
+          elseif (Unicode::strlen($fields[$field]->last_render->__toString()) != Unicode::strlen(strip_tags($fields[$field]->last_render->__toString()))) {
+            $column_options['sType'] = 'html';
+          }
+          elseif ($info && $info->getType() == 'datetime') {
+            $column_options['sType'] = 'date';
+          }
+        }
+
+        $column_options['bSortable'] = TRUE;
+      }
+      $datatable_options['aoColumns'][] = $column_options;
+      $datatable_options['aoColumnHeaders'][] = $variables['header'][$field];
+    }
+
+    // Set default sort order.
+    $datatable_options['aaSorting'] = [];
+    if ($options['default'] == $field) {
+      $datatable_options['aaSorting'] = [[$position, $options['order']]];
+    }
+
+    $position++;
+  }
+
+  // Enable table info display, if necessary.
+  $datatable_options['bInfo'] = $options['elements']['table_info'];
+  $datatable_options['bFilter'] = $options['elements']['search_box'];
+  $datatable_options['bStateSave'] = $options['elements']['save_state'];
+
+  $datatable_options['bLengthChange'] = $options['pages']['length_change'];
+  $datatable_options['iDisplayLength'] = (int) $options['pages']['display_length'];
+
+  // Enable ThemeRoller support, if necessary.
+  if ($options['layout']['themeroller']) {
+    $datatable_options['bJQueryUI'] = TRUE;
+  }
+
+  // Pass the sDOM parameter, if one is specified.
+  if ($options['layout']['sdom']) {
+    $datatable_options['sDom'] = $options['layout']['sdom'];
+  }
+
+  $datatable_options['bAutoWidth'] = $options['layout']['autowidth'];
+
+  // Enable full_numbers pagination if selected.
+  switch ($options['pages']['pagination_style']) {
+    case 'full_numbers':
+      $datatable_options['sPaginationType'] = 'full_numbers';
+      break;
+
+    case 'no_pagination':
+      $datatable_options['bPaginate'] = FALSE;
+      break;
+
+    default:
+      // Do nothing. No parameters need to be sent for the default (two-button)
+      // style.
+      break;
+  }
+
+  // Enable TableTools plugin support, if necessary.
+  if ($options['elements']['table_tools']) {
+    $datatable_options['oTableTools'] = [
+      'sSwfPath' => base_path() . 'libraries/datatables/extras/TableTools/media/swf/copy_csv_xls_pdf.swf',
+    ];
+
+    // If a custom sDom is passed, assume that "T" is added, otherwise add it
+    // manually.
+    if (!$options['layout']['sdom']) {
+      $datatable_options['sDom'] = 'T<"clear">lfrtip';
+    }
+
+    $variables['view']->element['#attached']['library'][] = 'datatables/datatables_tabletools';
+  }
+
+  $datatable_options['oLanguage'] = [
+    'sEmptyTable' => t('No data available in table'),
+    'sInfo' => t('Start @START to @END of @TOTAL entries', [
+      '@START' => '_START_',
+      '@END' => '_END_',
+      '@TOTAL' => '_TOTAL_'
+    ]),
+    'sInfoEmpty' => t('Showing 0 to 0 of 0 entries'),
+    'sInfoFiltered' => t('(filtered from @MAX total entries)', ['@MAX' => '_MAX_']),
+    'sInfoPostFix' => '',
+    'sProcessing' => t('Processing...'),
+    'sLengthMenu' => t('Show @MENU entries', ['@MENU' => '_MENU_']),
+    'sLoadingRecords' => t('Loading...'),
+    'sZeroRecords' => t('No matching records found'),
+    'sSearch' => t('Search'),
+    'oPaginate' => [
+      'sFirst' => t('First'),
+      'sPrevious' => t('Previous'),
+      'sNext' => t('Next'),
+      'sLast' => t('Last'),
+    ],
+    'oAria' => [
+      'sSortAscending' => t(': activate to sort column ascending'),
+      'sSortDescending' => t(': activate to sort column descending'),
+    ],
+  ];
+
+  // Generate unique id.
+  if (empty($variables['attributes']['id'])) {
+    $variables['attributes']['id'] = Html::getUniqueId('datatable');
+  }
+
+  $variables['attributes']['class'][] = 'display';
+
+  // Add DataTables classes and data attributes.
+  $variables['view']->element['#attached']['library'][] = 'datatables/datatables';
+  $variables['view']->element['#attached']['library'][] = 'datatables/datatables_core';
+  $variables['view']->element['#attached']['drupalSettings']['datatables']['#' . $variables['attributes']['id']] = $datatable_options;
+}
