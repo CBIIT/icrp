@@ -4,7 +4,7 @@ custom:
     theme:
       css/font-awesome.min.css.css: {}
   js:
-    js/Chart.bundle.min: {}
+    js/Chart.bundle.min.js: {}
     js/inline.bundle.js: {}
     js/styles.bundle.js: {}
     js/scripts.bundle.js: {}
