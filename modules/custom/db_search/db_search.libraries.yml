@@ -2,8 +2,10 @@ custom:
   version: 1.0
   css:
     theme:
-      css/style.css: {}
+      css/font-awesome.min.css.css: {}
   js:
+    js/Chart.bundle.min: {}
     js/inline.bundle.js: {}
     js/styles.bundle.js: {}
+    js/scripts.bundle.js: {}
     js/main.bundle.js: {}
