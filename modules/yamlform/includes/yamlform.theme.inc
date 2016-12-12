@@ -8,7 +8,8 @@
 use Drupal\Core\Link;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
+use Drupal\Core\Template\Attribute;
 use Drupal\Component\Utility\Xss;
 use Drupal\yamlform\Element\YamlFormCodeMirror;
 use Drupal\yamlform\YamlFormMessageManagerInterface;
@@ -27,7 +28,7 @@ use Drupal\yamlform\Utility\YamlFormElementHelper;
  *   - title: Help title.
  *   - content: Help content.
  */
-function template_preprocess_yamlform_help(&$variables) {
+function template_preprocess_yamlform_help(array &$variables) {
   $info = $variables['info'];
 
   $variables += $info;
@@ -86,7 +87,7 @@ function template_preprocess_yamlform_help(&$variables) {
  *   - element: An associative array containing the properties of the element.
  *     Properties used: #action, #method, #attributes, #yamlform_children.
  */
-function template_preprocess_yamlform(&$variables) {
+function template_preprocess_yamlform(array &$variables) {
   template_preprocess_form($variables);
 }
 
@@ -102,7 +103,7 @@ function template_preprocess_yamlform(&$variables) {
  * @see \Drupal\yamlform\YamlFormSubmissionForm::actionsElement
  * @see \Drupal\yamlform\YamlFormSubmissionForm::actions
  */
-function template_preprocess_yamlform_actions(&$variables) {
+function template_preprocess_yamlform_actions(array &$variables) {
   $element = $variables['element'];
   // Buttons include submit, previous, next, and draft.
   foreach (Element::children($element) as $key) {
@@ -136,7 +137,7 @@ function template_preprocess_yamlform_confirmation(array &$variables) {
   $settings = $yamlform->getSettings();
 
   // Set progress.
-  if ($settings['wizard_complete'] && ($settings['wizard_progress_bar'] || $settings['wizard_progress_pages'] || $settings['wizard_progress_percentage'])) {
+  if ($yamlform->getPages() && $settings['wizard_complete'] && ($settings['wizard_progress_bar'] || $settings['wizard_progress_pages'] || $settings['wizard_progress_percentage'])) {
     $variables['progress'] = [
       '#theme' => 'yamlform_progress',
       '#yamlform' => $yamlform,
@@ -146,6 +147,14 @@ function template_preprocess_yamlform_confirmation(array &$variables) {
 
   // Set message.
   $variables['message'] = $message_manager->build(YamlFormMessageManagerInterface::SUBMISSION_CONFIRMATION);
+
+  // Set attributes.
+  $variables['attributes'] = new Attribute($settings['confirmation_attributes']);
+
+  // Set back.
+  $variables['back'] = $settings['confirmation_back'];
+  $variables['back_label'] = $settings['confirmation_back_label'] ?: \Drupal::config('yamlform.settings')->get('settings.default_confirmation_back_label');
+  $variables['back_attributes'] = new Attribute($settings['confirmation_back_attributes']);
 
   // Apply all passed query string parameters to the 'Back to form' link.
   $query = \Drupal::request()->query->all();
@@ -491,15 +500,15 @@ function template_preprocess_yamlform_container_base_text(array &$variables) {
 function template_preprocess_yamlform_progress(array &$variables) {
   /** @var \Drupal\yamlform\YamlFormInterface $yamlform */
   $yamlform = $variables['yamlform'];
+  $current_page = $variables['current_page'];
 
   $pages = $yamlform->getPages();
 
-  $total = count($pages);
-  $current_page = $variables['current_page'];
-  // Jump to last page if 'current_page' is complete.
-  if ($current_page === 'complete') {
-    $current_page = $total - 1;
-  }
+  $page_keys = array_keys($pages);
+  $page_indexes = array_flip($page_keys);
+  $current_index = $page_indexes[$current_page];
+
+  $total = count($page_keys);
 
   if ($yamlform->getSetting('wizard_progress_bar')) {
     $variables['bar'] = [
@@ -510,11 +519,11 @@ function template_preprocess_yamlform_progress(array &$variables) {
   }
 
   if ($yamlform->getSetting('wizard_progress_pages')) {
-    $variables['pages'] = t('Page @start of @end', ['@start' => $current_page + 1, '@end' => $total]);
+    $variables['summary'] = t('Page @start of @end', ['@start' => $current_index + 1, '@end' => $total]);
   }
 
   if ($yamlform->getSetting('wizard_progress_percentage')) {
-    $variables['percentage'] = number_format(($current_page / ($total - 1)) * 100, 0) . '%';
+    $variables['percentage'] = number_format(($current_index / ($total - 1)) * 100, 0) . '%';
   }
 }
 
@@ -531,16 +540,19 @@ function template_preprocess_yamlform_progress(array &$variables) {
 function template_preprocess_yamlform_progress_bar(array &$variables) {
   /** @var \Drupal\yamlform\YamlFormInterface $yamlform */
   $yamlform = $variables['yamlform'];
+  $current_page = $variables['current_page'];
 
   $pages = $yamlform->getPages();
-  $variables['pages'] = [];
-  foreach ($pages as $page) {
-    $variables['pages'][] = (isset($page['#title'])) ? $page['#title'] : '';
-  }
 
-  // Jump to last page if 'current_page' is complete.
-  if ($variables['current_page'] && $variables['current_page'] === 'complete') {
-    $variables['current_page'] = count($variables['pages']) - 1;
+  $page_keys = array_keys($pages);
+  $page_indexes = array_flip($page_keys);
+  $current_index = $page_indexes[$current_page];
+  $variables['current_index'] = $current_index;
+
+  // Reset the pages variable.
+  $variables['progress'] = [];
+  foreach ($pages as $page) {
+    $variables['progress'][] = (isset($page['#title'])) ? $page['#title'] : '';
   }
 }
 
@@ -559,7 +571,7 @@ function template_preprocess_yamlform_progress_bar(array &$variables) {
  *     Properties used: #title, #value, #options, #description, #required,
  *     #attributes.
  */
-function template_preprocess_yamlform_composite_address(&$variables) {
+function template_preprocess_yamlform_composite_address(array &$variables) {
   $element = $variables['element'];
   foreach (Element::children($element) as $key) {
     if ($element[$key]['#access']) {
@@ -580,7 +592,7 @@ function template_preprocess_yamlform_composite_address(&$variables) {
  *     Properties used: #title, #value, #options, #description, #required,
  *     #attributes.
  */
-function template_preprocess_yamlform_composite_contact(&$variables) {
+function template_preprocess_yamlform_composite_contact(array &$variables) {
   $element = $variables['element'];
   foreach (Element::children($element) as $key) {
     if ($element[$key]['#access']) {
@@ -601,7 +613,7 @@ function template_preprocess_yamlform_composite_contact(&$variables) {
  *     Properties used: #title, #value, #options, #description, #required,
  *     #attributes.
  */
-function template_preprocess_yamlform_composite_creditcard(&$variables) {
+function template_preprocess_yamlform_composite_creditcard(array &$variables) {
   $element = $variables['element'];
   foreach (Element::children($element) as $key) {
     if ($element[$key]['#access']) {
@@ -622,7 +634,7 @@ function template_preprocess_yamlform_composite_creditcard(&$variables) {
  *     Properties used: #title, #value, #options, #description, #required,
  *     #attributes.
  */
-function template_preprocess_yamlform_composite_location(&$variables) {
+function template_preprocess_yamlform_composite_location(array &$variables) {
   $variables['content'] = $variables['element'];
 }
 
@@ -637,7 +649,7 @@ function template_preprocess_yamlform_composite_location(&$variables) {
  *     Properties used: #title, #value, #options, #description, #required,
  *     #attributes.
  */
-function template_preprocess_yamlform_composite_name(&$variables) {
+function template_preprocess_yamlform_composite_name(array &$variables) {
   $element = $variables['element'];
   foreach (Element::children($element) as $key) {
     if ($element[$key]['#access']) {

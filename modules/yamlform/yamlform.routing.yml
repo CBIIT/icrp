@@ -22,6 +22,14 @@ yamlform.admin_settings.third_party:
   requirements:
     _permission: 'administer yamlform'
 
+yamlform.addons:
+  path: '/admin/structure/yamlform/addons'
+  defaults:
+    _controller: '\Drupal\yamlform\Controller\YamlFormAddonsController::index'
+    _title: 'Forms'
+  requirements:
+    _permission: 'administer yamlform'
+
 # Forms
 
 entity.yamlform.collection:
@@ -44,6 +52,20 @@ entity.yamlform.canonical:
   defaults:
     _controller: '\Drupal\yamlform\Controller\YamlFormController::addForm'
     _title_callback: '\Drupal\yamlform\Controller\YamlFormController::title'
+  requirements:
+    _entity_access: 'yamlform.submission_page'
+
+entity.yamlform.assets.javascript:
+  path: '/yamlform/{yamlform}/assets/javascript'
+  defaults:
+    _controller: '\Drupal\yamlform\Controller\YamlFormController::javascript'
+  requirements:
+    _entity_access: 'yamlform.submission_page'
+
+entity.yamlform.assets.css:
+  path: '/yamlform/{yamlform}/assets/css'
+  defaults:
+    _controller: '\Drupal\yamlform\Controller\YamlFormController::css'
   requirements:
     _entity_access: 'yamlform.submission_page'
 
@@ -120,6 +142,15 @@ entity.yamlform.settings_form:
     _title_callback: '\Drupal\yamlform\Controller\YamlFormController::title'
   requirements:
     _entity_access: 'yamlform.update'
+
+entity.yamlform.assets_form:
+  path: '/admin/structure/yamlform/manage/{yamlform}/assets'
+  defaults:
+    _entity_form: 'yamlform.assets'
+    _title_callback: '\Drupal\yamlform\Controller\YamlFormController::title'
+  requirements:
+    _entity_access: 'yamlform.update'
+    _permission: 'edit yamlform assets'
 
 entity.yamlform.third_party_settings_form:
   path: '/admin/structure/yamlform/manage/{yamlform}/third-party-settings'

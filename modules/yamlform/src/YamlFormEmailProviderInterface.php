@@ -21,6 +21,11 @@ interface YamlFormEmailProviderInterface {
   public function check();
 
   /**
+   * Check if form email handler is installed.
+   */
+  public function installed();
+
+  /**
    * Install form's PHP mail handler which supports sending HTML emails.
    */
   public function install();
@@ -47,8 +52,19 @@ interface YamlFormEmailProviderInterface {
   public function getModuleName();
 
   /**
-   * Check if form email handler is installed.
+   * Get the mail back-end plugin id.
+   *
+   * @return string
+   *   The email handler plugin id.
    */
-  public function installed();
+  public function getMailPluginId();
+
+  /**
+   * Get the mail back-end plugin definition.
+   *
+   * @return array
+   *   A plugin definition array.
+   */
+  public function getMailPluginDefinition();
 
 }

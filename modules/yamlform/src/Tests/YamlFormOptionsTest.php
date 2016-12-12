@@ -2,7 +2,7 @@
 
 namespace Drupal\yamlform\Tests;
 
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\yamlform\Entity\YamlFormOptions;
 
 /**

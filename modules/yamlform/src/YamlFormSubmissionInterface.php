@@ -266,7 +266,7 @@ interface YamlFormSubmissionInterface extends ContentEntityInterface, EntityOwne
   /**
    * Gets the form submission's form entity.
    *
-   * @return \Drupal\yamlform\Entity\YamlForm
+   * @return \Drupal\yamlform\YamlFormInterface
    *   The form entity.
    */
   public function getYamlForm();

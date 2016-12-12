@@ -56,6 +56,15 @@ class YamlFormEntityListBuilder extends ConfigEntityListBuilder {
     $this->keys = \Drupal::request()->query->get('search');
     $this->state = \Drupal::request()->query->get('state');
     $this->submissionStorage = \Drupal::entityTypeManager()->getStorage('yamlform_submission');
+
+    if (\Drupal::currentUser()->hasPermission('administer yamlform')) {
+      $help = _yamlform_help();
+      $build = [
+        '#theme' => 'yamlform_help',
+        '#info' => $help['introduction'],
+      ];
+      drupal_set_message($build);
+    }
   }
 
   /**
@@ -295,9 +304,13 @@ class YamlFormEntityListBuilder extends ConfigEntityListBuilder {
 
     // Filter by (form) state.
     if ($state == self::STATE_OPEN || $state == self::STATE_CLOSED) {
-      $query->condition('status', ($state == self::STATE_OPEN) ? 1 : 0);
+      $query->condition('status', ($state == self::STATE_OPEN) ? TRUE : FALSE);
     }
 
+    // Filter out templates if the yamlform_template.module is enabled.
+    if ($this->moduleHandler()->moduleExists('yamlform_templates')) {
+      $query->condition('template', FALSE);
+    }
     return $query;
   }
 

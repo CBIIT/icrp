@@ -103,6 +103,42 @@ interface YamlFormInterface extends ConfigEntityInterface, EntityWithPluginColle
   public function setDescription($description);
 
   /**
+   * Returns the form's CSS.
+   *
+   * @return string
+   *   The form's CSS.
+   */
+  public function getCss();
+
+  /**
+   * Sets the form's CSS.
+   *
+   * @param string $css
+   *   The form's CSS.
+   *
+   * @return $this
+   */
+  public function setCss($css);
+
+  /**
+   * Returns the form's JavaScript.
+   *
+   * @return string
+   *   The form's CSS.
+   */
+  public function getJavaScript();
+
+  /**
+   * Sets the form's JavaScript.
+   *
+   * @param string $javascript
+   *   The form's JavaScript.
+   *
+   * @return $this
+   */
+  public function setJavaScript($javascript);
+
+  /**
    * Returns the form settings.
    *
    * @return array
@@ -339,13 +375,13 @@ interface YamlFormInterface extends ConfigEntityInterface, EntityWithPluginColle
   /**
    * Get form wizard page.
    *
-   * @param string|int $index
-   *   The name or index of a form wizard page.
+   * @param string|int $key
+   *   The name/key of a form wizard page.
    *
    * @return array|null
    *   A form wizard page element.
    */
-  public function getPage($index);
+  public function getPage($key);
 
   /**
    * Update submit and confirm paths (ie URL aliases) associated with this form.

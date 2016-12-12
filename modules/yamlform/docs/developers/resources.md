@@ -77,12 +77,12 @@ Below are the YAML Form module's 'alternatives' and 'competitors'.
  
 - [The Best Online Survey Tools of 2016](http://www.pcmag.com/article2/0,2817,2494737,00.asp)
 
-- [AlternativeTo WebForm](http://alternativeto.net/software/webform/)
+- [AlternativeTo WebForm](http://alternativeto.net/software/webform/)  
   Crowdsourced software recommendations
 
 ---
 
-- [Form.IO](https://form.io/)
+- [Form.IO](https://form.io/)  
   Form.io A Form and Data Management Platform for Serverless Enterprise 
   Applications Simplify the connections between your forms and APIs. 
   Integrate with 3rd party providers and legacy systems. 

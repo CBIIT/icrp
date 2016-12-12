@@ -395,7 +395,7 @@ class YamlFormSubmissionExporter implements YamlFormSubmissionExporterInterface 
     // Elements.
     $form['export']['columns'] = [
       '#type' => 'details',
-      '#title' => t('Column options'),
+      '#title' => $this->t('Column options'),
       '#states' => $states_options,
     ];
     $form['export']['columns']['excluded_columns'] = [
@@ -414,7 +414,7 @@ class YamlFormSubmissionExporter implements YamlFormSubmissionExporterInterface 
     $form['export']['download']['download'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Download export file'),
-      '#description' => $this->t('If checked, the export file will be automatically download to your local machine. If unchecked export file will be displayed as plain text within your browser.'),
+      '#description' => $this->t('If checked, the export file will be automatically download to your local machine. If unchecked, the export file will be displayed as plain text within your browser.'),
       '#default_value' => $export_options['download'],
       '#access' => !$this->requiresBatch(),
       '#states' => $states_archive,
@@ -470,11 +470,11 @@ class YamlFormSubmissionExporter implements YamlFormSubmissionExporterInterface 
       '#type' => 'select',
       '#title' => $this->t('Limit to'),
       '#options' => [
-        'all' => t('All'),
-        'latest' => t('Latest'),
-        'serial' => t('Submission number'),
-        'sid' => t('Submission ID'),
-        'date' => t('Date'),
+        'all' => $this->t('All'),
+        'latest' => $this->t('Latest'),
+        'serial' => $this->t('Submission number'),
+        'sid' => $this->t('Submission ID'),
+        'date' => $this->t('Date'),
       ],
       '#default_value' => $export_options['range_type'],
     ];
@@ -520,8 +520,8 @@ class YamlFormSubmissionExporter implements YamlFormSubmissionExporterInterface 
 
     $form['export']['download']['sticky'] = [
       '#type' => 'checkbox',
-      '#title' => t('Starred/flagged submissions'),
-      '#description' => $this->t('If checked, only starred/flagged submissions will be downloaded. If unchecked all submissions will downloaded.'),
+      '#title' => $this->t('Starred/flagged submissions'),
+      '#description' => $this->t('If checked, only starred/flagged submissions will be downloaded. If unchecked, all submissions will downloaded.'),
       '#default_value' => $export_options['sticky'],
     ];
 
@@ -529,12 +529,12 @@ class YamlFormSubmissionExporter implements YamlFormSubmissionExporterInterface 
     // submission state.
     $form['export']['download']['state'] = [
       '#type' => 'radios',
-      '#title' => t('Submission state'),
+      '#title' => $this->t('Submission state'),
       '#default_value' => $export_options['state'],
       '#options' => [
-        'all' => t('Completed and draft submissions'),
-        'completed' => t('Completed submissions only'),
-        'draft' => t('Drafts only'),
+        'all' => $this->t('Completed and draft submissions'),
+        'completed' => $this->t('Completed submissions only'),
+        'draft' => $this->t('Drafts only'),
       ],
       '#access' => $yamlform->getSetting('draft'),
     ];

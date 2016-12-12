@@ -2,7 +2,7 @@
 
 namespace Drupal\yamlform_devel\Form;
 
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\yamlform\Utility\YamlFormTidy;

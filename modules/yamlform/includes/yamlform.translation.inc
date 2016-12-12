@@ -8,7 +8,7 @@
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\yamlform\Entity\YamlForm;
 use Drupal\yamlform\Utility\YamlFormTidy;
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\yamlform\Utility\YamlFormElementHelper;
 
 /**

@@ -22,7 +22,7 @@ services:
 
   yamlform.message_manager:
     class: Drupal\yamlform\YamlFormMessageManager
-    arguments: ['@config.factory', '@entity_type.manager', '@token', '@logger.channel.yamlform', '@yamlform.request']
+    arguments: ['@current_user', '@config.factory', '@entity_type.manager', '@token', '@logger.channel.yamlform', '@yamlform.request']
 
   yamlform_submission.generate:
     class: Drupal\yamlform\YamlFormSubmissionGenerate
@@ -34,11 +34,17 @@ services:
 
   yamlform.third_party_settings_manager:
     class: Drupal\yamlform\YamlFormThirdPartySettingsManager
-    arguments: ['@config.factory', '@module_handler', '@path.validator']
+    arguments: ['@config.factory', '@module_handler', '@path.validator', '@yamlform.addons_manager']
+
+  yamlform.addons_manager:
+    class: Drupal\yamlform\YamlFormAddonsManager
+
+  yamlform.libraries_manager:
+    class: Drupal\yamlform\YamlFormLibrariesManager
 
   yamlform.email_provider:
     class: Drupal\yamlform\YamlFormEmailProvider
-    arguments: ['@config.factory', '@module_handler']
+    arguments: ['@config.factory', '@module_handler', '@plugin.manager.mail']
 
   plugin.manager.yamlform.element:
     class: Drupal\yamlform\YamlFormElementManager
@@ -53,6 +59,6 @@ services:
     parent: default_plugin_manager
 
   logger.channel.yamlform:
-    class: Drupal\Core\Logger\LoggerChannel
+    class: Drupal\Core\Logger\LoggerChannel√
     factory: logger.factory:get
     arguments: ['yamlform']

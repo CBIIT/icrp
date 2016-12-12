@@ -68,10 +68,26 @@ yamlform.form:
     - core/jquery.once
     - yamlform/yamlform.states
 
-yamlform.states:
+yamlform.assets.css:
+  version: 1.x
+  css:
+    theme:
+      //yamlform/{yamlform}/assets/css: { preprocess: false, minified: false }
+
+yamlform.assets.javascript:
   version: 1.x
   js:
-    js/yamlform.states.js:  {}
+    //yamlform/{yamlform}/assets/javascript: { preprocess: false, minified: false }
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/jquery.once
+
+yamlform.navigation:
+  version: 1.x
+  css:
+    theme:
+      css/yamlform.navigation.css: {}
 
 yamlform.options:
   version: 1.x
@@ -91,13 +107,34 @@ yamlform.progress.bar:
     theme:
       css/yamlform.progress.bar.css: {}
 
-yamlform.navigation:
+yamlform.states:
   version: 1.x
-  css:
-    theme:
-      css/yamlform.navigation.css: {}
+  js:
+    js/yamlform.states.js:  {}
+
+yamlform.form.disable_back:
+  version: 1.x
+  header: true
+  js:
+    js/yamlform.form.disable_back.js:  {preprocess: false}
+
+yamlform.form.unsaved:
+  version: 1.x
+  js:
+    js/yamlform.form.unsaved.js:  {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/jquery.once
 
 # Elements.
+
+yamlform.element.buttons:
+  version: 1.x
+  js:
+    js/yamlform.element.buttons.js: {}
+  dependencies:
+    - core/jquery.ui.button
 
 yamlform.element.codemirror.text:
   version: 1.x
@@ -129,6 +166,26 @@ yamlform.element.codemirror.html:
   dependencies:
     - yamlform/codemirror.html
 
+yamlform.element.codemirror.css:
+  version: 1.x
+  css:
+    theme:
+      css/yamlform.element.codemirror.css: {}
+  js:
+    js/yamlform.element.codemirror.js: {}
+  dependencies:
+    - yamlform/codemirror.css
+
+yamlform.element.codemirror.javascript:
+  version: 1.x
+  css:
+    theme:
+      css/yamlform.element.codemirror.css: {}
+  js:
+    js/yamlform.element.codemirror.js: {}
+  dependencies:
+    - yamlform/codemirror.javascript
+
 yamlform.element.color:
   version: 1.x
   css:
@@ -139,6 +196,12 @@ yamlform.element.color:
   dependencies:
     - core/modernizr
     - yamlform/yamlform.element.inputmask
+
+yamlform.element.composite:
+  version: 1.x
+  css:
+    component:
+      css/yamlform.element.composite.css: {}
 
 yamlform.element.counter:
   version: 1.x
@@ -380,14 +443,14 @@ ckeditor:
 
 codemirror.text:
   remote: https://github.com/codemirror/codemirror
-  version: &yamlform_codemirror_version 5.20.2
+  version: &yamlform_codemirror_version 5.21.0
   license: &yamlform_codemirror_license
     name: MIT
     url: http://codemirror.net/LICENSE
     gpl-compatible: true
   cdn: &yamlform_codemirror_cdn
-    /libraries/codemirror/lib/: https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.20.2/
-    /libraries/codemirror/: https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.20.2/
+    /libraries/codemirror/lib/: https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.21.0/
+    /libraries/codemirror/: https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.21.0/
   css:
     theme:
       /libraries/codemirror/lib/codemirror.css: {}
@@ -411,6 +474,24 @@ codemirror.html:
   js:
     /libraries/codemirror/mode/xml/xml.js: {}
     /libraries/codemirror/mode/htmlmixed/htmlmixed.js: {}
+  dependencies:
+    - yamlform/codemirror.text
+
+codemirror.css:
+  version: *yamlform_codemirror_version
+  license: *yamlform_codemirror_license
+  cdn: *yamlform_codemirror_cdn
+  js:
+    /libraries/codemirror/mode/css/css.js: {}
+  dependencies:
+    - yamlform/codemirror.text
+
+codemirror.javascript:
+  version: *yamlform_codemirror_version
+  license: *yamlform_codemirror_license
+  cdn: *yamlform_codemirror_cdn
+  js:
+    /libraries/codemirror/mode/javascript/javascript.js: {}
   dependencies:
     - yamlform/codemirror.text
 

@@ -1,6 +1,9 @@
 YAML Form
 ---------
 
+> Please be aware that the YAML Form module is moving to the Webform module and 
+that a migration path will be provided. 
+[Learn more](https://www.drupal.org/node/2805097)
 
 ### About this Module
 
@@ -23,7 +26,7 @@ The primary use case for this module is to:
 </div> 
 <br/>
 
-> Evaluate this project online using [simplytest.me](https://simplytest.me/project/yamlform).
+> Evaluate this project online using [simplytest.me](https://simplytest.me/project/drupal/8.2.x?add[]=yamlform).
 
 > [Watch a demo](http://youtu.be/9jSOOEpzAy8) of the YAML Form module.
 
@@ -48,7 +51,7 @@ and [more...](http://yamlform.io/yamlform/).
 
 - [Getting NYU onto YAML Form](https://www.fourkitchens.com/blog/article/getting-nyu-yaml-form)
 - [YAML Forms for Drupal 8](https://www.gaiaresources.com.au/yaml-forms-drupal-8/)
-
+- [Creating YAML Form Handlers in Drupal 8](http://fivemilemedia.co.uk/blog/creating-yaml-form-handlers-drupal-8)
 
 ### Releases
 

@@ -135,7 +135,7 @@ class YamlFormEntityHandlersForm extends EntityForm {
       '#attributes' => [
         'id' => 'yamlform-handlers',
       ],
-      '#empty' => $this->t('There are currently no handlers in this form. Add one by selecting an option below.'),
+      '#empty' => $this->t('There are currently no handlers setup for this form.'),
     ] + $rows;
 
     $form['#attached']['library'][] = 'yamlform/yamlform.admin';
@@ -179,8 +179,8 @@ class YamlFormEntityHandlersForm extends EntityForm {
     $yamlform = $this->getEntity();
     $yamlform->save();
 
-    $this->logger('yamlform')->notice('Form @label handlers saved.', ['@label' => $yamlform->label()]);
-    drupal_set_message($this->t('Form %label handlers saved.', ['%label' => $yamlform->label()]));
+    $this->logger('yamlform')->notice('Form @label handler saved.', ['@label' => $yamlform->label()]);
+    drupal_set_message($this->t('Form %label handler saved.', ['%label' => $yamlform->label()]));
   }
 
   /**

@@ -84,6 +84,31 @@ class YamlFormSubmissionStorageTest extends WebTestBase {
     $this->drupalLogin($admin_user);
     $this->assertEqual($storage->getPreviousSubmission($user2_submissions[0], NULL)->id(), $user1_submissions[2]->id(), "Admin user can navigate between user submissions");
     $this->drupalLogout();
+
+    // Enable the saving of drafts.
+    $yamlform->setSetting('draft', TRUE)->save();
+
+    // Create drafts for user1 and user2.
+    $this->drupalLogin($user1);
+    $this->postSubmission($yamlform, [], t('Save Draft'));
+    $this->drupalLogin($user2);
+    $this->postSubmission($yamlform, [], t('Save Draft'));
+
+    // Check totals remains the same with drafts.
+    $this->assertEqual($storage->getTotal($yamlform), 6);
+    $this->assertEqual($storage->getTotal($yamlform, NULL, $user1), 3);
+    $this->assertEqual($storage->getTotal($yamlform, NULL, $user2), 3);
+
+    // Save current drafts for user1 and user2.
+    $this->drupalLogin($user1);
+    $this->postSubmission($yamlform);
+    $this->drupalLogin($user2);
+    $this->postSubmission($yamlform);
+
+    // Check totals have been updated.
+    $this->assertEqual($storage->getTotal($yamlform), 8);
+    $this->assertEqual($storage->getTotal($yamlform, NULL, $user1), 4);
+    $this->assertEqual($storage->getTotal($yamlform, NULL, $user2), 4);
   }
 
 }

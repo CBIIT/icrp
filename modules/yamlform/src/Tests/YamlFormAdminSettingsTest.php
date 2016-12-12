@@ -2,6 +2,9 @@
 
 namespace Drupal\yamlform\Tests;
 
+use Drupal\Component\Serialization\Yaml;
+use Drupal\yamlform\Utility\YamlFormTidy;
+
 /**
  * Tests for form entity.
  *
@@ -23,6 +26,23 @@ class YamlFormAdminSettingsTest extends YamlFormTestBase {
     global $base_path;
 
     $this->drupalLogin($this->adminFormUser);
+
+    /* Settings Form */
+
+    // Get 'yamlform.settings'.
+    $original_data = \Drupal::configFactory()->getEditable('yamlform.settings')->getRawData();
+
+    // Update 'settings.default_form_closed_message'.
+    $this->drupalPostForm('admin/structure/yamlform/settings', [], t('Save configuration'));
+    \Drupal::configFactory()->reset('yamlform.settings');
+    $updated_data = \Drupal::configFactory()->getEditable('yamlform.settings')->getRawData();
+
+    // Check the updating 'Settings' via the UI did not lose or change any data.
+    $this->assertEqual($updated_data, $original_data, 'Updated admin settings via the UI did not lose or change any data');
+
+    // DEBUG:
+    $this->verbose('<pre>' . YamlFormTidy::tidy(Yaml::encode($original_data)) . '</pre>');
+    $this->verbose('<pre>' . YamlFormTidy::tidy(Yaml::encode($updated_data)) . '</pre>');
 
     /* Elements */
 

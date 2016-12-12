@@ -70,7 +70,7 @@ abstract class DateBase extends YamlFormElementBase {
       return $value;
     }
 
-    $format = $this->getFormat($element) ?: $this->getHtmlDateFormat($element);
+    $format = $this->getFormat($element) ?: 'html_' . $this->getDateType($element);
     if (DateFormat::load($format)) {
       return \Drupal::service('date.formatter')->format($timestamp, $format);
     }
@@ -108,6 +108,14 @@ abstract class DateBase extends YamlFormElementBase {
       $formats[$date_format->id()] = $date_format->label();
     }
     return $formats;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildExportRecord(array $element, $value, array $export_options) {
+    $element['#format'] = ($this->getDateType($element) === 'datetime') ? 'Y-m-d H:i:s' : 'Y-m-d';
+    return [$this->formatText($element, $value, $export_options)];
   }
 
   /**
@@ -168,20 +176,25 @@ abstract class DateBase extends YamlFormElementBase {
   }
 
   /**
-   * Get an HTML date/time format for an element.
+   * Get the type of date/time element.
    *
    * @param array $element
    *   An element.
    *
    * @return string
-   *   An HTML date/time format string.
+   *   The type of date/time element which be either a 'date' or 'datetime'.
    */
-  protected function getHtmlDateFormat(array $element) {
-    if ($element['#type'] == 'datelist') {
-      return (isset($element['#date_part_order']) && !in_array('hour', $element['#date_part_order'])) ? 'html_date' : 'html_datetime';
-    }
-    else {
-      return 'html_' . $element['#type'];
+  protected function getDateType(array $element) {
+    switch ($element['#type']) {
+      case 'datelist':
+        return (isset($element['#date_part_order']) && !in_array('hour', $element['#date_part_order'])) ? 'date' : 'datetime';
+
+      case 'datetime':
+        return 'datetime';
+
+      case 'date':
+      default:
+        return 'date';
     }
   }
 
@@ -203,7 +216,7 @@ abstract class DateBase extends YamlFormElementBase {
       $element[$property] = NULL;
     }
     else {
-      $element[$property] = \Drupal::service('date.formatter')->format($timestamp, $this->getHtmlDateFormat($element));
+      $element[$property] = \Drupal::service('date.formatter')->format($timestamp, 'html_' . $this->getDateType($element));
     }
   }
 

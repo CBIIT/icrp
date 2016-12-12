@@ -71,7 +71,7 @@ class YamlFormAutocomplete extends TextField {
     $form['autocomplete']['autocomplete_existing'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Include existing submission values.'),
-      '#description' => $this->t("If checked, all existing submission value will be visible to the form's users."),
+      '#description' => $this->t("If checked, all existing submission values will be visible to the form's users."),
       '#return_value' => TRUE,
     ];
     $form['autocomplete']['autocomplete_options'] = [

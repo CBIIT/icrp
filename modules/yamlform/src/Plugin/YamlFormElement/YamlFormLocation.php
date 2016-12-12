@@ -122,7 +122,7 @@ class YamlFormLocation extends YamlFormCompositeBase {
       $form['composite']['api_key']['#required'] = TRUE;
       if (\Drupal::currentUser()->hasPermission('administer yamlform')) {
         $t_args = [':href' => UrlGenerator::fromRoute('yamlform.settings')->toString()];
-        $form['composite']['api_key']['#description'] .= '<br/>' . $this->t('You either enter an element specific API key here or set the <a href=":href">default site-wide API key</a>.', $t_args);
+        $form['composite']['api_key']['#description'] .= '<br/>' . $this->t('You can either enter an element specific API key here or set the <a href=":href">default site-wide API key</a>.', $t_args);
       }
     }
 

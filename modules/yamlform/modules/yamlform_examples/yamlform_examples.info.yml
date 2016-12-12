@@ -6,8 +6,8 @@ package: 'YAML Form'
 dependencies:
   - yamlform
 
-# Information added by Drupal.org packaging script on 2016-11-13
-version: '8.x-1.0-beta23'
+# Information added by Drupal.org packaging script on 2016-12-08
+version: '8.x-1.0-beta27'
 core: '8.x'
 project: 'yamlform'
-datestamp: 1479076161
+datestamp: 1481192293

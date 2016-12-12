@@ -4,7 +4,7 @@ dependencies:
   enforced:
     module:
       - yamlform
-name: 'Form'
+name: Form
 type: yamlform
 description: 'A basic page with a form attached.'
 help: ''

@@ -32,6 +32,7 @@ abstract class YamlFormOtherBase extends FormElement {
   protected static $properties = [
     '#required',
     '#options',
+    '#options_display',
     '#default_value',
     '#attributes',
   ];
@@ -75,12 +76,16 @@ abstract class YamlFormOtherBase extends FormElement {
    * @see \Drupal\Core\Render\Element\Select
    */
   public static function processYamlFormOther(&$element, FormStateInterface $form_state, &$complete_form) {
-    $type = static::$type;
+    // Remove 'yamlform_' prefix from type.
+    $type = str_replace('yamlform_', '', static::$type);
     $properties = static::$properties;
 
     $element['#tree'] = TRUE;
 
-    $element[$type]['#type'] = $type;
+    $element['#wrapper_attributes']['class'][] = "js-yamlform-$type-other";
+    $element['#wrapper_attributes']['class'][] = "yamlform-$type-other";
+
+    $element[$type]['#type'] = static::$type;
     $element[$type] += array_intersect_key($element, array_combine($properties, $properties));
     if (!isset($element[$type]['#options'][static::OTHER_OPTION])) {
       $element[$type]['#options'][static::OTHER_OPTION] = (!empty($element['#other__option_label'])) ? $element['#other__option_label'] : t('Other...');
@@ -88,14 +93,19 @@ abstract class YamlFormOtherBase extends FormElement {
     $element[$type]['#error_no_message'] = TRUE;
 
     // Build other textfield.
-    $element['other']['#type'] = 'textfield';
-    $element['other']['#placeholder'] = t('Enter other...');
     $element['other']['#error_no_message'] = TRUE;
     foreach ($element as $key => $value) {
       if (strpos($key, '#other__') === 0) {
-        $element['other'][str_replace('#other__', '#', $key)] = $value;
+        $other_key = str_replace('#other__', '#', $key);
+        if (!isset($element['other'][$other_key])) {
+          $element['other'][$other_key] = $value;
+        }
       }
     }
+    $element['other'] += [
+      '#type' => 'textfield',
+      '#placeholder' => t('Enter other...'),
+    ];
     $element['other']['#wrapper_attributes']['class'][] = "js-yamlform-$type-other-input";
     $element['other']['#wrapper_attributes']['class'][] = "yamlform-$type-other-input";
 
@@ -123,7 +133,8 @@ abstract class YamlFormOtherBase extends FormElement {
    * {@inheritdoc}
    */
   public static function valueCallback(&$element, $input, FormStateInterface $form_state) {
-    $type = static::$type;
+    // Remove 'yamlform_' prefix from type.
+    $type = str_replace('yamlform_', '', static::$type);
 
     if ($input === FALSE) {
       $default_value = isset($element['#default_value']) ? $element['#default_value'] : NULL;
@@ -157,7 +168,8 @@ abstract class YamlFormOtherBase extends FormElement {
    * Validates an other element.
    */
   public static function validateYamlFormOther(&$element, FormStateInterface $form_state, &$complete_form) {
-    $type = static::$type;
+    // Remove 'yamlform_' prefix from type.
+    $type = str_replace('yamlform_', '', static::$type);
 
     $element_value = $element[$type]['#value'];
     $other_value = $element['other']['#value'];

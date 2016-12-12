@@ -491,7 +491,19 @@ abstract class YamlFormManagedFileBase extends YamlFormElementBase {
    * @see https://www.drupal.org/psa-2016-003
    */
   protected function getUriScheme(array $element) {
-    return (isset($element['#uri_scheme'])) ? $element['#uri_scheme'] : 'private';
+    if (isset($element['#uri_scheme'])) {
+      return $element['#uri_scheme'];
+    }
+    $scheme_options = self::getVisibleStreamWrappers();
+    if (isset($scheme_options['private'])) {
+      return 'private';
+    }
+    elseif (isset($scheme_options['public'])) {
+      return 'public';
+    }
+    else {
+      return 'private';
+    }
   }
 
   /**
@@ -532,7 +544,7 @@ abstract class YamlFormManagedFileBase extends YamlFormElementBase {
     $form['file']['uri_scheme'] = [
       '#type' => 'radios',
       '#title' => t('Upload destination'),
-      '#description' => t('Select where the final files should be stored. Private file storage has more overhead than public files, but allows restricted access to files within this field.'),
+      '#description' => t('Select where the final files should be stored. Private file storage has more overhead than public files, but allows restricted access to files within this element.'),
       '#required' => TRUE,
       '#options' => $scheme_options,
     ];

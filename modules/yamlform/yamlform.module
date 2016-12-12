@@ -7,6 +7,7 @@
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Asset\AttachedAssetsInterface;
 use Drupal\Core\Breadcrumb\Breadcrumb;
 use Drupal\Core\Database\Query\AlterableInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -104,9 +105,9 @@ function yamlform_form_alter(&$form, FormStateInterface $form_state, $form_id) {
 
   $is_submission_form = ($form_state->getFormObject() instanceof YamlFormSubmissionForm);
 
-  // Don't automatically include details toggle all for submission forms.
-  // @todo Add setting that allows form builders to show details toggle all widget.
+  // Don't include details toggle all for submission forms.
   if (!$is_submission_form) {
+    $form['#attributes']['class'][] = 'js-yamlform-details-toggle';
     $form['#attributes']['class'][] = 'yamlform-details-toggle';
     $form['#attached']['library'][] = 'yamlform/yamlform.element.details.toggle';
   }
@@ -248,6 +249,52 @@ function yamlform_page_attachments(&$page) {
 }
 
 /**
+ * Implements hook_css_alter().
+ *
+ * @see \Drupal\yamlform\YamlFormSubmissionForm::form
+ */
+function yamlform_css_alter(&$css, AttachedAssetsInterface $assets) {
+  _yamlform_asset_alter($css, $assets, 'css');
+}
+
+/**
+ * Implements hook_js_alter().
+ *
+ * @see \Drupal\yamlform\YamlFormSubmissionForm::form
+ */
+function yamlform_js_alter(&$javascript, AttachedAssetsInterface $assets) {
+  _yamlform_asset_alter($javascript, $assets, 'javascript');
+}
+
+/**
+ * Alter CSS or JavaScript assets to include custom form assets.
+ *
+ * Note: CSS and JavaScript are not aggregated or minified to make it easier
+ * for themers to debug and custom their code.  We could write the CSS and JS
+ * to the 'files/css' and 'files/js' using the hash key and aggregrate them.
+ *
+ * @param array $items
+ *   An array of all CSS or JavaScript being presented on the page.
+ * @param \Drupal\Core\Asset\AttachedAssetsInterface $assets
+ *   The assets attached to the current response.
+ * @param string $type
+ *   The type of asset being attached.
+ */
+function _yamlform_asset_alter(array &$items, AttachedAssetsInterface $assets, $type) {
+  $settings = $assets->getSettings();
+  if (!empty($settings['yamlform']['assets'][$type])) {
+    foreach ($settings['yamlform']['assets'][$type] as $id => $hash) {
+      $items["yamlform/$id/assets/javascript"] = [
+        'data' => base_path() . "yamlform/$id/assets/$type?v=$hash",
+        'group' => 1000,
+        'weight' => 1000,
+      ] + $items["//yamlform/{yamlform}/assets/$type"];
+    }
+  }
+  unset($items["//yamlform/{yamlform}/assets/$type"]);
+}
+
+/**
  * Implements hook_file_download().
  */
 function yamlform_file_download($uri) {
@@ -287,7 +334,7 @@ function yamlform_theme() {
       'variables' => ['yamlform_submission' => NULL],
     ],
     'yamlform_submission_information' => [
-      'variables' => ['yamlform_submission' => NULL, 'source_entity' => NULL, 'open' => TRUE],
+      'variables' => ['yamlform_submission' => NULL, 'source_entity' => NULL, 'open' => FALSE],
     ],
 
     'yamlform_submission_html' => [
@@ -508,7 +555,7 @@ function yamlform_process_states(&$elements, $key = '#attributes') {
  *
  * @see \Drupal\yamlform\YamlFormEntityElementsValidator::validateRendering()
  */
-function _yamlform_entity_element_validate_rendering_error_handler($error_level, $message, $filename, $line, $context) {
+function _yamlform_entity_element_validate_rendering_error_handler($error_level, $message, $filename, $line, array $context) {
   // From: http://stackoverflow.com/questions/15461611/php-try-catch-not-catching-all-exceptions
   if (E_RECOVERABLE_ERROR === $error_level) {
     // Allow Drupal to still log the error but convert it to a warning.

@@ -19,6 +19,14 @@ function yamlform_test_example_elements() {
     'advanced_elements' => [],
   ];
 
+  // Elements to be ignored.
+  $skipped_elements = [
+    'table',
+    'yamlform_flexbox',
+    'yamlform_test',
+    'yamlform_wizard_page',
+  ];
+
   /** @var \Drupal\yamlform\YamlFormElementManagerInterface $element_manager */
   $element_manager = \Drupal::service('plugin.manager.yamlform.element');
 
@@ -27,6 +35,10 @@ function yamlform_test_example_elements() {
   $elements = $element_manager->getInstances();
   foreach ($definitions as $definition) {
     $element_type = $definition['id'];
+    if (in_array($element_type, $skipped_elements)) {
+      continue;
+    }
+
     $yamlform_element = $elements[$element_type];
     $element = _yamlform_test_get_example_element($element_type);
     if (!$element) {

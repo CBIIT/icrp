@@ -2,10 +2,13 @@
 
 namespace Drupal\yamlform;
 
+use Drupal\yamlform\Utility\YamlFormArrayHelper;
+use Drupal\yamlform\Utility\YamlFormElementHelper;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\user\Entity\User;
 
@@ -13,6 +16,13 @@ use Drupal\user\Entity\User;
  * Base for controller for form settings.
  */
 class YamlFormEntitySettingsForm extends EntityForm {
+
+  /**
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountInterface
+   */
+  protected $currentUser;
 
   /**
    * The message manager.
@@ -24,14 +34,13 @@ class YamlFormEntitySettingsForm extends EntityForm {
   /**
    * Constructs a new YamlFormUiElementFormBase.
    *
-   * @param \Drupal\Core\Render\RendererInterface $renderer
-   *   The renderer.
-   * @param \Drupal\yamlform\YamlFormElementManagerInterface $element_manager
-   *   The form element manager.
-   * @param \Drupal\yamlform\YamlFormEntityElementsValidator $elements_validator
-   *   Form element validator.
+   * @param \Drupal\Core\Session\AccountInterface $current_user
+   *   The current user.
+   * @param \Drupal\yamlform\YamlFormMessageManagerInterface $message_manager
+   *   The message manager.
    */
-  public function __construct(YamlFormMessageManagerInterface $message_manager) {
+  public function __construct(AccountInterface $current_user, YamlFormMessageManagerInterface $message_manager) {
+    $this->currentUser = $current_user;
     $this->messageManager = $message_manager;
   }
 
@@ -40,6 +49,7 @@ class YamlFormEntitySettingsForm extends EntityForm {
    */
   public static function create(ContainerInterface $container) {
     return new static(
+      $container->get('current_user'),
       $container->get('yamlform.message_manager')
     );
   }
@@ -82,15 +92,15 @@ class YamlFormEntitySettingsForm extends EntityForm {
     $form['general']['template'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Allow this form to be used as a template.'),
-      '#description' => $this->t('If checked, this form will be available as template, which can be duplicated, to all users who can create new forms.'),
+      '#description' => $this->t('If checked, this form will be available as a template to all users who can create new forms.'),
       '#access' => $this->moduleHandler->moduleExists('yamlform_templates'),
       '#default_value' => $yamlform->isTemplate(),
     ];
     $form['general']['results_disabled'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Disable saving of submissions.'),
-      '#return_value' => TRUE,
       '#description' => $this->t('If saving of submissions is disabled, submission settings, submission limits and the saving of drafts will be disabled.  Submissions must be sent via an email or handled using a custom <a href=":href">form handler</a>.', [':href' => Url::fromRoute('entity.yamlform.handlers_form', ['yamlform' => $yamlform->id()])->toString()]),
+      '#return_value' => TRUE,
       '#default_value' => $settings['results_disabled'],
     ];
     // Display warning when disabling the saving of submissions with no
@@ -113,6 +123,7 @@ class YamlFormEntitySettingsForm extends EntityForm {
         '#title' => $this->t('Ignore disabled results warning'),
         '#description' => $this->t("If checked, all warnings and log messages about 'This form is currently not saving any submitted data.' will be suppressed."),
         '#return_value' => TRUE,
+        '#default_value' => $settings['results_disabled_ignore'],
         '#states' => [
           'visible' => [
             ':input[name="results_disabled"]' => ['checked' => TRUE],
@@ -124,7 +135,7 @@ class YamlFormEntitySettingsForm extends EntityForm {
     // Page.
     $form['page'] = [
       '#type' => 'details',
-      '#title' => $this->t('Page settings'),
+      '#title' => $this->t('URL path settings'),
       '#open' => TRUE,
     ];
     $default_page_submit_path = trim($default_settings['default_page_base_path'], '/') . '/' . str_replace('_', '-', $yamlform->id());
@@ -137,13 +148,13 @@ class YamlFormEntitySettingsForm extends EntityForm {
     $form['page']['page'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Allow users to post submission from a dedicated URL.'),
-      '#description' => $this->t('If unchecked this form must be attached to a <a href=":node_href">node</a> or a <a href=":block_href">block</a> to receive submissions.', $t_args),
+      '#description' => $this->t('If unchecked, this form must be attached to a <a href=":node_href">node</a> or a <a href=":block_href">block</a> to receive submissions.', $t_args),
       '#default_value' => $settings['page'],
     ];
     if ($this->moduleHandler->moduleExists('path')) {
       $form['page']['page_submit_path'] = [
         '#type' => 'textfield',
-        '#title' => $this->t('Submit URL alias'),
+        '#title' => $this->t('Form URL alias'),
         '#description' => $this->t('Optionally specify an alternative URL by which the form submit page can be accessed.', $t_args),
         '#default_value' => $settings['page_submit_path'],
         '#states' => [
@@ -154,8 +165,8 @@ class YamlFormEntitySettingsForm extends EntityForm {
       ];
       $form['page']['page_confirm_path'] = [
         '#type' => 'textfield',
-        '#title' => $this->t('Confirm  URL alias'),
-        '#description' => $this->t('Optionally specify an alternative URL by which the form confirmation page(after the form has been submitted) can be accessed.', $t_args),
+        '#title' => $this->t('Confirmation page URL alias'),
+        '#description' => $this->t('Optionally specify an alternative URL by which the form confirmation page can be accessed.', $t_args),
         '#default_value' => $settings['page_confirm_path'],
         '#states' => [
           'visible' => [
@@ -199,11 +210,21 @@ class YamlFormEntitySettingsForm extends EntityForm {
       '#description' => $this->t('A message to be displayed if the form breaks.'),
       '#default_value' => $settings['form_exception_message'],
     ];
-    $form['form']['form_submit_label'] = [
+    $form['form']['form_submit'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Form submit button'),
+    ];
+    $form['form']['form_submit']['form_submit_label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Form submit button label'),
       '#size' => 20,
       '#default_value' => $settings['form_submit_label'],
+    ];
+    $form['form']['form_submit']['form_submit_attributes'] = [
+      '#type' => 'yamlform_element_attributes',
+      '#title' => $this->t('Form submit button'),
+      '#classes' => $this->configFactory->get('yamlform.settings')->get('settings.button_classes'),
+      '#default_value' => $settings['form_submit_attributes'],
     ];
     $form['form']['form_prepopulate'] = [
       '#type' => 'checkbox',
@@ -219,75 +240,72 @@ class YamlFormEntitySettingsForm extends EntityForm {
       '#return_value' => TRUE,
       '#default_value' => $settings['form_prepopulate_source_entity'],
     ];
-    if ($default_settings['default_form_novalidate']) {
-      $form['form']['form_novalidate_disabled'] = [
-        '#type' => 'checkbox',
-        '#title' => $this->t('Disable client-side validation'),
-        '#description' => $this->t('Client-side validation is disabled for all forms.'),
-        '#disabled' => TRUE,
-        '#default_value' => TRUE,
-      ];
-      $form['form']['form_novalidate'] = [
-        '#type' => 'value',
-        '#value' => $settings['form_novalidate'],
-      ];
-    }
-    else {
-      $form['form']['form_novalidate'] = [
-        '#type' => 'checkbox',
-        '#title' => $this->t('Disable client-side validation'),
-        '#description' => $this->t('If checked, the <a href=":href">novalidate</a> attribute, which disables client-side validation, will be added to this forms.', [':href' => 'http://www.w3schools.com/tags/att_form_novalidate.asp']),
-        '#return_value' => TRUE,
-        '#default_value' => $settings['form_novalidate'],
-      ];
+    $settings_elements = [
+      'form_disable_back' => [
+        'title' => $this->t('Disable back button for all forms'),
+        'all_description' => $this->t('Back button is disabled for all forms.'),
+        'form_description' => $this->t('If checked, users will not be allowed to navigate back to the form using the browsers back button.'),
+      ],
+      'form_unsaved' => [
+        'title' => $this->t('Warn users about unsaved changes'),
+        'all_description' => $this->t('Unsaved warning is enabled for all forms.'),
+        'form_description' => $this->t('If checked, users will be displayed a warning message when they navigate away from a form with unsaved changes.'),
+      ],
+      'form_novalidate' => [
+        'title' => $this->t('Disable client-side validation'),
+        'all_description' => $this->t('Client-side validation is disabled for all forms.'),
+        'form_description' => $this->t('If checked, the <a href=":href">novalidate</a> attribute, which disables client-side validation, will be added to this form.', [':href' => 'http://www.w3schools.com/tags/att_form_novalidate.asp']),
+      ],
+      'form_details_toggle' => [
+        'title' => $this->t('Display collapse/expand all details link'),
+        'all_description' => $this->t('Expand/collapse all (details) link is automatically added to all forms.'),
+        'form_description' => $this->t('If checked, an expand/collapse all (details) link will be added to this form when there are two or more details elements available on the form.'),
+      ],
+    ];
+    foreach ($settings_elements as $settings_key => $setting_element) {
+      if ($default_settings['default_' . $settings_key]) {
+        $form['form'][$settings_key . '_disabled'] = [
+          '#type' => 'checkbox',
+          '#title' => $setting_element['title'],
+          '#description' => $setting_element['all_description'],
+          '#disabled' => TRUE,
+          '#default_value' => TRUE,
+        ];
+        $form['form'][$settings_key] = [
+          '#type' => 'value',
+          '#value' => $settings[$settings_key],
+        ];
+      }
+      else {
+        $form['form'][$settings_key] = [
+          '#type' => 'checkbox',
+          '#title' => $setting_element['title'],
+          '#description' => $setting_element['form_description'],
+          '#return_value' => TRUE,
+          '#default_value' => $settings[$settings_key],
+        ];
+      }
     }
     $form['form']['form_autofocus'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Autofocus'),
-      '#description' => $this->t('If checked, the first visible and enabled input will be focused for new submissions.'),
+      '#description' => $this->t('If checked, the first visible and enabled input will be focused when adding new submissions.'),
       '#return_value' => TRUE,
       '#default_value' => $settings['form_autofocus'],
     ];
-    if ($default_settings['default_form_details_toggle']) {
-      $form['form']['form_details_toggle_disabled'] = [
-        '#type' => 'checkbox',
-        '#title' => $this->t('Display collapse/expand all details link'),
-        '#description' => $this->t('Expand/collapse all (details) is automatically added to all forms.'),
-        '#disabled' => TRUE,
-        '#default_value' => TRUE,
-      ];
-      $form['form']['form_details_toggle'] = [
-        '#type' => 'value',
-        '#value' => $settings['form_details_toggle'],
-      ];
-    }
-    else {
-      $form['form']['form_details_toggle'] = [
-        '#type' => 'checkbox',
-        '#title' => $this->t('Display collapse/expand all details link'),
-        '#description' => $this->t('If checked, an expand/collapse all (details) link will be added to this forms when there are two or more details elements.'),
-        '#return_value' => TRUE,
-        '#default_value' => $settings['form_details_toggle'],
-      ];
-    }
 
     // Attributes.
     $elements = $yamlform->getElementsDecoded();
     $form['attributes'] = [
       '#type' => 'details',
       '#title' => $this->t('Form attributes'),
-      '#open' => FALSE,
+      '#open' => TRUE,
     ];
-    $form['attributes']['form_attributes__class'] = YamlFormElementBase::getAttributesClassElement(
-      $this->t('Form CSS classes'),
-      $this->t("Apply classes to the form. Select 'custom...' the enter custom classes."),
-      $this->configFactory->get('yamlform.settings')->get('settings.classes')
-    ) + ['#default_value' => (isset($elements['#attributes']['class'])) ? $elements['#attributes']['class'] : ''];
-    $form['attributes']['form_attributes__style'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Form CSS style'),
-      '#description' => $this->t('Apply custom styles to the form.'),
-      '#default_value' => (isset($elements['#attributes']['style'])) ? $elements['#attributes']['style'] : '',
+    $form['attributes']['attributes'] = [
+      '#type' => 'yamlform_element_attributes',
+      '#title' => $this->t('Form'),
+      '#classes' => $this->configFactory->get('yamlform.settings')->get('settings.form_classes'),
+      '#default_value' => (isset($elements['#attributes'])) ? $elements['#attributes'] : [],
     ];
 
     // Wizard.
@@ -295,6 +313,11 @@ class YamlFormEntitySettingsForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Wizard settings'),
       '#open' => TRUE,
+      '#states' => [
+        'visible' => [
+          ':input[name="method"]' => ['value' => ''],
+        ],
+      ],
     ];
     $form['wizard']['wizard_progress_bar'] = [
       '#type' => 'checkbox',
@@ -314,19 +337,39 @@ class YamlFormEntitySettingsForm extends EntityForm {
       '#title' => $this->t('Show wizard progress percentage'),
       '#default_value' => $settings['wizard_progress_percentage'],
     ];
-    $form['wizard']['wizard_prev_button_label'] = [
+    $form['wizard']['wizard_prev_button'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Previous wizard page button'),
+      '#description' => $this->t('This is used for the previous page button within a wizard.'),
+    ];
+    $form['wizard']['wizard_prev_button']['wizard_prev_button_label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Previous wizard page button label'),
-      '#description' => $this->t('This is used for the previous page button within a wizard.'),
       '#size' => 20,
       '#default_value' => $settings['wizard_prev_button_label'],
     ];
-    $form['wizard']['wizard_next_button_label'] = [
+    $form['wizard']['wizard_prev_button']['wizard_prev_button_attributes'] = [
+      '#type' => 'yamlform_element_attributes',
+      '#title' => $this->t('Previous wizard page button'),
+      '#classes' => $this->configFactory->get('yamlform.settings')->get('settings.button_classes'),
+      '#default_value' => $settings['wizard_prev_button_attributes'],
+    ];
+    $form['wizard']['wizard_next_button'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Next wizard page button'),
+      '#description' => $this->t('This is used for the next page button within a wizard.'),
+    ];
+    $form['wizard']['wizard_next_button']['wizard_next_button_label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Next wizard page button label'),
-      '#description' => $this->t('This is used for the next page button within a wizard.'),
       '#size' => 20,
       '#default_value' => $settings['wizard_next_button_label'],
+    ];
+    $form['wizard']['wizard_next_button']['wizard_next_button_attributes'] = [
+      '#type' => 'yamlform_element_attributes',
+      '#title' => $this->t('Next wizard page button'),
+      '#classes' => $this->configFactory->get('yamlform.settings')->get('settings.button_classes'),
+      '#default_value' => $settings['wizard_next_button_attributes'],
     ];
     $form['wizard']['wizard_complete'] = [
       '#type' => 'checkbox',
@@ -357,6 +400,11 @@ class YamlFormEntitySettingsForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Preview settings'),
       '#open' => TRUE,
+      '#states' => [
+        'visible' => [
+          ':input[name="method"]' => ['value' => ''],
+        ],
+      ],
     ];
     $form['preview']['preview'] = [
       '#type' => 'radios',
@@ -377,19 +425,41 @@ class YamlFormEntitySettingsForm extends EntityForm {
         ],
       ],
     ];
-    $form['preview']['settings']['preview_next_button_label'] = [
+    // Preview next button.
+    $form['preview']['settings']['preview_next_button'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Preview button'),
+    ];
+    $form['preview']['settings']['preview_next_button']['preview_next_button_label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Preview button label'),
       '#description' => $this->t('The text for the button that will proceed to the preview page.'),
       '#size' => 20,
       '#default_value' => $settings['preview_next_button_label'],
     ];
-    $form['preview']['settings']['preview_prev_button_label'] = [
+    $form['preview']['settings']['preview_next_button']['preview_next_button_attributes'] = [
+      '#type' => 'yamlform_element_attributes',
+      '#title' => $this->t('Preview button'),
+      '#classes' => $this->configFactory->get('yamlform.settings')->get('settings.button_classes'),
+      '#default_value' => $settings['preview_next_button_attributes'],
+    ];
+    // Preview previous button.
+    $form['preview']['settings']['preview_prev_button'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Previous page button'),
+    ];
+    $form['preview']['settings']['preview_prev_button']['preview_prev_button_label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Previous page button label'),
       '#description' => $this->t('The text for the button to go backwards from the preview page.'),
       '#size' => 20,
       '#default_value' => $settings['preview_prev_button_label'],
+    ];
+    $form['preview']['settings']['preview_prev_button']['preview_prev_button_attributes'] = [
+      '#type' => 'yamlform_element_attributes',
+      '#title' => $this->t('Previous page button'),
+      '#classes' => $this->configFactory->get('yamlform.settings')->get('settings.button_classes'),
+      '#default_value' => $settings['preview_prev_button_attributes'],
     ];
     $form['preview']['settings']['preview_message'] = [
       '#type' => 'yamlform_html_editor',
@@ -406,6 +476,7 @@ class YamlFormEntitySettingsForm extends EntityForm {
       '#states' => [
         'visible' => [
           ':input[name="results_disabled"]' => ['checked' => FALSE],
+          ':input[name="method"]' => ['value' => ''],
         ],
       ],
     ];
@@ -428,15 +499,25 @@ class YamlFormEntitySettingsForm extends EntityForm {
       '#type' => 'checkbox',
       '#return_value' => TRUE,
       '#title' => $this->t('Automatically save as draft when paging, previewing, and when there are validation errors.'),
-      "#description" => $this->t('Automatically save partial submissions when users click the "Preview" button or when validation errors prevent form submission.'),
+      "#description" => $this->t('Automatically save partial submissions when users click the "Preview" button or when validation errors prevent a form from being submitted.'),
       '#default_value' => $settings['draft_auto_save'],
     ];
-    $form['draft']['settings']['draft_button_label'] = [
+    $form['draft']['settings']['draft_button'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Draft button'),
+    ];
+    $form['draft']['settings']['draft_button']['draft_button_label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Draft button label'),
       '#description' => $this->t('The text for the button that will save a draft.'),
       '#size' => 20,
       '#default_value' => $settings['draft_button_label'],
+    ];
+    $form['draft']['settings']['draft_button']['draft_button_attributes'] = [
+      '#type' => 'yamlform_element_attributes',
+      '#title' => $this->t('Draft button'),
+      '#classes' => $this->configFactory->get('yamlform.settings')->get('settings.button_classes'),
+      '#default_value' => $settings['draft_button_attributes'],
     ];
     $form['draft']['settings']['draft_saved_message'] = [
       '#type' => 'yamlform_html_editor',
@@ -459,6 +540,7 @@ class YamlFormEntitySettingsForm extends EntityForm {
       '#states' => [
         'visible' => [
           ':input[name="results_disabled"]' => ['checked' => FALSE],
+          ':input[name="method"]' => ['value' => ''],
         ],
       ],
     ];
@@ -503,6 +585,7 @@ class YamlFormEntitySettingsForm extends EntityForm {
       '#states' => [
         'visible' => [
           ':input[name="results_disabled"]' => ['checked' => FALSE],
+          ':input[name="method"]' => ['value' => ''],
         ],
       ],
     ];
@@ -547,6 +630,11 @@ class YamlFormEntitySettingsForm extends EntityForm {
       '#type' => 'details',
       '#title' => $this->t('Confirmation settings'),
       '#open' => TRUE,
+      '#states' => [
+        'visible' => [
+          ':input[name="method"]' => ['value' => ''],
+        ],
+      ],
     ];
     $form['confirmation']['confirmation_type'] = [
       '#title' => $this->t('Confirmation type'),
@@ -569,7 +657,7 @@ class YamlFormEntitySettingsForm extends EntityForm {
       '#states' => [
         'visible' => [
           [':input[name="confirmation_type"]' => ['value' => 'url']],
-          'xor',
+          'or',
           [':input[name="confirmation_type"]' => ['value' => 'url_message']],
         ],
       ],
@@ -584,6 +672,49 @@ class YamlFormEntitySettingsForm extends EntityForm {
           ':input[name="confirmation_type"]' => ['value' => 'url'],
         ],
       ],
+    ];
+    $form['confirmation']['page'] = [
+      '#type' => 'container',
+      '#states' => [
+        'visible' => [
+          [':input[name="confirmation_type"]' => ['value' => 'page']],
+          'or',
+          [':input[name="confirmation_type"]' => ['value' => 'inline']],
+        ],
+      ],
+    ];
+    $form['confirmation']['page']['confirmation_attributes'] = [
+      '#type' => 'yamlform_element_attributes',
+      '#title' => $this->t('Confirmation'),
+      '#classes' => $this->configFactory->get('yamlform.settings')->get('settings.confirmation_classes'),
+      '#default_value' => $settings['confirmation_attributes'],
+    ];
+    $form['confirmation']['page']['confirmation_back'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Display back to form link'),
+      '#return_value' => TRUE,
+      '#default_value' => $settings['confirmation_back'],
+    ];
+    $form['confirmation']['page']['back'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Confirmation back link'),
+      '#states' => [
+        'visible' => [
+          [':input[name="confirmation_back"]' => ['checked' => TRUE]],
+        ],
+      ],
+    ];
+    $form['confirmation']['page']['back']['confirmation_back_label'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Confirmation back link label'),
+      '#size' => 20,
+      '#default_value' => $settings['confirmation_back_label'],
+    ];
+    $form['confirmation']['page']['back']['confirmation_back_attributes'] = [
+      '#type' => 'yamlform_element_attributes',
+      '#title' => $this->t('Confirmation back link'),
+      '#classes' => $this->configFactory->get('yamlform.settings')->get('settings.confirmation_back_classes'),
+      '#default_value' => $settings['confirmation_back_attributes'],
     ];
     if ($this->moduleHandler->moduleExists('token')) {
       $form['confirmation']['token_tree_link'] = [
@@ -614,6 +745,74 @@ class YamlFormEntitySettingsForm extends EntityForm {
       '#default_value' => $yamlform->getOwner(),
     ];
 
+    // Custom.
+    $properties = YamlFormElementHelper::getProperties($yamlform->getElementsDecoded());
+    // Set default properties.
+    $properties += [
+      '#method' => '',
+      '#action' => '',
+    ];
+    $form['custom'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Custom settings'),
+      '#open' => $properties ? TRUE : FALSE,
+      '#access' => !$this->moduleHandler->moduleExists('yamlform_ui') || $this->currentUser()->hasPermission('edit yamlform source'),
+    ];
+    $form['custom']['method'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Method'),
+      '#description' => $this->t('The HTTP method with which the form will be submitted.') . '<br/>' .
+        '<em>' . $this->t('Selecting a custom POST or GET method will automatically disable wizards, previews, drafts, submissions, limits, and confirmations.') . '</em>',
+      '#options' => [
+        '' => $this->t('POST (Default)'),
+        'post' => $this->t('POST (Custom)'),
+        'get' => $this->t('GET (Custom)'),
+      ],
+      '#default_value' => $properties['#method'],
+    ];
+    $form['custom']['method_message'] = [
+      '#type' => 'yamlform_message',
+      '#message_type' => 'warning',
+      '#message_message' => $this->t("Please make sure this form's action URL or path is setup to handle the form's submission."),
+      '#states' => [
+        'invisible' => [
+          ':input[name="method"]' => ['value' => ''],
+        ],
+      ],
+    ];
+
+    $form['custom']['action'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Action'),
+      '#description' => $this->t('The URL or path to which the form will be submitted.'),
+      '#states' => [
+        'invisible' => [
+          ':input[name="method"]' => ['value' => ''],
+        ],
+        'optional' => [
+          ':input[name="method"]' => ['value' => ''],
+        ],
+      ],
+      '#default_value' => $properties['#action'],
+    ];
+    // Unset properties that are form settings.
+    unset(
+      $properties['#method'],
+      $properties['#action'],
+      $properties['#novalidate'],
+      $properties['#attributes']
+    );
+    $form['custom']['custom'] = [
+      '#type' => 'yamlform_codemirror',
+      '#mode' => 'yaml',
+      '#title' => $this->t('Custom properties'),
+      '#description' =>
+        $this->t('Properties do not have to prepended with a hash (#) character, the hash character will be automatically added upon submission.') .
+        '<br/>' .
+        $this->t('These properties and callbacks are not allowed: @properties', ['@properties' => YamlFormArrayHelper::toString(YamlFormArrayHelper::addPrefix(YamlFormElementHelper::$ignoredProperties))]),
+      '#default_value' => YamlFormArrayHelper::removePrefix($properties),
+    ];
+
     $this->appendDefaultValueToElementDescriptions($form, $default_settings);
 
     return parent::form($form, $form_state);
@@ -637,29 +836,31 @@ class YamlFormEntitySettingsForm extends EntityForm {
     /** @var \Drupal\yamlform\YamlFormInterface $yamlform */
     $yamlform = $this->getEntity();
 
-    // Remove custom 'class' and 'style' attributes.
+    // Set custom properties, class, and style.
     $elements = $yamlform->getElementsDecoded();
-    $elements['#attributes']['class'] = $values['form_attributes__class'];
-    $elements['#attributes']['style'] = $values['form_attributes__style'];
-    if (empty($elements['#attributes']['class'])) {
-      unset($elements['#attributes']['class']);
+    $elements = YamlFormElementHelper::removeProperties($elements);
+    $properties = [];
+    if (!empty($values['method'])) {
+      $properties['#method'] = $values['method'];
     }
-    if (empty($elements['#attributes']['style'])) {
-      unset($elements['#attributes']['style']);
+    if (!empty($values['action'])) {
+      $properties['#action'] = $values['action'];
     }
-    if (empty($elements['#attributes'])) {
-      unset($elements['#attributes']);
+    if (!empty($values['custom'])) {
+      $properties += YamlFormArrayHelper::addPrefix($values['custom']);
     }
-    else {
-      // Make sure #attributes are always first.
-      $attributes = $elements['#attributes'];
-      unset($elements['#attributes']);
-      $elements = ['#attributes' => $attributes] + $elements;
+    if (!empty($values['attributes'])) {
+      $properties['#attributes'] = $values['attributes'];
     }
+    $elements = $properties + $elements;
     $yamlform->setElements($elements);
+
+    // Remove custom properties and attributes.
     unset(
-      $values['form_attributes__class'],
-      $values['form_attributes__style']
+      $values['method'],
+      $values['action'],
+      $values['attributes'],
+      $values['custom']
     );
 
     /** @var \Drupal\yamlform\YamlFormSubmissionStorageInterface $submission_storage */
@@ -688,6 +889,7 @@ class YamlFormEntitySettingsForm extends EntityForm {
     // Remove disabled properties.
     unset(
       $values['form_novalidate_disabled'],
+      $values['form_unsaved_disabled'],
       $values['form_details_toggle_disabled']
     );
 

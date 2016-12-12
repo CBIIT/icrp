@@ -3,7 +3,7 @@
 namespace Drupal\yamlform\Element;
 
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Render\Element\FormElement;
 use Drupal\Core\Form\FormStateInterface;
@@ -136,10 +136,10 @@ class YamlFormElementStates extends FormElement {
     // Build header.
     $header = [
       ['data' => t('State'), 'width' => '20%'],
-      ['data' => t('Element/Selector'), 'width' => '30%'],
+      ['data' => t('Element/Selector'), 'width' => '45%'],
       ['data' => t('Trigger'), 'width' => '20%'],
       ['data' => t('Value'), 'width' => '10%'],
-      ['data' => '', 'width' => '10%'],
+      ['data' => ''],
     ];
 
     // Get states and number of rows.
@@ -191,6 +191,7 @@ class YamlFormElementStates extends FormElement {
     ];
 
     $element['#attached']['library'][] = 'yamlform/yamlform.element.states';
+    $element['#attached']['library'][] = 'yamlform/yamlform.element.select2';
 
     return $element;
   }
@@ -225,6 +226,7 @@ class YamlFormElementStates extends FormElement {
       '#default_value' => $state['state'],
       '#empty_option' => '',
       '#empty_value' => '',
+      '#attributes' => ['class' => ['js-yamlform-select2', 'yamlform-select2']],
     ];
     $row['operator'] = [
       '#type' => 'select',
@@ -276,6 +278,7 @@ class YamlFormElementStates extends FormElement {
       '#default_value' => $condition['selector'],
       '#empty_option' => '',
       '#empty_value' => '',
+      '#attributes' => ['class' => ['js-yamlform-select2', 'yamlform-select2']],
     ];
     $row['trigger'] = [
       '#type' => 'select',
@@ -283,6 +286,7 @@ class YamlFormElementStates extends FormElement {
       '#default_value' => $condition['trigger'],
       '#empty_option' => '',
       '#empty_value' => '',
+      '#attributes' => ['class' => ['js-yamlform-select2', 'yamlform-select2']],
     ];
     $row['value'] = [
       '#type' => 'textfield',

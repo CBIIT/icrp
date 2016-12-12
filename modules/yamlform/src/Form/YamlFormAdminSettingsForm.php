@@ -103,10 +103,10 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
     $settings = $config->get('settings');
     $element_plugins = $this->elementManager->getInstances();
 
+    // Page.
     $form['page'] = [
       '#type' => 'details',
       '#title' => $this->t('Page default settings'),
-      '#open' => FALSE,
       '#tree' => TRUE,
     ];
     $form['page']['default_page_base_path']  = [
@@ -116,10 +116,10 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('settings.default_page_base_path'),
     ];
 
+    // Form.
     $form['form'] = [
       '#type' => 'details',
       '#title' => $this->t('Form default settings'),
-      '#open' => FALSE,
       '#tree' => TRUE,
     ];
     $form['form']['default_form_closed_message']  = [
@@ -147,6 +147,20 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
       '#required' => TRUE,
       '#default_value' => $config->get('settings.default_form_confidential_message'),
     ];
+    $form['form']['default_form_disable_back']  = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Disable back button for all forms'),
+      '#description' => $this->t('If checked, users will not be allowed to navigate back to the form using the browsers back button.'),
+      '#return_value' => TRUE,
+      '#default_value' => $config->get('settings.default_form_disable_back'),
+    ];
+    $form['form']['default_form_unsaved']  = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Warn users about unsaved changes'),
+      '#description' => $this->t('If checked, users will be displayed a warning message when they navigate away from a form with unsaved changes.'),
+      '#return_value' => TRUE,
+      '#default_value' => $config->get('settings.default_form_unsaved'),
+    ];
     $form['form']['default_form_novalidate']  = [
       '#type' => 'checkbox',
       '#title' => $this->t('Disable client-side validation for all forms'),
@@ -161,17 +175,23 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
       '#return_value' => TRUE,
       '#default_value' => $config->get('settings.default_form_details_toggle'),
     ];
-    $form['form']['classes'] = [
-      '#type' => 'textarea',
+    $form['form']['form_classes'] = [
+      '#type' => 'yamlform_codemirror',
       '#title' => $this->t('Form CSS classes'),
       '#description' => $this->t('A list of classes that will be provided in the "Form CSS classes" dropdown. Enter one or more classes on each line. These styles should be available in your theme\'s CSS file.'),
-      '#required' => TRUE,
-      '#default_value' => $config->get('settings.classes'),
+      '#default_value' => $config->get('settings.form_classes'),
     ];
+    $form['form']['button_classes'] = [
+      '#type' => 'yamlform_codemirror',
+      '#title' => $this->t('Button CSS classes'),
+      '#description' => $this->t('A list of classes that will be provided in "Button CSS classes" dropdown. Enter one or more classes on each line. These styles should be available in your theme\'s CSS file.'),
+      '#default_value' => $config->get('settings.button_classes'),
+    ];
+
+    // Wizard.
     $form['wizard'] = [
       '#type' => 'details',
       '#title' => $this->t('Wizard default settings'),
-      '#open' => FALSE,
       '#tree' => TRUE,
     ];
     $form['wizard']['default_wizard_prev_button_label'] = [
@@ -203,10 +223,10 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
       '#default_value' => $settings['default_wizard_complete_label'],
     ];
 
+    // Preview.
     $form['preview'] = [
       '#type' => 'details',
       '#title' => $this->t('Preview default settings'),
-      '#open' => FALSE,
       '#tree' => TRUE,
     ];
     $form['preview']['default_preview_next_button_label'] = [
@@ -230,10 +250,10 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
       '#default_value' => $settings['default_preview_message'],
     ];
 
+    // Draft.
     $form['draft'] = [
       '#type' => 'details',
       '#title' => $this->t('Draft default settings'),
-      '#open' => FALSE,
       '#tree' => TRUE,
     ];
     $form['draft']['default_draft_button_label'] = [
@@ -259,7 +279,6 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
     $form['confirmation'] = [
       '#type' => 'details',
       '#title' => $this->t('Confirmation default settings'),
-      '#open' => FALSE,
       '#tree' => TRUE,
     ];
     $form['confirmation']['default_confirmation_message']  = [
@@ -268,11 +287,29 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
       '#required' => TRUE,
       '#default_value' => $config->get('settings.default_confirmation_message'),
     ];
+    $form['confirmation']['default_confirmation_back_label']  = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Default confirmation back label'),
+      '#required' => TRUE,
+      '#default_value' => $config->get('settings.default_confirmation_back_label'),
+    ];
+    $form['confirmation']['confirmation_classes'] = [
+      '#type' => 'yamlform_codemirror',
+      '#title' => $this->t('Confirmation CSS classes'),
+      '#description' => $this->t('A list of classes that will be provided in the "Confirmation CSS classes" dropdown. Enter one or more classes on each line. These styles should be available in your theme\'s CSS file.'),
+      '#default_value' => $config->get('settings.confirmation_classes'),
+    ];
+    $form['confirmation']['confirmation_back_classes'] = [
+      '#type' => 'yamlform_codemirror',
+      '#title' => $this->t('Confirmation back link CSS classes'),
+      '#description' => $this->t('A list of classes that will be provided in the "Confirmation back link CSS classes" dropdown. Enter one or more classes on each line. These styles should be available in your theme\'s CSS file.'),
+      '#default_value' => $config->get('settings.confirmation_back_classes'),
+    ];
 
+    // Limit.
     $form['limit'] = [
       '#type' => 'details',
       '#title' => $this->t('Limit default settings'),
-      '#open' => FALSE,
       '#tree' => TRUE,
     ];
     $form['limit']['default_limit_total_message']  = [
@@ -291,8 +328,7 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
     // Elements.
     $form['elements'] = [
       '#type' => 'details',
-      '#title' => $this->t('Elements default settings'),
-      '#open' => FALSE,
+      '#title' => $this->t('Element default settings'),
       '#tree' => TRUE,
     ];
     $form['elements']['allowed_tags'] = [
@@ -304,19 +340,21 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
       ],
       '#other__option_label' => $this->t('Custom tags'),
       '#other__placeholder' => $this->t('Enter multiple tags delimited using spaces'),
+      '#other__default_value' => implode(' ', Xss::getAdminTagList()),
+      '#other__maxlength' => 1000,
       '#required' => TRUE,
-      '#description' => $this->t('Allowed tags are applied to an element propperty that may contain HTML. This includes element title, description, prefix, and suffix'),
+      '#description' => $this->t('Allowed tags are applied to any element property that may contain HTML markup. This properties include #title, #description, #field_prefix, and #field_suffix'),
       '#default_value' => $config->get('elements.allowed_tags'),
     ];
     $form['elements']['wrapper_classes'] = [
-      '#type' => 'textarea',
+      '#type' => 'yamlform_codemirror',
       '#title' => $this->t('Wrapper CSS classes'),
       '#description' => $this->t('A list of classes that will be provided in the "Wrapper CSS classes" dropdown. Enter one or more classes on each line. These styles should be available in your theme\'s CSS file.'),
       '#required' => TRUE,
       '#default_value' => $config->get('elements.wrapper_classes'),
     ];
     $form['elements']['classes'] = [
-      '#type' => 'textarea',
+      '#type' => 'yamlform_codemirror',
       '#title' => $this->t('Element CSS classes'),
       '#description' => $this->t('A list of classes that will be provided in the "Element CSS classes" dropdown. Enter one or more classes on each line. These styles should be available in your theme\'s CSS file.'),
       '#required' => TRUE,
@@ -341,6 +379,8 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
       '#description' => $this->t('Google requires users to use a valid API key. Using the <a href="https://console.developers.google.com/apis">Google API Manager</a>, you can enable the <em>Google Maps JavaScript API</em>. That will create (or reuse) a <em>Browser key</em> which you can paste here.'),
       '#default_value' => $config->get('elements.default_google_maps_api_key'),
     ];
+
+    // (Excluded) Types.
     $types_header = [
       'title' => ['data' => $this->t('Title')],
       'type' => ['data' => $this->t('Type')],
@@ -354,12 +394,12 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
         'type' => $element_plugin->getTypeName(),
       ];
     }
-    $form['elements']['types_label'] = [
-      '#type' => 'label',
-      '#title' => $this->t('Enabled element types'),
-      '#required' => TRUE,
+    $form['types'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Element types'),
+      '#description' => $this->t('Select enable element types'),
     ];
-    $form['elements']['excluded_types'] = [
+    $form['types']['excluded_types'] = [
       '#type' => 'tableselect',
       '#header' => $types_header,
       '#options' => $types_options,
@@ -371,7 +411,6 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
     $form['file'] = [
       '#type' => 'details',
       '#title' => $this->t('File upload default settings'),
-      '#open' => FALSE,
       '#tree' => TRUE,
     ];
     $form['file']['file_public'] = [
@@ -413,7 +452,6 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
     $form['format'] = [
       '#type' => 'details',
       '#title' => $this->t('Format default settings'),
-      '#open' => FALSE,
       '#tree' => TRUE,
     ];
     foreach ($element_plugins as $element_id => $element_plugin) {
@@ -455,7 +493,6 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
     $form['mail'] = [
       '#type' => 'details',
       '#title' => $this->t('Email default settings'),
-      '#open' => FALSE,
       '#tree' => TRUE,
     ];
     $form['mail']['default_from_mail']  = [
@@ -498,11 +535,11 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
         '#dialog' => TRUE,
       ];
     }
+
     // Export.
     $form['export'] = [
       '#type' => 'details',
       '#title' => $this->t('Export default settings'),
-      '#open' => FALSE,
     ];
     $export_options = NestedArray::mergeDeep($config->get('export') ?: [],
       $this->submissionExporter->getValuesFromInput($form_state->getUserInput())
@@ -514,7 +551,6 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
     $form['batch'] = [
       '#type' => 'details',
       '#title' => $this->t('Batch settings'),
-      '#open' => FALSE,
       '#tree' => TRUE,
     ];
     $form['batch']['default_batch_export_size'] = [
@@ -543,7 +579,6 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
     $form['test'] = [
       '#type' => 'details',
       '#title' => $this->t('Test settings'),
-      '#open' => FALSE,
       '#tree' => TRUE,
     ];
     $form['test']['types'] = [
@@ -565,7 +600,6 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
     $form['ui'] = [
       '#type' => 'details',
       '#title' => $this->t('User interface settings'),
-      '#open' => FALSE,
       '#tree' => TRUE,
     ];
     $form['ui']['video_display'] = [
@@ -608,7 +642,6 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
     $form['library'] = [
       '#type' => 'details',
       '#title' => $this->t('Library settings'),
-      '#open' => FALSE,
       '#tree' => TRUE,
     ];
     $form['library']['cdn'] = [
@@ -651,15 +684,14 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
 
     $config = $this->config('yamlform.settings');
 
-    // Convert list on included types to excluded types.
-    $elements = ($form_state->getValue('elements') ?: []) + ($config->get('elements') ?: []);
-    $elements['excluded_types'] = array_diff($this->elementTypes, array_filter($elements['excluded_types']));
-    ksort($elements['excluded_types']);
+    // Convert list of included types to excluded types.
+    $excluded_types = array_diff($this->elementTypes, array_filter($form_state->getValue('excluded_types')));
+    ksort($excluded_types);
 
     $config->set('settings', $settings);
-    $config->set('elements', $elements);
+    $config->set('elements', $form_state->getValue('elements') + ['excluded_types' => $excluded_types]);
     $config->set('file', $form_state->getValue('file'));
-    $config->set('format', $form_state->getValue('format'));
+    $config->set('format', array_filter($form_state->getValue('format')));
     $config->set('mail', $form_state->getValue('mail'));
     $config->set('export', $this->submissionExporter->getValuesFromInput($form_state->getValues()));
     $config->set('batch', $form_state->getValue('batch'));
@@ -667,7 +699,6 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
     $config->set('ui', $form_state->getValue('ui'));
     $config->set('library', $form_state->getValue('library'));
     $config->save();
-
     if ($update_paths) {
       /** @var \Drupal\yamlform\YamlFormInterface[] $yamlforms */
       $yamlforms = YamlForm::loadMultiple();

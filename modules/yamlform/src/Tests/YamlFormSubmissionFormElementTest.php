@@ -109,8 +109,7 @@ class YamlFormSubmissionFormElementTest extends YamlFormTestBase {
     $this->drupalGet('yamlform/test_element_text_autocomplete/autocomplete/autocomplete_existing', ['query' => ['q' => 'ab']]);
     $this->assertRaw('[]');
     $this->assertNoRaw('[{"value":"abcdefg","label":"abcdefg"}]');
-
-
+    
     // Check 'entity_autocomplete' #default_value.
     $yamlform_entity_autocomplete = YamlForm::load('test_element_entity_reference');
 
@@ -160,17 +159,53 @@ class YamlFormSubmissionFormElementTest extends YamlFormTestBase {
 
     /* Test form properties */
 
-    // Check elements with root properties moved to the form properties.
+    // Check element's root properties moved to the form's properties.
     $this->drupalGet('yamlform/test_form_properties');
     $this->assertPattern('/Form prefix<form /');
     $this->assertPattern('/<\/form>\s+Form suffix/');
-    $this->assertRaw('form class="yamlform-submission-test-form-properties-form yamlform-submission-form test-form-properties yamlform-details-toggle" invalid="invalid" style="border: 10px solid red; padding: 1em;"');
+    $this->assertRaw('<form class="yamlform-submission-test-form-properties-form yamlform-submission-form test-form-properties yamlform-details-toggle" invalid="invalid" style="border: 10px solid red; padding: 1em;" data-drupal-selector="yamlform-submission-test-form-properties-form" action="https://www.google.com/search" method="get" id="yamlform-submission-test-form-properties-form" accept-charset="UTF-8">');
 
-    // Check editing form settings updates the elements with root properties.
+    // Check editing form settings style attributes and custom properties
+    // updates the element's root properties.
     $this->drupalLogin($this->adminFormUser);
-    $this->drupalPostForm('/admin/structure/yamlform/manage/test_form_properties/settings', ['form_attributes__style' => 'border: 10px solid green; padding: 1em;'], t('Save'));
+    $edit = [
+      'attributes[class][select][]' => ['form--inline clearfix', '_other_'],
+      'attributes[class][other]' => 'test-form-properties',
+      'attributes[style]' => 'border: 10px solid green; padding: 1em;',
+      'attributes[attributes]' => '',
+      'method' => '',
+      'action' => '',
+      'custom' => "'suffix': 'Form suffix TEST'
+'prefix': 'Form prefix TEST'",
+    ];
+    $this->drupalPostForm('/admin/structure/yamlform/manage/test_form_properties/settings', $edit, t('Save'));
     $this->drupalGet('yamlform/test_form_properties');
-    $this->assertRaw('form class="yamlform-submission-test-form-properties-form yamlform-submission-form test-form-properties yamlform-details-toggle" invalid="invalid" style="border: 10px solid green; padding: 1em;"');
+    $this->assertPattern('/Form prefix TEST<form /');
+    $this->assertPattern('/<\/form>\s+Form suffix TEST/');
+    $this->assertRaw('<form class="yamlform-submission-test-form-properties-form yamlform-submission-form form--inline clearfix test-form-properties yamlform-details-toggle" style="border: 10px solid green; padding: 1em;" data-drupal-selector="yamlform-submission-test-form-properties-form" action="' . $base_path . 'yamlform/test_form_properties" method="post" id="yamlform-submission-test-form-properties-form" accept-charset="UTF-8">');
+
+    /* Test form buttons */
+
+    $this->drupalGet('yamlform/test_form_buttons');
+
+    // Check draft button.
+    $this->assertRaw('<input class="draft_button_attributes yamlform-button--draft button js-form-submit form-submit" style="color: blue" data-drupal-selector="edit-draft" type="submit" id="edit-draft" name="op" value="Save Draft" />');
+    // Check next button.
+    $this->assertRaw('<input class="wizard_next_button_attributes yamlform-button--next button js-form-submit form-submit" style="color: yellow" data-drupal-selector="edit-next" type="submit" id="edit-next" name="op" value="Next Page &gt;" />');
+
+    $this->drupalPostForm('yamlform/test_form_buttons', [], t('Next Page >'));
+
+    // Check previous button.
+    $this->assertRaw('<input class="wizard_prev_button_attributes js-yamlform-novalidate yamlform-button--previous button js-form-submit form-submit" style="color: yellow" data-drupal-selector="edit-previous" type="submit" id="edit-previous" name="op" value="&lt; Previous Page" />');
+    // Check preview button.
+    $this->assertRaw('<input class="preview_next_button_attributes yamlform-button--preview button js-form-submit form-submit" style="color: orange" data-drupal-selector="edit-next" type="submit" id="edit-next" name="op" value="Preview" />');
+
+    $this->drupalPostForm(NULL, [], t('Preview'));
+
+    // Check previous button.
+    $this->assertRaw('<input class="preview_prev_button_attributes js-yamlform-novalidate yamlform-button--previous button js-form-submit form-submit" style="color: orange" data-drupal-selector="edit-previous" type="submit" id="edit-previous" name="op" value="&lt; Previous" />');
+    // Check submit button.
+    $this->assertRaw('<input class="form_submit_attributes yamlform-button--submit button button--primary js-form-submit form-submit" style="color: green" data-drupal-selector="edit-submit" type="submit" id="edit-submit" name="op" value="Submit" />');
   }
 
 }

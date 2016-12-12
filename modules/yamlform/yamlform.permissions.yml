@@ -27,4 +27,6 @@
   title: 'Delete own form'
 'delete own yamlform':
   title: 'Delete own form'
-
+'edit yamlform assets':
+  title: 'Edit CSS/JS form assets'
+  description: 'Allows administrators to attach custom CSS and JavaScript to a form.'

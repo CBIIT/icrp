@@ -20,23 +20,6 @@ interface YamlFormThirdPartySettingsManagerInterface extends ThirdPartySettingsI
   public function alter($type, &$data, &$context1 = NULL, &$context2 = NULL);
 
   /**
-   * Build links to contrib modules that support form third party settings.
-   *
-   * @return array
-   *   A renderable array of links to contrib modules that support form
-   *   third party settings.
-   */
-  public function buildLinks();
-
-  /**
-   * Get contrib modules that support form third party settings.
-   *
-   * @return array
-   *   An associative array of links keyed by module name.
-   */
-  public function getLinks();
-
-  /**
    * Third party settings form constructor.
    *
    * @param array $form

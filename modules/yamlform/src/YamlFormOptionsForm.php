@@ -2,12 +2,13 @@
 
 namespace Drupal\yamlform;
 
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StringTranslation\PluralTranslatableMarkup;
 use Drupal\yamlform\Entity\YamlFormOptions;
 use Drupal\yamlform\Utility\YamlFormArrayHelper;
+use Drupal\yamlform\Utility\YamlFormOptionsHelper;
 
 /**
  * Base for controller for form options.
@@ -147,7 +148,8 @@ class YamlFormOptionsForm extends EntityForm {
     if (empty($options)) {
       $options = YamlFormOptions::getElementOptions(['#options' => $yamlform_options->id()]);
     }
-    return $options;
+
+    return YamlFormOptionsHelper::convertOptionsToString($options);
   }
 
   /**

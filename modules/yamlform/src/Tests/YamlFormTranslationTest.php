@@ -3,7 +3,7 @@
 namespace Drupal\yamlform\Tests;
 
 use Drupal\simpletest\WebTestBase;
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\yamlform\Entity\YamlForm;
 
 /**
@@ -20,7 +20,7 @@ class YamlFormTranslationTest extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = ['system', 'user', 'block', 'yamlform', 'yamlform_examples', 'yamlform_translation_test'];
+  public static $modules = ['system', 'user', 'block', 'yamlform', 'yamlform_examples', 'yamlform_test_translation'];
 
   /**
    * {@inheritdoc}

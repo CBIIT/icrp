@@ -179,4 +179,11 @@ class Table extends YamlFormElementBase {
     return $form;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getElementSelectorOptions(array $element) {
+    return [];
+  }
+
 }

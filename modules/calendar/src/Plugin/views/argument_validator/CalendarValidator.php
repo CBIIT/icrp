@@ -8,10 +8,12 @@
 namespace Drupal\calendar\Plugin\views\argument_validator;
 
 use Drupal\calendar\DateArgumentWrapper;
+use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\views\Plugin\views\argument\ArgumentPluginBase;
 use Drupal\views\Plugin\views\argument\Date;
 use Drupal\views\Plugin\views\argument_validator\ArgumentValidatorPluginBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Defines a argument validator plugin for Date arguments used in Calendar.
@@ -29,16 +31,37 @@ class CalendarValidator extends ArgumentValidatorPluginBase {
   protected $argument_wrapper;
 
   /**
+   * The dateformatter service.
+   */
+  protected $dateFormatter;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, DateFormatterInterface $dateFormatter) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition);
+
+    $this->dateFormatter = $dateFormatter;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static($configuration, $plugin_id, $plugin_definition, $container->get('date.formatter'));
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function validateArgument($arg) {
-    if (isset($this->argument_wrapper)
-      && $this->argument_wrapper->validateValue($arg)
-    ) {
+    if (isset($this->argument_wrapper) && $this->argument_wrapper->validateValue($arg)) {
       $date = $this->argument_wrapper->createDateTime();
+      $time = strtotime($date->format($this->options['replacement_format']));
+
       // Override title for substitutions
       // @see \Drupal\views\Plugin\views\argument\ArgumentPluginBase::getTitle
-      $this->argument->validated_title = $date->format($this->options['replacement_format']);
+      $this->argument->validated_title = $this->dateFormatter->format($time, 'custom', $this->options['replacement_format']);
       return TRUE;
     }
     return FALSE;

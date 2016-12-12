@@ -237,7 +237,7 @@ class Calendar extends RowPluginBase {
 
       foreach ($vocabulary_field_options as $field_name => $label) {
         // @todo Provide storage manager via Dependency Injection
-        $field_config = \Drupal::entityManager()->getStorage('field_config')->loadByProperties(['field_name' => $field_name]);
+        $field_config = \Drupal::entityTypeManager()->getStorage('field_config')->loadByProperties(['field_name' => $field_name]);
 
         // @TODO refactor
         reset($field_config);
@@ -268,7 +268,7 @@ class Calendar extends RowPluginBase {
       // @todo Add labels for each Vocabulary.
       $term_colors = $this->options['colors']['calendar_colors_taxonomy'];
       foreach ($vocab_vids as $field_name => $vid) {
-        $vocab = \Drupal::entityManager()->getStorage("taxonomy_term")->loadTree($vid);
+        $vocab = \Drupal::entityTypeManager()->getStorage("taxonomy_term")->loadTree($vid);
         foreach ($vocab as $key => $term) {
           $form['colors']['calendar_colors_taxonomy'][$term->tid] = [
               '#title' => $this->t($term->name),
@@ -335,7 +335,7 @@ class Calendar extends RowPluginBase {
 
       // Node revisions need special loading.
       if (isset($this->view->getBaseTables()['node_revision'])) {
-        $this->entities[$entity->id()] = \Drupal::entityManager()->getStorage('node')->loadRevision($entity->id());
+        $this->entities[$entity->id()] = \Drupal::entityTypeManager()->getStorage('node')->loadRevision($entity->id());
       }
       else {
         $ids[$entity->id()] = $entity->id();
@@ -348,7 +348,7 @@ class Calendar extends RowPluginBase {
     $this->entityType = $table_data['table']['entity type'];
 
     if (!empty($ids)) {
-      $this->entities = \Drupal::entityManager()->getStorage($this->entityType)->loadMultiple($ids);
+      $this->entities = \Drupal::entityTypeManager()->getStorage($this->entityType)->loadMultiple($ids);
     }
 
     // Identify the date argument and fields that apply to this view. Preload

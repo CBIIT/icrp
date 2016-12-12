@@ -15,6 +15,7 @@ function yamlform_help($route_name, RouteMatchInterface $route_match) {
   $build = [];
 
   if ($route_name == 'help.page.yamlform') {
+    // About.
     $build['about'] = [
       'title' => [
         '#markup' => t('About'),
@@ -25,6 +26,8 @@ function yamlform_help($route_name, RouteMatchInterface $route_match) {
         '#markup' => '<p>' . t('The YAML Form module is a form builder and submission manager for Drupal 8.'),
       ],
     ];
+
+    // Uses.
     $build['uses'] = [
       'title' => [
         '#markup' => t('Uses'),
@@ -36,7 +39,6 @@ function yamlform_help($route_name, RouteMatchInterface $route_match) {
         '#suffix' => '</dl>',
       ],
     ];
-
     $help = _yamlform_help();
     foreach ($help as $id => $info) {
       // Title.
@@ -63,8 +65,46 @@ function yamlform_help($route_name, RouteMatchInterface $route_match) {
           '#info' => $info,
         ],
       ];
-
     }
+
+    // Libraries.
+    $build['libraries'] = [
+      'title' => [
+        '#markup' => t('External Libraries'),
+        '#prefix' => '<h3>',
+        '#suffix' => '</h3>',
+      ],
+      'description' => [
+        '#markup' => '<p>' . t('The YAML Form module utilizes the third-party Open Source libraries listed below to enhance form elements and to provide additional functionality. It is recommended that these libraries be installed in your Drupal installations /libraries directory. If these libraries are not installed, they are automatically loaded from a CDN.') . '</p>' .
+          '<p>' . t('Currently the best way to download all the needed third party libraries is to either add yamlform.libraries.make.yml to your drush make file or execute the below drush command from the root of your Drupal installation.') . '</p>' .
+          '<pre>drush yamlform-libraries-download</pre>',
+      ],
+      'content' => [
+        '#prefix' => '<dl>',
+        '#suffix' => '</dl>',
+      ],
+      'info'  => [],
+    ];
+    /** @var \Drupal\yamlform\YamlFormLibrariesManagerInterface $libraries_manager */
+    $libraries_manager = \Drupal::service('yamlform.libraries_manager');
+    $libraries = $libraries_manager->getLibraries();
+    foreach ($libraries as $library_name => $library) {
+      $build['libraries']['content'][$library_name] = [
+        'title' => [
+          '#type' => 'link',
+          '#title' => $library['title'],
+          '#url' => $library['url'],
+          '#prefix' => '<dt>',
+          '#suffix' => '</dt>',
+        ],
+        'description' => [
+          '#markup' => $library['description'] . '<br/><em>(' . $library['notes'] . ')</em>',
+          '#prefix' => '<dd>',
+          '#suffix' => '</dd>',
+        ],
+      ];
+    }
+
   }
   else {
     // Get path from route match.
@@ -123,6 +163,13 @@ function _yamlform_help() {
     'title' => t('The YAML Form module'),
     'content' => t('The YAML Form module is a FAPI based form builder and submission manager for Drupal 8.'),
     'youtube_id' => '9jSOOEpzAy8',
+  ];
+
+  // Introduction.
+  $help['introduction'] = [
+    'title' => t('It is time to say goodbye...'),
+    'content' => t('It is time to say goodbye to the YAML Form module and migrate to the Webform module.'),
+    'youtube_id' => 'GKzPSHAiqgU',
   ];
 
   /****************************************************************************/
@@ -242,6 +289,19 @@ function _yamlform_help() {
     'youtube_id' => 'kuguydtCWf0',
   ];
 
+  // Addons.
+  $help['addons'] = [
+    'routes' => [
+      // @see /admin/structure/yamlform/addons
+      'yamlform.addons',
+    ],
+    'title' => t('Extend the YAML Form module'),
+    'url' => Url::fromRoute('yamlform.addons'),
+    'content' => t('The Add-ons page includes a list of modules and projects that extend and/or provide additional functionality to the YAML Form module and Drupal\'s Form API.  If you would like a module or project to be included in the below list, please submit a request to the <a href=":href">YAML Form module\'s issue queue</a>.', [':href' => 'https://www.drupal.org/node/add/project-issue/yamlform']),
+    'youtube_id' => '',
+  ];
+
+
   /****************************************************************************/
   // Form.
   /****************************************************************************/
@@ -293,6 +353,17 @@ function _yamlform_help() {
     'content' => t("The Form settings page allows a form's labels, messaging, and behaviors to be customized.") . ' ' .
     t('Administrators can open/close a form, enable/disable drafts, allow previews, set submission limits, and disable the saving of results.'),
     'youtube_id' => 'g2RWTj7XrQo',
+  ];
+
+  // Form assets.
+  $help['form_assets'] = [
+    'routes' => [
+      // @see /admin/structure/yamlform/manage/{yamlform}/assets
+      'entity.yamlform.assets_form',
+    ],
+    'title' => t('Adding custom CSS/JS to a form.'),
+    'content' => t("The Form assets page allows site builders to attach custom CSS and JavaScript to a form."),
+    // 'youtube_id' => '',
   ];
 
   // Form access controls.
@@ -394,7 +465,7 @@ function _yamlform_help() {
       ],
       'title' => t('Exporting configuration'),
       'content' => t("The Export (form) page allows developers to quickly export a single form's configuration file.") . ' ' .
-      t('If you run into any issues with a form, you can also attach the below configuration (without any personal information) to a new ticket in the YAML Form\'s <a href=":href">issue queue</a>.', [':href' => 'https://www.drupal.org/project/issues/yamlform']),
+      t('If you run into any issues with a form, you can also attach the below configuration (without any personal information) to a new ticket in the YAML Form module\'s <a href=":href">issue queue</a>.', [':href' => 'https://www.drupal.org/project/issues/yamlform']),
       'youtube_id' => 'ejzx4D0ldl0',
     ];
   }
@@ -422,6 +493,19 @@ function _yamlform_help() {
     'content' => t("A form block allows a form to be placed anywhere on a website."),
     'youtube_id' => 'CkRQMS6eJII',
   ];
+
+  // YAML Form to Webform.
+  if (\Drupal::moduleHandler()->moduleExists('yamlform_to_webform')) {
+    $help['yamlform_to_webform'] = [
+      'routes' => [
+        // @see /admin/structure/yamlform/migrate
+        'yamlform_to_webform.migrate',
+      ],
+      'title' => t('Migrating from YAML Form 8.x-1.x to Webform 8.x-1.x'),
+      'content' => t("The Migrate page will move your YAML Form configuration and modules to the Webform module."),
+      'youtube_id' => 'XXXXXXXX',
+    ];
+  }
 
   foreach ($help as $id => &$info) {
     $info['id'] = $id;

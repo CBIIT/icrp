@@ -14,7 +14,7 @@
    */
   Drupal.behaviors.yamlFormDetailsToggle = {
     attach: function (context) {
-      $('form.yamlform-details-toggle', context).once('yamlform-details-toggle').each(function () {
+      $('.js-yamlform-details-toggle', context).once('yamlform-details-toggle').each(function () {
         var $form = $(this);
         var $details = $form.find('details');
 

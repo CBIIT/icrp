@@ -22,7 +22,7 @@ class Checkboxes extends OptionsBase {
    */
   public function getDefaultProperties() {
     return parent::getDefaultProperties() + [
-      // Options setings.
+      // Options settings.
       'options_display' => 'one_column',
     ];
   }

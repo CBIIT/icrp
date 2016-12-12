@@ -44,7 +44,7 @@ class YamlFormTemplatesController extends ControllerBase implements ContainerInj
   /**
    * Constructs a YamlFormTemplatesController object.
    *
-   * @param AccountInterface $current_user
+   * @param \Drupal\Core\Session\AccountInterface $current_user
    *   Current user.
    * @param \Drupal\Core\Form\FormBuilderInterface $form_builder
    *   The form builder.
@@ -131,7 +131,7 @@ class YamlFormTemplatesController extends ControllerBase implements ContainerInj
       '#type' => 'table',
       '#header' => $header,
       '#rows' => $rows,
-      '#empty' => $this->t('There is no templates yet.'),
+      '#empty' => $this->t('There are no templates available.'),
       '#cache' => [
         'contexts' => $this->yamlformStorage->getEntityType()->getListCacheContexts(),
         'tags' => $this->yamlformStorage->getEntityType()->getListCacheTags(),

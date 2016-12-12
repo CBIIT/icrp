@@ -2,7 +2,7 @@
 
 namespace Drupal\yamlform_ui;
 
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\yamlform\Element\YamlFormOptions;

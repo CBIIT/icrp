@@ -2,6 +2,7 @@
 
 namespace Drupal\yamlform;
 
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -17,6 +18,13 @@ use Psr\Log\LoggerInterface;
 class YamlFormMessageManager implements YamlFormMessageManagerInterface {
 
   use StringTranslationTrait;
+
+  /**
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountInterface
+   */
+  protected $currentUser;
 
   /**
    * The configuration object factory.
@@ -77,6 +85,8 @@ class YamlFormMessageManager implements YamlFormMessageManagerInterface {
   /**
    * Constructs a YamlFormMessageManager object.
    *
+   * @param \Drupal\Core\Session\AccountInterface $current_user
+   *   Current user.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The configuration object factory.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -88,7 +98,8 @@ class YamlFormMessageManager implements YamlFormMessageManagerInterface {
    * @param \Drupal\yamlform\YamlFormRequestInterface $request_handler
    *   The form request handler.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, Token $token, LoggerInterface $logger, YamlFormRequestInterface $request_handler) {
+  public function __construct(AccountInterface $current_user, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, Token $token, LoggerInterface $logger, YamlFormRequestInterface $request_handler) {
+    $this->currentUser = $current_user;
     $this->configFactory = $config_factory;
     $this->entityStorage = $entity_type_manager->getStorage('yamlform_submission');
     $this->token = $token;
@@ -183,7 +194,7 @@ class YamlFormMessageManager implements YamlFormMessageManagerInterface {
         return $this->t('This form is currently not saving any submitted data. Please enable the <a href=":settings_href">saving of results</a> or add a <a href=":handlers_href">submission handler</a> to the form.', $t_args);
 
       case YamlFormMessageManagerInterface::SUBMISSION_PREVIOUS:
-        $yamlform_submission = $this->entityStorage->getLastSubmission($yamlform, $source_entity);
+        $yamlform_submission = $this->entityStorage->getLastSubmission($yamlform, $source_entity, $this->currentUser);
         $submission_route_name = $this->requestHandler->getRouteName($yamlform_submission, $source_entity, 'yamlform.user.submission');
         $submission_route_parameters = $this->requestHandler->getRouteParameters($yamlform_submission, $source_entity);
         $t_args[':submission_href'] = Url::fromRoute($submission_route_name, $submission_route_parameters)->toString();

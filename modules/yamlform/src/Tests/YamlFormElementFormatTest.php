@@ -108,9 +108,9 @@ class YamlFormElementFormatTest extends YamlFormTestBase {
       'datetime (html_year): 2009',
       'datetime (l, F j, Y - H:i): Tuesday, August 18, 2009 - 16:00',
       // Times.
-      'time (raw)' => '14:00:00',
-      'time (24 hour)' => '14:00',
-      'time (12 hour)' => '2:00 PM',
+      'time (raw): 14:00:00',
+      'time (24 hour): 14:00',
+      'time (12 hour): 2:00 PM',
       // Options (single and multiple).
       'checkboxes (default): one, two, three',
       'checkboxes (comma): one, two, three',

@@ -5,7 +5,7 @@
  * YAML Form module drush commands.
  */
 
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\yamlform\Controller\YamlFormResultsExportController;
 use Drupal\yamlform\Entity\YamlForm;
 use Drupal\yamlform\Form\YamlFormResultsClearForm;
@@ -145,6 +145,19 @@ function yamlform_drush_command() {
     'aliases' => ['yfg'],
   ];
 
+  /* Repair */
+
+  $items['yamlform-repair'] = [
+    'description' => 'Makes sure all YAML Form admin settings and forms are up-to-date.',
+    'core' => ['8+'],
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_ROOT,
+    'examples' => [
+      'yamlform-repair' => 'Repairs admin settings and forms are up-to-date.',
+    ],
+    'aliases' => ['yfr'],
+
+  ];
+
   return $items;
 }
 
@@ -167,6 +180,9 @@ function yamlform_drush_help($section) {
 
     case 'drush:yamlform-libraries-remove':
       return dt('This command removes all downloaded third party libraries required by the YAML Form module.');
+
+    case 'drush:yamlform-repair':
+      return dt('Makes sure all YAML Form admin settings and forms are up-to-date. Only use this command if you are having problems with your existing YAML Form configuration.');
 
     case 'drush:yamlform-tidy':
       return dt('This command tidies exported YAML configuration files.') . "\n\n" .
@@ -366,7 +382,8 @@ function drush_yamlform_tidy($module = 'yamlform') {
       }
     }
 
-    $tidied_yaml = YamlFormTidy::tidy($tidied_yaml);
+    // Tidy and add new line to the end of the tidied file.
+    $tidied_yaml = YamlFormTidy::tidy($tidied_yaml) . "\n";
     if ($tidied_yaml != $original_yaml) {
       drush_print(dt('Tidying @file...', ['@file' => $file->filename]));
       file_put_contents($file->uri, $tidied_yaml);
@@ -406,11 +423,12 @@ function drush_yamlform_generate_validate() {
 function drush_yamlform_libraries_status() {
   module_load_include('install', 'yamlform');
 
-  $requirements = _yamlform_libraries_requirements();
-
+  /** @var \Drupal\yamlform\YamlFormLibrariesManagerInterface $libraries_manager */
+  $libraries_manager = \Drupal::service('yamlform.libraries_manager');
+  $requirements = $libraries_manager->requirements();
   foreach ($requirements as $requirement) {
     $library = $requirement['library'];
-    drush_print($library['library_title'] . ' (' . $library['library_name'] . ') ' . $requirement['value']);
+    drush_print($library['title'] . ' (' . $library['name'] . ') ' . $requirement['value']);
     // drush_print();
     drush_print(strip_tags($requirement['description']));
     drush_print();
@@ -425,7 +443,10 @@ function drush_yamlform_libraries_remove($status = TRUE) {
     drush_print(dt('Beginning to remove libraries...'));
   }
   $removed = FALSE;
-  $libraries = _yamlform_libraries_load();
+
+  /** @var \Drupal\yamlform\YamlFormLibrariesManagerInterface $libraries_manager */
+  $libraries_manager = \Drupal::service('yamlform.libraries_manager');
+  $libraries = $libraries_manager->getLibraries();
   foreach ($libraries as $library_name => $library) {
     $library_path = '/' . $library['destination'] . '/' . $library['directory_name'];
     $library_exists = (file_exists(DRUPAL_ROOT . $library_path)) ? TRUE : FALSE;
@@ -464,6 +485,27 @@ function drush_yamlform_libraries_download() {
   $commandline_options = ['no-core' => 'no-core'];
   drush_invoke_process('@self', 'make', $commandline_args, $commandline_options);
   drupal_flush_all_caches();
+}
+
+/******************************************************************************/
+// Repair.
+/******************************************************************************/
+
+/**
+ * Implements drush_hook_COMMAND().
+ */
+function drush_yamlform_repair() {
+  if (!drush_confirm(dt("Are you sure you want repair the YAML Form module's admin settings and forms?"))) {
+    return drush_user_abort();
+  }
+
+  module_load_include('install', 'yamlform');
+
+  drush_print('Repairing admin settings...');
+  _yamlform_update_admin_settings();
+
+  drush_print('Repairing form settings...');
+  _yamlform_update_form_settings();
 }
 
 /******************************************************************************/

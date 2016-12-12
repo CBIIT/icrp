@@ -4,8 +4,17 @@ settings:
   default_form_exception_message: 'Unable to display this form. Please contact the site administrator.'
   default_form_submit_label: Submit
   default_form_confidential_message: 'This form is confidential. You must <a href="[site:login-url]/logout?destination=[current-page:url:relative]">Log out</a> to submit it.'
+  default_form_disable_back: false
+  default_form_unsaved: false
   default_form_novalidate: false
   default_form_details_toggle: true
+  form_classes: |
+    container-inline clearfix
+    form--inline clearfix
+    messages messages--error
+    messages messages--warning
+    messages messages--status
+  button_classes: ''
   default_wizard_prev_button_label: '< Previous Page'
   default_wizard_next_button_label: 'Next Page >'
   default_wizard_start_label: Start
@@ -17,14 +26,15 @@ settings:
   default_draft_saved_message: 'Submission saved. You may return to this form later and it will restore the current values.'
   default_draft_loaded_message: 'A partially-completed form was found. Please complete the remaining portions.'
   default_confirmation_message: 'New submission added to [yamlform:title].'
-  default_limit_total_message: 'No more submissions are permitted.'
-  default_limit_user_message: 'No more submissions are permitted.'
-  classes: |
-    container-inline clearfix
-    form--inline clearfix
+  default_confirmation_back_label: 'Back to form'
+  confirmation_classes: |
     messages messages--error
     messages messages--warning
     messages messages--status
+  confirmation_back_classes: |
+    button
+  default_limit_total_message: 'No more submissions are permitted.'
+  default_limit_user_message: 'No more submissions are permitted.'
 export:
   exporter: delimited
   delimiter: ','
@@ -68,66 +78,7 @@ file:
   default_document_file_extensions: 'txt rtf pdf doc docx odt ppt pptx odp xls xlsx ods'
   default_image_file_extensions: 'gif jpg png svg'
   default_video_file_extensions: 'avi mov mp4 ogg wav webm'
-format:
-  yamlform_address: ''
-  yamlform_audio_file: ''
-  yamlform_autocomplete: ''
-  checkbox: ''
-  checkboxes: ''
-  yamlform_checkboxes_other: ''
-  yamlform_codemirror: ''
-  color: ''
-  yamlform_contact: ''
-  yamlform_creditcard: ''
-  yamlform_creditcard_number: ''
-  date: ''
-  datetime: ''
-  datelist: ''
-  yamlform_document_file: ''
-  email: ''
-  yamlform_email_confirm: ''
-  yamlform_email_multiple: ''
-  entity_autocomplete: ''
-  yamlform_entity_checkboxes: ''
-  yamlform_entity_radios: ''
-  yamlform_entity_select: ''
-  yamlform_element: ''
-  hidden: ''
-  yamlform_markup: ''
-  yamlform_image_file: ''
-  language_select: ''
-  yamlform_likert: ''
-  yamlform_location: ''
-  machine_name: ''
-  managed_file: ''
-  yamlform_message: ''
-  yamlform_name: ''
-  number: ''
-  password: ''
-  password_confirm: ''
-  processed_text: ''
-  radios: ''
-  yamlform_radios_other: ''
-  range: ''
-  yamlform_rating: ''
-  search: ''
-  select: ''
-  yamlform_select_other: ''
-  yamlform_signature: ''
-  table: ''
-  tableselect: ''
-  yamlform_tableselect_sort: ''
-  yamlform_table_sort: ''
-  tel: ''
-  yamlform_test: ''
-  textarea: ''
-  textfield: ''
-  text_format: ''
-  yamlform_time: ''
-  yamlform_toggle: ''
-  url: ''
-  value: ''
-  yamlform_video_file: ''
+format: {  }
 mail:
   default_from_mail: '[site:mail]'
   default_from_name: '[site:name]'
@@ -135,7 +86,7 @@ mail:
   default_body_text: |
     Submitted on [yamlform-submission:created]
     Submitted by: [yamlform-submission:user]
-
+    
     Submitted values are:
     [yamlform-submission:values]
   default_body_html: |

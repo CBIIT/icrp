@@ -2,7 +2,7 @@
 
 namespace Drupal\yamlform\Entity;
 
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\yamlform\Utility\YamlFormOptionsHelper;

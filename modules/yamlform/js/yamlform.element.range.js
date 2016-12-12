@@ -8,7 +8,7 @@
   'use strict';
 
   /**
-   * Enance HTML5 range element.
+   * Enhance HTML5 range element.
    *
    * @type {Drupal~behavior}
    */

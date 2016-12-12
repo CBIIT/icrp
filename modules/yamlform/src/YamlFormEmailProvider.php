@@ -4,6 +4,7 @@ namespace Drupal\yamlform;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Mail\MailManagerInterface;
 
 /**
  * Manages and provides HTML email support.
@@ -25,16 +26,26 @@ class YamlFormEmailProvider implements YamlFormEmailProviderInterface {
   protected $moduleHandler;
 
   /**
+   * Mail manager service.
+   *
+   * @var \Drupal\Core\Mail\MailManagerInterface
+   */
+  protected $mailManager;
+
+  /**
    * Constructs a new YamlFormEmailProvider.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The configuration object factory.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler class to use for loading includes.
+   * @param \Drupal\Core\Mail\MailManagerInterface $mail_manager
+   *   Mail manager service.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler) {
+  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, MailManagerInterface $mail_manager) {
     $this->configFactory = $config_factory;
     $this->moduleHandler = $module_handler;
+    $this->mailManager = $mail_manager;
   }
 
   /**
@@ -76,6 +87,13 @@ class YamlFormEmailProvider implements YamlFormEmailProviderInterface {
     else {
       return $this->uninstall();
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function installed() {
+    return ($this->configFactory->get('system.mail')->get('interface.yamlform') == 'yamlform_php_mail');
   }
 
   /**
@@ -134,8 +152,9 @@ class YamlFormEmailProvider implements YamlFormEmailProviderInterface {
   /**
    * {@inheritdoc}
    */
-  public function installed() {
-    return ($this->configFactory->get('system.mail')->get('interface.yamlform') == 'yamlform_php_mail');
+  public function getMailPluginDefinition() {
+    $plugin_id = $this->getMailPluginId();
+    return ($plugin_id) ? $this->mailManager->getDefinition($plugin_id) : NULL;
   }
 
 }

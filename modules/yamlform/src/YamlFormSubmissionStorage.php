@@ -2,7 +2,7 @@
 
 namespace Drupal\yamlform;
 
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
@@ -48,7 +48,7 @@ class YamlFormSubmissionStorage extends SqlContentEntityStorage implements YamlF
    */
   public function loadDraft(YamlFormInterface $yamlform, EntityInterface $source_entity = NULL, AccountInterface $account = NULL) {
     $query = $this->getQuery();
-    $query->condition('in_draft', 1);
+    $query->condition('in_draft', TRUE);
     $query->condition('yamlform_id', $yamlform->id());
     $query->condition('uid', $account->id());
     if ($source_entity) {
@@ -121,6 +121,7 @@ class YamlFormSubmissionStorage extends SqlContentEntityStorage implements YamlF
    */
   public function getTotal(YamlFormInterface $yamlform = NULL, EntityInterface $source_entity = NULL, AccountInterface $account = NULL) {
     $query = $this->getQuery()->count();
+    $query->condition('in_draft', FALSE);
     if ($yamlform) {
       $query->condition('yamlform_id', $yamlform->id());
     }
@@ -212,6 +213,7 @@ class YamlFormSubmissionStorage extends SqlContentEntityStorage implements YamlF
   protected function getTerminusSubmission(YamlFormInterface $yamlform, EntityInterface $source_entity = NULL, AccountInterface $account = NULL, $sort = 'DESC') {
     $query = $this->getQuery();
     $query->condition('yamlform_id', $yamlform->id());
+    $query->condition('in_draft', FALSE);
     $query->range(0, 1);
     if ($source_entity) {
       $query->condition('entity_type', $source_entity->getEntityTypeId());
@@ -318,54 +320,54 @@ class YamlFormSubmissionStorage extends SqlContentEntityStorage implements YamlF
 
     // Serial number.
     $columns['serial'] = [
-      'title' => t('#'),
+      'title' => $this->t('#'),
     ];
 
     // Submission ID.
     $columns['sid'] = [
-      'title' => t('SID'),
+      'title' => $this->t('SID'),
       'default' => FALSE,
     ];
 
     // UUID.
     $columns['uuid'] = [
-      'title' => t('UUID'),
+      'title' => $this->t('UUID'),
       'default' => FALSE,
     ];
 
     // Sticky (Starred/Unstarred).
     if (empty($account)) {
       $columns['sticky'] = [
-        'title' => t('Starred'),
+        'title' => $this->t('Starred'),
       ];
 
       // Notes.
       $columns['notes'] = [
-        'title' => t('Notes'),
+        'title' => $this->t('Notes'),
       ];
     }
 
     // Created.
     $columns['created'] = [
-      'title' => t('Created'),
+      'title' => $this->t('Created'),
     ];
 
     // Completed.
     $columns['completed'] = [
-      'title' => t('Completed'),
+      'title' => $this->t('Completed'),
       'default' => FALSE,
     ];
 
     // Changed.
     $columns['changed'] = [
-      'title' => t('Changed'),
+      'title' => $this->t('Changed'),
       'default' => FALSE,
     ];
 
     // Source entity.
     if ($view_any && empty($source_entity)) {
       $columns['entity'] = [
-        'title' => t('Submitted to'),
+        'title' => $this->t('Submitted to'),
         'sort' => FALSE,
       ];
     }
@@ -373,26 +375,26 @@ class YamlFormSubmissionStorage extends SqlContentEntityStorage implements YamlF
     // Submitted by.
     if (empty($account)) {
       $columns['uid'] = [
-        'title' => t('User'),
+        'title' => $this->t('User'),
       ];
     }
 
     // Submission language.
     if ($view_any && \Drupal::moduleHandler()->moduleExists('language')) {
       $columns['langcode'] = [
-        'title' => t('Language'),
+        'title' => $this->t('Language'),
       ];
     }
 
     // Remote address.
     $columns['remote_addr'] = [
-      'title' => t('IP address'),
+      'title' => $this->t('IP address'),
     ];
 
     // Form.
     if (empty($yamlform) && empty($source_entity)) {
       $columns['yamlform_id'] = [
-        'title' => t('Form'),
+        'title' => $this->t('Form'),
       ];
     }
 
@@ -412,7 +414,7 @@ class YamlFormSubmissionStorage extends SqlContentEntityStorage implements YamlF
     // Operations.
     if (empty($account)) {
       $columns['operations'] = [
-        'title' => t('Operations'),
+        'title' => $this->t('Operations'),
         'sort' => FALSE,
       ];
     }

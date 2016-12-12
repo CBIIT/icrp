@@ -4,7 +4,7 @@ namespace Drupal\yamlform\Element;
 
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Unicode;
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Render\Element\FormElement;
 use Drupal\Core\Form\FormStateInterface;

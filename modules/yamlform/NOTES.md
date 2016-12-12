@@ -3,12 +3,11 @@ Steps for creating a new release
 --------------------------------
 
   1. Cleanup code
-  2. Review code
-  3. Run tests
-  4. Generate release notes
-  5. Tag and create a new release
-  6. Update project page
-  7. Update documentation
+  2. Export configuration
+  3. Review code
+  4. Run tests
+  5. Generate release notes
+  6. Tag and create a new release
 
 
 1. Cleanup code
@@ -23,10 +22,37 @@ Tidy YAML files
     drush yamlform-tidy yamlform; 
     drush yamlform-tidy yamlform_ui; 
     drush yamlform-tidy yamlform_test;
-    drush yamlform-tidy yamlform_translation_test;
+    drush yamlform-tidy yamlform_test_translation;
 
 
-2. Review code
+2. Export configuration
+-----------------------
+
+    # Install all sub-modules.
+    drush en -y yamlform yamlform_test yamlform_test_translation yamlform_examples yamlform_templates yamlform_node
+    
+    # Export form configuration from your site.
+    drush features-export -y yamlform
+    drush features-export -y yamlform_test
+    drush features-export -y yamlform_test_translation
+    drush features-export -y yamlform_examples
+    drush features-export -y yamlform_templates
+    
+    # Tidy form configuration from your site.
+    drush yamlform-tidy -y --dependencies yamlform
+    drush yamlform-tidy -y --dependencies yamlform_test
+    drush features-tidy -y --dependencies yamlform_test_translation
+    drush yamlform-tidy -y --dependencies yamlform_examples
+    drush yamlform-tidy -y --dependencies yamlform_templates
+    
+    # Reset certain files.
+    cd modules/sandbox/yamlform
+    git reset HEAD yamlform.info.yml
+    git reset HEAD tests/modules/yamlform_test/yamlform_test.info.yml
+    git reset HEAD tests/modules/yamlform_test/config/optional
+
+
+3. Review code
 --------------
 
 [Online](http://pareview.sh)
@@ -53,7 +79,7 @@ Tidy YAML files
     find . -type f -print0 | xargs -0 chmod 0644
 
 
-3. Run tests
+4. Run tests
 ------------
 
 [SimpleTest](https://www.drupal.org/node/645286)
@@ -78,7 +104,7 @@ Tidy YAML files
     php ../vendor/phpunit/phpunit/phpunit ../modules/sandbox/yamlform/src/Tests/YamlFormEntityElementsValidationUnitTest.php    
 
 
-4. Generate release notes
+5. Generate release notes
 -------------------------
 
 [Git Release Notes for Drush](https://www.drupal.org/project/grn)
@@ -86,7 +112,7 @@ Tidy YAML files
     drush release-notes --nouser 8.x-1.0-VERSION 8.x-1.x
 
 
-5. Tag and create a new release
+6. Tag and create a new release
 -------------------------------
 
 [Tag a release](https://www.drupal.org/node/1066342)
@@ -96,23 +122,3 @@ Tidy YAML files
     git push origin tag 8.x-1.0-VERSION
 
 [Create new release](https://www.drupal.org/node/add/project-release/2640714)
-
-
-6. Update project page
-----------------------
-
-[Export README](https://www.drupal.org/project/readme)
-    
-     # Update project page
-     drush readme-export --project --path='docs/index.md' yamlform
-     open https://www.drupal.org/node/2640714/edit
-     
-[Edit project page](https://www.drupal.org/node/2640714/edit)
-
-
-7. Update documentation
------------------------
-
-[Update Roadmap](http://yamlform.io/developers/roadmap/)
-
-     npm install; grunt docs-deploy;

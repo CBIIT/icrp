@@ -13,7 +13,7 @@
  * @ingroup themeable
  */
 #}
-
+{{ attach_library('yamlform/yamlform.element.composite') }}
 {% if flexbox %}
 
   {{  content.warning }}
@@ -28,7 +28,8 @@
     {% if content.type %}
       <div class="yamlform-flex yamlform-flex--1"><div class="yamlform-flex--container">{{ content.type }}</div></div>
     {% endif %}
-    <div class="yamlform-flex yamlform-flex--1"><div class="yamlform-flex--container">{{ content.number }}</div></div>
+    <div class="yamlform-flex yamlform-flex--2"><div class="yamlform-flex--container">{{ content.number }}</div></div>
+    <div class="yamlform-flex yamlform-flex--1"><div class="yamlform-flex--container">{{ content.civ }}</div></div>
   </div>
 
   <div class="yamlform-flexbox">

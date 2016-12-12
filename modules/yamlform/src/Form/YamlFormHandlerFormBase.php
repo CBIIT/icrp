@@ -21,7 +21,7 @@ abstract class YamlFormHandlerFormBase extends FormBase {
   /**
    * The form.
    *
-   * @var \Drupal\yamlform\Entity\YamlForm
+   * @var \Drupal\yamlform\YamlFormInterface
    */
   protected $yamlform;
 

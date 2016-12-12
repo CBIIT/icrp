@@ -1,0 +1,12 @@
+name: security_review_test
+type: module
+# core: 8.x
+package: Testing
+dependencies:
+  - security_review
+
+# Information added by Drupal.org packaging script on 2016-10-20
+version: '8.x-1.x-dev'
+core: '8.x'
+project: 'security_review'
+datestamp: 1476978840

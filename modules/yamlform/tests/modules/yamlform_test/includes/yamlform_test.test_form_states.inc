@@ -6,7 +6,7 @@
  */
 
 use Drupal\yamlform\Entity\YamlForm;
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 
 /**
  * Generate test elements with #states.

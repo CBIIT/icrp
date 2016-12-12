@@ -23,6 +23,13 @@
 }
 
 /**
+ * Add-ons
+ */
+.yamlform-addons details {
+  background-color: #f8f8f8;
+}
+
+/**
  * Handler.
  */
 .yamlform-handler__new,

@@ -17,15 +17,7 @@ class YamlFormSelectOther extends Select {
    * {@inheritdoc}
    */
   public function getDefaultProperties() {
-    return parent::getDefaultProperties() + [
-      // Other settings.
-      'other__option_label' => '',
-      'other__title' => '',
-      'other__placeholder' => '',
-      'other__description' => '',
-      'other__size' => '',
-      'other__maxlength' => '',
-    ];
+    return parent::getDefaultProperties() + self::getOtherProperties();
   }
 
 }

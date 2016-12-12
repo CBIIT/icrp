@@ -2,7 +2,7 @@
 
 namespace Drupal\yamlform;
 
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Utility\Token;
 

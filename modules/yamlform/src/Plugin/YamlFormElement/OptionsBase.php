@@ -33,6 +33,33 @@ abstract class OptionsBase extends YamlFormElementBase {
   }
 
   /**
+   * Get option (option) properties.
+   *
+   * @return array
+   *   An associative array containing other (option) properties.
+   */
+  public function getOtherProperties() {
+    return [
+      'other__option_label' => $this->t('Other...'),
+      'other__type' => 'textfield',
+      'other__title' => '',
+      'other__placeholder' => $this->t('Enter other...'),
+      'other__description' => '',
+      // Text field or textarea.
+      'other__size' => '',
+      'other__maxlength' => '',
+      'other__field_prefix' => '',
+      'other__field_suffix' => '',
+      // Textarea.
+      'other__rows' => '',
+      // Number.
+      'other__min' => '',
+      'other__max' => '',
+      'other__step' => '',
+    ];
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getTranslatableProperties() {
@@ -387,7 +414,7 @@ abstract class OptionsBase extends YamlFormElementBase {
    */
   protected function getElementSelectorInputsOptions(array $element) {
     $plugin_id = $this->getPluginId();
-    if (preg_match('/yamlform_(select|radios|checkboxes)_other$/', $plugin_id, $match)) {
+    if (preg_match('/yamlform_(select|radios|checkboxes|buttons)_other$/', $plugin_id, $match)) {
       $title = $this->getAdminLabel($element);
       list($element_type) = explode(' ', $this->getPluginLabel());
 
@@ -408,8 +435,9 @@ abstract class OptionsBase extends YamlFormElementBase {
     $form = parent::form($form, $form_state);
 
     $form['general']['default_value']['#description'] = $this->t('The default value of the field identified by its key.');
-    $form['general']['default_value']['#description'] .= ' ' . $this->t('For multiple options use commas to separate multiple defaults.');
+    $form['general']['default_value']['#description'] .= ' ' . $this->t('For multiple options, use commas to separate multiple defaults.');
 
+    // Options.
     $form['options'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Element options'),
@@ -453,9 +481,36 @@ abstract class OptionsBase extends YamlFormElementBase {
       '#return_value' => TRUE,
     ];
 
+    // Other.
+    $states_textfield_or_number = [
+      'visible' => [
+        [':input[name="properties[other__type]"]' => ['value' => 'textfield']],
+        'or',
+        [':input[name="properties[other__type]"]' => ['value' => 'number']],
+      ],
+    ];
+    $states_textarea = [
+      'visible' => [
+        ':input[name="properties[other__type]"]' => ['value' => 'textarea'],
+      ],
+    ];
+    $states_number = [
+      'visible' => [
+        ':input[name="properties[other__type]"]' => ['value' => 'number'],
+      ],
+    ];
     $form['options_other'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Other option settings'),
+    ];
+    $form['options_other']['other__type'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Other type'),
+      '#options' => [
+        'textfield' => $this->t('Text field'),
+        'textarea' => $this->t('Textarea'),
+        'number' => $this->t('Number'),
+      ],
     ];
     $form['options_other']['other__option_label'] = [
       '#type' => 'textfield',
@@ -479,6 +534,7 @@ abstract class OptionsBase extends YamlFormElementBase {
       '#description' => $this->t('Leaving blank will use the default size.'),
       '#min' => 1,
       '#size' => 4,
+      '#states' => $states_textfield_or_number,
     ];
     $form['options_other']['other__maxlength'] = [
       '#type' => 'number',
@@ -486,8 +542,54 @@ abstract class OptionsBase extends YamlFormElementBase {
       '#description' => $this->t('Leaving blank will use the default maxlength.'),
       '#min' => 1,
       '#size' => 4,
+      '#states' => $states_textfield_or_number,
     ];
-
+    $form['options_other']['other__field_prefix'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Other field prefix'),
+      '#description' => $this->t('Text or code that is placed directly in front of the input. This can be used to prefix an input with a constant string. Examples: $, #, -.'),
+      '#size' => 10,
+      '#states' => $states_textfield_or_number,
+    ];
+    $form['options_other']['other__field_suffix'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Other field suffix'),
+      '#description' => $this->t('Text or code that is placed directly after the input. This can be used to add a unit to an input. Examples: lb, kg, %.'),
+      '#size' => 10,
+      '#states' => $states_textfield_or_number,
+    ];
+    $form['options_other']['other__rows'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Other rows'),
+      '#description' => $this->t('Leaving blank will use the default rows.'),
+      '#min' => 1,
+      '#size' => 4,
+      '#states' => $states_textarea,
+    ];
+    $form['options_other']['other__min'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Other min'),
+      '#description' => $this->t('Specifies the minimum value.'),
+      '#step' => 'any',
+      '#size' => 4,
+      '#states' => $states_number,
+    ];
+    $form['options_other']['other__max'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Other max'),
+      '#description' => $this->t('Specifies the maximum value.'),
+      '#step' => 'any',
+      '#size' => 4,
+      '#states' => $states_number,
+    ];
+    $form['options_other']['other__step'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Other steps'),
+      '#description' => $this->t('Specifies the legal number intervals. Leave blank to support any number interval.'),
+      '#step' => 'any',
+      '#size' => 4,
+      '#states' => $states_number,
+    ];
     return $form;
   }
 

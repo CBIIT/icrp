@@ -520,8 +520,8 @@ class EmailYamlFormHandler extends YamlFormHandlerBase implements YamlFormHandle
     }
 
     // Add attachments.
+    $message['attachments'] = [];
     if ($this->configuration['attachments'] && $this->supportsAttachments()) {
-      $message['attachments'] = [];
       $elements = $this->yamlform->getElementsInitializedAndFlattened();
       foreach ($elements as $key => $element) {
         if (!isset($element['#type']) || $element['#type'] != 'managed_file') {

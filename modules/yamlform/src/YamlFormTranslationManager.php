@@ -2,9 +2,10 @@
 
 namespace Drupal\yamlform;
 
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\yamlform\Utility\YamlFormArrayHelper;
 use Drupal\yamlform\Utility\YamlFormElementHelper;
 
 /**
@@ -34,7 +35,7 @@ class YamlFormTranslationManager implements YamlFormTranslationManagerInterface 
   protected $elementManager;
 
   /**
-   * Constructs a YamlFormTranslationManger object.
+   * Constructs a YamlFormTranslationManager object.
    *
    * @param \Drupal\Core\Language\LanguageManagerInterface $language_manager
    *   The language manager.
@@ -76,7 +77,7 @@ class YamlFormTranslationManager implements YamlFormTranslationManagerInterface 
     $default_langcode = $this->languageManager->getDefaultLanguage()->getId();
     $config_elements = $this->getConfigElements($yamlform, $default_langcode);
     $elements = YamlFormElementHelper::getFlattened($config_elements);
-    $translatable_properties = YamlFormElementHelper::addPrefix($this->elementManager->getTranslatableProperties());
+    $translatable_properties = YamlFormArrayHelper::addPrefix($this->elementManager->getTranslatableProperties());
     foreach ($elements as $element_key => &$element) {
       foreach ($element as $property_key => $property_value) {
         $translatable_property_key = $property_key;

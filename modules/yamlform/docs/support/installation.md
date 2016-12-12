@@ -127,6 +127,14 @@ service to improve the CAPTCHA system, and to protect email addresses.
 > CAPTCHA provides additional, slightly obtrusive protection against SPAM 
 > submissions.
 
+**[Clientside Validation](https://www.drupal.org/project/clientside_validation)
+
+The [Clientside Validation](https://www.drupal.org/project/clientside_validation) 
+module adds clientside validation (aka "Ajax form validation") for all forms 
+using [jquery.validate](https://jqueryvalidation.org/).
+
+> The Clientside validation provides cross-browser inline validation message.
+
 **[Validators](https://www.drupal.org/project/validators)**
 
 The [Validators](https://www.drupal.org/project/validators) module allows you 

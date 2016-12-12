@@ -10,6 +10,7 @@ use Drupal\yamlform\YamlFormRequestInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Provides route responses for form.
@@ -55,6 +56,36 @@ class YamlFormController extends ControllerBase implements ContainerInjectionInt
    */
   public function addForm(Request $request, YamlFormInterface $yamlform) {
     return $yamlform->getSubmissionForm();
+  }
+
+  /**
+   * Returns a form's CSS.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The current request.
+   * @param \Drupal\yamlform\YamlFormInterface $yamlform
+   *   The form.
+   *
+   * @return \Symfony\Component\HttpFoundation\Response
+   *   The response object.
+   */
+  public function css(Request $request, YamlFormInterface $yamlform) {
+    return new Response($yamlform->getCss(), 200, ['Content-Type' => 'text/css']);
+  }
+
+  /**
+   * Returns a form's JavaScript.
+   *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The current request.
+   * @param \Drupal\yamlform\YamlFormInterface $yamlform
+   *   The form.
+   *
+   * @return \Symfony\Component\HttpFoundation\Response
+   *   The response object.
+   */
+  public function javascript(Request $request, YamlFormInterface $yamlform) {
+    return new Response($yamlform->getJavaScript(), 200, ['Content-Type' => 'text/javascript']);
   }
 
   /**
@@ -120,6 +151,10 @@ class YamlFormController extends ControllerBase implements ContainerInjectionInt
     // Limit query to templates.
     if ($templates) {
       $query->condition('template', TRUE);
+    }
+    elseif ($this->moduleHandler()->moduleExists('yamlform_templates')) {
+      // Filter out templates if the yamlform_template.module is enabled.
+      $query->condition('template', FALSE);
     }
 
     $entity_ids = $query->execute();

@@ -5,10 +5,11 @@
  * YAML Form module update hooks.
  */
 
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\yamlform\Entity\YamlForm;
 use Drupal\Core\Render\Element;
+use Drupal\yamlform\Utility\YamlFormArrayHelper;
 use Drupal\yamlform\Utility\YamlFormElementHelper;
 
 /**
@@ -807,14 +808,14 @@ function yamlform_update_8037() {
  * Issue #2783527: Order form settings when saved and apply defaults.
  */
 function yamlform_update_8038() {
-  _yamlform_update_settings();
+  _yamlform_update_form_settings();
 }
 
 /**
  * Issue #2783575: Add autofocus form setting.
  */
 function yamlform_update_8039() {
-  _yamlform_update_settings();
+  _yamlform_update_form_settings();
 }
 
 /**
@@ -939,7 +940,7 @@ messages messages--status");
  */
 function yamlform_update_8046() {
   // Add 'form_prepopulate_source_entity' settings for forms.
-  _yamlform_update_settings();
+  _yamlform_update_form_settings();
 }
 
 /**
@@ -1012,7 +1013,7 @@ function yamlform_update_8049() {
   $settings_config->save();
 
   // Update 'yamlform.yamlform.*' configuration.
-  _yamlform_update_settings();
+  _yamlform_update_form_settings();
 }
 
 /**
@@ -1020,7 +1021,7 @@ function yamlform_update_8049() {
  */
 function yamlform_update_8050() {
   // Update 'yamlform.yamlform.*' configuration.
-  _yamlform_update_settings();
+  _yamlform_update_form_settings();
 }
 
 /**
@@ -1216,7 +1217,7 @@ function yamlform_update_8059() {
  * Issue #2820180: Allow disable results warning and behavior to disabled.
  */
 function yamlform_update_8060() {
-  _yamlform_update_settings();
+  _yamlform_update_form_settings();
 }
 
 /**
@@ -1298,4 +1299,152 @@ messages messages--error
 messages messages--warning
 messages messages--status");
   $settings_config->save();
+}
+
+/**
+ * Issue #2825278: Add settings to suppress CDN warning on Status Report.
+ */
+function yamlform_update_8066(&$sandbox) {
+  // Update 'yamlform.settings' configuration.
+  $settings_config = \Drupal::configFactory()->getEditable('yamlform.settings');
+  $settings_config->set('library.cdn', FALSE);
+  $settings_config->save();
+}
+
+/**
+ * Issue #2825410: Allow forms labels to be translatable.
+ *
+ * @see \Drupal\config_translation\Form\ConfigTranslationFormBase::submitForm
+ */
+function yamlform_update_8067(&$sandbox) {
+  // Skip updates if the Configuration translation module is not enabled.
+  if (!\Drupal::moduleHandler()->moduleExists('config_translation')) {
+    return;
+  }
+
+  $language_manager = \Drupal::languageManager();
+
+  /** @var \Drupal\yamlform\YamlFormElementManagerInterface $element_manager */
+  $element_manager = \Drupal::service('plugin.manager.yamlform.element');
+
+  $languages = $language_manager->getLanguages();
+  unset($languages[$language_manager->getDefaultLanguage()->getId()]);
+
+  foreach ($languages as $langcode => $language) {
+    $config_factory = \Drupal::configFactory();
+    foreach ($config_factory->listAll('yamlform.yamlform.') as $yamlform_config_name) {
+      /** @var Drupal\language\Config\LanguageConfigOverride $config_translation */
+      $config_translation = $language_manager->getLanguageConfigOverride($langcode, $yamlform_config_name);
+      $config_elements = $config_translation->get('elements');
+      if (empty($config_elements)) {
+        continue;
+      }
+
+      // Flatten and get any array containging translatable properties.
+      // @see \Drupal\yamlform\YamlFormTranslationManager::getBaseElements()
+      $elements = Yaml::decode($config_elements);
+      $elements = YamlFormElementHelper::getFlattened($elements);
+      $translatable_properties = YamlFormArrayHelper::addPrefix($element_manager->getTranslatableProperties());
+      foreach ($elements as $element_key => &$element) {
+        foreach ($element as $property_key => $property_value) {
+          $translatable_property_key = $property_key;
+          if (preg_match('/^.*__(.*)$/', $translatable_property_key, $match)) {
+            $translatable_property_key = '#' . $match[1];
+          }
+
+          if (in_array($translatable_property_key, ['#options', '#answers']) && is_string($property_value)) {
+            unset($element[$property_key]);
+          }
+          elseif (!isset($translatable_properties[$translatable_property_key])) {
+            unset($element[$property_key]);
+          }
+        }
+        if (empty($element)) {
+          unset($elements[$element_key]);
+        }
+      }
+
+      // DEBUG:
+      // drush_print($yamlform_config_name); drush_print($config_elements); drush_print(Yaml::encode($elements));
+      $config_translation->set('elements', Yaml::encode($elements))->save();
+    }
+  }
+}
+
+/**
+ * Issue #2826973: Alert for unsaved changes in form.
+ */
+function yamlform_update_8068(&$sandbox) {
+  // Update 'yamlform.settings' configuration.
+  $settings_config = \Drupal::configFactory()->getEditable('yamlform.settings');
+  $settings_config->set('settings.default_form_unsaved', FALSE);
+  $settings_config->save();
+
+  // Update 'yamlform.yamlform.*' configuration.
+  _yamlform_update_form_settings();
+}
+
+/**
+ * Issue #2826976: Allow CSS and JavaScript to be injected into a form.
+ */
+function yamlform_update_8069(&$sandbox) {
+  // Update 'yamlform.yamlform.*' configuration.
+  _yamlform_update_form_settings();
+}
+
+/**
+ * Issue #2828138: Disable the previous functionality for a wizard page.
+ */
+function yamlform_update_8070(&$sandbox) {
+  // Update 'yamlform.settings' configuration.
+  $settings_config = \Drupal::configFactory()->getEditable('yamlform.settings');
+  $settings_config->set('settings.default_form_disable_back', FALSE);
+  $settings_config->save();
+
+  // Update 'yamlform.yamlform.*' configuration.
+  _yamlform_update_form_settings();
+}
+
+/**
+ * Issue #2826300: yamlform.settings.yml is out-of-sync and missing default values.
+ */
+function yamlform_update_8071(&$sandbox) {
+  // Update 'yamlform.settings' configuration.
+  _yamlform_update_admin_settings();
+}
+
+/**
+ * Issue #2830472: Add test to confirm that yamlform.settings are being correctly updated via the UI.
+ */
+function yamlform_update_8072(&$sandbox) {
+  // Update 'yamlform.settings' configuration.
+  $settings_config = \Drupal::configFactory()->getEditable('yamlform.settings');
+  $settings_config->set('format', array_filter($settings_config->get('format')));
+  $settings_config->save();
+}
+
+/**
+ * Issue #2823918: Add custom classes, styles, and properties to form settings and class names to submit buttons.
+ */
+function yamlform_update_8073(&$sandbox) {
+  // Update 'yamlform.settings' configuration.
+  $settings_config = \Drupal::configFactory()->getEditable('yamlform.settings');
+  $settings_config->set('form_classes', $settings_config->get('classes'));
+  $settings_config->set('button_classes', '');
+  $settings_config->clear('classes');
+  $settings_config->save();
+
+  // Update 'yamlform.yamlform.*' configuration.
+  _yamlform_update_form_settings();
+}
+
+/**
+ * Issue #2833576: Custom confirmation attributes and back link.
+ */
+function yamlform_update_8074(&$sandbox) {
+  // Update 'yamlform.settings' configuration.
+  _yamlform_update_admin_settings();
+
+  // Update 'yamlform.yamlform.*' configuration.
+  _yamlform_update_form_settings();
 }

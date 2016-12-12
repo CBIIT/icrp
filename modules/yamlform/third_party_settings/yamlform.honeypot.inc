@@ -195,7 +195,10 @@ function honeypot_form_yamlform_third_party_settings_form_alter(&$form, FormStat
  * Implements hook_yamlform_submission_form_alter().
  */
 function honeypot_yamlform_submission_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  if (!empty($_POST)) {
+  // Only add a Honeypot when a form is initially load.
+  // After a form is submitted, via a multistep form and/or saving a draft,
+  // we can skip adding a Honeypot.
+  if ($form_state->isSubmitted()) {
     return;
   }
 

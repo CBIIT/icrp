@@ -87,11 +87,9 @@ class YamlFormPluginElementController extends ControllerBase {
       'unique',
       // Submission display.
       'format',
-      // Custom attributes.
-      'wrapper_attributes__class',
-      'wrapper_attributes__style',
-      'attributes__class',
-      'attributes__style',
+      // Attributes.
+      'wrapper_attributes',
+      'attributes',
       // Administration.
       'admin_title',
       'private',
@@ -224,7 +222,7 @@ class YamlFormPluginElementController extends ControllerBase {
       '#attributes' => [
         'class' => ['yamlform-form-filter-text'],
         'data-element' => '.yamlform-element-plugin',
-        'title' => $this->t('Enter a part of the handler name to filter by.'),
+        'title' => $this->t('Enter a part of the element type to filter by.'),
         'autofocus' => 'autofocus',
       ],
     ];

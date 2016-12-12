@@ -138,7 +138,7 @@ class YamlFormBlock extends BlockBase implements ContainerFactoryPluginInterface
   /**
    * Get this block instance form.
    *
-   * @return \Drupal\yamlform\Entity\YamlForm
+   * @return \Drupal\yamlform\YamlFormInterface
    *   A form or NULL.
    */
   protected function getYamlForm() {

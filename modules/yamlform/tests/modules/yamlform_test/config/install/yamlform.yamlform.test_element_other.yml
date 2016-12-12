@@ -4,11 +4,13 @@ dependencies:
   enforced:
     module:
       - yamlform_test
+  module:
+    - yamlform_test
 uid: null
 template: false
 id: test_element_other
 title: 'Test: Element: Other'
-description: 'Test the form other elements, includes select_other, checkboxes_other, and radios_other'
+description: 'Test the form other elements, includes select_other, checkboxes_other, radios_other, and buttons_other.'
 elements: |
   select_other:
     '#type': details
@@ -80,6 +82,7 @@ elements: |
         - Two
         - Four
       '#required': true
+      '#options_display': two_columns
       '#other__option_label': 'Is there another option you wish to enter?'
       '#other__placeholder': 'What is this other option'
       '#other__description': 'Other checkbox description'
@@ -104,14 +107,42 @@ elements: |
         Three: Three
       '#default_value': Four
       '#required': true
+      '#options_display': two_columns
       '#other__option_label': 'Is there another option you wish to enter?'
       '#other__placeholder': 'What is this other option'
       '#other__description': 'Other radio description'
+  buttons_other:
+    '#type': details
+    '#title': 'Buttons other (buttons_other)'
+    '#open': true
+    buttons_other_basic:
+      '#type': buttons_other
+      '#title': 'Buttons other basic'
+      '#options':
+        One: One
+        Two: Two
+        Three: Three
+      '#default_value': Four
+    buttons_other_advanced:
+      '#type': buttons_other
+      '#title': 'Buttons other advanced'
+      '#options':
+        One: One
+        Two: Two
+        Three: Three
+      '#default_value': Four
+      '#required': true
+      '#other__option_label': 'Other'
+      '#other__placeholder': 'What is this other option'
+      '#other__description': 'Other button description'
+css: ''
+javascript: ''
 settings:
   page: true
   page_submit_path: ''
   page_confirm_path: ''
   form_submit_label: ''
+  form_submit_attributes: {  }
   form_exception_message: ''
   form_closed_message: ''
   form_confidential: false
@@ -119,28 +150,39 @@ settings:
   form_prepopulate: false
   form_prepopulate_source_entity: false
   form_novalidate: false
+  form_unsaved: false
+  form_disable_back: false
   form_autofocus: false
   form_details_toggle: false
   wizard_progress_bar: true
   wizard_progress_pages: false
   wizard_progress_percentage: false
   wizard_next_button_label: ''
+  wizard_next_button_attributes: {  }
   wizard_prev_button_label: ''
+  wizard_prev_button_attributes: {  }
   wizard_start_label: ''
   wizard_complete: true
   wizard_complete_label: ''
   preview: 0
   preview_next_button_label: ''
+  preview_next_button_attributes: {  }
   preview_prev_button_label: ''
+  preview_prev_button_attributes: {  }
   preview_message: ''
   draft: false
   draft_auto_save: false
   draft_button_label: ''
+  draft_button_attributes: {  }
   draft_saved_message: ''
   draft_loaded_message: ''
   confirmation_type: message
   confirmation_message: ''
   confirmation_url: ''
+  confirmation_attributes: {  }
+  confirmation_back: true
+  confirmation_back_label: ''
+  confirmation_back_attributes: {  }
   limit_total: null
   limit_total_message: ''
   limit_user: null

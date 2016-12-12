@@ -56,6 +56,12 @@ yamlform.admin_settings.third_party:
   route_name: yamlform.admin_settings.third_party
   parent_id: yamlform.settings
 
+yamlform.addons:
+  title: 'Add-ons'
+  route_name: yamlform.addons
+  base_route: entity.yamlform.collection
+  weight: 100
+
 # Form
 
 entity.yamlform.canonical:
@@ -85,23 +91,29 @@ entity.yamlform.edit_form_settings:
   parent_id: entity.yamlform.edit_form
   weight: 10
 
+entity.yamlform.edit_form_assets:
+  title: 'CSS / JS'
+  route_name: entity.yamlform.assets_form
+  parent_id: entity.yamlform.edit_form
+  weight: 11
+
 entity.yamlform.edit_form_access:
   title: 'Access'
   route_name: entity.yamlform.access_form
   parent_id: entity.yamlform.edit_form
-  weight: 11
+  weight: 12
 
 entity.yamlform.edit_form_handlers:
   title: 'Emails / Handlers'
   route_name: entity.yamlform.handlers_form
   parent_id: entity.yamlform.edit_form
-  weight: 12
+  weight: 13
 
 entity.yamlform.edit_form_third_party_settings:
   title: 'Third party'
   route_name: entity.yamlform.third_party_settings_form
   parent_id: entity.yamlform.edit_form
-  weight: 13
+  weight: 14
 
 entity.yamlform.results:
   title: 'Results'

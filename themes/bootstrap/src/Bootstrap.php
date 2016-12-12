@@ -177,7 +177,7 @@ class Bootstrap {
     }
 
     // Immediately return if the active theme is not Bootstrap based.
-    if (!$theme->subthemeOf('bootstrap')) {
+    if (!$theme->isBootstrap()) {
       return;
     }
 
@@ -257,22 +257,22 @@ class Bootstrap {
 
   /**
    * Returns the autoload fix include path.
-   * 
+   *
    * This method assists class based callbacks that normally do not work.
-   * 
+   *
    * If you notice that your class based callback is never invoked, you may try
    * using this helper method as an "include" or "file" for your callback, if
    * the callback metadata supports such an option.
-   * 
+   *
    * Depending on when or where a callback is invoked during a request, such as
    * an ajax or batch request, the theme handler may not yet be fully
    * initialized.
-   * 
+   *
    * Typically there is little that can be done about this "issue" from core.
    * It must balance the appropriate level that should be bootstrapped along
    * with common functionality. Cross-request class based callbacks are not
    * common in themes.
-   * 
+   *
    * When this file is included, it will attempt to jump start this process.
    *
    * Please keep in mind, that it is merely an attempt and does not guarantee
@@ -283,7 +283,7 @@ class Bootstrap {
    * @see system_list
    * @see system_register()
    * @see drupal_classloader_register()
-   * 
+   *
    * @return string
    *   The autoload fix include path, relative to Drupal root.
    */
@@ -379,16 +379,16 @@ class Bootstrap {
 
     // Iterate over the array.
     foreach ($texts as $pattern => $strings) {
-      foreach ($strings as $value => $class) {
+      foreach ($strings as $text => $class) {
         switch ($pattern) {
           case 'matches':
-            if ($string === $value) {
+            if ($string === $text) {
               return $class;
             }
             break;
 
           case 'contains':
-            if (strpos(Unicode::strtolower($string), Unicode::strtolower($value)) !== FALSE) {
+            if (strpos(Unicode::strtolower($string), Unicode::strtolower($text)) !== FALSE) {
               return $class;
             }
             break;
@@ -680,16 +680,16 @@ class Bootstrap {
 
     // Iterate over the array.
     foreach ($texts as $pattern => $strings) {
-      foreach ($strings as $value => $icon) {
+      foreach ($strings as $text => $icon) {
         switch ($pattern) {
           case 'matches':
-            if ($string === $value) {
+            if ($string === $text) {
               return self::glyphicon($icon, $default);
             }
             break;
 
           case 'contains':
-            if (strpos(Unicode::strtolower($string), Unicode::strtolower($value)) !== FALSE) {
+            if (strpos(Unicode::strtolower($string), Unicode::strtolower($text)) !== FALSE) {
               return self::glyphicon($icon, $default);
             }
             break;
@@ -1007,6 +1007,24 @@ class Bootstrap {
   }
 
   /**
+   * Determines if the "cache_context.url.path.is_front" service exists.
+   *
+   * @return bool
+   *   TRUE or FALSE
+   *
+   * @see \Drupal\bootstrap\Bootstrap::isFront
+   * @see \Drupal\bootstrap\Bootstrap::preprocess
+   * @see https://www.drupal.org/node/2829588
+   */
+  public static function hasIsFrontCacheContext() {
+    static $has_is_front_cache_context;
+    if (!isset($has_is_front_cache_context)) {
+      $has_is_front_cache_context = \Drupal::getContainer()->has('cache_context.url.path.is_front');
+    }
+    return $has_is_front_cache_context;
+  }
+
+  /**
    * Initializes the active theme.
    */
   final public static function initialize() {
@@ -1030,6 +1048,39 @@ class Bootstrap {
   }
 
   /**
+   * Determines if the current path is the "front" page.
+   *
+   * *Note:* This method will not return `TRUE` if there is not a proper
+   * "cache_context.url.path.is_front" service defined.
+   *
+   * *Note:* If using this method in preprocess/render array logic, the proper
+   * #cache context must also be defined:
+   *
+   * ```php
+   * $variables['#cache']['contexts'][] = 'url.path.is_front';
+   * ```
+   *
+   * @return bool
+   *   TRUE or FALSE
+   *
+   * @see \Drupal\bootstrap\Bootstrap::hasIsFrontCacheContext
+   * @see \Drupal\bootstrap\Bootstrap::preprocess
+   * @see https://www.drupal.org/node/2829588
+   */
+  public static function isFront() {
+    static $is_front;
+    if (!isset($is_front)) {
+      try {
+        $is_front = static::hasIsFrontCacheContext() ? \Drupal::service('path.matcher')->isFrontPage() : FALSE;
+      }
+      catch (\Exception $e) {
+        $is_front = FALSE;
+      }
+    }
+    return $is_front;
+  }
+
+  /**
    * Preprocess theme hook variables.
    *
    * @param array $variables
@@ -1047,6 +1098,15 @@ class Bootstrap {
     static $preprocess_manager;
     if (!isset($preprocess_manager)) {
       $preprocess_manager = new PreprocessManager($theme);
+    }
+
+    // Adds a global "is_front" variable back to all templates.
+    // @see https://www.drupal.org/node/2829585
+    if (!isset($variables['is_front'])) {
+      $variables['is_front'] = static::isFront();
+      if (static::hasIsFrontCacheContext()) {
+        $variables['#cache']['contexts'][] = 'url.path.is_front';
+      }
     }
 
     // Ensure that any default theme hook variables exist. Due to how theme
@@ -1067,6 +1127,8 @@ class Bootstrap {
     // @see https://www.drupal.org/node/2630870
     if (!isset($variables['theme'])) {
       $variables['theme'] = $theme->getInfo();
+      $variables['theme']['dev'] = $theme->isDev();
+      $variables['theme']['livereload'] = $theme->livereloadUrl();
       $variables['theme']['name'] = $theme->getName();
       $variables['theme']['path'] = $theme->getPath();
       $variables['theme']['title'] = $theme->getTitle();

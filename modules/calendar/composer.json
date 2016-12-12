@@ -9,7 +9,7 @@
     "source": "http://cgit.drupalcode.org/calendar"
   },
   "require": {
-    "drupal/calendar_datetime": "8.*",
+    "drupal/datetime": "8.*",
     "drupal/views": "8.*",
     "drupal/views_templates": "8.*"
   },

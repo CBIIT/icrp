@@ -2,7 +2,7 @@
 
 namespace Drupal\yamlform_devel\Plugin\YamlFormHandler;
 
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\yamlform\YamlFormHandlerBase;
 use Drupal\yamlform\YamlFormSubmissionInterface;

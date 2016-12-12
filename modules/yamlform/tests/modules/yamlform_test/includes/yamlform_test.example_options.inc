@@ -5,7 +5,7 @@
  * Generate test options example.
  */
 
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\yamlform\Entity\YamlFormOptions;
 
 /**

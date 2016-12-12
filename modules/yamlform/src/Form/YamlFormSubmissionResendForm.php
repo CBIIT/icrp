@@ -173,7 +173,6 @@ class YamlFormSubmissionResendForm extends FormBase {
       '#theme' => 'yamlform_submission_information',
       '#yamlform_submission' => $yamlform_submission,
       '#source_entity' => $source_entity,
-      '#open' => FALSE,
       '#weight' => -19,
     ];
     $form['#attached']['library'][] = 'yamlform/yamlform.admin';

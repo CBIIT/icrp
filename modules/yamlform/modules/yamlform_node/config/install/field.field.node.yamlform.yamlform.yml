@@ -10,7 +10,7 @@ id: node.yamlform.yamlform
 field_name: yamlform
 entity_type: node
 bundle: yamlform
-label: 'Form'
+label: Form
 description: ''
 required: false
 translatable: false

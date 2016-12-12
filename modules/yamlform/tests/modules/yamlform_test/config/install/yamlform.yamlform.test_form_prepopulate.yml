@@ -22,11 +22,14 @@ elements: |
        blue: Blue
   prepopulate_name:
     '#markup': '<a href="?source_entity_type=user&source_entity_id=1&name=John+Smith&colors[]=red&colors[]=white">Prepopulate elements and source entity using query string parameter ?source_entity_type=user&source_entity_id=1&name=John+Smith&colors[]=red&colors[]=white</a>'
+css: ''
+javascript: ''
 settings:
   page: true
   page_submit_path: ''
   page_confirm_path: ''
   form_submit_label: ''
+  form_submit_attributes: {  }
   form_exception_message: ''
   form_closed_message: ''
   form_confidential: false
@@ -34,28 +37,39 @@ settings:
   form_prepopulate: true
   form_prepopulate_source_entity: true
   form_novalidate: false
+  form_unsaved: false
+  form_disable_back: false
   form_autofocus: false
   form_details_toggle: false
   wizard_progress_bar: true
   wizard_progress_pages: false
   wizard_progress_percentage: false
   wizard_next_button_label: ''
+  wizard_next_button_attributes: {  }
   wizard_prev_button_label: ''
+  wizard_prev_button_attributes: {  }
   wizard_start_label: ''
   wizard_complete: true
   wizard_complete_label: ''
   preview: 0
   preview_next_button_label: ''
+  preview_next_button_attributes: {  }
   preview_prev_button_label: ''
+  preview_prev_button_attributes: {  }
   preview_message: ''
   draft: false
   draft_auto_save: false
   draft_button_label: ''
+  draft_button_attributes: {  }
   draft_saved_message: ''
   draft_loaded_message: ''
   confirmation_type: message
   confirmation_message: ''
   confirmation_url: ''
+  confirmation_attributes: {  }
+  confirmation_back: true
+  confirmation_back_label: ''
+  confirmation_back_attributes: {  }
   limit_total: null
   limit_total_message: ''
   limit_user: null
@@ -63,7 +77,7 @@ settings:
   entity_limit_total: null
   entity_limit_user: null
   results_disabled: false
-  results_disabled_ignore: false
+  results_disabled_ignore: true
   token_update: false
 access:
   create:
@@ -92,11 +106,4 @@ access:
   delete_own:
     roles: {  }
     users: {  }
-handlers:
-  'null':
-    id: 'null'
-    label: 'Null'
-    handler_id: 'null'
-    status: true
-    weight: 1
-    settings: {  }
+handlers: {  }

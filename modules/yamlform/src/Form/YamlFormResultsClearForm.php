@@ -26,7 +26,7 @@ class YamlFormResultsClearForm extends YamlFormSubmissionsDeleteFormBase {
     else {
       $t_args = ['%title' => $this->yamlform->label()];
     }
-    return $this->t('Are you sure you want to delete all submissions to %title form?', $t_args);
+    return $this->t('Are you sure you want to delete all submissions to the %title form?', $t_args);
   }
 
   /**

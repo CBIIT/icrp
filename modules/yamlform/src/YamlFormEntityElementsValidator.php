@@ -2,7 +2,7 @@
 
 namespace Drupal\yamlform;
 
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Render\Element;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Form\FormState;
@@ -363,7 +363,7 @@ class YamlFormEntityElementsValidator {
     if ($message) {
       $build = [
         'title' => [
-          '#markup' => $this->t('Unable to render elements, please view the below message and the error log.'),
+          '#markup' => $this->t('Unable to render elements, please view the below message(s) and the error log.'),
         ],
         'items' => [
           '#theme' => 'item_list',

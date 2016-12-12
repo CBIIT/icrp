@@ -2,7 +2,7 @@
 
 namespace Drupal\yamlform\Plugin\YamlFormExporter;
 
-use Drupal\Component\Serialization\Yaml;
+use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Archiver\ArchiveTar;
 use Drupal\yamlform\Utility\YamlFormTidy;
 use Drupal\yamlform\YamlFormSubmissionInterface;

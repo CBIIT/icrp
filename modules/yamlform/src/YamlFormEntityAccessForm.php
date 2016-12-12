@@ -31,7 +31,7 @@ class YamlFormEntityAccessForm extends EntityForm {
     $form['access']['#tree'] = TRUE;
     foreach ($permissions as $name => $title) {
       $form['access'][$name] = [
-        '#type' => 'details',
+        '#type' => ($name === 'create') ? 'fieldset' : 'details',
         '#title' => $title,
         '#open' => ($access[$name]['roles'] || $access[$name]['users']) ? TRUE : FALSE,
       ];

@@ -113,7 +113,7 @@ abstract class TabularBaseYamlFormExporter extends YamlFormExporterBase {
     switch ($field_type) {
       case 'created':
       case 'changed':
-        $record[] = date('c', $yamlform_submission->get($field_name)->value);
+        $record[] = date('Y-m-d H:i:s', $yamlform_submission->get($field_name)->value);
         break;
 
       case 'entity_reference':

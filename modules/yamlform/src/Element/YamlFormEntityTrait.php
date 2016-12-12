@@ -62,7 +62,7 @@ trait YamlFormEntityTrait {
 
     // Issue #2826451: TermSelection returning HTML characters in select list.
     foreach ($options as $key => $value) {
-      $options[$key] = HTML::decodeEntities($value);
+      $options[$key] = Html::decodeEntities($value);
     }
 
     $element['#options'] = $options;

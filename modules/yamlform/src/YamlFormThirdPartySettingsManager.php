@@ -38,6 +38,13 @@ class YamlFormThirdPartySettingsManager implements YamlFormThirdPartySettingsMan
   protected $pathValidator;
 
   /**
+   * Add-ons manager.
+   *
+   * @var \Drupal\yamlform\YamlFormAddonsManagerInterface
+   */
+  protected $addonsManager;
+
+  /**
    * The YAML Form module's default configuration settings.
    *
    * @var \Drupal\Core\Config\Config
@@ -53,11 +60,14 @@ class YamlFormThirdPartySettingsManager implements YamlFormThirdPartySettingsMan
    *   The module handler class to use for loading includes.
    * @param \Drupal\Core\Path\PathValidatorInterface $path_validator
    *   The path validator.
+   * @param \Drupal\yamlform\YamlFormAddonsManagerInterface $addons_manager
+   *   The add-ons manager.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, PathValidatorInterface $path_validator) {
+  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, PathValidatorInterface $path_validator, YamlFormAddonsManagerInterface $addons_manager) {
     $this->configFactory = $config_factory;
     $this->moduleHandler = $module_handler;
     $this->pathValidator = $path_validator;
+    $this->addonsManager = $addons_manager;
 
     $this->config = $this->configFactory->getEditable('yamlform.settings');
     $this->loadIncludes();
@@ -89,28 +99,6 @@ class YamlFormThirdPartySettingsManager implements YamlFormThirdPartySettingsMan
   /**
    * {@inheritdoc}
    */
-  public function buildLinks() {
-    return [
-      '#theme' => 'links',
-      '#links' => $this->getLinks(),
-    ];
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getLinks() {
-    $links = [];
-    $links['honeypot'] = [
-      'title' => $this->t('Honeypot'),
-      'url' => $this->pathValidator->getUrlIfValid('https://www.drupal.org/project/honeypot'),
-    ];
-    return $links;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['third_party_settings'] = [
       '#tree' => TRUE,
@@ -131,19 +119,17 @@ class YamlFormThirdPartySettingsManager implements YamlFormThirdPartySettingsMan
       // Display a warning.
       drupal_set_message($this->t('There are no third party settings available. Please install a contributed module that integrates with the YAML Form module.'), 'warning');
 
-      // Link to supported modules.
+      // Link to supported Third party settings modules.
       $form['supported'] = [
         'title' => [
           '#markup' => $this->t('Supported modules.'),
           '#prefix' => '<h3>',
           '#suffix' => '</h3>',
         ],
-        'description' => [
-          '#markup' => $this->t('The below modules either provide form integration or the YAML Form module will automatically integrate with them when they are installed.'),
-          '#prefix' => '<p>',
-          '#suffix' => '</p>',
+        'modules' => [
+          '#theme' => 'admin_block_content',
+          '#content' => $this->addonsManager->getThirdPartySettings(),
         ],
-        'links' => $this->buildLinks(),
       ];
     }
     else {

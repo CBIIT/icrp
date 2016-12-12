@@ -742,7 +742,7 @@ function template_preprocess_calendar_stripe_legend(&$vars) {
       $vocabularies = (array) $row_options['colors']['calendar_colors_vocabulary'];
       $term_colors = $row_options['colors']['calendar_colors_taxonomy'];
       foreach ($vocabularies as $field_name => $vid) {
-        $vocab = \Drupal::entityManager()->getStorage("taxonomy_term")->loadTree($vid);
+        $vocab = \Drupal::entityTypeManager()->getStorage("taxonomy_term")->loadTree($vid);
         foreach ($vocab as $key => $term) {
           $options[$term->tid] = $term->name;
         }
