@@ -1,5 +1,7 @@
 # Ignore configuration files that may contain sensitive information.
 sites/*/*settings*.php
+modules/custom/db_project_view/src/Controller/config.ini
+
 
 # Ignore paths that contain generated content.
 #files/
