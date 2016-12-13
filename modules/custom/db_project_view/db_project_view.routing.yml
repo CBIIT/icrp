@@ -1,0 +1,8 @@
+db_project_view.content:
+  path: '/ViewProject/{projectID}'
+  defaults:
+    _controller: '\Drupal\db_project_view\Controller\ProjectViewController::content'
+    _title: 'Project Information'
+  requirements:
+    _permission: 'access content'
+    projectID: '[0-9]+'

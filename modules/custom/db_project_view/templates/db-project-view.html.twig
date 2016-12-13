@@ -1,0 +1,141 @@
+{{ attach_library('db_project_view/resources') }}
+<style>
+.metadata {
+    display: table;
+}
+
+.metadata-row {
+    display: table-row;
+}
+
+.metadata-item {
+    display: table-cell;
+}
+
+.metadata-item:first-child {
+  padding-right: 20px;
+}
+
+.metadata-item:last-child {
+  font-weight: bold;
+}
+
+.project-title {
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.project-separator {
+
+}
+
+</style>
+
+
+<div class="project metadata">
+
+  <div class="project metadata-row">
+    <div class="project metadata-item">
+      Principal Investigator:
+    </div>
+    <div class="project metadata-item">
+      {{ piLastName }}, {{ piFirstName }}
+    </div>
+  </div>
+
+
+  <div class="project metadata-row">
+    <div class="project metadata-item">
+      Institution:
+    </div>
+    <div class="project metadata-item">
+       {{ institution }}
+    </div>
+  </div>
+
+
+
+
+  <div class="project metadata-row">
+    <div class="project metadata-item">
+      Location:
+    </div>
+    <div class="project metadata-item">
+       {{ city }}, {{ state }}, {{ country }}
+    </div>
+  </div>
+
+
+
+
+  <div class="project metadata-row">
+    <div class="project metadata-item">
+      Award Code:
+    </div>
+    <div class="project metadata-item">
+       {{ awardCode }}
+    </div>
+  </div>
+
+
+  <div class="project metadata-row">
+    <div class="project metadata-item">
+      Funding Organization:
+    </div>
+    <div class="project metadata-item">
+       {{ fundingOrg }}
+    </div>
+  </div>
+
+
+  <div class="project metadata-row">
+    <div class="project metadata-item">
+      Award Funding Period:
+    </div>
+    <div class="project metadata-item">
+       {{ budgetStartDate }} to {{ budgetEndDate }} 
+    </div>
+  </div>
+
+  <div class="project metadata-row">
+    <div class="project metadata-item">
+      Project Dates:
+    </div>
+    <div class="project metadata-item">
+        {{ projectStartDate }} to {{ projectEndDate }} 
+    </div>
+  </div>
+
+  <div class="project metadata-row">
+    <div class="project metadata-item">
+      Funding Mechanism:
+    </div>
+    <div class="project metadata-item">
+        {{ fundingMechanism }}
+    </div>
+  </div>
+
+</div>
+
+
+<div class="project-title">Technical Abstract</div>
+<div>
+{{ techAbstract }}
+</div>
+
+<hr>
+
+<div class="project-title">Public Abstract</div>
+<div>
+{{ publicAbstract }}
+</div>
+
+<hr>
+
+<div>
+Cancer Types: {{ cancerTypes }}
+</div>
+
+<div>
+CSO Areas: {{ csoAreas }}
+</div>

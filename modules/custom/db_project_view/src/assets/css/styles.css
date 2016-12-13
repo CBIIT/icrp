@@ -1,0 +1,11 @@
+.metadata {
+    display: table;
+}
+
+.metadata-row {
+    display: table-row;
+}
+
+.metadata-item {
+    display: table-cell;
+}

@@ -1,0 +1,6 @@
+resources:
+  version: 1.0
+  css:
+    theme:
+      css:
+        src/assets/css/styles.css: {}
