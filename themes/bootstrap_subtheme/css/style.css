@@ -115,11 +115,13 @@ footer > div > nav > ul.nav > li > a {
 h1 {
     font-size: 32px;
     font-weight: normal;
-     margin-top: 20px;
+    margin-top: 20px;
 }
 h2 {
     font-size: 28px;
     font-weight: normal;
+    font-weight: normal;
+    margin-top: 20px;
 }
 body {
   position: relative;
@@ -184,12 +186,97 @@ div#cso-document-container > div > h1 {
   color: LightGrey;
   margin-left: 5px;
 }
+/* Adjust label on Webforms */
+#edit-current-annual-operating-budget-container > div > label::before {
+    content: "(Optional*)";
+    color: red;
+    padding-right:5px;
+}
+
+._control-label-align-right {
+  text-align:right;
+}
+._row {
+  padding-top: 1.5rem;
+}
+._col-1 > label, ._col-2 > label, ._col-3 > label, ._col-4 > label, ._col-5 > label, ._col-6 > label, ._col-7 > label, ._col-8 > label, ._col-9 > label, ._col-10 > label, ._col-11 > label, ._col-12 > label, ._col-sm-1 > label, ._col-sm-2 > label, ._col-sm-3 > label, ._col-sm-4 > label, ._col-sm-5 > label, ._col-sm-6 > label, ._col-sm-7 > label, ._col-sm-8 > label, ._col-sm-9 > label, ._col-sm-10 > label, ._col-sm-11 > label, ._col-sm-12 > label {
+  position: relative;
+  min-height: 1px;
+  padding-right: 15px;
+  padding-left: 15px;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0;  
+}
+._col-sm-2-for-label > label {
+  color:blue;
+  position: relative;
+  min-height: 1px;
+  padding-right: 15px;
+  padding-left: 15px;
+}
+._col-1 > label {
+  float: left;
+  width: 8.333333%;
+}
+
+._col-2 > label {
+  float: left;
+  width: 16.666667%;
+}
+
+._col-3 > label {
+  float: left;
+  width: 25%;
+}
+
+._col-4 > label {
+  float: left;
+  width: 33.333333%;
+}
+
+._col-5 > label {
+  float: left;
+  width: 41.666667%;
+}
+
+._col-6 > label {
+  float: left;
+  width: 50%;
+}
+
+._col-7 > label {
+  float: left;
+  width: 58.333333%;
+}
+
+._col-8 > label {
+  float: left;
+  width: 66.666667%;
+}
+
+._col-9 > label {
+  float: left;
+  width: 75%;
+}
+
+._col-10 > label {
+  float: left;
+  width: 83.333333%;
+}
+
+._col-11 > label {
+  float: left;
+  width: 91.666667%;
+}
+
+._col-12 > label {
+  float: left;
+  width: 100%;
+}
 /*==================================================
 =            Bootstrap 3 Media Queries             =
 ==================================================*/
-
-
-
 
 /*==========  Mobile First Method  ==========*/
 
