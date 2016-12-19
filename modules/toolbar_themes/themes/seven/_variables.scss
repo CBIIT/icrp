@@ -1,0 +1,33 @@
+// Seven SCSS variables.
+
+$font-family                      : "Lucida Grande", "Lucida Sans Unicode", "DejaVu Sans", "Lucida Sans", arial, sans-serif;
+
+$tap-highlight                    : rgba(0, 0, 0, 0);
+
+$toolbar-bar-color                : #595959;
+$toolbar-bar-background           : #fcfcfc;
+
+$drop-shadows                     : true;
+$drop-shadow-color                : rgba(168, 168, 168, 0.65);
+$border-color                     : #e6e4df;
+
+$toolbar-item-padding             : 0.4em 0.825em 0.3em;
+
+$tab-color                        : #595959;
+$tab-active-color                 : #1a1a1a;
+
+$tray-color                       : #1a1a1a;
+$tray-active                      : #1a1a1a;
+$tray-background                  : #ebebe6;
+
+$tray-vertical-background         : $tray-background;
+$tray-border-color                : #e6e4df;
+
+$drop-menu-border-color           : $border-color;
+$drop-menu-background             : #f5f5f2;
+$sub-menu-indicator               : #ccc;
+
+$toggle-orientation-color         : #bfbfba;
+$toggle-orientation-active        : #1a1a1a;
+$toggle-orientation-border-color  : #bfbfba;
+

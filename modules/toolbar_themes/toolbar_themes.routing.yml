@@ -1,0 +1,7 @@
+toolbar_themes.settings:
+  path: '/admin/config/toolbar-themes/settings'
+  defaults:
+    _form: '\Drupal\toolbar_themes\Form\ToolbarThemesSettingsForm'
+    _title: 'Toolbar Themes'
+  requirements:
+    _permission: 'access toolbar'

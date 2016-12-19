@@ -1,0 +1,13 @@
+name: Toolbar Themes
+description: Apply themes to the toolbar.
+package: Administration
+type: module
+# core: '8.x'
+dependencies:
+  - toolbar
+
+# Information added by Drupal.org packaging script on 2016-09-18
+version: '8.x-1.0-alpha4'
+core: '8.x'
+project: 'toolbar_themes'
+datestamp: 1474198440

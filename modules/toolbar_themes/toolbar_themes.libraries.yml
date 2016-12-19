@@ -1,0 +1,80 @@
+# Module Libraries
+base:
+  css:
+    component:
+      css/toolbar-themes-form.css: {}
+  js:
+    js/base.js: {}
+  dependencies:
+    - core/jquery
+
+grunticon_load:
+  js:
+    themes/base/grunticons/icon_load.js: {}
+
+# Toolbar Themes
+
+# Base theme.
+toolbar_themes_base.base:
+  version: 8.0-1.x
+  css:
+    theme:
+      themes/base/base_module.css: {}
+      themes/base/base_handles.css: {}
+      themes/base/base_theme.css: {}
+
+toolbar_themes_base.icons:
+  version: 8.0-1.x
+  css:
+    theme:
+      themes/base/base_icons.css: {}
+
+# Admin Menu theme.
+toolbar_admin_menu.base:
+  version: 8.0-1.x
+  css:
+    theme:
+      themes/admin_menu/admin_menu_theme.css: {}
+  dependencies:
+    - toolbar_themes/toolbar_themes_base.base
+
+toolbar_admin_menu.icons:
+  version: 8.0-1.x
+  css:
+    theme:
+      themes/admin_menu/admin_menu_icons.css: {}
+  dependencies:
+    - toolbar_themes/toolbar_themes_base.icons
+
+# Toolbar Mini theme.
+toolbar_mini.base:
+  version: 8.0-1.x
+  css:
+    theme:
+      themes/mini/mini_theme.css: {}
+  dependencies:
+    - toolbar_themes/toolbar_themes_base.base
+
+toolbar_mini.icons:
+  css:
+    theme:
+      themes/mini/mini_icons.css: {}
+  dependencies:
+    - toolbar_themes/toolbar_themes_base.icons
+
+# Seven theme.
+toolbar_seven.base:
+  version: 8.0-1.x
+  css:
+    theme:
+      themes/seven/seven_theme.css: {}
+  dependencies:
+    - toolbar_themes/toolbar_themes_base.base
+
+toolbar_seven.icons:
+  version: 8.0-1.x
+  css:
+    theme:
+      themes/seven/seven_icons.css: {}
+  dependencies:
+    - toolbar_themes/toolbar_themes_base.icons

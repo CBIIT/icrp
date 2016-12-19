@@ -1,6 +1,12 @@
 /**
  * Place your custom styles here.
  */
+
+ /* Authenticated and Anonymous User Menu */
+ #block-bootstrap-subtheme-account-menu {
+  padding-top:48px;
+ }
+
 /* Make .btn responsive */
 
 .btn-responsive {

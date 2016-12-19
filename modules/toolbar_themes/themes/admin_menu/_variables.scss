@@ -1,0 +1,32 @@
+// Admin theme SCSS variables.
+
+$font-family                      : "Lucida Grande", "Lucida Sans Unicode", "DejaVu Sans", "Lucida Sans", arial, sans-serif;
+
+$tap-highlight                    : rgba(255, 255, 255, 0);
+
+$toolbar-bar-color                : #e8e8e8;
+$toolbar-bar-background           : #454545;
+
+$drop-shadows                     : false;
+$drop-shadow-color                : rgba(0, 0, 0, 0.333);
+$border-color                     : #323232;
+
+$toolbar-item-padding             : 0.4em 0.95em .35em;
+
+$tab-color                        : #d8d8d8;
+$tab-active-color                 : #fff;
+
+$tray-color                       : #e8e8e8;
+$tray-active                      : #fff;
+$tray-background                  : #101010;
+
+$tray-vertical-background         : $tray-background;
+$tray-border-color                : #696969;
+
+$drop-menu-border-color           : $border-color;
+$drop-menu-background             : rgba(16, 16, 16, 0.95);
+$sub-menu-indicator               : $tray-border-color;
+
+$toggle-orientation-color         : $tray-border-color;
+$toggle-orientation-active        : $tray-color;
+$toggle-orientation-border-color  : $toggle-orientation-color;

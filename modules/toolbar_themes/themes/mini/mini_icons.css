@@ -1,0 +1,46 @@
+/**
+ * mini_icons
+ */
+#toolbar-administration .toolbar-icon {
+  padding: 0 .25em 0 0;
+}
+
+#toolbar-administration .toolbar-tab__items-wrapper .toolbar-icon {
+  fill: #bebebe;
+}
+
+#toolbar-administration .toolbar-tab__items-wrapper .toolbar-icon-menu {
+  width: 0.875em;
+}
+
+#toolbar-administration .toolbar-tab__items-wrapper a:hover .toolbar-icon, #toolbar-administration .toolbar-tab__items-wrapper a:active .toolbar-icon, #toolbar-administration .toolbar-tab__items-wrapper a.is-active .toolbar-icon,
+#toolbar-administration .toolbar-tab__items-wrapper button:hover .toolbar-icon,
+#toolbar-administration .toolbar-tab__items-wrapper button:active .toolbar-icon,
+#toolbar-administration .toolbar-tab__items-wrapper button.is-active .toolbar-icon {
+  fill: #ffffff;
+}
+
+@media only screen and (max-width: 24em) {
+  #toolbar-administration .home-toolbar-tab,
+  #toolbar-administration .tour-toolbar-tab,
+  #toolbar-administration .toolbar-tab__items-wrapper .toolbar-icon {
+    display: none;
+  }
+}
+
+#toolbar-administration .toolbar-menu a {
+  fill: #6f6f6f;
+}
+
+#toolbar-administration .toolbar-menu a:hover, #toolbar-administration .toolbar-menu a:focus, #toolbar-administration .toolbar-menu a:active, #toolbar-administration .toolbar-menu a.is-active {
+  fill: #494949;
+}
+
+#toolbar-administration .toolbar-menu a.is-active[href="/"] {
+  fill: #6f6f6f;
+}
+
+#toolbar-administration .toolbar-menu a:hover[href="/"], #toolbar-administration .toolbar-menu a:focus[href="/"], #toolbar-administration .toolbar-menu a:active[href="/"] {
+  fill: #494949;
+}
+/*# sourceMappingURL=mini_icons.css.map */

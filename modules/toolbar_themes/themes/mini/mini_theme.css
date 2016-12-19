@@ -1,0 +1,333 @@
+/**
+ * mini_theme
+ * Theme styles for menus and other toolbar elements. SVG icons are styled in
+ * the [theme]_icons.scss file, while click handles, e.g. origination buttons
+ * are styled here.
+ */
+#toolbar-administration {
+  font-family: "Lucida Grande", "Lucida Sans Unicode", "DejaVu Sans", "Lucida Sans", arial, sans-serif;
+  tap-highlight-color: transparent;
+  font-weight: 400;
+}
+
+#toolbar-administration .toolbar-tab a:hover, #toolbar-administration .toolbar-tab a:focus,
+#toolbar-administration .toolbar-item a:hover,
+#toolbar-administration .toolbar-item a:focus {
+  text-decoration: none;
+}
+
+#toolbar-administration .toolbar-item {
+  padding: 0.4em 0.825em 0.3em;
+}
+
+#toolbar-administration .toolbar__link-label {
+  font-size: 1em;
+}
+
+#toolbar-administration .toolbar-bar {
+  background-color: #0f0f0f;
+  box-shadow: -1px 0 3px 1px rgba(0, 0, 0, 0.3333);
+  color: #dddddd;
+}
+
+[dir="rtl"] #toolbar-administration .toolbar-bar {
+  box-shadow: 1px 0 3px 1px rgba(0, 0, 0, 0.3333);
+}
+
+#toolbar-administration .toolbar-bar .toolbar-item {
+  color: #d8d8d8;
+}
+
+#toolbar-administration .toolbar-bar .toolbar-item:hover, #toolbar-administration .toolbar-bar .toolbar-item:focus, #toolbar-administration .toolbar-bar .toolbar-item:active, #toolbar-administration .toolbar-bar .toolbar-item.is-active {
+  color: #ffffff;
+}
+
+#toolbar-administration .toolbar-bar .toolbar-tab a:hover, #toolbar-administration .toolbar-bar .toolbar-tab a:focus {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.125) 20%, transparent 200%);
+}
+
+#toolbar-administration .toolbar-bar .toolbar-tab a.is-active {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.25) 20%, transparent 200%);
+}
+
+#toolbar-administration .toolbar-bar .tour-toolbar-tab.toolbar-tab {
+  float: none;
+}
+
+#toolbar-administration .toolbar-bar .tour-toolbar-tab button.toolbar-item {
+  padding: 0.4em 0.825em 0.3em;
+}
+
+#toolbar-administration .toolbar-tray {
+  background-color: #ffffff;
+}
+
+#toolbar-administration .toolbar-tray-vertical {
+  background-color: #f5f5f5;
+  border-right: 1px solid #aaaaaa;
+  box-shadow: -1px 0 5px 2px rgba(0, 0, 0, 0.3333);
+}
+
+[dir="rtl"] #toolbar-administration .toolbar-tray-vertical {
+  border-left: 1px solid #aaaaaa;
+  border-right: 0 none;
+  box-shadow: 1px 0 5px 2px rgba(0, 0, 0, 0.3333);
+}
+
+#toolbar-administration .toolbar-tray-horizontal {
+  border-bottom: 1px solid #aaaaaa;
+  box-shadow: -2px 1px 3px 1px rgba(0, 0, 0, 0.3333);
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-tray {
+  background-color: #f5f5f5;
+}
+
+[dir="rtl"] #toolbar-administration .toolbar-tray-horizontal {
+  box-shadow: 2px 1px 3px 1px rgba(0, 0, 0, 0.3333);
+}
+
+#toolbar-administration .toolbar-tray-horizontal .edit-shortcuts {
+  float: none;
+  position: absolute;
+  right: 2.2em;
+  top: 0;
+}
+
+#toolbar-administration .no-tabs .toolbar-tray-horizontal {
+  border-top: 0;
+  box-shadow: none;
+}
+
+#toolbar-administration .toolbar-tray a {
+  color: #6f6f6f;
+  cursor: pointer;
+  padding: 0.4em 0.825em 0.3em;
+}
+
+#toolbar-administration .toolbar-tray a:hover, #toolbar-administration .toolbar-tray a:active, #toolbar-administration .toolbar-tray a:focus, #toolbar-administration .toolbar-tray a.is-active {
+  color: #494949;
+}
+
+#toolbar-administration .toolbar-tray a.is-active[href="/"] {
+  color: #6f6f6f;
+}
+
+#toolbar-administration .toolbar-toggle-orientation {
+  background-color: transparent;
+  padding: 0;
+  height: 100%;
+}
+
+#toolbar-administration .toolbar-toggle-orientation button {
+  cursor: pointer;
+  display: inline-block;
+}
+
+#toolbar-administration .toolbar-toggle-orientation > .toolbar-lining {
+  float: right;
+}
+
+[dir="rtl"] #toolbar-administration .toolbar-toggle-orientation > .toolbar-lining {
+  float: left;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-toggle-orientation {
+  border-left: 1px solid #c9c9c9;
+}
+
+[dir="rtl"] #toolbar-administration .toolbar-tray-horizontal .toolbar-toggle-orientation {
+  border-left: 0 none;
+  border-right: 1px solid #c9c9c9;
+}
+
+#toolbar-administration .toolbar-tab a:focus {
+  outline: none;
+  text-decoration: none;
+}
+
+#toolbar-administration .toolbar-lining button:focus {
+  outline: none;
+}
+
+#toolbar-administration .toolbar-tray-horizontal a:focus {
+  outline: none;
+  background-color: #f5f5f5;
+}
+
+#toolbar-administration .toolbar-box a:focus {
+  outline: none;
+}
+
+#toolbar-administration .toolbar-box a:hover:focus {
+  text-decoration: none;
+}
+
+#toolbar-administration .toolbar-icon.toolbar-handle {
+  width: 4em;
+}
+
+#toolbar-administration .toolbar-icon.toolbar-handle:focus {
+  outline: none;
+}
+
+#toolbar-administration .toolbar-icon.toolbar-handle:before {
+  color: #bebebe;
+}
+
+#toolbar-administration .toolbar-icon.toolbar-handle.open:before {
+  color: #787878;
+}
+
+#toolbar-administration .toolbar-toggle-orientation button.toolbar-icon:after, #toolbar-administration .toolbar-toggle-orientation button.toolbar-icon:before {
+  color: #bebebe;
+}
+
+#toolbar-administration .toolbar-toggle-orientation button.toolbar-icon:hover:after, #toolbar-administration .toolbar-toggle-orientation button.toolbar-icon:focus:before {
+  color: #787878;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu .toolbar-menu .menu-item--expanded > a:after,
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu .toolbar-menu .menu-item--expanded .toolbar-box > a:after {
+  color: #bebebe;
+}
+
+#toolbar-administration .toolbar-menu {
+  background-color: #ffffff;
+}
+
+#toolbar-administration .toolbar-menu,
+#toolbar-administration [dir="rtl"] .toolbar-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration .toolbar-menu .toolbar-menu {
+  box-shadow: 0 2px 1px 1px rgba(0, 0, 0, 0.255);
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration .toolbar-menu .toolbar-menu .menu-item {
+  border-top: 1px solid #ffffff;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration .toolbar-menu .toolbar-menu .menu-item:first-child {
+  border-top-color: #dddddd;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration .toolbar-menu .toolbar-menu .toolbar-menu {
+  box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.255);
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration .toolbar-menu .toolbar-menu > .menu-item--expanded > .toolbar-menu {
+  top: -1px;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .menu-item .menu-item:hover, #toolbar-administration .toolbar-tray-horizontal .menu-item .menu-item:focus {
+  background-color: #f5f5f5;
+}
+
+#toolbar-administration .toolbar-tray-vertical .toolbar-menu ul {
+  display: none;
+}
+
+#toolbar-administration .toolbar-tray-vertical li.open > ul {
+  display: block;
+}
+
+#toolbar-administration .toolbar-tray-vertical .toolbar-handle + a {
+  margin-right: 3em;
+}
+
+[dir="rtl"] #toolbar-administration .toolbar-tray-vertical .toolbar-handle + a {
+  margin-left: 3em;
+  margin-right: 0;
+}
+
+#toolbar-administration .toolbar-tray-vertical .menu-item + .menu-item {
+  border-top: 1px solid #dddddd;
+}
+
+#toolbar-administration .toolbar-tray-vertical .menu-item:last-child {
+  border-bottom: 1px solid #dddddd;
+}
+
+#toolbar-administration .toolbar-tray-vertical .menu-item .menu-item {
+  border: 0 none;
+}
+
+#toolbar-administration .toolbar-tray-vertical .toolbar-menu ul ul {
+  border-bottom: 1px solid #dddddd;
+  border-top: 1px solid #dddddd;
+}
+
+#toolbar-administration .toolbar-tray-vertical .menu-item:last-child > ul {
+  border-bottom: 0;
+}
+
+#toolbar-administration .toolbar-tray-vertical .level-2 > ul {
+  background-color: #fafafa;
+  border-bottom-color: #cccccc;
+  border-top-color: #e5e5e5;
+}
+
+#toolbar-administration .toolbar-tray-vertical .level-3 > ul {
+  background-color: #f5f5f5;
+  border-bottom-color: #c5c5c5;
+  border-top-color: #dddddd;
+}
+
+#toolbar-administration .toolbar-tray-vertical .level-4 > ul {
+  background-color: #eeeeee;
+  border-bottom-color: #bbbbbb;
+  border-top-color: #d5d5d5;
+}
+
+#toolbar-administration .toolbar-tray-vertical .level-5 > ul {
+  background-color: #e5e5e5;
+  border-bottom-color: #b5b5b5;
+  border-top-color: #cccccc;
+}
+
+#toolbar-administration .toolbar-tray-vertical .level-6 > ul {
+  background-color: #eeeeee;
+  border-bottom-color: #aaaaaa;
+  border-top-color: #c5c5c5;
+}
+
+#toolbar-administration .toolbar-tray-vertical .level-7 > ul {
+  background-color: #fafafa;
+  border-bottom-color: #b5b5b5;
+  border-top-color: #cccccc;
+}
+
+#toolbar-administration .toolbar-tray-vertical .level-8 > ul {
+  background-color: #dddddd;
+  border-bottom-color: #cccccc;
+  border-top-color: #dddddd;
+}
+
+.adminimal.toolbar-tray-open.toolbar-fixed.toolbar-horizontal.toolbar-themes {
+  padding-top: 3rem !important;
+}
+
+.adminimal.toolbar-tray-open.toolbar-fixed.toolbar-horizontal #toolbar-administration {
+  background-color: #333;
+}
+
+.adminimal.toolbar-tray-open.toolbar-fixed.toolbar-horizontal.toolbar-has-tabs #toolbar-administration {
+  min-height: 4em;
+}
+
+.adminimal.toolbar-tray-open.toolbar-fixed.toolbar-horizontal.toolbar-no-tabs #toolbar-administration {
+  min-height: 2.5em;
+}
+
+.adminimal.toolbar-fixed.toolbar-vertical.toolbar-has-tabs, .adminimal.toolbar-tray-open.toolbar-fixed.toolbar-horizontal.toolbar-no-tabs {
+  padding-top: 1.8em !important;
+}
+
+.adminimal.toolbar-fixed.toolbar-vertical.toolbar-no-tabs {
+  padding-top: 0 !important;
+}
+/*# sourceMappingURL=mini_theme.css.map */

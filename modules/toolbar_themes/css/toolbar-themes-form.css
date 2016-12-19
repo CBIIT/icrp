@@ -1,0 +1,34 @@
+/* Styles provided by the Toolbar Theme module . */
+
+/*#toolbar-administration {display: none !important}*/
+
+.toolbar-themes-form {
+  overflow-x: scroll;
+}
+
+.toolbar-themes-form td {
+  vertical-align: top;
+}
+
+
+.toolbar-themes-form .toolbar-theme-screen-shot {
+  max-width: 540px;
+}
+
+.toolbar-themes-form .toolbar-themes-meta,
+.toolbar-themes-form .toolbar-themes-meta dt,
+.toolbar-themes-form .toolbar-themes-meta dd {
+  margin: 0;
+}
+
+.toolbar-themes-form .toolbar-themes-meta dt {
+  clear: left;
+  margin-right: 3px;
+  width: 5em;
+  font-weight: 600;
+}
+
+.toolbar-themes-form .toolbar-themes-meta dt,
+.toolbar-themes-form .toolbar-themes-meta dd {
+  float: left;
+}
