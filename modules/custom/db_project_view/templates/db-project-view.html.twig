@@ -1,16 +1,20 @@
+{% autoescape true %}
+
 {% if project_title[0] %}
 
 <h4>{{ project_title[0] | raw }}</h4>
 
 <dl class="dl-horizontal margin-bottom">
   <dt>Award Code</dt>
-  <dd>{{ award_code[0] }}</dd>
+  <dd>{{ award_code[0] ?? 'Unavailable' | raw  }}</dd>
 
   <dt>Project Dates</dt>
-  <dd>{{ project_start_date[0] }} to {{ project_end_date[0] }}</dd>
+  <dd>{{ (project_start_date[0] and project_end_date[0]) 
+          ? (project_start_date[0] ~ ' to ' ~ project_end_date[0]) 
+          : 'Unavailable' | raw }}</dd>
 
   <dt>Funding Mechanism</dt>
-  <dd>{{ funding_mechanism[0] }}</dd>
+  <dd>{{ funding_mechanism[0] ?? 'Unavailable' | raw }}</dd>
 </dl>
 
 
@@ -28,17 +32,18 @@
     <tbody>
       {% for f in funding_organization %}
         <tr>
-          <td>{{ funding_organization[loop.index0] }}</td>
+          <td>{{ funding_organization[loop.index0] ?? 'Unavailable' | raw }}</td>
           <td>
-            {% if budget_start_date[loop.index0]  %}
-              {{ budget_start_date[loop.index0] }} to {{ budget_end_date[loop.index0] }}
-            {% else %}
-              <i>Not provided</i>
-            {% endif %}
+              {{ (budget_start_date[loop.index0] and budget_end_date[loop.index0]) 
+              ? (budget_start_date[loop.index0] ~ ' to ' ~ budget_end_date[loop.index0]) 
+              : 'Unavailable' | raw }}
           </td>
-          <td>{{ principal_investigator[loop.index0] }}</td>
-          <td>{{ institution[loop.index0] }}</td>
-          <td>{{ city[loop.index0] }}, {{ state[loop.index0] }}, {{ country[loop.index0] }}</td>
+          <td>{{ principal_investigator[loop.index0] ?? 'Unavailable' | raw }}</td>
+          <td>{{ institution[loop.index0] ?? 'Unavailable' | raw }}</td>
+
+          <td>{{  (city[loop.index0]    ?? '') ~ (city[loop.index0] ? ', ' : '') ~
+                  (state[loop.index0]   ?? '') ~ (state[loop.index0] ? ', ' : '') ~
+                  (country[loop.index0] ?? '') }}</td>
         </tr>
       {% endfor %}
     </tbody>
@@ -83,3 +88,4 @@
   <i>No project information found</i>
 {% endif %}
 
+{% endautoescape %}
