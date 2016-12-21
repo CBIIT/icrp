@@ -2,56 +2,46 @@
 
 include 'getDBConnection.php';
 
+function getProjectCancerTypes($projectID) {
+  $pdo = getDBConnection(parse_ini_file("config.ini"));
+  $stmt = $pdo->prepare("CALL GetProjectCancerTypes(?)");
+  $stmt->bindParam(1, $projectID, PDO::PARAM_INT, 1000000); 
+
+  $stmt->execute();
+  return $stmt->fetchAll();
+}
+
+function getProjectCSOCodes($projectID) {
+  $pdo = getDBConnection(parse_ini_file("config.ini"));
+  $stmt = $pdo->prepare("CALL GetProjectCSOCodes(?)");
+  $stmt->bindParam(1, $projectID, PDO::PARAM_INT, 1000000); 
+
+  $stmt->execute();
+  return $stmt->fetchAll();
+}
+
 function getProjectInfo($projectID) {
   $pdo = getDBConnection(parse_ini_file("config.ini"));
+  $stmt = $pdo->prepare("CALL GetProjectInfo(?)");
+  $stmt->bindParam(1, $projectID, PDO::PARAM_INT, 1000000); 
 
-  $projectInfo = array();
-  $projectCancerTypes = array();
-  $projectCSOAreas = array();
-
-  $stmtInfo = $pdo->prepare("CALL GetProjectInfo(?)");
-  $stmtInfo->bindParam(1, $projectID, PDO::PARAM_INT, 1000000); 
-
-  $stmtCancerType = $pdo->prepare("CALL GetProjectCancerType(?)");
-  $stmtCancerType->bindParam(1, $projectID, PDO::PARAM_INT, 100000); 
-
-  $stmtProjectCSO = $pdo->prepare("CALL GetProjectCSO(?)");
-  $stmtProjectCSO->bindParam(1, $projectID, PDO::PARAM_INT, 100000); 
-
-
-  if ($stmtInfo->execute()) {
-    while ($row = $stmtInfo->fetch()) {
-      array_push($projectInfo, $row);
-    }
-  }
-
-/*
-
-
-  if ($stmtCancerType->execute()) {
-    while ($row2 = $stmtCancerType->fetch()) {
-      array_push($projectCancerTypes, 'abc');
-    }
-  }
-
-  if ($stmtProjectCSO->execute()) {
-    while ($row = $stmtProjectCSO->fetch()) {
-      array_push($projectCSOAreas, $row);
-    }
-  }
-
-*/
-  $pdo = null;
-
-  if (!empty($projectInfo)) {
-    $result = $projectInfo[0];
-
-    $result['CancerTypes'] = json_encode($projectCancerTypes);
-    $result['CsoAreas'] = json_encode($projectCSOAreas);
-
-    return $result;
-    
-  }
+  $results = array();
   
-  return null;
+  if ($stmt->execute()) {
+    while ($row = $stmt->fetch()) {
+      foreach (array_keys($row) as $key) {
+
+        if (!isset($results[$key])) {
+          $results[$key] = array();
+        }
+
+        array_push($results[$key], $row[$key]);
+      }
+    }
+  }
+
+  $results['cancer_types'] = getProjectCancerTypes($projectID);
+  $results['cso_areas'] = getProjectCSOCodes($projectID);
+
+  return $results;
 }

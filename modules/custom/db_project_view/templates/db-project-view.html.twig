@@ -1,141 +1,85 @@
-{{ attach_library('db_project_view/resources') }}
-<style>
-.metadata {
-    display: table;
-}
+{% if project_title[0] %}
 
-.metadata-row {
-    display: table-row;
-}
+<h4>{{ project_title[0] | raw }}</h4>
 
-.metadata-item {
-    display: table-cell;
-}
+<dl class="dl-horizontal margin-bottom">
+  <dt>Award Code</dt>
+  <dd>{{ award_code[0] }}</dd>
 
-.metadata-item:first-child {
-  padding-right: 20px;
-}
+  <dt>Project Dates</dt>
+  <dd>{{ project_start_date[0] }} to {{ project_end_date[0] }}</dd>
 
-.metadata-item:last-child {
-  font-weight: bold;
-}
-
-.project-title {
-  font-weight: bold;
-  margin-top: 20px;
-}
-
-.project-separator {
-
-}
-
-</style>
+  <dt>Funding Mechanism</dt>
+  <dd>{{ funding_mechanism[0] }}</dd>
+</dl>
 
 
-<div class="project metadata">
-
-  <div class="project metadata-row">
-    <div class="project metadata-item">
-      Principal Investigator:
-    </div>
-    <div class="project metadata-item">
-      {{ piLastName }}, {{ piFirstName }}
-    </div>
-  </div>
-
-
-  <div class="project metadata-row">
-    <div class="project metadata-item">
-      Institution:
-    </div>
-    <div class="project metadata-item">
-       {{ institution }}
-    </div>
-  </div>
-
-
-
-
-  <div class="project metadata-row">
-    <div class="project metadata-item">
-      Location:
-    </div>
-    <div class="project metadata-item">
-       {{ city }}, {{ state }}, {{ country }}
-    </div>
-  </div>
-
-
-
-
-  <div class="project metadata-row">
-    <div class="project metadata-item">
-      Award Code:
-    </div>
-    <div class="project metadata-item">
-       {{ awardCode }}
-    </div>
-  </div>
-
-
-  <div class="project metadata-row">
-    <div class="project metadata-item">
-      Funding Organization:
-    </div>
-    <div class="project metadata-item">
-       {{ fundingOrg }}
-    </div>
-  </div>
-
-
-  <div class="project metadata-row">
-    <div class="project metadata-item">
-      Award Funding Period:
-    </div>
-    <div class="project metadata-item">
-       {{ budgetStartDate }} to {{ budgetEndDate }} 
-    </div>
-  </div>
-
-  <div class="project metadata-row">
-    <div class="project metadata-item">
-      Project Dates:
-    </div>
-    <div class="project metadata-item">
-        {{ projectStartDate }} to {{ projectEndDate }} 
-    </div>
-  </div>
-
-  <div class="project metadata-row">
-    <div class="project metadata-item">
-      Funding Mechanism:
-    </div>
-    <div class="project metadata-item">
-        {{ fundingMechanism }}
-    </div>
-  </div>
-
+<div class="table-responsive margin-top">
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Funding Organization</th>
+        <th>Award Funding Period</th>
+        <th>Principal Investigator</th>
+        <th>Institution</th>
+        <th>Location</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in funding_organization %}
+        <tr>
+          <td>{{ funding_organization[loop.index0] }}</td>
+          <td>
+            {% if budget_start_date[loop.index0]  %}
+              {{ budget_start_date[loop.index0] }} to {{ budget_end_date[loop.index0] }}
+            {% else %}
+              <i>Not provided</i>
+            {% endif %}
+          </td>
+          <td>{{ principal_investigator[loop.index0] }}</td>
+          <td>{{ institution[loop.index0] }}</td>
+          <td>{{ city[loop.index0] }}, {{ state[loop.index0] }}, {{ country[loop.index0] }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 
-
-<div class="project-title">Technical Abstract</div>
-<div>
-{{ techAbstract }}
-</div>
-
+{% if technical_abstract[0] %}
+<h4>Technical Abstract</h4>
+<div>{{ technical_abstract[0] | raw }}</div>
 <hr>
+{% endif %}
 
-<div class="project-title">Public Abstract</div>
-<div>
-{{ publicAbstract }}
-</div>
-
+{% if public_abstract[0] %}
+<h4>Public Abstract</h4>
+<div>{{ public_abstract[0] | raw }}</div>
 <hr>
+{% endif %}
 
-<div>
-Cancer Types: {{ cancerTypes }}
-</div>
+<h5 class="h5">Cancer Types</h5>
+<ul>
+  {% for c in cancer_types %}
+  <li>
+    {% if c.cancer_type_url %}
+      <a href="{{ c.cancer_type_url }}" target="_blank">{{ c.cancer_type }}</a>
+    {% else %}
+      {{ c.cancer_type }}
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
 
-<div>
-CSO Areas: {{ csoAreas }}
-</div>
+<h5 class="h5">Common Scientific Outline (CSO) Research Areas</h5>
+<ul>
+  {% for c in cso_areas %}
+  <li>
+    <b>{{ c.cso_code }} {{ c.cso_category }} </b> {{ c.cso_name }}
+  </li>
+  {% endfor %}
+</ul>
+
+{% else %}
+  <i>No project information found</i>
+{% endif %}
+

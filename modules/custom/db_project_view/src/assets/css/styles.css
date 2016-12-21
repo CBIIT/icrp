@@ -1,11 +1,20 @@
-.metadata {
-    display: table;
+h5.h5 {
+  font-weight: bold;
+  margin-bottom: 2px;
 }
 
-.metadata-row {
-    display: table-row;
+.margin-bottom {
+  margin-bottom: 5px;
 }
 
-.metadata-item {
-    display: table-cell;
+.margin-top {
+  margin-top: 10px;
+}
+
+dl.dl-horizontal > dt {
+  text-align: left;
+}
+
+dl.dl-horizontal > dd {
+  margin-bottom: 4px;
 }
