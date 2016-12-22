@@ -13,8 +13,8 @@ FROM icrp.dbo.COUNTRY
 -- State
 -----------------------------
 INSERT INTO State
-(Abbreviation, Name)
-SELECT ABBREVIATION, name
+(Abbreviation, Name, Country)
+SELECT ABBREVIATION, name, COUNTRY
 FROM icrp.dbo.State
 
 -----------------------------
