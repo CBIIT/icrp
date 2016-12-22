@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Snippet manager module.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function snippet_manager_requirements($phase) {
+  $requirements = [];
+
+  if ($phase == 'runtime' && !Drupal::config('snippet_manager.settings')->get('codemirror.cdn')) {
+
+    $requirements['snippet_manager_status'] = [
+      'title' => t('CodeMirror library'),
+    ];
+
+    $code_mirror_path = DRUPAL_ROOT . '/libraries/codemirror/';
+
+    $files_to_check = [
+      'lib/codemirror.js',
+      'lib/codemirror.css',
+      'mode/twig/twig.js',
+      'mode/xml/xml.js',
+      'mode/javascript/javascript.js',
+    ];
+
+    $installed = TRUE;
+    foreach ($files_to_check as $file) {
+      if (!file_exists($code_mirror_path . $file)) {
+        $installed = FALSE;
+        break;
+      }
+    }
+
+    if ($installed) {
+      $requirements['snippet_manager_status']['value'] = t('Installed');
+      $requirements['snippet_manager_status']['severity'] = REQUIREMENT_INFO;
+    }
+    else {
+      $requirements['snippet_manager_status']['value'] = t('Not found');
+      $requirements['snippet_manager_status']['severity'] = REQUIREMENT_ERROR;
+      $requirements['snippet_manager_status']['description'] = t(
+        'You need to download the <a href=":library_url">CodeMirror library</a> and extract the archive to the <em>libraries/codemirror</em> directory on your server.',
+        [':library_url' => 'https://codemirror.net/']
+      );
+    }
+
+  }
+
+  return $requirements;
+}

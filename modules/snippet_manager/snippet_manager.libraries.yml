@@ -1,0 +1,12 @@
+snippet_manager:
+  js:
+    js/snippet-manager.js: {}
+  css:
+    component:
+      css/snippet-manager.css: {}
+  dependencies:
+    - snippet_manager/codemirror
+    - core/jquery
+    - core/jquery.cookie
+    - core/drupalSettings
+

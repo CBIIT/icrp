@@ -1,0 +1,10 @@
+format: snippet_manager_test_restricted_format
+name: Snippet manager test restricted format
+weight: 1
+filters:
+  filter_html:
+    id: filter_html
+    provider: filter
+    status: true
+    settings:
+      allowed_html: <span>

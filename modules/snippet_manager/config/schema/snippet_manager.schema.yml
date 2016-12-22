@@ -1,0 +1,68 @@
+snippet_manager.settings:
+  type: config_object
+  label: Snippet manager settings
+  mapping:
+    codemirror:
+      type: mapping
+      label: CodeMirror settings
+      mapping:
+        cdn:
+          type: boolean
+          label: Load CodeMirror library from CDN
+        toolbar:
+          type: boolean
+          label: Enable editor toolbar
+        mode:
+          type: string
+          label: CodeMirror mode
+        theme:
+          type: string
+          label: CodeMirror theme
+    redirect_page:
+      type: string
+      label: Redirect page
+
+snippet_manager.snippet.*:
+  type: config_entity
+  label: Snippet
+  mapping:
+    uuid:
+      type: string
+    id:
+      type: string
+      label: ID
+    label:
+      type: label
+      label: Label
+    code:
+      type: mapping
+      mapping:
+        value:
+          label: Code
+          type: string
+        format:
+          label: Format
+          type: string
+    variables:
+      type: sequence
+    page:
+      type: mapping
+      mapping:
+        status:
+          label: Status
+          type: boolean
+        url_alias:
+          label: Url alias
+          type: string
+        dispyal_variant:
+          type: mapping
+          mapping:
+            id:
+              type: string
+              label: ID
+            confituration:
+              type: mapping
+              label: Configuration
+        theme:
+          label: Theme
+          type: string

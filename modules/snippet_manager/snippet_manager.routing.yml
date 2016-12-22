@@ -1,0 +1,110 @@
+entity.snippet.collection:
+  path: /admin/structure/snippet
+  defaults:
+    _entity_list: snippet
+    _title: Snippets
+  requirements:
+    _permission: administer snippets
+
+snippet_manager.settings:
+  path: /admin/structure/snippet/settings
+  defaults:
+    _form: 'Drupal\snippet_manager\Form\SettingsForm'
+    _title: Snippet manager configuration
+  requirements:
+    _permission: administer snippets
+
+entity.snippet.canonical:
+  path: /snippet/{snippet}
+  defaults:
+    _entity_view: snippet
+    _title_callback: \Drupal\Core\Entity\Controller\EntityController::title
+  requirements:
+    _entity_access: snippet.view
+
+entity.snippet.admin:
+  path: /snippet/{snippet}/html-source
+  defaults:
+    _entity_view: snippet.admin
+    _title_callback: \Drupal\Core\Entity\Controller\EntityController::title
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: administer snippets
+
+entity.snippet.add_form:
+  path: /snippet/add
+  defaults:
+    _entity_form: snippet.add
+    _title: Add a snippet
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: administer snippets
+
+entity.snippet.edit_form:
+  path: /snippet/{snippet}/edit
+  defaults:
+    _entity_form: snippet.edit
+    _title: Edit
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: administer snippets
+
+entity.snippet.delete_form:
+  path: /snippet/{snippet}/delete
+  defaults:
+    _entity_form: snippet.delete
+    _title: Delete snippet
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: administer snippets
+
+entity.snippet.duplicate_form:
+  path: /snippet/{snippet}/duplicate
+  defaults:
+    _entity_form: snippet.duplicate
+    _title: Duplicate snippet
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: administer snippets
+
+snippet_manager.variable_add_form:
+  path: /snippet/{snippet}/edit/variable/add
+  defaults:
+    _entity_form: snippet.variable_add
+    _title: Add variable
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: administer snippets
+
+snippet_manager.variable_edit_form:
+  path: /snippet/{snippet}/edit/variable/{variable}/edit
+  defaults:
+    _entity_form: snippet.variable_edit
+    _title: Edit variable
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: administer snippets
+
+snippet_manager.variable_delete_form:
+  path: /snippet/{snippet}/edit/variable/{variable}/delete
+  defaults:
+    _entity_form: snippet.variable_delete
+    _title: Delete variable
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: administer snippets
+
+snippet_manager.path_autocomplete:
+  path: /snippet-manager/path-autocomplete
+  defaults:
+    _controller: \Drupal\snippet_manager\Controller\PathAutocomplete::autocomplete
+  requirements:
+    _permission: administer snippets

@@ -1,0 +1,5 @@
+entity.snippet.add_form:
+  route_name: entity.snippet.add_form
+  title: Add snippet
+  appears_on:
+    - entity.snippet.collection
