@@ -2,4 +2,5 @@ resources:
   version: 1.0
   css:
     theme:
-      src/assets/css/styles.css: {}
+      css:
+        src/assets/css/styles.css: {}

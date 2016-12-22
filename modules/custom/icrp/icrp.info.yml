@@ -1,6 +1,6 @@
 name: Icrp
 type: module
 description: 'Icrp Drupal 8 module.'
-package: Custom Modules
+package: ICRP Modules
 version: 1.0
 core: '8.x'

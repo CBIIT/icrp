@@ -1,6 +1,6 @@
 name: Icrp DB Search
 description: Allows loading js and css assets on the DB Search page. (route: /db_search)
-package: Custom
+package: ICRP Modules
 type: module
 version: 1.0
 core: 8.x
