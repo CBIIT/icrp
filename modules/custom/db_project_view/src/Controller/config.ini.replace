@@ -1,8 +1,0 @@
-; Configuration for database connection
-
-driver  = "@driver@"
-host    = "@host@"
-dbname  = "@dbname@"
-user    = "@user@"
-pass    = "@pass@"
-charset = "utf8"
