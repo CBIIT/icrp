@@ -1,0 +1,12 @@
+<?php
+
+/**
+ * Implements hook_modules_installed().
+ * @param $modules
+ */
+function toolbar_themes_modules_installed($modules) {
+  // Force a cache flush.
+  if (in_array('toolbar_themes', $modules)) {
+    drupal_flush_all_caches();
+  }
+}

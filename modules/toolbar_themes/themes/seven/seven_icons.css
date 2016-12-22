@@ -1,0 +1,46 @@
+/**
+ * seven_icons
+ */
+#toolbar-administration .toolbar-icon {
+  padding: 0 .25em 0 0;
+}
+
+#toolbar-administration .toolbar-bar .toolbar-tab .toolbar-tab__items-wrapper .toolbar-icon {
+  fill: #595959;
+}
+
+#toolbar-administration .toolbar-bar .toolbar-tab .toolbar-tab__items-wrapper .toolbar-icon-menu {
+  width: 0.875em;
+}
+
+#toolbar-administration .toolbar-bar .toolbar-tab .toolbar-tab__items-wrapper a:hover .toolbar-icon, #toolbar-administration .toolbar-bar .toolbar-tab .toolbar-tab__items-wrapper a:active .toolbar-icon, #toolbar-administration .toolbar-bar .toolbar-tab .toolbar-tab__items-wrapper a.is-active .toolbar-icon,
+#toolbar-administration .toolbar-bar .toolbar-tab .toolbar-tab__items-wrapper button:hover .toolbar-icon,
+#toolbar-administration .toolbar-bar .toolbar-tab .toolbar-tab__items-wrapper button:active .toolbar-icon,
+#toolbar-administration .toolbar-bar .toolbar-tab .toolbar-tab__items-wrapper button.is-active .toolbar-icon {
+  fill: #1a1a1a;
+}
+
+@media only screen and (max-width: 24em) {
+  #toolbar-administration .toolbar-bar .home-toolbar-tab,
+  #toolbar-administration .toolbar-bar .tour-toolbar-tab,
+  #toolbar-administration .toolbar-bar .toolbar-tab__items-wrapper .toolbar-icon {
+    display: none;
+  }
+}
+
+#toolbar-administration .toolbar-menu a {
+  fill: #1a1a1a;
+}
+
+#toolbar-administration .toolbar-menu a:hover, #toolbar-administration .toolbar-menu a:focus, #toolbar-administration .toolbar-menu a:active, #toolbar-administration .toolbar-menu a.is-active {
+  fill: #1a1a1a;
+}
+
+#toolbar-administration .toolbar-menu a.is-active[href="/"] {
+  fill: #1a1a1a;
+}
+
+#toolbar-administration .toolbar-menu a:hover[href="/"], #toolbar-administration .toolbar-menu a:focus[href="/"], #toolbar-administration .toolbar-menu a:active[href="/"] {
+  fill: #1a1a1a;
+}
+/*# sourceMappingURL=seven_icons.css.map */

@@ -1,0 +1,420 @@
+/**
+ * mini_theme
+ * Theme styles for menus and other toolbar elements. SVG icons are styled in
+ * the [theme]_icons.scss file, while click handles, e.g. origination buttons
+ * are styled here.
+ */
+
+#toolbar-administration {
+  font-family: "Lucida Grande", "Lucida Sans Unicode", "DejaVu Sans", "Lucida Sans", arial, sans-serif;
+  tap-highlight-color: rgba(0, 0, 0, 0);
+  font-weight: 400;
+
+  .toolbar-tab,
+  .toolbar-item {
+    a {
+      &:hover,
+      &:focus {
+        text-decoration: none;
+      }
+    }
+  }
+
+  .toolbar-item {
+    padding: 0.4em 0.825em 0.3em;
+  }
+
+  .toolbar__link-label {
+    font-size: 1em;
+  }
+
+
+  // Toolbar bar.
+  .toolbar-bar {
+    background-color: #0f0f0f;
+    box-shadow: -1px 0 3px 1px rgba(0, 0, 0, 0.3333);
+    color: #dddddd;
+
+    [dir="rtl"] & {
+      box-shadow: 1px 0 3px 1px rgba(0, 0, 0, 0.3333);
+    }
+
+    .toolbar-item {
+      color: #d8d8d8;
+
+      &:hover,
+      &:focus,
+      &:active,
+      &.is-active {
+        color: #ffffff;
+      }
+    }
+
+    .toolbar-tab a {
+      &:hover,
+      &:focus {
+        background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.125) 20%, transparent 200%);
+        background-image: linear-gradient(rgba(255, 255, 255, 0.125) 20%, transparent 200%);
+      }
+
+      &.is-active {
+        background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.25) 20%, transparent 200%);
+        background-image: linear-gradient(rgba(255, 255, 255, 0.25) 20%, transparent 200%);
+      }
+    }
+
+    // Tour is a button.
+    .tour-toolbar-tab {
+      &.toolbar-tab {
+        float: none; // Override tour module CSS.
+      }
+
+      button.toolbar-item {
+        padding: 0.4em 0.825em 0.3em;
+      }
+    }
+  }
+
+
+  // Toolbar tray.
+  .toolbar-tray {
+    background-color: #ffffff;
+  }
+
+  .toolbar-tray-vertical {
+    background-color: #f5f5f5;
+    border-right: 1px solid #aaaaaa;
+    box-shadow: -1px 0 5px 2px rgba(0, 0, 0, 0.3333);
+
+    [dir="rtl"] & {
+      border-left: 1px solid #aaaaaa;
+      border-right: 0 none;
+      box-shadow: 1px 0 5px 2px rgba(0, 0, 0, 0.3333);
+    }
+  }
+
+  .toolbar-tray-horizontal {
+    border-bottom: 1px solid #aaaaaa;
+    box-shadow: -2px 1px 3px 1px rgba(0, 0, 0, 0.3333);
+
+    .toolbar-tray {
+      background-color: #f5f5f5;
+    }
+
+    [dir="rtl"] & {
+      box-shadow: 2px 1px 3px 1px rgba(0, 0, 0, 0.3333);
+    }
+
+    .edit-shortcuts {
+      float: none; // Override shortcut module CSS.
+      position: absolute;
+      right: 2.2em;
+      top: 0;
+    }
+  }
+
+  // No tabs, hide the box shadow and border.
+  .no-tabs .toolbar-tray-horizontal {
+    border-top: 0;
+    box-shadow: none;
+  }
+
+  .toolbar-tray a {
+    color: #6f6f6f;
+    cursor: pointer;
+    padding: 0.4em 0.825em 0.3em;
+
+    &:hover,
+    &:active,
+    &:focus,
+    &.is-active {
+      color: #494949;
+    }
+
+    &.is-active[href="/"] {
+      color: #6f6f6f;
+    }
+  }
+
+  // Orientation toggles and handles
+  .toolbar-toggle-orientation {
+    background-color: transparent;
+    padding: 0;
+    height: 100%;
+
+    button {
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    > .toolbar-lining {
+      float: right;
+
+      [dir="rtl"] & {
+        float: left;
+      }
+    }
+  }
+
+  .toolbar-tray-horizontal .toolbar-toggle-orientation {
+    border-left: 1px solid #c9c9c9;
+
+    [dir="rtl"] & {
+      border-left: 0 none;
+      border-right: 1px solid #c9c9c9;
+    }
+  }
+
+  .toolbar-tab a:focus {
+    outline: none;
+    text-decoration: none;
+  }
+
+  .toolbar-lining button:focus {
+    outline: none;
+  }
+
+  .toolbar-tray-horizontal a:focus {
+    outline: none;
+    background-color: #f5f5f5;
+  }
+
+  .toolbar-box a {
+    &:focus {
+      outline: none;
+    }
+
+    &:hover:focus {
+      text-decoration: none;
+    }
+  }
+
+
+  // Handle.
+  .toolbar-icon.toolbar-handle {
+    width: 4em;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .toolbar-icon.toolbar-handle {
+    &:before {
+      color: #bebebe;
+    }
+
+    &.open {
+      &:before {
+        color: #787878;
+      }
+    }
+  }
+
+  .toolbar-toggle-orientation button.toolbar-icon {
+    &:after,
+    &:before {
+      color: #bebebe;
+    }
+
+    &:hover:after,
+    &:focus:before {
+      color: #787878;
+    }
+  }
+
+  // Vertical.
+  .toolbar-tray-vertical i.toolbar-icon {}
+
+  // Sub-menu indicator in drop menus.
+  .toolbar-tray-horizontal {
+    .toolbar-menu-administration > .toolbar-menu .toolbar-menu {
+      .menu-item--expanded > a,
+      .menu-item--expanded .toolbar-box > a {
+        &:after {
+          color: #bebebe;
+        }
+      }
+    }
+  }
+
+
+  // Menu styles.
+  .toolbar-menu {
+    background-color: #ffffff;
+  }
+
+  .toolbar-menu,
+  [dir="rtl"] .toolbar-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .toolbar-tray-horizontal {
+
+    // Sub menus (drop downs)
+    .toolbar-menu-administration {
+      .toolbar-menu .toolbar-menu {
+        box-shadow: 0 2px 1px 1px rgba(0, 0, 0, 0.255);
+
+        .menu-item {
+          border-top: 1px solid #ffffff;
+
+          &:first-child {
+            border-top-color: #dddddd;
+          }
+        }
+
+        // Sub-sub menus
+        .toolbar-menu {
+          box-shadow: 2px 2px 2px 0 rgba(0, 0, 0, 0.255);
+        }
+
+        > .menu-item--expanded > .toolbar-menu {
+          top: -1px;
+        }
+      }
+    }
+
+    .menu-item {
+      + .menu-item {
+        [dir="rtl"] & {}
+
+        &:last-child {
+          [dir="rtl"] & {}
+        }
+      }
+
+      .menu-item {
+        &:last-child {
+          [dir="rtl"] & {}
+        }
+
+        &:hover,
+        &:focus {
+          background-color: #f5f5f5;
+        }
+      }
+    }
+  }
+
+  .toolbar-tray-vertical {
+    .toolbar-menu ul {
+      display: none;
+    }
+
+    li.open > ul {
+      display: block;
+    }
+
+    .toolbar-handle + a {
+      margin-right: 3em;
+
+      [dir="rtl"] & {
+        margin-left: 3em;
+        margin-right: 0;
+      }
+    }
+
+    .menu-item {
+      + .menu-item {
+        border-top: 1px solid #dddddd;
+      }
+
+      &:last-child {
+        border-bottom: 1px solid #dddddd;
+      }
+
+      .menu-item {
+        border: 0 none;
+      }
+    }
+
+    .toolbar-menu ul ul {
+      border-bottom: 1px solid #dddddd;
+      border-top: 1px solid #dddddd;
+    }
+
+    .menu-item:last-child > ul {
+      border-bottom: 0;
+    }
+
+    .level-2 > ul {
+      background-color: #fafafa;
+      border-bottom-color: #cccccc;
+      border-top-color: #e5e5e5;
+    }
+
+    .level-3 > ul {
+      background-color: #f5f5f5;
+      border-bottom-color: #c5c5c5;
+      border-top-color: #dddddd;
+    }
+
+    .level-4 > ul {
+      background-color: #eeeeee;
+      border-bottom-color: #bbbbbb;
+      border-top-color: #d5d5d5;
+    }
+
+    .level-5 > ul {
+      background-color: #e5e5e5;
+      border-bottom-color: #b5b5b5;
+      border-top-color: #cccccc;
+    }
+
+    .level-6 > ul {
+      background-color: #eeeeee;
+      border-bottom-color: #aaaaaa;
+      border-top-color: #c5c5c5;
+    }
+
+    .level-7 > ul {
+      background-color: #fafafa;
+      border-bottom-color: #b5b5b5;
+      border-top-color: #cccccc;
+    }
+
+    .level-8 > ul {
+      background-color: #dddddd;
+      border-bottom-color: #cccccc;
+      border-top-color: #dddddd;
+    }
+  }
+}
+
+
+// Support for the Adminimal admin theme.
+.adminimal {
+  &.toolbar-tray-open {
+    &.toolbar-fixed {
+      &.toolbar-horizontal {
+        &.toolbar-themes {
+          padding-top: 3rem !important;
+        }
+
+        #toolbar-administration {
+          background-color: #333;
+        }
+
+        &.toolbar-has-tabs #toolbar-administration {
+          min-height: 4em;
+        }
+
+        &.toolbar-no-tabs #toolbar-administration {
+          min-height: 2.5em;
+        }
+      }
+    }
+  }
+
+  &.toolbar-fixed.toolbar-vertical.toolbar-has-tabs,
+  &.toolbar-tray-open.toolbar-fixed.toolbar-horizontal.toolbar-no-tabs {
+    padding-top: 1.8em !important;
+  }
+
+  &.toolbar-fixed.toolbar-vertical.toolbar-no-tabs {
+    padding-top: 0 !important;
+  }
+}

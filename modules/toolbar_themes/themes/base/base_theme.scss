@@ -1,0 +1,266 @@
+/**
+ * base_theme
+ *
+ * Base theme styles for menus and other toolbar elements (not icons). There are
+ * no colors in this file - those should be provided by sub-themes.
+ */
+
+
+// Remove very annoying message that causes re-flow and re-paint every dam time
+// you move the cursor anywhere near it.
+.shortcut-action__message {
+  display: none !important;
+}
+
+
+#toolbar-administration {
+  touch-callout: none;
+
+  a {
+    cursor: pointer;
+  }
+
+  // Themes and resets like normalize can wreak havoc on buttons, so we need to
+  // set a lot of strong overrides ourselves.
+  button {
+    border: 0;
+    box-shadow: none;
+    border-radius: 0;
+    background: transparent;
+    color: inherit;
+    font-size: inherit;
+    font-family: inherit;
+    opacity: 1;
+    line-height: normal;
+
+    &:hover,
+    &:focus {
+      background: transparent;
+    }
+  }
+
+  .toolbar-item {
+    cursor: pointer;
+
+    &:hover,
+    &:focus {}
+  }
+
+  .toolbar-tab,
+  .toolbar-item {
+     &:empty {
+       display: none;
+    }
+  }
+
+
+  // Orientation toggle.
+  .toolbar-toggle-orientation {
+    padding: 0;
+    height: 100%;
+    background-color: inherit;
+
+    button {
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    > .toolbar-lining {
+      float: right;
+
+      [dir="rtl"] & {
+        float: left;
+      }
+    }
+  }
+
+
+  // Menus
+  .toolbar-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background-color: inherit;
+  }
+
+  .toolbar-box {
+    position: relative;
+    width: auto;
+  }
+
+  .toolbar-tray-horizontal .toolbar-menu {
+    .toolbar-handle {
+      display: none;
+    }
+
+    ul {
+      visibility: hidden;
+    }
+  }
+
+  .toolbar-tray-vertical {
+    .toolbar-menu {
+      a {
+        display: block;
+        padding-right: 4em;
+
+        [dir="rtl"] & {
+          padding-left: 4em;
+          padding-right: 0;
+        }
+      }
+
+      ul {
+        display: none;
+      }
+
+      ul ul a {
+        padding-left: 2em;
+
+        [dir="rtl"] & {
+          padding-left: 0;
+          padding-right: 2em;
+        }
+      }
+
+      .toolbar-icon.toolbar-handle:before {
+        background-image: none;
+      }
+    }
+
+    li.open > ul {
+      display: block;
+    }
+  }
+
+  .has-icons .toolbar-tray-vertical {
+    .toolbar-menu {
+      ul a {
+        padding-left: 2.2em;
+
+        [dir="rtl"] & {
+          padding-left: 0;
+          padding-right: 2.2em;
+        }
+      }
+
+      ul ul a {
+        padding-left: 3em;
+
+        [dir="rtl"] & {
+          padding-left: 0;
+          padding-right: 3em;
+        }
+      }
+    }
+  }
+
+  .toolbar-menu .toolbar-menu .toolbar-menu .toolbar-menu {
+    [dir="rtl"] & {}
+  }
+
+  .level-2 > ul {}
+  .level-3 > ul {}
+  .level-4 > ul {}
+  .level-5 > ul {}
+  .level-6 > ul {}
+  .level-7 > ul {}
+  .level-8 > ul {}
+
+  .toolbar-handle:hover {
+    cursor: pointer;
+  }
+
+  @media screen and (max-width: 319px) {
+    .toolbar-tray-vertical.is-active {
+      width: 100%;
+    }
+  }
+
+  // Drop menus
+  .toolbar-tray-horizontal {
+    border-bottom: 0;
+
+    .menu-item {
+      border: 0;
+      position: relative;
+    }
+
+    a {
+      position: relative;
+      display: block;
+    }
+
+    .toolbar-menu-administration > .toolbar-menu {
+      position: relative;
+      max-height: 1000px;
+
+      .toolbar-menu {
+         transition: ease-in-out 0.125s 0.25s;
+      }
+
+      &:hover .toolbar-menu {
+        transition-delay: 0s;
+      }
+
+      .menu-item {
+        width: auto;
+        display: block;
+
+        a {
+          &:hover,
+          &:focus {
+            text-decoration: none;
+          }
+        }
+      }
+
+      .menu-item--expanded {
+        &:hover,
+        &:focus {
+          > .toolbar-menu {
+            visibility: visible;
+            opacity: 1;
+          }
+        }
+      }
+    }
+
+    .toolbar-menu-administration > .toolbar-menu .toolbar-menu {
+      position: absolute;
+      visibility: hidden;
+      opacity: 0;
+      margin: 0;
+      padding: 0;
+      max-height: 1000px;
+      width: 14em;
+      display: block;
+
+      a {}
+
+      &:hover,
+      &:focus {
+        visibility: visible;
+        opacity: 1;
+        display: block;
+      }
+
+      .menu-item {
+        text-align: left;
+        width: 14em;
+      }
+    }
+
+    // Menu level 2 and below.
+    .toolbar-menu-administration > .toolbar-menu > .menu-item--expanded > .toolbar-menu {
+      left: 0;
+      top: auto;
+
+      .toolbar-menu {
+        left: 100%;
+        top: 0;
+      }
+    }
+  }
+}
+

@@ -1,0 +1,214 @@
+/**
+ * base_theme
+ *
+ * Base theme styles for menus and other toolbar elements (not icons). There are
+ * no colors in this file - those should be provided by sub-themes.
+ */
+.shortcut-action__message {
+  display: none !important;
+}
+
+#toolbar-administration {
+  touch-callout: none;
+}
+
+#toolbar-administration a {
+  cursor: pointer;
+}
+
+#toolbar-administration button {
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  font-family: inherit;
+  opacity: 1;
+  line-height: normal;
+}
+
+#toolbar-administration button:hover, #toolbar-administration button:focus {
+  background: transparent;
+}
+
+#toolbar-administration .toolbar-item {
+  cursor: pointer;
+}
+
+#toolbar-administration .toolbar-tab:empty,
+#toolbar-administration .toolbar-item:empty {
+  display: none;
+}
+
+#toolbar-administration .toolbar-toggle-orientation {
+  padding: 0;
+  height: 100%;
+  background-color: inherit;
+}
+
+#toolbar-administration .toolbar-toggle-orientation button {
+  cursor: pointer;
+  display: inline-block;
+}
+
+#toolbar-administration .toolbar-toggle-orientation > .toolbar-lining {
+  float: right;
+}
+
+[dir="rtl"] #toolbar-administration .toolbar-toggle-orientation > .toolbar-lining {
+  float: left;
+}
+
+#toolbar-administration .toolbar-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background-color: inherit;
+}
+
+#toolbar-administration .toolbar-box {
+  position: relative;
+  width: auto;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu .toolbar-handle {
+  display: none;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu ul {
+  visibility: hidden;
+}
+
+#toolbar-administration .toolbar-tray-vertical .toolbar-menu a {
+  display: block;
+  padding-right: 4em;
+}
+
+[dir="rtl"] #toolbar-administration .toolbar-tray-vertical .toolbar-menu a {
+  padding-left: 4em;
+  padding-right: 0;
+}
+
+#toolbar-administration .toolbar-tray-vertical .toolbar-menu ul {
+  display: none;
+}
+
+#toolbar-administration .toolbar-tray-vertical .toolbar-menu ul ul a {
+  padding-left: 2em;
+}
+
+[dir="rtl"] #toolbar-administration .toolbar-tray-vertical .toolbar-menu ul ul a {
+  padding-left: 0;
+  padding-right: 2em;
+}
+
+#toolbar-administration .toolbar-tray-vertical .toolbar-menu .toolbar-icon.toolbar-handle:before {
+  background-image: none;
+}
+
+#toolbar-administration .toolbar-tray-vertical li.open > ul {
+  display: block;
+}
+
+#toolbar-administration .has-icons .toolbar-tray-vertical .toolbar-menu ul a {
+  padding-left: 2.2em;
+}
+
+[dir="rtl"] #toolbar-administration .has-icons .toolbar-tray-vertical .toolbar-menu ul a {
+  padding-left: 0;
+  padding-right: 2.2em;
+}
+
+#toolbar-administration .has-icons .toolbar-tray-vertical .toolbar-menu ul ul a {
+  padding-left: 3em;
+}
+
+[dir="rtl"] #toolbar-administration .has-icons .toolbar-tray-vertical .toolbar-menu ul ul a {
+  padding-left: 0;
+  padding-right: 3em;
+}
+
+#toolbar-administration .toolbar-handle:hover {
+  cursor: pointer;
+}
+
+@media screen and (max-width: 319px) {
+  #toolbar-administration .toolbar-tray-vertical.is-active {
+    width: 100%;
+  }
+}
+
+#toolbar-administration .toolbar-tray-horizontal {
+  border-bottom: 0;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .menu-item {
+  border: 0;
+  position: relative;
+}
+
+#toolbar-administration .toolbar-tray-horizontal a {
+  position: relative;
+  display: block;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu {
+  position: relative;
+  max-height: 1000px;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu .toolbar-menu {
+  transition: ease-in-out 0.125s 0.25s;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu:hover .toolbar-menu {
+  transition-delay: 0s;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu .menu-item {
+  width: auto;
+  display: block;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu .menu-item a:hover, #toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu .menu-item a:focus {
+  text-decoration: none;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu .menu-item--expanded:hover > .toolbar-menu, #toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu .menu-item--expanded:focus > .toolbar-menu {
+  visibility: visible;
+  opacity: 1;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu .toolbar-menu {
+  position: absolute;
+  visibility: hidden;
+  opacity: 0;
+  margin: 0;
+  padding: 0;
+  max-height: 1000px;
+  width: 14em;
+  display: block;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu .toolbar-menu:hover, #toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu .toolbar-menu:focus {
+  visibility: visible;
+  opacity: 1;
+  display: block;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu .toolbar-menu .menu-item {
+  text-align: left;
+  width: 14em;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu > .menu-item--expanded > .toolbar-menu {
+  left: 0;
+  top: auto;
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu > .menu-item--expanded > .toolbar-menu .toolbar-menu {
+  left: 100%;
+  top: 0;
+}
+/*# sourceMappingURL=base_theme.css.map */

@@ -1,0 +1,93 @@
+/**
+ * base_icons
+ *
+ * Base styles for toolbar icons.
+ *
+ * Most icons are embedded SVG. Icons are embedded using Grunticon. We are using
+ * the original SVG icons from Drupal core, however the width and height
+ * attribute have been replaced with a viewBox attribute so we can scale them
+ * properly with CSS. Embedded SVG has the advantage of being styled with CSS,
+ * and by using Grunticon JS loading we negate most of the bloat and overhead
+ * associated with embedding SVG files.
+ *
+ * For the buttons (orientation toggles & menu click handles) please see
+ * base_handles.scss and your themes main theme.scss file. These are styled
+ * separably because this file will not load if the Show Icons setting is false.
+ *
+ * There are no colors in this file - those should be provided by sub-themes.
+ */
+
+#toolbar-administration {
+
+  .toolbar-icon {
+    &:before,
+    &:after {
+      background-image: none;
+    }
+  }
+
+  i.toolbar-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    padding: 0;
+    margin-right: 0.5em;
+    position: relative;
+    top: 0.1em;
+  }
+
+  .toolbar-menu ul .toolbar-icon {
+    padding-left: 1.3333em;
+
+    [dir="rtl"] & {
+      padding-left: 0;
+      padding-right: 1.3333em;
+    }
+  }
+
+  
+  @media only screen and (max-width: 16.5em) {
+    .toolbar-bar .toolbar-tab > .toolbar-item {
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 0;
+        padding-right: 0;
+        width: 4em;
+
+      > .toolbar__link-label {
+        text-indent: -9999px;
+      }
+    }
+  }
+
+
+  @media only screen and (min-width: 36em) {
+    .toolbar-bar .toolbar-tab > .toolbar-icon {
+      background-position: left center;
+      padding-left: 2.75em;
+      padding-right: 1.3333em;
+      text-indent: 0;
+      width: auto;
+
+      [dir="rtl"] & {
+        background-position: right center;
+        padding-left: 1.3333em;
+        padding-right: 2.75em;
+      }
+    }
+  }
+
+  // Accessibility/focus.
+  .toolbar-tab a,
+  .toolbar-lining button,
+  .toolbar-tray-horizontal a {
+    .toolbar-box a {
+      &:focus {
+        outline: none;
+      }
+    }
+  }
+}
+
+
+

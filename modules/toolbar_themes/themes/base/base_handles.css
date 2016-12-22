@@ -1,0 +1,140 @@
+/**
+ * base_handles
+ *
+ * Font icons for orientation toggles, menu click handles & sub-menu indicators.
+ * We're using Libricons because they're the same icons included in Drupal 8
+ * core and used by the Toolbar, however core insists on background-image SVG
+ * which makes these impossible to style with CSS. We do not use embedded SVG
+ * for these icons (like all the other Grunticon embedded SVG icons) because
+ * we need to use text-indent to hide the labels.
+ *
+ * There are no colors in this file - those should be provided by sub-themes in
+ * the themes "icons" library.
+ */
+@font-face {
+  font-family: "libricons";
+  src: url("fonts/libricons.woff2") format("woff2"), url("fonts/libricons.woff") format("woff"), url("fonts/libricons.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+#toolbar-administration button,
+#toolbar-administration input[type="button"] {
+  -webkit-appearance: none;
+}
+
+#toolbar-administration .toolbar-bar.no-tabs .toolbar-tab__items-wrapper a {
+  position: relative;
+  text-indent: -9999px;
+  width: 2.5em;
+  height: 2.25em;
+  overflow: hidden;
+  padding: 0;
+}
+
+#toolbar-administration .toolbar-bar.no-tabs .toolbar-tab__items-wrapper a:before {
+  font-family: 'libricons', sans-serif;
+  text-indent: 0;
+  content: "\E03F";
+  position: absolute;
+  left: 0.85em;
+  top: 0.45em;
+  font-size: 0.9em;
+  background-color: transparent;
+}
+
+#toolbar-administration .toolbar-toggle-orientation button.toolbar-icon {
+  position: relative;
+  text-indent: -9999px;
+  width: 2.2em;
+  height: 2em;
+  overflow: hidden;
+}
+
+#toolbar-administration .toolbar-toggle-orientation button.toolbar-icon:after, #toolbar-administration .toolbar-toggle-orientation button.toolbar-icon:before {
+  font-family: 'libricons', sans-serif;
+  text-indent: 0;
+  position: absolute;
+  background-color: transparent;
+}
+
+#toolbar-administration .toolbar-toggle-orientation [value="vertical"]:before {
+  content: '\E021';
+  vertical-align: middle;
+  left: 0.65em;
+  top: 0.6em;
+}
+
+[dir="rtl"] #toolbar-administration .toolbar-toggle-orientation [value="vertical"]:before {
+  left: auto;
+  right: 0.65em;
+  content: '\E023';
+}
+
+#toolbar-administration .toolbar-toggle-orientation [value="horizontal"]:after {
+  top: 0.25em;
+  right: 0.9em;
+  content: '\E024';
+  margin-top: 0.15em;
+}
+
+#toolbar-administration button.toolbar-handle {
+  background-color: transparent;
+  position: absolute;
+  text-indent: -9999px;
+  width: 2.2em;
+  height: 1.8em;
+  display: block;
+  padding: 0;
+  right: 0;
+  top: 0;
+  z-index: 1;
+}
+
+[dir="rtl"] #toolbar-administration button.toolbar-handle {
+  left: 0;
+  padding: 0;
+  right: auto;
+}
+
+#toolbar-administration button.toolbar-handle:after, #toolbar-administration button.toolbar-handle:before {
+  font-family: 'libricons', sans-serif;
+  text-indent: 0;
+  position: absolute;
+  background-color: transparent;
+}
+
+#toolbar-administration button.toolbar-handle:before {
+  content: '\E009';
+  top: 0.35em;
+  right: 1em;
+}
+
+#toolbar-administration button.toolbar-handle.open:before {
+  -webkit-transform: rotate(180deg);
+      -ms-transform: rotate(180deg);
+          transform: rotate(180deg);
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu .toolbar-menu > .menu-item--expanded a:after,
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu .toolbar-menu > .menu-item--expanded > .toolbar-box > a:after {
+  font-family: 'libricons', sans-serif;
+  font-size: 0.9em;
+  content: '\E012';
+  position: absolute;
+  right: 0.3em;
+  top: 0.5em;
+  display: block;
+}
+
+[dir="rtl"] #toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu .toolbar-menu > .menu-item--expanded a:after, [dir="rtl"]
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu .toolbar-menu > .menu-item--expanded > .toolbar-box > a:after {
+  left: 0.3em;
+  right: auto;
+  content: '\E010';
+}
+
+#toolbar-administration .toolbar-tray-horizontal .toolbar-menu-administration > .toolbar-menu .toolbar-menu .toolbar-menu a:after {
+  display: none;
+}
+/*# sourceMappingURL=base_handles.css.map */

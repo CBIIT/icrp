@@ -1,0 +1,281 @@
+/**
+ * base_module
+ *
+ * This is almost a direct copy of Toolbar modules toolbar.module.css. There are
+ * minor adjustments and additions such as the line-height, font size and some
+ * use of Flex over floats etc, & support for new markup elements.
+ *
+ * Major styles such as the layout and orientation change assumptions are not
+ * modified, these are tied to the JS in core and difficult to move away from.
+ */
+#toolbar-administration {
+  font-size: medium;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+  vertical-align: baseline;
+  box-sizing: border-box;
+}
+
+#toolbar-administration * {
+  box-sizing: border-box;
+}
+
+@media print {
+  #toolbar-administration {
+    display: none;
+  }
+}
+
+.toolbar li {
+  list-style: none none;
+}
+
+.toolbar .item-list {
+  list-style: none none;
+}
+
+.toolbar .item-list li {
+  list-style: none none;
+}
+
+.toolbar .menu-item,
+.toolbar .menu-item--expanded {
+  list-style: none none;
+}
+
+.toolbar .menu-item {
+  padding-top: 0;
+}
+
+.toolbar .toolbar-bar .toolbar-tab,
+.toolbar .menu-item {
+  display: block;
+}
+
+.toolbar .toolbar-bar .toolbar-tab.hidden {
+  display: none;
+}
+
+.toolbar .toolbar-bar,
+.toolbar .toolbar-tray {
+  position: relative;
+  z-index: 1250;
+}
+
+.toolbar .toolbar-tab__items-wrapper {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-align-items: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-justify-content: flex-start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+  min-height: 1.8em;
+  z-index: 1500;
+  position: relative;
+}
+
+.toolbar .home-toolbar-tab div {
+  display: none;
+}
+
+.toolbar .toolbar-icon-admin-toolbar-tools-help {
+  text-indent: 0;
+}
+
+.toolbar .toolbar-bar .contextual-toolbar-tab {
+  float: none !important;
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 0.25em 0.25em 0;
+}
+
+[dir="rtl"] .toolbar .toolbar-bar .contextual-toolbar-tab {
+  right: auto;
+  left: 0;
+  padding-left: 0;
+  padding-right: 0.35em;
+}
+
+.toolbar .toolbar-bar .contextual-toolbar-tab button {
+  outline: none !important;
+  color: inherit;
+  height: auto;
+  font-size: inherit;
+}
+
+body.toolbar-fixed .toolbar-oriented {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  width: 100%;
+}
+
+.toolbar-oriented .toolbar-bar,
+.toolbar-oriented .toolbar-tray {
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.toolbar-oriented .toolbar-bar {
+  z-index: 502;
+}
+
+body.toolbar-fixed .toolbar-oriented .toolbar-bar {
+  position: fixed;
+}
+
+body.toolbar-tray-open.toolbar-fixed.toolbar-vertical .toolbar-oriented {
+  bottom: 0;
+  width: 15rem;
+}
+
+.toolbar .toolbar-bar,
+.toolbar .toolbar-tray-horizontal ul {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+#toolbar-administration .no-tabs .toolbar-tray-horizontal {
+  left: 2.5em;
+  border-top: 0;
+  box-shadow: none;
+  margin-top: 0 !important;
+}
+
+@media (min-width: 16.5em) {
+  .toolbar .toolbar-bar,
+  .toolbar .toolbar-tray-horizontal ul {
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+  }
+}
+
+.toolbar-oriented .toolbar-bar,
+.toolbar-oriented .toolbar-tray-horizontal {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.toolbar .toolbar-tray {
+  z-index: 501;
+  display: none;
+}
+
+.toolbar-oriented .toolbar-tray-vertical {
+  left: -100%;
+  position: absolute;
+  width: 15rem;
+}
+
+[dir="rtl"] .toolbar-oriented .toolbar-tray-vertical {
+  left: auto;
+  right: -100%;
+}
+
+.toolbar .toolbar-tray-vertical > .toolbar-lining {
+  min-height: 100%;
+}
+
+.toolbar .toolbar-tray-vertical > .toolbar-lining:before {
+  width: 100%;
+}
+
+.toolbar-oriented .toolbar-tray-vertical > .toolbar-lining:before {
+  bottom: 0;
+  content: '';
+  display: block;
+  left: 0;
+  position: fixed;
+  top: 0;
+  width: 14rem;
+  z-index: -1;
+}
+
+[dir="rtl"] .toolbar-oriented .toolbar-tray-vertical > .toolbar-lining:before {
+  left: auto;
+  right: 0;
+}
+
+.toolbar .toolbar-bar .toolbar-tab > .toolbar-icon {
+  position: relative;
+  z-index: 502;
+}
+
+.toolbar-oriented .toolbar-tray-horizontal .menu-item ul {
+  display: none;
+}
+
+body.toolbar-fixed .toolbar .toolbar-tray-horizontal {
+  position: fixed;
+}
+
+.toolbar .toolbar-tray-vertical.is-active,
+body.toolbar-fixed .toolbar .toolbar-tray-vertical {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  position: fixed;
+}
+
+.toolbar .toolbar-tray.is-active {
+  display: block;
+}
+
+.toolbar-oriented .toolbar-tray-vertical.is-active {
+  left: 0;
+}
+
+[dir="rtl"] .toolbar-oriented .toolbar-tray-vertical.is-active {
+  left: auto;
+  right: 0;
+}
+
+body.toolbar-tray-open.toolbar-vertical.toolbar-fixed {
+  margin-left: 15rem;
+}
+
+[dir="rtl"] body.toolbar-tray-open.toolbar-vertical.toolbar-fixed {
+  margin-left: auto;
+  margin-right: 15rem;
+}
+
+@media print {
+  body.toolbar-tray-open.toolbar-vertical.toolbar-fixed {
+    margin-left: 0;
+  }
+  [dir="rtl"] body.toolbar-tray-open.toolbar-vertical.toolbar-fixed {
+    margin-right: 0;
+  }
+}
+
+.toolbar .toolbar-tray .toolbar-toggle-orientation {
+  display: none;
+}
+
+.toolbar-oriented .toolbar-tray .toolbar-toggle-orientation {
+  display: block;
+}
+
+.toolbar-oriented .toolbar-tray-horizontal .toolbar-toggle-orientation {
+  bottom: 0;
+  position: absolute;
+  right: 0;
+  top: auto;
+}
+
+[dir="rtl"] .toolbar-oriented .toolbar-tray-horizontal .toolbar-toggle-orientation {
+  left: 0;
+  right: auto;
+}
+/*# sourceMappingURL=base_module.css.map */

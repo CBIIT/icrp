@@ -1,0 +1,403 @@
+/**
+ * seven_theme
+ * Theme styles for menus and other toolbar elements. SVG icons are styled in
+ * the [theme]_icons.scss file, while click handles, e.g. origination buttons
+ * are styled here.
+ */
+
+// Import global variables.
+@import "variables";
+
+#toolbar-administration {
+  font-family: $font-family;
+  tap-highlight-color: $tap-highlight;
+  font-weight: 400;
+
+  .toolbar-tab,
+  .toolbar-item {
+    a {
+      &:hover,
+      &:focus {
+        text-decoration: none;
+        outline: none;
+      }
+    }
+  }
+
+  .toolbar-item {
+    padding: $toolbar-item-padding;
+  }
+
+  .toolbar__link-label {
+    font-size: 1em;
+  }
+
+
+  // Toolbar bar.
+  .toolbar-bar {
+    background-color: $toolbar-bar-background;
+    color: $toolbar-bar-color;
+
+    &.no-tabs {
+      background-color: #ebebe6;
+    }
+
+    @if $drop-shadows == true {
+      box-shadow: -1px 0 3px 1px $drop-shadow-color;
+
+      [dir="rtl"] & {
+        box-shadow: 1px 0 3px 1px $drop-shadow-color;
+      }
+    }
+
+    .toolbar-item {
+      &:hover,
+      &:focus,
+      &:active,
+      &.is-active {
+
+      }
+    }
+
+    .toolbar-tab .toolbar-tab__items-wrapper a {
+      color: $tab-color;
+
+      &:hover,
+      &:focus,
+      &.is-active {
+        color: $tab-active-color;
+        background-image: linear-gradient($toolbar-bar-background, $tray-background);
+      }
+    }
+
+    // Tour is a button.
+    .tour-toolbar-tab {
+      &.toolbar-tab {
+        float: none; // Override tour module CSS.
+      }
+
+      button.toolbar-item {
+        padding: $toolbar-item-padding;
+      }
+    }
+  }
+
+
+  // Button reset.
+  .toolbar-lining button:focus {
+    outline: none;
+  }
+
+
+  // Menu reset.
+  .toolbar-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+
+  // Wrapper around list item items, injected when tray is vertical (and
+  // persists even if toggled back to vertical).
+  .toolbar-box a {
+    &:focus {
+      outline: none;
+    }
+
+    &:hover:focus {
+      text-decoration: none;
+    }
+  }
+
+
+  // Toolbar tray.
+  .toolbar-tray {
+    background-color: $tray-background;
+
+     a {
+      color: $tray-color;
+      cursor: pointer;
+      padding: $toolbar-item-padding;
+
+      &:hover,
+      &:active,
+      &:focus,
+      &.is-active {
+        color: $tray-active;
+      }
+
+      &.is-active[href="/"] {
+        color: $tray-color;
+      }
+    }
+  }
+
+
+  // Horizontal tray.
+  .toolbar-tray-horizontal {
+    border-bottom: 1px solid $border-color;
+
+    @if $drop-shadows == true {
+      box-shadow: -2px 1px 3px 1px $drop-shadow-color;
+
+      [dir="rtl"] & {
+        box-shadow: 2px 1px 3px 1px $drop-shadow-color;
+      }
+    }
+
+    a:focus {
+      outline: none;
+      background-color: $tray-background;
+    }
+
+    // Admin Toolbar Module drop menus.
+    .toolbar-menu-administration {
+      .toolbar-menu .toolbar-menu {
+        background-color: $drop-menu-background ;
+
+        @if $drop-shadows == true {
+          box-shadow: 0 2px 1px 1px $drop-shadow-color;
+        }
+
+        .menu-item {
+          border-top: 1px solid $tray-background;
+
+          &:first-child {
+            border-top-color: $tray-background;
+          }
+        }
+
+        // Sub-sub menus
+        .toolbar-menu {
+          @if $drop-shadows == true {
+            box-shadow: 2px 2px 2px 0 $drop-shadow-color;
+          }
+        }
+
+        > .menu-item--expanded > .toolbar-menu {
+          top: -1px;
+        }
+      }
+
+      > .toolbar-menu > .menu-item > a,
+      > .toolbar-menu > .menu-item > .toolbar-box a {
+        border-right: 1px solid;
+        border-color: $tray-background;
+        border-image: linear-gradient(to top, $tray-border-color, $tray-background) 1 100%;
+
+        [dir="rtl"] & {
+          border-right: 0;
+          border-left: 1px solid;
+        }
+      }
+    }
+
+    .menu-item {
+      .menu-item {
+        &:hover,
+        &:focus {
+          background-color: $tray-background;
+        }
+      }
+    }
+
+    // Sub-menu indicator in drop menus.
+    .toolbar-menu-administration > .toolbar-menu .toolbar-menu {
+      > .menu-item--expanded > a,
+      > .menu-item--expanded .toolbar-box > a {
+        &:after {
+          color: $sub-menu-indicator;
+          right: 0.65em;
+          top: 0.2em;
+          display: block;
+        }
+
+        &:hover,
+        &:focus {
+          &:after {
+            color: $tray-active;
+          }
+        }
+      }
+    }
+
+    .edit-shortcuts {
+      float: none; // Override shortcut module CSS.
+      position: absolute;
+      right: 2.2em;
+      top: 0;
+    }
+  }
+
+
+  // Vertical tray.
+  .toolbar-tray-vertical {
+    background-color: $tray-vertical-background;
+    border-right: 1px solid $border-color;
+
+    @if $drop-shadows == true {
+      box-shadow: 0 5px 5px 2px $drop-shadow-color;
+    }
+
+
+    [dir="rtl"] & {
+      border-left: 1px solid $border-color;
+      border-right: 0 none;
+
+      @if $drop-shadows == true {
+        box-shadow: 1px 0 5px 2px $drop-shadow-color;
+      }
+    }
+
+    .toolbar-menu .toolbar-menu {
+      display: none;
+    }
+
+    .menu-item--expanded.open > .toolbar-menu {
+      display: block;
+      border-bottom-width: 0;
+
+      .toolbar-menu {
+        border-bottom-width: 1px;
+      }
+    }
+
+    .toolbar-handle + a {
+      margin-right: 3em;
+
+      [dir="rtl"] & {
+        margin-left: 3em;
+        margin-right: 0;
+      }
+    }
+
+    .menu-item {
+      + .menu-item {
+        border-top: 1px solid $tray-border-color;
+      }
+
+      &:last-child {
+        border-bottom: 1px solid $tray-border-color;
+      }
+
+      .menu-item {
+        border: 0 none;
+      }
+
+      .toolbar-box:hover,
+      .toolbar-box:focus {
+        background-color: lighten($tray-background, 5%);
+      }
+    }
+
+    .toolbar-menu {
+      &.root {
+        border: 0;
+      }
+
+      .toolbar-menu {
+        border-bottom: 1px solid;
+        border-top: 1px solid;
+      }
+    }
+
+    // Loop to generate nested selectors and styles.
+    $self: '.toolbar-menu';
+    @for $i from 1 through 8 {
+      $self: if($i == 1, "ul", nest($self, "ul")) !global;
+      #{$self} > .level-#{$i} > ul {
+        background-color:    darken($toolbar-bar-background , 5 * $i);
+        border-bottom-color: darken($tray-border-color, 5 * $i);
+        border-top-color:    darken($tray-border-color, 5 * $i);
+      }
+    }
+  }
+
+  .menu-item:last-child > .toolbar-menu {
+    border-bottom: 0;
+  }
+
+
+  // Click handles.
+  .toolbar-icon.toolbar-handle {
+    &:before {
+      color: $toggle-orientation-color;
+    }
+
+    &.open {
+      &:before {
+        color: $toggle-orientation-active;
+      }
+    }
+  }
+
+  .toolbar-toggle-orientation button.toolbar-icon {
+    &:after,
+    &:before {
+      color: $toggle-orientation-color;
+    }
+
+    &:hover,
+    &:focus,
+    &:hover:after,
+    &:focus:before {
+      color: $toggle-orientation-active;
+      background-color: transparent;
+    }
+  }
+
+
+  // Orientation toggles and handles
+  .toolbar-toggle-orientation {
+    button {}
+    > .toolbar-lining {}
+  }
+
+  .toolbar-tray-horizontal .toolbar-toggle-orientation {
+    border-left: 1px solid $toggle-orientation-border-color;
+
+    [dir="rtl"] & {
+      border-left: 0 none;
+      border-right: 1px solid $toggle-orientation-border-color;
+    }
+  }
+
+  .toolbar-toggle-orientation [value="horizontal"]:after {
+    right: 0.95em;
+  }
+}
+
+// Support for the Adminimal admin theme.
+.adminimal {
+  &.toolbar-tray-open {
+    &.toolbar-fixed {
+      &.toolbar-horizontal {
+        &.toolbar-themes {
+          padding-top: 3rem !important;
+        }
+
+        #toolbar-administration {
+          background-color: #333;
+        }
+
+        &.toolbar-has-tabs #toolbar-administration {
+          min-height: 4em;
+        }
+
+        &.toolbar-no-tabs #toolbar-administration {
+          min-height: 2.5em;
+        }
+      }
+    }
+  }
+
+  &.toolbar-fixed.toolbar-vertical.toolbar-has-tabs,
+  &.toolbar-tray-open.toolbar-fixed.toolbar-horizontal.toolbar-no-tabs {
+    padding-top: 1.8em !important;
+  }
+
+  &.toolbar-fixed.toolbar-vertical.toolbar-no-tabs {
+    padding-top: 0 !important;
+  }
+}
+

@@ -1,0 +1,47 @@
+# Theme definitions for Toolbar themes.
+
+toolbar_themes_base:
+  label: "Toolbar Themes Base"
+  hidden: true
+  version: 8.0-1.x
+  description: "A minimal base theme for Toolbar"
+  path: themes/base
+  template_toolbar: templates/toolbar-themes--base-toolbar
+  template_toolbar_menu: templates/toolbar-themes--base-menu
+  icons: grunticons/processed
+  libraries:
+    base: toolbar_themes/toolbar_themes_base.base
+    icons: toolbar_themes/toolbar_themes_base.icons
+
+toolbar_admin_menu:
+  label: "Admin Menu"
+  version: 8.0-1.x
+  description: "Drupal 7 Admin Menu module style."
+  path: themes/admin_menu
+  screen_shot: screenshot.png
+  base_theme: toolbar_themes_base
+  libraries:
+    base: toolbar_themes/toolbar_admin_menu.base
+    icons: toolbar_themes/toolbar_admin_menu.icons
+
+toolbar_mini:
+  label: "Toolbar Mini"
+  version: 8.0-1.x
+  description: "A minified version of the standard toolbar."
+  path: themes/mini
+  screen_shot: screenshot.png
+  base_theme: toolbar_themes_base
+  libraries:
+    base: toolbar_themes/toolbar_mini.base
+    icons: toolbar_themes/toolbar_mini.icons
+
+toolbar_seven:
+  label: "Seven"
+  version: 8.0-1.x
+  description: "Toolbar styled to compliment the Seven admin themes color scheme."
+  path: themes/seven
+  screen_shot: screenshot.png
+  base_theme: toolbar_themes_base
+  libraries:
+    base: toolbar_themes/toolbar_seven.base
+    icons: toolbar_themes/toolbar_seven.icons

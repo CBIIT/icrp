@@ -1,0 +1,354 @@
+<?php
+
+use Drupal\Component\Discovery\YamlDiscovery;
+use Drupal\Core\Template\Attribute;
+use Drupal\Component\Utility\Html;
+
+/**
+ * @return array|\mixed[]
+ */
+function toolbar_themes_get_theme_definitions() {
+  if ($cache = \Drupal::cache()->get('toolbar_themes:definitions')) {
+    $definitions = $cache->data;
+  }
+  else {
+    $theme_handler = \Drupal::service('theme_handler');
+    $module_handler = \Drupal::service('module_handler');
+    $discovery = new YamlDiscovery('toolbar_themes', $module_handler->getModuleDirectories() + $theme_handler->getThemeDirectories());
+    $definitions = $discovery->findAll();
+    if (!empty($definitions)) {
+      \Drupal::cache()->set('toolbar_themes:definitions', $definitions);
+    }
+  }
+  return $definitions;
+}
+
+/**
+ * @return array
+ */
+function toolbar_themes_get_library_names() {
+  $libraries = [];
+  $definitions = toolbar_themes_get_theme_definitions();
+  foreach ($definitions as $provider => $provider_themes) {
+    foreach ($provider_themes as $theme_key => $theme_values) {
+      $libraries[$theme_key] = $theme_values['libraries'];
+    }
+  }
+  return $libraries;
+}
+
+/**
+ * @return array
+ */
+function toolbar_themes_get_theme_definition($theme) {
+  $theme_definition = [];
+  $definitions = toolbar_themes_get_theme_definitions();
+  foreach ($definitions as $provider => $provider_themes) {
+    foreach ($provider_themes as $theme_key => $theme_values) {
+      if ($theme == $theme_key) {
+        $theme_values['provider'] = $provider;
+        $theme_definition = $theme_values;
+      }
+    }
+  }
+  return $theme_definition;
+}
+
+/**
+ * Implements hook_library_info_alter().
+ * @param $libraries
+ * @param $extension
+ */
+function toolbar_themes_library_info_alter(&$libraries, $extension) {
+  // Remove Toolbar modules CSS.
+  if ($extension === 'toolbar') {
+    unset($libraries['toolbar']['css']);
+    unset($libraries['toolbar.menu']['css']);
+  }
+  // Remove Admin Toolbar modules CSS.
+  if ($extension === 'admin_toolbar') {
+    if (isset($libraries['toolbar.tree'])) {
+      unset($libraries['toolbar.tree']);
+    }
+  }
+}
+
+/**
+ * Implements hook_toolbar_alter
+ * @param $items
+ */
+function toolbar_themes_toolbar_alter(&$items) {
+  // If tabs are hidden we unset all but the Manage tab, otherwise it becomes
+  // extremely problematic if the toolbar is showing anything other than Manage
+  // and in horizontal orientation at the time the settings are saved (it blows
+  // up and can hide the entire menu off screen, ouch...).
+  if (\Drupal::config('toolbar_themes.settings')->get('tabs') === 0) {
+    foreach ($items as $id => $item) {
+      if ($id !== 'administration') {
+        unset($items[$id]);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_theme_registry_alter
+ * ...well this seems repetitive. TODO, abstract something or?
+ * @param $theme_registry
+ */
+function toolbar_themes_theme_registry_alter(&$theme_registry) {
+  $config = \Drupal::config('toolbar_themes.settings');
+  $default_theme = $config->get('default_theme');
+  $path = drupal_get_path('module', 'toolbar_themes');
+
+  // Use our own template for toolbar.
+  $theme_registry['toolbar']['template'] = 'toolbar-themes--toolbar';
+  $theme_registry['toolbar']['path'] = $path . '/templates';
+  $theme_registry['toolbar']['preprocess functions'][] = 'toolbar_themes_preprocess_toolbar_themes__toolbar';
+
+  // Use our own template for toolbar menus.
+  $theme_registry['menu__toolbar']['template'] = 'toolbar-themes--menu';
+  $theme_registry['menu__toolbar']['path'] = $path . '/templates';
+  $theme_registry['menu__toolbar']['preprocess functions'][] = 'toolbar_themes_preprocess_toolbar_themes__menu';
+  $theme_registry['menu__toolbar__admin'] = $theme_registry['menu__toolbar'];
+
+  // Register templates and preprocess function for themes.
+  $theme_handler = \Drupal::service('theme_handler');
+  $base_theme = [];
+  $toolbar_implementation = '';
+  $menu_implementation = '';
+
+  // Check for a base theme.
+  $default_theme = toolbar_themes_get_theme_definition($default_theme);
+  if (isset($default_theme['base_theme'])) {
+    $base_theme = toolbar_themes_get_theme_definition($default_theme['base_theme']);
+  }
+
+  // Toolbar template.
+  if (isset($default_theme['template_toolbar'])) {
+    $toolbar_implementation = $default_theme;
+  }
+  elseif (!empty($base_theme)) {
+    if (isset($base_theme['template_toolbar'])) {
+      $toolbar_implementation = $base_theme;
+    }
+  }
+  if (!empty($toolbar_implementation)) {
+    $provider_toolbar = $toolbar_implementation['provider'];
+    if ($theme_handler->themeExists($provider_toolbar)) {
+      $provider_path = drupal_get_path('theme', $provider_toolbar);
+    }
+    else {
+      $provider_path = drupal_get_path('module', $provider_toolbar);
+    }
+    if (isset($toolbar_implementation['path']) && !empty($toolbar_implementation['path'])) {
+      $template_toolbar_parts = explode('/', $toolbar_implementation['template_toolbar']);
+      $template_toolbar = array_pop($template_toolbar_parts);
+      $template_toolbar_path = implode('/', $template_toolbar_parts);
+      $preprocess_toolbar = $provider_toolbar . '_preprocess_' . strtr($template_toolbar, '-', '_');
+      $theme_registry['toolbar']['template'] = $template_toolbar;
+      $theme_registry['toolbar']['path'] = $provider_path . '/' . $toolbar_implementation['path'] . '/' . $template_toolbar_path;
+      $theme_registry['toolbar']['preprocess functions'][] = $preprocess_toolbar;
+    }
+  }
+
+  // Menu template.
+  if (isset($default_theme['template_toolbar_menu'])) {
+    $menu_implementation = $default_theme;
+  }
+  elseif (!empty($base_theme)) {
+    if (isset($base_theme['template_toolbar_menu'])) {
+      $menu_implementation = $base_theme;
+    }
+  }
+  if (!empty($menu_implementation)) {
+    $provider_menu = $menu_implementation['provider'];
+    if ($theme_handler->themeExists($provider_menu)) {
+      $provider_path = drupal_get_path('theme', $provider_menu);
+    }
+    else {
+      $provider_path = drupal_get_path('module', $provider_menu);
+    }
+    if (isset($menu_implementation['path']) && !empty($menu_implementation['path'])) {
+      $template_menu_parts = explode('/', $menu_implementation['template_toolbar_menu']);
+      $template_menu = array_pop($template_menu_parts);
+      $template_menu_path = implode('/', $template_menu_parts);
+      $preprocess_menu = $provider_menu . '_preprocess_' . strtr($template_menu, '-', '_');
+      $theme_registry['menu__toolbar']['template'] = $template_menu;
+      $theme_registry['menu__toolbar']['path'] = $provider_path . '/' . $menu_implementation['path'] . '/' . $template_menu_path;
+      $theme_registry['menu__toolbar']['preprocess functions'][] = $preprocess_menu;
+      $theme_registry['menu__toolbar__admin'] = $theme_registry['menu__toolbar'];
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ *
+ * @param $variables
+ */
+function toolbar_themes_preprocess_html(&$variables) {
+  // Settings body classes.
+  $config = \Drupal::config('toolbar_themes.settings');
+  $variables['attributes']['class'][] = 'toolbar-themes';
+  $variables['attributes']['class'][] = $config->get('tabs') === 1 ? 'toolbar-has-tabs' : 'toolbar-no-tabs';
+  $variables['attributes']['class'][] = $config->get('icons') === 1 ? 'toolbar-has-icons' : 'toolbar-no-icons';
+  // Admin theme class
+  $admin_theme = \Drupal::config('system.theme')->get('admin');
+  $variables['attributes']['class'][] = 'toolbar-themes-admin-theme--' . Html::cleanCssIdentifier($admin_theme);
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ *
+ * Piling everything into preprocess like this is probably lazy programming,
+ * but it's what I'm familiar with, if you have a better way to do some of this
+ * stuff patches are most welcome!
+ *
+ * @param $variables
+ */
+function toolbar_themes_preprocess_toolbar_themes__toolbar(&$variables) {
+  $config = \Drupal::config('toolbar_themes.settings');
+  $path = base_path() . drupal_get_path('module', 'toolbar_themes');
+
+  // Attributes for advanced styles.
+  $variables['tray.content_attributes'] = new Attribute();
+
+  // Wrapper class.
+  $variables['attributes']['class'][] = 'toolbar-themes-toolbar';
+
+  // Font size. Set as an attribute in toolbar-themes--toolbar.html.twig.
+  if ($font_size = $config->get('font_size')) {
+    $ems = $font_size/16;
+    $variables['font_size'] = 'font-size:' . $ems . 'em';
+  }
+
+  // Icons.
+  $variables['show_icons'] = $config->get('icons');
+
+  // Tabs.
+  $variables['show_tabs'] = $config->get('tabs');
+  if ($variables['show_tabs'] === 1) {
+    if (isset($variables['tabs'])) {
+      foreach ($variables['tabs'] as $item_key => $item_values) {
+        // Home, hide it.
+        if ($item_key === 'home') {
+          $variables['tabs'][$item_key]['attributes']->addClass('hidden');
+        }
+
+        // Hide empty items.
+        if ($item_values['link']['#markup'] === '<a href="/" class="toolbar-item"></a>') {
+          $variables['tabs'][$item_key]['attributes']->addClass('hidden');
+        }
+      }
+    }
+  }
+
+  // Load the default themes libraries.
+  $default_theme = $config->get('default_theme');
+  $library_names = toolbar_themes_get_library_names();
+  foreach ($library_names as $library_key => $libraries) {
+    if ($default_theme === $library_key) {
+      foreach ($libraries as $type => $library_name) {
+        if ($type !== 'icons') {
+          $variables['#attached']['library'][] = $library_name;
+        }
+        if ($variables['show_icons'] === 1) {
+          $variables['#attached']['library'][] = $library_name;
+        }
+      }
+    }
+  }
+
+  // Attach drupalSettings.
+  $drupalSettings = [
+    'icons' => $variables['show_icons'],
+    'tabs' => $variables['show_tabs'],
+    'path' => $path,
+  ];
+  $variables['#attached']['drupalSettings']['toolbar'] = $drupalSettings;
+
+  // The module base library.
+  $variables['#attached']['library'][] = 'toolbar_themes/base';
+
+  // Inject theme definitions.
+  $variables['base_theme'] = [];
+  $variables['default_theme'] = toolbar_themes_get_theme_definition($default_theme);
+  if (isset($variables['default_theme']['base_theme'])) {
+    $variables['base_theme'] = toolbar_themes_get_theme_definition($variables['default_theme']['base_theme']);
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ * Preprocess variables for the base theme.
+ * @param $variables
+ */
+function toolbar_themes_preprocess_toolbar_themes__base_toolbar(&$variables) {
+  $config = \Drupal::config('toolbar_themes.settings');
+  $path = base_path() . drupal_get_path('module', 'toolbar_themes');
+
+  // Icons.
+  $variables['show_icons'] = $config->get('icons');
+  if ($variables['show_icons'] === 1) {
+    $icons_path = $variables['base_theme']['path'] . '/' . $variables['base_theme']['icons'];
+    if (!empty($icons_path)) {
+      $grunticon_loader = [
+        '#type' => 'html_tag',
+        '#tag' => 'script',
+        '#attributes' => [
+          'src' => $path . '/' . $icons_path . '/grunticon.loader.js',
+        ],
+      ];
+      $variables['#attached']['html_head'][] = [$grunticon_loader, 'grunticon_loader'];
+
+      $grunticon_fallback = [
+        '#type' => 'html_tag',
+        '#tag' => 'link',
+        '#noscript' => TRUE,
+        '#attributes' => [
+          'href' => $path . '/' . $icons_path . '/icons.fallback.css',
+          'rel' => 'stylesheet',
+        ],
+      ];
+      $variables['#attached']['html_head'][] = [$grunticon_fallback, 'grunticon_fallback'];
+
+      // Icon load is a library, we use drupalSettings so it must load after.
+      $variables['#attached']['library'][] = 'toolbar_themes/grunticon_load';
+    }
+  }
+
+  // Tab icons.
+  $variables['show_tabs'] = $config->get('tabs');
+  if ($variables['show_tabs'] === 1) {
+    if (isset($variables['tabs'])) {
+      foreach ($variables['tabs'] as $item_key => $item_values) {
+        // Icons.
+        if ($variables['show_icons'] === 1) {
+          $variables['tabs'][$item_key]['icon_attributes'] = new Attribute();
+          $item_classes = $item_values['link']['#attributes']['class'];
+          $variables['tabs'][$item_key]['icon_attributes']->addClass($item_classes)->removeClass('toolbar-item', 'trigger');
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Preprocess variables for menu templates.
+ * @param $variables
+ */
+function toolbar_themes_preprocess_toolbar_themes__menu(&$variables) {
+  $show_icons = \Drupal::config('toolbar_themes.settings')->get('icons');
+  foreach ($variables['items'] as $item_key => $item_values) {
+    $variables['items'][$item_key]['show_icon'] = 0;
+    $attr = $item_values['url']->getOption('attributes') ?: [];
+    $item_classes = isset($attr['class']) ? $attr['class'] : '';
+    $item_values['url']->setOption('attributes', ['class' => ['toolbar-menu__link']]);
+    if ($show_icons === 1) {
+      $variables['items'][$item_key]['icon_attributes'] = new Attribute();
+      $variables['items'][$item_key]['icon_attributes']->addClass($item_classes);
+      $variables['items'][$item_key]['show_icon'] = 1;
+    }
+  }
+}
