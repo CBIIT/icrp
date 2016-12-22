@@ -4,12 +4,66 @@
  * Contains \Drupal\db_project_view\Controller\ProjectViewController.
  */
 namespace Drupal\db_project_view\Controller;
-include 'getProjectInfo.php';
-
 use Drupal\Core\Controller\ControllerBase;
+use PDO;
+
 class ProjectViewController extends ControllerBase {
+
+  public function getProjectCancerTypes($connection, $projectID) {
+    return $connection->query(
+      "CALL GetProjectCancerTypes(:projectID)", 
+      array(':projectID' => $projectID)
+    )->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public function getProjectCSOCodes($connection, $projectID) {
+    return $connection->query(
+      "CALL GetProjectCSOCodes(:projectID)", 
+      array(':projectID' => $projectID)
+    )->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public function getProjectInfo($projectID) {
+    $connection = \Drupal\Core\Database\Database::getConnection('default', 'projects');
+
+    $results = array(
+      'project_title' => array(),
+      'principal_investigator' => array(),
+      'institution' => array(),
+      'city' => array(),
+      'state' => array(),
+      'country' => array(),
+      'award_code' => array(),
+      'funding_organization' => array(),
+      'budget_start_date' => array(),
+      'budget_end_date' => array(),
+      'project_start_date' => array(),
+      'project_end_date' => array(),
+      'funding_mechanism' => array(),
+      'technical_abstract' => array(),
+      'public_abstract' => array(),
+      'cancer_types' => array(),
+      'cso_areas' => array()
+    );
+
+    $query_results = $connection->query(
+      "CALL GetProjectInfo(:projectID)", 
+      array(':projectID' => $projectID)
+    )->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach($query_results as $row) {
+      foreach (array_keys($row) as $key) {
+        array_push($results[$key], $row[$key]);
+      }
+    }
+
+    $results['cancer_types'] = self::getProjectCancerTypes($connection, $projectID);
+    $results['cso_areas'] = self::getProjectCSOCodes($connection, $projectID);
+    return $results;
+  }
+
   public function content($projectID) {
-    $results = getProjectInfo($projectID);
+    $results = self::getProjectInfo($projectID);
 
     return array(
       '#theme' => 'db_project_view',
