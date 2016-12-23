@@ -62,7 +62,7 @@ header {
 }
 
 /* Footer */
-
+/*
 footer {
     background-color: #f8f8f8;
 }
@@ -104,6 +104,22 @@ footer > div > nav > ul.nav > li > a {
 }
 #block-footerright {
     padding-left:250px ;
+}
+*/
+
+#block-footermiddle {
+    padding-top:50px;
+}
+#block-footermiddle > ul > li {
+    float: left;
+}
+#block-footermiddle > ul > li:not(:last-child) {
+    border-right:1px solid grey;
+    margin-right:10px;
+    padding-right:10px;
+}
+#block-footermiddle > ul > li:nth-child(3) {
+    list-style-type: circle;
 }
 
 /*
