@@ -1,0 +1,20 @@
+<div class="select-container default">
+  <div class="select-input-container default">
+    <div class="select-label default" *ngFor="let item of selectedItems; let index = index">
+      <div>{{labels[item]}}</div>
+      <div (click)="removeSelectedItem(index)">&#x2715;</div>
+    </div>
+    <div>
+      <input class="select-input default" type="text" (keyup)="update($event)" #input [placeholder]="selectedItems.length ? '' : placeholder">
+    </div>
+  </div>
+
+  <div class="select-dropdown default" [style.display]="isActive && matchingItems.length ? 'block': 'none'">
+    <div *ngFor="let item of matchingItems; let index = index" 
+      class="select-dropdown-item default" 
+      [ngClass]="{'selected': index === selectedIndex}"  
+      [innerHTML]="highlightItem(item, index)" 
+      (click)="addSelectedItem(item.index)" 
+      (mouseover)="selectIndex(index)" #el></div>
+  </div>
+</div>

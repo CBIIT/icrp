@@ -1,0 +1,51 @@
+label.radio-label {
+  font-weight: normal;
+  margin-bottom: 2px;
+  cursor: pointer;
+}
+
+label.form-label {
+  display: block;
+  margin-top: 10px;
+  color: #666;
+  font-weight: 700;
+}
+
+label.form-label:first-child {
+  margin-top: 4px;
+}
+
+select.input {
+  padding-left: 4px;
+}
+
+.vertical-spacer {
+  margin: 15px 0;
+}
+
+
+.selector {
+  border: 1px solid #FDFDFD;
+}
+
+.multiselect {
+  max-height: 300px;
+  overflow: auto;
+
+  border: 1px solid #CCC;
+  padding: 4px;
+}
+
+.disable-text-selection {
+
+
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Chrome/Safari/Opera */
+     -khtml-user-select: none; /* Konqueror */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  not supported by any browser */
+
+
+}

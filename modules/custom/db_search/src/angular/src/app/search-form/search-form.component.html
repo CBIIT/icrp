@@ -1,0 +1,171 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+
+  <!-- Search Terms -->
+  <ui-panel title="Search Terms" [visible]="true">
+    <label class="sr-only" for="search_terms">Search Terms</label>
+    <input 
+      class="text input" 
+      id="search_terms"
+      name="search_terms"
+      type="text"
+      placeholder="Enter search terms"
+      [formControl]="form.controls.search_terms">
+
+    <div>
+      <label class="radio-label" for="search_term_filter_all">
+        <input 
+          class="radio-input" 
+          type="radio" 
+          id="search_term_filter_all" 
+          name="search_term_filter" 
+          value="all"
+          [formControl]="form.controls.search_term_filter">
+        All of the keywords
+      </label>
+    </div>
+
+    <div>
+      <label class="radio-label" for="search_term_filter_none">
+        <input
+          class="radio-input"
+          type="radio"
+          id="search_term_filter_none"
+          name="search_term_filter"
+          value="none"
+          [formControl]="form.controls.search_term_filter">
+        None of the keywords
+      </label>
+    </div>
+
+    <div>
+      <label class="radio-label" for="search_term_filter_any">
+        <input
+          class="radio-input"
+          type="radio"
+          id="search_term_filter_any"
+          name="search_term_filter"
+          value="any"
+          [formControl]="form.controls.search_term_filter">
+        Any of the keywords
+      </label>
+    </div>
+
+    <div>
+      <label class="radio-label" for="search_term_filter_exact">
+        <input 
+          class="radio-input"
+          type="radio"
+          id="search_term_filter_exact"
+          name="search_term_filter"
+          value="exact"
+          [formControl]="form.controls.search_term_filter">
+        Exact phrase provided
+      </label>
+    </div>
+
+    <label class="form-label" for="years_active">Years Active</label>
+    <select 
+      class="input"
+      id="years_active"
+      name="years_active"
+      [formControl]="form.controls.years">
+      <option 
+        *ngFor="let year of fields.years" 
+        [value]="year.value">
+        {{year.label}}
+      </option>
+    </select>
+
+    <ui-select placeholder="Select years" [items]="fields.years"></ui-select>
+  </ui-panel>
+
+  <!-- Institution Receiving Award -->
+  <ui-panel title="Institution Receiving Award">
+    <label class="form-label" for="institution">Institution Name</label>
+    <input 
+      class="text input"
+      type="text"
+      id="institution"
+      placeholder="Full or partial name"
+      [formControl]="form.controls.institution">
+
+    <label class="form-label" for="pi_first_name">Principal Investigator</label>
+    <div class="clearfix">
+      <div class="six columns">
+        <input 
+          class="text input"
+          type="text"
+          id="pi_first_name"
+          placeholder="First name or initial"
+          [formControl]="form.controls.pi_first_name">
+      </div>
+
+      <div class="six columns" for="pi_last_name">
+        <input
+          class="text input"
+          type="text"
+          id="pi_last_name"
+          placeholder="Last name"
+          [formControl]="form.controls.pi_last_name">
+      </div>
+    </div>
+
+    <label class="form-label" for="pi_orcid">ORCiD ID</label>
+    <input
+      class="text input"
+      type="text"
+      for="pi_orcid"
+      placeholder="nnnn-nnnn-nnnn-nnnn"
+      [formControl]="form.controls.pi_orcid">
+
+    <label class="form-label" for="award_code">Project Award Code</label>
+    <input
+      class="text input"
+      id="award_code"
+      type="text"
+      placeholder="Award Code"
+      [formControl]="form.controls.award_code">
+
+    <label class="form-label" for="countries">Country</label>
+    <ui-select placeholder="Enter Countries" [items]="fields.countries"></ui-select>
+
+    <label class="form-label" for="states">State/Territory</label>
+    <ui-select placeholder="Enter States/Territories" [items]="fields.states"></ui-select>
+
+    <label class="form-label" for="cities">City</label>
+    <ui-select placeholder="Enter Cities" [items]="fields.cities"></ui-select>
+  </ui-panel>
+
+  <!-- Funding Organizations -->
+  <ui-panel title="Funding Organizations">
+    <label class="sr-only" for="funding_organizations">Funding Organizations</label>
+    <div class="multiselect">
+      <ui-treeview [root]="searchFields.fundingOrgs" [formControl]="form.controls.funding_organizations"></ui-treeview>
+    </div>
+  </ui-panel>
+
+  <!-- Cancer and Project Type -->
+  <ui-panel title="Cancer and Project Type">
+
+    <label class="form-label" for="cancer_types">Cancer Types</label>
+    <ui-select placeholder="Select Cancer Types" [items]="fields.cancer_types"></ui-select>
+
+    <label class="form-label" for="project_types">Project Types</label>
+    <ui-select placeholder="Select Project Types" [items]="fields.project_types"></ui-select>
+  </ui-panel>
+
+  <!-- Common Scientific Outline - Research Area -->
+  <ui-panel title="Common Scientific Outline - Research Area">
+    <label class="sr-only" for="cso_research_areas">CSO - Research Areas</label>
+
+    <div class="multiselect">
+      <ui-treeview [root]="searchFields.csoAreas" [formControl]="form.controls.cso_research_areas"></ui-treeview>
+    </div>
+  </ui-panel>
+
+  <div class="text-right vertical-spacer">
+    <button class="btn btn-default" (click)="form.reset()">Clear</button>
+    <button class="btn btn-primary" (click)="submit()">Search</button>
+  </div>
+</form>
+

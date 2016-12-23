@@ -1,0 +1,13 @@
+:host .arc text {
+    text-anchor: middle;
+    font: 10px sans-serif;
+}
+
+:host .arc path {
+    stroke: #fff;
+}
+
+path {
+    fill: #CCC;
+    stroke: #444;
+}

@@ -1,0 +1,34 @@
+<div class="ui-table-wrapper">
+  <div class="loading-wrapper" *ngIf="loading"><div class="loading"></div></div>
+
+  <table class="ui-table">
+    <thead #thead></thead>
+    <tbody #tbody></tbody>
+  </table>
+</div>
+
+<div class="clearfix" style="margin-top: 20px">
+  <div class="pull-left">
+    <pagination 
+      [boundaryLinks]="true" 
+      [totalItems]="numResults" 
+      [(ngModel)]="pagingModel"
+      [maxSize]="5"
+      (pageChanged)="pageChanged($event)"
+      [itemsPerPage]="pageSize"
+      class="pagination-sm"
+      previousText="&lsaquo;" 
+      nextText="&rsaquo;" 
+      firstText="&laquo;" 
+      lastText="&raquo;">
+    </pagination>
+  </div>
+
+  <div class="pull-right">
+    Show 
+    <select #p (change)="updatePageSize(p.value)">
+      <option *ngFor="let size of pageSizes" [value]="size">{{size}}</option>
+    </select>
+    entries of {{ numResults | number }}
+  </div>
+</div>
