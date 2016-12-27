@@ -2,10 +2,8 @@ custom:
   version: 1.0
   css:
     theme:
-      css/font-awesome.min.css.css: {}
+      assets/styles.63fbbac070ee5e830d7dbfa104af511b.bundle.css: {}
   js:
-    js/Chart.bundle.min.js: {}
-    js/inline.bundle.js: {}
-    js/styles.bundle.js: {}
-    js/scripts.bundle.js: {}
-    js/main.bundle.js: {}
+    assets/inline.d41d8cd98f00b204e980.bundle.js: {}
+    assets/styles.b2328beb0372c051d06d.bundle.js: {}
+    assets/main.f8c9f978084ab4c34b47.bundle.js: {}
