@@ -31,6 +31,9 @@
 /* Carousel*/
 .carousel-caption {
     background-color:#337AB7;
+    /* border: 1px solid; */
+    border-radius: 25px;
+    opacity: 0.7;
 }
 
 /* Search */
@@ -59,6 +62,7 @@ header {
 }
 
 /* Footer */
+/*
 footer {
     background-color: #f8f8f8;
 }
@@ -101,6 +105,23 @@ footer > div > nav > ul.nav > li > a {
 #block-footerright {
     padding-left:250px ;
 }
+*/
+
+#block-footermiddle {
+    padding-top:50px;
+}
+#block-footermiddle > ul > li {
+    float: left;
+}
+#block-footermiddle > ul > li:not(:last-child) {
+    border-right:1px solid grey;
+    margin-right:10px;
+    padding-right:10px;
+}
+#block-footermiddle > ul > li:nth-child(3) {
+    list-style-type: circle;
+}
+
 /*
 .input-group {
     width:585px;
@@ -108,6 +129,8 @@ footer > div > nav > ul.nav > li > a {
     padding-top:10px;
 }
 */
+/* Adjust front page container */
+
 /* Home Page */
 #icrp-blue-icons {
     /*width:800; */
@@ -288,32 +311,51 @@ div#cso-document-container > div > h1 {
 
 /* Custom, iPhone Retina */
 @media only screen and (min-width : 320px) {
-
+    .main-container {
+        padding-left:15px;
+        padding-right:15px;
+    }
 }
 
 /* Extra Small Devices, Phones */
 @media only screen and (min-width : 480px) {
-
+    .main-container {
+        padding-left:15px;
+        padding-right:15px;
+    }
 }
 
 /* Small Devices, Tablets */
 @media only screen and (min-width : 768px) {
-
+    .main-container {
+        padding-left:15px;
+        padding-right:15px;
+    }
 }
 
 /* Medium Devices, Desktops */
 @media only screen and (min-width : 992px) {
-
+    .main-container {
+        padding-left:0px;
+        padding-right:0px;
+    }
 }
 
 /* Large Devices, Wide Screens */
 @media only screen and (min-width : 1200px) {
-
+    .main-container {
+        padding-left:0px;
+        padding-right:0px;
+    }
 }
 
 @media only screen and (min-width : 1450px) {
-    .container {
+    #navbar, .footer, .main-container {
         width:1440px;
+    }
+    .main-container {
+        padding-left:0px;
+        padding-right:0px;
     }
     .front-page-banner {
         width:72%;

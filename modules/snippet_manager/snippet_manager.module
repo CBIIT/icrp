@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for Snippet manager module.
+ */
+
+/**
+ * Implements hook_library_info_build().
+ */
+function snippet_manager_library_info_build() {
+
+  $codemirror_version = '5.14.2';
+  $codemirror_settings = Drupal::config('snippet_manager.settings')->get('codemirror');
+
+  $libraries['codemirror'] = [
+    'remote' => 'https://codemirror.net',
+    'version' => $codemirror_version,
+    'license' => [
+      'name' => 'MIT',
+      'url' => 'http://codemirror.net/LICENSE',
+      'gpl-compatible' => TRUE,
+    ],
+  ];
+
+  if ($codemirror_settings['cdn']) {
+    $prefix = 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/' . $codemirror_version . '/';
+    $lib_prefix = '';
+    $options = ['type' => 'external'];
+  }
+  else {
+    $prefix = '/libraries/codemirror/';
+    $lib_prefix = 'lib/';
+    $options = [];
+  }
+
+  $js_files = [
+    $lib_prefix . 'codemirror.js',
+    'mode/javascript/javascript.js',
+    'mode/xml/xml.js',
+    'mode/twig/twig.js',
+    'mode/css/css.js',
+    'addon/fold/foldcode.js',
+    'addon/fold/brace-fold.js',
+    'addon/fold/xml-fold.js',
+    'addon/fold/comment-fold.js',
+    'addon/display/fullscreen.js',
+  ];
+
+  foreach ($js_files as $file) {
+    $libraries['codemirror']['js'][$prefix . $file] = $options;
+  }
+
+  $css_files = [
+    $lib_prefix . 'codemirror.css',
+    'addon/fold/foldgutter.css',
+    'addon/display/fullscreen.css',
+  ];
+
+  foreach ($css_files as $file) {
+    $libraries['codemirror']['css']['component'][$prefix . $file] = $options;
+  }
+
+  if ($codemirror_settings['theme'] != 'default') {
+    $libraries['codemirror']['css']['theme'][$prefix . 'theme/' . $codemirror_settings['theme'] . '.css'] = $options;
+  }
+
+  return $libraries;
+}

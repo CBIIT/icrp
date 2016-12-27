@@ -7,3 +7,15 @@ function hello_hello_world() {
     return t('Hello Drupal 8 World!');
 
 }
+function hook_user_login($account) {
+    // We want to redirect user on login.
+    $response = new RedirectResponse("mypath");
+    $response->send();
+    return;
+}
+function mod_user_login($account) {
+    $url = "/home";
+    $response = new Symfony\Component\HttpFoundation\RedirectResponse($url);
+    $response->send();
+    return;
+}

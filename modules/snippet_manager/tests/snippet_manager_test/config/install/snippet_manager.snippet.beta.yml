@@ -1,0 +1,14 @@
+langcode: en
+status: true
+dependencies: {  }
+id: beta
+label: Beta
+code:
+  value: '<div class="snippet-main-content">-= {{ main_content | render | striptags | upper }} =-</div>'
+  format: snippet_manager_test_basic_format
+variables: {  }
+page:
+  status: false
+  url_alias: ''
+  display_variant:
+    id: ''

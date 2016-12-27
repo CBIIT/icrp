@@ -5,6 +5,7 @@
  */
 namespace Drupal\db_project_view\Controller;
 use Drupal\Core\Controller\ControllerBase;
+USE Drupal\Core\Database\Database;
 use PDO;
 
 class ProjectViewController extends ControllerBase {
@@ -16,7 +17,7 @@ class ProjectViewController extends ControllerBase {
     )->fetchAll(PDO::FETCH_ASSOC);
   }
 
-  public function getProjectCSOCodes($connection, $projectID) {
+  public function getProjectCSOAreas($connection, $projectID) {
     return $connection->query(
       "CALL GetProjectCSOCodes(:projectID)", 
       array(':projectID' => $projectID)
@@ -24,7 +25,7 @@ class ProjectViewController extends ControllerBase {
   }
 
   public function getProjectInfo($projectID) {
-    $connection = \Drupal\Core\Database\Database::getConnection('default', 'projects');
+    $connection = Database::getConnection('default', 'projects');
 
     $results = array(
       'project_title' => array(),
@@ -58,7 +59,7 @@ class ProjectViewController extends ControllerBase {
     }
 
     $results['cancer_types'] = self::getProjectCancerTypes($connection, $projectID);
-    $results['cso_areas'] = self::getProjectCSOCodes($connection, $projectID);
+    $results['cso_areas'] = self::getProjectCSOAreas($connection, $projectID);
     return $results;
   }
 

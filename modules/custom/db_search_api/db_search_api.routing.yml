@@ -1,0 +1,29 @@
+# Test API endpoints
+
+db_search_api.public.search:
+  path: '/db/public/search'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DbSearchApiController::publicSearch' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
+db_search_api.public.analytics:
+  path: '/db/public/analytics/{type}'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DbSearchApiController::publicAnalytics' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
+db_search_api.partner.search:
+  path: '/db/partner/search'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DbSearchApiController::partnerSearch' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
+db_search_api.partner.analytics:
+  path: '/db/partner/analytics'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DbSearchApiController::partnerAnalytics' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'

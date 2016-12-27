@@ -1,0 +1,6 @@
+name: ICRP Database Search API
+description: RESTful API for searching project database at /db/{public/partner}/{search/analytics}/
+package: ICRP Modules
+type: module
+version: 0.1
+core: 8.x

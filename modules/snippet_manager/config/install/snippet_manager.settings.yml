@@ -1,0 +1,6 @@
+codemirror:
+ cdn: true
+ toolbar: true
+ theme: default
+ mode: twig
+redirect_page: edit-form

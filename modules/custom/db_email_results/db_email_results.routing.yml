@@ -1,0 +1,7 @@
+db_email_results.content:
+  path: '/EmailResults/{parameters}'
+  defaults:
+    _controller: '\Drupal\db_email_results\Controller\EmailResultsController::sendEmail'
+    _title: 'Project Details'
+  requirements:
+    _permission: 'access content'

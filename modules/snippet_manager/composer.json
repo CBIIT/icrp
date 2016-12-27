@@ -1,0 +1,7 @@
+{
+  "name": "drupal/snippet_manager",
+  "description": "Manages snippets on the site.",
+  "type": "drupal-module",
+  "homepage": "https://drupal.org/project/snippet_manager",
+  "license": "GPL-2.0+"
+}
