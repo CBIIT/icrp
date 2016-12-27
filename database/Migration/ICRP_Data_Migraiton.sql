@@ -85,7 +85,7 @@ INSERT INTO Sponsor
 SELECT CODE, Name, country, email, displayAltID, AltIDName, ISNULL(dateadded, getdate()), ISNULL(lastrevised, dateadded)
 	from icrp.dbo.Sponsor order by code
 
-	-----------------------------
+-----------------------------
 -- FundingMechanism
 -----------------------------
 SET IDENTITY_INSERT FundingMechanism ON;  -- SET IDENTITY_INSERT to ON. 
@@ -100,14 +100,14 @@ SET IDENTITY_INSERT FundingMechanism OFF;  -- SET IDENTITY_INSERT to ON.
 GO  
 
 -----------------------------
--- Currency - Dedup...
+-- Currency - De-dup...
 -----------------------------
 INSERT INTO Currency
 (Code, Description, SortOrder)
 SELECT Currency, min(CURRENCYDESC), min(sortorder) as sortorder
 	from icrp.dbo.CURRENCIES group by CURRENCY order by sortorder
 
-	-----------------------------
+-----------------------------
 -- CurrencyRate
 -----------------------------
 INSERT INTO CurrencyRate
@@ -155,6 +155,32 @@ FROM icrp.dbo.fundingdivision
 
 
 -----------------------------
+-- Fix NIH AwardCode
+-----------------------------
+/* Only migrate the active projects */
+SELECT DISTINCT p.* INTO #active 
+FROM icrp.dbo.project p
+JOIN icrp.dbo.TestProjectActive a ON p.ID = a.projectID
+ORDER BY p.id
+
+/* Fix the NIH AwardCode */
+UPDATE #active SET Code =
+(case 	
+	when INTERNALCODE like '%sub%' THEN left(internalcode, 8)
+	when substring(internalcode, 13,1) = '-' THEN substring(internalcode, 5,8)
+	when substring(internalcode, 9,1) = '-' THEN left(internalcode, 8)
+	ELSE  internalcode 
+END) 
+FROM #active a
+JOIN icrp.dbo.FundingOrg f ON a.FUNDINGORGID = f.ID
+WHERE f.SponsorCode = 'NIH'
+
+/* Not fixed NIH code */
+--select * from #active a
+--JOIN FundingOrg f ON a.FUNDINGORGID = f.ID
+--where f.SponsorCode='nih' and  len(code) <> 8
+
+-----------------------------
 -- [Migration_Project]
 -----------------------------
 CREATE TABLE [dbo].[Migration_Project] (
@@ -163,28 +189,11 @@ CREATE TABLE [dbo].[Migration_Project] (
 	[AwardCode] nvarchar(1000) NOT NULL
 )
 
-
--- Use AwardCode to group project
+-- Use AwardCode to group project (keep the original project info)
 INSERT INTO [Migration_Project] ([OldProjectID], [AwardCode])
-SELECT min(id) as OldProjectID, code AS AwardCode
-FROM icrp.dbo.project group by code  
-ORDER BY OldProjectID  -- total: 122336
+	SELECT min(id) as OldProjectID, code AS AwardCode
+	FROM #active GROUP BY code	
 
-
------------------------------------------
--- ProjectDocument
------------------------------------------
-SET IDENTITY_INSERT ProjectDocument ON;  -- SET IDENTITY_INSERT to ON. 
-GO
-
-INSERT INTO ProjectDocument
-(ProjectDocumentID, [Content])
-SELECT m.[ProjectID], s.[Text]
-FROM icrp.dbo.search s
-	JOIN Migration_Project m ON s.ProjectID = m.OldProjectID
-
-SET IDENTITY_INSERT ProjectDocument OFF;  -- SET IDENTITY_INSERT to ON. 
-GO
 
 -----------------------------
 -- Project
@@ -193,11 +202,10 @@ SET IDENTITY_INSERT Project ON;  -- SET IDENTITY_INSERT to ON.
 GO 
 
 INSERT INTO Project  
-(ProjectID, [ProjectGroupID], [ProjectDocumentID], [Title], [AwardCode],[ProjectAbstractID],[FundingMechanismID],[IsFunded],[ProjectStartDate],[ProjectEndDate],[CreatedDate],[UpdatedDate])
-SELECT bp.ProjectID, NULL, d.[ProjectDocumentID], p.[Title], p.code, p.abstractId, p.MECHANISMID, p.[IsFunded], p.[DateStart], p.[DateEnd], p.[DATEADDED], p.[LASTREVISED]
-FROM icrp.dbo.project p
-	JOIN Migration_Project bp ON p.id = bp.OldProjectID
-	LEFT JOIN ProjectDocument d ON bp.ProjectID = d.ProjectDocumentID
+(ProjectID, [ProjectGroupID], [Title], [AwardCode],[ProjectAbstractID],[FundingMechanismID],[IsFunded],[ProjectStartDate],[ProjectEndDate],[CreatedDate],[UpdatedDate])
+SELECT bp.ProjectID, NULL, p.[Title], p.code, p.abstractId, p.MECHANISMID, p.[IsFunded], p.[DateStart], p.[DateEnd], p.[DATEADDED], p.[LASTREVISED]
+FROM #active p
+	JOIN Migration_Project bp ON p.id = bp.OldProjectID	
 ORDER BY bp.ProjectID
 
 SET IDENTITY_INSERT Project OFF;  -- SET IDENTITY_INSERT to ON. 
@@ -205,6 +213,26 @@ GO
 
 --delete from Project
 --DBCC CHECKIDENT ('[Project]', RESEED, 0)
+
+-----------------------------------------
+-- ProjectDocument
+-----------------------------------------
+INSERT INTO ProjectDocument
+(ProjectID, [Content])
+SELECT m.[ProjectID], s.[Text]
+FROM icrp.dbo.search s
+	JOIN Migration_Project m ON s.ProjectID = m.OldProjectID
+
+-----------------------------------------
+-- ProjectDocument_JP
+-----------------------------------------
+INSERT INTO ProjectDocument_JP
+(ProjectID, [Content])
+SELECT m.[ProjectID], s.[Text]
+FROM icrp.dbo.search_JP s
+	JOIN Migration_Project m ON s.ProjectID = m.OldProjectID
+
+
 -----------------------------
 -- ProjectCSO
 -----------------------------
@@ -238,7 +266,7 @@ INSERT INTO Project_ProjectType
 (ProjectID, ProjectType)
 select np.projectid, projecttype 
 FROM [Migration_Project] bp
-	join icrp.dbo.project p on bp.OldProjectID = p.id
+	join #active p on bp.OldProjectID = p.id
 	join project np ON np.ProjectID = bp.ProjectID
 
 	--delete from Project_ProjectType
@@ -246,7 +274,6 @@ FROM [Migration_Project] bp
 -----------------------------
 -- [Migration_ProjectFunding]
 -----------------------------
-
 CREATE TABLE [dbo].[Migration_ProjectFunding](
 	[ProjectFundingID] [int] IDENTITY(1,1) NOT NULL,
 	[ProjectID] [int] NOT NULL,
@@ -278,7 +305,7 @@ INSERT INTO [Migration_ProjectFunding]
 SELECT np.ProjectID, op.institution, op.city, op.state, op.country, op.piLastName, op.piFirstName,  op.piORCiD,op.FUNDINGORGID, op.FUNDINGDIVISIONID, op.code, op.altid, op.SOURCE_ID, 
 		pf.AMOUNT, pf.ANNUALIZEDAMOUNT, pf.LIFETIMEAMOUNT, op.BUDGETSTARTDATE, op.budgetenddate, pf.[DATEADDED], pf.[LASTREVISED]
 FROM icrp.dbo.projectfunding pf
-	 LEFT JOIN icrp.dbo.project op ON op.id = pf.projectid
+	 LEFT JOIN #active op ON op.id = pf.projectid
 	 JOIN Project np ON np.AwardCode = op.code  -- 200805
 	 
 -----------------------------
@@ -299,6 +326,16 @@ GO
 --DBCC CHECKIDENT ('[ProjectFunding]', RESEED, 0)
 --select * from ProjectFunding  --200805
 
+	 
+-----------------------------
+-- ProjectFundingExt
+-----------------------------
+INSERT INTO ProjectFundingExt
+([ProjectID], [AncestorProjectID], [CalendarYear], [CalendarAmount])
+SELECT [ProjectID], [ProjectIDANCESTOR], [YEAR], [CALENDARAMOUNT]
+FROM icrp.dbo.[TestProjectActive]
+
+
 -----------------------------------------
 -- ProjectFunding_Investigator (check investigator)
 -----------------------------------------
@@ -311,5 +348,7 @@ FROM [Migration_ProjectFunding] f
 									(ISNULL(f.state, '') = ISNULL(inst.state, '')) AND
 									(ISNULL(f.country, '') = ISNULL(inst.country, ''))	  --200774	
 WHERE inst.InstitutionID IS NOT NULL
+
+
 
 
