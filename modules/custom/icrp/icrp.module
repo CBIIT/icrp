@@ -1,7 +1,19 @@
 <?php
 
 use Drupal\Core\Routing\RouteMatchInterface;
-
+/*
+ * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
+ * @25:58 minutes
+ * Overview of rendering flow
+ * 1. drupal_render()
+ *   2. #pre_render
+ *   3. _theme()
+ *     4. Theme suggestion hooks
+ *     5. Preprocess functions
+ *     6. Template is rendered
+ *   7. #post_render
+ *
+ */
 function hello_hello_world() {
 
     return t('Hello Drupal 8 World!');
