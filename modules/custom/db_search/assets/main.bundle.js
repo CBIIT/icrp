@@ -87794,7 +87794,7 @@ module.exports = "<form [formGroup]=\"form\" (ngSubmit)=\"submit()\">\n\n  <!-- 
 /* 767 */
 /***/ function(module, exports) {
 
-module.exports = "<div class=\"clearfix\">\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Country\" [searchParam]=\"param\" group=\"country\"></ui-chart>\n  </div>\n\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by CSO Category\" [searchParam]=\"param\" group=\"cso_code\"></ui-chart>\n  </div>\n\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Cancer Type\" [searchParam]=\"param\" group=\"cancer_type_id\"></ui-chart>\n  </div>\n</div>\n\n<div class=\"clearfix\" style=\"display: none\">\n<!--  \n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Type\"></ui-chart>\n  </div>\n\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Institution\"></ui-chart>\n  </div>\n\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Funding Organization\"></ui-chart>\n  </div>\n\n-->\n</div>\n\n\n<ui-table \n  [data]=\"projectData\" \n  [columns]=\"projectColumns\" \n  [loading]=\"loading\" \n  [pageSizes]=\"[10, 20, 30, 40, 50]\" \n  [numResults]=\"numProjects\" \n  (paginate)=\"paginate.emit($event)\" \n  (sort)=\"sort.emit($event)\">\n</ui-table>"
+module.exports = "<div class=\"clearfix\">\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Country\" [searchParam]=\"param\" group=\"country\"></ui-chart>\n  </div>\n\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by CSO Category\" [searchParam]=\"param\" group=\"cso_code\"></ui-chart>\n  </div>\n\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Cancer Type\" [searchParam]=\"param\" group=\"cancer_type_id\"></ui-chart>\n  </div>\n</div>\n\n<div class=\"clearfix\" style=\"display: none\">\n<!--  \n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Type\"></ui-chart>\n  </div>\n\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Institution\"></ui-chart>\n  </div>\n\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Funding Organization\"></ui-chart>\n  </div>\n\n-->\n</div>\n\n\n<div>\n  <button class=\"btn btn-small btn-default\">Email results</button>\n  <button class=\"btn btn-small btn-default\">Export results</button>\n</div>\n\n\n<ui-table \n  [data]=\"projectData\" \n  [columns]=\"projectColumns\" \n  [loading]=\"loading\" \n  [pageSizes]=\"[10, 20, 30, 40, 50]\" \n  [numResults]=\"numProjects\" \n  (paginate)=\"paginate.emit($event)\" \n  (sort)=\"sort.emit($event)\">\n</ui-table>"
 
 /***/ },
 /* 768 */
@@ -87806,7 +87806,7 @@ module.exports = "<div class=\"four columns\">\n  <app-search-form (search)=\"up
 /* 769 */
 /***/ function(module, exports) {
 
-module.exports = "<div style=\"min-height: 300px; text-align: center; margin: 20px 0;\">\n  <svg #svg></svg>\n  <br>\n  <i>{{ title }}</i>\n</div>"
+module.exports = "<div style=\"min-height: 300px; text-align: center; margin: 20px 0; position: relative; \">\n  <svg #svg viewBox=\"0 0 600 600\" style=\"position: absolute; top: 0; left: 0;\"></svg>\n  <br>\n  <i>{{ title }}</i>\n</div>"
 
 /***/ },
 /* 770 */
