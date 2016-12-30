@@ -2,8 +2,8 @@ custom:
   version: 1.0
   css:
     theme:
-      assets/styles.css: {}
+      assets/styles.bundle.css: {}
   js:
     assets/inline.bundle.js: {}
-    assets/styles.bundle.js: {}
+    assets/vendor.bundle.js: {}
     assets/main.bundle.js: {}
