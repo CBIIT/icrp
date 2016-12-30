@@ -171,7 +171,7 @@ var SearchFormComponent = (function () {
         this.search = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["_20" /* EventEmitter */]();
         this.form = fb.group({
             search_terms: [''],
-            search_term_filter: [''],
+            search_term_filter: ['all'],
             years: [''],
             institution: [''],
             pi_first_name: [''],
@@ -197,7 +197,7 @@ var SearchFormComponent = (function () {
         this.displaySection[0] = true;
     }
     SearchFormComponent.prototype.submit = function () {
-        this.search.emit({
+        var parameters = {
             search_terms: this.form.controls['search_terms'].value,
             search_type: this.form.controls['search_term_filter'].value,
             years: this.form.controls['years'].value,
@@ -213,7 +213,17 @@ var SearchFormComponent = (function () {
             cancer_types: this.form.controls['cancer_types'].value,
             project_types: this.form.controls['project_types'].value,
             cso_codes: this.form.controls['cso_research_areas'].value,
-        });
+        };
+        for (var key in parameters) {
+            if (!parameters[key]) {
+                delete parameters[key];
+            }
+        }
+        if (!parameters['search_terms'] || !parameters['search_term_filter']) {
+            delete parameters['search_terms'];
+            delete parameters['search_term_filter'];
+        }
+        this.search.emit(parameters);
     };
     SearchFormComponent.prototype.initializeFields = function () {
         this.fields = {
@@ -1034,14 +1044,14 @@ var PieChart = (function () {
     }
     PieChart.prototype.draw = function (element, data) {
         var host = __WEBPACK_IMPORTED_MODULE_0_d3__["select"](element);
-        var size = element.clientWidth;
+        var size = 400;
         var radius = size / 2;
         var arc = __WEBPACK_IMPORTED_MODULE_0_d3__["arc"]().outerRadius(radius).innerRadius(radius / 2);
         var pie = __WEBPACK_IMPORTED_MODULE_0_d3__["pie"]();
         var color = __WEBPACK_IMPORTED_MODULE_0_d3__["scaleOrdinal"](__WEBPACK_IMPORTED_MODULE_0_d3__["schemeCategory20c"]);
         var svg = host
-            .attr('width', size)
-            .attr('height', size)
+            .attr('width', '100%')
+            .attr('viewBox', "0 0 " + size + " " + size)
             .append('g')
             .attr('transform', "translate(" + size / 2 + ", " + size / 2 + ")");
         // append individual pieces
@@ -1172,9 +1182,11 @@ var UiSelectComponent = (function () {
     };
     UiSelectComponent.prototype.updateSelection = function () {
         var _this = this;
-        this.propagateChange(this.values.filter(function (v, i) {
+        var selection = this.values.filter(function (v, i) {
             return _this.selectedItems.indexOf(i) >= 0;
-        }));
+        });
+        this.onSelect.emit(selection);
+        this.propagateChange(selection);
     };
     UiSelectComponent.prototype.removeSelectedItem = function (index) {
         this.selectedItems.splice(index, 1);
@@ -1848,14 +1860,14 @@ module.exports = "<div class=\"clearfix native-font\">\n  <app-search></app-sear
 /***/ 686:
 /***/ function(module, exports) {
 
-module.exports = "<form [formGroup]=\"form\" (ngSubmit)=\"submit()\">\n\n  <!-- Search Terms -->\n  <ui-panel title=\"Search Terms\" [visible]=\"true\">\n    <label class=\"sr-only\" for=\"search_terms\">Search Terms</label>\n    <input \n      class=\"text input\" \n      id=\"search_terms\"\n      name=\"search_terms\"\n      type=\"text\"\n      placeholder=\"Enter search terms\"\n      [formControl]=\"form.controls.search_terms\">\n\n    <div>\n      <label class=\"radio-label\" for=\"search_term_filter_all\">\n        <input \n          class=\"radio-input\" \n          type=\"radio\" \n          id=\"search_term_filter_all\" \n          name=\"search_term_filter\" \n          value=\"all\"\n          checked=\"checked\"\n          [formControl]=\"form.controls.search_term_filter\">\n        All of the keywords\n      </label>\n    </div>\n\n    <div>\n      <label class=\"radio-label\" for=\"search_term_filter_none\">\n        <input\n          class=\"radio-input\"\n          type=\"radio\"\n          id=\"search_term_filter_none\"\n          name=\"search_term_filter\"\n          value=\"none\"\n          [formControl]=\"form.controls.search_term_filter\">\n        None of the keywords\n      </label>\n    </div>\n\n    <div>\n      <label class=\"radio-label\" for=\"search_term_filter_any\">\n        <input\n          class=\"radio-input\"\n          type=\"radio\"\n          id=\"search_term_filter_any\"\n          name=\"search_term_filter\"\n          value=\"any\"\n          [formControl]=\"form.controls.search_term_filter\">\n        Any of the keywords\n      </label>\n    </div>\n\n    <div>\n      <label class=\"radio-label\" for=\"search_term_filter_exact\">\n        <input \n          class=\"radio-input\"\n          type=\"radio\"\n          id=\"search_term_filter_exact\"\n          name=\"search_term_filter\"\n          value=\"exact\"\n          [formControl]=\"form.controls.search_term_filter\">\n        Exact phrase provided\n      </label>\n    </div>\n\n    <label class=\"form-label\" for=\"years_active\">Years Active</label>\n    <ui-select placeholder=\"Select years\" [items]=\"fields.years\" [formControl]=\"form.controls.years\"></ui-select>\n  </ui-panel>\n\n  <!-- Institution Receiving Award -->\n  <ui-panel title=\"Institution Receiving Award\">\n    <label class=\"form-label\" for=\"institution\">Institution Name</label>\n    <input \n      class=\"text input\"\n      type=\"text\"\n      id=\"institution\"\n      placeholder=\"Full or partial name\"\n      [formControl]=\"form.controls.institution\">\n\n    <label class=\"form-label\" for=\"pi_first_name\">Principal Investigator</label>\n    <div class=\"clearfix\">\n      <div class=\"six columns\">\n        <input \n          class=\"text input\"\n          type=\"text\"\n          id=\"pi_first_name\"\n          placeholder=\"First name or initial\"\n          [formControl]=\"form.controls.pi_first_name\">\n      </div>\n\n      <div class=\"six columns\" for=\"pi_last_name\">\n        <input\n          class=\"text input\"\n          type=\"text\"\n          id=\"pi_last_name\"\n          placeholder=\"Last name\"\n          [formControl]=\"form.controls.pi_last_name\">\n      </div>\n    </div>\n\n    <label class=\"form-label\" for=\"pi_orcid\">ORCiD ID</label>\n    <input\n      class=\"text input\"\n      type=\"text\"\n      for=\"pi_orcid\"\n      placeholder=\"nnnn-nnnn-nnnn-nnnn\"\n      [formControl]=\"form.controls.pi_orcid\">\n\n    <label class=\"form-label\" for=\"award_code\">Project Award Code</label>\n    <input\n      class=\"text input\"\n      id=\"award_code\"\n      type=\"text\"\n      placeholder=\"Award Code\"\n      [formControl]=\"form.controls.award_code\">\n\n    <label class=\"form-label\" for=\"countries\">Country</label>\n    <ui-select placeholder=\"Enter Countries\" [items]=\"fields.countries\" [formControl]=\"form.controls.countries\" (onSelect)=\"updateLocationSearch($event)\"></ui-select>\n\n    <label class=\"form-label\" for=\"states\">State/Territory</label>\n    <ui-select placeholder=\"Enter States/Territories\" [items]=\"fields.states\" [formControl]=\"form.controls.states\"></ui-select>\n\n    <label class=\"form-label\" for=\"cities\">City</label>\n    <ui-select placeholder=\"Enter Cities\" [items]=\"fields.cities\" [formControl]=\"form.controls.cities\"></ui-select>\n  </ui-panel>\n\n  <!-- Funding Organizations -->\n  <ui-panel title=\"Funding Organizations\">\n    <label class=\"sr-only\" for=\"funding_organizations\">Funding Organizations</label>\n    <div class=\"multiselect\">\n      <ui-treeview [root]=\"searchFields.fundingOrgs\" [formControl]=\"form.controls.funding_organizations\"></ui-treeview>\n    </div>\n  </ui-panel>\n\n  <!-- Cancer and Project Type -->\n  <ui-panel title=\"Cancer and Project Type\">\n\n    <label class=\"form-label\" for=\"cancer_types\">Cancer Types</label>\n    <ui-select placeholder=\"Select Cancer Types\" [items]=\"fields.cancer_types\" [formControl]=\"form.controls.cancer_types\"></ui-select>\n\n    <label class=\"form-label\" for=\"project_types\">Project Types</label>\n    <ui-select placeholder=\"Select Project Types\" [items]=\"fields.project_types\" [formControl]=\"form.controls.project_types\"></ui-select>\n  </ui-panel>\n\n  <!-- Common Scientific Outline - Research Area -->\n  <ui-panel title=\"Common Scientific Outline - Research Area\">\n    <label class=\"sr-only\" for=\"cso_research_areas\">CSO - Research Areas</label>\n\n    <div class=\"multiselect\">\n      <ui-treeview [root]=\"searchFields.csoAreas\" [formControl]=\"form.controls.cso_research_areas\"></ui-treeview>\n    </div>\n  </ui-panel>\n\n  <div class=\"text-right vertical-spacer\">\n    <button class=\"btn btn-default\" (click)=\"form.reset()\">Clear</button>\n    <button class=\"btn btn-primary\" (click)=\"submit()\">Search</button>\n  </div>\n</form>\n\n"
+module.exports = "<form [formGroup]=\"form\" (ngSubmit)=\"submit()\">\n\n  <!-- Search Terms -->\n  <ui-panel title=\"Search Terms\" [visible]=\"true\">\n    <label class=\"sr-only\" for=\"search_terms\">Search Terms</label>\n    <input \n      class=\"text input\" \n      id=\"search_terms\"\n      name=\"search_terms\"\n      type=\"text\"\n      placeholder=\"Enter search terms\"\n      [formControl]=\"form.controls.search_terms\">\n\n    <div>\n      <label class=\"radio-label\" for=\"search_term_filter_all\">\n        <input \n          class=\"radio-input\" \n          type=\"radio\" \n          id=\"search_term_filter_all\" \n          name=\"search_term_filter\" \n          value=\"all\"\n          [formControl]=\"form.controls.search_term_filter\">\n        All of the keywords\n      </label>\n    </div>\n\n    <div>\n      <label class=\"radio-label\" for=\"search_term_filter_none\">\n        <input\n          class=\"radio-input\"\n          type=\"radio\"\n          id=\"search_term_filter_none\"\n          name=\"search_term_filter\"\n          value=\"none\"\n          [formControl]=\"form.controls.search_term_filter\">\n        None of the keywords\n      </label>\n    </div>\n\n    <div>\n      <label class=\"radio-label\" for=\"search_term_filter_any\">\n        <input\n          class=\"radio-input\"\n          type=\"radio\"\n          id=\"search_term_filter_any\"\n          name=\"search_term_filter\"\n          value=\"any\"\n          [formControl]=\"form.controls.search_term_filter\">\n        Any of the keywords\n      </label>\n    </div>\n\n    <div>\n      <label class=\"radio-label\" for=\"search_term_filter_exact\">\n        <input \n          class=\"radio-input\"\n          type=\"radio\"\n          id=\"search_term_filter_exact\"\n          name=\"search_term_filter\"\n          value=\"exact\"\n          [formControl]=\"form.controls.search_term_filter\">\n        Exact phrase provided\n      </label>\n    </div>\n\n    <label class=\"form-label\" for=\"years_active\">Years Active</label>\n    <ui-select placeholder=\"Select years\" [items]=\"fields.years\" [formControl]=\"form.controls.years\"></ui-select>\n  </ui-panel>\n\n  <!-- Institution Receiving Award -->\n  <ui-panel title=\"Institution Receiving Award\">\n    <label class=\"form-label\" for=\"institution\">Institution Name</label>\n    <input \n      class=\"text input\"\n      type=\"text\"\n      id=\"institution\"\n      placeholder=\"Full or partial name\"\n      [formControl]=\"form.controls.institution\">\n\n    <label class=\"form-label\" for=\"pi_first_name\">Principal Investigator</label>\n    <div class=\"clearfix\">\n      <div class=\"six columns\">\n        <input \n          class=\"text input\"\n          type=\"text\"\n          id=\"pi_first_name\"\n          placeholder=\"First name or initial\"\n          [formControl]=\"form.controls.pi_first_name\">\n      </div>\n\n      <div class=\"six columns\" for=\"pi_last_name\">\n        <input\n          class=\"text input\"\n          type=\"text\"\n          id=\"pi_last_name\"\n          placeholder=\"Last name\"\n          [formControl]=\"form.controls.pi_last_name\">\n      </div>\n    </div>\n\n    <label class=\"form-label\" for=\"pi_orcid\">ORCiD ID</label>\n    <input\n      class=\"text input\"\n      type=\"text\"\n      for=\"pi_orcid\"\n      placeholder=\"nnnn-nnnn-nnnn-nnnn\"\n      [formControl]=\"form.controls.pi_orcid\">\n\n    <label class=\"form-label\" for=\"award_code\">Project Award Code</label>\n    <input\n      class=\"text input\"\n      id=\"award_code\"\n      type=\"text\"\n      placeholder=\"Award Code\"\n      [formControl]=\"form.controls.award_code\">\n\n    <label class=\"form-label\" for=\"countries\">Country</label>\n    <ui-select placeholder=\"Enter Countries\" [items]=\"fields.countries\" [formControl]=\"form.controls.countries\" (onSelect)=\"updateLocationSearch($event)\"></ui-select>\n\n    <label class=\"form-label\" for=\"states\">State/Territory</label>\n    <ui-select placeholder=\"Enter States/Territories\" [items]=\"fields.states\" [formControl]=\"form.controls.states\"></ui-select>\n\n    <label class=\"form-label\" for=\"cities\">City</label>\n    <ui-select placeholder=\"Enter Cities\" [items]=\"fields.cities\" [formControl]=\"form.controls.cities\"></ui-select>\n  </ui-panel>\n\n  <!-- Funding Organizations -->\n  <ui-panel title=\"Funding Organizations\">\n    <label class=\"sr-only\" for=\"funding_organizations\">Funding Organizations</label>\n    <div class=\"multiselect\">\n      <ui-treeview [root]=\"searchFields.fundingOrgs\" [formControl]=\"form.controls.funding_organizations\"></ui-treeview>\n    </div>\n  </ui-panel>\n\n  <!-- Cancer and Project Type -->\n  <ui-panel title=\"Cancer and Project Type\">\n\n    <label class=\"form-label\" for=\"cancer_types\">Cancer Types</label>\n    <ui-select placeholder=\"Select Cancer Types\" [items]=\"fields.cancer_types\" [formControl]=\"form.controls.cancer_types\"></ui-select>\n\n    <label class=\"form-label\" for=\"project_types\">Project Types</label>\n    <ui-select placeholder=\"Select Project Types\" [items]=\"fields.project_types\" [formControl]=\"form.controls.project_types\"></ui-select>\n  </ui-panel>\n\n  <!-- Common Scientific Outline - Research Area -->\n  <ui-panel title=\"Common Scientific Outline - Research Area\">\n    <label class=\"sr-only\" for=\"cso_research_areas\">CSO - Research Areas</label>\n\n    <div class=\"multiselect\">\n      <ui-treeview [root]=\"searchFields.csoAreas\" [formControl]=\"form.controls.cso_research_areas\"></ui-treeview>\n    </div>\n  </ui-panel>\n\n  <div class=\"text-right vertical-spacer\">\n    <button class=\"btn btn-default\" (click)=\"form.reset()\">Clear</button>\n    <button class=\"btn btn-primary\" (click)=\"submit()\">Search</button>\n  </div>\n</form>\n\n"
 
 /***/ },
 
 /***/ 687:
 /***/ function(module, exports) {
 
-module.exports = "<div>\n<b>Search Terms:</b>{{ search_terms }}\n</div>\n\n<div>\n<b>Search Filters:</b>{{ search_filters }}\n</div>\n\n\n<div class=\"clearfix\">\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Country\" [searchParam]=\"param\" group=\"country\"></ui-chart>\n  </div>\n\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by CSO Category\" [searchParam]=\"param\" group=\"cso_code\"></ui-chart>\n  </div>\n\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Cancer Type\" [searchParam]=\"param\" group=\"cancer_type_id\"></ui-chart>\n  </div>\n</div>\n\n<div class=\"clearfix\" style=\"display: none\">\n<!--  \n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Type\"></ui-chart>\n  </div>\n\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Institution\"></ui-chart>\n  </div>\n\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Funding Organization\"></ui-chart>\n  </div>\n\n-->\n</div>\n\n\n<div>\n  <button class=\"btn btn-small btn-default\">Email results</button>\n  <button class=\"btn btn-small btn-default\">Export results</button>\n</div>\n\n<br>\n\n<ui-table \n  [data]=\"projectData\" \n  [columns]=\"projectColumns\" \n  [loading]=\"loading\" \n  [pageSizes]=\"[10, 20, 30, 40, 50]\" \n  [numResults]=\"numProjects\" \n  (paginate)=\"paginate.emit($event)\" \n  (sort)=\"sort.emit($event)\">\n</ui-table>"
+module.exports = "<div>\n<b>Search Terms:</b>{{ search_terms }}\n</div>\n\n<div>\n<b>Search Filters:</b>{{ search_filters }}\n</div>\n\n\n<div class=\"clearfix\">\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Country\" [searchParam]=\"param\" group=\"country\"></ui-chart>\n  </div>\n\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by CSO Category\" [searchParam]=\"param\" group=\"cso_code\"></ui-chart>\n  </div>\n\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Cancer Type\" [searchParam]=\"param\" group=\"cancer_type_id\"></ui-chart>\n  </div>\n</div>\n\n<div class=\"clearfix\" style=\"display: none\">\n<!--  \n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Type\"></ui-chart>\n  </div>\n\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Institution\"></ui-chart>\n  </div>\n\n  <div class=\"four columns\">\n    <ui-chart title=\"Projects by Funding Organization\"></ui-chart>\n  </div>\n\n\n<div>\n  <button class=\"btn btn-small btn-default\">Email results</button>\n  <button class=\"btn btn-small btn-default\">Export results</button>\n</div>\n\n\n-->\n\n</div>\n\n\n<br>\n\n<ui-table \n  [data]=\"projectData\" \n  [columns]=\"projectColumns\" \n  [loading]=\"loading\" \n  [pageSizes]=\"[10, 20, 30, 40, 50]\" \n  [numResults]=\"numProjects\" \n  (paginate)=\"paginate.emit($event)\" \n  (sort)=\"sort.emit($event)\">\n</ui-table>"
 
 /***/ },
 
@@ -1869,7 +1881,7 @@ module.exports = "<div class=\"four columns\">\n  <app-search-form (search)=\"up
 /***/ 689:
 /***/ function(module, exports) {
 
-module.exports = "<div style=\"min-height: 300px; text-align: center; margin: 20px 0; position: relative; \">\n  <svg #svg viewBox=\"0 0 600 600\" style=\"position: absolute; top: 0; left: 0;\"></svg>\n  <br>\n  <i>{{ title }}</i>\n</div>"
+module.exports = "<div style=\"text-align: center; position: relative; \">\n  <svg #svg></svg>\n  <br>\n  <i>{{ title }}</i>\n</div>"
 
 /***/ },
 

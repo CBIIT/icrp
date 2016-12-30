@@ -28,26 +28,26 @@ input[type="checkbox"] {
   .column,
   .columns {
     float: left;
-    padding-left: 2%;
+    margin-left: 2%;
   }
 
   .column:first-child,
   .columns:first-child {
-    padding-left: 0;
+    margin-left: 0;
   }
 
   .one.column,
-  .one.columns                    { width: 8.33333333333%; }
-  .two.columns                    { width: 16.6666666667%; }
-  .three.columns                  { width: 25%;            }
-  .four.columns                   { width: 33.3333333333%; }
-  .five.columns                   { width: 41.6666666667%; }
-  .six.columns                    { width: 50%;            }
-  .seven.columns                  { width: 58.3333333333%; }
-  .eight.columns                  { width: 66.6666666667%; }
-  .nine.columns                   { width: 75.0%;          }
-  .ten.columns                    { width: 83.3333333333%; }
-  .eleven.columns                 { width: 91.6666666667%; }
+  .one.columns                    { width: 6.33333333333%; }
+  .two.columns                    { width: 14.6666666667%; }
+  .three.columns                  { width: 23%;            }
+  .four.columns                   { width: 31.3333333333%; }
+  .five.columns                   { width: 39.6666666667%; }
+  .six.columns                    { width: 48%;            }
+  .seven.columns                  { width: 56.3333333333%; }
+  .eight.columns                  { width: 64.6666666667%; }
+  .nine.columns                   { width: 73.0%;          }
+  .ten.columns                    { width: 81.3333333333%; }
+  .eleven.columns                 { width: 89.6666666667%; }
   .twelve.columns                 { width: 100%;           }
 }
 
