@@ -8,7 +8,7 @@ class DbSearchController {
   public function content() {
     return array(
       '#type' => 'markup',
-      '#markup' => t('<app-root>Loading...</app-root>'),
+      '#markup' => t('<icrp-root>Loading...</icrp-root>'),
       '#attached' => array(
         'library' => array(
           'db_search/custom'
