@@ -8,7 +8,7 @@ db_search_api.public.search:
     _access: 'TRUE'
 
 db_search_api.public.analytics:
-  path: '/db/public/analytics/{type}'
+  path: '/db/public/analytics'
   defaults: { _controller: '\Drupal\db_search_api\Controller\DbSearchApiController::publicAnalytics' }
   methods:  [GET]
   requirements:
