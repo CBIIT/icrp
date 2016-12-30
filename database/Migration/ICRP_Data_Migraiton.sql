@@ -290,8 +290,7 @@ CREATE TABLE [dbo].[Migration_ProjectFunding](
 	[AltAwardCode] [varchar](500) NOT NULL,
 	[Source_ID] [varchar](50) NULL,
 	[Amount] [float] NOT NULL,
-	[AnnualizedAmount] [float] NULL,
-	[LifetimeAmount] [float] NULL,
+	[IsAnnualized] [bit] NOT NULL,
 	[BudgetStartDate] [date] NULL,
 	[BudgetEndDate] [date] NULL,	
 	[CreatedDate] [datetime] NOT NULL,
@@ -301,9 +300,11 @@ GO
 
 INSERT INTO [Migration_ProjectFunding] 
 	([ProjectID], [Institution], [city], [state], [country], [piLastName], [piFirstName], [piORC_ID], [FundingOrgID], [FundingDivisionID], [AwardCode], [AltAwardCode],
-	 [Source_ID], [Amount], [AnnualizedAmount], [LifetimeAmount], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate])
-SELECT np.ProjectID, op.institution, op.city, op.state, op.country, op.piLastName, op.piFirstName,  op.piORCiD,op.FUNDINGORGID, op.FUNDINGDIVISIONID, op.code, op.altid, op.SOURCE_ID, 
-		pf.AMOUNT, pf.ANNUALIZEDAMOUNT, pf.LIFETIMEAMOUNT, op.BUDGETSTARTDATE, op.budgetenddate, pf.[DATEADDED], pf.[LASTREVISED]
+	 [Source_ID], [Amount], [IsAnnualized], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate])
+SELECT np.ProjectID, op.institution, op.city, op.state, op.country, op.piLastName, op.piFirstName,  op.piORCiD,op.FUNDINGORGID, op.FUNDINGDIVISIONID, 
+		op.code, op.altid, op.SOURCE_ID, pf.AMOUNT, 
+		CASE WHEN [Amount] = [AnnualizedAmount] THEN 1 ELSE 0 END AS [IsAnnualized],
+		op.BUDGETSTARTDATE, op.budgetenddate, pf.[DATEADDED], pf.[LASTREVISED]
 FROM icrp.dbo.projectfunding pf
 	 LEFT JOIN #active op ON op.id = pf.projectid
 	 JOIN Project np ON np.AwardCode = op.code  -- 200805
@@ -315,8 +316,8 @@ SET IDENTITY_INSERT ProjectFunding ON;  -- SET IDENTITY_INSERT to ON.
 GO 
 
 INSERT INTO ProjectFunding 
-([ProjectFundingID], [ProjectID], [FundingOrgID], [FundingDivisionID], [AltAwardCode],	[Source_ID], [Amount], [AnnualizedAmount], [LifetimeAmount], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate])
-SELECT [ProjectFundingID], [ProjectID], [FundingOrgID], [FundingDivisionID], [ALtAwardCode],	[Source_ID], [Amount], [AnnualizedAmount], [LifetimeAmount], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate]
+([ProjectFundingID], [ProjectID], [FundingOrgID], [FundingDivisionID], [AltAwardCode],	[Source_ID], [Amount], [IsAnnualized], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate])
+SELECT [ProjectFundingID], [ProjectID], [FundingOrgID], [FundingDivisionID], [ALtAwardCode], [Source_ID], [Amount], [IsAnnualized], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate]
 FROM [Migration_ProjectFunding]
 
 SET IDENTITY_INSERT ProjectFunding OFF;  -- SET IDENTITY_INSERT to ON. 
