@@ -2,6 +2,7 @@ import {
   Component,
   ElementRef,
   EventEmitter,
+  forwardRef,
   Input,
   OnChanges,
   Output,
@@ -9,13 +10,21 @@ import {
   ViewChild
 } from '@angular/core';
 
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+
+
 @Component({
   selector: 'ui-select',
   templateUrl: './ui-select.component.html',
   styleUrls: ['./ui-select.component.css'],
   host: {
     '(document:click)': 'focusInput($event)'
-  }
+  },
+  providers: [{
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => UiSelectComponent),
+    multi: true
+  }]  
 })
 export class UiSelectComponent implements OnChanges {
 
@@ -47,6 +56,29 @@ export class UiSelectComponent implements OnChanges {
 
   isActive: boolean;
 
+
+
+  writeValue(values: string[]) {
+
+    this.selectedItems = [];
+    
+    if (values && values.length) {
+      for (let value of values) {
+        let index = values.indexOf(value);
+        this.selectedItems.push(index);
+      }
+    }
+    
+  }
+
+  propagateChange(_: any) { };
+  registerOnTouched() { }
+  registerOnChange(fn) {
+    this.propagateChange = fn;
+  }
+
+
+  
   constructor(private _ref: ElementRef) {
     this.isActive = false;
     this.items = [];
@@ -59,13 +91,24 @@ export class UiSelectComponent implements OnChanges {
     this.selectedIndex = -1;
   }
 
+  updateSelection() {
+    let selection = this.values.filter((v, i) => {
+      return this.selectedItems.indexOf(i) >= 0;
+    })
+
+    this.onSelect.emit(selection);
+    this.propagateChange(selection);
+  }
+
   removeSelectedItem(index: number) {
     this.selectedItems.splice(index, 1);
+    this.updateSelection();
   }
 
   addSelectedItem(index: number) {
     this.selectedItems.push(index);
     this.input.nativeElement.value = '';
+    this.updateSelection();
   }
 
   update(event: KeyboardEvent) {

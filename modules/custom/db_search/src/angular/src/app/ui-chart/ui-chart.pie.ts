@@ -3,14 +3,11 @@ import * as d3 from 'd3';
 
 export class PieChart {
 
-
-
-
     draw(element: HTMLElement, data: { value: number, label: string }[]) {
         
         let host = d3.select(element);
 
-        let size = element.clientWidth;
+        let size = 400;
         let radius = size / 2;
 
         let arc: any = d3.arc().outerRadius(radius).innerRadius(radius/2);
@@ -19,8 +16,8 @@ export class PieChart {
         let color = d3.scaleOrdinal(d3.schemeCategory20c);
 
         let svg = host
-            .attr('width', size)
-            .attr('height', size)
+            .attr('width', '100%')
+            .attr('viewBox', `0 0 ${size} ${size}` )
             .append('g')
             .attr('transform', `translate(${size / 2}, ${size / 2})`);
         

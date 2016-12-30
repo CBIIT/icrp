@@ -64,19 +64,7 @@
     </div>
 
     <label class="form-label" for="years_active">Years Active</label>
-    <select 
-      class="input"
-      id="years_active"
-      name="years_active"
-      [formControl]="form.controls.years">
-      <option 
-        *ngFor="let year of fields.years" 
-        [value]="year.value">
-        {{year.label}}
-      </option>
-    </select>
-
-    <ui-select placeholder="Select years" [items]="fields.years"></ui-select>
+    <ui-select placeholder="Select years" [items]="fields.years" [formControl]="form.controls.years"></ui-select>
   </ui-panel>
 
   <!-- Institution Receiving Award -->
@@ -127,13 +115,13 @@
       [formControl]="form.controls.award_code">
 
     <label class="form-label" for="countries">Country</label>
-    <ui-select placeholder="Enter Countries" [items]="fields.countries"></ui-select>
+    <ui-select placeholder="Enter Countries" [items]="fields.countries" [formControl]="form.controls.countries" (onSelect)="updateLocationSearch($event)"></ui-select>
 
     <label class="form-label" for="states">State/Territory</label>
-    <ui-select placeholder="Enter States/Territories" [items]="fields.states"></ui-select>
+    <ui-select placeholder="Enter States/Territories" [items]="fields.states" [formControl]="form.controls.states"></ui-select>
 
     <label class="form-label" for="cities">City</label>
-    <ui-select placeholder="Enter Cities" [items]="fields.cities"></ui-select>
+    <ui-select placeholder="Enter Cities" [items]="fields.cities" [formControl]="form.controls.cities"></ui-select>
   </ui-panel>
 
   <!-- Funding Organizations -->
@@ -148,10 +136,10 @@
   <ui-panel title="Cancer and Project Type">
 
     <label class="form-label" for="cancer_types">Cancer Types</label>
-    <ui-select placeholder="Select Cancer Types" [items]="fields.cancer_types"></ui-select>
+    <ui-select placeholder="Select Cancer Types" [items]="fields.cancer_types" [formControl]="form.controls.cancer_types"></ui-select>
 
     <label class="form-label" for="project_types">Project Types</label>
-    <ui-select placeholder="Select Project Types" [items]="fields.project_types"></ui-select>
+    <ui-select placeholder="Select Project Types" [items]="fields.project_types" [formControl]="form.controls.project_types"></ui-select>
   </ui-panel>
 
   <!-- Common Scientific Outline - Research Area -->

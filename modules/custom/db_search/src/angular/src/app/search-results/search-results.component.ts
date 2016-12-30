@@ -19,6 +19,9 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     project_type: { "label": string, "value": number }[]
   };
 
+  @Input() searchParameters: Object;
+
+
   @Input() param: Object;
 
   chartData: Object = {};
@@ -26,6 +29,9 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   @Output() sort: EventEmitter<{ "column": string, "type": "asc" | "desc" }>;
   @Output() paginate: EventEmitter<{ "size": number, "offset": number }>;
   
+
+  search_terms;
+  search_filters;
   projectData;
   projectColumns;
   numProjects: number;
@@ -95,8 +101,24 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
 
   ngOnChanges(changes: SimpleChanges) {
 
-    console.log('changes made', changes);
 
+    if (changes['searchParameters']) {
+      console.log('UPDATING SEARCH PARAMETER DISPLAY')
+
+      let param = this.searchParameters;
+
+      let filters = [];
+
+      for (let key in param) {
+        if (param[key]) {
+          filters.push(`${key}: ${param[key]}`)
+        }
+      }
+
+      this.search_terms = `${param['search_terms']} (${param['search_type']})`;
+      this.search_filters = filters.join(', ');
+    }
+    
     if (changes['analytics']) {
 
       let change = changes['analytics'].currentValue;
@@ -115,11 +137,11 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
       console.log('New ChartData', this.chartData);
     }
 
-    if (this.results && this.results.projects && this.results.count) {
+    if (this.results) {
       console.log('Updating results', this.results)
 
-      let projects = this.results.projects;
-      this.numProjects = this.results.count;
+      let projects = this.results;
+      this.numProjects = 100;
 
       this.projectData = projects.map(result => {
         return {

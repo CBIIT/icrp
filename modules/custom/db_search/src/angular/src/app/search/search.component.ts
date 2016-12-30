@@ -33,8 +33,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
       cso_code: [],
       cancer_type_id: [],
       project_type: [],
-//      funding_organization: [],
-//      institution: []
+//    funding_organization: [],
+//    institution: []
     }
   }
 
@@ -52,6 +52,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
         this.results = response;
         this.loading = false;
 
+        console.log('response', response);
+
 //        this.queryAnalytics();
       },
       error => {
@@ -64,20 +66,22 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   paginate(event) {
 
-    this.parameters['page_size'] = event.size;
-    this.parameters['page_offset'] = event.offset;
+    this.parameters['page_size'] = event.page_size;
+    this.parameters['page_number'] = event.page_number;
     this.updateResults(this.parameters);
   }
 
   sort(event) {
-    this.parameters['order_by'] = event.column;
-    this.parameters['order_type'] = event.type;
+    this.parameters['sort_column'] = event.sort_column;
+    this.parameters['sort_type'] = event.sort_type;
     this.updateResults(this.parameters);
   }
 
   queryServerAnalytics(parameters: Object, group: string): Observable<any[]> {
     let endpoint = `http://localhost/drupal/db_search_api/public_analytics/${group}`;
     let params = new URLSearchParams();
+
+
 
     for (let key of Object.keys(parameters)) {
       params.set(key, parameters[key]);
@@ -91,9 +95,19 @@ export class SearchComponent implements OnInit, AfterViewInit {
   
 
   queryServer(parameters: Object): Observable<any[]> {
-    let endpoint = 'http://localhost/drupal/db_search_api/public';
+    let endpoint = 'https://icrpartnership-test.org/db/public/search';
+    endpoint = 'http://localhost:10000/db/public/search';
+    
     let params = new URLSearchParams();
 
+
+    console.log('CURRENT SEARCH PARAMETERS', parameters);
+    
+    if (!parameters['page_size'] || !parameters['page_number']) {
+      parameters['page_size'] = 50;
+      parameters['page_number'] = 1;
+    }
+    
     for (let key of Object.keys(parameters)) {
       params.set(key, parameters[key]);
     }

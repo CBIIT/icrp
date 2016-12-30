@@ -1,3 +1,12 @@
+<div>
+<b>Search Terms:</b>{{ search_terms }}
+</div>
+
+<div>
+<b>Search Filters:</b>{{ search_filters }}
+</div>
+
+
 <div class="clearfix">
   <div class="four columns">
     <ui-chart title="Projects by Country" [searchParam]="param" group="country"></ui-chart>
@@ -26,9 +35,19 @@
     <ui-chart title="Projects by Funding Organization"></ui-chart>
   </div>
 
--->
+
+<div>
+  <button class="btn btn-small btn-default">Email results</button>
+  <button class="btn btn-small btn-default">Export results</button>
 </div>
 
+
+-->
+
+</div>
+
+
+<br>
 
 <ui-table 
   [data]="projectData" 

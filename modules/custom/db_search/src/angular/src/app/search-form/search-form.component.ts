@@ -33,14 +33,14 @@ export class SearchFormComponent implements OnInit {
 
   fields: {
     "years":                  { "value": number, "label": string }[],
-    "countries":              { "value": number, "label": string }[],
-    "states":                 { "value": number, "label": string }[],
-    "cities":                 { "value": number, "label": string }[],
+    "countries":              { "value": string, "label": string }[],
+    "states":                 { "value": string, "label": string }[],
+    "cities":                 { "value": string, "label": string }[],
     "currencies":             { "value": number, "label": string }[],
     "cancer_types":           { "value": number, "label": string }[],
-    "project_types":          { "value": number, "label": string }[],
+    "project_types":          { "value": string, "label": string }[],
     "funding_organizations":  { "value": number, "label": string }[],
-    "cso_research_areas":     { "value": number, "label": string }[],
+    "cso_research_areas":     { "value": string, "label": string }[],
   };
 
   /** Controls which sections are currently visible (todo: replace with accordion) */
@@ -54,7 +54,7 @@ export class SearchFormComponent implements OnInit {
 
     this.form = fb.group({
       search_terms: [''],
-      search_term_filter: [''],
+      search_term_filter: ['all'],
       years: [''],
       institution: [''],
       pi_first_name: [''],
@@ -84,10 +84,11 @@ export class SearchFormComponent implements OnInit {
 
 
   submit() {
-    this.search.emit({
 
-      project_title: this.form.controls['search_terms'].value,
-      search_term_filter: this.form.controls['search_term_filter'].value,
+    let parameters = {
+
+      search_terms: this.form.controls['search_terms'].value,
+      search_type: this.form.controls['search_term_filter'].value,
       years: this.form.controls['years'].value,
 
       institution: this.form.controls['institution'].value,
@@ -96,15 +97,28 @@ export class SearchFormComponent implements OnInit {
       pi_orcid: this.form.controls['pi_orcid'].value,
       award_code: this.form.controls['award_code'].value,
 
-      country: this.form.controls['countries'].value,
-      state: this.form.controls['states'].value,
-      city: this.form.controls['cities'].value,
+      countries: this.form.controls['countries'].value,
+      states: this.form.controls['states'].value,
+      cities: this.form.controls['cities'].value,
 
-      funding_organization_id: this.form.controls['funding_organizations'].value,
-      cancer_type_id: this.form.controls['cancer_types'].value,
-      project_type: this.form.controls['project_types'].value,
-      cso_code: this.form.controls['cso_research_areas'].value,
-    })
+      funding_organizations: this.form.controls['funding_organizations'].value,
+      cancer_types: this.form.controls['cancer_types'].value,
+      project_types: this.form.controls['project_types'].value,
+      cso_codes: this.form.controls['cso_research_areas'].value,
+    };
+
+    for (let key in parameters) {
+      if (!parameters[key]) {
+        delete parameters[key];
+      }
+    }
+
+    if (!parameters['search_terms'] || !parameters['search_term_filter']) {
+      delete parameters['search_terms'];
+      delete parameters['search_term_filter'];
+    }
+
+    this.search.emit(parameters)
   }
 
   initializeFields() {
@@ -114,12 +128,16 @@ export class SearchFormComponent implements OnInit {
       states: this.searchFields.getStates([]),
       cities: this.searchFields.getCities([], []),
       currencies: this.searchFields.getCurrencies(),
-      cancer_types: this.searchFields.cancer_types,
-      project_types: this.searchFields.project_types,
+      cancer_types: this.searchFields.getCancerTypes(),
+      project_types: this.searchFields.getProjectTypes(),
       funding_organizations: this.searchFields.getFundingOrganizations(),
       cso_research_areas: this.searchFields.getCsoResearchAreas()
     }
   }
+
+  updateLocationSearch() {
+    console.log('UPDATING SEARCH LOCATION', this.form.controls['countries'].value);
+  }  
 
 
 

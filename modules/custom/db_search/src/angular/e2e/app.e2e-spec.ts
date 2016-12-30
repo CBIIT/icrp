@@ -1,14 +1,14 @@
-import { IcrpDatabasePage } from './app.po';
+import { IcrpSearchPage } from './app.po';
 
-describe('icrp-database App', function() {
-  let page: IcrpDatabasePage;
+describe('icrp-search App', function() {
+  let page: IcrpSearchPage;
 
   beforeEach(() => {
-    page = new IcrpDatabasePage();
+    page = new IcrpSearchPage();
   });
 
   it('should display message saying app works', () => {
     page.navigateTo();
-    expect(page.getParagraphText()).toEqual('app works!');
+    expect(page.getParagraphText()).toEqual('icrp works!');
   });
 });

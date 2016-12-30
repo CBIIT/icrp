@@ -62,6 +62,37 @@ export class UiChartComponent implements OnChanges, AfterViewInit {
 
 
   queryAnalytics() {
+    
+    let res = this.queryServerAnalytics(this.searchParam, this.group);
+    new PieChart().draw(this.svg.nativeElement, res);
+
+
+  }
+  
+  queryServerAnalytics(parameters: Object, group: string) {
+    let res = [];
+
+    if (group === 'country') {
+      res = [{"value":50287,"label":"US"},{"value":13650,"label":"CA"},{"value":9630,"label":"GB"},{"value":685,"label":"NL"},{"value":661,"label":"AU"},{"value":551,"label":"FR"},{"value":98,"label":"JP"}]
+    }
+
+
+    if (group === 'cso_code') {
+      res = [{"value":33268,"label":"Biology"},{"value":23421,"label":"Treatment"},{"value":14436,"label":"Early Detection, Diagnosis, and Prognosis"},{"value":14035,"label":"Causes of Cancer/Etiology"},{"value":11273,"label":"Cancer Control, Survivorship and Outcomes Research"},{"value":6342,"label":"Prevention"},{"value":327,"label":"Uncoded"},{"value":2,"label":"Scientific Model Systems"}]
+    }
+
+
+    if (group === 'cancer_type_id') {
+      res = [{"value":20846,"label":"Breast Cancer"},{"value":18521,"label":"Not Site-Specific Cancer"},{"value":8713,"label":"Gastrointestinal Tract"},{"value":8478,"label":"Prostate Cancer"},{"value":8080,"label":"Genital System, Male"},{"value":7408,"label":"Blood Cancer"},{"value":5434,"label":"Colon and Rectal Cancer"},{"value":5330,"label":"Lung Cancer"},{"value":5241,"label":"Leukemia / Leukaemia"},{"value":4831,"label":"Respiratory System"}]
+    }
+    
+
+    return res;
+  }
+  
+
+/*  
+  queryAnalyticsOld() {
     console.log('CREATING CHART WITH', this.searchParam, this.group)
 
     this.queryServerAnalytics(this.searchParam, this.group).subscribe(
@@ -76,9 +107,11 @@ export class UiChartComponent implements OnChanges, AfterViewInit {
       }
     )
   }
+
   
 
-  queryServerAnalytics(parameters: Object, group: string): Observable<any[]> {
+
+  oldqueryServerAnalytics(parameters: Object, group: string): Observable<any[]> {
     let endpoint = `http://localhost/drupal/db_search_api/public_analytics/${group}`;
     let params = new URLSearchParams();
 
@@ -92,5 +125,5 @@ export class UiChartComponent implements OnChanges, AfterViewInit {
     
   }
 
-
+*/
 }

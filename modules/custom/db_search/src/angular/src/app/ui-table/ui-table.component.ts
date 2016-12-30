@@ -30,8 +30,8 @@ export class UiTableComponent implements OnChanges {
   @Input() numResults: number;
   @Input() pageSizes: number[];
 
-  @Output() sort: EventEmitter<{ "column": string, "type": "asc" | "desc" }>;
-  @Output() paginate: EventEmitter<{ "size":number, "offset":number }>;
+  @Output() sort: EventEmitter<{ "sort_column": string, "sort_type": "asc" | "desc" }>;
+  @Output() paginate: EventEmitter<{ "page_size":number, "page_number":number }>;
 
   @ViewChild('thead') thead: ElementRef;
   @ViewChild('tbody') tbody: ElementRef;
@@ -50,8 +50,8 @@ export class UiTableComponent implements OnChanges {
     this.loading = true;
     this.pageOffset = 0;
 
-    this.sort = new EventEmitter<{ "column": string, "type": "asc" | "desc" }>();
-    this.paginate = new EventEmitter<{ "size":number, "offset":number }>();
+    this.sort = new EventEmitter<{ "sort_column": string, "sort_type": "asc" | "desc" }>();
+    this.paginate = new EventEmitter<{ "page_size":number, "page_number":number }>();
   }
 
   ngAfterViewInit() {
@@ -74,8 +74,8 @@ export class UiTableComponent implements OnChanges {
     let size = this.pageSize;
 
     this.paginate.emit({
-      size: size,
-      offset: (offset - 1) * size
+      page_size: size,
+      page_number: offset
     })
   }
 
@@ -102,8 +102,8 @@ export class UiTableComponent implements OnChanges {
           column.sort = (column.sort === 'asc') ? 'desc' : 'asc';
           this.drawTableHeader(columns);
           this.sort.emit({
-            column: column.value,
-            type: column.sort
+            sort_column: column.value,
+            sort_type: column.sort
           })
         }
       )
@@ -195,13 +195,7 @@ export class UiTableComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-
-    console.log('CHANGES', changes);
-    console.log('col ', this.columns)
-    console.log('data ', this.data)
-    
     this.pageSize = this.pageSizes[0];
-
     this.drawTable(this.columns, this.data);
     
     if (changes['columns'])
