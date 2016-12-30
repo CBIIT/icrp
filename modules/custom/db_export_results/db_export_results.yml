@@ -1,0 +1,6 @@
+name: ICRP Export Search Results
+description: Provides a route for exporting search results at /ExportResults/[parameters]
+package: ICRP Modules
+type: module
+version: 0.1
+core: 8.x
