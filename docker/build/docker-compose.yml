@@ -1,24 +1,25 @@
 version: '2' 
-services: 
-  web: 
+services:
+  web:
     build: .
     depends_on:
      - db
-    links: 
+    links:
      - db
-    ports: 
-     - "8000:80"
-    volumes: 
+    ports:
+     - "80"
+     - "9000"
+    volumes:
      - ./drupal:/var/www/html
 
-  db: 
-    image: "mysql:latest"
-    expose: 
+  db:
+    image:"mysql:latest"
+    expose:
      - "3306"
-    ports: 
+    ports:
      - "3307:3306"
-    environment: 
+    environment:
      - MYSQL_ROOT_PASSWORD=temp-password
-    volumes: 
-     - ./mysql:/var/lib/mysql
-
+    volumes:
+     - mysql:/var/lib/mysql
+     - ./icrp.sql:/tmp/icrp.sql

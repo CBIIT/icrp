@@ -96,5 +96,11 @@ RUN curl https://getcomposer.org/download/1.3.0/composer.phar -o /usr/local/bin/
  && chmod 775 /var/www/html
 
 EXPOSE 80
+EXPOSE 9000
 
-CMD ["/usr/sbin/httpd", "-k", "start", "-DFOREGROUND"]
+COPY "./entrypoint.sh" "/usr/bin/entrypoint.sh"
+
+RUN chmod 755 /usr/bin/entrypoint.sh \
+ && ln -s /usr/bin/entrypoint.sh /entrypoint.sh
+
+CMD ["entrypoint.sh"]
