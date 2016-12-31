@@ -1,0 +1,24 @@
+version: '2' 
+services: 
+  web: 
+    build: .
+    depends_on:
+     - db
+    links: 
+     - db
+    ports: 
+     - "8000:80"
+    volumes: 
+     - ./drupal:/var/www/html
+
+  db: 
+    image: "mysql:latest"
+    expose: 
+     - "3306"
+    ports: 
+     - "3307:3306"
+    environment: 
+     - MYSQL_ROOT_PASSWORD=temp-password
+    volumes: 
+     - ./mysql:/var/lib/mysql
+
