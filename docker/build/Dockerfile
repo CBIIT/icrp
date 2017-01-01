@@ -42,6 +42,12 @@ RUN curl https://packages.microsoft.com/config/rhel/7/prod.repo > /etc/yum.repos
  && pecl install pdo_sqlsrv
 
 RUN { \
+    echo "RewriteEngine On"                                    ; \
+    echo "RewriteCond %{HTTPS} off"                            ; \
+    echo "RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URL}" ; \
+} | tee "/etc/httpd/conf.d/rewrite-https.conf"
+
+RUN { \
     echo "ServerName localhost"                            ; \
     echo "ServerSignature Off"                             ; \
     echo "ServerTokens Prod"                               ; \
@@ -96,6 +102,7 @@ RUN curl https://getcomposer.org/download/1.3.0/composer.phar -o /usr/local/bin/
  && chmod 775 /var/www/html
 
 EXPOSE 80
+EXPOSE 443
 EXPOSE 9000
 
 COPY "./entrypoint.sh" "/usr/bin/entrypoint.sh"
