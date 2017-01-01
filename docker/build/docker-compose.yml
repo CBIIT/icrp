@@ -22,10 +22,10 @@ services:
     ports:
      - "3307:3306"
     environment:
-     - MYSQL_ROOT_PASSWORD=temporary-password
+     - MYSQL_ROOT_PASSWORD=temporary-root-password
      - MYSQL_DATABASE=drupal
      - MYSQL_USER=drupal
-     - MYSQL_PASSWORD=temporary-drupal-password
+     - MYSQL_PASSWORD=drupal
     volumes:
      - /var/lib/mysql
      - ./icrp.sql:/tmp/icrp.sql
