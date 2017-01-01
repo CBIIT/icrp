@@ -48,25 +48,25 @@ RUN { \
 } | tee "/etc/httpd/conf.d/rewrite-https.conf"
 
 RUN { \
-    echo "ServerName localhost"                            ; \
-    echo "ServerSignature Off"                             ; \
-    echo "ServerTokens Prod"                               ; \
-    echo "TraceEnable Off"                                 ; \
-    echo "Header always append X-Frame-Options SAMEORIGIN" ; \
-    echo "Header set X-XSS-Protection \"1; mode=block\""   ; \
-    echo                                                   ; \
-    echo "AccessFileName .htaccess"                        ; \
-    echo "DirectoryIndex disabled"                         ; \
-    echo "DirectoryIndex index.php index.html"             ; \
-    echo                                                   ; \
-    echo "<FilesMatch \.php$>"                             ; \
-    echo "    SetHandler application/x-httpd-php"          ; \
-    echo "</FilesMatch>"                                   ; \
-    echo                                                   ; \
-    echo "<Directory /var/www/html/>"                      ; \
-    echo "    Options -Indexes"                            ; \
-    echo "    AllowOverride All"                           ; \
-    echo "</Directory>"                                    ; \
+    echo "ServerName localhost"                                ; \
+    echo "ServerSignature Off"                                 ; \
+    echo "ServerTokens Prod"                                   ; \
+    echo "TraceEnable Off"                                     ; \
+    echo "Header always append X-Frame-Options SAMEORIGIN"     ; \
+    echo "Header set X-XSS-Protection \"1; mode=block\""       ; \
+    echo                                                       ; \
+    echo "AccessFileName .htaccess"                            ; \
+    echo "DirectoryIndex disabled"                             ; \
+    echo "DirectoryIndex index.php index.html"                 ; \
+    echo                                                       ; \
+    echo "<FilesMatch \.php$>"                                 ; \
+    echo "    SetHandler application/x-httpd-php"              ; \
+    echo "</FilesMatch>"                                       ; \
+    echo                                                       ; \
+    echo "<Directory /var/www/html/>"                          ; \
+    echo "    Options -Indexes"                                ; \
+    echo "    AllowOverride All"                               ; \
+    echo "</Directory>"                                        ; \
 } | tee "/etc/httpd/conf.d/docker-php.conf"
 
 RUN { \
@@ -87,12 +87,12 @@ RUN { \
 
 RUN { \
     echo "[sqlsrv]"                           ; \
-    echo "extension = sqlsrv.so" ; \
+    echo "extension = sqlsrv.so"              ; \
 } | tee "/etc/php.d/sqlsrv.ini"
 
 RUN { \
-    echo "[pdo_sqlsrv]"                           ; \
-    echo "extension = pdo_sqlsrv.so" ; \
+    echo "[pdo_sqlsrv]"                       ; \
+    echo "extension = pdo_sqlsrv.so"          ; \
 } | tee "/etc/php.d/pdo_sqlsrv.ini"
 
 RUN curl https://getcomposer.org/download/1.3.0/composer.phar -o /usr/local/bin/composer \
