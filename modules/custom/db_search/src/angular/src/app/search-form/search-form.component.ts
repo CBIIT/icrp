@@ -25,7 +25,24 @@ import { SearchFields } from './search-form.fields';
 export class SearchFormComponent implements OnInit {
 
   @Output()
-  search: EventEmitter<Object>;
+  search: EventEmitter<{
+    search_terms?: string,
+    years?: string,
+    
+    institution?: string,
+    pi_first_name?: string,
+    pi_orcid?: string,
+    award_code?: string,
+
+    countries?: string,
+    states?: string,
+    cities?: string,
+
+    funding_organizations?: string,
+    cancer_types?: string,
+    project_types?: string,
+    cso_codes?: string
+  }>;
 
   form: FormGroup;
 
@@ -43,9 +60,6 @@ export class SearchFormComponent implements OnInit {
     "cso_research_areas":     { "value": string, "label": string }[],
   };
 
-  /** Controls which sections are currently visible (todo: replace with accordion) */
-  displaySection: boolean[];
-
   constructor(
     @Inject(FormBuilder)
     fb: FormBuilder) {
@@ -54,7 +68,7 @@ export class SearchFormComponent implements OnInit {
 
     this.form = fb.group({
       search_terms: [''],
-      search_term_filter: ['all'],
+      search_type: ['all'],
       years: [''],
       institution: [''],
       pi_first_name: [''],
@@ -64,31 +78,23 @@ export class SearchFormComponent implements OnInit {
       countries: [''],
       states: [''],
       cities: [''],
-      currency: [''],
       funding_organizations: [''],
       cancer_types: [''],
       project_types: [''],
-      cso_research_areas: [''],
+      cso_codes: [''],
     })
 
     // initialize locations
     this.searchFields = new SearchFields();
     this.initializeFields();
-
-    // initialize accordion
-    this.displaySection = [];
-    for (let i = 0; i < 5; i++)
-      this.displaySection.push(false);
-    this.displaySection[0] = true;
   }
-
 
   submit() {
 
     let parameters = {
 
       search_terms: this.form.controls['search_terms'].value,
-      search_type: this.form.controls['search_term_filter'].value,
+      search_type: this.form.controls['search_type'].value,
       years: this.form.controls['years'].value,
 
       institution: this.form.controls['institution'].value,
@@ -104,18 +110,21 @@ export class SearchFormComponent implements OnInit {
       funding_organizations: this.form.controls['funding_organizations'].value,
       cancer_types: this.form.controls['cancer_types'].value,
       project_types: this.form.controls['project_types'].value,
-      cso_codes: this.form.controls['cso_research_areas'].value,
+      cso_codes: this.form.controls['cso_codes'].value,
     };
 
+    // remove unused parameters
+    delete parameters['years'];
+
     for (let key in parameters) {
-      if (!parameters[key]) {
+      if (!parameters[key] || parameters[key].length === 0) {
         delete parameters[key];
       }
     }
 
-    if (!parameters['search_terms'] || !parameters['search_term_filter']) {
+    if (!parameters['search_terms'] || !parameters['search_type']) {
       delete parameters['search_terms'];
-      delete parameters['search_term_filter'];
+      delete parameters['search_type'];
     }
 
     this.search.emit(parameters)
@@ -138,8 +147,6 @@ export class SearchFormComponent implements OnInit {
   updateLocationSearch() {
     console.log('UPDATING SEARCH LOCATION', this.form.controls['countries'].value);
   }  
-
-
 
 
 /*
@@ -165,10 +172,6 @@ export class SearchFormComponent implements OnInit {
     }
   }*/
 
-
-  toggleSection(index: number) {
-    this.displaySection[index] = !this.displaySection[index];
-  }
 
   
 

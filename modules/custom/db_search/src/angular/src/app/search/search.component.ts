@@ -95,19 +95,16 @@ export class SearchComponent implements OnInit, AfterViewInit {
   
 
   queryServer(parameters: Object): Observable<any[]> {
-    let endpoint = 'https://icrpartnership-test.org/db/public/search';
-    endpoint = 'http://localhost:10000/db/public/search';
-    
+    let endpoint = 'https://icrpartnership-demo.org/db/public/search';
     let params = new URLSearchParams();
 
-
-    console.log('CURRENT SEARCH PARAMETERS', parameters);
-    
     if (!parameters['page_size'] || !parameters['page_number']) {
       parameters['page_size'] = 50;
       parameters['page_number'] = 1;
     }
-    
+
+    console.log('setting parameters', parameters);
+
     for (let key of Object.keys(parameters)) {
       params.set(key, parameters[key]);
     }
