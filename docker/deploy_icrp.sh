@@ -126,13 +126,16 @@ popd
 ## wait until mysql container is ready
 ## while [ $(tail -n1 $temp_folder/log | grep -v "mysqld.sock") ]; do sleep 2; done
 echo "sleeping"
-sleep 10
+sleep 15
 
 ## import drupal database
 echo -e "Importing icrp database...\n"
-docker exec $mysql_container bash -c "mysql -udrupal -pdrupal -e 'drop database drupal'"
-docker exec $mysql_container bash -c "mysql -udrupal -pdrupal -e 'create database drupal'"
+docker exec $mysql_container bash -c "mysqladmin -udrupal -pdrupal -f drop drupal"
+sleep 1
+docker exec $mysql_container bash -c "mysqladmin -udrupal -pdrupal -f create drupal"
+sleep 1
 docker exec $mysql_container bash -c "mysql -udrupal -pdrupal drupal < /tmp/icrp.sql"
+sleep 2
 
 ## rebuild drupal cache
 echo -e "Rebuilding cache...\n"
