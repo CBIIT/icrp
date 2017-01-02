@@ -97,7 +97,7 @@ class DatabaseSearchAPIController extends ControllerBase {
   * Creates a PDO prepared statement for searching projects
   * @param $pdo - The PDO connection oject
   * @param $parameters - An associative array containing 
-  * parameters to bind to the statement (from parse_input())
+  * parameters to bind to the statement
   */
   function create_prepared_statement($pdo, $parameters) {
     $stmt_conditions = [];
@@ -129,6 +129,9 @@ class DatabaseSearchAPIController extends ControllerBase {
     }
   }
 
+  /**
+  * Retrieves valid field values to be used as query parameters
+  */
   function query_form_fields() {
     $pdo = self::get_connection();
 
@@ -153,13 +156,20 @@ class DatabaseSearchAPIController extends ControllerBase {
       'cso_research_areas'    => 'SELECT Code AS [value], Name AS [label], CategoryName AS [group], \'All Areas\' as [supergroup] FROM CSO',
     ];
 
+    // map query results to field values
     foreach (array_keys($queries) as $key) {
       $stmt = $queries[$key];
       $fields[$key] = (array) $pdo->query($stmt)->fetchAll();
     }
 
+    // create year ranges from current year to 2000
     foreach(range(intval(date('Y')), 2000) as $year) {
       array_push($fields['years'], ['value' => $year, 'label' => (string) $year]); 
+    }
+
+    // set 'Uncoded' as the last entry in cso_research_areas
+    if ($fields['cso_research_areas'][0]['value'] == '0') {
+      array_push($fields['cso_research_areas'], array_shift($fields['cso_research_areas']));
     }
 
     return $fields;
@@ -195,8 +205,7 @@ class DatabaseSearchAPIController extends ControllerBase {
 
   /**
   * Aggregates unique values from each column
-  * @param $parameters - An associative array containing 
-  * search parameters  (from parse_input())
+  * @param $parameters - An associative array containing search parameters
   */
   function count_database_groups($parameters) {
     $pdo = self::get_connection();
@@ -271,7 +280,7 @@ class DatabaseSearchAPIController extends ControllerBase {
 
   /**
   * Extracts valid fields from a request object
-  * and maps them to sql parameters
+  * and maps them to query parameters
   */
   public function map_fields(Request $request) {
     $fields = [];
@@ -302,7 +311,7 @@ class DatabaseSearchAPIController extends ControllerBase {
         // retrieve the mapped field value
         $mapped_field = self::$parameter_mappings[$field];
         
-        // apply mapping to values in sort_column
+        // apply mapping to values in the sort_column field
         if ($field == 'sort_column') {
             $mapped_value = self::$sort_column_mappings[$value];
             if ($mapped_value) {
