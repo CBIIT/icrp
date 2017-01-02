@@ -2,28 +2,28 @@
 
 db_search_api.public.search:
   path: '/db/public/search'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\DbSearchApiController::publicSearch' }
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::public_search' }
   methods:  [GET]
   requirements:
     _access: 'TRUE'
 
 db_search_api.public.analytics:
   path: '/db/public/analytics'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\DbSearchApiController::publicAnalytics' }
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::public_analytics' }
   methods:  [GET]
   requirements:
     _access: 'TRUE'
 
 db_search_api.partner.search:
   path: '/db/partner/search'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\DbSearchApiController::partnerSearch' }
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::partner_search' }
   methods:  [GET]
   requirements:
     _access: 'TRUE'
 
 db_search_api.partner.analytics:
   path: '/db/partner/analytics'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\DbSearchApiController::partnerAnalytics' }
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::partner_analytics' }
   methods:  [GET]
   requirements:
     _access: 'TRUE'
