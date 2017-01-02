@@ -19,41 +19,40 @@ use PDO;
  */
 class DatabaseSearchAPIController extends ControllerBase {
 
-  private static $connection_ini = "connection.ini";
+  private static $connection_ini = 'connection.ini';
 
-  private static $parameter_mappings = array(
-    'page_size' => 'PageSize',
-    'page_number' => 'PageNumber',
-    'sort_column' => 'SortCol',
-    'sort_type' => 'SortDirection',
-    'search_terms' => 'terms',
-    'search_type' => 'termSearchType',
-    'years' => NULL,
-    'institution' => 'institution',
-    'pi_first_name' => 'piFirstName',
-    'pi_last_name' => 'piLastName',
-    'pi_orcid' => 'piORCiD' ,
-    'award_code' => 'awardCode',
-    'countries' => 'countryList',
-    'states' => 'stateList',
-    'cities' => 'cityList',
+  private static $parameter_mappings = [
+    'page_size'             => 'PageSize',
+    'page_number'           => 'PageNumber',
+    'sort_column'           => 'SortCol',
+    'sort_type'             => 'SortDirection',
+    'search_terms'          => 'terms',
+    'search_type'           => 'termSearchType',
+    'years'                 => '',
+    'institution'           => 'institution',
+    'pi_first_name'         => 'piFirstName',
+    'pi_last_name'          => 'piLastName',
+    'pi_orcid'              => 'piORCiD',
+    'award_code'            => 'awardCode',
+    'countries'             => 'countryList',
+    'states'                => 'stateList',
+    'cities'                => 'cityList',
     'funding_organizations' => 'fundingOrgList',
-    'cancer_types' => 'cancerTypeList',
-    'project_types' => 'projectTypeList',
-    'cso_codes' => 'CSOList'
-  );
+    'cancer_types'          => 'cancerTypeList',
+    'project_types'         => 'projectTypeList',
+    'cso_research_areas'    => 'CSOList'
+  ];
 
-  private static $sort_column_mappings = array(
-    'project_title' => 'title',
-    'pi_name' => 'pi',
-    'institution' => 'Inst',
-    'city' => '',
-    'state' => '',
-    'country' => '',
-    'funding_organization' => 'FO',
-    'award_code' => 'code'
-  );
-
+  private static $sort_column_mappings = [
+    'project_title'         => 'title',
+    'pi_name'               => 'pi',
+    'institution'           => 'Inst',
+    'city'                  => '',
+    'state'                 => '',
+    'country'               => '',
+    'funding_organization'  => 'FO',
+    'award_code'            => 'code'
+  ];
 
   /**
    * Returns a PDO connection to a database
@@ -72,13 +71,13 @@ class DatabaseSearchAPIController extends ControllerBase {
     $cfg = parse_ini_file(self::$connection_ini);
 
     // connection string
-    $cfg['dsn'] =
+    $cfg['data_source'] =
       $cfg['driver'] .
-      ":Server="    . $cfg['server'] . ',' . $cfg['port'] .
-      ";Database="  . $cfg['database'];
+      ":Server={$cfg['server']},{$cfg['port']}" .
+      ";Database={$cfg['database']}";
 
     // default configuration options
-    $cfg['opt'] = [
+    $cfg['options'] = [
       PDO::SQLSRV_ATTR_ENCODING    => PDO::SQLSRV_ENCODING_UTF8,
       PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
       PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -87,10 +86,10 @@ class DatabaseSearchAPIController extends ControllerBase {
 
     // create new PDO object
     return new PDO(
-      $cfg['dsn'],
+      $cfg['data_source'],
       $cfg['username'],
       $cfg['password'],
-      $cfg['opt']
+      $cfg['options']
     );
   }
 
@@ -101,18 +100,18 @@ class DatabaseSearchAPIController extends ControllerBase {
   * parameters to bind to the statement (from parse_input())
   */
   function create_prepared_statement($pdo, $parameters) {
-    $stmt_conditions = array();
-    $stmt_parameters = array();
+    $stmt_conditions = [];
+    $stmt_parameters = [];
 
     foreach (array_keys($parameters) as $key) {
-      $query_key = ":".$key;
-      $param_key = "@".$key;
+      $query_key = ":$key";
+      $param_key = "@$key";
 
       $stmt_parameters[$query_key] = $parameters[$key];
-      array_push($stmt_conditions, $param_key."=".$query_key);
+      array_push($stmt_conditions, "{$param_key}={$query_key}");
     }
 
-    $stmt = $pdo->prepare("SET NOCOUNT ON; EXECUTE GetProjects " . implode(",", $stmt_conditions));
+    $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE GetProjects ' . implode(',', $stmt_conditions));
     self::bind_parameters($stmt, $stmt_parameters);
 
     return $stmt;
@@ -125,19 +124,47 @@ class DatabaseSearchAPIController extends ControllerBase {
   * parameters to bind to the statement
   */
   function bind_parameters($stmt, $param) {
-    
    foreach (array_keys($param) as $key) {
-
-      // convert sort_column using mappings
-      if ($key == ":".self::$parameter_mappings['sort_column']) {
-        $value = self::$sort_column_mappings[$param[$key]];
-        $stmt->bindParam($key, $value);
-      } else {
-        $stmt->bindParam($key, $param[$key]);
-      }
+      $stmt->bindParam($key, $param[$key]);
     }
   }
-  
+
+  function query_form_fields() {
+    $pdo = self::get_connection();
+
+    $fields = [
+      'years'                 => [],
+      'cities'                => [],
+      'states'                => [],
+      'countries'             => [],
+      'funding_organizations' => [],
+      'cancer_types'          => [],
+      'project_types'         => [],
+      'cso_research_areas'    => [],
+    ];
+
+    $queries = [
+      'cities'                => 'SELECT DISTINCT City AS [value], City AS [label], State AS [group], Country AS [supergroup] FROM Institution WHERE len(City) > 0 ORDER BY [label]',
+      'states'                => 'SELECT Abbreviation AS [value], Name AS [label], Country AS [group] FROM State ORDER BY [label]',
+      'countries'             => 'SELECT Abbreviation AS [value], Name AS [label] FROM Country ORDER BY [label]',
+      'funding_organizations' => 'SELECT FundingOrgID AS [value], Name AS [label], SponsorCode AS [group], Country AS [supergroup] from FundingOrg',
+      'cancer_types'          => 'SELECT Mapped_ID AS [value], Name AS [label] FROM CancerType ORDER BY [value]',
+      'project_types'         => 'SELECT ProjectType AS [value], ProjectType AS [label] FROM ProjectType',
+      'cso_research_areas'    => 'SELECT Code AS [value], Name AS [label], CategoryName AS [group], \'All Areas\' as [supergroup] FROM CSO',
+    ];
+
+    foreach (array_keys($queries) as $key) {
+      $stmt = $queries[$key];
+      $fields[$key] = (array) $pdo->query($stmt)->fetchAll();
+    }
+
+    foreach(range(intval(date('Y')), 2000) as $year) {
+      array_push($fields['years'], ['value' => $year, 'label' => (string) $year]); 
+    }
+
+    return $fields;
+  }
+
   /**
   * Queries the database for projects
   * @param $parameters - An associative array of parameters
@@ -145,29 +172,25 @@ class DatabaseSearchAPIController extends ControllerBase {
   function search_database($parameters) {
     $pdo = self::get_connection();
     $stmt = self::create_prepared_statement($pdo, $parameters);
+    $results = [];
+
     if ($stmt->execute()) {
-      $rows = array();
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-
-        $result = array(
-          'project_id' => $row['ProjectID'],
-          'project_title' => $row['Title'],
-          'pi_name' => $row['piLastName'].", ".$row['piFirstName'],
-          'institution' => $row['institution'],
-          'city' => $row['City'],
-          'state' => $row['State'],
-          'country' => $row['country'],
-          'funding_organization' => $row['FundingOrg'],
-          'award_code' => $row['AwardCode']
-        );
-
-        array_push($rows, $result);
+        array_push($results, [
+          'project_id'            => $row['ProjectID'],
+          'project_title'         => $row['Title'],
+          'pi_name'               => $row['piLastName'].", ".$row['piFirstName'],
+          'institution'           => $row['institution'],
+          'city'                  => $row['City'],
+          'state'                 => $row['State'],
+          'country'               => $row['country'],
+          'funding_organization'  => $row['FundingOrg'],
+          'award_code'            => $row['AwardCode']
+        ]);
       }
-
-      return $rows;
     }
 
-    return array("No results found");
+    return $results;
   }
 
   /**
@@ -178,15 +201,15 @@ class DatabaseSearchAPIController extends ControllerBase {
   function count_database_groups($parameters) {
     $pdo = self::get_connection();
 
-    $groups = array(
+    $groups = [
       'count' => 0,
-      'projects_by_country' => array(),
-      'projects_by_cso_category' => array(),
-      'projects_by_cancer_type' => array(),
-      'projects_by_type' => array()
-    );
+      'projects_by_country' => [],
+      'projects_by_cso_category' => [],
+      'projects_by_cancer_type' => [],
+      'projects_by_type' => []
+    ];
 
-    foreach (array('PageSize', 'PageNumber', 'SortCol', 'SortDirection') as $key) {
+    foreach (['PageSize', 'PageNumber', 'SortCol', 'SortDirection'] as $key) {
       if (isset($parameters[$key])) {
         unset($parameters[$key]);
       }
@@ -250,9 +273,9 @@ class DatabaseSearchAPIController extends ControllerBase {
   * Extracts valid fields from a request object
   * and maps them to sql parameters
   */
-  public function get_fields(Request $request) {
-    $fields = array();
-    foreach(array(
+  public function map_fields(Request $request) {
+    $fields = [];
+    foreach([
       'page_size',
       'page_number',
       'sort_column',
@@ -272,7 +295,7 @@ class DatabaseSearchAPIController extends ControllerBase {
       'cancer_types',
       'project_types',
       'cso_codes'
-    ) as $field) {
+    ] as $field) {
       $value = $request->query->get($field);
       if ($value) {
 
@@ -300,8 +323,16 @@ class DatabaseSearchAPIController extends ControllerBase {
   /**
    * Callback for `db/public/search/` API method.
    */
+  public function public_form_fields() {
+    $response = new JSONResponse( self::query_form_fields() );
+    return self::add_cors_headers($response);
+  }
+
+  /**
+   * Callback for `db/public/search/` API method.
+   */
   public function public_search( Request $request ) {
-    $param = self::get_fields($request);
+    $param = self::map_fields($request);
     $response = new JSONResponse( self::search_database($param) );
     return self::add_cors_headers($response);
   }
@@ -310,7 +341,7 @@ class DatabaseSearchAPIController extends ControllerBase {
    * Callback for `db/public/analytics/` API method.
    */
   public function public_analytics( Request $request ) {
-    $param = self::get_fields($request);
+    $param = self::map_fields($request);
     $response = new JSONResponse( self::count_database_groups($param) );
     return self::add_cors_headers($response);
   }
@@ -319,7 +350,7 @@ class DatabaseSearchAPIController extends ControllerBase {
    * Callback for `db/partner/search/` API method.
    */
   public function partner_search( Request $request ) {
-    $param = self::get_fields($request);
+    $param = self::map_fields($request);
     $response = new JSONResponse( self::search_database($param) );
     return self::add_cors_headers($response);
   }
@@ -328,7 +359,7 @@ class DatabaseSearchAPIController extends ControllerBase {
    * Callback for `db/partner/analytics/` API method.
    */
   public function partner_analytics( Request $request, $type ) {
-    $param = self::get_fields($request);
+    $param = self::map_fields($request);
     $response = new JSONResponse( self::count_database_groups($param) );
     return self::add_cors_headers($response);
   }

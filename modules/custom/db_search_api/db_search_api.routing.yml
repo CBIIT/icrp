@@ -1,5 +1,12 @@
 # Test API endpoints
 
+db_search_api.public.fields:
+  path: '/db/public/fields'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::public_form_fields' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
 db_search_api.public.search:
   path: '/db/public/search'
   defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::public_search' }
