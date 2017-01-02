@@ -19,8 +19,9 @@ use PDO;
  */
 class DbSearchApiController extends ControllerBase {
 
+  private static $connection_ini = "connection.ini";
 
-  private $parameter_mappings = array(
+  private static $parameter_mappings = array(
     'page_size' => 'PageSize',
     'page_number' => 'PageNumber',
     'sort_column' => 'SortCol',
@@ -42,43 +43,61 @@ class DbSearchApiController extends ControllerBase {
     'cso_codes' => 'CSOList'
   );
 
+  private static $sort_column_mappings = array(
+    'project_title' => 'title',
+    'pi_name' => 'pi',
+    'institution' => 'Inst',
+    'city' => '',
+    'state' => '',
+    'country' => '',
+    'funding_organization' => 'FO',
+    'award_code' => 'code'
+  );
+
 
   /**
    * Returns a PDO connection to a database
    * @param $cfg - An associative array containing connection parameters 
-   *   driver:  DB Connector Driver
-   *   host:    Server Name
-   *   dbname:  Database
-   *   user:    Username
-   *   pass:    Password
+   *   driver:    DB Driver
+   *   server:    Server Name
+   *   database:  Database
+   *   user:      Username
+   *   password:  Password
    *
    * @return A PDO connection
    * @throws PDOException
    */
-  function get_connection($cfg) {
+  function get_connection() {
+
+    $cfg = parse_ini_file(self::$connection_ini);
+
     // connection string
-    $cfg['dsn'] = 
+    $cfg['dsn'] =
       $cfg['driver'] .
-      ":host="    . $cfg['host'] .
-      ";dbname="  . $cfg['dbname'] .
-      ";charset=UTF-8";
+      ":Server="    . $cfg['server'] . ',' . $cfg['port'] .
+      ";Database="  . $cfg['database'];
+
     // default configuration options
     $cfg['opt'] = [
+      PDO::SQLSRV_ATTR_ENCODING    => PDO::SQLSRV_ENCODING_UTF8,
       PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
       PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
   //  PDO::ATTR_EMULATE_PREPARES   => false,
     ];
+
     // create new PDO object
     return new PDO(
-      $cfg['dsn'], 
-      $cfg['user'], 
-      $cfg['pass'], 
-      $cfg['opt']);
+      $cfg['dsn'],
+      $cfg['username'],
+      $cfg['password'],
+      $cfg['opt']
+    );
   }
 
+
   /**
-   * Parses user input (json) as an associative array
-   * @param $input - A json string containing query parameters 
+   * Parses user input 
+   * @param $input - An associative array containing query parameters 
    *
    *  page_size
    *  page_number
@@ -103,14 +122,13 @@ class DbSearchApiController extends ControllerBase {
    * @return An array containing mapped parameters
    */  
   function parse_input($input) {
-    $parameter_mappings = $this->parameter_mappings;
-    $user_param = (array) $input;
+    $mappings = self::$parameter_mappings;
     $query_param = array();
 
-    foreach (array_keys($user_param) as $key) {
+    foreach (array_keys($input) as $key) {
       if (array_key_exists($key, $parameter_mappings)) {
         $query_key = $parameter_mappings[$key];
-        $query_param[$query_key] = $user_param[$key];
+        $query_param[$query_key] = $input[$key];
       }
     }
 
@@ -125,11 +143,35 @@ class DbSearchApiController extends ControllerBase {
   */
   function bind_parameters($stmt, $param) {
     foreach (array_keys($param) as $key) {
-      $stmt->bindParam($key, $param[$key]);
+
+      // convert sort_column using mappings
+      if ($key == ":".self::$parameter_mappings['sort_column']) {
+        $value = self::$sort_column_mappings[$param[$key]];
+        $stmt->bindParam($key, $value);
+      } else {
+        $stmt->bindParam($key, $param[$key]);
+      }
     }
   }
 
-  function query_db_group($parameters) {
+  function create_prepared_statement($pdo, $parameters) {
+    $stmt_conditions = array();
+    $stmt_parameters = array();
+
+
+    foreach (array_keys($parameters) as $key) {
+      $query_key = ":".$key;
+      $param_key = "@".$key;
+
+      $stmt_parameters[$query_key] = $parameters[$key];
+      array_push($stmt_conditions, $param_key."=".$query_key);
+    }
+
+    $stmt = $pdo->prepare("SET NOCOUNT ON; EXECUTE GetProjects " . implode(",", $stmt_conditions));
+    self::bind_parameters($stmt, $stmt_parameters);
+  }
+
+  function count_database_groups($parameters) {
 
     $groups = array(
       'count' => 0,
@@ -139,10 +181,9 @@ class DbSearchApiController extends ControllerBase {
       'projects_by_type' => array()
     );
 
-    $pdo = $this->get_connection(parse_ini_file("config.ini"));
+    $pdo = self::get_connection();
     $stmt_conditions = array();
     $stmt_parameters = array();
-
 
     foreach (array('PageSize', 'PageNumber', 'SortCol', 'SortDirection') as $key) {
       if (isset($parameters[$key])) {
@@ -158,9 +199,8 @@ class DbSearchApiController extends ControllerBase {
       array_push($stmt_conditions, $param_key."=".$query_key);
     }
 
-    $stmt = $pdo->prepare("EXECUTE GetProjects " . implode(",", $stmt_conditions));
-    $this->bind_parameters($stmt, $stmt_parameters);
-
+    $stmt = $pdo->prepare("SET NOCOUNT ON; EXECUTE GetProjects " . implode(",", $stmt_conditions));
+    self::bind_parameters($stmt, $stmt_parameters);
 
     if ($stmt->execute()) {
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -208,7 +248,7 @@ class DbSearchApiController extends ControllerBase {
   * @param $parameters - An associative array of parameters
   */
   function query_db($parameters) {
-    $pdo = $this->get_connection(parse_ini_file("config.ini"));
+    $pdo = self::get_connection();
     $stmt_conditions = array();
     $stmt_parameters = array();
 
@@ -221,8 +261,8 @@ class DbSearchApiController extends ControllerBase {
       array_push($stmt_conditions, $param_key."=".$query_key);
     }
 
-    $stmt = $pdo->prepare("EXECUTE GetProjects " . implode(",", $stmt_conditions));
-    $this->bind_parameters($stmt, $stmt_parameters);
+    $stmt = $pdo->prepare("SET NOCOUNT ON; EXECUTE GetProjects " . implode(",", $stmt_conditions));
+    self::bind_parameters($stmt, $stmt_parameters);
 
 
     if ($stmt->execute()) {
@@ -230,10 +270,8 @@ class DbSearchApiController extends ControllerBase {
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
         foreach (array_keys($row) as $key) {
-
           $row[$key] = mb_convert_encoding($row[$key], "UTF-8", mb_detect_encoding($row[$key]));
-//          $row[$key] = json_decode('"'.$row[$key].'"');
-        }
+        } 
 
         $escaped_row = array(
           'project_id' => $row['ProjectID'],
@@ -257,11 +295,11 @@ class DbSearchApiController extends ControllerBase {
   }
 
   function query_search($json) {
-    return $this->query_db($this->parse_input($json));
+    return self::query_db(self::parse_input($json));
   }
 
   function query_group($json) {
-    return $this->query_db_group($this->parse_input($json));
+    return self::count_database_groups(self::parse_input($json));
   }
 
 
@@ -316,11 +354,11 @@ class DbSearchApiController extends ControllerBase {
   }
 
   public function searchDatabase($param) {
-    return $this->query_search($param);
+    return self::query_search($param);
   }
 
   public function countGroups($param) {
-    return $this->query_group($param);
+    return self::query_group($param);
   }
 
   /**
