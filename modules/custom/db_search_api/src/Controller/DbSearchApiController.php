@@ -122,7 +122,7 @@ class DbSearchApiController extends ControllerBase {
    * @return An array containing mapped parameters
    */  
   function parse_input($input) {
-    $mappings = self::$parameter_mappings;
+    $parameter_mappings = self::$parameter_mappings;
     $query_param = array();
 
     foreach (array_keys($input) as $key) {
@@ -142,7 +142,8 @@ class DbSearchApiController extends ControllerBase {
   * parameters to bind to the statement
   */
   function bind_parameters($stmt, $param) {
-    foreach (array_keys($param) as $key) {
+    
+   foreach (array_keys($param) as $key) {
 
       // convert sort_column using mappings
       if ($key == ":".self::$parameter_mappings['sort_column']) {
@@ -158,7 +159,6 @@ class DbSearchApiController extends ControllerBase {
     $stmt_conditions = array();
     $stmt_parameters = array();
 
-
     foreach (array_keys($parameters) as $key) {
       $query_key = ":".$key;
       $param_key = "@".$key;
@@ -169,6 +169,8 @@ class DbSearchApiController extends ControllerBase {
 
     $stmt = $pdo->prepare("SET NOCOUNT ON; EXECUTE GetProjects " . implode(",", $stmt_conditions));
     self::bind_parameters($stmt, $stmt_parameters);
+
+    return $stmt;
   }
 
   function count_database_groups($parameters) {
@@ -182,8 +184,6 @@ class DbSearchApiController extends ControllerBase {
     );
 
     $pdo = self::get_connection();
-    $stmt_conditions = array();
-    $stmt_parameters = array();
 
     foreach (array('PageSize', 'PageNumber', 'SortCol', 'SortDirection') as $key) {
       if (isset($parameters[$key])) {
@@ -191,17 +191,7 @@ class DbSearchApiController extends ControllerBase {
       }
     }
 
-    foreach (array_keys($parameters) as $key) {
-      $query_key = ":".$key;
-      $param_key = "@".$key;
-
-      $stmt_parameters[$query_key] = $parameters[$key];
-      array_push($stmt_conditions, $param_key."=".$query_key);
-    }
-
-    $stmt = $pdo->prepare("SET NOCOUNT ON; EXECUTE GetProjects " . implode(",", $stmt_conditions));
-    self::bind_parameters($stmt, $stmt_parameters);
-
+    $stmt = self::create_prepared_statement($pdo, $parameters);
     if ($stmt->execute()) {
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
@@ -249,31 +239,12 @@ class DbSearchApiController extends ControllerBase {
   */
   function query_db($parameters) {
     $pdo = self::get_connection();
-    $stmt_conditions = array();
-    $stmt_parameters = array();
-
-
-    foreach (array_keys($parameters) as $key) {
-      $query_key = ":".$key;
-      $param_key = "@".$key;
-
-      $stmt_parameters[$query_key] = $parameters[$key];
-      array_push($stmt_conditions, $param_key."=".$query_key);
-    }
-
-    $stmt = $pdo->prepare("SET NOCOUNT ON; EXECUTE GetProjects " . implode(",", $stmt_conditions));
-    self::bind_parameters($stmt, $stmt_parameters);
-
-
+    $stmt = self::create_prepared_statement($pdo, $parameters);
     if ($stmt->execute()) {
       $rows = array();
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
-        foreach (array_keys($row) as $key) {
-          $row[$key] = mb_convert_encoding($row[$key], "UTF-8", mb_detect_encoding($row[$key]));
-        } 
-
-        $escaped_row = array(
+        $result = array(
           'project_id' => $row['ProjectID'],
           'project_title' => $row['Title'],
           'pi_name' => $row['piLastName'].", ".$row['piFirstName'],
@@ -285,7 +256,7 @@ class DbSearchApiController extends ControllerBase {
           'award_code' => $row['AwardCode']
         );
 
-        array_push($rows, $escaped_row);
+        array_push($rows, $result);
       }
 
       return $rows;
@@ -367,12 +338,6 @@ class DbSearchApiController extends ControllerBase {
   public function publicSearch( Request $request ) {
     $param = self::getFields($request);
     $response = new JSONResponse( self::searchDatabase($param) );
-//    $response = new Response( print_r(self::searchDatabase($param)) );
-
-//    $response = new Response( print_r(json_encode(self::searchDatabase($param), JSON_UNESCAPED_UNICODE)) );
-//    $reponse->headers->set('Content-Type', 'application/json');
-//    $response = new JSONResponse( $param );
-
     return self::addCorsHeaders($response);
   }
 
