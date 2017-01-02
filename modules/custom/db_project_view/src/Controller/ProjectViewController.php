@@ -10,63 +10,150 @@ use PDO;
 
 class ProjectViewController extends ControllerBase {
 
-  public function getProjectCancerTypes($connection, $projectID) {
-    return $connection->query(
-      "CALL GetProjectCancerTypes(:projectID)", 
-      array(':projectID' => $projectID)
-    )->fetchAll(PDO::FETCH_ASSOC);
-  }
 
-  public function getProjectCSOAreas($connection, $projectID) {
-    return $connection->query(
-      "CALL GetProjectCSOCodes(:projectID)", 
-      array(':projectID' => $projectID)
-    )->fetchAll(PDO::FETCH_ASSOC);
-  }
+  private static $connection_ini = 'connection.ini';
 
-  public function getProjectInfo($projectID) {
-    $connection = Database::getConnection('default', 'projects');
+  /**
+   * Returns a PDO connection to a database
+   * @param $cfg - An associative array containing connection parameters 
+   *   driver:    DB Driver
+   *   server:    Server Name
+   *   database:  Database
+   *   user:      Username
+   *   password:  Password
+   *
+   * @return A PDO connection
+   * @throws PDOException
+   */
+  function get_connection() {
 
-    $results = array(
-      'project_title' => array(),
-      'principal_investigator' => array(),
-      'institution' => array(),
-      'city' => array(),
-      'state' => array(),
-      'country' => array(),
-      'award_code' => array(),
-      'funding_organization' => array(),
-      'budget_start_date' => array(),
-      'budget_end_date' => array(),
-      'project_start_date' => array(),
-      'project_end_date' => array(),
-      'funding_mechanism' => array(),
-      'technical_abstract' => array(),
-      'public_abstract' => array(),
-      'cancer_types' => array(),
-      'cso_areas' => array()
+    $cfg = parse_ini_file(self::$connection_ini);
+
+    // connection string
+    $cfg['data_source'] =
+      $cfg['driver'] .
+      ":Server={$cfg['server']},{$cfg['port']}" .
+      ";Database={$cfg['database']}";
+
+    // default configuration options
+    $cfg['options'] = [
+      PDO::SQLSRV_ATTR_ENCODING    => PDO::SQLSRV_ENCODING_UTF8,
+      PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+      PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+  //  PDO::ATTR_EMULATE_PREPARES   => false,
+    ];
+
+    // create new PDO object
+    return new PDO(
+      $cfg['data_source'],
+      $cfg['username'],
+      $cfg['password'],
+      $cfg['options']
     );
+  }
 
-    $query_results = $connection->query(
-      "CALL GetProjectInfo(:projectID)", 
-      array(':projectID' => $projectID)
-    )->fetchAll(PDO::FETCH_ASSOC);
+  public function get_project_cancer_types($pdo, $project_id) {
+    $stmt = $pdo->prepare("
+      SELECT DISTINCT
+      ct.Name AS cancer_type,
+      ct.SiteURL AS cancer_type_url
 
-    foreach($query_results as $row) {
+      FROM Project p
+      JOIN ProjectCancerType pct ON pct.ProjectID = p.ProjectID
+      JOIN CancerType ct ON ct.CancerTypeID = pct.CancerTypeID
+      WHERE p.ProjectID = :project_id");
+
+    $stmt->execute([':project_id' => $project_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public function get_project_cso_areas($pdo, $project_id) {
+    $stmt = $pdo->prepare("
+      SELECT DISTINCT
+      c.Code AS cso_code,
+      c.CategoryName AS cso_category,
+      c.Name AS cso_name
+
+      FROM Project p
+      JOIN ProjectCSO pc ON pc.ProjectID = p.ProjectID
+      JOIN CSO c ON c.Code = pc.CSOCode
+      WHERE p.ProjectID = :project_id");
+    $stmt->execute([':project_id' => $project_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public function get_project_details($pdo, $project_id) {
+    $stmt = $pdo->prepare("
+      SELECT DISTINCT
+      p.Title AS project_title,
+      p.ProjectStartDate AS project_start_date,
+      p.ProjectEndDate AS project_end_date,
+      fm.Title AS funding_mechanism,
+      CONCAT(pfi.LastName, ', ', pfi.FirstName) AS principal_investigator,
+      i.Name AS institution,
+      i.City AS city,
+      i.State AS state,
+      i.Country AS country,
+      p.AwardCode AS award_code,
+      fo.Name AS funding_organization,
+      pf.BudgetStartDate AS budget_start_date,
+      pf.BudgetEndDate AS budget_end_date,
+      pa.TechAbstract AS technical_abstract,
+      pa.publicAbstract AS public_abstract
+
+      FROM Project p
+      JOIN ProjectAbstract pa ON pa.ProjectAbstractID = p.ProjectAbstractID
+      JOIN ProjectFunding pf ON pf.ProjectID = p.ProjectID
+      JOIN ProjectFundingInvestigator pfi ON pfi.ProjectFundingID = pf.ProjectFundingID
+      JOIN Institution i ON i.InstitutionID = pfi.InstitutionID
+      JOIN FundingOrg fo ON fo.FundingOrgID = pf.FundingOrgID
+      LEFT JOIN FundingMechanism fm ON fm.FundingMechanismID = p.FundingMechanismID
+      WHERE p.ProjectID = :project_id");
+
+    $stmt->execute([':project_id' => $project_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  public function get_project($project_id) {
+    $pdo = self::get_connection();
+
+    $results = [
+      'project_title' => [],
+      'principal_investigator' => [],
+      'institution' => [],
+      'city' => [],
+      'state' => [],
+      'country' => [],
+      'award_code' => [],
+      'funding_organization' => [],
+      'budget_start_date' => [],
+      'budget_end_date' => [],
+      'project_start_date' => [],
+      'project_end_date' => [],
+      'funding_mechanism' => [],
+      'technical_abstract' => [],
+      'public_abstract' => [],
+      'cancer_types' => [],
+      'cso_areas' => []
+    ];
+
+    $project_details = self::get_project_details($pdo, $project_id);
+
+    foreach($project_details as $row) {
       foreach (array_keys($row) as $key) {
         array_push($results[$key], $row[$key]);
       }
     }
 
-    $results['cancer_types'] = self::getProjectCancerTypes($connection, $projectID);
-    $results['cso_areas'] = self::getProjectCSOAreas($connection, $projectID);
+    $results['cancer_types'] = self::get_project_cancer_types($pdo, $project_id);
+    $results['cso_areas'] = self::get_project_cso_areas($pdo, $project_id);
     return $results;
   }
 
   public function content($projectID) {
-    $results = self::getProjectInfo($projectID);
+    $results = self::get_project($projectID);
 
-    return array(
+    return [
       '#theme' => 'db_project_view',
 
       '#project_title' => $results['project_title'],
@@ -87,11 +174,11 @@ class ProjectViewController extends ControllerBase {
       '#cancer_types' => $results['cancer_types'],
       '#cso_areas' => $results['cso_areas'],
       
-      '#attached' => array(
-        'library' => array(
+      '#attached' => [
+        'library' => [
           'db_project_view/resources'
-        ),
-      ),
-    );
+        ],
+      ],
+    ];
   }
 }
