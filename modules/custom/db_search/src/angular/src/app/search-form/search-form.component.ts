@@ -13,22 +13,23 @@ import {
   FormGroup
 } from '@angular/forms';
 
+import { Http } from '@angular/http';
 import { SearchFields } from './search-form.fields';
-
-
+import { Fields } from './fields'
 
 @Component({
   selector: 'app-search-form',
   templateUrl: './search-form.component.html',
-  styleUrls: ['./search-form.component.css']
+  styleUrls: ['./search-form.component.css'],
 })
 export class SearchFormComponent implements OnInit {
 
   @Output()
   search: EventEmitter<{
     search_terms?: string,
+    search_type?: string,
     years?: string,
-    
+
     institution?: string,
     pi_first_name?: string,
     pi_orcid?: string,
@@ -41,52 +42,67 @@ export class SearchFormComponent implements OnInit {
     funding_organizations?: string,
     cancer_types?: string,
     project_types?: string,
-    cso_codes?: string
+    cso_research_areas?: string
   }>;
 
+  fields: Fields;
   form: FormGroup;
 
-  searchFields: SearchFields;
-
-  fields: {
-    "years":                  { "value": number, "label": string }[],
-    "countries":              { "value": string, "label": string }[],
-    "states":                 { "value": string, "label": string }[],
-    "cities":                 { "value": string, "label": string }[],
-    "currencies":             { "value": number, "label": string }[],
-    "cancer_types":           { "value": number, "label": string }[],
-    "project_types":          { "value": string, "label": string }[],
-    "funding_organizations":  { "value": number, "label": string }[],
-    "cso_research_areas":     { "value": string, "label": string }[],
-  };
-
   constructor(
-    @Inject(FormBuilder)
-    fb: FormBuilder) {
-    
-    this.search = new EventEmitter();
+    @Inject(FormBuilder) private formbuilder: FormBuilder,
+    @Inject(Http) private http: Http) {
 
-    this.form = fb.group({
+    this.search = new EventEmitter<{
+      search_terms?: string,
+      search_type?: string,
+      years?: string,
+
+      institution?: string,
+      pi_first_name?: string,
+      pi_orcid?: string,
+      award_code?: string,
+
+      countries?: string,
+      states?: string,
+      cities?: string,
+
+      funding_organizations?: string,
+      cancer_types?: string,
+      project_types?: string,
+      cso_research_areas?: string
+    }>();
+
+    this.form = formbuilder.group({
       search_terms: [''],
       search_type: ['all'],
       years: [''],
+
       institution: [''],
       pi_first_name: [''],
       pi_last_name: [''],
       pi_orcid: [''],
       award_code: [''],
+
       countries: [''],
       states: [''],
       cities: [''],
+
       funding_organizations: [''],
       cancer_types: [''],
       project_types: [''],
-      cso_codes: [''],
+      cso_research_areas: [''],
     })
 
-    // initialize locations
-    this.searchFields = new SearchFields();
-    this.initializeFields();
+    this.fields = {
+      years: [],
+      cities: [],
+      states: [],
+      countries: [],
+      funding_organizations: [],
+      cancer_types: [],
+      project_types: [],
+      cso_research_areas: []
+    }    
   }
 
   submit() {
@@ -110,7 +126,7 @@ export class SearchFormComponent implements OnInit {
       funding_organizations: this.form.controls['funding_organizations'].value,
       cancer_types: this.form.controls['cancer_types'].value,
       project_types: this.form.controls['project_types'].value,
-      cso_codes: this.form.controls['cso_codes'].value,
+      cso_research_areas: this.form.controls['cso_research_areas'].value,
     };
 
     // remove unused parameters
@@ -130,54 +146,42 @@ export class SearchFormComponent implements OnInit {
     this.search.emit(parameters)
   }
 
-  initializeFields() {
-    this.fields = {
-      years: this.searchFields.getYears(),
-      countries: this.searchFields.getCountries(),
-      states: this.searchFields.getStates([]),
-      cities: this.searchFields.getCities([], []),
-      currencies: this.searchFields.getCurrencies(),
-      cancer_types: this.searchFields.getCancerTypes(),
-      project_types: this.searchFields.getProjectTypes(),
-      funding_organizations: this.searchFields.getFundingOrganizations(),
-      cso_research_areas: this.searchFields.getCsoResearchAreas()
-    }
-  }
-
   updateLocationSearch() {
     console.log('UPDATING SEARCH LOCATION', this.form.controls['countries'].value);
-  }  
-
-
-/*
-  updateFilters(type: string, event: any) {
-    console.log(type, event);
-    this.locationFilters[type] = event;
-    console.log(this.locationFilters);
-
-    this.applyFilters()
   }
 
-  applyFilters() {
-    this.fields = {
-      years: this.searchFields.getYears(),
-      countries: this.searchFields.getCountries(),
-      states: this.searchFields.getStates(this.locationFilters.countries),
-      cities: this.searchFields.getCities(this.locationFilters.countries, this.locationFilters.states),
-      currencies: this.searchFields.getCurrencies(),
-      cancerSites: this.searchFields.getAllCancerSites(),
-      projectTypes: this.searchFields.getAllProjectTypes(),
-      fundingOrgs: this.searchFields.getFundingOrganizations(this.locationFilters.countries, null, null),
-      csoAreas: this.searchFields.getCsoAreas(null)
-    }
-  }*/
 
-
+  /*
+    updateFilters(type: string, event: any) {
+      console.log(type, event);
+      this.locationFilters[type] = event;
+      console.log(this.locationFilters);
   
+      this.applyFilters()
+    }
+  
+    applyFilters() {
+      this.fields = {
+        years: this.searchFields.getYears(),
+        countries: this.searchFields.getCountries(),
+        states: this.searchFields.getStates(this.locationFilters.countries),
+        cities: this.searchFields.getCities(this.locationFilters.countries, this.locationFilters.states),
+        currencies: this.searchFields.getCurrencies(),
+        cancerSites: this.searchFields.getAllCancerSites(),
+        projectTypes: this.searchFields.getAllProjectTypes(),
+        fundingOrgs: this.searchFields.getFundingOrganizations(this.locationFilters.countries, null, null),
+        csoAreas: this.searchFields.getCsoAreas(null)
+      }
+    }*/
+
+
+
 
 
 
   ngOnInit() {
+    new SearchFields(this.http).getFields()
+      .subscribe(response => this.fields = response);
   }
 
 }

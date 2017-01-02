@@ -1,7 +1,7 @@
-<div class="four columns">
+<div class="col-md-4">
   <app-search-form (search)="updateResults($event)"></app-search-form>
 </div>
 
-<div class="eight columns">
+<div class="col-md-8">
   <app-search-results [results]="results" [searchParameters]="parameters" [analytics]="count" [loading]="loading" (paginate)="paginate($event)" (sort)="sort($event)" [param]="parameters"></app-search-results>
 </div>

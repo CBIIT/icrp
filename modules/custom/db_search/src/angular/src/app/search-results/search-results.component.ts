@@ -153,7 +153,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
           country: result.country,
           funding_organization: result.funding_organization,
           award_code: result.award_code,
-          url: `https://icrpartnership-test.org/ViewProject/${result.project_id}`
+          url: `https://icrpartnership-demo.org/ViewProject/${result.project_id}`
         }
       })
     }

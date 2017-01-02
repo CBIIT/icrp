@@ -12,53 +12,53 @@
       [formControl]="form.controls.search_terms">
 
     <div>
-      <label class="radio-label" for="search_term_filter_all">
+      <label class="radio-label" for="search_type_all">
         <input 
           class="radio-input" 
           type="radio" 
-          id="search_term_filter_all" 
-          name="search_term_filter" 
+          id="search_type_all" 
+          name="search_type" 
           value="all"
-          [formControl]="form.controls.search_term_filter">
+          [formControl]="form.controls.search_type">
         All of the keywords
       </label>
     </div>
 
     <div>
-      <label class="radio-label" for="search_term_filter_none">
+      <label class="radio-label" for="search_type_none">
         <input
           class="radio-input"
           type="radio"
-          id="search_term_filter_none"
-          name="search_term_filter"
+          id="search_type_none"
+          name="search_type"
           value="none"
-          [formControl]="form.controls.search_term_filter">
+          [formControl]="form.controls.search_type">
         None of the keywords
       </label>
     </div>
 
     <div>
-      <label class="radio-label" for="search_term_filter_any">
+      <label class="radio-label" for="search_type_any">
         <input
           class="radio-input"
           type="radio"
-          id="search_term_filter_any"
-          name="search_term_filter"
+          id="search_type_any"
+          name="search_type"
           value="any"
-          [formControl]="form.controls.search_term_filter">
+          [formControl]="form.controls.search_type">
         Any of the keywords
       </label>
     </div>
 
     <div>
-      <label class="radio-label" for="search_term_filter_exact">
+      <label class="radio-label" for="search_type_exact">
         <input 
           class="radio-input"
           type="radio"
-          id="search_term_filter_exact"
-          name="search_term_filter"
+          id="search_type_exact"
+          name="search_type"
           value="exact"
-          [formControl]="form.controls.search_term_filter">
+          [formControl]="form.controls.search_type">
         Exact phrase provided
       </label>
     </div>
@@ -128,13 +128,14 @@
   <ui-panel title="Funding Organizations">
     <label class="sr-only" for="funding_organizations">Funding Organizations</label>
     <div class="multiselect">
+<!--
       <ui-treeview [root]="searchFields.fundingOrgs" [formControl]="form.controls.funding_organizations"></ui-treeview>
+-->
     </div>
   </ui-panel>
 
   <!-- Cancer and Project Type -->
   <ui-panel title="Cancer and Project Type">
-
     <label class="form-label" for="cancer_types">Cancer Types</label>
     <ui-select placeholder="Select Cancer Types" [items]="fields.cancer_types" [formControl]="form.controls.cancer_types"></ui-select>
 
@@ -147,7 +148,10 @@
     <label class="sr-only" for="cso_research_areas">CSO - Research Areas</label>
 
     <div class="multiselect">
+
+    <!--
       <ui-treeview [root]="searchFields.csoAreas" [formControl]="form.controls.cso_research_areas"></ui-treeview>
+-->
     </div>
   </ui-panel>
 

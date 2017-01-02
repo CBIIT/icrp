@@ -81,8 +81,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
     let endpoint = `http://localhost/drupal/db_search_api/public_analytics/${group}`;
     let params = new URLSearchParams();
 
-
-
     for (let key of Object.keys(parameters)) {
       params.set(key, parameters[key]);
     }
@@ -90,7 +88,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
     return this.http.get(endpoint, {search: params})
       .map((res: Response) => res.json())
       .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
-    
   }
   
 

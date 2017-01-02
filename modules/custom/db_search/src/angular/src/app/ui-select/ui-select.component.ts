@@ -202,8 +202,11 @@ export class UiSelectComponent implements OnChanges {
   
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['items'])
+    console.log('changes made to input', changes);
+    if (changes['items']) {
+      console.log('re-initializing with items', this.items);
       this.initializeItems(this.items);
+    }
   }
 
 
