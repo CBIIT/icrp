@@ -1,28 +1,43 @@
-<div>
-<b>Search Terms:</b>{{ search_terms }}
+<div class="h5" *ngIf="!search_terms && !search_filters">
+Default search results are shown below (all projects, all years). Use the form on the left to refine search criteria.
 </div>
 
-<div>
-<b>Search Filters:</b>{{ search_filters }}
+<div *ngIf="search_terms && search_filters">
+<p>
+<b>Search Terms: </b>{{ search_terms }}
+</p>
+
+<p>
+<b>Search Filters: </b>{{ search_filters }}
+</p>
 </div>
 
 
+<!--
+
+  
 <div class="row">
-  <div class="col-md-4">
-    <ui-chart title="Projects by Country" [searchParam]="param" group="country"></ui-chart>
+  <div class="col-md-3">
+    <ui-chart title="Projects by Country" type="pie" [data]="param.projects_by_country || []"></ui-chart>
   </div>
 
-  <div class="col-md-4">
-    <ui-chart title="Projects by CSO Category" [searchParam]="param" group="cso_code"></ui-chart>
+  <div class="col-md-3">
+    <ui-chart title="Projects by CSO Category"  type="pie" [data]="param.projects_by_cso_category || []"></ui-chart>
   </div>
 
-  <div class="col-md-4">
-    <ui-chart title="Projects by Cancer Type" [searchParam]="param" group="cancer_type_id"></ui-chart>
+  <div class="col-md-3">
+    <ui-chart title="Projects by Cancer Type" type="pie" group="projects_by_cancer_type || []"></ui-chart>
   </div>
+
+  <div class="col-md-3">
+    <ui-chart title="Projects by Type" type="pie" group="projects_by_type || []"></ui-chart>
+  </div>
+
+
 </div>
 
 <div class="row" style="display: none">
-<!--  
+
   <div class="four columns">
     <ui-chart title="Projects by Type"></ui-chart>
   </div>
@@ -42,17 +57,18 @@
 </div>
 
 
+</div>
 -->
 
-</div>
+{{ analytics | json }}
 
 <div class="row">
   <ui-table 
     [data]="projectData" 
     [columns]="projectColumns" 
     [loading]="loading" 
-    [pageSizes]="[10, 20, 30, 40, 50]" 
-    [numResults]="numProjects" 
+    [pageSizes]="[50, 100, 150, 200, 250, 300]"
+    [numResults]="(analytics && analytics.count) || 0" 
     (paginate)="paginate.emit($event)" 
     (sort)="sort.emit($event)">
   </ui-table>

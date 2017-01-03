@@ -5,12 +5,12 @@
 
 .ui-panel {
   border: 1px solid #BBB;
-  border-left: 3px solid #666;
+  border-left: 1px solid #AAA;
   margin-top: -1px;
 }
 
 .ui-panel:hover {
-  border-left: 3px solid #888;
+  border: 1px solid #AFAFAF;
 }
 
 .ui-panel-content {

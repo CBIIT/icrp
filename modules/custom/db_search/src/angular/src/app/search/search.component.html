@@ -5,9 +5,7 @@
 <div class="col-md-8">
   <app-search-results 
     [results]="results"
-    [param]="parameters"
-    [searchParameters]="parameters" 
-    [analytics]="count" 
+    [analytics]="analytics" 
     [loading]="loading" 
     (paginate)="paginate($event)" 
     (sort)="sort($event)"></app-search-results>

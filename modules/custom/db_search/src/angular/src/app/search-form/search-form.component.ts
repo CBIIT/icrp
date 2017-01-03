@@ -304,8 +304,6 @@ export class SearchFormComponent implements OnInit {
 
     }
 
-    console.log('created treenode', root);
-
     return root;
  }
 

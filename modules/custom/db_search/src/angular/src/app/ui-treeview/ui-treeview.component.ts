@@ -226,7 +226,6 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
 
     this.clearChildren(el);
     this.createTree(node, el, !node.selected, true);
-    console.log('selected values', this.selectedValues);
   }
 
 
@@ -242,6 +241,5 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
 
   ngOnChanges() {
     this.createTree(this.root, this.tree.nativeElement, false, true);
-    console.log('selected values on creation', this.selectedValues);
   }
 }

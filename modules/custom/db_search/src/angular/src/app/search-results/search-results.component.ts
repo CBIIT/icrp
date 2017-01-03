@@ -12,31 +12,18 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
 
   @Input() loading;  
   @Input() results;
-  @Input() analytics : {
-    country: { "label": string, "value": number }[],
-    cso_code: { "label": string, "value": number }[],
-    cancer_type_id: { "label": number, "value": number }[],
-    project_type: { "label": string, "value": number }[]
-  };
-
-  @Input() searchParameters: Object;
-
-
-  @Input() param: Object;
-
-  chartData: Object = {};
+  @Input() analytics;
 
   @Output() sort: EventEmitter<{ "column": string, "type": "asc" | "desc" }>;
   @Output() paginate: EventEmitter<{ "size": number, "offset": number }>;
   
+  analyticsData;
 
-  search_terms;
-  search_filters;
+  searchTerms;
+  searchFilters;
+
   projectData;
   projectColumns;
-  numProjects: number;
-
-  chartParams: UiChartParameters [];
 
   constructor() {
     this.sort = new EventEmitter<{ "column": string, "type": "asc" | "desc" }>();
@@ -48,13 +35,6 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
       cancer_type_id: [],
       project_type: []
     }
-
-    for (let key in this.analytics) {
-      this.chartData[key] = this.getChart(this.analytics[key])
-    }
-
-    console.log(this.chartData);
-    
 
     this.projectColumns = [
       {
@@ -101,49 +81,13 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
 
   ngOnChanges(changes: SimpleChanges) {
 
-
-    if (changes['searchParameters']) {
-      console.log('UPDATING SEARCH PARAMETER DISPLAY')
-
-      let param = this.searchParameters;
-
-      let filters = [];
-
-      for (let key in param) {
-        if (param[key]) {
-          filters.push(`${key}: ${param[key]}`)
-        }
-      }
-
-      this.search_terms = `${param['search_terms']} (${param['search_type']})`;
-      this.search_filters = filters.join(', ');
-    }
     
     if (changes['analytics']) {
 
-      let change = changes['analytics'].currentValue;
-
-      let cancer_type_id = changes['analytics'].currentValue['cancer_type_id'].map(e => e);
-
-      console.log('cancer type', cancer_type_id);
-
-      console.log('updating graphs with', change);
-      for (let key in change) {
-
-        console.log('applying ', this.getChart(change[key]), 'to', key, 'actual', change[key]);
-        this.chartData[key] = this.getChart(change[key])
-      }
-
-      console.log('New ChartData', this.chartData);
     }
 
     if (this.results) {
-      console.log('Updating results', this.results)
-
-      let projects = this.results;
-      this.numProjects = 100;
-
-      this.projectData = projects.map(result => {
+      this.projectData = this.results.map(result => {
         return {
           project_title: result.project_title,
           pi_name: result.pi_name,
@@ -161,14 +105,5 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   }
 
   ngOnInit() {
-  }
-
-  getChart(data) {
-    return {
-      data: data,
-      options: {
-        type: 'pie'
-      }
-    }
   }
 }
