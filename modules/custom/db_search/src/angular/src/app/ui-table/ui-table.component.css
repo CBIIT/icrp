@@ -21,6 +21,9 @@ table.ui-table > thead > tr > th {
 
 table.ui-table > thead > tr > th,
 table.ui-table > tbody > tr > td {
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 400px;
     border-right: 1px solid #DDD; 
     padding: 4px;
     position: relative;

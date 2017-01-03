@@ -1,9 +1,7 @@
 <div class="ui-table-wrapper">
-  <div class="loading-wrapper" *ngIf="loading"><div class="loading"></div></div>
-
   <table class="ui-table">
     <thead #thead></thead>
-    <tbody #tbody></tbody>
+    <tbody #tbody [ngClass]="{'table-loading': loading}"></tbody>
   </table>
 </div>
 
@@ -23,8 +21,6 @@
       firstText="&laquo;" 
       lastText="&raquo;">
     </pagination>
-
-    Pagination
   </div>
 
   <div class="pull-right">

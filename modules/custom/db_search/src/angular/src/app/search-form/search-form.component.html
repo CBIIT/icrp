@@ -154,7 +154,7 @@
       tooltip="Select one or more states"
       [formControl]="form.controls.states"
       [items]="filterStates(fields.states, (form.controls['countries'] && form.controls['countries'].value) || [])" 
-      [disabled]="!form.controls['countries'].value || form.controls['countries'].value.length != 1">
+      [disable]="!form.controls['countries'].value || form.controls['countries'].value.length != 1">
     </ui-select>
 
     <label class="form-label" for="cities">City</label>
@@ -163,7 +163,7 @@
       tooltip="Select one or more cities"      
       [formControl]="form.controls.cities"
       [items]="filterCities(fields.cities, (form.controls['states'] && form.controls['states'].value) || [], (form.controls['countries'] && form.controls['countries'].value) || [])" 
-      [disabled]="!form.controls['countries'].value || form.controls['countries'].value.length != 1">
+      [disable]="!form.controls['countries'].value || form.controls['countries'].value.length != 1">
     </ui-select>
   </ui-panel>
 

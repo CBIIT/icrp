@@ -1,11 +1,11 @@
 <input 
-  *ngIf="disabled" 
+  *ngIf="disable" 
   class="select-input-disabled default" 
   [placeholder]="placeholder" 
   type="text" 
   disabled #input>
 
-<div class="select-container default" *ngIf="!disabled">
+<div class="select-container default" *ngIf="!disable">
   <div class="select-input-container default">
     <div class="select-label default" *ngFor="let item of selectedItems; let index = index">
       <div>{{item.label}}</div>

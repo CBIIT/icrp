@@ -1,18 +1,25 @@
-<div class="h5" *ngIf="!search_terms && !search_filters">
-Default search results are shown below (all projects, all years). Use the form on the left to refine search criteria.
+<div class="search-criteria-summary" (click)="!showCriteriaLocked && showCriteria = !showCriteria">
+  <span [ngClass]="{'glyphicon': true, 'glyphicon-triangle-right': !showCriteria, 'glyphicon-triangle-bottom': showCriteria}"></span>
+  {{ searchCriteriaSummary }}</div>
+<div class="search-criteria" *ngIf="showCriteria">
+  {{ criteriaGroup | json }}
+
+  <div *ngFor="let group of searchCriteriaGroups">
+    <b>{{ group.category }}</b>
+    
+    <ul *ngIf="group.type === 'array'">
+      <li *ngFor="let criteria of group.criteria">{{ criteria }}</li>
+    </ul>
+
+    <span *ngIf="group.type === 'single'">
+      : {{ group.criteria[0] }}
+    </span>
+
+  </div>  
 </div>
 
-<div *ngIf="search_terms && search_filters">
-<p>
-<b>Search Terms: </b>{{ search_terms }}
-</p>
 
-<p>
-<b>Search Filters: </b>{{ search_filters }}
-</p>
-</div>
-
-<div class="row">
+<div class="row" style="margin-top: 10px">
   <div class="col-md-3">
     <ui-chart 
       label="Projects by Country"

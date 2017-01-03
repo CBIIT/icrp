@@ -51,7 +51,7 @@ export class PieChart {
             })
             .each(e => e)
             .attr('d', arc)
-            .style('fill', d => color(d.value.toString()))
+            .style('fill', d => color(d.index.toString()))
 
 
     }

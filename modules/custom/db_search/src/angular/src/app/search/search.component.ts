@@ -13,6 +13,7 @@ import 'rxjs/add/operator/catch';
 })
 export class SearchComponent implements OnInit, AfterViewInit {
 
+  mappedParameters: any;  
   parameters: any;
   results: any;
   loading: boolean;
@@ -21,6 +22,11 @@ export class SearchComponent implements OnInit, AfterViewInit {
   constructor(private http: Http) {
     this.loading = true;
     this.analytics = null;
+    this.mappedParameters = {};
+  }
+
+  updateMappedParameters(event: Object) {
+    this.mappedParameters = event;
   }
 
   updateResults(event: Object) {

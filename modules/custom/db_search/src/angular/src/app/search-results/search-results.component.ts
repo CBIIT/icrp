@@ -13,20 +13,30 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   @Input() loading;  
   @Input() results;
   @Input() analytics;
+  @Input() searchParameters;
 
   @Output() sort: EventEmitter<{ "column": string, "type": "asc" | "desc" }>;
   @Output() paginate: EventEmitter<{ "size": number, "offset": number }>;
 
+
+  showCriteriaLocked = true;  
+  searchCriteriaSummary;
   searchTerms;
   searchFilters;
+  showCriteria: boolean;
+  searchCriteriaGroups: {"category": string, "criteria": string[], "type": string}[];
 
   projectData;
   projectColumns;
 
   constructor() {
+    this.showCriteria = false;
+    this.searchCriteriaGroups = [];
+    
     this.sort = new EventEmitter<{ "column": string, "type": "asc" | "desc" }>();
     this.paginate = new EventEmitter<{ "size": number, "offset": number }>();
     
+
     this.analytics = {
       country: [],
       cso_code: [],
@@ -77,7 +87,49 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
 
   }
 
+  convertCase(underscoreString: string) {
+    return underscoreString.split('_')
+      .map(str => str[0].toUpperCase() + str.substring(1))
+      .join(' ');
+  }
+
   ngOnChanges(changes: SimpleChanges) {
+    
+    if (Object.keys(this.searchParameters).length == 0) {
+      this.searchCriteriaSummary = "All projects are shown below. Use the form on the left to refine search results";
+      this.showCriteriaLocked = true; 
+    }
+
+    else {
+      this.showCriteriaLocked = false; 
+      let searchCriteria = [];
+      for (let key of Object.keys(this.searchParameters)) {
+        searchCriteria.push(this.convertCase(key));
+        let param = this.searchParameters[key];
+
+        let criteriaGroup = {
+          category: this.convertCase(key),
+          criteria: [],
+          type: "single"
+        }
+
+        if (param instanceof Array) {
+          criteriaGroup.criteria = param;
+          criteriaGroup.type = "array";
+        }
+
+        else {
+          criteriaGroup.criteria = [param];
+        }  
+
+        this.searchCriteriaGroups.push(criteriaGroup);
+      }
+
+      this.searchCriteriaSummary = "Search Criteria: " + searchCriteria.join(' + ');
+      
+    }
+    
+
     if (this.results) {
       this.projectData = this.results.map(result => {
         return {

@@ -26,6 +26,27 @@ import { TreeNode } from '../ui-treeview/treenode';
 export class SearchFormComponent implements OnInit {
 
   @Output()
+  mappedSearch: EventEmitter<{
+    search_terms?: string,
+    search_type?: string,
+    years?: string[],
+
+    institution?: string,
+    pi_first_name?: string,
+    pi_orcid?: string,
+    award_code?: string,
+
+    countries?: string[],
+    states?: string[],
+    cities?: string[],
+
+    funding_organizations?: string[],
+    cancer_types?: string[],
+    project_types?: string[],
+    cso_research_areas?: string[]
+  }>;
+
+  @Output()
   search: EventEmitter<{
     search_terms?: string,
     search_type?: string,
@@ -78,9 +99,29 @@ export class SearchFormComponent implements OnInit {
       cso_research_areas?: string
     }>();
 
+    this.mappedSearch = new EventEmitter<{
+    search_terms?: string,
+    search_type?: string,
+    years?: string[],
+
+    institution?: string,
+    pi_first_name?: string,
+    pi_orcid?: string,
+    award_code?: string,
+
+    countries?: string[],
+    states?: string[],
+    cities?: string[],
+
+    funding_organizations?: string[],
+    cancer_types?: string[],
+    project_types?: string[],
+    cso_research_areas?: string[]
+  }>();    
+
     this.form = formbuilder.group({
       search_terms: [''],
-      search_type: ['all'],
+      search_type: [''],
       years: [''],
 
       institution: [''],
@@ -151,6 +192,44 @@ export class SearchFormComponent implements OnInit {
     }
 
     this.search.emit(parameters)
+    this.mappedSearch.emit(this.mapSearch(parameters))
+  }
+
+  mapSearch(parameters): any {
+
+    let mappedParameters = {}
+
+    for (let key in parameters) {
+      mappedParameters[key] = parameters[key]
+    }
+
+/*    
+    for (let parameterType of [
+      'years',
+      'countries',
+      'states',
+      'cities',
+      'funding_organizations',
+      'cancer_types',
+      'project_types',
+      'cso_research_areas']) {
+      if (mappedParameters[parameterType])
+        mappedParameters[parameterType] = mappedParameters[parameterType].split(',');
+    }
+*/
+    for (let parameterType of ['funding_organizations', 'cancer_types', 'cso_research_areas']) {
+      if (mappedParameters[parameterType])
+        mappedParameters[parameterType] = this.mapValue(parameterType, mappedParameters[parameterType])  
+    }
+
+    return mappedParameters;
+  }
+
+  mapValue(key: string, groups: string[]): string[] {
+    return this.fields[key]
+      .filter(group => groups.indexOf(group.value) > -1)
+      .map(group => group.label)
+      .sort();
   }
 
   filterStates(states: { "value": string, "label": string, "group": string }[], countries: string[]) {

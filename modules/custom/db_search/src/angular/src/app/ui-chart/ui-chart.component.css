@@ -15,7 +15,8 @@ path {
 
 .d3-tooltip {
   color: #555;
-  background-color: #EEE;
+  background-color: white;
+  border: 1px solid #DDD;
   padding: 5px;
 
   border-radius: 4px;

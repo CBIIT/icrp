@@ -36,7 +36,7 @@ export class UiSelectComponent {
   @Input() placeholder: string;
 
   /** Control evaluation of this component */
-  @Input() disabled: boolean;
+  @Input() disable: boolean;
 
   /** Updates whenever an item has been selected or deselected  */
   @Output() onSelect: EventEmitter<(string | number)[]>;
@@ -60,7 +60,7 @@ export class UiSelectComponent {
   showSearchDropdown: boolean;
 
   constructor(private _ref: ElementRef) {
-    this.disabled = false;
+    this.disable = false;
     this.showSearchDropdown = false;
     this.items = [];
     this.placeholder = '';

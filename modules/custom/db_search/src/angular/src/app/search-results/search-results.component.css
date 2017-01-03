@@ -1,0 +1,14 @@
+div.search-criteria-summary {
+    padding: 4px;
+    border: 1px solid #DDD;
+    font-weight: bold;
+    cursor: pointer;
+
+}
+
+
+div.search-criteria {
+    padding: 4px;
+    border: 1px solid #DDD;
+    border-top: none;
+}
