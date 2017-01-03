@@ -28,7 +28,7 @@ class DatabaseSearchAPIController extends ControllerBase {
     'sort_type'             => 'SortDirection',
     'search_terms'          => 'terms',
     'search_type'           => 'termSearchType',
-    'years'                 => '',
+    'years'                 => 'yearList',
     'institution'           => 'institution',
     'pi_first_name'         => 'piFirstName',
     'pi_last_name'          => 'piLastName',
@@ -228,7 +228,7 @@ class DatabaseSearchAPIController extends ControllerBase {
     if ($stmt->execute()) {
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
-        $country = $row['country'];
+        $country = $row['Country'];
         $cso_category = $row['CSOCode'][0];
         $cancer_type = $row['CancerType'];
         $project_type = $row['ProjectType'];
