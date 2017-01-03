@@ -16,27 +16,11 @@ export class SearchComponent implements OnInit, AfterViewInit {
   parameters: any;
   results: any;
   loading: boolean;
-
   analytics: any;
-
-  count: {
-    country: { "label": string, "value": number }[],
-    cso_code: { "label": string, "value": number }[],
-    cancer_type_id: { "label": number, "value": number }[],
-    project_type: { "label": string, "value": number }[]
-  };
 
   constructor(private http: Http) {
     this.loading = true;
-
-    this.count = {
-      country: [],
-      cso_code: [],
-      cancer_type_id: [],
-      project_type: [],
-//    funding_organization: [],
-//    institution: []
-    }
+    this.analytics = null;
   }
 
   updateResults(event: Object) {
@@ -62,8 +46,34 @@ export class SearchComponent implements OnInit, AfterViewInit {
     )
 
     this.queryServerAnalytics(this.parameters).subscribe(
-      response => this.analytics = response
+      response => this.analytics = this.processAnalytics(response)
     );
+  }
+
+  processAnalytics(response) {
+    let analytics = {};
+    analytics['count'] = response.count;
+
+    for (let category of [
+      'projects_by_country', 
+      'projects_by_cso_category', 
+      'projects_by_cancer_type', 
+      'projects_by_type']) {
+
+        console.log('analyzing', response['category'])
+
+        for (let key in response[category]) {
+          if (!analytics[category]) {
+            analytics[category] = [];
+          }
+
+          analytics[category].push({label: key, value: response[category][key]})
+        }
+
+        analytics[category].sort((a, b) => +b.value - +a.value);
+    }
+
+    return analytics;
   }
 
   paginate(event) {

@@ -16,8 +16,6 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
 
   @Output() sort: EventEmitter<{ "column": string, "type": "asc" | "desc" }>;
   @Output() paginate: EventEmitter<{ "size": number, "offset": number }>;
-  
-  analyticsData;
 
   searchTerms;
   searchFilters;
@@ -80,12 +78,6 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-
-    
-    if (changes['analytics']) {
-
-    }
-
     if (this.results) {
       this.projectData = this.results.map(result => {
         return {
