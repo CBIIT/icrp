@@ -14,6 +14,8 @@ import { UiTreeviewComponent } from './ui-treeview/ui-treeview.component';
 import { UiTableComponent } from './ui-table/ui-table.component';
 import { UiChartComponent } from './ui-chart/ui-chart.component';
 
+import { TooltipModule } from 'ng2-bootstrap/ng2-bootstrap';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -31,6 +33,7 @@ import { UiChartComponent } from './ui-chart/ui-chart.component';
     FormsModule,
     ReactiveFormsModule,
     HttpModule,
+    TooltipModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]
