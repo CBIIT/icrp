@@ -2,7 +2,7 @@ custom:
   version: 1.0
   css:
     theme:
-      assets/styles.ed756ad227466109cd65.bundle: {}
+      assets/styles.ed756ad227466109cd65.bundle.css: {}
   js:
     assets/inline.e53bb49c74b70043637a.bundle.js: {}
     assets/vendor.6aa1a01ca6e5abfaa908.bundle.js: {}
