@@ -40,7 +40,7 @@ class DatabaseSearchAPIController extends ControllerBase {
     'funding_organizations' => 'fundingOrgList',
     'cancer_types'          => 'cancerTypeList',
     'project_types'         => 'projectTypeList',
-    'cso_research_areas'    => 'CSOList'
+    'cso_research_areas'    => 'CSOList',
     'exclude_duplicates'    => 'OnlyBaseProjects'
   ];
 
@@ -216,7 +216,8 @@ class DatabaseSearchAPIController extends ControllerBase {
       'projects_by_country' => [],
       'projects_by_cso_category' => [],
       'projects_by_cancer_type' => [],
-      'projects_by_type' => []
+      'projects_by_type' => [],
+      'projects_by_year' => [],
     ];
 
     foreach (['PageSize', 'PageNumber', 'SortCol', 'SortDirection'] as $key) {
@@ -233,6 +234,7 @@ class DatabaseSearchAPIController extends ControllerBase {
         $cso_category = $row['CSOCode'][0];
         $cancer_type = $row['CancerType'];
         $project_type = $row['ProjectType'];
+        $project_year = $row['CalendarYear'];
 
         if (!isset($groups['projects_by_country'][$country])) {
           $groups['projects_by_country'][$country] = 0;
@@ -250,10 +252,16 @@ class DatabaseSearchAPIController extends ControllerBase {
           $groups['projects_by_type'][$project_type] = 0;
         }
 
+        if (!isset($groups['projects_by_year'][$project_year])) {
+          $groups['projects_by_year'][$project_year] = 0;
+        }
+
+
         $groups['projects_by_country'][$country]++;
         $groups['projects_by_cso_category'][$cso_category]++;
         $groups['projects_by_cancer_type'][$cancer_type]++;
         $groups['projects_by_type'][$project_type]++;
+        $groups['projects_by_year'][$project_year]++;
         $groups['count']++;
       }
     }
