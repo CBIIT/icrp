@@ -54,25 +54,29 @@ export class SearchComponent implements OnInit, AfterViewInit {
     
   processAnalytics(response) {
     let analytics = {};
-    analytics['count'] = response.count;
 
-    for (let category of [
-      'projects_by_country', 
-      'projects_by_cso_category', 
-      'projects_by_cancer_type', 
-      'projects_by_type']) {
+    if (response && response.count) {
+      analytics['count'] = response.count;
 
-        console.log('analyzing', response['category'])
+      for (let category of [
+        'projects_by_country', 
+        'projects_by_cso_category', 
+        'projects_by_cancer_type', 
+        'projects_by_type']) {
 
-        for (let key in response[category]) {
-          if (!analytics[category]) {
-            analytics[category] = [];
+          console.log('analyzing', response[category])
+          if (response[category]) {
+            for (let key in response[category]) {
+              if (!analytics[category]) {
+                analytics[category] = [];
+              }
+
+              analytics[category].push({label: key, value: response[category][key]})
+            }
+
+            analytics[category].sort((a, b) => +b.value - +a.value);
           }
-
-          analytics[category].push({label: key, value: response[category][key]})
-        }
-
-        analytics[category].sort((a, b) => +b.value - +a.value);
+      }
     }
 
     return analytics;

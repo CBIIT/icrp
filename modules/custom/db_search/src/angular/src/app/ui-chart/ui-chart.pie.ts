@@ -29,7 +29,6 @@ export class PieChart {
             .data(pie(data.map(e => e.value)))
             .enter().append('path')
             .on('mouseover', d => {
-                console.log('this is the data', d);
                 let index = d.index;
                 let label = data[index].label;
                 let value = data[index].value;

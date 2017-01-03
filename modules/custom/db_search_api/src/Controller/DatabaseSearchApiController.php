@@ -48,9 +48,9 @@ class DatabaseSearchAPIController extends ControllerBase {
     'project_title'         => 'title',
     'pi_name'               => 'pi',
     'institution'           => 'Inst',
-    'city'                  => '',
-    'state'                 => '',
-    'country'               => '',
+    'city'                  => 'city',
+    'state'                 => 'state',
+    'country'               => 'country',
     'funding_organization'  => 'FO',
     'award_code'            => 'code'
   ];
