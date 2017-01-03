@@ -19,7 +19,7 @@ Default search results are shown below (all projects, all years). Use the form o
 <div class="row">
   <div class="col-md-3">
     <ui-chart 
-      title="Projects by Country"
+      label="Projects by Country"
       type="pie" 
       [data]="(analytics && analytics.projects_by_country) || []">
     </ui-chart>
@@ -27,7 +27,7 @@ Default search results are shown below (all projects, all years). Use the form o
 
   <div class="col-md-3">
     <ui-chart 
-      title="Projects by CSO Category"  
+      label="Projects by CSO Category"  
       type="pie" 
       [data]="(analytics && analytics.projects_by_cso_category) || []">
     </ui-chart>
@@ -35,14 +35,14 @@ Default search results are shown below (all projects, all years). Use the form o
 
   <div class="col-md-3">
     <ui-chart 
-      title="Projects by Cancer Type" 
+      label="Projects by Cancer Type" 
       type="pie" 
       [data]="(analytics && analytics.projects_by_cancer_type) || []"></ui-chart>
   </div>
 
   <div class="col-md-3">
     <ui-chart 
-      title="Projects by Type" 
+      label="Projects by Type" 
       type="pie" 
       [data]="(analytics && analytics.projects_by_type) || []"></ui-chart>
   </div>

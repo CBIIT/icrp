@@ -20,15 +20,19 @@ export class UiChartComponent implements OnChanges, AfterViewInit {
 
   @Input() type: string;
   @Input() data: any;
-  @Input() title: string;
+  @Input() label: string;
 
   @ViewChild('svg') svg: ElementRef;
+  @ViewChild('tooltip') tooltip: ElementRef;
 
   constructor() {}
 
   drawChart() {
     if (this.type === 'pie') {
-      new PieChart().draw(this.svg.nativeElement, this.data);
+      new PieChart().draw(
+        this.svg.nativeElement, 
+        this.tooltip.nativeElement,
+        this.data);
     }
   }
 

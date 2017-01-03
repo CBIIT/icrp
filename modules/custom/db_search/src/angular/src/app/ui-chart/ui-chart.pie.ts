@@ -3,9 +3,12 @@ import * as d3 from 'd3';
 
 export class PieChart {
 
-    draw(element: HTMLElement, data: { value: number, label: string }[]) {
+    draw(element: HTMLElement, tooltipEl: HTMLElement, data: { value: number, label: string }[]) {
         
         let host = d3.select(element);
+        let tooltip = d3.select(tooltipEl)
+            .attr('class', 'd3-tooltip')
+            .style('opacity', 0);
 
         let size = 400;
         let radius = size / 2;
@@ -25,10 +28,33 @@ export class PieChart {
         let path = svg.selectAll('path')
         .data(pie(data.map(e => e.value)))
             .enter().append('path')
+        .on('mouseover', d => {
+            console.log('this is the data', d);
+            let index = d.index;
+            let label = data[index].label;
+            let value = data[index].value;
+            tooltip.html(`${label}: ${value} projects`)
+            tooltip.transition()
+              .duration(200)
+              .style('opacity', .9);
+        })
+        .on('mousemove', d => {
+            var xoffset = (d3.event.pageX / window.outerWidth > 0.7) ? -165 : 5;
+            tooltip
+                .style('left', (d3.event.pageX + 5) + 'px')
+                .style('top', (d3.event.pageY + 5) + 'px')
+        })
+        .on('mouseout', d => {
+            tooltip.transition()
+                .duration(300)
+                .style('opacity', 0);
+        })
+
             .transition().duration(500)
         .each(e => e)
             .attr('d', arc)
         .style('fill', d => color(d.value.toString()))
+        
     }
 
     /**
