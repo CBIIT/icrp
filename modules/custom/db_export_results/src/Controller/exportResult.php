@@ -77,6 +77,8 @@
 		$zip->close();
 		$result = "succeed";
 	}
+	//remove export file, not zip file.
+	unlink($file_export);
 
 	echo $result;
 
