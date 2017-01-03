@@ -28,7 +28,7 @@ class DatabaseSearchAPIController extends ControllerBase {
     'sort_type'             => 'SortDirection',
     'search_terms'          => 'terms',
     'search_type'           => 'termSearchType',
-    'years'                 => 'yearList',
+    'years'                 => '',
     'institution'           => 'institution',
     'pi_first_name'         => 'piFirstName',
     'pi_last_name'          => 'piLastName',

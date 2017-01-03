@@ -85,7 +85,7 @@ class ProjectViewController extends ControllerBase {
   public function get_project_details($pdo, $project_id) {
     $stmt = $pdo->prepare("
       SELECT DISTINCT
-      p.Title AS project_title,
+      pf.Title AS project_title,
       p.ProjectStartDate AS project_start_date,
       p.ProjectEndDate AS project_end_date,
       fm.Title AS funding_mechanism,
@@ -102,8 +102,8 @@ class ProjectViewController extends ControllerBase {
       pa.publicAbstract AS public_abstract
 
       FROM Project p
-      JOIN ProjectAbstract pa ON pa.ProjectAbstractID = p.ProjectAbstractID
       JOIN ProjectFunding pf ON pf.ProjectID = p.ProjectID
+      JOIN ProjectAbstract pa ON pa.ProjectAbstractID = pf.ProjectAbstractID
       JOIN ProjectFundingInvestigator pfi ON pfi.ProjectFundingID = pf.ProjectFundingID
       JOIN Institution i ON i.InstitutionID = pfi.InstitutionID
       JOIN FundingOrg fo ON fo.FundingOrgID = pf.FundingOrgID
