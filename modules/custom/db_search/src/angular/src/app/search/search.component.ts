@@ -44,12 +44,14 @@ export class SearchComponent implements OnInit, AfterViewInit {
         this.loading = false;
       }
     )
+  }
 
+  updateAnalytics(event: Object) {
     this.queryServerAnalytics(this.parameters).subscribe(
       response => this.analytics = this.processAnalytics(response)
     );
   }
-
+    
   processAnalytics(response) {
     let analytics = {};
     analytics['count'] = response.count;

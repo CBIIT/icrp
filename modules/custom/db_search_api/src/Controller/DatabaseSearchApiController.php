@@ -193,7 +193,7 @@ class DatabaseSearchAPIController extends ControllerBase {
           'institution'           => $row['institution'],
           'city'                  => $row['City'],
           'state'                 => $row['State'],
-          'country'               => $row['country'],
+          'country'               => $row['Country'],
           'funding_organization'  => $row['FundingOrg'],
           'award_code'            => $row['AwardCode']
         ]);
