@@ -125,3 +125,15 @@
     color: black;
     outline: 1px solid white;
 }
+
+
+input.select-input-disabled.default {
+  width: 100%;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  
+  border: 1px solid #D1D1D1;
+  background-color: #EFEFEF;
+  border-radius: 2px;
+  box-sizing: border-box;
+}

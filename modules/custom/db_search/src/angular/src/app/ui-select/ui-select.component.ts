@@ -4,14 +4,14 @@ import {
   EventEmitter,
   forwardRef,
   Input,
-  OnChanges,
   Output,
-  SimpleChanges,
   ViewChild
 } from '@angular/core';
 
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-
+import { 
+  ControlValueAccessor, 
+  NG_VALUE_ACCESSOR 
+} from '@angular/forms';
 
 @Component({
   selector: 'ui-select',
@@ -26,208 +26,175 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
     multi: true
   }]  
 })
-export class UiSelectComponent implements OnChanges {
+
+export class UiSelectComponent {
 
   /** The array of possible items for this input */
-  @Input() items: { "value": string | number, "label": string | number }[] | string[];
+  @Input() items: { "value": number | string, "label": "string"}[];
 
   /** Placeholder text */
   @Input() placeholder: string;
-  
+
+  /** Control evaluation of this component */
+  @Input() disabled: boolean;
+
   /** Updates whenever an item has been selected or deselected  */
-  @Output() onSelect: EventEmitter<string[]>;
+  @Output() onSelect: EventEmitter<(string | number)[]>;
 
   /** Reference to the input element */
   @ViewChild('input') input: ElementRef;
 
-  /** Actual values for all items */
-  values: string[];
-  
-  /** Labels for all items */
-  labels: string[];
+  /** Selected items */
+  selectedItems: { "value": number | string, "label": "string"}[];
 
-  /** Indexes of selected items */  
-  selectedItems: number[];
+  /** Indexes of items matching the search results 
+   * index refers to the index of the item 
+   * location refers to the location of the matched text 
+   */  
+  matchingItems: { "value": number | string, "label": "string"} [];
 
-  /** Indexes of matched items - index refers to the index of the item, location refers to the location of the matched item */  
-  matchingItems: { "index": number, "location": number }[];
+  /** Index of highlighted item in search dropdown */
+  highlightedItemIndex: number;
 
-  selectedIndex: number;
+  /** Boolean controlling whether search dropdown should appear or not */
+  showSearchDropdown: boolean;
 
-  isActive: boolean;
-
-
-
-  writeValue(values: string[]) {
+  constructor(private _ref: ElementRef) {
+    this.disabled = false;
+    this.showSearchDropdown = false;
+    this.items = [];
+    this.placeholder = '';
+    this.onSelect = new EventEmitter<(string | number)[]>();
 
     this.selectedItems = [];
-    
-    if (values && values.length) {
-      for (let value of values) {
-        let index = values.indexOf(value);
-        this.selectedItems.push(index);
-      }
-    }
-    
+    this.matchingItems = [];
+    this.highlightedItemIndex = -1;
   }
 
+  /** Sets the value of this control */
+  writeValue(values: string[]) {
+    this.selectedItems = [];
+    if (values && values.length) {
+      for (let value of values) {
+        this.selectedItems.push(
+          this.items.find(item => item.value == value)
+        );
+      }
+    }
+  }
+
+  /** Register change handlers */
   propagateChange(_: any) { };
   registerOnTouched() { }
   registerOnChange(fn) {
     this.propagateChange = fn;
   }
 
-
-  
-  constructor(private _ref: ElementRef) {
-    this.isActive = false;
-    this.items = [];
-    this.placeholder = '';
-    this.onSelect = new EventEmitter<string[]>();
-    this.values = [];
-    this.labels = [];
-    this.selectedItems = [];
-    this.matchingItems = [];
-    this.selectedIndex = -1;
-  }
-
-  updateSelection() {
-    let selection = this.values.filter((v, i) => {
-      return this.selectedItems.indexOf(i) >= 0;
-    })
-
-    this.onSelect.emit(selection);
-    this.propagateChange(selection);
+  emitValue() {
+    let values = this.selectedItems.map(item => item.value);
+    this.propagateChange(values);
+    this.onSelect.emit(values);
   }
 
   removeSelectedItem(index: number) {
     this.selectedItems.splice(index, 1);
-    this.updateSelection();
+    this.emitValue();
   }
 
-  addSelectedItem(index: number) {
-    this.selectedItems.push(index);
+  addSelectedItem(item: { "value": number | string, "label": "string"}) {
+      console.log('attempting to add value', this.matchingItems[this.highlightedItemIndex]);
+
+    this.selectedItems.push(item);
     this.input.nativeElement.value = '';
-    this.updateSelection();
+    this.emitValue();
   }
 
-  update(event: KeyboardEvent) {
-    let input = this.input.nativeElement;
+  handleKeydownEvent(event: KeyboardEvent) {
 
-    if (event.key === 'Enter' && this.matchingItems.length >= 0) {
-      this.selectedItems.push(this.matchingItems[this.selectedIndex].index)
-      input.value = '';
+    if (event.key === 'Enter' && this.matchingItems.length > 0) {
+      event.preventDefault();
+
+      this.addSelectedItem(this.matchingItems[this.highlightedItemIndex]);
       this.updateSearchResults();
     }
 
-    else if (event.key === 'Backspace' && input.value.length === 0 && this.selectedItems.length > 0) {
+    if (event.key === 'Backspace' 
+    && this.input.nativeElement.value.length === 0 
+    && this.selectedItems.length > 0) {
       this.selectedItems.pop();
       this.updateSearchResults();
+      this.emitValue();
     }
+  }
 
-    else if (event.key === 'ArrowUp') {
-      this.selectedIndex --;
+  handleKeyupEvent(event: KeyboardEvent) {
+    let input = this.input.nativeElement;
 
-      if (this.selectedIndex < 0)
-        this.selectedIndex = this.matchingItems.length - 1;
+
+    if (event.key === 'ArrowUp') {
+      this.highlightedItemIndex --;
+
+      if (this.highlightedItemIndex < 0)
+        this.highlightedItemIndex = this.matchingItems.length - 1;
     }
 
     else if (event.key === 'ArrowDown') {
-      this.selectedIndex ++;
+      this.highlightedItemIndex ++;
 
-      if (this.selectedIndex >= this.matchingItems.length)
-        this.selectedIndex = 0;
+      if (this.highlightedItemIndex >= this.matchingItems.length)
+        this.highlightedItemIndex = 0;
     }
-      
+
     else {
       this.updateSearchResults();
     }
-
-
   }
-
 
   /** Updates matching indexes */
   updateSearchResults(): void {
     let label = this.input.nativeElement.value;
 
-    this.matchingItems = this.labels.reduce((accumulator, current, index) => {
+    this.matchingItems = this.items
+      .filter(item => !this.selectedItems.find(selectedItem => item.label == selectedItem.label))
+      .filter(item => item.label.toLowerCase().indexOf(label.toLowerCase()) > -1)
 
-      let loc = label.length && current.toLowerCase().indexOf(label.toLowerCase());
-      
-      if ((loc >= 0 && this.selectedItems.indexOf(index) == -1))
-        accumulator.push({
-          index: index,
-          location: loc
-        });
-      return accumulator;
-    }, []);
-
-    this.selectedIndex = this.matchingItems.length ? 0 : -1;
+    this.highlightedItemIndex = this.matchingItems.length ? 0 : -1;
+    this.showSearchDropdown = this.matchingItems.length > 0;
   }
 
-  highlightItem(item: { "index": number, "location": number }, index: number): string {
+  highlightItem(item: { "value": number | string, "label": "string"}): string {
 
-    let label: string = this.labels[item.index];
-    let length: number = this.input.nativeElement.value.length;
-
+    let label: string = item.label;
+    let inputValue = this.input.nativeElement.value;
+    let inputLength: number = this.input.nativeElement.value.length;
     let displayString = label;
     
-    if (item.location >= 0) {
-      let first = label.substr(0, item.location);
-      let mid = label.substr(item.location, length);
-      let end = label.substr(item.location + length);
+    if (inputValue && inputLength) {
+      let location = label.toLowerCase().indexOf(inputValue.toLowerCase());
 
-      displayString = first + '<b>' + mid + '</b>' + end;
+      if (location >= 0) {
+        let first = label.substr(0, location);
+        let mid = label.substr(location, inputLength);
+        let end = label.substr(location + inputLength);
+
+        displayString = first + '<b>' + mid + '</b>' + end;
+      }
     }
-
+    
     return displayString;
   }
 
   focusInput(event: any) {
-    this.isActive = this._ref.nativeElement.contains(event.target);
+    this.showSearchDropdown = this._ref.nativeElement.contains(event.target);
 
-    if (this.isActive) {
+    if (this.showSearchDropdown) {
       this.input.nativeElement.focus();
       this.updateSearchResults();
-      this.isActive = true;
+      this.showSearchDropdown = true;
     }
   }
 
-  selectIndex(index) {
-    console.log('new index', index);
-    this.selectedIndex = index;
+  highlightIndex(index) {
+    this.highlightedItemIndex = index;
   }
-
-  
-
-  ngOnChanges(changes: SimpleChanges) {
-    console.log('changes made to input', changes);
-    if (changes['items']) {
-      console.log('re-initializing with items', this.items);
-      this.initializeItems(this.items);
-    }
-  }
-
-
-  /**
-   * Initializes separate arrays for values and labels to improve performance
-   */
-  initializeItems(items: any[]) {
-    
-    this.values = [];
-    this.labels = [];
-
-    items.forEach(item => {
-      if (typeof item === 'string') {
-        this.values.push(item);
-        this.labels.push(item);
-      } else if (typeof item === 'object' && item.value && item.label) {
-        this.values.push(item.value);
-        this.labels.push(item.label);
-      }
-    })
-  }
-
-  
 }

@@ -42,9 +42,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     this.loading = true;
     
-    for (let key of Object.keys(event)) {
-      if (event[key])
+    for (let key in event) {
+      if (event[key]) {
         this.parameters[key] = event[key];
+      }
     }
 
     this.queryServer(this.parameters).subscribe(
@@ -85,6 +86,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
       params.set(key, parameters[key]);
     }
 
+
+
     return this.http.get(endpoint, {search: params})
       .map((res: Response) => res.json())
       .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
@@ -94,6 +97,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
   queryServer(parameters: Object): Observable<any[]> {
     let endpoint = 'https://icrpartnership-demo.org/db/public/search';
     let params = new URLSearchParams();
+
+    for (let key in parameters) {
+
+    }
 
     if (!parameters['page_size'] || !parameters['page_number']) {
       parameters['page_size'] = 50;

@@ -16,6 +16,7 @@ import {
 import { Http } from '@angular/http';
 import { SearchFields } from './search-form.fields';
 import { Fields } from './fields'
+import { TreeNode } from '../ui-treeview/treenode';
 
 @Component({
   selector: 'app-search-form',
@@ -45,7 +46,12 @@ export class SearchFormComponent implements OnInit {
     cso_research_areas?: string
   }>;
 
+  funding_organizations: TreeNode;
+  cso_research_areas: TreeNode;
+
   fields: Fields;
+
+
   form: FormGroup;
 
   constructor(
@@ -102,7 +108,10 @@ export class SearchFormComponent implements OnInit {
       cancer_types: [],
       project_types: [],
       cso_research_areas: []
-    }    
+    }
+
+    this.funding_organizations = null;
+    this.cso_research_areas = null;
   }
 
   submit() {
@@ -146,42 +155,167 @@ export class SearchFormComponent implements OnInit {
     this.search.emit(parameters)
   }
 
-  updateLocationSearch() {
-    console.log('UPDATING SEARCH LOCATION', this.form.controls['countries'].value);
+  filterStates(states: { "value": string, "label": string, "group": string }[], countries: string[]) {
+    return states.filter(state => countries.indexOf(state.group) > -1 || !countries.length);
   }
 
+  filterCities(
+    cities: { "value": string, "label": string, "group": string, "supergroup": string }[], 
+    states: string[],
+    countries: string[]) {
+    return cities
+      .filter(city => countries.map(c => c.trim()).indexOf(city.supergroup) > -1 || !countries.length)
+      .filter(city => states.map(s => s.trim()).indexOf(city.group) > -1 || !states.length);
+  }
 
-  /*
-    updateFilters(type: string, event: any) {
-      console.log(type, event);
-      this.locationFilters[type] = event;
-      console.log(this.locationFilters);
-  
-      this.applyFilters()
+  addTreeNode(
+    parent: TreeNode,
+    child: TreeNode
+  ) {
+    if (!parent.children) {
+      parent.children = [];
     }
-  
-    applyFilters() {
-      this.fields = {
-        years: this.searchFields.getYears(),
-        countries: this.searchFields.getCountries(),
-        states: this.searchFields.getStates(this.locationFilters.countries),
-        cities: this.searchFields.getCities(this.locationFilters.countries, this.locationFilters.states),
-        currencies: this.searchFields.getCurrencies(),
-        cancerSites: this.searchFields.getAllCancerSites(),
-        projectTypes: this.searchFields.getAllProjectTypes(),
-        fundingOrgs: this.searchFields.getFundingOrganizations(this.locationFilters.countries, null, null),
-        csoAreas: this.searchFields.getCsoAreas(null)
+
+    parent.children.push(child);
+    return child;
+  }
+
+  createTreeNode(
+    items: {
+      "value": number, 
+      "label": string, 
+      "group": string, 
+      "supergroup": string }[], type: string): TreeNode {
+    
+    let root: TreeNode = null;
+    let supergroups: TreeNode[] = [];
+    let groups: TreeNode[] = [];
+
+    // initialize all groups
+    items.forEach(item => {
+
+      if (!supergroups.find(sgItem => sgItem.value == item.supergroup)) {
+
+        let label = item.supergroup;
+        if (type === 'funding_organizations') {
+          label = `All ${item.supergroup} organizations`
+        }
+
+        supergroups.push({
+          value: item.supergroup,
+          label: label,
+          children: []
+        })
       }
-    }*/
 
+      if (!groups.find(gItem => gItem.value == item.group)) {
 
+       let label = item.group;
+        if (type === 'funding_organizations') {
+          label = `All ${item.group} organizations`
+        }        
 
+        groups.push({
+          value: item.group,
+          label: label,
+          children: []
+        })
+      }
+    });
 
+    // add groups to supergroups
+    items.forEach(item => {
+      let supergroup = supergroups.find(sgItem => sgItem.value == item.supergroup);
+      let group = groups.find(gItem => gItem.value == item.group);
 
+      if (!supergroup.children.find(sgChild => sgChild.value == group.value)) {
+        this.addTreeNode(supergroup, group);
+      }
+      
+      this.addTreeNode(group, {
+        value: (item.value).toString(),
+        label: item.label
+      })
+    })
+
+    // if supergroups or groups only have one child, replace the parent node with the child
+    for (let i = 0; i < groups.length; i ++) {
+      let group = groups[i];
+
+      if (group.children && group.children.length == 1) {
+        let child = group.children[0];
+
+        group.label = child.label;
+        group.value = child.value;
+        delete group.children;
+      }
+    }
+
+    // move groups with multiple children to the front
+    let sortfn = (a: TreeNode, b: TreeNode) => {
+
+      if (type === 'funding_organizations') {
+        if (a.children && b.children) {
+          return a.children.length - b.children.length;
+        }
+        
+        return a.label.localeCompare(b.label)
+      }
+
+      else if (type === 'cso_research_areas') {
+        if (b.value == '0') return -999;
+        return a.value.localeCompare(b.value);
+      }
+    }
+
+    for (let i = 0; i < supergroups.length; i ++) {
+      let supergroup = supergroups[i];
+      supergroup.children.sort(sortfn);
+
+      for (let j = 0; j < supergroup.children.length; j ++) {
+        let group = supergroup.children[j];
+        if (group.children)
+          group.children.sort(sortfn)
+      }
+    }
+
+    // funding_organizations US only - create 'All Other US organizations group'
+
+    let label = 'All';
+    if (type === 'funding_organizations') {
+      label = `All organizations`
+    }
+
+    if (supergroups.length == 1) {
+
+      root = {
+        value: supergroups[0].value,
+        label: supergroups[0].label,
+        children: supergroups[0].children
+      }
+    }
+
+    else {
+      root = {
+        value: null,
+        label: label,
+        children: supergroups
+      }
+
+    }
+
+    console.log('created treenode', root);
+
+    return root;
+ }
 
   ngOnInit() {
     new SearchFields(this.http).getFields()
-      .subscribe(response => this.fields = response);
+      .subscribe(response => {
+        this.fields = response;
+        this.funding_organizations = this.createTreeNode(this.fields.funding_organizations, 'funding_organizations');
+        this.cso_research_areas = this.createTreeNode(this.fields.cso_research_areas, 'cso_research_areas');
+      });
   }
 
 }

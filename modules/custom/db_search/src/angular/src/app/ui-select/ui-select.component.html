@@ -1,20 +1,32 @@
-<div class="select-container default">
+<input 
+  *ngIf="disabled" 
+  class="select-input-disabled default" 
+  [placeholder]="placeholder" 
+  type="text" 
+  disabled #input>
+
+<div class="select-container default" *ngIf="!disabled">
   <div class="select-input-container default">
     <div class="select-label default" *ngFor="let item of selectedItems; let index = index">
-      <div>{{labels[item]}}</div>
+      <div>{{item.label}}</div>
       <div (click)="removeSelectedItem(index)">&#x2715;</div>
     </div>
     <div>
-      <input class="select-input default" type="text" (keyup)="update($event)" #input [placeholder]="selectedItems.length ? '' : placeholder">
+      <input class="select-input default" type="text" 
+        (keydown)="handleKeydownEvent($event)"
+        (keyup)="handleKeyupEvent($event)" 
+        [placeholder]="selectedItems.length ? '' : placeholder"
+        #input>
     </div>
   </div>
 
-  <div class="select-dropdown default" [style.display]="isActive && matchingItems.length ? 'block': 'none'">
+  <div class="select-dropdown default" [style.display]="showSearchDropdown && matchingItems.length ? 'block': 'none'">
     <div *ngFor="let item of matchingItems; let index = index" 
       class="select-dropdown-item default" 
-      [ngClass]="{'selected': index === selectedIndex}"  
-      [innerHTML]="highlightItem(item, index)" 
-      (click)="addSelectedItem(item.index)" 
-      (mouseover)="selectIndex(index)" #el></div>
+      [ngClass]="{'selected': index === highlightedItemIndex}"  
+      [innerHTML]="highlightItem(item)" 
+      (click)="addSelectedItem(item)" 
+      (mouseover)="highlightIndex(index)" #el></div>
   </div>
 </div>
+

@@ -89,13 +89,14 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
     )
 
     /** Create checkboxes/label group if this is a leaf node */
-    if (!hasChildren) {
+//    if (!hasChildren) {
       
       /** Create label */
       let label = this.renderer.createElement(
         div,
         'label'
       )
+
       
       /** Create checkbox */
       let checkbox = this.renderer.createElement(
@@ -153,7 +154,7 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
       this.renderer.setElementStyle(
         label,
         'font-weight',
-        'normal'
+        hasChildren ? 'bold': 'normal'
       )
 
       this.renderer.setElementStyle(
@@ -161,32 +162,32 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
         'cursor',
         'pointer'
       )
-    }
+//    }
     
-    /** If this is not a leaf node, simply create a span */
+    /** If this is not a leaf node, simply create a span 
     else {
       
-      /** Span containing node label */
+      /** Span containing node label 
       let span = this.renderer.createElement(
         div,
         'span'
-      )
+      )*/
 
-      /** Add text to span */
+      /** Add text to span 
       this.renderer.createText(
         span,
         node.label
-      )
+      )*/
 
-      /** When this span is clicked, rebuild its contents */
+      /** When this span is clicked, rebuild its contents 
       this.renderer.listen(
         span,
         'click',
         (event) => this.toggleNode(node, div)
-      )
+      )*/
 
       /** Add style to span */
-      this.renderer.setElementStyle(
+/*      this.renderer.setElementStyle(
         span,
         'font-weight',
         'bold'
@@ -209,7 +210,7 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
         'margin-top',
         '2px'
       )
-    }
+    }*/
 
 
     if (hasChildren) {

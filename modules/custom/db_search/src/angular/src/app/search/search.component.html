@@ -3,5 +3,12 @@
 </div>
 
 <div class="col-md-8">
-  <app-search-results [results]="results" [searchParameters]="parameters" [analytics]="count" [loading]="loading" (paginate)="paginate($event)" (sort)="sort($event)" [param]="parameters"></app-search-results>
+  <app-search-results 
+    [results]="results"
+    [param]="parameters"
+    [searchParameters]="parameters" 
+    [analytics]="count" 
+    [loading]="loading" 
+    (paginate)="paginate($event)" 
+    (sort)="sort($event)"></app-search-results>
 </div>

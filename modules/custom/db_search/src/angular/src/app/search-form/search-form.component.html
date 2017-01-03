@@ -1,4 +1,4 @@
-<form [formGroup]="form" (ngSubmit)="submit()">
+<form [formGroup]="form" >
 
   <!-- Search Terms -->
   <ui-panel title="Search Terms" [visible]="true">
@@ -78,8 +78,8 @@
       [formControl]="form.controls.institution">
 
     <label class="form-label" for="pi_first_name">Principal Investigator</label>
-    <div class="clearfix">
-      <div class="six columns">
+    <div class="row">
+      <div class="col-md-6">
         <input 
           class="text input"
           type="text"
@@ -88,7 +88,7 @@
           [formControl]="form.controls.pi_first_name">
       </div>
 
-      <div class="six columns" for="pi_last_name">
+      <div class="col-md-6" for="pi_last_name">
         <input
           class="text input"
           type="text"
@@ -115,22 +115,35 @@
       [formControl]="form.controls.award_code">
 
     <label class="form-label" for="countries">Country</label>
-    <ui-select placeholder="Enter Countries" [items]="fields.countries" [formControl]="form.controls.countries" (onSelect)="updateLocationSearch($event)"></ui-select>
+    <ui-select 
+      placeholder="Enter Countries" 
+      [items]="fields.countries" 
+      [formControl]="form.controls.countries">
+    </ui-select>
 
     <label class="form-label" for="states">State/Territory</label>
-    <ui-select placeholder="Enter States/Territories" [items]="fields.states" [formControl]="form.controls.states"></ui-select>
+    <ui-select 
+      placeholder="Enter States/Territories" 
+      [items]="filterStates(fields.states, form.controls['countries'].value || [])" 
+      [formControl]="form.controls.states">
+      [disabled]="!form.controls['country'].value">
+
+    </ui-select>
 
     <label class="form-label" for="cities">City</label>
-    <ui-select placeholder="Enter Cities" [items]="fields.cities" [formControl]="form.controls.cities"></ui-select>
+    <ui-select 
+      placeholder="Enter Cities" 
+      [items]="filterCities(fields.cities, form.controls['states'].value || [], form.controls['countries'].value || [])" 
+      [formControl]="form.controls.cities">
+      [disabled]="!form.controls['country'].value">
+    </ui-select>
   </ui-panel>
 
   <!-- Funding Organizations -->
   <ui-panel title="Funding Organizations">
     <label class="sr-only" for="funding_organizations">Funding Organizations</label>
-    <div class="multiselect">
-<!--
-      <ui-treeview [root]="searchFields.fundingOrgs" [formControl]="form.controls.funding_organizations"></ui-treeview>
--->
+    <div class="multiselect" *ngIf="funding_organizations">
+      <ui-treeview [root]="funding_organizations" [formControl]="form.controls.funding_organizations"></ui-treeview>
     </div>
   </ui-panel>
 
@@ -147,11 +160,8 @@
   <ui-panel title="Common Scientific Outline - Research Area">
     <label class="sr-only" for="cso_research_areas">CSO - Research Areas</label>
 
-    <div class="multiselect">
-
-    <!--
-      <ui-treeview [root]="searchFields.csoAreas" [formControl]="form.controls.cso_research_areas"></ui-treeview>
--->
+    <div class="multiselect" *ngIf="cso_research_areas">
+      <ui-treeview [root]="cso_research_areas" [formControl]="form.controls.cso_research_areas"></ui-treeview>
     </div>
   </ui-panel>
 
