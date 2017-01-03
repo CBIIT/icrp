@@ -300,7 +300,7 @@ class DatabaseSearchAPIController extends ControllerBase {
       'sort_type',
       'search_terms',
       'search_type',
-      'year',
+      'years',
       'institution',
       'pi_first_name',
       'pi_last_name',
