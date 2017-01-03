@@ -51,3 +51,27 @@ input:-ms-input-placeholder { /* Edge */
     color: #AAA !important;
     font-weight: 400;
 }
+
+.tooltip-inner {
+  opacity: 0.85 !important;
+  border: 1px solid #DDD !important;
+  background-color: #FFF !important;
+  color: #555 !important;
+}
+
+
+.tooltip.left .tooltip-arrow {
+  border-left-color: #CCC !important;
+}
+
+.tooltip.right .tooltip-arrow {
+  border-right-color: #CCC !important;
+}
+
+.tooltip.top .tooltip-arrow {
+  border-top-color: #CCC !important;
+}
+
+.tooltip.bottom .tooltip-arrow {
+  border-bottom-color: #CCC !important;
+}

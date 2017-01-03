@@ -14,7 +14,7 @@ import { UiTreeviewComponent } from './ui-treeview/ui-treeview.component';
 import { UiTableComponent } from './ui-table/ui-table.component';
 import { UiChartComponent } from './ui-chart/ui-chart.component';
 
-import { TooltipModule } from 'ng2-bootstrap/ng2-bootstrap';
+import { TooltipModule } from 'ng2-bootstrap';
 
 @NgModule({
   declarations: [
