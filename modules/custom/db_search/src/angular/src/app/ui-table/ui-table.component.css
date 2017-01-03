@@ -13,6 +13,9 @@ table.ui-table {
 table.ui-table > thead > tr > th {
     cursor: pointer;
     white-space: nowrap;
+
+    background-color: #337ab7;
+    color: white;
 }
 
 
@@ -40,16 +43,18 @@ table.ui-table > tbody > tr > td > a {
     color: #444;
 }
 
-table.ui-table > tbody > tr:nth-child(odd) {
+table.ui-table > tbody > tr:nth-child(even) {
     background-color: #F5F5F5;
 }
 
 table.ui-table .cell-background {
-    color: #DDD;
+    color: white;
+
+    opacity: 0.7;
     
     position: absolute;
     right: 5px;
-    z-index: -1;
+    z-index: 999;
     overflow: hidden;
 }
 

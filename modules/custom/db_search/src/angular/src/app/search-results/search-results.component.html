@@ -12,10 +12,6 @@ Default search results are shown below (all projects, all years). Use the form o
 </p>
 </div>
 
-
-
-
-  
 <div class="row">
   <div class="col-md-3">
     <ui-chart 
@@ -46,33 +42,18 @@ Default search results are shown below (all projects, all years). Use the form o
       type="pie" 
       [data]="(analytics && analytics.projects_by_type) || []"></ui-chart>
   </div>
-
-
-</div>
-<!--
-<div class="row" style="display: none">
-
-  <div class="four columns">
-    <ui-chart title="Projects by Type"></ui-chart>
-  </div>
-
-  <div class="four columns">
-    <ui-chart title="Projects by Institution"></ui-chart>
-  </div>
-
-  <div class="four columns">
-    <ui-chart title="Projects by Funding Organization"></ui-chart>
-  </div>
-
-
-<div>
-  <button class="btn btn-small btn-default">Email results</button>
-  <button class="btn btn-small btn-default">Export results</button>
 </div>
 
 
+<div class="row" style="margin-top: 8px; margin-bottom: 5px;">
+  <button class="btn btn-xs btn-default">
+    <span class="glyphicon glyphicon-envelope"></span>
+    Email results</button>
+  <button class="btn btn-xs btn-default">
+    <span class="glyphicon glyphicon-download-alt"></span>
+    Export results</button>
 </div>
--->
+
 
 <div class="row">
   <ui-table 
