@@ -139,8 +139,6 @@ export class SearchFormComponent implements OnInit {
     };
 
     // remove unused parameters
-    delete parameters['years'];
-
     for (let key in parameters) {
       if (!parameters[key] || parameters[key].length === 0) {
         delete parameters[key];
