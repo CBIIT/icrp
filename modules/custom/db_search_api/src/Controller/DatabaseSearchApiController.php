@@ -28,7 +28,7 @@ class DatabaseSearchAPIController extends ControllerBase {
     'sort_type'             => 'SortDirection',
     'search_terms'          => 'terms',
     'search_type'           => 'termSearchType',
-    'years'                 => '',
+    'years'                 => 'yearList',
     'institution'           => 'institution',
     'pi_first_name'         => 'piFirstName',
     'pi_last_name'          => 'piLastName',
@@ -41,6 +41,7 @@ class DatabaseSearchAPIController extends ControllerBase {
     'cancer_types'          => 'cancerTypeList',
     'project_types'         => 'projectTypeList',
     'cso_research_areas'    => 'CSOList'
+    'exclude_duplicates'    => 'OnlyBaseProjects'
   ];
 
   private static $sort_column_mappings = [
@@ -351,6 +352,7 @@ class DatabaseSearchAPIController extends ControllerBase {
    */
   public function public_analytics( Request $request ) {
     $param = self::map_fields($request);
+    $param[self::$parameter_mappings['exclude_duplicates']] = 0;
     $response = new JSONResponse( self::count_database_groups($param) );
     return self::add_cors_headers($response);
   }
