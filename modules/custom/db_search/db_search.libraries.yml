@@ -2,8 +2,8 @@ custom:
   version: 1.0
   css:
     theme:
-      assets/styles.cafaca37d670324bdb11.bundle.css: {}
+      assets/styles.ed756ad227466109cd65.bundle: {}
   js:
-    assets/inline.fc67ed33ea7d7835ef7f.bundle.js: {}
-    assets/vendor.57d71b397b32e4f10dd6.bundle.js: {}
-    assets/main.987a99d814787b9478ed.bundle.js: {}
+    assets/inline.e53bb49c74b70043637a.bundle.js: {}
+    assets/vendor.6aa1a01ca6e5abfaa908.bundle.js: {}
+    assets/main.de83abf8e4abf0892ddf.bundle.js: {}
