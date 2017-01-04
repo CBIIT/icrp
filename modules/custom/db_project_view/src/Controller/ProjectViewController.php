@@ -126,8 +126,8 @@ class ProjectViewController extends ControllerBase {
       'state' => [],
       'country' => [],
       'award_code' => [],
-      'alt_award_code' => [],
       'funding_organization' => [],
+      'alt_award_code' => [],
       'budget_start_date' => [],
       'budget_end_date' => [],
       'project_start_date' => [],
@@ -143,7 +143,11 @@ class ProjectViewController extends ControllerBase {
 
     foreach($project_details as $row) {
       foreach (array_keys($row) as $key) {
-        array_push($results[$key], $row[$key]);
+
+        $value = trim($row[$key]);
+        if ($value) {
+          array_push($results[$key], $value);
+        }
       }
     }
 
