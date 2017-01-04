@@ -23,6 +23,7 @@
   <table class="table table-bordered table-striped table-condensed">
     <thead>
       <tr>
+        <th>Award Code</th>
         <th>Funding Organization</th>
         <th>Award Funding Period</th>
         <th>Principal Investigator</th>
@@ -33,6 +34,7 @@
     <tbody>
       {% for f in funding_organization %}
         <tr>
+          <td>{{ alt_award_code[loop.index0] ?? 'Unavailable' | raw }}</td>
           <td>{{ funding_organization[loop.index0] ?? 'Unavailable' | raw }}</td>
           <td>
               {{ (budget_start_date[loop.index0] and budget_end_date[loop.index0]) 

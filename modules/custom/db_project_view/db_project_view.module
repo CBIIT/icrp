@@ -17,6 +17,7 @@ function db_project_view_theme($existing, $type, $theme, $path) {
           'state' => NULL,
           'country' => NULL,
           'award_code' => NULL,
+          'alt_award_code' => NULL,
           'funding_organization' => NULL,
           'budget_start_date' => NULL,
           'budget_end_date' => NULL,
