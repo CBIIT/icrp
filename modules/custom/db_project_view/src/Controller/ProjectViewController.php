@@ -27,12 +27,16 @@ class ProjectViewController extends ControllerBase {
    */
   function get_connection() {
 
-    $cfg = parse_ini_file(self::$connection_ini);
+    $cfg = [];
+    $sys_cfg = \Drupal::config('icrp_database');
+    foreach(['driver', 'host', 'port', 'database', 'username', 'password'] as $key) {
+       $cfg[$key] = $drupal_cfg->get($key);
+    }
 
     // connection string
     $cfg['data_source'] =
       $cfg['driver'] .
-      ":Server={$cfg['server']},{$cfg['port']}" .
+      ":Server={$cfg['host']},{$cfg['port']}" .
       ";Database={$cfg['database']}";
 
     // default configuration options
