@@ -17,9 +17,11 @@ export class SearchComponent implements OnInit, AfterViewInit {
   parameters: any;
   results: any;
   loading: boolean;
+  loadingAnalytics: boolean;
   analytics: any;
 
   constructor(private http: Http) {
+    this.loadingAnalytics = true;
     this.loading = true;
     this.analytics = null;
     this.mappedParameters = {};
@@ -53,8 +55,12 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   updateAnalytics(event: Object) {
+    this.loadingAnalytics = true;
     this.queryServerAnalytics(this.parameters).subscribe(
-      response => this.analytics = this.processAnalytics(response)
+      response => {
+        this.loadingAnalytics = false;
+        this.analytics = this.processAnalytics(response);
+      }
     );
   }
     

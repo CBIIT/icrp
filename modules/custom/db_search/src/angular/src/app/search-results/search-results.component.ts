@@ -11,6 +11,8 @@ import { UiChartParameters } from '../ui-chart/ui-chart.parameters';
 export class SearchResultsComponent implements OnChanges, AfterViewInit  {
 
   @Input() loading;  
+  @Input() loadingAnalytics: boolean;  
+
   @Input() results;
   @Input() analytics;
   @Input() searchParameters;
@@ -30,6 +32,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   projectColumns;
 
   constructor() {
+    this.loadingAnalytics = true;
     this.showCriteria = false;
     this.searchCriteriaGroups = [];
     

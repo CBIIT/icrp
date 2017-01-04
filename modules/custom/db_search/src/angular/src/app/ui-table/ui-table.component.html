@@ -1,7 +1,10 @@
 <div class="ui-table-wrapper">
+  <div class="loading-wrapper" *ngIf="loading">
+    <div class="loading"></div>
+  </div>
   <table class="ui-table">
     <thead #thead></thead>
-    <tbody #tbody [ngClass]="{'table-loading': loading}"></tbody>
+    <tbody #tbody></tbody>
   </table>
 </div>
 

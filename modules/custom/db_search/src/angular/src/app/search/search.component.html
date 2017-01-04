@@ -1,12 +1,13 @@
-<div class="col-md-4">
+<div class="col-md-3">
   <app-search-form (search)="updateResults($event); updateAnalytics($event)" (mappedSearch)="updateMappedParameters($event)"></app-search-form>
 </div>
 
-<div class="col-md-8">
+<div class="col-md-9">
   <app-search-results 
     [results]="results"
     [analytics]="analytics" 
     [loading]="loading" 
+    [loadingAnalytics]="loadingAnalytics" 
     [searchParameters]="mappedParameters"
     (paginate)="paginate($event)" 
     (sort)="sort($event)"></app-search-results>

@@ -20,6 +20,12 @@
 
 
 <div class="row" style="margin-top: 10px">
+
+
+  <div class="col-md-12 text-center clearfix loading-wrapper" style="padding-top: 140px; position: absolute" *ngIf="loadingAnalytics">
+    Loading Charts...
+  </div>
+
   <div class="col-md-3">
     <ui-chart 
       label="Projects by Country"
