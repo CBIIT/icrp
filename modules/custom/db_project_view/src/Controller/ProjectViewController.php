@@ -10,8 +10,39 @@ use PDO;
 
 class ProjectViewController extends ControllerBase {
 
-
-  private static $connection_ini = 'connection.ini';
+  /** Field mappings of database results to template variables */
+  const FIELD_MAP = [
+    'project_details' => [
+      'Title' => 'project_title',
+      'ProjectStartDate' => 'project_start_date',
+      'ProjectEndDate' => 'project_end_date',
+      'TechAbstract' => 'technical_abstract',
+      'PublicAbstract' => 'public_abstract',
+      'FundingMechanism' => 'funding_mechanism'
+    ],
+    'project_funding_details' => [
+      'piLastName' => 'pi_last_name',
+      'piFirstName' => 'pi_first_name',
+      'Institution' => 'institution',
+      'City' => 'city',
+      'State' => 'state', 
+      'Country' => 'country', 
+      'AltAwardCode' => 'alt_award_code', 
+      'FundingOrganization' => 'funding_organization', 
+      'BudgetStartDate' => 'budget_start_date', 
+      'BudgetEndDate' => 'budget_end_date', 
+    ],
+    'cancer_types' => [
+      'CancerType' => 'cancer_type',
+      'SiteURL' => 'cancer_type_url',
+    ],
+    'cso_research_areas' => [
+      'CSOCode' => 'cso_code',
+      'CategoryName' => 'cso_category',
+      'CSOName' => 'cso_name',
+      'ShortName' => 'cso_short_name'
+    ],
+  ];
 
   /**
    * Returns a PDO connection to a database
@@ -28,13 +59,13 @@ class ProjectViewController extends ControllerBase {
   function get_connection() {
 
     $cfg = [];
-    $sys_cfg = \Drupal::config('icrp_database');
+    $icrp_database = \Drupal::config('icrp_database');
     foreach(['driver', 'host', 'port', 'database', 'username', 'password'] as $key) {
-       $cfg[$key] = $drupal_cfg->get($key);
+       $cfg[$key] = $icrp_database->get($key);
     }
 
     // connection string
-    $cfg['data_source'] =
+    $cfg['dsn'] =
       $cfg['driver'] .
       ":Server={$cfg['host']},{$cfg['port']}" .
       ";Database={$cfg['database']}";
@@ -49,142 +80,51 @@ class ProjectViewController extends ControllerBase {
 
     // create new PDO object
     return new PDO(
-      $cfg['data_source'],
+      $cfg['dsn'],
       $cfg['username'],
       $cfg['password'],
       $cfg['options']
     );
   }
 
-  public function get_project_cancer_types($pdo, $project_id) {
-    $stmt = $pdo->prepare("
-      SELECT DISTINCT
-      ct.Name AS cancer_type,
-      ct.SiteURL AS cancer_type_url
-
-      FROM Project p
-      JOIN ProjectCancerType pct ON pct.ProjectID = p.ProjectID
-      JOIN CancerType ct ON ct.CancerTypeID = pct.CancerTypeID
-      WHERE p.ProjectID = :project_id");
-
-    $stmt->execute([':project_id' => $project_id]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-  }
-
-  public function get_project_cso_areas($pdo, $project_id) {
-    $stmt = $pdo->prepare("
-      SELECT DISTINCT
-      c.Code AS cso_code,
-      c.CategoryName AS cso_category,
-      c.Name AS cso_name
-
-      FROM Project p
-      JOIN ProjectCSO pc ON pc.ProjectID = p.ProjectID
-      JOIN CSO c ON c.Code = pc.CSOCode
-      WHERE p.ProjectID = :project_id");
-    $stmt->execute([':project_id' => $project_id]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-  }
-
-  public function get_project_details($pdo, $project_id) {
-    $stmt = $pdo->prepare("
-      SELECT DISTINCT
-      pf.Title AS project_title,
-      p.ProjectStartDate AS project_start_date,
-      p.ProjectEndDate AS project_end_date,
-      fm.Title AS funding_mechanism,
-      CONCAT(pfi.LastName, ', ', pfi.FirstName) AS principal_investigator,
-      i.Name AS institution,
-      i.City AS city,
-      i.State AS state,
-      i.Country AS country,
-      p.AwardCode AS award_code,
-      fo.Name AS funding_organization,
-      pf.AltAwardCode AS alt_award_code,
-      pf.BudgetStartDate AS budget_start_date,
-      pf.BudgetEndDate AS budget_end_date,
-      pa.TechAbstract AS technical_abstract,
-      pa.publicAbstract AS public_abstract
-
-      FROM Project p
-      JOIN ProjectFunding pf ON pf.ProjectID = p.ProjectID
-      JOIN ProjectAbstract pa ON pa.ProjectAbstractID = pf.ProjectAbstractID
-      JOIN ProjectFundingInvestigator pfi ON pfi.ProjectFundingID = pf.ProjectFundingID
-      JOIN Institution i ON i.InstitutionID = pfi.InstitutionID
-      JOIN FundingOrg fo ON fo.FundingOrgID = pf.FundingOrgID
-      LEFT JOIN FundingMechanism fm ON fm.FundingMechanismID = p.FundingMechanismID
-      WHERE p.ProjectID = :project_id");
-
-    $stmt->execute([':project_id' => $project_id]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-  }
-
   public function get_project($project_id) {
     $pdo = self::get_connection();
 
-    $results = [
-      'project_title' => [],
-      'principal_investigator' => [],
-      'institution' => [],
-      'city' => [],
-      'state' => [],
-      'country' => [],
-      'award_code' => [],
-      'funding_organization' => [],
-      'alt_award_code' => [],
-      'budget_start_date' => [],
-      'budget_end_date' => [],
-      'project_start_date' => [],
-      'project_end_date' => [],
-      'funding_mechanism' => [],
-      'technical_abstract' => [],
-      'public_abstract' => [],
-      'cancer_types' => [],
-      'cso_areas' => []
+    $queries = [
+      'project_details' => 'GetProjectDetail :project_id',
+      'project_funding_details' => 'GetProjectFunding :project_id',
+      'cancer_types' => 'GetProjectCancerType :project_id',
+      'cso_research_areas' => 'GetProjectCSO :project_id',
     ];
 
-    $project_details = self::get_project_details($pdo, $project_id);
+    // map queries to return values
+    return array_reduce(
+      array_map(function($key, $value) use ($pdo, $project_id) {
+        $stmt = $pdo->prepare($value);
+        $stmt->execute([':project_id' => $project_id]);
 
-    foreach($project_details as $row) {
-      foreach (array_keys($row) as $key) {
+        // map the result of each query to each template key
+        return [$key => array_map(function($row) use ($key) {
 
-        $value = trim($row[$key]);
-        if ($value) {
-          array_push($results[$key], $value);
-        }
-      }
-    }
-
-    $results['cancer_types'] = self::get_project_cancer_types($pdo, $project_id);
-    $results['cso_areas'] = self::get_project_cso_areas($pdo, $project_id);
-    return $results;
+          // map each field in the row to a template variable
+          return array_reduce( 
+            array_map(function($row_key, $row_value) use ($key) {
+                return [self::FIELD_MAP[$key][$row_key] => $row_value];
+            }, array_keys($row), $row)
+          , 'array_merge', []);
+        }, $stmt->fetchAll(PDO::FETCH_ASSOC))];
+      }, array_keys($queries), $queries), 
+    'array_merge', []);
   }
 
-  public function content($projectID) {
-    $results = self::get_project($projectID);
-
+  public function content($project_id) {
+    $results = self::get_project($project_id);
     return [
       '#theme' => 'db_project_view',
-
-      '#project_title' => $results['project_title'],
-      '#principal_investigator' => $results['principal_investigator'],
-      '#institution' => $results['institution'],
-      '#city' => $results['city'],
-      '#state' => $results['state'],
-      '#country' => $results['country'],
-      '#award_code' => $results['award_code'],
-      '#alt_award_code' => $results['alt_award_code'],
-      '#funding_organization' => $results['funding_organization'],
-      '#budget_start_date' => $results['budget_start_date'],
-      '#budget_end_date' => $results['budget_end_date'],
-      '#project_start_date' => $results['project_start_date'],
-      '#project_end_date' => $results['project_end_date'],
-      '#funding_mechanism' => $results['funding_mechanism'],
-      '#technical_abstract' => $results['technical_abstract'],
-      '#public_abstract' => $results['public_abstract'],
+      '#project_details' => $results['project_details'][0],
+      '#project_funding_details' => $results['project_funding_details'],
       '#cancer_types' => $results['cancer_types'],
-      '#cso_areas' => $results['cso_areas'],
-      
+      '#cso_research_areas' => $results['cso_research_areas'],
       '#attached' => [
         'library' => [
           'db_project_view/resources'
