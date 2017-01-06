@@ -1,5 +1,23 @@
-db_project_view.content:
+db_project_view.project_details:
   path: '/project/{project_id}'
+  defaults:
+    _controller: '\Drupal\db_project_view\Controller\ProjectViewController::content'
+    _title: 'Project Details'
+  requirements:
+    _permission: 'access content'
+    project_id: '[0-9]{1,9}'
+
+db_project_view.project_funding_details:
+  path: '/project/details/{project_funding_id}'
+  defaults:
+    _controller: '\Drupal\db_project_view\Controller\ProjectViewController::content'
+    _title: 'Project Details'
+  requirements:
+    _permission: 'access content'
+    project_funding_id: '[0-9]{1,9}'
+
+db_project_view.content_deprecated:
+  path: '/ViewProject/{project_id}'
   defaults:
     _controller: '\Drupal\db_project_view\Controller\ProjectViewController::content'
     _title: 'Project Details'
