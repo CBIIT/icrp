@@ -20,19 +20,11 @@
 
 	function getBaseUrl()
 	{
-		// output: /myproject/index.php
 		$currentPath = $_SERVER['PHP_SELF'];
-
-		// output: Array ( [dirname] => /myproject [basename] => index.php [extension] => php [filename] => index )
 		$pathInfo = pathinfo($currentPath);
-
-		// output: localhost
 		$hostName = $_SERVER['HTTP_HOST'];
-
-		// output: http://
 		$protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"],0,5))=='https://'?'https://':'http://';
 
-		// return: http://localhost/myproject/
 		return $protocol.$hostName."/";
 	}
 
@@ -46,40 +38,35 @@
 	$conn = getConnection();
 	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjects");
 	if(!$conn){
-		print "Connection failed";
+		$result = "Connection failed";
 	}
-	if ($stmt->execute()) {
-		$data = fopen($file_export, 'w');
-		fwrite($data, "Title,PIFirstName,PILastName,Institution,City,State,Country,Funding Organisation,Award Code,View in ICRP\n");
-		$count = 1;
-		while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
-			$count = $count + 1;
-			;
-			fwrite($data, "\"".$row[3]."\",\"".$row[4]."\",\"".$row[5]."\",\"".$row[7]."\",\"".$row[9]."\",\"".$row[10]."\",\"".$row[11]."\",\"".$row[13]."\",\"".$row[1]."\"," . $viewLink . $row[0] . "\n");
-			if($count == 50){
-				break;
+	else{
+		if ($stmt->execute()) {
+			$data = fopen($file_export, 'w');
+			fwrite($data, "Title,PIFirstName,PILastName,Institution,City,State,Country,Funding Organisation,Award Code,View in ICRP\n");
+			while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
+				fwrite($data, "\"".$row[3]."\",\"".$row[4]."\",\"".$row[5]."\",\"".$row[7]."\",\"".$row[9]."\",\"".$row[10]."\",\"".$row[11]."\",\"".$row[13]."\",\"".$row[1]."\"," . $viewLink . $row[0] . "\n");
 			}
-    	}
-		$result = "succeed";
-	} else {
-		$result = "failed to query server";
-	}
-	$data=null;
-	$conn=null;
+			$result = "succeed";
+		} else {
+			$result = "failed to query server";
+		}
+		$data=null;
+		$conn=null;
 
-	//zip file
-	$zip = new ZipArchive();
-	$zipFilename = $filelocation . 'export-'.date('Y-m-d_H.i.s').'.zip';
-	if ($zip->open($zipFilename, ZipArchive::CREATE)!==TRUE) {
-	    $result = "cannot open <$zipFilename>";
-	}else{
-		$zip->addFile($filelocation . $filename, $filename);
-		$zip->close();
-		$result = "succeed";
+		//zip file
+		$zip = new ZipArchive();
+		$zipFilename = $filelocation . 'export-'.date('Y-m-d_H.i.s').'.zip';
+		if ($zip->open($zipFilename, ZipArchive::CREATE)!==TRUE) {
+			$result = "cannot open <$zipFilename>";
+		}else{
+			$zip->addFile($filelocation . $filename, $filename);
+			$zip->close();
+			$result = "succeed";
+		}
+		//remove export file, not zip file.
+		unlink($file_export);
 	}
-	//remove export file, not zip file.
-	unlink($file_export);
-
 	echo $result;
 
 ?>
