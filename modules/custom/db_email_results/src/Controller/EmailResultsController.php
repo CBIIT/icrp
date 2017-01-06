@@ -32,7 +32,7 @@ class EmailResultsController extends ControllerBase {
 		$to = $_REQUEST['to'];
 		$name = $_REQUEST['name'];
 		$url = self::getBaseUrl();
-		$url = $url . "/db_search?sid=";
+		$url = $url . "db_search?sid=";
 
 		//get search id from session
 		$_SESSION['db_search_id'] = '12345';
