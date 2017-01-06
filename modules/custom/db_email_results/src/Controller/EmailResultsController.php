@@ -31,7 +31,13 @@ class EmailResultsController extends ControllerBase {
 		//get Parameters from Request
 		$to = $_REQUEST['to'];
 		$name = $_REQUEST['name'];
-		$url = "http://localhost";
+		$url = self::getBaseUrl();
+		$url = $url . "/db_search?sid=";
+
+		//get search id from session
+		$_SESSION['db_search_id'] = '12345';
+		$url = $url . $_SESSION['db_search_id'];
+
 		$from = "zhoujim@mail.nih.gov";
 		$subject = $name . " wants to share their ICRP Search Results";
 		$attachment = '';
@@ -91,5 +97,14 @@ class EmailResultsController extends ControllerBase {
 		}
 
 		return new Response($result);
+  }
+
+  private function getBaseUrl(){
+  	$currentPath = $_SERVER['PHP_SELF'];
+  	$pathInfo = pathinfo($currentPath);
+  	$hostName = $_SERVER['HTTP_HOST'];
+  	$protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"],0,5))=='https://'?'https://':'http://';
+
+  	return $protocol.$hostName."/";
   }
 }

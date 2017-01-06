@@ -1,4 +1,4 @@
-db_email_results.content:
+db_export_results.content:
   path: '/ExportResults'
   defaults:
     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportResults'
