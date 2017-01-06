@@ -1,7 +1,7 @@
 db_email_results.content:
-  path: '/ExportResults/{parameters}'
+  path: '/ExportResults'
   defaults:
-    _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportResult'
+    _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportResults'
     _title: 'Project Details'
   requirements:
     _permission: 'access content'
