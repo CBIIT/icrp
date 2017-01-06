@@ -1,7 +1,6 @@
-db_email_results.email_results:
-  path: '/EmailResults/'
-  defaults:
-    _controller: '\Drupal\db_email_results\Controller\EmailResultsController::emailResults'
-  methods: [POST]
+db_email_results.content:
+  path: '/EmailResults'
+  defaults: { _controller: '\Drupal\db_email_results\Controller\EmailResultsController::emailResults' }
+  methods:  [GET]    
   requirements:
     _permission: 'access content'

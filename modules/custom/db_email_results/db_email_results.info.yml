@@ -1,5 +1,5 @@
 name: ICRP Email Project Search Results
-description: Provides a route for emailing search results at /EmailResults/[parameters]
+description: Provides a route for emailing search results at /EmailResults
 package: ICRP Modules
 type: module
 version: 0.1
