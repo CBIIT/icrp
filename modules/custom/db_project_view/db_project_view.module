@@ -10,24 +10,10 @@ function db_project_view_theme($existing, $type, $theme, $path) {
   return array(
     'db_project_view' => array(
       'variables' => array(
-          'project_title' => NULL,
-          'principal_investigator' => NULL,
-          'institution' => NULL,
-          'city' => NULL,
-          'state' => NULL,
-          'country' => NULL,
-          'award_code' => NULL,
-          'alt_award_code' => NULL,
-          'funding_organization' => NULL,
-          'budget_start_date' => NULL,
-          'budget_end_date' => NULL,
-          'project_start_date' => NULL,
-          'project_end_date' => NULL,
-          'funding_mechanism' => NULL,
-          'technical_abstract' => NULL,
-          'public_abstract' => NULL,
+          'project_details' => NULL,
+          'project_funding_details' => NULL,
           'cancer_types' => NULL,
-          'cso_areas' => NULL
+          'cso_research_areas' => NULL
         ),
     ),
   );

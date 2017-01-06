@@ -19,3 +19,22 @@ dl.dl-horizontal > dt {
 dl.dl-horizontal > dd {
   margin-bottom: 4px;
 }
+
+table.project-funding-details > thead > tr > th {
+  background-color: #3A539B;
+  color: white;
+}
+
+table.project-funding-details > thead > tr > th,
+table.project-funding-details > tbody > tr > td {
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+
+table.project-funding-details > tbody > tr:hover {
+  background-color: #E0E5f4;
+}
+
+table.project-funding-details > tbody > tr:nth-child(even) {
+  background-color: #EFF1F9;
+}
