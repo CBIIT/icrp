@@ -1,7 +1,25 @@
 table.data-table {
   width: 100%;
+  border-collapse: collapse;
+}
+
+table.data-table > thead > tr,
+table.data-table > tbody > tr {
 }
 
 table.data-table > thead > tr > th {
   white-space: nowrap;
+  text-align: left;
+  background-color: #446CB3;
+  color: white;
+  border: 1px solid #DDE4F2;
+}
+
+table.data-table > thead > tr > th,
+table.data-table > tbody > tr > td {
+  padding: 4px 10px;
+}
+
+table.data-table > tbody > tr > td {
+  border: 1px solid #EEE;
 }
