@@ -1,0 +1,7 @@
+table.data-table {
+  width: 100%;
+}
+
+table.data-table > thead > tr > th {
+  white-space: nowrap;
+}
