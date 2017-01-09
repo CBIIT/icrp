@@ -12,8 +12,8 @@ docker_compose_file="$docker_root/docker-compose.yml"
 web_container="icrp-web-container"
 mysql_container="icrp-mysql-container"
 
-## drupal 8.2.4 (https://www.drupal.org/project/drupal/releases)
-drupal_version="8.2.4"
+## drupal 8.2.5 (https://www.drupal.org/project/drupal/releases)
+drupal_version="8.2.5"
 drupal_filename="drupal-$drupal_version.tar.gz"
 drupal_filepath="$temp_folder/$drupal_filename"
 drupal_url="https://ftp.drupal.org/files/projects/$drupal_filename"
