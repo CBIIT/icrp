@@ -19,7 +19,6 @@ use PHPMailer;
 class EmailResultsController extends ControllerBase {
 
 
-
   public function emailResults() {
 		$email_config = \Drupal::config('icrp_email');
 		$config = [];

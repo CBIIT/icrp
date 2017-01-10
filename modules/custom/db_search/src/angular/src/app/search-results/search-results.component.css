@@ -18,7 +18,7 @@ div.search-criteria {
 .loading-wrapper {
     max-height: 300px;
     width: 100%;
-    position: absolute;
+    position: relative;
     background-color: white;
     opacity: 0.8;
     height: 100%;

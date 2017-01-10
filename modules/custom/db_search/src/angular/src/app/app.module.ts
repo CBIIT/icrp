@@ -16,6 +16,7 @@ import { UiChartComponent } from './ui-chart/ui-chart.component';
 
 import { TooltipModule } from 'ng2-bootstrap';
 import { PaginationModule } from 'ng2-bootstrap';
+import { ModalModule } from 'ng2-bootstrap';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import { PaginationModule } from 'ng2-bootstrap';
     ReactiveFormsModule,
     HttpModule,
     TooltipModule.forRoot(),
-    PaginationModule.forRoot()
+    PaginationModule.forRoot(),
+    ModalModule.forRoot(),
   ],
   providers: [],
   bootstrap: [AppComponent]

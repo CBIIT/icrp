@@ -6,7 +6,7 @@
 
   <div *ngFor="let group of searchCriteriaGroups">
     <b>{{ group.category }}</b>
-    
+
     <ul *ngIf="group.type === 'array'">
       <li *ngFor="let criteria of group.criteria">{{ criteria }}</li>
     </ul>
@@ -15,7 +15,7 @@
       : {{ group.criteria[0] }}
     </span>
 
-  </div>  
+  </div>
 </div>
 
 
@@ -27,55 +27,108 @@
   </div>
 
   <div class="col-md-3">
-    <ui-chart 
+    <ui-chart
       label="Projects by Country"
-      type="pie" 
+      type="pie"
       [data]="(analytics && analytics.projects_by_country) || []">
     </ui-chart>
   </div>
 
   <div class="col-md-3">
-    <ui-chart 
-      label="Projects by CSO Category"  
-      type="pie" 
+    <ui-chart
+      label="Projects by CSO Category"
+      type="pie"
       [data]="(analytics && analytics.projects_by_cso_category) || []">
     </ui-chart>
   </div>
 
   <div class="col-md-3">
-    <ui-chart 
-      label="Projects by Cancer Type" 
-      type="pie" 
+    <ui-chart
+      label="Projects by Cancer Type"
+      type="pie"
       [data]="(analytics && analytics.projects_by_cancer_type) || []"></ui-chart>
   </div>
 
   <div class="col-md-3">
-    <ui-chart 
-      label="Projects by Type" 
-      type="pie" 
+    <ui-chart
+      label="Projects by Type"
+      type="pie"
       [data]="(analytics && analytics.projects_by_type) || []"></ui-chart>
   </div>
 </div>
 
 
 <div class="row" style="margin-top: 8px; margin-bottom: 5px;">
-  <button class="btn btn-xs btn-default">
+  <button class="btn btn-xs btn-default" (click)="emailResultsModal.show()">
     <span class="glyphicon glyphicon-envelope"></span>
     Email results</button>
-  <button class="btn btn-xs btn-default">
+  <button class="btn btn-xs btn-default" (click)="downloadResultsModal.show()">
     <span class="glyphicon glyphicon-download-alt"></span>
     Export results</button>
 </div>
 
 
+
+<div class="modal fade" bsModal #emailResultsModal="bs-modal" [config]="{backdrop: 'static'}"
+     tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" aria-label="Close" (click)="emailResultsModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Static modal</h4>
+      </div>
+      <div class="modal-body">
+
+		<form class="form-horizontal">
+		  <div class="form-group">
+			<label for="emailAddress" class="col-sm-2 control-label">Email Address</label>
+			<div class="col-sm-10">
+			  <input type="email" class="form-control" id="emailAddress" placeholder="Email" #emailaddress>
+			</div>
+		  </div>
+		 </form>
+
+      	<label>Name of recipient</label>
+      	<input class="input" type="text" #emailrecipient>
+
+		<button class="btn btn-primary" (click)="sendEmail(emailaddress.value, emailrecipient.value)">Send Email</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" bsModal #downloadResultsModal="bs-modal" [config]="{backdrop: 'static'}"
+     tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" aria-label="Close" (click)="downloadResultsModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Static modal</h4>
+      </div>
+      <div class="modal-body">
+      	<div class="loading-wrapper">
+      		<div class="loading"></div>
+      	</div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <div class="row">
-  <ui-table 
-    [data]="projectData" 
-    [columns]="projectColumns" 
-    [loading]="loading" 
+  <ui-table
+    [data]="projectData"
+    [columns]="projectColumns"
+    [loading]="loading"
     [pageSizes]="[50, 100, 150, 200, 250, 300]"
-    [numResults]="(analytics && analytics.count) || 0" 
-    (paginate)="paginate.emit($event)" 
+    [numResults]="(analytics && analytics.count) || 0"
+    (paginate)="paginate.emit($event)"
     (sort)="sort.emit($event)">
   </ui-table>
 </div>

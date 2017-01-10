@@ -1,6 +1,10 @@
 import { AfterViewInit, Component, Input, EventEmitter, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-
+import { Http, Response, Headers, RequestOptions, URLSearchParams } from '@angular/http';
 import { UiChartParameters } from '../ui-chart/ui-chart.parameters';
+
+import { Observable } from 'rxjs/Rx';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/catch';
 
 
 @Component({
@@ -31,7 +35,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   projectData;
   projectColumns;
 
-  constructor() {
+  constructor(private http: Http) {
     this.loadingAnalytics = true;
     this.showCriteria = false;
     this.searchCriteriaGroups = [];
@@ -149,6 +153,21 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
       })
     }
 
+  }
+  
+  sendEmail(address: string, name: string) {
+    alert(`${address} ${name}`);
+    let endpoint = 'http://localhost/EmailResults';
+    let parameters = new URLSearchParams();
+    
+    parameters.set('to', address);
+    parameters.set('name', name);
+    
+    let query = this.http.get(endpoint, {search: parameters})
+    	.map((res: Response) => res.json())
+    	.subscribe(res => {
+    		window.alert(res);
+    	});
   }
 
   ngOnInit() {
