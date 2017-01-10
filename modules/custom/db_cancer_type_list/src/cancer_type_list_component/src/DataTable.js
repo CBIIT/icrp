@@ -23,7 +23,13 @@ class DataTable extends Component {
           {this.props.data.map((row, rowIndex) =>
             <tr key={rowIndex}>
               {this.props.columns.map((column, columnIndex) => 
-                <td key={columnIndex}>{row[column.value]}</td>
+                <td key={columnIndex}>
+                  {row[column.link]
+                    ? <a href={row[column.link]} target="_blank">
+                        {row[column.value]}
+                      </a>
+                    : row[column.value]}
+                </td>
               )}
             </tr>)}
         </tbody>
