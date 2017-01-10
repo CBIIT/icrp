@@ -55,6 +55,11 @@ class DatabaseSearchAPIController extends ControllerBase {
     'award_code'            => 'code'
   ];
 
+  private static $output_mappings = [
+    'search_id'             => 'searchCriteriaID',
+    'num_results'           => 'ResultCount',
+  ];
+
   /**
    * Returns a PDO connection to a database
    * @param $cfg - An associative array containing connection parameters 
@@ -100,7 +105,7 @@ class DatabaseSearchAPIController extends ControllerBase {
   * @param $parameters - An associative array containing 
   * parameters to bind to the statement
   */
-  function create_prepared_statement($pdo, $parameters) {
+  function create_prepared_statement($pdo, $parameters, &$search_id, &$num_results) {
     $stmt_conditions = [];
     $stmt_parameters = [];
 
@@ -112,7 +117,30 @@ class DatabaseSearchAPIController extends ControllerBase {
       array_push($stmt_conditions, "{$param_key}={$query_key}");
     }
 
-    $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE GetProjects ' . implode(',', $stmt_conditions));
+    foreach (array_keys(self::$output_mappings) as $output_key) {
+
+      if (in_array($output_key, array_keys(self::$output_mappings))) {
+        $mapped_key = self::$output_mappings[$output_key];
+
+        $query_key = ":$mapped_key";
+        $param_key = "@$mapped_key";
+
+
+        if ($output_key == "search_id") {
+          $stmt_parameters[$query_key] = $search_id;
+
+        }
+
+        else if ($output_key == "num_results") {
+          $stmt_parameters[$query_key] = $num_results;
+
+        }
+
+        array_push($stmt_conditions, "{$param_key}={$query_key} output");
+      }
+    }
+
+    $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE GetProjectsByCriteria ' . implode(',', $stmt_conditions));
     self::bind_parameters($stmt, $stmt_parameters);
 
     return $stmt;
@@ -124,9 +152,16 @@ class DatabaseSearchAPIController extends ControllerBase {
   * @param $param - An associative array containing 
   * parameters to bind to the statement
   */
-  function bind_parameters($stmt, $param) {
+  function bind_parameters($stmt, &$param) {
    foreach (array_keys($param) as $key) {
-      $stmt->bindParam($key, $param[$key]);
+
+      if (in_array($key, array_values(self::$output_mappings))) {
+        $stmt->bindParam($key, $param[$key], PDO::PARAM_INT|PDO::PARAM_INPUT_OUTPUT, 1000);
+      }
+      else {
+        $stmt->bindParam($key, $param[$key]);
+
+      }
     }
   }
 
@@ -182,12 +217,19 @@ class DatabaseSearchAPIController extends ControllerBase {
   */
   function search_database($parameters) {
     $pdo = self::get_connection();
-    $stmt = self::create_prepared_statement($pdo, $parameters);
-    $results = [];
 
+    $search_id = 0;
+    $num_results = 0;
+    $output = [
+      'search_id' => NULL,
+      'num_results' => NULL,
+      'results' => [],
+    ];
+
+    $stmt = self::create_prepared_statement($pdo, $parameters, $search_id, $num_results);
     if ($stmt->execute()) {
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        array_push($results, [
+        array_push($output['results'], [
           'project_id'            => $row['ProjectID'],
           'project_title'         => $row['Title'],
           'pi_name'               => $row['piLastName'].", ".$row['piFirstName'],
@@ -201,7 +243,10 @@ class DatabaseSearchAPIController extends ControllerBase {
       }
     }
 
-    return $results;
+    $output['search_id'] = $search_id;
+    $output['num_results'] = $num_results;
+
+    return $output['results'];
   }
 
   /**
