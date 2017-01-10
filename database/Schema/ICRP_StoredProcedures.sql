@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------------------------------------------
-/****** Object:  StoredProcedure [dbo].[GetProjects]    Script Date: 12/14/2016 4:21:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[GetProjectsByCriteria]    Script Date: 12/14/2016 4:21:47 PM ******/
 ----------------------------------------------------------------------------------------------------------
 SET ANSI_NULLS ON
 GO
@@ -7,11 +7,12 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjects]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetProjects]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectsByCriteria]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetProjectsByCriteria]
 GO 
-CREATE PROCEDURE [dbo].[GetProjects]
-    @PageSize int = NULL, -- return all by default
+
+CREATE PROCEDURE [dbo].[GetProjectsByCriteria]    
+	@PageSize int = NULL, -- return all by default
 	@PageNumber int = NULL, -- return all results by default; otherwise pass in the page number
 	@SortCol varchar(50) = 'title', -- Ex: 'title', 'pi', 'code', 'inst', 'FO', city, state, country ....
 	@SortDirection varchar(4) = 'ASC',  -- 'ASC' or 'DESC'
@@ -30,102 +31,120 @@ CREATE PROCEDURE [dbo].[GetProjects]
 	@cancerTypeList varchar(1000) = NULL, 
 	@projectTypeList varchar(1000) = NULL,
 	@CSOList varchar(1000) = NULL,
-	@OnlyBaseProjects bit = 1  -- returns only the base projects
-
+	@searchCriteriaID INT OUTPUT,  -- return the searchID	
+	@ResultCount INT OUTPUT  -- return the searchID	
 AS   
-----------------------------------
-	-- Criteria search 
 	----------------------------------
-	SELECT * INTO #results FROM vwProjects p
-	WHERE (@institution IS NULL OR institution like '%'+ @institution +'%') AND
-		(@piLastName IS NULL OR piLastName like '%'+ @piLastName +'%') AND
-		(@piFirstName IS NULL OR piFirstName like '%'+ @piFirstName +'%') AND
-		(@piORCiD IS NULL OR piORCiD like '%'+ @piORCiD +'%') AND
-		(@awardCode IS NULL OR AwardCode like '%'+ @awardCode +'%') AND
-		(@yearList IS NULL OR [CalendarYear] IN (SELECT * FROM dbo.ToIntTable(@yearList))) AND
-		(@cityList IS NULL OR city IN (SELECT * FROM dbo.ToStrTable(@cityList))) AND
-		(@stateList IS NULL OR state IN (SELECT * FROM dbo.ToStrTable(@stateList))) AND
-		(@countryList IS NULL OR country IN (SELECT * FROM dbo.ToStrTable(@countryList))) AND
-		(@fundingOrgList IS NULL OR FundingOrgID IN (SELECT * FROM dbo.ToIntTable(@fundingOrgList))) AND
-		(@cancerTypeList IS NULL OR CancerTypeID IN (SELECT * FROM dbo.ToIntTable(@cancerTypeList))) AND
-		(@projectTypeList IS NULL OR ProjectType IN (SELECT * FROM dbo.ToStrTable(@projectTypeList))) AND
-		(@CSOList IS NULL OR CSOCode IN (SELECT * FROM dbo.ToStrTable(@CSOList)))
-
+	-- Get all Projects 
 	----------------------------------
-	-- Return only base projects?
-	----------------------------------
-	DECLARE @final TABLE
-	(
-		ProjectID INT,		
-		AwardCode NVARCHAR (50),
-		ProjectFundingID INT,		
-		Title nvarchar (1000),
-		piLastName VARCHAR (50), 
-		piFirstName VARCHAR (50), 
-		piORCiD NVARCHAR (50),
-		institution NVARCHAR (250), 
-		Amount float,
-		City VARCHAR (50), 
-		State VARCHAR (3), 
-		Country VARCHAR (3), 
-		FundingOrgID INT, 
-		FundingOrg	VARCHAR (100),
-		ProjectType VARCHAR (50),
-		CancerTypeID INT,
-		CancerType VARCHAR (100),
-		CSOCode VARCHAR (10),
-		CalendarYear INT
-	)	
-
-	IF @OnlyBaseProjects = 1
-	BEGIN
-		INSERT INTO @final
-		SELECT DISTINCT r.ProjectID, r.AwardCode, r.ProjectFundingID, r.Title, r.piLastName, r.piFirstName, r.piORCiD, r.institution, 
-				r.Amount, r.City, r.State, r.country, r.FundingOrgID, r.FundingOrg, NULL, NULL, NULL, NULL, NULL
-		FROM #results r
-			JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM #results GROUP BY ProjectID) u ON r.ProjectFundingID = u.ProjectFundingID
+	SELECT * INTO #proj  FROM vwProjectFundings   -- 76777
+	
+	-------------------------------------------------------------------------
+	-- Exclude the projects which funding institutions and PI do NOT meet the criteria
+	-------------------------------------------------------------------------
+	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@awardCode IS NOT NULL)
+	BEGIN		
+		DELETE FROM #proj 
+		WHERE ProjectID NOT IN 
+			(SELECT ProjectID FROM #Proj WHERE 
+					((@institution IS NULL) OR (institution like '%'+ @institution +'%')) AND
+					((@piLastName IS NULL) OR (piLastName like '%'+ @piLastName +'%')) AND 
+				   ((@piFirstName IS NULL) OR (piFirstName like '%'+ @piFirstName +'%')) AND
+				   ((@piORCiD IS NULL) OR (piORCiD like '%'+ @piORCiD +'%')) AND
+				   ((@awardCode IS NULL) OR (AwardCode like '%'+ @awardCode +'%'))
+			)
 	END
-	ELSE
-	BEGIN
-		INSERT INTO @final SELECT DISTINCT * FROM #results r		
-	END    
 
-	----------------------------------
-	-- Sort and Pagination
-	----------------------------------
-	-- Skip Full Text Search
-	IF @termSearchType IS NULL OR @terms IS NULL  
+	-------------------------------------------------------------------------
+	-- Exclude the projects which funding PI City do NOT meet the criteria
+	-------------------------------------------------------------------------
+	IF @cityList  IS NOT NULL
 	BEGIN
-		SELECT * FROM @final
-		ORDER BY 
-			CASE WHEN @SortCol = 'title ' AND @SortDirection = 'ASC' THEN Title  END ASC, --title ASC
-			CASE WHEN @SortCol = 'code ' AND @SortDirection = 'ASC' THEN AwardCode  END ASC,
-			CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'ASC' THEN piLastName  END ASC,
-			CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'ASC' THEN piFirstName  END ASC,
-			CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'ASC' THEN Institution  END ASC,
-			CASE WHEN @SortCol = 'city ' AND @SortDirection = 'ASC' THEN City  END ASC,
-			CASE WHEN @SortCol = 'state ' AND @SortDirection = 'ASC' THEN State  END ASC,
-			CASE WHEN @SortCol = 'country' AND @SortDirection = 'ASC' THEN Country  END ASC,
-			CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'ASC' THEN FundingOrg  END ASC,
-			CASE WHEN @SortCol = 'title ' AND @SortDirection = 'DESC' THEN Title  END DESC,
-			CASE WHEN @SortCol = 'code ' AND @SortDirection = 'DESC' THEN AwardCode  END DESC,
-			CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'DESC' THEN piLastName  END DESC,
-			CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'DESC' THEN piFirstName  END DESC,
-			CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'DESC' THEN Institution  END DESC,
-			CASE WHEN @SortCol = 'city ' AND @SortDirection = 'DESC' THEN City  END DESC,
-			CASE WHEN @SortCol = 'state ' AND @SortDirection = 'DESC' THEN State  END DESC,
-			CASE WHEN @SortCol = 'country' AND @SortDirection = 'DESC' THEN Country  END DESC,
-			CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'DESC' THEN FundingOrg  END DESC
-		OFFSET ISNULL(@PageSize,50) * (ISNULL(@PageNumber, 1) - 1) ROWS
-		FETCH NEXT 
-			CASE WHEN @PageNumber IS NULL THEN 999999999 ELSE ISNULL(@PageSize,50)
-			END ROWS ONLY
+		DELETE FROM #proj 
+		WHERE ProjectID NOT IN 
+			(SELECT ProjectID FROM #Proj WHERE city IN (SELECT * FROM dbo.ToStrTable(@cityList)))		
 	END
-	ELSE
-	BEGIN	
-		----------------------------------
-		-- Full text search the terms
-		----------------------------------
+
+	-------------------------------------------------------------------------
+	-- Exclude the projects which funding PI State do NOT meet the criteria
+	-------------------------------------------------------------------------
+	IF @stateList  IS NOT NULL
+	BEGIN
+		DELETE FROM #proj 
+		WHERE ProjectID NOT IN 			
+			(SELECT ProjectID FROM #Proj WHERE [State] IN (SELECT * FROM dbo.ToStrTable(@stateList)))				
+	END	
+
+	-------------------------------------------------------------------------
+	-- Exclude the projects which funding PI Country do NOT meet the criteria
+	-------------------------------------------------------------------------
+	IF @countryList  IS NOT NULL
+	BEGIN
+		DELETE FROM #proj 
+		WHERE ProjectID NOT IN 			
+			(SELECT ProjectID FROM #Proj WHERE [Country] IN (SELECT * FROM dbo.ToStrTable(@countryList)))				
+	END
+
+	-------------------------------------------------------------------------
+	-- Exclude the projects which funding Org do NOT meet the criteria
+	-------------------------------------------------------------------------
+	IF @fundingOrgList  IS NOT NULL
+	BEGIN
+		DELETE FROM #proj 
+		WHERE ProjectID NOT IN 			
+			(SELECT ProjectID FROM #Proj WHERE FundingOrgID IN (SELECT * FROM dbo.ToIntTable(@fundingOrgList)))
+	END
+
+	-------------------------------------------------------------------------
+	-- Exclude the projects which funding CancerType do NOT meet the criteria
+	-------------------------------------------------------------------------
+	IF @cancerTypeList  IS NOT NULL
+	BEGIN
+		DELETE FROM #proj 
+		WHERE ProjectID NOT IN 			
+			(SELECT p.ProjectID FROM #Proj p
+			JOIN ProjectCancerType ct ON p.ProjectFundingID = ct.ProjectFundingID WHERE CancerTypeID IN (SELECT * FROM dbo.ToIntTable(@cancerTypeList)))
+	END
+
+	-------------------------------------------------------------------------
+	-- Exclude the projects which ProjectType do NOT meet the criteria
+	-------------------------------------------------------------------------
+	IF @projectTypeList  IS NOT NULL
+	BEGIN
+		DELETE FROM #proj 
+		WHERE ProjectID NOT IN 			
+			(SELECT p.ProjectID FROM #Proj p
+			JOIN Project_ProjectType pt WITH (NOLOCK) ON p.ProjectID = pt.ProjectID WHERE ProjectType IN (SELECT * FROM dbo.ToStrTable(@projectTypeList)))
+	END
+
+	-------------------------------------------------------------------------
+	-- Exclude the projects which funding CancerType do NOT meet the criteria
+	-------------------------------------------------------------------------	
+	IF @CSOList  IS NOT NULL
+	BEGIN
+		DELETE FROM #proj 
+		WHERE ProjectID NOT IN 			
+			(SELECT p.ProjectID FROM #Proj p
+				JOIN ProjectCSO cso WITH (NOLOCK) ON p.ProjectFundingID = cso.ProjectFundingID WHERE CSOCode IN (SELECT * FROM dbo.ToStrTable(@CSOList)))
+	END
+
+	-------------------------------------------------------------------------
+	-- Exclude the projects which funding CancerType do NOT meet the criteria
+	-------------------------------------------------------------------------	
+	IF @yearList IS NOT NULL
+	BEGIN
+		DELETE FROM #proj 
+		WHERE ProjectID NOT IN 			
+			(SELECT p.ProjectID FROM #Proj p
+				JOIN ProjectFundingExt ext WITH (NOLOCK) ON p.ProjectID = ext.ProjectID WHERE [CalendarYear] IN (SELECT * FROM dbo.ToIntTable(@yearList)))
+	END	
+	
+	-------------------------------------------------------------------------
+	-- Terms Search Filter
+	-- Exclude the projects which funding CancerType do NOT meet the criteria
+	-------------------------------------------------------------------------	
+	IF (@termSearchType IS NOT NULL) AND (@terms IS NOT NULL)
+	BEGIN
 		DECLARE @searchWords VARCHAR(1000)
 
 		SELECT @searchWords = 
@@ -135,107 +154,148 @@ AS
 			ELSE REPLACE(@terms,' ',' AND ') -- All or None	
 		END 
 
-		-- do the full text search only if terms are specified 	
-		SELECT r.* FROM @final r
-			LEFT JOIN ProjectDocument d ON r.projectID = d.ProjectID  
-			LEFT JOIN ProjectDocument_JP jd ON r.projectID = jd.ProjectID  
-		WHERE
-			-- do not contain any words specified
-			(@termSearchType = 'None' AND (NOT CONTAINS(d.content, @searchWords)) OR (NOT CONTAINS(jd.content, @searchWords))) OR
-			-- COntain Any, All or Exeact words
-			((CONTAINS(d.content, @searchWords)) OR (CONTAINS(jd.content, @searchWords)))  
-		ORDER BY 
-			CASE WHEN @SortCol = 'title ' AND @SortDirection = 'ASC' THEN Title  END ASC, --title ASC
-			CASE WHEN @SortCol = 'code ' AND @SortDirection = 'ASC' THEN AwardCode  END ASC,
-			CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'ASC' THEN piLastName  END ASC,
-			CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'ASC' THEN piFirstName  END ASC,
-			CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'ASC' THEN Institution  END ASC,
-			CASE WHEN @SortCol = 'city ' AND @SortDirection = 'ASC' THEN City  END ASC,
-			CASE WHEN @SortCol = 'state ' AND @SortDirection = 'ASC' THEN State  END ASC,
-			CASE WHEN @SortCol = 'country' AND @SortDirection = 'ASC' THEN Country  END ASC,
-			CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'ASC' THEN FundingOrg  END ASC,
-			CASE WHEN @SortCol = 'title ' AND @SortDirection = 'DESC' THEN Title  END DESC,
-			CASE WHEN @SortCol = 'code ' AND @SortDirection = 'DESC' THEN AwardCode  END DESC,
-			CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'DESC' THEN piLastName  END DESC,
-			CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'DESC' THEN piFirstName  END DESC,
-			CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'DESC' THEN Institution  END DESC,			
-			CASE WHEN @SortCol = 'city ' AND @SortDirection = 'DESC' THEN City  END DESC,
-			CASE WHEN @SortCol = 'state ' AND @SortDirection = 'DESC' THEN State  END DESC,
-			CASE WHEN @SortCol = 'country' AND @SortDirection = 'DESC' THEN Country  END DESC,
-			CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'DESC' THEN FundingOrg  END DESC
-		OFFSET ISNULL(@PageSize,50) * (ISNULL(@PageNumber, 1) - 1) ROWS
-		FETCH NEXT 
-			CASE WHEN @PageNumber IS NULL THEN 999999999 ELSE ISNULL(@PageSize,50)
-			END ROWS ONLY 		  
+		DELETE FROM #proj 
+		WHERE ProjectID NOT IN 			
+			(SELECT p.ProjectID FROM #Proj p
+				LEFT JOIN ProjectDocument d ON p.projectID = d.ProjectID  
+				LEFT JOIN ProjectDocument_JP jd ON p.projectID = jd.ProjectID  
+			 WHERE 	
+				---- do not contain any words specified
+				(@termSearchType = 'None' AND (NOT CONTAINS(d.content, @searchWords)) OR (NOT CONTAINS(jd.content, @searchWords))) OR
+				---- COntain Any, All or Exeact words
+				((CONTAINS(d.content, @searchWords)) OR (CONTAINS(jd.content, @searchWords)))  
+			)
 	END	
-  
-GO
 
-----------------------------------------------------------------------------------------------------------
-/****** Object:  StoredProcedure [dbo].[GetProjectsByCriteria]    Script Date: 12/14/2016 4:21:47 PM ******/
-----------------------------------------------------------------------------------------------------------
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectsByCriteria]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetProjectsByCriteria]
-GO 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectsByCriteria]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetProjectsByCriteria]
-GO 
-
-CREATE PROCEDURE [dbo].[GetProjectsByCriteria]
-    @searchID INT OUTPUT,  -- return the searchID
-	@PageSize int = NULL, -- return all by default
-	@PageNumber int = NULL, -- return all results by default; otherwise pass in the page number
-	@SortCol varchar(50) = 'title', -- Ex: 'title', 'pi', 'code', 'inst', 'FO',....
-	@SortDirection varchar(4) = 'ASC',  -- 'ASC' or 'DESC'
-    @termSearchType varchar(25) = NULL,  -- No full text search by default; otherwise 'Any', 'None', 'All', 'Exact'
-	@terms varchar(4000) = NULL,  -- No full text search by default;
-	@institution varchar(250) = NULL,
-	@piLastName varchar(50) = NULL,
-	@piFirstName varchar(50) = NULL,
-	@piORCiD varchar(50) = NULL,
-	@awardCode varchar(50) = NULL,
-	@cityList varchar(4000) = NULL,  -- 'NYC', 'bbb','ccc'
-	@stateList varchar(4000) = NULL,
-	@countryList varchar(4000) = NULL,
-	@fundingOrgList varchar(4000) = NULL,  -- INT
-	@cancerTypeList varchar(4000) = NULL, -- INT
-	@projectTypeList varchar(4000) = NULL,  -- string
-	@CSOList varchar(4000) = NULL, -- string
-	@isSaveCriteria bit = 1, -- save the criteria by default unless specified
-	@OnlyBaseProjects bit = 1  -- returns only the base projects	
-	
-AS   
 	----------------------------------
 	-- Save search criteria
 	----------------------------------	
-	IF @isSaveCriteria = 1
-	BEGIN
-		INSERT INTO SearchCriteria ([termSearchType],[terms],[institution],[piLastName],[piFirstName],[piORCiD],[awardCode],
-		[cityList],[stateList],[countryList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList])
-		VALUES ( @termSearchType,@terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode,@cityList,@stateList,@countryList,
+	SELECT DISTINCT ProjectID INTO #baseProj FROM #proj
+	
+	DECLARE @ProjectIDList VARCHAR(max) = '' 	
+	SELECT @ResultCount=COUNT(*) FROM #baseProj
+
+	SELECT @ProjectIDList = @ProjectIDList + 
+           ISNULL(CASE WHEN LEN(@ProjectIDList) = 0 THEN '' ELSE ',' END + CONVERT( VarChar(20), ProjectID), '')
+	FROM #baseProj	
+
+	INSERT INTO SearchCriteria ([termSearchType],[terms],[institution],[piLastName],[piFirstName],[piORCiD],[awardCode],
+		[yearList], [cityList],[stateList],[countryList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList])
+		VALUES ( @termSearchType,@terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode,@yearList,@cityList,@stateList,@countryList,
 			@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList)
 									 
-		SELECT @searchID = SCOPE_IDENTITY()	
-		
-	END	
+	SELECT @searchCriteriaID = SCOPE_IDENTITY()	
+
+	INSERT INTO SearchResult VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount)
 	
+	----------------------------------	
+	-- Sort and Pagination
+	--   Note: Return only base projects and projects' most recent funding
 	----------------------------------
-	-- Return result results
-	----------------------------------
-	EXEC [GetProjects]	@PageSize, @PageNumber,@SortCol,@SortDirection, @termSearchType,@terms,@institution,
-						@piLastName,@piFirstName,@piORCiD,@awardCode,@cityList,
-						@stateList,	@countryList,@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList, @OnlyBaseProjects
-	
-	RETURN @@ROWCOUNT
- 
+	SELECT p.*, maxf.projectfundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
+		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort FROM
+		(SELECT DISTINCT ProjectID, AwardCode FROM #proj) p
+		 JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f GROUP BY ProjectID) maxf ON p.ProjectID = maxf.ProjectID
+		 JOIN ProjectFunding f ON maxf.ProjectFundingID = f.projectFundingID
+		 JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
+		 JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+		 JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
+	ORDER BY 
+		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'ASC ' THEN f.Title  END ASC, --title ASC
+		CASE WHEN @SortCol = 'code ' AND @SortDirection = 'ASC' THEN p.AwardCode  END ASC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'ASC' THEN pi.LastName  END ASC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'ASC' THEN pi.FirstName  END ASC,
+		CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'ASC' THEN i.Name  END ASC,
+		CASE WHEN @SortCol = 'city ' AND @SortDirection = 'ASC' THEN i.City  END ASC,
+		CASE WHEN @SortCol = 'state ' AND @SortDirection = 'ASC' THEN i.State  END ASC,
+		CASE WHEN @SortCol = 'country' AND @SortDirection = 'ASC' THEN i.Country  END ASC,
+		CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'ASC' THEN o.Abbreviation  END ASC,
+		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'DESC' THEN f.Title  END DESC,
+		CASE WHEN @SortCol = 'code ' AND @SortDirection = 'DESC' THEN p.AwardCode  END DESC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'DESC' THEN pi.LastName  END DESC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'DESC' THEN pi.FirstName  END DESC,
+		CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'DESC' THEN i.Name END DESC,
+		CASE WHEN @SortCol = 'city ' AND @SortDirection = 'DESC' THEN i.City  END DESC,
+		CASE WHEN @SortCol = 'state ' AND @SortDirection = 'DESC' THEN i.State  END DESC,
+		CASE WHEN @SortCol = 'country' AND @SortDirection = 'DESC' THEN i.Country  END DESC,
+		CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'DESC' THEN o.Abbreviation  END DESC
+	OFFSET ISNULL(@PageSize,50) * (ISNULL(@PageNumber, 1) - 1) ROWS
+	FETCH NEXT 
+		CASE WHEN @PageNumber IS NULL THEN 999999999 ELSE ISNULL(@PageSize,50)
+		END ROWS ONLY
+   
 GO
 
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetProjectsBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
+----------------------------------------------------------------------------------------------------------
+--SET ANSI_NULLS ON
+--GO
+
+--SET QUOTED_IDENTIFIER ON
+--GO
+
+--IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectsBySearchID]') AND type in (N'P', N'PC'))
+--DROP PROCEDURE [dbo].[GetProjectsBySearchID]
+--GO 
+
+-- CREATE PROCEDURE [dbo].[GetProjectsBySearchID]
+--    @PageSize int = NULL, -- return all by default
+--	@PageNumber int = NULL, -- return all results by default; otherwise pass in the page number
+--	@SortCol varchar(50) = 'title', -- Ex: 'title', 'pi', 'code', 'inst', 'FO',....
+--	@SortDirection varchar(4) = 'ASC',  -- 'ASC' or 'DESC'
+--    @SearchID INT 	
+--AS   
+
+--	------------------------------------------------------
+--	-- Get search criteria from saved searchCriteria
+--	------------------------------------------------------
+--	DECLARE @termSearchType varchar(25)
+--	DECLARE @terms varchar(4000)
+--	DECLARE @institution varchar(250)
+--	DECLARE @piLastName varchar(50)
+--	DECLARE @piFirstName varchar(50)
+--	DECLARE @piORCiD varchar(50)
+--	DECLARE @awardCode varchar(50)
+--	DECLARE @yearList varchar(4000)
+--	DECLARE @cityList varchar(4000)
+--	DECLARE @stateList varchar(4000)
+--	DECLARE @countryList varchar(4000)
+--	DECLARE @fundingOrgList varchar(4000)
+--	DECLARE @cancerTypeList varchar(4000)
+--	DECLARE @projectTypeList varchar(4000)
+--	DECLARE @CSOList varchar(4000)	
+
+--	SELECT @termSearchType = [termSearchType],
+--			@terms = [terms],
+--			@institution = [institution],
+--			@piLastName =[piLastName],
+--			@piFirstName =[piFirstName],
+--			@piORCiD =[piORCiD],
+--			@awardCode =[awardCode],
+--			@cityList =[cityList],
+--			@yearList =[yearList],
+--			@stateList =[stateList],
+--			@countryList =[countryList],
+--			@fundingOrgList =[fundingOrgList],
+--			@cancerTypeList =[cancerTypeList],
+--			@projectTypeList =[projectTypeList],
+--			@CSOList =[CSOList]			
+--	FROM SearchCriteria
+--	WHERE SearchCriteriaID = @searchID
+
+--	----------------------------------
+--	-- Return search results
+--	----------------------------------
+--	declare @count INT;	
+--	declare @searchCriteriaID INT;	
+		
+--	EXEC @count = [GetProjectsByCriteria] @searchCriteriaID OUTPUT, @PageSize, @PageNumber,@SortCol,@SortDirection,
+--						@termSearchType, @terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode, @yearList,
+--						@cityList, @stateList,	@countryList,@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList
+
+--	RETURN ISNULL(@count, 0)
+--GO
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetProjectsBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
@@ -249,61 +309,209 @@ GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectsBySearchID]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[GetProjectsBySearchID]
 GO 
+
 CREATE PROCEDURE [dbo].[GetProjectsBySearchID]
     @PageSize int = NULL, -- return all by default
 	@PageNumber int = NULL, -- return all results by default; otherwise pass in the page number
 	@SortCol varchar(50) = 'title', -- Ex: 'title', 'pi', 'code', 'inst', 'FO',....
 	@SortDirection varchar(4) = 'ASC',  -- 'ASC' or 'DESC'
-    @searchCriteriaID INT 	
+    @SearchID INT,
+	@ResultCount INT OUTPUT  -- return the searchID		
 AS   
 
-------------------------------------------------------
--- Get search criteria from saved searchCriteria
-------------------------------------------------------
-	DECLARE @termSearchType varchar(25)
-	DECLARE @terms varchar(4000)
-	DECLARE @institution varchar(250)
-	DECLARE @piLastName varchar(50)
-	DECLARE @piFirstName varchar(50)
-	DECLARE @piORCiD varchar(50)
-	DECLARE @awardCode varchar(50)
-	DECLARE @cityList varchar(4000)
-	DECLARE @stateList varchar(4000)
-	DECLARE @countryList varchar(4000)
-	DECLARE @fundingOrgList varchar(4000)
-	DECLARE @cancerTypeList varchar(4000)
-	DECLARE @projectTypeList varchar(4000)
-	DECLARE @CSOList varchar(4000)
-	DECLARE @OnlyBaseProjects bit  -- returns only the base projects
+	------------------------------------------------------
+	-- Get saved search results by searchID
+	------------------------------------------------------	
+	DECLARE @ProjectIDs VARCHAR(max) 
+	SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
 
-	SELECT @termSearchType = [termSearchType],
-			@terms = [terms],
-			@institution = [institution],
-			@piLastName =[piLastName],
-			@piFirstName =[piFirstName],
-			@piORCiD =[piORCiD],
-			@awardCode =[awardCode],
-			@cityList =[cityList],
-			@stateList =[stateList],
-			@countryList =[countryList],
-			@fundingOrgList =[fundingOrgList],
-			@cancerTypeList =[cancerTypeList],
-			@projectTypeList =[projectTypeList],
-			@CSOList =[CSOList],
-			@OnlyBaseProjects = [OnlyBaseProjects]
-	FROM SearchCriteria
-	WHERE SearchCriteriaID = @searchCriteriaID
-
+	----------------------------------	
+	-- Sort and Pagination
+	--   Note: Return only base projects and projects' most recent funding
 	----------------------------------
-	-- Return search results
-	----------------------------------
-	EXEC [GetProjects] @PageSize, @PageNumber,@SortCol,@SortDirection,
-						@termSearchType,@terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode,@cityList,
-						@stateList,	@countryList,@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList, @OnlyBaseProjects
-						
-	RETURN @@ROWCOUNT														  
-  
+	SELECT r.ProjectID, p.AwardCode, maxf.projectfundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
+		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort 
+	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
+		JOIN Project p ON r.ProjectID = p.ProjectID
+		 JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f GROUP BY ProjectID) maxf ON r.ProjectID = maxf.ProjectID
+		 JOIN ProjectFunding f ON maxf.ProjectFundingID = f.projectFundingID
+		 JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
+		 JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+		 JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
+	ORDER BY 
+		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'ASC ' THEN f.Title  END ASC, --title ASC
+		CASE WHEN @SortCol = 'code ' AND @SortDirection = 'ASC' THEN p.AwardCode  END ASC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'ASC' THEN pi.LastName  END ASC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'ASC' THEN pi.FirstName  END ASC,
+		CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'ASC' THEN i.Name  END ASC,
+		CASE WHEN @SortCol = 'city ' AND @SortDirection = 'ASC' THEN i.City  END ASC,
+		CASE WHEN @SortCol = 'state ' AND @SortDirection = 'ASC' THEN i.State  END ASC,
+		CASE WHEN @SortCol = 'country' AND @SortDirection = 'ASC' THEN i.Country  END ASC,
+		CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'ASC' THEN o.Abbreviation  END ASC,
+		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'DESC' THEN f.Title  END DESC,
+		CASE WHEN @SortCol = 'code ' AND @SortDirection = 'DESC' THEN p.AwardCode  END DESC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'DESC' THEN pi.LastName  END DESC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'DESC' THEN pi.FirstName  END DESC,
+		CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'DESC' THEN i.Name END DESC,
+		CASE WHEN @SortCol = 'city ' AND @SortDirection = 'DESC' THEN i.City  END DESC,
+		CASE WHEN @SortCol = 'state ' AND @SortDirection = 'DESC' THEN i.State  END DESC,
+		CASE WHEN @SortCol = 'country' AND @SortDirection = 'DESC' THEN i.Country  END DESC,
+		CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'DESC' THEN o.Abbreviation  END DESC
+	OFFSET ISNULL(@PageSize,50) * (ISNULL(@PageNumber, 1) - 1) ROWS
+	FETCH NEXT 
+		CASE WHEN @PageNumber IS NULL THEN 999999999 ELSE ISNULL(@PageSize,50)
+		END ROWS ONLY
+    											  
 GO
+
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetProjectCountryStatsBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectCountryStatsBySearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetProjectCountryStatsBySearchID]
+GO 
+
+CREATE PROCEDURE [dbo].[GetProjectCountryStatsBySearchID]   
+    @SearchID INT,
+	@ResultCount INT OUTPUT  -- return the searchID		
+
+AS   
+  	------------------------------------------------------
+	-- Get saved search results by searchID
+	------------------------------------------------------	
+	DECLARE @ProjectIDs VARCHAR(max) 
+	SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+	
+	----------------------------------		
+	--   Find all related projects 
+	----------------------------------
+	SELECT i.country, Count(*) AS Count
+	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
+		JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
+		JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+	GROUP BY i.country			
+	ORDER BY count(*) DESC				  
+GO
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetProjectCSOStatsBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectCSOStatsBySearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetProjectCSOStatsBySearchID]
+GO 
+
+CREATE PROCEDURE [dbo].[GetProjectCSOStatsBySearchID]   
+    @SearchID INT,
+	@ResultCount INT OUTPUT  -- return the searchID			
+
+AS   
+  	------------------------------------------------------
+	-- Get saved search results by searchID
+	------------------------------------------------------	
+	DECLARE @ProjectIDs VARCHAR(max) 
+	SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+	
+	----------------------------------		
+	--   Find all related projects 
+	----------------------------------
+	SELECT c.categoryName, Count(*) AS Count
+	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
+		JOIN ProjectCSO pc ON f.projectFundingID = pc.projectFundingID
+		JOIN CSO c ON c.code = pc.csocode
+	GROUP BY c.categoryName
+	ORDER BY count(*) DESC
+GO
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetProjectCancerTypeStatsBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectCancerTypeStatsBySearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetProjectCancerTypeStatsBySearchID]
+GO 
+
+CREATE PROCEDURE [dbo].[GetProjectCancerTypeStatsBySearchID]
+    @SearchID INT,
+	@ResultCount INT OUTPUT  -- return the searchID		
+
+AS   
+  	------------------------------------------------------
+	-- Get saved search results by searchID
+	------------------------------------------------------	
+	DECLARE @ProjectIDs VARCHAR(max) 
+	SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+	
+	----------------------------------		
+	--   Find all related projects 
+	----------------------------------
+	SELECT c.Name AS CancerType, Count(*) AS Count
+	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
+		JOIN ProjectCancerType pc ON f.projectFundingID = pc.projectFundingID		
+		JOIN CancerType c ON c.CancerTypeID = pc.CancerTypeID		
+	GROUP BY c.Name
+	ORDER BY count(*) DESC
+GO
+
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetProjectTypeStatsBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectTypeStatsBySearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetProjectTypeStatsBySearchID]
+GO 
+
+CREATE PROCEDURE [dbo].[GetProjectTypeStatsBySearchID]   
+    @SearchID INT,
+	@ResultCount INT OUTPUT  -- return the searchID		
+
+AS   
+  	------------------------------------------------------
+	-- Get saved search results by searchID
+	------------------------------------------------------	
+	DECLARE @ProjectIDs VARCHAR(max) 
+	SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+	
+	----------------------------------		
+	--   Find all related projects 
+	----------------------------------
+	SELECT pt.ProjectType, Count(*) AS Count
+	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r				
+		JOIN Project_ProjectType pt ON r.ProjectID = pt.ProjectID				
+	GROUP BY pt.ProjectType
+	ORDER BY count(*) DESC
+GO
+
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetProjectDetail]    Script Date: 12/14/2016 4:21:37 PM ******/
@@ -321,10 +529,11 @@ GO
 CREATE PROCEDURE [dbo].[GetProjectDetail]
     @ProjectID INT    
 AS   
-
+ -- Get the project's most recent funding - max ProjectID
 SELECT f.Title, p.ProjectStartDate, p.ProjectEndDate,  a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract, m.Title AS FundingMechanism 
-FROM project p	
-	JOIN ProjectFunding f ON p.ProjectID = f.ProjectID
+FROM Project p	
+	JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding GROUP BY ProjectID) mf ON p.ProjectID = mf.ProjectID
+	JOIN ProjectFunding f ON f.ProjectFundingID = mf.ProjectFundingID
 	LEFT JOIN FundingMechanism m ON p.FundingMechanismID = m.FundingMechanismID
 	LEFT JOIN ProjectAbstract a ON f.ProjectAbstractID = a.ProjectAbstractID
 WHERE p.ProjectID = @ProjectID
@@ -347,23 +556,17 @@ GO
 CREATE PROCEDURE [dbo].[GetProjectFunding]
     @ProjectID INT    
 AS   
-
-SELECT pi.LastName AS piLastName, pi.FirstName AS piFirstName, i.Name AS Institution, l.City, l.State, l.Country, pf.AwardCode AS AltAwardCode, o.Name AS FundingOrganization,
-		pf.BudgetStartDate, pf.BudgetEndDate
+SELECT fi.LastName AS piLastName, fi.FirstName AS piFirstName, i.Name AS Institution, i.City, i.State, i.Country, 
+		pf.ALtAwardCode AS AltAwardCode, o.Name AS FundingOrganization,	pf.BudgetStartDate, pf.BudgetEndDate
 FROM Project p
 	JOIN ProjectFunding pf ON p.ProjectID = pf.ProjectID
-	JOIN ProjectFunding_Investigator fi ON pf.ProjectFundingID = fi.ProjectFundingID
-	JOIN Institution i ON i.InstitutionID = fi.InstitutionID
-	JOIN Investigator pi ON pi.InvestigatorID = fi.InvestigatorID
-	JOIN Location l ON l.LocationID = i.LocationID		
+	JOIN ProjectFundingInvestigator fi ON pf.ProjectFundingID = fi.ProjectFundingID
+	JOIN Institution i ON i.InstitutionID = fi.InstitutionID	
 	JOIN FundingOrg o ON o.FundingOrgID = pf.FundingOrgID
 WHERE p.ProjectID = @ProjectID
-ORDER BY pf.BudgetStartDate DESC
-
+ORDER BY pf.BudgetStartDate DESC, p.ProjectID DESC
 
 GO
-
-
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetProjectCancerType]    Script Date: 12/14/2016 4:21:24 PM ******/
@@ -379,14 +582,14 @@ DROP PROCEDURE [dbo].[GetProjectCancerType]
 GO 
 
 CREATE PROCEDURE [dbo].[GetProjectCancerType]
-    @ProjectID INT    
+    @ProjectFundingID INT    
 AS   
 
 SELECT t.Name AS CancerType, t.SiteURL
-FROM Project p
-	JOIN ProjectCancerType ct ON p.ProjectID = ct.ProjectID	
+FROM ProjectFunding f
+	JOIN ProjectCancerType ct ON f.ProjectFundingID = ct.ProjectFundingID	
 	JOIN CancerType t ON ct.CancerTypeID = t.CancerTypeID
-WHERE p.ProjectID = @ProjectID
+WHERE f.ProjectFundingID = @ProjectFundingID
 ORDER BY t.Name
 
 
@@ -406,15 +609,46 @@ DROP PROCEDURE [dbo].[GetProjectCSO]
 GO 
 
 CREATE PROCEDURE [dbo].[GetProjectCSO]
-    @ProjectID INT    
+    @ProjectFundingID INT    
 AS   
 
-SELECT ct.CSOCode, c.CategoryName, c.Name AS CSOName, c.ShortName 
-FROM Project p
-	JOIN ProjectCSO ct ON p.ProjectID = ct.ProjectID	
-	JOIN CSO c ON ct.CSOCode = c.Code
-WHERE p.ProjectID = @ProjectID
+SELECT pc.CSOCode, c.CategoryName, c.Name AS CSOName, c.ShortName 
+FROM ProjectFunding f
+	JOIN ProjectCSO pc ON f.ProjectFundingID = pc.ProjectFundingID	
+	JOIN CSO c ON pc.CSOCode = c.Code
+WHERE f.ProjectFundingID = @ProjectFundingID
 ORDER BY c.Name
 
 
 GO
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetProjectFundingDetail]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectFundingDetail]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetProjectFundingDetail]
+GO 
+
+CREATE PROCEDURE [dbo].[GetProjectFundingDetail]
+    @ProjectFundingID INT    
+AS   
+ 
+SELECT f.Title, f.AltAwardCode, f.BudgetStartDate,  f.BudgetEndDate, o.Name AS FundingOrg, pi.LastName + ', ' + pi.FirstName AS piName, 
+	i.Name AS Institution, i.City, i.State, i.Country, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract
+FROM ProjectFunding f	
+	JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
+	JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID
+	JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+	JOIN ProjectAbstract a ON f.ProjectAbstractID = a.ProjectAbstractID
+WHERE f.ProjectFundingID = @ProjectFundingID
+
+GO
+
+

@@ -141,7 +141,6 @@ FROM icrp.dbo.fundingorg
 SET IDENTITY_INSERT FundingOrg OFF;  -- SET IDENTITY_INSERT to ON. 
 GO  
 
-
 -----------------------------
 -- FundingDivision
 -----------------------------
@@ -150,16 +149,26 @@ INSERT INTO FundingDivision
 SELECT FundingOrgID, NAME, [ABBREVIATION], [DATEADDED], [LASTREVISED]
 FROM icrp.dbo.fundingdivision
 
+----------------------------------------------------------------------------------
+-- Only migrate the active projects 
+----------------------------------------------------------------------------------
+DECLARE @sortedProjects TABLE (
+	[SortedProjectID] [int] IDENTITY(1,1) NOT NULL,
+	[OldProjectID] [int] NOT NULL,
+	[AwardCode] nvarchar(1000) NOT NULL
+)
+
+INSERT INTO @sortedProjects SELECT ID, COde FROM icrp.dbo.project ORDER BY code, DateStart, BUDGETSTARTDATE, ImportYear, ID
+
+SELECT DISTINCT s.SortedProjectID, p.* INTO #activeProjects
+FROM icrp.dbo.project p
+JOIN @sortedProjects s ON p.id = s.OldProjectID
+JOIN icrp.dbo.TestProjectActive a ON p.ID = a.projectID
+ORDER BY s.SortedProjectID
 
 ----------------------------------------------------------------------------------
 -- Fix NIH AwardCode First by strippong out leading and training characters
 ----------------------------------------------------------------------------------
-/* Only migrate the active projects */
-SELECT DISTINCT p.* INTO #activeProjects
-FROM icrp.dbo.project p
-JOIN icrp.dbo.TestProjectActive a ON p.ID = a.projectID
-ORDER BY p.id
-
 /* Fix the NIH AwardCode */
 UPDATE #activeProjects SET Code =
 (case 	
@@ -186,11 +195,10 @@ CREATE TABLE [dbo].[Migration_Project] (
 	[AwardCode] nvarchar(1000) NOT NULL
 )
 
--- Use AwardCode to group project (pull the oldest ProjectID - first imported)
-INSERT INTO [Migration_Project] ([OldProjectID], [AwardCode])
-	SELECT min(id) as OldProjectID, code AS AwardCode
-	FROM #activeProjects GROUP BY code	
-
+-- Use AwardCode to group project (pull the oldest ProjectID - originally imported)
+INSERT INTO [Migration_Project] ([OldProjectID], [AwardCode])		
+	SELECT a.ID, bp.Code FROM (SELECT code, MIN(SortedProjectID) AS SortedProjectID FROM #activeProjects GROUP BY code) bp
+	JOIN #activeProjects a ON bp.SortedProjectID = a.SortedProjectID	
 
 -----------------------------
 -- Project
@@ -229,33 +237,6 @@ SELECT m.[ProjectID], s.[Text]
 FROM icrp.dbo.search_JP s
 	JOIN Migration_Project m ON s.ProjectID = m.OldProjectID
 
-
------------------------------
--- ProjectCSO
------------------------------
-INSERT INTO ProjectCSO
-(ProjectID, [CSOCode],[Relvance],[RelSource],[CreatedDate],[UpdatedDate])
-SELECT p.ProjectID, c.Code, pc.[RELEVANCE], pc.[RELSOURCE], pc.[DATEADDED], pc.[LASTREVISED]
-FROM icrp.dbo.projectCSO pc
-	JOIN [Migration_Project] bp ON pc.PROJECTID = bp.OldProjectID	
-	JOIN Project p ON p.ProjectID = bp.ProjectID
-	JOIN icrp.dbo.CSO c ON pc.CSOID = c.id  -- 187005
-
---delete from ProjectCSO
---DBCC CHECKIDENT ('[ProjectCSO]', RESEED, 0)
-	
-
------------------------------
--- ProjectCancerType
------------------------------
-INSERT INTO ProjectCancerType
-(ProjectID, CancerTypeID, Relvance, RelSource, EnterBy)
-SELECT bp.ProjectID, c.CancerTypeID, ps.RELEVANCE, ps.RELSOURCE, ps.ENTEREDBY 
-FROM icrp.dbo.PROJECTSITE ps
-	JOIN icrp.dbo.SITE s ON ps.SITEID = s.ID
-	JOIN Migration_Project bp ON bp.OldProjectID = ps.PROJECTID	
-	JOIN CancerType c ON s.Name = c.NAME
-
 -----------------------------
 -- Project_ProjectType
 -----------------------------
@@ -273,7 +254,8 @@ FROM [Migration_Project] bp
 -----------------------------
 CREATE TABLE [dbo].[Migration_ProjectFunding](
 	[ProjectFundingID] [int] IDENTITY(1,1) NOT NULL,
-	[ProjectID] [int] NOT NULL,
+	[NewProjectID] [int] NOT NULL,
+	[OldProjectID] [int] NOT NULL,
 	[AbstractID] [int] NOT NULL,
 	[Title] varchar(1000) NULL, 
 	[Institution] varchar(250) NULL, 
@@ -288,7 +270,7 @@ CREATE TABLE [dbo].[Migration_ProjectFunding](
 	[AwardCode] [varchar](500) NOT NULL,
 	[AltAwardCode] [varchar](500) NOT NULL,
 	[Source_ID] [varchar](50) NULL,
-	[Amount] [float] NOT NULL,
+	[Amount] [float] NULL,
 	[IsAnnualized] [bit] NOT NULL,
 	[BudgetStartDate] [date] NULL,
 	[BudgetEndDate] [date] NULL,	
@@ -298,16 +280,17 @@ CREATE TABLE [dbo].[Migration_ProjectFunding](
 GO
 
 INSERT INTO [Migration_ProjectFunding] 
-	([ProjectID], [AbstractID], [Title],[Institution], [city], [state], [country], [piLastName], [piFirstName], [piORC_ID], [FundingOrgID], [FundingDivisionID], [AwardCode], [AltAwardCode],
+	([NewProjectID], [OldProjectID], [AbstractID], [Title],[Institution], [city], [state], [country], [piLastName], [piFirstName], [piORC_ID], [FundingOrgID], [FundingDivisionID], [AwardCode], [AltAwardCode],
 	 [Source_ID], [Amount], [IsAnnualized], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate])
-SELECT np.ProjectID, op.abstractID, op.title, op.institution, op.city, op.state, op.country, op.piLastName, op.piFirstName,  op.piORCiD,op.FUNDINGORGID, op.FUNDINGDIVISIONID, 
+SELECT mp.ProjectID, op.ID, op.abstractID, op.title, op.institution, op.city, op.state, op.country, op.piLastName, op.piFirstName,  op.piORCiD,op.FUNDINGORGID, op.FUNDINGDIVISIONID, 
 		op.code, op.altid, op.SOURCE_ID, pf.AMOUNT, 
 		CASE WHEN [Amount] = [AnnualizedAmount] THEN 1 ELSE 0 END AS [IsAnnualized],
-		op.BUDGETSTARTDATE, op.budgetenddate, pf.[DATEADDED], pf.[LASTREVISED]
-FROM icrp.dbo.projectfunding pf
-	 LEFT JOIN #activeProjects op ON op.id = pf.projectid
-	 JOIN Project np ON np.AwardCode = op.code  -- 200805
-	 
+		op.BUDGETSTARTDATE, op.budgetenddate, op.[DATEADDED], op.[LASTREVISED]
+FROM #activeProjects op   -- active projects from old icrp database
+	 LEFT JOIN icrp.dbo.ProjectFunding pf ON op.ID = pf.ProjectID
+	 LEFT JOIN Migration_Project mp ON mp.AwardCode = op.code	 	 
+ORDER BY mp.ProjectID, op.sortedProjectID
+	 	 
 -----------------------------
 -- ProjectFunding
 -----------------------------
@@ -316,7 +299,7 @@ GO
 
 INSERT INTO ProjectFunding 
 ([ProjectFundingID], [ProjectAbstractID], [Title],[ProjectID], [FundingOrgID], [FundingDivisionID], [AltAwardCode],	[Source_ID], [Amount], [IsAnnualized], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate])
-SELECT [ProjectFundingID],[AbstractID], [Title], [ProjectID], [FundingOrgID], [FundingDivisionID], [ALtAwardCode], [Source_ID], [Amount], [IsAnnualized], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate]
+SELECT [ProjectFundingID],[AbstractID], [Title], [NewProjectID], [FundingOrgID], [FundingDivisionID], [ALtAwardCode], [Source_ID], [Amount], [IsAnnualized], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate]
 FROM [Migration_ProjectFunding]
 
 SET IDENTITY_INSERT ProjectFunding OFF;  -- SET IDENTITY_INSERT to ON. 
@@ -327,6 +310,31 @@ GO
 --select * from ProjectFunding  --200805
 
 	 
+-----------------------------
+-- ProjectCSO
+-----------------------------
+INSERT INTO ProjectCSO
+(ProjectFundingID, [CSOCode],[Relvance],[RelSource],[CreatedDate],[UpdatedDate])
+SELECT mf.[ProjectFundingID], c.Code, pc.[RELEVANCE], pc.[RELSOURCE], pc.[DATEADDED], pc.[LASTREVISED]
+FROM icrp.dbo.projectCSO pc
+	JOIN [Migration_ProjectFunding] mf ON pc.PROJECTID = mf.OldProjectID	
+	JOIN icrp.dbo.CSO c ON pc.CSOID = c.id  -- 187005	
+
+--delete from ProjectCSO
+--DBCC CHECKIDENT ('[ProjectCSO]', RESEED, 0)
+	
+
+-----------------------------
+-- ProjectCancerType
+-----------------------------
+INSERT INTO ProjectCancerType
+(ProjectFundingID, CancerTypeID, Relvance, RelSource, EnterBy)
+SELECT mf.[ProjectFundingID], c.CancerTypeID, ps.RELEVANCE, ps.RELSOURCE, ps.ENTEREDBY 
+FROM icrp.dbo.PROJECTSITE ps	
+	JOIN [Migration_ProjectFunding] mf ON ps.PROJECTID = mf.OldProjectID	
+	JOIN icrp.dbo.SITE s ON ps.SITEID = s.ID
+	JOIN CancerType c ON s.Name = c.NAME
+
 -----------------------------
 -- ProjectFundingExt
 -----------------------------
@@ -361,43 +369,43 @@ WHERE inst.InstitutionID IS NOT NULL
 -- Upper middle income - MU
 --    42 COUNTRIES HAVE NO INCOME BAND
 -----------------------------
---CREATE TABLE #CountryCodeMapping (	
---	Two VARCHAR(2),
---	Three VARCHAR(3)
---)
---GO
+CREATE TABLE #CountryCodeMapping (	
+	Two VARCHAR(2),
+	Three VARCHAR(3)
+)
+GO
 
---BULK INSERT #CountryCodeMapping
---FROM 'C:\Developments\icrp\database\Migration\CountryCodeMapping.csv'
---WITH
---(
---	FIELDTERMINATOR = ',',
---	ROWTERMINATOR = '\n'
---)
---GO
+BULK INSERT #CountryCodeMapping
+FROM 'C:\icrp\database\Migration\CountryCodeMapping.csv'
+WITH
+(
+	FIELDTERMINATOR = ',',
+	ROWTERMINATOR = '\n'
+)
+GO
 
---CREATE TABLE #IncomeBand(	
---	CountryCode VARCHAR(10),
---	IncomeGroup VARCHAR(50)
---)
---GO
+CREATE TABLE #IncomeBand(	
+	CountryCode VARCHAR(10),
+	IncomeGroup VARCHAR(50)
+)
+GO
 
---BULK INSERT #IncomeBand
---FROM 'C:\Developments\icrp\database\Migration\IncomeBand.csv'
---WITH
---(
---	FIELDTERMINATOR = ',',
---	ROWTERMINATOR = '\n'
---)
---GO
+BULK INSERT #IncomeBand
+FROM 'C:\icrp\database\Migration\IncomeBand.csv'
+WITH
+(
+	FIELDTERMINATOR = ',',
+	ROWTERMINATOR = '\n'
+)
+GO
 
---Update Country Set IncomeBand =
---	CASE i.IncomeGroup
---		 WHEN 'High income' THEN 'H'
---		 WHEN 'Low income' THEN 'L'
---		 WHEN 'Lower middle income' THEN 'ML'
---		 WHEN 'Upper middle income' THEN 'MU'
---		 ELSE NULL END 
---FROM Country c
---JOIN #CountryCodeMapping m ON c.Abbreviation = m.two
---JOIN #IncomeBand i ON m.three = i.CountryCode
+Update Country Set IncomeBand =
+	CASE i.IncomeGroup
+		 WHEN 'High income' THEN 'H'
+		 WHEN 'Low income' THEN 'L'
+		 WHEN 'Lower middle income' THEN 'ML'
+		 WHEN 'Upper middle income' THEN 'MU'
+		 ELSE NULL END 
+FROM Country c
+JOIN #CountryCodeMapping m ON c.Abbreviation = m.two
+JOIN #IncomeBand i ON m.three = i.CountryCode

@@ -327,7 +327,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[ProjectCancerType](
 	[ProjectCancerTypeID] [int] IDENTITY(1,1) NOT NULL,
-	[ProjectID] [int] NOT NULL,
+	[ProjectFundingID] [int] NOT NULL,
 	[CancerTypeID] [int] NOT NULL,
 	[Relvance] [float] NULL,
 	[RelSource] [char](1) NULL,
@@ -340,8 +340,8 @@ CREATE TABLE [dbo].[ProjectCancerType](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 
-CREATE NONCLUSTERED INDEX IX_ProjectCancerType_ProjectID
-ON ProjectCancerType (ProjectID)
+CREATE NONCLUSTERED INDEX IX_ProjectCancerType_ProjectFundingID
+ON ProjectCancerType (ProjectFundingID)
 INCLUDE (CancerTypeID);
 GO
 
@@ -353,7 +353,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[ProjectCSO](
 	[ProjectCSOID] [int] IDENTITY(1,1) NOT NULL,
-	[ProjectID] [int] NOT NULL,
+	[ProjectFundingID] [int] NOT NULL,
 	[CSOCode] [varchar](20) NOT NULL,
 	[Relvance] [float] NULL,
 	[RelSource] [char](1) NULL,
@@ -414,7 +414,7 @@ CREATE TABLE [dbo].[ProjectFunding](
 	[AltAwardCode] [varchar](500) NOT NULL,
 	[Source_ID] [varchar](50) NULL,
 	[IsAnnualized] [bit] NOT NULL,  -- 1 for Annualized, 0 for Lifetime
-	[Amount] [float] NOT NULL,
+	[Amount] [float] NULL,
 	[BudgetStartDate] [date] NULL,
 	[BudgetEndDate] [date] NULL,
 	[CreatedDate] [datetime] NOT NULL,
@@ -453,6 +453,15 @@ GO
 
 ALTER TABLE [dbo].[ProjectFundingExt] ADD  CONSTRAINT [DF_ProjectFundingExt_UpdatedDate]  DEFAULT (getdate()) FOR [UpdatedDate]
 GO
+
+
+ALTER TABLE [dbo].[ProjectFundingExt]  WITH CHECK ADD  CONSTRAINT [FK_ProjectFundingExt_Project] FOREIGN KEY([ProjectID])
+REFERENCES [dbo].[Project] ([ProjectID])
+GO
+
+ALTER TABLE [dbo].[ProjectFundingExt] CHECK CONSTRAINT [FK_ProjectFundingExt_Project]
+GO
+
 
 
 /****** Object:  Table [dbo].[ProjectFundingInvestigator]    Script Date: 12/13/2016 6:23:53 PM ******/
@@ -556,14 +565,14 @@ CREATE TABLE [dbo].[SearchCriteria](
 	[piFirstName] [varchar](50) NULL,
 	[piORCiD] [varchar](50) NULL,
 	[AwardCode] [varchar](50) NULL,
+	[YearList] [varchar](1000) NULL,
 	[CityList] [varchar](1000) NULL,
 	[StateList] [varchar](1000) NULL,
 	[CountryList] [varchar](1000) NULL,
 	[FundingOrgList] [varchar](1000) NULL,
 	[CancerTypeList] [varchar](1000) NULL,
 	[ProjectTypeList] [varchar](1000) NULL,
-	[CSOList] [varchar](500) NULL,
-	[OnlyBaseProjects] [bit] NULL,
+	[CSOList] [varchar](500) NULL,	
 	[SearchByUserName] [varchar](100) NULL,
 	[SearchDate] [datetime] NOT NULL,
  CONSTRAINT [PK_SearchCriteria] PRIMARY KEY CLUSTERED 
@@ -574,27 +583,30 @@ CREATE TABLE [dbo].[SearchCriteria](
 
 GO
 
-ALTER TABLE [dbo].[SearchCriteria] ADD  CONSTRAINT [DF_SearchCriteria_OnlyBaseProjects]  DEFAULT ((1)) FOR [OnlyBaseProjects]
-GO
 ALTER TABLE [dbo].[SearchCriteria] ADD  CONSTRAINT [DF_SearchCriteria_CreatedDate]  DEFAULT (getdate()) FOR [SearchDate]
 GO
 
 
-/****** Object:  Table [dbo].[SearchHistory]    Script Date: 12/13/2016 6:23:53 PM ******/
+/****** Object:  Table [dbo].[SearchResult]    Script Date: 1/6/2017 3:27:48 PM ******/
 SET ANSI_NULLS ON
 GO
+
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[SearchHistory](
-	[SearchHistoryID] [int] IDENTITY(1,1) NOT NULL,
-	[SearchCriteria] [varchar](max) NULL,
+
+CREATE TABLE [dbo].[SearchResult](
+	[SearchCriteriaID] [int] NOT NULL,
+	[Results] [varchar](max) NULL,
 	[ResultCount] [int] NULL,
-	[SearchUserID] [int] NULL,
-	[SearchDate] [datetime] NULL,
-	[IsSentAsEmailLink] [bit] NOT NULL
+ CONSTRAINT [PK_SearchResult] PRIMARY KEY CLUSTERED 
+(
+	[SearchCriteriaID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 
 GO
+
+
 /****** Object:  Table [dbo].[Sponsor]    Script Date: 12/13/2016 6:23:53 PM ******/
 SET ANSI_NULLS ON
 GO
@@ -763,15 +775,17 @@ REFERENCES [dbo].[FundingMechanism] ([FundingMechanismID])
 GO
 ALTER TABLE [dbo].[Project] CHECK CONSTRAINT [FK_Project_FundingMechanism]
 GO
-ALTER TABLE [dbo].[ProjectDocument]  WITH CHECK ADD  CONSTRAINT [FK_Project_ProjectDocument] FOREIGN KEY([ProjectID])
+
+ALTER TABLE [dbo].[ProjectDocument]  WITH CHECK ADD  CONSTRAINT [FK_ProjectDocument_Project] FOREIGN KEY([ProjectID])
 REFERENCES [dbo].[Project] ([ProjectID])
 GO
-ALTER TABLE [dbo].[ProjectDocument] CHECK CONSTRAINT [FK_Project_ProjectDocument]
+ALTER TABLE [dbo].[ProjectDocument] CHECK CONSTRAINT [FK_ProjectDocument_Project]
 GO
-ALTER TABLE [dbo].[ProjectDocument_JP]  WITH CHECK ADD  CONSTRAINT [FK_Project_ProjectDocumentJP] FOREIGN KEY([ProjectID])
+
+ALTER TABLE [dbo].[ProjectDocument_JP]  WITH CHECK ADD  CONSTRAINT [FK_ProjectDocument_JP_Project] FOREIGN KEY([ProjectID])
 REFERENCES [dbo].[Project] ([ProjectID])
 GO
-ALTER TABLE [dbo].[ProjectDocument_JP] CHECK CONSTRAINT [FK_Project_ProjectDocumentJP]
+ALTER TABLE [dbo].[ProjectDocument_JP] CHECK CONSTRAINT [FK_ProjectDocument_JP_Project]
 GO
 ALTER TABLE [dbo].[ProjectFunding]  WITH CHECK ADD  CONSTRAINT [FK_ProjectFunding_ProjectAbstract] FOREIGN KEY([ProjectAbstractID])
 REFERENCES [dbo].[ProjectAbstract] ([ProjectAbstractID])
@@ -798,20 +812,20 @@ REFERENCES [dbo].[CancerType] ([CancerTypeID])
 GO
 ALTER TABLE [dbo].[ProjectCancerType] CHECK CONSTRAINT [FK_ProjectCancerType_CancerType]
 GO
-ALTER TABLE [dbo].[ProjectCancerType]  WITH CHECK ADD  CONSTRAINT [FK_ProjectCancerType_Project] FOREIGN KEY([ProjectID])
-REFERENCES [dbo].[Project] ([ProjectID])
+ALTER TABLE [dbo].[ProjectCancerType]  WITH CHECK ADD  CONSTRAINT [FK_ProjectCancerType_ProjectFunding] FOREIGN KEY([ProjectFundingID])
+REFERENCES [dbo].[ProjectFunding] ([ProjectFundingID])
 GO
-ALTER TABLE [dbo].[ProjectCancerType] CHECK CONSTRAINT [FK_ProjectCancerType_Project]
+ALTER TABLE [dbo].[ProjectCancerType] CHECK CONSTRAINT [FK_ProjectCancerType_ProjectFunding]
 GO
 ALTER TABLE [dbo].[ProjectCSO]  WITH CHECK ADD  CONSTRAINT [FK_ProjectCSO_CSO] FOREIGN KEY([CSOCode])
 REFERENCES [dbo].[CSO] ([Code])
 GO
 ALTER TABLE [dbo].[ProjectCSO] CHECK CONSTRAINT [FK_ProjectCSO_CSO]
 GO
-ALTER TABLE [dbo].[ProjectCSO]  WITH CHECK ADD  CONSTRAINT [FK_ProjectCSO_Project] FOREIGN KEY([ProjectID])
-REFERENCES [dbo].[Project] ([ProjectID])
+ALTER TABLE [dbo].[ProjectCSO]  WITH CHECK ADD  CONSTRAINT [FK_ProjectCSO_ProjectFunding] FOREIGN KEY([ProjectFundingID])
+REFERENCES [dbo].[ProjectFunding] ([ProjectFundingID])
 GO
-ALTER TABLE [dbo].[ProjectCSO] CHECK CONSTRAINT [FK_ProjectCSO_Project]
+ALTER TABLE [dbo].[ProjectCSO] CHECK CONSTRAINT [FK_ProjectCSO_ProjectFunding]
 GO
 ALTER TABLE [dbo].[ProjectFunding]  WITH CHECK ADD  CONSTRAINT [FK_ProjectFunding_FundingOrg] FOREIGN KEY([FundingOrgID])
 REFERENCES [dbo].[FundingOrg] ([FundingOrgID])
