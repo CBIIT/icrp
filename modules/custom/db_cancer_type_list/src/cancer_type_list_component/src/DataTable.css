@@ -12,6 +12,7 @@ table.data-table > tbody > tr:hover {
 }
 
 table.data-table > thead > tr > th {
+  min-width: 300px;
   white-space: nowrap;
   text-align: left;
   border: 1px solid #dde4f2;
@@ -20,7 +21,7 @@ table.data-table > thead > tr > th {
 }
 
 table.data-table > thead > tr > th:first-child {
-  width: 50%;
+  width: 40%;
 }
 
 table.data-table > thead > tr > th,
@@ -33,5 +34,5 @@ table.data-table > tbody > tr > td {
 }
 
 table.data-table > tbody > tr > td > a {
-  color: #2c3e50;
+  color: #336e7b;
 }
