@@ -67,7 +67,7 @@ class CancerTypeListController extends ControllerBase {
 
   public function getCancerTypes() {
     $pdo = self::getConnection();
-    $stmt = $pdo->prepare('SET NOCOUNT ON; SELECT Name as label, SiteURL as url FROM CancerType ORDER BY SortOrder, Name');
+    $stmt = $pdo->prepare('SET NOCOUNT ON; SELECT Name as label, SiteURL as url, Description as description FROM CancerType ORDER BY SortOrder, Name');
     $results = [];
 
     if($stmt->execute()) {
