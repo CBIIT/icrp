@@ -7,7 +7,7 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-CREATE FUNCTION [dbo].[ToIntTable](@input AS Varchar(4000) )
+CREATE FUNCTION [dbo].[ToIntTable](@input AS Varchar(MAX) )
 RETURNS
       @Result TABLE(Value INT)
 AS
@@ -43,7 +43,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 
-CREATE FUNCTION [dbo].[ToStrTable](@input AS Varchar(4000) )
+CREATE FUNCTION [dbo].[ToStrTable](@input AS Varchar(MAX) )
 RETURNS
       @Result TABLE(Value varchar(250))
 AS
