@@ -13,7 +13,17 @@ class App extends Component {
   }
 
   getCancerTypes() {
-    fetch('https://icrpartnership-demo.org/partners/cancer-type-list/get')
+    let protocol = window.location.protocol;
+    let hostname = window.location.hostname;
+    let pathname = window.location.pathname;
+
+    if (hostname.indexOf('localhost') > -1) {
+      protocol = 'https:';
+      hostname = 'icrpartnership-demo.org';
+      pathname = '/partners/cancer-type-list';
+    }
+
+    fetch(`${protocol}//${hostname}${pathname}/get`)
     .then(response => response.json())
     .then(response => {
 

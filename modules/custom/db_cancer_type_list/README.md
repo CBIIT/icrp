@@ -1,1 +1,1 @@
-Drupal module for viewing ICRP projects from an external database
+Drupal module for viewing ICRP cancer types from an external database

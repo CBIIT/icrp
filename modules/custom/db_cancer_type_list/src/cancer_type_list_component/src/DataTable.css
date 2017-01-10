@@ -3,16 +3,20 @@ table.data-table {
   border-collapse: collapse;
 }
 
-table.data-table > thead > tr,
-table.data-table > tbody > tr {
+table.data-table > tbody > tr:nth-child(even) {
+  background-color: #f9fafd;
+}
+
+table.data-table > tbody > tr:hover {
+  background-color: #ebeff7;
 }
 
 table.data-table > thead > tr > th {
   white-space: nowrap;
   text-align: left;
-  background-color: #446CB3;
+  border: 1px solid #dde4f2;
+  background-color: #446cb3;
   color: white;
-  border: 1px solid #DDE4F2;
 }
 
 table.data-table > thead > tr > th,
@@ -21,5 +25,5 @@ table.data-table > tbody > tr > td {
 }
 
 table.data-table > tbody > tr > td {
-  border: 1px solid #EEE;
+  border: 1px solid #ebeff7;
 }
