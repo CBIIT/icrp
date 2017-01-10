@@ -5,6 +5,7 @@ db_cancer_type_list.content:
     _title: 'ICRP Cancer Type List'
   requirements:
     _permission: 'access content'
+    _role: 'authenticated'
 
 db_cancer_type_list.get:
   path: '/partners/cancer-type-list/get'
@@ -12,3 +13,4 @@ db_cancer_type_list.get:
     _controller: '\Drupal\db_cancer_type_list\Controller\CancerTypeListController::getCancerTypes'
   requirements:
     _permission: 'access content'
+    _role: 'authenticated'
