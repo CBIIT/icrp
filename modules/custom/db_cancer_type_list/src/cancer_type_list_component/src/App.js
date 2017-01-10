@@ -13,17 +13,23 @@ class App extends Component {
   }
 
   getCancerTypes() {
+    let headers = new Headers();
+    headers.append('Cookie')
+
     let protocol = window.location.protocol;
     let hostname = window.location.hostname;
     let pathname = window.location.pathname;
 
+    
     if (hostname.indexOf('localhost') > -1) {
       protocol = 'https:';
       hostname = 'icrpartnership-demo.org';
       pathname = '/partners/cancer-type-list';
     }
 
-    fetch(`${protocol}//${hostname}${pathname}/get`)
+    fetch(`${protocol}//${hostname}${pathname}/get`, {
+      credentials: 'include'
+    })
     .then(response => response.json())
     .then(response => {
 

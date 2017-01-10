@@ -13,3 +13,4 @@ db_cancer_type_list.get:
     _controller: '\Drupal\db_cancer_type_list\Controller\CancerTypeListController::getCancerTypes'
   requirements:
     _permission: 'access content'
+    _role: 'authenticated'

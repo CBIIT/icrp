@@ -2,7 +2,7 @@ resources:
   version: 1.0
   css:
     theme:
-      src/assets/css/main.5eae76c7.css: {}
+      src/assets/css/main.efb0558c.css: {}
 
   js:
-    src/assets/js/main.286296ce.js: {}
+    src/assets/js/main.2afb962f.js: {}
