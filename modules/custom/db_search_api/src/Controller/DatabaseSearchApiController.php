@@ -60,6 +60,11 @@ class DatabaseSearchAPIController extends ControllerBase {
     'num_results'           => 'ResultCount',
   ];
 
+  private static $reverse_output_mappings = [
+    'searchCriteriaID'      => 'search_id',
+    'ResultCount'           => 'num_results',
+  ];
+
   /**
    * Returns a PDO connection to a database
    * @param $cfg - An associative array containing connection parameters 
@@ -123,12 +128,11 @@ class DatabaseSearchAPIController extends ControllerBase {
       $param_key = "@$mapped_key";
       $query_key = ":$mapped_key";
 
-      $stmt_parameters[$query_key] = &$output[$key];
       array_push($stmt_conditions, "{$param_key}={$query_key}");
     }
 
     $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE GetProjectsByCriteria ' . implode(',', $stmt_conditions));
-    self::bind_parameters($stmt, $stmt_parameters);
+    self::bind_parameters($stmt, $stmt_parameters, $output);
 
     return $stmt;
   }
@@ -139,11 +143,12 @@ class DatabaseSearchAPIController extends ControllerBase {
   * @param $param - An associative array containing 
   * parameters to bind to the statement
   */
-  function bind_parameters($stmt, &$param) {
+  function bind_parameters($stmt, $param, &$output) {
    foreach (array_keys($param) as $key) {
 
       if (in_array($key, array_values(self::$output_mappings))) {
-        $stmt->bindParam($key, $param[$key], PDO::PARAM_INT|PDO::PARAM_INPUT_OUTPUT, 1000);
+        $original_key = self::$reverse_output_mappings[$key];
+        $stmt->bindParam($key, $output[$original_key], PDO::PARAM_INT|PDO::PARAM_INPUT_OUTPUT, 1000);
       }
 
       else {
