@@ -144,17 +144,13 @@ class DatabaseSearchAPIController extends ControllerBase {
   * parameters to bind to the statement
   */
   function bind_parameters($stmt, $param, &$output) {
-   foreach (array_keys($param) as $key) {
+    foreach (array_keys($param) as $key) {
+      $stmt->bindParam($key, $param[$key]);
+    }
 
-      if (in_array($key, array_values(self::$output_mappings))) {
-        $original_key = self::$reverse_output_mappings[$key];
-        $stmt->bindParam($key, $output[$original_key], PDO::PARAM_INT|PDO::PARAM_INPUT_OUTPUT, 1000);
-      }
-
-      else {
-        $stmt->bindParam($key, $param[$key]);
-
-      }
+    foreach (array_keys($output) as $key) {
+      $mapped_key = ":{self::$reverse_output_mappings[$key]}";
+      $stmt->bindParam($mapped_key, $output[$key], PDO::PARAM_INT|PDO::PARAM_INPUT_OUTPUT, 1000);
     }
   }
 
