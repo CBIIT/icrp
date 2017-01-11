@@ -149,7 +149,7 @@ class DatabaseSearchAPIController extends ControllerBase {
     }
 
     foreach (array_keys($output) as $key) {
-      $mapped_key = ":{self::$reverse_output_mappings[$key]}";
+      $mapped_key = ":{self::$output_mappings[$key]}";
       $stmt->bindParam($mapped_key, $output[$key], PDO::PARAM_INT|PDO::PARAM_INPUT_OUTPUT, 1000);
     }
   }
