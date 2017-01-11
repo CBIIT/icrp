@@ -213,7 +213,7 @@ class DatabaseSearchAPIController extends ControllerBase {
 
     $stmt = self::create_prepared_statement($pdo, $parameters, $output);
     if ($stmt->execute()) {
-      $output['results'] => [];
+      $output['results'] = [];
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         array_push($output['results'], [
           'project_id'            => $row['ProjectID'],
