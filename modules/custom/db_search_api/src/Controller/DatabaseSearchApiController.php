@@ -123,7 +123,7 @@ class DatabaseSearchAPIController extends ControllerBase {
       $param_key = "@$mapped_key";
       $query_key = ":$mapped_key";
 
-      $stmt_parameters[$query_key] = $output[$key];
+      $stmt_parameters[$query_key] = &$output[$key];
       array_push($stmt_conditions, "{$param_key}={$query_key}");
     }
 
