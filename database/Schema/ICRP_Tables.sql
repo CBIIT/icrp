@@ -41,6 +41,7 @@ GO
 CREATE TABLE [dbo].[CancerType](
 	[CancerTypeID] [int] IDENTITY(1,1) NOT NULL,
 	[Name] [varchar](100) NOT NULL,
+	[Description] [varchar](1000) NULL,
 	[Mapped_ID] [int] NOT NULL,
 	[SiteURL] [varchar](150) NULL,
 	[IsCommon] [bit] NOT NULL,
@@ -172,27 +173,7 @@ CREATE TABLE [dbo].[FundingDivision](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[FundingMechanism]    Script Date: 12/13/2016 6:23:53 PM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [dbo].[FundingMechanism](
-	[FundingMechanismID] [int] IDENTITY(1,1) NOT NULL,
-	[Title] [varchar](200) NULL,
-	[DisplayName] [varchar](200) NULL,
-	[SponsorCode] [varchar](50) NULL,
-	[SponsorMechanism] [varchar](30) NULL,
-	[SortOrder] [smallint] NOT NULL,
-	[CreatedDate] [datetime] NOT NULL,
-	[UpdatedDate] [datetime] NOT NULL,
- CONSTRAINT [PK_FundingMechanism] PRIMARY KEY CLUSTERED 
-(
-	[FundingMechanismID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
 
-GO
 /****** Object:  Table [dbo].[FundingOrg]    Script Date: 12/13/2016 6:23:53 PM ******/
 SET ANSI_NULLS ON
 GO
@@ -202,6 +183,7 @@ CREATE TABLE [dbo].[FundingOrg](
 	[FundingOrgID] [int] IDENTITY(1,1) NOT NULL,
 	[Name] [varchar](100) NOT NULL,
 	[Abbreviation] [varchar](15) NOT NULL,
+	[Type] [varchar](25) NULL,  -- Government, Non-profit, Other
 	[Country] [varchar](3) NOT NULL,
 	[Currency] [varchar](3) NOT NULL,
 	[SponsorCode] [varchar](50) NOT NULL,
@@ -224,10 +206,10 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Institution](
-	[InstitutionID] [int] IDENTITY(1,1) NOT NULL,
-	[InstitutionType] [varchar](50) NULL,
+	[InstitutionID] [int] IDENTITY(1,1) NOT NULL,	
 	[Name] [varchar](250) NOT NULL,
 	[Abbreviation] [varchar](3) NULL,
+	[Type] [varchar](25) NULL,  -- Academic, Government, Non-profit, Industry, Other
 	[Longitude] [decimal](9, 6) NULL,
 	[Latitude] [decimal](9, 6) NULL,
 	[City] [varchar](50) NULL,
@@ -243,23 +225,7 @@ CREATE TABLE [dbo].[Institution](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[InstitutionType]    Script Date: 12/13/2016 6:23:53 PM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-CREATE TABLE [dbo].[InstitutionType](
-	[InstitutionTypeID] [int] IDENTITY(1,1) NOT NULL,
-	[Type] [varchar](50) NOT NULL,
-	[CreatedDate] [datetime] NOT NULL,
-	[UpdatedDate] [datetime] NOT NULL,
- CONSTRAINT [PK_InstitutionType] PRIMARY KEY CLUSTERED 
-(
-	[Type] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
 
-GO
 /****** Object:  Table [dbo].[Project]    Script Date: 12/13/2016 6:23:53 PM ******/
 SET ANSI_NULLS ON
 GO
@@ -269,7 +235,8 @@ CREATE TABLE [dbo].[Project](
 	[ProjectID] [int] IDENTITY(1,1) NOT NULL,
 	[ProjectGroupID] [int] NULL,		
 	[AwardCode] [nvarchar](50) NOT NULL,	
-	[FundingMechanismID] [int] NULL,
+	[MechanismCode] [varchar](30) NULL,
+	[MechanismTitle] [varchar](200) NULL,	
 	[IsFunded] [bit] NOT NULL,
 	[ProjectStartDate] [date] NULL,
 	[ProjectEndDate] [date] NULL,
@@ -411,6 +378,7 @@ CREATE TABLE [dbo].[ProjectFunding](
 	[FundingOrgID] [int] NOT NULL,
 	[FundingDivisionID] [int] NULL,
 	[ProjectAbstractID] [int] NOT NULL,	
+	[Category] [varchar](25) NULL,  -- Parent, Supplement, SubProject
 	[AltAwardCode] [varchar](500) NOT NULL,
 	[Source_ID] [varchar](50) NULL,
 	[IsAnnualized] [bit] NOT NULL,  -- 1 for Annualized, 0 for Lifetime
@@ -645,9 +613,177 @@ CREATE TABLE [dbo].[State](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 
+
+ALTER TABLE [dbo].[State]  WITH CHECK ADD  CONSTRAINT [FK_State_Country] FOREIGN KEY([Country])
+REFERENCES [dbo].[Country] ([Abbreviation])
+GO
+
+ALTER TABLE [dbo].[State] CHECK CONSTRAINT [FK_State_Country]
+GO
+
+GO
+
+/****** Object:  Table [dbo].[PartnerApplication]    Script Date: 1/10/2017 5:06:16 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[PartnerApplication](
+	[PartnerApplicationID] [int] IDENTITY(1,1) NOT NULL,
+	[OrgName] [varchar](100) NULL,
+	[OrgAddr1] [varchar](100) NULL,
+	[OrgAddr2] [varchar](100) NULL,
+	[OrgCity] [varchar](50) NULL,
+	[OrgState] [varchar](25) NULL,
+	[OrgCountry] [varchar](255) NULL,
+	[OrgZip] [varchar](25) NULL,
+	[OrgEDPCName] [varchar](50) NULL,
+	[OrgEDPCPosition] [varchar](50) NULL,
+	[OrgEDPCPhone] [varchar](50) NULL,
+	[OrgEDPCEmail] [varchar](50) NULL,
+	[OrgMissionDesc] [varchar](max) NULL,
+	[OrgProfileDesc] [varchar](max) NULL,
+	[OrgInitYear] [varchar](4) NULL,
+	[BudgetCurrInvestment] [varchar](20) NULL,
+	[BudgetReportPeriod] [varchar](20) NULL,
+	[BudgetCurrOperating] [varchar](20) NULL,
+	[BudgetNumProjects] [smallint] NULL,
+	[BudgetTier] [smallint] NULL,
+	[MemberPaymentMonth] [int] NULL,
+	[ContactName] [varchar](50) NULL,
+	[ContactPosition] [varchar](50) NULL,
+	[ContactPhone] [varchar](50) NULL,
+	[ContactEmail] [varchar](50) NULL,
+	[ContactAddr1] [varchar](50) NULL,
+	[ContactAddr2] [varchar](50) NULL,
+	[ContactCity] [varchar](50) NULL,
+	[ContactState] [varchar](50) NULL,
+	[ContactCountry] [varchar](255) NULL,
+	[ContactZip] [varchar](25) NULL,
+	[ICRPTerm1] [tinyint] NULL,
+	[ICRPTerm2] [tinyint] NULL,
+	[ICRPTerm3] [tinyint] NULL,
+	[ICRPTerm4] [tinyint] NULL,
+	[ICRPTerm5] [tinyint] NULL,
+	[ICRPTerm6] [tinyint] NULL,
+	[ICRPTerm7] [tinyint] NULL,
+	[ICRPTerm8] [tinyint] NULL,
+	[ICRPTerm9] [tinyint] NULL,
+	[SupplLetterFile] [varchar](100) NULL,
+	[SupplDocFile] [varchar](100) NULL,
+	[IsCompleted] [bit] NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[UpdatedDate] [datetime] NOT NULL,
+ CONSTRAINT [PK_PartnerApplication] PRIMARY KEY CLUSTERED 
+(
+	[PartnerApplicationID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+GO
+
+ALTER TABLE [dbo].[PartnerApplication] ADD  CONSTRAINT [DF_PartnerApplication_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+
+ALTER TABLE [dbo].[PartnerApplication] ADD  CONSTRAINT [DF_PartnerApplication_UpdatedDate]  DEFAULT (getdate()) FOR [UpdatedDate]
 GO
 
 
+/****** Object:  Table [dbo].[Partner]    Script Date: 1/10/2017 5:07:23 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[Partner](
+	[PartnerID] [int] NOT NULL,
+	[PartnerApplicationID] [int] NULL,
+	[Name] [varchar](100) NOT NULL,
+	[Description] [varchar](max) NOT NULL,
+	[Country] [varchar](100) NULL,
+	[Website] [varchar](200) NULL,
+	[LogoFile] [varchar](100) NULL,
+	[DisplayID] [smallint] NULL,
+	[DisplayURL] [bit] NULL,
+	[MapCoords] [varchar](50) NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[UpdatedDate] [datetime] NOT NULL,
+ CONSTRAINT [PK_Partner] PRIMARY KEY CLUSTERED 
+(
+	[PartnerID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+GO
+
+ALTER TABLE [dbo].[Partner] ADD  CONSTRAINT [DF_Partner_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+
+ALTER TABLE [dbo].[Partner] ADD  CONSTRAINT [DF_Partner_UpdatedDate]  DEFAULT (getdate()) FOR [UpdatedDate]
+GO
+
+/****** Object:  Table [dbo].[PartnerOrg]    Script Date: 1/10/2017 5:07:46 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[PartnerOrg](
+	[PartnerOrgID] [int] IDENTITY(1,1) NOT NULL,
+	[SponsorCode] [varchar](50) NOT NULL,
+	[Name] [varchar](100) NULL,
+	[Country] [varchar](3) NULL,
+	[StatusCode] [varchar](20) NULL,
+	[FundingOrgID] [int] NULL,
+	[JoinDate] [datetime] NULL,
+	[ContactDate] [datetime] NULL,
+	[Note] [varchar](max) NULL,
+	[PID] [int] NULL,
+	[DSASigned] [bit] NULL,
+	[IsDataUploaded] [bit] NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[UpdatedDate] [datetime] NOT NULL,
+ CONSTRAINT [PK_PartnerOrg] PRIMARY KEY CLUSTERED 
+(
+	[PartnerOrgID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+GO
+
+ALTER TABLE [dbo].[PartnerOrg] ADD  CONSTRAINT [DF_PartnerOrg_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+
+ALTER TABLE [dbo].[PartnerOrg] ADD  CONSTRAINT [DF_PartnerOrg_UpdatedDate]  DEFAULT (getdate()) FOR [UpdatedDate]
+GO
+
+
+/****** Object:  Table [dbo].[LuPartnerStatus]    Script Date: 1/10/2017 5:08:05 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[LuPartnerStatus](
+	[LuPartnerStatusID] [int] IDENTITY(1,1) NOT NULL,
+	[Code] [varchar](20) NOT NULL,
+	[Description] [varchar](100) NOT NULL,
+	[DisplayID] [varchar](3) NULL,
+ CONSTRAINT [PK_LuPartnerStatus] PRIMARY KEY CLUSTERED 
+(
+	[Code] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+
+/****** Relationships ******/
 ALTER TABLE [dbo].[CancerType] ADD  CONSTRAINT [DF_CancerType_SortOrder]  DEFAULT ((1)) FOR [SortOrder]
 GO
 ALTER TABLE [dbo].[CancerType] ADD  CONSTRAINT [DF_CancerType_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
@@ -674,10 +810,6 @@ ALTER TABLE [dbo].[FundingDivision] ADD  CONSTRAINT [DF_FundingDivision_CreatedD
 GO
 ALTER TABLE [dbo].[FundingDivision] ADD  CONSTRAINT [DF_FundingDivision_UpdatedDate]  DEFAULT (getdate()) FOR [UpdatedDate]
 GO
-ALTER TABLE [dbo].[FundingMechanism] ADD  CONSTRAINT [DF_FundingMechanism_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
-GO
-ALTER TABLE [dbo].[FundingMechanism] ADD  CONSTRAINT [DF_FundingMechanism_UpdatedDate]  DEFAULT (getdate()) FOR [UpdatedDate]
-GO
 ALTER TABLE [dbo].[FundingOrg] ADD  CONSTRAINT [DF_FundingOrg_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
 GO
 ALTER TABLE [dbo].[FundingOrg] ADD  CONSTRAINT [DF_FundingOrg_UpdatedDate]  DEFAULT (getdate()) FOR [UpdatedDate]
@@ -685,10 +817,6 @@ GO
 ALTER TABLE [dbo].[Institution] ADD  CONSTRAINT [DF_Institution_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
 GO
 ALTER TABLE [dbo].[Institution] ADD  CONSTRAINT [DF_Institution_UpdatedDate]  DEFAULT (getdate()) FOR [UpdatedDate]
-GO
-ALTER TABLE [dbo].[InstitutionType] ADD  CONSTRAINT [DF_InstitutionType_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
-GO
-ALTER TABLE [dbo].[InstitutionType] ADD  CONSTRAINT [DF_InstitutionType_UpdatedDate]  DEFAULT (getdate()) FOR [UpdatedDate]
 GO
 ALTER TABLE [dbo].[Project] ADD  CONSTRAINT [DF_Project_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
 GO
@@ -764,16 +892,6 @@ ALTER TABLE [dbo].[FundingOrg]  WITH CHECK ADD  CONSTRAINT [FK_FundingOrg_Sponso
 REFERENCES [dbo].[Sponsor] ([Code])
 GO
 ALTER TABLE [dbo].[FundingOrg] CHECK CONSTRAINT [FK_FundingOrg_Sponsor]
-GO
-ALTER TABLE [dbo].[Institution]  WITH CHECK ADD  CONSTRAINT [FK_Institution_InstitutionType] FOREIGN KEY([InstitutionType])
-REFERENCES [dbo].[InstitutionType] ([Type])
-GO
-ALTER TABLE [dbo].[Institution] CHECK CONSTRAINT [FK_Institution_InstitutionType]
-GO
-ALTER TABLE [dbo].[Project]  WITH CHECK ADD  CONSTRAINT [FK_Project_FundingMechanism] FOREIGN KEY([FundingMechanismID])
-REFERENCES [dbo].[FundingMechanism] ([FundingMechanismID])
-GO
-ALTER TABLE [dbo].[Project] CHECK CONSTRAINT [FK_Project_FundingMechanism]
 GO
 
 ALTER TABLE [dbo].[ProjectDocument]  WITH CHECK ADD  CONSTRAINT [FK_ProjectDocument_Project] FOREIGN KEY([ProjectID])

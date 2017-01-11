@@ -21,13 +21,6 @@ INSERT INTO ProjectGroup ([Group]) VALUES ('Childhood')
 INSERT INTO ProjectGroup ([Group]) VALUES ('Adolescents')
 INSERT INTO ProjectGroup ([Group]) VALUES ('Adult')
 
------------------------------
--- InstitutionType
------------------------------
-INSERT INTO InstitutionType ([Type]) VALUES ('Academic')
-INSERT INTO InstitutionType ([Type]) VALUES ('Government')
-INSERT INTO InstitutionType ([Type]) VALUES ('Non-Profit')
-INSERT INTO InstitutionType ([Type]) VALUES ('Industry')
 
 -----------------------------
 -- ProjectType
@@ -82,19 +75,6 @@ INSERT INTO Sponsor
 SELECT CODE, Name, country, email, displayAltID, AltIDName, ISNULL(dateadded, getdate()), ISNULL(lastrevised, dateadded)
 	from icrp.dbo.Sponsor order by code
 
------------------------------
--- FundingMechanism
------------------------------
-SET IDENTITY_INSERT FundingMechanism ON;  -- SET IDENTITY_INSERT to ON. 
-GO  
-
-INSERT INTO FundingMechanism
-(FundingMechanismID, Title, DisplayName, SponsorCode, SponsorMechanism, SortOrder, CreatedDate, UpdatedDate)
-SELECT ID, title, displayname, sponsorCODE, SPONSORMECHANISM, SORTORDER, ISNULL(dateadded, getdate()), ISNULL(lastrevised, dateadded)
-	from icrp.dbo.MECHANISM order by id
-
-SET IDENTITY_INSERT FundingMechanism OFF;  -- SET IDENTITY_INSERT to ON. 
-GO  
 
 -----------------------------
 -- Currency - De-dup...
@@ -207,10 +187,11 @@ SET IDENTITY_INSERT Project ON;  -- SET IDENTITY_INSERT to ON.
 GO 
 
 INSERT INTO Project  
-(ProjectID, [ProjectGroupID], [AwardCode],[FundingMechanismID],[IsFunded],[ProjectStartDate],[ProjectEndDate],[CreatedDate],[UpdatedDate])
-SELECT bp.ProjectID, NULL, p.code, p.MECHANISMID, p.[IsFunded], p.[DateStart], p.[DateEnd], p.[DATEADDED], p.[LASTREVISED]
+(ProjectID, [ProjectGroupID], [AwardCode],[MechanismCode],[MechanismTitle], [IsFunded],[ProjectStartDate],[ProjectEndDate],[CreatedDate],[UpdatedDate])
+SELECT bp.ProjectID, NULL, p.code, m.SPONSORCODE, m.TITLE, p.[IsFunded], p.[DateStart], p.[DateEnd], p.[DATEADDED], p.[LASTREVISED]
 FROM #activeProjects p
 	JOIN Migration_Project bp ON p.id = bp.OldProjectID	
+	LEFT JOIN icrp.dbo.MECHANISM m ON m.ID =p.MECHANISMID
 ORDER BY bp.ProjectID
 
 SET IDENTITY_INSERT Project OFF;  -- SET IDENTITY_INSERT to ON. 
@@ -340,7 +321,7 @@ FROM icrp.dbo.PROJECTSITE ps
 -----------------------------
 INSERT INTO ProjectFundingExt
 ([ProjectID], [AncestorProjectID], [CalendarYear], [CalendarAmount])
-SELECT p.[ProjectID], a.[ProjectIDANCESTOR], a.[YEAR], a.[CALENDARAMOUNT]
+SELECT p.[ProjectID], a.[ProjectIDANCESTOR], a.[YEAR], a.[CALENDARAMOUNT_V2]
 FROM icrp.dbo.[TestProjectActive] a
 JOIN Migration_Project p ON a.PROJECTID = p.OldProjectID
 
@@ -360,6 +341,65 @@ FROM [Migration_ProjectFunding] f
 									(ISNULL(f.state, '') = ISNULL(inst.state, '')) AND
 									(ISNULL(f.country, '') = ISNULL(inst.country, ''))	  --200774	
 WHERE inst.InstitutionID IS NOT NULL
+
+
+----------------------------
+-- CancerType Description
+-----------------------------
+CREATE TABLE #CancerType (	
+	[Name] VARCHAR(100),
+	[Description] VARCHAR(1000)
+)
+GO
+
+BULK INSERT #CancerType
+FROM 'C:\icrp\database\Migration\CancerTypeDesc.csv'
+WITH
+(
+	FIELDTERMINATOR = ',',
+	ROWTERMINATOR = '\n'
+)
+GO
+
+
+UPDATE CancerType Set [Description] = t.[Description]	
+FROM CancerType c
+JOIN #CancerType t ON c.Name = t.Name
+
+
+
+----------------------------
+-- Institution
+-----------------------------
+--CREATE TABLE Institution_Temp (	
+--	[Name] VARCHAR(1000),
+--	[City_ICRP] VARCHAR(1000),
+--	[City_ICRP_Correciton] VARCHAR(1000),
+--	[State_ICRP] VARCHAR(1000),
+--	[State_ICRP_Correction] VARCHAR(1000),
+--	[Country_ICRP] VARCHAR(1000),
+--	[Country_ICRP_Correction] VARCHAR(1000),
+--	[DeDup_Institution] VARCHAR(1000),
+--	[Grid_Name] VARCHAR(1000),
+--	[Grid_City] VARCHAR(1000),
+--	[Grid_Country] VARCHAR(1000),
+--	[ISO_Country] VARCHAR(1000),
+--	[Grid_ID] VARCHAR(1000),
+--	[Grid_Lat] VARCHAR(1000),
+--	[Grid_Lng] VARCHAR(1000)
+--)
+--GO
+
+--BULK INSERT Institution_Temp
+--FROM 'C:\Developments\icrp\database\Migration\Institution.csv'
+--WITH
+--(
+--	FIRSTROW = 2,
+--	FIELDTERMINATOR = ',',
+--	ROWTERMINATOR = '\n'
+--)
+--GO
+
 
 -----------------------------
 -- Country Income Band
@@ -409,3 +449,4 @@ Update Country Set IncomeBand =
 FROM Country c
 JOIN #CountryCodeMapping m ON c.Abbreviation = m.two
 JOIN #IncomeBand i ON m.three = i.CountryCode
+

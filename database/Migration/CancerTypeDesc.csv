@@ -1,0 +1,65 @@
+Name,Description
+Adrenocortical Cancer,NULL
+Not Site-Specific Cancer,includes Fundamental research (fluids, secretions, milk lymph, blood components, cell lines and cell fractions, etc.) and research that applies to all types of cancer
+Bladder Cancer,NULL
+Bone Cancer, Osteosarcoma / Malignant Fibrous Histiocytoma,includes Osteosarcoma, Malignant Fibrous Histiocytoma, Ewing?s sarcoma and all other bone/cartilaginous tumors
+Bone Marrow Transplantation,NULL
+Brain Tumor,includes Chordoma
+Breast Cancer,NULL
+Heart Cancer,NULL
+Heart Cancer / Cardiotoxicity,NULL
+Cervical Cancer,NULL
+Ear Cancer,NULL
+Endometrial Cancer,NULL
+Esophageal / Oesophageal Cancer,NULL
+Oesophageal / Esophageal Cancer,NULL
+Eye Cancer,not including Retinoblastoma
+Gallbladder Cancer,NULL
+Gastrointestinal Tract,Used for GI cancers other than Colon and Rectal, Esophogeal / Oesophageal, Gallbladder, Liver, Pancreatic, Small Intestine and Stomach
+Genital System, Female,Used for genital system, female cancers other than: Cervical, Endometrial, Ovarian, Vaginal, Vulva
+Genital System, Male,Used for male genital system cancers other than Penile, Prostate and Testicular
+Head and Neck Cancer,Used for Head and Neck cancers other than Laryngeal, Nasal Cavity and Paranasal Sinus, Oral Cavity and Lip, Parathyroid, Pharyngeal, Salivary Gland, and Thyroid
+Liver Cancer,including Bile Duct cancer
+Hodgkin's Disease,NULL
+Kidney Cancer,includes Kidney cancer and Wilms? tumor
+Laryngeal Cancer,NULL
+Leukemia / Leukaemia,includes ALL, AML, CLL, CML & Hairy Cell Leukaemia, Myelodysplastic Syndrome and Myeloproliferative disorders
+Lung Cancer,including Mesothelioma
+Melanoma,NULL
+Myeloma,including Multiple Myeloma
+Nasal Cavity and Paranasal Sinus Cancer,NULL
+Neuroblastoma,NULL
+Nervous System,Used for nervous system cancers other than Brain, Eye, Neuroblastoma, Pituitary, Primary CNS Lymphoma and Retinoblastoma
+Non-Hodgkin's Lymphoma,NULL
+Oral Cavity and Lip Cancer,NULL
+Pancreatic Cancer,NULL
+Parathyroid Cancer,NULL
+Penile Cancer,NULL
+Pituitary Tumor,NULL
+Prostate Cancer,NULL
+Respiratory System,Used for respiratory cancers other than Lung and Nasal Cavity & Paranasal Sinus cancers
+Retinoblastoma,NULL
+Kaposi's Sarcoma,NULL
+Sarcoma, Rhabdomyosarcoma, Childhood,includes Fibrosarcoma, Rhabdomyosarcoma, leiomyosarcoma, liposarcoma, muscle and other Soft Tissue Sarcoma (but not Ewing?s Sarcoma or other bone/cartilaginous tumors or Kaposi?s Sarcomaconnective
+Sarcoma, Soft Tissue,NULL
+Skin Cancer,NULL
+Small Intestine Cancer,NULL
+Stomach Cancer,NULL
+Testicular Cancer,NULL
+Thymoma, Malignant,NULL
+Thyroid Cancer,NULL
+Urinary System,NULL
+Vaginal Cancer,NULL
+Vascular System,NULL
+Wilms' Tumor,NULL
+Pharyngeal Cancer,NULL
+Salivary Gland Cancer,NULL
+Colon and Rectal Cancer,NULL
+Ovarian Cancer,NULL
+Blood Cancer,NULL
+Uncoded,NULL
+Vulva Cancer,NULL
+Primary of Unknown Origin,NULL
+Anal Cancer,NULL
+Primary CNS Lymphoma,NULL
+Sarcoma,NULL
