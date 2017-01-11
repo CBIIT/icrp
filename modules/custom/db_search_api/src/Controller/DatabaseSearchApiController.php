@@ -118,8 +118,10 @@ class DatabaseSearchAPIController extends ControllerBase {
     }
 
     foreach (array_keys($output) as $key) {
-      $param_key = "@$key";
-      $query_key = ":$key";
+      
+      $mapped_key = self::$output_mappings[$key];
+      $param_key = "@$mapped_key";
+      $query_key = ":$mapped_key";
 
       $stmt_parameters[$query_key] = $output[$key];
       array_push($stmt_conditions, "{$param_key}={$query_key}");
