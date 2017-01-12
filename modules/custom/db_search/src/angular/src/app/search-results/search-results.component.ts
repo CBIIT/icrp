@@ -78,14 +78,6 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
         value: 'institution'
       },
       {
-        label: 'City',
-        value: 'city'
-      },
-      {
-        label: 'State',
-        value: 'state'
-      },
-      {
         label: 'Country',
         value: 'country'
       },
