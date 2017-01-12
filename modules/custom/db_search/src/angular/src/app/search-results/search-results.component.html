@@ -92,40 +92,28 @@
 		<form class="form-horizontal clearfix" [formGroup]="emailForm"  style="position: relative">
 
 		  <div class="form-group">
-	      	<label for="name" class="col-sm-3 control-label">Your Name</label>
-	      	<div class="col-sm-9">
-	      		<input class="input" id="name" type="text" placeholder="Your Name" [formControl]="emailForm.controls.user_name">
-	      		<div class="alert alert-danger" *ngIf="!emailForm.controls['user_name'].valid && !emailForm.controls['user_name'].pristine">Please enter your name</div>
-	      	</div>
-			<label for="emailAddress" class="col-sm-3 control-label" required>Your Email Address</label>
-			<div class="col-sm-9">
-			  <input type="email" class="form-control" id="emailAddress" placeholder="Your Email" [formControl]="emailForm.controls.user_email">
-	      	  <div class="alert alert-danger" *ngIf="!emailForm.controls['user_email'].valid && !emailForm.controls['user_email'].pristine">Please enter your email</div>
-			</div>
-		  </div>
-
-		  <div class="form-group text-right " style="margin-right: 10px">
 			  <label class="radio-inline" for="sendToSelf">
-				<input type="radio" id="sendToSelf" name="sendTo" [formControl]="emailForm.controls.send_to" value="self" (click)="setValidation('recipient_email', false)"><strong>Send to myself</strong>
+				<input  #sendself type="checkbox" id="sendToSelf" name="sendToSelf" [formControl]="emailForm.controls.send_to_self" [value]="sendself.checked" (click)="setValidation('send_to_self', 'send_to_other', sendself.checked)"><strong>Send to myself</strong>
 			  </label>
 
 			  <label class="radio-inline" for="sendToOther">
-				<input type="radio" id="sendToOther" name="sendTo" [formControl]="emailForm.controls.send_to" value="other" (click)="setValidation('recipient_email', true)"><strong>Send to a friend</strong>
+				<input  #sendother type="checkbox" id="sendToOther" name="sendToOther" [formControl]="emailForm.controls.send_to_other" [value]="sendother.checked"
+					(click)="setValidation('send_to_other', 'recipient_email', sendother.checked); setValidation('send_to_other', 'recipient_email', !sendother.checked); setDisabled('recipient_email', !sendother.checked); clearValue(recipientemail, !sendother.checked)">
+					<strong>Send to a friend</strong>
 			  </label>
           </div>
 
-		  <div class="form-group" *ngIf="emailForm.controls.send_to.value === 'other'">
+		  <div class="form-group">
 		    <label for="recipientName" class="col-sm-3 control-label">Recipient's Email</label>
 			<div class="col-sm-9">
-			  <input class="input" id="recipientName" type="email" placeholder="Recipient's Email" [formControl]="emailForm.controls.recipient_email">
-			  <div class="alert alert-danger" *ngIf="!emailForm.controls['recipient_email'].valid && !emailForm.controls['recipient_email'].pristine">Please enter the recipient's email</div>
+			  <textarea class="input" id="recipientName" placeholder="(Separating multiple email recipients by commas)" [formControl]="emailForm.controls.recipient_email" #recipientemail></textarea>
 	      	</div>
 		  </div>
 
 		  <div class="form-group">
-			  <label for="recipientMessage" class="col-sm-3 control-label">Personal Message (Optional)</label>
+			  <label for="recipientMessage" class="col-sm-3 control-label">Personal Message </label>
 			  <div class="col-sm-9">
-				<textarea class="input" id="recipientMessage" type="text" placeholder="Personal Message" [formControl]="emailForm.controls.personal_message"></textarea>
+				<textarea class="input" id="recipientMessage" type="text" placeholder="(Optional)" [formControl]="emailForm.controls.personal_message"></textarea>
 			  </div>
 		  </div>
 
