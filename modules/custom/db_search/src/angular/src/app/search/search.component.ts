@@ -102,20 +102,24 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   paginate(event) {
-
     this.parameters['page_size'] = event.page_size;
     this.parameters['page_number'] = event.page_number;
-    this.updateResults(this.parameters);
+    this.resultsSortPaginate(this.parameters);
   }
 
   sort(event) {
     this.parameters['sort_column'] = event.sort_column;
     this.parameters['sort_type'] = event.sort_type;
-    this.updateResults(this.parameters);
+    this.resultsSortPaginate(this.parameters);
   }
 
   queryServerAnalytics(parameters: Object): Observable<any[]> {
-    let endpoint = 'https://icrpartnership-demo.org/db/public/analytics';
+
+    let protocol = window.location.protocol;
+    let host = window.location.hostname;
+
+    let endpoint = `${protocol}//${host}/db/public/analytics`;
+    
     let params = new URLSearchParams();
     params.set('search_id', this.searchID);
 
@@ -123,7 +127,28 @@ export class SearchComponent implements OnInit, AfterViewInit {
       .map((res: Response) => res.json())
       .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
   }
-  
+
+  resultsSortPaginate(parameters: Object) {
+    let endpoint = 'https://icrpartnership-demo.org/db/public/sort_paginate';
+    let params = new URLSearchParams();
+
+    if (!parameters['page_size'] || !parameters['page_number']) {
+      parameters['page_size'] = 50;
+      parameters['page_number'] = 1;
+    }
+
+    if (!parameters['sort_column'] || !parameters['sort_column']) {
+      parameters['sort_column'] = 'project_title';
+      parameters['sort_type'] = 'ASC';
+    }
+
+//    for (let key of ['page_size', 'page_number', 'sort_column', 'sort_type'])
+
+/*    return this.http.get(endpoint, {search: params})
+      .map((res: Response) => res.json())
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error'));
+*/
+  }
 
   queryServer(parameters: Object): Observable<any[]> {
   
@@ -132,8 +157,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     let endpoint = `${protocol}//${host}/db/public/search`;
     let params = new URLSearchParams();
-
-    endpoint = 'https://icrpartnership-demo.org/db/public/search';
 
     if (!parameters['page_size'] || !parameters['page_number']) {
       parameters['page_size'] = 50;
