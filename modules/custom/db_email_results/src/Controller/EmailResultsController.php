@@ -12,11 +12,23 @@ require 'class.smtp.php';
 
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use PHPMailer;
 // require 'PHPMailerAutoload.php';
 
 class EmailResultsController extends ControllerBase {
+
+  /**
+  * Adds CORS Headers to a response
+  */
+  public function addCorsHeaders($response) {
+    $response->headers->set('Access-Control-Allow-Headers', 'origin, content-type, accept');
+    $response->headers->set('Access-Control-Allow-Origin', '*');
+    $response->headers->set('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, PATCH, OPTIONS');
+
+    return $response;
+  }
 
 
   public function emailResults() {
@@ -28,12 +40,19 @@ class EmailResultsController extends ControllerBase {
 		}
 
 		//get Parameters from Request
-		$to = $_REQUEST['to'];
-		$name = $_REQUEST['name'];
+		$to = $_REQUEST['recipient_email'];
+		$name = $_REQUEST['user_name'];
+		$from = $_REQUEST['user_email'];
+		$message = $_REQUEST['personal_message'];
+		$sendTo = $_REQUEST['send_to'];
+		if($sendTo == 'self'){
+			$to = $from;
+		}
 		$url = self::getBaseUrl();
 		$url = $url . "db_search?sid=";
 
 		//get search id from session
+
 		$_SESSION['db_search_id'] = '12345';
 		$url = $url . $_SESSION['db_search_id'];
 
@@ -45,8 +64,8 @@ class EmailResultsController extends ControllerBase {
 		$content = $name . " wants to share their ICRP Search Result: <br/><br/>";
 		$content = $content . "Please review their search results on the ICRP Web site: <br/>";
 		$content = $content . "<a href='" . $url . "'>" . $url . "</a><br/><br/>";
-		$content = $content . "Message from  <a href='mailto:operations@icrpartnership.org'>operations@icrpartnership.org</a>: <br/>";
-		$content = $content . "Please see attched. <br/><br/>";
+		$content = $content . "Message from  <a href='mailto:${from}'>${from}</a>: <br/>";
+		$content = $content . $message ."<br/><br/>";
 		$content = $content . "The search results will be available for 30 days.";
 
 		//set email server parameters
@@ -95,7 +114,7 @@ class EmailResultsController extends ControllerBase {
 			$result = 'Mail has sent suceessfully ';
 		}
 
-		return new Response($result);
+		return self::addCorsHeaders(new JsonResponse($result));
   }
 
   private function getBaseUrl(){

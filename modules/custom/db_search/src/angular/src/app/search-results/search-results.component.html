@@ -130,7 +130,7 @@
 		  </div>
 
 		  <div class="text-center" >
-		  		<button class="btn btn-primary"  [disabled]="!emailForm.valid" (click)="sendEmail(emailResultsModal)">Send Email</button>
+		  		<button class="btn btn-primary"  [disabled]="!emailForm.valid" (click)="sendEmail(emailResultsModal,emailMessageModal)">Send Email</button>
 		  </div>
 		 </form>
       </div>
@@ -140,19 +140,31 @@
 
 <div class="modal fade" bsModal #emailMessageModal="bs-modal" [config]="{backdrop: 'static'}"
      tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-sm">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" aria-label="Close" (click)="downloadResultsModal.hide()">
+        <button type="button" class="close" aria-label="Close" (click)="emailMessageModal.hide()">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title"><span id="emailTitle"></span></h4>
+        <h4 class="modal-title">Email Message</h4>
       </div>
-      <div class="modal-body">
-      	<div class="col-md-12">
-			<span id="mailMsg"></span>
-      	</div>
+      <div class="modal-body" style="position: relative">
+		<div class="row">
+			<div class="col-md-12"  style="text-align:center;">
+				<p><b>The email has been sent out successfully!</b></p>
+			</div>
+		</div>
 
+		<div class="row">
+			<div class="col-md-12">&nbsp;</div>
+		</div>
+
+		<div class="row">
+			<div class="col-md-12" align="center">
+				<button type="button" class="btn btn-primary" (click)="emailMessageModal.hide()">OK</button>
+			</div>
+		</div>
+      	<br/><br/>
       </div>
     </div>
   </div>

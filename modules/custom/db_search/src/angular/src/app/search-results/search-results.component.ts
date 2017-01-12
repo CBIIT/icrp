@@ -198,9 +198,11 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
         	.subscribe(
         	res => {
         		modal.hide();
+        		modal2.show();
     		},
     		error => {
-    			console.log('error', error);
+    			modal.hide();
+    			modal2.show();
     		});
   
   }
