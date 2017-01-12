@@ -41,20 +41,28 @@ class EmailResultsController extends ControllerBase {
 
 		//get Parameters from Request
 		$to = $_REQUEST['recipient_email'];
-		$name = $_REQUEST['user_name'];
-		$from = $_REQUEST['user_email'];
+		$name = "Jim Zhou";
+		$from = 'zhoujim@mail.nih.gov';
 		$message = $_REQUEST['personal_message'];
-		$sendTo = $_REQUEST['send_to'];
-		if($sendTo == 'self'){
-			$to = $from;
+		$sendSelf = $_REQUEST['send_to_self'];
+		$sendOther = $_REQUEST['send_to_other'];
+
+		$emails = array();
+		$email_str = '';
+		if($sendSelf){
+			$email_str = $from;
 		}
+		if($sendOther){
+			if($sendSelf){$email_str = $email_str . ',';}
+			$email_str = $email_str . $to;
+		}
+		$emails = explode(",", $email_str);
+
 		$url = self::getBaseUrl();
 		$url = $url . "db_search?sid=";
 
 		//get search id from session
-
-		$_SESSION['db_search_id'] = '12345';
-		$url = $url . $_SESSION['db_search_id'];
+		$url = $url . $_SESSION['database_search_id'];
 
 		$from = "zhoujim@mail.nih.gov";
 		$subject = $name . " wants to share their ICRP Search Results";
@@ -79,41 +87,41 @@ class EmailResultsController extends ControllerBase {
 			$attachment = $_POST['attachment'];
 		}
 		$result = "success";
+		foreach($emails as $addr){
+			$mail = new PHPMailer;
+			// Set mailer to use SMTP
+			$mail->isSMTP();
+			$mail->Host = $host;
+			// Enable SMTP authentication
+			$mail->SMTPAuth = true;
+			// SMTP username
+			$mail->Username = $username;
+			// SMTP password
+			$mail->Password = $password;
+			// Enable TLS encryption, ssl also accepted
+			$mail->SMTPSecure = 'ssl';
+			// TCP port to connect to
+			$mail->Port = $port;
 
-		$mail = new PHPMailer;
-		// Set mailer to use SMTP
-		$mail->isSMTP();
-		$mail->Host = $host;
-		// Enable SMTP authentication
-		$mail->SMTPAuth = true;
-		// SMTP username
-		$mail->Username = $username;
-		// SMTP password
-		$mail->Password = $password;
-		// Enable TLS encryption, ssl also accepted
-		$mail->SMTPSecure = 'ssl';
-		// TCP port to connect to
-		$mail->Port = $port;
+			$mail->setFrom($from, 'ICRP');
+			// Add a recipient
+			$mail->addAddress($addr);
+			// Add attachments if exist
+			if(file_exists($attachment)){
+				$mail->addAttachment($attachment);
+			}
+			// Set email format to HTML
+			$mail->isHTML(true);
 
-		$mail->setFrom($from, 'ICRP');
-		// Add a recipient
-		$mail->addAddress($to);
-		// Add attachments if exist
-		if(file_exists($attachment)){
-			$mail->addAttachment($attachment);
+			$mail->Subject = $subject;
+			$mail->Body    = $content;
+
+			if(!$mail->send()) {
+				$result = 'Mailer Error: '. $mail->ErrorInfo;
+			} else {
+				$result = 'Mail has sent suceessfully ';
+			}
 		}
-		// Set email format to HTML
-		$mail->isHTML(true);
-
-		$mail->Subject = $subject;
-		$mail->Body    = $content;
-
-		if(!$mail->send()) {
-			$result = 'Mailer Error: '. $mail->ErrorInfo;
-		} else {
-			$result = 'Mail has sent suceessfully ';
-		}
-
 		return self::addCorsHeaders(new JsonResponse($result));
   }
 

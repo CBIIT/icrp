@@ -94,12 +94,13 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     this.projectData = [];
     
     this.emailForm = formbuilder.group({
-      user_name: ['', Validators.required],
-      user_email: ['', [Validators.required, Validators.pattern(/^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/)]],
       recipient_email: [''],
-      send_to: ['self'],
+      send_to_self: ['', Validators.required],
+      send_to_other: ['', Validators.required],
       personal_message: [''],
     });
+    
+    this.emailForm.controls['recipient_email'].disable();
   }
 
   ngAfterViewInit() {
@@ -167,22 +168,29 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
 
   }
   
+  clearValue(control: any, clear: boolean) {
+    if (clear) {
+      control.value = '';
+    }
+  }
+  
   sendEmail(modal: any, modal2: any) {
     
     
     let params = {
-      user_name: this.emailForm.controls['user_name'].value,
-      user_email: this.emailForm.controls['user_email'].value,
       recipient_email: this.emailForm.controls['recipient_email'].value,
-      send_to: this.emailForm.controls['send_to'].value,
+      send_to_self: this.emailForm.controls['send_to_self'].value,
+      send_to_other: this.emailForm.controls['send_to_other'].value,
       personal_message: this.emailForm.controls['personal_message'].value,
     }
     let endpoint = 'http://localhost/EmailResults';
+    console.log(params);
     
     let parameters = new URLSearchParams();
     for(let key in params){
 	parameters.set(key, params[key]);	    
     }
+
     
     let query = this.http.get(endpoint, {search: parameters})
         	.map((res: Response) => res.json())
@@ -196,7 +204,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     			modal.hide();
     			modal2.show();
     		});
-  
+ 
   }
   
   fireModalEvent(modal: any) {
@@ -205,14 +213,33 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     
   }
   
-  setValidation(field: string, required: boolean) {
-    let validator = null;
+  setDisabled(field: string, disabled: boolean) {
+  	let ctrl = this.emailForm.controls[field];
+  	
+  	if (disabled) {
+  		ctrl.disable();
+  	}
+  	
+  	else {
+  		ctrl.enable();
+  	}
+  }
+  
+  setValidation(originalfield: string, field: string, checked: boolean) {
+    console.log(checked);
+
+    this.emailForm.controls[originalfield].setValidators(Validators.required);
+    this.emailForm.controls[originalfield].updateValueAndValidity();
+
     
-    if (required) {
-      validator = [Validators.required, Validators.pattern(/^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/)];
+    if (checked) {
+    	this.emailForm.controls[field].setValidators(null);
     }
     
-    this.emailForm.controls[field].setValidators(validator);
+    else {
+    	this.emailForm.controls[field].setValidators(Validators.required);
+    }
+  
     this.emailForm.controls[field].updateValueAndValidity();
   }  
 
