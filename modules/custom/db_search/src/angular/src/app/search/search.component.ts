@@ -126,12 +126,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   
     let protocol = window.location.protocol;
     let host = window.location.hostname;
-    
-    if (host.indexOf('localhost') > -1) {
-      host = 'icrpartnership-demo.org';
-      protocol = 'https:';
-    }
-    
+
     let endpoint = `${protocol}//${host}/db/public/search`;
     let params = new URLSearchParams();
 
