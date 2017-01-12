@@ -23,7 +23,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   constructor(private http: Http) {
     this.loadingAnalytics = true;
     this.loading = true;
-    this.analytics = null;
+    this.analytics = {};
     this.mappedParameters = {};
   }
 
@@ -44,7 +44,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     this.queryServer(this.parameters).subscribe(
       response => {
-        this.results = response;
+        this.results = response['results'];
+        this.analytics['count'] = response['results_count'];
         this.loading = false;
       },
       error => {
@@ -125,6 +126,12 @@ export class SearchComponent implements OnInit, AfterViewInit {
   
     let protocol = window.location.protocol;
     let host = window.location.hostname;
+    
+    if (host.indexOf('localhost') > -1) {
+      host = 'icrpartnership-demo.org';
+      protocol = 'https:';
+    }
+    
     let endpoint = `${protocol}//${host}/db/public/search`;
     let params = new URLSearchParams();
 

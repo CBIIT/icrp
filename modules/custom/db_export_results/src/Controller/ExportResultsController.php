@@ -15,6 +15,19 @@ use ZipArchive;
 
 class ExportResultsController extends ControllerBase {
 
+
+  /**
+  * Adds CORS Headers to a response
+  */
+  public function addCorsHeaders($response) {
+    $response->headers->set('Access-Control-Allow-Headers', 'origin, content-type, accept');
+    $response->headers->set('Access-Control-Allow-Origin', '*');
+    $response->headers->set('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, PATCH, OPTIONS');
+
+    return $response;
+  }
+
+
   public function exportResults() {
 
 	$url = self::getBaseUrl();
@@ -63,7 +76,7 @@ class ExportResultsController extends ControllerBase {
 		unlink($file_export);
 	}
 
-	return new Response($result);
+	return self::addCorsHeaders(new Response($result));
   }
 
   private function getConnection(){
