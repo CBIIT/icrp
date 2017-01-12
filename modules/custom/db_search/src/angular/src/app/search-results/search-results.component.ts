@@ -1,8 +1,15 @@
-import { AfterViewInit, Component, Input, EventEmitter, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, Inject, Input, EventEmitter, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { Http, Response, Headers, RequestOptions, URLSearchParams } from '@angular/http';
-import { UiChartParameters } from '../ui-chart/ui-chart.parameters';
+import {
+  Validators,
+  FormBuilder,
+  FormGroup
+} from '@angular/forms';
 
+import { UiChartParameters } from '../ui-chart/ui-chart.parameters';
 import { Observable } from 'rxjs/Rx';
+
+
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 
@@ -23,7 +30,8 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
 
   @Output() sort: EventEmitter<{ "column": string, "type": "asc" | "desc" }>;
   @Output() paginate: EventEmitter<{ "size": number, "offset": number }>;
-
+  
+  emailForm: FormGroup;
 
   showCriteriaLocked = true;  
   searchCriteriaSummary;
@@ -35,7 +43,11 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   projectData;
   projectColumns;
 
-  constructor(private http: Http) {
+  constructor(
+    @Inject(FormBuilder) private formbuilder: FormBuilder,
+    @Inject(Http) private http: Http) {
+    
+    
     this.loadingAnalytics = true;
     this.showCriteria = false;
     this.searchCriteriaGroups = [];
@@ -87,7 +99,15 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
       }
     ]
 
-    this.projectData = []
+    this.projectData = [];
+    
+    this.emailForm = formbuilder.group({
+      user_name: ['', Validators.required],
+      user_email: ['', [Validators.required, Validators.pattern(/^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/)]],
+      recipient_email: [''],
+      send_to: ['self'],
+      personal_message: [''],
+    });
   }
 
   ngAfterViewInit() {
@@ -155,20 +175,52 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
 
   }
   
-  sendEmail(address: string, name: string) {
-    alert(`${address} ${name}`);
-    let endpoint = 'http://localhost/EmailResults';
-    let parameters = new URLSearchParams();
+  sendEmail(modal: any, modal2: any) {
     
-    parameters.set('to', address);
-    parameters.set('name', name);
+    
+    let params = {
+      user_name: this.emailForm.controls['user_name'].value,
+      user_email: this.emailForm.controls['user_email'].value,
+      recipient_email: this.emailForm.controls['recipient_email'].value,
+      send_to: this.emailForm.controls['send_to'].value,
+      personal_message: this.emailForm.controls['personal_message'].value,
+    }
+    let endpoint = 'http://localhost/EmailResults';
+    
+    let parameters = new URLSearchParams();
+    for(let key in params){
+	parameters.set(key, params[key]);	    
+    }
     
     let query = this.http.get(endpoint, {search: parameters})
-    	.map((res: Response) => res.json())
-    	.subscribe(res => {
-    		window.alert(res);
-    	});
+        	.map((res: Response) => res.json())
+      		.catch((error: any) => Observable.throw(error.json().error || 'Server error'))
+        	.subscribe(
+        	res => {
+        		modal.hide();
+    		},
+    		error => {
+    			console.log('error', error);
+    		});
+  
   }
+  
+  fireModalEvent(modal: any) {
+  
+    modal.hide();
+    
+  }
+  
+  setValidation(field: string, required: boolean) {
+    let validator = null;
+    
+    if (required) {
+      validator = [Validators.required, Validators.pattern(/^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/)];
+    }
+    
+    this.emailForm.controls[field].setValidators(validator);
+    this.emailForm.controls[field].updateValueAndValidity();
+  }  
 
   ngOnInit() {
   }

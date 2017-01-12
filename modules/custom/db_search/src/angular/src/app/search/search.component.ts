@@ -122,7 +122,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
   
 
   queryServer(parameters: Object): Observable<any[]> {
-    let endpoint = 'https://icrpartnership-demo.org/db/public/search';
+  
+    let protocol = window.location.protocol;
+    let host = window.location.hostname;
+    let endpoint = `${protocol}//${host}/db/public/search`;
     let params = new URLSearchParams();
 
     if (!parameters['page_size'] || !parameters['page_number']) {
