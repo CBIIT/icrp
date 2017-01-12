@@ -61,7 +61,7 @@ class DatabaseSearchAPIController extends ControllerBase {
 
   /**
    * Returns a PDO connection to a database
-   * @param $cfg - An associative array containing connection parameters 
+   * @param $cfg - An associative array containing connection parameters
    *   driver:    DB Driver
    *   server:    Server Name
    *   database:  Database
@@ -134,7 +134,7 @@ class DatabaseSearchAPIController extends ControllerBase {
   function sort_paginate_search_results($search_id, $parameters) {
     $pdo = self::get_connection();
 
-    $stmt = $pdo->prepare("SET NOCOUNT ON; EXECUTE GetProjectsBySearchID2 
+    $stmt = $pdo->prepare("SET NOCOUNT ON; EXECUTE GetProjectsBySearchID2
       @PageSize = :page_size,
       @PageNumber = :page_number,
       @SortCol = :sort_column,
@@ -173,7 +173,7 @@ class DatabaseSearchAPIController extends ControllerBase {
       'results_count'         => NULL,
     ];
 
-    $stmt = $pdo->prepare("SET NOCOUNT ON; EXECUTE GetProjectsByCriteria 
+    $stmt = $pdo->prepare("SET NOCOUNT ON; EXECUTE GetProjectsByCriteria
       @PageSize = :page_size,
       @PageNumber = :page_number,
       @SortCol = :sort_column,
@@ -190,7 +190,7 @@ class DatabaseSearchAPIController extends ControllerBase {
       @stateList = :states,
       @cityList = :cities,
       @fundingOrgList = :funding_organizations,
-      @cancerTypeList = :cancer_types, 
+      @cancerTypeList = :cancer_types,
       @projectTypeList = :project_types,
       @CSOList = :cso_research_areas,
       @searchCriteriaID = :search_id,
@@ -221,7 +221,7 @@ class DatabaseSearchAPIController extends ControllerBase {
       }
     }
 
-    $_SESSION['database_search_id'] = $search_id;
+    $_SESSION['database_search_id'] = $output_parameters['search_id'];
 
     return [
       'search_id' => $output_parameters['search_id'],
@@ -234,7 +234,7 @@ class DatabaseSearchAPIController extends ControllerBase {
   /**
   * Creates a PDO prepared statement for searching projects
   * @param $pdo - The PDO connection oject
-  * @param $parameters - An associative array containing 
+  * @param $parameters - An associative array containing
   * parameters to bind to the statement
   */
   function create_prepared_statement($pdo, $parameters, &$output) {
@@ -251,7 +251,7 @@ class DatabaseSearchAPIController extends ControllerBase {
 
 /**
     foreach (array_keys($output) as $key) {
-      
+
       $mapped_key = self::$output_mappings[$key];
       $param_key = "@$mapped_key";
       $query_key = ":$mapped_key";
@@ -268,14 +268,14 @@ class DatabaseSearchAPIController extends ControllerBase {
   /**
   * Binds parameters to a PDO prepared statement
   * @param $stmt - The PDO prepared statement to modify
-  * @param $param - An associative array containing 
+  * @param $param - An associative array containing
   * parameters to bind to the statement
   */
   function bind_parameters($stmt, $param, &$output) {
     foreach (array_keys($param) as $key) {
       $stmt->bindParam($key, $param[$key]);
     }
-    
+
     $stmt->bindParam(':searchCriteriaID', $search_id);
     $stmt->bindParam(':ResultsCount', $num_results);
 //    foreach (array_keys($output) as $key) {
@@ -320,7 +320,7 @@ class DatabaseSearchAPIController extends ControllerBase {
 
     // create year ranges from current year to 2000
     foreach(range(intval(date('Y')), 2000) as $year) {
-      array_push($fields['years'], ['value' => $year, 'label' => (string) $year]); 
+      array_push($fields['years'], ['value' => $year, 'label' => (string) $year]);
     }
 
     // set 'Uncoded' as the last entry in cso_research_areas
@@ -344,7 +344,7 @@ class DatabaseSearchAPIController extends ControllerBase {
     $num_results = 0;
     $output = [
       'search_id' => 0,
-      'num_results' => 0 
+      'num_results' => 0
     ];
 
     $results = [];
@@ -371,7 +371,7 @@ class DatabaseSearchAPIController extends ControllerBase {
     return $results;
 */
 //    echo print_r($parameters);
-    return json_encode($parameters);  
+    return json_encode($parameters);
   }
 
   /**
@@ -489,7 +489,7 @@ class DatabaseSearchAPIController extends ControllerBase {
 
         // retrieve the mapped field value
         $mapped_field = self::$parameter_mappings[$field];
-        
+
         // apply mapping to values in the sort_column field
         if ($field == 'sort_column') {
             $mapped_value = self::$sort_column_mappings[$value];
