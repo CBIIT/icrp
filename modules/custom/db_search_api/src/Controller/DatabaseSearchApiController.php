@@ -131,18 +131,85 @@ class DatabaseSearchAPIController extends ControllerBase {
     return $input_parameters;
   }
 
-  function sort_paginate_search_results($search_id, $parameters) {
+  function get_analytics_updated($search_id) {
+
     $pdo = self::get_connection();
 
-    $stmt = $pdo->prepare("SET NOCOUNT ON; EXECUTE GetProjectsBySearchID2
+    $queries = [
+      'projects_by_country' => 'SET NOCOUNT ON; EXECUTE GetProjectCountryStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_country',
+      'projects_by_cso_research_area' => 'SET NOCOUNT ON; EXECUTE GetProjectCSOStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_cso_research_area',
+      'projects_by_cancer_type' => 'SET NOCOUNT ON; EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_cancer_type',
+      'projects_by_type' => 'SET NOCOUNT ON; EXECUTE GetProjectTypeStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_type'
+    ];
+
+    $output_keys = [
+      'projects_by_country' => 'total_projects_by_country',
+      'projects_by_cso_research_area' => 'total_projects_by_cso_research_area',
+      'projects_by_cancer_type' => 'total_projects_by_cancer_type',
+      'projects_by_type' => 'total_projects_by_type'
+    ];
+
+    $output = [
+      'projects_by_country' => [
+        'results' => [],
+        'count' => 0,
+      ],
+
+      'projects_by_cso_research_area' => [
+        'results' => [],
+        'count' => 0,
+      ],
+
+      'projects_by_cancer_type' => [
+        'results' => [],
+        'count' => 0,
+      ],
+
+      'projects_by_type' => [
+        'results' => [],
+        'count' => 0,
+      ],
+    ];
+
+    $output_column_labels = [
+      'projects_by_country' => 'country',
+      'projects_by_cso_research_area' => 'categoryName',
+      'projects_by_cancer_type' => 'CancerType',
+      'projects_by_type' => 'ProjectType'
+    ];
+
+    foreach(array_keys($queries) as $key) {
+      $stmt = $pdo->prepare($queries[$key]);
+      $stmt->bindParam(':search_id', $search_id);
+      $stmt->bindParam(':' . $output_keys[$key], $output[$key]['count'], PDO::PARAM_INT|PDO::PARAM_INPUT_OUTPUT, 1000);
+
+      if ($stmt->execute()) {
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+          array_push($output[$key]['results'], [
+            'label' => $row[$output_column_labels[$key]],
+            'value' => $row['Count'],
+          ]);
+        }
+      }
+    }
+
+    return $output;
+  }
+
+  function sort_paginate_search_results($parameters) {
+    $pdo = self::get_connection();
+
+    $stmt = $pdo->prepare("SET NOCOUNT ON; EXECUTE GetProjectsBySearchID
       @PageSize = :page_size,
       @PageNumber = :page_number,
       @SortCol = :sort_column,
       @SortDirection = :sort_type,
-      @SearchID = :search_id");
+      @SearchID = :search_id,
+      @ResultCount = :result_count");
 
-    foreach(array_keys($parameters) as $key) {
-      $stmt->bindParam(":$key", $input_parameters[$key]);
+    $stmt->bindParam(":result_count", $result_count, PDO::PARAM_INT|PDO::PARAM_INPUT_OUTPUT, 1000);
+    foreach(['page_size', 'page_number', 'search_id', 'sort_column', 'sort_type', 'search_id'] as $key) {
+      $stmt->bindParam(":$key", $parameters[$key]);
     }
 
     $results = [];
@@ -154,7 +221,6 @@ class DatabaseSearchAPIController extends ControllerBase {
           'pi_name'               => $row['piLastName'].", ".$row['piFirstName'],
           'institution'           => $row['institution'],
           'country'               => $row['country'],
-          'state'                 => $row['country'],
           'funding_organization'  => $row['FundingOrgShort'],
           'award_code'            => $row['AwardCode'],
         ]);
@@ -538,21 +604,18 @@ class DatabaseSearchAPIController extends ControllerBase {
       'sort_type' => 'ASC'
     ];
 
-    $sort_map = [
-      'project_title' => 'title',
-      'pi_name' => 'pi',
-      'institution' => 'Inst',
-      'funding_organization' => 'FO',
-      'city' => 'city',
-      'state' => 'state',
-      'country' => 'country',
-    ];
-
     foreach(array_keys($param) as $key) {
-      $param[$key] = $request->query->get($key);
+      $value = $request->query->get($key);
+
+      if ($key == 'sort_column') {
+        $value = self::$sort_column_mappings[$value];
+      }
+      
+      if ($value) {
+        $param[$key] = $value;
+      }
     }
 
-    $param['sort_column'] = $sort_map[$param['sort_column']];
     $response = new JSONResponse( self::sort_paginate_search_results($param) );
     return self::add_cors_headers($response);
   }
@@ -562,9 +625,9 @@ class DatabaseSearchAPIController extends ControllerBase {
    * Callback for `db/public/analytics/` API method.
    */
   public function public_analytics( Request $request ) {
-    $param = self::map_fields($request);
-    $param[self::$parameter_mappings['exclude_duplicates']] = 0;
-    $response = new JSONResponse( self::count_database_groups($param) );
+//    $param = self::map_fields($request);
+    $param = $request->query->get('search_id');
+    $response = new JSONResponse( self::get_analytics_updated($param) );
     return self::add_cors_headers($response);
   }
 

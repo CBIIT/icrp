@@ -13,6 +13,7 @@ import 'rxjs/add/operator/catch';
 })
 export class SearchComponent implements OnInit, AfterViewInit {
 
+  searchID: any;
   mappedParameters: any;  
   parameters: any;
   results: any;
@@ -21,6 +22,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   analytics: any;
 
   constructor(private http: Http) {
+    this.searchID = null;
     this.loadingAnalytics = true;
     this.loading = true;
     this.analytics = {};
@@ -44,9 +46,12 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     this.queryServer(this.parameters).subscribe(
       response => {
+        this.searchID = response['search_id'];
         this.results = response['results'];
         this.analytics['count'] = response['results_count'];
         this.loading = false;
+
+        this.updateAnalytics({});
       },
       error => {
         console.error(error);
@@ -56,41 +61,42 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   updateAnalytics(event: Object) {
-    this.loadingAnalytics = true;
-    this.queryServerAnalytics(this.parameters).subscribe(
-      response => {
-        this.loadingAnalytics = false;
-        this.analytics = this.processAnalytics(response);
-      }
-    );
+    if (this.searchID != null) {
+      console.log('updating analytics with ' + this.searchID);
+      this.loadingAnalytics = true;
+      this.queryServerAnalytics({}).subscribe(
+        response => {
+          this.loadingAnalytics = false;
+          this.analytics = this.processAnalytics(response);
+        }
+      );
+    }
   }
     
   processAnalytics(response) {
     let analytics = {};
 
-    if (response && response.count) {
-      analytics['count'] = response.count;
+    if (response) {
+      console.log('processing', response);
 
       for (let category of [
         'projects_by_country', 
-        'projects_by_cso_category', 
+        'projects_by_cso_research_area', 
         'projects_by_cancer_type', 
         'projects_by_type']) {
 
           console.log('analyzing', response[category])
           if (response[category]) {
             for (let key in response[category]) {
-              if (!analytics[category]) {
-                analytics[category] = [];
-              }
-
-              analytics[category].push({label: key, value: response[category][key]})
+              analytics[category] = response[category]['results'];
             }
 
             analytics[category].sort((a, b) => +b.value - +a.value);
           }
       }
     }
+
+    console.log('generated analytics', analytics);
 
     return analytics;
   }
@@ -111,10 +117,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   queryServerAnalytics(parameters: Object): Observable<any[]> {
     let endpoint = 'https://icrpartnership-demo.org/db/public/analytics';
     let params = new URLSearchParams();
-
-    for (let key of Object.keys(parameters)) {
-      params.set(key, parameters[key]);
-    }
+    params.set('search_id', this.searchID);
 
     return this.http.get(endpoint, {search: params})
       .map((res: Response) => res.json())
@@ -129,6 +132,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     let endpoint = `${protocol}//${host}/db/public/search`;
     let params = new URLSearchParams();
+
+    endpoint = 'https://icrpartnership-demo.org/db/public/search';
 
     if (!parameters['page_size'] || !parameters['page_number']) {
       parameters['page_size'] = 50;
