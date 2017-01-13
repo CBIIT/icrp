@@ -603,9 +603,10 @@ GO
 
 CREATE PROCEDURE [dbo].[GetProjectFunding]
     @ProjectID INT    
-AS   
-SELECT fi.LastName AS piLastName, fi.FirstName AS piFirstName, i.Name AS Institution, i.City, i.State, i.Country, pf.Category,
-		pf.ALtAwardCode AS AltAwardCode, o.Name AS FundingOrganization,	pf.BudgetStartDate, pf.BudgetEndDate
+AS  
+
+SELECT pf.ProjectFundingID, pf.title, fi.LastName AS piLastName, fi.FirstName AS piFirstName, i.Name AS Institution, i.City, i.State, i.Country, pf.AwardType,
+		pf.ALtAwardCode AS AltAwardCode, o.Abbreviation AS FundingOrganization,	pf.BudgetStartDate, pf.BudgetEndDate
 FROM Project p
 	JOIN ProjectFunding pf ON p.ProjectID = pf.ProjectID
 	JOIN ProjectFundingInvestigator fi ON pf.ProjectFundingID = fi.ProjectFundingID
@@ -710,22 +711,40 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
---IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectExports]') AND type in (N'P', N'PC'))
---DROP PROCEDURE [dbo].[GetProjectExports]
---GO 
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectExports]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetProjectExports]
+GO 
 
---CREATE PROCEDURE [dbo].[GetProjectExports]
---     @SearchID INT   
---AS   
- 
---SELECT f.Title, f.AltAwardCode, f.BudgetStartDate,  f.BudgetEndDate, o.Name AS FundingOrg, pi.LastName + ', ' + pi.FirstName AS piName, 
---	i.Name AS Institution, i.City, i.State, i.Country, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract
---FROM ProjectFunding f	
---	JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
---	JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID
---	JOIN Institution i ON i.InstitutionID = pi.InstitutionID
---	JOIN ProjectAbstract a ON f.ProjectAbstractID = a.ProjectAbstractID
---WHERE f.ProjectFundingID = @ProjectFundingID
+CREATE PROCEDURE [dbo].[GetProjectExports]
+     @SearchID INT,
+	 @SiteURL INT
+AS   
 
---GO
+	------------------------------------------------------
+	-- Get saved search results by searchID
+	------------------------------------------------------	
+	DECLARE @ProjectIDs VARCHAR(max) 
+	SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
+
+	-----------------------------------------------------------		
+	--  Get all related projects withn dolloar amounts
+	-----------------------------------------------------------			 
+	SELECT p.ProjectID, f.ProjectFundingID, f.Title AS AwardTitle, pt.ProjectType, f.Source_ID, f.AltAwardCode, p.ProjectStartDate AS AWardStartDate, p.ProjectEndDate AS AwardEndDate, 
+		f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
+		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, 
+		p.MechanismTitle, p.MechanismCode, o.Name AS FundingOrg, d.Abbreviation AS FUndingDivAbbr, '' AS FundingContact, pi.LastName  AS piLastName, pi.FirstName AS piLastName, pi.ORC_ID AS piORCID,
+		i.Name AS Institution, i.City, i.State, i.Country, @siteurl+'viewProject/'+CAST(p.Projectid AS varchar(10))
+	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
+		JOIN Project p ON r.ProjectID = p.ProjectID
+		JOIN Project_ProjectType pt ON p.ProjectID = pt.ProjectID
+		JOIN ProjectFunding f ON p.ProjectID = f.PROJECTID
+		JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
+		JOIN FundingDivision d ON d.FundingDivisionID = f.FundingDivisionID
+		JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID		
+		JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+    											  
+GO
+
+select * from ProjectFundingExt
+  
 
