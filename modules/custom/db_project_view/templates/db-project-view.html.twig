@@ -1,8 +1,10 @@
 {% spaceless %}
 {% autoescape true %}
 
+<div class="native-font">
+
 {% if project_details %}
-<h3 class="title margin-right">View Project</h5>
+<h3 class="title margin-right">View Project Details</h3>
 <h4 class="h4 grey">{{ project_details.project_title | raw }}</h4>
 <hr class="less-margins">
 
@@ -114,6 +116,8 @@ function googleTranslateElementInit() {
 {% else %}
   <i>No project information found</i>
 {% endif %}
+
+</div>
 
 {% endautoescape %}
 {% endspaceless %}
