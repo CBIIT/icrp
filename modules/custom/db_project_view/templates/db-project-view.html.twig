@@ -7,6 +7,9 @@
 <hr class="less-margins">
 
 <dl class="dl-horizontal margin-bottom margin-top">
+  <dt>Award Code</dt>
+  <dd>{{ project_details.award_code | default('Not specified')}}</dd>
+
   <dt>Project Dates</dt>
   <dd>
     {% if project_details.project_start_date or project_details.project_end_date %}
@@ -29,7 +32,7 @@
         <th>Funding Org.</th>
         <th>Alt Award Code</th>
         <th>Award Funding Period</th>
-        <th>P.I.</th>
+        <th>PI</th>
         <th class="limited-width">Institution</th>
         <th>Location</th>
       </tr>

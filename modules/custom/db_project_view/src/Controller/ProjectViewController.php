@@ -14,6 +14,7 @@ class ProjectViewController extends ControllerBase {
   const FIELD_MAP = [
     'project_details' => [
       'Title' => 'project_title',
+      'AwardCode' => 'award_code',
       'ProjectStartDate' => 'project_start_date',
       'ProjectEndDate' => 'project_end_date',
       'TechAbstract' => 'technical_abstract',
