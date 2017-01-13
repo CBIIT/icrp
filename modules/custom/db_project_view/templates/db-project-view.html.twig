@@ -2,9 +2,11 @@
 {% autoescape true %}
 
 {% if project_details %}
-<h4>{{ project_details.project_title | raw }}</h4>
+<h3 class="title margin-right">View Project</h5>
+<h4 class="h4 grey">{{ project_details.project_title | raw }}</h4>
+<hr class="less-margins">
 
-<dl class="dl-horizontal margin-bottom">
+<dl class="dl-horizontal margin-bottom margin-top">
   <dt>Project Dates</dt>
   <dd>
     {% if project_details.project_start_date or project_details.project_end_date %}
@@ -17,23 +19,30 @@
   <dd>{{ project_details.funding_mechanism | default('Not specified')}}</dd>
 </dl>
 
+<h5 class="h5 margin-top" style="margin-top: 20px">Award Funding</h4>
 <div class="table-responsive margin-top">
   <table class="project-funding-details">
     <thead>
       <tr>
-        <th>Title</th>
+        <th class="limited-width">Title</th>
+        <th>Category</th> 
         <th>Funding Org.</th>
         <th>Alt Award Code</th>
         <th>Award Funding Period</th>
-        <th>Principal Investigator</th>
-        <th>Institution</th>
+        <th>P.I.</th>
+        <th class="limited-width">Institution</th>
         <th>Location</th>
       </tr>
     </thead>
     <tbody>
       {% for row in project_funding_details %}
         <tr>
-          <td><a href="/project/funding-details/{{ row.project_funding_id }}" target="_blank">{{ row.project_title | default('Not specified') | raw }}</td>
+          <td class="limited-width">
+            <a href="/project/funding-details/{{ row.project_funding_id }}" target="_blank">
+              {{ row.project_title | default('Not specified') | raw }}
+            </a>
+          </td>
+          <td>{{ row.award_type | default('Not specified') | raw }}</td>
 
           <td>{{ row.funding_organization | default('Not specified') | raw }}</td>
           <td>{{ row.alt_award_code | default('Not specified') | raw }}</td>
@@ -47,7 +56,7 @@
           </td>
           
           <td>{{ row.pi_last_name ~ ', ' ~ row.pi_first_name }}</td>
-          <td>{{ row.institution | default('Not specified') | raw }}</td>
+          <td class="limited-width">{{ row.institution | default('Not specified') | raw }}</td>
           <td>{{ (row.city ? row.city ~ ', ') ~
                  (row.state ? row.state ~ ', ') ~
                   row.country }}</td>
