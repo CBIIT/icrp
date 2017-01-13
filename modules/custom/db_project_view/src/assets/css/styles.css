@@ -11,8 +11,8 @@ h3.title {
 
 h4.grey {
   display: inline-block;
-  font-weight: normal;
-  color: #BBB;
+  font-weight: bold;
+  color: #999;
 }
 
 h4.h4 {
