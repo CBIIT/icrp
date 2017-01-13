@@ -120,7 +120,17 @@ class ProjectViewController extends ControllerBase {
     'array_merge', []);
   }
 
-  public function content($project_id) {
+
+  public function getProjectDetails() {
+    $results = self::get_project($project_id);
+  }
+
+
+  public function getProjectFundingDetails() {
+    
+  }
+
+  public function getProjectDetailsContent($project_id) {
     $results = self::get_project($project_id);
     return [
       '#theme' => 'db_project_view',
@@ -134,5 +144,9 @@ class ProjectViewController extends ControllerBase {
         ],
       ],
     ];
+  }
+
+  public function getProjectFundingDetailsContent() {
+
   }
 }

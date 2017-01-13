@@ -19,7 +19,7 @@ db_project_view.project_funding_details:
   path: '/project/funding-details/{project_id}'
   defaults:
     _controller: '\Drupal\db_project_view\Controller\ProjectViewController::getProjectFundingDetailsContent'
-    _title: 'Project Details'
+    _title: 'Project Funding Details'
   requirements:
     _permission: 'access content'
     project_id: '[0-9]{1,9}'
