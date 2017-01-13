@@ -21,12 +21,15 @@ class ProjectViewController extends ControllerBase {
       'FundingMechanism' => 'funding_mechanism'
     ],
     'project_funding_details' => [
+      'ProjectFundingID' => 'project_funding_id',
+      'title' => 'project_title',
       'piLastName' => 'pi_last_name',
       'piFirstName' => 'pi_first_name',
       'Institution' => 'institution',
       'City' => 'city',
       'State' => 'state', 
       'Country' => 'country', 
+      'AwardType' => 'award_type', 
       'AltAwardCode' => 'alt_award_code', 
       'FundingOrganization' => 'funding_organization', 
       'BudgetStartDate' => 'budget_start_date', 

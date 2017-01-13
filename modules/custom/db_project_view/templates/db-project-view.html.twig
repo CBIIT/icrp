@@ -21,8 +21,9 @@
   <table class="project-funding-details">
     <thead>
       <tr>
-        <th>Award Code</th>
-        <th>Funding Organization</th>
+        <th>Title</th>
+        <th>Funding Org.</th>
+        <th>Alt Award Code</th>
         <th>Award Funding Period</th>
         <th>Principal Investigator</th>
         <th>Institution</th>
@@ -32,8 +33,10 @@
     <tbody>
       {% for row in project_funding_details %}
         <tr>
-          <td>{{ row.alt_award_code | default('Not specified') | raw }}</td>
+          <td><a href="/project/funding-details/{{ row.project_funding_id }}" target="_blank">{{ row.project_title | default('Not specified') | raw }}</td>
+
           <td>{{ row.funding_organization | default('Not specified') | raw }}</td>
+          <td>{{ row.alt_award_code | default('Not specified') | raw }}</td>
           <td>
             {% if row.budget_start_date or row.budget_end_date %}
               {{ row.budget_start_date | default('N/A') | raw }}
