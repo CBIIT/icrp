@@ -43,8 +43,8 @@ RUN curl https://packages.microsoft.com/config/rhel/7/prod.repo > /etc/yum.repos
 
 RUN { \
     echo "RewriteEngine On"                                    ; \
-    echo "RewriteCond %{HTTPS} off"                            ; \
-    echo "RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URL}" ; \
+    echo "#RewriteCond %{HTTPS} off"                            ; \
+    echo "#RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URL}" ; \
 } | tee "/etc/httpd/conf.d/rewrite-https.conf"
 
 RUN { \
