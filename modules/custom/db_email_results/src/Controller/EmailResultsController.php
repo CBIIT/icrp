@@ -41,22 +41,14 @@ class EmailResultsController extends ControllerBase {
 
 		//get Parameters from Request
 		$to = $_REQUEST['recipient_email'];
-		$name = "Jim Zhou";
-		$from = 'zhoujim@mail.nih.gov';
+		$name = $_REQUEST['name'];
+		$from = 'operations@icrpartnership.org';
 		$message = $_REQUEST['personal_message'];
-		$sendSelf = $_REQUEST['send_to_self'];
-		$sendOther = $_REQUEST['send_to_other'];
 
 		$emails = array();
 		$email_str = '';
-		if($sendSelf){
-			$email_str = $from;
-		}
-		if($sendOther){
-			if($sendSelf){$email_str = $email_str . ',';}
-			$email_str = $email_str . $to;
-		}
-		$emails = explode(",", $email_str);
+
+		$emails = explode(",", $to);
 
 		$url = self::getBaseUrl();
 		$url = $url . "db_search?sid=";
@@ -64,7 +56,6 @@ class EmailResultsController extends ControllerBase {
 		//get search id from session
 		$url = $url . $_SESSION['database_search_id'];
 
-		$from = "zhoujim@mail.nih.gov";
 		$subject = $name . " wants to share their ICRP Search Results";
 		$attachment = '';
 

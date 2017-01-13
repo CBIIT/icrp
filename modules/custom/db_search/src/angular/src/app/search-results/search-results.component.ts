@@ -94,13 +94,11 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     this.projectData = [];
     
     this.emailForm = formbuilder.group({
-      recipient_email: [''],
-      send_to_self: ['', Validators.required],
-      send_to_other: ['', Validators.required],
+      name: ['',  Validators.required],   
+      recipient_email: ['', [Validators.required, Validators.pattern(/^([\w+-.%]+@[\w-.]+\.[A-Za-z]{2,4},*[\W]*)+$/)]],
       personal_message: [''],
     });
     
-    this.emailForm.controls['recipient_email'].disable();
   }
 
   ngAfterViewInit() {
@@ -178,11 +176,11 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     
     
     let params = {
+      name:  this.emailForm.controls['name'].value,
       recipient_email: this.emailForm.controls['recipient_email'].value,
-      send_to_self: this.emailForm.controls['send_to_self'].value,
-      send_to_other: this.emailForm.controls['send_to_other'].value,
       personal_message: this.emailForm.controls['personal_message'].value,
     }
+
     let endpoint = 'http://localhost/EmailResults';
     console.log(params);
     
@@ -208,40 +206,8 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   }
   
   fireModalEvent(modal: any) {
-  
     modal.hide();
-    
   }
-  
-  setDisabled(field: string, disabled: boolean) {
-  	let ctrl = this.emailForm.controls[field];
-  	
-  	if (disabled) {
-  		ctrl.disable();
-  	}
-  	
-  	else {
-  		ctrl.enable();
-  	}
-  }
-  
-  setValidation(originalfield: string, field: string, checked: boolean) {
-    console.log(checked);
-
-    this.emailForm.controls[originalfield].setValidators(Validators.required);
-    this.emailForm.controls[originalfield].updateValueAndValidity();
-
-    
-    if (checked) {
-    	this.emailForm.controls[field].setValidators(null);
-    }
-    
-    else {
-    	this.emailForm.controls[field].setValidators(Validators.required);
-    }
-  
-    this.emailForm.controls[field].updateValueAndValidity();
-  }  
 
   ngOnInit() {
   }
