@@ -1,0 +1,124 @@
+<?php
+
+/**
+ * @file
+ * Control where users are directed to, once they login, register or logout.
+ */
+
+use \Drupal\Core\Routing\RouteMatchInterface;
+use \Drupal\Core\Url;
+use \Drupal\Core\Session\AccountInterface;
+use \Drupal\Core\Entity\EntityInterface;
+use \Drupal\user\UserInterface;
+
+/**
+ * Implements hook_help().
+ */
+function login_destination_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.login_destination':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The Login Destination module allows you to customize the destination that the user is redirected to after logging in, registering to the site, using a one-time login link or logging out. The destination can be an internal page or an external URL. You may specify certain conditions like pages or user roles and make the destination depend upon them.') . '</p>';
+      $output .= '<h3>' . t('Uses') . '</h3>';
+      $output .= '<dl>';
+      $output .= '<dt>' . t('Creating login destinations') . '</dt>';
+      $output .= '<dd>' . t('Users with sufficient permissions can create login destination through the !link. The page listing the login destinations provides an interface to add, edit and delete them', [
+          '!link' => (string) \Drupal::l('Login destination page', Url::fromRoute('login_destination.list')),
+        ]) . '</dd>';
+      $output .= '<dt>' . t('Assigning destinations') . '</dt>';
+      $output .= '<dd>' . t('You can add login destinations and specify the page where the user will be redirected when it logs in or logs out. You can also configure specific pages where the destination can work or not and select for what user roles the login destination applies') . '</dd>';
+      $output .= '</dl>';
+      return $output;
+
+    case 'login_destination.list':
+      $output = '<p>' . t('Login destination rules are evaluated each time a user logs in, registers to the site, uses a one-time login link or logs out. Each rule consists of the destination, path conditions and user roles conditions. First matching rule gets executed.') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_user_login().
+ */
+function login_destination_user_login(AccountInterface $account) {
+  if (isset($account->user_is_new) && $account->user_is_new) {
+    // User is just registered.
+    login_destination_perform_redirect('registration', $account);
+  }
+  elseif (isset($_SESSION['pass_reset_' . $account->id()])) {
+    // User is used a one-time login link.
+    login_destination_perform_redirect('one-time-login', $account);
+  }
+  else {
+    login_destination_perform_redirect('login', $account);
+  }
+}
+
+/**
+ * Implements hook_user_logout().
+ */
+function login_destination_user_logout(AccountInterface $account) {
+  login_destination_perform_redirect('logout', $account);
+}
+
+/**
+ * Implements hook_toolbar_alter().
+ */
+function login_destination_toolbar_alter(&$items) {
+  if (empty($items['user']['tray']['user_links'])) {
+    return;
+  }
+  // Disable cache for user links in toolbar, to be able set current param.
+  $items['user']['tray']['user_links']['#cache']['context'] = [];
+  $items['user']['tray']['user_links']['#cache']['max-age'] = 0;
+
+  if (\Drupal::currentUser()->isAnonymous()) {
+    $url = &$items['user']['tray']['user_links']['#links']['login']['url'];
+    // Change route name, since route "user.page" always redirects to "user.login".
+    $url = Url::fromRoute('user.login');
+  }
+  else {
+    $url = &$items['user']['tray']['user_links']['#links']['logout']['url'];
+  }
+  // Get current path.
+  $current = \Drupal::service('path.current')->getPath();
+
+  // Add current param to be able to evaluate previous page.
+  $url->setOptions(['query' => ['current' => $current]]);
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function login_destination_entity_presave(EntityInterface $entity) {
+  // Verify that entity is a user entity, and this is new entity.
+  if (!$entity instanceof UserInterface || !$entity->isNew()) {
+    return;
+  }
+  // Save parameter to user entity, which will allow us understand that user
+  // is just created. Do not need to save parameter, when needs verification
+  // by administrator.
+  $needs_verification = \Drupal::config('user.settings')->get('verify_mail');
+  if ($needs_verification || !$entity->isActive()) {
+    return;
+  }
+  $entity->user_is_new = TRUE;
+}
+
+/**
+ * Evaluate rules and perform redirect.
+ *
+ * This function is intended to be used by external modules.
+ *
+ * @param string $trigger
+ *   Action of login destination rule.
+ * @param \Drupal\Core\Session\AccountInterface $account
+ *   User Account.
+ */
+function login_destination_perform_redirect($trigger, AccountInterface $account) {
+  /** @var Drupal\login_destination\LoginDestinationManager $service */
+  $service = \Drupal::service('login_destination.manager');
+  $destination = $service->findDestination($trigger, $account);
+  if ($destination) {
+    $service->prepareDestination($destination);
+  }
+}
