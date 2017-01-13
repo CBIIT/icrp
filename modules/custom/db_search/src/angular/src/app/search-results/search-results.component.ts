@@ -159,7 +159,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
           country: result.country,
           funding_organization: result.funding_organization,
           award_code: result.award_code,
-          url: `https://icrpartnership-demo.org/ViewProject/${result.project_id}`
+          url: `/project/${result.project_id}`
         }
       })
     }
@@ -181,7 +181,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
       personal_message: this.emailForm.controls['personal_message'].value,
     }
 
-    let endpoint = 'http://localhost/EmailResults';
+    let endpoint = '/EmailResults';
     console.log(params);
     
     let parameters = new URLSearchParams();
