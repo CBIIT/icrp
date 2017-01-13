@@ -1,0 +1,53 @@
+
+.menu--left,
+.menu--right {
+  width: 50%;
+  text-align: center;
+}
+
+.menu--left {
+  float: left;
+}
+
+.menu--right {
+  float: right;
+}
+
+/* Hack because of CSS loading order */
+#main-wrapper {
+  font-family: 'Kalam', cursive;
+  color: #292929;
+}
+
+#main-wrapper #page-title {
+  text-align: center;
+  font-size: 3em;
+  border-bottom: 2px solid #cc9900;
+  padding-bottom: 0.25em;
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+}
+
+#main-wrapper section {
+  font-size: 1.4em;
+}
+
+#main-wrapper #content section h2 {
+  margin: 0 0 0.5em;
+  color: #cc9900;
+  border-bottom: 1px solid #cc9900;
+  padding-bottom: 0.25em;
+}
+
+#main-wrapper section strong {
+  color: #cc9900;
+}
+
+#main-wrapper section p {
+  margin: 0 0 0.25em;
+}
+
+#main-wrapper .region-content section ul {
+  margin: 0.25em 1em;
+  list-style-position: inside;
+}

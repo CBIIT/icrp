@@ -1,0 +1,34 @@
+login_destination.destination.*:
+  type: config_entity
+  label: 'Login destination configuration entity'
+  mapping:
+    name:
+      type: string
+      label: 'Login destination rule machine name'
+    label:
+      type: string
+      label: 'Short description of the rule'
+    triggers:
+      type: array
+      label: 'Triggers'
+    destination_path:
+      type: string
+      label: 'Destination'
+    pages_type:
+      type: integer
+      label: 'Pages type'
+    pages:
+      type: string
+      label: 'Pages'
+    roles:
+      type: array
+      label: 'Roles'
+    weight:
+      type: integer
+      label: 'Weight'
+    enabled:
+      type: boolean
+      label: 'Enabled'
+    uuid:
+      type: string
+      label: 'UUID'
