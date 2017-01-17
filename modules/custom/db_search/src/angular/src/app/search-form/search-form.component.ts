@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   Inject,
   Input,
@@ -23,7 +24,7 @@ import { TreeNode } from '../ui-treeview/treenode';
   templateUrl: './search-form.component.html',
   styleUrls: ['./search-form.component.css'],
 })
-export class SearchFormComponent implements OnInit {
+export class SearchFormComponent implements OnInit, AfterViewInit {
 
   @Output()
   mappedSearch: EventEmitter<{
@@ -122,7 +123,7 @@ export class SearchFormComponent implements OnInit {
     this.form = formbuilder.group({
       search_terms: [''],
       search_type: [''],
-      years: [''],
+      years: [],
 
       institution: [''],
       pi_first_name: [''],
@@ -153,6 +154,8 @@ export class SearchFormComponent implements OnInit {
 
     this.funding_organizations = null;
     this.cso_research_areas = null;
+
+    console.log('created form', this.form);
   }
 
   submit() {
@@ -384,13 +387,31 @@ export class SearchFormComponent implements OnInit {
     return root;
  }
 
-  ngOnInit() {
+ ngAfterViewInit(this) {
     new SearchFields(this.http).getFields()
       .subscribe(response => {
         this.fields = response;
         this.funding_organizations = this.createTreeNode(this.fields.funding_organizations, 'funding_organizations');
         this.cso_research_areas = this.createTreeNode(this.fields.cso_research_areas, 'cso_research_areas');
+
+        setTimeout(e => {
+          // set last two years
+          let years = this.fields.years.filter((field, index) => {
+            if (index < 2)
+              return field;
+          }).map(field => field.value);
+          this.form.controls['years'].patchValue(years);
+          this.submit();
+        }, 0);
       });
+ }
+
+  ngOnInit() {
+        setTimeout(e => {
+          console.log('this form oninit', this.form)
+//          this.form.controls['years'].patchValue( [2016, 2017] );
+        }, 1000);
+
   }
 
 }
