@@ -10,5 +10,5 @@ project_view_resources:
     theme:
       src/assets/css/main.693bafe1.css: {}
   js:
-    src/assets/js.main.d7dc9425: {}
+    src/assets/js/main.d7dc9425: {}
 
