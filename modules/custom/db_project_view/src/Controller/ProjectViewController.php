@@ -148,8 +148,10 @@ class ProjectViewController extends ControllerBase {
 
   public function getProjectDetailsContent($project_id) {
     return [
-      '#theme' => 'project_view_component',
-      '#project_id' => $project_id,
+      '#type' => 'markup',
+      '#markup' => "<div id=\"project-view-component\" data-project=\"{$project_id}\"></div>",
+//      '#theme' => 'project_view_component',
+//      '#project_id' => $project_id,
       '#attached' => [
         'library' => [
           'db_project_view/project_view_resources'
