@@ -3,3 +3,12 @@ resources:
   css:
     theme:
       src/assets/css/styles.css: {}
+
+project_view_resources:
+  version: 1.0
+  css:
+    theme:
+      src/assets/css/main.693bafe1.css: {}
+  js:
+    src/assets/js.main.d7dc9425: {}
+
