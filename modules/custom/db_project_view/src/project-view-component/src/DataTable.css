@@ -1,11 +1,10 @@
-data-table-wrapper {
-  overflow-x: auto;
+.margin-top {
+  margin-top: 10px;
 }
 
 table.data-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 10px;
 }
 
 table.data-table > tbody > tr:nth-child(even) {
