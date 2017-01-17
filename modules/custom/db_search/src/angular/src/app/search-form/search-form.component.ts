@@ -407,11 +407,6 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
  }
 
   ngOnInit() {
-        setTimeout(e => {
-          console.log('this form oninit', this.form)
-//          this.form.controls['years'].patchValue( [2016, 2017] );
-        }, 1000);
-
   }
 
 }
