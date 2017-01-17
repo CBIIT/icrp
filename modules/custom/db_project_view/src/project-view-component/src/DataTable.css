@@ -1,0 +1,38 @@
+.margin-top {
+  margin-top: 10px;
+}
+
+table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table.data-table > tbody > tr:nth-child(even) {
+  background-color: #f9fafd;
+}
+
+table.data-table > tbody > tr:hover {
+  background-color: #ebeff7;
+}
+
+table.data-table > thead > tr > th {
+  white-space: nowrap;
+  text-align: left;
+  border: 1px solid #dde4f2;
+  background-color: #EEE;
+  color: black;
+}
+
+table.data-table > thead > tr > th,
+table.data-table > tbody > tr > td {
+  max-width: 250px !important;
+  padding: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  border: 1px solid #999;
+}
+
+table.data-table > tbody > tr > td > a {
+  color: #446CB3;
+  text-decoration: underline; 
+}

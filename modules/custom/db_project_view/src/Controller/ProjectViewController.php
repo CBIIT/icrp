@@ -5,7 +5,9 @@
  */
 namespace Drupal\db_project_view\Controller;
 use Drupal\Core\Controller\ControllerBase;
-USE Drupal\Core\Database\Database;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use PDO;
 
 class ProjectViewController extends ControllerBase {
@@ -91,6 +93,17 @@ class ProjectViewController extends ControllerBase {
     );
   }
 
+  /**
+  * Adds CORS Headers to a response
+  */
+  public function add_cors_headers($response) {
+    $response->headers->set('Access-Control-Allow-Headers', 'origin, content-type, accept');
+    $response->headers->set('Access-Control-Allow-Origin', '*');
+    $response->headers->set('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, PATCH, OPTIONS');
+
+    return $response;
+  }
+
   public function get_project($project_id) {
     $pdo = self::get_connection();
 
@@ -122,8 +135,9 @@ class ProjectViewController extends ControllerBase {
   }
 
 
-  public function getProjectDetails() {
+  public function getProjectDetails($project_id) {
     $results = self::get_project($project_id);
+    return self::add_cors_headers(new JsonResponse($results));
   }
 
 
@@ -131,7 +145,22 @@ class ProjectViewController extends ControllerBase {
     
   }
 
+
   public function getProjectDetailsContent($project_id) {
+    return [
+      '#type' => 'markup',
+      '#markup' => "<div id=\"project-view-component\" data-project=\"{$project_id}\"></div>",
+//      '#theme' => 'project_view_component',
+//      '#project_id' => $project_id,
+      '#attached' => [
+        'library' => [
+          'db_project_view/project_view_resources'
+        ],
+      ],
+    ];
+  }  
+
+  public function getProjectDetailsContentDeprecated($project_id) {
     $results = self::get_project($project_id);
     return [
       '#theme' => 'db_project_view',
