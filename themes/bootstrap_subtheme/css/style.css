@@ -2,11 +2,17 @@
  * Place your custom styles here.
  */
 
- /* Authenticated and Anonymous User Menu */
- #block-bootstrap-subtheme-account-menu {
-  padding-top:48px;
- }
-
+/* Authenticated and Anonymous User Menu */
+#block-bootstrap-subtheme-account-menu {
+    float: right;
+}
+.search-well {
+    float: right;
+    height: 20px;
+}
+.logo {
+    min-width: 933px;
+}
 /* Make .btn responsive */
 
 .btn-responsive {
@@ -106,7 +112,17 @@ footer > div > nav > ul.nav > li > a {
     padding-left:250px ;
 }
 */
-
+/* Make the Footer the same style as the header */
+footer {
+    background-color: #f7f7f7;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
+    margin-bottom: 20px;
+    min-height: 20px;
+    padding: 19px;
+}
+/*
 #block-footermiddle {
     padding-top:50px;
 }
@@ -121,7 +137,7 @@ footer > div > nav > ul.nav > li > a {
 #block-footermiddle > ul > li:nth-child(3) {
     list-style-type: circle;
 }
-
+*/
 /*
 .input-group {
     width:585px;
