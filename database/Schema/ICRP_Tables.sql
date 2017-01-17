@@ -782,6 +782,35 @@ CREATE TABLE [dbo].[LuPartnerStatus](
 
 GO
 
+/****** Object:  Table [dbo].[ProjectDetails]    Script Date: 1/10/2017 5:08:05 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[ProjectDetails] (
+	ProjectID INT NULL, 
+	AwardCode [varchar](50) NULL, 
+	ProjectFundingID INT NULL,
+	Title [varchar](1000) NULL,
+	piLastName [varchar](50) NULL, 
+	piFirstName [varchar](50) NULL,
+	piORCiD [varchar](50) NULL,
+	Institution [varchar](100) NULL,
+	Amount float,
+	City [varchar](100) NULL,
+	State [varchar](3) NULL, 
+	Country [varchar](3) NULL,
+	FundingOrgID INT NULL,
+	FundingOrg [varchar](100) NULL,
+	ProjectType [varchar](50) NULL,
+	CancerTypeID INT NULL,
+	CancerType [varchar](100) NULL,
+	CSOCode [varchar](50) NULL,
+	CalendarYear INT NULL
+	) 
+
 
 /****** Relationships ******/
 ALTER TABLE [dbo].[CancerType] ADD  CONSTRAINT [DF_CancerType_SortOrder]  DEFAULT ((1)) FOR [SortOrder]
