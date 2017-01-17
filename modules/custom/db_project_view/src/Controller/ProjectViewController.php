@@ -14,6 +14,7 @@ class ProjectViewController extends ControllerBase {
   const FIELD_MAP = [
     'project_details' => [
       'Title' => 'project_title',
+      'AwardCode' => 'award_code',
       'ProjectStartDate' => 'project_start_date',
       'ProjectEndDate' => 'project_end_date',
       'TechAbstract' => 'technical_abstract',
@@ -21,12 +22,15 @@ class ProjectViewController extends ControllerBase {
       'FundingMechanism' => 'funding_mechanism'
     ],
     'project_funding_details' => [
+      'ProjectFundingID' => 'project_funding_id',
+      'title' => 'project_title',
       'piLastName' => 'pi_last_name',
       'piFirstName' => 'pi_first_name',
       'Institution' => 'institution',
       'City' => 'city',
       'State' => 'state', 
       'Country' => 'country', 
+      'AwardType' => 'award_type', 
       'AltAwardCode' => 'alt_award_code', 
       'FundingOrganization' => 'funding_organization', 
       'BudgetStartDate' => 'budget_start_date', 
@@ -117,7 +121,17 @@ class ProjectViewController extends ControllerBase {
     'array_merge', []);
   }
 
-  public function content($project_id) {
+
+  public function getProjectDetails() {
+    $results = self::get_project($project_id);
+  }
+
+
+  public function getProjectFundingDetails() {
+    
+  }
+
+  public function getProjectDetailsContent($project_id) {
     $results = self::get_project($project_id);
     return [
       '#theme' => 'db_project_view',
@@ -131,5 +145,9 @@ class ProjectViewController extends ControllerBase {
         ],
       ],
     ];
+  }
+
+  public function getProjectFundingDetailsContent() {
+
   }
 }

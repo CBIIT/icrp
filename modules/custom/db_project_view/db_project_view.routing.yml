@@ -1,25 +1,41 @@
 db_project_view.project_details:
   path: '/project/{project_id}'
   defaults:
-    _controller: '\Drupal\db_project_view\Controller\ProjectViewController::content'
+    _controller: '\Drupal\db_project_view\Controller\ProjectViewController::getProjectDetailsContent'
     _title: 'Project Details'
   requirements:
     _permission: 'access content'
     project_id: '[0-9]{1,9}'
 
-db_project_view.project_funding_details:
-  path: '/project/details/{project_funding_id}'
+db_project_view.project_details.get:
+  path: '/project/get/{project_id}'
   defaults:
-    _controller: '\Drupal\db_project_view\Controller\ProjectViewController::content'
-    _title: 'Project Details'
+    _controller: '\Drupal\db_project_view\Controller\ProjectViewController::getProjectDetails'
   requirements:
     _permission: 'access content'
-    project_funding_id: '[0-9]{1,9}'
+    project_id: '[0-9]{1,9}'
+
+db_project_view.project_funding_details:
+  path: '/project/funding-details/{project_id}'
+  defaults:
+    _controller: '\Drupal\db_project_view\Controller\ProjectViewController::getProjectFundingDetailsContent'
+    _title: 'Project Funding Details'
+  requirements:
+    _permission: 'access content'
+    project_id: '[0-9]{1,9}'
+
+db_project_view.project_funding_details.get:
+  path: '/project/funding-details/get/{project_id}'
+  defaults:
+    _controller: '\Drupal\db_project_view\Controller\ProjectViewController::getProjectFundingDetails'
+  requirements:
+    _permission: 'access content'
+    project_id: '[0-9]{1,9}'
 
 db_project_view.content_deprecated:
   path: '/ViewProject/{project_id}'
   defaults:
-    _controller: '\Drupal\db_project_view\Controller\ProjectViewController::content'
+    _controller: '\Drupal\db_project_view\Controller\ProjectViewController::getProjectDetailsContent'
     _title: 'Project Details'
   requirements:
     _permission: 'access content'

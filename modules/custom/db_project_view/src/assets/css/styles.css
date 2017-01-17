@@ -1,10 +1,44 @@
-h5.h5 {
-  font-weight: bold;
+div.native-font {
+  font-family: -apple-system, BlinkMacSystemFont, 
+    "Segoe UI", "Roboto", "Oxygen", 
+    "Ubuntu", "Cantarell", "Fira Sans", 
+    "Droid Sans", "Helvetica Neue", sans-serif !important;
+  font-size: 14px;
+  color: #444;
+}
+
+hr.less-margins {
+  margin-top: 2px;
   margin-bottom: 2px;
 }
 
+h3.title {
+  color: orange;
+  display: inline-block;
+  margin-bottom: 0;
+}
+
+h4.grey {
+  display: inline-block;
+  font-weight: bold;
+  color: #999;
+}
+
+h4.h4 {
+  margin-bottom: 0;
+}
+
+h5.h5 {
+  font-weight: bold;
+  margin-bottom: 0;
+}
+
+.margin-right {
+  margin-right: 20px;
+}
+
 .margin-bottom {
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 }
 
 .margin-top {
@@ -20,21 +54,30 @@ dl.dl-horizontal > dd {
   margin-bottom: 4px;
 }
 
+table.project-funding-details {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14px;
+}
+
+
 table.project-funding-details > thead > tr > th {
-  background-color: #3A539B;
-  color: white;
+  background-color: #EEE;
 }
 
 table.project-funding-details > thead > tr > th,
 table.project-funding-details > tbody > tr > td {
-  padding: 4px 8px;
+  padding: 4px;
   white-space: nowrap;
+  border: 1px solid #999;
+}
+
+table.project-funding-details > thead > tr > th.limited-width,
+table.project-funding-details > tbody > tr > td.limited-width {
+  max-width: 250px;
+  overflow-x: hidden;
 }
 
 table.project-funding-details > tbody > tr:hover {
-  background-color: #E0E5f4;
-}
-
-table.project-funding-details > tbody > tr:nth-child(even) {
-  background-color: #EFF1F9;
+  background-color: #FAFAFA;
 }

@@ -114,11 +114,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   queryServerAnalytics(parameters: Object): Observable<any[]> {
-
-    let protocol = window.location.protocol;
-    let host = window.location.hostname;
-
-    let endpoint = `${protocol}//${host}/db/public/analytics`;
+    let endpoint = '/db/public/analytics';
     
     let params = new URLSearchParams();
     params.set('search_id', this.searchID);
@@ -129,7 +125,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   resultsSortPaginate(parameters: Object) {
-    let endpoint = 'https://icrpartnership-demo.org/db/public/sort_paginate';
+    let endpoint = '/db/public/sort_paginate';
     let params = new URLSearchParams();
 
     if (!parameters['page_size'] || !parameters['page_number']) {
@@ -155,7 +151,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     let protocol = window.location.protocol;
     let host = window.location.hostname;
 
-    let endpoint = `${protocol}//${host}/db/public/search`;
+    let endpoint = '/db/public/search';
     let params = new URLSearchParams();
 
     if (!parameters['page_size'] || !parameters['page_number']) {

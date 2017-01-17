@@ -1,0 +1,6 @@
+flavour:
+  version: VERSION
+  css:
+    theme:
+      "http://fonts.googleapis.com/css?family=Kalam:400,700|Delius": { type: external }
+      css/flavour.css: {}
