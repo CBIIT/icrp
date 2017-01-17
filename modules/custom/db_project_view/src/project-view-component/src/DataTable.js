@@ -45,7 +45,8 @@ class DataTable extends Component {
               </tr>)}
           </tbody>
         </table>
-
+        
+        {this.props.data.length > this.props.limit &&
         <div className="text-center">
           <button className="btn btn-default"
             onClick={e => this.setState({collapsed: !this.state.collapsed})}>
@@ -53,7 +54,8 @@ class DataTable extends Component {
             ? 'Show All Projects'
             : 'Limit to Top 5 Projects'}
           </button>
-        </div>  
+        </div>
+        }  
       </div>
     );
   }    
