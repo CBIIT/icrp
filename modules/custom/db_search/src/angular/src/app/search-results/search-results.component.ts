@@ -181,7 +181,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
       personal_message: this.emailForm.controls['personal_message'].value,
     }
 
-    let endpoint = 'http://localhost/EmailResults';
+    let endpoint = '/EmailResults';
     console.log(params);
     
     let parameters = new URLSearchParams();
@@ -201,6 +201,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     		error => {
     			modal.hide();
     			modal2.show();
+    			alert("Error");
     		});
  
   }
@@ -209,7 +210,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   
   downloadResult(modal: any){
   	modal.show();
-  	let endpoint = 'http://localhost/ExportResults';
+  	let endpoint = '/ExportResults';
   	let query = this.http.get(endpoint, {})
         	.map((res: Response) => res.json())
       		.catch((error: any) => Observable.throw(error || 'Server error'))
@@ -222,6 +223,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     		error => {
     			console.error(error);
     			modal.hide();
+    			alert("Error");
     		});
   }
   
