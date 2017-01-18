@@ -1,0 +1,57 @@
+<button class="btn btn-xs btn-default" (click)="emailResultsModal.show()">
+    <span class="glyphicon glyphicon-envelope"></span>
+    Email results
+</button>
+
+<div class="modal fade" bsModal #emailResultsModal="bs-modal" [config]="{backdrop: 'static'}"
+     tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <button type="button" class="close" aria-label="Close" (click)="emailResultsModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Email Search Results</h4>
+      </div>
+
+      <div class="modal-body" >
+
+
+		<div class="container">
+			<label>Complete the form below to email a link to your search results to yourself, a friend, or colleague.</label>
+			<br/><br/>
+		</div>
+
+		<form class="form-horizontal clearfix" [formGroup]="emailForm"  style="position: relative">
+
+		  <div class="form-group">
+		    <label for="name" class="col-sm-3 control-label">Your Name</label>
+			<div class="col-sm-9">
+			  <input type="text" class="input" id="recipientName" placeholder="Your Name" [formControl]="emailForm.controls.name" #name/>
+	      	</div>
+		  </div>
+
+		  <div class="form-group">
+		    <label for="recipientEmail" class="col-sm-3 control-label">Recipient's Email</label>
+			<div class="col-sm-9">
+			  <textarea class="input" id="recipientEmail" placeholder="(Separating multiple email recipients by commas)" [formControl]="emailForm.controls.recipient_email" #recipientemail></textarea>
+			  <div *ngIf="!emailForm.controls.recipient_email.valid && !emailForm.controls.recipient_email.pristine" style="color: red;">Please ensure that the email addresses entered are valid</div>
+	      	</div>
+		  </div>
+
+		  <div class="form-group">
+			  <label for="recipientMessage" class="col-sm-3 control-label">Personal Message </label>
+			  <div class="col-sm-9">
+				<textarea class="input" id="recipientMessage" type="text" placeholder="(Optional)" [formControl]="emailForm.controls.personal_message"></textarea>
+			  </div>
+		  </div>
+
+		  <div class="text-center" >
+		  		<button class="btn btn-primary"  [disabled]="!emailForm.valid" (click)="sendEmail(emailResultsModal,emailMessageModal)">Send Email</button>
+		  </div>
+		 </form>
+      </div>
+    </div>
+  </div>
+</div>
