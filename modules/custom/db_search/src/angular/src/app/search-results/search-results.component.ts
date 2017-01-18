@@ -159,7 +159,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
           country: result.country,
           funding_organization: result.funding_organization,
           award_code: result.award_code,
-          url: `/project/${result.project_id}`
+          url: `https://icrpartnership-demo.org/ViewProject/${result.project_id}`
         }
       })
     }
@@ -201,8 +201,30 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     		error => {
     			modal.hide();
     			modal2.show();
+    			alert("Error");
     		});
  
+  }
+
+
+  
+  downloadResult(modal: any){
+  	modal.show();
+  	let endpoint = '/ExportResults';
+  	let query = this.http.get(endpoint, {})
+        	.map((res: Response) => res.json())
+      		.catch((error: any) => Observable.throw(error || 'Server error'))
+        	.subscribe(
+        	res => {
+        		console.log(res);
+  			window.open(res);
+        		modal.hide();
+       		},
+    		error => {
+    			console.error(error);
+    			modal.hide();
+    			alert("Error");
+    		});
   }
   
   fireModalEvent(modal: any) {
