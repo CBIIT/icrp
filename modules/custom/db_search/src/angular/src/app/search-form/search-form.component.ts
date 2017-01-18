@@ -72,8 +72,6 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
   cso_research_areas: TreeNode;
 
   fields: Fields;
-
-
   form: FormGroup;
 
   constructor(
@@ -101,24 +99,24 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
     }>();
 
     this.mappedSearch = new EventEmitter<{
-    search_terms?: string,
-    search_type?: string,
-    years?: string[],
+      search_terms?: string,
+      search_type?: string,
+      years?: string[],
 
-    institution?: string,
-    pi_first_name?: string,
-    pi_orcid?: string,
-    award_code?: string,
+      institution?: string,
+      pi_first_name?: string,
+      pi_orcid?: string,
+      award_code?: string,
 
-    countries?: string[],
-    states?: string[],
-    cities?: string[],
+      countries?: string[],
+      states?: string[],
+      cities?: string[],
 
-    funding_organizations?: string[],
-    cancer_types?: string[],
-    project_types?: string[],
-    cso_research_areas?: string[]
-  }>();    
+      funding_organizations?: string[],
+      cancer_types?: string[],
+      project_types?: string[],
+      cso_research_areas?: string[]
+    }>();    
 
     this.form = formbuilder.group({
       search_terms: [''],
@@ -154,11 +152,13 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
 
     this.funding_organizations = null;
     this.cso_research_areas = null;
-
-    console.log('created form', this.form);
   }
 
-  submit() {
+  submit(event) {
+
+    if (event) {
+      event.preventDefault();
+    }
 
     let parameters = {
 

@@ -16,6 +16,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   searchID: any;
   mappedParameters: any;  
   parameters: any;
+  sortPaginateParameters: any;
   results: any;
   loading: boolean;
   loadingAnalytics: boolean;
@@ -27,6 +28,14 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.analytics = {};
     this.mappedParameters = {};
+
+    this.sortPaginateParameters = {
+      search_id: null,
+      sort_column: 'project_title',
+      sort_type: 'asc',
+      page_number: 1,
+      page_size: 50,
+    }
   }
 
   updateMappedParameters(event: Object) {
@@ -62,7 +71,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   updateAnalytics(event: Object) {
     if (this.searchID != null) {
-      console.log('updating analytics with ' + this.searchID);
       this.loadingAnalytics = true;
       this.queryServerAnalytics({}).subscribe(
         response => {
@@ -95,8 +103,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
           }
       }
     }
-
-    console.log('generated analytics', analytics);
 
     return analytics;
   }
@@ -131,6 +137,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   resultsSortPaginate(parameters: Object) {
+
+    
     let endpoint = '/db/public/sort_paginate';
     let host = window.location.hostname;
 
@@ -150,12 +158,18 @@ export class SearchComponent implements OnInit, AfterViewInit {
       parameters['sort_type'] = 'ASC';
     }
 
-//    for (let key of ['page_size', 'page_number', 'sort_column', 'sort_type'])
+    for (let key of Object.keys(parameters)) {
+      params.set(key, parameters[key]);
+    }
 
-/*    return this.http.get(endpoint, {search: params})
+    this.http.get(endpoint, {search: params})
       .map((res: Response) => res.json())
-      .catch((error: any) => Observable.throw(error.json().error || 'Server error'));
-*/
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
+    
+  }
+
+  sortPaginateServer(parameters: Object) {
+    
   }
 
   queryServer(parameters: Object): Observable<any[]> {
