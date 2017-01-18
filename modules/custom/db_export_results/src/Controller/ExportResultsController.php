@@ -44,7 +44,7 @@ class ExportResultsController extends ControllerBase {
     $zipFilename = $filelocation . $fileName;
 
     $sid = $_SESSION['database_search_id'];
-    $sid = 199;
+    //$sid = 199;
 
 	$result = self::createExportData($filelocation, $filenameExport, $sid);
 	$result = self::createSearchCriteria($filelocation, $filenameCriteria, $sid);
