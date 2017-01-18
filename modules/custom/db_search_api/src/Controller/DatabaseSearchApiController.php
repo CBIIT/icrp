@@ -102,8 +102,8 @@ class DatabaseSearchAPIController extends ControllerBase {
     $input_parameters = [
       'page_size'             => 50,
       'page_number'           => 1,
-      'sort_column'           => 'ASC',
-      'sort_type'             => 'title',
+      'sort_column'           => 'title',
+      'sort_type'             => 'ASC',
       'search_terms'          => NULL,
       'search_type'           => NULL,
       'years'                 => NULL,
@@ -123,6 +123,10 @@ class DatabaseSearchAPIController extends ControllerBase {
 
     foreach(array_keys($input_parameters) as $key) {
       $value = $request->query->get($key);
+      if ($key === 'sort_column') {
+        $value = self::$sort_column_mappings[$value];
+      }
+
       if ($value) {
         $input_parameters[$key] = $value;
       }
@@ -280,7 +284,6 @@ class DatabaseSearchAPIController extends ControllerBase {
           'pi_name'               => $row['piLastName'].", ".$row['piFirstName'],
           'institution'           => $row['institution'],
           'country'               => $row['country'],
-          'state'                 => $row['country'],
           'funding_organization'  => $row['FundingOrgShort'],
           'award_code'            => $row['AwardCode'],
         ]);
