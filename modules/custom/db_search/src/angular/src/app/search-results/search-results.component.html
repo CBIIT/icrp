@@ -22,8 +22,10 @@
 <div class="row" style="margin-top: 10px">
 
 
-  <div class="col-md-12 text-center clearfix loading-wrapper" style="padding-top: 140px; position: absolute" *ngIf="loadingAnalytics">
+  <div style="position: relative" *ngIf="loadingAnalytics">
+  <div class="col-md-12 text-center clearfix loading-wrapper" style="padding-top: 140px; position: absolute" >
     Loading Charts...
+  </div>
   </div>
 
   <div class="col-md-3">
@@ -38,7 +40,7 @@
     <ui-chart
       label="Projects by CSO"
       type="pie"
-      [data]="(analytics && analytics.projects_by_cso_category) || []">
+      [data]="(analytics && analytics.projects_by_cso_research_area) || []">
     </ui-chart>
   </div>
 

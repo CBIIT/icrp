@@ -157,6 +157,7 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
   submit(event) {
 
     if (event) {
+      console.log('preventing default', event);
       event.preventDefault();
     }
 

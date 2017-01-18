@@ -39,6 +39,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   updateMappedParameters(event: Object) {
+    console.log('received event', event);
     this.mappedParameters = event;
   }
 
@@ -55,6 +56,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     this.queryServer(this.parameters).subscribe(
       response => {
+
         this.searchID = response['search_id'];
         this.results = response['results'];
         this.analytics['count'] = response['results_count'];
@@ -75,36 +77,31 @@ export class SearchComponent implements OnInit, AfterViewInit {
       this.queryServerAnalytics({}).subscribe(
         response => {
           this.loadingAnalytics = false;
-          this.analytics = this.processAnalytics(response);
+          this.processAnalytics(response);
         }
       );
     }
   }
     
   processAnalytics(response) {
-    let analytics = {};
+//    let analytics = {};
 
     if (response) {
-      console.log('processing', response);
 
       for (let category of [
         'projects_by_country', 
         'projects_by_cso_research_area', 
         'projects_by_cancer_type', 
         'projects_by_type']) {
-
-          console.log('analyzing', response[category])
           if (response[category]) {
             for (let key in response[category]) {
-              analytics[category] = response[category]['results'];
+              this.analytics[category] = response[category]['results'];
             }
 
-            analytics[category].sort((a, b) => +b.value - +a.value);
+            this.analytics[category].sort((a, b) => +b.value - +a.value);
           }
       }
     }
-
-    return analytics;
   }
 
   paginate(event) {
@@ -137,7 +134,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   resultsSortPaginate(parameters: Object) {
-
     
     let endpoint = '/db/public/sort_paginate';
     let host = window.location.hostname;
@@ -158,6 +154,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       parameters['sort_type'] = 'ASC';
     }
 
+    params.set('search_id', this.searchID);
     for (let key of Object.keys(parameters)) {
       params.set(key, parameters[key]);
     }
@@ -165,6 +162,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.http.get(endpoint, {search: params})
       .map((res: Response) => res.json())
       .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
+      .subscribe(response => {
+        this.results = response;
+        this.loading = false;
+      })
     
   }
 
