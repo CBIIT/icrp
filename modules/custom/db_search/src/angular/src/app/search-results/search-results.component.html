@@ -38,7 +38,7 @@
     <ui-chart
       label="Projects by CSO Category"
       type="pie"
-      [data]="(analytics && analytics.projects_by_cso_research_area) || []">
+      [data]="(analytics && analytics.projects_by_cso_category) || []">
     </ui-chart>
   </div>
 
@@ -62,7 +62,7 @@
   <button class="btn btn-xs btn-default" (click)="emailResultsModal.show()">
     <span class="glyphicon glyphicon-envelope"></span>
     Email results</button>
-  <button class="btn btn-xs btn-default" (click)="downloadResultsModal.show()">
+  <button class="btn btn-xs btn-default" (click)="downloadResult(downloadResultsModal)">
     <span class="glyphicon glyphicon-download-alt"></span>
     Export results</button>
 </div>
@@ -163,11 +163,26 @@
         <button type="button" class="close" aria-label="Close" (click)="downloadResultsModal.hide()">
           <span aria-hidden="true">&times;</span>
         </button>
-        <h4 class="modal-title">Static modal</h4>
+        <h4 class="modal-title">Download Search Results</h4>
       </div>
       <div class="modal-body">
       	<div class="loading-wrapper">
-      		<div class="loading"></div>
+			<div class="row">
+				<div align="center"><b>Processing Data ...</b></div>
+			</div>
+			<div class="row">
+				<div align="center">&nbsp;</div>
+			</div>
+			<div class="row">
+				<div align="center">&nbsp;</div>
+			</div>
+      		<div class="row">
+				<div class="col-md-3">&nbsp;</div>
+				<div class="col-md-5">
+					<div class="loading" align="center"></div>
+				</div>
+				<div class="col-md-4">&nbsp;</div>
+      		</div>
       	</div>
 
       </div>
