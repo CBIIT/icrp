@@ -14,6 +14,13 @@ db_search_api.public.search:
   requirements:
     _access: 'TRUE'
 
+db_search_api.public.public_search_sort_paginate:
+  path: '/db/public/sort_paginate'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::public_search_sort_paginate' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
 db_search_api.public.analytics:
   path: '/db/public/analytics'
   defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::public_analytics' }

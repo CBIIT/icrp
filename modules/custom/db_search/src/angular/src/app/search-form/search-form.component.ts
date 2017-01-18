@@ -1,4 +1,5 @@
 import {
+  AfterViewInit,
   Component,
   Inject,
   Input,
@@ -23,7 +24,7 @@ import { TreeNode } from '../ui-treeview/treenode';
   templateUrl: './search-form.component.html',
   styleUrls: ['./search-form.component.css'],
 })
-export class SearchFormComponent implements OnInit {
+export class SearchFormComponent implements OnInit, AfterViewInit {
 
   @Output()
   mappedSearch: EventEmitter<{
@@ -71,8 +72,6 @@ export class SearchFormComponent implements OnInit {
   cso_research_areas: TreeNode;
 
   fields: Fields;
-
-
   form: FormGroup;
 
   constructor(
@@ -100,29 +99,29 @@ export class SearchFormComponent implements OnInit {
     }>();
 
     this.mappedSearch = new EventEmitter<{
-    search_terms?: string,
-    search_type?: string,
-    years?: string[],
+      search_terms?: string,
+      search_type?: string,
+      years?: string[],
 
-    institution?: string,
-    pi_first_name?: string,
-    pi_orcid?: string,
-    award_code?: string,
+      institution?: string,
+      pi_first_name?: string,
+      pi_orcid?: string,
+      award_code?: string,
 
-    countries?: string[],
-    states?: string[],
-    cities?: string[],
+      countries?: string[],
+      states?: string[],
+      cities?: string[],
 
-    funding_organizations?: string[],
-    cancer_types?: string[],
-    project_types?: string[],
-    cso_research_areas?: string[]
-  }>();    
+      funding_organizations?: string[],
+      cancer_types?: string[],
+      project_types?: string[],
+      cso_research_areas?: string[]
+    }>();    
 
     this.form = formbuilder.group({
       search_terms: [''],
       search_type: [''],
-      years: [''],
+      years: [],
 
       institution: [''],
       pi_first_name: [''],
@@ -155,7 +154,12 @@ export class SearchFormComponent implements OnInit {
     this.cso_research_areas = null;
   }
 
-  submit() {
+  submit(event) {
+
+    if (event) {
+      console.log('preventing default', event);
+      event.preventDefault();
+    }
 
     let parameters = {
 
@@ -384,13 +388,26 @@ export class SearchFormComponent implements OnInit {
     return root;
  }
 
-  ngOnInit() {
+ ngAfterViewInit(this) {
     new SearchFields(this.http).getFields()
       .subscribe(response => {
         this.fields = response;
         this.funding_organizations = this.createTreeNode(this.fields.funding_organizations, 'funding_organizations');
         this.cso_research_areas = this.createTreeNode(this.fields.cso_research_areas, 'cso_research_areas');
+
+        setTimeout(e => {
+          // set last two years
+          let years = this.fields.years.filter((field, index) => {
+            if (index < 2)
+              return field;
+          }).map(field => field.value);
+          this.form.controls['years'].patchValue(years);
+          this.submit();
+        }, 0);
       });
+ }
+
+  ngOnInit() {
   }
 
 }

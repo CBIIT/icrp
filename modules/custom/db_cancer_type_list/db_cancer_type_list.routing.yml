@@ -1,4 +1,19 @@
 db_cancer_type_list.content:
+  path: '/cancer-type-list'
+  defaults:
+    _controller: '\Drupal\db_cancer_type_list\Controller\CancerTypeListController::content'
+    _title: 'ICRP Cancer Type List'
+  requirements:
+    _permission: 'access content'
+
+db_cancer_type_list.get:
+  path: '/cancer-type-list/get'
+  defaults:
+    _controller: '\Drupal\db_cancer_type_list\Controller\CancerTypeListController::getCancerTypes'
+  requirements:
+    _permission: 'access content'
+
+db_cancer_type_list.partners.content:
   path: '/partners/cancer-type-list'
   defaults:
     _controller: '\Drupal\db_cancer_type_list\Controller\CancerTypeListController::content'
@@ -7,10 +22,9 @@ db_cancer_type_list.content:
     _permission: 'access content'
     _role: 'authenticated'
 
-db_cancer_type_list.get:
+db_cancer_type_list.partners.get:
   path: '/partners/cancer-type-list/get'
   defaults:
     _controller: '\Drupal\db_cancer_type_list\Controller\CancerTypeListController::getCancerTypes'
   requirements:
     _permission: 'access content'
-    _role: 'authenticated'

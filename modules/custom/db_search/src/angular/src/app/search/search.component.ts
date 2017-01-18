@@ -16,6 +16,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   searchID: any;
   mappedParameters: any;  
   parameters: any;
+  sortPaginateParameters: any;
   results: any;
   loading: boolean;
   loadingAnalytics: boolean;
@@ -27,9 +28,18 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.analytics = {};
     this.mappedParameters = {};
+
+    this.sortPaginateParameters = {
+      search_id: null,
+      sort_column: 'project_title',
+      sort_type: 'asc',
+      page_number: 1,
+      page_size: 50,
+    }
   }
 
   updateMappedParameters(event: Object) {
+    console.log('received event', event);
     this.mappedParameters = event;
   }
 
@@ -46,6 +56,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     this.queryServer(this.parameters).subscribe(
       response => {
+
         this.searchID = response['search_id'];
         this.results = response['results'];
         this.analytics['count'] = response['results_count'];
@@ -62,43 +73,35 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   updateAnalytics(event: Object) {
     if (this.searchID != null) {
-      console.log('updating analytics with ' + this.searchID);
       this.loadingAnalytics = true;
       this.queryServerAnalytics({}).subscribe(
         response => {
           this.loadingAnalytics = false;
-          this.analytics = this.processAnalytics(response);
+          this.processAnalytics(response);
         }
       );
     }
   }
     
   processAnalytics(response) {
-    let analytics = {};
+//    let analytics = {};
 
     if (response) {
-      console.log('processing', response);
 
       for (let category of [
         'projects_by_country', 
         'projects_by_cso_research_area', 
         'projects_by_cancer_type', 
         'projects_by_type']) {
-
-          console.log('analyzing', response[category])
           if (response[category]) {
             for (let key in response[category]) {
-              analytics[category] = response[category]['results'];
+              this.analytics[category] = response[category]['results'];
             }
 
-            analytics[category].sort((a, b) => +b.value - +a.value);
+            this.analytics[category].sort((a, b) => +b.value - +a.value);
           }
       }
     }
-
-    console.log('generated analytics', analytics);
-
-    return analytics;
   }
 
   paginate(event) {
@@ -115,7 +118,13 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   queryServerAnalytics(parameters: Object): Observable<any[]> {
     let endpoint = '/db/public/analytics';
-    
+    let host = window.location.hostname;
+
+    if (host === 'localhost') {
+      endpoint = `https://icrpartnership-demo.org${endpoint}`
+    }
+
+
     let params = new URLSearchParams();
     params.set('search_id', this.searchID);
 
@@ -125,7 +134,14 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   resultsSortPaginate(parameters: Object) {
+    
     let endpoint = '/db/public/sort_paginate';
+    let host = window.location.hostname;
+
+    if (host === 'localhost') {
+      endpoint = `https://icrpartnership-demo.org${endpoint}`
+    }
+
     let params = new URLSearchParams();
 
     if (!parameters['page_size'] || !parameters['page_number']) {
@@ -138,12 +154,23 @@ export class SearchComponent implements OnInit, AfterViewInit {
       parameters['sort_type'] = 'ASC';
     }
 
-//    for (let key of ['page_size', 'page_number', 'sort_column', 'sort_type'])
+    params.set('search_id', this.searchID);
+    for (let key of Object.keys(parameters)) {
+      params.set(key, parameters[key]);
+    }
 
-/*    return this.http.get(endpoint, {search: params})
+    this.http.get(endpoint, {search: params})
       .map((res: Response) => res.json())
-      .catch((error: any) => Observable.throw(error.json().error || 'Server error'));
-*/
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
+      .subscribe(response => {
+        this.results = response;
+        this.loading = false;
+      })
+    
+  }
+
+  sortPaginateServer(parameters: Object) {
+    
   }
 
   queryServer(parameters: Object): Observable<any[]> {
@@ -152,6 +179,11 @@ export class SearchComponent implements OnInit, AfterViewInit {
     let host = window.location.hostname;
 
     let endpoint = '/db/public/search';
+
+    if (host === 'localhost') {
+      endpoint = `https://icrpartnership-demo.org${endpoint}`
+    }
+
     let params = new URLSearchParams();
 
     if (!parameters['page_size'] || !parameters['page_number']) {
@@ -169,7 +201,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.updateResults({});
+//    this.updateResults({});
   }
 
   ngOnInit() {

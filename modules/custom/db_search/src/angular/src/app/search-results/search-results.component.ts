@@ -57,6 +57,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     
 
     this.analytics = {
+      count: 0,
       country: [],
       cso_code: [],
       cancer_type_id: [],
@@ -113,38 +114,46 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
 
   ngOnChanges(changes: SimpleChanges) {
     
-    if (Object.keys(this.searchParameters).length == 0) {
-      this.searchCriteriaSummary = "All projects are shown below. Use the form on the left to refine search results";
-      this.showCriteriaLocked = true; 
-    }
+    console.log(changes);
 
-    else {
-      this.showCriteriaLocked = false; 
-      let searchCriteria = [];
-      for (let key of Object.keys(this.searchParameters)) {
-        searchCriteria.push(this.convertCase(key));
-        let param = this.searchParameters[key];
+    if (changes['searchParameters']) {
 
-        let criteriaGroup = {
-          category: this.convertCase(key),
-          criteria: [],
-          type: "single"
-        }
-
-        if (param instanceof Array) {
-          criteriaGroup.criteria = param;
-          criteriaGroup.type = "array";
-        }
-
-        else {
-          criteriaGroup.criteria = [param];
-        }  
-
-        this.searchCriteriaGroups.push(criteriaGroup);
+      if (Object.keys(this.searchParameters).length == 0) {
+        this.searchCriteriaSummary = "All projects are shown below. Use the form on the left to refine search results";
+        this.showCriteriaLocked = true; 
       }
 
-      this.searchCriteriaSummary = "Search Criteria: " + searchCriteria.join(' + ');
-      
+      else {
+        this.showCriteriaLocked = false; 
+        let searchCriteria = [];
+        this.searchCriteriaGroups = [];
+        for (let key of Object.keys(this.searchParameters)) {
+
+          searchCriteria.push(this.convertCase(key));
+          let param = this.searchParameters[key];
+
+          let criteriaGroup = {
+            category: this.convertCase(key),
+            criteria: [],
+            type: "single"
+          }
+
+          if (param instanceof Array) {
+            criteriaGroup.criteria = param;
+            criteriaGroup.type = "array";
+          }
+
+          else {
+            criteriaGroup.criteria = [param];
+          }  
+
+          this.searchCriteriaGroups.push(criteriaGroup);
+        }
+
+        this.searchCriteriaSummary = "Search Criteria: " + searchCriteria.join(' + ');
+        
+      }
+
     }
     
 
@@ -201,8 +210,30 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     		error => {
     			modal.hide();
     			modal2.show();
+    			alert("Error");
     		});
  
+  }
+
+
+  
+  downloadResult(modal: any){
+  	modal.show();
+  	let endpoint = '/ExportResults';
+  	let query = this.http.get(endpoint, {})
+        	.map((res: Response) => res.json())
+      		.catch((error: any) => Observable.throw(error || 'Server error'))
+        	.subscribe(
+        	res => {
+        		console.log(res);
+  			window.open(res);
+        		modal.hide();
+       		},
+    		error => {
+    			console.error(error);
+    			modal.hide();
+    			alert("Error");
+    		});
   }
   
   fireModalEvent(modal: any) {

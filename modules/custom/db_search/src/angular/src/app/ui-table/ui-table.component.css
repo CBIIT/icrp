@@ -2,7 +2,7 @@ div.ui-table-wrapper {
     overflow-x: auto;
     position: relative;
     width: 100%;
-    min-height: 400px;
+    border: 1px solid #AAA;
 }
 
 table.ui-table {
@@ -44,7 +44,7 @@ table.ui-table > tbody > tr {
 }
 
 table.ui-table > tbody > tr > td > a {
-    color: #444;
+    color: #446CB3;
 }
 
 table.ui-table > tbody > tr:nth-child(even) {
