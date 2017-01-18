@@ -1,6 +1,14 @@
 icrp.content:
   path: '/icrp'
   defaults:
-    _controller: '\Drupal\icrp\Controller\IcrpController:sayhello'
+    _controller: '\Drupal\icrp\Controller\IcrpController::sayhello'
   requirements:
     _permission: 'TRUE'
+
+icrp.review_user:
+  path: '/user-review/{uuid}'
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::userReview'
+    _title: 'User Review'
+  requirements:
+    _permission: 'access content'

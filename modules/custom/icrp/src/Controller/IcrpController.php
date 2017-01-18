@@ -11,6 +11,12 @@ class IcrpController extends ControllerBase {
             '#markup' => hello_hello_world(),
         );
     }
+    public function userReview($uuid) {
+        return array(
+            '#markup' => reviewUserForm($uuid),
+        );
+    }
+
   public function dbSearch() {
     return array(
       '#type' => 'markup',
