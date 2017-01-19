@@ -19,6 +19,9 @@ import { PaginationModule } from 'ng2-bootstrap';
 import { ModalModule } from 'ng2-bootstrap';
 import { EmailResultsButtonComponent } from './email-results-button/email-results-button.component';
 import { ExportResultsButtonComponent } from './export-results-button/export-results-button.component';
+import { ExportResultsPartnerButtonComponent } from './export-results-partner-button/export-results-partner-button.component';
+import { ExportResultsAbstractsPartnerButtonComponent } from './export-results-abstracts-partner-button/export-results-abstracts-partner-button.component';
+import { ExportResultsGraphsPartnerButtonComponent } from './export-results-graphs-partner-button/export-results-graphs-partner-button.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +35,10 @@ import { ExportResultsButtonComponent } from './export-results-button/export-res
     UiTableComponent,
     UiChartComponent,
     EmailResultsButtonComponent,
-    ExportResultsButtonComponent
+    ExportResultsButtonComponent,
+    ExportResultsPartnerButtonComponent,
+    ExportResultsAbstractsPartnerButtonComponent,
+    ExportResultsGraphsPartnerButtonComponent
   ],
   imports: [
     BrowserModule,
