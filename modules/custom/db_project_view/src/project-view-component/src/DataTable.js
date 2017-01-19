@@ -49,12 +49,12 @@ class DataTable extends Component {
         </div>
         
         {this.props.data.length > this.props.limit &&
-        <div className="text-center margin-top">
-          <button className="btn btn-default"
+        <div className="margin-top">
+          <button className="btn btn-default btn-sm"
             onClick={e => this.setState({collapsed: !this.state.collapsed})}>
             {this.state.collapsed
-            ? 'Show All Projects'
-            : 'Limit to Top 5 Projects'}
+            ? 'Show All'
+            : 'Show Less'}
           </button>
         </div>
         }  

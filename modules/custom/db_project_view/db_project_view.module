@@ -16,16 +16,17 @@ function db_project_view_theme($existing, $type, $theme, $path) {
           'cso_research_areas' => NULL
         ),
     ),
+
+    'project_view_component' => array(
+      'variables' => array(
+          'project_id' => NULL,
+        ),
+    ),
   );
 }
 
 
 function project_view_component_theme($existing, $type, $theme, $path) {
   return array(
-    'project_view_component' => array(
-      'variables' => array(
-          'project_id' => NULL,
-        ),
-    ),
   );
 }

@@ -76,11 +76,6 @@ class ProjectViewComponent extends Component {
   async updateResults(project) {
     try {
       let endpoint = `/project/get/${project}`;
-
-      if (window.location.hostname === 'localhost') {
-        endpoint = `https://icrpartnership-demo.org${endpoint}`;
-      }
-
       let response = await fetch(endpoint);
       
       /** @type {apiResults} */
@@ -201,8 +196,7 @@ class ProjectViewComponent extends Component {
 
 
         <h5 className="h5">Cancer Types</h5>
-        <ul>
-          {
+        <ul>{
             this.state.results.cancer_types.map((row, rowIndex) => 
               <li key={rowIndex}>{
                 row.cancer_type_url 
@@ -210,17 +204,12 @@ class ProjectViewComponent extends Component {
                 : row.cancer_type
               }</li>
             )
-          }
-        </ul>
+        }</ul>
 
         <h5 className="h5">Common Scientific Outline (CSO) Research Areas</h5>
-        <ul>
-          {this.state.results.cso_research_areas.map((row, rowIndex) => 
+          <ul>{this.state.results.cso_research_areas.map((row, rowIndex) => 
               <li key={rowIndex}><b>{row.cso_code} {row.cso_category}</b> {row.cso_short_name}</li>
-            )
-          }
-        </ul>
-
+        )}</ul>
         </div>}
       </div>
     );
