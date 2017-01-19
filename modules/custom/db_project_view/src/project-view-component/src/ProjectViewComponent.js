@@ -57,7 +57,7 @@ class ProjectViewComponent extends Component {
       }
     ]
   }
-  
+
   state = {
     results: null,
     loading: true,
@@ -75,9 +75,9 @@ class ProjectViewComponent extends Component {
 
   async updateResults(project) {
     try {
-      let endpoint = `/project/get/${project}`;
+      let endpoint = `https://icrpartnership-demo.org/project/get/${project}`;
       let response = await fetch(endpoint);
-      
+
       /** @type {apiResults} */
       let results = await response.json();
 
@@ -116,17 +116,17 @@ class ProjectViewComponent extends Component {
           value: 'location',
         },
       ];
-      
+
       let data = results.project_funding_details.map(row => ({
         project_title: row.project_title,
         project_funding_url: `/project/funding-details/${row.project_funding_id}`,
         project_category: row.award_type,
         funding_organization: row.funding_organization,
         alt_award_code: row.alt_award_code,
-        award_funding_period: (! row.budget_start_date && !row.budget_end_date) 
-              ? 'Not specified'
-              : (row.budget_start_date || 'N/A') + '-'
-              + (row.budget_end_date || 'N/A'),
+        award_funding_period: (!row.budget_start_date && !row.budget_end_date)
+          ? 'Not specified'
+          : (row.budget_start_date || 'N/A') + ' to '
+          + (row.budget_end_date || 'N/A'),
 
         pi_name: [row.pi_last_name, row.pi_first_name].filter(e => e.length).join(', '),
         institution: row.institution,
@@ -149,70 +149,76 @@ class ProjectViewComponent extends Component {
       })
     }
   }
-  
+
   render() {
-    return (
-      <div className="native-font">
-        { ! this.state.loading && <div>
 
-        <h3 className="title margin-right">View Project Details</h3>
-        <h4 className="h4 grey">{ this.state.results.project_details[0].project_title }</h4>
-        <hr className="less-margins" />
+    if (this.state.loading)
+      return <div className="native-font">Loading...</div>
 
-        <dl className="dl-horizontal margin-bottom margin-top">
-          <dt>Award Code</dt>
-          <dd>{ this.state.results.project_details[0].award_code || 'Not specified' }</dd>
+    let project_details = this.state.results.project_details[0];
+    let cancer_types = this.state.results.cancer_types;
+    let cso_research_areas = this.state.results.cso_research_areas;
+    let table = this.state.table;
 
-          <dt>Project Dates</dt>
-          <dd>
-            {
-              (! this.state.results.project_details[0].project_start_date && !this.state.results.project_details[0].project_end_date) 
-              ? 'Not specified'
-              : (this.state.results.project_details[0].project_start_date || 'N/A') + '-'
-              + (this.state.results.project_details[0].project_end_date || 'N/A') 
-            }
-          </dd>
-          <dt>Funding Mechanism</dt>
-          <dd>{ this.state.results.project_details[0].funding_mechanism || 'Not specified' }</dd>
-        </dl>
+    return <div className="native-font">
 
-        <h5 className="h5 margin-top">Award Funding</h5>
+      <h3 className="title margin-right">View Project Details</h3>
+      <h4 className="h4 grey">{ project_details.project_title }</h4>
+      <hr className="less-margins" />
 
-        <DataTable columns={this.state.table.columns} data={this.state.table.data} limit="5"/>
+      <dl className="dl-horizontal margin-bottom margin-top">
+        <dt>Award Code</dt>
+        <dd>{ project_details.award_code || 'Not specified' }</dd>
 
-        {this.state.results.project_details[0].technical_abstract && 
-          <div>
-            <h4>Technical Abstract</h4>
-            <div>{ this.state.results.project_details[0].technical_abstract }</div>
-            <hr />
-          </div>}
+        <dt>Project Dates</dt>
+        <dd>{(project_details.project_start_date || project_details.project_end_date)
+            ? `${project_details.project_start_date || 'N/A'} to ${project_details.project_end_date || 'N/A'}`
+            : 'Not specified'}
+        </dd>
+        <dt>Funding Mechanism</dt>
+        <dd>{project_details.funding_mechanism || 'Not specified'}</dd>
+      </dl>
 
-        {this.state.results.project_details[0].public_abstract && 
-          <div>
-            <h4>Public Abstract</h4>
-            <div>{ this.state.results.project_details[0].public_abstract }</div>
-            <hr />
-          </div>}
+      <h5 className="h5 margin-top">Award Funding</h5>
+      <DataTable columns={ table.columns } data={ table.data } limit="5" />
+
+      { project_details.technical_abstract &&
+        <div>
+          <h4>Technical Abstract</h4>
+          <div>{ project_details.technical_abstract }</div>
+          <hr />
+        </div>
+      }
+
+      { project_details.public_abstract &&
+        <div>
+          <h4>Public Abstract</h4>
+          <div>{ project_details.public_abstract }</div>
+          <hr />
+        </div>
+      }
+
+      <h5 className="h5">Cancer Types</h5>
+      <ul>
+      { 
+        cancer_types.map((row, rowIndex) =>
+          <li key={ rowIndex }>
+          {
+            row.cancer_type_url
+            ? <a href={ row.cancer_type_url } target="_blank">{ row.cancer_type }</a>
+            : row.cancer_type
+          }
+          </li>
+        )
+      }</ul>
+
+      <h5 className="h5">Common Scientific Outline (CSO) Research Areas</h5>
+      <ul>{cso_research_areas.map((row, rowIndex) =>
+        <li key={rowIndex}><b>{row.cso_code} {row.cso_category}</b> {row.cso_short_name}</li>
+      )}</ul>
+    </div>
 
 
-        <h5 className="h5">Cancer Types</h5>
-        <ul>{
-            this.state.results.cancer_types.map((row, rowIndex) => 
-              <li key={rowIndex}>{
-                row.cancer_type_url 
-                ? <a href={row.cancer_type_url} target="_blank">{row.cancer_type}</a>
-                : row.cancer_type
-              }</li>
-            )
-        }</ul>
-
-        <h5 className="h5">Common Scientific Outline (CSO) Research Areas</h5>
-          <ul>{this.state.results.cso_research_areas.map((row, rowIndex) => 
-              <li key={rowIndex}><b>{row.cso_code} {row.cso_category}</b> {row.cso_short_name}</li>
-        )}</ul>
-        </div>}
-      </div>
-    );
   }
 }
 
