@@ -17,8 +17,6 @@ import { UiChartComponent } from './ui-chart/ui-chart.component';
 import { TooltipModule } from 'ng2-bootstrap';
 import { PaginationModule } from 'ng2-bootstrap';
 import { ModalModule } from 'ng2-bootstrap';
-import { EmailResultsButtonComponent } from './email-results-button/email-results-button.component';
-import { ExportResultsButtonComponent } from './export-results-button/export-results-button.component';
 
 @NgModule({
   declarations: [
@@ -30,9 +28,7 @@ import { ExportResultsButtonComponent } from './export-results-button/export-res
     UiPanelComponent,
     UiTreeviewComponent,
     UiTableComponent,
-    UiChartComponent,
-    EmailResultsButtonComponent,
-    ExportResultsButtonComponent
+    UiChartComponent
   ],
   imports: [
     BrowserModule,

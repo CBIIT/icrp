@@ -181,6 +181,61 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     }
   }
   
+  sendEmail(modal: any, modal2: any) {
+    
+    
+    let params = {
+      name:  this.emailForm.controls['name'].value,
+      recipient_email: this.emailForm.controls['recipient_email'].value,
+      personal_message: this.emailForm.controls['personal_message'].value,
+    }
+
+    let endpoint = '/EmailResults';
+    console.log(params);
+    
+    let parameters = new URLSearchParams();
+    for(let key in params){
+	parameters.set(key, params[key]);	    
+    }
+
+    
+    let query = this.http.get(endpoint, {search: parameters})
+        	.map((res: Response) => res.json())
+      		.catch((error: any) => Observable.throw(error.json().error || 'Server error'))
+        	.subscribe(
+        	res => {
+        		modal.hide();
+        		modal2.show();
+    		},
+    		error => {
+    			modal.hide();
+    			modal2.show();
+    			alert("Error");
+    		});
+ 
+  }
+
+
+  
+  downloadResult(modal: any){
+  	modal.show();
+  	let endpoint = '/ExportResults';
+  	let query = this.http.get(endpoint, {})
+        	.map((res: Response) => res.json())
+      		.catch((error: any) => Observable.throw(error || 'Server error'))
+        	.subscribe(
+        	res => {
+        		console.log(res);
+  			window.open(res);
+        		modal.hide();
+       		},
+    		error => {
+    			console.error(error);
+    			modal.hide();
+    			alert("Error");
+    		});
+  }
+  
   fireModalEvent(modal: any) {
     modal.hide();
   }
