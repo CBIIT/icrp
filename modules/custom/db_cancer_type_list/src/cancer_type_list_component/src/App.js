@@ -12,39 +12,29 @@ class App extends Component {
     this.getCancerTypes();
   }
 
-  getCancerTypes() {
+  async getCancerTypes() {
     let protocol = window.location.protocol;
     let hostname = window.location.hostname;
     let pathname = window.location.pathname;
     
-    if (hostname.indexOf('localhost') > -1) {
-      protocol = 'https:';
-      hostname = 'icrpartnership-demo.org';
-      pathname = '/partners/cancer-type-list';
-    }
-
-    fetch(`${protocol}//${hostname}${pathname}/get`, {
-      credentials: 'include'
+    let response = await fetch(`${protocol}//${hostname}${pathname}/get`, {
+ //     credentials: 'include'
     })
-    .then(response => response.json())
-    .then(response => {
 
-      this.setState({
-        data: response, 
-        columns: [
-          {
-            label: 'Cancer Type',
-            value: 'label',
-            link: 'url'
-          },
-          {
-            label: 'Additional Details',
-            value: 'description'
-          }
-        ]
-      })
+    this.setState({
+      data: await response.json(), 
+      columns: [
+        {
+          label: 'Cancer Type',
+          value: 'label',
+          link: 'url'
+        },
+        {
+          label: 'Additional Details',
+          value: 'description'
+        }
+      ]
     })
-    return ;
   }
 
   render() {
