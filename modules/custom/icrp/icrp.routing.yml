@@ -6,7 +6,7 @@ icrp.content:
     _permission: 'TRUE'
 
 icrp.review_user:
-  path: '/user-review/{uuid}'
+  path: '/user-review/old'
   defaults:
     _controller: '\Drupal\icrp\Controller\IcrpController::userReview'
     _title: 'User Review'
@@ -14,9 +14,9 @@ icrp.review_user:
     _permission: 'access content'
 
 icrp.form:
- path: '/resume/myform'
+ path: '/user-review/{uuid}'
  defaults:
-   _title: 'Application form'
-   _form: '\Drupal\icrp\Form\ResumeForm'
+   _title: 'User Review'
+   _form: '\Drupal\icrp\Form\UserReviewForm'
  requirements:
    _permission: 'access content'
