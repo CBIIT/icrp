@@ -20,8 +20,25 @@ export class ExportResultsAbstractsPartnerButtonComponent implements OnInit {
   ngOnInit() {
   }
 
-downloadResultsWithAbstractPartner(modal: any){
-
-}
+  downloadResultsWithAbstractPartner(modal: any){
+  	modal.show();
+  	//let endpoint = 'http://localhost/ExportResultsWithAbstractPartner';
+  	let endpoint = '/ExportResultsWithAbstractPartner';
+  	let query = this.http.get(endpoint, {})
+        	.map((res: Response) => res.json())
+      		.catch((error: any) => Observable.throw(error || 'Server error'))
+        	.subscribe(
+        	res => {
+        		console.log(res);
+        		alert(res);
+  			//window.open(res);
+        		modal.hide();
+       		},
+    		error => {
+    			console.error(error);
+    			modal.hide();
+    			alert("Error");
+    		});
+  }
 
 }

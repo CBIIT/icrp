@@ -19,7 +19,8 @@ export class ExportResultsPartnerButtonComponent implements OnInit {
   
   downloadResultsPartner(modal: any){
   	modal.show();
-  	let endpoint = 'http://localhost/ExportResultsPartner';
+  	//let endpoint = 'http://localhost/ExportResultsPartner';
+  	let endpoint = '/ExportResultsPartner';
   	let query = this.http.get(endpoint, {})
         	.map((res: Response) => res.json())
       		.catch((error: any) => Observable.throw(error || 'Server error'))
