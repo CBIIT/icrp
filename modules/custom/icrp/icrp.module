@@ -35,3 +35,7 @@ function mod_user_login($account) {
     $response->send();
     return;
 }
+function get_user($uuid) {
+    $user = array('first name' => "Chris", 'last_name' => "Kneisler");
+    return $user;
+}

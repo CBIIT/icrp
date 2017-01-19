@@ -21,7 +21,7 @@ export class EmailResultsButtonComponent implements OnInit {
     
     this.emailForm = formbuilder.group({
       name: ['',  Validators.required],   
-      recipient_email: ['', [Validators.required, Validators.pattern(/^([\w+-.%]+@[\w-.]+\.[A-Za-z]{2,4},*[\W]*)+$/)]],
+      recipient_email: ['', [Validators.required, Validators.pattern(/^([\w+-.%]+@[\w-.]+\.[A-Za-z]{2,4},{1}[\W]*)+$/)]],
       personal_message: [''],
     });
     

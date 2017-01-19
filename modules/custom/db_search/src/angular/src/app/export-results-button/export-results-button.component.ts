@@ -32,7 +32,7 @@ export class ExportResultsButtonComponent implements OnInit {
         	.subscribe(
         	res => {
         		console.log(res);
-  			window.open(res, '_BLANK');
+  			document.location.href=res;
         		modal.hide();
        		},
     		error => {
