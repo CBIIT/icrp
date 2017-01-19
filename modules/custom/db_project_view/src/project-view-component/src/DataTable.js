@@ -40,7 +40,7 @@ class DataTable extends Component {
                         ? <a href={row[column.link]} target="_blank">
                             {row[column.value]}
                           </a>
-                        : row[column.value]) || 'Not Specified'}
+                        : row[column.value]) || ''}
                     </td>
                   )}
                 </tr>)}
