@@ -120,11 +120,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
     let endpoint = '/db/public/analytics';
     let host = window.location.hostname;
 
-    if (host === 'localhost') {
-      endpoint = `https://icrpartnership-demo.org${endpoint}`
-    }
-
-
     let params = new URLSearchParams();
     params.set('search_id', this.searchID);
 
@@ -137,10 +132,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
     
     let endpoint = '/db/public/sort_paginate';
     let host = window.location.hostname;
-
-    if (host === 'localhost') {
-      endpoint = `https://icrpartnership-demo.org${endpoint}`
-    }
 
     let params = new URLSearchParams();
 
@@ -179,10 +170,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
     let host = window.location.hostname;
 
     let endpoint = '/db/public/search';
-
-    if (host === 'localhost') {
-      endpoint = `https://icrpartnership-demo.org${endpoint}`
-    }
 
     let params = new URLSearchParams();
 

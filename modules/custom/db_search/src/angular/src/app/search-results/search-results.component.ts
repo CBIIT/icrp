@@ -54,7 +54,6 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     
     this.sort = new EventEmitter<{ "column": string, "type": "asc" | "desc" }>();
     this.paginate = new EventEmitter<{ "size": number, "offset": number }>();
-    
 
     this.analytics = {
       count: 0,
@@ -71,7 +70,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
         link: 'url'
       },
       {
-        label: 'Name',
+        label: 'PI',
         value: `pi_name`,
       },
       {
@@ -79,11 +78,11 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
         value: 'institution'
       },
       {
-        label: 'Country',
+        label: 'Ctry',
         value: 'country'
       },
       {
-        label: 'Funding Organization',
+        label: 'Funding Org.',
         value: 'funding_organization'
       },
       {
@@ -93,13 +92,6 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     ]
 
     this.projectData = [];
-    
-    this.emailForm = formbuilder.group({
-      name: ['',  Validators.required],   
-      recipient_email: ['', [Validators.required, Validators.pattern(/^([\w+-.%]+@[\w-.]+\.[A-Za-z]{2,4},*[\W]*)+$/)]],
-      personal_message: [''],
-    });
-    
   }
 
   ngAfterViewInit() {

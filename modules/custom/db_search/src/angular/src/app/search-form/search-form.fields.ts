@@ -10,7 +10,7 @@ export class SearchFields {
   constructor(private http: Http) {}
   
   getFields(): Observable<Response> {
-    let endpoint: string = 'https://icrpartnership-demo.org/db/public/fields';
+    let endpoint: string = '/db/public/fields';
     return this.http.get(endpoint)
       .map((response: Response) => response.json())
       .catch((error: Response | any) => Observable.throw(error.json().error || 'Server Error'));
