@@ -5,3 +5,27 @@ db_export_results.content:
     _title: 'Project Details'
   requirements:
     _permission: 'access content'
+ 
+db_export_results.partner:
+   path: '/ExportResultsPartner'
+   defaults:
+     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportResultsPartner'
+     _title: 'Project Details'
+   requirements:
+    _permission: 'access content'
+    
+db_export_results.abstract:
+   path: '/ExportResultsWithAbstractPartner'
+   defaults:
+     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportResultsWithAbstractPartner'
+     _title: 'Project Details'
+   requirements:
+    _permission: 'access content'    
+  
+db_export_results.graphs:
+   path: '/ExportResultsWithGraphsPartner'
+   defaults:
+     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportResultsWithGraphsPartner'
+     _title: 'Project Details'
+   requirements:
+    _permission: 'access content' 

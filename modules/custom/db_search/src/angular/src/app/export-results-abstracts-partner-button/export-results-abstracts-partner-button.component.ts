@@ -20,7 +20,7 @@ export class ExportResultsAbstractsPartnerButtonComponent implements OnInit {
   ngOnInit() {
   }
 
-downloadResultsWithAbstractPartner(Modal: any){
+downloadResultsWithAbstractPartner(modal: any){
 
 }
 

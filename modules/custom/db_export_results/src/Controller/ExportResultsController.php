@@ -28,7 +28,6 @@ class ExportResultsController extends ControllerBase {
       return $response;
   }
 
-
   public function exportResults() {
     $database_config = \Drupal::config('icrp_file_export');
   	$config = [];
@@ -44,7 +43,7 @@ class ExportResultsController extends ControllerBase {
     $zipFilename = $filelocation . $fileName;
 
     $sid = $_SESSION['database_search_id'];
-    //$sid = 199;
+    $sid = 199;
 
 	$result = self::createExportData($filelocation, $filenameExport, $sid);
 	$result = self::createSearchCriteria($filelocation, $filenameCriteria, $sid);
@@ -171,6 +170,21 @@ class ExportResultsController extends ControllerBase {
 	$protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"],0,5))=='https://'?'https://':'https://';
 
 	return $protocol.$hostName."/";
+  }
+
+  public function exportResultsPartner(){
+	$result = "Complete Exporting Results in Partner Site";
+	return self::addCorsHeaders(new JSONResponse($result));
+  }
+
+   public function exportResultsWithAbstractPartner(){
+	$result = "Complete Exporting Results with Abstracts in Partner Site";
+	return self::addCorsHeaders(new JSONResponse($result));
+  }
+
+   public function exportResultsWithGraphsPartner(){
+	$result = "Complete Exporting Results with Graphs in Partner Site";
+	return self::addCorsHeaders(new JSONResponse($result));
   }
 
 }

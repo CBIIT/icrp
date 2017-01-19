@@ -20,7 +20,7 @@ export class ExportResultsGraphsPartnerButtonComponent implements OnInit {
   ngOnInit() {
   }
   
-  downloadResultsWithGraphsPartner(Modal: any){
+  downloadResultsWithGraphsPartner(modal: any){
   
   
   }
