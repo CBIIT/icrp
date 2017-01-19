@@ -18,6 +18,8 @@ export class PieChart {
 
         let color = d3.scaleOrdinal(d3.schemeCategory20c);
 
+        let sum = data.map(e => e.value).reduce((a, b) => a + b, 0);
+
         let svg = host
             .attr('width', '100%')
             .attr('viewBox', `0 0 ${size} ${size}` )
@@ -32,7 +34,7 @@ export class PieChart {
                 let index = d.index;
                 let label = data[index].label;
                 let value = data[index].value;
-                tooltip.html(`${label}: ${value} projects`)
+                tooltip.html(`${label}: ${value} projects (${(value/sum).toFixed(2)} %)`)
                 tooltip.transition()
                     .duration(200)
                     .style('opacity', .9);

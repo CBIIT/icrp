@@ -78,7 +78,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
         value: 'institution'
       },
       {
-        label: 'Ctry',
+        label: 'Ctry.',
         value: 'country'
       },
       {

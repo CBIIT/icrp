@@ -24,7 +24,7 @@ table.ui-table > thead > tr > th,
 table.ui-table > tbody > tr > td {
     white-space: nowrap;
     overflow: hidden;
-    max-width: 400px;
+    max-width: 280px;
     border-right: 1px solid #DDD; 
     padding: 4px;
     position: relative;
@@ -35,7 +35,7 @@ table.ui-table > thead > tr > th {
 }
 
 table.ui-table > thead > tr > th:first-child {
-    min-width: 400px;
+    max-width: 400px;
 }
 
 table.ui-table > thead > tr,
