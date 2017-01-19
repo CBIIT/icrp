@@ -388,6 +388,16 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
     return root;
  }
 
+ resetForm() {
+  this.form.reset();
+  // set last two years
+  let years = this.fields.years.filter((field, index) => {
+    if (index < 2)
+      return field;
+  }).map(field => field.value);
+  this.form.controls['years'].patchValue(years);
+ }
+
  ngAfterViewInit(this) {
     new SearchFields(this.http).getFields()
       .subscribe(response => {
