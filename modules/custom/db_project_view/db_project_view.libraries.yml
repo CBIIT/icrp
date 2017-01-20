@@ -10,8 +10,7 @@ project_view_resources:
     theme:
       src/assets/css/main.f2110a2f.css: {}
   js:
-    src/assets/js/main.939ba589.js: {}
+    src/assets/js/main.c4ce3a77.js: {}
     src/assets/js/scripts.js: {}
-    https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit: {external: true}
 
 
