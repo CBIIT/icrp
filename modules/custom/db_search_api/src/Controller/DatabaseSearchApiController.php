@@ -123,9 +123,9 @@ class DatabaseSearchAPIController extends ControllerBase {
 
     foreach(array_keys($input_parameters) as $key) {
       $value = $request->query->get($key);
-      if ($key === 'sort_column') {
-        $value = self::$sort_column_mappings[$value];
-      }
+//      if ($key === 'sort_column') {
+//        $value = self::$sort_column_mappings[$value];
+//      }
 
       if ($value) {
         $input_parameters[$key] = $value;
