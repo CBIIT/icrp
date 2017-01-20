@@ -123,7 +123,7 @@ class DatabaseSearchAPIController extends ControllerBase {
 
     foreach(array_keys($input_parameters) as $key) {
       $value = $request->query->get($key);
-//      if ($key === 'sort_column') {
+//      if ($key == 'sort_column') {
 //        $value = self::$sort_column_mappings[$value];
 //      }
 
@@ -143,14 +143,16 @@ class DatabaseSearchAPIController extends ControllerBase {
       'projects_by_country' => 'SET NOCOUNT ON; EXECUTE GetProjectCountryStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_country',
       'projects_by_cso_research_area' => 'SET NOCOUNT ON; EXECUTE GetProjectCSOStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_cso_research_area',
       'projects_by_cancer_type' => 'SET NOCOUNT ON; EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_cancer_type',
-      'projects_by_type' => 'SET NOCOUNT ON; EXECUTE GetProjectTypeStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_type'
+      'projects_by_type' => 'SET NOCOUNT ON; EXECUTE GetProjectTypeStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_type',
+      'projects_by_year' => 'SET NOCOUNT ON; EXECUTE GetProjectAwardStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_year',
     ];
 
     $output_keys = [
       'projects_by_country' => 'total_projects_by_country',
       'projects_by_cso_research_area' => 'total_projects_by_cso_research_area',
       'projects_by_cancer_type' => 'total_projects_by_cancer_type',
-      'projects_by_type' => 'total_projects_by_type'
+      'projects_by_type' => 'total_projects_by_type',
+      'projects_by_year' => 'total_projects_by_year'
     ];
 
     $output = [
@@ -173,13 +175,20 @@ class DatabaseSearchAPIController extends ControllerBase {
         'results' => [],
         'count' => 0,
       ],
+
+      'projects_by_year' => [
+        'results' => [],
+        'count' => 0,
+      ],
+
     ];
 
     $output_column_labels = [
       'projects_by_country' => 'country',
       'projects_by_cso_research_area' => 'categoryName',
       'projects_by_cancer_type' => 'CancerType',
-      'projects_by_type' => 'ProjectType'
+      'projects_by_type' => 'ProjectType',
+      'projects_by_year' => 'Year',
     ];
 
     foreach(array_keys($queries) as $key) {
