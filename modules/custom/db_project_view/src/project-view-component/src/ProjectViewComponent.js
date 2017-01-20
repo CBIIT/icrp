@@ -173,14 +173,14 @@ class ProjectViewComponent extends Component {
   render() {
 
     if (this.state.loading)
-      return <div className="native-font">Loading...</div>
+      return <div>Loading...</div>
 
     let project_details = this.state.results.project_details[0];
     let cancer_types = this.state.results.cancer_types;
     let cso_research_areas = this.state.results.cso_research_areas;
     let table = this.state.table;
 
-    return <div className="native-font">
+    return <div>
 
       <h3 className="title margin-right">View Project Details</h3>
       <h4 className="h4 grey">{ project_details.project_title }</h4>
