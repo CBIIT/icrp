@@ -6,7 +6,7 @@
 /* Suggested by Lee on 1/18/2017 */
 
 html, body {
-    font-family: "Roboto,Trebuchet MS,Arial,Verdana,Helvetica,sans-serif";
+    font-family: Roboto,Trebuchet MS,Arial,Verdana,Helvetica,sans-serif;
     font-size: 15px;
 }
 h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
@@ -21,6 +21,62 @@ h1 {
     font-weight: normal;
     margin-top: 20px;
 }
+/* CSO Page */
+/* Download block */
+#downloadPanel {
+    width: 210px;
+    float: right;
+    background-color:#FFF;
+    border: 1px solid #cccccc;
+    padding: 10px;
+    line-height: 15px;
+    margin-left: 0px;
+    margin-top: 15px;
+    margin-bottom: 50px;
+    color:#444444;
+    font-size: 12px;
+}
+#downloadTitleBar {
+    background-color:#f0f0f0;
+    font-weight: bold;
+    margin: -10px;
+    margin-bottom: 5px;
+    font-size: 12px;
+    padding:5px;
+    color:#333333;
+}
+#downloadTitleBar img {
+    vertical-align:middle;
+}
+#downloadPanel span {
+
+    margin-top: 0px;
+
+    font-size:80%;
+    float:right;
+    color:#555555;
+}
+#downloadPanel hr {
+    border-style:solid;
+    border-width:1px 0px 0px 0px;
+    border-color:#cccccc;
+    margin-top: 9px;
+    margin-bottom: 8px;
+}
+#downloadPanel a img {
+    border:none;
+    width:16px;
+    height:16px;
+    vertical-align:top;
+    margin-right:5px;
+}
+
+#downloadPanelRegisterButton {
+    margin-top: 20px;
+    margin-bottom: 0px;
+    margin-left: 50px;
+}
+/* END of CSO Page */
 
 /* Authenticated and Anonymous User Menu */
 #block-bootstrap-subtheme-account-menu {

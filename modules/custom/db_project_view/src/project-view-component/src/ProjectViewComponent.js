@@ -75,7 +75,7 @@ class ProjectViewComponent extends Component {
 
   async updateResults(project) {
     try {
-      let endpoint = `https://icrpartnership-demo.org/project/get/${project}`;
+      let endpoint = `/project/get/${project}`;
       let response = await fetch(endpoint);
 
       /** @type {apiResults} */
@@ -150,30 +150,55 @@ class ProjectViewComponent extends Component {
     }
   }
 
+  appendGoogleTranslate() {
+    window.googleTranslateElementInit = 
+    window.googleTranslateElementInit || function() {
+      new window.google.translate.TranslateElement({
+        pageLanguage: 'en', 
+        layout: window.google.translate.TranslateElement.InlineLayout.HORIZONTAL
+      }, 'google_translate_element');
+    }
+
+    let node = document.getElementById('google-translate-script');
+    if (node)
+      document.body.removeChild(node);
+
+    const script = document.createElement('script');
+    script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+    script.async = true;
+    script.id = 'google-translate-script'
+    document.body.appendChild(script);
+  }
+
   render() {
 
     if (this.state.loading)
-      return <div className="native-font">Loading...</div>
+      return <div>Loading...</div>
 
     let project_details = this.state.results.project_details[0];
     let cancer_types = this.state.results.cancer_types;
     let cso_research_areas = this.state.results.cso_research_areas;
     let table = this.state.table;
 
-    return <div className="native-font">
+    return <div>
 
       <h3 className="title margin-right">View Project Details</h3>
       <h4 className="h4 grey">{ project_details.project_title }</h4>
       <hr className="less-margins" />
+      <div id="google_translate_element" className="pull-right"></div>
+      { this.appendGoogleTranslate() }
 
       <dl className="dl-horizontal margin-bottom margin-top">
         <dt>Award Code</dt>
         <dd>{ project_details.award_code || 'Not specified' }</dd>
 
         <dt>Project Dates</dt>
-        <dd>{(project_details.project_start_date || project_details.project_end_date)
-            ? `${project_details.project_start_date || 'N/A'} to ${project_details.project_end_date || 'N/A'}`
-            : 'Not specified'}
+        <dd>
+        {
+          (project_details.project_start_date || project_details.project_end_date)
+          ? `${project_details.project_start_date || 'N/A'} to ${project_details.project_end_date || 'N/A'}`
+          : 'Not specified'
+        }
         </dd>
         <dt>Funding Mechanism</dt>
         <dd>{project_details.funding_mechanism || 'Not specified'}</dd>
@@ -182,7 +207,8 @@ class ProjectViewComponent extends Component {
       <h5 className="h5 margin-top">Award Funding</h5>
       <DataTable columns={ table.columns } data={ table.data } limit="5" />
 
-      { project_details.technical_abstract &&
+      {
+        project_details.technical_abstract &&
         <div>
           <h4>Technical Abstract</h4>
           <div>{ project_details.technical_abstract }</div>
@@ -190,7 +216,8 @@ class ProjectViewComponent extends Component {
         </div>
       }
 
-      { project_details.public_abstract &&
+      {
+        project_details.public_abstract &&
         <div>
           <h4>Public Abstract</h4>
           <div>{ project_details.public_abstract }</div>
@@ -210,162 +237,21 @@ class ProjectViewComponent extends Component {
           }
           </li>
         )
-      }</ul>
+      }
+      </ul>
 
       <h5 className="h5">Common Scientific Outline (CSO) Research Areas</h5>
-      <ul>{cso_research_areas.map((row, rowIndex) =>
-        <li key={rowIndex}><b>{row.cso_code} {row.cso_category}</b> {row.cso_short_name}</li>
-      )}</ul>
+      <ul>
+      {
+        cso_research_areas.map((row, rowIndex) =>
+          <li key={rowIndex}>
+            <b>{ row.cso_code } { row.cso_category }</b> { row.cso_short_name }
+          </li>
+        )
+      }
+      </ul>
     </div>
-
-
   }
 }
 
 export default ProjectViewComponent;
-
-/**
- *  project_funding_details: [
-      {
-        project_funding_id: null,
-        project_title: null,
-        pi_last_name: null,
-        pi_first_name: null,
-        institution: null,
-        city: null,
-        state: null,
-        country: null,
-        award_type: null,
-        alt_award_code: null,
-        funding_organization: null,
-        budget_start_date: null,
-        budget_end_date: null,
-      }
-    ],
- */
-
-
-/**
-
-<div class="native-font">
-
-{% if project_details %}
-<h3 class="title margin-right">View Project Details</h3>
-<h4 class="h4 grey">{{ project_details.project_title | raw }}</h4>
-<hr class="less-margins">
-
-<dl class="dl-horizontal margin-bottom margin-top">
-  <dt>Award Code</dt>
-  <dd>{{ project_details.award_code | default('Not specified')}}</dd>
-
-  <dt>Project Dates</dt>
-  <dd>
-    {% if project_details.project_start_date or project_details.project_end_date %}
-      {{ project_details.project_start_date | default('N/A') | raw }}
-      to {{ project_details.project_end_date | default('N/A') | raw }}
-    {% else %}
-      <i>Not specified</i>
-    {% endif %}
-  <dt>Funding Mechanism</dt>
-  <dd>{{ project_details.funding_mechanism | default('Not specified')}}</dd>
-</dl>
-
-<h5 class="h5 margin-top" style="margin-top: 20px">Award Funding</h4>
-<div class="table-responsive margin-top">
-  <table class="project-funding-details">
-    <thead>
-      <tr>
-        <th class="limited-width">Title</th>
-        <th>Category</th> 
-        <th>Funding Org.</th>
-        <th>Alt Award Code</th>
-        <th>Award Funding Period</th>
-        <th>PI</th>
-        <th class="limited-width">Institution</th>
-        <th>Location</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in project_funding_details %}
-        <tr>
-          <td class="limited-width">
-            <a href="/project/funding-details/{{ row.project_funding_id }}" target="_blank">
-              {{ row.project_title | default('Not specified') | raw }}
-            </a>
-          </td>
-          <td>{{ row.award_type | default('Not specified') | raw }}</td>
-
-          <td>{{ row.funding_organization | default('Not specified') | raw }}</td>
-          <td>{{ row.alt_award_code | default('Not specified') | raw }}</td>
-          <td>
-            {% if row.budget_start_date or row.budget_end_date %}
-              {{ row.budget_start_date | default('N/A') | raw }}
-              to {{ row.budget_end_date | default('N/A') | raw }}
-            {% else %}
-              <i>Not specified</i>
-            {% endif %}
-          </td>
-          
-          <td>{{ row.pi_last_name ~ ', ' ~ row.pi_first_name }}</td>
-          <td class="limited-width">{{ row.institution | default('Not specified') | raw }}</td>
-          <td>{{ (row.city ? row.city ~ ', ') ~
-                 (row.state ? row.state ~ ', ') ~
-                  row.country }}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-
-<div id="google_translate_element" style="text-align: right"></div><script type="text/javascript">
-function googleTranslateElementInit() {
-  new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL}, 'google_translate_element');
-}
-</script><script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-        
-
-{% if project_details.technical_abstract %}
-<h4>Technical Abstract</h4>
-<div>{{ project_details.technical_abstract | raw }}</div>
-<hr>
-{% endif %}
-
-{% if project_details.public_abstract %}
-<h4>Public Abstract</h4>
-<div>{{ project_details.public_abstract | raw }}</div>
-<hr>
-{% endif %}
-
-<h5 class="h5">Cancer Types</h5>
-<ul>
-  {% for row in cancer_types %}
-  <li>
-    {% if row.cancer_type_url %}
-      <a href="{{ row.cancer_type_url }}" target="_blank">{{ row.cancer_type }}</a>
-    {% else %}
-      {{ row.cancer_type }}
-    {% endif %}
-  </li>
-  {% endfor %}
-</ul>
-
-<h5 class="h5">Common Scientific Outline (CSO) Research Areas</h5>
-<ul>
-  {% for row in cso_research_areas %}
-  <li>
-
-  </li>
-  {% endfor %}
-</ul>
-
-
-{% else %}
-  <i>No project information found</i>
-{% endif %}
-
-</div>
-
-
-
-
- */
