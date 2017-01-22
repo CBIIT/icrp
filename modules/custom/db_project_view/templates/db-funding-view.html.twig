@@ -1,0 +1,59 @@
+{% spaceless %}
+{% autoescape true %}
+
+<div class="native-font">
+
+{% if funding_details %}
+<h3 class="title margin-right">View Project Funding</h3>
+<h4 class="h4 grey">{{ funding_details.project_title | raw }}</h4>
+<hr class="less-margins">
+
+<dl class="dl-horizontal margin-bottom margin-top">
+  <dt>AltAward Code</dt>
+  <dd>{{ funding_details.alt_award_code | default('Not specified')}}</dd>
+  <dt>Funding Organization</dt>
+  <dd>{{ funding_details.funding_organization  | default('Not specified')}}</dd>
+  <dt>Budget Dates</dt>
+  <dd>
+    {% if funding_details.budget_start_date or funding_details.budget_end_date %}
+      {{ funding_details.budget_start_date | default('N/A') | raw }}
+      to {{ funding_details.budget_end_date | default('N/A') | raw }}
+    {% else %}
+      <i>Not specified</i>
+    {% endif %}
+  <dt>Principle Investigator</dt>
+  <dd>{{ funding_details.pi_name | default('Not specified')}}</dd>
+  <dt>Institution</dt>
+  <dd>{{ funding_details.institution | default('Not specified')}}</dd>
+  <dt>Location</dt>
+  <dd>{{ funding_details.city | default('Not specified')}},
+  {{ funding_details.state | default('Not specified')}},
+  {{ funding_details.country | default('Not specified')}}</dd>
+</dl>
+
+
+<div id="google_translate_element" style="text-align: right"></div><script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL}, 'google_translate_element');
+}
+</script><script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+        
+
+{% if funding_details.technical_abstract %}
+<h4>Technical Abstract</h4>
+<div>{{ funding_details.technical_abstract | raw }}</div>
+<hr>
+{% endif %}
+
+{% if funding_details.public_abstract %}
+<h4>Public Abstract</h4>
+<div>{{ funding_details.public_abstract | raw }}</div>
+<hr>
+{% endif %}
+{% endif %}
+
+
+</div>
+
+{% endautoescape %}
+{% endspaceless %}
