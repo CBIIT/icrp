@@ -25,7 +25,7 @@ db_search.search_database:
 db_search.partners.authenticate:
   path: '/search-database/partners/authenticate'
   defaults:
-    _controller: '\Drupal\db_search\Controller\DbSearchController::content'
+    _controller: '\Drupal\db_search\Controller\DbSearchController::authenticate'
   requirements:
     _permission: 'access content'
     _role: 'authenticated'
