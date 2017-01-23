@@ -1,0 +1,11 @@
+name: Recovery Password
+description: Provides Option to send Recovery Password in the email itself.
+# core: 8.x
+type: module
+configure: recover_pass.admin_config
+
+# Information added by Drupal.org packaging script on 2016-06-05
+version: '8.x-1.0'
+core: '8.x'
+project: 'recovery_pass'
+datestamp: 1465110240

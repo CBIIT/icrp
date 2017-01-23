@@ -1,0 +1,47 @@
+<?php
+/**
+ * @file
+ * Install, update, and uninstall functions for the Recovery Password module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function recovery_pass_schema() {
+  $schema['recovery_pass'] = array(
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'UID of user.',
+      ),
+      'old_pass' => array(
+        'type' => 'varchar',
+        'not null' => TRUE,
+        'length' => 255,
+        'description' => 'stores temp old pass',
+      ),
+      'changed' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'stores request created time',
+      ),
+    ),
+    'primary key' => array('id'),
+    'foreign keys' => array(
+      'recovery_pass_uid' => array(
+        'table' => 'users',
+        'columns' => array('uid' => 'uid'),
+      ),
+    ),
+  );
+  return $schema;
+}
