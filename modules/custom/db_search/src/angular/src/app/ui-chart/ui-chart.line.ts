@@ -10,12 +10,14 @@ export class LineChart {
             label: +el.label
         })).sort((a, b) => a.label - b.label);
 
+        console.log('parsed data', parsedData);
+
         let host = d3.select(element);
         let tooltip = d3.select(tooltipEl)
             .attr('class', 'd3-tooltip')
             .style('opacity', 0);
 
-        let margin = {top: 20, right: 20, bottom: 30, left: 50};
+        let margin = {top: 20, right: 20, bottom: 60, left: 80};
         let width = 1000 - margin.left - margin.right;
         let height = 300 - margin.top - margin.bottom;
 
@@ -33,34 +35,74 @@ export class LineChart {
             .rangeRound([height, 0])
             .domain(d3.extent(parsedData, (d: any) => d.value));
         
-        var line: any = d3.line()
+        var line: any = d3.area()
             .x(d => x(+d['label']))
-            .y(d => y(+d['value']));
+            .y0(height)
+            .y1(d => y(+d['value']));
 
         g.append("g")
             .attr("transform", "translate(0," + height + ")")
             .call(d3.axisBottom(x).tickFormat(d3.format('d')))
-            .select(".domain")
-            .remove();
+            .append("text")
+            .attr("fill", "#000")
+            .attr("x", width / 2)
+            .attr("y", 30)
+            .attr("dy", "0.71em")
+            .attr("text-anchor", "middle")
+            .text("Year");
+
+
+//            .select(".domain")
+//            .remove();
 
         g.append("g")
             .call(d3.axisLeft(y))
             .append("text")
             .attr("fill", "#000")
             .attr("transform", "rotate(-90)")
-            .attr("y", 6)
+            .attr("x", height / -2)
+            .attr("y", -60)
             .attr("dy", "0.71em")
-            .attr("text-anchor", "end")
+            .attr("text-anchor", "middle")
             .text("Number of Projects");
 
         g.append("path")
-            .datum(data)
-            .attr("fill", "none")
+            .datum(parsedData)
+            .attr("fill", "#3498DB")
             .attr("stroke", "steelblue")
             .attr("stroke-linejoin", "round")
             .attr("stroke-linecap", "round")
             .attr("stroke-width", 1.5)
             .attr("d", line);
+
+        parsedData.forEach(point => {
+            g.append('circle')
+                .attr('fill', '#34495E')
+                .attr('opacity', '0.85')
+                .attr('r', '2px')
+                .attr('cx', x(point['label']))
+                .attr('cy', y(point['value']))
+                .on('mouseover', d => {
+                    let label = point.label;
+                    let value = point.value;
+                    tooltip.html(`${label}: ${value} projects`)
+                    tooltip.transition()
+                        .duration(200)
+                        .style('opacity', .9);
+                
+                })
+                .on('mousemove', d => {
+                    var xoffset = (d3.event.pageX / window.outerWidth > 0.7) ? -165 : 5;
+                    tooltip
+                        .style('left', (d3.event.pageX + 10) + 'px')
+                        .style('top', (d3.event.pageY + 10 - window.scrollY) + 'px')
+                })
+                .on('mouseout', d => {
+                    tooltip.transition()
+                        .duration(300)
+                        .style('opacity', 0);
+                })
+        })
     }
 
     /**

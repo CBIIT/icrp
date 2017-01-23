@@ -29,6 +29,9 @@ export class UiChartComponent implements OnChanges, AfterViewInit {
   constructor() {}
 
   drawChart() {
+
+    this.svg.nativeElement.innerHTML = '';
+
     if (this.type === 'pie') {
       new PieChart().draw(
         this.svg.nativeElement, 
