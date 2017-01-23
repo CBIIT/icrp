@@ -26,8 +26,13 @@
   <dt>Institution</dt>
   <dd>{{ funding_details.institution | default('Not specified')}}</dd>
   <dt>Location</dt>
-  <dd>{{ funding_details.city | default('Not specified')}},
-  {{ funding_details.state | default('Not specified')}},
+  <dd>
+    {% if funding_details.city %}
+     {{ funding_details.city }}, 
+    {% endif %}
+    {% if funding_details.state %}
+     {{ funding_details.state }}, 
+    {% endif %}
   {{ funding_details.country | default('Not specified')}}</dd>
 </dl>
 
