@@ -92,13 +92,14 @@ export class SearchComponent implements OnInit, AfterViewInit {
         'projects_by_country', 
         'projects_by_cso_research_area', 
         'projects_by_cancer_type', 
-        'projects_by_type']) {
+        'projects_by_type',
+        'projects_by_year']) {
           if (response[category]) {
             for (let key in response[category]) {
               this.analytics[category] = response[category]['results'];
             }
 
-            this.analytics[category].sort((a, b) => +b.value - +a.value);
+              this.analytics[category].sort((a, b) => +b.value - +a.value);
           }
       }
     }

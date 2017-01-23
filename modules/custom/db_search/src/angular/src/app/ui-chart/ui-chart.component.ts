@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 
 import { PieChart } from './ui-chart.pie';
+import { LineChart } from './ui-chart.line';
 import * as d3 from 'd3';
 
 @Component({
@@ -33,7 +34,15 @@ export class UiChartComponent implements OnChanges, AfterViewInit {
         this.svg.nativeElement, 
         this.tooltip.nativeElement,
         this.data);
+    } else if (this.type === 'line') {
+      new LineChart().draw(
+        this.svg.nativeElement, 
+        this.tooltip.nativeElement,
+        this.data);
     }
+
+
+
   }
 
   /** Redraw chart on changes */  

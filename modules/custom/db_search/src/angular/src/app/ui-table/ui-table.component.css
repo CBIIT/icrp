@@ -2,7 +2,7 @@ div.ui-table-wrapper {
     overflow-x: auto;
     position: relative;
     width: 100%;
-    border: 1px solid #AAA;
+    border: 1px solid #DDD;
 }
 
 table.ui-table {

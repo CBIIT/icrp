@@ -195,6 +195,19 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
       delete parameters['search_type'];
     }
 
+    if (parameters['funding_organizations']) {
+      parameters['funding_organizations'] = 
+        parameters['funding_organizations']
+        .filter(value => !isNaN(value))
+    }
+
+    if (parameters['cso_research_areas']) {
+      parameters['cso_research_areas'] = 
+        parameters['cso_research_areas']
+        .filter(value => !isNaN(value))
+    }
+
+
     this.search.emit(parameters)
     this.mappedSearch.emit(this.mapSearch(parameters))
   }

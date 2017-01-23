@@ -40,6 +40,8 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   showCriteria: boolean;
   searchCriteriaGroups: {"category": string, "criteria": string[], "type": string}[];
 
+  showExtendedCharts = false;
+
   projectData;
   projectColumns;
 

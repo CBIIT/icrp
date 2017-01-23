@@ -3,7 +3,7 @@ div.search-criteria-summary {
     border: 1px solid #DDD;
     font-weight: bold;
     cursor: pointer;
-
+    background: linear-gradient(#FFF, #DEDEDE);
 }
 
 

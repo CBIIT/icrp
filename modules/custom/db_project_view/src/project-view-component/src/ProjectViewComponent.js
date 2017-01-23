@@ -80,7 +80,7 @@ class ProjectViewComponent extends Component {
 
       /** @type {apiResults} */
       let results = await response.json();
-
+    
       let columns = [
         {
           label: 'Title',

@@ -28,7 +28,7 @@
   </div>
   </div>
 
-  <div class="col-md-3">
+  <div class="col-sm-3">
     <ui-chart
       label="Projects by Country"
       type="pie"
@@ -36,7 +36,7 @@
     </ui-chart>
   </div>
 
-  <div class="col-md-3">
+  <div class="col-sm-3">
     <ui-chart
       label="Projects by CSO"
       type="pie"
@@ -44,14 +44,14 @@
     </ui-chart>
   </div>
 
-  <div class="col-md-3">
+  <div class="col-sm-3">
     <ui-chart
       label="Projects by Cancer Type"
       type="pie"
       [data]="(analytics && analytics.projects_by_cancer_type) || []"></ui-chart>
   </div>
 
-  <div class="col-md-3">
+  <div class="col-sm-3">
     <ui-chart
       label="Projects by Type"
       type="pie"
@@ -59,6 +59,21 @@
   </div>
 </div>
 
+<div class="row" *ngIf="showExtendedCharts" style="margin-top: 10px">
+  <div class="col-sm-12">
+    <ui-chart
+      label="Projects by Year"
+      type="line"
+      [data]="(analytics && analytics.projects_by_year) || []"></ui-chart>
+  </div>
+</div>
+
+<div class="text-center">
+  <button class="btn btn-default btn-sm" (click)="showExtendedCharts = !showExtendedCharts">
+    Show {{showExtendedCharts ? 'Less' : 'More'}} Charts
+  </button>
+
+<hr>
 
 <div class="row" style="margin-top: 8px; margin-bottom: 5px;">
   <email-results-button></email-results-button>
