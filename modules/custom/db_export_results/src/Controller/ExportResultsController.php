@@ -33,7 +33,7 @@ class ExportResultsController extends ControllerBase {
     $sid = $_SESSION['database_search_id'];
     //$sid = 3;
 
-  	$config = getConfig();
+  	$config = self::getConfig();
     $filelocation = $config['file_location'];
     $downloadlocation = self::getBaseUrl() .  $config['download_location'];
     $filenameExport  = 'export-'.$sid.'.csv';
