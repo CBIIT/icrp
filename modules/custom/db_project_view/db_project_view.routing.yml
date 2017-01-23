@@ -24,14 +24,6 @@ db_project_view.project_funding_details:
     _permission: 'access content'
     project_id: '[0-9]{1,9}'
 
-db_project_view.project_funding_details.get:
-  path: '/project/funding-details/get/{project_id}'
-  defaults:
-    _controller: '\Drupal\db_project_view\Controller\ProjectViewController::getProjectFundingDetails'
-  requirements:
-    _permission: 'access content'
-    project_id: '[0-9]{1,9}'
-
 db_project_view.content_deprecated:
   path: '/ViewProject/{project_id}'
   defaults:
@@ -40,3 +32,19 @@ db_project_view.content_deprecated:
   requirements:
     _permission: 'access content'
     project_id: '[0-9]{1,9}'
+db_project_view.get_funding_org:
+  path: '/getFundingOrg'
+  defaults:
+    _controller: '\Drupal\db_project_view\Controller\FundingOrgController::getFundingOrg'
+    _title: 'Project Details'
+  requirements:
+    _permission: 'access content'
+
+db_project_view.funding_org:
+  path: '/FundingOrgs'
+  defaults:
+    _controller: '\Drupal\db_project_view\Controller\FundingOrgController::getFundingOrgContent'
+    _title: 'Funding Organizations'
+  requirements:
+    _permission: 'access content'
+

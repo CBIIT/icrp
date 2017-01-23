@@ -50,6 +50,26 @@ class ProjectViewController extends ControllerBase {
     ],
   ];
 
+
+  const FUNDING_FIELD_MAP = [
+    'project_funding_details' => [
+      'Title' => 'project_title',
+      'piName' => 'pi_name',
+      'Institution' => 'institution',
+      'City' => 'city',
+      'State' => 'state',
+      'Country' => 'country',
+      'AwardType' => 'award_type',
+      'AltAwardCode' => 'alt_award_code',
+      'FundingOrg' => 'funding_organization',
+      'BudgetStartDate' => 'budget_start_date',
+      'BudgetEndDate' => 'budget_end_date',
+      'TechAbstract' => 'technical_abstract',
+      'PublicAbstract' => 'public_abstract',
+    ],
+  ];
+
+
   /**
    * Returns a PDO connection to a database
    * @param $cfg - An associative array containing connection parameters 
@@ -141,8 +161,32 @@ class ProjectViewController extends ControllerBase {
   }
 
 
-  public function getProjectFundingDetails() {
-    
+  public function get_funding($funding_id) {
+    $pdo = self::get_connection();
+
+    $queries = [
+      'project_funding_details' => 'GetProjectFundingDetail :funding_id',
+    ];
+
+    // map queries to return values
+    return array_reduce(
+      array_map(function($key, $value) use ($pdo, $funding_id) {
+        $stmt = $pdo->prepare($value);
+        $stmt->execute([':funding_id' => $funding_id]);
+
+        // map the result of each query to each template key
+        return [$key => array_map(function($row) use ($key) {
+
+          // map each field in the row to a template variable
+          return array_reduce(
+            array_map(function($row_key, $row_value) use ($key) {
+                return [self::FUNDING_FIELD_MAP[$key][$row_key] => $row_value];
+            }, array_keys($row), $row)
+          , 'array_merge', []);
+        }, $stmt->fetchAll(PDO::FETCH_ASSOC))];
+      }, array_keys($queries), $queries),
+    'array_merge', []);
+
   }
 
 
@@ -176,7 +220,17 @@ class ProjectViewController extends ControllerBase {
     ];
   }
 
-  public function getProjectFundingDetailsContent() {
+  public function getProjectFundingDetailsContent($project_id) {
+    $results = self::get_funding($project_id);
+    return [
+      '#theme' => 'db_funding_view',
+      '#funding_details' => $results['project_funding_details'][0],
+      '#attached' => [
+        'library' => [
+          'db_project_view/resources'
+        ],
+      ],
+    ];
 
   }
 }

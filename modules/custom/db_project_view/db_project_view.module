@@ -22,6 +22,19 @@ function db_project_view_theme($existing, $type, $theme, $path) {
           'project_id' => NULL,
         ),
     ),
+    'db_funding_view' => array(
+      'variables' => array(
+          'funding_details' => NULL
+        ),
+    ),
+    'project_view_component' => array(
+      'variables' => array(
+          'project_id' => NULL,
+        ),
+    ),
+    'funding_org_view' => array (
+      'variables' => array (),
+    ),
   );
 }
 
