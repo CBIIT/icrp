@@ -50,7 +50,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
     .then(response => response.text())
     .then(response => {
       this.loggedIn = (response === 'authenticated');
-      console.log('user is authenticated', this.loggedIn);
     });
   }
 

@@ -69,16 +69,16 @@
 </div>
 
 <div class="text-center">
-  <button class="btn btn-default btn-xs" (click)="showExtendedCharts = !showExtendedCharts">
+  <button class="btn btn-default btn-xs" (click)="showExtendedCharts = !showExtendedCharts" [disabled]="loadingAnalytics">
     Show {{showExtendedCharts ? 'Less' : 'More'}} Charts
   </button>
 </div>
 
 <div class="row" style="margin-top: 8px; margin-bottom: 5px;">
-  <email-results-button></email-results-button>
-  <export-results-button></export-results-button>
+  <email-results-button *ngIf="!authenticated"></email-results-button>
+  <export-results-button *ngIf="!authenticated"></export-results-button>
 
-
+  <email-results-partner-button *ngIf="authenticated"></email-results-partner-button>
   <export-results-partner-button *ngIf="authenticated"></export-results-partner-button>
   <export-results-abstracts-partner-button *ngIf="authenticated"></export-results-abstracts-partner-button>
   <export-results-graphs-partner-button *ngIf="authenticated"></export-results-graphs-partner-button>

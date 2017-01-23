@@ -22,6 +22,7 @@ import { ExportResultsButtonComponent } from './export-results-button/export-res
 import { ExportResultsPartnerButtonComponent } from './export-results-partner-button/export-results-partner-button.component';
 import { ExportResultsAbstractsPartnerButtonComponent } from './export-results-abstracts-partner-button/export-results-abstracts-partner-button.component';
 import { ExportResultsGraphsPartnerButtonComponent } from './export-results-graphs-partner-button/export-results-graphs-partner-button.component';
+import { EmailResultsPartnerButtonComponent } from './email-results-partner-button/email-results-partner-button.component';
 
 @NgModule({
   declarations: [
@@ -38,7 +39,8 @@ import { ExportResultsGraphsPartnerButtonComponent } from './export-results-grap
     ExportResultsButtonComponent,
     ExportResultsPartnerButtonComponent,
     ExportResultsAbstractsPartnerButtonComponent,
-    ExportResultsGraphsPartnerButtonComponent
+    ExportResultsGraphsPartnerButtonComponent,
+    EmailResultsPartnerButtonComponent
   ],
   imports: [
     BrowserModule,
