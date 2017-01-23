@@ -25,7 +25,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   authenticated: boolean;
 
   constructor(private http: Http) {
-    this.authenticated = true;
+    this.authenticated = false;
     this.searchID = null;
     this.loadingAnalytics = true;
     this.loading = true;
@@ -48,7 +48,11 @@ export class SearchComponent implements OnInit, AfterViewInit {
       credentials: 'include'
     })
     .then(response => response.text())
-    .then(response => console.log('results of authentication check', response));
+    .then(response => {
+      console.log('results of authentication check', response)
+
+      this.authenticated = (response === 'authenticated');
+    });
   }
 
   updateMappedParameters(event: Object) {
@@ -131,7 +135,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   queryServerAnalytics(parameters: Object): Observable<any[]> {
-    let endpoint = 'https://icrpartnership-demo.org/db/public/analytics';
+    let endpoint = '/db/public/analytics';
     let host = window.location.hostname;
 
     let params = new URLSearchParams();
@@ -144,7 +148,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   resultsSortPaginate(parameters: Object) {
     
-    let endpoint = 'https://icrpartnership-demo.org/db/public/sort_paginate';
+    let endpoint = '/db/public/sort_paginate';
     let host = window.location.hostname;
 
     let params = new URLSearchParams();
@@ -183,7 +187,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     let protocol = window.location.protocol;
     let host = window.location.hostname;
 
-    let endpoint = 'https://icrpartnership-demo.org/db/public/search';
+    let endpoint = '/db/public/search';
 
     let params = new URLSearchParams();
 

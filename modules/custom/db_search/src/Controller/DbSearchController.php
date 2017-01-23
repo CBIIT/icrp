@@ -22,6 +22,6 @@ class DbSearchController {
   }
 
   public function authenticate() {
-    return new Reponse('authenticated');
+    return new Response('authenticated');
   }
 }
