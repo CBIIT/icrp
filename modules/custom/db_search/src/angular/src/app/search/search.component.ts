@@ -22,7 +22,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   loading: boolean;
   loadingAnalytics: boolean;
   analytics: any;
-  authenticated: boolean;
+  loggedIn: boolean;
 
   constructor(private http: Http) {
     this.authenticated = false;
@@ -49,9 +49,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
     })
     .then(response => response.text())
     .then(response => {
-      console.log('results of authentication check', response)
-
-      this.authenticated = (response === 'authenticated');
+      this.loggedIn = (response === 'authenticated');
+      console.log('user is authenticated', this.loggedIn);
     });
   }
 
