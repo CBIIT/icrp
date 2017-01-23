@@ -72,9 +72,9 @@ RUN { \
 } | tee "/etc/httpd/conf.d/docker-php.conf"
 
 RUN { \
-    echo "<filesMatch \"\.(js|html|css)$\""                    ;  \
-    echo "    SetOutputFilter DEFLATE"                         ;  \
-    echo "</filesMatch>"                                       ;  \
+    echo "<filesMatch \"\.(js|html|css)$\""                    ; \
+    echo "    SetOutputFilter DEFLATE"                         ; \
+    echo "</filesMatch>"                                       ; \
 } | tee "/etc/httpd/conf.d/deflate.conf"
 
 RUN { \
