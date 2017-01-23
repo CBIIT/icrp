@@ -30,16 +30,18 @@ class ExportResultsController extends ControllerBase {
 
   public function exportResults() {
 
+    $sid = $_SESSION['database_search_id'];
+    //$sid = 3;
+
   	$config = getConfig();
     $filelocation = $config['file_location'];
     $downloadlocation = self::getBaseUrl() .  $config['download_location'];
-    $filenameExport  = 'export-'.date('Y-m-d_H.i.s').'.csv';
-    $filenameCriteria = 'searchCriteria-'.date('Y-m-d_H.i.s').'.csv';
-    $fileName = 'export-'.date('Y-m-d_H.i.s').'.zip';
+    $filenameExport  = 'export-'.$sid.'.csv';
+    $filenameCriteria = 'searchCriteria-'.$sid.'.csv';
+    $fileName = 'export-'.$sid.'.zip';
     $zipFilename = $filelocation . $fileName;
 
-    $sid = $_SESSION['database_search_id'];
-    //$sid = 3;
+
 
 	$result = self::createExportData($filelocation, $filenameExport, $sid);
 	$result = self::createSearchCriteria($filelocation, $filenameCriteria, $sid);
@@ -178,19 +180,21 @@ class ExportResultsController extends ControllerBase {
   }
 
   public function exportResultsPartner(){
+    $sid = $_SESSION['database_search_id'];
+    //$sid = 3;
+
 	$result = "Complete Exporting Results in Partner Site";
 	$config = self::getConfig();
  	$filelocation = $config['file_location'];
  	$downloadlocation = self::getBaseUrl() .  $config['download_location'];
-    $filenameExport  = 'export-'.date('Y-m-d_H.i.s').'.csv';
-    $filenameCriteria = 'searchCriteria-'.date('Y-m-d_H.i.s').'.csv';
-    $filenameCSO = 'exportCSO-'.date('Y-m-d_H.i.s').'.csv';
-    $filenameCancerType = 'export-Cancer-type-'.date('Y-m-d_H.i.s').'.csv';
-    $fileName = 'export-partner-site-'.date('Y-m-d_H.i.s').'.zip';
+    $filenameExport  = 'export-'.$sid.'.csv';
+    $filenameCriteria = 'searchCriteria-'.$sid.'.csv';
+    $filenameCSO = 'export'.$sid.'CSO.csv';
+    $filenameCancerType = 'export-'.$sid.'CancerType.csv';
+    $fileName = 'export-'.$sid.'-PartnerSite.zip';
     $zipFilename = $filelocation . $fileName;
 
-    $sid = $_SESSION['database_search_id'];
-    //$sid = 3;
+
 
     $result = self::createExportDataforPartnerSite($filelocation, $filenameExport, $sid, false);
     $result = self::createSearchCriteria($filelocation, $filenameCriteria, $sid);
@@ -331,19 +335,20 @@ class ExportResultsController extends ControllerBase {
   }
 
   public function exportResultsWithAbstractPartner(){
+    $sid = $_SESSION['database_search_id'];
+    //$sid = 3;
+
 	$result = "Complete Exporting Results in Partner Site";
 	$config = self::getConfig();
  	$filelocation = $config['file_location'];
  	$downloadlocation = self::getBaseUrl() .  $config['download_location'];
-    $filenameExport  = 'export-'.date('Y-m-d_H.i.s').'.csv';
-    $filenameCriteria = 'searchCriteria-'.date('Y-m-d_H.i.s').'.csv';
-    $filenameCSO = 'exportCSO-'.date('Y-m-d_H.i.s').'.csv';
-    $filenameCancerType = 'export-Cancer-type-'.date('Y-m-d_H.i.s').'.csv';
-    $fileName = 'export-partner-site-with-abstracts-'.date('Y-m-d_H.i.s').'.zip';
+    $filenameExport  = 'export-'.$sid.'.csv';
+    $filenameCriteria = 'searchCriteria-'.$sid.'.csv';
+    $filenameCSO = 'export-'.$sid.'CSO.csv';
+    $filenameCancerType = 'export-'.$sid.'CancerType.csv';
+    $fileName = 'export-'.$sid.'-partner-site-with-abstracts.zip';
     $zipFilename = $filelocation . $fileName;
 
-    $sid = $_SESSION['database_search_id'];
-    $sid = 3;
 
     $result = self::createExportDataforPartnerSite($filelocation, $filenameExport, $sid, true);
     $result = self::createSearchCriteria($filelocation, $filenameCriteria, $sid);
