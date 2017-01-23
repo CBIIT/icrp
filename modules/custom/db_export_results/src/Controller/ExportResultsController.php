@@ -192,7 +192,7 @@ class ExportResultsController extends ControllerBase {
     $sid = $_SESSION['database_search_id'];
     //$sid = 3;
 
-    $result = self::createExportDataforPartnerSite($filelocation, $filenameExport, $sid);
+    $result = self::createExportDataforPartnerSite($filelocation, $filenameExport, $sid, false);
     $result = self::createSearchCriteria($filelocation, $filenameCriteria, $sid);
     $result = self::createExportDataForPartnerSiteCSO($filelocation, $filenameCSO, $sid);
     $result = self::createExportDataForPartnerSite_Site($filelocation, $filenameCancerType, $sid);
@@ -280,7 +280,7 @@ class ExportResultsController extends ControllerBase {
 	return $result;
   }
 
-  private function createExportDataforPartnerSite($filelocation, $filename, $sid){
+  private function createExportDataforPartnerSite($filelocation, $filename, $sid, $withAbstract){
   	 try {
 	   $conn = self::getConnection();
   	 } catch (Exception $exc) {
@@ -302,14 +302,22 @@ class ExportResultsController extends ControllerBase {
 		for($i = 2000; $i < $currentYear; $i++){
 			fwrite($data,",".$i);
 		}
-		fwrite($data,",Currency,To Currency,To Currency Rate,Funding Mechanism,Funding Mechanism Code,Funding Org,Funding Div,Funding Div Abbr,Funding Contact,PI First Name,PI Last Name,PI ORC ID,Instutition,City,State,Country,View In ICRP\n");
+		if($withAbstract){
+			fwrite($data,",Currency,To Currency,To Currency Rate,Funding Mechanism,Funding Mechanism Code,Funding Org,Funding Div,Funding Div Abbr,Funding Contact,PI First Name,PI Last Name,PI ORC ID,Instutition,City,State,Country,Tech Abstract\n");
+		}else{
+			fwrite($data,",Currency,To Currency,To Currency Rate,Funding Mechanism,Funding Mechanism Code,Funding Org,Funding Div,Funding Div Abbr,Funding Contact,PI First Name,PI Last Name,PI ORC ID,Instutition,City,State,Country,View In ICRP\n");
+		}
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			fwrite($data, "\"".$row['ProjectID']."\",\"".$row['AwardCode']."\",\"".$row['AwardTitle']."\",\"".$row['AwardType']."\",\"".$row['Source_ID']."\",\"".$row['AltAwardCode']."\",\"".$row['AwardStartDate']."\",\"".$row['AwardEndDate']."\",\"".$row['BudgetStartDate']."\",\"".$row['BudgetEndDate']."\",\"".$row['AwardAmount']."\",\"".$row['FundingIndicator']."\"");
 			for($i = 2000; $i < $currentYear; $i++){
 				$value = $row[$i];
 				fwrite($data, ",\"".$value."\"");
 			}
-			fwrite($data, ",\"".$row['Currency']."\",\" \",\" \","."\"".$row['FundingMechanism']."\",\"".$row['FundingMechanismCode']."\",\"".$row['FundingOrg']."\",\"".$row['FundingDiv']."\",\"".$row['FundingDivAbbr']."\",\"".$row['FundingContact']."\",\"".$row['piLastName']."\",\"".$row['piFirstName']."\",\"".$row['piORCID']."\",\"".$row['Institution']."\",\"".$row['City']."\",\"".$row['State']."\",\"".$row['Country']."\",\"".$row['icrpURL']."\""."\n");
+			if($withAbstract){
+				fwrite($data, ",\"".$row['Currency']."\",\" \",\" \","."\"".$row['FundingMechanism']."\",\"".$row['FundingMechanismCode']."\",\"".$row['FundingOrg']."\",\"".$row['FundingDiv']."\",\"".$row['FundingDivAbbr']."\",\"".$row['FundingContact']."\",\"".$row['piLastName']."\",\"".$row['piFirstName']."\",\"".$row['piORCID']."\",\"".$row['Institution']."\",\"".$row['City']."\",\"".$row['State']."\",\"".$row['Country']."\",\"".$row['TechAbstract']."\""."\n");
+			}else{
+				fwrite($data, ",\"".$row['Currency']."\",\" \",\" \","."\"".$row['FundingMechanism']."\",\"".$row['FundingMechanismCode']."\",\"".$row['FundingOrg']."\",\"".$row['FundingDiv']."\",\"".$row['FundingDivAbbr']."\",\"".$row['FundingContact']."\",\"".$row['piLastName']."\",\"".$row['piFirstName']."\",\"".$row['piORCID']."\",\"".$row['Institution']."\",\"".$row['City']."\",\"".$row['State']."\",\"".$row['Country']."\",\"".$row['icrpURL']."\""."\n");
+			}
 		}
 		$result = "succeed";
 	} else {
@@ -323,8 +331,28 @@ class ExportResultsController extends ControllerBase {
   }
 
   public function exportResultsWithAbstractPartner(){
-	$result = "Complete Exporting Results with Abstracts in Partner Site";
-	return self::addCorsHeaders(new JSONResponse($result));
+	$result = "Complete Exporting Results in Partner Site";
+	$config = self::getConfig();
+ 	$filelocation = $config['file_location'];
+ 	$downloadlocation = self::getBaseUrl() .  $config['download_location'];
+    $filenameExport  = 'export-'.date('Y-m-d_H.i.s').'.csv';
+    $filenameCriteria = 'searchCriteria-'.date('Y-m-d_H.i.s').'.csv';
+    $filenameCSO = 'exportCSO-'.date('Y-m-d_H.i.s').'.csv';
+    $filenameCancerType = 'export-Cancer-type-'.date('Y-m-d_H.i.s').'.csv';
+    $fileName = 'export-partner-site-with-abstracts-'.date('Y-m-d_H.i.s').'.zip';
+    $zipFilename = $filelocation . $fileName;
+
+    $sid = $_SESSION['database_search_id'];
+    $sid = 3;
+
+    $result = self::createExportDataforPartnerSite($filelocation, $filenameExport, $sid, true);
+    $result = self::createSearchCriteria($filelocation, $filenameCriteria, $sid);
+    $result = self::createExportDataForPartnerSiteCSO($filelocation, $filenameCSO, $sid);
+    $result = self::createExportDataForPartnerSite_Site($filelocation, $filenameCancerType, $sid);
+
+	$result = self::createZipFileForPartnerSite($filelocation, $filenameExport, $filenameCriteria, $filenameCSO, $filenameCancerType, $zipFilename);
+
+	return self::addCorsHeaders(new JSONResponse($downloadlocation . $fileName));
   }
 
    public function exportResultsWithGraphsPartner(){

@@ -30,8 +30,7 @@ export class ExportResultsAbstractsPartnerButtonComponent implements OnInit {
         	.subscribe(
         	res => {
         		console.log(res);
-        		alert(res);
-  			//window.open(res);
+  			document.location.href=res;
         		modal.hide();
        		},
     		error => {
