@@ -39,7 +39,7 @@ class ExportResultsController extends ControllerBase {
     $zipFilename = $filelocation . $fileName;
 
     $sid = $_SESSION['database_search_id'];
-    //$sid = 199;
+    //$sid = 3;
 
 	$result = self::createExportData($filelocation, $filenameExport, $sid);
 	$result = self::createSearchCriteria($filelocation, $filenameCriteria, $sid);
@@ -181,11 +181,12 @@ class ExportResultsController extends ControllerBase {
 	$result = "Complete Exporting Results in Partner Site";
 	$config = self::getConfig();
  	$filelocation = $config['file_location'];
-    $filelocation = $config['file_location'];
+ 	$downloadlocation = self::getBaseUrl() .  $config['download_location'];
     $filenameExport  = 'export-'.date('Y-m-d_H.i.s').'.csv';
     $filenameCriteria = 'searchCriteria-'.date('Y-m-d_H.i.s').'.csv';
     $filenameCSO = 'exportCSO-'.date('Y-m-d_H.i.s').'.csv';
-    $fileName = 'export-'.date('Y-m-d_H.i.s').'.zip';
+    $filenameCancerType = 'export-Cancer-type-'.date('Y-m-d_H.i.s').'.csv';
+    $fileName = 'export-partner-site-'.date('Y-m-d_H.i.s').'.zip';
     $zipFilename = $filelocation . $fileName;
 
     $sid = $_SESSION['database_search_id'];
@@ -194,11 +195,14 @@ class ExportResultsController extends ControllerBase {
     $result = self::createExportDataforPartnerSite($filelocation, $filenameExport, $sid);
     $result = self::createSearchCriteria($filelocation, $filenameCriteria, $sid);
     $result = self::createExportDataForPartnerSiteCSO($filelocation, $filenameCSO, $sid);
+    $result = self::createExportDataForPartnerSite_Site($filelocation, $filenameCancerType, $sid);
 
-	return self::addCorsHeaders(new JSONResponse($result));
+	$result = self::createZipFileForPartnerSite($filelocation, $filenameExport, $filenameCriteria, $filenameCSO, $filenameCancerType, $zipFilename);
+
+	return self::addCorsHeaders(new JSONResponse($downloadlocation . $fileName));
   }
 
-  private function createExportDataForPartnerSite_Site(){
+  private function createExportDataForPartnerSite_Site($filelocation, $filename, $sid){
     try {
   	   $conn = self::getConnection();
      } catch (Exception $exc) {
@@ -207,13 +211,13 @@ class ExportResultsController extends ControllerBase {
 	$file_export  =  $filelocation . $filename;
 	$result = "success";
     $data = fopen($file_export, 'w');
-	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectTypeStatsBySearchID @SearchID=:search_id_name, @ResultCount=:result_count");
+	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectCancerTypesBySearchID @SearchID=:search_id_name");
 	$stmt->bindParam(':search_id_name', $sid);
 
 	if ($stmt->execute()) {
-		fwrite($data, "ICRP PROJECT ID,Code,CSO Relevance\n");
+		fwrite($data, "ICRP PROJECT ID,Cancer Type,Site Relevance\n");
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-			fwrite($data, "\"".$row['ProjectID']."\",\"".$row['CSOCode']."\",\"".$row['CSORelevance']."\""."\n");
+			fwrite($data, "\"".$row['ProjectID']."\",\"".$row['CancerType']."\",\"".$row['Relevance']."\""."\n");
 		}
 		$result = "succeed";
 	} else {
@@ -225,6 +229,28 @@ class ExportResultsController extends ControllerBase {
 
 	return $result;
 
+  }
+
+  private function createZipFileForPartnerSite($filelocation, $filename, $filename2, $filename3, $filename4, $zipFilename){
+	//zip file
+	$zip = new ZipArchive();
+	if ($zip->open($zipFilename, ZipArchive::CREATE)!==TRUE) {
+		$result = "cannot open <$zipFilename>";
+	}else{
+		$zip->addFile($filelocation . $filename, $filename);
+		$zip->addFile($filelocation . $filename2, $filename2);
+		$zip->addFile($filelocation . $filename3, $filename3);
+		$zip->addFile($filelocation . $filename4, $filename4);
+		$zip->close();
+		$result = "succeed";
+	}
+	//remove export file, not zip file.
+	unlink($filelocation . $filename);
+	unlink($filelocation . $filename2);
+	unlink($filelocation . $filename3);
+	unlink($filelocation . $filename4);
+
+	return $result;
   }
 
   private function createExportDataForPartnerSiteCSO($filelocation, $filename, $sid){
@@ -270,10 +296,20 @@ class ExportResultsController extends ControllerBase {
 	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectExportsBySearchID @SearchID=:search_id_name, @SiteURL=:site_url");
 	$stmt->bindParam(':search_id_name', $sid);
 	$stmt->bindParam(':site_url', $viewLink);
+	$currentYear = Date('Y') + 1;
 	if ($stmt->execute()) {
-		fwrite($data, "ICRP PROJECT ID,Award Code,Award Title,Award Type,Source ID,ALT ID,Award Start Date,Award End Date,Budget Start Date,Budget End Date,Award Funding,Funding Indicator,2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,Currency,To Currency,To Currency Rate,Funding Mechanism,Funding Mechanism Code,Funding Org,Funding Div,Funding Div Abbr,Funding Contact,PI First Name,PI Last Name,PI ORC ID,Instutition,City,State,Country,View In ICRP\n");
+		fwrite($data, "ICRP PROJECT ID,Award Code,Award Title,Award Type,Source ID,ALT ID,Award Start Date,Award End Date,Budget Start Date,Budget End Date,Award Funding,Funding Indicator");
+		for($i = 2000; $i < $currentYear; $i++){
+			fwrite($data,",".$i);
+		}
+		fwrite($data,",Currency,To Currency,To Currency Rate,Funding Mechanism,Funding Mechanism Code,Funding Org,Funding Div,Funding Div Abbr,Funding Contact,PI First Name,PI Last Name,PI ORC ID,Instutition,City,State,Country,View In ICRP\n");
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-			fwrite($data, "\"".$row['ProjectID']."\",\"".$row['AwardCode']."\",\"".$row['AwardTitle']."\",\"".$row['Source_ID']."\",\"".$row['AltAwardCode']."\",\"".$row['AwardStartDate']."\",\"".$row['AwardEndDate']."\",\"".$row['BudgetStartDate']."\",\"".$row['BudgetEndDate']."\",\"".$row['AwardAmount']."\",\"".$row['FundingIndicator']."\",\"".$row['2000']."\",\"".$row['2001']."\",\"".$row['2002']."\",\"".$row['2003']."\",\"".$row['2004']."\",\"".$row['2005']."\",\"".$row['2006']."\",\"".$row['2007']."\",\"".$row['2008']."\",\"".$row['2009']."\",\"".$row['2010']."\",\"".$row['2011']."\",\"".$row['2012']."\",\"".$row['2013']."\",\"".$row['2014']."\",\"".$row['2015']."\",\"".$row['2016']."\",\"USD\",\"  \",\"  \",\"".$row['FundingMechanism']."\",\"".$row['FundingMechanismCode']."\",\"".$row['FundingOrg']."\",\"".$row['FundingDiv']."\",\"".$row['FundingDivAbbr']."\",\"".$row['FundingContact']."\",\"".$row['piLastName']."\",\"".$row['piFirstName']."\",\"".$row['piORCID']."\",\"".$row['Institution']."\",\"".$row['City']."\",\"".$row['State']."\",\"".$row['Country']."\",\"".$row['icrpURL']."\""."\n");
+			fwrite($data, "\"".$row['ProjectID']."\",\"".$row['AwardCode']."\",\"".$row['AwardTitle']."\",\"".$row['AwardType']."\",\"".$row['Source_ID']."\",\"".$row['AltAwardCode']."\",\"".$row['AwardStartDate']."\",\"".$row['AwardEndDate']."\",\"".$row['BudgetStartDate']."\",\"".$row['BudgetEndDate']."\",\"".$row['AwardAmount']."\",\"".$row['FundingIndicator']."\"");
+			for($i = 2000; $i < $currentYear; $i++){
+				$value = $row[$i];
+				fwrite($data, ",\"".$value."\"");
+			}
+			fwrite($data, ",\"".$row['Currency']."\",\" \",\" \","."\"".$row['FundingMechanism']."\",\"".$row['FundingMechanismCode']."\",\"".$row['FundingOrg']."\",\"".$row['FundingDiv']."\",\"".$row['FundingDivAbbr']."\",\"".$row['FundingContact']."\",\"".$row['piLastName']."\",\"".$row['piFirstName']."\",\"".$row['piORCID']."\",\"".$row['Institution']."\",\"".$row['City']."\",\"".$row['State']."\",\"".$row['Country']."\",\"".$row['icrpURL']."\""."\n");
 		}
 		$result = "succeed";
 	} else {
@@ -297,3 +333,4 @@ class ExportResultsController extends ControllerBase {
   }
 
 }
+?>
