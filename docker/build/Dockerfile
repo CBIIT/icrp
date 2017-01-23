@@ -54,7 +54,9 @@ RUN { \
     echo "TraceEnable Off"                                     ; \
     echo "Header always append X-Frame-Options SAMEORIGIN"     ; \
     echo "Header set X-XSS-Protection \"1; mode=block\""       ; \
-    echo                                                       ; \
+} | tee "/etc/httpd/conf.d/docker-htttpd.conf"
+
+RUN { \
     echo "AccessFileName .htaccess"                            ; \
     echo "DirectoryIndex disabled"                             ; \
     echo "DirectoryIndex index.php index.html"                 ; \
@@ -68,6 +70,12 @@ RUN { \
     echo "    AllowOverride All"                               ; \
     echo "</Directory>"                                        ; \
 } | tee "/etc/httpd/conf.d/docker-php.conf"
+
+RUN { \
+    echo "<filesMatch \"\.(js|html|css)$\""                    ;  \
+    echo "    SetOutputFilter DEFLATE"                         ;  \
+    echo "</filesMatch>"                                       ;  \
+} | tee "/etc/httpd/conf.d/deflate.conf"
 
 RUN { \
     echo "[opcache]"                          ; \
