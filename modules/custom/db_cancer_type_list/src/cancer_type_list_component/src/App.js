@@ -21,8 +21,16 @@ class App extends Component {
  //     credentials: 'include'
     })
 
+    let results = await response.json();
+
+    console.log(results);
+
     this.setState({
-      data: await response.json(), 
+      data: results.map(result => ({
+        label: result.label,
+        description: result.description === 'NULL' ? '' : result.description,
+        url: result.url
+      })), 
       columns: [
         {
           label: 'Cancer Type',
@@ -30,7 +38,7 @@ class App extends Component {
           link: 'url'
         },
         {
-          label: 'Additional Details',
+          label: 'Description',
           value: 'description'
         }
       ]
