@@ -10,8 +10,6 @@ export class LineChart {
             label: +el.label
         })).sort((a, b) => a.label - b.label);
 
-        console.log('parsed data', parsedData);
-
         let host = d3.select(element);
         let tooltip = d3.select(tooltipEl)
             .attr('class', 'd3-tooltip')

@@ -55,7 +55,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   updateMappedParameters(event: Object) {
-    console.log('received event', event);
     this.mappedParameters = event;
   }
 

@@ -19,7 +19,6 @@ export class PieChart {
         let color = d3.scaleOrdinal(d3.schemeCategory20c);
 
         let sum = data.map(e => +e.value).reduce((a, b) => a + b, 0);
-        console.log('sum of ', data, sum);
 
         let svg = host
             .attr('width', '100%')
