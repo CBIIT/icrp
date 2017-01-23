@@ -44,7 +44,7 @@ db_project_view.funding_org:
   path: '/FundingOrgs'
   defaults:
     _controller: '\Drupal\db_project_view\Controller\FundingOrgController::getFundingOrgContent'
-    _title: 'Project Details'
+    _title: 'Funding Organizations'
   requirements:
     _permission: 'access content'
 
