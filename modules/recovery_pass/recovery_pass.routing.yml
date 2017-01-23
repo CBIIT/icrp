@@ -1,0 +1,7 @@
+recover_pass.admin_config:
+  path: '/admin/config/people/recovery-pass'
+  defaults:
+    _title: 'Recovery Password Configuration'
+    _form: '\Drupal\recovery_pass\RecoveryPassSettingsForm'
+  requirements:
+    _permission: 'access administration pages'

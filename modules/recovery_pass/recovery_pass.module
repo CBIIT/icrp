@@ -1,0 +1,232 @@
+<?php
+
+/**
+ * @file
+ * Contains module code.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormState;
+use Drupal\user\Entity\User;
+use Drupal\Core\Url;
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_help().
+ */
+function recovery_pass_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.recovery_pass':
+      $output = file_get_contents(drupal_get_path('module', 'recovery_pass') . '/README.txt');
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function recovery_pass_form_user_pass_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  // Overrides default submit handler for user_pass form.
+  $form['#submit'] = array('recovery_pass_forgot_password_submit');
+}
+
+/**
+ * Custom submit handler to send password in recovery mail.
+ */
+function recovery_pass_forgot_password_submit(array &$form, FormState $form_state) {
+  $token_service = \Drupal::token();
+  $language_manager = \Drupal::languageManager();
+  $user = $form_state->getValue('account');
+  $token_options = ['langcode' => $language_manager->getCurrentLanguage($user->getPreferredLangcode())->getId(), 'callback' => '', 'clear' => TRUE];
+  $config = \Drupal::config('recovery_pass.settings');
+
+  // Generate random password.
+  $random_password = user_password();
+
+  // Store Old Hash Password Temporarily.
+  if (!_recovery_pass_store_old_pass($user)) {
+    \Drupal::logger('recovery_pass')->notice('Error saving old password for user @id', array('@id' => $user->uid));
+  }
+  // Save new password.
+  $user->setPassword($random_password);
+  $user->save();
+
+  // Retrive email body and subject.
+  $message = $token_service->replace($config->get('email_body'), array('user' => $user), $token_options);
+  if ($message) {
+    // Replace [user_new_password] placeholder with new password.
+    $message = str_replace("[user_new_password]", $random_password, $message);
+  }
+  $subject = $token_service->replace($config->get('email_subject'), array('user' => $user), $token_options);
+  if (\Drupal::moduleHandler()->moduleExists("htmlmail")) {
+    // For html mail convert new lines to br.
+    $message = nl2br($message);
+  }
+  $params = array(
+    'body' => $message,
+    'subject' => $subject,
+  );
+  $langcode = $user->getPreferredLangcode();
+  // Get the custom site notification email to use as the from email address
+  // if it has been set.
+  $site_mail = \Drupal::config('system.site')->get('mail_notification');
+  // If the custom site notification email has not been set, we use the site
+  // default for this.
+  if (empty($site_mail)) {
+    $site_mail = \Drupal::config('system.site')->get('mail');
+  }
+  if (empty($site_mail)) {
+    $site_mail = ini_get('sendmail_from');
+  }
+
+  $mail = \Drupal::service('plugin.manager.mail')->mail('recovery_pass', 'recovery_pass', $user->getEmail(), $langcode, $params, $site_mail);
+  if ($mail) {
+    drupal_set_message(t("Further instructions have been sent to your registered Email-id."), 'status', FALSE);
+  }
+  else {
+    drupal_set_message(t("Error Sending Recovery Mail. Please contact site administrator."), 'error', FALSE);
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function recovery_pass_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'recovery_pass':
+      // Mail parameters used for recovery mail.
+      $message['subject'] = $params['subject'];
+      $message['body'][] = $params['body'];
+      if (\Drupal::moduleHandler()->moduleExists("htmlmail")) {
+        // For html mail.
+        $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
+      }
+      break;
+  }
+}
+
+/**
+ * Validates path entered by user.
+ */
+function _recovery_pass_validate_path($element, FormState $form_state) {
+  $path = $element['#value'];
+  if (!empty($path)) {
+    if (!(\Drupal::service('path.validator')->isValid($path))) {
+      $form_state->setError($element, t('Please provide valid redirect path.'));
+    }
+  }
+}
+
+/**
+ * Validates for positive integer.
+ */
+function _recovery_pass_validate_integer_positive($element, FormState $form_state) {
+  $value = $element['#value'];
+  if ($value !== '' && (!is_numeric($value) || intval($value) != $value || $value <= 0)) {
+    $form_state->setError($element, t('%name must be a positive integer.', array('%name' => $element['#title'])));
+  }
+}
+
+/**
+ * Temporarily stores old password in custom table for error message in future.
+ */
+function _recovery_pass_store_old_pass($user) {
+  // Update or Insert using merge() the old password.
+  $result = \Drupal::database()->merge('recovery_pass');
+  $result->key(array('uid' => (int) $user->get('uid')->value))
+    ->fields(array(
+      'uid' => (int) $user->get('uid')->value,
+      'old_pass' => $user->get('pass')->value,
+      'changed' => time(),
+    ))->execute();
+
+  if ($result) {
+    // Successfully saved old password.
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function recovery_pass_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $config = \Drupal::config('recovery_pass.settings')->get('old_pass_show');
+  if ($config) {
+    switch ($form_id) {
+      case 'user_login_form':
+        // Extending default drupal login validators.
+        $insert = '_recovery_pass_user_login_validate';
+        $form['#validate'] = _recovery_pass_insert_array($form['#validate'], 1, $insert);
+        break;
+    }
+  }
+}
+
+/**
+ * To insert our validator at index 1 between the default validators.
+ */
+function _recovery_pass_insert_array($array, $index, $val) {
+  // Because this will be used one more time.
+  $size = count($array);
+  if (!is_int($index) || $index < 0 || $index > $size) {
+    return -1;
+  }
+  else {
+    $temp   = array_slice($array, 0, $index);
+    $temp[] = $val;
+    return array_merge($temp, array_slice($array, $index, $size));
+  }
+}
+
+/**
+ * Custom Submit handler for user login form.
+ *
+ * Incase user tries to login using old pass then error msg is shown that pass
+ * has been reset, till user tries any other pass.
+ */
+function _recovery_pass_user_login_validate($form, FormStateInterface $form_state) {
+  $input_password = trim($form_state->getValue('pass'));
+  if (!empty($form_state->getValue('name')) && !empty($input_password)) {
+    $account = user_load_by_name($form_state->getValue('name'));
+    if ($account) {
+      // Check uid exists in recovery_pass table.
+      $result = \Drupal::database()->select('recovery_pass', 'r')
+        ->fields('r', array('uid', 'old_pass'))
+        ->condition('uid', (int) $account->get('uid')->value)
+        ->execute()
+        ->fetchAssoc();
+      if ($result) {
+        // If uid exists in table.
+        $passchecker = new \Drupal\Core\Password\PhpassHashedPassword(16);
+        if ($passchecker->check($input_password, $result['old_pass'])) {
+          drupal_set_message(\Drupal::config('recovery_pass.settings')->get('old_pass_warning'), 'warning', FALSE);
+        }
+        else {
+          // Irrespective of the input password delete the entry.
+          $entry_deleted = \Drupal::database()->delete('recovery_pass')
+            ->condition('uid', $result['uid'])
+            ->execute();
+          if (!$entry_deleted) {
+            \Drupal::logger('recovery_pass')->notice('Error deleting entry from recovery_table for user @id', array('@id' => $user->uid));
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function recovery_pass_cron() {
+  $expiry_period = strtotime("-" . \Drupal::config('recovery_pass.settings')->get('expiry_period') . " week");
+  // Delete all records more created than one week ago.
+  $entry_deleted = \Drupal::database()->delete('recovery_pass')
+    ->condition('changed', $expiry_period, '<')
+    ->execute();
+
+  if ($entry_deleted) {
+    \Drupal::logger('recovery_pass')->notice('Error deleting entry from recovery_table at cron time.');
+  }
+}

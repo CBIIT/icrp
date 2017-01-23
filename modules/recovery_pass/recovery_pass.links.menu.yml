@@ -1,0 +1,6 @@
+recover_pass.admin_config:
+  title: 'Recovery Password settings'
+  parent: user.admin_index
+  description: 'Configure default user account settings, including fields, registration requirements, and email messages.'
+  weight: -9
+  route_name: recover_pass.admin_config

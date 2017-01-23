@@ -1,0 +1,6 @@
+old_pass_show: true
+fpass_redirect: user
+expiry_period: 1
+email_subject: "Replacement login information for [user:name] at [site:name]"
+email_body: "[user:name], \n\nA request to reset the password for your account has been made at [site:name]. \nYour new password is [user_new_password].\n\n-  [site:name] team"
+old_pass_warning: "You are using old password, your password was reset recently. New Password was sent to your registered email id."
