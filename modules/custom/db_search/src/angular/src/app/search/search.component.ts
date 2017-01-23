@@ -5,6 +5,7 @@ import { Observable } from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 
+declare var fetch;
 
 @Component({
   selector: 'app-search',
@@ -21,8 +22,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
   loading: boolean;
   loadingAnalytics: boolean;
   analytics: any;
+  authenticated: boolean;
 
   constructor(private http: Http) {
+    this.authenticated = true;
     this.searchID = null;
     this.loadingAnalytics = true;
     this.loading = true;
@@ -36,6 +39,16 @@ export class SearchComponent implements OnInit, AfterViewInit {
       page_number: 1,
       page_size: 50,
     }
+
+    this.checkAuthentication();
+  }
+
+  checkAuthentication() {
+    fetch('/search-database/partners/authenticate', {
+      credentials: 'include'
+    })
+    .then(response => response.text())
+    .then(response => console.log('results of authentication check', response));
   }
 
   updateMappedParameters(event: Object) {

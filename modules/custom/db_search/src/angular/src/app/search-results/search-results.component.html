@@ -77,9 +77,11 @@
 <div class="row" style="margin-top: 8px; margin-bottom: 5px;">
   <email-results-button></email-results-button>
   <export-results-button></export-results-button>
-  <export-results-partner-button></export-results-partner-button>
-  <export-results-abstracts-partner-button></export-results-abstracts-partner-button>
-  <export-results-graphs-partner-button></export-results-graphs-partner-button>
+
+
+  <export-results-partner-button *ngIf="authenticated"></export-results-partner-button>
+  <export-results-abstracts-partner-button *ngIf="authenticated"></export-results-abstracts-partner-button>
+  <export-results-graphs-partner-button *ngIf="authenticated"></export-results-graphs-partner-button>
 </div>
 
 

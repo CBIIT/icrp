@@ -27,6 +27,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   @Input() results;
   @Input() analytics;
   @Input() searchParameters;
+  @Input() authenticated;
 
   @Output() sort: EventEmitter<{ "column": string, "type": "asc" | "desc" }>;
   @Output() paginate: EventEmitter<{ "size": number, "offset": number }>;
@@ -48,7 +49,8 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   constructor(
     @Inject(FormBuilder) private formbuilder: FormBuilder,
     @Inject(Http) private http: Http) {
-    
+
+    this.authenticated = false;
     
     this.loadingAnalytics = true;
     this.showCriteria = false;
