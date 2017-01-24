@@ -79,7 +79,8 @@ class FundingOrgController extends ControllerBase {
        CASE WHEN IsAnnualized = 1 THEN 'YES'
             ELSE 'NO'
        END as annual
-       FROM FundingOrg");
+       FROM FundingOrg
+       WHERE LastImportDate IS NOT NULL");
      $stmt->execute();
      return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
