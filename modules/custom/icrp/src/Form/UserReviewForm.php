@@ -9,7 +9,6 @@ use Drupal\Core\Form\FormStateInterface;
 
 class UserReviewForm extends FormBase
 {
-    public $uid;
 
     public function __construct() {
         //parent::__construct();
@@ -267,13 +266,16 @@ class UserReviewForm extends FormBase
         }
         */
     }
-
+/*
+    public function hasManagerRole() {
+        return TRUE;
+    }
+*/
     public function submitForm(array &$form, FormStateInterface $form_state)
     {
 
-        //  print_r($form_state->getValues());
         $form_values = $form_state->getValues();
-        //drupal_set_message(print_r($form_state->getValues(), TRUE));
+        drupal_set_message(print_r($form_state->getValues(), TRUE));
 
         $current_uri = \Drupal::request()->getRequestUri();
         $uri_parts = explode("/", $current_uri);
@@ -281,41 +283,63 @@ class UserReviewForm extends FormBase
         $entity = \Drupal::entityManager()->loadEntityByUuid('user', $uuid);
 
         /* Load User Data */
-
         $uid = (int)$entity->id();
         $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
 //Example Role:
 // Array ( [0] => Array ( [target_id] => administrator ) [1] => Array ( [target_id] => manager ) [2] => Array ( [target_id] => partner ) )
-        /* Get Roles */
-        $roles = array();
-        $current_roles = $user->get("roles")->getValue();
-       // drupal_set_message(print_r($current_roles, TRUE));
-        //If administrator, add that back
-        //drupal_set_message($user->hasRole("administrator"));
-        if ($user->hasRole("administrator")) {
-            //drupal_set_message("User is an administrator");
-            $roles[] = array('target_id' => 'administrator');
-        }
-        // If current user is manager, add that back
 
-        //drupal_set_message(print_r($roles, TRUE));
+        /* Get Roles */
+        $roles = [];
+        $current_roles = $user->get("roles")->getValue();
+        drupal_set_message(print_r($current_roles, TRUE));
+        //If administrator, add that back
+       drupal_set_message($user->hasRole("administrator"));
+        if ($user->hasRole("administrator")) {
+            drupal_set_message("User is an administrator");
+            array_push($roles, array('target_id' => 'administrator'));
+        }
+        drupal_set_message(print_r($roles, TRUE));
+        foreach ($form_values['roles'] as $assign_role) {
+            drupal_set_message($assign_role);
+            if($assign_role == "manager") {
+                array_push($roles, array("target_id" => "manager"));
+            }
+            if($assign_role == "partner") {
+                array_push($roles, array("target_id" => "partner"));
+            }
+        }
+        drupal_set_message(print_r($roles, TRUE));
 
         //Now add any checked
+        /*
         $role_types = array("manager", "partner");
         foreach ($current_roles as $role) {
-            if($role != "administrator") {
+            if($role == "administrator") {
                 if ($user->hasRole($role)) {
                     array_push($roles, $role);
                 }
             }
         }
+        */
+        drupal_set_message(print_r($roles, TRUE));
 
-        $membership_status_value = $user->get('field_membership_status')->value;
-        //drupal_set_message($form_values['status']);
-        //drupal_set_message($membership_status_value);
+        // If current user is manager, add that back
+        $manager = false;
+        foreach ($form_values['roles'] as $assign_role) {
+            if($assign_role == "manager") {
+                $manager = true;
+            }
+        }
 
-        $membership_status = ($form_values['status'] == 0) ? 'Blocked' : 'Active';
-        $user->set("field_membership_status", $membership_status);
+        $current_uid =  \Drupal::currentUser()->id();
+        if($current_uid == $uid  && !($manager)) {
+            drupal_set_message("USER IS EDITING SELF and is a MANGER");
+        }
+        drupal_set_message(print_r($roles, TRUE));
+
+        /* Disabled for TESTING ONLY */
+        //$membership_status = ($form_values['status'] == 0) ? 'Blocked' : 'Active';
+        //$user->set("field_membership_status", $membership_status);
 
         $user->set("status", $form_values['status']);
         $user->set("field_can_upload_library_files", $form_values['upload_files']);
@@ -335,8 +359,8 @@ class UserReviewForm extends FormBase
         }
 
 
-
 */
         drupal_set_message("Account has been saved.");
     }
+
 }
