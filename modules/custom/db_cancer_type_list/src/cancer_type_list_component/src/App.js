@@ -34,8 +34,7 @@ class App extends Component {
       columns: [
         {
           label: 'Cancer Type',
-          value: 'label',
-          link: 'url'
+          value: 'label'
         },
         {
           label: 'Description',
