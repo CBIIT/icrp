@@ -67,6 +67,17 @@ class ProjectViewController extends ControllerBase {
       'TechAbstract' => 'technical_abstract',
       'PublicAbstract' => 'public_abstract',
     ],
+    'cancer_types' => [
+      'CancerType' => 'cancer_type',
+      'SiteURL' => 'cancer_type_url',
+    ],
+    'cso_research_areas' => [
+      'CSOCode' => 'cso_code',
+      'CategoryName' => 'cso_category',
+      'CSOName' => 'cso_name',
+      'ShortName' => 'cso_short_name'
+    ],
+
   ];
 
 
@@ -166,6 +177,8 @@ class ProjectViewController extends ControllerBase {
 
     $queries = [
       'project_funding_details' => 'GetProjectFundingDetail :funding_id',
+      'cso_research_areas' => 'GetProjectCSO :funding_id',
+      'cancer_types' => 'GetProjectCancerType :funding_id',
     ];
 
     // map queries to return values
@@ -225,6 +238,8 @@ class ProjectViewController extends ControllerBase {
     return [
       '#theme' => 'db_funding_view',
       '#funding_details' => $results['project_funding_details'][0],
+      '#cancer_types' => $results['cancer_types'],
+      '#cso_research_areas' => $results['cso_research_areas'],
       '#attached' => [
         'library' => [
           'db_project_view/resources'

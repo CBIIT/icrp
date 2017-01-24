@@ -55,6 +55,30 @@ function googleTranslateElementInit() {
 <div>{{ funding_details.public_abstract | raw }}</div>
 <hr>
 {% endif %}
+
+<h5 class="h5">Cancer Types</h5>
+<ul>
+  {% for row in cancer_types %}
+  <li>
+    {% if row.cancer_type_url %}
+      <a href="{{ row.cancer_type_url }}" target="_blank">{{ row.cancer_type }}</a>
+    {% else %}
+      {{ row.cancer_type }}
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+
+<h5 class="h5">Common Scientific Outline (CSO) Research Areas</h5>
+<ul>
+  {% for row in cso_research_areas %}
+  <li>
+    <b>{{ row.cso_code }} {{ row.cso_category }} </b> {{ row.cso_short_name }}
+  </li>
+  {% endfor %}
+</ul>
+
+
 {% endif %}
 
 
