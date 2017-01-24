@@ -275,7 +275,7 @@ class UserReviewForm extends FormBase
     {
 
         $form_values = $form_state->getValues();
-        drupal_set_message(print_r($form_state->getValues(), TRUE));
+        //drupal_set_message(print_r($form_state->getValues(), TRUE));
 
         $current_uri = \Drupal::request()->getRequestUri();
         $uri_parts = explode("/", $current_uri);
@@ -285,82 +285,52 @@ class UserReviewForm extends FormBase
         /* Load User Data */
         $uid = (int)$entity->id();
         $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
-//Example Role:
-// Array ( [0] => Array ( [target_id] => administrator ) [1] => Array ( [target_id] => manager ) [2] => Array ( [target_id] => partner ) )
+        //Example Role:
+        // Array ( [0] => Array ( [target_id] => administrator ) [1] => Array ( [target_id] => manager ) [2] => Array ( [target_id] => partner ) )
 
         /* Get Roles */
-        $roles = [];
+/*
+        drupal_set_message("getRoles(TRUE):");
+        $roles = $user->getRoles(TRUE);
+        drupal_set_message(print_r($roles, TRUE));
         $current_roles = $user->get("roles")->getValue();
         drupal_set_message(print_r($current_roles, TRUE));
-        //If administrator, add that back
-       drupal_set_message($user->hasRole("administrator"));
-        if ($user->hasRole("administrator")) {
-            drupal_set_message("User is an administrator");
-            array_push($roles, array('target_id' => 'administrator'));
-        }
-        drupal_set_message(print_r($roles, TRUE));
-        foreach ($form_values['roles'] as $assign_role) {
-            drupal_set_message($assign_role);
-            if($assign_role == "manager") {
-                array_push($roles, array("target_id" => "manager"));
-            }
-            if($assign_role == "partner") {
-                array_push($roles, array("target_id" => "partner"));
-            }
-        }
-        drupal_set_message(print_r($roles, TRUE));
+*/
+        //*Remove Roles */
 
-        //Now add any checked
-        /*
-        $role_types = array("manager", "partner");
-        foreach ($current_roles as $role) {
-            if($role == "administrator") {
-                if ($user->hasRole($role)) {
-                    array_push($roles, $role);
-                }
+        $user->removeRole('manager');
+        $user->removeRole('partner');
+
+        //Add Roles
+        foreach ($form_values['roles'] as $assign_role) {
+            if($assign_role === "manager") {
+                $user->addRole("manager");
+            }
+            if($assign_role === "partner") {
+               $user->addRole("partner");
             }
         }
-        */
-        drupal_set_message(print_r($roles, TRUE));
+        //drupal_set_message(print_r($user->getRoles(TRUE), TRUE));
+        //drupal_set_message(print_r($user->getRoles(), TRUE));
 
         // If current user is manager, add that back
-        $manager = false;
-        foreach ($form_values['roles'] as $assign_role) {
-            if($assign_role == "manager") {
-                $manager = true;
-            }
-        }
-
+        /*
+        $manager = $user->hasRole('manager');
         $current_uid =  \Drupal::currentUser()->id();
-        if($current_uid == $uid  && !($manager)) {
-            drupal_set_message("USER IS EDITING SELF and is a MANGER");
+        if($current_uid == $uid  && $manager) {
+            drupal_set_message("USER IS EDITING SELF and is a MANGER adding manager role");
+            $user->addRole('manager');
         }
-        drupal_set_message(print_r($roles, TRUE));
-
+        */
         /* Disabled for TESTING ONLY */
-        //$membership_status = ($form_values['status'] == 0) ? 'Blocked' : 'Active';
-        //$user->set("field_membership_status", $membership_status);
+        $membership_status = ($form_values['status'] == 0) ? 'Blocked' : 'Active';
+        $user->set("field_membership_status", $membership_status);
 
-        $user->set("status", $form_values['status']);
         $user->set("field_can_upload_library_files", $form_values['upload_files']);
+        $user->set("status", $form_values['status']);
         $user->save();
 
-        // drupal_set_message($this->t('@can_name ,Your application is being submitted!', array('@can_name' => $form_state->getValue('candidate_name'))));
-/*
-        $form_values = $form_state->getValues();
-        drupal_set_message($form_values);
-*/
-       // $user->save('status', 1);
-/*
-        drupal_set_message($uid);
-
-        foreach ($form_state->getValues() as $key => $value) {
-            drupal_set_message($key . ': ' . $value);
-        }
-
-
-*/
-        drupal_set_message("Account has been saved.");
+        drupal_set_message("User accout for ".$user->getDisplayName()."  has been saved and is currently ".strtolower($membership_status).".");
     }
 
 }
