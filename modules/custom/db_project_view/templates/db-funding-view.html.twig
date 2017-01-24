@@ -8,6 +8,13 @@
 <h4 class="h4 grey">{{ funding_details.project_title | raw }}</h4>
 <hr class="less-margins">
 
+
+<div id="google_translate_element" class="pull-right"></div><script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL}, 'google_translate_element');
+}
+</script><script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
 <dl class="dl-horizontal margin-bottom margin-top">
   <dt>AltAward Code</dt>
   <dd>{{ funding_details.alt_award_code | default('Not specified')}}</dd>
@@ -36,13 +43,6 @@
   {{ funding_details.country | default('Not specified')}}</dd>
 </dl>
 
-
-<div id="google_translate_element" style="text-align: right"></div><script type="text/javascript">
-function googleTranslateElementInit() {
-  new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL}, 'google_translate_element');
-}
-</script><script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-        
 
 {% if funding_details.technical_abstract %}
 <h4>Technical Abstract</h4>
