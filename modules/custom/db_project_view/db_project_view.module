@@ -24,7 +24,9 @@ function db_project_view_theme($existing, $type, $theme, $path) {
     ),
     'db_funding_view' => array(
       'variables' => array(
-          'funding_details' => NULL
+          'funding_details' => NULL,
+          'cancer_types' => NULL,
+          'cso_research_areas' => NULL
         ),
     ),
     'project_view_component' => array(

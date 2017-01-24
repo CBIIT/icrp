@@ -42,12 +42,6 @@ class UserReviewForm extends FormBase
 */
         $current_uri = \Drupal::request()->getRequestUri();
         $uri_parts = explode("/", $current_uri);
-        //kint($uri_parts);
-
-        //kint($current_uri);
-       // drupal_set_message($current_uri);
-
-        $uuid = '88b5fb9f-e220-444d-92f8-db334f301d59';
         $uuid = $uri_parts[2];
         $entity = \Drupal::entityManager()->loadEntityByUuid('user', $uuid);
 
@@ -77,6 +71,9 @@ class UserReviewForm extends FormBase
         $status = $field_status->value;
 
         /* Get Roles */
+        $field_roles = $user->get("roles");
+        //drupal_set_message(print_r($field_roles->getValue()));
+
         $roles = array();
         $role_types = array("manager", "partner");
         foreach ($role_types as $role) {
@@ -141,7 +138,7 @@ class UserReviewForm extends FormBase
         );
         $form['name']['email'] = array(
             '#type' => 'email',
-            '#title' => t('Email ID:'),
+            '#title' => t('Email:'),
             '#default_value' => $email,
             '#required' => TRUE,
             '#disabled' => TRUE,
@@ -169,7 +166,7 @@ class UserReviewForm extends FormBase
             '#default_value' => $status,
 
         );
-        $form['name']['settings']['candidate_confirmation'] = array(
+        $form['name']['settings']['roles'] = array(
             '#type' => 'checkboxes',
             '#title' => 'Roles',
             '#options' => array(
@@ -273,16 +270,73 @@ class UserReviewForm extends FormBase
 
     public function submitForm(array &$form, FormStateInterface $form_state)
     {
-        // drupal_set_message($this->t('@can_name ,Your application is being submitted!', array('@can_name' => $form_state->getValue('candidate_name'))));
 
-        /*
+        //  print_r($form_state->getValues());
+        $form_values = $form_state->getValues();
+        //drupal_set_message(print_r($form_state->getValues(), TRUE));
+
+        $current_uri = \Drupal::request()->getRequestUri();
+        $uri_parts = explode("/", $current_uri);
+        $uuid = $uri_parts[2];
+        $entity = \Drupal::entityManager()->loadEntityByUuid('user', $uuid);
+
+        /* Load User Data */
+
+        $uid = (int)$entity->id();
+        $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+//Example Role:
+// Array ( [0] => Array ( [target_id] => administrator ) [1] => Array ( [target_id] => manager ) [2] => Array ( [target_id] => partner ) )
+        /* Get Roles */
+        $roles = array();
+        $current_roles = $user->get("roles")->getValue();
+       // drupal_set_message(print_r($current_roles, TRUE));
+        //If administrator, add that back
+        //drupal_set_message($user->hasRole("administrator"));
+        if ($user->hasRole("administrator")) {
+            //drupal_set_message("User is an administrator");
+            $roles[] = array('target_id' => 'administrator');
+        }
+        // If current user is manager, add that back
+
+        //drupal_set_message(print_r($roles, TRUE));
+
+        //Now add any checked
+        $role_types = array("manager", "partner");
+        foreach ($current_roles as $role) {
+            if($role != "administrator") {
+                if ($user->hasRole($role)) {
+                    array_push($roles, $role);
+                }
+            }
+        }
+
+        $membership_status_value = $user->get('field_membership_status')->value;
+        //drupal_set_message($form_values['status']);
+        //drupal_set_message($membership_status_value);
+
+        $membership_status = ($form_values['status'] == 0) ? 'Blocked' : 'Active';
+        $user->set("field_membership_status", $membership_status);
+
+        $user->set("status", $form_values['status']);
+        $user->set("field_can_upload_library_files", $form_values['upload_files']);
+        $user->save();
+
+        // drupal_set_message($this->t('@can_name ,Your application is being submitted!', array('@can_name' => $form_state->getValue('candidate_name'))));
+/*
+        $form_values = $form_state->getValues();
+        drupal_set_message($form_values);
+*/
+       // $user->save('status', 1);
+/*
         drupal_set_message($uid);
 
         foreach ($form_state->getValues() as $key => $value) {
             drupal_set_message($key . ': ' . $value);
         }
-        */
 
+
+
+*/
         drupal_set_message("Account has been saved.");
     }
 }

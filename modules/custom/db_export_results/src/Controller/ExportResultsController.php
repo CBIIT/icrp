@@ -33,12 +33,12 @@ class ExportResultsController extends ControllerBase {
     $sid = $_SESSION['database_search_id'];
     //$sid = 3;
 
-  	$config = getConfig();
+  	$config = self::getConfig();
     $filelocation = $config['file_location'];
     $downloadlocation = self::getBaseUrl() .  $config['download_location'];
     $filenameExport  = 'export-'.$sid.'.csv';
     $filenameCriteria = 'searchCriteria-'.$sid.'.csv';
-    $fileName = 'export-'.$sid.'.zip';
+    $fileName = 'ICRPExportPublic'.$sid.'.zip';
     $zipFilename = $filelocation . $fileName;
 
 
@@ -191,7 +191,7 @@ class ExportResultsController extends ControllerBase {
     $filenameCriteria = 'searchCriteria-'.$sid.'.csv';
     $filenameCSO = 'export'.$sid.'CSO.csv';
     $filenameCancerType = 'export-'.$sid.'CancerType.csv';
-    $fileName = 'export-'.$sid.'-PartnerSite.zip';
+    $fileName = 'ICRPExportPartner'.$sid.'.zip';
     $zipFilename = $filelocation . $fileName;
 
 
@@ -318,7 +318,8 @@ class ExportResultsController extends ControllerBase {
 				fwrite($data, ",\"".$value."\"");
 			}
 			if($withAbstract){
-				fwrite($data, ",\"".$row['Currency']."\",\" \",\" \","."\"".$row['FundingMechanism']."\",\"".$row['FundingMechanismCode']."\",\"".$row['FundingOrg']."\",\"".$row['FundingDiv']."\",\"".$row['FundingDivAbbr']."\",\"".$row['FundingContact']."\",\"".$row['piLastName']."\",\"".$row['piFirstName']."\",\"".$row['piORCID']."\",\"".$row['Institution']."\",\"".$row['City']."\",\"".$row['State']."\",\"".$row['Country']."\",\"".$row['TechAbstract']."\""."\n");
+				$abstract = str_replace(array("\r","\n"), '', $row['TechAbstract']);
+				fwrite($data, ",\"".$row['Currency']."\",\" \",\" \","."\"".$row['FundingMechanism']."\",\"".$row['FundingMechanismCode']."\",\"".$row['FundingOrg']."\",\"".$row['FundingDiv']."\",\"".$row['FundingDivAbbr']."\",\"".$row['FundingContact']."\",\"".$row['piLastName']."\",\"".$row['piFirstName']."\",\"".$row['piORCID']."\",\"".$row['Institution']."\",\"".$row['City']."\",\"".$row['State']."\",\"".$row['Country']."\",\"".$abstract."\""."\n");
 			}else{
 				fwrite($data, ",\"".$row['Currency']."\",\" \",\" \","."\"".$row['FundingMechanism']."\",\"".$row['FundingMechanismCode']."\",\"".$row['FundingOrg']."\",\"".$row['FundingDiv']."\",\"".$row['FundingDivAbbr']."\",\"".$row['FundingContact']."\",\"".$row['piLastName']."\",\"".$row['piFirstName']."\",\"".$row['piORCID']."\",\"".$row['Institution']."\",\"".$row['City']."\",\"".$row['State']."\",\"".$row['Country']."\",\"".$row['icrpURL']."\""."\n");
 			}
@@ -346,7 +347,7 @@ class ExportResultsController extends ControllerBase {
     $filenameCriteria = 'searchCriteria-'.$sid.'.csv';
     $filenameCSO = 'export-'.$sid.'CSO.csv';
     $filenameCancerType = 'export-'.$sid.'CancerType.csv';
-    $fileName = 'export-'.$sid.'-partner-site-with-abstracts.zip';
+    $fileName = 'ICRPExportPartnerAbstract'.$sid.'.zip';
     $zipFilename = $filelocation . $fileName;
 
 
