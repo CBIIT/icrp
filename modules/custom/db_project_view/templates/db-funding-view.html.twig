@@ -60,11 +60,7 @@ function googleTranslateElementInit() {
 <ul>
   {% for row in cancer_types %}
   <li>
-    {% if row.cancer_type_url %}
-      <a href="{{ row.cancer_type_url }}" target="_blank">{{ row.cancer_type }}</a>
-    {% else %}
-      {{ row.cancer_type }}
-    {% endif %}
+    {{ row.cancer_type }}
   </li>
   {% endfor %}
 </ul>

@@ -10,7 +10,7 @@ project_view_resources:
     theme:
       src/assets/css/main.f2110a2f.css: {}
   js:
-    src/assets/js/main.ab1b31fb.js: {}
+    src/assets/js/main.projectview.js: {}
     src/assets/js/scripts.js: {}
 
 

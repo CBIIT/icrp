@@ -231,9 +231,7 @@ class ProjectViewComponent extends Component {
         cancer_types.map((row, rowIndex) =>
           <li key={ rowIndex }>
           {
-            row.cancer_type_url
-            ? <a href={ row.cancer_type_url } target="_blank">{ row.cancer_type }</a>
-            : row.cancer_type
+            row.cancer_type
           }
           </li>
         )
