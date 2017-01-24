@@ -1,0 +1,117 @@
+#library {
+  padding: 0px 2em;
+}
+#library header {
+  margin-bottom: 2em;
+}
+#library-search {
+  background: #eee;
+  float: left;
+  padding: 1em;
+  width: 20em;
+}
+#library-search .mockfloat {
+  margin-right: -6em;
+  float: left;
+  width: 100%;
+}
+#library-search .searchbox {
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 1.5em;
+  display: block;
+  line-height: 2em;
+  margin-right: 7em;
+  padding: 6px 12px;
+}
+#library-search .searchbox:before {
+  content: '\e003';
+  float: left;
+  font-family: 'Glyphicons Halflings';
+  font-size: 1em;
+  margin: 0px .25em;
+  width: 1em;
+}
+#library-search .mockwidth {
+  display: block;
+  margin-left: 2em;
+  overflow: hidden;
+}
+#library-search .searchbox input {
+  border: none;
+  outline: none;
+  padding: 0px;
+  width: 100%;
+}
+#library-search button {
+  border-radius: 1.5em;
+  display: inline;
+  float: left;
+  line-height: 2em;
+  padding: 6px 12px;
+  text-align: center;
+  width: 6em;
+}
+#library-search .searchbar:after {
+  border: 1px solid #000;
+  border-width: 0px 0px 1px;
+  clear: both;
+  content: '';
+  display: block;
+  padding-bottom: 5px;
+}
+#library-search h3 {
+  margin-top: 5px;
+}
+#library-search select {
+  border-color: #000;
+  width: 100%;
+}
+#library-display {
+  overflow: hidden;
+  padding: 1em;
+}
+#library-display h3 {
+  margin-top: 0px;
+}
+#library-display .frame {
+  border: 1px solid black;
+  height: 40em;
+  overflow: auto;
+  padding: 0px 1em;
+}
+#library-display .frame .item {
+  float: left;
+  margin: 1em;
+  overflow: hidden;
+  position: relative;
+  width: 30em;
+}
+#library-display .frame .item h4 {
+  background-color: #eee;
+  font-size: 1em;
+  font-weight: bold;
+  text-align: center;
+}
+#library-display .frame .item img {
+  float: left;
+  margin-right: 1em;
+  width: 10em;
+}
+#library-display .frame .item p {
+  margin-bottom: 2em;
+  max-height: 10em;
+  overflow: auto;
+}
+#library-display .frame .item div {
+  bottom: 0px;
+  left: 11em;
+  position: absolute;
+  text-align: center;
+  width: 19em;
+}
+#library-display .frame .item:after {
+  clear: both;
+  content: '';
+  display: block;
+}
