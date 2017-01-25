@@ -8,7 +8,7 @@ project_view_resources:
   version: 1.0
   css:
     theme:
-      src/assets/css/main.f2110a2f.css: {}
+      src/assets/css/main.projectview.css: {}
   js:
     src/assets/js/main.projectview.js: {}
     src/assets/js/scripts.js: {}

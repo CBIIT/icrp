@@ -80,66 +80,65 @@ class ProjectViewComponent extends Component {
 
       /** @type {apiResults} */
       let results = await response.json();
-    
-      let columns = [
-        {
-          label: 'Title',
-          value: 'project_title',
-          link: 'project_funding_url'
-        },
-        {
-          label: 'Category',
-          value: 'project_category',
-        },
-        {
-          label: 'Funding Org.',
-          value: 'funding_organization',
-        },
-        {
-          label: 'Alt Award Code',
-          value: 'alt_award_code',
-        },
-        {
-          label: 'Award Funding Period',
-          value: 'award_funding_period',
-        },
-        {
-          label: 'PI',
-          value: 'pi_name',
-        },
-        {
-          label: 'Institution',
-          value: 'institution',
-        },
-        {
-          label: 'Location',
-          value: 'location',
-        },
-      ];
+      
+      let table = {
+        columns: [
+          {
+            label: 'Title',
+            value: 'project_title',
+            link: 'project_funding_url'
+          },
+          {
+            label: 'Category',
+            value: 'project_category',
+          },
+          {
+            label: 'Funding Org.',
+            value: 'funding_organization',
+          },
+          {
+            label: 'Alt Award Code',
+            value: 'alt_award_code',
+          },
+          {
+            label: 'Award Funding Period',
+            value: 'award_funding_period',
+          },
+          {
+            label: 'PI',
+            value: 'pi_name',
+          },
+          {
+            label: 'Institution',
+            value: 'institution',
+          },
+          {
+            label: 'Location',
+            value: 'location',
+          },
+        ],
 
-      let data = results.project_funding_details.map(row => ({
-        project_title: row.project_title,
-        project_funding_url: `/project/funding-details/${row.project_funding_id}`,
-        project_category: row.award_type,
-        funding_organization: row.funding_organization,
-        alt_award_code: row.alt_award_code,
-        award_funding_period: (!row.budget_start_date && !row.budget_end_date)
-          ? 'Not specified'
-          : (row.budget_start_date || 'N/A') + ' to '
-          + (row.budget_end_date || 'N/A'),
+        data: results.project_funding_details.map(row => ({
+          project_title: row.project_title,
+          project_funding_url: `/project/funding-details/${row.project_funding_id}`,
+          project_category: row.award_type,
+          funding_organization: row.funding_organization,
+          alt_award_code: row.alt_award_code,
+          award_funding_period: (!row.budget_start_date && !row.budget_end_date)
+            ? 'Not specified'
+            : (row.budget_start_date || 'N/A') + ' to '
+            + (row.budget_end_date || 'N/A'),
 
-        pi_name: [row.pi_last_name, row.pi_first_name].filter(e => e.length).join(', '),
-        institution: row.institution,
-        location: [row.city, row.state, row.country].filter(e => e.length).join(', '),
-      }));
+          pi_name: [row.pi_last_name, row.pi_first_name].filter(e => e.length).join(', '),
+          institution: row.institution,
+          location: [row.city, row.state, row.country].filter(e => e.length).join(', '),
+        }))
+      }
 
       this.setState({
         loading: false,
         results: results,
-        table: {
-          columns: columns,
-          data: data
-        }
+        table: table
       });
     }
     catch (exception) {
@@ -150,7 +149,7 @@ class ProjectViewComponent extends Component {
     }
   }
 
-  appendGoogleTranslate() {
+  appendGoogleTranslateScript() {
     window.googleTranslateElementInit = 
     window.googleTranslateElementInit || function() {
       new window.google.translate.TranslateElement({
@@ -186,7 +185,7 @@ class ProjectViewComponent extends Component {
       <h4 className="h4 grey">{ project_details.project_title }</h4>
       <hr className="less-margins" />
       <div id="google_translate_element" className="pull-right"></div>
-      { this.appendGoogleTranslate() }
+      { this.appendGoogleTranslateScript() }
 
       <dl className="dl-horizontal margin-bottom margin-top">
         <dt>Award Code</dt>
@@ -209,8 +208,8 @@ class ProjectViewComponent extends Component {
 
       {
         project_details.technical_abstract &&
-        <div>
-          <h4>Technical Abstract</h4>
+        <div className="margin-top">
+          <h4 >Technical Abstract</h4>
           <div>{ project_details.technical_abstract }</div>
           <hr />
         </div>
@@ -218,7 +217,7 @@ class ProjectViewComponent extends Component {
 
       {
         project_details.public_abstract &&
-        <div>
+        <div className="margin-top">
           <h4>Public Abstract</h4>
           <div>{ project_details.public_abstract }</div>
           <hr />
