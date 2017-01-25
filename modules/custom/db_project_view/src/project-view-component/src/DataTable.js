@@ -16,12 +16,14 @@ class DataTable extends Component {
     return (
       <div>
         <div className="table-responsive">
-          <table className="table table-bordered table-striped table-condensed table-hover table-nowrap table-narrow">
+          <table className="table table-bordered table-striped table-condensed table-hover table-narrow table-nowrap">
             <thead>
               <tr>
-                {this.props.columns.map((column, columnIndex) => 
-                  <th key={columnIndex}>{column.label}</th>
-                )}
+                {
+                  this.props.columns.map((column, columnIndex) => 
+                    <th key={columnIndex}>{column.label}</th>
+                  )
+                }
               </tr>
             </thead>
             <tbody>
@@ -47,6 +49,7 @@ class DataTable extends Component {
                 </tr>)}
             </tbody>
           </table>
+          { window['enableResizableTableColumns']() }
         </div>
         
         {this.props.data.length > this.props.limit &&

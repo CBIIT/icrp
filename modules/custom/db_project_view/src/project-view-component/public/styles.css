@@ -57,6 +57,7 @@
 .table-nowrap > tfoot > tr > td {
   white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .table-narrow > thead > tr > th,

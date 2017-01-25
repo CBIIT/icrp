@@ -210,7 +210,7 @@ class ProjectViewComponent extends Component {
         project_details.technical_abstract &&
         <div className="margin-top">
           <h4 >Technical Abstract</h4>
-          <div>{ project_details.technical_abstract }</div>
+          <div dangerouslySetInnerHTML={{ __html: project_details.technical_abstract }} />
           <hr />
         </div>
       }
@@ -219,7 +219,7 @@ class ProjectViewComponent extends Component {
         project_details.public_abstract &&
         <div className="margin-top">
           <h4>Public Abstract</h4>
-          <div>{ project_details.public_abstract }</div>
+          <div dangerouslySetInnerHTML={{ __html: project_details.public_abstract }} />
           <hr />
         </div>
       }
