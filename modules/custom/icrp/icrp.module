@@ -1,6 +1,9 @@
 <?php
 
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\HttpFoundation\Request;
+
 /*
  * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
  * @25:58 minutes
@@ -38,4 +41,42 @@ function mod_user_login($account) {
 function get_user($uuid) {
     $user = array('first name' => "Chris", 'last_name' => "Kneisler");
     return $user;
+}
+
+function hook_form_yamlform_submission_update_my_profile_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+    // Modification for the form with the given form ID goes here. For example, if
+    // FORM_ID is "user_register_form" this code would run only on the user
+    // registration form.
+
+    // Add a checkbox to registration form about agreeing to terms of use.
+    $form['terms_of_use'] = array(
+        '#type' => 'checkbox',
+        '#title' => t("I agree with the website's terms and conditions."),
+        '#required' => TRUE,
+    );
+}
+/**
+ * Implements hook_form_alter().
+ */
+function icrp_hook_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+    if ($form_id == 'user_form') {
+        $form['#submit'][] = '_MODULE_goto';
+        $form['terms_of_use'] = array(
+            '#type' => 'checkbox',
+            '#title' => t("I agree with the website's terms and conditions."),
+            '#required' => TRUE,
+        );
+    }
+}
+function hook_form_user_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+    // Modification for the form with the given form ID goes here. For example, if
+    // FORM_ID is "user_register_form" this code would run only on the user
+    // registration form.
+
+    // Add a checkbox to registration form about agreeing to terms of use.
+    $form['terms_of_use'] = array(
+        '#type' => 'checkbox',
+        '#title' => t("I agree with the website's terms and conditions."),
+        '#required' => TRUE,
+    );
 }
