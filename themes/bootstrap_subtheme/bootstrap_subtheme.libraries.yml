@@ -2,6 +2,7 @@ global-styling:
   css:
     theme:
       css/style.css: {}
+      css/bootstrap-overrides.css: {}
 
 global-scripts:
   version: version
