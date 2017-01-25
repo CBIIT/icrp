@@ -5,6 +5,8 @@
  */
 namespace Drupal\db_export_results\Controller;
 
+require 'PHPExcel.php';
+
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Database;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,6 +15,24 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use PDO;
 use ZipArchive;
+use PHPExcel;
+use PHPExcel_IOFactory;
+use PHPExcel_Chart_DataSeries;
+use PHPExcel_Style_Border;
+use PHPExcel_Chart_DataSeriesValues;
+use PHPExcel_Chart_DataSerie;
+use PHPExcel_Chart_Layout;
+use	PHPExcel_Chart_PlotArea;
+use	PHPExcel_Chart_Legend;
+use	PHPExcel_Chart_Title;
+use	PHPExcel_Chart;
+
+/** Error reporting */
+error_reporting(E_ALL);
+ini_set('display_errors', TRUE);
+ini_set('display_startup_errors', TRUE);
+
+define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
 
 class ExportResultsController extends ControllerBase {
 
@@ -363,8 +383,387 @@ class ExportResultsController extends ControllerBase {
 
    public function exportResultsWithGraphsPartner(){
 	$result = "Complete Exporting Results with Graphs in Partner Site";
-	return self::addCorsHeaders(new JSONResponse($result));
+	$sid = $_SESSION['database_search_id'];
+	//$sid = 3;
+
+	$result = "Complete Exporting Results in Partner Site";
+	$config = self::getConfig();
+	$filelocation = $config['file_location'];
+	$downloadlocation = self::getBaseUrl() .  $config['download_location'];
+	$filenameExport  = 'ICRPExportGraphPartner'.$sid.'.xlsx';
+	//$fileName = 'ICRPExportGraphPartner'.$sid.'.zip';
+    //$zipFilename = $filelocation . $fileName;
+
+	$result = self::createExcelFileWithGraph($filelocation, $filenameExport, $sid);
+
+	return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));
   }
 
+  private function createExcelFileWithGraph($filelocation, $filename, $sid){
+  	$result = "Succeed";
+    try {
+  	   $conn = self::getConnection();
+    } catch (Exception $exc) {
+    	   return "Could not create db connection";
+  	}
+
+  	$file_export  =  $filelocation . $filename;
+    $totalRow = 0;
+  	// Create new PHPExcel object
+	$objPHPExcel = new PHPExcel();
+
+	// Set document properties
+	$objPHPExcel->getProperties()->setCreator("ICRP")
+							 	->setLastModifiedBy("ICRP")
+							 	->setTitle("Test Document")
+							 	->setSubject("Test Document")
+							 	->setDescription("Test document for PHPExcel, generated using PHP classes.")
+							 	->setKeywords("office PHPExcel php")
+							 	->setCategory("Test result file");
+
+    //create first sheet for Projects By Country
+   	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectCountryStatsBySearchID @SearchID=:search_id_name,  @ResultCount=:result_count");
+   	$stmt->bindParam(':search_id_name', $sid);
+   	$stmt->bindParam(':result_count', $result_count, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
+
+   	if ($stmt->execute()) {
+   	    $i = 2;
+   		// Add some data
+   		$objPHPExcel->setActiveSheetIndex(0)
+   		            ->setCellValue('A1', 'Country')
+   		            ->setCellValue('B1', 'Count');
+   		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+   			$objPHPExcel->setActiveSheetIndex(0)
+   		    	        ->setCellValue('A'.$i, $row['country'])
+   		    	        ->setCellValue('B'.$i, $row['Count']);
+   			$i = $i + 1;
+   			$totalRow = $totalRow + 1;
+   		}
+   		$result = "succeed";
+   	} else {
+   		$result = "failed to query server";
+   	}
+    $objPHPExcel->getActiveSheet()->setTitle('Projects_By_Country');
+
+	$dataseriesLabels1 = array(
+		new PHPExcel_Chart_DataSeriesValues('String', 'Projects_By_Country!$B$1', NULL, 1),
+	);
+	$xAxisTickValues1 = array(
+	  new PHPExcel_Chart_DataSeriesValues('String', 'Projects_By_Country!$A$2:$A$'.($totalRow+1), NULL, $totalRow),
+	);
+    $dataSeriesValues1 = array(
+	  new PHPExcel_Chart_DataSeriesValues('Number', 'Projects_By_Country!$B$2:$B$'.($totalRow+1), NULL, $totalRow),
+	);
+	$series1 = new PHPExcel_Chart_DataSeries(
+	  PHPExcel_Chart_DataSeries::TYPE_BARCHART,       // plotType
+	  PHPExcel_Chart_DataSeries::GROUPING_STANDARD,     // plotGrouping
+	  range(0, count($dataSeriesValues1)-1),          // plotOrder
+	  $dataseriesLabels1,                   // plotLabel
+	  $xAxisTickValues1,                    // plotCategory
+	  $dataSeriesValues1                    // plotValues
+	);
+	$layout1 = new PHPExcel_Chart_Layout();
+	$layout1->setShowVal(TRUE);
+	$plotarea1 = new PHPExcel_Chart_PlotArea($layout1, array($series1));
+	$legend1 = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);
+	$title1 = new PHPExcel_Chart_Title('Projects By Country');
+	$chart1 = new PHPExcel_Chart(
+	  'chart1',   // name
+	  $title1,    // title
+	  $legend1,   // legend
+	  $plotarea1,   // plotArea
+	  true,     // plotVisibleOnly
+	  0,        // displayBlanksAs
+	  NULL,     // xAxisLabel
+	  NULL      // yAxisLabel   - Pie charts don't have a Y-Axis
+	);
+	$chart1->setTopLeftPosition('D2');
+	$chart1->setBottomRightPosition('Q26');
+	$objPHPExcel->getActiveSheet()->addChart($chart1);
+
+	//create second sheet for Projects By CSO
+	$totalRow = 0;
+	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectCSOStatsBySearchID @SearchID=:search_id_name,  @ResultCount=:result_count");
+	$stmt->bindParam(':search_id_name', $sid);
+	$stmt->bindParam(':result_count', $result_count, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
+
+	if ($stmt->execute()) {
+		// Add new sheet
+		$objWorkSheet = $objPHPExcel->createSheet();
+	    $i = 2;
+		// Add some data
+		$objPHPExcel->setActiveSheetIndex(1)
+		            ->setCellValue('A1', 'Category Name')
+		            ->setCellValue('B1', 'Count');
+		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+			$objPHPExcel->setActiveSheetIndex(1)
+		    	        ->setCellValue('A'.$i, $row['categoryName'])
+		    	        ->setCellValue('B'.$i, $row['Count']);
+			$i = $i + 1;
+			$totalRow = $totalRow + 1;
+		}
+
+		$result = "succeed";
+	} else {
+		$result = "failed to query server";
+	}
+    $objPHPExcel->getActiveSheet()->setTitle('Project_By_CSO');
+    $objPHPExcel->setActiveSheetIndex(1);
+	$dataseriesLabels2 = array(
+		new PHPExcel_Chart_DataSeriesValues('String', 'Project_By_CSO!$B$1', NULL, 1),
+	);
+	$xAxisTickValues2 = array(
+	  new PHPExcel_Chart_DataSeriesValues('String', 'Project_By_CSO!$A$2:$A$'.($totalRow+1), NULL, $totalRow),
+	);
+    $dataSeriesValues2 = array(
+	  new PHPExcel_Chart_DataSeriesValues('Number', 'Project_By_CSO!$B$2:$B$'.($totalRow+1), NULL, $totalRow),
+	);
+	$series2 = new PHPExcel_Chart_DataSeries(
+	  PHPExcel_Chart_DataSeries::TYPE_BARCHART,       // plotType
+	  PHPExcel_Chart_DataSeries::GROUPING_STANDARD,     // plotGrouping
+	  range(0, count($dataSeriesValues2)-1),          // plotOrder
+	  $dataseriesLabels2,                   // plotLabel
+	  $xAxisTickValues2,                    // plotCategory
+	  $dataSeriesValues2                    // plotValues
+	);
+	$layout2 = new PHPExcel_Chart_Layout();
+	$layout2->setShowVal(TRUE);
+	$plotarea2 = new PHPExcel_Chart_PlotArea($layout2, array($series2));
+	$legend2 = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);
+	$title2 = new PHPExcel_Chart_Title('Projects By CSO');
+	$chart2 = new PHPExcel_Chart(
+	  'chart2',   // name
+	  $title2,    // title
+	  $legend2,   // legend
+	  $plotarea2,   // plotArea
+	  true,     // plotVisibleOnly
+	  0,        // displayBlanksAs
+	  NULL,     // xAxisLabel
+	  NULL      // yAxisLabel   - Pie charts don't have a Y-Axis
+	);
+	$chart2->setTopLeftPosition('D2');
+	$chart2->setBottomRightPosition('Q26');
+	$objPHPExcel->getActiveSheet()->addChart($chart2);
+
+
+	//create second sheet for Projects By Cancer Type
+	$totalRow = 0;
+	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectCancerTypeStatsBySearchID @SearchID=:search_id_name,  @ResultCount=:result_count");
+	$stmt->bindParam(':search_id_name', $sid);
+	$stmt->bindParam(':result_count', $result_count, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
+
+	if ($stmt->execute()) {
+		// Add new sheet
+		$objWorkSheet = $objPHPExcel->createSheet();
+	    $i = 2;
+		// Add some data
+		$objPHPExcel->setActiveSheetIndex(2)
+		            ->setCellValue('A1', 'Cancer Type')
+		            ->setCellValue('B1', 'Count');
+		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+			$objPHPExcel->setActiveSheetIndex(2)
+		    	        ->setCellValue('A'.$i, $row['CancerType'])
+		    	        ->setCellValue('B'.$i, $row['Count']);
+			$i = $i + 1;
+			$totalRow = $totalRow + 1;;
+		}
+
+		$result = "succeed";
+	} else {
+		$result = "failed to query server";
+	}
+    $objPHPExcel->getActiveSheet()->setTitle('Project_By_Cancer_Type');
+    $objPHPExcel->setActiveSheetIndex(2);
+	$dataseriesLabels3 = array(
+		new PHPExcel_Chart_DataSeriesValues('String', 'Project_By_Cancer_Type!$B$1', NULL, 1),
+	);
+	$xAxisTickValues3 = array(
+	  new PHPExcel_Chart_DataSeriesValues('String', 'Project_By_Cancer_Type!$A$2:$A$'.($totalRow+1), NULL, $totalRow),
+	);
+    $dataSeriesValues3 = array(
+	  new PHPExcel_Chart_DataSeriesValues('Number', 'Project_By_Cancer_Type!$B$2:$B$'.($totalRow+1), NULL, $totalRow),
+	);
+	$series3 = new PHPExcel_Chart_DataSeries(
+	  PHPExcel_Chart_DataSeries::TYPE_BARCHART,       // plotType
+	  PHPExcel_Chart_DataSeries::GROUPING_STANDARD,     // plotGrouping
+	  range(0, count($dataSeriesValues3)-1),          // plotOrder
+	  $dataseriesLabels3,                   // plotLabel
+	  $xAxisTickValues3,                    // plotCategory
+	  $dataSeriesValues3                    // plotValues
+	);
+	$layout3 = new PHPExcel_Chart_Layout();
+	$layout3->setShowVal(TRUE);
+	$plotarea3 = new PHPExcel_Chart_PlotArea($layout3, array($series3));
+	$legend3 = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);
+	$title3 = new PHPExcel_Chart_Title('Projects By Cancer Type');
+	$chart3 = new PHPExcel_Chart(
+	  'chart3',   // name
+	  $title3,    // title
+	  $legend3,   // legend
+	  $plotarea3,   // plotArea
+	  true,     // plotVisibleOnly
+	  0,        // displayBlanksAs
+	  NULL,     // xAxisLabel
+	  NULL      // yAxisLabel   - Pie charts don't have a Y-Axis
+	);
+	$chart3->setTopLeftPosition('D2');
+	$chart3->setBottomRightPosition('Q26');
+	$objPHPExcel->getActiveSheet()->addChart($chart3);
+
+	//create second sheet for Projects By Type
+	$totalRow = 0;
+	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectTypeStatsBySearchID @SearchID=:search_id_name,  @ResultCount=:result_count");
+	$stmt->bindParam(':search_id_name', $sid);
+	$stmt->bindParam(':result_count', $result_count, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
+
+	if ($stmt->execute()) {
+		// Add new sheet
+		$objWorkSheet = $objPHPExcel->createSheet();
+	    $i = 2;
+		// Add some data
+		$objPHPExcel->setActiveSheetIndex(3)
+		            ->setCellValue('A1', 'Project Type')
+		            ->setCellValue('B1', 'Count');
+		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+			$objPHPExcel->setActiveSheetIndex(3)
+		    	        ->setCellValue('A'.$i, $row['ProjectType'])
+		    	        ->setCellValue('B'.$i, $row['Count']);
+			$i = $i + 1;
+			$totalRow = $totalRow + 1;
+		}
+
+		$result = "succeed";
+	} else {
+		$result = "failed to query server";
+	}
+    $objPHPExcel->getActiveSheet()->setTitle('Project_By_Type');
+    $objPHPExcel->setActiveSheetIndex(3);
+	$dataseriesLabels4 = array(
+		new PHPExcel_Chart_DataSeriesValues('String', 'Project_By_Type!$B$1', NULL, 1),
+	);
+	$xAxisTickValues4 = array(
+	  new PHPExcel_Chart_DataSeriesValues('String', 'Project_By_Type!$A$2:$A$'.($totalRow+1), NULL, $totalRow),
+	);
+    $dataSeriesValues4 = array(
+	  new PHPExcel_Chart_DataSeriesValues('Number', 'Project_By_Type!$B$2:$B$'.($totalRow+1), NULL, $totalRow),
+	);
+	$series4 = new PHPExcel_Chart_DataSeries(
+	  PHPExcel_Chart_DataSeries::TYPE_BARCHART,       // plotType
+	  PHPExcel_Chart_DataSeries::GROUPING_STANDARD,     // plotGrouping
+	  range(0, count($dataSeriesValues4)-1),          // plotOrder
+	  $dataseriesLabels4,                   // plotLabel
+	  $xAxisTickValues4,                    // plotCategory
+	  $dataSeriesValues4                    // plotValues
+	);
+	$layout4 = new PHPExcel_Chart_Layout();
+	$layout4->setShowVal(TRUE);
+	$plotarea4 = new PHPExcel_Chart_PlotArea($layout4, array($series4));
+	$legend4 = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);
+	$title4 = new PHPExcel_Chart_Title('Projects By Type');
+	$chart4 = new PHPExcel_Chart(
+	  'chart4',   // name
+	  $title4,    // title
+	  $legend4,   // legend
+	  $plotarea4,   // plotArea
+	  true,     // plotVisibleOnly
+	  0,        // displayBlanksAs
+	  NULL,     // xAxisLabel
+	  NULL      // yAxisLabel   - Pie charts don't have a Y-Axis
+	);
+	$chart4->setTopLeftPosition('D2');
+	$chart4->setBottomRightPosition('Q26');
+	$objPHPExcel->getActiveSheet()->addChart($chart4);
+
+	//create second sheet for Projects By Year
+	$bit = 1;
+	$totalRow = 0;
+	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectAwardStatsBySearchID @SearchID=:search_id_name, @isPartner=:is_partner, @Total=:result_count");
+	$stmt->bindParam(':search_id_name', $sid);
+	$stmt->bindParam(':is_partner', $bit, PDO::PARAM_INT);
+	$stmt->bindParam(':result_count', $result_count, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
+
+	if ($stmt->execute()) {
+		// Add new sheet
+		$objWorkSheet = $objPHPExcel->createSheet();
+	    $i = 2;
+		// Add some data
+		if($bit == 0){
+			$objPHPExcel->setActiveSheetIndex(4)
+						->setCellValue('A1', 'Calendar Year')
+						->setCellValue('B1', 'Count');
+			while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+				$objPHPExcel->setActiveSheetIndex(4)
+							->setCellValue('A'.$i, $row['Year'])
+							->setCellValue('B'.$i, $row['Count']);
+				$i = $i + 1;
+				$totalRow = $totalRow + 1;
+			}
+		}else if($bit == 1){
+			$objPHPExcel->setActiveSheetIndex(4)
+						->setCellValue('A1', 'Calendar Year')
+						->setCellValue('B1', 'Amount');
+			while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+				$objPHPExcel->setActiveSheetIndex(4)
+							->setCellValue('A'.$i, $row['Year'])
+							->setCellValue('B'.$i, $row['Amount']);
+				$i = $i + 1;
+				$totalRow = $totalRow + 1;
+			}
+		}
+		$result = "succeed";
+	} else {
+		$result = "failed to query server";
+	}
+    $objPHPExcel->getActiveSheet()->setTitle('Project_By_Year');
+    $objPHPExcel->setActiveSheetIndex(4);
+	$dataseriesLabels5 = array(
+		new PHPExcel_Chart_DataSeriesValues('String', 'Project_By_Year!$B$1', NULL, 1),
+	);
+	$xAxisTickValues5 = array(
+	  new PHPExcel_Chart_DataSeriesValues('String', 'Project_By_Year!$A$2:$A$'.($totalRow+1), NULL, $totalRow),
+	);
+    $dataSeriesValues5 = array(
+	  new PHPExcel_Chart_DataSeriesValues('Number', 'Project_By_Year!$B$2:$B$'.($totalRow+1), NULL, $totalRow),
+	);
+	$series5 = new PHPExcel_Chart_DataSeries(
+	  PHPExcel_Chart_DataSeries::TYPE_LINECHART,       // plotType
+	  PHPExcel_Chart_DataSeries::GROUPING_STANDARD,     // plotGrouping
+	  range(0, count($dataSeriesValues5)-1),          // plotOrder
+	  $dataseriesLabels5,                   // plotLabel
+	  $xAxisTickValues5,                    // plotCategory
+	  $dataSeriesValues5                    // plotValues
+	);
+	$layout5 = new PHPExcel_Chart_Layout();
+	$layout5->setShowVal(TRUE);
+	$plotarea5 = new PHPExcel_Chart_PlotArea($layout5, array($series5));
+	$legend5 = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);
+	$title5 = new PHPExcel_Chart_Title('Projects By Year');
+	$chart5 = new PHPExcel_Chart(
+	  'chart5',   // name
+	  $title5,    // title
+	  $legend5,   // legend
+	  $plotarea5,   // plotArea
+	  true,     // plotVisibleOnly
+	  0,        // displayBlanksAs
+	  NULL,     // xAxisLabel
+	  NULL      // yAxisLabel   - Pie charts don't have a Y-Axis
+	);
+	$chart5->setTopLeftPosition('D2');
+	$chart5->setBottomRightPosition('Q26');
+	$objPHPExcel->getActiveSheet()->addChart($chart5);
+
+
+ 	// Set active sheet index to the first sheet, so Excel opens this as the first sheet
+	$objPHPExcel->setActiveSheetIndex(0);
+
+	// Save Excel 2007 file
+	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+	$objWriter->setIncludeCharts(TRUE);
+	$objWriter->save($filelocation.$filename);
+
+	$conn=null;
+
+    return $result;
+  }
 }
 ?>
