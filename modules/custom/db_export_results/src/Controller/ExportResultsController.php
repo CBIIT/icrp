@@ -627,7 +627,7 @@ class ExportResultsController extends ControllerBase {
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$objPHPExcel->setActiveSheetIndex(3)
 		    	        ->setCellValue('A'.$i, $row['ProjectType'])
-		    	        ->setCellValue('B'.$i, $row['Project Count']);
+		    	        ->setCellValue('B'.$i, $row['Count']);
 			$i = $i + 1;
 			$totalRow = $totalRow + 1;
 		}
@@ -738,7 +738,12 @@ class ExportResultsController extends ControllerBase {
 	$layout5->setShowVal(TRUE);
 	$plotarea5 = new PHPExcel_Chart_PlotArea($layout5, array($series5));
 	$legend5 = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);
-	$title5 = new PHPExcel_Chart_Title('Award Amount By Year');
+	$title5 = "";
+	if($bit == 1){
+		$title5 = new PHPExcel_Chart_Title('Award Amount By Year');
+	}else if($bit == 0){
+		$title5 = new PHPExcel_Chart_Title('Project By Year');
+	}
 	$chart5 = new PHPExcel_Chart(
 	  'chart5',   // name
 	  $title5,    // title
