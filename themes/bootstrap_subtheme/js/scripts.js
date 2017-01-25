@@ -7,10 +7,8 @@
   }
 })(window.jQuery);
 
-(function ($) {
-  window.enableResizableTableColumns = window.enableResizableTableColumns || function() {
+window['enableResizableTableColumns'] = function() {
+  window.setTimeout(function() {
     $('table').resizableColumns();
-  }
-  window.enableResizableTableColumns();
-})(window.jQuery);
-
+  }, 0)
+}
