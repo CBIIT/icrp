@@ -295,7 +295,7 @@ GO
 -- ProjectCSO
 -----------------------------
 INSERT INTO ProjectCSO
-(ProjectFundingID, [CSOCode],[Relvance],[RelSource],[CreatedDate],[UpdatedDate])
+(ProjectFundingID, [CSOCode],[Relevance],[RelSource],[CreatedDate],[UpdatedDate])
 SELECT mf.[ProjectFundingID], c.Code, pc.[RELEVANCE], pc.[RELSOURCE], pc.[DATEADDED], pc.[LASTREVISED]
 FROM icrp.dbo.projectCSO pc
 	JOIN [Migration_ProjectFunding] mf ON pc.PROJECTID = mf.OldProjectID	
@@ -309,7 +309,7 @@ FROM icrp.dbo.projectCSO pc
 -- ProjectCancerType
 -----------------------------
 INSERT INTO ProjectCancerType
-(ProjectFundingID, CancerTypeID, Relvance, RelSource, EnterBy)
+(ProjectFundingID, CancerTypeID, Relevance, RelSource, EnterBy)
 SELECT mf.[ProjectFundingID], c.CancerTypeID, ps.RELEVANCE, ps.RELSOURCE, ps.ENTEREDBY 
 FROM icrp.dbo.PROJECTSITE ps	
 	JOIN [Migration_ProjectFunding] mf ON ps.PROJECTID = mf.OldProjectID	

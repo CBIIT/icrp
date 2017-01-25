@@ -103,7 +103,7 @@ AS
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 			
 			(SELECT p.ProjectID FROM #Proj p
-			JOIN ProjectCancerType ct ON p.ProjectFundingID = ct.ProjectFundingID WHERE CancerTypeID IN (SELECT * FROM dbo.ToIntTable(@cancerTypeList)))
+			JOIN (SELECT * FROM ProjectCancerType WHERE isnull(RelSource,'') = 'S') ct ON p.ProjectFundingID = ct.ProjectFundingID WHERE CancerTypeID IN (SELECT * FROM dbo.ToIntTable(@cancerTypeList)))
 	END
 
 	-------------------------------------------------------------------------
@@ -388,18 +388,21 @@ AS
 	-- Get saved search results by searchID
 	------------------------------------------------------	
 	DECLARE @ProjectIDs VARCHAR(max) 
-	SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+	SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
 	
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT i.country, Count(*) AS Count
+	SELECT i.country, Count(*) AS [Count] INTO #stats
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
 		JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
 		JOIN Institution i ON i.InstitutionID = pi.InstitutionID
-	GROUP BY i.country			
-	ORDER BY count(*) DESC				  
+	GROUP BY i.country				
+
+	SELECT @ResultCount = SUM([Count]) FROM #stats	
+
+	SELECT * FROM #stats ORDER BY [Count] Desc
 GO
 
 
@@ -430,13 +433,17 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT c.categoryName, Count(*) AS Count
+	SELECT c.categoryName, Count(*) AS [Count] INTO #stats
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
 		JOIN ProjectCSO pc ON f.projectFundingID = pc.projectFundingID
 		JOIN CSO c ON c.code = pc.csocode
 	GROUP BY c.categoryName
-	ORDER BY count(*) DESC
+
+	SELECT @ResultCount = SUM([Count]) FROM #stats	
+
+	SELECT * FROM #stats ORDER BY [Count] DESC
+	
 GO
 
 
@@ -467,13 +474,16 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT c.Name AS CancerType, Count(*) AS Count
+	SELECT c.Name AS CancerType, Count(*) AS [Count] INTO #stats
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
-		JOIN ProjectCancerType pc ON f.projectFundingID = pc.projectFundingID		
+		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(RelSource,'') = 'S') pc ON f.projectFundingID = pc.projectFundingID		
 		JOIN CancerType c ON c.CancerTypeID = pc.CancerTypeID		
 	GROUP BY c.Name
-	ORDER BY count(*) DESC
+
+	SELECT @ResultCount = SUM([Count]) FROM #stats	
+
+	SELECT * FROM #stats ORDER BY [Count] DESC
 GO
 
 
@@ -505,11 +515,14 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT pt.ProjectType, Count(*) AS Count
+	SELECT pt.ProjectType, Count(*) AS [Count] INTO #stats
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r				
 		JOIN Project_ProjectType pt ON r.ProjectID = pt.ProjectID				
 	GROUP BY pt.ProjectType
-	ORDER BY count(*) DESC
+	
+	SELECT @ResultCount = SUM([Count]) FROM #stats	
+
+	SELECT * FROM #stats ORDER BY [Count] DESC
 GO
 
 
@@ -543,19 +556,26 @@ AS
 	----------------------------------
 	IF @isPartner = 0
 	BEGIN
-		SELECT ext.CalendarYear AS Year, Count(*) AS Count
+		SELECT ext.CalendarYear AS Year, Count(*) AS Count INTO #stats
 		FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
 			JOIN ProjectFundingExt ext ON ext.ProjectID = r.ProjectID
-		GROUP BY ext.CalendarYear
-		ORDER BY count(*) DESC
+		GROUP BY ext.CalendarYear		
+
+		SELECT @ResultCount = SUM([Count]) FROM #stats	
+
+		SELECT * FROM #stats ORDER BY [Count] DESC
+
 	END
 	ELSE  -- Partner Site
 	BEGIN
-		SELECT ext.CalendarYear AS Year, SUM(ISNULL(ext.CalendarAmount,0)) AS Amount
+		SELECT ext.CalendarYear AS Year, SUM(ISNULL(ext.CalendarAmount,0)) AS Amount INTO #statsPart
 		FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
 			JOIN ProjectFundingExt ext ON ext.ProjectID = r.ProjectID
-		GROUP BY ext.CalendarYear
-		ORDER BY count(*) DESC
+		GROUP BY ext.CalendarYear	
+	
+		SELECT @ResultCount = SUM([Count]) FROM #statsPart	
+
+		SELECT * FROM #statsPart ORDER BY [Count] DESC	
 	END
 GO
 
@@ -638,7 +658,7 @@ SELECT t.Name AS CancerType, t.SiteURL
 FROM ProjectFunding f
 	JOIN ProjectCancerType ct ON f.ProjectFundingID = ct.ProjectFundingID	
 	JOIN CancerType t ON ct.CancerTypeID = t.CancerTypeID
-WHERE f.ProjectFundingID = @ProjectFundingID
+WHERE f.ProjectFundingID = @ProjectFundingID AND isnull(ct.RelSource,'') = 'S'
 ORDER BY t.Name
 
 
@@ -703,7 +723,7 @@ GO
 
 
 ----------------------------------------------------------------------------------------------------------
-/****** Object:  StoredProcedure [dbo].[GetProjectExports]    Script Date: 12/14/2016 4:21:37 PM ******/
+/****** Object:  StoredProcedure [dbo].[GetProjectExportsBySearchID]    Script Date: 12/14/2016 4:21:37 PM ******/
 ----------------------------------------------------------------------------------------------------------
 SET ANSI_NULLS ON
 GO
@@ -711,39 +731,137 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectExports]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetProjectExports]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectExportsBySearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetProjectExportsBySearchID]
 GO 
 
-CREATE PROCEDURE [dbo].[GetProjectExports]
+CREATE PROCEDURE [dbo].[GetProjectExportsBySearchID]
      @SearchID INT,
-	 @SiteURL INT
+	 @SiteURL varchar(50) = 'https://www.icrpartnership.org/project/'
+	 
 AS   
 
 	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
 	DECLARE @ProjectIDs VARCHAR(max) 
-	SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
+	SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+		
+	-----------------------------------------------------------		
+	--  Get all related projects with dolloar amounts
+	-----------------------------------------------------------			 
+	SELECT p.ProjectID, p.AwardCode, f.Title AS AwardTitle, pt.ProjectType AS AwardType, f.Source_ID, f.AltAwardCode, p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, 
+		f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
+		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency, NULL AS ToCurrency, NULL AS ToCurrencyRate,		
+		p.MechanismTitle AS FundingMechanism, p.MechanismCode AS FundingMechanismCode, o.Name AS FundingOrg, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, '' AS FundingContact, 
+		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
+	INTO #temp
+	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
+		LEFT JOIN Project p ON r.ProjectID = p.ProjectID
+		LEFT JOIN Project_ProjectType pt ON p.ProjectID = pt.ProjectID
+		LEFT JOIN ProjectFunding f ON p.ProjectID = f.PROJECTID
+		LEFT JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
+		LEFT JOIN FundingDivision d ON d.FundingDivisionID = f.FundingDivisionID
+		LEFT JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID		
+		LEFT JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+		LEFT JOIN ProjectAbstract a ON a.ProjectAbstractID = f.ProjectAbstractID	
 
 	-----------------------------------------------------------		
-	--  Get all related projects withn dolloar amounts
-	-----------------------------------------------------------			 
-	SELECT p.ProjectID, f.ProjectFundingID, f.Title AS AwardTitle, pt.ProjectType, f.Source_ID, f.AltAwardCode, p.ProjectStartDate AS AWardStartDate, p.ProjectEndDate AS AwardEndDate, 
-		f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
-		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, 
-		p.MechanismTitle, p.MechanismCode, o.Name AS FundingOrg, d.Abbreviation AS FUndingDivAbbr, '' AS FundingContact, pi.LastName  AS piLastName, pi.FirstName AS piLastName, pi.ORC_ID AS piORCID,
-		i.Name AS Institution, i.City, i.State, i.Country, @siteurl+'viewProject/'+CAST(p.Projectid AS varchar(10))
-	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
-		JOIN Project p ON r.ProjectID = p.ProjectID
-		JOIN Project_ProjectType pt ON p.ProjectID = pt.ProjectID
-		JOIN ProjectFunding f ON p.ProjectID = f.PROJECTID
-		JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
-		JOIN FundingDivision d ON d.FundingDivisionID = f.FundingDivisionID
-		JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID		
-		JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+	--  Get all calendar amounts and convert them to columns
+	-----------------------------------------------------------		 	 
+	DECLARE   @SQLQuery AS NVARCHAR(MAX)
+	DECLARE   @PivotColumns AS NVARCHAR(MAX)  	
+
+	--Get unique values of pivot column  
+	SELECT   @PivotColumns= COALESCE(@PivotColumns + ',','') + QUOTENAME(calendaryear)
+	FROM (SELECT DISTINCT calendaryear FROM [dbo].[projectfundingext]) AS p	 
+ 
+	--Create the dynamic query with all the values for pivot column at runtime
+	SET   @SQLQuery = 
+		N'SELECT * '+
+		'FROM (SELECT t.*, calendaryear, calendaramount FROM projectfundingext ext
+				JOIN #temp t ON ext.ProjectID = t.ProjectID    
+				) cal			
+		PIVOT( SUM(calendaramount) 
+			  FOR calendaryear IN (' + @PivotColumns + ')) AS P'
+
+	----Execute dynamic query	
+	EXEC sp_executesql @SQLQuery
     											  
 GO
 
-  
+ 
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetProjectCSOsBySearchID]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectCSOsBySearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetProjectCSOsBySearchID]
+GO 
+
+CREATE PROCEDURE [dbo].[GetProjectCSOsBySearchID]
+      @SearchID INT
+AS   
+	------------------------------------------------------
+	-- Get saved search results by searchID
+	------------------------------------------------------	
+	DECLARE @ProjectIDs VARCHAR(max) 
+	SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+
+	-----------------------------------------------------------		
+	--  Get project CSOs
+	-----------------------------------------------------------			 
+	SELECT r.ProjectID, cso.CSOCode, cso.Relevance AS CSORelevance
+	INTO #temp 
+	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
+		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID
+		JOIN ProjectCSO cso ON f.ProjectFundingID = cso.ProjectFundingID
+	
+	SELECT * FROM #temp ORDER BY ProjectID
+		
+GO
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetProjectCancerTypesBySearchID]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectCancerTypesBySearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetProjectCancerTypesBySearchID]
+GO 
+
+CREATE PROCEDURE [dbo].[GetProjectCancerTypesBySearchID]
+     @SearchID INT	
+	 
+AS  
+	------------------------------------------------------
+	-- Get saved search results by searchID
+	------------------------------------------------------	
+	DECLARE @ProjectIDs VARCHAR(max) 
+	SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+
+	-----------------------------------------------------------		
+	--  Get project CancerTypes
+	-----------------------------------------------------------			 
+	SELECT r.ProjectID, ct.Name AS CancerType, pct.Relevance AS Relevance
+	INTO #temp 
+	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
+		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID
+		JOIN ProjectCancerType pct ON f.ProjectFundingID = pct.ProjectFundingID
+		JOIN CancerType ct ON ct.CancerTypeID = pct.CancerTypeID
+	
+	SELECT * FROM #temp ORDER BY ProjectID
+
+GO
 

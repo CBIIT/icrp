@@ -182,14 +182,15 @@ GO
 CREATE TABLE [dbo].[FundingOrg](
 	[FundingOrgID] [int] IDENTITY(1,1) NOT NULL,
 	[Name] [varchar](100) NOT NULL,
-	[Abbreviation] [varchar](15) NOT NULL,
-	[Type] [varchar](25) NULL,  -- Government, Non-profit, Other
+	[Abbreviation] [varchar](15) NOT NULL,	
+	[IsActive] [bit] NULL,  -- 1: Current, 0:Former
+	[MemberType] [varchar](25) NULL,  -- Partner, Associate
+	[OrgType] [varchar](25) NULL,  -- Government, Non-profit, Other
 	[Country] [varchar](3) NOT NULL,
 	[Currency] [varchar](3) NOT NULL,
 	[SponsorCode] [varchar](50) NOT NULL,
 	[SortOrder] [smallint] NOT NULL,
-	[IsAnnualized] [bit] NOT NULL,
-	[IsUseLatestFundingAmount] [bit] NOT NULL,
+	[IsAnnualized] [bit] NOT NULL,	
 	[LastImportDate] [datetime] NULL,
 	[CreatedDate] [datetime] NOT NULL,
 	[UpdatedDate] [datetime] NOT NULL,
@@ -296,7 +297,7 @@ CREATE TABLE [dbo].[ProjectCancerType](
 	[ProjectCancerTypeID] [int] IDENTITY(1,1) NOT NULL,
 	[ProjectFundingID] [int] NOT NULL,
 	[CancerTypeID] [int] NOT NULL,
-	[Relvance] [float] NULL,
+	[Relevance] [float] NULL,
 	[RelSource] [char](1) NULL,
 	[CreatedDate] [datetime] NOT NULL,
 	[UpdatedDate] [datetime] NOT NULL,
@@ -322,7 +323,7 @@ CREATE TABLE [dbo].[ProjectCSO](
 	[ProjectCSOID] [int] IDENTITY(1,1) NOT NULL,
 	[ProjectFundingID] [int] NOT NULL,
 	[CSOCode] [varchar](20) NOT NULL,
-	[Relvance] [float] NULL,
+	[Relevance] [float] NULL,
 	[RelSource] [char](1) NULL,
 	[CreatedDate] [datetime] NOT NULL,
 	[UpdatedDate] [datetime] NOT NULL,
@@ -691,18 +692,13 @@ ALTER TABLE [dbo].[PartnerApplication] ADD  CONSTRAINT [DF_PartnerApplication_Up
 GO
 
 
-/****** Object:  Table [dbo].[Partner]    Script Date: 1/10/2017 5:07:23 PM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
 
 CREATE TABLE [dbo].[Partner](
 	[PartnerID] [int] NOT NULL,
 	[PartnerApplicationID] [int] NULL,
 	[Name] [varchar](100) NOT NULL,
 	[Description] [varchar](max) NOT NULL,
+	[SponsorCode] [varchar](50) NOT NULL,
 	[Country] [varchar](100) NULL,
 	[Website] [varchar](200) NULL,
 	[LogoFile] [varchar](100) NULL,
@@ -714,6 +710,10 @@ CREATE TABLE [dbo].[Partner](
  CONSTRAINT [PK_Partner] PRIMARY KEY CLUSTERED 
 (
 	[PartnerID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+ CONSTRAINT [UX_Partner_SponsorCode] UNIQUE NONCLUSTERED 
+(
+	[SponsorCode] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 
@@ -797,7 +797,7 @@ CREATE TABLE [dbo].[ProjectDetails] (
 	piLastName [varchar](50) NULL, 
 	piFirstName [varchar](50) NULL,
 	piORCiD [varchar](50) NULL,
-	Institution [varchar](100) NULL,
+	Institution [varchar](250) NULL,
 	Amount float,
 	City [varchar](100) NULL,
 	State [varchar](3) NULL, 
