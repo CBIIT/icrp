@@ -3,10 +3,13 @@ global-styling:
     theme:
       css/style.css: {}
       css/bootstrap-overrides.css: {}
+      https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.css: {type: external}
 
 global-scripts:
   version: version
   js:
+    https://unpkg.com/store@1.3.20/store.min.js: {type: external, minified: true}
+    https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.js: {type: external, minified: true}
     js/scripts.js: {}
-  dependancies:
+  dependencies:
     - core/jquery
