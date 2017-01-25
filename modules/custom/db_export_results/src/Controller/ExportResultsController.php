@@ -431,7 +431,7 @@ class ExportResultsController extends ControllerBase {
    		// Add some data
    		$objPHPExcel->setActiveSheetIndex(0)
    		            ->setCellValue('A1', 'Country')
-   		            ->setCellValue('B1', 'Count');
+   		            ->setCellValue('B1', 'Project Count');
    		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
    			$objPHPExcel->setActiveSheetIndex(0)
    		    	        ->setCellValue('A'.$i, $row['country'])
@@ -494,7 +494,7 @@ class ExportResultsController extends ControllerBase {
 		// Add some data
 		$objPHPExcel->setActiveSheetIndex(1)
 		            ->setCellValue('A1', 'Category Name')
-		            ->setCellValue('B1', 'Count');
+		            ->setCellValue('B1', 'Project Count');
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$objPHPExcel->setActiveSheetIndex(1)
 		    	        ->setCellValue('A'.$i, $row['categoryName'])
@@ -559,7 +559,7 @@ class ExportResultsController extends ControllerBase {
 		// Add some data
 		$objPHPExcel->setActiveSheetIndex(2)
 		            ->setCellValue('A1', 'Cancer Type')
-		            ->setCellValue('B1', 'Count');
+		            ->setCellValue('B1', 'Project Count');
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$objPHPExcel->setActiveSheetIndex(2)
 		    	        ->setCellValue('A'.$i, $row['CancerType'])
@@ -627,7 +627,7 @@ class ExportResultsController extends ControllerBase {
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$objPHPExcel->setActiveSheetIndex(3)
 		    	        ->setCellValue('A'.$i, $row['ProjectType'])
-		    	        ->setCellValue('B'.$i, $row['Count']);
+		    	        ->setCellValue('B'.$i, $row['Project Count']);
 			$i = $i + 1;
 			$totalRow = $totalRow + 1;
 		}
@@ -690,7 +690,7 @@ class ExportResultsController extends ControllerBase {
 		if($bit == 0){
 			$objPHPExcel->setActiveSheetIndex(4)
 						->setCellValue('A1', 'Calendar Year')
-						->setCellValue('B1', 'Count');
+						->setCellValue('B1', 'Project Count');
 			while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 				$objPHPExcel->setActiveSheetIndex(4)
 							->setCellValue('A'.$i, $row['Year'])
@@ -706,6 +706,7 @@ class ExportResultsController extends ControllerBase {
 				$objPHPExcel->setActiveSheetIndex(4)
 							->setCellValue('A'.$i, $row['Year'])
 							->setCellValue('B'.$i, $row['Amount']);
+				$objPHPExcel->getActiveSheet()->getStyle('B'.$i)->getNumberFormat()->setFormatCode("#,##0.00");
 				$i = $i + 1;
 				$totalRow = $totalRow + 1;
 			}
@@ -714,16 +715,16 @@ class ExportResultsController extends ControllerBase {
 	} else {
 		$result = "failed to query server";
 	}
-    $objPHPExcel->getActiveSheet()->setTitle('Project_By_Year');
+    $objPHPExcel->getActiveSheet()->setTitle('Award_Amount_By_Year');
     $objPHPExcel->setActiveSheetIndex(4);
 	$dataseriesLabels5 = array(
-		new PHPExcel_Chart_DataSeriesValues('String', 'Project_By_Year!$B$1', NULL, 1),
+		new PHPExcel_Chart_DataSeriesValues('String', 'Award_Amount_By_Year!$B$1', NULL, 1),
 	);
 	$xAxisTickValues5 = array(
-	  new PHPExcel_Chart_DataSeriesValues('String', 'Project_By_Year!$A$2:$A$'.($totalRow+1), NULL, $totalRow),
+	  new PHPExcel_Chart_DataSeriesValues('String', 'Award_Amount_By_Year!$A$2:$A$'.($totalRow+1), NULL, $totalRow),
 	);
     $dataSeriesValues5 = array(
-	  new PHPExcel_Chart_DataSeriesValues('Number', 'Project_By_Year!$B$2:$B$'.($totalRow+1), NULL, $totalRow),
+	  new PHPExcel_Chart_DataSeriesValues('Number', 'Award_Amount_By_Year!$B$2:$B$'.($totalRow+1), NULL, $totalRow),
 	);
 	$series5 = new PHPExcel_Chart_DataSeries(
 	  PHPExcel_Chart_DataSeries::TYPE_LINECHART,       // plotType
@@ -737,7 +738,7 @@ class ExportResultsController extends ControllerBase {
 	$layout5->setShowVal(TRUE);
 	$plotarea5 = new PHPExcel_Chart_PlotArea($layout5, array($series5));
 	$legend5 = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);
-	$title5 = new PHPExcel_Chart_Title('Projects By Year');
+	$title5 = new PHPExcel_Chart_Title('Award Amount By Year');
 	$chart5 = new PHPExcel_Chart(
 	  'chart5',   // name
 	  $title5,    // title
