@@ -5,12 +5,12 @@
       $("#edit-keys").attr("placeholder", "Search Website");
     }
   }
-})(jQuery);
+})(window.jQuery);
 
 (function ($) {
   window.enableResizableTableColumns = window.enableResizableTableColumns || function() {
     $('table').resizableColumns();
   }
   window.enableResizableTableColumns();
-})(jQuery);
+})(window.jQuery);
 
