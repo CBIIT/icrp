@@ -1,0 +1,6 @@
+services:
+  current_page_crumb.breadcrumb:
+    class: Drupal\current_page_crumb\BreadcrumbBuilder
+    arguments: ['@router.request_context', '@access_manager', '@router', '@path_processor_manager', '@config.factory',  '@title_resolver', '@current_user', '@path.current', '@menu.active_trail', '@plugin.manager.menu.link']
+    tags:
+      - { name: breadcrumb_builder, priority: 1 }
