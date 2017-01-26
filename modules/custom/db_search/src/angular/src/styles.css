@@ -140,8 +140,24 @@ table.table-nowrap > tfoot > tr > th,
 table.table-nowrap > thead > tr > td,
 table.table-nowrap > tbody > tr > td,
 table.table-nowrap > tfoot > tr > td {
-  white-space: nowrap;
+/*  white-space: nowrap;
+*/  
   overflow: hidden;
+}
+
+
+table.table-nowrap > thead > tr > th > span,
+table.table-nowrap > tbody > tr > th > span,
+table.table-nowrap > tfoot > tr > th > span,
+table.table-nowrap > thead > tr > td > span,
+table.table-nowrap > tbody > tr > td > span,
+table.table-nowrap > tfoot > tr > td > span {
+  display: inline-block;
+  word-break: break-all;
+  max-height: 17px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
 }
 
 table.table-narrow > thead > tr > th,
