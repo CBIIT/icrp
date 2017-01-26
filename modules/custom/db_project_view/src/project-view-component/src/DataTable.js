@@ -21,7 +21,7 @@ class DataTable extends Component {
               <tr>
                 {
                   this.props.columns.map((column, columnIndex) => 
-                    <th key={columnIndex} title={column.tooltip} data-toggle="tooltip">{column.label}</th>
+                    <th key={columnIndex} title={column.tooltip} data-toggle="tooltip" data-placement="top">{column.label}</th>
                   )
                 }
               </tr>
