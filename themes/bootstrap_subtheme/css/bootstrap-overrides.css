@@ -68,7 +68,7 @@ table.table-nowrap > tbody > tr > td > span,
 table.table-nowrap > tfoot > tr > td > span {
   display: inline-block;
   word-break: break-all;
-  max-height: 17px;
+  max-height: 20px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
