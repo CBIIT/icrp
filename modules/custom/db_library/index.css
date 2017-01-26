@@ -1,14 +1,14 @@
 #library {
   padding: 0px 2em;
+  margin: 0px auto;
+  max-width: 100em;
 }
 #library header {
   margin-bottom: 2em;
 }
 #library-search {
   background: #eee;
-  float: left;
   padding: 1em;
-  width: 20em;
 }
 #library-search .mockfloat {
   margin-right: -6em;
@@ -68,50 +68,83 @@
   width: 100%;
 }
 #library-display {
-  overflow: hidden;
-  padding: 1em;
+  padding: 1em 0px;
 }
 #library-display h3 {
   margin-top: 0px;
 }
 #library-display .frame {
   border: 1px solid black;
-  height: 40em;
+  max-height: 40em;
   overflow: auto;
+  width: 100%;
+}
+#library-display .frame.preview {
   padding: 0px 1em;
 }
-#library-display .frame .item {
+#library-display .frame.preview .item {
   float: left;
   margin: 1em;
   overflow: hidden;
   position: relative;
   width: 30em;
 }
-#library-display .frame .item h4 {
+#library-display .frame.preview .item h4 {
   background-color: #eee;
   font-size: 1em;
   font-weight: bold;
   text-align: center;
 }
-#library-display .frame .item img {
+#library-display .frame.preview .item img {
   float: left;
   margin-right: 1em;
   width: 10em;
 }
-#library-display .frame .item p {
+#library-display .frame.preview .item p {
   margin-bottom: 2em;
   max-height: 10em;
   overflow: auto;
 }
-#library-display .frame .item div {
+#library-display .frame.preview .item div {
   bottom: 0px;
   left: 11em;
   position: absolute;
   text-align: center;
   width: 19em;
 }
-#library-display .frame .item:after {
+#library-display .frame.preview .item:after {
   clear: both;
   content: '';
   display: block;
+}
+#library-display .frame:not(.preview) {
+  border-collapse: seperate;
+  border-spacing: 0px 5px;
+  display: table;
+}
+#library-display .frame:not(.preview) .item {
+  background: #eee;
+  display: table-row;
+}
+#library-display .frame:not(.preview) .item h4,
+#library-display .frame:not(.preview) .item div {
+  display: table-cell;
+  font-size: 1em;
+  height: 1em;
+  line-height: 1em;
+  padding: 5px 10px;
+}
+#library-display .frame:not(.preview) .item img,
+#library-display .frame:not(.preview) .item p {
+  display: none;
+}
+@media (min-width: 900px) {
+  #library-search {
+    float: left;
+    width: 20em;
+  }
+  #library-display {
+    overflow: hidden;
+    padding: 1em;
+  }
 }
