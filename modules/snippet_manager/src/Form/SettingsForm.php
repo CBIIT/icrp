@@ -62,8 +62,9 @@ class SettingsForm extends ConfigFormBase {
       '#type' => 'select',
       '#title' => t('Syntax mode'),
       '#options' => [
+        'html_twig' => t('HTML/Twig'),
+        'text/html' => t('HTML'),
         'twig' => t('Twig'),
-        'xml' => t('XML'),
         'javascript' => t('Javascript'),
         'css' => t('CSS'),
       ],

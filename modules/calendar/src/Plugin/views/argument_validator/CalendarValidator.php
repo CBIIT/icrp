@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\views\Plugin\views\argument_validator\Entity.
- */
-
 namespace Drupal\calendar\Plugin\views\argument_validator;
 
 use Drupal\calendar\DateArgumentWrapper;

@@ -29,29 +29,36 @@ use Drupal\yamlform\Utility\YamlFormElementHelper;
  *   - content: Help content.
  */
 function template_preprocess_yamlform_help(array &$variables) {
-  $info = $variables['info'];
+  $help_info = $variables['info'];
 
-  $variables += $info;
+  $variables += $help_info;
 
   $help = [];
-  if (is_array($info['content'])) {
-    $help['content'] = $info['content'];
+  if (is_array($help_info['content'])) {
+    $help['content'] = $help_info['content'];
   }
   else {
     $help['content'] = [
-      '#markup' => $info['content'],
+      '#markup' => $help_info['content'],
     ];
   }
 
-  if (!empty($info['youtube_id'])) {
-    $video_display = \Drupal::config('yamlform.settings')->get('ui.video_display');
+  // Build watch video link.
+  /** @var \Drupal\yamlform\YamlFormHelpManagerInterface $help_manager */
+  $help_manager = \Drupal::service('yamlform.help_manager');
+
+  // If help info load the video else this is the video info.
+  $video_info = (isset($help_info['video_id'])) ? $help_manager->getVideo($help_info['video_id']) : $help_info;
+  if (!empty($video_info['youtube_id'])) {
     $classes = ['button', 'button-action', 'button--small', 'button-yamlform-play'];
+
+    $video_display = \Drupal::config('yamlform.settings')->get('ui.video_display');
     switch ($video_display) {
       case 'dialog';
         $help['link'] = [
           '#type' => 'link',
-          '#title' => 'Watch video',
-          '#url' => Url::fromRoute('yamlform.help', ['id' => str_replace('_', '-', $info['id'])]),
+          '#title' => t('Watch video'),
+          '#url' => Url::fromRoute('yamlform.help', ['id' => str_replace('_', '-', $video_info['id'])]),
           '#attributes' => YamlFormDialogHelper::getModalDialogAttributes(1000, $classes),
           '#prefix' => ' ',
         ];
@@ -60,12 +67,11 @@ function template_preprocess_yamlform_help(array &$variables) {
       case 'link':
         $help['link'] = [
           '#type' => 'link',
-          '#title' => 'Watch video',
-          '#url' => Url::fromUri('https://youtu.be/' . $info['youtube_id']),
+          '#title' => t('Watch video'),
+          '#url' => Url::fromUri('https://youtu.be/' . $video_info['youtube_id']),
           '#attributes' => ['class' => $classes],
           '#prefix' => ' ',
         ];
-
         break;
 
       case 'hidden':
@@ -553,6 +559,44 @@ function template_preprocess_yamlform_progress_bar(array &$variables) {
   $variables['progress'] = [];
   foreach ($pages as $page) {
     $variables['progress'][] = (isset($page['#title'])) ? $page['#title'] : '';
+  }
+}
+
+/******************************************************************************/
+// Element templates
+/******************************************************************************/
+
+/**
+ * Prepares variables for Form message templates.
+ *
+ * Default template: yamlform-message.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #id, #attributes, #children.
+ *
+ * @see template_preprocess_container()
+ */
+function template_preprocess_yamlform_message(&$variables) {
+  $variables['has_parent'] = FALSE;
+  $element = $variables['element'];
+  // Ensure #attributes is set.
+  $element += ['#attributes' => []];
+
+  // Special handling for form elements.
+  if (isset($element['#array_parents'])) {
+    // Assign an html ID.
+    if (!isset($element['#attributes']['id'])) {
+      $element['#attributes']['id'] = $element['#id'];
+    }
+    $variables['has_parent'] = TRUE;
+  }
+
+  $variables['message'] = $element['#message'];
+  $variables['attributes'] = $element['#attributes'];
+  if (isset($element['#closed'])) {
+    $variables['closed'] = $element['#closed'];
   }
 }
 

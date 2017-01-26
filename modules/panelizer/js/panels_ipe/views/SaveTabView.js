@@ -92,6 +92,7 @@
           // Change the storage type and id for the next save.
           drupalSettings.panels_ipe.panels_display.storage_type = storage_type;
           drupalSettings.panels_ipe.panels_display.storage_id = drupalSettings.panelizer.entity[storage_type + '_storage_id'];
+          Drupal.panels_ipe.setUrlRoot(drupalSettings);
 
           // Show/hide the revert to default tab.
           self.revertTab.set({hidden: storage_type === 'panelizer_default'});

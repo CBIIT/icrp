@@ -57,16 +57,26 @@ class PanelizerPanelsIPEController extends ControllerBase {
    *   The entity.
    * @param string $view_mode
    *   The view mode.
-   * @param \Symfony\Component\HttpFoundation\Request $request
-   *   The request.
    *
    * @return \Symfony\Component\HttpFoundation\Response
    *   An empty response.
    *
    * @throws \Symfony\Component\HttpKernel\Exception\BadRequestHttpException
    */
-  public function revertToDefault(FieldableEntityInterface $entity, $view_mode, Request $request) {
-    $default = $request->get('default');
+  public function revertToDefault(FieldableEntityInterface $entity, $view_mode) {
+    // Get the bundle specific default display as a fallback.
+    $settings = $this->panelizer->getPanelizerSettings($entity->getEntityTypeId(), $entity->bundle(), $view_mode);
+    $default = $settings['default'];
+    // Check the entity for a documented default to which we should revert.
+    if ($entity->hasField('panelizer') && $entity->panelizer->first()) {
+      foreach ($entity->panelizer as $item) {
+        if ($item->view_mode == $view_mode && !empty($item->default)) {
+          $default = $item->default;
+          break;
+        }
+      }
+    }
+    // If we somehow ended up not having a default, throw an exception.
     if (empty($default)) {
       throw new BadRequestHttpException("Default name to revert to must be passed!");
     }

@@ -36,6 +36,7 @@ snippet_manager.snippet.*:
       label: Label
     code:
       type: mapping
+      label: Code
       mapping:
         value:
           label: Code
@@ -44,25 +45,98 @@ snippet_manager.snippet.*:
           label: Format
           type: string
     variables:
+      label: Variables
       type: sequence
+      sequence:
+        type: mapping
+        label: Variable settings
+        mapping:
+          plugin_id:
+            type: string
+            label: Plugin ID
+          configuration:
+            type: snippet_manager_variable_settings.[%parent.plugin_id]
+            label: Configuration
     page:
+      label: Page settings
       type: mapping
       mapping:
         status:
-          label: Status
           type: boolean
+          label: Status
         url_alias:
-          label: Url alias
           type: string
-        dispyal_variant:
+          label: Url alias
+        display_variant:
           type: mapping
+          label: Display variant
           mapping:
             id:
               type: string
               label: ID
-            confituration:
+            configuration:
               type: mapping
               label: Configuration
+              mapping:
+                label:
+                  label: Label
+                  type: string
         theme:
-          label: Theme
           type: string
+          label: Theme
+
+# Drupal core does not provide schema for this plugin.
+# @see https://www.drupal.org/node/2787529
+snippet_manager_variable_settings.condition:current_theme:
+  type: condition.plugin
+  mapping:
+    theme:
+      type: string
+      label: Theme
+
+snippet_manager_variable_settings.condition:node_type:
+  type: condition.plugin.node_type
+
+snippet_manager_variable_settings.condition:request_path:
+  type: condition.plugin.request_path
+
+snippet_manager_variable_settings.entity:*:
+  type: mapping
+  mapping:
+    entity_id:
+      type: string
+      label: Entity ID
+    view_mode:
+      type: string
+      label: View mode
+
+snippet_manager_variable_settings.file:
+  type: mapping
+  mapping:
+    file:
+      type: string
+      label: File UUID
+    format:
+      type: string
+      label: Format
+
+snippet_manager_variable_settings.url:
+  type: mapping
+  mapping:
+    path:
+      type: string
+      label: Path
+
+snippet_manager_variable_settings.text:
+  type: mapping
+  mapping:
+    content:
+      type: text_format
+      label: Content
+
+snippet_manager_variable_settings.view:*:
+  type: mapping
+  mapping:
+    display:
+      type: string
+      label: Display

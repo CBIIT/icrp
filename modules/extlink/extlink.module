@@ -7,6 +7,18 @@
 
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Url;
+
+function extlink_modules_installed($modules) {
+  if (in_array('extlink', $modules)) {
+    // Be friendly to your users: what to do after install?
+    $url = Url::fromRoute('extlink_admin.settings');
+    if (PHP_SAPI != 'cli') {
+      drupal_set_message(t('You can now <a href="@extlink_admin">configure the External Links module</a> for your site.',
+        ['@extlink_admin' => $url->toString()]), 'status');
+    }
+  }
+}
 
 /**
  * Implements hook_help().

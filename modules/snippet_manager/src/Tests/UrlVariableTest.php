@@ -25,7 +25,7 @@ class UrlVariableTest extends TestBase {
     $this->assertStatusMessage('The variable has been created.');
 
     $edit = [
-      'path' => '/' . $path,
+      'configuration[path]' => '/' . $path,
     ];
     $this->drupalPostForm(NULL, $edit, 'Save');
 
@@ -50,7 +50,7 @@ class UrlVariableTest extends TestBase {
     $this->drupalPostForm('snippet/alpha/edit/variable/add', $edit, 'Save and continue');
 
     $edit = [
-      'path' => $path,
+      'configuration[path]' => $path,
     ];
     $this->drupalPostForm(NULL, $edit, 'Save');
     $this->assertErrorMessage('The path should begin with "/".');

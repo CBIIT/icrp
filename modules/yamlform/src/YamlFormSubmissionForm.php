@@ -16,7 +16,7 @@ use Drupal\yamlform\Utility\YamlFormArrayHelper;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Base for controller for form submission forms.
+ * Provides a form to collect and edit submissions.
  */
 class YamlFormSubmissionForm extends ContentEntityForm {
 
@@ -58,6 +58,13 @@ class YamlFormSubmissionForm extends ContentEntityForm {
   protected $messageManager;
 
   /**
+   * The token manager.
+   *
+   * @var \Drupal\yamlform\YamlFormTranslationManagerInterface
+   */
+  protected $tokenManager;
+
+  /**
    * The form settings.
    *
    * @var array
@@ -79,7 +86,7 @@ class YamlFormSubmissionForm extends ContentEntityForm {
   protected $sourceEntity;
 
   /**
-   * Constructs a ContentEntityForm object.
+   * Constructs a YamlFormSubmissionForm object.
    *
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
    *   The entity manager.
@@ -91,14 +98,17 @@ class YamlFormSubmissionForm extends ContentEntityForm {
    *   The form third party settings manager.
    * @param \Drupal\yamlform\YamlFormMessageManagerInterface $message_manager
    *   The form message manager.
+   * @param \Drupal\yamlform\YamlFormTokenManagerInterface $token_manager
+   *   The token manager.
    */
-  public function __construct(EntityManagerInterface $entity_manager, YamlFormRequestInterface $request_handler, YamlFormElementManagerInterface $element_manager, YamlFormThirdPartySettingsManagerInterface $third_party_settings_manager, YamlFormMessageManagerInterface $message_manager) {
+  public function __construct(EntityManagerInterface $entity_manager, YamlFormRequestInterface $request_handler, YamlFormElementManagerInterface $element_manager, YamlFormThirdPartySettingsManagerInterface $third_party_settings_manager, YamlFormMessageManagerInterface $message_manager, YamlFormTokenManagerInterface $token_manager) {
     parent::__construct($entity_manager);
     $this->requestHandler = $request_handler;
     $this->elementManager = $element_manager;
     $this->storage = $this->entityManager->getStorage('yamlform_submission');
     $this->thirdPartySettingsManager = $third_party_settings_manager;
     $this->messageManager = $message_manager;
+    $this->tokenManager = $token_manager;
   }
 
   /**
@@ -110,7 +120,8 @@ class YamlFormSubmissionForm extends ContentEntityForm {
       $container->get('yamlform.request'),
       $container->get('plugin.manager.yamlform.element'),
       $container->get('yamlform.third_party_settings_manager'),
-      $container->get('yamlform.message_manager')
+      $container->get('yamlform.message_manager'),
+      $container->get('yamlform.token_manager')
     );
   }
 
@@ -1462,34 +1473,11 @@ class YamlFormSubmissionForm extends ContentEntityForm {
     }
 
     if (isset($this->settings[$name])) {
-      return $this->replaceTokens($this->settings[$name]);
+      return $this->tokenManager->replace($this->settings[$name], $this->getEntity());
     }
     else {
       return $default_value;
     }
-  }
-
-  /**
-   * Replace tokens in text.
-   *
-   * @param string $text
-   *   A string of text that main contain tokens.
-   *
-   * @return string
-   *   Text will tokens replaced.
-   */
-  protected function replaceTokens($text) {
-    // Most strings won't contain tokens so lets check and return ASAP.
-    if (!is_string($text) || strpos($text, '[') === FALSE) {
-      return $text;
-    }
-
-    $token_data = [
-      'yamlform' => $this->getYamlForm(),
-      'yamlform-submission' => $this->entity,
-    ];
-    $token_options = ['clear' => TRUE];
-    return \Drupal::token()->replace($text, $token_data, $token_options);
   }
 
 }

@@ -8,11 +8,13 @@
 namespace Drupal\panelizer\Plugin\PanelsStorage;
 
 use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\Context\ContextDefinition;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\panelizer\Exception\PanelizerException;
 use Drupal\panelizer\PanelizerInterface;
 use Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant;
 use Drupal\panels\Storage\PanelsStorageBase;
@@ -86,6 +88,8 @@ class PanelizerDefaultPanelsStorage extends PanelsStorageBase implements Contain
    *   - View mode: string
    *   - Default name: string
    *   - Entity: \Drupal\Core\Entity\EntityInterface|NULL
+   *
+   * @throws \Drupal\panelizer\Exception\PanelizerException
    */
   protected function parseId($id) {
     list ($entity_type_id, $part_two, $view_mode, $name) = explode(':', $id);
@@ -93,8 +97,12 @@ class PanelizerDefaultPanelsStorage extends PanelsStorageBase implements Contain
     if (strpos($entity_type_id, '*') === 0) {
       $entity_type_id = substr($entity_type_id, 1);
       $storage = $this->entityTypeManager->getStorage($entity_type_id);
-      $entity = $storage->load($part_two);
-      $bundle = $entity->bundle();
+      if ($entity = $storage->load($part_two)) {
+        $bundle = $entity->bundle();
+      }
+      else {
+        throw new PanelizerException("Unable to load $entity_type_id with id $part_two");
+      }
     }
     else {
       $entity = NULL;
@@ -105,19 +113,45 @@ class PanelizerDefaultPanelsStorage extends PanelsStorageBase implements Contain
   }
 
   /**
-   * {@inheritdoc}
+   * Returns the entity context.
+   *
+   * Wraps creating new Context objects to avoid typed data in tests.
+   *
+   * @param string $entity_type_id
+   *   The entity type id.
+   * @param \Drupal\Core\Entity\EntityInterface|NULL $entity
+   *   The entity.
+   *
+   * @return \Drupal\Core\Plugin\Context\Context[]
+   *   The available contexts.
    */
-  public function load($id) {
-    list ($entity_type_id, $bundle, $view_mode, $name, $entity) = $this->parseId($id);
-    $panels_display = $this->panelizer->getDefaultPanelsDisplay($name, $entity_type_id, $bundle, $view_mode);
+  protected function getEntityContext($entity_type_id, EntityInterface $entity = NULL) {
+    $contexts = [];
     // Set a placeholder context so that the calling code knows that we need
     // an entity context. If we have the value available, then we actually set
     // the context value.
-    $contexts = [
-      '@panelizer.entity_context:entity' => new Context(new ContextDefinition('entity:' . $entity_type_id, NULL, TRUE), $entity),
-    ];
-    $panels_display->setContexts($contexts);
-    return $panels_display;
+    $contexts['@panelizer.entity_context:entity'] = new Context(new ContextDefinition('entity:' . $entity_type_id, NULL, TRUE), $entity);
+    return $contexts;
+  }
+
+
+
+  /**
+   * {@inheritdoc}
+   */
+  public function load($id) {
+    try {
+      list ($entity_type_id, $bundle, $view_mode, $name, $entity) = $this->parseId($id);
+      if ($panels_display = $this->panelizer->getDefaultPanelsDisplay($name, $entity_type_id, $bundle, $view_mode)) {
+        $contexts = $this->getEntityContext($entity_type_id, $entity);
+        $contexts = $contexts + $this->panelizer->getDisplayStaticContexts($name, $entity_type_id, $bundle, $view_mode);
+        $panels_display->setContexts($contexts);
+        return $panels_display;
+      }
+    }
+    catch (PanelizerException $e) {
+      // Do nothing to fallback on returning NULL.
+    }
   }
 
   /**
@@ -125,15 +159,26 @@ class PanelizerDefaultPanelsStorage extends PanelsStorageBase implements Contain
    */
   public function save(PanelsDisplayVariant $panels_display) {
     $id = $panels_display->getStorageId();
-    list ($entity_type_id, $bundle, $view_mode, $name) = $this->parseId($id);
-    return $this->panelizer->setDefaultPanelsDisplay($name, $entity_type_id, $bundle, $view_mode, $panels_display);
+    try {
+      list ($entity_type_id, $bundle, $view_mode, $name) = $this->parseId($id);
+      $this->panelizer->setDefaultPanelsDisplay($name, $entity_type_id, $bundle, $view_mode, $panels_display);
+    }
+    catch (PanelizerException $e) {
+      throw new \Exception("Couldn't find Panelizer default to store Panels display");
+    }
   }
 
   /**
    * {@inheritdoc}
    */
   public function access($id, $op, AccountInterface $account) {
-    list ($entity_type_id, $bundle, $view_mode, $name) = $this->parseId($id);
+    try {
+      list ($entity_type_id, $bundle, $view_mode, $name) = $this->parseId($id);
+    }
+    catch (PanelizerException $e) {
+      return AccessResult::forbidden();
+    }
+
     if ($panels_display = $this->panelizer->getDefaultPanelsDisplay($name, $entity_type_id, $bundle, $view_mode)) {
       if ($op == 'change layout') {
         if ($this->panelizer->hasDefaultPermission('change layout', $entity_type_id, $bundle, $view_mode, $name, $account)) {

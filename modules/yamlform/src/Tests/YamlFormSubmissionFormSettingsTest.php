@@ -17,7 +17,7 @@ class YamlFormSubmissionFormSettingsTest extends YamlFormTestBase {
    *
    * @var array
    */
-  public static $modules = ['system', 'block', 'filter', 'node', 'user', 'yamlform', 'yamlform_test'];
+  protected static $modules = ['system', 'block', 'filter', 'node', 'user', 'yamlform', 'yamlform_test'];
 
   /**
    * Tests form setting including confirmation.

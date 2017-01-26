@@ -65,3 +65,16 @@
 .CodeMirror-fullscreen {
   z-index: 700;
 }
+
+.sm-inactive {
+  opacity: .5;
+}
+
+.js .sm-snippets-overview td .dropbutton-multiple {
+  margin-right: 0;
+  padding-right: 0;
+}
+
+.sm-snippet-operations {
+  max-width: 50px;
+}

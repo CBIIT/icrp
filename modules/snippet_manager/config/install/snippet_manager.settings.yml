@@ -2,5 +2,5 @@ codemirror:
  cdn: true
  toolbar: true
  theme: default
- mode: twig
+ mode: html_twig
 redirect_page: edit-form

@@ -44,7 +44,7 @@ abstract class SnippetVariableBase extends PluginBase implements SnippetVariable
    * {@inheritdoc}
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
-    $this->configuration = $form_state->getValues();
+    $this->setConfiguration($form_state->getValues());
   }
 
   /**

@@ -87,13 +87,15 @@ class SnippetUiTest extends TestBase {
       t('Label'),
       t('Machine name'),
       t('Status'),
+      t('Size'),
+      t('Format'),
       t('Page'),
       t('Operations'),
     ];
 
     foreach ($this->xpath('//main//table//th') as $key => $th) {
       if ($expected_header[$key] != $th) {
-        $this->fail('Valid table header was found.');
+        $this->fail('Table header was found.');
         break;
       }
     }
@@ -101,24 +103,30 @@ class SnippetUiTest extends TestBase {
     $alpha_row_prefix = '//main//table/tbody/tr';
 
     $label = $this->xpath($alpha_row_prefix . '/td[position() = 1]/a[contains(@href, "/snippet/alpha") and text() = "Alpha"]');
-    $this->assertTrue($label, 'Valid snippet label was found');
+    $this->assertTrue($label, 'Snippet label was found');
 
     $machine_name = $this->xpath($alpha_row_prefix . '/td[position() = 2 and text() = "alpha"]');
-    $this->assertTrue($machine_name, 'Valid snippet machine name was found');
+    $this->assertTrue($machine_name, 'Snippet machine name was found');
 
     $status = $this->xpath($alpha_row_prefix . '/td[position() = 3 and text() = "Enabled"]');
-    $this->assertTrue($status, 'Valid snippet status was found');
+    $this->assertTrue($status, 'Snippet status was found');
 
-    $status = $this->xpath($alpha_row_prefix . '/td[position() = 4 and text() = "Not published"]');
-    $this->assertTrue($status, 'Valid snippet status was found');
+    $status = $this->xpath($alpha_row_prefix . '/td[position() = 4 and text() = "58 bytes"]');
+    $this->assertTrue($status, 'Snippet size was found');
 
-    $links_prefix = $alpha_row_prefix . '/td[position() = 5]//ul[@class="dropbutton"]/li';
+    $status = $this->xpath($alpha_row_prefix . '/td[position() = 5 and text() = "Snippet manager test basic format"]');
+    $this->assertTrue($status, 'Snippet format was found');
+
+    $status = $this->xpath($alpha_row_prefix . '/td[position() = 6 and text() = "Not published"]');
+    $this->assertTrue($status, 'Snippet page status was found');
+
+    $links_prefix = $alpha_row_prefix . '/td[position() = 7]//ul[@class="dropbutton"]/li';
 
     $edit_link = $this->xpath($links_prefix . '/a[contains(@href, "/snippet/alpha/edit") and text() = "Edit"]');
-    $this->assertTrue($edit_link, 'Valid snippet edit link was found');
+    $this->assertTrue($edit_link, 'Snippet edit link was found');
 
     $delete_link = $this->xpath($links_prefix . '/a[contains(@href, "/snippet/alpha/delete") and text() = "Delete"]');
-    $this->assertTrue($delete_link, 'Valid snippet delete link was found');
+    $this->assertTrue($delete_link, 'Snippet delete link was found');
   }
 
   /**

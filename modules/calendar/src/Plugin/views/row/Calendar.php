@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\calendar\Plugin\views\row\Calendar.
- */
-
 namespace Drupal\calendar\Plugin\views\row;
 
 use Drupal\calendar\CalendarEvent;

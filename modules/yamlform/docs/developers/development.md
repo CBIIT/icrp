@@ -242,7 +242,7 @@ drush -y site-install\
   --account-name="webmaster"\
   --account-pass="drupal.admin"\
   --site-mail="example@example.com"\
-  --site-name="Drupal 8 (dev)";
+  --site-name="Drupal 8 (YAML Form)";
 
 # Enable core modules
 drush -y pm-enable\

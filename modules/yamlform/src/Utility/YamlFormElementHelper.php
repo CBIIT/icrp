@@ -6,7 +6,6 @@ use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Render\Element;
-use Drupal\Core\Render\BubbleableMetadata;
 use Drupal\Core\Template\Attribute;
 
 /**
@@ -57,34 +56,6 @@ class YamlFormElementHelper {
    */
   public static function isTitleDisplayed(array $element) {
     return (!empty($element['#title']) && (empty($element['#title_display']) || !in_array($element['#title_display'], ['invisible', ['attribute']]))) ? TRUE : FALSE;
-  }
-
-  /**
-   * Replaces all tokens in a given render element with appropriate values.
-   *
-   * @param array $element
-   *   A render element.
-   * @param array $data
-   *   (optional) An array of keyed objects.
-   * @param array $options
-   *   (optional) A keyed array of settings and flags to control the token
-   *   replacement process.
-   * @param \Drupal\Core\Render\BubbleableMetadata|null $bubbleable_metadata
-   *   (optional) An object to which static::generate() and the hooks and
-   *   functions that it invokes will add their required bubbleable metadata.
-   *
-   * @see \Drupal\Core\Utility\Token::replace()
-   */
-  public static function replaceTokens(array &$element, array $data = [], array $options = [], BubbleableMetadata $bubbleable_metadata = NULL) {
-    foreach ($element as $element_property => &$element_value) {
-      // Most strings won't contain tokens so lets check and return ASAP.
-      if (is_string($element_value) && strpos($element_value, '[') !== FALSE) {
-        $element[$element_property] = \Drupal::token()->replace($element_value, $data, $options);
-      }
-      elseif (is_array($element_value)) {
-        self::replaceTokens($element_value, $data, $options, $bubbleable_metadata);
-      }
-    }
   }
 
   /**

@@ -96,7 +96,7 @@ class File extends SnippetVariableBase implements SnippetVariableInterface {
           ];
         }
         else {
-          $build['file']  = [
+          $build['file'] = [
             '#markup' => file_create_url($file->getFileUri()),
           ];
         }

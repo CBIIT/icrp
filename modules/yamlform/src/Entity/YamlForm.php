@@ -35,7 +35,7 @@ use Drupal\yamlform\YamlFormSubmissionInterface;
  *       "assets" = "Drupal\yamlform\YamlFormEntityAssetsForm",
  *       "access" = "Drupal\yamlform\YamlFormEntityAccessForm",
  *       "handlers" = "Drupal\yamlform\YamlFormEntityHandlersForm",
- *       "delete" = "Drupal\Core\Entity\EntityDeleteForm",
+ *       "delete" = "Drupal\yamlform\YamlFormEntityDeleteForm",
  *       "duplicate" = "Drupal\yamlform\YamlFormEntityForm",
  *     }
  *   },
@@ -1148,7 +1148,7 @@ class YamlForm extends ConfigEntityBundleBase implements YamlFormInterface {
       $entity->deletePaths();
 
       // Delete the state.
-      \Drupal::state()->delete('yamlform.' . $entity->id());
+      \Drupal::state()->delete('yamlform.yamlform.' . $entity->id());
     }
 
     // Delete all submission associated with this form.
@@ -1451,7 +1451,7 @@ class YamlForm extends ConfigEntityBundleBase implements YamlFormInterface {
    * {@inheritdoc}
    */
   public function getState($key, $default = NULL) {
-    $namespace = 'yamlform.' . $this->id();
+    $namespace = 'yamlform.yamlform.' . $this->id();
     $values = \Drupal::state()->get($namespace, []);
     return (isset($values[$key])) ? $values[$key] : $default;
   }
@@ -1460,7 +1460,7 @@ class YamlForm extends ConfigEntityBundleBase implements YamlFormInterface {
    * {@inheritdoc}
    */
   public function setState($key, $value) {
-    $namespace = 'yamlform.' . $this->id();
+    $namespace = 'yamlform.yamlform.' . $this->id();
     $values = \Drupal::state()->get($namespace, []);
     $values[$key] = $value;
     \Drupal::state()->set($namespace, $values);
@@ -1470,7 +1470,7 @@ class YamlForm extends ConfigEntityBundleBase implements YamlFormInterface {
    * {@inheritdoc}
    */
   public function deleteState($key) {
-    $namespace = 'yamlform.' . $this->id();
+    $namespace = 'yamlform.yamlform.' . $this->id();
     $values = \Drupal::state()->get($namespace, []);
     unset($values[$key]);
     \Drupal::state()->set($namespace, $values);
@@ -1480,7 +1480,7 @@ class YamlForm extends ConfigEntityBundleBase implements YamlFormInterface {
    * {@inheritdoc}
    */
   public function hasState($key) {
-    $namespace = 'yamlform.' . $this->id();
+    $namespace = 'yamlform.yamlform.' . $this->id();
     $values = \Drupal::state()->get($namespace, []);
     return (isset($values[$key])) ? TRUE : FALSE;
   }

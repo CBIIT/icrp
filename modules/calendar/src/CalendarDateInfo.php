@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains the CalendarDateInfo class.
- */
 
 namespace Drupal\calendar;
 

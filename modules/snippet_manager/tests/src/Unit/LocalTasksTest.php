@@ -15,8 +15,10 @@ class LocalTasksTest extends LocalTaskIntegrationTestBase {
    * {@inheritdoc}
    */
   protected function setUp() {
-    $this->directoryList = ['snippet_manager' => 'modules/snippet_manager'];
     parent::setUp();
+    // drupal_get_path() is not allowed here.
+    $module_path = substr(__DIR__, strlen($this->root) + 1) . '/../../..';
+    $this->directoryList = ['snippet_manager' => $module_path];
   }
 
   /**

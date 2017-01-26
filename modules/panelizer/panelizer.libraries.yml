@@ -17,4 +17,8 @@ panels_ipe:
       css/panels_ipe.css: {}
   dependencies:
     - panels_ipe/panels_ipe
-
+wizard_admin:
+  version: VERSION
+  css:
+    layout:
+      css/panelizer.admin.css: {}

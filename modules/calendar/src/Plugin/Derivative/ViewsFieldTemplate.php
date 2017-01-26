@@ -1,9 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\calendar\Plugin\Derivative\ViewsFieldTemplate.
- */
-
 
 namespace Drupal\calendar\Plugin\Derivative;
 

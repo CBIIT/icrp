@@ -117,7 +117,6 @@ class YamlFormSubmissionController extends ControllerBase implements ContainerIn
       new FormattableMarkup('<span class="yamlform-icon yamlform-icon-sticky yamlform-icon-sticky--@state"></span>', ['@state' => $state])
     ));
     return $response;
-
   }
 
   /**

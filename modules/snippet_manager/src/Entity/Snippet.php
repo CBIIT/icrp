@@ -82,22 +82,12 @@ class Snippet extends ConfigEntityBase implements SnippetInterface {
   protected $variables = [];
 
   /**
-   * The snippet context.
-   *
-   * The context is an array of processed twig variables.
-   *
-   * @var array
-   */
-  protected $context = [];
-
-  /**
    * The snippet page settings.
    *
    * @var array
    */
   protected $page = [
     'status' => FALSE,
-    'admin' => FALSE,
     'url_alias' => '',
     'display_variant' => [
       'id' => NULL,
@@ -128,7 +118,7 @@ class Snippet extends ConfigEntityBase implements SnippetInterface {
   public function getCode() {
     return $this->code ? $this->code : [
       'value' => str_repeat("\n", 10),
-      'format' => filter_default_format(),
+      'format' => self::getDefaultCodeFormat(),
     ];
   }
 
@@ -200,6 +190,15 @@ class Snippet extends ConfigEntityBase implements SnippetInterface {
    */
   public function pageIsPublished() {
     return $this->page['status'];
+  }
+
+  /**
+   * Returns the ID of default filter format.
+   */
+  protected static function getDefaultCodeFormat() {
+    // Full HTML is the most suitable format for snippets.
+    $formats = filter_formats(\Drupal::currentUser());
+    return isset($formats['full_html']) ? 'full_html' : filter_default_format();
   }
 
 }

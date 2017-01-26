@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\calendar\CalendarViewsTrait.
- */
-
 namespace Drupal\calendar;
 
 use Drupal\Core\Entity\EntityFieldManagerInterface;

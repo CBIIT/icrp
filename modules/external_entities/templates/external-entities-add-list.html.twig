@@ -1,0 +1,33 @@
+{#
+/**
+ * @file
+ * Default theme implementation to list external entity types available for
+ * adding external entities.
+ *
+ * This list is displayed on the Add external entity admin page.
+ *
+ * Available variables:
+ * - types: A list of external entity types, each with the following properties:
+ *   - add_link: Link to create an external entity of this type.
+ *   - description: Description of this type of external entity.
+ *
+ * @see template_preprocess_external_entities_add_list()
+ *
+ * @ingroup themeable
+ */
+#}
+{% if types is not empty %}
+  <dl>
+    {% for type in types %}
+      <dt>{{ type.add_link }}</dt>
+      <dd>{{ type.description }}</dd>
+    {% endfor %}
+  </dl>
+{% else %}
+  <p>
+    {% set create_type = path('external_entity.type_add') %}
+    {% trans %}
+      You have not created any editable external entity types yet. Go to the <a href="{{ create_type }}">external entity type creation page</a> to add a new external entity type.
+    {% endtrans %}
+  </p>
+{% endif %}

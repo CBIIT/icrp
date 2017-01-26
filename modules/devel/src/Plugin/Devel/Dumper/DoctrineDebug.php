@@ -19,13 +19,6 @@ class DoctrineDebug extends DevelDumperBase {
   /**
    * {@inheritdoc}
    */
-  public function dump($input, $name = NULL) {
-    echo (string) $this->export($input, $name);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function export($input, $name = NULL) {
     $name = $name ? $name . ' => ' : '';
     $variable = Debug::export($input, 6);

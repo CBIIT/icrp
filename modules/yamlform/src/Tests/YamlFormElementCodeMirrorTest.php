@@ -16,7 +16,7 @@ class YamlFormElementCodeMirrorTest extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = ['system', 'yamlform', 'yamlform_test'];
+  protected static $modules = ['system', 'yamlform', 'yamlform_test'];
 
   /**
    * Tests CodeMirror element.

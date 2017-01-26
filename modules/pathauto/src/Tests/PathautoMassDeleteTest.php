@@ -82,7 +82,7 @@ class PathautoMassDeleteTest extends WebTestBase {
     $this->assertUrl('admin/config/search/path/delete_bulk');
 
     // Make sure that all of them are actually deleted.
-    $aliases = db_select('url_alias', 'ua')->fields('ua', array())->execute()->fetchAll();
+    $aliases = \Drupal::database()->select('url_alias', 'ua')->fields('ua', array())->execute()->fetchAll();
     $this->assertEqual($aliases, array(), "All the aliases have been deleted.");
 
     // 2. Test deleting only specific (entity type) aliases.

@@ -44,7 +44,12 @@ function email_registration_user_insert(UserInterface $account) {
   // Ensure whatever name we have is unique.
   $new_name = email_registration_unique_username($new_name, $account->id());
 
-  $account->setUsername($new_name)->save();
+  $account->setUsername($new_name);
+  if ($account->isValidationRequired() && !$account->validate()) {
+    \Drupal::logger('email_registration')->error('Email registration failed setting the new name on user @id.', ['@id' => $account->id()]);
+    return;
+  }
+  $account->save();
 }
 
 /**
@@ -127,6 +132,9 @@ function email_registration_form_user_register_form_alter(&$form, FormStateInter
  */
 function email_registration_form_user_pass_alter(&$form, FormStateInterface $form_state) {
   $form['name']['#title'] = t('E-mail');
+  // Allow client side validation of input format.
+  $form['name']['#type'] = 'email';
+  $form['name']['#maxlength'] = Email::EMAIL_MAX_LENGTH;
 }
 
 /**

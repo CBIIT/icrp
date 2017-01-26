@@ -1,8 +1,5 @@
 <?php
-/**
- * @file
- * Contains \Drupal\calendar\CalendarHelper.
- */
+
 namespace Drupal\calendar;
 
 use Datetime;

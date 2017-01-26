@@ -15,6 +15,7 @@ use Drupal\yamlform\Entity\YamlForm;
 use Drupal\yamlform\Utility\YamlFormArrayHelper;
 use Drupal\yamlform\YamlFormElementManagerInterface;
 use Drupal\yamlform\YamlFormSubmissionExporterInterface;
+use Drupal\yamlform\YamlFormTokenManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -42,6 +43,13 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
    * @var \Drupal\yamlform\YamlFormSubmissionExporterInterface
    */
   protected $submissionExporter;
+
+  /**
+   * The token manager.
+   *
+   * @var \Drupal\yamlform\YamlFormTranslationManagerInterface
+   */
+  protected $tokenManager;
 
   /**
    * An array of element types.
@@ -75,12 +83,15 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
    *   The form element manager.
    * @param \Drupal\yamlform\YamlFormSubmissionExporterInterface $submission_exporter
    *   The form submission exporter.
+   * @param \Drupal\yamlform\YamlFormTokenManagerInterface $token_manager
+   *   The token manager.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $third_party_settings_manager, YamlFormElementManagerInterface $element_manager, YamlFormSubmissionExporterInterface $submission_exporter) {
+  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $third_party_settings_manager, YamlFormElementManagerInterface $element_manager, YamlFormSubmissionExporterInterface $submission_exporter, YamlFormTokenManagerInterface $token_manager) {
     parent::__construct($config_factory);
     $this->moduleHandler = $third_party_settings_manager;
     $this->elementManager = $element_manager;
     $this->submissionExporter = $submission_exporter;
+    $this->tokenManager = $token_manager;
   }
 
   /**
@@ -91,7 +102,8 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
       $container->get('config.factory'),
       $container->get('module_handler'),
       $container->get('plugin.manager.yamlform.element'),
-      $container->get('yamlform_submission.exporter')
+      $container->get('yamlform_submission.exporter'),
+      $container->get('yamlform.token_manager')
     );
   }
 
@@ -397,7 +409,7 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
     $form['types'] = [
       '#type' => 'details',
       '#title' => $this->t('Element types'),
-      '#description' => $this->t('Select enable element types'),
+      '#description' => $this->t('Select available element types'),
     ];
     $form['types']['excluded_types'] = [
       '#type' => 'tableselect',
@@ -527,14 +539,7 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
       '#required' => TRUE,
       '#default_value' => $config->get('mail.default_body_html'),
     ];
-    if ($this->moduleHandler->moduleExists('token')) {
-      $form['mail']['token_tree_link'] = [
-        '#theme' => 'token_tree_link',
-        '#token_types' => ['yamlform', 'yamlform-submission'],
-        '#click_insert' => FALSE,
-        '#dialog' => TRUE,
-      ];
-    }
+    $form['mail']['token_tree_link'] = $this->tokenManager->buildTreeLink();
 
     // Export.
     $form['export'] = [
@@ -654,7 +659,7 @@ class YamlFormAdminSettingsForm extends ConfigFormBase {
     $form['library']['cdn_message'] = [
       '#type' => 'yamlform_message',
       '#message_type' => 'warning',
-      '#message_message' => $this->t('Note that it is in general not a good idea to load libraries from a CDN; avoid this if possible. It introduces more points of failure both performance- and security-wise, requires more TCP/IP connections to be set up and usually is not in the browser cache anyway.'),
+      '#message_message' => $this->t('Note that it is in general not a good idea to load libraries from a CDN; avoid this if possible. It introduces more points of failure both performance- and security-wise, requires more TCP/IP connections to be set up and these external assets are usually not in the browser cache anyway.'),
       '#states' => [
         'visible' => [
           ':input[name="library[cdn]"]' => [

@@ -1,0 +1,12 @@
+name: Feeds
+description: 'Aggregates RSS/Atom/RDF feeds, imports CSV files and more.'
+package: Feeds
+type: module
+# core: 8.x
+configure: feeds.overview_types
+
+# Information added by Drupal.org packaging script on 2016-12-21
+version: '8.x-3.x-dev'
+core: '8.x'
+project: 'feeds'
+datestamp: 1482307386

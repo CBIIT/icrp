@@ -16,7 +16,7 @@ class YamlFormElementAttributesTest extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = ['system', 'user', 'yamlform', 'yamlform_test'];
+  protected static $modules = ['system', 'user', 'yamlform', 'yamlform_test'];
 
   /**
    * Tests element attributes.

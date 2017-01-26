@@ -36,7 +36,7 @@ class ViewVariableTest extends TestBase {
     $this->assertStatusMessage('The variable has been created.');
 
     $edit = [
-      'display' => 'default',
+      'configuration[display]' => 'default',
     ];
     $this->drupalPostForm(NULL, $edit, 'Save');
 
@@ -49,7 +49,7 @@ class ViewVariableTest extends TestBase {
 
     // Change view display and test view appearance.
     $edit = [
-      'display' => 'who_s_online_block',
+      'configuration[display]' => 'who_s_online_block',
     ];
     $this->drupalPostForm('snippet/alpha/edit/variable/who_s_online/edit', $edit, 'Save');
     $this->drupalGet('snippet/alpha');
