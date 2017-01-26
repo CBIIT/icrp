@@ -12,3 +12,14 @@ window['enableResizableTableColumns'] = function() {
     $('table').resizableColumns();
   }, 0)
 }
+
+window['enableTooltips'] = function() {
+  window.setTimeout(function() {
+    $('[data-toggle="tooltip"]').tooltip({container: 'body'}); 
+  }, 0)
+}
+
+$(document).ready(function() {
+  window.enableResizableTableColumns();
+  window.enableTooltips();
+});

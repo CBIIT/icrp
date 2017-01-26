@@ -69,6 +69,39 @@ table.table-narrow > tfoot > tr > td {
 }
 
 
+
+/*
+ * Bootstrap tooltip overrides
+ */
+
+.tooltip-inner {
+  opacity: 0.85 !important;
+  border: 1px solid #DDD !important;
+  background-color: #FFF !important;
+  color: #555 !important;
+
+  font-size: 13px;
+}
+
+
+.tooltip.left .tooltip-arrow {
+  border-left-color: #CCC !important;
+}
+
+.tooltip.right .tooltip-arrow {
+  border-right-color: #CCC !important;
+}
+
+.tooltip.top .tooltip-arrow {
+  border-top-color: #CCC !important;
+}
+
+.tooltip.bottom .tooltip-arrow {
+  border-bottom-color: #CCC !important;
+}
+
+
+
 /*
  * Bootstrap native font overrides
  */
@@ -176,3 +209,5 @@ legend {
     "Ubuntu", "Cantarell", "Fira Sans", 
     "Droid Sans", "Helvetica Neue", sans-serif;
 }
+
+

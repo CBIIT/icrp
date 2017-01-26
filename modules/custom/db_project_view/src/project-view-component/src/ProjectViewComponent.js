@@ -86,35 +86,43 @@ class ProjectViewComponent extends Component {
           {
             label: 'Title',
             value: 'project_title',
-            link: 'project_funding_url'
+            link: 'project_funding_url',
+            tooltip: 'Title of Award',
           },
           {
             label: 'Category',
             value: 'project_category',
+            tooltip: 'A project may be a Parent Project, Supplement, or Sub-Project',
           },
           {
             label: 'Funding Org.',
             value: 'funding_organization',
+            tooltip: 'Funding Organization of Award (abbreviated name shown)',
           },
           {
             label: 'Alt Award Code',
             value: 'alt_award_code',
+            tooltip: 'Full award code/grant number',
           },
           {
             label: 'Award Funding Period',
             value: 'award_funding_period',
+            tooltip: 'The award has been funded through these dates. Some projects receive funding for multiple years and some projects receive funding one year at a time.',
           },
           {
             label: 'PI',
             value: 'pi_name',
+            tooltip: 'Principal Investigator',
           },
           {
             label: 'Institution',
             value: 'institution',
+            tooltip: 'PI Institution',
           },
           {
             label: 'Location',
             value: 'location',
+            tooltip: 'City and Country of Principal Investigator',
           },
         ],
 
@@ -184,8 +192,15 @@ class ProjectViewComponent extends Component {
       <h3 className="title margin-right">View Project Details</h3>
       <h4 className="h4 grey">{ project_details.project_title }</h4>
       <hr className="less-margins" />
-      <div id="google_translate_element" className="pull-right"></div>
-      { this.appendGoogleTranslateScript() }
+
+      <div className="clearfix form-group">
+      <div id="google_translate_element" className="pull-right" />
+        { this.appendGoogleTranslateScript() }
+      </div>
+
+      <div className="">
+      The project details page contains information on the Parent Project, as well as any related Supplements or Sub-Projects, for each year the project has been funded. Multiple records may be showing in the table below, and these can occur if the project is funded annually, and if the project has related subprojects or supplements (there will be a record for each year the project, sub-project or supplement is funded). Sub-projects or Supplements may have different Titles or PIs than the Parent Project, and are linked by a shared Award Code with the Parent Project. Users can “drill-through” to the project details page for each record in the table.
+      </div>
 
       <dl className="dl-horizontal margin-bottom margin-top">
         <dt>Award Code</dt>

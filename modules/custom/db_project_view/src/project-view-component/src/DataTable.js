@@ -21,7 +21,7 @@ class DataTable extends Component {
               <tr>
                 {
                   this.props.columns.map((column, columnIndex) => 
-                    <th key={columnIndex}>{column.label}</th>
+                    <th key={columnIndex} title={column.tooltip} data-toggle="tooltip">{column.label}</th>
                   )
                 }
               </tr>
@@ -50,6 +50,7 @@ class DataTable extends Component {
             </tbody>
           </table>
           { window['enableResizableTableColumns']() }
+          { window['enableTooltips']() }
         </div>
         
         {this.props.data.length > this.props.limit &&
