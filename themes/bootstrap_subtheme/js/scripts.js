@@ -9,7 +9,7 @@
 
 window['enableResizableTableColumns'] = function() {
   window.setTimeout(function() {
-    $('table').resizableColumns();
+    $('table:visible').resizableColumns();
   }, 0)
 }
 
