@@ -171,8 +171,8 @@ handlers:
       to_mail: default
       cc_mail: ''
       bcc_mail: ''
-      from_mail: '[yamlform-submission:values:email:raw]'
-      from_name: '[yamlform-submission:values:first_name] [yamlform-submission:values:last_name]'
+      from_mail: '[yamlform_submission:values:email:raw]'
+      from_name: '[yamlform_submission:values:first_name] [yamlform_submission:values:last_name]'
       subject: default
       body: default
       excluded_elements: {  }

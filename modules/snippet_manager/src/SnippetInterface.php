@@ -56,16 +56,6 @@ interface SnippetInterface extends ConfigEntityInterface {
   public function variableExists($key);
 
   /**
-   * Context getter.
-   */
-  public function getContext();
-
-  /**
-   * Context setter.
-   */
-  public function setContext($context);
-
-  /**
    * Determines if the associated page is published.
    *
    * @return bool

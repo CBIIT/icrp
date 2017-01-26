@@ -88,6 +88,18 @@ class TwigTweakTest extends BrowserTestBase {
     $xpath = '//div[@class = "tt-field"]/div[contains(@class, "field--name-body")]/p[. != ""]';
     $this->assertByXpath($xpath);
 
+    // Test menu (default).
+    $xpath = '//div[@class = "tt-menu-default"]/ul[@class = "menu"]/li/a[. = "Link 1"]/../ul[@class = "menu"]/li/ul[@class = "menu"]/li/a[. = "Link 3"]';
+    $this->assertByXpath($xpath);
+
+    // Test menu (level).
+    $xpath = '//div[@class = "tt-menu-level"]/ul[@class = "menu"]/li/a[. = "Link 2"]/../ul[@class = "menu"]/li/a[. = "Link 3"]';
+    $this->assertByXpath($xpath);
+
+    // Test menu (depth).
+    $xpath = '//div[@class = "tt-menu-depth"]/ul[@class = "menu"]/li[not(ul)]/a[. = "Link 1"]';
+    $this->assertByXpath($xpath);
+
     // Test block.
     $xpath = '//div[@class = "tt-block"]';
     $xpath .= '/div[@id="block-powered-by-drupal"]/span[contains(., "Powered by Drupal")]';
@@ -95,6 +107,10 @@ class TwigTweakTest extends BrowserTestBase {
 
     // Test token.
     $xpath = '//div[@class = "tt-token" and . = "Drupal"]';
+    $this->assertByXpath($xpath);
+
+    // Test token with context.
+    $xpath = '//div[@class = "tt-token-data" and . = "Beta"]';
     $this->assertByXpath($xpath);
 
     // Test config.

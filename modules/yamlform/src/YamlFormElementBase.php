@@ -77,6 +77,13 @@ class YamlFormElementBase extends PluginBase implements YamlFormElementInterface
   protected $elementManager;
 
   /**
+   * The token manager.
+   *
+   * @var \Drupal\yamlform\YamlFormTranslationManagerInterface
+   */
+  protected $tokenManager;
+
+  /**
    * Constructs a Drupal\Component\Plugin\PluginBase object.
    *
    * @param array $configuration
@@ -95,8 +102,10 @@ class YamlFormElementBase extends PluginBase implements YamlFormElementInterface
    *   The element info manager.
    * @param \Drupal\yamlform\YamlFormElementManagerInterface $element_manager
    *   The form element manager.
+   * @param \Drupal\yamlform\YamlFormTokenManagerInterface $token_manager
+   *   The token manager.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, LoggerInterface $logger, ConfigFactoryInterface $config_factory, AccountInterface $current_user, EntityTypeManagerInterface $entity_type_manager, ElementInfoManagerInterface $element_info, YamlFormElementManagerInterface $element_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, LoggerInterface $logger, ConfigFactoryInterface $config_factory, AccountInterface $current_user, EntityTypeManagerInterface $entity_type_manager, ElementInfoManagerInterface $element_info, YamlFormElementManagerInterface $element_manager, YamlFormTokenManagerInterface $token_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->logger = $logger;
     $this->configFactory = $config_factory;
@@ -104,6 +113,7 @@ class YamlFormElementBase extends PluginBase implements YamlFormElementInterface
     $this->entityTypeManager = $entity_type_manager;
     $this->elementInfo = $element_info;
     $this->elementManager = $element_manager;
+    $this->tokenManager = $token_manager;
   }
 
   /**
@@ -119,7 +129,8 @@ class YamlFormElementBase extends PluginBase implements YamlFormElementInterface
       $container->get('current_user'),
       $container->get('entity_type.manager'),
       $container->get('plugin.manager.element_info'),
-      $container->get('plugin.manager.yamlform.element')
+      $container->get('plugin.manager.yamlform.element'),
+      $container->get('yamlform.token_manager')
     );
   }
 
@@ -444,12 +455,7 @@ class YamlFormElementBase extends PluginBase implements YamlFormElementInterface
     $this->prepareWrapper($element);
 
     // Replace tokens for all properties.
-    $token_data = [
-      'yamlform' => $yamlform_submission->getYamlForm(),
-      'yamlform-submission' => $yamlform_submission,
-    ];
-    $token_options = ['clear' => TRUE];
-    YamlFormElementHelper::replaceTokens($element, $token_data, $token_options);
+    $element = $this->tokenManager->replace($element, $yamlform_submission);
   }
 
   /**
@@ -1259,14 +1265,7 @@ class YamlFormElementBase extends PluginBase implements YamlFormElementInterface
       '#parents' => ['properties', 'custom'],
     ];
 
-    if (\Drupal::moduleHandler()->moduleExists('token')) {
-      $form['token_tree_link'] = [
-        '#theme' => 'token_tree_link',
-        '#token_types' => ['yamlform', 'yamlform-submission'],
-        '#click_insert' => FALSE,
-        '#dialog' => TRUE,
-      ];
-    }
+    $form['token_tree_link'] = $this->tokenManager->buildTreeLink();
 
     // Set custom properties.
     // Note: Storing this information in the form's state allows modules to view

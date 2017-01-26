@@ -30,7 +30,6 @@ class Url extends SnippetVariableBase implements SnippetVariableInterface {
       '#default_value' => $this->configuration['path'],
       '#autocomplete_route_name' => 'snippet_manager.path_autocomplete',
       '#description' => t('Make sure the path begins with "/".'),
-      '#element_validate' => ['\Drupal\snippet_manager\Plugin\SnippetVariable\Url::validatePath'],
       '#required' => TRUE,
     ];
 
@@ -38,9 +37,9 @@ class Url extends SnippetVariableBase implements SnippetVariableInterface {
   }
 
   /**
-   * Element validate callback; validates the path.
+   * {@inheritdoc}
    */
-  public static function validatePath($element, FormStateInterface $form_state, array $form) {
+  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
     $path = $form_state->getValue('path');
     $parsed_url = UrlHelper::parse($path);
     if ($parsed_url['path'][0] != '/') {

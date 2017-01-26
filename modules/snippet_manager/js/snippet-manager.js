@@ -91,8 +91,9 @@
         });
 
         $('<select id="sm-mode"/>')
+          .append('<option value="html_twig">HTML/Twig</option>')
+          .append('<option value="text/html">HTML</option>')
           .append('<option value="twig">Twig</option>')
-          .append('<option value="xml">HTML / XML</option>')
           .append('<option value="javascript">JavaScript</option>')
           .append('<option value="css">CSS</option>')
           .val(mode)
@@ -160,6 +161,15 @@
 
       // Remove "required" attribute because the textarea is no focusable.
       $textArea.removeAttr('required');
+
+      // Create HTML/Twig overlay mode.
+      CodeMirror.defineMode('html_twig', function (config, parserConfig) {
+        console.log(parserConfig);
+        return CodeMirror.overlayMode(
+          CodeMirror.getMode(config, parserConfig.backdrop || 'text/html'),
+          CodeMirror.getMode(config, 'twig')
+        );
+      });
 
       var mode = getModes()[settings.snippetManager.snippetId] || settings.snippetManager.codeMirror.mode;
 

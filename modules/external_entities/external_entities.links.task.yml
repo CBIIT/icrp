@@ -1,0 +1,24 @@
+entity.external_entity.canonical:
+  route_name: entity.external_entity.canonical
+  base_route: entity.external_entity.canonical
+  title: 'View'
+entity.external_entity.edit_form:
+  route_name: entity.external_entity.edit_form
+  base_route: entity.external_entity.canonical
+  title: Edit
+entity.external_entity.delete_form:
+  route_name: entity.external_entity.delete_form
+  base_route: entity.external_entity.canonical
+  title: Delete
+  weight: 10
+entity.external_entity_type.edit_form:
+  title: 'Edit'
+  route_name: entity.external_entity_type.edit_form
+  base_route: entity.external_entity_type.edit_form
+entity.external_entity_type.collection:
+  title: List
+  route_name: entity.external_entity_type.collection
+  base_route: entity.external_entity_type.collection
+external_entities.local_tasks:
+  deriver: 'Drupal\external_entities\Plugin\Derivative\ExternalEntitiesLocalTasks'
+  weight: 100

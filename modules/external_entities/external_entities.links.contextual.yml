@@ -1,0 +1,10 @@
+entity.external_entity.edit_form:
+  route_name: entity.external_entity.edit_form
+  group: external_entity
+  title: Edit
+
+entity.external_entity.delete_form:
+  route_name: entity.external_entity.delete_form
+  group: external_entity
+  title: Delete
+  weight: 10

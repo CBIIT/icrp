@@ -16,7 +16,7 @@ class YamlFormElementCustomPropertiesTest extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = ['system', 'user', 'yamlform', 'yamlform_ui', 'yamlform_test_custom_properties'];
+  protected static $modules = ['system', 'user', 'yamlform', 'yamlform_ui', 'yamlform_test_custom_properties'];
 
   /**
    * Tests form element custom properties.

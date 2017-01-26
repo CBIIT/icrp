@@ -1,0 +1,11 @@
+entity.external_entity_type.collection:
+  title: 'External entity types'
+  parent: system.admin_structure
+  description: 'Manage external entity types.'
+  route_name: entity.external_entity_type.collection
+external_entities.add_page:
+  title: 'Add external entity'
+  route_name: external_entities.add_page
+external_entities.menu_links:
+  deriver: 'Drupal\external_entities\Plugin\Derivative\ExternalEntitiesMenuLinks'
+  weight: 100

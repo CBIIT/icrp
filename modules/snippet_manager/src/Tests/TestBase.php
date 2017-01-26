@@ -39,7 +39,7 @@ abstract class TestBase extends WebTestBase {
   protected function setUp() {
     parent::setUp();
 
-    // Redirect to canonical to check snippet content imediatly.
+    // Redirect to canonical to check snippet content immediately.
     \Drupal::service('config.factory')
       ->getEditable('snippet_manager.settings')
       ->set('redirect_page', 'canonical')

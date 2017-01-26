@@ -116,6 +116,7 @@ function drush_yamlform_to_webform_convert() {
   $files = [
     'docs/developers/development.md' => 'DEVELOPMENT.md',
     'docs/support/issues.md' => 'ISSUES.md',
+    'docs/features.md' => 'FEATURES.md',
   ];
   foreach ($files as $source => $destination) {
     file_unmanaged_move("$webform_destination/$source", "$webform_destination/$destination", FILE_EXISTS_REPLACE);
@@ -213,7 +214,7 @@ function drush_yamlform_to_webform_convert() {
     }
 
     // Custom cleanup.
-    switch(basename($file_path)) {
+    switch (basename($file_path)) {
       case 'webform_node.install':
         $lines = explode("\n", $contents);
         $lines = array_slice($lines, 0, 26);
@@ -226,6 +227,14 @@ function drush_yamlform_to_webform_convert() {
       ]));
     }
     file_put_contents($file_path, $contents);
+  }
+
+  // Revert certain files that are now being customized for the Webform module.
+  if (file_exists("$webform_destination/.git")) {
+    drush_print(dt('Reverting selected files...'));
+    foreach ($config['revert'] as $file) {
+      `cd $webform_destination; git checkout -- $file`;
+    }
   }
 }
 

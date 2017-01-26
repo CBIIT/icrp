@@ -17,8 +17,15 @@ class SnippetListBuilder extends ConfigEntityListBuilder {
     $header['label'] = $this->t('Label');
     $header['id'] = $this->t('Machine name');
     $header['status'] = $this->t('Status');
+    $header['size'] = $this->t('Size');
+    $header['format'] = $this->t('Format');
     $header['page'] = $this->t('Page');
-    return $header + parent::buildHeader();
+    $header += parent::buildHeader();
+    $header['operations'] = [
+      'data' => $header['operations'],
+      'class' => 'sm-snippet-operations',
+    ];
+    return $header;
   }
 
   /**
@@ -28,8 +35,34 @@ class SnippetListBuilder extends ConfigEntityListBuilder {
     /** @var \Drupal\snippet_manager\SnippetInterface $entity */
     $row['label'] = $entity->toLink();
     $row['id'] = $entity->id();
-    $row['status'] = $entity->status() ? $this->t('Enabled') : $this->t('Disabled');
-    $row['page'] = $entity->pageIsPublished() ? $this->t('Published') : $this->t('Not published');
+
+    if ($entity->status()) {
+      $row['status'] = $this->t('Enabled');
+    }
+    else {
+      $row['status']['data'] = $this->t('Disabled');
+      $row['status']['class'] = ['sm-inactive'];
+    }
+
+    $code = $entity->getCode();
+    $row['size'] = $this->formatSize(strlen($code['value']));
+
+    if ($format_label = $this->getFormatLabel($code['format'])) {
+      $row['format'] = $format_label;
+    }
+    else {
+      $row['format']['data'] = $code['format'];
+      $row['format']['class'] = ['sm-inactive'];
+    }
+
+    if ($entity->pageIsPublished()) {
+      $row['page'] = $this->t('Published');
+    }
+    else {
+      $row['page']['data'] = $this->t('Not published');
+      $row['page']['class'] = ['sm-inactive'];
+    }
+
     return $row + parent::buildRow($entity);
   }
 
@@ -45,6 +78,33 @@ class SnippetListBuilder extends ConfigEntityListBuilder {
       'weight' => 100,
     ];
     return $operations;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function render() {
+    $build = parent::render();
+    $build['table']['#attributes']['class'][] = 'sm-snippets-overview';
+    $build['#attached']['library'][] = 'snippet_manager/snippet_manager';
+    return $build;
+  }
+
+  /**
+   * Generates a string representation for the given byte count.
+   *
+   * @see format_size()
+   */
+  public function formatSize($size) {
+    return format_size($size);
+  }
+
+  /**
+   * Returns label for a given format.
+   */
+  public function getFormatLabel($format) {
+    $formats = filter_formats();
+    return isset($formats[$format]) ? $formats[$format]->label() : NULL;
   }
 
 }

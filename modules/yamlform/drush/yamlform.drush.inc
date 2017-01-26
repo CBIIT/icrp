@@ -155,7 +155,6 @@ function yamlform_drush_command() {
       'yamlform-repair' => 'Repairs admin settings and forms are up-to-date.',
     ],
     'aliases' => ['yfr'],
-
   ];
 
   return $items;
@@ -462,6 +461,7 @@ function drush_yamlform_libraries_remove($status = TRUE) {
       $removed = TRUE;
     }
   }
+
   if ($status) {
     drupal_flush_all_caches();
   }
@@ -484,6 +484,7 @@ function drush_yamlform_libraries_download() {
   ];
   $commandline_options = ['no-core' => 'no-core'];
   drush_invoke_process('@self', 'make', $commandline_args, $commandline_options);
+
   drupal_flush_all_caches();
 }
 

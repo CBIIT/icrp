@@ -32,10 +32,7 @@
         revert_tab.set({loading: true});
         $.ajax({
           url: drupalSettings.path.baseUrl + 'admin/panelizer/panels_ipe/' + entity.entity_type_id + '/' + entity.entity_id + '/' + entity.view_mode + '/revert_to_default',
-          data: {
-            // @todo: Use the default this entity is on.
-            default: 'default'
-          },
+          data: {},
           type: 'POST'
         }).done(function (data) {
           location.reload();

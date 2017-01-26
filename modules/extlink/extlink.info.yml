@@ -5,8 +5,8 @@ package: User interface
 # core: 8.x
 configure: extlink_admin.settings
 
-# Information added by Drupal.org packaging script on 2016-09-13
-version: '8.x-1.0-alpha3'
+# Information added by Drupal.org packaging script on 2016-12-16
+version: '8.x-1.0'
 core: '8.x'
 project: 'extlink'
-datestamp: 1473744541
+datestamp: 1481932088

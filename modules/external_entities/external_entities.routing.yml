@@ -1,0 +1,57 @@
+external_entities.add_page:
+  path: '/external-entity/add'
+  defaults:
+    _title: 'Add external entity'
+    _controller: '\Drupal\external_entities\Controller\ExternalEntityController::addPage'
+  options:
+    _external_entity_operation_route: TRUE
+  requirements:
+    _external_entity_add_access: 'external_entity'
+
+external_entity.add:
+  path: '/external-entity/add/{external_entity_type}'
+  defaults:
+    _controller: '\Drupal\external_entities\Controller\ExternalEntityController::add'
+    _title_callback: '\Drupal\external_entities\Controller\ExternalEntityController::addPageTitle'
+  requirements:
+    _external_entity_add_access: 'external_entity:{external_entity_type}'
+  options:
+    _external_entity_operation_route: TRUE
+    parameters:
+      external_entity_type:
+        with_config_overrides: TRUE
+
+entity.external_entity_type.collection:
+  path: '/admin/structure/external-entity-types'
+  defaults:
+    _controller: '\Drupal\Core\Entity\Controller\EntityListController::listing'
+    entity_type: 'external_entity_type'
+    _title: 'External entity types'
+  requirements:
+    _permission: 'administer external entity types'
+
+external_entity.type_add:
+  path: '/admin/structure/external-entity-types/add'
+  defaults:
+    _entity_form: 'external_entity_type.add'
+    _title: 'Add external entity type'
+  requirements:
+    _permission: 'administer external entity types'
+
+entity.external_entity_type.edit_form:
+  path: '/admin/structure/external-entity-types/manage/{external_entity_type}'
+  defaults:
+    _entity_form: 'external_entity_type.edit'
+  requirements:
+    _permission: 'administer external entity types'
+
+entity.external_entity_type.delete_form:
+  path: '/admin/structure/external-entity-types/manage/{external_entity_type}/delete'
+  defaults:
+    _entity_form: 'external_entity_type.delete'
+    _title: 'Delete'
+  requirements:
+    _entity_access: 'external_entity_type.delete'
+
+route_callbacks:
+  - 'entity.external_entities.routes::routes'

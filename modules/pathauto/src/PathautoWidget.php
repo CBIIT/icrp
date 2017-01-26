@@ -43,11 +43,18 @@ class PathautoWidget extends PathWidget {
       return $element;
     }
 
+    if (\Drupal::currentUser()->hasPermission('administer pathauto')) {
+      $description = $this->t('Uncheck this to create a custom alias below. <a href="@admin_link">Configure URL alias patterns.</a>', ['@admin_link' => Url::fromRoute('entity.pathauto_pattern.collection')->toString()]);
+    }
+    else {
+      $description = $this->t('Uncheck this to create a custom alias below.');
+    }
+
     $element['pathauto'] = array(
       '#type' => 'checkbox',
       '#title' => $this->t('Generate automatic URL alias'),
       '#default_value' => $entity->path->pathauto,
-      '#description' => $this->t('Uncheck this to create a custom alias below. <a href="@admin_link">Configure URL alias patterns.</a>', array('@admin_link' => Url::fromRoute('entity.pathauto_pattern.collection')->toString())),
+      '#description' => $description,
       '#weight' => -1,
     );
 

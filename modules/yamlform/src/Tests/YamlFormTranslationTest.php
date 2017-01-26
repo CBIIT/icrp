@@ -20,7 +20,7 @@ class YamlFormTranslationTest extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = ['system', 'user', 'block', 'yamlform', 'yamlform_examples', 'yamlform_test_translation'];
+  protected static $modules = ['system', 'user', 'block', 'yamlform', 'yamlform_examples', 'yamlform_test_translation'];
 
   /**
    * {@inheritdoc}

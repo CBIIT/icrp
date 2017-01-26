@@ -81,7 +81,7 @@ class PathautoAdminDelete extends FormBase {
     }
 
     // Warn them and give a button that shows we mean business.
-    $form['warning'] = array('#value' => '<p>' . t('<strong>Note:</strong> there is no confirmation. Be sure of your action before clicking the "Delete aliases now!" button.<br />You may want to make a backup of the database and/or the url_alias table prior to using this feature.') . '</p>');
+    $form['warning'] = array('#value' => '<p>' . $this->t('<strong>Note:</strong> there is no confirmation. Be sure of your action before clicking the "Delete aliases now!" button.<br />You may want to make a backup of the database and/or the url_alias table prior to using this feature.') . '</p>');
     $form['buttons']['submit'] = array(
       '#type' => 'submit',
       '#value' => $this->t('Delete aliases now!'),

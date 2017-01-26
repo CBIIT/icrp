@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains Drupal\views\Plugin\views\argument_default\Date.
- */
-
 namespace Drupal\calendar_datetime\Plugin\views\argument_default;
 
 use Drupal\Core\Cache\CacheableDependencyInterface;

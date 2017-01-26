@@ -12,14 +12,14 @@ settings:
   default_limit_total_message: 'No se podrán hacer más presentaciones.'
   default_limit_user_message: 'No se podrán hacer más presentaciones.'
 mail:
-  default_subject: 'Formulario de envío de: [yamlform-submission:source-entity]'
+  default_subject: 'Formulario de envío de: [yamlform_submission:source-entity]'
   default_body: |
-    Enviada [yamlform-submission:created]
-    Presentado por:[yamlform-submission:user]
+    Enviada [yamlform_submission:created]
+    Presentado por:[yamlform_submission:user]
 
     Los valores presentados son:
 
-    [yamlform-submission:values]
+    [yamlform_submission:values]
 test:
   types: |
     checkbox:

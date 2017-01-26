@@ -8,7 +8,7 @@ uid: null
 template: false
 id: example_elements
 title: 'Example: Elements'
-description: 'Examples for every supported <a href="https://api.drupal.org/api/drupal/elements">form element</a>.'
+description: 'Examples of every supported <a href="https://api.drupal.org/api/drupal/elements">form element</a>.'
 elements: |
   basic_elements:
     '#type': details
@@ -36,7 +36,7 @@ elements: |
     yamlform_autocomplete:
       '#type': autocomplete
       '#title': Autocomplete
-      '#autocomplete_options': country_names
+      '#autocomplete_items': country_names
     captcha:
       '#type': captcha
       '#title': CAPTCHA
@@ -103,25 +103,6 @@ elements: |
     value:
       '#type': value
       '#title': Value
-  composite_elements:
-    '#type': details
-    '#title': 'Composite elements'
-    '#open': true
-    yamlform_address:
-      '#type': address
-      '#title': Address
-    yamlform_contact:
-      '#type': contact
-      '#title': Contact
-    yamlform_creditcard:
-      '#type': creditcard
-      '#title': 'Credit card'
-    yamlform_location:
-      '#type': location
-      '#title': Location
-    yamlform_name:
-      '#type': name
-      '#title': Name
   file_upload_elements:
     '#type': details
     '#title': 'File upload elements'
@@ -138,7 +119,7 @@ elements: |
     managed_file:
       '#type': managed_file
       '#title': 'Managed file'
-      '#description': '<b>Known Issues:</b><br/><a href="https://www.drupal.org/node/2705471">Issue #2705471: Form states managed file fields</a>'
+      '#description': '<b>Known Issues:</b><br/><a href="https://www.drupal.org/node/2705471">Issue #2705471: Form states managed file fields</a><br/><a href="https://www.drupal.org/node/2113931">Issue #2113931: File Field design update</a>'
     yamlform_video_file:
       '#type': video_file
       '#title': 'Video file'
@@ -163,6 +144,7 @@ elements: |
     checkboxes:
       '#type': checkboxes
       '#title': Checkboxes
+      '#description': '<b>Known Issues:</b><br/><a href="https://www.drupal.org/node/994360">Issue #994360: #states cannot disable/enable radios and checkboxes</a><br/><a href="https://www.drupal.org/node/2836364">Issue #2836364: Wrapper attributes are not supported by composite elements, this includes radios, checkboxes, and buttons.</a>'
       '#options':
         One: One
         Two: Two
@@ -190,7 +172,7 @@ elements: |
     radios:
       '#type': radios
       '#title': Radios
-      '#description': '<b>Known Issues:</b><br/><a href="https://www.drupal.org/node/2731991">Issue #2731991: Setting required on radios marks all options required</a><br/><a href="https://www.drupal.org/node/994360">Issue #994360: #states cannot disable/enable radios and checkboxes</a>'
+      '#description': '<b>Known Issues:</b><br/><a href="https://www.drupal.org/node/2731991">Issue #2731991: Setting required on radios marks all options required</a><br/><a href="https://www.drupal.org/node/994360">Issue #994360: #states cannot disable/enable radios and checkboxes</a><br/><a href="https://www.drupal.org/node/2836364">Issue #2836364: Wrapper attributes are not supported by composite elements, this includes radios, checkboxes, and buttons.</a>'
       '#options':
         One: One
         Two: Two
@@ -234,6 +216,13 @@ elements: |
     yamlform_table_sort:
       '#type': table_sort
       '#title': 'Table sort'
+      '#options':
+        One: One
+        Two: Two
+        Three: Three
+    yamlform_toggles:
+      '#type': toggles
+      '#title': Toggles
       '#options':
         One: One
         Two: Two
@@ -336,6 +325,7 @@ elements: |
     yamlform_message:
       '#type': message
       '#title': Message
+      '#description': '<b>Known Issues:</b><br/><a href="https://www.drupal.org/node/77245">Issue #77245: A place for JavaScript status messages</a>'
       '#message_type': warning
       '#message_message': 'This is a <strong>warning</strong> message.'
       yamlform_message_content:

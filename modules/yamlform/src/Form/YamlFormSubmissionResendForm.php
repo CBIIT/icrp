@@ -147,7 +147,7 @@ class YamlFormSubmissionResendForm extends FormBase {
     // Message.
     $form['message'] = [
       '#type' => 'details',
-      '#title' => 'Message',
+      '#title' => $this->t('Message'),
       '#open' => TRUE,
       '#tree' => TRUE,
       '#prefix' => '<div id="edit-yamlform-message-wrapper">',

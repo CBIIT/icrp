@@ -12,6 +12,7 @@ use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
 use Drupal\Core\Url;
 use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
+use Drupal\stream_wrapper_example\StreamWrapper\SessionWrapper;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -140,11 +141,11 @@ class FileExampleReadWriteForm extends FormBase {
    * @return Drupal\stream_wrapper_example\StreamWrapper\SessionWrapper|bool
    *   Wrapper object to manipulate the SESSION storage or FALSE if the session
    *   wrapper is unavailable.
-   *
-   * @todo Update this to be meaningful when stream_wrapper_example is
-   *   completed. https://www.drupal.org/node/2638290
    */
   protected function getSessionWrapper() {
+    if ($this->sessionSchemeEnabled) {
+      return new SessionWrapper($this->requestStack);
+    }
     return FALSE;
   }
 

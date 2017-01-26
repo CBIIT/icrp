@@ -8,12 +8,9 @@
 namespace Drupal\panelizer\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Entity\Entity\EntityViewDisplay;
-use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\WidgetBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Plugin implementation of the 'panelizer' widget.
@@ -30,6 +27,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class PanelizerWidget extends WidgetBase {
 
   /**
+   * Returns the Panels display plugin manager.
+   *
    * @return \Drupal\panels\PanelsDisplayManagerInterface
    */
   public function getPanelsManager() {
@@ -38,6 +37,8 @@ class PanelizerWidget extends WidgetBase {
   }
 
   /**
+   * Returns the Panelizer entity plugin manager.
+   *
    * @return \Drupal\panelizer\Plugin\PanelizerEntityManager
    */
   public function getPanelizerManager() {
@@ -46,50 +47,21 @@ class PanelizerWidget extends WidgetBase {
   }
 
   /**
+   * Returns the Panelizer service.
+   *
+   * @return \Drupal\panelizer\PanelizerInterface
+   */
+  public function getPanelizer() {
+    // @todo: is it possible to inject this?
+    return \Drupal::service('panelizer');
+  }
+
+  /**
    * @return \Drupal\Core\Entity\EntityDisplayRepositoryInterface
    */
   public function getEntityDisplayRepository() {
     // @todo: is it possible to inject this?
     return \Drupal::service('entity_display.repository');
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function defaultSettings() {
-    return array(
-      'allow_panel_choice' => FALSE,
-    ) + parent::defaultSettings();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function settingsForm(array $form, FormStateInterface $form_state) {
-    $elements = [];
-
-    /*
-    $elements['allow_panel_choice'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Allow panel choice'),
-      '#default_value' => $this->getSetting('allow_panel_choice'),
-    );
-    */
-
-    return $elements;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function settingsSummary() {
-    $summary = [];
-
-    if (!empty($this->getSetting('allow_panel_choice'))) {
-      $summary[] = t('Allow panel choice');
-    }
-
-    return $summary;
   }
 
   /**
@@ -110,19 +82,18 @@ class PanelizerWidget extends WidgetBase {
       ];
     }
 
-    /** @var \Drupal\panelizer\Plugin\PanelizerEntityInterface $panelizer_plugin */
-    $panelizer_plugin = $this->getPanelizerManager()->createInstance($entity_type_id, []);
-
     // If any view modes are missing, then set the default.
+    $displays = [];
     foreach ($entity_view_modes as $view_mode => $view_mode_info) {
-      if (!isset($values[$view_mode])) {
-        $display = EntityViewDisplay::collectRenderDisplay($entity, $view_mode);
+      $display = EntityViewDisplay::collectRenderDisplay($entity, $view_mode);
+      $displays[$view_mode] = $display->getThirdPartySetting('panelizer', 'displays', []);
+      // If we don't have a value, or the default is __bundle_default__ and our
+      // panels_display is empty, set the default to __bundle_default__.
+      if (!isset($values[$view_mode]) || ($values[$view_mode]['default'] == '__bundle_default__' && empty($values[$view_mode]['panels_display']))) {
         if ($display->getThirdPartySetting('panelizer', 'enable', FALSE)) {
-          $panels_display = $panelizer_plugin->getDefaultDisplay($display, $entity->bundle(), $view_mode);
-
           $values[$view_mode] = [
-            'default' => 'default',
-            'panels_display' => $this->getPanelsManager()->exportDisplay($panels_display),
+            'default' => '__bundle_default__',
+            'panels_display' => [],
           ];
         }
       }
@@ -136,14 +107,28 @@ class PanelizerWidget extends WidgetBase {
         '#value' => $view_mode,
       ];
 
-      if (!empty($this->getSetting('allow_panel_choice'))) {
+      $settings = $this->getPanelizer()->getPanelizerSettings($entity_type_id, $entity->bundle(), $view_mode);
+      if (!empty($settings['allow'])) {
+        // We default to this option when the user hasn't previous interacted
+        // with the field.
+        $options = [
+          '__bundle_default__' => $this->t('Current default display'),
+        ];
+        foreach ($displays[$view_mode] as $machine_name => $panels_display) {
+          $options[$machine_name] = $panels_display['label'];
+        }
         $element[$delta]['default'] = [
+          '#title' => $entity_view_modes[$view_mode]['label'],
           '#type' => 'select',
-          // @todo: list the view mode in the title
-          // @todo: get the list of defaults
-          '#options' => [],
+          '#options' => $options,
           '#default_value' => $value['default'],
         ];
+        // If we have a value in panels_display, prevent the user from
+        // interacting with the widget for the view modes that are overridden.
+        if (!empty($value['panels_display'])) {
+          $element[$delta]['default']['#disabled'] = TRUE;
+          $element[$delta]['default']['#options'][$value['default']] = $this->t('Custom Override');
+        }
       }
       else {
         $element[$delta]['default'] = [

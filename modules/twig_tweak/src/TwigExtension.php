@@ -4,6 +4,8 @@ namespace Drupal\twig_tweak;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Menu\MenuActiveTrailInterface;
+use Drupal\Core\Menu\MenuLinkTreeInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Utility\Token;
@@ -43,6 +45,20 @@ class TwigExtension extends \Twig_Extension {
   protected $routeMatch;
 
   /**
+   * The menu link tree service.
+   *
+   * @var \Drupal\Core\Menu\MenuLinkTreeInterface
+   */
+  protected $menuTree;
+
+  /**
+   * The active menu trail service.
+   *
+   * @var \Drupal\Core\Menu\MenuActiveTrailInterface
+   */
+  protected $menuActiveTrail;
+
+  /**
    * TwigExtension constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -53,12 +69,18 @@ class TwigExtension extends \Twig_Extension {
    *   The configuration factory.
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
    *   The route match.
+   * @param \Drupal\Core\Menu\MenuLinkTreeInterface $menu_tree
+   *   The menu tree service.
+   * @param \Drupal\Core\Menu\MenuActiveTrailInterface $menu_active_trail
+   *   The active menu trail service.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, Token $token, ConfigFactoryInterface $config_factory, RouteMatchInterface $route_match) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, Token $token, ConfigFactoryInterface $config_factory, RouteMatchInterface $route_match, MenuLinkTreeInterface $menu_tree, MenuActiveTrailInterface $menu_active_trail) {
     $this->entityTypeManager = $entity_type_manager;
     $this->token = $token;
     $this->configFactory = $config_factory;
     $this->routeMatch = $route_match;
+    $this->menuTree = $menu_tree;
+    $this->menuActiveTrail = $menu_active_trail;
   }
 
   /**
@@ -71,6 +93,7 @@ class TwigExtension extends \Twig_Extension {
       new \Twig_SimpleFunction('drupal_token', [$this, 'drupalToken']),
       new \Twig_SimpleFunction('drupal_entity', [$this, 'drupalEntity']),
       new \Twig_SimpleFunction('drupal_field', [$this, 'drupalField']),
+      new \Twig_SimpleFunction('drupal_menu', [$this, 'drupalMenu']),
       new \Twig_SimpleFunction('drupal_config', [$this, 'drupalConfig']),
     ];
   }
@@ -118,12 +141,23 @@ class TwigExtension extends \Twig_Extension {
    *
    * @param string $token
    *   A replaceable token.
+   * @param array $data
+   *   (optional) An array of keyed objects. For simple replacement scenarios
+   *   'node', 'user', and others are common keys, with an accompanying node or
+   *   user object being the value. Some token types, like 'site', do not
+   *   require any explicit information from $data and can be replaced even if
+   *   it is empty.
+   * @param array $options
+   *   (optional) A keyed array of settings and flags to control the token
+   *   replacement process.
    *
    * @return string
    *   The token value.
+   *
+   * @see \Drupal\Core\Utility\Token::replace()
    */
-  public function drupalToken($token) {
-    return $this->token->replace("[$token]");
+  public function drupalToken($token, array $data = [], array $options = []) {
+    return $this->token->replace("[$token]", $data, $options);
   }
 
   /**
@@ -163,19 +197,59 @@ class TwigExtension extends \Twig_Extension {
    * @param mixed $id
    *   The ID of the entity to render.
    * @param string $view_mode
-   *   (optional) The view mode that should be used to render the entity.
+   *   (optional) The view mode that should be used to render the field.
+   * @param string $langcode
+   *   (optional) Language code to load translation.
    *
    * @return null|array
    *   A render array for the field or NULL if the value does not exist.
    */
-  public function drupalField($field_name, $entity_type, $id = NULL, $view_mode = 'default') {
+  public function drupalField($field_name, $entity_type, $id = NULL, $view_mode = 'default', $langcode = NULL) {
     $entity = $id ?
       $this->entityTypeManager->getStorage($entity_type)->load($id) :
       $this->routeMatch->getParameter($entity_type);
+    if ($langcode && $entity->hasTranslation($langcode)) {
+      $entity = $entity->getTranslation($langcode);
+    }
     if (isset($entity->{$field_name})) {
       return $entity->{$field_name}->view($view_mode);
     }
     return NULL;
+  }
+
+  /**
+   * Returns the render array for Drupal menu.
+   *
+   * @param string $menu_name
+   *   The name of the menu.
+   * @param int $level
+   *   (optional) Initial menu level.
+   * @param int $depth
+   *   (optional) Maximum number of menu levels to display.
+   *
+   * @return array
+   *   A render array for the menu.
+   */
+  public function drupalMenu($menu_name, $level = 1, $depth = 0) {
+    $parameters = $this->menuTree->getCurrentRouteMenuTreeParameters($menu_name);
+
+    // Adjust the menu tree parameters based on the block's configuration.
+    $parameters->setMinDepth($level);
+    // When the depth is configured to zero, there is no depth limit. When depth
+    // is non-zero, it indicates the number of levels that must be displayed.
+    // Hence this is a relative depth that we must convert to an actual
+    // (absolute) depth, that may never exceed the maximum depth.
+    if ($depth > 0) {
+      $parameters->setMaxDepth(min($level + $depth - 1, $this->menuTree->maxDepth()));
+    }
+
+    $tree = $this->menuTree->load($menu_name, $parameters);
+    $manipulators = [
+      ['callable' => 'menu.default_tree_manipulators:checkAccess'],
+      ['callable' => 'menu.default_tree_manipulators:generateIndexAndSort'],
+    ];
+    $tree = $this->menuTree->transform($tree, $manipulators);
+    return $this->menuTree->build($tree);
   }
 
   /**
@@ -204,7 +278,9 @@ class TwigExtension extends \Twig_Extension {
    */
   public function phpFilter($code) {
     ob_start();
+    // @codingStandardsIgnoreStart
     print eval($code);
+    // @codingStandardsIgnoreEnd
     $output = ob_get_contents();
     ob_end_clean();
     return $output;
@@ -253,7 +329,8 @@ class TwigExtension extends \Twig_Extension {
    *   in an <img> tag. Requesting the URL will cause the image to be created.
    */
   public function imageStyle($path, $style) {
-    return ImageStyle::load($style)->buildUrl($path);
+    $url = ImageStyle::load($style)->buildUrl($path);
+    return file_url_transform_relative($url);
   }
 
 }

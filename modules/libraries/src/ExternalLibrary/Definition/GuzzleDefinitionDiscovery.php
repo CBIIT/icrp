@@ -58,7 +58,7 @@ class GuzzleDefinitionDiscovery extends FileDefinitionDiscoveryBase implements D
   protected function getSerializedDefinition($id) {
     try {
       $response = $this->httpClient->request('GET', $this->getFileUri($id));
-      return $response->getBody()->getContents();
+      return (string) $response->getBody();
     }
     catch (GuzzleException $exception) {
       throw new LibraryDefinitionNotFoundException($id, '', 0, $exception);

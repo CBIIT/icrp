@@ -3,12 +3,11 @@
 namespace Drupal\snippet_manager\Form;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Form\SubformState;
 use Drupal\Core\Url;
 
 /**
  * Form builder for "Edit variable" form.
- *
- * @todo: Add plugin form validation.
  */
 class VariableEditForm extends VariableFormBase {
 
@@ -16,7 +15,6 @@ class VariableEditForm extends VariableFormBase {
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
-
     $form = parent::form($form, $form_state);
 
     $form['#title'] = t(
@@ -24,11 +22,33 @@ class VariableEditForm extends VariableFormBase {
       ['%variable' => $this->getVariableName()]
     );
 
+    $form['#tree'] = TRUE;
+
+    $form['configuration'] = [];
+    $sub_form_state = SubformState::createForSubform($form['configuration'], $form, $form_state);
     $form['configuration'] = $this
       ->getPlugin()
-      ->buildConfigurationForm($form, $form_state);
+      ->buildConfigurationForm($form['configuration'], $sub_form_state);
 
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    parent::validateForm($form, $form_state);
+    $sub_form_state = SubformState::createForSubform($form['configuration'], $form, $form_state);
+    $this->getPlugin()->validateConfigurationForm($form['configuration'], $sub_form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    parent::submitForm($form, $form_state);
+    $sub_form_state = SubformState::createForSubform($form['configuration'], $form, $form_state);
+    $this->getPlugin()->submitConfigurationForm($form['configuration'], $sub_form_state);
   }
 
   /**
@@ -51,9 +71,6 @@ class VariableEditForm extends VariableFormBase {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
-
-    $this->plugin->submitConfigurationForm($form, $form_state);
-
     $variable_name = $this->getVariableName();
     $variable = $this->entity->getVariable($variable_name);
     $variable['configuration'] = $this->plugin->getConfiguration();

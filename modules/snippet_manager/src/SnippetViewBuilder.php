@@ -7,6 +7,7 @@ use Drupal\Component\Utility\Timer;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityViewBuilder;
+use Drupal\Core\Url;
 
 /**
  * Provides snippet view builder.
@@ -80,6 +81,9 @@ class SnippetViewBuilder extends EntityViewBuilder {
   /**
    * Builds render array.
    *
+   * @param int $entity_id
+   *   A snippet config entity ID.
+   *
    * @return array
    *   Snippet content as render array.
    */
@@ -92,7 +96,9 @@ class SnippetViewBuilder extends EntityViewBuilder {
 
     /** @var \Drupal\snippet_manager\SnippetVariablePluginManager $variable_manager */
     $variable_manager = \Drupal::service('plugin.manager.snippet_variable');
-    $context = $snippet->getContext();
+
+    // The context is an array of processed twig variables.
+    $context = self::getDefaultContext();
     foreach ($snippet->getVariables() as $variable_name => $variable) {
       try {
         $plugin = $variable_manager->createInstance(
@@ -105,6 +111,7 @@ class SnippetViewBuilder extends EntityViewBuilder {
         $context[$variable_name] = '';
       }
     }
+    \Drupal::moduleHandler()->alter('snippet_manager_context', $context, $snippet);
 
     $code = $snippet->getCode();
 
@@ -115,6 +122,25 @@ class SnippetViewBuilder extends EntityViewBuilder {
     ];
 
     return $build;
+  }
+
+  /**
+   * Returns default snippet context().
+   *
+   * @return array
+   *   An array of snippet-independent twig variables.
+   */
+  protected static function getDefaultContext() {
+    $theme = \Drupal::theme()->getActiveTheme();
+    $context['theme'] = $theme->getName();
+    $context['theme_directory'] = $theme->getPath();
+    $context['base_path'] = base_path();
+    $context['front_page'] = Url::fromRoute('<front>');
+    $context['is_front'] = \Drupal::service('path.matcher')->isFrontPage();
+    $user = \Drupal::currentUser();
+    $context['is_admin'] = $user->hasPermission('access administration pages');
+    $context['logged_in'] = $user->isAuthenticated();
+    return $context;
   }
 
 }

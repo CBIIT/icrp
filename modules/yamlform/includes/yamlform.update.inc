@@ -1258,7 +1258,7 @@ function yamlform_update_8062() {
  */
 function yamlform_update_8063() {
   $settings_config = \Drupal::configFactory()->getEditable('yamlform.settings');
-  $settings_config->set('export.file_name', 'submission-[yamlform-submission:serial]');
+  $settings_config->set('export.file_name', 'submission-[yamlform_submission:serial]');
   $settings_config->save();
 }
 
