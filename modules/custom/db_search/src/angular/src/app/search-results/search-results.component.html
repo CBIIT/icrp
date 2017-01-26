@@ -18,6 +18,9 @@
   </div>
 </div>
 
+<div style="margin: 4px 0">
+This search page features a variety of criteria to allow the user to access and manipulate the data contained in the ICRP database. Users should be aware that data contained in the ICRP database is updated throughout the year, and due to differing data upload schedules, recent years may not yet include all partner and associate organizations’ data. Contact us if you have any questions.
+</div>
 
 <div class="row" style="margin-top: 10px">
 
@@ -59,16 +62,16 @@
   </div>
 </div>
 
-<div class="row" *ngIf="showExtendedCharts" style="margin-top: 10px">
+<div class="row" *ngIf="authenticated && showExtendedCharts" style="margin-top: 10px">
   <div class="col-sm-12">
     <ui-chart
-      label="Projects by Year"
+      label="Project Funding by Year"
       type="line"
       [data]="(analytics && analytics.projects_by_year) || []"></ui-chart>
   </div>
 </div>
 
-<div class="text-center">
+<div class="text-center" *ngIf="authenticated">
   <button class="btn btn-default btn-xs" (click)="showExtendedCharts = !showExtendedCharts" [disabled]="loadingAnalytics">
     Show {{showExtendedCharts ? 'Less' : 'More'}}
   </button>

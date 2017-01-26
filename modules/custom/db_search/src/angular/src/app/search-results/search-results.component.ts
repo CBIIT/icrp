@@ -71,27 +71,33 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
       {
         label: 'Project Title',
         value: 'project_title',
-        link: 'url'
+        link: 'url',
+        tooltip: 'Title of Award'
       },
       {
         label: 'PI',
         value: `pi_name`,
+        tooltip: 'Principal Investigator'
       },
       {
         label: 'Institution',
-        value: 'institution'
+        value: 'institution',
+        tooltip: 'PI Institution'
       },
       {
         label: 'Ctry.',
-        value: 'country'
+        value: 'country',
+        tooltip: 'PI Institution Country'
       },
       {
         label: 'Funding Org.',
-        value: 'funding_organization'
+        value: 'funding_organization',
+        tooltip: 'Funding Organization of Award (abbreviated name shown)',
       },
       {
         label: 'Award Code',
-        value: 'award_code'
+        value: 'award_code',
+        tooltip: 'Unique Identifier for Award (supplied by Partner)',        
       }
     ]
 

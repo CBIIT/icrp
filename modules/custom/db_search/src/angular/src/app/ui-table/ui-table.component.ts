@@ -42,6 +42,7 @@ export class UiTableComponent implements OnChanges {
   pagingModel: number;
   pageOffset: number;
   pageSize: number;
+  tableResizingInitialized = false;
 
   mCol: Column[];
   mData: any[];
@@ -82,6 +83,14 @@ export class UiTableComponent implements OnChanges {
     })
   }
 
+  sortTableColumn(column: any) {
+    column.sort = (column.sort === 'asc') ? 'desc' : 'asc';
+    this.sort.emit({
+      sort_column: column.value,
+      sort_type: column.sort
+    })
+  }
+
   drawTableHeader(columns: Column[]){
     
     let thead = this.thead.nativeElement;
@@ -116,10 +125,19 @@ export class UiTableComponent implements OnChanges {
         column.label
       )
 
+//      this.renderer.
+      this.renderer.setElementAttribute(
+        headerCell,
+        'tooltip',
+        column['tooltip']
+      )
+
       let headerSortDiv: HTMLDivElement = this.renderer.createElement(
         headerCell,
         'span'
       )
+
+      
 
       this.renderer.createText(
         headerSortDiv,
@@ -132,6 +150,10 @@ export class UiTableComponent implements OnChanges {
         true
       )
     }
+  }
+
+  enableResizing() {
+//    window['jQuery']('table').resizableColumns()
   }
 
   drawTableBody(columns: Column[], data: any[]) {
@@ -193,16 +215,26 @@ export class UiTableComponent implements OnChanges {
   }
 
   drawTable(columns: Column[], data: any[]) {
-    this.drawTableHeader(columns);
-    this.drawTableBody(columns, data);
+//    this.drawTableHeader(columns);
+//    this.drawTableBody(columns, data);
+//    window['jQuery']('table').resizableColumns()
+
   }
 
   ngOnChanges(changes: SimpleChanges) {
     this.pageSize = this.pageSizes[0];
     this.drawTable(this.columns, this.data);
+//    window['jQuery']('table').resizableColumns()
     
     if (changes['columns'])
       this.initSort(this.columns)
+
+    if (changes['data'] && !this.tableResizingInitialized && this.data && this.data.length) {
+      window.setTimeout(e => {
+        this.tableResizingInitialized = true;
+        window['$']('table').resizableColumns()
+      }, 0)
+    }
   }
 
   clearChildren(el: HTMLElement) {

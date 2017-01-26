@@ -15,7 +15,7 @@ export class LineChart {
             .attr('class', 'd3-tooltip')
             .style('opacity', 0);
 
-        let margin = {top: 20, right: 20, bottom: 60, left: 80};
+        let margin = {top: 20, right: 20, bottom: 60, left: 110};
         let width = 1000 - margin.left - margin.right;
         let height = 300 - margin.top - margin.bottom;
 
@@ -55,10 +55,10 @@ export class LineChart {
             .attr("fill", "#000")
             .attr("transform", "rotate(-90)")
             .attr("x", height / -2)
-            .attr("y", -60)
+            .attr("y", -100)
             .attr("dy", "0.71em")
             .attr("text-anchor", "middle")
-            .text("Number of Projects");
+            .text("Project Funding");
 
         g.append("path")
             .datum(parsedData)
@@ -86,7 +86,7 @@ export class LineChart {
                     tooltip.html(`
                         <b>${label}</b>
                         <hr style="margin: 2px"/>
-                         ${Number(value).toLocaleString()} projects`)
+                         ${Number(value).toLocaleString()}`)
                     tooltip.transition()
                         .duration(200)
                         .style('opacity', .9);

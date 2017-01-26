@@ -80,16 +80,18 @@
       </label>
     </div>
 
-    <label class="form-label" for="years_active">Year</label>
+    <label class="form-label" for="years_active">Year Active</label>
     <ui-select 
       tooltip="Awards active in the calendar year" 
       placeholder="Year" 
       [items]="fields.years" 
       [formControl]="form.controls.years"></ui-select>
+
+    <i style="color: #888; display: block; font-size: 12px; margin: 4px 2px;">Use this indicator to search for awards that are active during the time period you have selected.</i>
   </ui-panel>
 
-  <!-- Institution Receiving Award -->
-  <ui-panel title="Institution Receiving Award">
+  <!-- Institutions and Investigators -->
+  <ui-panel title="Institutions and Investigators">
     <label class="form-label" for="institution">Institution Name</label>
     <input 
       class="text input"

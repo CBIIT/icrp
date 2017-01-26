@@ -3,9 +3,33 @@
     <div class="loading"></div>
   </div>
   <table class="table table-bordered table-hover table-striped table-condensed table-narrow table-nowrap" #table>
-    <thead #thead></thead>
-    <tbody #tbody></tbody>
+    <thead #thead>
+      <tr>
+        <th *ngFor="let column of columns">
+          <div [tooltip]="column.tooltip">
+          {{ column.label }} 
+          <span class="pull-right" style="cursor: pointer" (click)="sortTableColumn(column)">{{ column.sort === 'asc' ? '▲' : '▼' }}</span> 
+          </div>
+        </th>
+      </tr>
+    </thead>
+    <tbody #tbody>
+      <tr *ngFor="let row of data">
+        <td *ngFor="let column of columns">
+          <a *ngIf="column.link" [href]="row[column.link]">
+            {{ row[column.value] }}
+          </a>
+
+          <span *ngIf="!column.link">
+            {{ row[column.value] }}
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  
   </table>
+
+  
 </div>
 
 <div class="clearfix" style="margin-top: 20px">
