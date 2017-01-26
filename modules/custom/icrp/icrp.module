@@ -25,12 +25,14 @@ function hello_hello_world() {
 function reviewUserForm($uuid) {
     return t("You are about to review a user: ".$uuid);
 }
-function hook_user_login($account) {
+/*
+function icrp_user_login($account) {
     // We want to redirect user on login.
     $response = new RedirectResponse("mypath");
     $response->send();
     return;
 }
+*/
 
 function mod_user_login($account) {
     $url = "/home";
@@ -38,10 +40,17 @@ function mod_user_login($account) {
     $response->send();
     return;
 }
+/*
 function get_user($uuid) {
     $user = array('first name' => "Chris", 'last_name' => "Kneisler");
     return $user;
 }
+
+Home on navigation
+Order of navigation, nav, breadcrumb & status
+Remove Library page
+
+*/
 
 function hook_form_yamlform_submission_update_my_profile_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
     // Modification for the form with the given form ID goes here. For example, if
@@ -49,17 +58,19 @@ function hook_form_yamlform_submission_update_my_profile_form_alter(&$form, \Dru
     // registration form.
 
     // Add a checkbox to registration form about agreeing to terms of use.
+    /*
     $form['terms_of_use'] = array(
         '#type' => 'checkbox',
         '#title' => t("I agree with the website's terms and conditions."),
         '#required' => TRUE,
     );
+    */
 }
 /**
  * Implements hook_form_alter().
  */
 function icrp_hook_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
-    if ($form_id == 'user_form') {
+    if ($form_id == 'user_form_what') {
         $form['#submit'][] = '_MODULE_goto';
         $form['terms_of_use'] = array(
             '#type' => 'checkbox',
@@ -68,15 +79,58 @@ function icrp_hook_form_alter(array &$form, FormStateInterface $form_state, $for
         );
     }
 }
+
+//drupal_set_message("My Goodness");
+
 function hook_form_user_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
     // Modification for the form with the given form ID goes here. For example, if
     // FORM_ID is "user_register_form" this code would run only on the user
     // registration form.
 
     // Add a checkbox to registration form about agreeing to terms of use.
+    /*
     $form['terms_of_use'] = array(
         '#type' => 'checkbox',
         '#title' => t("I agree with the website's terms and conditions."),
         '#required' => TRUE,
     );
+    */
+}
+/*
+function icrp_page_alter(&$) {
+
+}
+*/
+
+function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+/*
+    drupal_set_message("icrp_form_alter: ".$form_id);
+    $form['#submit'][] = '_MODULE_goto';
+    $form['terms_of_use'] = array(
+        '#type' => 'checkbox',
+        '#title' => t("I agree with the website's terms and conditions."),
+        '#required' => TRUE,
+    );
+
+    if ($form_id == 'user_form') {
+        $form['#submit'][] = '_MODULE_goto';
+        $form['terms_of_use'] = array(
+            '#type' => 'checkbox',
+            '#title' => t("I agree with the website's terms and conditions."),
+            '#required' => TRUE,
+        );
+    }
+
+    if (isset($form['type']) && $form['type']['#value'] . '_node_settings' == $form_id) {
+        $upload_enabled_types = \Drupal::config('mymodule.settings')->get('upload_enabled_types');
+        $form['workflow']['upload_' . $form['type']['#value']] = array(
+            '#type' => 'radios',
+            '#title' => t('Attachments'),
+            '#default_value' => in_array($form['type']['#value'], $upload_enabled_types) ? 1 : 0,
+            '#options' => array(t('Disabled'), t('Enabled')),
+        );
+        // Add a custom submit handler to save the array of types back to the config file.
+        $form['actions']['submit']['#submit'][] = 'mymodule_upload_enabled_types_submit';
+    }
+*/
 }
