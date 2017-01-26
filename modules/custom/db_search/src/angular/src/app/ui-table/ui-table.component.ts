@@ -15,6 +15,8 @@ import {
 
 import { Column } from './column';
 
+declare var jQuery;
+
 @Component({
   selector: 'ui-table',
   templateUrl: './ui-table.component.html',
@@ -33,6 +35,7 @@ export class UiTableComponent implements OnChanges {
   @Output() sort: EventEmitter<{ "sort_column": string, "sort_type": "asc" | "desc" }>;
   @Output() paginate: EventEmitter<{ "page_size":number, "page_number":number }>;
 
+  @ViewChild('table') table: ElementRef;
   @ViewChild('thead') thead: ElementRef;
   @ViewChild('tbody') tbody: ElementRef;
 
