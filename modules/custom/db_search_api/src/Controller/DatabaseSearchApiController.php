@@ -210,7 +210,7 @@ class DatabaseSearchAPIController extends ControllerBase {
   }
 
 
-  function get_analytics_partner_updated($search_id) {
+  function get_partner_analytics_updated($search_id) {
 
     $pdo = self::get_connection();
 
@@ -219,7 +219,7 @@ class DatabaseSearchAPIController extends ControllerBase {
       'projects_by_cso_research_area' => 'SET NOCOUNT ON; EXECUTE GetProjectCSOStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_cso_research_area',
       'projects_by_cancer_type' => 'SET NOCOUNT ON; EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_cancer_type',
       'projects_by_type' => 'SET NOCOUNT ON; EXECUTE GetProjectTypeStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_type',
-      'projects_by_year' => 'SET NOCOUNT ON; EXECUTE GetProjectAwardStatsBySearchID @SearchID = :search_id, @Total = :total_projects_by_year, @isPartner = 1',
+      'projects_by_year' => 'SET NOCOUNT ON; EXECUTE GetProjectAwardStatsBySearchID @SearchID = :search_id, @Total = :total_projects_by_year, @isPartner = :is_partner',
     ];
 
     $output_keys = [
@@ -271,11 +271,23 @@ class DatabaseSearchAPIController extends ControllerBase {
       $stmt->bindParam(':search_id', $search_id);
       $stmt->bindParam(':' . $output_keys[$key], $output[$key]['count'], PDO::PARAM_INT|PDO::PARAM_INPUT_OUTPUT, 1000);
 
+      if ($key == 'projects_by_year') {
+        $is_partner = 1;
+        $stmt->bindParam(':is_partner', $is_partner, PDO::PARAM_INT);
+      }
+
       if ($stmt->execute()) {
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+          $value_row = 'Count';
+
+          if ($key == 'projects_by_year') {
+            $value_row = 'Amount';
+          }         
+
+ 
           array_push($output[$key]['results'], [
             'label' => $row[$output_column_labels[$key]],
-            'value' => $row['Count'],
+            'value' => $row[$value_row],
           ]);
         }
       }
@@ -730,8 +742,9 @@ class DatabaseSearchAPIController extends ControllerBase {
   /**
    * Callback for `db/partner/analytics/` API method.
    */
-  public function partner_analytics( Request $request, $type ) {
-    $param = self::map_fields($request);
+  public function partner_analytics( Request $request ) {
+    //$param = self::map_fields($request);
+    $param = $request->query->get('search_id');
     $response = new JSONResponse( self::get_partner_analytics_updated($param) );
     return self::add_cors_headers($response);
   }
