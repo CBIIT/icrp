@@ -101,6 +101,13 @@ table.table-narrow > tfoot > tr > td {
 }
 
 
+/**
+ * Bootstrap navbar overrides
+ */
+
+.navbar-default {
+  background-color: #fbfbfb;
+
 
 /*
  * Bootstrap native font overrides
