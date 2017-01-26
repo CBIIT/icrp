@@ -8,11 +8,11 @@
  * Bootstrap table overrides
  */
 
-table.table-responsive {
+div.table-responsive {
   margin-bottom: 15px;
 }
 
-table.table-responsive > table.table {
+div.table-responsive > table.table {
   margin-bottom: 0;
 }
 
@@ -75,10 +75,10 @@ table.table-narrow > tfoot > tr > td {
  */
 
 .tooltip-inner {
-  opacity: 0.85 !important;
+  opacity: 0.9 !important;
   border: 1px solid #DDD !important;
   background-color: #FFF !important;
-  color: #555 !important;
+  color: #444 !important;
 
   font-size: 13px;
 }
