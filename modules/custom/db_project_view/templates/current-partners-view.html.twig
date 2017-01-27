@@ -7,28 +7,21 @@
 <!-- Start your code here -->
 <div class="container">
 <div class="row">
-<h2>Current Partners</h2>
+<font color="orange"><h2>Current Partners</h2></font>
 
-<p>Describe the different types of organizations:</p>
-
-<p>&nbsp;</p>
+<p>ICRP partners represent a wide range of governmental, public and non-profit cancer research funding organizations from across the world. Our membership includes organizations focused on one type of cancer through to health research organizations supporting research into many cancer types.</p>
 
 <ul>
-	<li>Partner</li>
-	<li>Associated Organization</li>
-	<li>Funding Organization</li>
+	<li><b>Partners</b>are full members and provide nominated contact points for ICRP, and vote on any changes to strategic direction or policies.</li>
+	<li><b>Associate members</b> are funding organizations who have joined ICRP as part of a consortium. They enjoy full access to the ICRP partner site, can participate in meetings, analyses and networking. Their data submissions are coordinated by the nominated partner.</li>
 </ul>
 
-<p>&nbsp;</p>
-
-<p style="border-bottom: 1px solid #dddddd;padding-bottom:20px;">&nbsp;</p>
+<p style="border-bottom: 1px solid #dddddd;padding-bottom:20px;">Find out more about our partners using the map below.</p>
 
 <ul class="nav nav-tabs">
 	<li class="active"><a data-toggle="tab" href="#home">Map</a></li>
 	<li><a data-toggle="tab" href="#menu1">List of Partners</a></li>
 </ul>
-
-<p>&nbsp;</p>
 
 <div class="tab-content">
 <div class="tab-pane fade in active" id="home">
@@ -43,61 +36,21 @@
 		<tr>
 			<th>Organization Web Site</th>
 			<th>Associated Organization</th>
-			<th>Type of Organization</th>
-			<th>Funding</th>
-			<th>Types of Cancer</th>
+			<th>Country</th>
+			<th>Join Date</th>
 			<th>Mission</th>
 		</tr>
 	</thead>
 	<tbody>
+	   {% for row in current_partners %}
 		<tr>
-			<td><a href="https://www.avonfoundation.org/">California Breast Cancer Research Program</a></td>
-			<td>ICRP, ABS, Steven Corp</td>
-			<td>Partner</td>
-			<td>Government</td>
-			<td>Breast</td>
-			<td>The mission of the CBCRP is to eliminate breast cancer.</td>
+			<td><a href="{{row.website}}">{{row.name}}</a></td>
+			<td>{{row.sponsor_code}}</td>
+			<td>{{row.country}}</td>
+			<td>{{row.join_date}}</td>
+			<td>{{row.description}}</td>
 		</tr>
-		<tr>
-			<td><a href="http://komen.org/">Susan G. Komen</a></td>
-			<td>Susan Inc.</td>
-			<td>Partner</td>
-			<td>Government</td>
-			<td>Breast</td>
-			<td>The mission of the Susan G. Komen foundation is to raise awareness and raise funds to eliminate breast cancer.</td>
-		</tr>
-		<tr>
-			<td><a href="http://cancer.org">American Cancer Society</a></td>
-			<td>ACS</td>
-			<td>Partner</td>
-			<td>Government</td>
-			<td>All Cancers</td>
-			<td>Cure cancer</td>
-		</tr>
-		<tr>
-			<td><a href="http://www.cancer.ca">Canadian Cancer Research Alliance</a></td>
-			<td>(Representing 42 organizations)</td>
-			<td>Partner</td>
-			<td>Government</td>
-			<td>All Cancers</td>
-			<td>Cure cancer</td>
-		</tr>
-		<tr>
-			<td><a href="https://www.avonfoundation.org/">Avon Foundation for Women</a></td>
-			<td>Avon</td>
-			<td>Partner</td>
-			<td>Commercial</td>
-			<td>Breast Cancers</td>
-			<td>Since 1992, the Avon Breast Cancer Crusade has been working to help to prevent, treat, and ultimately eradicate breast cancer.</td>
-		</tr>
-		<tr>
-			<td><a href="nih.gov">National Institute of Health</a></td>
-			<td>(Representing 25 organizations)</td>
-			<td>Partner</td>
-			<td>Government</td>
-			<td>All Cancers</td>
-			<td>Cure cancer</td>
-		</tr>
+          {% endfor %}
 	</tbody>
 </table>
 </div>

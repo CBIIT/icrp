@@ -38,7 +38,9 @@ function db_project_view_theme($existing, $type, $theme, $path) {
       'variables' => array (),
     ),
     'current_partners_view' => array (
-      'variables' => array (),
+      'variables' => array (
+	  'current_partners' => NULL
+      ),
     ),
   );
 }
