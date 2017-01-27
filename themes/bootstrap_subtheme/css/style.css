@@ -31,6 +31,11 @@ h1 {
 .breadcrumb > li + li::before {
     content:"->";
 }
+
+.breadcrumb > li > a  {
+    color: #153670;
+}
+
 /* CSO Page */
 /* Download block */
 #downloadPanel {
