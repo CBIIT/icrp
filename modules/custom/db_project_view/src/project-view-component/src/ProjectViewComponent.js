@@ -189,22 +189,22 @@ class ProjectViewComponent extends Component {
 
     return <div>
 
-      <div class="clearfix">
-        <h3 className="title margin-right">View Project Details</h3>
-        <div id="google_translate_element" className="pull-right" style={{ marginTop: 15 }} />
+      <div className="clearfix">
+        <h3 className="title">View Project Details</h3>
+        <span className="pull-right" id="google_translate_element" />        
         { this.appendGoogleTranslateScript() }
       </div>
+
       <hr className="less-margins " />
 
-
-      <div className="">
-      The project details page contains information on the Parent Project, as well as any related Supplements or Sub-Projects, for each year the project has been funded. Multiple records may be showing in the table below, and these can occur if the project is funded annually, and if the project has related subprojects or supplements (there will be a record for each year the project, sub-project or supplement is funded). Sub-projects or Supplements may have different Titles or PIs than the Parent Project, and are linked by a shared Award Code with the Parent Project. Users can “drill-through” to the project details page for each record in the table.
+      <div className="form-group">
+        The project details page contains information on the Parent Project, as well as any related Supplements or Sub-Projects, for each year the project has been funded. Multiple records may be showing in the table below, and these can occur if the project is funded annually, and if the project has related subprojects or supplements (there will be a record for each year the project, sub-project or supplement is funded). Sub-projects or Supplements may have different Titles or PIs than the Parent Project, and are linked by a shared Award Code with the Parent Project. Users can “drill-through” to the project details page for each record in the table.
       </div>
 
       <dl className="dl-horizontal margin-bottom margin-top">
+
         <dt>Title</dt>
         <dd>{ project_details.project_title || 'Not specified' }</dd>
-
 
         <dt>Award Code</dt>
         <dd>{ project_details.award_code || 'Not specified' }</dd>
@@ -217,8 +217,10 @@ class ProjectViewComponent extends Component {
           : 'Not specified'
         }
         </dd>
+
         <dt>Funding Mechanism</dt>
-        <dd>{project_details.funding_mechanism || 'Not specified'}</dd>
+        <dd>{ project_details.funding_mechanism || 'Not specified' }</dd>
+
       </dl>
 
       <h5 className="h5 margin-top">Award Funding</h5>
