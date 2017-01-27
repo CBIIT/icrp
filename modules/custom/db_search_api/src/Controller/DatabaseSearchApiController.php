@@ -472,7 +472,7 @@ class DatabaseSearchAPIController extends ControllerBase {
       'states'                => 'SELECT Abbreviation AS [value], Name AS [label], Country AS [group] FROM State ORDER BY [label]',
       'countries'             => 'SELECT Abbreviation AS [value], Name AS [label] FROM Country ORDER BY [label]',
       'funding_organizations' => 'SELECT FundingOrgID AS [value], Name AS [label], SponsorCode AS [group], Country AS [supergroup] from FundingOrg',
-      'cancer_types'          => 'SELECT Mapped_ID AS [value], Name AS [label] FROM CancerType ORDER BY [value]',
+      'cancer_types'          => 'SELECT CancerTypeID AS [value], Name AS [label] FROM CancerType ORDER BY [value]',
       'project_types'         => 'SELECT ProjectType AS [value], ProjectType AS [label] FROM ProjectType',
       'cso_research_areas'    => 'SELECT Code AS [value], Name AS [label], CategoryName AS [group], \'All Areas\' as [supergroup] FROM CSO',
     ];
