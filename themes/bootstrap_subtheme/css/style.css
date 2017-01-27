@@ -21,6 +21,16 @@ h1 {
     font-weight: normal;
     margin-top: 20px;
 }
+/* Breadcrumb */
+.breadcrumb {
+    background-color:white;
+    margin:5px;
+    padding:5px;
+    font-size:10pt;
+}
+.breadcrumb > li + li::before {
+    content:"->";
+}
 /* CSO Page */
 /* Download block */
 #downloadPanel {
