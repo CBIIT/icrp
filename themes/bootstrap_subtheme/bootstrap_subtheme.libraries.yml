@@ -3,6 +3,8 @@ global-styling:
     theme:
       css/style.css: {}
       css/bootstrap-overrides.css: {}
+      css/hoverover.css: {}
+      https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css: {type: external, minified: true}
       https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.css: {type: external}
 
 global-scripts:
