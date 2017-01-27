@@ -25,7 +25,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   loggedIn: boolean;
 
   constructor(private http: Http) {
-    this.loggedIn = true;
+    //this.loggedIn = true;
     this.loggedIn = false;
     this.searchID = null;
     this.loadingAnalytics = true;
