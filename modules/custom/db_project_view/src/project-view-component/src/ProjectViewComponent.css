@@ -14,6 +14,7 @@ dl.dl-horizontal > dt {
 
 dl.dl-horizontal > dd {
   margin-bottom: 4px;
+  margin-left: 210px;
 }
 
 hr.less-margins {
