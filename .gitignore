@@ -8,6 +8,10 @@ modules/custom/db_project_view/src/Controller/config.ini
 #sites/*/files
 #sites/*/private
 
+# Ignore css and js cache
+sites/default/files/css/css_*
+sites/default/files/js/js_*
+
 # Ignore default text files
 robots.txt
 /CHANGELOG.txt
