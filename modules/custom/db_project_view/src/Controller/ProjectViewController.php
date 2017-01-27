@@ -59,7 +59,7 @@ class ProjectViewController extends ControllerBase {
       'City' => 'city',
       'State' => 'state',
       'Country' => 'country',
-      'AwardType' => 'award_type',
+      'Category' => 'award_type',
       'AltAwardCode' => 'alt_award_code',
       'FundingOrg' => 'funding_organization',
       'BudgetStartDate' => 'budget_start_date',
