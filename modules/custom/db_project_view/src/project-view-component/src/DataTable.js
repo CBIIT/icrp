@@ -159,8 +159,7 @@ class DataTable extends Component {
                 </tr>)}
             </tbody>
           </table>
-          {/* window['enableResizableTableColumns']() */}
-          { window['enableTooltips']() }
+          { window.jQuery && window.jQuery.fn.tooltip &&  window.jQuery('[data-toggle="tooltip"]').tooltip({container: 'body'}) }
         </div>
         
         {this.props.data.length > this.props.limit &&
