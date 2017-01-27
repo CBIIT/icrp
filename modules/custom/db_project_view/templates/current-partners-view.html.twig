@@ -2,8 +2,9 @@
 {% autoescape true %}
 
 <!-- Start your code here -->
+<style type="text/css">div.container_current_partners {padding-left:16px; padding-right:16px} </style><div class="container_current_partners">
 <div class="row">
-<font color="orange"><style itype="text/css"> h2 {margin-top:0;} </style><h2>Current Partners</h2></font>
+<font color="orange"><style type="text/css"> h2 {margin-top:0;} </style><h2>Current Partners</h2></font>
 
 <p>ICRP partners represent a wide range of governmental, public and non-profit cancer research funding organizations from across the world. Our membership includes organizations focused on one type of cancer through to health research organizations supporting research into many cancer types.</p>
 
@@ -42,11 +43,12 @@
 			<td>{{row.sponsor_code}}</td>
 			<td>{{row.country}}</td>
 			<td>{{row.join_date}}</td>
-			<td>{{row.description}}</td>
+			<td>{{row.description|raw}}</td>
 		</tr>
           {% endfor %}
 	</tbody>
 </table>
+</div>
 </div>
 </div>
 </div>
