@@ -130,7 +130,6 @@ class ExportResultsController extends ControllerBase {
 	   $date = date("d/m/Y H:i:s", strtotime($row[17]));
 	   $objPHPExcel->setActiveSheetIndex(1)
 	  			   ->setCellValue('A2', "Created: " . $date);
-	   fwrite($data, "Search Criteria:");
 	   $objPHPExcel->setActiveSheetIndex(1)
 	    		   ->setCellValue('A3',"Search Criteria:");
 	   $location = "B";
@@ -367,7 +366,6 @@ class ExportResultsController extends ControllerBase {
 					}
 					$objPHPExcel->setActiveSheetIndex(0)
 					->setCellValue($location3.$location2++."1", "View In ICRP");
-			//fwrite($data,",,,,,,,,,,,,,,,,,Tech Abstract\n");
 		$in = 2;
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$location = "L";
@@ -537,7 +535,6 @@ class ExportResultsController extends ControllerBase {
 	   $date = date("d/m/Y H:i:s", strtotime($row[17]));
 	   $objPHPExcel->setActiveSheetIndex(1)
 	  			   ->setCellValue('A2', "Created: " . $date);
-	   fwrite($data, "Search Criteria:");
 	   $objPHPExcel->setActiveSheetIndex(1)
 	    		   ->setCellValue('A3',"Search Criteria:");
 	   $location = "B";
@@ -947,7 +944,6 @@ class ExportResultsController extends ControllerBase {
 	   $date = date("d/m/Y H:i:s", strtotime($row[17]));
 	   $objPHPExcel->setActiveSheetIndex(1)
 	  			   ->setCellValue('A2', "Created: " . $date);
-	   fwrite($data, "Search Criteria:");
 	   $objPHPExcel->setActiveSheetIndex(1)
 	    		   ->setCellValue('A3',"Search Criteria:");
 	   $location = "B";
