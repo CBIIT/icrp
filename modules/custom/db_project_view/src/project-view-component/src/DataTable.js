@@ -16,7 +16,7 @@ class DataTable extends Component {
   /** @type {{'label': string, 'value': string|number, 'link'?: string}[]} */
   columns = [];
 
-  enableResizableColumns(table, tableResizeOverlay) {
+  enableResizableColumns(table) {
 
     let state = {
       resizing: false,
@@ -35,8 +35,12 @@ class DataTable extends Component {
     }
 
     // initialize resize overlay
+    let tableResizeOverlay = document.createElement('div');
+    tableResizeOverlay.style.position = 'relative';
     tableResizeOverlay.style.width = `${state.width}px`;
-    table.style.width = `${state.width}px`
+    table.style.width = `${state.width}px`;
+
+    table.parentElement.insertBefore(tableResizeOverlay, table);
 
     // populate overlay div with resize handles
     let headerRow = table.tHead.children[0];
@@ -67,7 +71,11 @@ class DataTable extends Component {
         state.initial.cellWidth = th.clientWidth;
         state.initial.columnIndex = handle.dataset.index;
         state.initial.handleOffsets = state.handles.map(handle => handle.offsetLeft)
-        handle.focus()
+
+        table.style.userSelect = 'none';
+        table.style.webkitUserSelect = 'none';
+        table.style.MozUserSelect = 'none';
+        table.setAttribute('unselectable', 'on')
       };
 
       // mousemove events will resize table headers
@@ -95,22 +103,25 @@ class DataTable extends Component {
       // mouseup events will stop resizing
       document.onmouseup = e => {
         state.resizing = false;
+        
+        table.style.userSelect = 'text';
+        table.style.webkitUserSelect = 'text';
+        table.style.MozUserSelect = 'text';
+        table.setAttribute('unselectable', 'off')
       }
-
 
       tableResizeOverlay.appendChild(handle);
     }
   }
 
   componentDidMount() {
-    this.enableResizableColumns(this.refs.table, this.refs.tableResizeOverlay);
+    this.enableResizableColumns(this.refs.table);
   }
 
   render() {
     return (
       <div>
         <div className='table-responsive'>
-          <div ref='tableResizeOverlay'  style={{ position: 'relative', zIndex: 2, height: '100%' }} />
           <table ref='table' className='table table-bordered table-striped table-condensed table-hover table-narrow table-nowrap'>
             <thead>
               <tr>
