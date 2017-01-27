@@ -56,18 +56,105 @@ class ExportResultsController extends ControllerBase {
   	$config = self::getConfig();
     $filelocation = $config['file_location'];
     $downloadlocation = self::getBaseUrl() .  $config['download_location'];
-    $filenameExport  = 'export-'.$sid.'.csv';
-    $filenameCriteria = 'searchCriteria-'.$sid.'.csv';
-    $fileName = 'ICRPExportPublic'.$sid.'.zip';
-    $zipFilename = $filelocation . $fileName;
+    $filenameExport  = 'ICRPExportPublic'.$sid.'.xlsx';
 
+	 try {
+	   $conn = self::getConnection();
+  	 } catch (Exception $exc) {
+  	   return "Could not create db connection";
+  	 }
+	$url = self::getBaseUrl();
+	$viewLink = $url . "viewProject.cfm?pid=";
+	$file_export  =  $filelocation . $filename;
+	$result = "success";
 
+  	// Create new PHPExcel object
+	$objPHPExcel = new PHPExcel();
 
-	$result = self::createExportData($filelocation, $filenameExport, $sid);
-	$result = self::createSearchCriteria($filelocation, $filenameCriteria, $sid);
-	$result = self::createZipFile($filelocation, $filenameExport, $filenameCriteria, $zipFilename);
+	// Set document properties
+	$objPHPExcel->getProperties()->setCreator("ICRP")
+							 	->setLastModifiedBy("ICRP")
+							 	->setTitle("ICRP Export Data for Public")
+							 	->setSubject("ICRP Export Data")
+							 	->setDescription("This file contains all public data based on the user provided search criteria")
+							 	->setKeywords("ICRP Data")
+							 	->setCategory("Search Result File");
 
-	return self::addCorsHeaders(new JSONResponse($downloadlocation . $fileName));
+	$result_count = NULL;
+	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectsBySearchID @SearchID=:search_id_name, @ResultCount=:result_count");
+	$stmt->bindParam(':search_id_name', $sid);
+	$stmt->bindParam(':result_count', $result_count, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
+	if ($stmt->execute()) {
+		$objPHPExcel->setActiveSheetIndex(0)
+		            ->setCellValue('A1', 'Title')
+		            ->setCellValue('B1', 'PI First Name')
+		            ->setCellValue('C1', 'PI Last Name')
+		            ->setCellValue('D1', 'Institution')
+		            ->setCellValue('E1', 'City')
+		            ->setCellValue('F1', 'State')
+		            ->setCellValue('G1', 'Country')
+		            ->setCellValue('H1', 'Funding Organization')
+		            ->setCellValue('I1', 'Award Code')
+		            ->setCellValue('J1', 'View in ICRP');
+		$i = 2;
+		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+			$objPHPExcel->setActiveSheetIndex(0)
+						->setCellValue('A'.$i, $row['Title'])
+						->setCellValue('B'.$i, $row['piLastName'])
+						->setCellValue('C'.$i, $row['piFirstName'])
+						->setCellValue('D'.$i, $row['institution'])
+						->setCellValue('E'.$i, $row['City'])
+						->setCellValue('F'.$i, $row['State'])
+						->setCellValue('G'.$i, $row['country'])
+						->setCellValue('H'.$i, $row['FundingOrg'])
+						->setCellValue('I'.$i, $row['AwardCode'])
+						->setCellValue('J'.$i, $viewLink . $row['ProjectID']);
+			$i = $i + 1;
+		}
+		$result = "succeed";
+	} else {
+		$result = "failed to query server";
+	}
+    $objPHPExcel->getActiveSheet()->setTitle('Export Data');
+
+ 	$labels = Array("Term Search Type", "Terms", "Institution", "PI Last Name", "PI First Name", "PI ORC ID", "Award Code", "Years" , "City", "State", "Country", "Funding Organization", "Cancer Type", "Project Type", "CSO", "Search By User Name");
+
+	 //add a new sheet
+	$objWorkSheet = $objPHPExcel->createSheet();
+	$stmt = $conn -> prepare("SELECT * from SearchCriteria where SearchCriteriaID = :search_id");
+	$stmt->bindParam(':search_id', $sid);
+	if ($stmt->execute()){
+	   $objPHPExcel->setActiveSheetIndex(1)
+	  			   ->setCellValue('A1', "International Cancer Research Partnership - " . self::getBaseUrl() . "\n");
+	   $row = $stmt->fetch(PDO::FETCH_NUM);
+	   $date = date("d/m/Y H:i:s", strtotime($row[17]));
+	   $objPHPExcel->setActiveSheetIndex(1)
+	  			   ->setCellValue('A2', "Created: " . $date);
+	   fwrite($data, "Search Criteria:");
+	   $objPHPExcel->setActiveSheetIndex(1)
+	    		   ->setCellValue('A3',"Search Criteria:");
+	   $location = "B";
+	   $index = 3;
+	   for ($i = 0; $i < 16; $i++){
+	        if($row[$i+1] != null){
+				$location++;
+				$objPHPExcel->setActiveSheetIndex(1)
+							->setCellValue($location.$index, $labels[$i] . " : " . $row[$i+1]);
+			}
+	   }
+	   $result = "succeed";
+	} else {
+	   $result = "failed to query server";
+    }
+	$objPHPExcel->getActiveSheet()->setTitle('Search Criteria');
+
+	$objPHPExcel->setActiveSheetIndex(0);
+	// Save Excel 2007 file
+	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+	$objWriter->save($filelocation.$filenameExport);
+    $conn = null;
+
+	return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));
   }
 
   private function getConfig(){
@@ -133,39 +220,6 @@ class ExportResultsController extends ControllerBase {
 	return $result;
   }
 
-  private function createExportData($filelocation, $filename, $sid){
-  	 try {
-	   $conn = self::getConnection();
-  	 } catch (Exception $exc) {
-  	   return "Could not create db connection";
-  	 }
-	$url = self::getBaseUrl();
-	$viewLink = $url . "viewProject.cfm?pid=";
-
-	$file_export  =  $filelocation . $filename;
-	$result = "success";
-    $data = fopen($file_export, 'w');
-
-	$result_count = NULL;
-	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectsBySearchID @SearchID=:search_id_name, @ResultCount=:result_count");
-	$stmt->bindParam(':search_id_name', $sid);
-	$stmt->bindParam(':result_count', $result_count, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
-	if ($stmt->execute()) {
-		fwrite($data, "Title,PIFirstName,PILastName,Institution,City,State,Country,Funding Organisation,Award Code,View in ICRP\n");
-		while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
-			fwrite($data, "\"".$row[3]."\",\"".$row[4]."\",\"".$row[5]."\",\"".$row[7]."\",\"".$row[9]."\",\"".$row[10]."\",\"".$row[11]."\",\"".$row[13]."\",\"".$row[1]."\"," . $viewLink . $row[0] . "\n");
-		}
-		$result = "succeed";
-	} else {
-		$result = "failed to query server";
-	}
-
-	$data=null;
-	$conn=null;
-
-	return $result;
-  }
-
   private function getConnection(){
   	$database_config = \Drupal::config('icrp_database');
   	$config = [];
@@ -207,23 +261,194 @@ class ExportResultsController extends ControllerBase {
 	$config = self::getConfig();
  	$filelocation = $config['file_location'];
  	$downloadlocation = self::getBaseUrl() .  $config['download_location'];
-    $filenameExport  = 'export-'.$sid.'.csv';
-    $filenameCriteria = 'searchCriteria-'.$sid.'.csv';
-    $filenameCSO = 'export'.$sid.'CSO.csv';
-    $filenameCancerType = 'export-'.$sid.'CancerType.csv';
-    $fileName = 'ICRPExportPartner'.$sid.'.zip';
-    $zipFilename = $filelocation . $fileName;
+    $filenameExport  = 'ICRPExportPartner'.$sid.'.xlsx';
 
+    //$result = self::createExportDataforPartnerSite($filelocation, $filenameExport, $sid, false);
 
+  	 try {
+	   $conn = self::getConnection();
+  	 } catch (Exception $exc) {
+  	   return "Could not create db connection";
+  	 }
+	$url = self::getBaseUrl();
+	$viewLink = $url . "project/";
 
-    $result = self::createExportDataforPartnerSite($filelocation, $filenameExport, $sid, false);
-    $result = self::createSearchCriteria($filelocation, $filenameCriteria, $sid);
-    $result = self::createExportDataForPartnerSiteCSO($filelocation, $filenameCSO, $sid);
-    $result = self::createExportDataForPartnerSite_Site($filelocation, $filenameCancerType, $sid);
+	$file_export  =  $filelocation . $filenameExport;
+	$result = "success";
+    $withAbstract = false;
 
-	$result = self::createZipFileForPartnerSite($filelocation, $filenameExport, $filenameCriteria, $filenameCSO, $filenameCancerType, $zipFilename);
+	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectExportsBySearchID @SearchID=:search_id_name, @SiteURL=:site_url");
+	$stmt->bindParam(':search_id_name', $sid);
+	$stmt->bindParam(':site_url', $viewLink);
+	$currentYear = Date('Y') + 1;
 
-	return self::addCorsHeaders(new JSONResponse($downloadlocation . $fileName));
+  	// Create new PHPExcel object
+	$objPHPExcel = new PHPExcel();
+
+	// Set document properties
+	$objPHPExcel->getProperties()->setCreator("ICRP")
+							 	->setLastModifiedBy("ICRP")
+							 	->setTitle("ICRP Export Data for Partner")
+							 	->setSubject("ICRP Export Data")
+							 	->setDescription("This file contains all Partner Site data based on the user provided search criteria")
+							 	->setKeywords("ICRP Data")
+							 	->setCategory("Search Result File");
+	if ($stmt->execute()) {
+		$objPHPExcel->setActiveSheetIndex(0)
+					->setCellValue('A1', "ICRP PROJECT ID")
+					->setCellValue('B1', "Award Code")
+					->setCellValue('C1', "Award Title")
+					->setCellValue('D1', "Award Type")
+					->setCellValue('E1', "Source ID")
+					->setCellValue('F1', "ALT ID")
+					->setCellValue('G1', "Award Start Date")
+					->setCellValue('H1', "Award End Date")
+					->setCellValue('I1', "Budget Start Date")
+					->setCellValue('J1', "Budget End Date")
+					->setCellValue('K1', "Award Funding")
+					->setCellValue('L1', "Funding Indicator");
+		$location = "L";
+		$location2 = "A";
+		$location3 = "A";
+		$realLocation = "";
+		for($i = 2000; $i < $currentYear; $i++){
+			if($location != 'Z'){
+				$location++;
+				$realLocation = $location;
+			}else{
+				$realLocation = "A".$location2;
+				$location2++;
+				if($location2 == "Z"){
+					$location2 = "A";
+					$location3++;
+				}
+			}
+			$objPHPExcel->setActiveSheetIndex(0)
+						->setCellValue($realLocation."1", $i);
+		}
+		$objPHPExcel->setActiveSheetIndex(0)
+					->setCellValue($location3.$location2++."1", "Currency")
+					->setCellValue($location3.$location2++."1", "To Currency")
+					->setCellValue($location3.$location2++."1", "To Currency Rate")
+					->setCellValue($location3.$location2++."1", "Funding Mechanism")
+					->setCellValue($location3.$location2++."1", "Funding Mechanism Code")
+					->setCellValue($location3.$location2++."1", "Funding Org")
+					->setCellValue($location3.$location2++."1", "Funding Div")
+					->setCellValue($location3.$location2++."1", "Funding Div Abbr")
+					->setCellValue($location3.$location2++."1", "Funding Contact")
+					->setCellValue($location3.$location2++."1", "PI First Name")
+					->setCellValue($location3.$location2++."1", "PI Last Name")
+					->setCellValue($location3.$location2++."1", "PI ORC ID")
+					->setCellValue($location3.$location2++."1", "Instutition")
+					->setCellValue($location3.$location2++."1", "City")
+					->setCellValue($location3.$location2++."1", "State")
+					->setCellValue($location3.$location2++."1", "Country")
+					->setCellValue($location3.$location2++."1", "View In ICRP");
+			//fwrite($data,",,,,,,,,,,,,,,,,,Tech Abstract\n");
+		$in = 2;
+		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+			$location = "L";
+			$location2 = "A";
+			$location3 = "A";
+			$realLocation = "";
+			$objPHPExcel->setActiveSheetIndex(0)
+						->setCellValue('A'.$in, $row['ProjectID'])
+						->setCellValue('B'.$in, $row['AwardCode'])
+						->setCellValue('C'.$in, $row['AwardTitle'])
+						->setCellValue('D'.$in, $row['AwardType'])
+						->setCellValue('E'.$in, $row['Source_ID'])
+						->setCellValue('F'.$in, $row['AltAwardCode'])
+						->setCellValue('G'.$in, $row['AwardStartDate'])
+						->setCellValue('H'.$in, $row['AwardEndDate'])
+						->setCellValue('I'.$in, $row['BudgetStartDate'])
+						->setCellValue('J'.$in, $row['BudgetEndDate'])
+						->setCellValue('K'.$in, $row['AwardAmount'])
+						->setCellValue('L'.$in, $row['FundingIndicator']);
+			for($i = 2000; $i < $currentYear; $i++){
+				if($location != 'Z'){
+					$location++;
+					$realLocation = $location;
+				}else{
+					$realLocation = $location3.$location2;
+					$location2++;
+					if($location2 == "Z"){
+						$location2 = "A";
+						$location3++;
+					}
+				}
+				$value = $row[$i];
+				$objPHPExcel->setActiveSheetIndex(0)
+							->setCellValue($realLocation.$in, $value);
+			}
+			$objPHPExcel->setActiveSheetIndex(0)
+						->setCellValue($location3.$location2++.$in, $row['Currency'])
+						->setCellValue($location3.$location2++.$in, "")
+						->setCellValue($location3.$location2++.$in, "")
+						->setCellValue($location3.$location2++.$in, $row['FundingMechanism'])
+						->setCellValue($location3.$location2++.$in, $row['FundingMechanismCode'])
+						->setCellValue($location3.$location2++.$in, $row['FundingOrg'])
+						->setCellValue($location3.$location2++.$in, $row['FundingDiv'])
+						->setCellValue($location3.$location2++.$in, $row['FundingDivAbbr'])
+						->setCellValue($location3.$location2++.$in, $row['FundingContact'])
+						->setCellValue($location3.$location2++.$in, $row['piLastName'])
+						->setCellValue($location3.$location2++.$in, $row['piFirstName'])
+						->setCellValue($location3.$location2++.$in, $row['piORCID'])
+						->setCellValue($location3.$location2++.$in, $row['Institution'])
+						->setCellValue($location3.$location2++.$in, $row['City'])
+						->setCellValue($location3.$location2++.$in, $row['State'])
+						->setCellValue($location3.$location2++.$in, $row['Country'])
+						->setCellValue($location3.$location2++.$in, $row['icrpURL']);
+			$in++;
+		}
+		$result = "succeed";
+	} else {
+		$result = "failed to query server";
+	}
+   $objPHPExcel->getActiveSheet()->setTitle('Export Data');
+
+ 	$labels = Array("Term Search Type", "Terms", "Institution", "PI Last Name", "PI First Name", "PI ORC ID", "Award Code", "Years" , "City", "State", "Country", "Funding Organization", "Cancer Type", "Project Type", "CSO", "Search By User Name");
+
+	 //add a new sheet
+	$objWorkSheet = $objPHPExcel->createSheet();
+	$stmt = $conn -> prepare("SELECT * from SearchCriteria where SearchCriteriaID = :search_id");
+	$stmt->bindParam(':search_id', $sid);
+	if ($stmt->execute()){
+	   $objPHPExcel->setActiveSheetIndex(1)
+	  			   ->setCellValue('A1', "International Cancer Research Partnership - " . self::getBaseUrl() . "\n");
+	   $row = $stmt->fetch(PDO::FETCH_NUM);
+	   $date = date("d/m/Y H:i:s", strtotime($row[17]));
+	   $objPHPExcel->setActiveSheetIndex(1)
+	  			   ->setCellValue('A2', "Created: " . $date);
+	   fwrite($data, "Search Criteria:");
+	   $objPHPExcel->setActiveSheetIndex(1)
+	    		   ->setCellValue('A3',"Search Criteria:");
+	   $location = "B";
+	   $index = 3;
+	   for ($i = 0; $i < 16; $i++){
+	        if($row[$i+1] != null){
+				$location++;
+				$objPHPExcel->setActiveSheetIndex(1)
+							->setCellValue($location.$index, $labels[$i] . " : " . $row[$i+1]);
+			}
+	   }
+	   $result = "succeed";
+	} else {
+	   $result = "failed to query server";
+    }
+	$objPHPExcel->getActiveSheet()->setTitle('Search Criteria');
+
+    //$result = self::createExportDataForPartnerSiteCSO($filelocation, $filenameCSO, $sid);
+    //$result = self::createExportDataForPartnerSite_Site($filelocation, $filenameCancerType, $sid);
+
+	//$result = self::createZipFileForPartnerSite($filelocation, $filenameExport, $filenameCriteria, $filenameCSO, $filenameCancerType, $zipFilename);
+
+	$objPHPExcel->setActiveSheetIndex(0);
+	// Save Excel 2007 file
+	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+	$objWriter->save($filelocation.$filenameExport);
+    $conn = null;
+
+	return self::addCorsHeaders(new JSONResponse($downloadlocation . $filenameExport));
   }
 
   private function createExportDataForPartnerSite_Site($filelocation, $filename, $sid){
@@ -623,11 +848,11 @@ class ExportResultsController extends ControllerBase {
 		// Add some data
 		$objPHPExcel->setActiveSheetIndex(3)
 		            ->setCellValue('A1', 'Project Type')
-		            ->setCellValue('B1', 'Project Count');
+		            ->setCellValue('B1', 'Count');
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$objPHPExcel->setActiveSheetIndex(3)
 		    	        ->setCellValue('A'.$i, $row['ProjectType'])
-		    	        ->setCellValue('B'.$i, $row['Count']);
+		    	        ->setCellValue('B'.$i, $row['Project Count']);
 			$i = $i + 1;
 			$totalRow = $totalRow + 1;
 		}
@@ -738,12 +963,7 @@ class ExportResultsController extends ControllerBase {
 	$layout5->setShowVal(TRUE);
 	$plotarea5 = new PHPExcel_Chart_PlotArea($layout5, array($series5));
 	$legend5 = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);
-	$title5 = "";
-	if($bit == 1){
-		$title5 = new PHPExcel_Chart_Title('Award Amount By Year');
-	}else if($bit == 0){
-		$title5 = new PHPExcel_Chart_Title('Project By Year');
-	}
+	$title5 = new PHPExcel_Chart_Title('Award Amount By Year');
 	$chart5 = new PHPExcel_Chart(
 	  'chart5',   // name
 	  $title5,    // title
