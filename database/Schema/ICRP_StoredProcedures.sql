@@ -192,7 +192,7 @@ AS
 	-- Sort and Pagination
 	--   Note: Return only base projects and projects' most recent funding
 	----------------------------------
-	SELECT p.*, maxf.projectfundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
+	SELECT p.*, maxf.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
 		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort FROM
 		(SELECT DISTINCT ProjectID, AwardCode FROM #proj) p
 		 JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f GROUP BY ProjectID) maxf ON p.ProjectID = maxf.ProjectID
@@ -329,7 +329,7 @@ AS
 	-- Sort and Pagination
 	--   Note: Return only base projects and projects' most recent funding
 	----------------------------------
-	SELECT r.ProjectID, p.AwardCode, maxf.projectfundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
+	SELECT r.ProjectID, p.AwardCode, maxf.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
 		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort 
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
 		JOIN Project p ON r.ProjectID = p.ProjectID
@@ -539,17 +539,18 @@ IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetPr
 DROP PROCEDURE [dbo].[GetProjectAwardStatsBySearchID]
 GO 
 
+
 CREATE PROCEDURE [dbo].[GetProjectAwardStatsBySearchID]   
     @SearchID INT,
 	@isPartner bit = 0,
-	@ResultCount INT OUTPUT  -- return the searchID		
+	@Total float OUTPUT  -- return the searchID		
 
 AS   
   	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
 	DECLARE @ProjectIDs VARCHAR(max) 
-	SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+	SELECT @Total=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
 	
 	----------------------------------		
 	--   Find all related projects 
@@ -561,9 +562,15 @@ AS
 			JOIN ProjectFundingExt ext ON ext.ProjectID = r.ProjectID
 		GROUP BY ext.CalendarYear		
 
+<<<<<<< HEAD
+		SELECT @Total = SUM([Count]) FROM #stats	
+
+		SELECT * FROM #stats ORDER BY Year
+=======
 		SELECT @ResultCount = SUM([Count]) FROM #stats	
 
 		SELECT * FROM #stats ORDER BY [Count] DESC
+>>>>>>> 2b9113b7dbd61a5b3b421285f837cd06713a09d2
 
 	END
 	ELSE  -- Partner Site
@@ -573,13 +580,17 @@ AS
 			JOIN ProjectFundingExt ext ON ext.ProjectID = r.ProjectID
 		GROUP BY ext.CalendarYear	
 	
+<<<<<<< HEAD
+		SELECT @Total = SUM(Amount) FROM #statsPart	
+
+		SELECT * FROM #statsPart ORDER BY Year	
+=======
 		SELECT @ResultCount = SUM([Count]) FROM #statsPart	
 
 		SELECT * FROM #statsPart ORDER BY [Count] DESC	
+>>>>>>> 2b9113b7dbd61a5b3b421285f837cd06713a09d2
 	END
 GO
-
-
 
 
 ----------------------------------------------------------------------------------------------------------
@@ -599,7 +610,7 @@ CREATE PROCEDURE [dbo].[GetProjectDetail]
     @ProjectID INT    
 AS   
  -- Get the project's most recent funding - max ProjectID
-SELECT f.Title, p.AwardCode, p.ProjectStartDate, p.ProjectEndDate,  a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract, p.MechanismCode + ' - ' + p.MechanismTitle AS FundingMechanism 
+SELECT f.Title, mf.ProjectFundingID AS LastProjectFundingID, p.AwardCode, p.ProjectStartDate, p.ProjectEndDate,  a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract, f.MechanismCode + ' - ' + f.MechanismTitle AS FundingMechanism 
 FROM Project p	
 	JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding GROUP BY ProjectID) mf ON p.ProjectID = mf.ProjectID
 	JOIN ProjectFunding f ON f.ProjectFundingID = mf.ProjectFundingID	
@@ -753,7 +764,11 @@ AS
 	SELECT p.ProjectID, p.AwardCode, f.Title AS AwardTitle, pt.ProjectType AS AwardType, f.Source_ID, f.AltAwardCode, p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, 
 		f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
 		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency, NULL AS ToCurrency, NULL AS ToCurrencyRate,		
+<<<<<<< HEAD
+		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.Name AS FundingOrg, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, '' AS FundingContact, 
+=======
 		p.MechanismTitle AS FundingMechanism, p.MechanismCode AS FundingMechanismCode, o.Name AS FundingOrg, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, '' AS FundingContact, 
+>>>>>>> 2b9113b7dbd61a5b3b421285f837cd06713a09d2
 		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
 	INTO #temp
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
@@ -864,4 +879,89 @@ AS
 	SELECT * FROM #temp ORDER BY ProjectID
 
 GO
+<<<<<<< HEAD
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetPartners]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetPartners]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetPartners]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetPartners]
+    
+AS   
+
+SELECT [Name]
+      , '' AS SponsorCode
+	  ,[Description]	  
+      ,[Country]
+      ,[Website]      
+      ,CAST([CreatedDate] AS DATE)AS JoinDate      
+  FROM [Partner]
+
+  GO
+
+
+    
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetLibraryFolders]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLibraryFolders]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetLibraryFolders]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetLibraryFolders]
+    
+AS   
+
+SELECT f.Name AS Folder, p.Name AS ParentFolder,  f.isPublic,
+	CASE ISNULL(f.ArchivedDate, '') WHEN '' THEN 0 ELSE 1 END AS IsFolderArchived	
+FROM LibraryFolder f 
+JOIN LibraryFolder p ON f.ParentFolderID= p.LibraryFolderID
+
+  GO
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetLibraries]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLibraries]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetLibraries]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetLibraries]
+    
+AS   
+
+SELECT l.FileName,ThumbnailFilename AS ThumbnailFilename, l.Title, l.Description, p.Name AS ParentFolder, f.Name AS Folder, l.isPublic,
+	CASE ISNULL(l.ArchivedDate, '') WHEN '' THEN 0 ELSE 1 END AS IsFileArchived	
+FROM [Library] l
+JOIN LibraryFolder f ON l.LibraryFolderID = f.LibraryFolderID
+JOIN LibraryFolder p ON f.ParentFolderID= p.LibraryFolderID
+
+  GO
+=======
+>>>>>>> 2b9113b7dbd61a5b3b421285f837cd06713a09d2
 
