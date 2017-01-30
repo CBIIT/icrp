@@ -177,7 +177,7 @@ class DataTable extends Component {
                     {
                       (
                         row[column.link]
-                        ? <a href={row[column.link]} target='_blank'>
+                        ? <a href={row[column.link]}>
                             { row[column.value] }
                           </a>
                         : row[column.value]
