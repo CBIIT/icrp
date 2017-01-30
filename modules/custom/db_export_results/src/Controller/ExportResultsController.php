@@ -32,7 +32,8 @@ error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 
-define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
+
+ini_set('memory_limit','2048M');
 
 class ExportResultsController extends ControllerBase {
 
@@ -467,8 +468,7 @@ class ExportResultsController extends ControllerBase {
 						->setCellValue($location3.$location2++."1", "View In ICRP");
 		}
 		$in = 2;
-		//while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-		while ($row = $stmt->fetch()) {
+		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$location = "L";
 			$location2 = "A";
 			$location3 = "A";
