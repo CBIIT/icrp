@@ -64,7 +64,6 @@ class ExportResultsController extends ControllerBase {
   	   return "Could not create db connection";
   	 }
 
-
 	$result = "success";
 
   	// Create new PHPExcel object
@@ -131,7 +130,7 @@ class ExportResultsController extends ControllerBase {
 	} else {
 		$result = "failed to query server";
 	}
-    $objPHPExcel->getActiveSheet()->setTitle('Export Data');
+    $objPHPExcel->getActiveSheet()->setTitle('Search Result');
 
 	return $result;
   }
@@ -248,11 +247,11 @@ class ExportResultsController extends ControllerBase {
     $withAbstract = false;
     $result = self::createExportDataSheetforPartner($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
     $sheetIndex = 1;
-    $result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
-    $sheetIndex = 2;
     $result = self::createCSOSheet($conn, $objPHPExcel, $sid, $sheetIndex);
-    $sheetIndex = 3;
+    $sheetIndex = 2;
     $result = self::createSiteSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+     $sheetIndex = 3;
+    $result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
 
 
 	$objPHPExcel->setActiveSheetIndex(0);
@@ -625,7 +624,7 @@ class ExportResultsController extends ControllerBase {
 	} else {
 		$result = "failed to query server";
 	}
-    $objPHPExcel->getActiveSheet()->setTitle('Export Data');
+    $objPHPExcel->getActiveSheet()->setTitle('Search Result');
 
 	return $result;
   }
@@ -661,14 +660,13 @@ class ExportResultsController extends ControllerBase {
 	self::createExportDataSheetforPartner($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
 
  	$sheetIndex = 1;
- 	self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
-
- 	$sheetIndex = 2;
  	self::createCSOSheet($conn, $objPHPExcel, $sid, $sheetIndex);
 
- 	$sheetIndex = 3;
+ 	$sheetIndex = 2;
  	self::createSiteSheet($conn, $objPHPExcel, $sid, $sheetIndex);
 
+ 	$sheetIndex = 3;
+ 	self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
 
 	$objPHPExcel->setActiveSheetIndex(0);
 	// Save Excel 2007 file
