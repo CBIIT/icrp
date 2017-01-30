@@ -467,7 +467,8 @@ class ExportResultsController extends ControllerBase {
 						->setCellValue($location3.$location2++."1", "View In ICRP");
 		}
 		$in = 2;
-		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+		//while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+		while ($row = $stmt->fetch()) {
 			$location = "L";
 			$location2 = "A";
 			$location3 = "A";
