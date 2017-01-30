@@ -25,7 +25,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   loggedIn: boolean;
 
   constructor(private http: Http) {
-    //this.loggedIn = true;
+    this.loggedIn = false;
     this.loggedIn = false;
     this.searchID = null;
     this.loadingAnalytics = true;
@@ -133,10 +133,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   queryServerAnalytics(parameters: Object): Observable<any[]> {
-    let endpoint = 'https://icrpartnership-demo.org/db/public/analytics';
+    let endpoint = '/db/public/analytics';
 
     if (this.loggedIn) {
-      endpoint = 'https://icrpartnership-demo.org/db/partner/analytics';
+      endpoint = '/db/partner/analytics';
     }
 
     let host = window.location.hostname;
@@ -151,7 +151,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   resultsSortPaginate(parameters: Object) {
     
-    let endpoint = 'https://icrpartnership-demo.org/db/public/sort_paginate';
+    let endpoint = '/db/public/sort_paginate';
     let host = window.location.hostname;
 
     let params = new URLSearchParams();
@@ -190,7 +190,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     let protocol = window.location.protocol;
     let host = window.location.hostname;
 
-    let endpoint = 'https://icrpartnership-demo.org/db/public/search';
+    let endpoint = '/db/public/search';
 
     let params = new URLSearchParams();
 
