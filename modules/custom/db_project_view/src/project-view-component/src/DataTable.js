@@ -20,7 +20,7 @@ class DataTable extends Component {
       resizing: false,
       handles: [],
 
-      width: table.clientWidth - 1,
+      width: table.clientWidth - 2,
       height: table.clientHeight,
 
       initial: {
@@ -42,7 +42,7 @@ class DataTable extends Component {
     tableResizeOverlay.style.width = `${state.width}px`;
 
     table.style.width = `${state.width}px`;
-
+    table.style.maxWidth = `${state.width}px`;
     table.parentElement.insertBefore(tableResizeOverlay, table);
 
     // populate overlay div with resize handles
@@ -65,6 +65,7 @@ class DataTable extends Component {
       e.preventDefault();
 
       let handle = e.target;
+
       state.resizing = true;
       state.initial.cursorOffset = e.pageX;
       state.initial.tableWidth = table.clientWidth;
@@ -80,11 +81,15 @@ class DataTable extends Component {
         let offset = e.pageX - state.initial.cursorOffset;
 
         let cell = headerRow.children[index];
-        cell.style.width = `${state.initial.cellWidth + offset}px`
+        let cellWidth = state.initial.cellWidth + offset;
+
+        cell.style.width = `${cellWidth}px`
+        cell.style.maxWidth = `${cellWidth}px`
 
         let width = state.initial.tableWidth + offset;
         state.width = `${width}px`
         table.style.width = `${width}px`
+        table.style.maxWidth = `${width}px`;
         tableResizeOverlay.style.width = `${width}px`
         resetHandlePositions();
       }
@@ -92,13 +97,16 @@ class DataTable extends Component {
 
     // mouseup events will stop resizing
     let endResizeEvent = e => {
-      e.preventDefault();
+//      e.preventDefault();
+
+      console.log(state);
 
       if (state.resizing) {
         state.resizing = false;
 
-        for (let th of headerRow.children) {
-          console.log(th);
+        for (let i = 0; i < headerRow.children.length; i ++) {
+//           let th of headerRow.children) {
+          let th = headerRow.children[i];
           th.style.width = `${th.clientWidth + 1}px`;
         }
 

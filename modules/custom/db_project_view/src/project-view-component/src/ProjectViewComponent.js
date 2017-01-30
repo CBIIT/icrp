@@ -75,7 +75,7 @@ class ProjectViewComponent extends Component {
 
   async updateResults(project) {
     try {
-      let endpoint = `/project/get/${project}`;
+      let endpoint = `https://icrpartnership-demo.org/project/get/${project}`;
       let response = await fetch(endpoint);
 
       /** @type {apiResults} */
