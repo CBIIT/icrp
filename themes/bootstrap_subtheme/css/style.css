@@ -44,6 +44,7 @@ h1 {
 */
 .nav-footer-middle > ul > li {
     border-right: 1px solid #bbb;
+    height:25px;
 }
 
 .nav-footer-middle > ul > li:last-child {
@@ -55,7 +56,7 @@ h1 {
     display: inline;
 }
 .nav-footer-middle > ul.nav.navbar-nav > li > a {
-    padding: 0px 2px;
+    padding: 5px 2px;
 }
 .nav-footer-middle {
     min-height:0px;
