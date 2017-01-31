@@ -3,3 +3,71 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+
+
+/*
+ * Bootstrap table overrides
+ */
+
+div.table-responsive {
+  margin-bottom: 15px;
+}
+
+div.table-responsive > table.table {
+  margin-bottom: 0;
+}
+
+table.table {
+  border-collapse: collapse !important;
+}
+
+table.table > thead > tr > th {
+  background-color: #f5f5f5;
+}
+
+table.table-bordered {
+  border: 1px solid #ababab;
+}
+
+table.table-bordered > thead > tr > th,
+table.table-bordered > tbody > tr > th,
+table.table-bordered > tfoot > tr > th,
+table.table-bordered > thead > tr > td,
+table.table-bordered > tbody > tr > td,
+table.table-bordered > tfoot > tr > td {
+  border: 1px solid #ababab;
+}
+
+table.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #fff;
+}
+
+table.table-striped > tbody > tr:nth-of-type(even) {
+  background-color: #fbfbfb;
+}
+
+table.table-hover > tbody > tr:hover {
+  background-color: #f5f5f5;
+}
+
+table.table-nowrap > thead > tr > th,
+table.table-nowrap > tbody > tr > th,
+table.table-nowrap > tfoot > tr > th,
+table.table-nowrap > thead > tr > td,
+table.table-nowrap > tbody > tr > td,
+table.table-nowrap > tfoot > tr > td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+table.table-narrow > thead > tr > th,
+table.table-narrow > tbody > tr > th,
+table.table-narrow > tfoot > tr > th,
+table.table-narrow > thead > tr > td,
+table.table-narrow > tbody > tr > td,
+table.table-narrow > tfoot > tr > td {
+  max-width: 320px;
+}
+
+

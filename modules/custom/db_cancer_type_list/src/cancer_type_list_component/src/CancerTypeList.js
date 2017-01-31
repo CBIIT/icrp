@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import DataTable from './DataTable';
-import './App.css';
 
-class App extends Component {
+class CancerTypeList extends Component {
   constructor() {
     super();
     this.state = {
+      loading: true,
       data: [],
-      columns: []
+      columns: [],
     }
     this.getCancerTypes();
   }
@@ -17,16 +17,18 @@ class App extends Component {
     let hostname = window.location.hostname;
     let pathname = window.location.pathname;
 
+    protocol = 'https:';
+    hostname = 'icrpartnership-demo.org/'
+    pathname = 'cancer-type-list'
+
     let response = await fetch(`${protocol}//${hostname}${pathname}/get`, {
  //     credentials: 'include'
     })
 
     let results = await response.json();
-
-    console.log(results);
-
-    
+   
     this.setState({
+      loading: false,
       data: results
         .map(result => {
           let parsed_result = {};
@@ -62,12 +64,11 @@ class App extends Component {
   }
 
   render() {
-    return (
-      <div className="responsive">
-        <DataTable columns={this.state.columns} data={this.state.data} />
-      </div>
-    );
+    if (this.state.loading)
+      return <div>Loading...</div>
+    
+    return <DataTable columns={this.state.columns} data={this.state.data} />
   }
 }
 
-export default App;
+export default CancerTypeList;
