@@ -18,7 +18,7 @@
         <td *ngFor="let column of columns">
 
           <span>
-            <a *ngIf="column.link" [href]="row[column.link]">
+            <a *ngIf="column.link" [href]="row[column.link]" target="_blank">
               {{ row[column.value] }}
             </a>
 
