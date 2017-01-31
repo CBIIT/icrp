@@ -2,8 +2,9 @@
 {% autoescape true %}
 
 <!-- Start your code here -->
-<style type="text/css">div.container_current_partners {padding-left:16px; padding-right:16px} </style><div class="container_current_partners">
-<div class="row">
+<!--style type="text/css">div.container_current_partners {padding-left:16px; padding-right:16px} </style-->
+<div class="container container_current_partners">
+<!--div class="row"-->
 <font color="orange"><style type="text/css"> h2 {margin-top:0;} </style><h2>Current Partners</h2></font>
 
 <p>ICRP partners represent a wide range of governmental, public and non-profit cancer research funding organizations from across the world. Our membership includes organizations focused on one type of cancer through to health research organizations supporting research into many cancer types.</p>
@@ -16,40 +17,41 @@
 <p>Find out more about our partners using the map below.</p>
 
 <ul class="nav nav-tabs">
-	<li class="active"><a data-toggle="tab" href="#home">Map</a></li>
+	<li class="active"><a data-toggle="tab" href="#home_current">Map</a></li>
 	<li><a data-toggle="tab" href="#menu1">List of Partners</a></li>
 </ul>
 
 <div class="tab-content">
-<div class="tab-pane fade in active" id="home">
-<p style="padding:20px;"><iframe height="480" src="https://www.google.com/maps/d/u/0/embed?mid=1h2KiS71C4FDBVmIOJu35yzcz7gM" width="100%"></iframe></p>
-</div>
+   <div class="tab-pane fade in active" id="home_current">
+	<p style="padding:20px;"><iframe height="480" src="https://www.google.com/maps/d/u/0/embed?mid=1h2KiS71C4FDBVmIOJu35yzcz7gM&z=2" width="100%"></iframe></p>
+   </div>
 
-<div class="tab-pane fade" id="menu1">
-<table class="table table-striped">
-	<thead>
-		<tr>
-			<th>Organization Web Site</th>
-			<th>Associated Organization</th>
+   <style type="text/css">div.currentp {padding-top:20px; padding-left:20px; padding-right:20px }  </style>
+   <div class="tab-pane fade currentp" id="menu1">
+	<style type="text/css">table {border: 2px solid #dddddd; padding-top:20px}  </style>
+	    <table class="table table-striped">
+		<thead>
+		    <tr>
+			<th style="white-space: nowrap">Partner Name</th>
+			<th>Code</th>
 			<th>Country</th>
-			<th>Join Date</th>
+			<th style="white-space: nowrap">Join Date</th>
 			<th>Mission</th>
-		</tr>
-	</thead>
-	<tbody>
-	   {% for row in current_partners %}
-		<tr>
+		    </tr>
+		</thead>
+		<tbody>
+	   	{% for row in current_partners %}
+		   <tr>
 			<td><a href="{{row.website}}">{{row.name}}</a></td>
 			<td>{{row.sponsor_code}}</td>
 			<td>{{row.country}}</td>
-			<td>{{row.join_date}}</td>
+			<td style="white-space: nowrap">{{row.join_date}}</td>
 			<td>{{row.description|raw}}</td>
-		</tr>
-          {% endfor %}
-	</tbody>
-</table>
-</div>
-</div>
+		   </tr>
+          	{% endfor %}
+		</tbody>
+	    </table>
+   </div>
 </div>
 </div>
 <!-- End your code here -->
