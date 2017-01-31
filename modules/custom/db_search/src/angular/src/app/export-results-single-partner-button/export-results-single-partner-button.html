@@ -1,15 +1,17 @@
-  <button class="btn btn-xs btn-default" (click)="downloadResultsWithGraphsPartner(downloadResultsWithGraphsPartnerModal)">
+
+
+  <button class="btn btn-xs btn-default" (click)="downloadResult(downloadResultsModal)">
     <span class="glyphicon glyphicon-download-alt"></span>
-    Export Graphs</button>
+    Export Single</button>
 
 
 
-<div class="modal fade" bsModal #downloadResultsWithGraphsPartnerModal="bs-modal" [config]="{backdrop: 'static'}"
+<div class="modal fade" bsModal #downloadResultsModal="bs-modal" [config]="{backdrop: 'static'}"
      tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" aria-label="Close" (click)="downloadResultsWithGraphsPartnerModal.hide()">
+        <button type="button" class="close" aria-label="Close" (click)="downloadResultsModal.hide()">
           <span aria-hidden="true">&times;</span>
         </button>
         <h4 class="modal-title">Download Search Results</h4>
