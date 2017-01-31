@@ -16,7 +16,7 @@ class App extends Component {
     let protocol = window.location.protocol;
     let hostname = window.location.hostname;
     let pathname = window.location.pathname;
-    
+
     let response = await fetch(`${protocol}//${hostname}${pathname}/get`, {
  //     credentials: 'include'
     })
@@ -25,16 +25,33 @@ class App extends Component {
 
     console.log(results);
 
+    
     this.setState({
-      data: results.map(result => ({
-        label: result.label,
-        description: result.description === 'NULL' ? '' : result.description,
-        url: result.url
-      })), 
+      data: results
+        .map(result => {
+          let parsed_result = {};
+
+          // replace 'NULL' entries with empty strings
+          for (let key of Object.keys(result)) {
+            parsed_result[key] = result[key] 
+              ? result[key].replace(/^NULL$/, '') 
+              : '';
+          }
+
+          return parsed_result;
+        }),
       columns: [
         {
           label: 'Cancer Type',
           value: 'label'
+        },
+        {
+          label: 'ICRP Code',
+          value: 'icrp_code'
+        },
+        {
+          label: 'ICD-10 Code',
+          value: 'icd10_code'
         },
         {
           label: 'Description',
