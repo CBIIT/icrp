@@ -31,8 +31,7 @@ use	PHPExcel_Chart;
 error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
-
-define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
+ini_set('memory_limit','2048M');
 
 class ExportResultsController extends ControllerBase {
 

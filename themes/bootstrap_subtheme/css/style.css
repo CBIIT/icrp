@@ -35,6 +35,22 @@ h1 {
 .breadcrumb > li > a  {
     color: #153670;
 }
+/* Footer Nav */
+/*
+.center-nav > li + li::before {
+    content:"->";
+}
+*/
+.center-nav > li {
+    border-right: 1px solid #bbb;
+}
+
+.center-nav > li:last-child {
+    border-right: none;
+}
+.center-nav > li {
+    display:inline;
+}
 
 /* CSO Page */
 /* Download block */
@@ -443,6 +459,11 @@ div#cso-document-container > div > h1 {
         padding-left:15px;
         padding-right:15px;
     }
+    /*
+    footer > div > div > div > div {
+        text-align: center;
+    }
+    */
 }
 
 /* Medium Devices, Desktops */
