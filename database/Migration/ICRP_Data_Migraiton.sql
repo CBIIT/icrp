@@ -97,21 +97,59 @@ ORDER BY institution
 --delete FROM Institution
 --DBCC CHECKIDENT ('[Institution]', RESEED, 0)
 
+
+
+-----------------------------------------
+-- Partners
+-----------------------------------------
+INSERT INTO Partner 
+SELECT NULL,[NMPARTNER],[TXTPARTNER],ISNULL(s.code, ''), s.email, p.[COUNTRY],	p.[WEBSITE], p.[LOGO],p.[DISPLAYID],
+p.[displayURL],p.[MAPCOORDS], '', NULL, getdate(), getdate()
+FROM icrp.dbo.tblPARTNERS p
+LEFT JOIN icrp.dbo.sponsor s ON p.NMPARTNER = s.NAME
+
+UPDATE Partner SET SponsorCode = 'INCa', EMail='recherche@institutcancer.fr' WHERE name = 'French National Cancer Institute'
+UPDATE Partner SET SponsorCode = 'KWF', EMail='poz@kwfkankerbestrijding.nl' WHERE name = 'Dutch Cancer Society'
+UPDATE Partner SET SponsorCode = 'CDMRP', EMail='cdmrp.pa@det.amedd.army.mil' WHERE name = 'Congressionally Directed Medical Research Programs'
+UPDATE Partner SET SponsorCode = 'AVONFDN', EMail='info@avonfoundation.org' WHERE name = 'AVON Foundation'
+UPDATE Partner SET SponsorCode = 'NCC', EMail=NULL WHERE name = 'National Cancer Center'
+
+UPDATE Partner SET JoinedDate = o.JOINDATE
+FROM Partner p
+left join (SELECT SponsorCode, min(JOINDATE) AS JOINDATE FROM icrp.dbo.tblORG group by SponsorCode) o ON p.SponsorCode = o.SPONSORCODE
+
 -----------------------------
 -- FundingOrg
 -----------------------------
 SET IDENTITY_INSERT FundingOrg ON;  -- SET IDENTITY_INSERT to ON. 
-GO  
+GO 
 
 INSERT INTO FundingOrg
-(FundingOrgID, Name, [Abbreviation], [Country], [CURRENCY], [SponsorCode], [SortOrder],[ISANNUALIZED],[LastImportDate], CreatedDate, UpdatedDate)
-SELECT ID, NAME, [ABBREVIATION], 
+(FundingOrgID, PartnerID, Name, [Abbreviation], [Country], [CURRENCY], [SponsorCode], [MemberType],[MemberStatus],[ISANNUALIZED],
+LastImportDate, CreatedDate, UpdatedDate)
+SELECT ID, 1, NAME, [ABBREVIATION],
 	CASE [COUNTRY] WHEN 'UK' THEN 'GB' ELSE country END AS Country, 
-	[CURRENCY], [SponsorCode], [SortOrder],[ISANNUALIZED],[LASTDATAIMPORT], [DATEADDED], [LASTREVISED]
+	[CURRENCY], [SponsorCode], '', NULL, [ISANNUALIZED],[LASTDATAIMPORT], [DATEADDED], [LASTREVISED]
 FROM icrp.dbo.fundingorg
 
 SET IDENTITY_INSERT FundingOrg OFF;  -- SET IDENTITY_INSERT to ON. 
-GO  
+GO 
+
+
+UPDATE FundingOrg SET PartnerID = p.PartnerID
+FROM  FundingOrg f
+LEFT JOIN Partner p ON f.SponsorCode = p.SponsorCode
+
+UPDATE FundingOrg SET MemberType = CASE ISNULL(p.Name, '') WHEN '' THEN 'Associate' ELSE 'Partner' END, MemberStatus='Current'
+FROM  FundingOrg f
+LEFT JOIN Partner p ON f.Name = p.Name
+
+
+UPDATE FundingOrg SET IsDSASigned = o.DSASIGNED
+FROM FundingOrg f
+LEFT JOIN icrp.dbo.tblORG o ON f.Name = o.Name
+
+--select * from  FundingOrg where IsDSASigned is null (Check later)
 
 -----------------------------
 -- FundingDivision
@@ -338,12 +376,6 @@ FROM [Migration_ProjectFunding] f
 WHERE inst.InstitutionID IS NOT NULL
 
 
------------------------------------------
--- Partners
------------------------------------------
-INSERT INTO Partner 
-SELECT NULL,[NMPARTNER],[TXTPARTNER],'', '', [COUNTRY],	[WEBSITE],[LOGO],[DISPLAYID],[displayURL],[MAPCOORDS], 1, getdate(), getdate()
-FROM icrp.dbo.tblPARTNERS
 
 -----------------------------------------
 -- LibraryFolder
