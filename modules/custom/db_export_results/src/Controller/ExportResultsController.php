@@ -33,6 +33,8 @@ ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 ini_set('memory_limit','2048M');
 
+define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
+
 class ExportResultsController extends ControllerBase {
 
   /**
@@ -85,6 +87,7 @@ class ExportResultsController extends ControllerBase {
 	// Save Excel 2007 file
 	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
 	$objWriter->save($filelocation.$filenameExport);
+
     $conn = null;
 
 	return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));
@@ -1058,5 +1061,19 @@ class ExportResultsController extends ControllerBase {
 
     return $result;
   }
+
+   public function exportResultsSinglePartner(){
+	$result = "Complete Exporting Single in Partner Site";
+
+	return self::addCorsHeaders(new JSONResponse($result));
+  }
+
+   public function exportAbstractSinglePartner(){
+	$result = "Complete export abstract single in Partner Site";
+
+	return self::addCorsHeaders(new JSONResponse($result));
+  }
+
+
 }
 ?>
