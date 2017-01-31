@@ -35,21 +35,39 @@ h1 {
 .breadcrumb > li > a  {
     color: #153670;
 }
+
 /* Footer Nav */
 /*
 .center-nav > li + li::before {
     content:"->";
 }
 */
-.center-nav > li {
+.nav-footer-middle > ul > li {
     border-right: 1px solid #bbb;
 }
 
-.center-nav > li:last-child {
+.nav-footer-middle > ul > li:last-child {
     border-right: none;
 }
-.center-nav > li {
-    display:inline;
+
+.nav-footer-middle > ul > li > a {
+
+    display: inline;
+}
+.nav-footer-middle > ul.nav.navbar-nav > li > a {
+    padding: 0px 2px;
+}
+.nav-footer-middle {
+    min-height:0px;
+    width:350px;
+    text-align: center;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.footer-date {
+    color: darkgrey;
+    font-size:12px;
 }
 
 /* CSO Page */
@@ -257,14 +275,6 @@ footer {
 /* Adjust front page container */
 
 /* Home Page */
-#icrp-blue-icons {
-    /*width:800; */
-    width:90%;
-    max-width:90%;
-    margin-top:20px;
-    margin-left:5%;
-}
-
 
 h1 {
     font-size: 32px;
@@ -443,6 +453,9 @@ div#cso-document-container > div > h1 {
         padding-left:15px;
         padding-right:15px;
     }
+    .nav-footer-middle > ul > li {
+        border-right: 0px;
+    }
 }
 
 /* Extra Small Devices, Phones */
@@ -450,6 +463,9 @@ div#cso-document-container > div > h1 {
     .main-container {
         padding-left:15px;
         padding-right:15px;
+    }
+    .nav-footer-middle > ul > li {
+        border-right: 0px;
     }
 }
 
@@ -459,11 +475,12 @@ div#cso-document-container > div > h1 {
         padding-left:15px;
         padding-right:15px;
     }
-    /*
-    footer > div > div > div > div {
-        text-align: center;
+    .nav-footer-middle > ul > li {
+        border-right: 1px solid #bbb;
     }
-    */
+    .nav-footer-middle > ul > li:last-child {
+        border-right: none;
+    }
 }
 
 /* Medium Devices, Desktops */
@@ -472,6 +489,12 @@ div#cso-document-container > div > h1 {
         padding-left:0px;
         padding-right:0px;
     }
+    .nav-footer-middle > ul > li {
+        border-right: 1px solid #bbb;
+    }
+    .nav-footer-middle > ul > li:last-child {
+        border-right: none;
+    }
 }
 
 /* Large Devices, Wide Screens */
@@ -479,6 +502,12 @@ div#cso-document-container > div > h1 {
     .main-container {
         padding-left:0px;
         padding-right:0px;
+    }
+    .nav-footer-middle > ul > li {
+        border-right: 1px solid #bbb;
+    }
+    .nav-footer-middle > ul > li:last-child {
+        border-right: none;
     }
 }
 
@@ -492,5 +521,11 @@ div#cso-document-container > div > h1 {
     }
     .front-page-banner {
         width:72%;
+    }
+    .nav-footer-middle > ul > li {
+        border-right: 1px solid #bbb;
+    }
+    .nav-footer-middle > ul > li:last-child {
+        border-right: none;
     }
 }
