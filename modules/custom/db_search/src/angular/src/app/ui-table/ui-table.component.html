@@ -6,10 +6,12 @@
     <thead #thead>
       <tr>
         <th *ngFor="let column of columns">
-          <span style="cursor: pointer" [tooltip]="column.tooltip" (click)="sortTableColumn(column)">
-            {{ column.label }} 
-            {{ column.sort === 'asc' ? '▲' : '▼' }} 
-          </span>
+          <div [tooltip]="column.tooltip" style="display: inline-block">
+            <span style="cursor: pointer"  (click)="sortTableColumn(column)">
+              {{ column.label }} 
+              {{ column.sort === 'asc' ? '▲' : '▼' }} 
+            </span>
+          </div>
         </th>
       </tr>
     </thead>
