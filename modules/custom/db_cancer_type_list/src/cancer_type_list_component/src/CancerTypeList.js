@@ -17,10 +17,6 @@ class CancerTypeList extends Component {
     let hostname = window.location.hostname;
     let pathname = window.location.pathname;
 
-    protocol = 'https:';
-    hostname = 'icrpartnership-demo.org/'
-    pathname = 'cancer-type-list'
-
     let response = await fetch(`${protocol}//${hostname}${pathname}/get`, {
  //     credentials: 'include'
     })
@@ -64,10 +60,9 @@ class CancerTypeList extends Component {
   }
 
   render() {
-    if (this.state.loading)
-      return <div>Loading...</div>
-    
-    return <DataTable columns={this.state.columns} data={this.state.data} />
+    return this.state.loading
+      ? <div>Loading...</div>
+      : <DataTable columns={this.state.columns} data={this.state.data} />
   }
 }
 

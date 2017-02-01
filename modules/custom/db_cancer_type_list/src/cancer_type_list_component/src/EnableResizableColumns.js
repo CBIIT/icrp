@@ -13,13 +13,11 @@ function createHandle() {
   handle.style.marginLeft = '-3px';
   handle.style.zIndex = '2';
   handle.style.cursor = 'ew-resize';
-
-  handle.style.border = '1px solid grey'
   return handle;
 }
 
 // aligns resize handle positions with table columns
-let updateHandlePositions = (table, overlay) => {
+function updateHandlePositions(table, overlay) {
 
   let handles = overlay.children;
   let headers = table.tHead.children[0].children;
@@ -50,35 +48,32 @@ function setWidth(el, width) {
 }
 
 function setColumnWidth(table, columnIndex, width) {
+
+  setWidth(table.tHead.children[0].children[columnIndex], width);
+
   let rows = table.tBodies[0].children;
   for (let i = 0; i < rows.length; i ++) {
     let row = rows[i];
     setWidth(row.children[columnIndex], width);
   }
-
-  setWidth(table.tHead.children[0].children[columnIndex], width);
 }
 
 
-function initializeWidth(table) {
+function initializeColumnWidths(table) {
 
-  setWidth(table, table.clientWidth);
-  
   let headers = table.tHead.children[0].children;  
   for (let k = 0; k < headers.length; k ++) {
     setColumnWidth(table, k, headers[k].clientWidth);
   }
+
+  setWidth(table, table.clientWidth);
 }
 
 
-/**
- * Creates a resize 
- * 
- */
 export default function enableResizableColumns(table) {
 
   // initialize the width of the table
-  initializeWidth(table);
+  initializeColumnWidths(table);
 
   let state = {
     resizing: false,
@@ -113,7 +108,13 @@ export default function enableResizableColumns(table) {
 
     let handle = e.target;
     let index = +handle.dataset.index;
-    let width = table.tHead.children[0].children[index].clientWidth;
+    let el = table.tHead.children[0].children[index];
+    let style = window.getComputedStyle(el);
+    let padding = parseInt(style.paddingLeft, 10) + parseInt(style.paddingRight, 10);
+    let width = el.clientWidth - padding;
+
+    setColumnWidth(table, index, width);
+    updateHandlePositions(table, overlay);
 
     state = {
       resizing: true,
@@ -135,12 +136,6 @@ export default function enableResizableColumns(table) {
       let tableWidth = state.initial.tableWidth + offset;
       let index = state.initial.columnIndex;
 
-      console.log('offset: ' + offset);
-      console.log('cell width initial: ' + state.initial.cellWidth);
-      console.log('cell width calculated: ' + cellWidth);
-      console.log('cell width style: ' + table.tHead.children[0].children[index].style.width);
-
-
       setColumnWidth(table, index, cellWidth);
       setWidth(table, tableWidth);
       setWidth(overlay, tableWidth);
@@ -149,16 +144,10 @@ export default function enableResizableColumns(table) {
   }
 
   // mouseup events will stop resizing
-  document.onmouseup = e => {
-    if (state.resizing) {
-      state.resizing = false;
-    }
-  }
+  document.onmouseup = () => state.resizing = false;
 
   for (let i = 0; i < overlay.children.length; i ++) {
     overlay.children[i].dataset.index = (i).toString();
-    overlay.children[i].onmousedown = e => {
-      startResizing(e)
-    };
+    overlay.children[i].onmousedown = startResizing;
   }  
 };
