@@ -5,14 +5,12 @@ global-styling:
       css/bootstrap-overrides.css: {}
       css/hoverover.css: {}
       https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css: {type: external, minified: true}
-      https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.css: {type: external}
-
+ 
 global-scripts:
   version: 1
   js:
+    https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.22.0/polyfill.min.js: { type: external, minified: true }
     js/init_globals.js: {}
-    https://unpkg.com/store@1.3.20/store.min.js: {type: external, minified: true}
-    https://unpkg.com/jquery-resizable-columns@0.2.3/dist/jquery.resizableColumns.min.js: {type: external, minified: true}
     js/scripts.js: {}
   dependencies:
     - core/jquery
