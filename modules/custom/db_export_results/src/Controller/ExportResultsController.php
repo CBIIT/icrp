@@ -355,11 +355,12 @@ class ExportResultsController extends ControllerBase {
 				$location++;
 				$realLocation = $location;
 			}else{
-				$realLocation = "A".$location2;
-				$location2++;
+				$realLocation = $location3.$location2;
 				if($location2 == "Z"){
 					$location2 = "A";
 					$location3++;
+				}else{
+					$location2++;
 				}
 			}
 			$objPHPExcel->setActiveSheetIndex($sheetIndex)
@@ -493,10 +494,11 @@ class ExportResultsController extends ControllerBase {
 					$realLocation = $location;
 				}else{
 					$realLocation = $location3.$location2;
-					$location2++;
 					if($location2 == "Z"){
 						$location2 = "A";
 						$location3++;
+					}else{
+						$location2++;
 					}
 				}
 				$value = $row[$i];
@@ -1063,15 +1065,155 @@ class ExportResultsController extends ControllerBase {
   }
 
    public function exportResultsSinglePartner(){
-	$result = "Complete Exporting Single in Partner Site";
+    $sid = $_SESSION['database_search_id'];
+    //$sid = 4;
 
-	return self::addCorsHeaders(new JSONResponse($result));
+	$result = "Complete Exporting Single Results in Partner Site";
+	$config = self::getConfig();
+ 	$filelocation = $config['file_location'];
+ 	$downloadlocation = self::getBaseUrl() .  $config['download_location'];
+    $filenameExport  = 'ICRPExportPartnerSingle'.$sid.'.xlsx';
+
+	$objPHPExcel = new PHPExcel();
+
+  	 try {
+	   $conn = self::getConnection();
+  	 } catch (Exception $exc) {
+  	   return "Could not create db connection";
+  	 }
+
+	$sheetIndex = 0;
+	$withAbstract = false;
+	$result = self::createExportSingleSheet($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
+	$sheetIndex = 1;
+	$result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+
+ 	// Set active sheet index to the first sheet, so Excel opens this as the first sheet
+	$objPHPExcel->setActiveSheetIndex(0);
+
+	// Save Excel 2007 file
+	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+	$objWriter->setIncludeCharts(TRUE);
+	$objWriter->save($filelocation.$filenameExport);
+    $conn = null;
+
+	return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));
+  }
+
+  private function createExportSingleSheet($conn, &$objPHPExcel, $sid, $sheetIndex, $withAbstract){
+    $result = "";
+    $url = self::getBaseUrl();
+	$viewLink = $url . "viewProject.cfm?pid=";
+	$result_count = NULL;
+
+	$objPHPExcel->getProperties()->setCreator("ICRP")
+							 	 ->setLastModifiedBy("ICRP")
+							 	 ->setTitle("ICRP export Single")
+							 	 ->setSubject("ICRP export data")
+							 	 ->setDescription("Exporting ICRP Single data ")
+							 	 ->setKeywords("ICRP signle data")
+							 	 ->setCategory("ICRP data");
+
+	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectExportsSingleBySearchID @SearchID=:search_id_name, @SiteURL=:url");
+	$stmt->bindParam(':search_id_name', $sid);
+	$stmt->bindParam(':url', $viewLink);
+	if ($stmt->execute()) {
+		$location = "A";
+		$location2 = "A";
+		$location3 = "A";
+		$realLocation = "";
+		$index = 1;
+		$colName = Array();
+		foreach(range(0, $stmt->columnCount() - 1) as $column_index)
+		{
+		  $meta = $stmt->getColumnMeta($column_index);
+		  $colName[] = $meta['name'];
+		}
+
+		$arrayLength = sizeof($colName);
+		if($withAbstract != true){
+			$arrayLength = $arrayLength -1; //remove last column - tech abstract
+		}
+
+		for($i = 0; $i < $arrayLength; $i++){
+		  if($location != 'Z'){
+				$realLocation = $location;
+				$location++;
+		  }else{
+				$realLocation = $location3.$location2;
+				if($location2 == "Z"){
+					$location2 = "A";
+					$location3++;
+				}else{
+					$location2++;
+				}
+		  }
+		 $objPHPExcel->setActiveSheetIndex($sheetIndex)
+		 			 ->setCellValue($realLocation.$index, $colName[$i]);
+		}
+
+		$in = 2;
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+			$location = "A";
+			$location2 = "A";
+			$location3 = "A";
+			$realLocation = "";
+			for($i = 0; $i < $arrayLength; $i++){
+			  if($location != 'Z'){
+					$realLocation = $location;
+					$location++;
+			  }else{
+					$realLocation = $location3.$location2;
+					if($location2 == "Z"){
+						$location2 = "A";
+						$location3++;
+					}else{
+						$location2++;
+					}
+			  }
+			  $objPHPExcel->setActiveSheetIndex($sheetIndex)
+						  ->setCellValue($realLocation.$in, $row[$colName[$i]]);
+			}//end of for
+			$in++;
+		}
+	}
+	return $result;
   }
 
    public function exportAbstractSinglePartner(){
-	$result = "Complete export abstract single in Partner Site";
+    $sid = $_SESSION['database_search_id'];
+    //$sid = 4;
 
-	return self::addCorsHeaders(new JSONResponse($result));
+	$result = "Complete Exporting Single With abstract Results in Partner Site";
+	$config = self::getConfig();
+ 	$filelocation = $config['file_location'];
+ 	$downloadlocation = self::getBaseUrl() .  $config['download_location'];
+    $filenameExport  = 'ICRPExportPartnerSingleAbstract'.$sid.'.xlsx';
+
+	$objPHPExcel = new PHPExcel();
+
+  	 try {
+	   $conn = self::getConnection();
+  	 } catch (Exception $exc) {
+  	   return "Could not create db connection";
+  	 }
+
+	$sheetIndex = 0;
+	$withAbstract = true;
+	$result = self::createExportSingleSheet($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
+	$sheetIndex = 1;
+	$result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+
+ 	// Set active sheet index to the first sheet, so Excel opens this as the first sheet
+	$objPHPExcel->setActiveSheetIndex(0);
+
+	// Save Excel 2007 file
+	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+	$objWriter->setIncludeCharts(TRUE);
+	$objWriter->save($filelocation.$filenameExport);
+    $conn = null;
+
+	return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));
   }
 
 
