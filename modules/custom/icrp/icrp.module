@@ -110,6 +110,7 @@ function icrp_page_alter(&$) {
 */
 
 function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+
     //drupal_set_message("Form ID: ".$form_id);
     switch ($form_id) {
         case 'user_login':
@@ -119,7 +120,7 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             $form['link'] = array('#markup' => t("<div style=padding:20px;'><a href='/user/password'>Forgot Password?</a></div>"));
             break;
     }
-    kint($form);
+    //kint($form);
     /*
         drupal_set_message("icrp_form_alter: ".$form_id);
         $form['#submit'][] = '_MODULE_goto';
