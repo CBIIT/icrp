@@ -227,3 +227,51 @@ legend {
 }
 
 
+/** Header and Footer overrides */
+
+header.navbar div.navbar-header a.logo {
+  min-width: 0;
+}
+
+header.navbar div.navbar-header a.logo > img {
+  width: 100%;
+}
+
+@media only screen and (max-width : 480px) {
+  header.navbar div.navbar-header a.logo > img {
+    width: 60%;
+  }
+}
+
+@media only screen and (max-width : 768px) {
+  header.navbar > .navbar-header .region-navigation {
+    margin: 5px 20px;
+    max-width: 80%;
+  }
+}
+
+header.navbar-default {
+  background-color: white;
+  border: none;
+  border-radius: 0;
+  border-bottom: 1px solid #EEE;
+}
+
+footer.footer {
+  background-color: white;
+  border: none;
+  border-top: 1px solid #EEE;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+
+/** Bootstrap search-well overrides */
+
+div.search-block-form > div.search-well {
+  margin-top: -5px;
+  background-color: white;
+  float: right;
+  box-shadow: none;
+  -webkit-box-shadow: none;
+}
