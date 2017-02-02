@@ -3,8 +3,8 @@ type: module
 description: Allows version-dependent and shared usage of external libraries.
 # core: 8.x
 
-# Information added by Drupal.org packaging script on 2016-11-13
+# Information added by Drupal.org packaging script on 2017-01-04
 version: '8.x-3.x-dev'
 core: '8.x'
 project: 'libraries'
-datestamp: 1479038901
+datestamp: 1483547345

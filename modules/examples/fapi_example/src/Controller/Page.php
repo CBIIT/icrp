@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\fapi_example\Controller;
+
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Link;
 
@@ -8,6 +9,7 @@ use Drupal\Core\Link;
  * Simple page controller for drupal.
  */
 class Page extends ControllerBase {
+
   /**
    * Lists the examples provided by form_example.
    */
@@ -25,6 +27,7 @@ class Page extends ControllerBase {
       '#theme' => 'item_list',
       '#items' => [
         Link::createFromRoute($this->t('Simple Form'), 'fapi_example.simple_form'),
+        Link::createFromRoute($this->t('Multistep Form'), 'fapi_example.multistep_form'),
         Link::createFromRoute($this->t('Input Demo'), 'fapi_example.input_demo'),
         Link::createFromRoute($this->t('Form State Example'), 'fapi_example.state_demo'),
         Link::createFromRoute($this->t('Container Demo'), 'fapi_example.container_demo'),
@@ -45,6 +48,7 @@ class Page extends ControllerBase {
         ),
 
         Link::createFromRoute($this->t('Build Demo'), 'fapi_example.build_demo'),
+        Link::createFromRoute($this->t('Ajax Add More Demo'), 'fapi_example.ajax_addmore'),
       ],
     ];
 

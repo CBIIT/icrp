@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { Http, Response, Headers, RequestOptions, URLSearchParams } from '@angular/http';
+import { SearchParameters } from './search-parameters';
 
 import { Observable } from 'rxjs/Rx';
 import 'rxjs/add/operator/map';
@@ -14,6 +15,8 @@ declare var fetch;
 })
 export class SearchComponent implements OnInit, AfterViewInit {
 
+  searchParameters: SearchParameters;
+
   searchID: any;
   mappedParameters: any;  
   parameters: any;
@@ -23,6 +26,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   loadingAnalytics: boolean;
   analytics: any;
   loggedIn: boolean;
+
 
   constructor(private http: Http) {
     this.loggedIn = false;
@@ -41,17 +45,14 @@ export class SearchComponent implements OnInit, AfterViewInit {
       page_size: 50,
     }
 
-    this.checkAuthentication();
+    this.checkAuthenticationStatus();
   }
 
-  checkAuthentication() {
-    fetch('/search-database/partners/authenticate', {
-      credentials: 'include'
-    })
-    .then(response => response.text())
-    .then(response => {
-      this.loggedIn = (response === 'authenticated');
-    });
+  checkAuthenticationStatus() {
+    this.http.get('/search-database/partners/authenticate', {withCredentials: true})
+      .map((res: Response) => res.text())
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
+      .subscribe(response => this.loggedIn = (response === 'authenticated'))
   }
 
   updateMappedParameters(event: Object) {
@@ -103,6 +104,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     if (response) {
 
+      this.analytics['counts'] = [];
+
       for (let category of [
         'projects_by_country', 
         'projects_by_cso_research_area', 
@@ -112,6 +115,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
           if (response[category]) {
             for (let key in response[category]) {
               this.analytics[category] = response[category]['results'];
+              this.analytics['counts'][category] = response[category]['count'];
             }
 
               this.analytics[category].sort((a, b) => +b.value - +a.value);
@@ -134,6 +138,11 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   queryServerAnalytics(parameters: Object): Observable<any[]> {
     let endpoint = '/db/public/analytics';
+
+    if (this.loggedIn) {
+      endpoint = '/db/partner/analytics';
+    }
+
     let host = window.location.hostname;
 
     let params = new URLSearchParams();
@@ -176,9 +185,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
     
   }
 
-  sortPaginateServer(parameters: Object) {
-    
-  }
 
   queryServer(parameters: Object): Observable<any[]> {
   

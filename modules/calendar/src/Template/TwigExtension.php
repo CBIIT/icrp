@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\calendar\Template\TwigExtension.
- */
 
 namespace Drupal\calendar\Template;
 

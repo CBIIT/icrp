@@ -1,0 +1,12 @@
+name: 'Feeds module tests'
+description: 'Support module for Feeds related testing.'
+package: Testing
+# core: 8.x
+type: module
+hidden: true
+
+# Information added by Drupal.org packaging script on 2016-12-21
+version: '8.x-3.x-dev'
+core: '8.x'
+project: 'feeds'
+datestamp: 1482307386

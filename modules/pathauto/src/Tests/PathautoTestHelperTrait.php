@@ -134,7 +134,7 @@ trait PathautoTestHelperTrait {
   }
 
   public function deleteAllAliases() {
-    db_delete('url_alias')->execute();
+    \Drupal::database()->delete('url_alias')->execute();
     \Drupal::service('path.alias_manager')->cacheClear();
   }
 

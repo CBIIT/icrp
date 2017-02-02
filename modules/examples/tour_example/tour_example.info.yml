@@ -4,12 +4,12 @@ description: 'Demonstrates how to create a tour in Drupal 8.'
 package: Example modules
 # core: 8.x
 dependencies:
-  - examples
-  - tour
-  - toolbar
+  - drupal:tour
+  - drupal:toolbar
+  - examples:examples
 
-# Information added by Drupal.org packaging script on 2016-12-03
+# Information added by Drupal.org packaging script on 2017-01-15
 version: '8.x-1.x-dev'
 core: '8.x'
 project: 'examples'
-datestamp: 1480732387
+datestamp: 1484513889

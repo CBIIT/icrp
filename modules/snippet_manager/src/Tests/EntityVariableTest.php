@@ -39,7 +39,6 @@ class EntityVariableTest extends TestBase {
    * Tests entity variable plugin.
    */
   public function testEntityVariable() {
-
     $edit = [
       'plugin_id' => 'entity:node',
       'name' => 'node',
@@ -49,7 +48,7 @@ class EntityVariableTest extends TestBase {
     $this->assertStatusMessage('The variable has been created.');
 
     $edit = [
-      'entity_id' => 'Bar',
+      'configuration[entity_id]' => 'Bar',
     ];
     $this->drupalPostForm(NULL, $edit, 'Save');
 
@@ -72,7 +71,7 @@ class EntityVariableTest extends TestBase {
 
     // Empty entity ID forces loading the node form route.
     $edit = [
-      'entity_id' => '',
+      'configuration[entity_id]' => '',
     ];
     $this->drupalPostForm('snippet/alpha/edit/variable/node/edit', $edit, 'Save');
 
@@ -88,12 +87,12 @@ class EntityVariableTest extends TestBase {
     // Test view mode option.
     $this->assertNoLink('Read more');
     $edit = [
-      'entity_id' => 'Bar',
+      'configuration[entity_id]' => 'Bar',
     ];
     $this->drupalPostForm('snippet/alpha/edit/variable/node/edit', $edit, 'Save');
     $edit = [
-      'entity_id' => 'Bar',
-      'view_mode' => 'teaser',
+      'configuration[entity_id]' => 'Bar',
+      'configuration[view_mode]' => 'teaser',
     ];
     $this->drupalPostForm('snippet/alpha/edit/variable/node/edit', $edit, 'Save');
     $this->assertLink('Read more');

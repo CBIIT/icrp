@@ -2,10 +2,15 @@ global-styling:
   css:
     theme:
       css/style.css: {}
-
+      css/bootstrap-overrides.css: {}
+      css/hoverover.css: {}
+      https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css: {type: external, minified: true}
+ 
 global-scripts:
-  version: version
+  version: 1
   js:
+    https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.22.0/polyfill.min.js: { type: external, minified: true }
+    js/init_globals.js: {}
     js/scripts.js: {}
-  dependancies:
+  dependencies:
     - core/jquery

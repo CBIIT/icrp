@@ -80,66 +80,73 @@ class ProjectViewComponent extends Component {
 
       /** @type {apiResults} */
       let results = await response.json();
-    
-      let columns = [
-        {
-          label: 'Title',
-          value: 'project_title',
-          link: 'project_funding_url'
-        },
-        {
-          label: 'Category',
-          value: 'project_category',
-        },
-        {
-          label: 'Funding Org.',
-          value: 'funding_organization',
-        },
-        {
-          label: 'Alt Award Code',
-          value: 'alt_award_code',
-        },
-        {
-          label: 'Award Funding Period',
-          value: 'award_funding_period',
-        },
-        {
-          label: 'PI',
-          value: 'pi_name',
-        },
-        {
-          label: 'Institution',
-          value: 'institution',
-        },
-        {
-          label: 'Location',
-          value: 'location',
-        },
-      ];
+      
+      let table = {
+        columns: [
+          {
+            label: 'Title',
+            value: 'project_title',
+            link: 'project_funding_url',
+            tooltip: 'Title of Award',
+          },
+          {
+            label: 'Category',
+            value: 'project_category',
+            tooltip: 'A project may be a Parent Project, Supplement, or Sub-Project',
+          },
+          {
+            label: 'Funding Org.',
+            value: 'funding_organization',
+            tooltip: 'Funding Organization of Award (abbreviated name shown)',
+          },
+          {
+            label: 'Alt Award Code',
+            value: 'alt_award_code',
+            tooltip: 'Full award code/grant number',
+          },
+          {
+            label: 'Award Funding Period',
+            value: 'award_funding_period',
+            tooltip: 'The award has been funded through these dates. Some projects receive funding for multiple years and some projects receive funding one year at a time.',
+          },
+          {
+            label: 'PI',
+            value: 'pi_name',
+            tooltip: 'Principal Investigator',
+          },
+          {
+            label: 'Institution',
+            value: 'institution',
+            tooltip: 'PI Institution',
+          },
+          {
+            label: 'Location',
+            value: 'location',
+            tooltip: 'City and Country of Principal Investigator',
+          },
+        ],
 
-      let data = results.project_funding_details.map(row => ({
-        project_title: row.project_title,
-        project_funding_url: `/project/funding-details/${row.project_funding_id}`,
-        project_category: row.award_type,
-        funding_organization: row.funding_organization,
-        alt_award_code: row.alt_award_code,
-        award_funding_period: (!row.budget_start_date && !row.budget_end_date)
-          ? 'Not specified'
-          : (row.budget_start_date || 'N/A') + ' to '
-          + (row.budget_end_date || 'N/A'),
+        data: results.project_funding_details.map(row => ({
+          project_title: row.project_title,
+          project_funding_url: `/project/funding-details/${row.project_funding_id}`,
+          project_category: row.award_type,
+          funding_organization: row.funding_organization,
+          alt_award_code: row.alt_award_code,
+          award_funding_period: (!row.budget_start_date && !row.budget_end_date)
+            ? 'Not specified'
+            : (row.budget_start_date || 'N/A') + ' to '
+            + (row.budget_end_date || 'N/A'),
 
-        pi_name: [row.pi_last_name, row.pi_first_name].filter(e => e.length).join(', '),
-        institution: row.institution,
-        location: [row.city, row.state, row.country].filter(e => e.length).join(', '),
-      }));
+          pi_name: [row.pi_last_name, row.pi_first_name].filter(e => e.length).join(', '),
+          institution: row.institution,
+          location: [row.city, row.state, row.country].filter(e => e.length).join(', '),
+        }))
+      }
 
       this.setState({
         loading: false,
         results: results,
-        table: {
-          columns: columns,
-          data: data
-        }
+        table: table
       });
     }
     catch (exception) {
@@ -150,7 +157,7 @@ class ProjectViewComponent extends Component {
     }
   }
 
-  appendGoogleTranslate() {
+  appendGoogleTranslateScript() {
     window.googleTranslateElementInit = 
     window.googleTranslateElementInit || function() {
       new window.google.translate.TranslateElement({
@@ -182,13 +189,23 @@ class ProjectViewComponent extends Component {
 
     return <div>
 
-      <h3 className="title margin-right">View Project Details</h3>
-      <h4 className="h4 grey">{ project_details.project_title }</h4>
-      <hr className="less-margins" />
-      <div id="google_translate_element" className="pull-right"></div>
-      { this.appendGoogleTranslate() }
+      <div className="clearfix">
+        <h3 className="title">View Project Details</h3>
+        <span className="pull-right" id="google_translate_element" />        
+        { this.appendGoogleTranslateScript() }
+      </div>
+
+      <hr className="less-margins " />
+
+      <div className="form-group">
+        The project details page contains information on the Parent Project, as well as any related Supplements or Sub-Projects, for each year the project has been funded. Multiple records may be showing in the table below, and these can occur if the project is funded annually, and if the project has related subprojects or supplements (there will be a record for each year the project, sub-project or supplement is funded). Sub-projects or Supplements may have different Titles or PIs than the Parent Project, and are linked by a shared Award Code with the Parent Project. Users can “drill-through” to the project details page for each record in the table.
+      </div>
 
       <dl className="dl-horizontal margin-bottom margin-top">
+
+        <dt>Title</dt>
+        <dd>{ project_details.project_title || 'Not specified' }</dd>
+
         <dt>Award Code</dt>
         <dd>{ project_details.award_code || 'Not specified' }</dd>
 
@@ -200,8 +217,10 @@ class ProjectViewComponent extends Component {
           : 'Not specified'
         }
         </dd>
+
         <dt>Funding Mechanism</dt>
-        <dd>{project_details.funding_mechanism || 'Not specified'}</dd>
+        <dd>{ project_details.funding_mechanism || 'Not specified' }</dd>
+
       </dl>
 
       <h5 className="h5 margin-top">Award Funding</h5>
@@ -209,18 +228,18 @@ class ProjectViewComponent extends Component {
 
       {
         project_details.technical_abstract &&
-        <div>
-          <h4>Technical Abstract</h4>
-          <div>{ project_details.technical_abstract }</div>
+        <div className="margin-top">
+          <h4 >Technical Abstract</h4>
+          <div dangerouslySetInnerHTML={{ __html: project_details.technical_abstract }} />
           <hr />
         </div>
       }
 
       {
         project_details.public_abstract &&
-        <div>
+        <div className="margin-top">
           <h4>Public Abstract</h4>
-          <div>{ project_details.public_abstract }</div>
+          <div dangerouslySetInnerHTML={{ __html: project_details.public_abstract }} />
           <hr />
         </div>
       }

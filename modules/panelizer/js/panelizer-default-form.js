@@ -10,10 +10,10 @@
       function update_form() {
         var $core_form = $('#field-display-overview-wrapper');
         if ($panelizer_checkbox.is(':checked')) {
-          $core_form.hide();
+          $core_form.fadeOut();
         }
         else {
-          $core_form.show();
+          $core_form.fadeIn();
         }
       }
 

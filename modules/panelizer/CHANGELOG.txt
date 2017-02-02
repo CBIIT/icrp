@@ -1,13 +1,34 @@
+Panelizer 8.x-3.0-alpha3, 2016-12-15
+------------------------------------
+#2664648: Added unit tests for PanelizerDefaultPanelsStorage and
+  PanelizerFieldPanelsStorage.
+Reverted #2664616.
+#2688951 by swentel, hampercm, wiifm: Panels IPE javascript loaded, even when
+  you have no access to the in place editor.
+#2760051 by Gravypower: Undefined index: #attached.
+#2795375 by webflo: Theme suggestions are in the wrong order.
+#2820562 by jiff: Node functional test fails due to non-existent permission.
+#2716071 by Xano: PanelizerFieldPanelsStorage::access() calls entity access with
+  incorrect operations and excludes cacheability metadata.
+#2693163 by samuel.mortenson: Quick Edit support for fields displayed using the
+  ctools_field block.
+#2700597 by samuel.mortenson, mdooley: Explicitly set the Panels IPE URL root
+  when saving in Panelizer.
+#2664682 by juampynr, EclipseGc, phenaproxima, balsama, japerry, Dane Powell,
+  samuel.mortenson, hctom: Implement admin UI for editing Panelizer defaults.
+#2701349 by EclipseGc: Generate new UUIDs for displays when switching from
+  default to field storage.
+
+
 Panelizer 8.x-3.0-alpha2, 2016-02-16
 ------------------------------------
+- Add basic functional tests.
+- Add permission for changing layout.
+- "Undefined Index: label in Drupal\panelizer\Panelizer->getPermissions()."
+- Contextual blocks not shown in the IPE.
+- PanelizerFieldType::generateSampleValue() needs to specify a view mode.
 
- - Add basic functional tests.
- - Add permission for changing layout.
- - Notice: Undefined Index: label in Drupal\panelizer\Panelizer->getPermissions().
- - Contextual blocks not shown in the IPE.
- - PanelizerFieldType::generateSampleValue() needs to specify a view mode.
 
 Panelizer 8.x-3.0-alpha1, 2016-02-05
 ------------------------------------
 Initial D8 port by dsnopek and the Panels contributors.
-

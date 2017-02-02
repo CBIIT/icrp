@@ -1,9 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\calendar\DateArgumentWrapper.
- */
-
 
 namespace Drupal\calendar;
 

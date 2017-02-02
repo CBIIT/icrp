@@ -5,7 +5,6 @@ namespace Drupal\Tests\snippet_manager\Unit;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\snippet_manager\SnippetInterface;
-use Drupal\snippet_manager\SnippetListBuilder;
 use Drupal\Tests\UnitTestCase;
 
 /**
@@ -58,7 +57,12 @@ class SnippetListBuilderTest extends UnitTestCase {
     /** @var \Drupal\Core\Entity\EntityStorageInterface $entity_storage */
     $entity_storage = $this->getMock('Drupal\Core\Entity\EntityStorageInterface');
 
-    $this->listBuilder = new SnippetListBuilder($entity_type, $entity_storage);
+    $this->listBuilder = $this->getMock(
+      'Drupal\snippet_manager\SnippetListBuilder',
+      ['getFormatLabel', 'formatSize'],
+      [$entity_type, $entity_storage]
+    );
+
     $this->listBuilder->setStringTranslation($this->stringTranslation);
   }
 
@@ -75,6 +79,8 @@ class SnippetListBuilderTest extends UnitTestCase {
       'label' => 'Label',
       'id' => 'Machine name',
       'status' => 'Status',
+      'size' => 'Size',
+      'format' => 'Format',
       'page' => 'Page',
     ];
 
@@ -101,8 +107,17 @@ class SnippetListBuilderTest extends UnitTestCase {
 
     $this->assertEquals($row['label'], $snippet->toLink());
     $this->assertEquals($row['id'], $snippet->id());
-    $this->assertEquals($row['status'], $snippet->status() ? $this->trans('Enabled') : $this->trans('Disabled'));
-    $this->assertEquals($row['page'], $snippet->pageIsPublished() ? $this->trans('Published') : $this->trans('Not published'));
+    $disabled_status_value = [
+      'data' => $this->trans('Disabled'),
+      'class' => ['sm-inactive'],
+    ];
+    $this->assertEquals($row['status'], $snippet->status() ? $this->trans('Enabled') : $disabled_status_value);
+
+    $disabled_page_value = [
+      'data' => $this->trans('Not published'),
+      'class' => ['sm-inactive'],
+    ];
+    $this->assertEquals($row['page'], $snippet->pageIsPublished() ? $this->trans('Published') : $disabled_page_value);
   }
 
   /**
@@ -112,7 +127,6 @@ class SnippetListBuilderTest extends UnitTestCase {
    *   Mock data set.
    */
   public function getData() {
-
     $snippet = $this->getMock(SnippetInterface::CLASS);
 
     $data = [];

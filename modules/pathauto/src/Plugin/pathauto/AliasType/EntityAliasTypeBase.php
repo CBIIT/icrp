@@ -2,11 +2,13 @@
 
 namespace Drupal\pathauto\Plugin\pathauto\AliasType;
 
+use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\ContextAwarePluginBase;
 use Drupal\pathauto\AliasTypeBatchUpdateInterface;
 use Drupal\pathauto\AliasTypeInterface;
@@ -44,6 +46,13 @@ class EntityAliasTypeBase extends ContextAwarePluginBase implements AliasTypeInt
   protected $entityTypeManager;
 
   /**
+   * The database connection.
+   *
+   * @var \Drupal\Core\Database\Connection
+   */
+  protected $database;
+
+  /**
    * The path prefix for this entity type.
    *
    * @var string
@@ -65,12 +74,15 @@ class EntityAliasTypeBase extends ContextAwarePluginBase implements AliasTypeInt
    *   The language manager service.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity manager service.
+   * @param \Drupal\Core\Database\Connection $database
+   *   The database connection.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, LanguageManagerInterface $language_manager, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, LanguageManagerInterface $language_manager, EntityTypeManagerInterface $entity_type_manager, Connection $database) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->moduleHandler = $module_handler;
     $this->languageManager = $language_manager;
     $this->entityTypeManager = $entity_type_manager;
+    $this->database = $database;
   }
 
   /**
@@ -83,7 +95,8 @@ class EntityAliasTypeBase extends ContextAwarePluginBase implements AliasTypeInt
       $plugin_definition,
       $container->get('module_handler'),
       $container->get('language_manager'),
-      $container->get('entity_type.manager')
+      $container->get('entity_type.manager'),
+      $container->get('database')
     );
   }
 
@@ -108,7 +121,7 @@ class EntityAliasTypeBase extends ContextAwarePluginBase implements AliasTypeInt
   /**
    * {@inheritdoc}
    */
-  public function batchUpdate(&$context) {
+  public function batchUpdate($action, &$context) {
     if (!isset($context['sandbox']['current'])) {
       $context['sandbox']['count'] = 0;
       $context['sandbox']['current'] = 0;
@@ -117,10 +130,24 @@ class EntityAliasTypeBase extends ContextAwarePluginBase implements AliasTypeInt
     $entity_type = $this->entityTypeManager->getDefinition($this->getEntityTypeId());
     $id_key = $entity_type->getKey('id');
 
-    $query = db_select($entity_type->get('base_table'), 'base_table');
+    $query = $this->database->select($entity_type->get('base_table'), 'base_table');
     $query->leftJoin('url_alias', 'ua', "CONCAT('" . $this->getSourcePrefix() . "' , base_table.$id_key) = ua.source");
     $query->addField('base_table', $id_key, 'id');
-    $query->isNull('ua.source');
+
+    switch ($action) {
+      case 'create':
+        $query->isNull('ua.source');
+        break;
+      case 'update':
+        $query->isNotNull('ua.source');
+        break;
+      case 'all':
+        // Nothing to do. We want all paths.
+        break;
+      default:
+        // Unknown action. Abort!
+        return;
+    }
     $query->condition('base_table.' . $id_key, $context['sandbox']['current'], '>');
     $query->orderBy('base_table.' . $id_key);
     $query->addTag('pathauto_bulk_update');
@@ -140,10 +167,11 @@ class EntityAliasTypeBase extends ContextAwarePluginBase implements AliasTypeInt
     $query->range(0, 25);
     $ids = $query->execute()->fetchCol();
 
-    $this->bulkUpdate($ids);
+    $updates = $this->bulkUpdate($ids);
     $context['sandbox']['count'] += count($ids);
     $context['sandbox']['current'] = max($ids);
-    $context['message'] = t('Updated alias for %label @id.', array('%label' => $entity_type->getLabel(), '@id' => end($ids)));
+    $context['results']['updates'] += $updates;
+    $context['message'] = $this->t('Updated alias for %label @id.', array('%label' => $entity_type->getLabel(), '@id' => end($ids)));
 
     if ($context['sandbox']['count'] != $context['sandbox']['total']) {
       $context['finished'] = $context['sandbox']['count'] / $context['sandbox']['total'];
@@ -167,22 +195,31 @@ class EntityAliasTypeBase extends ContextAwarePluginBase implements AliasTypeInt
    *   An array of entity IDs IDs.
    * @param array $options
    *   An optional array of additional options.
+   *
+   * @return int
+   *  The number of updated URL aliases.
    */
   protected function bulkUpdate(array $ids, array $options = array()) {
     $options += array('message' => FALSE);
+    $updates = 0;
 
     $entities = $this->entityTypeManager->getStorage($this->getEntityTypeId())->loadMultiple($ids);
     foreach ($entities as $entity) {
       // Update aliases for the entity's default language and its translations.
       foreach ($entity->getTranslationLanguages() as $langcode => $language) {
         $translated_entity = $entity->getTranslation($langcode);
-        \Drupal::service('pathauto.generator')->updateEntityAlias($translated_entity, 'bulkupdate', $options);
+        $result = \Drupal::service('pathauto.generator')->updateEntityAlias($translated_entity, 'bulkupdate', $options);
+        if ($result) {
+          $updates++;
+        }
       }
     }
 
     if (!empty($options['message'])) {
       drupal_set_message(\Drupal::translation()->formatPlural(count($ids), 'Updated 1 %label URL alias.', 'Updated @count %label URL aliases.'), array('%label' => $this->getLabel()));
     }
+
+    return $updates;
   }
 
   /**
@@ -212,5 +249,16 @@ class EntityAliasTypeBase extends ContextAwarePluginBase implements AliasTypeInt
     }
     return $this->prefix;
   }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setContextValue($name, $value) {
+    // Overridden to avoid merging existing cacheability metadata, which is not
+    // relevant for alias type plugins.
+    $this->context[$name] = new Context($this->getContextDefinition($name), $value);
+    return $this;
+  }
+
 
 }

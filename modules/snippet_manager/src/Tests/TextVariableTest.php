@@ -13,7 +13,6 @@ class TextVariableTest extends TestBase {
    * Tests text variable plugin.
    */
   public function testTextVariable() {
-
     $edit = [
       'plugin_id' => 'text',
       'name' => 'beer',
@@ -21,12 +20,12 @@ class TextVariableTest extends TestBase {
 
     $this->drupalPostForm('snippet/alpha/edit/variable/add', $edit, 'Save and continue');
 
-    $this->assertByXpath('//select[@name="content[format]"]/option[@value="snippet_manager_test_basic_format" and @selected="selected"]');
-    $this->assertByXpath('//select[@name="content[format]"]/option[@value="snippet_manager_test_restricted_format"]');
+    $this->assertByXpath('//select[@name="configuration[content][format]"]/option[@value="snippet_manager_test_basic_format" and @selected="selected"]');
+    $this->assertByXpath('//select[@name="configuration[content][format]"]/option[@value="snippet_manager_test_restricted_format"]');
 
     $edit = [
-      'content[value]' => '<p>Dark</p><span>Light</span>',
-      'content[format]' => 'snippet_manager_test_basic_format',
+      'configuration[content][value]' => '<p>Dark</p><span>Light</span>',
+      'configuration[content][format]' => 'snippet_manager_test_basic_format',
     ];
     $this->drupalPostForm(NULL, $edit, 'Save');
 
@@ -40,7 +39,7 @@ class TextVariableTest extends TestBase {
     $this->assertFalse(isset($result[0]));
 
     $edit = [
-      'content[format]' => 'snippet_manager_test_restricted_format',
+      'configuration[content][format]' => 'snippet_manager_test_restricted_format',
     ];
     $this->drupalPostForm('snippet/alpha/edit/variable/beer/edit', $edit, 'Save');
 
@@ -49,7 +48,6 @@ class TextVariableTest extends TestBase {
     $this->assertByXpath('//div[@class="snippet-content"]/span[text() = "Light"]');
     $result = $this->xpath('//div[@class="snippet-content"]/p');
     $this->assertFalse(isset($result[0]));
-
   }
 
 }

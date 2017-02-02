@@ -9,9 +9,14 @@ interface AliasTypeBatchUpdateInterface extends AliasTypeInterface {
 
   /**
    * Gets called to batch update all entries.
+   * @param string $action
+   *   One of:
+   *   - 'create' to generate a URL alias for paths having none.
+   *   - 'update' to recreate the URL alias for paths already having one, useful if the pattern changed.
+   *   - 'all' to do both actions above at the same time.
    * @param array $context
    *   Batch context.
    */
-  public function batchUpdate(&$context);
+  public function batchUpdate($action, &$context);
 
 }

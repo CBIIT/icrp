@@ -15,7 +15,7 @@ export class LineChart {
             .attr('class', 'd3-tooltip')
             .style('opacity', 0);
 
-        let margin = {top: 20, right: 20, bottom: 60, left: 80};
+        let margin = {top: 20, right: 20, bottom: 60, left: 110};
         let width = 1000 - margin.left - margin.right;
         let height = 300 - margin.top - margin.bottom;
 
@@ -23,7 +23,7 @@ export class LineChart {
             .attr('width', '100%')
             .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}` )
             .append('g')
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            .attr("transform", `translate(${margin.left}, ${margin.top})`);
         
         var x = d3.scaleLinear()
             .rangeRound([0, width])
@@ -39,7 +39,7 @@ export class LineChart {
             .y1(d => y(+d['value']));
 
         g.append("g")
-            .attr("transform", "translate(0," + height + ")")
+            .attr("transform", `translate(0, ${height})`)
             .call(d3.axisBottom(x).tickFormat(d3.format('d')))
             .append("text")
             .attr("fill", "#000")
@@ -49,41 +49,44 @@ export class LineChart {
             .attr("text-anchor", "middle")
             .text("Year");
 
-
-//            .select(".domain")
-//            .remove();
-
         g.append("g")
-            .call(d3.axisLeft(y))
+            .call(d3.axisLeft(y).ticks(5))
             .append("text")
             .attr("fill", "#000")
             .attr("transform", "rotate(-90)")
             .attr("x", height / -2)
-            .attr("y", -60)
+            .attr("y", -100)
             .attr("dy", "0.71em")
             .attr("text-anchor", "middle")
-            .text("Number of Projects");
+            .text("Project Funding");
 
         g.append("path")
             .datum(parsedData)
             .attr("fill", "#3498DB")
-            .attr("stroke", "steelblue")
+            .attr('opacity', '0.75')
+            .attr("stroke", "#263545")
+            .attr("stroke-opacity", "0.8")
             .attr("stroke-linejoin", "round")
             .attr("stroke-linecap", "round")
-            .attr("stroke-width", 1.5)
+            .attr("stroke-width", '1px')
             .attr("d", line);
+
 
         parsedData.forEach(point => {
             g.append('circle')
                 .attr('fill', '#34495E')
-                .attr('opacity', '0.85')
-                .attr('r', '2px')
+                .attr('stroke', '#34495E')
+                .attr('opacity', '0.65')
+                .attr('r', '4px')
                 .attr('cx', x(point['label']))
                 .attr('cy', y(point['value']))
                 .on('mouseover', d => {
                     let label = point.label;
                     let value = point.value;
-                    tooltip.html(`${label}: ${value} projects`)
+                    tooltip.html(`
+                        <b>${label}</b>
+                        <hr style="margin: 2px"/>
+                         ${Number(value).toLocaleString()}`)
                     tooltip.transition()
                         .duration(200)
                         .style('opacity', .9);
@@ -101,6 +104,31 @@ export class LineChart {
                         .style('opacity', 0);
                 })
         })
+
+/*
+        x.ticks().forEach(tick => {
+            g.append('line')
+                .attr('x1', x(tick))
+                .attr('y1', height)
+                .attr('x2', x(tick))
+                .attr('y2', 0)
+                .attr('stroke', 'black')
+                .attr('opacity', '0.05')
+        })
+*/
+        y.ticks(5).forEach(tick => {
+            g.append('line')
+                .attr('x1', 0)
+                .attr('y1', y(tick))
+                .attr('x2', width)
+                .attr('y2', y(tick))
+                .attr('stroke', 'black')
+                .attr('opacity', '0.04')
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-linecap", "round")
+                
+        })
+
     }
 
     /**

@@ -109,7 +109,7 @@
     if (drupalSettings.data.extlink.extTarget) {
       // Apply the target attribute to all links.
       if (drupalSettings.data.extlink.extTarget) {
-        $(external_links).attr('target', '_blank');
+        $(external_links).attr({target:'_blank', rel:'nofollow'});
         $(external_links).attr('rel', function (i, val) {
           // If no rel attribute is present, create one with the values noopener and noreferrer.
           if (val === null) {
@@ -173,7 +173,7 @@
     var length = $links_to_process.length;
     for (i = 0; i < length; i++) {
       var $link = $($links_to_process[i]);
-      if ($link.css('display') === 'inline' || $link.css('display') === 'inline-block') {
+      if ($link.css('display') === 'inline' || $link.css('display') === 'inline-block' || $link.css('display') === 'block') {
         if (class_name === drupalSettings.data.extlink.mailtoClass) {
           $link.append('<span class="' + class_name + '"><span class="element-invisible"> ' + drupalSettings.data.extlink.mailtoLabel + '</span></span>');
         }

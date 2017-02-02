@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\calendar\CalendarEvent.
- */
-
 namespace Drupal\calendar;
 
 use Drupal\Core\Entity\ContentEntityInterface;

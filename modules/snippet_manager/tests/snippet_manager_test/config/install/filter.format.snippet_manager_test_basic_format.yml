@@ -7,4 +7,4 @@ filters:
     provider: filter
     status: true
     settings:
-      allowed_html: <div class> <h3> <p> <br> <b> <a href hreflang>
+      allowed_html: <div class> <h3> <p> <br> <b> <a href hreflang> <ul class> <ol class> <li>

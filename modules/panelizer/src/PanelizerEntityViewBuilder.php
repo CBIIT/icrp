@@ -352,7 +352,16 @@ class PanelizerEntityViewBuilder implements EntityViewBuilderInterface, EntityHa
 
     foreach ($entities as $id => $entity) {
       $panels_display = $this->panelizer->getPanelsDisplay($entity, $view_mode, $displays[$entity->bundle()]);
+      $settings = $this->panelizer->getPanelizerSettings($entity->getEntityTypeId(), $entity->bundle(), $view_mode, $displays[$entity->bundle()]);
+      $panels_display->setContexts($this->panelizer->getDisplayStaticContexts($settings['default'], $entity->getEntityTypeId(), $entity->bundle(), $view_mode, $displays[$entity->bundle()]));
       $build[$id] = $this->buildPanelized($entity, $panels_display, $view_mode, $langcode);
+
+      // Allow modules to modify the render array.
+      $alter_types = array(
+        "{$this->entityTypeId}_view",
+        'entity_view',
+      );
+      $this->moduleHandler->alter($alter_types, $build[$id], $entity, $displays[$entity->bundle()]);
     }
 
     return $build;
@@ -375,10 +384,10 @@ class PanelizerEntityViewBuilder implements EntityViewBuilderInterface, EntityHa
 
     $build = [
       '#theme' => [
-        'panelizer_view_mode',
-        'panelizer_view_mode__' . $this->entityTypeId,
-        'panelizer_view_mode__' . $this->entityTypeId . '__' . $entity->bundle(),
         'panelizer_view_mode__' . $this->entityTypeId . '__' . $entity->id(),
+        'panelizer_view_mode__' . $this->entityTypeId . '__' . $entity->bundle(),
+        'panelizer_view_mode__' . $this->entityTypeId,
+        'panelizer_view_mode',
       ],
       '#panelizer_plugin' => $this->getPanelizerPlugin(),
       '#panels_display' => $panels_display,
@@ -393,8 +402,8 @@ class PanelizerEntityViewBuilder implements EntityViewBuilderInterface, EntityHa
     }
 
     // @todo: I'm sure more is necessary to get the cache contexts right...
-    CacheableMetadata::createFromObject($entity)
-      ->applyTo($build);
+    $entity_metadata = CacheableMetadata::createFromObject($entity);
+    CacheableMetadata::createFromObject($panels_display)->merge($entity_metadata)->applyTo($build);
 
     $this->getPanelizerPlugin()->alterBuild($build, $entity, $panels_display, $view_mode);
 

@@ -1,5 +1,14 @@
-snippet.overview:
+snippet_manager.overview:
   title: Snippets
   parent: system.admin_structure
-  description: List of snippets to extend site functionality.
   route_name: entity.snippet.collection
+
+snippet_manager.add_snippet:
+  title: Add snippet
+  parent: snippet_manager.overview
+  route_name: entity.snippet.add_form
+
+snippet_manager.settings:
+  title: Settings
+  parent: snippet_manager.overview
+  route_name: snippet_manager.settings

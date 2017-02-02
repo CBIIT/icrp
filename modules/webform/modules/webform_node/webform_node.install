@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the webform node module.
+ */
+
+use Drupal\node\Entity\NodeType;
+
+/**
+ * Implements hook_uninstall().
+ */
+function webform_node_uninstall() {
+  // Delete the webform node type.
+  if ($node_type = NodeType::load('webform')) {
+    $node_type->delete();
+  }
+
+  // Delete field storage if it is no longer being used by any bundles.
+  if ($field_storage = \Drupal::entityTypeManager()->getStorage('field_storage_config')->load('node.webform')) {
+    if (!$field_storage->getBundles()) {
+      $field_storage->delete();
+    }
+  }
+}

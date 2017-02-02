@@ -5,6 +5,7 @@ namespace Drupal\snippet_manager\Plugin\SnippetVariable;
 use Drupal\Component\Plugin\Exception\ContextException;
 use Drupal\Core\Condition\ConditionManager;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Form\SubformState;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
@@ -98,15 +99,42 @@ class Condition extends SnippetVariableBase implements SnippetVariableInterface,
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    $form['condition'] = $this->getCondition()->buildConfigurationForm([], $form_state);
+    $form = parent::buildConfigurationForm($form, $form_state);
+
+    $form['condition'] = [];
+    $sub_form_state = SubformState::createForSubform($form['condition'], $form, $form_state);
+    $form['condition'] = $this
+      ->getPlugin()
+      ->buildConfigurationForm($form['condition'], $sub_form_state);
+
     return $form;
   }
 
   /**
    * {@inheritdoc}
    */
+  public function validateConfigurationForm(array &$form, FormStateInterface $form_state) {
+    parent::validateConfigurationForm($form, $form_state);
+    $sub_form_state = SubformState::createForSubform($form['condition'], $form, $form_state);
+    $this->getPlugin()->validateConfigurationForm($form['condition'], $sub_form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
+    parent::submitConfigurationForm($form, $form_state);
+    $sub_form_state = SubformState::createForSubform($form['condition'], $form, $form_state);
+    $plugin = $this->getPlugin();
+    $plugin->submitConfigurationForm($form['condition'], $sub_form_state);
+    $this->setConfiguration(['condition' => $plugin->getConfiguration()]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getContent() {
-    $condition = $this->getCondition();
+    $condition = $this->getPlugin();
     if ($this->missingContext) {
       return $condition->isNegated();
     }
@@ -114,13 +142,13 @@ class Condition extends SnippetVariableBase implements SnippetVariableInterface,
   }
 
   /**
-   * Creates condition instance.
+   * Creates a condition plugin instance.
    *
    * @return \Drupal\Core\Condition\ConditionInterface
    *   The condition instance.
    */
-  protected function getCondition() {
-    $condition = $this->conditionManager->createInstance($this->getDerivativeId(), $this->configuration);
+  protected function getPlugin() {
+    $condition = $this->conditionManager->createInstance($this->getDerivativeId(), $this->configuration['condition']);
     if ($condition instanceof ContextAwarePluginInterface) {
       try {
         // @todo: Find a better way to set contexts.
@@ -141,6 +169,14 @@ class Condition extends SnippetVariableBase implements SnippetVariableInterface,
       }
     }
     return $condition;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function defaultConfiguration() {
+    $configuration['condition'] = [];
+    return $configuration;
   }
 
 }

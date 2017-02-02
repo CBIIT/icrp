@@ -25,6 +25,7 @@ export class ExportResultsButtonComponent implements OnInit {
 
   downloadResult(modal: any){
   	modal.show();
+  	//let endpoint = 'http://localhost/ExportResults';
   	let endpoint = '/ExportResults';
   	let query = this.http.get(endpoint, {})
         	.map((res: Response) => res.json())

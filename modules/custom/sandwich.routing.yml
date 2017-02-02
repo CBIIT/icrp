@@ -1,5 +1,5 @@
 sandwich.build:
-  path: '/user/{uid}/edit'
+  path: '/sandwich'
   defaults:
     _controller: '\Drupal\sandwich\Controller\SandwichController::build'
     _title: 'Sandwich'

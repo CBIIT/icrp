@@ -34,7 +34,12 @@ export class PieChart {
                 let index = d.index;
                 let label = data[index].label;
                 let value = data[index].value;
-                tooltip.html(`${label}: ${value} projects (${(100 * value/sum).toFixed(2)} %)`)
+                
+                tooltip.html(`
+                <b>${label}</b>
+                <hr style="margin: 2px"/>
+                 ${Number(value).toLocaleString()} projects (${(100 * value/sum).toFixed(2)}%)`)
+
                 tooltip.transition()
                     .duration(200)
                     .style('opacity', .9);
@@ -54,6 +59,7 @@ export class PieChart {
             .each(e => e)
             .attr('d', arc)
             .style('fill', d => color(d.index.toString()))
+            
 
 
     }

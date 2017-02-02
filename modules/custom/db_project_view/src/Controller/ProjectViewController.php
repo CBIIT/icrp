@@ -21,7 +21,8 @@ class ProjectViewController extends ControllerBase {
       'ProjectEndDate' => 'project_end_date',
       'TechAbstract' => 'technical_abstract',
       'PublicAbstract' => 'public_abstract',
-      'FundingMechanism' => 'funding_mechanism'
+      'FundingMechanism' => 'funding_mechanism',
+      'LastProjectFundingID' => 'project_funding_id',
     ],
     'project_funding_details' => [
       'ProjectFundingID' => 'project_funding_id',
@@ -59,7 +60,7 @@ class ProjectViewController extends ControllerBase {
       'City' => 'city',
       'State' => 'state',
       'Country' => 'country',
-      'AwardType' => 'award_type',
+      'Category' => 'award_type',
       'AltAwardCode' => 'alt_award_code',
       'FundingOrg' => 'funding_organization',
       'BudgetStartDate' => 'budget_start_date',
@@ -141,15 +142,26 @@ class ProjectViewController extends ControllerBase {
     $queries = [
       'project_details' => 'GetProjectDetail :project_id',
       'project_funding_details' => 'GetProjectFunding :project_id',
-      'cancer_types' => 'GetProjectCancerType :project_id',
-      'cso_research_areas' => 'GetProjectCSO :project_id',
+      'cancer_types' => 'GetProjectCancerType :project_funding_id',
+      'cso_research_areas' => 'GetProjectCSO :project_funding_id',
     ];
+
+    $stmt = $pdo->prepare($queries['project_details']);
+    $stmt->execute([':project_id' => $project_id]);
+    $project_funding_id = $stmt->fetch(PDO::FETCH_ASSOC)['LastProjectFundingID'];
 
     // map queries to return values
     return array_reduce(
-      array_map(function($key, $value) use ($pdo, $project_id) {
+      array_map(function($key, $value) use ($pdo, $project_id, $project_funding_id) {
         $stmt = $pdo->prepare($value);
-        $stmt->execute([':project_id' => $project_id]);
+        
+        if (in_array($key, ['project_details', 'project_funding_details'])) {
+          $stmt->execute([':project_id' => $project_id]);
+        }
+
+        elseif (in_array($key, ['cancer_types', 'cso_research_areas'])) {
+          $stmt->execute([':project_funding_id' => $project_funding_id]);
+        }
 
         // map the result of each query to each template key
         return [$key => array_map(function($row) use ($key) {
@@ -164,6 +176,9 @@ class ProjectViewController extends ControllerBase {
       }, array_keys($queries), $queries), 
     'array_merge', []);
   }
+
+
+
 
 
   public function getProjectDetails($project_id) {

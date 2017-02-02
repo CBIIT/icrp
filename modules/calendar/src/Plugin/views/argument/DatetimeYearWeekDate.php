@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\calendar\Plugin\views\argument\YearWeekDate.
- */
 
 namespace Drupal\calendar\Plugin\views\argument;
 

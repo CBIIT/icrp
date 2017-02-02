@@ -48,3 +48,10 @@ db_project_view.funding_org:
   requirements:
     _permission: 'access content'
 
+db_project_view.current_partners:
+  path: '/current_partners'
+  defaults:
+    _controller: '\Drupal\db_project_view\Controller\CurrentPartnersController::getCurrentPartners'
+    _title: 'Current Partners'
+  requirements:
+    _permission: 'access content'

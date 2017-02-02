@@ -33,7 +33,7 @@ class ConditionVariableTest extends TestBase {
     $this->assertStatusMessage('The variable has been created.');
 
     $edit = [
-      'pages' => '/node',
+      'configuration[condition][pages]' => '/node',
     ];
     $this->drupalPostForm('snippet/alpha/edit/variable/node_page/edit', $edit, 'Save');
 
@@ -54,7 +54,7 @@ class ConditionVariableTest extends TestBase {
 
     // Negate the condition.
     $edit = [
-      'negate' => TRUE,
+      'configuration[condition][negate]' => TRUE,
     ];
     $this->drupalPostForm('snippet/alpha/edit/variable/node_page/edit', $edit, 'Save');
 
