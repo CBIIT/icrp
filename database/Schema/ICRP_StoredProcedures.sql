@@ -103,7 +103,7 @@ AS
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 			
 			(SELECT p.ProjectID FROM #Proj p
-			JOIN (SELECT * FROM ProjectCancerType WHERE isnull(RelSource,'') = 'S') ct ON p.ProjectFundingID = ct.ProjectFundingID WHERE CancerTypeID IN (SELECT * FROM dbo.ToIntTable(@cancerTypeList)))
+			JOIN ProjectCancerType ct ON p.ProjectFundingID = ct.ProjectFundingID WHERE CancerTypeID IN (SELECT * FROM dbo.ToIntTable(@cancerTypeList)))
 	END
 
 	-------------------------------------------------------------------------
@@ -436,7 +436,7 @@ AS
 	SELECT c.categoryName, Count(*) AS [Count] INTO #stats
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
-		JOIN ProjectCSO pc ON f.projectFundingID = pc.projectFundingID
+		JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
 		JOIN CSO c ON c.code = pc.csocode
 	GROUP BY c.categoryName
 
@@ -477,7 +477,8 @@ AS
 	SELECT c.Name AS CancerType, Count(*) AS [Count] INTO #stats
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
-		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(RelSource,'') = 'S') pc ON f.projectFundingID = pc.projectFundingID		
+		-- exclude 0 relevance cancertype
+		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID		
 		JOIN CancerType c ON c.CancerTypeID = pc.CancerTypeID		
 	GROUP BY c.Name
 
@@ -654,13 +655,12 @@ CREATE PROCEDURE [dbo].[GetProjectCancerType]
     @ProjectFundingID INT    
 AS   
 
-SELECT t.Name AS CancerType, t.SiteURL
+SELECT t.Name AS CancerType, t.Description, t.ICRPCode, t.ICD10CodeInfo
 FROM ProjectFunding f
 	JOIN ProjectCancerType ct ON f.ProjectFundingID = ct.ProjectFundingID	
 	JOIN CancerType t ON ct.CancerTypeID = t.CancerTypeID
-WHERE f.ProjectFundingID = @ProjectFundingID AND isnull(ct.RelSource,'') = 'S'
+WHERE f.ProjectFundingID = @ProjectFundingID AND isnull(ct.RelSource,'') = 'S'  -- only return 'S' relSource
 ORDER BY t.Name
-
 
 GO
 
@@ -685,7 +685,7 @@ SELECT pc.CSOCode, c.CategoryName, c.Name AS CSOName, c.ShortName
 FROM ProjectFunding f
 	JOIN ProjectCSO pc ON f.ProjectFundingID = pc.ProjectFundingID	
 	JOIN CSO c ON pc.CSOCode = c.Code
-WHERE f.ProjectFundingID = @ProjectFundingID
+WHERE f.ProjectFundingID = @ProjectFundingID AND isnull(pc.RelSource,'') = 'S'  -- only return 'S' relSource
 ORDER BY c.Name
 
 

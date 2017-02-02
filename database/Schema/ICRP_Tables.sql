@@ -43,8 +43,7 @@ CREATE TABLE [dbo].[CancerType](
 	[Name] [varchar](100) NOT NULL,
 	[Description] [varchar](1000) NULL,
 	[ICRPCode] [int] NOT NULL,
-	[ICD10CodeInfo] [varchar](250) NULL,
-	[SiteURL] [varchar](150) NULL,
+	[ICD10CodeInfo] [varchar](250) NULL,	
 	[IsCommon] [bit] NOT NULL,
 	[IsArchived] [bit] NOT NULL,
 	[SortOrder] [int] NOT NULL,
@@ -182,7 +181,6 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[FundingOrg](
 	[FundingOrgID] [int] IDENTITY(1,1) NOT NULL,
-	[PartnerID] [int] NULL,
 	[Name] [varchar](100) NOT NULL,
 	[Abbreviation] [varchar](15) NOT NULL,
 	[Type] [varchar](25) NULL,
@@ -192,7 +190,6 @@ CREATE TABLE [dbo].[FundingOrg](
 	[MemberType] [varchar](25) NOT NULL,
 	[MemberStatus] [nchar](10) NULL,
 	[IsAnnualized] [bit] NOT NULL,	
-	[IsDSASigned] [bit] NULL,
 	[Note] [varchar](8000) NULL,
 	[LastImportDate] [datetime] NULL,
 	[LastImportDesc] [varchar](1000) NULL,
@@ -202,8 +199,9 @@ CREATE TABLE [dbo].[FundingOrg](
 (
 	[FundingOrgID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY] 
+) ON [PRIMARY]
 
+GO
 GO
 
 
@@ -241,7 +239,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Project](
 	[ProjectID] [int] IDENTITY(1,1) NOT NULL,
-	[ProjectGroup] [varchar](50) NULL,		-- Adult,Childhood,Adolescents
+	[IsChildhood] [bit] NULL,
 	[AwardCode] [nvarchar](50) NOT NULL,		
 	[IsFunded] [bit] NOT NULL,
 	[ProjectStartDate] [date] NULL,
@@ -387,6 +385,7 @@ CREATE TABLE [dbo].[ProjectFunding](
 	[Source_ID] [varchar](50) NULL,
 	[MechanismCode] [varchar](30) NULL,
 	[MechanismTitle] [varchar](200) NULL,	
+	[FungingContact] [varchar](200) NULL,	
 	[IsAnnualized] [bit] NOT NULL,  -- 1 for Annualized, 0 for Lifetime
 	[Amount] [float] NULL,
 	[BudgetStartDate] [date] NULL,
@@ -662,12 +661,11 @@ CREATE TABLE [dbo].[Partner](
 	[Description] [varchar](max) NOT NULL,
 	[SponsorCode] [varchar](50) NOT NULL,
 	[Email] [varchar](75) NULL,
+	[IsDSASigned] [bit] NULL,
 	[Country] [varchar](100) NULL,
 	[Website] [varchar](200) NULL,
 	[LogoFile] [varchar](100) NULL,
-	[DisplayID] [smallint] NULL,
-	[DisplayURL] [bit] NULL,
-	[MapCoords] [varchar](50) NULL,	
+	[MapCoords] [varchar](50) NULL,
 	[Note] [varchar](8000) NULL,
 	[JoinedDate] [datetime] NULL,
 	[CreatedDate] [datetime] NOT NULL,
@@ -675,6 +673,10 @@ CREATE TABLE [dbo].[Partner](
  CONSTRAINT [PK_Partner] PRIMARY KEY CLUSTERED 
 (
 	[PartnerID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+ CONSTRAINT [UX_Partner_SponsorCode] UNIQUE NONCLUSTERED 
+(
+	[SponsorCode] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 
@@ -953,6 +955,7 @@ REFERENCES [dbo].[ProjectFunding] ([ProjectFundingID])
 GO
 ALTER TABLE [dbo].[ProjectFundingInvestigator] CHECK CONSTRAINT [FK_ProjectFundingInvestigator_ProjectFunding]
 GO
+
 ALTER TABLE [dbo].[FundingOrg] ADD  CONSTRAINT [DF_FundingOrg_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
 GO
 
@@ -973,11 +976,11 @@ GO
 ALTER TABLE [dbo].[FundingOrg] CHECK CONSTRAINT [FK_FundingOrg_Currency]
 GO
 
-ALTER TABLE [dbo].[FundingOrg]  WITH CHECK ADD  CONSTRAINT [FK_FundingOrg_Partner] FOREIGN KEY([PartnerID])
-REFERENCES [dbo].[Partner] ([PartnerID])
+ALTER TABLE [dbo].[FundingOrg]  WITH CHECK ADD  CONSTRAINT [FK_FundingOrg_FundingOrg] FOREIGN KEY([SponsorCode])
+REFERENCES [dbo].[Partner] ([SponsorCode])
 GO
 
-ALTER TABLE [dbo].[FundingOrg] CHECK CONSTRAINT [FK_FundingOrg_Partner]
+ALTER TABLE [dbo].[FundingOrg] CHECK CONSTRAINT [FK_FundingOrg_FundingOrg]
 GO
 
 ALTER TABLE [dbo].[LibraryFolder] ADD  CONSTRAINT [DF_LibraryFolder_IsPublic]  DEFAULT ((0)) FOR [IsPublic]
