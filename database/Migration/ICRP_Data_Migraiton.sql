@@ -15,14 +15,6 @@ SELECT ABBREVIATION, name, COUNTRY
 FROM icrp.dbo.State
 
 -----------------------------
--- ProjectGroup
------------------------------
---INSERT INTO ProjectGroup ([Group]) VALUES ('Childhood')
---INSERT INTO ProjectGroup ([Group]) VALUES ('Adolescents')
---INSERT INTO ProjectGroup ([Group]) VALUES ('Adult')
-
-
------------------------------
 -- ProjectType
 -----------------------------
 INSERT INTO ProjectType
@@ -48,9 +40,8 @@ SELECT DISTINCT code, name, ShortName, Category, WEIGHTNAME, SortOrder from icrp
 -- CancerType
 -----------------------------
 INSERT INTO CancerType
-(Name, ICRPCode, SiteURL, IsCommon, IsArchived, SortOrder)
+(Name, ICRPCode, IsCommon, IsArchived, SortOrder)
 SELECT DISTINCT name, mappedID, 
-	CASE URL WHEN '' THEN NULL ELSE URL END AS SiteURL,
 	ISCOMMON, ISARCHIVED, SORTORDER from icrp.dbo.SITE order by mappedid
 
 -----------------------------
@@ -97,14 +88,27 @@ ORDER BY institution
 --delete FROM Institution
 --DBCC CHECKIDENT ('[Institution]', RESEED, 0)
 
-
+-----------------------------------------
+-- [PartnerApplication]
+-----------------------------------------
+INSERT INTO [PartnerApplication]
+SELECT '',
+[ORGNAME],[ORGADD1],[ORGADD2],[ORGCITY],[ORGSTATE],[ORGCOUNTRY],[ORGZIP],
+[EDPCNAME],[EDPCPOSITION],[EDPCPHONE],[EDPCEMAIL],[MISSIONDESC],[PROFILEDESC],
+[INIYEAR],[CRESEARCHBUDGET],[REPORTPERIOD],[COPERATINGBUDGET],[NUMPROJECTS],
+[TIER],[PAYMENTDT],[CONTACTNAME],[CONTACTPOSITION],[CONTACTPHONE],[CONTACTEMAIL],
+[CONTACTADD1],[CONTACTADD2],[CONTACTCITY],[CONTACTSTATE],[CONTACTCOUNTRY],
+[CONTACTZIP],[TERM1],[TERM2],[TERM3],[TERM4],[TERM5],[TERM6],[TERM7],[TERM8],[TERM9],
+[SUPPLELETTER],[SUPPLEDOC],[ISCOMPLETED],[SUBMITDT],[SUBMITDT]
+FROM icrp.dbo.tblMEMBERSHIPFORM
 
 -----------------------------------------
 -- Partners
 -----------------------------------------
 INSERT INTO Partner 
-SELECT NULL,[NMPARTNER],[TXTPARTNER],ISNULL(s.code, ''), s.email, p.[COUNTRY],	p.[WEBSITE], p.[LOGO],p.[DISPLAYID],
-p.[displayURL],p.[MAPCOORDS], '', NULL, getdate(), getdate()
+SELECT NULL,[NMPARTNER],[TXTPARTNER],
+	CASE ISNULL(s.code, '') WHEN '' THEN 'N/A - '+ LEFT([NMPARTNER], 10) ELSE s.code END,
+	s.email, NULL, p.[COUNTRY], p.[WEBSITE], p.[LOGO],p.[MAPCOORDS], '', NULL, getdate(), getdate()
 FROM icrp.dbo.tblPARTNERS p
 LEFT JOIN icrp.dbo.sponsor s ON p.NMPARTNER = s.NAME
 
@@ -118,6 +122,10 @@ UPDATE Partner SET JoinedDate = o.JOINDATE
 FROM Partner p
 left join (SELECT SponsorCode, min(JOINDATE) AS JOINDATE FROM icrp.dbo.tblORG group by SponsorCode) o ON p.SponsorCode = o.SPONSORCODE
 
+UPDATE Partner SET IsDSASigned = o.DSASIGNED
+FROM Partner p
+LEFT JOIN icrp.dbo.tblORG o ON p.Name = o.Name
+
 -----------------------------
 -- FundingOrg
 -----------------------------
@@ -125,9 +133,9 @@ SET IDENTITY_INSERT FundingOrg ON;  -- SET IDENTITY_INSERT to ON.
 GO 
 
 INSERT INTO FundingOrg
-(FundingOrgID, PartnerID, Name, [Abbreviation], [Country], [CURRENCY], [SponsorCode], [MemberType],[MemberStatus],[ISANNUALIZED],
+(FundingOrgID, Name, [Abbreviation], [Country], [CURRENCY], [SponsorCode], [MemberType],[MemberStatus],[ISANNUALIZED],
 LastImportDate, CreatedDate, UpdatedDate)
-SELECT ID, 1, NAME, [ABBREVIATION],
+SELECT ID, NAME, [ABBREVIATION],
 	CASE [COUNTRY] WHEN 'UK' THEN 'GB' ELSE country END AS Country, 
 	[CURRENCY], [SponsorCode], '', NULL, [ISANNUALIZED],[LASTDATAIMPORT], [DATEADDED], [LASTREVISED]
 FROM icrp.dbo.fundingorg
@@ -135,19 +143,9 @@ FROM icrp.dbo.fundingorg
 SET IDENTITY_INSERT FundingOrg OFF;  -- SET IDENTITY_INSERT to ON. 
 GO 
 
-
-UPDATE FundingOrg SET PartnerID = p.PartnerID
-FROM  FundingOrg f
-LEFT JOIN Partner p ON f.SponsorCode = p.SponsorCode
-
 UPDATE FundingOrg SET MemberType = CASE ISNULL(p.Name, '') WHEN '' THEN 'Associate' ELSE 'Partner' END, MemberStatus='Current'
 FROM  FundingOrg f
 LEFT JOIN Partner p ON f.Name = p.Name
-
-
-UPDATE FundingOrg SET IsDSASigned = o.DSASIGNED
-FROM FundingOrg f
-LEFT JOIN icrp.dbo.tblORG o ON f.Name = o.Name
 
 --select * from  FundingOrg where IsDSASigned is null (Check later)
 
@@ -282,6 +280,7 @@ CREATE TABLE [dbo].[Migration_ProjectFunding](
 	[Source_ID] [varchar](50) NULL,
 	[MechanismCode] [varchar](30) NULL,
 	[MechanismTitle] [varchar](200) NULL,
+	[FundingContact] [varchar](200) NULL,	
 	[Amount] [float] NULL,
 	[IsAnnualized] [bit] NOT NULL,
 	[BudgetStartDate] [date] NULL,
@@ -294,9 +293,9 @@ GO
 
 INSERT INTO [Migration_ProjectFunding] 
 	([NewProjectID], [OldProjectID], [AbstractID], [Title],[Institution], [city], [state], [country], [piLastName], [piFirstName], [piORC_ID], [FundingOrgID], [FundingDivisionID], [AwardCode], [AltAwardCode],
-	 [Source_ID], [MechanismCode], [MechanismTitle], [Amount], [IsAnnualized], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate])
+	 [Source_ID], [MechanismCode], [MechanismTitle], [FundingContact], [Amount], [IsAnnualized], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate])
 SELECT mp.ProjectID, op.ID, op.abstractID, op.title, op.institution, op.city, op.state, op.country, op.piLastName, op.piFirstName,  op.piORCiD,op.FUNDINGORGID, op.FUNDINGDIVISIONID, 
-		op.code, op.altid, op.SOURCE_ID, m.SPONSORCODE,  m.TITLE, pf.AMOUNT, 
+		op.code, op.altid, op.SOURCE_ID, m.SPONSORCODE,  m.TITLE, op.fundingOfficer, pf.AMOUNT, 
 		CASE WHEN [Amount] = [AnnualizedAmount] THEN 1 ELSE 0 END AS [IsAnnualized],
 		op.BUDGETSTARTDATE, op.budgetenddate, op.[DATEADDED], op.[LASTREVISED]
 FROM #activeProjects op   -- active projects from old icrp database

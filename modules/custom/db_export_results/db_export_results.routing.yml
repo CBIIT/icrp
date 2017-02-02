@@ -29,3 +29,27 @@ db_export_results.graphs:
      _title: 'Project Details'
    requirements:
     _permission: 'access content' 
+
+db_export_results.single:
+   path: '/ExportResultsSignlePartner'
+   defaults:
+     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportResultsSinglePartner'
+     _title: 'Project Details'
+   requirements:
+    _permission: 'access content'    
+
+db_export_results.abstractSingle:
+   path: '/ExportAbstractSignlePartner'
+   defaults:
+     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportAbstractSinglePartner'
+     _title: 'Project Details'
+   requirements:
+    _permission: 'access content'     
+    
+db_export_results.lookupTable:
+   path: '/ExportLookupTable'
+   defaults:
+     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportLookupTable'
+     _title: 'Project Details'
+   requirements:
+    _permission: 'access content' 
