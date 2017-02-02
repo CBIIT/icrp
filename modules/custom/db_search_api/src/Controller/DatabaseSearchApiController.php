@@ -144,7 +144,6 @@ class DatabaseSearchAPIController extends ControllerBase {
       'projects_by_cso_research_area' => 'SET NOCOUNT ON; EXECUTE GetProjectCSOStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_cso_research_area',
       'projects_by_cancer_type' => 'SET NOCOUNT ON; EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_cancer_type',
       'projects_by_type' => 'SET NOCOUNT ON; EXECUTE GetProjectTypeStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_type',
-      'projects_by_year' => 'SET NOCOUNT ON; EXECUTE GetProjectAwardStatsBySearchID @SearchID = :search_id, @Total = :total_projects_by_year',
     ];
 
     $output_keys = [
@@ -209,6 +208,30 @@ class DatabaseSearchAPIController extends ControllerBase {
     return $output;
   }
 
+  function get_partner_analytics_funding($search_id, $year) {
+
+    $pdo = self::get_connection();
+
+    $total = 0;
+    $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE GetProjectAwardStatsBySearchID @SearchID = :search_id, @Year = :year, @Total = :total');
+    $stmt->bindParam(':search_id', $search_id);
+    $stmt->bindParam(':year', $year);
+    $stmt->bindParam(':total', $total, PDO::PARAM_INT|PDO::PARAM_INPUT_OUTPUT, 1000);
+
+    $results = [];
+
+    if ($stmt->execute()) {
+      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        array_push($results, [
+          'label' => $row['Year'],
+          'value' => $row['amount'],
+        ]);
+      }
+    }
+
+    return $results;
+  }
+
 
   function get_partner_analytics_updated($search_id) {
 
@@ -219,7 +242,6 @@ class DatabaseSearchAPIController extends ControllerBase {
       'projects_by_cso_research_area' => 'SET NOCOUNT ON; EXECUTE GetProjectCSOStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_cso_research_area',
       'projects_by_cancer_type' => 'SET NOCOUNT ON; EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_cancer_type',
       'projects_by_type' => 'SET NOCOUNT ON; EXECUTE GetProjectTypeStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_type',
-      'projects_by_year' => 'SET NOCOUNT ON; EXECUTE GetProjectAwardStatsBySearchID @SearchID = :search_id, @Total = :total_projects_by_year, @isPartner = :is_partner',
     ];
 
     $output_keys = [
@@ -539,76 +561,6 @@ class DatabaseSearchAPIController extends ControllerBase {
     return json_encode($parameters);
   }
 
-  /**
-  * Aggregates unique values from each column
-  * @param $parameters - An associative array containing search parameters
-  */
-  function count_database_groups($parameters) {
-    $pdo = self::get_connection();
-
-    $groups = [
-      'count' => 0,
-      'projects_by_country' => [],
-      'projects_by_cso_category' => [],
-      'projects_by_cancer_type' => [],
-      'projects_by_type' => [],
-      'projects_by_year' => [],
-    ];
-
-    foreach (['PageSize', 'PageNumber', 'SortCol', 'SortDirection'] as $key) {
-      if (isset($parameters[$key])) {
-        unset($parameters[$key]);
-      }
-    }
-
-    $stmt = self::create_prepared_statement($pdo, $parameters);
-    if ($stmt->execute()) {
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-
-        $country = $row['Country'];
-        $cso_category = $row['CSOCode'][0];
-        $cancer_type = $row['CancerType'];
-        $project_type = $row['ProjectType'];
-        $project_year = $row['CalendarYear'];
-
-        if (!isset($groups['projects_by_country'][$country])) {
-          $groups['projects_by_country'][$country] = 0;
-        }
-
-        if (!isset($groups['projects_by_cso_category'][$cso_category])) {
-          $groups['projects_by_cso_category'][$cso_category] = 0;
-        }
-
-        if (!isset($groups['projects_by_cancer_type'][$cancer_type])) {
-          $groups['projects_by_cancer_type'][$cancer_type] = 0;
-        }
-
-        if (!isset($groups['projects_by_type'][$project_type])) {
-          $groups['projects_by_type'][$project_type] = 0;
-        }
-
-        if (!isset($groups['projects_by_year'][$project_year])) {
-          $groups['projects_by_year'][$project_year] = 0;
-        }
-
-
-        $groups['projects_by_country'][$country]++;
-        $groups['projects_by_cso_category'][$cso_category]++;
-        $groups['projects_by_cancer_type'][$cancer_type]++;
-        $groups['projects_by_type'][$project_type]++;
-        $groups['projects_by_year'][$project_year]++;
-        $groups['count']++;
-      }
-    }
-
-    arsort($groups['projects_by_country']);
-    arsort($groups['projects_by_cso_category']);
-    arsort($groups['projects_by_cancer_type']);
-    arsort($groups['projects_by_type']);
-
-    return $groups;
-  }
-
 
 
   /**
@@ -719,7 +671,6 @@ class DatabaseSearchAPIController extends ControllerBase {
     return self::add_cors_headers($response);
   }
 
-
   /**
    * Callback for `db/public/analytics/` API method.
    */
@@ -748,4 +699,16 @@ class DatabaseSearchAPIController extends ControllerBase {
     $response = new JSONResponse( self::get_partner_analytics_updated($param) );
     return self::add_cors_headers($response);
   }
+
+  public function partner_analytics_funding( Request $request ) {
+    //$param = self::map_fields($request);
+    $search_id = $request->query->get('search_id');
+    $year = $request->query->get('search_id');
+
+    $response = new JSONResponse( self::get_partner_analytics_funding($search_id, $year) );
+    return self::add_cors_headers($response);
+  }
+
+
+
 }
