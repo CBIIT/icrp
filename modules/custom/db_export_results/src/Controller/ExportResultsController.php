@@ -1273,7 +1273,18 @@ class ExportResultsController extends ControllerBase {
   	   return "Could not create db connection";
   	 }
 	$sheetIndex = 0;
-	$result = self::createExportLookup($conn, $objPHPExcel, $sid, $sheetIndex);
+	$type = "cso";
+	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sid, $sheetIndex, $type);
+	$sheetIndex = 1;
+	$type = "cancer";
+	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sid, $sheetIndex, $type);
+	$sheetIndex = 2;
+	$type = "country";
+	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sid, $sheetIndex, $type);
+	$sheetIndex = 3;
+	$type = "currency";
+	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sid, $sheetIndex, $type);
+
     $objPHPExcel->setActiveSheetIndex(0);
 
 	// Save Excel 2007 file
@@ -1286,10 +1297,20 @@ class ExportResultsController extends ControllerBase {
     return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));
   }
 
-  private function createExportLookup($conn, &$objPHPExcel, $sid, $sheetIndex){
+  private function createExportLookupSheet($conn, &$objPHPExcel, $sid, $sheetIndex, $type){
   	$result = "succeed";
-
-  	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetCSOLookup");
+	if($type == 'cso'){
+  		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetCSOLookup");
+  	}else if($type == 'cancer'){
+		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetCancerTypeLookUp");
+  	}else if($type == 'country'){
+		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetCountryCodeLookup");
+  	}else if ($type == 'currency'){
+		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetCurrencyRateLookup");
+  	}else{
+  		$result = "No such category for look up table";
+  	    return $result;
+  	}
 	if ($stmt->execute()) {
 		$colName = Array();
 		foreach(range(0, $stmt->columnCount() - 1) as $column_index)
@@ -1297,26 +1318,40 @@ class ExportResultsController extends ControllerBase {
 		  $meta = $stmt->getColumnMeta($column_index);
 		  $colName[] = $meta['name'];
 		}
-	}
-	$location = "A";
-	$position = 1;
-	for($i=0; $i < sizeof($colName); $i++){
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location.$position, $colName[$i]);
-		$location++;
-	}
-	$location = "A";
-	$position = 2;
-	while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-		for($in = 0; $in < sizeof($colName); $in++){
+		$location = "A";
+		$position = 1;
+		for($i=0; $i < sizeof($colName); $i++){
 			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location.$position, $row[$colName[$in]]);
+						->setCellValue($location.$position, $colName[$i]);
 			$location++;
 		}
-		$location="A";
-		$position++;
+		$location = "A";
+		$position = 2;
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+			for($in = 0; $in < sizeof($colName); $in++){
+				$objPHPExcel->setActiveSheetIndex($sheetIndex)
+							->setCellValue($location.$position, $row[$colName[$in]]);
+				$location++;
+			}
+			$location="A";
+			$position++;
+		}
+		$result = "succed";
+	}else{
+	 	$result = "failed to query server";
 	}
-    $objPHPExcel->getActiveSheet()->setTitle('Lookup Table');
+
+	if($type == 'cso'){
+  		$objPHPExcel->getActiveSheet()->setTitle('CSO Codes');
+  	}else if($type == 'cancer'){
+  		$objPHPExcel->getActiveSheet()->setTitle('Disease Site Codes');
+
+  	}else if($type == 'country'){
+  		$objPHPExcel->getActiveSheet()->setTitle('Country Codes');
+
+  	}else if ($type == 'currency'){
+  		$objPHPExcel->getActiveSheet()->setTitle('Currency Conversions');
+	}
 
     return $result;
   }
