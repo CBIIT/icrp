@@ -1274,6 +1274,13 @@ class ExportResultsController extends ControllerBase {
   	 }
 	$sheetIndex = 0;
 	$result = self::createExportLookup($conn, $objPHPExcel, $sid, $sheetIndex);
+    $objPHPExcel->setActiveSheetIndex(0);
+
+	// Save Excel 2007 file
+	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+	$objWriter->setIncludeCharts(TRUE);
+	$objWriter->save($filelocation.$filenameExport);
+
     $conn = null;
 
     return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));

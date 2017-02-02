@@ -33,8 +33,8 @@ export class ExportLookupTableButtonComponent implements OnInit {
         	.subscribe(
         	res => {
         		console.log(res);
-  			alert(res);
-  			//document.location.href=res;
+  			//alert(res);
+  			document.location.href=res;
         		modal.hide();
        		},
     		error => {
