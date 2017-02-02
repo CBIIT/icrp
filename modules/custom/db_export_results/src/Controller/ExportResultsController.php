@@ -1298,7 +1298,7 @@ class ExportResultsController extends ControllerBase {
 					->setCellValue($location.($i+1), $colName[$i]);
 	}
 	$location++;
-	while($row->$stmt->fetch(PDO::FETCH_ASSOC){
+	while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 		for($in = 0; $in < sizeof($colName); $in++){
 			$objPHPExcel->setActiveSheetIndex($sheetIndex)
 						->setCellValue($location.($in+1), $row[$colName[$in]]);
