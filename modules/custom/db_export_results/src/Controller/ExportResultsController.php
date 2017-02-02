@@ -291,7 +291,7 @@ class ExportResultsController extends ControllerBase {
 		}
 		$i = 2;
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-			if(isPublic){
+			if($isPublic){
 				$objPHPExcel->setActiveSheetIndex($sheetIndex)
 							->setCellValue('A'.$i, $row['ProjectID'])
 							->setCellValue('B'.$i, $row['CancerType']);
@@ -319,7 +319,7 @@ class ExportResultsController extends ControllerBase {
 	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectCSOsBySearchID @SearchID=:search_id_name");
 	$stmt->bindParam(':search_id_name', $sid);
 	if ($stmt->execute()) {
-		if(isPublic){
+		if($isPublic){
 			$objPHPExcel->setActiveSheetIndex($sheetIndex)
 						->setCellValue('A1',"ICRP PROJECT ID")
 						->setCellValue('B1', "Code");
