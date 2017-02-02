@@ -1299,17 +1299,22 @@ class ExportResultsController extends ControllerBase {
 		}
 	}
 	$location = "A";
+	$position = 1;
 	for($i=0; $i < sizeof($colName); $i++){
 		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location.($i+1), $colName[$i]);
+					->setCellValue($location.$position, $colName[$i]);
+		$location++;
 	}
-	$location++;
+	$location = "A";
+	$position = 2;
 	while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 		for($in = 0; $in < sizeof($colName); $in++){
 			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location.($in+1), $row[$colName[$in]]);
+						->setCellValue($location.$position, $row[$colName[$in]]);
+			$location++;
 		}
-		$location++;
+		$location="A";
+		$position++;
 	}
     $objPHPExcel->getActiveSheet()->setTitle('Lookup Table');
 
