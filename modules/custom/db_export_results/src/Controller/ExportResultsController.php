@@ -1273,7 +1273,7 @@ class ExportResultsController extends ControllerBase {
   	   return "Could not create db connection";
   	 }
 	$sheetIndex = 0;
-	$result = self::createExportSingleSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+	$result = self::createExportLookup($conn, $objPHPExcel, $sid, $sheetIndex);
     $conn = null;
 
     return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));
