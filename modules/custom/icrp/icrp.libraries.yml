@@ -1,5 +1,5 @@
 icrp-corescripts:
-  version: VERSION
+  version: 1
   js:
     js/icrp.js: {}
   dependencies:
