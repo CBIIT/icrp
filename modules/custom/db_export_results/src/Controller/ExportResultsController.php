@@ -1299,13 +1299,17 @@ class ExportResultsController extends ControllerBase {
 
   private function createExportLookupSheet($conn, &$objPHPExcel, $sid, $sheetIndex, $type){
   	$result = "succeed";
+  	//cso is the first sheet, do not need to create a new sheet
 	if($type == 'cso'){
   		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetCSOLookup");
   	}else if($type == 'cancer'){
+  	  	$objWorkSheet = $objPHPExcel->createSheet();
 		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetCancerTypeLookUp");
   	}else if($type == 'country'){
+	  	$objWorkSheet = $objPHPExcel->createSheet();
 		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetCountryCodeLookup");
   	}else if ($type == 'currency'){
+	  	$objWorkSheet = $objPHPExcel->createSheet();
 		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetCurrencyRateLookup");
   	}else{
   		$result = "No such category for look up table";
