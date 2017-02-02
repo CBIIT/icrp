@@ -703,7 +703,7 @@ class DatabaseSearchAPIController extends ControllerBase {
   public function partner_analytics_funding( Request $request ) {
     //$param = self::map_fields($request);
     $search_id = $request->query->get('search_id');
-    $year = $request->query->get('search_id');
+    $year = $request->query->get('year');
 
     $response = new JSONResponse( self::get_partner_analytics_funding($search_id, $year) );
     return self::add_cors_headers($response);
@@ -712,3 +712,4 @@ class DatabaseSearchAPIController extends ControllerBase {
 
 
 }
+
