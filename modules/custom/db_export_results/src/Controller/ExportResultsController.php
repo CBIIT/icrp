@@ -1247,6 +1247,13 @@ class ExportResultsController extends ControllerBase {
 	return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));
   }
 
+  public function exportLookupTable(){
+	$sid = $_SESSION['database_search_id'];
+    //$sid = 4;
 
+    $result = "succeed";
+
+    return self::addCorsHeaders(new JSONResponse($result));
+  }
 }
 ?>

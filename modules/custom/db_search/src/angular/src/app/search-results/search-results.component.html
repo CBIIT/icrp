@@ -1,19 +1,19 @@
 <div class="search-criteria-summary" (click)="!showCriteriaLocked && showCriteria = !showCriteria">
-  
+
   <div class="clearfix" style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden">
     <span class="pull-left" style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden">
       <span [ngClass]="{'glyphicon': true, 'glyphicon-triangle-right': !showCriteria, 'glyphicon-triangle-bottom': showCriteria}" ></span>
       {{ searchCriteriaSummary }}
     </span>
-    
-    
-    
-    <span class="pull-right project-counts" > 
+
+
+
+    <span class="pull-right project-counts" >
       <div *ngIf="!loadingAnalytics" style="color: #446CB3; white-space: nowrap; text-overflow: ellipsis; display: inline">
-        Total Projects: 
+        Total Projects:
         {{ ((analytics && analytics.count ) || 0).toLocaleString() }}
         /
-        Total Related Projects: 
+        Total Related Projects:
         {{ ((analytics && analytics.projects_by_country && analytics.counts.projects_by_country) || 0).toLocaleString() }}
       </div>
 
@@ -100,6 +100,7 @@
 <div class="row" style="margin-top: 8px; margin-bottom: 5px;">
   <email-results-button *ngIf="!authenticated"></email-results-button>
   <export-results-button *ngIf="!authenticated"></export-results-button>
+  <export-lookup-table-button *ngIf="!authenticated"></export-lookup-table-button>
 
   <email-results-partner-button *ngIf="authenticated"></email-results-partner-button>
   <export-results-partner-button *ngIf="authenticated"></export-results-partner-button>

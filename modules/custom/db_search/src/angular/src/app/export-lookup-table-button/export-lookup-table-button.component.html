@@ -1,0 +1,41 @@
+
+  <button class="btn btn-xs btn-default" (click)="downloadResult(downloadResultsModal)">
+    <span class="glyphicon glyphicon-download-alt"></span>
+    Export Lookup Table</button>
+
+
+
+<div class="modal fade" bsModal #downloadResultsModal="bs-modal" [config]="{backdrop: 'static'}"
+     tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" aria-label="Close" (click)="downloadResultsModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Download Search Results</h4>
+      </div>
+      <div class="modal-body">
+      	<div class="loading-wrapper">
+			<div class="row">
+				<div align="center"><b>Processing Data ...</b></div>
+			</div>
+			<div class="row">
+				<div align="center">&nbsp;</div>
+			</div>
+			<div class="row">
+				<div align="center">&nbsp;</div>
+			</div>
+      		<div class="row">
+				<div class="col-md-3">&nbsp;</div>
+				<div class="col-md-5">
+					<div class="loading" align="center"></div>
+				</div>
+				<div class="col-md-4">&nbsp;</div>
+      		</div>
+      	</div>
+
+      </div>
+    </div>
+  </div>
+</div>
