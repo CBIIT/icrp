@@ -1,7 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Inject, Input, EventEmitter, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Http, Response, Headers, RequestOptions, URLSearchParams } from '@angular/http';
+import { Validators, FormBuilder, FormGroup } from '@angular/forms';
+
+import { Observable } from 'rxjs/Rx';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/catch';
 
 @Component({
-  selector: 'app-export-lookup-table-button',
+  selector: 'export-lookup-table-button',
   templateUrl: './export-lookup-table-button.component.html',
   styleUrls: ['./export-lookup-table-button.component.css']
 })
@@ -19,8 +25,8 @@ export class ExportLookupTableButtonComponent implements OnInit {
 
   downloadResult(modal: any){
   	modal.show();
-  	//let endpoint = 'http://localhost/ExportLookupTable';
-  	let endpoint = '/ExportLookupTable';
+  	let endpoint = 'https://icrpartnership-dev.org/ExportLookupTable';
+  	//let endpoint = '/ExportLookupTable';
   	let query = this.http.get(endpoint, {})
         	.map((res: Response) => res.json())
       		.catch((error: any) => Observable.throw(error || 'Server error'))

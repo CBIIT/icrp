@@ -1208,6 +1208,8 @@ class ExportResultsController extends ControllerBase {
 			$in++;
 		}
 	}
+	$objPHPExcel->getActiveSheet()->setTitle('Search Result');
+
 	return $result;
   }
 
@@ -1222,6 +1224,13 @@ class ExportResultsController extends ControllerBase {
     $filenameExport  = 'ICRPExportPartnerSingleAbstract'.$sid.'.xlsx';
 
 	$objPHPExcel = new PHPExcel();
+	$objPHPExcel->getProperties()->setCreator("ICRP")
+							 	 ->setLastModifiedBy("ICRP")
+							 	 ->setTitle("ICRP export Looup Table")
+							 	 ->setSubject("ICRP export data")
+							 	 ->setDescription("Exporting ICRP Looup Table ")
+							 	 ->setKeywords("ICRP Lookup Table data")
+							 	 ->setCategory("ICRP data");
 
   	 try {
 	   $conn = self::getConnection();
@@ -1250,10 +1259,56 @@ class ExportResultsController extends ControllerBase {
   public function exportLookupTable(){
 	$sid = $_SESSION['database_search_id'];
     //$sid = 4;
+	$result = "Complete Exporting Lookup Table";
+	$config = self::getConfig();
+ 	$filelocation = $config['file_location'];
+ 	$downloadlocation = self::getBaseUrl() .  $config['download_location'];
+    $filenameExport  = 'ICRPExportLookupTable'.$sid.'.xlsx';
 
-    $result = "succeed";
+	$objPHPExcel = new PHPExcel();
 
-    return self::addCorsHeaders(new JSONResponse($result));
+  	 try {
+	   $conn = self::getConnection();
+  	 } catch (Exception $exc) {
+  	   return "Could not create db connection";
+  	 }
+	$sheetIndex = 0;
+	$result = self::createExportSingleSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+    $conn = null;
+
+    return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));
   }
+
+  private function createExportLookup($conn, &$objPHPExcel, $sid, $sheetIndex){
+  	$result = "succeed";
+
+  	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectLookupTableBySearchID @SearchID=:search_id_name");
+	$stmt->bindParam(':search_id_name', $sid);
+	if ($stmt->execute()) {
+		$colName = Array();
+		foreach(range(0, $stmt->columnCount() - 1) as $column_index)
+		{
+		  $meta = $stmt->getColumnMeta($column_index);
+		  $colName[] = $meta['name'];
+		}
+	}
+	$location = "A";
+	for($i=0; $i < sizeof($colName); $i++){
+		$objPHPExcel->setActiveSheetIndex($sheetIndex)
+					->setCellValue($location.($i+1), $colName[$i]);
+	}
+	$location++;
+	while($row->$stmt->fetch(PDO::FETCH_ASSOC){
+		for($in = 0; $in < sizeof($colName); $in++){
+			$objPHPExcel->setActiveSheetIndex($sheetIndex)
+						->setCellValue($location.($in+1), $row[$colName[$in]]);
+		}
+		$location++;
+	}
+    $objPHPExcel->getActiveSheet()->setTitle('Lookup Table');
+
+    return $result;
+  }
+
 }
 ?>
