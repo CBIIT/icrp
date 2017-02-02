@@ -48,4 +48,4 @@ db_search_api.partner.analytics.funding:
   methods:  [GET]
   requirements:
     _access: 'TRUE'
-~
+

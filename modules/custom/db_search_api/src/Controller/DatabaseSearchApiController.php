@@ -705,6 +705,10 @@ class DatabaseSearchAPIController extends ControllerBase {
     $search_id = $request->query->get('search_id');
     $year = $request->query->get('year');
 
+    if (!$year) {
+      $year = 2017;
+    }
+
     $response = new JSONResponse( self::get_partner_analytics_funding($search_id, $year) );
     return self::add_cors_headers($response);
   }
