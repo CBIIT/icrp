@@ -32,6 +32,13 @@ db_project_view.content_deprecated:
   requirements:
     _permission: 'access content'
     project_id: '[0-9]{1,9}'
+db_project_view.get_funding_org_names:
+  path: '/getFundingOrgNames'
+  defaults:
+    _controller: '\Drupal\db_project_view\Controller\FundingOrgController::getFundingOrgNames'
+    _title: 'Project Details'
+  requirements:
+    _permission: 'access content'
 db_project_view.get_funding_org:
   path: '/getFundingOrg'
   defaults:

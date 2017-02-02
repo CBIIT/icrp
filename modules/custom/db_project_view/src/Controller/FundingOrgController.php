@@ -13,6 +13,26 @@ use PDO;
 class FundingOrgController extends ControllerBase {
 
 
+  /** Field mappings of database results to template variables */
+  const FIELD_MAP = [
+    'funding_org_names' => [
+      'Name' => 'name',
+      'Abbreviation' => 'abbr',
+      'DisplayName' => 'displayname',
+      'Type' => 'type',
+      'MemberType' => 'membertype',
+      'MemberStatus' => 'memberstatus',
+      'Country' => 'country',
+      'Currency' => 'currency',
+      'SponsorCode' => 'sponsorcode',
+      'IsAnnualized' => 'isannualized',
+      'Note' => 'note',
+      'LastImportDate' => 'lastimpordate',
+      'LastImportNotes' => 'lastimportnotes',
+    ],
+  ];
+
+
   /**
    * Returns a PDO connection to a database
    * @param $cfg - An associative array containing connection parameters 
@@ -88,6 +108,18 @@ class FundingOrgController extends ControllerBase {
   }
   public function getFundingOrg() {
     $results = self::getFundingOrgDetails();
+    return self::add_cors_headers(new JsonResponse($results));
+  }  
+
+  public function getFundingOrgNamesData() {
+
+    $pdo = self::get_connection();
+    $stmt = $pdo -> prepare("{CALL GetFundingOrgs}");
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_COLUMN,0);
+  }
+  public function getFundingOrgNames() {
+    $results = self::getFundingOrgNamesData();
     return self::add_cors_headers(new JsonResponse($results));
   }  
   public function getFundingOrgContent() {
