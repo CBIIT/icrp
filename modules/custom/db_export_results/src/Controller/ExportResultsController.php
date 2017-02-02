@@ -1282,8 +1282,7 @@ class ExportResultsController extends ControllerBase {
   private function createExportLookup($conn, &$objPHPExcel, $sid, $sheetIndex){
   	$result = "succeed";
 
-  	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectLookupTableBySearchID @SearchID=:search_id_name");
-	$stmt->bindParam(':search_id_name', $sid);
+  	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetCSOLookup");
 	if ($stmt->execute()) {
 		$colName = Array();
 		foreach(range(0, $stmt->columnCount() - 1) as $column_index)
@@ -1298,7 +1297,7 @@ class ExportResultsController extends ControllerBase {
 					->setCellValue($location.($i+1), $colName[$i]);
 	}
 	$location++;
-	while($row->$stmt->fetch(PDO::FETCH_ASSOC){
+	while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 		for($in = 0; $in < sizeof($colName); $in++){
 			$objPHPExcel->setActiveSheetIndex($sheetIndex)
 						->setCellValue($location.($in+1), $row[$colName[$in]]);
