@@ -152,7 +152,7 @@ AS
 			WHEN 'Exact' THEN '"'+ @terms + '"'
 			WHEN 'Any' THEN REPLACE(@terms,' ',' OR ')
 			ELSE REPLACE(@terms,' ',' AND ') -- All or None	
-		END 
+		END 		
 
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 			
@@ -160,10 +160,12 @@ AS
 				LEFT JOIN ProjectDocument d ON p.projectID = d.ProjectID  
 				LEFT JOIN ProjectDocument_JP jd ON p.projectID = jd.ProjectID  
 			 WHERE 	
-				---- do not contain any words specified
-				(@termSearchType = 'None' AND (NOT CONTAINS(d.content, @searchWords)) OR (NOT CONTAINS(jd.content, @searchWords))) OR
+				---- do not contain any words specified				
+				( (@termSearchType = 'None') AND 
+				  ((NOT CONTAINS(d.content, @searchWords)) OR (NOT CONTAINS(jd.content, @searchWords)))
+				) 
 				---- COntain Any, All or Exeact words
-				((CONTAINS(d.content, @searchWords)) OR (CONTAINS(jd.content, @searchWords)))  
+				OR ((CONTAINS(d.content, @searchWords)) OR (CONTAINS(jd.content, @searchWords)))  
 			)
 	END	
 
@@ -223,7 +225,7 @@ AS
 	FETCH NEXT 
 		CASE WHEN @PageNumber IS NULL THEN 999999999 ELSE ISNULL(@PageSize,50)
 		END ROWS ONLY
-   
+
 GO
 
 ----------------------------------------------------------------------------------------------------------
