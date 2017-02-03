@@ -17,19 +17,21 @@ export class ExportResultsGraphsPartnerButtonComponent implements OnInit {
 
   constructor(    
     @Inject(FormBuilder) private formbuilder: FormBuilder,
-    @Inject(Http) private http: Http) { }
+    @Inject(Http) private http: Http) {
+	}
 
   ngOnInit() {
   }
   
   downloadResultsWithGraphsPartner(modal: any){
 
-		let year = this.inputYear;
-		
+		let params = new URLSearchParams();
+		params.set('year', this.inputYear);
+
   	modal.show();
 	//let endpoint = 'http://localhost/ExportResultsWithGraphsPartner';
   	let endpoint = '/ExportResultsWithGraphsPartner';
-  	let query = this.http.get(endpoint, {})
+  	let query = this.http.get(endpoint, {search: params})
         	.map((res: Response) => res.json())
       		.catch((error: any) => Observable.throw(error || 'Server error'))
         	.subscribe(
