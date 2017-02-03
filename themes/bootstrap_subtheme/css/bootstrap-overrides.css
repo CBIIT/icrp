@@ -279,5 +279,5 @@ div.search-block-form > div.search-well {
 /** uat overrides */
 
 form[action="/user-account-administration-tool"] > div > div {
-  vertical-align: bottom;
+  vertical-align: bottom !important;
 }
