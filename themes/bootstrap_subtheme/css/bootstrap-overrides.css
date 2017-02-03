@@ -10,8 +10,6 @@ a {
   color: #1E8BC3;
 }
 
-
-
 /*
  * Bootstrap table overrides
  */
@@ -274,6 +272,14 @@ footer.footer {
   font-size: 13px;
 }
 
+/** Bootstrap well overrides */
+
+.well {
+  background: linear-gradient(#fdfdfd, #f9f9f9);
+  box-shadow: 2px 2px 4px #eee;
+  border-radius: 0px;
+}
+
 
 /** Bootstrap search-well overrides */
 
@@ -285,8 +291,9 @@ div.search-block-form > div.search-well {
   -webkit-box-shadow: none;
 }
 
-/** uat overrides */
+/** uaat overrides */
 
 form[action="/user-account-administration-tool"] > div > div {
   vertical-align: bottom !important;
+  margin-top: 10px
 }
