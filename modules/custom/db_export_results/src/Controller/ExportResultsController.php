@@ -712,8 +712,8 @@ class ExportResultsController extends ControllerBase {
 	return self::addCorsHeaders(new JSONResponse($downloadlocation . $filenameExport));
   }
 
-   public function exportResultsWithGraphsPartner(){
-    $year = $_REQUEST['year'];
+   public function exportResultsWithGraphsPartner(Request $request){
+    $year = $request->query->get('year');
 	$result = "Complete Exporting Results with Graphs in Partner Site";
 	$sid = $_SESSION['database_search_id'];
 
@@ -972,7 +972,7 @@ class ExportResultsController extends ControllerBase {
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$objPHPExcel->setActiveSheetIndex(3)
 		    	        ->setCellValue('A'.$i, $row['ProjectType'])
-		    	        ->setCellValue('B'.$i, $row['Project Count']);
+		    	        ->setCellValue('B'.$i, $row['Count']);
 			$i = $i + 1;
 			$totalRow = $totalRow + 1;
 		}
@@ -1019,10 +1019,10 @@ class ExportResultsController extends ControllerBase {
 	$chart4->setBottomRightPosition('Q26');
 	$objPHPExcel->getActiveSheet()->addChart($chart4);
 
-	if(isPublic == false){
+	if($isPublic == false){
 		//create second sheet for Projects By Year
 		$totalRow = 0;
-		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectAwardStatsBySearchID @SearchID=:search_id_name, @year=:search_year, @Total=:result_count");
+		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectAwardStatsBySearchID @SearchID=:search_id_name, @Year=:search_year, @Total=:result_count");
 		$stmt->bindParam(':search_id_name', $sid);
 		$stmt->bindParam(':search_year', $year);
 		$stmt->bindParam(':result_count', $result_count, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
@@ -1032,45 +1032,32 @@ class ExportResultsController extends ControllerBase {
 			$objWorkSheet = $objPHPExcel->createSheet();
 			$i = 2;
 			// Add some data
-			if($bit == 0){
+			$objPHPExcel->setActiveSheetIndex(4)
+						->setCellValue('A1', 'Calendar Year')
+						->setCellValue('B1', 'Funding Amount (USD)');
+			while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 				$objPHPExcel->setActiveSheetIndex(4)
-							->setCellValue('A1', 'Calendar Year')
-							->setCellValue('B1', 'Project Count');
-				while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-					$objPHPExcel->setActiveSheetIndex(4)
-								->setCellValue('A'.$i, $row['Year'])
-								->setCellValue('B'.$i, $row['Count']);
-					$i = $i + 1;
-					$totalRow = $totalRow + 1;
-				}
-			}else if($bit == 1){
-				$objPHPExcel->setActiveSheetIndex(4)
-							->setCellValue('A1', 'Calendar Year')
-							->setCellValue('B1', 'Amount');
-				while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-					$objPHPExcel->setActiveSheetIndex(4)
-								->setCellValue('A'.$i, $row['Year'])
-								->setCellValue('B'.$i, $row['Amount']);
-					$objPHPExcel->getActiveSheet()->getStyle('B'.$i)->getNumberFormat()->setFormatCode("#,##0.00");
-					$i = $i + 1;
-					$totalRow = $totalRow + 1;
-				}
+							->setCellValue('A'.$i, $row['Year'])
+							->setCellValue('B'.$i, $row['amount']);
+				$objPHPExcel->getActiveSheet()->getStyle('B'.$i)->getNumberFormat()->setFormatCode("#,##0.00");
+				$i = $i + 1;
+				$totalRow = $totalRow + 1;
 			}
 			$result = "succeed";
 		} else {
 			$result = "failed to query server";
 		}
 
-		$objPHPExcel->getActiveSheet()->setTitle('Award_Amount_By_Year');
+		$objPHPExcel->getActiveSheet()->setTitle('Project_Funding_by_Year');
 		$objPHPExcel->setActiveSheetIndex(4);
 		$dataseriesLabels5 = array(
-			new PHPExcel_Chart_DataSeriesValues('String', 'Award_Amount_By_Year!$B$1', NULL, 1),
+			new PHPExcel_Chart_DataSeriesValues('String', 'Project_Funding_by_Year!$B$1', NULL, 1),
 		);
 		$xAxisTickValues5 = array(
-		  new PHPExcel_Chart_DataSeriesValues('String', 'Award_Amount_By_Year!$A$2:$A$'.($totalRow+1), NULL, $totalRow),
+		  new PHPExcel_Chart_DataSeriesValues('String', 'Project_Funding_by_Year!$A$2:$A$'.($totalRow+1), NULL, $totalRow),
 		);
 		$dataSeriesValues5 = array(
-		  new PHPExcel_Chart_DataSeriesValues('Number', 'Award_Amount_By_Year!$B$2:$B$'.($totalRow+1), NULL, $totalRow),
+		  new PHPExcel_Chart_DataSeriesValues('Number', 'Project_Funding_by_Year!$B$2:$B$'.($totalRow+1), NULL, $totalRow),
 		);
 		$series5 = new PHPExcel_Chart_DataSeries(
 		  PHPExcel_Chart_DataSeries::TYPE_LINECHART,       // plotType
@@ -1084,7 +1071,7 @@ class ExportResultsController extends ControllerBase {
 		$layout5->setShowVal(TRUE);
 		$plotarea5 = new PHPExcel_Chart_PlotArea($layout5, array($series5));
 		$legend5 = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);
-		$title5 = new PHPExcel_Chart_Title('Award Amount By Year');
+		$title5 = new PHPExcel_Chart_Title('Project Funding by Year');
 		$chart5 = new PHPExcel_Chart(
 		  'chart5',   // name
 		  $title5,    // title
