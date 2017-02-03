@@ -29,6 +29,14 @@ db_export_results.graphs:
      _title: 'Project Details'
    requirements:
     _permission: 'access content' 
+  
+db_export_results.graphsPublic:
+   path: '/ExportResultsWithGraphsPartnerPublic'
+   defaults:
+     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportResultsWithGraphsPartnerPublic'
+     _title: 'Project Details'
+   requirements:
+    _permission: 'access content'  
 
 db_export_results.single:
    path: '/ExportResultsSignlePartner'
