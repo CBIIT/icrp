@@ -298,3 +298,18 @@ form[action="/user-account-administration-tool"] > div > div {
   vertical-align: bottom !important;
   margin-top: 10px
 }
+
+/** Bootstrap background overrides */
+
+.bg-blue {
+	background: #81CFE0 !important;
+}
+
+.bg-orange {
+	background: BlanchedAlmond !important;
+}
+
+.bg-grey {
+	background: #f5f5f5 !important;
+}
+
