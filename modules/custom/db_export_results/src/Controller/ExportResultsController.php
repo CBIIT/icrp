@@ -1034,7 +1034,7 @@ class ExportResultsController extends ControllerBase {
 			// Add some data
 			$objPHPExcel->setActiveSheetIndex(4)
 						->setCellValue('A1', 'Calendar Year')
-						->setCellValue('B1', 'Amount');
+						->setCellValue('B1', 'Funding Amount (USD)');
 			while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 				$objPHPExcel->setActiveSheetIndex(4)
 							->setCellValue('A'.$i, $row['Year'])
