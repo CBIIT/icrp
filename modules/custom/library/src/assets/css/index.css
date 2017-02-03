@@ -84,8 +84,9 @@
 }
 #library-display .frame.preview .item {
   float: left;
-  margin: 1em;
+  max-width: 100%;
   overflow: hidden;
+  padding: 1em;
   position: relative;
   width: 30em;
 }
@@ -138,7 +139,7 @@
 #library-display .frame:not(.preview) .item p {
   display: none;
 }
-@media (min-width: 900px) {
+@media (min-width: 1200px) {
   #library-search {
     float: left;
     width: 20em;
