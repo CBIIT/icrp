@@ -28,6 +28,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   @Input() analytics;
   @Input() searchParameters;
   @Input() authenticated;
+  @Input() fundingYearOptions = [];
 
   @Output() sort: EventEmitter<{ "column": string, "type": "asc" | "desc" }>;
   @Output() paginate: EventEmitter<{ "size": number, "offset": number }>;
@@ -45,7 +46,6 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   searchCriteriaGroups: {"category": string, "criteria": string[], "type": string}[];
 
   showExtendedCharts = false;
-  fundingYearOptions = [];
 
   projectData;
   projectColumns;
@@ -108,10 +108,6 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
 
     this.projectData = [];
 
-    for (let i = new Date().getFullYear(); i >= 2000; i --) {
-      this.fundingYearOptions.push(i);
-
-    }
 
   }
 
@@ -142,7 +138,9 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
         this.searchCriteriaGroups = [];
         for (let key of Object.keys(this.searchParameters)) {
 
-          searchCriteria.push(this.convertCase(key));
+          if (key != 'search_type')
+            searchCriteria.push(this.convertCase(key));
+
           let param = this.searchParameters[key];
 
           let criteriaGroup = {

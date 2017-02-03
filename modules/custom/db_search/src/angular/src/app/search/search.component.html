@@ -16,6 +16,7 @@
     (paginate)="paginate($event)" 
     (sort)="sort($event)"
     (updateFundingYear)="updateServerAnalyticsFunding($event)"
+    [fundingYearOptions]="conversionYears"
     >
   </app-search-results>
 </div>

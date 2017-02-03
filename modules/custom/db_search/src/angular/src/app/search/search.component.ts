@@ -15,7 +15,7 @@ declare var fetch;
 })
 export class SearchComponent implements OnInit, AfterViewInit {
 
-  devEndpoint = 'https://icrpartnership-demo.org';
+  devEndpoint = '';
 
   searchParameters: SearchParameters;
 
@@ -29,10 +29,11 @@ export class SearchComponent implements OnInit, AfterViewInit {
   analytics: any;
   loggedIn: boolean;
 
+  conversionYears = [];
 
   constructor(private http: Http) {
-    //this.loggedIn = false;
-    this.loggedIn = true;
+    this.loggedIn = false;
+    //this.loggedIn = true;
     this.searchID = null;
     this.loadingAnalytics = true;
     this.loading = true;
@@ -47,7 +48,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
       page_size: 50,
     }
 
-//    this.checkAuthenticationStatus();
+    this.updateAvailableConversionYears();
+    this.checkAuthenticationStatus();
   }
 
   checkAuthenticationStatus() {
@@ -183,6 +185,20 @@ export class SearchComponent implements OnInit, AfterViewInit {
         }
       );
   }
+
+
+
+  updateAvailableConversionYears() {
+
+    console.log('receiving funding update');
+    let endpoint = `${this.devEndpoint}/db/partner/analytics/funding_years`;
+
+    return this.http.get(endpoint)
+      .map((res: Response) => res.json())
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
+      .subscribe(response => this.conversionYears = response.map(e => +e['year']));
+  }
+
 
 
 
