@@ -295,7 +295,7 @@ INSERT INTO [Migration_ProjectFunding]
 	([NewProjectID], [OldProjectID], [AbstractID], [Title],[Institution], [city], [state], [country], [piLastName], [piFirstName], [piORC_ID], [FundingOrgID], [FundingDivisionID], [AwardCode], [AltAwardCode],
 	 [Source_ID], [MechanismCode], [MechanismTitle], [FundingContact], [Amount], [IsAnnualized], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate])
 SELECT mp.ProjectID, op.ID, op.abstractID, op.title, op.institution, op.city, op.state, op.country, op.piLastName, op.piFirstName,  op.piORCiD,op.FUNDINGORGID, op.FUNDINGDIVISIONID, 
-		op.code, op.altid, op.SOURCE_ID, m.SPONSORCODE,  m.TITLE, op.fundingOfficer, pf.AMOUNT, 
+		op.code, op.altid, op.SOURCE_ID, m.SPONSORMECHANISM,  m.TITLE, op.fundingOfficer, pf.AMOUNT, 
 		CASE WHEN [Amount] = [AnnualizedAmount] THEN 1 ELSE 0 END AS [IsAnnualized],
 		op.BUDGETSTARTDATE, op.budgetenddate, op.[DATEADDED], op.[LASTREVISED]
 FROM #activeProjects op   -- active projects from old icrp database
@@ -397,6 +397,15 @@ INSERT INTO Library
 SELECT [FID],[FILENAME],'', [FILETITLE],[DESCRIPTION], 0, [DATEARCHIVED],getdate(), getdate()
 FROM icrp.dbo.tblLIBRARY
 
+
+-----------------------------
+-- DataUploadStatus
+-----------------------------
+INSERT INTO DataUploadStatus
+SELECT PARTNER,	[FUNDINGYEAR], [STATUS],[RECEIVEDDATE],	[PREIMPORTDATE],
+	[UPLOADDEVDBDATE],[COPYSTAGEDBDATE], [COPYPROCDBDATE],[NOTE], [submitdt]
+FROM icrp.dbo.tblDATAUPLOADPROCESSINFO
+	
 ----------------------------
 -- CancerType Description
 -----------------------------
