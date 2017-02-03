@@ -1032,29 +1032,16 @@ class ExportResultsController extends ControllerBase {
 			$objWorkSheet = $objPHPExcel->createSheet();
 			$i = 2;
 			// Add some data
-			if($bit == 0){
+			$objPHPExcel->setActiveSheetIndex(4)
+						->setCellValue('A1', 'Calendar Year')
+						->setCellValue('B1', 'Amount');
+			while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 				$objPHPExcel->setActiveSheetIndex(4)
-							->setCellValue('A1', 'Calendar Year')
-							->setCellValue('B1', 'Project Count');
-				while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-					$objPHPExcel->setActiveSheetIndex(4)
-								->setCellValue('A'.$i, $row['Year'])
-								->setCellValue('B'.$i, $row['Count']);
-					$i = $i + 1;
-					$totalRow = $totalRow + 1;
-				}
-			}else if($bit == 1){
-				$objPHPExcel->setActiveSheetIndex(4)
-							->setCellValue('A1', 'Calendar Year')
-							->setCellValue('B1', 'Amount');
-				while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-					$objPHPExcel->setActiveSheetIndex(4)
-								->setCellValue('A'.$i, $row['Year'])
-								->setCellValue('B'.$i, $row['Amount']);
-					$objPHPExcel->getActiveSheet()->getStyle('B'.$i)->getNumberFormat()->setFormatCode("#,##0.00");
-					$i = $i + 1;
-					$totalRow = $totalRow + 1;
-				}
+							->setCellValue('A'.$i, $row['Year'])
+							->setCellValue('B'.$i, $row['amount']);
+				$objPHPExcel->getActiveSheet()->getStyle('B'.$i)->getNumberFormat()->setFormatCode("#,##0.00");
+				$i = $i + 1;
+				$totalRow = $totalRow + 1;
 			}
 			$result = "succeed";
 		} else {
