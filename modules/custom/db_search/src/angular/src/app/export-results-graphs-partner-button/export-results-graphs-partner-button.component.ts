@@ -26,7 +26,7 @@ export class ExportResultsGraphsPartnerButtonComponent implements OnInit {
   downloadResultsWithGraphsPartner(modal: any){
 
 		let params = new URLSearchParams();
-		params.set('year', this.inputYear);
+		params.set('year', this.inputYear || 2017);
 
   	modal.show();
 	//let endpoint = 'http://localhost/ExportResultsWithGraphsPartner';
