@@ -93,7 +93,10 @@
 
       <div class="text-right">
         Use Currency Conversion Rates From
-          <select #fundingyear (change)="setFundingYear(fundingyear.value)" >
+          <select #fundingyear 
+            (change)="setFundingYear(fundingyear.value)"       
+            tooltip="Qualifies the rate conversion used. Conversion rates for the year selected will be used for all monies represented on the graph."
+          >
             <option *ngFor="let year of fundingYearOptions" [value]="year">{{ year }}</option>
           </select>
       </div>
