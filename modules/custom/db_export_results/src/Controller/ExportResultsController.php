@@ -1034,7 +1034,7 @@ class ExportResultsController extends ControllerBase {
 			// Add some data
 			$objPHPExcel->setActiveSheetIndex(4)
 						->setCellValue('A1', 'Calendar Year')
-						->setCellValue('B1', 'Amount');
+						->setCellValue('B1', 'Funding Amount (USD)');
 			while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 				$objPHPExcel->setActiveSheetIndex(4)
 							->setCellValue('A'.$i, $row['Year'])
@@ -1048,16 +1048,16 @@ class ExportResultsController extends ControllerBase {
 			$result = "failed to query server";
 		}
 
-		$objPHPExcel->getActiveSheet()->setTitle('Award_Amount_By_Year');
+		$objPHPExcel->getActiveSheet()->setTitle('Project_Funding_by_Year');
 		$objPHPExcel->setActiveSheetIndex(4);
 		$dataseriesLabels5 = array(
-			new PHPExcel_Chart_DataSeriesValues('String', 'Award_Amount_By_Year!$B$1', NULL, 1),
+			new PHPExcel_Chart_DataSeriesValues('String', 'Project_Funding_by_Year!$B$1', NULL, 1),
 		);
 		$xAxisTickValues5 = array(
-		  new PHPExcel_Chart_DataSeriesValues('String', 'Award_Amount_By_Year!$A$2:$A$'.($totalRow+1), NULL, $totalRow),
+		  new PHPExcel_Chart_DataSeriesValues('String', 'Project_Funding_by_Year!$A$2:$A$'.($totalRow+1), NULL, $totalRow),
 		);
 		$dataSeriesValues5 = array(
-		  new PHPExcel_Chart_DataSeriesValues('Number', 'Award_Amount_By_Year!$B$2:$B$'.($totalRow+1), NULL, $totalRow),
+		  new PHPExcel_Chart_DataSeriesValues('Number', 'Project_Funding_by_Year!$B$2:$B$'.($totalRow+1), NULL, $totalRow),
 		);
 		$series5 = new PHPExcel_Chart_DataSeries(
 		  PHPExcel_Chart_DataSeries::TYPE_LINECHART,       // plotType
@@ -1071,7 +1071,7 @@ class ExportResultsController extends ControllerBase {
 		$layout5->setShowVal(TRUE);
 		$plotarea5 = new PHPExcel_Chart_PlotArea($layout5, array($series5));
 		$legend5 = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);
-		$title5 = new PHPExcel_Chart_Title('Award Amount By Year');
+		$title5 = new PHPExcel_Chart_Title('Project Funding by Year');
 		$chart5 = new PHPExcel_Chart(
 		  'chart5',   // name
 		  $title5,    // title
