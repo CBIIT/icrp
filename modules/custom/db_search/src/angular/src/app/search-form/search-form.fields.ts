@@ -7,7 +7,7 @@ import 'rxjs/add/operator/catch';
 @Injectable()
 export class SearchFields {
 
-  devEndpoint = '';
+  devEndpoint = 'https://icrpartnership-demo.org';
 
   constructor(private http: Http) {}
   

@@ -58,7 +58,7 @@ export class LineChart {
             .attr("y", -100)
             .attr("dy", "0.71em")
             .attr("text-anchor", "middle")
-            .text("Project Funding (USD)");
+            .text("Funding Amount (USD)");
 
         g.append("path")
             .datum(parsedData)
