@@ -7,10 +7,12 @@ import 'rxjs/add/operator/catch';
 @Injectable()
 export class SearchFields {
 
+  devEndpoint = '';
+
   constructor(private http: Http) {}
   
   getFields(): Observable<Response> {
-    let endpoint = '/db/public/fields';
+    let endpoint = `${this.devEndpoint}/db/public/fields`;
     return this.http.get(endpoint)
       .map((response: Response) => response.json())
       .catch((error: Response | any) => Observable.throw(error.json().error || 'Server Error'));

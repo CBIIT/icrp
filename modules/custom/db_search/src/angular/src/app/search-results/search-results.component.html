@@ -87,7 +87,18 @@
     <ui-chart
       label="Project Funding by Year"
       type="line"
-      [data]="(analytics && analytics.projects_by_year) || []"></ui-chart>
+      [data]="(analytics && analytics.projects_by_year) || []"
+      description="This only displays awards active during the years selected during your search. Select all years to see all awards"
+      ></ui-chart>
+
+      <div class="pull-right" tooltip="Qualifies the rate conversion used. Conversion rates for the year selected will be used for all monies represented on the graph."> 
+        Use Currency Conversion Rates From
+          <select #fundingyear 
+            (change)="setFundingYear(fundingyear.value)"       
+          >
+            <option *ngFor="let year of fundingYearOptions" [value]="year">{{ year }}</option>
+          </select>
+      </div>
   </div>
 </div>
 
