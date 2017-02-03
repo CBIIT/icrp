@@ -4,6 +4,14 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
 
+/** Misc overrides */
+
+a {
+  color: #1E8BC3;
+}
+
+
+
 /*
  * Bootstrap table overrides
  */
@@ -263,6 +271,7 @@ footer.footer {
   border-top: 1px solid #EEE;
   border-radius: 0;
   box-shadow: none;
+  font-size: 13px;
 }
 
 
