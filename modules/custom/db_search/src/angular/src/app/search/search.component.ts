@@ -15,7 +15,7 @@ declare var fetch;
 })
 export class SearchComponent implements OnInit, AfterViewInit {
 
-  devEndpoint = '';
+  devEndpoint = 'https://icrpartnership-demo.org';
 
   searchParameters: SearchParameters;
 
@@ -31,8 +31,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
 
   constructor(private http: Http) {
-    this.loggedIn = false;
-    //this.loggedIn = true;
+    //this.loggedIn = false;
+    this.loggedIn = true;
     this.searchID = null;
     this.loadingAnalytics = true;
     this.loading = true;
@@ -47,7 +47,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       page_size: 50,
     }
 
-    this.checkAuthenticationStatus();
+//    this.checkAuthenticationStatus();
   }
 
   checkAuthenticationStatus() {
@@ -175,7 +175,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
       .subscribe(
         response => {
-
+          
 
           let category = 'projects_by_year';
           let parsed_data = response.map(data => ({label: data.label, value: +data.value}));
