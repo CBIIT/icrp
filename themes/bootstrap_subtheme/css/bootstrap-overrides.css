@@ -275,3 +275,9 @@ div.search-block-form > div.search-well {
   box-shadow: none;
   -webkit-box-shadow: none;
 }
+
+/** uat overrides */
+
+form[action="/user-account-administration-tool"] > div > div {
+  vertical-align: bottom;
+}
