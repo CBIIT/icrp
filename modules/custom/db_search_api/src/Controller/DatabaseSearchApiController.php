@@ -233,6 +233,19 @@ class DatabaseSearchAPIController extends ControllerBase {
   }
 
 
+
+  function get_partner_analytics_funding_years() {
+
+    $pdo = self::get_connection();
+    $stmt = $pdo->prepare('SELECT DISTINCT Year as year FROM CurrencyRate ORDER BY Year DESC');
+
+    return $stmt->execute() 
+      ? $stmt->fetchAll(PDO::FETCH_ASSOC)
+      : [];
+  }
+
+
+
   function get_partner_analytics_updated($search_id) {
 
     $pdo = self::get_connection();
@@ -713,7 +726,11 @@ class DatabaseSearchAPIController extends ControllerBase {
     return self::add_cors_headers($response);
   }
 
-
+  public function partner_analytics_funding_years(  ) {
+    //$param = self::map_fields($request);
+    $response = new JSONResponse( self::get_partner_analytics_funding_years() );
+    return self::add_cors_headers($response);
+  }
 
 }
 

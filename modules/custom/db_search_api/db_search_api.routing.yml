@@ -49,3 +49,11 @@ db_search_api.partner.analytics.funding:
   requirements:
     _access: 'TRUE'
 
+
+db_search_api.partner.analytics.funding.years:
+  path: '/db/partner/analytics/funding_years'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::partner_analytics_funding_years' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
