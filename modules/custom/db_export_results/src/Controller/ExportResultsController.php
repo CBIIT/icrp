@@ -1019,7 +1019,7 @@ class ExportResultsController extends ControllerBase {
 	$chart4->setBottomRightPosition('Q26');
 	$objPHPExcel->getActiveSheet()->addChart($chart4);
 
-	if(isPublic == false){
+	if($isPublic == false){
 		//create second sheet for Projects By Year
 		$totalRow = 0;
 		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectAwardStatsBySearchID @SearchID=:search_id_name, @year=:search_year, @Total=:result_count");
