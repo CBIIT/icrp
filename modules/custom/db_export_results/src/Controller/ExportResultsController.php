@@ -1423,6 +1423,7 @@ class ExportResultsController extends ControllerBase {
 	}else{
 		$result = "failed to query server";
 	}
+	$objPHPExcel->getActiveSheet()->setTitle('Data Upload Status Report');
 
   	return $result;
   }
