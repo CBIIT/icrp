@@ -13,6 +13,8 @@ import 'rxjs/add/operator/catch';
 })
 export class ExportResultsGraphsPartnerButtonComponent implements OnInit {
 
+	@Input() inputYear;
+
   constructor(    
     @Inject(FormBuilder) private formbuilder: FormBuilder,
     @Inject(Http) private http: Http) { }
@@ -21,6 +23,9 @@ export class ExportResultsGraphsPartnerButtonComponent implements OnInit {
   }
   
   downloadResultsWithGraphsPartner(modal: any){
+
+		let year = this.inputYear;
+		
   	modal.show();
 	//let endpoint = 'http://localhost/ExportResultsWithGraphsPartner';
   	let endpoint = '/ExportResultsWithGraphsPartner';

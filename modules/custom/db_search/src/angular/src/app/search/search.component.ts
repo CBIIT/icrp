@@ -153,6 +153,31 @@ export class SearchComponent implements OnInit, AfterViewInit {
       .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
   }
 
+  queryServerAnalyticsFunding(year) {
+    let endpoint = 'db/partner/analytics/funding';
+    let params = new URLSearchParams();
+
+    if (!year) {
+      year = 2017;
+    }
+    
+    params.set('search_id', this.searchID);
+    params.set('year', year);
+
+    return this.http.get(endpoint, {search: params})
+      .map((res: Response) => res.json())
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
+      .subscribe(
+        response => {
+          let category = 'projects_by_year';
+          let parsed_data = response.map(data => ({label: data.label, value: +data.value}));
+          this.analytics[category] = parsed_data;
+        }
+      );
+  }
+
+
+
   resultsSortPaginate(parameters: Object) {
     
     let endpoint = '/db/public/sort_paginate';
@@ -184,6 +209,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
       })
     
   }
+
+
 
 
   queryServer(parameters: Object): Observable<any[]> {

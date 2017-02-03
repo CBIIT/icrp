@@ -32,6 +32,8 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   @Output() sort: EventEmitter<{ "column": string, "type": "asc" | "desc" }>;
   @Output() paginate: EventEmitter<{ "size": number, "offset": number }>;
   
+
+  fundingYear = 2017;
   emailForm: FormGroup;
 
   showCriteriaLocked = true;  
