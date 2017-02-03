@@ -41,7 +41,7 @@ class MyProfileForm extends FormBase
 */
         $current_uri = \Drupal::request()->getRequestUri();
         $uri_parts = explode("/", $current_uri);
-        $uuid = $uri_parts[2];
+        //$uuid = $uri_parts[2];
         $uuid = "cbe73f10-f532-41ee-8a38-78b7633f18df";
         $entity = \Drupal::entityManager()->loadEntityByUuid('user', $uuid);
 
@@ -104,6 +104,7 @@ class MyProfileForm extends FormBase
         //drupal_set_message($user->getRoles());
         //drupal_set_message(print_r("email:", TRUE));
         //dsm($user);
+        $form['#theme'] = "my_profile_form";
 
         $form['name'] = array(
             '#type' => 'fieldset',

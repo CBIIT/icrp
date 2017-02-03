@@ -66,6 +66,18 @@ function hook_form_yamlform_submission_update_my_profile_form_alter(&$form, \Dru
     );
     */
 }
+
+/**
+ * Implements hook_theme().
+ */
+function icrp_theme() {
+    return [
+        'my_profile_form' => [
+            'render element' => 'form',
+        ],
+    ];
+}
+
 /**
  * Implements hook_form_alter().
  */
