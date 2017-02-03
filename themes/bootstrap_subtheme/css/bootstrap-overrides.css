@@ -285,7 +285,8 @@ footer.footer {
 
 div.search-block-form > div.search-well {
   margin-top: -5px;
-  background-color: white;
+  background: transparent;
+  background-color: transparent;
   float: right;
   box-shadow: none;
   -webkit-box-shadow: none;
