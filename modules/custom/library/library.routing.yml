@@ -1,0 +1,6 @@
+library.content:
+  path: '/library'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::content'
+  requirements:
+    _permission: 'access content'
