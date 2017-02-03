@@ -31,9 +31,10 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
 
   @Output() sort: EventEmitter<{ "column": string, "type": "asc" | "desc" }>;
   @Output() paginate: EventEmitter<{ "size": number, "offset": number }>;
+  @Output() updateFundingYear: EventEmitter<{ "year": number }>;
   
 
-  fundingYear = 2017;
+  fundingYear = new Date().getFullYear();
   emailForm: FormGroup;
 
   showCriteriaLocked = true;  
@@ -44,6 +45,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   searchCriteriaGroups: {"category": string, "criteria": string[], "type": string}[];
 
   showExtendedCharts = false;
+  fundingYearOptions = [];
 
   projectData;
   projectColumns;
@@ -60,6 +62,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     
     this.sort = new EventEmitter<{ "column": string, "type": "asc" | "desc" }>();
     this.paginate = new EventEmitter<{ "size": number, "offset": number }>();
+    this.updateFundingYear = new EventEmitter<{ "year": number }>();
 
     this.analytics = {
       count: 0,
@@ -104,6 +107,12 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     ]
 
     this.projectData = [];
+
+    for (let i = new Date().getFullYear(); i >= 2000; i --) {
+      this.fundingYearOptions.push(i);
+
+    }
+
   }
 
   ngAfterViewInit() {
@@ -189,6 +198,12 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     modal.hide();
   }
 
+  setFundingYear(year) {
+    this.updateFundingYear.emit(year);
+    this.fundingYear = year;
+  }
+
   ngOnInit() {
+
   }
 }
