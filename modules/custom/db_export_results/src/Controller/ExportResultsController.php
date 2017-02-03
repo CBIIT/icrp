@@ -712,24 +712,40 @@ class ExportResultsController extends ControllerBase {
 	return self::addCorsHeaders(new JSONResponse($downloadlocation . $filenameExport));
   }
 
-   public function exportResultsWithGraphsPartner(){
-    $year = $_REQUEST['year'];
+   public function exportResultsWithGraphsPartner(Request $request){
+    $year = $request->query->get('year');
 	$result = "Complete Exporting Results with Graphs in Partner Site";
 	$sid = $_SESSION['database_search_id'];
-	//$sid = 4;
 
 	$result = "Complete Exporting Results in Partner Site";
 	$config = self::getConfig();
 	$filelocation = $config['file_location'];
 	$downloadlocation = self::getBaseUrl() .  $config['download_location'];
 	$filenameExport  = 'ICRPExportGraphPartner'.$sid.'.xlsx';
+    $isPublic = false;
 
-	$result = self::createExcelFileWithGraph($filelocation, $filenameExport, $sid);
+	$result = self::createExcelFileWithGraph($filelocation, $filenameExport, $sid, $year, $isPublic);
 
 	return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));
   }
 
-  private function createExcelFileWithGraph($filelocation, $filename, $sid){
+   public function exportResultsWithGraphsPartnerPublic(){
+	$year = 0;
+	$result = "Complete Exporting Results with Graphs in Partner Site";
+	$sid = $_SESSION['database_search_id'];
+
+	$result = "Complete Exporting Results in Partner Site";
+	$config = self::getConfig();
+	$filelocation = $config['file_location'];
+	$downloadlocation = self::getBaseUrl() .  $config['download_location'];
+	$filenameExport  = 'ICRPExportGraphPartner'.$sid.'.xlsx';
+	$isPublic = true;
+	$result = self::createExcelFileWithGraph($filelocation, $filenameExport, $sid, $year, $isPublic);
+
+	return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));
+  }
+
+  private function createExcelFileWithGraph($filelocation, $filename, $sid, $year, $isPublic){
   	$result = "Succeed";
     try {
   	   $conn = self::getConnection();
@@ -956,7 +972,7 @@ class ExportResultsController extends ControllerBase {
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$objPHPExcel->setActiveSheetIndex(3)
 		    	        ->setCellValue('A'.$i, $row['ProjectType'])
-		    	        ->setCellValue('B'.$i, $row['Project Count']);
+		    	        ->setCellValue('B'.$i, $row['Count']);
 			$i = $i + 1;
 			$totalRow = $totalRow + 1;
 		}
@@ -1003,84 +1019,73 @@ class ExportResultsController extends ControllerBase {
 	$chart4->setBottomRightPosition('Q26');
 	$objPHPExcel->getActiveSheet()->addChart($chart4);
 
-	//create second sheet for Projects By Year
-	$totalRow = 0;
-	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectAwardStatsBySearchID @SearchID=:search_id_name, @year=:search_year, @Total=:result_count");
-	$stmt->bindParam(':search_id_name', $sid);
-	$stmt->bindParam(':search_year', $year);
-	$stmt->bindParam(':result_count', $result_count, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
+	if($isPublic == false){
+		//create second sheet for Projects By Year
+		$totalRow = 0;
+		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectAwardStatsBySearchID @SearchID=:search_id_name, @Year=:search_year, @Total=:result_count");
+		$stmt->bindParam(':search_id_name', $sid);
+		$stmt->bindParam(':search_year', $year);
+		$stmt->bindParam(':result_count', $result_count, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
 
-	if ($stmt->execute()) {
-		// Add new sheet
-		$objWorkSheet = $objPHPExcel->createSheet();
-	    $i = 2;
-		// Add some data
-		if($bit == 0){
-			$objPHPExcel->setActiveSheetIndex(4)
-						->setCellValue('A1', 'Calendar Year')
-						->setCellValue('B1', 'Project Count');
-			while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-				$objPHPExcel->setActiveSheetIndex(4)
-							->setCellValue('A'.$i, $row['Year'])
-							->setCellValue('B'.$i, $row['Count']);
-				$i = $i + 1;
-				$totalRow = $totalRow + 1;
-			}
-		}else if($bit == 1){
+		if ($stmt->execute()) {
+			// Add new sheet
+			$objWorkSheet = $objPHPExcel->createSheet();
+			$i = 2;
+			// Add some data
 			$objPHPExcel->setActiveSheetIndex(4)
 						->setCellValue('A1', 'Calendar Year')
 						->setCellValue('B1', 'Amount');
 			while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 				$objPHPExcel->setActiveSheetIndex(4)
 							->setCellValue('A'.$i, $row['Year'])
-							->setCellValue('B'.$i, $row['Amount']);
+							->setCellValue('B'.$i, $row['amount']);
 				$objPHPExcel->getActiveSheet()->getStyle('B'.$i)->getNumberFormat()->setFormatCode("#,##0.00");
 				$i = $i + 1;
 				$totalRow = $totalRow + 1;
 			}
+			$result = "succeed";
+		} else {
+			$result = "failed to query server";
 		}
-		$result = "succeed";
-	} else {
-		$result = "failed to query server";
-	}
-    $objPHPExcel->getActiveSheet()->setTitle('Award_Amount_By_Year');
-    $objPHPExcel->setActiveSheetIndex(4);
-	$dataseriesLabels5 = array(
-		new PHPExcel_Chart_DataSeriesValues('String', 'Award_Amount_By_Year!$B$1', NULL, 1),
-	);
-	$xAxisTickValues5 = array(
-	  new PHPExcel_Chart_DataSeriesValues('String', 'Award_Amount_By_Year!$A$2:$A$'.($totalRow+1), NULL, $totalRow),
-	);
-    $dataSeriesValues5 = array(
-	  new PHPExcel_Chart_DataSeriesValues('Number', 'Award_Amount_By_Year!$B$2:$B$'.($totalRow+1), NULL, $totalRow),
-	);
-	$series5 = new PHPExcel_Chart_DataSeries(
-	  PHPExcel_Chart_DataSeries::TYPE_LINECHART,       // plotType
-	  PHPExcel_Chart_DataSeries::GROUPING_STANDARD,     // plotGrouping
-	  range(0, count($dataSeriesValues5)-1),          // plotOrder
-	  $dataseriesLabels5,                   // plotLabel
-	  $xAxisTickValues5,                    // plotCategory
-	  $dataSeriesValues5                    // plotValues
-	);
-	$layout5 = new PHPExcel_Chart_Layout();
-	$layout5->setShowVal(TRUE);
-	$plotarea5 = new PHPExcel_Chart_PlotArea($layout5, array($series5));
-	$legend5 = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);
-	$title5 = new PHPExcel_Chart_Title('Award Amount By Year');
-	$chart5 = new PHPExcel_Chart(
-	  'chart5',   // name
-	  $title5,    // title
-	  $legend5,   // legend
-	  $plotarea5,   // plotArea
-	  true,     // plotVisibleOnly
-	  0,        // displayBlanksAs
-	  NULL,     // xAxisLabel
-	  NULL      // yAxisLabel   - Pie charts don't have a Y-Axis
-	);
-	$chart5->setTopLeftPosition('D2');
-	$chart5->setBottomRightPosition('Q26');
-	$objPHPExcel->getActiveSheet()->addChart($chart5);
 
+		$objPHPExcel->getActiveSheet()->setTitle('Award_Amount_By_Year');
+		$objPHPExcel->setActiveSheetIndex(4);
+		$dataseriesLabels5 = array(
+			new PHPExcel_Chart_DataSeriesValues('String', 'Award_Amount_By_Year!$B$1', NULL, 1),
+		);
+		$xAxisTickValues5 = array(
+		  new PHPExcel_Chart_DataSeriesValues('String', 'Award_Amount_By_Year!$A$2:$A$'.($totalRow+1), NULL, $totalRow),
+		);
+		$dataSeriesValues5 = array(
+		  new PHPExcel_Chart_DataSeriesValues('Number', 'Award_Amount_By_Year!$B$2:$B$'.($totalRow+1), NULL, $totalRow),
+		);
+		$series5 = new PHPExcel_Chart_DataSeries(
+		  PHPExcel_Chart_DataSeries::TYPE_LINECHART,       // plotType
+		  PHPExcel_Chart_DataSeries::GROUPING_STANDARD,     // plotGrouping
+		  range(0, count($dataSeriesValues5)-1),          // plotOrder
+		  $dataseriesLabels5,                   // plotLabel
+		  $xAxisTickValues5,                    // plotCategory
+		  $dataSeriesValues5                    // plotValues
+		);
+		$layout5 = new PHPExcel_Chart_Layout();
+		$layout5->setShowVal(TRUE);
+		$plotarea5 = new PHPExcel_Chart_PlotArea($layout5, array($series5));
+		$legend5 = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);
+		$title5 = new PHPExcel_Chart_Title('Award Amount By Year');
+		$chart5 = new PHPExcel_Chart(
+		  'chart5',   // name
+		  $title5,    // title
+		  $legend5,   // legend
+		  $plotarea5,   // plotArea
+		  true,     // plotVisibleOnly
+		  0,        // displayBlanksAs
+		  NULL,     // xAxisLabel
+		  NULL      // yAxisLabel   - Pie charts don't have a Y-Axis
+		);
+		$chart5->setTopLeftPosition('D2');
+		$chart5->setBottomRightPosition('Q26');
+		$objPHPExcel->getActiveSheet()->addChart($chart5);
+	}
 
  	// Set active sheet index to the first sheet, so Excel opens this as the first sheet
 	$objPHPExcel->setActiveSheetIndex(0);

@@ -25,8 +25,8 @@ export class ExportLookupTableButtonComponent implements OnInit {
 
   downloadResult(modal: any){
   	modal.show();
-  	//let endpoint = 'https://icrpartnership-dev.org/ExportUploadStatus';
-  	let endpoint = '/ExportUploadStatus';
+  	//let endpoint = 'https://icrpartnership-dev.org/ExportResultsWithGraphsPartnerPublic';
+  	let endpoint = '/ExportResultsWithGraphsPartnerPublic';
   	let query = this.http.get(endpoint, {})
         	.map((res: Response) => res.json())
       		.catch((error: any) => Observable.throw(error || 'Server error'))
