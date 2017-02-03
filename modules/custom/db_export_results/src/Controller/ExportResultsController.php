@@ -664,7 +664,7 @@ class ExportResultsController extends ControllerBase {
   }
 
   public function exportResultsWithAbstractPartner(){
-    $sid = $_SESSION['database_search_id'];
+     $sid = $_SESSION['database_search_id'];
     //$sid = 4;
 
 	$isPublic = false;
@@ -713,6 +713,7 @@ class ExportResultsController extends ControllerBase {
   }
 
    public function exportResultsWithGraphsPartner(){
+    $year = $_REQUEST['year'];
 	$result = "Complete Exporting Results with Graphs in Partner Site";
 	$sid = $_SESSION['database_search_id'];
 	//$sid = 4;
@@ -1005,9 +1006,10 @@ class ExportResultsController extends ControllerBase {
 	//create second sheet for Projects By Year
 	$bit = 1;
 	$totalRow = 0;
-	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectAwardStatsBySearchID @SearchID=:search_id_name, @isPartner=:is_partner, @Total=:result_count");
+	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectAwardStatsBySearchID @SearchID=:search_id_name, @isPartner=:is_partner, @year=:search_year, @Total=:result_count");
 	$stmt->bindParam(':search_id_name', $sid);
 	$stmt->bindParam(':is_partner', $bit, PDO::PARAM_INT);
+	$stmt->bindParam(':search_year', $year);
 	$stmt->bindParam(':result_count', $result_count, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
 
 	if ($stmt->execute()) {
