@@ -53,3 +53,11 @@ db_export_results.lookupTable:
      _title: 'Project Details'
    requirements:
     _permission: 'access content' 
+    
+db_export_results.uploadStatus:
+   path: '/ExportUploadStatus'
+   defaults:
+     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportUploadStatus'
+     _title: 'Project Details'
+   requirements:
+    _permission: 'access content'    

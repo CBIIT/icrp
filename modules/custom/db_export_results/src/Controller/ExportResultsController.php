@@ -1257,13 +1257,12 @@ class ExportResultsController extends ControllerBase {
   }
 
   public function exportLookupTable(){
-	$sid = $_SESSION['database_search_id'];
-    //$sid = 4;
+
 	$result = "Complete Exporting Lookup Table";
 	$config = self::getConfig();
  	$filelocation = $config['file_location'];
  	$downloadlocation = self::getBaseUrl() .  $config['download_location'];
-    $filenameExport  = 'ICRPExportLookupTable'.$sid.'.xlsx';
+    $filenameExport  = 'ICRPExportLookupTable'.'.xlsx';
 
 	$objPHPExcel = new PHPExcel();
 
@@ -1274,16 +1273,16 @@ class ExportResultsController extends ControllerBase {
   	 }
 	$sheetIndex = 0;
 	$type = "cso";
-	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sid, $sheetIndex, $type);
+	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sheetIndex, $type);
 	$sheetIndex = 1;
 	$type = "cancer";
-	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sid, $sheetIndex, $type);
+	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sheetIndex, $type);
 	$sheetIndex = 2;
 	$type = "country";
-	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sid, $sheetIndex, $type);
+	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sheetIndex, $type);
 	$sheetIndex = 3;
 	$type = "currency";
-	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sid, $sheetIndex, $type);
+	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sheetIndex, $type);
 
     $objPHPExcel->setActiveSheetIndex(0);
 
@@ -1297,7 +1296,7 @@ class ExportResultsController extends ControllerBase {
     return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));
   }
 
-  private function createExportLookupSheet($conn, &$objPHPExcel, $sid, $sheetIndex, $type){
+  private function createExportLookupSheet($conn, &$objPHPExcel, $sheetIndex, $type){
   	$result = "succeed";
   	//cso is the first sheet, do not need to create a new sheet
 	if($type == 'cso'){
@@ -1340,7 +1339,7 @@ class ExportResultsController extends ControllerBase {
 			$location="A";
 			$position++;
 		}
-		$result = "succed";
+		$result = "succeed";
 	}else{
 	 	$result = "failed to query server";
 	}
@@ -1358,6 +1357,74 @@ class ExportResultsController extends ControllerBase {
 	}
 
     return $result;
+  }
+
+  public function exportUploadStatus(){
+
+	$result = "Complete Exporting Lookup Table";
+	$config = self::getConfig();
+ 	$filelocation = $config['file_location'];
+ 	$downloadlocation = self::getBaseUrl() .  $config['download_location'];
+    $filenameExport  = 'ICRPExportUploadStatus'.'.xlsx';
+
+	$objPHPExcel = new PHPExcel();
+
+  	 try {
+	   $conn = self::getConnection();
+  	 } catch (Exception $exc) {
+  	   return "Could not create db connection";
+  	 }
+	$sheetIndex = 0;
+	$result = self::createUploadStatusSheet($conn, $objPHPExcel, $sheetIndex);
+
+    $objPHPExcel->setActiveSheetIndex(0);
+
+	// Save Excel 2007 file
+	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+	$objWriter->setIncludeCharts(TRUE);
+	$objWriter->save($filelocation.$filenameExport);
+
+    $conn = null;
+
+    return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));
+
+  }
+
+  private function createUploadStatusSheet($conn, &$objPHPExcel, $sheetIndex){
+  	$result = "succeed";
+	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetDataUploadStatus");
+	if ($stmt->execute()) {
+		$colName = Array();
+		foreach(range(0, $stmt->columnCount() - 1) as $column_index)
+		{
+		  $meta = $stmt->getColumnMeta($column_index);
+		  $colName[] = $meta['name'];
+		}
+		$location = "A";
+		$position = 1;
+		for($i=0; $i < sizeof($colName); $i++){
+			$objPHPExcel->setActiveSheetIndex($sheetIndex)
+						->setCellValue($location.$position, $colName[$i]);
+			$location++;
+		}
+		$location = "A";
+		$position = 2;
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+			for($in = 0; $in < sizeof($colName); $in++){
+				$objPHPExcel->setActiveSheetIndex($sheetIndex)
+							->setCellValue($location.$position, $row[$colName[$in]]);
+				$location++;
+			}
+			$location="A";
+			$position++;
+		}
+
+		$result = "succeed";
+	}else{
+		$result = "failed to query server";
+	}
+
+  	return $result;
   }
 
 }
