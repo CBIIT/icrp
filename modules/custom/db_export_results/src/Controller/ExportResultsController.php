@@ -712,8 +712,8 @@ class ExportResultsController extends ControllerBase {
 	return self::addCorsHeaders(new JSONResponse($downloadlocation . $filenameExport));
   }
 
-   public function exportResultsWithGraphsPartner(){
-    $year = $_REQUEST['year'];
+   public function exportResultsWithGraphsPartner(Request $request){
+    $year = $request->query->get('year');
 	$result = "Complete Exporting Results with Graphs in Partner Site";
 	$sid = $_SESSION['database_search_id'];
 
@@ -1022,7 +1022,7 @@ class ExportResultsController extends ControllerBase {
 	if($isPublic == false){
 		//create second sheet for Projects By Year
 		$totalRow = 0;
-		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectAwardStatsBySearchID @SearchID=:search_id_name, @year=:search_year, @Total=:result_count");
+		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectAwardStatsBySearchID @SearchID=:search_id_name, @Year=:search_year, @Total=:result_count");
 		$stmt->bindParam(':search_id_name', $sid);
 		$stmt->bindParam(':search_year', $year);
 		$stmt->bindParam(':result_count', $result_count, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
