@@ -972,7 +972,7 @@ class ExportResultsController extends ControllerBase {
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$objPHPExcel->setActiveSheetIndex(3)
 		    	        ->setCellValue('A'.$i, $row['ProjectType'])
-		    	        ->setCellValue('B'.$i, $row['Project Count']);
+		    	        ->setCellValue('B'.$i, $row['Count']);
 			$i = $i + 1;
 			$totalRow = $totalRow + 1;
 		}
