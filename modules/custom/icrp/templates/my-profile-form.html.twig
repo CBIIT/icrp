@@ -1,24 +1,20 @@
 <!-- Source: https://www.drupal.org/node/2788835 -->
+<div class="container">
+    <form{{ attributes }}>
+            <div class="form--inline clearfix form-group">
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.name }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.committee }}
+                    </div>
+                </div>
+            </div>
+    </form>
+</div>
 
-{{ kint(form) }}
-<h1>{{ form.last_name }}</h1>
-<form{{ attributes }}>
-    {{ form.form_build_id }}
-    {{ form.form_token }}
-    {{ form.form_id }}
-
-    <div class="row">
-        <div class="col-md-6">
-            {{ form.name.first_name }}
-        </div>
-        <div class="col-md-6">
-            {{ form.name.last_name }}
-        </div>
-    </div>
-</form>
-
-<form accept-charset="UTF-8" id="webform-submission-update-my-profile-form" method="post" action="/update-my-profile" data-drupal-selector="webform-submission-update-my-profile-form" class="webform-submission-update-my-profile-form webform-submission-form webform-details-toggle contextual-region" data-drupal-form-fields="edit-first-name,edit-last-name,edit-email,edit-subcommittee-1,edit-subcommittee-2,edit-subcommittee-3,edit-subcommittee-4,edit-subcommittee-5,edit-subcommittee-6,edit-subcommittee-7,edit-subcommittee-8,form-MDUk_ASoWmjN23zAm1q88SIt30A9w75jgJaDEP7XbPA,edit-webform-submission-update-my-profile-form-form-token,edit-webform-submission-update-my-profile-form,edit-submit">
-
+<form accept-charset="UTF-8" id="my-profile-form" method="post" action="/my-profile">
     <h2>Update My Profile</h2>
 
     <!-- THEME DEBUG -->

@@ -7,6 +7,7 @@ modules/custom/db_project_view/src/Controller/config.ini
 #files/
 #sites/*/files
 #sites/*/private
+sites/default/files/php/twig
 
 # Ignore css and js cache
 sites/default/files/css/css_*

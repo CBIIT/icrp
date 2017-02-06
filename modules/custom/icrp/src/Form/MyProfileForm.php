@@ -24,40 +24,20 @@ class MyProfileForm extends FormBase
         return 'my_profile_form';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function buildForm(array $form, FormStateInterface $form_state)
     {
-        /*
-        $form['container'] = array(
-            '#type' => 'container',
-            '#title' => "Main"
-            '#weight' => 5,
-            '#attributes' => array(
-                'class’ => array(
-                    ‘contact-info’,
-                ),
-            ),
-        );
-
-*/
-        $current_uri = \Drupal::request()->getRequestUri();
-        $uri_parts = explode("/", $current_uri);
-        //$uuid = $uri_parts[2];
-        $uuid = "cbe73f10-f532-41ee-8a38-78b7633f18df";
-        $entity = \Drupal::entityManager()->loadEntityByUuid('user', $uuid);
-
         /* Load User Data */
-        $uid = (int)$entity->id();
+
+        $uid = \Drupal::currentUser()->id();
+        //drupal_set_message("uid:".$uid);
+        //$uid = (int)$entity->id();
         $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
         $field_first_name = $user->get('field_first_name');
         $field_last_name = $user->get('field_last_name');
-
-        /* Get Organization Title */
-        $field_organization = $user->get("field_organization");
-        $field_organization_nid = $field_organization->getValue()[0]["target_id"];
-        //drupal_set_message("Organization nid: ".$field_organization->getValue()[0]["target_id"]);
-        $node = \Drupal\node\Entity\Node::load($field_organization_nid);
-        $title_field = $node->get('title');
-        $organization_title = $title_field->value;
+        //drupal_set_message("Setting for ".$field_first_name." ".$field_last_name);
 
         /* Email */
         $email = $user->getEmail();
@@ -84,14 +64,6 @@ class MyProfileForm extends FormBase
             }
         }
 
-        /*
-        $user_roles = $user->get("roles");
-
-        }
-
-        print_r($user_roles->getValue());
-        drupal_set_message($user_roles->value);
-        */
         //$field_organization_parent = $field_organization->parent();
         //kint($field_organization->getName());
         //kint($field_organization_parent);
@@ -104,6 +76,7 @@ class MyProfileForm extends FormBase
         //drupal_set_message($user->getRoles());
         //drupal_set_message(print_r("email:", TRUE));
         //dsm($user);
+
         $form['#theme'] = "my_profile_form";
 
         $form['name'] = array(
@@ -118,9 +91,8 @@ class MyProfileForm extends FormBase
             '#title' => t('First Name:'),
             '#default_value' => $field_first_name->value,
             '#required' => TRUE,
-            '#disabled' => TRUE,
             '#attributes' => array(
-                'class' => array('bc-cart-form-container'),
+                'class' => array(''),
             )
         );
         $form['name']['last_name'] = array(
@@ -128,61 +100,100 @@ class MyProfileForm extends FormBase
             '#title' => t('Last Name:'),
             '#default_value' => $field_last_name->value,
             '#required' => TRUE,
-            '#disabled' => TRUE,
-        );
-        $form['name']['organization'] = array(
-            '#type' => 'textfield',
-            '#title' => t('Organization'),
-            '#default_value' => $organization_title,
-            '#required' => TRUE,
-            '#disabled' => TRUE,
         );
         $form['name']['email'] = array(
             '#type' => 'email',
             '#title' => t('Email:'),
             '#default_value' => $email,
             '#required' => TRUE,
-            '#disabled' => TRUE,
         );
-        $form['name']['settings'] = array(
-            '#type' => 'fieldset',
-            '#title' => t('User Settings'),
+
+        $form['name']['password'] = array(
+            '#type' => 'details',
+            '#title' => t('Change Password'),
             '#attributes' => array(
                 'class' => array(''),
             )
         );
-        $form['name']['settings']['upload_files'] = array(
+
+        $form['name']['password']['current'] = array(
+            '#type' => 'password',
+            '#title' => t('Current Password'),
+            '#default_value' => $field_first_name->value,
+        );
+        $form['name']['password']['new'] = array(
+            '#type' => 'password',
+            '#title' => t('New Password'),
+            '#default_value' => $field_first_name->value,
+        );
+        $form['name']['password']['confirm'] = array(
+            '#type' => 'password',
+            '#title' => t('Confirm Password'),
+            '#default_value' => $field_first_name->value,
+        );
+
+        $form['committee'] = array(
+            '#type' => 'fieldset',
+            '#title' => 'ICRP Subcommittees',
+        );
+
+        $subcommittee = array();
+        $subcommittee = array(
+            "Internal Communication",
+            "External Communication",
+            "Membership",
+            "Annual Meeting",
+            "Evaluation & Outcomes",
+            "Web Site & Database",
+            "Data Report & Data Quality",
+            "Partner Operations"
+        );
+        $config = $this->config('recovery_pass.settings');
+
+        //$mytype = gettype($subcommittee[0]);
+        //druapl_set_message("Type: ".$mytype);
+
+        $form['committee']["sub0"] = array(
             '#type' => 'checkbox',
-            '#title' => t('Can Upload Library Files'),
+            '#title' => t($subcommittee[0]),
+            '#default_value' => $can_upload_library_files,
+        );
+        $form['committee']["sub1"] = array(
+            '#type' => 'checkbox',
+            '#title' => t($subcommittee[1]),
+            '#default_value' => $can_upload_library_files,
+        );
+        $form['committee']["sub2"] = array(
+            '#type' => 'checkbox',
+            '#title' => t($subcommittee[2]),
+            '#default_value' => $can_upload_library_files,
+        );
+        $form['committee']["sub3"] = array(
+            '#type' => 'checkbox',
+            '#title' => t($subcommittee[3]),
+            '#default_value' => $can_upload_library_files,
+        );
+        $form['committee']["sub4"] = array(
+            '#type' => 'checkbox',
+            '#title' => t($subcommittee[4]),
+            '#default_value' => $can_upload_library_files,
+        );
+        $form['committee']["sub5"] = array(
+            '#type' => 'checkbox',
+            '#title' => t($subcommittee[5]),
+            '#default_value' => $can_upload_library_files,
+        );
+        $form['committee']["sub6"] = array(
+            '#type' => 'checkbox',
+            '#title' => t($subcommittee[6]),
+            '#default_value' => $can_upload_library_files,
+        );
+        $form['committee']["sub7"] = array(
+            '#type' => 'checkbox',
+            '#title' => t($subcommittee[7]),
             '#default_value' => $can_upload_library_files,
         );
 
-        $form['name']['settings']['status'] = array(
-            '#type' => 'radios',
-            '#title' => ('Status'),
-            '#options' => array(
-                0 => t('Blocked'),
-                1 => t('Active'),
-            ),
-            '#default_value' => $status,
-
-        );
-        $form['name']['settings']['roles'] = array(
-            '#type' => 'checkboxes',
-            '#title' => 'Roles',
-            '#options' => array(
-                'manager' => t('Manager'),
-                'partner' => t('Partner'),
-            ),
-            '#default_value' => $roles,
-        );
-        $form['name']['settings']['actions']['#type'] = 'actions';
-        $form['name']['settings']['actions']['submit'] = array(
-            '#type' => 'submit',
-            '#value' => $this->t('Save'),
-            '#button_type' => 'primary',
-        );
-        /*
         $config = $this->config('recovery_pass.settings');
 
         $form['recovery_pass_help_text'] = array(
@@ -255,7 +266,6 @@ class MyProfileForm extends FormBase
             '#element_validate' =>  array('_recovery_pass_validate_integer_positive'),
         );
 
-        */
 
         return $form;
     }
