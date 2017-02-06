@@ -6,9 +6,9 @@ library.content:
     _permission: 'access content'
 
 library.folders:
-  path: '/library/get'
+  path: '/library/get/folders'
   defaults:
-    _controller: '\Drupal\library\Controller\LibraryController::get'
+    _controller: '\Drupal\library\Controller\LibraryController::getFolders'
   methods:  [GET]
   requirements:
     _permission: 'access content'

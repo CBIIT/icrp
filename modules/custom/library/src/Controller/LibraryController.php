@@ -4,6 +4,7 @@ namespace Drupal\library\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use PDO;
 
 class LibraryController extends ControllerBase {
   public function content() {
@@ -17,8 +18,20 @@ class LibraryController extends ControllerBase {
     ];
   }
 
-  public function get() {
-    return new JsonResponse(array('show' => 'me this!'));
+  public function getFolders() {
+    $connection = self::get_connection();
+    $stmt = $connection->prepare("EXECUTE GetLibraryFolders;");
+    if ($stmt->execute()) {
+      $output = [];
+      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $row_output = array();
+        foreach ($row as $key=>$value) {
+          $row_output[$key] = $value;
+        }
+        array_push($output,$row_output);
+      }
+      return new JsonResponse($output);
+    }
   }
 
   /**
@@ -43,7 +56,7 @@ class LibraryController extends ControllerBase {
     $cfg['dsn'] =
       $cfg['driver'] .
       ":Server={$cfg['host']},{$cfg['port']}" .
-      ";Database={$cfg['database']}";
+      ";Database={$cfg['database']};ConnectionPooling=0";
     // default configuration options
     $cfg['options'] = [
       PDO::SQLSRV_ATTR_ENCODING    => PDO::SQLSRV_ENCODING_UTF8,
