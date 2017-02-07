@@ -83,7 +83,7 @@ class MyProfileForm extends FormBase
 
         $form['name']['first_name'] = array(
             '#type' => 'textfield',
-            '#title' => t('First Name:'),
+            '#title' => t('First Name'),
             '#default_value' => $user->get('field_first_name')->value,
             '#required' => TRUE,
             '#attributes' => array(
@@ -98,7 +98,7 @@ class MyProfileForm extends FormBase
         );
         $form['name']['email'] = array(
             '#type' => 'email',
-            '#title' => t('Email:'),
+            '#title' => t('Email'),
             '#default_value' => $user->getEmail(),
             '#required' => TRUE,
         );
@@ -116,6 +116,14 @@ class MyProfileForm extends FormBase
             '#title' => t('Current Password'),
             '#default_value' =>"",
         );
+        $markup = '<div class="description" id="edit-current-pass--description">
+        Required if you want to change the <em class="placeholder">Email address</em> or <em class="placeholder">Password</em> below. <a title="Send password reset instructions via email." href="/user/password">Reset your password</a>.
+    </div>';
+        $form['name']['password']['markup_reset'] = array(
+            '#type' => 'markup',
+            '#markup' => t($markup),
+        );
+
         $form['name']['password']['new'] = array(
             '#type' => 'password',
             '#title' => t('New Password'),
@@ -123,9 +131,15 @@ class MyProfileForm extends FormBase
         );
         $form['name']['password']['confirm'] = array(
             '#type' => 'password',
-            '#title' => t('Confirm Password'),
+            '#title' => t('Confirm New Password'),
             '#default_value' => "",
         );
+        $markup = '<div class="description" id="edit-pass--description">To change the current user password, enter the new password in both fields.</div>';
+        $form['name']['password']['markup_password'] = array(
+            '#type' => 'markup',
+            '#markup' => t($markup),
+        );
+
 
         $form['committee'] = array(
             '#type' => 'fieldset',

@@ -36,6 +36,10 @@ h1 {
     color: #153670;
 }
 
+/*Forms */
+#edit-current-pass-description {
+    margin-bottom:25px;
+}
 /* Footer Nav */
 /*
 .center-nav > li + li::before {
