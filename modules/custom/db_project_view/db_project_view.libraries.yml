@@ -14,8 +14,16 @@ project_view_resources:
     src/assets/js/main.projectview.js: {}
     src/assets/js/scripts.js: {}
 
-
 funding_org_resources:
+  version: 1.0
+  css:
+    theme:
+      src/assets/css/styles.css: {}
+      src/assets/css/main.fundingorg.css: {}
+  js:
+    src/assets/js/main.fundingorg.js: {}
+
+upload_status_report_resources:
   version: 1.0
   css:
     theme:
