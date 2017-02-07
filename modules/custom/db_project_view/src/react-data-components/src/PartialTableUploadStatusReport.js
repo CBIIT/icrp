@@ -5,17 +5,19 @@ import Pagination from './Pagination';
 
 export default class PartialTableUploadStatusReport extends Component {
     exportResult() {
-    $.ajax({
-        url: '/ExportUploadStatus',
-        dataType: 'jsonp',
-        cache: false,
-        success: function(data) {
-            document.location.href=data.json()
-        }.bind(this),
-            error: function(xhr, status, err) {
-            console.error(this.props.url, status, err.toString());
-        }.bind(this)
-    });
+        fetch('/ExportUploadStatus')
+
+
+         .then(function(response) {
+            return response.json();
+         })
+         .then(function(json) {
+	    document.location.href = json
+         }.bind(this))
+         .catch(function(ex) {
+            console.log('parsing failed', ex)
+         });
+
    }
 
   render() {
