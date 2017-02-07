@@ -127,8 +127,6 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
     switch ($form_id) {
         case 'user_login':
         case 'user_login_form':
-
-            //$link = \Drupal\Core\Link::fromTextAndUrl('Forgot Password?', "/user/password");
             $form['link'] = array('#markup' => t("<div style=padding:20px;'><a href='/user/password'>Forgot Password?</a></div>"));
             break;
     }

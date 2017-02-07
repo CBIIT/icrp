@@ -1,0 +1,12 @@
+<?php
+
+/**
+ * @file
+ * Install and update hooks for clientside_validation_jquery.
+ */
+
+/**
+ * Empty update function because we need a cache clear after deleting a plugin.
+ */
+function clientside_validation_jquery_update_8001() {
+}

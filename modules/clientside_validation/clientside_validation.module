@@ -1,0 +1,71 @@
+<?php
+/**
+ * @file
+ * Hook implementations for the Clientside Validation module.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_alter().
+ */
+function clientside_validation_form_alter(&$form, FormStateInterface &$form_state, $form_id) {
+  $form['#after_build'][] = 'clientside_validation_form_after_build';
+}
+
+/**
+ * Form after build callback.
+ */
+function clientside_validation_form_after_build($form, FormStateInterface $form_state) {
+  clientside_validation_add_validation($form, $form_state, $form['#form_id']);
+  clientside_validation_form_after_build_recurse($form['#form_id'], $form, $form_state);
+
+  return $form;
+}
+
+/**
+ * Recursive function to add clientside validation to a from.
+ */
+function clientside_validation_form_after_build_recurse($form_id, &$form, &$form_state) {
+  if (($children = Drupal\Core\Render\Element::children($form))) {
+    foreach ($children as $item) {
+      $element = &$form[$item];
+      clientside_validation_add_validation($element, $form_state, $form_id);
+      if (
+        isset($element['#type'])
+        && $element['#type'] == 'submit'
+        && isset($element['#limit_validation_errors'])
+        && empty($element['#limit_validation_errors'])
+        && $element['#limit_validation_errors'] !== FALSE
+      ) {
+        $element['#attributes']['class'][] = 'cancel';
+      }
+      clientside_validation_form_after_build_recurse($form_id, $element, $form_state);
+    }
+  }
+}
+
+/**
+ * Add clientside validation to a form element.
+ */
+function clientside_validation_add_validation(&$element, FormStateInterface &$form_state, $form_id) {
+  if (clientside_validation_should_validate($element, $form_state, $form_id)) {
+    $validators = \Drupal::service('plugin.manager.clientside_validation.validators')->getValidators($element, $form_state);
+    foreach ($validators as $validator) {
+      $validator->addValidation($element, $form_state);
+    }
+  }
+}
+
+/**
+ * Check whether or not an element should be validated.
+ */
+function clientside_validation_should_validate($element) {
+  $hook = 'clientside_validation_should_validate';
+  $implementations = \Drupal::moduleHandler()->getImplementations($hook);
+  $should_validate = TRUE;
+  foreach ($implementations as $implementation) {
+    $should_validate = $should_validate && (\Drupal::moduleHandler()->invoke($implementation, $hook, $element) !== FALSE);
+  }
+  return $should_validate;
+}

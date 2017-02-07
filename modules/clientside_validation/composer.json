@@ -1,0 +1,32 @@
+{
+    "name": "drupal/clientside_validation",
+    "description": "This module adds clientside validation",
+    "homepage": "https://www.drupal.org/project/clientside_validation",
+    "type": "drupal-module",
+    "license": "GPL-2.0+",
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "jqueryvalidate",
+                "version": "1.14.0",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://jqueryvalidation.org/files/jquery-validation-1.14.0.zip",
+                    "type": "zip"
+                }
+            }
+        }
+    ],
+    "extra": {
+        "installer-paths": {
+            "clientside_validation_jquery/js/lib": [
+                "type:drupal-library"
+            ]
+        }
+    },
+    "require": {
+        "composer/installers": "^1.0.20",
+        "jqueryvalidate": "1.14.0"
+    }
+}
