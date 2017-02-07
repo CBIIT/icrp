@@ -1,8 +1,22 @@
+import $ from 'jquery';
 import React, {Component} from 'react';
 import Table from './Table';
 import Pagination from './Pagination';
 
-export default class PartialTable extends Component {
+export default class PartialTableUploadStatusReport extends Component {
+    exportResult() {
+    $.ajax({
+        url: '/ExportUploadStatus',
+        dataType: 'jsonp',
+        cache: false,
+        success: function(data) {
+            document.location.href=data.json()
+        }.bind(this),
+            error: function(xhr, status, err) {
+            console.error(this.props.url, status, err.toString());
+        }.bind(this)
+    });
+   }
 
   render() {
     const {
@@ -29,7 +43,7 @@ export default class PartialTable extends Component {
         <div className="row">
           <div className="col-xs-6 top-buffer">
             <div>
-              <button type="submit" className="btn btn-default"><span className="glyphicon glyphicon-download-alt"></span>&nbsp;Export</button>
+              <button onClick={this.exportResult} className="btn btn-default"><span className="glyphicon glyphicon-download-alt"></span>&nbsp;Export</button>
             </div>
 	  </div>
           <div className="col-xs-6">
