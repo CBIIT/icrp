@@ -7,6 +7,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use PDO;
 
 class LibraryController extends ControllerBase {
+  private static $folderQuery = array(
+    "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate IS NULL;",
+    "partner" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL;",
+    "admin" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL ORDER BY ParentFolderID;"
+  );
+
   public function content() {
     return [
       '#theme' => 'library',
@@ -18,20 +24,47 @@ class LibraryController extends ControllerBase {
     ];
   }
 
-  public function getFolders() {
+  public function onLoad() {
+    $returnValue = array(
+      "role" => "public",
+      "initial" => array(),
+      "folders" => [],
+      "files" => []
+    );
+    $authenticated = parent::currentUser()->isAuthenticated();
+    if ($authenticated) {
+      $returnValue["role"] = "partner";
+      foreach (parent::currentUser()->getRoles() as $value) {
+        if ($value == "administrator") {
+          $returnValue["role"] = "admin";
+          break;
+        }
+      }
+    }
     $connection = self::get_connection();
-    $stmt = $connection->prepare("EXECUTE GetLibraryFolders;");
+    $stmt = $connection->prepare(self::$folderQuery[$returnValue["role"]]);
     if ($stmt->execute()) {
-      $output = [];
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $row_output = array();
         foreach ($row as $key=>$value) {
           $row_output[$key] = $value;
         }
-        array_push($output,$row_output);
+        array_push($returnValue["folders"],$row_output);
       }
-      return new JsonResponse($output);
+      $returnValue["initial"] = $returnValue["folders"][0];
+      $stmt = $connection->prepare("SELECT * FROM Library WHERE LibraryFolderID=:lfid");
+      $stmt->bindParam(":lfid",$returnValue["initial"]["LibraryFolderID"]);
+      if ($stmt->execute()) {
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+          $row_output = array();
+          foreach ($row as $key=>$value) {
+            $row_output[$key] = $value;
+          }
+          array_push($returnValue["files"],$row_output);
+        }
+      }
     }
+    return new JsonResponse($returnValue);
   }
 
   /**

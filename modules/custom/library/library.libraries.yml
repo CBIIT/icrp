@@ -7,3 +7,17 @@ resources:
     src/assets/js/index.js: {}
   dependencies:
     - core/jquery
+    - library/jsTree
+
+jsTree:
+  remote: https://cdnjs.com/libraries/jstree
+  version: 3.3.3
+  license:
+    name: MIT
+    url: https://github.com/ded/domready/blob/v1.0.8/LICENSE
+    gpl-compatible: true
+  js:
+    https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.3/jstree.min.js: { minified: true }
+  css:
+    theme:
+      https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.3/themes/default/style.min.css: { minified: true }

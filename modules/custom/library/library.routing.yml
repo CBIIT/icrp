@@ -5,10 +5,11 @@ library.content:
   requirements:
     _permission: 'access content'
 
-library.folders:
-  path: '/library/get/folders'
+library.initialize:
+  path: '/library/get/initialize'
   defaults:
-    _controller: '\Drupal\library\Controller\LibraryController::getFolders'
+    _controller: '\Drupal\library\Controller\LibraryController::onLoad'
   methods:  [GET]
   requirements:
     _permission: 'access content'
+
