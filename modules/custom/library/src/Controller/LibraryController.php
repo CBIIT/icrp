@@ -7,10 +7,20 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use PDO;
 
 class LibraryController extends ControllerBase {
-  private static $folderQuery = array(
-    "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate IS NULL;",
-    "partner" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL;",
+  private static $initFolderQuery = array(
+    "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate IS NULL ORDER BY ParentFolderID;",
+    "partner" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL ORDER BY ParentFolderID;",
     "admin" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL ORDER BY ParentFolderID;"
+  );
+  private static $folderQuery = array(
+    "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate is NULL AND LibraryFolderID=:lfid;",
+    "partner" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;",
+    "admin" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;"
+  );
+  private static $fileQuery = array(
+    "public" => "SELECT * FROM Library WHERE IsPublic=1 AND LibraryFolderID=:lfid;",
+    "partner" => "SELECT * FROM Library WHERE LibraryFolderID=:lfid;",
+    "admin" => "SELECT * FROM Library WHERE LibraryFolderID=:lfid;"
   );
 
   public function content() {
@@ -31,18 +41,9 @@ class LibraryController extends ControllerBase {
       "folders" => [],
       "files" => []
     );
-    $authenticated = parent::currentUser()->isAuthenticated();
-    if ($authenticated) {
-      $returnValue["role"] = "partner";
-      foreach (parent::currentUser()->getRoles() as $value) {
-        if ($value == "administrator") {
-          $returnValue["role"] = "admin";
-          break;
-        }
-      }
-    }
+    $returnValue["role"] = self::getRole();
     $connection = self::get_connection();
-    $stmt = $connection->prepare(self::$folderQuery[$returnValue["role"]]);
+    $stmt = $connection->prepare(self::$initFolderQuery[$returnValue["role"]]);
     if ($stmt->execute()) {
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $row_output = array();
@@ -52,8 +53,26 @@ class LibraryController extends ControllerBase {
         array_push($returnValue["folders"],$row_output);
       }
       $returnValue["initial"] = $returnValue["folders"][0];
-      $stmt = $connection->prepare("SELECT * FROM Library WHERE LibraryFolderID=:lfid");
-      $stmt->bindParam(":lfid",$returnValue["initial"]["LibraryFolderID"]);
+    }
+    return new JsonResponse($returnValue);
+  }
+
+  public function loadFolder($id) {
+    $returnValue = array(
+      "isPublic" => false,
+      "files" => []
+    );
+    $role = self::getRole();
+    $connection = self::get_connection();
+    $stmt = $connection->prepare(self::$folderQuery[$role]);
+    $stmt->bindParam(":lfid",$id);
+    if ($stmt->execute()) {
+      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $returnValue["isPublic"] = $row["IsPublic"]=="1";
+        break;
+      }
+      $stmt = $connection->prepare(self::$fileQuery[$role]);
+      $stmt->bindParam(":lfid",$id);
       if ($stmt->execute()) {
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
           $row_output = array();
@@ -65,6 +84,33 @@ class LibraryController extends ControllerBase {
       }
     }
     return new JsonResponse($returnValue);
+  }
+
+  public function fileDownload($file) {
+    return self::getFile($file);
+  }
+
+  public function thumbsDownload($file) {
+    return self::getFile("thumbs/".$file);
+  }
+
+  private function getFile($location) {
+    return new JsonResponse(array('x'=>$location));
+  }
+
+  private function getRole() {
+    $role = "anonymous";
+    $authenticated = parent::currentUser()->isAuthenticated();
+    if ($authenticated) {
+      $role = "partner";
+      foreach (parent::currentUser()->getRoles() as $value) {
+        if ($value == "administrator") {
+          $role = "admin";
+          break;
+        }
+      }
+    }
+    return $role;
   }
 
   /**
@@ -79,7 +125,7 @@ class LibraryController extends ControllerBase {
    * @return A PDO connection
    * @throws PDOException
    */
-  function get_connection() {
+  private function get_connection() {
     $cfg = [];
     $icrp_database = \Drupal::config('icrp_database');
     foreach(['driver', 'host', 'port', 'database', 'username', 'password'] as $key) {

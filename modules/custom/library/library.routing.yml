@@ -13,3 +13,26 @@ library.initialize:
   requirements:
     _permission: 'access content'
 
+library.folder:
+  path: '/library/get/folder/{id}'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::loadFolder'
+  methods:  [GET]
+  requirements:
+    _permission: 'access content'
+
+library.files:
+  path: '/library/files/{file}'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::fileDownload'
+  methods:  [GET]
+  requirements:
+    _permission: 'access content'
+
+library.files.thumbs:
+  path: '/library/files/thumbs/{file}'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::thumbsDownload'
+  methods:  [GET]
+  requirements:
+    _permission: 'access content'

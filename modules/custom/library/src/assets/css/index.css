@@ -63,8 +63,10 @@
 #library-search h3 {
   margin-top: 5px;
 }
-#library-search select {
-  border-color: #000;
+#library-tree {
+  border: 1px solid #000;
+  height: 20em;
+  overflow: auto;
   width: 100%;
 }
 #library-display {
@@ -107,7 +109,7 @@
   overflow: auto;
 }
 #library-display .frame.preview .item div {
-  bottom: 0px;
+  bottom: 1em;
   left: 11em;
   position: absolute;
   text-align: center;
