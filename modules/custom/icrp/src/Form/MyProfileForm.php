@@ -92,7 +92,7 @@ class MyProfileForm extends FormBase
         );
         $form['name']['last_name'] = array(
             '#type' => 'textfield',
-            '#title' => t('Last Name:'),
+            '#title' => t('Last Name'),
             '#default_value' =>  $user->get('field_last_name')->value,
             '#required' => TRUE,
         );
@@ -116,12 +116,15 @@ class MyProfileForm extends FormBase
             '#title' => t('Current Password'),
             '#default_value' =>"",
         );
-        $markup = '<div class="description" id="edit-current-pass--description">
+        $markup = '<div class="description" style="padding-bottom:25px;">
         Required if you want to change the <em class="placeholder">Email address</em> or <em class="placeholder">Password</em> below. <a title="Send password reset instructions via email." href="/user/password">Reset your password</a>.
     </div>';
         $form['name']['password']['markup_reset'] = array(
             '#type' => 'markup',
             '#markup' => t($markup),
+            '#attributes' => array(
+                'class' => array(''),
+            )
         );
 
         $form['name']['password']['new'] = array(
@@ -184,17 +187,16 @@ class MyProfileForm extends FormBase
 
     public function validateForm(array &$form, FormStateInterface $form_state)
     {
+        $form_values = $form_state->getValues();
+        //drupal_set_message(print_r($form_state->getValues(), TRUE));
+        kint($form);
         /*
         if (strlen($form_state->getValue('candidate_number')) < 10) {
             $form_state->setErrorByName('candidate_number', $this->t('Mobile number is too short.'));
         }
         */
     }
-    /*
-        public function hasManagerRole() {
-            return TRUE;
-        }
-    */
+
     public function submitForm(array &$form, FormStateInterface $form_state)
     {
 

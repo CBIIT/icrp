@@ -330,7 +330,7 @@ class UserReviewForm extends FormBase
         $user->set("status", $form_values['status']);
         $user->save();
 
-        drupal_set_message("User accout for ".$user->getDisplayName()."  has been saved and is currently ".strtolower($membership_status).".");
+        drupal_set_message("User account for ".$user->getDisplayName()."  has been saved and is currently ".strtolower($membership_status).".");
     }
 
 }
