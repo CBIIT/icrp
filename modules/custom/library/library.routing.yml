@@ -6,18 +6,26 @@ library.content:
     _permission: 'access content'
 
 library.initialize:
-  path: '/library/get/initialize'
+  path: '/library/initialize'
   defaults:
     _controller: '\Drupal\library\Controller\LibraryController::onLoad'
   methods:  [GET]
   requirements:
     _permission: 'access content'
 
-library.folder:
-  path: '/library/get/folder/{id}'
+library.folder.get:
+  path: '/library/folder/{id}'
   defaults:
-    _controller: '\Drupal\library\Controller\LibraryController::loadFolder'
+    _controller: '\Drupal\library\Controller\LibraryController::getFolder'
   methods:  [GET]
+  requirements:
+    _permission: 'access content'
+
+library.folder.post:
+  path: '/library/folder'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::postFolder'
+  methods:  [POST]
   requirements:
     _permission: 'access content'
 

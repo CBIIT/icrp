@@ -57,7 +57,7 @@ class LibraryController extends ControllerBase {
     return new JsonResponse($returnValue);
   }
 
-  public function loadFolder($id) {
+  public function getFolder($id) {
     $returnValue = array(
       "isPublic" => false,
       "files" => []
@@ -84,6 +84,36 @@ class LibraryController extends ControllerBase {
       }
     }
     return new JsonResponse($returnValue);
+  }
+
+  public function postFolder() {
+    $params = \Drupal::request()->request->all();
+    if (!isset($params['is_public'])) {
+      $params['is_public'] = "0";
+    }
+    if (!isset($params["title"]) || empty($params["title"]) ||
+        !isset($params["parent"]) || !is_numeric($params["parent"])) {
+      return new JsonResponse(array(
+          "success"=>false
+      ));
+    }
+    $connection = self::get_connection();    
+    $stmt = $connection->prepare("INSERT INTO LibraryFolder (Name,ParentFolderID,IsPublic) OUTPUT INSERTED.* VALUES (:name,:pfid,:ip);");
+    $stmt->bindParam(":name",$params["title"]);
+    $stmt->bindParam(":pfid",$params["parent"]);
+    $stmt->bindParam(":ip",$params["is_public"]);
+    if ($stmt->execute()) {
+      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $row_output = array();
+        foreach ($row as $key=>$value) {
+          $row_output[$key] = $value;
+        }
+        return new JsonResponse(array(
+          "success"=>true,
+          "row"=>$row_output
+        ));
+      }
+    }
   }
 
   public function fileDownload($file) {

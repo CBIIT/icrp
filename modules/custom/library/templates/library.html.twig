@@ -21,6 +21,11 @@
       <div class="browse">
         <h3>Browse</h3>
         <div id="library-tree"></div>
+        <div class="admin">
+          <button id="create-folder">Create Folder</button>
+          <button id="archive-folder">Archive Folder</button>
+          <button id="view-archive">View Archive</button>
+        </div>
       </div>
     </div>
     <div id="library-display">
@@ -28,91 +33,35 @@
       <div class="frame preview"></div>
     </div>
   </div>
-  <div id="library-files" class="tab-pane">
-    <div id="library-list">
-      <div class="item">
-        <span class="title">Evaluations</span>
-        <span class="glyphicon glyphicon-edit"></span>
-        <span class="glyphicon glyphicon-remove-circle"></span>
-      </div>
-      <div class="item">
-        <span class="title">Strategic Plans</span>
-        <span class="glyphicon glyphicon-edit"></span>
-        <span class="glyphicon glyphicon-remove-circle"></span>
-      </div>
-      <div class="item">
-        <span class="title">Annual Meetings</span>
-        <span class="glyphicon glyphicon-edit"></span>
-        <span class="glyphicon glyphicon-remove-circle"></span>
-      </div>
-      <div class="item">
-        <span class="title">Teleconferences</span>
-        <span class="glyphicon glyphicon-edit"></span>
-        <span class="glyphicon glyphicon-remove-circle"></span>
-      </div>
-      <div class="item">
-        <span class="title">Newsletters</span>
-        <span class="glyphicon glyphicon-edit"></span>
-        <span class="glyphicon glyphicon-remove-circle"></span>
-      </div>
-      <div class="item">
-        <span class="title">Reports</span>
-        <span class="glyphicon glyphicon-edit"></span>
-        <span class="glyphicon glyphicon-remove-circle"></span>
-      </div>
-      <div class="item">
-        <span class="title">Reports Using ICRP Data</span>
-        <span class="glyphicon glyphicon-edit"></span>
-        <span class="glyphicon glyphicon-remove-circle"></span>
-      </div>
-    </div>
-    <div id="library-controls">
-      <div>
-        <a href="">
-          <img src="file-add.png"/>
-          <span>Upload new files</span>
-        </a>
-      </div>
-      <div>
-        <a href="">
-          <img src="folder-add.png"/>
-          <span>Create new folder</span>
-        </a>
-      </div>
-      <div>
-        <a href="">
-          <img src="folder-archive.png"/>
-          <span>Archived files</span>
-        </a>
-      </div>
-    </div>
-  </div>
   <div id="library-edit" class="tab-pane">
-    <div id="library-parameters">
-      <div>
-        <label for="file" class="required">File</label>
-        <input type="file" name="upload"/>
+    <form>
+      <div id="library-parameters">
+        <input type="hidden" name="parent" value=""/>
+        <div>
+          <label for="file" class="required">File</label>
+          <input type="file" name="upload"/>
+        </div>
+        <div class="folder">
+          <label for="title" class="required">Title</label>
+          <input type="text" name="title"/>
+        </div>
+        <div class="folder">
+          <label for="is_public">Public</label>
+          <input type="checkbox" name="is_public" value="1"/>
+        </div>
+        <div>
+          <label for="description" class="required">Description</label>
+          <textarea name="description"></textarea>
+        </div>
+        <div>
+          <label for="thumbnail" class="required">Thumbnail</label>
+          <input type="file" name="thumbnail"/>
+        </div>
       </div>
-      <div>
-        <label for="title" class="required">Title</label>
-        <input type="text" name="title"/>
+      <div id="library-upload">
+        <button id="library-save">Save</button>
+        <button id="library-cancel">Cancel</button>
       </div>
-      <div>
-        <label for="is_public">Public</label>
-        <input type="checkbox" name="is_public"/>
-      </div>
-      <div>
-        <label for="description" class="required">Description</label>
-        <textarea name="description"></textarea>
-      </div>
-      <div>
-        <label for="thumbnail" class="required">Thumbnail</label>
-        <input type="file" name="thumbnail"/>
-      </div>
-    </div>
-    <div id="library-upload">
-      <button id="library-save">Save</button>
-      <button id="library-cancel">Cancel</button>
-    </div>
+    </form>
   </div>
 </div>
