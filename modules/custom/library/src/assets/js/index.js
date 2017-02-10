@@ -17,14 +17,14 @@ jQuery(function() {
                     if (thumb === "") {
                         thumb = root+'/sites/default/files/library/placeholder.jpg';
                     } else {
-                        thumb = path+'files/thumbs/'+thumb;
+                        thumb = path+'file/thumb/'+thumb;
                     }
                     frame.append(
                       '<div class="item">'+
                           '<h4>'+title+'</h4>'+
                           '<img src="'+thumb+'"/>'+
                           '<p>'+description+'</p>'+
-                          '<div><a href="'+path+'files/'+file+'">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
+                          '<div><a href="'+path+'file/'+file+'">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
                       '</div>'
                     );
                 });
@@ -67,11 +67,15 @@ jQuery(function() {
                 tree = $('#library-tree').jstree();
             });
         },
-        'createFolder': function(e) {
-            var node = functions.getNode()||{'id':0,'data':{'isPublic':0}};
-            var params = $('#library-parameters').toggleClass('folder',true);
+        'createNew': function(e,isFolder) {
+            e.preventDefault();
+            var node = functions.getNode()||{'id':0,'data':{'isPublic':0}},
+                params = $('#library-parameters').toggleClass('folder',isFolder),
+                ispub = params.find('[name="is_public"]');
+            $('[name="is_public"]').parent().toggleClass('folder',isFolder);
             params.find('[name="parent"]').val(node.id);
-            if (node.data.isPublic) params.find('[name="is_public"]').attr('checked',true);
+            ispub.attr('checked',node.data.isPublic);
+            ispub.parent().toggleClass('public',node.data.isPublic);
             $('#library-edit').addClass('active').siblings().removeClass('active');
         },
         'closeParams': function(e) {
@@ -89,9 +93,9 @@ jQuery(function() {
                 'url': path+'folder',
                 'type': 'POST',
                 'data': form,
-                cache: false,
-                contentType: false,
-                processData: false
+                'cache': false,
+                'contentType': false,
+                'processData': false
             }).done(function(response) {
                 if (response.success) {
                   var row = functions.mapTree(response.row);
@@ -119,18 +123,42 @@ jQuery(function() {
     $('#library-search .searchbox').on('click',function(e) {
         $(e.currentTarget).find('input').focus();
     });
-    $('#create-folder').on('click',functions.createFolder);
+    $('#create-folder').on('click',function(e) {
+        functions.createNew(e,true);
+    });
+    $('#upload-file').on('click',function(e) {
+        functions.createNew(e,false);
+    });
     $('#archive-folder').on('click',function(e) {
         functions.archiveFolder(e);
     });
     $('#view-archive').on('click',function(e) {
         e.preventDefault();
     });
-    $('#library-save').on('click',function(e) {
+    $('[name="is_public"]').on('change', function(e) {
+        var target = $(e.target);
+        target.parent().toggleClass('private',!target.prop('checked'));
+    });
+    $('#library-save').on('click',function(e) {1
         e.preventDefault();
         if ($('#library-parameters').hasClass('folder')) {
             functions.saveFolder(e);
         } else {
+            var form = new FormData($('#library-parameters').closest('form')[0]);
+            $.ajax({
+                'url': path+'file',
+                'type': 'POST',
+                'data': form,
+                'cache': false,
+                'contentType': false,
+                'processData': false
+            }).done(function(response) {
+                console.log(response);
+                var nodes = tree.get_selected();
+                tree.deselect_all();
+                tree.select_node(nodes);
+                functions.closeParams(e);
+            });
         }
     });
     $('#library-cancel').on('click',functions.closeParams);

@@ -89,6 +89,9 @@
 #create-folder:before {
   background: url('/icrp/sites/default/files/library/folder-add.png') no-repeat 1px 0px/contain;
 }
+#upload-file:before {
+  background: url('/icrp/sites/default/files/library/file-add.png') no-repeat 1px 0px/contain;
+}
 #archive-folder:before {
   background: url('/icrp/sites/default/files/library/folder-archive.png') no-repeat 1px 0px/contain;
 }
@@ -197,6 +200,11 @@
 #library-parameters label {
   display: table-cell;
   padding: 5px 0px;
+  vertical-align: top;
+  width: 7em;
+}
+#library-parameters .private ~ div {
+    display: none;
 }
 #library-parameters input:not([type="checkbox"]),
 #library-parameters textarea {

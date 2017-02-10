@@ -4,6 +4,7 @@ namespace Drupal\library\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use PDO;
 
 class LibraryController extends ControllerBase {
@@ -105,12 +106,56 @@ class LibraryController extends ControllerBase {
     }
   }
 
+  public function postFile() {
+    $params = \Drupal::request()->request->all();
+    if (!isset($params['is_public'])) {
+      $params['is_public'] = "0";
+    }
+    $upload = \Drupal::request()->files->get('upload');
+    $thumb = \Drupal::request()->files->get('thumbnail');
+    if (!isset($params["title"]) || empty($params["title"]) ||
+        !isset($params["parent"]) || !is_numeric($params["parent"]) ||
+        !$upload->isValid() ||
+          ($params['is_public'] != "0" &&
+            (!$thumb->isValid() || !isset($params["description"]) || empty($params["description"]))
+        )) {
+      return new JsonResponse(array(
+          "success"=>false
+      ));
+    }
+    $upload->move("public://library/uploads",$upload->getClientOriginalName());
+    $thumb->move("public://library/uploads/thumbs",$thumb->getClientOriginalName());
+    $connection = self::get_connection();
+    $stmt = $connection->prepare("INSERT INTO Library (Title,LibraryFolderID,Filename,ThumbnailFilename,Description,IsPublic) OUTPUT INSERTED.* VALUES (:title,:lfid,:file,:thumb,:desc,:ip);");
+    $stmt->bindParam(":title",$params["title"]);
+    $stmt->bindParam(":lfid",$params["parent"]);
+    $stmt->bindParam(":file",$upload->getClientOriginalName());
+    $stmt->bindParam(":thumb",$thumb->getClientOriginalName());
+    $stmt->bindParam(":desc",$params["description"]);
+    $stmt->bindParam(":ip",$params["is_public"]);
+    if ($stmt->execute()) {
+      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $row_output = array();
+        foreach ($row as $key=>$value) {
+          $row_output[$key] = $value;
+        }
+        return new JsonResponse(array(
+          "success"=>true,
+          "row"=>$row_output
+        ));
+      }
+    }
+    return new JsonResponse(array(
+        "success"=>false
+    ));
+  }
+
   public function fileDownload($file) {
     return self::getFile($file);
   }
 
   public function thumbsDownload($file) {
-    return self::getFile("thumbs/".$file);
+    return self::getFile(join('/',array("thumbs",$file)));
   }
 
   private function getFolder($id) {
@@ -175,7 +220,7 @@ class LibraryController extends ControllerBase {
   }
 
   private function getFile($location) {
-    return new JsonResponse(array('x'=>$location));
+    return new BinaryFileResponse(join('/',array(drupal_realpath('public://library/uploads'),$location)));
   }
 
   private function getRole() {
