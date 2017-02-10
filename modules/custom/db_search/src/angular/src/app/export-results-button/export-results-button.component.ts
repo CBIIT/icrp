@@ -32,8 +32,8 @@ export class ExportResultsButtonComponent implements OnInit {
       		.catch((error: any) => Observable.throw(error || 'Server error'))
         	.subscribe(
         	res => {
-        		console.log(res);
-  			document.location.href=res;
+        		//console.log(res);
+  			//document.location.href=res;
         		modal.hide();
        		},
     		error => {

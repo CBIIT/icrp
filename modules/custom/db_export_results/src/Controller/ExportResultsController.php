@@ -95,7 +95,16 @@ class ExportResultsController extends ControllerBase {
 
     $conn = null;
 
-	return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));
+    header('Content-Description: File Transfer');
+    header('Content-Type: application/vnd.ms-excel');
+    header('Content-Disposition: attachment; filename="'.basename($filenameExport).'"');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate');
+    header('Pragma: public');
+    readfile($filelocation.$filenameExport);
+    exit;
+
+    return new BinaryFileResponse($downloadlocation.$filenameExport, 200, $headers);
   }
 
   private function createExportPublicSheet($conn, &$objPHPExcel, $sid, $sheetIndex){
