@@ -14,17 +14,17 @@ icrp.review_user:
     _permission: 'access content'
 
 icrp.form:
- path: '/user-review/{uuid}'
- defaults:
-   _title: 'User Review'
-   _form: '\Drupal\icrp\Form\UserReviewForm'
- requirements:
-   _permission: 'access content'
+  path: '/user-review/{uuid}'
+  defaults:
+    _title: 'User Review'
+    _form: '\Drupal\icrp\Form\UserReviewForm'
+  requirements:
+    _permission: 'access content'
 
 icrp.my_profile:
- path: '/my-profile'
- defaults:
-   _title: 'My Profile'
-   _form: '\Drupal\icrp\Form\MyProfileForm'
- requirements:
-   _permission: 'access content'
+  path: '/my-profile'
+  defaults:
+    _title: 'My Profile'
+    _form: '\Drupal\icrp\Form\MyProfileForm'
+  requirements:
+    _permission: 'access content'

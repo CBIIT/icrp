@@ -266,11 +266,7 @@ class UserReviewForm extends FormBase
         }
         */
     }
-/*
-    public function hasManagerRole() {
-        return TRUE;
-    }
-*/
+
     public function submitForm(array &$form, FormStateInterface $form_state)
     {
 
