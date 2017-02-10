@@ -33,7 +33,7 @@ export class ExportResultsButtonComponent implements OnInit {
         	.subscribe(
         	res => {
         		//console.log(res);
-  			//document.location.href=res;
+  			document.location.href=res;
         		modal.hide();
        		},
     		error => {
