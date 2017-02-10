@@ -13,11 +13,11 @@ library.initialize:
   requirements:
     _permission: 'access content'
 
-library.folder.get:
+library.folder.id:
   path: '/library/folder/{id}'
   defaults:
-    _controller: '\Drupal\library\Controller\LibraryController::getFolder'
-  methods:  [GET]
+    _controller: '\Drupal\library\Controller\LibraryController::folderRest'
+  methods:  [GET, DELETE]
   requirements:
     _permission: 'access content'
 

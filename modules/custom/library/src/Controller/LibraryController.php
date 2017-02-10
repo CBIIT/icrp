@@ -13,14 +13,14 @@ class LibraryController extends ControllerBase {
     "admin" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL ORDER BY ParentFolderID;"
   );
   private static $folderQuery = array(
-    "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate is NULL AND LibraryFolderID=:lfid;",
+    "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate IS NULL AND LibraryFolderID=:lfid;",
     "partner" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;",
     "admin" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;"
   );
   private static $fileQuery = array(
-    "public" => "SELECT * FROM Library WHERE IsPublic=1 AND LibraryFolderID=:lfid;",
-    "partner" => "SELECT * FROM Library WHERE LibraryFolderID=:lfid;",
-    "admin" => "SELECT * FROM Library WHERE LibraryFolderID=:lfid;"
+    "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND LibraryFolderID=:lfid;",
+    "partner" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;",
+    "admin" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;"
   );
 
   public function content() {
@@ -57,33 +57,22 @@ class LibraryController extends ControllerBase {
     return new JsonResponse($returnValue);
   }
 
-  public function getFolder($id) {
-    $returnValue = array(
-      "isPublic" => false,
-      "files" => []
-    );
-    $role = self::getRole();
-    $connection = self::get_connection();
-    $stmt = $connection->prepare(self::$folderQuery[$role]);
-    $stmt->bindParam(":lfid",$id);
-    if ($stmt->execute()) {
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $returnValue["isPublic"] = $row["IsPublic"]=="1";
+  public function folderRest($id) {
+    $method = \Drupal::request()->getMethod();
+    switch ($method) {
+      case "GET":
+        return self::getFolder($id);
         break;
-      }
-      $stmt = $connection->prepare(self::$fileQuery[$role]);
-      $stmt->bindParam(":lfid",$id);
-      if ($stmt->execute()) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-          $row_output = array();
-          foreach ($row as $key=>$value) {
-            $row_output[$key] = $value;
-          }
-          array_push($returnValue["files"],$row_output);
+      case "DELETE":
+        if (self::getRole() == "admin") {
+          return new JsonResponse(self::deleteFolder($id));
+        } else {
+          return new JsonResponse(array(
+            "success"=>false
+          ));
         }
-      }
+        break;
     }
-    return new JsonResponse($returnValue);
   }
 
   public function postFolder() {
@@ -122,6 +111,67 @@ class LibraryController extends ControllerBase {
 
   public function thumbsDownload($file) {
     return self::getFile("thumbs/".$file);
+  }
+
+  private function getFolder($id) {
+    $returnValue = array(
+      "isPublic" => false,
+      "files" => []
+    );
+    $role = self::getRole();
+    $connection = self::get_connection();
+    $stmt = $connection->prepare(self::$folderQuery[$role]);
+    $stmt->bindParam(":lfid",$id);
+    if ($stmt->execute()) {
+      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $returnValue["isPublic"] = $row["IsPublic"]=="1";
+        break;
+      }
+      $stmt = $connection->prepare(self::$fileQuery[$role]);
+      $stmt->bindParam(":lfid",$id);
+      if ($stmt->execute()) {
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+          $row_output = array();
+          foreach ($row as $key=>$value) {
+            $row_output[$key] = $value;
+          }
+          array_push($returnValue["files"],$row_output);
+        }
+      }
+    }
+    return new JsonResponse($returnValue);
+  }
+
+  private function deleteFolder($id) {
+    $output = array($id);
+    $connection = self::get_connection();
+    //$stmt1 = $connection->prepare("UPDATE LibraryFolder SET ArchivedDate=NULL WHERE LibraryFolderID=3221;");
+    $stmt1 = $connection->prepare("UPDATE LibraryFolder SET ArchivedDate=GETDATE() WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;");
+    $stmt1->bindParam(":lfid",$id);
+    $stmt2 = $connection->prepare("UPDATE Library SET ArchivedDate=GETDATE() WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;");
+    $stmt2->bindParam(":lfid",$id);
+    if ($stmt1->execute() && $stmt2->execute()) {
+      $success = true;
+      $stmt = $connection->prepare("SELECT LibraryFolderID FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID=:pfid;");
+      $stmt->bindParam(":pfid",$id);
+      if ($stmt->execute()) {
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+          $row_output = array();
+          foreach ($row as $key=>$value) {
+            $row_output[$key] = $value;
+          }
+          $id = $row_output['LibraryFolderID'];
+          $result = self::deleteFolder($id);
+          if (!$result["success"]) $success = false;
+        }
+      }
+      return array(
+        "success"=>$success
+      );
+    }
+    return array(
+      "success"=>false
+    );
   }
 
   private function getFile($location) {
