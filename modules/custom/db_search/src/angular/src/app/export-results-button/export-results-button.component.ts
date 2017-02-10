@@ -25,21 +25,8 @@ export class ExportResultsButtonComponent implements OnInit {
 
   downloadResult(modal: any){
   	modal.show();
-  	//let endpoint = 'http://localhost/ExportResults';
-  	let endpoint = '/ExportResults';
-  	let query = this.http.get(endpoint, {})
-      		.catch((error: any) => Observable.throw(error || 'Server error'))
-        	.subscribe(
-        	res => {
-        		//console.log(res);
-  			//document.location.href=res;
-        		modal.hide();
-       		},
-    		error => {
-    			console.error(error);
-    			modal.hide();
-    			alert("Error");
-    		});
+  	document.location.href = '/ExportResults';
+  	modal.hide();
   }
 
 }
