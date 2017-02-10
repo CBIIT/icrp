@@ -28,6 +28,7 @@ export class ExportResultsButtonComponent implements OnInit {
   	//let endpoint = 'http://localhost/ExportResults';
   	let endpoint = '/ExportResults';
   	let query = this.http.get(endpoint, {})
+  		.map((res: Response) => res.json())
       		.catch((error: any) => Observable.throw(error || 'Server error'))
         	.subscribe(
         	res => {
