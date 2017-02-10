@@ -2,6 +2,10 @@ icrp-corescripts:
   version: VERSION
   js:
     js/icrp.js: {}
+  css:
+    css/forms.css: {}
+    theme:
+      css/forms.css: {}
   dependencies:
     - core/jquery
     - core/drupal.ajax

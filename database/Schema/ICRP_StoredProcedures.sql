@@ -152,7 +152,7 @@ AS
 			WHEN 'Exact' THEN '"'+ @terms + '"'
 			WHEN 'Any' THEN REPLACE(@terms,' ',' OR ')
 			ELSE REPLACE(@terms,' ',' AND ') -- All or None	
-		END 
+		END 		
 
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 			
@@ -160,10 +160,12 @@ AS
 				LEFT JOIN ProjectDocument d ON p.projectID = d.ProjectID  
 				LEFT JOIN ProjectDocument_JP jd ON p.projectID = jd.ProjectID  
 			 WHERE 	
-				---- do not contain any words specified
-				(@termSearchType = 'None' AND (NOT CONTAINS(d.content, @searchWords)) OR (NOT CONTAINS(jd.content, @searchWords))) OR
+				---- do not contain any words specified				
+				( (@termSearchType = 'None') AND 
+				  ((NOT CONTAINS(d.content, @searchWords)) OR (NOT CONTAINS(jd.content, @searchWords)))
+				) 
 				---- COntain Any, All or Exeact words
-				((CONTAINS(d.content, @searchWords)) OR (CONTAINS(jd.content, @searchWords)))  
+				OR ((CONTAINS(d.content, @searchWords)) OR (CONTAINS(jd.content, @searchWords)))  
 			)
 	END	
 
@@ -223,7 +225,7 @@ AS
 	FETCH NEXT 
 		CASE WHEN @PageNumber IS NULL THEN 999999999 ELSE ISNULL(@PageSize,50)
 		END ROWS ONLY
-   
+
 GO
 
 ----------------------------------------------------------------------------------------------------------
@@ -543,7 +545,7 @@ GO
 
 CREATE PROCEDURE [dbo].[GetProjectAwardStatsBySearchID]   
     @SearchID INT,
-	@isPartner bit = 0,
+	@Year INT,
 	@Total float OUTPUT  -- return the searchID		
 
 AS   
@@ -551,34 +553,22 @@ AS
 	-- Get saved search results by searchID
 	------------------------------------------------------	
 	DECLARE @ProjectIDs VARCHAR(max) 
-	SELECT @Total=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+	SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
 	
-	----------------------------------		
-	--   Find all related projects 
-	----------------------------------
-	IF @isPartner = 0  -- Public Site
-	BEGIN
-		SELECT ext.CalendarYear AS Year, Count(*) AS Count INTO #stats
-		FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
-			JOIN ProjectFundingExt ext ON ext.ProjectID = r.ProjectID
-		GROUP BY ext.CalendarYear		
+--------------------------------------------------------------------		
+	--   Find all related projects and convert to USD dollars
+	--------------------------------------------------------------------
+	SELECT r.ProjectID, ext.CalendarYear AS Year, ext.CalendarAmount, (ext.CalendarAmount*ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount, 
+		ISNULL(cr.ToCurrencyRate, 1) AS ToCurrencyRate INTO #statsPart
+	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
+		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID
+		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
+		LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = o.Currency
+		JOIN ProjectFundingExt ext ON ext.ProjectID = r.ProjectID
 
-		SELECT @Total = SUM([Count]) FROM #stats	
+	SELECT @Total = SUM(USDAmount) FROM #statsPart
 
-		SELECT * FROM #stats ORDER BY Year
-
-	END
-	ELSE  -- Partner Site
-	BEGIN
-		SELECT ext.CalendarYear AS Year, SUM(ISNULL(ext.CalendarAmount,0)) AS Amount INTO #statsPart
-		FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
-			JOIN ProjectFundingExt ext ON ext.ProjectID = r.ProjectID
-		GROUP BY ext.CalendarYear	
-	
-		SELECT @Total = SUM(Amount) FROM #statsPart	
-
-		SELECT * FROM #statsPart ORDER BY Year	
-	END
+	SELECT Year AS Year, SUM(USDAmount) AS amount FROM #statsPart GROUP BY Year ORDER BY Year 
 
 GO
 
@@ -940,7 +930,7 @@ CREATE  PROCEDURE [dbo].[GetLibraries]
     
 AS   
 
-SELECT l.FileName,ThumbnailFilename AS ThumbnailFilename, l.Title, l.Description, p.Name AS ParentFolder, f.Name AS Folder, l.isPublic,
+SELECT l.FileName,ThumbnailFilename AS ThumbnailFilename, l.Title, l.Description, f.Name AS Folder, l.isPublic,
 	CASE ISNULL(l.ArchivedDate, '') WHEN '' THEN 0 ELSE 1 END AS IsFileArchived	
 FROM [Library] l
 JOIN LibraryFolder f ON l.LibraryFolderID = f.LibraryFolderID
@@ -1019,3 +1009,157 @@ AS
 
     											  
 GO
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetDataUploadStatus]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetDataUploadStatus]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetDataUploadStatus]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetDataUploadStatus]
+    
+AS   
+
+SELECT [PartnerCode] AS Partner,[FundingYear],[Status],[ReceivedDate],[ValidationDate],[UploadToDevDate],
+	[UploadToStageDate],[UploadToProdDate],
+	[Note]
+FROM datauploadstatus
+ORDER BY datauploadstatusID DESC
+
+GO
+
+
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetFundingOrgs]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetFundingOrgs]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetFundingOrgs]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetFundingOrgs]
+    
+AS   
+
+SELECT Name, Abbreviation, SponsorCode + ' - ' + Name AS DisplayName, Type, MemberType, MemberStatus, Country, Currency, 
+SponsorCode, IsAnnualized, Note, LastImportDate, LastImportDesc
+FROM FundingOrg
+ORDER BY SponsorCode, Name
+
+GO
+
+  
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetCancerTypeLookUp]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetCancerTypeLookUp]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetCancerTypeLookUp]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetCancerTypeLookUp]
+    
+AS   
+
+SELECT Name, ICRPCode, ICD10CodeInfo
+FROM CancerType
+ORDER BY Name
+
+GO
+  
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetCSOLookup]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetCSOLookup]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetCSOLookup]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetCSOLookup]
+    
+AS   
+
+SELECT CategoryName, Code, Name
+FROM CSO
+ORDER BY Code
+
+GO
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetCountryCodeLookup]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetCountryCodeLookup]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetCountryCodeLookup]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetCountryCodeLookup]
+    
+AS   
+
+SELECT Abbreviation AS Code, Name AS Country
+FROM Country
+ORDER BY Code
+
+GO
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetCurrencyRateLookup]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetCurrencyRateLookup]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetCurrencyRateLookup]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetCurrencyRateLookup]
+    
+AS   
+
+SELECT Year, FromCurrency, FromCurrencyRate, ToCurrency, ToCurrencyRate
+FROM CurrencyRate
+ORDER BY Year DESC, FromCurrency, ToCurrency
+
+GO
+

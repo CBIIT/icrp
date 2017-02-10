@@ -7,10 +7,15 @@ modules/custom/db_project_view/src/Controller/config.ini
 #files/
 #sites/*/files
 #sites/*/private
+sites/default/files/php/twig
 
 # Ignore css and js cache
 sites/default/files/css/css_*
 sites/default/files/js/js_*
+
+# Security Review
+modules/security_review/IGNOREME.txt
+modules/security_review/file_write_test*
 
 # Ignore default text files
 robots.txt

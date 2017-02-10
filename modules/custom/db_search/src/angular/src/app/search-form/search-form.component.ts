@@ -418,9 +418,9 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
         this.cso_research_areas = this.createTreeNode(this.fields.cso_research_areas, 'cso_research_areas');
 
         setTimeout(e => {
-          // set last two years
+          // set last five years
           let years = this.fields.years.filter((field, index) => {
-            if (index < 2)
+            if (index < 5)
               return field;
           }).map(field => field.value);
           this.form.controls['years'].patchValue(years);

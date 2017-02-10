@@ -32,6 +32,13 @@ db_project_view.content_deprecated:
   requirements:
     _permission: 'access content'
     project_id: '[0-9]{1,9}'
+db_project_view.get_funding_org_names:
+  path: '/getFundingOrgNames'
+  defaults:
+    _controller: '\Drupal\db_project_view\Controller\FundingOrgController::getFundingOrgNames'
+    _title: 'Project Details'
+  requirements:
+    _permission: 'access content'
 db_project_view.get_funding_org:
   path: '/getFundingOrg'
   defaults:
@@ -55,3 +62,19 @@ db_project_view.current_partners:
     _title: 'Current Partners'
   requirements:
     _permission: 'access content'
+
+db_project_view.upload_status_report:
+  path: '/uploadStatusReport'
+  defaults:
+    _controller: '\Drupal\db_project_view\Controller\UploadStatusReportController::uploadStatusReport'
+    _title: 'Upload status report'
+  requirements:
+    _permission: 'access content'
+db_project_view.get_upload_status:
+  path: '/getUploadStatus'
+  defaults:
+    _controller: '\Drupal\db_project_view\Controller\UploadStatusReportController::getUploadStatus'
+    _title: 'get Upload Status'
+  requirements:
+    _permission: 'access content'
+

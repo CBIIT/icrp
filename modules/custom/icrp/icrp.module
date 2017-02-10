@@ -66,6 +66,18 @@ function hook_form_yamlform_submission_update_my_profile_form_alter(&$form, \Dru
     );
     */
 }
+
+/**
+ * Implements hook_theme().
+ */
+function icrp_theme() {
+    return [
+        'my_profile_form' => [
+            'render element' => 'form',
+        ],
+    ];
+}
+
 /**
  * Implements hook_form_alter().
  */
@@ -108,6 +120,19 @@ function icrp_page_alter(&$) {
 
 }
 */
+/*
+function icrp_views_pre_execute(ViewExecutable $view) {
+    // Whenever a view queries more than two tables, show a message that notifies
+    // view administrators that the query might be heavy.
+    // (This action could be performed later in the execution process, but not
+    // earlier.)
+    $account = \Drupal::currentUser();
+
+    if (count($view->query->tables) > 2 && $account->hasPermission('administer views')) {
+        drupal_set_message(t('The view %view may be heavy to execute.', array('%view' => $view->id())), 'warning');
+    }
+}
+*/
 
 function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 
@@ -115,8 +140,6 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
     switch ($form_id) {
         case 'user_login':
         case 'user_login_form':
-
-            //$link = \Drupal\Core\Link::fromTextAndUrl('Forgot Password?', "/user/password");
             $form['link'] = array('#markup' => t("<div style=padding:20px;'><a href='/user/password'>Forgot Password?</a></div>"));
             break;
     }

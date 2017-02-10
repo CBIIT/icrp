@@ -381,7 +381,7 @@ CREATE TABLE [dbo].[ProjectFunding](
 	[FundingDivisionID] [int] NULL,
 	[ProjectAbstractID] [int] NOT NULL,	
 	[Category] [varchar](25) NULL,  -- Parent, Supplement, SubProject
-	[AltAwardCode] [varchar](500) NOT NULL,
+	[AltAwardCode] [varchar](50) NOT NULL,
 	[Source_ID] [varchar](50) NULL,
 	[MechanismCode] [varchar](30) NULL,
 	[MechanismTitle] [varchar](200) NULL,	
@@ -774,6 +774,35 @@ CREATE TABLE [dbo].[LibraryFolder](
 
 GO
 
+
+/************************************************************************************/
+/*  DataUploadStatus																	*/
+/************************************************************************************/
+CREATE TABLE [dbo].[DataUploadStatus](
+	[DataUploadStatusID] [int] IDENTITY(1,1) NOT NULL,
+	[PartnerCode] [varchar](100) NULL,
+	[FundingYear] [varchar](50) NULL,
+	[Status] [varchar](max) NULL,
+	[ReceivedDate] [varchar](100) NULL,
+	[ValidationDate] [varchar](100) NULL,
+	[UploadToDevDate] [varchar](100) NULL,
+	[UploadToStageDate] [varchar](100) NULL,
+	[UploadToProdDate] [varchar](100) NULL,
+	[Note] [varchar](max) NULL,
+	[CreatedDate] [datetime] NOT NULL,
+ CONSTRAINT [PK_DataUploadStatus] PRIMARY KEY CLUSTERED 
+(
+	[DataUploadStatusID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+
+GO
+
+ALTER TABLE [dbo].[DataUploadStatus] ADD  CONSTRAINT [DF_DataUploadStatus_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+
+
+
 /****** Object:  Table [dbo].[ProjectDetails]    Script Date: 1/10/2017 5:08:05 PM ******/
 --SET ANSI_NULLS ON
 --GO
@@ -1008,3 +1037,15 @@ GO
 
 ALTER TABLE [dbo].[Library] CHECK CONSTRAINT [FK_Library_LibraryFolder]
 GO
+
+/************************************************************************************/
+/*  Fulltext Index Catelog   */
+/************************************************************************************/
+--DROP FULLTEXT INDEX ON   --dropping the existing full-text index
+--GO
+
+--CREATE FULLTEXT INDEX on ProjectDocument
+--(Content) KEY index primarykey ON catalog_ProjectDocument_Content
+
+--CREATE FULLTEXT INDEX on ProjectDocument_JP
+--(Content) KEY index primarykey ON catalog_ProjectDocumentJP_Content

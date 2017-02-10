@@ -22,6 +22,7 @@ export class UiChartComponent implements OnChanges, AfterViewInit {
   @Input() type: string;
   @Input() data: any;
   @Input() label: string;
+  @Input() description: string;
 
   @ViewChild('svg') svg: ElementRef;
   @ViewChild('tooltip') tooltip: ElementRef;

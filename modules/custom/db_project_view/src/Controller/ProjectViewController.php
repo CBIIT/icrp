@@ -41,6 +41,9 @@ class ProjectViewController extends ControllerBase {
     ],
     'cancer_types' => [
       'CancerType' => 'cancer_type',
+      'Description' => 'description',
+      'ICRPCode' => 'icrp_code',
+      'ICD10CodeInfo' => 'icd10_code',
       'SiteURL' => 'cancer_type_url',
     ],
     'cso_research_areas' => [
@@ -70,6 +73,9 @@ class ProjectViewController extends ControllerBase {
     ],
     'cancer_types' => [
       'CancerType' => 'cancer_type',
+      'Description' => 'description',
+      'ICRPCode' => 'icrp_code',
+      'ICD10CodeInfo' => 'icd10_code',
       'SiteURL' => 'cancer_type_url',
     ],
     'cso_research_areas' => [

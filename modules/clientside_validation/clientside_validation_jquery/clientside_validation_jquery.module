@@ -1,0 +1,39 @@
+<?php
+/**
+ * @file
+ * Hook implementations for the Clientside Validation jQuery module.
+ */
+
+/**
+ * Implements hook_clientside_validation_validator_info_alter().
+ */
+function clientside_validation_jquery_clientside_validation_validator_info_alter(&$validators) {
+  foreach ($validators as &$validator) {
+    $validator['attachments']['library'][] = 'clientside_validation_jquery/cv.jquery.validate';
+  }
+}
+
+/**
+ * Implements hook_library_info_alter().
+ */
+function clientside_validation_jquery_library_info_alter(&$libraries, $extension) {
+  if ($extension == 'clientside_validation_jquery' && isset($libraries['jquery.validate'])) {
+    if (!file_exists(drupal_get_path('module', 'clientside_validation_jquery') . '/js/lib/dist/jquery.validate.js')) {
+      // Previously we told users to extract the /dist folder. Make sure we still
+      // support this.
+      if (file_exists(drupal_get_path('module', 'clientside_validation_jquery') . '/js/lib/jquery.validate.js')) {
+        unset($libraries['jquery.validate']['js']['js/lib/dist/jquery.validate.js']);
+        $libraries['jquery.validate']['js']['js/lib/jquery.validate.js'] = [];
+        unset($libraries['jquery.validate.additional']['js']['js/lib/dist/additional-methods.js']);
+        $libraries['jquery.validate']['js']['js/lib/additional-methods.js'] = [];
+      }
+      else {
+        // Use CDN version if local version doesn't exist.
+        unset($libraries['jquery.validate']['js']['js/lib/dist/jquery.validate.js']);
+        $libraries['jquery.validate']['js']['https://cdn.jsdelivr.net/jquery.validation/1.14.0/jquery.validate.min.js'] = ['type' => 'external'];
+        unset($libraries['jquery.validate.additional']['js']['js/lib/dist/additional-methods.js']);
+        $libraries['jquery.validate.additional']['js']['http://cdn.jsdelivr.net/jquery.validation/1.14.0/additional-methods.min.js'] = ['type' => 'external'];
+      }
+    }
+  }
+}

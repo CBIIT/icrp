@@ -28,10 +28,14 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   @Input() analytics;
   @Input() searchParameters;
   @Input() authenticated;
+  @Input() fundingYearOptions = [];
 
   @Output() sort: EventEmitter<{ "column": string, "type": "asc" | "desc" }>;
   @Output() paginate: EventEmitter<{ "size": number, "offset": number }>;
+  @Output() updateFundingYear: EventEmitter<{ "year": number }>;
   
+
+  fundingYear = new Date().getFullYear();
   emailForm: FormGroup;
 
   showCriteriaLocked = true;  
@@ -58,6 +62,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     
     this.sort = new EventEmitter<{ "column": string, "type": "asc" | "desc" }>();
     this.paginate = new EventEmitter<{ "size": number, "offset": number }>();
+    this.updateFundingYear = new EventEmitter<{ "year": number }>();
 
     this.analytics = {
       count: 0,
@@ -102,6 +107,8 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     ]
 
     this.projectData = [];
+
+
   }
 
   ngAfterViewInit() {
@@ -131,7 +138,9 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
         this.searchCriteriaGroups = [];
         for (let key of Object.keys(this.searchParameters)) {
 
-          searchCriteria.push(this.convertCase(key));
+          if (key != 'search_type')
+            searchCriteria.push(this.convertCase(key));
+
           let param = this.searchParameters[key];
 
           let criteriaGroup = {
@@ -187,6 +196,12 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     modal.hide();
   }
 
+  setFundingYear(year) {
+    this.updateFundingYear.emit(year);
+    this.fundingYear = year;
+  }
+
   ngOnInit() {
+
   }
 }

@@ -13,18 +13,25 @@ import 'rxjs/add/operator/catch';
 })
 export class ExportResultsGraphsPartnerButtonComponent implements OnInit {
 
+	@Input() inputYear;
+
   constructor(    
     @Inject(FormBuilder) private formbuilder: FormBuilder,
-    @Inject(Http) private http: Http) { }
+    @Inject(Http) private http: Http) {
+	}
 
   ngOnInit() {
   }
   
   downloadResultsWithGraphsPartner(modal: any){
+
+	let params = new URLSearchParams();
+	params.set('year', this.inputYear || 2017);
+
   	modal.show();
 	//let endpoint = 'http://localhost/ExportResultsWithGraphsPartner';
   	let endpoint = '/ExportResultsWithGraphsPartner';
-  	let query = this.http.get(endpoint, {})
+  	let query = this.http.get(endpoint, {search: params})
         	.map((res: Response) => res.json())
       		.catch((error: any) => Observable.throw(error || 'Server error'))
         	.subscribe(

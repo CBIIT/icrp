@@ -25,8 +25,10 @@
       class="select-dropdown-item default" 
       [ngClass]="{'selected': index === highlightedItemIndex}"  
       [innerHTML]="highlightItem(item)" 
-      (click)="addSelectedItem(item)" 
-      (mouseover)="highlightIndex(index)" #el></div>
+      (click)="addSelectedItem(item)"
+      (mouseover)="highlightIndex(index, item)"
+      
+      #el></div>
   </div>
 </div>
 

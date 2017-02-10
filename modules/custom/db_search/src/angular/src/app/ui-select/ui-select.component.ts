@@ -18,7 +18,9 @@ import {
   templateUrl: './ui-select.component.html',
   styleUrls: ['./ui-select.component.css'],
   host: {
-    '(document:click)': 'focusInput($event)'
+    '(document:mousedown)': 'mouseDown($event)',
+    '(document:click)': 'focusInput($event)',
+    '(document:mouseup)': 'mouseUp($event)',
   },
   providers: [{
     provide: NG_VALUE_ACCESSOR,
@@ -58,6 +60,8 @@ export class UiSelectComponent {
 
   /** Boolean controlling whether search dropdown should appear or not */
   showSearchDropdown: boolean;
+
+  mousePressed: boolean;
 
   constructor(private _ref: ElementRef) {
     this.disable = false;
@@ -162,9 +166,10 @@ export class UiSelectComponent {
     this.showSearchDropdown = this.matchingItems.length > 0;
   }
 
-  highlightItem(item: { "value": number | string, "label": "string"}): string {
+  highlightItem(index: { "value": number | string, "label": "string"}, item): string {
 
-    let label: string = item.label;
+
+    let label: string = index.label;
     let inputValue = this.input.nativeElement.value;
     let inputLength: number = this.input.nativeElement.value.length;
     let displayString = label;
@@ -196,5 +201,14 @@ export class UiSelectComponent {
 
   highlightIndex(index) {
     this.highlightedItemIndex = index;
+  }
+
+  mouseDown(event: any) {
+    this.mousePressed = true;
+  }
+
+  mouseUp(event: any) {
+    this.mousePressed = false;
+    console.log(this.mousePressed);
   }
 }

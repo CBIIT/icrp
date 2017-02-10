@@ -35,13 +35,7 @@ h1 {
 .breadcrumb > li > a  {
     color: #153670;
 }
-
 /* Footer Nav */
-/*
-.center-nav > li + li::before {
-    content:"->";
-}
-*/
 .nav-footer-middle > ul > li {
     border-right: 1px solid #bbb;
     height:25px;
@@ -71,16 +65,11 @@ h1 {
     font-size:12px;
 }
 .partner-content {
-    /*
-    border-color: #dddddd #dddddd transparent;
-    border-image: none;
-    border-style: solid;
-    border-width: 0px 1px 1px 1px;
-    */
     border:1px solid #dddddd;
     border-top:0px;
     padding:15px;
 }
+
 /* CSO Page */
 /* Download block */
 #downloadPanel {
@@ -109,9 +98,7 @@ h1 {
     vertical-align:middle;
 }
 #downloadPanel span {
-
     margin-top: 0px;
-
     font-size:80%;
     float:right;
     color:#555555;

@@ -4,6 +4,12 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
 
+/** Misc overrides */
+
+a {
+  color: #1E8BC3;
+}
+
 /*
  * Bootstrap table overrides
  */
@@ -263,6 +269,15 @@ footer.footer {
   border-top: 1px solid #EEE;
   border-radius: 0;
   box-shadow: none;
+  font-size: 13px;
+}
+
+/** Bootstrap well overrides */
+
+.well {
+  background: linear-gradient(#fdfdfd, #f9f9f9);
+  box-shadow: 2px 2px 4px #eee;
+  border-radius: 0px;
 }
 
 
@@ -270,8 +285,31 @@ footer.footer {
 
 div.search-block-form > div.search-well {
   margin-top: -5px;
-  background-color: white;
+  background: transparent;
+  background-color: transparent;
   float: right;
   box-shadow: none;
   -webkit-box-shadow: none;
 }
+
+/** uaat overrides */
+
+form[action="/user-account-administration-tool"] > div > div {
+  vertical-align: bottom !important;
+  margin-top: 10px
+}
+
+/** Bootstrap background overrides */
+
+.bg-blue {
+	background: #81CFE0 !important;
+}
+
+.bg-orange {
+	background: BlanchedAlmond !important;
+}
+
+.bg-grey {
+	background: #f5f5f5 !important;
+}
+

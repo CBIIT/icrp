@@ -15,6 +15,8 @@ declare var fetch;
 })
 export class SearchComponent implements OnInit, AfterViewInit {
 
+  devEndpoint = '';
+
   searchParameters: SearchParameters;
 
   searchID: any;
@@ -27,6 +29,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   analytics: any;
   loggedIn: boolean;
 
+  conversionYears = [];
 
   constructor(private http: Http) {
     this.loggedIn = false;
@@ -45,6 +48,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       page_size: 50,
     }
 
+    this.updateAvailableConversionYears();
     this.checkAuthenticationStatus();
   }
 
@@ -121,6 +125,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
               this.analytics[category].sort((a, b) => +b.value - +a.value);
           }
       }
+
+      this.updateServerAnalyticsFunding();
     }
   }
 
@@ -137,10 +143,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   queryServerAnalytics(parameters: Object): Observable<any[]> {
-    let endpoint = '/db/public/analytics';
+    let endpoint = `${this.devEndpoint}/db/public/analytics`;
 
     if (this.loggedIn) {
-      endpoint = '/db/partner/analytics';
+      endpoint = `${this.devEndpoint}/db/partner/analytics`;
     }
 
     let host = window.location.hostname;
@@ -153,9 +159,52 @@ export class SearchComponent implements OnInit, AfterViewInit {
       .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
   }
 
+  updateServerAnalyticsFunding(year?) {
+
+    console.log('receiving funding update');
+    let endpoint = `${this.devEndpoint}/db/partner/analytics/funding`;
+    let params = new URLSearchParams();
+
+    if (!year) {
+      year = 2017;
+    }
+    
+    params.set('search_id', this.searchID);
+    params.set('year', year);
+
+    return this.http.get(endpoint, {search: params})
+      .map((res: Response) => res.json())
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
+      .subscribe(
+        response => {
+          
+
+          let category = 'projects_by_year';
+          let parsed_data = response.map(data => ({label: data.label, value: +data.value}));
+          this.analytics[category] = parsed_data;
+        }
+      );
+  }
+
+
+
+  updateAvailableConversionYears() {
+
+    console.log('receiving funding update');
+    let endpoint = `${this.devEndpoint}/db/partner/analytics/funding_years`;
+
+    return this.http.get(endpoint)
+      .map((res: Response) => res.json())
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
+      .subscribe(response => this.conversionYears = response.map(e => +e['year']));
+  }
+
+
+
+
   resultsSortPaginate(parameters: Object) {
     
-    let endpoint = '/db/public/sort_paginate';
+    let endpoint = `${this.devEndpoint}/db/public/sort_paginate`;
     let host = window.location.hostname;
 
     let params = new URLSearchParams();
@@ -186,12 +235,14 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
 
+
+
   queryServer(parameters: Object): Observable<any[]> {
   
     let protocol = window.location.protocol;
     let host = window.location.hostname;
 
-    let endpoint = '/db/public/search';
+    let endpoint = `${this.devEndpoint}/db/public/search`;
 
     let params = new URLSearchParams();
 
