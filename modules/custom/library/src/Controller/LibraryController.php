@@ -9,9 +9,9 @@ use PDO;
 
 class LibraryController extends ControllerBase {
   private static $initFolderQuery = array(
-    "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate IS NULL ORDER BY ParentFolderID;",
-    "partner" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL ORDER BY ParentFolderID;",
-    "admin" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL ORDER BY ParentFolderID;"
+    "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate IS NULL AND ParentFolderID > 0 ORDER BY ParentFolderID, Name;",
+    "partner" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY ParentFolderID, Name;",
+    "admin" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY ParentFolderID, Name;"
   );
   private static $folderQuery = array(
     "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate IS NULL AND LibraryFolderID=:lfid;",
@@ -22,6 +22,11 @@ class LibraryController extends ControllerBase {
     "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND LibraryFolderID=:lfid;",
     "partner" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;",
     "admin" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;"
+  );
+  private static $fileSearch = array(
+    "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND LOWER(Filename) LIKE :keywords;",
+    "partner" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LOWER(Filename) LIKE :keywords;",
+    "admin" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LOWER(Filename) LIKE :keywords;"
   );
 
   public function content() {
@@ -56,6 +61,26 @@ class LibraryController extends ControllerBase {
       $returnValue["initial"] = $returnValue["folders"][0];
     }
     return new JsonResponse($returnValue);
+  }
+
+  public function searchFiles() {
+    $role = self::getRole();
+    $keywords = \Drupal::request()->request->get('keywords');
+    $keywords = '%'.$keywords.'%';
+    $result = array();
+    $connection = self::get_connection();
+    $stmt = $connection->prepare(self::$fileSearch[$role]);
+    $stmt->bindParam(":keywords",$keywords);
+    if ($stmt->execute()) {
+      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $row_output = array();
+        foreach ($row as $key=>$value) {
+          $row_output[$key] = $value;
+        }
+        array_push($result,$row_output);
+      }
+    }
+    return new JsonResponse($result);
   }
 
   public function folderRest($id) {
@@ -190,7 +215,6 @@ class LibraryController extends ControllerBase {
   private function deleteFolder($id) {
     $output = array($id);
     $connection = self::get_connection();
-    //$stmt1 = $connection->prepare("UPDATE LibraryFolder SET ArchivedDate=NULL WHERE LibraryFolderID=3221;");
     $stmt1 = $connection->prepare("UPDATE LibraryFolder SET ArchivedDate=GETDATE() WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;");
     $stmt1->bindParam(":lfid",$id);
     $stmt2 = $connection->prepare("UPDATE Library SET ArchivedDate=GETDATE() WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;");
@@ -224,7 +248,7 @@ class LibraryController extends ControllerBase {
   }
 
   private function getRole() {
-    $role = "anonymous";
+    $role = "public";
     $authenticated = parent::currentUser()->isAuthenticated();
     if ($authenticated) {
       $role = "partner";
