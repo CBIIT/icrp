@@ -11,7 +11,7 @@ a {
 }
 /* Needed ot override anchor color when displaying a field on form entry error */
 ul.item-list__comma-list > li > a {
-  color: darkblueblue;
+  color: darkblue;
 }
 /*
  * Bootstrap table overrides
