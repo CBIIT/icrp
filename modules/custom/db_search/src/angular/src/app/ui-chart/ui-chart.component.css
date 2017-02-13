@@ -30,3 +30,7 @@ path {
 div.d3-tooltip > hr {
     margin: 0;
 }
+
+p.text-grey {
+    color: #666;
+}

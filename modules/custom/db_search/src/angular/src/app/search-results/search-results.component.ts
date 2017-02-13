@@ -161,7 +161,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
           this.searchCriteriaGroups.push(criteriaGroup);
         }
 
-        this.searchCriteriaSummary = "Search Criteria: " + searchCriteria.join(' + ');
+        this.searchCriteriaSummary = searchCriteria.join(' + ');
         
       }
 

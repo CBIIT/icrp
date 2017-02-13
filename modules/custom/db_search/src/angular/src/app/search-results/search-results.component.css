@@ -1,7 +1,7 @@
 div.search-criteria-summary {
     padding: 4px;
     border: 1px solid #DDD;
-    font-weight: bold;
+    font-weight: normal;
     cursor: pointer;
     background: linear-gradient(#FFF, #EEE);
 }
