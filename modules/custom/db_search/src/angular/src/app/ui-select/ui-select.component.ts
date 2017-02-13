@@ -242,5 +242,7 @@ export class UiSelectComponent {
 
     this.initialHiglightedRangeIndex = -1;
     this.currentHiglightedRangeIndex = -1;
+
+    this.emitValue();
   }
 }
