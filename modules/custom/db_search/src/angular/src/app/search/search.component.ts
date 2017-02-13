@@ -35,8 +35,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
     private http: Http,
     @Inject('api_root') private apiRoot: string
     ) {
-    //this.loggedIn = false;
-    this.loggedIn = true;
+    this.loggedIn = false;
+//    this.loggedIn = true;
     this.searchID = null;
     this.loadingAnalytics = true;
     this.loading = true;
@@ -52,7 +52,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     }
 
     this.updateAvailableConversionYears();
-//    this.checkAuthenticationStatus();
+    this.checkAuthenticationStatus();
   }
 
   checkAuthenticationStatus() {
