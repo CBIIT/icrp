@@ -126,8 +126,7 @@ class MyProfileForm extends FormBase
         $form['container']['name']['password'] = array(
             '#type' => 'details',
             '#title' => t('Change Password'),
-            '#collapsible' => TRUE, // Added
-            '#collapsed' => TRUE,  // Added
+            '#open' => TRUE,
             '#attributes' => array(
                 'class' => array(''),
             )
@@ -277,16 +276,18 @@ class MyProfileForm extends FormBase
                 $form_state->setErrorByName('password_confirm', $this->t('Passwords does not match.  Please confirm password.'));
                 $hasError = true;
             }
-            /*
             if($hasError) {
-                drupal_set_message("PASSWORD ERROR:  Let's do something", 'error');
-
+               // drupal_set_message("PASSWORD ERROR:  Let's do something", 'error');
+/*
                 $form['container']['name']['password'] = array(
-                    '#title' => t('Change the title Change Password'),
+                    '#open' => TRUE,
+                    //'#title' => t('Change the title Change Password'),
                     //'#collapsed' => FALSE,  // Added
                 );
+*/
+
             }
-            */
+
         }
 
         // kint($form_state);
