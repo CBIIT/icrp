@@ -1,7 +1,8 @@
 jQuery(function() {
     var $ = jQuery,
         root = window.location.pathname,
-        tree = null;
+        tree = null
+        role = null;
     root = root.slice(0,root.slice(0,-1).lastIndexOf('/'));
     var path = root + '/library/';
     var functions = {
@@ -36,7 +37,7 @@ jQuery(function() {
         'mapTree': function(entry) {
             return {
                 id: entry.LibraryFolderID,
-                parent: entry.ParentFolderID == "0" ? "#" : entry.ParentFolderID,
+                parent: entry.ParentFolderID == "1" ? "#" : entry.ParentFolderID,
                 text: entry.Name,
                 state: {
                     opened: false,
@@ -50,7 +51,9 @@ jQuery(function() {
         },
         'initialize': function(response) {
             var folders = response.folders.map(functions.mapTree);
+            role = response.role;
             folders[0].state.selected = true;
+            $('#library').toggleClass('admin',role==="admin");
             $('#library-tree').jstree({
                 'core' : {
                     'check_callback': true,
@@ -61,7 +64,7 @@ jQuery(function() {
                 var node = data.selected;
                 if (node.length > 0) {
                     $.get(path+'folder/'+data.selected[0]).done(function(response) {
-                        functions.writeDisplay(response.isPublic,response.files);
+                        functions.writeDisplay(role==="public",response.files);
                     });
                 }
                 tree = $('#library-tree').jstree();
@@ -69,7 +72,7 @@ jQuery(function() {
         },
         'createNew': function(e,isFolder) {
             e.preventDefault();
-            var node = functions.getNode()||{'id':0,'data':{'isPublic':0}},
+            var node = functions.getNode()||{'id':1,'data':{'isPublic':0}},
                 params = $('#library-parameters').toggleClass('folder',isFolder),
                 ispub = params.find('[name="is_public"]');
             $('[name="is_public"]').parent().toggleClass('folder',isFolder);
@@ -117,11 +120,50 @@ jQuery(function() {
                 }
             });
             e.preventDefault();
+        },
+        'saveFile': function(e) {
+            var form = new FormData($('#library-parameters').closest('form')[0]);
+            $.ajax({
+                'url': path+'file',
+                'type': 'POST',
+                'data': form,
+                'cache': false,
+                'contentType': false,
+                'processData': false
+            }).done(function(response) {
+                var nodes = tree.get_selected();
+                tree.deselect_all();
+                tree.select_node(nodes);
+                functions.closeParams(e);
+            });
         }
     };
     $.get(path+'initialize').done(functions.initialize);
     $('#library-search .searchbox').on('click',function(e) {
+        e.preventDefault();
         $(e.currentTarget).find('input').focus();
+    }).on('keypress', function(e) {
+        if (e.which == 13) {
+          e.preventDefault();
+          $('#library-search-button').trigger('click');
+        }
+    });
+    $('#library-search-button').on('click', function(e) {
+        e.preventDefault();
+        var val = $('#library [name="library-keywords"]').val().toLowerCase(),
+            form = new FormData();
+        form.append("keywords",val);
+        $.ajax({
+            'url': path+'search',
+            'type': 'POST',
+            'data': form,
+            'cache': false,
+            'contentType': false,
+            'processData': false
+        }).done(function(response) {
+            tree.deselect_all();
+            functions.writeDisplay(role==="public",response);
+        });
     });
     $('#create-folder').on('click',function(e) {
         functions.createNew(e,true);
@@ -144,21 +186,7 @@ jQuery(function() {
         if ($('#library-parameters').hasClass('folder')) {
             functions.saveFolder(e);
         } else {
-            var form = new FormData($('#library-parameters').closest('form')[0]);
-            $.ajax({
-                'url': path+'file',
-                'type': 'POST',
-                'data': form,
-                'cache': false,
-                'contentType': false,
-                'processData': false
-            }).done(function(response) {
-                console.log(response);
-                var nodes = tree.get_selected();
-                tree.deselect_all();
-                tree.select_node(nodes);
-                functions.closeParams(e);
-            });
+            functions.saveFile(e);
         }
     });
     $('#library-cancel').on('click',functions.closeParams);

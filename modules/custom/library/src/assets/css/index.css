@@ -1,3 +1,6 @@
+#library:not(.admin) .admin {
+  display: none;
+}
 #library {
   padding: 0px 2em;
   margin: 0px auto;
@@ -87,13 +90,13 @@
   width: 1.4em;
 }
 #create-folder:before {
-  background: url('/icrp/sites/default/files/library/folder-add.png') no-repeat 1px 0px/contain;
+  background: url('folder-add.png') no-repeat 1px 0px/contain;
 }
 #upload-file:before {
-  background: url('/icrp/sites/default/files/library/file-add.png') no-repeat 1px 0px/contain;
+  background: url('file-add.png') no-repeat 1px 0px/contain;
 }
 #archive-folder:before {
-  background: url('/icrp/sites/default/files/library/folder-archive.png') no-repeat 1px 0px/contain;
+  background: url('folder-archive.png') no-repeat 1px 0px/contain;
 }
 #library-search:after {
   clear: both;
@@ -228,7 +231,7 @@
     float: none;
   }
   #library-display {
-    overflow: hidden;
+    overflow: auto;
     padding: 1em;
   }
   

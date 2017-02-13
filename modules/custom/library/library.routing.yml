@@ -13,6 +13,15 @@ library.initialize:
   requirements:
     _permission: 'access content'
 
+
+library.search:
+  path: '/library/search'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::searchFiles'
+  methods:  [POST]
+  requirements:
+    _permission: 'access content'
+
 library.folder.id:
   path: '/library/folder/{id}'
   defaults:
