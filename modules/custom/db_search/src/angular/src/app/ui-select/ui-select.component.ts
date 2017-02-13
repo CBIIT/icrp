@@ -20,7 +20,7 @@ import {
   host: {
     '(document:mousedown)': 'mouseDown($event)',
     '(document:click)': 'focusInput($event)',
-    '(document:mouseup)': 'mouseUp($event)',
+    '(document:mouseup)': 'documentMouseUp($event)',
   },
   providers: [{
     provide: NG_VALUE_ACCESSOR,
@@ -49,18 +49,26 @@ export class UiSelectComponent {
   /** Selected items */
   selectedItems: { "value": number | string, "label": "string"}[];
 
-  /** Indexes of items matching the search results 
-   * index refers to the index of the item 
-   * location refers to the location of the matched text 
+  /** Indexes of items matching the search results. 
+   * 
+   * Index refers to the index of the item.  
+   * Location refers to the location of the matched text. 
    */  
   matchingItems: { "value": number | string, "label": "string"} [];
 
   /** Index of highlighted item in search dropdown */
   highlightedItemIndex: number;
 
+  /** Initial index of highlighted item in search dropdown */
+  initialHiglightedRangeIndex: number;
+
+  /** Current index of highlighted item in search dropdown */
+  currentHiglightedRangeIndex: number;
+
   /** Boolean controlling whether search dropdown should appear or not */
   showSearchDropdown: boolean;
 
+  /** Boolean storing mouse state */
   mousePressed: boolean;
 
   constructor(private _ref: ElementRef) {
@@ -73,6 +81,8 @@ export class UiSelectComponent {
     this.selectedItems = [];
     this.matchingItems = [];
     this.highlightedItemIndex = -1;
+    this.initialHiglightedRangeIndex = -1;
+    this.currentHiglightedRangeIndex = -1;
   }
 
   /** Sets the value of this control */
@@ -106,8 +116,6 @@ export class UiSelectComponent {
   }
 
   addSelectedItem(item: { "value": number | string, "label": "string"}) {
-      console.log('attempting to add value', this.matchingItems[this.highlightedItemIndex]);
-
     this.selectedItems.push(item);
     this.input.nativeElement.value = '';
     this.emitValue();
@@ -133,7 +141,6 @@ export class UiSelectComponent {
 
   handleKeyupEvent(event: KeyboardEvent) {
     let input = this.input.nativeElement;
-
 
     if (event.key === 'ArrowUp') {
       this.highlightedItemIndex --;
@@ -168,7 +175,6 @@ export class UiSelectComponent {
 
   highlightItem(index: { "value": number | string, "label": "string"}, item): string {
 
-
     let label: string = index.label;
     let inputValue = this.input.nativeElement.value;
     let inputLength: number = this.input.nativeElement.value.length;
@@ -199,16 +205,42 @@ export class UiSelectComponent {
     }
   }
 
-  highlightIndex(index) {
+  highlightIndex(index, item) {
+
+    this.currentHiglightedRangeIndex = index;
     this.highlightedItemIndex = index;
+
+    if (isNaN(this.initialHiglightedRangeIndex) || !this.mousePressed)
+      this.initialHiglightedRangeIndex = this.currentHiglightedRangeIndex;
   }
 
-  mouseDown(event: any) {
+  mouseDown(event, index, item) {
     this.mousePressed = true;
+    this.initialHiglightedRangeIndex = +this.currentHiglightedRangeIndex;
   }
 
-  mouseUp(event: any) {
+
+  documentMouseUp(index, item: any) {
     this.mousePressed = false;
-    console.log(this.mousePressed);
+  }
+
+  mouseUp(index, item: any) {
+    this.mousePressed = false;
+    this.addRangeToSelectedItems();
+  }
+
+  addRangeToSelectedItems() {
+
+    for (let i = this.initialHiglightedRangeIndex; i <= this.currentHiglightedRangeIndex; i ++) {
+      let item = this.matchingItems[i];
+
+      if (item && !this.selectedItems.find(i => i.label === item.label && i.value === item.value)) {
+        console.log('will add item: ', item)
+        this.selectedItems.push(this.matchingItems[i]);
+      }    
+    }
+
+    this.initialHiglightedRangeIndex = -1;
+    this.currentHiglightedRangeIndex = -1;
   }
 }

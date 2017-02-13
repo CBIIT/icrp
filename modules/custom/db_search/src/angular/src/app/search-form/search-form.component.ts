@@ -76,7 +76,8 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
 
   constructor(
     @Inject(FormBuilder) private formbuilder: FormBuilder,
-    @Inject(Http) private http: Http) {
+    @Inject(Http) private http: Http,
+    @Inject('api_root') private apiRoot: string) {
 
     this.search = new EventEmitter<{
       search_terms?: string,
@@ -411,7 +412,7 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
  }
 
  ngAfterViewInit(this) {
-    new SearchFields(this.http).getFields()
+    new SearchFields(this.http, this.apiRoot).getFields()
       .subscribe(response => {
         this.fields = response;
         this.funding_organizations = this.createTreeNode(this.fields.funding_organizations, 'funding_organizations');

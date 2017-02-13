@@ -3,5 +3,7 @@ export interface TreeNode {
     label: string,
     children?: TreeNode[],
     selected?: boolean,
-    showChildren?: boolean
+    showChildren?: boolean,
+    parent?: TreeNode,
+    el?: HTMLElement
 }

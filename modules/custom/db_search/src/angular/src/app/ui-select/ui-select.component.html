@@ -22,12 +22,12 @@
 
   <div class="select-dropdown default" [style.display]="showSearchDropdown && matchingItems.length ? 'block': 'none'">
     <div *ngFor="let item of matchingItems; let index = index" 
-      class="select-dropdown-item default" 
-      [ngClass]="{'selected': index === highlightedItemIndex}"  
+      class="select-dropdown-item default noselect" 
+      [ngClass]="{ 'selected': index >= initialHiglightedRangeIndex && index <= currentHiglightedRangeIndex }"  
       [innerHTML]="highlightItem(item)" 
-      (click)="addSelectedItem(item)"
       (mouseover)="highlightIndex(index, item)"
-      
+      (mouseup)="mouseUp(index, item)"
+      (mousedown)="mouseDown($event, index, item)"
       #el></div>
   </div>
 </div>

@@ -57,7 +57,12 @@ import { ExportLookupTableButtonComponent } from './export-lookup-table-button/e
     PaginationModule.forRoot(),
     ModalModule.forRoot(),
   ],
-  providers: [],
+  providers: [
+    {
+      provide: 'api_root',
+      useValue: ''
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
