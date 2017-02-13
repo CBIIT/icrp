@@ -1,3 +1,7 @@
+.bordered {
+    border: 1px solid #BBB;
+}
+
 div.ui-table-wrapper {
     overflow-x: auto;
     position: relative;

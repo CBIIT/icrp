@@ -84,7 +84,7 @@
   </div>
 </div>
 
-<div class="row" *ngIf="authenticated && showExtendedCharts" style="margin-top: 10px">
+<div class="row" [ngStyle]="{'display': authenticated && showExtendedCharts ? 'block' : 'none'}" style="margin-top: 10px">
   <div class="col-sm-12">
     <ui-chart
       label="Project Funding by Year"
@@ -104,8 +104,8 @@
   </div>
 </div>
 
-<div class="text-center" *ngIf="authenticated">
-  <button class="btn btn-primary btn-xs" (click)="showExtendedCharts = !showExtendedCharts" [disabled]="loadingAnalytics">
+<div class="text-center" [ngStyle]="{'display': authenticated ? 'block' : 'none'}">
+  <button class="btn btn-primary btn-xs" (click)="showExtendedCharts = !showExtendedCharts; setFundingYear(fundingyear.value)" [disabled]="loadingAnalytics">
     Show {{showExtendedCharts ? 'Less' : 'More'}}
   </button>
 </div>
