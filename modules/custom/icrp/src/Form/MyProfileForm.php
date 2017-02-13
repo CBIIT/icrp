@@ -123,12 +123,10 @@ class MyProfileForm extends FormBase
         );
 
         /* Password Form */
-        //kint($form_state);
-
-
         $form['container']['name']['password'] = array(
             '#type' => 'details',
             '#title' => t('Change Password'),
+            '#open' => TRUE,
             '#attributes' => array(
                 'class' => array(''),
             )
@@ -175,10 +173,6 @@ class MyProfileForm extends FormBase
 
         /* COMMITTEE */
         foreach($this->subCommittees as $key => $field_subcommittee) {
-            //$is_member = $user->get($field_subcommittee)->getValue();
-            //drupal_set_message(print_r($is_member, TRUE));
-
-            //drupal_set_message($key. " => ". $field_subcommittee. " = ".$user->get($field_subcommittee)->value);
             $form['container']['committee'][$field_subcommittee] = array(
                 '#type' => 'checkbox',
                 '#title' => t($user->get($field_subcommittee)->getFieldDefinition()->getLabel()),
@@ -188,7 +182,6 @@ class MyProfileForm extends FormBase
                 )
 
             );
-
         }
         $form['actions']['#type'] = 'actions';
         $form['actions']['submit'] = array(
@@ -272,14 +265,37 @@ class MyProfileForm extends FormBase
 
         if (strlen($form_state->getValue('password_new')) > 0) {
             /* Check Password Length */
+            $hasError = false;
             if(strlen($form_state->getValue('password_new')) < $min_length) {
                 $form_state->setErrorByName('password_new', $this->t('Password must have '.$min_length.' or more characters.'));
+                $hasError = true;
+
             }
             /* Check Password Confirmation */
             if (strcmp($form_state->getValue('password_new'), $form_state->getValue('password_confirm')) != 0) {
                 $form_state->setErrorByName('password_confirm', $this->t('Passwords does not match.  Please confirm password.'));
+                $hasError = true;
             }
+            if($hasError) {
+               // drupal_set_message("PASSWORD ERROR:  Let's do something", 'error');
+/*
+                $form['container']['name']['password'] = array(
+                    '#open' => TRUE,
+                    //'#title' => t('Change the title Change Password'),
+                    //'#collapsed' => FALSE,  // Added
+                );
+*/
+
+            }
+
         }
+
+        // kint($form_state);
+        //$newErrors = $form_state->hasAnyErrors();
+        //drupal_set_message(print_r($newErrors, True));
+
+
+
 
     }
 

@@ -1,0 +1,235 @@
+#library {
+  padding: 0px 2em;
+  margin: 0px auto;
+  max-width: 100em;
+}
+#library header {
+  margin-bottom: 2em;
+}
+#library-search {
+  background: #eee;
+  padding: 1em;
+}
+#library-search .mockfloat {
+  margin-right: -6em;
+  float: left;
+  width: 100%;
+}
+#library-search .searchbox {
+  background: #fff;
+  border: 1px solid #000;
+  border-radius: 1.5em;
+  display: block;
+  line-height: 2em;
+  margin-right: 7em;
+  padding: 6px 12px;
+}
+#library-search .searchbox:before {
+  content: '\e003';
+  float: left;
+  font-family: 'Glyphicons Halflings';
+  font-size: 1em;
+  margin: 0px .25em;
+  width: 1em;
+}
+#library-search .mockwidth {
+  display: block;
+  margin-left: 2em;
+  overflow: hidden;
+}
+#library-search .searchbox input {
+  border: none;
+  outline: none;
+  padding: 0px;
+  width: 100%;
+}
+#library-search .searchbar button {
+  border-radius: 1.5em;
+  display: inline;
+  float: left;
+  line-height: 2em;
+  padding: 6px 12px;
+  text-align: center;
+  width: 6em;
+}
+#library-search .searchbar:after {
+  border: 1px solid #000;
+  border-width: 0px 0px 1px;
+  clear: both;
+  content: '';
+  display: block;
+  padding-bottom: 5px;
+}
+#library-search h3 {
+  margin-top: 5px;
+}
+#library-tree {
+  border: 1px solid #000;
+  height: 20em;
+  overflow: auto;
+  width: 100%;
+}
+#library-search .admin {
+  margin: 0px auto;
+  max-width: 36em;
+  width: 100%;
+}
+#library-search .admin button {
+  display: block;
+  float: left;
+  margin: 1em 1em 0px;
+  width: 10em;
+}
+#library-search .admin button:before {
+  content: '';
+  float: left;
+  height: 1.4em;
+  width: 1.4em;
+}
+#create-folder:before {
+  background: url('/icrp/sites/default/files/library/folder-add.png') no-repeat 1px 0px/contain;
+}
+#upload-file:before {
+  background: url('/icrp/sites/default/files/library/file-add.png') no-repeat 1px 0px/contain;
+}
+#archive-folder:before {
+  background: url('/icrp/sites/default/files/library/folder-archive.png') no-repeat 1px 0px/contain;
+}
+#library-search:after {
+  clear: both;
+  content: '';
+  display: block;
+}
+#library-display {
+  padding: 1em 0px;
+}
+#library-display h3 {
+  margin-top: 0px;
+}
+#library-display .frame {
+  border: 1px solid black;
+  max-height: 40em;
+  overflow: auto;
+  width: 100%;
+}
+#library-display .frame.preview {
+  padding: 0px 1em;
+}
+#library-display .frame.preview .item {
+  float: left;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 1em;
+  position: relative;
+  width: 30em;
+}
+#library-display .frame.preview .item h4 {
+  background-color: #eee;
+  font-size: 1em;
+  font-weight: bold;
+  text-align: center;
+}
+#library-display .frame.preview .item img {
+  float: left;
+  margin-right: 1em;
+  width: 10em;
+}
+#library-display .frame.preview .item p {
+  margin-bottom: 2em;
+  max-height: 10em;
+  overflow: auto;
+}
+#library-display .frame.preview .item div {
+  bottom: 1em;
+  left: 11em;
+  position: absolute;
+  text-align: center;
+  width: 19em;
+}
+#library-display .frame.preview .item:after {
+  clear: both;
+  content: '';
+  display: block;
+}
+#library-display .frame:not(.preview) {
+  border-collapse: seperate;
+  border-spacing: 0px 5px;
+  display: table;
+}
+#library-display .frame:not(.preview) .item {
+  background: #eee;
+  display: table-row;
+}
+#library-display .frame:not(.preview) .item h4,
+#library-display .frame:not(.preview) .item div {
+  display: table-cell;
+  font-size: 1em;
+  height: 1em;
+  line-height: 1em;
+  padding: 5px 10px;
+}
+#library-display .frame:not(.preview) .item img,
+#library-display .frame:not(.preview) .item p {
+  display: none;
+}
+#library-files {
+  font-size: 1.5em;
+  margin: 0px auto;
+  width: 40em;
+}
+#library-controls {
+  display: table;
+  margin-top: 2em;
+  width: 100%;
+}
+#library-controls div {
+  display: table-cell;
+  text-align: center;
+}
+#library-parameters {
+  display: table;
+  margin: 0px auto;
+  width: 40em;
+}
+#library-parameters div {
+  display: table-row;
+}
+#library-parameters.folder > :not(.folder) {
+  display: none;
+}
+#library-parameters label {
+  display: table-cell;
+  padding: 5px 0px;
+  vertical-align: top;
+  width: 7em;
+}
+#library-parameters .private ~ div {
+    display: none;
+}
+#library-parameters input:not([type="checkbox"]),
+#library-parameters textarea {
+  display: table-cell;
+  text-align: left;
+  width: 100%;
+}
+#library-upload {
+  margin: 20px auto 0px;
+  width: 20em;
+}
+
+@media (min-width: 1200px) {
+  #library-search {
+    float: left;
+    width: 20em;
+  }
+  #library-search .admin button {
+    width: 100%;
+    margin: 1em 0px 0px;
+    float: none;
+  }
+  #library-display {
+    overflow: hidden;
+    padding: 1em;
+  }
+  
+}
