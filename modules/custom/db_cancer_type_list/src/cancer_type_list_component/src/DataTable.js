@@ -10,7 +10,7 @@ class DataTable extends Component {
 
   render() {
     return (
-      <div className='table-responsive'>
+      <div className='table-responsive noscroll'>
         <table ref='table' className='data-table table-nowrap'>
           <thead>
             <tr>
