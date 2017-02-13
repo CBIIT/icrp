@@ -1,0 +1,68 @@
+<div id="library" class="tab-content">
+  <header>
+    <h2 style="color:orange;">ICRP Public Library</h2>
+    <p>
+      Please browse the sections below to find our analyses of global cancer research, newsletters, and
+      other publications. Please note that you must have Adobe's Acrobat Reader to view many of these
+      files. Get Adobe Acrobat Reader free by clicking <a href="">here</a>. To receive the ICRP newsletter
+      by email please <a href="">Contact Us</a>.
+    </p>
+  </header>
+  <div id="library-view" class="tab-pane active">
+    <div id="library-search">
+      <div class="searchbar">
+        <div class="mockfloat">
+          <div class="searchbox">
+            <span class="mockwidth"><input type="search" name="library-keywords" placeholder="Keywords"/></span>
+          </div>
+        </div>
+        <button class="btn btn-primary">Search</button>
+      </div>
+      <div class="browse">
+        <h3>Browse</h3>
+        <div id="library-tree"></div>
+        <div class="admin">
+          <button id="create-folder" class="btn btn-default">Create Folder</button>
+          <button id="upload-file" class="btn btn-default">Upload File</button>
+          <button id="archive-folder" class="btn btn-default">Archive Folder</button>
+          <button id="view-archive" class="btn btn-default" disabled=true>View Archive</button>
+        </div>
+      </div>
+    </div>
+    <div id="library-display">
+      <h3>Documents</h3>
+      <div class="frame preview"></div>
+    </div>
+  </div>
+  <div id="library-edit" class="tab-pane">
+    <form>
+      <div id="library-parameters">
+        <input type="hidden" name="parent" value=""/>
+        <div>
+          <label for="file" class="required">File</label>
+          <input type="file" name="upload"/>
+        </div>
+        <div class="folder">
+          <label for="title" class="required">Title</label>
+          <input type="text" name="title"/>
+        </div>
+        <div class="folder">
+          <label for="is_public">Public</label>
+          <input type="checkbox" name="is_public" value="1"/>
+        </div>
+        <div>
+          <label for="description" class="required">Description</label>
+          <textarea name="description"></textarea>
+        </div>
+        <div>
+          <label for="thumbnail" class="required">Thumbnail</label>
+          <input type="file" name="thumbnail"/>
+        </div>
+      </div>
+      <div id="library-upload">
+        <button id="library-save">Save</button>
+        <button id="library-cancel">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
