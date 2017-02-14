@@ -34,23 +34,28 @@ jQuery(function() {
                 frame.append('<div class="item"><h4>No Files Found</h4></div>');
             }
         },
-        'mapTree': function(entry) {
-            return {
-                id: entry.LibraryFolderID,
-                parent: entry.ParentFolderID == "1" ? "#" : entry.ParentFolderID,
-                text: entry.Name,
-                state: {
-                    opened: false,
-                    disabled: false,
-                    selected: false
-                },
-                data: {
-                  'isPublic': entry.IsPublic != "0"
+        'mapTree': function(tree) {
+            var exists = tree.map(function(entry) {
+              return entry.id;
+            });
+            return tree.map(function(entry) {
+                return {
+                    id: entry.LibraryFolderID,
+                    parent: (exists.includes(entry.ParentFolderID) ? entry.ParentFolderID : "#"),
+                    text: entry.Name,
+                    state: {
+                        opened: false,
+                        disabled: false,
+                        selected: false
+                    },
+                    data: {
+                      'isPublic': entry.IsPublic != "0"
+                    }
                 }
-            };
+            });
         },
         'initialize': function(response) {
-            var folders = response.folders.map(functions.mapTree);
+            var folders = functions.mapTree(response.folders);
             role = response.role;
             folders[0].state.selected = true;
             $('#library').toggleClass('admin',role==="admin");
