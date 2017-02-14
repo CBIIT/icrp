@@ -6,6 +6,12 @@ use Drupal\Core\Controller\ControllerBase;
 
 class IcrpController extends ControllerBase {
 
+    public function userEdit() {
+        return array(
+            '#markup' => editContent(),
+        );
+    }
+
     public function sayhello() {
         return array(
             '#markup' => hello_hello_world(),

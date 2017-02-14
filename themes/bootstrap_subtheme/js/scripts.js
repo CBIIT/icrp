@@ -2,7 +2,7 @@
   Drupal.behaviors.myModuleBehavior = {
     attach: function (context, settings) {
       //$('h2').css('color', 'red');
-      $("#edit-keys").attr("placeholder", "Search Website2");
+      $("#edit-keys").attr("placeholder", "Search Website");
       switch(window.location.pathname) {
         case "/contact-us":
           //alert("You are on the contact-us page");

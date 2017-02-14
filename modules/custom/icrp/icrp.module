@@ -22,6 +22,10 @@ function hello_hello_world() {
     return t('Hello Drupal 8 World!');
 
 }
+function editContent() {
+    return t("You are about to review a user, congrats.");
+}
+
 function reviewUserForm($uuid) {
     return t("You are about to review a user: ".$uuid);
 }
