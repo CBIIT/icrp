@@ -134,8 +134,9 @@
 }
 #library-display .frame.preview .item img {
   float: left;
+  height: 200px;
   margin-right: 1em;
-  width: 10em;
+  max-width: 150px;
 }
 #library-display .frame.preview .item p {
   margin-bottom: 2em;
