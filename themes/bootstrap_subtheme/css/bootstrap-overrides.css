@@ -316,3 +316,11 @@ form[action="/user-account-administration-tool"] > div > div {
 	background: #f5f5f5 !important;
 }
 
+
+
+/** contact-us overrides */
+
+#edit-contact-us--content > div.form--inline > .webform-element--title-inline > label {
+	display: inline-block !important;
+	vertical-align: top !important;
+}
