@@ -14,7 +14,7 @@ icrp.review_user:
     _permission: 'access content'
 
 icrp.user_edit:
-  path: '/user/{uid}/edit'
+  path: '/user/edit'
   defaults:
     _controller: '\Drupal\icrp\Controller\IcrpController::userEdit'
     _title: 'User Edit'

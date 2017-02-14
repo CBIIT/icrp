@@ -5,9 +5,7 @@
       $("#edit-keys").attr("placeholder", "Search Website");
       switch(window.location.pathname) {
         case "/contact-us":
-          //alert("You are on the contact-us page");
           var typeOfIssue =decodeURIComponent($.urlParam("type-of-issue"));
-          //alert(typeOfIssue);
           $('#edit-type-of-issue').val(typeOfIssue);
           break;
 
