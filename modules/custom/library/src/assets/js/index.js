@@ -36,7 +36,7 @@ jQuery(function() {
         },
         'mapTree': function(tree) {
             var exists = tree.map(function(entry) {
-              return entry.id;
+              return entry.LibraryFolderID;
             });
             return tree.map(function(entry) {
                 return {
