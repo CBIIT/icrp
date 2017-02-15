@@ -1,7 +1,8 @@
-<div class="table-responsive bordered">
-  <div class="loading-wrapper" *ngIf="loading">
-    <div class="loading"></div>
-  </div>
+<div *ngIf="!data">
+  Fetching results...
+</div>
+
+<div class="table-responsive bordered" style="position: relative" *ngIf="data && data.length">
   <table class="table table-bordered table-hover table-striped table-condensed table-nowrap table-narrow" #table>
     <thead #thead>
       <tr>
@@ -34,11 +35,9 @@
     </tbody>
   
   </table>
-
-  
 </div>
 
-<div class="clearfix" style="margin-top: 20px">
+<div class="clearfix" style="margin-top: 20px" *ngIf="data && data.length">
   <div class="pull-left">
 
     <pagination 

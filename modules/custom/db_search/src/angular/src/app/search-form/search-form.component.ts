@@ -421,7 +421,7 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
         setTimeout(e => {
           // set last five years
           let years = this.fields.years.filter((field, index) => {
-            if (index < 5)
+            if (index < 2)
               return field;
           }).map(field => field.value);
           this.form.controls['years'].patchValue(years);

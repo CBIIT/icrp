@@ -44,14 +44,9 @@
   </div>
 </div>
 
-<div class="row" style="margin-top: 10px">
+<div class="row" style="margin-top: 10px; position: relative">
 
-
-  <div style="position: relative" *ngIf="loadingAnalytics">
-  <div class="col-md-12 text-center clearfix loading-wrapper" style="padding-top: 140px; position: absolute" >
-    Loading Charts...
-  </div>
-  </div>
+  <ui-spinner [active]="loadingAnalytics" [overlay]="true"></ui-spinner>
 
   <div class="col-sm-3">
     <ui-chart
