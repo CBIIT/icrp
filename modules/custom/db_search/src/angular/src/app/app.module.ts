@@ -60,7 +60,7 @@ import { ExportLookupTableButtonComponent } from './export-lookup-table-button/e
   providers: [
     {
       provide: 'api_root',
-      useValue: ''
+      useValue: 'https://icrpartnership-demo.org'
     }
   ],
   bootstrap: [AppComponent]
