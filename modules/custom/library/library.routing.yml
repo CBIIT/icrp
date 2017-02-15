@@ -37,7 +37,7 @@ library.folder.post:
   methods:  [POST]
   requirements:
     _permission: 'access content'
-    _role: 'administrator'
+    _role: 'administrator, manager'
 
 library.file.id:
   path: '/library/file/{file}'
@@ -54,7 +54,6 @@ library.file.post:
   methods:  [POST]
   requirements:
     _permission: 'access content'
-    _role: 'administrator'
 
 library.file.thumb.id:
   path: '/library/file/thumb/{file}'

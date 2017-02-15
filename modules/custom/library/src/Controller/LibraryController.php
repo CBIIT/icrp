@@ -3,28 +3,33 @@
 namespace Drupal\library\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use PDO;
 
 class LibraryController extends ControllerBase {
   private static $initFolderQuery = array(
     "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;",
+    "private" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;",
     "partner" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;",
     "admin" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;"
   );
   private static $folderQuery = array(
     "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate IS NULL AND LibraryFolderID=:lfid;",
+    "private" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;",
     "partner" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;",
     "admin" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;"
   );
   private static $fileQuery = array(
     "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY Title;",
+    "private" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY Title;",
     "partner" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY Title;",
     "admin" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY Title;"
   );
   private static $fileSearch = array(
     "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND LOWER(Filename) LIKE :keywords ORDER BY Title;",
+    "private" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LOWER(Filename) LIKE :keywords ORDER BY Title;",
     "partner" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LOWER(Filename) LIKE :keywords ORDER BY Title;",
     "admin" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LOWER(Filename) LIKE :keywords ORDER BY Title;"
   );
@@ -131,6 +136,12 @@ class LibraryController extends ControllerBase {
   }
 
   public function postFile() {
+    $role = self::getRole();
+    if ($role == "public" || $role == "private") {
+      return new JsonResponse(array(
+          "success"=>false
+      ),Response::HTTP_FORBIDDEN);
+    }
     $params = \Drupal::request()->request->all();
     if (!isset($params['is_public'])) {
       $params['is_public'] = "0";
@@ -145,7 +156,7 @@ class LibraryController extends ControllerBase {
         )) {
       return new JsonResponse(array(
           "success"=>false
-      ));
+      ),Response::HTTP_BAD_REQUEST);
     }
     $upload->move("public://library/uploads",$upload->getClientOriginalName());
     $thumb->move("public://library/uploads/thumbs",$thumb->getClientOriginalName());
@@ -171,14 +182,30 @@ class LibraryController extends ControllerBase {
     }
     return new JsonResponse(array(
         "success"=>false
-    ));
+    ),Response::HTTP_INTERNAL_SERVER_ERROR);
   }
 
   public function fileDownload($file) {
+    if (self::getRole() == "public") {
+      $connection = self::get_connection();
+      $stmt = $connection->prepare("SELECT IsPublic FROM Library WHERE IsPublic=1 AND Filename=:file");
+      $stmt->bindParam(":file",$file);
+      if (!$stmt->execute() || $stmt->rowCount() == 0) {
+        return new JsonResponse($stmt->rowCount(),$status=Response::HTTP_FORBIDDEN);
+      }
+    }
     return self::getFile($file);
   }
 
   public function thumbsDownload($file) {
+    if (self::getRole() == "public") {
+      $connection = self::get_connection();
+      $stmt = $connection->prepare("SELECT IsPublic FROM Library WHERE IsPublic=1 AND ThumbnailFilename=:file");
+      $stmt->bindParam(":file",$file);
+      if (!$stmt->execute() || $stmt->rowCount() == 0) {
+        return new JsonResponse($stmt->rowCount(),$status=Response::HTTP_FORBIDDEN);
+      }
+    }
     return self::getFile(join('/',array("thumbs",$file)));
   }
 
@@ -243,6 +270,7 @@ class LibraryController extends ControllerBase {
   }
 
   private function getFile($location) {
+    return new JsonResponse(self::getRole());
     return new BinaryFileResponse(join('/',array(drupal_realpath('public://library/uploads'),$location)));
   }
 
@@ -250,9 +278,13 @@ class LibraryController extends ControllerBase {
     $role = "public";
     $authenticated = parent::currentUser()->isAuthenticated();
     if ($authenticated) {
-      $role = "partner";
+      if (parent::currentUser()->hasPermission('field_can_upload_library_files')) {
+        $role = "partner";
+      } else {
+        $role = "private";
+      }
       foreach (parent::currentUser()->getRoles() as $value) {
-        if ($value == "administrator") {
+        if ($value == "administrator" || $value == "manager") {
           $role = "admin";
           break;
         }

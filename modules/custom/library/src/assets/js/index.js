@@ -11,7 +11,8 @@ jQuery(function() {
             if (files.length > 0) {
                 frame.toggleClass('preview',isPublic);
                 $.each(files,function(index,entry) {
-                    var title = entry.Title||entry.Filename,
+                    var id = entry.LibraryID,
+                        title = entry.Title||entry.Filename,
                         thumb = entry.ThumbnailFilename||"",
                         description = entry.Description||"",
                         file = entry.Filename;
@@ -26,6 +27,7 @@ jQuery(function() {
                           '<img src="'+thumb+'"/>'+
                           '<p>'+description+'</p>'+
                           '<div><a href="'+path+'file/'+file+'">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
+                          '<button class="admin archive-file" data-id="'+id+'"></button>'+
                       '</div>'
                     );
                 });
@@ -141,6 +143,23 @@ jQuery(function() {
                 tree.select_node(nodes);
                 functions.closeParams(e);
             });
+        },
+        'search': function(e) {
+            e.preventDefault();
+            var val = $('#library [name="library-keywords"]').val().toLowerCase(),
+                form = new FormData();
+            form.append("keywords",val);
+            $.ajax({
+                'url': path+'search',
+                'type': 'POST',
+                'data': form,
+                'cache': false,
+                'contentType': false,
+                'processData': false
+            }).done(function(response) {
+                tree.deselect_all();
+                functions.writeDisplay(role==="public",response);
+            });
         }
     };
     $.get(path+'initialize').done(functions.initialize);
@@ -153,32 +172,14 @@ jQuery(function() {
           $('#library-search-button').trigger('click');
         }
     });
-    $('#library-search-button').on('click', function(e) {
-        e.preventDefault();
-        var val = $('#library [name="library-keywords"]').val().toLowerCase(),
-            form = new FormData();
-        form.append("keywords",val);
-        $.ajax({
-            'url': path+'search',
-            'type': 'POST',
-            'data': form,
-            'cache': false,
-            'contentType': false,
-            'processData': false
-        }).done(function(response) {
-            tree.deselect_all();
-            functions.writeDisplay(role==="public",response);
-        });
-    });
+    $('#library-search-button').on('click', functions.search);
     $('#create-folder').on('click',function(e) {
         functions.createNew(e,true);
     });
     $('#upload-file').on('click',function(e) {
         functions.createNew(e,false);
     });
-    $('#archive-folder').on('click',function(e) {
-        functions.archiveFolder(e);
-    });
+    $('#archive-folder').on('click',functions.archiveFolder);
     $('#view-archive').on('click',function(e) {
         e.preventDefault();
     });
@@ -186,7 +187,7 @@ jQuery(function() {
         var target = $(e.target);
         target.parent().toggleClass('private',!target.prop('checked'));
     });
-    $('#library-save').on('click',function(e) {1
+    $('#library-save').on('click',function(e) {
         e.preventDefault();
         if ($('#library-parameters').hasClass('folder')) {
             functions.saveFolder(e);
@@ -195,5 +196,9 @@ jQuery(function() {
         }
     });
     $('#library-cancel').on('click',functions.closeParams);
+    $('#library-display .archive-file').on('click', function(e) {
+        var id = $(e.target).attr('data-id');
+        console.log(id);
+    });
 });
 
