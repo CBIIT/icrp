@@ -1,10 +1,10 @@
-import { IcrpSearchPage } from './app.po';
+import { AngularPage } from './app.po';
 
-describe('icrp-search App', function() {
-  let page: IcrpSearchPage;
+describe('angular App', function() {
+  let page: AngularPage;
 
   beforeEach(() => {
-    page = new IcrpSearchPage();
+    page = new AngularPage();
   });
 
   it('should display message saying app works', () => {
