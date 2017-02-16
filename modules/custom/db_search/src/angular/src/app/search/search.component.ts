@@ -56,10 +56,22 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   checkAuthenticationStatus() {
-    this.http.get('/search-database/partners/authenticate', {withCredentials: true})
+    this.http.get(`${this.apiRoot}/search-database/partners/authenticate`, {withCredentials: true})
       .map((res: Response) => res.text())
-      .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
-      .subscribe(response => this.loggedIn = (response === 'authenticated'))
+      .catch((error: any) => {
+        let message = 'Server error';
+        if ([401, 403].indexOf(error.status) > -1) {
+          message = 'Unauthorized'
+        }
+        return []
+      })
+      .subscribe(
+        response => {
+          this.loggedIn = (response === 'authenticated')
+        },
+        error => {},
+        () => {}
+      )
   }
 
   updateMappedParameters(event: Object) {

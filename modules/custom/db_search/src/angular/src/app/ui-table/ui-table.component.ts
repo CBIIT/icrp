@@ -223,7 +223,7 @@ export class UiTableComponent implements OnChanges {
     if (changes['columns'])
       this.initSort(this.columns)
 
-    if (changes['data']) {
+    if (changes['data'] && this.table && this.table.nativeElement) {
       window.setTimeout(e => {
         this.enableResizableColumns(this.table.nativeElement);
       }, 0)
