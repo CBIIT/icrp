@@ -7,6 +7,21 @@
         case "/contact-us":
           var typeOfIssue =decodeURIComponent($.urlParam("type-of-issue"));
           $('#edit-type-of-issue').val(typeOfIssue);
+            //Strip anchor from organization.
+          var currentOrg = $('#edit-organization').val();
+            //alert(current_org);
+            //alert($(current_org).text());
+          var currentOrgStr = $(currentOrg).text();
+          if(typeof currentOrgStr ==='string') {
+            $('#edit-organization').text(currentOrgStr);
+            $('#edit-organization').val(currentOrgStr);
+          }
+
+          //alert(typeof(currentOrgStr));
+          console.log(currentOrgStr);
+          //$('#edit-organization').val(currentOrgStr);
+
+
           break;
 
       }
