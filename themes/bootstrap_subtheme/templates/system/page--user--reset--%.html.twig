@@ -162,11 +162,34 @@
                 {# Content #}
                 {% block content %}
                     <a id="main-content"></a>
-                    <h1>Password Reset</h1>
+
+                    <h1>One Time Login</h1>
                     <div class="row">
                         <div class="col-sm-6 col-sm-offset-3">
-                            Hello
+                            <!-- Password block -->
+                            <!--
+                            <div id="edit-password" data-drupal-selector="edit-password" class="js-form-wrapper form-wrapper form-item js-form-item panel panel-default">
+                                <div class="panel-heading">
+                                    <a href="#edit-password--content" class="panel-title" role="button" data-toggle="collapse" aria-pressed="true" aria-expanded="true" aria-controls="edit-password--content">Change Password</a>
+                                </div>
+                                <div class="panel-body panel-collapse collapse fade in" id="edit-password--content">
+                                    <div class="form-item js-form-item form-type-password js-form-type-password form-item-password-new js-form-item-password-new form-group">
+                                        <label class="control-label" for="edit-password-new">New Password</label>
+                                        <input type="password" value="" maxlength="128" size="60" name="password_new" id="edit-password-new" data-msg-maxlength="New Password field has a maximum length of 128." class="form-text form-control" data-drupal-selector="edit-password-new">
+                                    </div>
+                                    <div class="form-item js-form-item form-type-password js-form-type-password form-item-password-confirm js-form-item-password-confirm form-group">
+                                        <label class="control-label" for="edit-password-confirm">Confirm New Password</label>
+                                        <input type="password" value="" maxlength="128" size="60" name="password_confirm" id="edit-password-confirm" data-msg-maxlength="Confirm New Password field has a maximum length of 128." class="form-text form-control" data-drupal-selector="edit-password-confirm">
+                                    </div>
+                                    <div id="edit-pass--description" class="description">To change the current user password, enter the new password in both fields.</div>
+                                </div>
+                            </div>
+                            -->
+                            <!-- End of Password block -->
                             {{ page.content }}
+                            <div class="row" style="margin-bottom:15px;">
+                                <div class=""col-sm-12>Click on <b>My Profile</b> to change password after logging in.</div>
+                            </div>
                         </div>
                     </div>
                 {% endblock %}

@@ -88,7 +88,13 @@ function icrp_theme() {
 function icrp_hook_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
     $form['link'] = array('#markup' => l(t('Link text'),'node'));
     switch ($form_id) {
-        case 'user_login':
+        case 'user-pass-reset':
+            $form['terms_of_use'] = array(
+                '#type' => 'checkbox',
+                '#title' => t("I agree with the website's terms and conditions."),
+                '#required' => TRUE,
+            );
+            break;
         case 'user_login_block':
             $form['link'] = array('#markup' => l(t('Link text'),'node'));
             break;

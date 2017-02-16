@@ -36,3 +36,12 @@ icrp.my_profile:
     _form: '\Drupal\icrp\Form\MyProfileForm'
   requirements:
     _permission: 'access content'
+
+icrp.user_reset:
+  path: '/old/user/reset/{uid}'
+  defaults:
+    _title: 'User Reset'
+    _form: '\Drupal\icrp\Form\UserResetForm'
+  requirements:
+    _permission: 'access content'
+
