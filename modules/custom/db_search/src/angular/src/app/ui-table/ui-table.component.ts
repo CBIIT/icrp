@@ -255,7 +255,7 @@ export class UiTableComponent implements OnChanges {
 
     tableResizeOverlay.innerHTML = '';
     tableResizeOverlay.id = 'table-resize-overlay';
-    tableResizeOverlay.style.position = 'relative';
+    tableResizeOverlay.style.position = 'absolute';
     tableResizeOverlay.style.width = `${state.width}px`;
 
     table.style.width = `${state.width}px`;
@@ -303,6 +303,18 @@ export class UiTableComponent implements OnChanges {
         cell.style.width = `${cellWidth}px`
         cell.style.maxWidth = `${cellWidth}px`
 
+
+        let table: HTMLTableElement = this.table.nativeElement;
+        let tableRows= table.tBodies[0].children
+
+        for (let j = 0; j < tableRows.length; j ++) {
+          let row = tableRows[j];
+          let td = row.children[index];
+          td['style'].width = `${cellWidth}px`
+          td['style'].maxWidth = `${cellWidth}px`
+        }
+        
+
         let width = state.initial.tableWidth + offset;
         state.width = width;
         table.style.width = `${width}px`
@@ -316,7 +328,7 @@ export class UiTableComponent implements OnChanges {
     let endResizeEvent = e => {
 //      e.preventDefault();
 
-      console.log(state);
+//      console.log(state);
 
       if (state.resizing) {
         state.resizing = false;
@@ -326,6 +338,7 @@ export class UiTableComponent implements OnChanges {
           let th = headerRow.children[i];
           th.style.width = `${th.clientWidth + 1}px`;
         }
+
 
         resetHandlePositions();
       }

@@ -11,11 +11,16 @@
     <span class="pull-right project-counts" >
       <div *ngIf="!loadingAnalytics" style="color: #446CB3; white-space: nowrap; text-overflow: ellipsis; display: inline">
         <b>
-        Total Projects:
-        {{ ((analytics && analytics.count ) || 0).toLocaleString() }}
+        <span tooltip="Parent projects">
+          Total Projects:
+          {{ ((analytics && analytics.count ) || 0).toLocaleString() }}
+        </span>
         /
-        Total Related Projects:
-        {{ ((analytics && analytics.projects_by_country && analytics.counts.projects_by_country) || 0).toLocaleString() }}
+
+        <span tooltip="Including linked sub-projects or supplements">
+          Total Related Projects:
+          {{ ((analytics && analytics.projects_by_country && analytics.counts.projects_by_country) || 0).toLocaleString() }}
+        </span>
         </b>
       </div>
 

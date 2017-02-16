@@ -3,15 +3,15 @@
 </div>
 
 <div class="table-responsive bordered" style="position: relative" *ngIf="data && data.length">
-  <table class="table table-bordered table-hover table-striped table-condensed table-nowrap table-narrow" #table>
+  <table class="table custom-sizing table-bordered table-hover table-striped table-condensed table-nowrap table-narrow" #table>
     <thead #thead>
       <tr>
-        <th *ngFor="let column of columns">
-          <div [tooltip]="column.tooltip" style="display: inline-block">
-            <span style="cursor: pointer"  (click)="sortTableColumn(column)">
+        <th *ngFor="let column of columns" >
+          <div style="display: block" [tooltip]="column.tooltip" container="body" (click)="sortTableColumn(column)" style="cursor: pointer">
               {{ column.label }} 
-              {{ column.sort === 'asc' ? '▲' : '▼' }} 
-            </span>
+              <div class="pull-right">
+                {{ column.sort === 'asc' ? '▲' : '▼' }}
+              </div> 
           </div>
         </th>
       </tr>
