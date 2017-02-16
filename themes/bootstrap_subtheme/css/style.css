@@ -183,6 +183,12 @@ header {
 .what-who-section a {
     font-weight:bold;
 }
+#become-a-partner-wells h4, #become-a-partner-wells p {
+    margin-bottom:25px;
+}
+#become-a-partner-wells > div > div > p:last-child {
+    margin-bottom:10px;
+}
 /* alert */
 /*
 .alert {

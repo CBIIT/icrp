@@ -11,6 +11,7 @@ global-scripts:
   js:
     https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.22.0/polyfill.min.js: { type: external, minified: true }
     js/init_globals.js: {}
+    https://cdnjs.cloudflare.com/ajax/libs/jquery.matchHeight/0.7.0/jquery.matchHeight-min.js: { type: external, minified: true }
     js/scripts.js: {}
   dependencies:
     - core/jquery
