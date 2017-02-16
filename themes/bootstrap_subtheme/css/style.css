@@ -180,6 +180,9 @@ header {
     margin-bottom:0px;
     background-color: #f8f8f8;
 }
+.what-who-section a {
+    font-weight:bold;
+}
 /* alert */
 /*
 .alert {
