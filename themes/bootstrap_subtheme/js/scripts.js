@@ -3,25 +3,28 @@
     attach: function (context, settings) {
       //$('h2').css('color', 'red');
       $("#edit-keys").attr("placeholder", "Search Website");
+
       switch(window.location.pathname) {
         case "/contact-us":
-          console.log("You are on the /contact-us page.");
+          //console.log("You are on the /contact-us page.");
           var typeOfIssue =decodeURIComponent($.urlParam("type-of-issue"));
           if(typeOfIssue.length > 0 ) {
             $('#edit-type-of-issue').val(typeOfIssue);
           }
-            //Strip anchor from organization.
+          //Strip anchor from organization.
           var currentOrg = $('#edit-organization').val();
-          console.log('currentOrg: '+currentOrg);
-          console.log('typeof: '+ typeof currentOrg);
+          //console.log('currentOrg: '+currentOrg);
           if(typeof currentOrg ==='string') {
-            console.log($(currentOrg).text());
-            var rawOrg = $(currentOrg).text();
-            $('#edit-organization').val(rawOrg);
+            var regex = /(<([^>]+)>)/ig
+            var rawOrg = currentOrg.replace(regex, "");
+            if(currentOrg.localeCompare(rawOrg) != 0) {
+              //document.getElementById("edit-organization").value = rawOrg;
+              $('#edit-organization').val(rawOrg);
+            }
           }
           break;
         case "/become-a-partner":
-          console.log("You are on the /become-a-partner page.");
+          //console.log("You are on the /become-a-partner page.");
           $("#become-a-partner-wells").matchHeight(true);
           break;
 
