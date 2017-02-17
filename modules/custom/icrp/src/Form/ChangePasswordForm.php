@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Contains \Drupal\icrp\Form\MyProfileForm.
+ * Contains \Drupal\icrp\Form\ChangePasswordForm.
  */
 namespace Drupal\icrp\Form;
 
@@ -9,7 +9,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use \Drupal\icrp\Controller\ProfileUpdateController;
 
-class UserResetForm extends FormBase
+class ChangePasswordForm extends FormBase
 {
 
     /**
