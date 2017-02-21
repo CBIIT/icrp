@@ -1139,7 +1139,7 @@ class ExportResultsController extends ControllerBase {
   private function createExportSingleSheet($conn, &$objPHPExcel, $sid, $sheetIndex, $withAbstract){
     $result = "";
     $url = self::getBaseUrl();
-	$viewLink = $url . "viewProject.cfm?pid=";
+	$viewLink = $url . "project/";
 	$result_count = NULL;
 
 	$objPHPExcel->getProperties()->setCreator("ICRP")
