@@ -33,7 +33,7 @@ class ProjectViewController extends ControllerBase {
       'City' => 'city',
       'State' => 'state', 
       'Country' => 'country', 
-      'AwardType' => 'award_type', 
+      'Category' => 'award_type', 
       'AltAwardCode' => 'alt_award_code', 
       'FundingOrganization' => 'funding_organization', 
       'BudgetStartDate' => 'budget_start_date', 
@@ -182,10 +182,6 @@ class ProjectViewController extends ControllerBase {
       }, array_keys($queries), $queries), 
     'array_merge', []);
   }
-
-
-
-
 
   public function getProjectDetails($project_id) {
     $results = self::get_project($project_id);
