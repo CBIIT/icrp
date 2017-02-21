@@ -19,8 +19,6 @@ use PDO;
  */
 class DatabaseSearchAPIController extends ControllerBase {
 
-  private static $connection_ini = 'connection.ini';
-
   private static $parameter_mappings = [
     'page_size'             => 'PageSize',
     'page_number'           => 'PageNumber',
@@ -73,12 +71,16 @@ class DatabaseSearchAPIController extends ControllerBase {
    */
   function get_connection() {
 
-    $cfg = parse_ini_file(self::$connection_ini);
+    $cfg = [];
+    $icrp_database = \Drupal::config('icrp_database');
+    foreach(['driver', 'host', 'port', 'database', 'username', 'password'] as $key) {
+       $cfg[$key] = $icrp_database->get($key);
+    }
 
     // connection string
-    $cfg['data_source'] =
+    $cfg['dsn'] =
       $cfg['driver'] .
-      ":Server={$cfg['server']},{$cfg['port']}" .
+      ":Server={$cfg['host']},{$cfg['port']}" .
       ";Database={$cfg['database']}";
 
     // default configuration options
@@ -91,12 +93,12 @@ class DatabaseSearchAPIController extends ControllerBase {
 
     // create new PDO object
     return new PDO(
-      $cfg['data_source'],
+      $cfg['dsn'],
       $cfg['username'],
       $cfg['password'],
       $cfg['options']
     );
-  }
+  }  
 
   function create_updated_input_parameters($request) {
     $input_parameters = [
