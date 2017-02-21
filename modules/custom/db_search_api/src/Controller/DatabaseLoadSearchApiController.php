@@ -5,7 +5,7 @@
  * Contains \Drupal\db_search_api\Controller\DatabaseSearchAPIController.
  */
 
-namespace Drupal\db_load_search_api\Controller;
+namespace Drupal\db_search_api\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Database;
