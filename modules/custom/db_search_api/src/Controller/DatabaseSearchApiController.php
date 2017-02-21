@@ -748,7 +748,7 @@ class DatabaseSearchAPIController extends ControllerBase {
   }
 
 
-  public function retrieve_parameters(  ) {
+  public function retrieve_parameters( Request $request ) {
     $search_id = $request->query->get('search_id');
     $response = new JSONResponse( self::retrieve_search_parameters($search_id) );
     return self::add_cors_headers($response);
