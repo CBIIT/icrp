@@ -135,6 +135,21 @@ class DatabaseSearchAPIController extends ControllerBase {
     return $input_parameters;
   }
 
+  function retrieve_search_parameters($search_id) {
+
+    $pdo = self::get_connection();
+    $stmt = $pdo->prepare('SELECT * FROM SearchCriteria where SearchCriteriaID = :search_id');
+    $stmt->bindParam(':search_id', $search_id);
+
+    $output = [];
+
+    if ($stmt->execute()) {
+        $output = $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    return $output;
+  }
+
   function get_analytics_updated($search_id) {
 
     $pdo = self::get_connection();
@@ -731,6 +746,14 @@ class DatabaseSearchAPIController extends ControllerBase {
     $response = new JSONResponse( self::get_partner_analytics_funding_years() );
     return self::add_cors_headers($response);
   }
+
+
+  public function retrieve_parameters(  ) {
+    $search_id = $request->query->get('search_id');
+    $response = new JSONResponse( self::retrieve_search_parameters($search_id) );
+    return self::add_cors_headers($response);
+  }
+
 
 }
 

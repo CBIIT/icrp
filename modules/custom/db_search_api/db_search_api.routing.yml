@@ -1,4 +1,11 @@
-# Test API endpoints
+
+
+db_search_api.public.retrieve:
+  path: '/db/retrieve'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::retrieve_parameters' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
 
 db_search_api.public.fields:
   path: '/db/public/fields'
