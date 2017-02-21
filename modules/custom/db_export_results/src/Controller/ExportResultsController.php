@@ -101,7 +101,7 @@ class ExportResultsController extends ControllerBase {
   private function createExportPublicSheet($conn, &$objPHPExcel, $sid, $sheetIndex){
     $result = "";
     $url = self::getBaseUrl();
-	$viewLink = $url . "viewProject.cfm?pid=";
+	$viewLink = $url . "project/";
 	$result_count = NULL;
 	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectsBySearchID @SearchID=:search_id_name, @ResultCount=:result_count");
 	$stmt->bindParam(':search_id_name', $sid);
