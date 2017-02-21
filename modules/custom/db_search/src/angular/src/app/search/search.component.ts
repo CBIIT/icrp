@@ -29,6 +29,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
   analytics: any;
   loggedIn: boolean;
 
+  initialID: any;
+  initialParameters: any;
+
   conversionYears = [];
 
   constructor(
@@ -51,8 +54,81 @@ export class SearchComponent implements OnInit, AfterViewInit {
       page_size: 50,
     }
 
+    this.initialParameters = null;
+
+    
+
     this.updateAvailableConversionYears();
     this.checkAuthenticationStatus();
+  }
+
+  updateInitialSearchId() {
+    let query = window.location.search
+      .substring(1)
+      .split('&')
+      .map(e => e.split('=')) 
+      // retrieve array of query terms
+      // and create object
+      .reduce((prev, curr) => {
+        let key = curr[0];
+        let value = curr[1];
+
+        if (key) {
+          prev[key] = value;
+        }
+        
+        return prev;
+      }, [])
+
+    this.initialID = query['sid'];
+    this.updateInitalParameters();
+    
+  }
+
+  updateInitalParameters() {
+
+    let params = new URLSearchParams();
+    params.set('search_id', this.initialID);
+
+    this.http.get(`${this.apiRoot}/db/retrieve`, {search: params})
+      .map((res: Response) => res.json())
+      .catch((error: any) => [])
+      .subscribe(
+        response => this.initialParameters = this.parseParameters(response),
+        error => {},
+        () => {}
+      )
+  }
+
+  parseParameters(params) {
+
+    for (let key in params) {
+      if (!params[key])
+        params[key] = '';
+    }
+
+    let parsed = {
+      award_code: params['AwardCode'],
+      cso_research_areas: params['CSOList'].split(','),
+      cancer_types: params['CancerTypeList'].split(','),
+      cities: params['CityList'].split(','),
+      countries: params['CountryList'].split(','),
+      funding_organizations: params['FundingOrgList'].split(','),
+      institution: params['Institution'],
+      project_types: params['ProjectTypeList'].split(','),
+      states: params['StateList'].split(','),
+      search_type: params['TermSearchType'],
+      search_terms: params['Terms'],
+      years: params['YearList'].split(','),
+      pi_first_name: params['piFirstName'],
+      pi_last_name: params['piLastName'],
+      pi_orcid: params['piORCiD']
+    }
+
+    console.log('recieved parameters', params);
+    console.log('parsed parameters', parsed);
+
+    return parsed;
   }
 
   checkAuthenticationStatus() {

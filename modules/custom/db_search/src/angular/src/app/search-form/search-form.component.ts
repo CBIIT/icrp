@@ -4,6 +4,8 @@ import {
   Inject,
   Input,
   EventEmitter,
+  OnChanges,
+  SimpleChanges,
   OnInit,
   Output
 } from '@angular/core';
@@ -24,7 +26,7 @@ import { TreeNode } from '../ui-treeview/treenode';
   templateUrl: './search-form.component.html',
   styleUrls: ['./search-form.component.css'],
 })
-export class SearchFormComponent implements OnInit, AfterViewInit {
+export class SearchFormComponent implements OnChanges, AfterViewInit {
 
   @Output()
   mappedSearch: EventEmitter<{
@@ -67,6 +69,12 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
     project_types?: string,
     cso_research_areas?: string
   }>;
+
+  @Output()
+  requestInitialParameters: EventEmitter<any>;
+
+  @Input()
+  initialSearchParameters: any;
 
   funding_organizations: TreeNode;
   cso_research_areas: TreeNode;
@@ -117,7 +125,9 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
       cancer_types?: string[],
       project_types?: string[],
       cso_research_areas?: string[]
-    }>();    
+    }>();
+
+    this.requestInitialParameters = new EventEmitter<any>();
 
     this.form = formbuilder.group({
       search_terms: [''],
@@ -155,7 +165,7 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
     this.cso_research_areas = null;
   }
 
-  submit(event) {
+  submit(event?) {
 
     if (event) {
       event.preventDefault();
@@ -401,6 +411,9 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
     return root;
  }
 
+ getInitialParameters() {
+ }
+
  resetForm() {
   this.form.reset();
   // set last two years
@@ -409,6 +422,32 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
       return field;
   }).map(field => field.value);
   this.form.controls['years'].patchValue(years);
+ }
+
+ ngOnChanges(changes: SimpleChanges) {
+   console.log('changes', changes)
+
+   let params = changes['initialSearchParameters'].currentValue;
+
+   if (params) {
+    for (let key in params) {
+      let value = params[key];
+      
+      if (value instanceof Array)
+        value = value.filter(e => e.length);
+
+      this.form.controls[key].patchValue(value)
+    }
+
+    this.submit();
+   }
+
+   else {
+     this.resetForm();
+   }
+
+   this.submit();
+
  }
 
  ngAfterViewInit(this) {
@@ -425,6 +464,7 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
               return field;
           }).map(field => field.value);
           this.form.controls['years'].patchValue(years);
+          this.requestInitialParameters.emit();
           this.submit();
         }, 0);
       });

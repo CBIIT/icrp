@@ -300,8 +300,8 @@ export class UiTableComponent implements OnChanges {
         let cell = headerRow.children[index];
         let cellWidth = state.initial.cellWidth + offset;
 
-        cell.style.width = `${cellWidth}px`
-        cell.style.maxWidth = `${cellWidth}px`
+//        cell.style.width = `${cellWidth}px`
+//        cell.style.maxWidth = `${cellWidth}px`
 
 
         let table: HTMLTableElement = this.table.nativeElement;

@@ -17,7 +17,7 @@ use PDO;
 /**
  * Controller routines for db_search_api routes.
  */
-class DatabaseSearchAPIController extends ControllerBase {
+class DatabaseLoadSearchAPIController extends ControllerBase {
 
   private static $parameter_mappings = [
     'page_size'             => 'PageSize',
@@ -72,7 +72,7 @@ class DatabaseSearchAPIController extends ControllerBase {
   function get_connection() {
 
     $cfg = [];
-    $icrp_database = \Drupal::config('icrp_database');
+    $icrp_database = \Drupal::config('icrp_load_database');
     foreach(['driver', 'host', 'port', 'database', 'username', 'password'] as $key) {
        $cfg[$key] = $icrp_database->get($key);
     }
