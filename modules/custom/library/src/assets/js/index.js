@@ -6,7 +6,7 @@ jQuery(function() {
     root = root.slice(0,root.slice(0,-1).lastIndexOf('/'));
     var path = root + '/library/';
     var functions = {
-        'writeDisplay': function(isPublic,files) {
+        'writeDisplay': function(files,isPublic) {
             var frame = $('#library-display .frame').empty();
             if (files.length > 0) {
                 frame.toggleClass('preview',isPublic);
@@ -15,7 +15,8 @@ jQuery(function() {
                         title = entry.Title||entry.Filename,
                         thumb = entry.ThumbnailFilename||"",
                         description = entry.Description||"",
-                        file = entry.Filename;
+                        file = entry.Filename,
+                        isArchived = (entry.ArchivedDate === null);
                     if (thumb === "") {
                         thumb = root+'/sites/default/files/library/placeholder.jpg';
                     } else {
@@ -27,7 +28,7 @@ jQuery(function() {
                           '<img src="'+thumb+'"/>'+
                           '<p>'+description+'</p>'+
                           '<div><a href="'+path+'file/'+file+'">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
-                          '<button class="admin archive-file" data-id="'+id+'"></button>'+
+                          '<button class="admin '+(isArchived?'archive-file':'restore-file')+'" data-id="'+id+'"></button>'+
                       '</div>'
                     );
                 });
@@ -51,31 +52,34 @@ jQuery(function() {
                         selected: false
                     },
                     data: {
-                      'isPublic': entry.IsPublic != "0"
+                      'isPublic': entry.IsPublic != "0",
+                      'isArchived': entry.ArchivedDate !== null
                     }
                 }
             });
         },
-        'initialize': function(response) {
-            var folders = functions.mapTree(response.folders);
-            role = response.role;
-            folders[0].state.selected = true;
-            $('#library').toggleClass('admin',role==="admin");
-            $('#library-tree').jstree({
-                'core' : {
-                    'check_callback': true,
-                    'data' : folders,
-                    'multiple': false
-                }
-            }).on('ready.jstree', function(e, data) {
-                tree = $('#library-tree').jstree();
-            }).on('changed.jstree', function(e, data) {
-                var node = data.selected;
-                if (node.length > 0) {
-                    $.get(path+'folder/'+data.selected[0]).done(function(response) {
-                        functions.writeDisplay(role==="public",response.files);
-                    });
-                }
+        'initialize': function() {
+            $.get(path+'initialize').done(function(response) {
+                var folders = functions.mapTree(response.folders);
+                role = response.role;
+                $('#library').toggleClass('admin',role==="admin");
+                $('#library-tree').jstree({
+                    'core' : {
+                        'check_callback': true,
+                        'data' : folders,
+                        'multiple': false
+                    }
+                }).on('ready.jstree', function(e, data) {
+                    tree = $('#library-tree').jstree();
+                    tree.select_node(tree.get_json()[0]);
+                }).on('changed.jstree', function(e, data) {
+                    var node = data.selected;
+                    if (node.length > 0) {
+                        $.get(path+'folder/'+data.selected[0]).done(function(response) {
+                            functions.writeDisplay(response.files,role==="public");
+                        });
+                    }
+                });
             });
         },
         'createNew': function(e,isFolder) {
@@ -116,6 +120,21 @@ jQuery(function() {
                 }
             });
         },
+        'archiveFile': function(e) {
+            var target = $(e.target),
+                id = target.attr('data-id');
+            $.ajax({
+                'url': path+'file/'+id,
+                'method': 'DELETE'
+            }).done(function(response) {
+                var item = target.closest('.item');
+                if (item.siblings().length > 0) {
+                    item.remove();
+                } else {
+                    functions.writeDisplay([],role==="public");
+                }
+            });
+        },
         'archiveFolder': function(e) {
             var node = functions.getNode();
             $.ajax({
@@ -125,6 +144,22 @@ jQuery(function() {
                 if (response.success) {
                     tree.delete_node(node.id);
                 } else {
+                }
+            });
+            e.preventDefault();
+        },
+        'restoreFile': function(e) {
+            var target = $(e.target),
+                id = target.attr('data-id');
+            $.ajax({
+                'url': path+'file/'+id,
+                'method': 'PUT'
+            }).done(function(response) {
+                var item = target.closest('.item');
+                if (item.siblings().length > 0) {
+                    item.remove();
+                } else {
+                    functions.writeDisplay([],role==="public");
                 }
             });
             e.preventDefault();
@@ -159,11 +194,43 @@ jQuery(function() {
                 'processData': false
             }).done(function(response) {
                 tree.deselect_all();
-                functions.writeDisplay(role==="public",response);
+                functions.writeDisplay(response,role==="public");
             });
+        },
+        'viewArchive': function(e) {
+            $.get(path+'archived/folders').done(function(response) {
+                $('#library-management').addClass('hide');
+                $('#library-archive-management').removeClass('hide');
+                var folders = functions.mapTree(response.folders);
+                tree.destroy();
+                tree = $('#library-tree').jstree({
+                    'core' : {
+                        'check_callback': true,
+                        'data' : folders,
+                        'multiple': false
+                    }
+                }).on('ready.jstree', function(e, data) {
+                    tree = $('#library-tree').jstree();
+                    tree.select_node(tree.get_json()[0]);
+                }).on('changed.jstree', function(e, data) {
+                    var nodes = data.selected;
+                    if (nodes.length > 0) {
+                        var node = data.node;
+                        $.get(path+'archived/files/'+node.id).done(function(response) {
+                            functions.writeDisplay(response.files,role==="public");
+                        });
+                        if (node.data.isArchived === true) {
+                          $('#library-restore-folder').removeAttr('disabled');
+                        } else {
+                          $('#library-restore-folder').attr('disabled',true);
+                        }
+                    }
+                });
+            });
+            e.preventDefault();
         }
     };
-    $.get(path+'initialize').done(functions.initialize);
+    functions.initialize();
     $('#library-search .searchbox').on('click',function(e) {
         e.preventDefault();
         $(e.currentTarget).find('input').focus();
@@ -174,35 +241,17 @@ jQuery(function() {
         }
     });
     $('#library-search-button').on('click', functions.search);
-    $('#create-folder').on('click',function(e) {
+    $('#library-create-folder').on('click',function(e) {
         functions.createNew(e,true);
     });
-    $('#upload-file').on('click',function(e) {
+    $('#library-upload-file').on('click',function(e) {
         functions.createNew(e,false);
     });
-    $('#archive-folder').on('click',functions.archiveFolder);
-    $('#view-archive').on('click',function(e) {
-        $.get(path+'archived').done(function(response) {
-            var folders = functions.mapTree(response.folders);
-            tree.destroy();
-            tree = $('#library-tree').jstree({
-                'core' : {
-                    'check_callback': true,
-                    'data' : folders,
-                    'multiple': false
-                }
-            }).on('ready.jstree', function(e, data) {
-                tree = $('#library-tree').jstree();
-            }).on('changed.jstree', function(e, data) {
-                var node = data.selected;
-                if (node.length > 0) {
-                    $.get(path+'folder/'+data.selected[0]).done(function(response) {
-                        functions.writeDisplay(role==="public",response.files);
-                    });
-                }
-            });
-        });
-        e.preventDefault();
+    $('#library-archive-folder').on('click',functions.archiveFolder);
+    $('#library-view-archive').on('click',functions.viewArchive);
+    $('#library-view-display').on('click',function(e) {
+      e.preventDefault();
+      functions.initialize();
     });
     $('[name="is_public"]').on('change', function(e) {
         var target = $(e.target);
@@ -217,21 +266,7 @@ jQuery(function() {
         }
     });
     $('#library-cancel').on('click',functions.closeParams);
-    $('#library-display').on('click', '.archive-file', function(e) {
-        var target = $(e.target),
-            id = target.attr('data-id');
-        $.ajax({
-            'url': path+'file/'+id,
-            'method': 'DELETE'
-        }).done(function(response) {
-            var item = target.closest('.item');
-            console.log(response);
-            if (item.siblings().length > 0) {
-                item.remove();
-            } else {
-                functions.writeDisplay(role==="public",[]);
-            }
-        });
-    });
+    $('#library-display').on('click', '.archive-file', functions.archiveFile);
+    $('#library-display').on('click', '.restore-file', functions.restoreFile);
 });
 

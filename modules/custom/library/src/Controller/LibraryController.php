@@ -67,7 +67,7 @@ class LibraryController extends ControllerBase {
     return new JsonResponse($returnValue);
   }
 
-  public function getArchive() {
+  public function getArchivedFolders() {
     $connection = self::get_connection();
     $stmt = $connection->prepare("SELECT * FROM LibraryFolder WHERE ParentFolderID > 0 AND (ArchivedDate IS NOT NULL OR LibraryFolderID IN (SELECT DISTINCT LibraryFolderID FROM Library WHERE ArchivedDate IS NOT NULL)) ORDER BY Name");
     if ($stmt->execute()) {
@@ -82,6 +82,29 @@ class LibraryController extends ControllerBase {
       return new JsonResponse(array(
         "success"=>true,
         "folders"=>$folders
+      ));
+    }
+    return new JsonResponse(array(
+      "success"=>false
+    ), Response::HTTP_INTERNAL_SERVER_ERROR);
+  }
+
+  public function getArchivedFiles($id) {
+    $connection = self::get_connection();
+    $stmt = $connection->prepare("SELECT * FROM Library WHERE ArchivedDate IS NOT NULL AND LibraryFolderID=:lfid ORDER BY Title");
+    $stmt->bindParam(":lfid",$id);
+    if ($stmt->execute()) {
+      $files = array();
+      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $row_output = array();
+        foreach ($row as $key=>$value) {
+          $row_output[$key] = $value;
+        }
+        array_push($files,$row_output);
+      }
+      return new JsonResponse(array(
+        "success"=>true,
+        "files"=>$files
       ));
     }
     return new JsonResponse(array(
@@ -117,13 +140,21 @@ class LibraryController extends ControllerBase {
         break;
       case "DELETE":
         if (self::getRole() == "admin") {
-          return new JsonResponse(self::deleteFile($id));
+          return new JsonResponse(self::archiveFile($id));
         } else {
           return new JsonResponse(array(
             "success"=>false
           ), Response::HTTP_FORBIDDEN);
         }
         break;
+      case "PUT":
+        if (self::getRole() == "admin") {
+          return new JsonResponse(self::unarchiveFile($id));
+        } else {
+          return new JsonResponse(array(
+            "success"=>false
+          ), Response::HTTP_FORBIDDEN);
+        }
     }
   }
 
@@ -249,7 +280,7 @@ class LibraryController extends ControllerBase {
     return self::getFile($file);
   }
 
-  private function deleteFile($id) {
+  private function archiveFile($id) {
     $connection = self::get_connection();
     $stmt = $connection->prepare("UPDATE Library SET ArchivedDate=GETDATE() WHERE LibraryID=:lid");
     $stmt->bindParam(":lid",$id);
@@ -264,6 +295,20 @@ class LibraryController extends ControllerBase {
     );
   }
 
+  private function unarchiveFile($id) {
+    $connection = self::get_connection();
+    $stmt = $connection->prepare("UPDATE Library SET ArchivedDate=NULL WHERE LibraryID=:lid");
+    $stmt->bindParam(":lid",$id);
+    if ($stmt->execute()) {
+      return array(
+        "success"=>true
+      );
+    }
+    return array(
+      "success"=>false,
+      Response::HTTP_INTERNAL_SERVER_ERROR
+    );
+  }
 
   private function getFolder($id) {
     $returnValue = array(
