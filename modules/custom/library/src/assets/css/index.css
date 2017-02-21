@@ -1,5 +1,14 @@
-#library:not(.admin) .admin {
+#library .admin,
+#library .partner,
+#library .private,
+#library .public {
   display: none;
+}
+#library.admin .admin,
+#library.partner .partner,
+#library.private .private,
+#library.public .public {
+  display: block;
 }
 #library {
   padding: 0px 2em;
@@ -155,6 +164,9 @@
   content: '';
   display: block;
 }
+#library-display .frame.preview .item .archive-file {
+  display: none;
+}
 #library-display .frame:not(.preview) {
   border-collapse: seperate;
   border-spacing: 0px 5px;
@@ -175,6 +187,14 @@
 #library-display .frame:not(.preview) .item img,
 #library-display .frame:not(.preview) .item p {
   display: none;
+}
+#library-display .frame:not(.preview) .item .archive-file:before {
+  color: #F00;
+  content: '\e088';
+  display: block;
+  font-family: 'Glyphicons Halflings';
+  font-size: 1em;
+  width: 1em;
 }
 #library-files {
   font-size: 1.5em;

@@ -10,10 +10,10 @@ use PDO;
 
 class LibraryController extends ControllerBase {
   private static $initFolderQuery = array(
-    "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;",
-    "private" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;",
-    "partner" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;",
-    "admin" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;"
+    "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate IS NULL AND ParentFolderID > 0 ORDER BY ParentFolderID, Name;",
+    "private" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY ParentFolderID, Name;",
+    "partner" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY ParentFolderID, Name;",
+    "admin" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY ParentFolderID, Name;"
   );
   private static $folderQuery = array(
     "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate IS NULL AND LibraryFolderID=:lfid;",
@@ -67,6 +67,28 @@ class LibraryController extends ControllerBase {
     return new JsonResponse($returnValue);
   }
 
+  public function getArchive() {
+    $connection = self::get_connection();
+    $stmt = $connection->prepare("SELECT * FROM LibraryFolder WHERE ParentFolderID > 0 AND (ArchivedDate IS NOT NULL OR LibraryFolderID IN (SELECT DISTINCT LibraryFolderID FROM Library WHERE ArchivedDate IS NOT NULL)) ORDER BY Name");
+    if ($stmt->execute()) {
+      $folders = array();
+      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $row_output = array();
+        foreach ($row as $key=>$value) {
+          $row_output[$key] = $value;
+        }
+        array_push($folders,$row_output);
+      }
+      return new JsonResponse(array(
+        "success"=>true,
+        "folders"=>$folders
+      ));
+    }
+    return new JsonResponse(array(
+      "success"=>false
+    ), Response::HTTP_INTERNAL_SERVER_ERROR);
+  }
+
   public function searchFiles() {
     $role = self::getRole();
     $keywords = \Drupal::request()->request->get('keywords');
@@ -87,6 +109,24 @@ class LibraryController extends ControllerBase {
     return new JsonResponse($result);
   }
 
+  public function fileRest($id) {
+    $method = \Drupal::request()->getMethod();
+    switch ($method) {
+      case "GET":
+        return self::fileDownload($id);
+        break;
+      case "DELETE":
+        if (self::getRole() == "admin") {
+          return new JsonResponse(self::deleteFile($id));
+        } else {
+          return new JsonResponse(array(
+            "success"=>false
+          ), Response::HTTP_FORBIDDEN);
+        }
+        break;
+    }
+  }
+
   public function folderRest($id) {
     $method = \Drupal::request()->getMethod();
     switch ($method) {
@@ -99,7 +139,7 @@ class LibraryController extends ControllerBase {
         } else {
           return new JsonResponse(array(
             "success"=>false
-          ));
+          ), Response::HTTP_FORBIDDEN);
         }
         break;
     }
@@ -185,18 +225,6 @@ class LibraryController extends ControllerBase {
     ),Response::HTTP_INTERNAL_SERVER_ERROR);
   }
 
-  public function fileDownload($file) {
-    if (self::getRole() == "public") {
-      $connection = self::get_connection();
-      $stmt = $connection->prepare("SELECT IsPublic FROM Library WHERE IsPublic=1 AND Filename=:file");
-      $stmt->bindParam(":file",$file);
-      if (!$stmt->execute() || $stmt->rowCount() == 0) {
-        return new JsonResponse($stmt->rowCount(),$status=Response::HTTP_FORBIDDEN);
-      }
-    }
-    return self::getFile($file);
-  }
-
   public function thumbsDownload($file) {
     if (self::getRole() == "public") {
       $connection = self::get_connection();
@@ -208,6 +236,34 @@ class LibraryController extends ControllerBase {
     }
     return self::getFile(join('/',array("thumbs",$file)));
   }
+
+  private function fileDownload($file) {
+    if (self::getRole() == "public") {
+      $connection = self::get_connection();
+      $stmt = $connection->prepare("SELECT IsPublic FROM Library WHERE IsPublic=1 AND Filename=:file");
+      $stmt->bindParam(":file",$file);
+      if (!$stmt->execute() || $stmt->rowCount() == 0) {
+        return new JsonResponse($stmt->rowCount(),$status=Response::HTTP_FORBIDDEN);
+      }
+    }
+    return self::getFile($file);
+  }
+
+  private function deleteFile($id) {
+    $connection = self::get_connection();
+    $stmt = $connection->prepare("UPDATE Library SET ArchivedDate=GETDATE() WHERE LibraryID=:lid");
+    $stmt->bindParam(":lid",$id);
+    if ($stmt->execute()) {
+      return array(
+        "success"=>true
+      );
+    }
+    return array(
+      "success"=>false,
+      Response::HTTP_INTERNAL_SERVER_ERROR
+    );
+  }
+
 
   private function getFolder($id) {
     $returnValue = array(
@@ -239,7 +295,6 @@ class LibraryController extends ControllerBase {
   }
 
   private function deleteFolder($id) {
-    $output = array($id);
     $connection = self::get_connection();
     $stmt1 = $connection->prepare("UPDATE LibraryFolder SET ArchivedDate=GETDATE() WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;");
     $stmt1->bindParam(":lfid",$id);
@@ -270,7 +325,6 @@ class LibraryController extends ControllerBase {
   }
 
   private function getFile($location) {
-    return new JsonResponse(self::getRole());
     return new BinaryFileResponse(join('/',array(drupal_realpath('public://library/uploads'),$location)));
   }
 
