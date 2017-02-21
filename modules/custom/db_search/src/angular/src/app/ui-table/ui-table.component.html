@@ -6,12 +6,23 @@
   <table class="table custom-sizing table-bordered table-hover table-striped table-condensed table-nowrap table-narrow" #table>
     <thead #thead>
       <tr>
-        <th *ngFor="let column of columns" >
-          <div style="display: block" [tooltip]="column.tooltip" container="body" (click)="sortTableColumn(column)" style="cursor: pointer">
-              {{ column.label }} 
-              <div class="pull-right">
-                {{ column.sort === 'asc' ? '▲' : '▼' }}
-              </div> 
+        <th *ngFor="let column of columns" 
+          style="cursor: pointer"
+          (click)="sortTableColumn(column)" 
+          >
+          <div 
+            style="display: flex; justify-content: space-between"
+            [tooltip]="column.tooltip" 
+            container="body" 
+            
+            >
+            
+            <span>
+              {{ column.label }}
+            </span> 
+            <span>
+              {{ column.sort === 'asc' ? '▲' : '▼' }}
+            </span> 
           </div>
         </th>
       </tr>
