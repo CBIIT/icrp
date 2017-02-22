@@ -63,7 +63,7 @@ import { ExportLookupTableButtonComponent } from './export-lookup-table-button/e
   providers: [
     {
       provide: 'api_root',
-      useValue: '/load'
+      useValue: ''
     }
   ],
   bootstrap: [AppComponent]
