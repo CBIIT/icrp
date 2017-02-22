@@ -66,6 +66,71 @@ db_search_api.partner.analytics.funding.years:
 
 
 
+db_search_api.load.public.retrieve:
+  path: '/load/db/retrieve'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::load_retrieve_parameters' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
+db_search_api.load.public.fields:
+  path: '/load/db/public/fields'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::load_public_form_fields' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
+db_search_api.load.public.search:
+  path: '/load/db/public/search'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::load_public_search' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
+db_search_api.load.public.public_search_sort_paginate:
+  path: '/load/db/public/sort_paginate'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::load_public_search_sort_paginate' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
+db_search_api.load.public.analytics:
+  path: '/load/db/public/analytics'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::load_public_analytics' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
+db_search_api.load.partner.search:
+  path: '/load/db/partner/search'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::load_partner_search' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
+db_search_api.load.partner.analytics:
+  path: '/load/db/partner/analytics'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::load_partner_analytics' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
+db_search_api.load.partner.analytics.funding:
+  path: '/load/db/partner/analytics/funding'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::load_partner_analytics_funding' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
+
+db_search_api.load.partner.analytics.funding.years:
+  path: '/load/db/partner/analytics/funding_years'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\DatabaseSearchApiController::load_partner_analytics_funding_years' }
+  methods:  [GET]
+  requirements:
+    _access: 'TRUE'
+
+
 
 
 
