@@ -63,25 +63,30 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   updateInitialSearchId() {
-    let query = window.location.search
-      .substring(1)
-      .split('&')
-      .map(e => e.split('=')) 
-      // retrieve array of query terms
-      // and create object
-      .reduce((prev, curr) => {
-        let key = curr[0];
-        let value = curr[1];
 
-        if (key) {
-          prev[key] = value;
-        }
-        
-        return prev;
-      }, [])
+    if (window.location.search && window.location.search.includes('sid')) {
+      let query = window.location.search
+        .substring(1)
+        .split('&')
+        .map(e => e.split('=')) 
+        // retrieve array of query terms
+        // and create object
+        .reduce((prev, curr) => {
+          let key = curr[0];
+          let value = curr[1];
 
-    this.initialID = query['sid'];
-    this.updateInitalParameters();
+          if (key) {
+            prev[key] = value;
+          }
+          
+          return prev;
+        }, [])
+
+      this.initialID = query['sid'];
+      this.updateInitalParameters();
+
+    }
+
     
   }
 

@@ -8,3 +8,15 @@ custom:
     assets/polyfills.js: {}
     assets/vendor.js: {}
     assets/main.js: {}
+
+
+load:
+  version: 1.0
+  css:
+    theme:
+      load_assets/styles.css: {}
+  js:
+    load_assets/inline.js: {}
+    load_assets/polyfills.js: {}
+    load_assets/vendor.js: {}
+    load_assets/main.js: {}
