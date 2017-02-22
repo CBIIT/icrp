@@ -349,7 +349,7 @@ class DatabaseSearchAPIController extends ControllerBase {
   }  
 
   function sort_paginate_search_results($parameters, string $database_config = 'icrp_database') {
-    $pdo = self::get_connection($databse_config);
+    $pdo = self::get_connection($database_config);
 
     $stmt = $pdo->prepare("SET NOCOUNT ON; EXECUTE GetProjectsBySearchID
       @PageSize = :page_size,
