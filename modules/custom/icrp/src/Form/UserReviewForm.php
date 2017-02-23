@@ -260,11 +260,22 @@ class UserReviewForm extends FormBase
 
     public function validateForm(array &$form, FormStateInterface $form_state)
     {
-        /*
-        if (strlen($form_state->getValue('candidate_number')) < 10) {
-            $form_state->setErrorByName('candidate_number', $this->t('Mobile number is too short.'));
+        $form_values = $form_state->getValues();
+        //drupal_set_message(print_r($form_state->getValues(), TRUE));
+        //Add Roles
+        $hasNoRole = true;
+        foreach ($form_values['roles'] as $assign_role) {
+            if($assign_role === "manager") {
+                $hasNoRole = false;
+            }
+            if($assign_role === "partner") {
+                $hasNoRole = false;
+            }
         }
-        */
+
+        if ($hasNoRole) {
+            $form_state->setErrorByName('roles', $this->t('User needs to be assigned at lease one Role.'));
+        }
     }
 
     public function submitForm(array &$form, FormStateInterface $form_state)
