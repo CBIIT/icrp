@@ -72,6 +72,14 @@ function hook_form_yamlform_submission_update_my_profile_form_alter(&$form, \Dru
 }
 
 /**
+ * @param $variables
+ */
+function icrp_preprocess_my_element(&$variables) {
+    drupal_set_message("In preprocess");
+    //$variables['attributes']['id'] = 'my_blue_element_altered_id';
+}
+
+/**
  * Implements hook_theme().
  */
 function icrp_theme() {
@@ -174,6 +182,12 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
 
     //drupal_set_message("Form ID: ".$form_id);
     switch ($form_id) {
+        case 'views-exposed-form':
+            $form['terms_of_use'] = array(
+                '#type' => 'checkbox',
+                '#title' => t("I agree with the website's terms and conditions."),
+                '#required' => TRUE,
+            );
         case 'user_login':
         case 'user_login_form':
             //$form['link'] = array('#markup' => t("<div style=padding:20px;'><a href='/user/password'>Forgot Password?</a></div>"));
