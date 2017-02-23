@@ -43,7 +43,7 @@ library.folder.id:
   path: '/library/folder/{id}'
   defaults:
     _controller: '\Drupal\library\Controller\LibraryController::folderRest'
-  methods:  [GET, DELETE]
+  methods:  [GET, DELETE, PUT]
   requirements:
     _permission: 'access content'
 
