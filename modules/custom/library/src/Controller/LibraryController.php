@@ -3,6 +3,7 @@
 namespace Drupal\library\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Ds\Set;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -69,7 +70,12 @@ class LibraryController extends ControllerBase {
 
   public function getArchivedFolders() {
     $connection = self::get_connection();
-    $stmt = $connection->prepare("SELECT * FROM LibraryFolder WHERE ParentFolderID > 0 AND (ArchivedDate IS NOT NULL OR LibraryFolderID IN (SELECT DISTINCT LibraryFolderID FROM Library WHERE ArchivedDate IS NOT NULL)) ORDER BY Name");
+    $stmt = $connection->prepare(
+      "SELECT DISTINCT a.* FROM LibraryFolder a ".
+          "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID ".
+          "WHERE a.ParentFolderID > 0 AND (a.ArchivedDate IS NOT NULL or b.ArchivedDate IS NOT NULL) ".
+          "ORDER BY Name"
+    );
     if ($stmt->execute()) {
       $folders = array();
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
