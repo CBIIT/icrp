@@ -124,6 +124,9 @@
   overflow: auto;
   width: 100%;
 }
+#library-display .frame:not(.archived) .item.archived {
+  display: none;
+}
 #library-display .frame.preview {
   padding: 0px 1em;
 }

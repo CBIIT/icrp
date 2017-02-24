@@ -10,11 +10,45 @@ use Symfony\Component\HttpFoundation\Response;
 use PDO;
 
 class LibraryController extends ControllerBase {
+  public function testQuery() {
+    $return = array();
+    $connection = self::get_connection();
+    $stmt = $connection->prepare(
+      "SELECT ".
+          "a.*, ".
+          "COUNT(b.ArchivedDate) AS ArchivedCount, ".
+          "SUM(CASE WHEN b.ArchivedDate IS NULL THEN 1 ELSE 0 END)-SUM(CASE WHEN b.LibraryID IS NULL THEN 1 ELSE 0 END) AS UnarchivedCount ".
+        "FROM LibraryFolder a ".
+        "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID ".
+        "WHERE a.ParentFolderID > 0 ".
+        "GROUP BY a.Name, a.LibraryFolderID, a.ParentFolderID, a.IsPublic, a.ArchivedDate, a.CreatedDate, a.UpdatedDate ".
+        "ORDER BY a.Name"
+    );
+    if ($stmt->execute()) {
+      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $row_output = array();
+        foreach ($row as $key=>$value) {
+          $row_output[$key] = $value;
+        }
+        array_push($return,$row_output);
+      }
+    }
+    return new JsonResponse($return);
+  }
+
   private static $initFolderQuery = array(
     "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;",
     "private" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;",
     "partner" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;",
-    "admin" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;"
+    "admin" => "SELECT ".
+          "a.*, ".
+          "COUNT(b.ArchivedDate) AS ArchivedCount, ".
+          "SUM(CASE WHEN b.ArchivedDate IS NULL THEN 1 ELSE 0 END)-SUM(CASE WHEN b.LibraryID IS NULL THEN 1 ELSE 0 END) AS UnarchivedCount ".
+        "FROM LibraryFolder a ".
+        "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID ".
+        "WHERE a.ParentFolderID > 0 ".
+        "GROUP BY a.Name, a.LibraryFolderID, a.ParentFolderID, a.IsPublic, a.ArchivedDate, a.CreatedDate, a.UpdatedDate ".
+        "ORDER BY a.Name;"
   );
   private static $folderQuery = array(
     "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate IS NULL AND LibraryFolderID=:lfid;",
@@ -26,7 +60,7 @@ class LibraryController extends ControllerBase {
     "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY Title;",
     "private" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY Title;",
     "partner" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY Title;",
-    "admin" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY Title;"
+    "admin" => "SELECT * FROM Library WHERE LibraryFolderID=:lfid ORDER BY Title;"
   );
   private static $fileSearch = array(
     "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND LOWER(Filename) LIKE :keywords ORDER BY Title;",
