@@ -30,6 +30,15 @@ db_search.partners.authenticate:
     _permission: 'access content'
     _role: 'authenticated'
 
+
+db_search.partners.load_authenticate:
+  path: '/load/search-database/partners/authenticate'
+  defaults:
+    _controller: '\Drupal\db_search\Controller\DbSearchController::authenticate'
+  requirements:
+    _permission: 'access content'
+    _role: 'authenticated'
+
 db_search.search_updated_database:
   path: '/data-upload-review'
   defaults:
