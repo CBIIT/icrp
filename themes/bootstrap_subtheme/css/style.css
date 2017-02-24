@@ -128,6 +128,19 @@ h1 {
 /* Authenticated and Anonymous User Menu */
 #block-bootstrap-subtheme-account-menu {
     float: right;
+    margin-top:25px;
+}
+#block-bootstrap-subtheme-account-menu > ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+#block-bootstrap-subtheme-account-menu > ul > li, #block-bootstrap-subtheme-account-menu > ul > a {
+    display: inline;
+    padding-right: 10px;
+}
+div.search-block-form > div.search-well {
+    border:none;
 }
 .search-well {
     float: right;

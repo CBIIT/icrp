@@ -291,8 +291,8 @@ div.search-block-form > div.search-well {
   background: transparent;
   background-color: transparent;
   float: right;
-  box-shadow: none;
-  -webkit-box-shadow: none;
+  box-shadow: none;:
+          -webkit-box-shadow none;
 }
 
 /** uaat overrides */
