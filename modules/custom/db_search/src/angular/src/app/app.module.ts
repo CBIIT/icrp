@@ -64,6 +64,10 @@ import { ExportLookupTableButtonComponent } from './export-lookup-table-button/e
     {
       provide: 'api_root',
       useValue: ''
+    },
+    {
+      provide: 'page_title',
+      useValue: 'Search ICRP Database'
     }
   ],
   bootstrap: [AppComponent]

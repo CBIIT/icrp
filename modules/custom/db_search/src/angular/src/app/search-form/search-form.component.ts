@@ -76,6 +76,9 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
   @Input()
   initialSearchParameters: any;
 
+
+  searchInitialized: boolean = false;
+
   funding_organizations: TreeNode;
   cso_research_areas: TreeNode;
 
@@ -425,29 +428,31 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
  }
 
  ngOnChanges(changes: SimpleChanges) {
-   console.log('changes', changes)
 
-   let params = changes['initialSearchParameters'].currentValue;
+  let params = changes['initialSearchParameters'].currentValue;
+  let useSearchID = window.location.search && window.location.search.includes('sid')
 
-   if (params) {
+   if (!this.searchInitialized && useSearchID && changes['initialSearchParameters'] && params) {
+    console.log('calling onchanges for getting initial parameters');
+
+    this.searchInitialized = true;
+    this.form.reset();
+
     for (let key in params) {
       let value = params[key];
       
       if (value instanceof Array)
         value = value.filter(e => e.length);
 
-      this.form.controls[key].patchValue(value)
-    }
+      if (value && value.length > 0) {
+        console.log('using', key, value);
+        this.form.controls[key].patchValue(value)
+      }
 
+
+    }
     this.submit();
    }
-
-   else {
-     this.resetForm();
-   }
-
-   this.submit();
-
  }
 
  ngAfterViewInit(this) {
@@ -464,8 +469,15 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
               return field;
           }).map(field => field.value);
           this.form.controls['years'].patchValue(years);
-          this.requestInitialParameters.emit();
-          this.submit();
+          let useSearchID = window.location.search && window.location.search.includes('sid')
+          
+          if (useSearchID) {
+            this.requestInitialParameters.emit();
+          }
+
+          else {
+            this.submit();
+          }
         }, 0);
       });
  }

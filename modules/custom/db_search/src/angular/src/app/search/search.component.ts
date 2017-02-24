@@ -56,8 +56,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     this.initialParameters = null;
 
-    
-
     this.updateAvailableConversionYears();
     this.checkAuthenticationStatus();
   }
@@ -129,9 +127,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
       pi_last_name: params['piLastName'],
       pi_orcid: params['piORCiD']
     }
-
-    console.log('recieved parameters', params);
-    console.log('parsed parameters', parsed);
 
     return parsed;
   }
