@@ -72,6 +72,14 @@ function hook_form_yamlform_submission_update_my_profile_form_alter(&$form, \Dru
 }
 
 /**
+ * @param $variables
+ */
+function icrp_preprocess_my_element(&$variables) {
+    drupal_set_message("In preprocess");
+    //$variables['attributes']['id'] = 'my_blue_element_altered_id';
+}
+
+/**
  * Implements hook_theme().
  */
 function icrp_theme() {
@@ -169,11 +177,58 @@ function icrp_views_pre_execute(ViewExecutable $view) {
     }
 }
 */
+function populateOrganizations() {
+
+    drupal_set_message("populateOrganizations");
+
+    //Use ajax to pull url
+    $host = "icrpartnership-dev.org";
+    $url = "https://".$host."/getFundingOrgNames";
+    /*
+     * STEP 1: Write an AJAX call to retrieve url above
+     * Search Drupal 8 Ajax call
+     */
+
+    //Decode json and populate entity.
+    /*
+     * STEP 2: Save into enitity type Organization
+     */
+    //$user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+    //enitity and node are the same darn thing....
+    //$node
+    /*
+    $node = \Drupal::service('entity_type.manager')->getStorage('user')->load(51);
+
+    $org_title = $node->get('title')->value;
+    //If not there then get
+    $node->set('title') = "New Org Name";
+    */
+    /*
+    $sql = "Select * from node_field_date where type = "organization";
+    $row = dbquery($sql);
+    */
+
+    // Save into database
+
+
+}
 
 function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 
     //drupal_set_message("Form ID: ".$form_id);
+    //kint("Hello");
+    //kint(print_r(array, true));
+
     switch ($form_id) {
+        case 'user_register_form':
+            populateOrganizations();
+            break;
+        case 'views-exposed-form':
+            $form['terms_of_use'] = array(
+                '#type' => 'checkbox',
+                '#title' => t("I agree with the website's terms and conditions."),
+                '#required' => TRUE,
+            );
         case 'user_login':
         case 'user_login_form':
             //$form['link'] = array('#markup' => t("<div style=padding:20px;'><a href='/user/password'>Forgot Password?</a></div>"));

@@ -1,0 +1,38 @@
+{#
+/**
+ * @file
+ * Theme override for a 'form' element.
+ *
+ * Available variables
+ * - attributes: A list of HTML attributes for the wrapper element.
+ * - children: The child elements of the form.
+ *
+ * @see template_preprocess_form()
+ */
+#}
+{# Add form-horizontal to a form #}
+{% if attributes.id == "views-exposed-form-user-account-administration-tool-page-1" %}
+    <form {{ attributes.addClass('form-horizontal') }}>
+        <div class="form-group">
+            {{ children }}
+        </div>
+        <hr>
+        <!--
+        <div class="form-group">
+            <label class="control-label col-sm-1" for="pwd">Status:</label>
+            <div class="col-sm-3" style="min-width:125px;">
+                <div class="select-wrapper"><select aria-required="true" required="required" name="field_membership_status_value" id="edit-field-membership-status-value" data-msg-required="This field is required." class="form-select required form-control" data-drupal-selector="edit-field-membership-status-value"><option selected="selected" value="Registering">Registering</option><option value="Active">Active</option><option value="Blocked">Blocked</option></select></div>
+            </div>
+            <div class="col-sm-1">
+                <div id="edit-actions" class="form-actions form-group js-form-wrapper form-wrapper" data-drupal-selector="edit-actions">
+                    <button name="" value="Apply" id="edit-submit-user-account-administration-tool" type="submit" class="button js-form-submit form-submit btn-info btn" data-drupal-selector="edit-submit-user-account-administration-tool">Apply</button>
+                </div>
+            </div>
+        </div>
+        -->
+    </form>
+{% else %}
+    <form {{ attributes }}>
+        {{ children }}
+    </form>
+{% endif %}
