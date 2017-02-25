@@ -182,6 +182,10 @@
   background: #eee;
   display: table-row;
 }
+#library-display .frame .item:not(.archived) ~ .item:last-child,
+#library-display .frame.archived .item.archived ~ .item:last-child {
+    display: none;
+}
 #library-display .frame:not(.preview) .item h4,
 #library-display .frame:not(.preview) .item div {
   display: table-cell;
