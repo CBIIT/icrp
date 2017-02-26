@@ -90,9 +90,7 @@ description_display == 'invisible' ? 'visually-hidden',
         </div>
     {% endif %}
     {%  if element['#parents'][0] == 'field_membership_status_value' %}
-        <div style="min-width:225px;" class="col-sm-3">
             {{ children }}
-        </div>
     {% else %}
         {{ children }}
     {% endif %}

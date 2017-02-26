@@ -21,6 +21,16 @@ h1 {
     font-weight: normal;
     margin-top: 20px;
 }
+/* Membership Status - Expose Form*/
+/*
+#form-membership-status > div > div > div > div > div.select-wrapper {
+    display:inline-block;
+}
+*/
+#form-membership-status  .select-wrapper {
+    display:inline-block;
+}
+
 /* Breadcrumb */
 .breadcrumb {
     background-color:white;

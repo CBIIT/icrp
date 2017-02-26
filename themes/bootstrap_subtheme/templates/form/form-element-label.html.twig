@@ -52,7 +52,9 @@ always to be rendered regardless of whether they have a title or not.
 #}
 {%- if title is not empty or is_checkbox or is_radio -%}
     {% if element['#id'] == 'edit-field-membership-status-value' %}
-        <label class="control-label col-sm-1">{{ title }}</label>
+
+        <label for="edit-field-membership-status-value" class="control-label">  {{ title }} </label>
+
     {% else %}
         <label{{ attributes.addClass(classes) }}>{{ element }}{{ title }}
             {%- if description -%}
