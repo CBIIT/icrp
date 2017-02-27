@@ -41,19 +41,23 @@ class CancerTypeList extends Component {
       columns: [
         {
           label: 'Cancer Type',
-          value: 'label'
+          value: 'label',
+          tooltip: 'Cancer Type',
         },
         {
           label: 'ICRP Code',
-          value: 'icrp_code'
+          value: 'icrp_code',
+          tooltip: 'ICRP Code',
         },
         {
           label: 'ICD-10 Code',
-          value: 'icd10_code'
+          value: 'icd10_code',
+          tooltip: 'ICD-10 Code',
         },
         {
           label: 'Description',
-          value: 'description'
+          value: 'description',
+          tooltip: 'Description',
         }
       ]
     })
