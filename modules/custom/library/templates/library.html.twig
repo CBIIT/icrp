@@ -23,43 +23,45 @@
         <div id="library-tree"></div>
         <div id="library-management" class="admin partner">
           <button id="library-create-folder" class="admin btn btn-default">Create Folder</button>
+          <button id="library-edit-folder" class="admin btn btn-default">Edit Folder</button>
           <button id="library-upload-file" class="admin partner btn btn-default">Upload File</button>
           <button id="library-archive-folder" class="admin btn btn-default">Archive Folder</button>
-          <button id="library-view-archive" class="admin btn btn-default">View Archive</button>
-        </div>
-        <div id="library-archive-management" class="admin hide">
-          <button id="library-restore-folder" class="btn btn-default" disabled="true">Restore Folder</button>
-          <button id="library-view-display" class="btn btn-default">View Files</button>
+          <button id="library-restore-folder" class="admin btn btn-default hide" disabled="true">Restore Folder</button>
+          <button id="library-show-archives" class="admin btn btn-default">Show Archives</button>
+          <button id="library-hide-archives" class="admin btn btn-default hide">Hide Archives</button>
         </div>
       </div>
     </div>
     <div id="library-display">
       <h3>Documents</h3>
-      <div class="frame preview"></div>
+      <div class="frame preview archive"></div>
     </div>
   </div>
   <div id="library-edit" class="tab-pane">
     <form>
       <div id="library-parameters">
         <input type="hidden" name="parent" value=""/>
+        <input type="hidden" name="id_value" value=""/>
         <div>
-          <label for="file" class="required">File</label>
+          <label for="upload" class="required">File</label>
+          <span class="hide"></span>
           <input type="file" name="upload"/>
         </div>
         <div class="folder">
           <label for="title" class="required">Title</label>
           <input type="text" name="title"/>
         </div>
+        <div>
+          <label for="description" class="required">Description</label>
+          <textarea name="description"></textarea>
+        </div>
         <div class="folder">
           <label for="is_public">Public</label>
           <input type="checkbox" name="is_public" value="1"/>
         </div>
         <div>
-          <label for="description" class="required">Description</label>
-          <textarea name="description"></textarea>
-        </div>
-        <div>
           <label for="thumbnail" class="required">Thumbnail</label>
+          <span class="hide"></span>
           <input type="file" name="thumbnail"/>
         </div>
       </div>

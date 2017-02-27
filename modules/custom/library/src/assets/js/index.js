@@ -7,31 +7,65 @@ jQuery(function() {
     var path = root + '/library/';
     var functions = {
         'archiveFile': function(e) {
-            var target = $(e.target),
-                id = target.attr('data-id');
+            var node = functions.getNode(),
+                ancestors = node.parents,
+                target = $(e.target),
+                id = target.data('library-file-data').LibraryID;
+            target.attr('disabled',true);
+            ancestors.unshift(node.id);
+            ancestors.pop();
             $.ajax({
                 'url': path+'file/'+id,
                 'method': 'DELETE'
             }).done(function(response) {
-                var item = target.closest('.item');
-                if (item.siblings().length > 0) {
-                    item.remove();
-                } else {
-                    functions.writeDisplay([],role==="public");
+                target.addClass('restore-file').removeClass('archive-file').closest('.item').addClass('archived');
+                while (ancestors.length > 0) {
+                    var ancestor = tree.get_node(ancestors.shift());
+                    ancestor.data.archivedCount += 1;
+                    ancestor.data.unarchivedCount -= 1;
                 }
+                if ($('#library-display .frame').hasClass('archived')) {
+                    functions.showArchives(e);
+                } else {
+                    functions.hideArchives(e);
+                }
+                target.removeAttr('disabled');
             });
         },
         'archiveFolder': function(e) {
-            var node = functions.getNode();
+            var node = functions.getNode(),
+                archiveChildren = function(children) {
+                  $.each(children,function(index,child) {
+                      child = tree.get_node(child);
+                      child.data.isArchived = true;
+                      child.data.archivedCount += child.data.unarchivedCount;
+                      child.data.unarchivedCount = 0;
+                      archiveChildren(child.children);
+                  });
+                };
             $.ajax({
                 'url': path+'folder/'+node.id,
                 'method': 'DELETE'
             }).done(function(response) {
-                tree.delete_node(node.id);
+                node.data.isArchived = true;
+                node.data.archivedCount += node.data.unarchivedCount;
+                node.data.unarchivedCount = 0;
+                archiveChildren(node.children);
+                if ($('#library-display .frame').hasClass('archived')) {
+                    functions.showArchives(e);
+                } else {
+                    functions.hideArchives(e);
+                }
             });
             e.preventDefault();
         },
+        'caselessSort': function(a, b) {
+            return a.text.toLowerCase() > b.text.toLowerCase() ? 1 : a.text.toLowerCase() < b.text.toLowerCase() ? -1 : 0
+        },
         'closeParams': function(e) {
+            var params = $('#library-params');
+            params.find('[name="upload"]').removeClass('hide').prev().empty().addClass('hide');
+            params.find('[name="thumbnail"]').removeClass('hide').prev().empty().addClass('hide');
             e.preventDefault();
             $('#library-view').addClass('active').siblings().removeClass('active');
             $('#library-edit').find('form')[0].reset();
@@ -41,15 +75,51 @@ jQuery(function() {
             var node = functions.getNode()||{'id':1,'data':{'isPublic':0}},
                 params = $('#library-parameters').toggleClass('folder',isFolder),
                 ispub = params.find('[name="is_public"]');
-            $('[name="is_public"]').parent().toggleClass('folder',isFolder);
             params.find('[name="parent"]').val(node.id);
+            ispub.parent().toggleClass('not_public',!node.data.isPublic);
             ispub.attr('checked',node.data.isPublic);
-            ispub.parent().toggleClass('public',node.data.isPublic);
             $('#library-edit').addClass('active').siblings().removeClass('active');
+        },
+        'editFile': function(e) {
+            var target = $(e.target).parent(),
+                data = target.data('library-file-data'),
+                params = $('#library-parameters'),
+                ispub = params.find('[name="is_public"]');
+            params.find('[name="id_value"]').val(data.LibraryID);
+            params.find('[name="upload"]').addClass('hide').prev().html(data.Filename).removeClass('hide');
+            params.find('[name="title"]').val(data.Title);
+            params.find('[name="description"]').val(data.Description);
+            params.find('[name="thumbnail"]').addClass('hide').prev().html(data.ThumbnailFilename).removeClass('hide');
+            functions.createNew(e, false);
+            ispub.parent().toggleClass('not_public',data.IsPublic != "1");
+            ispub.prop('checked',data.IsPublic == "1");
+        },
+        'editFolder': function(e) {
+            var data = functions.getNode();
+            if (data) {
+                var params = $('#library-parameters'),
+                    ispub = params.find('[name="is_public"]');
+                functions.createNew(e,true);
+                params.find('[name="parent"]').val(data.parents[0]==="#"?"1":data.parents[0]);
+                params.find('[name="id_value"]').val(data.id);
+                params.find('[name="title"]').val(data.text);
+                ispub.parent().toggleClass('not_public',!data.data.isPublic);
+                ispub.prop('checked',data.data.isPublic);
+            }
         },
         'getNode': function() {
             var nodes = tree.get_selected(true);
             return nodes.length === 0 ? undefined : nodes[0];
+        },
+        'hideArchives': function(e) {
+            $('#library-restore-folder, #library-hide-archives').addClass('hide');
+            $('#library-show-archives').removeClass('hide');
+            $('#library-display .frame').removeClass('archived');
+            var backing = tree.get_json();
+            functions.updateTree(backing,true);
+            tree.settings.core.data = backing;
+            tree.refresh();
+            e.preventDefault();
         },
         'initialize': function() {
             $.get(path+'initialize').done(function(response) {
@@ -58,7 +128,6 @@ jQuery(function() {
                 $('#library-archive-management').addClass('hide');
                 role = response.role;
                 $('#library').toggleClass('admin',role==="admin");
-                if (tree !== null) tree.destroy();
                 $('#library-tree').jstree({
                     'core' : {
                         'check_callback': true,
@@ -67,10 +136,38 @@ jQuery(function() {
                     }
                 }).on('ready.jstree', function(e, data) {
                     tree = $('#library-tree').jstree();
-                    tree.select_node(tree.get_json()[0]);
+                    var json = tree.get_json();
+                    for (var index = 0; index < json.length; index++) {
+                        if (!json[index].state.hidden) break;
+                    }
+                    tree.select_node(tree.get_json()[index]);
+                }).on('refresh.jstree', function() {
+                    if (functions.getNode().state.hidden) {
+                        tree.deselect_all();
+                        var json = tree.get_json();
+                        for (var index = 0; index < json.length; index++) {
+                            if (!json[index].state.hidden) break;
+                        }
+                        tree.select_node(tree.get_json()[index]);
+                    }
+                }).on('rename_node.jstree',function(e, data) {
+                  var node = functions.getNode(),
+                      parent = tree.get_node(node.parents[0]);
+                  parent.children = parent.children.map(function(entry) { return tree.get_node(entry); }).sort(functions.caselessSort);
+                  if ($('#library-display .frame').hasClass('archived')) {
+                      functions.showArchives(e);
+                  } else {
+                      functions.hideArchives(e);
+                  }
                 }).on('changed.jstree', function(e, data) {
-                    var node = data.selected;
-                    if (node.length > 0) {
+                    var nodes = data.selected;
+                    if (nodes.length > 0) {
+                        var node = tree.get_node(nodes[0]);
+                        if (node.data.isArchived === true) {
+                          $('#library-restore-folder').removeAttr('disabled');
+                        } else {
+                          $('#library-restore-folder').attr('disabled',true);
+                        }
                         $.get(path+'folder/'+data.selected[0]).done(function(response) {
                             functions.writeDisplay(response.files,role==="public");
                         });
@@ -79,50 +176,80 @@ jQuery(function() {
             });
         },
         'mapTree': function(tree) {
-            var exists = tree.map(function(entry) {
-              return entry.LibraryFolderID;
-            });
-            return tree.map(function(entry) {
-                return {
-                    id: entry.LibraryFolderID,
-                    parent: (exists.includes(entry.ParentFolderID) ? entry.ParentFolderID : "#"),
-                    text: entry.Name,
-                    state: {
-                        opened: false,
-                        disabled: false,
-                        selected: false
-                    },
-                    data: {
-                      'isPublic': entry.IsPublic != "0",
-                      'isArchived': entry.ArchivedDate !== null
-                    }
-                }
-            });
+          var map = {},
+              treeBase = [];
+          $.each(tree,function(index,entry) {
+            var entry = {
+              id: entry.LibraryFolderID,
+              parent: entry.ParentFolderID,
+              text: entry.Name,
+              children: [],
+              data: {
+                archivedCount: parseInt(entry.ArchivedCount),
+                isArchived: entry.ArchivedDate !== null,
+                isPublic: entry.IsPublic == "1",
+                unarchivedCount: parseInt(entry.UnarchivedCount)
+              },
+              state: {
+                opened: false,
+                disabled: false,
+                selected: false
+              }
+            };
+            map[entry.id] = entry;
+          });
+          for (var prop in map) {
+            var entry = map[prop],
+                parent = entry.parent;
+            delete entry.parent;
+            if (map[parent]) {
+              map[parent].children.push(entry);
+            } else {
+              treeBase.push(entry);
+            }
+          }
+          functions.setupTree(treeBase.sort(functions.caselessSort));
+          functions.updateTree(treeBase, true);
+          return treeBase;
         },
         'restoreFile': function(e) {
             var node = functions.getNode(),
-                parents = node.parents,
-                id = $(e.target).attr('data-id');
-            parents.unshift(node.id);
-            parents.pop();
+                ancestors = node.parents,
+                target = $(e.target),
+                id = target.data('library-file-data').LibraryID;
+            target.attr('disabled',true);
+            ancestors.unshift(node.id);
+            ancestors.pop();
             $.ajax({
                 'url': path+'file/'+id,
                 'method': 'PUT'
             }).done(function(response) {
-                functions.viewArchive(e, parents);
+                target.removeClass('restore-file').addClass('archive-file').closest('.item').removeClass('archived');
+                while (ancestors.length > 0) {
+                    var ancestor = tree.get_node(ancestors.shift());
+                    ancestor.data.isArchived = false;
+                    ancestor.data.archivedCount -= 1;
+                    ancestor.data.unarchivedCount += 1;
+                }
+                functions.showArchives(e);
+                target.removeAttr('disabled');
             });
             e.preventDefault();
         },
         'restoreFolder': function(e) {
             var node = functions.getNode(),
-                parents = node.parents;
-            parents.unshift(node.id);
-            parents.pop();
+                ancestors = node.parents;
+            ancestors.unshift(node.id);
+            ancestors.pop();
             $.ajax({
                 'url': path+'folder/'+node.id,
                 'method': 'PUT'
             }).done(function(response) {
-                functions.viewArchive(e, parents);
+                while (ancestors.length > 0) {
+                    var ancestor = tree.get_node(ancestors.shift());
+                    ancestor.data.isArchived = false;
+                }
+                functions.showArchives(e);
             });
             e.preventDefault();
         },
@@ -143,7 +270,8 @@ jQuery(function() {
             });
         },
         'saveFolder': function(e) {
-            var form = new FormData($('#library-parameters').closest('form')[0]);
+            var form = new FormData($('#library-parameters').closest('form')[0]),
+                node;
             $.ajax({
                 'url': path+'folder',
                 'type': 'POST',
@@ -152,12 +280,42 @@ jQuery(function() {
                 'contentType': false,
                 'processData': false
             }).done(function(response) {
-                if (response.success) {
-                  var row = functions.mapTree(response.row);
+              var entry = response.row,
+                  parent = entry.ParentFolderID;
+              entry = {
+                  id: entry.LibraryFolderID,
+                  parent: entry.ParentFolderID,
+                  text: entry.Name,
+                  children: [],
+                  data: {
+                      archivedCount: parseInt(entry.ArchivedCount),
+                      isArchived: entry.ArchivedDate !== null,
+                      isPublic: entry.IsPublic == "1",
+                      unarchivedCount: parseInt(entry.UnarchivedCount)
+                  },
+                  state: {
+                      opened: false,
+                      disabled: false,
+                      selected: false
+                  }
+              };
+              if (functions.getNode().id === entry.id) {
+                  var node = tree.get_node(entry.id);
+                  node.data.isPublic = entry.data.IsPublic;
+                  tree.rename_node(node,entry.text);
+                  entry = node;
+              } else {
                   tree.deselect_all();
-                  tree.select_node(tree.create_node(row.parent,row,'last'));
-                  functions.closeParams(e);
-                }
+                  tree.select_node(tree.create_node(parent,entry,'last'));
+                  parent = tree.get_node(parent);
+                  parent.children = parent.children.map(function(entry) { return tree.get_node(entry); }).sort(functions.caselessSort);
+                  if ($('#library-display .frame').hasClass('archived')) {
+                      functions.showArchives(e);
+                  } else {
+                      functions.hideArchives(e);
+                  }
+              }
+              functions.closeParams(e);
             });
         },
         'search': function(e) {
@@ -177,46 +335,37 @@ jQuery(function() {
                 functions.writeDisplay(response,role==="public");
             });
         },
-        'viewArchive': function(e, parents) {
-            if (parents === undefined) parents = [];
-            $.get(path+'archived/folders').done(function(response) {
-                var folders = functions.mapTree(response.folders);
-                $('#library-management').addClass('hide');
-                $('#library-archive-management').removeClass('hide');
-                tree.destroy();
-                $('#library-tree').jstree({
-                    'core' : {
-                        'check_callback': true,
-                        'data' : folders,
-                        'multiple': false
-                    }
-                }).on('ready.jstree', function(e, data) {
-                    tree = $('#library-tree').jstree();
-                    while (parents.length > 0) {
-                        var node = tree.get_node(parents.shift());
-                        if (node) {
-                            tree.select_node(node);
-                            break;
-                        }
-                    }
-                    if (tree.get_selected().length === 0) {
-                        tree.select_node(tree.get_json()[0]);
-                    }
-                }).on('changed.jstree', function(e, data) {
-                    var nodes = data.selected;
-                    if (nodes.length > 0) {
-                        var node = data.node;
-                        $.get(path+'archived/files/'+node.id).done(function(response) {
-                            functions.writeDisplay(response.files,role==="public");
-                        });
-                        if (node.data.isArchived === true) {
-                          $('#library-restore-folder').removeAttr('disabled');
-                        } else {
-                          $('#library-restore-folder').attr('disabled',true);
-                        }
-                    }
-                });
+        'setupTree': function(children) {
+            var archivedCount = 0,
+                unarchivedCount = 0;
+            $.each(children, function(index, entry) {
+              entry.children = entry.children.sort(functions.caselessSort);
+              var results = functions.setupTree(entry.children);
+              entry.data.archivedCount += results.archivedCount;
+              entry.data.unarchivedCount += results.unarchivedCount;
+              archivedCount += entry.data.archivedCount;
+              unarchivedCount += entry.data.unarchivedCount;
             });
+            return {
+              'archivedCount': archivedCount,
+              'unarchivedCount': unarchivedCount
+            };
+        },
+        'updateTree': function(children, hideArchives) {
+            if (hideArchives === undefined) hideArchives = false;
+            $.each(children, function(index, entry) {
+              entry.state.hidden = hideArchives && (entry.data.unarchivedCount === 0 || entry.data.isArchived);
+              functions.updateTree(entry.children, hideArchives);
+            });
+        },
+        'showArchives': function(e) {
+            $('#library-restore-folder, #library-hide-archives').removeClass('hide');
+            $('#library-show-archives').addClass('hide');
+            $('#library-display .frame').addClass('archived');
+            var backing = tree.get_json();
+            functions.updateTree(backing,false);
+            tree.settings.core.data = backing;
+            tree.refresh();
             e.preventDefault();
         },
         'writeDisplay': function(files,isPublic) {
@@ -229,26 +378,27 @@ jQuery(function() {
                         thumb = entry.ThumbnailFilename||"",
                         description = entry.Description||"",
                         file = entry.Filename,
-                        isArchived = (entry.ArchivedDate === null);
+                        isArchived = (entry.ArchivedDate !== null);
                     if (thumb === "") {
                         thumb = root+'/sites/default/files/library/placeholder.jpg';
                     } else {
                         thumb = path+'file/thumb/'+thumb;
                     }
                     frame.append(
-                      '<div class="item">'+
+                      '<div class="item'+(isArchived?' archived':'')+'">'+
                           '<h4>'+title+'</h4>'+
                           '<img src="'+thumb+'"/>'+
                           '<p>'+description+'</p>'+
                           '<div><a href="'+path+'file/'+file+'">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
-                          '<button class="admin '+(isArchived?'archive-file':'restore-file')+'" data-id="'+id+'"></button>'+
+                          '<button class="admin edit-file""></button>'+
+                          '<button class="admin '+(isArchived?'restore-file':'archive-file')+'""></button>'+
                       '</div>'
-                    );
+                    ).find('*:last-child').data('library-file-data',entry);
                 });
             } else {
                 frame.removeClass('preview');
-                frame.append('<div class="item"><h4>No Files Found</h4></div>');
             }
+            frame.append('<div class="item"><h4>No Files Found</h4></div>');
         }
     };
     functions.initialize();
@@ -265,21 +415,20 @@ jQuery(function() {
     $('#library-create-folder').on('click',function(e) {
         functions.createNew(e,true);
     });
+    $('#library-edit-folder').on('click',functions.editFolder);
     $('#library-upload-file').on('click',function(e) {
         functions.createNew(e,false);
     });
     $('#library-archive-folder').on('click',functions.archiveFolder);
-    $('#library-view-archive').on('click',functions.viewArchive);
-    $('#library-display').on('click', '.archive-file', functions.archiveFile);
+    $('#library-show-archives').on('click',functions.showArchives);
     $('#library-restore-folder').on('click', functions.restoreFolder);
-    $('#library-view-display').on('click',function(e) {
-      e.preventDefault();
-      functions.initialize();
-    });
+    $('#library-hide-archives').on('click',functions.hideArchives);
+    $('#library-display').on('click', '.edit-file', functions.editFile);
+    $('#library-display').on('click', '.archive-file', functions.archiveFile);
     $('#library-display').on('click', '.restore-file', functions.restoreFile);
     $('[name="is_public"]').on('change', function(e) {
         var target = $(e.target);
-        target.parent().toggleClass('private',!target.prop('checked'));
+        target.parent().toggleClass('not_public',!target.prop('checked'));
     });
     $('#library-save').on('click',function(e) {
         e.preventDefault();

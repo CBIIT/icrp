@@ -3,17 +3,44 @@
 namespace Drupal\library\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
+use Ds\Set;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use PDO;
 
 class LibraryController extends ControllerBase {
+  public function testQuery() {
+    $return = array();
+    $connection = self::get_connection();
+    $stmt = $connection->prepare(
+      "SELECT CASE WHEN ArchivedDate IS NULL THEN NULL ELSE GETDATE() END AS x FROM LibraryFolder WHERE LibraryFolderID=3082"
+    );
+    if ($stmt->execute()) {
+      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $row_output = array();
+        foreach ($row as $key=>$value) {
+          $row_output[$key] = $value;
+        }
+        array_push($return,$row_output);
+      }
+    }
+    return new JsonResponse($return);
+  }
+
   private static $initFolderQuery = array(
     "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;",
     "private" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;",
     "partner" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;",
-    "admin" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;"
+    "admin" => "SELECT ".
+          "a.*, ".
+          "COUNT(b.ArchivedDate) AS ArchivedCount, ".
+          "SUM(CASE WHEN b.ArchivedDate IS NULL THEN 1 ELSE 0 END)-SUM(CASE WHEN b.LibraryID IS NULL THEN 1 ELSE 0 END) AS UnarchivedCount ".
+        "FROM LibraryFolder a ".
+        "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID ".
+        "WHERE a.ParentFolderID > 0 ".
+        "GROUP BY a.Name, a.LibraryFolderID, a.ParentFolderID, a.IsPublic, a.ArchivedDate, a.CreatedDate, a.UpdatedDate ".
+        "ORDER BY a.Name;"
   );
   private static $folderQuery = array(
     "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate IS NULL AND LibraryFolderID=:lfid;",
@@ -25,13 +52,13 @@ class LibraryController extends ControllerBase {
     "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY Title;",
     "private" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY Title;",
     "partner" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY Title;",
-    "admin" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY Title;"
+    "admin" => "SELECT * FROM Library WHERE LibraryFolderID=:lfid ORDER BY Title;"
   );
   private static $fileSearch = array(
     "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND LOWER(Filename) LIKE :keywords ORDER BY Title;",
     "private" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LOWER(Filename) LIKE :keywords ORDER BY Title;",
     "partner" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LOWER(Filename) LIKE :keywords ORDER BY Title;",
-    "admin" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LOWER(Filename) LIKE :keywords ORDER BY Title;"
+    "admin" => "SELECT * FROM Library WHERE LOWER(Filename) LIKE :keywords ORDER BY Title;"
   );
 
   public function content() {
@@ -69,7 +96,12 @@ class LibraryController extends ControllerBase {
 
   public function getArchivedFolders() {
     $connection = self::get_connection();
-    $stmt = $connection->prepare("SELECT * FROM LibraryFolder WHERE ParentFolderID > 0 AND (ArchivedDate IS NOT NULL OR LibraryFolderID IN (SELECT DISTINCT LibraryFolderID FROM Library WHERE ArchivedDate IS NOT NULL)) ORDER BY Name");
+    $stmt = $connection->prepare(
+      "SELECT DISTINCT a.* FROM LibraryFolder a ".
+          "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID ".
+          "WHERE a.ParentFolderID > 0 AND (a.ArchivedDate IS NOT NULL or b.ArchivedDate IS NOT NULL) ".
+          "ORDER BY Name"
+    );
     if ($stmt->execute()) {
       $folders = array();
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -188,6 +220,10 @@ class LibraryController extends ControllerBase {
 
   public function postFolder() {
     $params = \Drupal::request()->request->all();
+    if (!isset($params['id_value']) || empty($params['id_value'])) {
+      $params['id_value'] = null;
+    }
+    $new = ($params['id_value'] == null);
     if (!isset($params['is_public'])) {
       $params['is_public'] = "0";
     }
@@ -197,33 +233,68 @@ class LibraryController extends ControllerBase {
           "success"=>false
       ));
     }
-    $connection = self::get_connection();    
-    $stmt = $connection->prepare("INSERT INTO LibraryFolder (Name,ParentFolderID,IsPublic) OUTPUT INSERTED.* VALUES (:name,:pfid,:ip);");
-    $stmt->bindParam(":name",$params["title"]);
-    $stmt->bindParam(":pfid",$params["parent"]);
-    $stmt->bindParam(":ip",$params["is_public"]);
-    if ($stmt->execute()) {
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $connection = self::get_connection();
+    if ($new) {
+      $stmt = $connection->prepare("SELECT CASE WHEN ArchivedDate IS NULL THEN NULL ELSE GETDATE() END AS ArchivedDate FROM LibraryFolder WHERE LibraryFolderID=:pfid");
+      $stmt->bindParam(":pfid",$params["parent"]);
+      if ($stmt->execute()) {
         $row_output = array();
-        foreach ($row as $key=>$value) {
-          $row_output[$key] = $value;
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+          foreach ($row as $key=>$value) {
+            $row_output[$key] = $value;
+          }
+          break;
         }
-        return new JsonResponse(array(
-          "success"=>true,
-          "row"=>$row_output
-        ));
+        $stmt = $connection->prepare("INSERT INTO LibraryFolder (Name,ParentFolderID,IsPublic,ArchivedDate) OUTPUT INSERTED.* VALUES (:name,:pfid,:ip,:ad);");
+        $stmt->bindParam(":name",$params["title"]);
+        $stmt->bindParam(":pfid",$params["parent"]);
+        $stmt->bindParam(":ip",$params["is_public"]);
+        $stmt->bindParam(":ad",$row_output["ArchivedDate"]);
+        if ($stmt->execute()) {
+          while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $row_output = array();
+            foreach ($row as $key=>$value) {
+              $row_output[$key] = $value;
+            }
+            return new JsonResponse(array(
+              "success"=>true,
+              "row"=>$row_output
+            ));
+          }
+        }
+      }
+    } else {
+      $stmt = $connection->prepare("UPDATE LibraryFolder SET Name=:name, IsPublic=:ip OUTPUT inserted.* WHERE LibraryFolderID=:lfid");
+      $stmt->bindParam(":name",$params["title"]);
+      $stmt->bindParam(":ip",$params["is_public"]);
+      $stmt->bindParam(":lfid",$params["id_value"]);
+      if ($stmt->execute()) {
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+          $row_output = array();
+          foreach ($row as $key=>$value) {
+            $row_output[$key] = $value;
+          }
+          return new JsonResponse(array(
+            "success"=>true,
+            "row"=>$row_output
+          ));
+        }
       }
     }
   }
 
   public function postFile() {
     $role = self::getRole();
-    if ($role == "public" || $role == "private") {
+    $params = \Drupal::request()->request->all();
+    if (!isset($params['id_value']) || empty($params['id_value'])) {
+      $params['id_value'] = null;
+    }
+    $new = ($params['id_value'] == null);
+    if ($role == "public" || $role == "private" || ($role == "partner" && !$new)) {
       return new JsonResponse(array(
           "success"=>false
       ),Response::HTTP_FORBIDDEN);
     }
-    $params = \Drupal::request()->request->all();
     if (!isset($params['is_public'])) {
       $params['is_public'] = "0";
     }
@@ -231,34 +302,61 @@ class LibraryController extends ControllerBase {
     $thumb = \Drupal::request()->files->get('thumbnail');
     if (!isset($params["title"]) || empty($params["title"]) ||
         !isset($params["parent"]) || !is_numeric($params["parent"]) ||
-        !$upload->isValid() ||
-          ($params['is_public'] != "0" &&
-            (!$thumb->isValid() || !isset($params["description"]) || empty($params["description"]))
-        )) {
+        !isset($params["description"]) || empty($params["description"]) ||
+        $new && (!$upload->isValid() || ($params['is_public'] != "0" && !$thumb->isValid()))
+      ) {
       return new JsonResponse(array(
           "success"=>false
       ),Response::HTTP_BAD_REQUEST);
     }
-    $upload->move("public://library/uploads",$upload->getClientOriginalName());
-    $thumb->move("public://library/uploads/thumbs",$thumb->getClientOriginalName());
     $connection = self::get_connection();
-    $stmt = $connection->prepare("INSERT INTO Library (Title,LibraryFolderID,Filename,ThumbnailFilename,Description,IsPublic) OUTPUT INSERTED.* VALUES (:title,:lfid,:file,:thumb,:desc,:ip);");
-    $stmt->bindParam(":title",$params["title"]);
-    $stmt->bindParam(":lfid",$params["parent"]);
-    $stmt->bindParam(":file",$upload->getClientOriginalName());
-    $stmt->bindParam(":thumb",$thumb->getClientOriginalName());
-    $stmt->bindParam(":desc",$params["description"]);
-    $stmt->bindParam(":ip",$params["is_public"]);
-    if ($stmt->execute()) {
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    if ($new) {
+      $upload->move("public://library/uploads",$upload->getClientOriginalName());
+      if ($thumb) $thumb->move("public://library/uploads/thumbs",$thumb->getClientOriginalName());
+      $stmt = $connection->prepare("SELECT CASE WHEN ArchivedDate IS NULL THEN NULL ELSE GETDATE() END AS ArchivedDate FROM LibraryFolder WHERE LibraryFolderID=:pfid");
+      $stmt->bindParam(":pfid",$params["parent"]);
+      if ($stmt->execute()) {
         $row_output = array();
-        foreach ($row as $key=>$value) {
-          $row_output[$key] = $value;
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+          foreach ($row as $key=>$value) {
+            $row_output[$key] = $value;
+          }
+          break;
         }
-        return new JsonResponse(array(
-          "success"=>true,
-          "row"=>$row_output
-        ));
+        $stmt = $connection->prepare("INSERT INTO Library (Title,LibraryFolderID,Filename,ThumbnailFilename,Description,IsPublic,ArchivedDate) OUTPUT INSERTED.* VALUES (:title,:lfid,:file,:thumb,:desc,:ip,:ad);");
+        $stmt->bindParam(":title",$params["title"]);
+        $stmt->bindParam(":lfid",$params["parent"]);
+        $stmt->bindParam(":file",$upload->getClientOriginalName());
+        if ($thumb) {
+          $stmt->bindParam(":thumb",$thumb->getClientOriginalName());
+        } else {
+          $stmt->bindValue(":thumb",null,PDO::PARAM_NULL);
+        }
+        $stmt->bindParam(":title",$params["title"]);
+        $stmt->bindParam(":desc",$params["description"]);
+        $stmt->bindParam(":ip",$params["is_public"]);
+        $stmt->bindParam(":ad",$row_output["ArchivedDate"]);
+        if ($stmt->execute()) {
+          while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $row_output = array();
+            foreach ($row as $key=>$value) {
+              $row_output[$key] = $value;
+            }
+            return new JsonResponse(array(
+              "success"=>true,
+              "row"=>$row_output
+            ));
+          }
+        }
+      }
+    } else {
+      $stmt = $connection->prepare("UPDATE Library SET Title=:title, Description=:desc, IsPublic=:ip WHERE LibraryID=:lid");
+      $stmt->bindParam(":title",$params["title"]);
+      $stmt->bindParam(":desc",$params["description"]);
+      $stmt->bindParam(":ip",$params["is_public"]);
+      $stmt->bindParam(":lid",$params["id_value"]);
+      if ($stmt->execute()) {
+          return self::getFolder($params["parent"]);
       }
     }
     return new JsonResponse(array(

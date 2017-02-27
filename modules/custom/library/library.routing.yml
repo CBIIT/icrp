@@ -39,6 +39,15 @@ library.search:
   requirements:
     _permission: 'access content'
 
+library.testQuery:
+  path: '/library/testQuery'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::testQuery'
+  methods: [GET]
+  requirements:
+    _permission: 'access content'
+    _role: 'administrator'
+
 library.folder.id:
   path: '/library/folder/{id}'
   defaults:
