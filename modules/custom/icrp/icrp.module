@@ -22,6 +22,10 @@ function hello_hello_world() {
     return t('Hello Drupal 8 World!');
 
 }
+function editContent() {
+    return t("You are about to review a user, congrats.");
+}
+
 function reviewUserForm($uuid) {
     return t("You are about to review a user: ".$uuid);
 }
@@ -68,6 +72,14 @@ function hook_form_yamlform_submission_update_my_profile_form_alter(&$form, \Dru
 }
 
 /**
+ * @param $variables
+ */
+function icrp_preprocess_my_element(&$variables) {
+    drupal_set_message("In preprocess");
+    //$variables['attributes']['id'] = 'my_blue_element_altered_id';
+}
+
+/**
  * Implements hook_theme().
  */
 function icrp_theme() {
@@ -84,10 +96,42 @@ function icrp_theme() {
 function icrp_hook_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
     $form['link'] = array('#markup' => l(t('Link text'),'node'));
     switch ($form_id) {
-        case 'user_login':
+        case 'user-pass-reset':
+            $form['terms_of_use'] = array(
+                '#type' => 'checkbox',
+                '#title' => t("I agree with the website's terms and conditions."),
+                '#required' => TRUE,
+            );
+            break;
         case 'user_login_block':
             $form['link'] = array('#markup' => l(t('Link text'),'node'));
             break;
+        case 'webform_submission_contact_form':
+            // Set Type of Issue default value
+            $form['elements']['contact_us']['contact_us_container_1']['type_of_issue']['#default_value'] = "Register for CSO Updates";
+
+            // Pre-load user information if available
+            $uid = \Drupal::currentUser()->id();
+            if($uid > 0 ) {
+                $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+                //kint($user);
+
+                $name = $user->get('field_first_name')->value . ' ' . $user->get('field_last_name')->value;
+                //drupal_set_message("Name: ". $name);
+                $form['elements']['contact_us']['contact_us_container_2']['contact_us_left']['name']['#value'] = $name;
+
+                $email = $user->get('mail')->value;
+                $form['elements']['contact_us']['contact_us_container_2']['contact_us_right']['email']['#value'] = $email ;
+                //$org = $user->get('field_organization')->target_id;
+                // Org currently contains the index to the organization list - a lookup will need to be added to set organization
+                //$form['elements']['contact_us']['contact_us_container_2']['contact_us_left']['organization']['#value'] = $org ;
+                //$phone = "";
+                //$form['elements']['contact_us']['contact_us_container_2']['contact_us_right']['phone_number']['#value'] = $phone;
+                //  currently phone number is not stored with user information
+            }
+
+            break;
+
     }
     if ($form_id == 'user_form_what') {
         $form['#submit'][] = '_MODULE_goto';
@@ -133,14 +177,61 @@ function icrp_views_pre_execute(ViewExecutable $view) {
     }
 }
 */
+function populateOrganizations() {
+
+    drupal_set_message("populateOrganizations");
+
+    //Use ajax to pull url
+    $host = "icrpartnership-dev.org";
+    $url = "https://".$host."/getFundingOrgNames";
+    /*
+     * STEP 1: Write an AJAX call to retrieve url above
+     * Search Drupal 8 Ajax call
+     */
+
+    //Decode json and populate entity.
+    /*
+     * STEP 2: Save into enitity type Organization
+     */
+    //$user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+    //enitity and node are the same darn thing....
+    //$node
+    /*
+    $node = \Drupal::service('entity_type.manager')->getStorage('user')->load(51);
+
+    $org_title = $node->get('title')->value;
+    //If not there then get
+    $node->set('title') = "New Org Name";
+    */
+    /*
+    $sql = "Select * from node_field_date where type = "organization";
+    $row = dbquery($sql);
+    */
+
+    // Save into database
+
+
+}
 
 function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 
     //drupal_set_message("Form ID: ".$form_id);
+    //kint("Hello");
+    //kint(print_r(array, true));
+
     switch ($form_id) {
+        case 'user_register_form':
+            populateOrganizations();
+            break;
+        case 'views-exposed-form':
+            $form['terms_of_use'] = array(
+                '#type' => 'checkbox',
+                '#title' => t("I agree with the website's terms and conditions."),
+                '#required' => TRUE,
+            );
         case 'user_login':
         case 'user_login_form':
-            $form['link'] = array('#markup' => t("<div style=padding:20px;'><a href='/user/password'>Forgot Password?</a></div>"));
+            //$form['link'] = array('#markup' => t("<div style=padding:20px;'><a href='/user/password'>Forgot Password?</a></div>"));
             break;
     }
     //kint($form);

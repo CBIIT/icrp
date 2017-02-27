@@ -1,3 +1,7 @@
+.noscroll {
+  overflow-y: hidden;
+}
+
 table.data-table {
   width: 100%;
   border-collapse: collapse;

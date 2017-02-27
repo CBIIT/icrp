@@ -4,6 +4,8 @@ import {
   Inject,
   Input,
   EventEmitter,
+  OnChanges,
+  SimpleChanges,
   OnInit,
   Output
 } from '@angular/core';
@@ -24,7 +26,7 @@ import { TreeNode } from '../ui-treeview/treenode';
   templateUrl: './search-form.component.html',
   styleUrls: ['./search-form.component.css'],
 })
-export class SearchFormComponent implements OnInit, AfterViewInit {
+export class SearchFormComponent implements OnChanges, AfterViewInit {
 
   @Output()
   mappedSearch: EventEmitter<{
@@ -68,6 +70,15 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
     cso_research_areas?: string
   }>;
 
+  @Output()
+  requestInitialParameters: EventEmitter<any>;
+
+  @Input()
+  initialSearchParameters: any;
+
+
+  searchInitialized: boolean = false;
+
   funding_organizations: TreeNode;
   cso_research_areas: TreeNode;
 
@@ -76,7 +87,8 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
 
   constructor(
     @Inject(FormBuilder) private formbuilder: FormBuilder,
-    @Inject(Http) private http: Http) {
+    @Inject(Http) private http: Http,
+    @Inject('api_root') private apiRoot: string) {
 
     this.search = new EventEmitter<{
       search_terms?: string,
@@ -116,7 +128,9 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
       cancer_types?: string[],
       project_types?: string[],
       cso_research_areas?: string[]
-    }>();    
+    }>();
+
+    this.requestInitialParameters = new EventEmitter<any>();
 
     this.form = formbuilder.group({
       search_terms: [''],
@@ -154,7 +168,7 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
     this.cso_research_areas = null;
   }
 
-  submit(event) {
+  submit(event?) {
 
     if (event) {
       event.preventDefault();
@@ -400,6 +414,9 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
     return root;
  }
 
+ getInitialParameters() {
+ }
+
  resetForm() {
   this.form.reset();
   // set last two years
@@ -410,8 +427,36 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
   this.form.controls['years'].patchValue(years);
  }
 
+ ngOnChanges(changes: SimpleChanges) {
+
+  let params = changes['initialSearchParameters'].currentValue;
+  let useSearchID = window.location.search && window.location.search.includes('sid')
+
+   if (!this.searchInitialized && useSearchID && changes['initialSearchParameters'] && params) {
+    console.log('calling onchanges for getting initial parameters');
+
+    this.searchInitialized = true;
+    this.form.reset();
+
+    for (let key in params) {
+      let value = params[key];
+      
+      if (value instanceof Array)
+        value = value.filter(e => e.length);
+
+      if (value && value.length > 0) {
+        console.log('using', key, value);
+        this.form.controls[key].patchValue(value)
+      }
+
+
+    }
+    this.submit();
+   }
+ }
+
  ngAfterViewInit(this) {
-    new SearchFields(this.http).getFields()
+    new SearchFields(this.http, this.apiRoot).getFields()
       .subscribe(response => {
         this.fields = response;
         this.funding_organizations = this.createTreeNode(this.fields.funding_organizations, 'funding_organizations');
@@ -420,11 +465,19 @@ export class SearchFormComponent implements OnInit, AfterViewInit {
         setTimeout(e => {
           // set last five years
           let years = this.fields.years.filter((field, index) => {
-            if (index < 5)
+            if (index < 2)
               return field;
           }).map(field => field.value);
           this.form.controls['years'].patchValue(years);
-          this.submit();
+          let useSearchID = window.location.search && window.location.search.includes('sid')
+          
+          if (useSearchID) {
+            this.requestInitialParameters.emit();
+          }
+
+          else {
+            this.submit();
+          }
         }, 0);
       });
  }

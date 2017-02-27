@@ -4,8 +4,19 @@ custom:
     theme:
       assets/styles.css: {}
   js:
-    https://unpkg.com/promise-polyfill@6.0.2/promise.min.js: {type: external}
-    https://unpkg.com/whatwg-fetch@2.0.2/fetch.js: {type: external}
     assets/inline.js: {}
+    assets/polyfills.js: {}
     assets/vendor.js: {}
     assets/main.js: {}
+
+
+load:
+  version: 1.0
+  css:
+    theme:
+      load_assets/styles.css: {}
+  js:
+    load_assets/inline.js: {}
+    load_assets/polyfills.js: {}
+    load_assets/vendor.js: {}
+    load_assets/main.js: {}

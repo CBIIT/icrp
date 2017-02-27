@@ -17,6 +17,8 @@ import { UiChartComponent } from './ui-chart/ui-chart.component';
 import { TooltipModule } from 'ng2-bootstrap';
 import { PaginationModule } from 'ng2-bootstrap';
 import { ModalModule } from 'ng2-bootstrap';
+import { SpinnerModule } from 'angular-ui-components';
+
 import { EmailResultsButtonComponent } from './email-results-button/email-results-button.component';
 import { ExportResultsButtonComponent } from './export-results-button/export-results-button.component';
 import { ExportResultsPartnerButtonComponent } from './export-results-partner-button/export-results-partner-button.component';
@@ -56,8 +58,18 @@ import { ExportLookupTableButtonComponent } from './export-lookup-table-button/e
     TooltipModule.forRoot(),
     PaginationModule.forRoot(),
     ModalModule.forRoot(),
+    SpinnerModule.forRoot(),
   ],
-  providers: [],
+  providers: [
+    {
+      provide: 'api_root',
+      useValue: ''
+    },
+    {
+      provide: 'page_title',
+      useValue: 'Search ICRP Database'
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

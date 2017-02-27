@@ -55,3 +55,14 @@ h5.h5 {
 .margin-top {
   margin-top: 10px;
 }
+
+.description {
+  color: black;
+  background-color: #c5eef7;
+  border-color: #5bc0de;
+
+  font-style: italic;
+
+  padding: 10px 2px;
+  border-radius: 4px;
+}

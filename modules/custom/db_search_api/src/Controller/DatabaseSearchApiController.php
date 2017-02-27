@@ -19,8 +19,6 @@ use PDO;
  */
 class DatabaseSearchAPIController extends ControllerBase {
 
-  private static $connection_ini = 'connection.ini';
-
   private static $parameter_mappings = [
     'page_size'             => 'PageSize',
     'page_number'           => 'PageNumber',
@@ -71,14 +69,18 @@ class DatabaseSearchAPIController extends ControllerBase {
    * @return A PDO connection
    * @throws PDOException
    */
-  function get_connection() {
+  function get_connection(string $database_config = 'icrp_database') {
 
-    $cfg = parse_ini_file(self::$connection_ini);
+    $cfg = [];
+    $icrp_database = \Drupal::config($database_config);
+    foreach(['driver', 'host', 'port', 'database', 'username', 'password'] as $key) {
+       $cfg[$key] = $icrp_database->get($key);
+    }
 
     // connection string
-    $cfg['data_source'] =
+    $cfg['dsn'] =
       $cfg['driver'] .
-      ":Server={$cfg['server']},{$cfg['port']}" .
+      ":Server={$cfg['host']},{$cfg['port']}" .
       ";Database={$cfg['database']}";
 
     // default configuration options
@@ -91,12 +93,12 @@ class DatabaseSearchAPIController extends ControllerBase {
 
     // create new PDO object
     return new PDO(
-      $cfg['data_source'],
+      $cfg['dsn'],
       $cfg['username'],
       $cfg['password'],
       $cfg['options']
     );
-  }
+  }  
 
   function create_updated_input_parameters($request) {
     $input_parameters = [
@@ -135,9 +137,24 @@ class DatabaseSearchAPIController extends ControllerBase {
     return $input_parameters;
   }
 
-  function get_analytics_updated($search_id) {
+  function retrieve_search_parameters($search_id, string $database_config = 'icrp_database') {
 
-    $pdo = self::get_connection();
+    $pdo = self::get_connection($database_config);
+    $stmt = $pdo->prepare('SELECT * FROM SearchCriteria where SearchCriteriaID = :search_id');
+    $stmt->bindParam(':search_id', $search_id);
+
+    $output = [];
+
+    if ($stmt->execute()) {
+        $output = $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    return $output;
+  }
+
+  function get_analytics_updated($search_id, string $database_config = 'icrp_database') {
+
+    $pdo = self::get_connection($database_config);
 
     $queries = [
       'projects_by_country' => 'SET NOCOUNT ON; EXECUTE GetProjectCountryStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_country',
@@ -208,9 +225,9 @@ class DatabaseSearchAPIController extends ControllerBase {
     return $output;
   }
 
-  function get_partner_analytics_funding($search_id, $year) {
+  function get_partner_analytics_funding($search_id, $year, string $database_config = 'icrp_database') {
 
-    $pdo = self::get_connection();
+    $pdo = self::get_connection($database_config);
 
     $total = 0;
     $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE GetProjectAwardStatsBySearchID @SearchID = :search_id, @Year = :year, @Total = :total');
@@ -234,9 +251,9 @@ class DatabaseSearchAPIController extends ControllerBase {
 
 
 
-  function get_partner_analytics_funding_years() {
+  function get_partner_analytics_funding_years(string $database_config = 'icrp_database') {
 
-    $pdo = self::get_connection();
+    $pdo = self::get_connection($database_config);
     $stmt = $pdo->prepare('SELECT DISTINCT Year as year FROM CurrencyRate ORDER BY Year DESC');
 
     return $stmt->execute() 
@@ -246,9 +263,9 @@ class DatabaseSearchAPIController extends ControllerBase {
 
 
 
-  function get_partner_analytics_updated($search_id) {
+  function get_partner_analytics_updated($search_id, string $database_config = 'icrp_database') {
 
-    $pdo = self::get_connection();
+    $pdo = self::get_connection($database_config);
 
     $queries = [
       'projects_by_country' => 'SET NOCOUNT ON; EXECUTE GetProjectCountryStatsBySearchID @SearchID = :search_id, @ResultCount = :total_projects_by_country',
@@ -331,8 +348,8 @@ class DatabaseSearchAPIController extends ControllerBase {
     return $output;
   }  
 
-  function sort_paginate_search_results($parameters) {
-    $pdo = self::get_connection();
+  function sort_paginate_search_results($parameters, string $database_config = 'icrp_database') {
+    $pdo = self::get_connection($database_config);
 
     $stmt = $pdo->prepare("SET NOCOUNT ON; EXECUTE GetProjectsBySearchID
       @PageSize = :page_size,
@@ -365,9 +382,9 @@ class DatabaseSearchAPIController extends ControllerBase {
     return $results;
   }
 
-  function search_database_updated($input_parameters) {
+  function search_database_updated($input_parameters, string $database_config = 'icrp_database') {
 
-    $pdo = self::get_connection();
+    $pdo = self::get_connection($database_config);
 
     $output_parameters = [
       'search_id'             => NULL,
@@ -488,8 +505,8 @@ class DatabaseSearchAPIController extends ControllerBase {
   /**
   * Retrieves valid field values to be used as query parameters
   */
-  function query_form_fields() {
-    $pdo = self::get_connection();
+  function query_form_fields(string $database_config = 'icrp_database') {
+    $pdo = self::get_connection($database_config);
 
     $fields = [
       'years'                 => [],
@@ -729,6 +746,117 @@ class DatabaseSearchAPIController extends ControllerBase {
   public function partner_analytics_funding_years(  ) {
     //$param = self::map_fields($request);
     $response = new JSONResponse( self::get_partner_analytics_funding_years() );
+    return self::add_cors_headers($response);
+  }
+
+
+  public function retrieve_parameters( Request $request ) {
+    $search_id = $request->query->get('search_id');
+    $response = new JSONResponse( self::retrieve_search_parameters($search_id) );
+    return self::add_cors_headers($response);
+  }
+
+
+
+
+  /**
+   * Callback for `db/public/search/` API method.
+   */
+  public function load_public_form_fields() {
+    $response = new JSONResponse( self::query_form_fields('icrp_load_database') );
+    return self::add_cors_headers($response);
+  }
+
+  /**
+   * Callback for `db/public/search/` API method.
+   */
+  public function load_public_search( Request $request ) {
+    $param = self::create_updated_input_parameters($request);
+    $response = new JSONResponse( self::search_database_updated($param, 'icrp_load_database') );
+    return self::add_cors_headers($response);
+  }
+
+  /**
+   * Callback for `db/public/search/` API method.
+   */
+  public function load_public_search_sort_paginate( Request $request ) {
+
+    $param = [
+      'search_id' => NULL,
+      'page_size' => 50,
+      'page_number' => 1,
+      'sort_column' => 'title',
+      'sort_type' => 'ASC'
+    ];
+
+    foreach(array_keys($param) as $key) {
+      $value = $request->query->get($key);
+
+      if ($key == 'sort_column') {
+        $value = self::$sort_column_mappings[$value];
+      }
+      
+      if ($value) {
+        $param[$key] = $value;
+      }
+    }
+
+    $response = new JSONResponse( self::sort_paginate_search_results($param, 'icrp_load_database') );
+    return self::add_cors_headers($response);
+  }
+
+  /**
+   * Callback for `db/public/analytics/` API method.
+   */
+  public function load_public_analytics( Request $request ) {
+//    $param = self::map_fields($request);
+    $param = $request->query->get('search_id');
+    $response = new JSONResponse( self::get_analytics_updated($param, 'icrp_load_database') );
+    return self::add_cors_headers($response);
+  }
+
+  /**
+   * Callback for `db/partner/search/` API method.
+   */
+  public function load_partner_search( Request $request ) {
+    $param = self::map_fields($request);
+    $response = new JSONResponse( self::search_database_updated($param, 'icrp_load_database') );
+    return self::add_cors_headers($response);
+  }
+
+  /**
+   * Callback for `db/partner/analytics/` API method.
+   */
+  public function load_partner_analytics( Request $request ) {
+    //$param = self::map_fields($request);
+    $param = $request->query->get('search_id');
+    $response = new JSONResponse( self::get_partner_analytics_updated($param, 'icrp_load_database') );
+    return self::add_cors_headers($response);
+  }
+
+  public function load_partner_analytics_funding( Request $request ) {
+    //$param = self::map_fields($request);
+    $search_id = $request->query->get('search_id');
+    $year = $request->query->get('year');
+
+    if (!$year) {
+      $year = 2017;
+    }
+
+    $response = new JSONResponse( self::get_partner_analytics_funding($search_id, $year, 'icrp_load_database') );
+    return self::add_cors_headers($response);
+  }
+
+  public function load_partner_analytics_funding_years(  ) {
+    //$param = self::map_fields($request);
+    $response = new JSONResponse( self::get_partner_analytics_funding_years('icrp_load_database') );
+    return self::add_cors_headers($response);
+  }
+
+
+  public function load_retrieve_parameters( Request $request ) {
+    $search_id = $request->query->get('search_id');
+    $response = new JSONResponse( self::retrieve_search_parameters($search_id, 'icrp_load_database') );
     return self::add_cors_headers($response);
   }
 

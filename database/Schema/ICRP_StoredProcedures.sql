@@ -882,6 +882,7 @@ SELECT [Name]
       ,[Website]      
       ,CAST([CreatedDate] AS DATE)AS JoinDate      
   FROM [Partner]
+  ORDER BY [Country], [Name]
 
   GO
 
@@ -954,7 +955,6 @@ DROP PROCEDURE [dbo].[GetProjectExportsSingleBySearchID]
 GO 
 
 CREATE  PROCEDURE [dbo].[GetProjectExportsSingleBySearchID]
-
   @SearchID INT,
   @SiteURL varchar(50) = 'https://www.icrpartnership.org/project/'
 	 
@@ -1055,12 +1055,13 @@ DROP PROCEDURE [dbo].[GetFundingOrgs]
 GO 
 
 CREATE  PROCEDURE [dbo].[GetFundingOrgs]
-    
+     @currentMemberOnly bit =1
 AS   
 
 SELECT Name, Abbreviation, SponsorCode + ' - ' + Name AS DisplayName, Type, MemberType, MemberStatus, Country, Currency, 
 SponsorCode, IsAnnualized, Note, LastImportDate, LastImportDesc
 FROM FundingOrg
+WHERE (@currentMemberOnly = 1 AND ISNULL(MemberStatus, '') = 'Current') OR (@currentMemberOnly = 0)
 ORDER BY SponsorCode, Name
 
 GO

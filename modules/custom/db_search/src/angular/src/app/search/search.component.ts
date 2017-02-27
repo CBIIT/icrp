@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit, Inject } from '@angular/core';
 import { Http, Response, Headers, RequestOptions, URLSearchParams } from '@angular/http';
 import { SearchParameters } from './search-parameters';
 
@@ -29,11 +29,17 @@ export class SearchComponent implements OnInit, AfterViewInit {
   analytics: any;
   loggedIn: boolean;
 
+  initialID: any;
+  initialParameters: any;
+
   conversionYears = [];
 
-  constructor(private http: Http) {
+  constructor(
+    private http: Http,
+    @Inject('api_root') private apiRoot: string
+    ) {
     this.loggedIn = false;
-    //this.loggedIn = true;
+//    this.loggedIn = true;
     this.searchID = null;
     this.loadingAnalytics = true;
     this.loading = true;
@@ -48,15 +54,100 @@ export class SearchComponent implements OnInit, AfterViewInit {
       page_size: 50,
     }
 
+    this.initialParameters = null;
+
     this.updateAvailableConversionYears();
     this.checkAuthenticationStatus();
   }
 
+  updateInitialSearchId() {
+
+    if (window.location.search && window.location.search.includes('sid')) {
+      let query = window.location.search
+        .substring(1)
+        .split('&')
+        .map(e => e.split('=')) 
+        // retrieve array of query terms
+        // and create object
+        .reduce((prev, curr) => {
+          let key = curr[0];
+          let value = curr[1];
+
+          if (key) {
+            prev[key] = value;
+          }
+          
+          return prev;
+        }, [])
+
+      this.initialID = query['sid'];
+      this.updateInitalParameters();
+
+    }
+
+    
+  }
+
+  updateInitalParameters() {
+
+    let params = new URLSearchParams();
+    params.set('search_id', this.initialID);
+
+    this.http.get(`${this.apiRoot}/db/retrieve`, {search: params})
+      .map((res: Response) => res.json())
+      .catch((error: any) => [])
+      .subscribe(
+        response => this.initialParameters = this.parseParameters(response),
+        error => {},
+        () => {}
+      )
+  }
+
+  parseParameters(params) {
+
+    for (let key in params) {
+      if (!params[key])
+        params[key] = '';
+    }
+
+    let parsed = {
+      award_code: params['AwardCode'],
+      cso_research_areas: params['CSOList'].split(','),
+      cancer_types: params['CancerTypeList'].split(','),
+      cities: params['CityList'].split(','),
+      countries: params['CountryList'].split(','),
+      funding_organizations: params['FundingOrgList'].split(','),
+      institution: params['Institution'],
+      project_types: params['ProjectTypeList'].split(','),
+      states: params['StateList'].split(','),
+      search_type: params['TermSearchType'],
+      search_terms: params['Terms'],
+      years: params['YearList'].split(','),
+      pi_first_name: params['piFirstName'],
+      pi_last_name: params['piLastName'],
+      pi_orcid: params['piORCiD']
+    }
+
+    return parsed;
+  }
+
   checkAuthenticationStatus() {
-    this.http.get('/search-database/partners/authenticate', {withCredentials: true})
+    this.http.get(`${this.apiRoot}/search-database/partners/authenticate`, {withCredentials: true})
       .map((res: Response) => res.text())
-      .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
-      .subscribe(response => this.loggedIn = (response === 'authenticated'))
+      .catch((error: any) => {
+        let message = 'Server error';
+        if ([401, 403].indexOf(error.status) > -1) {
+          message = 'Unauthorized'
+        }
+        return []
+      })
+      .subscribe(
+        response => {
+          this.loggedIn = (response === 'authenticated')
+        },
+        error => {},
+        () => {}
+      )
   }
 
   updateMappedParameters(event: Object) {
@@ -126,7 +217,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
           }
       }
 
-      this.updateServerAnalyticsFunding();
+//      this.updateServerAnalyticsFunding();
     }
   }
 
@@ -143,10 +234,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
   }
 
   queryServerAnalytics(parameters: Object): Observable<any[]> {
-    let endpoint = `${this.devEndpoint}/db/public/analytics`;
+    let endpoint = `${this.apiRoot}/db/public/analytics`;
 
     if (this.loggedIn) {
-      endpoint = `${this.devEndpoint}/db/partner/analytics`;
+      endpoint = `${this.apiRoot}/db/partner/analytics`;
     }
 
     let host = window.location.hostname;
@@ -162,7 +253,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   updateServerAnalyticsFunding(year?) {
 
     console.log('receiving funding update');
-    let endpoint = `${this.devEndpoint}/db/partner/analytics/funding`;
+    let endpoint = `${this.apiRoot}/db/partner/analytics/funding`;
     let params = new URLSearchParams();
 
     if (!year) {
@@ -191,7 +282,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   updateAvailableConversionYears() {
 
     console.log('receiving funding update');
-    let endpoint = `${this.devEndpoint}/db/partner/analytics/funding_years`;
+    let endpoint = `${this.apiRoot}/db/partner/analytics/funding_years`;
 
     return this.http.get(endpoint)
       .map((res: Response) => res.json())
@@ -204,7 +295,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   resultsSortPaginate(parameters: Object) {
     
-    let endpoint = `${this.devEndpoint}/db/public/sort_paginate`;
+    let endpoint = `${this.apiRoot}/db/public/sort_paginate`;
     let host = window.location.hostname;
 
     let params = new URLSearchParams();
@@ -242,7 +333,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     let protocol = window.location.protocol;
     let host = window.location.hostname;
 
-    let endpoint = `${this.devEndpoint}/db/public/search`;
+    let endpoint = `${this.apiRoot}/db/public/search`;
 
     let params = new URLSearchParams();
 

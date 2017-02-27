@@ -25,13 +25,12 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
   constructor(private renderer: Renderer) {
     this.selectedValues = [];
   }
-  
 
   writeValue(values: string[]) {
     this.selectTreeValues(this.root, values || []);
 
     this.clearChildren(this.tree.nativeElement);
-    this.createTree(this.root, this.tree.nativeElement, false, true);
+    this.createTree(this.root, this.tree.nativeElement, null, false, true);
   }
 
   propagateChange(_: any) { };
@@ -51,10 +50,12 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
   }
 
   /** Recursively creates dom nodes related to tree - on change, rebuilds the portion of the tree that changed */
-  createTree(node: TreeNode, el: HTMLElement, selected: boolean, replace: boolean) {
+  createTree(node: TreeNode, el: HTMLElement, parent: TreeNode, selected: boolean, replace: boolean) {
 
     /** Initialize the selected state of the node */
     node.selected = selected;
+
+    node.parent = parent;
 
     if (node.selected && node.value != null && this.selectedValues.indexOf(node.value) === -1) {
       this.selectedValues.push(node.value);
@@ -145,6 +146,9 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
         '2px'
       )
 
+      node.el = checkbox;
+
+
       this.renderer.setElementStyle(
         label,
         'margin-bottom',
@@ -215,7 +219,7 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
 
     if (hasChildren) {
       for (let child of node.children) {
-        this.createTree(child, div, selected, false);
+        this.createTree(child, div, node, selected, false);
       }
     }
 
@@ -223,9 +227,16 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
   }
 
   toggleNode(node: TreeNode, el: HTMLElement) {
-
     this.clearChildren(el);
-    this.createTree(node, el, !node.selected, true);
+    this.createTree(node, el, node.parent, !node.selected, true);
+//    console.log('node parent', node.parent);
+    node.parent.selected = false;
+
+      this.renderer.setElementProperty(
+        node.parent.el,
+        'checked',
+        node.parent.selected
+      )    
   }
 
 
@@ -240,6 +251,6 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
   }
 
   ngOnChanges() {
-    this.createTree(this.root, this.tree.nativeElement, false, true);
+    this.createTree(this.root, this.tree.nativeElement, null, false, true);
   }
 }

@@ -8,26 +8,26 @@ import './table-twbs.css';
 function buildTable(data) {
 
   const tableColumns = [
-    { title: '', prop: 'index', sortable: false},
-    { title: 'Name', prop: 'name' },
-    { title: 'Abbreviation', prop: 'abbr' },
-    { title: 'Country', prop: 'country' },
-    { title: 'Sponsor Code', prop: 'sponsor' },
-    { title: 'Currency', prop: 'currency' },
-    { title: 'Annualized Funding', prop: 'annual' },
-    { title: 'Last Import Date', prop: 'import_date' },
-    { title: 'Import Description', prop: 'description' },
+    { title: 'Name', tooltip:'Name', prop: 'name' },
+    { title: 'Abbreviation', tooltip:'Abbreviation', prop: 'abbr' },
+    { title: 'Country', tooltip:'Country', prop: 'country' },
+    { title: 'Sponsor Code', tooltip:'Sponsor Code', prop: 'sponsor' },
+    { title: 'Currency', tooltip:'Currency', prop: 'currency' },
+    { title: 'Annualized Funding', tooltip:'Annualized Funding', prop: 'annual' },
+    { title: 'Last Import Date', tooltip:'Last Import Date', prop: 'import_date' },
+    { title: 'Import Description', tooltip:'Import Description', prop: 'description' },
   ];
 
   return (
     <DataTable
       className="container"
+      tableClass="striped hover responsive"
       keys="id"
       columns={tableColumns}
       initialData={data}
-      initialPageLength={20}
+      initialPageLength={25}
       initialSortBy={{ prop: 'name', order: 'ascending' }}
-      pageLengthOptions={[ 10, 20, 50 ]}
+      pageLengthOptions={[ 25, 50, 100, 150 ]}
     />
   );
 }
@@ -36,15 +36,15 @@ function buildTable(data) {
 function buildUploadStatusReportTable(data) {
 
   const tableColumns = [
-    { title: '', prop: 'index', sortable: false},
-    { title: 'Partner', prop: 'partner' },
-    { title: 'Funding Year', prop: 'funding_year' },
-    { title: 'Process Status', prop: 'status' },
-    { title: 'Received Data Submission', prop: 'received_date' },
-    { title: 'Run pre-import validation', prop: 'validation_date' },
-    { title: 'Uploaded to Development DB', prop: 'dev_date' },
-    { title: 'Copied to Stage DB', prop: 'stage_date' },
-    { title: 'Copied to Production DB', prop: 'prod_date' },
+    { title: '', tooltip:'', prop: 'index', sortable: false},
+    { title: 'Partner', tooltip:'Partner', prop: 'partner' },
+    { title: 'Funding Year', tooltip:'Funding Year', prop: 'funding_year' },
+    { title: 'Process Status', tooltip:'Process Status', prop: 'status' },
+    { title: 'Received Data Submission', tooltip:'Received Data Submission', prop: 'received_date' },
+    { title: 'Run pre-import validation', tooltip:'Run pre-import validation', prop: 'validation_date' },
+    { title: 'Uploaded to Development DB', tooltip:'Uploaded to Development DB', prop: 'dev_date' },
+    { title: 'Copied to Stage DB', tooltip:'Copied to Stage DB', prop: 'stage_date' },
+    { title: 'Copied to Production DB', tooltip:'Copied to Production DB', prop: 'prod_date' },
   ];
 
   return (

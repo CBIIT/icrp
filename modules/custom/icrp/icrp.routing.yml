@@ -13,18 +13,35 @@ icrp.review_user:
   requirements:
     _permission: 'access content'
 
+icrp.user_edit:
+  path: '/old/user/edit'
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::userEdit'
+    _title: 'User Edit'
+  requirements:
+    _permission: 'access content'
+
 icrp.form:
- path: '/user-review/{uuid}'
- defaults:
-   _title: 'User Review'
-   _form: '\Drupal\icrp\Form\UserReviewForm'
- requirements:
-   _permission: 'access content'
+  path: '/user-review/{uuid}'
+  defaults:
+    _title: 'User Review'
+    _form: '\Drupal\icrp\Form\UserReviewForm'
+  requirements:
+    _permission: 'access content'
 
 icrp.my_profile:
- path: '/my-profile'
- defaults:
-   _title: 'My Profile'
-   _form: '\Drupal\icrp\Form\MyProfileForm'
- requirements:
-   _permission: 'access content'
+  path: '/my-profile'
+  defaults:
+    _title: 'My Profile'
+    _form: '\Drupal\icrp\Form\MyProfileForm'
+  requirements:
+    _permission: 'access content'
+
+icrp.user_reset:
+  path: '/change-password'
+  defaults:
+    _title: 'ChangePassword'
+    _form: '\Drupal\icrp\Form\ChangePasswordForm'
+  requirements:
+    _permission: 'access content'
+

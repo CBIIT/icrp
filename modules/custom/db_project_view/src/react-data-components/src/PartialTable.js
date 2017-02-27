@@ -21,14 +21,10 @@ export default class PartialTable extends Component {
         <p>
 ICRP organizations submit their latest available research projects or research funding to the ICRP database as soon as possible. Each partner submits data on a different schedule as each has different timelines for awarding, collating and classifying projects, so recent calendar years in the ‘Year active’ search may not yet include all available data for that year. In the table below, the ‘Import Description’ column shows the latest import from each partner, and the date on which that import was uploaded to the database. Organizations that update research funding annually for all projects in the database are listed as ‘yes’ in the ‘Annual funding updates’ column below.
  	</p>
+       
         <div className="row">
-          <div className="col-xs-12">
-            <div>
-            </div>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-xs-3 top-buffer">
+          <style type="text/css">{`.col-xs-3 {margin-top: 10px;} `}</style>
+          <div className="col-xs-3">
             <div>
               <label htmlFor="search-field">Search&nbsp; </label>
               <input
@@ -40,7 +36,8 @@ ICRP organizations submit their latest available research projects or research f
               />
              </div>
           </div>
-          <div className="col-xs-5 top-buffer">
+          <style type="text/css">{`.col-xs-5 {margin-top: 10px;} `}</style>
+          <div className="col-xs-5">
             <div>
               <label htmlFor="page-menu"> Show &nbsp; </label>
               <select
@@ -58,6 +55,7 @@ ICRP organizations submit their latest available research projects or research f
             </div>
 	  </div>
           <div className="col-xs-4">
+          <style type="text/css">{`.pagination {margin: 5px;} `}</style>
             <Pagination
               className="pagination pull-right"
               currentPage={pageNumber}
@@ -67,14 +65,14 @@ ICRP organizations submit their latest available research projects or research f
           </div>
         </div>
         <Table
-          className="table table-bordered"
+          className="table table-bordered table-striped table-condensed table-hover table-narrow table-nowrap"
           dataArray={page}
           columns={columns}
           keys={keys}
           buildRowOptions={buildRowOptions}
           sortBy={sortBy}
           onSort={onSort}
-        />
+	  />
       </div>
     );
   }

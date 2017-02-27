@@ -3,18 +3,25 @@
   <div class="clearfix" style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden">
     <span class="pull-left" style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden">
       <span [ngClass]="{'glyphicon': true, 'glyphicon-triangle-right': !showCriteria, 'glyphicon-triangle-bottom': showCriteria}" ></span>
-      {{ searchCriteriaSummary }}
+      <b>Search Criteria:</b> {{ searchCriteriaSummary }}
     </span>
 
 
 
     <span class="pull-right project-counts" >
       <div *ngIf="!loadingAnalytics" style="color: #446CB3; white-space: nowrap; text-overflow: ellipsis; display: inline">
-        Total Projects:
-        {{ ((analytics && analytics.count ) || 0).toLocaleString() }}
+        <b>
+        <span tooltip="Parent projects">
+          Total Projects:
+          {{ ((analytics && analytics.count ) || 0).toLocaleString() }}
+        </span>
         /
-        Total Related Projects:
-        {{ ((analytics && analytics.projects_by_country && analytics.counts.projects_by_country) || 0).toLocaleString() }}
+
+        <span tooltip="Including linked sub-projects or supplements">
+          Total Related Projects:
+          {{ ((analytics && analytics.projects_by_country && analytics.counts.projects_by_country) || 0).toLocaleString() }}
+        </span>
+        </b>
       </div>
 
       <div *ngIf="loadingAnalytics" style="color:#888">
@@ -42,14 +49,9 @@
   </div>
 </div>
 
-<div class="row" style="margin-top: 10px">
+<div class="row" style="margin-top: 10px; position: relative">
 
-
-  <div style="position: relative" *ngIf="loadingAnalytics">
-  <div class="col-md-12 text-center clearfix loading-wrapper" style="padding-top: 140px; position: absolute" >
-    Loading Charts...
-  </div>
-  </div>
+  <ui-spinner [active]="loadingAnalytics" [overlay]="true"></ui-spinner>
 
   <div class="col-sm-3">
     <ui-chart
@@ -82,8 +84,8 @@
   </div>
 </div>
 
-<div class="row" *ngIf="authenticated && showExtendedCharts" style="margin-top: 10px">
-  <div class="col-sm-12">
+<div class="row" [ngStyle]="{'display': authenticated && showExtendedCharts ? 'block' : 'none'}" style="margin-top: 10px">
+  <div class="col-sm-12" >
     <ui-chart
       label="Project Funding by Year"
       type="line"
@@ -102,8 +104,8 @@
   </div>
 </div>
 
-<div class="text-center" *ngIf="authenticated">
-  <button class="btn btn-primary btn-xs" (click)="showExtendedCharts = !showExtendedCharts" [disabled]="loadingAnalytics">
+<div class="text-center" [ngStyle]="{'display': authenticated ? 'block' : 'none'}">
+  <button class="btn btn-primary btn-xs" (click)="showExtendedCharts = !showExtendedCharts; setFundingYear(fundingyear.value)" [disabled]="loadingAnalytics">
     Show {{showExtendedCharts ? 'Less' : 'More'}}
   </button>
 </div>

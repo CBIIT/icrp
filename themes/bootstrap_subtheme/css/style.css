@@ -21,6 +21,16 @@ h1 {
     font-weight: normal;
     margin-top: 20px;
 }
+/* Membership Status - Expose Form*/
+/*
+#form-membership-status > div > div > div > div > div.select-wrapper {
+    display:inline-block;
+}
+*/
+#form-membership-status  .select-wrapper {
+    display:inline-block;
+}
+
 /* Breadcrumb */
 .breadcrumb {
     background-color:white;
@@ -128,6 +138,19 @@ h1 {
 /* Authenticated and Anonymous User Menu */
 #block-bootstrap-subtheme-account-menu {
     float: right;
+    margin-top:25px;
+}
+#block-bootstrap-subtheme-account-menu > ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+#block-bootstrap-subtheme-account-menu > ul > li, #block-bootstrap-subtheme-account-menu > ul > a {
+    display: inline;
+    padding-right: 10px;
+}
+div.search-block-form > div.search-well {
+    border:none;
 }
 .search-well {
     float: right;
@@ -180,11 +203,22 @@ header {
     margin-bottom:0px;
     background-color: #f8f8f8;
 }
+.what-who-section a {
+    font-weight:bold;
+}
+#become-a-partner-wells h4, #become-a-partner-wells p {
+    margin-bottom:25px;
+}
+#become-a-partner-wells > div > div > p:last-child {
+    margin-bottom:10px;
+}
 /* alert */
+/*
 .alert {
     margin-bottom:0px;
     margin-top:10px;
 }
+*/
 /* breadcrumb */
 /*
 .region-header {

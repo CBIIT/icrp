@@ -447,6 +447,8 @@ CREATE TABLE [dbo].[ProjectFundingInvestigator](
 	[LastName] [varchar](50) NOT NULL,
 	[FirstName] [varchar](50) NULL,
 	[ORC_ID] [varchar](19) NULL,
+	[OtherResearch_ID] [varchar] (50) NULL,
+	[OtherResearch_Type] [varchar] (15) NULL,
 	[IsPrivateInvestigator] [bit] NOT NULL,
 	[InstitutionID] [int] NOT NULL,
 	[InstitutionNameSubmitted] [varbinary](250) NULL,
@@ -655,8 +657,7 @@ GO
 
 /****** Object:  Table [dbo].[Partner]    Script Date: 1/25/2017 5:45:49 PM ******/
 CREATE TABLE [dbo].[Partner](
-	[PartnerID] [int] IDENTITY(1,1) NOT NULL,
-	[PartnerApplicationID] [int] NULL,
+	[PartnerID] [int] IDENTITY(1,1) NOT NULL,	
 	[Name] [varchar](100) NOT NULL,
 	[Description] [varchar](max) NOT NULL,
 	[SponsorCode] [varchar](50) NOT NULL,
@@ -687,14 +688,6 @@ GO
 
 ALTER TABLE [dbo].[Partner] ADD  CONSTRAINT [DF_Partner_UpdatedDate]  DEFAULT (getdate()) FOR [UpdatedDate]
 GO
-
-ALTER TABLE [dbo].[Partner]  WITH CHECK ADD  CONSTRAINT [FK_Partner_PartnerApplication] FOREIGN KEY([PartnerApplicationID])
-REFERENCES [dbo].[PartnerApplication] ([PartnerApplicationID])
-GO
-
-ALTER TABLE [dbo].[Partner] CHECK CONSTRAINT [FK_Partner_PartnerApplication]
-GO
-
 
 
 /****** Object:  Table [dbo].[PartnerOrg]    Script Date: 1/27/2017 1:01:26 PM ******/
@@ -743,8 +736,8 @@ CREATE TABLE [dbo].[Library](
 	[LibraryFolderID] [int] NULL,
 	[Filename] [varchar](150) NULL,
 	[ThumbnailFilename] [varchar](150) NULL,
-	[Title] [varchar](50) NULL,
-	[Description] [varchar](200) NULL,	
+	[Title] [varchar](150) NULL,
+	[Description] [varchar](1000) NULL,	
 	[IsPublic] bit NOT NULL,
 	[ArchivedDate] [datetime] NULL,
 	[CreatedDate] [datetime] NOT NULL,

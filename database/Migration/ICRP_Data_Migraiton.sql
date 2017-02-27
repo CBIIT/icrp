@@ -106,7 +106,7 @@ FROM icrp.dbo.tblMEMBERSHIPFORM
 -- Partners
 -----------------------------------------
 INSERT INTO Partner 
-SELECT NULL,[NMPARTNER],[TXTPARTNER],
+SELECT [NMPARTNER],[TXTPARTNER],
 	CASE ISNULL(s.code, '') WHEN '' THEN 'N/A - '+ LEFT([NMPARTNER], 10) ELSE s.code END,
 	s.email, NULL, p.[COUNTRY], p.[WEBSITE], p.[LOGO],p.[MAPCOORDS], '', NULL, getdate(), getdate()
 FROM icrp.dbo.tblPARTNERS p
@@ -273,6 +273,8 @@ CREATE TABLE [dbo].[Migration_ProjectFunding](
 	[piLastName] varchar(250) NULL,
 	[piFirstName] varchar(250) NULL,
 	[piORC_ID] varchar(250) NULL,
+	[OtherResearch_ID] int NULL,
+	[OtherResearch_Type] varchar(50) NULL,
 	[FundingOrgID] [int] NOT NULL,
 	[FundingDivisionID] [int] NULL,
 	[AwardCode] [varchar](500) NOT NULL,
@@ -292,12 +294,14 @@ GO
 
 
 INSERT INTO [Migration_ProjectFunding] 
-	([NewProjectID], [OldProjectID], [AbstractID], [Title],[Institution], [city], [state], [country], [piLastName], [piFirstName], [piORC_ID], [FundingOrgID], [FundingDivisionID], [AwardCode], [AltAwardCode],
-	 [Source_ID], [MechanismCode], [MechanismTitle], [FundingContact], [Amount], [IsAnnualized], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate])
-SELECT mp.ProjectID, op.ID, op.abstractID, op.title, op.institution, op.city, op.state, op.country, op.piLastName, op.piFirstName,  op.piORCiD,op.FUNDINGORGID, op.FUNDINGDIVISIONID, 
-		op.code, op.altid, op.SOURCE_ID, m.SPONSORMECHANISM,  m.TITLE, op.fundingOfficer, pf.AMOUNT, 
-		CASE WHEN [Amount] = [AnnualizedAmount] THEN 1 ELSE 0 END AS [IsAnnualized],
-		op.BUDGETSTARTDATE, op.budgetenddate, op.[DATEADDED], op.[LASTREVISED]
+	([NewProjectID], [OldProjectID], [AbstractID], [Title],[Institution], [city], [state], [country], [piLastName], [piFirstName], [piORC_ID], 
+	 [OtherResearch_ID], [OtherResearch_Type], [FundingOrgID], [FundingDivisionID], [AwardCode], [AltAwardCode], [Source_ID], [MechanismCode], 
+	 [MechanismTitle], [FundingContact], [Amount], [IsAnnualized], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate])
+SELECT mp.ProjectID, op.ID, op.abstractID, op.title, op.institution, op.city, op.state, op.country, op.piLastName, op.piFirstName,  op.piORCiD,
+	   op.OtherResearcherId, OtherResearcherIdType, op.FUNDINGORGID, op.FUNDINGDIVISIONID, op.code, op.altid, op.SOURCE_ID, m.SPONSORMECHANISM,  
+	   m.TITLE, op.fundingOfficer, pf.AMOUNT, 
+	   CASE WHEN [Amount] = [AnnualizedAmount] THEN 1 ELSE 0 END AS [IsAnnualized],
+	   op.BUDGETSTARTDATE, op.budgetenddate, op.[DATEADDED], op.[LASTREVISED]
 FROM #activeProjects op   -- active projects from old icrp database
 	 LEFT JOIN icrp.dbo.ProjectFunding pf ON op.ID = pf.ProjectID
 	 LEFT JOIN icrp.dbo.Mechanism m ON m.ID = op.MechanismID
@@ -365,8 +369,8 @@ JOIN Migration_Project p ON a.PROJECTID = p.OldProjectID
 -- ProjectFunding_Investigator (check investigator)
 -----------------------------------------
 INSERT INTO ProjectFundingInvestigator 
-([ProjectFundingID], [LastName], [FirstName], [ORC_ID], [InstitutionID], IsPrivateInvestigator)
-SELECT distinct f.ProjectFundingID, ISNULL(f.piLastName, ''), f.piFirstName, f.piORC_ID, inst.InstitutionID, 1 AS IsPrivateInvestigator
+([ProjectFundingID], [LastName], [FirstName], [ORC_ID], [OtherResearch_ID], [OtherResearch_Type], [IsPrivateInvestigator], InstitutionID)
+SELECT distinct f.ProjectFundingID, ISNULL(f.piLastName, ''), f.piFirstName, f.piORC_ID, f.[OtherResearch_ID], f.OtherResearch_Type, 1 AS IsPrivateInvestigator, inst.InstitutionID
 FROM [Migration_ProjectFunding] f
 	 LEFT JOIN Institution inst ON inst.name = f.Institution AND 
 									(ISNULL(f.city, '') = ISNULL(inst.city, '')) AND 
@@ -388,8 +392,18 @@ CASE isArchived WHEN 1 THEN  getdate() ELSE NULL END AS [ArchivedDate],
 getdate(),getdate()
 FROM icrp.dbo.tblFILEFOLDERS
 
-SET IDENTITY_INSERT FundingOrg OFF;  -- SET IDENTITY_INSERT to ON. 
-GO  
+SET IDENTITY_INSERT LibraryFolder OFF;  -- SET IDENTITY_INSERT to ON. 
+
+INSERT INTO LibraryFolder ([Name],[ParentFolderID],[IsPublic],[ArchivedDate],[CreatedDate],[UpdatedDate])
+VALUES ( 'Publications', 1, 1, NULL, getdate(),getdate())
+
+INSERT INTO LibraryFolder ([Name],[ParentFolderID],[IsPublic],[ArchivedDate],[CreatedDate],[UpdatedDate])
+VALUES ( 'Newsletters', 1, 1, NULL, getdate(),getdate())
+
+INSERT INTO LibraryFolder ([Name],[ParentFolderID],[IsPublic],[ArchivedDate],[CreatedDate],[UpdatedDate])
+VALUES ( 'Meeting Reports', 1, 1, NULL, getdate(),getdate())
+
+go
 -----------------------------------------
 -- Library
 -----------------------------------------
@@ -397,6 +411,30 @@ INSERT INTO Library
 SELECT [FID],[FILENAME],'', [FILETITLE],[DESCRIPTION], 0, [DATEARCHIVED],getdate(), getdate()
 FROM icrp.dbo.tblLIBRARY
 
+--select * from Library where ispublic=1
+
+-- public publications
+DECLARE @PublicationsFolderID INT
+DECLARE @NewsLettersFolderID INT
+SELECT @PublicationsFolderID=LibraryFolderID FROM LibraryFolder WHERE Name='Publications'
+SELECT @NewsLettersFolderID=LibraryFolderID FROM LibraryFolder WHERE Name='Newsletters'
+
+INSERT INTO Library VALUES(@PublicationsFolderID, '2014_NCRI_Childrens_Cancer_Research_Analysis.pdf','2014_NCRI_Childrens_Cancer_Research_Analysis_Cover.png', 'Children''''s Cancer Research','A report on international research investment in childhood cancer in 2008, by the UK National Cancer Research Institute and members of the International Cancer Research Partnership', 1, NULL,getdate(), getdate())
+INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_ChildhoodCancer_2016.pdf','ICRP_ChildhoodCancer_2016.png', 'ICRP Childhood Cancer Analysis 2016','An overview of research investment in cancers affecting children, adolescents and young adults in the ICRP portfolio', 1, NULL,getdate(), getdate())
+INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_Disparities_ShortReport_2016.pdf','ICRP_Disparities_ShortReport_2016.png', 'ICRP Health Disparities Report 2016','An overview of research investment in health disparities and inequities in the ICRP portfolio', 1, NULL,getdate(), getdate())
+INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_EnvInfBreastCancer_ShortReport_2014.pdf','ICRP_EnvInfluences_BreastCancer_2014_cover.png', 'Metastatic Breast Cancer Alliance Report 2014','An analysis of MBC clinical trials and grant funding from the ICRP and related databases from 2000 through 2013', 1, NULL,getdate(), getdate())
+INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_EnvInfluences_BreastCancer_2014.pdf','ICRP_EnvInfluences_BreastCancer_2014_cover.png', 'ICRP report on environmental influences in breast cancer (2014)','An analysis of the research landscape in this area, examining trends in investment, research activity and gaps across a range of environmental carcinogens and lifestyle factors', 1, NULL,getdate(), getdate())
+INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_GYN_analysis.pdf','GYN_cover.png', 'Gynecologic Cancers Portfolio Analysis','Summary of the burden of gynecologic cancers in the United States and investments in research by the National Cancer Institute and members of the International Cancer Research Partnership', 1, NULL,getdate(), getdate())
+INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_Obesity_Cancer_Report_2014.pdf','ICRP_Obesity_Cancer_Report_2014_cover.png', 'ICRP report into obesity and cancer research (2014)','This report examines trends in investment and publication outputs for research on the role of obesity in cancer', 1, NULL,getdate(), getdate())
+INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_Report_2005-08.pdf','ICRP_Data_Report_Cover.png', 'ICRP Data Report 2005-2008','This is the first, co-operative international analysis of the cancer research landscape, based on data from over 50 current member organizations about their individual projects and programs, each classified by type of cancer and type of research', 1, NULL,getdate(), getdate())
+INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_Translational_Methodology_2015.pdf','ICRP_Translational_Methodology_2015.png', 'ICRP Translational Research Methodology (2015)','This report details a robust and easy way to identify translational research awards and monitor trends in this area, using the ICRP’s Common Scientific Outline (CSO)', 1, NULL,getdate(), getdate())
+INSERT INTO Library VALUES(@PublicationsFolderID,'MBCAlliance-Chapter-2.pdf','MBCAlliance-Chapter-2.png', '','', 1, NULL,getdate(), getdate())
+
+-- public newsletters
+INSERT INTO Library VALUES(@NewsLettersFolderID,'ICRP_Newsletter_Feb2015.pdf','newsletter_2015_02.png', 'ICRP Newsletter, February 2015','Includes evaluation highlights presented at the San Antonio Breast Cancer Symposium, news about ICRP landscape reports and information about the ICRP annual meeting', 1, NULL,getdate(), getdate())
+INSERT INTO Library VALUES(@NewsLettersFolderID,'ICRP_Newsletter_November_2015.pdf','newsletter_2015_11.png', 'ICRP Newsletter, November 2015','Includes details on the launch of a new, more user-friendly version (V2) of the cancer classification system or Common Scientific Outline (CSO)', 1, NULL,getdate(), getdate())
+INSERT INTO Library VALUES(@NewsLettersFolderID,'ICRP_Newsletter_Summer_2015.pdf','.png', 'ICRP Newsletter, Summary 2015','ICRP Newsletter, Summary 2015', 1, getdate(),getdate(), getdate())
+INSERT INTO Library VALUES(@NewsLettersFolderID,'ICRP_2016_Annual meeting_BriefSummary.pdf','report_2016_08.png', 'ICRP 2016 Annual Meeting Report','This report summarizes the ICRP''''s 2016 annual meeting on Health Disparities, hosted by the American Cancer Society', 1, getdate(),getdate(), getdate())
 
 -----------------------------
 -- DataUploadStatus
