@@ -72,10 +72,9 @@ jQuery(function() {
             var node = functions.getNode()||{'id':1,'data':{'isPublic':0}},
                 params = $('#library-parameters').toggleClass('folder',isFolder),
                 ispub = params.find('[name="is_public"]');
-            $('[name="is_public"]').parent().toggleClass('folder',isFolder);
+            $('[name="is_public"]').parent().toggleClass('not_public',!node.data.isPublic);
             params.find('[name="parent"]').val(node.id);
             ispub.attr('checked',node.data.isPublic);
-            ispub.parent().toggleClass('public',node.data.isPublic);
             $('#library-edit').addClass('active').siblings().removeClass('active');
         },
         'getNode': function() {
@@ -240,12 +239,34 @@ jQuery(function() {
                 'contentType': false,
                 'processData': false
             }).done(function(response) {
-                if (response.success) {
-                  var row = functions.mapTree(response.row);
-                  tree.deselect_all();
-                  tree.select_node(tree.create_node(row.parent,row,'last'));
-                  functions.closeParams(e);
-                }
+              var entry = response.row,
+                  parent = entry.ParentFolderID;
+              entry = {
+                  id: parseInt(entry.LibraryFolderID),
+                  parent: parseInt(entry.ParentFolderID),
+                  text: entry.Name,
+                  children: [],
+                  data: {
+                      archivedCount: parseInt(entry.ArchivedCount),
+                      isArchived: entry.ArchivedDate !== null,
+                      unarchivedCount: parseInt(entry.UnarchivedCount)
+                  },
+                  state: {
+                      opened: false,
+                      disabled: false,
+                      selected: false
+                  }
+              };
+              tree.deselect_all();
+              tree.select_node(tree.create_node(parent,entry,'last'));
+              parent = tree.get_node(parent);
+              parent.children = parent.children.map(function(entry) { return tree.get_node(entry); }).sort(functions.caselessSort);
+              if ($('#library-display .frame').hasClass('archived')) {
+                  functions.showArchives(e);
+              } else {
+                  functions.hideArchives(e);
+              }
+              functions.closeParams(e);
             });
         },
         'search': function(e) {
@@ -355,7 +376,7 @@ jQuery(function() {
     $('#library-display').on('click', '.restore-file', functions.restoreFile);
     $('[name="is_public"]').on('change', function(e) {
         var target = $(e.target);
-        target.parent().toggleClass('private',!target.prop('checked'));
+        target.parent().toggleClass('not_public',!target.prop('checked'));
     });
     $('#library-save').on('click',function(e) {
         e.preventDefault();

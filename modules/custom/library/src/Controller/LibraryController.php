@@ -14,15 +14,7 @@ class LibraryController extends ControllerBase {
     $return = array();
     $connection = self::get_connection();
     $stmt = $connection->prepare(
-      "SELECT ".
-          "a.*, ".
-          "COUNT(b.ArchivedDate) AS ArchivedCount, ".
-          "SUM(CASE WHEN b.ArchivedDate IS NULL THEN 1 ELSE 0 END)-SUM(CASE WHEN b.LibraryID IS NULL THEN 1 ELSE 0 END) AS UnarchivedCount ".
-        "FROM LibraryFolder a ".
-        "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID ".
-        "WHERE a.ParentFolderID > 0 ".
-        "GROUP BY a.Name, a.LibraryFolderID, a.ParentFolderID, a.IsPublic, a.ArchivedDate, a.CreatedDate, a.UpdatedDate ".
-        "ORDER BY a.Name"
+      "SELECT CASE WHEN ArchivedDate IS NULL THEN NULL ELSE GETDATE() END AS x FROM LibraryFolder WHERE LibraryFolderID=3082"
     );
     if ($stmt->execute()) {
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -66,7 +58,7 @@ class LibraryController extends ControllerBase {
     "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND LOWER(Filename) LIKE :keywords ORDER BY Title;",
     "private" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LOWER(Filename) LIKE :keywords ORDER BY Title;",
     "partner" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LOWER(Filename) LIKE :keywords ORDER BY Title;",
-    "admin" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LOWER(Filename) LIKE :keywords ORDER BY Title;"
+    "admin" => "SELECT * FROM Library WHERE LOWER(Filename) LIKE :keywords ORDER BY Title;"
   );
 
   public function content() {
@@ -237,21 +229,33 @@ class LibraryController extends ControllerBase {
           "success"=>false
       ));
     }
-    $connection = self::get_connection();    
-    $stmt = $connection->prepare("INSERT INTO LibraryFolder (Name,ParentFolderID,IsPublic) OUTPUT INSERTED.* VALUES (:name,:pfid,:ip);");
-    $stmt->bindParam(":name",$params["title"]);
+    $connection = self::get_connection();
+    $stmt = $connection->prepare("SELECT CASE WHEN ArchivedDate IS NULL THEN NULL ELSE GETDATE() END AS ArchivedDate FROM LibraryFolder WHERE LibraryFolderID=:pfid");
     $stmt->bindParam(":pfid",$params["parent"]);
-    $stmt->bindParam(":ip",$params["is_public"]);
     if ($stmt->execute()) {
+      $row_output = array();
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $row_output = array();
         foreach ($row as $key=>$value) {
           $row_output[$key] = $value;
         }
-        return new JsonResponse(array(
-          "success"=>true,
-          "row"=>$row_output
-        ));
+        break;
+      }
+      $stmt = $connection->prepare("INSERT INTO LibraryFolder (Name,ParentFolderID,IsPublic,ArchivedDate) OUTPUT INSERTED.* VALUES (:name,:pfid,:ip,:ad);");
+      $stmt->bindParam(":name",$params["title"]);
+      $stmt->bindParam(":pfid",$params["parent"]);
+      $stmt->bindParam(":ip",$params["is_public"]);
+      $stmt->bindParam(":ad",$row_output["ArchivedDate"]);
+      if ($stmt->execute()) {
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+          $row_output = array();
+          foreach ($row as $key=>$value) {
+            $row_output[$key] = $value;
+          }
+          return new JsonResponse(array(
+            "success"=>true,
+            "row"=>$row_output
+          ));
+        }
       }
     }
   }

@@ -243,7 +243,7 @@
   vertical-align: top;
   width: 7em;
 }
-#library-parameters .private ~ div {
+#library-parameters .not_public ~ div {
     display: none;
 }
 #library-parameters input:not([type="checkbox"]),
