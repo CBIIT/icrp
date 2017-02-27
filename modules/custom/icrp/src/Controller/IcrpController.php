@@ -13,6 +13,12 @@ class IcrpController extends ControllerBase {
         );
     }
 
+    public function newsletter() {
+        return array(
+            '#markup' => newsletter2(),
+        );
+    }
+
     public function sayhello() {
         return array(
             '#markup' => hello_hello_world(),
