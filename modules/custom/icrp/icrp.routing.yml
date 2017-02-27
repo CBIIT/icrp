@@ -5,6 +5,13 @@ icrp.content:
   requirements:
     _permission: 'TRUE'
 
+icrp.newsletter:
+  path: '/newsletter'
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::newsletter'
+  requirements:
+    _permission: 'TRUE'
+
 icrp.review_user:
   path: '/user-review/old'
   defaults:
