@@ -21,8 +21,9 @@ export class EmailResultsPartnerButtonComponent implements OnInit {
     @Inject(Http) private http: Http) {
     
     this.emailForm = formbuilder.group({
-      name: ['',  Validators.required],   
-      recipient_email: ['', [Validators.required, Validators.pattern(/^([\w+-.%]+@[\w-.]+\.[A-Za-z]{2,4},*[\W]*)+$/)]],
+      name: ['',  Validators.required], 
+      recipient_email: [[], Validators.required]  ,
+//      recipient_email: ['', [Validators.required, Validators.pattern(/^([\w+-.%]+@[\w-.]+\.[A-Za-z]{2,4},*[\W]*)+$/)]],
       personal_message: [''],
     });
     
