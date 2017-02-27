@@ -23,6 +23,7 @@
         <div id="library-tree"></div>
         <div id="library-management" class="admin partner">
           <button id="library-create-folder" class="admin btn btn-default">Create Folder</button>
+          <button id="library-edit-folder" class="admin btn btn-default">Edit Folder</button>
           <button id="library-upload-file" class="admin partner btn btn-default">Upload File</button>
           <button id="library-archive-folder" class="admin btn btn-default">Archive Folder</button>
           <button id="library-restore-folder" class="admin btn btn-default hide" disabled="true">Restore Folder</button>
@@ -40,8 +41,10 @@
     <form>
       <div id="library-parameters">
         <input type="hidden" name="parent" value=""/>
+        <input type="hidden" name="id_value" value=""/>
         <div>
-          <label for="file" class="required">File</label>
+          <label for="upload" class="required">File</label>
+          <span class="hide"></span>
           <input type="file" name="upload"/>
         </div>
         <div class="folder">
@@ -58,6 +61,7 @@
         </div>
         <div>
           <label for="thumbnail" class="required">Thumbnail</label>
+          <span class="hide"></span>
           <input type="file" name="thumbnail"/>
         </div>
       </div>

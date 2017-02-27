@@ -167,9 +167,8 @@
   content: '';
   display: block;
 }
-#library-display .frame.preview .item .archive-file {
-  display: none;
-}
+#library-display .frame.preview .item .edit-file,
+#library-display .frame.preview .item .archive-file,
 #library-display .frame.preview .item .restore-file {
   display: none;
 }
@@ -198,11 +197,18 @@
 #library-display .frame:not(.preview) .item p {
   display: none;
 }
+#library.admin #library-display .frame:not(.preview) .item button.admin {
+  display: table-cell;
+  margin: 5px;
+}
 #library-display .frame:not(.preview) .item button:before {
   display: block;
   font-family: 'Glyphicons Halflings';
   font-size: 1em;
   width: 1em;
+}
+#library-display .frame:not(.preview) .item .edit-file:before {
+  content: '\e065';
 }
 #library-display .frame:not(.preview) .item .archive-file:before {
   color: #F00;
