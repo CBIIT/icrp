@@ -177,42 +177,115 @@ function icrp_views_pre_execute(ViewExecutable $view) {
     }
 }
 */
+
+function addOrganization($organization_name) {
+
+    $node = Node::create(array('title' => 'We did it.', 'type' => 'organization'));
+    $node->save();
+    drupal_set_message("Just got it to work");
+
+    /*
+     * Example drupalCreateContentType
+     * From: namespace Drupal\node\Tests\Views;
+     * File: FrontPageTest.php
+     */
+// Create some nodes on the frontpage view. Add more than 10 nodes in order
+// to enable paging.
+    /*
+    $this->drupalCreateContentType(['type' => 'article']);
+    for ($i = 0; $i < 15; $i++) {
+        $node = Node::create([
+            'body' => [
+                [
+                    'value' => $this->randomMachineName(32),
+                    'format' => filter_default_format(),
+                ]
+            ],
+            'type' => 'article',
+            'created' => $i,
+            'title' => $this->randomMachineName(8),
+            'nid' => $i + 1,
+        ]);
+        $node->enforceIsNew(TRUE);
+        $node->save();
+    }
+    */
+}
+
+/*
+ * Returns list of organizations from a rest service
+ *
+ */
+function getRestOrganizations() {
+    //Use ajax to pull url
+    $host = "icrpartnership-test.org";
+    $url = "https://".$host."/getFundingOrgNames";
+
+    $client = \Drupal::service('http_client');
+    $result = $client->get($url, ['Accept' => 'application/json']);
+
+    $output = $result->getBody();
+    //drupal_set_message($output);
+
+    /* "auto" is expanded to "ASCII,JIS,UTF-8,EUC-JP,SJIS" */
+    //$output = mb_convert_encoding($output, "UTF-8", "auto");
+
+    return json_decode($output, true);
+}
+
 function populateOrganizations() {
+    //Example: http://drupal.stackexchange.com/questions/128274/consuming-restful-web-services
 
     drupal_set_message("populateOrganizations");
 
-    //Use ajax to pull url
-    $host = "icrpartnership-dev.org";
-    $url = "https://".$host."/getFundingOrgNames";
     /*
      * STEP 1: Write an AJAX call to retrieve url above
      * Search Drupal 8 Ajax call
      */
+    $organizations = getRestOrganizations();
+
+    //$format = 'json';
+    //$serializer = \Drupal::service('serializer');
+    //$entity = $serializer->deserialize($output, 'Drupal\node\Entity\Node', $format);
+
 
     //Decode json and populate entity.
     /*
      * STEP 2: Save into enitity type Organization
      */
-    //$user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
-    //enitity and node are the same darn thing....
-    //$node
-    /*
-    $node = \Drupal::service('entity_type.manager')->getStorage('user')->load(51);
+    checkOrganizations($organizations);
+}
 
-    $org_title = $node->get('title')->value;
-    //If not there then get
-    $node->set('title') = "New Org Name";
-    */
+function checkOrganizations($organizations) {
+    // Get a list of current organizations
     /*
-    $sql = "Select * from node_field_date where type = "organization";
-    $row = dbquery($sql);
-    */
+    $sql = "Select title from node_field_date where type = "organization";
+$row = dbquery($sql);
+    SELECT node_field_data.title AS node_field_data_title, node_field_data.nid AS nid, 'organizations:page_1' AS view_name
+FROM
+{node_field_data} node_field_data
+WHERE (( (node_field_data.status = '1') AND (node_field_data.type IN  ('organization')) ))
+ORDER BY node_field_data_title ASC
 
-    // Save into database
+*/
+    drupal_set_message("checkOrganizations");
+
+    $sql = "select title from node_field_data 
+            where status = 1 and type = 'organization' 
+            order by title ASC;";
+    $current_organizations = db_query($sql)->fetchCol();
+    drupal_Set_message(print_r($current_organizations, true));
+
+    foreach($organizations as $key => $organization_name) {
+        drupal_set_message(strlen($organization_name)." ".$organization_name);
+    }
+
+    // If Organization doesn't exist then save into database
+
+    addOrganization('Hello');
 
 
 }
-
 function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 
     //drupal_set_message("Form ID: ".$form_id);
