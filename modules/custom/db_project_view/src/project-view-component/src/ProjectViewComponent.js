@@ -178,11 +178,7 @@ class ProjectViewComponent extends Component {
   }
 
   render() {
-
-    if (this.state.loading)
-      return <div>Loading...</div>
-
-    else if (this.state.results) {
+    if (!this.state.loading && this.state.results) {
       let project_details = this.state.results.project_details[0];
       let cancer_types = this.state.results.cancer_types;
       let cso_research_areas = this.state.results.cso_research_areas;
@@ -269,6 +265,8 @@ class ProjectViewComponent extends Component {
         </ul>
       </div>
     }
+
+    return <div>Loading...</div>
   }
 }
 
