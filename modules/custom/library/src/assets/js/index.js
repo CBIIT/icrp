@@ -122,10 +122,10 @@ jQuery(function() {
         },
         'initialize': function() {
             $.get(path+'initialize').done(function(response) {
+                role = response.role;
                 var folders = functions.mapTree(response.folders);
                 //$('#library-management').removeClass('hide');
                 //$('#library-archive-management').addClass('hide');
-                role = response.role;
                 $('#library').addClass(role);
                 $('#library-tree').jstree({
                     'core' : {
@@ -190,8 +190,9 @@ jQuery(function() {
                 unarchivedCount: parseInt(entry.UnarchivedCount)
               },
               state: {
-                opened: false,
                 disabled: false,
+                hidden: false,
+                opened: false,
                 selected: false
               }
             };
@@ -350,13 +351,6 @@ jQuery(function() {
               'unarchivedCount': unarchivedCount
             };
         },
-        'updateTree': function(children, hideArchives) {
-            if (hideArchives === undefined) hideArchives = false;
-            $.each(children, function(index, entry) {
-              entry.state.hidden = hideArchives && (entry.data.unarchivedCount === 0 || entry.data.isArchived);
-              functions.updateTree(entry.children, hideArchives);
-            });
-        },
         'showArchives': function(e) {
             //$('#library-restore-folder').removeClass('hide');
             $('#library-display .frame').addClass('archived');
@@ -365,6 +359,14 @@ jQuery(function() {
             tree.settings.core.data = backing;
             tree.refresh();
             e.preventDefault();
+        },
+        'updateTree': function(children, hideArchives) {
+            if (role==="admin" || role==="partner") return;
+            if (hideArchives === undefined) hideArchives = false;
+            $.each(children, function(index, entry) {
+              entry.state.hidden = hideArchives && (entry.data.unarchivedCount === 0 || entry.data.isArchived);
+              functions.updateTree(entry.children, hideArchives);
+            });
         },
         'writeDisplay': function(files,isPublic) {
             var frame = $('#library-display .frame').empty();
