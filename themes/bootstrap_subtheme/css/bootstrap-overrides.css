@@ -151,10 +151,11 @@ table.table-narrow > tfoot > tr > td {
 .navbar .navbar-nav > li > a {
   margin: 4px;
   border-radius: 0px;
+  border: 1px solid transparent;
 }
 
 .navbar .navbar-nav > li > a:hover {
-  border: none;
+  border: 1px solid transparent;
 }
 
 /**
