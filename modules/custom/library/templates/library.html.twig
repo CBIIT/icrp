@@ -1,40 +1,46 @@
 <div id="library" class="tab-content">
   <header>
-    <h1>ICRP Public Library</h1>
+    <h2 style="color:orange;">Library</h2>
     <p>
       Please browse the sections below to find our analyses of global cancer research, newsletters, and
       other publications. Please note that you must have Adobe's Acrobat Reader to view many of these
-      files. Get Adobe Acrobat Reader free by clicking <a href="https://get.adobe.com/reader/">here</a>. To receive the ICRP newsletter
-      by email please <a href="/contact-us?type-of-issue=Sign Up for Newsletter">Contact Us</a>.
+      files. Get Adobe Acrobat Reader free by clicking <a href="">here</a>. To receive the ICRP newsletter
+      by email please <a href="">Contact Us</a>.
     </p>
   </header>
   <div id="library-view" class="tab-pane active">
     <div id="library-search">
-      <div class="searchbar">
-        <div class="mockfloat">
-          <div class="searchbox">
-            <span class="mockwidth"><input type="search" name="library-keywords" placeholder="Keywords"/></span>
-          </div>
-        </div>
-        <button id="library-search-button" class="btn btn-primary">Search</button>
+      <div class="searchbar input-group">
+        <input type="search" name="library-keywords" placeholder="Keywords" class="form-control"/>
+        <span class="input-group-btn">
+          <button id="library-search-button" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span></button>
+        </span>
       </div>
       <div class="browse">
-        <h3>Browse</h3>
+        <div class="browse-header">
+          <h3>Browse</h3>
+          <div class="admin">
+            <input type="checkbox" id="library-show-archives" name="show_archives"/>
+            <label for="show_archives">Show Archives</label>
+          </div>
+        </div>
         <div id="library-tree"></div>
-        <div id="library-management" class="admin partner">
-          <button id="library-create-folder" class="admin btn btn-default">Create Folder</button>
-          <button id="library-edit-folder" class="admin btn btn-default">Edit Folder</button>
-          <button id="library-upload-file" class="admin partner btn btn-default">Upload File</button>
-          <button id="library-archive-folder" class="admin btn btn-default">Archive Folder</button>
-          <button id="library-restore-folder" class="admin btn btn-default hide" disabled="true">Restore Folder</button>
-          <button id="library-show-archives" class="admin btn btn-default">Show Archives</button>
-          <button id="library-hide-archives" class="admin btn btn-default hide">Hide Archives</button>
+        <div id="library-management" class="admin">
+          <a href="javascript:void(0);" id="library-create-folder" class="admin">Create Folder</a>
+          <a href="javascript:void(0);" id="library-edit-folder" class="admin">Edit Folder</a>
+          <!--
+            <button id="library-restore-folder" class="admin btn btn-default hide" disabled="true">Restore Folder</button>
+            <button id="library-hide-archives" class="admin btn btn-default hide">Hide Archives</button>
+          -->
         </div>
       </div>
     </div>
     <div id="library-display">
-      <h3>Documents</h3>
-      <div class="frame preview archive"></div>
+        <div class="frame preview"></div>
+        <div id="library-management2" class="admin partner">
+          <a href="javascript:void(0);" id="library-upload-file" class="admin partner">Upload New File</a>
+          <a href="javascript:void(0);" id="library-archive-folder" class="admin">Archive All Files</a>
+        </div>
     </div>
   </div>
   <div id="library-edit" class="tab-pane">

@@ -11,6 +11,7 @@ use PDO;
 
 class LibraryController extends ControllerBase {
   public function testQuery() {
+    return new JsonResponse(array(),Response::HTTP_INTERNAL_SERVER_ERROR);
     $return = array();
     $connection = self::get_connection();
     $stmt = $connection->prepare(
@@ -29,9 +30,33 @@ class LibraryController extends ControllerBase {
   }
 
   private static $initFolderQuery = array(
-    "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;",
-    "private" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;",
-    "partner" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND ParentFolderID > 0 ORDER BY Name;",
+    "public" => "SELECT ".
+          "a.*, ".
+          "0 AS ArchivedCount, ".
+          "SUM(CASE WHEN b.ArchivedDate IS NULL THEN 1 ELSE 0 END)-SUM(CASE WHEN b.LibraryID IS NULL THEN 1 ELSE 0 END) AS UnarchivedCount ".
+        "FROM LibraryFolder a ".
+        "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID ".
+        "WHERE a.IsPublic=1 AND b.IsPublic=1 AND a.archivedDate IS NULL AND b.archivedDate IS NULL AND a.ParentFolderID > 0 ".
+        "GROUP BY a.Name, a.LibraryFolderID, a.ParentFolderID, a.IsPublic, a.ArchivedDate, a.CreatedDate, a.UpdatedDate ".
+        "ORDER BY a.Name;",
+    "private" => "SELECT ".
+          "a.*, ".
+          "0 AS ArchivedCount, ".
+          "SUM(CASE WHEN b.ArchivedDate IS NULL THEN 1 ELSE 0 END)-SUM(CASE WHEN b.LibraryID IS NULL THEN 1 ELSE 0 END) AS UnarchivedCount ".
+        "FROM LibraryFolder a ".
+        "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID ".
+        "WHERE a.archivedDate IS NULL AND b.archivedDate IS NULL AND a.ParentFolderID > 0 ".
+        "GROUP BY a.Name, a.LibraryFolderID, a.ParentFolderID, a.IsPublic, a.ArchivedDate, a.CreatedDate, a.UpdatedDate ".
+        "ORDER BY a.Name;",
+    "partner" => "SELECT ".
+          "a.*, ".
+          "0 AS ArchivedCount, ".
+          "SUM(CASE WHEN b.ArchivedDate IS NULL THEN 1 ELSE 0 END)-SUM(CASE WHEN b.LibraryID IS NULL THEN 1 ELSE 0 END) AS UnarchivedCount ".
+        "FROM LibraryFolder a ".
+        "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID ".
+        "WHERE a.archivedDate IS NULL AND b.archivedDate IS NULL AND a.ParentFolderID > 0 ".
+        "GROUP BY a.Name, a.LibraryFolderID, a.ParentFolderID, a.IsPublic, a.ArchivedDate, a.CreatedDate, a.UpdatedDate ".
+        "ORDER BY a.Name;",
     "admin" => "SELECT ".
           "a.*, ".
           "COUNT(b.ArchivedDate) AS ArchivedCount, ".
@@ -420,12 +445,13 @@ class LibraryController extends ControllerBase {
 
   private function archiveFolder($id) {
     $connection = self::get_connection();
-    $stmt1 = $connection->prepare("UPDATE LibraryFolder SET ArchivedDate=GETDATE() WHERE ArchivedDate IS NULL AND LibraryFolderID=:lfid;");
-    $stmt1->bindParam(":lfid",$id);
+    //$stmt1 = $connection->prepare("UPDATE LibraryFolder SET ArchivedDate=GETDATE() WHERE ArchivedDate IS NULL AND LibraryFolderID=:lfid;");
+    //$stmt1->bindParam(":lfid",$id);
     $stmt2 = $connection->prepare("UPDATE Library SET ArchivedDate=GETDATE() WHERE ArchivedDate IS NULL AND LibraryFolderID=:lfid;");
     $stmt2->bindParam(":lfid",$id);
-    if ($stmt1->execute() && $stmt2->execute()) {
+    if (/*$stmt1->execute() && */$stmt2->execute()) {
       $success = true;
+      /*
       $stmt = $connection->prepare("SELECT LibraryFolderID FROM LibraryFolder WHERE ArchivedDate IS NULL AND ParentFolderID=:pfid;");
       $stmt->bindParam(":pfid",$id);
       if ($stmt->execute()) {
@@ -439,6 +465,7 @@ class LibraryController extends ControllerBase {
           if (!$result["success"]) $success = false;
         }
       }
+      */
       return array(
         "success"=>$success
       );
