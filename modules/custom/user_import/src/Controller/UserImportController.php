@@ -58,7 +58,7 @@ class UserImportController {
    *   New user values suitable for User::create().
    */
   public static function prepareRow(array $row, array $config) {
-    $preferred_username = (strtolower($row[0] . $row[1]));
+    $preferred_username = (strtolower($row[0] .".". $row[1]));
     $i = 0;
     while (self::usernameExists($i ? $preferred_username . $i : $preferred_username)) {
       $i++;
