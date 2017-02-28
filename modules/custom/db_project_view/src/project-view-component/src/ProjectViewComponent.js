@@ -58,28 +58,31 @@ class ProjectViewComponent extends Component {
     ]
   }
 
-  state = {
-    results: null,
-    loading: true,
-    error: false,
-    table: {
-      columns: [],
-      data: []
-    }
-  }
-
   constructor(props) {
     super(props);
+    this.state = {
+      results: null,
+      loading: true,
+      error: false,
+      table: {
+        columns: [],
+        data: []
+      }
+    }
     this.updateResults(props.project);
   }
 
   async updateResults(project) {
     try {
       let endpoint = `https://icrpartnership-dev.org/project/get/${project}`;
+      console.log('attempting to fetch: ' + endpoint);
+
       let response = await fetch(endpoint);
 
       /** @type {apiResults} */
       let results = await response.json();
+
+      console.log('results: ', results);
       
       let table = {
         columns: [
@@ -143,6 +146,8 @@ class ProjectViewComponent extends Component {
         }))
       }
 
+      console.log('recieved results', results, table);
+
       this.setState({
         loading: false,
         results: results,
@@ -150,6 +155,7 @@ class ProjectViewComponent extends Component {
       });
     }
     catch (exception) {
+      console.error(exception);
       this.setState({
         loading: false,
         error: true,
@@ -170,7 +176,7 @@ class ProjectViewComponent extends Component {
     if (node)
       document.body.removeChild(node);
 
-    const script = document.createElement('script');
+    let script = document.createElement('script');
     script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
     script.async = true;
     script.id = 'google-translate-script'
@@ -188,7 +194,7 @@ class ProjectViewComponent extends Component {
 
         <div className="clearfix">
           <h3 className="title">View Project Details</h3>
-          <span className="pull-right" id="google_translate_element" />        
+          <span className="pull-right" id="google_translate_element" />
           { this.appendGoogleTranslateScript() }
         </div>
 
