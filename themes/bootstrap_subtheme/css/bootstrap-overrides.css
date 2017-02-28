@@ -135,6 +135,23 @@ table.table-narrow > tfoot > tr > td {
   background-color: #fbfbfb;
 }
 
+.navbar {
+    font-size: 15px;
+    font-weight: normal;
+}
+.navbar .dropdown-menu > li > a, .navbar .dropdown-menu > li > a:focus {
+    font-size: 14px;
+    font-weight: normal;
+}
+.navbar .btn {
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.navbar .navbar-nav > li > a {
+  margin: 4px;
+}
+
 /**
  * Bootstrap footer overrides
  */
