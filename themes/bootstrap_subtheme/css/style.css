@@ -19,7 +19,7 @@ h1 {
     color: rgb(226,164,42);
     font-size: 32px;
     font-weight: normal;
-    margin-top: 20px;
+    margin-top: 0px;
 }
 /* Membership Status - Expose Form*/
 /*
@@ -311,13 +311,10 @@ footer {
 h1 {
     font-size: 32px;
     font-weight: normal;
-    margin-top: 20px;
 }
 h2 {
     font-size: 28px;
     font-weight: normal;
-    font-weight: normal;
-    margin-top: 20px;
 }
 body {
   position: relative;

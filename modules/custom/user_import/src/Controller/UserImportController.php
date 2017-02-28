@@ -67,11 +67,11 @@ class UserImportController {
     return [
       'uid' => NULL,
       'name' => $username,
-      'field_name_first' => $row[0],
-      'field_name_last' => $row[1],
+      'field_first_name' => $row[0],
+      'field_last_name' => $row[1],
       'pass' => NULL,
       'mail' => $row[2],
-      'status' => 1,
+      'status' => 0,
       'created' => REQUEST_TIME,
       'roles' => array_values($config['roles']),
     ];
