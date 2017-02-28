@@ -35,8 +35,8 @@ class LibraryController extends ControllerBase {
           "0 AS ArchivedCount, ".
           "SUM(CASE WHEN b.ArchivedDate IS NULL THEN 1 ELSE 0 END)-SUM(CASE WHEN b.LibraryID IS NULL THEN 1 ELSE 0 END) AS UnarchivedCount ".
         "FROM LibraryFolder a ".
-        "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID ".
-        "WHERE a.IsPublic=1 AND b.IsPublic=1 AND a.archivedDate IS NULL AND b.archivedDate IS NULL AND a.ParentFolderID > 0 ".
+        "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID AND b.IsPublic=1 AND b.archivedDate IS NULL ".
+        "WHERE a.IsPublic=1 AND a.archivedDate IS NULL AND a.ParentFolderID > 0 ".
         "GROUP BY a.Name, a.LibraryFolderID, a.ParentFolderID, a.IsPublic, a.ArchivedDate, a.CreatedDate, a.UpdatedDate ".
         "ORDER BY a.Name;",
     "private" => "SELECT ".
@@ -44,8 +44,8 @@ class LibraryController extends ControllerBase {
           "0 AS ArchivedCount, ".
           "SUM(CASE WHEN b.ArchivedDate IS NULL THEN 1 ELSE 0 END)-SUM(CASE WHEN b.LibraryID IS NULL THEN 1 ELSE 0 END) AS UnarchivedCount ".
         "FROM LibraryFolder a ".
-        "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID ".
-        "WHERE a.archivedDate IS NULL AND b.archivedDate IS NULL AND a.ParentFolderID > 0 ".
+        "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID AND b.archivedDate IS NULL ".
+        "WHERE a.archivedDate IS NULL AND a.ParentFolderID > 0 ".
         "GROUP BY a.Name, a.LibraryFolderID, a.ParentFolderID, a.IsPublic, a.ArchivedDate, a.CreatedDate, a.UpdatedDate ".
         "ORDER BY a.Name;",
     "partner" => "SELECT ".
@@ -53,8 +53,8 @@ class LibraryController extends ControllerBase {
           "0 AS ArchivedCount, ".
           "SUM(CASE WHEN b.ArchivedDate IS NULL THEN 1 ELSE 0 END)-SUM(CASE WHEN b.LibraryID IS NULL THEN 1 ELSE 0 END) AS UnarchivedCount ".
         "FROM LibraryFolder a ".
-        "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID ".
-        "WHERE a.archivedDate IS NULL AND b.archivedDate IS NULL AND a.ParentFolderID > 0 ".
+        "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID AND b.ArchivedDate IS NULL ".
+        "WHERE a.ParentFolderID > 0 ".
         "GROUP BY a.Name, a.LibraryFolderID, a.ParentFolderID, a.IsPublic, a.ArchivedDate, a.CreatedDate, a.UpdatedDate ".
         "ORDER BY a.Name;",
     "admin" => "SELECT ".
@@ -74,10 +74,10 @@ class LibraryController extends ControllerBase {
     "admin" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;"
   );
   private static $fileQuery = array(
-    "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY Title;",
-    "private" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY Title;",
-    "partner" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY Title;",
-    "admin" => "SELECT * FROM Library WHERE LibraryFolderID=:lfid ORDER BY Title;"
+    "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY LOWER(Title);",
+    "private" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY LOWER(Filename);",
+    "partner" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY LOWER(Filename);",
+    "admin" => "SELECT * FROM Library WHERE LibraryFolderID=:lfid ORDER BY LOWER(Filename);"
   );
   private static $fileSearch = array(
     "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND LOWER(Filename) LIKE :keywords ORDER BY Title;",
@@ -547,10 +547,11 @@ class LibraryController extends ControllerBase {
   }
 
   private function getRole() {
+    $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
     $role = "public";
-    $authenticated = parent::currentUser()->isAuthenticated();
+    $authenticated = $user->isAuthenticated();
     if ($authenticated) {
-      if (parent::currentUser()->hasPermission('field_can_upload_library_files')) {
+      if ($user->get('field_can_upload_library_files')->getValue()[0]['value'] == "1") {
         $role = "partner";
       } else {
         $role = "private";
