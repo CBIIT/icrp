@@ -158,6 +158,20 @@ table.table-narrow > tfoot > tr > td {
   border: 1px solid transparent;
 }
 
+.navbar .navbar-nav > li.dropdown.open {
+  background-color: #006687;
+}
+
+.navbar .navbar-nav > li:hover {
+  background-color: #006687;
+}
+
+.container > .navbar-header, .container-fluid > .navbar-header, .container > .navbar-collapse, .container-fluid > .navbar-collapse {
+  margin-left: -15px;
+  margin-right: -15px;
+}
+
+
 /**
  * Bootstrap footer overrides
  */
