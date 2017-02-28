@@ -48,22 +48,22 @@ class CancerTypeList extends Component {
         {
           label: 'Cancer Type',
           value: 'label',
-          tooltip: 'Cancer Type',
+          tooltip: 'Projects are coded to a specific cancer type or Not Site-Specific',
         },
         {
           label: 'ICRP Code',
           value: 'icrp_code',
-          tooltip: 'ICRP Code',
+          tooltip: 'Numeric code used in data submission',
         },
         {
           label: 'ICD-10 Code',
           value: 'icd10_code',
-          tooltip: 'ICD-10 Code',
+          tooltip: 'Closest equivalent code in the International Classification of Diseases v10',
         },
         {
           label: 'Description',
           value: 'description',
-          tooltip: 'Description',
+          tooltip: 'Explanatory note for ICRP Cancer Type',
         }
       ]
     })
