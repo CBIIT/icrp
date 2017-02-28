@@ -74,15 +74,11 @@ class ProjectViewComponent extends Component {
 
   async updateResults(project) {
     try {
-      let endpoint = `https://icrpartnership-dev.org/project/get/${project}`;
-      console.log('attempting to fetch: ' + endpoint);
-
+      let endpoint = `/project/get/${project}`;
       let response = await fetch(endpoint);
 
       /** @type {apiResults} */
       let results = await response.json();
-
-      console.log('results: ', results);
       
       let table = {
         columns: [
@@ -135,18 +131,14 @@ class ProjectViewComponent extends Component {
           project_category: row.award_type,
           funding_organization: row.funding_organization,
           alt_award_code: row.alt_award_code,
-          award_funding_period: (!row.budget_start_date && !row.budget_end_date)
-            ? 'Not specified'
-            : (row.budget_start_date || 'N/A') + ' to '
-            + (row.budget_end_date || 'N/A'),
-
-          pi_name: [row.pi_last_name, row.pi_first_name].filter(e => e.length).join(', '),
+          award_funding_period: row.budget_start_date || row.budget_end_date
+            ? `${row.budget_start_date || 'N/A'} to ${row.budget_end_date || 'N/A'}`
+            : 'Not specified',
+          pi_name: [row.pi_last_name, row.pi_first_name].filter(e => e && e.length).join(', '),
           institution: row.institution,
-          location: [row.city, row.state, row.country].filter(e => e.length).join(', '),
+          location: [row.city, row.state, row.country].filter(e => e && e.length).join(', '),
         }))
       }
-
-      console.log('recieved results', results, table);
 
       this.setState({
         loading: false,
@@ -161,6 +153,10 @@ class ProjectViewComponent extends Component {
         error: true,
       })
     }
+  }
+
+  afterComponentDidMount() {
+    this.appendGoogleTranslateScript();
   }
 
   appendGoogleTranslateScript() {
@@ -195,7 +191,6 @@ class ProjectViewComponent extends Component {
         <div className="clearfix">
           <h3 className="title">View Project Details</h3>
           <span className="pull-right" id="google_translate_element" />
-          { this.appendGoogleTranslateScript() }
         </div>
 
         <div className="description">
