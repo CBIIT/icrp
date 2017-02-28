@@ -77,4 +77,11 @@ db_project_view.get_upload_status:
     _title: 'get Upload Status'
   requirements:
     _permission: 'access content'
+db_project_view.get_latest_newsletter:
+  path: '/getLatestNewsletter'
+  defaults:
+    _controller: '\Drupal\db_project_view\Controller\LatestNewsletterController::getLatestNewletter'
+    _title: 'get Latest Newsletter'
+  requirements:
+    _permission: 'access content'
 
