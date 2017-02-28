@@ -150,6 +150,11 @@ table.table-narrow > tfoot > tr > td {
 
 .navbar .navbar-nav > li > a {
   margin: 4px;
+  border-radius: 0px;
+}
+
+.navbar .navbar-nav > li > a:hover {
+  border: none;
 }
 
 /**
