@@ -32,7 +32,7 @@
 }
 #library {
   padding: 0px 2em;
-  margin: 0px auto;
+  margin: 0px auto 1em;
   max-width: 100em;
 }
 #library header {
@@ -127,13 +127,13 @@
   overflow: hidden;
   margin: 0px 0px 1em;
   position: relative;
-  width: 30em;
+  width: 100%;
 }
 #library-display .frame.preview .item h4 {
   background: #E8E8E8;
   font-weight: bold;
   margin: 0px 0px 10px;
-  padding: 5px 0px;
+  padding: 5px 1em;
   text-align: center;
   white-space: nowrap;
 }
@@ -153,7 +153,7 @@
   left: 170px;
   position: absolute;
   text-align: center;
-  width: 18em;
+  width: 46.4em;
 }
 #library-display .frame:not(.preview) {
   border-spacing: 0px 5px;
@@ -199,7 +199,7 @@
 }
 #library-display .frame:not(.preview) .item .restore-file:before {
   color: #0C0;
-  content: '\e089';
+  content: '\e027';
 }
 #library-management2 {
   bottom: 2em;
@@ -263,6 +263,7 @@
 @media (min-width: 1200px) {
   #library.tab-content > #library-view.active {
     display: table;
+    width: 100%;
   }
   #library-view {
     margin: 0px -2em 0px -1em;
@@ -277,6 +278,11 @@
     margin: 0px;
     padding: 1em 1em 5em;
     position: relative;
-    width: 100%;
+  }
+  #library-display .frame.preview .item {
+    width: 32em;
+  }
+  #library-display .frame.preview .div {
+    width: 19.9em;
   }
 }
