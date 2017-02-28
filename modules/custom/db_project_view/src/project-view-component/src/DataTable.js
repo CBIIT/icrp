@@ -76,7 +76,7 @@ class DataTable extends Component {
             <button className='btn btn-default btn-sm'
               onClick={ e => {
                   this.setState({collapsed: !this.state.collapsed});
-                  window.setTimeout(f => this.enableResizableColumns(this.refs.table), 0);
+                  window.setTimeout(f => enableResizableColumns(this.refs.table), 0);
               }}>
               { this.state.collapsed
               ? 'Show All'
