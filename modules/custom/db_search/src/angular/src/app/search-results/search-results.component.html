@@ -1,4 +1,4 @@
-<div class="search-criteria-summary" (click)="!showCriteriaLocked && showCriteria = !showCriteria">
+<div class="clearfix search-criteria-summary" (click)="!showCriteriaLocked && showCriteria = !showCriteria">
 
   <div class="clearfix" style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden">
     <span class="pull-left" style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden">
@@ -32,7 +32,7 @@
   </div>
 </div>
 
-<div class="search-criteria" *ngIf="showCriteria">
+<div class="clearfix search-criteria" *ngIf="showCriteria">
   {{ criteriaGroup | json }}
 
   <div *ngFor="let group of searchCriteriaGroups">
@@ -49,7 +49,7 @@
   </div>
 </div>
 
-<div class="row" style="margin-top: 10px; position: relative">
+<div class="form-group clearfix" style="margin-top: 10px; position: relative">
 
   <ui-spinner [active]="loadingAnalytics" [overlay]="true"></ui-spinner>
 
@@ -84,7 +84,7 @@
   </div>
 </div>
 
-<div class="row" [ngStyle]="{'display': authenticated && showExtendedCharts ? 'block' : 'none'}" style="margin-top: 10px">
+<div class="form-group clearfix" [ngStyle]="{'display': authenticated && showExtendedCharts ? 'block' : 'none'}" style="margin-top: 10px">
   <div class="col-sm-12" >
     <ui-chart
       label="Project Funding by Year"
@@ -110,7 +110,7 @@
   </button>
 </div>
 
-<div class="row" style="margin-top: 8px; margin-bottom: 5px;">
+<div class="" style="margin-top: 8px; margin-bottom: 5px;">
   <email-results-button *ngIf="!authenticated"></email-results-button>
   <export-results-button *ngIf="!authenticated"></export-results-button>
   <export-lookup-table-button *ngIf="!authenticated"></export-lookup-table-button>
@@ -124,7 +124,7 @@
 </div>
 
 
-<div class="row">
+<div class="">
   <ui-table
     [data]="projectData"
     [columns]="projectColumns"

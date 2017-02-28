@@ -2,10 +2,10 @@ global-styling:
   css:
     theme:
       css/style.css: {}
-      css/bootstrap-overrides.css: {}
       css/hoverover.css: {}
       css/bootstrap-yeti-navbar.css: {}
       https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css: {type: external, minified: true}
+      css/bootstrap-overrides.css: {}
  
 global-scripts:
   version: 1

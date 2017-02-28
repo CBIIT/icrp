@@ -212,16 +212,16 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Institution](
 	[InstitutionID] [int] IDENTITY(1,1) NOT NULL,	
-	[Name] [varchar](250) NOT NULL,
-	[Abbreviation] [varchar](3) NULL,
+	[Name] [varchar](250) NOT NULL,	
+	[DisplayedName] [varchar](250) NOT NULL,	
 	[Type] [varchar](25) NULL,  -- Academic, Government, Non-profit, Industry, Other
 	[Longitude] [decimal](9, 6) NULL,
 	[Latitude] [decimal](9, 6) NULL,
 	[Postal] [varchar](15) NULL,
-	[City] [varchar](50) NULL,
+	[City] [varchar](50) NOT NULL,
 	[State] [varchar](3) NULL,
 	[Country] [varchar](3) NULL,
-	[GRID] [varchar](50) NULL,
+	[GRID] [varchar](250) NULL,
 	[CreatedDate] [datetime] NOT NULL,
 	[UpdatedDate] [datetime] NOT NULL,
  CONSTRAINT [PK_Institution] PRIMARY KEY CLUSTERED 
@@ -261,6 +261,7 @@ GO
 CREATE TABLE [dbo].[Project_ProjectType](
 	[ProjectID] [int] NOT NULL,
 	[ProjectType] [varchar](15) NOT NULL,
+	--[Code] [varchar](1) NOT NULL,
 	[CreatedDate] [datetime] NOT NULL,
 	[UpdatedDate] [datetime] NOT NULL,
  CONSTRAINT [PK_Project_ProjectType_1] PRIMARY KEY CLUSTERED 
@@ -407,7 +408,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[ProjectFundingExt](
 	[ProjectFundingExtID] [int] IDENTITY(1,1) NOT NULL,
-	[ProjectID] [int] NOT NULL,
+	[ProjectFundingID] [int] NOT NULL,
 	[AncestorProjectID] [int] NULL,
 	[CalendarYear] [smallint] NOT NULL,
 	[CalendarAmount] [float] NULL,
@@ -428,11 +429,11 @@ ALTER TABLE [dbo].[ProjectFundingExt] ADD  CONSTRAINT [DF_ProjectFundingExt_Upda
 GO
 
 
-ALTER TABLE [dbo].[ProjectFundingExt]  WITH CHECK ADD  CONSTRAINT [FK_ProjectFundingExt_Project] FOREIGN KEY([ProjectID])
-REFERENCES [dbo].[Project] ([ProjectID])
+ALTER TABLE [dbo].[ProjectFundingExt]  WITH CHECK ADD  CONSTRAINT [FK_ProjectFundingExt_ProjectFunding] FOREIGN KEY([ProjectFundingID])
+REFERENCES [dbo].[ProjectFunding] ([ProjectFundingID])
 GO
 
-ALTER TABLE [dbo].[ProjectFundingExt] CHECK CONSTRAINT [FK_ProjectFundingExt_Project]
+ALTER TABLE [dbo].[ProjectFundingExt] CHECK CONSTRAINT [FK_ProjectFundingExt_ProjectFunding]
 GO
 
 
@@ -447,11 +448,11 @@ CREATE TABLE [dbo].[ProjectFundingInvestigator](
 	[LastName] [varchar](50) NOT NULL,
 	[FirstName] [varchar](50) NULL,
 	[ORC_ID] [varchar](19) NULL,
-	[OtherResearch_ID] [varchar] (50) NULL,
-	[OtherResearch_Type] [varchar] (15) NULL,
+	[OtherResearch_ID] [int] NULL,
+	[OtherResearch_Type] [varchar] (50) NULL,
 	[IsPrivateInvestigator] [bit] NOT NULL,
 	[InstitutionID] [int] NOT NULL,
-	[InstitutionNameSubmitted] [varbinary](250) NULL,
+	[InstitutionNameSubmitted] [varchar](250) NULL,
 	[CreatedDate] [datetime] NOT NULL,
 	[UpdatedDate] [datetime] NOT NULL,
  CONSTRAINT [PK_ProjectFundingInvestigator] PRIMARY KEY CLUSTERED 
@@ -556,6 +557,7 @@ CREATE TABLE [dbo].[SearchResult](
 	[SearchCriteriaID] [int] NOT NULL,
 	[Results] [varchar](max) NULL,
 	[ResultCount] [int] NULL,
+	[IsEmailSent] [bit] NULL,
  CONSTRAINT [PK_SearchResult] PRIMARY KEY CLUSTERED 
 (
 	[SearchCriteriaID] ASC

@@ -58,8 +58,8 @@ table.data-table > thead > tr > th:nth-child(2),
 table.data-table > tbody > tr > td:nth-child(2), 
 table.data-table > thead > tr > th:nth-child(3),
 table.data-table > tbody > tr > td:nth-child(3) {
-  width: 120px;
-  max-width: 120px;
+  width: 140px;
+  max-width: 140px;
 }
 
 

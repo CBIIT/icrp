@@ -58,18 +58,17 @@ class ProjectViewComponent extends Component {
     ]
   }
 
-  state = {
-    results: null,
-    loading: true,
-    error: false,
-    table: {
-      columns: [],
-      data: []
-    }
-  }
-
   constructor(props) {
     super(props);
+    this.state = {
+      results: null,
+      loading: true,
+      error: false,
+      table: {
+        columns: [],
+        data: []
+      }
+    }
     this.updateResults(props.project);
   }
 
@@ -132,14 +131,12 @@ class ProjectViewComponent extends Component {
           project_category: row.award_type,
           funding_organization: row.funding_organization,
           alt_award_code: row.alt_award_code,
-          award_funding_period: (!row.budget_start_date && !row.budget_end_date)
-            ? 'Not specified'
-            : (row.budget_start_date || 'N/A') + ' to '
-            + (row.budget_end_date || 'N/A'),
-
-          pi_name: [row.pi_last_name, row.pi_first_name].filter(e => e.length).join(', '),
+          award_funding_period: row.budget_start_date || row.budget_end_date
+            ? `${row.budget_start_date || 'N/A'} to ${row.budget_end_date || 'N/A'}`
+            : 'Not specified',
+          pi_name: [row.pi_last_name, row.pi_first_name].filter(e => e && e.length).join(', '),
           institution: row.institution,
-          location: [row.city, row.state, row.country].filter(e => e.length).join(', '),
+          location: [row.city, row.state, row.country].filter(e => e && e.length).join(', '),
         }))
       }
 
@@ -150,11 +147,16 @@ class ProjectViewComponent extends Component {
       });
     }
     catch (exception) {
+      console.error(exception);
       this.setState({
         loading: false,
         error: true,
       })
     }
+  }
+
+  componentDidMount() {
+    this.appendGoogleTranslateScript();
   }
 
   appendGoogleTranslateScript() {
@@ -170,7 +172,7 @@ class ProjectViewComponent extends Component {
     if (node)
       document.body.removeChild(node);
 
-    const script = document.createElement('script');
+    let script = document.createElement('script');
     script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
     script.async = true;
     script.id = 'google-translate-script'
@@ -178,97 +180,94 @@ class ProjectViewComponent extends Component {
   }
 
   render() {
+    if (!this.state.loading && this.state.results) {
+      let project_details = this.state.results.project_details[0];
+      let cancer_types = this.state.results.cancer_types;
+      let cso_research_areas = this.state.results.cso_research_areas;
+      let table = this.state.table;
 
-    if (this.state.loading)
-      return <div>Loading...</div>
+      return <div>
 
-    let project_details = this.state.results.project_details[0];
-    let cancer_types = this.state.results.cancer_types;
-    let cso_research_areas = this.state.results.cso_research_areas;
-    let table = this.state.table;
-
-    return <div>
-
-      <div className="clearfix">
-        <h3 className="title">View Project Details</h3>
-        <span className="pull-right" id="google_translate_element" />        
-        { this.appendGoogleTranslateScript() }
-      </div>
-
-      <hr className="less-margins " />
-
-      <div className="description">
-        The project details page contains information on the Parent Project, as well as any related Supplements or Sub-Projects, for each year the project has been funded. Multiple records may be showing in the table below, and these can occur if the project is funded annually, and if the project has related subprojects or supplements (there will be a record for each year the project, sub-project or supplement is funded). Sub-projects or Supplements may have different Titles or PIs than the Parent Project, and are linked by a shared Award Code with the Parent Project. Users can “drill-through” to the project details page for each record in the table.
-      </div>
-
-
-      <dl className="dl-horizontal margin-bottom margin-top">
-
-        <dt>Title</dt>
-        <dd>{ project_details.project_title || 'Not specified' }</dd>
-
-        <dt>Award Code</dt>
-        <dd>{ project_details.award_code || 'Not specified' }</dd>
-
-        <dt>Project Dates</dt>
-        <dd>
-        {
-          (project_details.project_start_date || project_details.project_end_date)
-          ? `${project_details.project_start_date || 'N/A'} to ${project_details.project_end_date || 'N/A'}`
-          : 'Not specified'
-        }
-        </dd>
-
-        <dt>Funding Mechanism</dt>
-        <dd>{ project_details.funding_mechanism || 'Not specified' }</dd>
-
-      </dl>
-
-      <h5 className="h5 margin-top">Award Funding</h5>
-      <DataTable columns={ table.columns } data={ table.data } limit="5" />
-
-      {
-        project_details.technical_abstract &&
-        <div className="margin-top">
-          <h4 >Technical Abstract</h4>
-          <div dangerouslySetInnerHTML={{ __html: project_details.technical_abstract }} />
-          <hr />
+        <div className="clearfix">
+          <h3 className="title">View Project Details</h3>
+          <span className="pull-right" id="google_translate_element" />
         </div>
-      }
 
-      {
-        project_details.public_abstract &&
-        <div className="margin-top">
-          <h4>Public Abstract</h4>
-          <div dangerouslySetInnerHTML={{ __html: project_details.public_abstract }} />
-          <hr />
+        <div className="description">
+          The project details page contains information on the Parent Project, as well as any related Supplements or Sub-Projects, for each year the project has been funded. Multiple records may be showing in the table below, and these can occur if the project is funded annually, and if the project has related subprojects or supplements (there will be a record for each year the project, sub-project or supplement is funded). Sub-projects or Supplements may have different Titles or PIs than the Parent Project, and are linked by a shared Award Code with the Parent Project. Users can “drill-through” to the project details page for each record in the table.
         </div>
-      }
 
-      <h5 className="h5">Cancer Types</h5>
-      <ul>
-      { 
-        cancer_types.map((row, rowIndex) =>
-          <li key={ rowIndex }>
+
+        <dl className="dl-horizontal margin-bottom margin-top">
+
+          <dt>Title</dt>
+          <dd>{ project_details.project_title || 'Not specified' }</dd>
+
+          <dt>Award Code</dt>
+          <dd>{ project_details.award_code || 'Not specified' }</dd>
+
+          <dt>Project Dates</dt>
+          <dd>
           {
-            row.cancer_type
+            (project_details.project_start_date || project_details.project_end_date)
+            ? `${project_details.project_start_date || 'N/A'} to ${project_details.project_end_date || 'N/A'}`
+            : 'Not specified'
           }
-          </li>
-        )
-      }
-      </ul>
+          </dd>
 
-      <h5 className="h5">Common Scientific Outline (CSO) Research Areas</h5>
-      <ul>
-      {
-        cso_research_areas.map((row, rowIndex) =>
-          <li key={rowIndex}>
-            <b>{ row.cso_code } { row.cso_category }</b> { row.cso_short_name }
-          </li>
-        )
-      }
-      </ul>
-    </div>
+          <dt>Funding Mechanism</dt>
+          <dd>{ project_details.funding_mechanism || 'Not specified' }</dd>
+
+        </dl>
+
+        <h5 className="h5 margin-top">Award Funding</h5>
+        <DataTable columns={ table.columns } data={ table.data } limit="5" />
+
+        {
+          project_details.technical_abstract &&
+          <div className="margin-top">
+            <h4 >Technical Abstract</h4>
+            <div dangerouslySetInnerHTML={{ __html: project_details.technical_abstract }} />
+            <hr />
+          </div>
+        }
+
+        {
+          project_details.public_abstract &&
+          <div className="margin-top">
+            <h4>Public Abstract</h4>
+            <div dangerouslySetInnerHTML={{ __html: project_details.public_abstract }} />
+            <hr />
+          </div>
+        }
+
+        <h5 className="h5">Cancer Types</h5>
+        <ul>
+        { 
+          cancer_types.map((row, rowIndex) =>
+            <li key={ rowIndex }>
+            {
+              row.cancer_type
+            }
+            </li>
+          )
+        }
+        </ul>
+
+        <h5 className="h5">Common Scientific Outline (CSO) Research Areas</h5>
+        <ul>
+        {
+          cso_research_areas.map((row, rowIndex) =>
+            <li key={rowIndex}>
+              <b>{ row.cso_code } { row.cso_category }</b> { row.cso_short_name }
+            </li>
+          )
+        }
+        </ul>
+      </div>
+    }
+
+    return <div>Loading...</div>
   }
 }
 

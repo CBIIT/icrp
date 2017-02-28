@@ -10,7 +10,6 @@ project_view_resources:
     theme:
       src/assets/css/main.projectview.css: {}
   js:
-    https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.22.0/polyfill.min.js: { type: external, minified: true }
     src/assets/js/main.projectview.js: {}
     src/assets/js/scripts.js: {}
 
