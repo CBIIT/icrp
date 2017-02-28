@@ -15,6 +15,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use PHPMailer;
+use Drupal\Core\Database\Database;
+use PDO;
+
 // require 'PHPMailerAutoload.php';
 
 class EmailResultsController extends ControllerBase {
@@ -111,6 +114,13 @@ class EmailResultsController extends ControllerBase {
 				$result = 'Mailer Error: '. $mail->ErrorInfo;
 			} else {
 				$result = 'Mail has sent suceessfully ';
+				//update database
+				$sid = $_SESSION['database_search_id'];
+				$conn = self::getConnection();
+				$stmt = $conn->prepare("SET NOCOUNT ON; exec UpdateSearchResultMarkEmailSent @SearchID=:search_id_name");
+				$stmt->bindParam(':search_id_name', $sid);
+				$stmt->execute();
+				$conn = null;
 			}
 		}
 		return self::addCorsHeaders(new JsonResponse($result));
@@ -124,4 +134,28 @@ class EmailResultsController extends ControllerBase {
 
   	return $protocol.$hostName."/";
   }
+
+  private function getConnection(){
+  	$database_config = \Drupal::config('icrp_database');
+  	$config = [];
+
+  	foreach(['host', 'username', 'password', 'port', 'database'] as $parameter) {
+  		$config[$parameter] = $database_config->get($parameter);
+	}
+
+	$host = $config['host'];
+	$database = $config['database'];
+	$username = $config['username'];
+	$password = $config['password'];
+	$port = $config['port'];
+
+	$serverName = $host.", ".$port;
+	$opt = [
+		PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+		PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+	];
+
+  	return new PDO("sqlsrv:Server=".$serverName.";Database=".$database, $username, $password, $opt);
+  }
+
 }

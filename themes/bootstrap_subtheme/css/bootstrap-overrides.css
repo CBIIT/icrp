@@ -263,7 +263,6 @@ header.navbar-default {
   background-color: white;
   border: none;
   border-radius: 0;
-  border-bottom: 1px solid #EEE;
 }
 
 footer.footer {
@@ -324,3 +323,12 @@ form[action="/user-account-administration-tool"] > div > div {
 	display: inline-block !important;
 	vertical-align: top !important;
 }
+/* Overwrite yeti form */
+.navbar {
+  margin-bottom: 10px;
+}
+/*
+.main-container > div > div.col-sm-12 {
+  height:70px;
+}
+*/

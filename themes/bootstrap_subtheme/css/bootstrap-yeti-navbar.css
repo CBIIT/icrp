@@ -1164,7 +1164,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .navbar {
     position: relative;
     min-height: 45px;
-    margin-bottom: 21px;
+    /*margin-bottom: 21px;*/
     border: 1px solid transparent;
 }
 @media (min-width: 768px) {
@@ -4067,11 +4067,13 @@ input[type="checkbox"] {
 }
 
 /* Increasing Font Size */
-.dropdown-menu {
-    font-size: 13px;
-}
 .navbar {
     font-size: 15px;
+    font-weight:bold;
+}
+.navbar .dropdown-menu > li > a, .navbar .dropdown-menu > li > a:focus {
+    font-size: 14px;
+    font-weight:bold;
 }
 .navbar .btn {
     padding-top: 8px;

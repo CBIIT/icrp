@@ -33,11 +33,13 @@
 		  </div>
 
 		  <div class="form-group">
-		    <label for="recipientEmail" class="col-sm-3 control-label">Recipient's Email</label>
+		    <label for="recipientEmail" class="col-sm-3 control-label">Recipient Email(s)</label>
 			<div class="col-sm-9">
+									<custom-select #recipientemail placeholder="Enter multiple email recipients, separated by commas"   [formControl]="emailForm.controls.recipient_email"></custom-select>
+<!--
 			  <textarea class="input" id="recipientEmail" placeholder="(Separating multiple email recipients by commas)" [formControl]="emailForm.controls.recipient_email" #recipientemail></textarea>
 			  <div *ngIf="!emailForm.controls.recipient_email.valid && !emailForm.controls.recipient_email.pristine" style="color: red;">Please ensure that the email addresses entered are valid</div>
-	      	</div>
+	    -->  	</div>
 		  </div>
 
 		  <div class="form-group">

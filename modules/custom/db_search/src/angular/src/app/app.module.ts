@@ -28,6 +28,44 @@ import { EmailResultsPartnerButtonComponent } from './email-results-partner-butt
 import { ExportResultsAbstractsSinglePartnerButton } from './export-results-abstracts-single-partner-button/export-results-abstracts-single-partner-button';
 import { ExportResultsSinglePartnerButton } from './export-results-single-partner-button/export-results-single-partner-button';
 import { ExportLookupTableButtonComponent } from './export-lookup-table-button/export-lookup-table-button.component';
+import { CustomSelectComponent } from './custom-select/custom-select.component';
+
+
+
+let devProviders = [
+{
+      provide: 'api_root',
+      useValue: 'https://icrpartnership-dev.org'
+    },
+    {
+      provide: 'page_title',
+      useValue: 'Search ICRP Database'
+    },  
+]
+
+
+let productionProviders = [
+{
+      provide: 'api_root',
+      useValue: ''
+    },
+    {
+      provide: 'page_title',
+      useValue: 'Search ICRP Database'
+    },  
+]
+
+
+let dataReviewProviders = [
+{
+      provide: 'api_root',
+      useValue: '/load'
+    },
+    {
+      provide: 'page_title',
+      useValue: 'Data Review Tool'
+    },  
+]
 
 @NgModule({
   declarations: [
@@ -48,7 +86,8 @@ import { ExportLookupTableButtonComponent } from './export-lookup-table-button/e
     EmailResultsPartnerButtonComponent,
     ExportResultsAbstractsSinglePartnerButton,
     ExportResultsSinglePartnerButton,
-    ExportLookupTableButtonComponent
+    ExportLookupTableButtonComponent,
+    CustomSelectComponent
   ],
   imports: [
     BrowserModule,
