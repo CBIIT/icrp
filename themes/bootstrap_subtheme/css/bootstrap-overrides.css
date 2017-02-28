@@ -6,6 +6,14 @@
 
 /** Misc overrides */
 
+h1 {
+  color: orange;
+}
+
+h2 {
+  color: orange;
+}
+
 a {
   color: #1E8BC3;
 }

@@ -189,7 +189,7 @@ class ProjectViewComponent extends Component {
       return <div>
 
         <div className="clearfix">
-          <h3 className="title">View Project Details</h3>
+          <h1 className="title">View Project Details</h1>
           <span className="pull-right" id="google_translate_element" />
         </div>
 

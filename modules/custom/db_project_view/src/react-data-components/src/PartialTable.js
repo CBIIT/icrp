@@ -17,7 +17,7 @@ export default class PartialTable extends Component {
 
     return (
       <div className="container_funding_org">
-        <font color="orange"><h3 class="titleOrg margin-right">Funding Organizations</h3></font>
+        <font color="orange"><h1 class="titleOrg margin-right">Funding Organizations</h1></font>
         <p>
 ICRP organizations submit their latest available research projects or research funding to the ICRP database as soon as possible. Each partner submits data on a different schedule as each has different timelines for awarding, collating and classifying projects, so recent calendar years in the ‘Year active’ search may not yet include all available data for that year. In the table below, the ‘Import Description’ column shows the latest import from each partner, and the date on which that import was uploaded to the database. Organizations that update research funding annually for all projects in the database are listed as ‘yes’ in the ‘Annual funding updates’ column below.
  	</p>
