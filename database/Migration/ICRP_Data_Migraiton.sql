@@ -41,8 +41,9 @@ SELECT DISTINCT code, name, ShortName, Category, WEIGHTNAME, SortOrder from icrp
 -----------------------------
 INSERT INTO CancerType
 (Name, ICRPCode, IsCommon, IsArchived, SortOrder)
-SELECT DISTINCT name, mappedID, 
-	ISCOMMON, ISARCHIVED, SORTORDER from icrp.dbo.SITE order by mappedid
+SELECT DISTINCT name, mappedID, ISCOMMON, ISARCHIVED, SORTORDER 
+FROM icrp.dbo.SITE 
+ORDER BY mappedid
 
 -----------------------------
 -- PrjectAbstract
@@ -76,16 +77,86 @@ SELECT year_old, FromCurrency, FromCurrencyRate, ToCurrency, ToCurrencyRate, yea
 
 	
 -----------------------------
--- Institution
+-- Create Institution Lookup - load from excel
 -----------------------------
-INSERT INTO Institution
-(Name, City, State, Country)
-SELECT DISTINCT institution, ISNULL(city, ''), ISNULL(state,''), ISNULL(country, '')
-FROM icrp.dbo.Project
-WHERE ISNULL(institution,'') <> ''
-ORDER BY institution
+drop table [UploadInstitution]
+go
 
---delete FROM Institution
+CREATE TABLE [dbo].[UploadInstitution](
+DataIssue_ICRP [varchar](250) NOT NULL,
+institution_ICRP	[varchar](250) NOT NULL,
+city_ICRP	[varchar](250) NOT NULL,
+city_ICRP_corrected	[varchar](250) NOT NULL,
+state_ICRP	[varchar](250) NOT NULL,
+state_ICRP_corrected	[varchar](250) NOT NULL,
+country_ICRP	[varchar](250) NOT NULL,
+country_ICRP_corrected	[varchar](250) NOT NULL,
+ICRP_CURRENT_Combination_Inst_City	[varchar](250) NOT NULL,
+MATCHGRID [varchar](250) NOT NULL,
+MATCHGRIDNote	[varchar](1000) NOT NULL,
+IsNOTEMultiHost [varchar](250) NOT NULL,
+DedupInstitution	[varchar](250) NOT NULL,
+[Check] [varchar](50) NOT NULL,
+City_Clean	[varchar](250) NOT NULL,
+State_Clean	[varchar](250) NULL,
+Name_GRID	[varchar](250) NOT NULL,
+City_GRID	[varchar](250) NOT NULL,
+Country_GRID	[varchar](250) NOT NULL,
+Country_ICRP_ISO	[varchar](250) NOT NULL,
+ID_GRID	[varchar](250) NOT NULL,
+Lat_GRID	[decimal](9,6) NULL,
+Lng_GRID [decimal](9,6) NULL,
+)
+
+GO
+
+--drop table [UploadInstitution]
+
+BULK INSERT [UploadInstitution]
+FROM 'C:\icrp\database\DataUpload\ICRPInstitutions.csv'
+WITH
+(
+	FIRSTROW = 2,
+	FIELDTERMINATOR = '|',
+	ROWTERMINATOR = '\n'
+)
+GO 
+
+ select distinct city_clean from [UploadInstitution] where city_clean like 'Mont%'
+
+UPDATE UploadInstitution SET City_Clean = NULL WHERE City_Clean = 'NULL'
+UPDATE UploadInstitution SET State_Clean = NULL WHERE State_Clean = 'NULL'
+UPDATE UploadInstitution SET Country_ICRP_ISO = NULL WHERE Country_ICRP_ISO = 'NULL'
+UPDATE UploadInstitution SET ID_GRID = NULL WHERE ID_GRID = 'NULL'
+
+--select * from [UploadInstitution] where institution_icrp like 'Institut du Cancer de MontrTal (ICM)%'
+--select distinct City_Clean from [UploadInstitution] where City_Clean like 'montr%'  order by City_Clean
+
+UPDATE UploadInstitution SET institution_ICRP = DedupInstitution WHERE ISNULL(institution_ICRP, '') = ''
+UPDATE UploadInstitution SET DedupInstitution = institution_ICRP WHERE ISNULL(DedupInstitution, '') = ''
+UPDATE UploadInstitution SET City_Clean = city_ICRP WHERE ISNULL(City_Clean, '') = ''
+UPDATE UploadInstitution SET City_Clean = 'Montréal' WHERE City_Clean IN ('Montr?al', 'Montreal', 'MontrTal')
+UPDATE UploadInstitution SET City_Clean = 'Québec' WHERE City_Clean IN ('Qu?bec', 'Qu??bec', 'Quebec')
+UPDATE UploadInstitution SET City_Clean = 'Lévis' WHERE City_Clean IN ('LTvis', 'L?vis', 'Levis')
+UPDATE UploadInstitution SET City_Clean = 'Zürich' WHERE City_Clean IN ('Zurich')
+UPDATE UploadInstitution SET City_Clean = 'St. Louis' WHERE City_Clean IN ('Saint Louis', 'St Louis')
+UPDATE UploadInstitution SET City_Clean = 'Sault Ste. Marie' WHERE City_Clean IN ('Sault Ste Marie')
+UPDATE UploadInstitution SET City_Clean = 'St. Catharines' WHERE City_Clean IN ('St Catharines')
+UPDATE UploadInstitution SET City_Clean = 'Trois-Rivières' WHERE City_Clean IN ('Trois-RiviFres')
+
+-- Insert a placeholder for missing institution 
+INSERT INTO [Institution] ([Name],[DisplayedName], [City])
+SELECT 'Missing', 'Missing', 'Missing'
+
+INSERT INTO [Institution] ([Name],[DisplayedName], [City],[State],[Country],[Longitude],[Latitude],[GRID])
+SELECT DISTINCT institution_ICRP, MAX(DedupInstitution), City_Clean, MAX(State_Clean), MAX(Country_ICRP_ISO), MAX(Lng_GRID), MAX(Lat_GRID), MAX(ID_GRID)
+FROM [UploadInstitution] GROUP BY institution_ICRP, City_Clean -- 6255
+
+IF EXISTS (select name, city, count(*)  from [Institution] group by name, city having count(*) > 1)
+BEGIN
+	SELECT 'Duplicate Institutions', [Name], [City], count(*)  from [Institution] group by [Name], [City] having count(*) > 1
+END
+
 --DBCC CHECKIDENT ('[Institution]', RESEED, 0)
 
 -----------------------------------------
@@ -159,6 +230,8 @@ FROM icrp.dbo.fundingdivision
 
 ----------------------------------------------------------------------------------
 -- Only migrate the active projects 
+--  Exclude CA funding (CCRA) -- 29,748
+--  Exclude UK funding
 ----------------------------------------------------------------------------------
 DECLARE @sortedProjects TABLE (
 	[SortedProjectID] [int] IDENTITY(1,1) NOT NULL,
@@ -170,8 +243,10 @@ INSERT INTO @sortedProjects SELECT ID, COde FROM icrp.dbo.project ORDER BY code,
 
 SELECT DISTINCT s.SortedProjectID, p.* INTO #activeProjects
 FROM icrp.dbo.project p
+join icrp.dbo.fundingorg f on p.FUNDINGORGID = f.ID
 JOIN @sortedProjects s ON p.id = s.OldProjectID
 JOIN icrp.dbo.TestProjectActive a ON p.ID = a.projectID
+WHERE f.SPONSORCODE <> 'CCRA'
 ORDER BY s.SortedProjectID
 
 ----------------------------------------------------------------------------------
@@ -268,6 +343,7 @@ CREATE TABLE [dbo].[Migration_ProjectFunding](
 	[Title] varchar(1000) NULL, 
 	[Institution] varchar(250) NULL, 
 	[city] varchar(250) NULL, 
+	[city_clean] varchar(250) NULL, 
 	[state] varchar(250) NULL, 
 	[country] varchar(250) NULL, 
 	[piLastName] varchar(250) NULL,
@@ -294,10 +370,10 @@ GO
 
 
 INSERT INTO [Migration_ProjectFunding] 
-	([NewProjectID], [OldProjectID], [AbstractID], [Title],[Institution], [city], [state], [country], [piLastName], [piFirstName], [piORC_ID], 
+	([NewProjectID], [OldProjectID], [AbstractID], [Title],[Institution], [city], [city_clean], [state], [country], [piLastName], [piFirstName], [piORC_ID], 
 	 [OtherResearch_ID], [OtherResearch_Type], [FundingOrgID], [FundingDivisionID], [AwardCode], [AltAwardCode], [Source_ID], [MechanismCode], 
 	 [MechanismTitle], [FundingContact], [Amount], [IsAnnualized], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate])
-SELECT mp.ProjectID, op.ID, op.abstractID, op.title, op.institution, op.city, op.state, op.country, op.piLastName, op.piFirstName,  op.piORCiD,
+SELECT mp.ProjectID, op.ID, op.abstractID, op.title, op.institution, op.city,  op.city, op.state, op.country, op.piLastName, op.piFirstName,  op.piORCiD,
 	   op.OtherResearcherId, OtherResearcherIdType, op.FUNDINGORGID, op.FUNDINGDIVISIONID, op.code, op.altid, op.SOURCE_ID, m.SPONSORMECHANISM,  
 	   m.TITLE, op.fundingOfficer, pf.AMOUNT, 
 	   CASE WHEN [Amount] = [AnnualizedAmount] THEN 1 ELSE 0 END AS [IsAnnualized],
@@ -356,10 +432,10 @@ FROM icrp.dbo.PROJECTSITE ps
 -- ProjectFundingExt
 -----------------------------
 INSERT INTO ProjectFundingExt
-([ProjectID], [AncestorProjectID], [CalendarYear], [CalendarAmount])
-SELECT p.[ProjectID], a.[ProjectIDANCESTOR], a.[YEAR], a.[CALENDARAMOUNT_V2]
+([ProjectFundingID], [AncestorProjectID], [CalendarYear], [CalendarAmount])
+SELECT m.[ProjectFundingID], a.[ProjectIDANCESTOR], a.[YEAR], a.[CALENDARAMOUNT_V2]
 FROM icrp.dbo.[TestProjectActive] a
-JOIN Migration_Project p ON a.PROJECTID = p.OldProjectID
+JOIN [Migration_ProjectFunding] m ON a.PROJECTID = m.OldProjectID
 
 --delete from ProjectFundingExt
 --DBCC CHECKIDENT ('[ProjectFundingExt]', RESEED, 0)
@@ -368,17 +444,24 @@ JOIN Migration_Project p ON a.PROJECTID = p.OldProjectID
 -----------------------------------------
 -- ProjectFunding_Investigator (check investigator)
 -----------------------------------------
+UPDATE [Migration_ProjectFunding] SET [city_clean] = u.City_Clean
+--SELECT u.institution_ICRP, u.city_ICRP, u.DedupInstitution, u.City_Clean
+FROM [Migration_ProjectFunding] f
+JOIN UploadInstitution u ON f.institution = u.institution_ICRP AND ISNULL(f.city, '') = ISNULL(u.city_ICRP,'')
+WHERE u.city_ICRP <> u.City_Clean
+
 INSERT INTO ProjectFundingInvestigator 
 ([ProjectFundingID], [LastName], [FirstName], [ORC_ID], [OtherResearch_ID], [OtherResearch_Type], [IsPrivateInvestigator], InstitutionID)
-SELECT distinct f.ProjectFundingID, ISNULL(f.piLastName, ''), f.piFirstName, f.piORC_ID, f.[OtherResearch_ID], f.OtherResearch_Type, 1 AS IsPrivateInvestigator, inst.InstitutionID
-FROM [Migration_ProjectFunding] f
-	 LEFT JOIN Institution inst ON inst.name = f.Institution AND 
-									(ISNULL(f.city, '') = ISNULL(inst.city, '')) AND 
-									(ISNULL(f.state, '') = ISNULL(inst.state, '')) AND
-									(ISNULL(f.country, '') = ISNULL(inst.country, ''))	  --200774	
-WHERE inst.InstitutionID IS NOT NULL
-
-
+SELECT distinct m.ProjectFundingID, ISNULL(m.piLastName, ''), m.piFirstName, m.piORC_ID, m.[OtherResearch_ID], m.OtherResearch_Type, 1 AS IsPrivateInvestigator, ISNULL(i.InstitutionID, 1)
+FROM [Migration_ProjectFunding] m
+	 LEFT JOIN Institution i ON (i.name = m.Institution AND i.city = m.[city_clean])
+ 
+ -- test
+SELECT distinct m.institution, m.city, m.country
+FROM [Migration_ProjectFunding] m	
+	 LEFT JOIN Institution i ON (i.name = m.Institution AND i.city = m.[city_clean])
+	  where i.InstitutionID is null
+	  order by  m.country, m.city  -- 198 not found
 
 -----------------------------------------
 -- LibraryFolder
@@ -404,6 +487,7 @@ INSERT INTO LibraryFolder ([Name],[ParentFolderID],[IsPublic],[ArchivedDate],[Cr
 VALUES ( 'Meeting Reports', 1, 1, NULL, getdate(),getdate())
 
 go
+
 -----------------------------------------
 -- Library
 -----------------------------------------

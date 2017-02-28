@@ -135,8 +135,9 @@ AS
 	BEGIN
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 			
-			(SELECT p.ProjectID FROM #Proj p
-				JOIN ProjectFundingExt ext WITH (NOLOCK) ON p.ProjectID = ext.ProjectID WHERE [CalendarYear] IN (SELECT * FROM dbo.ToIntTable(@yearList)))
+			(SELECT DISTINCT p.ProjectID FROM #Proj p
+				JOIN ProjectFunding f ON p.projectID = f.ProjectID
+				JOIN ProjectFundingExt ext WITH (NOLOCK) ON f.ProjectFundingID = ext.ProjectFundingID WHERE [CalendarYear] IN (SELECT * FROM dbo.ToIntTable(@yearList)))
 	END	
 	
 	-------------------------------------------------------------------------
@@ -188,13 +189,13 @@ AS
 									 
 	SELECT @searchCriteriaID = SCOPE_IDENTITY()	
 
-	INSERT INTO SearchResult VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount)
+	INSERT INTO SearchResult VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, 0)
 	
 	----------------------------------	
 	-- Sort and Pagination
 	--   Note: Return only base projects and projects' most recent funding
 	----------------------------------
-	SELECT p.*, maxf.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
+	SELECT p.*, maxf.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.DisplayedName AS institution, 
 		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort FROM
 		(SELECT DISTINCT ProjectID, AwardCode FROM #proj) p
 		 JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f GROUP BY ProjectID) maxf ON p.ProjectID = maxf.ProjectID
@@ -331,7 +332,7 @@ AS
 	-- Sort and Pagination
 	--   Note: Return only base projects and projects' most recent funding
 	----------------------------------
-	SELECT r.ProjectID, p.AwardCode, maxf.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
+	SELECT r.ProjectID, p.AwardCode, maxf.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.DisplayedName AS institution, 
 		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort 
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
 		JOIN Project p ON r.ProjectID = p.ProjectID
@@ -435,7 +436,7 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT c.categoryName, Count(*) AS [Count] INTO #stats
+	SELECT c.categoryName, SUM(Relevance) AS Count INTO #stats
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
 		JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
@@ -476,16 +477,15 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT c.Name AS CancerType, Count(*) AS [Count] INTO #stats
-	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
+	SELECT c.Name AS CancerType, SUM(Relevance) AS Count INTO #stats
+	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r			
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
-		-- exclude 0 relevance cancertype
-		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID		
-		JOIN CancerType c ON c.CancerTypeID = pc.CancerTypeID		
-	GROUP BY c.Name
+		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID	
+		JOIN CancerType c ON c.CancerTypeID = pc.CancerTypeID	
+	GROUP BY c.Name	
 
-	SELECT @ResultCount = SUM([Count]) FROM #stats	
-
+	SELECT @ResultCount = SUM(count) FROM #stats	
+	
 	SELECT * FROM #stats ORDER BY [Count] DESC
 GO
 
@@ -562,9 +562,9 @@ AS
 		ISNULL(cr.ToCurrencyRate, 1) AS ToCurrencyRate INTO #statsPart
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
 		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID
+		JOIN ProjectFundingExt ext ON ext.ProjectFundingID = f.ProjectFundingID
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
-		LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = o.Currency
-		JOIN ProjectFundingExt ext ON ext.ProjectID = r.ProjectID
+		LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = o.Currency		
 
 	SELECT @Total = SUM(USDAmount) FROM #statsPart
 
@@ -616,7 +616,7 @@ CREATE PROCEDURE [dbo].[GetProjectFunding]
     @ProjectID INT    
 AS  
 
-SELECT pf.ProjectFundingID, pf.title, fi.LastName AS piLastName, fi.FirstName AS piFirstName, i.Name AS Institution, i.City, i.State, i.Country, pf.Category,
+SELECT pf.ProjectFundingID, pf.title, fi.LastName AS piLastName, fi.FirstName AS piFirstName, i.DisplayedName AS Institution, i.City, i.State, i.Country, pf.Category,
 		pf.ALtAwardCode AS AltAwardCode, o.Abbreviation AS FundingOrganization,	pf.BudgetStartDate, pf.BudgetEndDate
 FROM Project p
 	JOIN ProjectFunding pf ON p.ProjectID = pf.ProjectID
@@ -700,7 +700,7 @@ CREATE PROCEDURE [dbo].[GetProjectFundingDetail]
 AS   
  
 SELECT f.Title, f.AltAwardCode, f.BudgetStartDate,  f.BudgetEndDate, o.Name AS FundingOrg, pi.LastName + ', ' + pi.FirstName AS piName, 
-	i.Name AS Institution, i.City, i.State, i.Country, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract
+	i.DisplayedName AS Institution, i.City, i.State, i.Country, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract
 FROM ProjectFunding f	
 	JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
 	JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID
@@ -740,11 +740,11 @@ AS
 	-----------------------------------------------------------		
 	--  Get all related projects with dolloar amounts
 	-----------------------------------------------------------			 
-	SELECT p.ProjectID, p.AwardCode, f.Title AS AwardTitle, pt.ProjectType AS AwardType, f.Source_ID, f.AltAwardCode, p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, 
+	SELECT p.ProjectID, f.ProjectFundingID, p.AwardCode, f.Title AS AwardTitle, pt.ProjectType AS AwardType, f.Source_ID, f.AltAwardCode, p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, 
 		f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
 		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency, NULL AS ToCurrency, NULL AS ToCurrencyRate,		
 		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.Name AS FundingOrg, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, '' AS FundingContact, 
-		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
+		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.DisplayedName AS Institution, i.City, i.State, i.Country, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
 	INTO #temp
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
 		LEFT JOIN Project p ON r.ProjectID = p.ProjectID
@@ -770,7 +770,7 @@ AS
 	SET   @SQLQuery = 
 		N'SELECT * '+
 		'FROM (SELECT t.*, calendaryear, calendaramount FROM projectfundingext ext
-				JOIN #temp t ON ext.ProjectID = t.ProjectID    
+				JOIN #temp t ON ext.ProjectFundingID = t.ProjectFundingID    
 				) cal			
 		PIVOT( SUM(calendaramount) 
 			  FOR calendaryear IN (' + @PivotColumns + ')) AS P'
@@ -973,7 +973,7 @@ AS
 		f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
 		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency, NULL AS ToCurrency, NULL AS ToCurrencyRate,		
 		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.Name AS FundingOrg, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, '' AS FundingContact, 
-		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
+		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.DisplayedName AS Institution, i.City, i.State, i.Country, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
 	INTO #temp
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
 		LEFT JOIN Project p ON r.ProjectID = p.ProjectID
@@ -1164,3 +1164,26 @@ ORDER BY Year DESC, FromCurrency, ToCurrency
 
 GO
 
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[UpdateSearchResultMarkEmailSent]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdateSearchResultMarkEmailSent]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[UpdateSearchResultMarkEmailSent]
+GO 
+
+CREATE  PROCEDURE [dbo].[UpdateSearchResultMarkEmailSent]
+@SearchID INT    
+AS   
+
+UPDATE SearchResult SET IsEmailSent = 1
+WHERE SearchCriteriaID =  @SearchID
+
+GO
