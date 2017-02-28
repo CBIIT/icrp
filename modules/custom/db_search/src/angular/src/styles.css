@@ -147,8 +147,9 @@ table.table > thead > tr > th {
 }
 
 table.table-bordered {
-  border: 1px solid #ababab;
+  border: 1px solid #dedede;
 }
+
 
 table.table-bordered > thead > tr > th,
 table.table-bordered > tbody > tr > th,
@@ -156,7 +157,21 @@ table.table-bordered > tfoot > tr > th,
 table.table-bordered > thead > tr > td,
 table.table-bordered > tbody > tr > td,
 table.table-bordered > tfoot > tr > td {
-  border: 1px solid #cccccc;
+  border: none;
+  border-bottom: 1px solid #dedede;
+}
+
+table.table-bordered > thead > tr > th,
+table.table-bordered > tbody > tr > th,
+table.table-bordered > tfoot > tr > th {
+  border-right: 1px solid #dedede;
+}
+
+
+table.table-bordered > thead > tr > th:last-child,
+table.table-bordered > tbody > tr > th:last-child,
+table.table-bordered > tfoot > tr > th:last-child {
+  border-right: none;
 }
 
 table.table-striped > tbody > tr:nth-of-type(odd) {

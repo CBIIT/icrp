@@ -99,16 +99,7 @@ let dataReviewProviders = [
     ModalModule.forRoot(),
     SpinnerModule.forRoot(),
   ],
-  providers: [
-    {
-      provide: 'api_root',
-      useValue: ''
-    },
-    {
-      provide: 'page_title',
-      useValue: 'Search ICRP Database'
-    }
-  ],
+  providers: productionProviders,
   bootstrap: [AppComponent]
 })
 export class AppModule { }
