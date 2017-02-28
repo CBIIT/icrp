@@ -87,6 +87,8 @@ export class UiSelectComponent {
 
   /** Sets the value of this control */
   writeValue(values: string[]) {
+    this.input.nativeElement.value = '';
+
     this.selectedItems = [];
     if (values && values.length) {
       for (let value of values) {
@@ -242,7 +244,7 @@ export class UiSelectComponent {
 
     this.initialHiglightedRangeIndex = -1;
     this.currentHiglightedRangeIndex = -1;
-
+    this.input.nativeElement.value = '';
     this.emitValue();
   }
 }
