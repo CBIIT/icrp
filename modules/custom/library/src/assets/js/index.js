@@ -112,8 +112,7 @@ jQuery(function() {
             return nodes.length === 0 ? undefined : nodes[0];
         },
         'hideArchives': function(e) {
-            $('#library-restore-folder, #library-hide-archives').addClass('hide');
-            $('#library-show-archives').removeClass('hide');
+            // $('#library-restore-folder').addClass('hide');
             $('#library-display .frame').removeClass('archived');
             var backing = tree.get_json();
             functions.updateTree(backing,true);
@@ -124,10 +123,10 @@ jQuery(function() {
         'initialize': function() {
             $.get(path+'initialize').done(function(response) {
                 var folders = functions.mapTree(response.folders);
-                $('#library-management').removeClass('hide');
-                $('#library-archive-management').addClass('hide');
+                //$('#library-management').removeClass('hide');
+                //$('#library-archive-management').addClass('hide');
                 role = response.role;
-                $('#library').toggleClass('admin',role==="admin");
+                $('#library').addClass(role);
                 $('#library-tree').jstree({
                     'core' : {
                         'check_callback': true,
@@ -359,8 +358,7 @@ jQuery(function() {
             });
         },
         'showArchives': function(e) {
-            $('#library-restore-folder, #library-hide-archives').removeClass('hide');
-            $('#library-show-archives').addClass('hide');
+            //$('#library-restore-folder').removeClass('hide');
             $('#library-display .frame').addClass('archived');
             var backing = tree.get_json();
             functions.updateTree(backing,false);
@@ -371,30 +369,42 @@ jQuery(function() {
         'writeDisplay': function(files,isPublic) {
             var frame = $('#library-display .frame').empty();
             if (files.length > 0) {
-                frame.toggleClass('preview',isPublic);
-                $.each(files,function(index,entry) {
-                    var id = entry.LibraryID,
-                        title = entry.Title||entry.Filename,
-                        thumb = entry.ThumbnailFilename||"",
-                        description = entry.Description||"",
-                        file = entry.Filename,
-                        isArchived = (entry.ArchivedDate !== null);
-                    if (thumb === "") {
-                        thumb = root+'/sites/default/files/library/placeholder.jpg';
-                    } else {
-                        thumb = path+'file/thumb/'+thumb;
-                    }
-                    frame.append(
-                      '<div class="item'+(isArchived?' archived':'')+'">'+
-                          '<h4>'+title+'</h4>'+
-                          '<img src="'+thumb+'"/>'+
-                          '<p>'+description+'</p>'+
-                          '<div><a href="'+path+'file/'+file+'">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
-                          '<button class="admin edit-file""></button>'+
-                          '<button class="admin '+(isArchived?'restore-file':'archive-file')+'""></button>'+
-                      '</div>'
-                    ).find('*:last-child').data('library-file-data',entry);
-                });
+                if (isPublic) {
+                    frame.addClass('preview');
+                    $.each(files,function(index,entry) {
+                        var title = entry.Title||entry.Filename,
+                            thumb = entry.ThumbnailFilename||"",
+                            description = entry.Description||"",
+                            file = entry.Filename,
+                            isArchived = (entry.ArchivedDate !== null);
+                        if (thumb === "") {
+                            thumb = root+'/sites/default/files/library/File-ImagePlaceholder.svg';
+                        } else {
+                            thumb = path+'file/thumb/'+thumb;
+                        }
+                        frame.append(
+                          '<div class="item'+(isArchived?' archived':'')+'">'+
+                              '<h4>'+title+'</h4>'+
+                              '<img src="'+thumb+'"/>'+
+                              '<p>'+description+'</p>'+
+                              '<div><a href="'+path+'file/'+file+'">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
+                          '</div>'
+                        );
+                    });
+                } else {
+                    frame.removeClass('preview');
+                    $.each(files,function(index,entry) {
+                        var file = entry.Filename,
+                            isArchived = (entry.ArchivedDate !== null);
+                        frame.append(
+                          '<div class="item'+(isArchived?' archived':'')+'">'+
+                              '<div><a href="'+path+'file/'+file+'">'+file+'</a></div>'+
+                              '<button class="admin edit-file""></button>'+
+                              '<button class="admin '+(isArchived?'restore-file':'archive-file')+'""></button>'+
+                          '</div>'
+                        ).find('*:last-child').data('library-file-data',entry);
+                    });
+                }
             } else {
                 frame.removeClass('preview');
             }
@@ -402,10 +412,7 @@ jQuery(function() {
         }
     };
     functions.initialize();
-    $('#library-search .searchbox').on('click',function(e) {
-        e.preventDefault();
-        $(e.currentTarget).find('input').focus();
-    }).on('keypress', function(e) {
+    $('#library-search .searchbar [name="library-keywords"]').on('keypress', function(e) {
         if (e.which == 13) {
           e.preventDefault();
           $('#library-search-button').trigger('click');
@@ -420,9 +427,14 @@ jQuery(function() {
         functions.createNew(e,false);
     });
     $('#library-archive-folder').on('click',functions.archiveFolder);
-    $('#library-show-archives').on('click',functions.showArchives);
-    $('#library-restore-folder').on('click', functions.restoreFolder);
-    $('#library-hide-archives').on('click',functions.hideArchives);
+    $('#library-show-archives').on('change',function(e) {
+        if (this.checked) {
+            functions.showArchives(e);
+        } else {
+            functions.hideArchives(e);
+        }
+    });
+    //$('#library-restore-folder').on('click', functions.restoreFolder);
     $('#library-display').on('click', '.edit-file', functions.editFile);
     $('#library-display').on('click', '.archive-file', functions.archiveFile);
     $('#library-display').on('click', '.restore-file', functions.restoreFile);
