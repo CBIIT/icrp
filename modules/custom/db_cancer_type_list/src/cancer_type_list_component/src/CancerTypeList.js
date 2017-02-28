@@ -17,6 +17,12 @@ class CancerTypeList extends Component {
     let hostname = window.location.hostname;
     let pathname = window.location.pathname;
 
+    if (hostname === 'localhost') {
+      protocol = 'https:';
+      hostname = 'icrpartnership-dev.org';
+      pathname = '/cancer-type-list'
+    }
+
     let response = await fetch(`${protocol}//${hostname}${pathname}/get`, {
  //     credentials: 'include'
     })

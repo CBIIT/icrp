@@ -48,7 +48,7 @@ class DataTable extends Component {
 
 
   tooltip(text) {
-    return <Tooltip id={text.split().join('-')}>text</Tooltip>
+    return <Tooltip id={ text.split().join('-') }>{ text }</Tooltip>
   }
 
   sortArrow(isAscending) {
