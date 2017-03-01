@@ -1,8 +1,17 @@
 jQuery(function() {
     var $ = jQuery,
         root = window.location.pathname,
-        tree = null
-        role = null;
+        tree = null,
+        role = null,
+        failFunction = function(xhr,status) {
+            BootstrapDialog.alert({
+                'title': null,
+                'message': "An error occurred: "+status+"\n"+
+                           "If the problem persists, please alert the administrators."
+            });
+        },
+        lAjax = function(obj) { return $.ajax(obj).fail(failFunction); },
+        lGet = function(path) { return $.get(path).fail(failFunction); };
     root = root.slice(0,root.slice(0,-1).lastIndexOf('/'));
     var path = root + '/library/';
     var functions = {
@@ -10,11 +19,11 @@ jQuery(function() {
             var node = functions.getNode(),
                 ancestors = node.parents,
                 target = $(e.target),
-                id = target.data('library-file-data').LibraryID;
+                id = target.parent().data('library-file-data').LibraryID;
             target.attr('disabled',true);
             ancestors.unshift(node.id);
             ancestors.pop();
-            $.ajax({
+            lAjax({
                 'url': path+'file/'+id,
                 'method': 'DELETE'
             }).done(function(response) {
@@ -43,7 +52,7 @@ jQuery(function() {
                       archiveChildren(child.children);
                   });
                 };
-            $.ajax({
+            lAjax({
                 'url': path+'folder/'+node.id,
                 'method': 'DELETE'
             }).done(function(response) {
@@ -121,7 +130,7 @@ jQuery(function() {
             e.preventDefault();
         },
         'initialize': function() {
-            $.get(path+'initialize').done(function(response) {
+            lGet(path+'initialize').done(function(response) {
                 role = response.role;
                 var folders = functions.mapTree(response.folders);
                 //$('#library-management').removeClass('hide');
@@ -167,7 +176,7 @@ jQuery(function() {
                         } else {
                           $('#library-restore-folder').attr('disabled',true);
                         }
-                        $.get(path+'folder/'+data.selected[0]).done(function(response) {
+                        lGet(path+'folder/'+data.selected[0]).done(function(response) {
                             functions.writeDisplay(response.files,role==="public");
                         });
                     }
@@ -216,11 +225,11 @@ jQuery(function() {
             var node = functions.getNode(),
                 ancestors = node.parents,
                 target = $(e.target),
-                id = target.data('library-file-data').LibraryID;
+                id = target.parent().data('library-file-data').LibraryID;
             target.attr('disabled',true);
             ancestors.unshift(node.id);
             ancestors.pop();
-            $.ajax({
+            lAjax({
                 'url': path+'file/'+id,
                 'method': 'PUT'
             }).done(function(response) {
@@ -241,7 +250,7 @@ jQuery(function() {
                 ancestors = node.parents;
             ancestors.unshift(node.id);
             ancestors.pop();
-            $.ajax({
+            lAjax({
                 'url': path+'folder/'+node.id,
                 'method': 'PUT'
             }).done(function(response) {
@@ -254,76 +263,89 @@ jQuery(function() {
             e.preventDefault();
         },
         'saveFile': function(e) {
-            var form = new FormData($('#library-parameters').closest('form')[0]);
-            $.ajax({
-                'url': path+'file',
-                'type': 'POST',
-                'data': form,
-                'cache': false,
-                'contentType': false,
-                'processData': false
-            }).done(function(response) {
-                var nodes = tree.get_selected();
-                tree.deselect_all();
-                tree.select_node(nodes);
-                functions.closeParams(e);
-            });
+            var file = $('#library-parameters [name="upload"]'),
+                title = $('#library-parameters [name="title"]').val();
+                desc = $('#library-parameters [name="description"]').val();
+            if ((!file.hasClass('hide') && (file.val()||"") === "") || (title||"") === "" || (desc||"") === "") {
+                BootstrapDialog.alert("Missing required parameters.");
+            } else {
+                var form = new FormData($('#library-parameters').closest('form')[0]);
+                lAjax({
+                    'url': path+'file',
+                    'type': 'POST',
+                    'data': form,
+                    'cache': false,
+                    'contentType': false,
+                    'processData': false
+                }).done(function(response) {
+                    var nodes = tree.get_selected();
+                    tree.deselect_all();
+                    tree.select_node(nodes);
+                    functions.closeParams(e);
+                });
+            }
         },
         'saveFolder': function(e) {
-            var form = new FormData($('#library-parameters').closest('form')[0]),
-                node;
-            $.ajax({
-                'url': path+'folder',
-                'type': 'POST',
-                'data': form,
-                'cache': false,
-                'contentType': false,
-                'processData': false
-            }).done(function(response) {
-              var entry = response.row,
-                  parent = entry.ParentFolderID;
-              entry = {
-                  id: entry.LibraryFolderID,
-                  parent: entry.ParentFolderID,
-                  text: entry.Name,
-                  children: [],
-                  data: {
-                      archivedCount: parseInt(entry.ArchivedCount),
-                      isArchived: entry.ArchivedDate !== null,
-                      isPublic: entry.IsPublic == "1",
-                      unarchivedCount: parseInt(entry.UnarchivedCount)
-                  },
-                  state: {
-                      opened: false,
-                      disabled: false,
-                      selected: false
-                  }
-              };
-              if (functions.getNode().id === entry.id) {
-                  var node = tree.get_node(entry.id);
-                  node.data.isPublic = entry.data.IsPublic;
-                  tree.rename_node(node,entry.text);
-                  entry = node;
-              } else {
-                  tree.deselect_all();
-                  tree.select_node(tree.create_node(parent,entry,'last'));
-                  parent = tree.get_node(parent);
-                  parent.children = parent.children.map(function(entry) { return tree.get_node(entry); }).sort(functions.caselessSort);
-                  if ($('#library-display .frame').hasClass('archived')) {
-                      functions.showArchives(e);
+            var title = $('#library-parameters [name="title"]').val();
+            if ((title||"") === "") {
+                BootstrapDialog.alert("Missing required parameters.");
+            } else {
+                var form = new FormData($('#library-parameters').closest('form')[0]),
+                    node;
+                lAjax({
+                    'url': path+'folder',
+                    'type': 'POST',
+                    'data': form,
+                    'cache': false,
+                    'contentType': false,
+                    'processData': false
+                }).done(function(response) {
+                  var entry = response.row,
+                      node = functions.getNode(),
+                      parent = entry.ParentFolderID;
+                  entry = {
+                      id: entry.LibraryFolderID,
+                      parent: entry.ParentFolderID,
+                      text: entry.Name,
+                      children: [],
+                      data: {
+                          archivedCount: parseInt(entry.ArchivedCount),
+                          isArchived: entry.ArchivedDate !== null,
+                          isPublic: entry.IsPublic == "1",
+                          unarchivedCount: parseInt(entry.UnarchivedCount)
+                      },
+                      state: {
+                          opened: false,
+                          disabled: false,
+                          selected: false
+                      }
+                  };
+                  if (node && node.id === entry.id) {
+                      var node = tree.get_node(entry.id);
+                      node.data.isPublic = entry.data.IsPublic;
+                      tree.rename_node(node,entry.text);
+                      entry = node;
                   } else {
-                      functions.hideArchives(e);
+                      tree.deselect_all();
+                      tree.select_node(tree.create_node(parent,entry,'last'));
+                      parent = tree.get_node(parent);
+                      parent.children = parent.children.map(function(entry) { return tree.get_node(entry); }).sort(functions.caselessSort);
+                      if ($('#library-display .frame').hasClass('archived')) {
+                          functions.showArchives(e);
+                      } else {
+                          functions.hideArchives(e);
+                      }
                   }
-              }
-              functions.closeParams(e);
-            });
+                  functions.closeParams(e);
+                });
+            }
         },
         'search': function(e) {
             e.preventDefault();
             var val = $('#library [name="library-keywords"]').val().toLowerCase(),
                 form = new FormData();
             form.append("keywords",val);
-            $.ajax({
+            lAjax({
                 'url': path+'search',
                 'type': 'POST',
                 'data': form,
@@ -404,7 +426,7 @@ jQuery(function() {
                               '<button class="admin edit-file""></button>'+
                               '<button class="admin '+(isArchived?'restore-file':'archive-file')+'""></button>'+
                           '</div>'
-                        ).find('*:last-child').data('library-file-data',entry);
+                        ).children('*:last-child').data('library-file-data',entry);
                     });
                 }
             } else {

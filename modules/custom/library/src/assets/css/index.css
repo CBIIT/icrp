@@ -69,13 +69,13 @@
 }
 #library-search .browse-header > div {
   float: right;
-  height: 2em;
+  height: 1em;
 }
 #library-search .browse-header > div > * {
   display: inline;
   line-height: 1em;
   margin: 0px;
-  vertical-align: bottom;
+  vertical-align: middle;
 }
 #library-search .browse > *:last-child {
   border-width: 1px;
@@ -92,7 +92,7 @@
   max-height: 100%;
   overflow: auto;
   padding: 5px 0px 0px;
-  width: 100%;
+  width: 17.85em;
 }
 #library-management {
   padding: 1em;
