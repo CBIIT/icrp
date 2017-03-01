@@ -269,6 +269,7 @@ jQuery(function() {
             if ((!file.hasClass('hide') && (file.val()||"") === "") || (title||"") === "" || (desc||"") === "") {
                 BootstrapDialog.alert("Missing required parameters.");
             } else {
+                $(e.target).attr('disabled');
                 var form = new FormData($('#library-parameters').closest('form')[0]);
                 lAjax({
                     'url': path+'file',
@@ -282,6 +283,7 @@ jQuery(function() {
                     tree.deselect_all();
                     tree.select_node(nodes);
                     functions.closeParams(e);
+                    $(e.target).removeAttr('disabled');
                 });
             }
         },
@@ -290,8 +292,8 @@ jQuery(function() {
             if ((title||"") === "") {
                 BootstrapDialog.alert("Missing required parameters.");
             } else {
-                var form = new FormData($('#library-parameters').closest('form')[0]),
-                    node;
+                $(e.target).attr('disabled');
+                var form = new FormData($('#library-parameters').closest('form')[0]);
                 lAjax({
                     'url': path+'folder',
                     'type': 'POST',
@@ -337,6 +339,7 @@ jQuery(function() {
                       }
                   }
                   functions.closeParams(e);
+                  $(e.target).removeAttr('disabled');
                 });
             }
         },
