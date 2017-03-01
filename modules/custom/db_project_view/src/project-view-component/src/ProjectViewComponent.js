@@ -74,7 +74,7 @@ class ProjectViewComponent extends Component {
 
   async updateResults(project) {
     try {
-      let endpoint = `/project/get/${project}`;
+      let endpoint = `${this.props.source}/project/get/${project}`;
       let response = await fetch(endpoint);
 
       /** @type {apiResults} */
@@ -189,7 +189,7 @@ class ProjectViewComponent extends Component {
       return <div>
 
         <div className="clearfix">
-          <h1 className="title">View Project Details</h1>
+          <h1 className="title">{ this.props.page_title }</h1>
           <span className="pull-right" id="google_translate_element" />
         </div>
 

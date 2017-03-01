@@ -20,6 +20,8 @@ function db_project_view_theme($existing, $type, $theme, $path) {
     'project_view_component' => array(
       'variables' => array(
           'project_id' => NULL,
+          'data_title' => NULL,
+          'data_source' => NULL,
         ),
     ),
     'db_funding_view' => array(
@@ -27,11 +29,6 @@ function db_project_view_theme($existing, $type, $theme, $path) {
           'funding_details' => NULL,
           'cancer_types' => NULL,
           'cso_research_areas' => NULL
-        ),
-    ),
-    'project_view_component' => array(
-      'variables' => array(
-          'project_id' => NULL,
         ),
     ),
     'funding_org_view' => array (
@@ -45,11 +42,5 @@ function db_project_view_theme($existing, $type, $theme, $path) {
 	  'current_partners' => NULL
       ),
     ),
-  );
-}
-
-
-function project_view_component_theme($existing, $type, $theme, $path) {
-  return array(
   );
 }

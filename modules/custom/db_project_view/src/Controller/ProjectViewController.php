@@ -100,10 +100,10 @@ class ProjectViewController extends ControllerBase {
    * @return A PDO connection
    * @throws PDOException
    */
-  function get_connection() {
+  function get_connection($config_key = 'icrp_database') {
 
     $cfg = [];
-    $icrp_database = \Drupal::config('icrp_database');
+    $icrp_database = \Drupal::config($config_key);
     foreach(['driver', 'host', 'port', 'database', 'username', 'password'] as $key) {
        $cfg[$key] = $icrp_database->get($key);
     }
@@ -142,8 +142,8 @@ class ProjectViewController extends ControllerBase {
     return $response;
   }
 
-  public function get_project($project_id) {
-    $pdo = self::get_connection();
+  public function get_project($project_id, $config_key = 'icrp_database') {
+    $pdo = self::get_connection($config_key);
 
     $queries = [
       'project_details' => 'GetProjectDetail :project_id',
@@ -183,14 +183,9 @@ class ProjectViewController extends ControllerBase {
     'array_merge', []);
   }
 
-  public function getProjectDetails($project_id) {
-    $results = self::get_project($project_id);
-    return self::add_cors_headers(new JsonResponse($results));
-  }
 
-
-  public function get_funding($funding_id) {
-    $pdo = self::get_connection();
+  public function get_funding($funding_id, $config_key = 'icrp_database') {
+    $pdo = self::get_connection($config_key);
 
     $queries = [
       'project_funding_details' => 'GetProjectFundingDetail :funding_id',
@@ -216,23 +211,9 @@ class ProjectViewController extends ControllerBase {
         }, $stmt->fetchAll(PDO::FETCH_ASSOC))];
       }, array_keys($queries), $queries),
     'array_merge', []);
-
   }
 
 
-  public function getProjectDetailsContent($project_id) {
-    return [
-      '#type' => 'markup',
-//      '#markup' => "<div id=\"project-view-component\" data-project=\"{$project_id}\"></div>",
-      '#theme' => 'project_view_component',
-      '#project_id' => $project_id,
-      '#attached' => [
-        'library' => [
-          'db_project_view/project_view_resources'
-        ],
-      ],
-    ];
-  }  
 
   public function getProjectDetailsContentDeprecated($project_id) {
     $results = self::get_project($project_id);
@@ -250,10 +231,77 @@ class ProjectViewController extends ControllerBase {
     ];
   }
 
+
+
+
+
+
+
+
+
+
+  public function getProjectDetails($project_id) {
+    $results = self::get_project($project_id);
+    return self::add_cors_headers(new JsonResponse($results));
+  }
+
+  public function getProjectDetailsReview($project_id) {
+    $results = self::get_project($project_id, 'icrp_load_database');
+    return self::add_cors_headers(new JsonResponse($results));
+  }
+
+
+  public function getProjectDetailsContent($project_id) {
+    return [
+      '#type' => 'markup',
+      '#theme' => 'project_view_component',
+      '#project_id' => $project_id,
+      '#data_title' => 'Project Details',
+      '#data_source' => '',
+      '#attached' => [
+        'library' => [
+          'db_project_view/project_view_resources'
+        ],
+      ],
+    ];
+  }  
+
+  public function getProjectDetailsReviewContent($project_id) {
+    return [
+      '#type' => 'markup',
+      '#theme' => 'project_view_component',
+      '#project_id' => $project_id,
+      '#data_title' => 'Data Review - Project Details',
+      '#data_source' => '/review',
+      '#attached' => [
+        'library' => [
+          'db_project_view/project_view_resources'
+        ],
+      ],
+    ];
+  }
+
   public function getProjectFundingDetailsContent($project_id) {
     $results = self::get_funding($project_id);
     return [
       '#theme' => 'db_funding_view',
+      '#page_title' => 'Project Funding Details'
+      '#funding_details' => $results['project_funding_details'][0],
+      '#cancer_types' => $results['cancer_types'],
+      '#cso_research_areas' => $results['cso_research_areas'],
+      '#attached' => [
+        'library' => [
+          'db_project_view/resources'
+        ],
+      ],
+    ];
+  }
+
+  public function getProjectFundingDetailsReviewContent($project_id) {
+    $results = self::get_funding($project_id, 'icrp_load_database');
+    return [
+      '#theme' => 'db_funding_view',
+      '#page_title' => 'Data Review - Project Funding Details'
       '#funding_details' => $results['project_funding_details'][0],
       '#cancer_types' => $results['cancer_types'],
       '#cso_research_areas' => $results['cso_research_areas'],
@@ -265,4 +313,8 @@ class ProjectViewController extends ControllerBase {
     ];
 
   }
+
+
+
+
 }
