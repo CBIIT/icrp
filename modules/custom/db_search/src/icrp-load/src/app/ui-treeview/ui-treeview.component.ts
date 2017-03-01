@@ -40,6 +40,7 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
   }
 
   selectTreeValues(root: TreeNode, values: string[]) {
+    
     root.selected = (values.indexOf(root.value) >= 0);
 
     if (root.children && root.children.length) {

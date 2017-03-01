@@ -1,0 +1,61 @@
+<ui-spinner [active]="loading" [overlay]="true" [fullscreen]="true"></ui-spinner>
+
+<div class="row">
+  <div class="table-responsive col-md-8">
+    <table class="table table-bordered table-hover table-striped table-condensed table-nowrap table-narrow" #table>
+      <thead>
+        <tr>
+          <th>Sponsor Code</th>
+          <th>Funding Years</th>
+          <th>Workbook Received Date</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of partnerData; let i = index ">
+          <td>
+            <a 
+              style="cursor: pointer" 
+              (click)="setInitialPartnerSearchParameters(row.sponsor_code, row.funding_years, i)">
+                {{ row.display_sponsor_code }}
+            </a>
+          </td>
+          <td>{{ row.display_funding_years }}</td>
+          <td>{{ row.received_date }}</td>
+          <td>{{ row.note }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div style="color: orange; font-size: 16px; font-weight: bold">{{ partnerSelectionMessage }}</div>
+
+<br>
+
+<div class="row">
+<div class="col-md-3">
+  <app-search-form 
+    [initialSearchParameters]="initialParameters"
+    (search)="updateResults($event)" 
+    (mappedSearch)="updateMappedParameters($event)"
+    (requestInitialParameters)="updateInitialSearchId()">
+  </app-search-form>
+</div>
+
+<div class="col-md-9">
+  <app-search-results 
+    [authenticated]="loggedIn"
+    [results]="results"
+    [analytics]="analytics" 
+    [loading]="loading" 
+    [loadingAnalytics]="loadingAnalytics" 
+    [searchParameters]="mappedParameters"
+    (paginate)="paginate($event)" 
+    (sort)="sort($event)"
+    (updateFundingYear)="updateServerAnalyticsFunding($event)"
+    [fundingYearOptions]="conversionYears"
+    >
+  </app-search-results>
+</div>
+</div>

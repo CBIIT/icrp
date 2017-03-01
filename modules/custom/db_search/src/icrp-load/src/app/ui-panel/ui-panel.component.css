@@ -1,0 +1,33 @@
+
+:host:last-child {
+  margin-bottom: 200px;
+}
+
+.ui-panel {
+  border: 1px solid #BBB;
+  border-left: 1px solid #AAA;
+  margin-top: -1px;
+}
+
+.ui-panel:hover {
+  border: 1px solid #AFAFAF;
+}
+
+.ui-panel-content {
+  padding: 10px;
+  font-size: 13px;
+}
+
+.ui-panel-header {
+  padding: 10px;
+  font-size: 15px;
+  background-color: #F9F9F9;
+  color: #777;
+  cursor: pointer;
+  border-bottom: 1px solid #BBB;
+}
+
+.ui-panel-header:hover {
+  background-color: #FDFDFD;
+}
+
