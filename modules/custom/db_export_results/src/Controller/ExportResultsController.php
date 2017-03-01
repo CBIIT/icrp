@@ -307,7 +307,7 @@ class ExportResultsController extends ControllerBase {
 	} else {
 		$result = "failed to query server";
 	}
-	$objPHPExcel->getActiveSheet()->setTitle('Project By Site');
+	$objPHPExcel->getActiveSheet()->setTitle('Project By Cancer Type');
 
     return $result;
   }
