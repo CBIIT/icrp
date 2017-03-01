@@ -22,10 +22,10 @@ hr.less-margins {
   margin-bottom: 2px;
 }
 
-h3.title {
+h1.title {
   color: orange;
   display: inline-block;
-  margin-bottom: 0;
+  margin-bottom: 5px;
   margin-top: 0;
 }
 

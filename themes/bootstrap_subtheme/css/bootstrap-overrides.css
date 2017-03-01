@@ -6,6 +6,14 @@
 
 /** Misc overrides */
 
+h1 {
+  color: orange;
+}
+
+h2 {
+  color: orange;
+}
+
 a {
   color: #1E8BC3;
 }
@@ -150,7 +158,31 @@ table.table-narrow > tfoot > tr > td {
 
 .navbar .navbar-nav > li > a {
   margin: 4px;
+  border-radius: 0px;
+  border: 1px solid transparent;
 }
+
+.navbar .navbar-nav > li > a:hover {
+  border: 1px solid transparent;
+}
+
+.navbar .navbar-nav > li.dropdown.open {
+  background-color: #006687;
+}
+
+.navbar .navbar-nav > li:hover {
+  background-color: #006687;
+}
+
+.container > .navbar-header, .container-fluid > .navbar-header, .container > .navbar-collapse, .container-fluid > .navbar-collapse {
+  margin-left: -15px;
+  margin-right: -15px;
+}
+
+.navbar-nav > li > .dropdown-menu {
+  box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.5); 
+}
+
 
 /**
  * Bootstrap footer overrides

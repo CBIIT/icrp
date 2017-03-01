@@ -805,6 +805,59 @@ class DatabaseSearchAPIController extends ControllerBase {
     return self::add_cors_headers($response);
   }
 
+  public function retrieve_sponsor_upload_table() {
+    $pdo = self::get_connection('icrp_load_database');
+
+    $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE GetDataUploadInStaging');
+
+    $output = [];
+    if ($stmt->execute()) {
+      while ($row = $stmt->fetch()) {
+        array_push($output, [
+          'sponsor_code'  => $row['SponsorCode'], 
+          'funding_years' => $row['FundingYear'],
+          'received_date' => $row['ReceivedDate'],
+          'note'          => $row['Note'],
+        ]);
+      }
+    }
+
+
+    foreach($output as &$row) {
+      // add sponsor ids to sponsor codes
+      $sponsors = [];
+      $sponsor_code = $row['sponsor_code'];
+      $sponsor_stmt = $pdo->prepare('SELECT FundingOrgID AS [value] from FundingOrg where SponsorCode=:sponsor_code');
+
+      if ($sponsor_stmt->execute([':sponsor_code' => $sponsor_code])) {
+        $rows = (array) $sponsor_stmt->fetchAll(PDO::FETCH_ASSOC);
+        $sponsors = array_column($rows, 'value');
+      }
+
+      $row['sponsor_code'] = $sponsors;
+      array_push($row['sponsor_code'], $sponsor_code);
+
+
+      $dates = $row['funding_years'];
+      
+      // split funding years to date ranges
+      if (strpos($dates, '-') !== false) {
+        $date_array = explode('-', $dates);
+
+        $start_date = $date_array[0];
+        $end_date = $date_array[1];
+        $row['funding_years'] = range($start_date, $end_date);
+      }
+
+      else {
+        $row['funding_years'] = [$dates];
+      }
+
+    }
+
+    return $output;
+  }
+
   /**
    * Callback for `db/public/analytics/` API method.
    */
@@ -857,6 +910,11 @@ class DatabaseSearchAPIController extends ControllerBase {
   public function load_retrieve_parameters( Request $request ) {
     $search_id = $request->query->get('search_id');
     $response = new JSONResponse( self::retrieve_search_parameters($search_id, 'icrp_load_database') );
+    return self::add_cors_headers($response);
+  }
+
+  public function load_sponsor_upload_table( Request $request ) {
+    $response = new JSONResponse( self::retrieve_sponsor_upload_table() );
     return self::add_cors_headers($response);
   }
 

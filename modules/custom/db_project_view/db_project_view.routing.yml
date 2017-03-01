@@ -15,6 +15,24 @@ db_project_view.project_details.get:
     _permission: 'access content'
     project_id: '[0-9]{1,9}'
 
+db_project_view.project_details_review:
+  path: '/review/project/{project_id}'
+  defaults:
+    _controller: '\Drupal\db_project_view\Controller\ProjectViewController::getProjectDetailsReviewContent'
+    _title: 'Project Details'
+  requirements:
+    _permission: 'access content'
+    project_id: '[0-9]{1,9}'
+
+db_project_view.project_details_review.get:
+  path: '/review/project/get/{project_id}'
+  defaults:
+    _controller: '\Drupal\db_project_view\Controller\ProjectViewController::getProjectDetailsReview'
+  requirements:
+    _permission: 'access content'
+    project_id: '[0-9]{1,9}'
+
+
 db_project_view.project_funding_details:
   path: '/project/funding-details/{project_id}'
   defaults:
@@ -23,6 +41,17 @@ db_project_view.project_funding_details:
   requirements:
     _permission: 'access content'
     project_id: '[0-9]{1,9}'
+
+
+db_project_view.project_funding_details_review:
+  path: '/review/project/funding-details/{project_id}'
+  defaults:
+    _controller: '\Drupal\db_project_view\Controller\ProjectViewController::getProjectFundingDetailsReviewContent'
+    _title: 'Data Review - Project Funding Details'
+  requirements:
+    _permission: 'access content'
+    project_id: '[0-9]{1,9}'
+
 
 db_project_view.content_deprecated:
   path: '/ViewProject/{project_id}'

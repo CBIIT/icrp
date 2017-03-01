@@ -52,7 +52,9 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
 
   constructor(
     @Inject(FormBuilder) private formbuilder: FormBuilder,
-    @Inject(Http) private http: Http) {
+    @Inject(Http) private http: Http,
+    @Inject('api_root') private apiRoot: string
+    ) {
 
     this.authenticated = false;
     
@@ -169,6 +171,11 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     
 
     if (this.results) {
+
+      let url_root = this.apiRoot === '/load'
+        ? '/review'
+        : '';
+
       this.projectData = this.results.map(result => {
         return {
           project_title: result.project_title,
@@ -179,7 +186,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
           country: result.country,
           funding_organization: result.funding_organization,
           award_code: result.award_code,
-          url: `/project/${result.project_id}`
+          url: `${url_root}/project/${result.project_id}`
         }
       })
     }

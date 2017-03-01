@@ -122,8 +122,8 @@ class ExportResultsController extends ControllerBase {
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$objPHPExcel->setActiveSheetIndex($sheetIndex)
 						->setCellValue('A'.$i, $row['Title'])
-						->setCellValue('B'.$i, $row['piLastName'])
-						->setCellValue('C'.$i, $row['piFirstName'])
+						->setCellValue('B'.$i, $row['piFirstName'])
+						->setCellValue('C'.$i, $row['piLastName'])
 						->setCellValue('D'.$i, $row['institution'])
 						->setCellValue('E'.$i, $row['City'])
 						->setCellValue('F'.$i, $row['State'])
@@ -307,7 +307,7 @@ class ExportResultsController extends ControllerBase {
 	} else {
 		$result = "failed to query server";
 	}
-	$objPHPExcel->getActiveSheet()->setTitle('Project By Site');
+	$objPHPExcel->getActiveSheet()->setTitle('Project By Cancer Type');
 
     return $result;
   }

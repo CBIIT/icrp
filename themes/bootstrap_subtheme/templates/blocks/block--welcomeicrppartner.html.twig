@@ -1,78 +1,89 @@
 <h1>Welcome ICRP Partner</h1>
 <div style="margin-top: 5px; margin-bottom: 20px;">
-    Please use the tabs below to find out more about the partner site and resources available to you.  If you have any questions, please <a href="./contact-us?type-of-issue=Partnership Questions">contact us.</a><br />
+	Please use the tabs below to find out more about the partner site and resources available to you.  If you have any questions, please <a href="./contact-us">contact us.</a><br />
 </div>
 <ul class="nav nav-tabs">
-    <li class="active"><a data-toggle="tab" href="#welcome">Welcome</a></li>
-    <li><a data-toggle="tab" href="#getting-started">Getting Started</a></li>
-    <li><a data-toggle="tab" href="#partner-calendar">Partner Calendar</a></li>
-    <li><a data-toggle="tab" href="#partner-management">Project Management</a></li>
+	<li class="active"><a data-toggle="tab" href="#welcome">Welcome</a></li>
+	<li><a data-toggle="tab" href="#getting-started">Getting Started</a></li>
+	<li><a data-toggle="tab" href="#partner-calendar">Partner Calendar</a></li>
+	<li><a data-toggle="tab" href="#partner-management">Project Management</a></li>
 </ul>
 
 <div class="tab-content partner-content">
 
-    <div id="welcome" class="tab-pane fade in active">
-        As a partner, you can use the resources and information available to all members of our funding organizations.  Use the links below to update you user profile, access the full partner dataset or find resources in the partner library.
-        <h2>User and Data Tools</h2>
-        <ul>
-            <li><a href="/update-my-profile">Update Profile</a> - Update your user profile and password</li>
-            <li><a href="/sites/default/files/downloads/ICRPDataDictionary.pdf">Data Resources</a> - View CSO Codes, Partner Data Caveats, Training Guides, Data Upload Status reports and the ICRP Data Dictionary</li>
-            <li><a href="/db_search">Search &amp; Analysis</a> - Search the ICRP database and export or graph the results</li>
-            <li><a href="/data-upload-review">Data Review Tool</a></li>
-        </ul>
-        <h2>Communications Tools</h2>
-        <ul>
-            <li><a href="https://twitter.com/icrpartners1?ref_src=twsrc%5Etfw">Twitter</a> - sign up to our Twitter feed</li>
-            <li><a href="./library">Library</a> - Access resources stored within the ICRP Library</li>
-        </ul>
-        {% if user.hasRole('manager') %}
-            <h2>Admin Tools</h2>
-            <ul>
-                <li><a href="#">Partner Application Administration Tool</a></li>
-                <li><a href="#">User Account Administration Tool</a></li>
-            </ul>
-        {% endif %}
+	<div id="welcome" class="tab-pane fade in active" style="height: 654px;">
+		As a partner, you can use the resources and information available to all members of our funding organizations.  Use the links below to update you user profile, access the full partner dataset or find resources in the partner library.
+		<h2>User and Data Tools</h2>
+		<ul style="margin: 0 0 3px 0;">
+			<li><a href="/update-my-profile">Update Profile</a> - Update your user profile and password</li>
+			<li><a href="/sites/default/files/downloads/ICRPDataDictionary.pdf">Data Resources</a> - View CSO Codes, Partner Data Caveats, Training Guides, Data Upload Status reports and the ICRP Data Dictionary</li>
+			<li><a href="/db_search">Search &amp; Analysis</a> - Search the ICRP database and export or graph the results</li>
+			<li><a href="/data-upload-review">Data Review Tool</a></li>
+		</ul>
+		<h2>Data Tools</h2>
+		<ul style="margin: 0 0 3px 0;">
+			<li><a href="/cso">CSO</a> - View CSO Codes</li>
+			<li><a href="/ICRPDataCaveats">ICRP Data Caveats</a> - View Partner Data Caveats</li>
+			<li><a href="/sites/default/files/downloads/ICRPDataDictionary.pdf">Data Dictionary</a> - View ICRP Data Dictionary</li>
+			<li><a href="/ExportLookupTable">Export Lookup Table</a> - Export ICRP Data Lookup Tables</li>
+			<li><a href="/uploadStatusReport">ICRP Data Upload Status Report</a> - View Partner Data Upload Status Report</li>
+			<li><a href="/FundingOrgs">Funding Organization</a> - View current ICRP Funding Organization`</li>
+		</ul>
+		<h2>Communications Tools</h2>
+		<ul>
+			<li><a href="https://twitter.com/icrpartners1?ref_src=twsrc%5Etfw">Twitter</a> - sign up to our Twitter feed</li>
+			<li><a href="/library">Library</a> - Access resources stored within the ICRP Library</li>
+		</ul>
 
-    </div>
 
-    <div id="getting-started" class="tab-pane fade">
-        In this section, you can access various data-related resources.
-        <ul>
-            <li><a href="./cso">CSO</a></li>
-            <li><a href="./FundingOrgs">Funding Organization Report</a></li>
-            <li><a href="./ICRPDataCaveats">ICRP Data Caveats</a></li>
-            <li><a href="./sites/default/files/downloads/general/ICRPDataDictionary.pdf" target="_blank">Data Dictionary</a></li>
-            <li><a href="./sites/default/files/downloads/general/SearchExports-ICRPCodeLists.xls">Export Lookup Table</a></li>
-            <li><a href="./uploadStatusReport">ICRP Data Upload Status Report</a></li>
+		{% if user.hasRole('manager') %}
+			<h2>Admin Tools</h2>
+			<ul style="margin: 0 0 3px 0;">
+				<li><a href="#">Partner Application Administration Tool</a></li>
+				<li><a href="#">User Account Administration Tool</a></li>
+			</ul>
+		{% endif %}
 
-        </ul>
-    </div>
+	</div>
 
-    <div id="partner-calendar" class="tab-pane fade">
-        Partners are invited to join several meetings throughout the year. The annual meeting is usually held in April-May, in different verues around the world, and is normally hosted by a partner organization.
-        <ul>
-            <li>Annual meeting 2017: 18-21 April, London UK, hosted by the National Cancer Institute. For further information set the <a href="./library">Library</a></li>
-            <li>Annual meeting 2018: 10-12 April, Washington DC USA, hosted by National Cancer Insitute and Congressionally Directed Medical Research Programs</li>
-        </ul>
-        <br />
-        Partner teleconferences
-        <ul>
-            <li>Full partner teleconferences are held on the 3rd Thursday of each month, rotating between 3 times to ensure that partners in different time zones can join the can join the calls reqularly.  The next call is on XXXXXX [text to update] and the full schedule can be downloaded <a href="./sites/default/files/downloads/general/ICRP2016-17_TC schedule.pdf" target="_blank">here</a><br />
-                Agendas and minutes are stored int the <a href="./library">Library</a></li>
-            <br />
-            <li>Ad-hoc teleconferences are organized for the following committees as required<br />
-                <div style="width: 500px">
-                    <span style="float: left;">Evaluations & Analysis:</span><span style="float: right;">next meeting - data to be advised</span><br />
-                    <span style="float: left;">Membership & Communications:</span><span style="float: right;">next meeting - data to be advised</span><br />
-                    <span style="float: left;">Website & Database:</span><span style="float: right;">next meeting - data to be advised</span><br />
-                    <span style="float: left;">Website & Database:</span><span style="float: right;">next meeting - data to be advised</span><br />
-                </div>
-            </li>
-        </ul>
-        <br />
-        The lastest membership list of these committees and operational groups can be found here.  If you would like to join a committee contact <a href="mailto:operations@icrpartbership.org">operations@icrpartbership</a>
-    </div>
-    <div id="partner-management" class="tab-pane fade">
-        The current ICRP work plan and strategic plan can be downloaded here.  Please contact <a href="mailto:operations@icrpartbership.org">operations@icrpartbership</a> if you have any questions.
-    </div>
+	<div id="getting-started" class="tab-pane fade" style="height: 654px;">
+		In this section, you can access various data-related resources.
+		<ul style="margin: 0 0 3px 0;">
+			<li><a href="/cso">CSO</a></li>
+			<li><a href="/FundingOrgs">Funding Organization Report</a></li>
+			<li><a href="/ICRPDataCaveats">ICRP Data Caveats</a></li>
+			<li><a href="/sites/default/files/downloads/ICRPDataDictionary.pdf" target="_blank">Data Dictionary</a></li>
+			<li><a href="/sites/default/files/downloads/SearchExports-ICRPCodeLists.xls">Export Lookup Table</a></li>
+			<li><a href="/uploadStatusReport">ICRP Data Upload Status Report</a></li>
+
+		</ul>
+	</div>
+
+	<div id="partner-calendar" class="tab-pane fade" style="height: 654px;">
+		Partners are invited to join several meetings throughout the year. The annual meeting is usually held in April-May, in different verues around the world, and is normally hosted by a partner organization.
+		<ul>
+			<li>Annual meeting 2017: 19-21 April, London UK, hosted by the National Cancer Institute. For further information see the <a href="./library">Library</a></li>
+			<li>Annual meeting 2018: 10-12 April, Washington DC USA, hosted by National Cancer Insitute and Congressionally Directed Medical Research Programs</li>
+		</ul>
+		<br />
+		Partner teleconferences
+		<ul>
+			<li>Full partner teleconferences are held on the 3rd Thursday of each month, rotating between 3 times to ensure that partners in different time zones can join the can join the calls reqularly.  The next call is on XXXXXX [text to update] and the full schedule can be downloaded <a href="/sites/default/files/downloads/ICRP2016-17_TC schedule.pdf" target="_blank">here</a><br />
+				Agendas and minutes are stored int the <a href="/library">Library</a></li>
+			<br />
+			<li>Ad-hoc teleconferences are organized for the following committees as required<br />
+				<div style="width: 500px">
+					<span style="float: left;">Evaluations & Analysis:</span><span style="float: right;">next meeting - data to be advised</span><br />
+					<span style="float: left;">Membership & Communications:</span><span style="float: right;">next meeting - data to be advised</span><br />
+					<span style="float: left;">Website & Database:</span><span style="float: right;">next meeting - data to be advised</span><br />
+					<span style="float: left;">Coding & Data Quality:</span><span style="float: right;">next meeting - data to be advised</span><br />
+				</div>
+			</li>
+		</ul>
+		<br />
+		The lastest membership list of these committees and operational groups can be found here.  If you would like to join a committee contact <a href="mailto:operations@icrpartbership.org">operations@icrpartbership</a>
+	</div>
+	<div id="partner-management" class="tab-pane fade" style="height: 654px;">
+		The current ICRP work plan and strategic plan can be downloaded here.  Please contact <a href="mailto:operations@icrpartbership.org">operations@icrpartbership</a> if you have any questions.
+	</div>
 </div>
