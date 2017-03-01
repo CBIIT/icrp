@@ -11,11 +11,11 @@ use PDO;
 
 class LibraryController extends ControllerBase {
   public function testQuery() {
-    return new JsonResponse(array(),Response::HTTP_INTERNAL_SERVER_ERROR);
+    //return new JsonResponse(array(),Response::HTTP_INTERNAL_SERVER_ERROR);
     $return = array();
     $connection = self::get_connection();
     $stmt = $connection->prepare(
-      "SELECT CASE WHEN ArchivedDate IS NULL THEN NULL ELSE GETDATE() END AS x FROM LibraryFolder WHERE LibraryFolderID=3082"
+      "SELECT * FROM Library WHERE LibraryFolderID=3064"
     );
     if ($stmt->execute()) {
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -375,7 +375,7 @@ class LibraryController extends ControllerBase {
         }
       }
     } else {
-      $stmt = $connection->prepare("UPDATE Library SET Title=:title, Description=:desc, IsPublic=:ip WHERE LibraryID=:lid");
+      $stmt = $connection->prepare("Library SET Title=:title, Description=:desc, IsPublic=:ip WHERE LibraryID=:lid");
       $stmt->bindParam(":title",$params["title"]);
       $stmt->bindParam(":desc",$params["description"]);
       $stmt->bindParam(":ip",$params["is_public"]);
