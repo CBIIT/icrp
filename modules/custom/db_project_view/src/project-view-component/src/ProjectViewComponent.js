@@ -127,7 +127,7 @@ class ProjectViewComponent extends Component {
 
         data: results.project_funding_details.map(row => ({
           project_title: row.project_title,
-          project_funding_url: `/project/funding-details/${row.project_funding_id}`,
+          project_funding_url: `${this.props.source}/project/funding-details/${row.project_funding_id}`,
           project_category: row.award_type,
           funding_organization: row.funding_organization,
           alt_award_code: row.alt_award_code,
@@ -189,7 +189,7 @@ class ProjectViewComponent extends Component {
       return <div>
 
         <div className="clearfix">
-          <h1 className="title">{ this.props.page_title }</h1>
+          <h1 className="title">{ this.props.title }</h1>
           <span className="pull-right" id="google_translate_element" />
         </div>
 
