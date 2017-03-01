@@ -285,7 +285,7 @@ class ProjectViewController extends ControllerBase {
     $results = self::get_funding($project_id);
     return [
       '#theme' => 'db_funding_view',
-      '#page_title' => 'Project Funding Details'
+      '#page_title' => 'Project Funding Details',
       '#funding_details' => $results['project_funding_details'][0],
       '#cancer_types' => $results['cancer_types'],
       '#cso_research_areas' => $results['cso_research_areas'],
@@ -301,7 +301,7 @@ class ProjectViewController extends ControllerBase {
     $results = self::get_funding($project_id, 'icrp_load_database');
     return [
       '#theme' => 'db_funding_view',
-      '#page_title' => 'Data Review - Project Funding Details'
+      '#page_title' => 'Data Review - Project Funding Details',
       '#funding_details' => $results['project_funding_details'][0],
       '#cancer_types' => $results['cancer_types'],
       '#cso_research_areas' => $results['cso_research_areas'],
