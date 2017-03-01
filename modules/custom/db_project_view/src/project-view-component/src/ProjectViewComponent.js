@@ -155,7 +155,7 @@ class ProjectViewComponent extends Component {
     }
   }
 
-  componentDidMount() {
+  componentDidUpdate() {
     this.appendGoogleTranslateScript();
   }
 
