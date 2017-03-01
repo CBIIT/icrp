@@ -25,7 +25,7 @@
 #library-search .browse-header:after,
 #library-search:after,
 #library-display .frame.preview .item:after,
-#library-view:after {
+#library-view-table:after {
   content: '';
   display: block;
   clear: both;
@@ -38,7 +38,10 @@
 #library header {
   margin-bottom: 2em;
 }
-#library-view > *,
+#library header h2 {
+  color: orange;
+}
+#library-view-table > *,
 #library-search .browse > *,
 #library-search .searchbar,
 #library-display .frame.preview .item {
@@ -46,6 +49,7 @@
 }
 #library-search {
   background: #FBFBFB;
+  min-height: 38.5em;
 }
 #library-search .input-group {
   border-spacing: 0px;
@@ -60,7 +64,7 @@
 #library-search .browse-header > * {
   margin: 5px;
 }
-#library-search h3 {
+#library-search h4 {
   float: left;
 }
 #library-search .browse-header > div {
@@ -97,12 +101,16 @@
   margin: 5px 0px;
 }
 #library-management > *:before,
-#library-management2 > *:before {
+#library-management2 > *:before,
+#library-display .frame:not(.preview) .item div:before {
   content: '';
   display: block;
   float: left;
-  height: 1.4em;
   margin-right: 5px;
+}
+#library-management > *:before,
+#library-management2 > *:before {
+  height: 1.4em;
   width: 1.45em;
 }
 #library-create-folder:before {
@@ -112,8 +120,8 @@
   margin: 1em 0px 0px;
   padding: 1em 0px 5em;
 }
-#library-display h3 {
-  margin-top: 0px;
+#library-display > div:first-child {
+  min-height: 32em;
 }
 #library-display .frame {
   column-gap: 1em;
@@ -152,8 +160,8 @@
   bottom: 10px;
   left: 170px;
   position: absolute;
+  right: 10px;
   text-align: center;
-  width: 46.4em;
 }
 #library-display .frame:not(.preview) {
   border-spacing: 0px 5px;
@@ -170,13 +178,9 @@
   padding: 5px 10px;
 }
 #library-display .frame:not(.preview) .item div:before {
-    content: '\e202';
-    font-family: 'Glyphicons Halflings';
-    font-size: 1.2em;
-    margin-right: 1em;
-}
-#library-display .frame .item.archived a {
-  color: grey;
+  background: url('file.png') no-repeat 1px 0px/contain;
+  height: 1em;
+  width: 1em;
 }
 #library.admin #library-display .frame:not(.preview) .item button.admin {
   border: 0px;
@@ -200,6 +204,9 @@
 #library-display .frame:not(.preview) .item .restore-file:before {
   color: #0C0;
   content: '\e027';
+}
+#library-display .frame .item.archived a {
+  color: grey;
 }
 #library-management2 {
   bottom: 2em;
@@ -236,16 +243,26 @@
   text-align: center;
 }
 #library-parameters {
+  border-spacing: 5px;
   display: table;
   margin: 0px auto;
   width: 40em;
+}
+#library-parameters .required {
+  position: relative;
+}
+#library-parameters .required:before {
+  color: #F00;
+  content: '* ';
+  font-weight: bold;
+  left: -1em;
+  position: absolute;
 }
 #library-parameters div {
   display: table-row;
 }
 #library-parameters label {
   display: table-cell;
-  padding: 5px 0px;
   vertical-align: top;
   width: 7em;
 }
@@ -261,11 +278,11 @@
 }
 
 @media (min-width: 1200px) {
-  #library.tab-content > #library-view.active {
+  #library-view-table {
     display: table;
     width: 100%;
   }
-  #library-view {
+  #library-view-table {
     margin: 0px -2em 0px -1em;
     border-spacing: 1em 0px;
   }
@@ -281,8 +298,5 @@
   }
   #library-display .frame.preview .item {
     width: 32em;
-  }
-  #library-display .frame.preview .div {
-    width: 19.9em;
   }
 }

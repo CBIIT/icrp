@@ -410,7 +410,7 @@ jQuery(function() {
             } else {
                 frame.removeClass('preview');
             }
-            frame.append('<div class="item"><h4>No Files Found</h4></div>');
+            frame.append('<div class="item">No Files Found</div>');
         }
     };
     functions.initialize();
