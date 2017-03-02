@@ -1,0 +1,76 @@
+<div *ngIf="!data">
+  Fetching results...
+</div>
+
+<div class="table-responsive bordered" style="position: relative" *ngIf="data && data.length">
+  <table class="table custom-sizing table-bordered table-hover table-striped table-condensed table-nowrap table-narrow" #table>
+    <thead #thead>
+      <tr>
+        <th *ngFor="let column of columns" 
+          style="cursor: pointer"
+          (click)="sortTableColumn(column)" 
+          >
+          <div 
+            style="display: flex; justify-content: space-between"
+            [tooltip]="column.tooltip" 
+            container="body" 
+            
+            >
+            
+            <span>
+              {{ column.label }}
+            </span> 
+            <span>
+              {{ column.sort === 'asc' ? '▲' : '▼' }}
+            </span> 
+          </div>
+        </th>
+      </tr>
+    </thead>
+    <tbody #tbody>
+      <tr *ngFor="let row of data">
+        <td *ngFor="let column of columns">
+
+          <span>
+            <a *ngIf="column.link" [href]="row[column.link]" target="_blank">
+              {{ row[column.value] }}
+            </a>
+
+            <span *ngIf="!column.link">
+              {{ row[column.value] }}
+            </span>
+          </span>
+
+        </td>
+      </tr>
+    </tbody>
+  
+  </table>
+</div>
+
+<div class="clearfix" style="margin-top: 20px" *ngIf="data && data.length">
+  <div class="pull-left">
+
+    <pagination 
+      [boundaryLinks]="true" 
+      [totalItems]="numResults" 
+      [(ngModel)]="pagingModel"
+      [maxSize]="5"
+      (pageChanged)="pageChanged($event)"
+      [itemsPerPage]="pageSize"
+      class="pagination-sm"
+      previousText="&lsaquo;" 
+      nextText="&rsaquo;" 
+      firstText="&laquo;" 
+      lastText="&raquo;">
+    </pagination>
+  </div>
+
+  <div class="pull-right">
+    Show 
+    <select #p (change)="updatePageSize(p.value)">
+      <option *ngFor="let size of pageSizes" [value]="size">{{size}}</option>
+    </select>
+    entries of {{ numResults | number }}
+  </div>
+</div>

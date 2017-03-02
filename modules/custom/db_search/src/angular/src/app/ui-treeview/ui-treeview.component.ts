@@ -53,7 +53,7 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
   createTree(node: TreeNode, el: HTMLElement, parent: TreeNode, selected: boolean, replace: boolean) {
 
     /** Initialize the selected state of the node */
-    node.selected = selected;
+    node.selected = node.selected || selected;
 
     node.parent = parent;
 

@@ -1,0 +1,26 @@
+<input 
+  *ngIf="disable" 
+  class="select-input-disabled default" 
+  [placeholder]="placeholder" 
+  type="text" 
+  disabled #input>
+
+<div *ngIf="!disable">
+  <div class="select-container default">
+    <div class="select-input-container default">
+      <div class="select-label default" *ngFor="let item of items; let index = index">
+        <div>{{item}}</div>
+        <div (click)="removeItem(index)">&#x2715;</div>
+      </div>
+      <div>
+        <input #input class="select-input default" type="text" 
+          (keydown)="handleKeydownEvent($event)"
+          (blur)="addItem(input.value)"
+          [placeholder]="items.length ? '' : placeholder"
+        >
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!valid && input && input.value" style="color: red;">Please ensure that the e-mail address entered is valid</div>
+</div>

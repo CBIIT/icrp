@@ -1,0 +1,224 @@
+<form [formGroup]="form" (ngSubmit)="submit($event)">
+
+  <!-- Search Terms -->
+  <ui-panel title="Search Terms" [visible]="true">
+    <label class="sr-only" for="search_terms">Search Terms</label>
+    <input 
+      class="text input" 
+      id="search_terms"
+      name="search_terms"
+      type="text"
+      placeholder="Enter search terms"
+      tooltip="Enter search terms"
+      [formControl]="form.controls.search_terms">
+
+    <div>
+      <label 
+        class="radio-label" 
+        for="search_type_all"
+        placement="right" 
+        tooltip="Return awards that contain all the words provided">
+        <input 
+          class="radio-input" 
+          type="radio" 
+          id="search_type_all" 
+          name="search_type" 
+          value="all"
+          [formControl]="form.controls.search_type">
+        All of the keywords
+      </label>
+    </div>
+
+    <div>
+      <label 
+        class="radio-label" 
+        for="search_type_none"
+        placement="right"
+        tooltip="Return awards that do not contain any of the words provided">
+        <input
+          class="radio-input"
+          type="radio"
+          id="search_type_none"
+          name="search_type"
+          value="none"
+          [formControl]="form.controls.search_type">
+        None of the keywords
+      </label>
+    </div>
+
+    <div>
+      <label 
+        class="radio-label" 
+        for="search_type_any"
+        placement="right" 
+        tooltip="Return awards that contain any of the words provided">
+        <input
+          class="radio-input"
+          type="radio"
+          id="search_type_any"
+          name="search_type"
+          value="any"
+          [formControl]="form.controls.search_type">
+        Any of the keywords
+      </label>
+    </div>
+
+    <div>
+      <label 
+        class="radio-label" 
+        for="search_type_exact"
+        placement="right" 
+        tooltip="Return awards that contain the exact phrase provided">
+        <input 
+          class="radio-input"
+          type="radio"
+          id="search_type_exact"
+          name="search_type"
+          value="exact"
+          [formControl]="form.controls.search_type">
+        Exact phrase provided
+      </label>
+    </div>
+
+    <label class="form-label" for="years_active">Year Active</label>
+    <ui-select 
+      tooltip="Awards active in the calendar year. Default view shows most recent 2 years, click below to select additional years." 
+      placeholder="Year" 
+      [items]="fields.years" 
+      [formControl]="form.controls.years"></ui-select>
+
+    <i style="color: #888; display: block; font-size: 12px; margin: 4px 2px;">Use this indicator to search for awards that are active during the time period you have selected.</i>
+  </ui-panel>
+
+  <!-- Institutions and Investigators -->
+  <ui-panel title="Institutions and Investigators">
+    <label class="form-label" for="institution">Institution Name</label>
+    <input 
+      class="text input"
+      type="text"
+      id="institution"
+      placeholder="Full or partial name"
+      tooltip="Full or partial institution name"
+      [formControl]="form.controls.institution">
+
+    <label class="form-label" for="pi_first_name">Principal Investigator</label>
+    <div class="row">
+      <div class="col-md-6">
+        <input 
+          class="text input"
+          type="text"
+          id="pi_first_name"
+          placeholder="First name or initial"
+          tooltip="Full or partial first name of the principal investigator"
+          [formControl]="form.controls.pi_first_name">
+      </div>
+
+      <div class="col-md-6" for="pi_last_name">
+        <input
+          class="text input"
+          type="text"
+          id="pi_last_name"
+          placeholder="Last name"
+          tooltip="Full or partial last name of the principal investigator"
+          [formControl]="form.controls.pi_last_name">
+      </div>
+    </div>
+
+    <label class="form-label" for="pi_orcid">ORCiD ID</label>
+    <input
+      class="text input"
+      type="text"
+      for="pi_orcid"
+      placeholder="nnnn-nnnn-nnnn-nnnn"
+      tooltip="Full or partial ORCiD of the principal investigator"
+      [formControl]="form.controls.pi_orcid">
+
+    <label class="form-label" for="award_code">Project Award Code</label>
+    <input
+      class="text input"
+      id="award_code"
+      type="text"
+      placeholder="Award Code"
+      tooltip="Full or partial project award code"
+      [formControl]="form.controls.award_code">
+
+    <label class="form-label" for="countries">Country</label>
+    <ui-select 
+      placeholder="Enter Countries" 
+      tooltip="Select one or more countries"
+      [items]="fields.countries" 
+      [formControl]="form.controls.countries">
+    </ui-select>
+
+    <label class="form-label" for="states">State/Territory</label>
+    <ui-select 
+      placeholder="Enter States/Territories" 
+      tooltip="Select one or more states"
+      [formControl]="form.controls.states"
+      [items]="filterStates(fields.states, (form.controls['countries'] && form.controls['countries'].value) || [])" 
+      [disable]="!form.controls['countries'].value || form.controls['countries'].value.length != 1">
+    </ui-select>
+
+    <label class="form-label" for="cities">City</label>
+    <ui-select 
+      placeholder="Enter Cities" 
+      tooltip="Select one or more cities"      
+      [formControl]="form.controls.cities"
+      [items]="filterCities(fields.cities, (form.controls['states'] && form.controls['states'].value) || [], (form.controls['countries'] && form.controls['countries'].value) || [])" 
+      [disable]="!form.controls['countries'].value || form.controls['countries'].value.length != 1">
+    </ui-select>
+  </ui-panel>
+
+  <!-- Funding Organizations -->
+  <ui-panel title="Funding Organizations">
+    <label class="sr-only" for="funding_organizations">Funding Organizations</label>
+    <div 
+      *ngIf="funding_organizations"
+      class="multiselect"
+      tooltip="Select one or more funding organizations">
+      <ui-treeview
+        [root]="funding_organizations" 
+        [formControl]="form.controls.funding_organizations">
+      </ui-treeview>
+    </div>
+  </ui-panel>
+
+  <!-- Cancer and Project Type -->
+  <ui-panel title="Cancer and Project Type">
+    <label class="form-label" for="cancer_types">Cancer Types</label>
+    <ui-select
+      tooltip="Select one or more cancer types"
+      placeholder="Select Cancer Types" 
+      [items]="fields.cancer_types" 
+      [formControl]="form.controls.cancer_types">
+    </ui-select>
+
+    <label class="form-label" for="project_types">Project Types</label>
+    <ui-select
+      tooltip="Select one or more project types"
+      placeholder="Select Project Types" 
+      [items]="fields.project_types" 
+      [formControl]="form.controls.project_types">
+    </ui-select>
+  </ui-panel>
+
+  <!-- Common Scientific Outline - Research Area -->
+  <ui-panel title="Common Scientific Outline - Research Area">
+    <label class="sr-only" for="cso_research_areas">CSO - Research Areas</label>
+    <div 
+      *ngIf="cso_research_areas"
+      class="multiselect" 
+      tooltip="Select one or more CSO research areas">
+      <ui-treeview 
+        [root]="cso_research_areas" 
+        [formControl]="form.controls.cso_research_areas">
+      </ui-treeview>
+    </div>
+  </ui-panel>
+
+  <div class="text-right vertical-spacer">
+    <button class="btn btn-primary" type="submit">Search</button>
+    <button class="btn btn-default" type="button" (click)="resetForm()">Reset</button>
+  </div>
+</form>
+
