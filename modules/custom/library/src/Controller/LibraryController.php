@@ -80,10 +80,10 @@ class LibraryController extends ControllerBase {
     "admin" => "SELECT * FROM Library WHERE LibraryFolderID=:lfid ORDER BY LOWER(Filename);"
   );
   private static $fileSearch = array(
-    "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND LOWER(Filename) LIKE :keywords ORDER BY Title;",
-    "private" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LOWER(Filename) LIKE :keywords ORDER BY Title;",
-    "partner" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LOWER(Filename) LIKE :keywords ORDER BY Title;",
-    "admin" => "SELECT * FROM Library WHERE LOWER(Filename) LIKE :keywords ORDER BY Title;"
+    "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND (LOWER(Filename) LIKE :keywords1 OR LOWER(Title) LIKE :keywords2 OR LOWER(Description) LIKE :keywords3) ORDER BY LOWER(Title);",
+    "private" => "SELECT * FROM Library WHERE archivedDate IS NULL AND (LOWER(Filename) LIKE :keywords1 OR LOWER(Title) LIKE :keywords2 OR LOWER(Description) LIKE :keywords3) ORDER BY LOWER(Title);",
+    "partner" => "SELECT * FROM Library WHERE archivedDate IS NULL AND (LOWER(Filename) LIKE :keywords1 OR LOWER(Title) LIKE :keywords2 OR LOWER(Description) LIKE :keywords3) ORDER BY LOWER(Title);",
+    "admin" => "SELECT * FROM Library WHERE (LOWER(Filename) LIKE :keywords1 OR LOWER(Title) LIKE :keywords2 OR LOWER(Description) LIKE :keywords3) ORDER BY LOWER(Title);"
   );
 
   public function content() {
@@ -176,7 +176,9 @@ class LibraryController extends ControllerBase {
     $result = array();
     $connection = self::get_connection();
     $stmt = $connection->prepare(self::$fileSearch[$role]);
-    $stmt->bindParam(":keywords",$keywords);
+    $stmt->bindParam(":keywords1",$keywords);
+    $stmt->bindParam(":keywords2",$keywords);
+    $stmt->bindParam(":keywords3",$keywords);
     if ($stmt->execute()) {
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $row_output = array();
