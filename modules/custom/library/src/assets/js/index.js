@@ -72,7 +72,7 @@ jQuery(function() {
             return a.text.toLowerCase() > b.text.toLowerCase() ? 1 : a.text.toLowerCase() < b.text.toLowerCase() ? -1 : 0
         },
         'closeParams': function(e) {
-            var params = $('#library-params');
+            var params = $('#library-parameters');
             params.find('[name="upload"]').removeClass('hide').prev().empty().addClass('hide');
             params.find('[name="thumbnail"]').removeClass('hide').prev().empty().addClass('hide');
             e.preventDefault();
@@ -267,7 +267,10 @@ jQuery(function() {
                 title = $('#library-parameters [name="title"]').val();
                 desc = $('#library-parameters [name="description"]').val();
             if ((!file.hasClass('hide') && (file.val()||"") === "") || (title||"") === "" || (desc||"") === "") {
-                BootstrapDialog.alert("Missing required parameters.");
+                BootstrapDialog.alert({
+                  'title': null,
+                  'message': "Missing required parameters."
+                });
             } else {
                 $(e.target).attr('disabled');
                 var form = new FormData($('#library-parameters').closest('form')[0]);
@@ -290,7 +293,10 @@ jQuery(function() {
         'saveFolder': function(e) {
             var title = $('#library-parameters [name="title"]').val();
             if ((title||"") === "") {
-                BootstrapDialog.alert("Missing required parameters.");
+                BootstrapDialog.alert({
+                  'title': null,
+                  'message': "Missing required parameters."
+                });
             } else {
                 $(e.target).attr('disabled');
                 var form = new FormData($('#library-parameters').closest('form')[0]);
@@ -324,7 +330,7 @@ jQuery(function() {
                   };
                   if (node && node.id === entry.id) {
                       var node = tree.get_node(entry.id);
-                      node.data.isPublic = entry.data.IsPublic;
+                      node.data.isPublic = entry.data.isPublic;
                       tree.rename_node(node,entry.text);
                       entry = node;
                   } else {
@@ -377,7 +383,6 @@ jQuery(function() {
             };
         },
         'showArchives': function(e) {
-            //$('#library-restore-folder').removeClass('hide');
             $('#library-display .frame').addClass('archived');
             var backing = tree.get_json();
             functions.updateTree(backing,false);
