@@ -245,7 +245,7 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
  */
 function populateOrganizations() {
     //Example: http://drupal.stackexchange.com/questions/128274/consuming-restful-web-services
-
+    return;
    // drupal_set_message("populateOrganizations");
 
     /*
@@ -276,15 +276,20 @@ function getRestOrganizations() {
     $host = "icrpartnership-test.org";
 
     $url = "https://".$host."/getFundingOrgNames";
+    try {
+        $client = \Drupal::service('http_client');
+        $result = $client->get($url, ['Accept' => 'application/json']);
+        $status = $result->getStatusCode();
+        //drupal_set_message($status);
 
-    $client = \Drupal::service('http_client');
-    $result = $client->get($url, ['Accept' => 'application/json']);
-    $status = $result->getStatusCode();
-    //drupal_set_message($status);
-
-    if($status != 200) {
-        \Drupal::logger('icrp')->notice("getRestOrganization failed: Status Code: ".$status);
+        if ($status != 200) {
+            \Drupal::logger('icrp')->notice("getRestOrganization failed: Status Code: " . $status);
+            return array();
+        }
+    } catch(Exception $e) {
+        \Drupal::logger('icrp')->notice("Rest Service failed: " . $e->getMessage());
         return array();
+
     }
 
     //drupal_set_message($status);
