@@ -8,14 +8,14 @@ import './table-twbs.css';
 function buildTable(data) {
 
   const tableColumns = [
-    { title: 'Name', tooltip:'Name', prop: 'name' },
-    { title: 'Abbreviation', tooltip:'Abbreviation', prop: 'abbr' },
-    { title: 'Country', tooltip:'Country', prop: 'country' },
-    { title: 'Sponsor Code', tooltip:'Sponsor Code', prop: 'sponsor' },
-    { title: 'Currency', tooltip:'Currency', prop: 'currency' },
-    { title: 'Annualized Funding', tooltip:'Annualized Funding', prop: 'annual' },
-    { title: 'Last Import Date', tooltip:'Last Import Date', prop: 'import_date' },
-    { title: 'Import Description', tooltip:'Import Description', prop: 'description' },
+    { title: 'Name', tooltip:'Full name of the funding organization', prop: 'name' },
+    { title: 'Abbreviation', tooltip:'ICRP abbreviation for the funding organization', prop: 'abbr' },
+    { title: 'Country', tooltip:'ISO 3166-2 Country Code', prop: 'country' },
+    { title: 'Sponsor Code', tooltip:'Abbreviation of the partner organization submitting data', prop: 'sponsor' },
+    { title: 'Currency', tooltip:'Currency in which awards are submitted', prop: 'currency' },
+    { title: 'Annualized Funding', tooltip:'If NO, funding for the lifetime of the award is complete. If YES, funding is updated annually and investment amounts for future years may not yet be complete', prop: 'annual' },
+    { title: 'Last Import Date', tooltip:'Date on which the most recent import was uploaded to ICRP', prop: 'import_date' },
+    { title: 'Import Description', tooltip:'Description of the latest upload to ICRP', prop: 'description' },
   ];
 
   return (
