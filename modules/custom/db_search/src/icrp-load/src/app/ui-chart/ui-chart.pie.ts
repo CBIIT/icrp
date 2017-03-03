@@ -38,7 +38,7 @@ export class PieChart {
                 tooltip.html(`
                 <b>${label}</b>
                 <hr style="margin: 2px"/>
-                 Total: ${Number(value).toLocaleString()} (${(100 * value/sum).toFixed(2)}%)`)
+                 Projects: ${Number(value).toLocaleString()} (${(100 * value/sum).toFixed(2)}%)`)
 
                 tooltip.transition()
                     .duration(200)

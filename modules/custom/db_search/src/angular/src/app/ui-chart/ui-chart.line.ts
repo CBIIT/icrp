@@ -77,7 +77,7 @@ export class LineChart {
                 .attr('fill', '#34495E')
                 .attr('stroke', '#34495E')
                 .attr('opacity', '0.65')
-                .attr('r', '4px')
+                .attr('r', '3px')
                 .attr('cx', x(point['label']))
                 .attr('cy', y(point['value']))
                 .on('mouseover', d => {
