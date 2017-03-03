@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 
 export class PieChart {
 
-    draw(element: HTMLElement, tooltipEl: HTMLElement, data: { value: number, label: string }[]) {
+    draw(element: HTMLElement, tooltipEl: HTMLElement, data: { value: number, label: string, count?: number }[]) {
         
         let host = d3.select(element);
         let tooltip = d3.select(tooltipEl)
@@ -34,11 +34,27 @@ export class PieChart {
                 let index = d.index;
                 let label = data[index].label;
                 let value = data[index].value;
-                
-                tooltip.html(`
+                let count = data[index].count;
+
+
+                let html = `
                 <b>${label}</b>
                 <hr style="margin: 2px"/>
-                 Projects: ${Number(value).toLocaleString()} (${(100 * value/sum).toFixed(2)}%)`)
+                `;
+
+                if (isNaN(count)) {
+                 html += `Projects: ${Number(value).toLocaleString()} (${(100 * value/sum).toFixed(2)}%)`;
+                }
+
+                else {
+                 html += `Relevance: ${Number(value).toLocaleString()} (${(100 * value/sum).toFixed(2)}%)`;
+
+                    html += `<br>`
+                 html += `Projects: ${Number(count).toLocaleString()}`;
+                }
+
+
+                tooltip.html(html)
 
                 tooltip.transition()
                     .duration(200)
