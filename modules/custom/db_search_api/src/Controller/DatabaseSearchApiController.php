@@ -207,17 +207,34 @@ class DatabaseSearchAPIController extends ControllerBase {
       'projects_by_year' => 'Year',
     ];
 
+    $output_column_pairs = [
+      'projects_by_cso_research_area' => ['Relevance', 'ProjectCount'],
+      'projects_by_cancer_type' => ['Relevance', 'ProjectCount'],
+    ];
+
     foreach(array_keys($queries) as $key) {
       $stmt = $pdo->prepare($queries[$key]);
       $stmt->bindParam(':search_id', $search_id);
       $stmt->bindParam(':' . $output_keys[$key], $output[$key]['count'], PDO::PARAM_INT|PDO::PARAM_INPUT_OUTPUT, 1000);
 
       if ($stmt->execute()) {
+
+
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-          array_push($output[$key]['results'], [
-            'label' => $row[$output_column_labels[$key]],
-            'value' => $row['Count'],
-          ]);
+        	$result = [
+	    		'label' => $row[$output_column_labels[$key]]
+        	];
+
+        	if (in_array($key, ['projects_by_cso_research_area', 'projects_by_cancer_type'])) {
+        		$result['value'] = $row['Relevance'];
+        		$result['count'] = $row['ProjectCount'];
+        	}
+
+        	else {
+        		$result['value'] = $row['Count'];
+        	}
+
+        	array_push($output[$key]['results'], $result);
         }
       }
     }
