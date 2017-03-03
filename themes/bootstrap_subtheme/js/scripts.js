@@ -65,7 +65,7 @@
     $.ajax({
       url: "https://icrpartnership-test.org/getLatestNewsletter"
     })
-    .done(function( data ) {
+    .success(function( data ) {
       if ( console && console.log ) {
         $.showNewsletter(data[0]);
       }
