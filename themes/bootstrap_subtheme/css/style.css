@@ -558,3 +558,27 @@ div#cso-document-container > div > h1 {
         border-right: none;
     }
 }
+/* Font Awesome icons on the front page */
+.fa-stack.fa-lg {
+    margin-bottom: 5px;
+}
+.aside-title {
+    color: #3371a8;
+    font-size: 22px;
+}
+.form-item-keys {
+    width: 325px;
+}
+.newsletter-title{
+    padding:2px;
+    font-size:18px;
+    font-weight:bold;
+}
+.newsletter-image{
+    padding:15px;
+    width:175px;
+   
+}
+.newsletter-description{
+    padding:5px;
+}
