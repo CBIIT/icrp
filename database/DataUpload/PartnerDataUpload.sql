@@ -169,12 +169,12 @@ END
 -------------------------------------------------------------------
 -- Check Institutions
 -------------------------------------------------------------------
-drop table #missingInst
-go
+--drop table #missingInst
+--go
 
 -- fix institution data in the UploadWorkBook
-UPDATE UploadWorkBook SET City = 'Montréal' WHERE City IN ('Montreal', 'MontrTal')
-UPDATE UploadWorkBook SET City = 'Québec' WHERE City IN ('Quebec', 'QuTbec')
+UPDATE UploadWorkBook SET City = 'Montréal' WHERE City IN ('Montreal', 'MontrTal', 'Montr?al')
+UPDATE UploadWorkBook SET City = 'Québec' WHERE City IN ('Quebec', 'QuTbec', 'Qu?bec')
 UPDATE UploadWorkBook SET City = 'Lévis' WHERE City IN ('LTvis', 'L?vis', 'Levis')
 UPDATE UploadWorkBook SET City = 'Zürich' WHERE City IN ('Zurich')
 UPDATE UploadWorkBook SET City = 'St. Louis' WHERE City IN ('Saint Louis', 'St Louis')
@@ -200,10 +200,13 @@ UPDATE UploadWorkBook SET Institution = 'Eidgenössiche Technische Hochschule (ET
 --select Institution, city from UploadWorkBook where Institution like '%cole de technologie supTrieure (UniversitT du QuTbec)%'
 --select name, city from lu_Institution where name like '%cole polytechnique de Mont%'
 
+SELECT u.Institution, u.City INTO #missingInst FROM UploadWorkBook u
+LEFT JOIN Institution i ON (u.Institution = i.Name AND u.City = i.City)
+LEFT JOIN InstitutionMapping m ON (u.Institution = m.OldName AND u.City = m.OldCity) OR (u.Institution = m.OldName AND u.City = m.newCity)
+WHERE (i.InstitutionID IS NULL) AND (m.InstitutionMappingID IS NULL)
+--WHERE i.InstitutionID IS NULL  -- 7286
+--select distinct Institution, City from #missingInst
 
-SELECT u.Institution, u.CIty INTO #missingInst FROM UploadWorkBook u
-LEFT JOIN Institution i ON u.Institution = i.Name AND u.City = i.City
-WHERE i.InstitutionID IS NULL 
 
 IF EXISTS (select * FROM #missingInst)
 BEGIN
@@ -290,8 +293,22 @@ INSERT INTO ProjectFundingInvestigator ([ProjectFundingID], [LastName],	[FirstNa
 SELECT f.ProjectFundingID, u.PILastName, u.PIFirstName, u.ORCID, u.OtherResearcherID, u.OtherResearcherIDType, 1, ISNULL(i.InstitutionID,1), u.Institution
 FROM UploadWorkBook u
 JOIN ProjectFunding f ON u.AltID = f.AltAwardCode
-LEFT JOIN Institution i ON u.Institution = i.Name AND u.City = i.City
+LEFT JOIN (SELECT i.InstitutionID, i.Name, i.City, m.OldName, m.oldCity FROM Institution i 
+           LEFT JOIN InstitutionMapping m ON i.name = m.newName AND i.City = m.newCity) inst ON (u.Institution = inst.Name AND u.City = inst.City) OR (u.Institution = inst.OldName AND u.City = inst.OldCity)
+
 GO
+
+
+		   --SELECT i.InstitutionID, i.Name, i.City, m.OldName, m.oldCity FROM Institution i 
+     --      LEFT JOIN InstitutionMapping m ON i.name = m.newName AND i.City = m.newCity
+		   --order by i.name, i.city
+		   --select * FROM UploadInstitution where institution_icrp ='21ST CENTURY THERAPEUTICS, INC.'
+
+-- SELECT * FROM Institution where name ='21ST CENTURY THERAPEUTICS, INC.' ORDER BY Name
+-- SELECT * FROM InstitutionMapping ORDER BY newName
+
+
+
 -----------------------------------
 -- Import ProjectCancerCSO
 -----------------------------------
@@ -427,3 +444,15 @@ FROM @ptype
 -----------------------------------
 -- Import ProjectFundingExt
 -----------------------------------
+-- call php code to calculate and populate calendar amounts
+
+
+-----------------------------------
+-- Insert Data Upload Status
+-----------------------------------
+--DECLARE @FundingYear VARCHAR(25)
+
+--SELECT @FundingYear = CAST( MIN(CalendarYear) AS CHAR(4)) + '-' + CAST(MAX(CalendarYear) AS CHAR(4)) FROM ProjectFundingExt WHERE createddate > '2/28/2017'
+
+INSERT INTO DataUploadStatus ([PartnerCode],[FundingYear],[Status],[ReceivedDate],[ValidationDate],[UploadToDevDate],[UploadToStageDate],[UploadToProdDate],[Note],[CreatedDate])
+VALUES ('CCRA', '1998-2012', 'Staging', '2/20/2017', '2/20/2017', '2/25/2017',  '2/25/2017', NULL, 'Import CA data', '2/20/2017')
