@@ -7,15 +7,8 @@
   color: #444;
 }
 
-.project-header {
+.relative {
   position: relative;
-}
-
-#google_translate_element {
-  position: absolute;
-  display: inline-block;
-  bottom: 0;
-  right: 0;
 }
 
 dl.dl-horizontal > dt {
@@ -28,31 +21,9 @@ dl.dl-horizontal > dd {
   margin-left: 210px;
 }
 
-hr.less-margins {
-  margin-top: 2px;
-  margin-bottom: 2px;
-}
-
-h1.title {
-  color: orange;
+h1.h1 {
   display: inline-block;
-  margin-bottom: 5px;
-  margin-top: 0;
-}
-
-h4.grey {
-  display: inline-block;
-  font-weight: bold;
-  color: #999;
-}
-
-h4.h4 {
   margin-bottom: 0;
-}
-
-h5.h5 {
-  font-weight: bold;
-  margin-bottom: 5px;
 }
 
 .margin-right {
@@ -67,8 +38,9 @@ h5.h5 {
   margin-top: 10px;
 }
 
-.description {
-  background-color: #81CFE0 !important;
-  border-color: #5bc0de;
-  padding: 15px;
+#google_translate_element {
+  position: absolute;
+  display: inline-block;
+  bottom: 0;
+  right: 0;
 }

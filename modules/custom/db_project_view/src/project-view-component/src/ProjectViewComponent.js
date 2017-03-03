@@ -188,14 +188,14 @@ class ProjectViewComponent extends Component {
 
       return <div>
 
-        <div className="project-header">
-          <h1 className="title">{ this.props.title }</h1>
+        <div className="relative">
+          <h1 className="h1">{ this.props.title }</h1>
           <div className="pull-right" id="google_translate_element" />
         </div>
 
-        <p>
+        <div className="margin-top">
           The project details page contains information on the Parent Project, as well as any related Supplements or Sub-Projects, for each year the project has been funded. Multiple records may be showing in the table below, and these can occur if the project is funded annually, and if the project has related subprojects or supplements (there will be a record for each year the project, sub-project or supplement is funded). Sub-projects or Supplements may have different Titles or PIs than the Parent Project, and are linked by a shared Award Code with the Parent Project. Users can “drill-through” to the project details page for each record in the table.
-        </p>
+        </div>
 
         <hr />
 
