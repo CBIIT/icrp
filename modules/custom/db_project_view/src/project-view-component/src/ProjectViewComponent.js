@@ -188,15 +188,16 @@ class ProjectViewComponent extends Component {
 
       return <div>
 
-        <div className="clearfix">
+        <div className="project-header">
           <h1 className="title">{ this.props.title }</h1>
-          <span className="pull-right" id="google_translate_element" />
+          <div className="pull-right" id="google_translate_element" />
         </div>
 
-        <div className="description">
+        <p>
           The project details page contains information on the Parent Project, as well as any related Supplements or Sub-Projects, for each year the project has been funded. Multiple records may be showing in the table below, and these can occur if the project is funded annually, and if the project has related subprojects or supplements (there will be a record for each year the project, sub-project or supplement is funded). Sub-projects or Supplements may have different Titles or PIs than the Parent Project, and are linked by a shared Award Code with the Parent Project. Users can “drill-through” to the project details page for each record in the table.
-        </div>
+        </p>
 
+        <hr />
 
         <dl className="dl-horizontal margin-bottom margin-top">
 
@@ -220,7 +221,10 @@ class ProjectViewComponent extends Component {
 
         </dl>
 
-        <h5 className="h5 margin-top">Award Funding</h5>
+        <hr />
+
+
+        <h4 class="margin-top">Award Funding</h4>
         <DataTable columns={ table.columns } data={ table.data } limit="5" />
 
         {
@@ -241,7 +245,7 @@ class ProjectViewComponent extends Component {
           </div>
         }
 
-        <h5 className="h5">Cancer Types</h5>
+        <h4 class="margin-top">Cancer Types</h4>
         <ul>
         { 
           cancer_types.map((row, rowIndex) =>
@@ -254,7 +258,9 @@ class ProjectViewComponent extends Component {
         }
         </ul>
 
-        <h5 className="h5">Common Scientific Outline (CSO) Research Areas</h5>
+        <hr />
+
+        <h4>Common Scientific Outline (CSO) Research Areas</h4>
         <ul>
         {
           cso_research_areas.map((row, rowIndex) =>

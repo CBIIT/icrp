@@ -7,6 +7,17 @@
   color: #444;
 }
 
+.project-header {
+  position: relative;
+}
+
+#google_translate_element {
+  position: absolute;
+  display: inline-block;
+  bottom: 0;
+  right: 0;
+}
+
 dl.dl-horizontal > dt {
   text-align: left;
   min-width: 210px;
