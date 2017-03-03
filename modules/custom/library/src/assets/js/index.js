@@ -79,15 +79,36 @@ jQuery(function() {
             $('#library-view').addClass('active').siblings().removeClass('active');
             $('#library-edit').find('form')[0].reset();
         },
-        'createNew': function(e,isFolder) {
+        'createNewRoot': function(e) {
             e.preventDefault();
             var node = functions.getNode()||{'id':1,'data':{'isPublic':0}},
+                params = $('#library-parameters').addClass('folder'),
+                ispub = params.find('[name="is_public"]');
+            $('#library-edit h1').html("Create Library Folder");
+            params.find('[name="parent"]').val(1);
+            ispub.removeAttr('checked');
+            $('#library-edit').addClass('active').siblings().removeClass('active');
+        },
+        'createNew': function(e,isFolder) {
+            e.preventDefault();
+            var node = functions.getNode(),
                 params = $('#library-parameters').toggleClass('folder',isFolder),
                 ispub = params.find('[name="is_public"]');
-            params.find('[name="parent"]').val(node.id);
-            ispub.parent().toggleClass('not_public',!node.data.isPublic);
-            ispub.attr('checked',node.data.isPublic);
-            $('#library-edit').addClass('active').siblings().removeClass('active');
+            if (node) {
+                if (isFolder) {
+                    $('#library-edit h1').html("Create Library Folder");
+                } else {
+                    $('#library-edit h1').html("Create Library File");
+                }
+                params.find('[name="parent"]').val(node.id);
+                ispub.attr('checked',node.data.isPublic);
+                $('#library-edit').addClass('active').siblings().removeClass('active');
+            } else {
+                BootstrapDialog.alert({
+                    'title': null,
+                    'message': "No folder is currently selected."
+                });
+            }
         },
         'editFile': function(e) {
             var target = $(e.target).parent(),
@@ -100,6 +121,7 @@ jQuery(function() {
             params.find('[name="description"]').val(data.Description);
             params.find('[name="thumbnail"]').addClass('hide').prev().html(data.ThumbnailFilename).removeClass('hide');
             functions.createNew(e, false);
+            $('#library-edit h1').html("Edit Library File");
             ispub.parent().toggleClass('not_public',data.IsPublic != "1");
             ispub.prop('checked',data.IsPublic == "1");
         },
@@ -112,6 +134,7 @@ jQuery(function() {
                 params.find('[name="parent"]').val(data.parents[0]==="#"?"1":data.parents[0]);
                 params.find('[name="id_value"]').val(data.id);
                 params.find('[name="title"]').val(data.text);
+                $('#library-edit h1').html("Edit Library Folder");
                 ispub.parent().toggleClass('not_public',!data.data.isPublic);
                 ispub.prop('checked',data.data.isPublic);
             }
@@ -169,13 +192,8 @@ jQuery(function() {
                   }
                 }).on('changed.jstree', function(e, data) {
                     var nodes = data.selected;
+                    $('#library-search [name="library-keywords"]').val('');
                     if (nodes.length > 0) {
-                        var node = tree.get_node(nodes[0]);
-                        if (node.data.isArchived === true) {
-                          $('#library-restore-folder').removeAttr('disabled');
-                        } else {
-                          $('#library-restore-folder').attr('disabled',true);
-                        }
                         lGet(path+'folder/'+data.selected[0]).done(function(response) {
                             functions.writeDisplay(response.files,role==="public");
                         });
@@ -416,7 +434,7 @@ jQuery(function() {
                         }
                         frame.append(
                           '<div class="item'+(isArchived?' archived':'')+'">'+
-                              '<h4>'+title+'</h4>'+
+                              '<h5>'+title+'</h5>'+
                               '<img src="'+thumb+'"/>'+
                               '<p>'+description+'</p>'+
                               '<div><a href="'+path+'file/'+file+'">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
@@ -453,6 +471,9 @@ jQuery(function() {
     $('#library-search-button').on('click', functions.search);
     $('#library-create-folder').on('click',function(e) {
         functions.createNew(e,true);
+    });
+    $('#library-create-root-folder').on('click',function(e) {
+        functions.createNewRoot(e,true);
     });
     $('#library-edit-folder').on('click',functions.editFolder);
     $('#library-upload-file').on('click',function(e) {
