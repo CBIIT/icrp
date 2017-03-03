@@ -1,6 +1,5 @@
 import React, {PropTypes, Component} from 'react';
-
-import { enableResizableColumns } from './EnableResizableColumns';
+import enableResizableColumns from './EnableResizableColumns';
 
 const simpleGet = key => data => data[key];
 const keyGetter = keys => data => keys.map(key => data[key]);
@@ -134,12 +133,9 @@ export default class Table extends Component {
           data-toggle='tooltip' 
           data-placement='top'>
 
-          {col.title}
+          {col.title + ' '}
           <i 
-            className={`fa fa-sort${
-              !order ? null :
-                {ascending: '-asc', descending: '-desc'}[order] 
-              }`}
+            className={`fa fa-sort${ {ascending: '-asc', descending: '-desc'}[order] || ''}`}
             aria-hidden="true" />
         </th>
       );
