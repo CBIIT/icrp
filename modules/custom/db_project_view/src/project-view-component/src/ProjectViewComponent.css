@@ -24,6 +24,11 @@ dl.dl-horizontal > dd {
 h1.h1 {
   display: inline-block;
   margin-bottom: 0;
+  margin-top: 0;  
+
+  color: rgb(226,164,42);
+  font-size: 32px;
+  font-weight: normal;
 }
 
 .margin-right {
