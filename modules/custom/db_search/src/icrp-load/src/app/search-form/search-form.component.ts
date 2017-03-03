@@ -516,7 +516,6 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
               response => {
                 this.partnerData = response;
                 window.setTimeout(f => {
-                  console.log('now matcjng vales', this.partnerData);
                   let partner = this.partnerData[0];
                   this.form.controls['years'].patchValue(partner.funding_years.map(y => +y).filter(y => y >= 2000));
                   this.form.controls['funding_organizations'].patchValue(partner.sponsor_code);
