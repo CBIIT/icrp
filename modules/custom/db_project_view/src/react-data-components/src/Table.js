@@ -143,8 +143,8 @@ export default class Table extends Component {
           data-toggle='tooltip' 
           data-placement='top'>
           
-          <div style="display: flex; justify-content: space-between;">
-            <span style="display: inline-block; padding-right: 4px;">{col.title}</span>
+          <div style={{cursor: 'pointer', display: 'flex', justifyContent: 'space-between'}}>
+            <span style={{display: 'inline-block', paddingRight: '4px'}}>{col.title}</span>
             { ['ascending', 'descending'].indexOf(order) > -1 && this.sortArrow(order === 'ascending') }
           </div>
         </th>
