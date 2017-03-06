@@ -22,6 +22,7 @@ db_project_view.project_details_review:
     _title: 'Project Details'
   requirements:
     _permission: 'access content'
+    _role: 'authenticated'
     project_id: '[0-9]{1,9}'
 
 db_project_view.project_details_review.get:
@@ -50,6 +51,7 @@ db_project_view.project_funding_details_review:
     _title: 'Data Review - Project Funding Details'
   requirements:
     _permission: 'access content'
+    _role: 'authenticated'
     project_id: '[0-9]{1,9}'
 
 
@@ -61,6 +63,8 @@ db_project_view.content_deprecated:
   requirements:
     _permission: 'access content'
     project_id: '[0-9]{1,9}'
+
+
 db_project_view.get_funding_org_names:
   path: '/getFundingOrgNames'
   defaults:
@@ -68,6 +72,8 @@ db_project_view.get_funding_org_names:
     _title: 'Project Details'
   requirements:
     _permission: 'access content'
+
+    
 db_project_view.get_funding_org:
   path: '/getFundingOrg'
   defaults:
@@ -99,6 +105,9 @@ db_project_view.upload_status_report:
     _title: 'Upload status report'
   requirements:
     _permission: 'access content'
+    _role: 'authenticated'
+
+
 db_project_view.get_upload_status:
   path: '/getUploadStatus'
   defaults:
@@ -106,6 +115,8 @@ db_project_view.get_upload_status:
     _title: 'get Upload Status'
   requirements:
     _permission: 'access content'
+
+
 db_project_view.get_latest_newsletter:
   path: '/getLatestNewsletter'
   defaults:
