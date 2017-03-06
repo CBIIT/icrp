@@ -11,11 +11,11 @@ use PDO;
 
 class LibraryController extends ControllerBase {
   public function testQuery() {
-    return new JsonResponse(array(),Response::HTTP_INTERNAL_SERVER_ERROR);
+    return new JsonResponse(array(),Response::HTTP_FORBIDDEN);
     $return = array();
     $connection = self::get_connection();
     $stmt = $connection->prepare(
-      "DELETE FROM Library WHERE LibraryFolderID=3221"
+      "SELECT * FROM Library WHERE LibraryFolderID=3131"
     );
     if ($stmt->execute()) {
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -74,16 +74,16 @@ class LibraryController extends ControllerBase {
     "admin" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;"
   );
   private static $fileQuery = array(
-    "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY LOWER(Title);",
-    "private" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY LOWER(Filename);",
-    "partner" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY LOWER(Filename);",
-    "admin" => "SELECT * FROM Library WHERE LibraryFolderID=:lfid ORDER BY LOWER(Filename);"
+    "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY CreatedDate DESC, LOWER(Title);",
+    "private" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY CreatedDate DESC, LOWER(Filename);",
+    "partner" => "SELECT * FROM Library WHERE archivedDate IS NULL AND LibraryFolderID=:lfid ORDER BY CreatedDate DESC, LOWER(Filename);",
+    "admin" => "SELECT * FROM Library WHERE LibraryFolderID=:lfid ORDER BY CreatedDate DESC, LOWER(Filename);"
   );
   private static $fileSearch = array(
-    "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND (LOWER(Filename) LIKE :keywords1 OR LOWER(Title) LIKE :keywords2 OR LOWER(Description) LIKE :keywords3) ORDER BY LOWER(Title);",
-    "private" => "SELECT * FROM Library WHERE archivedDate IS NULL AND (LOWER(Filename) LIKE :keywords1 OR LOWER(Title) LIKE :keywords2 OR LOWER(Description) LIKE :keywords3) ORDER BY LOWER(Title);",
-    "partner" => "SELECT * FROM Library WHERE archivedDate IS NULL AND (LOWER(Filename) LIKE :keywords1 OR LOWER(Title) LIKE :keywords2 OR LOWER(Description) LIKE :keywords3) ORDER BY LOWER(Title);",
-    "admin" => "SELECT * FROM Library WHERE (LOWER(Filename) LIKE :keywords1 OR LOWER(Title) LIKE :keywords2 OR LOWER(Description) LIKE :keywords3) ORDER BY LOWER(Title);"
+    "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND (LOWER(Filename) LIKE :keywords1 OR LOWER(Title) LIKE :keywords2 OR LOWER(Description) LIKE :keywords3) ORDER BY CreatedDate DESC, LOWER(Title);",
+    "private" => "SELECT * FROM Library WHERE archivedDate IS NULL AND (LOWER(Filename) LIKE :keywords1 OR LOWER(Title) LIKE :keywords2 OR LOWER(Description) LIKE :keywords3) ORDER BY CreatedDate DESC, LOWER(Title);",
+    "partner" => "SELECT * FROM Library WHERE archivedDate IS NULL AND (LOWER(Filename) LIKE :keywords1 OR LOWER(Title) LIKE :keywords2 OR LOWER(Description) LIKE :keywords3) ORDER BY CreatedDate DESC, LOWER(Title);",
+    "admin" => "SELECT * FROM Library WHERE (LOWER(Filename) LIKE :keywords1 OR LOWER(Title) LIKE :keywords2 OR LOWER(Description) LIKE :keywords3) ORDER BY CreatedDate DESC, LOWER(Title);"
   );
 
   public function content() {
@@ -291,7 +291,7 @@ class LibraryController extends ControllerBase {
         }
       }
     } else {
-      $stmt = $connection->prepare("UPDATE LibraryFolder SET Name=:name, IsPublic=:ip OUTPUT inserted.* WHERE LibraryFolderID=:lfid");
+      $stmt = $connection->prepare("UPDATE LibraryFolder SET Name=:name, IsPublic=:ip, UpdatedDate=GETDATE() OUTPUT inserted.* WHERE LibraryFolderID=:lfid");
       $stmt->bindParam(":name",$params["title"]);
       $stmt->bindParam(":ip",$params["is_public"]);
       $stmt->bindParam(":lfid",$params["id_value"]);
@@ -377,7 +377,7 @@ class LibraryController extends ControllerBase {
         }
       }
     } else {
-      $stmt = $connection->prepare("UPDATE Library SET Title=:title, Description=:desc, IsPublic=:ip WHERE LibraryID=:lid");
+      $stmt = $connection->prepare("UPDATE Library SET Title=:title, Description=:desc, IsPublic=:ip, UpdatedDate=GETDATE() WHERE LibraryID=:lid");
       $stmt->bindParam(":title",$params["title"]);
       $stmt->bindParam(":desc",$params["description"]);
       $stmt->bindParam(":ip",$params["is_public"]);
@@ -405,7 +405,7 @@ class LibraryController extends ControllerBase {
 
   private function archiveFile($id) {
     $connection = self::get_connection();
-    $stmt = $connection->prepare("UPDATE Library SET ArchivedDate=GETDATE() WHERE LibraryID=:lid");
+    $stmt = $connection->prepare("UPDATE Library SET ArchivedDate=GETDATE(), UpdatedDate=GETDATE() WHERE LibraryID=:lid");
     $stmt->bindParam(":lid",$id);
     if ($stmt->execute()) {
       return array(
@@ -423,7 +423,7 @@ class LibraryController extends ControllerBase {
       "success"=>false
     );
     $connection = self::get_connection();
-    $stmt1 = $connection->prepare("UPDATE Library SET ArchivedDate=NULL WHERE LibraryID=:lid");
+    $stmt1 = $connection->prepare("UPDATE Library SET ArchivedDate=NULL, UpdatedDate=GETDATE() WHERE LibraryID=:lid");
     $stmt1->bindParam(":lid",$id);
     $stmt2 = $connection->prepare("SELECT * FROM Library WHERE LibraryID=:lid");
     $stmt2->bindParam(":lid",$id);
@@ -449,7 +449,7 @@ class LibraryController extends ControllerBase {
     $connection = self::get_connection();
     //$stmt1 = $connection->prepare("UPDATE LibraryFolder SET ArchivedDate=GETDATE() WHERE ArchivedDate IS NULL AND LibraryFolderID=:lfid;");
     //$stmt1->bindParam(":lfid",$id);
-    $stmt2 = $connection->prepare("UPDATE Library SET ArchivedDate=GETDATE() WHERE ArchivedDate IS NULL AND LibraryFolderID=:lfid;");
+    $stmt2 = $connection->prepare("UPDATE Library SET ArchivedDate=GETDATE(), UpdatedDate=GETDATE() WHERE ArchivedDate IS NULL AND LibraryFolderID=:lfid;");
     $stmt2->bindParam(":lfid",$id);
     if (/*$stmt1->execute() && */$stmt2->execute()) {
       $success = true;
@@ -478,6 +478,7 @@ class LibraryController extends ControllerBase {
   }
 
   private function unarchiveFolder($id) {
+    return new JsonResponse(array("success"=>false),Response::HTTP_FORBIDDEN);
     $returnValue = array(
       "success"=>false,
       "ids"=>array($id)
@@ -485,7 +486,7 @@ class LibraryController extends ControllerBase {
     $connection = self::get_connection();
     $stmt1 = $connection->prepare("SELECT ParentFolderID FROM LibraryFolder WHERE ArchivedDate IS NOT NULL AND ParentFolderID > 0 AND LibraryFolderID=:lfid;");
     $stmt1->bindParam(":lfid",$id);
-    $stmt2 = $connection->prepare("UPDATE LibraryFolder SET ArchivedDate=NULL WHERE ArchivedDate IS NOT NULL AND LibraryFolderID=:lfid");
+    $stmt2 = $connection->prepare("UPDATE LibraryFolder SET ArchivedDate=NULL, UpdatedDate=GETDATE() WHERE ArchivedDate IS NOT NULL AND LibraryFolderID=:lfid");
     $stmt2->bindParam(":lfid",$id);
     if ($stmt1->execute() && $stmt2->execute()) {
       $returnValue['success'] = true;

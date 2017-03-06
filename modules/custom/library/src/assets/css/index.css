@@ -38,9 +38,6 @@
 #library header {
   margin-bottom: 2em;
 }
-#library header h2 {
-  color: orange;
-}
 #library-view-table > *,
 #library-search .browse > *,
 #library-search .searchbar,
@@ -64,7 +61,10 @@
 #library-search .browse-header > * {
   margin: 5px;
 }
-#library-search h4 {
+#library-search .browse-header label {
+  font-weight: normal;
+}
+#library-search .browse-header h4 {
   float: left;
 }
 #library-search .browse-header > div {
@@ -92,7 +92,7 @@
   max-height: 100%;
   overflow: auto;
   padding: 5px 0px 0px;
-  width: 17.85em;
+  width: 18.85em;
 }
 #library-management {
   padding: 1em;
@@ -113,6 +113,18 @@
   height: 1.4em;
   width: 1.45em;
 }
+#library.admin #library-management .admin,
+#library.partner #library-management .partner,
+#library.admin #library-management2 .admin,
+#library.partner #library-management2 .partner {
+  display: inline-block;
+  margin-left: 1em;
+}
+#library #library-management > *:first-child,
+#library #library-management2 > *:first-child {
+  margin-left: 0px;
+}
+#library-create-root-folder:before,
 #library-create-folder:before {
   background: url('folder-add.png') no-repeat 1px 0px/contain;
 }
@@ -164,7 +176,7 @@
   text-align: center;
 }
 #library-display .frame:not(.preview) {
-  border-spacing: 0px 5px;
+  border-spacing: 0px;
   display: table;
 }
 #library-display .frame:not(.preview) .item {
@@ -213,14 +225,6 @@
   position: absolute;
   text-align: center;
   width: 100%;
-}
-#library.admin #library-management2 .admin,
-#library.partner #library-management2 .partner {
-  display: inline-block;
-  margin-left: 1em;
-}
-#library #library-management2 .admin:first-child {
-  margin-left: 0px;
 }
 #library-upload-file:before {
   background: url('file-add.png') no-repeat 1px 0px/contain;
@@ -288,7 +292,7 @@
   }
   #library-search {
     display: table-cell;
-    width: 20em;
+    width: 21em;
   }
   #library-display {
     display: table-cell;
