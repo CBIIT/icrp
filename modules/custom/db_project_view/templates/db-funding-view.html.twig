@@ -16,7 +16,7 @@ function googleTranslateElementInit() {
 
 
 <dl class="dl-horizontal margin-bottom margin-top">
-  <dt>Project Title</dt>
+  <dt>Title</dt>
   <dd>{{ funding_details.project_title | raw }}</dd>
   <dt>AltAward Code</dt>
   <dd>{{ funding_details.alt_award_code | default('Not specified')}}</dd>
@@ -30,7 +30,7 @@ function googleTranslateElementInit() {
     {% else %}
       <i>Not specified</i>
     {% endif %}
-  <dt>Principle Investigator</dt>
+  <dt>Principal Investigator</dt>
   <dd>{{ funding_details.pi_name | default('Not specified')}}</dd>
   <dt>Institution</dt>
   <dd>{{ funding_details.institution | default('Not specified')}}</dd>
