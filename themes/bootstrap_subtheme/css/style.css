@@ -27,6 +27,15 @@ h1 {
     display:inline-block;
 }
 */
+
+#about-us-container .panel-title {
+    font-size:18pt;
+    font-weight: bold;
+}
+#about-us-container .about-us-body {
+    padding: 20px;
+}
+
 #form-membership-status  .select-wrapper {
     display:inline-block;
 }
