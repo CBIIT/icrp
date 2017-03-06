@@ -33,7 +33,7 @@ export default class PartialTableUploadStatusReport extends Component {
 
     return (
       <div className="container_funding_org">
-        <font color="orange"><h3 class="titleOrg margin-right">ICRP Data Upload Status Report</h3></font>
+        <font color="orange"><h1 class="titleOrg margin-right">ICRP Data Upload Status Report</h1></font>
         <p>
  	</p>
         <div className="row">
@@ -58,7 +58,7 @@ export default class PartialTableUploadStatusReport extends Component {
           </div>
         </div>
         <Table
-          className="table table-bordered"
+          className="table table-bordered table-striped table-condensed table-hover table-narrow table-nowrap"
           dataArray={page}
           columns={columns}
           keys={keys}

@@ -36,7 +36,6 @@ function buildTable(data) {
 function buildUploadStatusReportTable(data) {
 
   const tableColumns = [
-    { title: '', tooltip:'', prop: 'index', sortable: false},
     { title: 'Partner', tooltip:'Partner', prop: 'partner' },
     { title: 'Funding Year', tooltip:'Funding Year', prop: 'funding_year' },
     { title: 'Process Status', tooltip:'Process Status', prop: 'status' },
