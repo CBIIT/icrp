@@ -35,7 +35,7 @@ import { CustomSelectComponent } from './custom-select/custom-select.component';
 let devProviders = [
 {
       provide: 'api_root',
-      useValue: 'https://icrpartnership-demo.org/load'
+      useValue: 'https://icrpartnership-dev.org/load'
     },
     {
       provide: 'page_title',
