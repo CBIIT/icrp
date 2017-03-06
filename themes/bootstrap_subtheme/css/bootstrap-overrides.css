@@ -388,6 +388,11 @@ form[action="/user-account-administration-tool"] > div > div {
 	display: inline-block !important;
 	vertical-align: top !important;
 }
+
+#edit-contact-us-container-3 > div > label {
+	display: block;
+}
+
 /* Overwrite yeti form */
 .navbar {
   margin-bottom: 10px;
