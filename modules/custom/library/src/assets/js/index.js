@@ -169,9 +169,9 @@ jQuery(function() {
                     tree = $('#library-tree').jstree();
                     var json = tree.get_json();
                     for (var index = 0; index < json.length; index++) {
-                        if (!json[index].state.hidden) break;
+                        if (!json[index].state.hidden && (role !== "public" || json[index].text == "Publications")) break;
                     }
-                    tree.select_node(tree.get_json()[index]);
+                    if (index < json.length) tree.select_node(json[index]);
                 }).on('refresh.jstree', function() {
                     if (functions.getNode().state.hidden) {
                         tree.deselect_all();
