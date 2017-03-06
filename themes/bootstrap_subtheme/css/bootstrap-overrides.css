@@ -336,7 +336,7 @@ footer.footer {
   border-top: 1px solid #EEE;
   border-radius: 0;
   box-shadow: none;
-  font-size: 12px;
+  /* font-size: 12px; */
 }
 
 /** Bootstrap well overrides */
