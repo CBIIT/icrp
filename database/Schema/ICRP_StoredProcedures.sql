@@ -195,7 +195,7 @@ AS
 	-- Sort and Pagination
 	--   Note: Return only base projects and projects' most recent funding
 	----------------------------------
-	SELECT p.*, maxf.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.DisplayedName AS institution, 
+	SELECT p.*, maxf.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
 		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort FROM
 		(SELECT DISTINCT ProjectID, AwardCode FROM #proj) p
 		 JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f GROUP BY ProjectID) maxf ON p.ProjectID = maxf.ProjectID
@@ -332,7 +332,7 @@ AS
 	-- Sort and Pagination
 	--   Note: Return only base projects and projects' most recent funding
 	----------------------------------
-	SELECT r.ProjectID, p.AwardCode, maxf.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.DisplayedName AS institution, 
+	SELECT r.ProjectID, p.AwardCode, maxf.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
 		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort 
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
 		JOIN Project p ON r.ProjectID = p.ProjectID
@@ -436,16 +436,16 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT c.categoryName, SUM(Relevance) AS Count INTO #stats
+	SELECT c.categoryName, SUM(Relevance) AS Relevance, count(*) AS ProjectCount INTO #stats
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
 		JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
 		JOIN CSO c ON c.code = pc.csocode
 	GROUP BY c.categoryName
 
-	SELECT @ResultCount = SUM([Count]) FROM #stats	
+	SELECT @ResultCount = SUM(Relevance) FROM #stats	
 
-	SELECT * FROM #stats ORDER BY [Count] DESC
+	SELECT * FROM #stats ORDER BY Relevance DESC
 	
 GO
 
@@ -477,16 +477,16 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT c.Name AS CancerType, SUM(Relevance) AS Count INTO #stats
+	SELECT c.Name AS CancerType, SUM(Relevance) AS Relevance, Count(*) AS ProjectCount INTO #stats
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r			
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
 		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID	
 		JOIN CancerType c ON c.CancerTypeID = pc.CancerTypeID	
 	GROUP BY c.Name	
 
-	SELECT @ResultCount = SUM(count) FROM #stats	
+	SELECT @ResultCount = SUM(Relevance) FROM #stats	
 	
-	SELECT * FROM #stats ORDER BY [Count] DESC
+	SELECT * FROM #stats ORDER BY Relevance DESC
 GO
 
 
@@ -616,7 +616,7 @@ CREATE PROCEDURE [dbo].[GetProjectFunding]
     @ProjectID INT    
 AS  
 
-SELECT pf.ProjectFundingID, pf.title, fi.LastName AS piLastName, fi.FirstName AS piFirstName, i.DisplayedName AS Institution, i.City, i.State, i.Country, pf.Category,
+SELECT pf.ProjectFundingID, pf.title, fi.LastName AS piLastName, fi.FirstName AS piFirstName, i.Name AS Institution, i.City, i.State, i.Country, pf.Category,
 		pf.ALtAwardCode AS AltAwardCode, o.Abbreviation AS FundingOrganization,	pf.BudgetStartDate, pf.BudgetEndDate
 FROM Project p
 	JOIN ProjectFunding pf ON p.ProjectID = pf.ProjectID
@@ -700,7 +700,7 @@ CREATE PROCEDURE [dbo].[GetProjectFundingDetail]
 AS   
  
 SELECT f.Title, f.AltAwardCode, f.BudgetStartDate,  f.BudgetEndDate, o.Name AS FundingOrg, pi.LastName + ', ' + pi.FirstName AS piName, 
-	i.DisplayedName AS Institution, i.City, i.State, i.Country, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract
+	i.Name AS Institution, i.City, i.State, i.Country, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract
 FROM ProjectFunding f	
 	JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
 	JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID
@@ -744,7 +744,7 @@ AS
 		f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
 		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency, NULL AS ToCurrency, NULL AS ToCurrencyRate,		
 		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.Name AS FundingOrg, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, '' AS FundingContact, 
-		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.DisplayedName AS Institution, i.City, i.State, i.Country, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
+		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
 	INTO #temp
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
 		LEFT JOIN Project p ON r.ProjectID = p.ProjectID
@@ -906,8 +906,7 @@ CREATE  PROCEDURE [dbo].[GetLibraryFolders]
     
 AS   
 
-SELECT f.Name AS Folder, p.Name AS ParentFolder,  f.isPublic,
-	CASE ISNULL(f.ArchivedDate, '') WHEN '' THEN 0 ELSE 1 END AS IsFolderArchived	
+SELECT f.Name AS Folder, p.Name AS ParentFolder,  f.isPublic	
 FROM LibraryFolder f 
 JOIN LibraryFolder p ON f.ParentFolderID= p.LibraryFolderID
 
@@ -939,6 +938,30 @@ JOIN LibraryFolder p ON f.ParentFolderID= p.LibraryFolderID
 
   GO
 
+    
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetLatestNewsletter]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLatestNewsletter]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetLatestNewsletter]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetLatestNewsletter]
+    
+AS 
+  
+SELECT TOP 1 l.Filename, l.ThumbnailFilename, Title, Description from Library l
+join LibraryFolder f ON l.LibraryFolderID = f.LibraryFolderID where f.Name = 'Newsletters'
+ORDER BY l.CreatedDate DESC
+
+  GO
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetProjectExportsSingleBySearchID]    Script Date: 12/14/2016 4:21:37 PM ******/
@@ -973,7 +996,7 @@ AS
 		f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
 		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency, NULL AS ToCurrency, NULL AS ToCurrencyRate,		
 		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.Name AS FundingOrg, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, '' AS FundingContact, 
-		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.DisplayedName AS Institution, i.City, i.State, i.Country, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
+		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
 	INTO #temp
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
 		LEFT JOIN Project p ON r.ProjectID = p.ProjectID
@@ -1055,16 +1078,29 @@ DROP PROCEDURE [dbo].[GetFundingOrgs]
 GO 
 
 CREATE  PROCEDURE [dbo].[GetFundingOrgs]
-     @currentMemberOnly bit =1
+     @type varchar(15) = 'funding'	-- 'funding': return all funding organizations; 'Register': return organizations used for User Registration; 'DataUploaded': return all funding organizations with data uploaded; 	
 AS   
 
-SELECT Name, Abbreviation, SponsorCode + ' - ' + Name AS DisplayName, Type, MemberType, MemberStatus, Country, Currency, 
-SponsorCode, IsAnnualized, Note, LastImportDate, LastImportDesc
-FROM FundingOrg
-WHERE (@currentMemberOnly = 1 AND ISNULL(MemberStatus, '') = 'Current') OR (@currentMemberOnly = 0)
-ORDER BY SponsorCode, Name
+IF @type <> 'Register'
+BEGIN 
+	SELECT FundingOrgID, Name, Abbreviation, SponsorCode + ' - ' + Name AS DisplayName, Type, MemberType, MemberStatus, Country, Currency, 
+	SponsorCode, IsAnnualized, Note, LastImportDate, LastImportDesc
+	FROM FundingOrg
+	WHERE (@type = 'funding') OR (@type = 'Search' AND LastImportDate IS NOT NULL) OR (1=1)
 
-GO
+END
+ELSE --   IF @type = 'Register'
+BEGIN
+	SELECT FundingOrgID, Name, Abbreviation, SponsorCode + ' - ' + Name AS DisplayName, Type, MemberType, MemberStatus, Country, Currency, 
+		SponsorCode, IsAnnualized, Note, LastImportDate, LastImportDesc
+	FROM FundingOrg
+	WHERE (@type = 'funding') OR (@type = 'DataUploaded' AND LastImportDate IS NOT NULL) OR (1=1)
+
+	UNION
+		SELECT 0, 'Operations Manager', 'ICRP', 'ICRP Operations Manager', NULL, '', '','','','ZZZ',0,NULL,NULL,NULL
+	UNION
+		SELECT 0, 'Tech Support', 'ICRP', 'ICRP - Tech Support', NULL, '', '','','','ZZZ',0,NULL,NULL,NULL
+END
 
   
 ----------------------------------------------------------------------------------------------------------
@@ -1164,6 +1200,31 @@ ORDER BY Year DESC, FromCurrency, ToCurrency
 
 GO
 
+  
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetInstitutionLookup]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetInstitutionLookup]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetInstitutionLookup]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetInstitutionLookup]
+    
+AS   
+
+SELECT Name, City, State, Country, Postal, Longitude, Latitude, GRID
+FROM Institution
+WHERE Name <> 'Missing'
+ORDER BY Name
+
+GO
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[UpdateSearchResultMarkEmailSent]    Script Date: 12/14/2016 4:21:37 PM ******/
@@ -1187,3 +1248,31 @@ UPDATE SearchResult SET IsEmailSent = 1
 WHERE SearchCriteriaID =  @SearchID
 
 GO
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetDataUploadInStaging]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetDataUploadInStaging]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetDataUploadInStaging]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetDataUploadInStaging]
+
+AS   
+
+SELECT [PartnerCode] AS SponsorCode, [FundingYear], [ReceivedDate], Note
+FROM DataUploadStatus
+WHERE Status = 'Staging' 
+ORDER BY [ReceivedDate] DESC
+
+GO
+
+

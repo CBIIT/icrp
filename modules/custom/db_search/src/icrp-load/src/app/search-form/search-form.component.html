@@ -80,7 +80,7 @@
       </label>
     </div>
 
-    <label class="form-label" for="years_active">Year Active</label>
+    <label class="form-label" for="years_active" tooltip="Awards active in the calendar year. Default view shows most recent 2 years, click below to select additional years." >Year Active</label>
     <ui-select 
       tooltip="Awards active in the calendar year. Default view shows most recent 2 years, click below to select additional years." 
       placeholder="Year" 
@@ -92,7 +92,7 @@
 
   <!-- Institutions and Investigators -->
   <ui-panel title="Institutions and Investigators">
-    <label class="form-label" for="institution">Institution Name</label>
+    <label class="form-label" for="institution" tooltip="Full or partial institution name">Institution Name</label>
     <input 
       class="text input"
       type="text"
@@ -101,7 +101,7 @@
       tooltip="Full or partial institution name"
       [formControl]="form.controls.institution">
 
-    <label class="form-label" for="pi_first_name">Principal Investigator</label>
+    <label class="form-label" for="pi_first_name" tooltip="Full or partial name of the principal investigator">Principal Investigator</label>
     <div class="row">
       <div class="col-md-6">
         <input 
@@ -124,7 +124,7 @@
       </div>
     </div>
 
-    <label class="form-label" for="pi_orcid">ORCiD ID</label>
+    <label class="form-label" for="pi_orcid" tooltip="Full or partial ORCiD of the principal investigator">ORCiD ID</label>
     <input
       class="text input"
       type="text"
@@ -133,7 +133,7 @@
       tooltip="Full or partial ORCiD of the principal investigator"
       [formControl]="form.controls.pi_orcid">
 
-    <label class="form-label" for="award_code">Project Award Code</label>
+    <label class="form-label" for="award_code" tooltip="Full or partial project award code">Project Award Code</label>
     <input
       class="text input"
       id="award_code"
@@ -142,7 +142,7 @@
       tooltip="Full or partial project award code"
       [formControl]="form.controls.award_code">
 
-    <label class="form-label" for="countries">Country</label>
+    <label class="form-label" for="countries" tooltip="Select one or more countries">Country</label>
     <ui-select 
       placeholder="Enter Countries" 
       tooltip="Select one or more countries"
@@ -150,7 +150,7 @@
       [formControl]="form.controls.countries">
     </ui-select>
 
-    <label class="form-label" for="states">State/Territory</label>
+    <label class="form-label" for="states" tooltip="Select one or more states">State/Territory</label>
     <ui-select 
       placeholder="Enter States/Territories" 
       tooltip="Select one or more states"
@@ -159,7 +159,7 @@
       [disable]="!form.controls['countries'].value || form.controls['countries'].value.length != 1">
     </ui-select>
 
-    <label class="form-label" for="cities">City</label>
+    <label class="form-label" for="cities" tooltip="Select one or more cities"  >City</label>
     <ui-select 
       placeholder="Enter Cities" 
       tooltip="Select one or more cities"      
@@ -185,7 +185,7 @@
 
   <!-- Cancer and Project Type -->
   <ui-panel title="Cancer and Project Type">
-    <label class="form-label" for="cancer_types">Cancer Types</label>
+    <label class="form-label" for="cancer_types" tooltip="Select one or more cancer types">Cancer Types</label>
     <ui-select
       tooltip="Select one or more cancer types"
       placeholder="Select Cancer Types" 
@@ -193,7 +193,7 @@
       [formControl]="form.controls.cancer_types">
     </ui-select>
 
-    <label class="form-label" for="project_types">Project Types</label>
+    <label class="form-label" for="project_types" tooltip="Select one or more project types">Project Types</label>
     <ui-select
       tooltip="Select one or more project types"
       placeholder="Select Project Types" 
@@ -204,7 +204,7 @@
 
   <!-- Common Scientific Outline - Research Area -->
   <ui-panel title="Common Scientific Outline - Research Area">
-    <label class="sr-only" for="cso_research_areas">CSO - Research Areas</label>
+    <label class="sr-only" for="cso_research_areas" tooltip="Select one or more CSO research areas">CSO - Research Areas</label>
     <div 
       *ngIf="cso_research_areas"
       class="multiselect" 

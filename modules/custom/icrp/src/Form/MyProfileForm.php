@@ -53,13 +53,32 @@ class MyProfileForm extends FormBase
         $this->passwordHasher = new PhpassHashedPassword(1);
         /* TODO: Search PEOPLE fields for field_subcommittee* then populate the array below */
         /* Get ICRP Subcommittees */
+        /*
+         *
+New Fields
+    Annual meetings
+    Communications and Membership
+    CSO and Coding
+    Evaluations and Analyses
+    Partner Operations
+    Website and Database
+
+x(keep)         Annual Meeting
+x(del)          Data Report & Data Quality
+x(Change title) Evaluation & Outcomes
+x(add)         CSO and Coding
+x(del)         External Communcations
+x(del)         Internal Communications
+(del)         Membership
+(keep)         Partner Operations
+(Change Title) Site & Database
+
+         */
         $this->subCommittees = array(
             "field_subcommittee_annual_meetin",
-            "field_subcommittee_data_report",
-            "field_subcommittee_evaluation",
-            "field_subcommittee_external_comm",
-            "field_subcommittee_internal_comm",
             "field_subcommittee_membership",
+            "field_subcommittee_cso_coding",
+            "field_subcommittee_evaluation",
             "field_subcommittee_partner_opera",
             "field_subcommittee_web_site",
         );

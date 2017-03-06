@@ -46,7 +46,7 @@ FROM icrp.dbo.SITE
 ORDER BY mappedid
 
 -----------------------------
--- PrjectAbstract
+-- PrjectAbstract  -- TO DO (Only migrate active projects)
 -----------------------------
 SET IDENTITY_INSERT ProjectAbstract ON;  -- SET IDENTITY_INSERT to ON. 
 GO  
@@ -55,6 +55,8 @@ INSERT INTO ProjectAbstract
 (ProjectAbstractID, TechAbstract, PublicAbstract, CreatedDate, UpdatedDate)
 SELECT DISTINCT ID, techAbstract, publicAbstract, dateadded, lastrevised
 	from icrp.dbo.Abstract order by id
+
+update ProjectAbstract set TechAbstract = 'No abstract available for this Project funding.' where ProjectAbstractID =0
 
 SET IDENTITY_INSERT ProjectAbstract OFF;   -- SET IDENTITY_INSERT to OFF. 
 GO  
@@ -79,8 +81,8 @@ SELECT year_old, FromCurrency, FromCurrencyRate, ToCurrency, ToCurrencyRate, yea
 -----------------------------
 -- Create Institution Lookup - load from excel
 -----------------------------
-drop table [UploadInstitution]
-go
+--drop table [UploadInstitution]
+--go
 
 CREATE TABLE [dbo].[UploadInstitution](
 DataIssue_ICRP [varchar](250) NOT NULL,
@@ -113,7 +115,7 @@ GO
 --drop table [UploadInstitution]
 
 BULK INSERT [UploadInstitution]
-FROM 'C:\icrp\database\DataUpload\ICRPInstitutions.csv'
+FROM 'C:\icrp\database\Migration\ICRPInstitutions.csv'
 WITH
 (
 	FIRSTROW = 2,
@@ -122,7 +124,8 @@ WITH
 )
 GO 
 
- select distinct city_clean from [UploadInstitution] where city_clean like 'Mont%'
+ --select distinct city_clean from [UploadInstitution] where city_clean like 'Mont%'
+ --select distinct city_clean from [UploadInstitution] where city_clean like 'Que%'
 
 UPDATE UploadInstitution SET City_Clean = NULL WHERE City_Clean = 'NULL'
 UPDATE UploadInstitution SET State_Clean = NULL WHERE State_Clean = 'NULL'
@@ -130,7 +133,7 @@ UPDATE UploadInstitution SET Country_ICRP_ISO = NULL WHERE Country_ICRP_ISO = 'N
 UPDATE UploadInstitution SET ID_GRID = NULL WHERE ID_GRID = 'NULL'
 
 --select * from [UploadInstitution] where institution_icrp like 'Institut du Cancer de MontrTal (ICM)%'
---select distinct City_Clean from [UploadInstitution] where City_Clean like 'montr%'  order by City_Clean
+--select distinct City_Clean from [UploadInstitution] order by city_clean
 
 UPDATE UploadInstitution SET institution_ICRP = DedupInstitution WHERE ISNULL(institution_ICRP, '') = ''
 UPDATE UploadInstitution SET DedupInstitution = institution_ICRP WHERE ISNULL(DedupInstitution, '') = ''
@@ -144,19 +147,22 @@ UPDATE UploadInstitution SET City_Clean = 'Sault Ste. Marie' WHERE City_Clean IN
 UPDATE UploadInstitution SET City_Clean = 'St. Catharines' WHERE City_Clean IN ('St Catharines')
 UPDATE UploadInstitution SET City_Clean = 'Trois-Rivières' WHERE City_Clean IN ('Trois-RiviFres')
 
--- Insert a placeholder for missing institution 
-INSERT INTO [Institution] ([Name],[DisplayedName], [City])
-SELECT 'Missing', 'Missing', 'Missing'
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT DISTINCT institution_ICRP, City_ICRP, DedupInstitution, City_Clean  FROM UploadInstitution
 
-INSERT INTO [Institution] ([Name],[DisplayedName], [City],[State],[Country],[Longitude],[Latitude],[GRID])
-SELECT DISTINCT institution_ICRP, MAX(DedupInstitution), City_Clean, MAX(State_Clean), MAX(Country_ICRP_ISO), MAX(Lng_GRID), MAX(Lat_GRID), MAX(ID_GRID)
-FROM [UploadInstitution] GROUP BY institution_ICRP, City_Clean -- 6255
+-- Insert a placeholder for missing institution 
+INSERT INTO [Institution] ([Name], [City])
+SELECT 'Missing', 'Missing'
+
+INSERT INTO [Institution] ([Name],[City],[State],[Country],[Longitude],[Latitude],[GRID])
+SELECT DISTINCT MAX(DedupInstitution), City_Clean, MAX(State_Clean), MAX(Country_ICRP_ISO), MAX(Lng_GRID), MAX(Lat_GRID), MAX(ID_GRID)
+FROM [UploadInstitution] GROUP BY DedupInstitution, City_Clean -- 3886
 
 IF EXISTS (select name, city, count(*)  from [Institution] group by name, city having count(*) > 1)
 BEGIN
 	SELECT 'Duplicate Institutions', [Name], [City], count(*)  from [Institution] group by [Name], [City] having count(*) > 1
 END
 
+--select * from [Institution] order by name, city
 --DBCC CHECKIDENT ('[Institution]', RESEED, 0)
 
 -----------------------------------------
@@ -343,7 +349,8 @@ CREATE TABLE [dbo].[Migration_ProjectFunding](
 	[Title] varchar(1000) NULL, 
 	[Institution] varchar(250) NULL, 
 	[city] varchar(250) NULL, 
-	[city_clean] varchar(250) NULL, 
+	[NewInstitution] varchar(250) NULL, 
+	[NewCity] varchar(250) NULL, 
 	[state] varchar(250) NULL, 
 	[country] varchar(250) NULL, 
 	[piLastName] varchar(250) NULL,
@@ -370,10 +377,10 @@ GO
 
 
 INSERT INTO [Migration_ProjectFunding] 
-	([NewProjectID], [OldProjectID], [AbstractID], [Title],[Institution], [city], [city_clean], [state], [country], [piLastName], [piFirstName], [piORC_ID], 
+	([NewProjectID], [OldProjectID], [AbstractID], [Title],[Institution], [city], [newInstitution], [newcity], [state], [country], [piLastName], [piFirstName], [piORC_ID], 
 	 [OtherResearch_ID], [OtherResearch_Type], [FundingOrgID], [FundingDivisionID], [AwardCode], [AltAwardCode], [Source_ID], [MechanismCode], 
 	 [MechanismTitle], [FundingContact], [Amount], [IsAnnualized], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate])
-SELECT mp.ProjectID, op.ID, op.abstractID, op.title, op.institution, op.city,  op.city, op.state, op.country, op.piLastName, op.piFirstName,  op.piORCiD,
+SELECT mp.ProjectID, op.ID, op.abstractID, op.title, op.institution, op.city,  op.institution, op.city, op.state, op.country, op.piLastName, op.piFirstName,  op.piORCiD,
 	   op.OtherResearcherId, OtherResearcherIdType, op.FUNDINGORGID, op.FUNDINGDIVISIONID, op.code, op.altid, op.SOURCE_ID, m.SPONSORMECHANISM,  
 	   m.TITLE, op.fundingOfficer, pf.AMOUNT, 
 	   CASE WHEN [Amount] = [AnnualizedAmount] THEN 1 ELSE 0 END AS [IsAnnualized],
@@ -444,24 +451,25 @@ JOIN [Migration_ProjectFunding] m ON a.PROJECTID = m.OldProjectID
 -----------------------------------------
 -- ProjectFunding_Investigator (check investigator)
 -----------------------------------------
-UPDATE [Migration_ProjectFunding] SET [city_clean] = u.City_Clean
---SELECT u.institution_ICRP, u.city_ICRP, u.DedupInstitution, u.City_Clean
+UPDATE [Migration_ProjectFunding] SET newInstitution = m.newName, [newCity] = m.newCity 
+--SELECT f.institution, f.City, f.newinstitution, f.newcity,m.*
 FROM [Migration_ProjectFunding] f
-JOIN UploadInstitution u ON f.institution = u.institution_ICRP AND ISNULL(f.city, '') = ISNULL(u.city_ICRP,'')
-WHERE u.city_ICRP <> u.City_Clean
+JOIN InstitutionMapping m ON f.institution = m.oldName AND ISNULL(f.city, '') = ISNULL(m.oldCity,'')
+WHERE m.newName <> m.oldName OR m.oldCity <> m.newCity
 
 INSERT INTO ProjectFundingInvestigator 
 ([ProjectFundingID], [LastName], [FirstName], [ORC_ID], [OtherResearch_ID], [OtherResearch_Type], [IsPrivateInvestigator], InstitutionID)
-SELECT distinct m.ProjectFundingID, ISNULL(m.piLastName, ''), m.piFirstName, m.piORC_ID, m.[OtherResearch_ID], m.OtherResearch_Type, 1 AS IsPrivateInvestigator, ISNULL(i.InstitutionID, 1)
+SELECT distinct m.ProjectFundingID, ISNULL(m.piLastName, '') AS LastName, m.piFirstName, m.piORC_ID, m.[OtherResearch_ID], m.OtherResearch_Type, 1 AS IsPrivateInvestigator, ISNULL(i.InstitutionID, 1) AS InstitutionID --into #tmp
 FROM [Migration_ProjectFunding] m
-	 LEFT JOIN Institution i ON (i.name = m.Institution AND i.city = m.[city_clean])
+	 LEFT JOIN Institution i ON (i.name = m.newInstitution AND i.city = m.[newcity]) 
  
  -- test
-SELECT distinct m.institution, m.city, m.country
+SELECT distinct m.institution, m.city
 FROM [Migration_ProjectFunding] m	
-	 LEFT JOIN Institution i ON (i.name = m.Institution AND i.city = m.[city_clean])
+	LEFT JOIN Institution i ON (i.name = m.newInstitution AND i.city = m.[newcity])  
 	  where i.InstitutionID is null
-	  order by  m.country, m.city  -- 198 not found
+
+--delete ProjectFundingInvestigator
 
 -----------------------------------------
 -- LibraryFolder
@@ -469,22 +477,20 @@ FROM [Migration_ProjectFunding] m
 SET IDENTITY_INSERT LibraryFolder ON;  -- SET IDENTITY_INSERT to ON. 
 GO  
 
-INSERT INTO LibraryFolder ([LibraryFolderID],[Name],[ParentFolderID],[IsPublic],[ArchivedDate],[CreatedDate],[UpdatedDate])
-SELECT FID, [FOLDERNAME],[PARENTFOLDERID],0, 
-CASE isArchived WHEN 1 THEN  getdate() ELSE NULL END AS [ArchivedDate], 
-getdate(),getdate()
+INSERT INTO LibraryFolder ([LibraryFolderID],[Name],[ParentFolderID],[IsPublic],[CreatedDate],[UpdatedDate])
+SELECT FID, [FOLDERNAME],[PARENTFOLDERID],0, getdate(),getdate()
 FROM icrp.dbo.tblFILEFOLDERS
 
 SET IDENTITY_INSERT LibraryFolder OFF;  -- SET IDENTITY_INSERT to ON. 
 
-INSERT INTO LibraryFolder ([Name],[ParentFolderID],[IsPublic],[ArchivedDate],[CreatedDate],[UpdatedDate])
-VALUES ( 'Publications', 1, 1, NULL, getdate(),getdate())
+INSERT INTO LibraryFolder ([Name],[ParentFolderID],[IsPublic],[CreatedDate],[UpdatedDate])
+VALUES ( 'Publications', 1, 1, getdate(),getdate())
 
-INSERT INTO LibraryFolder ([Name],[ParentFolderID],[IsPublic],[ArchivedDate],[CreatedDate],[UpdatedDate])
-VALUES ( 'Newsletters', 1, 1, NULL, getdate(),getdate())
+INSERT INTO LibraryFolder ([Name],[ParentFolderID],[IsPublic],[CreatedDate],[UpdatedDate])
+VALUES ( 'Newsletters', 1, 1, getdate(),getdate())
 
-INSERT INTO LibraryFolder ([Name],[ParentFolderID],[IsPublic],[ArchivedDate],[CreatedDate],[UpdatedDate])
-VALUES ( 'Meeting Reports', 1, 1, NULL, getdate(),getdate())
+INSERT INTO LibraryFolder ([Name],[ParentFolderID],[IsPublic],[CreatedDate],[UpdatedDate])
+VALUES ( 'Meeting Reports', 1, 1, getdate(),getdate())
 
 go
 
@@ -502,6 +508,7 @@ DECLARE @PublicationsFolderID INT
 DECLARE @NewsLettersFolderID INT
 SELECT @PublicationsFolderID=LibraryFolderID FROM LibraryFolder WHERE Name='Publications'
 SELECT @NewsLettersFolderID=LibraryFolderID FROM LibraryFolder WHERE Name='Newsletters'
+
 
 INSERT INTO Library VALUES(@PublicationsFolderID, '2014_NCRI_Childrens_Cancer_Research_Analysis.pdf','2014_NCRI_Childrens_Cancer_Research_Analysis_Cover.png', 'Children''''s Cancer Research','A report on international research investment in childhood cancer in 2008, by the UK National Cancer Research Institute and members of the International Cancer Research Partnership', 1, NULL,getdate(), getdate())
 INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_ChildhoodCancer_2016.pdf','ICRP_ChildhoodCancer_2016.png', 'ICRP Childhood Cancer Analysis 2016','An overview of research investment in cancers affecting children, adolescents and young adults in the ICRP portfolio', 1, NULL,getdate(), getdate())
@@ -635,3 +642,45 @@ FROM Country c
 JOIN #CountryCodeMapping m ON c.Abbreviation = m.two
 JOIN #IncomeBand i ON m.three = i.CountryCode
 
+
+
+-----------------------------
+-- Migrate users to drupal
+-- -1: registering
+-- 0: Archived
+-- 1: partner
+-- 2: Manager
+-- 3: Admin
+-----------------------------
+SELECT l.FNAME AS FirstName, l.LNAME AS LastName, l.EMAIL, o.NAME AS Organization, 
+		CASE l.ACCESSLEVEL
+		  WHEN 1 THEN 'Partner'
+		  WHEN 2 THEN 'Manager'		  
+		  ELSE NULL END AS Role, 
+		  CASE l.ACCESSLEVEL
+		  WHEN -1 THEN 'Registering'
+		  WHEN 0 THEN 'Block'		  
+		  ELSE 'Approved' END AS Access		  
+    INTO #users
+	FROM tblLogin l
+    	JOIN tblORG o ON o.ID = l.ORGID
+	WHERE l.ACCESSLEVEL <> 3  -- do not migrate admin accounts
+
+	AND o.name <> 'IMSWeb'UPDATE #org SET Organization = 'Avon Foundation for Women' WHERE Organization = 'Avon Foundation'
+	UPDATE #org SET Organization = 'Canadian Breast Cancer Research Alliance' WHERE Organization = 'Canadian Cancer Research Alliance'
+	UPDATE #org SET Organization = 'Canadian Cancer Society' WHERE Organization = 'Canadian Cancer Society Research Institute'
+	UPDATE #org SET Organization = 'Cancer Australia' WHERE Organization = 'Cancer Institute New South Wales'
+	UPDATE #org SET Organization = 'KWF Kankerbestrijding / Dutch Cancer Society' WHERE Organization = 'Dutch Cancer Society'
+	UPDATE #org SET Organization = 'National Cancer Center, Japan' WHERE Organization = 'National Cancer Center (Japan)'
+	UPDATE #org SET Organization = 'Cancer Research UK' WHERE Organization = 'National Cancer Research Institute'
+	UPDATE #org SET Organization = 'Northern Ireland Health & Social Care - R & D Office' WHERE Organization = 'Northern Ireland R & D Office'
+	UPDATE #org SET Organization = 'Welsh Assembly Government - Office of R & D' WHERE Organization = 'Welsh Assembly Government'
+
+	SELECT * FROM #users
+
+	--select distinct Organization FROM #org o
+	--LEFT JOIN FUNDINGORG f ON o.Organization = f.name
+	--WHERE f.name is null
+
+	
+	

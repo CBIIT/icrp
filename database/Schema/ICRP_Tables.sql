@@ -212,8 +212,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Institution](
 	[InstitutionID] [int] IDENTITY(1,1) NOT NULL,	
-	[Name] [varchar](250) NOT NULL,	
-	[DisplayedName] [varchar](250) NOT NULL,	
+	[Name] [varchar](250) NOT NULL,		
 	[Type] [varchar](25) NULL,  -- Academic, Government, Non-profit, Industry, Other
 	[Longitude] [decimal](9, 6) NULL,
 	[Latitude] [decimal](9, 6) NULL,
@@ -231,6 +230,27 @@ CREATE TABLE [dbo].[Institution](
 ) ON [PRIMARY]
 
 GO
+
+
+/****** Object:  Table [dbo].[InstitutionMapping]    Script Date: 12/13/2016 6:23:53 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[InstitutionMapping] (
+	[InstitutionMappingID] [int] IDENTITY(1,1) NOT NULL,	
+	[OldName] [varchar](250) NOT NULL,		
+	[OldCity] [varchar](50) NOT NULL,
+	[NewName] [varchar](250) NOT NULL,		
+	[NewCity] [varchar](50) NOT NULL,
+ CONSTRAINT [PK_InstitutionMapping] PRIMARY KEY CLUSTERED 
+(
+	[InstitutionMappingID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
 
 /****** Object:  Table [dbo].[Project]    Script Date: 12/13/2016 6:23:53 PM ******/
 SET ANSI_NULLS ON
@@ -757,8 +777,7 @@ CREATE TABLE [dbo].[LibraryFolder](
 	[LibraryFolderID] [int] IDENTITY(1,1) NOT NULL,
 	[Name] [varchar](200) NOT NULL,
 	[ParentFolderID] [int] NULL,
-	[IsPublic] bit NOT NULL,
-	[ArchivedDate] [datetime] NULL,
+	[IsPublic] bit NOT NULL,	
 	[CreatedDate] [datetime] NOT NULL,
 	[UpdatedDate] [datetime] NOT NULL,
  CONSTRAINT [PK_LibraryFolder] PRIMARY KEY CLUSTERED 
@@ -778,11 +797,11 @@ CREATE TABLE [dbo].[DataUploadStatus](
 	[PartnerCode] [varchar](100) NULL,
 	[FundingYear] [varchar](50) NULL,
 	[Status] [varchar](max) NULL,
-	[ReceivedDate] [varchar](100) NULL,
-	[ValidationDate] [varchar](100) NULL,
-	[UploadToDevDate] [varchar](100) NULL,
-	[UploadToStageDate] [varchar](100) NULL,
-	[UploadToProdDate] [varchar](100) NULL,
+	[ReceivedDate] [date] NULL,
+	[ValidationDate] [date] NULL,
+	[UploadToDevDate] [date] NULL,
+	[UploadToStageDate] [date] NULL,
+	[UploadToProdDate] [date] NULL,
 	[Note] [varchar](max) NULL,
 	[CreatedDate] [datetime] NOT NULL,
  CONSTRAINT [PK_DataUploadStatus] PRIMARY KEY CLUSTERED 

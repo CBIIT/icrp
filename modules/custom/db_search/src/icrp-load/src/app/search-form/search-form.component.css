@@ -5,7 +5,7 @@ label.radio-label {
 }
 
 label.form-label {
-  display: block;
+  display: inline-block;
   margin-top: 10px;
   color: #666;
   font-weight: 700;

@@ -1288,6 +1288,9 @@ class ExportResultsController extends ControllerBase {
 	$sheetIndex = 3;
 	$type = "currency";
 	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sheetIndex, $type);
+	$sheetIndex = 4;
+	$type = "Institution";
+	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sheetIndex, $type);
 
     $objPHPExcel->setActiveSheetIndex(0);
 
@@ -1324,7 +1327,10 @@ class ExportResultsController extends ControllerBase {
   	}else if ($type == 'currency'){
 	  	$objWorkSheet = $objPHPExcel->createSheet();
 		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetCurrencyRateLookup");
-  	}else{
+  	}else if($type == 'Institution'){
+	  	$objWorkSheet = $objPHPExcel->createSheet();
+		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetInstitutionLookup");
+    }else{
   		$result = "No such category for look up table";
   	    return $result;
   	}
@@ -1368,6 +1374,8 @@ class ExportResultsController extends ControllerBase {
 
   	}else if ($type == 'currency'){
   		$objPHPExcel->getActiveSheet()->setTitle('Currency Conversions');
+	}else if($type == 'Institution'){
+		$objPHPExcel->getActiveSheet()->setTitle('Institution');
 	}
 
     return $result;
