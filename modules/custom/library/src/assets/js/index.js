@@ -73,6 +73,7 @@ jQuery(function() {
         },
         'closeParams': function(e) {
             var params = $('#library-parameters');
+            params.find('[name="parent"]').empty();
             params.find('[name="upload"]').removeClass('hide').prev().empty().addClass('hide');
             params.find('[name="thumbnail"]').removeClass('hide').prev().empty().addClass('hide');
             e.preventDefault();
@@ -81,26 +82,26 @@ jQuery(function() {
         },
         'createNewRoot': function(e) {
             e.preventDefault();
-            var node = functions.getNode()||{'id':1,'data':{'isPublic':0}},
-                params = $('#library-parameters').addClass('folder'),
+            var params = $('#library-parameters').addClass('folder'),
                 ispub = params.find('[name="is_public"]');
+            functions.populateParents(1);
             $('#library-edit h1').html("Create Library Folder");
-            params.find('[name="parent"]').val(1);
             ispub.removeAttr('checked');
             $('#library-edit').addClass('active').siblings().removeClass('active');
         },
-        'createNew': function(e,isFolder) {
+        'createNew': function(e,isFolder,nodeId) {
             e.preventDefault();
             var node = functions.getNode(),
                 params = $('#library-parameters').toggleClass('folder',isFolder),
                 ispub = params.find('[name="is_public"]');
             if (node) {
+                if (nodeId == undefined) nodeId = node.id;
+                functions.populateParents(nodeId);
                 if (isFolder) {
                     $('#library-edit h1').html("Create Library Folder");
                 } else {
                     $('#library-edit h1').html("Create Library File");
                 }
-                params.find('[name="parent"]').val(node.id);
                 ispub.attr('checked',node.data.isPublic);
                 $('#library-edit').addClass('active').siblings().removeClass('active');
             } else {
@@ -130,8 +131,7 @@ jQuery(function() {
             if (data) {
                 var params = $('#library-parameters'),
                     ispub = params.find('[name="is_public"]');
-                functions.createNew(e,true);
-                params.find('[name="parent"]').val(data.parents[0]==="#"?"1":data.parents[0]);
+                functions.createNew(e,true,data.parents[0]==="#"?"1":data.parents[0]);
                 params.find('[name="id_value"]').val(data.id);
                 params.find('[name="title"]').val(data.text);
                 $('#library-edit h1').html("Edit Library Folder");
@@ -238,6 +238,21 @@ jQuery(function() {
           functions.setupTree(treeBase.sort(functions.caselessSort));
           functions.updateTree(treeBase, true);
           return treeBase;
+        },
+        'populateParents': function(nodeId) {
+            var parent = $('#library-parameters [name="parent"]'),
+                json = tree.get_json(),
+                tab = "&#10148;",
+                popChildren = function(children,tabCount) {
+                    var countedTab = "";
+                    for (var index = 0; index < tabCount; index++) countedTab += tab;
+                    for (var index = 0; index < children.length; index++) {
+                        parent.append('<option value="'+children[index].id+'"'+(children[index].id==nodeId?' SELECTED':'')+'>'+countedTab+children[index].text+'</option>');
+                        popChildren(children[index].children,tabCount+1);
+                    }
+                };
+            parent.append('<option value="1">ROOT</option>');
+            popChildren(json,1);
         },
         'restoreFile': function(e) {
             var node = functions.getNode(),
