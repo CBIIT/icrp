@@ -3,6 +3,9 @@ resources:
   css:
     theme:
       src/assets/css/styles.css: {}
+  js:
+    src/assets/js/enable.tooltips.js: {}
+    
 
 project_view_resources:
   version: 1.0
