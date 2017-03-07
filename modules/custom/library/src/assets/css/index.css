@@ -271,6 +271,7 @@
   width: 7em;
 }
 #library-parameters input:not([type="checkbox"]),
+#library-parameters select,
 #library-parameters textarea {
   display: table-cell;
   text-align: left;

@@ -62,13 +62,12 @@
   }
   $.getNewsletter = function() {
     //console.log("Load the REST");
+    //TODO: Need to remove hard coded url
     $.ajax({
       url: "https://icrpartnership-test.org/getLatestNewsletter"
     })
     .success(function( data ) {
-      if ( console && console.log ) {
         $.showNewsletter(data[0]);
-      }
     });
   }
   $.showNewsletter = function(newsletter) {
