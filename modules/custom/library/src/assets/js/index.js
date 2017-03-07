@@ -190,6 +190,15 @@ jQuery(function() {
                   } else {
                       functions.hideArchives(e);
                   }
+                }).on('move_node.jstree',function(e, data) {
+                  var node = functions.getNode(),
+                      parent = tree.get_node(node.parents[0]);
+                  parent.children = parent.children.map(function(entry) { return tree.get_node(entry); }).sort(functions.caselessSort);
+                  if ($('#library-display .frame').hasClass('archived')) {
+                      functions.showArchives(e);
+                  } else {
+                      functions.hideArchives(e);
+                  }
                 }).on('changed.jstree', function(e, data) {
                     var nodes = data.selected;
                     $('#library-search [name="library-keywords"]').val('');
@@ -346,7 +355,7 @@ jQuery(function() {
                       parent = entry.ParentFolderID;
                   entry = {
                       id: entry.LibraryFolderID,
-                      parent: entry.ParentFolderID,
+                      parent: tree.get_node(entry.ParentFolderID).id||'#',
                       text: entry.Name,
                       children: [],
                       data: {
@@ -362,10 +371,9 @@ jQuery(function() {
                       }
                   };
                   if (node && node.id === entry.id) {
-                      var node = tree.get_node(entry.id);
                       node.data.isPublic = entry.data.isPublic;
-                      tree.rename_node(node,entry.text);
-                      entry = node;
+                      if (node.text !== entry.text) tree.rename_node(node,entry.text);
+                      if (node.parent != entry.parent) tree.move_node(node,entry.parent);
                   } else {
                       tree.deselect_all();
                       tree.select_node(tree.create_node(parent,entry,'last'));
