@@ -251,7 +251,7 @@ jQuery(function() {
         'populateParents': function(nodeId) {
             var parent = $('#library-parameters [name="parent"]'),
                 json = tree.get_json(),
-                tab = "&#10148;",
+                tab = "&#8193;",
                 popChildren = function(children,tabCount) {
                     var countedTab = "";
                     for (var index = 0; index < tabCount; index++) countedTab += tab;
