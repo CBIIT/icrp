@@ -107,6 +107,16 @@ export default class Table extends Component {
     })
   }
 
+  
+  sortArrow(isAscending) {
+    let style = {
+      display: 'inline-block',
+      transform: isAscending ? 'rotate(-135deg)' : 'rotate(45deg)'
+    }
+
+    return <span style={style}>&#9698;</span>
+  }
+
   render() {
     const {
       columns, keys, buildRowOptions, sortBy,
@@ -132,14 +142,17 @@ export default class Table extends Component {
           title={col.tooltip} 
           data-toggle='tooltip' 
           data-placement='top'>
-
-          {col.title + ' '}
-          <i 
-            className={`fa fa-sort${ {ascending: '-asc', descending: '-desc'}[order] || ''}`}
-            aria-hidden="true" />
+          
+          <div style={{cursor: 'pointer', display: 'flex', justifyContent: 'space-between'}}>
+            <span style={{display: 'inline-block', paddingRight: '4px'}}>{col.title}</span>
+            { ['ascending', 'descending'].indexOf(order) > -1 && this.sortArrow(order === 'ascending') }
+          </div>
         </th>
+
       );
     });
+
+
 
     const getKeys = Array.isArray(keys) ? keyGetter(keys) : simpleGet(keys);
     const rows = dataArray.map(row => {

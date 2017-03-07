@@ -291,7 +291,8 @@ class LibraryController extends ControllerBase {
         }
       }
     } else {
-      $stmt = $connection->prepare("UPDATE LibraryFolder SET Name=:name, IsPublic=:ip, UpdatedDate=GETDATE() OUTPUT inserted.* WHERE LibraryFolderID=:lfid");
+      $stmt = $connection->prepare("UPDATE LibraryFolder SET ParentFolderID=:pfid, Name=:name, IsPublic=:ip, UpdatedDate=GETDATE() OUTPUT inserted.* WHERE LibraryFolderID=:lfid");
+      $stmt->bindParam(":pfid",$params["parent"]);
       $stmt->bindParam(":name",$params["title"]);
       $stmt->bindParam(":ip",$params["is_public"]);
       $stmt->bindParam(":lfid",$params["id_value"]);
@@ -377,7 +378,8 @@ class LibraryController extends ControllerBase {
         }
       }
     } else {
-      $stmt = $connection->prepare("UPDATE Library SET Title=:title, Description=:desc, IsPublic=:ip, UpdatedDate=GETDATE() WHERE LibraryID=:lid");
+      $stmt = $connection->prepare("UPDATE Library SET LibraryFolderID=:lfid, Title=:title, Description=:desc, IsPublic=:ip, UpdatedDate=GETDATE() WHERE LibraryID=:lid");
+      $stmt->bindParam(":lfid",$params["parent"]);
       $stmt->bindParam(":title",$params["title"]);
       $stmt->bindParam(":desc",$params["description"]);
       $stmt->bindParam(":ip",$params["is_public"]);

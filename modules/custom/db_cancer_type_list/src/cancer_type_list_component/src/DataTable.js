@@ -71,7 +71,7 @@ class DataTable extends Component {
                 this.state.columns.map((column, columnIndex) => 
                   <th key={ columnIndex }>
                     <OverlayTrigger placement='top' overlay={this.tooltip(column.tooltip)}>                   
-                      <div style={{cursor: 'pointer'}} onClick={this.sort.bind(this, columnIndex)}>
+                      <div style={{cursor: 'pointer', display: 'flex', justifyContent: 'space-between'}} onClick={this.sort.bind(this, columnIndex)}>
                         { column.label }
                         { this.state.sortColumn === columnIndex && this.sortArrow(this.state.sortAscending[columnIndex]) }
                       </div>

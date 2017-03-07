@@ -7,6 +7,26 @@ div.native-font {
   color: #444;
 }
 
+div.relative {
+  position: relative;
+}
+
+h1.h1 {
+    display: inline-block;
+    margin-bottom: 0;
+    margin-top: 0;
+    color: orange;
+    font-size: 32px;
+    font-weight: 400;
+}
+
+#google_translate_element {
+  display: inline-block;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
 hr.less-margins {
   margin-top: 2px;
   margin-bottom: 2px;
