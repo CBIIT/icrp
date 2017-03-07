@@ -34,8 +34,9 @@ export default class PartialTableUploadStatusReport extends Component {
     return (
       <div className="container_funding_org">
         <font color="orange"><h1 class="titleOrg margin-right">ICRP Data Upload Status Report</h1></font>
-        <p>
- 	</p>
+        <p className="form-group">
+          Information about the status of data submissions and uploads to the ICRP database is included below. Please note that each organization has its own data upload schedule and the latest data uploaded for each organization can be seen <a href="https://icrpartnership-test.org/FundingOrgs">here</a> 
+ 	      </p>
         <div className="row">
           <div className="col-xs-12">
             <div>

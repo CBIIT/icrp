@@ -44,9 +44,6 @@ export class UiChartComponent implements OnChanges, AfterViewInit {
         this.tooltip.nativeElement,
         this.data);
     }
-
-
-
   }
 
   /** Redraw chart on changes */  
