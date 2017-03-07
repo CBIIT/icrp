@@ -126,6 +126,9 @@
 #library-create-folder:before {
   background: url('folder-add.png') no-repeat 1px 0px/contain;
 }
+#library-edit-folder:before {
+  background: url('folder-edit.png') no-repeat 1px 0px/contain;
+}
 #library-display {
   margin: 1em 0px 0px;
   padding: 1em 0px 5em;
@@ -230,7 +233,7 @@
   width: 100%;
 }
 #library-upload-file:before {
-  background: url('file-add.png') no-repeat 1px 0px/contain;
+  background: url('file-upload.png') no-repeat 1px 0px/contain;
 }
 #library-archive-folder:before {
   background: url('folder-remove.png') no-repeat 1px 0px/contain;
