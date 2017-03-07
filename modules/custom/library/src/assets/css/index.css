@@ -3,14 +3,12 @@
 #library .partner,
 #library .private,
 #library .public,
-#library-display .frame:not(.archived) .item.archived,
-#library-display .frame.preview .item .edit-file,
-#library-display .frame.preview .item .archive-file,
-#library-display .frame.preview .item .restore-file,
-#library-display .frame .item:not(.archived) ~ .item:last-child,
-#library-display .frame.archived .item.archived ~ .item:last-child,
-#library-display .frame:not(.preview) .item img,
-#library-display .frame:not(.preview) .item p,
+#library-display .frame:not(.archived) .item-wrapper.archived,
+#library-display .frame.preview .item-wrapper .edit-file,
+#library-display .frame.preview .item-wrapper .archive-file,
+#library-display .frame.preview .item-wrapper .restore-file,
+#library-display .frame .item-wrapper:not(.archived) ~ .item-wrapper:last-child,
+#library-display .frame.archived .item-wrapper.archived ~ .item-wrapper:last-child,
 #library-parameters.folder > :not(.folder),
 #library-parameters .not_public ~ div {
   display: none;
@@ -141,11 +139,14 @@
   overflow: auto;
   width: 100%;
 }
+#library-display .frame.preview .item-wrapper{
+  break-inside: avoid;
+}
 #library-display .frame.preview .item {
   break-inside: avoid;
+  margin: 0px 0px 1em;
   max-width: 100%;
   overflow: hidden;
-  margin: 0px 0px 1em;
   position: relative;
   width: 100%;
 }
@@ -179,6 +180,9 @@
   border-spacing: 0px;
   display: table;
 }
+#library-display .frame:not(.preview) .item-wrapper {
+  display: table-row-group;
+}
 #library-display .frame:not(.preview) .item {
   display: table-row;
 }
@@ -191,31 +195,30 @@
 }
 #library-display .frame:not(.preview) .item div:before {
   background: url('file.png') no-repeat 1px 0px/contain;
-  height: 1em;
-  width: 1em;
+  height: 1.1em;
+  width: 1.2em;
 }
 #library.admin #library-display .frame:not(.preview) .item button.admin {
   border: 0px;
   background: transparent;
   display: table-cell;
   margin: 5px;
+  padding: 0px;
 }
 #library-display .frame:not(.preview) .item button:before {
+  content: '';
   display: block;
-  font-family: 'Glyphicons Halflings';
-  font-size: 1em;
-  width: 1em;
+  height: 1.1em;
+  width: 1.3em;
 }
 #library-display .frame:not(.preview) .item .edit-file:before {
-  content: '\e065';
+  background: url('file-edit.png') no-repeat 1px 0px/contain;
 }
 #library-display .frame:not(.preview) .item .archive-file:before {
-  color: #F00;
-  content: '\e014';
+  background: url('file-remove.png') no-repeat 1px 0px/contain;
 }
 #library-display .frame:not(.preview) .item .restore-file:before {
-  color: #0C0;
-  content: '\e027';
+  background: url('file-add.png') no-repeat 1px 0px/contain;
 }
 #library-display .frame .item.archived a {
   color: grey;
@@ -230,7 +233,7 @@
   background: url('file-add.png') no-repeat 1px 0px/contain;
 }
 #library-archive-folder:before {
-  background: url('folder-archive.png') no-repeat 1px 0px/contain;
+  background: url('folder-remove.png') no-repeat 1px 0px/contain;
 }
 #library-files {
   font-size: 1.5em;

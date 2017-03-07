@@ -27,7 +27,7 @@ jQuery(function() {
                 'url': path+'file/'+id,
                 'method': 'DELETE'
             }).done(function(response) {
-                target.addClass('restore-file').removeClass('archive-file').closest('.item').addClass('archived');
+                target.addClass('restore-file').removeClass('archive-file').closest('.item-wrapper').addClass('archived');
                 while (ancestors.length > 0) {
                     var ancestor = tree.get_node(ancestors.shift());
                     ancestor.data.archivedCount += 1;
@@ -275,7 +275,7 @@ jQuery(function() {
                 'url': path+'file/'+id,
                 'method': 'PUT'
             }).done(function(response) {
-                target.removeClass('restore-file').addClass('archive-file').closest('.item').removeClass('archived');
+                target.removeClass('restore-file').addClass('archive-file').closest('.item-wrapper').removeClass('archived');
                 while (ancestors.length > 0) {
                     var ancestor = tree.get_node(ancestors.shift());
                     ancestor.data.isArchived = false;
@@ -456,11 +456,13 @@ jQuery(function() {
                             thumb = path+'file/thumb/'+thumb;
                         }
                         frame.append(
-                          '<div class="item'+(isArchived?' archived':'')+'">'+
-                              '<h5>'+title+'</h5>'+
-                              '<img src="'+thumb+'"/>'+
-                              '<p>'+description+'</p>'+
-                              '<div><a href="'+path+'file/'+file+'">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
+                          '<div class="item-wrapper'+(isArchived?' archived':'')+'">'+
+                              '<div class="item">'+
+                                  '<h5>'+title+'</h5>'+
+                                  '<img src="'+thumb+'"/>'+
+                                  '<p>'+description+'</p>'+
+                                  '<div><a href="'+path+'file/'+file+'">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
+                              '</div>'+
                           '</div>'
                         );
                     });
@@ -470,10 +472,12 @@ jQuery(function() {
                         var file = entry.Filename,
                             isArchived = (entry.ArchivedDate !== null);
                         frame.append(
-                          '<div class="item'+(isArchived?' archived':'')+'">'+
-                              '<div><a href="'+path+'file/'+file+'">'+file+'</a></div>'+
-                              '<button class="admin edit-file""></button>'+
-                              '<button class="admin '+(isArchived?'restore-file':'archive-file')+'""></button>'+
+                          '<div class="item-wrapper'+(isArchived?' archived':'')+'">'+
+                              '<div class="item">'+
+                                  '<div><a href="'+path+'file/'+file+'">'+file+'</a></div>'+
+                                  '<button class="admin edit-file""></button>'+
+                                  '<button class="admin '+(isArchived?'restore-file':'archive-file')+'""></button>'+
+                              '</div>'+
                           '</div>'
                         ).children('*:last-child').data('library-file-data',entry);
                     });
@@ -481,7 +485,7 @@ jQuery(function() {
             } else {
                 frame.removeClass('preview');
             }
-            frame.append('<div class="item">No Files Found</div>');
+            frame.append('<div class="item-wrapper"><div class="item">No Files Found</div></div>');
         }
     };
     functions.initialize();
