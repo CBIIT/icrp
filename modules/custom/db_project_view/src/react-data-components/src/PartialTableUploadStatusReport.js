@@ -4,7 +4,7 @@ import Table from './Table';
 import Pagination from './Pagination';
 
 export default class PartialTableUploadStatusReport extends Component {
-    async exportResult() {
+    async exportUploadStatus() {
       try {
         let response = await fetch('/ExportUploadStatus');
         let json = await response.json();
@@ -36,7 +36,7 @@ export default class PartialTableUploadStatusReport extends Component {
  	      </p>
 
         <div style={{position: 'relative'}}>
-            <button onClick={this.exportResult} className="btn btn-default">
+            <button onClick={this.exportUploadStatus} className="btn btn-default">
               <span className="glyphicon glyphicon-download-alt" style={{display: 'inline-block', marginRight: '5px'}}></span>
               Export
             </button>
