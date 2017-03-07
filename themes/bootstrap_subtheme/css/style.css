@@ -29,13 +29,22 @@ h1 {
 */
 
 #about-us-container .panel-title {
-    font-size:18pt;
+    font-size:24px;
     font-weight: bold;
 }
 #about-us-container .about-us-body {
     padding: 20px;
 }
-
+#about-us-container h3 {
+    font-size:20px;
+}
+#about-us-2 dd {
+    display: list-item;list-style-type: disc;
+    margin-left:40px;
+}
+#about-us-3 dt {
+    margin-bottom:5px;
+}
 #form-membership-status  .select-wrapper {
     display:inline-block;
 }
