@@ -291,7 +291,7 @@ class ProjectViewController extends ControllerBase {
       '#cso_research_areas' => $results['cso_research_areas'],
       '#attached' => [
         'library' => [
-          'db_project_view/resources'
+          'db_project_view/funding_view_resources'
         ],
       ],
     ];
@@ -307,7 +307,7 @@ class ProjectViewController extends ControllerBase {
       '#cso_research_areas' => $results['cso_research_areas'],
       '#attached' => [
         'library' => [
-          'db_project_view/resources'
+          'db_project_view/funding_view_resources'
         ],
       ],
     ];
