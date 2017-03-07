@@ -32,21 +32,21 @@ export default class PartialTableUploadStatusReport extends Component {
         <h1>ICRP Data Upload Status Report</h1>
         <p>
           Information about the status of data submissions and uploads to the ICRP database is included below. Please note that each organization has its own data upload schedule and the latest data uploaded for each organization can be seen 
-          <a href="https://icrpartnership-test.org/FundingOrgs" target="_blank">here</a> 
+          <a href="https://icrpartnership-test.org/FundingOrgs" target="_blank"> here</a> 
  	      </p>
 
-        <div style={{position: 'relative'}}>
+        <div style={{position: 'relative', marginBottom: '5px'}}>
             <button onClick={this.exportUploadStatus} className="btn btn-default">
               <span className="glyphicon glyphicon-download-alt" style={{display: 'inline-block', marginRight: '5px'}}></span>
               Export
             </button>
-            <Pagination
-              className="pagination"
-              style={{margin: 0, position: 'absolute', right: 0, bottom: 0}}
-              currentPage={pageNumber}
-              totalPages={totalPages}
-              onChangePage={onPageNumberChange}
-            />
+            <div style={{margin: 0, position: 'absolute', right: 0, bottom: 0}}>
+              <Pagination
+                currentPage={pageNumber}
+                totalPages={totalPages}
+                onChangePage={onPageNumberChange}
+              />
+            </div>
         </div>
 
         <div className="table-responsive">
