@@ -42,6 +42,7 @@ export default class PartialTableUploadStatusReport extends Component {
             </button>
             <div style={{margin: 0, position: 'absolute', right: 0, bottom: 0}}>
               <Pagination
+                className="pagination"
                 currentPage={pageNumber}
                 totalPages={totalPages}
                 onChangePage={onPageNumberChange}
