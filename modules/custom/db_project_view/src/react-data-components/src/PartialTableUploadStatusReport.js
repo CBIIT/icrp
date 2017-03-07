@@ -4,20 +4,16 @@ import Table from './Table';
 import Pagination from './Pagination';
 
 export default class PartialTableUploadStatusReport extends Component {
-    exportResult() {
-        fetch('/ExportUploadStatus')
+    async exportResult() {
+      try {
+        let response = await fetch('/ExportUploadStatus');
+        let json = await response.json();
+        document.location.href = json;
+      }
 
-
-         .then(function(response) {
-            return response.json();
-         })
-         .then(function(json) {
-	    document.location.href = json
-         }.bind(this))
-         .catch(function(ex) {
-            console.log('parsing failed', ex)
-         });
-
+      catch (error) {
+        console.error('exception occured: ', error);
+      }
    }
 
   render() {
