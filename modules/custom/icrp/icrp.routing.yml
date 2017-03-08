@@ -42,7 +42,7 @@ icrp.my_profile:
     _title: 'My Profile'
     _form: '\Drupal\icrp\Form\MyProfileForm'
   requirements:
-    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
 
 icrp.user_reset:
   path: '/change-password'
