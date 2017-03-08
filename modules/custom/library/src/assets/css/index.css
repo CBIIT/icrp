@@ -99,8 +99,7 @@
   margin: 5px 0px;
 }
 #library-management > *:before,
-#library-management2 > *:before,
-#library-display .frame:not(.preview) .item div:before {
+#library-management2 > *:before {
   content: '';
   display: block;
   float: left;
@@ -189,17 +188,20 @@
 #library-display .frame:not(.preview) .item {
   display: table-row;
 }
-#library-display .frame:not(.preview) .item div {
+#library-display .frame:not(.preview) .item div:nth-child(2) {
   display: table-cell;
-  font-size: 1em;
   height: 1em;
   line-height: 1em;
   padding: 5px 10px;
 }
-#library-display .frame:not(.preview) .item div:before {
-  background: url('file.png') no-repeat 1px 0px/contain;
+#library-display .frame:not(.preview) .item div:first-child {
+  display: table-cell;
+  background: url('file.png') no-repeat center/contain;
   height: 1.1em;
   width: 1.2em;
+}
+#library-display .frame:not(.preview) .public-doc .item div:first-child {
+  background: url('file-public.png') no-repeat center/contain;
 }
 #library.admin #library-display .frame:not(.preview) .item button.admin {
   border: 0px;

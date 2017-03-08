@@ -469,13 +469,15 @@ jQuery(function() {
                     frame.removeClass('preview');
                     $.each(files,function(index,entry) {
                         var file = entry.Filename,
-                            isArchived = (entry.ArchivedDate !== null);
+                            isArchived = (entry.ArchivedDate !== null),
+                            isPublic = (entry.IsPublic == "1");
                         frame.append(
-                          '<div class="item-wrapper'+(isArchived?' archived':'')+'">'+
+                          '<div class="item-wrapper'+(isArchived?' archived':'')+(isPublic?' public-doc':'')+'">'+
                               '<div class="item">'+
+                                  '<div title="'+(isPublic?'Public Document':'Non-Public Document')+'"></div>'+
                                   '<div><a href="'+path+'file/'+file+'">'+file+'</a></div>'+
-                                  '<button class="admin edit-file""></button>'+
-                                  '<button class="admin '+(isArchived?'restore-file':'archive-file')+'""></button>'+
+                                  '<button class="admin edit-file" title="Edit File"></button>'+
+                                  '<button class="admin '+(isArchived?'restore-file':'archive-file')+'" title="'+(isArchived?'Restore File':'Archive File')+'"></button>'+
                               '</div>'+
                           '</div>'
                         ).children('*:last-child').data('library-file-data',entry);
