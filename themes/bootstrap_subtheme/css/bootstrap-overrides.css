@@ -18,8 +18,15 @@ a {
   color: #1E8BC3;
 }
 /* Needed ot override anchor color when displaying a field on form entry error */
+.alert {
+  font-size:18px;
+  font-weight:bold;
+}
+.alert-danger {
+  background-color: #d9534f;
+}
 ul.item-list__comma-list > li > a {
-  color: darkblue;
+  color: yellow;
 }
 /*
  * Bootstrap table overrides
