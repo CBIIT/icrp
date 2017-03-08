@@ -44,6 +44,7 @@
 }
 #library-search {
   background: #FBFBFB;
+  margin: 0px 0px 1em;
   min-height: 38.5em;
 }
 #library-search .input-group {
@@ -53,8 +54,11 @@
   background: white;
 }
 #library-search .browse > * {
-  border-width: 1px 1px 0px;
+  border-width: 0px 1px 1px;
   margin: 0px;
+}
+#library-search .browse > *:first-child {
+  border-width: 1px;
 }
 #library-search .browse-header > * {
   margin: 5px;
@@ -75,9 +79,6 @@
   margin: 0px;
   vertical-align: middle;
 }
-#library-search .browse > *:last-child {
-  border-width: 1px;
-}
 #library-search .searchbar {
   border-width: 0px 0px 1px;
   margin: 0px 5px 10px;
@@ -90,7 +91,7 @@
   max-height: 100%;
   overflow: auto;
   padding: 5px 0px 0px;
-  width: 18.85em;
+  width: 100%;
 }
 #library-management {
   padding: 1em;
@@ -129,28 +130,25 @@
   background: url('folder-edit.png') no-repeat 1px 0px/contain;
 }
 #library-display {
-  margin: 1em 0px 0px;
-  padding: 1em 0px 5em;
+  min-height: 38.5em;
+  padding: 1em 1em 5em;
 }
 #library-display > div:first-child {
   min-height: 32em;
 }
 #library-display .frame {
-  column-gap: 1em;
-  column-width: 30em;
   overflow: auto;
   width: 100%;
 }
 #library-display .frame.preview .item-wrapper{
-  break-inside: avoid;
+  float: left;
+  max-width: 100%;
+  width: 100%;
 }
 #library-display .frame.preview .item {
-  break-inside: avoid;
   margin: 0px 0px 1em;
-  max-width: 100%;
   overflow: hidden;
   position: relative;
-  width: 100%;
 }
 #library-display .frame.preview .item h5 {
   background: #E8E8E8;
@@ -291,23 +289,19 @@
 }
 
 @media (min-width: 1200px) {
-  #library-view-table {
-    display: table;
-    width: 100%;
-  }
-  #library-view-table {
-    margin: 0px -2em 0px -1em;
-    border-spacing: 1em 0px;
-  }
   #library-search {
-    display: table-cell;
+    float: left;
+    margin: 0px 1em 0px 0px;
     width: 21em;
   }
   #library-display {
-    display: table-cell;
-    margin: 0px;
-    padding: 1em 1em 5em;
+    overflow: hidden;
     position: relative;
+  }
+  #library-display .frame.preview .item-wrapper{
+    float: left;
+    margin-right: 1em;
+    width: auto;
   }
   #library-display .frame.preview .item {
     width: 32em;
