@@ -839,11 +839,13 @@ class ExportResultsController extends ControllerBase {
 		// Add some data
 		$objPHPExcel->setActiveSheetIndex(1)
 		            ->setCellValue('A1', 'Category Name')
-		            ->setCellValue('B1', 'Project Count');
+		            ->setCellValue('B1', 'Relevance')
+		            ->setCellValue('C1', 'Project Count');
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$objPHPExcel->setActiveSheetIndex(1)
 		    	        ->setCellValue('A'.$i, $row['categoryName'])
-		    	        ->setCellValue('B'.$i, $row['Count']);
+		    	        ->setCellValue('B'.$i, $row['Relevance'])
+		    	        ->setCellValue('C'.$i, $row['ProjectCount']);
 			$i = $i + 1;
 			$totalRow = $totalRow + 1;
 		}
@@ -904,11 +906,13 @@ class ExportResultsController extends ControllerBase {
 		// Add some data
 		$objPHPExcel->setActiveSheetIndex(2)
 		            ->setCellValue('A1', 'Cancer Type')
-		            ->setCellValue('B1', 'Project Count');
+		            ->setCellValue('B1', 'Relevance')
+		            ->setCellValue('C1', 'Project Count');
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$objPHPExcel->setActiveSheetIndex(2)
 		    	        ->setCellValue('A'.$i, $row['CancerType'])
-		    	        ->setCellValue('B'.$i, $row['Count']);
+		    	        ->setCellValue('B'.$i, $row['Relevance'])
+		    	        ->setCellValue('C'.$i, $row['ProjectCount']);
 			$i = $i + 1;
 			$totalRow = $totalRow + 1;;
 		}
