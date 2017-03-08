@@ -19,7 +19,7 @@ jQuery(function() {
             var node = functions.getNode(),
                 ancestors = node.parents,
                 target = $(e.target),
-                id = target.parent().data('library-file-data').LibraryID;
+                id = target.closest('.item-wrapper').data('library-file-data').LibraryID;
             target.attr('disabled',true);
             ancestors.unshift(node.id);
             ancestors.pop();
@@ -112,8 +112,7 @@ jQuery(function() {
             }
         },
         'editFile': function(e) {
-            var target = $(e.target).parent(),
-                data = target.data('library-file-data'),
+            var data = $(e.target).closest('.item-wrapper').data('library-file-data'),
                 params = $('#library-parameters'),
                 ispub = params.find('[name="is_public"]');
             params.find('[name="id_value"]').val(data.LibraryID);
@@ -267,7 +266,7 @@ jQuery(function() {
             var node = functions.getNode(),
                 ancestors = node.parents,
                 target = $(e.target),
-                id = target.parent().data('library-file-data').LibraryID;
+                id = target.closest('.item-wrapper').data('library-file-data').LibraryID;
             target.attr('disabled',true);
             ancestors.unshift(node.id);
             ancestors.pop();
