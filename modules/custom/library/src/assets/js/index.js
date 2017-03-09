@@ -87,6 +87,7 @@ jQuery(function() {
             functions.populateParents(1);
             $('#library-edit h1').html("Create Library Folder");
             ispub.removeAttr('checked');
+            params.find('[name="thumbnail"]').siblings('label').removeClass('required');
             $('#library-edit').addClass('active').siblings().removeClass('active');
         },
         'createNew': function(e,isFolder,nodeId) {
@@ -103,6 +104,7 @@ jQuery(function() {
                     $('#library-edit h1').html("Create Library File");
                 }
                 ispub.attr('checked',node.data.isPublic);
+                params.find('[name="thumbnail"]').siblings('label').toggleClass('required',node.data.isPublic);
                 $('#library-edit').addClass('active').siblings().removeClass('active');
             } else {
                 BootstrapDialog.alert({
@@ -305,9 +307,11 @@ jQuery(function() {
         },
         'saveFile': function(e) {
             var file = $('#library-parameters [name="upload"]'),
+                thumb = $('#library-parameters [name="thumbnail"]'),
                 title = $('#library-parameters [name="title"]').val();
-                desc = $('#library-parameters [name="description"]').val();
-            if ((!file.hasClass('hide') && (file.val()||"") === "") || (title||"") === "" || (desc||"") === "") {
+                desc = $('#library-parameters [name="description"]').val(),
+                ispub = $('#library-parameters [name="thumbnail"]').siblings('label').hasClass('required');
+            if ((!file.hasClass('hide') && (file.val()||"") === "") || (title||"") === "" || (desc||"") === "" || (ispub && !thumb.hasClass('hide') && (thumb.val()||"") === "")) {
                 BootstrapDialog.alert({
                   'title': null,
                   'message': "Missing required parameters."
@@ -520,8 +524,7 @@ jQuery(function() {
     $('#library-display').on('click', '.archive-file', functions.archiveFile);
     $('#library-display').on('click', '.restore-file', functions.restoreFile);
     $('[name="is_public"]').on('change', function(e) {
-        var target = $(e.target);
-        target.parent().toggleClass('not_public',!target.prop('checked'));
+        $('#library-parameters [name="thumbnail"]').siblings('label').toggleClass('required',$(e.target).prop('checked'));
     });
     $('#library-save').on('click',function(e) {
         e.preventDefault();
