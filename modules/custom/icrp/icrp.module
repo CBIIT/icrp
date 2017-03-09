@@ -193,6 +193,7 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
 
     switch ($form_id) {
         case 'user_register_form':
+            //drupal_set_message("user_register_form");
             populateOrganizations();
             break;
         case 'views-exposed-form':
@@ -245,8 +246,7 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
  */
 function populateOrganizations() {
     //Example: http://drupal.stackexchange.com/questions/128274/consuming-restful-web-services
-    return;
-   // drupal_set_message("populateOrganizations");
+    //drupal_set_message("populateOrganizations");
 
     /*
      * STEP 1: Write an AJAX call to retrieve url above
@@ -274,8 +274,10 @@ function getRestOrganizations() {
     //TODO: the host should just poit to self.  Maybe exclude host and just send to /getFundingOrgNames
 
     $host = "icrpartnership-test.org";
-
-    $url = "https://".$host."/getFundingOrgNames";
+    $host = \Drupal::request()->getSchemeAndHttpHost();
+    //drupal_set_message($host);
+    $url = $host."/getFundingOrgNames";
+    \Drupal::logger('icrp')->notice("getRestOrganization pulling url: " . $url);
     try {
         $client = \Drupal::service('http_client');
         $result = $client->get($url, ['Accept' => 'application/json']);
@@ -283,11 +285,11 @@ function getRestOrganizations() {
         //drupal_set_message($status);
 
         if ($status != 200) {
-            \Drupal::logger('icrp')->notice("getRestOrganization failed: Status Code: " . $status);
+            \Drupal::logger('icrp')->warning("getRestOrganization failed: Status Code: " . $status);
             return array();
         }
     } catch(Exception $e) {
-        \Drupal::logger('icrp')->notice("Rest Service failed: " . $e->getMessage());
+        \Drupal::logger('icrp')->warning("Rest Service failed: " . $e->getMessage());
         return array();
 
     }
