@@ -240,7 +240,7 @@ GO
 CREATE TABLE [dbo].[InstitutionMapping] (
 	[InstitutionMappingID] [int] IDENTITY(1,1) NOT NULL,	
 	[OldName] [varchar](250) NOT NULL,		
-	[OldCity] [varchar](50) NOT NULL,
+	[OldCity] [varchar](50) NULL,
 	[NewName] [varchar](250) NOT NULL,		
 	[NewCity] [varchar](50) NOT NULL,
  CONSTRAINT [PK_InstitutionMapping] PRIMARY KEY CLUSTERED 
