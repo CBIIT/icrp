@@ -26,7 +26,7 @@ export class ExportResultsAbstractsSinglePartnerButton implements OnInit {
   downloadResult(modal: any){
   	modal.show();
   	//let endpoint = 'http://localhost/ExportAbstractSignlePartner';
-  	let endpoint = '/ExportAbstractSignlePartner';
+  	let endpoint = '/load/ExportAbstractSignlePartner';
   	let query = this.http.get(endpoint, {})
         	.map((res: Response) => res.json())
       		.catch((error: any) => Observable.throw(error || 'Server error'))

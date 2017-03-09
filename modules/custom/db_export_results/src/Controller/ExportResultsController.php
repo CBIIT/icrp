@@ -5,7 +5,7 @@
  */
 namespace Drupal\db_export_results\Controller;
 
-require 'PHPExcel.php';
+require_once 'PHPExcel.php';
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Database;
@@ -598,14 +598,14 @@ class ExportResultsController extends ControllerBase {
 			}
 
 			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['piLastName']);
+						->setCellValue($location3.$location2++.$in, $row['piFirstName']);
 			if($location2 == "Z"){
 				$location2 = "A";
 				$location3++;
 			}
 
 			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['piFirstName']);
+						->setCellValue($location3.$location2++.$in, $row['piLastName']);
 			if($location2 == "Z"){
 				$location2 = "A";
 				$location3++;

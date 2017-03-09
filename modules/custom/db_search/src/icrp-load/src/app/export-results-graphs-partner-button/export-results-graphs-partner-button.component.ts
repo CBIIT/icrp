@@ -30,7 +30,7 @@ export class ExportResultsGraphsPartnerButtonComponent implements OnInit {
 
   	modal.show();
 	//let endpoint = 'http://localhost/ExportResultsWithGraphsPartner';
-  	let endpoint = '/ExportResultsWithGraphsPartner';
+  	let endpoint = '/load/ExportResultsWithGraphsPartner';
   	let query = this.http.get(endpoint, {search: params})
         	.map((res: Response) => res.json())
       		.catch((error: any) => Observable.throw(error || 'Server error'))

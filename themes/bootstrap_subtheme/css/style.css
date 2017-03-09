@@ -16,10 +16,14 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
     line-height: 1.1;
 }
 h1 {
-    color: rgb(226,164,42);
+    /*color: rgb(226,164,42);*/
+    color: #E8BD6B;
     font-size: 32px;
     font-weight: normal;
     margin-top: 0px;
+}
+.logo img {
+    margin-top:15px;
 }
 /* Membership Status - Expose Form*/
 /*

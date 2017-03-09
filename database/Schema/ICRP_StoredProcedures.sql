@@ -876,7 +876,7 @@ CREATE  PROCEDURE [dbo].[GetPartners]
 AS   
 
 SELECT [Name]
-      , '' AS SponsorCode
+      ,SponsorCode
 	  ,[Description]	  
       ,[Country]
       ,[Website]      
@@ -992,7 +992,7 @@ AS
 	-----------------------------------------------------------		
 	--  Get all related projects with dolloar amounts
 	-----------------------------------------------------------			 
-	SELECT p.ProjectID, p.AwardCode, f.Title AS AwardTitle, pt.ProjectType AS AwardType, f.Source_ID, f.AltAwardCode, p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, 
+	SELECT p.ProjectID, f.ProjectFundingID, p.AwardCode, f.Title AS AwardTitle, pt.ProjectType AS AwardType, f.Source_ID, f.AltAwardCode, p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, 
 		f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
 		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency, NULL AS ToCurrency, NULL AS ToCurrencyRate,		
 		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.Name AS FundingOrg, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, '' AS FundingContact, 
@@ -1022,16 +1022,17 @@ AS
 	SET   @SQLQuery = 
 		N'SELECT * '+
 		'FROM (SELECT t.*, calendaryear, calendaramount FROM projectfundingext ext
-				JOIN #temp t ON ext.ProjectID = t.ProjectID    
+				JOIN #temp t ON ext.ProjectFundingID = t.ProjectFundingID    
 				) cal			
 		PIVOT( SUM(calendaramount) 
 			  FOR calendaryear IN (' + @PivotColumns + ')) AS P'
 
 	----Execute dynamic query	
-	EXEC sp_executesql @SQLQuery    											  
-
-    											  
+	EXEC sp_executesql @SQLQuery
+    											  							  
 GO
+
+
 
 
 ----------------------------------------------------------------------------------------------------------
@@ -1056,7 +1057,7 @@ SELECT [PartnerCode] AS Partner,[FundingYear],[Status],[ReceivedDate],[Validatio
 	[UploadToStageDate],[UploadToProdDate],
 	[Note]
 FROM datauploadstatus
-ORDER BY datauploadstatusID DESC
+ORDER BY [ReceivedDate] DESC
 
 GO
 

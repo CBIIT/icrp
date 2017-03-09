@@ -69,3 +69,78 @@ db_export_results.uploadStatus:
      _title: 'Project Details'
    requirements:
     _permission: 'access content'    
+
+
+
+
+db_export_results.load.content:
+  path: '/load/ExportResults'
+  defaults:
+    _controller: '\Drupal\db_export_results\Controller\ExportLoadResultsController::exportResults'
+    _title: 'Project Details'
+  requirements:
+    _permission: 'access content'
+ 
+db_export_results.load.partner:
+   path: '/load/ExportResultsPartner'
+   defaults:
+     _controller: '\Drupal\db_export_results\Controller\ExportLoadResultsController::exportResultsPartner'
+     _title: 'Project Details'
+   requirements:
+    _permission: 'access content'
+    
+db_export_results.load.abstract:
+   path: '/load/ExportResultsWithAbstractPartner'
+   defaults:
+     _controller: '\Drupal\db_export_results\Controller\ExportLoadResultsController::exportResultsWithAbstractPartner'
+     _title: 'Project Details'
+   requirements:
+    _permission: 'access content'    
+  
+db_export_results.load.graphs:
+   path: '/load/ExportResultsWithGraphsPartner'
+   defaults:
+     _controller: '\Drupal\db_export_results\Controller\ExportLoadResultsController::exportResultsWithGraphsPartner'
+     _title: 'Project Details'
+   requirements:
+    _permission: 'access content' 
+  
+db_export_results.load.graphsPublic:
+   path: '/load/ExportResultsWithGraphsPartnerPublic'
+   defaults:
+     _controller: '\Drupal\db_export_results\Controller\ExportLoadResultsController::exportResultsWithGraphsPartnerPublic'
+     _title: 'Project Details'
+   requirements:
+    _permission: 'access content'  
+
+db_export_results.load.single:
+   path: '/load/ExportResultsSignlePartner'
+   defaults:
+     _controller: '\Drupal\db_export_results\Controller\ExportLoadResultsController::exportResultsSinglePartner'
+     _title: 'Project Details'
+   requirements:
+    _permission: 'access content'    
+
+db_export_results.load.abstractSingle:
+   path: '/load/ExportAbstractSignlePartner'
+   defaults:
+     _controller: '\Drupal\db_export_results\Controller\ExportLoadResultsController::exportAbstractSinglePartner'
+     _title: 'Project Details'
+   requirements:
+    _permission: 'access content'     
+    
+db_export_results.load.lookupTable:
+   path: '/load/ExportLookupTable'
+   defaults:
+     _controller: '\Drupal\db_export_results\Controller\ExportLoadResultsController::exportLookupTable'
+     _title: 'Project Details'
+   requirements:
+    _permission: 'access content' 
+    
+db_export_results.load.uploadStatus:
+   path: '/load/ExportUploadStatus'
+   defaults:
+     _controller: '\Drupal\db_export_results\Controller\ExportLoadResultsController::exportUploadStatus'
+     _title: 'Project Details'
+   requirements:
+    _permission: 'access content'    

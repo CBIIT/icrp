@@ -7,11 +7,11 @@
 /** Misc overrides */
 
 h1 {
-  color: orange;
+  color: #E8BD6B;
 }
 
 h2 {
-  color: orange;
+  color: #E8BD6B;
 }
 
 a {
@@ -108,6 +108,14 @@ table.table-narrow > tbody > tr > td,
 table.table-narrow > tfoot > tr > td {
   max-width: 320px;
 }
+
+
+table.table-centered-header > thead > tr > th,
+table.table-centered-header > tbody > tr > th,
+table.table-centered-header > tfoot > tr > th {
+  text-align: center;
+}
+
 
 
 

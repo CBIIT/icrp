@@ -23,7 +23,7 @@ export class ExportResultsAbstractsPartnerButtonComponent implements OnInit {
   downloadResultsWithAbstractPartner(modal: any){
   	modal.show();
   	//let endpoint = 'http://localhost/ExportResultsWithAbstractPartner';
-  	let endpoint = '/ExportResultsWithAbstractPartner';
+  	let endpoint = '/load/ExportResultsWithAbstractPartner';
   	let query = this.http.get(endpoint, {})
         	.map((res: Response) => res.json())
       		.catch((error: any) => Observable.throw(error || 'Server error'))
