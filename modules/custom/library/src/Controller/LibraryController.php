@@ -331,12 +331,13 @@ class LibraryController extends ControllerBase {
     if (!isset($params["title"]) || empty($params["title"]) ||
         !isset($params["parent"]) || !is_numeric($params["parent"]) ||
         !isset($params["description"]) || empty($params["description"]) ||
-        $new && (!$upload->isValid() || ($params['is_public'] != "0" && !$thumb->isValid()))
+        ($new && !$upload->isValid())
       ) {
       return new JsonResponse(array(
           "success"=>false
       ),Response::HTTP_BAD_REQUEST);
     }
+    if ($thumb && !$thumb->isValid()) $thumb = null;
     $connection = self::get_connection();
     if ($new) {
       $upload->move("public://library/uploads",$upload->getClientOriginalName());
