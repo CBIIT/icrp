@@ -118,9 +118,23 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   }
 
   convertCase(underscoreString: string) {
-    return underscoreString.split('_')
-      .map(str => str[0].toUpperCase() + str.substring(1))
-      .join(' ');
+    return {
+      'search_terms': 'Search Terms',
+      'search_type': 'Search Type',
+      'years': 'Years',
+      'institution': 'Institution',
+      'pi_first_name': 'Primary Investigator (First Name)',
+      'pi_last_name': 'Primary Investigator (Last Name)',
+      'pi_orcid': 'Primary Investigator (OrcID)',
+      'award_code': 'Award Code',
+      'countries': 'Countries',
+      'states': 'States',
+      'cities': 'Cities',
+      'funding_organizations': 'Funding Organizations',
+      'cancer_types': 'Cancer Sites',
+      'project_types': 'Project Types',
+      'cso_research_areas': 'CSO Research Areas',
+    }[underscoreString] || 'Additional Parameters';
   }
 
   ngOnChanges(changes: SimpleChanges) {

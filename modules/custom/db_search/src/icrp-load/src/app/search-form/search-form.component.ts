@@ -16,7 +16,7 @@ import {
   FormGroup
 } from '@angular/forms';
 
-import { Http, Response } from '@angular/http';
+import { Http } from '@angular/http';
 import { SearchFields } from './search-form.fields';
 import { Fields } from './fields'
 import { TreeNode } from '../ui-treeview/treenode';
@@ -75,8 +75,6 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
 
   @Input()
   initialSearchParameters: any;
-
-  partnerData = [];
 
 
   searchInitialized: boolean = false;
@@ -429,6 +427,12 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
   this.form.controls['years'].patchValue(years);
  }
 
+ clearLocations() {
+  this.form.controls['states'].patchValue([]);
+  this.form.controls['cities'].patchValue([]);
+ }
+ 
+
  ngOnChanges(changes: SimpleChanges) {
 
   let params = changes['initialSearchParameters'].currentValue;
@@ -455,78 +459,33 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
     }
     this.submit();
    }
-
-   else if (changes['initialSearchParameters'] && params) {
-
-     this.form.reset();
-
-
-      for (let key in this.initialSearchParameters) {
-
-        let value = this.initialSearchParameters[key];
-        
-        if (value instanceof Array)
-          value = value.filter(e => e && e.toString().length);
-
-        if (key == 'years') {
-          value = value.map(y => +y).filter(y => y >= 2000)
-        }
-
-        else if (key == 'funding_organizations')
-          value = value.map(e => e.toString());
-
-
-        if (value && value.length > 0) {
-          console.log('using', key, value);
-          this.form.controls[key].patchValue(value)
-        }
-
-      }
-
-      window.setTimeout(f => this.submit(), 10);
-
-   }
  }
 
 
-
-
-  updatePartnerUploadData() {
-
-  }
-
-  ngAfterViewInit(this) {
+ ngAfterViewInit(this) {
     new SearchFields(this.http, this.apiRoot).getFields()
       .subscribe(response => {
         this.fields = response;
         this.funding_organizations = this.createTreeNode(this.fields.funding_organizations, 'funding_organizations');
         this.cso_research_areas = this.createTreeNode(this.fields.cso_research_areas, 'cso_research_areas');
 
-        let useSearchID = window.location.search && window.location.search.includes('sid')
+        setTimeout(e => {
+          // set last five years
+          let years = this.fields.years.filter((field, index) => {
+            if (index < 2)
+              return field;
+          }).map(field => field.value);
+          this.form.controls['years'].patchValue(years);
+          let useSearchID = window.location.search && window.location.search.includes('sid')
+          
+          if (useSearchID) {
+            this.requestInitialParameters.emit();
+          }
 
-        if (useSearchID) {
-          this.requestInitialParameters.emit();
-        }
-
-        else {
-          this.http.get(`${this.apiRoot}/db/sponsor/uploads_table`)
-            .map((res: Response) => res.json())
-            .catch((error: any) => [])
-            .subscribe(
-              response => {
-                this.partnerData = response;
-                window.setTimeout(f => {
-                  let partner = this.partnerData[0];
-                  this.form.controls['years'].patchValue(partner.funding_years.map(y => +y).filter(y => y >= 2000));
-                  this.form.controls['funding_organizations'].patchValue(partner.sponsor_code);
-
-                  this.submit();
-                }, 10);
-              },
-              error => {},
-              () => {}
-            )
-        }
+          else {
+            this.submit();
+          }
+        }, 0);
       });
  }
 

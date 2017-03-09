@@ -427,6 +427,12 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
   this.form.controls['years'].patchValue(years);
  }
 
+ clearLocations() {
+  this.form.controls['states'].patchValue([]);
+  this.form.controls['cities'].patchValue([]);
+ }
+ 
+
  ngOnChanges(changes: SimpleChanges) {
 
   let params = changes['initialSearchParameters'].currentValue;
@@ -454,6 +460,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
     this.submit();
    }
  }
+
 
  ngAfterViewInit(this) {
     new SearchFields(this.http, this.apiRoot).getFields()
