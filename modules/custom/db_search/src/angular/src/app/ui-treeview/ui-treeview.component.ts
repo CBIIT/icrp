@@ -227,10 +227,12 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
   }
 
   toggleNode(node: TreeNode, el: HTMLElement) {
+    node.selected = !node.selected;
     this.clearChildren(el);
-    this.createTree(node, el, node.parent, !node.selected, true);
+    this.createTree(node, el, node.parent, node.selected, true);
 //    console.log('node parent', node.parent);
     node.parent.selected = false;
+
 
       this.renderer.setElementProperty(
         node.parent.el,

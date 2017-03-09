@@ -533,4 +533,10 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
   ngOnInit() {
   }
 
+ clearLocations() {
+  this.form.controls['states'].patchValue([]);
+  this.form.controls['cities'].patchValue([]);
+ }
 }
+
+ 
