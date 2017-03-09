@@ -110,6 +110,14 @@ table.table-narrow > tfoot > tr > td {
 }
 
 
+table.table-centered-header > thead > tr > th,
+table.table-centered-header > tbody > tr > th,
+table.table-centered-header > tfoot > tr > th {
+  text-align: center;
+}
+
+
+
 
 /*
  * Bootstrap tooltip overrides
