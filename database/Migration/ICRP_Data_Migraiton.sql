@@ -1,6 +1,8 @@
 -----------------------------
 -- Country
 -----------------------------
+PRINT 'Migrate [Country]'
+
 INSERT INTO Country
 (Abbreviation, Name)
 SELECT ABBREVIATION, name
@@ -25,6 +27,8 @@ FROM icrp.dbo.PROJECTTYPE
 -----------------------------
 -- CSOCategory
 -----------------------------
+PRINT 'Migrate [CSOCategory]'
+
 INSERT INTO CSOCategory
 (Name, Code)
 SELECT DISTINCT category, categoryCode from icrp.dbo.CSO order by categoryCode
@@ -48,13 +52,19 @@ ORDER BY mappedid
 -----------------------------
 -- PrjectAbstract  -- TO DO (Only migrate active projects)
 -----------------------------
+PRINT 'Migrate [ProjectAbstract]'
+
 SET IDENTITY_INSERT ProjectAbstract ON;  -- SET IDENTITY_INSERT to ON. 
 GO  
 
 INSERT INTO ProjectAbstract
 (ProjectAbstractID, TechAbstract, PublicAbstract, CreatedDate, UpdatedDate)
-SELECT DISTINCT ID, techAbstract, publicAbstract, dateadded, lastrevised
-	from icrp.dbo.Abstract order by id
+SELECT DISTINCT a.ID, a.techAbstract, a.publicAbstract, a.dateadded, a.lastrevised
+FROM icrp.dbo.Abstract a
+	JOIN icrp.dbo.PROJECT p ON p.abstractId = a.ID
+	JOIN icrp.dbo.TESTPROJECTACTIVE t ON t.PROJECTID = p.ID
+ORDER BY id
+
 
 update ProjectAbstract set TechAbstract = 'No abstract available for this Project funding.' where ProjectAbstractID =0
 
@@ -64,6 +74,8 @@ GO
 -----------------------------
 -- Currency - De-dup...
 -----------------------------
+PRINT 'Migrate [Currency]'
+
 INSERT INTO Currency
 (Code, Description, SortOrder)
 SELECT Currency, min(CURRENCYDESC), min(sortorder) as sortorder
@@ -83,6 +95,16 @@ SELECT year_old, FromCurrency, FromCurrencyRate, ToCurrency, ToCurrencyRate, yea
 -----------------------------
 --drop table [UploadInstitution]
 --go
+--delete InstitutionMapping
+--go
+--DBCC CHECKIDENT ('[InstitutionMapping]', RESEED, 0)
+--go
+--delete [Institution]
+--go
+--DBCC CHECKIDENT ('[Institution]', RESEED, 0)
+--go
+
+PRINT 'Create Institution Lookup'
 
 CREATE TABLE [dbo].[UploadInstitution](
 DataIssue_ICRP [varchar](250) NOT NULL,
@@ -112,7 +134,6 @@ Lng_GRID [decimal](9,6) NULL,
 
 GO
 
---drop table [UploadInstitution]
 
 BULK INSERT [UploadInstitution]
 FROM 'C:\icrp\database\Migration\ICRPInstitutions.csv'
@@ -124,9 +145,12 @@ WITH
 )
 GO 
 
+--select * from [UploadInstitution] where institution_ICRP like 'CEA-DSV-I2BM - %'
+
  --select distinct city_clean from [UploadInstitution] where city_clean like 'Mont%'
  --select distinct city_clean from [UploadInstitution] where city_clean like 'Que%'
 
+UPDATE UploadInstitution SET City_ICRP = '' WHERE City_ICRP = 'NULL'
 UPDATE UploadInstitution SET City_Clean = NULL WHERE City_Clean = 'NULL'
 UPDATE UploadInstitution SET State_Clean = NULL WHERE State_Clean = 'NULL'
 UPDATE UploadInstitution SET Country_ICRP_ISO = NULL WHERE Country_ICRP_ISO = 'NULL'
@@ -146,8 +170,22 @@ UPDATE UploadInstitution SET City_Clean = 'St. Louis' WHERE City_Clean IN ('Sain
 UPDATE UploadInstitution SET City_Clean = 'Sault Ste. Marie' WHERE City_Clean IN ('Sault Ste Marie')
 UPDATE UploadInstitution SET City_Clean = 'St. Catharines' WHERE City_Clean IN ('St Catharines')
 UPDATE UploadInstitution SET City_Clean = 'Trois-Rivières' WHERE City_Clean IN ('Trois-RiviFres')
+UPDATE UploadInstitution SET STATE_Clean = s.abbreviation FROM UploadInstitution u JOIN state s ON s.name = u.State_Clean
+UPDATE UploadInstitution SET STATE_Clean = NULL where State_Clean IN ('Hamburg', 'Pirkanmaa')
 
-INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT DISTINCT institution_ICRP, City_ICRP, DedupInstitution, City_Clean  FROM UploadInstitution
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT DISTINCT institution_ICRP, City_ICRP, DedupInstitution, City_Clean  FROM UploadInstitution  -- 7123
+
+-- Manually inserted not-mapped institutions 
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Ente ospedaliero ""Ospedali Galliera""', 'Genova', 'Ente Ospedaliero Ospedali Galliera', 'Genoa'
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'HUMANITAS, INC.', '', 'Humanitas (United States)', 'Silver Spring'
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'IFO - Italian National Cancer Institute ""Regina Elena""', 'Rome', 'IFO- Italian National Cancer Institute Regina Elina', 'Rome'
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Inserm U1086 ""Cancers & Preventions"" - CHU de Caen', 'Caen', 'Centre Hospitalier Universitaire de Caen', 'Caen'
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Institut Gustave Roussy-IGR - UPRES EA 3535 ""Pharmacologie et Nouveaux Traitements du Cancer', 'Villejuif', 'Institut Gustave Roussy', 'Villejuif'
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'MASSACHUSETTS UNIV MED CTR', '', 'Massachusetts Institute of Technology', 'Cambridge'
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'New York University, School of Medicine', 'New York', 'New York University', 'New York'
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Rutgers, The State University of New Jersey', 'New Brunswick', 'Rutgers University', 'New Brunswick'
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'SOCIAL AND SCIENTIFIC SYSTEMS, INC.', 'Paris', 'Social and Scientific Systems (United States)', 'Paris'
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'UMR7587 (CNRS) - Langevin ""Ondes et Images""', 'Paris', 'Institut Langevin', 'Paris'
 
 -- Insert a placeholder for missing institution 
 INSERT INTO [Institution] ([Name], [City])
@@ -155,19 +193,22 @@ SELECT 'Missing', 'Missing'
 
 INSERT INTO [Institution] ([Name],[City],[State],[Country],[Longitude],[Latitude],[GRID])
 SELECT DISTINCT MAX(DedupInstitution), City_Clean, MAX(State_Clean), MAX(Country_ICRP_ISO), MAX(Lng_GRID), MAX(Lat_GRID), MAX(ID_GRID)
-FROM [UploadInstitution] GROUP BY DedupInstitution, City_Clean -- 3886
+FROM [UploadInstitution] GROUP BY DedupInstitution, City_Clean -- 3944
+
 
 IF EXISTS (select name, city, count(*)  from [Institution] group by name, city having count(*) > 1)
 BEGIN
 	SELECT 'Duplicate Institutions', [Name], [City], count(*)  from [Institution] group by [Name], [City] having count(*) > 1
 END
 
---select * from [Institution] order by name, city
 --DBCC CHECKIDENT ('[Institution]', RESEED, 0)
 
 -----------------------------------------
 -- [PartnerApplication]
 -----------------------------------------
+
+PRINT 'Migrate [PartnerApplication]'
+
 INSERT INTO [PartnerApplication]
 SELECT '',
 [ORGNAME],[ORGADD1],[ORGADD2],[ORGCITY],[ORGSTATE],[ORGCOUNTRY],[ORGZIP],
@@ -182,6 +223,8 @@ FROM icrp.dbo.tblMEMBERSHIPFORM
 -----------------------------------------
 -- Partners
 -----------------------------------------
+PRINT 'Migrate [Partner]'
+
 INSERT INTO Partner 
 SELECT [NMPARTNER],[TXTPARTNER],
 	CASE ISNULL(s.code, '') WHEN '' THEN 'N/A - '+ LEFT([NMPARTNER], 10) ELSE s.code END,
@@ -206,6 +249,8 @@ LEFT JOIN icrp.dbo.tblORG o ON p.Name = o.Name
 -----------------------------
 -- FundingOrg
 -----------------------------
+PRINT 'Migrate [FundingOrg]'
+
 SET IDENTITY_INSERT FundingOrg ON;  -- SET IDENTITY_INSERT to ON. 
 GO 
 
@@ -229,6 +274,8 @@ LEFT JOIN Partner p ON f.Name = p.Name
 -----------------------------
 -- FundingDivision
 -----------------------------
+PRINT 'Migrate [FundingDivision]'
+
 INSERT INTO FundingDivision
 (FundingOrgID, Name, [Abbreviation], CreatedDate, UpdatedDate)
 SELECT FundingOrgID, NAME, [ABBREVIATION], [DATEADDED], [LASTREVISED]
@@ -278,6 +325,8 @@ WHERE f.SponsorCode = 'NIH'
 -----------------------------
 -- [Migration_Project]
 -----------------------------
+PRINT 'Create [Migration_Project]'
+
 CREATE TABLE [dbo].[Migration_Project] (
 	[ProjectID] [int] IDENTITY(1,1) NOT NULL,
 	[OldProjectID] [int] NOT NULL,
@@ -292,6 +341,8 @@ INSERT INTO [Migration_Project] ([OldProjectID], [AwardCode])
 -----------------------------
 -- Project
 -----------------------------
+PRINT 'Migrate [Project]'
+
 SET IDENTITY_INSERT Project ON;  -- SET IDENTITY_INSERT to ON. 
 GO 
 
@@ -311,6 +362,8 @@ GO
 --------------------------------------------------------------------------------------------
 -- ProjectDocument  - TBD: change to save the most recent project content/abstract?
 --------------------------------------------------------------------------------------------
+PRINT 'Migrate [ProjectDocument]'
+
 INSERT INTO ProjectDocument
 (ProjectID, [Content])
 SELECT m.[ProjectID], s.[Text]
@@ -320,6 +373,8 @@ FROM icrp.dbo.search s
 --------------------------------------------------------------------------------------------
 -- ProjectDocument_JP  - TBD: change to save the most recent project content/abstract?
 --------------------------------------------------------------------------------------------
+PRINT 'Migrate [ProjectDocument_JP]'
+
 INSERT INTO ProjectDocument_JP
 (ProjectID, [Content])
 SELECT m.[ProjectID], s.[Text]
@@ -329,6 +384,8 @@ FROM icrp.dbo.search_JP s
 -----------------------------
 -- Project_ProjectType
 -----------------------------
+PRINT 'Migrate [Project_ProjectType]'
+
 INSERT INTO Project_ProjectType
 (ProjectID, ProjectType)
 select np.projectid, projecttype 
@@ -341,6 +398,8 @@ FROM [Migration_Project] bp
 -----------------------------
 -- [Migration_ProjectFunding]
 -----------------------------
+PRINT 'Create [Migration_ProjectFunding]'
+
 CREATE TABLE [dbo].[Migration_ProjectFunding](
 	[ProjectFundingID] [int] IDENTITY(1,1) NOT NULL,
 	[NewProjectID] [int] NOT NULL,
@@ -394,6 +453,8 @@ ORDER BY mp.ProjectID, op.sortedProjectID
 -----------------------------
 -- ProjectFunding
 -----------------------------
+PRINT 'Migrate [ProjectFunding]'
+
 SET IDENTITY_INSERT ProjectFunding ON;  -- SET IDENTITY_INSERT to ON. 
 GO 
 
@@ -438,6 +499,8 @@ FROM icrp.dbo.PROJECTSITE ps
 -----------------------------
 -- ProjectFundingExt
 -----------------------------
+PRINT 'Migrate [ProjectFundingExt]'
+
 INSERT INTO ProjectFundingExt
 ([ProjectFundingID], [AncestorProjectID], [CalendarYear], [CalendarAmount])
 SELECT m.[ProjectFundingID], a.[ProjectIDANCESTOR], a.[YEAR], a.[CALENDARAMOUNT_V2]
@@ -451,23 +514,32 @@ JOIN [Migration_ProjectFunding] m ON a.PROJECTID = m.OldProjectID
 -----------------------------------------
 -- ProjectFunding_Investigator (check investigator)
 -----------------------------------------
+PRINT 'Migrate [ProjectFunding_Investigator]'
+
 UPDATE [Migration_ProjectFunding] SET newInstitution = m.newName, [newCity] = m.newCity 
 --SELECT f.institution, f.City, f.newinstitution, f.newcity,m.*
 FROM [Migration_ProjectFunding] f
 JOIN InstitutionMapping m ON f.institution = m.oldName AND ISNULL(f.city, '') = ISNULL(m.oldCity,'')
 WHERE m.newName <> m.oldName OR m.oldCity <> m.newCity
 
+UPDATE [Migration_ProjectFunding] SET newInstitution = 'Fox Chase Cancer Center', [newCity] = 'Philadelphia'
+FROM [Migration_ProjectFunding] 
+WHERE Institution = 'Institute for Cancer Research, Fox Chase Cancer Center'
+
+
+UPDATE [Migration_ProjectFunding] SET NewCity = '' where city = 'NULL'
+
 INSERT INTO ProjectFundingInvestigator 
 ([ProjectFundingID], [LastName], [FirstName], [ORC_ID], [OtherResearch_ID], [OtherResearch_Type], [IsPrivateInvestigator], InstitutionID)
 SELECT distinct m.ProjectFundingID, ISNULL(m.piLastName, '') AS LastName, m.piFirstName, m.piORC_ID, m.[OtherResearch_ID], m.OtherResearch_Type, 1 AS IsPrivateInvestigator, ISNULL(i.InstitutionID, 1) AS InstitutionID --into #tmp
 FROM [Migration_ProjectFunding] m
 	 LEFT JOIN Institution i ON (i.name = m.newInstitution AND i.city = m.[newcity]) 
- 
+   
  -- test
-SELECT distinct m.institution, m.city
+SELECT distinct m.institution,  m.city
 FROM [Migration_ProjectFunding] m	
 	LEFT JOIN Institution i ON (i.name = m.newInstitution AND i.city = m.[newcity])  
-	  where i.InstitutionID is null
+	  where i.InstitutionID is null	  
 
 --delete ProjectFundingInvestigator
 
@@ -506,26 +578,32 @@ FROM icrp.dbo.tblLIBRARY
 -- public publications
 DECLARE @PublicationsFolderID INT
 DECLARE @NewsLettersFolderID INT
+DECLARE @MeetingReportsFolderID INT
+
 SELECT @PublicationsFolderID=LibraryFolderID FROM LibraryFolder WHERE Name='Publications'
 SELECT @NewsLettersFolderID=LibraryFolderID FROM LibraryFolder WHERE Name='Newsletters'
+SELECT @MeetingReportsFolderID=LibraryFolderID FROM LibraryFolder WHERE Name='Meeting Reports'
 
-
-INSERT INTO Library VALUES(@PublicationsFolderID, '2014_NCRI_Childrens_Cancer_Research_Analysis.pdf','2014_NCRI_Childrens_Cancer_Research_Analysis_Cover.png', 'Children''''s Cancer Research','A report on international research investment in childhood cancer in 2008, by the UK National Cancer Research Institute and members of the International Cancer Research Partnership', 1, NULL,getdate(), getdate())
-INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_ChildhoodCancer_2016.pdf','ICRP_ChildhoodCancer_2016.png', 'ICRP Childhood Cancer Analysis 2016','An overview of research investment in cancers affecting children, adolescents and young adults in the ICRP portfolio', 1, NULL,getdate(), getdate())
-INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_Disparities_ShortReport_2016.pdf','ICRP_Disparities_ShortReport_2016.png', 'ICRP Health Disparities Report 2016','An overview of research investment in health disparities and inequities in the ICRP portfolio', 1, NULL,getdate(), getdate())
 INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_EnvInfBreastCancer_ShortReport_2014.pdf','ICRP_EnvInfluences_BreastCancer_2014_cover.png', 'Metastatic Breast Cancer Alliance Report 2014','An analysis of MBC clinical trials and grant funding from the ICRP and related databases from 2000 through 2013', 1, NULL,getdate(), getdate())
-INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_EnvInfluences_BreastCancer_2014.pdf','ICRP_EnvInfluences_BreastCancer_2014_cover.png', 'ICRP report on environmental influences in breast cancer (2014)','An analysis of the research landscape in this area, examining trends in investment, research activity and gaps across a range of environmental carcinogens and lifestyle factors', 1, NULL,getdate(), getdate())
-INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_GYN_analysis.pdf','GYN_cover.png', 'Gynecologic Cancers Portfolio Analysis','Summary of the burden of gynecologic cancers in the United States and investments in research by the National Cancer Institute and members of the International Cancer Research Partnership', 1, NULL,getdate(), getdate())
-INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_Obesity_Cancer_Report_2014.pdf','ICRP_Obesity_Cancer_Report_2014_cover.png', 'ICRP report into obesity and cancer research (2014)','This report examines trends in investment and publication outputs for research on the role of obesity in cancer', 1, NULL,getdate(), getdate())
-INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_Report_2005-08.pdf','ICRP_Data_Report_Cover.png', 'ICRP Data Report 2005-2008','This is the first, co-operative international analysis of the cancer research landscape, based on data from over 50 current member organizations about their individual projects and programs, each classified by type of cancer and type of research', 1, NULL,getdate(), getdate())
-INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_Translational_Methodology_2015.pdf','ICRP_Translational_Methodology_2015.png', 'ICRP Translational Research Methodology (2015)','This report details a robust and easy way to identify translational research awards and monitor trends in this area, using the ICRP’s Common Scientific Outline (CSO)', 1, NULL,getdate(), getdate())
-INSERT INTO Library VALUES(@PublicationsFolderID,'MBCAlliance-Chapter-2.pdf','MBCAlliance-Chapter-2.png', '','', 1, NULL,getdate(), getdate())
+INSERT INTO Library VALUES(@PublicationsFolderID, '2014_NCRI_Childrens_Cancer_Research_Analysis.pdf','2014_NCRI_Childrens_Cancer_Research_Analysis_Cover.png', 'Children''s Cancer Research','A report on international research investment in childhood cancer in 2008, by the UK National Cancer Research Institute and members of the International Cancer Research Partnership', 1, NULL, DATEADD(second,1, getdate()), getdate())
+INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_GYN_analysis.pdf','GYN_cover.png', 'Gynecologic Cancers Portfolio Analysis','Summary of the burden of gynecologic cancers in the United States and investments in research by the National Cancer Institute and members of the International Cancer Research Partnership', 1, NULL,DATEADD(second,2, getdate()), getdate())
+INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_Report_2005-08.pdf','ICRP_Data_Report_Cover.png', 'ICRP Data Report 2005-2008','This is the first, co-operative international analysis of the cancer research landscape, based on data from over 50 current member organizations about their individual projects and programs, each classified by type of cancer and type of research', 1, NULL,DATEADD(second,3, getdate()), getdate())
+INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_EnvInfluences_BreastCancer_2014.pdf','ICRP_EnvInfluences_BreastCancer_2014_cover.png', 'ICRP report on environmental influences in breast cancer (2014)','An analysis of the research landscape in this area, examining trends in investment, research activity and gaps across a range of environmental carcinogens and lifestyle factors', 1, NULL,DATEADD(second,4, getdate()), getdate())
+INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_Obesity_Cancer_Report_2014.pdf','ICRP_Obesity_Cancer_Report_2014_cover.png', 'ICRP report into obesity and cancer research (2014)','This report examines trends in investment and publication outputs for research on the role of obesity in cancer', 1, NULL,DATEADD(second,5, getdate()), getdate())
+INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_Translational_Methodology_2015.pdf','ICRP_Translational_Methodology_2015.png', 'ICRP Translational Research Methodology (2015)','This report details a robust and easy way to identify translational research awards and monitor trends in this area, using the ICRP’s Common Scientific Outline (CSO)', 1, NULL,DATEADD(second,6, getdate()), getdate())
+INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_ChildhoodCancer_2016.pdf','ICRP_ChildhoodCancer_2016.png', 'ICRP Childhood Cancer Analysis 2016','An overview of research investment in cancers affecting children, adolescents and young adults in the ICRP portfolio', 1, NULL,DATEADD(second,7, getdate()), getdate())
+INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_Disparities_ShortReport_2016.pdf','ICRP_Disparities_ShortReport_2016.png', 'ICRP Health Disparities Report 2016','An overview of research investment in health disparities and inequities in the ICRP portfolio', 1, NULL,DATEADD(second,8, getdate()), getdate())
+INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_LungCancer_2016.pdf','ICRP_LungCancer_2016.png', 'ICRP Lung Cancer Overview 2016','An overview of research investment in lung cancer in the ICRP portfolio', 1, NULL, DATEADD(second,9, getdate()), getdate())
+
+--INSERT INTO Library VALUES(@PublicationsFolderID,'MBCAlliance-Chapter-2.pdf','MBCAlliance-Chapter-2.png', '','', 1, NULL,getdate(), getdate())
 
 -- public newsletters
 INSERT INTO Library VALUES(@NewsLettersFolderID,'ICRP_Newsletter_Feb2015.pdf','newsletter_2015_02.png', 'ICRP Newsletter, February 2015','Includes evaluation highlights presented at the San Antonio Breast Cancer Symposium, news about ICRP landscape reports and information about the ICRP annual meeting', 1, NULL,getdate(), getdate())
-INSERT INTO Library VALUES(@NewsLettersFolderID,'ICRP_Newsletter_November_2015.pdf','newsletter_2015_11.png', 'ICRP Newsletter, November 2015','Includes details on the launch of a new, more user-friendly version (V2) of the cancer classification system or Common Scientific Outline (CSO)', 1, NULL,getdate(), getdate())
+INSERT INTO Library VALUES(@NewsLettersFolderID,'ICRP_Newsletter_November_2015.pdf','newsletter_2015_11.png', 'ICRP Newsletter, November 2015','Includes details on the launch of a new, more user-friendly version (V2) of the cancer classification system or Common Scientific Outline (CSO)', 1, NULL,DATEADD(minute,1, getdate()), getdate())
 INSERT INTO Library VALUES(@NewsLettersFolderID,'ICRP_Newsletter_Summer_2015.pdf','.png', 'ICRP Newsletter, Summary 2015','ICRP Newsletter, Summary 2015', 1, getdate(),getdate(), getdate())
-INSERT INTO Library VALUES(@NewsLettersFolderID,'ICRP_2016_Annual meeting_BriefSummary.pdf','report_2016_08.png', 'ICRP 2016 Annual Meeting Report','This report summarizes the ICRP''''s 2016 annual meeting on Health Disparities, hosted by the American Cancer Society', 1, getdate(),getdate(), getdate())
+
+-- public Meeting Reports
+INSERT INTO Library VALUES(@MeetingReportsFolderID,'ICRP_2016_Annual meeting_BriefSummary.pdf','report_2016_08.png', 'ICRP 2016 Annual Meeting Report','This report summarizes the ICRP''s 2016 annual meeting on Health Disparities, hosted by the American Cancer Society', 1, NULL,getdate(), getdate())
 
 -----------------------------
 -- DataUploadStatus
@@ -652,31 +730,31 @@ JOIN #IncomeBand i ON m.three = i.CountryCode
 -- 2: Manager
 -- 3: Admin
 -----------------------------
-SELECT l.FNAME AS FirstName, l.LNAME AS LastName, l.EMAIL, o.NAME AS Organization, 
-		CASE l.ACCESSLEVEL
-		  WHEN 1 THEN 'Partner'
-		  WHEN 2 THEN 'Manager'		  
-		  ELSE NULL END AS Role, 
-		  CASE l.ACCESSLEVEL
-		  WHEN -1 THEN 'Registering'
-		  WHEN 0 THEN 'Block'		  
-		  ELSE 'Approved' END AS Access		  
-    INTO #users
-	FROM tblLogin l
-    	JOIN tblORG o ON o.ID = l.ORGID
-	WHERE l.ACCESSLEVEL <> 3  -- do not migrate admin accounts
+--SELECT l.FNAME AS FirstName, l.LNAME AS LastName, l.EMAIL, o.NAME AS Organization, 
+--		CASE l.ACCESSLEVEL
+--		  WHEN 1 THEN 'Partner'
+--		  WHEN 2 THEN 'Manager'		  
+--		  ELSE NULL END AS Role, 
+--		  CASE l.ACCESSLEVEL
+--		  WHEN -1 THEN 'Registering'
+--		  WHEN 0 THEN 'Block'		  
+--		  ELSE 'Approved' END AS Access		  
+--    INTO #users
+--	FROM icrp.dbo.tblLogin l
+--    	JOIN tblORG o ON o.ID = l.ORGID
+--	WHERE l.ACCESSLEVEL <> 3  -- do not migrate admin accounts
 
-	AND o.name <> 'IMSWeb'UPDATE #org SET Organization = 'Avon Foundation for Women' WHERE Organization = 'Avon Foundation'
-	UPDATE #org SET Organization = 'Canadian Breast Cancer Research Alliance' WHERE Organization = 'Canadian Cancer Research Alliance'
-	UPDATE #org SET Organization = 'Canadian Cancer Society' WHERE Organization = 'Canadian Cancer Society Research Institute'
-	UPDATE #org SET Organization = 'Cancer Australia' WHERE Organization = 'Cancer Institute New South Wales'
-	UPDATE #org SET Organization = 'KWF Kankerbestrijding / Dutch Cancer Society' WHERE Organization = 'Dutch Cancer Society'
-	UPDATE #org SET Organization = 'National Cancer Center, Japan' WHERE Organization = 'National Cancer Center (Japan)'
-	UPDATE #org SET Organization = 'Cancer Research UK' WHERE Organization = 'National Cancer Research Institute'
-	UPDATE #org SET Organization = 'Northern Ireland Health & Social Care - R & D Office' WHERE Organization = 'Northern Ireland R & D Office'
-	UPDATE #org SET Organization = 'Welsh Assembly Government - Office of R & D' WHERE Organization = 'Welsh Assembly Government'
+--	AND o.name <> 'IMSWeb'UPDATE #org SET Organization = 'Avon Foundation for Women' WHERE Organization = 'Avon Foundation'
+--	UPDATE #org SET Organization = 'Canadian Breast Cancer Research Alliance' WHERE Organization = 'Canadian Cancer Research Alliance'
+--	UPDATE #org SET Organization = 'Canadian Cancer Society' WHERE Organization = 'Canadian Cancer Society Research Institute'
+--	UPDATE #org SET Organization = 'Cancer Australia' WHERE Organization = 'Cancer Institute New South Wales'
+--	UPDATE #org SET Organization = 'KWF Kankerbestrijding / Dutch Cancer Society' WHERE Organization = 'Dutch Cancer Society'
+--	UPDATE #org SET Organization = 'National Cancer Center, Japan' WHERE Organization = 'National Cancer Center (Japan)'
+--	UPDATE #org SET Organization = 'Cancer Research UK' WHERE Organization = 'National Cancer Research Institute'
+--	UPDATE #org SET Organization = 'Northern Ireland Health & Social Care - R & D Office' WHERE Organization = 'Northern Ireland R & D Office'
+--	UPDATE #org SET Organization = 'Welsh Assembly Government - Office of R & D' WHERE Organization = 'Welsh Assembly Government'
 
-	SELECT * FROM #users
+--	SELECT * FROM #users
 
 	--select distinct Organization FROM #org o
 	--LEFT JOIN FUNDINGORG f ON o.Organization = f.name

@@ -4,6 +4,8 @@
 -----------------------------
 --DROP Table UploadWorkBook 
 --GO
+PRINT '***************************** Bulk Insert ************************************'
+
 
 CREATE TABLE UploadWorkBook (	
 	AwardCode NVARCHAR(50),
@@ -96,11 +98,13 @@ WHERE AltId = '18497_1'
 /***********************************************************************************************/
 -- Validation
 /***********************************************************************************************/
+PRINT '***************************** Data Integrity Check ************************************'
+
 -- Check related project base data
-drop table #awardCodes
-go
-drop table #parentProjects
-go
+--drop table #awardCodes
+--go
+--drop table #parentProjects
+--go
 
 SELECT Distinct AwardCode INTO #awardCodes FROM UploadWorkBook
 SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'
@@ -210,7 +214,7 @@ WHERE (i.InstitutionID IS NULL) AND (m.InstitutionMappingID IS NULL)
 
 IF EXISTS (select * FROM #missingInst)
 BEGIN
-SELECT DISTINCT 'Institution cannot be mapped' AS Issue, w.institution AS 'workbook - Institution Name', w.city AS 'workbook - Institution city', l.Name AS 'lookup -Institution Name', l.city AS 'lookup - Institution City' 
+SELECT DISTINCT 'Institution cannot be mapped' AS Issue, w.institution AS 'workbook - Institution Name', w.city AS 'workbook - Institution city'
 FROM (select Institution FROM #missingInst group by Institution, city) m
 LEFT JOIN Institution l ON m.Institution = l.Name
 LEFT JOIN UploadWorkBook w ON m.Institution = w.institution
@@ -234,9 +238,16 @@ END
 /***********************************************************************************************/
 -- Import Data
 /***********************************************************************************************/
+
+PRINT '***************************** Import Data  ************************************'
+
+
 -----------------------------------
 -- Import base Projects
 -----------------------------------
+
+PRINT 'Import base Projects'
+
 INSERT INTO Project 
 SELECT CASE ISNULL(Childhood, '') WHEN 'y' THEN 1 ELSE 0 END, 
 		AwardCode, 1, AwardStartDate, AwardEndDate, getdate(), getdate()
@@ -245,6 +256,8 @@ FROM #parentProjects
 -----------------------------------
 -- Import Project Abstract
 -----------------------------------
+PRINT '-- Import Project Abstract'
+
 CREATE TABLE UploadAbstract (	
 	ID INT NOT NULL IDENTITY(1,1),
 	AwardCode NVARCHAR(50),
@@ -263,6 +276,9 @@ GO
 
 INSERT INTO UploadAbstract (AwardCode, Altid, TechAbstract, PublicAbstract) SELECT DISTINCT AwardCode, Altid, TechAbstract, PublicAbstract FROM UploadWorkBook 
 
+UPDATE ProjectAbstract SET PublicAbstract = NULL where PublicAbstract = '0'
+
+
 SET IDENTITY_INSERT ProjectAbstract ON;  -- SET IDENTITY_INSERT to ON. 
 GO 
 
@@ -274,6 +290,8 @@ GO
 -----------------------------------
 -- Import ProjectFunding
 -----------------------------------
+PRINT 'Import ProjectFunding'
+
 INSERT INTO ProjectFunding
 SELECT u.AwardTitle, p.ProjectID, o.FundingOrgID, d.FundingDivisionID, a.ID,    --ProjectAbtractID
 	u.Category, u.AltId, u.SourceId, u.FundingMechanismCode, u.FundingMechanism, u.FundingContact, 
@@ -289,12 +307,16 @@ GO
 -----------------------------------
 -- Import ProjectFundingInvestigator
 -----------------------------------
+PRINT '-- Import ProjectFundingInvestigator'
+
 INSERT INTO ProjectFundingInvestigator ([ProjectFundingID], [LastName],	[FirstName],[ORC_ID],[OtherResearch_ID],[OtherResearch_Type],[IsPrivateInvestigator],[InstitutionID],[InstitutionNameSubmitted])
-SELECT f.ProjectFundingID, u.PILastName, u.PIFirstName, u.ORCID, u.OtherResearcherID, u.OtherResearcherIDType, 1, ISNULL(i.InstitutionID,1), u.Institution
+SELECT DISTINCT f.ProjectFundingID, u.PILastName, u.PIFirstName, u.ORCID, u.OtherResearcherID, u.OtherResearcherIDType, 1, ISNULL(inst.InstitutionID,1) AS InstitutionID, u.Institution AS Institution
 FROM UploadWorkBook u
 JOIN ProjectFunding f ON u.AltID = f.AltAwardCode
-LEFT JOIN (SELECT i.InstitutionID, i.Name, i.City, m.OldName, m.oldCity FROM Institution i 
-           LEFT JOIN InstitutionMapping m ON i.name = m.newName AND i.City = m.newCity) inst ON (u.Institution = inst.Name AND u.City = inst.City) OR (u.Institution = inst.OldName AND u.City = inst.OldCity)
+LEFT JOIN (SELECT i.InstitutionID, i.Name, i.City, m.OldName, m.oldCity FROM Institution i LEFT JOIN InstitutionMapping m ON i.name = m.newName AND i.City = m.newCity) inst 
+     ON (u.Institution = inst.Name AND u.City = inst.City) OR (u.Institution = inst.OldName AND u.City = inst.OldCity)
+
+select * from ProjectFundingInvestigator where projectfundingid=64645
 
 GO
 
@@ -312,6 +334,8 @@ GO
 -----------------------------------
 -- Import ProjectCancerCSO
 -----------------------------------
+PRINT 'Import ProjectCancerCSO'
+
 SELECT f.projectID, f.ProjectFundingID, f.AltAwardCode, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel, AwardType INTO #list
 FROM UploadWorkBook u
 JOIN ProjectFunding f ON u.AltId = f.AltAwardCode
@@ -360,6 +384,8 @@ GO
 -----------------------------------
 -- Import ProjectCancerType
 -----------------------------------
+PRINT 'Import ProjectCancerType'
+
 DECLARE @psite TABLE
 (
 	Seq INT NOT NULL IDENTITY (1,1),
@@ -406,6 +432,8 @@ go
 -----------------------------------
 -- Import Project_ProjectTye
 -----------------------------------
+PRINT 'Import Project_ProjectTye'
+
 DECLARE @ptype TABLE
 (	
 	ProjectID INT,	
@@ -454,5 +482,12 @@ FROM @ptype
 
 --SELECT @FundingYear = CAST( MIN(CalendarYear) AS CHAR(4)) + '-' + CAST(MAX(CalendarYear) AS CHAR(4)) FROM ProjectFundingExt WHERE createddate > '2/28/2017'
 
+UPDATE DataUploadStatus SET [Status] = 'Complete'
+
 INSERT INTO DataUploadStatus ([PartnerCode],[FundingYear],[Status],[ReceivedDate],[ValidationDate],[UploadToDevDate],[UploadToStageDate],[UploadToProdDate],[Note],[CreatedDate])
 VALUES ('CCRA', '1998-2012', 'Staging', '2/20/2017', '2/20/2017', '2/25/2017',  '2/25/2017', NULL, 'Import CA data', '2/20/2017')
+
+
+select * from projectfunding f
+join fundingorg o ON f.fundingorgID = o.FundingOrgID
+where o.SponsorCode = 'ccra'
