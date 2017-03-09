@@ -18,8 +18,15 @@ a {
   color: #1E8BC3;
 }
 /* Needed ot override anchor color when displaying a field on form entry error */
+.alert {
+  font-size:18px;
+  font-weight:bold;
+}
+.alert-danger {
+  background-color: #d9534f;
+}
 ul.item-list__comma-list > li > a {
-  color: darkblue;
+  color: yellow;
 }
 /*
  * Bootstrap table overrides
@@ -336,7 +343,7 @@ footer.footer {
   border-top: 1px solid #EEE;
   border-radius: 0;
   box-shadow: none;
-  font-size: 12px;
+  /* font-size: 12px; */
 }
 
 /** Bootstrap well overrides */
@@ -388,6 +395,11 @@ form[action="/user-account-administration-tool"] > div > div {
 	display: inline-block !important;
 	vertical-align: top !important;
 }
+
+#edit-contact-us-container-3 > div > label {
+	display: block;
+}
+
 /* Overwrite yeti form */
 .navbar {
   margin-bottom: 10px;

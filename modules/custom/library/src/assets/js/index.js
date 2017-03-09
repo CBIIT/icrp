@@ -19,7 +19,7 @@ jQuery(function() {
             var node = functions.getNode(),
                 ancestors = node.parents,
                 target = $(e.target),
-                id = target.parent().data('library-file-data').LibraryID;
+                id = target.closest('.item-wrapper').data('library-file-data').LibraryID;
             target.attr('disabled',true);
             ancestors.unshift(node.id);
             ancestors.pop();
@@ -27,7 +27,7 @@ jQuery(function() {
                 'url': path+'file/'+id,
                 'method': 'DELETE'
             }).done(function(response) {
-                target.addClass('restore-file').removeClass('archive-file').closest('.item').addClass('archived');
+                target.addClass('restore-file').removeClass('archive-file').closest('.item-wrapper').addClass('archived');
                 while (ancestors.length > 0) {
                     var ancestor = tree.get_node(ancestors.shift());
                     ancestor.data.archivedCount += 1;
@@ -73,25 +73,46 @@ jQuery(function() {
         },
         'closeParams': function(e) {
             var params = $('#library-parameters');
+            params.find('[name="parent"]').empty();
             params.find('[name="upload"]').removeClass('hide').prev().empty().addClass('hide');
             params.find('[name="thumbnail"]').removeClass('hide').prev().empty().addClass('hide');
             e.preventDefault();
             $('#library-view').addClass('active').siblings().removeClass('active');
             $('#library-edit').find('form')[0].reset();
         },
-        'createNew': function(e,isFolder) {
+        'createNewRoot': function(e) {
             e.preventDefault();
-            var node = functions.getNode()||{'id':1,'data':{'isPublic':0}},
-                params = $('#library-parameters').toggleClass('folder',isFolder),
+            var params = $('#library-parameters').addClass('folder'),
                 ispub = params.find('[name="is_public"]');
-            params.find('[name="parent"]').val(node.id);
-            ispub.parent().toggleClass('not_public',!node.data.isPublic);
-            ispub.attr('checked',node.data.isPublic);
+            functions.populateParents(1);
+            $('#library-edit h1').html("Create Library Folder");
+            ispub.removeAttr('checked');
             $('#library-edit').addClass('active').siblings().removeClass('active');
         },
+        'createNew': function(e,isFolder,nodeId) {
+            e.preventDefault();
+            var node = functions.getNode(),
+                params = $('#library-parameters').toggleClass('folder',isFolder),
+                ispub = params.find('[name="is_public"]');
+            if (node) {
+                if (nodeId == undefined) nodeId = node.id;
+                functions.populateParents(nodeId);
+                if (isFolder) {
+                    $('#library-edit h1').html("Create Library Folder");
+                } else {
+                    $('#library-edit h1').html("Create Library File");
+                }
+                ispub.attr('checked',node.data.isPublic);
+                $('#library-edit').addClass('active').siblings().removeClass('active');
+            } else {
+                BootstrapDialog.alert({
+                    'title': null,
+                    'message': "No folder is currently selected."
+                });
+            }
+        },
         'editFile': function(e) {
-            var target = $(e.target).parent(),
-                data = target.data('library-file-data'),
+            var data = $(e.target).closest('.item-wrapper').data('library-file-data'),
                 params = $('#library-parameters'),
                 ispub = params.find('[name="is_public"]');
             params.find('[name="id_value"]').val(data.LibraryID);
@@ -100,6 +121,7 @@ jQuery(function() {
             params.find('[name="description"]').val(data.Description);
             params.find('[name="thumbnail"]').addClass('hide').prev().html(data.ThumbnailFilename).removeClass('hide');
             functions.createNew(e, false);
+            $('#library-edit h1').html("Edit Library File");
             ispub.parent().toggleClass('not_public',data.IsPublic != "1");
             ispub.prop('checked',data.IsPublic == "1");
         },
@@ -108,10 +130,10 @@ jQuery(function() {
             if (data) {
                 var params = $('#library-parameters'),
                     ispub = params.find('[name="is_public"]');
-                functions.createNew(e,true);
-                params.find('[name="parent"]').val(data.parents[0]==="#"?"1":data.parents[0]);
+                functions.createNew(e,true,data.parents[0]==="#"?"1":data.parents[0]);
                 params.find('[name="id_value"]').val(data.id);
                 params.find('[name="title"]').val(data.text);
+                $('#library-edit h1').html("Edit Library Folder");
                 ispub.parent().toggleClass('not_public',!data.data.isPublic);
                 ispub.prop('checked',data.data.isPublic);
             }
@@ -146,9 +168,9 @@ jQuery(function() {
                     tree = $('#library-tree').jstree();
                     var json = tree.get_json();
                     for (var index = 0; index < json.length; index++) {
-                        if (!json[index].state.hidden) break;
+                        if (!json[index].state.hidden && (role !== "public" || json[index].text == "Publications")) break;
                     }
-                    tree.select_node(tree.get_json()[index]);
+                    if (index < json.length) tree.select_node(json[index]);
                 }).on('refresh.jstree', function() {
                     if (functions.getNode().state.hidden) {
                         tree.deselect_all();
@@ -167,15 +189,19 @@ jQuery(function() {
                   } else {
                       functions.hideArchives(e);
                   }
+                }).on('move_node.jstree',function(e, data) {
+                  var node = functions.getNode(),
+                      parent = tree.get_node(node.parents[0]);
+                  parent.children = parent.children.map(function(entry) { return tree.get_node(entry); }).sort(functions.caselessSort);
+                  if ($('#library-display .frame').hasClass('archived')) {
+                      functions.showArchives(e);
+                  } else {
+                      functions.hideArchives(e);
+                  }
                 }).on('changed.jstree', function(e, data) {
                     var nodes = data.selected;
+                    $('#library-search [name="library-keywords"]').val('');
                     if (nodes.length > 0) {
-                        var node = tree.get_node(nodes[0]);
-                        if (node.data.isArchived === true) {
-                          $('#library-restore-folder').removeAttr('disabled');
-                        } else {
-                          $('#library-restore-folder').attr('disabled',true);
-                        }
                         lGet(path+'folder/'+data.selected[0]).done(function(response) {
                             functions.writeDisplay(response.files,role==="public");
                         });
@@ -221,11 +247,26 @@ jQuery(function() {
           functions.updateTree(treeBase, true);
           return treeBase;
         },
+        'populateParents': function(nodeId) {
+            var parent = $('#library-parameters [name="parent"]'),
+                json = tree.get_json(),
+                tab = "&#8193;",
+                popChildren = function(children,tabCount) {
+                    var countedTab = "";
+                    for (var index = 0; index < tabCount; index++) countedTab += tab;
+                    for (var index = 0; index < children.length; index++) {
+                        parent.append('<option value="'+children[index].id+'"'+(children[index].id==nodeId?' SELECTED':'')+'>'+countedTab+children[index].text+'</option>');
+                        popChildren(children[index].children,tabCount+1);
+                    }
+                };
+            parent.append('<option value="1">ROOT</option>');
+            popChildren(json,1);
+        },
         'restoreFile': function(e) {
             var node = functions.getNode(),
                 ancestors = node.parents,
                 target = $(e.target),
-                id = target.parent().data('library-file-data').LibraryID;
+                id = target.closest('.item-wrapper').data('library-file-data').LibraryID;
             target.attr('disabled',true);
             ancestors.unshift(node.id);
             ancestors.pop();
@@ -233,7 +274,7 @@ jQuery(function() {
                 'url': path+'file/'+id,
                 'method': 'PUT'
             }).done(function(response) {
-                target.removeClass('restore-file').addClass('archive-file').closest('.item').removeClass('archived');
+                target.removeClass('restore-file').addClass('archive-file').closest('.item-wrapper').removeClass('archived');
                 while (ancestors.length > 0) {
                     var ancestor = tree.get_node(ancestors.shift());
                     ancestor.data.isArchived = false;
@@ -313,7 +354,7 @@ jQuery(function() {
                       parent = entry.ParentFolderID;
                   entry = {
                       id: entry.LibraryFolderID,
-                      parent: entry.ParentFolderID,
+                      parent: tree.get_node(entry.ParentFolderID).id||'#',
                       text: entry.Name,
                       children: [],
                       data: {
@@ -329,10 +370,9 @@ jQuery(function() {
                       }
                   };
                   if (node && node.id === entry.id) {
-                      var node = tree.get_node(entry.id);
                       node.data.isPublic = entry.data.isPublic;
-                      tree.rename_node(node,entry.text);
-                      entry = node;
+                      if (node.text !== entry.text) tree.rename_node(node,entry.text);
+                      if (node.parent != entry.parent) tree.move_node(node,entry.parent);
                   } else {
                       tree.deselect_all();
                       tree.select_node(tree.create_node(parent,entry,'last'));
@@ -415,11 +455,13 @@ jQuery(function() {
                             thumb = path+'file/thumb/'+thumb;
                         }
                         frame.append(
-                          '<div class="item'+(isArchived?' archived':'')+'">'+
-                              '<h4>'+title+'</h4>'+
-                              '<img src="'+thumb+'"/>'+
-                              '<p>'+description+'</p>'+
-                              '<div><a href="'+path+'file/'+file+'">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
+                          '<div class="item-wrapper'+(isArchived?' archived':'')+'">'+
+                              '<div class="item">'+
+                                  '<h5>'+title+'</h5>'+
+                                  '<img src="'+thumb+'"/>'+
+                                  '<p>'+description+'</p>'+
+                                  '<div><a href="'+path+'file/'+file+'">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
+                              '</div>'+
                           '</div>'
                         );
                     });
@@ -427,12 +469,16 @@ jQuery(function() {
                     frame.removeClass('preview');
                     $.each(files,function(index,entry) {
                         var file = entry.Filename,
-                            isArchived = (entry.ArchivedDate !== null);
+                            isArchived = (entry.ArchivedDate !== null),
+                            isPublic = (entry.IsPublic == "1");
                         frame.append(
-                          '<div class="item'+(isArchived?' archived':'')+'">'+
-                              '<div><a href="'+path+'file/'+file+'">'+file+'</a></div>'+
-                              '<button class="admin edit-file""></button>'+
-                              '<button class="admin '+(isArchived?'restore-file':'archive-file')+'""></button>'+
+                          '<div class="item-wrapper'+(isArchived?' archived':'')+(isPublic?' public-doc':'')+'">'+
+                              '<div class="item">'+
+                                  '<div title="'+(isPublic?'Public Document':'Non-Public Document')+'"></div>'+
+                                  '<div><a href="'+path+'file/'+file+'">'+file+'</a></div>'+
+                                  '<button class="admin edit-file" title="Edit File"></button>'+
+                                  '<button class="admin '+(isArchived?'restore-file':'archive-file')+'" title="'+(isArchived?'Restore File':'Archive File')+'"></button>'+
+                              '</div>'+
                           '</div>'
                         ).children('*:last-child').data('library-file-data',entry);
                     });
@@ -440,7 +486,7 @@ jQuery(function() {
             } else {
                 frame.removeClass('preview');
             }
-            frame.append('<div class="item">No Files Found</div>');
+            frame.append('<div class="item-wrapper"><div class="item">No Files Found</div></div>');
         }
     };
     functions.initialize();
@@ -453,6 +499,9 @@ jQuery(function() {
     $('#library-search-button').on('click', functions.search);
     $('#library-create-folder').on('click',function(e) {
         functions.createNew(e,true);
+    });
+    $('#library-create-root-folder').on('click',function(e) {
+        functions.createNewRoot(e,true);
     });
     $('#library-edit-folder').on('click',functions.editFolder);
     $('#library-upload-file').on('click',function(e) {

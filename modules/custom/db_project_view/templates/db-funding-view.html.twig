@@ -1,24 +1,19 @@
+
 {% spaceless %}
 {% autoescape true %}
 
 <div class="native-font">
 
 {% if funding_details %}
-<h1 class="title" style="display: inline-block;">{{ page_title }}</h1>
-
-<div id="google_translate_element" class="pull-right"></div><script type="text/javascript">
-function googleTranslateElementInit() {
-  new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL}, 'google_translate_element');
-}
-</script><script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-
-<hr class="less-margins">
-
+<div class="relative margin-bottom">
+<h1 class="h1">{{ page_title }}</h1>
+<div id="google_translate_element"></div>
+</div>
 
 <dl class="dl-horizontal margin-bottom margin-top">
-  <dt>Project Title</dt>
+  <dt>Title</dt>
   <dd>{{ funding_details.project_title | raw }}</dd>
-  <dt>AltAward Code</dt>
+  <dt>Alt. Award Code</dt>
   <dd>{{ funding_details.alt_award_code | default('Not specified')}}</dd>
   <dt>Funding Organization</dt>
   <dd>{{ funding_details.funding_organization  | default('Not specified')}}</dd>
@@ -30,7 +25,7 @@ function googleTranslateElementInit() {
     {% else %}
       <i>Not specified</i>
     {% endif %}
-  <dt>Principle Investigator</dt>
+  <dt>Principal Investigator</dt>
   <dd>{{ funding_details.pi_name | default('Not specified')}}</dd>
   <dt>Institution</dt>
   <dd>{{ funding_details.institution | default('Not specified')}}</dd>

@@ -64,14 +64,14 @@ class DataTable extends Component {
   render() {
     return (
       <div className='table-responsive noscroll'>
-        <table ref='table' className='data-table table-nowrap'>
+        <table ref='table' className='data-table table table-bordered table-striped table-condensed table-hover table-narrow table-nowrap'>
           <thead>
             <tr>
               {
                 this.state.columns.map((column, columnIndex) => 
                   <th key={ columnIndex }>
                     <OverlayTrigger placement='top' overlay={this.tooltip(column.tooltip)}>                   
-                      <div style={{cursor: 'pointer'}} onClick={this.sort.bind(this, columnIndex)}>
+                      <div style={{cursor: 'pointer', display: 'flex', justifyContent: 'space-between'}} onClick={this.sort.bind(this, columnIndex)}>
                         { column.label }
                         { this.state.sortColumn === columnIndex && this.sortArrow(this.state.sortAscending[columnIndex]) }
                       </div>

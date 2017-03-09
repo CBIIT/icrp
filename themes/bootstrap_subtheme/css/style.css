@@ -21,12 +21,33 @@ h1 {
     font-weight: normal;
     margin-top: 0px;
 }
+.logo img {
+    margin-top:15px;
+}
 /* Membership Status - Expose Form*/
 /*
 #form-membership-status > div > div > div > div > div.select-wrapper {
     display:inline-block;
 }
 */
+
+#about-us-container .panel-title {
+    font-size:24px;
+    font-weight: bold;
+}
+#about-us-container .about-us-body {
+    padding: 20px;
+}
+#about-us-container h3 {
+    font-size:20px;
+}
+#about-us-2 dd {
+    display: list-item;list-style-type: disc;
+    margin-left:40px;
+}
+#about-us-3 dt {
+    margin-bottom:5px;
+}
 #form-membership-status  .select-wrapper {
     display:inline-block;
 }
@@ -203,7 +224,7 @@ header {
     margin-bottom:0px;
     background-color: #f8f8f8;
 }
-.what-who-section a {
+.front-page a {
     font-weight:bold;
 }
 #become-a-partner-wells h4, #become-a-partner-wells p {

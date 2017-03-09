@@ -36,15 +36,14 @@ function buildTable(data) {
 function buildUploadStatusReportTable(data) {
 
   const tableColumns = [
-    { title: '', tooltip:'', prop: 'index', sortable: false},
     { title: 'Partner', tooltip:'Partner', prop: 'partner' },
-    { title: 'Funding Year', tooltip:'Funding Year', prop: 'funding_year' },
+    { title: 'Funding Year', tooltip:'Funding year as submitted by the organization', prop: 'funding_year' },
     { title: 'Process Status', tooltip:'Process Status', prop: 'status' },
     { title: 'Received Data Submission', tooltip:'Received Data Submission', prop: 'received_date' },
-    { title: 'Run pre-import validation', tooltip:'Run pre-import validation', prop: 'validation_date' },
+    { title: 'Run pre-import validation', tooltip:'Date pre-import validation completed', prop: 'validation_date' },
     { title: 'Uploaded to Development DB', tooltip:'Uploaded to Development DB', prop: 'dev_date' },
     { title: 'Copied to Stage DB', tooltip:'Copied to Stage DB', prop: 'stage_date' },
-    { title: 'Copied to Production DB', tooltip:'Copied to Production DB', prop: 'prod_date' },
+    { title: 'Copied to Production DB', tooltip:'Date of upload to live database', prop: 'prod_date' },
   ];
 
   return (

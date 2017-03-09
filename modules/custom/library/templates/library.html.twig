@@ -1,13 +1,13 @@
 <div id="library" class="tab-content">
   <div id="library-view" class="tab-pane active">
     <header>
-      <h2>Library</h2>
+      <h1>Library</h1>
       <p>
         The ICRP publishes regular data analyses, newsletters and reports. Please use our library to find
         reports of interest to the cancer research community, news and announcements. Please note that you
         must have Adobe's Acrobat Reader to view many of these files. Get Adobe Acrobat Reader free by
         clicking <a href="http://www.adobe.com/ca/products/reader.html">here</a>. To receive the ICRP
-        newsletter by email please <a href="">Contact Us</a>.
+        newsletter by email please <a href="../contact-us?type-of-issue=Sign%20Up%20for%20Newsletter">Contact Us</a>.
       </p>
     </header>
     <div id="library-view-table">
@@ -28,12 +28,8 @@
           </div>
           <div id="library-tree"></div>
           <div id="library-management" class="admin">
-            <a href="javascript:void(0);" id="library-create-folder" class="admin">Create Folder</a>
+            <a href="javascript:void(0);" id="library-create-root-folder" class="admin">Create Folder</a>
             <a href="javascript:void(0);" id="library-edit-folder" class="admin">Edit Folder</a>
-            <!--
-              <button id="library-restore-folder" class="admin btn btn-default hide" disabled="true">Restore Folder</button>
-              <button id="library-hide-archives" class="admin btn btn-default hide">Hide Archives</button>
-            -->
           </div>
         </div>
       </div>
@@ -43,6 +39,7 @@
           </div>
           <div id="library-management2" class="admin partner">
             <a href="javascript:void(0);" id="library-upload-file" class="admin partner">Upload New File</a>
+            <a href="javascript:void(0);" id="library-create-folder" class="admin">Create Subfolder</a>
             <a href="javascript:void(0);" id="library-archive-folder" class="admin">Archive All Files</a>
           </div>
       </div>
@@ -50,14 +47,17 @@
   </div>
   <div id="library-edit" class="tab-pane">
     <header>
-      <h2>Upload File</h2>
+      <h1>Upload File</h1>
     </header>
     <form>
       <div id="library-parameters">
-        <input type="text" name="parent" class="hide" value=""/>
         <input type="text" name="id_value" class="hide" value=""/>
         <div>
           <span class="required">Required</span>
+        </div>
+        <div class="folder">
+          <label for="parent" class="required">Parent Folder</label>
+          <select name="parent"></select>
         </div>
         <div>
           <label for="upload" class="required">File</label>

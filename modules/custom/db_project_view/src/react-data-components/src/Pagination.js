@@ -121,7 +121,7 @@ export default class Pagination extends Component {
     ]);
 
     return (
-      <ul className={this.props.className} aria-label="Pagination">
+      <ul className={this.props.className} style={{margin: 0}} aria-label="Pagination">
         {buttons}
       </ul>
     );
