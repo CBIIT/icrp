@@ -273,8 +273,9 @@ function getRestOrganizations() {
     //Use ajax to pull url
     //TODO: the host should just poit to self.  Maybe exclude host and just send to /getFundingOrgNames
 
-    $host = "icrpartnership-test.org";
+    //$host = "icrpartnership-test.org";
     $host = \Drupal::request()->getSchemeAndHttpHost();
+    //$host = "https://icrpartnership-dev.org";
     //drupal_set_message($host);
     $url = $host."/getFundingOrgNames";
     \Drupal::logger('icrp')->notice("getRestOrganization pulling url: " . $url);
