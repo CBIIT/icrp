@@ -450,7 +450,7 @@ jQuery(function() {
                             file = entry.Filename,
                             isArchived = (entry.ArchivedDate !== null);
                         if (thumb === "") {
-                            thumb = root+'/sites/default/files/library/File-ImagePlaceholder.svg';
+                            thumb = root+'/sites/default/files/library/placeholder.jpg';
                         } else {
                             thumb = path+'file/thumb/'+thumb;
                         }
@@ -519,10 +519,6 @@ jQuery(function() {
     $('#library-display').on('click', '.edit-file', functions.editFile);
     $('#library-display').on('click', '.archive-file', functions.archiveFile);
     $('#library-display').on('click', '.restore-file', functions.restoreFile);
-    $('[name="is_public"]').on('change', function(e) {
-        var target = $(e.target);
-        target.parent().toggleClass('not_public',!target.prop('checked'));
-    });
     $('#library-save').on('click',function(e) {
         e.preventDefault();
         if ($('#library-parameters').hasClass('folder')) {
