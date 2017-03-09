@@ -355,9 +355,9 @@ class LibraryController extends ControllerBase {
         $stmt = $connection->prepare("INSERT INTO Library (Title,LibraryFolderID,Filename,ThumbnailFilename,Description,IsPublic,ArchivedDate) OUTPUT INSERTED.* VALUES (:title,:lfid,:file,:thumb,:desc,:ip,:ad);");
         $stmt->bindParam(":title",$params["title"]);
         $stmt->bindParam(":lfid",$params["parent"]);
-        $stmt->bindParam(":file",$upload->getClientOriginalName());
+        $stmt->bindValue(":file",$upload->getClientOriginalName());
         if ($thumb) {
-          $stmt->bindParam(":thumb",$thumb->getClientOriginalName());
+          $stmt->bindValue(":thumb",$thumb->getClientOriginalName());
         } else {
           $stmt->bindValue(":thumb",null,PDO::PARAM_NULL);
         }

@@ -32,11 +32,14 @@ class UserImportController {
    */
   public static function processUpload(File $file, array $config) {
     $handle = fopen($file->destination, 'r');
-    $created = [];
-    while ($row = fgetcsv($handle)) {
+    $created = 0;
+
+    while ($row = fgetcsv($handle, 2000, "|")) {
+      drupal_set_message(print_r($row, true));
       if ($values = self::prepareRow($row, $config)) {
         if ($uid = self::createUser($values)) {
-          $created[$uid] = $values;
+            $created++;
+          //$created[$uid] = $values;
         }
       }
     }
@@ -57,23 +60,42 @@ class UserImportController {
    * @return array
    *   New user values suitable for User::create().
    */
-  public static function prepareRow(array $row, array $config) {
+  public static function prepareRow(array $row, array $config, &$organization) {
+      /* USERNAME */
     $preferred_username = (strtolower($row[0] .".". $row[1]));
     $i = 0;
     while (self::usernameExists($i ? $preferred_username . $i : $preferred_username)) {
       $i++;
     }
     $username = $i ? $preferred_username . $i : $preferred_username;
+      //ROW:          0    |    1   |  2  |     3      | 4  |   5
+      //csv file: FirstName|LastName|EMAIL|Organization|Role|Access
+
+    //Add either Partner or Manager role.  Or if NULL then no role
+    $roles = array();
+    if($row[4] != "NULL") {
+        $roles = array($row[4]);
+    }
+
+    //Change row 5 to Active if Approved
+    if($row[5] == "Approved") {
+        $row[5] = "Active";
+    }
+
+    //STATUS - Drupal status is either Active or Blocked
+    $status = ($row[5] == "Active") ? 1 :0;
+    $organization = row[3];
     return [
       'uid' => NULL,
       'name' => $username,
       'field_first_name' => $row[0],
       'field_last_name' => $row[1],
       'pass' => NULL,
-      'mail' => $row[2],
-      'status' => 0,
+      'mail' => "INVALID.".$row[2],
+      'status' => $status,
       'created' => REQUEST_TIME,
-      'roles' => array_values($config['roles']),
+      'roles' => array_values($roles),
+      'membership_status' => $row[5]
     ];
   }
 
@@ -101,9 +123,14 @@ class UserImportController {
    */
   private function createUser($values) {
     $user = User::create($values);
+
+    $organization = $values['organization_raw'];
+
     try {
       if ($user->save()) {
-        return $user->id();
+          $uid = $user->id();
+          addOrganization($uid, $organization);
+        return $uid;
       }
     }
     catch (EntityStorageException $e) {
@@ -118,4 +145,7 @@ class UserImportController {
     return FALSE;
   }
 
+    private function addOrganization($uid, $organization) {
+
+    }
 }
