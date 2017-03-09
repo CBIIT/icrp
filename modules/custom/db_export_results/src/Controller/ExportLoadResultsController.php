@@ -5,7 +5,7 @@
  */
 namespace Drupal\db_export_results\Controller;
 
-require 'PHPExcel.php';
+require_once 'PHPExcel.php';
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Database;
