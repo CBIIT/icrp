@@ -331,7 +331,7 @@ class LibraryController extends ControllerBase {
     if (!isset($params["title"]) || empty($params["title"]) ||
         !isset($params["parent"]) || !is_numeric($params["parent"]) ||
         !isset($params["description"]) || empty($params["description"]) ||
-        ($new && !$upload->isValid())
+        ($new && ($upload == null || !$upload->isValid()))
       ) {
       return new JsonResponse(array(
           "success"=>false
