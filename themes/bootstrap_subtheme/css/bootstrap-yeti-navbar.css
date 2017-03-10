@@ -1532,9 +1532,11 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .navbar-default .navbar-toggle:focus {
     background-color: transparent;
 }
+/*
 .navbar-default .navbar-toggle .icon-bar {
     background-color: #ffffff;
 }
+*/
 .navbar-default .navbar-collapse,
 .navbar-default .navbar-form {
     border-color: #222222;

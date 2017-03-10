@@ -212,6 +212,7 @@ class UserReviewForm extends FormBase
             '#type' => 'checkbox',
             '#title' => t('Can Upload Library Files'),
             '#default_value' => $can_upload_library_files,
+            '#help_text' => 'Allow user ability to upload files to the ICRP Library'
         );
 
         $form['container2']['name']['settings']['status'] = array(
@@ -222,6 +223,7 @@ class UserReviewForm extends FormBase
                 1 => t('Active'),
             ),
             '#default_value' => $status,
+            '#help_text' => 'User Status'
 
         );
         $form['container2']['name']['settings']['roles'] = array(
@@ -232,6 +234,7 @@ class UserReviewForm extends FormBase
                 'partner' => t('Partner'),
             ),
             '#default_value' => $roles,
+            '#help_text' => 'User application roles'
         );
         $form['container2']['name']['settings']['actions']['#type'] = 'actions';
         $form['container2']['name']['settings']['actions']['submit'] = array(
