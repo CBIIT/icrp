@@ -1,9 +1,11 @@
 langcode: en
-status: true
+status: open
 dependencies:
   enforced:
     module:
       - webform_test
+open: null
+close: null
 uid: null
 template: false
 id: test_element_entity_reference
@@ -19,7 +21,7 @@ elements: |
       '#title': 'entity_autocomplete (user)'
       '#default_value': '1'
       '#target_type': user
-      '#selection_handler': default:user
+      '#selection_handler': 'default:user'
       '#selection_settings':
         include_anonymous: true
     entity_autocomplete_user_tags:
@@ -27,7 +29,7 @@ elements: |
       '#title': 'entity_autocomplete (user tags)'
       '#tags': true
       '#target_type': user
-      '#selection_handler': default:user
+      '#selection_handler': 'default:user'
       '#selection_settings':
         include_anonymous: true
       '#default_value':
@@ -64,7 +66,7 @@ elements: |
       '#title': 'entity_select (user)'
       '#default_value': '1'
       '#target_type': user
-      '#selection_handler': default:user
+      '#selection_handler': 'default:user'
       '#selection_settings':
         include_anonymous: true
     webform_entity_select_user_multiple:
@@ -72,7 +74,7 @@ elements: |
       '#title': 'entity_select (user multiple)'
       '#multiple': true
       '#target_type': user
-      '#selection_handler': default:user
+      '#selection_handler': 'default:user'
       '#selection_settings':
         include_anonymous: true
       '#default_value':
@@ -87,7 +89,7 @@ elements: |
       '#title': 'entity_radio (user)'
       '#default_value': '1'
       '#target_type': user
-      '#selection_handler': default:user
+      '#selection_handler': 'default:user'
       '#selection_settings':
         include_anonymous: true
   webform_entity_checkboxes:
@@ -98,7 +100,7 @@ elements: |
       '#type': webform_entity_checkboxes
       '#title': 'entity_checkboxes (user)'
       '#target_type': user
-      '#selection_handler': default:user
+      '#selection_handler': 'default:user'
       '#selection_settings':
         include_anonymous: true
       '#default_value':
@@ -111,13 +113,16 @@ settings:
   page_submit_path: ''
   page_confirm_path: ''
   form_submit_label: ''
+  form_submit_once: false
   form_submit_attributes: {  }
   form_exception_message: ''
   form_closed_message: ''
+  form_previous_submissions: true
   form_confidential: false
   form_confidential_message: ''
   form_prepopulate: false
   form_prepopulate_source_entity: false
+  form_disable_autocomplete: false
   form_novalidate: false
   form_unsaved: false
   form_disable_back: false
@@ -146,6 +151,7 @@ settings:
   draft_saved_message: ''
   draft_loaded_message: ''
   confirmation_type: page
+  confirmation_title: ''
   confirmation_message: ''
   confirmation_url: ''
   confirmation_attributes: {  }
@@ -156,6 +162,8 @@ settings:
   limit_total_message: ''
   limit_user: null
   limit_user_message: ''
+  purge: none
+  purge_days: null
   entity_limit_total: null
   entity_limit_user: null
   results_disabled: false

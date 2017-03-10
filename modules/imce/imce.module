@@ -69,6 +69,13 @@ function imce_field_widget_form_alter(&$element, FormStateInterface $form_state,
       $element['#scheme'] = $scheme;
       $class = 'Drupal\imce\ImceFileField';
       $element['#process'][] = array($class, 'processWidget');
+      // Make sure default value callbacks are added
+      if (empty($element['#file_value_callbacks'])) {
+        $info = \Drupal::service('element_info')->getInfo($element['#type']);
+        if (!empty($info['#file_value_callbacks'])) {
+          $element['#file_value_callbacks'] = $info['#file_value_callbacks'];
+        }
+      }
       $element['#file_value_callbacks'][] = array($class, 'setWidgetValue');
     }
   }

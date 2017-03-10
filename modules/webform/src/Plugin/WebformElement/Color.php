@@ -13,6 +13,7 @@ use Drupal\webform\WebformSubmissionInterface;
  *   id = "color",
  *   api = "https://api.drupal.org/api/drupal/core!lib!Drupal!Core!Render!Element!Color.php/class/Color",
  *   label = @Translation("Color"),
+ *   description = @Translation("Provides a form element for choosing a color."),
  *   category = @Translation("Advanced elements"),
  * )
  */
@@ -52,12 +53,12 @@ class Color extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function formatHtml(array &$element, $value, array $options = []) {
+  public function formatHtmlItem(array &$element, $value, array $options = []) {
     if (empty($value)) {
       return '';
     }
 
-    $format = $this->getFormat($element);
+    $format = $this->getItemFormat($element);
     switch ($format) {
       case 'swatch':
         return [
@@ -68,22 +69,22 @@ class Color extends WebformElementBase {
         ];
 
       default:
-        return parent::formatHtml($element, $value, $options);
+        return parent::formatHtmlItem($element, $value, $options);
     }
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getDefaultFormat() {
+  public function getItemDefaultFormat() {
     return 'swatch';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getFormats() {
-    return parent::getFormats() + [
+  public function getItemFormats() {
+    return parent::getItemFormats() + [
       'swatch' => $this->t('Color swatch'),
     ];
   }

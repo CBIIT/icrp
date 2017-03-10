@@ -2,13 +2,15 @@
 
 namespace Drupal\feeds\Feeds\Target;
 
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\feeds\Exception\TargetValidationException;
 use Drupal\feeds\FieldTargetDefinition;
 use GuzzleHttp\ClientInterface;
+use Drupal\Core\Utility\Token;
 
 /**
  * Defines a file field mapper.
@@ -16,7 +18,7 @@ use GuzzleHttp\ClientInterface;
  * @FeedsTarget(
  *   id = "file",
  *   field_types = {"file"},
- *   arguments = {"@entity.manager", "@entity.query", "@http_client"}
+ *   arguments = {"@entity_type.manager", "@entity.query", "@http_client", "@token", "@entity_field.manager"}
  * )
  */
 class File extends EntityReference {
@@ -36,6 +38,13 @@ class File extends EntityReference {
   protected $fileExtensions;
 
   /**
+   * Token service.
+   *
+   * @var \Drupal\Core\Utility\Token
+   */
+  protected $token;
+
+  /**
    * Constructs a File object.
    *
    * @param array $configuration
@@ -44,16 +53,21 @@ class File extends EntityReference {
    *   The plugin id.
    * @param array $plugin_definition
    *   The plugin definition.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\Entity\Query\QueryFactory $query_factory
    *   The entity query factory.
    * @param \GuzzleHttp\ClientInterface $client
    *   The http client.
+   * @param \Drupal\Core\Utility\Token $token
+   * The tokens.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   *   The entity field manager.
    */
-  public function __construct(array $configuration, $plugin_id, array $plugin_definition, EntityManagerInterface $entity_manager, QueryFactory $query_factory, ClientInterface $client) {
+  public function __construct(array $configuration, $plugin_id, array $plugin_definition, EntityTypeManagerInterface $entity_type_manager, QueryFactory $query_factory, ClientInterface $client, Token $token, EntityFieldManagerInterface $entity_field_manager) {
     $this->client = $client;
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_manager, $query_factory);
+    $this->token = $token;
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager, $query_factory, $entity_field_manager);
     $this->fileExtensions = array_filter(explode(' ', $this->settings['file_extensions']));
   }
 
@@ -96,7 +110,7 @@ class File extends EntityReference {
    */
   protected function getFile($value) {
     // Prepare destination directory.
-    $destination = $this->settings['uri_scheme'] . '://' . trim($this->settings['file_directory'], '/');
+    $destination = $this->token->replace($this->settings['uri_scheme'] . '://' . trim($this->settings['file_directory'], '/'));
     file_prepare_directory($destination, FILE_MODIFY_PERMISSIONS | FILE_CREATE_DIRECTORY);
     $filepath = $destination . '/' . $this->getFileName($value);
 
@@ -210,7 +224,7 @@ class File extends EntityReference {
 
     $bundles = $this->getBundles();
 
-    $entity = $this->entityManager->getStorage($this->getEntityType())->create([
+    $entity = $this->entityTypeManager->getStorage($this->getEntityType())->create([
       $this->getLabelKey() => $value,
       $this->getBundleKey() => reset($bundles),
       'uri' => $value,

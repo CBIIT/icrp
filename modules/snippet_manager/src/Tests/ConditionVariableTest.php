@@ -29,16 +29,16 @@ class ConditionVariableTest extends TestBase {
       'plugin_id' => 'condition:request_path',
       'name' => 'node_page',
     ];
-    $this->drupalPostForm('snippet/alpha/edit/variable/add', $edit, 'Save and continue');
+    $this->drupalPostForm('admin/structure/snippet/alpha/edit/variable/add', $edit, 'Save and continue');
     $this->assertStatusMessage('The variable has been created.');
 
     $edit = [
       'configuration[condition][pages]' => '/node',
     ];
-    $this->drupalPostForm('snippet/alpha/edit/variable/node_page/edit', $edit, 'Save');
+    $this->drupalPostForm('admin/structure/snippet/alpha/edit/variable/node_page/edit', $edit, 'Save');
 
     $edit = [
-      'code[value]' => "{% if node_page %}Foo{% else %}Bar{% endif %}",
+      'template[value]' => "{% if node_page %}Foo{% else %}Bar{% endif %}",
     ];
     $this->drupalPostForm(NULL, $edit, 'Save');
 
@@ -56,7 +56,7 @@ class ConditionVariableTest extends TestBase {
     $edit = [
       'configuration[condition][negate]' => TRUE,
     ];
-    $this->drupalPostForm('snippet/alpha/edit/variable/node_page/edit', $edit, 'Save');
+    $this->drupalPostForm('admin/structure/snippet/alpha/edit/variable/node_page/edit', $edit, 'Save');
 
     drupal_flush_all_caches();
 

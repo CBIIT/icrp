@@ -58,7 +58,7 @@ class Url extends SnippetVariableBase implements SnippetVariableInterface {
   /**
    * {@inheritdoc}
    */
-  public function getContent() {
+  public function build() {
     if ($this->configuration['path']) {
       return DrupalUrl::fromUserInput($this->configuration['path'])->toString();
     }

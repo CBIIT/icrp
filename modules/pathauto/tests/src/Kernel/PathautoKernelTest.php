@@ -533,6 +533,21 @@ class PathautoKernelTest extends KernelTestBase {
   }
 
   /**
+   * Tests that aliases are only generated for default revisions.
+   */
+  public function testDefaultRevision() {
+    $node1 = $this->drupalCreateNode(['title' => 'Default revision', 'type' => 'page']);
+    $this->assertEntityAlias($node1, '/content/default-revision');
+
+    $node1->setNewRevision(TRUE);
+    $node1->isDefaultRevision(FALSE);
+    $node1->setTitle('New non-default-revision');
+    $node1->save();
+
+    $this->assertEntityAlias($node1, '/content/default-revision');
+  }
+
+  /**
    * Creates a node programmatically.
    *
    * @param array $settings

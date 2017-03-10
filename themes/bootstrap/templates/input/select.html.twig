@@ -29,26 +29,26 @@
    # @see http://stackoverflow.com/q/21103542
    #}
   {% if not attributes.offsetExists('multiple') %}
-  <div class="select-wrapper">
+    <div class="select-wrapper">
   {% endif %}
-  {% set classes = ['form-control'] %}
-  <select{{ attributes.addClass(classes) }}>
-    {% for option in options %}
-      {% if option.type == 'optgroup' %}
-        <optgroup label="{{ option.label }}">
-          {% for sub_option in option.options %}
-            <option
-                    value="{{ sub_option.value }}"{{ sub_option.selected ? ' selected="selected"' }}>{{ sub_option.label }}</option>
-          {% endfor %}
-        </optgroup>
-      {% elseif option.type == 'option' %}
-        <option
-                value="{{ option.value }}"{{ option.selected ? ' selected="selected"' }}>{{ option.label }}</option>
-      {% endif %}
-    {% endfor %}
-  </select>
+    {% set classes = ['form-control'] %}
+    <select{{ attributes.addClass(classes) }}>
+      {% for option in options %}
+        {% if option.type == 'optgroup' %}
+          <optgroup label="{{ option.label }}">
+            {% for sub_option in option.options %}
+              <option
+                value="{{ sub_option.value }}"{{ sub_option.selected ? ' selected="selected"' }}>{{ sub_option.label }}</option>
+            {% endfor %}
+          </optgroup>
+        {% elseif option.type == 'option' %}
+          <option
+            value="{{ option.value }}"{{ option.selected ? ' selected="selected"' }}>{{ option.label }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
   {% if not attributes.offsetExists('multiple') %}
-  </div>
+    </div>
   {% endif %}
 
   {% if suffix %}

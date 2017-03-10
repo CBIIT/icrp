@@ -19,7 +19,7 @@ class EntityProcessorOptionForm extends ExternalPluginFormBase {
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
     // @todo Remove hack.
-    $entity_type = \Drupal::entityManager()->getDefinition($this->plugin->entityType());
+    $entity_type = \Drupal::entityTypeManager()->getDefinition($this->plugin->entityType());
 
     if ($bundle_key = $entity_type->getKey('bundle')) {
       $form['values'][$bundle_key] = [

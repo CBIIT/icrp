@@ -48,20 +48,16 @@ class SnippetTemplateLoader implements \Twig_LoaderInterface, \Twig_ExistsLoader
    * {@inheritdoc}
    */
   public function getSource($name) {
-
     $snippet_id = explode('/', $name)[1];
 
     /** @var \Drupal\snippet_manager\SnippetInterface $snippet */
     $snippet = $this->entityTypeManager->getStorage('snippet')->load($snippet_id);
-
-    if ($snippet) {
-      $code = $snippet->getCode();
-      return (string) check_markup($code['value'], $code['format']);
-    }
-    else {
-      $this->logger->error('Could not load snippet: #%snippet', ['%snippet' => $snippet_id]);
+    if ($snippet && $snippet->status()) {
+      $template = $snippet->get('template');
+      return (string) check_markup($template['value'], $template['format']);
     }
 
+    $this->logger->error('Could not load snippet: %snippet', ['%snippet' => $snippet_id]);
   }
 
   /**

@@ -71,18 +71,6 @@ class SettingsForm extends ConfigFormBase {
       '#default_value' => $settings['codemirror']['mode'],
     ];
 
-    $form['redirect_page'] = [
-      '#type' => 'select',
-      '#title' => t('Redirect page'),
-      '#options' => [
-        'canonical' => t('Canonical'),
-        'admin' => t('HTML source'),
-        'edit-form' => t('Edit form'),
-      ],
-      '#default_value' => $settings['redirect_page'],
-      '#description' => t('A page to redirect the user to after submission of the snippet form.'),
-    ];
-
     return parent::buildForm($form, $form_state);
   }
 
@@ -93,7 +81,6 @@ class SettingsForm extends ConfigFormBase {
 
     $this->config('snippet_manager.settings')
       ->set('codemirror', $form_state->getValue('codemirror'))
-      ->set('redirect_page', $form_state->getValue('redirect_page'))
       ->save();
 
     // Invalidate discovery caches to rebuild asserts.

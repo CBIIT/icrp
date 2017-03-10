@@ -18,8 +18,10 @@ abstract class TextBase extends WebformElementBase {
   public function getDefaultProperties() {
     return parent::getDefaultProperties() + [
       'size' => '',
+      'minlength' => '',
       'maxlength' => '',
       'placeholder' => '',
+      'autocomplete' => 'on',
       'pattern' => '',
     ];
   }
@@ -69,7 +71,7 @@ abstract class TextBase extends WebformElementBase {
     $form = parent::form($form, $form_state);
 
     // Input mask.
-    $form['webform']['input_mask'] = [
+    $form['form']['input_mask'] = [
       '#type' => 'webform_select_other',
       '#title' => $this->t('Input masks'),
       '#description' => $this->t('An <a href=":href">inputmask</a> helps the user with the element by ensuring a predefined format.', [':href' => 'https://github.com/RobinHerbots/jquery.inputmask']),
@@ -142,7 +144,7 @@ abstract class TextBase extends WebformElementBase {
   }
 
   /**
-   * Webform API callback. Validate (word/charcter) counter.
+   * Form API callback. Validate (word/charcter) counter.
    */
   public static function validateCounter(array &$element, FormStateInterface $form_state) {
     $name = $element['#name'];

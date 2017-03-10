@@ -2,10 +2,12 @@
 
 namespace Drupal\snippet_manager\Plugin\Block;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -28,11 +30,18 @@ class SnippetBlock extends BlockBase implements ContainerFactoryPluginInterface 
   protected $entityTypeManager;
 
   /**
-   * Snippet renderer.
+   * The logger channel.
    *
    * @var \Drupal\Core\Logger\LoggerChannelInterface
    */
   protected $logger;
+
+  /**
+   * The snippet to render.
+   *
+   * @var \Drupal\snippet_manager\SnippetInterface
+   */
+  protected $snippet;
 
   /**
    * Constructs a new SnippetBlock instance.
@@ -55,6 +64,10 @@ class SnippetBlock extends BlockBase implements ContainerFactoryPluginInterface 
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
     $this->logger = $logger;
+    $this->snippet = $this->entityTypeManager->getStorage('snippet')->load($this->getDerivativeId());
+    if (!$this->snippet) {
+      $this->logger->error('Could not load snippet: #%snippet', ['%snippet' => $this->getDerivativeId()]);
+    }
   }
 
   /**
@@ -75,16 +88,17 @@ class SnippetBlock extends BlockBase implements ContainerFactoryPluginInterface 
    */
   public function build() {
     $build = [];
-
-    $snippet = $this->entityTypeManager->getStorage('snippet')->load($this->getDerivativeId());
-    if ($snippet) {
-      $build = $this->entityTypeManager->getViewBuilder('snippet')->view($snippet);
+    if ($this->snippet) {
+      $build = $this->entityTypeManager->getViewBuilder('snippet')->view($this->snippet);
     }
-    else {
-      $this->logger->error('Could not load snippet: #%snippet', ['%snippet' => $this->getDerivativeId()]);
-    }
-
     return $build;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function blockAccess(AccountInterface $account) {
+    return $this->snippet ? $this->snippet->access('view-published', NULL, TRUE) : AccessResult::forbidden();
   }
 
 }

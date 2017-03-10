@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\panelizer\Form\PanelizerWizardContextConfigure.
- */
-
 namespace Drupal\panelizer\Form;
 
 use Drupal\Core\Plugin\Context\ContextInterface;
@@ -13,6 +8,9 @@ use Drupal\ctools\Form\ContextConfigure;
 use Drupal\user\SharedTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ *
+ */
 class PanelizerWizardContextConfigure extends ContextConfigure {
 
   /**

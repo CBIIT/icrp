@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\panelizer\Plugin\Field\FieldType\PanelizerFieldType.
- */
-
 namespace Drupal\panelizer\Plugin\Field\FieldType;
 
 use Drupal\Core\Entity\RevisionableInterface;
@@ -135,7 +130,7 @@ class PanelizerFieldType extends FieldItemBase {
         $entity->id(),
         $this->get('view_mode')->getValue()
       ];
-      if ($entity instanceof RevisionableInterface) {
+      if ($entity instanceof RevisionableInterface && $entity->getEntityType()->isRevisionable()) {
         $storage_id_parts[] = $entity->getRevisionId();
       }
       $panels_display->setStorage('panelizer_field', implode(':', $storage_id_parts));

@@ -63,7 +63,7 @@ function _calendar_create_field_arguments($field_id, $group = '') {
 /**
  * Implements hook_field_views_data_alter().
  */
-function calendar_datetime_field_views_data_alter(array &$data, FieldStorageConfigInterface $field_storage) {
+function calendar_field_views_data_alter(array &$data, FieldStorageConfigInterface $field_storage) {
   foreach ($data as $table_name => $table_data) {
     // Set the 'datetime' filter type.
     if (isset($data[$table_name][$field_storage->getName() . '_value'])

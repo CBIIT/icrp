@@ -6,7 +6,8 @@ use Doctrine\Common\Inflector\Inflector;
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\feeds\Entity\FeedType;
@@ -29,11 +30,11 @@ use Drupal\user\Entity\User;
 abstract class EntityProcessorBase extends ProcessorBase implements EntityProcessorInterface {
 
   /**
-   * The entity manager.
+   * The entity type manager.
    *
-   * @var \Drupal\Core\Entity\EntityManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityManager;
+  protected $entityTypeManager;
 
   /**
    * The entity storage controller for the entity type being processed.
@@ -64,6 +65,13 @@ abstract class EntityProcessorBase extends ProcessorBase implements EntityProces
   protected $isLocked;
 
   /**
+   * The entity type bundle info.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface
+   */
+  protected $entityTypeBundleInfo;
+
+  /**
    * Constructs an EntityProcessorBase object.
    *
    * @param array $configuration
@@ -72,16 +80,19 @@ abstract class EntityProcessorBase extends ProcessorBase implements EntityProces
    *   The plugin id.
    * @param array $plugin_definition
    *   The plugin definition.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\Entity\Query\QueryFactory $query_factory
    *   The entity query factory.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
+   *   The entity type bundle info.
    */
-  public function __construct(array $configuration, $plugin_id, array $plugin_definition, EntityManagerInterface $entity_manager, QueryFactory $query_factory) {
-    $this->entityManager = $entity_manager;
-    $this->entityType = $entity_manager->getDefinition($plugin_definition['entity_type']);
-    $this->storageController = $entity_manager->getStorage($plugin_definition['entity_type']);
+  public function __construct(array $configuration, $plugin_id, array $plugin_definition, EntityTypeManagerInterface $entity_type_manager, QueryFactory $query_factory, EntityTypeBundleInfoInterface $entity_type_bundle_info) {
+    $this->entityTypeManager = $entity_type_manager;
+    $this->entityType = $entity_type_manager->getDefinition($plugin_definition['entity_type']);
+    $this->storageController = $entity_type_manager->getStorage($plugin_definition['entity_type']);
     $this->queryFactory = $query_factory;
+    $this->entityTypeBundleInfo = $entity_type_bundle_info;
 
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
@@ -224,7 +235,7 @@ abstract class EntityProcessorBase extends ProcessorBase implements EntityProces
    */
   public function bundleOptions() {
     $options = [];
-    foreach ($this->entityManager->getBundleInfo($this->entityType()) as $bundle => $info) {
+    foreach ($this->entityTypeBundleInfo->getBundleInfo($this->entityType()) as $bundle => $info) {
       if (!empty($info['label'])) {
         $options[$bundle] = $info['label'];
       }
@@ -266,7 +277,7 @@ abstract class EntityProcessorBase extends ProcessorBase implements EntityProces
     if (!$this->entityType->getKey('bundle')) {
       return $this->entityTypeLabel();
     }
-    $storage = $this->entityManager->getStorage($this->entityType->getBundleEntityType());
+    $storage = $this->entityTypeManager->getStorage($this->entityType->getBundleEntityType());
     return $storage->load($this->configuration['values'][$this->entityType->getKey('bundle')])->label();
   }
 

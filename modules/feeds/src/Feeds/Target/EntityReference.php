@@ -3,7 +3,8 @@
 namespace Drupal\feeds\Feeds\Target;
 
 use Drupal\Component\Utility\Html;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\Query\QueryFactory;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -18,17 +19,17 @@ use Drupal\feeds\Plugin\Type\Target\FieldTargetBase;
  * @FeedsTarget(
  *   id = "entity_reference",
  *   field_types = {"entity_reference"},
- *   arguments = {"@entity.manager", "@entity.query"}
+ *   arguments = {"@entity_type.manager", "@entity.query", "@entity_field.manager"}
  * )
  */
 class EntityReference extends FieldTargetBase implements ConfigurableTargetInterface {
 
   /**
-   * The entity manager.
+   * The entity type manager.
    *
-   * @var \Drupal\Core\Entity\EntityManagerInterface
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
-  protected $entityManager;
+  protected $entityTypeManager;
 
   /**
    * The entity query factory object.
@@ -36,6 +37,13 @@ class EntityReference extends FieldTargetBase implements ConfigurableTargetInter
    * @var \Drupal\Core\Entity\Query\QueryFactory
    */
   protected $queryFactory;
+
+  /**
+   * The entity field manager.
+   *
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
+  protected $entityFieldManager;
 
   /**
    * Constructs an EntityReference object.
@@ -46,14 +54,17 @@ class EntityReference extends FieldTargetBase implements ConfigurableTargetInter
    *   The plugin id.
    * @param array $plugin_definition
    *   The plugin definition.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\Entity\Query\QueryFactory $query_factory
    *   The entity query factory.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   *   The entity field manager.
    */
-  public function __construct(array $configuration, $plugin_id, array $plugin_definition, EntityManagerInterface $entity_manager, QueryFactory $query_factory) {
-    $this->entityManager = $entity_manager;
+  public function __construct(array $configuration, $plugin_id, array $plugin_definition, EntityTypeManagerInterface $entity_type_manager, QueryFactory $query_factory, EntityFieldManagerInterface $entity_field_manager) {
+    $this->entityTypeManager = $entity_type_manager;
     $this->queryFactory = $query_factory;
+    $this->entityFieldManager = $entity_field_manager;
     parent::__construct($configuration, $plugin_id, $plugin_definition);
   }
 
@@ -64,7 +75,7 @@ class EntityReference extends FieldTargetBase implements ConfigurableTargetInter
     // Only reference content entities. Configuration entities will need custom
     // targets.
     $type = $field_definition->getSetting('target_type');
-    if (!\Drupal::entityManager()->getDefinition($type)->isSubclassOf('\Drupal\Core\Entity\ContentEntityInterface')) {
+    if (!\Drupal::entityTypeManager()->getDefinition($type)->isSubclassOf('\Drupal\Core\Entity\ContentEntityInterface')) {
       return;
     }
 
@@ -73,7 +84,7 @@ class EntityReference extends FieldTargetBase implements ConfigurableTargetInter
   }
 
   protected function getPotentialFields() {
-    $field_definitions = $this->entityManager->getBaseFieldDefinitions($this->getEntityType());
+    $field_definitions = $this->entityFieldManager->getBaseFieldDefinitions($this->getEntityType());
     $field_definitions = array_filter($field_definitions, [$this, 'filterFieldTypes']);
     $options = [];
     foreach ($field_definitions as $id => $definition) {
@@ -109,11 +120,11 @@ class EntityReference extends FieldTargetBase implements ConfigurableTargetInter
   }
 
   protected function getBundleKey() {
-    return $this->entityManager->getDefinition($this->getEntityType())->getKey('bundle');
+    return $this->entityTypeManager->getDefinition($this->getEntityType())->getKey('bundle');
   }
 
   protected function getLabelKey() {
-    return $this->entityManager->getDefinition($this->getEntityType())->getKey('label');
+    return $this->entityTypeManager->getDefinition($this->getEntityType())->getKey('label');
   }
 
   /**
@@ -163,7 +174,7 @@ class EntityReference extends FieldTargetBase implements ConfigurableTargetInter
 
     $bundles = $this->getBundles();
 
-    $entity = $this->entityManager->getStorage($this->getEntityType())->create([
+    $entity = $this->entityTypeManager->getStorage($this->getEntityType())->create([
       $this->getLabelKey() => $value,
       $this->getBundleKey() => reset($bundles),
     ]);

@@ -10,6 +10,13 @@ namespace Drupal\webform\Tests;
 class WebformSubmissionAccessTest extends WebformTestBase {
 
   /**
+   * Modules to enable.
+   *
+   * @var array
+   */
+  protected static $modules = ['node', 'webform'];
+
+  /**
    * Tests webform submission access.
    */
   public function testAccess() {

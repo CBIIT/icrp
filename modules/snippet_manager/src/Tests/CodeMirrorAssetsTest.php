@@ -24,7 +24,7 @@ class CodeMirrorAssetsTest extends TestBase {
    */
   public function testAssets() {
 
-    $this->drupalGet('snippet/alpha/edit');
+    $this->drupalGet('admin/structure/snippet/alpha/edit');
 
     $codemirror_version = '5.14.2';
 
@@ -63,10 +63,10 @@ class CodeMirrorAssetsTest extends TestBase {
     $codemirror_settings['cdn'] = FALSE;
     $config->set('codemirror', $codemirror_settings)->save();
 
-    // Invalidate discovery caches to rebuild asserts.
+    // Invalidate cache discovery to rebuild asserts.
     \Drupal::service('cache_tags.invalidator')->invalidateTags(['library_info']);
 
-    $this->drupalGet('snippet/alpha/edit');
+    $this->drupalGet('admin/structure/snippet/alpha/edit');
 
     $imports = explode("\n", $this->xpath('//head/style')[0]);
     $query_string = \Drupal::state()->get('system.css_js_query_string');

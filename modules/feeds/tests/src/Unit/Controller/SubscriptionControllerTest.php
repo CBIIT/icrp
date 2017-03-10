@@ -15,7 +15,7 @@ class SubscriptionControllerTest extends \PHPUnit_Framework_TestCase {
 
   protected $controller;
 
-  protected $entityManager;
+  protected $entityTypeManager;
 
   protected $feed;
 
@@ -51,16 +51,16 @@ class SubscriptionControllerTest extends \PHPUnit_Framework_TestCase {
     $feed_storage = $this->prophesize('Drupal\Core\Entity\EntityStorageInterface');
     $feed_storage->load(1)->willReturn($this->feed->reveal());
 
-    $this->entityManager = $this->prophesize('Drupal\Core\Entity\EntityManagerInterface');
+    $this->entityTypeManager = $this->prophesize('Drupal\Core\Entity\EntityTypeManagerInterface');
 
-    $this->entityManager->getStorage('feeds_subscription')->willReturn($subscription_storage->reveal());
-    $this->entityManager->getStorage('feeds_feed')->willReturn($feed_storage->reveal());
+    $this->entityTypeManager->getStorage('feeds_subscription')->willReturn($subscription_storage->reveal());
+    $this->entityTypeManager->getStorage('feeds_feed')->willReturn($feed_storage->reveal());
 
     $this->kv = $this->prophesize('Drupal\Core\KeyValueStore\KeyValueStoreExpirableInterface');
     $kv_factory = $this->prophesize('Drupal\Core\KeyValueStore\KeyValueExpirableFactoryInterface');
     $kv_factory->get('feeds_push_unsubscribe')->willReturn($this->kv->reveal());
 
-    $this->controller = new SubscriptionController($kv_factory->reveal(), $this->entityManager->reveal());
+    $this->controller = new SubscriptionController($kv_factory->reveal(), $this->entityTypeManager->reveal());
   }
 
   /**
@@ -70,7 +70,7 @@ class SubscriptionControllerTest extends \PHPUnit_Framework_TestCase {
   public function testCreate() {
     $container = new ContainerBuilder();
     $container->set('keyvalue.expirable', $this->prophesize('Drupal\Core\KeyValueStore\KeyValueExpirableFactoryInterface')->reveal());
-    $container->set('entity.manager', $this->entityManager->reveal());
+    $container->set('entity_type.manager', $this->entityTypeManager->reveal());
 
     $this->assertInstanceOf('Drupal\feeds\Controller\SubscriptionController', SubscriptionController::create($container));
   }

@@ -37,7 +37,7 @@ class FeedQueueWorker extends DeriverBase implements ContainerDeriverInterface {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, $base_plugin_id) {
-    return new static($container->get('entity.manager')->getStorage('feeds_feed_type'));
+    return new static($container->get('entity_type.manager')->getStorage('feeds_feed_type'));
   }
 
   /**

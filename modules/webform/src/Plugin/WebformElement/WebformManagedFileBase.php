@@ -10,7 +10,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
 use Drupal\Core\Link;
 use Drupal\file\Entity\File;
-use Drupal\file\Element\ManagedFile as ManagedFileElement;
+use Drupal\file\FileInterface;
 use Drupal\webform\Entity\WebformSubmission;
 use Drupal\webform\WebformElementBase;
 use Drupal\Component\Utility\Bytes;
@@ -32,6 +32,7 @@ abstract class WebformManagedFileBase extends WebformElementBase {
     $file_extensions = $this->getFileExtensions();
     return parent::getDefaultProperties() + [
       'multiple' => FALSE,
+      'multiple__header_label' => '',
       'max_filesize' => $max_filesize,
       'file_extensions' => $file_extensions,
       'uri_scheme' => 'private',
@@ -41,8 +42,15 @@ abstract class WebformManagedFileBase extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function hasMultipleValues(array $element) {
-    return (!empty($element['#multiple'])) ? TRUE : FALSE;
+  public function supportsMultipleValues() {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasMultipleWrapper() {
+    return FALSE;
   }
 
   /**
@@ -65,7 +73,7 @@ abstract class WebformManagedFileBase extends WebformElementBase {
       return FALSE;
     }
 
-    // Disable managed file element is there are no visible stream wrappers.
+    // Disable File element is there are no visible stream wrappers.
     $scheme_options = self::getVisibleStreamWrappers();
     return (empty($scheme_options)) ? FALSE : TRUE;
   }
@@ -83,11 +91,11 @@ abstract class WebformManagedFileBase extends WebformElementBase {
       $scheme_options = self::getVisibleStreamWrappers();
       $uri_scheme = $this->getUriScheme($element);
       if (!isset($scheme_options[$uri_scheme]) && $this->currentUser->hasPermission('administer webform')) {
-        drupal_set_message($this->t('The \'Managed file\' element is unavailable because a <a href="https://www.drupal.org/documentation/modules/file">private files directory</a> has not been configured and public file uploads have not been enabled. For more information see: <a href="https://www.drupal.org/psa-2016-003">DRUPAL-PSA-2016-003</a>'), 'warning');
+        drupal_set_message($this->t('The \'File\' element is unavailable because a <a href="https://www.drupal.org/documentation/modules/file">private files directory</a> has not been configured and public file uploads have not been enabled. For more information see: <a href="https://www.drupal.org/psa-2016-003">DRUPAL-PSA-2016-003</a>'), 'warning');
         $context = [
           'link' => Link::fromTextAndUrl($this->t('Edit'), \Drupal\Core\Url::fromRoute('<current>'))->toString(),
         ];
-        $this->logger->notice("The 'Managed file' element is unavailable because no stream wrappers are available", $context);
+        $this->logger->notice("The 'File' element is unavailable because no stream wrappers are available", $context);
       }
     }
   }
@@ -96,6 +104,16 @@ abstract class WebformManagedFileBase extends WebformElementBase {
    * {@inheritdoc}
    */
   public function prepare(array &$element, WebformSubmissionInterface $webform_submission) {
+    // Track if this element has been processed because the work-around below
+    // for 'Issue #2705471: Webform states File fields' which nests  the
+    // 'managed_file' element in a basic container, which triggers this element
+    // to processed a second time.
+    if (!empty($element['#webform_managed_file_processed'])) {
+      return;
+    }
+    $element['#webform_managed_file_processed'] = TRUE;
+
+    // Must come after #element_validate hook is defined.
     parent::prepare($element, $webform_submission);
 
     // Check if the URI scheme exists and can be used the upload location.
@@ -114,7 +132,10 @@ abstract class WebformManagedFileBase extends WebformElementBase {
 
     // Use custom validation callback so that File entities can be converted
     // into file ids (akk fids).
-    $element['#element_validate'][] = [get_class($this), 'validate'];
+    // NOTE: Using array_splice() to make sure that self::validateManagedFile
+    // is executed before all other validation hooks are executed but after
+    // \Drupal\file\Element\ManagedFile::validateManagedFile.
+    array_splice($element['#element_validate'], 1, 0, [[get_class($this), 'validateManagedFile']]);
 
     // Add file upload help to the element.
     $element['help'] = [
@@ -125,27 +146,18 @@ abstract class WebformManagedFileBase extends WebformElementBase {
       '#prefix' => '<div class="description">',
       '#suffix' => '</div>',
     ];
-  }
 
-  /**
-   * {@inheritdoc}
-   */
-  protected function prepareWrapper(array &$element) {
-    parent::prepareWrapper($element);
-
-    // Issue #2705471: Webform states managed file fields.
+    // Issue #2705471: Webform states File fields.
     // Workaround: Wrap the 'managed_file' element in a basic container.
-    if (!empty($element['#fixed_wrapper']) || empty($element['#prefix'])) {
-      return;
+    if (!empty($element['#prefix'])) {
+      $container = [
+        '#prefix' => $element['#prefix'],
+        '#suffix' => $element['#suffix'],
+      ];
+      unset($element['#prefix'], $element['#suffix']);
+      $container[$element['#webform_key']] = $element + ['#webform_managed_file_processed' => TRUE];
+      $element = $container;
     }
-
-    $container = [
-      '#prefix' => $element['#prefix'],
-      '#suffix' => $element['#suffix'],
-    ];
-    unset($element['#prefix'], $element['#suffix']);
-    $container[$element['#webform_key']] = $element + ['#fixed_wrapper' => TRUE];
-    $element = $container;
   }
 
   /**
@@ -160,56 +172,113 @@ abstract class WebformManagedFileBase extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function formatHtml(array &$element, $value, array $options = []) {
-    if (empty($value)) {
-      return '';
-    }
-
-    $items = $this->formatItems($element, $value, $options);
-    if (empty($items)) {
-      return '';
-    }
-
+  public function format($type, array &$element, $value, array $options = []) {
     if ($this->hasMultipleValues($element)) {
-      return [
-        '#theme' => 'item_list',
-        '#items' => $items,
-      ];
+      $value = $this->getFiles($element, $value, $options);
     }
     else {
-      return reset($items);
+      $value = $this->getFile($element, $value, $options);
+    }
+    return parent::format($type, $element, $value, $options);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function formatHtmlItem(array &$element, $value, array $options = []) {
+    $file = $this->getFile($element, $value, $options);
+    $format = $this->getItemFormat($element);
+    switch ($format) {
+      case 'id':
+      case 'url':
+      case 'value':
+      case 'raw':
+        return $this->formatTextItem($element, $value, $options);
+
+      case 'link':
+        return [
+          '#theme' => 'file_link',
+          '#file' => $file,
+        ];
+
+      default:
+        $theme = str_replace('webform_', 'webform_element_', $this->getPluginId());
+        if (strpos($theme, 'webform_') !== 0) {
+          $theme = 'webform_element_' . $theme;
+        }
+        return [
+          '#theme' => $theme,
+          '#element' => $element,
+          '#value' => $value,
+          '#options' => $options,
+          '#file' => $file,
+        ];
     }
   }
 
   /**
    * {@inheritdoc}
    */
-  public function formatText(array &$element, $value, array $options = []) {
-    if (empty($value)) {
-      return '';
-    }
+  protected function formatTextItem(array &$element, $value, array $options = []) {
+    $file = $this->getFile($element, $value, $options);
+    $format = $this->getItemFormat($element);
+    switch ($format) {
+      case 'id':
+        return $file->id();
 
-    if (empty($element['#format']) || $element['#format'] == 'link') {
-      $element['#format'] = 'url';
+      case 'url':
+      case 'value':
+      case 'raw':
+      default:
+        return file_create_url($file->getFileUri());
     }
-
-    $items = $this->formatItems($element, $value, $options);
-    if (empty($items)) {
-      return '';
-    }
-
-    // Add dash (aka bullet) before each item.
-    if ($this->hasMultipleValues($element)) {
-      foreach ($items as &$item) {
-        $item = '- ' . $item;
-      }
-    }
-
-    return implode("\n", $items);
   }
 
   /**
-   * Format a managed files as array of strings.
+   * {@inheritdoc}
+   */
+  public function getItemDefaultFormat() {
+    return 'file';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getItemFormats() {
+    return parent::getItemFormats() + [
+      'file' => $this->t('File'),
+      'link' => $this->t('Link'),
+      'id' => $this->t('File ID'),
+      'url' => $this->t('URL'),
+    ];
+  }
+
+  /**
+   * Get file.
+   *
+   * @param array $element
+   *   An element.
+   * @param array|mixed $value
+   *   A value.
+   * @param array $options
+   *   An array of options.
+   *
+   * @return \Drupal\file\FileInterface
+   *   A file.
+   */
+  protected function getFile(array $element, $value, array $options) {
+    if (empty($value)) {
+      return NULL;
+    }
+    if ($value instanceof FileInterface) {
+      return $value;
+    }
+
+    return $this->entityTypeManager->getStorage('file')->load($value);
+  }
+
+  /**
+   * Get files.
    *
    * @param array $element
    *   An element.
@@ -219,68 +288,13 @@ abstract class WebformManagedFileBase extends WebformElementBase {
    *   An array of options.
    *
    * @return array
-   *   Managed files as array of strings.
+   *   An associative array containing files.
    */
-  protected function formatItems(array &$element, $value, array $options) {
-    $fids = (is_array($value)) ? $value : [$value];
-
-    $files = File::loadMultiple($fids);
-    $format = $this->getFormat($element);
-    $items = [];
-    foreach ($files as $fid => $file) {
-      switch ($format) {
-        case 'link':
-          $items[$fid] = [
-            '#theme' => 'file_link',
-            '#file' => $file,
-          ];
-          break;
-
-        case 'id':
-          $items[$fid] = $file->id();
-          break;
-
-        case 'url':
-        case 'value':
-        case 'raw':
-          $items[$fid] = file_create_url($file->getFileUri());
-          break;
-
-        default:
-          $theme = str_replace('webform_', 'webform_element_', $this->getPluginId());
-          if (strpos($theme, 'webform_') !== 0) {
-            $theme = 'webform_element_' . $theme;
-          }
-          $items[$fid] = [
-            '#theme' => $theme,
-            '#element' => $element,
-            '#value' => $value,
-            '#options' => $options,
-            '#file' => $file,
-          ];
-          break;
-      }
+  protected function getFiles(array $element, $value, array $options) {
+    if (empty($value)) {
+      return [];
     }
-    return $items;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getDefaultFormat() {
-    return 'file';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getFormats() {
-    return parent::getFormats() + [
-      'file' => $this->t('File'),
-      'link' => $this->t('Link'),
-      'id' => $this->t('File ID'),
-      'url' => $this->t('URL'),
-    ];
+    return $this->entityTypeManager->getStorage('file')->loadMultiple($value);
   }
 
   /**
@@ -289,7 +303,8 @@ abstract class WebformManagedFileBase extends WebformElementBase {
   public function getElementSelectorOptions(array $element) {
     $title = $this->getAdminLabel($element);
     $name = $element['#webform_key'];
-    return [":input[name=\"files[{$name}]\"]" => $title . '  [' . $this->getPluginLabel() . ']'];
+    $input = ($this->hasMultipleValues($element)) ? ":input[name=\"files[{$name}][]\"]" : ":input[name=\"files[{$name}]\"]";
+    return [$input => $title . '  [' . $this->getPluginLabel() . ']'];
   }
 
   /**
@@ -356,7 +371,7 @@ abstract class WebformManagedFileBase extends WebformElementBase {
     $value = isset($data[$key]) ? $data[$key] : [];
     $fids = (is_array($value)) ? $value : [$value];
 
-    // Delete managed file record.
+    // Delete File record.
     foreach ($fids as $fid) {
       file_delete($fid);
     }
@@ -371,8 +386,8 @@ abstract class WebformManagedFileBase extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function getTestValue(array $element, WebformInterface $webform) {
-    if ($this->isDisabled()) {
+  public function getTestValues(array $element, WebformInterface $webform, array $options = []) {
+    if ($this->isDisabled() || !isset($element['#webform_key'])) {
       return NULL;
     }
 
@@ -383,7 +398,7 @@ abstract class WebformManagedFileBase extends WebformElementBase {
 
     // Look for an existing temp files that have not been uploaded.
     $fids = \Drupal::entityQuery('file')
-      ->condition('status', 0)
+      ->condition('status', FALSE)
       ->condition('uid', \Drupal::currentUser()->id())
       ->condition('uri', $upload_location . '/' . $element['#webform_key'] . '.%', 'LIKE')
       ->execute();
@@ -407,7 +422,7 @@ abstract class WebformManagedFileBase extends WebformElementBase {
     $file->save();
 
     $fid = $file->id();
-    return ($this->hasMultipleValues($element)) ? [$fid] : $fid;
+    return [$fid];
   }
 
   /**
@@ -507,15 +522,9 @@ abstract class WebformManagedFileBase extends WebformElementBase {
   }
 
   /**
-   * Webform API callback. Consolidate the array of fids for this field into a single fids.
+   * Form API callback. Consolidate the array of fids for this field into a single fids.
    */
-  public static function validate(array &$element, FormStateInterface $form_state, &$complete_form) {
-    // Call the default managed_element validation handler, which checks
-    // the file entity and #required.
-    // @see \Drupal\file\Element\ManagedFile::getInfo
-    // @see \Drupal\webform\Plugin\WebformElement\ManagedFile::prepare
-    ManagedFileElement::validateManagedFile($element, $form_state, $complete_form);
-
+  public static function validateManagedFile(array &$element, FormStateInterface $form_state, &$complete_form) {
     if (!empty($element['#files'])) {
       $fids = array_keys($element['#files']);
       if (empty($element['#multiple'])) {
@@ -528,6 +537,19 @@ abstract class WebformManagedFileBase extends WebformElementBase {
     else {
       $form_state->setValueForElement($element, NULL);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function validateMultiple(array &$element, FormStateInterface $form_state) {
+    // Don't validate #multiple when a file is being removed.
+    $trigger_element = $form_state->getTriggeringElement();
+    if (end($trigger_element['#parents']) == 'remove_button') {
+      return;
+    }
+
+    parent::validateMultiple($element, $form_state);
   }
 
   /**
@@ -617,6 +639,7 @@ abstract class WebformManagedFileBase extends WebformElementBase {
       return NULL;
     }
 
+    /** @var \Drupal\file\FileInterface $file */
     $file = reset($files);
     if (empty($file)) {
       return NULL;

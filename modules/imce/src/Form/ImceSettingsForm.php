@@ -78,8 +78,8 @@ class ImceSettingsForm extends ConfigFormBase {
    */
   public function buildRolesProfilesTable(array $roles_profiles) {
     $rp_table = array('#type' => 'table');
-    // Prepare roles. Reverse the role order to prioritize the permissive ones.
-    $roles = array_reverse(user_roles());
+    // Prepare roles
+    $roles = user_roles();
     $wrappers = \Drupal::service('stream_wrapper_manager')->getNames(StreamWrapperInterface::WRITE_VISIBLE);
     // Prepare profile options
     $options = array('' => '-' . $this->t('None') . '-');
@@ -109,7 +109,7 @@ class ImceSettingsForm extends ConfigFormBase {
     }
     // Add description
     $rp_table['#prefix'] = '<h3>' . $this->t('Role-profile assignments') . '</h3>';
-    $rp_table['#suffix'] = '<div class="description">' . $this->t('Assign configuration profiles to user roles for available file systems. The default file system %name is accessible at :url path.', array('%name' => $wrappers[file_default_scheme()], ':url' => $imce_url)) . '</div>';
+    $rp_table['#suffix'] = '<div class="description">' . $this->t('Assign configuration profiles to user roles for available file systems. Users with multiple roles get the bottom most profile.') . ' ' . $this->t('The default file system %name is accessible at :url path.', array('%name' => $wrappers[file_default_scheme()], ':url' => $imce_url)) . '</div>';
     return $rp_table;
   }
 

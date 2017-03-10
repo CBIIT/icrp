@@ -17,8 +17,16 @@ interface SnippetVariableInterface extends PluginFormInterface, PluginInspection
   public function getType();
 
   /**
-   * Returns variable content.
+   * Builds and returns variable content.
    */
-  public function getContent();
+  public function build();
+
+  /**
+   * Returns variable operations.
+   *
+   * @return array
+   *   List of operation links.
+   */
+  public function getOperations();
 
 }

@@ -4,6 +4,7 @@ namespace Drupal\webform_templates\Tests;
 
 use Drupal\webform\Entity\Webform;
 use Drupal\webform\Tests\WebformTestBase;
+use Drupal\webform\WebformInterface;
 
 /**
  * Tests for webform submission webform settings.
@@ -17,7 +18,24 @@ class WebformTemplatesTest extends WebformTestBase {
    *
    * @var array
    */
-  public static $modules = ['system', 'block', 'node', 'user', 'webform', 'webform_test', 'webform_templates'];
+  public static $modules = ['webform', 'webform_templates'];
+
+  /**
+   * Webforms to load.
+   *
+   * @var array
+   */
+  protected static $testWebforms = ['test_form_template'];
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp();
+
+    // Create users.
+    $this->createUsers();
+  }
 
   /**
    * Tests webform template setting.
@@ -27,11 +45,11 @@ class WebformTemplatesTest extends WebformTestBase {
 
     // Check the templates always will remain closed.
     $this->assertTrue($template_webform->isClosed());
-    $template_webform->setStatus(TRUE)->save();
+    $template_webform->setStatus(WebformInterface::STATUS_OPEN)->save();
     $this->assertTrue($template_webform->isClosed());
 
     // Login the own user.
-    $this->drupalLogin($this->ownFormUser);
+    $this->drupalLogin($this->ownWebformUser);
 
     // Check template is included in the 'Templates' list display.
     $this->drupalGet('admin/structure/webform/templates');
@@ -44,7 +62,7 @@ class WebformTemplatesTest extends WebformTestBase {
     $this->assertRaw('You are previewing the below template,');
 
     // Login the admin user.
-    $this->drupalLogin($this->adminFormUser);
+    $this->drupalLogin($this->adminWebformUser);
   }
 
 }

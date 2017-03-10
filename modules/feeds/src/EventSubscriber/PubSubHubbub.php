@@ -3,7 +3,7 @@
 namespace Drupal\feeds\EventSubscriber;
 
 use Drupal\Core\Url as CoreUrl;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\feeds\Component\HttpHelpers;
 use Drupal\feeds\Event\DeleteFeedsEvent;
 use Drupal\feeds\Event\FeedsEvents;
@@ -31,11 +31,11 @@ class PubSubHubbub implements EventSubscriberInterface {
   /**
    * Constructs a PubSubHubbub object.
    *
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    */
-  public function __construct(EntityManagerInterface $entity_manager) {
-    $this->storage = $entity_manager->getStorage('feeds_subscription');
+  public function __construct(EntityTypeManagerInterface $entity_type_manager) {
+    $this->storage = $entity_type_manager->getStorage('feeds_subscription');
   }
 
   /**

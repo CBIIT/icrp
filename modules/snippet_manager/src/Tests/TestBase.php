@@ -31,6 +31,7 @@ abstract class TestBase extends WebTestBase {
   public static $modules = [
     'snippet_manager',
     'snippet_manager_test',
+    'views',
   ];
 
   /**
@@ -38,12 +39,6 @@ abstract class TestBase extends WebTestBase {
    */
   protected function setUp() {
     parent::setUp();
-
-    // Redirect to canonical to check snippet content immediately.
-    \Drupal::service('config.factory')
-      ->getEditable('snippet_manager.settings')
-      ->set('redirect_page', 'canonical')
-      ->save();
 
     $default_permissions = [
       'administer snippets',

@@ -2,7 +2,6 @@
 
 namespace Drupal\webform\Plugin\WebformElement;
 
-use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Datetime\Entity\DateFormat;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\webform\WebformSubmissionInterface;
@@ -14,6 +13,7 @@ use Drupal\webform\WebformSubmissionInterface;
  *   id = "datetime",
  *   api = "https://api.drupal.org/api/drupal/core!lib!Drupal!Core!Datetime!Element!Datetime.php/class/Datetime",
  *   label = @Translation("Date/time"),
+ *   description = @Translation("Provides a form element for date & time selection."),
  *   category = @Translation("Date/time elements"),
  * )
  */
@@ -70,20 +70,11 @@ class DateTime extends DateBase {
   /**
    * {@inheritdoc}
    */
-  public function setDefaultValue(array &$element) {
-    if (is_string($element['#default_value']) && !empty($element['#default_value'])) {
-      $element['#default_value'] = ($element['#default_value']) ? DrupalDateTime::createFromTimestamp(strtotime($element['#default_value'])) : NULL;
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   protected function getElementSelectorInputsOptions(array $element) {
     $t_args = ['@title' => $this->getAdminLabel($element)];
     return [
-      'date' => $this->t('@title [Date]', $t_args),
-      'time' => $this->t('@title [Time]', $t_args),
+      'date' => (string) $this->t('@title [Date]', $t_args),
+      'time' => (string) $this->t('@title [Time]', $t_args),
     ];
   }
 

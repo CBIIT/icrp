@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\feeds\Unit\Feeds\Fetcher;
 
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Form\FormState;
 use Drupal\Tests\feeds\Unit\FeedsUnitTestCase;
@@ -26,7 +26,7 @@ class UploadFetcherTest extends FeedsUnitTestCase {
     parent::setUp();
 
     $this->fileStorage = $this->getMock(EntityStorageInterface::class);
-    $entity_manager = $this->getMock(EntityManagerInterface::class);
+    $entity_manager = $this->getMock(EntityTypeManagerInterface::class);
     $entity_manager->expects($this->once())
       ->method('getStorage')
       ->with('file')

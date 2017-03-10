@@ -37,13 +37,15 @@ class EntityVariableTest extends TestBase {
 
   /**
    * Tests entity variable plugin.
+   *
+   * @todo Test operations.
    */
   public function testEntityVariable() {
     $edit = [
       'plugin_id' => 'entity:node',
       'name' => 'node',
     ];
-    $this->drupalPostForm('snippet/alpha/edit/variable/add', $edit, 'Save and continue');
+    $this->drupalPostForm('admin/structure/snippet/alpha/edit/variable/add', $edit, 'Save and continue');
 
     $this->assertStatusMessage('The variable has been created.');
 
@@ -58,7 +60,7 @@ class EntityVariableTest extends TestBase {
     $this->assertTrue($label, 'Valid snippet variable label was found');
 
     $edit = [
-      'code[value]' => '<div class="snippet-node">{{ node }}</div>',
+      'template[value]' => '<div class="snippet-node">{{ node }}</div>',
     ];
     $this->drupalPostForm(NULL, $edit, 'Save');
 
@@ -73,7 +75,7 @@ class EntityVariableTest extends TestBase {
     $edit = [
       'configuration[entity_id]' => '',
     ];
-    $this->drupalPostForm('snippet/alpha/edit/variable/node/edit', $edit, 'Save');
+    $this->drupalPostForm('admin/structure/snippet/alpha/edit/variable/node/edit', $edit, 'Save');
 
     $this->drupalGet('node/1');
     $this->assertSnippetNode('Foo');
@@ -89,12 +91,12 @@ class EntityVariableTest extends TestBase {
     $edit = [
       'configuration[entity_id]' => 'Bar',
     ];
-    $this->drupalPostForm('snippet/alpha/edit/variable/node/edit', $edit, 'Save');
+    $this->drupalPostForm('admin/structure/snippet/alpha/edit/variable/node/edit', $edit, 'Save');
     $edit = [
       'configuration[entity_id]' => 'Bar',
       'configuration[view_mode]' => 'teaser',
     ];
-    $this->drupalPostForm('snippet/alpha/edit/variable/node/edit', $edit, 'Save');
+    $this->drupalPostForm('admin/structure/snippet/alpha/edit/variable/node/edit', $edit, 'Save');
     $this->assertLink('Read more');
 
     // Remove the node and make sure it doesn't cause any exceptions.

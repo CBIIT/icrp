@@ -1,27 +1,38 @@
 /**
  * @file
  * Multiple element styles.
+ *
+ * @see /webform/test_element_multiple
  */
+
+.form-type-webform-multiple:after {
+  content: " ";
+  display: table;
+  clear: both;
+}
+
+.webform-multiple-table table {
+  margin-bottom: 2px;
+}
 
 .webform-multiple-table td {
   white-space: nowrap;
 }
 
-.webform-multiple-table th:first-child,
 .webform-multiple-table td:first-child {
   padding: 0 0 0 1em;
-  width: 26px !important;
+  width: 26px;
   vertical-align: middle;
-  text-align: center !important;
+  text-align: center;
 }
 
-.webform-multiple-table th:last-child,
 .webform-multiple-table td:last-child {
   padding: 0 2px;
   vertical-align: middle;
-  text-align: center !important;
-  width: 60px !important;
+  text-align: center;
+  width: 60px;
 }
+
 
 .webform-multiple-table td:last-child input {
   margin: 0 2px;
@@ -38,8 +49,21 @@
   background: none;
 }
 
-.webform-multiple-table td input[type="text"] {
-  width: 95%;
+.webform-multiple-table td select,
+.webform-multiple-table td .form-type-textfield input,
+.webform-multiple-table td .form-type-email input,
+.webform-multiple-table td .form-type-url input,
+.webform-multiple-table td .form-type-tel input,
+.webform-multiple-table td .form-type-entity-autocomplete input,
+.webform-multiple-table td .form-type-webform-autocomplete input {
+  width: 100%;
+}
+.webform-multiple-table td .form-type-datelist select,
+.form-type-webform-multiple.webform-has-field-prefix td select,
+.form-type-webform-multiple.webform-has-field-suffix td select,
+.form-type-webform-multiple.webform-has-field-prefix td input,
+.form-type-webform-multiple.webform-has-field-suffix td input {
+  width: auto;
 }
 
 .webform-multiple-table .webform-multiple-sort-weight {
@@ -53,7 +77,7 @@
 }
 
 .webform-multiple-table .container-inline input[type="submit"] {
-  width: inherit !important;
+  width: inherit;
 }
 
 /**
@@ -68,5 +92,12 @@
  */
 .webform-multiple-table .tabledrag-changed-warning,
 .webform-multiple-table .tabledrag-changed {
-  display: none !important;
+  display: none !important; /* Must use !important because .tabledrag-changed 'display' is set via JavaScript */
+}
+
+/**
+ * Tweak tabledrag toggle weight.
+ */
+.webform-multiple-tabledrag-toggle-weight {
+  float: right;
 }

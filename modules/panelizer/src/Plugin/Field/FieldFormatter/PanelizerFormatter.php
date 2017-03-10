@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\panelizer\Plugin\Field\FieldFormatter\PanelizerFormatter.
- */
-
 namespace Drupal\panelizer\Plugin\Field\FieldFormatter;
 
 use Drupal\Component\Utility\Html;

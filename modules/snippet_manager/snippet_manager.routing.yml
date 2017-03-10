@@ -9,23 +9,25 @@ entity.snippet.collection:
 snippet_manager.settings:
   path: /admin/structure/snippet/settings
   defaults:
-    _form: 'Drupal\snippet_manager\Form\SettingsForm'
+    _form: Drupal\snippet_manager\Form\SettingsForm
     _title: Snippet manager configuration
   requirements:
     _permission: administer snippets
 
 entity.snippet.canonical:
-  path: /snippet/{snippet}
+  path: /admin/structure/snippet/{snippet}
   defaults:
     _entity_view: snippet
     _title_callback: \Drupal\Core\Entity\Controller\EntityController::title
+  options:
+    _admin_route: TRUE
   requirements:
-    _entity_access: snippet.view
+    _permission: administer snippets
 
-entity.snippet.admin:
-  path: /snippet/{snippet}/html-source
+entity.snippet.source:
+  path: /admin/structure/snippet/{snippet}/source
   defaults:
-    _entity_view: snippet.admin
+    _entity_view: snippet.source
     _title_callback: \Drupal\Core\Entity\Controller\EntityController::title
   options:
     _admin_route: TRUE
@@ -33,37 +35,38 @@ entity.snippet.admin:
     _permission: administer snippets
 
 entity.snippet.add_form:
-  path: /snippet/add
+  path: /admin/structure/snippet/add
   defaults:
     _entity_form: snippet.add
-    _title: Add a snippet
+    _title_callback: \Drupal\Core\Entity\Controller\EntityController::addTitle
+    entity_type_id: snippet
   options:
     _admin_route: TRUE
   requirements:
     _permission: administer snippets
 
 entity.snippet.edit_form:
-  path: /snippet/{snippet}/edit
+  path: /admin/structure/snippet/{snippet}/edit
   defaults:
     _entity_form: snippet.edit
-    _title: Edit
+    _title_callback: \Drupal\Core\Entity\Controller\EntityController::editTitle
   options:
     _admin_route: TRUE
   requirements:
     _permission: administer snippets
 
 entity.snippet.delete_form:
-  path: /snippet/{snippet}/delete
+  path: /admin/structure/snippet/{snippet}/delete
   defaults:
     _entity_form: snippet.delete
-    _title: Delete snippet
+    _title_callback: \Drupal\Core\Entity\Controller\EntityController::deleteTitle
   options:
     _admin_route: TRUE
   requirements:
     _permission: administer snippets
 
 entity.snippet.duplicate_form:
-  path: /snippet/{snippet}/duplicate
+  path: /admin/structure/snippet/{snippet}/duplicate
   defaults:
     _entity_form: snippet.duplicate
     _title: Duplicate snippet
@@ -72,8 +75,30 @@ entity.snippet.duplicate_form:
   requirements:
     _permission: administer snippets
 
+entity.snippet.enable:
+  path: /admin/structure/snippet/{snippet}/enable
+  defaults:
+    _controller: \Drupal\snippet_manager\Controller\SnippetController::performOperation
+    op: enable
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: administer snippets
+    _csrf_token: 'TRUE'
+
+entity.snippet.disable:
+  path: /admin/structure/snippet/{snippet}/disable
+  defaults:
+    _controller: \Drupal\snippet_manager\Controller\SnippetController::performOperation
+    op: disable
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: administer snippets
+    _csrf_token: 'TRUE'
+
 snippet_manager.variable_add_form:
-  path: /snippet/{snippet}/edit/variable/add
+  path: /admin/structure/snippet/{snippet}/edit/variable/add
   defaults:
     _entity_form: snippet.variable_add
     _title: Add variable
@@ -83,7 +108,7 @@ snippet_manager.variable_add_form:
     _permission: administer snippets
 
 snippet_manager.variable_edit_form:
-  path: /snippet/{snippet}/edit/variable/{variable}/edit
+  path: /admin/structure/snippet/{snippet}/edit/variable/{variable}/edit
   defaults:
     _entity_form: snippet.variable_edit
     _title: Edit variable
@@ -93,10 +118,40 @@ snippet_manager.variable_edit_form:
     _permission: administer snippets
 
 snippet_manager.variable_delete_form:
-  path: /snippet/{snippet}/edit/variable/{variable}/delete
+  path: /admin/structure/snippet/{snippet}/edit/variable/{variable}/delete
   defaults:
     _entity_form: snippet.variable_delete
     _title: Delete variable
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: administer snippets
+
+entity.snippet.template_edit_form:
+  path: /admin/structure/snippet/{snippet}/edit/template
+  defaults:
+    _entity_form: snippet.template_edit
+    _title_callback: \Drupal\Core\Entity\Controller\EntityController::editTitle
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: administer snippets
+
+entity.snippet.css_edit_form:
+  path: /admin/structure/snippet/{snippet}/edit/css
+  defaults:
+    _entity_form: snippet.css_edit
+    _title_callback: \Drupal\Core\Entity\Controller\EntityController::editTitle
+  options:
+    _admin_route: TRUE
+  requirements:
+    _permission: administer snippets
+
+entity.snippet.js_edit_form:
+  path: /admin/structure/snippet/{snippet}/edit/js
+  defaults:
+    _entity_form: snippet.js_edit
+    _title_callback: \Drupal\Core\Entity\Controller\EntityController::editTitle
   options:
     _admin_route: TRUE
   requirements:

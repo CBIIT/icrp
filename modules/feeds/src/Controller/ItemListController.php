@@ -52,7 +52,7 @@ class ItemListController extends ControllerBase {
     ->sort('feeds_item.imported', 'DESC')
     ->execute();
 
-    $storage = $this->entityManager()->getStorage($processor->entityType());
+    $storage = $this->entityTypeManager()->getStorage($processor->entityType());
     foreach ($storage->loadMultiple($entity_ids) as $entity) {
       $ago = \Drupal::service('date.formatter')->formatInterval(REQUEST_TIME - $entity->get('feeds_item')->imported);
       $row = [];

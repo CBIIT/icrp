@@ -67,7 +67,7 @@ class DeleteMultiple extends ConfirmFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('user.private_tempstore'),
-      $container->get('entity.manager')->getStorage('feeds_feed'),
+      $container->get('entity_type.manager')->getStorage('feeds_feed'),
       $container->get('current_user')
     );
   }

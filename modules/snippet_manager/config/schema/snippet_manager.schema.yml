@@ -18,9 +18,6 @@ snippet_manager.settings:
         theme:
           type: string
           label: CodeMirror theme
-    redirect_page:
-      type: string
-      label: Redirect page
 
 snippet_manager.snippet.*:
   type: config_entity
@@ -34,10 +31,95 @@ snippet_manager.snippet.*:
     label:
       type: label
       label: Label
-    code:
+    page:
       type: mapping
-      label: Code
+      label: Page settings
       mapping:
+        status:
+          type: boolean
+          label: Status
+        title:
+          type: string
+          label: Title
+        path:
+          type: string
+          label: Path
+        display_variant:
+          type: mapping
+          label: Display variant
+          mapping:
+            id:
+              type: string
+              label: ID
+            configuration:
+              type: mapping
+              label: Configuration
+              mapping:
+                label:
+                  label: Label
+                  type: string
+        theme:
+          type: string
+          label: Theme
+    block:
+      type: mapping
+      label: Block settings
+      mapping:
+        status:
+          type: boolean
+          label: Status
+        name:
+          type: string
+          label: Name
+    access:
+      type: mapping
+      label: Access
+      mapping:
+        type:
+          type: string
+          label: Type
+        permission:
+          type: string
+          label: Permission
+        role:
+          type: sequence
+          label: Permission
+          sequence:
+            type: string
+            label: Role ID
+    template:
+      type: mapping
+      label: Template
+      mapping:
+        value:
+          label: Value
+          type: string
+        format:
+          label: Format
+          type: string
+    css:
+      type: mapping
+      label: CSS
+      mapping:
+        status:
+          type: boolean
+          label: Status
+        value:
+          label: Code
+          type: string
+        format:
+          label: Format
+          type: string
+        group:
+          label: Group
+          type: string
+    js:
+      type: mapping
+      label: JS
+      mapping:
+        status:
+          type: boolean
+          label: Status
         value:
           label: Code
           type: string
@@ -57,33 +139,6 @@ snippet_manager.snippet.*:
           configuration:
             type: snippet_manager_variable_settings.[%parent.plugin_id]
             label: Configuration
-    page:
-      label: Page settings
-      type: mapping
-      mapping:
-        status:
-          type: boolean
-          label: Status
-        url_alias:
-          type: string
-          label: Url alias
-        display_variant:
-          type: mapping
-          label: Display variant
-          mapping:
-            id:
-              type: string
-              label: ID
-            configuration:
-              type: mapping
-              label: Configuration
-              mapping:
-                label:
-                  label: Label
-                  type: string
-        theme:
-          type: string
-          label: Theme
 
 # Drupal core does not provide schema for this plugin.
 # @see https://www.drupal.org/node/2787529
@@ -140,3 +195,14 @@ snippet_manager_variable_settings.view:*:
     display:
       type: string
       label: Display
+
+snippet_manager_variable_settings.menu:*:
+  type: mapping
+  mapping:
+  mapping:
+    level:
+      type: integer
+      label: Starting level
+    depth:
+      type: integer
+      label: Maximum number of levels

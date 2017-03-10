@@ -19,7 +19,24 @@ class WebformNodeTest extends WebformTestBase {
    *
    * @var array
    */
-  public static $modules = ['system', 'block', 'node', 'user', 'webform', 'webform_test', 'webform_node'];
+  public static $modules = ['webform', 'webform_node'];
+
+  /**
+   * Webforms to load.
+   *
+   * @var array
+   */
+  protected static $testWebforms = ['test_form_limit', 'test_confirmation_inline'];
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp();
+
+    // Create users.
+    $this->createUsers();
+  }
 
   /**
    * Tests webform node.
@@ -61,15 +78,15 @@ class WebformNodeTest extends WebformTestBase {
     $this->drupalPostForm('node/' . $node->id(), [], t('Submit'));
     $this->assertRaw('This is a custom inline confirmation message.');
 
-    /* Submission limit (test_submission_limit) */
+    /* Submission limit (test_form_limit) */
 
     // Set per entity total and user limit.
     // @see \Drupal\webform\Tests\WebformSubmissionFormSettingsTest::testSettings
-    $node->webform->target_id = 'test_submission_limit';
+    $node->webform->target_id = 'test_form_limit';
     $node->webform->default_data = '';
     $node->save();
 
-    $limit_form = Webform::load('test_submission_limit');
+    $limit_form = Webform::load('test_form_limit');
     $limit_form->setSettings([
       'limit_total' => NULL,
       'limit_user' => NULL,

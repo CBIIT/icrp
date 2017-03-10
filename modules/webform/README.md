@@ -1,9 +1,9 @@
-Webform
----------
+Webform 8.x-5.x
+---------------
 
 ### About this Module
 
-The Webform module is a webform builder and submission manager for Drupal 8.
+The Webform module is a form builder and submission manager for Drupal 8.
 
 The primary use case for this module is to:
 
@@ -17,24 +17,25 @@ The primary use case for this module is to:
 
 ### Goals
 
-- A comprehensive webform and survey building solution for Drupal 8. 
-- A stable, maintainable, and tested API for building webforms and handling submission.
-- A pluggable/extensible API for custom webform elements and submission handling. 
+- A comprehensive form and survey building solution for Drupal 8. 
+- A stable, maintainable, and tested API for building forms and handling submission.
+- A pluggable/extensible API for custom form elements and submission handling. 
 
 
 ### Demo
 
-> Evaluate this project online using [simplytest.me](https://simplytest.me/project/drupal/8.2.x?add[]=webform).
-
 > [Watch a demo](http://youtu.be/sQGsfQ_LZJ4) of the Webform module.
 
+> Evaluate this project online using [simplytest.me](https://simplytest.me/project/drupal/8.2.x?add[]=webform).
 
-### Blog Posts & Articles
 
+### Presentations, Blog Posts, & Articles
+
+- [Webform 8.x-5.x @ NJ DrupalCamp](https://www.drupalcampnj.org/program/sessions/building-webforms-drupal-8)
 - [Getting NYU onto Webform](https://www.fourkitchens.com/blog/article/getting-nyu-yaml-form)
 - [Webforms for Drupal 8](https://www.gaiaresources.com.au/yaml-forms-drupal-8/)
 - [Creating Webform Handlers in Drupal 8](http://fivemilemedia.co.uk/blog/creating-yaml-form-handlers-drupal-8)
-
+- [Les formulaires en Drupal 8](https://makina-corpus.com/blog/metier/2016/les-formulaires-en-drupal-8)
 
 ### Installing the Webform Module
 

@@ -1,9 +1,11 @@
 langcode: en
-status: true
+status: open
 dependencies:
   enforced:
     module:
       - webform_test
+open: null
+close: null
 uid: null
 template: false
 id: test_form_disable_back
@@ -11,7 +13,7 @@ title: 'Test: Webform: Disabled back button'
 description: 'Test disabling the ability to navigate back using the back button.'
 elements: |
   wizard_1:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Wizard page #1'
     element_1:
       '#type': textfield
@@ -44,7 +46,7 @@ elements: |
       '#type': textfield
       '#title': 'Element #10'
   wizard_2:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Wizard page #2'
     element_11:
       '#type': textfield
@@ -77,7 +79,7 @@ elements: |
       '#type': textfield
       '#title': 'Element #20'
   wizard_3:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Wizard page #3'
     element_21:
       '#type': textfield
@@ -110,7 +112,7 @@ elements: |
       '#type': textfield
       '#title': 'Element #30'
   wizard_4:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Wizard page #4'
     element_31:
       '#type': textfield
@@ -143,7 +145,7 @@ elements: |
       '#type': textfield
       '#title': 'Element #40'
   wizard_5:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Wizard page #5'
     element_41:
       '#type': textfield
@@ -176,7 +178,7 @@ elements: |
       '#type': textfield
       '#title': 'Element #50'
   wizard_6:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Wizard page #6'
     element_51:
       '#type': textfield
@@ -209,7 +211,7 @@ elements: |
       '#type': textfield
       '#title': 'Element #60'
   wizard_7:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Wizard page #7'
     element_61:
       '#type': textfield
@@ -242,7 +244,7 @@ elements: |
       '#type': textfield
       '#title': 'Element #70'
   wizard_8:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Wizard page #8'
     element_71:
       '#type': textfield
@@ -275,7 +277,7 @@ elements: |
       '#type': textfield
       '#title': 'Element #80'
   wizard_9:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Wizard page #9'
     element_81:
       '#type': textfield
@@ -308,7 +310,7 @@ elements: |
       '#type': textfield
       '#title': 'Element #90'
   wizard_10:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Wizard page #10'
     element_91:
       '#type': textfield
@@ -347,13 +349,16 @@ settings:
   page_submit_path: ''
   page_confirm_path: ''
   form_submit_label: ''
+  form_submit_once: false
   form_submit_attributes: {  }
   form_exception_message: ''
   form_closed_message: ''
+  form_previous_submissions: true
   form_confidential: false
   form_confidential_message: ''
   form_prepopulate: false
   form_prepopulate_source_entity: false
+  form_disable_autocomplete: false
   form_novalidate: false
   form_unsaved: false
   form_disable_back: true
@@ -382,6 +387,7 @@ settings:
   draft_saved_message: ''
   draft_loaded_message: ''
   confirmation_type: page
+  confirmation_title: ''
   confirmation_message: ''
   confirmation_url: ''
   confirmation_attributes: {  }
@@ -392,6 +398,8 @@ settings:
   limit_total_message: ''
   limit_user: null
   limit_user_message: ''
+  purge: none
+  purge_days: null
   entity_limit_total: null
   entity_limit_user: null
   results_disabled: false

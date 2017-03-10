@@ -4,7 +4,7 @@ namespace Drupal\feeds\Feeds\Fetcher;
 
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Uuid\UuidInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
@@ -24,7 +24,7 @@ use Drupal\file\FileUsage\FileUsageInterface;
  *   description = @Translation("Upload content from a local file."),
  *   arguments = {
  *     "@file.usage",
- *     "@entity.manager",
+ *     "@entity_type.manager",
  *     "@stream_wrapper_manager"
  *   },
  *   form = {
@@ -67,14 +67,14 @@ class UploadFetcher extends PluginBase implements FetcherInterface {
    *   The plugin definition.
    * @param \Drupal\file\FileUsage\FileUsageInterface $file_usage
    *   The file usage backend.
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The file storage controller.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    * @param \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface $stream_wrapper_manager
    *   The stream wrapper manager.
    */
-  public function __construct(array $configuration, $plugin_id, array $plugin_definition, FileUsageInterface $file_usage, EntityManagerInterface $entity_manager, StreamWrapperManagerInterface $stream_wrapper_manager) {
+  public function __construct(array $configuration, $plugin_id, array $plugin_definition, FileUsageInterface $file_usage, EntityTypeManagerInterface $entity_type_manager, StreamWrapperManagerInterface $stream_wrapper_manager) {
     $this->fileUsage = $file_usage;
-    $this->fileStorage = $entity_manager->getStorage('file');
+    $this->fileStorage = $entity_type_manager->getStorage('file');
     $this->streamWrapperManager = $stream_wrapper_manager;
 
     parent::__construct($configuration, $plugin_id, $plugin_definition);

@@ -12,9 +12,37 @@ use Drupal\Core\Session\AccountInterface;
 interface WebformSubmissionStorageInterface extends ContentEntityStorageInterface {
 
   /**
-   * Return status for saving of YAML forb submission when saving results is disabled.
+   * Return status for saving of webform submission when saving results is disabled.
    */
   const SAVED_DISABLED = 0;
+
+  /**
+   * Denote not to purge automatically anything at all.
+   *
+   * @var string
+   */
+  const PURGE_NONE = 'none';
+
+  /**
+   * Denote to purge automatically only drafts.
+   *
+   * @var string
+   */
+  const PURGE_DRAFT = 'draft';
+
+  /**
+   * Denote to purge automatically only completed submissions.
+   *
+   * @var string
+   */
+  const PURGE_COMPLETED = 'completed';
+
+  /**
+   * Denote to purge automatically all submissions.
+   *
+   * @var string
+   */
+  const PURGE_ALL = 'all';
 
   /**
    * Get webform submission entity field definitions.
@@ -29,6 +57,22 @@ interface WebformSubmissionStorageInterface extends ContentEntityStorageInterfac
    *   title, name, and datatype.
    */
   public function getFieldDefinitions();
+
+  /**
+   * Check field definition access.
+   *
+   * Access checks include...
+   * - Only allowing user who can update any access to the 'token' field.
+   *
+   * @param \Drupal\webform\WebformInterface $webform
+   *   The webform to check field definition access.
+   * @param array $definitions
+   *   Field definitions.
+   *
+   * @return array
+   *   Field definitions with access checked.
+   */
+  public function checkFieldDefinitionAccess(WebformInterface $webform, array $definitions);
 
   /**
    * Returns a webform's max serial number.
@@ -106,6 +150,23 @@ interface WebformSubmissionStorageInterface extends ContentEntityStorageInterfac
   public function getMaxSubmissionId(WebformInterface $webform = NULL, EntityInterface $source_entity = NULL, AccountInterface $account = NULL);
 
   /**
+   * Determine if a webform element has submission values.
+   *
+   * @param \Drupal\webform\WebformInterface $webform
+   *   A webform.
+   * @param string $element_key
+   *   An element key.
+   *
+   * @return bool
+   *   TRUE if a webform element has submission values.
+   */
+  public function hasSubmissionValue(WebformInterface $webform, $element_key);
+
+  /****************************************************************************/
+  // Paging methods.
+  /****************************************************************************/
+
+  /**
    * Get a webform's first submission.
    *
    * @param \Drupal\webform\WebformInterface $webform
@@ -176,6 +237,10 @@ interface WebformSubmissionStorageInterface extends ContentEntityStorageInterfac
    */
   public function getSourceEntityTypes(WebformInterface $webform);
 
+  /****************************************************************************/
+  // WebformSubmissionEntityList methods.
+  /****************************************************************************/
+
   /**
    * Get customized submission columns used to display custom table.
    *
@@ -238,6 +303,10 @@ interface WebformSubmissionStorageInterface extends ContentEntityStorageInterfac
    */
   public function getCustomSetting($name, $default, WebformInterface $webform = NULL, EntityInterface $source_entity = NULL);
 
+  /****************************************************************************/
+  // Invoke methods.
+  /****************************************************************************/
+
   /**
    * Invoke a webform submission's webform's handlers method.
    *
@@ -265,5 +334,17 @@ interface WebformSubmissionStorageInterface extends ContentEntityStorageInterfac
    *   (optional) An additional variable that is passed by reference.
    */
   public function invokeWebformElements($method, WebformSubmissionInterface $webform_submission, &$context1 = NULL, &$context2 = NULL);
+
+  /****************************************************************************/
+  // Purge methods.
+  /****************************************************************************/
+
+  /**
+   * Purge webform submissions.
+   *
+   * @param int $count
+   *   Amount of webform submissions to purge.
+   */
+  public function purge($count);
 
 }

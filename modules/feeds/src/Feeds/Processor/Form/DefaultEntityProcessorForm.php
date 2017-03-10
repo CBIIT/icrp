@@ -47,7 +47,7 @@ class DefaultEntityProcessorForm extends ExternalPluginFormBase {
     ];
 
     // @todo Remove hack.
-    $entity_type = \Drupal::entityManager()->getDefinition($this->plugin->entityType());
+    $entity_type = \Drupal::entityTypeManager()->getDefinition($this->plugin->entityType());
 
     if ($entity_type->isSubclassOf(EntityOwnerInterface::class)) {
       $form['owner_id'] = [

@@ -6,12 +6,14 @@ use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Plugin\Context\Context;
 use Drupal\Core\Plugin\ContextAwarePluginBase;
 use Drupal\pathauto\AliasTypeBatchUpdateInterface;
 use Drupal\pathauto\AliasTypeInterface;
+use Drupal\pathauto\PathautoState;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -46,6 +48,13 @@ class EntityAliasTypeBase extends ContextAwarePluginBase implements AliasTypeInt
   protected $entityTypeManager;
 
   /**
+   * The key/value manager service.
+   *
+   * @var \Drupal\Core\KeyValueStore\KeyValueFactoryInterface
+   */
+  protected $keyValue;
+
+  /**
    * The database connection.
    *
    * @var \Drupal\Core\Database\Connection
@@ -74,14 +83,17 @@ class EntityAliasTypeBase extends ContextAwarePluginBase implements AliasTypeInt
    *   The language manager service.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity manager service.
+   * @param \Drupal\Core\KeyValueStore\KeyValueFactoryInterface $key_value
+   *   The key/value manager service.
    * @param \Drupal\Core\Database\Connection $database
    *   The database connection.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, LanguageManagerInterface $language_manager, EntityTypeManagerInterface $entity_type_manager, Connection $database) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, ModuleHandlerInterface $module_handler, LanguageManagerInterface $language_manager, EntityTypeManagerInterface $entity_type_manager, KeyValueFactoryInterface $key_value, Connection $database) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->moduleHandler = $module_handler;
     $this->languageManager = $language_manager;
     $this->entityTypeManager = $entity_type_manager;
+    $this->keyValue = $key_value;
     $this->database = $database;
   }
 
@@ -96,6 +108,7 @@ class EntityAliasTypeBase extends ContextAwarePluginBase implements AliasTypeInt
       $container->get('module_handler'),
       $container->get('language_manager'),
       $container->get('entity_type.manager'),
+      $container->get('keyvalue'),
       $container->get('database')
     );
   }
@@ -179,6 +192,51 @@ class EntityAliasTypeBase extends ContextAwarePluginBase implements AliasTypeInt
   }
 
   /**
+   * {@inheritdoc}
+   */
+  public function batchDelete(&$context) {
+    if (!isset($context['sandbox']['current'])) {
+      $context['sandbox']['count'] = 0;
+      $context['sandbox']['current'] = 0;
+    }
+
+    $entity_type = $this->entityTypeManager->getDefinition($this->getEntityTypeId());
+    $id_key = $entity_type->getKey('id');
+
+    $query = $this->database->select($entity_type->get('base_table'), 'base_table');
+    $query->innerJoin('url_alias', 'ua', "CONCAT('" . $this->getSourcePrefix() . "' , base_table.$id_key) = ua.source");
+    $query->addField('base_table', $id_key, 'id');
+    $query->addField('ua', 'pid');
+    $query->condition('ua.pid', $context['sandbox']['current'], '>');
+    $query->orderBy('ua.pid');
+    $query->addTag('pathauto_bulk_delete');
+    $query->addMetaData('entity', $this->getEntityTypeId());
+
+    // Get the total amount of items to process.
+    if (!isset($context['sandbox']['total'])) {
+      $context['sandbox']['total'] = $query->countQuery()->execute()->fetchField();
+
+      // If there are no entities to delete, then stop immediately.
+      if (!$context['sandbox']['total']) {
+        $context['finished'] = 1;
+        return;
+      }
+    }
+
+    $query->range(0, 100);
+    $pids_by_id = $query->execute()->fetchAllKeyed();
+
+    $this->bulkDelete($pids_by_id);
+    $context['sandbox']['count'] += count($pids_by_id);
+    $context['sandbox']['current'] = max($pids_by_id);
+    $context['results']['deletions'][] = $this->getLabel();
+
+    if ($context['sandbox']['count'] != $context['sandbox']['total']) {
+      $context['finished'] = $context['sandbox']['count'] / $context['sandbox']['total'];
+    }
+  }
+
+  /**
    * Returns the entity type ID.
    *
    * @return string
@@ -192,7 +250,7 @@ class EntityAliasTypeBase extends ContextAwarePluginBase implements AliasTypeInt
    * Update the URL aliases for multiple entities.
    *
    * @param array $ids
-   *   An array of entity IDs IDs.
+   *   An array of entity IDs.
    * @param array $options
    *   An optional array of additional options.
    *
@@ -220,6 +278,26 @@ class EntityAliasTypeBase extends ContextAwarePluginBase implements AliasTypeInt
     }
 
     return $updates;
+  }
+
+  /**
+   * Deletes the URL aliases for multiple entities.
+   *
+   * @param int[] $pids_by_id
+   *   A list of path IDs keyed by entity ID.
+   */
+  protected function bulkDelete(array $pids_by_id) {
+    $collection = 'pathauto_state.' . $this->getEntityTypeId();
+    $states = $this->keyValue->get($collection)->getMultiple(array_keys($pids_by_id));
+
+    $pids = [];
+    foreach ($pids_by_id as $id => $pid) {
+      // Only delete aliases that were created by this module.
+      if (isset($states[$id]) && $states[$id] == PathautoState::CREATE) {
+        $pids[] = $pid;
+      }
+    }
+    \Drupal::service('pathauto.alias_storage_helper')->deleteMultiple($pids);
   }
 
   /**

@@ -44,7 +44,23 @@ class LocalTasksTest extends LocalTaskIntegrationTestBase {
         ],
         [
           'entity.snippet.view_canonical',
-          'entity.snippet.view_admin',
+          'entity.snippet.view_source',
+        ],
+      ]
+    );
+    $this->assertLocalTasks(
+      'entity.snippet.edit_form',
+      [
+        [
+          'entity.snippet.view',
+          'entity.snippet.edit_form',
+          'entity.snippet.delete_form',
+        ],
+        [
+          'entity.snippet.edit_general',
+          'entity.snippet.edit_template',
+          'entity.snippet.edit_css',
+          'entity.snippet.edit_js',
         ],
       ]
     );

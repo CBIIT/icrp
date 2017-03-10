@@ -5,7 +5,7 @@ namespace Drupal\feeds\Controller;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\KeyValueStore\KeyValueExpirableFactoryInterface;
 use Drupal\feeds\SubscriptionInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -31,9 +31,9 @@ class SubscriptionController extends ControllerBase implements ContainerInjectio
    * @param \Drupal\Core\KeyValueStore\KeyValueExpirableFactoryInterface $key_value_expire_factory
    *   The key value expirable factory.
    */
-  public function __construct(KeyValueExpirableFactoryInterface $key_value_expire_factory, EntityManagerInterface $entity_manager) {
+  public function __construct(KeyValueExpirableFactoryInterface $key_value_expire_factory, EntityTypeManagerInterface $entity_type_manager) {
     $this->keyValueExpireFactory = $key_value_expire_factory;
-    $this->entityManager = $entity_manager;
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -42,7 +42,7 @@ class SubscriptionController extends ControllerBase implements ContainerInjectio
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('keyvalue.expirable'),
-      $container->get('entity.manager')
+      $container->get('entity_type.manager')
     );
   }
 
@@ -99,7 +99,7 @@ class SubscriptionController extends ControllerBase implements ContainerInjectio
    *   Thrown if anything seems amiss.
    */
   protected function handleSubscribe($subscription_id, $token, Request $request) {
-    if (!$subscription = $this->entityManager()->getStorage('feeds_subscription')->load($subscription_id)) {
+    if (!$subscription = $this->entityTypeManager()->getStorage('feeds_subscription')->load($subscription_id)) {
       throw new NotFoundHttpException();
     }
 
@@ -180,7 +180,7 @@ class SubscriptionController extends ControllerBase implements ContainerInjectio
       throw new NotFoundHttpException();
     }
 
-    $feed = $this->entityManager()->getStorage('feeds_feed')->load($feeds_subscription->id());
+    $feed = $this->entityTypeManager()->getStorage('feeds_feed')->load($feeds_subscription->id());
 
     try {
       $feed->pushImport($request->getContent());

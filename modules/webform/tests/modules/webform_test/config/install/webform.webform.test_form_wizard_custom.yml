@@ -1,29 +1,33 @@
 langcode: en
-status: true
+status: open
 dependencies:
   enforced:
     module:
       - webform_test
+open: null
+close: null
 uid: null
 template: false
 id: test_form_wizard_custom
 title: 'Test: Webform: Wizard custom'
 description: 'Test a multiple step ''wizard'' webform with custom hide/show pages logic.'
 elements: |
+  '#attributes':
+    data-current-page: '[webform-submission:current-page]'
   wizard_1:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Wizard page #1'
     pages:
       '#type': checkboxes
-      '#titke': 'Pages'
+      '#titke': Pages
       '#options':
-        wizard_1: Page 1
-        wizard_2: Page 2
-        wizard_3: Page 3
-        wizard_4: Page 4
-        wizard_5: Page 5
-        wizard_6: Page 6
-        wizard_7: Page 7
+        wizard_1: 'Page 1'
+        wizard_2: 'Page 2'
+        wizard_3: 'Page 3'
+        wizard_4: 'Page 4'
+        wizard_5: 'Page 5'
+        wizard_6: 'Page 6'
+        wizard_7: 'Page 7'
       '#default_value':
         - wizard_1
         - wizard_2
@@ -33,22 +37,22 @@ elements: |
         - wizard_6
         - wizard_7
   wizard_2:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Wizard page #2'
   wizard_3:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Wizard page #3'
   wizard_4:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Wizard page #4'
   wizard_5:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Wizard page #5'
   wizard_6:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Wizard page #6'
   wizard_7:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Wizard page #7'
 css: ''
 javascript: ''
@@ -57,13 +61,16 @@ settings:
   page_submit_path: ''
   page_confirm_path: ''
   form_submit_label: Apply
+  form_submit_once: false
   form_submit_attributes: {  }
   form_exception_message: ''
   form_closed_message: ''
+  form_previous_submissions: true
   form_confidential: false
   form_confidential_message: ''
   form_prepopulate: true
   form_prepopulate_source_entity: false
+  form_disable_autocomplete: false
   form_novalidate: false
   form_unsaved: false
   form_disable_back: false
@@ -92,6 +99,7 @@ settings:
   draft_saved_message: ''
   draft_loaded_message: ''
   confirmation_type: page
+  confirmation_title: ''
   confirmation_message: ''
   confirmation_url: ''
   confirmation_attributes: {  }
@@ -102,6 +110,8 @@ settings:
   limit_total_message: ''
   limit_user: null
   limit_user_message: ''
+  purge: none
+  purge_days: null
   entity_limit_total: null
   entity_limit_user: null
   results_disabled: true

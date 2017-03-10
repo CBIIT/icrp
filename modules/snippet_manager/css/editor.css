@@ -1,0 +1,83 @@
+.form-textarea-wrapper {
+  outline: solid 1px #999;
+  font-size: 14px;
+}
+
+.snippet-render-time {
+  text-align: right;
+  color: #555;
+}
+
+.form-textarea-wrapper.snippet-error {
+  outline-color: #e62600;;
+}
+
+.snippet-form caption {
+  font-weight: bold;
+}
+
+.CodeMirror {
+  height: auto;
+}
+
+.CodeMirror-lines {
+  min-height: 150px;
+}
+
+.sm-variables {
+  margin: 15px 0;
+}
+
+.sm-variables th {
+  width: 25%;
+}
+
+/* Toolbar */
+.snippet-manager-toolbar {
+  background: linear-gradient(to bottom, #f5f5f5, #eee);
+  border-bottom: solid 1px #999;
+  padding: 7px 7px 6px 7px;
+  overflow: hidden;
+}
+
+#sm-mode {
+  float: right;
+  height: 26px;
+  background: linear-gradient(to bottom, #fff, #eee);
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+#sm-mode:focus {
+  outline: none;
+}
+
+.sm-button {
+  display: block;
+  float: left;
+  margin-right: 5px;
+  border: outset 1px #ccc;
+  width: 14px;
+  height: 14px;
+  background: linear-gradient(to bottom, #fff, #eee);
+  padding: 5px;
+}
+
+.sm-button:hover {
+  background: #fff;
+}
+
+.sm-button:active {
+  border-style: inset;
+  background: linear-gradient(to bottom, #eee, #fff);
+}
+
+.CodeMirror-fullscreen {
+  z-index: 700;
+}
+
+.sm-toolbar-enabled .CodeMirror-vscrollbar {
+  margin-top: 40px;
+}

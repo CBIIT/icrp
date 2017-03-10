@@ -33,7 +33,7 @@ abstract class FieldTargetBase extends TargetBase {
       return $targets;
     }
 
-    $field_definitions = \Drupal::entityManager()->getFieldDefinitions($processor->entityType(), $processor->bundle());
+    $field_definitions = \Drupal::service('entity_field.manager')->getFieldDefinitions($processor->entityType(), $processor->bundle());
 
     foreach ($field_definitions as $id => $field_definition) {
       if ($field_definition->isReadOnly() || $id === $processor->bundleKey()) {
@@ -130,7 +130,7 @@ abstract class FieldTargetBase extends TargetBase {
   }
 
   public function getUniqueValue(FeedInterface $feed, $target, $key, $value) {
-    $base_fields = \Drupal::entityManager()->getBaseFieldDefinitions($this->feedType->getProcessor()->entityType());
+    $base_fields = \Drupal::service('entity_field.manager')->getBaseFieldDefinitions($this->feedType->getProcessor()->entityType());
 
     if (isset($base_fields[$target])) {
       $field = $target;

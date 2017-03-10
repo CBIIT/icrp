@@ -246,7 +246,7 @@ class AliasStorageHelper implements AliasStorageHelperInterface {
    * @param int[] $pids
    *   An array of path IDs to delete.
    */
-  protected function deleteMultiple($pids) {
+  public function deleteMultiple($pids) {
     foreach ($pids as $pid) {
       $this->aliasStorage->delete(array('pid' => $pid));
     }

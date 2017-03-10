@@ -44,13 +44,18 @@ class Imce {
     if (!isset($profile)) {
       // Check stream wrapper
       if ($wrapper = \Drupal::service('stream_wrapper_manager')->getViaScheme($scheme)) {
+        $storage = \Drupal::entityTypeManager()->getStorage('imce_profile');
+        if ($user->id() == 1 && $profile = $storage->load('admin')) {
+          return $profile;
+        }
         $imce_settings = \Drupal::config('imce.settings');
         $roles_profiles = $imce_settings->get('roles_profiles', array());
         $user_roles = array_flip($user->getRoles());
-        $storage = \Drupal::entityTypeManager()->getStorage('imce_profile');
-        foreach ($roles_profiles as $rid => $profiles) {
-          if (isset($user_roles[$rid]) && !empty($profiles[$scheme])) {
-            if ($profile = $storage->load($profiles[$scheme])) {
+        // Order roles from more permissive to less permissive.
+        $roles = array_reverse(user_roles());
+        foreach ($roles as $rid => $role) {
+          if (isset($user_roles[$rid]) && !empty($roles_profiles[$rid][$scheme])) {
+            if ($profile = $storage->load($roles_profiles[$rid][$scheme])) {
               return $profile;
             }
           }

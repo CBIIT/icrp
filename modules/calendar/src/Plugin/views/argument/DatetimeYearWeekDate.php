@@ -2,14 +2,14 @@
 
 namespace Drupal\calendar\Plugin\views\argument;
 
-use Drupal\datetime\Plugin\views\argument\Date as DateTimeDate;
+use Drupal\datetime\Plugin\views\argument\Date;
 
 /**
  * Argument handler for a day.
  *
  * @ViewsArgument("datetime_year_week")
  */
-class DatetimeYearWeekDate extends DateTimeDate{
+class DatetimeYearWeekDate extends Date {
 
   /**
    * {@inheritdoc}

@@ -239,7 +239,7 @@ class RssNodeImport extends WebTestBase {
 
   protected function reloadFeed($fid) {
     $this->container
-      ->get('entity.manager')
+      ->get('entity_type.manager')
       ->getStorage('feeds_feed')
       ->resetCache();
 

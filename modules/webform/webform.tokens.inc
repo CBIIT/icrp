@@ -67,8 +67,17 @@ function webform_token_info() {
   ];
   $webform_submission['language'] = [
     'name' => t('Language'),
-    'description' => t('The language name of the the webform submission.'),
+    'description' => t('The language name of the webform submission.'),
   ];
+  $webform_submission['current-page'] = [
+    'name' => t('Current page'),
+    'description' => t('The current (wizard) page of the webform submission.'),
+  ];
+  $webform_submission['in-draft'] = [
+    'name' => t('In draft'),
+    'description' => t('Is the webform submission in draft.'),
+  ];
+
   // Dynamic tokens for webform submissions.
   $webform_submission['url'] = [
     'name' => t('URL'),
@@ -77,8 +86,9 @@ function webform_token_info() {
   ];
   $webform_submission['values'] = [
     'name' => t('Submission values'),
-    'description' => t("Webform tokens from submitted data. Replace the '?' with the 'element_key' or 'element_key:format'.") . ' ' .
+    'description' => t("Webform tokens from submitted data. Replace the '?' with the 'element_key', 'element_key:format' or 'element_key:format:items'.") . ' ' .
     t("The 'format' can be 'value', 'raw', or custom format specifically associated with the element") . ' ' .
+    t("The 'items' can be 'comma', 'semicolon', 'and', 'ol', 'ul', or custom delimiter") . ' ' .
     t("For example, to display the Contact webform's 'Subject' element's value you would use the [webform_submission:values:subject] token."),
     'dynamic' => TRUE,
   ];
@@ -204,8 +214,17 @@ function webform_tokens($type, $tokens, array $data, array $options, BubbleableM
           $replacements[$original] = $webform_submission->remote_addr->value;
           break;
 
-        case 'in_draft':
+        case 'in-draft':
           $replacements[$original] = $webform_submission->in_draft->value ? t('Yes') : t('No');
+          break;
+
+        case 'current-page':
+          $current_page = $webform_submission->current_page->value;
+          if (empty($current_page) && $pages = $webform_submission->getWebform()->getPages()) {
+            $page_keys = array_keys($pages);
+            $current_page = reset($page_keys);
+          }
+          $replacements[$original] = $current_page;
           break;
 
         case 'language':
@@ -289,17 +308,21 @@ function webform_tokens($type, $tokens, array $data, array $options, BubbleableM
         }
       }
     }
-    if (($value_tokens = $token_service->findWithPrefix($tokens, 'values')) && $webform_submission->id()) {
+    if ($value_tokens = $token_service->findWithPrefix($tokens, 'values')) {
       foreach ($value_tokens as $value_token => $original) {
         // Parse [values:{name}:{format}] token with optional format.
         $keys = explode(':', $value_token);
         $key = $keys[0];
-        $format = (isset($keys[1])) ? $keys[1] : NULL;
+        $format_item = (isset($keys[1])) ? $keys[1] : NULL;
+        $format_items = (isset($keys[2])) ? $keys[2] : NULL;
         if (isset($submission_data[$key]) && isset($form_elements[$key])) {
           $element = $form_elements[$key];
-          // Apply $format to the element.
-          if (isset($format)) {
-            $element['#format'] = $format;
+          // Apply #format to the element.
+          if (isset($format_item)) {
+            $element['#format'] = $format_item;
+          }
+          if (isset($format_items)) {
+            $element['#format_items'] = $format_items;
           }
           $format_method = (empty($submission_options['html'])) ? 'formatText' : 'formatHtml';
           $value = $element_manager->invokeMethod($format_method, $element, $submission_data[$key], $submission_options);

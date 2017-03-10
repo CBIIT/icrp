@@ -8,8 +8,8 @@ namespace Drupal\webform\Plugin\WebformElement;
  * @WebformElement(
  *   id = "webform_entity_checkboxes",
  *   label = @Translation("Entity checkboxes"),
+ *   description = @Translation("Provides a form element to select multiple entity references using checkboxes."),
  *   category = @Translation("Entity reference elements"),
- *   multiple = TRUE,
  * )
  */
 class WebformEntityCheckboxes extends Checkboxes implements WebformEntityReferenceInterface {

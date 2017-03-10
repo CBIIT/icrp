@@ -57,6 +57,14 @@ class SnippetListBuilderTest extends UnitTestCase {
     /** @var \Drupal\Core\Entity\EntityStorageInterface $entity_storage */
     $entity_storage = $this->getMock('Drupal\Core\Entity\EntityStorageInterface');
 
+    if (!defined('RESPONSIVE_PRIORITY_MEDIUM')) {
+      define('RESPONSIVE_PRIORITY_MEDIUM', 'priority-medium');
+    }
+
+    if (!defined('RESPONSIVE_PRIORITY_LOW')) {
+      define('RESPONSIVE_PRIORITY_LOW', 'priority-low');
+    }
+
     $this->listBuilder = $this->getMock(
       'Drupal\snippet_manager\SnippetListBuilder',
       ['getFormatLabel', 'formatSize'],
@@ -76,17 +84,20 @@ class SnippetListBuilderTest extends UnitTestCase {
     $header = $this->listBuilder->buildHeader();
 
     $expected_header = [
-      'label' => 'Label',
-      'id' => 'Machine name',
+      'name' => 'Name',
+      'id' => 'ID',
       'status' => 'Status',
       'size' => 'Size',
       'format' => 'Format',
       'page' => 'Page',
+      'block' => 'Block',
+      'operations' => 'Operations',
     ];
 
     foreach ($expected_header as $key => $value) {
+      $expected_value = is_array($header[$key]) ? $header[$key]['data'] : $header[$key];
       // @codingStandardsIgnoreStart
-      $this->assertEquals($header[$key], new TranslatableMarkup($value, [], [], $this->stringTranslation));
+      $this->assertEquals($expected_value, new TranslatableMarkup($value, [], [], $this->stringTranslation));
       // @codingStandardsIgnoreEnd
     }
 
@@ -105,7 +116,7 @@ class SnippetListBuilderTest extends UnitTestCase {
   public function testBuilderRow(SnippetInterface $snippet) {
     $row = $this->listBuilder->buildRow($snippet);
 
-    $this->assertEquals($row['label'], $snippet->toLink());
+    $this->assertEquals($row['name'], $snippet->toLink());
     $this->assertEquals($row['id'], $snippet->id());
     $disabled_status_value = [
       'data' => $this->trans('Disabled'),
@@ -113,15 +124,12 @@ class SnippetListBuilderTest extends UnitTestCase {
     ];
     $this->assertEquals($row['status'], $snippet->status() ? $this->trans('Enabled') : $disabled_status_value);
 
-    $disabled_page_value = [
-      'data' => $this->trans('Not published'),
-      'class' => ['sm-inactive'],
-    ];
-    $this->assertEquals($row['page'], $snippet->pageIsPublished() ? $this->trans('Published') : $disabled_page_value);
+    $this->assertEquals($row['page'], $snippet->get('page')['status'] ? $snippet->get('page')['path'] : '');
+    $this->assertEquals($row['block'], $snippet->get('block')['status'] ? $snippet->get('block')['name'] : '');
   }
 
   /**
-   * Data provider for buildRow test.
+   * Data provider for testBuilderRow().
    *
    * @return array
    *   Mock data set.
@@ -133,7 +141,25 @@ class SnippetListBuilderTest extends UnitTestCase {
     for ($i = 0; $i < 10; $i++) {
       $snippet->method('toLink')->willReturn($this->trans($this->randomMachineName()));
       $snippet->method('id')->willReturn($this->trans($this->randomMachineName()));
-      $snippet->method('pageIsPublished')->willReturn(mt_rand(0, 1));
+
+      $page = [
+        'status' => mt_rand(0, 1),
+        // Prefix with "%" to prevent link creation.
+        'path' => '%' . $this->randomMachineName(),
+      ];
+      $block = [
+        'status' => mt_rand(0, 1),
+        'name' => $this->randomMachineName(),
+      ];
+      $snippet->method('get')->will(
+        $this->returnValueMap(
+          [
+            ['page', $page],
+            ['block', $block],
+          ]
+        )
+      );
+
       $snippet->method('status')->willReturn(mt_rand(0, 1));
       $data[][] = $snippet;
     }

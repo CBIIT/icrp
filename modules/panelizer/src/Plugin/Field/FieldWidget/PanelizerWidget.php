@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\panelizer\Plugin\Field\FieldWidget\PanelizerWidget.
- */
-
 namespace Drupal\panelizer\Plugin\Field\FieldWidget;
 
 use Drupal\Core\Entity\Entity\EntityViewDisplay;

@@ -3,7 +3,7 @@
 namespace Drupal\webform\Tests;
 
 use Drupal\Component\Serialization\Yaml;
-use Drupal\webform\Utility\WebformTidy;
+use Drupal\webform\Utility\WebformYaml;
 
 /**
  * Tests for webform entity.
@@ -17,7 +17,24 @@ class WebformAdminSettingsTest extends WebformTestBase {
    *
    * @var array
    */
-  protected static $modules = ['system', 'block', 'node', 'user', 'webform', 'webform_ui', 'webform_test'];
+  protected static $modules = ['node', 'webform', 'webform_ui'];
+
+  /**
+   * Webforms to load.
+   *
+   * @var array
+   */
+  protected static $testWebforms = ['test_element', 'test_element_html_editor'];
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp();
+
+    // Create users.
+    $this->createUsers();
+  }
 
   /**
    * Tests webform admin settings.
@@ -25,7 +42,7 @@ class WebformAdminSettingsTest extends WebformTestBase {
   public function testAdminSettings() {
     global $base_path;
 
-    $this->drupalLogin($this->adminFormUser);
+    $this->drupalLogin($this->adminWebformUser);
 
     /* Settings Webform */
 
@@ -41,8 +58,8 @@ class WebformAdminSettingsTest extends WebformTestBase {
     $this->assertEqual($updated_data, $original_data, 'Updated admin settings via the UI did not lose or change any data');
 
     // DEBUG:
-    $this->verbose('<pre>' . WebformTidy::tidy(Yaml::encode($original_data)) . '</pre>');
-    $this->verbose('<pre>' . WebformTidy::tidy(Yaml::encode($updated_data)) . '</pre>');
+    $this->verbose('<pre>' . WebformYaml::tidy(Yaml::encode($original_data)) . '</pre>');
+    $this->verbose('<pre>' . WebformYaml::tidy(Yaml::encode($updated_data)) . '</pre>');
 
     /* Elements */
 

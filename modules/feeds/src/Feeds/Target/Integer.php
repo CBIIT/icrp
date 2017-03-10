@@ -9,9 +9,7 @@ namespace Drupal\feeds\Feeds\Target;
  *   id = "integer",
  *   field_types = {
  *     "integer",
- *     "list_integer",
- *     "created",
- *     "timestamp"
+ *     "list_integer"
  *   }
  * )
  */

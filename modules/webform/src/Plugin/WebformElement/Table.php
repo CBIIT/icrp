@@ -16,7 +16,8 @@ use Drupal\webform\WebformSubmissionInterface;
  *   id = "table",
  *   api = "https://api.drupal.org/api/drupal/core!lib!Drupal!Core!Render!Element!Table.php/class/Table",
  *   label = @Translation("Table"),
- *   category = @Translation("Table"),
+ *   description = @Translation("Provides an element to render a table."),
+ *   category = @Translation("Markup elements"),
  * )
  */
 class Table extends WebformElementBase {
@@ -70,28 +71,21 @@ class Table extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  protected function build($format, array &$element, $value, array $options = []) {
-    return parent::build($format, $element, $value, $options);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getDefaultFormat() {
+  public function getItemDefaultFormat() {
     return 'table';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getFormats() {
+  public function getItemFormats() {
     return ['table'];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getTestValue(array $element, WebformInterface $webform) {
+  public function getTestValues(array $element, WebformInterface $webform, array $options = []) {
     // Containers should never have values and therefore should never have
     // a test value.
     return NULL;
@@ -100,7 +94,7 @@ class Table extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function formatHtml(array &$element, $value, array $options = []) {
+  public function formatHtmlItem(array &$element, $value, array $options = []) {
     // Undo webform submission elements and convert rows back into a simple
     // render array.
     $rows = [];
@@ -130,7 +124,7 @@ class Table extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function formatText(array &$element, $value, array $options = []) {
+  public function formatTextItem(array &$element, $value, array $options = []) {
     // Render the HTML table.
     $build = $this->formatHtml($element, $value, $options);
     $html = \Drupal::service('renderer')->renderPlain($build);
@@ -140,18 +134,18 @@ class Table extends WebformElementBase {
     $html = preg_replace('#\s*</th>\s*<th[^>]*>\s*#', ' | ', $html);
     $html = preg_replace('#^\s+#m', '', $html);
     $html = preg_replace('#\s+$#m', '', $html);
-    $html = preg_replace('#\n+#s', "\n", $html);
+    $html = preg_replace('#\n+#s', PHP_EOL, $html);
     $html = strip_tags($html);
 
     // Remove blank links from text.
     // From: http://stackoverflow.com/questions/709669/how-do-i-remove-blank-lines-from-text-in-php
-    $html = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", "\n", $html);
+    $html = preg_replace("/(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+/", PHP_EOL, $html);
 
     // Add divider between (optional) header.
     if (!empty($element['#header'])) {
-      $lines = explode("\n", trim($html));
-      $lines[0] .= "\n" . str_repeat('-', Unicode::strlen($lines[0]));
-      $html = implode("\n", $lines);
+      $lines = explode(PHP_EOL, trim($html));
+      $lines[0] .= PHP_EOL . str_repeat('-', Unicode::strlen($lines[0]));
+      $html = implode(PHP_EOL, $lines);
     }
 
     return $html;

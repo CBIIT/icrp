@@ -53,11 +53,13 @@ class PanelizerDefaultsTest extends WebTestBase {
     // to (the panelizer[allow] checkbox in the view display configuration). By
     // default, they aren't.
     $this->drupalGet('node/add/page');
+    $this->assertResponse(200);
     $this->assertNoFieldByName('panelizer[0][default]');
 
     // Enable layout selection and assert that all the expected fields show up.
     $this->panelize('page', NULL, ['panelizer[allow]' => TRUE]);
     $this->drupalGet('node/add/page');
+    $this->assertResponse(200);
     $view_modes = \Drupal::service('entity_display.repository')->getViewModes('node');
     $view_modes = array_filter($view_modes, function (array $view_mode) {
       // View modes that are inheriting the default display (i.e., status is

@@ -1,9 +1,11 @@
 langcode: en
-status: false
+status: closed
 dependencies:
   enforced:
     module:
       - webform_templates
+open: null
+close: null
 uid: null
 template: true
 id: template_job_application
@@ -30,7 +32,7 @@ elements: |
     '#title': 'Contact Information'
     '#type': fieldset
     contact:
-      '#type': contact
+      '#type': webform_contact
       '#title': Contact
       '#title_display': invisible
       '#name__access': false
@@ -46,8 +48,8 @@ elements: |
       '#prefix': '<div class="container-inline">'
       '#suffix': '</div>'
       '#default_value': attach
-    resume_file_container:
-      '#type': container
+    resume_file:
+      '#type': managed_file
       '#title': Resume
       '#title_display': invisible
       '#states':
@@ -60,8 +62,6 @@ elements: |
         enabled:
           ':input[name="resume_method"]':
             value: attach
-      resume_file:
-        '#type': managed_file
     resume_text:
       '#type': textarea
       '#title': Resume
@@ -83,13 +83,16 @@ settings:
   page_submit_path: ''
   page_confirm_path: ''
   form_submit_label: Apply
+  form_submit_once: false
   form_submit_attributes: {  }
   form_exception_message: ''
   form_closed_message: ''
+  form_previous_submissions: true
   form_confidential: false
   form_confidential_message: ''
   form_prepopulate: false
   form_prepopulate_source_entity: false
+  form_disable_autocomplete: false
   form_novalidate: false
   form_unsaved: false
   form_disable_back: false
@@ -118,6 +121,7 @@ settings:
   draft_saved_message: ''
   draft_loaded_message: ''
   confirmation_type: page
+  confirmation_title: ''
   confirmation_message: 'Thank you for applying.'
   confirmation_url: ''
   confirmation_attributes: {  }
@@ -128,6 +132,8 @@ settings:
   limit_total_message: ''
   limit_user: null
   limit_user_message: ''
+  purge: none
+  purge_days: null
   entity_limit_total: null
   entity_limit_user: null
   results_disabled: false

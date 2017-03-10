@@ -7,7 +7,7 @@
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\webform\Entity\Webform;
-use Drupal\webform\Utility\WebformTidy;
+use Drupal\webform\Utility\WebformYaml;
 use Drupal\Core\Serialization\Yaml;
 use Drupal\webform\Utility\WebformElementHelper;
 
@@ -37,12 +37,6 @@ function webform_form_config_translation_add_form_alter(&$form, FormStateInterfa
       $translation_value = trim(Yaml::encode($translation_elements));
 
       _webform_form_config_translate_add_form_alter_yaml_element($config_element['elements'], $source_value, $translation_value);
-
-
-      $form['inputs'] = [
-        '#type' => 'textarea',
-        '#parents' => ["translation", "config_names", "webform.webform.test_translation", "description"],
-      ];
 
       $config_element['elements']['translation']['#description'] = t('Please note: Custom properties will be automatically removed.');
       $form_state->set('webform_config_name', $config_name);
@@ -125,7 +119,7 @@ function _webform_form_config_translate_add_form_alter_yaml_element(array &$elem
   $element['source']['value'] = [
     '#type' => 'webform_codemirror',
     '#mode' => 'yaml',
-    '#value' => WebformTidy::tidy($source_value ?: trim(strip_tags($element['source']['#markup']))),
+    '#value' => WebformYaml::tidy($source_value ?: trim(strip_tags($element['source']['#markup']))),
     '#disabled' => TRUE,
     '#attributes' => ['readonly' => TRUE],
   ];

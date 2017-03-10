@@ -1,16 +1,14 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\panelizer\Plugin\AddDefaultLinkDeriver.
- */
-
 namespace Drupal\panelizer\Plugin;
 
 use Drupal\Component\Plugin\Derivative\DeriverBase;
 use Drupal\Core\Plugin\Discovery\ContainerDeriverInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ *
+ */
 class AddDefaultLinkDeriver extends DeriverBase implements ContainerDeriverInterface {
 
   /**

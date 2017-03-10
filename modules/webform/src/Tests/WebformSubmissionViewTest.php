@@ -19,13 +19,25 @@ class WebformSubmissionViewTest extends WebformTestBase {
    *
    * @var array
    */
-  protected static $modules = ['system', 'block', 'filter', 'node', 'user', 'webform', 'webform_test'];
+  protected static $modules = ['filter', 'node', 'webform'];
+
+  /**
+   * Webforms to load.
+   *
+   * @var array
+   */
+  protected static $testWebforms = ['test_element'];
 
   /**
    * {@inheritdoc}
    */
   public function setUp() {
     parent::setUp();
+
+    // Create users.
+    $this->createUsers();
+
+    // Create filters.
     $this->createFilters();
   }
 

@@ -16,6 +16,7 @@ use Drupal\webform\WebformInterface;
  * @WebformElement(
  *   id = "webform_likert",
  *   label = @Translation("Likert"),
+ *   description = @Translation("Provides a form element where users can respond to multiple questions using a <a href=""https://en.wikipedia.org/wiki/Likert_scale"">Likert</a> scale."),
  *   category = @Translation("Options elements"),
  *   multiline = TRUE,
  *   composite = TRUE,
@@ -38,7 +39,7 @@ class WebformLikert extends WebformElementBase {
       // Form validation.
       'required' => FALSE,
       // Submission display.
-      'format' => $this->getDefaultFormat(),
+      'format' => $this->getItemDefaultFormat(),
       // Likert settings.
       'questions' => [],
       'questions_randomize' => FALSE,
@@ -74,8 +75,8 @@ class WebformLikert extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function formatHtml(array &$element, $value, array $answers = []) {
-    $format = $this->getFormat($element);
+  public function formatHtmlItem(array &$element, $value, array $answers = []) {
+    $format = $this->getItemFormat($element);
     switch ($format) {
       case 'raw':
         $items = [];
@@ -155,13 +156,13 @@ class WebformLikert extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function formatText(array &$element, $value, array $answers = []) {
+  public function formatTextItem(array &$element, $value, array $answers = []) {
     // Return empty value.
     if ($value === '' || $value === NULL || (is_array($value) && empty($value))) {
       return '';
     }
 
-    $format = $this->getFormat($element);
+    $format = $this->getItemFormat($element);
     switch ($format) {
       case 'raw':
         $list = [];
@@ -169,7 +170,7 @@ class WebformLikert extends WebformElementBase {
           $answer_value = (isset($value[$question_key])) ? $value[$question_key] : NULL;
           $list[] = "$question_key: $answer_value";
         }
-        return implode("\n", $list);
+        return implode(PHP_EOL, $list);
 
       default:
       case 'value':
@@ -181,7 +182,7 @@ class WebformLikert extends WebformElementBase {
           $answer_text = WebformOptionsHelper::getOptionText($answer_value, $element['#answers']);
           $list[] = "$question_label: $answer_text";
         }
-        return implode("\n", $list);
+        return implode(PHP_EOL, $list);
 
     }
   }
@@ -199,9 +200,14 @@ class WebformLikert extends WebformElementBase {
    * {@inheritdoc}
    */
   public function buildExportOptionsForm(array &$form, FormStateInterface $form_state, array $export_options) {
+    parent::buildExportOptionsForm($form, $form_state, $export_options);
+    if (isset($form['likert'])) {
+      return;
+    }
+
     $form['likert'] = [
       '#type' => 'details',
-      '#title' => $this->t('Likert questions and answers'),
+      '#title' => $this->t('Likert questions and answers options'),
       '#open' => TRUE,
       '#weight' => -10,
     ];
@@ -247,15 +253,15 @@ class WebformLikert extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function getDefaultFormat() {
+  public function getItemDefaultFormat() {
     return 'list';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getFormats() {
-    return parent::getFormats() + [
+  public function getItemFormats() {
+    return parent::getItemFormats() + [
       'list' => $this->t('List'),
       'table' => $this->t('Table'),
     ];
@@ -307,11 +313,11 @@ class WebformLikert extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function getTestValue(array $element, WebformInterface $webform) {
+  public function getTestValues(array $element, WebformInterface $webform, array $options = []) {
     $value = [];
     foreach ($element['#questions'] as $key => $question) {
       $keys = array_keys($element['#answers']);
-      $value[$key] = $keys[array_rand($keys)];
+      $value[$key] = ($options['random']) ? $keys[array_rand($keys)] : reset($keys);
     }
     return [$value];
   }
