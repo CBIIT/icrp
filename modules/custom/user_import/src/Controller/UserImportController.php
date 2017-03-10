@@ -31,11 +31,31 @@ class UserImportController {
    *   An associative array of values from the filename keyed by new uid.
    */
   public static function processUpload(File $file, array $config) {
-    $handle = fopen($file->destination, 'r');
+    $file = fopen($file->destination, 'r');
     $created = 0;
+     $memory_size = 1024; //1 Meg
+    \Drupal::logger('user import')->notice('processUpload()');
+      while(! feof($file)) {
+          $row = fgetcsv($file, $memory_size, "|");
+          // \Drupal::logger('user import')->notice(print_r($row, true));
+          drupal_set_message("$created: ".print_r($row, true));
+          if($created > 0) {
+              $values = self::prepareRow($row, $config);
+                  //if ($uid = self::createUser($values)) {
+                  if ($uid = self::createUserDrupal8($values)) {
+                      \Drupal::logger('user import')->notice("$created");
+                      //$created[$uid] = $values;
+                  }
 
+          }
+          $created++;
+      }
+
+      fclose($file);
+/*
+ *
     while ($row = fgetcsv($handle, 2000, "|")) {
-      drupal_set_message(print_r($row, true));
+       \Drupal::logger('user import')->notice('row: '.print_r($row));
       if ($values = self::prepareRow($row, $config)) {
         if ($uid = self::createUser($values)) {
             $created++;
@@ -43,8 +63,9 @@ class UserImportController {
         }
       }
     }
+*/
 
-    return $created;
+    return $created-1;
   }
 
   /**
@@ -60,7 +81,7 @@ class UserImportController {
    * @return array
    *   New user values suitable for User::create().
    */
-  public static function prepareRow(array $row, array $config, &$organization) {
+  public static function prepareRow(array $row, array $config) {
       /* USERNAME */
     $preferred_username = (strtolower($row[0] .".". $row[1]));
     $i = 0;
@@ -73,8 +94,8 @@ class UserImportController {
 
     //Add either Partner or Manager role.  Or if NULL then no role
     $roles = array();
-    if($row[4] != "NULL") {
-        $roles = array($row[4]);
+    if(strlen($row[4]) > 0  && strcmp($row[4], "NULL") !=0) {
+        $roles = array(strtolower($row[4]));
     }
 
     //Change row 5 to Active if Approved
@@ -84,19 +105,22 @@ class UserImportController {
 
     //STATUS - Drupal status is either Active or Blocked
     $status = ($row[5] == "Active") ? 1 :0;
-    $organization = row[3];
-    return [
+    $organization = $row[3];
+    $user = [
       'uid' => NULL,
       'name' => $username,
       'field_first_name' => $row[0],
       'field_last_name' => $row[1],
       'pass' => NULL,
-      'mail' => "INVALID.".$row[2],
+      'mail' => $row[2],
       'status' => $status,
       'created' => REQUEST_TIME,
       'roles' => array_values($roles),
-      'membership_status' => $row[5]
+      'field_membership_status' => $row[5],
+       'field_organization' => $row[3]
     ];
+
+    return $user;
   }
 
   /**
@@ -121,6 +145,71 @@ class UserImportController {
    * @return \Drupal\user\Entity\User
    *
    */
+  private static function createUserDrupal8($values) {
+      // http://drupal8.ovh/en/tutoriels/13/create-a-user-account-programmatically-drupal-8
+      ini_set('memory_limit', '256M');
+      $language = \Drupal::languageManager()->getCurrentLanguage()->getId();
+      $user = \Drupal\user\Entity\User::create();
+
+      //Mandatory settings
+      $user->setPassword('');
+      $user->enforceIsNew();
+      $user->setEmail($values['mail']);
+      $user->setUsername($values['name']);//This username must be unique and accept only a-Z,0-9, - _ @ .
+
+//Optional settings
+//      $user->set("init", 'email');
+      $user->set("langcode", $language);
+      $user->set("preferred_langcode", $language);
+      $user->set("preferred_admin_langcode", $language);
+      //$user->set("setting_name", 'setting_value');
+      if($values['status'] ==1 ) {
+          $user->activate();
+      }
+      $user->set("field_first_name", $values['field_first_name']);
+      $user->set("field_last_name", $values['field_last_name']);
+      $user->set("field_membership_status", $values['field_membership_status']);
+      foreach ($values['roles'] as $assign_role) {
+          if($assign_role === "manager") {
+              $user->addRole("manager");
+          }
+          if($assign_role === "partner") {
+              $user->addRole("partner");
+          }
+      }
+    //Look up Organization $nid
+      \Drupal::logger('user import')->notice("Looking for: ".$values['field_organization']);
+
+      $query = \Drupal::entityQuery('node')
+          ->condition('status', 1, '=')
+          ->condition('type', 'organization', '=')
+          ->condition('title', $values['field_organization'], '=');
+
+      $nids = $query->execute();
+      \Drupal::logger('user import')->notice("nids = ".print_r($nids, true));
+      //drupal_set_message("nids = ".print_r($nids, true));
+      $nid = 0;
+      foreach($nids as $key => $value) {
+          //drupal_set_message($key." => ".$value);
+          $nid = $value;
+      }
+      if($nid != 0) {
+          //drupal_set_message("Winner: ".$nid);
+          $user->set("field_organization", $nid);
+      }
+
+      //$user->set("field_organization", $values['field_organization']);   foreach ($nids as $nid) {
+/*      foreach ($node_links[$nid] as $mlid => $link) {
+          $node_links[$nid][$mlid]['access'] = TRUE;
+      }
+*/
+
+//Save user
+
+      $res = $user->save();
+      unset($user);
+
+  }
   private function createUser($values) {
     $user = User::create($values);
 
@@ -130,6 +219,7 @@ class UserImportController {
       if ($user->save()) {
           $uid = $user->id();
           addOrganization($uid, $organization);
+          unset($user);
         return $uid;
       }
     }

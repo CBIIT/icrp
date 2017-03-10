@@ -45,7 +45,6 @@
 #library-search {
   background: #FBFBFB;
   margin: 0px 0px 1em;
-  min-height: 38.5em;
 }
 #library-search .input-group {
   border-spacing: 0px;
@@ -88,27 +87,22 @@
   margin: 0px 1em 1em;
 }
 #library-tree {
-  max-height: 100%;
   overflow: auto;
   padding: 5px 0px 0px;
   width: 100%;
 }
-#library-management {
+#library-management,
+#library-management2 {
   padding: 1em;
-}
-#library-management > * {
-  margin: 5px 0px;
+  text-align: center;
 }
 #library-management > *:before,
 #library-management2 > *:before {
   content: '';
   display: block;
   float: left;
-  margin-right: 5px;
-}
-#library-management > *:before,
-#library-management2 > *:before {
   height: 1.4em;
+  margin-right: 5px;
   width: 1.45em;
 }
 #library.admin #library-management .admin,
@@ -116,7 +110,10 @@
 #library.admin #library-management2 .admin,
 #library.partner #library-management2 .partner {
   display: inline-block;
-  margin-left: 1em;
+}
+#library #library-management > *,
+#library #library-management2 > * {
+  margin: 5px 0px 5px 1em;
 }
 #library #library-management > *:first-child,
 #library #library-management2 > *:first-child {
@@ -130,17 +127,16 @@
   background: url('folder-edit.png') no-repeat 1px 0px/contain;
 }
 #library-display {
-  min-height: 38.5em;
   padding: 1em 1em 5em;
 }
 #library-display > div:first-child {
-  min-height: 32em;
+  overflow: auto;
 }
 #library-display .frame {
   overflow: auto;
   width: 100%;
 }
-#library-display .frame.preview .item-wrapper{
+#library-display .frame.preview .item-wrapper {
   float: left;
   max-width: 100%;
   width: 100%;
@@ -159,6 +155,7 @@
   white-space: nowrap;
 }
 #library-display .frame.preview .item img {
+  display: block;
   float: left;
   height: 200px;
   margin: 0px 10px 10px;
@@ -226,12 +223,6 @@
 #library-display .frame .item.archived a {
   color: grey;
 }
-#library-management2 {
-  bottom: 2em;
-  position: absolute;
-  text-align: center;
-  width: 100%;
-}
 #library-upload-file:before {
   background: url('file-upload.png') no-repeat 1px 0px/contain;
 }
@@ -291,12 +282,21 @@
 @media (min-width: 1200px) {
   #library-search {
     float: left;
+    height: 43em;
     margin: 0px 1em 0px 0px;
     width: 21em;
   }
+  #library-tree {
+    height: 30.5em;
+  }
   #library-display {
+    height: 43em;
     overflow: hidden;
     position: relative;
+  }
+  #library-display > div:first-child {
+    height: 36.5em;
+    overflow: auto;
   }
   #library-display .frame.preview .item-wrapper{
     float: left;
@@ -305,5 +305,19 @@
   }
   #library-display .frame.preview .item {
     width: 32em;
+  }
+}
+@media (max-width: 479px) {
+  #library-display .frame.preview .item img {
+    float: none;
+    margin: 0px auto 10px;
+  }
+  #library-display .frame.preview .item p {
+      margin-bottom: 0px;
+      padding: 10px 10px 0px;
+  }
+  #library-display .frame.preview .item div {
+      position: initial;
+      padding: 10px;
   }
 }
