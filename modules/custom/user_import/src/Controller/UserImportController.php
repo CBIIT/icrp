@@ -189,7 +189,6 @@ class UserImportController {
           ->condition('title', $values['field_organization'], '=');
 
       $nids = $query->execute();
-      \Drupal::logger('user import')->notice("nids = ".print_r($nids, true));
       //drupal_set_message("nids = ".print_r($nids, true));
       $nid = 0;
       foreach($nids as $key => $value) {
@@ -199,6 +198,9 @@ class UserImportController {
       if($nid != 0) {
           //drupal_set_message("Winner: ".$nid);
           $user->set("field_organization", $nid);
+      } else {
+          \Drupal::logger('user import')->warning("ORGANIZATION Not found: " . $values['field_organization']);
+          drupal_set_message("ORGANIZATION Not found: " . $values['field_organization'], 'warning');
       }
 
       //$user->set("field_organization", $values['field_organization']);   foreach ($nids as $nid) {
