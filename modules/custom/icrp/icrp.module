@@ -247,11 +247,13 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
 function populateOrganizations() {
     //Example: http://drupal.stackexchange.com/questions/128274/consuming-restful-web-services
     //drupal_set_message("populateOrganizations");
-
+    //Disabled for now.
+    return;
     /*
      * STEP 1: Write an AJAX call to retrieve url above
      * Search Drupal 8 Ajax call
      */
+
     $organizations = getRestOrganizations();
 
     //Decode json and populate entity.
