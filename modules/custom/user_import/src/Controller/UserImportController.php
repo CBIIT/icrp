@@ -102,14 +102,17 @@ class UserImportController {
     if($row[5] == "Approved") {
         $row[5] = "Active";
     }
+    if($row[5] == "Block") {
+      $row[5] = "Blocked";
+    }
 
     //STATUS - Drupal status is either Active or Blocked
     $status = ($row[5] == "Active") ? 1 :0;
     $organization = $row[3];
     $user = [
       'uid' => NULL,
-      'name' => $username,
-      'field_first_name' => $row[0],
+      'name' => mb_convert_encoding($username, "UTF-8", "auto"),
+      'field_first_name' =>  mb_convert_encoding($row[0], "UTF-8", "auto"),
       'field_last_name' => $row[1],
       'pass' => NULL,
       'mail' => $row[2],
