@@ -191,7 +191,22 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
     //kint("Hello");
     //kint(print_r(array, true));
 
+
     switch ($form_id) {
+        case 'block_content_basic_edit_form';
+            if (strpos($form['info']['widget']['0']['value']['#default_value'],"Partner Home") !== false) {
+                unset($form['revision_information']);                     // Remove Revisions section from block edit page
+                unset($form['actions']['delete']);                        // Remove Delete button from block edot page
+                unset($form['info']);                                     // Remove ablity to edit block title
+                $form['body']['widget']['0']['#title'] = $form['#title']; // Set Block Edit heading
+                $form['actions']['cancel'] = array(                       // Add Cancel button
+                    '#type'   => 'button',
+                    '#value'  => t('Cancel'),
+                    '#attributes' => array('onClick' => 'history.go(-1); return true;'),
+                    '#weight' => 100,
+                );
+            }
+            break;
         case 'user_register_form':
             //drupal_set_message("user_register_form");
             populateOrganizations();
