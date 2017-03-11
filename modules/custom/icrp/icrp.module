@@ -162,7 +162,8 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             break;
         case 'user_register_form':
             //drupal_set_message("user_register_form");
-            \Drupal\icrp\Importer\OrganizationRestClient::populateOrganizations();
+            //\Drupal\icrp\Importer\OrganizationRestClient::populateOrganizations();
+            OrganizationRestClient::populateOrganizations();
             break;
         case 'user_login':
         case 'user_login_form':

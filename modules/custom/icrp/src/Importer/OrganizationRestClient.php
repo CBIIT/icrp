@@ -12,10 +12,13 @@ use \Drupal\node\Entity\Node;
 class OrganizationRestClient {
     /*
     * Add organizatins from a remote REST service to the organization entity.
-    *
+    *  * Example usage:
+    * @code
+    * \Drupal\icrp\Importer\OrganizationRestClient::populateOrganization();
+    * @endcode
     */
     public static function populateOrganizations() {
-        drupal_set_message("populateOrganizations");
+        //drupal_set_message("populateOrganizations");
         /*
         * STEP 1: Write an AJAX call to retrieve url above
         * Search Drupal 8 Ajax call
@@ -23,10 +26,11 @@ class OrganizationRestClient {
 
         $organizations = self::getRestOrganizations();
         //\Drupal::logger('icrp')->notice($organizations);
-        drupal_set_message("gettype(organizations): ".gettype($organizations));
+        //drupal_set_message("gettype(organizations): ".gettype($organizations));
 
         /*
         * STEP 2: Save into enitity type Organization
+        * Ignore if array is empty
         */
         if (sizeof($organizations) > 0) {
             self::checkOrganizations($organizations);
@@ -35,7 +39,8 @@ class OrganizationRestClient {
 
     /*
     * Returns list of organizations from a rest service
-    *
+    * @returns array $organizations
+    *   If the rest service does not work an empty array is returned.
     */
     private static function getRestOrganizations() {
         //Example: http://drupal.stackexchange.com/questions/128274/consuming-restful-web-services
@@ -69,11 +74,12 @@ class OrganizationRestClient {
             return array();
         }
 
-//drupal_set_message($status);
+        //drupal_set_message($status);
 
         $output = $result->getBody();
         //drupal_set_message($output);
         /* "auto" is expanded to "ASCII,JIS,UTF-8,EUC-JP,SJIS" */
+        /*
         $output = '
         [{"ID":"1","Name":"ACS - American Cancer Society is the best","IsActive":"0"},
         {"ID":"2","Name":"AICR (USA) - American Institute for Cancer Research","IsActive":"0"},
@@ -84,45 +90,47 @@ class OrganizationRestClient {
         {"ID":"7","Name":"CAC2 - Taking over this org.","IsActive":"0"},
         {"ID":"8","Name":"CAC2 - CSCN Alliance","IsActive":"0"},
         {"ID":"9","Name":"CAC2 - Luck2Tuck","IsActive":"1"},
-        {"ID":"123","Name":"Adding a NEW ONE here.  How cool.","IsActive":"1"},
+        {"ID":"11","Name":"We got this.","IsActive":"1"},
         {"ID":"10","Name":"CAC2 - Noah\'s Light","IsActive":"1"}]';
+        */
         //drupal_set_message($output);
-        $output = json_decode($output, true);
+        $organizations = json_decode($output, true);
 
-        return $output;
+        return $organizations;
     }
 
     /*
     * Check organizations enitty to see if any organizations need to be added to the organization entity
+     * @params array $organizations
     */
     private static function checkOrganizations(array $organizations) {
-
         // Get a list of current organizations
-
         $sql = "SELECT field_organization_id_value FROM icrp.node__field_organization_id;";
         $current_organization_ids = db_query($sql)->fetchCol();
-       // drupal_Set_message(print_r($current_organization_ids, true));
+        //drupal_set_message(print_r($current_organization_ids, true));
 
         // If Organization doesn't exist then save into database
 
         foreach ($organizations as $key => $organization) {
             $organization_id = $organization["ID"];
-
-            drupal_set_message($organization['ID'].", ".$organization['Name'].", ".$organization['IsActive']);
+            //drupal_set_message($organization['ID'].", ".$organization['Name'].", ".$organization['IsActive']);
             //Look up Organization $nid
             \Drupal::logger('icrp')->notice("Looking for: ".$organization['ID']);
+
             if (!in_array(intval($organization['ID']), $current_organization_ids)) {
-               // drupal_set_message("Adding: org");
+                //drupal_set_message("Adding: org: ".$organization['ID']);
                 self::addOrganization($organization);
             } else {
-               // drupal_set_message("Update org");
+                //drupal_set_message("Update org: ".$organization['ID']);
                 self::updateOrganization($organization);
             }
+
         }
     }
 
     /*
-    *  Update an exisiting organization to organization entity.
+    * Update an existing organization to organization entity.
+    * @param array $organization
     */
     private static function updateOrganization(array $organization) {
         //Lookup node by organization ID
@@ -133,18 +141,18 @@ class OrganizationRestClient {
         //drupal_set_message("nids = ".print_r($nids, true));
         $nid = 0;
         foreach($nids as $key => $value) {
-            drupal_set_message($key." => ".$value);
+            //drupal_set_message($key." => ".$value);
             $nid = $value;
         }
         if($nid != 0) {
-            \Drupal::logger('icrp')->notice("Updataing Organization: ID: " . $organization['ID']);
+            //\Drupal::logger('icrp')->notice("Updataing Organization: ID: " . $organization['ID']);
             //drupal_set_message("Updataing Organization: ID: " . $organization['ID'], 'notice');
             //drupal_set_message("Organization Details: " .print_r($organization, true), 'notice');
             $node = Node::load($nid);
             $node->set('title', $organization['Name']);
             $node->set('status', intval($organization['IsActive']));
             $node->save();
-            //drupal_set_message("SAVED A NODE:".print_r($node, true));
+            //drupal_set_message("SAVED A NODE:");
 
         } else {
             \Drupal::logger('icrp')->warning("Organization Not found: ID:" . $organization['ID']);
@@ -155,11 +163,11 @@ class OrganizationRestClient {
     }
     /*
     * Add new organization to organization entity.
+    * @param array $organization
     */
     private static function addOrganization(array $organization) {
 
         \Drupal::logger('icrp')->notice("Adding " . $organization['Name'] . " to organization.");
-
         $node = Node::create(array('title' => $organization['Name'],
                                     'field_organization_id' => $organization['ID'],
                                     'status' => $organization['IsActive'],
