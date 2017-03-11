@@ -47,7 +47,6 @@ class MyProfileForm extends FormBase
      *   The password service.
      */
     public function __construct() {
-        populateOrganizations();
         $uid = \Drupal::currentUser()->id();
         $this->entityManager = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
         $this->passwordHasher = new PhpassHashedPassword(1);

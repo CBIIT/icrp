@@ -598,9 +598,12 @@ div#cso-document-container > div > h1 {
 }
 .newsletter-image{
     padding:15px;
-    width:175px;
+    width:190px;
    
 }
 .newsletter-description{
     padding:5px;
+}
+.newsletter-image img {
+    box-shadow: 10px 10px 5px #888888;
 }

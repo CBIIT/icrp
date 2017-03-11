@@ -2,8 +2,7 @@
 
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Symfony\Component\HttpFoundation\Request;
-use \Drupal\node\Entity\Node;
+use \Drupal\icrp\Importer\OrganizationRestClient;
 
 /*
  * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
@@ -45,46 +44,17 @@ function icrp_user_login($account) {
 }
 */
 
-function mod_user_login($account) {
+/*
+function icrp_user_login($account) {
+
+    drupal_Set_message("I control you.");
+
     $url = "/home";
     $response = new Symfony\Component\HttpFoundation\RedirectResponse($url);
     $response->send();
     return;
 }
-/*
-function get_user($uuid) {
-    $user = array('first name' => "Chris", 'last_name' => "Kneisler");
-    return $user;
-}
-
-Home on navigation
-Order of navigation, nav, breadcrumb & status
-Remove Library page
-
 */
-
-function hook_form_yamlform_submission_update_my_profile_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-    // Modification for the form with the given form ID goes here. For example, if
-    // FORM_ID is "user_register_form" this code would run only on the user
-    // registration form.
-
-    // Add a checkbox to registration form about agreeing to terms of use.
-    /*
-    $form['terms_of_use'] = array(
-        '#type' => 'checkbox',
-        '#title' => t("I agree with the website's terms and conditions."),
-        '#required' => TRUE,
-    );
-    */
-}
-
-/**
- * @param $variables
- */
-function icrp_preprocess_my_element(&$variables) {
-    drupal_set_message("In preprocess");
-    //$variables['attributes']['id'] = 'my_blue_element_altered_id';
-}
 
 /**
  * Implements hook_theme().
@@ -150,22 +120,6 @@ function icrp_hook_form_alter(array &$form, FormStateInterface $form_state, $for
     }
 }
 
-//drupal_set_message("My Goodness");
-
-function hook_form_user_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-    // Modification for the form with the given form ID goes here. For example, if
-    // FORM_ID is "user_register_form" this code would run only on the user
-    // registration form.
-
-    // Add a checkbox to registration form about agreeing to terms of use.
-    /*
-    $form['terms_of_use'] = array(
-        '#type' => 'checkbox',
-        '#title' => t("I agree with the website's terms and conditions."),
-        '#required' => TRUE,
-    );
-    */
-}
 /*
 function icrp_page_alter(&$) {
 
@@ -185,23 +139,22 @@ function icrp_views_pre_execute(ViewExecutable $view) {
 }
 */
 
-function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id)
+{
 
-    //drupal_set_message("Form ID: ".$form_id);
-    //kint("Hello");
-    //kint(print_r(array, true));
-
+    //drupal_set_message("Form ID: " . $form_id);
+    //kint(print_r($form, true));
 
     switch ($form_id) {
         case 'block_content_basic_edit_form';
-            if (strpos($form['info']['widget']['0']['value']['#default_value'],"Partner Home") !== false) {
+            if (strpos($form['info']['widget']['0']['value']['#default_value'], "Partner Home") !== false) {
                 unset($form['revision_information']);                     // Remove Revisions section from block edit page
                 unset($form['actions']['delete']);                        // Remove Delete button from block edot page
                 unset($form['info']);                                     // Remove ablity to edit block title
                 $form['body']['widget']['0']['#title'] = $form['#title']; // Set Block Edit heading
                 $form['actions']['cancel'] = array(                       // Add Cancel button
-                    '#type'   => 'button',
-                    '#value'  => t('Cancel'),
+                    '#type' => 'button',
+                    '#value' => t('Cancel'),
                     '#attributes' => array('onClick' => 'history.go(-1); return true;'),
                     '#weight' => 100,
                 );
@@ -209,148 +162,11 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             break;
         case 'user_register_form':
             //drupal_set_message("user_register_form");
-            populateOrganizations();
+            \Drupal\icrp\Importer\OrganizationRestClient::populateOrganizations();
             break;
-        case 'views-exposed-form':
-            $form['terms_of_use'] = array(
-                '#type' => 'checkbox',
-                '#title' => t("I agree with the website's terms and conditions."),
-                '#required' => TRUE,
-            );
         case 'user_login':
         case 'user_login_form':
             //$form['link'] = array('#markup' => t("<div style=padding:20px;'><a href='/user/password'>Forgot Password?</a></div>"));
             break;
     }
-    //kint($form);
-    /*
-        drupal_set_message("icrp_form_alter: ".$form_id);
-        $form['#submit'][] = '_MODULE_goto';
-        $form['terms_of_use'] = array(
-            '#type' => 'checkbox',
-            '#title' => t("I agree with the website's terms and conditions."),
-            '#required' => TRUE,
-        );
-
-        if ($form_id == 'user_form') {
-            $form['#submit'][] = '_MODULE_goto';
-            $form['terms_of_use'] = array(
-                '#type' => 'checkbox',
-                '#title' => t("I agree with the website's terms and conditions."),
-                '#required' => TRUE,
-            );
-        }
-
-        if (isset($form['type']) && $form['type']['#value'] . '_node_settings' == $form_id) {
-            $upload_enabled_types = \Drupal::config('mymodule.settings')->get('upload_enabled_types');
-            $form['workflow']['upload_' . $form['type']['#value']] = array(
-                '#type' => 'radios',
-                '#title' => t('Attachments'),
-                '#default_value' => in_array($form['type']['#value'], $upload_enabled_types) ? 1 : 0,
-                '#options' => array(t('Disabled'), t('Enabled')),
-            );
-            // Add a custom submit handler to save the array of types back to the config file.
-            $form['actions']['submit']['#submit'][] = 'mymodule_upload_enabled_types_submit';
-        }
-    */
-}
-
-/*
- * Add organizatins from a remote REST service to the organization entity.
- *
- */
-function populateOrganizations() {
-    //Example: http://drupal.stackexchange.com/questions/128274/consuming-restful-web-services
-    //drupal_set_message("populateOrganizations");
-    //Disabled for now.
-    return;
-    /*
-     * STEP 1: Write an AJAX call to retrieve url above
-     * Search Drupal 8 Ajax call
-     */
-
-    $organizations = getRestOrganizations();
-
-    //Decode json and populate entity.
-    /*
-     * STEP 2: Save into enitity type Organization
-     */
-    if(sizeof($organizations) > 0) {
-        checkOrganizations($organizations);
-    }
-
-
-}
-
-/*
- * Returns list of organizations from a rest service
- *
- */
-function getRestOrganizations() {
-    //Use ajax to pull url
-    //TODO: the host should just poit to self.  Maybe exclude host and just send to /getFundingOrgNames
-
-    //$host = "icrpartnership-test.org";
-    $host = \Drupal::request()->getSchemeAndHttpHost();
-    //$host = "https://icrpartnership-dev.org";
-    //drupal_set_message($host);
-    $url = $host."/getFundingOrgNames";
-    \Drupal::logger('icrp')->notice("getRestOrganization pulling url: " . $url);
-    try {
-        $client = \Drupal::service('http_client');
-        $result = $client->get($url, ['Accept' => 'application/json']);
-        $status = $result->getStatusCode();
-        //drupal_set_message($status);
-
-        if ($status != 200) {
-            \Drupal::logger('icrp')->warning("getRestOrganization failed: Status Code: " . $status);
-            return array();
-        }
-    } catch(Exception $e) {
-        \Drupal::logger('icrp')->warning("Rest Service failed: " . $e->getMessage());
-        return array();
-
-    }
-
-    //drupal_set_message($status);
-
-    $output = $result->getBody();
-    //drupal_set_message($output);
-    /* "auto" is expanded to "ASCII,JIS,UTF-8,EUC-JP,SJIS" */
-    //$output = mb_convert_encoding($output, "UTF-8", "auto");
-
-    return json_decode($output, true);
-}
-/*
- * Check organizations enitty to see if any organizations need to be added to the organization entity
- */
-function checkOrganizations($organizations) {
-    // Get a list of current organizations
-
-    $sql = "select title from node_field_data 
-            where status = 1 and type = 'organization' 
-            order by title ASC;";
-    $current_organizations = db_query($sql)->fetchCol();
-    //drupal_Set_message(print_r($current_organizations, true));
-
-    // If Organization doesn't exist then save into database
-    foreach($organizations as $key => $organization_name) {
-        if(!in_array($organization_name, $current_organizations)) {
-            //drupal_set_message("Adding: ".strlen($organization_name)." ".$organization_name);
-            addOrganization($organization_name);
-        } else {
-            //drupal_set_message("Skipping: ".$organization_name);
-        }
-    }
-}
-
-/*
- * Add new organization to organization entity.
- */
-function addOrganization($organization_name) {
-
-    \Drupal::logger('icrp')->notice("Adding ".$organization_name." to organization.");
-
-    $node = Node::create(array('title' => $organization_name, 'status' => '1', 'type' => 'organization'));
-    $node->save();
 }
