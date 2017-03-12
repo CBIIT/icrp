@@ -565,6 +565,7 @@ div#cso-document-container > div > h1 {
 @media only screen and (min-width : 1450px) {
     #navbar, .footer, .main-container {
         width:1440px;
+        max-width:1440px;
     }
     .main-container {
         padding-left:0px;
