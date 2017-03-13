@@ -3811,6 +3811,11 @@ button.close {
 .navbar-inverse .dropdown-menu > li > a:focus {
     color: #ffffff;
 }
+.navbar-inverse .dropdown-menu > li.disabled > a {
+    color: #999999;
+    font-style: italic;
+}
+
 .navbar-inverse .dropdown-menu > li > a:hover,
 .navbar-inverse .dropdown-menu > .active > a,
 .navbar-inverse .dropdown-menu > .active > a:hover {

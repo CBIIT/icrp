@@ -234,6 +234,19 @@ header {
 #become-a-partner-wells > div > div > p:last-child {
     margin-bottom:10px;
 }
+/* h2 titles for contextual-region */
+.contextual-region > h2 {
+    color: black;
+    font-size:18px;
+}
+/* FAQ Add */
+#node-faq-form > div > div.layout-region-node-secondary {
+    display:none;
+    visability:hidden;
+}
+.layout-region-node-secondary {
+    display:none;
+}
 /* alert */
 /*
 .alert {
