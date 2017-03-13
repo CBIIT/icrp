@@ -4,8 +4,12 @@
 -----------------------------
 --DROP Table UploadWorkBook 
 --GO
+PRINT '******************************************************************************'
 PRINT '***************************** Bulk Insert ************************************'
+PRINT '******************************************************************************'
 
+SET NOCOUNT ON;  
+GO 
 
 CREATE TABLE UploadWorkBook (	
 	AwardCode NVARCHAR(50),
@@ -38,6 +42,7 @@ CREATE TABLE UploadWorkBook (
 	State VARCHAR(3),
 	Country VARCHAR(3),
 	PostalZipCode VARCHAR(15),
+	InstitutionOfficeUseOnly VARCHAR(4000),
 	Latitute decimal(9,6),
 	Longitute decimal(9,6),
 	GRID VARCHAR(50),
@@ -51,7 +56,7 @@ CREATE TABLE UploadWorkBook (
 GO
 
 BULK INSERT UploadWorkBook
-FROM 'C:\icrp\database\DataUpload\ICRP_DataSubmission_CA.csv'  --ICRP_DataSubmissionWorkbook_CA2.csv'
+FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_CA.csv'  --ICRP_DataSubmissionWorkbook_CA2.csv'
 WITH
 (
 	FIRSTROW = 2,
@@ -98,7 +103,9 @@ WHERE AltId = '18497_1'
 /***********************************************************************************************/
 -- Validation
 /***********************************************************************************************/
-PRINT '***************************** Data Integrity Check ************************************'
+PRINT '******************************************************************************'
+PRINT '***************************** Data Integrity Check ***************************'
+PRINT '******************************************************************************'
 
 -- Check related project base data
 --drop table #awardCodes
@@ -115,12 +122,14 @@ DECLARE @TotalParentProjects INT
 SELECT @TotalAwardCodes = COUNT(*) FROM #awardCodes
 SELECT @TotalParentProjects = COUNT(*) FROM #parentProjects
 
-
+PRINT 'Checking Total parent projects = total award codes...'
 IF @TotalAwardCodes <> @TotalParentProjects
 BEGIN
   PRINT 'ERROR ==> Total parent projects <> total award codes'
   SELECT 'No parent Category' AS Issue, AwardCode FROM #awardCodes WHERE AwardCode NOT IN (SELECT AwardCode FROM #parentProjects)
 END
+ELSE
+	PRINT 'Checking Total parent projects = total award codes  ==> Pass'
 
 --select * from UploadWorkBook where awardcode='10238_2'
 
@@ -134,6 +143,8 @@ BEGIN
   SELECT DISTINCT 'Missing FundingOrg' AS Issue, FundingOrgAbbr from UploadWorkBook 
 	WHERE FundingOrgAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingOrg)
 END
+ELSE
+	PRINT 'Checking FundingOrg  ==> Pass'
 
 -------------------------------------------------------------------
 -- Check FundingDiv
@@ -145,6 +156,8 @@ BEGIN
  SELECT DISTINCT 'Missing FundingDiv' AS Issue, FundingDivAbbr from UploadWorkBook 
 	WHERE FundingDivAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingDivision)
 END
+ELSE
+	PRINT 'Checking FundingDiv  ==> Pass'
 
 -------------------------------------------------------------------
 -- Check unique Project Funding Altid 
@@ -154,6 +167,8 @@ BEGIN
   PRINT 'ERROR ==> Altid not unique'
  SELECT 'Duplicate Altid' AS Issue, Altid, Count(*) AS Count FROM UploadWorkBook GROUP BY Altid HAVING COUNT(*) > 1
 END
+ELSE
+	PRINT 'Checking unique Project Funding Altid   ==> Pass'
 
 -------------------------------------------------------------------
 -- Check duplicate Project Funding
@@ -162,6 +177,8 @@ IF EXISTS (select AltId, count(*) from UploadWorkBook group by AwardCode, AltId,
 BEGIN
 SELECT 'Duplicate Project Funding' AS Issue, AwardCode,  AltId, BudgetStartDate, BudgetEndDate, count(*) AS Count from UploadWorkBook group by AwardCode, AltId, BudgetStartDate, BudgetEndDate having count(*) >1
 END 
+ELSE
+	PRINT 'Checking duplicate Project Funding   ==> Pass'
 
 -- Check if AwardCodes alreadt exist in ICRP
 --IF EXISTS (select * FROM UploadWorkBook WHERE AwardCode IN (SELECT AwardCode FROM Project) )
@@ -178,7 +195,7 @@ END
 
 -- fix institution data in the UploadWorkBook
 UPDATE UploadWorkBook SET City = 'Montréal' WHERE City IN ('Montreal', 'MontrTal', 'Montr?al')
-UPDATE UploadWorkBook SET City = 'Québec' WHERE City IN ('Quebec', 'QuTbec', 'Qu?bec')
+UPDATE UploadWorkBook SET City = 'Québec' WHERE City IN ('Quebec', 'QuTbec', 'Qu?bec', 'QuÃ©bec')
 UPDATE UploadWorkBook SET City = 'Lévis' WHERE City IN ('LTvis', 'L?vis', 'Levis')
 UPDATE UploadWorkBook SET City = 'Zürich' WHERE City IN ('Zurich')
 UPDATE UploadWorkBook SET City = 'St. Louis' WHERE City IN ('Saint Louis', 'St Louis')
@@ -206,20 +223,19 @@ UPDATE UploadWorkBook SET Institution = 'Eidgenössiche Technische Hochschule (ET
 
 SELECT u.Institution, u.City INTO #missingInst FROM UploadWorkBook u
 LEFT JOIN Institution i ON (u.Institution = i.Name AND u.City = i.City)
-LEFT JOIN InstitutionMapping m ON (u.Institution = m.OldName AND u.City = m.OldCity) OR (u.Institution = m.OldName AND u.City = m.newCity)
+LEFT JOIN InstitutionMapping m ON (u.Institution = m.OldName AND u.City = m.OldCity)-- OR (u.Institution = m.OldName AND u.City = m.newCity)
 WHERE (i.InstitutionID IS NULL) AND (m.InstitutionMappingID IS NULL)
---WHERE i.InstitutionID IS NULL  -- 7286
---select distinct Institution, City from #missingInst
-
 
 IF EXISTS (select * FROM #missingInst)
 BEGIN
-SELECT DISTINCT 'Institution cannot be mapped' AS Issue, w.institution AS 'workbook - Institution Name', w.city AS 'workbook - Institution city'
-FROM (select Institution FROM #missingInst group by Institution, city) m
-LEFT JOIN Institution l ON m.Institution = l.Name
-LEFT JOIN UploadWorkBook w ON m.Institution = w.institution
-ORDER BY  w.institution 
+	SELECT DISTINCT 'Institution cannot be mapped' AS Issue, w.institution AS 'workbook - Institution Name', w.city AS 'workbook - Institution city'
+	FROM (select Institution FROM #missingInst group by Institution, city) m
+	LEFT JOIN Institution l ON m.Institution = l.Name
+	LEFT JOIN UploadWorkBook w ON m.Institution = w.institution
+	ORDER BY  w.institution 
 END 
+ELSE
+	PRINT 'Checking Institution Mapping   ==> Pass'
 
 --select name, city from lu_Institution where name like '%Eidgen%'
 --select distinct institution, city from UploadWorkBook where institution like '%Eidgen?ssiche Technische Hochschule (ETH) Zürich%'
@@ -238,9 +254,9 @@ END
 /***********************************************************************************************/
 -- Import Data
 /***********************************************************************************************/
-
+PRINT '*******************************************************************************'
 PRINT '***************************** Import Data  ************************************'
-
+PRINT '******************************************************************************'
 
 -----------------------------------
 -- Import base Projects
@@ -313,10 +329,10 @@ INSERT INTO ProjectFundingInvestigator ([ProjectFundingID], [LastName],	[FirstNa
 SELECT DISTINCT f.ProjectFundingID, u.PILastName, u.PIFirstName, u.ORCID, u.OtherResearcherID, u.OtherResearcherIDType, 1, ISNULL(inst.InstitutionID,1) AS InstitutionID, u.Institution AS Institution
 FROM UploadWorkBook u
 JOIN ProjectFunding f ON u.AltID = f.AltAwardCode
-LEFT JOIN (SELECT i.InstitutionID, i.Name, i.City, m.OldName, m.oldCity FROM Institution i LEFT JOIN InstitutionMapping m ON i.name = m.newName AND i.City = m.newCity) inst 
-     ON (u.Institution = inst.Name AND u.City = inst.City) OR (u.Institution = inst.OldName AND u.City = inst.OldCity)
+LEFT JOIN (SELECT i.InstitutionID, i.Name, i.City, m.OldName, m.oldCity FROM Institution i LEFT JOIN InstitutionMapping m ON (i.name = m.newName AND i.City = m.newCity) inst 
+     ON (u.Institution = inst.Name AND u.City = inst.City) OR (u.Institution = inst.OldName AND u.City = inst.OldCity) OR (u.Institution = inst.OldName AND u.City = inst.City)
 
-select * from ProjectFundingInvestigator where projectfundingid=64645
+--select * from ProjectFundingInvestigator where projectfundingid=64645
 
 GO
 
@@ -485,9 +501,8 @@ FROM @ptype
 UPDATE DataUploadStatus SET [Status] = 'Complete'
 
 INSERT INTO DataUploadStatus ([PartnerCode],[FundingYear],[Status],[ReceivedDate],[ValidationDate],[UploadToDevDate],[UploadToStageDate],[UploadToProdDate],[Note],[CreatedDate])
-VALUES ('CCRA', '1998-2012', 'Staging', '2/20/2017', '2/20/2017', '2/25/2017',  '2/25/2017', NULL, 'Import CA data', '2/20/2017')
+VALUES ('CCRA', '2005-2012', 'Staging', '2/20/2017', '2/20/2017', '2/25/2017',  '2/25/2017', NULL, 'Import CA data', '2/20/2017')
 
 
-select * from projectfunding f
-join fundingorg o ON f.fundingorgID = o.FundingOrgID
-where o.SponsorCode = 'ccra'
+SET NOCOUNT OFF;  
+GO 
