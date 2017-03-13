@@ -149,7 +149,7 @@ class DatabaseSearchAPIController extends ControllerBase {
         $output = $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    if (sizeof($output) == 0) {
+    if (sizeof($output) == 1) {
       $year = intval(date('Y'));
       $range = range($year, $year - 1);
 
