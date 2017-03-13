@@ -149,6 +149,31 @@ class DatabaseSearchAPIController extends ControllerBase {
         $output = $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    if (sizeof($output) == 0) {
+      $year = intval(date('Y'));
+      $range = range($year, $year - 1);
+
+      $output = [
+        'AwardCode' => NULL,
+        'CSOList' => NULL,
+        'CancerTypeList' => NULL,
+        'CityList' => NULL,
+        'CountryList' => NULL,
+        'FundingOrgList' => NULL,
+        'Institution' => NULL,
+        'ProjectTypeList' => NULL,
+        'StateList' => NULL,
+        'TermSearchType' => NULL,
+        'Terms' => NULL,
+        'piFirstName' => NULL,
+        'piLastName' => NULL,
+        'piORCiD' => NULL,
+
+
+        'YearList' => implode(',', $range)
+      ];
+    }
+
     return $output;
   }
 
