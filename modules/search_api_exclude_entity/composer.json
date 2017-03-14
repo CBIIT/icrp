@@ -1,0 +1,18 @@
+{
+  "name": "drupal/search_api_exclude_entity",
+  "description": "Allow editors to exclude nodes and other entities from Search API indexes.",
+  "type": "drupal-module",
+  "homepage": "https://www.drupal.org/project/search_api_exclude_entity",
+  "authors": [
+    {
+      "name": "Jens Beltofte",
+      "homepage": "https://www.drupal.org/u/beltofte"
+    }
+  ],
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/search_api_exclude_entity",
+    "source": "http://git.drupal.org/project/search_api_exclude_entity.git"
+  },
+  "license": "GPL-2.0+",
+  "require": {}
+}
