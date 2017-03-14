@@ -105,7 +105,7 @@ class OrganizationRestClient {
     */
     private static function checkOrganizations(array $organizations) {
         // Get a list of current organizations
-        $sql = "SELECT field_organization_id_value FROM icrp.node__field_organization_id;";
+        $sql = "SELECT field_organization_id_value FROM node__field_organization_id;";
         $current_organization_ids = db_query($sql)->fetchCol();
         //drupal_set_message(print_r($current_organization_ids, true));
 
