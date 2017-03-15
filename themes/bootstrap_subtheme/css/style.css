@@ -63,8 +63,13 @@ div.main-container > div > section > div > ol {
 }
 #faq-body {
     font-size:18px;
-    margin:25px 100px 0px;
+    margin:25px 50px 0px;
 }
+body {
+    margin-top:0px;
+}
+
+
 /* Breadcrumb */
 /*.breadcrumb {
     background-color:white;
