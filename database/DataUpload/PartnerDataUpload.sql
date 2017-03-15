@@ -208,22 +208,10 @@ UPDATE UploadWorkBook SET Institution = 'École polytechnique de Montréal' WHERE 
 UPDATE UploadWorkBook SET Institution = 'Centre National de la Recherche Scientifique (CNRS), l''INSERM (Institut National de la Santé et de la Recherche Médicale) - UNSA' WHERE Institution like '%Centre National de la Recherche Scientifique (CNRS), %'
 UPDATE UploadWorkBook SET Institution = 'École supérieure de physique et de chimie industrielles (ESPCI) Paris Tech' WHERE Institution like '%École sup?rieure de physique et de chimie industrielles (ESPCI) Paris Tech%'
 UPDATE UploadWorkBook SET Institution = 'Eidgenössiche Technische Hochschule (ETH) Zürich' WHERE Institution like '%Eidgen?ssiche Technische Hochschule (ETH) Zürich%'
---UPDATE UploadWorkBook SET Institution = '' WHERE Institution like '%h%'
---UPDATE UploadWorkBook SET Institution = '' WHERE Institution like '%h%'
---UPDATE UploadWorkBook SET Institution = '' WHERE Institution like '%h%'
---UPDATE UploadWorkBook SET Institution = '' WHERE Institution like '%h%'
---UPDATE UploadWorkBook SET Institution = '' WHERE Institution like '%h%'
---UPDATE UploadWorkBook SET Institution = '' WHERE Institution like '%h%'
---UPDATE UploadWorkBook SET Institution = '' WHERE Institution like '%h%'
---UPDATE UploadWorkBook SET Institution = '' WHERE Institution like '%h%'
-
-
---select Institution, city from UploadWorkBook where Institution like '%cole de technologie supTrieure (UniversitT du QuTbec)%'
---select name, city from lu_Institution where name like '%cole polytechnique de Mont%'
 
 SELECT u.Institution, u.City INTO #missingInst FROM UploadWorkBook u
 LEFT JOIN Institution i ON (u.Institution = i.Name AND u.City = i.City)
-LEFT JOIN InstitutionMapping m ON (u.Institution = m.OldName AND u.City = m.OldCity)-- OR (u.Institution = m.OldName AND u.City = m.newCity)
+LEFT JOIN InstitutionMapping m ON (u.Institution = m.OldName AND u.City = m.OldCity) OR (u.Institution = m.OldName AND u.City = m.newCity)
 WHERE (i.InstitutionID IS NULL) AND (m.InstitutionMappingID IS NULL)
 
 IF EXISTS (select * FROM #missingInst)
@@ -237,6 +225,7 @@ END
 ELSE
 	PRINT 'Checking Institution Mapping   ==> Pass'
 
+	select * from ProjectFundingInvestigator where InstitutionID is null
 --select name, city from lu_Institution where name like '%Eidgen%'
 --select distinct institution, city from UploadWorkBook where institution like '%Eidgen?ssiche Technische Hochschule (ETH) Zürich%'
 
@@ -328,11 +317,11 @@ PRINT '-- Import ProjectFundingInvestigator'
 INSERT INTO ProjectFundingInvestigator ([ProjectFundingID], [LastName],	[FirstName],[ORC_ID],[OtherResearch_ID],[OtherResearch_Type],[IsPrivateInvestigator],[InstitutionID],[InstitutionNameSubmitted])
 SELECT DISTINCT f.ProjectFundingID, u.PILastName, u.PIFirstName, u.ORCID, u.OtherResearcherID, u.OtherResearcherIDType, 1, ISNULL(inst.InstitutionID,1) AS InstitutionID, u.Institution AS Institution
 FROM UploadWorkBook u
-JOIN ProjectFunding f ON u.AltID = f.AltAwardCode
-LEFT JOIN (SELECT i.InstitutionID, i.Name, i.City, m.OldName, m.oldCity FROM Institution i LEFT JOIN InstitutionMapping m ON (i.name = m.newName AND i.City = m.newCity) inst 
+	JOIN ProjectFunding f ON u.AltID = f.AltAwardCode
+	LEFT JOIN (SELECT i.InstitutionID, i.Name, i.City, m.OldName, m.oldCity 
+	           FROM Institution i 
+					LEFT JOIN InstitutionMapping m ON (i.name = m.newName AND i.City = m.newCity)) inst 
      ON (u.Institution = inst.Name AND u.City = inst.City) OR (u.Institution = inst.OldName AND u.City = inst.OldCity) OR (u.Institution = inst.OldName AND u.City = inst.City)
-
---select * from ProjectFundingInvestigator where projectfundingid=64645
 
 GO
 

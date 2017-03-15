@@ -436,7 +436,7 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT c.categoryName, SUM(Relevance) AS Relevance, count(*) AS ProjectCount INTO #stats
+	SELECT c.categoryName, SUM(Relevance)/100 AS Relevance, count(*) AS ProjectCount INTO #stats
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
 		JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
@@ -477,7 +477,7 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT c.Name AS CancerType, SUM(Relevance) AS Relevance, Count(*) AS ProjectCount INTO #stats
+	SELECT c.Name AS CancerType, SUM(Relevance)/100 AS Relevance, Count(*) AS ProjectCount INTO #stats
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r			
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
 		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID	

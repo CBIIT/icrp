@@ -167,7 +167,7 @@ UPDATE UploadInstitution SET ID_GRID = NULL WHERE ID_GRID = 'NULL'
 UPDATE UploadInstitution SET institution_ICRP = DedupInstitution WHERE ISNULL(institution_ICRP, '') = ''
 UPDATE UploadInstitution SET DedupInstitution = institution_ICRP WHERE ISNULL(DedupInstitution, '') = ''
 UPDATE UploadInstitution SET City_Clean = city_ICRP WHERE ISNULL(City_Clean, '') = ''
-UPDATE UploadInstitution SET City_Clean = 'Montréal' WHERE City_Clean IN ('Montr?al', 'Montreal', 'MontrTal')
+UPDATE UploadInstitution SET City_Clean = 'Montréal' WHERE City_Clean IN ('Montr?al', 'Montreal', 'MontrTal','Mont-Royal')
 UPDATE UploadInstitution SET City_Clean = 'Québec' WHERE City_Clean IN ('Qu?bec', 'Qu??bec', 'Quebec', 'QuÃ©bec')
 UPDATE UploadInstitution SET City_Clean = 'Lévis' WHERE City_Clean IN ('LTvis', 'L?vis', 'Levis')
 UPDATE UploadInstitution SET City_Clean = 'Zürich' WHERE City_Clean IN ('Zurich')
@@ -181,8 +181,10 @@ UPDATE UploadInstitution SET STATE_Clean = 'HH' where State_Clean = 'Hamburg'
 
 UPDATE UploadInstitution SET DedupInstitution ='Hôpital Charles LeMoyne' WHERE DedupInstitution ='Hopital Charles-LeMoyne'
 UPDATE UploadInstitution SET DedupInstitution ='Hôpital de la Cité-de-la-Santé' WHERE DedupInstitution ='Hopital de la Cité-de-la-Santé'
+UPDATE UploadInstitution SET DedupInstitution ='Hôpital Maisonneuve-Rosemont' WHERE DedupInstitution ='Collège de Maisonneuve'
+UPDATE UploadInstitution SET DedupInstitution ='Université du Québec en Abitibi-Témiscamingue', City_Clean = 'Rouyn-Noranda' WHERE DedupInstitution ='University of Quebec at Montreal'
 
-
+-- Create a InstitutionMapping table to store historical Institution name+city combination (used for Data Upload)
 INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT DISTINCT institution_ICRP, City_ICRP, DedupInstitution, City_Clean  FROM UploadInstitution  -- 7123
 
 -- Manually inserted not-mapped institutions 
@@ -200,6 +202,15 @@ INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Inst
 INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Algoma District Cancer Program - Sault Area Hospital', 'Sault Ste. Marie', 'Algoma University', 'Sault Ste. Marie'
 INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Universitäts Spital Zürich', 'Zurich', 'University Hospital of Zurich', 'Zürich'
 
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Centre de recherche de l''Hôpital Charles LeMoyne', 'Montréal', 'Hopital Charles-LeMoyne', 'Longueuil'
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Centre de recherche de l''Hôpital Maisonneuve-Rosemont', 'Greenfield Park', 'Hôpital Maisonneuve-Rosemont', 'Montréal'
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Centre de recherche de L''Hôtel-Dieu de Québec', 'Montréal', 'Hôtel-Dieu de Québec', 'Québec'
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Centre de recherche de l’Hôpital Maisonneuve-Rosemont - pavillon Marcel-Lamoureux', 'Québec', 'Collège de Maisonneuve', 'Montréal'
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'GeneNews™ Ltd.', 'Montréal', 'GeneNews™ Ltd.', 'Richmond Hill'
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'McGill University and Genome Québec Innovation Centre', 'Mont-Royal', 'McGill University and Génome Québec Innovation Centre', 'Montréal'
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Université du Québec à Montréal (UQAM)', 'Rouyn-Noranda', 'Université du Québec en Abitibi-Témiscamingue', 'Rouyn-Noranda'
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Université du Québec à Trois-Rivières (UQTR)', 'Montréal', 'Université du Québec à Trois-Rivières', 'Trois-Rivières'
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Université du Québec en Abitibi-Témiscamingue, Rouyn-Noranda', 'Trois-Rivières', 'Université du Québec en Abitibi-Témiscamingue', 'Rouyn-Noranda'
 
 -- Insert a placeholder for missing institution 
 INSERT INTO [Institution] ([Name], [City])
@@ -712,6 +723,12 @@ SELECT f.LibraryFolderID, l.Filename, NULL, l.Title, l.Description, 0,
 CASE l.IsArchived WHEN 1 THEN getdate() ELSE NULL END, getdate(), getdate()
 FROM (select Filename, Title, Description, ParentFolder, SubFolder2, IsArchived, IsPublic from UploadLibrary where subfolder2 <>'') l
 JOIN (SELECT LibraryFolderID, Name FROM Libraryfolder WHERE ParentFolderID <> 1) f ON l.SubFolder2 = f.Name
+
+-- Move files to archive folder
+DECLARE @DocumentArchiveFolderID INT
+
+SELECT @DocumentArchiveFolderID=LibraryFolderID FROM LibraryFolder WHERE Name='Document Archive'
+Update Library SET ArchivedDate = getdate(), LibraryFolderID = @DocumentArchiveFolderID WHERE filename = 'ICRPCommittees_Members_30may13.xlsx'
 
 -----------------------------
 -- DataUploadStatus
