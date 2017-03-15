@@ -65,6 +65,11 @@ div.main-container > div > section > div > ol {
     font-size:18px;
     margin:25px 50px 0px;
 }
+#organization-body {
+    font-size:30px;
+    font-weight:bold;
+    margin:25px;
+}
 body {
     margin-top:0px;
 }
