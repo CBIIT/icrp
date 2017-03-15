@@ -450,7 +450,7 @@ jQuery(function() {
                             file = entry.Filename,
                             isArchived = (entry.ArchivedDate !== null);
                         if (thumb === "") {
-                            thumb = root+'/sites/default/files/library/placeholder.jpg';
+                            thumb = root+'/sites/default/files/library/File-ImagePlaceholder.svg';
                         } else {
                             thumb = path+'file/thumb/'+thumb;
                         }
