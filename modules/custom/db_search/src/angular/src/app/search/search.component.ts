@@ -39,7 +39,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     @Inject('api_root') private apiRoot: string
     ) {
     this.loggedIn = false;
-//    this.loggedIn = true;
+    //this.loggedIn = true;
     this.searchID = null;
     this.loadingAnalytics = true;
     this.loading = true;
