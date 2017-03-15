@@ -150,6 +150,7 @@ class OrganizationRestClient {
             //drupal_set_message("Organization Details: " .print_r($organization, true), 'notice');
             $node = Node::load($nid);
             $node->set('title', $organization['Name']);
+            $node->set('body', $organization['Name']);
             $node->set('status', intval($organization['IsActive']));
             $node->save();
             //drupal_set_message("SAVED A NODE:");
@@ -169,6 +170,7 @@ class OrganizationRestClient {
 
         \Drupal::logger('icrp')->notice("Adding " . $organization['Name'] . " to organization.");
         $node = Node::create(array('title' => $organization['Name'],
+                                    'body' => $organization['Name'],
                                     'field_organization_id' => $organization['ID'],
                                     'status' => $organization['IsActive'],
                                     'type' => 'organization'));
