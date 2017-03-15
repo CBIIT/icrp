@@ -16,7 +16,7 @@
  */#}
 {% set isManager="false" %}
 {% for role in user.roles %}
-	{% if role == "manager" %}{% set isManager="true" %}{% endif %}
+	{% if (role == "manager") or (role == "administrator") %}{% set isManager="true" %}{% endif %}
 {% endfor %}
 <div class="tab-content partner-content">
 	<div id="welcome" class="tab-pane fade in active" style="height: 654px;">
