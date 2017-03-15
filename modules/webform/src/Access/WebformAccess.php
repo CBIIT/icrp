@@ -5,13 +5,42 @@ namespace Drupal\webform\Access;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\webform\Plugin\Field\FieldType\WebformEntityReferenceItem;
 use Drupal\webform\WebformHandlerMessageInterface;
+use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
 
 /**
  * Defines the custom access control handler for the webform entities.
  */
 class WebformAccess {
+
+  /**
+   * Check whether the webform has results.
+   *
+   * @param \Drupal\webform\WebformInterface $webform
+   *   A webform.
+   * @param \Drupal\Core\Entity\EntityInterface|null $source_entity
+   *   The source entity.
+   *
+   * @return \Drupal\Core\Access\AccessResultInterface
+   *   The access result.
+   */
+  public static function checkResultsAccess(WebformInterface $webform, EntityInterface $source_entity = NULL) {
+    // If results are not disabled return neutral.
+    if (!$webform->getSetting('results_disabled')) {
+      $access_result = AccessResult::allowed();
+    }
+    // If webform has any results return neutral.
+    elseif (\Drupal::entityTypeManager()->getStorage('webform_submission')->getTotal($webform, $source_entity)) {
+      $access_result = AccessResult::allowed();
+    }
+    // Finally, forbid access to the results.
+    else {
+      $access_result = AccessResult::forbidden();
+    }
+    return $access_result->addCacheableDependency($webform);
+  }
 
   /**
    * Check whether the user has 'administer webform' or 'administer webform submission' permission.
@@ -65,7 +94,7 @@ class WebformAccess {
    */
   public static function checkEmailAccess(WebformSubmissionInterface $webform_submission, AccountInterface $account) {
     $webform = $webform_submission->getWebform();
-    if ($webform->access('submission_update_any')) {
+    if ($webform->access('submission_update_any', $account)) {
       $handlers = $webform->getHandlers();
       foreach ($handlers as $handler) {
         if ($handler instanceof WebformHandlerMessageInterface) {
@@ -88,7 +117,30 @@ class WebformAccess {
    *   The access result.
    */
   public static function checkEntityResultsAccess(EntityInterface $entity, AccountInterface $account) {
-    return AccessResult::allowedIf($entity->access('update') && $entity->hasField('webform') && $entity->webform->entity);
+    $webform_field_name = WebformEntityReferenceItem::getEntityWebformFieldName($entity);
+    return AccessResult::allowedIf($entity->access('update', $account) && $webform_field_name && $entity->$webform_field_name->entity);
+  }
+
+  /**
+   * Check whether the webform has wizard pages.
+   *
+   * @param \Drupal\webform\WebformInterface $webform
+   *   A webform.
+   *
+   * @return \Drupal\Core\Access\AccessResultInterface
+   *   The access result.
+   *
+   * @see \Drupal\webform\WebformSubmissionForm::buildForm
+   * @see \Drupal\webform\Entity\Webform::getPages
+   */
+  public static function checkWebformWizardPagesAccess(WebformInterface $webform) {
+    $elements = $webform->getElementsInitialized();
+    foreach ($elements as $key => $element) {
+      if (isset($element['#type']) && $element['#type'] == 'webform_wizard_page') {
+        return AccessResult::allowed();
+      }
+    }
+    return AccessResult::forbidden();
   }
 
 }

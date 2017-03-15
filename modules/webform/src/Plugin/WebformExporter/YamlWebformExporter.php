@@ -4,7 +4,7 @@ namespace Drupal\webform\Plugin\WebformExporter;
 
 use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Archiver\ArchiveTar;
-use Drupal\webform\Utility\WebformTidy;
+use Drupal\webform\Utility\WebformYaml;
 use Drupal\webform\WebformSubmissionInterface;
 
 /**
@@ -25,8 +25,8 @@ class YamlWebformExporter extends DocumentBaseWebformExporter {
    */
   public function writeSubmission(WebformSubmissionInterface $webform_submission) {
     $file_name = $this->getSubmissionBaseName($webform_submission) . '.yml';
-    $yaml = Yaml::encode($webform_submission->toArray(TRUE));
-    $yaml = WebformTidy::tidy($yaml);
+    $yaml = Yaml::encode($webform_submission->toArray(TRUE, TRUE));
+    $yaml = WebformYaml::tidy($yaml);
 
     $archiver = new ArchiveTar($this->getArchiveFilePath(), 'gz');
     $archiver->addString($file_name, $yaml);

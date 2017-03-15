@@ -1,9 +1,11 @@
 langcode: en
-status: false
+status: closed
 dependencies:
   enforced:
     module:
       - webform_templates
+open: null
+close: null
 uid: null
 template: true
 id: template_job_seeker_profile
@@ -30,7 +32,7 @@ elements: |
       '#type': textfield
       '#required': true
     address:
-      '#type': address
+      '#type': webform_address
       '#required': true
     current_title:
       '#type': textfield
@@ -47,36 +49,36 @@ elements: |
     salary:
       '#title': 'Salary Minimum'
       '#type': textfield
-      '#description':  'Add currency sign/currency code if desired. e.g. 500,000 USD, 500,000 CAD, ¥ 100,000'
+      '#description': 'Add currency sign/currency code if desired. e.g. 500,000 USD, 500,000 CAD, ¥ 100,000'
     skill:
       '#title': 'Skill Level'
       '#type': radios
       '#options_display': two_columns
       '#options':
-        'Novice/Beginner': 'Novice/Beginner'
-        'Intermediate/Proficient': 'Intermediate/Proficient'
-        'Expert/Advanced': 'Expert/Advanced'
+        Novice/Beginner: Novice/Beginner
+        Intermediate/Proficient: Intermediate/Proficient
+        Expert/Advanced: Expert/Advanced
     categories:
       '#title': 'Job Categories'
       '#type': checkboxes
       '#options_display': two_columns
       '#options':
         'Account Manager': 'Account Manager'
-        'Back-End': 'Back-End'
-        'Designer': 'Designer'
-        'DevOps': 'DevOps'
-        'Front-End': 'Front-End'
+        Back-End: Back-End
+        Designer: Designer
+        DevOps: DevOps
+        Front-End: Front-End
         'Project Manager': 'Project Manager'
-        'Sales': 'Sales'
+        Sales: Sales
         'Site Builder': 'Site Builder'
-        'Themer': 'Themer'
+        Themer: Themer
     resume:
       '#type': managed_file
-      '#title': 'Resume'
+      '#title': Resume
     url:
       '#type': url
-      '#title': 'Website'
-      '#description': Enter your existing profile/resume/portfolio link.
+      '#title': Website
+      '#description': 'Enter your existing profile/resume/portfolio link.'
 css: ''
 javascript: ''
 settings:
@@ -84,13 +86,16 @@ settings:
   page_submit_path: ''
   page_confirm_path: ''
   form_submit_label: ''
+  form_submit_once: false
   form_submit_attributes: {  }
   form_exception_message: ''
   form_closed_message: ''
+  form_previous_submissions: true
   form_confidential: false
   form_confidential_message: ''
   form_prepopulate: false
   form_prepopulate_source_entity: false
+  form_disable_autocomplete: false
   form_novalidate: false
   form_unsaved: false
   form_disable_back: false
@@ -119,6 +124,7 @@ settings:
   draft_saved_message: ''
   draft_loaded_message: ''
   confirmation_type: page
+  confirmation_title: ''
   confirmation_message: 'Thank you for applying.'
   confirmation_url: ''
   confirmation_attributes: {  }
@@ -129,6 +135,8 @@ settings:
   limit_total_message: ''
   limit_user: null
   limit_user_message: ''
+  purge: none
+  purge_days: null
   entity_limit_total: null
   entity_limit_user: null
   results_disabled: false

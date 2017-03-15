@@ -10,10 +10,37 @@ namespace Drupal\webform\Tests;
 class WebformSubmissionListBuilderTest extends WebformTestBase {
 
   /**
+   * Modules to enable.
+   *
+   * @var array
+   */
+  protected static $modules = ['node', 'webform'];
+
+  /**
+   * Webforms to load.
+   *
+   * @var array
+   */
+  protected static $testWebforms = ['test_results'];
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp();
+
+    // Create users.
+    $this->createUsers();
+  }
+
+  /**
    * Tests results.
    */
   public function testResults() {
     global $base_path;
+
+    // Login the normal user.
+    $this->drupalLogin($this->normalUser);
 
     /** @var \Drupal\webform\WebformInterface $webform */
     /** @var \Drupal\webform\WebformSubmissionInterface[] $submissions */

@@ -133,7 +133,7 @@ class Condition extends SnippetVariableBase implements SnippetVariableInterface,
   /**
    * {@inheritdoc}
    */
-  public function getContent() {
+  public function build() {
     $condition = $this->getPlugin();
     if ($this->missingContext) {
       return $condition->isNegated();

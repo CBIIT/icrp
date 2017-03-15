@@ -136,7 +136,7 @@ class RemotePostWebformHandler extends WebformHandlerBase {
 
     $form['delete_url'] = [
       '#type' => 'url',
-      '#title' => $this->t('Save URL'),
+      '#title' => $this->t('Delete URL'),
       '#description' => $this->t('The full URL to POST to call when a webform submission is deleted. E.g. http://www.mycrm.com/form_delete_handler.php'),
       '#default_value' => $this->configuration['delete_url'],
       '#access' => !$results_disabled,
@@ -289,6 +289,9 @@ class RemotePostWebformHandler extends WebformHandlerBase {
     catch (RequestException $request_exception) {
       $message = $request_exception->getMessage();
       $response = $request_exception->getResponse();
+
+      // Encode HTML entities to prevent broken markup from breaking the page.
+      $message = nl2br(htmlentities($message));
 
       // If debugging is enabled, display the error message on screen.
       $this->debug($message, $operation, $request_url, $request_type, $request_post_data, $response, 'error');

@@ -86,6 +86,7 @@ CREATE TABLE [dbo].[CSO](
 	[CategoryName] [varchar](100) NOT NULL,
 	[WeightName] [numeric](1, 0) NOT NULL,
 	[SortOrder] [int] NOT NULL,
+	[IsActive] [bit] NOT NULL, 
 	[CreatedDate] [datetime] NOT NULL,
 	[UpdatedDate] [datetime] NOT NULL,
  CONSTRAINT [PK_CSO] PRIMARY KEY CLUSTERED 
@@ -93,6 +94,9 @@ CREATE TABLE [dbo].[CSO](
 	[Code] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
+
+ALTER TABLE [dbo].[CSO] ADD  CONSTRAINT [DF_CSO_IsActive]  DEFAULT ((1)) FOR [IsActive]
+GO
 
 GO
 /****** Object:  Table [dbo].[CSOCategory]    Script Date: 12/13/2016 6:23:53 PM ******/
@@ -202,7 +206,39 @@ CREATE TABLE [dbo].[FundingOrg](
 ) ON [PRIMARY]
 
 GO
+
+/****** Object:  Table [dbo].[PartnerOrg]    Script Date: 3/10/2017 1:39:54 PM ******/
+SET ANSI_NULLS ON
 GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[PartnerOrg](
+	[PartnerOrgID] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [varchar](100) NOT NULL,
+	[SponsorCode] [varchar](50) NOT NULL,
+	[MemberType] [varchar](25) NOT NULL,
+	[IsActive] [bit] NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[UpdatedDate] [datetime] NOT NULL,
+ CONSTRAINT [PK_PartnerOrg] PRIMARY KEY CLUSTERED 
+(
+	[PartnerOrgID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+ALTER TABLE [dbo].[PartnerOrg] ADD  CONSTRAINT [DF_PartnerOrg_IsActive]  DEFAULT ((1)) FOR [IsActive]
+GO
+
+ALTER TABLE [dbo].[PartnerOrg] ADD  CONSTRAINT [DF_PartnerOrg_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+
+ALTER TABLE [dbo].[PartnerOrg] ADD  CONSTRAINT [DF_PartnerOrg_UpdatedDate]  DEFAULT (getdate()) FOR [UpdatedDate]
+GO
+
 
 
 /****** Object:  Table [dbo].[Institution]    Script Date: 12/13/2016 6:23:53 PM ******/
@@ -778,6 +814,7 @@ CREATE TABLE [dbo].[LibraryFolder](
 	[Name] [varchar](200) NOT NULL,
 	[ParentFolderID] [int] NULL,
 	[IsPublic] bit NOT NULL,	
+	[ArchivedDate] [datetime] NULL,
 	[CreatedDate] [datetime] NOT NULL,
 	[UpdatedDate] [datetime] NOT NULL,
  CONSTRAINT [PK_LibraryFolder] PRIMARY KEY CLUSTERED 

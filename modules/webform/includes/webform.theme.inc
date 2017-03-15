@@ -13,7 +13,7 @@ use Drupal\Core\Template\Attribute;
 use Drupal\Component\Utility\Xss;
 use Drupal\webform\Element\WebformCodeMirror;
 use Drupal\webform\WebformMessageManagerInterface;
-use Drupal\webform\Utility\WebformTidy;
+use Drupal\webform\Utility\WebformYaml;
 use Drupal\webform\Utility\WebformDateHelper;
 use Drupal\webform\Utility\WebformDialogHelper;
 use Drupal\webform\Utility\WebformElementHelper;
@@ -54,7 +54,7 @@ function template_preprocess_webform_help(array &$variables) {
 
     $video_display = \Drupal::config('webform.settings')->get('ui.video_display');
     switch ($video_display) {
-      case 'dialog';
+      case 'dialog':
         $help['link'] = [
           '#type' => 'link',
           '#title' => t('Watch video'),
@@ -168,7 +168,7 @@ function template_preprocess_webform_confirmation(array &$variables) {
   $options = ($query) ? ['query' => $query] : [];
 
   // Set back_url.
-  if ($source_entity) {
+  if ($source_entity && $source_entity->hasLinkTemplate('canonical')) {
     $variables['back_url'] = $source_entity->toUrl('canonical', $options)->toString();
   }
   elseif ($webform_submission) {
@@ -204,7 +204,7 @@ function template_preprocess_webform_submission_navigation(array &$variables) {
   // paging through submission.
   $route_name = \Drupal::routeMatch()->getRouteName();
   $route_parameters = \Drupal::routeMatch()->getRawParameters()->all();
-  $source_entity = $request_handler->getCurrentSourceEntity(['webform_submission']);
+  $source_entity = $request_handler->getCurrentSourceEntity('webform_submission');
 
   if (strpos(\Drupal::routeMatch()->getRouteName(), 'webform.user.submission') !== FALSE) {
     $account = \Drupal::currentUser();
@@ -266,7 +266,7 @@ function template_preprocess_webform_submission_information(array &$variables) {
     $variables['token_update'] = Link::fromTextAndUrl($token_url->setAbsolute(FALSE)->toString(), $token_url);
   }
 
-  if ($source_entity = $webform_submission->getSourceEntity()) {
+  if (($source_entity = $webform_submission->getSourceEntity()) && $source_entity->hasLinkTemplate('canonical')) {
     $variables['submitted_to'] = $source_entity->toLink();
   }
 
@@ -328,7 +328,7 @@ function template_preprocess_webform_submission_table(array &$variables) {
 
   $webform = $webform_submission->getWebform();
   $data = $webform_submission->getData();
-  $elements = $webform->getElementsFlattenedAndHasValue();
+  $elements = $webform->getElementsInitializedFlattenedAndHasValue();
 
   $variables['table'] = $view_builder->buildTable($elements, $data);
 }
@@ -392,9 +392,9 @@ function template_preprocess_webform_submission_yaml(array &$variables) {
   /** @var \Drupal\webform\WebformSubmissionInterface $webform_submission */
   $webform_submission = $variables['webform_submission'];
 
-  $data = $webform_submission->toArray(TRUE);
+  $data = $webform_submission->toArray(TRUE, TRUE);
   $yaml = Yaml::encode($data);
-  $yaml = WebformTidy::tidy($yaml);
+  $yaml = WebformYaml::tidy($yaml);
   $variables['yaml'] = [
     '#markup' => $yaml,
     '#allowed_tags' => Xss::getAdminTagList(),
@@ -578,7 +578,7 @@ function template_preprocess_webform_progress_bar(array &$variables) {
  *
  * @see template_preprocess_container()
  */
-function template_preprocess_webform_message(&$variables) {
+function template_preprocess_webform_message(array &$variables) {
   $variables['has_parent'] = FALSE;
   $element = $variables['element'];
   // Ensure #attributes is set.
@@ -702,6 +702,27 @@ function template_preprocess_webform_composite_name(array &$variables) {
   }
   $variables['flexbox'] = (isset($element['#flexbox'])) ? $element['#flexbox'] : FALSE;
 }
+
+/**
+ * Prepares variables for telephone composite element templates.
+ *
+ * Default template: webform-element-telephone.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #title, #value, #options, #description, #required,
+ *     #attributes.
+ */
+function template_preprocess_webform_composite_telephone(array &$variables) {
+  $element = $variables['element'];
+  foreach (Element::children($element) as $key) {
+    if ($element[$key]['#access']) {
+      $variables['content'][$key] = $element[$key];
+    }
+  }
+}
+
 
 /******************************************************************************/
 // Element templates

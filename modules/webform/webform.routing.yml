@@ -12,7 +12,7 @@ webform.help:
     _controller: '\Drupal\webform\Controller\WebformHelpController::index'
     _title_callback: '\Drupal\webform\Controller\WebformHelpController::title'
   requirements:
-    _access: 'TRUE'
+    _permission: 'access administration pages'
 
 webform.admin_settings.third_party:
   path: '/admin/structure/webform/settings/third-party'
@@ -197,6 +197,7 @@ entity.webform.results_user:
         type: 'entity:webform'
   requirements:
     _entity_access: 'webform.submission_view_own'
+    _custom_access: '\Drupal\webform\Access\WebformAccess:checkResultsAccess'
 
 entity.webform.results_submissions:
   path: '/admin/structure/webform/manage/{webform}/results/submissions'
@@ -209,6 +210,8 @@ entity.webform.results_submissions:
         type: 'entity:webform'
   requirements:
     _entity_access: 'webform.submission_view_any'
+    _custom_access: '\Drupal\webform\Access\WebformAccess:checkResultsAccess'
+
 
 entity.webform.results_table:
   path: '/admin/structure/webform/manage/{webform}/results/table'
@@ -221,6 +224,7 @@ entity.webform.results_table:
         type: 'entity:webform'
   requirements:
     _entity_access: 'webform.submission_view_any'
+    _custom_access: '\Drupal\webform\Access\WebformAccess:checkResultsAccess'
 
 entity.webform.results_table.custom:
   path: '/admin/structure/webform/manage/{webform}/results/table/custom'
@@ -233,6 +237,7 @@ entity.webform.results_table.custom:
         type: 'entity:webform'
   requirements:
     _entity_access: 'webform.submission_view_any'
+    _custom_access: '\Drupal\webform\Access\WebformAccess:checkResultsAccess'
 
 entity.webform.results_export:
   path: '/admin/structure/webform/manage/{webform}/results/download'
@@ -245,6 +250,7 @@ entity.webform.results_export:
         type: 'entity:webform'
   requirements:
     _entity_access: 'webform.submission_view_any'
+    _custom_access: '\Drupal\webform\Access\WebformAccess:checkResultsAccess'
 
 entity.webform.results_export_file:
   path: '/admin/structure/webform/manage/{webform}/results/download/file/{filename}'
@@ -257,6 +263,7 @@ entity.webform.results_export_file:
         type: 'entity:webform'
   requirements:
     _entity_access: 'webform.submission_view_any'
+    _custom_access: '\Drupal\webform\Access\WebformAccess:checkResultsAccess'
 
 entity.webform.results_clear:
   path: '/admin/structure/webform/manage/{webform}/results/clear'
@@ -269,6 +276,7 @@ entity.webform.results_clear:
         type: 'entity:webform'
   requirements:
     _entity_access: 'webform.submission_purge_any'
+    _custom_access: '\Drupal\webform\Access\WebformAccess:checkResultsAccess'
 
 # Webform options
 
@@ -368,6 +376,20 @@ entity.webform_submission.edit_form:
   requirements:
     _entity_access: 'webform_submission.update'
 
+entity.webform_submission.edit_form.all:
+  path: '/admin/structure/webform/manage/{webform}/submission/{webform_submission}/edit/all'
+  defaults:
+    _entity_form: 'webform_submission.default'
+    _title_callback: 'Drupal\webform\Controller\WebformSubmissionController::title'
+    disable_pages: true
+  requirements:
+    _entity_access: 'webform_submission.update'
+    _custom_access: '\Drupal\webform\Access\WebformAccess::checkWebformWizardPagesAccess'
+  options:
+    parameters:
+      webform:
+        type: 'entity:webform'
+
 entity.webform_submission.notes_form:
   path: '/admin/structure/webform/manage/{webform}/submission/{webform_submission}/notes'
   defaults:
@@ -384,6 +406,15 @@ entity.webform_submission.resend_form:
   requirements:
     _custom_access: '\Drupal\webform\Access\WebformAccess::checkEmailAccess'
 
+entity.webform_submission.duplicate_form:
+  path: '/admin/structure/webform/manage/{webform}/submission/{webform_submission}/duplicate'
+  defaults:
+    _entity_form: 'webform_submission.duplicate'
+    _title_callback: 'Drupal\webform\Controller\WebformSubmissionController::title'
+    duplicate: TRUE
+  requirements:
+    _entity_access: 'webform_submission.update_any'
+
 entity.webform_submission.delete_form:
   path: '/admin/structure/webform/manage/{webform}/submission/{webform_submission}/delete'
   defaults:
@@ -399,6 +430,13 @@ entity.webform_submission.sticky_toggle:
   requirements:
     _entity_access: 'webform_submission.update'
     _csrf_token: 'TRUE'
+
+webform_submission.multiple_delete_confirm:
+  path: '/admin/structure/webform/results/delete'
+  defaults:
+    _form: '\Drupal\webform\Form\WebformSubmissionDeleteMultiple'
+  requirements:
+    _permission: 'administer webform submission'
 
 # Handlers
 
@@ -439,6 +477,14 @@ entity.webform.handler.edit_form:
   defaults:
     _form: '\Drupal\webform\Form\WebformHandlerEditForm'
     _title: 'Edit webform handler'
+  requirements:
+    _entity_access: 'webform.update'
+
+entity.webform.handler.duplicate_form:
+  path: '/admin/structure/webform/manage/{webform}/handlers/{webform_handler}/duplicate'
+  defaults:
+    _form: '\Drupal\webform\Form\WebformHandlerDuplicateForm'
+    _title: 'Duplicate webform handler'
   requirements:
     _entity_access: 'webform.update'
 
@@ -483,8 +529,7 @@ webform.element.autocomplete:
   requirements:
     _entity_access: 'webform.submission_page'
 
-
-# Autocomplete
+# Message
 
 webform.element.message.close:
   path: '/webform/message/close/{storage}/{id}'
@@ -492,5 +537,5 @@ webform.element.message.close:
     _controller: '\Drupal\webform\Controller\WebformElementController::close'
     _storage: user
   requirements:
-    _access: 'TRUE'
+    _user_is_logged_in: 'TRUE'
     _csrf_token: 'TRUE'

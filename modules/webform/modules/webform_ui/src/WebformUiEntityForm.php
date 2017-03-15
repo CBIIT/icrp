@@ -26,7 +26,14 @@ class WebformUiEntityForm extends WebformEntityForm {
       return $form;
     }
 
-    $dialog_attributes = WebformDialogHelper::getModalDialogAttributes(800);
+    $element_dialog_attributes = WebformDialogHelper::getModalDialogAttributes(800);
+
+    // Track which element has been updated.
+    $element_update = FALSE;
+    if ($this->getRequest()->query->has('element-update')) {
+      $element_update = $this->getRequest()->query->get('element-update');
+      $form['#attached']['drupalSettings']['webformUiElementUpdate'] = $element_update;
+    }
 
     // Build table header.
     $header = [];
@@ -99,6 +106,13 @@ class WebformUiEntityForm extends WebformEntityForm {
       }
       $row_class[] = 'webform-ui-element-container';
 
+      // Add classes to updated element.
+      // @see Drupal.behaviors.webformUiElementsUpdate
+      if ($element_update && $element_update == $element['#webform_key']) {
+        $row_class[] = 'color-success';
+        $row_class[] = 'js-webform-ui-element-update';
+      }
+
       $rows[$key]['#attributes']['class'] = $row_class;
 
       $indentation = NULL;
@@ -165,7 +179,7 @@ class WebformUiEntityForm extends WebformEntityForm {
       ];
 
       $rows[$key]['parent']['key'] = [
-        '#parents' => ['elements_reordered', $key, 'key'],
+        '#parents' => ['webform_ui_elements', $key, 'key'],
         '#type' => 'hidden',
         '#value' => $key,
         '#attributes' => [
@@ -173,7 +187,7 @@ class WebformUiEntityForm extends WebformEntityForm {
         ],
       ];
       $rows[$key]['parent']['parent_key'] = [
-        '#parents' => ['elements_reordered', $key, 'parent_key'],
+        '#parents' => ['webform_ui_elements', $key, 'parent_key'],
         '#type' => 'textfield',
         '#size' => 20,
         '#title' => $this->t('Parent'),
@@ -192,7 +206,7 @@ class WebformUiEntityForm extends WebformEntityForm {
         $rows[$key]['operations']['#links']['edit'] = [
           'title' => $this->t('Edit'),
           'url' => new Url('entity.webform_ui.element.edit_form', ['webform' => $webform->id(), 'key' => $key]),
-          'attributes' => $dialog_attributes,
+          'attributes' => $element_dialog_attributes,
         ];
         // Issue #2741877 Nested modals don't work: when using CKEditor in a
         // modal, then clicking the image button opens another modal,
@@ -207,7 +221,7 @@ class WebformUiEntityForm extends WebformEntityForm {
             'webform' => $webform->id(),
             'key' => $key,
           ]),
-          'attributes' => $dialog_attributes,
+          'attributes' => $element_dialog_attributes,
         ];
         $rows[$key]['operations']['#links']['delete'] = [
           'title' => $this->t('Delete'),
@@ -215,6 +229,7 @@ class WebformUiEntityForm extends WebformEntityForm {
             'webform' => $webform->id(),
             'key' => $key,
           ]),
+          'attributes' => WebformDialogHelper::getModalDialogAttributes(640),
         ];
       }
     }
@@ -237,7 +252,7 @@ class WebformUiEntityForm extends WebformEntityForm {
       $form['local_actions']['add_page'] = [
         '#type' => 'link',
         '#title' => $this->t('Add page'),
-        '#url' => new Url('entity.webform_ui.element.add_form', ['webform' => $webform->id(), 'type' => 'wizard_page']),
+        '#url' => new Url('entity.webform_ui.element.add_form', ['webform' => $webform->id(), 'type' => 'webform_wizard_page']),
         '#attributes' => $local_action_attributes,
       ];
     }
@@ -245,12 +260,12 @@ class WebformUiEntityForm extends WebformEntityForm {
       $form['local_actions']['add_layout'] = [
         '#type' => 'link',
         '#title' => $this->t('Add layout'),
-        '#url' => new Url('entity.webform_ui.element.add_form', ['webform' => $webform->id(), 'type' => 'flexbox']),
+        '#url' => new Url('entity.webform_ui.element.add_form', ['webform' => $webform->id(), 'type' => 'webform_flexbox']),
         '#attributes' => $local_action_attributes,
       ];
     }
 
-    $form['elements_reordered'] = [
+    $form['webform_ui_elements'] = [
       '#type' => 'table',
       '#header' => $header,
       '#empty' => $this->t('Please add elements to this webform.'),
@@ -294,32 +309,34 @@ class WebformUiEntityForm extends WebformEntityForm {
       return;
     }
 
+    parent::validateForm($form, $form_state);
+
     // Get raw flattened elements that will be used to rebuild element's YAML
     // hierarchy.
     $elements_flattened = $webform->getElementsDecodedAndFlattened();
 
     // Get the reordered elements and sort them by weight.
-    $elements_reordered = $form_state->getValue('elements_reordered');
-    uasort($elements_reordered, ['Drupal\Component\Utility\SortArray', 'sortByWeightElement']);
+    $webform_ui_elements = $form_state->getValue('webform_ui_elements') ?: [];
+    uasort($webform_ui_elements, ['Drupal\Component\Utility\SortArray', 'sortByWeightElement']);
 
     // Make sure the reordered element keys and match the existing element keys.
-    if (array_diff_key($elements_reordered, $elements_flattened)) {
-      $form_state->setError($form['elements_reordered'], $this->t('The elements have been unexpectedly altered. Please try again'));
+    if (array_diff_key($webform_ui_elements, $elements_flattened)) {
+      $form_state->setError($form['webform_ui_elements'], $this->t('The elements have been unexpectedly altered. Please try again'));
     }
 
     // Validate parent key and add children to ordered elements.
-    foreach ($elements_reordered as $key => $table_element) {
+    foreach ($webform_ui_elements as $key => $table_element) {
       $parent_key = $table_element['parent_key'];
 
       // Validate the parent key.
       if ($parent_key && !isset($elements_flattened[$parent_key])) {
-        $form_state->setError($form['elements_reordered'], $this->t('Parent %parent_key does not exist.', ['%parent_key' => $parent_key]));
+        $form_state->setError($form['webform_ui_elements'], $this->t('Parent %parent_key does not exist.', ['%parent_key' => $parent_key]));
         return;
       }
 
       // Set #required or remove the property.
-      if (isset($elements_reordered[$key]['required'])) {
-        if (empty($elements_reordered[$key]['required'])) {
+      if (isset($webform_ui_elements[$key]['required'])) {
+        if (empty($webform_ui_elements[$key]['required'])) {
           unset($elements_flattened[$key]['#required']);
         }
         else {
@@ -328,24 +345,23 @@ class WebformUiEntityForm extends WebformEntityForm {
       }
 
       // Add this key to the parent's children.
-      $elements_reordered[$parent_key]['children'][$key] = $key;
+      $webform_ui_elements[$parent_key]['children'][$key] = $key;
     }
 
     // Rebuild elements to reflect new hierarchy.
     $elements_updated = [];
     // Preserve the original elements root properties.
-    $elements_original = Yaml::decode($webform->get('elements'));
+    $elements_original = Yaml::decode($webform->get('elements')) ?: [];
     foreach ($elements_original as $key => $value) {
       if (Element::property($key)) {
         $elements_updated[$key] = $value;
       }
     }
-    $this->buildUpdatedElementsRecursive($elements_updated, '', $elements_reordered, $elements_flattened);
+
+    $this->buildUpdatedElementsRecursive($elements_updated, '', $webform_ui_elements, $elements_flattened);
 
     // Update the webform's elements.
     $webform->setElements($elements_updated);
-
-    parent::validateForm($form, $form_state);
   }
 
   /**
@@ -366,21 +382,21 @@ class WebformUiEntityForm extends WebformEntityForm {
    * @param string $key
    *   The current element key. The blank empty key represents the elements
    *   root.
-   * @param array $elements_reordered
+   * @param array $webform_ui_elements
    *   An associative array contain the reordered elements parent child
    *   relationship.
    * @param array $elements_flattened
    *   An associative array containing the raw flattened elements that will
    *   copied into the updated elements hierarchy.
    */
-  protected function buildUpdatedElementsRecursive(array &$elements, $key, array $elements_reordered, array $elements_flattened) {
-    if (!isset($elements_reordered[$key]['children'])) {
+  protected function buildUpdatedElementsRecursive(array &$elements, $key, array $webform_ui_elements, array $elements_flattened) {
+    if (!isset($webform_ui_elements[$key]['children'])) {
       return;
     }
 
-    foreach ($elements_reordered[$key]['children'] as $key) {
+    foreach ($webform_ui_elements[$key]['children'] as $key) {
       $elements[$key] = $elements_flattened[$key];
-      $this->buildUpdatedElementsRecursive($elements[$key], $key, $elements_reordered, $elements_flattened);
+      $this->buildUpdatedElementsRecursive($elements[$key], $key, $webform_ui_elements, $elements_flattened);
     }
   }
 

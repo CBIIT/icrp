@@ -1,13 +1,10 @@
 <?php
-/**
- * @file
- * Contains \Drupal\panelizer\Panelizer
- */
 
 namespace Drupal\panelizer;
 
-
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
@@ -166,7 +163,7 @@ class Panelizer implements PanelizerInterface {
     // Check the existence and status of:
     // - the display for the view mode,
     // - the 'default' display.
-    $candidate_ids = array();
+    $candidate_ids = [];
     if ($view_mode != 'default') {
       $candidate_ids[] = $entity_type_id . '.' . $bundle . '.' . $view_mode;
     }
@@ -191,20 +188,20 @@ class Panelizer implements PanelizerInterface {
       $display = $storage->load($load_id);
     }
     else {
-      $display = $storage->create(array(
+      $display = $storage->create([
         'targetEntityType' => $entity_type_id,
         'bundle' => $bundle,
         'mode' => $view_mode,
         'status' => TRUE,
-      ));
+      ]);
     }
 
     // Let modules alter the display.
-    $display_context = array(
+    $display_context = [
       'entity_type' => $entity_type_id,
       'bundle' => $bundle,
       'view_mode' => $view_mode,
-    );
+    ];
     $this->moduleHandler->alter('entity_view_display', $display, $display_context);
 
     return $display;
@@ -314,10 +311,15 @@ class Panelizer implements PanelizerInterface {
       $panelizer_item->default = $default;
 
       // Create a new revision if possible.
-      if ($entity instanceof RevisionableInterface) {
+      if ($entity instanceof RevisionableInterface && $entity->getEntityType()->isRevisionable()) {
         if ($entity->isDefaultRevision()) {
           $entity->setNewRevision(TRUE);
         }
+      }
+
+      // Updates the changed time of the entity, if necessary.
+      if ($entity->getEntityType()->isSubclassOf(EntityChangedInterface::class)) {
+        $entity->setChangedTime(REQUEST_TIME);
       }
 
       $entity->panelizer[$panelizer_item->getName()] = $panelizer_item;
@@ -559,16 +561,20 @@ class Panelizer implements PanelizerInterface {
   public function getPermissions() {
     $permissions = [];
 
-    $definitions = $this->panelizerEntityManager->getDefinitions();
-    foreach (array_keys($definitions) as $entity_type_id) {
-      $entity_type = $this->entityTypeManager->getDefinition($entity_type_id);
+    // Only look at entity types that have a corresponding Panelizer plugin.
+    $entity_types = array_intersect_key(
+      $this->entityTypeManager->getDefinitions(),
+      $this->panelizerEntityManager->getDefinitions()
+    );
+
+    foreach ($entity_types as $entity_type_id => $entity_type) {
       $bundles = $this->entityTypeBundleInfo->getBundleInfo($entity_type_id);
       foreach ($bundles as $bundle => $bundle_info) {
         $permissions["administer panelizer $entity_type_id $bundle defaults"] = [
-          'title' => t('%entity_name %bundle_name: Administer Panelizer default panels, allowed content and settings.', array(
+          'title' => t('%entity_name %bundle_name: Administer Panelizer default panels, allowed content and settings.', [
             '%entity_name' => $entity_type->getLabel(),
             '%bundle_name' => $bundle_info['label'],
-          )),
+          ]),
           'description' => t('Users with this permission can fully administer panelizer for this entity bundle.'),
         ];
 

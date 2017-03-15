@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\panelizer\Form\PanelizerWizardContextDeleteForm.
- */
-
 namespace Drupal\panelizer\Form;
 
 use Drupal\Core\Form\FormStateInterface;

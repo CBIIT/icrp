@@ -6,8 +6,8 @@ dependencies:
   - layout_plugin
   - views
 
-# Information added by Drupal.org packaging script on 2016-03-02
-version: '8.x-1.x-dev'
+# Information added by Drupal.org packaging script on 2017-02-22
+version: '8.x-1.0'
 core: '8.x'
 project: 'layout_plugin_views'
-datestamp: 1456953840
+datestamp: 1487797435

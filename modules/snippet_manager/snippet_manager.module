@@ -5,11 +5,16 @@
  * Primary module hooks for Snippet manager module.
  */
 
+use Drupal\Core\Url;
+
 /**
  * Implements hook_library_info_build().
  */
 function snippet_manager_library_info_build() {
 
+  $libraries = \Drupal::service('snippet_manager.snippet_library_builder')->build();
+
+  // Build CodeMirror library.
   $codemirror_version = '5.14.2';
   $codemirror_settings = Drupal::config('snippet_manager.settings')->get('codemirror');
 
@@ -67,4 +72,20 @@ function snippet_manager_library_info_build() {
   }
 
   return $libraries;
+}
+
+/**
+ * Implements hook_snippet_context().
+ */
+function snippet_manager_snippet_context() {
+  $theme = Drupal::theme()->getActiveTheme();
+  $context['theme'] = $theme->getName();
+  $context['theme_directory'] = $theme->getPath();
+  $context['base_path'] = base_path();
+  $context['front_page'] = Url::fromRoute('<front>');
+  $context['is_front'] = Drupal::service('path.matcher')->isFrontPage();
+  $user = Drupal::currentUser();
+  $context['is_admin'] = $user->hasPermission('access administration pages');
+  $context['logged_in'] = $user->isAuthenticated();
+  return $context;
 }

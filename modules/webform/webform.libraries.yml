@@ -1,22 +1,19 @@
 # Admin.
 
 webform.admin:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.admin.css: {}
   js:
     js/webform.admin.js:  {}
   dependencies:
-    - core/drupal
-    - core/jquery
-    - core/jquery.once
     - webform/webform.form
 
 # Used preload libraries required by (modal) dialogs.
 # @see js/webform.element.codemirror.js
 webform.admin.dialog:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.admin.css: {}
@@ -24,9 +21,8 @@ webform.admin.dialog:
     js/webform.admin.js:  {}
     js/webform.dialog.js:  {}
   dependencies:
-    - core/drupal
-    - core/jquery
     - core/jquery.ui.dialog
+    - webform/webform.ajax
     - webform/webform.form
     - webform/webform.element.codemirror.yaml
     - webform/webform.element.html_editor
@@ -34,21 +30,43 @@ webform.admin.dialog:
     - webform/webform.element.select2
 
 webform.admin.translation:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.admin.translation.css: {}
 
+webform.ajax:
+  version: VERSION
+  js:
+    js/webform.ajax.js:  {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings
+    - core/jquery.once
+    - core/jquery.form
+    - core/drupal.ajax
+
+# Block
+
+webform.block:
+  version: VERSION
+  js:
+    js/webform.block.js:  {}
+  dependencies:
+    - webform/webform.element.codemirror.yaml
+    - webform/webform.element.select2
+
 # Theme
 
 webform.theme.bartik:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.theme.bartik.css: {}
 
 webform.theme.seven:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.theme.seven.css: {}
@@ -56,7 +74,7 @@ webform.theme.seven:
 # Help.
 
 webform.help:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.help.css: {}
@@ -71,13 +89,13 @@ webform.help:
 # Webform.
 
 webform.confirmation:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.confirmation.css: {}
 
 webform.form:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.form.css: {}
@@ -90,13 +108,13 @@ webform.form:
     - webform/webform.states
 
 webform.assets.css:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.assets.css: { preprocess: false, minified: false }
 
 webform.assets.javascript:
-  version: 1.x
+  version: VERSION
   js:
     js/webform.assets.js: { preprocess: false, minified: false }
   dependencies:
@@ -105,36 +123,55 @@ webform.assets.javascript:
     - core/jquery.once
 
 webform.navigation:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.navigation.css: {}
 
 webform.progress:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.progress.css: {}
 
 webform.progress.bar:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.progress.bar.css: {}
 
 webform.states:
-  version: 1.x
+  version: VERSION
   js:
     js/webform.states.js:  {}
 
+webform.tooltip:
+  version: VERSION
+  js:
+    js/webform.tooltip.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery.once
+    - core/jquery.ui.tooltip
+
 webform.form.disable_back:
-  version: 1.x
+  version: VERSION
   header: true
   js:
     js/webform.form.disable_back.js:  {preprocess: false}
 
+webform.form.submit_once:
+  version: VERSION
+  js:
+    js/webform.form.submit_once.js:  {}
+  dependencies:
+    - system/base
+    - core/drupal
+    - core/jquery
+    - core/jquery.once
+
 webform.form.unsaved:
-  version: 1.x
+  version: VERSION
   js:
     js/webform.form.unsaved.js:  {}
   dependencies:
@@ -145,14 +182,15 @@ webform.form.unsaved:
 # Elements.
 
 webform.element.buttons:
-  version: 1.x
+  version: VERSION
   js:
     js/webform.element.buttons.js: {}
   dependencies:
     - core/jquery.ui.button
+    - webform/jquery.common_ancestor
 
 webform.element.codemirror.text:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.element.codemirror.css: {}
@@ -162,7 +200,7 @@ webform.element.codemirror.text:
     - webform/codemirror.text
 
 webform.element.codemirror.yaml:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.element.codemirror.css: {}
@@ -172,7 +210,7 @@ webform.element.codemirror.yaml:
     - webform/codemirror.yaml
 
 webform.element.codemirror.html:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.element.codemirror.css: {}
@@ -182,7 +220,7 @@ webform.element.codemirror.html:
     - webform/codemirror.html
 
 webform.element.codemirror.css:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.element.codemirror.css: {}
@@ -192,7 +230,7 @@ webform.element.codemirror.css:
     - webform/codemirror.css
 
 webform.element.codemirror.javascript:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.element.codemirror.css: {}
@@ -202,7 +240,7 @@ webform.element.codemirror.javascript:
     - webform/codemirror.javascript
 
 webform.element.color:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.element.color.css: {}
@@ -213,13 +251,19 @@ webform.element.color:
     - webform/webform.element.inputmask
 
 webform.element.composite:
-  version: 1.x
+  version: VERSION
   css:
     component:
       css/webform.element.composite.css: {}
 
+webform.element.composite_telephone:
+  version: VERSION
+  css:
+    component:
+      css/webform.element.composite_telephone.css: {}
+
 webform.element.counter:
-  version: 1.x
+  version: VERSION
   js:
     js/webform.element.counter.js: {}
   dependencies:
@@ -229,14 +273,14 @@ webform.element.counter:
     - webform/jquery.counter
 
 webform.element.date:
-  version: 1.x
+  version: VERSION
   js:
     js/webform.element.date.js: {}
   dependencies:
     - core/drupal.date
 
 webform.element.details.save:
-  version: 1.x
+  version: VERSION
   js:
     js/webform.element.details.save.js: {}
   dependencies:
@@ -245,7 +289,7 @@ webform.element.details.save:
     - core/jquery.once
 
 webform.element.details.toggle:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.element.details.toggle.css: {}
@@ -257,22 +301,19 @@ webform.element.details.toggle:
     - core/jquery.once
 
 webform.element.flexbox:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.element.flexbox.css: {}
 
 webform.element.image_file:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.element.image_file.css: {}
 
 webform.element.html_editor:
-  version: 1.x
-  css:
-    theme:
-      css/webform.element.html_editor.css: {}
+  version: VERSION
   js:
     js/webform.element.html_editor.js: {}
   dependencies:
@@ -283,7 +324,7 @@ webform.element.html_editor:
     - webform/ckeditor
 
 webform.element.inputmask:
-  version: 1.x
+  version: VERSION
   js:
     js/webform.element.inputmask.js: {}
   dependencies:
@@ -293,19 +334,21 @@ webform.element.inputmask:
     - webform/jquery.inputmask
 
 webform.element.multiple:
-  version: 1.x
+  version: VERSION
   css:
     component:
       css/webform.element.multiple.css: {}
+  js:
+    js/webform.element.multiple.js: {}
 
 webform.element.likert:
-  version: 1.x
+  version: VERSION
   css:
     component:
       css/webform.element.likert.css: {}
 
 webform.element.location:
-  version: 1.x
+  version: VERSION
   css:
     component:
       css/webform.element.location.css: {}
@@ -318,7 +361,7 @@ webform.element.location:
     - webform/jquery.geocomplete
 
 webform.element.message:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.element.message.css: {}
@@ -330,13 +373,13 @@ webform.element.message:
     - core/jquery.once
 
 webform.element.options:
-  version: 1.x
+  version: VERSION
   css:
     component:
       css/webform.element.options.css: {}
 
 webform.element.other:
-  version: 1.x
+  version: VERSION
   css:
     component:
       css/webform.element.other.css: {}
@@ -347,8 +390,17 @@ webform.element.other:
     - core/jquery
     - core/jquery.once
 
+webform.element.radios:
+  version: VERSION
+  js:
+    js/webform.element.radios.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/jquery.once
+
 webform.element.range:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.element.range.css: {}
@@ -358,7 +410,7 @@ webform.element.range:
     - core/modernizr
 
 webform.element.rating:
-  version: 1.x
+  version: VERSION
   css:
     component:
       css/webform.element.rating.css: {}
@@ -368,7 +420,7 @@ webform.element.rating:
     - webform/jquery.rateit
 
 webform.element.roles:
-  version: 1.x
+  version: VERSION
   js:
     js/webform.element.roles.js: {}
   dependencies:
@@ -377,7 +429,10 @@ webform.element.roles:
     - core/jquery.once
 
 webform.element.select2:
-  version: 1.x
+  version: VERSION
+  css:
+    theme:
+      css/webform.element.select2.css: {}
   js:
     js/webform.element.select2.js: {}
   dependencies:
@@ -387,7 +442,7 @@ webform.element.select2:
     - webform/jquery.select2
 
 webform.element.signature:
-  version: 1.x
+  version: VERSION
   css:
     component:
       css/webform.element.signature.css: {}
@@ -398,30 +453,40 @@ webform.element.signature:
     - webform/signature_pad
 
 webform.element.states:
-  version: 1.x
+  version: VERSION
   css:
     component:
       css/webform.element.states.css: {}
 
+webform.element.telephone:
+  version: VERSION
+  js:
+    js/webform.element.telephone.js: {}
+  dependencies:
+    - core/drupal
+    - core/jquery
+    - core/jquery.once
+    - webform/jquery.intl-tel-input
+
 webform.element.text_format:
-  version: 1.x
+  version: VERSION
   js:
     js/webform.element.text_format.js: {}
 
 webform.element.tableselect:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.element.tableselect.css: {}
 
 webform.element.tableselect_sort:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.element.tableselect_sort.css: {}
 
 webform.element.time:
-  version: 1.x
+  version: VERSION
   js:
     js/webform.element.time.js: {}
   dependencies:
@@ -429,7 +494,7 @@ webform.element.time:
     - webform/jquery.timepicker
 
 webform.element.toggle:
-  version: 1.x
+  version: VERSION
   css:
     component:
       css/webform.element.toggle.css: {}
@@ -439,20 +504,18 @@ webform.element.toggle:
     - core/drupal
     - webform/jquery.toggles
 
-webform.element.tooltip:
-  version: 1.x
-  js:
-    js/webform.element.tooltip.js: {}
-  dependencies:
-    - core/drupal
-    - core/jquery.once
-    - core/jquery.ui.tooltip
-
 webform.element.video_file:
-  version: 1.x
+  version: VERSION
   css:
     theme:
       css/webform.element.video_file.css: {}
+
+# jQuery libraries.
+
+jquery.common_ancestor:
+  version: VERSION
+  js:
+    js/jquery.common_ancestor.js:  {}
 
 # External libraries.
 
@@ -530,9 +593,9 @@ jquery.counter:
     url: http://opensource.org/licenses/mit-license.php
     gpl-compatible: true
   cdn:
-    /libraries/word-and-character-counter/: https://cdn.rawgit.com/qwertypants/jQuery-Word-and-Character-Counter-Plugin/2.3.5/
+    /libraries/jquery.word-and-character-counter/: https://cdn.rawgit.com/qwertypants/jQuery-Word-and-Character-Counter-Plugin/2.3.5/
   js:
-    /libraries/word-and-character-counter/word-and-character-counter.min.js: {}
+    /libraries/jquery.word-and-character-counter/word-and-character-counter.min.js: {}
   dependencies:
     - core/jquery
 
@@ -561,6 +624,25 @@ jquery.inputmask:
     /libraries/jquery.inputmask/dist/min/: https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.3.3/
   js:
     /libraries/jquery.inputmask/dist/min/jquery.inputmask.bundle.min.js: {}
+  dependencies:
+    - core/jquery
+
+jquery.intl-tel-input:
+  remote: https://github.com/jackocnr/intl-tel-input
+  version: v11.0.0
+  license:
+    name: MIT
+    url: https://github.com/jackocnr/intl-tel-input/blob/master/LICENSE
+    gpl-compatible: true
+  cdn:
+    /libraries/jquery.intl-tel-input/src/: https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/11.0.0/
+    /libraries/jquery.intl-tel-input/src/: https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/11.0.0/
+  css:
+    theme:
+      /libraries/jquery.intl-tel-input/build/css/intlTelInput.css: {}
+  js:
+    /libraries/jquery.intl-tel-input/build/js/utils.js : {}
+    /libraries/jquery.intl-tel-input/build/js/intlTelInput.min.js : {}
   dependencies:
     - core/jquery
 

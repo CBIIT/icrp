@@ -208,7 +208,7 @@ interface WebformSubmissionInterface extends ContentEntityInterface, EntityOwner
    * Track the state of a submission.
    *
    * @return int
-   *    Either STATE_NEW, STATE_DRAFT, STATE_COMPLETED, or STATE_UPDATED,
+   *   Either STATE_NEW, STATE_DRAFT, STATE_COMPLETED, or STATE_UPDATED,
    *   depending on the last save operation performed.
    */
   public function getState();
@@ -317,10 +317,12 @@ interface WebformSubmissionInterface extends ContentEntityInterface, EntityOwner
    * @param bool $custom
    *   If TRUE, return customized array that contains simplified properties
    *   and webform submission data.
+   * @param bool $check_access
+   *   If TRUE, view access is checked for element data.
    *
    * @return mixed[]
    *   An array of property values, keyed by property name.
    */
-  public function toArray($custom = FALSE);
+  public function toArray($custom = FALSE, $check_access = FALSE);
 
 }

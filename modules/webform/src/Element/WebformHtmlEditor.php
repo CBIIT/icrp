@@ -35,7 +35,7 @@ class WebformHtmlEditor extends Textarea {
    * @return array
    *   The $element with prepared variables ready for input.html.twig.
    */
-  public static function preRenderWebformHtmlEditor($element) {
+  public static function preRenderWebformHtmlEditor(array $element) {
     if (\Drupal::config('webform.settings')->get('ui.html_editor_disabled')) {
       $element['#mode'] = 'html';
       $element = WebformCodeMirror::preRenderWebformCodeMirror($element);

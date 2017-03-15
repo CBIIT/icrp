@@ -1,0 +1,8 @@
+
+partnership_import.admin_upload:
+  path: '/admin/partnership/import'
+  defaults:
+    _controller: '\Drupal\partnership_import\Controller\PartnershipImportController::importPage'
+    _title: 'Import Partnership'
+  requirements:
+    _permission: 'administer users'

@@ -29,7 +29,7 @@ class WebformElementManager extends DefaultPluginManager implements FallbackPlug
   protected $instances = [];
 
   /**
-   * Constructs a new WebformElementManager.
+   * Constructs a WebformElementManager.
    *
    * @param \Traversable $namespaces
    *   An object that implements \Traversable which contains the root paths
@@ -111,13 +111,8 @@ class WebformElementManager extends DefaultPluginManager implements FallbackPlug
    * {@inheritdoc}
    */
   public function getElementPluginId(array $element) {
-    if (isset($element['#type'])) {
-      if ($this->hasDefinition($element['#type'])) {
-        return $element['#type'];
-      }
-      elseif ($this->hasDefinition('webform_' . $element['#type'])) {
-        return 'webform_' . $element['#type'];
-      }
+    if (isset($element['#type']) && $this->hasDefinition($element['#type'])) {
+      return $element['#type'];
     }
     elseif (isset($element['#markup'])) {
       return 'webform_markup';
@@ -155,6 +150,33 @@ class WebformElementManager extends DefaultPluginManager implements FallbackPlug
     }
 
     return $definitions;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getGroupedDefinitions(array $definitions = NULL, $label_key = 'label') {
+    /** @var \Drupal\Core\Plugin\CategorizingPluginManagerTrait|\Drupal\Component\Plugin\PluginManagerInterface $this */
+    $definitions = $this->getSortedDefinitions(isset($definitions) ? $definitions : $this->getDefinitions(), $label_key);
+
+    // Organize grouped definition with basic and advanced first and other last.
+    $basic_category = (string) $this->t('Basic elements');
+    $advanced_category = (string) $this->t('Advanced elements');
+    $other_category = (string) $this->t('Other elements');
+
+    $grouped_definitions = [
+      $basic_category => [],
+      $advanced_category => [],
+    ];
+    foreach ($definitions as $id => $definition) {
+      $grouped_definitions[(string) $definition['category']][$id] = $definition;
+    }
+    if (isset($grouped_definitions[''])) {
+      $no_category = $grouped_definitions[''];
+      unset($grouped_definitions['']);
+      $grouped_definitions += [$other_category => $no_category];
+    }
+    return $grouped_definitions;
   }
 
   /**

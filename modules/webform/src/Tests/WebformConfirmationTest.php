@@ -12,18 +12,31 @@ use Drupal\webform\Entity\Webform;
 class WebformConfirmationTest extends WebformTestBase {
 
   /**
-   * Modules to enable.
+   * Webforms to load.
    *
    * @var array
    */
-  protected static $modules = ['system', 'user', 'webform', 'webform_test'];
+  protected static $testWebforms = ['test_confirmation_message', 'test_confirmation_inline', 'test_confirmation_page', 'test_confirmation_page_custom', 'test_confirmation_url', 'test_confirmation_url_message'];
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp();
+
+    // Create users.
+    $this->createUsers();
+
+    // Set page.front (aka <front>) to /node instead of /user/login.
+    \Drupal::configFactory()->getEditable('system.site')->set('page.front', '/node')->save();
+  }
 
   /**
    * Tests webform confirmation.
    */
   public function testConfirmation() {
     // Login the admin user.
-    $this->drupalLogin($this->adminFormUser);
+    $this->drupalLogin($this->adminWebformUser);
 
     /* Test confirmation message (confirmation_type=message) */
 
@@ -69,14 +82,14 @@ class WebformConfirmationTest extends WebformTestBase {
     $this->assertUrl('webform/test_confirmation_page/confirmation', ['query' => ['custom' => 'param']]);
 
     // TODO: (TESTING)  Figure out why the inline confirmation link is not including the query string parameters.
-    // $this->assertRaw('<a href="' . $webform_confirmation_page->toUrl()->toString() . '?custom=param">Back to form</a>');
-
+    // $this->assertRaw('<a href="' . $webform_confirmation_page->toUrl()->toString() . '?custom=param">Back to form</a>');.
     /* Test confirmation page custom (confirmation_type=page) */
 
     $webform_confirmation_page_custom = Webform::load('test_confirmation_page_custom');
 
     // Check custom confirmation page.
     $this->drupalPostForm('webform/test_confirmation_page_custom', [], t('Submit'));
+    $this->assertRaw('<h1 class="page-title">Custom confirmation page title</h1>');
     $this->assertRaw('<div style="border: 10px solid red; padding: 1em;" class="webform-confirmation">');
     $this->assertRaw('<a href="' . $webform_confirmation_page_custom->toUrl()->toString() . '" rel="back" title="Custom back to link" class="button">Custom back to link</a>');
 

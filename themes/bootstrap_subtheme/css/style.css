@@ -52,9 +52,26 @@ h1 {
 #form-membership-status  .select-wrapper {
     display:inline-block;
 }
+div.main-container > div > section > div > ol {
+    list-style-type:none;
+}
+/* FAQ */
+#faq-detailed-question {
+    font-size:30px;
+    font-weight:bold;
+    margin:25px;
+}
+#faq-body {
+    font-size:18px;
+    margin:25px 50px 0px;
+}
+body {
+    margin-top:0px;
+}
+
 
 /* Breadcrumb */
-.breadcrumb {
+/*.breadcrumb {
     background-color:white;
     margin:5px;
     padding:5px;
@@ -67,6 +84,7 @@ h1 {
 .breadcrumb > li > a  {
     color: #153670;
 }
+*/
 /* Footer Nav */
 .nav-footer-middle > ul > li {
     border-right: 1px solid #bbb;
@@ -234,6 +252,19 @@ header {
 #become-a-partner-wells > div > div > p:last-child {
     margin-bottom:10px;
 }
+/* h2 titles for contextual-region */
+.contextual-region > h2 {
+    color: black;
+    font-size:18px;
+}
+/* FAQ Add */
+#node-faq-form > div > div.layout-region-node-secondary {
+    display:none;
+    visability:hidden;
+}
+.layout-region-node-secondary {
+    display:none;
+}
 /* alert */
 /*
 .alert {
@@ -345,7 +376,7 @@ ul.nav-pills {
   top: 20px;
   position: absolute;
 }
-}
+
 /*
 .yamlform-element--title-inline label::after {
     content: ":";
@@ -565,6 +596,7 @@ div#cso-document-container > div > h1 {
 @media only screen and (min-width : 1450px) {
     #navbar, .footer, .main-container {
         width:1440px;
+        max-width:1440px;
     }
     .main-container {
         padding-left:0px;
@@ -598,9 +630,12 @@ div#cso-document-container > div > h1 {
 }
 .newsletter-image{
     padding:15px;
-    width:175px;
+    width:190px;
    
 }
 .newsletter-description{
     padding:5px;
+}
+.newsletter-image img {
+    box-shadow: 10px 10px 5px #888888;
 }

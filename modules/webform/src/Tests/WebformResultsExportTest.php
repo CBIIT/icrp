@@ -19,13 +19,30 @@ class WebformResultsExportTest extends WebformTestBase {
    *
    * @var array
    */
-  protected static $modules = ['system', 'block', 'node', 'user', 'locale', 'webform', 'webform_test'];
+  protected static $modules = ['node', 'locale', 'webform'];
+
+  /**
+   * Webforms to load.
+   *
+   * @var array
+   */
+  protected static $testWebforms = ['test_element_managed_file', 'test_results'];
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp();
+
+    // Create users.
+    $this->createUsers();
+  }
 
   /**
    * Tests download files.
    */
   public function testDownloadFiles() {
-    $this->drupalLogin($this->adminFormUser);
+    $this->drupalLogin($this->adminWebformUser);
 
     /** @var \Drupal\webform\WebformInterface $webform_managed_file */
     $webform_managed_file = Webform::load('test_element_managed_file');
@@ -134,23 +151,29 @@ class WebformResultsExportTest extends WebformTestBase {
     // Check options format compact.
     $this->getExport($webform, ['options_format' => 'compact']);
     $this->assertRaw('"Flag colors"');
-    $this->assertRaw('"Red,White,Blue"');
+    $this->assertRaw('Red;White;Blue');
 
     // Check options format separate.
     $this->getExport($webform, ['options_format' => 'separate']);
     $this->assertRaw('"Flag colors: Red","Flag colors: White","Flag colors: Blue"');
     $this->assertNoRaw('"Flag colors"');
     $this->assertRaw('X,X,X');
-    $this->assertNoRaw('"Red,White,Blue"');
+    $this->assertNoRaw('Red;White;Blue');
 
     // Check options item format label.
     $this->getExport($webform, ['options_item_format' => 'label']);
-    $this->assertRaw('"Red,White,Blue"');
+    $this->assertRaw('Red;White;Blue');
 
     // Check options item format key.
     $this->getExport($webform, ['options_item_format' => 'key']);
-    $this->assertNoRaw('"Red,White,Blue"');
-    $this->assertRaw('"red,white,blue"');
+    $this->assertNoRaw('Red;White;Blue');
+    $this->assertRaw('red;white;blue');
+
+    // Check multiple delimiter.
+    $this->getExport($webform, ['multiple_delimiter' => '|']);
+    $this->assertRaw('Red|White|Blue');
+    $this->getExport($webform, ['multiple_delimiter' => ',']);
+    $this->assertRaw('"Red,White,Blue"');
 
     // Check entity reference format link.
     $nodes = $this->getNodes();
@@ -243,13 +266,13 @@ class WebformResultsExportTest extends WebformTestBase {
     $this->assertNoRaw('Hillary,Clinton');
 
     // Check changing default exporter to 'table' settings.
-    $this->drupalLogin($this->adminFormUser);
+    $this->drupalLogin($this->adminWebformUser);
     $this->drupalPostForm('admin/structure/webform/manage/' . $webform->id() . '/results/download', ['export[format][exporter]' => 'table'], t('Download'));
     $this->assertRaw('<body><table border="1"><thead><tr bgcolor="#cccccc" valign="top"><th>Serial number</th>');
     $this->assertPattern('#<td>George</td>\s+<td>Washington</td>\s+<td>Male</td>#ms');
 
     // Check changing default export (delimiter) settings.
-    $this->drupalLogin($this->adminFormUser);
+    $this->drupalLogin($this->adminWebformUser);
     $this->drupalPostForm('admin/structure/webform/settings', ['export[format][delimiter]' => '|'], t('Save configuration'));
     $this->drupalPostForm('admin/structure/webform/manage/' . $webform->id() . '/results/download', [], t('Download'));
     $this->assertRaw('"Submission ID"|"Submission URI"');

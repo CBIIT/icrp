@@ -436,7 +436,7 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT c.categoryName, SUM(Relevance) AS Relevance, count(*) AS ProjectCount INTO #stats
+	SELECT c.categoryName, SUM(Relevance)/100 AS Relevance, count(*) AS ProjectCount INTO #stats
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
 		JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
@@ -477,7 +477,7 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT c.Name AS CancerType, SUM(Relevance) AS Relevance, Count(*) AS ProjectCount INTO #stats
+	SELECT c.Name AS CancerType, SUM(Relevance)/100 AS Relevance, Count(*) AS ProjectCount INTO #stats
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r			
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
 		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID	
@@ -675,7 +675,7 @@ SELECT pc.CSOCode, c.CategoryName, c.Name AS CSOName, c.ShortName
 FROM ProjectFunding f
 	JOIN ProjectCSO pc ON f.ProjectFundingID = pc.ProjectFundingID	
 	JOIN CSO c ON pc.CSOCode = c.Code
-WHERE f.ProjectFundingID = @ProjectFundingID AND isnull(pc.RelSource,'') = 'S'  -- only return 'S' relSource
+WHERE f.ProjectFundingID = @ProjectFundingID 
 ORDER BY c.Name
 
 
@@ -1082,28 +1082,33 @@ CREATE  PROCEDURE [dbo].[GetFundingOrgs]
      @type varchar(15) = 'funding'	-- 'funding': return all funding organizations; 'Register': return organizations used for User Registration; 'DataUploaded': return all funding organizations with data uploaded; 	
 AS   
 
-IF @type <> 'Register'
-BEGIN 
 	SELECT FundingOrgID, Name, Abbreviation, SponsorCode + ' - ' + Name AS DisplayName, Type, MemberType, MemberStatus, Country, Currency, 
 	SponsorCode, IsAnnualized, Note, LastImportDate, LastImportDesc
 	FROM FundingOrg
 	WHERE (@type = 'funding') OR (@type = 'Search' AND LastImportDate IS NOT NULL) OR (1=1)
+	ORDER BY SponsorCode, Name
 
-END
-ELSE --   IF @type = 'Register'
-BEGIN
-	SELECT FundingOrgID, Name, Abbreviation, SponsorCode + ' - ' + Name AS DisplayName, Type, MemberType, MemberStatus, Country, Currency, 
-		SponsorCode, IsAnnualized, Note, LastImportDate, LastImportDesc
-	FROM FundingOrg
-	WHERE (@type = 'funding') OR (@type = 'DataUploaded' AND LastImportDate IS NOT NULL) OR (1=1)
+GO
 
-	UNION
-		SELECT 0, 'Operations Manager', 'ICRP', 'ICRP Operations Manager', NULL, '', '','','','ZZZ',0,NULL,NULL,NULL
-	UNION
-		SELECT 0, 'Tech Support', 'ICRP', 'ICRP - Tech Support', NULL, '', '','','','ZZZ',0,NULL,NULL,NULL
-END
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetPartnerOrgs]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
 
-  
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetPartnerOrgs]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetPartnerOrgs]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetPartnerOrgs]    
+AS   
+	SELECT PartnerOrgID AS ID, SponsorCode + ' - ' + Name AS Name , IsActive FROM PartnerOrg ORDER BY SponsorCode, Name
+GO
+
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetCancerTypeLookUp]    Script Date: 12/14/2016 4:21:37 PM ******/
 ----------------------------------------------------------------------------------------------------------
@@ -1148,6 +1153,7 @@ AS
 
 SELECT CategoryName, Code, Name
 FROM CSO
+WHERE IsActive = 1
 ORDER BY Code
 
 GO

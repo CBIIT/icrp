@@ -5,7 +5,7 @@ namespace Drupal\webform\Element;
 use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Render\Element\Textarea;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\webform\Utility\WebformTidy;
+use Drupal\webform\Utility\WebformYaml;
 
 /**
  * Provides a webform element for HTML, YAML, or Plain text using CodeMirror.
@@ -48,9 +48,6 @@ class WebformCodeMirror extends Textarea {
         [$class, 'preRenderWebformCodeMirror'],
         [$class, 'preRenderGroup'],
       ],
-      '#element_validate' => [
-        [$class, 'validateWebformCodeMirror'],
-      ],
       '#theme' => 'textarea',
       '#theme_wrappers' => ['form_element'],
     ];
@@ -63,7 +60,7 @@ class WebformCodeMirror extends Textarea {
     if ($input === FALSE && $element['#mode'] == 'yaml' && isset($element['#default_value'])) {
       // Convert associative array in default value to YAML.
       if (is_array($element['#default_value'])) {
-        $element['#default_value'] = WebformTidy::tidy(Yaml::encode($element['#default_value']));
+        $element['#default_value'] = WebformYaml::tidy(Yaml::encode($element['#default_value']));
       }
       // Convert empty YAML into an empty string.
       if ($element['#default_value'] == '{  }') {
@@ -82,6 +79,15 @@ class WebformCodeMirror extends Textarea {
     if (empty($element['#mode']) || !isset(self::$modes[$element['#mode']])) {
       $element['#mode'] = 'text';
     }
+
+    // Set validation.
+    if (isset($element['#element_validate'])) {
+      $element['#element_validate'] = array_merge([[get_called_class(), 'validateWebformCodeMirror']], $element['#element_validate']);
+    }
+    else {
+      $element['#element_validate'] = [[get_called_class(), 'validateWebformCodeMirror']];
+    }
+
     return $element;
   }
 
@@ -96,7 +102,7 @@ class WebformCodeMirror extends Textarea {
    * @return array
    *   The $element with prepared variables ready for theme_element().
    */
-  public static function preRenderWebformCodeMirror($element) {
+  public static function preRenderWebformCodeMirror(array $element) {
     static::setAttributes($element, ['js-webform-codemirror', 'webform-codemirror', $element['#mode']]);
     $element['#attributes']['data-webform-codemirror-mode'] = static::getMode($element['#mode']);
     $element['#attached']['library'][] = 'webform/webform.element.codemirror.' . $element['#mode'];
@@ -161,7 +167,7 @@ class WebformCodeMirror extends Textarea {
         }
         return $messages;
 
-      case 'yaml';
+      case 'yaml':
         try {
           $value = trim($element['#value']);
           $data = Yaml::decode($value);

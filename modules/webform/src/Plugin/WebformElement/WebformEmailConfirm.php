@@ -10,6 +10,7 @@ use Drupal\Core\Form\FormStateInterface;
  * @WebformElement(
  *   id = "webform_email_confirm",
  *   label = @Translation("Email confirm"),
+ *   description = @Translation("Provides a form element for double-input of email addresses."),
  *   category = @Translation("Advanced elements"),
  *   states_wrapper = TRUE,
  * )
@@ -20,12 +21,14 @@ class WebformEmailConfirm extends Email {
    * {@inheritdoc}
    */
   public function getDefaultProperties() {
-    return parent::getDefaultProperties() + [
+    $default_properties = parent::getDefaultProperties() + [
       // Email confirm settings.
       'confirm__title' => '',
       'confirm__description' => '',
       'confirm__placeholder' => '',
     ];
+    unset($default_properties['multiple']);
+    return $default_properties;
   }
 
   /**

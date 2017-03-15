@@ -14,6 +14,10 @@ function views_bootstrap_theme_registry_alter(&$theme_registry) {
       $theme = $style['theme'];
 
       switch ($theme) {
+        case 'views_bootstrap_grid':
+          $theme_registry[$theme]['preprocess functions'][] = 'template_preprocess_views_view_grid';
+          break;
+
         case 'views_bootstrap_table':
           $theme_registry[$theme]['preprocess functions'][] = 'template_preprocess_views_view_table';
           break;

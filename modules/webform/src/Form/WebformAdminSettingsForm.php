@@ -121,79 +121,85 @@ class WebformAdminSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Page default settings'),
       '#tree' => TRUE,
     ];
-    $form['page']['default_page_base_path']  = [
+    $form['page']['default_page_base_path'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Default base path for webform URLs'),
       '#required' => TRUE,
       '#default_value' => $config->get('settings.default_page_base_path'),
     ];
 
-    // Webform.
-    $form['webform'] = [
+    // Form.
+    $form['form'] = [
       '#type' => 'details',
-      '#title' => $this->t('Webform default settings'),
+      '#title' => $this->t('Form default settings'),
       '#tree' => TRUE,
     ];
-    $form['webform']['default_form_closed_message']  = [
+    $form['form']['default_form_closed_message'] = [
       '#type' => 'webform_html_editor',
       '#title' => $this->t('Default closed message'),
       '#required' => TRUE,
       '#default_value' => $config->get('settings.default_form_closed_message'),
     ];
-    $form['webform']['default_form_exception_message']  = [
+    $form['form']['default_form_exception_message'] = [
       '#type' => 'webform_html_editor',
       '#title' => $this->t('Default closed exception message'),
       '#required' => TRUE,
       '#default_value' => $config->get('settings.default_form_exception_message'),
     ];
-    $form['webform']['default_form_submit_label'] = [
+    $form['form']['default_form_confidential_message'] = [
+      '#type' => 'webform_html_editor',
+      '#title' => $this->t('Default confidential message'),
+      '#required' => TRUE,
+      '#default_value' => $config->get('settings.default_form_confidential_message'),
+    ];
+    $form['form']['default_form_submit_label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Default submit button label'),
       '#required' => TRUE,
       '#size' => 20,
       '#default_value' => $settings['default_form_submit_label'],
     ];
-    $form['webform']['default_form_confidential_message']  = [
-      '#type' => 'webform_html_editor',
-      '#title' => $this->t('Default confidential message'),
-      '#required' => TRUE,
-      '#default_value' => $config->get('settings.default_form_confidential_message'),
+    $form['form']['default_form_submit_once'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Prevent duplicate submissions'),
+      '#description' => $this->t('If checked, the submit button will be disabled immediately after is is clicked.'),
+      '#default_value' => $settings['default_form_submit_once'],
     ];
-    $form['webform']['default_form_disable_back']  = [
+    $form['form']['default_form_disable_back'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Disable back button for all webforms'),
       '#description' => $this->t('If checked, users will not be allowed to navigate back to the webform using the browsers back button.'),
       '#return_value' => TRUE,
       '#default_value' => $config->get('settings.default_form_disable_back'),
     ];
-    $form['webform']['default_form_unsaved']  = [
+    $form['form']['default_form_unsaved'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Warn users about unsaved changes'),
       '#description' => $this->t('If checked, users will be displayed a warning message when they navigate away from a webform with unsaved changes.'),
       '#return_value' => TRUE,
       '#default_value' => $config->get('settings.default_form_unsaved'),
     ];
-    $form['webform']['default_form_novalidate']  = [
+    $form['form']['default_form_novalidate'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Disable client-side validation for all webforms'),
       '#description' => $this->t('If checked, the <a href=":href">novalidate</a> attribute, which disables client-side validation, will be added to all webforms.', [':href' => 'http://www.w3schools.com/tags/att_form_novalidate.asp']),
       '#return_value' => TRUE,
       '#default_value' => $config->get('settings.default_form_novalidate'),
     ];
-    $form['webform']['default_form_details_toggle']  = [
+    $form['form']['default_form_details_toggle'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Display collapse/expand all details link'),
       '#description' => $this->t('If checked, an expand/collapse all (details) link will be added to all webforms with two or more details elements.'),
       '#return_value' => TRUE,
       '#default_value' => $config->get('settings.default_form_details_toggle'),
     ];
-    $form['webform']['form_classes'] = [
+    $form['form']['form_classes'] = [
       '#type' => 'webform_codemirror',
       '#title' => $this->t('Webform CSS classes'),
       '#description' => $this->t('A list of classes that will be provided in the "Webform CSS classes" dropdown. Enter one or more classes on each line. These styles should be available in your theme\'s CSS file.'),
       '#default_value' => $config->get('settings.form_classes'),
     ];
-    $form['webform']['button_classes'] = [
+    $form['form']['button_classes'] = [
       '#type' => 'webform_codemirror',
       '#title' => $this->t('Button CSS classes'),
       '#description' => $this->t('A list of classes that will be provided in "Button CSS classes" dropdown. Enter one or more classes on each line. These styles should be available in your theme\'s CSS file.'),
@@ -293,13 +299,13 @@ class WebformAdminSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Confirmation default settings'),
       '#tree' => TRUE,
     ];
-    $form['confirmation']['default_confirmation_message']  = [
+    $form['confirmation']['default_confirmation_message'] = [
       '#type' => 'webform_html_editor',
       '#title' => $this->t('Default confirmation message'),
       '#required' => TRUE,
       '#default_value' => $config->get('settings.default_confirmation_message'),
     ];
-    $form['confirmation']['default_confirmation_back_label']  = [
+    $form['confirmation']['default_confirmation_back_label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Default confirmation back label'),
       '#required' => TRUE,
@@ -324,17 +330,38 @@ class WebformAdminSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Limit default settings'),
       '#tree' => TRUE,
     ];
-    $form['limit']['default_limit_total_message']  = [
+    $form['limit']['default_limit_total_message'] = [
       '#type' => 'webform_html_editor',
       '#title' => $this->t('Default total submissions limit message'),
       '#required' => TRUE,
       '#default_value' => $config->get('settings.default_limit_total_message'),
     ];
-    $form['limit']['default_limit_user_message']  = [
+    $form['limit']['default_limit_user_message'] = [
       '#type' => 'webform_html_editor',
       '#title' => $this->t('Default per user submission limit message'),
       '#required' => TRUE,
       '#default_value' => $config->get('settings.default_limit_user_message'),
+    ];
+
+    // Assets.
+    $form['assets'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Global Assets (CSS/JavaScript)'),
+      '#tree' => TRUE,
+    ];
+    $form['assets']['css'] = [
+      '#type' => 'webform_codemirror',
+      '#mode' => 'css',
+      '#title' => $this->t('CSS'),
+      '#description' => $this->t('Enter custom CSS to be attached to all webforms.'),
+      '#default_value' => $config->get('assets.css'),
+    ];
+    $form['assets']['javascript'] = [
+      '#type' => 'webform_codemirror',
+      '#mode' => 'javascript',
+      '#title' => $this->t('JavaScript'),
+      '#description' => $this->t('Enter custom JavaScript to be attached to all webforms.'),
+      '#default_value' => $config->get('assets.javascript'),
     ];
 
     // Elements.
@@ -429,7 +456,7 @@ class WebformAdminSettingsForm extends ConfigFormBase {
       '#type' => 'checkbox',
       '#title' => $this->t('Allow files to be uploaded to public file system.'),
       '#description' => $this->t('Public files upload destination is dangerous for webforms that are available to anonymous and/or untrusted users.') . ' ' .
-        $this->t('For more information see:') . ' <a href="https://www.drupal.org/psa-2016-003">DRUPAL-PSA-2016-003</a>',
+      $this->t('For more information see: <a href="@href">DRUPAL-PSA-2016-003</a>', ['@href' => 'https://www.drupal.org/psa-2016-003']),
       '#return_value' => TRUE,
       '#default_value' => $config->get('file.file_public'),
     ];
@@ -442,7 +469,7 @@ class WebformAdminSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('file.default_max_filesize'),
     ];
     $file_types = [
-      'managed_file' => 'managed file',
+      'managed_file' => 'file',
       'audio_file' => 'audio file',
       'document_file' => 'document file',
       'image_file' => 'image file',
@@ -467,38 +494,47 @@ class WebformAdminSettingsForm extends ConfigFormBase {
       '#tree' => TRUE,
     ];
     foreach ($element_plugins as $element_id => $element_plugin) {
-      $formats = $element_plugin->getFormats();
-      // Make sure the element has formats.
-      if (empty($formats)) {
-        continue;
-      }
-
-      // Skip if the element just uses the default 'value' format.
-      if (count($formats) == 1 && isset($formats['value'])) {
-        continue;
-      }
-
-      // Append formats name to formats label.
-      foreach ($formats as $format_name => $format_label) {
-        $formats[$format_name] = new FormattableMarkup('@label (@name)', ['@label' => $format_label, '@name' => $format_name]);
-      }
-
-      // Create empty format since the select element is not required.
-      // @see https://api.drupal.org/api/drupal/core!lib!Drupal!Core!Render!Element!Select.php/class/Select/8
-      $formats = ['' => '<' . $this->t('Default') . '>'] + $formats;
-
-      $default_format = $element_plugin->getDefaultFormat();
-      $default_format_label = (isset($formats[$default_format])) ? $formats[$default_format] : $default_format;
+      // Element.
       $element_plugin_definition = $element_plugin->getPluginDefinition();
       $element_plugin_label = $element_plugin_definition['label'];
-
       $form['format'][$element_id] = [
-        '#type' => 'select',
+        '#type' => 'details',
         '#title' => new FormattableMarkup('@label (@id)', ['@label' => $element_plugin_label, '@id' => $element_plugin->getTypeName()]),
-        '#description' => $this->t('Defaults to: %value', ['%value' => $default_format_label]),
-        '#options' => $formats,
+      ];
+      // Element item format.
+      $item_formats = $element_plugin->getItemFormats();
+      foreach ($item_formats as $format_name => $format_label) {
+        $item_formats[$format_name] = new FormattableMarkup('@label (@name)', ['@label' => $format_label, '@name' => $format_name]);
+      }
+      $item_formats = ['' => '<' . $this->t('Default') . '>'] + $item_formats;
+      $item_default_format = $element_plugin->getItemDefaultFormat();
+      $item_default_format_label = (isset($item_formats[$item_default_format])) ? $item_formats[$item_default_format] : $item_default_format;
+      $form['format'][$element_id]['item'] = [
+        '#type' => 'select',
+        '#title' => $this->t('Item format'),
+        '#description' => $this->t("Select how a @label element's single value is displayed.", ['@label' => $element_plugin_label]) . '<br/>' .
+        $this->t('Defaults to: %value', ['%value' => $item_default_format_label]),
+        '#options' => $item_formats,
         '#default_value' => $config->get("format.$element_id"),
       ];
+      // Element items format.
+      if ($element_plugin->supportsMultipleValues()) {
+        $items_formats = $element_plugin->getItemsFormats();
+        foreach ($items_formats as $format_name => $format_label) {
+          $items_formats[$format_name] = new FormattableMarkup('@label (@name)', ['@label' => $format_label, '@name' => $format_name]);
+        }
+        $items_formats = ['' => '<' . $this->t('Default') . '>'] + $items_formats;
+        $items_default_format = $element_plugin->getItemsDefaultFormat();
+        $items_default_format_label = (isset($item_formats[$items_default_format])) ? $items_formats[$items_default_format] : $items_default_format;
+        $form['format'][$element_id]['items'] = [
+          '#type' => 'select',
+          '#title' => $this->t('Items format'),
+          '#description' => $this->t("Select how a @label element's multiple values are displayed.", ['@label' => $element_plugin_label]) . '<br/>' .
+          $this->t('Defaults to: %value', ['%value' => $items_default_format_label]),
+          '#options' => $items_formats,
+          '#default_value' => $config->get("format.$element_id"),
+        ];
+      }
     }
 
     // Mail.
@@ -507,32 +543,32 @@ class WebformAdminSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Email default settings'),
       '#tree' => TRUE,
     ];
-    $form['mail']['default_from_mail']  = [
+    $form['mail']['default_from_mail'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Default email from address'),
       '#required' => TRUE,
       '#default_value' => $config->get('mail.default_from_mail'),
     ];
-    $form['mail']['default_from_name']  = [
+    $form['mail']['default_from_name'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Default email from name'),
       '#required' => TRUE,
       '#default_value' => $config->get('mail.default_from_name'),
     ];
-    $form['mail']['default_subject']  = [
+    $form['mail']['default_subject'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Default email subject'),
       '#required' => TRUE,
       '#default_value' => $config->get('mail.default_subject'),
     ];
-    $form['mail']['default_body_text']  = [
+    $form['mail']['default_body_text'] = [
       '#type' => 'webform_codemirror',
       '#mode' => 'text',
       '#title' => $this->t('Default email body (Plain text)'),
       '#required' => TRUE,
       '#default_value' => $config->get('mail.default_body_text'),
     ];
-    $form['mail']['default_body_html']  = [
+    $form['mail']['default_body_html'] = [
       '#type' => 'webform_codemirror',
       '#mode' => 'html',
       '#title' => $this->t('Default email body (HTML)'),
@@ -578,6 +614,19 @@ class WebformAdminSettingsForm extends ConfigFormBase {
       '#min' => 1,
       '#required' => TRUE,
       '#default_value' => $config->get('batch.default_batch_delete_size'),
+    ];
+
+    $form['purge_settings'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Automated purging settings'),
+      '#tree' => TRUE,
+    ];
+    $form['purge_settings']['cron_size'] = [
+      '#type' => 'number',
+      '#title' => $this->t('Amount of submissions to process'),
+      '#min' => 1,
+      '#default_value' => $config->get('purge_settings.cron_size'),
+      '#description' => $this->t('Amount of submissions to purge during single cron run. You may want to lower this number if you are facing memory or timeout issues when purging via cron.'),
     ];
 
     // Test.
@@ -635,6 +684,35 @@ class WebformAdminSettingsForm extends ConfigFormBase {
       '#return_value' => TRUE,
       '#default_value' => $config->get('ui.dialog_disabled'),
     ];
+    $form['ui']['offcanvas_disabled'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Disable off-canvas system tray'),
+      '#description' => $this->t('If checked, off-canvas system tray will be disabled.'),
+      '#return_value' => TRUE,
+      '#default_value' => $config->get('ui.offcanvas_disabled'),
+      '#access' => $this->moduleHandler->moduleExists('outside_in') && (floatval(\Drupal::VERSION) >= 8.3),
+      '#states' => [
+        'visible' => [
+          ':input[name="ui[dialog_disabled]"]' => [
+            'checked' => FALSE,
+          ],
+        ],
+      ],
+    ];
+    if (!$this->moduleHandler->moduleExists('outside_in') && (floatval(\Drupal::VERSION) >= 8.3)) {
+      $form['ui']['offcanvas_message'] = [
+        '#type' => 'webform_message',
+        '#message_type' => 'info',
+        '#message_message' => $this->t('Enable the experimental <a href=":href">System tray module</a> to improve the Webform module\'s user experience.', [':href' => 'https://www.drupal.org/blog/drupal-82-now-with-more-outside-in']),
+        '#states' => [
+          'visible' => [
+            ':input[name="ui[dialog_disabled]"]' => [
+              'checked' => FALSE,
+            ],
+          ],
+        ],
+      ];
+    }
     $form['ui']['html_editor_disabled'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Disable HTML editor'),
@@ -676,34 +754,53 @@ class WebformAdminSettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
+    /* Settings */
+
     $settings = $form_state->getValue('page')
-      + $form_state->getValue('webform')
+      + $form_state->getValue('form')
       + $form_state->getValue('wizard')
       + $form_state->getValue('preview')
       + $form_state->getValue('draft')
       + $form_state->getValue('confirmation')
       + $form_state->getValue('limit');
 
-    // Trigger update all webform paths if the 'default_page_base_path' changed.
+    // Track if we need to trigger an update of all webform paths
+    // because the 'default_page_base_path' changed.
     $update_paths = ($settings['default_page_base_path'] != $this->config('webform.settings')->get('settings.default_page_base_path')) ? TRUE : FALSE;
 
-    $config = $this->config('webform.settings');
+    /* Excluded types */
 
     // Convert list of included types to excluded types.
     $excluded_types = array_diff($this->elementTypes, array_filter($form_state->getValue('excluded_types')));
     ksort($excluded_types);
 
+    /* Format */
+
+    $format = $form_state->getValue('format');
+    foreach ($format as $element_id => $element_format) {
+      $format[$element_id] = array_filter($element_format);
+    }
+    $format = array_filter($format);
+
+    /* Config save */
+
+    $config = $this->config('webform.settings');
     $config->set('settings', $settings);
+    $config->set('assets', $form_state->getValue('assets'));
     $config->set('elements', $form_state->getValue('elements') + ['excluded_types' => $excluded_types]);
     $config->set('file', $form_state->getValue('file'));
-    $config->set('format', array_filter($form_state->getValue('format')));
+    $config->set('format', $format);
     $config->set('mail', $form_state->getValue('mail'));
     $config->set('export', $this->submissionExporter->getValuesFromInput($form_state->getValues()));
     $config->set('batch', $form_state->getValue('batch'));
+    $config->set('purge_settings', $form_state->getValue('purge_settings'));
     $config->set('test', $form_state->getValue('test'));
     $config->set('ui', $form_state->getValue('ui'));
     $config->set('library', $form_state->getValue('library'));
     $config->save();
+
+    /* Update paths */
+
     if ($update_paths) {
       /** @var \Drupal\webform\WebformInterface[] $webforms */
       $webforms = Webform::loadMultiple();
@@ -711,6 +808,7 @@ class WebformAdminSettingsForm extends ConfigFormBase {
         $webform->updatePaths();
       }
     }
+
     parent::submitForm($form, $form_state);
   }
 

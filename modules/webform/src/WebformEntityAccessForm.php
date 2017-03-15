@@ -4,7 +4,6 @@ namespace Drupal\webform;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\user\Entity\User;
 
 /**
  * Provides a webform to manage access.
@@ -38,13 +37,13 @@ class WebformEntityAccessForm extends EntityForm {
       $form['access'][$name]['roles'] = [
         '#type' => 'webform_roles',
         '#title' => $this->t('Roles'),
-        '#include_anonymous' => ($name == 'create') ? TRUE : FALSE,
+        '#include_anonymous' => (in_array($name, ['create', 'view_any'])) ? TRUE : FALSE,
         '#default_value' => $access[$name]['roles'],
       ];
       $form['access'][$name]['users'] = [
         '#type' => 'webform_users',
         '#title' => $this->t('Users'),
-        '#default_value' => $access[$name]['users'] ? User::loadMultiple($access[$name]['users']) : [],
+        '#default_value' => $access[$name]['users'] ? $this->entityTypeManager->getStorage('user')->loadMultiple($access[$name]['users']) : [],
       ];
     }
 

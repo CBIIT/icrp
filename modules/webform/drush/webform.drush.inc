@@ -10,7 +10,8 @@ use Drupal\webform\Controller\WebformResultsExportController;
 use Drupal\webform\Entity\Webform;
 use Drupal\webform\Form\WebformResultsClearForm;
 use Drupal\webform\Form\WebformSubmissionsPurgeForm;
-use Drupal\webform\Utility\WebformTidy;
+use Drupal\webform\Utility\WebformYaml;
+use Psr\Log\LogLevel;
 
 /**
  * Implements hook_drush_command().
@@ -30,6 +31,8 @@ function webform_drush_command() {
     'options' => [
       // Delimited export options.
       'delimiter' => 'Delimiter between columns (defaults to site-wide setting). This option may need to be wrapped in quotes. i.e. --delimiter="\t".',
+      'multiple_delimiter' => 'Delimiter between an element with multiple values (defaults to site-wide setting).',
+
       // Document and managed file export options.
       'file-name' => 'File name used to export submission and uploaded filed. You may use tokens.',
       // Tabular export options.
@@ -185,8 +188,8 @@ function webform_drush_help($section) {
 
     case 'drush:webform-tidy':
       return dt('This command tidies exported YAML configuration files.') . "\n\n" .
-        dt('Changes include...') . "\n" .
-        dt('- Preserving newlines using pipe (|).') . "\n" .
+        dt('Changes include...') . PHP_EOL .
+        dt('- Preserving newlines using pipe (|).') . PHP_EOL .
         dt('- Removing returns after array dashes (-).');
 
     case 'drush:webform-generate':
@@ -373,16 +376,26 @@ function drush_webform_tidy($module = 'webform') {
 
     // Add module dependency to exporter webform and webform options config entities.
     if ($dependencies && preg_match('/^(webform\.webform\.|webform\.webform_options\.)/', $file->filename)) {
-      $data = Yaml::decode($tidied_yaml);
-      if (empty($data['dependencies']['enforced']['module']) || !in_array($module, $data['dependencies']['enforced']['module'])) {
-        drush_print(dt('Adding module dependency to @file...', ['@file' => $file->filename]));
-        $data['dependencies']['enforced']['module'][] = $module;
-        $tidied_yaml = Yaml::encode($data);
+      try {
+        $data = Yaml::decode($tidied_yaml);
+        if (empty($data['dependencies']['enforced']['module']) || !in_array($module, $data['dependencies']['enforced']['module'])) {
+          drush_print(dt('Adding module dependency to @file...', ['@file' => $file->filename]));
+          $data['dependencies']['enforced']['module'][] = $module;
+          $tidied_yaml = Yaml::encode($data);
+        }
+      }
+      catch (\Exception $exception) {
+        $message = 'Error parsing: ' . $file->filename . PHP_EOL . $exception->getMessage();
+        if (strlen($message) > 255) {
+          $message = substr($message, 0, 255) . '...';
+        }
+        drush_log($message, LogLevel::ERROR);
+        drush_print($message);
       }
     }
 
     // Tidy and add new line to the end of the tidied file.
-    $tidied_yaml = WebformTidy::tidy($tidied_yaml) . "\n";
+    $tidied_yaml = WebformYaml::tidy($tidied_yaml) . PHP_EOL;
     if ($tidied_yaml != $original_yaml) {
       drush_print(dt('Tidying @file...', ['@file' => $file->filename]));
       file_put_contents($file->uri, $tidied_yaml);

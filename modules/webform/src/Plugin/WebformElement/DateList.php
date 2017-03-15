@@ -2,7 +2,6 @@
 
 namespace Drupal\webform\Plugin\WebformElement;
 
-use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -12,6 +11,7 @@ use Drupal\Core\Form\FormStateInterface;
  *   id = "datelist",
  *   api = "https://api.drupal.org/api/drupal/core!lib!Drupal!Core!Datetime!Element!Datelist.php/class/Datelist",
  *   label = @Translation("Date list"),
+ *   description = @Translation("Provides a form element for date & time selection using select menus and text fields."),
  *   category = @Translation("Date/time elements"),
  * )
  */
@@ -41,27 +41,18 @@ class DateList extends DateBase {
   /**
    * {@inheritdoc}
    */
-  public function setDefaultValue(array &$element) {
-    if (!empty($element['#default_value']) && is_string($element['#default_value'])) {
-      $element['#default_value'] = ($element['#default_value']) ? DrupalDateTime::createFromTimestamp(strtotime($element['#default_value'])) : NULL;
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   protected function getElementSelectorInputsOptions(array $element) {
     $date_parts = (isset($element['#date_part_order'])) ? $element['#date_part_order'] : ['year', 'month', 'day', 'hour', 'minute'];
 
     $t_args = ['@title' => $this->getAdminLabel($element)];
     $selectors = [
-      'day' => $this->t('@title days', $t_args),
-      'month' => $this->t('@title months', $t_args),
-      'year' => $this->t('@title years', $t_args),
-      'hour' => $this->t('@title hours', $t_args),
-      'minute' => $this->t('@title minutes', $t_args),
-      'second' => $this->t('@title seconds', $t_args),
-      'ampm' => $this->t('@title am/pm', $t_args),
+      'day' => (string) $this->t('@title days', $t_args),
+      'month' => (string) $this->t('@title months', $t_args),
+      'year' => (string) $this->t('@title years', $t_args),
+      'hour' => (string) $this->t('@title hours', $t_args),
+      'minute' => (string) $this->t('@title minutes', $t_args),
+      'second' => (string) $this->t('@title seconds', $t_args),
+      'ampm' => (string) $this->t('@title am/pm', $t_args),
     ];
 
     $selectors = array_intersect_key($selectors, array_combine($date_parts, $date_parts));

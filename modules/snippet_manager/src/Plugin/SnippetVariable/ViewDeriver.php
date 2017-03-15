@@ -24,10 +24,13 @@ class ViewDeriver extends DeriverBase implements ContainerDeriverInterface {
    */
   public function getDerivativeDefinitions($base_plugin_definition) {
 
-    foreach (Views::getAllViews() as $view_id => $view) {
-      if ($view->status()) {
-        $this->derivatives[$view_id] = $base_plugin_definition;
-        $this->derivatives[$view_id]['title'] = $view->label();
+    // Views module is optional.
+    if (class_exists('Drupal\views\Views')) {
+      foreach (Views::getAllViews() as $view_id => $view) {
+        if ($view->status()) {
+          $this->derivatives[$view_id] = $base_plugin_definition;
+          $this->derivatives[$view_id]['title'] = $view->label();
+        }
       }
     }
 

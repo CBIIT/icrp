@@ -5,6 +5,7 @@ namespace Drupal\snippet_manager\Plugin\SnippetVariable;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Url;
 use Drupal\snippet_manager\SnippetVariableBase;
 use Drupal\snippet_manager\SnippetVariableInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -29,13 +30,6 @@ class View extends SnippetVariableBase implements SnippetVariableInterface, Cont
   protected $entityTypeManager;
 
   /**
-   * The ID of the view.
-   *
-   * @var string
-   */
-  protected $viewId;
-
-  /**
    * Constructs View variable object.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -44,7 +38,6 @@ class View extends SnippetVariableBase implements SnippetVariableInterface, Cont
   public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->entityTypeManager = $entity_type_manager;
-    $this->viewId = $this->getDerivativeId();
   }
 
   /**
@@ -64,8 +57,7 @@ class View extends SnippetVariableBase implements SnippetVariableInterface, Cont
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
 
-    /** @var \Drupal\views\Entity\View $view */
-    $view = $this->entityTypeManager->getStorage('view')->load($this->viewId);
+    $view = $this->getView();
 
     $displays = $view->get('display');
     $options = [];
@@ -87,10 +79,9 @@ class View extends SnippetVariableBase implements SnippetVariableInterface, Cont
   /**
    * {@inheritdoc}
    */
-  public function getContent() {
+  public function build() {
 
-    /** @var \Drupal\views\ViewExecutable $view */
-    $view = $this->entityTypeManager->getStorage('view')->load($this->viewId)->getExecutable();
+    $view = $this->getView()->getExecutable();
 
     $display = $this->configuration['display'];
 
@@ -105,10 +96,53 @@ class View extends SnippetVariableBase implements SnippetVariableInterface, Cont
   /**
    * {@inheritdoc}
    */
+  public function getOperations() {
+    $links = parent::getOperations();
+
+    $view = $this->getView();
+
+    // Check implicitly if Views UI module is enabled.
+    if ($view && $view->hasLinkTemplate('edit-form')) {
+      $options = [
+        'view' => $this->getDerivativeId(),
+        'display_id' => $this->configuration['display'],
+      ];
+      $url = Url::fromRoute('entity.view.edit_display_form', $options);
+      $links['edit_view'] = [
+        'title' => t('Edit view'),
+        'url' => $url,
+      ];
+
+    }
+
+    return $links;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function defaultConfiguration() {
     return [
-      'display' => NULL,
+      'display' => 'default',
     ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function calculateDependencies() {
+    return ['module' => 'views'];
+  }
+
+  /**
+   * Return the associated view entity.
+   *
+   * @return \Drupal\views\ViewEntityInterface
+   *    View configuration entity.
+   */
+  protected function getView() {
+    $view_storage = $this->entityTypeManager->getStorage('view');
+    return $view_storage->load($this->getDerivativeId());
   }
 
 }

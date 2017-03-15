@@ -11,6 +11,7 @@ use Drupal\webform\WebformSubmissionInterface;
  * @WebformElement(
  *   id = "webform_autocomplete",
  *   label = @Translation("Autocomplete"),
+ *   description = @Translation("Provides a text field element with auto completion."),
  *   category = @Translation("Advanced elements"),
  * )
  */
@@ -20,7 +21,9 @@ class WebformAutocomplete extends TextField {
    * {@inheritdoc}
    */
   public function getDefaultProperties() {
-    return parent::getDefaultProperties() + [
+    $default_properties = parent::getDefaultProperties() + [
+      'multiple' => FALSE,
+      'multiple__header_label' => '',
       // Autocomplete settings.
       'autocomplete_existing' => FALSE,
       'autocomplete_items' => [],
@@ -28,6 +31,10 @@ class WebformAutocomplete extends TextField {
       'autocomplete_match' => 3,
       'autocomplete_match_operator' => 'CONTAINS',
     ];
+    // Remove autocomplete property which is not applicable to this autocomplete
+    // element.
+    unset($default_properties['autocomplete']);
+    return $default_properties;
   }
 
   /**

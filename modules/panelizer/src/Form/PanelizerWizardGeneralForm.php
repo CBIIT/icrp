@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\panelizer\Form\PanelizerWizardGeneralForm.
- */
-
 namespace Drupal\panelizer\Form;
 
 use Drupal\Core\Form\FormBase;

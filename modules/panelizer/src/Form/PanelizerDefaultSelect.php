@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\panelizer\Form\PanelizerDefaultSelect.
- */
-
 namespace Drupal\panelizer\Form;
 
 use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
@@ -14,6 +9,9 @@ use Drupal\Core\Url;
 use Drupal\panelizer\PanelizerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ *
+ */
 class PanelizerDefaultSelect extends ConfirmFormBase {
 
   /**

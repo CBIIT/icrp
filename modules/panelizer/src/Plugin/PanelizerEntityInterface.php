@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\panelizer\Plugin\PanelizerEntityInterface.
- */
-
 namespace Drupal\panelizer\Plugin;
 
 use Drupal\Component\Plugin\PluginInspectionInterface;

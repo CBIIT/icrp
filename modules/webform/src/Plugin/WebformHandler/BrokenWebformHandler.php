@@ -25,4 +25,16 @@ class BrokenWebformHandler extends WebformHandlerBase {
     return FALSE;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getSummary() {
+    $t_args = ['%label' => $this->getLabel(), '@id' => $this->getHandlerId()];
+    return [
+      'message' => [
+        '#markup' => $this->t('This handler is broken or missing. You might need to enable the original module.', $t_args),
+      ],
+    ];
+  }
+
 }

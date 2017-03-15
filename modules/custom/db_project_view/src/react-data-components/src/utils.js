@@ -3,7 +3,7 @@ import some from 'lodash/some';
 import type {SortBy, AppData, Value, Filters} from './types';
 
 export function sort({prop, order}: SortBy, data: AppData) {
-  let datareturn = orderBy(data, prop, order === 'descending' ? 'desc' : 'asc');
+  let datareturn = orderBy(data, row => isNaN(row[prop]) ? row[prop].toString().toLowerCase() : row[prop], order === 'descending' ? 'desc' : 'asc');
     let ind = 1;
     for (let item of datareturn) {
         item['index'] = ind;

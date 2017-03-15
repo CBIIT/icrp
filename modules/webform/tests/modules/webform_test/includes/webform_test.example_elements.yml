@@ -13,6 +13,8 @@ range:
   '#range__output': true
   '#range__output_prefix': '$'
   '#range__output_suffix': '.00'
+tel:
+  '#international': true
 entity_autocomplete:
   '#target_type': 'user'
   '#selection_handler': 'default:user'
@@ -34,11 +36,17 @@ webform_entity_checkboxes:
   '#selection_handler': 'default:user'
   '#selection_settings':
     include_anonymous: true
+  '#options':
+    1: 'Administrator'
+    0: 'Anonymous'
 webform_entity_radios:
   '#target_type': 'user'
   '#selection_handler': 'default:user'
   '#selection_settings':
     include_anonymous: true
+  '#options':
+webform_term_select:
+  '#vocabulary': tags
 webform_likert:
   '#questions':
     q1: 'Please answer question 1?'

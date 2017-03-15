@@ -150,7 +150,7 @@ class Entity extends SnippetVariableBase implements SnippetVariableInterface, Co
    * Loads entity.
    *
    * @return \Drupal\Core\Entity\EntityInterface|null
-   *   Loaded entity or null if the entity wasn't found.
+   *   Loaded entity or null if the entity was not found.
    */
   protected function loadEntity() {
 
@@ -182,7 +182,7 @@ class Entity extends SnippetVariableBase implements SnippetVariableInterface, Co
   /**
    * {@inheritdoc}
    */
-  public function getContent() {
+  public function build() {
 
     if ($entity = $this->loadEntity()) {
       if (!$this->configuration['entity_id']) {
@@ -206,6 +206,22 @@ class Entity extends SnippetVariableBase implements SnippetVariableInterface, Co
       ];
     }
 
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOperations() {
+    $links = parent::getOperations();
+    $entity = $this->loadEntity();
+    if ($entity && $entity->hasLinkTemplate('edit-form')) {
+      $label = $entity->getEntityType()->getLowercaseLabel();
+      $links['edit_entity'] = [
+        'title' => t('Edit @label', ['@label' => $label]),
+        'url' => $entity->toUrl('edit-form'),
+      ];
+    }
+    return $links;
   }
 
   /**

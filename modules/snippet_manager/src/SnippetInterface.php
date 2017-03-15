@@ -10,26 +10,6 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
 interface SnippetInterface extends ConfigEntityInterface {
 
   /**
-   * Code getter.
-   */
-  public function getCode();
-
-  /**
-   * Code setter.
-   */
-  public function setCode(array $code);
-
-  /**
-   * Variables getter.
-   */
-  public function getVariables();
-
-  /**
-   * Variables getter.
-   */
-  public function setVariables($variables);
-
-  /**
    * Variable getter.
    */
   public function getVariable($key);
@@ -54,13 +34,5 @@ interface SnippetInterface extends ConfigEntityInterface {
    *   TRUE if the variable exists, FALSE otherwise.
    */
   public function variableExists($key);
-
-  /**
-   * Determines if the associated page is published.
-   *
-   * @return bool
-   *   TRUE if associated page is published.
-   */
-  public function pageIsPublished();
 
 }

@@ -1,12 +1,21 @@
-snippet_manager:
+editor:
   js:
-    js/snippet-manager.js: {}
+    js/editor.js: {}
   css:
     component:
-      css/snippet-manager.css: {}
+      css/editor.css: {}
   dependencies:
     - snippet_manager/codemirror
     - core/jquery
     - core/jquery.cookie
     - core/drupalSettings
 
+listing:
+  js:
+    js/listing-filter.js: {}
+  css:
+    theme:
+      css/listing.css: {}
+  dependencies:
+    - core/jquery
+    - core/drupal.debounce

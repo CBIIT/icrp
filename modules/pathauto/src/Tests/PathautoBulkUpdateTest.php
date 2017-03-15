@@ -20,7 +20,7 @@ class PathautoBulkUpdateTest extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = array('node', 'pathauto');
+  public static $modules = array('node', 'pathauto', 'forum');
 
   /**
    * Admin user.
@@ -54,6 +54,7 @@ class PathautoBulkUpdateTest extends WebTestBase {
       'administer pathauto',
       'administer url aliases',
       'create url aliases',
+      'administer forums',
     );
     $this->adminUser = $this->drupalCreateUser($permissions);
     $this->drupalLogin($this->adminUser);
@@ -61,6 +62,7 @@ class PathautoBulkUpdateTest extends WebTestBase {
     $this->patterns = array();
     $this->patterns['node'] = $this->createPattern('node', '/content/[node:title]');
     $this->patterns['user'] = $this->createPattern('user', '/users/[user:name]');
+    $this->patterns['forum'] = $this->createPattern('forum', '/forums/[term:name]');
   }
 
   function testBulkUpdate() {
@@ -78,17 +80,20 @@ class PathautoBulkUpdateTest extends WebTestBase {
     $edit = array(
       'update[canonical_entities:node]' => TRUE,
       'update[canonical_entities:user]' => TRUE,
+      'update[forum]' => TRUE,
     );
     $this->drupalPostForm('admin/config/search/path/update_bulk', $edit, t('Update'));
 
-    // This has generated 7 aliases: 5 nodes and 2 users.
-    $this->assertText('Generated 7 URL aliases.');
+    // This has generated 8 aliases: 5 nodes, 2 users and 1 forum.
+    $this->assertText('Generated 8 URL aliases.');
 
     // Check that aliases have actually been created.
     foreach ($this->nodes as $node) {
       $this->assertEntityAliasExists($node);
     }
     $this->assertEntityAliasExists($this->adminUser);
+    // This is the default "General discussion" forum.
+    $this->assertAliasExists(['source' => '/taxonomy/term/1']);
 
     // Add a new node.
     $new_node = $this->drupalCreateNode(array('path' => array('alias' => '', 'pathauto' => PathautoState::SKIP)));
@@ -106,8 +111,8 @@ class PathautoBulkUpdateTest extends WebTestBase {
     $this->drupalPostForm('admin/config/search/path/update_bulk', $edit, t('Update'));
     $this->assertText('No new URL aliases to generate.');
 
-    // Update the node pattern, and leave the user pattern alone. Existing nodes should get a new alias,
-    // except the node above whose alias is manually set. User aliases must be left alone.
+    // Update the node pattern, and leave other patterns alone. Existing nodes should get a new alias,
+    // except the node above whose alias is manually set. Other aliases must be left alone.
     $this->patterns['node']->delete();
     $this->patterns['node'] = $this->createPattern('node', '/archive/node-[node:nid]');
 

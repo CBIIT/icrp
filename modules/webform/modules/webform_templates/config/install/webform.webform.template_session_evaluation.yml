@@ -1,9 +1,11 @@
 langcode: en
-status: false
+status: closed
 dependencies:
   enforced:
     module:
       - webform_templates
+open: null
+close: null
 uid: null
 template: true
 id: template_session_evaluation
@@ -17,12 +19,12 @@ elements: |
     '#options': likert_quality
     '#required': true
   speaker:
-    '#type': likert
+    '#type': webform_likert
     '#title': 'Please rate the speaker''s...'
     '#questions':
-      mastery: Mastery of this topic
-      presentation: Presentation skills
-      quality: Quality of slides and visual aids
+      mastery: 'Mastery of this topic'
+      presentation: 'Presentation skills'
+      quality: 'Quality of slides and visual aids'
     '#answers': likert_quality
     '#na_answer': true
     '#required': true
@@ -31,13 +33,13 @@ elements: |
     '#title': 'Did you learn something in this session you can use in real life?'
     '#options_display': side_by_side
     '#options':
-      Yes: Yes
-      No: No
+      'Yes': 'Yes'
+      'No': 'No'
       N/A: N/A
     '#required': true
   comments:
     '#type': textarea
-    '#title': 'Comments'
+    '#title': Comments
     '#description': 'What did you like most? What would you change? Advice for the speaker to make this session better?'
 css: ''
 javascript: ''
@@ -46,13 +48,16 @@ settings:
   page_submit_path: ''
   page_confirm_path: ''
   form_submit_label: ''
+  form_submit_once: false
   form_submit_attributes: {  }
   form_exception_message: ''
   form_closed_message: ''
+  form_previous_submissions: true
   form_confidential: false
   form_confidential_message: ''
   form_prepopulate: false
   form_prepopulate_source_entity: false
+  form_disable_autocomplete: false
   form_novalidate: false
   form_unsaved: false
   form_disable_back: false
@@ -81,6 +86,7 @@ settings:
   draft_saved_message: ''
   draft_loaded_message: ''
   confirmation_type: page
+  confirmation_title: ''
   confirmation_message: 'Thank you for your feedback.'
   confirmation_url: ''
   confirmation_attributes: {  }
@@ -91,6 +97,8 @@ settings:
   limit_total_message: ''
   limit_user: null
   limit_user_message: ''
+  purge: none
+  purge_days: null
   entity_limit_total: null
   entity_limit_user: null
   results_disabled: false

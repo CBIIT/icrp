@@ -4,6 +4,7 @@ namespace Drupal\webform\Plugin\WebformElement;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\webform\Element\WebformRating as WebformRatingElement;
+use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
 
 /**
@@ -12,6 +13,7 @@ use Drupal\webform\WebformSubmissionInterface;
  * @WebformElement(
  *   id = "webform_rating",
  *   label = @Translation("Rating"),
+ *   description = @Translation("Provides a form element to rate something using an attractive voting widget."),
  *   category = @Translation("Advanced elements"),
  * )
  */
@@ -50,15 +52,23 @@ class WebformRating extends Range {
   /**
    * {@inheritdoc}
    */
-  public function formatHtml(array &$element, $value, array $options = []) {
-    $format = $this->getFormat($element);
+  public function getTestValues(array $element, WebformInterface $webform, array $options = []) {
+    $element += ['#min' => 1, '#max' => 5];
+    return parent::getTestValues($element, $webform, $options);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function formatHtmlItem(array &$element, $value, array $options = []) {
+    $format = $this->getItemFormat($element);
 
     switch ($format) {
       case 'star':
         // Always return the raw value when the rating widget is included in an
         // email.
         if (!empty($options['email'])) {
-          return parent::formatText($element, $value, $options);
+          return parent::formatTextItem($element, $value, $options);
         }
 
         $build = [
@@ -68,22 +78,22 @@ class WebformRating extends Range {
         return WebformRatingElement::buildRateIt($build);
 
       default:
-        return parent::formatHtml($element, $value, $options);
+        return parent::formatHtmlItem($element, $value, $options);
     }
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getDefaultFormat() {
+  public function getItemDefaultFormat() {
     return 'star';
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getFormats() {
-    return parent::getFormats() + [
+  public function getItemFormats() {
+    return parent::getItemFormats() + [
       'star' => $this->t('Star'),
     ];
   }

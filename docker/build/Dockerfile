@@ -7,7 +7,8 @@ LABEL \
     VERSION="1.0" \
     UID="DRUPAL_8.2"
 
-RUN curl https://packages.microsoft.com/config/rhel/7/prod.repo > /etc/yum.repos.d/mssql-release.repo \
+RUN curl --silent --location https://rpm.nodesource.com/setup_7.x | bash - \ 
+ && curl https://packages.microsoft.com/config/rhel/7/prod.repo > /etc/yum.repos.d/mssql-release.repo \
  && yum -y update \
  && yum -y install epel-release \
  && yum -y install https://centos7.iuscommunity.org/ius-release.rpm \
@@ -16,7 +17,10 @@ RUN curl https://packages.microsoft.com/config/rhel/7/prod.repo > /etc/yum.repos
     gcc-c++ \
     httpd24u \
     httpd24u-mod_ssl \
+    make \
+    mariadb101u \
     mod_php71u \
+    nodejs \
     pear1u \
     php71u-cli \
     php71u-common \
@@ -31,7 +35,7 @@ RUN curl https://packages.microsoft.com/config/rhel/7/prod.repo > /etc/yum.repos
     php71u-pdo \
     php71u-pdo-dblib \
     php71u-pecl-apcu \
-#   php71u-pecl-xdebug \
+    php71u-pecl-xdebug \
     php71u-pgsql \
     php71u-xml \
  && yum -y remove unixODBC \

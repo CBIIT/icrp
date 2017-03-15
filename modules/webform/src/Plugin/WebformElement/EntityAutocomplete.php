@@ -13,6 +13,7 @@ use Drupal\webform\WebformSubmissionInterface;
  *   id = "entity_autocomplete",
  *   api = "https://api.drupal.org/api/drupal/core!lib!Drupal!Core!Entity!Element!EntityAutocomplete.php/class/EntityAutocomplete",
  *   label = @Translation("Entity autocomplete"),
+ *   description = @Translation("Provides a form element to select an entity reference using an autocompletion."),
  *   category = @Translation("Entity reference elements"),
  * )
  */
@@ -25,6 +26,8 @@ class EntityAutocomplete extends WebformElementBase implements WebformEntityRefe
    */
   public function getDefaultProperties() {
     return parent::getDefaultProperties() + [
+      'multiple' => FALSE,
+      'multiple__header_label' => '',
       // Entity reference settings.
       'target_type' => '',
       'selection_handler' => 'default',
@@ -38,13 +41,11 @@ class EntityAutocomplete extends WebformElementBase implements WebformEntityRefe
    */
   public function setDefaultValue(array &$element) {
     if (isset($element['#default_value']) && (!empty($element['#default_value']) || $element['#default_value'] === 0)) {
-      $target_storage = $this->entityTypeManager->getStorage($element['#target_type']);
       if ($this->hasMultipleValues($element)) {
-        $entity_ids = $this->getTargetEntityIds($element['#default_value']);
-        $element['#default_value'] = ($entity_ids) ? $target_storage->loadMultiple($entity_ids) : [];
+        $element['#default_value'] = $this->getTargetEntities($element, $element['#default_value']);
       }
       else {
-        $element['#default_value'] = $target_storage->load($element['#default_value']) ?: NULL;
+        $element['#default_value'] = $this->getTargetEntity($element, $element['#default_value']);
       }
     }
     else {
@@ -55,8 +56,27 @@ class EntityAutocomplete extends WebformElementBase implements WebformEntityRefe
   /**
    * {@inheritdoc}
    */
+  public function supportsMultipleValues() {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasMultipleWrapper() {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function hasMultipleValues(array $element) {
-    return (!empty($element['#tags'])) ? TRUE : parent::hasMultipleValues($element);
+    if ($this->hasProperty('tags') && isset($element['#tags'])) {
+      return $element['#tags'];
+    }
+    else {
+      return parent::hasMultipleValues($element);
+    }
   }
 
   /**
@@ -80,7 +100,7 @@ class EntityAutocomplete extends WebformElementBase implements WebformEntityRefe
   }
 
   /**
-   * Webform API callback. After build set the #element_validate handler.
+   * Form API callback. After build set the #element_validate handler.
    */
   public static function afterBuildEntityAutocomplete(array $element, FormStateInterface $form_state) {
     $element['#element_validate'][] = ['\Drupal\webform\Plugin\WebformElement\EntityAutocomplete', 'validateEntityAutocomplete'];
@@ -88,7 +108,7 @@ class EntityAutocomplete extends WebformElementBase implements WebformEntityRefe
   }
 
   /**
-   * Webform API callback. Remove target id property and create an array of entity ids.
+   * Form API callback. Remove target id property and create an array of entity ids.
    */
   public static function validateEntityAutocomplete(array &$element, FormStateInterface $form_state) {
     $name = $element['#name'];

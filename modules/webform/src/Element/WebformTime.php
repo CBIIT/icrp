@@ -143,7 +143,7 @@ class WebformTime extends FormElement {
    * @return array
    *   The $element with prepared variables ready for #theme 'input__time'.
    */
-  public static function preRenderWebformTime($element) {
+  public static function preRenderWebformTime(array $element) {
     $element['#attributes']['type'] = 'time';
     Element::setAttributes($element, ['id', 'name', 'type', 'value', 'size', 'min', 'max', 'step']);
     static::setAttributes($element, ['form-time']);

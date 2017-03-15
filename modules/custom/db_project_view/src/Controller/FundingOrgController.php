@@ -73,11 +73,9 @@ class FundingOrgController extends ControllerBase {
   public function getFundingOrgNamesData() {
     $dbutil = new DBUtil();
     $pdo = $dbutil -> get_connection();
-    $stmt = $pdo -> prepare("{CALL GetFundingOrgs (?)}");
-    $search_type = 'Register';
-    $stmt -> bindParam(1, $search_type, PDO::PARAM_STR);
+    $stmt = $pdo -> prepare("{CALL GetPartnerOrgs}");
     $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_COLUMN,3);
+    return $stmt->fetchAll();
   }
   public function getFundingOrgNames() {
     $results = self::getFundingOrgNamesData();

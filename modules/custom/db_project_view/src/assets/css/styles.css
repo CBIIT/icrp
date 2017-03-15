@@ -15,7 +15,6 @@ h1.h1 {
     display: inline-block;
     margin-bottom: 0;
     margin-top: 0;
-    color: orange;
     font-size: 32px;
     font-weight: 400;
 }
@@ -33,7 +32,6 @@ hr.less-margins {
 }
 
 h3.title {
-  color: orange;
   display: inline-block;
   margin-bottom: 0;
 }

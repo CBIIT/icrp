@@ -8,6 +8,7 @@ namespace Drupal\webform\Plugin\WebformElement;
  * @WebformElement(
  *   id = "webform_email_multiple",
  *   label = @Translation("Email multiple"),
+ *   description = @Translation("Provides a form element for multiple email addresses."),
  *   category = @Translation("Advanced elements"),
  * )
  */
@@ -16,12 +17,21 @@ class WebformEmailMultiple extends Email {
   /**
    * {@inheritdoc}
    */
-  public function formatHtml(array &$element, $value, array $options = []) {
+  public function getDefaultProperties() {
+    $default_properties = parent::getDefaultProperties();
+    unset($default_properties['multiple']);
+    return $default_properties;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function formatHtmlItem(array &$element, $value, array $options = []) {
     if (empty($value)) {
       return '';
     }
 
-    $format = $this->getFormat($element);
+    $format = $this->getItemFormat($element);
     switch ($format) {
       case 'link':
         $emails = preg_split('/\s*,\s*/', $value);
@@ -39,7 +49,7 @@ class WebformEmailMultiple extends Email {
         return $links;
 
       default:
-        return parent::formatHtml($element, $value, $options);
+        return parent::formatHtmlItem($element, $value, $options);
     }
   }
 

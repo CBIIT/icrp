@@ -1532,9 +1532,11 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .navbar-default .navbar-toggle:focus {
     background-color: transparent;
 }
+/*
 .navbar-default .navbar-toggle .icon-bar {
     background-color: #ffffff;
 }
+*/
 .navbar-default .navbar-collapse,
 .navbar-default .navbar-form {
     border-color: #222222;
@@ -3809,6 +3811,11 @@ button.close {
 .navbar-inverse .dropdown-menu > li > a:focus {
     color: #ffffff;
 }
+.navbar-inverse .dropdown-menu > li.disabled > a {
+    color: #999999;
+    font-style: italic;
+}
+
 .navbar-inverse .dropdown-menu > li > a:hover,
 .navbar-inverse .dropdown-menu > .active > a,
 .navbar-inverse .dropdown-menu > .active > a:hover {

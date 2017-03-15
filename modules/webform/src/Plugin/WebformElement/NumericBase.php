@@ -4,6 +4,7 @@ namespace Drupal\webform\Plugin\WebformElement;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\webform\WebformElementBase;
+use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
 
 /**
@@ -18,8 +19,10 @@ abstract class NumericBase extends WebformElementBase {
     return parent::getDefaultProperties() + [
       // Form validation.
       'size' => '',
+      'minlength' => '',
       'maxlength' => '',
       'placeholder' => '',
+      'autocomplete' => 'on',
     ];
   }
 
@@ -31,6 +34,18 @@ abstract class NumericBase extends WebformElementBase {
     if ($this->hasProperty('step') && !isset($element['#step'])) {
       $element['#step'] = 'any';
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTestValues(array $element, WebformInterface $webform, array $options = []) {
+    $element += ['#min' => 1, '#max' => 10];
+    return [
+      $element['#min'],
+      floor((($element['#max'] - $element['#min']) / 2) + $element['#min']),
+      $element['#max'],
+    ];
   }
 
   /**

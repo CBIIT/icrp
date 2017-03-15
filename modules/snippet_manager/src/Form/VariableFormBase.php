@@ -81,7 +81,7 @@ abstract class VariableFormBase extends EntityForm {
         );
       }
       catch (PluginNotFoundException $exception) {
-        drupal_set_message(t('The %plugin does not exist.', ['%plugin' => $this->variable['plugin_id']]), 'warning');
+        drupal_set_message(t('The %plugin plugin does not exist.', ['%plugin' => $this->variable['plugin_id']]), 'warning');
         throw new NotFoundHttpException();
       }
     }

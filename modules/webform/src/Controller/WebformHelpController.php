@@ -22,7 +22,7 @@ class WebformHelpController extends ControllerBase implements ContainerInjection
   protected $helpManager;
 
   /**
-   * Constructs a WebformPluginBaseController object.
+   * Constructs a WebformHelpController object.
    *
    * @param \Drupal\webform\WebformHelpManagerInterface $help_manager
    *   The help manager.
@@ -79,6 +79,8 @@ class WebformHelpController extends ControllerBase implements ContainerInjection
   /**
    * Route title callback.
    *
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The current request.
    * @param string $id
    *   The id of the dedicated help section.
    *

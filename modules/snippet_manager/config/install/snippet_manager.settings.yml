@@ -3,4 +3,3 @@ codemirror:
  toolbar: true
  theme: default
  mode: html_twig
-redirect_page: edit-form

@@ -84,26 +84,6 @@ function pathauto_help($route_name, RouteMatchInterface $route_match) {
 }
 
 /**
- * Implements hook_entity_presave().
- */
-function pathauto_entity_presave($entity) {
-  if (!($entity instanceof ContentEntityInterface) || !$entity->hasField('path')) {
-    return;
-  }
-
-  // About to be saved (before insert/update)
-  if ($entity->path->pathauto == PathautoState::SKIP && $entity->path->old_alias != '') {
-    /*
-     * There was an old alias, but when pathauto_perform_alias was checked
-     * the JavaScript disabled the textbox which led to an empty value being
-     * submitted. Restoring the old path-value here prevents the Path module
-     * from deleting any old alias before Pathauto gets control.
-     */
-    $entity->path->alias = $entity->path->old_alias;
-  }
-}
-
-/**
  * Implements hook_entity_insert().
  */
 function pathauto_entity_insert(EntityInterface $entity) {

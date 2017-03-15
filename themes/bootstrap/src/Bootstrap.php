@@ -65,7 +65,7 @@ class Bootstrap {
    *
    * @var string
    */
-  const FRAMEWORK_VERSION = '3.3.5';
+  const FRAMEWORK_VERSION = '3.3.7';
 
   /**
    * The Bootstrap Framework documentation site.
@@ -340,10 +340,11 @@ class Bootstrap {
           // Primary class.
           t('Confirm')->render()            => 'primary',
           t('Filter')->render()             => 'primary',
+          t('Log in')->render()             => 'primary',
           t('Submit')->render()             => 'primary',
           t('Search')->render()             => 'primary',
           t('Settings')->render()           => 'primary',
-          t('Log in')->render()             => 'primary',
+          t('Upload')->render()             => 'primary',
 
           // Danger class.
           t('Delete')->render()             => 'danger',
@@ -523,7 +524,7 @@ class Bootstrap {
 
     $hooks['bootstrap_dropdown'] = [
       'variables' => [
-        'alignment' => NULL,
+        'alignment' => 'down',
         'attributes' => [],
         'items' => [],
         'split' => FALSE,
@@ -995,6 +996,8 @@ class Bootstrap {
         'glyphicon-xbt' => 'xbt',
       ]);
       $versions['3.3.5'] = $versions['3.3.4'];
+      $versions['3.3.6'] = $versions['3.3.5'];
+      $versions['3.3.7'] = $versions['3.3.6'];
     }
 
     // Return a specific versions icon set.
@@ -1114,13 +1117,6 @@ class Bootstrap {
     // original theme hook, not the suggestion.
     if (isset($info['variables'])) {
       $variables = NestedArray::mergeDeepArray([$info['variables'], $variables], TRUE);
-    }
-
-    // Add extra variables to all theme hooks.
-    foreach (Bootstrap::extraVariables() as $key => $value) {
-      if (!isset($variables[$key])) {
-        $variables[$key] = $value;
-      }
     }
 
     // Add active theme context.
