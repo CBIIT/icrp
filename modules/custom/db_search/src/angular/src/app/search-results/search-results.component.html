@@ -7,7 +7,6 @@
     </span>
 
 
-
     <span class="pull-right project-counts" >
       <div *ngIf="!loadingAnalytics" style="color: #446CB3; white-space: nowrap; text-overflow: ellipsis; display: inline">
         <b>
@@ -49,89 +48,96 @@
   </div>
 </div>
 
-<div class="form-group clearfix" style="margin-top: 10px; position: relative">
 
-  <ui-spinner [active]="loadingAnalytics" [overlay]="true"></ui-spinner>
+<div *ngIf="projectData && projectData.length">
+  <div class="form-group clearfix" style="margin-top: 10px; position: relative">
 
-  <div class="col-sm-3">
-    <ui-chart
-      label="Projects by Country"
-      type="pie"
-      [data]="(analytics && analytics.projects_by_country) || []">
-    </ui-chart>
+    <ui-spinner [active]="loadingAnalytics" [overlay]="true"></ui-spinner>
+
+    <div class="col-sm-3">
+      <ui-chart
+        label="Projects by Country"
+        type="pie"
+        [data]="(analytics && analytics.projects_by_country) || []">
+      </ui-chart>
+    </div>
+
+    <div class="col-sm-3">
+      <ui-chart
+        label="Projects by CSO"
+        type="pie"
+        [data]="(analytics && analytics.projects_by_cso_research_area) || []">
+      </ui-chart>
+    </div>
+
+    <div class="col-sm-3">
+      <ui-chart
+        label="Projects by Cancer Type"
+        type="pie"
+        [data]="(analytics && analytics.projects_by_cancer_type) || []"></ui-chart>
+    </div>
+
+    <div class="col-sm-3">
+      <ui-chart
+        label="Projects by Type"
+        type="pie"
+        [data]="(analytics && analytics.projects_by_type) || []"></ui-chart>
+    </div>
   </div>
 
-  <div class="col-sm-3">
-    <ui-chart
-      label="Projects by CSO"
-      type="pie"
-      [data]="(analytics && analytics.projects_by_cso_research_area) || []">
-    </ui-chart>
+  <div class="form-group clearfix" [ngStyle]="{'display': authenticated && showExtendedCharts ? 'block' : 'none'}" style="margin-top: 10px">
+    <div class="col-sm-12" >
+      <ui-chart
+        label="Project Funding by Year"
+        type="line"
+        [data]="(analytics && analytics.projects_by_year) || []"
+        description="This only displays awards active during the years selected during your search. Select all years to see all awards"
+        ></ui-chart>
+
+        <div class="pull-right" tooltip="Qualifies the rate conversion used. Conversion rates for the year selected will be used for all monies represented on the graph."> 
+          Use Currency Rates From
+            <select #fundingyear 
+              (change)="setFundingYear(fundingyear.value)"
+            >
+              <option *ngFor="let year of fundingYearOptions" [value]="year">{{ year }}</option>
+            </select>
+        </div>
+    </div>
   </div>
 
-  <div class="col-sm-3">
-    <ui-chart
-      label="Projects by Cancer Type"
-      type="pie"
-      [data]="(analytics && analytics.projects_by_cancer_type) || []"></ui-chart>
+  <div class="text-center" [ngStyle]="{'display': authenticated ? 'block' : 'none'}">
+    <button class="btn btn-primary btn-xs" (click)="showExtendedCharts = !showExtendedCharts; setFundingYear(fundingyear.value)" [disabled]="loadingAnalytics">
+      Show {{showExtendedCharts ? 'Less' : 'More'}}
+    </button>
   </div>
 
-  <div class="col-sm-3">
-    <ui-chart
-      label="Projects by Type"
-      type="pie"
-      [data]="(analytics && analytics.projects_by_type) || []"></ui-chart>
+  <div class="" style="margin-top: 8px; margin-bottom: 5px;">
+    <email-results-button *ngIf="!authenticated"></email-results-button>
+    <export-results-button *ngIf="!authenticated"></export-results-button>
+    <export-lookup-table-button *ngIf="!authenticated"></export-lookup-table-button>
+
+    <email-results-partner-button *ngIf="authenticated"></email-results-partner-button>
+    <export-results-partner-button *ngIf="authenticated"></export-results-partner-button>
+    <export-results-single-partner-button *ngIf="authenticated"></export-results-single-partner-button>
+    <export-results-abstracts-partner-button *ngIf="authenticated"></export-results-abstracts-partner-button>
+    <export-results-abstracts-single-partner-button *ngIf="authenticated"></export-results-abstracts-single-partner-button>
+    <export-results-graphs-partner-button *ngIf="authenticated" [inputYear]="fundingYear"></export-results-graphs-partner-button>
+  </div>
+
+
+  <div class="">
+    <ui-table
+      [data]="projectData"
+      [columns]="projectColumns"
+      [loading]="loading"
+      [pageSizes]="[50, 100, 150, 200, 250, 300]"
+      [numResults]="(analytics && analytics.count) || 0"
+      (paginate)="paginate.emit($event)"
+      (sort)="sort.emit($event)">
+    </ui-table>
   </div>
 </div>
 
-<div class="form-group clearfix" [ngStyle]="{'display': authenticated && showExtendedCharts ? 'block' : 'none'}" style="margin-top: 10px">
-  <div class="col-sm-12" >
-    <ui-chart
-      label="Project Funding by Year"
-      type="line"
-      [data]="(analytics && analytics.projects_by_year) || []"
-      description="This only displays awards active during the years selected during your search. Select all years to see all awards"
-      ></ui-chart>
-
-      <div class="pull-right" tooltip="Qualifies the rate conversion used. Conversion rates for the year selected will be used for all monies represented on the graph."> 
-        Use Currency Rates From
-          <select #fundingyear 
-            (change)="setFundingYear(fundingyear.value)"
-          >
-            <option *ngFor="let year of fundingYearOptions" [value]="year">{{ year }}</option>
-          </select>
-      </div>
-  </div>
-</div>
-
-<div class="text-center" [ngStyle]="{'display': authenticated ? 'block' : 'none'}">
-  <button class="btn btn-primary btn-xs" (click)="showExtendedCharts = !showExtendedCharts; setFundingYear(fundingyear.value)" [disabled]="loadingAnalytics">
-    Show {{showExtendedCharts ? 'Less' : 'More'}}
-  </button>
-</div>
-
-<div class="" style="margin-top: 8px; margin-bottom: 5px;">
-  <email-results-button *ngIf="!authenticated"></email-results-button>
-  <export-results-button *ngIf="!authenticated"></export-results-button>
-  <export-lookup-table-button *ngIf="!authenticated"></export-lookup-table-button>
-
-  <email-results-partner-button *ngIf="authenticated"></email-results-partner-button>
-  <export-results-partner-button *ngIf="authenticated"></export-results-partner-button>
-  <export-results-single-partner-button *ngIf="authenticated"></export-results-single-partner-button>
-  <export-results-abstracts-partner-button *ngIf="authenticated"></export-results-abstracts-partner-button>
-  <export-results-abstracts-single-partner-button *ngIf="authenticated"></export-results-abstracts-single-partner-button>
-  <export-results-graphs-partner-button *ngIf="authenticated" [inputYear]="fundingYear"></export-results-graphs-partner-button>
-</div>
-
-
-<div class="">
-  <ui-table
-    [data]="projectData"
-    [columns]="projectColumns"
-    [loading]="loading"
-    [pageSizes]="[50, 100, 150, 200, 250, 300]"
-    [numResults]="(analytics && analytics.count) || 0"
-    (paginate)="paginate.emit($event)"
-    (sort)="sort.emit($event)">
-  </ui-table>
+<div *ngIf="projectData && !projectData.length && !loading">
+<br><b>No results found</b>>
 </div>

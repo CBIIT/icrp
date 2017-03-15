@@ -3,5 +3,5 @@ export interface Column {
     label: string,
     link?: string,
     tooltip?: string,
-    sort?: "asc" | "desc"
+    sortAscending?: (boolean | null)
 }

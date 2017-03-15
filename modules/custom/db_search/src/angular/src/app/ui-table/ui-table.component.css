@@ -38,9 +38,10 @@ table.ui-table > thead > tr > th {
     padding-right: 24px;
 }
 
+
 table.custom-sizing > thead > tr > th:first-child,
 table.custom-sizing > tbody > tr > td:first-child {
-    max-width: 350px;
+    max-width: 200px;
 }
 
 table.custom-sizing > thead > tr > th:nth-child(2),
@@ -51,6 +52,21 @@ table.custom-sizing > tbody > tr > td:nth-child(2) {
 table.custom-sizing > thead > tr > th:nth-child(3),
 table.custom-sizing > tbody > tr > td:nth-child(3) {
     max-width: 200px;
+}
+
+table.custom-sizing > thead > tr > th:nth-child(4),
+table.custom-sizing > tbody > tr > td:nth-child(4) {
+    max-width: 100px;
+}
+
+table.custom-sizing > thead > tr > th:nth-child(5),
+table.custom-sizing > tbody > tr > td:nth-child(5) {
+    max-width: 100px;
+}
+
+table.custom-sizing > thead > tr > th:nth-child(6),
+table.custom-sizing > tbody > tr > td:nth-child(6) {
+    max-width: 100px;
 }
 
 
