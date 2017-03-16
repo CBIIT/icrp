@@ -65,11 +65,12 @@ h5.h5 {
 
 dl.dl-horizontal > dt {
   text-align: left;
-  margin-left: 210px;
-}
+  min-width: 210px;
+} 
 
 dl.dl-horizontal > dd {
   margin-bottom: 4px;
+  margin-left: 210px;
 }
 
 table.project-funding-details {
