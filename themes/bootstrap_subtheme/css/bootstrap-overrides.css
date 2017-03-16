@@ -6,11 +6,11 @@
 
 /** Misc overrides */
 
-h1 {
+h1, h1.h1 {
   color: #e7b348;
 }
 
-h2 {
+h2, h2.h2 {
   color: #e7b348;
 }
 

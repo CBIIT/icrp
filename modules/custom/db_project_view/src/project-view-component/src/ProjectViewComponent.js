@@ -112,6 +112,7 @@ class ProjectViewComponent extends Component {
             label: 'PI',
             value: 'pi_name',
             tooltip: 'Principal Investigator',
+            link: 'pi_orcid_url',
           },
           {
             label: 'Institution',
@@ -135,6 +136,7 @@ class ProjectViewComponent extends Component {
             ? `${row.budget_start_date || 'N/A'} to ${row.budget_end_date || 'N/A'}`
             : 'Not specified',
           pi_name: [row.pi_last_name, row.pi_first_name].filter(e => e && e.length).join(', '),
+          pi_orcid_url: row.pi_orcid ? `http://orcid.org/${row.pi_orcid}` : null,
           institution: row.institution,
           location: [row.city, row.state, row.country].filter(e => e && e.length).join(', '),
         }))

@@ -28,7 +28,15 @@
       <i>Not specified</i>
     {% endif %}
   <dt>Principal Investigator</dt>
-  <dd>{{ funding_details.pi_name | default('Not specified')}}</dd>
+  <dd>
+    {{ funding_details.pi_name | default('Not specified')}}
+    {% if funding_details.pi_orcid %}
+      <a href="https://orcid.org/{{ funding_details.pi_orcid }}" target="_blank">
+        <img style="margin: 0 4px" src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="ORCiD Logo">
+        http://orcid.org/{{ funding_details.pi_orcid }}
+      </a>
+    {% endif %}
+  </dd>
   <dt>Institution</dt>
   <dd>{{ funding_details.institution | default('Not specified')}}</dd>
   <dt>Location</dt>

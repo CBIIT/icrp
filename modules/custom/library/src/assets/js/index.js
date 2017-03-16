@@ -375,8 +375,8 @@ jQuery(function() {
                       if (node.parent != entry.parent) tree.move_node(node,entry.parent);
                   } else {
                       tree.deselect_all();
-                      tree.select_node(tree.create_node(parent,entry,'last'));
-                      parent = tree.get_node(parent);
+                      tree.select_node(tree.create_node(entry.parent,entry,'last'));
+                      parent = tree.get_node(entry.parent);
                       parent.children = parent.children.map(function(entry) { return tree.get_node(entry); }).sort(functions.caselessSort);
                       if ($('#library-display .frame').hasClass('archived')) {
                           functions.showArchives(e);
