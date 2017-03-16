@@ -616,7 +616,8 @@ CREATE PROCEDURE [dbo].[GetProjectFunding]
     @ProjectID INT    
 AS  
 
-SELECT pf.ProjectFundingID, pf.title, fi.LastName AS piLastName, fi.FirstName AS piFirstName, i.Name AS Institution, i.City, i.State, i.Country, pf.Category,
+SELECT pf.ProjectFundingID, pf.title, fi.LastName AS piLastName, fi.FirstName AS piFirstName, fi.ORC_ID,
+		i.Name AS Institution, i.City, i.State, i.Country, pf.Category,
 		pf.ALtAwardCode AS AltAwardCode, o.Abbreviation AS FundingOrganization,	pf.BudgetStartDate, pf.BudgetEndDate
 FROM Project p
 	JOIN ProjectFunding pf ON p.ProjectID = pf.ProjectID
@@ -700,7 +701,7 @@ CREATE PROCEDURE [dbo].[GetProjectFundingDetail]
 AS   
  
 SELECT f.Title, f.AltAwardCode, f.BudgetStartDate,  f.BudgetEndDate, o.Name AS FundingOrg, pi.LastName + ', ' + pi.FirstName AS piName, 
-	i.Name AS Institution, i.City, i.State, i.Country, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract
+	pi.ORC_ID, i.Name AS Institution, i.City, i.State, i.Country, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract
 FROM ProjectFunding f	
 	JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
 	JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID
@@ -880,7 +881,7 @@ SELECT [Name]
 	  ,[Description]	  
       ,[Country]
       ,[Website]      
-      ,CAST([CreatedDate] AS DATE)AS JoinDate      
+      ,CAST([JoinedDate] AS DATE)AS JoinDate      
   FROM [Partner]
   ORDER BY [Country], [Name]
 

@@ -60,6 +60,7 @@ FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_CA.csv'  --ICRP_DataSubmiss
 WITH
 (
 	FIRSTROW = 2,
+	DATAFILETYPE ='widechar',  -- unicode format
 	FIELDTERMINATOR = '|',
 	ROWTERMINATOR = '\n'
 )
@@ -70,35 +71,6 @@ WHERE AltId = '10769_1'
 
 UPDATE UploadWorkBook SET TechAbstract = 'The program of research addressing five research aims, was undertaken by a research team (organized into the Evidence Expert Panel, Best Practices Expert Panel and the main Scientific Office): Research Aims: 1. Using existing KT resources, to identify and analyze high quality systematic reviews and guidelines (e.g. Cochrane Review) in the published literature evaluating the effectiveness of interventions directed to change behaviour across stakeholder groups. A measurement tool to operationalize the degree of KT intervention effectiveness was developed. 2. Using a targeted review, to analyze selected frameworks, models and theories that may be useful in directing KT strategy, planning, and practice to improve quality in cancer control. 3. Using key informant interviews and questionnaire methodologies, to identify best Canadian KT practices in use, being tested or targeted to improve cancer control. A tool to operationalize the concept of ‘best practices’ was developed. 4. Using consensus methodology, findings from Aims 1 to 3 will be integrated to identify gaps and priorities in the KT research field as it relates to improving cancer control. 5. The planning and implementation of a strategy to facilitate the use and application of the findings using integrated- and end-of-grant KT principles. Final Reports: 1. Knowledge Translation for Cancer Control in Canada: A Casebook. 2. Knowledge translation to improve quality of cancer control in Canada: What we know and what is next. Publication: Brouwers MC, Makarski J, Garcia K, Bouseh S, Hafid T. Improving cancer control in Canada one case at a time: the "Knowledge Translation in Cancer" casebook. Curr Oncol. 2011;18(2):76-83. PubMed PMID: 21505598; PubMed Central PMCID: PMC3070706 PDF | APPENDIX A | APPENDIX B | HTML Brouwers MC; Garcia K; Makarski J; Daraz L; of the Evidence Expert Panel and of the KT for Cancer Control in Canada Project Research Team. The landscape of knowledge translation interventions in cancer control: What do we know and where to next? A review of systematic reviews. Implementation Science 2011, 6, 130. doi:10.1186/1748-5908-6-130 PDF | HTML'
 WHERE AltId = '18497_1'
-
-/***********************************************************************************************/
--- Fix data
-/***********************************************************************************************/
-
-
-/*************************************************************************************************************/
--- Delete CA funding data
-/*************************************************************************************************************/
---SELECT f.ProjectID, ProjectFundingID INTO #ca FROM ProjectFunding f 
---JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
---WHERE o.sponsorcode = 'CCRA'
-
---DELETE ProjectFundingInvestigator WHERE ProjectFundingID IN (SELECT ProjectFundingID FROM #ca)
---DELETE ProjectCancerType WHERE ProjectFundingID IN (SELECT ProjectFundingID FROM #ca)
---DELETE ProjectCSO WHERE ProjectFundingID IN (SELECT ProjectFundingID FROM #ca)
-
---SELECT a.ProjectAbstractID INTO #Abstract FROM ProjectAbstract a
---	JOIN ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
---		WHERE f.ProjectFundingID IN (SELECT ProjectFundingID FROM #ca)
-
---DELETE ProjectFunding WHERE ProjectFundingID IN (SELECT ProjectFundingID FROM #ca)
---DELETE ProjectAbstract WHERE ProjectAbstractID IN (SELECT distinct ProjectAbstractID FROM #Abstract where ProjectAbstractID <> 0)
---DELETE ProjectFundingExt WHERE ProjectID IN (SELECT DISTINCT ProjectID FROM #ca)
---DELETE Project_ProjectType WHERE ProjectID IN (SELECT DISTINCT ProjectID FROM #ca)
---DELETE ProjectDocument WHERE ProjectID IN (SELECT DISTINCT ProjectID FROM #ca)
---DELETE ProjectDocument_JP WHERE ProjectID IN (SELECT DISTINCT ProjectID FROM #ca)
---DELETE Project WHERE ProjectID IN (SELECT DISTINCT ProjectID FROM #ca)
-
 
 /***********************************************************************************************/
 -- Validation
@@ -132,6 +104,30 @@ ELSE
 	PRINT 'Checking Total parent projects = total award codes  ==> Pass'
 
 --select * from UploadWorkBook where awardcode='10238_2'
+
+-------------------------------------------------------------------
+-- Check CSO Codes
+-------------------------------------------------------------------
+IF EXISTS (select csocodes, csorel from UploadWorkBook where ISNULL(csocodes,'')='' or ISNULL(csorel,'')='')
+BEGIN
+  PRINT 'ERROR ==> Missing CSO Codes'
+  SELECT DISTINCT 'Missing CSO Codes' AS Issue, AwardCode, AltId from UploadWorkBook 	
+	WHERE ISNULL(csocodes,'')='' or ISNULL(csocodes,'')=''
+END
+ELSE
+	PRINT 'Checking Missing CSO Codes  ==> Pass'
+
+-------------------------------------------------------------------
+-- Check CancerType Codes
+-------------------------------------------------------------------
+IF EXISTS (select sitecodes, siterel from UploadWorkBook where ISNULL(sitecodes,'')='' or ISNULL(siterel,'')='')
+BEGIN
+  PRINT 'ERROR ==> Missing CancerType Codes'
+  SELECT DISTINCT 'Missing CancerType Codes' AS Issue, AwardCode, AltId from UploadWorkBook 
+	WHERE ISNULL(sitecodes,'')='' or ISNULL(siterel,'')=''
+END
+ELSE
+	PRINT 'Checking Missing CancerType Codes  ==> Pass'
 
 -------------------------------------------------------------------
 -- Check FundingOrg
@@ -225,21 +221,6 @@ END
 ELSE
 	PRINT 'Checking Institution Mapping   ==> Pass'
 
-	select * from ProjectFundingInvestigator where InstitutionID is null
---select name, city from lu_Institution where name like '%Eidgen%'
---select distinct institution, city from UploadWorkBook where institution like '%Eidgen?ssiche Technische Hochschule (ETH) Zürich%'
-
---Centre National de la Recherche Scientifique (CNRS), l'INSERM (Institut National de la Sant? et de la Recherche M?dicale) - UNSA
---Centre National de la Recherche Scientifique (CNRS), l'INSERM (Institut National de la Santé et de la Recherche Médicale) - UNSA
---Centre National de la Recherche Scientifique (CNRS), l''INSERM (Institut National de la Santé et de la Recherche Médicale) - UNSA
-
-
---SELECT u.Institution, u.CIty INTO #missingInst2 FROM UploadWorkBook u
---LEFT JOIN UploadInstitution i ON u.Institution = i.DedupInstitution AND u.City = i.City_Clean
---WHERE i.DedupInstitution IS NULL 
-
---select * FROM #missingInst2 order by Institution
-
 /***********************************************************************************************/
 -- Import Data
 /***********************************************************************************************/
@@ -322,20 +303,16 @@ FROM UploadWorkBook u
 	           FROM Institution i 
 					LEFT JOIN InstitutionMapping m ON (i.name = m.newName AND i.City = m.newCity)) inst 
      ON (u.Institution = inst.Name AND u.City = inst.City) OR (u.Institution = inst.OldName AND u.City = inst.OldCity) OR (u.Institution = inst.OldName AND u.City = inst.City)
-
 GO
 
-
-		   --SELECT i.InstitutionID, i.Name, i.City, m.OldName, m.oldCity FROM Institution i 
-     --      LEFT JOIN InstitutionMapping m ON i.name = m.newName AND i.City = m.newCity
-		   --order by i.name, i.city
-		   --select * FROM UploadInstitution where institution_icrp ='21ST CENTURY THERAPEUTICS, INC.'
-
--- SELECT * FROM Institution where name ='21ST CENTURY THERAPEUTICS, INC.' ORDER BY Name
--- SELECT * FROM InstitutionMapping ORDER BY newName
-
-
-
+-- Post Import Checking
+IF EXISTS (select * from ProjectFundingInvestigator where InstitutionID is null)
+BEGIN
+	select 'Post Import Check - Not-mapped institution', * from ProjectFundingInvestigator where InstitutionID is null
+END
+ELSE
+	PRINT 'Post Import Check - Instititutions all mapped'
+		
 -----------------------------------
 -- Import ProjectCancerCSO
 -----------------------------------
