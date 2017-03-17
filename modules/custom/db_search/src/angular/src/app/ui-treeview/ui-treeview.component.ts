@@ -68,6 +68,9 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
 
   /** Creates a TreeView */
   createTree(node: TreeNode) {
+    
+    /** Ensure that this node has the children and showChildren properties */
+    this.ensureDefaultProperties(node);
 
     /** Update the array of selected nodes */
     this.updateSelectedNodes(node);
@@ -108,7 +111,7 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
     /** Set appearance of each checkbox/label group */      
     this._r.setElementStyles(
       div, {
-        'margin-left': '4px',
+        'margin-left': '8px',
         '-webkit-touch-callout': 'none',
         '-webkit-user-select': 'none',
         '-khtml-user-select': 'none',
@@ -129,9 +132,36 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
         'cursor': 'pointer'
       });
 
-    if (node.children) {
+    if (node.children && node.children.length) {
+
+      let toggleChildren: HTMLElement =
+        this._renderer.createElement(div, 'span');
+
+      this._r.setElementStyles(
+        toggleChildren, {
+          'margin-left': '8px',
+          'color': '#ccc',
+          'cursor': 'pointer'
+        });
+
+      this._renderer.createText(toggleChildren, node.showChildren ? '[hide]' : '[show]');
+
+      /** Toggle this node when is clicked */
+      this._renderer.listen(
+        toggleChildren, 'click', f => {
+          node.showChildren = !node.showChildren;
+          this.rebuildTree();
+        }
+      );
+
       for (let child of node.children) {
         child.el = this._renderer.createElement(div, 'div');
+
+        this._r.setElementStyles(
+          child.el, {
+            'display': node.showChildren ? 'block' : 'none'
+          });        
+
         child.parent = node;
         this.createTree(child);
       }
@@ -140,6 +170,20 @@ export class UiTreeviewComponent implements OnChanges, ControlValueAccessor {
     this.propagateChange(this.selectedNodes.map(node => node.value));
   }
 
+  ensureProperty(object: any, property: string, defaultValue: any) {
+    if (object[property] === undefined || object[property] === null) {
+      object[property] = defaultValue;
+    }
+  }
+
+
+  ensureDefaultProperties(node: TreeNode) {
+    // ensure node has the 'children' property
+    this.ensureProperty(node, 'children', []);
+
+    // ensure node has the 'showChildren' property
+    this.ensureProperty(node, 'showChildren', true);
+  }
   
   /**
    * Toggles the selected status of the node

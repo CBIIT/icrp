@@ -427,7 +427,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
   this.form.reset();
   // set last two years
   let years = this.fields.years.filter((field, index) => {
-    if (index < 2)
+    if (index === 1 || index === 2)
       return field;
   }).map(field => field.value);
   this.form.controls['years'].patchValue(years);
