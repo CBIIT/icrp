@@ -270,65 +270,13 @@ header {
 .layout-region-node-secondary {
     display:none;
 }
-/* alert */
-/*
-.alert {
-    margin-bottom:0px;
-    margin-top:10px;
+/* Twitter Container */
+#twitter-container {
+    height:550px;
+    max-height:550px;
+    min-width:135px;
+    overflow-y:scroll;
 }
-*/
-/* breadcrumb */
-/*
-.region-header {
-    margin-top:10px;
-}
-*/
-
-/* Footer */
-/*
-footer {
-    background-color: #f8f8f8;
-}
-footer > div > nav {
-    width:33%;
-    float:left;
-}
-footer > div > nav  > h2 {
-    font-size:14px;
-}
-footer > div > nav > ul {
-    list-style-type: outside none none;
-    min-width: 125px;
-}
-footer > div > nav > ul > li {
-    line-height: 0.5;
-}
-footer > div > nav > ul > li > a {
-    padding: 0px;
-}
-footer > div > nav > ul.nav > li > a {
-    display: block;
-    padding: 10px 0px;
-    position: relative;
-}
-#block-footermiddle {
-    padding-top:50px;
-}
-#block-footermiddle > ul > li {
-    float: left;
-}
-#block-footermiddle > ul > li:not(:last-child) {
-    border-right:1px solid grey;
-    margin-right:10px;
-    padding-right:10px;
-}
-#block-footermiddle > ul > li:nth-child(3) {
-    list-style-type: circle;
-}
-#block-footerright {
-    padding-left:250px ;
-}
-*/
 /* Make the Footer the same style as the header */
 footer {
     background-color: #f7f7f7;
@@ -339,29 +287,6 @@ footer {
     min-height: 20px;
     padding: 19px;
 }
-/*
-#block-footermiddle {
-    padding-top:50px;
-}
-#block-footermiddle > ul > li {
-    float: left;
-}
-#block-footermiddle > ul > li:not(:last-child) {
-    border-right:1px solid grey;
-    margin-right:10px;
-    padding-right:10px;
-}
-#block-footermiddle > ul > li:nth-child(3) {
-    list-style-type: circle;
-}
-*/
-/*
-.input-group {
-    width:585px;
-    padding-left:350px;
-    padding-top:10px;
-}
-*/
 /* Adjust front page container */
 
 /* Home Page */
@@ -382,30 +307,6 @@ ul.nav-pills {
   position: absolute;
 }
 
-/*
-.yamlform-element--title-inline label::after {
-    content: ":";
-}
-label:after {
-    color: #e32;
-    content: ' *';
-    display:inline;
-}
-*/
-/*
-label:after {
-    color: #e32;
-    content: ' *';
-    display:inline;
-}
-*/
-
-/*
-div.col-sm-9 div {
-  height: 250px;
-  font-size: 28px;
-}
-*/
 /* CSO Page */
 #cso-document-container {
   height: 700px;
@@ -543,6 +444,9 @@ div#cso-document-container > div > h1 {
     .nav-footer-middle > ul > li {
         border-right: 0px;
     }
+    #twitter-container {
+        margin: 0 -10px;
+    }
 }
 
 /* Extra Small Devices, Phones */
@@ -553,6 +457,9 @@ div#cso-document-container > div > h1 {
     }
     .nav-footer-middle > ul > li {
         border-right: 0px;
+    }
+    #twitter-container {
+        margin: 0 -10px;
     }
 }
 
