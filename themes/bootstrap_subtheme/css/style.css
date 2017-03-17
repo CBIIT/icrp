@@ -26,11 +26,6 @@ h1 {
     margin-top:15px;
 }
 /* Membership Status - Expose Form*/
-/*
-#form-membership-status > div > div > div > div > div.select-wrapper {
-    display:inline-block;
-}
-*/
 
 #about-us-container .panel-title {
     font-size:24px;
@@ -74,22 +69,6 @@ body {
     margin-top:0px;
 }
 
-
-/* Breadcrumb */
-/*.breadcrumb {
-    background-color:white;
-    margin:5px;
-    padding:5px;
-    font-size:10pt;
-}
-.breadcrumb > li + li::before {
-    content:"->";
-}
-
-.breadcrumb > li > a  {
-    color: #153670;
-}
-*/
 /* Footer Nav */
 .nav-footer-middle > ul > li {
     border-right: 1px solid #bbb;
@@ -429,101 +408,6 @@ div#cso-document-container > div > h1 {
   width: 100%;
 }
 
-/*==================================================
-=            Bootstrap 3 Media Queries             =
-==================================================*/
-
-/*==========  Mobile First Method  ==========*/
-
-/* Custom, iPhone Retina */
-@media only screen and (min-width : 320px) {
-    .main-container {
-        padding-left:15px;
-        padding-right:15px;
-    }
-    .nav-footer-middle > ul > li {
-        border-right: 0px;
-    }
-    #twitter-container {
-        margin: 0 -10px;
-    }
-}
-
-/* Extra Small Devices, Phones */
-@media only screen and (min-width : 480px) {
-    .main-container {
-        padding-left:15px;
-        padding-right:15px;
-    }
-    .nav-footer-middle > ul > li {
-        border-right: 0px;
-    }
-    #twitter-container {
-        margin: 0 -10px;
-    }
-}
-
-/* Small Devices, Tablets */
-@media only screen and (min-width : 768px) {
-    .main-container {
-        padding-left:15px;
-        padding-right:15px;
-    }
-    .nav-footer-middle > ul > li {
-        border-right: 1px solid #bbb;
-    }
-    .nav-footer-middle > ul > li:last-child {
-        border-right: none;
-    }
-}
-
-/* Medium Devices, Desktops */
-@media only screen and (min-width : 992px) {
-    .main-container {
-        padding-left:0px;
-        padding-right:0px;
-    }
-    .nav-footer-middle > ul > li {
-        border-right: 1px solid #bbb;
-    }
-    .nav-footer-middle > ul > li:last-child {
-        border-right: none;
-    }
-}
-
-/* Large Devices, Wide Screens */
-@media only screen and (min-width : 1200px) {
-    .main-container {
-        padding-left:0px;
-        padding-right:0px;
-    }
-    .nav-footer-middle > ul > li {
-        border-right: 1px solid #bbb;
-    }
-    .nav-footer-middle > ul > li:last-child {
-        border-right: none;
-    }
-}
-
-@media only screen and (min-width : 1450px) {
-    #navbar, .footer, .main-container {
-        width:1440px;
-        max-width:1440px;
-    }
-    .main-container {
-        padding-left:0px;
-        padding-right:0px;
-    }
-    .front-page-banner {
-        width:72%;
-    }
-    .nav-footer-middle > ul > li {
-        border-right: 1px solid #bbb;
-    }
-    .nav-footer-middle > ul > li:last-child {
-        border-right: none;
-    }
-}
 /* Font Awesome icons on the front page */
 .fa-stack.fa-lg {
     margin-bottom: 5px;
@@ -540,14 +424,99 @@ div#cso-document-container > div > h1 {
     font-size:18px;
     font-weight:bold;
 }
-.newsletter-image{
+.newsletter-image {
     padding:15px;
-    width:190px;
-   
 }
 .newsletter-description{
     padding:5px;
 }
 .newsletter-image img {
     box-shadow: 10px 10px 5px #888888;
+}
+
+/*==================================================
+=            Bootstrap 3 Media Queries             =
+==================================================*/
+
+/*==========  Mobile First Method  ==========*/
+
+/* Custom, iPhone Retina */
+@media only screen and (min-width : 320px) {
+    .main-container {
+        padding-left:15px;
+        padding-right:15px;
+    }
+    #twitter-container {
+        margin: 0 -10px;
+    }
+    .newsletter-image img {
+        width:200px;
+    }
+}
+
+/* Extra Small Devices, Phones */
+@media only screen and (min-width : 480px) {
+    .main-container {
+        padding-left:15px;
+        padding-right:15px;
+    }
+    .nav-footer-middle > ul > li {
+        border-right: 0px;
+    }
+    #twitter-container {
+        margin: 0 -10px;
+    }
+    .newsletter-image img {
+        width:180px;
+    }
+}
+
+/* Small Devices, Tablets */
+@media only screen and (min-width : 768px) {
+    .main-container {
+        padding-left:15px;
+        padding-right:15px;
+    }
+    .newsletter-image img {
+        width:120px;
+    }
+}
+
+/* Medium Devices, Desktops */
+@media only screen and (min-width : 992px) {
+    .main-container {
+        padding-left:0px;
+        padding-right:0px;
+    }
+    .newsletter-image img {
+        width:180px;
+    }
+}
+
+/* Large Devices, Wide Screens */
+@media only screen and (min-width : 1200px) {
+    .main-container {
+        padding-left:0px;
+        padding-right:0px;
+    }
+    .newsletter-image img {
+        width:180px;
+    }
+}
+
+@media only screen and (min-width : 1450px) {
+    #navbar, .footer, .main-container {
+        width:1440px;
+        max-width:1440px;
+    }
+    .main-container {
+        padding-left:0px;
+        padding-right:0px;
+    }
+    .front-page-banner {
+        width:72%;
+    }
+    .newsletter-image img {
+        width:190px;
+    }
 }
