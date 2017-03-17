@@ -15,8 +15,6 @@ declare var fetch;
 })
 export class SearchComponent implements OnInit, AfterViewInit {
 
-  devEndpoint = '';
-
   searchParameters: SearchParameters;
 
   searchID: any;
@@ -94,7 +92,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
             }
           }
 
-          if (response.length > 1) {
+          if ( this.partnerData[0]) {
             let partner = this.partnerData[0];
 
             this.generatePartnerMessage(0);

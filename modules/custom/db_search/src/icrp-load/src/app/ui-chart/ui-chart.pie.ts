@@ -47,7 +47,7 @@ export class PieChart {
                 }
 
                 else {
-                 html += `Relevance: ${Number(value).toLocaleString()} (${(100 * value/sum).toFixed(2)}%)`;
+                 html += `Relevance: ${(+Number(value).toFixed(2)).toLocaleString()} (${(100 * value/sum).toFixed(2)}%)`;
 
                     html += `<br>`
                  html += `Projects: ${Number(count).toLocaleString()}`;

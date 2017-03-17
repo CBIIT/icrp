@@ -9,7 +9,7 @@ import {
 import { UiChartParameters } from '../ui-chart/ui-chart.parameters';
 import { Observable } from 'rxjs/Rx';
 
-
+import { Column } from '../ui-table/column';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
 
@@ -47,8 +47,8 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
 
   showExtendedCharts = false;
 
-  projectData;
-  projectColumns;
+  projectData: any[];
+  projectColumns: Column[];
 
   constructor(
     @Inject(FormBuilder) private formbuilder: FormBuilder,
@@ -79,7 +79,8 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
         label: 'Project Title',
         value: 'project_title',
         link: 'url',
-        tooltip: 'Title of Award'
+        tooltip: 'Title of Award',
+        sortAscending: true,
       },
       {
         label: 'PI',
@@ -140,9 +141,9 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   ngOnChanges(changes: SimpleChanges) {
     
     console.log(changes);
-
+    this.showExtendedCharts = false;
     if (changes['searchParameters']) {
-
+      this.showCriteria = false;
       if (Object.keys(this.searchParameters).length == 0) {
         this.searchCriteriaSummary = "All projects are shown below. Use the form on the left to refine search results";
         this.showCriteriaLocked = true; 

@@ -176,11 +176,17 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
       event.preventDefault();
     }
 
+    let years = this.form.controls['years'].value;
+ 
+     if(years.indexOf('All Years') > -1) {
+       years = this.fields.years.map(year => year.value).slice(1);
+     }    
+
     let parameters = {
 
       search_terms: this.form.controls['search_terms'].value,
       search_type: this.form.controls['search_type'].value,
-      years: this.form.controls['years'].value,
+      years: years,
 
       institution: this.form.controls['institution'].value,
       pi_first_name: this.form.controls['pi_first_name'].value,
@@ -373,7 +379,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
 
       else if (type === 'cso_research_areas') {
         if (b.value == '0') return -999;
-        return a.value.localeCompare(b.value);
+        return a.value.toString().localeCompare(b.value.toString());
       }
     }
 
@@ -501,6 +507,9 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
         this.fields = response;
         this.funding_organizations = this.createTreeNode(this.fields.funding_organizations, 'funding_organizations');
         this.cso_research_areas = this.createTreeNode(this.fields.cso_research_areas, 'cso_research_areas');
+
+        let allYears = this.fields.years.map(v => v.value).join(',');
+        this.fields.years.unshift({label: 'All Years', value: 'All Years'})
 
         let useSearchID = window.location.search && window.location.search.includes('sid')
 
