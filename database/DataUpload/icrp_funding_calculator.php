@@ -23,10 +23,15 @@ try {
         $end_date = mktime(0, 0, 0, date("m", $end_date), date("d", $end_date), date("Y", $end_date));
         $total_amount = $row['Amount'];
         $number_of_days = ($end_date - $start_date) / (60 * 60 * 24) + 1;
+        if ($number_of_days <= 0) {
+            print "Error: Project with project funding ID " . $projectFundingID . " has a duration of " . ($number_of_days - 1) . " days. Skipping over this project.\n";
+            continue;
+        }
         $amount_per_day = $total_amount / $number_of_days;
+
         
-        //  print("Start date: " . $row['BudgetStartDate'] . " | End date: " . $row['BudgetEndDate'] . " | Amount: " . $row['Amount'] . "\n");
-        //  print("Number of Days: " . $number_of_days . " | Amount per day: " . $amount_per_day . "\n");
+        // print("Start date: " . $row['BudgetStartDate'] . " | End date: " . $row['BudgetEndDate'] . " | Amount: " . $row['Amount'] . "\n");
+        // print("Number of Days: " . $number_of_days . " | Amount per day: " . $amount_per_day . "\n");
         
         $current_date = $start_date;
         $current_year = date('Y', $start_date);
