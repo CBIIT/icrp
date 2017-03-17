@@ -377,7 +377,8 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
 
       else if (type === 'cso_research_areas') {
         if (b.value == '0') return -999;
-        return a.value.toString().localeCompare(b.value.toString());
+        return 0; // use server-side sorted list
+//        return a.value.toString().localeCompare(b.value.toString());
       }
     }
 
