@@ -1,6 +1,6 @@
 <ui-spinner [active]="loading" [overlay]="true" [fullscreen]="true"></ui-spinner>
 
-<div class="row">
+<div class="row" [style.display]="partnerData && partnerData.length > 0 ? 'block':'none'">
   <div class="col-md-12">The following submitted workbooks have been uploaded to the staging website. Please select the relevant Sponsor Code to review your data and contact us by email to identify any problems or to approve your data to go live.</div>
   <div class="table-responsive col-md-12">
     <table class="table table-bordered table-hover table-striped table-condensed table-nowrap table-narrow" #table>
@@ -28,13 +28,17 @@
       </tbody>
     </table>
   </div>
+
+  <div style="color: orange; font-size: 16px; font-weight: bold">{{ partnerSelectionMessage }}</div>
 </div>
 
-<div style="color: orange; font-size: 16px; font-weight: bold">{{ partnerSelectionMessage }}</div>
+<div [style.display]="partnerData && partnerData.length === 0 ? 'block':'none'">
+There are currently no submitted workbooks pending for review. Go to <a href="https://icrpartnership-dev.org/uploadStatusReport">Data Upload Status Report</a> to view the Information about the status of data submissions and uploads to the ICRP database.
+</div>
 
 <br>
 
-<div class="row">
+<div class="row" [style.display]="partnerData && partnerData.length > 0 ? 'block':'none'">
 <div class="col-md-3">
   <app-search-form 
     [initialSearchParameters]="initialParameters"
