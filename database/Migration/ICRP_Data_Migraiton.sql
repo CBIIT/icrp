@@ -43,7 +43,7 @@ INSERT INTO CSO
 (Code, Name, ShortName, CategoryName, WeightName,SortOrder)
 SELECT DISTINCT code, name, ShortName, Category, WEIGHTNAME, SortOrder from icrp.dbo.CSO order by code
 
-UPDATE CSO SET IsActive = 0 WHERE code in ('1.6', '7.1', '7.2', '7.3')
+UPDATE CSO SET IsActive = 0 WHERE code in ('1.6', '6.8', '7.1', '7.2', '7.3')
 
 -----------------------------
 -- CancerType
@@ -53,28 +53,6 @@ INSERT INTO CancerType
 SELECT DISTINCT name, mappedID, ISCOMMON, ISARCHIVED, SORTORDER 
 FROM icrp.dbo.SITE 
 ORDER BY mappedid
-
------------------------------
--- PrjectAbstract  -- TO DO (Only migrate active projects)
------------------------------
-PRINT 'Migrate [ProjectAbstract]'
-
-SET IDENTITY_INSERT ProjectAbstract ON;  -- SET IDENTITY_INSERT to ON. 
-GO  
-
-INSERT INTO ProjectAbstract
-(ProjectAbstractID, TechAbstract, PublicAbstract, CreatedDate, UpdatedDate)
-SELECT DISTINCT a.ID, a.techAbstract, a.publicAbstract, a.dateadded, a.lastrevised
-FROM icrp.dbo.Abstract a
-	JOIN icrp.dbo.PROJECT p ON p.abstractId = a.ID
-	JOIN icrp.dbo.TESTPROJECTACTIVE t ON t.PROJECTID = p.ID
-ORDER BY id
-
-
-update ProjectAbstract set TechAbstract = 'No abstract available for this Project funding.' where ProjectAbstractID =0
-
-SET IDENTITY_INSERT ProjectAbstract OFF;   -- SET IDENTITY_INSERT to OFF. 
-GO  
 
 -----------------------------
 -- Currency - De-dup...
@@ -217,6 +195,10 @@ UPDATE InstitutionMapping SET NewName='National Cancer Institute (NIH)', NewCity
 UPDATE InstitutionMapping SET NewName='National Cancer Institute (NIH)', NewCity = 'Rockville' where OldName='National Cancer Institute' AND OldCity = 'Ft. Detrick'
 UPDATE InstitutionMapping SET NewName='National Cancer Institute (NIH)', NewCity = 'Rockville' where OldName='National Cancer Institute' AND OldCity = 'Rockville'
 UPDATE InstitutionMapping SET NewName='National Cancer Institute (NIH)', NewCity = 'Rockville' where OldName='National Cancer Institute (NCI)' AND OldCity = 'Bethesda'
+UPDATE InstitutionMapping SET NewName='National Cancer Institute (NIH)', NewCity = 'Rockville' where OldName='NCI' AND OldCity = 'Bethesda'
+UPDATE InstitutionMapping SET NewName='National Cancer Institute (NIH)', NewCity = 'Rockville' where OldName='Nih/National Cancer Institute' AND OldCity = 'Bethesda'
+UPDATE InstitutionMapping SET NewName='National Institute of Nursing Research (NIH)', NewCity = 'Bethesda' where OldName='NIH/NINR' AND OldCity = 'Bethesda'
+
 
 UPDATE InstitutionMapping SET NewCity = NULL where NewCity = 'NULL' OR NewCity = ''
 UPDATE InstitutionMapping SET OldCity = NULL where OldCity = 'NULL' OR OldCity = ''
@@ -229,6 +211,8 @@ INSERT INTO [Institution] ([Name],[City],[State],[Country],[Longitude],[Latitude
 SELECT DISTINCT MAX(DedupInstitution), City_Clean, MAX(State_Clean), MAX(Country_ICRP_ISO), MAX(Lng_GRID), MAX(Lat_GRID), MAX(ID_GRID)
 FROM [UploadInstitution] GROUP BY DedupInstitution, City_Clean -- 3944
 
+-- Replace Country code from UK to GB
+UPDATE Institution SET country = 'GB' WHERE Country ='UK'
 
 IF EXISTS (select name, city, count(*)  from [Institution] group by name, city having count(*) > 1)
 BEGIN
@@ -353,25 +337,71 @@ SELECT FundingOrgID, NAME, [ABBREVIATION], [DATEADDED], [LASTREVISED]
 FROM icrp.dbo.fundingdivision
 
 ----------------------------------------------------------------------------------
--- Only migrate the active projects 
+-- Only migrate the active projects and all NIH projects
 --  Exclude CA funding (CCRA) -- 29,748
-----------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------
+--drop table #activeprojects
+--drop table #migrated
+--drop table [Migration_Project]
+
 DECLARE @sortedProjects TABLE (
 	[SortedProjectID] [int] IDENTITY(1,1) NOT NULL,
-	[OldProjectID] [int] NOT NULL,
-	[AwardCode] nvarchar(1000) NOT NULL
+	[OldProjectID] [int] NOT NULL	
 )
 
-INSERT INTO @sortedProjects SELECT ID, Code FROM icrp.dbo.project ORDER BY code, DateStart, BUDGETSTARTDATE, ImportYear, ID
+-- sorted by code, DateStart, BUDGETSTARTDATE, ImportYear, ID
+INSERT INTO @sortedProjects SELECT ID FROM icrp.dbo.project ORDER BY code, DateStart, BUDGETSTARTDATE, ImportYear, ID
 
-SELECT DISTINCT s.SortedProjectID, f.SPONSORCODE, p.* INTO #activeProjects
+CREATE TABLE [dbo].[Migration_Project] (
+	[OldProjectID] [int] NOT NULL,		
+	[SponsorCode] nvarchar(255) NOT NULL,
+	[Code] nvarchar(255) NOT NULL,		
+	[altid] [varchar] (50) NULL,
+	[SOURCE_ID] [varchar] (50) NULL,	
+	[INTERNALCODE] [varchar] (2000) NULL,
+	[FundingOrgID] int NULL,
+	[IsActive] bit NULL	
+)
+
+-- all active projects (with funding info), exclude CCRA,  should be migrated to the new site  -- 63,939
+INSERT INTO [Migration_Project] ([OldProjectID],[SponsorCode],[Code],[altid],[SOURCE_ID],[INTERNALCODE],[FundingOrgID],[IsActive])  -- 78195
+SELECT MAX(ProjectID),  [SponsorCode], code, altId, SOURCE_ID, INTERNALCODE, FundingOrgID, 1 FROM  -- 77531 (77496 exclude fundingorg)
+(SELECT DISTINCT p.ID AS ProjectID, p.code, p.altId, p.SOURCE_ID, p.INTERNALCODE, o.sponsorcode, p.FundingOrgID
+	FROM icrp.dbo.project p
+	JOIN (select * from icrp.dbo.ProjectFunding where ISNULL(amount,0)<>0) f ON p.ID = f.ProjectID
+	join icrp.dbo.fundingorg o on p.FUNDINGORGID = o.ID
+	JOIN icrp.dbo.TestProjectActive t ON p.ID = t.PROJECTID 
+	WHERE o.SPONSORCODE <> 'CCRA') a -- 78237 active projects
+group by a.code, a.altId, a.SOURCE_ID, a.INTERNALCODE, a.[SponsorCode], a.FundingOrgID
+
+-- all NIH inactive projects  (with funding info) should also be migrated to the new site  --  63,907
+INSERT INTO [Migration_Project]  ([OldProjectID],[SponsorCode],[Code],[altid],[SOURCE_ID],[INTERNALCODE],[FundingOrgID],[IsActive])
+SELECT DISTINCT i.ProjectID, i.sponsorcode, i.code, i.altId, i.SOURCE_ID, i.INTERNALCODE,  i.FUNDINGORGID, 0
+FROM (SELECT MAX(p.id) AS ProjectID, p.code, p.altId, p.SOURCE_ID, p.INTERNALCODE,  o.sponsorcode, p.fundingOrgID
+		FROM icrp.dbo.project p
+			JOIN (select * from icrp.dbo.ProjectFunding where ISNULL(amount,0)<>0) f ON p.ID = f.ProjectID
+			join icrp.dbo.fundingorg o on p.FUNDINGORGID = o.ID
+			LEFT JOIN icrp.dbo.TestProjectActive a ON a.PROJECTID = p.id		 
+		WHERE o.SponsorCode = 'NIH' AND a.PROJECTID IS NULL
+		GROUP BY p.code, p.altId, p.SOURCE_ID, p.INTERNALCODE, o.[SponsorCode], p.fundingOrgID) i  -- inactive NIH projects = 70,016	
+LEFT JOIN [Migration_Project] m ON m.Code = i.Code AND m.altid = i.altId AND m.SOURCE_ID = i.SOURCE_ID AND m.INTERNALCODE = i.INTERNALCODE AND m.FundingOrgID = i.FundingOrgID
+WHERE m.[OldProjectID] IS NULL
+
+select * into #migrated from [Migration_Project] 
+--select * from @@MigratedProjects where isactive =0
+
+SELECT DISTINCT s.SortedProjectID, m.SPONSORCODE, m.IsActive, p.* INTO #activeProjects
 FROM icrp.dbo.project p
-join icrp.dbo.fundingorg f on p.FUNDINGORGID = f.ID
-JOIN @sortedProjects s ON p.id = s.OldProjectID
-JOIN icrp.dbo.TestProjectActive a ON p.ID = a.projectID
-WHERE f.SPONSORCODE <> 'CCRA'
+	JOIN [Migration_Project] m ON p.ID = m.[OldProjectID]
+	JOIN @sortedProjects s ON p.id = s.OldProjectID	
 ORDER BY s.SortedProjectID
 
+--select * from Migration_Project
+
+--select * from #migrated where isactive=1
+--select * from #migrated where isactive=0
+--select distinct code, altId, SOURCE_ID, INTERNALCODE, sponsorcode, FundingOrgID from #activeProjects --127846
+--select distinct code, altId, SOURCE_ID, INTERNALCODE from #activeProjects ==127811
 
 ----------------------------------------------------------------------------------
 -- Data Fix 
@@ -383,7 +413,7 @@ UPDATE #activeProjects SET AltId = code
 FROM #activeProjects
 where isnull(altid, '') = ''
 
-/* Fix the NIH AwardCode - strippong out leading and training characters*/
+/* Fix the NIH AwardCode - stripping out leading and training characters*/
 UPDATE #activeProjects SET Code =
 (case 	
 	when INTERNALCODE like '%sub%' THEN left(internalcode, 8)
@@ -394,45 +424,58 @@ END)
 FROM #activeProjects
 WHERE SponsorCode = 'NIH'
 
-/* Update NIH Project Category - Supplement */
-UPDATE #activeProjects SET INTERNALCODE = NULL
+/* Use InternalCode field for Category */
 
-UPDATE #activeProjects SET INTERNALCODE = 'Supplement'   -- 3,133 suplements
+-- Identify intramural projects - Sub-Project
+UPDATE #activeProjects SET INTERNALCODE = 'Sub-project'  
 from #activeProjects
-where SponsorCode='nih' and substring(right(altid, 2), 1,1) = 'S'
+where SponsorCode='nih' and substring(INTERNALCODE, 9,1) = '-' AND INTERNALCODE like '%sub%'
 
---select * from #activeProjects where INTERNALCODE is not null
+UPDATE #activeProjects SET INTERNALCODE = NULL WHERE INTERNALCODE <> 'Sub-project'
 
-UPDATE #activeProjects SET INTERNALCODE = 'Sub-project'  -- 259 sub
-FROM #activeProjects
-where SponsorCode='nih' AND INTERNALCODE IS NULL AND  altid like '%sub%'
+-- Identify extramural projects - Parent
+UPDATE #activeProjects SET INTERNALCODE = 'Parent'  
+from #activeProjects
+where SponsorCode='nih' and INTERNALCODE IS NULL and substring(altid, 13,1) = '-' AND substring(altid, 1,1) = '1' 
 
-UPDATE #activeProjects SET INTERNALCODE = 'Parent'  -- 4701 parent
-FROM #activeProjects
-where SponsorCode='nih' AND INTERNALCODE IS NULL and substring(altid, 1,1) = '1'  -- Application Type = 1 (New)
+-- Identify extramural projects - Renewal
+UPDATE #activeProjects SET INTERNALCODE = 'Renewal'  
+from #activeProjects
+where SponsorCode='nih' and INTERNALCODE IS NULL and substring(altid, 13,1) = '-' AND substring(altid, 1,1) = '2' 
 
-UPDATE #activeProjects SET INTERNALCODE = 'Sub-project'  -- 23,429 sub
-FROM #activeProjects
-where SponsorCode='nih' AND INTERNALCODE IS NULL AND (LEN(ALtID) = 15 OR LEN(ALtID) = 17) AND INTERNALCODE IS NULL 
+-- Identify extramural projects - Renewal
+UPDATE #activeProjects SET INTERNALCODE = 'Supplement'  
+from #activeProjects
+where SponsorCode='nih' and INTERNALCODE IS NULL and substring(altid, 13,1) = '-' AND substring(altid, 1,1) = '3' 
+
+-- Identify extramural projects - Renewal
+UPDATE #activeProjects SET INTERNALCODE = 'Non-competing'  
+from #activeProjects
+where SponsorCode='nih' and INTERNALCODE IS NULL and substring(altid, 13,1) = '-' AND substring(altid, 1,1) = '5' 
+
+-- Identify extramural projects - Renewal
+UPDATE #activeProjects SET INTERNALCODE = 'Other'  
+from #activeProjects
+where SponsorCode='nih' and INTERNALCODE IS NULL and substring(altid, 13,1) = '-' 
 
 -----------------------------
--- [Migration_Project]
+-- [Migration_Project]  -- 60174
 -----------------------------
-PRINT 'Create [Migration_Project]'
-
-CREATE TABLE [dbo].[Migration_Project] (
-	[ProjectID] [int] IDENTITY(1,1) NOT NULL,
-	[OldProjectID] [int] NOT NULL,
-	[AwardCode] nvarchar(255) NOT NULL,
-	[SponsorCode] nvarchar(255) NOT NULL
+PRINT 'Create [Migration_Project_Base]'
+--select top 10 * from #activeProjects
+CREATE TABLE [dbo].[Migration_Project_Base] (
+	[NewProjectID] [int] IDENTITY(1,1) NOT NULL,
+	[OldProjectID] [int] NOT NULL,	
+	[SponsorCode] nvarchar(255) NOT NULL,
+	[AwardCode] nvarchar(255) NOT NULL	
 )
 
--- Use AwardCode to group project (pull the oldest ProjectID - originally imported)
-INSERT INTO [Migration_Project] ([OldProjectID], [AwardCode], [SponsorCode])		
-	SELECT a.ID, bp.Code, bp.sponsorcode 
-	FROM (SELECT code, sponsorcode, MIN(SortedProjectID) AS SortedProjectID FROM #activeProjects GROUP BY code, sponsorcode) bp
+-- Use AwardCode and sponsorcode to group project (pull the oldest ProjectID - originally imported)
+INSERT INTO [Migration_Project_Base] ([OldProjectID], [SponsorCode], [AwardCode])		
+	SELECT a.ID, a.sponsorcode, a.Code
+	FROM (SELECT code, sponsorcode, MIN(SortedProjectID) AS SortedProjectID FROM #activeProjects GROUP BY code, sponsorcode) bp  -- 106,285 base projects
 	JOIN #activeProjects a ON bp.SortedProjectID = a.SortedProjectID	 -- 60172
-
+	
 -----------------------------
 -- Project
 -----------------------------
@@ -443,38 +486,59 @@ GO
 
 INSERT INTO Project  
 (ProjectID, [AwardCode], [IsFunded],[ProjectStartDate],[ProjectEndDate],[CreatedDate],[UpdatedDate])
-SELECT bp.ProjectID, p.code, p.[IsFunded], p.[DateStart], p.[DateEnd], p.[DATEADDED], p.[LASTREVISED]
+SELECT bp.[NewProjectID], p.code, p.[IsFunded], p.[DateStart], p.[DateEnd], p.[DATEADDED], p.[LASTREVISED]
 FROM #activeProjects p
-	JOIN Migration_Project bp ON p.id = bp.OldProjectID		
-ORDER BY bp.ProjectID
+	JOIN [Migration_Project_Base] bp ON p.id = bp.OldProjectID		
+ORDER BY bp.[NewProjectID]
 
 SET IDENTITY_INSERT Project OFF;  -- SET IDENTITY_INSERT to ON. 
 GO 
+
+
+--------------------------------------------------------------------
+-- PrjectAbstract  -- Only migrate abstract for migration_projects
+--------------------------------------------------------------------
+PRINT 'Migrate [ProjectAbstract]'
+
+SET IDENTITY_INSERT ProjectAbstract ON;  -- SET IDENTITY_INSERT to ON. 
+GO  
+
+INSERT INTO ProjectAbstract
+(ProjectAbstractID, TechAbstract, PublicAbstract, CreatedDate, UpdatedDate)
+SELECT DISTINCT a.ID, a.techAbstract, a.publicAbstract, a.dateadded, a.lastrevised
+FROM icrp.dbo.Abstract a
+	JOIN icrp.dbo.PROJECT p ON p.abstractId = a.ID
+	JOIN migration_project m ON m.OldProjectID = p.ID
+ORDER BY a.id
+
+update ProjectAbstract set TechAbstract = 'No abstract available for this Project funding.' where ProjectAbstractID =0
+
+SET IDENTITY_INSERT ProjectAbstract OFF;   -- SET IDENTITY_INSERT to OFF. 
+GO  
+
 
 --delete from Project
 --DBCC CHECKIDENT ('[Project]', RESEED, 0)
 
 --------------------------------------------------------------------------------------------
--- ProjectDocument  - TBD: change to save the most recent project content/abstract?
+-- ProjectSearch 
 --------------------------------------------------------------------------------------------
-PRINT 'Migrate [ProjectDocument]'
+PRINT 'Migrate [ProjectSearch]'
 
-INSERT INTO ProjectDocument
-(ProjectID, [Content])
-SELECT m.[ProjectID], s.[Text]
-FROM icrp.dbo.search s
-	JOIN Migration_Project m ON s.ProjectID = m.OldProjectID
+INSERT INTO ProjectSearch (ProjectID, [Content])
+SELECT MIN(f.ProjectID), TechAbstract FROM ProjectAbstract a
+	JOIN ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
+GROUP BY a.TechAbstract 
 
 --------------------------------------------------------------------------------------------
--- ProjectDocument_JP  - TBD: change to save the most recent project content/abstract?
+-- ProjectSearch_JP
 --------------------------------------------------------------------------------------------
-PRINT 'Migrate [ProjectDocument_JP]'
+--PRINT 'Migrate [ProjectSearch_JP]'
 
-INSERT INTO ProjectDocument_JP
-(ProjectID, [Content])
-SELECT m.[ProjectID], s.[Text]
-FROM icrp.dbo.search_JP s
-	JOIN Migration_Project m ON s.ProjectID = m.OldProjectID
+--INSERT INTO ProjectSearch_JP (ProjectFundingID, [Content])
+--SELECT MIN(f.ProjectFundingID), TechAbstract FROM ProjectAbstract a
+--	JOIN ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
+--GROUP BY a.TechAbstract 
 
 -----------------------------
 -- Project_ProjectType
@@ -484,9 +548,9 @@ PRINT 'Migrate [Project_ProjectType]'
 INSERT INTO Project_ProjectType
 (ProjectID, ProjectType)
 select np.projectid, projecttype 
-FROM [Migration_Project] bp
+FROM [Migration_Project_base] bp
 	join #activeProjects p on bp.OldProjectID = p.id
-	join project np ON np.ProjectID = bp.ProjectID
+	join project np ON np.ProjectID = bp.[NewProjectID]
 
 	--delete from Project_ProjectType
 
@@ -535,16 +599,16 @@ INSERT INTO [Migration_ProjectFunding]
 	([NewProjectID], [OldProjectID], [AbstractID], [Title],[Institution], [city], [newInstitution], [newcity], [state], [country], [piLastName], [piFirstName], [piORC_ID], 
 	 [OtherResearch_ID], [OtherResearch_Type], [FundingOrgID], [FundingDivisionID], [category], [SponsorCode], [AwardCode], [AltAwardCode], [Source_ID], [MechanismCode], 
 	 [MechanismTitle], [FundingContact], [Amount], [IsAnnualized], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate])
-SELECT mp.ProjectID, op.ID, op.abstractID, op.title, op.institution, op.city,  op.institution, op.city, op.state, op.country, op.piLastName, op.piFirstName,  op.piORCiD,
-	   op.OtherResearcherId, OtherResearcherIdType, op.FUNDINGORGID, op.FUNDINGDIVISIONID, op.internalcode, mp.sponsorcode, op.code, op.altid, op.SOURCE_ID, m.SPONSORMECHANISM,  
+SELECT bp.NewProjectID, op.ID, op.abstractID, op.title, op.institution, op.city,  op.institution, op.city, op.state, op.country, op.piLastName, op.piFirstName,  op.piORCiD,
+	   op.OtherResearcherId, OtherResearcherIdType, op.FUNDINGORGID, op.FUNDINGDIVISIONID, op.internalcode, bp.sponsorcode, op.code, op.altid, op.SOURCE_ID, m.SPONSORMECHANISM,  
 	   m.TITLE, op.fundingOfficer, pf.AMOUNT, 
 	   CASE WHEN [Amount] = [AnnualizedAmount] THEN 1 ELSE 0 END AS [IsAnnualized],
 	   op.BUDGETSTARTDATE, op.budgetenddate, op.[DATEADDED], op.[LASTREVISED]
 FROM #activeProjects op   -- active projects from old icrp database
 	 LEFT JOIN icrp.dbo.ProjectFunding pf ON op.ID = pf.ProjectID
 	 LEFT JOIN icrp.dbo.Mechanism m ON m.ID = op.MechanismID
-	 LEFT JOIN Migration_Project mp ON mp.AwardCode = op.code AND mp.sponsorcode = op.sponsorcode
-ORDER BY mp.ProjectID, op.sortedProjectID
+	 LEFT JOIN Migration_Project_base bp ON bp.AwardCode = op.code AND bp.sponsorcode = op.sponsorcode
+ORDER BY bp.NewProjectID, op.sortedProjectID
 
 -----------------------------
 -- ProjectFunding
@@ -592,16 +656,17 @@ FROM icrp.dbo.PROJECTSITE ps
 	JOIN icrp.dbo.SITE s ON ps.SITEID = s.ID
 	JOIN CancerType c ON s.Name = c.NAME
 
------------------------------
--- ProjectFundingExt
------------------------------
+-----------------------------------------------------------------------
+-- ProjectFundingExt - Do not pull over NIH calendar amounts (will recalculate amounts)
+-----------------------------------------------------------------------
 PRINT 'Migrate [ProjectFundingExt]'
 
 INSERT INTO ProjectFundingExt
 ([ProjectFundingID], [AncestorProjectID], [CalendarYear], [CalendarAmount])
 SELECT m.[ProjectFundingID], a.[ProjectIDANCESTOR], a.[YEAR], a.[CALENDARAMOUNT_V2]
 FROM icrp.dbo.[TestProjectActive] a
-JOIN [Migration_ProjectFunding] m ON a.PROJECTID = m.OldProjectID
+	JOIN [Migration_ProjectFunding] m ON a.PROJECTID = m.OldProjectID
+WHERE m.sponsorcode <> 'NIH'
 
 --delete from ProjectFundingExt
 --DBCC CHECKIDENT ('[ProjectFundingExt]', RESEED, 0)
@@ -635,7 +700,7 @@ FROM [Migration_ProjectFunding] m
 	BEGIN
 		PRINT 'non-mapped Institutions'
 		
-		SELECT m.Institution AS Institution_ICRP, m.city AS city_ICRP, m.NewInstitution, m.Newcity --distinct m.institution,  m.city
+		SELECT distinct 'Institution not-mapped', m.Institution AS Institution_ICRP, m.city AS city_ICRP, m.NewInstitution, m.Newcity --distinct m.institution,  m.city
 		FROM [Migration_ProjectFunding] m	
 			LEFT JOIN Institution i ON (i.name = m.newInstitution AND i.city = m.[newcity])  
 		WHERE i.InstitutionID is null	
@@ -703,6 +768,9 @@ SELECT l.SubFolder2, l.LibraryFolderID, 0, getdate(),getdate() FROM
 (select p.libraryFolderID, u.SubFolder1, u.SubFolder2 from (select distinct ParentFolder, SubFolder1, subfolder2 from [UploadLibrary] where SubFolder2 <> '') u
  join LibraryFolder p ON u.SubFolder1 = p.Name) l
 
+
+ INSERT INTO LibraryFolder ([Name],[ParentFolderID],[IsPublic],[CreatedDate],[UpdatedDate])
+VALUES ( 'ICRP_Data_Evaluation', 11, 0, getdate(),getdate())
  
 --select distinct name, parentfolderid from LibraryFolder
 
@@ -715,10 +783,12 @@ PRINT 'Migrate Library'
 DECLARE @PublicationsFolderID INT
 DECLARE @NewsLettersFolderID INT
 DECLARE @MeetingReportsFolderID INT
+DECLARE @ICRPDataFolderID INT
 
 SELECT @PublicationsFolderID=LibraryFolderID FROM LibraryFolder WHERE Name='Publications'
 SELECT @NewsLettersFolderID=LibraryFolderID FROM LibraryFolder WHERE Name='Newsletters'
 SELECT @MeetingReportsFolderID=LibraryFolderID FROM LibraryFolder WHERE Name='Meeting Reports'
+SELECT @ICRPDataFolderID=LibraryFolderID FROM LibraryFolder WHERE Name='ICRP_Data_Evaluation'
 
 -- public publications
 INSERT INTO Library VALUES(@PublicationsFolderID,'ICRP_EnvInfBreastCancer_ShortReport_2014.pdf','ICRP_EnvInfluences_BreastCancer_2014_cover.png', 'Metastatic Breast Cancer Alliance Report 2014','An analysis of MBC clinical trials and grant funding from the ICRP and related databases from 2000 through 2013', 1, NULL,getdate(), getdate())
@@ -760,6 +830,8 @@ SELECT f.LibraryFolderID, l.Filename, NULL, l.Title, l.Description, 0,
 CASE l.IsArchived WHEN 1 THEN getdate() ELSE NULL END, getdate(), getdate()
 FROM (select Filename, Title, Description, ParentFolder, SubFolder2, IsArchived, IsPublic from UploadLibrary where subfolder2 <>'') l
 JOIN (SELECT LibraryFolderID, Name FROM Libraryfolder WHERE ParentFolderID <> 1) f ON l.SubFolder2 = f.Name
+
+INSERT INTO Library VALUES(@ICRPDataFolderID,'nci.xlsx', NULL, 'ICRP NCI Data Analysis','ICRP NCI Data Analysis', 1, NULL,getdate(), getdate())
 
 -- Move files to archive folder
 DECLARE @DocumentArchiveFolderID INT

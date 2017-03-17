@@ -392,38 +392,46 @@ CREATE TABLE [dbo].[ProjectCSO](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[ProjectDocument]    Script Date: 12/13/2016 6:23:53 PM ******/
-CREATE TABLE [dbo].[ProjectDocument](
+/****** Object:  Table [dbo].[ProjectSearch]    Script Date: 12/13/2016 6:23:53 PM ******/
+CREATE TABLE [dbo].[ProjectSearch](
+	[ProjectSearchID] [int] IDENTITY(1,1) NOT NULL,
 	[ProjectID] [int] NOT NULL,
 	[Content] [nvarchar](max) NOT NULL,
- CONSTRAINT [PK_ProjectDocument] PRIMARY KEY CLUSTERED 
+ CONSTRAINT [PK_ProjectSearch] PRIMARY KEY CLUSTERED 
 (
-	[ProjectID] ASC
+	[ProjectSearchID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 
---CREATE FULLTEXT CATALOG ftCatalog AS DEFAULT;  
+GO
+
+CREATE FULLTEXT CATALOG ftCatalog_ProjectSearch AS DEFAULT;  
+GO  
+--CREATE FULLTEXT INDEX ON ProjectSearch.Content(Resume) 
+--	KEY INDEX [PK_ProjectSearch];  
 --GO  
 
---CREATE FULLTEXT INDEX ON [dbo].[ProjectDocument](Content) KEY INDEX [PK_ProjectDocument];
---GO
 
 
-/****** Object:  Table [dbo].[ProjectDocument_JP]    Script Date: 12/13/2016 6:23:53 PM ******/
-CREATE TABLE [dbo].[ProjectDocument_JP](
+/****** Object:  Table [dbo].[ProjectSearch_JP]    Script Date: 12/13/2016 6:23:53 PM ******/
+CREATE TABLE [dbo].[ProjectSearch_JP](
+	[ProjectSearch_JPID] [int] IDENTITY(1,1) NOT NULL,
 	[ProjectID] [int] NOT NULL,
 	[Content] [nvarchar](max) NOT NULL,
- CONSTRAINT [PK_ProjectDocument_JP] PRIMARY KEY CLUSTERED 
+ CONSTRAINT [PK_ProjectSearch_JP] PRIMARY KEY CLUSTERED 
 (
-	[ProjectID] ASC
+	[ProjectSearch_JPID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 
---CREATE FULLTEXT CATALOG ftCatalog AS DEFAULT;  
+GO
+
+CREATE FULLTEXT CATALOG ftCatalog_ProjectSearch_JP;  
+GO  
+--CREATE FULLTEXT INDEX ON ProjectSearch_JP.Content(Resume) 
+--	KEY INDEX [PK_ProjectSearch_JP];  
 --GO  
 
---CREATE FULLTEXT INDEX ON [dbo].[ProjectDocument](Content) KEY INDEX [PK_ProjectDocument_JP];
---GO
 
 /****** Object:  Table [dbo].[ProjectFunding]    Script Date: 12/13/2016 6:23:53 PM ******/
 SET ANSI_NULLS ON
@@ -969,17 +977,6 @@ GO
 ALTER TABLE [dbo].[FundingDivision] CHECK CONSTRAINT [FK_FundingDivision_FundingOrg]
 GO
 
-ALTER TABLE [dbo].[ProjectDocument]  WITH CHECK ADD  CONSTRAINT [FK_ProjectDocument_Project] FOREIGN KEY([ProjectID])
-REFERENCES [dbo].[Project] ([ProjectID])
-GO
-ALTER TABLE [dbo].[ProjectDocument] CHECK CONSTRAINT [FK_ProjectDocument_Project]
-GO
-
-ALTER TABLE [dbo].[ProjectDocument_JP]  WITH CHECK ADD  CONSTRAINT [FK_ProjectDocument_JP_Project] FOREIGN KEY([ProjectID])
-REFERENCES [dbo].[Project] ([ProjectID])
-GO
-ALTER TABLE [dbo].[ProjectDocument_JP] CHECK CONSTRAINT [FK_ProjectDocument_JP_Project]
-GO
 ALTER TABLE [dbo].[ProjectFunding]  WITH CHECK ADD  CONSTRAINT [FK_ProjectFunding_ProjectAbstract] FOREIGN KEY([ProjectAbstractID])
 REFERENCES [dbo].[ProjectAbstract] ([ProjectAbstractID])
 GO

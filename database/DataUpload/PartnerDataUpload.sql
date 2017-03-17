@@ -467,7 +467,7 @@ FROM @ptype
 UPDATE DataUploadStatus SET [Status] = 'Complete'
 
 INSERT INTO DataUploadStatus ([PartnerCode],[FundingYear],[Status],[ReceivedDate],[ValidationDate],[UploadToDevDate],[UploadToStageDate],[UploadToProdDate],[Note],[CreatedDate])
-VALUES ('CCRA', '2005-2012', 'Staging', '2/20/2017', '2/20/2017', '2/25/2017',  '2/25/2017', NULL, 'Import CA data', '2/20/2017')
+VALUES ('CCRA', '2005-2012', 'Staging', '2/20/2017', '2/20/2017', '2/25/2017',  '2/25/2017', '3/17/2017', 'Re-import all CA data for new schema', '2/20/2017')
 
 
 SET NOCOUNT OFF;  

@@ -158,15 +158,15 @@ AS
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 			
 			(SELECT p.ProjectID FROM #Proj p
-				LEFT JOIN ProjectDocument d ON p.projectID = d.ProjectID  
-				LEFT JOIN ProjectDocument_JP jd ON p.projectID = jd.ProjectID  
+				LEFT JOIN ProjectSearch s ON p.projectID = s.ProjectID  
+				--LEFT JOIN ProjectSearch_JP jd ON p.projectID = jd.ProjectID  
 			 WHERE 	
 				---- do not contain any words specified				
 				( (@termSearchType = 'None') AND 
-				  ((NOT CONTAINS(d.content, @searchWords)) OR (NOT CONTAINS(jd.content, @searchWords)))
+				  ((NOT CONTAINS(s.content, @searchWords))) -- OR (NOT CONTAINS(jd.content, @searchWords)))
 				) 
-				---- COntain Any, All or Exeact words
-				OR ((CONTAINS(d.content, @searchWords)) OR (CONTAINS(jd.content, @searchWords)))  
+				---- Contain Any, All or Exeact words
+				OR ((CONTAINS(s.content, @searchWords))) -- OR (CONTAINS(jd.content, @searchWords)))  
 			)
 	END	
 
@@ -1152,7 +1152,7 @@ CREATE  PROCEDURE [dbo].[GetCSOLookup]
     
 AS   
 
-SELECT CategoryName, Code, Name
+SELECT CategoryName, Code, Name, Code + '  ' + Name AS DisplayName
 FROM CSO
 WHERE IsActive = 1
 ORDER BY Code
