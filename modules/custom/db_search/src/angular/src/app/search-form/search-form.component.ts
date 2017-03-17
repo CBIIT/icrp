@@ -176,7 +176,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
 
     let years = this.form.controls['years'].value;
 
-    if(years.indexOf('All Years') > -1) {
+    if(years && years.indexOf('All Years') > -1) {
       years = this.fields.years.map(year => year.value).slice(1);
     }
 
@@ -460,7 +460,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
         this.form.controls[key].patchValue(value)
       }
     }
-    this.submit();
+    window.setTimeout(f => this.submit(), 0);
    }
  }
 

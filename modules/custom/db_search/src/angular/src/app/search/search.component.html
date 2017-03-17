@@ -1,5 +1,9 @@
 <ui-spinner [active]="loading" [overlay]="true" [fullscreen]="true"></ui-spinner>
 
+<a class="col-md-12 form-group" style="cursor: pointer" *ngIf="initialSearchMessage" (click)="initialSearchMessage = null">
+  {{ initialSearchMessage }}
+</a>
+
 <div class="col-md-3">
   <app-search-form 
     [initialSearchParameters]="initialParameters"
