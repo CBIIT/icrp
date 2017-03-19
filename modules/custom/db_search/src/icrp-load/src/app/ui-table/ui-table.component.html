@@ -1,12 +1,14 @@
-<div *ngIf="!data">
-  Fetching results...
+<div *ngIf="!data || data && !data.length">
+  No results found
 </div>
 
 <div class="table-responsive bordered" style="position: relative" *ngIf="data && data.length">
-  <table class="table custom-sizing table-bordered table-hover table-striped table-condensed table-nowrap table-narrow" #table>
-    <thead #thead>
+  <ui-spinner *ngIf="loading" [overlay]="true"></ui-spinner>
+  <table class="table table-bordered table-hover table-striped table-condensed table-nowrap custom-sizing " #table>
+    <thead>
       <tr>
-        <th *ngFor="let column of columns" 
+        <th 
+          *ngFor="let column of columns" 
           style="cursor: pointer"
           (click)="sortTableColumn(column)" 
           >
@@ -14,15 +16,15 @@
             style="display: flex; justify-content: space-between"
             [tooltip]="column.tooltip" 
             container="body" 
-            
             >
-            
-            <span>
-              {{ column.label }}
-            </span> 
-            <span>
-              {{ column.sort === 'asc' ? '▲' : '▼' }}
-            </span> 
+            {{ column.label }}
+            <span 
+              *ngIf="column.sortAscending !== undefined" 
+              [style.transform]="
+                column.sortAscending 
+                ? 'rotate(-135deg)' 
+                : 'rotate(45deg)'"
+            >&#9698;</span>
           </div>
         </th>
       </tr>
@@ -56,7 +58,7 @@
       [totalItems]="numResults" 
       [(ngModel)]="pagingModel"
       [maxSize]="5"
-      (pageChanged)="pageChanged($event)"
+      (pageChanged)="updateCurrentPage($event)"
       [itemsPerPage]="pageSize"
       class="pagination-sm"
       previousText="&lsaquo;" 

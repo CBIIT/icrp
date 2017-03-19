@@ -15,8 +15,6 @@ declare var fetch;
 })
 export class SearchComponent implements OnInit, AfterViewInit {
 
-  devEndpoint = '';
-
   searchParameters: SearchParameters;
 
   searchID: any;
@@ -74,30 +72,33 @@ export class SearchComponent implements OnInit, AfterViewInit {
       .catch((error: any) => [])
       .subscribe(
         response => {
-          console.log(response);
-          this.partnerData = response;
 
-          for(let i = 0; i < response.length; i ++) {
-            let row = response[i];
-            
-            row.display_sponsor_code = row.sponsor_code.slice(0).pop();
-            let dates = row.funding_years;
-            
-            if (dates.length > 1) {
-              let min = dates[0];
-              let max = dates[dates.length - 1];
-              row.display_funding_years = min + '-' + max;
+          if (response && response[0]) {
+            console.log(response);
+            this.partnerData = response;
+
+            for(let i = 0; i < response.length; i ++) {
+              let row = response[i];
+              
+              row.display_sponsor_code = row.sponsor_code.slice(0).pop();
+              let dates = row.funding_years;
+              
+              if (dates.length > 1) {
+                let min = dates[0];
+                let max = dates[dates.length - 1];
+                row.display_funding_years = min + '-' + max;
+              }
+
+              else {
+                row.display_funding_years = dates;
+              }
             }
 
-            else {
-              row.display_funding_years = dates;
+            if ( this.partnerData[0]) {
+              let partner = this.partnerData[0];
+
+              this.generatePartnerMessage(0);
             }
-          }
-
-          if (response.length > 1) {
-            let partner = this.partnerData[0];
-
-            this.generatePartnerMessage(0);
           }
         },
         error => {},
@@ -125,30 +126,19 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   updateInitialSearchId() {
 
-    if (window.location.search && window.location.search.includes('sid')) {
-      let query = window.location.search
-        .substring(1)
-        .split('&')
-        .map(e => e.split('=')) 
-        // retrieve array of query terms
-        // and create object
-        .reduce((prev, curr) => {
-          let key = curr[0];
-          let value = curr[1];
+    let partner = this.partnerData[0];
 
-          if (key) {
-            prev[key] = value;
-          }
-          
-          return prev;
-        }, [])
+    console.log('called updateInitialSearchId with', this.partnerData)
 
-      this.initialID = query['sid'];
-      this.updateInitalParameters();
+    if (partner) {
+      this.setInitialPartnerSearchParameters(partner.sponsor_code, partner.funding_years, 0);
+    }
 
-    } else {
-        let partner = this.partnerData[0];
-        this.setInitialPartnerSearchParameters(partner.sponsor_code, partner.funding_years, 0);
+    else {
+      console.log('using default paraemters for dsd')
+      this.initialParameters = {
+        years: [2017, 2016]
+      }
     }
   }
 

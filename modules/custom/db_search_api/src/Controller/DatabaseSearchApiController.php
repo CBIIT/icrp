@@ -150,28 +150,7 @@ class DatabaseSearchAPIController extends ControllerBase {
     }
 
     if (sizeof($output) == 1) {
-      $year = intval(date('Y'));
-      $range = range($year, $year - 1);
-
-      $output = [
-        'AwardCode' => NULL,
-        'CSOList' => NULL,
-        'CancerTypeList' => NULL,
-        'CityList' => NULL,
-        'CountryList' => NULL,
-        'FundingOrgList' => NULL,
-        'Institution' => NULL,
-        'ProjectTypeList' => NULL,
-        'StateList' => NULL,
-        'TermSearchType' => NULL,
-        'Terms' => NULL,
-        'piFirstName' => NULL,
-        'piLastName' => NULL,
-        'piORCiD' => NULL,
-
-
-        'YearList' => implode(',', $range)
-      ];
+      return false;
     }
 
     return $output;
@@ -573,7 +552,7 @@ class DatabaseSearchAPIController extends ControllerBase {
       'funding_organizations' => 'SELECT FundingOrgID AS [value], Name AS [label], SponsorCode AS [group], Country AS [supergroup] from FundingOrg',
       'cancer_types'          => 'SELECT CancerTypeID AS [value], Name AS [label] FROM CancerType ORDER BY [value]',
       'project_types'         => 'SELECT ProjectType AS [value], ProjectType AS [label] FROM ProjectType',
-      'cso_research_areas'    => 'SELECT Code AS [value], Name AS [label], CategoryName AS [group], \'All Areas\' as [supergroup] FROM CSO',
+      'cso_research_areas'    => 'SELECT Code AS [value], Code + \' \' + Name AS [label], CategoryName AS [group], \'All Areas\' as [supergroup] FROM CSO WHERE isActive = 1',
     ];
 
     // map query results to field values

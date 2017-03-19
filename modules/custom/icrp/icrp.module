@@ -146,20 +146,59 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
     //kint(print_r($form, true));
     switch ($form_id) {
         case 'block_content_basic_edit_form':
+
+
+
             if (strpos($form['info']['widget']['0']['value']['#default_value'],"Partner Home") !== false ||
+
                 strpos($form['info']['widget']['0']['value']['#default_value'],"ICRP Site Updated Date") !== false) {
+
+
+
+                if (strpos($form['info']['widget']['0']['value']['#default_value'],"Partner Home Partner Management") !== false) {
+
+                    $blockTitle = "Edit Project Management";
+
+                } else if(strpos($form['info']['widget']['0']['value']['#default_value'],"ICRP Site Updated Date") !== false) {
+
+                    $blockTitle = "Edit Site Updated Date***";
+
+                } else if(strpos($form['info']['widget']['0']['value']['#default_value'],"Partner Home") !== false) {
+
+                    $blockTitle = "Edit " . substr($form['#title'],55);
+
+                } else {
+
+                    $blockTitle = "Edit block [" . $form['info']['widget']['0']['value']['#default_value'] . "]";
+
+                }
+
+
+
                 unset($form['revision_information']);                     // Remove Revisions section from block edit page
+
                 unset($form['actions']['delete']);                        // Remove Delete button from block edot page
+
                 unset($form['info']);                                     // Remove ablity to edit block title
-                $blockTitle = "Edit " . substr($form['#title'],55);
+
+
+
                 $form['body']['widget']['0']['#title'] = $blockTitle;     // Set Block Edit heading
+
                 $form['actions']['cancel'] = array(                       // Add Cancel button
+
                     '#type'   => 'button',
+
                     '#value'  => t('Cancel'),
-                    '#attributes' => array('onClick' => 'window.history.go(-1); return true;'),
+
+                    '#attributes' => array('onClick' => 'history.go(-1); return true;'),
+
                     '#weight' => 100,
+
                 );
+
             }
+
             break;
         case 'user_register_form':
             //drupal_set_message("user_register_form");
