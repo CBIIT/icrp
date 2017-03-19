@@ -297,7 +297,6 @@ CREATE TABLE [dbo].[Project](
 	[ProjectID] [int] IDENTITY(1,1) NOT NULL,
 	[IsChildhood] [bit] NULL,
 	[AwardCode] [nvarchar](50) NOT NULL,		
-	[IsFunded] [bit] NOT NULL,
 	[ProjectStartDate] [date] NULL,
 	[ProjectEndDate] [date] NULL,
 	[CreatedDate] [datetime] NULL,
@@ -413,26 +412,6 @@ GO
 
 
 
-/****** Object:  Table [dbo].[ProjectSearch_JP]    Script Date: 12/13/2016 6:23:53 PM ******/
-CREATE TABLE [dbo].[ProjectSearch_JP](
-	[ProjectSearch_JPID] [int] IDENTITY(1,1) NOT NULL,
-	[ProjectID] [int] NOT NULL,
-	[Content] [nvarchar](max) NOT NULL,
- CONSTRAINT [PK_ProjectSearch_JP] PRIMARY KEY CLUSTERED 
-(
-	[ProjectSearch_JPID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
-
-GO
-
-CREATE FULLTEXT CATALOG ftCatalog_ProjectSearch_JP;  
-GO  
---CREATE FULLTEXT INDEX ON ProjectSearch_JP.Content(Resume) 
---	KEY INDEX [PK_ProjectSearch_JP];  
---GO  
-
-
 /****** Object:  Table [dbo].[ProjectFunding]    Script Date: 12/13/2016 6:23:53 PM ******/
 SET ANSI_NULLS ON
 GO
@@ -445,6 +424,7 @@ CREATE TABLE [dbo].[ProjectFunding](
 	[FundingOrgID] [int] NOT NULL,
 	[FundingDivisionID] [int] NULL,
 	[ProjectAbstractID] [int] NOT NULL,	
+	[DataUploadStatusID] [int] NULL,
 	[Category] [varchar](25) NULL,  -- Parent, Supplement, SubProject
 	[AltAwardCode] [varchar](50) NOT NULL,
 	[Source_ID] [varchar](50) NULL,
@@ -473,7 +453,6 @@ GO
 CREATE TABLE [dbo].[ProjectFundingExt](
 	[ProjectFundingExtID] [int] IDENTITY(1,1) NOT NULL,
 	[ProjectFundingID] [int] NOT NULL,
-	[AncestorProjectID] [int] NULL,
 	[CalendarYear] [smallint] NOT NULL,
 	[CalendarAmount] [float] NULL,
 	[CreatedDate] [datetime] NOT NULL,
@@ -1097,3 +1076,10 @@ GO
 
 --CREATE FULLTEXT INDEX on ProjectDocument_JP
 --(Content) KEY index primarykey ON catalog_ProjectDocumentJP_Content
+
+sp_configure 'show advanced options', 1;  
+RECONFIGURE;  
+GO  
+sp_configure 'transform noise words', 1;  
+RECONFIGURE;  
+GO  
