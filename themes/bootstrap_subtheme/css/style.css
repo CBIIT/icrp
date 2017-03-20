@@ -25,6 +25,7 @@ h1 {
 .logo img {
     margin-top:15px;
 }
+
 /* Membership Status - Expose Form*/
 
 #about-us-container .panel-title {
@@ -173,12 +174,13 @@ body {
     display: inline;
     padding-right: 10px;
 }
-div.search-block-form > div.search-well {
-    border:none;
-}
-.search-well {
+/* Search Well */
+.well.search-well {
     float: right;
     height: 20px;
+    background:white;
+    border:none;
+    box-shadow: none;
 }
 .logo {
     min-width: 933px;
