@@ -1,244 +1,329 @@
-booststrap-12:
-  label: Bootstrap One Column 12
-  category: Bootstrap Layouts
-  path: templates/one-column/bootstrap-12
-  icon: bootstrap_onecol_12.png
-  template: bootstrap-12
+# One column.
+bs_1col:
+  label: '1 Column'
+  category: 'Bootstrap'
+  class: '\Drupal\bootstrap_layouts\Plugin\Layout\BootstrapLayoutsBase'
+  type: partial
+  icon: images/1col.png
+  template: templates/3.0.0/bs-1col
   regions:
     main:
-      label: Main content
-booststrap-1-11:
-  label: Bootstrap Two Column: 1-11
-  category: Bootstrap Layouts
-  path: templates/two-columns/bootstrap-1-11
-  icon: bootstrap_twocol_1_11.png
-  template: bootstrap-1-11
-  regions:
-    sidebar_right:
-      label: Sidebar Right
-    sidebar_left:
-      label: Sidebar Left
-booststrap-2-10:
-  label: Bootstrap Two Column: 2-10
-  category: Bootstrap Layouts
-  path: templates/two-columns/bootstrap-2-10
-  icon: bootstrap_twocol_2_10.png
-  template: bootstrap-2-10
-  regions:
-    sidebar_right:
-      label: Sidebar Right
-    sidebar_left:
-      label: Sidebar Left
-booststrap-3-9:
-  label: Bootstrap Two Column: 3-9
-  category: Bootstrap Layouts
-  path: templates/two-columns/bootstrap-3-9
-  icon: bootstrap_twocol_3_9.png
-  template: bootstrap-3-9
-  regions:
-    sidebar_right:
-      label: Sidebar Right
-    sidebar_left:
-      label: Sidebar Left
-booststrap-4-8:
-  label: Bootstrap Two Column: 4-8
-  category: Bootstrap Layouts
-  path: templates/two-columns/bootstrap-4-8
-  icon: bootstrap_twocol_4_8.png
-  template: bootstrap-4-8
-  regions:
-    sidebar_right:
-      label: Sidebar Right
-    sidebar_left:
-      label: Sidebar Left
-booststrap-5-7:
-  label: Bootstrap Two Column: 5-7
-  category: Bootstrap Layouts
-  path: templates/two-columns/bootstrap-5-7
-  icon: bootstrap_twocol_5_7.png
-  template: bootstrap-5-7
-  regions:
-    sidebar_right:
-      label: Sidebar Right
-    sidebar_left:
-      label: Sidebar Left
-booststrap-6-6:
-  label: Bootstrap Two Column: 6-6
-  category: Bootstrap Layouts
-  path: templates/two-columns/bootstrap-6-6
-  icon: bootstrap_twocol_6_6.png
-  template: bootstrap-6-6
-  regions:
-    sidebar_right:
-      label: Sidebar Right
-    sidebar_left:
-      label: Sidebar Left
-booststrap-6-6-bricks:
-  label: Bootstrap Two Column: 6-6 Bricks
-  category: Bootstrap Layouts
-  path: templates/bricks/bootstrap-6-6-bricks
-  template: bootstrap-6-6-bricks
-  icon: bootstrap_twocol_6_6_bricks.png
+      label: 'Content'
+      classes:
+        - col-sm-12
+
+# One column (stacked).
+bs_1col_stacked:
+  label: '1 Column (Stacked)'
+  category: 'Bootstrap'
+  class: '\Drupal\bootstrap_layouts\Plugin\Layout\BootstrapLayoutsBase'
+  type: partial
+  icon: images/1col-stacked.png
+  template: templates/3.0.0/bs-1col-stacked
   regions:
     top:
-      label: Top
-    upper_left:
-      label: Upper Left
-    upper_right:
-      label: Upper Right
+      label: 'Top'
+      classes:
+        - col-sm-12
+    main:
+      label: 'Content'
+      classes:
+        - col-sm-12
+    bottom:
+      label: 'Bottom'
+      classes:
+        - col-sm-12
+
+# Two columns.
+bs_2col:
+  label: '2 Columns'
+  category: 'Bootstrap'
+  class: '\Drupal\bootstrap_layouts\Plugin\Layout\BootstrapLayoutsBase'
+  type: partial
+  icon: images/2col.png
+  template: templates/3.0.0/bs-2col
+  regions:
+    left:
+      label: 'Left'
+      classes:
+        - col-sm-6
+    right:
+      label: 'Right'
+      classes:
+        - col-sm-6
+
+# Two columns (bricked).
+bs_2col_bricked:
+  label: '2 Columns (Bricked)'
+  category: 'Bootstrap'
+  class: '\Drupal\bootstrap_layouts\Plugin\Layout\BootstrapLayoutsBase'
+  type: partial
+  icon: images/2col-bricked.png
+  template: templates/3.0.0/bs-2col-bricked
+  regions:
+    top:
+      label: 'Top'
+      classes:
+        - col-sm-12
+    top_left:
+      label: 'Top Left'
+      classes:
+        - col-sm-6
+    top_right:
+      label: 'Top Right'
+      classes:
+        - col-sm-6
     middle:
-      label: Middle
-    lower_left:
-      label: Lower Left
-    lower_right:
-      label: Lower Right
+      label: 'Middle'
+      classes:
+        - col-sm-12
+    bottom_left:
+      label: 'Bottom Left'
+      classes:
+        - col-sm-6
+    bottom_right:
+      label: 'Bottom Right'
+      classes:
+        - col-sm-6
     bottom:
-      label: Bottom
-bootstrap-6-6-stacked:
-  label: Bootstrap Two Column: 6-6 Stacked
-  category: Bootstrap Layouts
-  path: templates/stacked/bootstrap-6-6-stacked
-  template: bootstrap-6-6-stacked
-  icon: bootstrap_twocol_6_6_stacked.png
+      label: 'Bottom'
+      classes:
+        - col-sm-12
+
+# Two columns (stacked).
+bs_2col_stacked:
+  label: '2 Columns (Stacked)'
+  category: 'Bootstrap'
+  class: '\Drupal\bootstrap_layouts\Plugin\Layout\BootstrapLayoutsBase'
+  type: partial
+  icon: images/2col-stacked.png
+  template: templates/3.0.0/bs-2col-stacked
   regions:
     top:
-      label: Top
-    sidebar_left:
-      label: Sidebar Left
-    sidebar_right:
-      label: Sidebar Right
+      label: 'Top'
+      classes:
+        - col-sm-12
+    left:
+      label: 'Left'
+      classes:
+        - col-sm-6
+    right:
+      label: 'Right'
+      classes:
+        - col-sm-6
     bottom:
-      label: Bottom
-booststrap-7-5:
-  label: Bootstrap Two Column: 7-5
-  category: Bootstrap Layouts
-  path: templates/two-columns/bootstrap-7-5
-  template: bootstrap-7-5
-  icon: bootstrap_twocol_7_5.png
+      label: 'Bottom'
+      classes:
+        - col-sm-12
+
+# Three columns.
+bs_3col:
+  label: '3 Columns'
+  category: 'Bootstrap'
+  class: '\Drupal\bootstrap_layouts\Plugin\Layout\BootstrapLayoutsBase'
+  type: partial
+  icon: images/3col.png
+  template: templates/3.0.0/bs-3col
   regions:
-    sidebar_right:
-      label: Sidebar Right
-    sidebar_left:
-      label: Sidebar Left
-booststrap-8-4:
-  label: Bootstrap Two Column: 8-4
-  category: Bootstrap Layouts
-  path: templates/two-columns/bootstrap-8-4
-  template: bootstrap-8-4
-  icon: bootstrap_twocol_8_4.png
+    left:
+      label: 'Left'
+      classes:
+        - col-sm-4
+    middle:
+      label: 'Middle'
+      classes:
+        - col-sm-4
+    right:
+      label: 'Right'
+      classes:
+        - col-sm-4
+
+# Three columns (bricked).
+bs_3col_bricked:
+  label: '3 Columns (Bricked)'
+  category: 'Bootstrap'
+  class: '\Drupal\bootstrap_layouts\Plugin\Layout\BootstrapLayoutsBase'
+  type: partial
+  icon: images/3col-bricked.png
+  template: templates/3.0.0/bs-3col-bricked
   regions:
-    sidebar_right:
-      label: Sidebar Right
-    sidebar_left:
-      label: Sidebar Left
-booststrap-9-3:
-  label: Bootstrap Two Column: 9-3
-  category: Bootstrap Layouts
-  path: templates/two-columns/bootstrap-9-3
-  template: bootstrap-9-3
-  icon: bootstrap_twocol_9_3.png
+    top:
+      label: 'Top'
+      classes:
+        - col-sm-12
+    top_left:
+      label: 'Top Left'
+      classes:
+        - col-sm-4
+    top_middle:
+      label: 'Top Middle'
+      classes:
+        - col-sm-4
+    top_right:
+      label: 'Top Right'
+      classes:
+        - col-sm-4
+    middle:
+      label: 'Middle'
+      classes:
+        - col-sm-12
+    bottom_left:
+      label: 'Bottom Left'
+      classes:
+        - col-sm-4
+    bottom_middle:
+      label: 'Bottom Middle'
+      classes:
+        - col-sm-4
+    bottom_right:
+      label: 'Bottom Right'
+      classes:
+        - col-sm-4
+    bottom:
+      label: 'Bottom'
+      classes:
+        - col-sm-12
+
+# Three columns (stacked).
+bs_3col_stacked:
+  label: '3 Columns (Stacked)'
+  category: 'Bootstrap'
+  class: '\Drupal\bootstrap_layouts\Plugin\Layout\BootstrapLayoutsBase'
+  type: partial
+  icon: images/3col-stacked.png
+  template: templates/3.0.0/bs-3col-stacked
   regions:
-    sidebar_right:
-      label: Sidebar Right
-    sidebar_left:
-      label: Sidebar Left
-booststrap-10-2:
-  label: Bootstrap Two Column: 10-2
-  category: Bootstrap Layouts
-  path: templates/two-columns/bootstrap-10-2
-  template: bootstrap-10-2
-  icon: bootstrap_twocol_10_2.png
+    top:
+      label: 'Top'
+      classes:
+        - col-sm-12
+    left:
+      label: 'Left'
+      classes:
+        - col-sm-4
+    middle:
+      label: 'Middle'
+      classes:
+        - col-sm-4
+    right:
+      label: 'Right'
+      classes:
+        - col-sm-4
+    bottom:
+      label: 'Bottom'
+      classes:
+        - col-sm-12
+
+# Four columns.
+bs_4col:
+  label: '4 Columns'
+  category: 'Bootstrap'
+  class: '\Drupal\bootstrap_layouts\Plugin\Layout\BootstrapLayoutsBase'
+  type: partial
+  icon: images/4col.png
+  template: templates/3.0.0/bs-4col
   regions:
-    sidebar_right:
-      label: Sidebar Right
-    sidebar_left:
-      label: Sidebar Left
-booststrap-11-1:
-  label: Bootstrap Two Column: 11-1
-  category: Bootstrap Layouts
-  path: templates/two-columns/bootstrap-11-1
-  template: bootstrap-11-1
-  icon: bootstrap_twocol_11_1.png
+    first:
+      label: 'First'
+      classes:
+        - col-sm-3
+    second:
+      label: 'Second'
+      classes:
+        - col-sm-3
+    third:
+      label: 'Third'
+      classes:
+        - col-sm-3
+    fourth:
+      label: 'Fourth'
+      classes:
+        - col-sm-3
+
+# Four columns (bricked).
+bs_4col_bricked:
+  label: '4 Columns (Bricked)'
+  category: 'Bootstrap'
+  class: '\Drupal\bootstrap_layouts\Plugin\Layout\BootstrapLayoutsBase'
+  type: partial
+  icon: images/4col-bricked.png
+  template: templates/3.0.0/bs-4col-bricked
   regions:
-    sidebar_right:
-      label: Sidebar Right
-    sidebar_left:
-      label: Sidebar Left
-booststrap-2-8-2:
-  label: Bootstrap Three Column: 2-8-2
-  category: Bootstrap Layouts
-  path: templates/three-columns/bootstrap-2-8-2
-  template: bootstrap-2-8-2
-  icon: bootstrap_threecol_2_8_2.png
+    top:
+      label: 'Top'
+      classes:
+        - col-sm-12
+    top_first:
+      label: 'Top First'
+      classes:
+        - col-sm-3
+    top_second:
+      label: 'Top Second'
+      classes:
+        - col-sm-3
+    top_third:
+      label: 'Top Third'
+      classes:
+        - col-sm-3
+    top_fourth:
+      label: 'Top Fourth'
+      classes:
+        - col-sm-3
+    middle:
+      label: 'Middle'
+      classes:
+        - col-sm-12
+    bottom_first:
+      label: 'Bottom First'
+      classes:
+        - col-sm-3
+    bottom_second:
+      label: 'Bottom Second'
+      classes:
+        - col-sm-3
+    bottom_third:
+      label: 'Bottom Third'
+      classes:
+        - col-sm-3
+    bottom_fourth:
+      label: 'Bottom Fourth'
+      classes:
+        - col-sm-3
+    bottom:
+      label: 'Bottom'
+      classes:
+        - col-sm-12
+
+# Four columns (stacked).
+bs_4col_stacked:
+  label: '4 Columns (Stacked)'
+  category: 'Bootstrap'
+  class: '\Drupal\bootstrap_layouts\Plugin\Layout\BootstrapLayoutsBase'
+  type: partial
+  icon: images/4col-stacked.png
+  template: templates/3.0.0/bs-4col-stacked
   regions:
-    sidebar_left:
-      label: Sidebar Left
-    main:
-      label: Main content
-    sidebar_right:
-      label: Sidebar Right
-booststrap-2-2-8:
-  label: Bootstrap Three Column: 2-2-8
-  category: Bootstrap Layouts
-  path: templates/three-columns/bootstrap-2-2-8
-  template: bootstrap-2-2-8
-  icon: bootstrap_threecol_2_2_8.png
-  regions:
-    sidebar_left:
-      label: Sidebar Left
-    main:
-      label: Main content
-    sidebar_right:
-      label: Sidebar Right
-booststrap-8-2-2:
-  label: Bootstrap Three Column: 8-2-2
-  category: Bootstrap Layouts
-  path: templates/three-columns/bootstrap-8-2-2
-  template: bootstrap-8-2-2
-  icon: bootstrap_threecol_8_2_2.png
-  regions:
-    sidebar_left:
-      label: Sidebar Left
-    main:
-      label: Main content
-    sidebar_right:
-      label: Sidebar Right
-booststrap-3-6-3:
-  label: Bootstrap Three Column: 3-6-3
-  category: Bootstrap Layouts
-  path: templates/three-columns/bootstrap-3-6-3
-  template: bootstrap-3-6-3
-  icon: bootstrap_threecol_3_6_3.png
-  regions:
-    sidebar_left:
-      label: Sidebar Left
-    main:
-      label: Main content
-    sidebar_right:
-      label: Sidebar Right
-booststrap-4-4-4:
-  label: Bootstrap Three Column: 4-4-4
-  category: Bootstrap Layouts
-  path: templates/three-columns/bootstrap-4-4-4
-  template: bootstrap-4-4-4
-  icon: bootstrap_threecol_4_4_4.png
-  regions:
-    sidebar_left:
-      label: Sidebar Left
-    main:
-      label: Main content
-    sidebar_right:
-      label: Sidebar Right
-booststrap-5-5-2:
-  label: Bootstrap Three Column: 5-5-2
-  category: Bootstrap Layouts
-  path: templates/three-columns/bootstrap-5-5-2
-  template: bootstrap-5-5-2
-  icon: bootstrap_threecol_5_5_2.png
-  regions:
-    sidebar_left:
-      label: Sidebar Left
-    main:
-      label: Main content
-    sidebar_right:
-      label: Sidebar Right
+    top:
+      label: 'Top'
+      classes:
+        - col-sm-12
+    first:
+      label: 'First'
+      classes:
+        - col-sm-3
+    second:
+      label: 'Second'
+      classes:
+        - col-sm-3
+    third:
+      label: 'Third'
+      classes:
+        - col-sm-3
+    fourth:
+      label: 'Fourth'
+      classes:
+        - col-sm-3
+    bottom:
+      label: 'Bottom'
+      classes:
+        - col-sm-12

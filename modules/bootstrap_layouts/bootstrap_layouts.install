@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * @file
+ * Install, uninstall and update hooks for the Bootstrap Layouts module.
+ */
+
+/**
+ * Runs updates for registered update plugins.
+ *
+ * @param int $schema
+ *   The schema version to update.
+ *
+ * @see \Drupal\bootstrap_layouts\BootstrapLayoutsManager::update()
+ *
+ * @throws Exception
+ *   When the "plugin.manager.bootstrap_layouts" service could not be loaded.
+ */
+function _bootstrap_layouts_update($schema) {
+  $container = \Drupal::getContainer();
+
+  // Rebuild the container if the bootstrap layouts manager doesn't exist.
+  if (!$container->has('plugin.manager.bootstrap_layouts')) {
+    drupal_flush_all_caches();
+  }
+
+  /** @var \Drupal\bootstrap_layouts\BootstrapLayoutsManager $bootstrap_layouts_manager */
+  if ($manager = $container->get('plugin.manager.bootstrap_layouts')) {
+    $manager->update($schema);
+  }
+  else {
+    throw new Exception('Unable to load the "plugin.manager.bootstrap_layouts" service.');
+  }
+}
+
+/**
+ * Upgrade existing Bootstrap Layout instances.
+ */
+function bootstrap_layouts_update_8401() {
+  /** @see \Drupal\bootstrap_layouts\Plugin\BootstrapLayouts\Updates\BootstrapLayoutsUpdate8401 */
+  _bootstrap_layouts_update(8401);
+}
+
+/**
+ * Fix "1 Column (stacked)" regions.
+ */
+function bootstrap_layouts_update_8402() {
+  /** @see \Drupal\bootstrap_layouts\Plugin\BootstrapLayouts\Updates\BootstrapLayoutsUpdate8402 */
+  _bootstrap_layouts_update(8402);
+}
