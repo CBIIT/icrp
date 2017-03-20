@@ -193,7 +193,7 @@ class ExportResultsController extends ControllerBase {
    		$myListStr = $myListStr . ",";
    	}
 
-   	$stmt1 = $conn -> prepare("SELECT SponsorCode + ' - ' + Name  as orgName FROM FundingOrg WHERE FundingOrgID IN " . $myListStr);
+   	$stmt1 = $conn -> prepare("SELECT SponsorCode + ' - ' + Name  as orgName FROM FundingOrg WHERE FundingOrgID IN (" . $myListStr . ")");
    	if ($stmt1->execute()){
    	    while($row = $stmt1.fetch()){
   			$returnValue = $returnValue . $row['orgName'] . ",";
