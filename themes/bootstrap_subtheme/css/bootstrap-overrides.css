@@ -362,18 +362,6 @@ footer.footer {
   border-radius: 0px;
 }
 
-
-/** Bootstrap search-well overrides */
-
-div.search-block-form > div.search-well {
-  margin-top: -5px;
-  background: transparent;
-  background-color: transparent;
-  float: right;
-  box-shadow: none;:
-          -webkit-box-shadow none;
-}
-
 /** uaat overrides */
 
 form[action="/user-account-administration-tool"] > div > div {
