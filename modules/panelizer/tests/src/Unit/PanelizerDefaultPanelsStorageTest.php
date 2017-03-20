@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\Tests\panelizer\Unit\PanelizerDefaultPanelsStorageTest
- */
-
 namespace Drupal\Tests\panelizer\Unit;
 
 use Drupal\Core\Access\AccessResult;

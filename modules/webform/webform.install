@@ -8,7 +8,10 @@
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Serialization\Yaml;
+use Drupal\Core\Render\Element;
+use Drupal\system\Entity\Action;
 use Drupal\webform\Entity\Webform;
+use Drupal\webform\WebformInterface;
 use Drupal\webform\Plugin\WebformElement\ManagedFile;
 
 /**
@@ -143,7 +146,9 @@ function _webform_update_admin_settings() {
 function _webform_update_form_settings() {
   $default_properties = [
     'langcode' => 'en',
-    'status' => TRUE,
+    'status' => WebformInterface::STATUS_OPEN,
+    'open' => NULL,
+    'close' => NULL,
     'dependencies' => [],
     'uid' => '',
     'template' => FALSE,
@@ -191,6 +196,27 @@ function _webform_update_form_settings() {
 }
 
 /**
+ * Update or install any new system.actions.* config entities.
+ */
+function _webform_update_actions() {
+  $files = file_scan_directory(drupal_get_path('module', 'webform') . '/config', '/^system.action..*\.yml$/');
+  foreach ($files as $path => $file) {
+    $action_id = str_replace('system.action.', '', $file->name);
+    $action = Action::load($action_id);
+    if (!$action) {
+      // Install new action.
+      $data = Yaml::decode(file_get_contents($path));
+      $action = Action::create($data);
+      $action->trustData()->save();
+    }
+  }
+}
+
+/******************************************************************************/
+// Update hooks.
+/******************************************************************************/
+
+/**
  * Issue #2834203: Convert webform field target_id to 32 characters.
  */
 function webform_update_8001() {
@@ -203,7 +229,9 @@ function webform_update_8001() {
           foreach ($schema_data as $field_name => $field_data) {
             if (preg_match('/_target_id$/', $field_name) && $field_data['description'] == 'The ID of the webform entity.' && $schema[$item_name][$table_name]['fields'][$field_name]['length'] === 255) {
               $schema[$item_name][$table_name]['fields'][$field_name]['length'] = 32;
-              $database_schema->changeField($table_name, $field_name, $field_name, $schema[$item_name][$table_name]['fields'][$field_name]);
+              if ($database_schema->tableExists($table_name)) {
+                $database_schema->changeField($table_name, $field_name, $field_name, $schema[$item_name][$table_name]['fields'][$field_name]);
+              }
             }
           }
         }
@@ -312,4 +340,215 @@ function webform_update_8006() {
         ->execute();
     }
   }
+}
+
+/**
+ * Issue #2840521: Add support for global CSS and JS.
+ */
+function webform_update_8007() {
+  _webform_update_admin_settings();
+}
+
+/**
+ * Issue #2839615: Disabling message about viewing user's previous submissions.
+ */
+function webform_update_8008() {
+  _webform_update_form_settings();
+}
+
+/**
+ * Issue #2844020: Add admin and form specific setting to allow submit button to be clicked only once.
+ */
+function webform_update_8009() {
+  _webform_update_admin_settings();
+  _webform_update_form_settings();
+}
+
+/**
+ * Issue #2843400: Automated purging of submissions.
+ */
+function webform_update_8010() {
+  _webform_update_admin_settings();
+  _webform_update_form_settings();
+}
+
+/**
+ * Issue #2845028: Refactor and rework element formatting to better support multiple values.
+ */
+function webform_update_8011() {
+  // Update admin.settings format to support
+  // 'formats.{element_type}.item' and 'formats.{element_type}.items'.
+  $admin_config = \Drupal::configFactory()->getEditable('webform.settings');
+  $data = $admin_config->getRawData();
+  if (!empty($data['format'])) {
+    foreach ($data['format'] as $element_type => $element_format) {
+      if (is_string($element_format)) {
+        $data['format'][$element_type] = ['item' => $element_format];
+      }
+    }
+    $admin_config->setData($data)->save();
+  }
+
+  // Update webform element to support #format_items.
+  $config_factory = \Drupal::configFactory();
+  // Update 'webform.webform.*' configuration.
+  foreach ($config_factory->listAll('webform.webform.') as $webform_config_name) {
+    $webform_config = $config_factory->getEditable($webform_config_name);
+
+    // Get data.
+    $data = $webform_config->getRawData();
+    if (strpos($data['elements'], "'#format'") === FALSE) {
+      continue;
+    }
+
+    $elements = Yaml::decode($data['elements']);
+    _webform_update_8011($elements);
+
+    $data['elements'] = Yaml::encode($elements);
+    $webform_config->setData($data);
+    $webform_config->save();
+  }
+}
+
+/**
+ * Move $element['#format'] to $element['#format_items'].
+ *
+ * Applies to ol, ul, comma, and semicolon.
+ *
+ * @param array $element
+ *   A form element.
+ */
+function _webform_update_8011(array &$element) {
+  if (isset($element['#format'])) {
+    /** @var \Drupal\webform\WebformElementManagerInterface $element_manager */
+    $element_manager = \Drupal::service('plugin.manager.webform.element');
+    $webform_element = $element_manager->getElementInstance($element);
+
+    $format = $element['#format'];
+    $item_formats = $webform_element->getItemFormats();
+    $items_formats = $webform_element->getItemsFormats();
+    if (!isset($item_formats[$format]) && isset($items_formats[$format])) {
+      unset($element['#format']);
+      $element['#format_items'] = $format;
+    }
+  }
+
+  foreach (Element::children($element) as $key) {
+    if (is_array($element[$key])) {
+      _webform_update_8011($element[$key]);
+    }
+  }
+
+}
+
+/**
+ * Issue #2845776: Improve #multiple handling.
+ */
+function webform_update_8012() {
+  _webform_update_admin_settings();
+}
+
+/**
+ * Issue #2840858: Create Webform and Webform Submission Action plugins.
+ */
+function webform_update_8013() {
+  _webform_update_actions();
+}
+
+/**
+ * Issue #2848042: Rework #type shorthand prefix handling.
+ */
+function webform_update_8014() {
+  $config_factory = \Drupal::configFactory();
+  foreach ($config_factory->listAll('webform.webform.') as $webform_config_name) {
+    $webform_config = $config_factory->getEditable($webform_config_name);
+
+    // Get data, get elements, and update elements #type.
+    $data = $webform_config->getRawData();
+    $elements = Yaml::decode($data['elements']);
+    // Make sure $elements has been decoded into an array.
+    if (is_array($elements)) {
+      _webform_update_8014($elements);
+
+      // Set elements, set data, and save data.
+      $data['elements'] = Yaml::encode($elements);
+      $webform_config->setData($data);
+      $webform_config->save();
+    }
+  }
+}
+
+/**
+ * Add 'webform_' prefix to #type.
+ *
+ * @param array $element
+ *   A form element.
+ */
+function _webform_update_8014(array &$element) {
+  /** @var \Drupal\webform\WebformElementManagerInterface $element_manager */
+  $element_manager = \Drupal::service('plugin.manager.webform.element');
+
+  // Add 'webform_' prefix to #type.
+  if (isset($element['#type']) && !$element_manager->hasDefinition($element['#type']) && $element_manager->hasDefinition('webform_' . $element['#type'])) {
+    $element['#type'] = 'webform_' . $element['#type'];
+  }
+
+  foreach (Element::children($element) as $key) {
+    if (is_array($element[$key])) {
+      _webform_update_8014($element[$key]);
+    }
+  }
+}
+
+/**
+ * Issue #2850247: Experiment with system tray integration.
+ */
+function webform_update_8015() {
+  _webform_update_admin_settings();
+}
+
+/**
+ * Issue #2850455: Add lookup_keys to webform config entity. Flush cache entity definitions.
+ */
+function webform_update_8016() {
+  drupal_flush_all_caches();
+}
+
+/**
+ * Issue #2850455: Add lookup_keys to webform config entity. Update Webform lookup keys.
+ */
+function webform_update_8017() {
+  // Must resave all Webform config lookup keys.
+  // @see \Drupal\Core\Config\Entity\Query\QueryFactory::updateConfigKeyStore
+  $webforms = Webform::loadMultiple();
+  foreach ($webforms as $webform) {
+    $webform->save();
+  }
+}
+
+/**
+ * Issue #2850885: Add ability to disable autocomplete for form and/or element.
+ */
+function webform_update_8018() {
+  _webform_update_admin_settings();
+  _webform_update_form_settings();
+}
+
+/**
+ * Issue #2853302: Allow confirmation page title to be customized.
+ */
+function webform_update_8019() {
+  _webform_update_form_settings();
+}
+
+/**
+ * Issue #2845724: Add webform opening and closing date/time.
+ */
+function webform_update_8020() {
+  // Resave all webforms to convert status boolean to string.
+  $webforms = Webform::loadMultiple();
+  foreach ($webforms as $webform) {
+    $webform->setStatus($webform->get('status'))->save();
+  }
+  _webform_update_form_settings();
 }

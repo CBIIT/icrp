@@ -13,9 +13,17 @@ services:
     class: Drupal\snippet_manager\SnippetTemplateLoader
     arguments: ['@entity_type.manager', '@logger.channel.snippet_manager']
     tags:
-    # The service should be loaded before @twig.loader.string.
+    # This service should be loaded before @twig.loader.string.
       - { name: twig.loader, priority: -150 }
   theme.negotiator.snippet_manager:
     class: Drupal\snippet_manager\Theme\Negotiator
     tags:
       - { name: theme_negotiator, priority: 0 }
+  snippet_manager.route_subscriber:
+    class: Drupal\snippet_manager\EventSubscriber\RouteSubscriber
+    arguments: ['@entity_type.manager']
+    tags:
+      - { name: event_subscriber }
+  snippet_manager.snippet_library_builder:
+    class: Drupal\snippet_manager\SnippetLibraryBuilder
+    arguments: ['@entity_type.manager', '@logger.channel.snippet_manager', '@file_system', '@library.discovery']

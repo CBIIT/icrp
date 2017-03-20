@@ -1,31 +1,37 @@
 langcode: en
-status: true
+status: open
 dependencies:
   enforced:
     module:
       - webform_test
+open: null
+close: null
 uid: null
 template: false
 id: test_element_autocomplete
 title: 'Test: Element: Autocomplete'
 description: 'Test element autocompletion.'
 elements: |
+  autocomplete_off:
+    '#type': email
+    '#title': 'email (autocomplete=off)'
+    '#autocomplete': off
   autocomplete_items:
-    '#type': autocomplete
+    '#type': webform_autocomplete
     '#title': 'autocomplete (options)'
-    '#autocomplete_items': 'country_names'
+    '#autocomplete_items': country_names
     '#autocomplete_limit': 5
     '#autocomplete_match': 1
   autocomplete_existing:
-    '#type': autocomplete
+    '#type': webform_autocomplete
     '#title': 'autocomplete (existing)'
-    '#autocomplete_existing': TRUE
+    '#autocomplete_existing': true
   autocomplete_both:
-    '#type': autocomplete
+    '#type': webform_autocomplete
     '#title': 'autocomplete (both)'
     '#autocomplete_items':
       - 'Example Item'
-    '#autocomplete_existing': TRUE
+    '#autocomplete_existing': true
     '#autocomplete_limit': 5
     '#autocomplete_match': 1
 css: ''
@@ -35,13 +41,16 @@ settings:
   page_submit_path: ''
   page_confirm_path: ''
   form_submit_label: ''
+  form_submit_once: false
   form_submit_attributes: {  }
   form_exception_message: ''
   form_closed_message: ''
+  form_previous_submissions: true
   form_confidential: false
   form_confidential_message: ''
   form_prepopulate: false
   form_prepopulate_source_entity: false
+  form_disable_autocomplete: false
   form_novalidate: false
   form_unsaved: false
   form_disable_back: false
@@ -70,6 +79,7 @@ settings:
   draft_saved_message: ''
   draft_loaded_message: ''
   confirmation_type: message
+  confirmation_title: ''
   confirmation_message: ''
   confirmation_url: ''
   confirmation_attributes: {  }
@@ -80,6 +90,8 @@ settings:
   limit_total_message: ''
   limit_user: null
   limit_user_message: ''
+  purge: none
+  purge_days: null
   entity_limit_total: null
   entity_limit_user: null
   results_disabled: false

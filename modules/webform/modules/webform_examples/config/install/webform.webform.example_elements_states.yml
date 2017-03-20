@@ -1,9 +1,11 @@
 langcode: en
-status: false
+status: open
 dependencies:
   enforced:
     module:
       - webform_examples
+open: null
+close: null
 uid: null
 template: false
 id: example_elements_states
@@ -27,6 +29,30 @@ elements: |
         required:
           ':input[name="checkbox"]':
             checked: true
+  checkboxes_example:
+    '#type': details
+    '#title': 'Checkboxes example'
+    '#open': true
+    checkboxes:
+      '#type': checkboxes
+      '#title': 'Please check all'
+      '#options':
+        one: One
+        two: Two
+    checkboxes_explain:
+      '#type': textarea
+      '#title': 'Please explain why you checked all the above box'
+      '#states':
+        visible:
+          ':input[name="checkboxes[one]"]':
+            checked: true
+          ':input[name="checkboxes[two]"]':
+            checked: true
+        required:
+          ':input[name="checkboxes[one]"]':
+            checked: true
+          ':input[name="checkboxes[two]"]':
+            checked: true
   select_example:
     '#type': details
     '#title': 'Select with other example'
@@ -38,7 +64,7 @@ elements: |
         1: One
         2: Two
         3: Three
-        other: 'Other...'
+        other: Other...
     select_other:
       '#type': textfield
       '#attributes':
@@ -90,7 +116,7 @@ elements: |
         1: One
         2: Two
         3: Three
-        other: 'Other...'
+        other: Other...
     radios_other:
       '#type': textfield
       '#attributes':
@@ -110,7 +136,7 @@ elements: |
       '#type': checkbox
       '#title': 'Please check this box to enter more information'
     checkbox_more_details:
-      '#type': 'details'
+      '#type': details
       '#title': 'More information'
       '#open': true
       '#states':
@@ -155,13 +181,16 @@ settings:
   page_submit_path: ''
   page_confirm_path: ''
   form_submit_label: ''
+  form_submit_once: false
   form_submit_attributes: {  }
   form_exception_message: ''
   form_closed_message: ''
+  form_previous_submissions: true
   form_confidential: false
   form_confidential_message: ''
   form_prepopulate: false
   form_prepopulate_source_entity: false
+  form_disable_autocomplete: false
   form_novalidate: false
   form_unsaved: false
   form_disable_back: false
@@ -190,6 +219,7 @@ settings:
   draft_saved_message: ''
   draft_loaded_message: ''
   confirmation_type: page
+  confirmation_title: ''
   confirmation_message: ''
   confirmation_url: ''
   confirmation_attributes: {  }
@@ -200,6 +230,8 @@ settings:
   limit_total_message: ''
   limit_user: null
   limit_user_message: ''
+  purge: none
+  purge_days: null
   entity_limit_total: null
   entity_limit_user: null
   results_disabled: false

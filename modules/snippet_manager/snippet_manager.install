@@ -13,7 +13,7 @@ function snippet_manager_requirements($phase) {
 
   if ($phase == 'runtime' && !Drupal::config('snippet_manager.settings')->get('codemirror.cdn')) {
 
-    $requirements['snippet_manager_status'] = [
+    $requirements['snippet_manager_codemirror'] = [
       'title' => t('CodeMirror library'),
     ];
 
@@ -36,13 +36,13 @@ function snippet_manager_requirements($phase) {
     }
 
     if ($installed) {
-      $requirements['snippet_manager_status']['value'] = t('Installed');
-      $requirements['snippet_manager_status']['severity'] = REQUIREMENT_INFO;
+      $requirements['snippet_manager_codemirror']['value'] = t('Installed');
+      $requirements['snippet_manager_codemirror']['severity'] = REQUIREMENT_INFO;
     }
     else {
-      $requirements['snippet_manager_status']['value'] = t('Not found');
-      $requirements['snippet_manager_status']['severity'] = REQUIREMENT_ERROR;
-      $requirements['snippet_manager_status']['description'] = t(
+      $requirements['snippet_manager_codemirror']['value'] = t('Not found');
+      $requirements['snippet_manager_codemirror']['severity'] = REQUIREMENT_ERROR;
+      $requirements['snippet_manager_codemirror']['description'] = t(
         'You need to download the <a href=":library_url">CodeMirror library</a> and extract the archive to the <em>libraries/codemirror</em> directory on your server.',
         [':library_url' => 'https://codemirror.net/']
       );

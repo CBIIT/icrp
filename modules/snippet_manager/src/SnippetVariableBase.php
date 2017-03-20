@@ -30,7 +30,11 @@ abstract class SnippetVariableBase extends PluginBase implements SnippetVariable
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-
+    $form['default'] = [
+      '#type' => 'item',
+      '#markup' => t('This plugin has no configurable options.'),
+    ];
+    return $form;
   }
 
   /**
@@ -45,6 +49,13 @@ abstract class SnippetVariableBase extends PluginBase implements SnippetVariable
    */
   public function submitConfigurationForm(array &$form, FormStateInterface $form_state) {
     $this->setConfiguration($form_state->getValues());
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getOperations() {
+    return [];
   }
 
   /**

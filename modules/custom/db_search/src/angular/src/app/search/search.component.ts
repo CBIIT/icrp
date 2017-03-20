@@ -33,13 +33,14 @@ export class SearchComponent implements OnInit, AfterViewInit {
   initialParameters: any;
 
   conversionYears = [];
+  initialSearchMessage = '';
 
   constructor(
     private http: Http,
     @Inject('api_root') private apiRoot: string
     ) {
     this.loggedIn = false;
-//    this.loggedIn = true;
+    //this.loggedIn = true;
     this.searchID = null;
     this.loadingAnalytics = true;
     this.loading = true;
@@ -97,7 +98,16 @@ export class SearchComponent implements OnInit, AfterViewInit {
       .map((res: Response) => res.json())
       .catch((error: any) => [])
       .subscribe(
-        response => this.initialParameters = this.parseParameters(response),
+        response => {
+          if (response) {
+            this.initialParameters = this.parseParameters(response)
+          }
+          else {
+            let year = 2017;
+            this.initialParameters = {years: [year.toString(), (year - 1).toString()]}
+            this.initialSearchMessage = 'Your saved results are no longer available.'
+          }
+        },
         error => {},
         () => {}
       )

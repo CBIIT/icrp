@@ -7,14 +7,21 @@
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Asset\AttachedAssetsInterface;
 use Drupal\Core\Breadcrumb\Breadcrumb;
 use Drupal\Core\Database\Query\AlterableInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
+use Drupal\file\Entity\File;
+use Drupal\file\FileInterface;
 use Drupal\webform\Entity\Webform;
+use Drupal\webform\Entity\WebformSubmission;
+use Drupal\webform\Element\WebformMessage;
+use Drupal\webform\Plugin\Field\FieldType\WebformEntityReferenceItem;
 use Drupal\webform\Plugin\WebformElement\ManagedFile;
 use Drupal\webform\Utility\WebformArrayHelper;
 use Drupal\webform\WebformInterface;
@@ -23,11 +30,6 @@ use Drupal\webform\WebformSubmissionForm;
 module_load_include('inc', 'webform', 'includes/webform.libraries');
 module_load_include('inc', 'webform', 'includes/webform.options');
 module_load_include('inc', 'webform', 'includes/webform.translation');
-
-/**
- * Return status for saving which deleted an existing item.
- */
-const WEBFORM_SAVED_DRAFT = 4;
 
 /**
  * Implements hook_help().
@@ -98,6 +100,14 @@ function webform_modules_uninstalled($modules) {
 }
 
 /**
+ * Implements hook_cron().
+ */
+function webform_cron() {
+  $config = \Drupal::config('webform.settings');
+  \Drupal::entityTypeManager()->getStorage('webform_submission')->purge($config->get('purge_settings.cron_size'));
+}
+
+/**
  * Implements hook_local_tasks_alter().
  */
 function webform_local_tasks_alter(&$local_tasks) {
@@ -114,13 +124,34 @@ function webform_local_tasks_alter(&$local_tasks) {
  * Implements hook_menu_local_tasks_alter().
  */
 function webform_menu_local_tasks_alter(&$data, $route_name) {
-  if (strpos($route_name, 'entity.webform.') !== 0) {
-    return;
+  // Change 'Translate webform' tab to be just label 'Translate'.
+  if (strpos($route_name, 'entity.webform.') === 0) {
+    if (isset($data['tabs'][0]['config_translation.local_tasks:entity.webform.config_translation_overview']['#link']['title'])) {
+      $data['tabs'][0]['config_translation.local_tasks:entity.webform.config_translation_overview']['#link']['title'] = t('Translate');
+    }
   }
 
-  // Change 'Translate webform' tab to be just label 'Translate'.
-  if (isset($data['tabs'][0]['config_translation.local_tasks:entity.webform.config_translation_overview']['#link']['title'])) {
-    $data['tabs'][0]['config_translation.local_tasks:entity.webform.config_translation_overview']['#link']['title'] = t('Translate');
+  // ISSUE:
+  // Devel routes do not use 'webform' parameter which throws the below error.
+  // Some mandatory parameters are missing ("webform") to generate a URL for
+  // route "entity.webform_submission.canonical"
+  //
+  // WORKAROUND:
+  // Make sure webform parameter is set for all routes.
+  if (strpos($route_name, 'entity.webform_submission.devel_') === 0 || $route_name === 'entity.webform_submission.token_devel') {
+    foreach ($data['tabs'] as $tab_level) {
+      foreach ($tab_level as $tab) {
+        /** @var Drupal\Core\Url $url */
+        $url = $tab['#link']['url'];
+        $tab_route_name = $url->getRouteName();
+        $tab_route_parameters = $url->getRouteParameters();
+
+        if (strpos($tab_route_name, 'entity.webform_submission.devel_') !== 0) {
+          $webform_submission = WebformSubmission::load($tab_route_parameters['webform_submission']);
+          $url->setRouteParameter('webform', $webform_submission->getWebform()->id());
+        }
+      }
+    }
   }
 }
 
@@ -132,9 +163,31 @@ function webform_form_alter(&$form, FormStateInterface $form_state, $form_id) {
     return;
   }
 
-  $is_submission_form = ($form_state->getFormObject() instanceof WebformSubmissionForm);
+  // Display editing original language warning.
+  if (\Drupal::moduleHandler()->moduleExists('config_translation') && preg_match('/^entity.webform.(?:edit|settings|assets|access|handlers|third_party_settings)_form$/', \Drupal::routeMatch()->getRouteName())) {
+    /** @var \Drupal\webform\WebformInterface $webform */
+    $webform = \Drupal::routeMatch()->getParameter('webform');
+    /** @var \Drupal\Core\Language\LanguageManagerInterface $language_manager */
+    $language_manager = \Drupal::service('language_manager');
 
-  // Don't include details toggle all for submission webforms.
+    // If current webform is translated, load the base (default) webform and apply
+    // the translation to the elements.
+    if ($webform->getLangcode() != $language_manager->getCurrentLanguage()->getId()) {
+      $original_language = $language_manager->getLanguage($webform->getLangcode());
+      $form['langcode_message'] = [
+        '#type' => 'webform_message',
+        '#message_type' => 'warning',
+        '#message_message' => t('You are editing the original %language language for this webform.', ['%language' => $original_language->getName()]),
+        '#message_close' => TRUE,
+        '#message_storage' => WebformMessage::STORAGE_LOCAL,
+        '#message_id' => $webform->id() . '.original_language',
+        '#weight' => -100,
+      ];
+    }
+  }
+
+  // Don't include details toggle all for submission forms.
+  $is_submission_form = ($form_state->getFormObject() instanceof WebformSubmissionForm);
   if (!$is_submission_form) {
     $form['#attributes']['class'][] = 'js-webform-details-toggle';
     $form['#attributes']['class'][] = 'webform-details-toggle';
@@ -194,7 +247,7 @@ function webform_system_breadcrumb_alter(Breadcrumb &$breadcrumb, RouteMatchInte
 function webform_entity_delete(EntityInterface $entity) {
   // Delete saved export settings for a webform or source entity with the
   // webform field.
-  if (($entity instanceof WebformInterface)  || (method_exists($entity, 'hasField') && $entity->hasField('webform'))) {
+  if (($entity instanceof WebformInterface) || WebformEntityReferenceItem::getEntityWebformFieldName($entity)) {
     $name = 'webform.export.' . $entity->getEntityTypeId() . '.' . $entity->id();
     \Drupal::state()->delete($name);
   }
@@ -242,7 +295,7 @@ function webform_mail_alter(&$message) {
   // @see \Drupal\Core\Mail\MailManager::mail()
   // @see \Drupal\webform\Plugin\WebformHandler\EmailWebformHandler::getMessage().
   if (strpos($message['id'], 'webform') === 0) {
-    if ($message['params']['html']) {
+    if (isset($message['params']['html']) && $message['params']['html']) {
       $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
     }
   }
@@ -255,25 +308,27 @@ function webform_page_attachments(&$page) {
   $route_name = Drupal::routeMatch()->getRouteName();
   $url = Url::fromRoute('<current>')->toString();
 
-  // Attach global libraries.
+  // Attach global libraries only to webform specific pages.
   if (preg_match('/^(webform\.|^entity\.([^.]+\.)?webform)/', $route_name) || preg_match('#(/node/add/webform|/admin/help/webform)#', $url)) {
     // Attach theme specific library to webform routers so that we can tweak
-    // the seven.theme.
+    // the bartik.theme and seven.theme.
     $theme = \Drupal::theme()->getActiveTheme()->getName();
     if (file_exists(drupal_get_path('module', 'webform') . "/css/webform.theme.$theme.css")) {
       $page['#attached']['library'][] = "webform/webform.theme.$theme";
     }
 
     // Attach details element save open/close library.
+    // This ensures pages without a webform will still be able to save the
+    // details element state.
     if (\Drupal::config('webform.settings')->get('ui.details_save')) {
       $page['#attached']['library'][] = 'webform/webform.element.details.save';
     }
   }
 
-  // Attach codemirror library to block admin to ensure that the library
-  // is loaded by the webform block is placed using AJAX.
-  if (\Drupal::routeMatch()->getRouteName() == 'block.admin_display') {
-    $page['#attached']['library'][] = 'webform/webform.codemirror.yaml';
+  // Attach codemirror and select2 library to block admin to ensure that the
+  // library is loaded by the webform block is placed using AJAX.
+  if (strpos($route_name, 'block.admin_display') === 0) {
+    $page['#attached']['library'][] = 'webform/webform.block';
   }
 }
 
@@ -327,6 +382,19 @@ function _webform_asset_alter(array &$items, AttachedAssetsInterface $assets, $t
         'weight' => 1000,
       ] + $items[$key];
     }
+  }
+}
+
+/**
+ * Implements hook_file_access().
+ *
+ * @see file_file_download()
+ * @see webform_preprocess_file_link()
+ */
+function webform_file_access(FileInterface $file, $operation, AccountInterface $account) {
+  // Block access to temporary anonymous private file uploads.
+  if ($operation == 'download' && $file->isTemporary() && $file->getOwnerId() == 0 && strpos($file->getFileUri(), 'private://webform/') === 0) {
+    return AccessResult::forbidden();
   }
 }
 
@@ -438,6 +506,9 @@ function webform_theme() {
     'webform_composite_name' => [
       'render element' => 'element',
     ],
+    'webform_composite_telephone' => [
+      'render element' => 'element',
+    ],
 
     'webform_codemirror' => [
       'variables' => ['code' => NULL, 'type' => 'text'],
@@ -484,11 +555,14 @@ function webform_theme_registry_alter(&$theme_registry) {
  * Implements hook_theme_suggestions_alter().
  */
 function webform_theme_suggestions_alter(array &$suggestions, array $variables, $hook) {
-  if (strpos($hook, 'webform_') !== 0) {
+  if (strpos($hook, 'webform') !== 0) {
     return;
   }
 
-  if (strpos($hook, 'webform_element_base_') === 0 || strpos($hook, 'webform_container_base_') === 0) {
+  if ($hook == 'webform') {
+    $suggestions[] = $hook . '__' . $variables['element']['#webform_id'];
+  }
+  elseif (strpos($hook, 'webform_element_base_') === 0 || strpos($hook, 'webform_container_base_') === 0) {
     $element = $variables['element'];
 
     if (empty($element['#type'])) {
@@ -500,14 +574,6 @@ function webform_theme_suggestions_alter(array &$suggestions, array $variables, 
 
     $suggestions[] = $hook . '__' . $type;
     $suggestions[] = $hook . '__' . $type . '__' . $name;
-
-    /** @var \Drupal\webform\WebformElementManagerInterface $element_manager */
-    $element_manager = \Drupal::service('plugin.manager.webform.element');
-    $element_handler = $element_manager->createInstance($type);
-    if ($format = $element_handler->getFormat($element)) {
-      $suggestions[] = $hook . '__' . $type . '__' . $format;
-      $suggestions[] = $hook . '__' . $type . '__' . $name . '__' . $format;
-    }
   }
   elseif (isset($variables['webform_submission'])) {
     /** @var \Drupal\webform\WebformSubmissionInterface $webform_submission */
@@ -521,7 +587,6 @@ function webform_theme_suggestions_alter(array &$suggestions, array $variables, 
     $suggestions[] = $hook . '__' . $webform->id();
   }
 }
-
 /**
  * Prepares variables for checkboxes templates.
  *
@@ -531,7 +596,7 @@ function webform_preprocess_checkboxes(&$variables) {
   $element = $variables['element'];
   $options_display = (!empty($element['#options_display'])) ? $element['#options_display'] : 'one_column';
   $variables['attributes']['class'][] = 'webform-options-display-' . str_replace('_', '-', $options_display);
-  $variables['#attached']['library'][] = 'webform/webform.options';
+  $variables['#attached']['library'][] = 'webform/webform.element.options';
 }
 
 /**
@@ -541,6 +606,24 @@ function webform_preprocess_checkboxes(&$variables) {
  */
 function webform_preprocess_radios(&$variables) {
   webform_preprocess_checkboxes($variables);
+  // @see js/webform.element.radios.js
+  $variables['attributes']['class'][] = 'js-webform-radios';
+}
+
+/**
+ * Prepares variables for file link templates.
+ *
+ * @see webform_file_access
+ */
+function webform_preprocess_file_link(&$variables) {
+  /** @var \Drupal\file\FileInterface $file */
+  $file = $variables['file'];
+  $file = ($file instanceof File) ? $file : File::load($file->fid);
+
+  // Remove link to temporary anonymous private file uploads.
+  if ($file->isTemporary() && $file->getOwnerId() === 0 && strpos($file->getFileUri(), 'private://webform/') === 0) {
+    $variables['link'] = $file->getFilename();
+  }
 }
 
 /**
@@ -553,7 +636,7 @@ function webform_preprocess_radios(&$variables) {
  *
  * @see drupal_process_states()
  */
-function webform_process_states(&$elements, $key = '#attributes') {
+function webform_process_states(array &$elements, $key = '#attributes') {
   if (empty($elements['#states'])) {
     return;
   }

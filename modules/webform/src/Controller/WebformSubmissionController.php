@@ -24,7 +24,7 @@ class WebformSubmissionController extends ControllerBase implements ContainerInj
   protected $requestHandler;
 
   /**
-   * Constructs a new WebformSubmissionController object.
+   * Constructs a WebformSubmissionController object.
    *
    * @param \Drupal\webform\WebformRequestInterface $request_handler
    *   The webform request handler.
@@ -124,17 +124,21 @@ class WebformSubmissionController extends ControllerBase implements ContainerInj
    *
    * @param \Drupal\webform\WebformSubmissionInterface $webform_submission
    *   The webform submission.
+   * @param bool $duplicate
+   *   Flag indicating if submission is being duplicated.
    *
    * @return array
    *   The webform submission as a render array.
    */
-  public function title(WebformSubmissionInterface $webform_submission) {
+  public function title(WebformSubmissionInterface $webform_submission, $duplicate = FALSE) {
     $source_entity = $this->requestHandler->getCurrentSourceEntity('webform_submission');
     $t_args = [
       '@form' => ($source_entity) ? $source_entity->label() : $webform_submission->getWebform()->label(),
       '@id' => $webform_submission->serial(),
     ];
-    return $this->t('@form: Submission #@id', $t_args);
+
+    $title = $this->t('@form: Submission #@id', $t_args);
+    return ($duplicate) ? $this->t('Duplicate @title', ['@title' => $title]) : $title;
   }
 
 }

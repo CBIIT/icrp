@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\panelizer\Plugin\PanelizerEntityManagerInterface.
- */
-
 namespace Drupal\panelizer\Plugin;
 
 use Drupal\Component\Plugin\Discovery\CachedDiscoveryInterface;

@@ -147,7 +147,9 @@
       placeholder="Enter Countries" 
       tooltip="Select one or more countries"
       [items]="fields.countries" 
-      [formControl]="form.controls.countries">
+      [formControl]="form.controls.countries"
+      (onSelect)="clearLocations()"
+      >
     </ui-select>
 
     <label class="form-label" for="states" tooltip="Select one or more states">State/Territory</label>

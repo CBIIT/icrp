@@ -1,9 +1,11 @@
 langcode: en
-status: true
+status: open
 dependencies:
   enforced:
     module:
       - webform_test
+open: null
+close: null
 uid: null
 template: false
 id: test_form_buttons
@@ -11,13 +13,13 @@ title: 'Test: Webform: Buttons'
 description: 'Test custom webform buttons.'
 elements: |
   wizard_page_1:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Page 1'
     text_1:
       '#type': textfield
       '#title': 'Text 1'
   wizard_page_2:
-    '#type': wizard_page
+    '#type': webform_wizard_page
     '#title': 'Page 2'
     text_2:
       '#type': textfield
@@ -29,16 +31,19 @@ settings:
   page_submit_path: ''
   page_confirm_path: ''
   form_submit_label: ''
+  form_submit_once: false
   form_submit_attributes:
     class:
       - form_submit_attributes
     style: 'color: green'
   form_exception_message: ''
   form_closed_message: ''
+  form_previous_submissions: true
   form_confidential: false
   form_confidential_message: ''
   form_prepopulate: true
   form_prepopulate_source_entity: false
+  form_disable_autocomplete: false
   form_novalidate: false
   form_unsaved: false
   form_disable_back: false
@@ -82,6 +87,7 @@ settings:
   draft_saved_message: ''
   draft_loaded_message: ''
   confirmation_type: page
+  confirmation_title: ''
   confirmation_message: ''
   confirmation_url: ''
   confirmation_attributes: {  }
@@ -92,6 +98,8 @@ settings:
   limit_total_message: ''
   limit_user: null
   limit_user_message: ''
+  purge: none
+  purge_days: null
   entity_limit_total: null
   entity_limit_user: null
   results_disabled: false

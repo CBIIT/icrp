@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\devel_generate\DevelGenerateBase;
+use Drupal\webform\Plugin\Field\FieldType\WebformEntityReferenceItem;
 use Drupal\webform\Utility\WebformArrayHelper;
 use Drupal\webform\WebformSubmissionGenerateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -66,7 +67,7 @@ class WebformSubmissionDevelGenerate extends DevelGenerateBase implements Contai
   protected $webformSubmissionGenerate;
 
   /**
-   * Constructs a new WebformSubmissionDevelGenerate object.
+   * Constructs a WebformSubmissionDevelGenerate object.
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
@@ -195,7 +196,7 @@ class WebformSubmissionDevelGenerate extends DevelGenerateBase implements Contai
    */
   protected function generateSubmissions(array $values) {
     self::$generatingSubmissions = TRUE;
-    if ($values['kill']) {
+    if (!empty($values['kill'])) {
       $this->deleteWebformSubmissions($values['webform_ids'], $values['entity-type'], $values['entity-id']);
       $this->setMessage($this->t('Deleted existing submissions.'));
     }
@@ -240,7 +241,7 @@ class WebformSubmissionDevelGenerate extends DevelGenerateBase implements Contai
    *   The element values from the settings webform.
    */
   protected function initializeGenerate(array &$values) {
-    // Set user id.
+    // Set user id.$devel_generate_manager = \Drupal::service('plugin.manager.develgenerate')
     $users = $this->getUsers();
     $users = array_merge($users, ['0']);
     $values['users'] = $users;
@@ -248,6 +249,13 @@ class WebformSubmissionDevelGenerate extends DevelGenerateBase implements Contai
     // Set created min and max.
     $values['created_min'] = strtotime('-1 month');
     $values['created_max'] = time();
+
+    // Set entity type and id default value.
+    $values += [
+      'num' => 50,
+      'entity-type' => '',
+      'entity-id' => '',
+    ];
   }
 
   /**
@@ -260,8 +268,8 @@ class WebformSubmissionDevelGenerate extends DevelGenerateBase implements Contai
 
     $users = $results['users'];
     $uid = $users[array_rand($users)];
-    $entity_type = $results['entity-type'] ?: '';
-    $entity_id = $results['entity-id'] ?: '';
+    $entity_type = $results['entity-type'];
+    $entity_id = $results['entity-id'];
 
     $timestamp = rand($results['created_min'], $results['created_max']);
     $this->webformSubmissionStorage->create([
@@ -375,7 +383,8 @@ class WebformSubmissionDevelGenerate extends DevelGenerateBase implements Contai
     }
 
     $dt_args['@title'] = $source_entity->label();
-    if (!method_exists($source_entity, 'hasField') || !$source_entity->hasField('webform')) {
+    $webform_field_name = WebformEntityReferenceItem::getEntityWebformFieldName($source_entity);
+    if (!$webform_field_name) {
       return $t("'@title' (@entity_type:@entity_id) does not have a 'webform' field.", $dt_args);
     }
 

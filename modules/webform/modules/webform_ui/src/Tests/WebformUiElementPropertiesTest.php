@@ -17,13 +17,25 @@ class WebformUiElementPropertiesTest extends WebformTestBase {
    *
    * @var array
    */
-  public static $modules = ['system', 'filter', 'user', 'webform', 'webform_test', 'webform_examples', 'webform_ui'];
+  public static $modules = ['filter', 'taxonomy', 'webform', 'webform_ui'];
+
+  /**
+   * Webforms to load.
+   *
+   * @var array
+   */
+  protected static $testWebforms = ['example_layout_basic', 'example_elements', 'example_elements_states', 'example_elements_composite', 'test_element', 'test_element_access', 'test_form_states_triggers'];
 
   /**
    * {@inheritdoc}
    */
   public function setUp() {
     parent::setUp();
+
+    // Create users.
+    $this->createUsers();
+
+    // Create filters.
     $this->createFilters();
   }
 
@@ -31,14 +43,13 @@ class WebformUiElementPropertiesTest extends WebformTestBase {
    * Tests element properties.
    */
   public function testElementProperties() {
-    $this->drupalLogin($this->adminFormUser);
+    $this->drupalLogin($this->adminWebformUser);
 
-    // Loops through all the elements, edits them via the UI, and check that
-    // the element's render array has not be altered.
-    // This verifies that the edit element webform is not unexpectedly altering
-    // an element's render array.
-    $webform_ids = ['example_layout_basic', 'test_element', 'test_element_access', 'test_element_extras', 'test_form_states_triggers'];
-    foreach ($webform_ids as $webform_id) {
+    // Loops through all the elements, edits them via the UI, and checks that
+    // the element's render array has not been altered.
+    // This verifies that the edit element (via UI) form is not unexpectedly
+    // altering an element's render array.
+    foreach (static::$testWebforms as $webform_id) {
       /** @var \Drupal\webform\WebformInterface $webform_elements */
       $webform_elements = Webform::load($webform_id);
       $original_elements = $webform_elements->getElementsDecodedAndFlattened();

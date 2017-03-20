@@ -96,7 +96,7 @@ export class LineChart {
                     var xoffset = (d3.event.pageX / window.outerWidth > 0.7) ? -165 : 5;
                     tooltip
                         .style('left', (d3.event.pageX + 10) + 'px')
-                        .style('top', (d3.event.pageY + 10 - window.scrollY) + 'px')
+                        .style('top', (d3.event.pageY + 10 - (window.scrollY || window.pageYOffset)) + 'px')
                 })
                 .on('mouseout', d => {
                     tooltip.transition()

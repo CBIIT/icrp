@@ -10,7 +10,9 @@ use Drupal\webform\WebformElementBase;
  *
  * @WebformElement(
  *   id = "webform_time",
+ *   api = "http://www.w3schools.com/tags/tag_time.asp",
  *   label = @Translation("Time"),
+ *   description = @Translation("Provides a form element for time selection."),
  *   category = @Translation("Date/time elements"),
  * )
  */
@@ -21,6 +23,8 @@ class WebformTime extends WebformElementBase {
    */
   public function getDefaultProperties() {
     return parent::getDefaultProperties() + [
+      'multiple' => FALSE,
+      'multiple__header_label' => '',
       // Time settings.
       'time_format' => '',
       'min' => '',
@@ -32,18 +36,18 @@ class WebformTime extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function formatText(array &$element, $value, array $options = []) {
+  public function formatTextItem(array &$element, $value, array $options = []) {
     if (empty($value)) {
       return '';
     }
 
-    $format = $this->getFormat($element);
+    $format = $this->getItemFormat($element);
     if ($format == 'value') {
       $time_format = (isset($element['#time_format'])) ? $element['#time_format'] : 'H:i';
       return date($time_format, strtotime($value));
     }
 
-    return parent::formatText($element, $value, $options);
+    return parent::formatTextItem($element, $value, $options);
   }
 
   /**
@@ -53,7 +57,7 @@ class WebformTime extends WebformElementBase {
     $form = parent::form($form, $form_state);
 
     // Append supported time input format to #default_value description.
-    $form['general']['default_value']['#description'] .= '<br />' . $this->t('Accepts any time in any <a href="https://www.gnu.org/software/tar/manual/html_chapter/tar_7.html#Date-input-formats">GNU Date Input Format</a>. Strings such as now, +2 hours, and 4:30 PM are all valid.');
+    $form['element']['default_value']['#description'] .= '<br />' . $this->t('Accepts any time in any <a href="https://www.gnu.org/software/tar/manual/html_chapter/tar_7.html#Date-input-formats">GNU Date Input Format</a>. Strings such as now, +2 hours, and 4:30 PM are all valid.');
 
     // Time.
     $form['time'] = [

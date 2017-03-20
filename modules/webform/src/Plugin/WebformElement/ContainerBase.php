@@ -60,21 +60,21 @@ abstract class ContainerBase extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function getDefaultFormat() {
+  public function getItemDefaultFormat() {
     return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getFormats() {
+  public function getItemFormats() {
     return [];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getTestValue(array $element, WebformInterface $webform) {
+  public function getTestValues(array $element, WebformInterface $webform, array $options = []) {
     // Containers should never have values and therefore should never have
     // a test value.
     return NULL;

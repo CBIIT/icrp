@@ -10,6 +10,8 @@
 <div id="google_translate_element"></div>
 </div>
 
+<hr style="margin: 0">
+
 <dl class="dl-horizontal margin-bottom margin-top">
   <dt>Title</dt>
   <dd>{{ funding_details.project_title | raw }}</dd>
@@ -26,7 +28,15 @@
       <i>Not specified</i>
     {% endif %}
   <dt>Principal Investigator</dt>
-  <dd>{{ funding_details.pi_name | default('Not specified')}}</dd>
+  <dd>
+    {{ funding_details.pi_name | default('Not specified')}}
+    {% if funding_details.pi_orcid %}
+      <a href="https://orcid.org/{{ funding_details.pi_orcid }}" target="_blank">
+        <img style="margin: 0 4px" src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="ORCiD Logo">
+        http://orcid.org/{{ funding_details.pi_orcid }}
+      </a>
+    {% endif %}
+  </dd>
   <dt>Institution</dt>
   <dd>{{ funding_details.institution | default('Not specified')}}</dd>
   <dt>Location</dt>
@@ -40,6 +50,7 @@
   {{ funding_details.country | default('Not specified')}}</dd>
 </dl>
 
+<hr>
 
 {% if funding_details.technical_abstract %}
 <h4>Technical Abstract</h4>
@@ -53,7 +64,7 @@
 <hr>
 {% endif %}
 
-<h5 class="h5">Cancer Types</h5>
+<h4>Cancer Types</h4>
 <ul>
   {% for row in cancer_types %}
   <li>
@@ -62,7 +73,9 @@
   {% endfor %}
 </ul>
 
-<h5 class="h5">Common Scientific Outline (CSO) Research Areas</h5>
+<hr>
+
+<h4>Common Scientific Outline (CSO) Research Areas</h4>
 <ul>
   {% for row in cso_research_areas %}
   <li>

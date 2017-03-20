@@ -3,7 +3,7 @@
 namespace Drupal\webform\Element;
 
 use Drupal\Core\Form\OptGroup;
-use Drupal\Component\Utility\Html;
+use Drupal\webform\Utility\WebformOptionsHelper;
 
 /**
  * Trait for entity reference elements.
@@ -61,9 +61,7 @@ trait WebformEntityTrait {
     }
 
     // Issue #2826451: TermSelection returning HTML characters in select list.
-    foreach ($options as $key => $value) {
-      $options[$key] = Html::decodeEntities($value);
-    }
+    $options = WebformOptionsHelper::decodeOptions($options);
 
     $element['#options'] = $options;
   }

@@ -5,13 +5,11 @@ package: custom
 # version: 8.x-1.0-dev
 # core: 8.x
 dependencies:
-  - filter
   - system (>= 8.2.0)
-  - views
 configure: entity.snippet.collection
 
-# Information added by Drupal.org packaging script on 2017-01-25
-version: '8.x-1.0-rc3'
+# Information added by Drupal.org packaging script on 2017-03-01
+version: '8.x-1.0-rc6'
 core: '8.x'
 project: 'snippet_manager'
-datestamp: 1485342488
+datestamp: 1488358692

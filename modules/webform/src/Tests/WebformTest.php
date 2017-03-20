@@ -10,6 +10,37 @@ namespace Drupal\webform\Tests;
 class WebformTest extends WebformTestBase {
 
   /**
+   * Modules to enable.
+   *
+   * @var array
+   */
+  protected static $modules = ['node', 'webform'];
+
+  /**
+   * Webforms to load.
+   *
+   * @var array
+   */
+  protected static $testWebforms = ['test_results'];
+
+  /**
+   * Webform submission storage.
+   *
+   * @var \Drupal\webform\WebformSubmissionStorageInterface
+   */
+  protected $submissionStorage;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp();
+
+    // Storage.
+    $this->submissionStorage = \Drupal::entityTypeManager()->getStorage('webform_submission');
+  }
+
+  /**
    * Tests webform entity.
    */
   public function testWebform() {
@@ -21,7 +52,7 @@ class WebformTest extends WebformTestBase {
     $this->assert(is_array($elements));
 
     // Check getElements.
-    $columns = $webform->getElementsFlattenedAndHasValue();
+    $columns = $webform->getElementsInitializedFlattenedAndHasValue();
     $this->assertEqual(array_keys($columns), ['first_name', 'last_name', 'sex', 'dob', 'node', 'colors', 'likert', 'address']);
 
     // Set invalid elements.
@@ -31,7 +62,7 @@ class WebformTest extends WebformTestBase {
     $this->assertFalse($webform->getElementsInitialized());
 
     // Check invalid element columns.
-    $this->assertEqual($webform->getElementsFlattenedAndHasValue(), []);
+    $this->assertEqual($webform->getElementsInitializedFlattenedAndHasValue(), []);
 
     // Check for 3 submissions..
     $this->assertEqual($this->submissionStorage->getTotal($webform), 3);

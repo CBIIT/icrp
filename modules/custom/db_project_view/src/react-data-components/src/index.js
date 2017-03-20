@@ -52,9 +52,8 @@ function buildUploadStatusReportTable(data) {
       keys="id"
       columns={tableColumns}
       initialData={data}
-      initialPageLength={20}
-      initialSortBy={{ prop: 'received_date', order: 'descending' }}
-      pageLengthOptions={[ 10, 20, 50 ]}
+      initialPageLength={25}
+      pageLengthOptions={[ 10, 25, 50 ]}
     />
   );
 }

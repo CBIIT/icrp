@@ -6,12 +6,12 @@
 
 /** Misc overrides */
 
-h1 {
-  color: orange;
+h1, h1.h1 {
+  color: #e7b348;
 }
 
-h2 {
-  color: orange;
+h2, h2.h2 {
+  color: #e7b348;
 }
 
 a {
@@ -108,6 +108,14 @@ table.table-narrow > tbody > tr > td,
 table.table-narrow > tfoot > tr > td {
   max-width: 320px;
 }
+
+
+table.table-centered-header > thead > tr > th,
+table.table-centered-header > tbody > tr > th,
+table.table-centered-header > tfoot > tr > th {
+  text-align: center;
+}
+
 
 
 
@@ -352,18 +360,6 @@ footer.footer {
   background: linear-gradient(#fdfdfd, #f9f9f9);
   box-shadow: 2px 2px 4px #eee;
   border-radius: 0px;
-}
-
-
-/** Bootstrap search-well overrides */
-
-div.search-block-form > div.search-well {
-  margin-top: -5px;
-  background: transparent;
-  background-color: transparent;
-  float: right;
-  box-shadow: none;:
-          -webkit-box-shadow none;
 }
 
 /** uaat overrides */

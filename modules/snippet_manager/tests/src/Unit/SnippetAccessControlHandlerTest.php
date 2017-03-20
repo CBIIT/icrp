@@ -115,45 +115,136 @@ class SnippetAccessControlHandlerTest extends UnitTestCase {
 
     $this->account = $this->getMock('Drupal\Core\Session\AccountInterface');
 
-    // The conditions array represents all possible combinations of five boolean
-    // conditions that will be checked in the access handler.
-    // 0 - the snippet is enabled.
-    // 1 - the snippet page is published.
-    // 2 - the operation is 'view'.
-    // 3 - the user has 'administer snippets' permission.
-    // 4 - the user has 'view published snippets' permission.
+    $default_item = [
+      'status' => TRUE,
+      'access' => [
+        'type' => '',
+        'permission' => [],
+        'role' => [],
+      ],
+      'user' => [
+        'roles' => [],
+        'permissions' => [],
+      ],
+      'operation' => 'view-published',
+    ];
+
+    $item = [
+      'access' => [
+        'type' => 'all',
+      ],
+      'result' => TRUE,
+    ];
+    $items[] = $item + $default_item;
+
+    $item = [
+      'access' => [
+        'type' => 'all',
+      ],
+      'status' => FALSE,
+      'result' => FALSE,
+    ];
+    $items[] = $item + $default_item;
+
+    $item = [
+      'access' => [
+        'type' => 'permission',
+        'permission' => 'foo',
+      ],
+      'result' => FALSE,
+    ];
+    $items[] = $item + $default_item;
+
+    $item = [
+      'access' => [
+        'type' => 'permission',
+        'permission' => 'foo',
+      ],
+      'user' => [
+        'permissions' => ['foo'],
+      ],
+      'result' => TRUE,
+    ];
+    $items[] = $item + $default_item;
+
+    $item = [
+      'access' => [
+        'type' => 'role',
+        'role' => ['foo'],
+      ],
+      'user' => [
+        'roles' => [],
+      ],
+      'result' => FALSE,
+    ];
+    $items[] = $item + $default_item;
+
+    $item = [
+      'access' => [
+        'type' => 'role',
+        'role' => ['foo'],
+      ],
+      'user' => [
+        'roles' => ['foo'],
+      ],
+      'result' => TRUE,
+    ];
+    $items[] = $item + $default_item;
+
+    $item = [
+      'access' => [
+        'type' => 'all',
+      ],
+      'operation' => 'edit',
+      'result' => FALSE,
+    ];
+    $items[] = $item + $default_item;
+
+    $item = [
+      'access' => [
+        'type' => 'all',
+      ],
+      'user' => [
+        'permissions' => ['administer snippets'],
+      ],
+      'operation' => 'edit',
+      'result' => TRUE,
+    ];
+    $items[] = $item + $default_item;
+
     $data = [];
-    for ($i = 0; $i < 32; $i++) {
+    foreach ($items as $item) {
+
+      $item['user']['permissions'] = isset($item['user']['permissions']) ? $item['user']['permissions'] : [];
+      $item['user']['roles'] = isset($item['user']['roles']) ? $item['user']['roles'] : [];
 
       $snippet = clone $this->snippet;
       $account = clone $this->account;
 
-      $conditions = str_split(str_pad(decbin($i), 5, 0, STR_PAD_LEFT));
+      $snippet->method('status')->willReturn($item['status']);
 
-      $snippet->method('status')->willReturn($conditions[0]);
-      $snippet->method('pageIsPublished')->willReturn($conditions[1]);
-      $operation = $conditions[2] ? 'view' : 'edit';
-
-      $permission_map = [
-        ['administer snippets', $conditions[3]],
-        ['view published snippets', $conditions[4]],
-      ];
+      $snippet->method('get')
+        ->with('access')
+        ->willReturn($item['access']);
 
       $account
         ->method('hasPermission')
-        ->will($this->returnValueMap($permission_map));
+        ->willReturnCallback(function ($permission) use ($item) {
+          return in_array($permission, $item['user']['permissions']);
+        });
 
-      $result = ($conditions[2] && !$conditions[3]) ?
-        $conditions[0] && $conditions[1] && $conditions[4] : (bool) $conditions[3];
+      $account
+        ->method('getRoles')
+        ->willReturn($item['user']['roles']);
 
       $data[] = [
         $snippet,
-        $operation,
+        $item['operation'],
         $account,
-        $result,
+        $item['result'],
       ];
-
     }
+
     return $data;
   }
 

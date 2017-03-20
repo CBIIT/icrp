@@ -135,7 +135,7 @@ abstract class TabularBaseWebformExporter extends WebformExporterBase {
         $entity_id = $webform_submission->entity_id->value;
         $entity = $this->entityTypeManager->getStorage($entity_type)->load($entity_id);
         if ($entity) {
-          $record[] = ($field_type == 'entity_url') ? $entity->toUrl()->setOption('absolute', TRUE)->toString() : $entity->label();
+          $record[] = ($field_type == 'entity_url' && $entity->hasLinkTemplate('canonical')) ? $entity->toUrl()->setOption('absolute', TRUE)->toString() : $entity->label();
         }
         else {
           $record[] = '';
@@ -166,7 +166,10 @@ abstract class TabularBaseWebformExporter extends WebformExporterBase {
     $export_options = $this->getConfiguration();
 
     $this->fieldDefinitions = $this->entityStorage->getFieldDefinitions();
-    $this->fieldDefinitions = array_diff_key($this->fieldDefinitions, $export_options['excluded_columns']);
+    $this->fieldDefinitions = $this->entityStorage->checkFieldDefinitionAccess($this->getWebform(), $this->fieldDefinitions);
+    if ($export_options['excluded_columns']) {
+      $this->fieldDefinitions = array_diff_key($this->fieldDefinitions, $export_options['excluded_columns']);
+    }
 
     // Add custom entity reference field definitions which rely on the
     // entity type and entity id.
@@ -198,10 +201,10 @@ abstract class TabularBaseWebformExporter extends WebformExporterBase {
     }
 
     $export_options = $this->getConfiguration();
-
-    $webform = $this->getWebform();
-    $element_columns = $webform->getElementsFlattenedAndHasValue();
-    $this->elements = array_diff_key($element_columns, $export_options['excluded_columns']);
+    $this->elements = $this->getWebform()->getElementsInitializedFlattenedAndHasValue('view');
+    if ($export_options['excluded_columns']) {
+      $this->elements = array_diff_key($this->elements, $export_options['excluded_columns']);
+    }
     return $this->elements;
   }
 

@@ -1,0 +1,7 @@
+name: Partnership Import
+description: Import Partnership Applications into Drupal from CSV file upload
+core: 8.x
+type: module
+
+dependencies:
+  - user

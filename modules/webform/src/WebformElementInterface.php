@@ -19,6 +19,53 @@ use Drupal\Core\Session\AccountInterface;
  */
 interface WebformElementInterface extends PluginInspectionInterface, PluginFormInterface, ContainerFactoryPluginInterface {
 
+  /****************************************************************************/
+  // Property methods.
+  /****************************************************************************/
+
+  /**
+   * Get default properties.
+   *
+   * @return array
+   *   An associative array containing default element properties.
+   */
+  public function getDefaultProperties();
+
+  /**
+   * Get translatable properties.
+   *
+   * @return array
+   *   An associative array containing translatable element properties.
+   */
+  public function getTranslatableProperties();
+
+  /**
+   * Get an element's default property value.
+   *
+   * @param string $property_name
+   *   An element's property name.
+   *
+   * @return mixed
+   *   An element's default property value or NULL is default property does not
+   *   exist.
+   */
+  public function getDefaultProperty($property_name);
+
+  /**
+   * Determine if the element supports a specified property.
+   *
+   * @param string $property_name
+   *   An element's property name.
+   *
+   * @return bool
+   *   TRUE if the element supports a specified property.
+   */
+  public function hasProperty($property_name);
+
+  /****************************************************************************/
+  // Definition and meta data methods.
+  /****************************************************************************/
+
   /**
    * Get the URL for the element's API documentation.
    *
@@ -44,39 +91,20 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
   public function getPluginLabel();
 
   /**
+   * Gets the description of the plugin instance.
+   *
+   * @return string
+   *   The description of the plugin instance.
+   */
+  public function getPluginDescription();
+
+  /**
    * Gets the type name (aka id) of the plugin instance with the 'webform_' prefix.
    *
    * @return string
    *   The type name of the plugin instance.
    */
   public function getTypeName();
-
-  /**
-   * Get default properties.
-   *
-   * @return array
-   *   An associative array containing default element properties.
-   */
-  public function getDefaultProperties();
-
-  /**
-   * Get translatable properties.
-   *
-   * @return array
-   *   An associative array containing translatable element properties.
-   */
-  public function getTranslatableProperties();
-
-  /**
-   * Determine if an element supports a specified property.
-   *
-   * @param string $property_name
-   *   An element's property name.
-   *
-   * @return bool
-   *   TRUE if the element supports a specified property.
-   */
-  public function hasProperty($property_name);
 
   /**
    * Checks if the element carries a value.
@@ -101,7 +129,7 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
   public function hasWrapper(array $element);
 
   /**
-   * Checks if element is a container that can contain elements.
+   * Checks if the element is a container that can contain elements.
    *
    * @param array $element
    *   An element.
@@ -112,7 +140,7 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
   public function isContainer(array $element);
 
   /**
-   * Checks if element is a root element.
+   * Checks if the element is a root element.
    *
    * @return bool
    *   TRUE if the element is a root element.
@@ -120,7 +148,7 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
   public function isRoot();
 
   /**
-   * Checks if element value could contain multiple lines.
+   * Checks if the element value could contain multiple lines.
    *
    * @param array $element
    *   An element.
@@ -131,7 +159,7 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
   public function isMultiline(array $element);
 
   /**
-   * Checks if element is a composite element.
+   * Checks if the element is a composite element.
    *
    * @return bool
    *   TRUE if the element is a composite element.
@@ -139,7 +167,7 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
   public function isComposite();
 
   /**
-   * Checks if element is hidden.
+   * Checks if the element is hidden.
    *
    * @return bool
    *   TRUE if the element is hidden.
@@ -147,7 +175,7 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
   public function isHidden();
 
   /**
-   * Checks if element is enabled.
+   * Checks if the element is enabled.
    *
    * @return bool
    *   TRUE if the element is enabled.
@@ -155,7 +183,7 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
   public function isEnabled();
 
   /**
-   * Checks if element is disabled.
+   * Checks if the element is disabled.
    *
    * @return bool
    *   TRUE if the element is disabled.
@@ -163,13 +191,29 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
   public function isDisabled();
 
   /**
-   * Checks if element value has multiple values.
+   * Checks if the element supports multiple values.
+   *
+   * @return bool
+   *   TRUE if the element supports multiple values.
+   */
+  public function supportsMultipleValues();
+
+  /**
+   * Checks if the element uses the 'webform_multiple' element.
+   *
+   * @return bool
+   *   TRUE if the element supports multiple values.
+   */
+  public function hasMultipleWrapper();
+
+  /**
+   * Checks if the element value has multiple values.
    *
    * @param array $element
    *   An element.
    *
    * @return bool
-   *   TRUE if element value has multiple values.
+   *   TRUE if the element value has multiple values.
    */
   public function hasMultipleValues(array $element);
 
@@ -183,6 +227,10 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
    */
   public function getInfo();
 
+  /****************************************************************************/
+  // Element relationship methods.
+  /****************************************************************************/
+
   /**
    * Get related element types.
    *
@@ -194,19 +242,9 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
    */
   public function getRelatedTypes(array $element);
 
-  /**
-   * Gets the actual configuration webform array to be built.
-   *
-   * @param array $form
-   *   An associative array containing the structure of the form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The current state of the form.
-   *
-   * @return array
-   *   An associative array contain the element's configuration webform without
-   *   any default values..
-   */
-  public function form(array $form, FormStateInterface $form_state);
+  /****************************************************************************/
+  // Element rendering methods.
+  /****************************************************************************/
 
   /**
    * Initialize an element to be displayed, rendered, or exported.
@@ -225,6 +263,16 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
    *   A webform submission.
    */
   public function prepare(array &$element, WebformSubmissionInterface $webform_submission);
+
+  /**
+   * Finalize an element to be rendered within a webform.
+   *
+   * @param array $element
+   *   An element.
+   * @param \Drupal\webform\WebformSubmissionInterface $webform_submission
+   *   A webform submission.
+   */
+  public function finalize(array &$element, WebformSubmissionInterface $webform_submission);
 
   /**
    * Check element access (rules).
@@ -294,6 +342,10 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
    */
   public function getKey(array $element);
 
+  /****************************************************************************/
+  // Display submission value methods.
+  /****************************************************************************/
+
   /**
    * Build an element as HTML element.
    *
@@ -349,42 +401,29 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
    * @param array $options
    *   An array of options.
    *
-   * @return string
+   * @return array|string
    *   The element's value formatted as plain text or a render array.
    */
   public function formatText(array &$element, $value, array $options = []);
 
   /**
-   * Get test value for an element.
-   *
-   * @param array $element
-   *   An element.
-   * @param \Drupal\webform\WebformInterface $webform
-   *   A webform.
-   *
-   * @return mixed
-   *   A test value for an element.
-   */
-  public function getTestValue(array $element, WebformInterface $webform);
-
-  /**
-   * Get an element's available formats.
+   * Get an element's available single value formats.
    *
    * @return array
-   *   An associative array of formats containing name/label pairs.
+   *   An associative array of single value formats containing name/label pairs.
    */
-  public function getFormats();
+  public function getItemFormats();
 
   /**
-   * Get an element's default format name.
+   * Get an element's default single value format name.
    *
    * @return string
-   *   An element's default format name.
+   *   An element's default single value format name.
    */
-  public function getDefaultFormat();
+  public function getItemDefaultFormat();
 
   /**
-   * Get element's format name by looking for '#format' property, global settings, and finally default settings.
+   * Get element's single value format name by looking for '#format' property, global settings, and finally default settings.
    *
    * @param array $element
    *   An element.
@@ -392,7 +431,57 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
    * @return string
    *   An element's format name.
    */
-  public function getFormat(array $element);
+  public function getItemFormat(array $element);
+
+  /**
+   * Get an element's available multiple value formats.
+   *
+   * @return array
+   *   An associative array of multiple value formats containing name/label pairs.
+   */
+  public function getItemsFormats();
+
+  /**
+   * Get an element's default multiple value format name.
+   *
+   * @return string
+   *   An element's default multiple value format name.
+   */
+  public function getItemsDefaultFormat();
+
+  /**
+   * Get element's multiple value format name by looking for '#format' property, global settings, and finally default settings.
+   *
+   * @param array $element
+   *   An element.
+   *
+   * @return string
+   *   An element's format name.
+   */
+  public function getItemsFormat(array $element);
+
+  /****************************************************************************/
+  // Test methods.
+  /****************************************************************************/
+
+  /**
+   * Get test values for an element.
+   *
+   * @param array $element
+   *   An element.
+   * @param \Drupal\webform\WebformInterface $webform
+   *   A webform.
+   * @param array $options
+   *   Options used to generate a test value.
+   *
+   * @return mixed
+   *   A test value for an element.
+   */
+  public function getTestValues(array $element, WebformInterface $webform, array $options);
+
+  /****************************************************************************/
+  // Table methods.
+  /****************************************************************************/
 
   /**
    * Get element's table column(s) settings.
@@ -419,6 +508,10 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
    *   The element's value formatted as an HTML string or a render array.
    */
   public function formatTableColumn(array $element, $value, array $options = []);
+
+  /****************************************************************************/
+  // Export methods.
+  /****************************************************************************/
 
   /**
    * Get an element's default export options.
@@ -476,6 +569,8 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
    *
    * @param array $element
    *   An element.
+   * @parent string $value
+   *   Value to be exported.
    * @param array $export_options
    *   An associative array of export options.
    *
@@ -485,6 +580,10 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
    * @see \Drupal\webform\WebformSubmissionExporterInterface::getDefaultExportOptions
    */
   public function buildExportRecord(array $element, $value, array $export_options);
+
+  /****************************************************************************/
+  // #states API methods.
+  /****************************************************************************/
 
   /**
    * Get an element's supported states as options.
@@ -504,6 +603,10 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
    *   An array of element selectors.
    */
   public function getElementSelectorOptions(array $element);
+
+  /****************************************************************************/
+  // Operation methods.
+  /****************************************************************************/
 
   /**
    * Changes the values of an entity before it is created.
@@ -568,5 +671,23 @@ interface WebformElementInterface extends PluginInspectionInterface, PluginFormI
    *   A webform submission.
    */
   public function postDelete(array &$element, WebformSubmissionInterface $webform_submission);
+
+  /****************************************************************************/
+  // Element configuration methods.
+  /****************************************************************************/
+
+  /**
+   * Gets the actual configuration webform array to be built.
+   *
+   * @param array $form
+   *   An associative array containing the structure of the form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   *
+   * @return array
+   *   An associative array contain the element's configuration webform without
+   *   any default values..
+   */
+  public function form(array $form, FormStateInterface $form_state);
 
 }

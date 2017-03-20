@@ -13,6 +13,7 @@ use Drupal\webform\WebformSubmissionInterface;
  *   id = "captcha",
  *   api = "https://www.drupal.org/project/captcha",
  *   label = @Translation("CAPTCHA"),
+ *   description = @Translation("Provides a form element that determines whether the user is human."),
  *   category = @Translation("Advanced elements"),
  *   states_wrapper = TRUE,
  * )
@@ -43,14 +44,14 @@ class Captcha extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function getDefaultFormat() {
+  public function getItemDefaultFormat() {
     return NULL;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getFormats() {
+  public function getItemFormats() {
     return [];
   }
 

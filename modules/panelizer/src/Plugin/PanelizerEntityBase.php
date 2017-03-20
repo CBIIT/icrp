@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\panelizer\Plugin\PanelizerEntityBase.
- */
-
 namespace Drupal\panelizer\Plugin;
 
 use Drupal\Component\Plugin\PluginBase;

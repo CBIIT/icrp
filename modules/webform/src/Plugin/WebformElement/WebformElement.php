@@ -12,6 +12,7 @@ use Drupal\Core\Url as UrlGenerator;
  * @WebformElement(
  *   id = "webform_element",
  *   label = @Translation("Generic element"),
+ *   description = @Translation("Provides a generic form element."),
  * )
  */
 class WebformElement extends WebformElementBase {
@@ -27,7 +28,7 @@ class WebformElement extends WebformElementBase {
    * {@inheritdoc}
    */
   public function form(array $form, FormStateInterface $form_state) {
-    $form['general'] = [
+    $form['element'] = [
       '#type' => 'details',
       '#title' => $this->t('General settings'),
       '#open' => TRUE,

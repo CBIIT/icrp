@@ -39,7 +39,7 @@ class WebformPluginElementController extends ControllerBase implements Container
   protected $elementManager;
 
   /**
-   * Constructs a WebformPluginBaseController object.
+   * Constructs a WebformPluginElementController object.
    *
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler.
@@ -126,8 +126,8 @@ class WebformPluginElementController extends ControllerBase implements Container
 
         $parent_classes = WebformReflectionHelper::getParentClasses($webform_element, 'WebformElementBase');
 
-        $default_format = $webform_element->getDefaultFormat();
-        $format_names = array_keys($webform_element->getFormats());
+        $default_format = $webform_element->getItemDefaultFormat();
+        $format_names = array_keys($webform_element->getItemFormats());
         $formats = array_combine($format_names, $format_names);
         if (isset($formats[$default_format])) {
           $formats[$default_format] = '<b>' . $formats[$default_format] . '</b>';
@@ -140,8 +140,8 @@ class WebformPluginElementController extends ControllerBase implements Container
           'container' => $webform_element->isContainer($element),
           'root' => $webform_element->isRoot(),
           'hidden' => $webform_element->isHidden(),
+          'multiple' => $webform_element->supportsMultipleValues(),
           'multiline' => $webform_element->isMultiline($element),
-          'multiple' => $webform_element->hasMultipleValues($element),
           'states_wrapper' => $webform_element_plugin_definition['states_wrapper'],
         ];
         $webform_info = [];
@@ -191,7 +191,7 @@ class WebformPluginElementController extends ControllerBase implements Container
         $webform_form_element_rows[$element_plugin_id] = [
           'data' => [
             new FormattableMarkup('<div class="webform-form-filter-text-source">@id</div>', ['@id' => $element_plugin_id]),
-            $webform_element->getPluginLabel(),
+            new FormattableMarkup('<strong>@label</strong><br/>@description', ['@label' => $webform_element->getPluginLabel(), '@description' => $webform_element->getPluginDescription()]),
             ['data' => ['#markup' => implode('<br/> → ', $parent_classes)], 'nowrap' => 'nowrap'],
             ['data' => ['#markup' => implode('<br/>', $webform_info)], 'nowrap' => 'nowrap'],
             ['data' => ['#markup' => implode('<br/>', $element_info)], 'nowrap' => 'nowrap'],
@@ -233,7 +233,7 @@ class WebformPluginElementController extends ControllerBase implements Container
       '#type' => 'table',
       '#header' => [
         $this->t('Name'),
-        $this->t('Label'),
+        $this->t('Label/Description'),
         $this->t('Class hierarchy'),
         $this->t('Webform info'),
         $this->t('Element info'),

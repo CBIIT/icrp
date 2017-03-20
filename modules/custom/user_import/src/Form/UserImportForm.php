@@ -102,13 +102,17 @@ class UserImportForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $file = $this->file[0];
     $roles = $form_state->getValue(['config', 'roles']);
+    /*
     $config = [
       'roles' => array_filter($roles, function($item) {
         return ($item);
       })
     ];
+    */
+    $config = array("nothing");
     if ($created = UserImportController::processUpload($file, $config)) {
-      drupal_set_message(t('Successfully imported @count users.', ['@count' => count($created)]));
+        \Drupal::logger('user import')->notice(t('Successfully imported @count users.', ['@count' => $created]));
+        drupal_set_message(t('Successfully imported @count users.', ['@count' => $created]));
     }
     else {
       drupal_set_message(t('No users imported.'));

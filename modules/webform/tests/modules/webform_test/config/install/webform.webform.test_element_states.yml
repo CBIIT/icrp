@@ -1,11 +1,11 @@
 langcode: en
-status: true
+status: open
 dependencies:
   enforced:
     module:
       - webform_test
-  module:
-    - webform_test
+open: null
+close: null
 uid: null
 template: false
 id: test_element_states
@@ -24,15 +24,15 @@ elements: |
         selector_01:
           checked: true
       required:
-        selector_01':
+        'selector_01''':
           checked: true
-        'selector_02':
+        selector_02:
           checked: true
       disabled:
-        - 'selector_01':
+        - selector_01:
             checked: true
         - or
-        - 'selector_02':
+        - selector_02:
             checked: true
   states_custom_selector:
     '#type': webform_element_states
@@ -44,7 +44,7 @@ elements: |
     '#default_value':
       required:
         custom_selector:
-          value: Yes
+          value: 'Yes'
   states_empty:
     '#type': webform_element_states
     '#title': 'States empty'
@@ -58,24 +58,24 @@ elements: |
     '#default_value':
       required:
         - custom_selector:
-            value: Yes
+            value: 'Yes'
         - xor
         - custom_selector:
-            value: Yes
+            value: 'Yes'
   states_unsupported_nesting:
     '#type': webform_element_states
     '#title': 'States unsupport nested multiple selectors'
     '#default_value':
       required:
         - selector_01:
-            value: Yes
+            value: 'Yes'
           selector_02:
-            value: Yes
+            value: 'Yes'
         - or
         - selector_03:
-            value: Yes
+            value: 'Yes'
           selector_04:
-            value: Yes
+            value: 'Yes'
 css: ''
 javascript: ''
 settings:
@@ -83,13 +83,16 @@ settings:
   page_submit_path: ''
   page_confirm_path: ''
   form_submit_label: ''
+  form_submit_once: false
   form_submit_attributes: {  }
   form_exception_message: ''
   form_closed_message: ''
+  form_previous_submissions: true
   form_confidential: false
   form_confidential_message: ''
   form_prepopulate: false
   form_prepopulate_source_entity: false
+  form_disable_autocomplete: false
   form_novalidate: false
   form_unsaved: false
   form_disable_back: false
@@ -118,6 +121,7 @@ settings:
   draft_saved_message: ''
   draft_loaded_message: ''
   confirmation_type: message
+  confirmation_title: ''
   confirmation_message: ''
   confirmation_url: ''
   confirmation_attributes: {  }
@@ -128,6 +132,8 @@ settings:
   limit_total_message: ''
   limit_user: null
   limit_user_message: ''
+  purge: none
+  purge_days: null
   entity_limit_total: null
   entity_limit_user: null
   results_disabled: true

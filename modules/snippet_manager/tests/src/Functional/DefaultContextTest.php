@@ -15,9 +15,7 @@ class DefaultContextTest extends TestBase {
    * Tests default context.
    */
   public function testDefaultContext() {
-    $admin_user = $this->drupalCreateUser(['administer snippets']);
-    $this->drupalLogin($admin_user);
-    $this->drupalGet('snippet/gamma');
+    $this->drupalGet('admin/structure/snippet/gamma');
     $prefix = '//ol[@class="default-context"]';
     $this->assertByXpath($prefix . '/li[1][. = "classy"]');
     $this->assertByXpath($prefix . '/li[2][. = "core/themes/classy"]');
@@ -27,7 +25,8 @@ class DefaultContextTest extends TestBase {
     $this->assertByXpath($prefix . '/li[6][. = ""]');
     $this->assertByXpath($prefix . '/li[7][. = "1"]');
     // This one comes from alter hook.
-    $this->assertByXpath($prefix . '/li[8][. = "bar"]');
+    $this->assertByXpath($prefix . '/li[8][. = "Foo"]');
+    $this->assertByXpath($prefix . '/li[9][. = "Bar"]');
   }
 
 }

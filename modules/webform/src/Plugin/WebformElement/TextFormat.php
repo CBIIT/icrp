@@ -15,6 +15,7 @@ use Drupal\webform\WebformSubmissionInterface;
  *   id = "text_format",
  *   api = "https://api.drupal.org/api/drupal/core!modules!filter!src!Element!TextFormat.php/class/TextFormat",
  *   label = @Translation("Text format"),
+ *   description = @Translation("Provides a text format form element."),
  *   category = @Translation("Advanced elements"),
  *   composite = TRUE,
  *   multiline = TRUE,
@@ -97,9 +98,9 @@ class TextFormat extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function formatHtml(array &$element, $value, array $options = []) {
+  public function formatHtmlItem(array &$element, $value, array $options = []) {
     $value = (isset($value['value'])) ? $value['value'] : $value;
-    $format = (isset($value['format'])) ? $value['format'] : $this->getFormat($element);
+    $format = (isset($value['format'])) ? $value['format'] : $this->getItemFormat($element);
     switch ($format) {
       case 'raw':
         return $value;
@@ -113,8 +114,8 @@ class TextFormat extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function formatText(array &$element, $value, array $options = []) {
-    $format = (isset($value['format'])) ? $value['format'] : $this->getFormat($element);
+  public function formatTextItem(array &$element, $value, array $options = []) {
+    $format = (isset($value['format'])) ? $value['format'] : $this->getItemFormat($element);
     switch ($format) {
       case 'raw':
         return $value;
@@ -133,16 +134,16 @@ class TextFormat extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function getDefaultFormat() {
-    return filter_default_format();
+  public function getItemDefaultFormat() {
+    return (function_exists('filter_default_format')) ? filter_default_format() : parent::getItemDefaultFormat();
   }
 
   /**
    * {@inheritdoc}
    */
-  public function getFormats() {
-    $filters = FilterFormat::loadMultiple();
-    $formats = parent::getFormats();
+  public function getItemFormats() {
+    $formats = parent::getItemFormats();
+    $filters = (class_exists('\Drupal\filter\Entity\FilterFormat')) ? FilterFormat::loadMultiple() : [];
     foreach ($filters as $filter) {
       $formats[$filter->id()] = $filter->label();
     }

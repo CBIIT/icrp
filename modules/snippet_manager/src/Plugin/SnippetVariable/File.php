@@ -81,7 +81,7 @@ class File extends SnippetVariableBase implements SnippetVariableInterface {
   /**
    * {@inheritdoc}
    */
-  public function getContent() {
+  public function build() {
 
     $build = [];
 

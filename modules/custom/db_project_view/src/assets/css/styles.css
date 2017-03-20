@@ -3,7 +3,7 @@ div.native-font {
     "Segoe UI", "Roboto", "Oxygen", 
     "Ubuntu", "Cantarell", "Fira Sans", 
     "Droid Sans", "Helvetica Neue", sans-serif !important;
-  font-size: 14px;
+  font-size: 15px;
   color: #444;
 }
 
@@ -15,7 +15,6 @@ h1.h1 {
     display: inline-block;
     margin-bottom: 0;
     margin-top: 0;
-    color: orange;
     font-size: 32px;
     font-weight: 400;
 }
@@ -33,7 +32,6 @@ hr.less-margins {
 }
 
 h3.title {
-  color: orange;
   display: inline-block;
   margin-bottom: 0;
 }
@@ -68,10 +66,11 @@ h5.h5 {
 dl.dl-horizontal > dt {
   text-align: left;
   min-width: 210px;
-}
+} 
 
 dl.dl-horizontal > dd {
   margin-bottom: 4px;
+  margin-left: 210px;
 }
 
 table.project-funding-details {

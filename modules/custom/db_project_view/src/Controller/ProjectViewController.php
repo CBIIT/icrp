@@ -29,6 +29,7 @@ class ProjectViewController extends ControllerBase {
       'title' => 'project_title',
       'piLastName' => 'pi_last_name',
       'piFirstName' => 'pi_first_name',
+      'ORC_ID' => 'pi_orcid',
       'Institution' => 'institution',
       'City' => 'city',
       'State' => 'state', 
@@ -59,6 +60,7 @@ class ProjectViewController extends ControllerBase {
     'project_funding_details' => [
       'Title' => 'project_title',
       'piName' => 'pi_name',
+      'ORC_ID' => 'pi_orcid',
       'Institution' => 'institution',
       'City' => 'city',
       'State' => 'state',

@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\panelizer\Wizard\PanelizerWizardBase.
- */
-
 namespace Drupal\panelizer\Wizard;
 
 use Drupal\Core\Form\FormStateInterface;
@@ -14,6 +9,9 @@ use Drupal\panelizer\Form\PanelizerWizardContentForm;
 use Drupal\panelizer\Form\PanelizerWizardContextForm;
 use Drupal\panelizer\Form\PanelizerWizardGeneralForm;
 
+/**
+ *
+ */
 abstract class PanelizerWizardBase extends FormWizardBase {
 
   /**
@@ -33,12 +31,12 @@ abstract class PanelizerWizardBase extends FormWizardBase {
 
     if ($operation['form'] == $default_operation['form']) {
       // Create id and label form elements.
-      $form['name'] = array(
+      $form['name'] = [
         '#type' => 'fieldset',
-        '#attributes' => array('class' => array('fieldset-no-legend')),
+        '#attributes' => ['class' => ['fieldset-no-legend']],
         '#title' => $this->getWizardLabel(),
-      );
-      $form['name']['label'] = array(
+      ];
+      $form['name']['label'] = [
         '#type' => 'textfield',
         '#title' => $this->getMachineLabel(),
         '#required' => TRUE,
@@ -46,19 +44,19 @@ abstract class PanelizerWizardBase extends FormWizardBase {
         '#default_value' => !empty($cached_values['label']) ? $cached_values['label'] : '',
         '#maxlength' => 255,
         '#disabled' => !empty($cached_values['label']),
-      );
-      $form['name']['id'] = array(
+      ];
+      $form['name']['id'] = [
         '#type' => 'machine_name',
         '#maxlength' => 128,
-        '#machine_name' => array(
-          'source' => array('name', 'label'),
+        '#machine_name' => [
+          'source' => ['name', 'label'],
           'exists' => $this->exists(),
           'prefix' => $prefix,
-        ),
+        ],
         '#description' => $this->t('A unique machine-readable name for this display. It must only contain lowercase letters, numbers, and underscores.'),
         '#default_value' => !empty($cached_values['id']) ? $cached_values['id'] : '',
         '#disabled' => !empty($cached_values['id']),
-      );
+      ];
     }
     return $form;
   }

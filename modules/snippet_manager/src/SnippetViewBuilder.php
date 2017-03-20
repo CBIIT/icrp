@@ -7,7 +7,6 @@ use Drupal\Component\Utility\Timer;
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityViewBuilder;
-use Drupal\Core\Url;
 
 /**
  * Provides snippet view builder.
@@ -20,8 +19,8 @@ class SnippetViewBuilder extends EntityViewBuilder {
   public function view(EntityInterface $entity, $view_mode = 'full', $langcode = NULL) {
 
     /** @var \Drupal\snippet_manager\SnippetInterface $entity */
-    if ($view_mode == 'admin') {
-      $build = $this->viewAdmin($entity);
+    if ($view_mode == 'source') {
+      $build = $this->viewSource($entity);
     }
     else {
       $build['snippet'] = [
@@ -37,9 +36,9 @@ class SnippetViewBuilder extends EntityViewBuilder {
   }
 
   /**
-   * Builds the render array for the provided snippet using admin view mode.
+   * Builds the render array for the provided snippet using source view mode.
    */
-  public function viewAdmin(EntityInterface $entity) {
+  public function viewSource(EntityInterface $entity) {
 
     $build['snippet']['content']['#type'] = 'textarea';
     Timer::start('snippet');
@@ -50,7 +49,7 @@ class SnippetViewBuilder extends EntityViewBuilder {
     $render_time = Timer::read('snippet');
     $build['snippet']['content']['#attributes']['class'][] = 'snippet-html-source';
 
-    $build['snippet']['#attributes']['class'][] = 'snippet-admin';
+    $build['snippet']['#attributes']['class'][] = 'snippet-editor';
 
     $build['render_time_wrapper'] = [
       '#type' => 'container',
@@ -60,7 +59,7 @@ class SnippetViewBuilder extends EntityViewBuilder {
       '#markup' => t('Render time: %time ms', ['%time' => $render_time]),
     ];
 
-    $build['#attached']['library'][] = 'snippet_manager/snippet_manager';
+    $build['#attached']['library'][] = 'snippet_manager/editor';
 
     return $build;
   }
@@ -97,50 +96,36 @@ class SnippetViewBuilder extends EntityViewBuilder {
     /** @var \Drupal\snippet_manager\SnippetVariablePluginManager $variable_manager */
     $variable_manager = \Drupal::service('plugin.manager.snippet_variable');
 
+    $module_handler = \Drupal::moduleHandler();
     // The context is an array of processed twig variables.
-    $context = self::getDefaultContext();
-    foreach ($snippet->getVariables() as $variable_name => $variable) {
+    $context = $module_handler->invokeAll('snippet_context', [$snippet]);
+    foreach ($snippet->get('variables') as $variable_name => $variable) {
       try {
         $plugin = $variable_manager->createInstance(
           $variable['plugin_id'],
           $variable['configuration']
         );
-        $context[$variable_name] = $plugin->getContent();
+        $context[$variable_name] = $plugin->build();
       }
       catch (PluginNotFoundException $exception) {
         $context[$variable_name] = '';
       }
     }
-    \Drupal::moduleHandler()->alter('snippet_manager_context', $context, $snippet);
+    $module_handler->alter('snippet_context', $context, $snippet);
 
-    $code = $snippet->getCode();
+    $template = $snippet->get('template');
 
     $build['snippet'] = [
       '#type' => 'inline_template',
-      '#template' => check_markup($code['value'], $code['format']),
+      '#template' => check_markup($template['value'], $template['format']),
       '#context' => $context,
     ];
 
-    return $build;
-  }
+    if ($snippet->get('css')['status'] || $snippet->get('js')['status']) {
+      $build['snippet']['#attached']['library'][] = 'snippet_manager/snippet_' . $entity_id;
+    }
 
-  /**
-   * Returns default snippet context().
-   *
-   * @return array
-   *   An array of snippet-independent twig variables.
-   */
-  protected static function getDefaultContext() {
-    $theme = \Drupal::theme()->getActiveTheme();
-    $context['theme'] = $theme->getName();
-    $context['theme_directory'] = $theme->getPath();
-    $context['base_path'] = base_path();
-    $context['front_page'] = Url::fromRoute('<front>');
-    $context['is_front'] = \Drupal::service('path.matcher')->isFrontPage();
-    $user = \Drupal::currentUser();
-    $context['is_admin'] = $user->hasPermission('access administration pages');
-    $context['logged_in'] = $user->isAuthenticated();
-    return $context;
+    return $build;
   }
 
 }

@@ -38,6 +38,13 @@ class WebformSubmissionListBuilder extends EntityListBuilder {
   protected $requestHandler;
 
   /**
+   * The message manager.
+   *
+   * @var \Drupal\webform\WebformMessageManagerInterface
+   */
+  protected $messageManager;
+
+  /**
    * The webform.
    *
    * @var \Drupal\webform\WebformInterface
@@ -150,6 +157,11 @@ class WebformSubmissionListBuilder extends EntityListBuilder {
 
     $this->elementManager = \Drupal::service('plugin.manager.webform.element');
 
+    /** @var \Drupal\webform\WebformMessageManagerInterface $message_manager */
+    $this->messageManager = \Drupal::service('webform.message_manager');
+    $this->messageManager->setWebform($this->webform);
+    $this->messageManager->setSourceEntity($this->sourceEntity);
+
     /** @var WebformSubmissionStorageInterface $webform_submission_storage */
     $webform_submission_storage = $this->getStorage();
 
@@ -157,7 +169,7 @@ class WebformSubmissionListBuilder extends EntityListBuilder {
     if ($route_name == "$base_route_name.webform.results_table") {
       $this->columns = $webform_submission_storage->getCustomColumns($this->webform, $this->sourceEntity, $this->account, TRUE);
       $this->sort = $webform_submission_storage->getCustomSetting('sort', 'serial', $this->webform, $this->sourceEntity);
-      $this->direction  = $webform_submission_storage->getCustomSetting('direction', 'desc', $this->webform, $this->sourceEntity);
+      $this->direction = $webform_submission_storage->getCustomSetting('direction', 'desc', $this->webform, $this->sourceEntity);
       $this->limit = $webform_submission_storage->getCustomSetting('limit', 50, $this->webform, $this->sourceEntity);
       $this->format = $webform_submission_storage->getCustomSetting('format', $this->format, $this->webform, $this->sourceEntity);
       $this->customize = TRUE;
@@ -172,17 +184,23 @@ class WebformSubmissionListBuilder extends EntityListBuilder {
     }
     else {
       $this->columns = $webform_submission_storage->getDefaultColumns($this->webform, $this->sourceEntity, $this->account, FALSE);
-      // Display the sid when show results from all webforms.
       if ($route_name == 'entity.webform_submission.collection') {
+        // Replace serial with sid when showing results from all webforms.
         unset($this->columns['serial']);
-        $this->columns['sid']['title'] = '#';
+        $this->columns = [
+            'sid' => [
+              'title' => $this->t('SID'),
+              'name' => 'sid',
+              'format' => 'value',
+            ],
+          ] + $this->columns;
         $this->sort = 'sid';
       }
       else {
         unset($this->columns['sid']);
         $this->sort = 'serial';
       }
-      $this->direction  = 'desc';
+      $this->direction = 'desc';
       $this->limit = 50;
       $this->customize = FALSE;
     }
@@ -192,13 +210,18 @@ class WebformSubmissionListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function render() {
-    if ($this->webform) {
-      if ($this->account) {
-        $build['#title'] = $this->t('Submissions to %webform for %user', [
-          '%webform' => $this->webform->label(),
-          '%user' => $this->account->getDisplayName(),
-        ]);
-      }
+    // Set user specific page title.
+    if ($this->webform && $this->account) {
+      $build['#title'] = $this->t('Submissions to %webform for %user', [
+        '%webform' => $this->webform->label(),
+        '%user' => $this->account->getDisplayName(),
+      ]);
+    }
+
+    // Display warning when the webform has a submission but saving of results.
+    // are disabled.
+    if ($this->webform && $this->webform->getSetting('results_disabled')) {
+      $this->messageManager->display(WebformMessageManagerInterface::FORM_SAVE_EXCEPTION, 'warning');
     }
 
     // Add the filter.
@@ -230,6 +253,9 @@ class WebformSubmissionListBuilder extends EntityListBuilder {
     $build['table']['#attributes']['class'][] = 'webform-results__table';
 
     $build['#attached']['library'][] = 'webform/webform.admin';
+
+    // Must preload libraries required by (modal) dialogs.
+    $build['#attached']['library'][] = 'webform/webform.admin.dialog';
 
     return $build;
   }
@@ -361,14 +387,14 @@ class WebformSubmissionListBuilder extends EntityListBuilder {
       case 'created':
       case 'completed':
       case 'changed':
-        return ($is_raw) ? $entity->created->value : \Drupal::service('date.formatter')->format($entity->created->value);
+        return ($is_raw) ? $entity->created->value : $entity->created->value ? \Drupal::service('date.formatter')->format($entity->created->value) : '';
 
       case 'entity':
         $source_entity = $entity->getSourceEntity();
         if (!$source_entity) {
           return '';
         }
-        return ($is_raw) ? $source_entity->getEntityTypeId . ':' . $source_entity->id() : $source_entity->toLink();
+        return ($is_raw) ? $source_entity->getEntityTypeId . ':' . $source_entity->id() : ($source_entity->hasLinkTemplate('canonical') ? $source_entity->toLink() : '');
 
       case 'langcode':
         return ($is_raw) ? $entity->langcode->value : \Drupal::languageManager()->getLanguage($entity->langcode->value)->getName();
@@ -436,7 +462,7 @@ class WebformSubmissionListBuilder extends EntityListBuilder {
           $element = $column['element'];
 
           $key = $column['key'];
-          $value  = (isset($data[$key])) ? $data[$key] : '';
+          $value = (isset($data[$key])) ? $data[$key] : '';
 
           $options = $column;
 
@@ -491,6 +517,11 @@ class WebformSubmissionListBuilder extends EntityListBuilder {
         'title' => $this->t('Resend'),
         'weight' => 22,
         'url' => Url::fromRoute("$base_route_name.webform_submission.resend_form", $route_parameters, $route_options),
+      ];
+      $operations['duplicate'] = [
+        'title' => $this->t('Duplicate'),
+        'weight' => 23,
+        'url' => Url::fromRoute("$base_route_name.webform_submission.duplicate_form", $route_parameters, $route_options),
       ];
     }
 

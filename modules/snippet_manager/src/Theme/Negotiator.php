@@ -14,7 +14,7 @@ class Negotiator implements ThemeNegotiatorInterface {
    * {@inheritdoc}
    */
   public function applies(RouteMatchInterface $route_match) {
-    return $route_match->getRouteName() == 'entity.snippet.canonical';
+    return strpos($route_match->getRouteName(), 'entity.snippet.page') === 0;
   }
 
   /**

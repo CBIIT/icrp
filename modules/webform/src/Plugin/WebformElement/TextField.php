@@ -11,6 +11,7 @@ use Drupal\webform\WebformSubmissionInterface;
  *   id = "textfield",
  *   api = "https://api.drupal.org/api/drupal/core!lib!Drupal!Core!Render!Element!Textfield.php/class/Textfield",
  *   label = @Translation("Text field"),
+ *   description = @Translation("Provides a form element for input of a single-line text."),
  *   category = @Translation("Basic elements"),
  * )
  */
@@ -21,6 +22,8 @@ class TextField extends TextBase {
    */
   public function getDefaultProperties() {
     return parent::getDefaultProperties() + [
+      'multiple' => FALSE,
+      'multiple__header_label' => '',
       // Form display.
       'input_mask' => '',
       // Form validation.
@@ -34,8 +37,8 @@ class TextField extends TextBase {
    * {@inheritdoc}
    */
   public function prepare(array &$element, WebformSubmissionInterface $webform_submission) {
-    parent::prepare($element, $webform_submission);
     $element['#maxlength'] = (!isset($element['#maxlength'])) ? 255 : $element['#maxlength'];
+    parent::prepare($element, $webform_submission);
   }
 
 }

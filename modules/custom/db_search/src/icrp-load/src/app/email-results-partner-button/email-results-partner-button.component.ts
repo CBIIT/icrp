@@ -39,7 +39,7 @@ export class EmailResultsPartnerButtonComponent implements OnInit {
       personal_message: this.emailForm.controls['personal_message'].value,
     }
 
-    let endpoint = '/EmailResults';
+    let endpoint = '/load/EmailResults';
     console.log(params);
     
     let parameters = new URLSearchParams();

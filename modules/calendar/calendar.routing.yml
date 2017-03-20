@@ -12,4 +12,4 @@ calendar.admin_form:
     _form: '\Drupal\calendar\Form\CalendarSettingsForm'
     _title: 'Calendar administration'
   requirements:
-    _permission: 'access administration pages'
+    _permission: 'administer calendar settings'

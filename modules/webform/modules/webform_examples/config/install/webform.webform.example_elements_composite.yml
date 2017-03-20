@@ -1,9 +1,11 @@
 langcode: en
-status: false
+status: open
 dependencies:
   enforced:
     module:
       - webform_examples
+open: null
+close: null
 uid: null
 template: false
 id: example_elements_composite
@@ -15,36 +17,78 @@ elements: |
     '#title': Address
     '#open': true
     webform_address:
-      '#type': address
+      '#type': webform_address
       '#title': Address
+    webform_address_multiple:
+      '#type': webform_address
+      '#title': 'Address multiple'
+      '#multiple': true
+      '#multiple__header': true
   webform_contact_example:
     '#type': details
     '#title': Contact
     '#open': true
     webform_contact:
-      '#type': contact
+      '#type': webform_contact
       '#title': Contact
+    webform_contact_multiple:
+      '#type': webform_contact
+      '#title': 'Contact multiple'
+      '#multiple': true
   webform_creditcard_example:
     '#type': details
     '#title': 'Credit card'
     '#open': true
     webform_creditcard:
-      '#type': creditcard
+      '#type': webform_creditcard
       '#title': 'Credit card'
+  webform_link_example:
+    '#type': details
+    '#title': Link
+    '#open': true
+    webform_link:
+      '#type': webform_link
+      '#title': Link
+    webform_link_multiple:
+      '#type': webform_link
+      '#title': 'Link multiple'
+      '#multiple': true
+      '#multiple__header': true
   webform_location_example:
     '#type': details
     '#title': Location
     '#open': true
     webform_location:
-      '#type': location
+      '#type': webform_location
       '#title': Location
+    webform_location_multiple:
+      '#type': webform_location
+      '#title': 'Location multiple'
+      '#multiple': true
   webform_name_example:
     '#type': details
     '#title': Name
     '#open': true
     webform_name:
-      '#type': name
+      '#type': webform_name
       '#title': Name
+    webform_name_multiple:
+      '#type': webform_name
+      '#title': 'Name multiple'
+      '#multiple': true
+      '#multiple__header': true
+  webform_telephone_example:
+    '#type': details
+    '#title': 'Telephone advanced'
+    '#open': true
+    webform_telephone:
+      '#type': webform_telephone
+      '#title': 'Telephone advanced'
+    webform_telephone_multiple:
+      '#type': webform_telephone
+      '#title': 'Telephone advanced multiple'
+      '#multiple': true
+      '#multiple__header': true
 css: ''
 javascript: ''
 settings:
@@ -52,13 +96,16 @@ settings:
   page_submit_path: ''
   page_confirm_path: ''
   form_submit_label: ''
+  form_submit_once: false
   form_submit_attributes: {  }
   form_exception_message: ''
   form_closed_message: ''
+  form_previous_submissions: true
   form_confidential: false
   form_confidential_message: ''
   form_prepopulate: false
   form_prepopulate_source_entity: false
+  form_disable_autocomplete: false
   form_novalidate: false
   form_unsaved: false
   form_disable_back: false
@@ -87,6 +134,7 @@ settings:
   draft_saved_message: ''
   draft_loaded_message: ''
   confirmation_type: page
+  confirmation_title: ''
   confirmation_message: ''
   confirmation_url: ''
   confirmation_attributes: {  }
@@ -97,6 +145,8 @@ settings:
   limit_total_message: ''
   limit_user: null
   limit_user_message: ''
+  purge: none
+  purge_days: null
   entity_limit_total: null
   entity_limit_user: null
   results_disabled: false

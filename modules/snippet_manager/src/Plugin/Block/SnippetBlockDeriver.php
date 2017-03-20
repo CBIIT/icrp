@@ -47,10 +47,10 @@ class SnippetBlockDeriver extends DeriverBase implements ContainerDeriverInterfa
 
     /** @var \Drupal\snippet_manager\Entity\Snippet $snippet */
     foreach ($snippets as $snippet) {
-      if ($snippet->status()) {
+      if ($snippet->status() && $snippet->get('block')['status']) {
         $delta = $snippet->id();
         $this->derivatives[$delta] = $base_plugin_definition;
-        $this->derivatives[$delta]['admin_label'] = $snippet->label();
+        $this->derivatives[$delta]['admin_label'] = $snippet->get('block')['name'] ?: $snippet->label();
       }
     }
     return parent::getDerivativeDefinitions($base_plugin_definition);

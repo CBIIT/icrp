@@ -30,14 +30,12 @@ class SettingsFormTest extends TestBase {
     $this->assertByXpath($codemirror_prefix . '//input[@name="codemirror[toolbar]" and @checked="checked"]');
     $this->assertByXpath($codemirror_prefix . '//select[@name="codemirror[theme]"]/option[@value="default" and @selected="selected"]');
     $this->assertByXpath($codemirror_prefix . '//select[@name="codemirror[mode]"]/option[@value="html_twig" and @selected="selected"]');
-    $this->assertByXpath($form_prefix . '//select[@name="redirect_page"]/option[@value="canonical" and @selected="selected"]');
 
     $edit = [
       'codemirror[cdn]' => FALSE,
       'codemirror[toolbar]' => FALSE,
       'codemirror[theme]' => '3024-day',
       'codemirror[mode]' => 'twig',
-      'redirect_page' => 'edit-form',
     ];
     $this->drupalPostForm(NULL, $edit, 'Save configuration');
 
@@ -47,7 +45,6 @@ class SettingsFormTest extends TestBase {
     $this->assertByXpath($codemirror_prefix . '//input[@name="codemirror[toolbar]" and not(@checked)]');
     $this->assertByXpath($codemirror_prefix . '//select[@name="codemirror[theme]"]/option[@value="3024-day" and @selected="selected"]');
     $this->assertByXpath($codemirror_prefix . '//select[@name="codemirror[mode]"]/option[@value="twig" and @selected="selected"]');
-    $this->assertByXpath($form_prefix . '//select[@name="redirect_page"]/option[@value="edit-form" and @selected="selected"]');
   }
 
 }

@@ -109,7 +109,7 @@ function panelizer_panels_build_alter(&$build, PanelsDisplayVariant $panels_disp
 
     /** @var \Drupal\Core\Entity\EntityInterface $entity */
     $entity = $panels_display->getContexts()['@panelizer.entity_context:entity']->getContextValue();
-    $revision_id = ($entity instanceof RevisionableInterface) && !$entity->isDefaultRevision() ? $entity->getRevisionId() : NULL;
+    $revision_id = ($entity instanceof RevisionableInterface && $entity->getEntityType()->isRevisionable()) && !$entity->isDefaultRevision() ? $entity->getRevisionId() : NULL;
     list (,, $view_mode) = explode(':', $panels_display->getStorageId());
 
     // Get the default storage id.
@@ -146,11 +146,16 @@ function panelizer_panels_build_alter(&$build, PanelsDisplayVariant $panels_disp
       'panelizer_default_real_storage_id' => $panelizer_default_storage_id,
     ];
 
+    // Whether or not the current user has access to the "set as default" action
+    // in the IPE; any user with the 'administer panelizer' will also have
+    // access.
+    $user = \Drupal::currentUser();
+    $build['#attached']['drupalSettings']['panelizer']['user_permission']['save_default'] = $user->hasPermission('set panelizer default') || $user->hasPermission('administer panelizer');
 
     if ($panels_display->getStorageType() == 'panelizer_field') {
-      // If using panelizer_field, we change the storage id to match what we
-      // put together here because it'll have the revision id omitted in the
-      // right situation.
+      // If using panelizer_field, we change the storage id to match what we put
+      // together here because it'll have the revision id omitted in the right
+      // situation.
       $build['#attached']['drupalSettings']['panels_ipe']['panels_display']['storage_id'] = $panelizer_field_storage_id;
     }
     else {
@@ -210,7 +215,7 @@ function panelizer_panels_ipe_panels_display_presave(PanelsDisplayVariant $panel
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function panelizer_form_entity_view_display_edit_form_alter(&$form, FormStateInterface $form_state) {
+function panelizer_form_entity_view_display_edit_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   /** @var \Drupal\Core\Entity\EntityFormInterface $form_object */
   $form_object = $form_state->getFormObject();
   /** @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display */
@@ -256,26 +261,27 @@ function panelizer_form_entity_view_display_edit_form_alter(&$form, FormStateInt
 
     $form['panelizer']['options']['custom'] = [
       '#type' => 'checkbox',
-      '#title' => t('Allow custom layouts for individual @entities', [
-        '@entities' => $entity_type->getPluralLabel(),
+      '#title' => t('Allow each @entity to have its display customized', [
+        '@entity' => $entity_type->getSingularLabel(),
       ]),
       '#default_value' => isset($settings['custom']) ? $settings['custom'] : FALSE,
     ];
     $form['panelizer']['options']['allow'] = [
       '#type' => 'checkbox',
-      '#title' => t('Allow users to select which layout to use'),
-      '#description' => t('When multiple defaults for a view mode are available it can be useful to allow content creators to choose which layout to use for a given @entity.', [
+      '#title' => t('Allow users to select which display to use'),
+      '#description' => t('When multiple default displays are available for a view mode it can be useful to allow content creators to choose which display to use for an individual @entity.', [
         '@entity' => $entity_type->getSingularLabel(),
       ]),
       '#default_value' => isset($settings['allow']) ? $settings['allow'] : FALSE,
     ];
 
-    // If this display mode is panelized, then show a link to its settings.
+    // If this display mode is panelized, then show the available displays in a
+    // table.
     if (!empty($settings['enable'])) {
       $form['#cache']['tags'][] = "panelizer_default:$entity_type_id:$bundle:$mode";
       $form['panelizer']['displays'] = [
         '#type' => 'table',
-        '#caption' => t('Panelized Displays'),
+        '#caption' => t('Default displays available for this view mode'),
         '#header' => [t('Name'), t('Use as default'), t('Operations')],
       ];
       foreach ($display->getThirdPartySetting('panelizer', 'displays', []) as $machine_name => $panels_display) {
@@ -345,6 +351,17 @@ function panelizer_form_entity_view_display_edit_submit(&$form, FormStateInterfa
       $local_action_manager->getDefinitions();
       \Drupal::service('cache.render')->invalidateAll();
     }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for field_ui_field_storage_add_form().
+ */
+function panelizer_form_field_ui_field_storage_add_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Hide the legacy Panelizer field.
+  // @todo Remove the Panelizer field entirely.
+  if (isset($form['add']['new_storage_type']['#options']['General']['panelizer'])) {
+    unset($form['add']['new_storage_type']['#options']['General']['panelizer']);
   }
 }
 

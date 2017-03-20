@@ -80,7 +80,7 @@ class VariableEditForm extends VariableFormBase {
 
     drupal_set_message(t('The variable has been updated.'));
 
-    $redirect_url = $this->entity->toUrl('edit-form');
+    $redirect_url = $this->entity->toUrl('template-edit-form');
     $form_state->setRedirectUrl($redirect_url);
 
     return $result;

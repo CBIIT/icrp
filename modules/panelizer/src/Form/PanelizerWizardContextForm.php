@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\panelizer\Form\PanelizerWizardContextForm.
- */
-
 namespace Drupal\panelizer\Form;
 
 use Drupal\Core\Ajax\AjaxResponse;
@@ -148,7 +143,7 @@ class PanelizerWizardContextForm extends ManageContext {
     list(, $route_parameters) = $this->getContextOperationsRouteInfo($cached_values, $this->machine_name, $context);
     $content['submit']['#attached']['drupalSettings']['ajax'][$content['submit']['#id']]['url'] = $this->url($this->getContextAddRoute($cached_values), $route_parameters, ['query' => [FormBuilderInterface::AJAX_FORM_REQUEST => TRUE]]);
     $response = new AjaxResponse();
-    $response->addCommand(new OpenModalDialogCommand($this->t('Add new context'), $content, array('width' => '700')));
+    $response->addCommand(new OpenModalDialogCommand($this->t('Add new context'), $content, ['width' => '700']));
     return $response;
   }
 

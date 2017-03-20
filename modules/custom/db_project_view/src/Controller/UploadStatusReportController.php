@@ -59,6 +59,7 @@ class UploadStatusReportController extends ControllerBase {
        CAST(UploadToStageDate as DATE) stage_date,
        CAST(UploadToProdDate as DATE) prod_date
        FROM DataUploadStatus
+       ORDER BY received_date DESC
        ");
      $stmt->execute();
      return $stmt->fetchAll(PDO::FETCH_ASSOC);

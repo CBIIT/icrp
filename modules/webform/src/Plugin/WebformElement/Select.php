@@ -12,6 +12,7 @@ use Drupal\webform\WebformSubmissionInterface;
  *   id = "select",
  *   api = "https://api.drupal.org/api/drupal/core!lib!Drupal!Core!Render!Element!Select.php/class/Select",
  *   label = @Translation("Select"),
+ *   description = @Translation("Provides a form element for a drop-down menu or scrolling selection box."),
  *   category = @Translation("Options elements"),
  * )
  */
@@ -24,6 +25,7 @@ class Select extends OptionsBase {
     return parent::getDefaultProperties() + [
       // Options settings.
       'multiple' => FALSE,
+      'multiple_error' => '',
       'empty_option' => '',
       'empty_value' => '',
       'select2' => FALSE,
@@ -33,8 +35,14 @@ class Select extends OptionsBase {
   /**
    * {@inheritdoc}
    */
+  public function supportsMultipleValues() {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function prepare(array &$element, WebformSubmissionInterface $webform_submission) {
-    parent::prepare($element, $webform_submission);
     if (empty($element['#multiple'])) {
       if (!isset($element['#empty_option'])) {
         $element['#empty_option'] = empty($element['#required']) ? $this->t('- Select -') : $this->t('- None -');
@@ -46,6 +54,8 @@ class Select extends OptionsBase {
       }
       $element['#element_validate'][] = [get_class($this), 'validateMultipleOptions'];
     }
+
+    parent::prepare($element, $webform_submission);
 
     // Add select2 library and classes.
     if (!empty($element['#select2'])) {

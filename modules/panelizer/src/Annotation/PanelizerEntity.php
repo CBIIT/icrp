@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\panelizer\Annotation\PanelizerEntity.
- */
-
 namespace Drupal\panelizer\Annotation;
 
 use Drupal\Component\Annotation\PluginID;
@@ -20,5 +15,4 @@ use Drupal\Component\Annotation\PluginID;
  * @Annotation
  */
 class PanelizerEntity extends PluginID {
-
 }

@@ -18,7 +18,7 @@ class TextVariableTest extends TestBase {
       'name' => 'beer',
     ];
 
-    $this->drupalPostForm('snippet/alpha/edit/variable/add', $edit, 'Save and continue');
+    $this->drupalPostForm('admin/structure/snippet/alpha/edit/variable/add', $edit, 'Save and continue');
 
     $this->assertByXpath('//select[@name="configuration[content][format]"]/option[@value="snippet_manager_test_basic_format" and @selected="selected"]');
     $this->assertByXpath('//select[@name="configuration[content][format]"]/option[@value="snippet_manager_test_restricted_format"]');
@@ -30,9 +30,11 @@ class TextVariableTest extends TestBase {
     $this->drupalPostForm(NULL, $edit, 'Save');
 
     $edit = [
-      'code[value]' => '<div class="snippet-content">-={{ beer }}=-</div>',
+      'template[value]' => '<div class="snippet-content">-={{ beer }}=-</div>',
     ];
     $this->drupalPostForm(NULL, $edit, 'Save');
+
+    $this->drupalGet('admin/structure/snippet/alpha');
 
     $this->assertByXpath('//div[@class="snippet-content"]/p[text() = "Dark"]');
     $result = $this->xpath('//div[@class="snippet-content"]/span');
@@ -41,9 +43,9 @@ class TextVariableTest extends TestBase {
     $edit = [
       'configuration[content][format]' => 'snippet_manager_test_restricted_format',
     ];
-    $this->drupalPostForm('snippet/alpha/edit/variable/beer/edit', $edit, 'Save');
+    $this->drupalPostForm('admin/structure/snippet/alpha/edit/variable/beer/edit', $edit, 'Save');
 
-    $this->drupalGet('snippet/alpha');
+    $this->drupalGet('admin/structure/snippet/alpha');
 
     $this->assertByXpath('//div[@class="snippet-content"]/span[text() = "Light"]');
     $result = $this->xpath('//div[@class="snippet-content"]/p');

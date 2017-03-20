@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\panelizer\Plugin\PanelizerEntityManager.
- */
-
 namespace Drupal\panelizer\Plugin;
 
 use Drupal\Core\Plugin\DefaultPluginManager;

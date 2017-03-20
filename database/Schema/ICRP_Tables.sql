@@ -86,6 +86,7 @@ CREATE TABLE [dbo].[CSO](
 	[CategoryName] [varchar](100) NOT NULL,
 	[WeightName] [numeric](1, 0) NOT NULL,
 	[SortOrder] [int] NOT NULL,
+	[IsActive] [bit] NOT NULL, 
 	[CreatedDate] [datetime] NOT NULL,
 	[UpdatedDate] [datetime] NOT NULL,
  CONSTRAINT [PK_CSO] PRIMARY KEY CLUSTERED 
@@ -93,6 +94,9 @@ CREATE TABLE [dbo].[CSO](
 	[Code] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
+
+ALTER TABLE [dbo].[CSO] ADD  CONSTRAINT [DF_CSO_IsActive]  DEFAULT ((1)) FOR [IsActive]
+GO
 
 GO
 /****** Object:  Table [dbo].[CSOCategory]    Script Date: 12/13/2016 6:23:53 PM ******/
@@ -202,7 +206,39 @@ CREATE TABLE [dbo].[FundingOrg](
 ) ON [PRIMARY]
 
 GO
+
+/****** Object:  Table [dbo].[PartnerOrg]    Script Date: 3/10/2017 1:39:54 PM ******/
+SET ANSI_NULLS ON
 GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[PartnerOrg](
+	[PartnerOrgID] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [varchar](100) NOT NULL,
+	[SponsorCode] [varchar](50) NOT NULL,
+	[MemberType] [varchar](25) NOT NULL,
+	[IsActive] [bit] NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[UpdatedDate] [datetime] NOT NULL,
+ CONSTRAINT [PK_PartnerOrg] PRIMARY KEY CLUSTERED 
+(
+	[PartnerOrgID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+ALTER TABLE [dbo].[PartnerOrg] ADD  CONSTRAINT [DF_PartnerOrg_IsActive]  DEFAULT ((1)) FOR [IsActive]
+GO
+
+ALTER TABLE [dbo].[PartnerOrg] ADD  CONSTRAINT [DF_PartnerOrg_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+
+ALTER TABLE [dbo].[PartnerOrg] ADD  CONSTRAINT [DF_PartnerOrg_UpdatedDate]  DEFAULT (getdate()) FOR [UpdatedDate]
+GO
+
 
 
 /****** Object:  Table [dbo].[Institution]    Script Date: 12/13/2016 6:23:53 PM ******/
@@ -240,7 +276,7 @@ GO
 CREATE TABLE [dbo].[InstitutionMapping] (
 	[InstitutionMappingID] [int] IDENTITY(1,1) NOT NULL,	
 	[OldName] [varchar](250) NOT NULL,		
-	[OldCity] [varchar](50) NOT NULL,
+	[OldCity] [varchar](50) NULL,
 	[NewName] [varchar](250) NOT NULL,		
 	[NewCity] [varchar](50) NOT NULL,
  CONSTRAINT [PK_InstitutionMapping] PRIMARY KEY CLUSTERED 
@@ -261,7 +297,6 @@ CREATE TABLE [dbo].[Project](
 	[ProjectID] [int] IDENTITY(1,1) NOT NULL,
 	[IsChildhood] [bit] NULL,
 	[AwardCode] [nvarchar](50) NOT NULL,		
-	[IsFunded] [bit] NOT NULL,
 	[ProjectStartDate] [date] NULL,
 	[ProjectEndDate] [date] NULL,
 	[CreatedDate] [datetime] NULL,
@@ -356,38 +391,26 @@ CREATE TABLE [dbo].[ProjectCSO](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[ProjectDocument]    Script Date: 12/13/2016 6:23:53 PM ******/
-CREATE TABLE [dbo].[ProjectDocument](
+/****** Object:  Table [dbo].[ProjectSearch]    Script Date: 12/13/2016 6:23:53 PM ******/
+CREATE TABLE [dbo].[ProjectSearch](
+	[ProjectSearchID] [int] IDENTITY(1,1) NOT NULL,
 	[ProjectID] [int] NOT NULL,
 	[Content] [nvarchar](max) NOT NULL,
- CONSTRAINT [PK_ProjectDocument] PRIMARY KEY CLUSTERED 
+ CONSTRAINT [PK_ProjectSearch] PRIMARY KEY CLUSTERED 
 (
-	[ProjectID] ASC
+	[ProjectSearchID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 
---CREATE FULLTEXT CATALOG ftCatalog AS DEFAULT;  
+GO
+
+CREATE FULLTEXT CATALOG ftCatalog_ProjectSearch AS DEFAULT;  
+GO  
+--CREATE FULLTEXT INDEX ON ProjectSearch.Content(Resume) 
+--	KEY INDEX [PK_ProjectSearch];  
 --GO  
 
---CREATE FULLTEXT INDEX ON [dbo].[ProjectDocument](Content) KEY INDEX [PK_ProjectDocument];
---GO
 
-
-/****** Object:  Table [dbo].[ProjectDocument_JP]    Script Date: 12/13/2016 6:23:53 PM ******/
-CREATE TABLE [dbo].[ProjectDocument_JP](
-	[ProjectID] [int] NOT NULL,
-	[Content] [nvarchar](max) NOT NULL,
- CONSTRAINT [PK_ProjectDocument_JP] PRIMARY KEY CLUSTERED 
-(
-	[ProjectID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
-
---CREATE FULLTEXT CATALOG ftCatalog AS DEFAULT;  
---GO  
-
---CREATE FULLTEXT INDEX ON [dbo].[ProjectDocument](Content) KEY INDEX [PK_ProjectDocument_JP];
---GO
 
 /****** Object:  Table [dbo].[ProjectFunding]    Script Date: 12/13/2016 6:23:53 PM ******/
 SET ANSI_NULLS ON
@@ -401,6 +424,7 @@ CREATE TABLE [dbo].[ProjectFunding](
 	[FundingOrgID] [int] NOT NULL,
 	[FundingDivisionID] [int] NULL,
 	[ProjectAbstractID] [int] NOT NULL,	
+	[DataUploadStatusID] [int] NULL,
 	[Category] [varchar](25) NULL,  -- Parent, Supplement, SubProject
 	[AltAwardCode] [varchar](50) NOT NULL,
 	[Source_ID] [varchar](50) NULL,
@@ -429,7 +453,6 @@ GO
 CREATE TABLE [dbo].[ProjectFundingExt](
 	[ProjectFundingExtID] [int] IDENTITY(1,1) NOT NULL,
 	[ProjectFundingID] [int] NOT NULL,
-	[AncestorProjectID] [int] NULL,
 	[CalendarYear] [smallint] NOT NULL,
 	[CalendarAmount] [float] NULL,
 	[CreatedDate] [datetime] NOT NULL,
@@ -778,6 +801,7 @@ CREATE TABLE [dbo].[LibraryFolder](
 	[Name] [varchar](200) NOT NULL,
 	[ParentFolderID] [int] NULL,
 	[IsPublic] bit NOT NULL,	
+	[ArchivedDate] [datetime] NULL,
 	[CreatedDate] [datetime] NOT NULL,
 	[UpdatedDate] [datetime] NOT NULL,
  CONSTRAINT [PK_LibraryFolder] PRIMARY KEY CLUSTERED 
@@ -932,17 +956,6 @@ GO
 ALTER TABLE [dbo].[FundingDivision] CHECK CONSTRAINT [FK_FundingDivision_FundingOrg]
 GO
 
-ALTER TABLE [dbo].[ProjectDocument]  WITH CHECK ADD  CONSTRAINT [FK_ProjectDocument_Project] FOREIGN KEY([ProjectID])
-REFERENCES [dbo].[Project] ([ProjectID])
-GO
-ALTER TABLE [dbo].[ProjectDocument] CHECK CONSTRAINT [FK_ProjectDocument_Project]
-GO
-
-ALTER TABLE [dbo].[ProjectDocument_JP]  WITH CHECK ADD  CONSTRAINT [FK_ProjectDocument_JP_Project] FOREIGN KEY([ProjectID])
-REFERENCES [dbo].[Project] ([ProjectID])
-GO
-ALTER TABLE [dbo].[ProjectDocument_JP] CHECK CONSTRAINT [FK_ProjectDocument_JP_Project]
-GO
 ALTER TABLE [dbo].[ProjectFunding]  WITH CHECK ADD  CONSTRAINT [FK_ProjectFunding_ProjectAbstract] FOREIGN KEY([ProjectAbstractID])
 REFERENCES [dbo].[ProjectAbstract] ([ProjectAbstractID])
 GO
@@ -1063,3 +1076,10 @@ GO
 
 --CREATE FULLTEXT INDEX on ProjectDocument_JP
 --(Content) KEY index primarykey ON catalog_ProjectDocumentJP_Content
+
+sp_configure 'show advanced options', 1;  
+RECONFIGURE;  
+GO  
+sp_configure 'transform noise words', 1;  
+RECONFIGURE;  
+GO  

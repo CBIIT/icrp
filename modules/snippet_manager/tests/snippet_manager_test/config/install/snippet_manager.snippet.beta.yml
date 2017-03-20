@@ -3,12 +3,14 @@ status: true
 dependencies: {  }
 id: beta
 label: Beta
-code:
+template:
   value: '<div class="snippet-main-content">-= {{ main_content | render | striptags | upper }} =-</div>'
   format: snippet_manager_test_basic_format
 variables: {  }
 page:
-  status: false
-  url_alias: ''
+  status: true
+  title: Foo page
+  path: foo
   display_variant:
     id: ''
+  theme: ''

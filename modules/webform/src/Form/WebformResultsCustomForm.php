@@ -49,7 +49,7 @@ class WebformResultsCustomForm extends FormBase {
   protected $requestHandler;
 
   /**
-   * Constructs a new WebformResultsDeleteBaseForm object.
+   * Constructs a WebformResultsCustomForm object.
    *
    * @param \Drupal\webform\WebformSubmissionStorageInterface $webform_submission_storage
    *   The webform submission storage.
@@ -127,8 +127,8 @@ class WebformResultsCustomForm extends FormBase {
     ];
     $form['direction'] = [
       '#type' => 'select',
-      '#field_prefix' => ' ' . $this->t('in') . ' ',
-      '#field_suffix' => ' ' . $this->t('order.'),
+      '#field_prefix' => ' ' . $this->t('in', [], ['context' => 'Sort by {sort} in {direction} order.']) . ' ',
+      '#field_suffix' => ' ' . $this->t('order', [], ['context' => 'Sort by {sort} in {direction} order.']) . '.',
       '#options' => [
         'asc' => $this->t('Ascending (ASC)'),
         'desc' => $this->t('Descending (DESC)'),
@@ -141,8 +141,8 @@ class WebformResultsCustomForm extends FormBase {
     $limit = $this->webform->getState($this->getStateKey('limit'), NULL);
     $form['limit'] = [
       '#type' => 'select',
-      '#field_prefix' => $this->t('Show'),
-      '#field_suffix' => $this->t('results per page.'),
+      '#field_prefix' => $this->t('Show', [], ['context' => 'Show {limit} results per page.']),
+      '#field_suffix' => $this->t('results per page') . '.',
       '#options' => [
         '20' => '20',
         '50' => '50',

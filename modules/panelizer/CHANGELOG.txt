@@ -1,3 +1,22 @@
+Panelizer 8.x-3.0-beta1, 2017-02-04
+-----------------------------------
+#2828840 by hctom, DamienMcKenna: Handle entity types that use
+  RevisionableInterface but are not revisionable.
+#2664574 by artreaktor, phenaproxima, hctom, jiff, floretan: Add support for
+  Taxonomy Term entities.
+#2835590 by DamienMcKenna: Hide the custom Panelizer field, it's no longer used.
+#2800991 by garethhallnz: Allow other modules to change the view_mode being
+  rendered.
+#2847351 by porchlight, rvillan, DamienMcKenna: Permission to 'Set as Default'
+  in the Panelizer IPE.
+#2727629 by samuel.mortenson, Dane Powell, dsnopek: Panelized nodes sporadically
+  become locked.
+#2664572 by hctom, balsama, smurrayatwork, DamienMcKenna: Support for user
+  entities.
+By DamienMcKenna: Does not support comment entities.
+#2835587 by DamienMcKenna: Minor UX tweaks, code improvements.
+
+
 Panelizer 8.x-3.0-alpha3, 2016-12-15
 ------------------------------------
 #2664648: Added unit tests for PanelizerDefaultPanelsStorage and

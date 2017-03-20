@@ -1,0 +1,6 @@
+langcode: en
+status: true
+dependencies: {  }
+id: snippet-manager-test
+label: Snippet manager test
+description: Links for testing menu variable plugin

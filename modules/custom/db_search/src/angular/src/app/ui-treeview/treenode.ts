@@ -1,5 +1,5 @@
 export interface TreeNode {
-    value: string,
+    value: string | number,
     label: string,
     children?: TreeNode[],
     selected?: boolean,

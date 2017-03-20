@@ -48,7 +48,7 @@ class Text extends SnippetVariableBase implements SnippetVariableInterface {
   /**
    * {@inheritdoc}
    */
-  public function getContent() {
+  public function build() {
     return [
       '#type' => 'processed_text',
       '#text' => $this->configuration['content']['value'],

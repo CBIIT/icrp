@@ -2,21 +2,19 @@
 
 namespace Drupal\webform\Tests;
 
-use Drupal\simpletest\WebTestBase;
-
 /**
  * Tests for webform storage tests.
  *
  * @group Webform
  */
-class WebformStorageTest extends WebTestBase {
+class WebformStorageTest extends WebformTestBase {
 
   /**
    * Modules to enable.
    *
    * @var array
    */
-  protected static $modules = ['system', 'user', 'webform'];
+  protected static $modules = ['webform'];
 
   /**
    * Test webform storage.

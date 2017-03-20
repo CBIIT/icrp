@@ -11,6 +11,7 @@ use Drupal\webform\Element\WebformAddress as WebformAddressElement;
  * @WebformElement(
  *   id = "webform_address",
  *   label = @Translation("Address"),
+ *   description = @Translation("Provides a form element to collect address information (street, city, state, zip)."),
  *   category = @Translation("Composite elements"),
  *   multiline = TRUE,
  *   composite = TRUE,
@@ -38,7 +39,14 @@ class WebformAddress extends WebformCompositeBase {
   /**
    * {@inheritdoc}
    */
-  protected function formatLines(array $element, array $value) {
+  protected function formatHtmlItemValue(array $element, array $value) {
+    return $this->formatTextItemValue($element, $value);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function formatTextItemValue(array $element, array $value) {
     $lines = [];
     if (!empty($value['address'])) {
       $lines['address'] = $value['address'];

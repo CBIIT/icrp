@@ -21,10 +21,19 @@ function snippet_manager_test_page_bottom(array &$page_bottom) {
 }
 
 /**
+ * Implements hook_snippet_manager_context().
+ */
+function snippet_manager_test_snippet_context(SnippetInterface $snippet) {
+  if ($snippet->id() == 'gamma') {
+    return ['foo' => 'Foo'];
+  }
+}
+
+/**
  * Implements hook_snippet_manager_context_alter().
  */
-function snippet_manager_test_snippet_manager_context_alter(array &$context, SnippetInterface $snippet) {
+function snippet_manager_test_snippet_context_alter(array &$context, SnippetInterface $snippet) {
   if ($snippet->id() == 'gamma') {
-    $context['foo'] = 'bar';
+    $context['bar'] = 'Bar';
   }
 }

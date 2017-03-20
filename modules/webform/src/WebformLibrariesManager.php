@@ -2,6 +2,7 @@
 
 namespace Drupal\webform;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
@@ -14,6 +15,13 @@ class WebformLibrariesManager implements WebformLibrariesManagerInterface {
   use StringTranslationTrait;
 
   /**
+   * The configuration object factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
    * Libraries that provides additional functionality to the Webform module.
    *
    * @var array
@@ -22,8 +30,12 @@ class WebformLibrariesManager implements WebformLibrariesManagerInterface {
 
   /**
    * Constructs a WebformLibrariesManager object.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The configuration object factory.
    */
-  public function __construct() {
+  public function __construct(ConfigFactoryInterface $config_factory) {
+    $this->configFactory = $config_factory;
     $this->libraries = $this->initLibraries();
   }
 
@@ -31,7 +43,7 @@ class WebformLibrariesManager implements WebformLibrariesManagerInterface {
    * {@inheritdoc}
    */
   public function requirements() {
-    $cdn = \Drupal::config('webform.settings')->get('library.cdn', FALSE);
+    $cdn = $this->configFactory->get('webform.settings')->get('library.cdn', FALSE);
 
     $status = [];
     $libraries = $this->getLibraries();
@@ -62,7 +74,7 @@ class WebformLibrariesManager implements WebformLibrariesManagerInterface {
       }
       else {
         $value = $this->t('@version (CDN).', $t_args);
-        $description = $this->t('Please download the <a href=":library_href">@title</a> library from <a href=":download_href">:download_href</a> and copy it to <b>@path</b> or use <a href=":install_href">Drush</a> to install this library. (<a href=":settings_href">Disable CDN warning)', $t_args);
+        $description = $this->t('Please download the <a href=":library_href">@title</a> library from <a href=":download_href">:download_href</a> and copy it to <b>@path</b> or use <a href=":install_href">Drush</a> to install this library. (<a href=":settings_href">Disable CDN warning</a>)', $t_args);
         $severity = REQUIREMENT_WARNING;
       }
 
@@ -136,6 +148,13 @@ class WebformLibrariesManager implements WebformLibrariesManagerInterface {
       'notes' => $this->t('Input masks are used to ensure predefined and custom formats for text fields.'),
       'url' => Url::fromUri('http://robinherbots.github.io/jquery.inputmask/'),
       'version' => '3.3.3',
+    ];
+    $libraries['intl-tel-input'] = [
+      'title' => $this->t('International Telephone Input'),
+      'description' => $this->t('A jQuery plugin for entering and validating international telephone numbers. It adds a flag dropdown to any input, detects the user\'s country, displays a relevant placeholder and provides formatting/validation methods.'),
+      'notes' => $this->t('International Telephone Input is used by the Telephone element'),
+      'url' => Url::fromUri('https://github.com/jackocnr/intl-tel-input'),
+      'version' => 'v11.0.0',
     ];
     $libraries['rateit'] = [
       'title' => $this->t('RateIt'),

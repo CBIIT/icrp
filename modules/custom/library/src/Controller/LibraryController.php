@@ -331,12 +331,13 @@ class LibraryController extends ControllerBase {
     if (!isset($params["title"]) || empty($params["title"]) ||
         !isset($params["parent"]) || !is_numeric($params["parent"]) ||
         !isset($params["description"]) || empty($params["description"]) ||
-        $new && (!$upload->isValid() || ($params['is_public'] != "0" && !$thumb->isValid()))
+        ($new && ($upload == null || !$upload->isValid()))
       ) {
       return new JsonResponse(array(
           "success"=>false
       ),Response::HTTP_BAD_REQUEST);
     }
+    if ($thumb && !$thumb->isValid()) $thumb = null;
     $connection = self::get_connection();
     if ($new) {
       $upload->move("public://library/uploads",$upload->getClientOriginalName());
@@ -354,9 +355,9 @@ class LibraryController extends ControllerBase {
         $stmt = $connection->prepare("INSERT INTO Library (Title,LibraryFolderID,Filename,ThumbnailFilename,Description,IsPublic,ArchivedDate) OUTPUT INSERTED.* VALUES (:title,:lfid,:file,:thumb,:desc,:ip,:ad);");
         $stmt->bindParam(":title",$params["title"]);
         $stmt->bindParam(":lfid",$params["parent"]);
-        $stmt->bindParam(":file",$upload->getClientOriginalName());
+        $stmt->bindValue(":file",$upload->getClientOriginalName());
         if ($thumb) {
-          $stmt->bindParam(":thumb",$thumb->getClientOriginalName());
+          $stmt->bindValue(":thumb",$thumb->getClientOriginalName());
         } else {
           $stmt->bindValue(":thumb",null,PDO::PARAM_NULL);
         }

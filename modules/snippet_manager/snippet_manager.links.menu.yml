@@ -1,5 +1,6 @@
 snippet_manager.overview:
   title: Snippets
+  description: Manage code snippets.
   parent: system.admin_structure
   route_name: entity.snippet.collection
 

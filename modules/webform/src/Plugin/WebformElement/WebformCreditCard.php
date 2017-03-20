@@ -11,6 +11,7 @@ use Drupal\webform\Element\WebformCreditCard as WebformCreditCardElement;
  * @WebformElement(
  *   id = "webform_creditcard",
  *   label = @Translation("Credit card"),
+ *   description = @Translation("Provides a form element to collect credit card information (card holder name, card number, cv, card expiration data)."),
  *   category = @Translation("Composite elements"),
  *   hidden = TRUE,
  *   multiline = TRUE,
@@ -26,7 +27,7 @@ class WebformCreditCard extends WebformCompositeBase {
   public function getDefaultProperties() {
     $properties = parent::getDefaultProperties();
     unset(
-      $properties['type__options'],
+      $properties['multiple'],
       $properties['expiration_month__options'],
       $properties['expiration_year__options']
     );
