@@ -370,13 +370,15 @@ class ExportResultsController extends ControllerBase {
 					->setCellValue('D1', "Award Type")
 					->setCellValue('E1', "Source ID")
 					->setCellValue('F1', "ALT ID")
-					->setCellValue('G1', "Award Start Date")
-					->setCellValue('H1', "Award End Date")
-					->setCellValue('I1', "Budget Start Date")
-					->setCellValue('J1', "Budget End Date")
-					->setCellValue('K1', "Award Funding")
-					->setCellValue('L1', "Funding Indicator");
-		$location = "L";
+					->setCellValue('G1', "Funding Category")
+                    ->setCellValue('H1', "IsChildhood")
+					->setCellValue('I1', "Award Start Date")
+					->setCellValue('J1', "Award End Date")
+					->setCellValue('K1', "Budget Start Date")
+					->setCellValue('L1', "Budget End Date")
+					->setCellValue('M1', "Award Funding")
+					->setCellValue('N1', "Funding Indicator");
+		$location = "N";
 		$location2 = "A";
 		$location3 = "A";
 		$realLocation = "";
@@ -427,7 +429,18 @@ class ExportResultsController extends ControllerBase {
 			$location3++;
 		}
 		$objPHPExcel->setActiveSheetIndex($sheetIndex)
+					->setCellValue($location3.$location2++."1", "Sponsor Code");
+		if($location2 == "Z"){
+			$location2 = "A";
+			$location3++;
+		}			$objPHPExcel->setActiveSheetIndex($sheetIndex)
 					->setCellValue($location3.$location2++."1", "Funding Org");
+		if($location2 == "Z"){
+			$location2 = "A";
+			$location3++;
+		}
+		$objPHPExcel->setActiveSheetIndex($sheetIndex)
+					->setCellValue($location3.$location2++."1", "Funding Org Type");
 		if($location2 == "Z"){
 			$location2 = "A";
 			$location3++;
@@ -501,7 +514,7 @@ class ExportResultsController extends ControllerBase {
 		}
 		$in = 2;
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-			$location = "L";
+			$location = "N";
 			$location2 = "A";
 			$location3 = "A";
 			$realLocation = "";
@@ -512,12 +525,14 @@ class ExportResultsController extends ControllerBase {
 						->setCellValue('D'.$in, $row['AwardType'])
 						->setCellValue('E'.$in, $row['Source_ID'])
 						->setCellValue('F'.$in, $row['AltAwardCode'])
-						->setCellValue('G'.$in, $row['AwardStartDate'])
-						->setCellValue('H'.$in, $row['AwardEndDate'])
-						->setCellValue('I'.$in, $row['BudgetStartDate'])
-						->setCellValue('J'.$in, $row['BudgetEndDate'])
-						->setCellValue('K'.$in, $row['AwardAmount'])
-						->setCellValue('L'.$in, $row['FundingIndicator']);
+						->setCellValue('G'.$in, $row['FundingCategory'])
+						->setCellValue('H'.$in, $row['IsChildhood'])
+						->setCellValue('I'.$in, $row['AwardStartDate'])
+						->setCellValue('J'.$in, $row['AwardEndDate'])
+						->setCellValue('K'.$in, $row['BudgetStartDate'])
+						->setCellValue('L'.$in, $row['BudgetEndDate'])
+						->setCellValue('M'.$in, $row['AwardAmount'])
+						->setCellValue('N'.$in, $row['FundingIndicator']);
 			for($i = 2000; $i < $currentYear; $i++){
 				if($location != 'Z'){
 					$location++;
@@ -570,7 +585,21 @@ class ExportResultsController extends ControllerBase {
 			}
 
 			$objPHPExcel->setActiveSheetIndex($sheetIndex)
+						->setCellValue($location3.$location2++.$in, $row['SponsorCode']);
+			if($location2 == "Z"){
+				$location2 = "A";
+				$location3++;
+			}
+
+			$objPHPExcel->setActiveSheetIndex($sheetIndex)
 						->setCellValue($location3.$location2++.$in, $row['FundingOrg']);
+			if($location2 == "Z"){
+				$location2 = "A";
+				$location3++;
+			}
+
+			$objPHPExcel->setActiveSheetIndex($sheetIndex)
+						->setCellValue($location3.$location2++.$in, $row['FundingOrgType']);
 			if($location2 == "Z"){
 				$location2 = "A";
 				$location3++;
