@@ -170,8 +170,8 @@ class ExportLoadResultsController extends ControllerBase {
 					$objPHPExcel->setActiveSheetIndex($sheetIndex)
 								->setCellValue($location.$index, $labels[$i] . " : " . $orgNameList);
 				}else{
-					$objPHPExcel->setActiveSheetIndex($sheetIndex)
-								->setCellValue($location.$index, $labels[$i] . " : " . $row[$i+1]);
+				//	$objPHPExcel->setActiveSheetIndex($sheetIndex)
+				//				->setCellValue($location.$index, $labels[$i] . " : " . $row[$i+1]);
 				}
 			}
 	   }
