@@ -164,15 +164,8 @@ class ExportLoadResultsController extends ControllerBase {
 	   for ($i = 0; $i < 16; $i++){
 	        if($row[$i+1] != null){
 				$location++;
-				if($labels[$i] == "Funding Organization"){
-					$orgList = $row[$i+1];
-					$orgNameList = self::getOrgNameById($conn,$orgList);
-					$objPHPExcel->setActiveSheetIndex($sheetIndex)
-								->setCellValue($location.$index, $labels[$i] . " : " . $orgNameList);
-				}else{
-				//	$objPHPExcel->setActiveSheetIndex($sheetIndex)
-				//				->setCellValue($location.$index, $labels[$i] . " : " . $row[$i+1]);
-				}
+				$objPHPExcel->setActiveSheetIndex($sheetIndex)
+							->setCellValue($location.$index, $labels[$i] . " : " . $row[$i+1]);
 			}
 	   }
 	   $result = "succeed";
@@ -182,26 +175,6 @@ class ExportLoadResultsController extends ControllerBase {
 	$objPHPExcel->getActiveSheet()->setTitle('Search Criteria');
 
 	return $result;
-  }
-
-  private function getOrgNameById($conn, $orgList){
-    $returnValue = "";
-    $myList = explode(",", $orgList);
-    $myListStr = "";
-   	$myListStr = $myListStr."'" . $myList[$i]."'";
-   	if($i != sizeof($myList) -1 ){
-   		$myListStr = $myListStr . ",";
-   	}
-
-  	$stmt1 = $conn -> prepare("SELECT SponsorCode + ' - ' + Name  as orgName FROM FundingOrg WHERE FundingOrgID IN " + $myListStr);
-  	if ($stmt1->execute()){
-  	    while($row = $stmt1.fetch()){
-  			$returnValue = $returnValue . $row['orgName'] . ",";
-  		}
-  	}
-    $returnValue = substr($returnValue, 0, strlen($returnValue) -1);
-    $stmt1 = null;
-    return $returnValue;
   }
 
   private function getConfig(){
