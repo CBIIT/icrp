@@ -26,17 +26,25 @@
                 </li>
                 <li><a href="/library" title="ICRP Library">Library</a></li>
             </ul>
+{% set isManager="false" %}
+{% for role in user.roles %}
+    {% if (role == "manager") or (role == "administrator") %}{% set isManager="true" %}{% endif %}
+{% endfor %}
+        {% if isManager=="true" %}
 
             <ul class="nav navbar-nav navbar-right">
                 <li class="dropdown"><a aria-expanded="false" class="dropdown-toggle" data-toggle="dropdown" href="#" role="button">Admin</a>
 
                     <ul class="dropdown-menu" role="menu">
                         <li><a href="/user-account-administration-tool" title="Review user accounts with ability to activate/block or change roles. ">User Account Administration Tool</a></li>
-                        <li><a href="/block/21?destination=/home" title="Edit or Change the Site Updated Date.">Edit Site Updated Date</a></li>
                         <li class="disabled"><a href="#" href-old="/icrp-partnership-submissions" title="Review Partner Applications">Partner Application Administration Tool</a></li>
+                        <li class="divider">&nbsp;</li>
+                        <li><a href="/block/21?destination=/home" title="Edit or Change the Site Updated Date.">Edit Site Updated Date</a></li>
                     </ul>
                 </li>
             </ul>
+
+            {% endif %}
         </div>
     </div>
 </nav>
