@@ -185,15 +185,15 @@ class ExportResultsController extends ControllerBase {
   }
 
   private function getOrgNameById($conn, $orgList){
-    $returnValue = "";
+    $returnValue = "(";
     $myList = explode(",", $orgList);
     $myListStr = "";
    	$myListStr = $myListStr."'" . $myList[$i]."'";
    	if($i != sizeof($myList) -1 ){
    		$myListStr = $myListStr . ",";
    	}
-
-   	$stmt1 = $conn -> prepare("SELECT SponsorCode + ' - ' + Name  as orgName FROM FundingOrg WHERE FundingOrgID IN (" . $myListStr . ")");
+    $myListStr = $myListStr + ")";
+   	$stmt1 = $conn -> prepare("SELECT SponsorCode + ' - ' + Name  as orgName FROM FundingOrg WHERE FundingOrgID IN " . $myListStr );
    	if ($stmt1->execute()){
    	    while($row = $stmt1.fetch()){
   			$returnValue = $returnValue . $row['orgName'] . ",";
