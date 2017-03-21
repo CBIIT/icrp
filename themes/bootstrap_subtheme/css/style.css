@@ -104,6 +104,9 @@ body {
     border-top:0px;
     padding:15px;
 }
+.partner-content > div.tab-pane {
+    min-height:400px;
+}
 
 /* CSO Page */
 /* Download block */
