@@ -161,7 +161,7 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
 
                 } else if(strpos($form['info']['widget']['0']['value']['#default_value'],"ICRP Site Updated Date") !== false) {
 
-                    $blockTitle = "Edit Site Updated Date***";
+                    $blockTitle = "Edit Site Updated Date";
 
                 } else if(strpos($form['info']['widget']['0']['value']['#default_value'],"Partner Home") !== false) {
 
