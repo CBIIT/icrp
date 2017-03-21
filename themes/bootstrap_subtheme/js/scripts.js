@@ -9,6 +9,7 @@
       switch(window.location.pathname) {
         case "/":
           $.getNewsletter();
+          //console.log("You are on the / page.");
           break;
         case "/home":
           $.getNewsletter();
