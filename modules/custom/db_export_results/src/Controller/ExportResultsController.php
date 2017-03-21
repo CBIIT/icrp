@@ -144,36 +144,30 @@ class ExportResultsController extends ControllerBase {
 
   private function createCriteriaSheet($conn, &$objPHPExcel, $sid, $sheetIndex){
     $result = "";
- 	$labels = Array("Term Search Type", "Terms", "Institution", "PI Last Name", "PI First Name", "PI ORC ID", "Award Code", "Years" , "City", "State", "Country", "Funding Organization", "Cancer Type", "Project Type", "CSO", "Search By User Name");
+ 	//$labels = Array("Term Search Type", "Terms", "Institution", "PI Last Name", "PI First Name", "PI ORC ID", "Award Code", "Years" , "City", "State", "Country", "Funding Organization", "Cancer Type", "Project Type", "CSO", "Search By User Name");
 
 	 //add a new sheet
 	$objWorkSheet = $objPHPExcel->createSheet();
-	$stmt = $conn -> prepare("SELECT * from SearchCriteria where SearchCriteriaID = :search_id");
+	$objPHPExcel->setActiveSheetIndex($sheetIndex)
+	 		    ->setCellValue('A1', "International Cancer Research Partnership - ")
+	            ->setCellValue('B1', self::getBaseUrl());
+	$date = date("m/d/Y H:i:s");
+	$objPHPExcel->setActiveSheetIndex($sheetIndex)
+	  		    ->setCellValue('A2', "Created:")
+	  		    ->setCellValue('B2', $date);
+	$objPHPExcel->setActiveSheetIndex($sheetIndex)
+	    	    ->setCellValue('A3',"Search Criteria:");
+
+	$stmt = $conn -> prepare("SET NOCOUNT ON; exec GetSearchCriteriaBySearchID @SearchID = :search_id");
 	$stmt->bindParam(':search_id', $sid);
+
+    $index = 4;
 	if ($stmt->execute()){
-	   $objPHPExcel->setActiveSheetIndex($sheetIndex)
-	  			   ->setCellValue('A1', "International Cancer Research Partnership - " . self::getBaseUrl() . "\n");
-	   $row = $stmt->fetch(PDO::FETCH_NUM);
-	   $date = date("d/m/Y H:i:s", strtotime($row[17]));
-	   $objPHPExcel->setActiveSheetIndex($sheetIndex)
-	  			   ->setCellValue('A2', "Created: " . $date);
-	   $objPHPExcel->setActiveSheetIndex($sheetIndex)
-	    		   ->setCellValue('A3',"Search Criteria:");
-	   $location = "B";
-	   $index = 3;
-	   for ($i = 0; $i < 16; $i++){
-	        if($row[$i+1] != null){
-				$location++;
-				if($labels[$i] == "Funding Organization"){
-									$orgList = $row[$i+1];
-									$orgNameList = self::getOrgNameById($conn,$orgList);
-									$objPHPExcel->setActiveSheetIndex($sheetIndex)
-												->setCellValue($location.$index, $labels[$i] . " : " . $orgNameList);
-				}else{
-					$objPHPExcel->setActiveSheetIndex($sheetIndex)
-								->setCellValue($location.$index, $labels[$i] . " : " . $row[$i+1]);
-				}
-			}
+	   while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+	   		$objPHPExcel->setActiveSheetIndex($sheetIndex)
+						->setCellValue('A'.$index, $row['Name'])
+						->setCellValue('B'.$index, $row['Value']);
+			$index++;
 	   }
 	   $result = "succeed";
 	} else {
@@ -182,26 +176,6 @@ class ExportResultsController extends ControllerBase {
 	$objPHPExcel->getActiveSheet()->setTitle('Search Criteria');
 
 	return $result;
-  }
-
-  private function getOrgNameById($conn, $orgList){
-    $returnValue = "(";
-    $myList = explode(",", $orgList);
-    $myListStr = "";
-   	$myListStr = $myListStr."'" . $myList[$i]."'";
-   	if($i != sizeof($myList) -1 ){
-   		$myListStr = $myListStr . ",";
-   	}
-    $myListStr = $myListStr + ")";
-   	$stmt1 = $conn -> prepare("SELECT SponsorCode + ' - ' + Name  as orgName FROM FundingOrg WHERE FundingOrgID IN " . $myListStr );
-   	if ($stmt1->execute()){
-   	    while($row = $stmt1.fetch()){
-  			$returnValue = $returnValue . $row['orgName'] . ",";
-   		}
-   	}
-    $returnValue = substr($returnValue, 0, strlen($returnValue) -1);
-    $stmt1 = null;
-    return $returnValue;
   }
 
   private function getConfig(){
