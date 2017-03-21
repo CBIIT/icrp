@@ -79,14 +79,15 @@ class ExportResultsController extends ControllerBase {
 							 	->setDescription("This file contains all public data based on the user provided search criteria")
 							 	->setKeywords("ICRP Data")
 							 	->setCategory("Search Result File");
-	$sheetIndex = 0;
-	$result = self::createExportPublicSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+
     $sheetIndex = 1;
     $result = self::createCSOSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
     $sheetIndex = 2;
     $result = self::createSiteSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
     $sheetIndex = 3;
 	$result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+	$sheetIndex = 0;
+	$result = self::createExportPublicSheet($conn, $objPHPExcel, $sid, $sheetIndex);
 
 	$objPHPExcel->setActiveSheetIndex(0);
 	// Save Excel 2007 file
@@ -251,17 +252,17 @@ class ExportResultsController extends ControllerBase {
 
 
     //create export data for partner site
-    $sheetIndex = 0;
     $withAbstract = false;
-    $isPublic = false;
-    $result = self::createExportDataSheetforPartner($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
+	$isPublic = false;
+
     $sheetIndex = 1;
     $result = self::createCSOSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
     $sheetIndex = 2;
     $result = self::createSiteSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
      $sheetIndex = 3;
     $result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
-
+    $sheetIndex = 0;
+    $result = self::createExportDataSheetforPartner($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
 
 	$objPHPExcel->setActiveSheetIndex(0);
 	// Save Excel 2007 file
@@ -720,9 +721,7 @@ class ExportResultsController extends ControllerBase {
 							 	->setDescription("This file contains all Partner Site data based on the user provided search criteria")
 							 	->setKeywords("ICRP Data")
 							 	->setCategory("Search Result File");
-	$sheetIndex = 0;
 	$withAbstract = true;
-	self::createExportDataSheetforPartner($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
 
  	$sheetIndex = 1;
  	self::createCSOSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
@@ -732,6 +731,9 @@ class ExportResultsController extends ControllerBase {
 
  	$sheetIndex = 3;
  	self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+
+	$sheetIndex = 0;
+	self::createExportDataSheetforPartner($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
 
 	$objPHPExcel->setActiveSheetIndex(0);
 	// Save Excel 2007 file
@@ -1151,12 +1153,11 @@ class ExportResultsController extends ControllerBase {
   	 } catch (Exception $exc) {
   	   return "Could not create db connection";
   	 }
-
-	$sheetIndex = 0;
 	$withAbstract = false;
-	$result = self::createExportSingleSheet($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
 	$sheetIndex = 1;
 	$result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+	$sheetIndex = 0;
+	$result = self::createExportSingleSheet($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
 
  	// Set active sheet index to the first sheet, so Excel opens this as the first sheet
 	$objPHPExcel->setActiveSheetIndex(0);
@@ -1276,12 +1277,11 @@ class ExportResultsController extends ControllerBase {
   	 } catch (Exception $exc) {
   	   return "Could not create db connection";
   	 }
-
-	$sheetIndex = 0;
 	$withAbstract = true;
-	$result = self::createExportSingleSheet($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
 	$sheetIndex = 1;
 	$result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+	$sheetIndex = 0;
+	$result = self::createExportSingleSheet($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
 
  	// Set active sheet index to the first sheet, so Excel opens this as the first sheet
 	$objPHPExcel->setActiveSheetIndex(0);
