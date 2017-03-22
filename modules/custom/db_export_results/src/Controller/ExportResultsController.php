@@ -1184,8 +1184,12 @@ class ExportResultsController extends ControllerBase {
 							 	 ->setDescription("Exporting ICRP Single data ")
 							 	 ->setKeywords("ICRP signle data")
 							 	 ->setCategory("ICRP data");
-
-	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectExportsSingleBySearchID @SearchID=:search_id_name, @SiteURL=:url");
+	$stmt
+	if($withAbstract == true){
+		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectExportsSingleBySearchID @SearchID=:search_id_name, @SiteURL=:url, @IncludeAbstract=1");
+	}else{
+		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectExportsSingleBySearchID @SearchID=:search_id_name, @SiteURL=:url");
+	}
 	$stmt->bindParam(':search_id_name', $sid);
 	$stmt->bindParam(':url', $viewLink);
 	if ($stmt->execute()) {
