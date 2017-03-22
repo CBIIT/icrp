@@ -1206,9 +1206,6 @@ class ExportResultsController extends ControllerBase {
 		}
 
 		$arrayLength = sizeof($colName);
-		if($withAbstract != true){
-			$arrayLength = $arrayLength -1; //remove last column - tech abstract
-		}
 
 		for($i = 0; $i < $arrayLength; $i++){
 		  if($location != 'Z'){
