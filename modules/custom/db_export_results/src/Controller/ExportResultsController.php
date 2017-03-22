@@ -1154,8 +1154,8 @@ class ExportResultsController extends ControllerBase {
   	   return "Could not create db connection";
   	 }
 	$withAbstract = false;
-	$sheetIndex = 1;
-	$result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+    $sheetIndex = 1;
+    $result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
 	$sheetIndex = 0;
 	$result = self::createExportSingleSheet($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
 
@@ -1279,8 +1279,8 @@ class ExportResultsController extends ControllerBase {
   	   return "Could not create db connection";
   	 }
 	$withAbstract = true;
-	$sheetIndex = 1;
-	$result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+    $sheetIndex = 1;
+    $result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
 	$sheetIndex = 0;
 	$result = self::createExportSingleSheet($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
 
