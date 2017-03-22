@@ -19,7 +19,7 @@ export class PieChart {
 
         let color = d3.scaleOrdinal(d3.schemeCategory20c);
 
-        let sum = data.map(e => +e.value).reduce((a, b) => a + b, 0);
+        let sum = data.map(e => +e.value || 0).reduce((a, b) => a + b, 0);
         let empty = data.length === 0;
 
         if (empty) {
@@ -42,7 +42,7 @@ export class PieChart {
             .on('mouseover', d => {
                 let index = d.index;
                 let label = data[index].label;
-                let value = data[index].value;
+                let value = data[index].value || 0;
                 let count = data[index].count;
 
                 let html = `
@@ -54,7 +54,7 @@ export class PieChart {
                     html = 'No Data Available';
                 }
 
-                else if (isNaN(count)) {
+                else if (count === undefined) {
                     html += `Projects: ${Number(value).toLocaleString()} (${(100 * value/sum).toFixed(2)}%)`;
                 }
 
