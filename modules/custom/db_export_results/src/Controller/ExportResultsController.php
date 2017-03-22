@@ -1184,7 +1184,7 @@ class ExportResultsController extends ControllerBase {
 							 	 ->setDescription("Exporting ICRP Single data ")
 							 	 ->setKeywords("ICRP signle data")
 							 	 ->setCategory("ICRP data");
-	$stmt
+	$stmt = "";
 	if($withAbstract == true){
 		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectExportsSingleBySearchID @SearchID=:search_id_name, @SiteURL=:url, @IncludeAbstract=1");
 	}else{
