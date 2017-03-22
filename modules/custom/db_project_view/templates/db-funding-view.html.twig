@@ -31,10 +31,13 @@
   <dd>
     {{ funding_details.pi_name | default('Not specified')}}
     {% if funding_details.pi_orcid %}
-      <a href="https://orcid.org/{{ funding_details.pi_orcid }}" target="_blank">
+      <a href="https://orcid.org/{{ funding_details.pi_orcid }}" target="_blank" title="Visit the primary investigator's ORCiD.org profile">
         <img style="margin: 0 4px" src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="ORCiD Logo">
-        http://orcid.org/{{ funding_details.pi_orcid }}
+        {{ funding_details.pi_orcid }}
       </a>
+      <div style="display: inline-block; margin-left: 4px">
+        (ORCiD iD)
+      </div>
     {% endif %}
   </dd>
   <dt>Institution</dt>

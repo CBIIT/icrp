@@ -87,6 +87,7 @@ class ProjectViewComponent extends Component {
             value: 'project_title',
             link: 'project_funding_url',
             tooltip: 'Title of Award',
+            external: false,
           },
           {
             label: 'Category',
@@ -113,6 +114,7 @@ class ProjectViewComponent extends Component {
             value: 'pi_name',
             tooltip: 'Principal Investigator',
             link: 'pi_orcid_url',
+            external: true,
           },
           {
             label: 'Institution',
