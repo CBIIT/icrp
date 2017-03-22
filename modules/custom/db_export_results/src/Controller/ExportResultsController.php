@@ -356,13 +356,18 @@ class ExportResultsController extends ControllerBase {
 
   private function createExportDataSheetforPartner($conn, &$objPHPExcel, $sid, $sheetIndex, $withAbstract){
 	$result = "success";
-
+    $abstract = 0;
 	$url = self::getBaseUrl();
 	$viewLink = $url . "project/";
-	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectExportsBySearchID @SearchID=:search_id_name, @SiteURL=:site_url");
+	if($withAbstract == true){
+		$abstract = 1;
+	}else{
+		$abstract = 0;
+	}
+	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectExportsBySearchID @SearchID=:search_id_name, @SiteURL=:site_url, @IncludeAbstract=:with_abstract");
 	$stmt->bindParam(':search_id_name', $sid);
 	$stmt->bindParam(':site_url', $viewLink);
-
+    $stmt->bindParam(':with_abstract', $abstract);
 	if ($stmt->execute()) {
 		$location = "A";
 		$location2 = "A";
