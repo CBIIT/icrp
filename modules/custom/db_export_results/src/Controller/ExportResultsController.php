@@ -362,33 +362,27 @@ class ExportResultsController extends ControllerBase {
 	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectExportsBySearchID @SearchID=:search_id_name, @SiteURL=:site_url");
 	$stmt->bindParam(':search_id_name', $sid);
 	$stmt->bindParam(':site_url', $viewLink);
-	$currentYear = Date('Y') + 1;
 
 	if ($stmt->execute()) {
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue('A1', "ICRP PROJECT ID")
-					->setCellValue('B1', "Award Code")
-					->setCellValue('C1', "Award Title")
-					->setCellValue('D1', "Award Type")
-					->setCellValue('E1', "Source ID")
-					->setCellValue('F1', "ALT ID")
-					->setCellValue('G1', "Funding Category")
-                    ->setCellValue('H1', "IsChildhood")
-					->setCellValue('I1', "Award Start Date")
-					->setCellValue('J1', "Award End Date")
-					->setCellValue('K1', "Budget Start Date")
-					->setCellValue('L1', "Budget End Date")
-					->setCellValue('M1', "Award Funding")
-					->setCellValue('N1', "Funding Indicator");
-		$location = "N";
+		$location = "A";
 		$location2 = "A";
 		$location3 = "A";
 		$realLocation = "";
-		for($i = 2000; $i < $currentYear; $i++){
-			if($location != 'Z'){
-				$location++;
+		$index = 1;
+		$colName = Array();
+		foreach(range(0, $stmt->columnCount() - 1) as $column_index)
+		{
+		  $meta = $stmt->getColumnMeta($column_index);
+		  $colName[] = $meta['name'];
+		}
+
+		$arrayLength = sizeof($colName);
+
+		for($i = 0; $i < $arrayLength; $i++){
+		  if($location != 'Z'){
 				$realLocation = $location;
-			}else{
+				$location++;
+		  }else{
 				$realLocation = $location3.$location2;
 				if($location2 == "Z"){
 					$location2 = "A";
@@ -396,150 +390,22 @@ class ExportResultsController extends ControllerBase {
 				}else{
 					$location2++;
 				}
-			}
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($realLocation."1", $i);
+		  }
+		 $objPHPExcel->setActiveSheetIndex($sheetIndex)
+		 			 ->setCellValue($realLocation.$index, $colName[$i]);
 		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Currency");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "To Currency");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "To Currency Rate");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Funding Mechanism");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Funding Mechanism Code");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Sponsor Code");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Funding Org");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Funding Org Type");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Funding Div");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Funding Div Abbr");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Funding Contact");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "PI First Name");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "PI Last Name");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "PI ORC ID");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Instutition");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "City");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "State");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Country");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		if($withAbstract){
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++."1", "Tech Abstract");
-		}else{
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++."1", "View In ICRP");
-		}
+
 		$in = 2;
-		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-			$location = "N";
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+			$location = "A";
 			$location2 = "A";
 			$location3 = "A";
 			$realLocation = "";
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue('A'.$in, $row['ProjectID'])
-						->setCellValue('B'.$in, $row['AwardCode'])
-						->setCellValue('C'.$in, $row['AwardTitle'])
-						->setCellValue('D'.$in, $row['AwardType'])
-						->setCellValue('E'.$in, $row['Source_ID'])
-						->setCellValue('F'.$in, $row['AltAwardCode'])
-						->setCellValue('G'.$in, $row['FundingCategory'])
-						->setCellValue('H'.$in, $row['IsChildhood'])
-						->setCellValue('I'.$in, $row['AwardStartDate'])
-						->setCellValue('J'.$in, $row['AwardEndDate'])
-						->setCellValue('K'.$in, $row['BudgetStartDate'])
-						->setCellValue('L'.$in, $row['BudgetEndDate'])
-						->setCellValue('M'.$in, $row['AwardAmount'])
-						->setCellValue('N'.$in, $row['FundingIndicator']);
-			for($i = 2000; $i < $currentYear; $i++){
-				if($location != 'Z'){
-					$location++;
+			for($i = 0; $i < $arrayLength; $i++){
+			  if($location != 'Z'){
 					$realLocation = $location;
-				}else{
+					$location++;
+			  }else{
 					$realLocation = $location3.$location2;
 					if($location2 == "Z"){
 						$location2 = "A";
@@ -547,149 +413,14 @@ class ExportResultsController extends ControllerBase {
 					}else{
 						$location2++;
 					}
-				}
-				$value = $row[$i];
-				$objPHPExcel->setActiveSheetIndex($sheetIndex)
-							->setCellValue($realLocation.$in, $value);
-			}
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['Currency']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, "");
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, "");
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['FundingMechanism']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['FundingMechanismCode']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['SponsorCode']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['FundingOrg']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['FundingOrgType']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['FundingDiv']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['FundingDivAbbr']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['FundingContact']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['piFirstName']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['piLastName']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['piORCID']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['Institution']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['City']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['State']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['Country']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-			if($withAbstract){
-				$objPHPExcel->setActiveSheetIndex($sheetIndex)
-							->setCellValue($location3.$location2++.$in, $row['TechAbstract']);
-			}else{
-				$objPHPExcel->setActiveSheetIndex($sheetIndex)
-							->setCellValue($location3.$location2++.$in, $row['icrpURL']);
-			}
+			  }
+			  $objPHPExcel->setActiveSheetIndex($sheetIndex)
+						  ->setCellValue($realLocation.$in, $row[$colName[$i]]);
+			}//end of for
 			$in++;
 		}
-		$result = "succeed";
-	} else {
-		$result = "failed to query server";
 	}
-    $objPHPExcel->getActiveSheet()->setTitle('Search Result');
+	$objPHPExcel->getActiveSheet()->setTitle('Search Result');
 
 	return $result;
   }
