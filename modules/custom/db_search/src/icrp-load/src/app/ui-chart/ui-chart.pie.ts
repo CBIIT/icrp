@@ -37,7 +37,7 @@ export class PieChart {
         
         // append individual pieces
         let path = svg.selectAll('path')
-            .data(pie(data.map(e => e.value)))
+            .data(pie(data.map(e => e.value || 1)))
             .enter().append('path')
             .on('mouseover', d => {
                 let index = d.index;
@@ -59,7 +59,7 @@ export class PieChart {
                 }
 
                 else {
-                    html += `Relevance: ${(+Number(value).toFixed(2)).toLocaleString()} (${(100 * value/sum).toFixed(2)}%)`;
+                    html += `Relevance: ${(+Number(value).toFixed(2)).toLocaleString()} (${(100 * value/sum || 0).toFixed(2)}%)`;
                     html += `<br>`
                     html += `Projects: ${Number(count).toLocaleString()}`;
                 }

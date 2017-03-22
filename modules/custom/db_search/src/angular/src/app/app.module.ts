@@ -69,7 +69,7 @@ let dataReviewProviders = [
 
 @NgModule({
   declarations: [
-    AppComponent,
+    AppComponent,   
     SearchComponent,
     SearchFormComponent,
     SearchResultsComponent,
