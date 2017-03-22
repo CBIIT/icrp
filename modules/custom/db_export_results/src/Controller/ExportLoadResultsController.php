@@ -35,7 +35,7 @@ ini_set('display_startup_errors', TRUE);
 
 define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
 
-class ExportResultsController extends ControllerBase {
+class ExportLoadResultsController extends ControllerBase {
 
   /**
   * Adds CORS Headers to a response
