@@ -19,7 +19,7 @@ export class PieChart {
 
         let color = d3.scaleOrdinal(d3.schemeCategory20c);
 
-        let sum = data.map(e => +e.value || 0).reduce((a, b) => a + b, 0);
+        let sum = data.map(e => parseFloat((e.value).toString()) || 0).reduce((a, b) => a + b, 0);
         let empty = data.length === 0;
 
         if (empty) {
@@ -37,7 +37,7 @@ export class PieChart {
         
         // append individual pieces
         let path = svg.selectAll('path')
-            .data(pie(data.map(e => e.value || 1)))
+            .data(pie(data.map(e => parseFloat(e.value.toString()) || 1)))
             .enter().append('path')
             .on('mouseover', d => {
                 let index = d.index;
@@ -86,7 +86,7 @@ export class PieChart {
             .each(e => e)
             .attr('d', arc)
             .style('fill', d => 
-                empty ? '#ddd' : color(d.index.toString()))
+                empty || !parseFloat(data[d.index].value.toString()) ? '#ddd' : color(d.index.toString()))
     }
 
     /**
