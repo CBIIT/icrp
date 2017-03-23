@@ -1,1 +1,0 @@
-/* Import Newsletter information from Rest */

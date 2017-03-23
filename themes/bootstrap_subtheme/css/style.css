@@ -274,7 +274,7 @@ footer {
     margin-bottom: 20px;
     min-height: 20px;
     padding: 19px;
-    margin-top:0px;
+    margin-top:5px;
 }
 /* Adjust front page container */
 
@@ -451,6 +451,10 @@ div#cso-document-container > div > h1 {
 }
 .twitter-partner {
     height:160px;
+}
+/* First p showed up on Welcome Page */
+.field.field--name-body.field--type-text-with-summary.field--label-hidden.field--item > p {
+    height:0px;
 }
 
 /*==================================================
