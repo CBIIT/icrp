@@ -117,7 +117,7 @@ function initializeColumnWidths(table) {
   
   // sets the width of each table column
   for (let k = 0; k < headers.length; k ++) {
-    setColumnWidth(table, k, headers[k].clientWidth);
+    setColumnWidth(table, k, headers[k].clientWidth + 1);
   }
 }
 

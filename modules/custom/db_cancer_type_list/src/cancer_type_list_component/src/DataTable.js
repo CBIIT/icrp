@@ -60,6 +60,14 @@ class DataTable extends Component {
     return <span className='pull-right' style={style}>&#9698;</span>
   }
 
+  tableCell(contents, link) {
+    return <div> {
+      link 
+      ? <a href={ link }>{ contents }</a>
+      : contents || ''
+    } </div>
+  }
+
 
   render() {
     return (
@@ -88,17 +96,13 @@ class DataTable extends Component {
               {
                 this.state.columns.map((column, columnIndex) => 
                 <td key={columnIndex}>
-                  <span>
-                  {
-                    (
-                      row[column.link]
-                      ? <a href={row[column.link]}>
-                          { row[column.value] }
-                        </a>
-                      : row[column.value]
-                    ) || ''
+
+                  { column.contentTooltip 
+                    ? <OverlayTrigger placement='top' overlay={column.contentTooltip ? this.tooltip(row[column.value]) : <div />}>
+                        { this.tableCell(row[column.value], row[column.link]) }
+                      </OverlayTrigger>
+                    : this.tableCell(row[column.value], row[column.link])
                   }
-                  </span>
                 </td>
                 )
               }

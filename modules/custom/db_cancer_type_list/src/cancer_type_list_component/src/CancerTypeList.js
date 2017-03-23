@@ -19,7 +19,7 @@ class CancerTypeList extends Component {
 
     if (hostname === 'localhost') {
       protocol = 'https:';
-      hostname = 'icrpartnership-dev.org';
+      hostname = 'prod.icrpartnership.org';
       pathname = '/cancer-type-list'
     }
 
@@ -64,6 +64,7 @@ class CancerTypeList extends Component {
           label: 'Description',
           value: 'description',
           tooltip: 'Explanatory note for ICRP Cancer Type',
+          contentTooltip: true
         }
       ]
     })
