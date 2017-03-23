@@ -1,0 +1,21 @@
+Instructions to add the Webform HTML emails to the form.
+
+To view all available webform configs from Drupal type;
+drupal cli |grep webform
+
+Notice a config call webform.webform.icrp_partnership_applicaion_form shows up.
+
+Type this to see the config:
+drush config-get webform.webform.icrp_partnership_applicaion_form
+
+Now we need to set the body of the HTML email for this form.
+Notice the variable handlers.email_1.settings.body  
+Set the body with this command:
+drush config-set webform.webform.icrp_partnership_applicaion_form handlers.email_1.settings.body -
+
+Copy and paste email.PartnershipApplicationForm.html here.
+
+Press CTRL-D
+Answer Y for Yes.
+
+The HTML e-mail will now execute for this email.
