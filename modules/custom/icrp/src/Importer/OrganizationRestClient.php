@@ -115,7 +115,7 @@ class OrganizationRestClient {
             $organization_id = $organization["ID"];
             //drupal_set_message($organization['ID'].", ".$organization['Name'].", ".$organization['IsActive']);
             //Look up Organization $nid
-            \Drupal::logger('icrp')->notice("Looking for: ".$organization['ID']);
+            //\Drupal::logger('icrp')->notice("Looking for: ".$organization['ID']);
 
             if (!in_array(intval($organization['ID']), $current_organization_ids)) {
                 //drupal_set_message("Adding: org: ".$organization['ID']);

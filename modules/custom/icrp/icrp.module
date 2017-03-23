@@ -52,6 +52,7 @@ function icrp_theme() {
 /**
  * Implements hook_form_alter().
  */
+/*
 function icrp_hook_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
     $form['link'] = array('#markup' => l(t('Link text'),'node'));
     switch ($form_id) {
@@ -93,6 +94,7 @@ function icrp_hook_form_alter(array &$form, FormStateInterface $form_state, $for
         );
     }
 }
+*/
 
 function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id)
 {
