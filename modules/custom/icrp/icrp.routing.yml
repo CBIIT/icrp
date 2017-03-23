@@ -1,33 +1,3 @@
-icrp.content:
-  path: '/icrp'
-  defaults:
-    _controller: '\Drupal\icrp\Controller\IcrpController::sayhello'
-  requirements:
-    _permission: 'TRUE'
-
-icrp.newsletter:
-  path: '/newsletter'
-  defaults:
-    _controller: '\Drupal\icrp\Controller\IcrpController::newsletter'
-  requirements:
-    _permission: 'TRUE'
-
-icrp.review_user:
-  path: '/user-review/old'
-  defaults:
-    _controller: '\Drupal\icrp\Controller\IcrpController::userReview'
-    _title: 'User Review'
-  requirements:
-    _permission: 'access content'
-
-icrp.user_edit:
-  path: '/old/user/edit'
-  defaults:
-    _controller: '\Drupal\icrp\Controller\IcrpController::userEdit'
-    _title: 'User Edit'
-  requirements:
-    _permission: 'access content'
-
 icrp.form:
   path: '/user-review/{uuid}'
   defaults:
@@ -43,12 +13,4 @@ icrp.my_profile:
     _form: '\Drupal\icrp\Form\MyProfileForm'
   requirements:
     _user_is_logged_in: 'TRUE'
-
-icrp.user_reset:
-  path: '/change-password'
-  defaults:
-    _title: 'ChangePassword'
-    _form: '\Drupal\icrp\Form\ChangePasswordForm'
-  requirements:
-    _permission: 'access content'
 
