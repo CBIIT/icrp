@@ -61,7 +61,7 @@ class FundingOrgController extends ControllerBase {
             ELSE 'NO'
        END as annual
        FROM FundingOrg
-       WHERE LastImportDate IS NOT NULL");
+       ");
      $stmt->execute();
      return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
