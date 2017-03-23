@@ -6,6 +6,7 @@
 namespace Drupal\db_export_results\Controller;
 
 require_once 'PHPExcel.php';
+require_once 'spout-2.7.1/src/Spout/Autoloader/autoload.php';
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Database;
@@ -26,8 +27,13 @@ use	PHPExcel_Chart_PlotArea;
 use	PHPExcel_Chart_Legend;
 use	PHPExcel_Chart_Title;
 use	PHPExcel_Chart;
+use Box\Spout\Common\Exception\SpoutException;
+use Box\Spout\Writer\WriterFactory;
+use Box\Spout\Writer\XLSX\Internal\Worksheet;
+use Box\Spout\Writer\XLSX\Writer;
+use Box\Spout\Common\Type;
 
-/** Error reporting */
+ /** Error reporting */
 error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
@@ -79,14 +85,15 @@ class ExportResultsController extends ControllerBase {
 							 	->setDescription("This file contains all public data based on the user provided search criteria")
 							 	->setKeywords("ICRP Data")
 							 	->setCategory("Search Result File");
-	$sheetIndex = 0;
-	$result = self::createExportPublicSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+
     $sheetIndex = 1;
     $result = self::createCSOSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
     $sheetIndex = 2;
     $result = self::createSiteSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
     $sheetIndex = 3;
 	$result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+	$sheetIndex = 0;
+	$result = self::createExportPublicSheet($conn, $objPHPExcel, $sid, $sheetIndex);
 
 	$objPHPExcel->setActiveSheetIndex(0);
 	// Save Excel 2007 file
@@ -238,38 +245,88 @@ class ExportResultsController extends ControllerBase {
   	 }
 
   	// Create new PHPExcel object
-	$objPHPExcel = new PHPExcel();
+	//$objPHPExcel = new PHPExcel();
 
 	// Set document properties
-	$objPHPExcel->getProperties()->setCreator("ICRP")
-							 	->setLastModifiedBy("ICRP")
-							 	->setTitle("ICRP Export Data for Partner")
-							 	->setSubject("ICRP Export Data")
-							 	->setDescription("This file contains all Partner Site data based on the user provided search criteria")
-							 	->setKeywords("ICRP Data")
-							 	->setCategory("Search Result File");
+	//$objPHPExcel->getProperties()->setCreator("ICRP")
+	//						 	->setLastModifiedBy("ICRP")
+	//						 	->setTitle("ICRP Export Data for Partner")
+	//						 	->setSubject("ICRP Export Data")
+	//						 	->setDescription("This file contains all Partner Site data based on the user provided search criteria")
+	//						 	->setKeywords("ICRP Data")
+	//						 	->setCategory("Search Result File");
+	$shouldUseInlineStrings = true;
+	$shouldCreateSheetsAutomatically = true;
 
+	/** @var \Box\Spout\Writer\XLSX\Writer $writer */
+	$writer = WriterFactory::create(Type::XLSX);
+	$writer->setShouldUseInlineStrings($shouldUseInlineStrings);
+	$writer->setShouldCreateNewSheetsAutomatically($shouldCreateSheetsAutomatically);
+	$writer->openToFile($filelocation.$filenameExport);
 
     //create export data for partner site
-    $sheetIndex = 0;
     $withAbstract = false;
-    $isPublic = false;
-    $result = self::createExportDataSheetforPartner($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
-    $sheetIndex = 1;
-    $result = self::createCSOSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
-    $sheetIndex = 2;
-    $result = self::createSiteSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
-     $sheetIndex = 3;
-    $result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+	$isPublic = false;
 
+    //$sheetIndex = 1;
+    //$result = self::createCSOSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
+    //$sheetIndex = 2;
+    //$result = self::createSiteSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
+    // $sheetIndex = 3;
+    //$result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+    //$sheetIndex = 0;
+    $result = self::createExportDataforPartner($conn, $writer, $sid, $sheetIndex, $withAbstract);
 
-	$objPHPExcel->setActiveSheetIndex(0);
+	//$objPHPExcel->setActiveSheetIndex(0);
 	// Save Excel 2007 file
-	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-	$objWriter->save($filelocation.$filenameExport);
+	//$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+	//$objWriter->save($filelocation.$filenameExport);
+
+
+    
+    $writer->close();
     $conn = null;
 
 	return self::addCorsHeaders(new JSONResponse($downloadlocation . $filenameExport));
+  }
+
+  private function createExportDataforPartner($conn, $writer, $sid, $sheetIndex, $withAbstract){
+	$result = "success";
+    $abstract = 0;
+	$url = self::getBaseUrl();
+	$viewLink = $url . "project/";
+	if($withAbstract == true){
+		$abstract = 1;
+	}else{
+		$abstract = 0;
+	}
+	$rowData =array();
+	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectExportsBySearchID @SearchID=:search_id_name, @SiteURL=:site_url, @IncludeAbstract=:with_abstract");
+	$stmt->bindParam(':search_id_name', $sid);
+	$stmt->bindParam(':site_url', $viewLink);
+    $stmt->bindParam(':with_abstract', $abstract);
+	if ($stmt->execute()) {
+		$colName = Array();
+		foreach(range(0, $stmt->columnCount() - 1) as $column_index)
+		{
+		  $meta = $stmt->getColumnMeta($column_index);
+		  $colName[] = $meta['name'];
+		}
+		//add header to Excel file
+		$writer->addRows([$colName]);
+		$arrayLength = sizeof($colName);
+		//add content to Excel file
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+			$rowData = Array();
+			for($i = 0; $i < $arrayLength; $i++){
+				$rowData[$i] = $row[$colName[$i]];	
+			}
+			$writer->addRows([$rowData]);
+		}
+		$writer->getCurrentSheet()->setName("Search Result");
+	}
+	
+	return $result;
   }
 
   private function createSiteSheet($conn, &$objPHPExcel, $sid, $sheetIndex, $isPublic){
@@ -355,39 +412,38 @@ class ExportResultsController extends ControllerBase {
 
   private function createExportDataSheetforPartner($conn, &$objPHPExcel, $sid, $sheetIndex, $withAbstract){
 	$result = "success";
-
+    $abstract = 0;
 	$url = self::getBaseUrl();
 	$viewLink = $url . "project/";
-	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectExportsBySearchID @SearchID=:search_id_name, @SiteURL=:site_url");
+	if($withAbstract == true){
+		$abstract = 1;
+	}else{
+		$abstract = 0;
+	}
+	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectExportsBySearchID @SearchID=:search_id_name, @SiteURL=:site_url, @IncludeAbstract=:with_abstract");
 	$stmt->bindParam(':search_id_name', $sid);
 	$stmt->bindParam(':site_url', $viewLink);
-	$currentYear = Date('Y') + 1;
-
+    $stmt->bindParam(':with_abstract', $abstract);
 	if ($stmt->execute()) {
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue('A1', "ICRP PROJECT ID")
-					->setCellValue('B1', "Award Code")
-					->setCellValue('C1', "Award Title")
-					->setCellValue('D1', "Award Type")
-					->setCellValue('E1', "Source ID")
-					->setCellValue('F1', "ALT ID")
-					->setCellValue('G1', "Funding Category")
-                    ->setCellValue('H1', "IsChildhood")
-					->setCellValue('I1', "Award Start Date")
-					->setCellValue('J1', "Award End Date")
-					->setCellValue('K1', "Budget Start Date")
-					->setCellValue('L1', "Budget End Date")
-					->setCellValue('M1', "Award Funding")
-					->setCellValue('N1', "Funding Indicator");
-		$location = "N";
+		$location = "A";
 		$location2 = "A";
 		$location3 = "A";
 		$realLocation = "";
-		for($i = 2000; $i < $currentYear; $i++){
-			if($location != 'Z'){
-				$location++;
+		$index = 1;
+		$colName = Array();
+		foreach(range(0, $stmt->columnCount() - 1) as $column_index)
+		{
+		  $meta = $stmt->getColumnMeta($column_index);
+		  $colName[] = $meta['name'];
+		}
+
+		$arrayLength = sizeof($colName);
+
+		for($i = 0; $i < $arrayLength; $i++){
+		  if($location != 'Z'){
 				$realLocation = $location;
-			}else{
+				$location++;
+		  }else{
 				$realLocation = $location3.$location2;
 				if($location2 == "Z"){
 					$location2 = "A";
@@ -395,150 +451,22 @@ class ExportResultsController extends ControllerBase {
 				}else{
 					$location2++;
 				}
-			}
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($realLocation."1", $i);
+		  }
+		 $objPHPExcel->setActiveSheetIndex($sheetIndex)
+		 			 ->setCellValue($realLocation.$index, $colName[$i]);
 		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Currency");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "To Currency");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "To Currency Rate");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Funding Mechanism");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Funding Mechanism Code");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Sponsor Code");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Funding Org");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Funding Org Type");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Funding Div");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Funding Div Abbr");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Funding Contact");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "PI First Name");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "PI Last Name");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "PI ORC ID");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Instutition");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "City");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "State");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-					->setCellValue($location3.$location2++."1", "Country");
-		if($location2 == "Z"){
-			$location2 = "A";
-			$location3++;
-		}
-		if($withAbstract){
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++."1", "Tech Abstract");
-		}else{
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++."1", "View In ICRP");
-		}
+
 		$in = 2;
-		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-			$location = "N";
+		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+			$location = "A";
 			$location2 = "A";
 			$location3 = "A";
 			$realLocation = "";
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue('A'.$in, $row['ProjectID'])
-						->setCellValue('B'.$in, $row['AwardCode'])
-						->setCellValue('C'.$in, $row['AwardTitle'])
-						->setCellValue('D'.$in, $row['AwardType'])
-						->setCellValue('E'.$in, $row['Source_ID'])
-						->setCellValue('F'.$in, $row['AltAwardCode'])
-						->setCellValue('G'.$in, $row['FundingCategory'])
-						->setCellValue('H'.$in, $row['IsChildhood'])
-						->setCellValue('I'.$in, $row['AwardStartDate'])
-						->setCellValue('J'.$in, $row['AwardEndDate'])
-						->setCellValue('K'.$in, $row['BudgetStartDate'])
-						->setCellValue('L'.$in, $row['BudgetEndDate'])
-						->setCellValue('M'.$in, $row['AwardAmount'])
-						->setCellValue('N'.$in, $row['FundingIndicator']);
-			for($i = 2000; $i < $currentYear; $i++){
-				if($location != 'Z'){
-					$location++;
+			for($i = 0; $i < $arrayLength; $i++){
+			  if($location != 'Z'){
 					$realLocation = $location;
-				}else{
+					$location++;
+			  }else{
 					$realLocation = $location3.$location2;
 					if($location2 == "Z"){
 						$location2 = "A";
@@ -546,150 +474,14 @@ class ExportResultsController extends ControllerBase {
 					}else{
 						$location2++;
 					}
-				}
-				$value = $row[$i];
-				$objPHPExcel->setActiveSheetIndex($sheetIndex)
-							->setCellValue($realLocation.$in, $value);
-			}
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['Currency']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, "");
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, "");
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['FundingMechanism']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['FundingMechanismCode']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['SponsorCode']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['FundingOrg']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['FundingOrgType']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['FundingDiv']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['FundingDivAbbr']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['FundingContact']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['piFirstName']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['piLastName']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['piORCID']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['Institution']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['City']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['State']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location3.$location2++.$in, $row['Country']);
-			if($location2 == "Z"){
-				$location2 = "A";
-				$location3++;
-			}
-			if($withAbstract){
-				$objPHPExcel->setActiveSheetIndex($sheetIndex)
-							->setCellValue($location3.$location2++.$in, $row['TechAbstract']);
-			}else{
-				$objPHPExcel->setActiveSheetIndex($sheetIndex)
-							->setCellValue($location3.$location2++.$in, $row['icrpURL']);
-			}
+			  }
+			  $objPHPExcel->setActiveSheetIndex($sheetIndex)
+						  ->setCellValue($realLocation.$in, $row[$colName[$i]]);
+			}//end of for
 			$in++;
 		}
-		$result = "succeed";
-	} else {
-		$result = "failed to query server";
 	}
-    $objPHPExcel->getActiveSheet()->setTitle('Search Result');
-
+	$objPHPExcel->getActiveSheet()->setTitle('Search Result');
 	return $result;
   }
 
@@ -710,33 +502,43 @@ class ExportResultsController extends ControllerBase {
   	   return "Could not create db connection";
   	 }
 	// Create new PHPExcel object
-	$objPHPExcel = new PHPExcel();
+	//$objPHPExcel = new PHPExcel();
 
 	// Set document properties
-	$objPHPExcel->getProperties()->setCreator("ICRP")
-							 	->setLastModifiedBy("ICRP")
-							 	->setTitle("ICRP Export Data for Partner")
-							 	->setSubject("ICRP Export Data")
-							 	->setDescription("This file contains all Partner Site data based on the user provided search criteria")
-							 	->setKeywords("ICRP Data")
-							 	->setCategory("Search Result File");
-	$sheetIndex = 0;
-	$withAbstract = true;
-	self::createExportDataSheetforPartner($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
+	//$objPHPExcel->getProperties()->setCreator("ICRP")
+	//						 	->setLastModifiedBy("ICRP")
+	//						 	->setTitle("ICRP Export Data for Partner")
+	//						 	->setSubject("ICRP Export Data")
+	//						 	->setDescription("This file contains all Partner Site data based on the user provided search criteria")
+	//						 	->setKeywords("ICRP Data")
+	//						 	->setCategory("Search Result File");
+    $shouldUseInlineStrings = true;
+    $shouldCreateSheetsAutomatically = true;
 
- 	$sheetIndex = 1;
- 	self::createCSOSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
+        /** @var \Box\Spout\Writer\XLSX\Writer $writer */
+    $writer = WriterFactory::create(Type::XLSX);
+    $writer->setShouldUseInlineStrings($shouldUseInlineStrings);
+    $writer->setShouldCreateNewSheetsAutomatically($shouldCreateSheetsAutomatically);
+    $writer->openToFile($filelocation.$filenameExport);
+    $withAbstract = true;
 
- 	$sheetIndex = 2;
- 	self::createSiteSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
+// 	$sheetIndex = 1;
+//	self::createCSOSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
 
- 	$sheetIndex = 3;
- 	self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+//	$sheetIndex = 2;
+// 	self::createSiteSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
 
-	$objPHPExcel->setActiveSheetIndex(0);
+// 	$sheetIndex = 3;
+// 	self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+
+//	$sheetIndex = 0;
+	self::createExportDataforPartner($conn, $writer, $sid, $sheetIndex, $withAbstract);
+
+	//$objPHPExcel->setActiveSheetIndex(0);
 	// Save Excel 2007 file
-	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-	$objWriter->save($filelocation.$filenameExport);
+	//$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+	//$objWriter->save($filelocation.$filenameExport);
+    $writer->close();
     $conn = null;
 
 	return self::addCorsHeaders(new JSONResponse($downloadlocation . $filenameExport));
@@ -1151,12 +953,11 @@ class ExportResultsController extends ControllerBase {
   	 } catch (Exception $exc) {
   	   return "Could not create db connection";
   	 }
-
-	$sheetIndex = 0;
 	$withAbstract = false;
+    $sheetIndex = 1;
+    $result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+	$sheetIndex = 0;
 	$result = self::createExportSingleSheet($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
-	$sheetIndex = 1;
-	$result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
 
  	// Set active sheet index to the first sheet, so Excel opens this as the first sheet
 	$objPHPExcel->setActiveSheetIndex(0);
@@ -1183,8 +984,12 @@ class ExportResultsController extends ControllerBase {
 							 	 ->setDescription("Exporting ICRP Single data ")
 							 	 ->setKeywords("ICRP signle data")
 							 	 ->setCategory("ICRP data");
-
-	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectExportsSingleBySearchID @SearchID=:search_id_name, @SiteURL=:url");
+	$stmt = "";
+	if($withAbstract == true){
+		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectExportsSingleBySearchID @SearchID=:search_id_name, @SiteURL=:url, @IncludeAbstract=1");
+	}else{
+		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectExportsSingleBySearchID @SearchID=:search_id_name, @SiteURL=:url");
+	}
 	$stmt->bindParam(':search_id_name', $sid);
 	$stmt->bindParam(':url', $viewLink);
 	if ($stmt->execute()) {
@@ -1201,9 +1006,6 @@ class ExportResultsController extends ControllerBase {
 		}
 
 		$arrayLength = sizeof($colName);
-		if($withAbstract != true){
-			$arrayLength = $arrayLength -1; //remove last column - tech abstract
-		}
 
 		for($i = 0; $i < $arrayLength; $i++){
 		  if($location != 'Z'){
@@ -1276,12 +1078,11 @@ class ExportResultsController extends ControllerBase {
   	 } catch (Exception $exc) {
   	   return "Could not create db connection";
   	 }
-
-	$sheetIndex = 0;
 	$withAbstract = true;
+    $sheetIndex = 1;
+    $result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
+	$sheetIndex = 0;
 	$result = self::createExportSingleSheet($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
-	$sheetIndex = 1;
-	$result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
 
  	// Set active sheet index to the first sheet, so Excel opens this as the first sheet
 	$objPHPExcel->setActiveSheetIndex(0);
