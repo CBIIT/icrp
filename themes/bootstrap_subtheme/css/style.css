@@ -453,9 +453,11 @@ div#cso-document-container > div > h1 {
     height:160px;
 }
 /* First p showed up on Welcome Page */
+/*
 .field.field--name-body.field--type-text-with-summary.field--label-hidden.field--item > p {
     height:0px;
 }
+*/
 
 /*==================================================
 =            Bootstrap 3 Media Queries             =
