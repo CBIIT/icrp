@@ -74,39 +74,30 @@ class ExportResultsController extends ControllerBase {
 
 	$result = "success";
 
-  	// Create new PHPExcel object
-	$objPHPExcel = new PHPExcel();
+  	$shouldUseInlineStrings = true;
+	$shouldCreateSheetsAutomatically = true;
 
-	// Set document properties
-	$objPHPExcel->getProperties()->setCreator("ICRP")
-							 	->setLastModifiedBy("ICRP")
-							 	->setTitle("ICRP Export Data for Public")
-							 	->setSubject("ICRP Export Data")
-							 	->setDescription("This file contains all public data based on the user provided search criteria")
-							 	->setKeywords("ICRP Data")
-							 	->setCategory("Search Result File");
+	/** @var \Box\Spout\Writer\XLSX\Writer $writer */
+	$writer = WriterFactory::create(Type::XLSX);
+	$writer->setShouldUseInlineStrings($shouldUseInlineStrings);
+	$writer->setShouldCreateNewSheetsAutomatically($shouldCreateSheetsAutomatically);
+	$writer->openToFile($filelocation.$filenameExport);
 
-    $sheetIndex = 1;
-    $result = self::createCSOSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
-    $sheetIndex = 2;
-    $result = self::createSiteSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
-    $sheetIndex = 3;
-	$result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
-	$sheetIndex = 0;
-	$result = self::createExportPublicSheet($conn, $objPHPExcel, $sid, $sheetIndex);
-
-	$objPHPExcel->setActiveSheetIndex(0);
-	// Save Excel 2007 file
-	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-	$objWriter->save($filelocation.$filenameExport);
-
+    $result = self::createExportPublicSheet($conn, $writer, $sid);
+	$result = self::createCSOSheet($conn, $writer, $sid, $isPublic);
+    $result = self::createSiteSheet($conn, $writer, $sid, $isPublic);
+	$result = self::createCriteriaSheet($conn, $writer, $sid);
+	
+	$writer->close();
     $conn = null;
 
 	return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));
   }
 
-  private function createExportPublicSheet($conn, &$objPHPExcel, $sid, $sheetIndex){
+  private function createExportPublicSheet($conn, $writer, $sid){
     $result = "";
+    $header = ['Title', 'PI First Name', 'PI Last Name', 'Institution', 'City', 'State', 'Country', 'Funding Organization', 'Award Code', 'View in ICRP'];
+
     $url = self::getBaseUrl();
 	$viewLink = $url . "project/";
 	$result_count = NULL;
@@ -114,73 +105,26 @@ class ExportResultsController extends ControllerBase {
 	$stmt->bindParam(':search_id_name', $sid);
 	$stmt->bindParam(':result_count', $result_count, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
 	if ($stmt->execute()) {
-		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-		            ->setCellValue('A1', 'Title')
-		            ->setCellValue('B1', 'PI First Name')
-		            ->setCellValue('C1', 'PI Last Name')
-		            ->setCellValue('D1', 'Institution')
-		            ->setCellValue('E1', 'City')
-		            ->setCellValue('F1', 'State')
-		            ->setCellValue('G1', 'Country')
-		            ->setCellValue('H1', 'Funding Organization')
-		            ->setCellValue('I1', 'Award Code')
-		            ->setCellValue('J1', 'View in ICRP');
-		$i = 2;
+		$writer->addRows([$header]);
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue('A'.$i, $row['Title'])
-						->setCellValue('B'.$i, $row['piFirstName'])
-						->setCellValue('C'.$i, $row['piLastName'])
-						->setCellValue('D'.$i, $row['institution'])
-						->setCellValue('E'.$i, $row['City'])
-						->setCellValue('F'.$i, $row['State'])
-						->setCellValue('G'.$i, $row['country'])
-						->setCellValue('H'.$i, $row['FundingOrg'])
-						->setCellValue('I'.$i, $row['AwardCode'])
-						->setCellValue('J'.$i, $viewLink . $row['ProjectID']);
-			$i = $i + 1;
+			$rowData = Array();
+			$rowData[0] = $row['Title'];
+			$rowData[1] = $row['piFirstName'];
+			$rowData[2] = $row['piLastName'];
+			$rowData[3] = $row['institution'];
+			$rowData[4] = $row['City'];
+			$rowData[5] = $row['State'];
+			$rowData[6] = $row['country'];
+			$rowData[7] = $row['FundingOrg'];
+			$rowData[8] = $row['AwardCode'];
+			$rowData[9] = $viewLink . $row['ProjectID'];
+			$writer->addRows([$rowData]);
 		}
 		$result = "succeed";
+	    $writer->getCurrentSheet()->setName('Search Result');
 	} else {
 		$result = "failed to query server";
 	}
-    $objPHPExcel->getActiveSheet()->setTitle('Search Result');
-
-	return $result;
-  }
-
-  private function createCriteriaSheet($conn, &$objPHPExcel, $sid, $sheetIndex){
-    $result = "";
- 	//$labels = Array("Term Search Type", "Terms", "Institution", "PI Last Name", "PI First Name", "PI ORC ID", "Award Code", "Years" , "City", "State", "Country", "Funding Organization", "Cancer Type", "Project Type", "CSO", "Search By User Name");
-
-	 //add a new sheet
-	$objWorkSheet = $objPHPExcel->createSheet();
-	$objPHPExcel->setActiveSheetIndex($sheetIndex)
-	 		    ->setCellValue('A1', "International Cancer Research Partnership - ")
-	            ->setCellValue('B1', self::getBaseUrl());
-	$date = date("m/d/Y H:i:s");
-	$objPHPExcel->setActiveSheetIndex($sheetIndex)
-	  		    ->setCellValue('A2', "Created:")
-	  		    ->setCellValue('B2', $date);
-	$objPHPExcel->setActiveSheetIndex($sheetIndex)
-	    	    ->setCellValue('A3',"Search Criteria:");
-
-	$stmt = $conn -> prepare("SET NOCOUNT ON; exec GetSearchCriteriaBySearchID @SearchID = :search_id");
-	$stmt->bindParam(':search_id', $sid);
-
-    $index = 4;
-	if ($stmt->execute()){
-	   while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-	   		$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue('A'.$index, $row['Name'])
-						->setCellValue('B'.$index, $row['Value']);
-			$index++;
-	   }
-	   $result = "succeed";
-	} else {
-	   $result = "failed to query server";
-    }
-	$objPHPExcel->getActiveSheet()->setTitle('Search Criteria');
 
 	return $result;
   }
@@ -244,17 +188,7 @@ class ExportResultsController extends ControllerBase {
   	   return "Could not create db connection";
   	 }
 
-  	// Create new PHPExcel object
-	//$objPHPExcel = new PHPExcel();
 
-	// Set document properties
-	//$objPHPExcel->getProperties()->setCreator("ICRP")
-	//						 	->setLastModifiedBy("ICRP")
-	//						 	->setTitle("ICRP Export Data for Partner")
-	//						 	->setSubject("ICRP Export Data")
-	//						 	->setDescription("This file contains all Partner Site data based on the user provided search criteria")
-	//						 	->setKeywords("ICRP Data")
-	//						 	->setCategory("Search Result File");
 	$shouldUseInlineStrings = true;
 	$shouldCreateSheetsAutomatically = true;
 
@@ -268,29 +202,17 @@ class ExportResultsController extends ControllerBase {
     $withAbstract = false;
 	$isPublic = false;
 
-    //$sheetIndex = 1;
-    //$result = self::createCSOSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
-    //$sheetIndex = 2;
-    //$result = self::createSiteSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
-    // $sheetIndex = 3;
-    //$result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
-    //$sheetIndex = 0;
-    $result = self::createExportDataforPartner($conn, $writer, $sid, $sheetIndex, $withAbstract);
-
-	//$objPHPExcel->setActiveSheetIndex(0);
-	// Save Excel 2007 file
-	//$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-	//$objWriter->save($filelocation.$filenameExport);
-
-
-    
+    $result = self::createExportDataforPartner($conn, $writer, $sid, $withAbstract);
+	$result = self::createCSOSheet($conn, $writer, $sid, $isPublic);
+	$result = self::createSiteSheet($conn, $writer, $sid, $isPublic);
+	$result = self::createCriteriaSheet($conn, $writer, $sid);
     $writer->close();
     $conn = null;
 
 	return self::addCorsHeaders(new JSONResponse($downloadlocation . $filenameExport));
   }
 
-  private function createExportDataforPartner($conn, $writer, $sid, $sheetIndex, $withAbstract){
+  private function createExportDataforPartner($conn, $writer, $sid, $withAbstract){
 	$result = "success";
     $abstract = 0;
 	$url = self::getBaseUrl();
@@ -319,171 +241,128 @@ class ExportResultsController extends ControllerBase {
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($i = 0; $i < $arrayLength; $i++){
-				$rowData[$i] = $row[$colName[$i]];	
+				$rowData[$i] = $row[$colName[$i]];
 			}
 			$writer->addRows([$rowData]);
 		}
 		$writer->getCurrentSheet()->setName("Search Result");
 	}
-	
+
 	return $result;
   }
 
-  private function createSiteSheet($conn, &$objPHPExcel, $sid, $sheetIndex, $isPublic){
+  private function createSiteSheet($conn, $writer, $sid, $isPublic){
   	$result = "";
+  	$header1 = ['ICRP PROJECT ID', 'Cancer Type'];
+ 	$header2 = ['ICRP PROJECT ID', 'Cancer Type', 'Site Relevance'];
      //add a new sheet
-   	$objWorkSheet = $objPHPExcel->createSheet();
-	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectCancerTypesBySearchID @SearchID=:search_id_name");
+    $writer->addNewSheetAndMakeItCurrent();
+    $stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectCancerTypesBySearchID @SearchID=:search_id_name");
 	$stmt->bindParam(':search_id_name', $sid);
 
 	if ($stmt->execute()) {
 		if($isPublic){
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue('A1', "ICRP PROJECT ID")
-						->setCellValue('B1', "Cancer Type");
+			$writer->addRows([$header1]);
 		}else{
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue('A1', "ICRP PROJECT ID")
-						->setCellValue('B1', "Cancer Type")
-						->setCellValue('C1', "Site Relevance");
+			$writer->addRows([$header2]);
 		}
-		$i = 2;
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+			$rowData = Array();	
 			if($isPublic){
-				$objPHPExcel->setActiveSheetIndex($sheetIndex)
-							->setCellValue('A'.$i, $row['ProjectID'])
-							->setCellValue('B'.$i, $row['CancerType']);
+				$rowData[0] = $row['ProjectID'];
+				$rowData[1] = $row['CancerType'];
+				$writer->addRows([$rowData]);
 			}else{
-				$objPHPExcel->setActiveSheetIndex($sheetIndex)
-							->setCellValue('A'.$i, $row['ProjectID'])
-							->setCellValue('B'.$i, $row['CancerType'])
-							->setCellValue('C'.$i, $row['Relevance']);
+				$rowData[0] = $row['ProjectID'];
+				$rowData[1] = $row['CancerType'];
+				$rowData[2] = $row['Relevance'];
+				$writer->addRows([$rowData]);
 			}
-			$i++;
 		}
 		$result = "succeed";
+		$writer->getCurrentSheet()->setName('Project By Cancer Type');
 	} else {
 		$result = "failed to query server";
 	}
-	$objPHPExcel->getActiveSheet()->setTitle('Project By Cancer Type');
 
     return $result;
   }
 
-  private function createCSOSheet($conn, &$objPHPExcel, $sid, $sheetIndex, $isPublic){
+  private function createCSOSheet($conn, $writer, $sid, $isPublic){
  	$result = "";
+ 	$header1 = ['ICRP PROJECT ID', 'Code'];
+ 	$header2 = ['ICRP PROJECT ID', 'Code', 'CSO Relevance'];
  	//add a new sheet
-   	$objWorkSheet = $objPHPExcel->createSheet();
+   	$writer->addNewSheetAndMakeItCurrent();
+
 	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectCSOsBySearchID @SearchID=:search_id_name");
 	$stmt->bindParam(':search_id_name', $sid);
 	if ($stmt->execute()) {
 		if($isPublic){
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue('A1',"ICRP PROJECT ID")
-						->setCellValue('B1', "Code");
+			$writer->addRows([$header1]);
 		}else{
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue('A1',"ICRP PROJECT ID")
-						->setCellValue('B1', "Code")
-						->setCellValue('C1', "CSO Relevance");
+			$writer->addRows([$header2]);	
 		}
-		$i = 2;
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-			 if($isPublic){
-				 $objPHPExcel->setActiveSheetIndex($sheetIndex)
-							 ->setCellValue('A'.$i, $row['ProjectID'])
-							 ->setCellValue('B'.$i, $row['CSOCode']);
-			 }else{
-				 $objPHPExcel->setActiveSheetIndex($sheetIndex)
-							 ->setCellValue('A'.$i, $row['ProjectID'])
-							 ->setCellValue('B'.$i, $row['CSOCode'])
-							 ->setCellValue('C'.$i, $row['CSORelevance']);
+			$rowData = Array();
+			if($isPublic){
+				$rowData[0] = $row['ProjectID'];
+				$rowData[1] = $row['CSOCode'];
+				$writer->addRows([$rowData]);
+			}else{
+				$rowData[0] = $row['ProjectID'];
+				$rowData[1] = $row['CSOCode'];
+				$rowData[2] = $row['CSORelevance'];
+				$writer->addRows([$rowData]);
 			 }
-			 $i++;
 		}
 		$result = "succeed";
+		$writer->getCurrentSheet()->setName("Project By CSO");
 	} else {
 		$result = "failed to query server";
 	}
-	$objPHPExcel->getActiveSheet()->setTitle('Project By CSO');
 
 	return $result;
   }
 
-  private function createExportDataSheetforPartner($conn, &$objPHPExcel, $sid, $sheetIndex, $withAbstract){
-	$result = "success";
-    $abstract = 0;
-	$url = self::getBaseUrl();
-	$viewLink = $url . "project/";
-	if($withAbstract == true){
-		$abstract = 1;
-	}else{
-		$abstract = 0;
-	}
-	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectExportsBySearchID @SearchID=:search_id_name, @SiteURL=:site_url, @IncludeAbstract=:with_abstract");
-	$stmt->bindParam(':search_id_name', $sid);
-	$stmt->bindParam(':site_url', $viewLink);
-    $stmt->bindParam(':with_abstract', $abstract);
-	if ($stmt->execute()) {
-		$location = "A";
-		$location2 = "A";
-		$location3 = "A";
-		$realLocation = "";
-		$index = 1;
-		$colName = Array();
-		foreach(range(0, $stmt->columnCount() - 1) as $column_index)
-		{
-		  $meta = $stmt->getColumnMeta($column_index);
-		  $colName[] = $meta['name'];
-		}
+  private function createCriteriaSheet($conn, $writer, $sid){
+    $result = "";
 
-		$arrayLength = sizeof($colName);
+	 //add a new sheet
+    $writer->addNewSheetAndMakeItCurrent();
+    $rowData = Array();
+    $rowData[0] = "International Cancer Research Partnership - ";
+    $rowData[1] = self::getBaseUrl();
+    $writer->addRows([$rowData]);
+    $rowData = Array();
+	$date = date("m/d/Y H:i:s");
+    $rowData[0] = "Created: ";
+    $rowData[1] = $date;
+    $writer->addRows([$rowData]);
+    $rowData = Array();
+    $rowData[0] = "Search Criteria: ";
+    $rowData[1] = " ";
+    $writer->addRows([$rowData]);
 
-		for($i = 0; $i < $arrayLength; $i++){
-		  if($location != 'Z'){
-				$realLocation = $location;
-				$location++;
-		  }else{
-				$realLocation = $location3.$location2;
-				if($location2 == "Z"){
-					$location2 = "A";
-					$location3++;
-				}else{
-					$location2++;
-				}
-		  }
-		 $objPHPExcel->setActiveSheetIndex($sheetIndex)
-		 			 ->setCellValue($realLocation.$index, $colName[$i]);
-		}
+	$stmt = $conn -> prepare("SET NOCOUNT ON; exec GetSearchCriteriaBySearchID @SearchID = :search_id");
+	$stmt->bindParam(':search_id', $sid);
 
-		$in = 2;
-		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-			$location = "A";
-			$location2 = "A";
-			$location3 = "A";
-			$realLocation = "";
-			for($i = 0; $i < $arrayLength; $i++){
-			  if($location != 'Z'){
-					$realLocation = $location;
-					$location++;
-			  }else{
-					$realLocation = $location3.$location2;
-					if($location2 == "Z"){
-						$location2 = "A";
-						$location3++;
-					}else{
-						$location2++;
-					}
-			  }
-			  $objPHPExcel->setActiveSheetIndex($sheetIndex)
-						  ->setCellValue($realLocation.$in, $row[$colName[$i]]);
-			}//end of for
-			$in++;
-		}
-	}
-	$objPHPExcel->getActiveSheet()->setTitle('Search Result');
+	if ($stmt->execute()){
+	   while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+	   		$rowData = Array();
+	   		$rowData[0] = $row['Name'];
+    		$rowData[1] = $row['Value'];
+		    $writer->addRows([$rowData]);
+	   }
+	   $result = "succeed";
+	   $writer->getCurrentSheet()->setName("Search Criteria");
+	} else {
+	   $result = "failed to query server";
+    }
+
 	return $result;
   }
+
 
   public function exportResultsWithAbstractPartner(){
      $sid = $_SESSION['database_search_id'];
@@ -501,17 +380,6 @@ class ExportResultsController extends ControllerBase {
   	 } catch (Exception $exc) {
   	   return "Could not create db connection";
   	 }
-	// Create new PHPExcel object
-	//$objPHPExcel = new PHPExcel();
-
-	// Set document properties
-	//$objPHPExcel->getProperties()->setCreator("ICRP")
-	//						 	->setLastModifiedBy("ICRP")
-	//						 	->setTitle("ICRP Export Data for Partner")
-	//						 	->setSubject("ICRP Export Data")
-	//						 	->setDescription("This file contains all Partner Site data based on the user provided search criteria")
-	//						 	->setKeywords("ICRP Data")
-	//						 	->setCategory("Search Result File");
     $shouldUseInlineStrings = true;
     $shouldCreateSheetsAutomatically = true;
 
@@ -522,22 +390,11 @@ class ExportResultsController extends ControllerBase {
     $writer->openToFile($filelocation.$filenameExport);
     $withAbstract = true;
 
-// 	$sheetIndex = 1;
-//	self::createCSOSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
+	self::createExportDataforPartner($conn, $writer, $sid, $withAbstract);
+	self::createCSOSheet($conn, $writer, $sid, $isPublic);
+    self::createSiteSheet($conn, $writer, $sid, $isPublic);
+    self::createCriteriaSheet($conn, $writer, $sid);
 
-//	$sheetIndex = 2;
-// 	self::createSiteSheet($conn, $objPHPExcel, $sid, $sheetIndex, $isPublic);
-
-// 	$sheetIndex = 3;
-// 	self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
-
-//	$sheetIndex = 0;
-	self::createExportDataforPartner($conn, $writer, $sid, $sheetIndex, $withAbstract);
-
-	//$objPHPExcel->setActiveSheetIndex(0);
-	// Save Excel 2007 file
-	//$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-	//$objWriter->save($filelocation.$filenameExport);
     $writer->close();
     $conn = null;
 
