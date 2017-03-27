@@ -803,44 +803,38 @@ class ExportResultsController extends ControllerBase {
  	$downloadlocation = self::getBaseUrl() .  $config['download_location'];
     $filenameExport  = 'ICRPExportPartnerSingle'.$sid.'.xlsx';
 
-	$objPHPExcel = new PHPExcel();
+	$shouldUseInlineStrings = true;
+	$shouldCreateSheetsAutomatically = true;
+
+	/** @var \Box\Spout\Writer\XLSX\Writer $writer */
+	$writer = WriterFactory::create(Type::XLSX);
+	$writer->setShouldUseInlineStrings($shouldUseInlineStrings);
+	$writer->setShouldCreateNewSheetsAutomatically($shouldCreateSheetsAutomatically);
+	$writer->openToFile($filelocation . $filenameExport);
 
   	 try {
 	   $conn = self::getConnection();
   	 } catch (Exception $exc) {
   	   return "Could not create db connection";
   	 }
+
 	$withAbstract = false;
-    $sheetIndex = 1;
-    $result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
-	$sheetIndex = 0;
-	$result = self::createExportSingleSheet($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
-
- 	// Set active sheet index to the first sheet, so Excel opens this as the first sheet
-	$objPHPExcel->setActiveSheetIndex(0);
-
-	// Save Excel 2007 file
-	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-	$objWriter->setIncludeCharts(TRUE);
-	$objWriter->save($filelocation.$filenameExport);
+	$result = self::createExportSingleSheet($conn, $writer, $sid, $withAbstract);
+    $result = self::createCriteriaSheet($conn, $writer, $sid);
+	
+    $writer->close();
     $conn = null;
 
 	return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));
   }
 
-  private function createExportSingleSheet($conn, &$objPHPExcel, $sid, $sheetIndex, $withAbstract){
+  private function createExportSingleSheet($conn, $writer, $sid, $withAbstract){
     $result = "";
     $url = self::getBaseUrl();
 	$viewLink = $url . "project/";
 	$result_count = NULL;
+	
 
-	$objPHPExcel->getProperties()->setCreator("ICRP")
-							 	 ->setLastModifiedBy("ICRP")
-							 	 ->setTitle("ICRP export Single")
-							 	 ->setSubject("ICRP export data")
-							 	 ->setDescription("Exporting ICRP Single data ")
-							 	 ->setKeywords("ICRP signle data")
-							 	 ->setCategory("ICRP data");
 	$stmt = "";
 	if($withAbstract == true){
 		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectExportsSingleBySearchID @SearchID=:search_id_name, @SiteURL=:url, @IncludeAbstract=1");
@@ -850,63 +844,28 @@ class ExportResultsController extends ControllerBase {
 	$stmt->bindParam(':search_id_name', $sid);
 	$stmt->bindParam(':url', $viewLink);
 	if ($stmt->execute()) {
-		$location = "A";
-		$location2 = "A";
-		$location3 = "A";
-		$realLocation = "";
-		$index = 1;
+		$rowData = Array();
 		$colName = Array();
 		foreach(range(0, $stmt->columnCount() - 1) as $column_index)
 		{
 		  $meta = $stmt->getColumnMeta($column_index);
 		  $colName[] = $meta['name'];
 		}
-
 		$arrayLength = sizeof($colName);
-
 		for($i = 0; $i < $arrayLength; $i++){
-		  if($location != 'Z'){
-				$realLocation = $location;
-				$location++;
-		  }else{
-				$realLocation = $location3.$location2;
-				if($location2 == "Z"){
-					$location2 = "A";
-					$location3++;
-				}else{
-					$location2++;
-				}
-		  }
-		 $objPHPExcel->setActiveSheetIndex($sheetIndex)
-		 			 ->setCellValue($realLocation.$index, $colName[$i]);
+			$rowData[$i] = $colName[$i];
 		}
+		$writer->addRows([$rowData]);
 
-		$in = 2;
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
-			$location = "A";
-			$location2 = "A";
-			$location3 = "A";
-			$realLocation = "";
+			$rowData = Array();
 			for($i = 0; $i < $arrayLength; $i++){
-			  if($location != 'Z'){
-					$realLocation = $location;
-					$location++;
-			  }else{
-					$realLocation = $location3.$location2;
-					if($location2 == "Z"){
-						$location2 = "A";
-						$location3++;
-					}else{
-						$location2++;
-					}
-			  }
-			  $objPHPExcel->setActiveSheetIndex($sheetIndex)
-						  ->setCellValue($realLocation.$in, $row[$colName[$i]]);
-			}//end of for
-			$in++;
+				$rowData[$i] = $row[$colName[$i]];
+			}	
+			$writer->addRows([$rowData]);
 		}
 	}
-	$objPHPExcel->getActiveSheet()->setTitle('Search Result');
+	$writer->getCurrentSheet()->setName('Search Result');
 
 	return $result;
   }
@@ -921,14 +880,14 @@ class ExportResultsController extends ControllerBase {
  	$downloadlocation = self::getBaseUrl() .  $config['download_location'];
     $filenameExport  = 'ICRPExportPartnerSingleAbstract'.$sid.'.xlsx';
 
-	$objPHPExcel = new PHPExcel();
-	$objPHPExcel->getProperties()->setCreator("ICRP")
-							 	 ->setLastModifiedBy("ICRP")
-							 	 ->setTitle("ICRP export Looup Table")
-							 	 ->setSubject("ICRP export data")
-							 	 ->setDescription("Exporting ICRP Looup Table ")
-							 	 ->setKeywords("ICRP Lookup Table data")
-							 	 ->setCategory("ICRP data");
+	$shouldUseInlineStrings = true;
+	$shouldCreateSheetsAutomatically = true;
+
+	/** @var \Box\Spout\Writer\XLSX\Writer $writer */
+	$writer = WriterFactory::create(Type::XLSX);
+	$writer->setShouldUseInlineStrings($shouldUseInlineStrings);
+	$writer->setShouldCreateNewSheetsAutomatically($shouldCreateSheetsAutomatically);
+	$writer->openToFile($filelocation . $filenameExport);
 
   	 try {
 	   $conn = self::getConnection();
@@ -936,18 +895,10 @@ class ExportResultsController extends ControllerBase {
   	   return "Could not create db connection";
   	 }
 	$withAbstract = true;
-    $sheetIndex = 1;
-    $result = self::createCriteriaSheet($conn, $objPHPExcel, $sid, $sheetIndex);
-	$sheetIndex = 0;
-	$result = self::createExportSingleSheet($conn, $objPHPExcel, $sid, $sheetIndex, $withAbstract);
+	$result = self::createExportSingleSheet($conn, $writer, $sid, $withAbstract);
+    $result = self::createCriteriaSheet($conn, $writer, $sid);
 
- 	// Set active sheet index to the first sheet, so Excel opens this as the first sheet
-	$objPHPExcel->setActiveSheetIndex(0);
-
-	// Save Excel 2007 file
-	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-	$objWriter->setIncludeCharts(TRUE);
-	$objWriter->save($filelocation.$filenameExport);
+    $writer->close();
     $conn = null;
 
 	return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));
@@ -961,7 +912,14 @@ class ExportResultsController extends ControllerBase {
  	$downloadlocation = self::getBaseUrl() .  $config['download_location'];
     $filenameExport  = 'ICRPExportLookupTable'.'.xlsx';
 
-	$objPHPExcel = new PHPExcel();
+	$shouldUseInlineStrings = true;
+	$shouldCreateSheetsAutomatically = true;
+
+	/** @var \Box\Spout\Writer\XLSX\Writer $writer */
+	$writer = WriterFactory::create(Type::XLSX);
+	$writer->setShouldUseInlineStrings($shouldUseInlineStrings);
+	$writer->setShouldCreateNewSheetsAutomatically($shouldCreateSheetsAutomatically);
+	$writer->openToFile($filelocation . $filenameExport);
 
   	 try {
 	   $conn = self::getConnection();
@@ -970,27 +928,21 @@ class ExportResultsController extends ControllerBase {
   	 }
 	$sheetIndex = 0;
 	$type = "cso";
-	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sheetIndex, $type);
+	$result = self::createExportLookupSheet($conn, $writer, $sheetIndex, $type);
 	$sheetIndex = 1;
 	$type = "cancer";
-	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sheetIndex, $type);
+	$result = self::createExportLookupSheet($conn, $writer, $sheetIndex, $type);
 	$sheetIndex = 2;
 	$type = "country";
-	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sheetIndex, $type);
+	$result = self::createExportLookupSheet($conn, $writer, $sheetIndex, $type);
 	$sheetIndex = 3;
 	$type = "currency";
-	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sheetIndex, $type);
+	$result = self::createExportLookupSheet($conn, $writer, $sheetIndex, $type);
 	$sheetIndex = 4;
 	$type = "Institution";
-	$result = self::createExportLookupSheet($conn, $objPHPExcel, $sheetIndex, $type);
+	$result = self::createExportLookupSheet($conn, $writer, $sheetIndex, $type);
 
-    $objPHPExcel->setActiveSheetIndex(0);
-
-	// Save Excel 2007 file
-	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-	$objWriter->setIncludeCharts(TRUE);
-	$objWriter->save($filelocation.$filenameExport);
-
+  	$writer->close();
     $conn = null;
 
     header('Content-Description: File Transfer');
@@ -1005,10 +957,14 @@ class ExportResultsController extends ControllerBase {
     return new BinaryFileResponse($downloadlocation.$filenameExport, 200, $headers);
   }
 
-  private function createExportLookupSheet($conn, &$objPHPExcel, $sheetIndex, $type){
+  private function createExportLookupSheet($conn, $writer, $sheetIndex, $type){
   	$result = "succeed";
+  	//based on sheetIndex to determine if file needs a new tab or not
+  	if($sheetIndex != 0){
+  		$writer->addNewSheetAndMakeItCurrent();
+  	}
   	//cso is the first sheet, do not need to create a new sheet
-	if($type == 'cso'){
+  	if($type == 'cso'){
   		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetCSOLookup");
   	}else if($type == 'cancer'){
   	  	$objWorkSheet = $objPHPExcel->createSheet();
@@ -1033,23 +989,13 @@ class ExportResultsController extends ControllerBase {
 		  $meta = $stmt->getColumnMeta($column_index);
 		  $colName[] = $meta['name'];
 		}
-		$location = "A";
-		$position = 1;
-		for($i=0; $i < sizeof($colName); $i++){
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location.$position, $colName[$i]);
-			$location++;
-		}
-		$location = "A";
-		$position = 2;
+		$writer->addRows([$cloName]);
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+			$rowData = Array();
 			for($in = 0; $in < sizeof($colName); $in++){
-				$objPHPExcel->setActiveSheetIndex($sheetIndex)
-							->setCellValue($location.$position, $row[$colName[$in]]);
-				$location++;
+				$rowData[$in] = $row[$colName[$in]];	
 			}
-			$location="A";
-			$position++;
+			$writer->addRows([$rowData]);
 		}
 		$result = "succeed";
 	}else{
@@ -1057,17 +1003,17 @@ class ExportResultsController extends ControllerBase {
 	}
 
 	if($type == 'cso'){
-  		$objPHPExcel->getActiveSheet()->setTitle('CSO Codes');
+  		$writer->getCurrentSheet()->setName('CSO Codes');
   	}else if($type == 'cancer'){
-  		$objPHPExcel->getActiveSheet()->setTitle('Disease Site Codes');
+  		$writer->getCurrentSheet()->setName('Disease Site Codes');
 
   	}else if($type == 'country'){
-  		$objPHPExcel->getActiveSheet()->setTitle('Country Codes');
+  		$writer->getCurrentSheet()->setName('Country Codes');
 
   	}else if ($type == 'currency'){
-  		$objPHPExcel->getActiveSheet()->setTitle('Currency Conversions');
+  		$writer->getCurrentSheet()->setName('Currency Conversions');
 	}else if($type == 'Institution'){
-		$objPHPExcel->getActiveSheet()->setTitle('Institution');
+		$writer->getCurrentSheet()->setName('Institution');
 	}
 
     return $result;
@@ -1081,30 +1027,31 @@ class ExportResultsController extends ControllerBase {
  	$downloadlocation = self::getBaseUrl() .  $config['download_location'];
     $filenameExport  = 'ICRPExportUploadStatus'.'.xlsx';
 
-	$objPHPExcel = new PHPExcel();
+	$shouldUseInlineStrings = true;
+	$shouldCreateSheetsAutomatically = true;
+
+	/** @var \Box\Spout\Writer\XLSX\Writer $writer */
+	$writer = WriterFactory::create(Type::XLSX);
+	$writer->setShouldUseInlineStrings($shouldUseInlineStrings);
+	$writer->setShouldCreateNewSheetsAutomatically($shouldCreateSheetsAutomatically);
+	$writer->openToFile($filelocation . $filenameExport);
 
   	 try {
 	   $conn = self::getConnection();
   	 } catch (Exception $exc) {
   	   return "Could not create db connection";
   	 }
-	$sheetIndex = 0;
-	$result = self::createUploadStatusSheet($conn, $objPHPExcel, $sheetIndex);
 
-    $objPHPExcel->setActiveSheetIndex(0);
+	$result = self::createUploadStatusSheet($conn, $writer);
 
-	// Save Excel 2007 file
-	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-	$objWriter->setIncludeCharts(TRUE);
-	$objWriter->save($filelocation.$filenameExport);
-
+	$writer->close();
     $conn = null;
 
     return self::addCorsHeaders(new JSONResponse($downloadlocation.$filenameExport));
 
   }
 
-  private function createUploadStatusSheet($conn, &$objPHPExcel, $sheetIndex){
+  private function createUploadStatusSheet($conn, $writer){
   	$result = "succeed";
 	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetDataUploadStatus");
 	if ($stmt->execute()) {
@@ -1114,31 +1061,19 @@ class ExportResultsController extends ControllerBase {
 		  $meta = $stmt->getColumnMeta($column_index);
 		  $colName[] = $meta['name'];
 		}
-		$location = "A";
-		$position = 1;
-		for($i=0; $i < sizeof($colName); $i++){
-			$objPHPExcel->setActiveSheetIndex($sheetIndex)
-						->setCellValue($location.$position, $colName[$i]);
-			$location++;
-		}
-		$location = "A";
-		$position = 2;
+		$writer->addRows([$colName]);
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
+			$rowData = Array();
 			for($in = 0; $in < sizeof($colName); $in++){
-				$objPHPExcel->setActiveSheetIndex($sheetIndex)
-							->setCellValue($location.$position, $row[$colName[$in]]);
-				$location++;
+				$rowData[$in] = $row[$colName[$in]];	
 			}
-			$location="A";
-			$position++;
+			$writer->addRows([$rowData]);
 		}
-
 		$result = "succeed";
+		$writer->getCurrentSheet()->setName('Data Upload Status Report');
 	}else{
 		$result = "failed to query server";
 	}
-	$objPHPExcel->getActiveSheet()->setTitle('Data Upload Status Report');
-
   	return $result;
   }
 
