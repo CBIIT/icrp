@@ -11,6 +11,8 @@ INSERT INTO Country
 SELECT ABBREVIATION, name
 FROM icrp.dbo.COUNTRY
 
+UPDATE COUNTRY SET Abbreviation='UK' WHERE Abbreviation = 'GB'
+
 -----------------------------
 -- State
 -----------------------------
@@ -55,6 +57,52 @@ INSERT INTO CancerType
 SELECT DISTINCT name, mappedID, ISCOMMON, ISARCHIVED, SORTORDER 
 FROM icrp.dbo.SITE 
 ORDER BY mappedid
+ 
+-----------------------------
+-- CancerTypeRollUp
+-----------------------------
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (58, 22)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (58, 25)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (58, 28)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (58, 32)
+
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (17, 13)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (17, 56)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (17, 16)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (17, 45)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (17, 21)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (17, 34)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (17, 46)
+
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (18, 10)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (18, 12)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (18, 51)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (18, 57)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (18, 60)
+
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (20, 24)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (20, 29)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (20, 33)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (20, 35)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (20, 49)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (20, 54)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (20, 55)
+
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (31, 30)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (31, 6)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (31, 37)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (31, 40)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (31, 63)
+
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (39, 26)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (39, 29)
+
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (50, 2)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (50, 23)
+
+----select icrpcode, cancertypeid from cancertype where ICRPCode in (55, 3,25)
+----select * from cancertype where ICRPCode in (12)
+
 
 -----------------------------
 -- Currency - De-dup...
@@ -130,6 +178,55 @@ WITH
 )
 GO 
 
+
+CREATE TABLE [dbo].[UploadNIHInstitution](
+institution_ICRP	[varchar](250) NOT NULL,
+city_ICRP	[varchar](250) NOT NULL,
+city_ICRP_corrected	[varchar](250) NOT NULL,
+DedupInstitution	[varchar](250) NOT NULL,
+City_Clean	[varchar](250) NOT NULL,
+State_Clean	[varchar](250) NULL,
+Country_ICRP_ISO	[varchar](250) NOT NULL,
+ID_GRID	[varchar](250) NOT NULL,
+Lat_GRID	[decimal](9,6) NULL,
+Lng_GRID [decimal](9,6) NULL,
+)
+
+GO
+
+
+BULK INSERT [UploadNIHInstitution]
+FROM 'C:\icrp\database\Migration\NIHNewInstitutions.csv'
+WITH
+(
+	FIRSTROW = 2,
+	FIELDTERMINATOR = '|',
+	ROWTERMINATOR = '\n'
+)
+GO 
+
+
+
+CREATE TABLE [dbo].[UploadNIHInstitutionName](
+institution_ICRP	[varchar](250) NOT NULL,
+city_ICRP	[varchar](250) NOT NULL,
+DedupInstitution	[varchar](250) NOT NULL,
+City_Clean	[varchar](250) NOT NULL
+)
+
+GO
+
+
+BULK INSERT [UploadNIHInstitutionName]
+FROM 'C:\icrp\database\Migration\NIHInstitutionsName.csv'
+WITH
+(
+	FIRSTROW = 2,
+	FIELDTERMINATOR = '|',
+	ROWTERMINATOR = '\n'
+)
+GO 
+
 --select * from [UploadInstitution] where institution_ICRP like 'CEA-DSV-I2BM - %'
 
  --select distinct city_clean from [UploadInstitution] where city_clean like 'Mont%'
@@ -166,6 +263,8 @@ UPDATE UploadInstitution SET DedupInstitution ='Université du Québec en Abitibi-
 
 -- Create a InstitutionMapping table to store historical Institution name+city combination (used for Data Upload)
 INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT DISTINCT institution_ICRP, City_ICRP, DedupInstitution, City_Clean  FROM UploadInstitution  -- 7123
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT DISTINCT institution_ICRP, City_ICRP, DedupInstitution, City_Clean  FROM [UploadNIHInstitution]  -- 22
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT DISTINCT institution_ICRP, City_ICRP, DedupInstitution, City_Clean  FROM [UploadNIHInstitutionName]  -- 39 Total:7183
 
 -- Manually inserted not-mapped institutions 
 INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Ente ospedaliero ""Ospedali Galliera""', 'Genova', 'Ente Ospedaliero Ospedali Galliera', 'Genoa'
@@ -192,6 +291,7 @@ INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Univ
 INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Université du Québec à Trois-Rivières (UQTR)', 'Montréal', 'Université du Québec à Trois-Rivières', 'Trois-Rivières'
 INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Université du Québec en Abitibi-Témiscamingue, Rouyn-Noranda', 'Trois-Rivières', 'Université du Québec en Abitibi-Témiscamingue', 'Rouyn-Noranda'
 
+
 -- Fix variations of NCI mappings
 UPDATE InstitutionMapping SET NewName='National Cancer Institute (NIH)', NewCity = 'Rockville' where OldName='National Cancer Institute' AND OldCity = 'Bethesda'
 UPDATE InstitutionMapping SET NewName='National Cancer Institute (NIH)', NewCity = 'Rockville' where OldName='National Cancer Institute' AND OldCity = 'Ft. Detrick'
@@ -211,10 +311,11 @@ SELECT 'Missing', 'Missing'
 
 INSERT INTO [Institution] ([Name],[City],[State],[Country],[Longitude],[Latitude],[GRID])
 SELECT DISTINCT MAX(DedupInstitution), City_Clean, MAX(State_Clean), MAX(Country_ICRP_ISO), MAX(Lng_GRID), MAX(Lat_GRID), MAX(ID_GRID)
-FROM [UploadInstitution] GROUP BY DedupInstitution, City_Clean -- 3944
+FROM [UploadInstitution] GROUP BY DedupInstitution, City_Clean -- 3941
 
--- Replace Country code from UK to GB
-UPDATE Institution SET country = 'GB' WHERE Country ='UK'
+INSERT INTO [Institution] ([Name],[City],[State],[Country],[Longitude],[Latitude],[GRID])
+SELECT DISTINCT MAX(DedupInstitution), City_Clean, MAX(State_Clean), MAX(Country_ICRP_ISO), MAX(Lng_GRID), MAX(Lat_GRID), MAX(ID_GRID)
+FROM [UploadNIHInstitution] GROUP BY DedupInstitution, City_Clean -- 21
 
 IF EXISTS (select name, city, count(*)  from [Institution] group by name, city having count(*) > 1)
 BEGIN
@@ -233,9 +334,8 @@ GO
 --DBCC CHECKIDENT ('[Institution]', RESEED, 0)
 
 -----------------------------------------
--- [PartnerApplication]
+-- [PartnerApplication]					
 -----------------------------------------
-
 PRINT 'Migrate [PartnerApplication]  ..................................'
 
 INSERT INTO [PartnerApplication]
@@ -273,7 +373,15 @@ UPDATE Partner SET JoinedDate = o.JOINDATE
 FROM Partner p
 left join (SELECT SponsorCode, min(JOINDATE) AS JOINDATE FROM icrp.dbo.tblORG group by SponsorCode) o ON p.SponsorCode = o.SPONSORCODE
 
+INSERT INTO Partner VALUES ('American Society for Radiation Oncology', 'ASTRO is the premier radiation oncology society in the world, with more than 10,000 members who are physicians, nurses, biologist, physicists, radiation therapists, dosimetrists and other health care professionals who specialize in treating patients with radiation therapies. These medical professionals, found at hospitals, cancer treatment centers and academic research facilities around the globe, make up the radiation therapy treatment teams that are critical in the fight against cancer. Together, these teams, treat more than 1 million cancer patients each year. As the leading organization in radiation oncology, the Society is dedicated to improving patient care through professional education and training, support for clinical practice and health policy standards, advancement of science and research and advocacy. ASTRO provides members with the continuing medical education, health policy analysis, patient information resources and advocacy that they need to succeed in today’s ever-changing health care delivery system. https://www.astro.org/About-ASTRO.aspx',
+'ASTRO',NULL,NULL, 'US', 'www.astro.org',NULL,NULL,NULL,'2017-3-16', getdate(), getdate())
+
 UPDATE Partner SET JoinedDate = '2014-5-15' WHERE Name ='Cancer Australia'
+UPDATE Partner SET JoinedDate = '2011-1-21' WHERE Name ='American Institute for Cancer Research'
+UPDATE Partner SET JoinedDate = '2008-5-13' WHERE Name ='AVON Foundation'
+UPDATE Partner SET JoinedDate = '2000-1-1' WHERE Name ='Oncology Nursing Society Foundation'
+
+--UPDATE Partner SET JoinedDate = '2017-3-16' WHERE Name ='American Society for Radiation Oncology'
 
 -- Update mission
 UPDATE Partner SET Description='The Canadian Cancer Research Alliance (CCRA) is an alliance of organizations that collectively fund most of the cancer research conducted in Canada. Members include federal research funding programs/agencies, provincial research agencies, provincial cancer care agencies, cancer charities, and other voluntary associations. CCRA was created with the express purpose of fostering the development of partnerships among cancer research funders and promoting the development of national research priorities. For over a decade, CCRA has provided a forum for members to identify and establish collaborations to more effectively advance cancer research and cancer control. In this capacity, CCRA serves as the coordinating voice for cancer research in Canada.  CCRA data submitted to the ICRP includes the research portfolios of key government and non-governmental cancer research funders in Canada, where the research was active on or after 1 January 2005. For more information, please visit the CCRA website. http://www.ccra-acrc.ca' WHERE SponsorCode = 'CCRA'
@@ -294,18 +402,60 @@ INSERT INTO FundingOrg
 (FundingOrgID, Name, [Abbreviation], [Country], [CURRENCY], [SponsorCode], [MemberType],[MemberStatus],[ISANNUALIZED],
 LastImportDate, CreatedDate, UpdatedDate)
 SELECT ID, NAME, [ABBREVIATION],
-	CASE [COUNTRY] WHEN 'UK' THEN 'GB' ELSE country END AS Country, 
+	CASE [COUNTRY] WHEN 'GB' THEN 'UK' ELSE country END AS Country, 
 	[CURRENCY], [SponsorCode], '', NULL, [ISANNUALIZED],[LASTDATAIMPORT], [DATEADDED], [LASTREVISED]
 FROM icrp.dbo.fundingorg
 
 SET IDENTITY_INSERT FundingOrg OFF;  -- SET IDENTITY_INSERT to ON. 
 GO 
 
+INSERT INTO FundingOrg
+(Name, [Abbreviation], [Country], [CURRENCY], [SponsorCode], [MemberType],[MemberStatus],[ISANNUALIZED],
+LastImportDate, CreatedDate, UpdatedDate)
+VALUES ('Cancer Institute New South Wales','CINSW','CA','AUD','CINSW','Partner', 'Current',0,NULL, getdate(), getdate())
+
+INSERT INTO FundingOrg
+(Name, [Abbreviation], [Country], [CURRENCY], [SponsorCode], [MemberType],[MemberStatus],[ISANNUALIZED],
+LastImportDate, CreatedDate, UpdatedDate)
+VALUES ('American Society for Radiation Oncology','ASTRO','US','USD','ASTRO','Partner', 'Current',0, NULL, getdate(), getdate())
+
+INSERT INTO FundingOrg
+(Name, [Abbreviation], [Country], [CURRENCY], [SponsorCode], [MemberType],[MemberStatus],[ISANNUALIZED],
+LastImportDate, CreatedDate, UpdatedDate)
+VALUES ('Worldwide Cancer Research','WCR','UK','GBP','NCRI','Associate', 'Current',1, NULL, getdate(), getdate())
+
 UPDATE FundingOrg SET MemberType = CASE ISNULL(p.Name, '') WHEN '' THEN 'Associate' ELSE 'Partner' END, MemberStatus='Current'
 FROM  FundingOrg f
 LEFT JOIN Partner p ON f.Name = p.Name
 
 --select * from  FundingOrg where IsDSASigned is null (Check later)
+
+-- Import Type
+CREATE TABLE [dbo].[UploadFundingOrgType](
+Name [varchar](250) NULL,
+Type	[varchar](100) NULL
+)
+
+GO
+
+
+BULK INSERT [UploadFundingOrgType]
+FROM 'C:\icrp\database\Migration\FundingOrgType.csv'
+WITH
+(
+	FIRSTROW = 2,
+	FIELDTERMINATOR = '|',
+	ROWTERMINATOR = '\n'
+)
+GO 
+
+UPDATE fundingorg SET Type = t.type
+FROM fundingOrg o
+JOIN [UploadFundingOrgType] t ON t.name =o.name 
+
+UPDATE FundingOrg SET Type = 'Non-profit' WHERE Abbreviation = 'QBCF'
+UPDATE FundingOrg SET Type = 'Government' WHERE Abbreviation = 'FRQS'
+UPDATE FundingOrg SET Type = 'Government' WHERE Abbreviation = 'DGOS'
 
 -----------------------------
 -- PartnerOrg
@@ -352,14 +502,57 @@ FROM icrp.dbo.fundingdivision
 --drop table #migratedProjectFunding
 --drop table #migrated
 --drop table [Migration_Project]
-
-DECLARE @sortedProjects TABLE (
-	[SortedProjectID] [int] IDENTITY(1,1) NOT NULL,
-	[OldProjectID] [int] NOT NULL	
+-- Update NIH project funding Amount (were $0 in the current system)
+CREATE TABLE UploadNIHFundingAmountUpdate (
+	ProjectID INT NULL,
+	AwardCode varchar(150) NULL,
+	AltAwardCode varchar(150) NULL,
+	Amount float NULL
 )
 
+GO
+
+BULK INSERT UploadNIHFundingAmountUpdate
+FROM 'C:\icrp\database\Migration\NIHFundingAmount-Update.csv'
+WITH
+(
+	FIRSTROW = 2,
+	FIELDTERMINATOR = '|',
+	ROWTERMINATOR = '\n'
+)
+GO 
+
+-- Delete not migrated projects
+CREATE TABLE UploadExcludedProjects (
+	AwardCode varchar(150) NULL,
+	AltAwardCode varchar(150) NULL
+)
+
+GO
+
+BULK INSERT UploadExcludedProjects
+FROM 'C:\icrp\database\Migration\DoNotMigratedProjects.csv'
+WITH
+(
+	FIRSTROW = 2,
+	FIELDTERMINATOR = '|',
+	ROWTERMINATOR = '\n'
+)
+GO 
+
+
+CREATE TABLE sortedProjects (
+	[SortedProjectID] [int] IDENTITY(1,1) NOT NULL,
+	[OldProjectID] [int] NOT NULL
+)
+
+--DECLARE @sortedProjects TABLE (
+--	[SortedProjectID] [int] IDENTITY(1,1) NOT NULL,
+--	[OldProjectID] [int] NOT NULL	
+--)
+
 -- sorted by code, DateStart, BUDGETSTARTDATE, ImportYear, ID
-INSERT INTO @sortedProjects SELECT ID FROM icrp.dbo.project ORDER BY code, DateStart, BUDGETSTARTDATE, ImportYear, ID
+INSERT INTO sortedProjects SELECT ID FROM icrp.dbo.project ORDER BY code, DateStart, BUDGETSTARTDATE, ImportYear, ID
 
 CREATE TABLE [dbo].[Migration_Project] (
 	[OldProjectID] [int] NOT NULL,		
@@ -368,29 +561,39 @@ CREATE TABLE [dbo].[Migration_Project] (
 	[altid] [varchar] (50) NULL,
 	[SOURCE_ID] [varchar] (50) NULL,	
 	[INTERNALCODE] [varchar] (2000) NULL,
-	[FundingOrgID] int NULL,
+	[FundingOrgID] int NULL,	
 	[IsActive] bit NULL	
 )
 
+
+----------------------------------------------------------------------------------------------------
 -- Get all unique active projects (with funding info), exclude CCRA. 
+----------------------------------------------------------------------------------------------------
 -- If multiple funding records, keep the original one 
--- Total 63,133 active project funding records (55 projects with multiple funding)
-INSERT INTO [Migration_Project] ([OldProjectID],[SponsorCode],[Code],[altid],[SOURCE_ID],[INTERNALCODE],[FundingOrgID],[IsActive])  -- 78195
+-- Total 64,154 active project funding records (55 projects with multiple funding)
+INSERT INTO [Migration_Project] ([OldProjectID],[SponsorCode],[Code],[altid],[SOURCE_ID],[INTERNALCODE],[FundingOrgID],[IsActive]) 
 SELECT MAX(p.ID) AS ProjectID, o.sponsorcode, p.code, p.altId, p.SOURCE_ID, p.INTERNALCODE, p.FundingOrgID, 1 AS IsActive
 	FROM icrp.dbo.project p   -- 206582
-	JOIN (select * from icrp.dbo.ProjectFunding where ISNULL(amount,0)<>0) f ON p.ID = f.ProjectID  -- 200937
-	join icrp.dbo.fundingorg o on p.FUNDINGORGID = o.ID  -- 200937
-	JOIN (select distinct projectid from icrp.dbo.TestProjectActive) t ON p.ID = t.PROJECTID --76665
+		JOIN (
+						SELECT ISNULL(pf.PROJECTID, u.ProjectID) AS ProjectID FROM icrp.dbo.ProjectFunding pf  
+							FULL OUTER JOIN UploadNIHFundingAmountUpdate u ON u.ProjectID = pf.ProjectID 
+		     ) f ON p.ID = f.ProjectID
+		join icrp.dbo.fundingorg o on p.FUNDINGORGID = o.ID  -- 200937
+		JOIN (select distinct projectid from icrp.dbo.TestProjectActive) t ON p.ID = t.PROJECTID 
 	WHERE o.SPONSORCODE <> 'CCRA'  -- 63140
-	GROUP BY p.code, p.altId, p.SOURCE_ID, p.INTERNALCODE, o.[SponsorCode], p.FundingOrgID  -- 63133
+	GROUP BY p.code, p.altId, p.SOURCE_ID, p.INTERNALCODE, o.[SponsorCode], p.FundingOrgID  
 	
--- Get all unique NIH inactive projects  (with funding info) should also be migrated to the new site  
---  63,437 NIH previous funding projects
+		
+----------------------------------------------------------------------------------------------------
+-- Get all unique NIH inactive projects  (with funding info) should also be migrated to the new site
+----------------------------------------------------------------------------------------------------  
+--  63,907 NIH previous funding projects
 INSERT INTO [Migration_Project]  ([OldProjectID],[SponsorCode],[Code],[altid],[SOURCE_ID],[INTERNALCODE],[FundingOrgID],[IsActive])
 SELECT DISTINCT i.ProjectID, i.sponsorcode, i.code, i.altId, i.SOURCE_ID, i.INTERNALCODE,  i.FUNDINGORGID, 0  
 FROM (SELECT MIN(p.id) AS ProjectID, p.code, p.altId, p.SOURCE_ID, p.INTERNALCODE,  o.sponsorcode, p.fundingOrgID  
 		FROM icrp.dbo.project p
-			JOIN (select * from icrp.dbo.ProjectFunding where ISNULL(amount,0)<>0) f ON p.ID = f.ProjectID
+			--JOIN (select * from icrp.dbo.ProjectFunding where ISNULL(amount,0)<>0) f ON p.ID = f.ProjectID
+			JOIN icrp.dbo.ProjectFunding f ON p.ID = f.ProjectID
 			join icrp.dbo.fundingorg o on p.FUNDINGORGID = o.ID
 			LEFT JOIN icrp.dbo.TestProjectActive a ON a.PROJECTID = p.id		 
 		WHERE o.SponsorCode = 'NIH' AND a.PROJECTID IS NULL
@@ -398,15 +601,28 @@ FROM (SELECT MIN(p.id) AS ProjectID, p.code, p.altId, p.SOURCE_ID, p.INTERNALCOD
 LEFT JOIN [Migration_Project] m ON m.Code = i.Code AND m.altid = i.altId AND m.SOURCE_ID = i.SOURCE_ID AND m.INTERNALCODE = i.INTERNALCODE AND m.FundingOrgID = i.FundingOrgID
 WHERE m.[OldProjectID] IS NULL
 
+
+-- Delete awardcode 'F32AI106058-01A1'. Per Eddie: This is a data issue. F type awards don’t last that long, and from what I can tell, this grant was never awarded any dollars.
+delete [Migration_Project] where code ='F32AI106058-01A1'
+
+--select e.*, m.* from UploadExcludedProjects e
+--LEFT JOIN [Migration_Project] m ON m.Code = e.AwardCode AND m.altid = e.AltAwardCode 
+DELETE [Migration_Project] -- remove 52 NIH Projects (QVR shows $0)
+FROM [Migration_Project] m
+JOIN UploadExcludedProjects e ON m.Code = e.AwardCode AND m.altid = e.AltAwardCode
+
+--print @@rowcount  -- 28?? should be 52
+
 -- totally 126,570 project fundings
 -- Total base projects: 104800
 
 SELECT DISTINCT s.SortedProjectID, m.SPONSORCODE, m.IsActive, p.* INTO #migratedProjectFunding
 FROM icrp.dbo.project p
 	JOIN [Migration_Project] m ON p.ID = m.[OldProjectID]
-	JOIN @sortedProjects s ON p.id = s.OldProjectID	
+	JOIN sortedProjects s ON p.id = s.OldProjectID	
 ORDER BY s.SortedProjectID
 
+--print @@rowcount 
 --select distinct code, altId, SOURCE_ID, INTERNALCODE, sponsorcode, FundingOrgID from #migratedProjectFunding --126570
 --select distinct code, sponsorcode from #migratedProjectFunding =104800
 
@@ -529,6 +745,7 @@ FROM icrp.dbo.Abstract a
 ORDER BY a.id
 
 update ProjectAbstract set TechAbstract = 'No abstract available for this Project funding.' where ProjectAbstractID =0
+update ProjectAbstract set PublicAbstract = NULL where PublicAbstract = '0'
 
 SET IDENTITY_INSERT ProjectAbstract OFF;   -- SET IDENTITY_INSERT to OFF. 
 GO  
@@ -578,7 +795,7 @@ CREATE TABLE [dbo].[Migration_ProjectFunding](
 	[OtherResearch_ID] int NULL,
 	[OtherResearch_Type] varchar(50) NULL,
 	[FundingOrgID] [int] NOT NULL,
-	[FundingDivisionID] [int] NULL,
+	[FundingDivisionID] [int] NULL,	
 	[Category] varchar(50) NULL,
 	[SponsorCode] [varchar] (100) NOT NULL,
 	[AwardCode] [varchar](500) NOT NULL,	
@@ -586,7 +803,7 @@ CREATE TABLE [dbo].[Migration_ProjectFunding](
 	[Source_ID] [varchar](50) NULL,
 	[MechanismCode] [varchar](30) NULL,
 	[MechanismTitle] [varchar](200) NULL,
-	[FundingContact] [varchar](200) NULL,	
+	[FundingContact] [varchar](75) NULL,	
 	[Amount] [float] NULL,
 	[IsAnnualized] [bit] NOT NULL,
 	[BudgetStartDate] [date] NULL,
@@ -611,6 +828,61 @@ FROM #migratedProjectFunding op   -- active projects from old icrp database
 	 LEFT JOIN Migration_Project_base bp ON bp.AwardCode = op.code AND bp.sponsorcode = op.sponsorcode
 ORDER BY bp.NewProjectID, op.sortedProjectID
 
+-- UPDATE NIH funding amount
+UPDATE [Migration_ProjectFunding] SET amount = u.amount
+FROM [Migration_ProjectFunding] m
+JOIN UploadNIHFundingAmountUpdate u ON m.[OldProjectID] = u.projectID
+
+--select * from UploadNIHFundingAmountUpdate
+
+-----------------------------
+-- Fix Budget Start/End Date issues
+-----------------------------
+
+CREATE TABLE [dbo].[UploadProjectCorrections](
+AwardCode varchar(150) NULL,
+AltAwardCode varchar(150) NULL,
+projectStartDate date NULL,
+projectEndDate date NULL,
+BudgetStartDate date NULL,
+BudgetEndDate date NULL,
+Amount float NULL,
+Type varchar(25) NULL
+)
+
+GO
+
+BULK INSERT [UploadProjectCorrections]
+FROM 'C:\icrp\database\Migration\ProjectCorrections.csv'
+WITH
+(
+	FIRSTROW = 2,
+	FIELDTERMINATOR = '|',
+	ROWTERMINATOR = '\n'
+)
+GO 
+
+
+-- Update Project dates
+UPDATE project SET projectStartDate=b.projectStartDate, projectEndDate = b.projectEndDate
+--select p.projectStartDate, p.projectEndDate, m.BudgetStartDate, m.BudgetEndDate, m.Amount
+FROM project p 
+join [Migration_ProjectFunding] m ON m.NewProjectID = p.ProjectID
+JOIN (SELECT * FROM [UploadProjectCorrections] WHERE Type='date') b ON  m.awardcode = b.awardcode and m.AltAwardCode = b.AltAwardCode
+GO
+
+-- Update Budget dates
+UPDATE [Migration_ProjectFunding] SET BudgetStartDate=b.BudgetStartDate, budgetEnddate=b.budgetEnddate
+FROM [Migration_ProjectFunding] m 
+JOIN (SELECT * FROM [UploadProjectCorrections] WHERE Type='date') b ON  m.awardcode = b.awardcode and m.AltAwardCode = b.AltAwardCode
+GO
+
+-- Update Amount
+UPDATE [Migration_ProjectFunding] SET Amount=a.Amount
+FROM [Migration_ProjectFunding] m 
+JOIN (SELECT * FROM [UploadProjectCorrections] WHERE Type='amount') a ON  m.awardcode = a.awardcode and m.AltAwardCode = a.AltAwardCode
+GO
+
 -----------------------------
 -- ProjectFunding
 -----------------------------
@@ -620,8 +892,8 @@ SET IDENTITY_INSERT ProjectFunding ON;  -- SET IDENTITY_INSERT to ON.
 GO 
 
 INSERT INTO ProjectFunding 
-([ProjectFundingID], [ProjectAbstractID], [Title],[ProjectID], [FundingOrgID], [FundingDivisionID], [Category], [AltAwardCode],	[Source_ID], [MechanismCode],[MechanismTitle],[Amount], [IsAnnualized], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate])
-SELECT [ProjectFundingID],[AbstractID], [Title], [NewProjectID], [FundingOrgID], [FundingDivisionID], [Category], [ALtAwardCode], [Source_ID],[MechanismCode], [MechanismTitle],[Amount], [IsAnnualized], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate]
+([ProjectFundingID], [ProjectAbstractID], [Title],[ProjectID], [FundingOrgID], [FundingDivisionID], [Category], [AltAwardCode],	[Source_ID], [MechanismCode],[MechanismTitle], [FundingContact],[Amount], [IsAnnualized], [BudgetStartDate],	[BudgetEndDate], [CreatedDate],[UpdatedDate])
+SELECT [ProjectFundingID],[AbstractID], [Title], [NewProjectID], [FundingOrgID], [FundingDivisionID], [Category], [ALtAwardCode], [Source_ID],[MechanismCode], [MechanismTitle],[FundingContact], [Amount], [IsAnnualized], [BudgetStartDate],[BudgetEndDate], [CreatedDate],[UpdatedDate]
 FROM [Migration_ProjectFunding]
 
 SET IDENTITY_INSERT ProjectFunding OFF;  -- SET IDENTITY_INSERT to ON. 
@@ -638,13 +910,14 @@ PRINT 'Total Imported ProjectFunding = ' + @total
 --select * from ProjectFunding  --200805
 
 GO
-	 -------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------
 -- ProjectSearch   -- 75638
 --------------------------------------------------------------------------------------------
 PRINT 'Migrate [ProjectSearch]  ..................................'
 
 INSERT INTO ProjectSearch (ProjectID, [Content])
-SELECT pf.ProjectID, '<Title>'+pf.Title + '</Title><FundingContact>'+ISNULL(pf.FungingContact,'') + '</FundingContact><TechAbstract>'
+SELECT pf.ProjectID, '<Title>'+pf.Title + '</Title><FundingContact>'+ISNULL(pf.FundingContact,'') + '</FundingContact><TechAbstract>'
 	   +a.TechAbstract + '</TechAbstract><PublicAbstract>' + ISNULL(a.PublicAbstract,'') + '</PublicAbstract>' AS Content 
 FROM (SELECT MAX(f.ProjectFundingID) AS ProjectFundingID FROM ProjectAbstract a
 	JOIN ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
@@ -657,6 +930,7 @@ SELECT @total = CAST(COUNT(*) AS varchar(10)) FROM ProjectSearch
 
 PRINT 'Total Imported ProjectSearch = ' + @total
 GO
+
 
 --------------------------------------------------------------------------------------------
 -- ProjectSearch_JP
@@ -719,44 +993,114 @@ INSERT INTO ProjectFundingExt
 SELECT m.[ProjectFundingID], a.[YEAR], a.[CALENDARAMOUNT_V2]
 FROM icrp.dbo.[TestProjectActive] a
 	JOIN [Migration_ProjectFunding] m ON a.PROJECTID = m.OldProjectID
-WHERE m.sponsorcode <> 'NIH'
+WHERE m.sponsorcode <> 'NIH' and ISNULL(a.CALENDARAMOUNT_v2,0) <> 0
 
 --delete from ProjectFundingExt
 --DBCC CHECKIDENT ('[ProjectFundingExt]', RESEED, 0)
 --select * from ProjectFundingExt  --200805
 
 -----------------------------------------
--- ProjectFunding_Investigator (check investigator)
+-- ProjectFundingInvestigator (check investigator)
 -----------------------------------------
+
 PRINT 'Migrate [ProjectFunding_Investigator]   ..................................'
 
 UPDATE [Migration_ProjectFunding] SET City = NULL where city = 'NULL' OR city = ''
 
+UPDATE InstitutionMapping SET NewName ='Hotel Dieu De Montreal', NewCity ='Montreal' WHERE OldName = 'HOTEL DIEU DE MONTREAL'
+
+UPDATE Institution SET City = 'Montréal' WHERE City IN ('Montr?al', 'Montreal', 'MontrTal','Mont-Royal')
+UPDATE Institution SET City = 'Québec' WHERE City IN ('Qu?bec', 'Qu??bec', 'Quebec', 'QuÃ©bec')
+UPDATE Institution SET City = 'Lévis' WHERE City IN ('LTvis', 'L?vis', 'Levis')
+UPDATE Institution SET City = 'Zürich' WHERE City IN ('Zurich')
+UPDATE Institution SET City = 'St. Louis' WHERE City IN ('Saint Louis', 'St Louis')
+UPDATE Institution SET City = 'Sault Ste. Marie' WHERE City IN ('Sault Ste Marie')
+UPDATE Institution SET City = 'St. Catharines' WHERE City IN ('St Catharines')
+UPDATE Institution SET City = 'Trois-Rivières' WHERE City IN ('Trois-RiviFres')
+
+UPDATE InstitutionMapping SET NewCity = 'Montréal' WHERE NewCity IN ('Montr?al', 'Montreal', 'MontrTal','Mont-Royal')
+UPDATE InstitutionMapping SET NewCity = 'Québec' WHERE NewCity IN ('Qu?bec', 'Qu??bec', 'Quebec', 'QuÃ©bec')
+UPDATE InstitutionMapping SET NewCity = 'Lévis' WHERE NewCity IN ('LTvis', 'L?vis', 'Levis')
+UPDATE InstitutionMapping SET NewCity = 'Zürich' WHERE NewCity IN ('Zurich')
+UPDATE InstitutionMapping SET NewCity = 'St. Louis' WHERE NewCity IN ('Saint Louis', 'St Louis')
+UPDATE InstitutionMapping SET NewCity = 'Sault Ste. Marie' WHERE NewCity IN ('Sault Ste Marie')
+UPDATE InstitutionMapping SET NewCity = 'St. Catharines' WHERE NewCity IN ('St Catharines')
+UPDATE InstitutionMapping SET NewCity = 'Trois-Rivières' WHERE NewCity IN ('Trois-RiviFres')
+
+UPDATE InstitutionMapping SET NewName ='Humanitas (United States)', NewCity = 'Silver Spring' WHERE NewCity = 'Silver Spring|'
+
+INSERT INTO InstitutionMapping VALUES ('Humanitas Inc.','Silver Spring','Humanitas (United States)','Silver Spring')
+INSERT INTO InstitutionMapping VALUES ('Humanitas Inc.','','Humanitas (United States)','Silver Spring')
+INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'Advanced Genetic Systems', 'Sunnyvale', 'Advanced Genetic Systems (United States)', 'San Francisco'
+
 UPDATE [Migration_ProjectFunding] SET newInstitution = m.newName, [newCity] = m.newCity 
 FROM [Migration_ProjectFunding] f
-JOIN InstitutionMapping m ON f.institution = m.oldName AND ISNULL(f.city, '') = ISNULL(m.oldCity,'')
+JOIN InstitutionMapping m ON (f.institution = m.oldName AND ISNULL(f.city, '') = ISNULL(m.oldCity,'')) OR 
+							 (f.institution = m.oldName) OR (f.institution = m.newName)
 WHERE m.newName <> m.oldName OR ISNULL(m.oldCity, '') <> ISNULL(m.newCity, '')
 
 UPDATE [Migration_ProjectFunding] SET newInstitution = 'Fox Chase Cancer Center', [newCity] = 'Philadelphia'
 FROM [Migration_ProjectFunding] 
 WHERE Institution = 'Institute for Cancer Research, Fox Chase Cancer Center'
+--select count(*) from Institution
+
+-- Manually insert the missing institutions into lookup
+INSERT INTO Institution (Name, City, State, Country) 
+SELECT distinct m.Institution, ISNULL(m.city, ''), m.state, m.country 
+FROM [Migration_ProjectFunding] m
+	 LEFT JOIN Institution i ON (i.name = m.newInstitution AND i.city = m.[newcity]) OR (i.name = m.newInstitution) 
+	 where i.institutionid is null
+
+delete Institution where name='Hotel Dieu De Montreal' and State=''
+delete Institution where name='Humanitas Inc'
 
 
 INSERT INTO ProjectFundingInvestigator 
 ([ProjectFundingID], [LastName], [FirstName], [ORC_ID], [OtherResearch_ID], [OtherResearch_Type], [IsPrivateInvestigator], InstitutionID)
 SELECT distinct m.ProjectFundingID, ISNULL(m.piLastName, '') AS LastName, m.piFirstName, m.piORC_ID, m.[OtherResearch_ID], m.OtherResearch_Type, 1 AS IsPrivateInvestigator, ISNULL(i.InstitutionID, 1) AS InstitutionID --into #tmp
 FROM [Migration_ProjectFunding] m
-	 LEFT JOIN Institution i ON i.name = m.newInstitution AND i.city = m.[newcity]
-   
+	 LEFT JOIN Institution i ON (i.name = m.newInstitution AND i.city = m.[newcity]) OR (i.name = m.newInstitution)
+	 
+-----------------------------------------------------------------
+	 --select distinct institution, city into #i2
+	 --FROM [Migration_ProjectFunding] m
+		--join projectfundinginvestigator i ON m.ProjectFUndingID = i.ProjectFUndingID 
+	 --WHERE i.institutionid =1 --PROJECTFUNDINGID in (82,150)
+
+	 --select * from #i1 a
+	 --left join #i2 b on a.institution = b.institution and a.city = b.city
+
+	 --select 'icrp', * from Migration_ProjectFunding where institution like '%Humanitas Inc%'
+	 --select 'lookup', * from institution where name like '%Humanitas %'
+	 --select 'mapping', * from institutionmapping where oldname like '%Humanitas Inc%'
+	 --select institution, city, newInstitution, newcity from  [Migration_ProjectFunding] where institution like '%Humanitas Inc%'
+	 ----94	Advanced Genetic Systems, Inc.	San Francisco	Advanced Genetic Systems (United States)	San Francisco
+
+	 --select * from UploadInstitution where institution_icrp like '%Humanitas Inc%'
+	 --select * from UploadNIHInstitution where institution_icrp like '%Humanitas Inc%'
+	 --select * from UploadNIHInstitutionName where institution_icrp like '%Humanitas Inc%' 
+	 
+	 --select top 10 * from projectfundinginvestigator
+  -- select * from icrp.dbo.project where institution like '%Advanced Genetic%' 
+  -- select * from icrp.dbo.TESTPROJECTACTIVE where projectid=148469
+  -- select * from icrp.dbo.projectfunding where projectid=148469
+    
+   ---------------------------------------------------------------------------------
+UPDATE ProjectFundingInvestigator SET ORC_ID = '0000-0001-7571-0304'
+WHERE LastName='Irwin' AND FirstName = 'Melinda'
+
  -- test
- IF EXISTs (select * from  ProjectFundingInvestigator  where ISNULL(institutionid,1) = 1)
+ declare @notmapped int
+ select @notmapped=count(*) from  ProjectFundingInvestigator  where ISNULL(institutionid,1) = 1
+ IF EXISTS (select * from  ProjectFundingInvestigator  where ISNULL(institutionid,1) = 1)
 	BEGIN
-		PRINT 'non-mapped Institutions'
+		PRINT 'non-mapped Institutions = ' + CAST (@notmapped AS varchar(10))
 		
-		SELECT distinct 'Institution not-mapped', m.Institution AS Institution_ICRP, m.city AS city_ICRP, m.NewInstitution, m.Newcity --distinct m.institution,  m.city
+		SELECT distinct 'Institution not-mapped', ISNULL(m.Institution,'') AS Institution_ICRP, ISNULL(m.city,'') AS city_ICRP, m.NewInstitution, m.Newcity --distinct m.institution,  m.city
 		FROM [Migration_ProjectFunding] m	
-			LEFT JOIN Institution i ON (i.name = m.newInstitution AND i.city = m.[newcity])  
-		WHERE i.InstitutionID is null	
+			join projectfundinginvestigator i ON m.ProjectFUndingID = i.ProjectFUndingID 
+		WHERE i.InstitutionID = 1	
+
 	 END
 	 ELSE
 		PRINT 'All ProjectFunsings are mapped to Institutions Lookup!!'	
@@ -932,6 +1276,11 @@ UPDATE CancerType Set [Description] = t.[Description], [ICD10CodeInfo]=t.[ICD10C
 FROM CancerType c
 JOIN #CancerType t ON c.ICRPCode = CAST(t.[ICRPCode] AS INT)
 
+UPDATE CancerType SET Description ='Use this code for urinary cancers other than: Bladder (3), Kidney or Wilm''s tumor (25). The computer program will automatically map these cancer sites to this category'
+WHERE Name='Urinary System'
+
+UPDATE CancerType SET Description ='Includes Kidney cancer and Wilm''s tumor (60)'
+WHERE Name='Kidney Cancer'
 
 ----------------------------
 -- Institution
@@ -1073,3 +1422,110 @@ JOIN #IncomeBand i ON m.three = i.CountryCode
 	
 SET NOCOUNT OFF
 GO
+
+
+
+-- delete NIH Special awards - SP50
+
+--begin transaction
+
+--delete projectfundingext 
+--from projectfundingext e
+--JOIN projectfunding f on f.projectfundingid = e.projectfundingid
+--where f.projectid in (7837
+--,9511
+--,9512
+--,12867
+--,13782
+--,13783
+--,14896
+--,30278)
+
+--delete projectcso 
+--from projectcso c
+--JOIN projectfunding f on f.projectfundingid = c.projectfundingid
+--where projectid in (7837
+--,9511
+--,9512
+--,12867
+--,13782
+--,13783
+--,14896
+--,30278)
+
+--delete projectcancertype
+--from projectcancertype ct
+--JOIN projectfunding f on f.projectfundingid = ct.projectfundingid
+--where projectid in (7837
+--,9511
+--,9512
+--,12867
+--,13782
+--,13783
+--,14896
+--,30278)
+
+
+--delete projectfundingInvestigator 
+--from projectfundingInvestigator i
+--JOIN projectfunding f on f.projectfundingid = i.projectfundingid
+--where projectid in (7837
+--,9511
+--,9512
+--,12867
+--,13782
+--,13783
+--,14896
+--,30278)
+
+--delete projectfunding where projectid in (7837
+--,9511
+--,9512
+--,12867
+--,13782
+--,13783
+--,14896
+--,30278)
+
+
+--delete Project_ProjectType where projectid in (7837
+--,9511
+--,9512
+--,12867
+--,13782
+--,13783
+--,14896
+--,30278)
+
+--delete project where projectid in (7837
+--,9511
+--,9512
+--,12867
+--,13782
+--,13783
+--,14896
+--,30278)
+
+
+--delete projectabstract 
+--from projectabstract a
+--join projectfunding f on a.ProjectAbstractID = f.ProjectAbstractID
+--where f.projectid in (7837
+--,9511
+--,9512
+--,12867
+--,13782
+--,13783
+--,14896
+--,30278)
+
+--delete projectsearch where projectid in (7837
+--,9511
+--,9512
+--,12867
+--,13782
+--,13783
+--,14896
+--,30278)
+
+--commit

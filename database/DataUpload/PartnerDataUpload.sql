@@ -91,6 +91,9 @@ PRINT '*************************************************************************
 --drop table #parentProjects
 --go
 
+-------------------------------------------------------------------
+-- Check AwardCode uniqueness
+-------------------------------------------------------------------
 SELECT Distinct AwardCode INTO #awardCodes FROM UploadWorkBook
 SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'
 
@@ -109,7 +112,46 @@ END
 ELSE
 	PRINT 'Checking Total parent projects = total award codes  ==> Pass'
 
+-------------------------------------------------------------------
+-- Check BudgetDates
+-------------------------------------------------------------------
+PRINT 'Checking Budget Dates........'
+
+SELECT AwardCode, AwardStartDate, AwardEndDate, BudgetStartDate, BudgetEndDate, DATEDIFF(day, BudgetStartDate, BudgetEndDate) AS duration INTO #budgetDates FROM UploadWorkBook
+
+IF EXISTS (SELECT * FROM #budgetDates WHERE duration < 2)
+BEGIN
+  PRINT 'ERROR ==> Budget Durations <= 1 day'
+  SELECT 'Budget Duration too small' AS Issue, * FROM #budgetDates WHERE duration < 2
+END
+ELSE
+BEGIN
+DECLARE @minduration int
+	SELECT @minduration = MIN(duration) FROM #budgetDates
+	PRINT 'Checking Budget Dates (MIN duration is ' + CAST (@minduration AS varchar(10)) + ' => Pass'
+END
+
 --select * from UploadWorkBook where awardcode='10238_2'
+
+	
+-------------------------------------------------------------------
+-- Check Funding Amount
+-------------------------------------------------------------------
+PRINT 'Checking Funding Amount........'
+
+SELECT AwardCode, AwardStartDate, AwardEndDate, BudgetStartDate, BudgetEndDate, AwardFunding INTO #fundingAmount FROM UploadWorkBook
+
+IF EXISTS (SELECT * FROM #fundingAmount WHERE ISNULL(AwardFunding,0) <= 0)
+BEGIN
+  PRINT 'WARNING ==> Funding Amount <= 0'
+  SELECT 'No Funding Amount' AS Issue, * FROM #fundingAmount WHERE ISNULL(AwardFunding,0) <= 0
+END
+
+ELSE
+
+BEGIN	
+	PRINT 'Checking Funding Amount => Pass'
+END
 
 -------------------------------------------------------------------
 -- Check CSO Codes
@@ -118,7 +160,7 @@ IF EXISTS (select csocodes, csorel from UploadWorkBook where ISNULL(csocodes,'')
 BEGIN
   PRINT 'ERROR ==> Missing CSO Codes'
   SELECT DISTINCT 'Missing CSO Codes' AS Issue, AwardCode, AltId from UploadWorkBook 	
-	WHERE ISNULL(csocodes,'')='' or ISNULL(csocodes,'')=''
+	WHERE ISNULL(csocodes,'')='' or ISNULL(csoRel,'')=''
 END
 ELSE
 	PRINT 'Checking Missing CSO Codes  ==> Pass'
@@ -245,15 +287,9 @@ SELECT CASE ISNULL(Childhood, '') WHEN 'y' THEN 1 ELSE 0 END,
 		AwardCode, AwardStartDate, AwardEndDate, getdate(), getdate()
 FROM #parentProjects
 
-PRINT 'Total Imported Base projects = ' + CAST(@@RowCount AS varchar(10))
-
-DECLARE @total VARCHAR(10)
-SELECT @total = CAST(COUNT(*) AS varchar(10)) FROM Project
-
-PRINT 'Total Imported CCRA Project = ' + @total
+PRINT 'Total Imported CCRA projects = ' + CAST(@@RowCount AS varchar(10))
 
 GO
-
 
 -----------------------------------
 -- Import Project Abstract
@@ -299,8 +335,6 @@ PRINT 'Total Imported ProjectAbstract = ' + @total
 
 GO
 
-GO 
-
 -----------------------------------
 -- Insert Data Upload Status
 -----------------------------------
@@ -338,11 +372,6 @@ GO
 --GO
 
 PRINT 'Total Imported CCRA ProjectFunding = ' + CAST(@@RowCount AS varchar(10))
-
-DECLARE @total VARCHAR(10)
-SELECT @total = CAST(COUNT(*) AS varchar(10)) FROM ProjectFunding
-
-PRINT 'Total Imported ProjectFunding = ' + @total
 
 GO
 
@@ -534,13 +563,82 @@ DBCC CHECKIDENT ('[ProjectSearch]', RESEED, 0)
 GO
 
 INSERT INTO ProjectSearch (ProjectID, [Content])
-SELECT MIN(f.ProjectID), TechAbstract FROM ProjectAbstract a
-	JOIN ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
-GROUP BY a.TechAbstract 
+SELECT f.ProjectID, '<Title>'+ f.Title+'</Title><FundingContact>'+ ISNULL(f.fundingContact, '')+ '</FundingContact><TechAbstract>' + a.TechAbstract  + '</TechAbstract><PublicAbstract>'+ ISNULL(a.PublicAbstract,'') +'<PublicAbstract>' 
+FROM (SELECT MAX(ProjectAbstractID) AS ProjectAbstractID FROM ProjectAbstract GROUP BY TechAbstract) ma
+	JOIN ProjectFunding f ON ma.ProjectAbstractID = f.ProjectAbstractID
+	JOIN ProjectAbstract a ON ma.ProjectAbstractID = a.ProjectAbstractID
 
 PRINT 'Total Imported ProjectSearch = ' + CAST(@@RowCount AS varchar(10))
 
---UPDATE DataUploadStatus SET [Status] = 'Complete' WHERE DataUploadStatusID= @DataUploadStatusID
-
 SET NOCOUNT OFF;  
 GO 
+
+
+
+-------------------------------------------------------------------------------------------
+-- Fix character Issues
+--------------------------------------------------------------------------------------------
+CREATE TABLE UploadWorkBookCharacterFix (	
+	AwardCode NVARCHAR(50),
+	AltId VARCHAR(50),
+	AwardTitle NVARCHAR(1000),
+	PILastName NVARCHAR(50),
+	PIFirstName NVARCHAR(50)
+)
+
+GO 
+
+--drop table UploadWorkBookCharacterFix
+BULK INSERT UploadWorkBookCharacterFix
+FROM 'C:\icrp\database\DataUpload\DataWorkbook_CA_unicode.csv'  --DataWorkbook_CA_utf8.csv'
+WITH
+(
+	FIRSTROW = 2,
+	--DATAFILETYPE ='widechar',  -- unicode format
+	FIELDTERMINATOR = '|',
+	ROWTERMINATOR = '\n'
+)
+GO  -- import errors row #: 609, 6909 (Total: 13591)
+
+UPDATE ProjectFunding SET Title = fix.AwardTitle
+FROM ProjectFunding f
+	JOIN UploadWorkBookCharacterFix fix ON f.Altawardcode = fix.AltId
+	JOIN fundingorg o ON f.fundingorgid = o.fundingorgid
+where o.sponsorcode = 'CCRA' AND fix.AwardTitle <> '#N/A'
+
+UPDATE ProjectFundingInvestigator SET FirstName = fix.PIFirstName, LastName = fix.PILastName
+FROM ProjectFunding f
+	JOIN UploadWorkBookCharacterFix fix ON f.Altawardcode = fix.AltId
+	JOIN ProjectFundingInvestigator i ON i.ProjectFundingID = f.ProjectFundingID
+	JOIN fundingorg o ON f.fundingorgid = o.fundingorgid
+where o.sponsorcode = 'CCRA'
+
+-------------------------------------------------------------------------------------------
+-- Replace open/closing double quotes
+--------------------------------------------------------------------------------------------
+UPDATE ProjectFunding SET Title = SUBSTRING(title, 2, LEN(title)-2)
+where LEFT(title, 1) = '"' AND RIGHT(title, 1) = '"'  --87
+
+UPDATE ProjectFunding SET Title = SUBSTRING(title, 2, LEN(title)-2)
+where LEFT(title, 1) = '"' AND RIGHT(title, 1) = '"'  --15
+
+UPDATE projectabstract SET techabstract = SUBSTRING(techabstract, 2, LEN(techabstract)-2)
+where LEFT(techabstract, 1) = '"' AND RIGHT(techabstract, 1) = '"'  --87
+
+UPDATE projectabstract SET publicAbstract = SUBSTRING(publicAbstract, 2, LEN(publicAbstract)-2)
+where LEFT(publicAbstract, 1) = '"' AND RIGHT(publicAbstract, 1) = '"'  --87
+
+-------------------------------------------------------------------------------------------
+-- Total Stats
+--------------------------------------------------------------------------------------------
+DECLARE @total VARCHAR(10)
+SELECT @total = CAST(COUNT(*) AS varchar(10)) FROM Project
+
+PRINT 'Total Imported Base Project = ' + @total
+
+SELECT @total = CAST(COUNT(*) AS varchar(10)) FROM ProjectFunding
+
+PRINT 'Total Imported ProjectFunding = ' + @total
+
+GO
+

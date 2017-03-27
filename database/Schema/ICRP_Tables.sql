@@ -56,6 +56,30 @@ CREATE TABLE [dbo].[CancerType](
 ) ON [PRIMARY]
 
 GO
+
+
+/****** Object:  Table [dbo].[CancerTypeRollUp]    Script Date: 12/13/2016 6:23:53 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[CancerTypeRollUp](
+	[CancerTypeRollUpID] [int] NOT NULL,
+	[CancerTypeID] [int] NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[UpdatedDate] [datetime] NOT NULL
+) ON [PRIMARY]
+
+GO
+
+ALTER TABLE [dbo].[CancerTypeRollUp] ADD  CONSTRAINT [DF_CancerTypeRollUp_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+
+ALTER TABLE [dbo].[CancerTypeRollUp] ADD  CONSTRAINT [DF_CancerTypeRollUp_UpdatedDate]  DEFAULT (getdate()) FOR [UpdatedDate]
+GO
+
+GO
 /****** Object:  Table [dbo].[Country]    Script Date: 12/13/2016 6:23:53 PM ******/
 SET ANSI_NULLS ON
 GO
@@ -430,7 +454,7 @@ CREATE TABLE [dbo].[ProjectFunding](
 	[Source_ID] [varchar](50) NULL,
 	[MechanismCode] [varchar](30) NULL,
 	[MechanismTitle] [varchar](200) NULL,	
-	[FungingContact] [varchar](200) NULL,	
+	[FundingContact] [varchar](200) NULL,	
 	[IsAnnualized] [bit] NOT NULL,  -- 1 for Annualized, 0 for Lifetime
 	[Amount] [float] NULL,
 	[BudgetStartDate] [date] NULL,
