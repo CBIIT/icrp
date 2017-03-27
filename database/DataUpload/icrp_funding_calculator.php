@@ -14,7 +14,7 @@ $password = $argv[4];
 try {
     $dbh = new PDO($target_url, $user, $password);
     $statement = $dbh->prepare("INSERT INTO ProjectFundingExt(ProjectFundingID, CalendarYear, CalendarAmount) VALUES(:id, :year, :amount)");
-    foreach($dbh->query('SELECT ProjectId, pf.ProjectFundingID, BudgetStartDate, BudgetEndDate, Amount FROM ProjectFunding pf LEFT  OUTER JOIN ProjectFundingExt pfe ON pf.ProjectFundingID = pfe.ProjectFundingID WHERE  pfe.ProjectFundingID IS NULL') as $row) {
+    foreach($dbh->query('SELECT ProjectId, pf.ProjectFundingID, BudgetStartDate, BudgetEndDate, Amount FROM ProjectFunding pf LEFT  OUTER JOIN ProjectFundingExt pfe ON pf.ProjectFundingID = pfe.ProjectFundingID WHERE  pfe.ProjectFundingID IS NULL AND pf.BudgetStartDate IS NOT NULL AND pf.BudgetEndDate IS NOT NULL AND pf.BudgetEndDate >= pf.BudgetStartDate') as $row) {
         
         $projectFundingID = $row['ProjectFundingID'];
         $start_date = strtotime($row['BudgetStartDate']);
@@ -23,13 +23,8 @@ try {
         $end_date = mktime(0, 0, 0, date("m", $end_date), date("d", $end_date), date("Y", $end_date));
         $total_amount = $row['Amount'];
         $number_of_days = ($end_date - $start_date) / (60 * 60 * 24) + 1;
-        if ($number_of_days <= 0) {
-            print "Error: Project with project funding ID " . $projectFundingID . " has a duration of " . ($number_of_days - 1) . " days. Skipping over this project.\n";
-            continue;
-        }
         $amount_per_day = $total_amount / $number_of_days;
 
-        
         // print("Start date: " . $row['BudgetStartDate'] . " | End date: " . $row['BudgetEndDate'] . " | Amount: " . $row['Amount'] . "\n");
         // print("Number of Days: " . $number_of_days . " | Amount per day: " . $amount_per_day . "\n");
         
