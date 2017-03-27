@@ -967,16 +967,12 @@ class ExportResultsController extends ControllerBase {
   	if($type == 'cso'){
   		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetCSOLookup");
   	}else if($type == 'cancer'){
-  	  	$objWorkSheet = $objPHPExcel->createSheet();
-		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetCancerTypeLookUp");
+  	 	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetCancerTypeLookUp");
   	}else if($type == 'country'){
-	  	$objWorkSheet = $objPHPExcel->createSheet();
 		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetCountryCodeLookup");
   	}else if ($type == 'currency'){
-	  	$objWorkSheet = $objPHPExcel->createSheet();
 		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetCurrencyRateLookup");
   	}else if($type == 'Institution'){
-	  	$objWorkSheet = $objPHPExcel->createSheet();
 		$stmt = $conn->prepare("SET NOCOUNT ON; exec GetInstitutionLookup");
     }else{
   		$result = "No such category for look up table";
@@ -989,7 +985,7 @@ class ExportResultsController extends ControllerBase {
 		  $meta = $stmt->getColumnMeta($column_index);
 		  $colName[] = $meta['name'];
 		}
-		$writer->addRows([$cloName]);
+		$writer->addRows([$colName]);
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($in = 0; $in < sizeof($colName); $in++){
