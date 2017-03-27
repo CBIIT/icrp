@@ -205,6 +205,7 @@ table.table-centered-header > tfoot > tr > th {
 
 footer.footer {
   background-color: #fbfbfb;
+  margin-top:0px;
 }
 
 /*
@@ -360,18 +361,6 @@ footer.footer {
   background: linear-gradient(#fdfdfd, #f9f9f9);
   box-shadow: 2px 2px 4px #eee;
   border-radius: 0px;
-}
-
-
-/** Bootstrap search-well overrides */
-
-div.search-block-form > div.search-well {
-  margin-top: -5px;
-  background: transparent;
-  background-color: transparent;
-  float: right;
-  box-shadow: none;:
-          -webkit-box-shadow none;
 }
 
 /** uaat overrides */

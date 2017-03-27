@@ -25,12 +25,8 @@ h1 {
 .logo img {
     margin-top:15px;
 }
+
 /* Membership Status - Expose Form*/
-/*
-#form-membership-status > div > div > div > div > div.select-wrapper {
-    display:inline-block;
-}
-*/
 
 #about-us-container .panel-title {
     font-size:24px;
@@ -52,7 +48,7 @@ h1 {
 #form-membership-status  .select-wrapper {
     display:inline-block;
 }
-div.main-container > div > section > div > ol {
+div.main-container > div > section > div > div > div > ol {
     list-style-type:none;
 }
 /* FAQ */
@@ -74,22 +70,6 @@ body {
     margin-top:0px;
 }
 
-
-/* Breadcrumb */
-/*.breadcrumb {
-    background-color:white;
-    margin:5px;
-    padding:5px;
-    font-size:10pt;
-}
-.breadcrumb > li + li::before {
-    content:"->";
-}
-
-.breadcrumb > li > a  {
-    color: #153670;
-}
-*/
 /* Footer Nav */
 .nav-footer-middle > ul > li {
     border-right: 1px solid #bbb;
@@ -123,6 +103,9 @@ body {
     border:1px solid #dddddd;
     border-top:0px;
     padding:15px;
+}
+.partner-content > div.tab-pane {
+    min-height:400px;
 }
 
 /* CSO Page */
@@ -183,7 +166,7 @@ body {
 /* Authenticated and Anonymous User Menu */
 #block-bootstrap-subtheme-account-menu {
     float: right;
-    margin-top:25px;
+    margin-right:18px;
 }
 #block-bootstrap-subtheme-account-menu > ul {
     list-style-type: none;
@@ -194,12 +177,24 @@ body {
     display: inline;
     padding-right: 10px;
 }
-div.search-block-form > div.search-well {
-    border:none;
-}
-.search-well {
+/* Search Well */
+.well.search-well {
     float: right;
-    height: 20px;
+    height: 60px;
+    background:white;
+    /* border:none; */
+    box-shadow: none;
+    /* From .navbar-toggle */
+    background-color: transparent;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 0;
+    float: right;
+    margin-bottom: 5.5px;
+    margin-right: 15px;
+    margin-top: 5.5px;
+    padding: 9px 10px;
+    position: relative;
 }
 .logo {
     min-width: 933px;
@@ -270,13 +265,6 @@ header {
 .layout-region-node-secondary {
     display:none;
 }
-/* Twitter Container */
-#twitter-container {
-    height:550px;
-    max-height:550px;
-    min-width:135px;
-    overflow-y:scroll;
-}
 /* Make the Footer the same style as the header */
 footer {
     background-color: #f7f7f7;
@@ -286,6 +274,7 @@ footer {
     margin-bottom: 20px;
     min-height: 20px;
     padding: 19px;
+    margin-top:5px;
 }
 /* Adjust front page container */
 
@@ -429,6 +418,47 @@ div#cso-document-container > div > h1 {
   width: 100%;
 }
 
+/* Font Awesome icons on the front page */
+.fa-stack.fa-lg {
+    margin-bottom: 5px;
+}
+.aside-title {
+    color: #3371a8;
+    font-size: 22px;
+}
+.newsletter-title{
+    padding:2px;
+    font-size:18px;
+    font-weight:bold;
+}
+.newsletter-image {
+    padding:15px;
+}
+.newsletter-description{
+    padding:5px;
+}
+.newsletter-image img {
+    box-shadow: 10px 10px 5px #888888;
+}
+
+/* Twitter Container */
+#twitter-container {
+    min-height:350px;
+    min-width:135px;
+    overflow-y:scroll;
+}
+.twitter-anonymous {
+}
+.twitter-partner {
+    height:160px;
+}
+/* First p showed up on Welcome Page */
+/*
+.field.field--name-body.field--type-text-with-summary.field--label-hidden.field--item > p {
+    height:0px;
+}
+*/
+
 /*==================================================
 =            Bootstrap 3 Media Queries             =
 ==================================================*/
@@ -441,11 +471,11 @@ div#cso-document-container > div > h1 {
         padding-left:15px;
         padding-right:15px;
     }
-    .nav-footer-middle > ul > li {
-        border-right: 0px;
+    .newsletter-image img {
+        width:180px;
     }
-    #twitter-container {
-        margin: 0 -10px;
+    .twitter-anonymous {
+        height:400px;
     }
 }
 
@@ -461,6 +491,15 @@ div#cso-document-container > div > h1 {
     #twitter-container {
         margin: 0 -10px;
     }
+    .newsletter-image img {
+        width:180px;
+    }
+    .twitter-anonymous {
+        height:500px;
+    }
+    #block-bootstrap-subtheme-account-menu {
+        margin-top:25px;
+    }
 }
 
 /* Small Devices, Tablets */
@@ -469,11 +508,14 @@ div#cso-document-container > div > h1 {
         padding-left:15px;
         padding-right:15px;
     }
-    .nav-footer-middle > ul > li {
-        border-right: 1px solid #bbb;
+    .newsletter-image img {
+        width:120px;
     }
-    .nav-footer-middle > ul > li:last-child {
-        border-right: none;
+    .twitter-anonymous {
+        height:410px;
+    }
+    #block-bootstrap-subtheme-account-menu {
+        margin-top:5px;
     }
 }
 
@@ -483,11 +525,14 @@ div#cso-document-container > div > h1 {
         padding-left:0px;
         padding-right:0px;
     }
-    .nav-footer-middle > ul > li {
-        border-right: 1px solid #bbb;
+    .newsletter-image img {
+        width:180px;
     }
-    .nav-footer-middle > ul > li:last-child {
-        border-right: none;
+    .twitter-anonymous {
+        height:365px;
+    }
+    #block-bootstrap-subtheme-account-menu {
+        margin-top:25px;
     }
 }
 
@@ -497,11 +542,11 @@ div#cso-document-container > div > h1 {
         padding-left:0px;
         padding-right:0px;
     }
-    .nav-footer-middle > ul > li {
-        border-right: 1px solid #bbb;
+    .newsletter-image img {
+        width:180px;
     }
-    .nav-footer-middle > ul > li:last-child {
-        border-right: none;
+    .twitter-anonymous {
+        height:390px;
     }
 }
 
@@ -517,37 +562,10 @@ div#cso-document-container > div > h1 {
     .front-page-banner {
         width:72%;
     }
-    .nav-footer-middle > ul > li {
-        border-right: 1px solid #bbb;
+    .newsletter-image img {
+        width:190px;
     }
-    .nav-footer-middle > ul > li:last-child {
-        border-right: none;
+    .twitter-anonymous {
+        height:475px;
     }
-}
-/* Font Awesome icons on the front page */
-.fa-stack.fa-lg {
-    margin-bottom: 5px;
-}
-.aside-title {
-    color: #3371a8;
-    font-size: 22px;
-}
-.form-item-keys {
-    width: 325px;
-}
-.newsletter-title{
-    padding:2px;
-    font-size:18px;
-    font-weight:bold;
-}
-.newsletter-image{
-    padding:15px;
-    width:190px;
-   
-}
-.newsletter-description{
-    padding:5px;
-}
-.newsletter-image img {
-    box-shadow: 10px 10px 5px #888888;
 }

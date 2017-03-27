@@ -124,12 +124,12 @@ class DatabaseSearchAPIController extends ControllerBase {
     ];
 
     foreach(array_keys($input_parameters) as $key) {
-      $value = $request->query->get($key);
+      $value = $request->query->get($key, NULL);
 //      if ($key == 'sort_column') {
 //        $value = self::$sort_column_mappings[$value];
 //      }
 
-      if ($value) {
+      if ($value != NULL) {
         $input_parameters[$key] = $value;
       }
     }
@@ -552,7 +552,7 @@ class DatabaseSearchAPIController extends ControllerBase {
       'funding_organizations' => 'SELECT FundingOrgID AS [value], Name AS [label], SponsorCode AS [group], Country AS [supergroup] from FundingOrg',
       'cancer_types'          => 'SELECT CancerTypeID AS [value], Name AS [label] FROM CancerType ORDER BY [value]',
       'project_types'         => 'SELECT ProjectType AS [value], ProjectType AS [label] FROM ProjectType',
-      'cso_research_areas'    => 'SELECT Code AS [value], Name AS [label], CategoryName AS [group], \'All Areas\' as [supergroup] FROM CSO',
+      'cso_research_areas'    => 'SELECT Code AS [value], Code + \' \' + Name AS [label], CategoryName AS [group], \'All Areas\' as [supergroup] FROM CSO WHERE isActive = 1',
     ];
 
     // map query results to field values

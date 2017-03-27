@@ -377,7 +377,8 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
 
       else if (type === 'cso_research_areas') {
         if (b.value == '0') return -999;
-        return a.value.toString().localeCompare(b.value.toString());
+        return 0; // use server-side sorted list
+//        return a.value.toString().localeCompare(b.value.toString());
       }
     }
 
@@ -427,7 +428,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
   this.form.reset();
   // set last two years
   let years = this.fields.years.filter((field, index) => {
-    if (index < 2)
+    if (index === 1 || index === 2)
       return field;
   }).map(field => field.value);
   this.form.controls['years'].patchValue(years);

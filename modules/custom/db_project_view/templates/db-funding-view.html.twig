@@ -31,10 +31,13 @@
   <dd>
     {{ funding_details.pi_name | default('Not specified')}}
     {% if funding_details.pi_orcid %}
-      <a href="https://orcid.org/{{ funding_details.pi_orcid }}" target="_blank">
+      <a href="https://orcid.org/{{ funding_details.pi_orcid }}" target="_blank" title="Visit the primary investigator's ORCiD.org profile">
         <img style="margin: 0 4px" src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="ORCiD Logo">
-        http://orcid.org/{{ funding_details.pi_orcid }}
+        {{ funding_details.pi_orcid }}
       </a>
+      <div style="display: inline-block; margin-left: 4px">
+        (ORCiD iD)
+      </div>
     {% endif %}
   </dd>
   <dt>Institution</dt>
@@ -64,7 +67,7 @@
 <hr>
 {% endif %}
 
-<h5 class="h5">Cancer Types</h5>
+<h4>Cancer Types</h4>
 <ul>
   {% for row in cancer_types %}
   <li>
@@ -75,7 +78,7 @@
 
 <hr>
 
-<h5 class="h5">Common Scientific Outline (CSO) Research Areas</h5>
+<h4>Common Scientific Outline (CSO) Research Areas</h4>
 <ul>
   {% for row in cso_research_areas %}
   <li>

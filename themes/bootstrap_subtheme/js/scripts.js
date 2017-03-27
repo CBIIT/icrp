@@ -9,6 +9,7 @@
       switch(window.location.pathname) {
         case "/":
           $.getNewsletter();
+          //console.log("You are on the / page.");
           break;
         case "/home":
           $.getNewsletter();
@@ -61,10 +62,13 @@
     return return_val;
   }
   $.getNewsletter = function() {
-    //console.log("Load the REST");
-    //TODO: Need to remove hard coded url
+    if(window.location.hostname == "localhost") {
+      host = "https://icrpartnership-dev.org";
+    } else {
+      host = window.location.protocol + "//" + window.location.hostname;
+    }
     $.ajax({
-      url: "https://icrpartnership-test.org/getLatestNewsletter"
+      url: host + "/getLatestNewsletter"
     })
     .success(function( data ) {
         $.showNewsletter(data[0]);
@@ -80,10 +84,10 @@
     var pdf = "/sites/default/files/library/uploads/"+newsletter.Filename;
     var thumbnail = "/sites/default/files/library/uploads/thumbs/"+newsletter.ThumbnailFilename;
     $('#last_newsletter').html("<div class='newsletter-title'>"+newsletter.Title+"</div>");
-    $('#last_newsletter').append("<div class='row'><div class='newsletter-image center-block'><a href='"+pdf+"' title='Latest Newsleter' target='_blank'><img src='"+thumbnail+"' /></a></div></div>");
-    $('#last_newsletter').append("<div class='newsletter-description'>"+newsletter.Description+"</div>");
-    $("#newsletter-container").show();
 
-    //console.dir(newsletter);
+    $("#last_newsletter").append("<div class='row text-center'><div class='newsletter-image'><a href='"+pdf+"' title='Latest Newsleter' target='_blank'><img class='center-block' src='"+thumbnail+"' /></a></div></div>");
+    $('#last_newsletter').append("<div class='newsletter-description'>"+newsletter.Description+"</div>");
+
+    $("#newsletter-container").show();
   }
 })(window.jQuery);

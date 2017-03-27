@@ -13,12 +13,21 @@ export class PieChart {
         let size = 400;
         let radius = size / 2;
 
+
         let arc: any = d3.arc().outerRadius(radius).innerRadius(radius/2);
         let pie = d3.pie();
 
         let color = d3.scaleOrdinal(d3.schemeCategory20c);
 
-        let sum = data.map(e => +e.value).reduce((a, b) => a + b, 0);
+        let sum = data.map(e => parseFloat((e.value).toString()) || 0).reduce((a, b) => a + b, 0);
+        let empty = data.length === 0;
+
+        if (empty) {
+            data = [{
+                value: 1,
+                label: ''
+            }]
+        }
 
         let svg = host
             .attr('width', '100%')
@@ -28,29 +37,31 @@ export class PieChart {
         
         // append individual pieces
         let path = svg.selectAll('path')
-            .data(pie(data.map(e => e.value)))
+            .data(pie(data.map(e => parseFloat(e.value.toString()) || 1)))
             .enter().append('path')
             .on('mouseover', d => {
                 let index = d.index;
                 let label = data[index].label;
-                let value = data[index].value;
+                let value = data[index].value || 0;
                 let count = data[index].count;
-
 
                 let html = `
                 <b>${label}</b>
                 <hr style="margin: 2px"/>
                 `;
 
-                if (isNaN(count)) {
-                 html += `Projects: ${Number(value).toLocaleString()} (${(100 * value/sum).toFixed(2)}%)`;
+                if (empty) {
+                    html = 'No Data Available';
+                }
+
+                else if (count === undefined) {
+                    html += `Projects: ${Number(value).toLocaleString()} (${(100 * value/sum).toFixed(2)}%)`;
                 }
 
                 else {
-                 html += `Relevance: ${(+Number(value).toFixed(2)).toLocaleString()} (${(100 * value/sum).toFixed(2)}%)`;
-
+                    html += `Relevance: ${(+Number(value).toFixed(2)).toLocaleString()} (${(100 * value/sum || 0).toFixed(2)}%)`;
                     html += `<br>`
-                 html += `Projects: ${Number(count).toLocaleString()}`;
+                    html += `Projects: ${Number(count).toLocaleString()}`;
                 }
 
 
@@ -74,10 +85,8 @@ export class PieChart {
             })
             .each(e => e)
             .attr('d', arc)
-            .style('fill', d => color(d.index.toString()))
-            
-
-
+            .style('fill', d => 
+                empty || !parseFloat(data[d.index].value.toString()) ? '#ddd' : color(d.index.toString()))
     }
 
     /**

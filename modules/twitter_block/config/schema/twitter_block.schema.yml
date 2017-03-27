@@ -2,9 +2,9 @@ block.settings.twitter_block:
   type: block_settings
   label: 'Twitter block settings'
   mapping:
-    widget_id:
+    username:
       type: string
-      label: 'Widget ID'
+      label: 'Username'
     theme:
       type: string
       label: 'Theme'

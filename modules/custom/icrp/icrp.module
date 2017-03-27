@@ -17,24 +17,6 @@ use \Drupal\icrp\Importer\OrganizationRestClient;
  *   7. #post_render
  *
  */
-function newsletter2() {
-
-    return t('Newsletter Code.');
-
-}
-
-function hello_hello_world() {
-
-    return t('Hello Drupal 8 World!');
-
-}
-function editContent() {
-    return t("You are about to review a user, congrats.");
-}
-
-function reviewUserForm($uuid) {
-    return t("You are about to review a user: ".$uuid);
-}
 /*
 function icrp_user_login($account) {
     // We want to redirect user on login.
@@ -70,6 +52,7 @@ function icrp_theme() {
 /**
  * Implements hook_form_alter().
  */
+/*
 function icrp_hook_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
     $form['link'] = array('#markup' => l(t('Link text'),'node'));
     switch ($form_id) {
@@ -99,16 +82,8 @@ function icrp_hook_form_alter(array &$form, FormStateInterface $form_state, $for
 
                 $email = $user->get('mail')->value;
                 $form['elements']['contact_us']['contact_us_container_2']['contact_us_right']['email']['#value'] = $email ;
-                //$org = $user->get('field_organization')->target_id;
-                // Org currently contains the index to the organization list - a lookup will need to be added to set organization
-                //$form['elements']['contact_us']['contact_us_container_2']['contact_us_left']['organization']['#value'] = $org ;
-                //$phone = "";
-                //$form['elements']['contact_us']['contact_us_container_2']['contact_us_right']['phone_number']['#value'] = $phone;
-                //  currently phone number is not stored with user information
             }
-
             break;
-
     }
     if ($form_id == 'user_form_what') {
         $form['#submit'][] = '_MODULE_goto';
@@ -117,24 +92,6 @@ function icrp_hook_form_alter(array &$form, FormStateInterface $form_state, $for
             '#title' => t("I agree with the website's terms and conditions."),
             '#required' => TRUE,
         );
-    }
-}
-
-/*
-function icrp_page_alter(&$) {
-
-}
-*/
-/*
-function icrp_views_pre_execute(ViewExecutable $view) {
-    // Whenever a view queries more than two tables, show a message that notifies
-    // view administrators that the query might be heavy.
-    // (This action could be performed later in the execution process, but not
-    // earlier.)
-    $account = \Drupal::currentUser();
-
-    if (count($view->query->tables) > 2 && $account->hasPermission('administer views')) {
-        drupal_set_message(t('The view %view may be heavy to execute.', array('%view' => $view->id())), 'warning');
     }
 }
 */
@@ -148,18 +105,30 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
         case 'block_content_basic_edit_form':
             if (strpos($form['info']['widget']['0']['value']['#default_value'],"Partner Home") !== false ||
                 strpos($form['info']['widget']['0']['value']['#default_value'],"ICRP Site Updated Date") !== false) {
+                if (strpos($form['info']['widget']['0']['value']['#default_value'],"Partner Home Partner Management") !== false) {
+                    $blockTitle = "Edit Project Management";
+                } else if(strpos($form['info']['widget']['0']['value']['#default_value'],"ICRP Site Updated Date") !== false) {
+                    $blockTitle = "Edit Site Updated Date";
+                } else if(strpos($form['info']['widget']['0']['value']['#default_value'],"Partner Home") !== false) {
+                    $blockTitle = "Edit " . substr($form['#title'],55);
+                } else {
+                    $blockTitle = "Edit block [" . $form['info']['widget']['0']['value']['#default_value'] . "]";
+                }
                 unset($form['revision_information']);                     // Remove Revisions section from block edit page
                 unset($form['actions']['delete']);                        // Remove Delete button from block edot page
                 unset($form['info']);                                     // Remove ablity to edit block title
-                $blockTitle = "Edit " . substr($form['#title'],55);
+
                 $form['body']['widget']['0']['#title'] = $blockTitle;     // Set Block Edit heading
+/*
                 $form['actions']['cancel'] = array(                       // Add Cancel button
                     '#type'   => 'button',
                     '#value'  => t('Cancel'),
-                    '#attributes' => array('onClick' => 'window.history.go(-1); return true;'),
+                    '#attributes' => array('onClick' => 'history.go(-1); return true;'),
                     '#weight' => 100,
                 );
+*/
             }
+
             break;
         case 'user_register_form':
             //drupal_set_message("user_register_form");

@@ -75,7 +75,10 @@ abstract class LibraryTypeBase implements
         $this->locatorFactory->createInstance('global')->locate($library);
       }
       // Also fetch version information.
-      if ($library->isInstalled() && $library instanceof VersionedLibraryInterface) {
+      if ($library instanceof VersionedLibraryInterface) {
+        // @todo Consider if this should be wrapped in some conditional logic
+        // or exception handling so that version detection errors do not
+        // prevent a library from being loaded.
         $library->getVersionDetector($this->detectorFactory)->detectVersion($library);
       }
     }

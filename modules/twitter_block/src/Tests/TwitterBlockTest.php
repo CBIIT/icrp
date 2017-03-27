@@ -42,7 +42,7 @@ class TwitterBlockTest extends WebTestBase {
       $this->drupalGet('admin/structure/block/list/' . $theme);
       // Configure and save the block.
       $this->drupalPlaceBlock('twitter_block', array(
-        'widget_id' => 600720083413962752,
+        'username' => 'drupal',
         'width' => 180,
         'height' => 200,
         'region' => 'content',
@@ -51,7 +51,7 @@ class TwitterBlockTest extends WebTestBase {
       // Set the default theme and ensure the block is placed.
       $theme_settings->set('default', $theme)->save();
       $this->drupalGet('');
-      $this->assertText('Twitter feed', 'Twitter block found');
+      $this->assertText('Tweets by @drupal', 'Twitter block found');
     }
   }
 

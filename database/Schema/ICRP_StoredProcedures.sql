@@ -155,19 +155,25 @@ AS
 			ELSE REPLACE(@terms,' ',' AND ') -- All or None	
 		END 		
 
-		DELETE FROM #proj 
-		WHERE ProjectID NOT IN 			
+		IF (@termSearchType = 'None')  ---- do not contain any words specified		
+		BEGIN
+			DELETE FROM #proj WHERE ProjectID NOT IN 			
 			(SELECT p.ProjectID FROM #Proj p
-				LEFT JOIN ProjectDocument d ON p.projectID = d.ProjectID  
-				LEFT JOIN ProjectDocument_JP jd ON p.projectID = jd.ProjectID  
-			 WHERE 	
-				---- do not contain any words specified				
-				( (@termSearchType = 'None') AND 
-				  ((NOT CONTAINS(d.content, @searchWords)) OR (NOT CONTAINS(jd.content, @searchWords)))
-				) 
-				---- COntain Any, All or Exeact words
-				OR ((CONTAINS(d.content, @searchWords)) OR (CONTAINS(jd.content, @searchWords)))  
+				LEFT JOIN ProjectSearch s ON p.projectID = s.ProjectID  			
+			 WHERE NOT CONTAINS(s.content, @searchWords)
 			)
+		END
+
+		ELSE 
+		 ---- Contain Any, All or Exeact words
+		BEGIN
+			DELETE FROM #proj WHERE ProjectID NOT IN 			
+			(SELECT p.ProjectID FROM #Proj p
+				LEFT JOIN ProjectSearch s ON p.projectID = s.ProjectID  
+			WHERE CONTAINS(s.content, @searchWords)
+			)
+		END		
+				
 	END	
 
 	----------------------------------
@@ -436,7 +442,7 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT c.categoryName, SUM(Relevance)/100 AS Relevance, count(*) AS ProjectCount INTO #stats
+	SELECT c.categoryName, CAST(SUM(Relevance)/100 AS decimal(16,2)) AS Relevance, count(*) AS ProjectCount INTO #stats
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
 		JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
@@ -460,7 +466,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectCancerTypeStatsBySearchID]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetProjectCancerTypeStatsBySearchID]
+DROP PROCEDURE [dbo].[GetProjectCancerTypeStatsBySearchID] 
 GO 
 
 CREATE PROCEDURE [dbo].[GetProjectCancerTypeStatsBySearchID]
@@ -468,19 +474,19 @@ CREATE PROCEDURE [dbo].[GetProjectCancerTypeStatsBySearchID]
 	@ResultCount INT OUTPUT  -- return the searchID		
 
 AS   
-  	------------------------------------------------------
+    	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
 	DECLARE @ProjectIDs VARCHAR(max) 
-	SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+	SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID
 	
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT c.Name AS CancerType, SUM(Relevance)/100 AS Relevance, Count(*) AS ProjectCount INTO #stats
+	SELECT c.Name AS CancerType, ISNULL(CAST(SUM(Relevance)/100 AS decimal(16,2)),0) AS Relevance, Count(*) AS ProjectCount INTO #stats
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r			
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
-		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID	
+		JOIN ProjectCancerType pc ON f.projectFundingID = pc.projectFundingID	
 		JOIN CancerType c ON c.CancerTypeID = pc.CancerTypeID	
 	GROUP BY c.Name	
 
@@ -711,7 +717,95 @@ WHERE f.ProjectFundingID = @ProjectFundingID
 
 GO
 
+-----------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetSearchCriteriaBySearchID]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
 
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetSearchCriteriaBySearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetSearchCriteriaBySearchID]
+GO 
+
+
+CREATE PROCEDURE [dbo].[GetSearchCriteriaBySearchID] 
+    @SearchID INT
+AS  
+
+DECLARE @filterList varchar(2000)
+
+SELECT * INTO #criteria FROM SearchCriteria WHERE SearchCriteriaID =@SearchID
+
+DECLARE @SearchCriteria TABLE
+(
+	[Name] varchar(50),
+	[Value] varchar(250)
+)
+
+
+IF EXISTS (SELECT * FROM #criteria WHERE TermSearchType IS NOT NULL)
+	INSERT INTO @SearchCriteria SELECT 'TermSearchType:', TermSearchType FROM #criteria
+
+IF EXISTS (SELECT * FROM #criteria WHERE Terms IS NOT NULL)
+	INSERT INTO @SearchCriteria SELECT 'Terms:', Terms FROM #criteria
+
+IF EXISTS (SELECT * FROM #criteria WHERE ProjectTypeList IS NOT NULL)
+	INSERT INTO @SearchCriteria SELECT 'ProjectType:', ProjectTypeList FROM #criteria
+
+IF EXISTS (SELECT * FROM #criteria WHERE AwardCode IS NOT NULL)
+	INSERT INTO @SearchCriteria SELECT 'AwardCode:', AwardCode FROM #criteria
+
+IF EXISTS (SELECT * FROM #criteria WHERE Institution IS NOT NULL)
+	INSERT INTO @SearchCriteria SELECT 'Institution:', Institution FROM #criteria
+
+IF EXISTS (SELECT * FROM #criteria WHERE piLastName IS NOT NULL)
+	INSERT INTO @SearchCriteria SELECT 'piLastName:', piLastName FROM #criteria
+
+IF EXISTS (SELECT * FROM #criteria WHERE piFirstName IS NOT NULL)
+	INSERT INTO @SearchCriteria SELECT 'piFirstName:', piFirstName FROM #criteria
+
+IF EXISTS (SELECT * FROM #criteria WHERE piORCiD IS NOT NULL)
+	INSERT INTO @SearchCriteria SELECT 'piORCiD', piORCiD FROM #criteria
+
+IF EXISTS (SELECT * FROM #criteria WHERE YearList IS NOT NULL)
+	INSERT INTO @SearchCriteria SELECT 'Year:', YearList FROM #criteria
+
+IF EXISTS (SELECT * FROM #criteria WHERE CityList IS NOT NULL)
+	INSERT INTO @SearchCriteria SELECT 'City:', CityList FROM #criteria
+
+IF EXISTS (SELECT * FROM #criteria WHERE StateList IS NOT NULL)
+	INSERT INTO @SearchCriteria SELECT 'State:', StateList FROM #criteria
+
+IF EXISTS (SELECT * FROM #criteria WHERE CountryList IS NOT NULL)
+	INSERT INTO @SearchCriteria SELECT 'Country:', CountryList FROM #criteria
+
+SELECT @filterList= FundingOrgList FROM #criteria WHERE SearchCriteriaID =@SearchID
+IF @filterList IS NOT NULL
+BEGIN
+	INSERT INTO @SearchCriteria VALUES ('FundingOrg:', '')
+	INSERT INTO @SearchCriteria SELECT '', SponsorCode + ' - ' + Name FROM FundingOrg WHERE FundingOrgID IN (SELECT * FROM dbo.ToIntTable(@filterList))
+END
+
+SELECT @filterList= CancerTypeList FROM #criteria WHERE SearchCriteriaID =@SearchID
+IF @filterList IS NOT NULL
+BEGIN
+	INSERT INTO @SearchCriteria VALUES ('CancerType:', '')
+	INSERT INTO @SearchCriteria SELECT '', Name FROM CancerType WHERE CancerTypeID IN (SELECT * FROM dbo.ToIntTable(@filterList))
+END
+
+SELECT @filterList= CSOList FROM #criteria WHERE SearchCriteriaID =@SearchID
+IF @filterList IS NOT NULL
+BEGIN
+	INSERT INTO @SearchCriteria VALUES ('CSO:', '')
+	INSERT INTO @SearchCriteria SELECT '', Name FROM CSO WHERE Code IN (SELECT * FROM dbo.ToStrTable(@filterList))
+END
+
+	select * from @SearchCriteria
+
+GO
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetProjectExportsBySearchID]    Script Date: 12/14/2016 4:21:37 PM ******/
@@ -728,6 +822,7 @@ GO
 
 CREATE PROCEDURE [dbo].[GetProjectExportsBySearchID]
      @SearchID INT,
+	 @IncludeAbstract INT = 0,
 	 @SiteURL varchar(50) = 'https://www.icrpartnership.org/project/'
 	 
 AS   
@@ -741,11 +836,12 @@ AS
 	-----------------------------------------------------------		
 	--  Get all related projects with dolloar amounts
 	-----------------------------------------------------------			 
-	SELECT p.ProjectID, f.ProjectFundingID, p.AwardCode, f.Title AS AwardTitle, pt.ProjectType AS AwardType, f.Source_ID, f.AltAwardCode, p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, 
-		f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
-		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency, NULL AS ToCurrency, NULL AS ToCurrencyRate,		
-		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.Name AS FundingOrg, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, '' AS FundingContact, 
-		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
+	SELECT p.ProjectID, f.ProjectFundingID, f.Title AS AwardTitle, pt.ProjectType AS AwardType, p.AwardCode, f.Source_ID, f.AltAwardCode, f.Category AS FundingCategory,
+		CASE p.IsChildhood WHEN 1 THEN 'Yes' END AS IsChildhood, 
+		p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
+		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency,
+		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.SponsorCode, o.Name AS FundingOrg, o.Type AS FundingOrgType, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, 
+		f.FundingContact, pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
 	INTO #temp
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
 		LEFT JOIN Project p ON r.ProjectID = p.ProjectID
@@ -764,13 +860,25 @@ AS
 	DECLARE   @PivotColumns AS NVARCHAR(MAX)  	
 
 	--Get unique values of pivot column  
-	SELECT   @PivotColumns= COALESCE(@PivotColumns + ',','') + QUOTENAME(calendaryear)
-	FROM (SELECT DISTINCT calendaryear FROM [dbo].[projectfundingext]) AS p	 
+	SELECT   @PivotColumns= COALESCE(@PivotColumns + ',','') + QUOTENAME(calendaryear) FROM 
+	(
+		SELECT DISTINCT calendaryear FROM [dbo].[projectfundingext] e
+		JOIN #temp t ON  e.projectfundingid = t.projectfundingid
+	) AS p	 
+	ORDER BY p.CalendarYear	 
+
  
 	--Create the dynamic query with all the values for pivot column at runtime
-	SET   @SQLQuery = 
-		N'SELECT * '+
-		'FROM (SELECT t.*, calendaryear, calendaramount FROM projectfundingext ext
+	SET   @SQLQuery = N'SELECT * FROM (SELECT t.ProjectID AS ICRPProjectID, t.ProjectFundingID AS ICRPProjectFundingID, t.AwardTitle, t.AwardType, 
+		t.AwardCode, t.Source_ID, t.AltAwardCode, t.FundingCategory,
+		t.IsChildhood, t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate,  t.BudgetEndDate, t.AwardAmount, t.FundingIndicator, t.Currency, 
+		t.FundingMechanism, t.FundingMechanismCode, t.SponsorCode, t.FundingOrg, t.FundingOrgType, t.FundingDiv, t.FundingDivAbbr, t.FundingContact, 
+		t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.icrpURL,'
+
+	IF @IncludeAbstract = 1
+		SET @SQLQuery = @SQLQuery + ' t.TechAbstract,'
+
+	SET @SQLQuery = @SQLQuery + ' calendaryear, calendaramount FROM projectfundingext ext
 				JOIN #temp t ON ext.ProjectFundingID = t.ProjectFundingID    
 				) cal			
 		PIVOT( SUM(calendaramount) 
@@ -980,6 +1088,7 @@ GO
 
 CREATE  PROCEDURE [dbo].[GetProjectExportsSingleBySearchID]
   @SearchID INT,
+  @IncludeAbstract bit  = 0,
   @SiteURL varchar(50) = 'https://www.icrpartnership.org/project/'
 	 
 AS   
@@ -992,11 +1101,12 @@ AS
 		
 	-----------------------------------------------------------		
 	--  Get all related projects with dolloar amounts
-	-----------------------------------------------------------			 
-	SELECT p.ProjectID, f.ProjectFundingID, p.AwardCode, f.Title AS AwardTitle, pt.ProjectType AS AwardType, f.Source_ID, f.AltAwardCode, p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, 
-		f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
-		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency, NULL AS ToCurrency, NULL AS ToCurrencyRate,		
-		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.Name AS FundingOrg, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, '' AS FundingContact, 
+	-----------------------------------------------------------
+	SELECT p.ProjectID, f.ProjectFundingID, f.Title AS AwardTitle, pt.ProjectType AS AwardType, p.AwardCode, f.Source_ID, f.AltAwardCode, f.Category AS FundingCategory,
+		CASE p.IsChildhood WHEN 1 THEN 'Yes' END AS IsChildhood, 
+		p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
+		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency, 
+		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.SponsorCode, o.Name AS FundingOrg, o.Type AS FundingOrgType, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, '' AS FundingContact, 
 		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
 	INTO #temp
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
@@ -1012,29 +1122,76 @@ AS
 	-----------------------------------------------------------		
 	--  Get all calendar amounts and convert them to columns
 	-----------------------------------------------------------		 	 
+-----------------------------------------------------------		
+	--  Get all calendar amounts and convert them to columns
+	-----------------------------------------------------------		 	 
 	DECLARE   @SQLQuery AS NVARCHAR(MAX)
-	DECLARE   @PivotColumns AS NVARCHAR(MAX)  	
+	DECLARE   @PivotColumns_Years AS NVARCHAR(MAX)  
+	DECLARE   @PivotColumns_CSOs AS NVARCHAR(MAX)  
+	DECLARE   @PivotColumns_CancerTypes AS NVARCHAR(MAX) 
 
 	--Get unique values of pivot column  
-	SELECT   @PivotColumns= COALESCE(@PivotColumns + ',','') + QUOTENAME(calendaryear)
-	FROM (SELECT DISTINCT calendaryear FROM [dbo].[projectfundingext]) AS p	 
- 
+	SELECT   @PivotColumns_Years= COALESCE(@PivotColumns_Years + ',','') + QUOTENAME(calendaryear) FROM 
+	(
+		SELECT DISTINCT calendaryear FROM [dbo].[projectfundingext] e
+		JOIN #temp t ON  e.projectfundingid = t.projectfundingid
+	) AS p	 
+	ORDER BY p.CalendarYear	 
+
+	SELECT @PivotColumns_CSOs= COALESCE(@PivotColumns_CSOs + ',','') + QUOTENAME(cso) FROM 
+	(
+		SELECT DISTINCT c.Code + ' ' + c.Name AS cso FROM [dbo].[projectCSO] pc
+		JOIN CSO c ON pc.CSOCode = c.code
+		JOIN #temp t ON  pc.projectfundingid = t.projectfundingid
+	) AS p	 
+	ORDER BY p.cso
+
+	SELECT   @PivotColumns_CancerTypes= COALESCE(@PivotColumns_CancerTypes + ',','') + QUOTENAME(CancerType) FROM 
+	(
+		SELECT DISTINCT c.Name AS CancerType FROM (SELECT * FROM [dbo].[ProjectCancerType] where isnull(relevance, 0) <> 0) pc
+		JOIN CancerType c ON c.CancerTypeID = pc.CancerTypeID	
+		JOIN #temp t ON  pc.projectfundingid = t.projectfundingid
+	) AS p	 
+	ORDER BY p.CancerType
+
 	--Create the dynamic query with all the values for pivot column at runtime
-	SET   @SQLQuery = 
-		N'SELECT * '+
-		'FROM (SELECT t.*, calendaryear, calendaramount FROM projectfundingext ext
-				JOIN #temp t ON ext.ProjectFundingID = t.ProjectFundingID    
-				) cal			
-		PIVOT( SUM(calendaramount) 
-			  FOR calendaryear IN (' + @PivotColumns + ')) AS P'
+	SET   @SQLQuery = N'SELECT * '+
+		'FROM (SELECT t.ProjectID AS ICRPProjectID, t.ProjectFundingID AS ICRPProjectFundingID, t.AwardCode, t.AwardTitle, t.AwardType, t.Source_ID, t.AltAwardCode, FundingCategory, IsChildhood,
+				t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate, t.BudgetEndDate, t.AwardAmount, t.FundingIndicator, t.Currency, t.FundingMechanism, t.FundingMechanismCode, SponsorCode, t.FundingOrg, FundingOrgType,
+				t.FundingDiv, t.FundingDivAbbr, t.FundingContact, t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.icrpURL,'
+	IF @IncludeAbstract = 1
+		SET @SQLQuery = @SQLQuery + ' t.TechAbstract,'
 
+		SET @SQLQuery = @SQLQuery +  N'calendaryear, calendaramount, cso.code + '' '' + cso.Name AS cso, pcso.Relevance AS csoRel, c.Name AS CancerType, pc.Relevance AS CancerTypeRel
+				FROM projectfundingext ext
+					JOIN #temp t ON ext.ProjectFundingID = t.ProjectFundingID   
+					JOIN ProjectCSO pcso ON ext.projectFundingID = pcso.projectFundingID
+					JOIN CSO cso ON pcso.CSOCode = cso.Code
+					JOIN ProjectCancerType pc ON ext.projectFundingID = pc.projectFundingID
+					JOIN CancerType c ON pc.CancerTypeID = c.CancerTypeID    
+				) exp			
+		PIVOT
+		( 
+			SUM(calendaramount) 
+			  FOR calendaryear IN (' + @PivotColumns_Years + ')
+		) AS amount
+
+		PIVOT
+		( 
+			MAX(csoRel)
+			  FOR cso IN  (' + @PivotColumns_CSOs + ')
+		) AS c
+
+		PIVOT
+		( 
+			MAX(CancerTypeRel)
+			  FOR CancerType IN (' + @PivotColumns_CancerTypes + ')
+		) AS cancer'
+		
 	----Execute dynamic query	
-	EXEC sp_executesql @SQLQuery
-    											  							  
+	EXEC sp_executesql @SQLQuery  
+    											  
 GO
-
-
-
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetDataUploadStatus]    Script Date: 12/14/2016 4:21:37 PM ******/
@@ -1152,7 +1309,7 @@ CREATE  PROCEDURE [dbo].[GetCSOLookup]
     
 AS   
 
-SELECT CategoryName, Code, Name
+SELECT CategoryName, Code, Name, Code + '  ' + Name AS DisplayName
 FROM CSO
 WHERE IsActive = 1
 ORDER BY Code

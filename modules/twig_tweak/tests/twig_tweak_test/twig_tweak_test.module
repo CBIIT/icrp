@@ -23,5 +23,5 @@ function twig_tweak_test_theme() {
  * Prepares variables for twig-tweak-test template.
  */
 function template_preprocess_twig_tweak_test(&$vars) {
-  $vars['node'] = $node = Drupal::routeMatch()->getParameter('node');
+  $vars['node'] = Drupal::routeMatch()->getParameter('node');
 }
