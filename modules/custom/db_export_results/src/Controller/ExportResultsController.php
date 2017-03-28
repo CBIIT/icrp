@@ -113,16 +113,16 @@ class ExportResultsController extends ControllerBase {
 		$writer->addRowsWithStyle([$header], $style);
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$rowData = Array();
-			$rowData[0] = $row['Title'].toString();
-			$rowData[1] = $row['piFirstName'].toString();
-			$rowData[2] = $row['piLastName'].toString();
-			$rowData[3] = $row['institution'].toString();
-			$rowData[4] = $row['City'].toString();
-			$rowData[5] = $row['State'].toString();
-			$rowData[6] = $row['country'].toString();
-			$rowData[7] = $row['FundingOrg'].toString();
-			$rowData[8] = $row['AwardCode'].toString();
-			$rowData[9] = $viewLink . $row['ProjectID'].toString();
+			$rowData[0] = (string)$row['Title'];
+			$rowData[1] = (string)$row['piFirstName'];
+			$rowData[2] = (string)$row['piLastName'];
+			$rowData[3] = (string)$row['institution'];
+			$rowData[4] = (string)$row['City'];
+			$rowData[5] = (string)$row['State'];
+			$rowData[6] = (string)$row['country'];
+			$rowData[7] = (string)$row['FundingOrg'];
+			$rowData[8] = (string)$row['AwardCode'];
+			$rowData[9] = (string)$viewLink . $row['ProjectID'];
 			$writer->addRowsWithStyle([$rowData], $style);
 		}
 		$result = "succeed";
@@ -250,7 +250,7 @@ class ExportResultsController extends ControllerBase {
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($i = 0; $i < $arrayLength; $i++){
-				$rowData[$i] = $row[$colName[$i]].toString();
+				$rowData[$i] = (string)$row[$colName[$i]];
 			}
 			$writer->addRowsWithStyle([$rowData], $style);
 		}
@@ -282,13 +282,13 @@ class ExportResultsController extends ControllerBase {
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$rowData = Array();	
 			if($isPublic){
-				$rowData[0] = $row['ProjectID'].toString();
-				$rowData[1] = $row['CancerType'].toString();
+				$rowData[0] = (string)$row['ProjectID'];
+				$rowData[1] = (string)$row['CancerType'];
 				$writer->addRowsWithStyle([$rowData], $style);
 			}else{
-				$rowData[0] = $row['ProjectID'].toString();
-				$rowData[1] = $row['CancerType'].toString();
-				$rowData[2] = $row['Relevance'].toString();
+				$rowData[0] = (string)$row['ProjectID'];
+				$rowData[1] = (string)$row['CancerType'];
+				$rowData[2] = (string)$row['Relevance'];
 				$writer->addRowsWithStyle([$rowData], $style);
 			}
 		}
@@ -323,13 +323,13 @@ class ExportResultsController extends ControllerBase {
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$rowData = Array();
 			if($isPublic){
-				$rowData[0] = $row['ProjectID'].toString();
-				$rowData[1] = $row['CSOCode'].toString();
+				$rowData[0] = (string)$row['ProjectID'];
+				$rowData[1] = (string)$row['CSOCode'];
 				$writer->addRowsWithStyle([$rowData], $style);
 			}else{
-				$rowData[0] = $row['ProjectID'].toString();
-				$rowData[1] = $row['CSOCode'].toString();
-				$rowData[2] = $row['CSORelevance'].toString();
+				$rowData[0] = (string)$row['ProjectID'];
+				$rowData[1] = (string)$row['CSOCode'];
+				$rowData[2] = (string)$row['CSORelevance'];
 				$writer->addRowsWithStyle([$rowData], $style);
 			 }
 		}
@@ -369,8 +369,8 @@ class ExportResultsController extends ControllerBase {
 	if ($stmt->execute()){
 	   while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 	   		$rowData = Array();
-	   		$rowData[0] = $row['Name'].toString();
-    		$rowData[1] = $row['Value'].toString();
+	   		$rowData[0] = (string)$row['Name'];
+    		$rowData[1] = (string)$row['Value'];
 		    $writer->addRowsWithStyle([$rowData], $style);
 	   }
 	   $result = "succeed";
@@ -883,7 +883,7 @@ class ExportResultsController extends ControllerBase {
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($i = 0; $i < $arrayLength; $i++){
-				$rowData[$i] = $row[$colName[$i]].toString();
+				$rowData[$i] = (string)$row[$colName[$i]];
 			}	
 			$writer->addRowsWithStyle([$rowData], $style);
 		}
@@ -1016,7 +1016,7 @@ class ExportResultsController extends ControllerBase {
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($in = 0; $in < sizeof($colName); $in++){
-				$rowData[$in] = $row[$colName[$in]].toString();	
+				$rowData[$in] = (string)$row[$colName[$in]];	
 			}
 			$writer->addRowsWithStyle([$rowData], $style);
 		}
@@ -1092,7 +1092,7 @@ class ExportResultsController extends ControllerBase {
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($in = 0; $in < sizeof($colName); $in++){
-				$rowData[$in] = $row[$colName[$in]].toString();	
+				$rowData[$in] = (string)$row[$colName[$in]];	
 			}
 			$writer->addRowsWithStyle([$rowData], $style);
 		}
