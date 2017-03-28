@@ -100,10 +100,23 @@ AS
 	-------------------------------------------------------------------------
 	IF @cancerTypeList  IS NOT NULL
 	BEGIN
+		-- include all related cancertype IDs if search by roll-up cancer type 
+		SELECT l.CancerTypeID, r.CancerTypeID AS RelatedCancerTypeID INTO #ct 
+			FROM (SELECT VALUE AS CancerTypeID FROM dbo.ToIntTable(@cancerTypeList)) l
+			LEFT JOIN CancerTypeRollUp r ON l.cancertypeid = r.CancerTyperollupID
+
+		SELECT DISTINCT cancertypeid INTO #ctlist FROM
+		(
+			SELECT cancertypeid FROM #ct
+			UNION
+			SELECT Relatedcancertypeid AS cancertypeid FROM #ct WHERE Relatedcancertypeid IS NOT NULL
+		) ct
+
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 			
 			(SELECT p.ProjectID FROM #Proj p
-			JOIN ProjectCancerType ct ON p.ProjectFundingID = ct.ProjectFundingID WHERE CancerTypeID IN (SELECT * FROM dbo.ToIntTable(@cancerTypeList)))
+			JOIN ProjectCancerType ct ON p.ProjectFundingID = ct.ProjectFundingID WHERE CancerTypeID IN (SELECT CancerTypeID FROM #ctlist))
+
 	END
 
 	-------------------------------------------------------------------------
@@ -1440,4 +1453,36 @@ ORDER BY [ReceivedDate] DESC
 
 GO
 
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[DeleteOldSearchResults]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DeleteOldSearchResults]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[DeleteOldSearchResults]
+GO 
+
+CREATE  PROCEDURE [dbo].[DeleteOldSearchResults]
+
+AS
+
+
+SELECT c.SearchCriteriaID INTO #old 
+FROM searchresult r
+	join searchCriteria c ON r.SearchCriteriaID = c.SearchCriteriaID
+WHERE  ISNULL(IsEmailSent, 0) = 0 OR DATEDIFF(DAY, c.SearchDate, getdate()) > 7
+
+DELETE searchresult
+WHERE  SearchCriteriaID IN (SELECT SearchCriteriaID FROM #old)
+
+DELETE searchCriteria
+WHERE  SearchCriteriaID IN (SELECT SearchCriteriaID FROM #old)
+
+GO
 

@@ -51,7 +51,7 @@ ICRP Code|ICD-10-Code|Description
 17|C57|Use this code for genital system, female cancers other than: Cervical (9), Endometrial (11), Ovarian (66), Vaginal (57), Vulva (101). The computer program will automatically map these sites to this category.
 19|C63|Use this code for genital system, male cancers other than: Penile (39), Prostate (42), Testicular (52) cancers. The computer program will automatically map these cancer sites to this category.
 21|C76.0|Use this code for head and neck cancers other than: Laryngeal (26), Nasal Cavity and Paranasal Sinus (31), Oral Cavity and Lip (36), Parathyroid (38), Pharyngeal (61), Salivary Gland (63), and Thyroid (54) cancers. The computer program will automatically map these cancer sites to this category.
-33||Use this for nervous system cancers other than: Brain (6), Eye (16), Neuroblastoma (32), Pituitary (40), Primary CNS Lymphoma (104) and Retinoblastoma (45). The computer program will automatically map these cancers to this category.
+33||Use this for nervous system cancers other than: Brain (6), Eye (13), Neuroblastoma (32), Pituitary (40), Primary CNS Lymphoma (104) and Retinoblastoma (45). The computer program will automatically map these cancers to this category.
 2||Includes fundamental research (fluids, secretions, milk lymph, blood components, cell lines and cell fractions, etc.) and research that applies to all types of cancer.
 43|C39|Use this code for respiratory cancers other than: Lung (28), Nasal Cavity & Paranasal Sinus (31) cancers. The computer program will automatically map these cancers to this category.
 55|C65, C66, C68|Use this code for urinary cancers other than: Bladder (3), Kidney or Wilms? tumor (25). The computer program will automatically map these cancer sites to this category.

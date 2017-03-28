@@ -57,10 +57,14 @@ INSERT INTO CancerType
 SELECT DISTINCT name, mappedID, ISCOMMON, ISARCHIVED, SORTORDER 
 FROM icrp.dbo.SITE 
 ORDER BY mappedid
+
+update ProjectCancerType set CancerTypeID=8 where CancerTypeID=9
+delete CancerType where CancerTypeID=9
  
 -----------------------------
 -- CancerTypeRollUp
 -----------------------------
+
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (58, 22)
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (58, 25)
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (58, 28)
@@ -74,11 +78,17 @@ INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (17, 21)
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (17, 34)
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (17, 46)
 
+--Genital System, Female
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (18, 10)
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (18, 12)
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (18, 51)
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (18, 57)
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (18, 60)
+
+-- Genital System, Male
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (19, 36)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (19, 38)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (19, 47)
 
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (20, 24)
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (20, 29)
@@ -90,6 +100,7 @@ INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (20, 55)
 
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (31, 30)
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (31, 6)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (31, 15)
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (31, 37)
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (31, 40)
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (31, 63)
@@ -97,7 +108,7 @@ INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (31, 63)
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (39, 26)
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (39, 29)
 
-INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (50, 2)
+INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (50, 3)
 INSERT INTO CancerTypeRollUp (CancerTypeRollUpID, CancerTypeID) VALUES (50, 23)
 
 ----select icrpcode, cancertypeid from cancertype where ICRPCode in (55, 3,25)
