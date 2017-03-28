@@ -113,16 +113,16 @@ class ExportResultsController extends ControllerBase {
 		$writer->addRowsWithStyle([$header], $style);
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$rowData = Array();
-			$rowData[0] = (string)$row['Title'];
-			$rowData[1] = (string)$row['piFirstName'];
-			$rowData[2] = (string)$row['piLastName'];
-			$rowData[3] = (string)$row['institution'];
-			$rowData[4] = (string)$row['City'];
-			$rowData[5] = (string)$row['State'];
-			$rowData[6] = (string)$row['country'];
-			$rowData[7] = (string)$row['FundingOrg'];
-			$rowData[8] = (string)$row['AwardCode'];
-			$rowData[9] = (string)$viewLink . $row['ProjectID'];
+			$rowData[0] = $row['Title'];
+			$rowData[1] = $row['piFirstName'];
+			$rowData[2] = $row['piLastName'];
+			$rowData[3] = $row['institution'];
+			$rowData[4] = $row['City'];
+			$rowData[5] = $row['State'];
+			$rowData[6] = $row['country'];
+			$rowData[7] = $row['FundingOrg'];
+			$rowData[8] = $row['AwardCode'];
+			$rowData[9] = $viewLink . $row['ProjectID'];
 			$writer->addRowsWithStyle([$rowData], $style);
 		}
 		$result = "succeed";
@@ -250,7 +250,7 @@ class ExportResultsController extends ControllerBase {
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($i = 0; $i < $arrayLength; $i++){
-				$rowData[$i] = (string)$row[$colName[$i]];
+				$rowData[$i] = $row[$colName[$i]];
 			}
 			$writer->addRowsWithStyle([$rowData], $style);
 		}
@@ -282,13 +282,13 @@ class ExportResultsController extends ControllerBase {
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$rowData = Array();	
 			if($isPublic){
-				$rowData[0] = (string)$row['ProjectID'];
-				$rowData[1] = (string)$row['CancerType'];
+				$rowData[0] = $row['ProjectID'];
+				$rowData[1] = $row['CancerType'];
 				$writer->addRowsWithStyle([$rowData], $style);
 			}else{
-				$rowData[0] = (string)$row['ProjectID'];
-				$rowData[1] = (string)$row['CancerType'];
-				$rowData[2] = (string)$row['Relevance'];
+				$rowData[0] = $row['ProjectID'];
+				$rowData[1] = $row['CancerType'];
+				$rowData[2] = $row['Relevance'];
 				$writer->addRowsWithStyle([$rowData], $style);
 			}
 		}
@@ -323,13 +323,13 @@ class ExportResultsController extends ControllerBase {
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$rowData = Array();
 			if($isPublic){
-				$rowData[0] = (string)$row['ProjectID'];
-				$rowData[1] = (string)$row['CSOCode'];
+				$rowData[0] = $row['ProjectID'];
+				$rowData[1] = $row['CSOCode'];
 				$writer->addRowsWithStyle([$rowData], $style);
 			}else{
-				$rowData[0] = (string)$row['ProjectID'];
-				$rowData[1] = (string)$row['CSOCode'];
-				$rowData[2] = (string)$row['CSORelevance'];
+				$rowData[0] = $row['ProjectID'];
+				$rowData[1] = $row['CSOCode'];
+				$rowData[2] = $row['CSORelevance'];
 				$writer->addRowsWithStyle([$rowData], $style);
 			 }
 		}
@@ -369,8 +369,8 @@ class ExportResultsController extends ControllerBase {
 	if ($stmt->execute()){
 	   while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 	   		$rowData = Array();
-	   		$rowData[0] = (string)$row['Name'];
-    		$rowData[1] = (string)$row['Value'];
+	   		$rowData[0] = $row['Name'];
+    		$rowData[1] = $row['Value'];
 		    $writer->addRowsWithStyle([$rowData], $style);
 	   }
 	   $result = "succeed";
@@ -883,7 +883,7 @@ class ExportResultsController extends ControllerBase {
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($i = 0; $i < $arrayLength; $i++){
-				$rowData[$i] = (string)$row[$colName[$i]];
+				$rowData[$i] = $row[$colName[$i]];
 			}	
 			$writer->addRowsWithStyle([$rowData], $style);
 		}
@@ -1016,7 +1016,7 @@ class ExportResultsController extends ControllerBase {
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($in = 0; $in < sizeof($colName); $in++){
-				$rowData[$in] = (string)$row[$colName[$in]];	
+				$rowData[$in] = $row[$colName[$in]];	
 			}
 			$writer->addRowsWithStyle([$rowData], $style);
 		}
@@ -1092,7 +1092,7 @@ class ExportResultsController extends ControllerBase {
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($in = 0; $in < sizeof($colName); $in++){
-				$rowData[$in] = (string)$row[$colName[$in]];	
+				$rowData[$in] = $row[$colName[$in]];	
 			}
 			$writer->addRowsWithStyle([$rowData], $style);
 		}

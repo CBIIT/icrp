@@ -32,6 +32,7 @@ use Box\Spout\Writer\WriterFactory;
 use Box\Spout\Writer\XLSX\Internal\Worksheet;
 use Box\Spout\Writer\XLSX\Writer;
 use Box\Spout\Common\Type;
+use Box\Spout\Writer\Style\StyleBuilder;
 
  /** Error reporting */
 error_reporting(E_ALL);
@@ -42,7 +43,7 @@ ini_set('display_startup_errors', TRUE);
 define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
 
 class ExportLoadResultsController extends ControllerBase {
-
+ 		  
   /**
   * Adds CORS Headers to a response
   */
@@ -87,7 +88,7 @@ class ExportLoadResultsController extends ControllerBase {
 	$result = self::createCSOSheet($conn, $writer, $sid, $isPublic);
     $result = self::createSiteSheet($conn, $writer, $sid, $isPublic);
 	$result = self::createCriteriaSheet($conn, $writer, $sid);
-
+	
 	$writer->close();
     $conn = null;
 
@@ -95,7 +96,11 @@ class ExportLoadResultsController extends ControllerBase {
   }
 
   private function createExportPublicSheet($conn, $writer, $sid){
-    $result = "";
+	$result = "";
+	$style = (new StyleBuilder())
+  	 		  ->setShouldWrapText(false)
+  	 		  ->build();
+   
     $header = ['Title', 'PI First Name', 'PI Last Name', 'Institution', 'City', 'State', 'Country', 'Funding Organization', 'Award Code', 'View in ICRP'];
 
     $url = self::getBaseUrl();
@@ -105,7 +110,7 @@ class ExportLoadResultsController extends ControllerBase {
 	$stmt->bindParam(':search_id_name', $sid);
 	$stmt->bindParam(':result_count', $result_count, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
 	if ($stmt->execute()) {
-		$writer->addRows([$header]);
+		$writer->addRowsWithStyle([$header], $style);
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$rowData = Array();
 			$rowData[0] = $row['Title'];
@@ -118,7 +123,7 @@ class ExportLoadResultsController extends ControllerBase {
 			$rowData[7] = $row['FundingOrg'];
 			$rowData[8] = $row['AwardCode'];
 			$rowData[9] = $viewLink . $row['ProjectID'];
-			$writer->addRows([$rowData]);
+			$writer->addRowsWithStyle([$rowData], $style);
 		}
 		$result = "succeed";
 	    $writer->getCurrentSheet()->setName('Search Result');
@@ -214,6 +219,10 @@ class ExportLoadResultsController extends ControllerBase {
 
   private function createExportDataforPartner($conn, $writer, $sid, $withAbstract){
 	$result = "success";
+	$style = (new StyleBuilder())
+  	 	   ->setShouldWrapText(false)
+  	 	   ->build();
+
     $abstract = 0;
 	$url = self::getBaseUrl();
 	$viewLink = $url . "project/";
@@ -235,7 +244,7 @@ class ExportLoadResultsController extends ControllerBase {
 		  $colName[] = $meta['name'];
 		}
 		//add header to Excel file
-		$writer->addRows([$colName]);
+		$writer->addRowsWithStyle([$colName], $style);
 		$arrayLength = sizeof($colName);
 		//add content to Excel file
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
@@ -243,7 +252,7 @@ class ExportLoadResultsController extends ControllerBase {
 			for($i = 0; $i < $arrayLength; $i++){
 				$rowData[$i] = $row[$colName[$i]];
 			}
-			$writer->addRows([$rowData]);
+			$writer->addRowsWithStyle([$rowData], $style);
 		}
 		$writer->getCurrentSheet()->setName("Search Result");
 	}
@@ -253,6 +262,10 @@ class ExportLoadResultsController extends ControllerBase {
 
   private function createSiteSheet($conn, $writer, $sid, $isPublic){
   	$result = "";
+  	$style = (new StyleBuilder())
+  	 		  ->setShouldWrapText(false)
+  	 		  ->build();
+
   	$header1 = ['ICRP PROJECT ID', 'Cancer Type'];
  	$header2 = ['ICRP PROJECT ID', 'Cancer Type', 'Site Relevance'];
      //add a new sheet
@@ -262,21 +275,21 @@ class ExportLoadResultsController extends ControllerBase {
 
 	if ($stmt->execute()) {
 		if($isPublic){
-			$writer->addRows([$header1]);
+			$writer->addRowsWithStyle([$header1], $style);
 		}else{
-			$writer->addRows([$header2]);
+			$writer->addRowsWithStyle([$header2], $style);
 		}
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-			$rowData = Array();
+			$rowData = Array();	
 			if($isPublic){
 				$rowData[0] = $row['ProjectID'];
 				$rowData[1] = $row['CancerType'];
-				$writer->addRows([$rowData]);
+				$writer->addRowsWithStyle([$rowData], $style);
 			}else{
 				$rowData[0] = $row['ProjectID'];
 				$rowData[1] = $row['CancerType'];
 				$rowData[2] = $row['Relevance'];
-				$writer->addRows([$rowData]);
+				$writer->addRowsWithStyle([$rowData], $style);
 			}
 		}
 		$result = "succeed";
@@ -290,6 +303,10 @@ class ExportLoadResultsController extends ControllerBase {
 
   private function createCSOSheet($conn, $writer, $sid, $isPublic){
  	$result = "";
+ 	$style = (new StyleBuilder())
+  	 		  ->setShouldWrapText(false)
+  	 		  ->build();
+
  	$header1 = ['ICRP PROJECT ID', 'Code'];
  	$header2 = ['ICRP PROJECT ID', 'Code', 'CSO Relevance'];
  	//add a new sheet
@@ -299,21 +316,21 @@ class ExportLoadResultsController extends ControllerBase {
 	$stmt->bindParam(':search_id_name', $sid);
 	if ($stmt->execute()) {
 		if($isPublic){
-			$writer->addRows([$header1]);
+			$writer->addRowsWithStyle([$header1], $style);
 		}else{
-			$writer->addRows([$header2]);
+			$writer->addRowsWithStyle([$header2], $style);	
 		}
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$rowData = Array();
 			if($isPublic){
 				$rowData[0] = $row['ProjectID'];
 				$rowData[1] = $row['CSOCode'];
-				$writer->addRows([$rowData]);
+				$writer->addRowsWithStyle([$rowData], $style);
 			}else{
 				$rowData[0] = $row['ProjectID'];
 				$rowData[1] = $row['CSOCode'];
 				$rowData[2] = $row['CSORelevance'];
-				$writer->addRows([$rowData]);
+				$writer->addRowsWithStyle([$rowData], $style);
 			 }
 		}
 		$result = "succeed";
@@ -327,22 +344,24 @@ class ExportLoadResultsController extends ControllerBase {
 
   private function createCriteriaSheet($conn, $writer, $sid){
     $result = "";
-
+    $style = (new StyleBuilder())
+  	 		  ->setShouldWrapText(false)
+  	 		  ->build();
 	 //add a new sheet
     $writer->addNewSheetAndMakeItCurrent();
     $rowData = Array();
     $rowData[0] = "International Cancer Research Partnership - ";
     $rowData[1] = self::getBaseUrl();
-    $writer->addRows([$rowData]);
+    $writer->addRowsWithStyle([$rowData], $style);
     $rowData = Array();
 	$date = date("m/d/Y H:i:s");
     $rowData[0] = "Created: ";
     $rowData[1] = $date;
-    $writer->addRows([$rowData]);
+    $writer->addRowsWithStyle([$rowData], $style);
     $rowData = Array();
     $rowData[0] = "Search Criteria: ";
     $rowData[1] = " ";
-    $writer->addRows([$rowData]);
+    $writer->addRowsWithStyle([$rowData], $style);
 
 	$stmt = $conn -> prepare("SET NOCOUNT ON; exec GetSearchCriteriaBySearchID @SearchID = :search_id");
 	$stmt->bindParam(':search_id', $sid);
@@ -352,7 +371,7 @@ class ExportLoadResultsController extends ControllerBase {
 	   		$rowData = Array();
 	   		$rowData[0] = $row['Name'];
     		$rowData[1] = $row['Value'];
-		    $writer->addRows([$rowData]);
+		    $writer->addRowsWithStyle([$rowData], $style);
 	   }
 	   $result = "succeed";
 	   $writer->getCurrentSheet()->setName("Search Criteria");
@@ -821,7 +840,7 @@ class ExportLoadResultsController extends ControllerBase {
 	$withAbstract = false;
 	$result = self::createExportSingleSheet($conn, $writer, $sid, $withAbstract);
     $result = self::createCriteriaSheet($conn, $writer, $sid);
-
+	
     $writer->close();
     $conn = null;
 
@@ -830,10 +849,14 @@ class ExportLoadResultsController extends ControllerBase {
 
   private function createExportSingleSheet($conn, $writer, $sid, $withAbstract){
     $result = "";
+    $style = (new StyleBuilder())
+  	 		  ->setShouldWrapText(false)
+  	 		  ->build();
+
     $url = self::getBaseUrl();
 	$viewLink = $url . "project/";
 	$result_count = NULL;
-
+	
 
 	$stmt = "";
 	if($withAbstract == true){
@@ -855,14 +878,14 @@ class ExportLoadResultsController extends ControllerBase {
 		for($i = 0; $i < $arrayLength; $i++){
 			$rowData[$i] = $colName[$i];
 		}
-		$writer->addRows([$rowData]);
+		$writer->addRowsWithStyle([$rowData], $style);
 
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($i = 0; $i < $arrayLength; $i++){
 				$rowData[$i] = $row[$colName[$i]];
-			}
-			$writer->addRows([$rowData]);
+			}	
+			$writer->addRowsWithStyle([$rowData], $style);
 		}
 	}
 	$writer->getCurrentSheet()->setName('Search Result');
@@ -959,6 +982,10 @@ class ExportLoadResultsController extends ControllerBase {
 
   private function createExportLookupSheet($conn, $writer, $sheetIndex, $type){
   	$result = "succeed";
+  	$style = (new StyleBuilder())
+  	 		  ->setShouldWrapText(false)
+  	 		  ->build();
+
   	//based on sheetIndex to determine if file needs a new tab or not
   	if($sheetIndex != 0){
   		$writer->addNewSheetAndMakeItCurrent();
@@ -985,13 +1012,13 @@ class ExportLoadResultsController extends ControllerBase {
 		  $meta = $stmt->getColumnMeta($column_index);
 		  $colName[] = $meta['name'];
 		}
-		$writer->addRows([$colName]);
+		$writer->addRowsWithStyle([$colName], $style);
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($in = 0; $in < sizeof($colName); $in++){
-				$rowData[$in] = $row[$colName[$in]];
+				$rowData[$in] = $row[$colName[$in]];	
 			}
-			$writer->addRows([$rowData]);
+			$writer->addRowsWithStyle([$rowData], $style);
 		}
 		$result = "succeed";
 	}else{
@@ -1049,6 +1076,10 @@ class ExportLoadResultsController extends ControllerBase {
 
   private function createUploadStatusSheet($conn, $writer){
   	$result = "succeed";
+  	$style = (new StyleBuilder())
+  	 		  ->setShouldWrapText(false)
+  	 		  ->build();
+
 	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetDataUploadStatus");
 	if ($stmt->execute()) {
 		$colName = Array();
@@ -1057,13 +1088,13 @@ class ExportLoadResultsController extends ControllerBase {
 		  $meta = $stmt->getColumnMeta($column_index);
 		  $colName[] = $meta['name'];
 		}
-		$writer->addRows([$colName]);
+		$writer->addRowsWithStyle([$colName], $style);
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($in = 0; $in < sizeof($colName); $in++){
-				$rowData[$in] = $row[$colName[$in]];
+				$rowData[$in] = $row[$colName[$in]];	
 			}
-			$writer->addRows([$rowData]);
+			$writer->addRowsWithStyle([$rowData], $style);
 		}
 		$result = "succeed";
 		$writer->getCurrentSheet()->setName('Data Upload Status Report');
