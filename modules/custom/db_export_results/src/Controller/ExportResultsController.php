@@ -43,13 +43,7 @@ ini_set('display_startup_errors', TRUE);
 define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
 
 class ExportResultsController extends ControllerBase {
-  	public $style;
-
-  	public function __construct(){
-  		$style = (new StyleBuilder())
-  		 		  ->setShouldWrapText()
-  		 		  ->build();
-  	}	 		  
+ 		  
   /**
   * Adds CORS Headers to a response
   */
@@ -102,8 +96,11 @@ class ExportResultsController extends ControllerBase {
   }
 
   private function createExportPublicSheet($conn, $writer, $sid){
-
-    $result = "";
+	$result = "";
+	$style = (new StyleBuilder())
+  	 		  ->setShouldWrapText()
+  	 		  ->build();
+   
     $header = ['Title', 'PI First Name', 'PI Last Name', 'Institution', 'City', 'State', 'Country', 'Funding Organization', 'Award Code', 'View in ICRP'];
 
     $url = self::getBaseUrl();
@@ -222,6 +219,10 @@ class ExportResultsController extends ControllerBase {
 
   private function createExportDataforPartner($conn, $writer, $sid, $withAbstract){
 	$result = "success";
+	$style = (new StyleBuilder())
+  	 	   ->setShouldWrapText()
+  	 	   ->build();
+
     $abstract = 0;
 	$url = self::getBaseUrl();
 	$viewLink = $url . "project/";
@@ -261,6 +262,10 @@ class ExportResultsController extends ControllerBase {
 
   private function createSiteSheet($conn, $writer, $sid, $isPublic){
   	$result = "";
+  	$style = (new StyleBuilder())
+  	 		  ->setShouldWrapText()
+  	 		  ->build();
+
   	$header1 = ['ICRP PROJECT ID', 'Cancer Type'];
  	$header2 = ['ICRP PROJECT ID', 'Cancer Type', 'Site Relevance'];
      //add a new sheet
@@ -298,6 +303,10 @@ class ExportResultsController extends ControllerBase {
 
   private function createCSOSheet($conn, $writer, $sid, $isPublic){
  	$result = "";
+ 	$style = (new StyleBuilder())
+  	 		  ->setShouldWrapText()
+  	 		  ->build();
+
  	$header1 = ['ICRP PROJECT ID', 'Code'];
  	$header2 = ['ICRP PROJECT ID', 'Code', 'CSO Relevance'];
  	//add a new sheet
@@ -335,7 +344,9 @@ class ExportResultsController extends ControllerBase {
 
   private function createCriteriaSheet($conn, $writer, $sid){
     $result = "";
-
+    $style = (new StyleBuilder())
+  	 		  ->setShouldWrapText()
+  	 		  ->build();
 	 //add a new sheet
     $writer->addNewSheetAndMakeItCurrent();
     $rowData = Array();
@@ -838,6 +849,10 @@ class ExportResultsController extends ControllerBase {
 
   private function createExportSingleSheet($conn, $writer, $sid, $withAbstract){
     $result = "";
+    $style = (new StyleBuilder())
+  	 		  ->setShouldWrapText()
+  	 		  ->build();
+
     $url = self::getBaseUrl();
 	$viewLink = $url . "project/";
 	$result_count = NULL;
@@ -967,6 +982,10 @@ class ExportResultsController extends ControllerBase {
 
   private function createExportLookupSheet($conn, $writer, $sheetIndex, $type){
   	$result = "succeed";
+  	$style = (new StyleBuilder())
+  	 		  ->setShouldWrapText()
+  	 		  ->build();
+
   	//based on sheetIndex to determine if file needs a new tab or not
   	if($sheetIndex != 0){
   		$writer->addNewSheetAndMakeItCurrent();
@@ -1057,6 +1076,10 @@ class ExportResultsController extends ControllerBase {
 
   private function createUploadStatusSheet($conn, $writer){
   	$result = "succeed";
+  	$style = (new StyleBuilder())
+  	 		  ->setShouldWrapText()
+  	 		  ->build();
+  	 		  
 	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetDataUploadStatus");
 	if ($stmt->execute()) {
 		$colName = Array();
