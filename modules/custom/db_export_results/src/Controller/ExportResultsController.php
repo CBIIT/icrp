@@ -98,7 +98,7 @@ class ExportResultsController extends ControllerBase {
   private function createExportPublicSheet($conn, $writer, $sid){
 	$result = "";
 	$style = (new StyleBuilder())
-  	 		  ->setShouldWrapText()
+  	 		  ->setShouldWrapText(false)
   	 		  ->build();
    
     $header = ['Title', 'PI First Name', 'PI Last Name', 'Institution', 'City', 'State', 'Country', 'Funding Organization', 'Award Code', 'View in ICRP'];
@@ -220,7 +220,7 @@ class ExportResultsController extends ControllerBase {
   private function createExportDataforPartner($conn, $writer, $sid, $withAbstract){
 	$result = "success";
 	$style = (new StyleBuilder())
-  	 	   ->setShouldWrapText()
+  	 	   ->setShouldWrapText(false)
   	 	   ->build();
 
     $abstract = 0;
@@ -263,7 +263,7 @@ class ExportResultsController extends ControllerBase {
   private function createSiteSheet($conn, $writer, $sid, $isPublic){
   	$result = "";
   	$style = (new StyleBuilder())
-  	 		  ->setShouldWrapText()
+  	 		  ->setShouldWrapText(false)
   	 		  ->build();
 
   	$header1 = ['ICRP PROJECT ID', 'Cancer Type'];
@@ -304,7 +304,7 @@ class ExportResultsController extends ControllerBase {
   private function createCSOSheet($conn, $writer, $sid, $isPublic){
  	$result = "";
  	$style = (new StyleBuilder())
-  	 		  ->setShouldWrapText()
+  	 		  ->setShouldWrapText(false)
   	 		  ->build();
 
  	$header1 = ['ICRP PROJECT ID', 'Code'];
@@ -345,7 +345,7 @@ class ExportResultsController extends ControllerBase {
   private function createCriteriaSheet($conn, $writer, $sid){
     $result = "";
     $style = (new StyleBuilder())
-  	 		  ->setShouldWrapText()
+  	 		  ->setShouldWrapText(false)
   	 		  ->build();
 	 //add a new sheet
     $writer->addNewSheetAndMakeItCurrent();
@@ -850,7 +850,7 @@ class ExportResultsController extends ControllerBase {
   private function createExportSingleSheet($conn, $writer, $sid, $withAbstract){
     $result = "";
     $style = (new StyleBuilder())
-  	 		  ->setShouldWrapText()
+  	 		  ->setShouldWrapText(false)
   	 		  ->build();
 
     $url = self::getBaseUrl();
@@ -983,7 +983,7 @@ class ExportResultsController extends ControllerBase {
   private function createExportLookupSheet($conn, $writer, $sheetIndex, $type){
   	$result = "succeed";
   	$style = (new StyleBuilder())
-  	 		  ->setShouldWrapText()
+  	 		  ->setShouldWrapText(false)
   	 		  ->build();
 
   	//based on sheetIndex to determine if file needs a new tab or not
@@ -1077,9 +1077,9 @@ class ExportResultsController extends ControllerBase {
   private function createUploadStatusSheet($conn, $writer){
   	$result = "succeed";
   	$style = (new StyleBuilder())
-  	 		  ->setShouldWrapText()
+  	 		  ->setShouldWrapText(false)
   	 		  ->build();
-  	 		  
+
 	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetDataUploadStatus");
 	if ($stmt->execute()) {
 		$colName = Array();
