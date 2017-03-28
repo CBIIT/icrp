@@ -1,4 +1,5 @@
-
+Use icrp_dataload
+GO
 ----------------------------
 -- Load Workbook 
 -----------------------------
@@ -10,7 +11,7 @@ PRINT '*************************************************************************
 
 SET NOCOUNT ON;  
 GO 
-
+--select * from UploadWorkBook
 CREATE TABLE UploadWorkBook (	
 	AwardCode NVARCHAR(50),
 	AwardStartDate Date,
@@ -48,6 +49,8 @@ CREATE TABLE UploadWorkBook (
 	GRID VARCHAR(50),
 	TechAbstract NVARCHAR(max),
 	PublicAbstract NVARCHAR(max),
+	RelatedAwardCode VARCHAR(200),
+	RelationshipType VARCHAR(200),
 	ORCID VARCHAR(25),
 	OtherResearcherID INT,
 	OtherResearcherIDType VARCHAR(1000)
@@ -56,11 +59,11 @@ CREATE TABLE UploadWorkBook (
 GO
 
 BULK INSERT UploadWorkBook
-FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_CA.csv'  --ICRP_DataSubmissionWorkbook_CA2.csv'
+FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_ASTRO_20170328.csv'  
 WITH
 (
 	FIRSTROW = 2,
-	DATAFILETYPE ='widechar',  -- unicode format
+	--DATAFILETYPE ='widechar',  -- unicode format
 	FIELDTERMINATOR = '|',
 	ROWTERMINATOR = '\n'
 )
@@ -68,13 +71,13 @@ GO  -- import errors row #: 609, 6909 (Total: 13591)
 
 
 -----------------------------------
--- Workbook Datafix - CA
+-- Workbook Datafix - |
 -----------------------------------
-UPDATE UploadWorkBook SET TechAbstract = 'I propose to develop statistical methods to (1) assess the performance of diagnostic tests and prognostic scores and (2) estimate risk (cumulative incidence) functions and, from them, individualized ''what if'' probabilities of benefit if a specific medical or lifestyle intervention is selected. In aim (1) the primary focus will be on the ''c'' statistic derived from multiple logistic regression. The initial biostatistical use of c was as the area under the roc curve (auc), to measure the discriminant ability of imaging tests (interpreted on a rating scale) and laboratory tests (measured on an interval scale). However, the index is also standard output from the SAS (multiple) LOGISTIC procedure and is increasingly used to assess the ability of diagnostic and prognostic scoring systems derived from a vector of predictors. If calculated from the same data from which the model is fitted, the statistic overestimates the true performance of the system. Indeed, by construction, the c statistic calculated from PROC LOGISTIC cannot be less than the null 0.5. Several authors (from Cornfield and Lachenbruch several decades ago, to Copas, Rockette, and Pinsky recently) have studied the factors that determine the magnitude of this bias. I propose to develop a simple ''adjusted-c'' statistic, similar to the adjusted-r-squared statistic. I expect that the needed attenuation/shrinkage will be a function of the numbers of cases and non-cases, and the numbers of useful - and useless - candidate predictor variables. A secondary focus will be on simplified lower confidence bound for the true auc when - in the simple imaging or laboratory test situations - the observed auc is unity. Obuchowshi has provided limits for this situation, but unfortunately they are too distribution-specific to be of general use. My plan is to draw on the simplicity and closed-form formulae based on overlapping exponential distributions, and on the insights on the var(auc) structure in our paper in Academic Radiology in 1997. Aim (2) has two parts. The first is to develop guidelines for a novel way (developed with my colleague Miettinen) to fit smooth-in-time hazard functions to survival-type data, where the event E=1 represents an undesirable outcome. The purpose is to estimate cumulative incidence as a function of a vector of patient characteristics and lifestyle/medical management options. The approach is based on sampling the person-moments; the main unknown is the choice of the sampling approach that gives the most stable estimate of the individualized cumulative incidence. The second aim is to derive an interval estimate for the probability of benefit within a time horizon T, for an individual with a personal profile vector x, and contemplated medical/behavioral Action (A=1) or not (A=0), i.e. the difference Prob[E=1 | x, T, A=0] - Prob[E=1 | x, T,A=1]. The hope is to have the individualized interval be test-based, so that it can be calculated from the information usually contained in study reports. We focus on individualized risk differences as a response to the inordinate emphasis on the ''average'' patient and on hazard ratios rather than what matters to an individual: for individuals such as I, with profile x, what is the difference in the probability of E over a time-horizon T if I choose one action over another? As an example, consider the 2005 NEJM report on an RCT which documented the extent to which radical prostatectomy reduces the risk of death from prostate cancer: the ''average'' prostate cancer case-fatality rate within 10 years was 15% for those randomized to watchful waiting and 10% for those randomized to surgery; the hazard ratio was 0.55. The report contained no useful information for men with a patient/tumour profile (age at diagnosis, Gleason score, pre-treatment PSA level) that was more/less favourable than the ''average'' profile to which the summary results presumably apply. With methods that are aimed at individualized risk, and that do not rely on the non-smooth estimates obtained from Cox''s proportional hazards model, we plan to change the contemporary culture of statistical reporting to be more responsive to individual ''clients''.'
-WHERE AltId = '10769_1'
+--UPDATE UploadWorkBook SET TechAbstract = 'I propose to develop statistical methods to (1) assess the performance of diagnostic tests and prognostic scores and (2) estimate risk (cumulative incidence) functions and, from them, individualized ''what if'' probabilities of benefit if a specific medical or lifestyle intervention is selected. In aim (1) the primary focus will be on the ''c'' statistic derived from multiple logistic regression. The initial biostatistical use of c was as the area under the roc curve (auc), to measure the discriminant ability of imaging tests (interpreted on a rating scale) and laboratory tests (measured on an interval scale). However, the index is also standard output from the SAS (multiple) LOGISTIC procedure and is increasingly used to assess the ability of diagnostic and prognostic scoring systems derived from a vector of predictors. If calculated from the same data from which the model is fitted, the statistic overestimates the true performance of the system. Indeed, by construction, the c statistic calculated from PROC LOGISTIC cannot be less than the null 0.5. Several authors (from Cornfield and Lachenbruch several decades ago, to Copas, Rockette, and Pinsky recently) have studied the factors that determine the magnitude of this bias. I propose to develop a simple ''adjusted-c'' statistic, similar to the adjusted-r-squared statistic. I expect that the needed attenuation/shrinkage will be a function of the numbers of cases and non-cases, and the numbers of useful - and useless - candidate predictor variables. A secondary focus will be on simplified lower confidence bound for the true auc when - in the simple imaging or laboratory test situations - the observed auc is unity. Obuchowshi has provided limits for this situation, but unfortunately they are too distribution-specific to be of general use. My plan is to draw on the simplicity and closed-form formulae based on overlapping exponential distributions, and on the insights on the var(auc) structure in our paper in Academic Radiology in 1997. Aim (2) has two parts. The first is to develop guidelines for a novel way (developed with my colleague Miettinen) to fit smooth-in-time hazard functions to survival-type data, where the event E=1 represents an undesirable outcome. The purpose is to estimate cumulative incidence as a function of a vector of patient characteristics and lifestyle/medical management options. The approach is based on sampling the person-moments; the main unknown is the choice of the sampling approach that gives the most stable estimate of the individualized cumulative incidence. The second aim is to derive an interval estimate for the probability of benefit within a time horizon T, for an individual with a personal profile vector x, and contemplated medical/behavioral Action (A=1) or not (A=0), i.e. the difference Prob[E=1 | x, T, A=0] - Prob[E=1 | x, T,A=1]. The hope is to have the individualized interval be test-based, so that it can be calculated from the information usually contained in study reports. We focus on individualized risk differences as a response to the inordinate emphasis on the ''average'' patient and on hazard ratios rather than what matters to an individual: for individuals such as I, with profile x, what is the difference in the probability of E over a time-horizon T if I choose one action over another? As an example, consider the 2005 NEJM report on an RCT which documented the extent to which radical prostatectomy reduces the risk of death from prostate cancer: the ''average'' prostate cancer case-fatality rate within 10 years was 15% for those randomized to watchful waiting and 10% for those randomized to surgery; the hazard ratio was 0.55. The report contained no useful information for men with a patient/tumour profile (age at diagnosis, Gleason score, pre-treatment PSA level) that was more/less favourable than the ''average'' profile to which the summary results presumably apply. With methods that are aimed at individualized risk, and that do not rely on the non-smooth estimates obtained from Cox''s proportional hazards model, we plan to change the contemporary culture of statistical reporting to be more responsive to individual ''clients''.'
+--WHERE AltId = '10769_1'
 
-UPDATE UploadWorkBook SET TechAbstract = 'The program of research addressing five research aims, was undertaken by a research team (organized into the Evidence Expert Panel, Best Practices Expert Panel and the main Scientific Office): Research Aims: 1. Using existing KT resources, to identify and analyze high quality systematic reviews and guidelines (e.g. Cochrane Review) in the published literature evaluating the effectiveness of interventions directed to change behaviour across stakeholder groups. A measurement tool to operationalize the degree of KT intervention effectiveness was developed. 2. Using a targeted review, to analyze selected frameworks, models and theories that may be useful in directing KT strategy, planning, and practice to improve quality in cancer control. 3. Using key informant interviews and questionnaire methodologies, to identify best Canadian KT practices in use, being tested or targeted to improve cancer control. A tool to operationalize the concept of ‘best practices’ was developed. 4. Using consensus methodology, findings from Aims 1 to 3 will be integrated to identify gaps and priorities in the KT research field as it relates to improving cancer control. 5. The planning and implementation of a strategy to facilitate the use and application of the findings using integrated- and end-of-grant KT principles. Final Reports: 1. Knowledge Translation for Cancer Control in Canada: A Casebook. 2. Knowledge translation to improve quality of cancer control in Canada: What we know and what is next. Publication: Brouwers MC, Makarski J, Garcia K, Bouseh S, Hafid T. Improving cancer control in Canada one case at a time: the "Knowledge Translation in Cancer" casebook. Curr Oncol. 2011;18(2):76-83. PubMed PMID: 21505598; PubMed Central PMCID: PMC3070706 PDF | APPENDIX A | APPENDIX B | HTML Brouwers MC; Garcia K; Makarski J; Daraz L; of the Evidence Expert Panel and of the KT for Cancer Control in Canada Project Research Team. The landscape of knowledge translation interventions in cancer control: What do we know and where to next? A review of systematic reviews. Implementation Science 2011, 6, 130. doi:10.1186/1748-5908-6-130 PDF | HTML'
-WHERE AltId = '18497_1'
+--UPDATE UploadWorkBook SET TechAbstract = 'The program of research addressing five research aims, was undertaken by a research team (organized into the Evidence Expert Panel, Best Practices Expert Panel and the main Scientific Office): Research Aims: 1. Using existing KT resources, to identify and analyze high quality systematic reviews and guidelines (e.g. Cochrane Review) in the published literature evaluating the effectiveness of interventions directed to change behaviour across stakeholder groups. A measurement tool to operationalize the degree of KT intervention effectiveness was developed. 2. Using a targeted review, to analyze selected frameworks, models and theories that may be useful in directing KT strategy, planning, and practice to improve quality in cancer control. 3. Using key informant interviews and questionnaire methodologies, to identify best Canadian KT practices in use, being tested or targeted to improve cancer control. A tool to operationalize the concept of ‘best practices’ was developed. 4. Using consensus methodology, findings from Aims 1 to 3 will be integrated to identify gaps and priorities in the KT research field as it relates to improving cancer control. 5. The planning and implementation of a strategy to facilitate the use and application of the findings using integrated- and end-of-grant KT principles. Final Reports: 1. Knowledge Translation for Cancer Control in Canada: A Casebook. 2. Knowledge translation to improve quality of cancer control in Canada: What we know and what is next. Publication: Brouwers MC, Makarski J, Garcia K, Bouseh S, Hafid T. Improving cancer control in Canada one case at a time: the "Knowledge Translation in Cancer" casebook. Curr Oncol. 2011;18(2):76-83. PubMed PMID: 21505598; PubMed Central PMCID: PMC3070706 PDF | APPENDIX A | APPENDIX B | HTML Brouwers MC; Garcia K; Makarski J; Daraz L; of the Evidence Expert Panel and of the KT for Cancer Control in Canada Project Research Team. The landscape of knowledge translation interventions in cancer control: What do we know and where to next? A review of systematic reviews. Implementation Science 2011, 6, 130. doi:10.1186/1748-5908-6-130 PDF | HTML'
+--WHERE AltId = '18497_1'
 
 
 
@@ -94,8 +97,11 @@ PRINT '*************************************************************************
 -------------------------------------------------------------------
 -- Check AwardCode uniqueness
 -------------------------------------------------------------------
+
 SELECT Distinct AwardCode INTO #awardCodes FROM UploadWorkBook
-SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'
+
+--SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'  -- CA
+SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook
 
 DECLARE @TotalAwardCodes INT
 DECLARE @TotalParentProjects INT
@@ -158,24 +164,24 @@ END
 -------------------------------------------------------------------
 IF EXISTS (select csocodes, csorel from UploadWorkBook where ISNULL(csocodes,'')='' or ISNULL(csorel,'')='')
 BEGIN
-  PRINT 'ERROR ==> Missing CSO Codes'
-  SELECT DISTINCT 'Missing CSO Codes' AS Issue, AwardCode, AltId from UploadWorkBook 	
+  PRINT 'ERROR ==> Missing CSO Codes / Relevance'
+  SELECT DISTINCT 'Missing CSO Codes / / Relevance' AS Issue, AwardCode, AltId from UploadWorkBook 	
 	WHERE ISNULL(csocodes,'')='' or ISNULL(csoRel,'')=''
 END
 ELSE
-	PRINT 'Checking Missing CSO Codes  ==> Pass'
+	PRINT 'Checking Missing CSO Codes / Relevance  ==> Pass'
 
 -------------------------------------------------------------------
 -- Check CancerType Codes
 -------------------------------------------------------------------
 IF EXISTS (select sitecodes, siterel from UploadWorkBook where ISNULL(sitecodes,'')='' or ISNULL(siterel,'')='')
 BEGIN
-  PRINT 'ERROR ==> Missing CancerType Codes'
-  SELECT DISTINCT 'Missing CancerType Codes' AS Issue, AwardCode, AltId from UploadWorkBook 
+  PRINT 'ERROR ==> Missing CancerType Codes / Relevance'
+  SELECT DISTINCT 'Missing CancerType Codes / Relevance' AS Issue, AwardCode, AltId from UploadWorkBook 
 	WHERE ISNULL(sitecodes,'')='' or ISNULL(siterel,'')=''
 END
 ELSE
-	PRINT 'Checking Missing CancerType Codes  ==> Pass'
+	PRINT 'Checking Missing CancerType Codes / Relevance ==> Pass'
 
 -------------------------------------------------------------------
 -- Check FundingOrg
@@ -238,20 +244,20 @@ ELSE
 --go
 
 -- fix institution data in the UploadWorkBook
-UPDATE UploadWorkBook SET City = 'Montréal' WHERE City IN ('Montreal', 'MontrTal', 'Montr?al')
-UPDATE UploadWorkBook SET City = 'Québec' WHERE City IN ('Quebec', 'QuTbec', 'Qu?bec', 'QuÃ©bec')
-UPDATE UploadWorkBook SET City = 'Lévis' WHERE City IN ('LTvis', 'L?vis', 'Levis')
-UPDATE UploadWorkBook SET City = 'Zürich' WHERE City IN ('Zurich')
-UPDATE UploadWorkBook SET City = 'St. Louis' WHERE City IN ('Saint Louis', 'St Louis')
-UPDATE UploadWorkBook SET City = 'Sault Ste. Marie' WHERE City IN ('Sault Ste Marie')
-UPDATE UploadWorkBook SET City = 'St. Catharines' WHERE City IN ('St Catharines')
-UPDATE UploadWorkBook SET City = 'Trois-Rivières' WHERE City IN ('Trois-RiviFres')
+--UPDATE UploadWorkBook SET City = 'Montréal' WHERE City IN ('Montreal', 'MontrTal', 'Montr?al')
+--UPDATE UploadWorkBook SET City = 'Québec' WHERE City IN ('Quebec', 'QuTbec', 'Qu?bec', 'QuÃ©bec')
+--UPDATE UploadWorkBook SET City = 'Lévis' WHERE City IN ('LTvis', 'L?vis', 'Levis')
+--UPDATE UploadWorkBook SET City = 'Zürich' WHERE City IN ('Zurich')
+--UPDATE UploadWorkBook SET City = 'St. Louis' WHERE City IN ('Saint Louis', 'St Louis')
+--UPDATE UploadWorkBook SET City = 'Sault Ste. Marie' WHERE City IN ('Sault Ste Marie')
+--UPDATE UploadWorkBook SET City = 'St. Catharines' WHERE City IN ('St Catharines')
+--UPDATE UploadWorkBook SET City = 'Trois-Rivières' WHERE City IN ('Trois-RiviFres')
 
-UPDATE UploadWorkBook SET Institution = 'École de technologie supérieure (Université du Québec)' WHERE Institution like '%cole de technologie supTrieure (UniversitT du QuTbec)%'
-UPDATE UploadWorkBook SET Institution = 'École polytechnique de Montréal' WHERE Institution like '%cole polytechnique de MontrTal%'
-UPDATE UploadWorkBook SET Institution = 'Centre National de la Recherche Scientifique (CNRS), l''INSERM (Institut National de la Santé et de la Recherche Médicale) - UNSA' WHERE Institution like '%Centre National de la Recherche Scientifique (CNRS), %'
-UPDATE UploadWorkBook SET Institution = 'École supérieure de physique et de chimie industrielles (ESPCI) Paris Tech' WHERE Institution like '%École sup?rieure de physique et de chimie industrielles (ESPCI) Paris Tech%'
-UPDATE UploadWorkBook SET Institution = 'Eidgenössiche Technische Hochschule (ETH) Zürich' WHERE Institution like '%Eidgen?ssiche Technische Hochschule (ETH) Zürich%'
+--UPDATE UploadWorkBook SET Institution = 'École de technologie supérieure (Université du Québec)' WHERE Institution like '%cole de technologie supTrieure (UniversitT du QuTbec)%'
+--UPDATE UploadWorkBook SET Institution = 'École polytechnique de Montréal' WHERE Institution like '%cole polytechnique de MontrTal%'
+--UPDATE UploadWorkBook SET Institution = 'Centre National de la Recherche Scientifique (CNRS), l''INSERM (Institut National de la Santé et de la Recherche Médicale) - UNSA' WHERE Institution like '%Centre National de la Recherche Scientifique (CNRS), %'
+--UPDATE UploadWorkBook SET Institution = 'École supérieure de physique et de chimie industrielles (ESPCI) Paris Tech' WHERE Institution like '%École sup?rieure de physique et de chimie industrielles (ESPCI) Paris Tech%'
+--UPDATE UploadWorkBook SET Institution = 'Eidgenössiche Technische Hochschule (ETH) Zürich' WHERE Institution like '%Eidgen?ssiche Technische Hochschule (ETH) Zürich%'
 
 SELECT u.Institution, u.City INTO #missingInst FROM UploadWorkBook u
 LEFT JOIN Institution i ON (u.Institution = i.Name AND u.City = i.City)
@@ -269,6 +275,19 @@ END
 ELSE
 	PRINT 'Checking Institution Mapping   ==> Pass'
 
+-- Debug missing institution
+--select institution, city, Country, GRID, Longitute, Latitute from UploadWorkBook where institution like '%Wisconsin%'
+--select * FROM Institution where name like '%Wisconsin%' --'%UCLA%'
+--select * FROM InstitutionMapping where oldname like '%Wisconsin%' OR newname like '%Wisconsin%'
+
+-- Insert institution Mappings
+--INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'UCLA', 'Los Angeles', 'University of California Los Angeles', 'Los Angeles'
+--INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'University of Alabama Birmingham', 'Birmingham', 'University of Birmingham', 'Birmingham'
+--INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'University of Maryland Medical Center', 'Baltimore', 'University of Maryland, Baltimore', 'Baltimore'
+--INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'University of Wisconsin Hospitals and Clinics', 'Madison', 'University of Wisconsin - Madison', 'Madison'
+--INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'William Beaumont Hospital Research Institute', 'Royal Oak', 'William Beaumont Hospital', 'Royal Oak'
+
+
 /***********************************************************************************************/
 -- Import Data
 /***********************************************************************************************/
@@ -279,7 +298,6 @@ PRINT '*************************************************************************
 -----------------------------------
 -- Import base Projects
 -----------------------------------
-
 PRINT 'Import base Projects'
 
 INSERT INTO Project 
@@ -287,7 +305,7 @@ SELECT CASE ISNULL(Childhood, '') WHEN 'y' THEN 1 ELSE 0 END,
 		AwardCode, AwardStartDate, AwardEndDate, getdate(), getdate()
 FROM #parentProjects
 
-PRINT 'Total Imported CCRA projects = ' + CAST(@@RowCount AS varchar(10))
+PRINT 'Total Imported projects = ' + CAST(@@RowCount AS varchar(10))
 
 GO
 
@@ -331,7 +349,7 @@ SET IDENTITY_INSERT ProjectAbstract OFF;  -- SET IDENTITY_INSERT to OFF.
 DECLARE @total VARCHAR(10)
 SELECT @total = CAST(COUNT(*) AS varchar(10)) FROM ProjectAbstract
 
-PRINT 'Total Imported ProjectAbstract = ' + @total
+PRINT 'Total ProjectAbstract = ' + @total
 
 GO
 
@@ -339,9 +357,12 @@ GO
 -- Insert Data Upload Status
 -----------------------------------
 DECLARE @DataUploadStatusID INT
+DECLARE @PartnerCode VARCHAR(25) = 'ASTRO'
+DECLARE @FundingYears VARCHAR(25) = '2011-2016'
+DECLARE @ImportNotes  VARCHAR(1000) = 'All ASTRO Research Awards starting in 2011 through 2016'
 
 INSERT INTO DataUploadStatus ([PartnerCode],[FundingYear],[Status],[ReceivedDate],[ValidationDate],[UploadToDevDate],[UploadToStageDate],[UploadToProdDate],[Note],[CreatedDate])
-VALUES ('CCRA', '2005-2012', 'Complete', '2/20/2017', '2/20/2017', '2/25/2017',  '2/25/2017', '3/17/2017', 'Re-import all CA data for new schema', '2/20/2017')
+VALUES (@PartnerCode, @FundingYears, 'Staging', '3/27/2017', '3/28/2017', '3/28/2017',  '3/28/2017', NULL, @ImportNotes, getdate())
 
 SET @DataUploadStatusID = IDENT_CURRENT( 'DataUploadStatus' )  
 
@@ -576,42 +597,42 @@ GO
 
 
 -------------------------------------------------------------------------------------------
--- Fix character Issues
+-- Fix character Issues - CA
 --------------------------------------------------------------------------------------------
-CREATE TABLE UploadWorkBookCharacterFix (	
-	AwardCode NVARCHAR(50),
-	AltId VARCHAR(50),
-	AwardTitle NVARCHAR(1000),
-	PILastName NVARCHAR(50),
-	PIFirstName NVARCHAR(50)
-)
+--CREATE TABLE UploadWorkBookCharacterFix (	
+--	AwardCode NVARCHAR(50),
+--	AltId VARCHAR(50),
+--	AwardTitle NVARCHAR(1000),
+--	PILastName NVARCHAR(50),
+--	PIFirstName NVARCHAR(50)
+--)
 
-GO 
+--GO 
 
---drop table UploadWorkBookCharacterFix
-BULK INSERT UploadWorkBookCharacterFix
-FROM 'C:\icrp\database\DataUpload\DataWorkbook_CA_unicode.csv'  --DataWorkbook_CA_utf8.csv'
-WITH
-(
-	FIRSTROW = 2,
-	--DATAFILETYPE ='widechar',  -- unicode format
-	FIELDTERMINATOR = '|',
-	ROWTERMINATOR = '\n'
-)
-GO  -- import errors row #: 609, 6909 (Total: 13591)
+----drop table UploadWorkBookCharacterFix
+--BULK INSERT UploadWorkBookCharacterFix
+--FROM 'C:\icrp\database\DataUpload\DataWorkbook_CA_unicode.csv'  --DataWorkbook_CA_utf8.csv'
+--WITH
+--(
+--	FIRSTROW = 2,
+--	--DATAFILETYPE ='widechar',  -- unicode format
+--	FIELDTERMINATOR = '|',
+--	ROWTERMINATOR = '\n'
+--)
+--GO  -- import errors row #: 609, 6909 (Total: 13591)
 
-UPDATE ProjectFunding SET Title = fix.AwardTitle
-FROM ProjectFunding f
-	JOIN UploadWorkBookCharacterFix fix ON f.Altawardcode = fix.AltId
-	JOIN fundingorg o ON f.fundingorgid = o.fundingorgid
-where o.sponsorcode = 'CCRA' AND fix.AwardTitle <> '#N/A'
+--UPDATE ProjectFunding SET Title = fix.AwardTitle
+--FROM ProjectFunding f
+--	JOIN UploadWorkBookCharacterFix fix ON f.Altawardcode = fix.AltId
+--	JOIN fundingorg o ON f.fundingorgid = o.fundingorgid
+--where o.sponsorcode = 'CCRA' AND fix.AwardTitle <> '#N/A'
 
-UPDATE ProjectFundingInvestigator SET FirstName = fix.PIFirstName, LastName = fix.PILastName
-FROM ProjectFunding f
-	JOIN UploadWorkBookCharacterFix fix ON f.Altawardcode = fix.AltId
-	JOIN ProjectFundingInvestigator i ON i.ProjectFundingID = f.ProjectFundingID
-	JOIN fundingorg o ON f.fundingorgid = o.fundingorgid
-where o.sponsorcode = 'CCRA'
+--UPDATE ProjectFundingInvestigator SET FirstName = fix.PIFirstName, LastName = fix.PILastName
+--FROM ProjectFunding f
+--	JOIN UploadWorkBookCharacterFix fix ON f.Altawardcode = fix.AltId
+--	JOIN ProjectFundingInvestigator i ON i.ProjectFundingID = f.ProjectFundingID
+--	JOIN fundingorg o ON f.fundingorgid = o.fundingorgid
+--where o.sponsorcode = 'CCRA'
 
 -------------------------------------------------------------------------------------------
 -- Replace open/closing double quotes
