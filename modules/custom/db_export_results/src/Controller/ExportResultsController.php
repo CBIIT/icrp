@@ -42,7 +42,8 @@ ini_set('display_startup_errors', TRUE);
 define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
 
 class ExportResultsController extends ControllerBase {
-
+  $style = (new StyleBuilder())
+  		 ->setShouldWrapText();
   /**
   * Adds CORS Headers to a response
   */
@@ -105,7 +106,7 @@ class ExportResultsController extends ControllerBase {
 	$stmt->bindParam(':search_id_name', $sid);
 	$stmt->bindParam(':result_count', $result_count, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
 	if ($stmt->execute()) {
-		$writer->addRows([$header]);
+		$writer->addRowsWithStyle([$header], $style);
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$rowData = Array();
 			$rowData[0] = $row['Title'];
@@ -118,7 +119,7 @@ class ExportResultsController extends ControllerBase {
 			$rowData[7] = $row['FundingOrg'];
 			$rowData[8] = $row['AwardCode'];
 			$rowData[9] = $viewLink . $row['ProjectID'];
-			$writer->addRows([$rowData]);
+			$writer->addRowsWithStyle([$rowData], $style);
 		}
 		$result = "succeed";
 	    $writer->getCurrentSheet()->setName('Search Result');
@@ -235,7 +236,7 @@ class ExportResultsController extends ControllerBase {
 		  $colName[] = $meta['name'];
 		}
 		//add header to Excel file
-		$writer->addRows([$colName]);
+		$writer->addRowsWithStyle([$colName], $style);
 		$arrayLength = sizeof($colName);
 		//add content to Excel file
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
@@ -243,7 +244,7 @@ class ExportResultsController extends ControllerBase {
 			for($i = 0; $i < $arrayLength; $i++){
 				$rowData[$i] = $row[$colName[$i]];
 			}
-			$writer->addRows([$rowData]);
+			$writer->addRowsWithStyle([$rowData], $style);
 		}
 		$writer->getCurrentSheet()->setName("Search Result");
 	}
@@ -262,21 +263,21 @@ class ExportResultsController extends ControllerBase {
 
 	if ($stmt->execute()) {
 		if($isPublic){
-			$writer->addRows([$header1]);
+			$writer->addRowsWithStyle([$header1], $style);
 		}else{
-			$writer->addRows([$header2]);
+			$writer->addRowsWithStyle([$header2], $style);
 		}
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$rowData = Array();	
 			if($isPublic){
 				$rowData[0] = $row['ProjectID'];
 				$rowData[1] = $row['CancerType'];
-				$writer->addRows([$rowData]);
+				$writer->addRowsWithStyle([$rowData], $style);
 			}else{
 				$rowData[0] = $row['ProjectID'];
 				$rowData[1] = $row['CancerType'];
 				$rowData[2] = $row['Relevance'];
-				$writer->addRows([$rowData]);
+				$writer->addRowsWithStyle([$rowData], $style);
 			}
 		}
 		$result = "succeed";
@@ -299,21 +300,21 @@ class ExportResultsController extends ControllerBase {
 	$stmt->bindParam(':search_id_name', $sid);
 	if ($stmt->execute()) {
 		if($isPublic){
-			$writer->addRows([$header1]);
+			$writer->addRowsWithStyle([$header1], $style);
 		}else{
-			$writer->addRows([$header2]);	
+			$writer->addRowsWithStyle([$header2], $style);	
 		}
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$rowData = Array();
 			if($isPublic){
 				$rowData[0] = $row['ProjectID'];
 				$rowData[1] = $row['CSOCode'];
-				$writer->addRows([$rowData]);
+				$writer->addRowsWithStyle([$rowData], $style);
 			}else{
 				$rowData[0] = $row['ProjectID'];
 				$rowData[1] = $row['CSOCode'];
 				$rowData[2] = $row['CSORelevance'];
-				$writer->addRows([$rowData]);
+				$writer->addRowsWithStyle([$rowData], $style);
 			 }
 		}
 		$result = "succeed";
@@ -333,16 +334,16 @@ class ExportResultsController extends ControllerBase {
     $rowData = Array();
     $rowData[0] = "International Cancer Research Partnership - ";
     $rowData[1] = self::getBaseUrl();
-    $writer->addRows([$rowData]);
+    $writer->addRowsWithStyle([$rowData], $style);
     $rowData = Array();
 	$date = date("m/d/Y H:i:s");
     $rowData[0] = "Created: ";
     $rowData[1] = $date;
-    $writer->addRows([$rowData]);
+    $writer->addRowsWithStyle([$rowData], $style);
     $rowData = Array();
     $rowData[0] = "Search Criteria: ";
     $rowData[1] = " ";
-    $writer->addRows([$rowData]);
+    $writer->addRowsWithStyle([$rowData], $style);
 
 	$stmt = $conn -> prepare("SET NOCOUNT ON; exec GetSearchCriteriaBySearchID @SearchID = :search_id");
 	$stmt->bindParam(':search_id', $sid);
@@ -352,7 +353,7 @@ class ExportResultsController extends ControllerBase {
 	   		$rowData = Array();
 	   		$rowData[0] = $row['Name'];
     		$rowData[1] = $row['Value'];
-		    $writer->addRows([$rowData]);
+		    $writer->addRowsWithStyle([$rowData], $style);
 	   }
 	   $result = "succeed";
 	   $writer->getCurrentSheet()->setName("Search Criteria");
@@ -855,14 +856,14 @@ class ExportResultsController extends ControllerBase {
 		for($i = 0; $i < $arrayLength; $i++){
 			$rowData[$i] = $colName[$i];
 		}
-		$writer->addRows([$rowData]);
+		$writer->addRowsWithStyle([$rowData], $style);
 
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($i = 0; $i < $arrayLength; $i++){
 				$rowData[$i] = $row[$colName[$i]];
 			}	
-			$writer->addRows([$rowData]);
+			$writer->addRowsWithStyle([$rowData], $style);
 		}
 	}
 	$writer->getCurrentSheet()->setName('Search Result');
@@ -985,13 +986,13 @@ class ExportResultsController extends ControllerBase {
 		  $meta = $stmt->getColumnMeta($column_index);
 		  $colName[] = $meta['name'];
 		}
-		$writer->addRows([$colName]);
+		$writer->addRowsWithStyle([$colName], $style);
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($in = 0; $in < sizeof($colName); $in++){
 				$rowData[$in] = $row[$colName[$in]];	
 			}
-			$writer->addRows([$rowData]);
+			$writer->addRowsWithStyle([$rowData], $style);
 		}
 		$result = "succeed";
 	}else{
@@ -1057,13 +1058,13 @@ class ExportResultsController extends ControllerBase {
 		  $meta = $stmt->getColumnMeta($column_index);
 		  $colName[] = $meta['name'];
 		}
-		$writer->addRows([$colName]);
+		$writer->addRowsWithStyle([$colName], $style);
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($in = 0; $in < sizeof($colName); $in++){
 				$rowData[$in] = $row[$colName[$in]];	
 			}
-			$writer->addRows([$rowData]);
+			$writer->addRowsWithStyle([$rowData], $style);
 		}
 		$result = "succeed";
 		$writer->getCurrentSheet()->setName('Data Upload Status Report');
