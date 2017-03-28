@@ -32,6 +32,7 @@ use Box\Spout\Writer\WriterFactory;
 use Box\Spout\Writer\XLSX\Internal\Worksheet;
 use Box\Spout\Writer\XLSX\Writer;
 use Box\Spout\Common\Type;
+use Box\Spout\Writer\Style\StyleBuilder;
 
  /** Error reporting */
 error_reporting(E_ALL);
@@ -42,8 +43,13 @@ ini_set('display_startup_errors', TRUE);
 define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
 
 class ExportResultsController extends ControllerBase {
-  $style = (new StyleBuilder())
-  		 ->setShouldWrapText();
+  	public $style;
+
+  	public function __construct(){
+  		$style = (new StyleBuilder())
+  		 		  ->setShouldWrapText()
+  		 		  ->build();
+  	}	 		  
   /**
   * Adds CORS Headers to a response
   */
@@ -96,6 +102,7 @@ class ExportResultsController extends ControllerBase {
   }
 
   private function createExportPublicSheet($conn, $writer, $sid){
+
     $result = "";
     $header = ['Title', 'PI First Name', 'PI Last Name', 'Institution', 'City', 'State', 'Country', 'Funding Organization', 'Award Code', 'View in ICRP'];
 
