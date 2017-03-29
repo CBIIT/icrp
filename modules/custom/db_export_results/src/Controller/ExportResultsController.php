@@ -250,7 +250,13 @@ class ExportResultsController extends ControllerBase {
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($i = 0; $i < $arrayLength; $i++){
-				$rowData[$i] = $row[$colName[$i]];
+				$value = $row[$colName[$i]];
+				if(is_numeric($value)){
+					$value = $value + 0;
+				}else{
+					$value = (string)$value;
+				}
+				$rowData[$i] = $value;
 			}
 			$writer->addRowsWithStyle([$rowData], $style);
 		}
@@ -282,11 +288,11 @@ class ExportResultsController extends ControllerBase {
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$rowData = Array();	
 			if($isPublic){
-				$rowData[0] = $row['ProjectID'];
+				$rowData[0] = $row['ProjectID'] + 0;
 				$rowData[1] = $row['CancerType'];
 				$writer->addRowsWithStyle([$rowData], $style);
 			}else{
-				$rowData[0] = $row['ProjectID'];
+				$rowData[0] = $row['ProjectID'] + 0;
 				$rowData[1] = $row['CancerType'];
 				$rowData[2] = $row['Relevance'];
 				$writer->addRowsWithStyle([$rowData], $style);
@@ -323,11 +329,11 @@ class ExportResultsController extends ControllerBase {
 		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$rowData = Array();
 			if($isPublic){
-				$rowData[0] = $row['ProjectID'];
+				$rowData[0] = $row['ProjectID'] + 0;
 				$rowData[1] = $row['CSOCode'];
 				$writer->addRowsWithStyle([$rowData], $style);
 			}else{
-				$rowData[0] = $row['ProjectID'];
+				$rowData[0] = $row['ProjectID'] + 0;
 				$rowData[1] = $row['CSOCode'];
 				$rowData[2] = $row['CSORelevance'];
 				$writer->addRowsWithStyle([$rowData], $style);
@@ -876,7 +882,13 @@ class ExportResultsController extends ControllerBase {
 		}
 		$arrayLength = sizeof($colName);
 		for($i = 0; $i < $arrayLength; $i++){
-			$rowData[$i] = $colName[$i];
+			$val = $colName[$i];
+			if(is_numeric($val)){
+				$val = $val + 0;
+			}else{
+				$val = (string)$val;
+			}
+			$rowData[$i] = $val;
 		}
 		$writer->addRowsWithStyle([$rowData], $style);
 
@@ -1022,7 +1034,13 @@ class ExportResultsController extends ControllerBase {
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($in = 0; $in < sizeof($colName); $in++){
-				$rowData[$in] = $row[$colName[$in]];	
+				$value = $row[$colName[$in]];
+				if(is_numeric($value)){
+					$value = $value + 0;
+				}else{
+					$value = (string)$value;
+				}
+				$rowData[$in] = $value;	
 			}
 			$writer->addRowsWithStyle([$rowData], $style);
 		}
@@ -1098,7 +1116,13 @@ class ExportResultsController extends ControllerBase {
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($in = 0; $in < sizeof($colName); $in++){
-				$rowData[$in] = $row[$colName[$in]];	
+				$value = $row[$colName[$in]];
+				if(is_numeric($value)){
+					$value = $value + 0;
+				}else{
+					$value = (string)$value;
+				}				
+				$rowData[$in] = $value;	
 			}
 			$writer->addRowsWithStyle([$rowData], $style);
 		}
