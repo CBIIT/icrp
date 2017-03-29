@@ -883,7 +883,13 @@ class ExportResultsController extends ControllerBase {
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($i = 0; $i < $arrayLength; $i++){
-				$rowData[$i] = $row[$colName[$i]];
+				$value = $row[$colName[$i]];
+				if(is_numeric($value)){
+					$value = $value + 0;
+				}else{
+					$value = (string)$value;
+				}
+				$rowData[$i] = $value;
 			}	
 			$writer->addRowsWithStyle([$rowData], $style);
 		}
