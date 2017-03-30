@@ -896,7 +896,9 @@ class ExportResultsController extends ControllerBase {
 			$rowData = Array();
 			for($i = 0; $i < $arrayLength; $i++){
 				$value = $row[$colName[$i]];
-				if(is_numeric($value)){
+				if(is_null($value)){
+					$value = '';
+				}else if(is_numeric($value)){
 					$value = $value + 0;
 				}else{
 					$value = (string)$value;
