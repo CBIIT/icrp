@@ -104,7 +104,7 @@ class ExportLoadResultsController extends ControllerBase {
     $header = ['Title', 'PI First Name', 'PI Last Name', 'Institution', 'City', 'State', 'Country', 'Funding Organization', 'Award Code', 'View in ICRP'];
 
     $url = self::getBaseUrl();
-	$viewLink = $url . "project/";
+	$viewLink = $url . "review/project/";
 	$result_count = NULL;
 	$stmt = $conn->prepare("SET NOCOUNT ON; exec GetProjectsBySearchID @SearchID=:search_id_name, @ResultCount=:result_count");
 	$stmt->bindParam(':search_id_name', $sid);
@@ -225,7 +225,7 @@ class ExportLoadResultsController extends ControllerBase {
 
     $abstract = 0;
 	$url = self::getBaseUrl();
-	$viewLink = $url . "project/";
+	$viewLink = $url . "review/project/";
 	if($withAbstract == true){
 		$abstract = 1;
 	}else{
@@ -854,7 +854,7 @@ class ExportLoadResultsController extends ControllerBase {
   	 		  ->build();
 
     $url = self::getBaseUrl();
-	$viewLink = $url . "project/";
+	$viewLink = $url . "review/project/";
 	$result_count = NULL;
 	
 
