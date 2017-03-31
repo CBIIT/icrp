@@ -895,7 +895,7 @@ class ExportResultsController extends ControllerBase {
 		while($row = $stmt->fetch(PDO::FETCH_ASSOC)){
 			$rowData = Array();
 			for($i = 0; $i < $arrayLength; $i++){
-				$value = $row[$colName[$i]];
+				$value = $row[$colName[$i]];	
 				if(is_null($value)){
 					$value = '';
 				}else if(is_numeric($value)){
