@@ -8,7 +8,7 @@ LABEL \
     UID="DRUPAL_8.2"
 
 RUN curl --silent --location https://rpm.nodesource.com/setup_7.x | bash - \ 
- && curl https://packages.microsoft.com/config/rhel/7/prod.repo > /etc/yum.repos.d/mssql-release.repo \
+ && curl https://packages.microsoft.com/config/rhel/7/prod.repo -o /etc/yum.repos.d/mssql-release.repo \
  && yum makecache fast \ 
  && yum -y update \
  && yum -y install epel-release \
@@ -47,9 +47,9 @@ RUN curl --silent --location https://rpm.nodesource.com/setup_7.x | bash - \
  && pecl install pdo_sqlsrv
 
 RUN { \
-    echo "RewriteEngine On"                                    ; \
-    echo "#RewriteCond %{HTTPS} off"                            ; \
-    echo "#RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URL}" ; \
+    echo "#RewriteEngine On"                                   ; \
+    echo "#RewriteCond %{HTTPS} off"                           ; \
+    echo "#RewriteRule (.*) https://%{SERVER_NAME}/$1 [R,L]"   ; \
 } | tee "/etc/httpd/conf.d/rewrite-https.conf"
 
 RUN { \
@@ -108,7 +108,7 @@ RUN { \
     echo "extension = pdo_sqlsrv.so"          ; \
 } | tee "/etc/php.d/pdo_sqlsrv.ini"
 
-RUN curl https://getcomposer.org/download/1.3.0/composer.phar -o /usr/local/bin/composer \
+RUN curl https://getcomposer.org/composer.phar -o /usr/local/bin/composer \
  && curl https://s3.amazonaws.com/files.drush.org/drush.phar -o /usr/local/bin/drush \
  && chmod 755 /usr/local/bin/composer /usr/local/bin/drush \
  && chown -R apache:apache /var/www/html \
