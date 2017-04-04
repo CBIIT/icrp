@@ -32,7 +32,7 @@ services:
     ports:
       - '3307:3306'
     env_file:
-      - drupal.dev.env
+      - icrp.dev.env
     volumes:
       - /var/lib/mysql
       - ./run/icrp.sql:/tmp/icrp.sql
