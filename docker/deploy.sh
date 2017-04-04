@@ -8,9 +8,9 @@ temp_folder="$icrp_root/.tmp"
 
 ## docker
 docker_root="$icrp_root/docker"
-docker_compose_file="$docker_root/docker-compose.yml"
-web_container="icrp-web-container"
-mysql_container="icrp-mysql-container"
+docker_compose_file="$docker_root/icrp.dev.yml"
+web_container="icrp-drupal"
+mysql_container="icrp-mysql"
 
 ## drupal 8.2.5 (https://www.drupal.org/project/drupal/releases)
 drupal_version="8.2.5"

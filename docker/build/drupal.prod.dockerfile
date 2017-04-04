@@ -2,13 +2,13 @@ FROM centos:latest
 
 LABEL \
     BASE_OS="CentOS 7" \
-    DEFAULT_TAG="8.2" \
-    DESCRIPTION="CentOS 7 / httpd 2.4.23 / php 7.1.0 " \
+    DEFAULT_TAG="8" \
+    DESCRIPTION="CentOS 7 / httpd / php " \
     VERSION="1.0" \
-    UID="DRUPAL_8.2"
+    UID="DRUPAL_8"
 
 RUN curl --silent --location https://rpm.nodesource.com/setup_7.x | bash - \ 
- && curl https://packages.microsoft.com/config/rhel/7/prod.repo -o /etc/yum.repos.d/mssql-release.repo \
+ && curl https://packages.microsoft.com/config/rhel/7/prod.repo > /etc/yum.repos.d/mssql-release.repo \
  && yum makecache fast \ 
  && yum -y update \
  && yum -y install epel-release \
@@ -36,7 +36,7 @@ RUN curl --silent --location https://rpm.nodesource.com/setup_7.x | bash - \
     php71u-pdo \
 #   php71u-pdo-dblib \
     php71u-pecl-apcu \
-    php71u-pecl-xdebug \
+#   php71u-pecl-xdebug \
     php71u-pgsql \
     php71u-xml \
  && ACCEPT_EULA=Y yum -y install msodbcsql mssql-tools \
@@ -47,9 +47,9 @@ RUN curl --silent --location https://rpm.nodesource.com/setup_7.x | bash - \
  && pecl install pdo_sqlsrv
 
 RUN { \
-    echo "#RewriteEngine On"                                   ; \
-    echo "#RewriteCond %{HTTPS} off"                           ; \
-    echo "#RewriteRule (.*) https://%{SERVER_NAME}/$1 [R,L]"   ; \
+    echo "RewriteEngine On"                                    ; \
+    echo "RewriteCond %{HTTPS} off"                            ; \
+    echo "RewriteRule (.*) https://%{SERVER_NAME}$1 [R,L]"     ; \
 } | tee "/etc/httpd/conf.d/rewrite-https.conf"
 
 RUN { \
@@ -93,12 +93,6 @@ RUN { \
 } | tee "/etc/php.d/opcache.ini"
 
 RUN { \
-    echo "[xdebug]"                           ; \
-    echo "xdebug.remote_enable = 1"           ; \
-    echo "xdebug.remote_autostart = 1"        ; \
-} | tee "/etc/php.d/xdebug.ini"
-
-RUN { \
     echo "[sqlsrv]"                           ; \
     echo "extension = sqlsrv.so"              ; \
 } | tee "/etc/php.d/sqlsrv.ini"
@@ -116,9 +110,8 @@ RUN curl https://getcomposer.org/composer.phar -o /usr/local/bin/composer \
 
 EXPOSE 80
 EXPOSE 443
-EXPOSE 9000
 
-COPY "./entrypoint.sh" "/usr/bin/entrypoint.sh"
+COPY "./drupal.entrypoint.sh" "/usr/bin/entrypoint.sh"
 
 RUN chmod 755 /usr/bin/entrypoint.sh \
  && ln -s /usr/bin/entrypoint.sh /entrypoint.sh
