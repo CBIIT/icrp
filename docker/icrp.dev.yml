@@ -31,16 +31,13 @@ services:
       - '3306'
     ports:
       - '3307:3306'
-    environment:
-      - MYSQL_ROOT_PASSWORD=temporary-root-password
-      - MYSQL_DATABASE=drupal
-      - MYSQL_USER=drupal
-      - MYSQL_PASSWORD=drupal
+    env_file:
+      - drupal.dev.env
     volumes:
       - /var/lib/mysql
       - ./run/icrp.sql:/tmp/icrp.sql
     healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-sp$$MYSQL_ROOT_PASSWORD'] 
+      test: ['CMD', 'mysqladmin', 'ping', '-sp$MYSQL_ROOT_PASSWORD'] 
       interval: 2s
       timeout: 10s
       retries: 12
