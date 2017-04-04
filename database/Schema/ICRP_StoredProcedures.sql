@@ -836,7 +836,7 @@ GO
 CREATE PROCEDURE [dbo].[GetProjectExportsBySearchID]
      @SearchID INT,
 	 @IncludeAbstract INT = 0,
-	 @SiteURL varchar(50) = 'https://www.icrpartnership.org/project/'
+	 @SiteURL varchar(250) = 'https://www.icrpartnership.org/project/'
 	 
 AS   
 
@@ -1102,7 +1102,7 @@ GO
 CREATE  PROCEDURE [dbo].[GetProjectExportsSingleBySearchID]
   @SearchID INT,
   @IncludeAbstract bit  = 0,
-  @SiteURL varchar(50) = 'https://www.icrpartnership.org/project/'
+  @SiteURL varchar(250) = 'https://www.icrpartnership.org/project/'
 	 
 AS   
 
@@ -1298,7 +1298,7 @@ CREATE  PROCEDURE [dbo].[GetCancerTypeLookUp]
     
 AS   
 
-SELECT Name, ICRPCode, ICD10CodeInfo
+SELECT CancerTypeid, Name, ICRPCode, ICD10CodeInfo
 FROM CancerType
 ORDER BY Name
 

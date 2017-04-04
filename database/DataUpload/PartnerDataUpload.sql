@@ -364,9 +364,14 @@ DECLARE @ImportNotes  VARCHAR(1000) = 'All ASTRO Research Awards starting in 201
 INSERT INTO DataUploadStatus ([PartnerCode],[FundingYear],[Status],[ReceivedDate],[ValidationDate],[UploadToDevDate],[UploadToStageDate],[UploadToProdDate],[Note],[CreatedDate])
 VALUES (@PartnerCode, @FundingYears, 'Staging', '3/27/2017', '3/28/2017', '3/28/2017',  '3/28/2017', NULL, @ImportNotes, getdate())
 
+
 SET @DataUploadStatusID = IDENT_CURRENT( 'DataUploadStatus' )  
 
 PRINT 'DataUploadStatusID = ' + CAST(@DataUploadStatusID AS varchar(10))
+
+INSERT INTO icrp_data.dbo.DataUploadStatus ([PartnerCode],[FundingYear],[Status],[ReceivedDate],[ValidationDate],[UploadToDevDate],[UploadToStageDate],[UploadToProdDate],[Note],[CreatedDate])
+VALUES (@PartnerCode, @FundingYears, 'Staging', '3/27/2017', '3/28/2017', '3/28/2017',  '3/28/2017', NULL, @ImportNotes, getdate())
+
 
 -----------------------------------
 -- Import ProjectFunding
