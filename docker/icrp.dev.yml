@@ -40,7 +40,7 @@ services:
       - /var/lib/mysql
       - ./run/icrp.sql:/tmp/icrp.sql
     healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-sp$MYSQL_ROOT_PASSWORD'] 
+      test: ['CMD', 'mysqladmin', 'ping', '-sp$$MYSQL_ROOT_PASSWORD'] 
       interval: 2s
       timeout: 10s
       retries: 12
