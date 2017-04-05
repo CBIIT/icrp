@@ -32,12 +32,12 @@ services:
     ports:
       - '3307:3306'
     env_file:
-      - icrp.dev.env
+      - .env
     volumes:
       - /var/lib/mysql
       - ./run/icrp.sql:/tmp/icrp.sql
     healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-sp$MYSQL_ROOT_PASSWORD'] 
+      test: ['CMD', 'mysqladmin', 'ping', '-s', '-p$MYSQL_ROOT_PASSWORD'] 
       interval: 2s
       timeout: 10s
       retries: 12
