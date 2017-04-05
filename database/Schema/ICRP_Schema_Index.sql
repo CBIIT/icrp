@@ -1,6 +1,8 @@
 /*************************************************************************************/
 --  Create index key for the ProjectFunding table
 /*************************************************************************************/
+BEGIN TRANSACTION
+
 IF EXISTS (SELECT name FROM sys.indexes  
             WHERE name = N'IX_ProjectFunding_ProjectID')   
     DROP INDEX IX_ProjectFunding_ProjectID ON ProjectFunding;   
@@ -101,3 +103,5 @@ GO
 CREATE NONCLUSTERED INDEX IX_Project_ProjectType_ProjectID   
     ON Project_ProjectType (ProjectID);   
 GO  
+
+COMMIT
