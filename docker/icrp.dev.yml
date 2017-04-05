@@ -16,7 +16,7 @@ services:
     depends_on:
      - db
     links:
-     - db:database
+     - db
     ports:
       - '80:80'
       - '443:443' 
