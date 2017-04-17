@@ -758,42 +758,36 @@ GO
 ALTER TABLE [dbo].[Partner] ADD  CONSTRAINT [DF_Partner_UpdatedDate]  DEFAULT (getdate()) FOR [UpdatedDate]
 GO
 
+/****** Object:  Table [dbo].[DataUploadLog]    Script Date: 4/12/2017 2:01:33 PM ******/
+SET ANSI_NULLS ON
+GO
 
-/****** Object:  Table [dbo].[PartnerOrg]    Script Date: 1/27/2017 1:01:26 PM ******/
---SET ANSI_NULLS ON
---GO
+SET QUOTED_IDENTIFIER ON
+GO
 
---SET QUOTED_IDENTIFIER ON
---GO
+CREATE TABLE [dbo].[DataUploadLog](
+	[DataUploadLogID] [int] IDENTITY(1,1) NOT NULL,
+	[DataUploadStatusID] [int] NOT NULL,
+	[ProjectCount] [int] NULL,
+	[ProjectFundingCount] [int] NULL,
+	[ProjectFundingInvestigatorCount] [int] NULL,
+	[ProjectCSOCount] [int] NULL,
+	[ProjectCancerTypeCount] [int] NULL,
+	[Project_ProjectTypeCount] [int] NULL,
+	[ProjectAbstractCount] [int] NULL,
+	[ProjectSearchCount] [int] NULL,
+	[CreatedDate] [datetime] NOT NULL,
+ CONSTRAINT [PK_DataUploadLog] PRIMARY KEY CLUSTERED 
+(
+	[DataUploadLogID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
 
---CREATE TABLE [dbo].[PartnerOrg](
---	[PartnerOrgID] [int] IDENTITY(1,1) NOT NULL,
---	[PartnerID] [int] NOT NULL,
---	[SponsorCode] [varchar](50) NOT NULL,
---	[Name] [varchar](100) NULL,
---	[Country] [varchar](3) NULL,
---	[MemberType] [varchar](25) NULL,
---	[MemberStatus] [varchar](25) NULL,
---	[JoinDate] [datetime] NULL,
---	[ContactDate] [datetime] NULL,
---	[Note] [varchar](max) NULL,
---	[PID] [int] NULL,
---	[DSASigned] [bit] NULL,
---	[CreatedDate] [datetime] NOT NULL,
---	[UpdatedDate] [datetime] NOT NULL,
--- CONSTRAINT [PK_PartnerOrg] PRIMARY KEY CLUSTERED 
---(
---	[PartnerOrgID] ASC
---)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
---) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
 
---GO
+ALTER TABLE [dbo].[DataUploadLog] ADD  CONSTRAINT [DF_DataUploadLog_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
+GO
 
---ALTER TABLE [dbo].[PartnerOrg] ADD  CONSTRAINT [DF_PartnerOrg_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
---GO
-
---ALTER TABLE [dbo].[PartnerOrg] ADD  CONSTRAINT [DF_PartnerOrg_UpdatedDate]  DEFAULT (getdate()) FOR [UpdatedDate]
---GO
 
 /************************************************************************************/
 /*  Library Tables																	*/
