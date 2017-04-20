@@ -94,9 +94,9 @@
         description="This only displays awards active during the years selected during your search. Select all years to see all awards"
         ></ui-chart>
 
-        <div class="pull-right" tooltip="Qualifies the rate conversion used. Conversion rates for the year selected will be used for all monies represented on the graph."> 
+        <div class="pull-right" tooltip="Qualifies the rate conversion used. Conversion rates for the year selected will be used for all monies represented on the graph.">
           Use Currency Rates From
-            <select #fundingyear 
+            <select #fundingyear
               (change)="setFundingYear(fundingyear.value)"
             >
               <option *ngFor="let year of fundingYearOptions" [value]="year">{{ year }}</option>
@@ -106,7 +106,7 @@
   </div>
 
   <div class="text-center" [ngStyle]="{'display': authenticated ? 'block' : 'none'}">
-    <button class="btn btn-primary btn-xs" (click)="showExtendedCharts = !showExtendedCharts; setFundingYear(fundingyear.value)" [disabled]="loadingAnalytics">
+    <button class="btn btn-primary btn-xs" (click)="showExtendedCharts = !showExtendedCharts; showExtendedCharts && setFundingYear(fundingyear.value)" [disabled]="loadingAnalytics">
       Show {{showExtendedCharts ? 'Less' : 'More'}}
     </button>
   </div>
