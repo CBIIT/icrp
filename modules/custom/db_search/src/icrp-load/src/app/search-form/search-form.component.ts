@@ -73,6 +73,10 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
   @Output()
   requestInitialParameters: EventEmitter<any>;
 
+  @Output()
+  loadedComplete: EventEmitter<any> = new EventEmitter();;
+
+
   @Input()
   initialSearchParameters: any;
 
@@ -177,10 +181,10 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
     }
 
     let years = this.form.controls['years'].value;
- 
+
      if(years.indexOf('All Years') > -1) {
        years = this.fields.years.map(year => year.value).slice(1);
-     }    
+     }
 
     let parameters = {
 
@@ -217,13 +221,13 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
     }
 
     if (parameters['funding_organizations']) {
-      parameters['funding_organizations'] = 
+      parameters['funding_organizations'] =
         parameters['funding_organizations']
         .filter(value => !isNaN(value))
     }
 
     if (parameters['cso_research_areas']) {
-      parameters['cso_research_areas'] = 
+      parameters['cso_research_areas'] =
         parameters['cso_research_areas']
         .filter(value => !isNaN(value))
     }
@@ -241,7 +245,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
       mappedParameters[key] = parameters[key]
     }
 
-/*    
+/*
     for (let parameterType of [
       'years',
       'countries',
@@ -257,7 +261,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
 */
     for (let parameterType of ['funding_organizations', 'cancer_types', 'cso_research_areas']) {
       if (mappedParameters[parameterType])
-        mappedParameters[parameterType] = this.mapValue(parameterType, mappedParameters[parameterType])  
+        mappedParameters[parameterType] = this.mapValue(parameterType, mappedParameters[parameterType])
     }
 
     return mappedParameters;
@@ -275,7 +279,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
   }
 
   filterCities(
-    cities: { "value": string, "label": string, "group": string, "supergroup": string }[], 
+    cities: { "value": string, "label": string, "group": string, "supergroup": string }[],
     states: string[],
     countries: string[]) {
     return cities
@@ -297,11 +301,11 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
 
   createTreeNode(
     items: {
-      "value": number, 
-      "label": string, 
-      "group": string, 
+      "value": number,
+      "label": string,
+      "group": string,
       "supergroup": string }[], type: string): TreeNode {
-    
+
     let root: TreeNode = null;
     let supergroups: TreeNode[] = [];
     let groups: TreeNode[] = [];
@@ -328,7 +332,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
        let label = item.group;
         if (type === 'funding_organizations') {
           label = `All ${item.group} organizations`
-        }        
+        }
 
         groups.push({
           value: item.group,
@@ -346,7 +350,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
       if (!supergroup.children.find(sgChild => sgChild.value == group.value)) {
         this.addTreeNode(supergroup, group);
       }
-      
+
       this.addTreeNode(group, {
         value: (item.value).toString(),
         label: item.label
@@ -373,7 +377,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
         if (a.children && b.children) {
           return a.children.length - b.children.length;
         }
-        
+
         return a.label.localeCompare(b.label)
       }
 
@@ -449,7 +453,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
 
     for (let key in params) {
       let value = params[key];
-      
+
       if (value instanceof Array)
         value = value.filter(e => e.length);
 
@@ -471,7 +475,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
       for (let key in this.initialSearchParameters) {
 
         let value = this.initialSearchParameters[key];
-        
+
         if (value instanceof Array)
           value = value.filter(e => e && e.toString().length);
 
@@ -543,7 +547,9 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
 
                   this.partnerData = [];
                   this.form.controls['years'].patchValue([year, year - 1])
-                  window.setTimeout(f => this.submit(), 0)
+//                  window.setTimeout(f => this.submit(), 0)
+
+                  this.loadedComplete.emit(true);
                 }
 
               },
@@ -563,4 +569,3 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
  }
 }
 
- 

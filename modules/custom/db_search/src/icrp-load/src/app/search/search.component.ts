@@ -18,7 +18,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   searchParameters: SearchParameters;
 
   searchID: any;
-  mappedParameters: any;  
+  mappedParameters: any;
   parameters: any;
   sortPaginateParameters: any;
   results: any;
@@ -35,7 +35,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
   partnerData = [];
 
   partnerSelectionMessage = '';
-  
+
   partnerSearchParameters = {};
 
   constructor(
@@ -79,10 +79,10 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
             for(let i = 0; i < response.length; i ++) {
               let row = response[i];
-              
+
               row.display_sponsor_code = row.sponsor_code.slice(0).pop();
               let dates = row.funding_years;
-              
+
               if (dates.length > 1) {
                 let min = dates[0];
                 let max = dates[dates.length - 1];
@@ -111,9 +111,13 @@ export class SearchComponent implements OnInit, AfterViewInit {
     this.partnerSelectionMessage = `Review data upload for Funding Sponsor ${partner.display_sponsor_code}, Funding Years ${partner.display_funding_years}`;
   }
 
+  completeLoading() {
+    this.loading = false;
+  }
+
   setInitialPartnerSearchParameters(partners, funding_years, index) {
     this.generatePartnerMessage(index);
-    
+
     let parsed_partners = partners.filter(p => !isNaN(p)).map(p => +p)
 
     this.initialParameters = {
@@ -212,7 +216,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
     this.loading = true;
     this.parameters = {};
-    
+
     for (let key in event) {
       if (event[key]) {
         this.parameters[key] = event[key];
@@ -247,7 +251,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       );
     }
   }
-    
+
   processAnalytics(response) {
 //    let analytics = {};
 
@@ -256,9 +260,9 @@ export class SearchComponent implements OnInit, AfterViewInit {
       this.analytics['counts'] = [];
 
       for (let category of [
-        'projects_by_country', 
-        'projects_by_cso_research_area', 
-        'projects_by_cancer_type', 
+        'projects_by_country',
+        'projects_by_cso_research_area',
+        'projects_by_cancer_type',
         'projects_by_type',
         'projects_by_year']) {
           if (response[category]) {
@@ -313,7 +317,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
     if (!year) {
       year = 2017;
     }
-    
+
     params.set('search_id', this.searchID);
     params.set('year', year);
 
@@ -322,7 +326,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
       .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
       .subscribe(
         response => {
-          
+
 
           let category = 'projects_by_year';
           let parsed_data = response.map(data => ({label: data.label, value: +data.value}));
@@ -335,7 +339,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   updateAvailableConversionYears() {
 
-    console.log('receiving funding update');
     let endpoint = `${this.apiRoot}/db/partner/analytics/funding_years`;
 
     return this.http.get(endpoint)
@@ -348,7 +351,7 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
 
   resultsSortPaginate(parameters: Object) {
-    
+
     let endpoint = `${this.apiRoot}/db/public/sort_paginate`;
     let host = window.location.hostname;
 
@@ -376,14 +379,14 @@ export class SearchComponent implements OnInit, AfterViewInit {
         this.results = response;
         this.loading = false;
       })
-    
+
   }
 
 
 
 
   queryServer(parameters: Object): Observable<any[]> {
-  
+
     let protocol = window.location.protocol;
     let host = window.location.hostname;
 
