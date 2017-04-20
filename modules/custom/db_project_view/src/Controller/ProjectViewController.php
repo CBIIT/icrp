@@ -70,6 +70,7 @@ class ProjectViewController extends ControllerBase {
       'FundingOrg' => 'funding_organization',
       'BudgetStartDate' => 'budget_start_date',
       'BudgetEndDate' => 'budget_end_date',
+      'Amount' => 'funding_amount',
       'TechAbstract' => 'technical_abstract',
       'PublicAbstract' => 'public_abstract',
     ],
@@ -196,7 +197,7 @@ class ProjectViewController extends ControllerBase {
     ];
 
     // map queries to return values
-    $results = array_reduce(
+    return array_reduce(
       array_map(function($key, $value) use ($pdo, $funding_id) {
         $stmt = $pdo->prepare($value);
         $stmt->execute([':funding_id' => $funding_id]);
@@ -213,14 +214,6 @@ class ProjectViewController extends ControllerBase {
         }, $stmt->fetchAll(PDO::FETCH_ASSOC))];
       }, array_keys($queries), $queries),
     'array_merge', []);
-
-
-    $funding_stmt = $pdo->prepare('SELECT [Amount] as funding_amount from ProjectFunding WHERE ProjectFundingID = :funding_id');
-    if ($funding_stmt->execute([':funding_id' => $funding_id])) {
-      $results['project_funding_details'][0]['funding_amount'] = $funding_stmt->fetch(PDO::FETCH_ASSOC)['funding_amount'];
-    }
-
-    return $results;
   }
 
 
