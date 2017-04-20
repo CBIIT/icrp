@@ -549,7 +549,7 @@ class DatabaseSearchAPIController extends ControllerBase {
       'cities'                => 'SELECT DISTINCT City AS [value], City AS [label], State AS [group], Country AS [supergroup] FROM Institution WHERE len(City) > 0 ORDER BY [label]',
       'states'                => 'SELECT Abbreviation AS [value], Name AS [label], Country AS [group] FROM State ORDER BY [label]',
       'countries'             => 'SELECT Abbreviation AS [value], Name AS [label] FROM Country ORDER BY [label]',
-      'funding_organizations' => 'SELECT FundingOrgID AS [value], Name AS [label], SponsorCode AS [group], Country AS [supergroup] from FundingOrg',
+      'funding_organizations' => 'SELECT FundingOrgID AS [value], Name AS [label], SponsorCode AS [group], Country AS [supergroup] from FundingOrg WHERE LastImportDate is NOT NULL',
       'cancer_types'          => 'SELECT CancerTypeID AS [value], Name AS [label] FROM CancerType ORDER BY [label]',
       'project_types'         => 'SELECT ProjectType AS [value], ProjectType AS [label] FROM ProjectType',
       'cso_research_areas'    => 'SELECT Code AS [value], Code + \' \' + Name AS [label], CategoryName AS [group], \'All Areas\' as [supergroup] FROM CSO WHERE isActive = 1',
