@@ -217,7 +217,7 @@ class ProjectViewController extends ControllerBase {
 
     $funding_stmt = $pdo->prepare('SELECT [Amount] as funding_amount from ProjectFunding WHERE ProjectFundingID = :funding_id');
     if ($funding_stmt->execute([':funding_id' => $funding_id])) {
-      $results['project_funding_details']['funding_amount'] = $funding_stmt->fetch(PDO::FETCH_ASSOC);
+      $results['project_funding_details'][0]['funding_amount'] = $funding_stmt->fetch(PDO::FETCH_ASSOC)['funding_amount'];
     }
 
     return $results;
