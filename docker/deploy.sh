@@ -1,5 +1,17 @@
 #!/bin/bash
 
+## This script will deploy the icrp application locally 
+##
+## steps:
+##   - download drupal core (todo: use composer)
+##   - clone the icrp repository
+##   - copy icrp resources into the drupal installation 
+##   - start the icrp application using docker-compose
+##   - Import the drupal database from a .sql dump
+##   - Import drupal configuration from the sync directory
+##   - Rebuild the drupal cache 
+
+
 ## root deployment directory
 [[ -z "$1" ]] && icrp_root="$HOME/icrp" || icrp_root="$1"
 
@@ -8,22 +20,23 @@ temp_folder="$icrp_root/.tmp"
 
 ## docker
 docker_root="$icrp_root/docker"
-docker_compose_file="$docker_root/docker-compose.yml"
-web_container="icrp-web-container"
-mysql_container="icrp-mysql-container"
+docker_compose_file="$docker_root/icrp.dev.yml"
+web_container="icrp-drupal"
+mysql_container="icrp-mysql"
 
-## drupal 8.2.5 (https://www.drupal.org/project/drupal/releases)
-drupal_version="8.2.5"
+## drupal 8.2.7 (https://www.drupal.org/project/drupal/releases)
+drupal_version="8.2.7"
 drupal_filename="drupal-$drupal_version.tar.gz"
 drupal_filepath="$temp_folder/$drupal_filename"
 drupal_url="https://ftp.drupal.org/files/projects/$drupal_filename"
-drupal_root="$docker_root/drupal"
+drupal_root="$docker_root/run/drupal"
 drupal_custom_modules_root="$drupal_root/modules/custom"
 
 start_timestamp=$(date +%s)
 
 ## icrp repository
 repository_url="https://github.com/cbiit/icrp"
+repository_branch="content-migration"
 repository_root="$temp_folder/repository"
 
 ## configuration directory
@@ -42,14 +55,15 @@ fi
 
 ## clone repository if it does not exist, otherwise pull latest changes
 echo "Updating repository..."
-if [ -d "$repository_root" ]; then
-  pushd "$repository_root"
-  git pull
-  popd
-else
-  git clone "$repository_url" "$repository_root" 
-  echo
+if [ ! -d "$repository_root" ]; then
+  git clone "$repository_url" "$repository_root"
 fi
+
+pushd "$repository_root"
+git reset --hard
+git checkout "$repository_branch"
+git pull
+popd
 
 
 ## download drupal if the archive does not exist
@@ -102,13 +116,13 @@ fi
 
 echo -e "Initializing docker directory...\n"
 mkdir -p "$docker_root"
-cp -R "$repository_root/docker/build/"* "$docker_root/"
+cp -R "$repository_root/docker/"* "$docker_root/"
 
 
 ## copy icrp database dump to docker build context
 if [ -f "$repository_root/icrp.sql" ]; then
   echo -e "Copying icrp database dump to docker directory...\n"
-  cp "$repository_root/icrp.sql" "$docker_root/"
+  cp "$repository_root/icrp.sql" "$docker_root/run/"
 fi
 
 
@@ -120,13 +134,11 @@ docker-compose down
 
 echo -e "Starting containers...\n"
 rm -rf $temp_folder/log $temp_folder/error_log
-nohup docker-compose up > $temp_folder/log 2> $temp_folder/error_log < /dev/null &
+nohup docker-compose --file icrp.dev.yml up > $temp_folder/log 2> $temp_folder/error_log < /dev/null &
 popd
 
 ## wait until mysql container is ready
-## while [ $(tail -n1 $temp_folder/log | grep -v "mysqld.sock") ]; do sleep 2; done
-echo "sleeping"
-sleep 15
+while [ $(docker inspect --format "{{json .State.Health.Status }}" $mysql_container != "\"health\"" ]; sleep 2; done
 
 ## import drupal database
 echo -e "Importing icrp database...\n"

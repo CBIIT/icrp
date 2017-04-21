@@ -2,10 +2,10 @@ FROM centos:latest
 
 LABEL \
     BASE_OS="CentOS 7" \
-    DEFAULT_TAG="8.2" \
-    DESCRIPTION="CentOS 7 / httpd 2.4.23 / php 7.1.0 " \
+    DEFAULT_TAG="8" \
+    DESCRIPTION="CentOS 7 / httpd / php " \
     VERSION="1.0" \
-    UID="DRUPAL_8.2"
+    UID="DRUPAL_8"
 
 RUN curl --silent --location https://rpm.nodesource.com/setup_7.x | bash - \ 
  && curl https://packages.microsoft.com/config/rhel/7/prod.repo -o /etc/yum.repos.d/mssql-release.repo \
@@ -77,7 +77,7 @@ RUN { \
 } | tee "/etc/httpd/conf.d/docker-php.conf"
 
 RUN { \
-    echo "<filesMatch \"\.(js|html|css)$\""                    ; \
+    echo "<filesMatch \"\.(js|html|css)$\">"                    ; \
     echo "    SetOutputFilter DEFLATE"                         ; \
     echo "</filesMatch>"                                       ; \
 } | tee "/etc/httpd/conf.d/deflate.conf"
@@ -116,9 +116,8 @@ RUN curl https://getcomposer.org/composer.phar -o /usr/local/bin/composer \
 
 EXPOSE 80
 EXPOSE 443
-EXPOSE 9000
 
-COPY "./entrypoint.sh" "/usr/bin/entrypoint.sh"
+COPY "./drupal.entrypoint.sh" "/usr/bin/entrypoint.sh"
 
 RUN chmod 755 /usr/bin/entrypoint.sh \
  && ln -s /usr/bin/entrypoint.sh /entrypoint.sh
