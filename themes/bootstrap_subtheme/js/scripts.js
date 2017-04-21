@@ -14,6 +14,9 @@
         case "/home":
           $.getNewsletter();
           break;
+        case "/partner-application-administration-tool":
+          $.partnerApplicationAdminTable();
+          break;
         case "/contact-us":
           $.populateContactUsForm();
           break;
@@ -33,6 +36,10 @@
       $('[data-toggle="tooltip"]').tooltip({container: 'body'}); 
     }, 0);
   }
+  $.partnerApplicationAdminTable = function() {
+    console.log("Datatable Time");
+  }
+
   $.populateContactUsForm = function() {
     //console.log("You are on the /contact-us page.");
     var typeOfIssue =decodeURIComponent($.urlParam("type-of-issue"));

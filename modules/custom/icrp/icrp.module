@@ -3,6 +3,9 @@
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Form\FormStateInterface;
 use \Drupal\icrp\Importer\OrganizationRestClient;
+use Drupal\views\Plugin\views\PluginBase;
+use Drupal\views\ViewExecutable;
+use Drupal\views\Views;
 
 /*
  * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
@@ -38,6 +41,65 @@ function icrp_user_login($account) {
 }
 */
 
+function partnerApplicationSubmissionsTable() {
+    //First Check to see if there are any Submitted Applications
+    //If count is zero, then display all Active Submissions
+    $markup = '<h1>Partner Application Administration Tool</h1>';
+    $markup .= '<table class="table table-striped table-bordered table-condensed cols-6 sticky-enabled">
+  <thead>
+  <tr>
+    <th>Organization</th>
+    <th>City</th>
+    <th>Country</th>
+    <th>Email</th>
+    <th>Date Submitted</th>
+    <th>Review Data</th>
+    <th>Status</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td>Universal Cancer Research</td>
+    <td>London</td>
+    <td>United Kingdom</td>
+    <td>nobel.price@universalcancerresearch.org</td>
+    <td>10/14/2016</td>
+    <td><a href="#">Review</a></td>
+    <td>Pending Review</td>
+  </tr>
+  <tr>
+    <td>Universal Cancer Research</td>
+    <td>London</td>
+    <td>United Kingdom</td>
+    <td>nobel.price@universalcancerresearch.org</td>
+    <td>10/14/2016</td>
+    <td><a href="#">Review</a></td>
+    <td>Pending Review</td>
+  </tr>
+  <tr>
+    <td>Universal Cancer Research</td>
+    <td>London</td>
+    <td>United Kingdom</td>
+    <td>nobel.price@universalcancerresearch.org</td>
+    <td>10/14/2016</td>
+    <td><a href="#">Review</a></td>
+    <td>Pending Review</td>
+  </tr>
+  </tbody>
+</table> ';
+    return $markup;
+}
+
+function partnerApplicationSubmissionsData() {
+    //Query table and return JSON of "PENDING Review" Applications
+    return 'jsonData';
+}
+
+function partnerApplicationSubmissionsCount() {
+    //Perform SQL to add
+
+    return 2;
+}
 /**
  * Implements hook_theme().
  */
@@ -96,8 +158,71 @@ function icrp_hook_form_alter(array &$form, FormStateInterface $form_state, $for
 }
 */
 
-function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id)
-{
+function icrp_views_pre_render($view) {
+  // Scramble the order of the rows shown on this result page.
+  // Note that this could be done earlier, but not later in the view execution
+  // process.
+  //drupal_set_message("views_pre_render");
+  //drupal_set_message("shuffle rows");
+  //shuffle($view->result);
+  //kint($view);
+  /*
+  foreach($view->result as $key ){
+
+    $value = $key->_entity->getValue('field_name')->getValue(array(0=>'value'));
+    drupal_set_message("$value");
+  }
+  */
+}
+
+function icrp_views_query_alter($view, $query) {
+
+    if($view->id() == 'partner_application_administration_tool'){
+        $definition = array(
+            'table' => 'webform_submission_data',
+            'field' => 'sid',
+            'left_table' => 'webform_submission',
+            'left_field' => 'sid',
+        );
+        $join = Views::pluginManager('join')->createInstance('standard', $definition);
+
+        $query->addRelationship('webform_submission_data', $join, 'webform_submission');
+
+        // ouptuts "LEFT JOIN {node__field_precise_date} node__field_precise_date ON node_field_data.nid = node__field_precise_date.entity_id AND (node__field_precise_date.deleted = '0' AND node__field_precise_date.langcode = node_field_data.langcode)"
+
+       // $date_format = $query->getDateFormat("node__field_precise_date.field_precise_date_value", "m")." = :value";
+        //$query->addWhereExpression(2, $date_format, [":value" => 12]); // Where 12 is the month I need.
+    }    
+    \Drupal::logger('hook')->notice('icrp_views_query_alter()');
+    drupal_set_message("views_query_alter");
+    drupal_set_message("View ID: ".$view->id());
+    global $user;
+    if($view->id() == "partner_application_administration_tool") {
+        drupal_set_message("You are viewing the Partner Applications");
+    }
+    //kint($query);
+  // (Example assuming a view with an exposed filter on node title.)
+  // If the input for the title filter is a positive integer, filter against
+  // node ID instead of node title.
+  if ($view->id() == 'my_view' && is_numeric($view->exposed_raw_input['title']) && $view->exposed_raw_input['title'] > 0) {
+    // Traverse through the 'where' part of the query.
+    foreach ($query->where as &$condition_group) {
+      foreach ($condition_group['conditions'] as &$condition) {
+        // If this is the part of the query filtering on title, chang the
+        // condition to filter on node ID.
+        if ($condition['field'] == 'node.title') {
+          $condition = array(
+            'field' => 'node.nid',
+            'value' => $view->exposed_raw_input['title'],
+            'operator' => '=',
+          );
+        }
+      }
+    }
+  }
+}
+
+function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 
     //drupal_set_message("Form ID: " . $form_id);
     //kint(print_r($form, true));
