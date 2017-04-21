@@ -27,6 +27,10 @@
     {% else %}
       <i>Not specified</i>
     {% endif %}
+  {% if logged_in %}
+    <dt>Funding Amount</dt>
+    <dd>{{ funding_details.funding_amount | number_format(2, '.', ',')}} USD</dd>
+  {% endif %}
   <dt>Principal Investigator</dt>
   <dd>
     {{ funding_details.pi_name | default('Not specified')}}

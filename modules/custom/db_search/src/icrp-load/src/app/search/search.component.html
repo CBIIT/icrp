@@ -15,8 +15,8 @@
       <tbody>
         <tr *ngFor="let row of partnerData; let i = index ">
           <td>
-            <a 
-              style="cursor: pointer" 
+            <a
+              style="cursor: pointer"
               (click)="setInitialPartnerSearchParameters(row.sponsor_code, row.funding_years, i)">
                 {{ row.display_sponsor_code }}
             </a>
@@ -40,23 +40,25 @@ There are currently no submitted workbooks pending for review. Go to <a href="/u
 
 <div class="row" [style.display]="partnerData && partnerData.length > 0 ? 'block':'none'">
 <div class="col-md-3">
-  <app-search-form 
+  <app-search-form
     [initialSearchParameters]="initialParameters"
-    (search)="updateResults($event)" 
+    (search)="updateResults($event)"
     (mappedSearch)="updateMappedParameters($event)"
+    (search)="updateResults($event)"
+    (loadedComplete)="completeLoading()"
     (requestInitialParameters)="updateInitialSearchId()">
   </app-search-form>
 </div>
 
 <div class="col-md-9">
-  <app-search-results 
+  <app-search-results
     [authenticated]="loggedIn"
     [results]="results"
-    [analytics]="analytics" 
-    [loading]="loading" 
-    [loadingAnalytics]="loadingAnalytics" 
+    [analytics]="analytics"
+    [loading]="loading"
+    [loadingAnalytics]="loadingAnalytics"
     [searchParameters]="mappedParameters"
-    (paginate)="paginate($event)" 
+    (paginate)="paginate($event)"
     (sort)="sort($event)"
     (updateFundingYear)="updateServerAnalyticsFunding($event)"
     [fundingYearOptions]="conversionYears"

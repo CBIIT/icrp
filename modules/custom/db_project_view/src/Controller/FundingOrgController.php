@@ -55,7 +55,7 @@ class FundingOrgController extends ControllerBase {
        Country as country,
        SponsorCode as sponsor,
        Currency as currency,
-       '' as description,
+       LastImportDesc as description,
        CAST(LastImportDate as DATE) import_date,
        CASE WHEN IsAnnualized = 1 THEN 'YES'
             ELSE 'NO'

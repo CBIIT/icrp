@@ -105,7 +105,7 @@
 </div>
 
 <div class="text-center" [ngStyle]="{'display': authenticated ? 'block' : 'none'}">
-  <button class="btn btn-primary btn-xs" (click)="showExtendedCharts = !showExtendedCharts; setFundingYear(fundingyear.value)" [disabled]="loadingAnalytics">
+  <button class="btn btn-primary btn-xs" (click)="showExtendedCharts = !showExtendedCharts; showExtendedCharts && setFundingYear(fundingyear.value)" [disabled]="loadingAnalytics">
     Show {{showExtendedCharts ? 'Less' : 'More'}}
   </button>
 </div>

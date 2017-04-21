@@ -70,6 +70,7 @@ class ProjectViewController extends ControllerBase {
       'FundingOrg' => 'funding_organization',
       'BudgetStartDate' => 'budget_start_date',
       'BudgetEndDate' => 'budget_end_date',
+      'Amount' => 'funding_amount',
       'TechAbstract' => 'technical_abstract',
       'PublicAbstract' => 'public_abstract',
     ],

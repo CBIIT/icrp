@@ -40,7 +40,7 @@ let devProviders = [
     {
       provide: 'page_title',
       useValue: 'Data Review Tool'
-    },  
+    },
 ]
 
 let dataReviewProviders = [
@@ -51,7 +51,7 @@ let dataReviewProviders = [
     {
       provide: 'page_title',
       useValue: 'Data Review Tool'
-    },  
+    },
 ]
 
 @NgModule({

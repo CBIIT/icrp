@@ -836,7 +836,7 @@ GO
 CREATE PROCEDURE [dbo].[GetProjectExportsBySearchID]
      @SearchID INT,
 	 @IncludeAbstract INT = 0,
-	 @SiteURL varchar(50) = 'https://www.icrpartnership.org/project/'
+	 @SiteURL varchar(250) = 'https://www.icrpartnership.org/project/'
 	 
 AS   
 
@@ -1102,7 +1102,7 @@ GO
 CREATE  PROCEDURE [dbo].[GetProjectExportsSingleBySearchID]
   @SearchID INT,
   @IncludeAbstract bit  = 0,
-  @SiteURL varchar(50) = 'https://www.icrpartnership.org/project/'
+  @SiteURL varchar(250) = 'https://www.icrpartnership.org/project/'
 	 
 AS   
 
@@ -1175,13 +1175,13 @@ AS
 	IF @IncludeAbstract = 1
 		SET @SQLQuery = @SQLQuery + ' t.TechAbstract,'
 
-		SET @SQLQuery = @SQLQuery +  N'calendaryear, calendaramount, cso.code + '' '' + cso.Name AS cso, pcso.Relevance AS csoRel, c.Name AS CancerType, pc.Relevance AS CancerTypeRel
+		SET @SQLQuery = @SQLQuery +  N'calendaryear, calendaramount, cso.code + '' '' + cso.Name AS cso, pcso.Relevance AS csoRel, c.Name AS CancerType, pc.Relevance AS CancerTypeRel	
 				FROM projectfundingext ext
 					JOIN #temp t ON ext.ProjectFundingID = t.ProjectFundingID   
 					JOIN ProjectCSO pcso ON ext.projectFundingID = pcso.projectFundingID
 					JOIN CSO cso ON pcso.CSOCode = cso.Code
 					JOIN ProjectCancerType pc ON ext.projectFundingID = pc.projectFundingID
-					JOIN CancerType c ON pc.CancerTypeID = c.CancerTypeID    
+					JOIN CancerType c ON pc.CancerTypeID = c.CancerTypeID 
 				) exp			
 		PIVOT
 		( 
@@ -1250,13 +1250,13 @@ DROP PROCEDURE [dbo].[GetFundingOrgs]
 GO 
 
 CREATE  PROCEDURE [dbo].[GetFundingOrgs]
-     @type varchar(15) = 'funding'	-- 'funding': return all funding organizations; 'Register': return organizations used for User Registration; 'DataUploaded': return all funding organizations with data uploaded; 	
+     @type varchar(15) = 'funding'	-- 'funding': return all funding organizations; 'Search': return all funding organizations with data uploaded; 	
 AS   
 
 	SELECT FundingOrgID, Name, Abbreviation, SponsorCode + ' - ' + Name AS DisplayName, Type, MemberType, MemberStatus, Country, Currency, 
 	SponsorCode, IsAnnualized, Note, LastImportDate, LastImportDesc
 	FROM FundingOrg
-	WHERE (@type = 'funding') OR (@type = 'Search' AND LastImportDate IS NOT NULL) OR (1=1)
+	WHERE (@type = 'funding') OR (@type = 'Search' AND LastImportDate IS NOT NULL)
 	ORDER BY SponsorCode, Name
 
 GO
@@ -1298,7 +1298,7 @@ CREATE  PROCEDURE [dbo].[GetCancerTypeLookUp]
     
 AS   
 
-SELECT Name, ICRPCode, ICD10CodeInfo
+SELECT CancerTypeid, Name, ICRPCode, ICD10CodeInfo
 FROM CancerType
 ORDER BY Name
 
