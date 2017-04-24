@@ -3,8 +3,8 @@
   <!-- Search Terms -->
   <ui-panel title="Search Terms" [visible]="true">
     <label class="sr-only" for="search_terms">Search Terms</label>
-    <input 
-      class="text input" 
+    <input
+      class="text input"
       id="search_terms"
       name="search_terms"
       type="text"
@@ -13,16 +13,16 @@
       [formControl]="form.controls.search_terms">
 
     <div>
-      <label 
-        class="radio-label" 
+      <label
+        class="radio-label"
         for="search_type_all"
-        placement="right" 
+        placement="right"
         tooltip="Return awards that contain all the words provided">
-        <input 
-          class="radio-input" 
-          type="radio" 
-          id="search_type_all" 
-          name="search_type" 
+        <input
+          class="radio-input"
+          type="radio"
+          id="search_type_all"
+          name="search_type"
           value="all"
           [formControl]="form.controls.search_type">
         All of the keywords
@@ -30,8 +30,8 @@
     </div>
 
     <div>
-      <label 
-        class="radio-label" 
+      <label
+        class="radio-label"
         for="search_type_none"
         placement="right"
         tooltip="Return awards that do not contain any of the words provided">
@@ -47,10 +47,10 @@
     </div>
 
     <div>
-      <label 
-        class="radio-label" 
+      <label
+        class="radio-label"
         for="search_type_any"
-        placement="right" 
+        placement="right"
         tooltip="Return awards that contain any of the words provided">
         <input
           class="radio-input"
@@ -64,12 +64,12 @@
     </div>
 
     <div>
-      <label 
-        class="radio-label" 
+      <label
+        class="radio-label"
         for="search_type_exact"
-        placement="right" 
+        placement="right"
         tooltip="Return awards that contain the exact phrase provided">
-        <input 
+        <input
           class="radio-input"
           type="radio"
           id="search_type_exact"
@@ -81,10 +81,10 @@
     </div>
 
     <label class="form-label" for="years_active" tooltip="Awards active in the calendar year. Default view shows most recent 2 years, click below to select additional years." >Year Active</label>
-    <ui-select 
-      tooltip="Awards active in the calendar year. Default view shows most recent 2 years, click below to select additional years." 
-      placeholder="Year" 
-      [items]="fields.years" 
+    <ui-select
+      tooltip="Awards active in the calendar year. Default view shows most recent 2 years, click below to select additional years."
+      placeholder="Year"
+      [items]="fields.years"
       [formControl]="form.controls.years"></ui-select>
 
     <i style="color: #888; display: block; font-size: 12px; margin: 4px 2px;">Use this indicator to search for awards that are active during the time period you have selected.</i>
@@ -93,7 +93,7 @@
   <!-- Institutions and Investigators -->
   <ui-panel title="Institutions and Investigators">
     <label class="form-label" for="institution" tooltip="Full or partial institution name">Institution Name</label>
-    <input 
+    <input
       class="text input"
       type="text"
       id="institution"
@@ -104,7 +104,7 @@
     <label class="form-label" for="pi_first_name" tooltip="Full or partial name of the principal investigator">Principal Investigator</label>
     <div class="row">
       <div class="col-md-6">
-        <input 
+        <input
           class="text input"
           type="text"
           id="pi_first_name"
@@ -143,46 +143,61 @@
       [formControl]="form.controls.award_code">
 
     <label class="form-label" for="countries" tooltip="Select one or more countries">Country</label>
-    <ui-select 
-      placeholder="Enter Countries" 
+    <ui-select
+      placeholder="Enter Countries"
       tooltip="Select one or more countries"
-      [items]="fields.countries" 
+      [items]="fields.countries"
       [formControl]="form.controls.countries"
       (onSelect)="clearLocations()"
       >
     </ui-select>
 
     <label class="form-label" for="states" tooltip="Select one or more states">State/Territory</label>
-    <ui-select 
-      placeholder="Enter States/Territories" 
+    <ui-select
+      placeholder="Enter States/Territories"
       tooltip="Select one or more states"
       [formControl]="form.controls.states"
-      [items]="filterStates(fields.states, (form.controls['countries'] && form.controls['countries'].value) || [])" 
+      [items]="filterStates(fields.states, (form.controls['countries'] && form.controls['countries'].value) || [])"
       [disable]="!form.controls['countries'].value || form.controls['countries'].value.length != 1">
     </ui-select>
 
     <label class="form-label" for="cities" tooltip="Select one or more cities"  >City</label>
-    <ui-select 
-      placeholder="Enter Cities" 
-      tooltip="Select one or more cities"      
+    <ui-select
+      placeholder="Enter Cities"
+      tooltip="Select one or more cities"
       [formControl]="form.controls.cities"
-      [items]="filterCities(fields.cities, (form.controls['states'] && form.controls['states'].value) || [], (form.controls['countries'] && form.controls['countries'].value) || [])" 
+      [items]="filterCities(fields.cities, (form.controls['states'] && form.controls['states'].value) || [], (form.controls['countries'] && form.controls['countries'].value) || [])"
       [disable]="!form.controls['countries'].value || form.controls['countries'].value.length != 1">
     </ui-select>
   </ui-panel>
 
   <!-- Funding Organizations -->
   <ui-panel title="Funding Organizations">
+
+    <label class="form-label" for="funding_organization_type" tooltip="Select one or more funding organization types">Funding Organization Types</label>
+    <ui-select
+      tooltip="Select one or more funding organization types"
+      placeholder="Select types"
+      [items]="fields.funding_organization_types"
+      [formControl]="form.controls.funding_organization_types">
+    </ui-select>
+
+    <br>
+
     <label class="sr-only" for="funding_organizations">Funding Organizations</label>
-    <div 
+    <div
       *ngIf="funding_organizations"
       class="multiselect"
       tooltip="Select one or more funding organizations">
       <ui-treeview
-        [root]="funding_organizations" 
+        [root]="funding_organizations"
         [formControl]="form.controls.funding_organizations">
       </ui-treeview>
     </div>
+
+
+
+
   </ui-panel>
 
   <!-- Cancer and Project Type -->
@@ -190,16 +205,55 @@
     <label class="form-label" for="cancer_types" tooltip="Select one or more cancer types">Cancer Types</label>
     <ui-select
       tooltip="Select one or more cancer types"
-      placeholder="Select Cancer Types" 
-      [items]="fields.cancer_types" 
+      placeholder="Select Cancer Types"
+      [items]="fields.cancer_types"
       [formControl]="form.controls.cancer_types">
     </ui-select>
+
+    <label class="form-label" for="is_childhood_cancer" tooltip="Is Childhood Cancer?">Is Childhood Cancer?</label>
+
+    <div>
+      <div style="display: inline-block; margin-right: 20px;">
+        <label
+          class="radio-label"
+          for="is_childhood_cancer_yes"
+          placement="right"
+        >
+        <input
+            class="radio-input"
+            type="radio"
+            id="is_childhood_cancer_yes"
+            name="search_type"
+            value="1"
+            [formControl]="form.controls.is_childhood_cancer">
+          Yes
+        </label>
+      </div>
+
+
+      <div style="display: inline-block">
+        <label
+          class="radio-label"
+          for="is_childhood_cancer_no"
+          placement="right"
+        >
+        <input
+            class="radio-input"
+            type="radio"
+            id="is_childhood_cancer_no"
+            name="search_type"
+            value="0"
+            [formControl]="form.controls.is_childhood_cancer">
+          No
+        </label>
+      </div>
+    </div>
 
     <label class="form-label" for="project_types" tooltip="Select one or more project types">Project Types</label>
     <ui-select
       tooltip="Select one or more project types"
-      placeholder="Select Project Types" 
-      [items]="fields.project_types" 
+      placeholder="Select Project Types"
+      [items]="fields.project_types"
       [formControl]="form.controls.project_types">
     </ui-select>
   </ui-panel>
@@ -207,12 +261,12 @@
   <!-- Common Scientific Outline - Research Area -->
   <ui-panel title="Common Scientific Outline - Research Area">
     <label class="sr-only" for="cso_research_areas" tooltip="Select one or more CSO research areas">CSO - Research Areas</label>
-    <div 
+    <div
       *ngIf="cso_research_areas"
-      class="multiselect" 
+      class="multiselect"
       tooltip="Select one or more CSO research areas">
-      <ui-treeview 
-        [root]="cso_research_areas" 
+      <ui-treeview
+        [root]="cso_research_areas"
         [formControl]="form.controls.cso_research_areas">
       </ui-treeview>
     </div>

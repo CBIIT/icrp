@@ -133,8 +133,10 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
       'cities': 'Cities',
       'funding_organizations': 'Funding Organizations',
       'cancer_types': 'Cancer Sites',
+      'is_childhood_cancer': 'Is Childhood Cancer',
       'project_types': 'Project Types',
       'cso_research_areas': 'CSO Research Areas',
+      'funding_organization_types': 'Funding Organization Types',
     }[underscoreString] || 'Additional Parameters';
   }
 
