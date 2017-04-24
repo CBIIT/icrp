@@ -105,26 +105,30 @@ class DatabaseSearchAPIController extends ControllerBase {
 
   function create_updated_input_parameters($request) {
     $input_parameters = [
-      'page_size'             => 50,
-      'page_number'           => 1,
-      'sort_column'           => 'title',
-      'sort_type'             => 'ASC',
-      'search_terms'          => NULL,
-      'search_type'           => NULL,
-      'years'                 => NULL,
-      'institution'           => NULL,
-      'pi_first_name'         => NULL,
-      'pi_last_name'          => NULL,
-      'pi_orcid'              => NULL,
-      'award_code'            => NULL,
-      'countries'             => NULL,
-      'states'                => NULL,
-      'cities'                => NULL,
-      'funding_organizations' => NULL,
-      'cancer_types'          => NULL,
-      'project_types'         => NULL,
-      'cso_research_areas'    => NULL,
+      'page_size'                 => 50,
+      'page_number'               => 1,
+      'sort_column'               => 'title',
+      'sort_type'                 => 'ASC',
+      'search_terms'              => NULL,
+      'search_type'               => NULL,
+      'years'                     => NULL,
+      'institution'               => NULL,
+      'pi_first_name'             => NULL,
+      'pi_last_name'              => NULL,
+      'pi_orcid'                  => NULL,
+      'award_code'                => NULL,
+      'countries'                 => NULL,
+      'states'                    => NULL,
+      'cities'                    => NULL,
+      'funding_organization_type' => NULL,
+      'funding_organizations'     => NULL,
+      'cancer_types'              => NULL,
+      'is_childhood_cancer'       => NULL,
+      'project_types'             => NULL,
+      'cso_research_areas'        => NULL,
     ];
+
+
 
     foreach(array_keys($input_parameters) as $key) {
       $value = $request->query->get($key, NULL);
