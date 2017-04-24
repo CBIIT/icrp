@@ -659,8 +659,10 @@ class DatabaseSearchAPIController extends ControllerBase {
       'countries',
       'states',
       'cities',
+      'funding_organization_type',
       'funding_organizations',
       'cancer_types',
+      'is_childhood_cancer',
       'project_types',
       'cso_codes'
     ] as $field) {
