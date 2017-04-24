@@ -40,7 +40,7 @@ let devProviders = [
     {
       provide: 'page_title',
       useValue: 'Search ICRP Database'
-    },  
+    },
 ]
 
 
@@ -52,7 +52,7 @@ let productionProviders = [
     {
       provide: 'page_title',
       useValue: 'Search ICRP Database'
-    },  
+    },
 ]
 
 
@@ -64,12 +64,12 @@ let dataReviewProviders = [
     {
       provide: 'page_title',
       useValue: 'Data Review Tool'
-    },  
+    },
 ]
 
 @NgModule({
   declarations: [
-    AppComponent,   
+    AppComponent,
     SearchComponent,
     SearchFormComponent,
     SearchResultsComponent,

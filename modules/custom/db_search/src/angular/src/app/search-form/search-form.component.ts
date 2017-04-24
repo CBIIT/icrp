@@ -44,7 +44,9 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
     cities?: string[],
 
     funding_organizations?: string[],
+    funding_organization_types?: string[],
     cancer_types?: string[],
+    is_childhood_cancer?: string,
     project_types?: string[],
     cso_research_areas?: string[]
   }>;
@@ -65,7 +67,9 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
     cities?: string,
 
     funding_organizations?: string,
+    funding_organization_types?: string,
     cancer_types?: string,
+    is_childhood_cancer?: string,
     project_types?: string,
     cso_research_areas?: string
   }>;
@@ -105,7 +109,9 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
       cities?: string,
 
       funding_organizations?: string,
+      funding_organization_types?: string,
       cancer_types?: string,
+      is_childhood_cancer?: string,
       project_types?: string,
       cso_research_areas?: string
     }>();
@@ -125,7 +131,9 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
       cities?: string[],
 
       funding_organizations?: string[],
+      funding_organization_types?: string[],
       cancer_types?: string[],
+      is_childhood_cancer?: string,
       project_types?: string[],
       cso_research_areas?: string[]
     }>();
@@ -148,7 +156,9 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
       cities: [''],
 
       funding_organizations: [''],
+      funding_organization_types: [''],
       cancer_types: [''],
+      is_childhood_cancer: [''],
       project_types: [''],
       cso_research_areas: [''],
     })
@@ -159,7 +169,9 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
       states: [],
       countries: [],
       funding_organizations: [],
+      funding_organization_types: [],
       cancer_types: [],
+      is_childhood_cancer: [],
       project_types: [],
       cso_research_areas: []
     }
@@ -196,8 +208,10 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
       states: this.form.controls['states'].value,
       cities: this.form.controls['cities'].value,
 
+      funding_organization_types: this.form.controls['funding_organization_types'].value,
       funding_organizations: this.form.controls['funding_organizations'].value,
       cancer_types: this.form.controls['cancer_types'].value,
+      is_childhood_cancer: this.form.controls['is_childhood_cancer'].value,
       project_types: this.form.controls['project_types'].value,
       cso_research_areas: this.form.controls['cso_research_areas'].value,
     };
@@ -215,13 +229,13 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
     }
 
     if (parameters['funding_organizations']) {
-      parameters['funding_organizations'] = 
+      parameters['funding_organizations'] =
         parameters['funding_organizations']
         .filter(value => !isNaN(value))
     }
 
     if (parameters['cso_research_areas']) {
-      parameters['cso_research_areas'] = 
+      parameters['cso_research_areas'] =
         parameters['cso_research_areas']
         .filter(value => !isNaN(value))
     }
@@ -239,23 +253,27 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
       mappedParameters[key] = parameters[key]
     }
 
-/*    
-    for (let parameterType of [
-      'years',
-      'countries',
-      'states',
-      'cities',
-      'funding_organizations',
-      'cancer_types',
-      'project_types',
-      'cso_research_areas']) {
-      if (mappedParameters[parameterType])
-        mappedParameters[parameterType] = mappedParameters[parameterType].split(',');
-    }
-*/
+    /*
+        for (let parameterType of [
+          'years',
+          'countries',
+          'states',
+          'cities',
+          'funding_organizations',
+          'cancer_types',
+          'project_types',
+          'cso_research_areas']) {
+          if (mappedParameters[parameterType])
+            mappedParameters[parameterType] = mappedParameters[parameterType].split(',');
+        }
+    */
     for (let parameterType of ['funding_organizations', 'cancer_types', 'cso_research_areas']) {
       if (mappedParameters[parameterType])
-        mappedParameters[parameterType] = this.mapValue(parameterType, mappedParameters[parameterType])  
+        mappedParameters[parameterType] = this.mapValue(parameterType, mappedParameters[parameterType])
+    }
+
+    if (mappedParameters['is_childhood_cancer']) {
+      mappedParameters['is_childhood_cancer'] = +mappedParameters['is_childhood_cancer'] === 1 ? 'Yes' : 'No'
     }
 
     return mappedParameters;
@@ -273,7 +291,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
   }
 
   filterCities(
-    cities: { "value": string, "label": string, "group": string, "supergroup": string }[], 
+    cities: { "value": string, "label": string, "group": string, "supergroup": string }[],
     states: string[],
     countries: string[]) {
     return cities
@@ -295,11 +313,11 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
 
   createTreeNode(
     items: {
-      "value": number, 
-      "label": string, 
-      "group": string, 
+      "value": number,
+      "label": string,
+      "group": string,
       "supergroup": string }[], type: string): TreeNode {
-    
+
     let root: TreeNode = null;
     let supergroups: TreeNode[] = [];
     let groups: TreeNode[] = [];
@@ -326,7 +344,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
        let label = item.group;
         if (type === 'funding_organizations') {
           label = `All ${item.group} organizations`
-        }        
+        }
 
         groups.push({
           value: item.group,
@@ -344,7 +362,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
       if (!supergroup.children.find(sgChild => sgChild.value == group.value)) {
         this.addTreeNode(supergroup, group);
       }
-      
+
       this.addTreeNode(group, {
         value: (item.value).toString(),
         label: item.label
@@ -371,7 +389,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
         if (a.children && b.children) {
           return a.children.length - b.children.length;
         }
-        
+
         return a.label.localeCompare(b.label)
       }
 
@@ -438,7 +456,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
   this.form.controls['states'].patchValue([]);
   this.form.controls['cities'].patchValue([]);
  }
- 
+
 
  ngOnChanges(changes: SimpleChanges) {
 
@@ -453,7 +471,7 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
 
     for (let key in params) {
       let value = params[key];
-      
+
       if (value instanceof Array)
         value = value.filter(e => e.length);
 
@@ -470,7 +488,12 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
     new SearchFields(this.http, this.apiRoot).getFields()
       .subscribe(response => {
         this.fields = response;
-        
+
+        this.fields['is_childhood_cancer'] = [
+          { label: 'Yes', value: 1 },
+          { label: 'No', value: 0 }
+        ];
+
         this.funding_organizations = this.createTreeNode(this.fields.funding_organizations, 'funding_organizations');
         this.cso_research_areas = this.createTreeNode(this.fields.cso_research_areas, 'cso_research_areas');
 
@@ -480,13 +503,13 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
             if (index < 2)
               return field;
           }).map(field => field.value);
-          
+
           let allYears = this.fields.years.map(v => v.value).join(',');
           this.fields.years.unshift({label: 'All Years', value: 'All Years'})
           this.form.controls['years'].patchValue(years);
-          
+
           let useSearchID = window.location.search && window.location.search.includes('sid')
-          
+
           if (useSearchID) {
             this.requestInitialParameters.emit();
           }
