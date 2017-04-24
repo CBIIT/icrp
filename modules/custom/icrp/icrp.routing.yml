@@ -14,3 +14,10 @@ icrp.my_profile:
   requirements:
     _user_is_logged_in: 'TRUE'
 
+icrp.partner_application_admin_tool:
+  path: '/partner-application-administration-tool'
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::partnerApplicationAdministrationTool' 
+    _title: 'Partner Application Admin Tool'
+  requirements:
+    _permission: 'access content'

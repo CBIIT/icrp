@@ -6,6 +6,13 @@ use Drupal\Core\Controller\ControllerBase;
 
 class IcrpController extends ControllerBase {
 
+    public function partnerApplicationAdministrationTool() {
+        //drupal_set_message("We hit the TOOL.");
+        return array(
+            '#markup' => partnerApplicationSubmissionsTable(),
+        );
+    }
+
     public function userEdit() {
         drupal_set_message("User Edit was hit");
         return array(
