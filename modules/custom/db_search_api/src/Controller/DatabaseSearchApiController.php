@@ -20,25 +20,28 @@ use PDO;
 class DatabaseSearchAPIController extends ControllerBase {
 
   private static $parameter_mappings = [
-    'page_size'             => 'PageSize',
-    'page_number'           => 'PageNumber',
-    'sort_column'           => 'SortCol',
-    'sort_type'             => 'SortDirection',
-    'search_terms'          => 'terms',
-    'search_type'           => 'termSearchType',
-    'years'                 => 'yearList',
-    'institution'           => 'institution',
-    'pi_first_name'         => 'piFirstName',
-    'pi_last_name'          => 'piLastName',
-    'pi_orcid'              => 'piORCiD',
-    'award_code'            => 'awardCode',
-    'countries'             => 'countryList',
-    'states'                => 'stateList',
-    'cities'                => 'cityList',
-    'funding_organizations' => 'fundingOrgList',
-    'cancer_types'          => 'cancerTypeList',
-    'project_types'         => 'projectTypeList',
-    'cso_research_areas'    => 'CSOList',
+    'page_size'                 => 'PageSize',
+    'page_size'                 => 'PageSize',
+    'page_number'               => 'PageNumber',
+    'sort_column'               => 'SortCol',
+    'sort_type'                 => 'SortDirection',
+    'search_terms'              => 'terms',
+    'search_type'               => 'termSearchType',
+    'years'                     => 'yearList',
+    'institution'               => 'institution',
+    'pi_first_name'             => 'piFirstName',
+    'pi_last_name'              => 'piLastName',
+    'pi_orcid'                  => 'piORCiD',
+    'award_code'                => 'awardCode',
+    'countries'                 => 'countryList',
+    'states'                    => 'stateList',
+    'cities'                    => 'cityList',
+    'funding_organization_type' => 'FundingOrgType',
+    'funding_organizations'     => 'fundingOrgList',
+    'is_childhood_cancer'       => 'IsChildhood',
+    'cancer_types'              => 'cancerTypeList',
+    'project_types'             => 'projectTypeList',
+    'cso_research_areas'        => 'CSOList',
   ];
 
   private static $sort_column_mappings = [
@@ -98,7 +101,7 @@ class DatabaseSearchAPIController extends ControllerBase {
       $cfg['password'],
       $cfg['options']
     );
-  }  
+  }
 
   function create_updated_input_parameters($request) {
     $input_parameters = [
@@ -277,7 +280,7 @@ class DatabaseSearchAPIController extends ControllerBase {
     $pdo = self::get_connection($database_config);
     $stmt = $pdo->prepare('SELECT DISTINCT Year as year FROM CurrencyRate ORDER BY Year DESC');
 
-    return $stmt->execute() 
+    return $stmt->execute()
       ? $stmt->fetchAll(PDO::FETCH_ASSOC)
       : [];
   }
@@ -372,7 +375,7 @@ class DatabaseSearchAPIController extends ControllerBase {
     }
 
     return $output;
-  }  
+  }
 
   function sort_paginate_search_results($parameters, string $database_config = 'icrp_database') {
     $pdo = self::get_connection($database_config);
@@ -433,8 +436,10 @@ class DatabaseSearchAPIController extends ControllerBase {
       @countryList = :countries,
       @stateList = :states,
       @cityList = :cities,
+      @FundingOrgType = :funding_organization_type,
       @fundingOrgList = :funding_organizations,
       @cancerTypeList = :cancer_types,
+      @IsChildhood = :is_childhood_cancer,
       @projectTypeList = :project_types,
       @CSOList = :cso_research_areas,
       @searchCriteriaID = :search_id,
@@ -535,24 +540,26 @@ class DatabaseSearchAPIController extends ControllerBase {
     $pdo = self::get_connection($database_config);
 
     $fields = [
-      'years'                 => [],
-      'cities'                => [],
-      'states'                => [],
-      'countries'             => [],
-      'funding_organizations' => [],
-      'cancer_types'          => [],
-      'project_types'         => [],
-      'cso_research_areas'    => [],
+      'years'                      => [],
+      'cities'                     => [],
+      'states'                     => [],
+      'countries'                  => [],
+      'funding_organization_types' => [],
+      'funding_organizations'      => [],
+      'cancer_types'               => [],
+      'project_types'              => [],
+      'cso_research_areas'         => [],
     ];
 
     $queries = [
-      'cities'                => 'SELECT DISTINCT City AS [value], City AS [label], State AS [group], Country AS [supergroup] FROM Institution WHERE len(City) > 0 ORDER BY [label]',
-      'states'                => 'SELECT Abbreviation AS [value], Name AS [label], Country AS [group] FROM State ORDER BY [label]',
-      'countries'             => 'SELECT Abbreviation AS [value], Name AS [label] FROM Country ORDER BY [label]',
-      'funding_organizations' => 'SELECT FundingOrgID AS [value], Name AS [label], SponsorCode AS [group], Country AS [supergroup] from FundingOrg WHERE LastImportDate is NOT NULL',
-      'cancer_types'          => 'SELECT CancerTypeID AS [value], Name AS [label] FROM CancerType ORDER BY [label]',
-      'project_types'         => 'SELECT ProjectType AS [value], ProjectType AS [label] FROM ProjectType',
-      'cso_research_areas'    => 'SELECT Code AS [value], Code + \' \' + Name AS [label], CategoryName AS [group], \'All Areas\' as [supergroup] FROM CSO WHERE isActive = 1',
+      'cities'                     => 'SELECT DISTINCT City AS [value], City AS [label], State AS [group], Country AS [supergroup] FROM Institution WHERE len(City) > 0 ORDER BY [label]',
+      'states'                     => 'SELECT Abbreviation AS [value], Name AS [label], Country AS [group] FROM State ORDER BY [label]',
+      'countries'                  => 'SELECT Abbreviation AS [value], Name AS [label] FROM Country ORDER BY [label]',
+      'funding_organization_types' => 'SELECT FundingOrgType AS [value], FundingOrgType AS [label] FROM lu_FundingOrgType',
+      'funding_organizations'      => 'SELECT FundingOrgID AS [value], Name AS [label], SponsorCode AS [group], Country AS [supergroup] from FundingOrg WHERE LastImportDate is NOT NULL',
+      'cancer_types'               => 'SELECT CancerTypeID AS [value], Name AS [label] FROM CancerType ORDER BY [label]',
+      'project_types'              => 'SELECT ProjectType AS [value], ProjectType AS [label] FROM ProjectType',
+      'cso_research_areas'         => 'SELECT Code AS [value], Code + \' \' + Name AS [label], CategoryName AS [group], \'All Areas\' as [supergroup] FROM CSO WHERE isActive = 1',
     ];
 
     // map query results to field values
@@ -717,7 +724,7 @@ class DatabaseSearchAPIController extends ControllerBase {
       if ($key == 'sort_column') {
         $value = self::$sort_column_mappings[$value];
       }
-      
+
       if ($value) {
         $param[$key] = $value;
       }
@@ -821,7 +828,7 @@ class DatabaseSearchAPIController extends ControllerBase {
       if ($key == 'sort_column') {
         $value = self::$sort_column_mappings[$value];
       }
-      
+
       if ($value) {
         $param[$key] = $value;
       }
@@ -840,7 +847,7 @@ class DatabaseSearchAPIController extends ControllerBase {
     if ($stmt->execute()) {
       while ($row = $stmt->fetch()) {
         array_push($output, [
-          'sponsor_code'  => $row['SponsorCode'], 
+          'sponsor_code'  => $row['SponsorCode'],
           'funding_years' => $row['FundingYear'],
           'received_date' => $row['ReceivedDate'],
           'note'          => $row['Note'],
@@ -865,7 +872,7 @@ class DatabaseSearchAPIController extends ControllerBase {
 
 
       $dates = $row['funding_years'];
-      
+
       // split funding years to date ranges
       if (strpos($dates, '-') !== false) {
         $date_array = explode('-', $dates);
