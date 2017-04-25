@@ -11,20 +11,22 @@ PRINT '*************************************************************************
 --drop table #parentProjects
 --go
 
-DECLARE @SponsorCode varchar(25) = 'ASTRO'
-DECLARE @HasParentRelationship bit = 0
+DECLARE @SponsorCode varchar(25) = 'PANCAN'
+DECLARE @HasParentRelationship bit = 1
 
 -------------------------------------------------------------------
 -- Check AwardCode uniqueness
 -------------------------------------------------------------------
-
+PRINT 'Checking Unique AwardCode ...'
 SELECT Distinct AwardCode INTO #awardCodes FROM UploadWorkBook
 
 IF @HasParentRelationship = 1
---SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'  -- CA
- PRINT 'COmment out the line'
+BEGIN
+	PRINT 'Checking Parent projects ...'
+	SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'  -- CA
+ END
 ELSE
-	SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook
+	--SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook
 
 DECLARE @TotalAwardCodes INT
 DECLARE @TotalParentProjects INT
@@ -71,10 +73,10 @@ PRINT 'Checking Funding Amount........'
 -- drop table #fundingAmount
 SELECT AwardCode, AwardStartDate, AwardEndDate, BudgetStartDate, BudgetEndDate, AwardFunding INTO #fundingAmount FROM UploadWorkBook
 
-IF EXISTS (SELECT * FROM #fundingAmount WHERE ISNULL(AwardFunding,0) <= 0)
+IF EXISTS (SELECT * FROM #fundingAmount WHERE ISNULL(AwardFunding,0) < 0)
 BEGIN
   PRINT 'WARNING ==> Funding Amount <= 0'
-  SELECT 'No Funding Amount' AS Issue, * FROM #fundingAmount WHERE ISNULL(AwardFunding,0) <= 0
+  SELECT 'No Funding Amount' AS Issue, * FROM #fundingAmount WHERE ISNULL(AwardFunding,0) < 0
 END
 
 ELSE
@@ -208,20 +210,25 @@ ELSE
 
 SELECT u.InstitutionICRP, u.SubmittedInstitution, u.City INTO #missingInst FROM UploadWorkBook u
 LEFT JOIN Institution i ON (u.InstitutionICRP = i.Name AND u.City = i.City)
-LEFT JOIN InstitutionMapping m ON (u.InstitutionICRP = m.OldName AND u.City = m.OldCity) OR (u.InstitutionICRP = m.OldName AND u.City = m.newCity)
-WHERE (i.InstitutionID IS NULL) AND (m.InstitutionMappingID IS NULL)
+--LEFT JOIN InstitutionMapping m ON (u.InstitutionICRP = m.OldName AND u.City = m.OldCity) OR (u.InstitutionICRP = m.OldName AND u.City = m.newCity)
+WHERE (i.InstitutionID IS NULL) --AND (m.InstitutionMappingID IS NULL)
+--Weill Cornell Graduate School of Medical Sciences
+--select * from institution where name like '%Cornell %'
+--update institution SET Name='Weill Cornell Graduate School of Medical Sciences', Postal='NY 10065' where institutionid=885
+
 --select * from #missingInst
 IF EXISTS (select * FROM #missingInst)
 BEGIN
+	PRINT 'Checking Institution Mapping   ==> Some cannot be mapped'
+
 	SELECT DISTINCT 'Institution cannot be mapped' AS Issue, w.InstitutionICRP AS 'workbook - Institution Name', w.city AS 'workbook - Institution city'
-	FROM (select Institution FROM #missingInst group by InstitutionICRP, city) m
+	FROM (select InstitutionICRP, city FROM #missingInst group by InstitutionICRP, city) m
 	LEFT JOIN Institution l ON m.InstitutionICRP = l.Name
-	LEFT JOIN UploadWorkBook w ON m.Institution = w.InstitutionICRP
-	ORDER BY  w.institution 
+	LEFT JOIN UploadWorkBook w ON m.InstitutionICRP = w.InstitutionICRP
+	ORDER BY  w.InstitutionICRP 
 END 
 ELSE
 	PRINT 'Checking Institution Mapping   ==> Pass'
-
 
 -- Debug missing institution
 --select institution, city, Country, GRID, Longitute, Latitute from UploadWorkBook where institution like '%Wisconsin%'
@@ -278,4 +285,6 @@ ELSE
 	PRINT 'Pre-Checking Missing PIs ==> Pass'
 
 GO
+
+
 

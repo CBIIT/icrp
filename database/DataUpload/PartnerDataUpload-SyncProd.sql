@@ -44,7 +44,7 @@ JOIN icrp_dataload.dbo.projectfunding pf ON p.ProjectID =  pf.projectID  WHERE p
 PRINT '-- Import Project Abstract'
 
 CREATE TABLE #DataLoadUploadAbstract (	
-	ID INT NOT NULL IDENTITY(1246262,1),
+	ID INT NOT NULL IDENTITY(@seed,1),
 	ProjectFundindID INT,	
 	TechAbstract NVARCHAR (MAX) NULL,
 	PublicAbstract NVARCHAR (MAX) NULL

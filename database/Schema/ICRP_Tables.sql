@@ -858,6 +858,26 @@ ALTER TABLE [dbo].[DataUploadStatus] ADD  CONSTRAINT [DF_DataUploadStatus_Create
 GO
 
 
+/****** Object:  Table [dbo].[lu_FundingOrgType]    Script Date: 4/21/2017 9:30:29 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[lu_FundingOrgType](
+	[FundingOrgTypeID] [int] NOT NULL,
+	[FundingOrgType] [varchar](50) NOT NULL	
+ CONSTRAINT [PK_FundingOrgType] PRIMARY KEY CLUSTERED 
+(
+	[FundingOrgTypeID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+
+
 
 /****** Object:  Table [dbo].[ProjectDetails]    Script Date: 1/10/2017 5:08:05 PM ******/
 --SET ANSI_NULLS ON

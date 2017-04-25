@@ -55,14 +55,14 @@ CREATE TABLE UploadWorkBook (
 	RelationshipType VARCHAR(200),
 	ORCID VARCHAR(25),
 	OtherResearcherID INT,
-	OtherResearcherIDType VARCHAR(1000)--,
-	--InternalUseOnly  NVARCHAR(MAX)
+	OtherResearcherIDType VARCHAR(1000),
+	InternalUseOnly  NVARCHAR(MAX)
 )
 
 GO
 
 BULK INSERT UploadWorkBook
-FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_ASTRO_20170328.csv'  
+FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_New_PANCAN_20170410.csv'  
 WITH
 (
 	FIRSTROW = 2,

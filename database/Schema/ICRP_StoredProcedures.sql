@@ -31,6 +31,8 @@ CREATE PROCEDURE [dbo].[GetProjectsByCriteria]
 	@cancerTypeList varchar(1000) = NULL, 
 	@projectTypeList varchar(1000) = NULL,
 	@CSOList varchar(1000) = NULL,
+	@FundingOrgType varchar(50) = NULL,
+	@IsChildhood bit = NULL,
 	@searchCriteriaID INT OUTPUT,  -- return the searchID	
 	@ResultCount INT OUTPUT  -- return the searchID	
 AS   
@@ -42,7 +44,7 @@ AS
 	-------------------------------------------------------------------------
 	-- Exclude the projects which funding institutions and PI do NOT meet the criteria
 	-------------------------------------------------------------------------
-	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@awardCode IS NOT NULL)
+	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@awardCode IS NOT NULL) OR (@IsChildhood IS NOT NULL) OR (@FundingOrgType IS NOT NULL)
 	BEGIN		
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 
@@ -51,10 +53,12 @@ AS
 					((@piLastName IS NULL) OR (piLastName like '%'+ @piLastName +'%')) AND 
 				   ((@piFirstName IS NULL) OR (piFirstName like '%'+ @piFirstName +'%')) AND
 				   ((@piORCiD IS NULL) OR (piORCiD like '%'+ @piORCiD +'%')) AND
-				   ((@awardCode IS NULL) OR (AwardCode like '%'+ @awardCode +'%'))
+				   ((@awardCode IS NULL) OR (AwardCode like '%'+ @awardCode +'%')) AND
+				   ((@FundingOrgType IS NULL) OR (FundingOrgType = @FundingOrgType)) AND
+				   ((@IsChildhood IS NULL) OR (IsChildhood = @IsChildhood))
 			)
 	END
-
+	
 	-------------------------------------------------------------------------
 	-- Exclude the projects which funding PI City do NOT meet the criteria
 	-------------------------------------------------------------------------
@@ -172,7 +176,7 @@ AS
 		BEGIN
 			DELETE FROM #proj WHERE ProjectID NOT IN 			
 			(SELECT p.ProjectID FROM #Proj p
-				LEFT JOIN ProjectSearch s ON p.projectID = s.ProjectID  			
+				JOIN ProjectSearch s ON p.projectID = s.ProjectID  			
 			 WHERE NOT CONTAINS(s.content, @searchWords)
 			)
 		END
@@ -202,9 +206,9 @@ AS
 	FROM #baseProj	
 
 	INSERT INTO SearchCriteria ([termSearchType],[terms],[institution],[piLastName],[piFirstName],[piORCiD],[awardCode],
-		[yearList], [cityList],[stateList],[countryList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList])
+		[yearList], [cityList],[stateList],[countryList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgType], [IsChildhood])
 		VALUES ( @termSearchType,@terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode,@yearList,@cityList,@stateList,@countryList,
-			@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList)
+			@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList, @FundingOrgType,	@IsChildhood)
 									 
 	SELECT @searchCriteriaID = SCOPE_IDENTITY()	
 
@@ -248,76 +252,6 @@ AS
 
 GO
 
-----------------------------------------------------------------------------------------------------------
-/****** Object:  StoredProcedure [dbo].[GetProjectsBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
-----------------------------------------------------------------------------------------------------------
---SET ANSI_NULLS ON
---GO
-
---SET QUOTED_IDENTIFIER ON
---GO
-
---IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectsBySearchID]') AND type in (N'P', N'PC'))
---DROP PROCEDURE [dbo].[GetProjectsBySearchID]
---GO 
-
--- CREATE PROCEDURE [dbo].[GetProjectsBySearchID]
---    @PageSize int = NULL, -- return all by default
---	@PageNumber int = NULL, -- return all results by default; otherwise pass in the page number
---	@SortCol varchar(50) = 'title', -- Ex: 'title', 'pi', 'code', 'inst', 'FO',....
---	@SortDirection varchar(4) = 'ASC',  -- 'ASC' or 'DESC'
---    @SearchID INT 	
---AS   
-
---	------------------------------------------------------
---	-- Get search criteria from saved searchCriteria
---	------------------------------------------------------
---	DECLARE @termSearchType varchar(25)
---	DECLARE @terms varchar(4000)
---	DECLARE @institution varchar(250)
---	DECLARE @piLastName varchar(50)
---	DECLARE @piFirstName varchar(50)
---	DECLARE @piORCiD varchar(50)
---	DECLARE @awardCode varchar(50)
---	DECLARE @yearList varchar(4000)
---	DECLARE @cityList varchar(4000)
---	DECLARE @stateList varchar(4000)
---	DECLARE @countryList varchar(4000)
---	DECLARE @fundingOrgList varchar(4000)
---	DECLARE @cancerTypeList varchar(4000)
---	DECLARE @projectTypeList varchar(4000)
---	DECLARE @CSOList varchar(4000)	
-
---	SELECT @termSearchType = [termSearchType],
---			@terms = [terms],
---			@institution = [institution],
---			@piLastName =[piLastName],
---			@piFirstName =[piFirstName],
---			@piORCiD =[piORCiD],
---			@awardCode =[awardCode],
---			@cityList =[cityList],
---			@yearList =[yearList],
---			@stateList =[stateList],
---			@countryList =[countryList],
---			@fundingOrgList =[fundingOrgList],
---			@cancerTypeList =[cancerTypeList],
---			@projectTypeList =[projectTypeList],
---			@CSOList =[CSOList]			
---	FROM SearchCriteria
---	WHERE SearchCriteriaID = @searchID
-
---	----------------------------------
---	-- Return search results
---	----------------------------------
---	declare @count INT;	
---	declare @searchCriteriaID INT;	
-		
---	EXEC @count = [GetProjectsByCriteria] @searchCriteriaID OUTPUT, @PageSize, @PageNumber,@SortCol,@SortDirection,
---						@termSearchType, @terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode, @yearList,
---						@cityList, @stateList,	@countryList,@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList
-
---	RETURN ISNULL(@count, 0)
---GO
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetProjectsBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
@@ -719,7 +653,7 @@ CREATE PROCEDURE [dbo].[GetProjectFundingDetail]
     @ProjectFundingID INT    
 AS   
  
-SELECT f.Title, f.AltAwardCode, f.BudgetStartDate,  f.BudgetEndDate, o.Name AS FundingOrg, pi.LastName + ', ' + pi.FirstName AS piName, 
+SELECT f.Title, f.AltAwardCode, f.BudgetStartDate,  f.BudgetEndDate, o.Name AS FundingOrg, f.Amount, pi.LastName + ', ' + pi.FirstName AS piName, 
 	pi.ORC_ID, i.Name AS Institution, i.City, i.State, i.Country, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract
 FROM ProjectFunding f	
 	JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
@@ -1476,7 +1410,7 @@ AS
 SELECT c.SearchCriteriaID INTO #old 
 FROM searchresult r
 	join searchCriteria c ON r.SearchCriteriaID = c.SearchCriteriaID
-WHERE  ISNULL(IsEmailSent, 0) = 0 OR DATEDIFF(DAY, c.SearchDate, getdate()) > 7
+WHERE  ISNULL(IsEmailSent, 0) = 0 OR DATEDIFF(DAY, c.SearchDate, getdate()) > 30  -- only keep results for 30 days
 
 DELETE searchresult
 WHERE  SearchCriteriaID IN (SELECT SearchCriteriaID FROM #old)

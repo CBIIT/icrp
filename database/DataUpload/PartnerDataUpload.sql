@@ -402,12 +402,67 @@ PRINT 'DataUploadStatusID = ' + CAST(@DataUploadStatusID AS varchar(10))
 INSERT INTO icrp_data.dbo.DataUploadStatus ([PartnerCode],[FundingYear],[Status],[ReceivedDate],[ValidationDate],[UploadToDevDate],[UploadToStageDate],[UploadToProdDate],[Note],[CreatedDate])
 VALUES (@PartnerCode, @FundingYears, 'Staging', '4/7/2017', '4/7/2017', '4/7/2017',  '4/7/2017', NULL, @ImportNotes, getdate())
 
+
+
+--SET NOCOUNT ON;  
+--GO 
+
+BEGIN TRANSACTION 
+
+-----------------------------------
+-- Insert Data Upload Status
+-----------------------------------
+DECLARE @DataUploadStatusID INT
+DECLARE @PartnerCode varchar(25) = 'PANCAN'
+DECLARE @FundingYears VARCHAR(25) = '2015-2016'
+DECLARE @ImportNotes  VARCHAR(1000) = 'FY2015 Update, FY2016 New'
+DECLARE @HasParentRelationship bit = 1
+DECLARE @IsProd bit = 0
+
+IF @IsProd = 0
+BEGIN  -- Staging
+
+	INSERT INTO DataUploadStatus ([PartnerCode],[FundingYear],[Status],[ReceivedDate],[ValidationDate],[UploadToDevDate],[UploadToStageDate],[UploadToProdDate],[Note],[CreatedDate])
+	VALUES (@PartnerCode, @FundingYears, 'Staging', '4/10/2017', '4/10/2017', '4/10/2017',  '4/10/2017', NULL, @ImportNotes, getdate())
+	
+	select * from DataUploadStatus where PartnerCode=@PartnerCode
+
+	SET @DataUploadStatusID = IDENT_CURRENT( 'DataUploadStatus' )  
+
+	PRINT 'DataUploadStatusID = ' + CAST(@DataUploadStatusID AS varchar(10))
+
+	INSERT INTO icrp_data.dbo.DataUploadStatus ([PartnerCode],[FundingYear],[Status],[ReceivedDate],[ValidationDate],[UploadToDevDate],[UploadToStageDate],[UploadToProdDate],[Note],[CreatedDate])
+	VALUES (@PartnerCode, @FundingYears, 'Staging', '4/10/2017', '4/10/2017', '4/10/2017',  '4/10/2017', NULL, @ImportNotes, getdate())
+
+END
+
+ELSE  -- Production
+
+BEGIN
+	select @DataUploadStatusID = DataUploadStatusID from DataUploadStatus where PartnerCode=@PartnerCode
+	UPDATE DataUploadStatus SET Status = 'Complete', [UploadToProdDate] = getdate() WHERE DataUploadStatusID = @DataUploadStatusID
+
+	UPDATE icrp_dataload.dbo.DataUploadStatus SET Status = 'Complete', [UploadToProdDate] = getdate()  WHERE DataUploadStatusID = @DataUploadStatusID
+END
+
+--select * from DataUploadStatus where DataUploadStatusID= 63
+--select * from icrp_dataload.dbo.DataUploadStatus where DataUploadStatusID= 63
+
+
 /***********************************************************************************************/
 -- Import Data
 /***********************************************************************************************/
 PRINT '*******************************************************************************'
 PRINT '***************************** Import Data  ************************************'
 PRINT '******************************************************************************'
+
+IF @HasParentRelationship = 1
+BEGIN
+	PRINT 'Select Parent Projects'
+	SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'  -- CA
+END 
+ELSE
+	--SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook
 
 -----------------------------------
 -- Import base Projects
@@ -421,34 +476,33 @@ FROM #parentProjects
 
 PRINT 'Total Imported projects = ' + CAST(@@RowCount AS varchar(10))
 
-
 -----------------------------------
 -- Import Project Abstract
 -----------------------------------
 PRINT '-- Import Project Abstract'
 
-CREATE TABLE UploadAbstract (	
-	ID INT NOT NULL IDENTITY(1,1),
+
+DECLARE @seed INT
+SELECT @seed=MAX(projectAbstractID)+1 FROM projectAbstract  -- 1246295, 1246328
+PRINT @seed
+
+CREATE TABLE #UploadAbstract (	
+	ID INT NOT NULL IDENTITY(@seed,1),
 	AwardCode NVARCHAR(50),
 	Altid NVARCHAR(50),
 	TechAbstract NVARCHAR (MAX) NULL,
 	PublicAbstract NVARCHAR (MAX) NULL
 ) ON [PRIMARY]
 
-SET IDENTITY_INSERT UploadAbstract ON;  -- SET IDENTITY_INSERT to ON. 
+INSERT INTO #UploadAbstract (AwardCode, Altid, TechAbstract, PublicAbstract) SELECT DISTINCT AwardCode, Altid, TechAbstract, PublicAbstract FROM UploadWorkBook 
 
-INSERT INTO UploadAbstract (ID) SELECT ProjectAbstractID FROM ProjectAbstract
-
-SET IDENTITY_INSERT UploadAbstract OFF  -- SET IDENTITY_INSERT to ON. 
-
-INSERT INTO UploadAbstract (AwardCode, Altid, TechAbstract, PublicAbstract) SELECT DISTINCT AwardCode, Altid, TechAbstract, PublicAbstract FROM UploadWorkBook 
-
-UPDATE ProjectAbstract SET PublicAbstract = NULL where PublicAbstract = '0'
+UPDATE #UploadAbstract SET PublicAbstract = NULL where PublicAbstract = '0' OR PublicAbstract = ''
+UPDATE #UploadAbstract SET TechAbstract = '' where TechAbstract = '0' OR TechAbstract IS NULL
 
 SET IDENTITY_INSERT ProjectAbstract ON;  -- SET IDENTITY_INSERT to ON. 
 
 INSERT INTO ProjectAbstract (ProjectAbstractID, TechAbstract, PublicAbstract) 
-SELECT ID, TechAbstract, PublicAbstract FROM UploadAbstract  WHERE AwardCode IS NOT NULL
+SELECT ID, TechAbstract, PublicAbstract FROM #UploadAbstract  WHERE AwardCode IS NOT NULL
 
 PRINT 'Total Imported ProjectAbstract = ' + CAST(@@RowCount AS varchar(10))
 
@@ -472,7 +526,7 @@ SELECT u.AwardTitle, p.ProjectID, o.FundingOrgID, d.FundingDivisionID, a.ID, @Da
 	u.AwardFunding, 
 	u.BudgetStartDate, u.BudgetEndDate, getdate(), getdate()
 FROM UploadWorkBook u
-JOIN UploadAbstract a ON u.AwardCode = a.AwardCode AND u.AltId = a.Altid
+JOIN #UploadAbstract a ON u.AwardCode = a.AwardCode AND u.AltId = a.Altid
 JOIN Project p ON u.AwardCode = p.awardCode
 JOIN FundingOrg o ON u.FundingOrgAbbr = o.Abbreviation
 LEFT JOIN FundingDivision d ON u.FundingDivAbbr = d.Abbreviation
@@ -483,8 +537,13 @@ LEFT JOIN FundingDivision d ON u.FundingDivAbbr = d.Abbreviation
 --PRINT 'Total Imported Institutions = ' + @total
 --GO
 
-PRINT 'Total newly Imported ProjectFunding = ' + CAST(@@RowCount AS varchar(10))
+-- Correct ProjectBatract mapping if no TechAbstract
+UPDATE ProjectFunding SET ProjectAbstractID=0
+WHERE ProjectAbstractID IN (select ProjectAbstractID from ProjectAbstract where TechAbstract = '' AND PublicAbstract IS NULL) --or TechAbstract='No abstract available for this Project funding.'
 
+DELETE ProjectAbstract where TechAbstract = ''
+
+PRINT 'Total newly Imported ProjectFunding = ' + CAST(@@RowCount AS varchar(10))
 
 -----------------------------------
 -- Import ProjectFundingInvestigator
@@ -502,12 +561,6 @@ FROM UploadWorkBook u
 
 PRINT 'Total newly Imported ProjectFundingInvestigator = ' + CAST(@@RowCount AS varchar(10))
 
---DECLARE @total VARCHAR(10)
---SELECT @total = CAST(COUNT(*) AS varchar(10)) FROM ProjectFundingInvestigator
-
---PRINT 'Total Imported ProjectFundingInvestigator = ' + @total
-
-select * from uploadworkbook where InstitutionICRP like '%Maisonneuve-Rosemont%' or SubmittedInstitution  like '%Maisonneuve-Rosemont%'
 ----------------------------------------------------
 -- Post Import Checking
 ----------------------------------------------------
@@ -549,7 +602,7 @@ ELSE
 select f.ProjectFundingID into #postMissingPI from projectfunding f
 join fundingorg o on f.FundingOrgID = o.FundingOrgID
 left join ProjectFundingInvestigator pi on f.projectfundingid = pi.projectfundingid
-where o.SponsorCode = 'KOMEN' and pi.ProjectFundingID is null
+where o.SponsorCode = @PartnerCode and pi.ProjectFundingID is null
 
 	
 IF EXISTS (select * FROM #postMissingPI)
@@ -560,7 +613,6 @@ END
 ELSE
 	PRINT 'Pre-Checking Missing PIs ==> Pass'
 
-		
 -----------------------------------
 -- Import ProjectCSO
 -----------------------------------
@@ -588,30 +640,28 @@ DECLARE @projectFundingID as INT
 DECLARE @csoList as NVARCHAR(50)
 DECLARE @csoRelList as NVARCHAR(50)
  
-DECLARE @cursor as CURSOR;
+DECLARE @csocursor as CURSOR;
 
-SET @cursor = CURSOR FOR
+SET @csocursor = CURSOR FOR
 SELECT ProjectFundingID, CSOCodes , CSORel FROM #list;
  
-OPEN @cursor;
-FETCH NEXT FROM @cursor INTO @projectFundingID, @csoList, @csoRelList;
+OPEN @csocursor;
+FETCH NEXT FROM @csocursor INTO @projectFundingID, @csoList, @csoRelList;
 
 WHILE @@FETCH_STATUS = 0
 BEGIN
  INSERT INTO @pcso SELECT @projectFundingID, value FROM  dbo.ToStrTable(@csoList)
  INSERT INTO @pcsorel SELECT @projectFundingID, value FROM  dbo.ToStrTable(@csoRelList) 
- FETCH NEXT FROM @cursor INTO @projectFundingID, @csolist, @csoRelList;
+ FETCH NEXT FROM @csocursor INTO @projectFundingID, @csolist, @csoRelList;
 END
  
-CLOSE @cursor;
-DEALLOCATE @cursor;
+CLOSE @csocursor;
+DEALLOCATE @csocursor;
 
 INSERT INTO ProjectCSO SELECT c.ProjectFundingID, c.CSO, r.Rel, 'S', getdate(), getdate()
 FROM @pcso c 
 JOIN @pcsorel r ON c.ProjectFundingID = r.ProjectFundingID AND c.Seq = r.Seq
 
-
-GO
 -----------------------------------
 -- Import ProjectCancerType
 -----------------------------------
@@ -631,27 +681,26 @@ DECLARE @psiterel TABLE
 	Rel VARCHAR(50)
 )
 
-DECLARE @projectFundingID as INT
 DECLARE @siteList as NVARCHAR(50)
 DECLARE @siteRelList as NVARCHAR(50)
  
-DECLARE @cursor as CURSOR;
+DECLARE @ctcursor as CURSOR;
 
-SET @cursor = CURSOR FOR
+SET @ctcursor = CURSOR FOR
 SELECT ProjectFundingID, SiteCodes , SiteRel FROM #list;
  
-OPEN @cursor;
-FETCH NEXT FROM @cursor INTO @projectFundingID, @siteList, @siteRelList;
+OPEN @ctcursor;
+FETCH NEXT FROM @ctcursor INTO @projectFundingID, @siteList, @siteRelList;
 
 WHILE @@FETCH_STATUS = 0
 BEGIN
  INSERT INTO @psite SELECT @projectFundingID, value FROM  dbo.ToStrTable(@siteList)
  INSERT INTO @psiterel SELECT @projectFundingID, value FROM  dbo.ToStrTable(@siteRelList) 
- FETCH NEXT FROM @cursor INTO @projectFundingID, @siteList, @siteRelList;
+ FETCH NEXT FROM @ctcursor INTO @projectFundingID, @siteList, @siteRelList;
 END
  
-CLOSE @cursor;
-DEALLOCATE @cursor;
+CLOSE @ctcursor;
+DEALLOCATE @ctcursor;
 
 INSERT INTO ProjectCancerType (ProjectFundingID, CancerTypeID, Relevance, RelSource, EnterBy)
 SELECT c.ProjectFundingID, ct.CancerTypeID, r.Rel, 'S', 'S'
@@ -659,7 +708,6 @@ FROM @psite c
 JOIN CancerType ct ON c.code = ct.ICRPCode
 JOIN @psiterel r ON c.ProjectFundingID = r.ProjectFundingID AND c.Seq = r.Seq
 
-GO
 
 -----------------------------------
 -- Import Project_ProjectTye
@@ -675,22 +723,22 @@ DECLARE @ptype TABLE
 DECLARE @projectID as INT
 DECLARE @typeList as NVARCHAR(50)
  
-DECLARE @cursor as CURSOR;
+DECLARE @ptcursor as CURSOR;
 
-SET @cursor = CURSOR FOR
+SET @ptcursor = CURSOR FOR
 SELECT ProjectID, AwardType FROM (SELECT DISTINCT ProjectID, AWardType FROM #list) p;
  
-OPEN @cursor;
-FETCH NEXT FROM @cursor INTO @projectID, @typeList;
+OPEN @ptcursor;
+FETCH NEXT FROM @ptcursor INTO @projectID, @typeList;
 
 WHILE @@FETCH_STATUS = 0
 BEGIN
  INSERT INTO @ptype SELECT @projectID, value FROM  dbo.ToStrTable(@typeList) 
- FETCH NEXT FROM @cursor INTO @projectID, @typeList;
+ FETCH NEXT FROM @ptcursor INTO @projectID, @typeList;
 END
  
-CLOSE @cursor;
-DEALLOCATE @cursor;
+CLOSE @ptcursor;
+DEALLOCATE @ptcursor;
 
 INSERT INTO Project_ProjectType (ProjectID, ProjectType)
 SELECT ProjectID,
@@ -700,8 +748,6 @@ SELECT ProjectID,
 		  WHEN 'T' THEN 'Training'
 		END
 FROM @ptype	
-
-GO
 
 
 -----------------------------------
@@ -718,29 +764,28 @@ PRINT 'Rebuild [ProjectSearch]'
 DELETE FROM ProjectSearch
 
 DBCC CHECKIDENT ('[ProjectSearch]', RESEED, 0)
-GO
 
 -- REBUILD All Abstract
 INSERT INTO ProjectSearch (ProjectID, [Content])
-SELECT f.ProjectID, '<Title>'+ f.Title+'</Title><FundingContact>'+ ISNULL(f.fundingContact, '')+ '</FundingContact><TechAbstract>' + a.TechAbstract  + '</TechAbstract><PublicAbstract>'+ ISNULL(a.PublicAbstract,'') +'<PublicAbstract>' 
-FROM (SELECT MAX(ProjectAbstractID) AS ProjectAbstractID FROM ProjectAbstract GROUP BY TechAbstract) ma
-	JOIN ProjectFunding f ON ma.ProjectAbstractID = f.ProjectAbstractID
-	JOIN ProjectAbstract a ON ma.ProjectAbstractID = a.ProjectAbstractID
+SELECT ma.ProjectID, '<Title>'+ ma.Title+'</Title><FundingContact>'+ ISNULL(ma.fundingContact, '')+ '</FundingContact><TechAbstract>' + ma.TechAbstract  + '</TechAbstract><PublicAbstract>'+ ISNULL(ma.PublicAbstract,'') +'<PublicAbstract>' 
+FROM (SELECT MAX(f.ProjectID) AS ProjectID, f.Title, f.FundingContact, a.TechAbstract,a.PublicAbstract FROM ProjectAbstract a
+		JOIN ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
+		GROUP BY f.Title, a.TechAbstract, a.PublicAbstract,  f.FundingContact) ma
 
 PRINT 'Total Imported ProjectSearch = ' + CAST(@@RowCount AS varchar(10))
 
 -------------------------------------------------------------------------------------------
 -- Insert DataUploadLog 
 --------------------------------------------------------------------------------------------
-
-select * from datauploadstatus order by DataUploadStatusID desc
 PRINT 'INSERT DataUploadLog'
 
-DECLARE @DataUploadStatusID INT = 65
+--DECLARE @DataUploadStatusID INT = 63
+--select * from DataUploadStatus where PartnerCode='astro'
 DECLARE @DataUploadLogID INT
 
 INSERT INTO DataUploadLog (DataUploadStatusID, [CreatedDate])
 VALUES (@DataUploadStatusID, getdate())
+
 
 SET @DataUploadLogID = IDENT_CURRENT( 'DataUploadLog' )  
 
@@ -795,8 +840,7 @@ SELECT @Count=COUNT(*) FROM ProjectFundingInvestigator pi
 JOIN ProjectFunding f ON pi.ProjectFundingID = f.ProjectFundingID
 WHERE f.dataUploadStatusID = @DataUploadStatusID
 
-UPDATE DataUploadLog SET ProjectFundingInvestigatorCount = @@RowCount WHERE DataUploadLogID = @DataUploadLogID
-
+UPDATE DataUploadLog SET ProjectFundingInvestigatorCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
 -- Insert ProjectSearchTotalCount
 SELECT @Count=COUNT(*) FROM ProjectSearch s
@@ -806,52 +850,15 @@ WHERE f.dataUploadStatusID = @DataUploadStatusID
 
 UPDATE DataUploadLog SET ProjectSearchCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
-select * from datauploadlog
+select * from datauploadlog where  DataUploadLogID =  @DataUploadLogID
 
 --commit
 
 rollback
 
 
-SET NOCOUNT OFF;  
-GO 
--------------------------------------------------------------------------------------------
--- Fix character Issues - CA
---------------------------------------------------------------------------------------------
---CREATE TABLE UploadWorkBookCharacterFix (	
---	AwardCode NVARCHAR(50),
---	AltId VARCHAR(50),
---	AwardTitle NVARCHAR(1000),
---	PILastName NVARCHAR(50),
---	PIFirstName NVARCHAR(50)
---)
-
+--SET NOCOUNT OFF;  
 --GO 
-
-----drop table UploadWorkBookCharacterFix
---BULK INSERT UploadWorkBookCharacterFix
---FROM 'C:\icrp\database\DataUpload\DataWorkbook_CA_unicode.csv'  --DataWorkbook_CA_utf8.csv'
---WITH
---(
---	FIRSTROW = 2,
---	--DATAFILETYPE ='widechar',  -- unicode format
---	FIELDTERMINATOR = '|',
---	ROWTERMINATOR = '\n'
---)
---GO  -- import errors row #: 609, 6909 (Total: 13591)
-
---UPDATE ProjectFunding SET Title = fix.AwardTitle
---FROM ProjectFunding f
---	JOIN UploadWorkBookCharacterFix fix ON f.Altawardcode = fix.AltId
---	JOIN fundingorg o ON f.fundingorgid = o.fundingorgid
---where o.sponsorcode = 'CCRA' AND fix.AwardTitle <> '#N/A'
-
---UPDATE ProjectFundingInvestigator SET FirstName = fix.PIFirstName, LastName = fix.PILastName
---FROM ProjectFunding f
---	JOIN UploadWorkBookCharacterFix fix ON f.Altawardcode = fix.AltId
---	JOIN ProjectFundingInvestigator i ON i.ProjectFundingID = f.ProjectFundingID
---	JOIN fundingorg o ON f.fundingorgid = o.fundingorgid
---where o.sponsorcode = 'CCRA'
 
 -------------------------------------------------------------------------------------------
 -- Replace open/closing double quotes
