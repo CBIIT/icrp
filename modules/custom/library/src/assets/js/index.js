@@ -460,7 +460,7 @@ jQuery(function() {
                                   '<h5>'+title+'</h5>'+
                                   '<img src="'+thumb+'"/>'+
                                   '<p>'+description+'</p>'+
-                                  '<div><a href="'+path+'file/'+file+'">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
+                                  '<div><a href="'+path+'file/'+file+'" target="_blank">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
                               '</div>'+
                           '</div>'
                         );
