@@ -45,7 +45,7 @@ function partnerApplicationSubmissionsTable() {
     //First Check to see if there are any Submitted Applications
     //If count is zero, then display all Active Submissions
     $markup = '<h1>Partner Application Administration Tool</h1>';
-    $markup .= '<table class="table table-striped table-bordered table-condensed cols-6 sticky-enabled">
+    $markup .= '<table id="partner-application-table" class="table table-striped table-bordered table-condensed cols-6 sticky-enabled">
   <thead>
   <tr>
     <th>Organization</th>
@@ -68,19 +68,19 @@ function partnerApplicationSubmissionsTable() {
     <td>Pending Review</td>
   </tr>
   <tr>
-    <td>Universal Cancer Research</td>
-    <td>London</td>
-    <td>United Kingdom</td>
-    <td>nobel.price@universalcancerresearch.org</td>
-    <td>10/14/2016</td>
+    <td>American Cancer Society</td>
+    <td>Atlanta</td>
+    <td>Georgia</td>
+    <td>tech@cancer.org</td>
+    <td>5/24/2015</td>
     <td><a href="#">Review</a></td>
     <td>Pending Review</td>
   </tr>
   <tr>
-    <td>Universal Cancer Research</td>
-    <td>London</td>
-    <td>United Kingdom</td>
-    <td>nobel.price@universalcancerresearch.org</td>
+    <td>Susan G. Komen Breast Cancer Foundation</td>
+    <td>Dallas</td>
+    <td>Texas</td>
+    <td>sue@komen.org</td>
     <td>10/14/2016</td>
     <td><a href="#">Review</a></td>
     <td>Pending Review</td>
@@ -177,7 +177,7 @@ function icrp_views_pre_render($view) {
 
 function icrp_views_query_alter($view, $query) {
 
-    if($view->id() == 'partner_application_administration_tool'){
+    if($view->id() == 'partner_application_administration_tool_old'){
         $definition = array(
             'table' => 'webform_submission_data',
             'field' => 'sid',
@@ -194,10 +194,10 @@ function icrp_views_query_alter($view, $query) {
         //$query->addWhereExpression(2, $date_format, [":value" => 12]); // Where 12 is the month I need.
     }    
     \Drupal::logger('hook')->notice('icrp_views_query_alter()');
-    drupal_set_message("views_query_alter");
-    drupal_set_message("View ID: ".$view->id());
+    //drupal_set_message("views_query_alter");
+    //drupal_set_message("View ID: ".$view->id());
     global $user;
-    if($view->id() == "partner_application_administration_tool") {
+    if($view->id() == "partner_application_administration_tool_old") {
         drupal_set_message("You are viewing the Partner Applications");
     }
     //kint($query);
