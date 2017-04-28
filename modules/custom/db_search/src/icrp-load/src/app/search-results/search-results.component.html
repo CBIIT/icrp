@@ -1,9 +1,8 @@
 <div class="clearfix search-criteria-summary" (click)="!showCriteriaLocked && showCriteria = !showCriteria">
-
   <div class="clearfix" style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden">
     <span class="pull-left" style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden">
       <span [ngClass]="{'glyphicon': true, 'glyphicon-triangle-right': !showCriteria, 'glyphicon-triangle-bottom': showCriteria}" ></span>
-      <b>Search Criteria:</b> {{ searchCriteriaSummary }}
+      <b style="color: orange; font-size: 16px;">{{ dataUploadMessage }}</b>
     </span>
 
 
@@ -33,20 +32,23 @@
 </div>
 
 <div class="clearfix search-criteria" *ngIf="showCriteria">
-  {{ criteriaGroup | json }}
-
-  <div *ngFor="let group of searchCriteriaGroups">
-    <b>{{ group.category }}</b>
-
-    <ul *ngIf="group.type === 'array'">
-      <li *ngFor="let criteria of group.criteria">{{ criteria }}</li>
-    </ul>
-
-    <span *ngIf="group.type === 'single'">
-      : {{ group.criteria[0] }}
-    </span>
-
+  <div *ngIf="sponsor.type === 'NEW'">
+    <b>Summary counts of new projects and associated records loaded to ICRP staging</b>
   </div>
+
+  <div *ngIf="sponsor.type === 'UPDATE'">
+    <b>Summary counts of existing projects and associated records updated in ICRP staging</b>
+  </div>
+
+  <ul>
+    <li *ngFor="let key of sponsorCountKeys">
+      {{ sponsorKeyMap[key] }}: {{ sponsor.upload_counts[0][key] }}
+    </li>
+
+  </ul>
+
+
+
 </div>
 
 <div class="form-group clearfix" style="margin-top: 10px; position: relative">
@@ -93,9 +95,9 @@
       description="This only displays awards active during the years selected during your search. Select all years to see all awards"
       ></ui-chart>
 
-      <div class="pull-right" tooltip="Qualifies the rate conversion used. Conversion rates for the year selected will be used for all monies represented on the graph."> 
+      <div class="pull-right" tooltip="Qualifies the rate conversion used. Conversion rates for the year selected will be used for all monies represented on the graph.">
         Use Currency Rates From
-          <select #fundingyear 
+          <select #fundingyear
             (change)="setFundingYear(fundingyear.value)"
           >
             <option *ngFor="let year of fundingYearOptions" [value]="year">{{ year }}</option>

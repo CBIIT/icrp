@@ -21,24 +21,39 @@ import 'rxjs/add/operator/catch';
 })
 export class SearchResultsComponent implements OnChanges, AfterViewInit  {
 
-  @Input() loading;  
-  @Input() loadingAnalytics: boolean;  
+  @Input() loading;
+  @Input() loadingAnalytics: boolean;
 
   @Input() results;
   @Input() analytics;
   @Input() searchParameters;
   @Input() authenticated;
   @Input() fundingYearOptions = [];
+  @Input() dataUploadMessage = 'Loading...';
+  @Input() dataUploadType = 'NEW';
+  @Input() sponsor;
+  sponsorCountKeys = ["ProjectCount", "ProjectFundingCount", "ProjectFundingInvestigatorCount", "ProjectCSOCount", "ProjectCancerTypeCount", "Project_ProjectTypeCount", "ProjectAbstractCount"]
+
+  sponsorKeyMap = {
+    "ProjectCount": "Project Count",
+    "ProjectFundingCount": "Project Funding Count",
+    "ProjectFundingInvestigatorCount": "Project Funding Investigator Count",
+    "ProjectCSOCount": "Project CSO Count",
+    "ProjectCancerTypeCount": "Project Cancer Type Count",
+    "Project_ProjectTypeCount": "Project Type Count",
+    "ProjectAbstractCount": "Project Abstract Count",
+  }
+
 
   @Output() sort: EventEmitter<{ "column": string, "type": "asc" | "desc" }>;
   @Output() paginate: EventEmitter<{ "size": number, "offset": number }>;
   @Output() updateFundingYear: EventEmitter<{ "year": number }>;
-  
+
 
   fundingYear = new Date().getFullYear();
   emailForm: FormGroup;
 
-  showCriteriaLocked = true;  
+  showCriteriaLocked = true;
   searchCriteriaSummary;
   searchTerms;
   searchFilters;
@@ -50,6 +65,8 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   projectData: any[];
   projectColumns: Column[];
 
+
+
   constructor(
     @Inject(FormBuilder) private formbuilder: FormBuilder,
     @Inject(Http) private http: Http,
@@ -57,11 +74,11 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     ) {
 
     this.authenticated = false;
-    
+
     this.loadingAnalytics = true;
     this.showCriteria = false;
     this.searchCriteriaGroups = [];
-    
+
     this.sort = new EventEmitter<{ "column": string, "type": "asc" | "desc" }>();
     this.paginate = new EventEmitter<{ "size": number, "offset": number }>();
     this.updateFundingYear = new EventEmitter<{ "year": number }>();
@@ -105,7 +122,7 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
       {
         label: 'Award Code',
         value: 'award_code',
-        tooltip: 'Unique Identifier for Award (supplied by Partner)',        
+        tooltip: 'Unique Identifier for Award (supplied by Partner)',
       }
     ]
 
@@ -141,18 +158,18 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    
+
     console.log(changes);
     this.showExtendedCharts = false;
     if (changes['searchParameters']) {
       this.showCriteria = false;
       if (Object.keys(this.searchParameters).length == 0) {
         this.searchCriteriaSummary = "All projects are shown below. Use the form on the left to refine search results";
-        this.showCriteriaLocked = true; 
+        this.showCriteriaLocked = true;
       }
 
       else {
-        this.showCriteriaLocked = false; 
+        this.showCriteriaLocked = false;
         let searchCriteria = [];
         this.searchCriteriaGroups = [];
         for (let key of Object.keys(this.searchParameters)) {
@@ -175,17 +192,17 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
 
           else {
             criteriaGroup.criteria = [param];
-          }  
+          }
 
           this.searchCriteriaGroups.push(criteriaGroup);
         }
 
         this.searchCriteriaSummary = searchCriteria.join(' + ');
-        
+
       }
 
     }
-    
+
 
     if (this.results) {
 
@@ -209,13 +226,13 @@ export class SearchResultsComponent implements OnChanges, AfterViewInit  {
     }
 
   }
-  
+
   clearValue(control: any, clear: boolean) {
     if (clear) {
       control.value = '';
     }
   }
-  
+
   fireModalEvent(modal: any) {
     modal.hide();
   }
