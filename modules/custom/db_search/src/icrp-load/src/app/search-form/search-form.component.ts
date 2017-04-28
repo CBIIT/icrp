@@ -16,7 +16,7 @@ import {
   FormGroup
 } from '@angular/forms';
 
-import { Http } from '@angular/http';
+import { Http, Response } from '@angular/http';
 import { SearchFields } from './search-form.fields';
 import { Fields } from './fields'
 import { TreeNode } from '../ui-treeview/treenode';
@@ -76,12 +76,13 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
 
   @Output()
   requestInitialParameters: EventEmitter<any>;
+  partnerData = [];
 
   @Input()
   initialSearchParameters: any;
 
-
-  searchInitialized: boolean = false;
+  @Output()
+  loadedComplete: EventEmitter < any > = new EventEmitter();
 
   funding_organizations: TreeNode;
   cso_research_areas: TreeNode;
@@ -460,65 +461,100 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
 
  ngOnChanges(changes: SimpleChanges) {
 
-  let params = changes['initialSearchParameters'].currentValue;
-  let useSearchID = window.location.search && window.location.search.includes('sid')
+   let params = changes['initialSearchParameters'].currentValue;
+   let useSearchID = window.location.search && window.location.search.includes('sid')
 
-   if (!this.searchInitialized && useSearchID && changes['initialSearchParameters'] && params) {
-    console.log('calling onchanges for getting initial parameters');
+   if (changes['initialSearchParameters'] && params) {
 
-    this.searchInitialized = true;
-    this.form.reset();
+     this.form.reset();
 
-    for (let key in params) {
-      let value = params[key];
 
-      if (value instanceof Array)
-        value = value.filter(e => e.length);
+     for (let key in this.initialSearchParameters) {
 
-      if (value && value.length > 0) {
-        this.form.controls[key].patchValue(value)
-      }
-    }
-    window.setTimeout(f => this.submit(), 0);
+       let value = this.initialSearchParameters[key];
+
+       if (value instanceof Array)
+         value = value.filter(e => e && e.toString().length);
+
+       if (key == 'years') {
+         value = value.map(y => +y).filter(y => y >= 2000)
+       }
+
+       else if (key == 'funding_organizations')
+         value = value.map(e => e.toString());
+
+
+       if (value && value.length > 0) {
+         console.log('using', key, value);
+         this.form.controls[key].patchValue(value)
+       }
+
+     }
+
+     window.setTimeout(f => this.submit(), 10);
+
    }
  }
 
 
+
+
+ updatePartnerUploadData() {
+
+ }
+
  ngAfterViewInit(this) {
-    new SearchFields(this.http, this.apiRoot).getFields()
-      .subscribe(response => {
-        this.fields = response;
+   new SearchFields(this.http, this.apiRoot).getFields()
+     .subscribe(response => {
+       this.fields = response;
+       this.funding_organizations = this.createTreeNode(this.fields.funding_organizations, 'funding_organizations');
+       this.cso_research_areas = this.createTreeNode(this.fields.cso_research_areas, 'cso_research_areas');
 
-        this.fields['is_childhood_cancer'] = [
-          { label: 'Yes', value: 1 },
-          { label: 'No', value: 0 }
-        ];
+       let allYears = this.fields.years.map(v => v.value).join(',');
+       this.fields.years.unshift({ label: 'All Years', value: 'All Years' })
 
-        this.funding_organizations = this.createTreeNode(this.fields.funding_organizations, 'funding_organizations');
-        this.cso_research_areas = this.createTreeNode(this.fields.cso_research_areas, 'cso_research_areas');
+       let useSearchID = window.location.search && window.location.search.includes('sid')
 
-        setTimeout(e => {
-          // set last five years
-          let years = this.fields.years.filter((field, index) => {
-            if (index < 2)
-              return field;
-          }).map(field => field.value);
+       if (useSearchID) {
+         this.requestInitialParameters.emit();
+       }
 
-          let allYears = this.fields.years.map(v => v.value).join(',');
-          this.fields.years.unshift({label: 'All Years', value: 'All Years'})
-          this.form.controls['years'].patchValue(years);
+       else {
+         this.http.get(`${this.apiRoot}/db/sponsor/uploads_table`)
+           .map((res: Response) => res.json())
+           .catch((error: any) => [])
+           .subscribe(
+           response => {
 
-          let useSearchID = window.location.search && window.location.search.includes('sid')
 
-          if (useSearchID) {
-            this.requestInitialParameters.emit();
-          }
+             if (response && response[0]) {
 
-          else {
-            this.submit();
-          }
-        }, 0);
-      });
+               this.partnerData = response;
+               window.setTimeout(f => {
+                 let partner = this.partnerData[0];
+                 this.form.controls['years'].patchValue(partner.funding_years.map(y => +y).filter(y => y >= 2000));
+                 this.form.controls['funding_organizations'].patchValue(partner.sponsor_code);
+
+                 this.submit();
+               }, 10);
+             }
+
+             else {
+               let year = new Date().getFullYear()
+
+               this.partnerData = [];
+               this.form.controls['years'].patchValue([year, year - 1])
+               //                  window.setTimeout(f => this.submit(), 0)
+
+               this.loadedComplete.emit(true);
+             }
+
+           },
+           error => { },
+           () => { }
+           )
+       }
+     });
  }
 
   ngOnInit() {

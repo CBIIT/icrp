@@ -39,18 +39,19 @@ There are currently no submitted workbooks pending for review. Go to <a href="/u
 <br>
 
 <div class="row" [style.display]="partnerData && partnerData.length > 0 ? 'block':'none'">
-<div class="col-md-3">
+<div style="display: none">
   <app-search-form
     [initialSearchParameters]="initialParameters"
     (search)="updateResults($event)"
     (mappedSearch)="updateMappedParameters($event)"
     (search)="updateResults($event)"
     (loadedComplete)="completeLoading()"
-    (requestInitialParameters)="updateInitialSearchId()">
+    (requestInitialParameters)="updateInitialSearchId()"
+    #searchform>
   </app-search-form>
 </div>
 
-<div class="col-md-9">
+<div class="col-md-12">
   <app-search-results
     [authenticated]="loggedIn"
     [results]="results"
@@ -62,7 +63,7 @@ There are currently no submitted workbooks pending for review. Go to <a href="/u
     (sort)="sort($event)"
     (updateFundingYear)="updateServerAnalyticsFunding($event)"
     [fundingYearOptions]="conversionYears"
-    >
+    #searchresults>
   </app-search-results>
 </div>
 </div>

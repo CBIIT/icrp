@@ -31,11 +31,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
   initialParameters: any;
 
   conversionYears = [];
-
   partnerData = [];
-
   partnerSelectionMessage = '';
-
   partnerSearchParameters = {};
 
   constructor(
@@ -326,8 +323,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
       .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
       .subscribe(
         response => {
-
-
           let category = 'projects_by_year';
           let parsed_data = response.map(data => ({label: data.label, value: +data.value}));
           this.analytics[category] = parsed_data;
@@ -381,8 +376,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
       })
 
   }
-
-
 
 
   queryServer(parameters: Object): Observable<any[]> {
