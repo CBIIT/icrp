@@ -144,6 +144,9 @@ select * from institution where name like '%University of New South Wales%' -- k
 select * from institution where name like '%Mayo%' -- keep 1994, delete 4064
 select * from institution where name like '%Advanced Digital Systems, Inc.%' -- keep 62, delete 2803
 
+select * from institution where GRID = 'grid.412180.e' -- keep 1418, delete 1417
+select * from institution where GRID = 'grid.431388.5' -- keep 2751, delete 2750
+
 
 --Select projectfundingid, institutionid from ProjectFundingInvestigator where institutionid in (3258,3257) order by institutionid
 
@@ -158,6 +161,8 @@ select * from institution where name like '%Advanced Digital Systems, Inc.%' -- 
  join institution i on i.InstitutionID = pi.InstitutionID
  order by pi.ProjectFundingID, i.InstitutionID
 
+ select grid from institution group by grid having count(*) > 1
+
  -- check missing institutions
  select * from ProjectFundingInvestigator where InstitutionID=1
 
@@ -167,7 +172,14 @@ select * from institution where name like '%Advanced Digital Systems, Inc.%' -- 
 
 
 
-begin transaction
+begin transaction  -- commit
+
+update ProjectFundingInvestigator set institutionid = 2751 where institutionid=2750  --3,1,1
+delete institution where  institutionid=2750
+
+update ProjectFundingInvestigator set institutionid = 1418 where institutionid=1417  --3,1,1
+delete institution where  institutionid=1417
+
 update ProjectFundingInvestigator set institutionid = 3576 where institutionid=3577  --3,1,1
 delete institution where  institutionid=3577
 

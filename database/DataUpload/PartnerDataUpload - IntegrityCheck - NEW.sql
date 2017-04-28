@@ -11,7 +11,7 @@ PRINT '*************************************************************************
 --drop table #parentProjects
 --go
 
-DECLARE @SponsorCode varchar(25) = 'PANCAN'
+DECLARE @SponsorCode varchar(25) = 'PanCAN'
 DECLARE @HasParentRelationship bit = 1
 
 -------------------------------------------------------------------
@@ -26,6 +26,7 @@ BEGIN
 	SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'  -- CA
  END
 ELSE
+	PRINT '@HasParentRelationship=0  -- uncomment this'
 	--SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook
 
 DECLARE @TotalAwardCodes INT
@@ -195,12 +196,23 @@ END
 ELSE
 	PRINT 'Checking duplicate Project Funding   ==> Pass'
 
--- Check if AwardCodes alreadt exist in ICRP
---IF EXISTS (select * FROM UploadWorkBook WHERE AwardCode IN (SELECT AwardCode FROM Project) )
---BEGIN
---	SELECT 'AwardCode Exists' AS Issue, AwardCode from UploadWorkBook WHERE AwardCode IN (SELECT AwardCode FROM Project)
---END 
+------------------------------------------------------------------
+-- Check if AwardCodes already exist in ICRP
+-------------------------------------------------------------------
+IF EXISTS (select * FROM #parentProjects WHERE AwardCode IN (SELECT AwardCode From Project))
+BEGIN
+	PRINT 'ERROR ==> Parent AwardCode already exist'
+	SELECT 'AltAwardCode Exists' AS Issue, AwardCode FROM (select AwardCode FROM #parentProjects WHERE AwardCode IN (SELECT AwardCode From Project)) p
+END 
 
+------------------------------------------------------------------
+-- Check if AltAwardCodes already exist in ICRP
+-------------------------------------------------------------------
+IF EXISTS (select AltID FROM UploadWorkbook WHERE AltID IN (SELECT AltAwardCode From ProjectFunding))
+BEGIN
+	PRINT 'ERROR ==> AltAwardCode already exist'
+	SELECT 'AltAwardCode Already Exists' AS Issue, AltID AS AltAwardCode FROM (select AltID FROM UploadWorkbook WHERE AltID IN (SELECT AltAwardCode From ProjectFunding)) f
+END 
 
 -------------------------------------------------------------------
 -- Check Institutions

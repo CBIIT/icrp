@@ -1,24 +1,42 @@
-
---SET NOCOUNT ON;  
---GO 
+SET NOCOUNT ON;  
+GO 
 
 BEGIN TRANSACTION 
 
 -----------------------------------
--- Insert Data Upload Status
+-- SET DataUpload Parameters
 -----------------------------------
 DECLARE @DataUploadStatusID INT
-DECLARE @PartnerCode varchar(25) = 'PANCAN'
-DECLARE @FundingYears VARCHAR(25) = '2015-2016'
-DECLARE @ImportNotes  VARCHAR(1000) = 'FY2015 Update, FY2016 New'
+DECLARE @PartnerCode varchar(25) = 'PanCAN'
+DECLARE @FundingYears VARCHAR(25) = '2015'
+DECLARE @ImportNotes  VARCHAR(1000) = 'FY2015 Update'
 DECLARE @HasParentRelationship bit = 1
 DECLARE @IsProd bit = 0
 
-IF @IsProd = 0
+-------------------------------------------------------------------------------------------
+-- Replace open/closing double quotes
+--------------------------------------------------------------------------------------------
+UPDATE UploadWorkbook SET AwardTitle = SUBSTRING(AwardTitle, 2, LEN(AwardTitle)-2)
+where LEFT(AwardTitle, 1) = '"' AND RIGHT(AwardTitle, 1) = '"' 
+
+UPDATE UploadWorkbook SET AwardTitle = SUBSTRING(AwardTitle, 2, LEN(AwardTitle)-2)
+where LEFT(AwardTitle, 1) = '"' AND RIGHT(AwardTitle, 1) = '"' 
+
+UPDATE UploadWorkbook SET techabstract = SUBSTRING(techabstract, 2, LEN(techabstract)-2)
+where LEFT(techabstract, 1) = '"' AND RIGHT(techabstract, 1) = '"'  --87
+
+UPDATE UploadWorkbook SET publicAbstract = SUBSTRING(publicAbstract, 2, LEN(publicAbstract)-2)
+where LEFT(publicAbstract, 1) = '"' AND RIGHT(publicAbstract, 1) = '"'  --87
+
+
+-----------------------------------
+-- Insert Data Upload Status
+-----------------------------------
+IF @IsProd = 0  -- rollback
 BEGIN  -- Staging
 
-	INSERT INTO DataUploadStatus ([PartnerCode],[FundingYear],[Status],[ReceivedDate],[ValidationDate],[UploadToDevDate],[UploadToStageDate],[UploadToProdDate],[Note],[CreatedDate])
-	VALUES (@PartnerCode, @FundingYears, 'Staging', '4/10/2017', '4/10/2017', '4/10/2017',  '4/10/2017', NULL, @ImportNotes, getdate())
+	INSERT INTO DataUploadStatus ([PartnerCode],[FundingYear],[Status], [Type], [ReceivedDate],[ValidationDate],[UploadToDevDate],[UploadToStageDate],[UploadToProdDate],[Note],[CreatedDate])
+	VALUES (@PartnerCode, @FundingYears, 'Staging', 'UPDATE', '4/10/2017', '4/26/2017', '4/26/2017',  '4/26/2017', NULL, @ImportNotes, getdate())
 	
 	select * from DataUploadStatus where PartnerCode=@PartnerCode
 
@@ -26,8 +44,8 @@ BEGIN  -- Staging
 
 	PRINT 'DataUploadStatusID = ' + CAST(@DataUploadStatusID AS varchar(10))
 
-	INSERT INTO icrp_data.dbo.DataUploadStatus ([PartnerCode],[FundingYear],[Status],[ReceivedDate],[ValidationDate],[UploadToDevDate],[UploadToStageDate],[UploadToProdDate],[Note],[CreatedDate])
-	VALUES (@PartnerCode, @FundingYears, 'Staging', '4/10/2017', '4/10/2017', '4/10/2017',  '4/10/2017', NULL, @ImportNotes, getdate())
+	INSERT INTO icrp_data.dbo.DataUploadStatus ([PartnerCode],[FundingYear],[Status],[Type],[ReceivedDate],[ValidationDate],[UploadToDevDate],[UploadToStageDate],[UploadToProdDate],[Note],[CreatedDate])
+	VALUES (@PartnerCode, @FundingYears, 'Staging', 'UPDATE', '4/10/2017', '4/26/2017', '4/26/2017',  '4/26/2017', NULL, @ImportNotes, getdate())
 
 END
 
@@ -51,110 +69,57 @@ PRINT '*************************************************************************
 PRINT '***************************** Import Data  ************************************'
 PRINT '******************************************************************************'
 
+-----------------------------------
+-- Update base Projects
+-----------------------------------
+PRINT 'Update base Projects'
+
+UPDATE Project SET IsChildhood = 
+	CASE ISNULL(Childhood, '') WHEN 'y' THEN 1 ELSE 0 END, 
+ProjectStartDate = u.AwardStartDate, ProjectEndDate = u.AwardEndDate, UpdatedDate = getdate() FROM Project p
+JOIN UploadWorkbook u ON p.AwardCode = u.AWardCode
 
 
-IF @HasParentRelationship = 1
-BEGIN
-	PRINT 'Select Parent Projects'
-	SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'  -- CA
-END 
-ELSE
-	--SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook
+select * from UploadWorkbook
+PRINT 'Total updated base projects = ' + CAST(@@RowCount AS varchar(10))
 
 -----------------------------------
--- Import base Projects
+-- Update Project Abstract
 -----------------------------------
-PRINT 'Import base Projects'
+PRINT '-- Update Project Abstract'
 
-INSERT INTO Project 
-SELECT CASE ISNULL(Childhood, '') WHEN 'y' THEN 1 ELSE 0 END, 
-		AwardCode, AwardStartDate, AwardEndDate, getdate(), getdate()
-FROM #parentProjects
+UPDATE ProjectAbstract SET TechAbstract=u.TechAbstract, PublicAbstract=u.PublicAbstract
+FROM ProjectAbstract a
+	JOIN ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
+	JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
+	JOIN UploadWorkbook u ON u.AltID = f.AltAwardCode AND u.FundingOrgAbbr = o.Abbreviation	
 
-PRINT 'Total Imported projects = ' + CAST(@@RowCount AS varchar(10))
-
------------------------------------
--- Import Project Abstract
------------------------------------
-PRINT '-- Import Project Abstract'
-
-
-DECLARE @seed INT
-SELECT @seed=MAX(projectAbstractID)+1 FROM projectAbstract  -- 1246295, 1246328
-PRINT @seed
-
-CREATE TABLE #UploadAbstract (	
-	ID INT NOT NULL IDENTITY(@seed,1),
-	AwardCode NVARCHAR(50),
-	Altid NVARCHAR(50),
-	TechAbstract NVARCHAR (MAX) NULL,
-	PublicAbstract NVARCHAR (MAX) NULL
-) ON [PRIMARY]
-
-INSERT INTO #UploadAbstract (AwardCode, Altid, TechAbstract, PublicAbstract) SELECT DISTINCT AwardCode, Altid, TechAbstract, PublicAbstract FROM UploadWorkBook 
-
-UPDATE #UploadAbstract SET PublicAbstract = NULL where PublicAbstract = '0' OR PublicAbstract = ''
-UPDATE #UploadAbstract SET TechAbstract = '' where TechAbstract = '0' OR TechAbstract IS NULL
-
-SET IDENTITY_INSERT ProjectAbstract ON;  -- SET IDENTITY_INSERT to ON. 
-
-INSERT INTO ProjectAbstract (ProjectAbstractID, TechAbstract, PublicAbstract) 
-SELECT ID, TechAbstract, PublicAbstract FROM #UploadAbstract  WHERE AwardCode IS NOT NULL
-
-PRINT 'Total Imported ProjectAbstract = ' + CAST(@@RowCount AS varchar(10))
-
-SET IDENTITY_INSERT ProjectAbstract OFF;  -- SET IDENTITY_INSERT to OFF. 
-
-
-DECLARE @total VARCHAR(10)
-SELECT @total = CAST(COUNT(*) AS varchar(10)) FROM ProjectAbstract
-
-PRINT 'Total ProjectAbstract = ' + @total
+PRINT 'Total Updated ProjectAbstract = ' + CAST(@@RowCount AS varchar(10))
 
 -----------------------------------
--- Import ProjectFunding
+-- Update ProjectFunding
 -----------------------------------
-PRINT 'Import ProjectFunding'
+PRINT 'Update ProjectFunding'
 
-INSERT INTO ProjectFunding
-SELECT u.AwardTitle, p.ProjectID, o.FundingOrgID, d.FundingDivisionID, a.ID, @DataUploadStatusID,    --ProjectAbtractID
-	u.Category, u.AltId, u.SourceId, u.FundingMechanismCode, u.FundingMechanism, u.FundingContact, 
-	CASE ISNULL(u.IsAnnualized, '') WHEN 'A' THEN 1 ELSE 0 END, 
-	u.AwardFunding, 
-	u.BudgetStartDate, u.BudgetEndDate, getdate(), getdate()
-FROM UploadWorkBook u
-JOIN #UploadAbstract a ON u.AwardCode = a.AwardCode AND u.AltId = a.Altid
-JOIN Project p ON u.AwardCode = p.awardCode
-JOIN FundingOrg o ON u.FundingOrgAbbr = o.Abbreviation
-LEFT JOIN FundingDivision d ON u.FundingDivAbbr = d.Abbreviation
+UPDATE ProjectFunding SET Title = u.AwardTitle, DataUploadStatusID =  @DataUploadStatusID, Category = u.Category, Source_ID = u.SourceID, MechanismCode = u.FundingMechanismCode, MechanismTitle = u.FundingMechanism, FundingContact = u.FundingContact,
+							IsAnnualized = CASE ISNULL(u.IsAnnualized, '') WHEN 'y' THEN 1 ELSE 0 END, Amount  = u.AwardFunding, BudgetStartDate = u.BudgetStartDate, BudgetEndDate = u.BudgetEndDate, UpdatedDate = getdate()
+FROM ProjectFunding f 
+	JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
+	JOIN UploadWorkbook u ON u.AltID = f.AltAwardCode AND u.FundingOrgAbbr = o.Abbreviation	
 
---DECLARE @total VARCHAR(10)
---SELECT @total = CAST(COUNT(*) AS varchar(10)) FROM Institution
-
---PRINT 'Total Imported Institutions = ' + @total
---GO
-
--- Correct ProjectBatract mapping if no TechAbstract
-UPDATE ProjectFunding SET ProjectAbstractID=0
-WHERE ProjectAbstractID IN (select ProjectAbstractID from ProjectAbstract where TechAbstract = '' AND PublicAbstract IS NULL) --or TechAbstract='No abstract available for this Project funding.'
-
-DELETE ProjectAbstract where TechAbstract = ''
-
-PRINT 'Total newly Imported ProjectFunding = ' + CAST(@@RowCount AS varchar(10))
+PRINT 'Total updated project funding = ' + CAST(@@RowCount AS varchar(10))
 
 -----------------------------------
--- Import ProjectFundingInvestigator
+-- Update ProjectFundingInvestigator
 -----------------------------------
 PRINT '-- Import ProjectFundingInvestigator'
 
-INSERT INTO ProjectFundingInvestigator ([ProjectFundingID], [LastName],	[FirstName],[ORC_ID],[OtherResearch_ID],[OtherResearch_Type],[IsPrivateInvestigator],[InstitutionID],[InstitutionNameSubmitted])
-SELECT DISTINCT f.ProjectFundingID, u.PILastName, u.PIFirstName, u.ORCID, u.OtherResearcherID, u.OtherResearcherIDType, 1, ISNULL(inst.InstitutionID,1) AS InstitutionID, u.SubmittedInstitution
-FROM UploadWorkBook u
-	JOIN ProjectFunding f ON u.AltID = f.AltAwardCode
-	LEFT JOIN (SELECT i.InstitutionID, i.Name, i.City, m.OldName, m.oldCity 
-	           FROM Institution i 
-				 LEFT JOIN InstitutionMapping m ON i.name = m.newName AND i.City = m.newCity) inst 
-     ON (u.InstitutionICRP = inst.Name AND u.City = inst.City) -- OR (u.SubmittedInstitution= inst.OldName AND u.City = inst.OldCity) OR (u.InstitutionICRP = inst.OldName AND u.City = inst.OldCity) 
+UPDATE ProjectFundingInvestigator SET LastName = u.PILastName, FirstName = u.PIFirstName, ORC_ID = u.ORCID, OtherResearch_ID= u.OtherResearcherID, OtherResearch_Type = u.OtherResearcherIDType, IsPrivateInvestigator= 1, 
+										InstitutionID = ISNULL(i.InstitutionID,1), InstitutionNameSubmitted = u.SubmittedInstitution, UpdatedDate = getdate()
+FROM UploadWorkbook u 
+	LEFT JOIN (SELECT f.ProjectFundingID, f.AltAWardCode, o.Abbreviation FROM ProjectFunding f JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID) pf ON u.AltID = pf.AltAwardCode AND u.FundingOrgAbbr = pf.Abbreviation	
+	--LEFT JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = pi.ProjectFundingID	
+	LEFT JOIN Institution i ON i.Name = u.InstitutionICRP AND i.City = i.City
 
 PRINT 'Total newly Imported ProjectFundingInvestigator = ' + CAST(@@RowCount AS varchar(10))
 
@@ -211,13 +176,16 @@ ELSE
 	PRINT 'Pre-Checking Missing PIs ==> Pass'
 
 -----------------------------------
--- Import ProjectCSO
+-- Update ProjectCSO
 -----------------------------------
-PRINT 'Import ProjectCSO'
+PRINT 'Update ProjectCSO'
 
-SELECT f.projectID, f.ProjectFundingID, f.AltAwardCode, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel, AwardType INTO #list
+
+SELECT pf.projectID, pf.ProjectFundingID, pf.AltAwardCode, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel, AwardType INTO #list
 FROM UploadWorkBook u
-JOIN ProjectFunding f ON u.AltId = f.AltAwardCode
+	JOIN (SELECT f.ProjectID, f.ProjectFundingID, f.AltAWardCode, o.Abbreviation FROM ProjectFunding f JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID) pf ON u.AltID = pf.AltAwardCode AND u.FundingOrgAbbr = pf.Abbreviation
+
+DELETE ProjectCSO WHERE ProjectFundingID IN (SELECT ProjectFundingID FROM #list)
 
 DECLARE @pcso TABLE
 (
@@ -263,6 +231,8 @@ JOIN @pcsorel r ON c.ProjectFundingID = r.ProjectFundingID AND c.Seq = r.Seq
 -- Import ProjectCancerType
 -----------------------------------
 PRINT 'Import ProjectCancerType'
+
+DELETE ProjectCancerType WHERE ProjectFundingID IN (SELECT ProjectFundingID FROM #list)
 
 DECLARE @psite TABLE
 (
@@ -311,6 +281,8 @@ JOIN @psiterel r ON c.ProjectFundingID = r.ProjectFundingID AND c.Seq = r.Seq
 -----------------------------------
 PRINT 'Import Project_ProjectTye'
 
+DELETE  Project_ProjectType WHERE ProjectID IN (SELECT ProjectID FROM #list)
+
 DECLARE @ptype TABLE
 (	
 	ProjectID INT,	
@@ -346,10 +318,10 @@ SELECT ProjectID,
 		END
 FROM @ptype	
 
-
 -----------------------------------
 -- Import ProjectFundingExt
 -----------------------------------
+DELETE ProjectFundingExt WHERE ProjectFundingID IN (SELECT ProjectFundingID FROM #list)
 -- call php code to calculate and populate calendar amounts
 
 
@@ -456,21 +428,6 @@ rollback
 
 --SET NOCOUNT OFF;  
 --GO 
-
--------------------------------------------------------------------------------------------
--- Replace open/closing double quotes
---------------------------------------------------------------------------------------------
-UPDATE ProjectFunding SET Title = SUBSTRING(title, 2, LEN(title)-2)
-where LEFT(title, 1) = '"' AND RIGHT(title, 1) = '"'  --87
-
-UPDATE ProjectFunding SET Title = SUBSTRING(title, 2, LEN(title)-2)
-where LEFT(title, 1) = '"' AND RIGHT(title, 1) = '"'  --15
-
-UPDATE projectabstract SET techabstract = SUBSTRING(techabstract, 2, LEN(techabstract)-2)
-where LEFT(techabstract, 1) = '"' AND RIGHT(techabstract, 1) = '"'  --87
-
-UPDATE projectabstract SET publicAbstract = SUBSTRING(publicAbstract, 2, LEN(publicAbstract)-2)
-where LEFT(publicAbstract, 1) = '"' AND RIGHT(publicAbstract, 1) = '"'  --87
 
 -------------------------------------------------------------------------------------------
 -- Total Stats
