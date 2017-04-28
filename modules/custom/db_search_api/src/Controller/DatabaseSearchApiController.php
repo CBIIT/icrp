@@ -855,6 +855,7 @@ class DatabaseSearchAPIController extends ControllerBase {
         array_push($output, [
           'sponsor_code'  => $row['SponsorCode'],
           'funding_years' => $row['FundingYear'],
+          'type'          => $row['Type'],
           'received_date' => $row['ReceivedDate'],
           'note'          => $row['Note'],
         ]);
