@@ -119,56 +119,6 @@ class LibraryController extends ControllerBase {
     return new JsonResponse($returnValue);
   }
 
-  public function getArchivedFolders() {
-    $connection = self::get_connection();
-    $stmt = $connection->prepare(
-      "SELECT DISTINCT a.* FROM LibraryFolder a ".
-          "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID ".
-          "WHERE a.ParentFolderID > 0 AND (a.ArchivedDate IS NOT NULL or b.ArchivedDate IS NOT NULL) ".
-          "ORDER BY Name"
-    );
-    if ($stmt->execute()) {
-      $folders = array();
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $row_output = array();
-        foreach ($row as $key=>$value) {
-          $row_output[$key] = $value;
-        }
-        array_push($folders,$row_output);
-      }
-      return new JsonResponse(array(
-        "success"=>true,
-        "folders"=>$folders
-      ));
-    }
-    return new JsonResponse(array(
-      "success"=>false
-    ), Response::HTTP_INTERNAL_SERVER_ERROR);
-  }
-
-  public function getArchivedFiles($id) {
-    $connection = self::get_connection();
-    $stmt = $connection->prepare("SELECT * FROM Library WHERE ArchivedDate IS NOT NULL AND LibraryFolderID=:lfid ORDER BY Title");
-    $stmt->bindParam(":lfid",$id);
-    if ($stmt->execute()) {
-      $files = array();
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $row_output = array();
-        foreach ($row as $key=>$value) {
-          $row_output[$key] = $value;
-        }
-        array_push($files,$row_output);
-      }
-      return new JsonResponse(array(
-        "success"=>true,
-        "files"=>$files
-      ));
-    }
-    return new JsonResponse(array(
-      "success"=>false
-    ), Response::HTTP_INTERNAL_SERVER_ERROR);
-  }
-
   public function searchFiles() {
     $role = self::getRole();
     $keywords = \Drupal::request()->request->get('keywords');
@@ -194,9 +144,6 @@ class LibraryController extends ControllerBase {
   public function fileRest($id) {
     $method = \Drupal::request()->getMethod();
     switch ($method) {
-      case "GET":
-        return self::fileDownload($id);
-        break;
       case "DELETE":
         if (self::getRole() == "admin") {
           return new JsonResponse(self::archiveFile($id));
@@ -509,16 +456,18 @@ class LibraryController extends ControllerBase {
     return $returnValue;
   }
 
-  private function fileDownload($file) {
+  public function fileDownload($id,$name) {
+    //return new JsonResponse(array(),Response::HTTP_FORBIDDEN);
     $connection = self::get_connection();
-    $request = "SELECT Filename,IsPublic FROM Library WHERE DisplayName=:file";
+    $request = "SELECT Filename FROM Library WHERE LibraryID=:lfid AND DisplayName=:file";
     if (self::getRole() == "public") {
       $request .= " AND IsPublic=1";
     }
     $stmt = $connection->prepare($request);
-    $stmt->bindParam(":file",$file);
+    $stmt->bindParam(":lfid",$id);
+    $stmt->bindParam(":file",$name);
     if (!$stmt->execute() || $stmt->rowCount() == 0) {
-      return new JsonResponse($stmt->rowCount(),$status=Response::HTTP_FORBIDDEN);
+      return new JsonResponse(array(),$status=Response::HTTP_FORBIDDEN);
     }
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     $row_output = array();

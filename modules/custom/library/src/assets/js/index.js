@@ -470,7 +470,8 @@ jQuery(function() {
                 if (isPublic) {
                     frame.addClass('preview');
                     $.each(files,function(index,entry) {
-                        var title = entry.Title||entry.DisplayName,
+                        var id = entry.LibraryID,
+                            title = entry.Title||entry.DisplayName,
                             thumb = entry.ThumbnailFilename||"",
                             description = entry.Description||"",
                             file = entry.DisplayName,
@@ -486,7 +487,7 @@ jQuery(function() {
                                   '<h5>'+title+'</h5>'+
                                   '<img src="'+thumb+'"/>'+
                                   '<p>'+description+'</p>'+
-                                  '<div><a href="'+path+'file/'+file+'" target="_blank">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
+                                  '<div><a href="'+path+'file/'+id+'/'+file+'" target="_blank">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
                               '</div>'+
                           '</div>'
                         );
@@ -494,14 +495,15 @@ jQuery(function() {
                 } else {
                     frame.removeClass('preview');
                     $.each(files,function(index,entry) {
-                        var file = entry.DisplayName,
+                        var id = entry.LibraryID,
+                            file = entry.DisplayName,
                             isArchived = (entry.ArchivedDate !== null),
                             isPublic = (entry.IsPublic == "1");
                         frame.append(
                           '<div class="item-wrapper'+(isArchived?' archived':'')+(isPublic?' public-doc':'')+'">'+
                               '<div class="item">'+
                                   '<div title="'+(isPublic?'Public Document':'Non-Public Document')+'"></div>'+
-                                  '<div><a href="'+path+'file/'+file+'" target="_blank">'+file+'</a></div>'+
+                                  '<div><a href="'+path+'file/'+id+'/'+file+'" target="_blank">'+file+'</a></div>'+
                                   '<button class="admin edit-file" title="Edit File"></button>'+
                                   '<button class="admin '+(isArchived?'restore-file':'archive-file')+'" title="'+(isArchived?'Restore File':'Archive File')+'"></button>'+
                               '</div>'+

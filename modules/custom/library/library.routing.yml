@@ -13,24 +13,6 @@ library.initialize:
   requirements:
     _permission: 'access content'
 
-library.archived.folder:
-  path: '/library/archived/folders'
-  defaults:
-    _controller: '\Drupal\library\Controller\LibraryController::getArchivedFolders'
-  methods:  [GET]
-  requirements:
-    _permission: 'access content'
-    _role: 'administrator+manager'
-
-library.archived.file:
-  path: '/library/archived/files/{id}'
-  defaults:
-    _controller: '\Drupal\library\Controller\LibraryController::getArchivedFiles'
-  methods:  [GET]
-  requirements:
-    _permission: 'access content'
-    _role: 'administrator+manager'
-
 library.search:
   path: '/library/search'
   defaults:
@@ -65,11 +47,19 @@ library.folder.post:
     _permission: 'access content'
     _role: 'administrator+manager'
 
+library.file.id.name:
+  path: '/library/file/{id}/{name}'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::fileDownload'
+  methods:  [GET]
+  requirements:
+    _permission: 'access content'
+
 library.file.id:
   path: '/library/file/{id}'
   defaults:
     _controller: '\Drupal\library\Controller\LibraryController::fileRest'
-  methods:  [GET, DELETE, PUT]
+  methods:  [DELETE, PUT]
   requirements:
     _permission: 'access content'
 
