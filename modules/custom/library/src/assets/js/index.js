@@ -94,14 +94,24 @@ jQuery(function() {
             var node = functions.getNode(),
                 params = $('#library-parameters').toggleClass('folder',isFolder),
                 ispub = params.find('[name="is_public"]');
-            if (node) {
+            if (!isFolder) {
+                if (nodeId == undefined) {
+                    if (node) {
+                        nodeId = node.id;
+                    } else {
+                        BootstrapDialog.alert({
+                            'title': null,
+                            'message': "No folder is currently selected."
+                        });
+                    }
+                }
+                functions.populateParents(nodeId);
+                $('#library-edit h1').html("Create Library File");
+                $('#library-edit').addClass('active').siblings().removeClass('active');
+            } else if (node) {
                 if (nodeId == undefined) nodeId = node.id;
                 functions.populateParents(nodeId);
-                if (isFolder) {
-                    $('#library-edit h1').html("Create Library Folder");
-                } else {
-                    $('#library-edit h1').html("Create Library File");
-                }
+                $('#library-edit h1').html("Create Library Folder");
                 ispub.attr('checked',node.data.isPublic);
                 $('#library-edit').addClass('active').siblings().removeClass('active');
             } else {
@@ -116,11 +126,11 @@ jQuery(function() {
                 params = $('#library-parameters'),
                 ispub = params.find('[name="is_public"]');
             params.find('[name="id_value"]').val(data.LibraryID);
-            params.find('[name="upload"]').addClass('hide').prev().html(data.Filename).removeClass('hide');
+            params.find('[name="upload"]').addClass('hide').prev().val(data.DisplayName).removeClass('hide');
             params.find('[name="title"]').val(data.Title);
             params.find('[name="description"]').val(data.Description);
             params.find('[name="thumbnail"]').addClass('hide').prev().html(data.ThumbnailFilename).removeClass('hide');
-            functions.createNew(e, false);
+            functions.createNew(e, false, data.LibraryFolderID);
             $('#library-edit h1').html("Edit Library File");
             ispub.parent().toggleClass('not_public',data.IsPublic != "1");
             ispub.prop('checked',data.IsPublic == "1");
@@ -322,8 +332,9 @@ jQuery(function() {
         'saveFile': function(e) {
             var file = $('#library-parameters [name="upload"]'),
                 title = $('#library-parameters [name="title"]').val();
+                display_name = $('#library-parameters [name="display_name"]');
                 desc = $('#library-parameters [name="description"]').val();
-            if ((!file.hasClass('hide') && (file.val()||"") === "") || (title||"") === "" || (desc||"") === "") {
+            if ((!file.hasClass('hide') && (file.val()||"") === "") || (!display_name.hasClass('hide') && (display_name.val()||"") === "") || (title||"") === "" || (desc||"") === "") {
                 BootstrapDialog.alert({
                   'title': null,
                   'message': "Missing required parameters."
@@ -459,10 +470,10 @@ jQuery(function() {
                 if (isPublic) {
                     frame.addClass('preview');
                     $.each(files,function(index,entry) {
-                        var title = entry.Title||entry.Filename,
+                        var title = entry.Title||entry.DisplayName,
                             thumb = entry.ThumbnailFilename||"",
                             description = entry.Description||"",
-                            file = entry.Filename,
+                            file = entry.DisplayName,
                             isArchived = (entry.ArchivedDate !== null);
                         if (thumb === "") {
                             thumb = root+'/sites/default/files/library/File-ImagePlaceholder.svg';
@@ -483,7 +494,7 @@ jQuery(function() {
                 } else {
                     frame.removeClass('preview');
                     $.each(files,function(index,entry) {
-                        var file = entry.Filename,
+                        var file = entry.DisplayName,
                             isArchived = (entry.ArchivedDate !== null),
                             isPublic = (entry.IsPublic == "1");
                         frame.append(
