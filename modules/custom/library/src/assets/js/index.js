@@ -94,14 +94,24 @@ jQuery(function() {
             var node = functions.getNode(),
                 params = $('#library-parameters').toggleClass('folder',isFolder),
                 ispub = params.find('[name="is_public"]');
-            if (node) {
+            if (!isFolder) {
+                if (nodeId == undefined) {
+                    if (node) {
+                        nodeId = node.id;
+                    } else {
+                        BootstrapDialog.alert({
+                            'title': null,
+                            'message': "No folder is currently selected."
+                        });
+                    }
+                }
+                functions.populateParents(nodeId);
+                $('#library-edit h1').html("Create Library File");
+                $('#library-edit').addClass('active').siblings().removeClass('active');
+            } else if (node) {
                 if (nodeId == undefined) nodeId = node.id;
                 functions.populateParents(nodeId);
-                if (isFolder) {
-                    $('#library-edit h1').html("Create Library Folder");
-                } else {
-                    $('#library-edit h1').html("Create Library File");
-                }
+                $('#library-edit h1').html("Create Library Folder");
                 ispub.attr('checked',node.data.isPublic);
                 $('#library-edit').addClass('active').siblings().removeClass('active');
             } else {
@@ -116,11 +126,11 @@ jQuery(function() {
                 params = $('#library-parameters'),
                 ispub = params.find('[name="is_public"]');
             params.find('[name="id_value"]').val(data.LibraryID);
-            params.find('[name="upload"]').addClass('hide').prev().html(data.Filename).removeClass('hide');
+            params.find('[name="upload"]').addClass('hide').prev().val(data.DisplayName).removeClass('hide');
             params.find('[name="title"]').val(data.Title);
             params.find('[name="description"]').val(data.Description);
             params.find('[name="thumbnail"]').addClass('hide').prev().html(data.ThumbnailFilename).removeClass('hide');
-            functions.createNew(e, false);
+            functions.createNew(e, false, data.LibraryFolderID);
             $('#library-edit h1').html("Edit Library File");
             ispub.parent().toggleClass('not_public',data.IsPublic != "1");
             ispub.prop('checked',data.IsPublic == "1");
@@ -141,6 +151,15 @@ jQuery(function() {
         'getNode': function() {
             var nodes = tree.get_selected(true);
             return nodes.length === 0 ? undefined : nodes[0];
+        },
+        'getParameterByName': function(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
         },
         'hideArchives': function(e) {
             // $('#library-restore-folder').addClass('hide');
@@ -166,13 +185,20 @@ jQuery(function() {
                     }
                 }).on('ready.jstree', function(e, data) {
                     tree = $('#library-tree').jstree();
-                    var json = tree.get_json();
-                    for (var index = 0; index < json.length; index++) {
-                        if (!json[index].state.hidden && (role !== "public" || json[index].text == "Publications")) break;
+                    var searchString = functions.getParameterByName('search');
+                    if (searchString) {
+                        $('#library [name="library-keywords"]').val(searchString);
+                        functions.search();
+                    } else {
+                        var json = tree.get_json();
+                        for (var index = 0; index < json.length; index++) {
+                            if (!json[index].state.hidden && (role !== "public" || json[index].text == "Publications")) break;
+                        }
+                        if (index < json.length) tree.select_node(json[index]);
                     }
-                    if (index < json.length) tree.select_node(json[index]);
                 }).on('refresh.jstree', function() {
-                    if (functions.getNode().state.hidden) {
+                    var node = functions.getNode();
+                    if (node === undefined || node.state.hidden) {
                         tree.deselect_all();
                         var json = tree.get_json();
                         for (var index = 0; index < json.length; index++) {
@@ -200,9 +226,9 @@ jQuery(function() {
                   }
                 }).on('changed.jstree', function(e, data) {
                     var nodes = data.selected;
-                    $('#library-search [name="library-keywords"]').val('');
                     if (nodes.length > 0) {
-                        lGet(path+'folder/'+data.selected[0]).done(function(response) {
+                        $('#library-search [name="library-keywords"]').val('');
+                        lGet(path+'folder/'+nodes[0]).done(function(response) {
                             functions.writeDisplay(response.files,role==="public");
                         });
                     }
@@ -306,8 +332,9 @@ jQuery(function() {
         'saveFile': function(e) {
             var file = $('#library-parameters [name="upload"]'),
                 title = $('#library-parameters [name="title"]').val();
+                display_name = $('#library-parameters [name="display_name"]');
                 desc = $('#library-parameters [name="description"]').val();
-            if ((!file.hasClass('hide') && (file.val()||"") === "") || (title||"") === "" || (desc||"") === "") {
+            if ((!file.hasClass('hide') && (file.val()||"") === "") || (!display_name.hasClass('hide') && (display_name.val()||"") === "") || (title||"") === "" || (desc||"") === "") {
                 BootstrapDialog.alert({
                   'title': null,
                   'message': "Missing required parameters."
@@ -389,8 +416,7 @@ jQuery(function() {
                 });
             }
         },
-        'search': function(e) {
-            e.preventDefault();
+        'search': function() {
             var val = $('#library [name="library-keywords"]').val().toLowerCase(),
                 form = new FormData();
             form.append("keywords",val);
@@ -444,10 +470,11 @@ jQuery(function() {
                 if (isPublic) {
                     frame.addClass('preview');
                     $.each(files,function(index,entry) {
-                        var title = entry.Title||entry.Filename,
+                        var id = entry.LibraryID,
+                            title = entry.Title||entry.DisplayName,
                             thumb = entry.ThumbnailFilename||"",
                             description = entry.Description||"",
-                            file = entry.Filename,
+                            file = entry.DisplayName,
                             isArchived = (entry.ArchivedDate !== null);
                         if (thumb === "") {
                             thumb = root+'/sites/default/files/library/File-ImagePlaceholder.svg';
@@ -460,7 +487,7 @@ jQuery(function() {
                                   '<h5>'+title+'</h5>'+
                                   '<img src="'+thumb+'"/>'+
                                   '<p>'+description+'</p>'+
-                                  '<div><a href="'+path+'file/'+file+'" target="_blank">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
+                                  '<div><a href="'+path+'file/'+id+'/'+file+'" target="_blank">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
                               '</div>'+
                           '</div>'
                         );
@@ -468,14 +495,15 @@ jQuery(function() {
                 } else {
                     frame.removeClass('preview');
                     $.each(files,function(index,entry) {
-                        var file = entry.Filename,
+                        var id = entry.LibraryID,
+                            file = entry.DisplayName,
                             isArchived = (entry.ArchivedDate !== null),
                             isPublic = (entry.IsPublic == "1");
                         frame.append(
                           '<div class="item-wrapper'+(isArchived?' archived':'')+(isPublic?' public-doc':'')+'">'+
                               '<div class="item">'+
                                   '<div title="'+(isPublic?'Public Document':'Non-Public Document')+'"></div>'+
-                                  '<div><a href="'+path+'file/'+file+'">'+file+'</a></div>'+
+                                  '<div><a href="'+path+'file/'+id+'/'+file+'" target="_blank">'+file+'</a></div>'+
                                   '<button class="admin edit-file" title="Edit File"></button>'+
                                   '<button class="admin '+(isArchived?'restore-file':'archive-file')+'" title="'+(isArchived?'Restore File':'Archive File')+'"></button>'+
                               '</div>'+
@@ -496,7 +524,12 @@ jQuery(function() {
           $('#library-search-button').trigger('click');
         }
     });
-    $('#library-search-button').on('click', functions.search);
+    $('#library-search-button').on('click', function(e) {
+        var val = $('#library [name="library-keywords"]').val();
+        e.preventDefault();
+        functions.search();
+        window.history.pushState({'search': val},window.title,[window.location.protocol, '//',window.location.host,window.location.pathname,'?search=',val].join(''));
+    });
     $('#library-create-folder').on('click',function(e) {
         functions.createNew(e,true);
     });
@@ -528,5 +561,13 @@ jQuery(function() {
         }
     });
     $('#library-cancel').on('click',functions.closeParams);
+    window.onpopstate = function(e) {
+        if (e.state && e.state.search) {
+            $('#library [name="library-keywords"]').val(e.state.search);
+            functions.search();
+        } else {
+            tree.refresh();
+        }
+    }
 });
 

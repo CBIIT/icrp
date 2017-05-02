@@ -86,6 +86,8 @@ function recovery_pass_forgot_password_submit(array &$form, FormState $form_stat
   else {
     drupal_set_message(t("Error Sending Recovery Mail. Please contact site administrator."), 'error', FALSE);
   }
+  $response = new Symfony\Component\HttpFoundation\RedirectResponse("/PasswordReset");
+  $response->send();
 }
 
 /**

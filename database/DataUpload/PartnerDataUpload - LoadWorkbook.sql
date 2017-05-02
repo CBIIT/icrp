@@ -13,7 +13,6 @@ PRINT '*************************************************************************
 
 --SET NOCOUNT ON;  
 --GO 
---select * from UploadWorkBook
 CREATE TABLE UploadWorkBook (	
 	AwardCode NVARCHAR(50),
 	AwardStartDate Date,
@@ -62,7 +61,7 @@ CREATE TABLE UploadWorkBook (
 GO
 
 BULK INSERT UploadWorkBook
-FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_New_PANCAN_20170410.csv'  
+FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_Update_PANCAN_20170410.csv'  
 WITH
 (
 	FIRSTROW = 2,
@@ -98,3 +97,4 @@ GO  -- import errors row #: 609, 6909 (Total: 13591)
 -------------------------------------------------------------------
 -- Insert New Funding Organizations if any
 -------------------------------------------------------------------
+

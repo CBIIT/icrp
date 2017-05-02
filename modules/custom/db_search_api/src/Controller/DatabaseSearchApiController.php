@@ -853,8 +853,10 @@ class DatabaseSearchAPIController extends ControllerBase {
     if ($stmt->execute()) {
       while ($row = $stmt->fetch()) {
         array_push($output, [
+          'upload_id'     => $row['DataUploadID'],
           'sponsor_code'  => $row['SponsorCode'],
           'funding_years' => $row['FundingYear'],
+          'type'          => $row['Type'],
           'received_date' => $row['ReceivedDate'],
           'note'          => $row['Note'],
         ]);
@@ -876,6 +878,13 @@ class DatabaseSearchAPIController extends ControllerBase {
       $row['sponsor_code'] = $sponsors;
       array_push($row['sponsor_code'], $sponsor_code);
 
+      // add data upload ID counts
+      $upload_id = $row['upload_id'];
+      $upload_stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE GetDataUploadSummary @DataUploadID = :upload_id');
+      if ($upload_stmt->execute([':upload_id' => $upload_id])) {
+        $counts = $upload_stmt->fetchAll(PDO::FETCH_ASSOC);
+        $row['upload_counts'] = $counts;        
+      }
 
       $dates = $row['funding_years'];
 

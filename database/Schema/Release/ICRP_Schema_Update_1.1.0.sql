@@ -26,12 +26,17 @@ GO
 /*************************************************/
 /******		UPDATE TABLE        			******/
 /*************************************************/
-IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[SearchCriteria]') AND name = 'FundingOrgType')
-	ALTER TABLE [SearchCriteria] ADD [FundingOrgType] VARCHAR(50) NULL
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[SearchCriteria]') AND name = 'FundingOrgTypeList')
+	ALTER TABLE [SearchCriteria] ADD [FundingOrgTypeList] VARCHAR(250) NULL
 
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[SearchCriteria]') AND name = 'IsChildhood')
 	ALTER TABLE [SearchCriteria] ADD [IsChildhood] bit NULL
 
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[DataUploadStatus]') AND name = 'Type')
+	ALTER TABLE [DataUploadStatus] ADD [Type] [varchar](50) NULL	
+	
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[Library]') AND name = 'DisplayName')
+	ALTER TABLE [Library] ADD [DisplayName] [varchar](150) NULL
 
 /*************************************************/
 /******					Data				******/
@@ -44,4 +49,6 @@ IF NOT EXISTS (SELECT * FROM [lu_FundingOrgType] WHERE FundingOrgType = 'Non-pro
 
 IF NOT EXISTS (SELECT * FROM [lu_FundingOrgType] WHERE FundingOrgType = 'Other')
 	INSERT INTO [lu_FundingOrgType] VALUES (3, 'Other')
+
+UPDATE Library SET [DisplayName] = Filename
 

@@ -31,12 +31,11 @@ export class SearchComponent implements OnInit, AfterViewInit {
   initialParameters: any;
 
   conversionYears = [];
-
   partnerData = [];
-
   partnerSelectionMessage = '';
-
   partnerSearchParameters = {};
+  dataUploadType = 'NEW';
+  selectedPartner;
 
   constructor(
     private http: Http,
@@ -96,7 +95,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
             if ( this.partnerData[0]) {
               let partner = this.partnerData[0];
-
               this.generatePartnerMessage(0);
             }
           }
@@ -108,6 +106,8 @@ export class SearchComponent implements OnInit, AfterViewInit {
 
   generatePartnerMessage(index) {
     let partner = this.partnerData[index];
+    this.dataUploadType = partner.type;
+    this.selectedPartner = partner;
     this.partnerSelectionMessage = `Review data upload for Funding Sponsor ${partner.display_sponsor_code}, Funding Years ${partner.display_funding_years}`;
   }
 
@@ -326,8 +326,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
       .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
       .subscribe(
         response => {
-
-
           let category = 'projects_by_year';
           let parsed_data = response.map(data => ({label: data.label, value: +data.value}));
           this.analytics[category] = parsed_data;
@@ -381,8 +379,6 @@ export class SearchComponent implements OnInit, AfterViewInit {
       })
 
   }
-
-
 
 
   queryServer(parameters: Object): Observable<any[]> {

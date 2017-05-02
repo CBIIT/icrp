@@ -27,11 +27,11 @@ CREATE PROCEDURE [dbo].[GetProjectsByCriteria]
 	@cityList varchar(1000) = NULL, 
 	@stateList varchar(1000) = NULL,
 	@countryList varchar(1000) = NULL,
+	@FundingOrgTypeList varchar(50) = NULL,
 	@fundingOrgList varchar(1000) = NULL, 
 	@cancerTypeList varchar(1000) = NULL, 
 	@projectTypeList varchar(1000) = NULL,
-	@CSOList varchar(1000) = NULL,
-	@FundingOrgType varchar(50) = NULL,
+	@CSOList varchar(1000) = NULL,	
 	@IsChildhood bit = NULL,
 	@searchCriteriaID INT OUTPUT,  -- return the searchID	
 	@ResultCount INT OUTPUT  -- return the searchID	
@@ -44,7 +44,7 @@ AS
 	-------------------------------------------------------------------------
 	-- Exclude the projects which funding institutions and PI do NOT meet the criteria
 	-------------------------------------------------------------------------
-	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@awardCode IS NOT NULL) OR (@IsChildhood IS NOT NULL) OR (@FundingOrgType IS NOT NULL)
+	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@awardCode IS NOT NULL) OR (@IsChildhood IS NOT NULL)
 	BEGIN		
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 
@@ -53,8 +53,7 @@ AS
 					((@piLastName IS NULL) OR (piLastName like '%'+ @piLastName +'%')) AND 
 				   ((@piFirstName IS NULL) OR (piFirstName like '%'+ @piFirstName +'%')) AND
 				   ((@piORCiD IS NULL) OR (piORCiD like '%'+ @piORCiD +'%')) AND
-				   ((@awardCode IS NULL) OR (AwardCode like '%'+ @awardCode +'%')) AND
-				   ((@FundingOrgType IS NULL) OR (FundingOrgType = @FundingOrgType)) AND
+				   ((@awardCode IS NULL) OR (AwardCode like '%'+ @awardCode +'%')) AND				   
 				   ((@IsChildhood IS NULL) OR (IsChildhood = @IsChildhood))
 			)
 	END
@@ -87,6 +86,16 @@ AS
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 			
 			(SELECT ProjectID FROM #Proj WHERE [Country] IN (SELECT * FROM dbo.ToStrTable(@countryList)))				
+	END
+
+		-------------------------------------------------------------------------
+	-- Exclude the projects which funding Org type do NOT meet the criteria
+	-------------------------------------------------------------------------
+	IF @fundingOrgTypeList  IS NOT NULL
+	BEGIN
+		DELETE FROM #proj 
+		WHERE ProjectID NOT IN 			
+			(SELECT ProjectID FROM #Proj WHERE FundingOrgType IN (SELECT * FROM dbo.ToStrTable(@FundingOrgTypeList)))
 	END
 
 	-------------------------------------------------------------------------
@@ -206,9 +215,9 @@ AS
 	FROM #baseProj	
 
 	INSERT INTO SearchCriteria ([termSearchType],[terms],[institution],[piLastName],[piFirstName],[piORCiD],[awardCode],
-		[yearList], [cityList],[stateList],[countryList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgType], [IsChildhood])
+		[yearList], [cityList],[stateList],[countryList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [IsChildhood])
 		VALUES ( @termSearchType,@terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode,@yearList,@cityList,@stateList,@countryList,
-			@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList, @FundingOrgType,	@IsChildhood)
+			@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList, @FundingOrgTypeList,	@IsChildhood)
 									 
 	SELECT @searchCriteriaID = SCOPE_IDENTITY()	
 
@@ -320,6 +329,97 @@ AS
     											  
 GO
 
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetProjectsByDataUploadID]    Script Date: 12/14/2016 4:21:47 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectsByDataUploadID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetProjectsByDataUploadID]
+GO 
+
+CREATE PROCEDURE [dbo].[GetProjectsByDataUploadID]
+    @PageSize int = NULL, -- return all by default
+	@PageNumber int = NULL, -- return all results by default; otherwise pass in the page number
+	@SortCol varchar(50) = 'title', -- Ex: 'title', 'pi', 'code', 'inst', 'FO',....
+	@SortDirection varchar(4) = 'ASC',  -- 'ASC' or 'DESC'
+    @DataUploadID INT,
+	@ResultCount INT OUTPUT  -- return the searchID		
+AS   
+
+	------------------------------------------------------
+	-- Get all imported projects/projectfunding by DataUploadStatusID
+	------------------------------------------------------	
+	SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID INTO #import FROM ProjectFunding WHERE DataUploadStatusID = @DataUploadID GROUP BY ProjectID 
+	SELECT @ResultCount = COUNT(*) FROM #import
+
+	----------------------------------	
+	-- Sort and Pagination
+	--   Note: Return only base projects and projects' most recent funding
+	----------------------------------
+	SELECT r.ProjectID, p.AwardCode, r.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
+		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort 
+	FROM #import r
+		JOIN Project p ON r.ProjectID = p.ProjectID		 
+		 JOIN ProjectFunding f ON r.ProjectFundingID = f.projectFundingID
+		 JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
+		 JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+		 JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
+	ORDER BY 
+		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'ASC ' THEN f.Title  END ASC, --title ASC
+		CASE WHEN @SortCol = 'code ' AND @SortDirection = 'ASC' THEN p.AwardCode  END ASC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'ASC' THEN pi.LastName  END ASC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'ASC' THEN pi.FirstName  END ASC,
+		CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'ASC' THEN i.Name  END ASC,
+		CASE WHEN @SortCol = 'city ' AND @SortDirection = 'ASC' THEN i.City  END ASC,
+		CASE WHEN @SortCol = 'state ' AND @SortDirection = 'ASC' THEN i.State  END ASC,
+		CASE WHEN @SortCol = 'country' AND @SortDirection = 'ASC' THEN i.Country  END ASC,
+		CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'ASC' THEN o.Abbreviation  END ASC,
+		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'DESC' THEN f.Title  END DESC,
+		CASE WHEN @SortCol = 'code ' AND @SortDirection = 'DESC' THEN p.AwardCode  END DESC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'DESC' THEN pi.LastName  END DESC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'DESC' THEN pi.FirstName  END DESC,
+		CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'DESC' THEN i.Name END DESC,
+		CASE WHEN @SortCol = 'city ' AND @SortDirection = 'DESC' THEN i.City  END DESC,
+		CASE WHEN @SortCol = 'state ' AND @SortDirection = 'DESC' THEN i.State  END DESC,
+		CASE WHEN @SortCol = 'country' AND @SortDirection = 'DESC' THEN i.Country  END DESC,
+		CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'DESC' THEN o.Abbreviation  END DESC
+	OFFSET ISNULL(@PageSize,50) * (ISNULL(@PageNumber, 1) - 1) ROWS
+	FETCH NEXT 
+		CASE WHEN @PageNumber IS NULL THEN 999999999 ELSE ISNULL(@PageSize,50)
+		END ROWS ONLY
+    											  
+GO
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetDataUploadSummary]    Script Date: 12/14/2016 4:21:47 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetDataUploadSummary]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetDataUploadSummary] 
+GO 
+
+CREATE PROCEDURE [dbo].[GetDataUploadSummary]
+    @DataUploadID INT	
+AS   
+
+	------------------------------------------------------
+	-- Get all imported projects/projectfunding by DataUploadStatusID
+	------------------------------------------------------	
+	select * from DataUploadLog where DataUploadStatusID=@DataUploadID
+
+GO
 
 
 ----------------------------------------------------------------------------------------------------------
@@ -543,7 +643,7 @@ CREATE PROCEDURE [dbo].[GetProjectDetail]
     @ProjectID INT    
 AS   
  -- Get the project's most recent funding - max ProjectID
-SELECT f.Title, mf.ProjectFundingID AS LastProjectFundingID, p.AwardCode, p.ProjectStartDate, p.ProjectEndDate,  a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract, f.MechanismCode + ' - ' + f.MechanismTitle AS FundingMechanism 
+SELECT f.Title, mf.ProjectFundingID AS LastProjectFundingID, p.AwardCode, p.ProjectStartDate, p.ProjectEndDate, p.IsChildhood, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract, f.MechanismCode + ' - ' + f.MechanismTitle AS FundingMechanism 
 FROM Project p	
 	JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding GROUP BY ProjectID) mf ON p.ProjectID = mf.ProjectID
 	JOIN ProjectFunding f ON f.ProjectFundingID = mf.ProjectFundingID	
@@ -653,8 +753,9 @@ CREATE PROCEDURE [dbo].[GetProjectFundingDetail]
     @ProjectFundingID INT    
 AS   
  
-SELECT f.Title, f.AltAwardCode, f.BudgetStartDate,  f.BudgetEndDate, o.Name AS FundingOrg, f.Amount, pi.LastName + ', ' + pi.FirstName AS piName, 
-	pi.ORC_ID, i.Name AS Institution, i.City, i.State, i.Country, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract
+SELECT f.Title, f.AltAwardCode, f.Source_ID,  f.BudgetStartDate,  f.BudgetEndDate, o.Name AS FundingOrg, f.Amount, o.currency, 
+	f.MechanismCode, f.MechanismTitle, ISNULL(f.MechanismCode, '') + ' - ' + ISNULL(f.MechanismTitle, '') AS FundingMechanism, 
+	f.FundingContact, pi.LastName + ', ' + pi.FirstName AS piName, pi.ORC_ID, i.Name AS Institution, i.City, i.State, i.Country, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract
 FROM ProjectFunding f	
 	JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
 	JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID
@@ -1380,13 +1481,12 @@ CREATE  PROCEDURE [dbo].[GetDataUploadInStaging]
 
 AS   
 
-SELECT [PartnerCode] AS SponsorCode, [FundingYear], [ReceivedDate], Note
+SELECT DataUploadStatusID AS DataUploadID, [Type], [PartnerCode] AS SponsorCode, [FundingYear], [ReceivedDate], Note
 FROM DataUploadStatus
 WHERE Status = 'Staging' 
 ORDER BY [ReceivedDate] DESC
 
 GO
-
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[DeleteOldSearchResults]    Script Date: 12/14/2016 4:21:37 PM ******/

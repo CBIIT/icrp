@@ -2,12 +2,14 @@
 
 <div class="row" [style.display]="partnerData && partnerData.length > 0 ? 'block':'none'">
   <div class="col-md-12">The following submitted workbooks have been uploaded to the staging website. Please select the relevant Sponsor Code to review your data and contact us by email to identify any problems or to approve your data to go live.</div>
+
   <div class="table-responsive col-md-12">
     <table class="table table-bordered table-hover table-striped table-condensed table-nowrap table-narrow" #table>
       <thead>
         <tr>
           <th>Sponsor Code</th>
           <th>Funding Years</th>
+          <th>Type</th>
           <th>Workbook Received Date</th>
           <th>Note</th>
         </tr>
@@ -22,15 +24,15 @@
             </a>
           </td>
           <td>{{ row.display_funding_years }}</td>
+          <td>{{ row.type }}</td>
           <td>{{ row.received_date }}</td>
           <td>{{ row.note }}</td>
         </tr>
       </tbody>
     </table>
   </div>
-
-  <div class="col-md-12" style="color: orange; font-size: 16px; font-weight: bold">{{ partnerSelectionMessage }}</div>
 </div>
+
 
 <div [style.display]="partnerData && partnerData.length === 0 ? 'block':'none'">
 There are currently no submitted workbooks pending for review. Go to <a href="/uploadStatusReport">Data Upload Status Report</a> to view the Information about the status of data submissions and uploads to the ICRP database.
@@ -39,18 +41,21 @@ There are currently no submitted workbooks pending for review. Go to <a href="/u
 <br>
 
 <div class="row" [style.display]="partnerData && partnerData.length > 0 ? 'block':'none'">
-<div class="col-md-3">
+<div style="display: none">
   <app-search-form
     [initialSearchParameters]="initialParameters"
     (search)="updateResults($event)"
     (mappedSearch)="updateMappedParameters($event)"
     (search)="updateResults($event)"
     (loadedComplete)="completeLoading()"
-    (requestInitialParameters)="updateInitialSearchId()">
+    (requestInitialParameters)="updateInitialSearchId()"
+    #searchform>
   </app-search-form>
 </div>
 
-<div class="col-md-9">
+
+
+<div class="col-md-12">
   <app-search-results
     [authenticated]="loggedIn"
     [results]="results"
@@ -62,7 +67,10 @@ There are currently no submitted workbooks pending for review. Go to <a href="/u
     (sort)="sort($event)"
     (updateFundingYear)="updateServerAnalyticsFunding($event)"
     [fundingYearOptions]="conversionYears"
-    >
+    [dataUploadMessage]="partnerSelectionMessage"
+    [dataUploadType]="dataUploadType"
+    [sponsor]="selectedPartner"
+    #searchresults>
   </app-search-results>
 </div>
 </div>
