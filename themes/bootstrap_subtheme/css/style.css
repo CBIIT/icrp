@@ -452,6 +452,24 @@ div#cso-document-container > div > h1 {
 .twitter-partner {
     height:160px;
 }
+.icrp-bootstrap-container:last-of-type {
+    margin-bottom:10px;
+}
+.icrp-bootstrap-container {
+    margin-top:10px;
+}
+.dl-horizontal dt {
+    white-space: normal;
+    width:550px;
+}
+.dl-horizontal dd {
+    white-space: normal;
+    margin-left: 560px;
+}
+.webform-header {
+    font-weight:bold;
+    margin-top:5px;
+}
 /* First p showed up on Welcome Page */
 /*
 .field.field--name-body.field--type-text-with-summary.field--label-hidden.field--item > p {
