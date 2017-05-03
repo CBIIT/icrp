@@ -227,6 +227,7 @@ jQuery(function() {
                 }).on('changed.jstree', function(e, data) {
                     var nodes = data.selected;
                     if (nodes.length > 0) {
+                        functions.pushstate({'nodeId':nodes[0]});
                         $('#library-search [name="library-keywords"]').val('');
                         lGet(path+'folder/'+nodes[0]).done(function(response) {
                             functions.writeDisplay(response.files,role==="public");
@@ -287,6 +288,14 @@ jQuery(function() {
                 };
             parent.append('<option value="1">ROOT</option>');
             popChildren(json,1);
+        },
+        'pushstate': function(obj) {
+            var query = "";
+            for (var prop in obj) {
+                query += "&"+prop+"="+obj[prop];
+            }
+            query = "?"+query.substring(1);
+            window.history.pushState(obj,window.title,[window.location.protocol, '//',window.location.host,window.location.pathname,query].join(''));
         },
         'restoreFile': function(e) {
             var node = functions.getNode(),
@@ -528,7 +537,7 @@ jQuery(function() {
         var val = $('#library [name="library-keywords"]').val();
         e.preventDefault();
         functions.search();
-        window.history.pushState({'search': val},window.title,[window.location.protocol, '//',window.location.host,window.location.pathname,'?search=',val].join(''));
+        functions.pushstate({'search': val});
     });
     $('#library-create-folder').on('click',function(e) {
         functions.createNew(e,true);
