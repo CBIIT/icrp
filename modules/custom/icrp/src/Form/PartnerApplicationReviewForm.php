@@ -44,7 +44,6 @@ class PartnerApplicationReviewForm extends FormBase
         $current_uri = \Drupal::request()->getRequestUri();
         $uri_parts = explode("/", $current_uri);
         $this->sid = $uri_parts[2];
-        //drupal_set_message($sid);
         $this->results = $this->getWebformSubmissionData($this->sid);
     }
 
@@ -174,40 +173,52 @@ class PartnerApplicationReviewForm extends FormBase
 
         /* Supplemental Information */
         $section = "Supplemental Information";
-        //$body = $this->addSupplementalInformation();
-        //$this->displaySectionDetail($section, $body, $form, "closed");
+        $body = $this->addSupplementalInformation();
+        $this->displaySectionDetail($section, $body, $form, "closed");
 
         return $form;
     }
 
     private function addSupplementalInformation() {
         /* Statement of Willingness */
+        $links = [];
         $files = ['statement_of_willingness', 'peer_review_process'];
         foreach($files as $file) {
             $fid = $this->getValue($file);
             if(is_numeric($fid)) {
+                $sql = "SELECT * FROM file_managed where fid = ".t($fid);
+                $data = $this->connection->query($sql);
+                //dump($data);
+                $results = $data->fetchAll(\PDO::FETCH_ASSOC);
+                foreach($results as $row) {
+                    $uri = $row['uri'];
+                    $uri = str_replace("public://", "/sites/default/files/", $uri);
+                    $filename = $row['filename']; 
+                }
+                $link = '<a target="_blank" href="'.$uri.'">'.$filename.'</a>';
+                array_push($links, $link);
 
+            } else {
+                array_push($links, "Not uploaded.");
             }
 
         }
-        $fid = $this->getValue('statement_of_willingness');
-        if($fid == '') {
 
+        $i = 1;
+        $body = '<div>';
+        foreach($links as $link) {
+            $body .= '<div class="row">';
+            if($i == 1) {
+                $body .= '<div class="col col-sm-2">Statement of Willingness:</div>';
+                $body .= '<div class="col col-sm-4">'.$links[0].'</div>';
+            } elseif($i == 2)  {
+                $body .= '<div class="col col-sm-2">Peer Review Process:</div>';
+                $body .= '<div class="col col-sm-4">'.$links[1].'</div>';
+            }
+            $body .= '</div>';
+            $i++;
         }
-
-        $sql = "SELECT fu.fid, fm.* FROM file_usage fu, file_managed fm where fu.fid = fm.fid and fu.type='webform_submission' and fu.id = ".t($this->sid)." order by fu.fid desc limit 2";
-        //drupal_set_message($sql);
-        $data = $this->connection->query($sql);
-        //dump($data);
-        $results = $data->fetchAll(\PDO::FETCH_ASSOC);
-        $body = '<dl class="dl-horizontal">';
-        foreach($results as $row) {
-            $body .= '<dd>Statement of Willingness:</dd>';
-            $body .= '<dt>'.$row['filename'].'</dt>';
-            $body .= '<dd>Statement of Willingness:</dd>';
-            $body .= '<dt>'.$row['filename'].'</dt>';
-        }
-        $body .= '</dl>';
+        $body .= '</div>';
         /*
         foreach ($this->results as $row) {
             drupal_set_message("Field a: {$row['name']}");
@@ -366,9 +377,9 @@ class PartnerApplicationReviewForm extends FormBase
         return $markup;
     }
 
-    private function getWebformSubmissionData($sid) {
+    private function getWebformSubmissionData() {
         //Connect to database and get submission data
-        $sql = "SELECT * FROM webform_submission_data where sid = $sid";
+        $sql = "SELECT * FROM webform_submission_data where sid = $this->sid";
         //drupal_set_message($sql);
         $data = $this->connection->query($sql);
         //dump($data);
