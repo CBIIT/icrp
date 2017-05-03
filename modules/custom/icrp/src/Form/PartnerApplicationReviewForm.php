@@ -182,6 +182,7 @@ class PartnerApplicationReviewForm extends FormBase
     private function addSupplementalInformation() {
         /* Statement of Willingness */
         $links = [];
+        $labels = ['Statement of Willingness', 'Peer Review Process'];
         $files = ['statement_of_willingness', 'peer_review_process'];
         foreach($files as $file) {
             $fid = $this->getValue($file);
@@ -204,17 +205,12 @@ class PartnerApplicationReviewForm extends FormBase
 
         }
 
-        $i = 1;
+        $i = 0;
         $body = '<div>';
         foreach($links as $link) {
             $body .= '<div class="row">';
-            if($i == 1) {
-                $body .= '<div class="col col-sm-2">Statement of Willingness:</div>';
-                $body .= '<div class="col col-sm-4">'.$links[0].'</div>';
-            } elseif($i == 2)  {
-                $body .= '<div class="col col-sm-2">Peer Review Process:</div>';
-                $body .= '<div class="col col-sm-4">'.$links[1].'</div>';
-            }
+                $body .= '<div class="col col-lg-3 col-md-3 col-sm-4">'.$labels[$i].':</div>';
+                $body .= '<div class="col col-sm-4">'.$links[$i].'</div>';
             $body .= '</div>';
             $i++;
         }
