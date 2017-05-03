@@ -159,8 +159,7 @@ class PartnerApplicationReviewForm extends FormBase
         /* ICRP Terms & Conditions of membership */
         $section = "ICRP Terms & Conditions of membership";
         $body = '<div class="webform-header">Your organization\'s eligibility for membership and acceptance of ICRP\'s terms:</div>';
-        $body .= '<ul>';
-        $body .= '<ul>';
+        $body .= '<ul class="icrp-terms-list">';
         $body .= '<li>Has an external scientific peer review system</li>';
         $body .= '<li>Agrees to the ICR Partners\' mission statement</li>';
         $body .= '<li>Agrees to establish and maintain a system for coding research portfolios to CSO and disease-site codes</li>';

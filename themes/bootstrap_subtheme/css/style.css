@@ -470,6 +470,10 @@ div#cso-document-container > div > h1 {
     font-weight:bold;
     margin-top:5px;
 }
+.icrp-terms-list {
+    margin:10px;
+    list-style:disc;
+}
 /* First p showed up on Welcome Page */
 /*
 .field.field--name-body.field--type-text-with-summary.field--label-hidden.field--item > p {
@@ -495,6 +499,14 @@ div#cso-document-container > div > h1 {
     .twitter-anonymous {
         height:400px;
     }
+    .dl-horizontal dt {
+        width: 100%;
+        float: !important;
+    }
+    .dl-horizontal dd {
+        margin-left: 0px;
+
+    }
 }
 
 /* Extra Small Devices, Phones */
@@ -518,6 +530,14 @@ div#cso-document-container > div > h1 {
     #block-bootstrap-subtheme-account-menu {
         margin-top:25px;
     }
+    .dl-horizontal dt {
+        width: 100%;
+        float: !important;
+    }
+    .dl-horizontal dd {
+        margin-left: 0px;
+
+    }
 }
 
 /* Small Devices, Tablets */
@@ -534,6 +554,12 @@ div#cso-document-container > div > h1 {
     }
     #block-bootstrap-subtheme-account-menu {
         margin-top:5px;
+    }
+    .dl-horizontal dt {
+        width:374px;
+    }
+    .dl-horizontal dd {
+        margin-left: 394px;
     }
 }
 
@@ -552,6 +578,12 @@ div#cso-document-container > div > h1 {
     #block-bootstrap-subtheme-account-menu {
         margin-top:25px;
     }
+    .dl-horizontal dt {
+        width:490px;
+    }
+    .dl-horizontal dd {
+        margin-left: 510px;
+    }
 }
 
 /* Large Devices, Wide Screens */
@@ -565,6 +597,12 @@ div#cso-document-container > div > h1 {
     }
     .twitter-anonymous {
         height:390px;
+    }
+    .dl-horizontal dt {
+        width:590px;
+    }
+    .dl-horizontal dd {
+        margin-left: 610px;
     }
 }
 
@@ -585,5 +623,11 @@ div#cso-document-container > div > h1 {
     }
     .twitter-anonymous {
         height:475px;
+    }
+    .dl-horizontal dt {
+        width:715px;
+    }
+    .dl-horizontal dd {
+        margin-left: 735px;
     }
 }
