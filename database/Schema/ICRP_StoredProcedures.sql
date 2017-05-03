@@ -775,7 +775,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetSearchCriteriaBySearchID]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetSearchCriteriaBySearchID]
+DROP PROCEDURE [dbo].[GetSearchCriteriaBySearchID] 
 GO 
 
 
@@ -830,21 +830,28 @@ IF EXISTS (SELECT * FROM #criteria WHERE StateList IS NOT NULL)
 IF EXISTS (SELECT * FROM #criteria WHERE CountryList IS NOT NULL)
 	INSERT INTO @SearchCriteria SELECT 'Country:', CountryList FROM #criteria
 
-SELECT @filterList= FundingOrgList FROM #criteria WHERE SearchCriteriaID =@SearchID
+IF EXISTS (SELECT * FROM #criteria WHERE FundingOrgTypeList IS NOT NULL)
+	INSERT INTO @SearchCriteria SELECT 'FundingOrgType:', FundingOrgTypeList FROM #criteria	
+
+--select * from #criteria
+SELECT @filterList= FundingOrgList FROM #criteria
 IF @filterList IS NOT NULL
 BEGIN
 	INSERT INTO @SearchCriteria VALUES ('FundingOrg:', '')
 	INSERT INTO @SearchCriteria SELECT '', SponsorCode + ' - ' + Name FROM FundingOrg WHERE FundingOrgID IN (SELECT * FROM dbo.ToIntTable(@filterList))
 END
 
-SELECT @filterList= CancerTypeList FROM #criteria WHERE SearchCriteriaID =@SearchID
+IF EXISTS (SELECT * FROM #criteria WHERE IsChildhood IS NOT NULL)
+	INSERT INTO @SearchCriteria SELECT 'IsChildhood:', CASE IsChildhood WHEN 1 THEN 'Yes' ELSE 'No' END FROM #criteria
+
+SELECT @filterList= CancerTypeList FROM #criteria
 IF @filterList IS NOT NULL
 BEGIN
 	INSERT INTO @SearchCriteria VALUES ('CancerType:', '')
 	INSERT INTO @SearchCriteria SELECT '', Name FROM CancerType WHERE CancerTypeID IN (SELECT * FROM dbo.ToIntTable(@filterList))
 END
 
-SELECT @filterList= CSOList FROM #criteria WHERE SearchCriteriaID =@SearchID
+SELECT @filterList= CSOList FROM #criteria
 IF @filterList IS NOT NULL
 BEGIN
 	INSERT INTO @SearchCriteria VALUES ('CSO:', '')

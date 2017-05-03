@@ -1072,11 +1072,11 @@ GO
 ALTER TABLE [dbo].[FundingOrg] CHECK CONSTRAINT [FK_FundingOrg_Currency]
 GO
 
-ALTER TABLE [dbo].[FundingOrg]  WITH CHECK ADD  CONSTRAINT [FK_FundingOrg_FundingOrg] FOREIGN KEY([SponsorCode])
+ALTER TABLE [dbo].[FundingOrg]  WITH CHECK ADD  CONSTRAINT [FK_FundingOrg_Partner] FOREIGN KEY([SponsorCode])
 REFERENCES [dbo].[Partner] ([SponsorCode])
 GO
 
-ALTER TABLE [dbo].[FundingOrg] CHECK CONSTRAINT [FK_FundingOrg_FundingOrg]
+ALTER TABLE [dbo].[FundingOrg] CHECK CONSTRAINT [FK_FundingOrg_Partner]
 GO
 
 ALTER TABLE [dbo].[LibraryFolder] ADD  CONSTRAINT [DF_LibraryFolder_IsPublic]  DEFAULT ((0)) FOR [IsPublic]
