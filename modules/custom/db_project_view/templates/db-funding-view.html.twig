@@ -18,7 +18,7 @@
   <dt>Alt. Award Code</dt>
   <dd>{{ funding_details.alt_award_code | default('Not specified')}}</dd>
   <dt>Funding Amount</dt>
-  <dd>${{ funding_details.funding_amount ? funding_details.funding_amount.toFixed(2).replace(/([0-9])(?=([0-9]{3})+[^0-9])/g, '$1,') : default('Not specified') }} ({{ funding_details.currency }})</dd>
+  <dd>{ funding_details.funding_amount ? '$' + funding_details.funding_amount.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,') + ' (' + funding_details.currency + ')' : default('Not specified') }</dd>
   <dt>Funding Organization</dt>
   <dd>{{ funding_details.funding_organization | default('Not specified') }}</dd>
   <dt>Funding Mechanism</dt>
