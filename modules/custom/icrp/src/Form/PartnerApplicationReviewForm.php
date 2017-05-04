@@ -125,7 +125,7 @@ class PartnerApplicationReviewForm extends FormBase
         $labels = array(["label" => 'Name', 'field' => 'name'],
             ["label" => 'Position', 'field' => 'position'],
             ["label" => 'Telephone number', 'field' => 'telephone_number'],
-            ["label" => 'Email Address', 'field' => 'email'],
+            ["label" => 'Email Address', 'field' => '+.'],
             ["label" => 'Description of the Organization and its mission, including whether it is a public organization, charity, foundation, etc.', 'field' => 'description_of_the_organization'],
             ["label" => 'Brief description of research profile (disease-specific vs. entire research continuum portfolio', 'field' => 'brief_description_of_research'],
             ["label" => 'Year when initiated research program', 'field' => 'year_initiated'],
@@ -274,7 +274,9 @@ class PartnerApplicationReviewForm extends FormBase
         $roman = ['I', 'II', 'III', 'IV', 'V', 'VI'];
         /* Get Application Value */
         foreach($this->results as $row) {
-            if($row['name'] == 'tier_radio' && $field == 'tier_radio') {
+            if($row['name'] == 'email' && $field == 'email') {
+                return '<a href="mailto:'.$row['value'].'">'.$row['value'].'</a>';
+            } elseif($row['name'] == 'tier_radio' && $field == 'tier_radio') {
                 return $roman[(int)$row['value']-1];
             } elseif($row['name'] == $field) {
                 return $row['value'];
@@ -287,7 +289,9 @@ class PartnerApplicationReviewForm extends FormBase
     private function getValueByProperty($field) {
         /* Get Application Value */
         foreach($this->results as $row) {
-            if($row['property'] == $field) {
+            if($row['name'] == 'email' && $field == 'email') {
+                return '<a href="mailto:'.$row['value'].'">'.$row['value'].'</a>';
+            } elseif($row['property'] == $field) {
                 return $row['value'];
             }
 
@@ -320,7 +324,8 @@ class PartnerApplicationReviewForm extends FormBase
 
     private function getWebformSubmissionData() {
         //Connect to database and get submission data
-        $sql = "SELECT * FROM webform_submission_data where sid = $this->sid";
+        $sql = "SELECT * FROM webform_submission_data where sid = ".t($this->sid)
+            ." and webform_id = 'icrp_partnership_applicaion_form';";
         //drupal_set_message($sql);
         $data = $this->connection->query($sql);
         //dump($data);
@@ -343,18 +348,31 @@ class PartnerApplicationReviewForm extends FormBase
         }
 
     }
+    private function setValue($field, $value) {
+        //Connect to database and get submission data
+        $sql = "UPDATE webform_submission_data 
+            SET value = '{$value}'
+            where sid = ".t($this->sid)
+            ." and webform_id = 'icrp_partnership_applicaion_form'
+               and name = '{$field}'";
+        //drupal_set_message($sql);
+        $data = $this->connection->query($sql);
+        //dump($data);
+        return;
 
+    }
     public function submitForm(array &$form, FormStateInterface $form_state)
     {
 
         $form_values = $form_state->getValues();
         //drupal_set_message(print_r($form_state->getValues(), TRUE));
         $application_status = $form_values['status'];
-        //$this->setValue("application_status", );
+        $this->setValue("application_status", $application_status);
+        
+        drupal_flush_all_caches();
+        //$membership_status = ($form_values['status'] == 0) ? 'Blocked' : 'Active';
 
-        $membership_status = ($form_values['status'] == 0) ? 'Blocked' : 'Active';
-
-        drupal_set_message("Partner Applicaion Status for ".$this->getValue('organization_name')."  has been saved and has a status of ".$application_status.".");
+        drupal_set_message(t("Partner Applicaion Status for ".$this->getValue('organization_name')."  has been saved and currently has a status of ".$application_status."."));
     }
 
 }

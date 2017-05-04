@@ -40,7 +40,7 @@ ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 
 
-define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
+//define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
 
 class ExportLoadResultsController extends ControllerBase {
  		  
