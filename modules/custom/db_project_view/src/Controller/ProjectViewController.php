@@ -19,6 +19,7 @@ class ProjectViewController extends ControllerBase {
       'AwardCode' => 'award_code',
       'ProjectStartDate' => 'project_start_date',
       'ProjectEndDate' => 'project_end_date',
+      "IsChildhood" => 'is_childhood',
       'TechAbstract' => 'technical_abstract',
       'PublicAbstract' => 'public_abstract',
       'FundingMechanism' => 'funding_mechanism',
