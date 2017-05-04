@@ -20,8 +20,8 @@
     {% else %}
       <i>Not specified</i>
     {% endif %}
-  <dt>Funding Mechanism</dt>
-  <dd>{{ project_details.funding_mechanism | default('Not specified')}}</dd>
+  <dt>Is Childhood Cancer</dt>
+  <dd>{{ parseInt(project_details.is_childhood) === 0 ? "No" : parseInt(project_details.is_childhood) === 1 ? "Yes" : "N/A" }}</dd>
 </dl>
 
 <h5 class="h5 margin-top" style="margin-top: 20px">Award Funding</h4>

@@ -17,8 +17,14 @@
   <dd>{{ funding_details.project_title | raw }}</dd>
   <dt>Alt. Award Code</dt>
   <dd>{{ funding_details.alt_award_code | default('Not specified')}}</dd>
+  <dt>Funding Amount</dt>
+  <dd>${{ funding_details.funding_amount | default('Not specified') }} ({{ funding_details.currency }})</dd>
   <dt>Funding Organization</dt>
-  <dd>{{ funding_details.funding_organization  | default('Not specified')}}</dd>
+  <dd>{{ funding_details.funding_organization | default('Not specified') }}</dd>
+  <dt>Funding Mechanism</dt>
+  <dd>{{ funding_details.funding_mechanism | default('Not specified') }}</dd>
+  <dt>Funding Contact</dt>
+  <dd>{{ funding_details.funding_contact | default('Not specified') }}</dd>
   <dt>Budget Dates</dt>
   <dd>
     {% if funding_details.budget_start_date or funding_details.budget_end_date %}
