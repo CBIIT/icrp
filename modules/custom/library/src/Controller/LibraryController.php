@@ -87,6 +87,12 @@ class LibraryController extends ControllerBase {
   );
 
   public function content() {
+	
+	$request = \Drupal::request();
+	if ($route = $request->attributes->get(\Symfony\Cmf\Component\Routing\RouteObjectInterface::ROUTE_OBJECT)) {
+		$route->setDefault('_title', 'Library');
+	} 
+	  
     return [
       '#theme' => 'library',
       '#attached' => [
@@ -478,12 +484,7 @@ class LibraryController extends ControllerBase {
   }
 
   private function getFile($location) {
-    $path = join('/',array(drupal_realpath('public://library/uploads'),$location));
-    if (file_exists($path)) {
-        return new BinaryFileResponse(path);
-    } else {
-        return new JsonResponse(array("error"=>"File Not Found"),$status=Response::HTTP_NOT_FOUND);
-    }
+    return new BinaryFileResponse(join('/',array(drupal_realpath('public://library/uploads'),$location)));
   }
 
   private function getFolder($id) {
