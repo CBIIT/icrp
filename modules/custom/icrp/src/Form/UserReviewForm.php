@@ -39,6 +39,8 @@ class UserReviewForm extends FormBase
 
         /* Get Organization Title */
         $field_organization = $user->get("field_organization");
+        $field_membership_status = $user->get('field_membership_status');
+
         $field_organization_nid = $field_organization->getValue()[0]["target_id"];
         //drupal_set_message("Organization nid: ".$field_organization->getValue()[0]["target_id"]);
         $node = \Drupal\node\Entity\Node::load($field_organization_nid);
@@ -55,6 +57,9 @@ class UserReviewForm extends FormBase
         /* Get status */
         $field_status = $user->get("status");
         $status = $field_status->value;
+        if($field_membership_status->value == "Registering") {
+            $status = -1;
+        }
 
         /* Get Roles */
         $field_roles = $user->get("roles");
@@ -190,7 +195,13 @@ class UserReviewForm extends FormBase
         }
 
         if ($hasNoRole) {
-            $form_state->setErrorByName('roles', $this->t('User needs to be assigned at lease one Role.'));
+            $form_state->setErrorByName('roles', $this->t('User needs to be assigned at least one Role.'));
+        }
+
+        // Check Status
+        $hasNoStatus = ($form_values['status'] < 0) ? TRUE : FALSE; 
+        if ($hasNoStatus) {
+            $form_state->setErrorByName('status', $this->t('Please select a Status for this user.'));
         }
     }
 
