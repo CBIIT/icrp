@@ -22,7 +22,7 @@
     {% if (funding_details.funding_amount) %}
       ${{ funding_details.funding_amount | number_format(2, '.', ',') }} ({{funding_details.currency}})
     {% else %}
-      {{ default('Not specified') }}
+      Not specified
     {% endif %}
   </dd>
   <dt>Funding Organization</dt>
