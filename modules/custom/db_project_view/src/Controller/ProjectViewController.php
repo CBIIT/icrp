@@ -74,6 +74,12 @@ class ProjectViewController extends ControllerBase {
       'Amount' => 'funding_amount',
       'TechAbstract' => 'technical_abstract',
       'PublicAbstract' => 'public_abstract',
+      'Source_ID' => 'source_id',
+      'currency' => 'currency',
+      'MechanismCode' => 'mechanism_code',
+      'MechanismTitle' => 'mechanism_title',
+      'FundingMechanism' => 'funding_mechanism',
+      'FundingContact' => 'funding_contact',
     ],
     'cancer_types' => [
       'CancerType' => 'cancer_type',
