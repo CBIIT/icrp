@@ -470,10 +470,16 @@ div#cso-document-container > div > h1 {
     font-weight:bold;
     margin-top:5px;
 }
-.icrp-terms-list {
+ul.icrp-terms-list {
     margin:10px;
-    list-style:disc;
+    list-style:none;
+    padding: 0px;
 }
+ul.icrp-terms-list li:before {
+    content: '\2713';
+    margin: 0 1em;    /* any design */
+}
+
 /* First p showed up on Welcome Page */
 /*
 .field.field--name-body.field--type-text-with-summary.field--label-hidden.field--item > p {

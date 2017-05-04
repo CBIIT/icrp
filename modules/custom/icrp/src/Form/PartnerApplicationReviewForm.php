@@ -59,7 +59,7 @@ class PartnerApplicationReviewForm extends FormBase
     {
         //$webformData = new \Drupal\webform\WebformSubmissionViewsData($this->entityManager);
         //kint($webformData);
-
+        $application_status = $this->getValue("application_status");
 
         $markup = '<h1>Partner Application Review</h1>';
         $form['title'] = array(
@@ -81,7 +81,7 @@ class PartnerApplicationReviewForm extends FormBase
         $form['container']['status'] = array(
             '#type' => 'radios',
             '#title' => ('Status'),
-            '#default_value' => 'Pending Review',
+            '#default_value' => $application_status,
             '#options' => array(
                 'Completed' => t('Completed'),
                 'Archived' => t('Archived'),
@@ -114,7 +114,14 @@ class PartnerApplicationReviewForm extends FormBase
             ["label" => 'Zip/Postal Code', 'field' => 'zip_postal_code'],
             );
         $body = $this->addLabelsToBody($labels);
-        $body .= '<div class="webform-header">Executive Director/President/Chairperson</div>';
+
+        /* Director */
+        //$body .= '<div class="webform-header">Executive Director/President/Chairperson</div>';
+        $body .= '<dl class="dl-horizontal">';
+        $body .= '<dt>Executive Director/President/Chairperson</dt>';
+        $body .= '<dd></dd>';
+        $body .= '</dl>';
+
         $labels = array(["label" => 'Name', 'field' => 'name'],
             ["label" => 'Position', 'field' => 'position'],
             ["label" => 'Telephone number', 'field' => 'telephone_number'],
@@ -288,69 +295,7 @@ class PartnerApplicationReviewForm extends FormBase
         return "Variable not found";
     }
 
-    public function validateForm(array &$form, FormStateInterface $form_state)
-    {
-        $form_values = $form_state->getValues();
-        //drupal_set_message(print_r($form_state->getValues(), TRUE));
-        //Add Roles
-        $hasNoRole = true;
-        foreach ($form_values['roles'] as $assign_role) {
-            if($assign_role === "manager") {
-                $hasNoRole = false;
-            }
-            if($assign_role === "partner") {
-                $hasNoRole = false;
-            }
-        }
-
-        if ($hasNoRole) {
-            $form_state->setErrorByName('roles', $this->t('User needs to be assigned at lease one Role.'));
-        }
-    }
-
-    public function submitForm(array &$form, FormStateInterface $form_state)
-    {
-
-        $form_values = $form_state->getValues();
-        //drupal_set_message(print_r($form_state->getValues(), TRUE));
-
-        $current_uri = \Drupal::request()->getRequestUri();
-        $uri_parts = explode("/", $current_uri);
-        $uuid = $uri_parts[2];
-        $entity = \Drupal::entityManager()->loadEntityByUuid('user', $uuid);
-
-        /* Load User Data */
-        $uid = (int)$entity->id();
-        $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
-        //Example Role:
-        // Array ( [0] => Array ( [target_id] => administrator ) [1] => Array ( [target_id] => manager ) [2] => Array ( [target_id] => partner ) )
-
-        /* Get Roles */
-        //*Remove Roles */
-
-        $user->removeRole('manager');
-        $user->removeRole('partner');
-
-        //Add Roles
-        foreach ($form_values['roles'] as $assign_role) {
-            if($assign_role === "manager") {
-                $user->addRole("manager");
-            }
-            if($assign_role === "partner") {
-                $user->addRole("partner");
-            }
-        }
-
-        $membership_status = ($form_values['status'] == 0) ? 'Blocked' : 'Active';
-        $user->set("field_membership_status", $membership_status);
-
-        $user->set("field_can_upload_library_files", $form_values['upload_files']);
-        $user->set("status", $form_values['status']);
-        $user->save();
-
-        //drupal_set_message("User account for ".$user->getDisplayName()."  has been saved and is currently ".strtolower($membership_status).".");
-    }
-
+    
     private function bootstrapContatainer($title, $body, $panel_state="collapsed") {
         //drupal_set_message("bootstrapContatainer: ".$title);
         $random = new \Drupal\Component\Utility\Random();
@@ -386,6 +331,30 @@ class PartnerApplicationReviewForm extends FormBase
         }
         */
 
+    }
+    
+    public function validateForm(array &$form, FormStateInterface $form_state)
+    {
+        $form_values = $form_state->getValues();
+        //drupal_set_message(print_r($form_state->getValues(), TRUE));
+        $application_status = $form_values['status'];
+        if($application_status != "Archived" && $application_status != "Completed") {
+            $form_state->setErrorByName('Application Review', t('Select an application status before saving.'));
+        }
+
+    }
+
+    public function submitForm(array &$form, FormStateInterface $form_state)
+    {
+
+        $form_values = $form_state->getValues();
+        //drupal_set_message(print_r($form_state->getValues(), TRUE));
+        $application_status = $form_values['status'];
+        //$this->setValue("application_status", );
+
+        $membership_status = ($form_values['status'] == 0) ? 'Blocked' : 'Active';
+
+        drupal_set_message("Partner Applicaion Status for ".$this->getValue('organization_name')."  has been saved and has a status of ".$application_status.".");
     }
 
 }
