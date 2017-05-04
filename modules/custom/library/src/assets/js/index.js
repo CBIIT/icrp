@@ -185,10 +185,13 @@ jQuery(function() {
                     }
                 }).on('ready.jstree', function(e, data) {
                     tree = $('#library-tree').jstree();
-                    var searchString = functions.getParameterByName('search');
+                    var searchString = functions.getParameterByName('search'),
+                        nodeString = functions.getParameterByName('nodeId');
                     if (searchString) {
                         $('#library [name="library-keywords"]').val(searchString);
                         functions.search();
+                    } else if (nodeString) {
+                        tree.select_node(nodeString);
                     } else {
                         var json = tree.get_json();
                         for (var index = 0; index < json.length; index++) {
@@ -227,7 +230,9 @@ jQuery(function() {
                 }).on('changed.jstree', function(e, data) {
                     var nodes = data.selected;
                     if (nodes.length > 0) {
-                        functions.pushstate({'nodeId':nodes[0]});
+                        if (!window.history.state || (window.history.state.nodeId !== nodes[0])) {
+                            functions.pushstate({'nodeId':nodes[0]});
+                        }
                         $('#library-search [name="library-keywords"]').val('');
                         lGet(path+'folder/'+nodes[0]).done(function(response) {
                             functions.writeDisplay(response.files,role==="public");
@@ -571,12 +576,17 @@ jQuery(function() {
     });
     $('#library-cancel').on('click',functions.closeParams);
     window.onpopstate = function(e) {
-        if (e.state && e.state.search) {
-            $('#library [name="library-keywords"]').val(e.state.search);
-            functions.search();
-        } else {
-            tree.refresh();
+        if (e.state) {
+            if (e.state.search) {
+                $('#library [name="library-keywords"]').val(e.state.search);
+                functions.search();
+                return;
+            } else if (e.state.nodeId) {
+                tree.deselect_all();
+                tree.select_node(e.state.nodeId);
+            }
         }
+        tree.refresh();
     }
 });
 

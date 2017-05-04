@@ -478,7 +478,12 @@ class LibraryController extends ControllerBase {
   }
 
   private function getFile($location) {
-    return new BinaryFileResponse(join('/',array(drupal_realpath('public://library/uploads'),$location)));
+    $path = join('/',array(drupal_realpath('public://library/uploads'),$location));
+    if (file_exists($path)) {
+        return new BinaryFileResponse(path);
+    } else {
+        return new JsonResponse(array("error"=>"File Not Found"),$status=Response::HTTP_NOT_FOUND);
+    }
   }
 
   private function getFolder($id) {
