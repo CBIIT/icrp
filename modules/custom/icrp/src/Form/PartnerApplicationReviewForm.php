@@ -125,7 +125,7 @@ class PartnerApplicationReviewForm extends FormBase
         $labels = array(["label" => 'Name', 'field' => 'name'],
             ["label" => 'Position', 'field' => 'position'],
             ["label" => 'Telephone number', 'field' => 'telephone_number'],
-            ["label" => 'Email Address', 'field' => '+.'],
+            ["label" => 'Email Address', 'field' => 'email'],
             ["label" => 'Description of the Organization and its mission, including whether it is a public organization, charity, foundation, etc.', 'field' => 'description_of_the_organization'],
             ["label" => 'Brief description of research profile (disease-specific vs. entire research continuum portfolio', 'field' => 'brief_description_of_research'],
             ["label" => 'Year when initiated research program', 'field' => 'year_initiated'],
@@ -149,7 +149,7 @@ class PartnerApplicationReviewForm extends FormBase
         /* Contact Person */
         $section = "Contact Person";
         $labels = array(["label" => 'Name', 'field' => 'name'],
-            ["label" => 'Position', 'field' => 'position'],
+            ["label" => 'Position', 'field' => 'company'],  //Hack: Webform we have to use company field for position
             ["label" => 'Phone', 'field' => 'phone'],
             ["label" => 'Email', 'field' => 'email'],
             ["label" => 'Address 1', 'field' => 'address'],
@@ -289,14 +289,14 @@ class PartnerApplicationReviewForm extends FormBase
     private function getValueByProperty($field) {
         /* Get Application Value */
         foreach($this->results as $row) {
-            if($row['name'] == 'email' && $field == 'email') {
+            if($row['property'] == 'email' && $field == 'email') {
                 return '<a href="mailto:'.$row['value'].'">'.$row['value'].'</a>';
             } elseif($row['property'] == $field) {
                 return $row['value'];
             }
 
         }
-        return "Variable not found";
+        return "[Variable not found]";
     }
 
     
