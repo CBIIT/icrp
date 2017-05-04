@@ -116,12 +116,15 @@ PRINT '-- Import ProjectFundingInvestigator'
 
 UPDATE ProjectFundingInvestigator SET LastName = u.PILastName, FirstName = u.PIFirstName, ORC_ID = u.ORCID, OtherResearch_ID= u.OtherResearcherID, OtherResearch_Type = u.OtherResearcherIDType, IsPrivateInvestigator= 1, 
 										InstitutionID = ISNULL(i.InstitutionID,1), InstitutionNameSubmitted = u.SubmittedInstitution, UpdatedDate = getdate()
-FROM UploadWorkbook u 
-	LEFT JOIN (SELECT f.ProjectFundingID, f.AltAWardCode, o.Abbreviation FROM ProjectFunding f JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID) pf ON u.AltID = pf.AltAwardCode AND u.FundingOrgAbbr = pf.Abbreviation	
-	--LEFT JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = pi.ProjectFundingID	
+FROM ProjectFundingInvestigator pi
+	JOIN ProjectFunding f ON pi.projectfundingid = f.ProjectFundingID
+	JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
+	JOIN UploadWorkbook u ON u.AltID = f.AltAwardCode AND u.FundingOrgAbbr = o.Abbreviation		
 	LEFT JOIN Institution i ON i.Name = u.InstitutionICRP AND i.City = i.City
 
-PRINT 'Total newly Imported ProjectFundingInvestigator = ' + CAST(@@RowCount AS varchar(10))
+PRINT 'Total ProjectFundingInvestigator Updated= ' + CAST(@@RowCount AS varchar(10))
+
+--rollback
 
 ----------------------------------------------------
 -- Post Import Checking
@@ -447,3 +450,18 @@ GO
 -------------------------------------------------------------------------------------------
 -- Run php icrp_funding_calculator.php ec2-54-87-136-189.compute-1.amazonaws.com,51000 icrp_data id pwd
 --------------------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------------
+-- Checking Data
+--------------------------------------------------------------------------------------------
+--select distinct piLastName, piFirstName from UploadWorkBook_new_pancan order by piLastName, piFirstName
+
+--select distinct  pi.LastName, pi.FirstName from projectfunding f
+--join ProjectFundingInvestigator pi on f.ProjectFundingID = pi.ProjectFundingID
+--where f.DataUploadStatusID =66
+--order by pi.LastName, pi.FirstName
+
+--select * from DataUploadStatus order by datauploadstatusid desc
+--select * from icrp_data.dbo.DataUploadStatus order by datauploadstatusid desc
+--select * from DataUploadLog order by DataUploadStatusID desc  -- 66

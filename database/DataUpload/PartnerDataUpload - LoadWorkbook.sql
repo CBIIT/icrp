@@ -61,7 +61,7 @@ CREATE TABLE UploadWorkBook (
 GO
 
 BULK INSERT UploadWorkBook
-FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_Update_PANCAN_20170410.csv'  
+FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_New_PANCAN_20170410.csv'  
 WITH
 (
 	FIRSTROW = 2,
@@ -69,8 +69,9 @@ WITH
 	FIELDTERMINATOR = '|',
 	ROWTERMINATOR = '\n'
 )
-GO  -- import errors row #: 609, 6909 (Total: 13591)
--- select * from UploadWorkBook
+GO  
+
+select * from UploadWorkBook
 -----------------------------------
 -- Workbook Datafix - Institution  -- KOMEN
 -----------------------------------

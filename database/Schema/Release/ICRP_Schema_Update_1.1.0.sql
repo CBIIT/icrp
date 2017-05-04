@@ -37,6 +37,7 @@ IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[D
 	
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[Library]') AND name = 'DisplayName')
 	ALTER TABLE [Library] ADD [DisplayName] [varchar](150) NULL
+GO
 
 /*************************************************/
 /******					Data				******/

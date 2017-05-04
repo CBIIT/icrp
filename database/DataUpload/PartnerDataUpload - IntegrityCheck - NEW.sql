@@ -5,6 +5,9 @@ PRINT '*************************************************************************
 PRINT '***************************** Data Integrity Check ***************************'
 PRINT '******************************************************************************'
 
+SET NOCOUNT ON
+GO
+
 -- Check related project base data
 --drop table #awardCodes
 --go
@@ -29,11 +32,17 @@ ELSE
 	PRINT '@HasParentRelationship=0  -- uncomment this'
 	--SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook
 
+DECLARE @TotalRelatedProjects INT
 DECLARE @TotalAwardCodes INT
 DECLARE @TotalParentProjects INT
 
+SELECT @TotalRelatedProjects = COUNT(*) FROM UploadWorkBook
 SELECT @TotalAwardCodes = COUNT(*) FROM #awardCodes
 SELECT @TotalParentProjects = COUNT(*) FROM #parentProjects
+
+PRINT 'Total RelatedProjects= ' + CAST(@TotalRelatedProjects AS VARCHAR(25))
+PRINT 'Total Awards= ' + CAST(@TotalAwardCodes AS VARCHAR(25))
+PRINT 'Total Parent Awards= ' + CAST(@TotalParentProjects AS VARCHAR(25))
 
 PRINT 'Checking Total parent projects = total award codes...'
 IF @TotalAwardCodes <> @TotalParentProjects

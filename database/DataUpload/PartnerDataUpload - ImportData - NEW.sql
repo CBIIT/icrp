@@ -1,4 +1,8 @@
-
+/********************************************************************************************/
+/*																							*/
+/*  NOTE: Set ProjectAbstract @Seed															*/
+/*																							*/
+/********************************************************************************************/
 SET NOCOUNT ON;  
 GO 
 
@@ -104,7 +108,7 @@ SELECT @seed=MAX(projectAbstractID)+1 FROM projectAbstract  -- 1246295, 1246328
 PRINT @seed
 
 CREATE TABLE #UploadAbstract (	
-	ID INT NOT NULL IDENTITY(1246345,1),
+	ID INT NOT NULL IDENTITY(@seed,1),
 	AwardCode NVARCHAR(50),
 	Altid NVARCHAR(50),
 	TechAbstract NVARCHAR (MAX) NULL,
@@ -495,3 +499,21 @@ GO
 -------------------------------------------------------------------------------------------
 -- Run php icrp_funding_calculator.php ec2-54-87-136-189.compute-1.amazonaws.com,51000 icrp_data id pwd
 --------------------------------------------------------------------------------------------
+
+
+
+-------------------------------------------------------------------------------------------
+-- Data Checking
+--------------------------------------------------------------------------------------------
+--select * from icrp_dataload.dbo.DataUploadStatus order by datauploadstatusid desc
+--select * from icrp_data.dbo.DataUploadStatus order by datauploadstatusid desc
+--select * from DataUploadLog order by DataUploadStatusID desc  -- 66
+
+--select distinct piLastName, piFirstName from UploadWorkBook order by piLastName, piFirstName
+
+--select distinct  pi.LastName, pi.FirstName from projectfunding f
+--join ProjectFundingInvestigator pi on f.ProjectFundingID = pi.ProjectFundingID
+--where f.DataUploadStatusID =66
+--order by pi.LastName, pi.FirstName
+
+--DBCC CHECKIDENT ('[DataUploadStatus]', RESEED, 65)
