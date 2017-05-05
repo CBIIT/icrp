@@ -345,6 +345,7 @@ class PartnerApplicationReviewForm extends FormBase
         $application_status = $form_values['status'];
         if($application_status != "Archived" && $application_status != "Completed") {
             $form_state->setErrorByName('Application Review', t('Select an application status before saving.'));
+            $form_state->setErrorByName('status', t('Select an application status before saving.'));
         }
 
     }

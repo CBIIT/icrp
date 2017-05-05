@@ -244,7 +244,7 @@ header {
     background-color: #f8f8f8;
 }
 .front-page a {
-   /* font-weight:bold; */
+    /*font-weight:bold;*/
 }
 #become-a-partner-wells h4, #become-a-partner-wells p {
     margin-bottom:25px;
@@ -452,6 +452,34 @@ div#cso-document-container > div > h1 {
 .twitter-partner {
     height:160px;
 }
+.icrp-bootstrap-container:last-of-type {
+    margin-bottom:10px;
+}
+.icrp-bootstrap-container {
+    margin-top:10px;
+}
+.dl-horizontal dt {
+    white-space: normal;
+    width:550px;
+}
+.dl-horizontal dd {
+    white-space: normal;
+    margin-left: 560px;
+}
+.webform-header {
+    font-weight:bold;
+    margin-top:5px;
+}
+ul.icrp-terms-list {
+    margin:10px;
+    list-style:none;
+    padding: 0px;
+}
+ul.icrp-terms-list li:before {
+    content: '\2713';
+    margin: 0 1em;    /* any design */
+}
+
 /* First p showed up on Welcome Page */
 /*
 .field.field--name-body.field--type-text-with-summary.field--label-hidden.field--item > p {
@@ -477,6 +505,14 @@ div#cso-document-container > div > h1 {
     .twitter-anonymous {
         height:400px;
     }
+    .dl-horizontal dt {
+        width: 100%;
+        float: !important;
+    }
+    .dl-horizontal dd {
+        margin-left: 0px;
+
+    }
 }
 
 /* Extra Small Devices, Phones */
@@ -500,6 +536,14 @@ div#cso-document-container > div > h1 {
     #block-bootstrap-subtheme-account-menu {
         margin-top:25px;
     }
+    .dl-horizontal dt {
+        width: 100%;
+        float: !important;
+    }
+    .dl-horizontal dd {
+        margin-left: 0px;
+
+    }
 }
 
 /* Small Devices, Tablets */
@@ -516,6 +560,12 @@ div#cso-document-container > div > h1 {
     }
     #block-bootstrap-subtheme-account-menu {
         margin-top:5px;
+    }
+    .dl-horizontal dt {
+        width:374px;
+    }
+    .dl-horizontal dd {
+        margin-left: 394px;
     }
 }
 
@@ -534,6 +584,12 @@ div#cso-document-container > div > h1 {
     #block-bootstrap-subtheme-account-menu {
         margin-top:25px;
     }
+    .dl-horizontal dt {
+        width:490px;
+    }
+    .dl-horizontal dd {
+        margin-left: 510px;
+    }
 }
 
 /* Large Devices, Wide Screens */
@@ -547,6 +603,12 @@ div#cso-document-container > div > h1 {
     }
     .twitter-anonymous {
         height:390px;
+    }
+    .dl-horizontal dt {
+        width:590px;
+    }
+    .dl-horizontal dd {
+        margin-left: 610px;
     }
 }
 
@@ -568,7 +630,10 @@ div#cso-document-container > div > h1 {
     .twitter-anonymous {
         height:475px;
     }
+    .dl-horizontal dt {
+        width:590px;
+    }
+    .dl-horizontal dd {
+        margin-left: 610px;
+    }
 }
-
-
-
