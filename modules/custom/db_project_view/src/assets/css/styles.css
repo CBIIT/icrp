@@ -65,7 +65,7 @@ h5.h5 {
 
 dl.dl-horizontal > dt {
   text-align: left;
-  min-width: 210px;
+  width: 210px;
 } 
 
 dl.dl-horizontal > dd {
