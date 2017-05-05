@@ -18,6 +18,8 @@
   <dt>Alt. Award Code</dt>
   <dd>{{ funding_details.alt_award_code | default('Not specified')}}</dd>
   {% if logged_in %}
+    <dt>Source ID</dt>
+    <dd>{{ funding_details.Source_ID | default('N/A') }}</dd>
     <dt>Funding Amount</dt>
     <dd>
       {% if (funding_details.funding_amount) %}
