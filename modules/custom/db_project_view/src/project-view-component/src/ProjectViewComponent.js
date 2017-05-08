@@ -136,7 +136,7 @@ class ProjectViewComponent extends Component {
           alt_award_code: row.alt_award_code,
           award_funding_period: row.budget_start_date || row.budget_end_date
             ? `${row.budget_start_date || 'N/A'} to ${row.budget_end_date || 'N/A'}`
-            : 'Not specified',
+            : 'N/A',
           pi_name: [row.pi_last_name, row.pi_first_name].filter(e => e && e.length).join(', '),
           pi_orcid_url: row.pi_orcid ? `http://orcid.org/${row.pi_orcid}` : null,
           institution: row.institution,
@@ -206,17 +206,17 @@ class ProjectViewComponent extends Component {
         <dl className="dl-horizontal margin-bottom margin-top">
 
           <dt>Title</dt>
-          <dd>{ project_details.project_title || 'Not specified' }</dd>
+          <dd>{ project_details.project_title || 'N/A' }</dd>
 
           <dt>Award Code</dt>
-          <dd>{ project_details.award_code || 'Not specified' }</dd>
+          <dd>{ project_details.award_code || 'N/A' }</dd>
 
           <dt>Project Dates</dt>
           <dd>
           {
             (project_details.project_start_date || project_details.project_end_date)
             ? `${project_details.project_start_date || 'N/A'} to ${project_details.project_end_date || 'N/A'}`
-            : 'Not specified'
+            : 'N/A'
           }
           </dd>
 

@@ -10,7 +10,7 @@
 
 <dl class="dl-horizontal margin-bottom margin-top">
   <dt>Award Code</dt>
-  <dd>{{ project_details.award_code | default('Not specified')}}</dd>
+  <dd>{{ project_details.award_code | default('N/A')}}</dd>
 
   <dt>Project Dates</dt>
   <dd>
@@ -18,7 +18,7 @@
       {{ project_details.project_start_date | default('N/A') | raw }}
       to {{ project_details.project_end_date | default('N/A') | raw }}
     {% else %}
-      <i>Not specified</i>
+      <i>N/A</i>
     {% endif %}
   <dt>Is Childhood Cancer</dt>
   <dd>{{ parseInt(project_details.is_childhood) === 0 ? "No" : parseInt(project_details.is_childhood) === 1 ? "Yes" : "N/A" }}</dd>
@@ -44,24 +44,24 @@
         <tr>
           <td class="limited-width">
             <a href="/project/funding-details/{{ row.project_funding_id }}" target="_blank">
-              {{ row.project_title | default('Not specified') | raw }}
+              {{ row.project_title | default('N/A') | raw }}
             </a>
           </td>
-          <td>{{ row.award_type | default('Not specified') | raw }}</td>
+          <td>{{ row.award_type | default('N/A') | raw }}</td>
 
-          <td>{{ row.funding_organization | default('Not specified') | raw }}</td>
-          <td>{{ row.alt_award_code | default('Not specified') | raw }}</td>
+          <td>{{ row.funding_organization | default('N/A') | raw }}</td>
+          <td>{{ row.alt_award_code | default('N/A') | raw }}</td>
           <td>
             {% if row.budget_start_date or row.budget_end_date %}
               {{ row.budget_start_date | default('N/A') | raw }}
               to {{ row.budget_end_date | default('N/A') | raw }}
             {% else %}
-              <i>Not specified</i>
+              <i>N/A</i>
             {% endif %}
           </td>
           
           <td>{{ row.pi_last_name ~ ', ' ~ row.pi_first_name }}</td>
-          <td class="limited-width">{{ row.institution | default('Not specified') | raw }}</td>
+          <td class="limited-width">{{ row.institution | default('N/A') | raw }}</td>
           <td>{{ (row.city ? row.city ~ ', ') ~
                  (row.state ? row.state ~ ', ') ~
                   row.country }}</td>
