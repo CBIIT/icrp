@@ -437,7 +437,9 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
     }
 
     return root;
- }
+  }
+
+
 
  getInitialParameters() {
  }
@@ -490,8 +492,9 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
         this.fields = response;
 
         this.fields['is_childhood_cancer'] = [
-          { label: 'Yes', value: 1 },
-          { label: 'No', value: 0 }
+          { label: 'All', value: null },
+          { label: 'Yes', value: '1' },
+          { label: 'No', value: '0' },
         ];
 
         this.funding_organizations = this.createTreeNode(this.fields.funding_organizations, 'funding_organizations');

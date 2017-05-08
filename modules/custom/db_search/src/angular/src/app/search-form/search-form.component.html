@@ -210,44 +210,6 @@
       [formControl]="form.controls.cancer_types">
     </ui-select>
 
-    <label class="form-label" for="is_childhood_cancer" tooltip="Is Childhood Cancer?">Is Childhood Cancer?</label>
-
-    <div>
-      <div style="display: inline-block; margin-right: 20px;">
-        <label
-          class="radio-label"
-          for="is_childhood_cancer_yes"
-          placement="right"
-        >
-        <input
-            class="radio-input"
-            type="radio"
-            id="is_childhood_cancer_yes"
-            name="search_type"
-            value="1"
-            [formControl]="form.controls.is_childhood_cancer">
-          Yes
-        </label>
-      </div>
-
-
-      <div style="display: inline-block">
-        <label
-          class="radio-label"
-          for="is_childhood_cancer_no"
-          placement="right"
-        >
-        <input
-            class="radio-input"
-            type="radio"
-            id="is_childhood_cancer_no"
-            name="search_type"
-            value="0"
-            [formControl]="form.controls.is_childhood_cancer">
-          No
-        </label>
-      </div>
-    </div>
 
     <label class="form-label" for="project_types" tooltip="Select one or more project types">Project Types</label>
     <ui-select
@@ -256,6 +218,19 @@
       [items]="fields.project_types"
       [formControl]="form.controls.project_types">
     </ui-select>
+
+    <label class="form-label" for="is_childhood_cancer" tooltip="Is Childhood Cancer?">Is Childhood Cancer?</label>
+    <ui-select
+      tooltip="Search for childhood cancer projects?"
+      placeholder="Select an option"
+      [items]="fields.is_childhood_cancer"
+      [formControl]="form.controls.is_childhood_cancer"
+      [limit]="1"
+      >
+    </ui-select>
+
+
+
   </ui-panel>
 
   <!-- Common Scientific Outline - Research Area -->

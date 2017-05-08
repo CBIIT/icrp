@@ -8,9 +8,9 @@ import {
   ViewChild
 } from '@angular/core';
 
-import { 
-  ControlValueAccessor, 
-  NG_VALUE_ACCESSOR 
+import {
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR
 } from '@angular/forms';
 
 @Component({
@@ -26,7 +26,7 @@ import {
     provide: NG_VALUE_ACCESSOR,
     useExisting: forwardRef(() => UiSelectComponent),
     multi: true
-  }]  
+  }]
 })
 
 export class UiSelectComponent {
@@ -40,6 +40,9 @@ export class UiSelectComponent {
   /** Control evaluation of this component */
   @Input() disable: boolean;
 
+  /** Control the maximum number of items that can be selected. Negative values mean no limit */
+  @Input() limit: number;
+
   /** Updates whenever an item has been selected or deselected  */
   @Output() onSelect: EventEmitter<(string | number)[]>;
 
@@ -49,11 +52,11 @@ export class UiSelectComponent {
   /** Selected items */
   selectedItems: { "value": number | string, "label": "string"}[];
 
-  /** Indexes of items matching the search results. 
-   * 
-   * Index refers to the index of the item.  
-   * Location refers to the location of the matched text. 
-   */  
+  /** Indexes of items matching the search results.
+   *
+   * Index refers to the index of the item.
+   * Location refers to the location of the matched text.
+   */
   matchingItems: { "value": number | string, "label": "string"} [];
 
   /** Index of highlighted item in search dropdown */
@@ -77,6 +80,7 @@ export class UiSelectComponent {
     this.items = [];
     this.placeholder = '';
     this.onSelect = new EventEmitter<(string | number)[]>();
+    this.limit = -1;
 
     this.selectedItems = [];
     this.matchingItems = [];
@@ -92,9 +96,10 @@ export class UiSelectComponent {
     this.selectedItems = [];
     if (values && values.length) {
       for (let value of values) {
-        this.selectedItems.push(
-          this.items.find(item => item.value == value)
-        );
+        if (this.limit < 0 || (this.limit >= 0 && this.selectedItems.length < this.limit))
+          this.selectedItems.push(
+            this.items.find(item => item.value == value)
+          );
       }
     }
   }
@@ -118,7 +123,8 @@ export class UiSelectComponent {
   }
 
   addSelectedItem(item: { "value": number | string, "label": "string"}) {
-    this.selectedItems.push(item);
+    if (this.limit < 0 || (this.limit >= 0 && this.selectedItems.length < this.limit))
+      this.selectedItems.push(item);
     this.input.nativeElement.value = '';
     this.emitValue();
   }
@@ -132,8 +138,8 @@ export class UiSelectComponent {
       this.updateSearchResults();
     }
 
-    if (event.key === 'Backspace' 
-    && this.input.nativeElement.value.length === 0 
+    if (event.key === 'Backspace'
+    && this.input.nativeElement.value.length === 0
     && this.selectedItems.length > 0) {
       this.selectedItems.pop();
       this.updateSearchResults();
@@ -181,7 +187,7 @@ export class UiSelectComponent {
     let inputValue = this.input.nativeElement.value;
     let inputLength: number = this.input.nativeElement.value.length;
     let displayString = label;
-    
+
     if (inputValue && inputLength) {
       let location = label.toLowerCase().indexOf(inputValue.toLowerCase());
 
@@ -193,7 +199,7 @@ export class UiSelectComponent {
         displayString = first + '<b>' + mid + '</b>' + end;
       }
     }
-    
+
     return displayString;
   }
 
@@ -237,9 +243,9 @@ export class UiSelectComponent {
       let item = this.matchingItems[i];
 
       if (item && !this.selectedItems.find(i => i.label === item.label && i.value === item.value)) {
-        console.log('will add item: ', item)
-        this.selectedItems.push(this.matchingItems[i]);
-      }    
+        if (this.limit < 0 || (this.limit >= 0 && this.selectedItems.length < this.limit))
+          this.selectedItems.push(this.matchingItems[i]);
+      }
     }
 
     this.initialHiglightedRangeIndex = -1;
