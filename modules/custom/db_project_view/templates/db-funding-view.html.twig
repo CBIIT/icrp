@@ -33,7 +33,20 @@
   <dd>{{ funding_details.funding_organization | default('N/A') }}</dd>
   {% if logged_in %}
     <dt>Funding Mechanism</dt>
-    <dd>{{ funding_details.funding_mechanism | default('N/A') }}</dd>
+    <dd>
+      {% if (funding_details.mechanism_code) %}
+        {{ funding_details.mechanism_code }}
+        {% if (funding_details.mechanism_title} %}
+          - {{ funding_details.mechanism_title }}
+        {% endif %}
+      {% else %}
+        {% if (funding_details.mechanism_title} %}
+          {{ funding_details.mechanism_title }}
+        {% else %}
+          N/A
+        {% endif %}
+      {% endif %}
+    </dd>
   {% endif %}
   <dt>Budget Dates</dt>
   <dd>
