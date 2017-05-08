@@ -26,6 +26,24 @@ JOIN ProjectAbstract a ON f.ProjectAbstractID = a.ProjectAbstractID
 WHERE o.SponsorCode <> 'NIH'
 ORDER BY o.SponsorCode, Projectfundingid
 
+/**************************************************************/
+-- Project coded to SIte Uncoded (857) 856?
+/**************************************************************/
+--select * from CancerType order by name
+
+SELECT f.ProjectFundingID,  f.Title, p.AwardCode, f.AltAwardCode, o.SponsorCode, o.Name AS FundingOrg,f.BudgetStartDate, f.BudgetEndDate, 
+pi.LastName ASpiLastName, pi.FirstName AS piFirstName, i.Name AS Institution, i.City, i.Country, pc.Relevance, pc.RelSource, ct.Name AS CancerType, a.TechAbstract
+FROM ProjectCancerType pc
+JOIN ProjectFunding f ON pc.ProjectFundingID=f.ProjectFundingID
+JOIN Project p ON p.ProjectID = f.ProjectID
+JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
+JOIN ProjectFundingInvestigator pi ON f.ProjectFundingID = pi.ProjectFundingID
+JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+JOIN CancerType ct ON ct.CancerTypeID = pc.CancerTypeID
+JOIN ProjectAbstract a ON f.ProjectAbstractID = a.ProjectAbstractID
+WHERE pc.CancerTypeID = 59 --and pc.RelSource = 'S'
+ORDER BY o.SponsorCode, Projectfundingid
+
 
 /**************************************************************/
 -- Project CSO not add up to 100
