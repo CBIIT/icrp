@@ -295,7 +295,7 @@
     position: relative;
   }
   #library-display > div:first-child {
-    height: 36.5em;
+    height: 51.5em;
     overflow: auto;
   }
   #library-display .frame.preview .item-wrapper{
