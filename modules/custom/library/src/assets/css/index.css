@@ -282,15 +282,15 @@
 @media (min-width: 1200px) {
   #library-search {
     float: left;
-    height: 28em;
+    height: 58.5em;
     margin: 0px 1em 0px 0px;
     width: 21em;
   }
   #library-tree {
-    height: 15.5em;
+    height: 45.5em;
   }
   #library-display {
-    height: 28em;
+    height: 58.5em;
     overflow: hidden;
     position: relative;
   }
