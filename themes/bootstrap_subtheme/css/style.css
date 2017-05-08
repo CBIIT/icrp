@@ -328,7 +328,7 @@ div#cso-document-container > div > h1 {
 }
 /* Adjust label on Webforms */
 #edit-current-annual-operating-budget-container > div > label::before {
-    content: "(Optional*)";
+    content: "(Optional)";
     color: red;
     padding-right:5px;
 }
