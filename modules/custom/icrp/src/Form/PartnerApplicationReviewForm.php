@@ -139,7 +139,7 @@ class PartnerApplicationReviewForm extends FormBase
             ["label" => 'Reporting period ', 'field' => 'reporting_period'],
             ["label" => 'Approximate number of projects funded per annum', 'field' => 'number_of_projects_funded_per_annum'],
             ["label" => 'Membership contribution tier', 'field' => 'tier_radio'],
-            ["label" => 'Research Investment Budget', 'field' => 'current_annual_research_investment_budget'],
+            ["label" => 'Research Investment Budget', 'field' => 'tier_radio_budget_range'],
             ["label" => 'the preferred date for payment of annual membership contributions', 'field' => 'payment_radio'],
             );
         
@@ -272,12 +272,15 @@ class PartnerApplicationReviewForm extends FormBase
 
     private function getValue($field) {
         $roman = ['I', 'II', 'III', 'IV', 'V', 'VI'];
+        $budget_ranges = ["Less than $5M", "$5M-$9M", "$10M-$24M", "$25M-$149M", "$150M-$250M", "$250M or over"];
         /* Get Application Value */
         foreach($this->results as $row) {
             if($row['name'] == 'email' && $field == 'email') {
                 return '<a href="mailto:'.$row['value'].'">'.$row['value'].'</a>';
             } elseif($row['name'] == 'tier_radio' && $field == 'tier_radio') {
                 return $roman[(int)$row['value']-1];
+            } elseif($row['name'] == 'tier_radio' && $field == 'tier_radio_budget_range') {
+                return $budget_ranges[(int)$row['value']-1];
             } elseif($row['name'] == $field) {
                 return $row['value'];
             }
