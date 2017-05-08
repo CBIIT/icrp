@@ -108,9 +108,10 @@ class PartnerApplicationReviewForm extends FormBase
         $section = "Organization Information";
         $labels = array(["label" => 'Organization\'s Name', 'field' => 'organization_name'],
             ["label" => 'Organization\'s Address 1', 'field' => 'organization_address_1'],
-            ["label" => 'Adress 2', 'field' => 'organization_address_2'],
+            ["label" => 'Address 2', 'field' => 'organization_address_2'],
             ["label" => 'City', 'field' => 'city'],
             ["label" => 'Country', 'field' => 'country'],
+            ["label" => 'State/Province/Territory', 'field' => 'state_province_territory'],
             ["label" => 'Zip/Postal Code', 'field' => 'zip_postal_code'],
             );
         $body = $this->addLabelsToBody($labels);
@@ -155,6 +156,7 @@ class PartnerApplicationReviewForm extends FormBase
             ["label" => 'Address 1', 'field' => 'address'],
             ["label" => 'Address 2', 'field' => 'address_2'],
             ["label" => 'City', 'field' => 'city'],
+            ["label" => 'State/Province/Territory', 'field' => 'state_province'],
             ["label" => 'Country', 'field' => 'country'],
             ["label" => 'ZIP/Postal Code', 'field' => 'postal_code'],
             );
