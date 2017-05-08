@@ -36,11 +36,11 @@
     <dd>
       {% if (funding_details.mechanism_code) %}
         {{ funding_details.mechanism_code }}
-        {% if (funding_details.mechanism_title} %}
+        {% if (funding_details.mechanism_title) %}
           - {{ funding_details.mechanism_title }}
         {% endif %}
       {% else %}
-        {% if (funding_details.mechanism_title} %}
+        {% if (funding_details.mechanism_title) %}
           {{ funding_details.mechanism_title }}
         {% else %}
           N/A
