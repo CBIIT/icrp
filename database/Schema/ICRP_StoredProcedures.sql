@@ -349,6 +349,7 @@ CREATE PROCEDURE [dbo].[GetProjectsByDataUploadID]
 	@SortCol varchar(50) = 'title', -- Ex: 'title', 'pi', 'code', 'inst', 'FO',....
 	@SortDirection varchar(4) = 'ASC',  -- 'ASC' or 'DESC'
     @DataUploadID INT,
+    @searchCriteriaID INT OUTPUT,  -- return the searchID	
 	@ResultCount INT OUTPUT  -- return the searchID		
 AS   
 
@@ -357,6 +358,23 @@ AS
 	------------------------------------------------------	
 	SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID INTO #import FROM ProjectFunding WHERE DataUploadStatusID = @DataUploadID GROUP BY ProjectID 
 	SELECT @ResultCount = COUNT(*) FROM #import
+
+	----------------------------------
+	-- Save search criteria
+	----------------------------------		
+	DECLARE @ProjectIDList VARCHAR(max) = '' 	
+	SELECT @ResultCount=COUNT(*) FROM #import
+
+	SELECT @ProjectIDList = @ProjectIDList + 
+           ISNULL(CASE WHEN LEN(@ProjectIDList) = 0 THEN '' ELSE ',' END + CONVERT( VarChar(20), ProjectID), '')
+	FROM #import	
+
+	INSERT INTO SearchCriteria (SearchDate) VALUES (getdate())
+									 
+	SELECT @searchCriteriaID = SCOPE_IDENTITY()	
+
+	INSERT INTO SearchResult VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, 0)
+	
 
 	----------------------------------	
 	-- Sort and Pagination
@@ -392,7 +410,7 @@ AS
 	OFFSET ISNULL(@PageSize,50) * (ISNULL(@PageNumber, 1) - 1) ROWS
 	FETCH NEXT 
 		CASE WHEN @PageNumber IS NULL THEN 999999999 ELSE ISNULL(@PageSize,50)
-		END ROWS ONLY
+		END ROWS ONLY									  
     											  
 GO
 
