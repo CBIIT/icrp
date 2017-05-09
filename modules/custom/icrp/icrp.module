@@ -40,6 +40,21 @@ function icrp_user_login($account) {
     return;
 }
 */
+function icrp_mail($key, &$message, $params) {
+
+  // E-mail formatting will be exactly as below, so do not use indenting!
+  $body =
+"Dear Partner,
+
+We’re delighted to inform you that your application for membership of the ICRP has been approved. The Operations Manager will be in contact with you shortly and will send your new member’s pack.
+
+With kind regards,
+
+The ICRP team";
+  //  drupal_set_message($body);
+  $message['subject'] = "Partnership Application Approved";
+  $message['body'][] = Drupal\Core\Mail\MailFormatHelper::htmlToText($body);
+}
 
 function partnerApplicationSubmissionsTable() {
     //First Check to see if there are any Submitted Applications

@@ -367,6 +367,16 @@ class PartnerApplicationReviewForm extends FormBase
         return;
 
     }
+
+    public function sendPartnershipApplicationApprovedEmail() {
+        $newMail = \Drupal::service('plugin.manager.mail');
+        //$params['email'] = $this->getValue("email");
+        $userEmail = $this->getValue("email");
+        $params = [];
+        $newMail->mail('icrp', 'registerMail', $userEmail, 'en', $params, $reply = NULL, $send = TRUE);
+         //drupal_set_message('Partnership Application Approved email has been sent to '.$this->getValue('organization_name').'.', 'status');
+    }
+
     public function submitForm(array &$form, FormStateInterface $form_state)
     {
 
@@ -377,8 +387,14 @@ class PartnerApplicationReviewForm extends FormBase
         
         drupal_flush_all_caches();
         //$membership_status = ($form_values['status'] == 0) ? 'Blocked' : 'Active';
+        if($application_status == "Completed") {
+            $this->sendPartnershipApplicationApprovedEmail();
+            $message = "Application for ".$this->getValue('organization_name')." is now completed and an email has been sent to the organization.";
+        } else {
+            $message = "Application  for ".$this->getValue('organization_name')." is now archived.";
+        } 
 
-        drupal_set_message(t("Partner Applicaion Status for ".$this->getValue('organization_name')."  has been saved and currently has a status of ".$application_status."."));
+        drupal_set_message(t($message));
     }
 
 }
