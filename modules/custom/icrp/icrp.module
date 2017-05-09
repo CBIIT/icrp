@@ -6,6 +6,9 @@ use \Drupal\icrp\Importer\OrganizationRestClient;
 use Drupal\views\Plugin\views\PluginBase;
 use Drupal\views\ViewExecutable;
 use Drupal\views\Views;
+use Drupal\Core\Mail\MailManagerInterface;
+use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Utility\Html;
 
 /*
  * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
@@ -43,7 +46,13 @@ function icrp_user_login($account) {
 function icrp_mail($key, &$message, $params) {
 
   // E-mail formatting will be exactly as below, so do not use indenting!
-  $body =
+ $options = array(
+    'langcode' => $message['langcode'],
+  );
+  switch ($key) {
+    case 'approvedPartnershipApplicationMail':
+
+        $body =
 "Dear Partner,
 
 We’re delighted to inform you that your application for membership of the ICRP has been approved. The Operations Manager will be in contact with you shortly and will send your new member’s pack.
@@ -51,9 +60,12 @@ We’re delighted to inform you that your application for membership of the ICRP
 With kind regards,
 
 The ICRP team";
-  //  drupal_set_message($body);
-  $message['subject'] = "Partnership Application Approved";
-  $message['body'][] = Drupal\Core\Mail\MailFormatHelper::htmlToText($body);
+          drupal_set_message($body);
+          $message['from'] = \Drupal::config('system.site')->get('mail');
+          $message['subject'] = "Partnership Application Approved";
+          $message['body'][] = Drupal\Core\Mail\MailFormatHelper::htmlToText($body);
+          break;
+    }
 }
 
 function partnerApplicationSubmissionsTable() {

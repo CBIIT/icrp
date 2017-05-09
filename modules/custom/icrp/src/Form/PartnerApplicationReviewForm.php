@@ -10,6 +10,9 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Component\Utility;
 use Drupal\Core\Database\Database;
+use Drupal\Core\Mail\MailManagerInterface;
+use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Utility\Html;
 
 class PartnerApplicationReviewForm extends FormBase
 {
@@ -83,7 +86,7 @@ class PartnerApplicationReviewForm extends FormBase
             '#title' => ('Status'),
             '#default_value' => $application_status,
             '#options' => array(
-                'Completed' => t('Completed'),
+                'Complete' => t('Complete'),
                 'Archived' => t('Archived'),
             ),
             '#help_text' => 'User Status'
@@ -348,7 +351,7 @@ class PartnerApplicationReviewForm extends FormBase
         $form_values = $form_state->getValues();
         //drupal_set_message(print_r($form_state->getValues(), TRUE));
         $application_status = $form_values['status'];
-        if($application_status != "Archived" && $application_status != "Completed") {
+        if($application_status != "Archived" && $application_status != "Complete") {
             $form_state->setErrorByName('Application Review', t('Select an application status before saving.'));
             $form_state->setErrorByName('status', t('Select an application status before saving.'));
         }
@@ -369,12 +372,28 @@ class PartnerApplicationReviewForm extends FormBase
     }
 
     public function sendPartnershipApplicationApprovedEmail() {
-        $newMail = \Drupal::service('plugin.manager.mail');
-        //$params['email'] = $this->getValue("email");
-        $userEmail = $this->getValue("email");
-        $params = [];
-        $newMail->mail('icrp', 'registerMail', $userEmail, 'en', $params, $reply = NULL, $send = TRUE);
-         //drupal_set_message('Partnership Application Approved email has been sent to '.$this->getValue('organization_name').'.', 'status');
+
+        $mailManager = \Drupal::service('plugin.manager.mail');
+        $module = 'icrp';
+        $key = 'approvedPartnershipApplicationMail'; // Replace with Your key
+        $to = $this->getValue("email");
+        //$params['message'] = "The message";
+        $params['title'] = "Partnership Application Approved";
+        $langcode = \Drupal::currentUser()->getPreferredLangcode();
+        $send = true;
+
+        $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
+        if ($result['result'] != true) {
+            $message = t('There was a problem sending your email notification to @email.', array('@email' => $to));
+            drupal_set_message($message, 'error');
+            \Drupal::logger('mail-log')->error($message);
+            return;
+        }
+
+        $message = t('An email notification has been sent to @email ', array('@email' => $to));
+        drupal_set_message($message);
+        \Drupal::logger('mail-log')->notice($message);
+
     }
 
     public function submitForm(array &$form, FormStateInterface $form_state)
@@ -387,7 +406,7 @@ class PartnerApplicationReviewForm extends FormBase
         
         drupal_flush_all_caches();
         //$membership_status = ($form_values['status'] == 0) ? 'Blocked' : 'Active';
-        if($application_status == "Completed") {
+        if($application_status == "Complete") {
             $this->sendPartnershipApplicationApprovedEmail();
             $message = "Application for ".$this->getValue('organization_name')." is now completed and an email has been sent to the organization.";
         } else {
