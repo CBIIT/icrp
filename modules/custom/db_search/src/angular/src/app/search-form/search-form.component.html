@@ -211,14 +211,6 @@
     </ui-select>
 
 
-    <label class="form-label" for="project_types" tooltip="Select one or more project types">Project Types</label>
-    <ui-select
-      tooltip="Select one or more project types"
-      placeholder="Select Project Types"
-      [items]="fields.project_types"
-      [formControl]="form.controls.project_types">
-    </ui-select>
-
     <label class="form-label" for="is_childhood_cancer" tooltip="Is Childhood Cancer?">Is Childhood Cancer?</label>
     <ui-select
       tooltip="Search for childhood cancer projects?"
@@ -228,6 +220,16 @@
       [limit]="1"
       >
     </ui-select>
+
+
+    <label class="form-label" for="project_types" tooltip="Select one or more project types">Project Types</label>
+    <ui-select
+      tooltip="Select one or more project types"
+      placeholder="Select Project Types"
+      [items]="fields.project_types"
+      [formControl]="form.controls.project_types">
+    </ui-select>
+
 
 
 

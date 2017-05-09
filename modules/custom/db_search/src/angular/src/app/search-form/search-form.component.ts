@@ -492,7 +492,6 @@ export class SearchFormComponent implements OnChanges, AfterViewInit {
         this.fields = response;
 
         this.fields['is_childhood_cancer'] = [
-          { label: 'All', value: null },
           { label: 'Yes', value: '1' },
           { label: 'No', value: '0' },
         ];
