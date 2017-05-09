@@ -16,7 +16,7 @@
   <dt>Title</dt>
   <dd>{{ funding_details.project_title | raw }}</dd>
   <dt>Alt. Award Code</dt>
-  <dd>{{ funding_details.alt_award_code | default('Not specified')}}</dd>
+  <dd>{{ funding_details.alt_award_code | default('N/A')}}</dd>
   {% if logged_in %}
     <dt>Source ID</dt>
     <dd>{{ funding_details.source_id | default('N/A') }}</dd>
@@ -25,15 +25,28 @@
       {% if (funding_details.funding_amount) %}
         ${{ funding_details.funding_amount | number_format(2, '.', ',') }} ({{funding_details.currency}})
       {% else %}
-        Not specified
+        N/A
       {% endif %}
     </dd>
   {% endif %}
   <dt>Funding Organization</dt>
-  <dd>{{ funding_details.funding_organization | default('Not specified') }}</dd>
+  <dd>{{ funding_details.funding_organization | default('N/A') }}</dd>
   {% if logged_in %}
     <dt>Funding Mechanism</dt>
-    <dd>{{ funding_details.funding_mechanism | default('Not specified') }}</dd>
+    <dd>
+      {% if (funding_details.mechanism_code) %}
+        {{ funding_details.mechanism_code }}
+        {% if (funding_details.mechanism_title) %}
+          - {{ funding_details.mechanism_title }}
+        {% endif %}
+      {% else %}
+        {% if (funding_details.mechanism_title) %}
+          {{ funding_details.mechanism_title }}
+        {% else %}
+          N/A
+        {% endif %}
+      {% endif %}
+    </dd>
   {% endif %}
   <dt>Budget Dates</dt>
   <dd>
@@ -41,11 +54,11 @@
       {{ funding_details.budget_start_date | default('N/A') | raw }}
       to {{ funding_details.budget_end_date | default('N/A') | raw }}
     {% else %}
-      <i>Not specified</i>
+      <i>N/A</i>
     {% endif %}
   <dt>Principal Investigator</dt>
   <dd>
-    {{ funding_details.pi_name | default('Not specified')}}
+    {{ funding_details.pi_name | default('N/A')}}
     {% if funding_details.pi_orcid %}
       <a href="https://orcid.org/{{ funding_details.pi_orcid }}" target="_blank" title="Visit the primary investigator's ORCiD.org profile">
         <img style="margin: 0 4px" src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="ORCiD Logo">
@@ -57,7 +70,7 @@
     {% endif %}
   </dd>
   <dt>Institution</dt>
-  <dd>{{ funding_details.institution | default('Not specified')}}</dd>
+  <dd>{{ funding_details.institution | default('N/A')}}</dd>
   <dt>Location</dt>
   <dd>
     {% if funding_details.city %}
@@ -66,7 +79,7 @@
     {% if funding_details.state %}
      {{ funding_details.state }}, 
     {% endif %}
-  {{ funding_details.country | default('Not specified')}}</dd>
+  {{ funding_details.country | default('N/A')}}</dd>
 </dl>
 
 <hr>

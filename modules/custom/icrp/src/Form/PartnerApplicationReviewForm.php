@@ -108,7 +108,7 @@ class PartnerApplicationReviewForm extends FormBase
         $section = "Organization Information";
         $labels = array(["label" => 'Organization\'s Name', 'field' => 'organization_name'],
             ["label" => 'Organization\'s Address 1', 'field' => 'organization_address_1'],
-            ["label" => 'Address 2', 'field' => 'organization_address_2'],
+            ["label" => 'Organization\'s Address 2', 'field' => 'organization_address_2'],
             ["label" => 'City', 'field' => 'city'],
             ["label" => 'Country', 'field' => 'country'],
             ["label" => 'State/Province/Territory', 'field' => 'state_province_territory'],
