@@ -22,7 +22,7 @@ echo "***"
 drush sset system.maintenance_mode 1
 
 echo "***"
-echo "* Exporting Drupal 8 User tables"
+echo "* Exporting Drupal 8 User and Webform tables"
 echo "***"
 
 # Source: https://dba.stackexchange.com/questions/9306/how-do-you-mysqldump-specific-tables
@@ -30,7 +30,7 @@ echo "***"
 #       | grep -v Tables_in 
 #       | xargs mysqldump [databasename] -u [root] -p [password] > [target_file]
 
-mysql $mysql_database -u$user -p$password -e 'show tables like "user%"' |grep -v Tables_in |grep -v mysql | xargs mysqldump $mysql_database -u$user -p$password > $target_file
+mysql $mysql_database -u$user -p$password -e 'show tables where Tables_in_icrp like "user%" or Tables_in_icrp like "webform_%"' |grep -v Tables_in |grep -v mysql | xargs mysqldump $mysql_database -u$user -p$password > $target_file
 
 echo ""
 echo "***"
@@ -38,7 +38,7 @@ echo "* The following tables have been exported to a SQL file ($target_file)."
 echo "***"
 echo ""
 
-mysql $mysql_database -u$user -p$password -e 'show tables like "user%"' 
+mysql $mysql_database -u$user -p$password -e 'show tables where Tables_in_icrp like "user%" or Tables_in_icrp like "webform_%"' 
 
 echo ""
 echo "***"
