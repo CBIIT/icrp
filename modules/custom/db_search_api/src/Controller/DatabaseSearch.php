@@ -242,7 +242,10 @@ class DatabaseSearch {
 
     $search_id = $parameters['search_id'];
     $type      = $parameters['type'];
-    $year      = $parameters['year'];
+
+    if (array_key_exists('year', $parameters)) {
+      $year = $parameters['year'];
+    }
 
     $queryDefaults = 'SET NOCOUNT ON;';
 
