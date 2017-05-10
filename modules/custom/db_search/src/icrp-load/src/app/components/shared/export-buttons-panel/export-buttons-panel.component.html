@@ -1,38 +1,38 @@
 <div class="clearfix margin-bottom">
   <icrp-email-results-button
     *ngIf="sharedService.get('componentType') === 'search'">
-  </load/icrp-email-results-button>
+  </icrp-email-results-button>
 
   <icrp-export-button
     label="Export Results"
     [endpoint]="authenticated
       ? '/load/ExportResultsPartner'
       : '/load/ExportResults'">
-    </load/icrp-export-button>
+    </icrp-export-button>
 
   <icrp-export-button
     *ngIf="authenticated"
     label="Export Single"
     endpoint="/load/ExportResultsSignlePartner">
-  </load/icrp-export-button>
+  </icrp-export-button>
 
   <icrp-export-button
     *ngIf="authenticated"
     label="Export Abstracts"
     endpoint="/load/ExportResultsWithAbstractPartner">
-  </load/icrp-export-button>
+  </icrp-export-button>
 
   <icrp-export-button
     *ngIf="authenticated"
     label="Export Abstracts Single"
     endpoint="/load/ExportAbstractSignlePartner">
-  </load/icrp-export-button>
+  </icrp-export-button>
 
   <span class="pull-right">
     <icrp-export-button
       label="Export Graphs"
       endpoint="/load/ExportResultsWithGraphsPartner">
-    </load/icrp-export-button>
-  </load/span>
-</load/div>
+    </icrp-export-button>
+  </span>
+</div>
 
