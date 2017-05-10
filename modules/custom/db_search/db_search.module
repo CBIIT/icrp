@@ -8,6 +8,6 @@ function db_search_view_theme($existing, $type, $theme, $path) {
         'api_root' => NULL,
         'component_type' => NULL,
       ],
-    ];
+    ],
   ];
 }
