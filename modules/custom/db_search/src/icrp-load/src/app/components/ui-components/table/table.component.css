@@ -7,8 +7,11 @@ th {
 }
 
 
-.table > thead > tr > th:nth-child(1) {
-  max-width: 200px;
+.table > thead > tr > th:nth-child(1),
+.table > tbody > tr > td:nth-child(1) {
+  width: 300px;
+  max-width: 300px;
+  min-width: 300px;
 }
 
 
@@ -17,8 +20,11 @@ th {
 }
 
 
-.table > thead > tr > th:nth-child(3) {
-  max-width: 200px;
+.table > thead > tr > th:nth-child(3),
+.table > tbody > tr > td:nth-child(3) {
+  width: 300px;
+  max-width: 300px;
+  min-width: 300px;
 }
 
 
