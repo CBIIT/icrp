@@ -20,7 +20,10 @@ export class ExportButtonComponent {
     this.loading = true;
     this.exportService.export(this.endpoint)
       .subscribe(
-        response => document.location.href = response,
+        response => {
+          console.log(response);
+          // document.location.href = response
+        },
         error => console.error(error),
         () => this.loading = false
       );
