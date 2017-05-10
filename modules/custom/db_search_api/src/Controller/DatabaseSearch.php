@@ -242,7 +242,6 @@ class DatabaseSearch {
 
     $search_id = $parameters['search_id'];
     $type      = $parameters['type'];
-    $year      = $parameters['year'];
 
     $queryDefaults = 'SET NOCOUNT ON;';
 
@@ -308,7 +307,7 @@ class DatabaseSearch {
     // bind parameters to statement
     $stmt->bindParam(':search_id', $search_id);
     $stmt->bindParam(':total', $output['total'], PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
-    $type === 'project_funding_amounts_by_year' and $stmt->bindParam(':year', $year);
+    $type === 'project_funding_amounts_by_year' and $stmt->bindParam(':year', $parameters['year']);
 
     // execute statement and update output object
     if ($stmt->execute()) {
