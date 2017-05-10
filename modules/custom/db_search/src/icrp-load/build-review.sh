@@ -1,2 +1,2 @@
 ng build -prod -oh none
-cp dist/*.bundle.* ../../load_assets/
+cp dist/*.bundle.* ../../assets/
