@@ -7,12 +7,12 @@
 user=$1
 password=$2
 mysql_database=$3
-target_file=export_users.sql
+target_file=exported_webform_submissions.sql
 
 if [ "$mysql_database" == "" ]; then
 	echo
 	echo "SYNTAX:"
-	echo "import_icrp_users.sh [mysql username] [mysql password] [msyql database]"
+	echo "import_webform_submissions.sh [mysql username] [mysql password] [msyql database]"
 	echo 
 	exit 1
 fi
