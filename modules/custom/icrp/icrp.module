@@ -60,14 +60,14 @@ We’re delighted to inform you that your application for membership of the ICRP
 With kind regards,
 
 The ICRP team";
-          drupal_set_message($body);
+          //drupal_set_message($body);
           $message['from'] = \Drupal::config('system.site')->get('mail');
           $message['subject'] = "Partnership Application Approved";
           $message['body'][] = Drupal\Core\Mail\MailFormatHelper::htmlToText($body);
           break;
     }
 }
-
+/*
 function partnerApplicationSubmissionsTable() {
     //First Check to see if there are any Submitted Applications
     //If count is zero, then display all Active Submissions
@@ -127,6 +127,8 @@ function partnerApplicationSubmissionsCount() {
 
     return 2;
 }
+*/
+
 /**
  * Implements hook_theme().
  */
@@ -220,7 +222,7 @@ function icrp_views_query_alter($view, $query) {
        // $date_format = $query->getDateFormat("node__field_precise_date.field_precise_date_value", "m")." = :value";
         //$query->addWhereExpression(2, $date_format, [":value" => 12]); // Where 12 is the month I need.
     }    
-    \Drupal::logger('hook')->notice('icrp_views_query_alter()');
+    //\Drupal::logger('hook')->notice('icrp_views_query_alter()');
     //drupal_set_message("views_query_alter");
     //drupal_set_message("View ID: ".$view->id());
     global $user;

@@ -390,8 +390,8 @@ class PartnerApplicationReviewForm extends FormBase
             return;
         }
 
-        $message = t('An email notification has been sent to @email ', array('@email' => $to));
-        drupal_set_message($message);
+        $message = t('Partner Application Approved - An email notification has been sent to @email ', array('@email' => $to));
+        //drupal_set_message($message);
         \Drupal::logger('mail-log')->notice($message);
 
     }

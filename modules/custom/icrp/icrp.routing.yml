@@ -6,15 +6,6 @@ icrp.form:
   requirements:
     _permission: 'access content'
 
-icrp.partner_application_review:
-  path: '/partner-application-review/{sid}'
-  defaults:
-    _title: 'Partner Application Review'
-    _form: '\Drupal\icrp\Form\PartnerApplicationReviewForm'
-  requirements:
-    _role: 'authenticated+admin'    
-    _role: 'authenticated+manager'    
-
 icrp.my_profile:
   path: '/my-profile'
   defaults:
@@ -30,3 +21,12 @@ icrp.partner_application_admin_tool:
     _title: 'Partner Application Admin Tool'
   requirements:
     _permission: 'access content'
+
+icrp.partner_application_review:
+  path: '/partner-application-review/{sid}'
+  defaults:
+    _title: 'Partner Application Review'
+    _form: '\Drupal\icrp\Form\PartnerApplicationReviewForm'
+  requirements:
+    _role: 'authenticated+admin'    
+    _role: 'authenticated+manager'
