@@ -23,7 +23,7 @@
     <dt>Funding Amount</dt>
     <dd>
       {% if (funding_details.funding_amount) %}
-        ${{ funding_details.funding_amount | number_format(2, '.', ',') }} ({{funding_details.currency}})
+        {{ funding_details.funding_amount | number_format(2, '.', ',') }} ({{funding_details.currency}})
       {% else %}
         N/A
       {% endif %}
