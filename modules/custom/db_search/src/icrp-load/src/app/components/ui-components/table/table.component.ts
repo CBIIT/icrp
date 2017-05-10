@@ -19,7 +19,7 @@ export class TableComponent implements OnChanges {
   headers: Header[];
 
   @Input()
-  data: object;
+  data: any;
 
   @Input()
   numResults: number;

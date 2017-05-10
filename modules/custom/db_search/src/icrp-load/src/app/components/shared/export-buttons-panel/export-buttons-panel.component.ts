@@ -9,5 +9,5 @@ import { SharedService } from '../../../services/shared.service';
 export class ExportButtonsPanelComponent  {
   @Input() authenticated: boolean = false;
 
-  constructor(private sharedService: SharedService) { }
+  constructor(public sharedService: SharedService) { }
 }

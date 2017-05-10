@@ -1,4 +1,4 @@
-import { Http } from '@angular/http';
+import { Http, URLSearchParams } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { SharedService } from './shared.service';
 
