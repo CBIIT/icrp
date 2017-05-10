@@ -1,11 +1,3 @@
-<div *ngIf="loading" style="text-align: center; ">
-  <ui-overlay [fullscreen]="true">
-    <ui-spinner></ui-spinner>
-    <br>
-    <div>Fetching Data Export</div>
-  </ui-overlay>
-</div>
-
 <div class="clearfix margin-bottom">
   <icrp-email-results-button
     *ngIf="sharedService.get('componentType') === 'search'">

@@ -2,3 +2,11 @@
   <ui-icon type="desktop-download"></ui-icon>
   {{ label }}
 </button>
+
+<div *ngIf="loading" style="text-align: center; ">
+  <ui-overlay [fullscreen]="true">
+    <ui-spinner></ui-spinner>
+    <br>
+    <div>Fetching Data Export</div>
+  </ui-overlay>
+</div>
