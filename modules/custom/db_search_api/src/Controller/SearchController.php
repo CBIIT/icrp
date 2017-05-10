@@ -202,9 +202,9 @@ class SearchController extends ControllerBase {
 
     if ($parameters['type'] === 'project_funding_amounts_by_year' 
         && !array_key_exists('year', $parameters)) {
-      
+
       $year = DatabaseReview::reviewFields($connection)['conversion_years'][0]['value'];
-      $parameters['years'] = DatabaseReview::reviewFields($connection);
+      $parameters['year'] = $year;
     }
 
     $data = in_array($parameters['type'], self::PARTNER_ANALYTICS_TYPES)
