@@ -13,7 +13,7 @@ class DbSearchController {
   public function content() {
     return array(
       '#type' => 'markup',
-      '#markup' => t('<icrp-root><div loading class="center-overlay" ><div class="loading"></div></div></icrp-root>'),
+      '#markup' => t('<icrp-root data-component-type="search"><div loading class="center-overlay" ><div class="loading"></div></div></icrp-root>'),
       '#attached' => array(
         'library' => array(
           'db_search/custom'
@@ -25,7 +25,7 @@ class DbSearchController {
   public function load_content() {
     return array(
       '#type' => 'markup',
-      '#markup' => t('<icrp-root><div loading class="center-overlay" ><div class="loading"></div></div></icrp-root>'),
+      '#markup' => t('<icrp-root data-component-type="review"><div loading class="center-overlay" ><div class="loading"></div></div></icrp-root>'),
       '#attached' => array(
         'library' => array(
           'db_search/load'

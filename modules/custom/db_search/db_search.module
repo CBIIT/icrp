@@ -1,0 +1,13 @@
+<?php
+
+function db_search_view_theme($existing, $type, $theme, $path) {
+  return [
+
+    'data_upload_review' => [
+      'variables' => [
+        'api_root' => NULL,
+        'component_type' => NULL,
+      ],
+    ];
+  ];
+}

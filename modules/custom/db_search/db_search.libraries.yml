@@ -10,13 +10,13 @@ custom:
     assets/main.js: {}
 
 
-load:
+default:
   version: 1.0
   css:
     theme:
-      load_assets/styles.css: {}
+      assets/styles.bundle.css: {}
   js:
-    load_assets/inline.js: {}
-    load_assets/polyfills.js: {}
-    load_assets/vendor.js: {}
-    load_assets/main.js: {}
+    assets/inline.bundle.js: {}
+    assets/polyfills.bundle.js: {}
+    assets/vendor.bundle.js: {}
+    assets/main.bundle.js: {}
