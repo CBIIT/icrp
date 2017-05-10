@@ -1,0 +1,63 @@
+<div class="table-responsive" style="margin-bottom: 0; ">
+  <table class="table table-bordered table-striped table-hover table-nowrap" #table>
+    <thead>
+      <tr>
+        <th *ngFor="let header of headers"
+          (click)="toggleSort(header)">
+          <div [tooltip]="header.tooltip" style="display: flex; justify-content: space-between">
+            {{ header.label }}
+            <span [ngSwitch]="header.sort">
+              <ui-icon type="triangle-up" *ngSwitchCase="'asc'"></ui-icon>
+              <ui-icon type="triangle-down" *ngSwitchCase="'desc'"></ui-icon>
+            </span>
+          </div>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of data">
+        <td *ngFor="let header of headers">
+          <span *ngIf="!header.link">
+            {{ row[header.key] }}
+          </span>
+
+          <a *ngIf="header.link" [href]="row[header.link]" target="_blank">
+            {{ row[header.key] }}
+          </a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+
+
+
+<div *ngIf="data && data.length > 0">
+
+  <div class="pull-left">
+    <pagination
+      [boundaryLinks]="true"
+      [totalItems]="numResults"
+      [(ngModel)]="pagingModel"
+      [maxSize]="5"
+      (pageChanged)="setCurrentPage($event)"
+      [itemsPerPage]="pageSize"
+      class="pagination-sm"
+      previousText="&lsaquo;"
+      nextText="&rsaquo;"
+      firstText="&laquo;"
+      lastText="&raquo;">
+    </pagination>
+  </div>
+
+
+  <div class="pull-right pagination">
+    Show
+    <select #p (change)="setPageSize(p.value)">
+      <option *ngFor="let size of pageSizes" [value]="size">{{size}}</option>
+    </select>
+    entries of {{ numResults | number }}
+  </div>
+</div>

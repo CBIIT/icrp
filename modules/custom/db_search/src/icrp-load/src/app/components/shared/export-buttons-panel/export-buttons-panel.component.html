@@ -1,0 +1,38 @@
+<div class="clearfix margin-bottom">
+  <icrp-email-results-button
+    *ngIf="sharedService.get('componentType') === 'search'">
+  </icrp-email-results-button>
+
+  <icrp-export-button
+    label="Export Results"
+    [endpoint]="authenticated
+      ? '/ExportResultsPartner'
+      : '/ExportResults'">
+    </icrp-export-button>
+
+  <icrp-export-button
+    *ngIf="authenticated"
+    label="Export Single"
+    endpoint="/ExportResultsSignlePartner">
+  </icrp-export-button>
+
+  <icrp-export-button
+    *ngIf="authenticated"
+    label="Export Abstracts"
+    endpoint="/ExportResultsWithAbstractPartner">
+  </icrp-export-button>
+
+  <icrp-export-button
+    *ngIf="authenticated"
+    label="Export Abstracts Single"
+    endpoint="/ExportAbstractSignlePartner">
+  </icrp-export-button>
+
+  <span class="pull-right">
+    <icrp-export-button
+      label="Export Graphs"
+      endpoint="/ExportResultsWithGraphsPartner">
+    </icrp-export-button>
+  </span>
+</div>
+

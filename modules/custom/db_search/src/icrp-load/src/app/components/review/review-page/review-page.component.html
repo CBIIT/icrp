@@ -1,0 +1,55 @@
+<div *ngIf="loading" style="text-align: center; ">
+  <ui-overlay [fullscreen]="true">
+    <ui-spinner></ui-spinner>
+    <br>
+    <div>Fetching Data</div>
+  </ui-overlay>
+</div>
+
+<div *ngIf="sponsorUploadsTable && sponsorUploadsTable.length === 0">
+  There are currently no submitted workbooks pending for review. Go to <a href="/uploadStatusReport">Data Upload Status Report</a>  to view the Information about the status of data submissions and uploads to the ICRP database.
+</div>
+
+<div *ngIf="sponsorUploadsTable && sponsorUploadsTable.length > 0">
+  <div class="form-group">
+    The following submitted workbooks have been uploaded to the staging website. Please select the relevant Sponsor Code to review
+  your data and contact us by email to identify any problems or to approve your data to go live.
+  </div>
+
+  <icrp-review-uploads-table
+    [uploads]="sponsorUploadsTable"
+    (select)="selectUploadID($event)">
+  </icrp-review-uploads-table>
+
+  <icrp-review-summary-panel
+    [currentSponsor]="currentSponsor"
+    [analytics]="analytics"
+    [numResults]="numResults"
+    [loading]="loading"
+    >
+  </icrp-review-summary-panel>
+
+  <br>
+
+  <icrp-charts-panel
+    [analytics]="analytics"
+    [fields]="fields"
+    (requestChart)="this.getAnalytics(searchID, [$event.type], $event.year)">
+  </icrp-charts-panel>
+
+  <br>
+
+  <icrp-export-buttons-panel
+    [authenticated]="sharedService.get('authenticated')">
+  </icrp-export-buttons-panel>
+
+  <ui-table
+    [headers]="headers"
+    [data]="searchResults"
+    [numResults]="numResults"
+    [loading]="loading"
+    (sort)="sortPaginate($event)"
+    (paginate)="sortPaginate($event)"
+    >
+  </ui-table>
+</div>

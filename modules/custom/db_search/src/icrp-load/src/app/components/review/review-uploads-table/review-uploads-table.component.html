@@ -1,0 +1,20 @@
+<table class="table table-bordered table-striped table-hover">
+  <thead>
+    <tr>
+      <th>Sponsor Code</th>
+      <th>Funding Years</th>
+      <th>Type</th>
+      <th>Workbook Received Date</th>
+      <th>Note</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let row of uploads">
+      <td><a (click)="select.emit(row.data_upload_id)">{{ row.sponsor_code }}</a></td>
+      <td>{{ row.funding_year }}</td>
+      <td>{{ row.type }}</td>
+      <td>{{ row.received_date }}</td>
+      <td>{{ row.note }}</td>
+    </tr>
+  </tbody>
+</table>

@@ -1,0 +1,31 @@
+
+<div class="title clearfix" (click)="showSummary = !showSummary;">
+  <span class="pull-left" style="margin-right: 6px">
+    <ui-icon [type]="showSummary ? 'triangle-down' : 'triangle-right'"></ui-icon>
+  </span>
+
+  <span class="pull-left">
+    <ng-content select="[left-header]"></ng-content>
+  </span>
+
+  <div class="pull-right">
+    <ng-content select="[right-header]"></ng-content>
+  </div>
+</div>
+
+<div class="content" *ngIf="showSummary">
+  <ng-content></ng-content>
+</div>
+
+<!--
+<div class="content" *ngIf="showSummary Object.keys(content).length > 0">
+  <div *ngFor="let key of Object.keys(content)">
+    <b>{{ key }}</b>
+    <ul>
+      <li *ngFor="let value of content[key]">
+        {{ value }}
+      </li>
+    </ul>
+  </div>
+</div>
+-->
