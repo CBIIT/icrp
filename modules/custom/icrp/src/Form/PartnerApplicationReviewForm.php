@@ -377,7 +377,7 @@ class PartnerApplicationReviewForm extends FormBase
         $module = 'icrp';
         $key = 'approvedPartnershipApplicationMail'; // Replace with Your key
         $to = $this->getValue('name')." <".strip_tags($this->getValue("email")).">";
-        //$params['message'] = "The message";
+        $params['message'] = "The message";
         $langcode = \Drupal::currentUser()->getPreferredLangcode();
         $send = true;
         /*
