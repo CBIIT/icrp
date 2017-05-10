@@ -43,110 +43,6 @@ class DatabaseReview {
     return $fields;
   }
 
-
-  /**
-  * Retrieves analytics for a specific facet of the search
-  * @param int $data_upload_id - The search ID for this request
-  * @param string $type - The type of data to retrieve
-  * @param int $year - The year for which this data should be retrieved
-  * @param PDO $pdo - The PDO connection object
-  * @return array An array containining analytics data for the specified facet
-  * @api
-  */
-  public static function reviewAnalytics(PDO $pdo, array $parameters): array {
-
-    $data_upload_id = $parameters['data_upload_id'];
-    $type           = $parameters['type'];
-    $year           = $parameters['year'];
-
-    $queryDefaults = 'SET NOCOUNT ON;';
-
-    $queries = [
-      'project_counts_by_country'           => 'EXECUTE GetProjectCountryStatsByDataUploadID    @DataUploadID = :data_upload_id, @ResultCount = :total',
-      'project_counts_by_cso_research_area' => 'EXECUTE GetProjectCSOStatsByDataUploadID        @DataUploadID = :data_upload_id, @ResultCount = :total',
-      'project_counts_by_cancer_type'       => 'EXECUTE GetProjectCancerTypeStatsByDataUploadID @DataUploadID = :data_upload_id, @ResultCount = :total',
-      'project_counts_by_type'              => 'EXECUTE GetProjectTypeStatsByDataUploadID       @DataUploadID = :data_upload_id, @ResultCount = :total',
-      'project_funding_amounts_by_year'     => 'EXECUTE GetProjectAwardStatsByDataUploadID      @DataUploadID = :data_upload_id, @Year = :year, @Total = :total',
-    ];
-
-    // select which query to perform
-    if (!array_key_exists($type, $queries)) { return []; }
-    $stmt = $pdo->prepare($queryDefaults . $queries[$type]);
-
-    // define which columns to retrieve
-    $column_mappings = [
-      'project_counts_by_country' => [
-        'label' => 'country',
-        'data' => [
-          'count' => 'Count',
-        ],
-      ],
-      
-      'project_counts_by_cso_research_area' => [
-        'label' => 'categoryName', 
-        'data' => [
-          'count' => 'ProjectCount', 
-          'relevance' => 'Relevance',
-        ],
-      ],
-      
-      'project_counts_by_cancer_type' => [
-        'label' => 'CancerType',     
-        'data' => [
-          'count' => 'ProjectCount',
-          'relevance' => 'Relevance',
-        ],
-      ],
-      
-      'project_counts_by_type' => [
-        'label' => 'ProjectType',
-        'data' => [
-          'count' => 'Count',
-        ],
-      ],
-      
-      'project_funding_amounts_by_year' => [
-        'label' => 'Year',
-        'data' => [
-          'amount' => 'amount',
-        ],
-      ],
-    ];
-
-    // define output object
-    $output = [
-      'data_upload_id' => intval($data_upload_id),
-      'results' => [],
-      'total' => 0
-    ];
-
-    // bind parameters to statement
-    $stmt->bindParam(':data_upload_id', $data_upload_id);
-    $stmt->bindParam(':total', $output['total'], PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
-    $type === 'project_funding_amounts_by_year' and $stmt->bindParam(':year', $year);
-
-    // execute statement and update output object
-    if ($stmt->execute()) {
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-
-        $column_map = $column_mappings[$type];
-        $label = $row[$column_map['label']];
-
-        $data = [];
-        foreach($column_map['data'] as $key => $value)
-          $data[$key] = floatval($row[$value]);
-
-        array_push($output['results'], [
-          'label' => $label,
-          'data' => $data,
-        ]);
-      }
-    }
-
-    return $output;
-  }
-
-
   /**
   * Retrieves sorted and paginated results given a data upload id
   * @param array $parameters - The sorting/pagination parameters
@@ -192,9 +88,10 @@ class DatabaseReview {
 
     return [
       'data_upload_id' => $parameters['data_upload_id'],
+      'search_id'      => $search_id,
       'results_count'  => $results_count,
       'results'        => $results,
-    ];    
+    ];
   }
 
 

@@ -23,8 +23,8 @@ class SearchController extends ControllerBase {
     'page_number'                => 1,
     'sort_column'                => 'project_title',
     'sort_direction'             => 'asc',
-  ];  
-  
+  ];
+
   const DEFAULT_SORT_PAGINATE_PARAMETERS = [
     'search_id'                  => NULL,
     'page_size'                  => 50,
@@ -201,10 +201,10 @@ class SearchController extends ControllerBase {
     $parameters = $request->query->all();
 
     $data = in_array($parameters['type'], self::PARTNER_ANALYTICS_TYPES)
-      ? DatabaseReview::reviewAnalytics($connection, $parameters)
+      ? DatabaseSearch::getAnalytics($connection, $parameters)
       : [];
 
-    return self::createResponse($data);    
+    return self::createResponse($data);
   }
 
 
