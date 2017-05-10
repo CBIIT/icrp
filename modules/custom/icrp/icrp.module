@@ -61,6 +61,8 @@ With kind regards,
 
 The ICRP team";
           //drupal_set_message($body);
+          drupal_set_message("icrp_mail() hook in icrp.module");
+          drupal_set_message("Site Email: ".\Drupal::config('system.site')->get('mail'));
           $message['from'] = \Drupal::config('system.site')->get('mail');
           $message['subject'] = "Partnership Application Approved";
           $message['body'][] = Drupal\Core\Mail\MailFormatHelper::htmlToText($body);
