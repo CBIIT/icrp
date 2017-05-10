@@ -50,7 +50,7 @@ class DatabaseReview {
   * @return array An array containining search results
   * @api
   */
-  public function reviewSearchResults(PDO $pdo, array $parameters): array {
+  public static function reviewSearchResults(PDO $pdo, array $parameters): array {
 
     $parameters['sort_column'] = self::SORT_COLUMN_MAP[$parameters['sort_column']];
     $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE GetProjectsByDataUploadID
@@ -102,7 +102,7 @@ class DatabaseReview {
   * @param PDO $pdo - The PDO connection object
   * @api
   */
-  public function reviewSponsorUploads(PDO $pdo) {
+  public static function reviewSponsorUploads(PDO $pdo) {
 
     $results = [];
     $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE GetDataUploadInStaging');

@@ -138,19 +138,19 @@ class SearchController extends ControllerBase {
 
   ## Routes for Database Search Tool
 
-  public function getFields() {
+  public static function getFields() {
     $data = DatabaseSearch::getSearchFields(self::getConnection());
     return self::createResponse($data);
   }
 
-  public function getSearchResults(Request $request) {
+  public static function getSearchResults(Request $request) {
     $parameters = self::array_merge_intersection($request->query->all(), self::DEFAULT_SEARCH_PARAMETERS);
     $data = DatabaseSearch::getSearchResults(self::getConnection(), $parameters);
     return self::createResponse($data);
   }
 
 
-  public function getSortedPaginatedResults(Request $request) {
+  public static function getSortedPaginatedResults(Request $request) {
     $parameters = self::array_merge_intersection($request->query->all(), self::DEFAULT_SORT_PAGINATE_PARAMETERS);
     $data = DatabaseSearch::getSortedPaginatedResults(self::getConnection(), $parameters);
     //return self::createResponse($parameters);
@@ -158,7 +158,7 @@ class SearchController extends ControllerBase {
   }
 
 
-  public function getAnalytics(Request $request) {
+  public static function getAnalytics(Request $request) {
     $parameters = $request->query->all();
     $data = in_array($parameters['type'], self::PUBLIC_ANALYTICS_TYPES)
       ? DatabaseSearch::getAnalytics(self::getConnection(), $parameters)
@@ -168,7 +168,7 @@ class SearchController extends ControllerBase {
   }
 
 
-  public function getAnalyticsForPartners(Request $request) {
+  public static function getAnalyticsForPartners(Request $request) {
         $parameters = $request->query->all();
 
     $data = in_array($parameters['type'], self::PARTNER_ANALYTICS_TYPES)
@@ -179,7 +179,7 @@ class SearchController extends ControllerBase {
   }
 
 
-  public function getSearchParameters(Request $request) {
+  public static function getSearchParameters(Request $request) {
     $connection = self::getConnection('icrp_database');
     $parameters = self::array_merge_intersection($request->query->all(), ['search_id' => -1]);
     $data = DatabaseSearch::getSearchParameters($connection, $parameters);
@@ -189,14 +189,14 @@ class SearchController extends ControllerBase {
 
 
   ## Routes for Data Upload Review Tool
-  public function reviewFields() {
+  public static function reviewFields() {
     $connection = self::getConnection('icrp_load_database');
     $data = DatabaseReview::reviewFields($connection);
     return self::createResponse($data);
   }
 
 
-  public function reviewAnalytics(Request $request) {
+  public static function reviewAnalytics(Request $request) {
     $connection = self::getConnection('icrp_load_database');
     $parameters = $request->query->all();
 
@@ -208,7 +208,7 @@ class SearchController extends ControllerBase {
   }
 
 
-  public function reviewSearchResults(Request $request) {
+  public static function reviewSearchResults(Request $request) {
     $connection = self::getConnection('icrp_load_database');
     $parameters = self::array_merge_intersection($request->query->all(), self::DEFAULT_DATA_UPLOAD_REVIEW_PARAMETERS);
     $data = DatabaseReview::reviewSearchResults($connection, $parameters);
@@ -216,7 +216,7 @@ class SearchController extends ControllerBase {
   }
 
 
-  public function reviewSponsorUploads(Request $request) {
+  public static function reviewSponsorUploads(Request $request) {
     $connection = self::getConnection('icrp_load_database');
     $data = DatabaseReview::reviewSponsorUploads($connection);
     return self::createResponse($data);
