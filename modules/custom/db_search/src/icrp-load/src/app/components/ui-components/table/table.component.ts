@@ -45,7 +45,6 @@ export class TableComponent implements OnChanges {
   constructor() { }
 
   toggleSort(header: Header) {
-    console.log(header);
 
     let toggledSort: 'asc' | 'desc' = header.sort === 'asc'
       ? 'desc'
