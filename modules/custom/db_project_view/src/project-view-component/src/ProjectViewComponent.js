@@ -220,7 +220,7 @@ class ProjectViewComponent extends Component {
           }
           </dd>
 
-          <dt>Is Childhood Cancer</dt>
+          <dt>Childhood Cancer</dt>
           <dd>{ parseInt(project_details.is_childhood) === 0 ? "No" : parseInt(project_details.is_childhood) === 1 ? "Yes" : "N/A" }</dd>
 
         </dl>
