@@ -13,7 +13,7 @@ export class ExportService {
     }
 
     return this.http.get(url, {search: searchParams})
-      .map(response => response.text());
+      .map(response => response.json());
   }
 
   emailResults(params: {"name": string, "recipient_email": string, "personal_message": string}) {
