@@ -588,11 +588,4 @@ jQuery(function() {
         }
         tree.refresh();
     }
-    $('#library-display').on('click','.item-wrapper a',function(e) {
-        if (typeof ga === "undefined") return;
-        ga('send',{
-            hitType: 'pageview',
-            page: e.target.href
-        });
-    });
 });
