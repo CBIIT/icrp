@@ -62,7 +62,7 @@ With kind regards,
 The ICRP team";
           //drupal_set_message($body);
           $message['from'] = \Drupal::config('system.site')->get('mail');
-          $message['subject'] = "Partnership Application Approved";
+          $message['subject'] = "ICRP Partnership Application - Completed";
           $message['body'][] = Drupal\Core\Mail\MailFormatHelper::htmlToText($body);
           break;
     }

@@ -86,7 +86,7 @@ class PartnerApplicationReviewForm extends FormBase
             '#title' => ('Status'),
             '#default_value' => $application_status,
             '#options' => array(
-                'Complete' => t('Complete'),
+                'Completed' => t('Completed'),
                 'Archived' => t('Archived'),
             ),
             '#help_text' => 'User Status'
@@ -351,7 +351,7 @@ class PartnerApplicationReviewForm extends FormBase
         $form_values = $form_state->getValues();
         //drupal_set_message(print_r($form_state->getValues(), TRUE));
         $application_status = $form_values['status'];
-        if($application_status != "Archived" && $application_status != "Complete") {
+        if($application_status != "Archived" && $application_status != "Completed") {
             $form_state->setErrorByName('Application Review', t('Select an application status before saving.'));
             $form_state->setErrorByName('status', t('Select an application status before saving.'));
         }
@@ -378,7 +378,6 @@ class PartnerApplicationReviewForm extends FormBase
         $key = 'approvedPartnershipApplicationMail'; // Replace with Your key
         $to = $this->getValue('name')." <".strip_tags($this->getValue("email")).">";
         //$params['message'] = "The message";
-        $params['title'] = "Partnership Application Approved";
         $langcode = \Drupal::currentUser()->getPreferredLangcode();
         $send = true;
         /*
@@ -418,7 +417,7 @@ class PartnerApplicationReviewForm extends FormBase
         
         drupal_flush_all_caches();
         //$membership_status = ($form_values['status'] == 0) ? 'Blocked' : 'Active';
-        if($application_status == "Complete") {
+        if($application_status == "Completed") {
             $this->sendPartnershipApplicationApprovedEmail();
             $message = "Application for ".$this->getValue('organization_name')." is now completed and an email has been sent to the organization.";
         } else {
