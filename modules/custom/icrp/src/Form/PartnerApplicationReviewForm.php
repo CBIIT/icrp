@@ -376,11 +376,12 @@ class PartnerApplicationReviewForm extends FormBase
         $mailManager = \Drupal::service('plugin.manager.mail');
         $module = 'icrp';
         $key = 'approvedPartnershipApplicationMail'; // Replace with Your key
-        $to = strip_tags($this->getValue("email"));
+        $to = $this->getValue('name')." <".strip_tags($this->getValue("email")).">";
         //$params['message'] = "The message";
         $params['title'] = "Partnership Application Approved";
         $langcode = \Drupal::currentUser()->getPreferredLangcode();
         $send = true;
+        /*
         drupal_set_message("module: ".$module);
         drupal_set_message("key: ".$key);
         drupal_set_message("to: ".$to);
@@ -388,11 +389,12 @@ class PartnerApplicationReviewForm extends FormBase
         drupal_set_message("send: ".(string)$send);
         drupal_set_message("params: ".print_r($params, true));
         drupal_set_message("CALLING mail from mailManager");
-
+        */
         $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
+        /*
         drupal_set_message("result: ".(string)$result['result']);
         drupal_set_message("result array(): ".print_r($result, true));
-        drupal_set_message(vardump($result, true));
+        */
         if ($result['result'] != true) {
             $message = t('There was a problem sending your email notification to @email.', array('@email' => $to));
             drupal_set_message($message, 'error');
