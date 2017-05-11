@@ -80,9 +80,9 @@
       </label>
     </div>
 
-    <label class="form-label" for="years_active" tooltip="Awards active in the calendar year. Default view shows most recent 2 years, click below to select additional years." >Year Active</label>
+    <label class="form-label" for="years_active" tooltip="Projects with funding in the calendar year. Default view shows most recent 2 years, click below to select additional years." >Year Active</label>
     <ui-select
-      tooltip="Awards active in the calendar year. Default view shows most recent 2 years, click below to select additional years."
+      tooltip="Projects with funding in the calendar year. Default view shows most recent 2 years, click below to select additional years."
       placeholder="Year"
       [items]="fields.years"
       [formControl]="form.controls.years"></ui-select>
@@ -174,9 +174,9 @@
   <!-- Funding Organizations -->
   <ui-panel title="Funding Organizations">
 
-    <label class="form-label" for="funding_organization_type" tooltip="Select one or more funding organization types">Funding Organization Types</label>
+    <label class="form-label" for="funding_organization_type" tooltip="Select Government (public funding), Non-profit (includes charities and foundations) or Other (e.g., professional associations funding research)">Funding Organization Types</label>
     <ui-select
-      tooltip="Select one or more funding organization types"
+      tooltip="Select Government (public funding), Non-profit (includes charities and foundations) or Other (e.g., professional associations funding research)"
       placeholder="Select types"
       [items]="fields.funding_organization_types"
       [formControl]="form.controls.funding_organization_types">
@@ -211,9 +211,9 @@
     </ui-select>
 
 
-    <label class="form-label" for="is_childhood_cancer" tooltip="Is Childhood Cancer?">Is Childhood Cancer?</label>
+    <label class="form-label" for="is_childhood_cancer" tooltip="Select Government (public funding), Non-profit (includes charities and foundations) or Other (e.g., professional associations funding research)">Childhood Cancer</label>
     <ui-select
-      tooltip="Search for childhood cancer projects?"
+      tooltip="Select Government (public funding), Non-profit (includes charities and foundations) or Other (e.g., professional associations funding research)"
       placeholder="Select Childhood Cancer"
       [items]="fields.is_childhood_cancer"
       [formControl]="form.controls.is_childhood_cancer"
