@@ -1,6 +1,6 @@
 /**
  * These styles determine the layout of this component and will always be applied
- * 
+ *
  * select-container
  * select-input-container
  * select-dropdown-container
@@ -62,7 +62,7 @@
     padding-left: 4px;
     border: 1px solid #D1D1D1;
     border-radius: 2px;
-    
+
 
     color: #777;
 }
@@ -96,7 +96,7 @@
 
 .select-label.default > div:last-child:hover {
     color: #999;
-    box-shadow: 0 0 2px #BBB;   
+    box-shadow: 0 0 2px #BBB;
 }
 
 .select-input.default {
@@ -131,7 +131,7 @@ input.select-input-disabled.default {
   width: 100%;
   padding: 6px 10px;
   margin-bottom: 6px;
-  
+
   border: 1px solid #D1D1D1;
   background-color: #EFEFEF;
   border-radius: 2px;
