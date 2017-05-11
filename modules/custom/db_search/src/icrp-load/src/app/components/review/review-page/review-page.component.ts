@@ -1,14 +1,37 @@
 import { Component } from '@angular/core';
 import { ReviewService } from '../../../services/review.service';
 import { SharedService } from '../../../services/shared.service';
-
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition
+} from '@angular/animations';
 
 import { Observable } from 'rxjs';
 
 @Component({
   selector: 'icrp-review-page',
   templateUrl: './review-page.component.html',
-  styleUrls: ['./review-page.component.css']
+  styleUrls: ['./review-page.component.css'],
+
+  animations: [
+    trigger('loadingState', [
+      state('false', style({
+        opacity: 0,
+        display: 'none',
+      })),
+      state('true', style({
+        opacity: '0.4',
+        display: 'flex',
+      })),
+
+      transition(':enter', animate('10ms ease-in')),
+      transition('true => false', animate('1000ms ease-out')),
+      transition('false => true', animate('1000ms ease-in')),
+    ])
+  ]
 })
 export class ReviewPageComponent {
 
@@ -92,14 +115,18 @@ export class ReviewPageComponent {
   }
 
   getSponsorUploads() {
+
     this.loading = true;
 
     // once sponsor uploads have been fetched,
     // set the current upload id and retrieve analytics and search results
     this.reviewService.getSponsorUploads().subscribe(response => {
-      if (response && response.length) {
+
+      if (response) {
         this.sponsorUploadsTable = response;
-        this.selectUploadID(response[0].data_upload_id);
+
+        if (response[0])
+          this.selectUploadID(response[0].data_upload_id);
       }
 
       this.loading = false;
@@ -124,7 +151,9 @@ export class ReviewPageComponent {
 
   getSearchResults(parameters, updateAnalytics = false) {
 
-    this.loading = true;
+    let loadingTrueCancellable$ = Observable.from([true])
+      .delay(100)
+      .subscribe(e => this.loading = true);
 
     this.reviewService.getSearchResults(parameters)
       .subscribe(response => {
@@ -136,6 +165,7 @@ export class ReviewPageComponent {
           this.getAnalytics(this.searchID);
         }
 
+        loadingTrueCancellable$.unsubscribe();
         this.loading = false;
       });
   }

@@ -25,7 +25,7 @@ class DbSearchController {
   public function load_content() {
     return array(
       '#type' => 'markup',
-      '#markup' => t('<h1>Data Review Tool</h1><icrp-root data-component-type="review"><div loading class="center-overlay" ><div class="loading"></div></div></icrp-root>'),
+      '#markup' => t('<h1>Data Review Tool</h1><icrp-root data-component-type="review">Loading...</icrp-root>'),
       '#attached' => array(
         'library' => array(
           'db_search/default'
