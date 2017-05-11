@@ -99,7 +99,7 @@ let dataReviewProviders = [
     ModalModule.forRoot(),
     SpinnerModule.forRoot(),
   ],
-  providers: devProviders,
+  providers: productionProviders,
   bootstrap: [AppComponent]
 })
 export class AppModule { }
