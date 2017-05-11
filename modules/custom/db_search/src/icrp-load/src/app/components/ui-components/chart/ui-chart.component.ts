@@ -24,6 +24,7 @@ export class UiChartComponent implements OnChanges, AfterViewInit {
   @Input() label: string;
   @Input() description: string;
   @Input() primaryKey: string;
+  @Input() loading = false;
 
   @ViewChild('svg') svg: ElementRef;
   @ViewChild('tooltip') tooltip: ElementRef;
@@ -36,20 +37,20 @@ export class UiChartComponent implements OnChanges, AfterViewInit {
 
     if (this.type === 'pie') {
       new PieChart().draw(
-        this.svg.nativeElement, 
+        this.svg.nativeElement,
         this.tooltip.nativeElement,
         this.data,
         this.primaryKey);
     } else if (this.type === 'line') {
       new LineChart().draw(
-        this.svg.nativeElement, 
+        this.svg.nativeElement,
         this.tooltip.nativeElement,
         this.data,
         this.primaryKey);
     }
   }
 
-  /** Redraw chart on changes */  
+  /** Redraw chart on changes */
   ngOnChanges(changes: SimpleChanges) {
     this.drawChart()
   }

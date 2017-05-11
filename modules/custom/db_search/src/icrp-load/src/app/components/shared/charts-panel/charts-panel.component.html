@@ -39,10 +39,9 @@
 </div>
 
 
-<div class="form-group clearfix"
-  *ngIf="analytics.project_funding_amounts_by_year && analytics.project_funding_amounts_by_year.results">
+<div class="form-group clearfix" *ngIf="sharedService.get('authenticated')">
 
-  <div *ngIf="showMore" class="clearfix">
+  <div [hidden]="!showMore" class="clearfix">
     <ui-chart
       type="line"
       label="Project Funding Amounts by Year"
@@ -61,7 +60,10 @@
     </div>
   </div>
 
-  <div class="text-center clearfix">
+  <div class="text-center">
     <button class="btn btn-primary btn-xs text-center" (click)="showMore = !showMore">Show {{ showMore ? 'Less' : 'More' }}</button>
   </div>
+
 </div>
+
+

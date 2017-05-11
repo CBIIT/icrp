@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { SharedService } from '../../../services/shared.service';
 
 @Component({
   selector: 'icrp-charts-panel',
@@ -8,8 +9,11 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 export class ChartsPanelComponent implements Input {
   @Input() analytics: any = {};
   @Input() fields: any = {};
+  @Input() loading: boolean = false;
 
   @Output() requestChart: EventEmitter<any> = new EventEmitter<any>();
 
   showMore: boolean = false;
+
+  constructor(public sharedService: SharedService) { }
 }

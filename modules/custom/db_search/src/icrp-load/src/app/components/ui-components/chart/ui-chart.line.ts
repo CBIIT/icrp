@@ -3,10 +3,14 @@ import * as d3 from 'd3';
 
 export class LineChart {
 
-    draw(element: HTMLElement, 
-        tooltipEl: HTMLElement, 
+    draw(element: HTMLElement,
+        tooltipEl: HTMLElement,
         data: { label: string, data: any }[],
         primaryKey: string) {
+
+        if (data === null || data === undefined) {
+            data = [];
+        }
 
         let parsedData = data.map(el => ({
             value: +el.data[primaryKey],
@@ -27,7 +31,7 @@ export class LineChart {
             .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}` )
             .append('g')
             .attr("transform", `translate(${margin.left}, ${margin.top})`);
-        
+
         var x = d3.scaleLinear()
             .rangeRound([0, width])
             .domain(d3.extent(parsedData, (d: any) => d.label));
@@ -35,7 +39,7 @@ export class LineChart {
         var y = d3.scaleLinear()
             .rangeRound([height, 0])
             .domain(d3.extent(parsedData, (d: any) => d.value));
-        
+
         var line: any = d3.area()
             .x(d => x(+d['label']))
             .y0(height)
@@ -93,7 +97,7 @@ export class LineChart {
                     tooltip.transition()
                         .duration(200)
                         .style('opacity', .9);
-                
+
                 })
                 .on('mousemove', d => {
                     var xoffset = (d3.event.pageX / window.outerWidth > 0.7) ? -165 : 5;
@@ -129,13 +133,13 @@ export class LineChart {
                 .attr('opacity', '0.04')
             .attr("stroke-linejoin", "round")
             .attr("stroke-linecap", "round")
-                
+
         })
 
     }
 
     /**
-     * Exports a base64-encoded png 
+     * Exports a base64-encoded png
      */
     export(data: any[]): string {
         return '';

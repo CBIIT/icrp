@@ -34,3 +34,20 @@ div.d3-tooltip > hr {
 p.text-grey {
     color: #666;
 }
+
+
+
+
+.loading-inlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  opacity: 0.6;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 999;
+}
