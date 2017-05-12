@@ -16,14 +16,16 @@ import {
       state('false', style({
         opacity: '0',
         display: 'none',
+        zIndex: '-9999',
       })),
 
       state('true', style({
         opacity: '1',
-        display: 'block',
+        zIndex: '9999',
+        display: 'flex',
       })),
 
-      transition(':enter', animate('50ms ease-in')),
+      transition(':enter', animate('0ms')),
       transition(':leave', animate('50ms ease-out')),
       transition('true => false', animate('50ms ease-out')),
       transition('false => true', animate('50ms ease-in')),

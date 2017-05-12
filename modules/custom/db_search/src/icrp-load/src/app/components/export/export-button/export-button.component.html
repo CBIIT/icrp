@@ -1,9 +1,11 @@
-<button class="btn btn-default btn-xs" (click)="export()">
-  <ui-icon type="desktop-download"></ui-icon>
-  {{ label }}
-</button>
-
+<div style="position: absolute">
 <ui-overlay [active]="loading" [fullscreen]="true">
   <ui-spinner></ui-spinner>
   <br>Fetching Data Export
 </ui-overlay>
+</div>
+
+<button class="btn btn-default btn-xs" (click)="export()">
+  <ui-icon type="desktop-download"></ui-icon>
+  {{ label }}
+</button>

@@ -10,11 +10,11 @@
   </div>
   <div right-header class="bold blue" >
     <div *ngIf="!loading">
-      <span tooltip="Parent projects" *ngIf="!loading || !numResults">
+      <span tooltip="Parent projects">
         Total Projects: {{ numResults }}
       </span>
 
-      <span tooltip="Including linked sub-projects or supplements" *ngIf="analytics.project_counts_by_country && analytics.project_counts_by_country.total">
+      <span *ngIf="analytics.project_counts_by_country && analytics.project_counts_by_country.total" tooltip="Including linked sub-projects or supplements">
         / Total Related Projects: {{ analytics.project_counts_by_country && analytics.project_counts_by_country.total }}
       </span>
     </div>

@@ -189,9 +189,17 @@ export class ReviewPageComponent {
   selectUploadID(uploadID) {
     if (uploadID !== this.uploadID) {
       this.uploadID = uploadID;
+      this.analytics = {
+        project_counts_by_country: null,
+        project_counts_by_cso_research_area: null,
+        project_counts_by_cancer_type: null,
+        project_counts_by_type: null,
+        project_funding_amounts_by_year: null,
+      }
 
       this.currentSponsor = this.sponsorUploadsTable
         .filter(e => e.data_upload_id == this.uploadID)[0];
+
 
       this.getSearchResults(
         Object.assign(this.sortPaginateParameters, {
