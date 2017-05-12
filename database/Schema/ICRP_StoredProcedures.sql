@@ -797,7 +797,7 @@ DROP PROCEDURE [dbo].[GetSearchCriteriaBySearchID]
 GO 
 
 
-CREATE PROCEDURE [dbo].[GetSearchCriteriaBySearchID] 
+CREATE PROCEDURE [dbo].[GetSearchCriteriaBySearchID]
     @SearchID INT
 AS  
 
@@ -860,7 +860,7 @@ BEGIN
 END
 
 IF EXISTS (SELECT * FROM #criteria WHERE IsChildhood IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'IsChildhood:', CASE IsChildhood WHEN 1 THEN 'Yes' ELSE 'No' END FROM #criteria
+	INSERT INTO @SearchCriteria SELECT 'Childhood Cancer:', CASE IsChildhood WHEN 1 THEN 'Yes' ELSE 'No' END FROM #criteria
 
 SELECT @filterList= CancerTypeList FROM #criteria
 IF @filterList IS NOT NULL
@@ -910,7 +910,10 @@ AS
 	--  Get all related projects with dolloar amounts
 	-----------------------------------------------------------			 
 	SELECT p.ProjectID, f.ProjectFundingID, f.Title AS AwardTitle, pt.ProjectType AS AwardType, p.AwardCode, f.Source_ID, f.AltAwardCode, f.Category AS FundingCategory,
-		CASE p.IsChildhood WHEN 1 THEN 'Yes' END AS IsChildhood, 
+		CASE p.IsChildhood 
+		   WHEN 1 THEN 'Yes' 
+		   WHEN 0 THEN 'No' ELSE '' 
+		END AS IsChildhood,  
 		p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
 		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency,
 		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.SponsorCode, o.Name AS FundingOrg, o.Type AS FundingOrgType, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, 
@@ -1176,7 +1179,10 @@ AS
 	--  Get all related projects with dolloar amounts
 	-----------------------------------------------------------
 	SELECT p.ProjectID, f.ProjectFundingID, f.Title AS AwardTitle, pt.ProjectType AS AwardType, p.AwardCode, f.Source_ID, f.AltAwardCode, f.Category AS FundingCategory,
-		CASE p.IsChildhood WHEN 1 THEN 'Yes' END AS IsChildhood, 
+		CASE p.IsChildhood 
+		   WHEN 1 THEN 'Yes' 
+		   WHEN 0 THEN 'No' ELSE '' 
+		END AS IsChildhood, 
 		p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
 		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency, 
 		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.SponsorCode, o.Name AS FundingOrg, o.Type AS FundingOrgType, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, '' AS FundingContact, 

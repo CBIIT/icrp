@@ -1,3 +1,9 @@
+/********************************************************************************************/
+/*																							*/
+/*  NOTE: Set @DataUploadStatusID  															*/
+/*        Set @IsProd            															*/
+/*																							*/
+/********************************************************************************************/
 SET NOCOUNT ON;  
 GO 
 
@@ -6,12 +12,13 @@ BEGIN TRANSACTION
 -----------------------------------
 -- SET DataUpload Parameters
 -----------------------------------
-DECLARE @DataUploadStatusID INT
+SELECT * FROM DataUploadStatus WHERE status = 'staging'
+DECLARE @DataUploadStatusID INT = 67
 DECLARE @PartnerCode varchar(25) = 'PanCAN'
 DECLARE @FundingYears VARCHAR(25) = '2015'
 DECLARE @ImportNotes  VARCHAR(1000) = 'FY2015 Update'
 DECLARE @HasParentRelationship bit = 1
-DECLARE @IsProd bit = 0
+DECLARE @IsProd bit = 1
 
 -------------------------------------------------------------------------------------------
 -- Replace open/closing double quotes
@@ -366,9 +373,10 @@ PRINT '@DataUploadLogID = ' + CAST(@DataUploadLogID AS varchar(10))
 DECLARE @Count INT
 
 -- Insert Project Count
-SELECT @Count=COUNT(*) FROM Project c 
+SELECT @Count=COUNT(*) FROM
+(SELECT DISTINCT c.ProjectID FROM Project c 
 JOIN ProjectFunding f ON c.ProjectID = f.ProjectID
-WHERE f.dataUploadStatusID = @DataUploadStatusID
+WHERE f.dataUploadStatusID = @DataUploadStatusID) p
 
 UPDATE DataUploadLog SET ProjectCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
@@ -393,11 +401,13 @@ WHERE f.dataUploadStatusID = @DataUploadStatusID
 
 UPDATE DataUploadLog SET ProjectCancerTypeCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
+
 -- Insert Project_ProjectType Count
-SELECT @Count=COUNT(*) FROM Project_ProjectType t
+SELECT @Count=COUNT(*) FROM 
+(SELECT DISTINCT t.ProjectID, t.ProjectType FROM Project_ProjectType t
 JOIN Project p ON t.ProjectID = p.ProjectID 
 JOIN ProjectFunding f ON p.ProjectID = f.ProjectID
-WHERE f.dataUploadStatusID = @DataUploadStatusID
+WHERE f.dataUploadStatusID = @DataUploadStatusID) pt
 
 UPDATE DataUploadLog SET Project_ProjectTypeCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
@@ -455,13 +465,14 @@ GO
 -------------------------------------------------------------------------------------------
 -- Checking Data
 --------------------------------------------------------------------------------------------
---select distinct piLastName, piFirstName from UploadWorkBook_new_pancan order by piLastName, piFirstName
+select distinct piLastName, piFirstName from UploadWorkBook_new_pancan order by piLastName, piFirstName
 
---select distinct  pi.LastName, pi.FirstName from projectfunding f
---join ProjectFundingInvestigator pi on f.ProjectFundingID = pi.ProjectFundingID
---where f.DataUploadStatusID =66
---order by pi.LastName, pi.FirstName
+select distinct  pi.LastName, pi.FirstName from projectfunding f
+join ProjectFundingInvestigator pi on f.ProjectFundingID = pi.ProjectFundingID
+where f.DataUploadStatusID =66
+order by pi.LastName, pi.FirstName
 
---select * from DataUploadStatus order by datauploadstatusid desc
---select * from icrp_data.dbo.DataUploadStatus order by datauploadstatusid desc
---select * from DataUploadLog order by DataUploadStatusID desc  -- 66
+select top 5 * from DataUploadStatus order by datauploadstatusid desc
+select top 5 * from icrp_dataload.dbo.DataUploadStatus order by datauploadstatusid desc
+select top 5 * from DataUploadLog order by DataUploadStatusID desc  -- 66
+

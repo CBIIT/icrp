@@ -17,6 +17,61 @@ DECLARE @SponsorCode varchar(25) = 'PanCAN'
 DECLARE @HasParentRelationship bit = 1
 
 -------------------------------------------------------------------
+-- Check Projects and Project FUndings
+-------------------------------------------------------------------
+PRINT 'Checking Projects and Project Fundings........'
+DECLARE @count INT
+
+SELECT @count = COUNT(*) FROM UploadWorkbook
+PRINT 'Total import records => ' + CAST(@count AS varchar(10))
+
+SELECT @count = COUNT(*) FROM (SELECT DISTINCT AwardCode FROM UploadWorkbook) p
+PRINT 'Total Projects => ' + CAST(@count AS varchar(10))
+
+SELECT @count = COUNT(*) FROM (SELECT DISTINCT AltID FROM UploadWorkbook) p
+PRINT 'Total Project Funding => ' + CAST(@count AS varchar(10))
+
+
+-------------------------------------------------------------------
+-- Check unique Project Funding Altid 
+-------------------------------------------------------------------
+IF EXISTS (SELECT Altid, Count(*) AS Count FROM UploadWorkBook GROUP BY Altid HAVING COUNT(*) > 1)
+BEGIN
+  PRINT 'ERROR ==> Altid not unique'
+ SELECT 'Duplicate Altid' AS Issue, Altid, Count(*) AS Count FROM UploadWorkBook GROUP BY Altid HAVING COUNT(*) > 1
+END
+ELSE
+	PRINT 'Checking unique Project Funding Altid   ==> Pass'
+
+-------------------------------------------------------------------
+-- Check duplicate Project Funding
+-------------------------------------------------------------------
+IF EXISTS (select AltId, count(*) from UploadWorkBook group by AwardCode, AltId, BudgetStartDate, BudgetEndDate having count(*) >1)
+BEGIN
+SELECT 'Duplicate Project Funding' AS Issue, AwardCode,  AltId, BudgetStartDate, BudgetEndDate, count(*) AS Count from UploadWorkBook group by AwardCode, AltId, BudgetStartDate, BudgetEndDate having count(*) >1
+END 
+ELSE
+	PRINT 'Checking duplicate Project Funding   ==> Pass'
+	
+-------------------------------------------------------------------
+-- Check if AltAwardCodes NOT exist in ICRP
+-------------------------------------------------------------------
+select fo.AltAwardCode, fo.Abbreviation INTO #notExistAwards FROM UploadWorkBook u
+JOIN (SELECT f.AltAwardCode, o.Abbreviation FROM ProjectFunding f JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID) fo ON u.AltID = fo.AltAwardCode AND u.FundingOrgAbbr = fo.Abbreviation
+WHERE fo.AltAwardCode IS NULL
+
+IF EXISTS (select * FROM #notExistAwards)
+BEGIN
+	PRINT 'ERROR ==> AltAwardCode Not Exist for update'
+	SELECT 'AltAwardCode Exists' AS Issue, * from #notExistAwards
+END 
+
+ELSE
+
+BEGIN	
+	PRINT 'Checking AltAwardCode Not Exist for update => Pass'
+END
+-------------------------------------------------------------------
 -- Check BudgetDates
 -------------------------------------------------------------------
 PRINT 'Checking Budget Dates........'
@@ -140,47 +195,6 @@ BEGIN
 END
 ELSE
 	PRINT 'Checking FundingDiv  ==> Pass'
-
--------------------------------------------------------------------
--- Check unique Project Funding Altid 
--------------------------------------------------------------------
-IF EXISTS (SELECT Altid, Count(*) AS Count FROM UploadWorkBook GROUP BY Altid HAVING COUNT(*) > 1)
-BEGIN
-  PRINT 'ERROR ==> Altid not unique'
- SELECT 'Duplicate Altid' AS Issue, Altid, Count(*) AS Count FROM UploadWorkBook GROUP BY Altid HAVING COUNT(*) > 1
-END
-ELSE
-	PRINT 'Checking unique Project Funding Altid   ==> Pass'
-
--------------------------------------------------------------------
--- Check duplicate Project Funding
--------------------------------------------------------------------
-IF EXISTS (select AltId, count(*) from UploadWorkBook group by AwardCode, AltId, BudgetStartDate, BudgetEndDate having count(*) >1)
-BEGIN
-SELECT 'Duplicate Project Funding' AS Issue, AwardCode,  AltId, BudgetStartDate, BudgetEndDate, count(*) AS Count from UploadWorkBook group by AwardCode, AltId, BudgetStartDate, BudgetEndDate having count(*) >1
-END 
-ELSE
-	PRINT 'Checking duplicate Project Funding   ==> Pass'
-
-	
--------------------------------------------------------------------
--- Check if AltAwardCodes NOT exist in ICRP
--------------------------------------------------------------------
-select fo.AltAwardCode, fo.Abbreviation INTO #notExistAwards FROM UploadWorkBook u
-JOIN (SELECT f.AltAwardCode, o.Abbreviation FROM ProjectFunding f JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID) fo ON u.AltID = fo.AltAwardCode AND u.FundingOrgAbbr = fo.Abbreviation
-WHERE fo.AltAwardCode IS NULL
-
-IF EXISTS (select * FROM #notExistAwards)
-BEGIN
-	PRINT 'ERROR ==> AltAwardCode Not Exist for update'
-	SELECT 'AltAwardCode Exists' AS Issue, * from #notExistAwards
-END 
-
-ELSE
-
-BEGIN	
-	PRINT 'Checking AltAwardCode Not Exist for update => Pass'
-END
 
 -------------------------------------------------------------------
 -- Check Institutions
