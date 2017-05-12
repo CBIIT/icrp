@@ -1,6 +1,7 @@
 /********************************************************************************************/
 /*																							*/
 /*  NOTE: Set ProjectAbstract @Seed															*/
+/*        Set @DataUploadStatusID  															*/
 /*																							*/
 /********************************************************************************************/
 SET NOCOUNT ON;  
@@ -57,7 +58,7 @@ END
 ELSE  -- Production
 
 BEGIN
-	select @DataUploadStatusID = DataUploadStatusID from DataUploadStatus where PartnerCode=@PartnerCode
+	--select @DataUploadStatusID = xxx
 	UPDATE DataUploadStatus SET Status = 'Complete', [UploadToProdDate] = getdate() WHERE DataUploadStatusID = @DataUploadStatusID
 
 	UPDATE icrp_dataload.dbo.DataUploadStatus SET Status = 'Complete', [UploadToProdDate] = getdate()  WHERE DataUploadStatusID = @DataUploadStatusID
@@ -415,9 +416,10 @@ PRINT '@DataUploadLogID = ' + CAST(@DataUploadLogID AS varchar(10))
 DECLARE @Count INT
 
 -- Insert Project Count
-SELECT @Count=COUNT(*) FROM Project c 
+SELECT @Count=COUNT(*) FROM
+(SELECT DISTINCT c.ProjectID FROM Project c 
 JOIN ProjectFunding f ON c.ProjectID = f.ProjectID
-WHERE f.dataUploadStatusID = @DataUploadStatusID
+WHERE f.dataUploadStatusID = @DataUploadStatusID) p
 
 UPDATE DataUploadLog SET ProjectCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
@@ -443,10 +445,11 @@ WHERE f.dataUploadStatusID = @DataUploadStatusID
 UPDATE DataUploadLog SET ProjectCancerTypeCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
 -- Insert Project_ProjectType Count
-SELECT @Count=COUNT(*) FROM Project_ProjectType t
+SELECT @Count=COUNT(*) FROM 
+(SELECT DISTINCT t.ProjectID, t.ProjectType FROM Project_ProjectType t
 JOIN Project p ON t.ProjectID = p.ProjectID 
 JOIN ProjectFunding f ON p.ProjectID = f.ProjectID
-WHERE f.dataUploadStatusID = @DataUploadStatusID
+WHERE f.dataUploadStatusID = @DataUploadStatusID) pt
 
 UPDATE DataUploadLog SET Project_ProjectTypeCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
@@ -471,6 +474,7 @@ WHERE f.dataUploadStatusID = @DataUploadStatusID
 
 UPDATE DataUploadLog SET ProjectSearchCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
+select top 5 * from datauploadstatus order by datauploadstatusID desc 
 select * from datauploadlog where  DataUploadLogID =  @DataUploadLogID
 
 --commit
