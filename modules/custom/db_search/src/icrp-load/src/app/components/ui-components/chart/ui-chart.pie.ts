@@ -69,7 +69,12 @@ export class PieChart {
                       relevance: 'Relevance',
                     }[key] || key;
 
-                    let row = [displayKey, entry[key]].join(': ');
+                    let row = [
+                        displayKey,
+                        (+entry[key]).toLocaleString()
+                    ].join(': ');
+
+
                     if (key === primaryKey) {
                       row += ` (${(100 * entry[key]/sum).toFixed(2)}%)`
                     }
