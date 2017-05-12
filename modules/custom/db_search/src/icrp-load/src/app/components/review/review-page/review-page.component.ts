@@ -200,10 +200,10 @@ export class ReviewPageComponent {
       this.currentSponsor = this.sponsorUploadsTable
         .filter(e => e.data_upload_id == this.uploadID)[0];
 
-
       this.getSearchResults(
         Object.assign(this.sortPaginateParameters, {
-          data_upload_id: uploadID
+          data_upload_id: uploadID,
+          page_number: 1,
         }),
         true);
     }
