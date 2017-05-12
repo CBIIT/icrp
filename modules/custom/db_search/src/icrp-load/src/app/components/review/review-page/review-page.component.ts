@@ -138,21 +138,25 @@ export class ReviewPageComponent {
       types = Object.keys(this.analytics);
 
     for (let key of types) {
-      this.analytics[key] = [];
+
+      let loadingTrue$ = Observable.timer(250)
+        .subscribe(e => this.analytics[key] = []);
 
       this.reviewService.getAnalytics({
         search_id: id,
         type: key,
         year: year,
       })
-      .subscribe(response => this.analytics[key] = response);
+      .subscribe(response => {
+        loadingTrue$.unsubscribe();
+        this.analytics[key] = response
+      });
     }
   }
 
   getSearchResults(parameters, updateAnalytics = false) {
 
-    let loadingTrueCancellable$ = Observable.from([true])
-      .delay(100)
+    let loadingTrue$ = Observable.timer(100)
       .subscribe(e => this.loading = true);
 
     this.reviewService.getSearchResults(parameters)
@@ -165,7 +169,7 @@ export class ReviewPageComponent {
           this.getAnalytics(this.searchID);
         }
 
-        loadingTrueCancellable$.unsubscribe();
+        loadingTrue$.unsubscribe();
         this.loading = false;
       });
   }

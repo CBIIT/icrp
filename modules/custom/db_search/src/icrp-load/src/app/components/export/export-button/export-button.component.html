@@ -3,9 +3,7 @@
   {{ label }}
 </button>
 
-<div class="loading-overlay fade-in" *ngIf="loading">
-  <div style="text-align: center">
-    <ui-spinner></ui-spinner>
-    <br>Fetching Data Export
-  </div>
-</div>
+<ui-overlay [active]="loading" [fullscreen]="true">
+  <ui-spinner></ui-spinner>
+  <br>Fetching Data Export
+</ui-overlay>

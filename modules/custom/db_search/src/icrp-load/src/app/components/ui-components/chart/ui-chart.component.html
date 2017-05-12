@@ -1,6 +1,13 @@
 <div style="text-align: center; position: relative; ">
   <p><b>{{ label }}</b></p>
   <p *ngIf="description" style="color: grey"><i>{{ description }}</i></p>
-  <svg #svg></svg>
+
+  <div style="position: relative">
+    <ui-overlay [fullscreen]="false" [active]="!data || data.length === 0">
+      <i>Loading Chart...</i>
+    </ui-overlay>
+
+    <svg #svg></svg>
+  </div>
 </div>
 <div #tooltip></div>

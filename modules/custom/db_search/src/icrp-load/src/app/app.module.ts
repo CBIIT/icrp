@@ -15,7 +15,7 @@ import { UiChartComponent } from './components/ui-components/chart/ui-chart.comp
 
 import { TreeViewModule } from './components/ui-components/treeview';
 import { SelectModule } from './components/ui-components/select';
-import { OverlayModule, SpinnerModule } from 'angular-ui-components';
+import { SpinnerModule } from 'angular-ui-components';
 
 import { SharedService } from './services/shared.service';
 import { SearchService } from './services/search.service';
@@ -37,6 +37,7 @@ import { ReviewUploadsTableComponent } from './components/review/review-uploads-
 import { ExportButtonsPanelComponent } from './components/shared/export-buttons-panel/export-buttons-panel.component';
 import { ExportButtonComponent } from './components/export/export-button/export-button.component';
 import { EmailResultsButtonComponent } from './components/export/email-results-button/email-results-button.component';
+import { OverlayComponent } from './components/ui-components/overlay/overlay.component';
 
 @NgModule({
   declarations: [
@@ -56,6 +57,7 @@ import { EmailResultsButtonComponent } from './components/export/email-results-b
     ExportButtonsPanelComponent,
     EmailResultsButtonComponent,
     ExportButtonComponent,
+    OverlayComponent,
   ],
   imports: [
     BrowserModule,
@@ -67,7 +69,6 @@ import { EmailResultsButtonComponent } from './components/export/email-results-b
     PaginationModule.forRoot(),
     ModalModule.forRoot(),
 
-    OverlayModule.forRoot(),
     SpinnerModule.forRoot(),
     SelectModule.forRoot(),
     TreeViewModule.forRoot(),

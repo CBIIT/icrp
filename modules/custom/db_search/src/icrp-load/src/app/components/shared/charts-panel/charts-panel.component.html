@@ -1,15 +1,19 @@
 
 <div class="row form-group">
-  <div class="col-md-3">
-    <ui-chart
-      type="pie"
-      label="Projects by Country"
-      primaryKey="count"
-      [data]="analytics.project_counts_by_country && analytics.project_counts_by_country.results">
-    </ui-chart>
+  <div class="col-md-3 text-center">
+
+    <label>Projects by Country</label>
+
+    <div style="position: relative">
+      <ui-chart
+        type="pie"
+        primaryKey="count"
+        [data]="analytics.project_counts_by_country && analytics.project_counts_by_country.results">
+      </ui-chart>
+    </div>
   </div>
 
-  <div class="col-md-3">
+  <div class="col-md-3 text-center">
     <ui-chart
       type="pie"
       label="Projects by CSO"
@@ -18,7 +22,7 @@
     </ui-chart>
   </div>
 
-  <div class="col-md-3">
+  <div class="col-md-3 text-center">
     <ui-chart
       type="pie"
       label="Projects by Cancer Type"
@@ -28,7 +32,7 @@
   </div>
 
 
-  <div class="col-md-3">
+  <div class="col-md-3 text-center">
     <ui-chart
       type="pie"
       label="Projects by Type"
