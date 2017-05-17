@@ -1,13 +1,14 @@
 <div class="row">
   <div class="col-sm-4">
-    <icrp-search-form [fields]="fields" (search)="search($event)" #searchform></icrp-search-form>
+    <icrp-search-form #searchform
+      [fields]="fields"
+      (search)="search($event)">
+    </icrp-search-form>
   </div>
 
   <div class="col-sm-8">
-    
-    <icrp-search-criteria-display 
+    <icrp-search-criteria-display
       [criteria]="state.displayParameters">
     </icrp-search-criteria-display>
-
   </div>
 </div>

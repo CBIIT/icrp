@@ -21,6 +21,7 @@ import { SharedService } from './services/shared.service';
 import { SearchService } from './services/search.service';
 import { ReviewService } from './services/review.service';
 import { ExportService } from './services/export.service';
+import { StoreService } from './services/store.service';
 
 import { TooltipModule, PaginationModule, ModalModule } from 'ngx-bootstrap';
 
@@ -78,6 +79,7 @@ import { OverlayComponent } from './components/ui-components/overlay/overlay.com
     SearchService,
     ReviewService,
     ExportService,
+    StoreService,
   ],
   bootstrap: [AppComponent]
 })

@@ -1,8 +1,9 @@
 import { Component, OnInit, Output, Input, ViewChild, AfterViewInit } from '@angular/core';
 import { SearchService } from '../../../services/search.service';
+import { StoreService } from '../../../services/store.service';
 import { Observable } from 'rxjs';
 
-import { parseQuery, range, getLabelValuePair } from './search-page.functions';
+import { parseQuery, range, asLabelValuePair } from './search-page.functions';
 
 @Component({
   selector: 'icrp-search-page',
@@ -22,20 +23,23 @@ export class SearchPageComponent implements AfterViewInit {
     results: [],
   }
 
-  constructor(private searchService: SearchService) {
+  constructor(private searchService: SearchService, private storeService: StoreService) {
+    if (this.storeService.exists('searchFields')) {
+      //this.fields = this.storeService.get('searchFields');
+    }
 
-    this.populateFields().subscribe();
+    this.updateFields();
   }
 
-  
+
   async ngAfterViewInit() {
 
     // first check database for search id,
     // if search id exists, then sort paginate results and store the form fields as originals
     // else perform default search without waiting for fields to arrive
 
-    // get available form fields 
-    // then retrieve/apply the stored search criteria to the form 
+    // get available form fields
+    // then retrieve/apply the stored search criteria to the form
 
 /*
     searchService.getFields()
@@ -43,7 +47,7 @@ export class SearchPageComponent implements AfterViewInit {
         this.fields = response
       });
 */
-    
+
     // attempt to retrieve search parameters
     if (this.state.searchID) {
       this.searchService.getSearchParameters({search_id: this.state.searchID})
@@ -55,40 +59,50 @@ export class SearchPageComponent implements AfterViewInit {
 
     // perform default search
     else {
-      this.searchForm.submit(this.state.searchParameters);
-      
+
+
+//       this.searchForm.submit(this.state.searchParameters);
+
 //      this.searchForm.setParameters();
     }
   }
 
-  populateFields() {
+  updateFields() {
     let years = range(new Date().getFullYear(), 2000, -1);
-    let formYears = years.map(getLabelValuePair);
-    
-    formYears.unshift({
-      label: 'All Years',
-      value: years.join(',')
-    });
 
     this.fields = {
-      years: formYears,
+      years: years.map(asLabelValuePair),
       cities: [],
       states: [],
       countries: [],
       funding_organizations: [],
       funding_organization_types: [],
       cancer_types: [],
-      is_childhood_cancer: ['All', 'Yes', 'No'].map(getLabelValuePair),
+      is_childhood_cancer: ['Yes', 'No'].map(asLabelValuePair),
       project_types: [],
       cso_research_areas: []
     }
 
-    return this.searchService.getFields()
-      .map(response => {
-        for (let key in response) {
-          this.fields[key] = response[key];
-        }
-      });
+    return this.searchService.getFields().subscribe(response => {
+      for (let key in response) {
+        this.fields[key] = response[key];
+      }
+
+      // store search fields
+      this.storeService.set('searchFields', this.fields);
+
+      // apply search parameters from local storage
+      if (this.storeService.exists('searchParameters')) {
+
+        this.searchForm.setParameters(this.storeService.get('searchParameters'))
+        console.log('Search Parameters from memory: ', this.storeService.get('searchParameters'))
+      }
+
+    });
+  }
+
+  getSavedSearchParameters() {
+
   }
 
 
@@ -104,10 +118,11 @@ export class SearchPageComponent implements AfterViewInit {
     this.state.searchParameters = event.parameters;
     this.state.displayParameters = event.displayParameters;
 
+    this.storeService.set('searchParameters', event.parameters);
+
     this.searchService.getSearchResults(event.parameters)
       .subscribe(response => {
         this.state.results = response;
-
       });
   }
 }

@@ -47,7 +47,7 @@
           value="none"
           [formControl]="form.controls.search_type"
           (change)="updateDisplayParameters('search_type', ['none'])"
-          
+
           >
         None of the keywords
       </label>
@@ -67,7 +67,7 @@
           value="any"
           [formControl]="form.controls.search_type"
           (change)="updateDisplayParameters('search_type', ['any'])"
-          
+
           >
         Any of the keywords
       </label>
@@ -94,10 +94,21 @@
 
     <label class="form-label" for="years_active" tooltip="Awards active in the calendar year. Default view shows most recent 2 years, click below to select additional years.">Year Active</label>
 
+    <label class="pull-right" style="font-weight: normal">
+      Include Future Years
+      <input
+        class="radio-input"
+        type="checkbox"
+        id="include_future_years"
+        name="include_future_years"
+        (change)="includeFutureYears = !includeFutureYears; setParameters({years: []})"
+      >
+    </label>
+
     <ui-select
       tooltip="Awards active in the calendar year. Default view shows most recent 2 years, click below to select additional years."
       placeholder="All Years Selected"
-      [items]="fields.years"
+      [items]="filterYears(includeFutureYears)"
       [formControl]="form.controls.years"
       (select)="updateDisplayParameters('years', $event)"
       >
@@ -230,7 +241,7 @@
         >
       </ui-treeview>
     </div>
-  </ui-panel>  
+  </ui-panel>
 
 
   <!-- Cancer and Project Type -->
@@ -245,7 +256,7 @@
       >
     </ui-select>
 
-    <label class="form-label" for="is_childhood_cancer" tooltip="Is Childhood Cancer?">Is Childhood Cancer?</label>
+    <label class="form-label" for="is_childhood_cancer" tooltip="Childhood Cancer">Childhood Cancer</label>
     <ui-select
       tooltip="Find projects related to childhood cancer"
       placeholder="All projects selected"

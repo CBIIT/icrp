@@ -17,7 +17,7 @@ export function range(start, end, step = 1) {
   return r;
 }
 
-export function getLabelValuePair(obj) {
+export function asLabelValuePair(obj) {
   return {
     label: obj.toString(),
     value: obj

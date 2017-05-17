@@ -1,6 +1,10 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 
+/**
+ * The <icrp-search-form> component renders the search form panel and
+ * search parameters
+ */
 
 @Component({
   selector: 'icrp-search-form',
@@ -20,6 +24,7 @@ export class SearchFormComponent {
   parameters: any = {};
   defaultParameters: any = {};
   displayParameters: any = {};
+  includeFutureYears: boolean = false;
 
   constructor(private formBuilder: FormBuilder) {
     this.search = new EventEmitter<object>();
@@ -28,6 +33,7 @@ export class SearchFormComponent {
       search_terms: [''],
       search_type: [''],
       years: [],
+      include_future_years: [],
 
       institution: [''],
       pi_first_name: [''],
@@ -49,12 +55,12 @@ export class SearchFormComponent {
   }
 
   submit() {
-    
+
     this.parameters = {};
     for (let key in this.form.controls) {
       let value = this.form.controls[key].value;
 
-      if (value != null && value.length > 0)
+      if (value != null && value.length > 0 || value)
         this.parameters[key] = value;
     }
 
@@ -79,6 +85,19 @@ export class SearchFormComponent {
     if (value && value.length) {
       this.displayParameters[key] = value.map(e => e.label || e.value || e);
     }
+  }
+
+  filterYears(includeFutureYears: boolean) {
+    let years = this.fields.years
+      .filter(year =>
+        includeFutureYears || year.value <= new Date().getFullYear())
+
+    years.unshift({
+      label: 'All Years',
+      value: years.join(',')
+    });
+
+    return years;
   }
 
   filterStates(states: { "value": string, "label": string, "group_1": string }[], countries: string[]) {
