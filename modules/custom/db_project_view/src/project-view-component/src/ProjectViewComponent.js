@@ -7,7 +7,7 @@ class ProjectViewComponent extends Component {
   /**
    * @typedef apiResults
    * @type {Object}
-   * @property {Object[]} project_details Project details 
+   * @property {Object[]} project_details Project details
    * @property {Object[]} project_funding_details Project funding details
    * @property {Object[]} cancer_types Project cancer types
    * @property {Object[]} cso_research_areas Project CSO research areas
@@ -79,7 +79,7 @@ class ProjectViewComponent extends Component {
 
       /** @type {apiResults} */
       let results = await response.json();
-      
+
       let table = {
         columns: [
           {
@@ -164,10 +164,10 @@ class ProjectViewComponent extends Component {
   }
 
   appendGoogleTranslateScript() {
-    window.googleTranslateElementInit = 
+    window.googleTranslateElementInit =
     window.googleTranslateElementInit || function() {
       new window.google.translate.TranslateElement({
-        pageLanguage: 'en', 
+        pageLanguage: 'undefined',
         layout: window.google.translate.TranslateElement.InlineLayout.HORIZONTAL
       }, 'google_translate_element');
     }
@@ -251,7 +251,7 @@ class ProjectViewComponent extends Component {
 
         <h4 class="margin-top">Cancer Types</h4>
         <ul>
-        { 
+        {
           cancer_types.map((row, rowIndex) =>
             <li key={ rowIndex }>
             {
