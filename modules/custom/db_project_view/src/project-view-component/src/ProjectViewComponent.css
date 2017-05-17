@@ -1,7 +1,7 @@
 .native-font {
-  font-family: -apple-system, BlinkMacSystemFont, 
-    "Segoe UI", "Roboto", "Oxygen", 
-    "Ubuntu", "Cantarell", "Fira Sans", 
+  font-family: -apple-system, BlinkMacSystemFont,
+    "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans",
     "Droid Sans", "Helvetica Neue", sans-serif !important;
   font-size: 14px;
   color: #444;
@@ -13,7 +13,7 @@
 
 dl.dl-horizontal > dt {
   text-align: left;
-  min-width: 210px;
+  width: 210px;
 }
 
 dl.dl-horizontal > dd {
@@ -24,7 +24,7 @@ dl.dl-horizontal > dd {
 h1.h1 {
   display: inline-block;
   margin-bottom: 0;
-  margin-top: 0;  
+  margin-top: 0;
   font-size: 32px;
   font-weight: normal;
 }
