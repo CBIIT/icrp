@@ -188,10 +188,10 @@ class DatabaseSearch {
     $min_year = $fields['years'][0]['min_year'];
     $max_year = $fields['years'][0]['max_year'];
 
-    array_map(function($year) {
+    $fields['years'] = array_map(function($year) {
       return [
         'value' => intval($year),
-        'label' => $year,
+        'label' => strval($year),
       ];
     }, range($min_year, $max_year));
 
