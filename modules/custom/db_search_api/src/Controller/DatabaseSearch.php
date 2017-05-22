@@ -160,6 +160,7 @@ class DatabaseSearch {
 
     $fields = [];
     $queries = [
+      'years'                       => 'SELECT MIN(CalendarYear) AS min_year, MAX(CalendarYear) AS max_year FROM ProjectFundingExt',
       'cities'                      => 'SELECT DISTINCT City AS [value], City AS [label], State AS [group_1], Country AS [group_2] FROM Institution WHERE len(City) > 0 ORDER BY [label]',
       'states'                      => 'SELECT Abbreviation AS [value], Name AS [label], Country AS [group_1] FROM State ORDER BY [label]',
       'countries'                   => 'SELECT Abbreviation AS [value], Name AS [label] FROM Country ORDER BY [label]',
@@ -183,6 +184,16 @@ class DatabaseSearch {
 
     $fields['funding_organizations'] = [self::sortTree(self::flattenTree(self::createTree($fields['funding_organizations'], 3, 'group_', 'All %s Organizations')[0]))];
     $fields['cso_research_areas'] = [self::flattenTree(self::createTree($fields['cso_research_areas'], 2)[0])];
+
+    $min_year = $fields['years'][0]['min_year'];
+    $max_year = $fields['years'][0]['max_year'];
+
+    array_map(function($year) {
+      return [
+        'value' => intval($year),
+        'label' => $year,
+      ];
+    }, range($min_year, $max_year));
 
     return $fields;
   }
