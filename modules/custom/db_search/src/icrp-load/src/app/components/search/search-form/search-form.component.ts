@@ -60,7 +60,7 @@ export class SearchFormComponent {
     for (let key in this.form.controls) {
       let value = this.form.controls[key].value;
 
-      if (value != null && value.length > 0 || value)
+      if (value != null && value.length > 0 || value === true)
         this.parameters[key] = value;
     }
 
@@ -70,9 +70,25 @@ export class SearchFormComponent {
     });
   }
 
+  logForm() {
+
+    this.parameters = {};
+    for (let key in this.form.controls) {
+      let value = this.form.controls[key].value;
+
+      if (value != null && value.length > 0 || value === true)
+        this.parameters[key] = value;
+    }
+
+    console.log(this.parameters);
+  }
+
   setParameters(parameters) {
+
+    console.log('setting parameters', parameters);
     for (let key in parameters) {
-      this.form.controls[key].patchValue(parameters[key]);
+      console.log('patching value of ', this.form.controls[key], 'with', key);
+      setTimeout(e => this.form.controls[key].patchValue(parameters[key]), 0)
     }
   }
 

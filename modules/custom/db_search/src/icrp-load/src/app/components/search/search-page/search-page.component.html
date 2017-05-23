@@ -10,5 +10,34 @@
     <icrp-search-criteria-display
       [criteria]="state.displayParameters">
     </icrp-search-criteria-display>
+
+
+    <br>
+
+    <icrp-charts-panel
+      [analytics]="analytics"
+      [fields]="fields"
+      (requestChart)="this.getAnalytics(searchID, [$event.type], $event.year)">
+    </icrp-charts-panel>
+
+    <br>
+
+    <div style="position: relative">
+      <ui-overlay [active]="loading">
+        <ui-spinner></ui-spinner>
+        <br>Fetching Data
+      </ui-overlay>
+
+      <ui-table
+        [headers]="headers"
+        [data]="searchResults"
+        [numResults]="numResults"
+        [loading]="loading"
+        (sort)="sortPaginate($event)"
+        (paginate)="sortPaginate($event)"
+        >
+      </ui-table>
+
+    </div>
   </div>
 </div>

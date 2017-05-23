@@ -23,3 +23,7 @@ export function asLabelValuePair(obj) {
     value: obj
   }
 }
+
+export function deepCopy(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}

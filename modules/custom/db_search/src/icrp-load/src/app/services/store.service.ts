@@ -3,7 +3,17 @@ import { Injectable } from '@angular/core';
 @Injectable()
 export class StoreService {
 
-  private fallbackStore: any = {};
+  private fallbackStore: any = {
+    searchState: {
+      parameters: {},
+      displayParameters: {},
+      searchID: null,
+      resultsCount: null,
+      results: [],
+      analytics: {}
+    }
+  };
+
   private storageType: 'localStorage' | 'sessionStorage' = 'localStorage';
 
   get(key: string) {
