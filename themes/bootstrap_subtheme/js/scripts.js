@@ -3,7 +3,13 @@
     attach: function (context, settings) {
       //$('h2').css('color', 'red');
       $("#edit-keys").attr("placeholder", "Search Website");
-      
+      $("#views-bootstrap-carousel-sideshow-block-1 > div.carousel-inner > div.item").click(function(e) {
+          $.redirectCarousel(e);
+      });
+      $("#views-bootstrap-carousel-sideshow-block-1 > div.carousel-inner > div.item > div.carousel-caption").click(function(e) {
+          //console.info("You clicked on Caption");
+          $.redirectCarousel(e);
+      });
       //alert(window.location.pathname);
 
       switch(window.location.pathname) {
@@ -36,6 +42,61 @@
       $('[data-toggle="tooltip"]').tooltip({container: 'body'}); 
     }, 0);
   }
+
+  $.redirectCarousel = function(e){
+    e.preventDefault();
+
+    var target_title = $(e.target).closest(".item.active").find('img').prop('alt')
+    //console.dir(e);
+    //console.log("You click on the Carousel item");        
+    //console.log(target_title);
+    //var win = window.open($.imageRoute(target_title), '_self');
+    var url = $.imageRoute(target_title); 
+    if(url != "/") {
+      window.location.href = url;
+    }
+  }
+
+  $.imageRoute = function(title) {
+    /*
+    SS-570
+    Global Reach -> to "Funding Organization" page
+    Explore -> to "Database Search" page
+    Connect -> to "Become a Partner" page
+    Our Mission -> to library page
+    Search the Database -> to Database Search page
+
+    */
+    //If anonymous don't redirect to member /FundingOrgs from the Global Reach image.
+    if(title == 'Global Reach' && $("#navbar-collapse").find('a').text() == "Log in") {
+      return "/current_partners";
+    }
+    var routes = [{
+        title : 'Global Reach',
+        url : '/FundingOrgs'
+    },{
+        title : 'Explore',
+        url : '/db_search'
+    },{
+        title : 'Connect',
+        url : '/become-a-partner'
+    },{
+        title : 'Our Mission',
+        url : '/library'
+    },{
+        title : 'Search the Database',
+        url : '/db_search'
+    }];
+    //console.dir(routes);
+    var index = routes.map(function(o) { return o.title; }).indexOf(title);
+    //console.log("Going to: "+routes[index].url);
+    if(index >= 0) {
+      return routes[index]['url'];   
+    } else {
+      return '/';
+    }
+  }
+
   $.partnerApplicationAdminTable = function() {
     console.log("Datatable Time");
   }

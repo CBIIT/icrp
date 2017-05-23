@@ -168,7 +168,9 @@ class ProjectViewComponent extends Component {
     window.googleTranslateElementInit || function() {
       new window.google.translate.TranslateElement({
         pageLanguage: 'undefined',
-        layout: window.google.translate.TranslateElement.InlineLayout.HORIZONTAL
+        layout: window.google.translate.TranslateElement.InlineLayout.HORIZONTAL,
+        autoDisplay: false,
+        multilanguagePage: true
       }, 'google_translate_element');
     }
 

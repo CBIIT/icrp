@@ -22,6 +22,14 @@ h1 {
     font-weight: normal;
     margin-top: 0px;
 }
+.carousel-inner > .item:hover, .carousel-inner > .item:focus {
+    color: #ffffff;
+    opacity: 0.9;
+    outline: 0 none;
+    text-decoration: none;
+    cursor:pointer;
+}
+
 .logo img {
     margin-top:15px;
 }
