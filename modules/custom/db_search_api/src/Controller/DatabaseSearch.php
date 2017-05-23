@@ -158,17 +158,30 @@ class DatabaseSearch {
   */
   public static function getSearchFields(PDO $pdo): array {
 
-    $fields = [];
+    $fields = [
+      'years'                       => [],
+      'countries'                   => [],
+      'states'                      => [],
+      'cities'                      => [],
+      'funding_organization_types'  => [],
+      'funding_organizations'       => [],
+      'cancer_types'                => [],
+      'is_childhood_cancer'         => [],
+      'project_types'               => [],
+      'cso_research_areas'          => [],
+      'conversion_years'            => [],
+    ];
+
     $queries = [
       'years'                       => 'SELECT MIN(CalendarYear) AS min_year, MAX(CalendarYear) AS max_year FROM ProjectFundingExt',
-      'cities'                      => 'SELECT DISTINCT City AS [value], City AS [label], State AS [group_1], Country AS [group_2] FROM Institution WHERE len(City) > 0 ORDER BY [label]',
-      'states'                      => 'SELECT Abbreviation AS [value], Name AS [label], Country AS [group_1] FROM State ORDER BY [label]',
       'countries'                   => 'SELECT Abbreviation AS [value], Name AS [label] FROM Country ORDER BY [label]',
+      'states'                      => 'SELECT Abbreviation AS [value], Name AS [label], Country AS [group_1] FROM State ORDER BY [label]',
+      'cities'                      => 'SELECT DISTINCT City AS [value], City AS [label], State AS [group_1], Country AS [group_2] FROM Institution WHERE len(City) > 0 ORDER BY [label]',
       'funding_organization_types'  => 'SELECT FundingOrgType AS [value], FundingOrgType AS [label] FROM lu_FundingOrgType',
       'funding_organizations'       => 'SELECT FundingOrgID AS [value], Name AS [label], SponsorCode AS [group_1], Country AS [group_2], \'Funding\' AS [group_3] FROM FundingOrg WHERE LastImportDate IS NOT NULL',
       'cancer_types'                => 'SELECT CancerTypeID AS [value], Name AS [label] FROM CancerType ORDER BY [label]',
       'project_types'               => 'SELECT ProjectType AS [value], ProjectType AS [label] FROM ProjectType',
-      'cso_research_areas'          => 'SELECT Code AS [value], Code + \' \' + Name AS [label], CategoryName AS [group_1], \'All Areas\' as [group_2] FROM CSO',
+      'cso_research_areas'          => 'SELECT Code AS [value], Code + \' \' + Name AS [label], CategoryName AS [group_1], \'All Areas\' as [group_2] FROM CSO ORDER BY sortOrder, value',
       'conversion_years'            => 'SELECT DISTINCT Year AS [value], Year AS [label] FROM CurrencyRate ORDER BY Year DESC',
     ];
 
@@ -177,13 +190,12 @@ class DatabaseSearch {
       $fields[$key] = $pdo->query($value)->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // set 'Uncoded' as the last entry in cso_research_areas
-    if ($fields['cso_research_areas'][0]['value'] == '0') {
-      array_push($fields['cso_research_areas'], array_shift($fields['cso_research_areas']));
-    }
-
     $fields['funding_organizations'] = [self::sortTree(self::flattenTree(self::createTree($fields['funding_organizations'], 3, 'group_', 'All %s Organizations')[0]))];
     $fields['cso_research_areas'] = [self::flattenTree(self::createTree($fields['cso_research_areas'], 2)[0])];
+    $fields['is_childhood_cancer'] = [
+      ['value' => 1, 'label' => 'Yes'],
+      ['value' => 0, 'label' => 'No'],
+    ];
 
     $min_year = $fields['years'][0]['min_year'];
     $max_year = $fields['years'][0]['max_year'];
@@ -193,7 +205,7 @@ class DatabaseSearch {
         'value' => intval($year),
         'label' => strval($year),
       ];
-    }, range($min_year, $max_year));
+    }, range($max_year, $min_year, -1));
 
     return $fields;
   }
