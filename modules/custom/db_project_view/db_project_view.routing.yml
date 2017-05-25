@@ -88,7 +88,7 @@ db_project_view.funding_org:
     _controller: '\Drupal\db_project_view\Controller\FundingOrgController::getFundingOrgContent'
     _title: 'Funding Organizations'
   requirements:
-    _permission: 'access content'
+    _role: 'authenticated'
 
 db_project_view.current_partners:
   path: '/current_partners'
