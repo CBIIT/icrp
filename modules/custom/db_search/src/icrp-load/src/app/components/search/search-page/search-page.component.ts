@@ -1,4 +1,5 @@
 import { Component, OnInit, Output, Input, ViewChild, AfterViewInit } from '@angular/core';
+import { SharedService } from '../../../services/shared.service';
 import { SearchService } from '../../../services/search.service';
 import { StoreService } from '../../../services/store.service';
 import { Observable } from 'rxjs';
@@ -83,7 +84,11 @@ export class SearchPageComponent implements AfterViewInit {
   ];
 
 
-  constructor(private searchService: SearchService, private storeService: StoreService) {
+  constructor(
+    private searchService: SearchService,
+    private storeService: StoreService,
+    public sharedService: SharedService,
+  ) {
     if (this.storeService.exists('searchFields')) {
       //this.fields = this.storeService.get('searchFields');
     }

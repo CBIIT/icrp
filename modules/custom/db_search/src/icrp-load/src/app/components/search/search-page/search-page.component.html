@@ -22,6 +22,12 @@
 
     <br>
 
+
+    <icrp-export-buttons-panel
+      [authenticated]="sharedService.get('authenticated')">
+    </icrp-export-buttons-panel>
+
+
     <div style="position: relative">
       <ui-overlay [active]="loading">
         <ui-spinner></ui-spinner>
