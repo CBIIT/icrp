@@ -6,6 +6,8 @@
 </div>
 
 <button class="btn btn-default btn-xs" (click)="export()">
-  <ui-icon type="desktop-download"></ui-icon>
-  {{ label }}
+  <div class="flex">
+    <ui-icon type="desktop-download"></ui-icon>
+    <span>{{ label }}</span>
+  </div>
 </button>

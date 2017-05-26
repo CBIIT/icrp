@@ -21,14 +21,14 @@ import { SharedService } from './services/shared.service';
 import { SearchService } from './services/search.service';
 import { ReviewService } from './services/review.service';
 import { ExportService } from './services/export.service';
+import { StoreService } from './services/store.service';
 
-import { TooltipModule, PaginationModule, ModalModule } from 'ngx-bootstrap';
+import { TooltipModule, PaginationModule, ModalModule, AlertModule } from 'ngx-bootstrap';
 
 
 import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/catch'
 import 'rxjs/add/operator/mergeMap';
-import { SearchCriteriaDisplayComponent } from './components/search/search-criteria-display/search-criteria-display.component';
 import { SummaryPanelComponent } from './components/shared/summary-panel/summary-panel.component';
 import { IconComponent } from './components/ui-components/icon/icon.component';
 import { ChartsPanelComponent } from './components/shared/charts-panel/charts-panel.component';
@@ -38,6 +38,9 @@ import { ExportButtonsPanelComponent } from './components/shared/export-buttons-
 import { ExportButtonComponent } from './components/export/export-button/export-button.component';
 import { EmailResultsButtonComponent } from './components/export/email-results-button/email-results-button.component';
 import { OverlayComponent } from './components/ui-components/overlay/overlay.component';
+import { ResultsTablePanelComponent } from './components/shared/results-table-panel/results-table-panel.component';
+import { SimpleSelectComponent } from './components/ui-components/simple-select/simple-select.component';
+import { SearchSummaryPanelComponent } from './components/search/search-summary-panel/search-summary-panel.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +50,6 @@ import { OverlayComponent } from './components/ui-components/overlay/overlay.com
     SearchFormComponent,
     TableComponent,
     PanelComponent,
-    SearchCriteriaDisplayComponent,
     UiChartComponent,
     SummaryPanelComponent,
     IconComponent,
@@ -58,6 +60,9 @@ import { OverlayComponent } from './components/ui-components/overlay/overlay.com
     EmailResultsButtonComponent,
     ExportButtonComponent,
     OverlayComponent,
+    ResultsTablePanelComponent,
+    SimpleSelectComponent,
+    SearchSummaryPanelComponent,
   ],
   imports: [
     BrowserModule,
@@ -68,6 +73,7 @@ import { OverlayComponent } from './components/ui-components/overlay/overlay.com
     TooltipModule.forRoot(),
     PaginationModule.forRoot(),
     ModalModule.forRoot(),
+    AlertModule.forRoot(),
 
     SpinnerModule.forRoot(),
     SelectModule.forRoot(),
@@ -78,6 +84,7 @@ import { OverlayComponent } from './components/ui-components/overlay/overlay.com
     SearchService,
     ReviewService,
     ExportService,
+    StoreService,
   ],
   bootstrap: [AppComponent]
 })

@@ -1,0 +1,16 @@
+
+
+<div class="select-container default">
+  <div class="select-input-container default">
+    <div class="select-label default" *ngFor="let item of selectedItems; let index = index">
+      <div>{{item}}</div>
+      <div (click)="removeSelectedItem(index)">&#x2715;</div>
+    </div>
+    <div>
+      <input class="select-input default" type="text" 
+        (keydown)="handleKeydownEvent($event)"
+        [placeholder]="selectedItems.length ? '' : placeholder"
+        #input>
+    </div>
+  </div>
+</div>

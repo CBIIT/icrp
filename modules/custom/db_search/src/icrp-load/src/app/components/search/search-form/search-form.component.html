@@ -47,7 +47,7 @@
           value="none"
           [formControl]="form.controls.search_type"
           (change)="updateDisplayParameters('search_type', ['none'])"
-          
+
           >
         None of the keywords
       </label>
@@ -67,7 +67,7 @@
           value="any"
           [formControl]="form.controls.search_type"
           (change)="updateDisplayParameters('search_type', ['any'])"
-          
+
           >
         Any of the keywords
       </label>
@@ -94,10 +94,22 @@
 
     <label class="form-label" for="years_active" tooltip="Awards active in the calendar year. Default view shows most recent 2 years, click below to select additional years.">Year Active</label>
 
+    <label class="pull-right" style="font-weight: normal">
+      Include Future Years
+      <input
+        class="radio-input"
+        type="checkbox"
+        id="include_future_years"
+        name="include_future_years"
+        [formControl]="form.controls.include_future_years"
+        (change)="includeFutureYears = !includeFutureYears; setParameters({years: []})"
+      >
+    </label>
+
     <ui-select
       tooltip="Awards active in the calendar year. Default view shows most recent 2 years, click below to select additional years."
       placeholder="All Years Selected"
-      [items]="fields.years"
+      [items]="filterYears(includeFutureYears)"
       [formControl]="form.controls.years"
       (select)="updateDisplayParameters('years', $event)"
       >
@@ -230,7 +242,7 @@
         >
       </ui-treeview>
     </div>
-  </ui-panel>  
+  </ui-panel>
 
 
   <!-- Cancer and Project Type -->
@@ -245,12 +257,13 @@
       >
     </ui-select>
 
-    <label class="form-label" for="is_childhood_cancer" tooltip="Is Childhood Cancer?">Is Childhood Cancer?</label>
+    <label class="form-label" for="is_childhood_cancer" tooltip="Select Yes to find projects that are wholly or partially relevant to childhood and adolescent cancers.">Childhood Cancer</label>
     <ui-select
-      tooltip="Find projects related to childhood cancer"
-      placeholder="All projects selected"
+      tooltip="Select Yes to find projects that are wholly or partially relevant to childhood and adolescent cancers."
+      placeholder="Select Childhood Cancer"
       [items]="fields.is_childhood_cancer"
       [formControl]="form.controls.is_childhood_cancer"
+      [limit]="1"
       (select)="updateDisplayParameters('is_childhood_cancer', $event)"
       >
     </ui-select>
@@ -285,7 +298,7 @@
 
   <div class="text-right vertical-spacer">
     <button class="btn btn-primary" type="button" (click)="submit()">Search</button>
-    <button class="btn btn-default" type="button" (click)="form.reset()">Reset</button>
+    <button class="btn btn-default" type="button" (click)="requestDefaultParameters.emit()">Reset</button>
     <button class="btn btn-default" type="button" (click)="form.reset()">Clear</button>
   </div>
 

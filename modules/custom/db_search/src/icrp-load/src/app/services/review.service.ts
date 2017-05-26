@@ -12,29 +12,34 @@ export class ReviewService {
     this.apiRoot = `${sharedService.get('apiRoot') || ''}/api/database/review`;
   }
 
-  createGetRequest(url: string, parameters: any = {}) {
+  getRequest(url: string, parameters: any = {}) {
     let searchParams = new URLSearchParams();
     for (let key in parameters) {
       searchParams.set(key, parameters[key]);
     }
 
-    return this.http.get(url, {search: searchParams})
-      .map(response => response.json());
+    return this.http.get(
+      url,
+      {
+        search: searchParams,
+        withCredentials: this.sharedService.get('is_production')
+      }
+    ).map(response => response.json());
   }
 
   getSponsorUploads() {
-    return this.createGetRequest(`${this.apiRoot}/sponsor_uploads`);
+    return this.getRequest(`${this.apiRoot}/sponsor_uploads`);
   }
 
   getSearchResults(parameters: object) {
-    return this.createGetRequest(`${this.apiRoot}/sort_paginate`, parameters)
+    return this.getRequest(`${this.apiRoot}/sort_paginate`, parameters)
       .map(response => {
 
         let data = response.results
           .map(row => {
-            let clone = Object.assign({}, row);
-            clone.project_url = `/review/project/${clone.project_id}`;
-            return clone;
+            let copy = Object.assign({}, row);
+            copy.project_url = `/review/project/${copy.project_id}`;
+            return copy;
           });
 
         return {
@@ -46,12 +51,12 @@ export class ReviewService {
   }
 
   getAnalytics(parameters: object) {
-    return this.createGetRequest(`${this.apiRoot}/analytics`, parameters);
+    return this.getRequest(`${this.apiRoot}/analytics`, parameters);
   }
 
 
   getFields() {
-    return this.createGetRequest(`${this.apiRoot}/fields`)
+    return this.getRequest(`${this.apiRoot}/fields`)
   }
 
 

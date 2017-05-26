@@ -3,7 +3,9 @@
     <thead>
       <tr>
         <th *ngFor="let header of headers"
-          (click)="toggleSort(header)">
+          (click)="toggleSort(header)"
+          
+          >
           <div [tooltip]="header.tooltip" style="display: flex; justify-content: space-between">
             {{ header.label }}
             <span [ngSwitch]="header.sort">
@@ -16,7 +18,7 @@
     </thead>
     <tbody>
       <tr *ngFor="let row of data">
-        <td *ngFor="let header of headers">
+        <td *ngFor="let header of headers" >
           <span *ngIf="!header.link">
             {{ row[header.key] }}
           </span>

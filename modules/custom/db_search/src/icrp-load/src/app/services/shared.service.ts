@@ -1,6 +1,8 @@
 import { Http } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
+
 
 @Injectable()
 export class SharedService {
@@ -9,10 +11,12 @@ export class SharedService {
     root: '',
     componentType: '',
     authenticated: false,
+    is_production: false,
   };
 
   constructor(private http: Http) {
     this.updateAuthenticationStatus();
+    this.set('is_production', environment.production);
   }
 
   get(property: string): any {
@@ -24,9 +28,13 @@ export class SharedService {
   }
 
   updateAuthenticationStatus(): void {
-    let auth = this.http.get('/api/authenticate', {withCredentials: true});
-
-    Observable.of(true)
-      .subscribe(response => this.set('authenticated', response));
+    this.set('authenticated', false);
+    
+    let auth = this.http.get('/search-database/partners/authenticate`', {withCredentials: true})
+      .map(response => response.text())
+      .subscribe(response => this.set('authenticated', true))
+/*
+    Observable.of(false)
+      .subscribe(response => this.set('authenticated', response)); */
   }
 }

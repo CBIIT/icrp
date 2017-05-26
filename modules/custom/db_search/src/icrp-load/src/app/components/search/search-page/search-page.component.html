@@ -1,13 +1,61 @@
+<ui-overlay [active]="state.loading && (!state.results || !state.results.length)" [fullscreen]="true">
+  <ui-spinner></ui-spinner>
+  <br>Fetching Data
+</ui-overlay>
+
+
 <div class="row">
   <div class="col-sm-4">
-    <icrp-search-form [fields]="fields" (search)="search($event)" #searchform></icrp-search-form>
+    <icrp-search-form #searchform
+      (search)="getSearchResults($event)">
+    </icrp-search-form>
   </div>
 
   <div class="col-sm-8">
-    
-    <icrp-search-criteria-display 
-      [criteria]="state.displayParameters">
-    </icrp-search-criteria-display>
+
+    <icrp-search-summary-panel
+      [displayParameters]="state.displayParameters"
+      [analytics]="state.analytics"
+      [numResults]="state.numResults"
+      [loading]="state.loading"
+      >
+    </icrp-search-summary-panel>
+
+    <br>
+
+    <alert 
+      *ngIf="state.expiredSearchID" 
+      type="danger" 
+      dismissible="true">
+      The saved search has expired. Search results are saved for 30 days, after which they will no longer be accessible.
+    </alert>
+
+    <div *ngIf="!state.loading && (!state.results || state.results.length === 0)">
+      No results found
+    </div>
+
+    <div *ngIf="state.loading || state.results && state.results.length > 0">
+      <icrp-charts-panel
+        [analytics]="state.analytics"
+        [fields]="fields"
+        (requestChart)="this.getAnalytics(state.searchID, [$event.type], $event.year)">
+      </icrp-charts-panel>
+
+      <br>
+
+      <icrp-export-buttons-panel
+        *ngIf="state.results && state.results.length"
+        [authenticated]="sharedService.get('authenticated')">
+      </icrp-export-buttons-panel>
+
+      <icrp-results-table-panel
+        [loading]="state.loading"
+        [results]="state.results"
+        [numResults]="state.numResults"
+        (sortPaginate)="getSortedPaginatedResults($event)">
+      </icrp-results-table-panel>
+    </div>
+
 
   </div>
 </div>

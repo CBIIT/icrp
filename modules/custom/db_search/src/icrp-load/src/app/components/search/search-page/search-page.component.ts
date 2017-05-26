@@ -1,8 +1,10 @@
 import { Component, OnInit, Output, Input, ViewChild, AfterViewInit } from '@angular/core';
+import { SharedService } from '../../../services/shared.service';
 import { SearchService } from '../../../services/search.service';
+import { StoreService } from '../../../services/store.service';
 import { Observable } from 'rxjs';
 
-import { parseQuery, range, getLabelValuePair } from './search-page.functions';
+import { parseQuery, range, asLabelValuePair, deepCopy, getSearchID, removeEmptyProperties } from './search-page.functions';
 
 @Component({
   selector: 'icrp-search-page',
@@ -12,102 +14,177 @@ import { parseQuery, range, getLabelValuePair } from './search-page.functions';
 export class SearchPageComponent implements AfterViewInit {
 
   @ViewChild('searchform') searchForm;
-  fields: any;
+
   search$: Observable<any>;
+  fields: any = {};
+
   state = {
-    searchID: this.getSearchID(),
+    loading: true,
+    searchID: getSearchID(),
     searchParameters: {},
-    displayParameters: {},
-    resultsCount: 0,
+    displayParameters: [],
     results: [],
+    numResults: 0,
+    analytics: {},
+    expiredSearchID: false,
   }
 
-  constructor(private searchService: SearchService) {
 
-    this.populateFields().subscribe();
+  constructor(
+    private searchService: SearchService,
+    private storeService: StoreService,
+    public sharedService: SharedService,
+  ) {
+    this.resetAnalytics();
   }
 
-  
-  async ngAfterViewInit() {
+  ngAfterViewInit() {
+    this.state.searchID = getSearchID();
 
-    // first check database for search id,
-    // if search id exists, then sort paginate results and store the form fields as originals
-    // else perform default search without waiting for fields to arrive
-
-    // get available form fields 
-    // then retrieve/apply the stored search criteria to the form 
-
-/*
-    searchService.getFields()
-      .subscribe(response => {
-        this.fields = response
-      });
-*/
-    
-    // attempt to retrieve search parameters
-    if (this.state.searchID) {
-      this.searchService.getSearchParameters({search_id: this.state.searchID})
-        .subscribe(response => {
-          console.log('search parameters', response);
-        });
-    }
-
-
-    // perform default search
-    else {
-      this.searchForm.submit(this.state.searchParameters);
-      
-//      this.searchForm.setParameters();
-    }
+    // update fields first
+    this.updateFields()
+      .subscribe(e => 
+        this.state.searchID
+          ? this.performSavedSearch(this.state.searchID)
+          : this.performDefaultSearch()
+      );
   }
 
-  populateFields() {
-    let years = range(new Date().getFullYear(), 2000, -1);
-    let formYears = years.map(getLabelValuePair);
-    
-    formYears.unshift({
-      label: 'All Years',
-      value: years.join(',')
+  // sets the fields of the search form
+  updateFields() {
+    return this.searchService.getFields().map(fields => {
+      this.fields = fields;
+      this.searchForm.setFields(fields);
     });
+  }
 
-    this.fields = {
-      years: formYears,
-      cities: [],
-      states: [],
-      countries: [],
-      funding_organizations: [],
-      funding_organization_types: [],
-      cancer_types: [],
-      is_childhood_cancer: ['All', 'Yes', 'No'].map(getLabelValuePair),
-      project_types: [],
-      cso_research_areas: []
-    }
-
-    return this.searchService.getFields()
-      .map(response => {
-        for (let key in response) {
-          this.fields[key] = response[key];
+  performSavedSearch(searchID) {
+    this.getSearchParameters(searchID)
+      .subscribe(response => {
+        if (response[0] === false) {
+          this.performDefaultSearch();
+          this.state.expiredSearchID = true;
         }
+
+        else {
+          let parameters = removeEmptyProperties(response);
+          this.searchForm.setParameters(parameters);
+          this.getSearchResults({
+            parameters: parameters,
+          });
+
+
+          console.log(`retrieved search parameters`, parameters);
+        }
+
       });
   }
 
+  performDefaultSearch() {
+    let currentYear = new Date().getFullYear();
+    let defaultParameters = {
+      years: [currentYear, currentYear - 1]
+    };
+
+    this.searchForm.setParameters(defaultParameters);
+    this.getSearchResults({
+      parameters: defaultParameters,
+    })
+  }
 
   // functions for retrieving search parameters based on search id
-
-  getSearchID() {
-    let query: any = parseQuery(window.location.search);
-    return query && query.sid || null;
+  getSearchParameters(searchID) {
+    return this.searchService.getSearchParameters({search_id: searchID})
   }
 
-  search(event: any) {
-    console.log('search', event);
-    this.state.searchParameters = event.parameters;
-    this.state.displayParameters = event.displayParameters;
+  getAnalytics(id, types = [], year = null) {
+    if (!types || types.length === 0)
+      types = Object.keys(this.state.analytics);
 
-    this.searchService.getSearchResults(event.parameters)
+    for (let key of types) {
+
+      let loadingTrue$ = Observable.timer(250)
+        .subscribe(e => this.state.analytics[key] = []);
+
+      this.searchService.getAnalytics({
+        search_id: id,
+        type: key,
+        year: year,
+      })
       .subscribe(response => {
-        this.state.results = response;
-
+        loadingTrue$.unsubscribe();
+        this.state.analytics[key] = response
       });
+    }
+  }
+
+  getSortedPaginatedResults(parameters) {
+    let params = deepCopy(parameters);
+    params.search_id = this.state.searchID;
+    
+    let loadingTrue$ = Observable.timer(500)
+      .subscribe(e => this.state.loading = true);
+
+    this.searchService.getSortedPaginatedResults(params)
+      .subscribe(response => {
+        this.state.displayParameters = response.display_parameters;
+        this.state.results = response.results;
+        loadingTrue$.unsubscribe();
+        this.state.loading = false;
+      })
+  }
+
+  getSearchResults(event: any) {
+    console.log('search', event);
+
+    this.resetAnalytics();
+    this.state.loading = true;
+    this.state.searchParameters = this.filterSearchParameters(deepCopy(event.parameters));
+
+    this.searchService.getSearchResults(this.state.searchParameters)
+      .subscribe(response => {
+        this.state.searchID = response.search_id;
+        this.state.results = response.results;
+        this.state.numResults = response.results_count;
+        this.state.displayParameters = response.display_parameters;
+        this.state.loading = false;
+        this.getAnalytics(this.state.searchID);
+      });
+  }
+
+  resetAnalytics() {
+    this.state.analytics = {
+      project_counts_by_country: null,
+      project_counts_by_cso_research_area: null,
+      project_counts_by_cancer_type: null,
+      project_counts_by_type: null,
+      project_funding_amounts_by_year: null,
+    };
+  }
+
+  filterSearchParameters(params) {
+    let parameters = deepCopy(params);
+
+    if (!parameters['search_terms'] || !parameters['search_type']) {
+      delete parameters['search_terms'];
+      delete parameters['search_type'];
+    }
+
+    if (parameters['years']) {
+      parameters['years'] = parameters['years']
+        .filter((item, index, array) => array.indexOf(item) === index)
+    }
+
+    if (parameters['funding_organizations']) {
+      parameters['funding_organizations'] = parameters['funding_organizations']
+        .filter(item => !isNaN(item))
+    }
+
+    if (parameters['cso_research_areas']) {
+      parameters['cso_research_areas'] = parameters['cso_research_areas']
+        .filter(item => !isNaN(item))
+    }
+
+    return parameters;
   }
 }
