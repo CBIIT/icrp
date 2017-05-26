@@ -190,7 +190,8 @@ class DatabaseSearch {
       $fields[$key] = $pdo->query($value)->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    $fields['funding_organizations'] = [self::sortTree(self::flattenTree(self::createTree($fields['funding_organizations'], 3, 'group_', 'All %s Organizations')[0]))];
+    $funding_organizations = self::flattenTree(self::createTree($fields['funding_organizations'], 3, 'group_', 'All %s Organizations')[0]);
+    $fields['funding_organizations'] = [self::sortTree($funding_organizations)];
     $fields['cso_research_areas'] = [self::flattenTree(self::createTree($fields['cso_research_areas'], 2)[0])];
     $fields['is_childhood_cancer'] = [
       ['value' => 1, 'label' => 'Yes'],
