@@ -477,6 +477,8 @@ class DatabaseSearch {
       }
     }
 
+    $_SESSION['database_search_id'] = $parameters['search_id'];
+
     return [
       'search_id'     => $parameters['search_id'],
       'results_count' => $results_count,
