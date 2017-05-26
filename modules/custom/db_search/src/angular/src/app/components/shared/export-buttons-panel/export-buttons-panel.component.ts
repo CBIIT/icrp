@@ -10,36 +10,6 @@ export class ExportButtonsPanelComponent  {
   @Input() authenticated: boolean = false;
 
   routes: any = {}
-  /**
-   * 
-   * 
-
-  <icrp-export-button
-    *ngIf="authenticated"
-    label="Export Single"
-    endpoint="/load/ExportResultsSignlePartner">
-  </icrp-export-button>
-
-  <icrp-export-button
-    *ngIf="authenticated"
-    label="Export Abstracts"
-    endpoint="/load/ExportResultsWithAbstractPartner">
-  </icrp-export-button>
-
-  <icrp-export-button
-    *ngIf="authenticated"
-    label="Export Abstracts Single"
-    endpoint="/load/ExportAbstractSignlePartner">
-  </icrp-export-button>
-
-  <span class="pull-right">
-    <icrp-export-button
-      label="Export Graphs"
-      endpoint="/load/ExportResultsWithGraphsPartner">
-    </icrp-export-button>
-   * 
-   * @param sharedService 
-   */
 
   constructor(public sharedService: SharedService) {
     let componentType = this.sharedService.get('componentType');
