@@ -23,13 +23,12 @@ import { ReviewService } from './services/review.service';
 import { ExportService } from './services/export.service';
 import { StoreService } from './services/store.service';
 
-import { TooltipModule, PaginationModule, ModalModule } from 'ngx-bootstrap';
+import { TooltipModule, PaginationModule, ModalModule, AlertModule } from 'ngx-bootstrap';
 
 
 import 'rxjs/add/operator/map'
 import 'rxjs/add/operator/catch'
 import 'rxjs/add/operator/mergeMap';
-import { SearchCriteriaDisplayComponent } from './components/search/search-criteria-display/search-criteria-display.component';
 import { SummaryPanelComponent } from './components/shared/summary-panel/summary-panel.component';
 import { IconComponent } from './components/ui-components/icon/icon.component';
 import { ChartsPanelComponent } from './components/shared/charts-panel/charts-panel.component';
@@ -41,6 +40,7 @@ import { EmailResultsButtonComponent } from './components/export/email-results-b
 import { OverlayComponent } from './components/ui-components/overlay/overlay.component';
 import { ResultsTablePanelComponent } from './components/shared/results-table-panel/results-table-panel.component';
 import { SimpleSelectComponent } from './components/ui-components/simple-select/simple-select.component';
+import { SearchSummaryPanelComponent } from './components/search/search-summary-panel/search-summary-panel.component';
 
 @NgModule({
   declarations: [
@@ -50,7 +50,6 @@ import { SimpleSelectComponent } from './components/ui-components/simple-select/
     SearchFormComponent,
     TableComponent,
     PanelComponent,
-    SearchCriteriaDisplayComponent,
     UiChartComponent,
     SummaryPanelComponent,
     IconComponent,
@@ -63,6 +62,7 @@ import { SimpleSelectComponent } from './components/ui-components/simple-select/
     OverlayComponent,
     ResultsTablePanelComponent,
     SimpleSelectComponent,
+    SearchSummaryPanelComponent,
   ],
   imports: [
     BrowserModule,
@@ -73,6 +73,7 @@ import { SimpleSelectComponent } from './components/ui-components/simple-select/
     TooltipModule.forRoot(),
     PaginationModule.forRoot(),
     ModalModule.forRoot(),
+    AlertModule.forRoot(),
 
     SpinnerModule.forRoot(),
     SelectModule.forRoot(),

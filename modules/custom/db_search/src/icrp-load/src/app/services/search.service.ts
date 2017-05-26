@@ -31,19 +31,37 @@ export class SearchService {
   }
 
   getSearchResults(parameters: object) {
-    return this.getRequest(`${this.apiRoot}/search`, parameters);
+    return this.getRequest(`${this.apiRoot}/search`, parameters)
+      .map(this.applyProjectUrls);
   }
 
   getSortedPaginatedResults(parameters: object) {
-    return this.getRequest(`${this.apiRoot}/sort_paginate`, parameters);
+    return this.getRequest(`${this.apiRoot}/sort_paginate`, parameters)
+      .map(this.applyProjectUrls);
   }
 
   getAnalytics(parameters: object) {
-    let url = `${this.apiRoot}/analytics${this.sharedService.get('authenticated') && '_partners'}`;
+    let url = `${this.apiRoot}/analytics${this.sharedService.get('authenticated') ? '_partners' : ''}`;
     return this.getRequest(url, parameters);
   }
 
   getSearchParameters(parameters: object) {
     return this.getRequest(`${this.apiRoot}/search_parameters`, parameters);
+  }
+
+  applyProjectUrls(response) {
+    let results = response.results
+      .map(row => {
+        let copy = Object.assign({}, row);
+        copy.project_url = `/project/${copy.project_id}`;
+        return copy;
+      });
+
+    return {
+      search_id: response.search_id,
+      results_count: response.results_count,
+      results: results,
+      display_parameters: response.display_parameters,
+    }; 
   }
 }

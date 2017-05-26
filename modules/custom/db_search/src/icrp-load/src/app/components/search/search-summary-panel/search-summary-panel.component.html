@@ -1,0 +1,34 @@
+
+<icrp-summary-panel
+  [toggleEnabled]="displayParameters && displayParameters.length"
+  [showSummary]="!loading"
+>
+  <div left-header>
+    <span [innerHTML]="getSummary()">
+    </span>
+  </div>
+  <div right-header class="bold blue" >
+    <div *ngIf="numResults && analytics.project_counts_by_country && analytics.project_counts_by_country.total">
+      <span tooltip="Parent projects">
+        Total Projects: {{ numResults.toLocaleString() }}
+      </span>
+
+      <span *ngIf="analytics.project_counts_by_country && analytics.project_counts_by_country.total" tooltip="Including linked sub-projects or supplements">
+        / Total Related Projects: {{ analytics.project_counts_by_country && analytics.project_counts_by_country.total.toLocaleString() }}
+      </span>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="display-parameters">
+      <tbody>
+        <tr *ngFor="let row of displayParameters">
+          <td><b>{{ getDisplayName(row[0]) }}</b></td>
+          <td>{{ row[1] }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  
+</icrp-summary-panel>

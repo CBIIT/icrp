@@ -1,0 +1,17 @@
+.bold {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.orange {
+  color: orange;
+}
+
+.blue {
+  color: steelblue;
+}
+
+table.display-parameters  tbody  tr  td {
+  min-width: 40px;
+  padding-right: 10px;
+}

@@ -40,6 +40,7 @@
 }
 
 .select-input {
+    width: 400px;
     display: inline-block;
     border: none;
     outline: none;

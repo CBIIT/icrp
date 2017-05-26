@@ -33,3 +33,14 @@ export function asLabelValuePair(obj) {
 export function deepCopy(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
+
+export function removeEmptyProperties(obj) {
+  let object = {};
+
+  for (let key in obj) {
+    if (obj[key] != null)
+      object[key] = deepCopy(obj[key]);
+  }
+
+  return object;
+}

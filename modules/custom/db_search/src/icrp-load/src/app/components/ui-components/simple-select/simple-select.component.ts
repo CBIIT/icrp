@@ -84,20 +84,12 @@ export class SimpleSelectComponent {
   }
 
   handleKeydownEvent(event: KeyboardEvent) {
+
     let input = this.input.nativeElement;
 
     if (event.key === this.itemDelimiter) {
       event.preventDefault();
-      let value = input.value;
-
-      if (this.validationRegex.test(value)) {
-        this.valid = true;
-        this.selectedItems.push(value);
-        input.value = '';
-      } else {
-        this.valid = false;
-        console.log('valid', this.valid);
-      }
+      this.addValueToSelection();
     }
 
     if (event.key === 'Backspace' && !input.value.length) {
@@ -108,8 +100,28 @@ export class SimpleSelectComponent {
     this.emitValue();
   }
 
+  addValueToSelection() {
+    let input = this.input.nativeElement;
+    let value = input.value;
+
+    if (this.validationRegex.test(value)) {
+      this.valid = true;
+      this.selectedItems.push(value);
+      input.value = '';
+    } else {
+      this.valid = false;
+      console.log('valid', this.valid);
+    }
+
+  }
+
   focusInput(event: any) {
-    if (this._ref.nativeElement.contains(event.target))
+    if (this._ref.nativeElement.contains(event.target)) {
       this.input.nativeElement.focus();
+    }
+    else {
+      this.addValueToSelection();
+      this.emitValue();
+    }
   }
 }

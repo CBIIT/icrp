@@ -57,7 +57,7 @@ export class SearchFormComponent {
     this.form = formBuilder.group({
       search_terms: [''],
       search_type: [''],
-      years: [],
+      years: [''],
       include_future_years: [],
 
       institution: [''],
@@ -93,8 +93,7 @@ export class SearchFormComponent {
       this.search.emit({
         parameters: this.parameters,
         displayParameters: this.displayParameters
-      })
-      , 0)
+      }), 0)
   }
 
   setFields(fields) {
@@ -129,7 +128,7 @@ export class SearchFormComponent {
 
     years.unshift({
       label: 'All Years',
-      value: years.join(',')
+      value: years.map(year => year.value).join(',')
     });
 
     return years;

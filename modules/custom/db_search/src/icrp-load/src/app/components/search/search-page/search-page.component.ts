@@ -4,7 +4,7 @@ import { SearchService } from '../../../services/search.service';
 import { StoreService } from '../../../services/store.service';
 import { Observable } from 'rxjs';
 
-import { parseQuery, range, asLabelValuePair, deepCopy, getSearchID } from './search-page.functions';
+import { parseQuery, range, asLabelValuePair, deepCopy, getSearchID, removeEmptyProperties } from './search-page.functions';
 
 @Component({
   selector: 'icrp-search-page',
@@ -22,10 +22,11 @@ export class SearchPageComponent implements AfterViewInit {
     loading: true,
     searchID: getSearchID(),
     searchParameters: {},
-    displayParameters: {},
+    displayParameters: [],
     results: [],
     numResults: 0,
     analytics: {},
+    expiredSearchID: false,
   }
 
 
@@ -60,7 +61,22 @@ export class SearchPageComponent implements AfterViewInit {
   performSavedSearch(searchID) {
     this.getSearchParameters(searchID)
       .subscribe(response => {
-        console.log(`retrieved search parameters for ${response}`, response);
+        if (response[0] === false) {
+          this.performDefaultSearch();
+          this.state.expiredSearchID = true;
+        }
+
+        else {
+          let parameters = removeEmptyProperties(response);
+          this.searchForm.setParameters(parameters);
+          this.getSearchResults({
+            parameters: parameters,
+          });
+
+
+          console.log(`retrieved search parameters`, parameters);
+        }
+
       });
   }
 
@@ -73,7 +89,6 @@ export class SearchPageComponent implements AfterViewInit {
     this.searchForm.setParameters(defaultParameters);
     this.getSearchResults({
       parameters: defaultParameters,
-      displayParameters: defaultParameters
     })
   }
 
@@ -106,13 +121,15 @@ export class SearchPageComponent implements AfterViewInit {
   getSortedPaginatedResults(parameters) {
     let params = deepCopy(parameters);
     params.search_id = this.state.searchID;
-    this.state.loading = true;
-
-    console.log('retrieving results', params);
+    
+    let loadingTrue$ = Observable.timer(500)
+      .subscribe(e => this.state.loading = true);
 
     this.searchService.getSortedPaginatedResults(params)
       .subscribe(response => {
+        this.state.displayParameters = response.display_parameters;
         this.state.results = response.results;
+        loadingTrue$.unsubscribe();
         this.state.loading = false;
       })
   }
@@ -122,14 +139,14 @@ export class SearchPageComponent implements AfterViewInit {
 
     this.resetAnalytics();
     this.state.loading = true;
-    this.state.searchParameters = deepCopy(event.parameters);
-    this.state.displayParameters = deepCopy(event.displayParameters);
+    this.state.searchParameters = this.filterSearchParameters(deepCopy(event.parameters));
 
     this.searchService.getSearchResults(this.state.searchParameters)
       .subscribe(response => {
         this.state.searchID = response.search_id;
         this.state.results = response.results;
         this.state.numResults = response.results_count;
+        this.state.displayParameters = response.display_parameters;
         this.state.loading = false;
         this.getAnalytics(this.state.searchID);
       });
@@ -143,5 +160,31 @@ export class SearchPageComponent implements AfterViewInit {
       project_counts_by_type: null,
       project_funding_amounts_by_year: null,
     };
+  }
+
+  filterSearchParameters(params) {
+    let parameters = deepCopy(params);
+
+    if (!parameters['search_terms'] || !parameters['search_type']) {
+      delete parameters['search_terms'];
+      delete parameters['search_type'];
+    }
+
+    if (parameters['years']) {
+      parameters['years'] = parameters['years']
+        .filter((item, index, array) => array.indexOf(item) === index)
+    }
+
+    if (parameters['funding_organizations']) {
+      parameters['funding_organizations'] = parameters['funding_organizations']
+        .filter(item => !isNaN(item))
+    }
+
+    if (parameters['cso_research_areas']) {
+      parameters['cso_research_areas'] = parameters['cso_research_areas']
+        .filter(item => !isNaN(item))
+    }
+
+    return parameters;
   }
 }

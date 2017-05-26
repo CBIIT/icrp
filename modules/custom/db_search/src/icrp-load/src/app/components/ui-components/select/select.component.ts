@@ -32,13 +32,16 @@ import {
 export class SelectComponent {
 
   /** The array of possible items for this input */
-  @Input() items: { "value": number | string, "label": "string"}[];
+  @Input() items: { "value": number | string, "label": any }[];
 
   /** Placeholder text */
   @Input() placeholder: string;
 
   /** Control evaluation of this component */
   @Input() disable: boolean;
+
+  /** Limit the number of possible choices */
+  @Input() limit: number = -1;
 
   /** Updates whenever an item has been selected or deselected  */
   @Output() select: EventEmitter<any[]>;
@@ -47,14 +50,14 @@ export class SelectComponent {
   @ViewChild('input') input: ElementRef;
 
   /** Selected items */
-  selectedItems: { "value": number | string, "label": "string"}[];
+  selectedItems: { "value": number | string, "label": any }[];
 
   /** Indexes of items matching the search results. 
    * 
    * Index refers to the index of the item.  
    * Location refers to the location of the matched text. 
    */  
-  matchingItems: { "value": number | string, "label": "string"} [];
+  matchingItems: { "value": number | string, "label": any } [];
 
   /** Index of highlighted item in search dropdown */
   highlightedItemIndex: number;
@@ -93,7 +96,14 @@ export class SelectComponent {
     if (values && values.length) {
       for (let value of values) {
         let item = this.items.find(item => item.value == value);
-        if (item) {
+        if (!item) {
+          item = {
+            label: value,
+            value: isNaN(+value) ? value : +value
+          }
+        }
+        
+        if (item && this.limit == -1 || this.selectedItems.length < this.limit) {
           this.selectedItems.push(item);
         }
       }
@@ -120,9 +130,12 @@ export class SelectComponent {
   }
 
   addSelectedItem(item: { "value": number | string, "label": "string"}) {
-    this.selectedItems.push(item);
-    this.input.nativeElement.value = '';
-    this.emitValue();
+
+    if (this.limit == -1 || this.selectedItems.length < this.limit) {
+      this.selectedItems.push(item);
+      this.input.nativeElement.value = '';
+      this.emitValue();
+    }
   }
 
   handleKeydownEvent(event: KeyboardEvent) {
@@ -239,7 +252,8 @@ export class SelectComponent {
       let item = this.matchingItems[i];
 
       if (item && !this.selectedItems.find(i => i.label === item.label && i.value === item.value)) {
-        this.selectedItems.push(this.matchingItems[i]);
+        if (this.limit == -1 || this.selectedItems.length < this.limit)
+          this.selectedItems.push(this.matchingItems[i]);
       }    
     }
 

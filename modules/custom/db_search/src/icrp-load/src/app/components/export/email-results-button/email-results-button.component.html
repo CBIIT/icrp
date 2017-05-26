@@ -1,1 +1,91 @@
-<button class="btn btn-default btn-xs"><ui-icon type="mail"></ui-icon>Email Results</button>
+<button class="btn btn-default btn-xs" (click)="emailResultsModal.show()">
+  <div class="flex">
+    <ui-icon type="mail"></ui-icon>
+    <span>Email Results</span>
+  </div>
+</button>
+
+
+<div class="modal fade" bsModal #emailResultsModal="bs-modal" [config]="{backdrop: 'static'}"
+     tabindex="-1" role="dialog" aria-labelledby="EmailResults" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">Email Search Results</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="closeModal()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+
+      <div class="modal-body" *ngIf="state.initial">
+        <label class="form-group">Complete the form below to email a link to your search results to yourself, a friend, or colleague.</label>
+
+
+    		<form class="form-horizontal clearfix" [formGroup]="emailForm"  style="position: relative">
+          <div class="row form-group">
+            <label for="name" class="col-sm-3 control-label">Your Name</label>
+            <div class="col-sm-9">
+              <input 
+                type="text" 
+                class="input" 
+                id="name" 
+                placeholder="Your Name" 
+                [formControl]="emailForm.controls.name">
+            </div>
+          </div>
+
+          <div class="row form-group">
+            <label for="recipient_emails" class="col-sm-3 control-label">Recipient Emails(s)</label>
+            <div class="col-sm-9">
+          
+              <ui-simple-select 
+                id="recipientEmails" 
+                placeholder="Enter multiple email recipients, separated by commas" 
+                [formControl]="emailForm.controls.recipient_emails">
+              </ui-simple-select>
+
+            </div>
+          </div>
+
+          <div class="row form-group">
+            <label for="personal_message" class="col-sm-3 control-label">Personal Message</label>
+            <div class="col-sm-9">
+              <input 
+                type="text" 
+                class="input" 
+                id="personalMessage" 
+                placeholder="Personal Message" 
+                [formControl]="emailForm.controls.personal_message" />
+            </div>
+          </div>
+    		</form>
+
+
+        <div class="modal-body" *ngIf="state.pending">
+          <div style="position: relative; min-height: 40px">
+            <ui-overlay>
+              <ui-spinner></ui-spinner>
+              <div>Sending Email</div>
+            </ui-overlay>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-body" *ngIf="state.success">
+        <div style="position: relative; min-height: 40px">
+          <ui-overlay>
+            <ui-icon type="check"></ui-icon>
+            <div>Your email has been sent successfully!</div>
+          </ui-overlay>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" (click)="closeModal()">Close</button>
+        <button type="button" class="btn btn-primary" *ngIf="state.initial" [disabled]="!emailForm.valid" (click)="sendEmail()">Send Email</button>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -6,5 +6,10 @@ import { Component, OnInit, Input } from '@angular/core';
   styleUrls: ['./summary-panel.component.css']
 })
 export class SummaryPanelComponent {
+
+  @Input()
+  toggleEnabled: boolean = true;
+
+  @Input()
   showSummary: boolean = false;
 }

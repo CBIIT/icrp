@@ -230,7 +230,7 @@ class DatabaseSearch {
       return empty($str) ? null : explode(',', $str);
     }
 
-    return empty($results) ? $results : [
+    return empty($results) ? [false] : [
       'search_terms'                 => $results['Terms'],
       'search_type'                  => $results['TermSearchType'],
       'years'                        => split($results['YearList']),
