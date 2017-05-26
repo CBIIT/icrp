@@ -30,7 +30,7 @@ export class SharedService {
   updateAuthenticationStatus(): void {
     this.set('authenticated', false);
     
-    let auth = this.http.get('/search-database/partners/authenticate`', {withCredentials: true})
+    let auth = this.http.get('/search-database/partners/authenticate', {withCredentials: true})
       .map(response => response.text())
       .subscribe(response => this.set('authenticated', true))
 /*
