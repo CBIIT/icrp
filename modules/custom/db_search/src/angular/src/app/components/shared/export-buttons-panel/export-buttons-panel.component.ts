@@ -56,7 +56,9 @@ export class ExportButtonsPanelComponent  {
       exportResultsSingle: `${baseRoute}/ExportResultsSignlePartner`,
       exportAbstracts: `${baseRoute}/ExportResultsWithAbstractPartner`,
       exportAbstractsSingle: `${baseRoute}/ExportAbstractSignlePartner`,
-      exportGraphs: `${baseRoute}/ExportResultsWithGraphsPartner`,
+      exportGraphs: this.authenticated
+        ? `${baseRoute}/ExportResultsWithGraphsPartner`
+        : `${baseRoute}/exportResultsWithGraphsPartnerPublic`
     }
   }
 }
