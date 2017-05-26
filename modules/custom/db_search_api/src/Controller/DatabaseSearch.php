@@ -253,11 +253,11 @@ class DatabaseSearch {
 
   public static function getSearchParametersForDisplay(PDO $pdo, array $parameters = ['search_id' => -1]): array {
 
-    $stmt = $pdo->prepare('EXECUTE GetSearchCriteriaBySearchID @SearchID=:search_id');
+    $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE GetSearchCriteriaBySearchID @SearchID=:search_id');
 
     $results = [];
     if ($stmt->execute([':search_id' => $parameters['search_id']])) {
-        $results = $stmt->fetch(PDO::FETCH_ASSOC);
+        $results = $stmt->fetchAll(PDO::FETCH_NUM);
     }
 
     return $results;
@@ -481,6 +481,7 @@ class DatabaseSearch {
       'search_id'     => $parameters['search_id'],
       'results_count' => $results_count,
       'results'       => $results,
+      'display_parameters'  => self::getSearchParametersForDisplay($pdo, ['search_id' => $parameters['search_id']]),
     ];
   }
 }

@@ -296,9 +296,8 @@
 
   <div class="text-right vertical-spacer">
     <button class="btn btn-primary" type="button" (click)="submit()">Search</button>
-    <button class="btn btn-default" type="button" (click)="form.reset()">Reset</button>
+    <button class="btn btn-default" type="button" (click)="requestDefaultParameters.emit()">Reset</button>
     <button class="btn btn-default" type="button" (click)="form.reset()">Clear</button>
-    <button class="btn btn-default" type="button" (click)="logForm()">Debug</button>
   </div>
 
 </form>

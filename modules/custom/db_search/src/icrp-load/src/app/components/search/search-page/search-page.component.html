@@ -1,8 +1,22 @@
+<ui-overlay [active]="state.loading && (!state.results || !state.results.length)" [fullscreen]="true">
+  <ui-spinner></ui-spinner>
+  <br>Fetching Data
+</ui-overlay>
+
+
+
+  <ui-simple-select #simple>
+  </ui-simple-select>
+
+  <br>
+  <div>
+  {{ simple | json }}
+  </div>
+  
 <div class="row">
   <div class="col-sm-4">
     <icrp-search-form #searchform
-      [fields]="fields"
-      (search)="search($event)">
+      (search)="getSearchResults($event)">
     </icrp-search-form>
   </div>
 
@@ -11,39 +25,27 @@
       [criteria]="state.displayParameters">
     </icrp-search-criteria-display>
 
-
     <br>
 
     <icrp-charts-panel
-      [analytics]="analytics"
+      [analytics]="state.analytics"
       [fields]="fields"
-      (requestChart)="this.getAnalytics(searchID, [$event.type], $event.year)">
+      (requestChart)="this.getAnalytics(state.searchID, [$event.type], $event.year)">
     </icrp-charts-panel>
 
     <br>
 
-
     <icrp-export-buttons-panel
+      *ngIf="state.results && state.results.length"
       [authenticated]="sharedService.get('authenticated')">
     </icrp-export-buttons-panel>
 
+    <icrp-results-table-panel
+      [loading]="state.loading"
+      [results]="state.results"
+      [numResults]="state.numResults"
+      (sortPaginate)="getSortedPaginatedResults($event)">
+    </icrp-results-table-panel>
 
-    <div style="position: relative">
-      <ui-overlay [active]="loading">
-        <ui-spinner></ui-spinner>
-        <br>Fetching Data
-      </ui-overlay>
-
-      <ui-table
-        [headers]="headers"
-        [data]="searchResults"
-        [numResults]="numResults"
-        [loading]="loading"
-        (sort)="sortPaginate($event)"
-        (paginate)="sortPaginate($event)"
-        >
-      </ui-table>
-
-    </div>
   </div>
 </div>

@@ -1,3 +1,9 @@
+export function getSearchID() {
+  let query: any = parseQuery(window.location.search);
+  return (query && query.sid) || null;
+}
+
+
 export function parseQuery(queryString: string) {
   return (queryString[0] === '?' ? queryString.substring(1) : queryString)
     .split('&')

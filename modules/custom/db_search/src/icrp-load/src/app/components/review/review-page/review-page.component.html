@@ -37,21 +37,12 @@
     [authenticated]="sharedService.get('authenticated')">
   </icrp-export-buttons-panel>
 
-  <div style="position: relative">
-    <ui-overlay [active]="loading">
-      <ui-spinner></ui-spinner>
-      <br>Fetching Data
-    </ui-overlay>
 
-    <ui-table
-      [headers]="headers"
-      [data]="searchResults"
-      [numResults]="numResults"
-      [loading]="loading"
-      (sort)="sortPaginate($event)"
-      (paginate)="sortPaginate($event)"
-      >
-    </ui-table>
+  <icrp-results-table-panel
+    [loading]="loading"
+    [results]="searchResults"
+    [numResults]="numResults"
+    (sortPaginate)="sortPaginate($event)">
+  </icrp-results-table-panel>
 
-  </div>
 </div>

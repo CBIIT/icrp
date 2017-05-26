@@ -13,11 +13,36 @@ import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 })
 export class SearchFormComponent {
 
-  @Input()
-  fields: any;
+  fields: any = {
+    search_terms: [],
+    search_type: [],
+    years: [],
+    include_future_years: [],
+
+    institution: [],
+    pi_first_name: [],
+    pi_last_name: [],
+    pi_orcid: [],
+    award_code: [],
+
+    countries: [],
+    states: [],
+    cities: [],
+
+    funding_organizations: [],
+    funding_organization_types: [],
+    cancer_types: [],
+    is_childhood_cancer: [],
+    project_types: [],
+    cso_research_areas: []
+  }      
 
   @Output()
   search: EventEmitter<object>;
+
+  @Output()
+  requestDefaultParameters: EventEmitter<void> = new EventEmitter<void>();
+
 
   form: FormGroup;
 
@@ -64,30 +89,20 @@ export class SearchFormComponent {
         this.parameters[key] = value;
     }
 
-    this.search.emit({
-      parameters: this.parameters,
-      displayParameters: this.displayParameters
-    });
+    window.setTimeout(e => 
+      this.search.emit({
+        parameters: this.parameters,
+        displayParameters: this.displayParameters
+      })
+      , 0)
   }
 
-  logForm() {
-
-    this.parameters = {};
-    for (let key in this.form.controls) {
-      let value = this.form.controls[key].value;
-
-      if (value != null && value.length > 0 || value === true)
-        this.parameters[key] = value;
-    }
-
-    console.log(this.parameters);
+  setFields(fields) {
+    this.fields = fields;
   }
 
   setParameters(parameters) {
-
-    console.log('setting parameters', parameters);
     for (let key in parameters) {
-      console.log('patching value of ', this.form.controls[key], 'with', key);
       setTimeout(e => this.form.controls[key].patchValue(parameters[key]), 0)
     }
   }
@@ -104,6 +119,10 @@ export class SearchFormComponent {
   }
 
   filterYears(includeFutureYears: boolean) {
+    if (!this.fields || !this.fields.years || !this.fields.years.length) {
+      return [];
+    }
+
     let years = this.fields.years
       .filter(year =>
         includeFutureYears || year.value <= new Date().getFullYear())

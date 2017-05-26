@@ -39,6 +39,8 @@ import { ExportButtonsPanelComponent } from './components/shared/export-buttons-
 import { ExportButtonComponent } from './components/export/export-button/export-button.component';
 import { EmailResultsButtonComponent } from './components/export/email-results-button/email-results-button.component';
 import { OverlayComponent } from './components/ui-components/overlay/overlay.component';
+import { ResultsTablePanelComponent } from './components/shared/results-table-panel/results-table-panel.component';
+import { SimpleSelectComponent } from './components/ui-components/simple-select/simple-select.component';
 
 @NgModule({
   declarations: [
@@ -59,6 +61,8 @@ import { OverlayComponent } from './components/ui-components/overlay/overlay.com
     EmailResultsButtonComponent,
     ExportButtonComponent,
     OverlayComponent,
+    ResultsTablePanelComponent,
+    SimpleSelectComponent,
   ],
   imports: [
     BrowserModule,
