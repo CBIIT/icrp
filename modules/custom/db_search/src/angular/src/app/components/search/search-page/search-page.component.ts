@@ -72,24 +72,31 @@ export class SearchPageComponent implements AfterViewInit {
           this.getSearchResults({
             parameters: parameters,
           });
-
-
-          console.log(`retrieved search parameters`, parameters);
         }
 
       });
   }
 
   performDefaultSearch() {
+    this.setDefaultParameters();
+    this.getSearchResults({
+      parameters: this.getDefaultParameters(),
+    })
+  }
+
+  setDefaultParameters() {
+    let defaultParameters =  this.getDefaultParameters();
+    this.searchForm.setParameters(defaultParameters, true);
+  }
+
+  getDefaultParameters() {
     let currentYear = new Date().getFullYear();
     let defaultParameters = {
       years: [currentYear, currentYear - 1]
     };
 
-    this.searchForm.setParameters(defaultParameters);
-    this.getSearchResults({
-      parameters: defaultParameters,
-    })
+    return defaultParameters;
+
   }
 
   // functions for retrieving search parameters based on search id

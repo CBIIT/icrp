@@ -100,7 +100,11 @@ export class SearchFormComponent {
     this.fields = fields;
   }
 
-  setParameters(parameters) {
+  setParameters(parameters, clearForm: boolean = false) {
+    if (clearForm) {
+      this.form.reset();
+    }
+
     for (let key in parameters) {
       setTimeout(e => this.form.controls[key].patchValue(parameters[key]), 0)
     }

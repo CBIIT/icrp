@@ -7,7 +7,9 @@
 <div class="row">
   <div class="col-sm-3">
     <icrp-search-form #searchform
-      (search)="getSearchResults($event)">
+      (search)="getSearchResults($event)"
+      (requestDefaultParameters)="setDefaultParameters()"
+      >
     </icrp-search-form>
   </div>
 
