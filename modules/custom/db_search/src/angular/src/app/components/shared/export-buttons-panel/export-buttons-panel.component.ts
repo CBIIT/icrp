@@ -58,7 +58,7 @@ export class ExportButtonsPanelComponent  {
       exportAbstractsSingle: `${baseRoute}/ExportAbstractSignlePartner`,
       exportGraphs: this.authenticated
         ? `${baseRoute}/ExportResultsWithGraphsPartner`
-        : `${baseRoute}/exportResultsWithGraphsPartnerPublic`
+        : `${baseRoute}/ExportResultsWithGraphsPartnerPublic`
     }
   }
 }
