@@ -24,6 +24,8 @@ use Drupal\Component\Utility\Html;
  *
  */
 /*
+
+
 function icrp_user_login($account) {
     // We want to redirect user on login.
     $response = new RedirectResponse("mypath");
@@ -43,6 +45,15 @@ function icrp_user_login($account) {
     return;
 }
 */
+function icrp_user_format_name_alter(&$name, $account) {
+  // Display the user's uid instead of name.
+  //kint($account->get('field_first_name')->value);
+  /*
+  if ($account->id()) {
+    $name = t('User @uid', array('@uid' => $account->id()));
+  }
+  */
+}
 function icrp_mail($key, &$message, $params) {
 
   // E-mail formatting will be exactly as below, so do not use indenting!

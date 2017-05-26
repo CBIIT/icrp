@@ -1,0 +1,26 @@
+/*forum page*/
+/* Source: bootstrap_business: style.css line: 303 */;
+th.active img { margin: -4px 0 0 5px; }
+
+table#forum { border: 1px solid #eaeaea; width: 100%; }
+
+#forum table { border: 1px solid #eaeaea; width: 100%; }
+
+#forum thead tr { border-bottom: 1px solid #eaeaea; }
+
+#forum thead tr th, #forum thead tr td { background: orange; font-weight: 700; border:none; padding: 11px; }
+
+#forum thead a { color: #444444; }
+
+#forum tbody tr th, #forum tbody tr td { padding: 5px 15px; border:none;}
+
+#forum tr.odd { background: #fbfbfb; border-bottom: 1px solid #eaeaea; }
+
+#forum tr.even { background: #ffffff; border-bottom: 1px solid #eaeaea; }
+
+#forum .last-reply { font-size: 12px; }
+
+.node-forum .field-name-body { margin: 10px 0; }
+
+.node-forum .field-type-taxonomy-term-reference { float: none; }
+
