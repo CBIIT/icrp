@@ -5,33 +5,31 @@
 
   <icrp-export-button
     label="Export Results"
-    [endpoint]="authenticated
-      ? '/load/ExportResultsPartner'
-      : '/load/ExportResults'">
+    [endpoint]="routes.exportResults">
     </icrp-export-button>
 
   <icrp-export-button
     *ngIf="authenticated"
     label="Export Single"
-    endpoint="/load/ExportResultsSignlePartner">
+    [endpoint]="routes.exportResultsSingle">
   </icrp-export-button>
 
   <icrp-export-button
     *ngIf="authenticated"
     label="Export Abstracts"
-    endpoint="/load/ExportResultsWithAbstractPartner">
+    [endpoint]="routes.exportAbstracts">
   </icrp-export-button>
 
   <icrp-export-button
     *ngIf="authenticated"
     label="Export Abstracts Single"
-    endpoint="/load/ExportAbstractSignlePartner">
+    [endpoint]="routes.exportAbstractsSingle">
   </icrp-export-button>
 
   <span class="pull-right">
     <icrp-export-button
       label="Export Graphs"
-      endpoint="/load/ExportResultsWithGraphsPartner">
+      [endpoint]="routes.ExportResultsWithGraphsPartner">
     </icrp-export-button>
   </span>
 </div>
