@@ -53,7 +53,7 @@ export class ExportButtonsPanelComponent  {
       exportResults: this.authenticated
         ? `${baseRoute}/ExportResultsPartner`
         : `${baseRoute}/ExportResults`,
-      exportSingle: `${baseRoute}/ExportResultsSignlePartner`,
+      exportResultsSingle: `${baseRoute}/ExportResultsSignlePartner`,
       exportAbstracts: `${baseRoute}/ExportResultsWithAbstractPartner`,
       exportAbstractsSingle: `${baseRoute}/ExportAbstractSignlePartner`,
       exportGraphs: `${baseRoute}/ExportResultsWithGraphsPartner`,
