@@ -2,104 +2,90 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
+import { SearchPageComponent } from './components/search/search-page/search-page.component';
+import { ReviewPageComponent } from './components/review/review-page/review-page.component';
+import { SearchFormComponent } from './components/search/search-form/search-form.component';
 
-import { SearchComponent } from './search/search.component';
-import { SearchFormComponent } from './search-form/search-form.component';
-import { SearchResultsComponent } from './search-results/search-results.component';
-import { UiSelectComponent } from './ui-select/ui-select.component';
-import { UiPanelComponent } from './ui-panel/ui-panel.component';
-import { UiTreeviewComponent } from './ui-treeview/ui-treeview.component';
-import { UiTableComponent } from './ui-table/ui-table.component';
-import { UiChartComponent } from './ui-chart/ui-chart.component';
+import { TableComponent } from './components/ui-components/table/table.component';
+import { PanelComponent } from './components/ui-components/panel/panel.component'
+import { UiChartComponent } from './components/ui-components/chart/ui-chart.component'
 
-import { TooltipModule } from 'ng2-bootstrap';
-import { PaginationModule } from 'ng2-bootstrap';
-import { ModalModule } from 'ng2-bootstrap';
+import { TreeViewModule } from './components/ui-components/treeview';
+import { SelectModule } from './components/ui-components/select';
 import { SpinnerModule } from 'angular-ui-components';
 
-import { EmailResultsButtonComponent } from './email-results-button/email-results-button.component';
-import { ExportResultsButtonComponent } from './export-results-button/export-results-button.component';
-import { ExportResultsPartnerButtonComponent } from './export-results-partner-button/export-results-partner-button.component';
-import { ExportResultsAbstractsPartnerButtonComponent } from './export-results-abstracts-partner-button/export-results-abstracts-partner-button.component';
-import { ExportResultsGraphsPartnerButtonComponent } from './export-results-graphs-partner-button/export-results-graphs-partner-button.component';
-import { EmailResultsPartnerButtonComponent } from './email-results-partner-button/email-results-partner-button.component';
-import { ExportResultsAbstractsSinglePartnerButton } from './export-results-abstracts-single-partner-button/export-results-abstracts-single-partner-button';
-import { ExportResultsSinglePartnerButton } from './export-results-single-partner-button/export-results-single-partner-button';
-import { ExportLookupTableButtonComponent } from './export-lookup-table-button/export-lookup-table-button.component';
-import { CustomSelectComponent } from './custom-select/custom-select.component';
+import { SharedService } from './services/shared.service';
+import { SearchService } from './services/search.service';
+import { ReviewService } from './services/review.service';
+import { ExportService } from './services/export.service';
+import { StoreService } from './services/store.service';
+
+import { TooltipModule, PaginationModule, ModalModule, AlertModule } from 'ngx-bootstrap';
 
 
-
-let devProviders = [
-{
-      provide: 'api_root',
-      useValue: 'https://icrpartnership-dev.org'
-    },
-    {
-      provide: 'page_title',
-      useValue: 'Search ICRP Database'
-    },
-]
-
-
-let productionProviders = [
-{
-      provide: 'api_root',
-      useValue: ''
-    },
-    {
-      provide: 'page_title',
-      useValue: 'Search ICRP Database'
-    },
-]
-
-
-let dataReviewProviders = [
-{
-      provide: 'api_root',
-      useValue: '/load'
-    },
-    {
-      provide: 'page_title',
-      useValue: 'Data Review Tool'
-    },
-]
+import 'rxjs/add/operator/map'
+import 'rxjs/add/operator/catch'
+import 'rxjs/add/operator/mergeMap';
+import { SummaryPanelComponent } from './components/shared/summary-panel/summary-panel.component';
+import { IconComponent } from './components/ui-components/icon/icon.component';
+import { ChartsPanelComponent } from './components/shared/charts-panel/charts-panel.component';
+import { ReviewSummaryPanelComponent } from './components/review/review-summary-panel/review-summary-panel.component';
+import { ReviewUploadsTableComponent } from './components/review/review-uploads-table/review-uploads-table.component';
+import { ExportButtonsPanelComponent } from './components/shared/export-buttons-panel/export-buttons-panel.component';
+import { ExportButtonComponent } from './components/export/export-button/export-button.component';
+import { EmailResultsButtonComponent } from './components/export/email-results-button/email-results-button.component';
+import { OverlayComponent } from './components/ui-components/overlay/overlay.component';
+import { ResultsTablePanelComponent } from './components/shared/results-table-panel/results-table-panel.component';
+import { SimpleSelectComponent } from './components/ui-components/simple-select/simple-select.component';
+import { SearchSummaryPanelComponent } from './components/search/search-summary-panel/search-summary-panel.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    SearchComponent,
+    SearchPageComponent,
+    ReviewPageComponent,
     SearchFormComponent,
-    SearchResultsComponent,
-    UiSelectComponent,
-    UiPanelComponent,
-    UiTreeviewComponent,
-    UiTableComponent,
+    TableComponent,
+    PanelComponent,
     UiChartComponent,
+    SummaryPanelComponent,
+    IconComponent,
+    ChartsPanelComponent,
+    ReviewSummaryPanelComponent,
+    ReviewUploadsTableComponent,
+    ExportButtonsPanelComponent,
     EmailResultsButtonComponent,
-    ExportResultsButtonComponent,
-    ExportResultsPartnerButtonComponent,
-    ExportResultsAbstractsPartnerButtonComponent,
-    ExportResultsGraphsPartnerButtonComponent,
-    EmailResultsPartnerButtonComponent,
-    ExportResultsAbstractsSinglePartnerButton,
-    ExportResultsSinglePartnerButton,
-    ExportLookupTableButtonComponent,
-    CustomSelectComponent
+    ExportButtonComponent,
+    OverlayComponent,
+    ResultsTablePanelComponent,
+    SimpleSelectComponent,
+    SearchSummaryPanelComponent,
   ],
   imports: [
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
     HttpModule,
+    BrowserAnimationsModule,
     TooltipModule.forRoot(),
     PaginationModule.forRoot(),
     ModalModule.forRoot(),
+    AlertModule.forRoot(),
+
     SpinnerModule.forRoot(),
+    SelectModule.forRoot(),
+    TreeViewModule.forRoot(),
   ],
-  providers: productionProviders,
+  providers: [
+    SharedService,
+    SearchService,
+    ReviewService,
+    ExportService,
+    StoreService,
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
