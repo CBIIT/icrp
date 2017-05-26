@@ -251,7 +251,7 @@ class DatabaseSearch {
     ];
   }
 
-  public static funcion getSearchParametersForDisplay(PDO $pdo, array $parameters = ['search_id' => -1]): array {
+  public static function getSearchParametersForDisplay(PDO $pdo, array $parameters = ['search_id' => -1]): array {
 
     $stmt = $pdo->prepare('EXECUTE GetSearchCriteriaBySearchID @SearchID=:search_id');
 
