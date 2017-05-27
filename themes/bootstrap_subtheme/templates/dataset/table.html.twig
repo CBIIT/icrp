@@ -39,6 +39,9 @@
  * @see template_preprocess_table()
  */
 #}
+table.html.twig<br>
+set caption = 'Hello World'
+{{ dump(caption) }}
 <table{{ attributes }}>
   {% if caption %}
     <caption>{{ caption }}</caption>
