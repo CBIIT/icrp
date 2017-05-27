@@ -41,8 +41,10 @@
 #}
 table.html.twig<br>
 set caption = 'Hello World'
-{{ dump(caption) }}
-<table{{ attributes }}>
+{{ dump(attributes) }}
+
+<!-- <table{{ attributes }}> -->
+<table {{ attributes }} class="table table-striped table-bordered table-condensed sticky-enabled">
   {% if caption %}
     <caption>{{ caption }}</caption>
   {% endif %}

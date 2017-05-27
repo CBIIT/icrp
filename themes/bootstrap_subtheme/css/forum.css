@@ -1,3 +1,12 @@
+/*tables*/
+table { width: 100%; margin-bottom: 20px; border: 1px solid #dfdfdf; }
+
+table tbody { border-top: none; }
+
+table tr.even, table tr.odd, th { background-color: transparent; border-bottom: 1px solid #dfdfdf;}
+
+thead tr th, thead tr td, tbody tr th, tbody tr td { padding: 8px; line-height: 142%; vertical-align: top; }
+
 /*forum page*/
 /* Source: bootstrap_business: style.css line: 303 */;
 th.active img { margin: -4px 0 0 5px; }
