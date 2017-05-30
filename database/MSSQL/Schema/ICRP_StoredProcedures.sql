@@ -455,7 +455,9 @@ GO
 
 CREATE PROCEDURE [dbo].[GetProjectCountryStatsBySearchID]   
     @SearchID INT,
-	@ResultCount INT OUTPUT  -- return the searchID		
+	@Type varchar(25) = 'Count',  -- 'Count' or 'Amount'
+	@ResultCount INT OUTPUT,  -- return the searchID		
+	@ResultAmount float OUTPUT  -- return the searchID	
 
 AS   
   	------------------------------------------------------
@@ -467,7 +469,7 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT i.country, Count(*) AS [Count] INTO #stats
+	SELECT i.country, Count(*) AS [Count], SUM(f.Amount) AS Amount INTO #stats
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
 		JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
@@ -475,8 +477,13 @@ AS
 	GROUP BY i.country				
 
 	SELECT @ResultCount = SUM([Count]) FROM #stats	
+	SELECT @ResultAmount = SUM([Amount]) FROM #stats	
 
-	SELECT * FROM #stats ORDER BY [Count] Desc
+	IF @Type = 'Amount'
+		SELECT * FROM #stats ORDER BY [Amount] Desc
+	ELSE
+		SELECT * FROM #stats ORDER BY [Count] Desc
+
 GO
 
 
@@ -494,7 +501,7 @@ DROP PROCEDURE [dbo].[GetProjectCSOStatsBySearchID]
 GO 
 
 CREATE PROCEDURE [dbo].[GetProjectCSOStatsBySearchID]   
-    @SearchID INT,
+    @SearchID INT,	
 	@ResultCount INT OUTPUT  -- return the searchID			
 
 AS   
@@ -572,31 +579,40 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectTypeStatsBySearchID]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetProjectTypeStatsBySearchID]
+DROP PROCEDURE [dbo].[GetProjectTypeStatsBySearchID]  
 GO 
 
 CREATE PROCEDURE [dbo].[GetProjectTypeStatsBySearchID]   
     @SearchID INT,
-	@ResultCount INT OUTPUT  -- return the searchID		
+	@Type varchar(25) = 'Count',  -- 'Count' or 'Amount'	
+	@ResultCount INT OUTPUT,  -- return the searchID
+	@ResultAmount float OUTPUT  -- return the searchID	
 
 AS   
   	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
 	DECLARE @ProjectIDs VARCHAR(max) 
-	SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+	SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
 	
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT pt.ProjectType, Count(*) AS [Count] INTO #stats
-	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r				
+	SELECT pt.ProjectType, Count(*) AS [Count], SUM(f.Amount) AS Amount INTO #stats
+	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
+		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID		
 		JOIN Project_ProjectType pt ON r.ProjectID = pt.ProjectID				
 	GROUP BY pt.ProjectType
 	
 	SELECT @ResultCount = SUM([Count]) FROM #stats	
+	SELECT @ResultAmount = SUM([Amount]) FROM #stats	
 
-	SELECT * FROM #stats ORDER BY [Count] DESC
+	IF @Type = 'Amount'
+		SELECT * FROM #stats ORDER BY [Amount] Desc
+	ELSE
+		SELECT * FROM #stats ORDER BY [Count] Desc
+
+	
 GO
 
 
@@ -1291,9 +1307,10 @@ CREATE  PROCEDURE [dbo].[GetDataUploadStatus]
 AS   
 
 SELECT [PartnerCode] AS Partner,[FundingYear],[Status],[ReceivedDate],[ValidationDate],[UploadToDevDate],
-	[UploadToStageDate],[UploadToProdDate],
+	[UploadToStageDate],[UploadToProdDate],[Type],l.ProjectFundingCount AS Count,
 	[Note]
-FROM datauploadstatus
+FROM datauploadstatus u
+JOIN DataUploadLog l ON u.DataUploadStatusID = l.DataUploadStatusID
 ORDER BY [ReceivedDate] DESC
 
 GO
