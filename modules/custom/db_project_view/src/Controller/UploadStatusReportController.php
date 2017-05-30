@@ -47,22 +47,9 @@ class UploadStatusReportController extends ControllerBase {
   public function getUploadStatusDetails() {
     $dbutil = new DBUtil();
     $pdo = $dbutil -> get_connection();
-
-    $stmt = $pdo->prepare("
-      SELECT 
-       PartnerCode as partner,
-       FundingYear as funding_year,
-       Status as status,
-       CAST(ReceivedDate as DATE) received_date,
-       CAST(ValidationDate as DATE) validation_date,
-       CAST(UploadToDevDate as DATE) dev_date,
-       CAST(UploadToStageDate as DATE) stage_date,
-       CAST(UploadToProdDate as DATE) prod_date
-       FROM DataUploadStatus
-       ORDER BY received_date DESC
-       ");
-     $stmt->execute();
-     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $pdo->prepare("SET NOCOUNT ON; EXECUTE GetDataUploadStatus;");
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
   public function getUploadStatus() {
     $results = self::getUploadStatusDetails();
