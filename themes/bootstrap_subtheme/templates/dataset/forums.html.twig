@@ -14,7 +14,9 @@
  * @see template_preprocess_forums()
  */
 #}
-forums.html.twig<br>
+{% if icrp_debug %}
+	<span class="icrp-debug">forums.html.twig</span><br>
+{% endif %}
 <div>
 {{ attach_library('classy/forum') }}
 {% if forums_defined %}

@@ -56,7 +56,11 @@
  * @see html.html.twig
  */
 #}
-<span style="font-size:8px;font-weight:bold">page-forum.html.twig</span><br>
+
+{% if icrp_debug %}
+  <span class="icrp-debug">page-forum.html.twig</span><br>
+{% endif %}
+
 {% set container = theme.settings.fluid_container ? 'container-fluid' : 'container' %}
 {# Navbar #}
 {% if page.navigation or page.navigation_collapsible %}
@@ -140,17 +144,17 @@
         {% endif %}
 
         {# Breadcrumbs #}
-        <span style="font-size:8px;font-weight:bold">page-forum.html.twig - BREADCRUMB</span><br>
-
+  
         {% if breadcrumb %}
+          <span class="icrp-debug">page-forum.html.twig - BREADCRUMB</span><br>
           {% block breadcrumb %}
             {{ breadcrumb }}
           {% endblock %}
         {% endif %}
 
         {# Action Links #}
-        <span style="font-size:8px;font-weight:bold">page-forum.html.twig - ACTION_LINKS</span><br>
         {% if action_links %}
+          <span class="icrp-debug">page-forum.html.twig - ACTION_LINKS</span><br>
           {% block action_links %}
             <ul class="action-links">{{ action_links }}</ul>
           {% endblock %}
