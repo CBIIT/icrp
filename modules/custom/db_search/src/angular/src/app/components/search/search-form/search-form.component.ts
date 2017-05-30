@@ -35,7 +35,7 @@ export class SearchFormComponent {
     is_childhood_cancer: [],
     project_types: [],
     cso_research_areas: []
-  }      
+  }
 
   @Output()
   search: EventEmitter<object>;
@@ -49,7 +49,6 @@ export class SearchFormComponent {
   parameters: any = {};
   defaultParameters: any = {};
   displayParameters: any = {};
-  includeFutureYears: boolean = false;
 
   constructor(private formBuilder: FormBuilder) {
     this.search = new EventEmitter<object>();
@@ -89,7 +88,7 @@ export class SearchFormComponent {
         this.parameters[key] = value;
     }
 
-    window.setTimeout(e => 
+    window.setTimeout(e =>
       this.search.emit({
         parameters: this.parameters,
         displayParameters: this.displayParameters
@@ -108,6 +107,7 @@ export class SearchFormComponent {
     for (let key in parameters) {
       setTimeout(e => this.form.controls[key].patchValue(parameters[key]), 0)
     }
+
   }
 
   setDefaultParameters(parameters) {
@@ -121,7 +121,9 @@ export class SearchFormComponent {
     }
   }
 
-  filterYears(includeFutureYears: boolean) {
+  filterYears() {
+    let includeFutureYears = this.form.controls['include_future_years'].value;
+
     if (!this.fields || !this.fields.years || !this.fields.years.length) {
       return [];
     }

@@ -10,9 +10,9 @@ import {
 } from '@angular/core';
 
 
-import { 
-  ControlValueAccessor, 
-  NG_VALUE_ACCESSOR 
+import {
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR
 } from '@angular/forms';
 
 
@@ -28,7 +28,7 @@ import {
   host: {
     '(document:click)': 'focusInput($event)',
   },
-  
+
 })
 
 export class SimpleSelectComponent {
@@ -110,7 +110,6 @@ export class SimpleSelectComponent {
       input.value = '';
     } else {
       this.valid = false;
-      console.log('valid', this.valid);
     }
 
   }

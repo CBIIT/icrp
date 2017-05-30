@@ -101,7 +101,7 @@
         id="include_future_years"
         name="include_future_years"
         [formControl]="form.controls.include_future_years"
-        (change)="includeFutureYears = !includeFutureYears; setParameters({years: []})"
+        (change)="this.setParameters({years: []})"
       >
       Include Future Years
     </label>

@@ -29,12 +29,16 @@ export class SharedService {
 
   updateAuthenticationStatus(): void {
     this.set('authenticated', false);
-    
-    let auth = this.http.get('/search-database/partners/authenticate', {withCredentials: true})
-      .map(response => response.text())
-      .subscribe(response => this.set('authenticated', true))
-/*
-    Observable.of(false)
-      .subscribe(response => this.set('authenticated', response)); */
+
+    if (environment.production) {
+      let auth = this.http.get('/search-database/partners/authenticate', {withCredentials: true})
+        .map(response => response.text())
+        .subscribe(response => this.set('authenticated', true))
+    }
+
+    else {
+      Observable.of(true)
+        .subscribe(response => this.set('authenticated', response));
+    }
   }
 }
