@@ -21,13 +21,21 @@ export default class PartialTable extends Component {
         <p>
 ICRP organizations submit their latest available research projects or research funding to the ICRP database as soon as possible. Each partner submits data on a different schedule as each has different timelines for awarding, collating and classifying projects, so recent calendar years in the ‘Year active’ search may not yet include all available data for that year. In the table below, the ‘Import Description’ column shows the latest import from each partner, and the date on which that import was uploaded to the database. Organizations that update research funding annually for all projects in the database are listed as ‘yes’ in the ‘Annual funding updates’ column below.
  	</p>
-       
+
         <div className="row">
-          <style type="text/css">{`.col-xs-3 {margin-top: 10px;} `}</style>
+          <style type="text/css">{`
+            .col-xs-3 {margin-top: 10px;}
+            .form-control-input {
+              border: 1px solid #AAA;
+              border-radius: 4px;
+              padding: 6px;
+            }
+          `}</style>
           <div className="col-xs-3">
             <div>
               <label htmlFor="search-field">Search&nbsp; </label>
               <input
+                className="form-control-input"
                 id="search-field"
                 type="search"
                 size="30"
@@ -51,7 +59,7 @@ ICRP organizations submit their latest available research projects or research f
                   </option>
                 )}
               </select>
-              &nbsp; out of  <b>{totalRecords}</b> Funding Organizations 
+              &nbsp; out of  <b>{totalRecords}</b> Funding Organizations
             </div>
 	  </div>
           <div className="col-xs-4">
