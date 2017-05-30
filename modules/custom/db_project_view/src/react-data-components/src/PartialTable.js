@@ -29,6 +29,7 @@ ICRP organizations submit their latest available research projects or research f
               border: 1px solid #AAA;
               border-radius: 4px;
               padding: 6px;
+              height: 24px;
             }
           `}</style>
           <div className="col-xs-3">
