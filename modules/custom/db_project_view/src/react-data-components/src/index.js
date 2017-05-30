@@ -27,7 +27,7 @@ function buildTable(data) {
       columns={tableColumns}
       initialData={data}
       initialPageLength={25}
-      initialSortBy={{ prop: 'name', order: 'ascending' }}
+      initialSortBy={{ prop: 'Name', order: 'ascending' }}
       pageLengthOptions={[ 25, 50, 100, 150 ]}
     />
   );
@@ -71,6 +71,20 @@ else {
 fetch('/getFundingOrg')
   .then(res => res.json())
   .then((rows) => {
-    ReactDOM.render(buildTable(rows), document.getElementById('funding_org_root'));
+    let data = rows.map(row => {
+      let obj = {};
+      for (let key in row) {
+        if (key === 'IsAnnualized') {
+          obj[key] = row[key] === '1' ? 'YES' : 'NO'
+        }
+        
+        else {
+          obj[key] = row[key] || '';
+        }
+      }
+      return obj;
+    })
+
+    ReactDOM.render(buildTable(data), document.getElementById('funding_org_root'));
   });
 }
