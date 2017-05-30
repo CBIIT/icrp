@@ -455,6 +455,7 @@ GO
 
 CREATE PROCEDURE [dbo].[GetProjectCountryStatsBySearchID]   
     @SearchID INT,
+	@Year INT,	
 	@Type varchar(25) = 'Count',  -- 'Count' or 'Amount'
 	@ResultCount INT OUTPUT,  -- return the searchID		
 	@ResultAmount float OUTPUT  -- return the searchID	
@@ -469,18 +470,22 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT i.country, Count(*) AS [Count], SUM(f.Amount) AS Amount INTO #stats
-	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
-		JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
-		JOIN Institution i ON i.InstitutionID = pi.InstitutionID
-	GROUP BY i.country				
+	SELECT country, COUNT(*) AS Count, SUM(USDAmount) AS USDAmount INTO #stats FROM 
+		(SELECT i.country, (f.Amount * ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount 
+		 FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
+			JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
+			JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
+			JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+			JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
+			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = o.Currency
+		) r
+	GROUP BY country				
 
-	SELECT @ResultCount = SUM([Count]) FROM #stats	
-	SELECT @ResultAmount = SUM([Amount]) FROM #stats	
+	SELECT @ResultCount = SUM(Count) FROM #stats	
+	SELECT @ResultAmount = SUM([USDAmount]) FROM #stats	
 
 	IF @Type = 'Amount'
-		SELECT * FROM #stats ORDER BY [Amount] Desc
+		SELECT * FROM #stats ORDER BY [USDAmount] Desc
 	ELSE
 		SELECT * FROM #stats ORDER BY [Count] Desc
 
@@ -501,29 +506,39 @@ DROP PROCEDURE [dbo].[GetProjectCSOStatsBySearchID]
 GO 
 
 CREATE PROCEDURE [dbo].[GetProjectCSOStatsBySearchID]   
-    @SearchID INT,	
-	@ResultCount INT OUTPUT  -- return the searchID			
+    @SearchID INT,		
+	@Year INT,	
+	@Type varchar(25) = 'Count',  -- 'Count' or 'Amount'
+	@ResultCount INT OUTPUT,  -- return the relevances		
+	@ResultAmount float OUTPUT  -- return the amount	
 
 AS   
   	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
 	DECLARE @ProjectIDs VARCHAR(max) 
-	SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+	SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
 	
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT c.categoryName, CAST(SUM(Relevance)/100 AS decimal(16,2)) AS Relevance, count(*) AS ProjectCount INTO #stats
-	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
-		JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
-		JOIN CSO c ON c.code = pc.csocode
-	GROUP BY c.categoryName
-
+	SELECT categoryName, CAST(SUM(Relevance)/100 AS decimal(16,2)) AS Relevance, SUM(USDAmount) AS USDAmount, count(*) AS ProjectCount INTO #stats FROM
+		(SELECT c.categoryName, Relevance, (f.Amount * ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount
+		 FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
+			JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
+			JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
+			JOIN CSO c ON c.code = pc.csocode
+			JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
+			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = o.Currency) r
+	GROUP BY categoryName
+		
 	SELECT @ResultCount = SUM(Relevance) FROM #stats	
+	SELECT @ResultAmount = SUM([USDAmount]) FROM #stats
 
-	SELECT * FROM #stats ORDER BY Relevance DESC
+	IF @Type = 'Amount'
+		SELECT * FROM #stats ORDER BY [USDAmount] Desc
+	ELSE		
+		SELECT * FROM #stats ORDER BY Relevance DESC
 	
 GO
 
@@ -542,8 +557,11 @@ DROP PROCEDURE [dbo].[GetProjectCancerTypeStatsBySearchID]
 GO 
 
 CREATE PROCEDURE [dbo].[GetProjectCancerTypeStatsBySearchID]
-    @SearchID INT,
-	@ResultCount INT OUTPUT  -- return the searchID		
+    @SearchID INT,	
+	@Year INT,	
+	@Type varchar(25) = 'Count',  -- 'Count' or 'Amount'
+	@ResultCount INT OUTPUT,  -- return the total relevances	
+	@ResultAmount float OUTPUT  -- return the total amounts
 
 AS   
     	------------------------------------------------------
@@ -555,16 +573,23 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT c.Name AS CancerType, ISNULL(CAST(SUM(Relevance)/100 AS decimal(16,2)),0) AS Relevance, Count(*) AS ProjectCount INTO #stats
-	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r			
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
-		JOIN ProjectCancerType pc ON f.projectFundingID = pc.projectFundingID	
-		JOIN CancerType c ON c.CancerTypeID = pc.CancerTypeID	
-	GROUP BY c.Name	
-
+	SELECT CancerType, ISNULL(CAST(SUM(Relevance)/100 AS decimal(16,2)),0) AS Relevance,  SUM(USDAmount) AS USDAmount, Count(*) AS ProjectCount INTO #stats	FROM 
+		(SELECT c.Name AS CancerType, Relevance, (f.Amount * ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount
+		 FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r			
+			JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
+			JOIN ProjectCancerType pc ON f.projectFundingID = pc.projectFundingID	
+			JOIN CancerType c ON c.CancerTypeID = pc.CancerTypeID
+			JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
+			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = o.Currency) r
+	GROUP BY CancerType	
+				
 	SELECT @ResultCount = SUM(Relevance) FROM #stats	
-	
-	SELECT * FROM #stats ORDER BY Relevance DESC
+	SELECT @ResultAmount = SUM([USDAmount]) FROM #stats
+
+	IF @Type = 'Amount'
+		SELECT * FROM #stats ORDER BY [USDAmount] Desc
+	ELSE		
+		SELECT * FROM #stats ORDER BY Relevance DESC
 GO
 
 
@@ -584,6 +609,7 @@ GO
 
 CREATE PROCEDURE [dbo].[GetProjectTypeStatsBySearchID]   
     @SearchID INT,
+	@Year INT,	
 	@Type varchar(25) = 'Count',  -- 'Count' or 'Amount'	
 	@ResultCount INT OUTPUT,  -- return the searchID
 	@ResultAmount float OUTPUT  -- return the searchID	
@@ -598,20 +624,22 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT pt.ProjectType, Count(*) AS [Count], SUM(f.Amount) AS Amount INTO #stats
-	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
-		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID		
-		JOIN Project_ProjectType pt ON r.ProjectID = pt.ProjectID				
-	GROUP BY pt.ProjectType
+	SELECT ProjectType, COUNT(*) AS Count, SUM(USDAmount) AS USDAmount INTO #stats FROM 
+		(SELECT pt.ProjectType, (f.Amount * ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount 
+		 FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
+			JOIN ProjectFunding f ON f.ProjectID = r.ProjectID			
+			JOIN Project_ProjectType pt ON r.ProjectID = pt.ProjectID				
+			JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
+			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = o.Currency) r
+	GROUP BY ProjectType
 	
 	SELECT @ResultCount = SUM([Count]) FROM #stats	
-	SELECT @ResultAmount = SUM([Amount]) FROM #stats	
+	SELECT @ResultAmount = SUM([USDAmount]) FROM #stats	
 
 	IF @Type = 'Amount'
-		SELECT * FROM #stats ORDER BY [Amount] Desc
+		SELECT * FROM #stats ORDER BY [USDAmount] Desc
 	ELSE
 		SELECT * FROM #stats ORDER BY [Count] Desc
-
 	
 GO
 
@@ -632,9 +660,9 @@ GO
 
 CREATE PROCEDURE [dbo].[GetProjectAwardStatsBySearchID]   
     @SearchID INT,
-	@Year INT,
-	@Total float OUTPUT  -- return the searchID		
-
+	@Year INT,	
+	@ResultCount INT OUTPUT,  -- return the total project count		
+	@ResultAmount float OUTPUT  -- return the total project funding amount	
 AS   
   	------------------------------------------------------
 	-- Get saved search results by searchID
@@ -652,11 +680,11 @@ AS
 		JOIN ProjectFundingExt ext ON ext.ProjectFundingID = f.ProjectFundingID
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
 		LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = o.Currency		
-
-	SELECT @Total = SUM(USDAmount) FROM #statsPart
-
-	SELECT Year AS Year, SUM(USDAmount) AS amount FROM #statsPart GROUP BY Year ORDER BY Year 
-
+	
+	SELECT @ResultCount = COUNT(*) FROM #statsPart
+	SELECT @ResultAmount = SUM(USDAmount) FROM #statsPart
+	
+	SELECT Year AS Year, COUNT(*) AS Count, SUM(USDAmount) AS amount FROM #statsPart GROUP BY Year ORDER BY Year 
 GO
 
 

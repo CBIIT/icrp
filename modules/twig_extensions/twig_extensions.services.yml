@@ -1,0 +1,25 @@
+services:
+  twig_extensions.twig.array:
+    class: \Twig_Extensions_Extension_Array
+    tags:
+      - { name: twig.extension }
+
+  twig_extensions.twig.date:
+    class: \Twig_Extensions_Extension_Date
+    tags:
+      - { name: twig.extension }
+
+  twig_extensions.twig.i18n:
+    class: \Twig_Extensions_Extension_I18n
+    tags:
+      - { name: twig.extension }
+
+  twig_extensions.twig.intl:
+    class: \Twig_Extensions_Extension_Intl
+    tags:
+      - { name: twig.extension }
+
+  twig_extensions.twig.text:
+    class: \Twig_Extensions_Extension_Text
+    tags:
+      - { name: twig.extension }
