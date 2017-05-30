@@ -1,0 +1,34 @@
+{#
+/**
+ * @file
+ * Theme override to display a forum.
+ *
+ * May contain forum containers as well as forum topics.
+ *
+ * Available variables:
+ * - forums: The forums to display (as processed by forum-list.html.twig).
+ * - topics: The topics to display.
+ * - topics_pager: The topics pager.
+ * - forums_defined: A flag to indicate that the forums are configured.
+ *
+ * @see template_preprocess_forums()
+ */
+#}
+forums.html.twig<br>
+<div>
+<h1>ICRP Partnership Forum</h1>
+<hr style="border: 1px solid orange;">
+<p>To start viewing messages, slect the forum that you want to visit from the slection below.</p>
+
+
+{{ attach_library('classy/forum') }}
+{% if forums_defined %}
+  <div class="forum">
+    {{ forums }}
+    {{ topics }}
+    {{ topics_pager }}
+  </div>
+{% endif %}
+
+</div>
+
