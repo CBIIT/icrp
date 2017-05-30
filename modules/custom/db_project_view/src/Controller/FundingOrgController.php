@@ -48,22 +48,9 @@ class FundingOrgController extends ControllerBase {
   public function getFundingOrgDetails() {
     $dbutil = new DBUtil();
     $pdo = $dbutil -> get_connection();
-    $stmt = $pdo->prepare("
-      SELECT DISTINCT
-       Name  AS name,
-       Abbreviation AS abbr,
-       Country as country,
-       SponsorCode as sponsor,
-       Currency as currency,
-       LastImportDesc as description,
-       CAST(LastImportDate as DATE) import_date,
-       CASE WHEN IsAnnualized = 1 THEN 'YES'
-            ELSE 'NO'
-       END as annual
-       FROM FundingOrg
-       ");
-     $stmt->execute();
-     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $pdo->prepare('EXECUTE GetFundingOrgs @type=funding');
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
   public function getFundingOrg() {
     $results = self::getFundingOrgDetails();

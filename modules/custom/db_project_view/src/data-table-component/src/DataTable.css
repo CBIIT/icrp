@@ -1,0 +1,20 @@
+table.table > thead > tr > th {
+  cursor: pointer;
+  user-select: none;
+}
+
+table.table > thead > tr > th > .header {
+  display: flex;
+  justify-content: space-between;
+}
+
+
+.rotate-45 {
+  transform: rotate(45deg);
+}
+
+.table-condensed td,
+.table-condensed th {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
