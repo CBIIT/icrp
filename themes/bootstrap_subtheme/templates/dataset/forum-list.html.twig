@@ -31,12 +31,25 @@
  */
 #}
 <!-- <table id="forum-{{ forum_id }}"> -->
-forum-list.html.twig<br>
+
+<b>forum-list.html.twig</b><br>
+hello: {{ hello }}
+<br>
+Forum child_id's<br>
+
+{% for child_id, forum in forums %}
+{{ child_id }}<br>
+{% endfor %}
+
+{{ kint(forums) }}
+<h1>ICRP Partnership Forum</h1>
+<hr style="border: 1px solid orange;">
+<p>To start viewing messages, select the forum that you want to visit from the selection below.</p>
 <table id="forum">
   <thead>
     <tr>
       <th>{{ 'Forum'|t }}</th>
-      <th>{{ 'Thread'|t }}</th>
+      <th>{{ 'Threads'|t }}</th>
       <th>{{ 'Posts'|t }}</th>
       <th>{{ 'Last post'|t }}</th>
     </tr>

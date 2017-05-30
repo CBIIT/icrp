@@ -56,6 +56,7 @@
  * @see html.html.twig
  */
 #}
+<span style="font-size:8px;font-weight:bold">page-forum.html.twig</span><br>
 {% set container = theme.settings.fluid_container ? 'container-fluid' : 'container' %}
 {# Navbar #}
 {% if page.navigation or page.navigation_collapsible %}
@@ -139,6 +140,8 @@
         {% endif %}
 
         {# Breadcrumbs #}
+        <span style="font-size:8px;font-weight:bold">page-forum.html.twig - BREADCRUMB</span><br>
+
         {% if breadcrumb %}
           {% block breadcrumb %}
             {{ breadcrumb }}
@@ -146,7 +149,7 @@
         {% endif %}
 
         {# Action Links #}
-        page--forum.html.twig<br>
+        <span style="font-size:8px;font-weight:bold">page-forum.html.twig - ACTION_LINKS</span><br>
         {% if action_links %}
           {% block action_links %}
             <ul class="action-links">{{ action_links }}</ul>

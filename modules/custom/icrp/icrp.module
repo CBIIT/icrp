@@ -45,6 +45,25 @@ function icrp_user_login($account) {
     return;
 }
 */
+function icrp_preprocess_forums(&$variables) {
+  $variables['chris'] = 'Kneisler';
+  drupal_set_message("Added chris to variables.  See if you can access in twig.");
+  //kint($variables);
+
+}
+function icrp_preprocess_forum_list(&$variables) {
+  $variables['hello'] = 'World';
+  drupal_set_message("Added chris to variables.  See if you can access in twig.");
+  //kint($variables);
+
+}
+
+function icrp_template_preprocess_default_variables_alter(&$variables) {
+  $variables['is_admin'] = 'Dont know';
+  drupal_set_message("We got something now");
+  var_dump($variables);
+}
+
 function icrp_user_format_name_alter(&$name, $account) {
   // Display the user's uid instead of name.
   //kint($account->get('field_first_name')->value);
