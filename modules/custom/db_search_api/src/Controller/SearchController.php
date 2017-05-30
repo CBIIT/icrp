@@ -69,6 +69,11 @@ class SearchController extends ControllerBase {
     'project_counts_by_cso_research_area',
     'project_counts_by_cancer_type',
     'project_counts_by_type',
+
+    'project_funding_amounts_by_country',
+    'project_funding_amounts_by_cso_research_area',
+    'project_funding_amounts_by_cancer_type',
+    'project_funding_amounts_by_type',
     'project_funding_amounts_by_year',
   ];
 
@@ -200,7 +205,7 @@ class SearchController extends ControllerBase {
     $connection = self::getConnection('icrp_load_database');
     $parameters = $request->query->all();
 
-    if ($parameters['type'] === 'project_funding_amounts_by_year' 
+    if ($parameters['type'] === 'project_funding_amounts_by_year'
         && !array_key_exists('year', $parameters)) {
 
       $year = DatabaseReview::reviewFields($connection)['conversion_years'][0]['value'];

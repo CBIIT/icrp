@@ -128,7 +128,7 @@ class DatabaseSearch {
 
     foreach($children as $child) {
       $total += self::countChildren($child);
-    } 
+    }
 
     return $total;
   }
@@ -150,7 +150,7 @@ class DatabaseSearch {
 
     return $node;
   }
-  
+
   /**
   * Retrieves valid field values to be used as query parameters
   * @param PDO $pdo - The PDO connection object
@@ -285,7 +285,12 @@ class DatabaseSearch {
       'project_counts_by_cso_research_area' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = :total',
       'project_counts_by_cancer_type'       => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = :total',
       'project_counts_by_type'              => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = :total',
-      'project_funding_amounts_by_year'     => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @Year = :year, @Total = :total',
+
+      'project_funding_amounts_by_country'            => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @Year = :year, @Total = :total',
+      'project_funding_amounts_by_cso_research_area'  => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @Year = :year, @Total = :total',
+      'project_funding_amounts_by_cancer_type'        => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @Year = :year, @Total = :total',
+      'project_funding_amounts_by_type'               => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @Year = :year, @Total = :total',
+      'project_funding_amounts_by_year'               => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @Year = :year, @Total = :total',
     ];
 
     // select which query to perform
@@ -300,30 +305,64 @@ class DatabaseSearch {
           'count' => 'Count',
         ],
       ],
-      
+
       'project_counts_by_cso_research_area' => [
-        'label' => 'categoryName', 
-        'data' => [
-          'count' => 'ProjectCount', 
-          'relevance' => 'Relevance',
-        ],
-      ],
-      
-      'project_counts_by_cancer_type' => [
-        'label' => 'CancerType',     
+        'label' => 'categoryName',
         'data' => [
           'count' => 'ProjectCount',
           'relevance' => 'Relevance',
         ],
       ],
-      
+
+      'project_counts_by_cancer_type' => [
+        'label' => 'CancerType',
+        'data' => [
+          'count' => 'ProjectCount',
+          'relevance' => 'Relevance',
+        ],
+      ],
+
       'project_counts_by_type' => [
         'label' => 'ProjectType',
         'data' => [
           'count' => 'Count',
         ],
       ],
-      
+
+
+
+      'project_funding_amounts_by_country' => [
+        'label' => 'Year',
+        'data' => [
+          'amount' => 'amount',
+        ],
+      ],
+
+
+      'project_funding_amounts_by_cso_research_area' => [
+        'label' => 'Year',
+        'data' => [
+          'amount' => 'amount',
+        ],
+      ],
+
+
+      'project_funding_amounts_by_cancer_type' => [
+        'label' => 'Year',
+        'data' => [
+          'amount' => 'amount',
+        ],
+      ],
+
+
+      'project_funding_amounts_by_type' => [
+        'label' => 'Year',
+        'data' => [
+          'amount' => 'amount',
+        ],
+      ],
+
+
       'project_funding_amounts_by_year' => [
         'label' => 'Year',
         'data' => [
@@ -386,7 +425,7 @@ class DatabaseSearch {
       @yearList             = :years,
       @institution          = :institution,
       @piFirstName          = :pi_first_name,
-      @piLastName           = :pi_last_name, 
+      @piLastName           = :pi_last_name,
       @piORCiD              = :pi_orcid,
       @awardCode            = :award_code,
       @countryList          = :countries,
