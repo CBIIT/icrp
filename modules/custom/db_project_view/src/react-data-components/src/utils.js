@@ -5,19 +5,19 @@ import type {SortBy, AppData, Value, Filters} from './types';
 
 export function sort({prop, order}: SortBy, data: AppData) {
   let datareturn = orderBy(
-    data, 
+    data,
     row => {
       let item = row[prop];
 
       if (item === undefined) {
         console.log('undefined for ', prop, 'in ', row);
       }
-      
-      isNaN(row[prop]) 
-        ? row[prop].toString().toLowerCase() 
+
+      return isNaN(row[prop])
+        ? row[prop].toString().toLowerCase()
         : row[prop]
     }
-, 
+,
       order === 'descending' ? 'desc' : 'asc');
 
     let ind = 1;

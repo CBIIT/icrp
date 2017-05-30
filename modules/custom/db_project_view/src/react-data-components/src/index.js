@@ -77,7 +77,7 @@ fetch('/getFundingOrg')
         if (key === 'IsAnnualized') {
           obj[key] = row[key] === '1' ? 'YES' : 'NO'
         }
-        
+
         else {
           obj[key] = row[key] || '';
         }

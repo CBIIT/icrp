@@ -29,8 +29,8 @@ function createHandle() {
     marginLeft: '-2px',
     zIndex: '2',
     cursor: 'ew-resize',
-  })
-  
+  });
+
   return handle;
 }
 
@@ -49,7 +49,7 @@ function updateHandlePositions(table, overlay) {
 
   // only apply these changes to inner resize handlers
   for (let i = 0; i < headers.length - 1; i++) {
-    
+
     /** @type {HTMLTableCellElement} */
     let header = headers[i];
 
@@ -58,7 +58,7 @@ function updateHandlePositions(table, overlay) {
 
     /** @type number */
     let offset = header.offsetLeft + header.clientWidth;
-    
+
     // apply the correct offset to each handle
     setStyles(handle, {
       left: offset + 'px',
@@ -114,10 +114,10 @@ function initializeColumnWidths(table) {
 
   /** @type {HTMLCollectionOf<HTMLTableCellElement>} */
   let headers = table.tHead.children[0].children;
-  
+
   // sets the width of each table column
   for (let k = 0; k < headers.length; k ++) {
-    setColumnWidth(table, k, headers[k].clientWidth);
+    setColumnWidth(table, k, headers[k].clientWidth + 1);
   }
 }
 
@@ -142,7 +142,7 @@ export default function enableResizableColumns(table) {
   };
 
   // initialize resize overlay
-  let overlay = 
+  let overlay =
     document.getElementById('table-resize-overlay') ||
     document.createElement('div');
 
@@ -190,7 +190,7 @@ export default function enableResizableColumns(table) {
 
       let leftCellWidth = state.initial.leftCellWidth + offset + 1;
       let rightCellWidth = state.initial.rightCellWidth - offset + 1;
-      
+
       if (leftCellWidth > 15 && rightCellWidth > 15) {
         setColumnWidth(table, index, leftCellWidth);
         setColumnWidth(table, index + 1, rightCellWidth);
@@ -206,5 +206,5 @@ export default function enableResizableColumns(table) {
   for (let i = 0; i < overlay.children.length; i ++) {
     overlay.children[i].dataset.index = (i).toString();
     overlay.children[i].onmousedown = startResizing;
-  }  
+  }
 };
