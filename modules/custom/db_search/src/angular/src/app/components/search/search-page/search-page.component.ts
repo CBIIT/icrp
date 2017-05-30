@@ -43,7 +43,7 @@ export class SearchPageComponent implements AfterViewInit {
 
     // update fields first
     this.updateFields()
-      .subscribe(e => 
+      .subscribe(e =>
         this.state.searchID
           ? this.performSavedSearch(this.state.searchID)
           : this.performDefaultSearch()
@@ -128,7 +128,7 @@ export class SearchPageComponent implements AfterViewInit {
   getSortedPaginatedResults(parameters) {
     let params = deepCopy(parameters);
     params.search_id = this.state.searchID;
-    
+
     let loadingTrue$ = Observable.timer(500)
       .subscribe(e => this.state.loading = true);
 
@@ -165,7 +165,13 @@ export class SearchPageComponent implements AfterViewInit {
       project_counts_by_cso_research_area: null,
       project_counts_by_cancer_type: null,
       project_counts_by_type: null,
+
+      project_funding_amounts_by_country: null,
+      project_funding_amounts_by_cso_research_area: null,
+      project_funding_amounts_by_cancer_type: null,
+      project_funding_amounts_by_type: null,
       project_funding_amounts_by_year: null,
+
     };
   }
 
