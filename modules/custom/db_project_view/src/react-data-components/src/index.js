@@ -37,14 +37,15 @@ function buildTable(data) {
 function buildUploadStatusReportTable(data) {
 
   const tableColumns = [
-    { title: 'Partner', tooltip:'Partner', prop: 'partner' },
-    { title: 'Funding Year', tooltip:'Funding year as submitted by the organization', prop: 'funding_year' },
-    { title: 'Process Status', tooltip:'Process Status', prop: 'status' },
-    { title: 'Received Data Submission', tooltip:'Received Data Submission', prop: 'received_date' },
-    { title: 'Run pre-import validation', tooltip:'Date pre-import validation completed', prop: 'validation_date' },
-    { title: 'Uploaded to Development DB', tooltip:'Uploaded to Development DB', prop: 'dev_date' },
-    { title: 'Copied to Stage DB', tooltip:'Copied to Stage DB', prop: 'stage_date' },
-    { title: 'Copied to Production DB', tooltip:'Date of upload to live database', prop: 'prod_date' },
+    { title: 'Partner', tooltip:'Partner', prop: 'Partner' },
+    { title: 'Funding Year', tooltip:'Funding year as submitted by the organization', prop: 'FundingYear' },
+    { title: 'Status', tooltip:'Process Status', prop: 'Status' },
+    { title: 'Type', tooltip:'Type of upload', prop: 'Type' },
+    { title: 'Project Count', tooltip:'Number of projects submitted', prop: 'ProjectCount' },
+    { title: 'Submission Date', tooltip:'Received Data Submission', prop: 'ReceivedDate' },
+    { title: 'Stage Date', tooltip:'Copied to Stage DB', prop: 'UploadToStageDate' },
+    { title: 'Production Date', tooltip:'Date of upload to live database', prop: 'UploadToProdDate' },
+    { title: 'Notes', tooltip:'Description of the latest upload to ICRP', prop: 'Note' },
   ];
 
   return (
@@ -64,7 +65,24 @@ if (elementExists == null) {
 fetch('/getUploadStatus')
   .then(res => res.json())
   .then((rows) => {
-    ReactDOM.render(buildUploadStatusReportTable(rows), document.getElementById('upload_status_report_root'));
+
+    let data = rows.map(row => {
+      let obj = {};
+      for (let key in row) {
+        obj[key] = row[key] || '';
+      }
+
+      // ensure missing columns exist
+      for (let key of ['Type', 'ProjectCount']) {
+        if (!obj[key]) {
+          obj[key] = '';
+        }
+      }
+
+      return obj;
+    })
+
+    ReactDOM.render(buildUploadStatusReportTable(data), document.getElementById('upload_status_report_root'));
   });
 }
 else {
