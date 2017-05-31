@@ -1,4 +1,17 @@
 .chart-type-selector {
+  display: inline-block;
   border: 1px solid #ddd;
-  max-width: 400px;
+  margin: 20px auto;
+  padding: 10px 40px;
+  text-align: center;
+}
+
+.chart-type-selector label {
+  font-weight: 500;
+  margin-right: 40px;
+  cursor: pointer;
+}
+
+.chart-type-selector input {
+  margin-right: 5px;
 }

@@ -67,11 +67,26 @@ export class PieChart {
                     let displayKey = {
                       count: 'Total',
                       relevance: 'Relevance',
+                      amount: 'Amount'
                     }[key] || key;
+
+                    let value = parseFloat(entry[key]);
+                    let displayValue = '';
+
+                    if (key === 'amount') {
+                        displayValue = value.toLocaleString('en-US', {
+                            style: 'currency',
+                            currency: 'USD',
+                        })
+                    }
+
+                    else {
+                        displayValue = value.toLocaleString();
+                    }
 
                     let row = [
                         displayKey,
-                        (+entry[key]).toLocaleString()
+                        displayValue,
                     ].join(': ');
 
 

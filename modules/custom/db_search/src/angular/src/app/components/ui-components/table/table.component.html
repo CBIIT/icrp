@@ -1,16 +1,16 @@
 <div class="table-responsive" #tablediv>
   <table class="table table-bordered table-striped table-hover table-nowrap" #table>
-    <thead>
+    <thead class="noselect">
       <tr>
         <th *ngFor="let header of headers"
           (click)="toggleSort(header)"
-          
+
           >
           <div [tooltip]="header.tooltip" style="display: flex; justify-content: space-between">
             {{ header.label }}
             <span [ngSwitch]="header.sort">
-              <ui-icon type="triangle-up" *ngSwitchCase="'asc'"></ui-icon>
-              <ui-icon type="triangle-down" *ngSwitchCase="'desc'"></ui-icon>
+              <div class="rotate-45" [innerHTML]="'\u25E4'" *ngSwitchCase="'asc'" ></div>
+              <div class="rotate-45"  [innerHTML]="'\u25E2'" *ngSwitchCase="'desc'" ></div>
             </span>
           </div>
         </th>

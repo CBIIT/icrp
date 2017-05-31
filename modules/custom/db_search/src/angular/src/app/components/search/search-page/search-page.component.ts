@@ -165,13 +165,13 @@ export class SearchPageComponent implements AfterViewInit {
       project_counts_by_cso_research_area: null,
       project_counts_by_cancer_type: null,
       project_counts_by_type: null,
+      project_counts_by_year: null,
 
       project_funding_amounts_by_country: null,
       project_funding_amounts_by_cso_research_area: null,
       project_funding_amounts_by_cancer_type: null,
       project_funding_amounts_by_type: null,
       project_funding_amounts_by_year: null,
-
     };
   }
 
