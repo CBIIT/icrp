@@ -64,7 +64,7 @@
  * @see template_preprocess_comment()
  */
 #}
-comment.html.twig<br>
+<span style="font-size:8px; color:red">comment.html.twig</span><br>
 {% if threaded %}
   {{ attach_library('classy/drupal.comment.threaded') }}
 {% endif %}
@@ -86,19 +86,7 @@ comment.html.twig<br>
   #}
   <span class="hidden" data-comment-timestamp="{{ new_indicator_timestamp }}"></span>
 
-  <header>
-    {{ user_picture }}
-  </header>
-
-  <footer class="comment__meta">
-
-    <span>{% trans %}Submitted by {% endtrans %}{{ author }}{% trans %} on {% endtrans %} {{ created }}</span>
-    {% if parent %}
-      <p class="visually-hidden">{{ parent }}</p>
-    {% endif %}
-  </footer>
-
-  <div{{ content_attributes.addClass('comment__content') }}>
+  <blockquote {{ content_attributes.addClass('comment__content') }} style="font-weight:bold;">
     {% if title %}
       {{ title_prefix }}
       <!--
@@ -107,7 +95,16 @@ comment.html.twig<br>
       {{ title_suffix }}
     {% endif %}
     {{ content|without('links') }}
+  </blockquote>
+
+  <div class="comment__meta">
+
+    <span>{% trans %}- {% endtrans %}{{ author }}{% trans %} <i>{% endtrans %} {{ created }}</i></span>
+    {% if parent %}
+      <p class="visually-hidden">{{ parent }}</p>
+    {% endif %}
   </div>
+
   {% if content.links %}
     <nav>{{ content.links }}</nav>
   {% endif %}

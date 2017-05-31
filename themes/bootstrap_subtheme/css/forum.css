@@ -1,4 +1,5 @@
 /*tables*/
+/*
 table { width: 100%; margin-bottom: 20px; border: 1px solid #dfdfdf; }
 
 table tbody { border-top: none; }
@@ -6,9 +7,15 @@ table tbody { border-top: none; }
 table tr.even, table tr.odd, th { background-color: transparent; border-bottom: 1px solid #dfdfdf;}
 
 thead tr th, thead tr td, tbody tr th, tbody tr td { padding: 8px; line-height: 142%; vertical-align: top; }
-
+*/
 /*forum page*/
 /* Source: bootstrap_business: style.css line: 303 */;
+.icrp-debug {
+	font-size:8px;
+	font-weight:bold;
+	color:red;
+}
+
 th.active img { margin: -4px 0 0 5px; }
 
 table#forum { border: 1px solid #eaeaea; width: 100%; }
@@ -17,7 +24,7 @@ table#forum { border: 1px solid #eaeaea; width: 100%; }
 
 #forum thead tr { border-bottom: 1px solid #eaeaea; }
 
-#forum thead tr th, #forum thead tr td { background: orange; font-weight: 700; border:none; padding: 11px; }
+#forum thead tr th, #forum thead tr td { background: #FFE599; font-weight: 700; border:none; padding: 11px; }
 
 #forum thead a { color: #444444; }
 
@@ -32,4 +39,20 @@ table#forum { border: 1px solid #eaeaea; width: 100%; }
 .node-forum .field-name-body { margin: 10px 0; }
 
 .node-forum .field-type-taxonomy-term-reference { float: none; }
+.forum__topics {
+	background-color:#2A78E4;
+	border: 1px solid blue;
+	color:white;
+	padding:5px 10px;
+}
+.forum__posts {
+	background-color: #B45F06;
+	border: 1px solid #B47F06;
+	color:white;
+	padding:5px 10px;
+}
+
+/* forum topic (i.e. thread) */
+.table-forum-topic thead tr th, .table-forum-topic thead tr td { background: #FFE599; font-weight: 700; border:none; padding: 11px; }
+#forum-topic-7 thead tr th, #forum-topic-7 thead tr td { background: #FFE599; font-weight: 700; border:none; padding: 11px; }
 

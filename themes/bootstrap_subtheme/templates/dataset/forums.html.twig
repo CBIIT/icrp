@@ -14,13 +14,10 @@
  * @see template_preprocess_forums()
  */
 #}
-forums.html.twig<br>
+{% if icrp_debug %}
+	<span class="icrp-debug">forums.html.twig</span><br>
+{% endif %}
 <div>
-<h1>ICRP Partnership Forum</h1>
-<hr style="border: 1px solid orange;">
-<p>To start viewing messages, slect the forum that you want to visit from the slection below.</p>
-
-
 {{ attach_library('classy/forum') }}
 {% if forums_defined %}
   <div class="forum">
