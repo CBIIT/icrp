@@ -26,6 +26,9 @@
         case "/contact-us":
           $.populateContactUsForm();
           break;
+        case "/forum/6":
+          $(".action-links").hide();
+          break;
         case "/become-a-partner":
           //console.log("You are on the /become-a-partner page.");
           $("#become-a-partner-wells").matchHeight(true);
