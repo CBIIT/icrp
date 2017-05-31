@@ -41,7 +41,7 @@ function buildUploadStatusReportTable(data) {
     { title: 'Funding Year', tooltip:'Funding year as submitted by the organization', prop: 'FundingYear' },
     { title: 'Status', tooltip:'Process Status', prop: 'Status' },
     { title: 'Type', tooltip:'Type of upload', prop: 'Type' },
-    { title: 'Project Count', tooltip:'Number of projects submitted', prop: 'ProjectCount' },
+    { title: 'Project Count', tooltip:'Number of project funding records submitted', prop: 'Count' },
     { title: 'Submission Date', tooltip:'Received Data Submission', prop: 'ReceivedDate' },
     { title: 'Stage Date', tooltip:'Copied to Stage DB', prop: 'UploadToStageDate' },
     { title: 'Production Date', tooltip:'Date of upload to live database', prop: 'UploadToProdDate' },
@@ -73,7 +73,7 @@ fetch('/getUploadStatus')
       }
 
       // ensure missing columns exist
-      for (let key of ['Type', 'ProjectCount']) {
+      for (let key of ['Type', 'Count']) {
         if (!obj[key]) {
           obj[key] = '';
         }
