@@ -6,7 +6,11 @@ export class LineChart {
     draw(element: HTMLElement,
         tooltipEl: HTMLElement,
         data: { label: string, data: any }[],
-        primaryKey: string) {
+        primaryKey: string,
+        xAxisLabel: string,
+        yAxisLabel: string,
+        tooltipDescriptor: string,
+        ) {
 
         if (data === null || data === undefined) {
             data = [];
@@ -54,7 +58,7 @@ export class LineChart {
             .attr("y", 30)
             .attr("dy", "0.71em")
             .attr("text-anchor", "middle")
-            .text("Year");
+            .text(xAxisLabel);
 
         g.append("g")
             .call(d3.axisLeft(y).ticks(5))
@@ -65,7 +69,7 @@ export class LineChart {
             .attr("y", -100)
             .attr("dy", "0.71em")
             .attr("text-anchor", "middle")
-            .text("Funding Amount (USD)");
+            .text(yAxisLabel);
 
         g.append("path")
             .datum(parsedData)
@@ -90,10 +94,11 @@ export class LineChart {
                 .on('mouseover', d => {
                     let label = point.label;
                     let value = point.value;
+
                     tooltip.html(`
                         <b>${label}</b>
                         <hr style="margin: 2px"/>
-                         ${Number(value).toLocaleString()} USD`)
+                         ${Number(value).toLocaleString()} ${tooltipDescriptor}`)
                     tooltip.transition()
                         .duration(200)
                         .style('opacity', .9);

@@ -79,7 +79,7 @@
 <div class="row form-group" *ngIf="form.controls.display_type.value === 'award_amounts'">
   <div class="col-md-3 text-center">
 
-    <label>Awards by Country</label>
+    <label>Award Amounts by Country</label>
 
     <div style="position: relative">
       <ui-chart
@@ -93,7 +93,7 @@
   <div class="col-md-3 text-center">
     <ui-chart
       type="pie"
-      label="Awards by CSO Category"
+      label="Award Amounts by CSO Category"
       primaryKey="amount"
       [data]="analytics.project_funding_amounts_by_cso_research_area && analytics.project_funding_amounts_by_cso_research_area?.results">
     </ui-chart>
@@ -102,7 +102,7 @@
   <div class="col-md-3 text-center">
     <ui-chart
       type="pie"
-      label="Awards by Cancer Type"
+      label="Award Amounts by Cancer Type"
       primaryKey="amount"
       [data]="analytics.project_funding_amounts_by_cancer_type && analytics.project_funding_amounts_by_cancer_type?.results">
     </ui-chart>
@@ -112,7 +112,7 @@
   <div class="col-md-3 text-center">
     <ui-chart
       type="pie"
-      label="Awards by Type"
+      label="Award Amounts by Type"
       primaryKey="amount"
       [data]="analytics.project_funding_amounts_by_type && analytics.project_funding_amounts_by_type?.results">
     </ui-chart>
@@ -128,6 +128,9 @@
       type="line"
       label="Project Counts by Year"
       primaryKey="count"
+      xAxisLabel="Year"
+      yAxisLabel="Project Counts"
+      tooltipDescriptor="Projects"
       [data]="analytics.project_counts_by_year && analytics.project_counts_by_year.results">
     </ui-chart>
 
@@ -136,6 +139,9 @@
       type="line"
       label="Project Funding Amounts by Year"
       primaryKey="amount"
+      xAxisLabel="Year"
+      yAxisLabel="Amount (USD)"
+      tooltipDescriptor="USD"
       [data]="analytics.project_funding_amounts_by_year && analytics.project_funding_amounts_by_year.results">
     </ui-chart>
 

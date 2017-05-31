@@ -25,6 +25,9 @@ export class UiChartComponent implements OnChanges, AfterViewInit {
   @Input() description: string;
   @Input() primaryKey: string;
   @Input() loading = false;
+  @Input() xAxisLabel = '';
+  @Input() yAxisLabel = 'Year';
+  @Input() tooltipDescriptor = '';
 
   @ViewChild('svg') svg: ElementRef;
   @ViewChild('tooltip') tooltip: ElementRef;
@@ -46,7 +49,11 @@ export class UiChartComponent implements OnChanges, AfterViewInit {
         this.svg.nativeElement,
         this.tooltip.nativeElement,
         this.data,
-        this.primaryKey);
+        this.primaryKey,
+        this.xAxisLabel,
+        this.yAxisLabel,
+        this.tooltipDescriptor,
+        );
     }
   }
 

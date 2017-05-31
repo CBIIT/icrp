@@ -1,7 +1,7 @@
 .chart-type-selector {
   display: inline-block;
   border: 1px solid #ddd;
-  margin: 20px auto;
+  margin: 0px auto 20px;
   padding: 10px 40px;
   text-align: center;
 }
