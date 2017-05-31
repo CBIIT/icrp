@@ -18,9 +18,11 @@
       Award Amounts (USD)
     </label>
 
-    <span *ngIf="fields && fields.conversion_years">
+    <span *ngIf="fields && fields.conversion_years" [ngClass]="{
+      disabled: (form.controls.display_type.value === 'project_counts')
+    }">
       Use Currency Rates From
-      <select #fundingyear
+      <select
         (change)="updateFundingCharts()"
         [formControl]="form.controls.conversion_year"
       >
@@ -77,13 +79,13 @@
 <div class="row form-group" *ngIf="form.controls.display_type.value === 'award_amounts'">
   <div class="col-md-3 text-center">
 
-    <label>Project Award Amounts by Country</label>
+    <label>Awards by Country</label>
 
     <div style="position: relative">
       <ui-chart
         type="pie"
         primaryKey="amount"
-        [data]="analytics.project_funding_amounts_by_country && analytics.project_funding_amounts_by_country.results">
+        [data]="analytics.project_funding_amounts_by_country && analytics.project_funding_amounts_by_country?.results">
       </ui-chart>
     </div>
   </div>
@@ -91,18 +93,18 @@
   <div class="col-md-3 text-center">
     <ui-chart
       type="pie"
-      label="Project Award Amounts by CSO Category"
+      label="Awards by CSO Category"
       primaryKey="amount"
-      [data]="analytics.project_funding_amounts_by_cso_research_area && analytics.project_funding_amounts_by_cso_research_area.results">
+      [data]="analytics.project_funding_amounts_by_cso_research_area && analytics.project_funding_amounts_by_cso_research_area?.results">
     </ui-chart>
   </div>
 
   <div class="col-md-3 text-center">
     <ui-chart
       type="pie"
-      label="Project Award Amounts by Cancer Type"
+      label="Awards by Cancer Type"
       primaryKey="amount"
-      [data]="analytics.project_funding_amounts_by_cancer_type && analytics.project_funding_amounts_by_cancer_type.results">
+      [data]="analytics.project_funding_amounts_by_cancer_type && analytics.project_funding_amounts_by_cancer_type?.results">
     </ui-chart>
   </div>
 
@@ -110,9 +112,9 @@
   <div class="col-md-3 text-center">
     <ui-chart
       type="pie"
-      label="Project Award Amounts by Type"
+      label="Awards by Type"
       primaryKey="amount"
-      [data]="analytics.project_funding_amounts_by_type && analytics.project_funding_amounts_by_type.results">
+      [data]="analytics.project_funding_amounts_by_type && analytics.project_funding_amounts_by_type?.results">
     </ui-chart>
   </div>
 </div>
@@ -122,11 +124,21 @@
 
   <div [hidden]="!showMore" class="clearfix">
     <ui-chart
+      *ngIf="form.controls.display_type.value === 'project_counts'"
+      type="line"
+      label="Project Counts by Year"
+      primaryKey="count"
+      [data]="analytics.project_counts_by_year && analytics.project_counts_by_year.results">
+    </ui-chart>
+
+    <ui-chart
+      *ngIf="form.controls.display_type.value === 'award_amounts'"
       type="line"
       label="Project Funding Amounts by Year"
       primaryKey="amount"
       [data]="analytics.project_funding_amounts_by_year && analytics.project_funding_amounts_by_year.results">
     </ui-chart>
+
   </div>
 
   <div class="text-center">

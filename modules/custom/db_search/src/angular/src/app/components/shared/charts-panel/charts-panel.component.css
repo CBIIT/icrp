@@ -15,3 +15,8 @@
 .chart-type-selector input {
   margin-right: 5px;
 }
+
+.disabled {
+  color: #888;
+  cursor: not-allowed;
+}

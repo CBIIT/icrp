@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
-import { Validators, FormBuilder, FormGroup } from '@angular/forms';
+import { Validators, FormBuilder, FormGroup, FormControl } from '@angular/forms';
 import { SharedService } from '../../../services/shared.service';
 
 @Component({
@@ -23,8 +23,17 @@ export class ChartsPanelComponent implements OnChanges {
   ) {
     this.form = formBuilder.group({
       display_type: ['project_counts'],
-      conversion_year: [],
+      conversion_year: new FormControl({value: null, disabled: true}),
     });
+
+    this.form.controls['display_type'].valueChanges
+      .subscribe(value => {
+        let control = this.form.controls['conversion_year'];
+        value === 'project_counts'
+          ? control.disable()
+          : control.enable();
+      })
+
   }
 
   updateFundingCharts() {
