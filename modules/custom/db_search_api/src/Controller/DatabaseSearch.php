@@ -275,22 +275,26 @@ class DatabaseSearch {
   */
   public static function getAnalytics(PDO $pdo, array $parameters): array {
 
+    $pdo->setAttribute(PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE, true);
+    $pdo->setAttribute(PDO::SQLSRV_ATTR_ENCODING, PDO::SQLSRV_ENCODING_SYSTEM);
+
     $search_id = $parameters['search_id'];
     $type      = $parameters['type'];
 
     $queryDefaults = 'SET NOCOUNT ON;';
 
     $queries = [
-      'project_counts_by_country'           => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = :total',
-      'project_counts_by_cso_research_area' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = :total',
-      'project_counts_by_cancer_type'       => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = :total',
-      'project_counts_by_type'              => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = :total',
+      'project_counts_by_country'           => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year, @Type = Count',
+      'project_counts_by_cso_research_area' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year, @Type = Count',
+      'project_counts_by_cancer_type'       => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year, @Type = Count',
+      'project_counts_by_type'              => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year, @Type = Count',
+      'project_counts_by_year'              => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year',
 
-      'project_funding_amounts_by_country'            => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @Year = :year, @Total = :total',
-      'project_funding_amounts_by_cso_research_area'  => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @Year = :year, @Total = :total',
-      'project_funding_amounts_by_cancer_type'        => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @Year = :year, @Total = :total',
-      'project_funding_amounts_by_type'               => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @Year = :year, @Total = :total',
-      'project_funding_amounts_by_year'               => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @Year = :year, @Total = :total',
+      'project_funding_amounts_by_country'            => 'EXECUTE GetProjectCountryStatsBySearchID      @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year, @Type = Amount',
+      'project_funding_amounts_by_cso_research_area'  => 'EXECUTE GetProjectCSOStatsBySearchID          @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year, @Type = Amount',
+      'project_funding_amounts_by_cancer_type'        => 'EXECUTE GetProjectCancerTypeStatsBySearchID   @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year, @Type = Amount',
+      'project_funding_amounts_by_type'               => 'EXECUTE GetProjectTypeStatsBySearchID         @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year, @Type = Amount',
+      'project_funding_amounts_by_year'               => 'EXECUTE GetProjectAwardStatsBySearchID        @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year',
     ];
 
     // select which query to perform
@@ -329,36 +333,43 @@ class DatabaseSearch {
         ],
       ],
 
+      'project_counts_by_year' => [
+        'label' => 'Year',
+        'data' => [
+          'count' => 'Count',
+        ],
+      ],
+
 
 
       'project_funding_amounts_by_country' => [
-        'label' => 'Year',
+        'label' => 'country',
         'data' => [
-          'amount' => 'amount',
+          'amount' => 'USDAmount',
         ],
       ],
 
 
       'project_funding_amounts_by_cso_research_area' => [
-        'label' => 'Year',
+        'label' => 'categoryName',
         'data' => [
-          'amount' => 'amount',
+          'amount' => 'USDAmount',
         ],
       ],
 
 
       'project_funding_amounts_by_cancer_type' => [
-        'label' => 'Year',
+        'label' => 'CancerType',
         'data' => [
-          'amount' => 'amount',
+          'amount' => 'USDAmount',
         ],
       ],
 
 
       'project_funding_amounts_by_type' => [
-        'label' => 'Year',
+        'label' => 'ProjectType',
         'data' => [
-          'amount' => 'amount',
+          'amount' => 'USDAmount',
         ],
       ],
 
@@ -373,15 +384,18 @@ class DatabaseSearch {
 
     // define output object
     $output = [
-      'search_id' => intval($search_id),
-      'results' => [],
-      'total' => 0
+      'search_id'      => intval($search_id),
+      'results'        => [],
+      'results_count'  => NULL,
+      'results_amount' => NULL,
     ];
 
     // bind parameters to statement
     $stmt->bindParam(':search_id', $search_id);
-    $stmt->bindParam(':total', $output['total'], PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
-    $type === 'project_funding_amounts_by_year' and $stmt->bindParam(':year', $parameters['year']);
+    $stmt->bindParam(':year', $parameters['year']);
+    $stmt->bindParam(':results_count', $results_count, PDO::PARAM_INT  | PDO::PARAM_INPUT_OUTPUT, 1000);
+    $stmt->bindParam(':results_amount', $results_amount, PDO::PARAM_STR  | PDO::PARAM_INPUT_OUTPUT, 1000);
+
 
     // execute statement and update output object
     if ($stmt->execute()) {
@@ -400,6 +414,9 @@ class DatabaseSearch {
         ]);
       }
     }
+
+    $output['results_count'] = floatval($results_count);
+    $output['results_amount'] = floatval($results_amount);
 
     return $output;
   }

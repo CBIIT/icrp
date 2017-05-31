@@ -69,6 +69,7 @@ class SearchController extends ControllerBase {
     'project_counts_by_cso_research_area',
     'project_counts_by_cancer_type',
     'project_counts_by_type',
+    'project_counts_by_year',
 
     'project_funding_amounts_by_country',
     'project_funding_amounts_by_cso_research_area',
@@ -133,6 +134,7 @@ class SearchController extends ControllerBase {
       $cfg['password'],
       [
         PDO::SQLSRV_ATTR_ENCODING    => PDO::SQLSRV_ENCODING_UTF8,
+//      PDO::SQLSRV_ATTR_ENCODING    => PDO::SQLSRV_ENCODING_SYSTEM,
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
 //      PDO::ATTR_ERRMODE            => PDO::ERRMODE_SILENT,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -174,7 +176,7 @@ class SearchController extends ControllerBase {
 
 
   public static function getAnalyticsForPartners(Request $request) {
-        $parameters = $request->query->all();
+    $parameters = $request->query->all();
 
     $data = in_array($parameters['type'], self::PARTNER_ANALYTICS_TYPES)
       ? DatabaseSearch::getAnalytics(self::getConnection(), $parameters)
