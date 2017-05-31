@@ -16,7 +16,7 @@
   margin-right: 5px;
 }
 
-.disabled {
+.disabled, .disabled select {
   color: #888;
   cursor: not-allowed;
 }
