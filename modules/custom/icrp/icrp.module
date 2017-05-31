@@ -45,6 +45,11 @@ function icrp_user_login($account) {
     return;
 }
 */
+function icrp_preprocess_menu_local_action(&$variables) {
+  //kint($variables);
+  //unset($variables['element']);
+}
+
 function icrp_preprocess_forums(&$variables) {
   $variables['chris'] = 'Kneisler';
   //drupal_set_message("Added icrp_debug to variables.  See if you can access in twig.");
@@ -62,8 +67,8 @@ function icrp_preprocess_forum_list(&$variables) {
 }
 
 function icrp_template_preprocess_default_variables_alter(&$variables) {
-  #$variables['icrp_debug'] = true;
   $variables['icrp_debug'] = false;
+  #$variables['icrp_debug'] = false;
   $variables['is_admin'] = 'Dont know';
   //drupal_set_message("We got something now");
   //var_dump($variables);
