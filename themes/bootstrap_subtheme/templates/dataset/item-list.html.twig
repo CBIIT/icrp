@@ -19,7 +19,13 @@
  * @see template_preprocess_item_list()
  */
 #}
-<span class="icrp-debug">item-list.html.twig</span><br>
+{% if icrp_debug %}
+  logged_in: {{ logged_in ? 'true' : 'false'}}<br>
+  <span class="icrp-debug">item-list.html.twig</span><br>
+  <script>console.info("table.html.twig");</script>
+  <script>console.log({{ _context | json_encode | raw }});</script>
+{% endif %}
+
 {% if context.list_style %}
   {%- set wrapper_attributes = wrapper_attributes.addClass('item-list--' ~ context.list_style) %}
   {%- set attributes = attributes.addClass('item-list__' ~ context.list_style) %}
