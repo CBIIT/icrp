@@ -68,6 +68,15 @@ export class SearchPageComponent implements AfterViewInit {
 
         else {
           let parameters = removeEmptyProperties(response);
+          if (parameters['years']) {
+            let currentYear = new Date().getFullYear();
+            for(let year of parameters['years']) {
+              if (year > currentYear) {
+                parameters['include_future_years'] = true;
+              }
+            }
+          }
+
           this.searchForm.setParameters(parameters);
           this.getSearchResults({
             parameters: parameters,
@@ -106,7 +115,14 @@ export class SearchPageComponent implements AfterViewInit {
 
   getAnalytics(id, types = [], year = null) {
     if (!types || types.length === 0)
-      types = Object.keys(this.state.analytics);
+      types = this.sharedService.get('authenticated')
+        ? Object.keys(this.state.analytics)
+        : [
+          'project_counts_by_country',
+          'project_counts_by_cso_research_area',
+          'project_counts_by_cancer_type',
+          'project_counts_by_type',
+        ];
 
     for (let key of types) {
 

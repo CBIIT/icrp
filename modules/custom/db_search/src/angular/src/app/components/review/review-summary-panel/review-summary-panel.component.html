@@ -5,7 +5,7 @@
     <span *ngIf="currentSponsor else loading" class="bold orange">
       Data Upload for Funding Sponsor {{ currentSponsor && currentSponsor.sponsor_code }},
       Funding Years {{ currentSponsor && currentSponsor.funding_year }}
-      ({{ currentSponsor.type }})
+      {{ currentSponsor.type && '(' + currentSponsor.type + ')' }}
     </span>
   </div>
   <div right-header class="bold blue" >
