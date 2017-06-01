@@ -1,7 +1,8 @@
 
 <div class="title clearfix" (click)="toggleEnabled && showSummary = !showSummary;">
   <span class="pull-left" style="margin-right: 6px">
-    <ui-icon [type]="showSummary ? 'triangle-down' : 'triangle-right'"></ui-icon>
+    <div class="rotate-45" [innerHTML]="'\u25E5'" *ngIf="!showSummary" ></div>
+    <div class="rotate-45" [innerHTML]="'\u25E2'" *ngIf="showSummary" ></div>
   </span>
 
   <span class="pull-left">
