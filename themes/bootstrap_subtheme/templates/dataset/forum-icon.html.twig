@@ -16,7 +16,9 @@
  * @see template_preprocess_forum_icon()
  */
 #}
-<span style="font-size:8px;font-weight:bold">forum-icon.html.twig</span><br>
+{% if icrp_debug %}
+	<span style="font-size:8px;font-weight:bold">forum-icon.html.twig</span><br>
+{% endif %}	
 {%
   set classes = [
     'forum__icon',

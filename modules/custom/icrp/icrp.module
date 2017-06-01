@@ -68,7 +68,7 @@ function icrp_preprocess_forum_list(&$variables) {
 
 function icrp_template_preprocess_default_variables_alter(&$variables) {
   $variables['icrp_debug'] = false;
-  #$variables['icrp_debug'] = false;
+  #$variables['icrp_debug'] = true;
   $variables['is_admin'] = 'Dont know';
   //drupal_set_message("We got something now");
   //var_dump($variables);
