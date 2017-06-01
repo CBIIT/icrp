@@ -245,7 +245,7 @@ class DatabaseSearch {
       'cities'                       => split($results['CityList']),
       'funding_organizations'        => split($results['FundingOrgList']),
       'funding_organization_types'   => split($results['FundingOrgTypeList']),
-      'is_childhood_cancer'          => $results['isChildhood'],
+      'is_childhood_cancer'          => $results['IsChildhood'],
       'cancer_types'                 => split($results['CancerTypeList']),
       'project_types'                => split($results['ProjectTypeList']),
       'cso_research_areas'           => split($results['CSOList']),
