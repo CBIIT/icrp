@@ -7,8 +7,8 @@
 
 namespace Drupal\db_email_results\Controller;
 
-require 'class.phpmailer.php';
-require 'class.smtp.php';
+require_once 'class.phpmailer.php';
+require_once 'class.smtp.php';
 
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
@@ -59,12 +59,12 @@ class EmailResultsController extends ControllerBase {
 		//get search id from session
 		$url = $url . $_SESSION['database_search_id'];
 
-		$subject = $name . " wants to share their ICRP Search Results";
+		$subject = $name . " wants to share their ICRP search results";
 		$attachment = '';
 
 		//create email content
-		$content = $name . " wants to share their ICRP Search Result: <br/><br/>";
-		$content = $content . "Please review their search results on the ICRP Web site: <br/>";
+		$content = $name . " wants to share their ICRP search results. <br/><br/>";
+		$content = $content . "Please review their search results on the ICRP website: <br/>";
 		$content = $content . "<a href='" . $url . "'>" . $url . "</a><br/><br/>";
 		$content = $content . "Message from  <a href='mailto:${from}'>${from}</a>: <br/>";
 		$content = $content . $message ."<br/><br/>";
