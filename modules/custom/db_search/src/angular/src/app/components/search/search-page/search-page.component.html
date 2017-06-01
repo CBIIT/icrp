@@ -16,6 +16,7 @@
   <div class="col-sm-9">
 
     <icrp-search-summary-panel
+      #summarypanel
       [displayParameters]="state.displayParameters"
       [analytics]="state.analytics"
       [numResults]="state.numResults"
@@ -25,9 +26,9 @@
 
     <br>
 
-    <alert 
-      *ngIf="state.expiredSearchID" 
-      type="danger" 
+    <alert
+      *ngIf="state.expiredSearchID"
+      type="danger"
       dismissible="true">
       The saved search has expired. Search results are saved for 30 days, after which they will no longer be accessible.
     </alert>

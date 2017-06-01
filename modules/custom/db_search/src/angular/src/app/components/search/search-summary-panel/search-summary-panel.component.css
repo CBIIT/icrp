@@ -11,6 +11,10 @@
   color: steelblue;
 }
 
+.vertical-padding {
+  padding: 10px 0;
+}
+
 table.display-parameters {
   border: none;
   margin-bottom: none;
@@ -21,3 +25,5 @@ table.display-parameters  tbody  tr  td {
   min-width: 40px;
   padding-right: 10px;
 }
+
+

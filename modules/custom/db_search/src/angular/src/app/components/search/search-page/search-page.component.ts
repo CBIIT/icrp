@@ -14,6 +14,7 @@ import { parseQuery, range, asLabelValuePair, deepCopy, getSearchID, removeEmpty
 export class SearchPageComponent implements AfterViewInit {
 
   @ViewChild('searchform') searchForm;
+  @ViewChild('summarypanel') summaryPanel;
 
   search$: Observable<any>;
   fields: any = {};

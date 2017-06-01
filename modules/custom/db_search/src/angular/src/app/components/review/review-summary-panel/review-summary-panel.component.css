@@ -10,3 +10,8 @@
 .blue {
   color: steelblue;
 }
+
+
+.vertical-padding {
+  padding: 10px 0;
+}

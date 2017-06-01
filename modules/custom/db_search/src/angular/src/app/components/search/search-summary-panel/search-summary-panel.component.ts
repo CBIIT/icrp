@@ -45,4 +45,5 @@ export class SearchSummaryPanelComponent {
   getDisplayName(key): string {
     return this.map[key] || key;
   }
+
 }
