@@ -26,8 +26,9 @@
         case "/contact-us":
           $.populateContactUsForm();
           break;
-        case "/forum/6":
+        case "/forum/6/No Need":
           $(".action-links").hide();
+          $("#main-forum-content").show();
           break;
         case "/become-a-partner":
           //console.log("You are on the /become-a-partner page.");

@@ -46,19 +46,10 @@
  */
 #}
 {% if icrp_debug %}
-  <span class="icrp-debug">block--system.html.twig</span><br>
-{% endif %}
-{% if icrp_debug %}
-  <script>console.log({{ _context | json_encode | raw }});</script>
-{% endif %}
-
-{% if icrp_debug %}
   logged_in: {{ logged_in ? 'true' : 'false'}}<br>
-{% endif %}
-
-{% if icrp_debug %}
-	Hello</br>
-  <script>console.log({{ context | json_encode | raw }});</script>
+  <span class="icrp-debug">block--system.html.twig</span><br>
+  <script>console.info("block--system.html.twig");</script>
+  <script>console.log({{ _context | json_encode | raw }});</script>
 {% endif %}
 
 {% block content %}

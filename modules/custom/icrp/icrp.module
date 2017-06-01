@@ -9,6 +9,7 @@ use Drupal\views\Views;
 use Drupal\Core\Mail\MailManagerInterface;
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Html;
+use Drupal\Core\Template;
 
 /*
  * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
@@ -51,24 +52,29 @@ function icrp_preprocess_menu_local_action(&$variables) {
 }
 
 function icrp_preprocess_forums(&$variables) {
-  $variables['chris'] = 'Kneisler';
+  //$variables['last_post'][8] = 'Hello Steve.  How did it go?';
   //drupal_set_message("Added icrp_debug to variables.  See if you can access in twig.");
-  //kint($variables);
+  //$variables['attributes'] = new \Drupal\Core\Template\Attribute();
+  //kint($variables['attributes']);
+  //$variables['attributes']['class'] = array(); // Needed to initialize the AttributeArray object.  
+  //$variables['attributes']['class'][] = 'red';
 
 }
 function icrp_preprocess_forum_list(&$variables) {
   //$variables['icrp_debug'] = true;
   //drupal_set_message("Added icrp_debug to variables.  See if you can access in twig.");
-
+  $variables['last_post'][9] = 'Yes, I got it.  So cool';
+  //drupal_set_message($variables['last_post'][9]);
   $variables['hello'] = 'World';
   //drupal_set_message("Added chris to variables.  See if you can access in twig.");
   //kint($variables);
+  //drupal_set_message(print_r($variables, true));
 
 }
 
 function icrp_template_preprocess_default_variables_alter(&$variables) {
   $variables['icrp_debug'] = false;
-  #$variables['icrp_debug'] = true;
+  //$variables['icrp_debug'] = true;
   $variables['is_admin'] = 'Dont know';
   //drupal_set_message("We got something now");
   //var_dump($variables);

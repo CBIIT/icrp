@@ -59,9 +59,12 @@
 {% if icrp_debug %}
   <span class="icrp-debug">page--forum.html.twig</span><br>
 {% endif %}
+
+{#
 {% if icrp_debug %}
   <script>console.log({{ _context | json_encode | raw }});</script>
 {% endif %}
+#}
 
 {% set container = theme.settings.fluid_container ? 'container-fluid' : 'container' %}
 {# Navbar #}
@@ -174,13 +177,21 @@
         {% block content %}
           <a id="main-content"></a>
           {% if logged_in %}
-            {{ page.content }}
+
+            {% if theme_hook_suggestions[2] == 'page__forum__6' %}
+              {% set forum_style = 'display:none;' %}
+            {% endif %}
+            <!-- <div id="main-forum-content" style="{{ forum_style }}"> -->
+            <div id="main-forum-content">
+              {{ page.content }}
+            </div>
           {% else %}
+
             <h2>ICRP Partnership Forum</h2>
 
-              <a data-drupal-link-system-path="user/login" data-drupal-link-query="{&quot;destination&quot;:&quot;\/forum\/6&quot;}" class="btn btn-primary" href="/user/login?destination=/forum/6" style="margin:25px;">
-              <span aria-hidden="true" class="icon glyphicon glyphicon-log-in"></span>&nbsp;Log in to post new content in the forum.
-              </a>
+            <a data-drupal-link-system-path="user/login" data-drupal-link-query="{&quot;destination&quot;:&quot;\/forum\/6&quot;}" class="btn btn-primary" href="/user/login?destination=/forum/6" style="margin:25px;">
+            <span aria-hidden="true" class="icon glyphicon glyphicon-log-in"></span>&nbsp;Log in to post new content in the forum.
+            </a>
 
           {% endif %}
 
