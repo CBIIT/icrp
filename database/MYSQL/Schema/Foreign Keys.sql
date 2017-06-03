@@ -40,4 +40,3 @@ ALTER TABLE `Library`
 	ADD CONSTRAINT `FK_Library_LibraryFolder` FOREIGN KEY (`LibraryFolderID`) REFERENCES `LibraryFolder` (`LibraryFolderID`);
 ALTER TABLE `State`
 	ADD CONSTRAINT `FK_State_Country` FOREIGN KEY (`Country`) REFERENCES `Country` (`Abbreviation`);
-
