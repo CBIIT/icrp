@@ -1,0 +1,12 @@
+/build/PHPExcel.phar
+/tests/codeCoverage
+/analysis
+/vendor/
+/composer.lock
+/phpunit.xml
+
+## IDE support
+*.buildpath
+*.project
+/.settings
+/.idea

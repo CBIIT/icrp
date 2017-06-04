@@ -1,0 +1,9 @@
+{
+    "name": "icrp/db_data_export",
+    "minimum-stability": "dev",
+    "require": {
+        "box/spout": "^2.7",
+        "phpoffice/phpspreadsheet": "dev-master"
+    }
+
+}

@@ -1,6 +1,7 @@
-name: ICRP Export Search Results
-description: Provides a route for exporting search results at /ExportResults
-package: ICRP Modules
+name: ICRP Database Search Results Export
+description: Allows users to export their search results at /api/database/export
+
 type: module
-version: 0.1
 core: 8.x
+
+package: ICRP Modules

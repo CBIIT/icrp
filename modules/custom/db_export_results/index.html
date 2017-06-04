@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head>
+  <title>Test export file</title>
+  <script>
+
+    getFile = () => fetch('/api/database/export/search_results')
+      .then(e => e.text())
+      .then(e => {
+        console.log(e);
+        document.location.href = e;
+//        document.location.href = e
+      });
+  </script>
+</head>
+<body>
+  <button onClick="getFile()">Click</button>
+
+</body>
+</html>
