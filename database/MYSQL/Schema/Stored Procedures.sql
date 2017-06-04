@@ -433,5 +433,257 @@ BEGIN
 	DROP TEMPORARY TABLE IF EXISTS `stats`;
 END
 
-DELIMITER //
+
+CREATE PROCEDURE `GetProjectCancerTypeStatsBySearchID`(
+	IN `@SearchID` INT,
+	IN `@Year` INT,
+	IN `@Type` VARCHAR(25),
+	OUT `@ResultCount` INT,
+	OUT `@ResultAmount` FLOAT
+)
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+	-- ---------------------------------------------------
+	-- Get saved search results by searchID
+	-- ---------------------------------------------------	
+	DECLARE `@ProjectIDs` LONGTEXT DEFAULT CONVERT('' USING ucs2);
+	SELECT @ProjectIDs := `Results` FROM `SearchResult` WHERE `SearchCriteriaID` = `@SearchID`;
+	CALL ToIntTable(@ProjectIDs);
+		
+	DROP TEMPORARY TABLE IF EXISTS `stats`;
+	CREATE TEMPORARY TABLE IF NOT EXISTS `stats` (
+		`CancerType` VARCHAR(100),
+		`Relevance` DECIMAL(16,2),
+		`USDAmount` DOUBLE,
+		`ProjectCount` INT
+	);
+	
+	-- -------------------------------		
+	--   Find all related projects 
+	-- -------------------------------
+	INSERT INTO stats
+	SELECT
+		`CancerType`,
+		IFNULL(CAST(SUM(`Relevance`)/100 AS DECIMAL(16,2)),0) AS Relevance,
+		SUM(`USDAmount`) AS USDAmount,
+		Count(*) AS ProjectCount
+	FROM (
+		SELECT
+			c.`Name` AS CancerType,
+			`Relevance`,
+			(f.`Amount` * IFNULL(cr.`ToCurrencyRate`,1)) AS USDAmount
+		FROM `ToIntTable` r
+			JOIN `ProjectFunding` f ON r.`Value` = f.`ProjectID`
+			JOIN `ProjectCancerType` pc ON f.`projectFundingID` = pc.`projectFundingID`
+			JOIN `CancerType` c ON c.`CancerTypeID` = pc.`CancerTypeID`
+			JOIN `FundingOrg` o ON f.`FundingOrgID` = o.`FundingOrgID`		
+			LEFT JOIN (
+				SELECT *
+				FROM `CurrencyRate`
+				WHERE `ToCurrency` = 'USD' AND `Year`=`@Year`
+			) cr ON cr.`FromCurrency` = o.`Currency`
+	) r
+	GROUP BY `CancerType`;
+	
+	SELECT @ResultCount := SUM(`Relevance`) FROM `stats`;
+	SELECT @ResultAmount := SUM(`USDAmount`) FROM `stats`;
+	
+	IF `@Type` = 'Amount' THEN
+		SELECT * FROM `stats` ORDER BY `USDAmount` Desc;
+	ELSE
+		SELECT * FROM `stats` ORDER BY `Relevance` Desc;
+	END IF;
+	
+	DROP TEMPORARY TABLE IF EXISTS `stats`;
+END//
+
+
+CREATE PROCEDURE `GetProjectCountryStatsBySearchID`(
+	IN `@SearchID` INT,
+	IN `@Year` INT,
+	IN `@Type` VARCHAR(25),
+	OUT `@ResultCount` INT,
+	OUT `@ResultAmount` FLOAT
+)
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+	-- ---------------------------------------------------
+	-- Get saved search results by searchID
+	-- ---------------------------------------------------	
+	DECLARE `@ProjectIDs` LONGTEXT DEFAULT CONVERT('' USING ucs2);
+	SELECT @ProjectIDs := `Results` FROM `SearchResult` WHERE `SearchCriteriaID` = `@SearchID`;
+	CALL ToIntTable(@ProjectIDs);
+		
+	DROP TEMPORARY TABLE IF EXISTS `stats`;
+	CREATE TEMPORARY TABLE IF NOT EXISTS `stats` (
+		`CancerType` VARCHAR(3),
+		`Count` INT,
+		`USDAmount` DOUBLE
+	);
+	
+	-- -------------------------------		
+	--   Find all related projects 
+	-- -------------------------------
+	INSERT INTO stats
+	SELECT
+		`country`,
+		COUNT(*) AS Count,
+		SUM(`USDAmount`) AS USDAmount
+	FROM (
+		SELECT
+			i.`country`,
+			(f.`Amount` * IFNULL(cr.`ToCurrencyRate`, 1)) AS USDAmount 
+		FROM `ToIntTable` r
+			JOIN `ProjectFunding` f ON r.`Value` = f.`ProjectID`
+			JOIN `ProjectFundingInvestigator` pi ON f.`projectFundingID` = pi.`projectFundingID`
+			JOIN `Institution` i ON i.`InstitutionID` = pi.`InstitutionID`
+			JOIN `FundingOrg` o ON f.`FundingOrgID` = o.`FundingOrgID`
+			LEFT JOIN (
+				SELECT *
+				FROM `CurrencyRate`
+				WHERE `ToCurrency` = 'USD' AND `Year`=`@Year`
+			) cr ON cr.`FromCurrency` = o.`Currency`
+	) r
+	GROUP BY `country`;
+	
+	SELECT @ResultCount := SUM(`Count`) FROM stats;
+	SELECT @ResultAmount := SUM(`USDAmount`) FROM stats;
+	
+	IF `@Type` = 'Amount' THEN
+		SELECT * FROM `stats` ORDER BY `USDAmount` Desc;
+	ELSE
+		SELECT * FROM `stats` ORDER BY `Count` Desc;
+	END IF;
+END//
+
+
+CREATE PROCEDURE `GetProjectCSOStatsBySearchID`(
+	IN `@SearchID` INT,
+	IN `@Year` INT,
+	IN `@Type` VARCHAR(25),
+	OUT `@ResultCount` INT,
+	OUT `@ResultAmount` FLOAT
+)
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+	-- ---------------------------------------------------
+	-- Get saved search results by searchID
+	-- ---------------------------------------------------
+	DECLARE `@ProjectIDs` LONGTEXT DEFAULT CONVERT('' USING ucs2);
+	SELECT @ProjectIDs := `Results` FROM `SearchResult` WHERE `SearchCriteriaID` = `@SearchID`;
+	CALL ToIntTable(@ProjectIDs);
+
+	DROP TEMPORARY TABLE IF EXISTS `stats`;
+	CREATE TEMPORARY TABLE IF NOT EXISTS `stats` (
+		`CancerType` VARCHAR(100),
+		`Relevance` DECIMAL(16,2),
+		`USDAmount` DOUBLE,
+		`ProjectCount` INT
+	);
+
+	-- -------------------------------		
+	--   Find all related projects 
+	-- -------------------------------
+	INSERT INTO stats
+	SELECT
+		`categoryName`,
+		CAST(SUM(`Relevance`)/100 AS DECIMAL(16,2)) AS Relevance,
+		SUM(`USDAmount`) AS USDAmount,
+		count(*) AS ProjectCount
+	FROM (
+		SELECT
+			c.`categoryName`,
+			`Relevance`,
+			(f.`Amount` * IFNULL(cr.`ToCurrencyRate`, 1)) AS USDAmount
+		FROM `ToIntTable` r
+			JOIN `ProjectFunding` f ON r.`Value` = f.`ProjectID`
+			JOIN (SELECT * FROM `ProjectCSO` WHERE ifnull(`Relevance`,0) <> 0) pc ON f.`projectFundingID` = pc.`projectFundingID`
+			JOIN `CSO` c ON c.`code` = pc.`csocode`
+			JOIN `FundingOrg` o ON f.`FundingOrgID` = o.`FundingOrgID`
+			LEFT JOIN (
+				SELECT *
+				FROM `CurrencyRate`
+				WHERE `ToCurrency` = 'USD' AND `Year`=`@Year`
+			) cr ON cr.`FromCurrency` = o.`Currency`
+	) r
+	GROUP BY `categoryName`;
+		
+	SELECT @ResultCount := SUM(`Relevance`) FROM stats;
+	SELECT @ResultAmount := SUM(`USDAmount`) FROM stats;
+
+	IF `@Type` = 'Amount' THEN
+		SELECT * FROM `stats` ORDER BY `USDAmount` Desc;
+	ELSE		
+		SELECT * FROM `stats` ORDER BY `Relevance` DESC;
+	END IF;
+END//
+
+
+CREATE PROCEDURE `GetProjectAwardStatsBySearchID`(
+	IN `@SearchID` INT,
+	IN `@Year` INT,
+	OUT `@ResultCount` INT,
+	OUT `@ResultAmount` FLOAT
+)
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+  	-- ---------------------------------------------------
+	-- Get saved search results by searchID
+	-- ---------------------------------------------------	
+	DECLARE `@ProjectIDs` LONGTEXT DEFAULT CONVERT('' USING ucs2);
+	SELECT @ProjectIDs := `Results` FROM `SearchResult` WHERE `SearchCriteriaID` = `@SearchID`;
+	CALL ToIntTable(@ProjectIDs);
+
+	DROP TEMPORARY TABLE IF EXISTS `stats`;
+	CREATE TEMPORARY TABLE IF NOT EXISTS `stats` (
+		`ProjectID` INT,
+		`Year` VARCHAR(100),
+		`CalendarAmount` DOUBLE,
+		`USDAmount` DECIMAL(16,2),
+		`ToCurrencyRate` DOUBLE
+	);
+
+	-- -----------------------------------------------------------------		
+	--   Find all related projects and convert to USD dollars
+	-- -----------------------------------------------------------------
+	INSERT INTO `stats`
+	SELECT
+		r.`Value` AS ProjectID,
+		ext.`CalendarYear` AS Year,
+		ext.`CalendarAmount`,
+		(ext.`CalendarAmount`*IFNULL(cr.`ToCurrencyRate`,1)) AS USDAmount,
+		IFNULL(cr.`ToCurrencyRate`,1) AS ToCurrencyRate
+	FROM `ToIntTable` r
+		JOIN `ProjectFunding` f ON r.`Value` = f.`ProjectID`
+		JOIN `ProjectFundingExt` ext ON ext.`ProjectFundingID` = f.`ProjectFundingID`
+		JOIN `FundingOrg` o ON f.`FundingOrgID` = o.`FundingOrgID`
+		LEFT JOIN (
+			SELECT *
+			FROM `CurrencyRate`
+			WHERE `ToCurrency` = 'USD' AND `Year`=`@Year`
+		) cr ON cr.`FromCurrency` = o.`Currency`;
+
+	SELECT @ResultCount := COUNT(*) FROM `stats`;
+	SELECT @ResultAmount := SUM(USDAmount) FROM `stats`;
+
+	SELECT `Year`, @ResultCount AS Count, @ResultAmount AS amount FROM `stats` GROUP BY `Year` ORDER BY `Year`;
+END//
+
+
 DELIMITER ;
