@@ -47,8 +47,20 @@ function icrp_user_login($account) {
 }
 */
 function icrp_preprocess_menu_local_action(&$variables) {
-  //kint($variables);
-  //unset($variables['element']);
+  $link = $variables['element']['#link'];
+  $link += array(
+    'localized_options' => array(),
+  );
+  $link['localized_options']['attributes']['class'][] = 'button';
+  $link['localized_options']['attributes']['class'][] = 'button-action';
+  $link['localized_options']['set_active_class'] = TRUE;
+
+  $variables['link'] = array(
+    '#type' => 'link',
+    '#title' => $link['title'],
+    '#options' => $link['localized_options'],
+    '#url' => $link['url'],
+  );
 }
 
 function icrp_preprocess_forums(&$variables) {
