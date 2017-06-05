@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "8c8e0bf761760eb0956e9493c10d3b74",
+    "content-hash": "e3e02af8e09748562ede6673ebad0813",
     "packages": [
         {
             "name": "box/spout",
@@ -207,15 +207,15 @@
                 "xls",
                 "xlsx"
             ],
-            "time": "2016-10-03T08:18:38+00:00"
+            "time": "2016-10-03 08:18:38"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "phpoffice/phpspreadsheet": 20,
-        "phpoffice/phpexcel": 20
+        "phpoffice/phpexcel": 20,
+        "phpoffice/phpspreadsheet": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
