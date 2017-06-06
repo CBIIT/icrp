@@ -19,10 +19,13 @@ export class SearchPageComponent implements AfterViewInit {
   search$: Observable<any>;
   fields: any = {};
 
+  loadingMessage = 'Loading Page';
+
   state = {
     loading: true,
     searchID: getSearchID(),
     searchParameters: {},
+    sortPaginateParameters: {},
     displayParameters: [],
     results: [],
     numResults: 0,
@@ -42,21 +45,104 @@ export class SearchPageComponent implements AfterViewInit {
   ngAfterViewInit() {
     this.state.searchID = getSearchID();
 
-    // update fields first
+
     this.updateFields()
-      .subscribe(e =>
-        this.state.searchID
-          ? this.performSavedSearch(this.state.searchID)
-          : this.performDefaultSearch()
-      );
+      .subscribe(e => {
+        if (this.isStoredStateValid()) {
+          this.loadingMessage = 'Loading Data';
+          this.restoreState();
+        }
+
+        else {
+          this.loadingMessage = 'Fetching Data';
+          this.retrieveInitialResults();
+        }
+
+      })
+
+
+
+  }
+
+  retrieveInitialResults() {
+    this.state.searchID
+      ? this.performSavedSearch(this.state.searchID)
+      : this.performDefaultSearch()
   }
 
   // sets the fields of the search form
   updateFields() {
-    return this.searchService.getFields().map(fields => {
-      this.fields = fields;
-      this.searchForm.setFields(fields);
-    });
+    let storedFields = this.storeService.get('fields');
+    if (storedFields) {
+      return Observable.of(true)
+        .delay(10)
+        .map(e => {
+          this.fields = storedFields;
+          this.searchForm.setFields(storedFields);
+        });
+    }
+
+    else {
+      return this.searchService.getFields().map(fields => {
+        this.fields = fields;
+        this.searchForm.setFields(fields);
+        this.storeService.set('fields', fields);
+      });
+    }
+  }
+
+  isStoredStateValid() {
+    let storedFields = [
+      'searchID',
+      'searchParameters',
+      'displayParameters',
+      'results',
+      'numResults',
+      'analytics'
+    ];
+
+    if (getSearchID())
+      return false;
+
+    if (!this.storeService.exists('previouslyAuthenticated')
+    || (this.sharedService.get('authenticated') !== this.storeService.get('previouslyAuthenticated'))) {
+      return false;
+    }
+
+    for (let field of storedFields) {
+      if (!this.storeService.exists(field) || !this.storeService.get(field))
+        return false;
+    }
+
+    return true;
+  }
+
+  restoreState() {
+    let storedFields = [
+      'searchID',
+      'searchParameters',
+      'sortPaginateParameters',
+      'displayParameters',
+      'results',
+      'numResults',
+      'analytics'
+    ];
+
+    for (let field of storedFields) {
+      Observable.of(true)
+        .delay(100)
+        .subscribe(e => {
+          this.state[field] = this.storeService.get(field);
+
+          if (field === 'searchParameters') {
+            this.searchForm.setParameters(this.state[field], true);
+          }
+        });
+    }
+
+    Observable.of(false)
+      .delay(100)
+      .subscribe(e => this.state.loading = e)
   }
 
   performSavedSearch(searchID) {
@@ -88,25 +174,11 @@ export class SearchPageComponent implements AfterViewInit {
   }
 
   performDefaultSearch() {
-    this.setDefaultParameters();
-    this.getSearchResults({
-      parameters: this.getDefaultParameters(),
-    })
-  }
-
-  setDefaultParameters() {
-    let defaultParameters =  this.getDefaultParameters();
+    let defaultParameters = this.searchService.getDefaultParameters();
     this.searchForm.setParameters(defaultParameters, true);
-  }
-
-  getDefaultParameters() {
-    let currentYear = new Date().getFullYear();
-    let defaultParameters = {
-      years: [currentYear, currentYear - 1]
-    };
-
-    return defaultParameters;
-
+    this.getSearchResults({
+      parameters: defaultParameters,
+    })
   }
 
   // functions for retrieving search parameters based on search id
@@ -138,12 +210,15 @@ export class SearchPageComponent implements AfterViewInit {
       .subscribe(response => {
         loadingTrue$.unsubscribe();
         this.state.analytics[key] = response
+        this.storeService.merge('analytics', this.state.analytics);
       });
     }
   }
 
   getSortedPaginatedResults(parameters) {
     let params = deepCopy(parameters);
+    this.storeService.set('sortPaginateParameters', parameters);
+
     params.search_id = this.state.searchID;
 
     let loadingTrue$ = Observable.timer(500)
@@ -159,8 +234,6 @@ export class SearchPageComponent implements AfterViewInit {
   }
 
   getSearchResults(event: any) {
-    console.log('search', event);
-
     this.resetAnalytics();
     this.state.loading = true;
     this.state.searchParameters = this.filterSearchParameters(deepCopy(event.parameters));
@@ -173,9 +246,25 @@ export class SearchPageComponent implements AfterViewInit {
         this.state.displayParameters = response.display_parameters;
         this.state.loading = false;
         this.getAnalytics(this.state.searchID);
+
         this.sharedService.set('searchID', this.state.searchID);
+
+        let storedFields = [
+          'searchID',
+          'searchParameters',
+          'displayParameters',
+          'results',
+          'numResults',
+        ];
+
+        for (let field of storedFields) {
+          this.storeService.set(field, this.state[field]);
+        }
+
+        this.storeService.set('previouslyAuthenticated', this.sharedService.get('authenticated'));
       });
   }
+
 
   resetAnalytics() {
     this.state.analytics = {

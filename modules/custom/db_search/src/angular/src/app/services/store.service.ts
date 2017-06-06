@@ -20,7 +20,7 @@ export class StoreService {
     let storageType = this.storageType;
 
     if (this.storageAvailable(storageType)) {
-      return JSON.parse(window[storageType][key]);
+      return JSON.parse(window[storageType][key] || null);
     } else {
       return this.fallbackStore[key];
     }
@@ -43,6 +43,33 @@ export class StoreService {
       return window[storageType][key] != null && window[storageType][key] != undefined;
     } else {
       return this.fallbackStore[key] != null && this.fallbackStore[key] != undefined;
+    }
+  }
+
+  merge(key: string, value: any) {
+    let storageType = this.storageType;
+
+    if (this.storageAvailable(storageType)) {
+      let storedObject = this.get(key) || {};
+      for (let objectKey in value) {
+        storedObject[objectKey] = value[objectKey];
+      }
+      window[storageType][key] = JSON.stringify(storedObject);
+
+    } else {
+
+      let storedObject = this.get(key) || {};
+      for (let objectKey in value) {
+        storedObject[objectKey] = value[objectKey];
+      }
+
+      this.fallbackStore[key] = storedObject;
+    }
+  }
+
+  clearAll() {
+    for (let key in this.fallbackStore) {
+      this.set(key, null);
     }
   }
 
