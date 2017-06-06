@@ -33,8 +33,10 @@ CREATE PROCEDURE [dbo].[GetProjectsByCriteria]
 	@projectTypeList varchar(1000) = NULL,
 	@CSOList varchar(1000) = NULL,	
 	@IsChildhood bit = NULL,
+	@LastBudgetYear INT OUTPUT,  -- return the last year of the project budget date range	
 	@searchCriteriaID INT OUTPUT,  -- return the searchID	
 	@ResultCount INT OUTPUT  -- return the searchID	
+	
 AS   
 	----------------------------------
 	-- Get all Projects 
@@ -208,7 +210,8 @@ AS
 	SELECT DISTINCT ProjectID INTO #baseProj FROM #proj
 	
 	DECLARE @ProjectIDList VARCHAR(max) = '' 	
-	SELECT @ResultCount=COUNT(*) FROM #baseProj
+	SELECT @ResultCount=COUNT(*) FROM #baseProj	
+	SELECT @LastBudgetYear=DATEPART(year, MAX(BudgetEndDate)) FROM #proj
 
 	SELECT @ProjectIDList = @ProjectIDList + 
            ISNULL(CASE WHEN LEN(@ProjectIDList) = 0 THEN '' ELSE ',' END + CONVERT( VarChar(20), ProjectID), '')
@@ -349,7 +352,8 @@ CREATE PROCEDURE [dbo].[GetProjectsByDataUploadID]
 	@SortCol varchar(50) = 'title', -- Ex: 'title', 'pi', 'code', 'inst', 'FO',....
 	@SortDirection varchar(4) = 'ASC',  -- 'ASC' or 'DESC'
     @DataUploadID INT,
-    @searchCriteriaID INT OUTPUT,  -- return the searchID	
+    @LastBudgetYear INT OUTPUT,  -- return the last year of the project budget date range	
+	@searchCriteriaID INT OUTPUT,  -- return the searchID	
 	@ResultCount INT OUTPUT  -- return the searchID		
 AS   
 
@@ -358,13 +362,13 @@ AS
 	------------------------------------------------------	
 	SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID INTO #import FROM ProjectFunding WHERE DataUploadStatusID = @DataUploadID GROUP BY ProjectID 
 	SELECT @ResultCount = COUNT(*) FROM #import
+	SELECT @LastBudgetYear = DATEPART(year, MAX(f.BudgetENdDate)) FROM #import i JOIN ProjectFunding f ON i.ProjectID = f.ProjectID
 
 	----------------------------------
 	-- Save search criteria
 	----------------------------------		
 	DECLARE @ProjectIDList VARCHAR(max) = '' 	
-	SELECT @ResultCount=COUNT(*) FROM #import
-
+	
 	SELECT @ProjectIDList = @ProjectIDList + 
            ISNULL(CASE WHEN LEN(@ProjectIDList) = 0 THEN '' ELSE ',' END + CONVERT( VarChar(20), ProjectID), '')
 	FROM #import	
