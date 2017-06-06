@@ -5,31 +5,31 @@
 
   <icrp-export-button
     label="Export Results"
-    [endpoint]="routes.exportResults">
+    [endpoint]="getRoutes().exportResults">
     </icrp-export-button>
 
   <icrp-export-button
     *ngIf="authenticated"
     label="Export Single"
-    [endpoint]="routes.exportResultsSingle">
+    [endpoint]="getRoutes().exportResultsSingle">
   </icrp-export-button>
 
   <icrp-export-button
     *ngIf="authenticated"
     label="Export Abstracts"
-    [endpoint]="routes.exportAbstracts">
+    [endpoint]="getRoutes().exportAbstracts">
   </icrp-export-button>
 
   <icrp-export-button
     *ngIf="authenticated"
     label="Export Abstracts Single"
-    [endpoint]="routes.exportAbstractsSingle">
+    [endpoint]="getRoutes().exportAbstractsSingle">
   </icrp-export-button>
 
   <span class="pull-right">
     <icrp-export-button
       label="Export Graphs"
-      [endpoint]="routes.exportGraphs">
+      [endpoint]="getRoutes().exportGraphs">
     </icrp-export-button>
   </span>
 </div>

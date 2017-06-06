@@ -1,59 +1,96 @@
-db_export_results.content:
-  path: '/ExportResults'
-  defaults:
-    _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportResults'
-    _title: 'Project Details'
+export.database.search_results:
+  path: '/api/database/export/search_results'
+  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::exportSearchResults' }
+  methods: [ GET ]
   requirements:
-    _permission: 'access content'
- 
-db_export_results.partner:
-   path: '/ExportResultsPartner'
-   defaults:
-     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportResultsPartner'
-     _title: 'Project Details'
-   requirements:
-    _permission: 'access content'
-    
-db_export_results.abstract:
-   path: '/ExportResultsWithAbstractPartner'
-   defaults:
-     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportResultsWithAbstractPartner'
-     _title: 'Project Details'
-   requirements:
-    _permission: 'access content'    
-  
-db_export_results.graphs:
-   path: '/ExportResultsWithGraphsPartner'
-   defaults:
-     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportResultsWithGraphsPartner'
-     _title: 'Project Details'
-   requirements:
-    _permission: 'access content' 
-  
-db_export_results.graphsPublic:
-   path: '/ExportResultsWithGraphsPartnerPublic'
-   defaults:
-     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportResultsWithGraphsPartnerPublic'
-     _title: 'Project Details'
-   requirements:
-    _permission: 'access content'  
+    _access: 'TRUE'
 
-db_export_results.single:
-   path: '/ExportResultsSignlePartner'
-   defaults:
-     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportResultsSinglePartner'
-     _title: 'Project Details'
-   requirements:
-    _permission: 'access content'    
+export.database.partners.search_results:
+  path: '/api/database/export/partners/search_results'
+  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::exportSearchResultsForPartners' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
 
-db_export_results.abstractSingle:
-   path: '/ExportAbstractSignlePartner'
-   defaults:
-     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportAbstractSinglePartner'
-     _title: 'Project Details'
-   requirements:
-    _permission: 'access content'     
-    
+export.database.partners.search_results.single:
+  path: '/api/database/export/partners/search_results/single'
+  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::exportSearchResultsInSingleSheet' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
+export.database.partners.search_results.abstracts:
+  path: '/api/database/export/partners/search_results/abstracts'
+  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::exportAbstracts' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
+export.database.partners.search_results.abstracts.single:
+  path: '/api/database/export/partners/search_results/abstracts/single'
+  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::exportAbstractsInSingleSheet' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
+export.database.search_results.graphs:
+  path: '/api/database/export/search_results/graphs'
+  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::exportGraphs' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
+export.database.partners.search_results.graphs:
+  path: '/api/database/export/partners/search_results/graphs'
+  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::exportGraphsForPartners' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
+
+
+
+
+export.database.review.partners.search_results:
+  path: '/api/database/review/export/partners/search_results'
+  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::reviewExportSearchResultsForPartners' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
+export.database.review.partners.search_results.single:
+  path: '/api/database/review/export/partners/search_results/single'
+  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::reviewExportSearchResultsInSingleSheet' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
+export.database.review.partners.search_results.abstracts:
+  path: '/api/database/review/export/partners/search_results/abstracts'
+  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::reviewExportAbstracts' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
+export.database.review.partners.search_results.abstracts.single:
+  path: '/api/database/review/export/partners/search_results/abstracts/single'
+  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::reviewExportAbstractsInSingleSheet' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
+export.database.review.partners.search_results.graphs:
+  path: '/api/database/review/export/partners/search_results/graphs'
+  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::reviewExportGraphsForPartners' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
+
+
+
+
+
 db_export_results.lookupTable:
    path: '/ExportLookupTable'
    defaults:
@@ -66,81 +103,6 @@ db_export_results.uploadStatus:
    path: '/ExportUploadStatus'
    defaults:
      _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportUploadStatus'
-     _title: 'Project Details'
-   requirements:
-    _permission: 'access content'    
-
-
-
-
-db_export_results.load.content:
-  path: '/load/ExportResults'
-  defaults:
-    _controller: '\Drupal\db_export_results\Controller\ExportLoadResultsController::exportResults'
-    _title: 'Project Details'
-  requirements:
-    _permission: 'access content'
- 
-db_export_results.load.partner:
-   path: '/load/ExportResultsPartner'
-   defaults:
-     _controller: '\Drupal\db_export_results\Controller\ExportLoadResultsController::exportResultsPartner'
-     _title: 'Project Details'
-   requirements:
-    _permission: 'access content'
-    
-db_export_results.load.abstract:
-   path: '/load/ExportResultsWithAbstractPartner'
-   defaults:
-     _controller: '\Drupal\db_export_results\Controller\ExportLoadResultsController::exportResultsWithAbstractPartner'
-     _title: 'Project Details'
-   requirements:
-    _permission: 'access content'    
-  
-db_export_results.load.graphs:
-   path: '/load/ExportResultsWithGraphsPartner'
-   defaults:
-     _controller: '\Drupal\db_export_results\Controller\ExportLoadResultsController::exportResultsWithGraphsPartner'
-     _title: 'Project Details'
-   requirements:
-    _permission: 'access content' 
-  
-db_export_results.load.graphsPublic:
-   path: '/load/ExportResultsWithGraphsPartnerPublic'
-   defaults:
-     _controller: '\Drupal\db_export_results\Controller\ExportLoadResultsController::exportResultsWithGraphsPartnerPublic'
-     _title: 'Project Details'
-   requirements:
-    _permission: 'access content'  
-
-db_export_results.load.single:
-   path: '/load/ExportResultsSignlePartner'
-   defaults:
-     _controller: '\Drupal\db_export_results\Controller\ExportLoadResultsController::exportResultsSinglePartner'
-     _title: 'Project Details'
-   requirements:
-    _permission: 'access content'    
-
-db_export_results.load.abstractSingle:
-   path: '/load/ExportAbstractSignlePartner'
-   defaults:
-     _controller: '\Drupal\db_export_results\Controller\ExportLoadResultsController::exportAbstractSinglePartner'
-     _title: 'Project Details'
-   requirements:
-    _permission: 'access content'     
-    
-db_export_results.load.lookupTable:
-   path: '/load/ExportLookupTable'
-   defaults:
-     _controller: '\Drupal\db_export_results\Controller\ExportLoadResultsController::exportLookupTable'
-     _title: 'Project Details'
-   requirements:
-    _permission: 'access content' 
-    
-db_export_results.load.uploadStatus:
-   path: '/load/ExportUploadStatus'
-   defaults:
-     _controller: '\Drupal\db_export_results\Controller\ExportLoadResultsController::exportUploadStatus'
      _title: 'Project Details'
    requirements:
     _permission: 'access content'    

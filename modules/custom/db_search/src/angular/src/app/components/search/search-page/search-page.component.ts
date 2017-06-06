@@ -173,6 +173,7 @@ export class SearchPageComponent implements AfterViewInit {
         this.state.displayParameters = response.display_parameters;
         this.state.loading = false;
         this.getAnalytics(this.state.searchID);
+        this.sharedService.set('searchID', this.state.searchID);
       });
   }
 

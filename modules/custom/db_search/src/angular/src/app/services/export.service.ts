@@ -10,7 +10,11 @@ export class ExportService {
   getRequest(url: string, parameters: any = {}) {
     let searchParams = new URLSearchParams();
     for (let key in parameters) {
-      searchParams.set(key, parameters[key]);
+      let value = parameters[key];
+
+      if (value) {
+        searchParams.set(key, value);
+      }
     }
 
     return this.http.get(
@@ -19,7 +23,7 @@ export class ExportService {
         search: searchParams,
         withCredentials: this.sharedService.get('is_production')
       }
-    ).map(response => response.json());
+    ).map(response => response.text());
   }
 
   emailResults(params: {"name": string, "recipient_email": string, "personal_message": string}) {
@@ -28,7 +32,7 @@ export class ExportService {
     return this.getRequest(endpoint, params);
   }
 
-  export(endpoint: string) {
-    return this.getRequest(endpoint);
+  export(endpoint: string, parameters: any) {
+    return this.getRequest(endpoint, parameters);
   }
 }

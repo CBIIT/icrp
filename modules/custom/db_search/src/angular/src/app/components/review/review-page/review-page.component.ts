@@ -170,6 +170,7 @@ export class ReviewPageComponent {
         this.searchResults = response.results;
         this.searchID = response.search_id;
         this.numResults = response.results_count;
+        this.sharedService.set('searchID', this.searchID);
 
         if (updateAnalytics) {
           this.getAnalytics(this.searchID);
@@ -196,6 +197,8 @@ export class ReviewPageComponent {
     if (uploadID !== this.uploadID) {
       this.uploadID = uploadID;
       this.resetAnalytics();
+
+      this.sharedService.set('dataUploadID',  this.uploadID);
 
       this.currentSponsor = this.sponsorUploadsTable
         .filter(e => e.data_upload_id == this.uploadID)[0];
