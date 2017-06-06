@@ -16,7 +16,7 @@ export class ExportButtonsPanelComponent  {
 
     let baseRoute = {
       search: '/api/database/export',
-      review: '/api/database/export/review',
+      review: '/api/database/review/export',
     }[componentType];
 
     return {
