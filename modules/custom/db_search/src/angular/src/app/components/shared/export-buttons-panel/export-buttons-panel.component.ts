@@ -25,7 +25,7 @@ export class ExportButtonsPanelComponent  {
         : `${baseRoute}/search_results`,
       exportResultsSingle: `${baseRoute}/partners/search_results/single`,
       exportAbstracts: `${baseRoute}/partners/search_results/abstracts`,
-      exportAbstractsSingle: `${baseRoute}/api/database/export/partners/search_results/abstracts/single`,
+      exportAbstractsSingle: `${baseRoute}/partners/search_results/abstracts/single`,
       exportGraphs: this.sharedService.get('authenticated')
         ? `${baseRoute}/partners/search_results/graphs`
         : `${baseRoute}/search_results/graphs`,
