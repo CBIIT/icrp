@@ -432,7 +432,8 @@ class DatabaseExport {
       ->setTitle('Data Export');
 
     $sheet_definitions = self::EXPORT_MAP[$workbook_key];
-    $last_key = end(array_keys($sheet_definitions));
+    $sheet_definition_keys = array_keys($sheet_definitions);
+    $last_key = end($sheet_definition_keys);
 
     $sheet = $excel->getSheet(0);
 
@@ -555,7 +556,7 @@ class DatabaseExport {
     int $data_upload_id = NULL,
     string $workbook_key = '',
     string $filename = '',
-    string $url_prefix = ''
+    string $url_path_prefix = ''
   ): string {
 
     $paths = $this->buildOutputPaths($filename);
@@ -568,7 +569,8 @@ class DatabaseExport {
     );
 
     $sheet_definitions = self::EXPORT_MAP[$workbook_key];
-    $last_key = end(array_keys($sheet_definitions));
+    $sheet_definition_keys = array_keys($sheet_definitions);
+    $last_key = end($sheet_definition_keys);
 
     // loop through each sheet's definition
     foreach($sheet_definitions as $sheet_name => $sheet_definition) {
