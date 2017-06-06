@@ -520,7 +520,6 @@ class DatabaseSearch {
 
     $output_parameters = [
       'results_count'     => NULL,
-      'last_budget_year'  => NULL,
     ];
 
     foreach($parameters as $key => &$value) {
