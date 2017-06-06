@@ -33,7 +33,7 @@ export class SharedService {
     this.set('authenticated', false);
 
     if (environment.production) {
-      let auth = this.http.get('/search-database/partners/authenticate', {withCredentials: true})
+      let auth = this.http.get('/api/database/authenticate', {withCredentials: true})
         .map(response => response.text())
         .subscribe(response => this.set('authenticated', true))
     }
