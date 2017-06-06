@@ -2,6 +2,12 @@
 
 function db_search_view_theme($existing, $type, $theme, $path) {
   return [
+    'database_search' => [
+      'variables' => [
+        'api_root' => NULL,
+        'component_type' => NULL,
+      ],
+    ],
 
     'data_upload_review' => [
       'variables' => [
