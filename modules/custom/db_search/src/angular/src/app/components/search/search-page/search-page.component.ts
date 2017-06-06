@@ -19,6 +19,8 @@ export class SearchPageComponent implements AfterViewInit {
   search$: Observable<any>;
   fields: any = {};
 
+  loadingMessage = 'Loading Page';
+
   state = {
     loading: true,
     searchID: getSearchID(),
@@ -47,10 +49,12 @@ export class SearchPageComponent implements AfterViewInit {
     this.updateFields()
       .subscribe(e => {
         if (this.isStoredStateValid()) {
+          this.loadingMessage = 'Loading Data';
           this.restoreState();
         }
 
         else {
+          this.loadingMessage = 'Fetching Data';
           this.retrieveInitialResults();
         }
 

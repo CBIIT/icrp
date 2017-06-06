@@ -1,6 +1,7 @@
 <ui-overlay [active]="state.loading && (!state.results || !state.results.length)" [fullscreen]="true">
   <ui-spinner></ui-spinner>
-  <br>Fetching Data
+  <br>{{ loadingMessage }}
+
 </ui-overlay>
 
 
