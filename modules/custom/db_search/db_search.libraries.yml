@@ -1,15 +1,3 @@
-custom:
-  version: 1.0
-  css:
-    theme:
-      assets/styles.css: {}
-  js:
-    assets/inline.js: {}
-    assets/polyfills.js: {}
-    assets/vendor.js: {}
-    assets/main.js: {}
-
-
 default:
   version: 1.0
   css:

@@ -1,6 +1,7 @@
 <ui-overlay [active]="state.loading && (!state.results || !state.results.length)" [fullscreen]="true">
   <ui-spinner></ui-spinner>
-  <br>Fetching Data
+  <br>{{ loadingMessage }}
+
 </ui-overlay>
 
 
@@ -8,7 +9,6 @@
   <div class="col-sm-3">
     <icrp-search-form #searchform
       (search)="getSearchResults($event)"
-      (requestDefaultParameters)="setDefaultParameters()"
       >
     </icrp-search-form>
   </div>
