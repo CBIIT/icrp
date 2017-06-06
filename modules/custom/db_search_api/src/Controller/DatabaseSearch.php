@@ -455,11 +455,13 @@ class DatabaseSearch {
       @IsChildhood          = :is_childhood_cancer,
       @CSOList              = :cso_research_areas,
       @searchCriteriaID     = :search_id,
-      @ResultCount          = :results_count');
+      @ResultCount          = :results_count,
+      @LastBudgetYear       = :last_budget_year');
 
     $output_parameters = [
-      'search_id'     => NULL,
-      'results_count' => NULL,
+      'search_id'         => NULL,
+      'results_count'     => NULL,
+      'last_budget_year'  => NULL,
     ];
 
     foreach($parameters as $input_key => &$input_value) {
@@ -490,6 +492,7 @@ class DatabaseSearch {
     return [
       'search_id'           => $output_parameters['search_id'],
       'results_count'       => $output_parameters['results_count'],
+      'last_budget_year'    => $output_parameters['last_budget_year'],
       'results'             => $results,
       'display_parameters'  => self::getSearchParametersForDisplay($pdo, ['search_id' => $output_parameters['search_id']]),
     ];
@@ -507,14 +510,17 @@ class DatabaseSearch {
 
     $parameters['sort_column'] = self::SORT_COLUMN_MAP[$parameters['sort_column']];
     $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE GetProjectsBySearchID
-      @SearchID      = :search_id,
-      @PageSize      = :page_size,
-      @PageNumber    = :page_number,
-      @SortCol       = :sort_column,
-      @SortDirection = :sort_direction,
-      @ResultCount   = :results_count');
+      @SearchID       = :search_id,
+      @PageSize       = :page_size,
+      @PageNumber     = :page_number,
+      @SortCol        = :sort_column,
+      @SortDirection  = :sort_direction,
+      @ResultCount    = :results_count,
+      @LastBudgetYear = :last_budget_year');
 
     $stmt->bindParam(':results_count', $results_count, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
+    $stmt->bindParam(':last_budget_year', $last_budget_year, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
+
     foreach($parameters as $key => &$value) {
       $stmt->bindParam(":$key", $value);
     }
@@ -541,6 +547,7 @@ class DatabaseSearch {
       'results_count' => $results_count,
       'results'       => $results,
       'display_parameters'  => self::getSearchParametersForDisplay($pdo, ['search_id' => $parameters['search_id']]),
+      'last_budget_year'  => $last_budget_year,
     ];
   }
 }

@@ -60,10 +60,12 @@ class DatabaseReview {
       @SortCol            = :sort_column,
       @SortDirection      = :sort_direction,
       @ResultCount        = :results_count,
-      @searchCriteriaID   = :search_id');
+      @searchCriteriaID   = :search_id,
+      @LastBudgetYear     = :last_budget_year');
 
     $stmt->bindParam(':results_count', $results_count, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
     $stmt->bindParam(':search_id', $search_id, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
+    $stmt->bindParam(':last_budget_year', $last_budget_year, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
 
     foreach($parameters as $key => &$value) {
       $stmt->bindParam(":$key", $value);
@@ -87,10 +89,11 @@ class DatabaseReview {
     $_SESSION['database_search_id'] = $search_id;
 
     return [
-      'data_upload_id' => $parameters['data_upload_id'],
-      'search_id'      => $search_id,
-      'results_count'  => $results_count,
-      'results'        => $results,
+      'data_upload_id'    => $parameters['data_upload_id'],
+      'search_id'         => $search_id,
+      'results_count'     => $results_count,
+      'results'           => $results,
+      'last_budget_year'  => $last_budget_year,
     ];
   }
 
