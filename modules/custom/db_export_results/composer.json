@@ -1,9 +1,10 @@
 {
     "name": "icrp/db_data_export",
     "minimum-stability": "dev",
+    "prefer-stable": true,
     "require": {
         "box/spout": "^2.7",
-        "phpoffice/phpexcel": "dev-master"
+        "phpoffice/phpexcel": "^1.8"
     }
 
 }
