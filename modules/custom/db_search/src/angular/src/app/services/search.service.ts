@@ -26,6 +26,15 @@ export class SearchService {
     ).map(response => response.json());
   }
 
+  getDefaultParameters() {
+    let currentYear = new Date().getFullYear();
+    let defaultParameters = {
+      years: [currentYear, currentYear - 1]
+    };
+
+    return defaultParameters;
+  }
+
   getFields() {
     return this.getRequest(`${this.apiRoot}/fields`);
   }
@@ -62,6 +71,6 @@ export class SearchService {
       results_count: response.results_count,
       results: results,
       display_parameters: response.display_parameters,
-    }; 
+    };
   }
 }

@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
+import { SearchService } from '../../../services/search.service';
 
 /**
  * The <icrp-search-form> component renders the search form panel and
@@ -40,17 +41,16 @@ export class SearchFormComponent {
   @Output()
   search: EventEmitter<object>;
 
-  @Output()
-  requestDefaultParameters: EventEmitter<void> = new EventEmitter<void>();
-
-
   form: FormGroup;
 
   parameters: any = {};
   defaultParameters: any = {};
   displayParameters: any = {};
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private searchService: SearchService,
+  ) {
     this.search = new EventEmitter<object>();
 
     this.form = formBuilder.group({
@@ -107,12 +107,11 @@ export class SearchFormComponent {
     for (let key in parameters) {
       setTimeout(e => this.form.controls[key].patchValue(parameters[key]), 0)
     }
-
   }
 
-  setDefaultParameters(parameters) {
-    this.defaultParameters = parameters;
-    this.setParameters(this.defaultParameters);
+  setDefaultParameters() {
+    this.defaultParameters = this.searchService.getDefaultParameters();
+    this.setParameters(this.defaultParameters, true);
   }
 
   updateDisplayParameters(key, value) {
