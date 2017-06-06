@@ -9,26 +9,26 @@ import { SharedService } from '../../../services/shared.service';
 export class ExportButtonsPanelComponent  {
   @Input() authenticated: boolean = false;
 
-  routes: any = {}
+  constructor(public sharedService: SharedService) { }
 
-  constructor(public sharedService: SharedService) {
+  getRoutes() {
     let componentType = this.sharedService.get('componentType');
 
     let baseRoute = {
-      review: '/load',
-      search: ''
+      search: '/api/database/export',
+      review: '/api/database/export/review',
     }[componentType];
 
-    this.routes = {
-      exportResults: this.authenticated
-        ? `${baseRoute}/ExportResultsPartner`
-        : `${baseRoute}/ExportResults`,
-      exportResultsSingle: `${baseRoute}/ExportResultsSignlePartner`,
-      exportAbstracts: `${baseRoute}/ExportResultsWithAbstractPartner`,
-      exportAbstractsSingle: `${baseRoute}/ExportAbstractSignlePartner`,
-      exportGraphs: this.authenticated
-        ? `${baseRoute}/ExportResultsWithGraphsPartner`
-        : `${baseRoute}/ExportResultsWithGraphsPartnerPublic`
+    return {
+      exportResults: this.sharedService.get('authenticated')
+        ? `${baseRoute}/partners/search_results`
+        : `${baseRoute}/search_results`,
+      exportResultsSingle: `${baseRoute}/partners/search_results/single`,
+      exportAbstracts: `${baseRoute}/partners/search_results/abstracts`,
+      exportAbstractsSingle: `${baseRoute}/api/database/export/partners/search_results/abstracts/single`,
+      exportGraphs: this.sharedService.get('authenticated')
+        ? `${baseRoute}/partners/search_results/graphs`
+        : `${baseRoute}/search_results/graphs`,
     }
   }
 }

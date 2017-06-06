@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { ExportService } from '../../../services/export.service';
+import { SharedService } from '../../../services/shared.service';
 
 @Component({
   selector: 'icrp-export-button',
@@ -13,12 +14,19 @@ export class ExportButtonComponent {
 
   loading: boolean = false;
 
-  constructor(private exportService: ExportService) { }
+  constructor(
+    private exportService: ExportService,
+    private sharedService: SharedService
+  ) { }
 
   export() {
+    let parameters = {
+      search_id: this.sharedService.get('searchID'),
+      data_upload_id: this.sharedService.get('dataUploadID')
+    }
 
     this.loading = true;
-    this.exportService.export(this.endpoint)
+    this.exportService.export(this.endpoint, parameters)
       .subscribe(
         response => document.location.href = response,
         error => console.error(error),

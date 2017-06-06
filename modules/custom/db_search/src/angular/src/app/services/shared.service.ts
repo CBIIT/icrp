@@ -12,6 +12,8 @@ export class SharedService {
     componentType: '',
     authenticated: false,
     is_production: false,
+    searchID: null,
+    dataUploadID: null,
   };
 
   constructor(private http: Http) {
