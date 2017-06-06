@@ -85,3 +85,24 @@ export.database.review.partners.search_results.graphs:
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
+
+
+
+
+
+
+db_export_results.lookupTable:
+   path: '/ExportLookupTable'
+   defaults:
+     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportLookupTable'
+     _title: 'Project Details'
+   requirements:
+    _permission: 'access content' 
+    
+db_export_results.uploadStatus:
+   path: '/ExportUploadStatus'
+   defaults:
+     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportUploadStatus'
+     _title: 'Project Details'
+   requirements:
+    _permission: 'access content'    

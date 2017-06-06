@@ -17,195 +17,292 @@ use PHPExcel_IOFactory;
 
 class DatabaseExport {
 
-  const QUERY_MAP = [
-    'export_results' => [
-      'Search Results'          => 'EXECUTE GetProjectsBySearchID              @SearchID=:search_id, @ResultCount = NULL',
-      'Projects by CSO'         => 'EXECUTE GetProjectCSOsBySearchID           @SearchID=:search_id',
-      'Projects by Cancer Type' => 'EXECUTE GetProjectCancerTypesBySearchID    @SearchID=:search_id',
-      'Search Criteria'         => 'EXECUTE GetSearchCriteriaBySearchID        @SearchID=:search_id',
-    ],
+  public const EXPORT_RESULTS_PUBLIC                          = 'EXPORT_RESULTS_PUBLIC';
+  public const EXPORT_RESULTS_PARTNERS                        = 'EXPORT_RESULTS_PARTNERS';
+  public const EXPORT_RESULTS_AS_SINGLE_SHEET                 = 'EXPORT_RESULTS_AS_SINGLE_SHEET';
+  public const EXPORT_RESULTS_WITH_ABSTRACTS                  = 'EXPORT_RESULTS_WITH_ABSTRACTS';
+  public const EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET  = 'EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET';
+  public const EXPORT_GRAPHS_PUBLIC                           = 'EXPORT_GRAPHS_PUBLIC';
+  public const EXPORT_GRAPHS_PARTNERS                         = 'EXPORT_GRAPHS_PARTNERS';
 
-    'export_results_partners' => [
-      'Search Results'          => 'EXECUTE GetProjectExportsBySearchID        @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
-      'Projects by CSO'         => 'EXECUTE GetProjectCSOsBySearchID           @SearchID=:search_id',
-      'Projects by Cancer Type' => 'EXECUTE GetProjectCancerTypesBySearchID    @SearchID=:search_id',
-      'Search Criteria'         => 'EXECUTE GetSearchCriteriaBySearchID        @SearchID=:search_id',
-    ],
+  /**
+   * Workbook definitions
+   * 
+   * Each entry is an associative array that corresponds to an excel workbook
+   * This array contains entries that correspond to sheets within the workbook
+   * The 'query' property of this array specifies the query that is to be performed against the database 
+   * The 'columns' property specifies the column mapping that is to be applied to the results set (as well as defining any custom column names)
+   *   - if empty, no mappings will be applied and the entire results set will be written to the specified sheet 
+  */
+  private const EXPORT_MAP = [
 
-    'export_results_single_sheet' => [
-      'Search Results'          => 'EXECUTE GetProjectExportsSingleBySearchID  @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
-    ],
-
-    'export_abstracts' => [
-      'Search Results'          => 'EXECUTE GetProjectExportsBySearchID        @SearchID=:search_id, @includeAbstract=1, @SiteURL=:site_url',
-      'Projects by CSO'         => 'EXECUTE GetProjectCSOsBySearchID           @SearchID=:search_id',
-      'Projects by Cancer Type' => 'EXECUTE GetProjectCancerTypesBySearchID    @SearchID=:search_id',
-    ],
-
-    'export_abstracts_single_sheet' => [
-      'Search Results'          => 'EXECUTE GetProjectExportsSingleBySearchID  @SearchID=:search_id, @includeAbstract=1, @SiteURL=:site_url',
-    ],
-
-
-    'export_graphs' => [
-      'Projects by Country'                     => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
-      'Projects by CSO'                         => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
-      'Projects by Cancer Type'                 => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
-      'Projects by Type'                        => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
-      'Projects by Year'                        => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL',
-    ],
-
-    'export_graphs_partners' => [
-      'Projects by Country'                     => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
-      'Projects by CSO'                         => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
-      'Projects by Cancer Type'                 => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
-      'Projects by Type'                        => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
-      'Projects by Year'                        => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL',
-
-      'Funding Amounts by Country'            => 'EXECUTE GetProjectCountryStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Amount',
-      'Funding Amounts by CSO'                => 'EXECUTE GetProjectCSOStatsBySearchID          @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Amount',
-      'Funding Amounts by Cancer Type'        => 'EXECUTE GetProjectCancerTypeStatsBySearchID   @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Amount',
-      'Funding Amounts by Type'               => 'EXECUTE GetProjectTypeStatsBySearchID         @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Amount',
-      'Funding Amounts by Year'               => 'EXECUTE GetProjectAwardStatsBySearchID        @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL',
-    ],
-  ];
-
-  const PUBLIC_COLUMNS = [
-    'export_results' => [
-      'Search Results'  => [
-        'Title'         => 'Project Title',
-        'piFirstName'   => 'PI First Name',
-        'piLastName'    => 'PI Last Name',
-        'institution'   => 'Institution',
-        'City'          => 'City',
-        'State'         => 'State',
-        'country'       => 'Country',
-        'FundingOrg'    => 'Funding Organization',
-        'AwardCode'     => 'Award Code',
-        'ProjectID'     => 'View in ICRP',
+    // Workbook definition for 'EXPORT_RESULTS_PUBLIC' method
+    self::EXPORT_RESULTS_PUBLIC  => [
+      
+      // Sheet definition for 'Search Results'
+      'Search Results' => [
+        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
+        'columns' =>  [
+          'AwardTitle'    => 'Project Title',
+          'piFirstName'   => 'PI First Name',
+          'piLastName'    => 'PI Last Name',
+          'Institution'   => 'Institution',
+          'City'          => 'City',
+          'State'         => 'State',
+          'Country'       => 'Country',
+          'FundingOrg'    => 'Funding Organization',
+          'AwardCode'     => 'Award Code',
+          'icrpURL'       => 'View in ICRP',
+        ],
       ],
+      
+      // Sheet definition for 'Projects by CSO'
       'Projects by CSO' => [
-        'ProjectID'     => 'ICRP Project ID',
-        'CSOCode'       => 'CSO Code',
+        'query' => 'EXECUTE GetProjectCSOsBySearchID            @SearchID=:search_id',
+        'columns' => [
+          'ProjectID'     => 'ICRP Project ID',
+          'CSOCode'       => 'CSO Code',
+        ],
       ],
+
+      // Sheet definition for 'Projects by Cancer Type'
       'Projects by Cancer Type' => [
-        'ProjectID'     => 'ICRP Project ID',
-        'CancerType'    => 'Cancer Type',
+        'query' => 'EXECUTE GetProjectCancerTypesBySearchID     @SearchID=:search_id',
+        'columns' => [
+          'ProjectID'     => 'ICRP Project ID',
+          'CancerType'    => 'Cancer Type',
+        ],
       ],
     ],
 
-    'export_graphs' => [
+    // Workbook definition for 'EXPORT_RESULTS_PARTNERS' method
+    self::EXPORT_RESULTS_PARTNERS => [
+
+      // Sheet definition for 'Search Results'
+      'Search Results' => [
+        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
+        'columns' =>  [/* use original columns from database */],
+      ],
+      
+      // Sheet definition for 'Projects by CSO'
+      'Projects by CSO' => [
+        'query' => 'EXECUTE GetProjectCSOsBySearchID            @SearchID=:search_id',
+        'columns' => [
+          'ProjectID'     => 'ICRP Project ID',
+          'CSOCode'       => 'CSO Code',
+          'CSORelevance'  => 'Relevance',
+        ],
+      ],
+
+      // Sheet definition for 'Projects by Cancer Type'
+      'Projects by Cancer Type' => [
+        'query' => 'EXECUTE GetProjectCancerTypesBySearchID     @SearchID=:search_id',
+        'columns' => [
+          'ProjectID'     => 'ICRP Project ID',
+          'CancerType'    => 'Cancer Type',
+          'Relevance'     => 'Relevance',
+        ],
+      ],
+    ],
+
+    // Workbook definition for 'EXPORT_RESULTS_AS_SINGLE_SHEET' method
+    self::EXPORT_RESULTS_AS_SINGLE_SHEET => [
+
+      // Sheet definition for 'Search Results'
+      'Search Results' => [
+        'query' => 'EXECUTE GetProjectExportsSingleBySearchID   @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
+        'columns' =>  [/* use original columns from database */],
+      ],
+    ],
+
+    // Workbook definition for 'EXPORT_RESULTS_WITH_ABSTRACTS' method
+    self::EXPORT_RESULTS_WITH_ABSTRACTS => [
+
+      // Sheet definition for 'Search Results'
+      'Search Results' => [
+        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=1, @SiteURL=:site_url',
+        'columns' =>  [/* use original columns from database */],
+      ],
+      
+      // Sheet definition for 'Projects by CSO'
+      'Projects by CSO' => [
+        'query' => 'EXECUTE GetProjectCSOsBySearchID            @SearchID=:search_id',
+        'columns' => [
+          'ProjectID'     => 'ICRP Project ID',
+          'CSOCode'       => 'CSO Code',
+          'CSORelevance'  => 'Relevance',
+        ],
+      ],
+
+      // Sheet definition for 'Projects by Cancer Type'
+      'Projects by Cancer Type' => [
+        'query' => 'EXECUTE GetProjectCancerTypesBySearchID     @SearchID=:search_id',
+        'columns' => [
+          'ProjectID'     => 'ICRP Project ID',
+          'CancerType'    => 'Cancer Type',
+          'Relevance'     => 'Relevance',
+        ],
+      ],
+    ],
+
+    // Workbook definition for 'EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET' method
+    self::EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET => [
+
+      // Sheet definition for 'Search Results'
+      'Search Results' => [
+        'query' => 'EXECUTE GetProjectExportsSingleBySearchID   @SearchID=:search_id, @includeAbstract=1, @SiteURL=:site_url',
+        'columns' =>  [/* use original columns from database */],
+      ],
+    ],
+
+    // Workbook definition for 'EXPORT_GRAPHS_PUBLIC' method
+    self::EXPORT_GRAPHS_PUBLIC => [
+
+      // Sheet definition for 'Projects by Country'
       'Projects by Country' => [
-        'country'       => 'Country',
-        'Count'         => 'Count',
+        'query' => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
+        'columns' => [
+          'country'       => 'Country',
+          'Count'         => 'Project Count',
+        ],
       ],
+
+      // Sheet definition for 'Projects by CSO'
       'Projects by CSO' => [
-        'categoryName'  => 'CSO Category',
-        'Relevance'     => 'Relevance',
-        'ProjectCount'  => 'Count',
+        'query' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
+        'columns' => [
+          'categoryName'  => 'CSO Category',
+          'Relevance'     => 'Relevance',
+          'ProjectCount'  => 'Project Count',
+        ],
       ],
+
+      // Sheet definition for 'Projects by Cancer Type'
       'Projects by Cancer Type' => [
-        'CancerType'    => 'Cancer Type',
-        'Relevance'     => 'Relevance',
-        'ProjectCount'  => 'Count',
+        'query' => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
+        'columns' => [
+          'CancerType'    => 'Cancer Type',
+          'Relevance'     => 'Relevance',
+          'ProjectCount'  => 'Project Count',
+        ],
       ],
+
+      // Sheet definition for 'Projects by Type'
       'Projects by Type' => [
-        'ProjectType'   => 'Project Type',
-        'Count'         => 'Count',
+        'query' => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
+        'columns' => [
+          'ProjectType'   => 'Project Type',
+          'Count'         => 'Project Count',
+        ],
       ],
+
+      // Sheet definition for 'Projects by Year'
       'Projects by Year' => [
-        'Year'          => 'Year',
-        'Count'         => 'Count',
-      ],
-    ],
-  ];
-
-  const PARTNER_COLUMNS = [
-
-    'export_results_partners' => [
-      'Search Results'  => [], // use original database columns
-      'Projects by CSO' => [
-        'ProjectID'     => 'ICRP Project ID',
-        'CSOCode'       => 'CSO Code',
-        'CSORelevance'  => 'Relevance',
-      ],
-      'Projects by Cancer Type' => [
-        'ProjectID'     => 'ICRP Project ID',
-        'CancerType'    => 'Cancer Type',
-        'Relevance'     => 'Relevance',
+        'query' => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL',
+        'columns' => [
+          'Year'          => 'Year',
+          'Count'         => 'Project Count',
+        ],
       ],
     ],
 
-    'export_results_single_sheet' => [
-      'Search Results'  => [], // use original database columns
-    ],
+    // Workbook definition for 'EXPORT_GRAPHS_PARTNERS' method
+    self::EXPORT_GRAPHS_PARTNERS => [
 
-    'export_abstracts' => [
-      'Search Results'  => [], // use original database columns
-      'Projects by CSO' => [
-        'ProjectID'     => 'ICRP Project ID',
-        'CSOCode'       => 'CSO Code',
-        'CSORelevance'  => 'Relevance',
-      ],
-      'Projects by Cancer Type' => [
-        'ProjectID'     => 'ICRP Project ID',
-        'CancerType'    => 'Cancer Type',
-        'Relevance'     => 'Relevance',
-      ],
-    ],
-
-    'export_abstracts_single_sheet' => [
-      'Search Results'  => [], // use original database columns
-    ],
-
-    'export_graphs_partners' => [
+      // Sheet definition for 'Projects by Country'
       'Projects by Country' => [
-        'country'       => 'Country',
-        'Count'         => 'Count',
+        'query' => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
+        'columns' => [
+          'country'       => 'Country',
+          'Count'         => 'Project Count',
+        ],
       ],
+
+      // Sheet definition for 'Projects by CSO'
       'Projects by CSO' => [
-        'categoryName'  => 'CSO Category',
-        'Relevance'     => 'Relevance',
-        'ProjectCount'  => 'Count',
+        'query' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
+        'columns' => [
+          'categoryName'  => 'CSO Category',
+          'Relevance'     => 'Relevance',
+          'ProjectCount'  => 'Project Count',
+        ],
       ],
+
+      // Sheet definition for 'Projects by Cancer Type'
       'Projects by Cancer Type' => [
-        'CancerType'    => 'Cancer Type',
-        'Relevance'     => 'Relevance',
-        'ProjectCount'  => 'Count',
+        'query' => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
+        'columns' => [
+          'CancerType'    => 'Cancer Type',
+          'Relevance'     => 'Relevance',
+          'ProjectCount'  => 'Project Count',
+        ],
       ],
+
+      // Sheet definition for 'Projects by Type'
       'Projects by Type' => [
-        'ProjectType'   => 'Project Type',
-        'Count'         => 'Count',
+        'query' => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
+        'columns' => [
+          'ProjectType'   => 'Project Type',
+          'Count'         => 'Project Count',
+        ],
       ],
+
+      // Sheet definition for 'Projects by Year'
       'Projects by Year' => [
-        'Year'          => 'Year',
-        'Count'         => 'Count',
+        'query' => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL',
+        'columns' => [
+          'Year'          => 'Year',
+          'Count'         => 'Project Count',
+        ],
       ],
 
 
+      // Sheet definition for 'Funding Amounts by Country'
       'Funding Amounts by Country' => [
-        'country'       => 'Country',
-        'USDAmount'     => 'Amount',
+        'query' => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Amount',
+        'columns' => [
+          'country'       => 'Country',
+          'USDAmount'     => 'Amount',
+        ],
       ],
+
+      // Sheet definition for 'Funding Amounts by CSO'
       'Funding Amounts by CSO' => [
-        'categoryName'  => 'CSO Category',
-        'USDAmount'     => 'Amount',
+        'query' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Amount',
+        'columns' => [
+          'categoryName'  => 'CSO Category',
+          'USDAmount'     => 'Amount',
+        ],
       ],
+
+      // Sheet definition for 'Funding Amounts by Cancer Type'
       'Funding Amounts by Cancer Type' => [
-        'CancerType'    => 'Cancer Type',
-        'USDAmount'     => 'Amount',
+        'query' => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Amount',
+        'columns' => [
+          'CancerType'    => 'Cancer Type',
+          'USDAmount'     => 'Amount',
+        ],
       ],
+
+      // Sheet definition for 'Funding Amounts by Type'
       'Funding Amounts by Type' => [
-        'ProjectType'   => 'Project Type',
-        'USDAmount'     => 'Amount',
+        'query' => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Amount',
+        'columns' => [
+          'ProjectType'   => 'Project Type',
+          'USDAmount'     => 'Amount',
+        ],
       ],
+
+      // Sheet definition for 'Funding Amounts by Year'
       'Funding Amounts by Year' => [
+        'query' => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL',
+        'columns' => [
         'Year'          => 'Year',
         'amount'        => 'Amount',
+        ],
       ],
     ],
   ];
-
 
   /**
    * Ensure that the output directory exists
@@ -219,19 +316,8 @@ class DatabaseExport {
 
     // create the output directory if it does not exist
     if (!file_exists($this->output_directory)) {
-      mkdir($this->output_directory);
+      mkdir($this->output_directory, 0744, true);
     }
-  }
-
-  /**
-   * Returns the base url for this server
-   * @return string
-   */
-  function getUrlBase(): string {
-    return ($_SERVER['HTTPS'] == true
-      ? 'https://'
-      : 'http://')
-      . $_SERVER['SERVER_NAME'];
   }
 
   /**
@@ -260,7 +346,19 @@ class DatabaseExport {
    * @return string
    */
   function getTimestamp(): string {
-    return date('m/d/Y h:i:s A');
+    return date('j F Y g.ia');
+  }
+
+  /**
+   * Returns the base url for this server
+   *
+   * @return string
+   */
+  function getUrlBase(): string {
+    return ($_SERVER['HTTPS'] == true
+      ? 'https://'
+      : 'http://')
+      . $_SERVER['SERVER_NAME'];
   }
 
   /**
@@ -282,22 +380,25 @@ class DatabaseExport {
   }
 
   /**
-   * Performs a query on the database with the given parameters and returns
-   * the PDOStatement containing the results set
+   * Performs the specified query on the database with the given parameters 
+   * and returns a PDOStatement containing the results set
    *
    * @param PDO $pdo
    * @param string $query
    * @param array $parameters
    * @return PDOStatement
    */
-  function getQueryResults(PDO $pdo, string $query, array $parameters, array &$output_parameters = []): PDOStatement {
+  function getQueryResults(PDO $pdo, string $query, array $parameters): PDOStatement {
     $stmt_defaults = 'SET NOCOUNT ON; ';
     $stmt = $pdo->prepare($stmt_defaults . $query);
 
-    foreach($parameters as $key => $value) {
-      $parameter_key = ':' . $key;
-      if (strpos($query, $parameter_key) !== false) {
-        $stmt->bindParam($parameter_key, $value);
+    foreach($parameters as $key => $entry) {
+      if (strpos($query, ":$key") !== false) {
+        $stmt->bindParam(
+          ":$key", 
+          $entry['value'], 
+          $entry['type']
+        );
       }
     }
 
@@ -305,7 +406,6 @@ class DatabaseExport {
       ? $stmt
       : null;
   }
-
 
 
   /**
@@ -323,136 +423,138 @@ class DatabaseExport {
     return chr(ord('A') + $column) . ($row + 1);
   }
 
-  function exportGraphs($pdo, $filename, $search_id, $is_public) {
+  function exportGraphs($pdo, $search_id, $workbook_key, $filename) {
     $paths = $this->buildOutputPaths($filename);
 
-    $excel = new PHPExcel();
+    $excel = new \PHPExcel();
     $excel->getProperties()
       ->setCreator('International Cancer Research Partnership')
       ->setTitle('Data Export');
 
-    $workbook_key = $is_public
-      ? 'export_graphs'
-      : 'export_graphs_partners';
+    $sheet_definitions = self::EXPORT_MAP[$workbook_key];
+    $last_key = end(array_keys($sheet_definitions));
 
-    $last_key = end(array_keys(self::QUERY_MAP[$workbook_key]));
     $sheet = $excel->getSheet(0);
 
-//    $index = 0;
-    foreach (self::QUERY_MAP[$workbook_key] as $sheet_title => $sheet_query) {
-      $sheet->setTitle(substr($sheet_title, 0, 31));
-      $sheet_headers = $is_public
-        ? self::PUBLIC_COLUMNS[$workbook_key][$sheet_title]
-        : self::PARTNER_COLUMN[$workbook_key][$sheet_title];
+    // loop through each sheet's definition
+    foreach($sheet_definitions as $sheet_name => $sheet_definition) {
 
+      // determine the query for the current sheet
+      $sheet_query = $sheet_definition['query'];
+
+      // determine the column names for the current sheet
+      $sheet_columns = $sheet_definition['columns'];
+
+      // set the name of the current sheet
+      $sheet->setTitle(substr($sheet_name, 0, 31));
+
+      // set up query parameters
       $parameters = [
-        'search_id' => $search_id,
+        'search_id' => [
+          'type' => PDO::PARAM_INT,
+          'value' => $search_id,
+        ],
       ];
 
-      $stmt = self::getQueryResults($pdo, $sheet_query, $parameters);
+      // retrieve the results of the query
+      $results = $this->getQueryResults($pdo, $sheet_query, $parameters);
 
-      $results = [array_values($sheet_headers)];
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+      // if there are results, write them to the current sheet
+      if ($results !== NULL) {
 
-        $results_row = [];
-        // iterate over each sheet header
-        // key corresponds to database column, value corresponds to sheet column
-        foreach($sheet_headers as $database_column => $workbook_column) {
-          // retrieve the database value for the current column
-          $value = $row[$database_column];
-          array_push($results_row, $value);
+        $rows = [array_values($sheet_columns)];
+        $columns = array_keys($sheet_columns);
+        while ($row = $results->fetch(PDO::FETCH_ASSOC)) {
+          array_push($rows, 
+            array_map(function($column) use ($row) {
+              return $row[$column];
+            }, $columns)
+          );
         }
+        $sheet->fromArray($rows, '', self::cell(0, 0));
+        $num_rows = count($rows) - 1;
 
-        // add the row to the array of results
-        array_push($results, $results_row);
-      }
+        $dsl = [
+          new \PHPExcel_Chart_DataSeriesValues('String', "'".$sheet_name."'" . '!$A$1', NULL, 1),
+          new \PHPExcel_Chart_DataSeriesValues('String', "'".$sheet_name."'" . '!$B$1', NULL, 1),
+        ];
 
-      $sheet->fromArray($results, '', self::cell(0, 0));
-      $num_rows = count($results) - 1;
+        $xal = [
+          new \PHPExcel_Chart_DataSeriesValues('String', "'".$sheet_name."'" . '!$A$2:$A$' . ($num_rows + 1), NULL, $num_rows)
+        ];
 
-      $dsl = [
-        new \PHPExcel_Chart_DataSeriesValues('String', "'".$sheet_title."'" . '!$A$1', NULL, 1),
-        new \PHPExcel_Chart_DataSeriesValues('String', "'".$sheet_title."'" . '!$B$1', NULL, 1),
-      ];
+        $dsv = [
+          new \PHPExcel_Chart_DataSeriesValues('Number', "'".$sheet_name."'" . '!$B$2:$B$' . ($num_rows + 1), NULL, $num_rows)
+        ];
 
-      $xal = [
-        new \PHPExcel_Chart_DataSeriesValues('String', "'".$sheet_title."'" . '!$A$2:$A$' . ($num_rows + 1), NULL, $num_rows)
-      ];
+        $ds = new \PHPExcel_Chart_DataSeries(
+          \PHPExcel_Chart_Dataseries::TYPE_BARCHART,
+          \PHPExcel_Chart_Dataseries::GROUPING_STANDARD,
+          range(0, count($dsv) - 1),
+          $dsl,
+          $xal,
+          $dsv
+        );
 
-      $dsv = [
-        new \PHPExcel_Chart_DataSeriesValues('Number', "'".$sheet_title."'" . '!$B$2:$B$' . ($num_rows + 1), NULL, $num_rows)
-      ];
+        $layout = new \PHPExcel_Chart_Layout();
+        $layout->setShowVal(TRUE);
 
-      $ds = new \PHPExcel_Chart_DataSeries(
-        \PHPExcel_Chart_Dataseries::TYPE_BARCHART,
-        \PHPExcel_Chart_Dataseries::GROUPING_STANDARD,
-        range(0, count($dsv) - 1),
-        $dsl,
-        $xal,
-        $dsv
-      );
+        $axis_layout = new \PHPExcel_Chart_Layout();
+        $axis_layout->setHeight(10);
+        $axis_layout->setWidth(10);
 
-      $layout = new \PHPExcel_Chart_Layout();
-      $layout->setShowVal(TRUE);
-      $plot_area = new \PHPExcel_Chart_PlotArea($layout, array($ds));
-      $legend = new \PHPExcel_Chart_Legend(\PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);
+        $plot_area = new \PHPExcel_Chart_PlotArea($layout, array($ds));
+        $legend = new \PHPExcel_Chart_Legend(\PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);
 
-      $chart = new \PHPExcel_Chart(
-        $sheet_title,
-        (new \PHPExcel_Chart_Title($sheet_title)),
-        $legend,
-        $plot_area,
-        true,
-        0,
-        NULL,
-        NULL
-      );
+        $chart = new \PHPExcel_Chart(
+          $sheet_name,
+          (new \PHPExcel_Chart_Title($sheet_name)),
+          $legend,
+          $plot_area,
+          true,
+          0,
+          (new \PHPExcel_Chart_Title($rows[0][0], $axis_layout)),
+          (new \PHPExcel_Chart_Title($rows[0][1], $axis_layout))
+        );
 
 //      $chart->setTopLeftPosition(self::cell(0, 4));
 //      $chart->setBottomRightPosition(self::cell(10, 4 + $num_rows / 2));
 
+        $chart->setTopLeftPosition(self::cell(0, 4));
+        $chart->setBottomRightPosition(self::cell(25, 25));
 
-      $chart->setTopLeftPosition(self::cell(0, 6));
-      $chart->setBottomRightPosition(self::cell(25, 25));
+        $sheet->addChart($chart);
+      }
 
-
-      $sheet->addChart($chart);
-
-      if ($sheet_title !== $last_key) {
+      // add another sheet
+      if ($sheet_name !== $last_key) {
         $sheet = $excel->createSheet();
       }
     }
 
-    $writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
+    $writer = \PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
     $writer->setIncludeCharts(true);
     $writer->save($paths['filepath']);
     return $paths['uri'];
-  } // 3454
-
-
-
-
+  }
 
   /**
    * Rxports search results based on the specified configuration
    *
    * @param PDO $pdo
    * @param int $search_id
+   * @param int $data_upload_id
    * @param string $workbook_key
    * @param string $filename
-   * @param bool $is_public
-   * @param bool $include_search_parameters
-   * @param string $url_prefix
+   * @param string $url_path_prefix
    * @return string
    */
   function exportResults(
     PDO $pdo,
-    int $search_id,
+    int $search_id = NULL,
     int $data_upload_id = NULL,
-    string $workbook_key,
-    string $filename,
-    bool $is_public,
-    bool $include_search_parameters = true,
+    string $workbook_key = '',
+    string $filename = '',
     string $url_prefix = ''
   ): string {
 
@@ -465,115 +567,92 @@ class DatabaseExport {
         ->build()
     );
 
-    $sheet_definitions = (
-      $is_public
-      ? self::PUBLIC_COLUMNS[$workbook_key]
-      : self::PARTNER_COLUMNS[$workbook_key]
-    );
-
+    $sheet_definitions = self::EXPORT_MAP[$workbook_key];
     $last_key = end(array_keys($sheet_definitions));
 
     // loop through each sheet's definition
-    foreach($sheet_definitions as $sheet_key => $sheet_headers) {
-
-      // set the name of the current sheet
-      $writer->getCurrentSheet()->setName($sheet_key);
+    foreach($sheet_definitions as $sheet_name => $sheet_definition) {
 
       // determine the query for the current sheet
-      $query = self::QUERY_MAP[$workbook_key][$sheet_key];
+      $sheet_query = $sheet_definition['query'];
+
+      // determine the column names for the current sheet
+      $sheet_columns = $sheet_definition['columns'];
+
+      // set the name of the current sheet
+      $writer->getCurrentSheet()->setName($sheet_name);
 
       // set up query parameters
       $parameters = [
-        'search_id' => $search_id,
-        'site_url' => $this->getUrlBase() . $url_prefix . '/projects/',
+        'search_id' => [
+          'type' => PDO::PARAM_INT,
+          'value' => $search_id,
+        ],
+        'site_url' => [
+          'type' => PDO::PARAM_STR,
+          'value' => $this->getUrlBase() . $url_path_prefix . '/projects/',
+        ],
       ];
 
       // retrieve the results of the query
-      $results = $this->getQueryResults($pdo, $query, $parameters);
+      $results = $this->getQueryResults($pdo, $sheet_query, $parameters);
 
       // if there are results, write them to the current sheet
-      if ($results) {
+      if ($results !== NULL) {
 
         $use_database_columns = false;
 
         // use database columns as headers if they are not defined
-        if (empty($sheet_headers)) {
+        if (empty($sheet_columns)) {
           $use_database_columns = true;
           foreach(range(0, $results->columnCount() - 1) as $column_index) {
             $meta = $results->getColumnMeta($column_index);
-            array_push($sheet_headers, $meta['name']);
+            array_push($sheet_columns, $meta['name']);
           }
         }
 
         // add headers to the current sheet
-        $writer->addRow(array_values($sheet_headers));
+        $writer->addRow(array_values($sheet_columns));
 
         // iterate over each of the rows in the results
-        // if we are using all database columns directly, there is no need to do additional processing
+
+        // if we are using all table columns, we may insert each row without processing it
         if ($use_database_columns) {
           while ($row = $results->fetch(PDO::FETCH_NUM)) {
             $writer->addRow($row);
           }
         }
 
-        // otherwise, we may specify additional steps to perform on each value
+        // otherwise, apply the column mappings specified in the definition
         else {
 
-          // store url base
-          $url_base = $this->getUrlBase();
-
+          $columns = array_keys($sheet_columns);
           while ($row = $results->fetch(PDO::FETCH_ASSOC)) {
-
-            $results_row = [];
-
-            // iterate over each sheet header
-            // key corresponds to database column, value corresponds to sheet column
-            foreach($sheet_headers as $database_column => $workbook_column) {
-
-              // retrieve the database value for the current column
-              $value = $row[$database_column];
-
-              // set the value to the url for each project record if required
-              if ($database_column === 'ProjectID' && $workbook_column === 'View in ICRP') {
-                array_push($results_row, $url_base . '/project/' . $value);
-              }
-
-              // add the corresponding value to the current array
-              else {
-                array_push($results_row, $value);
-              }
-            }
-
-            // add the row to the current sheet
-            $writer->addRow($results_row);
+            $writer->addRow(
+              array_map(function($column) use ($row) {
+                return $row[$column];
+              }, $columns)
+            );
           }
         }
 
         // after writing all rows for the current query,
         // create a new sheet (if there are any sheets left)
-        if ($sheet_key !== $last_key) {
+        if ($sheet_name !== $last_key) {
           $writer->addNewSheetAndMakeItCurrent();
         }
       }
-
-      // specify if there are no results
-      else {
-          $writer->addRow(['No Data Available']);
-      }
     }
 
-    if ($include_search_parameters) {
-      $this->addSearchCriteria($pdo, $writer, $search_id);
-    }
-
-    if ($data_upload_id != NULL) {
-      $this->addDataReviewCriteria($pdo, $writer, $data_upload_id);
-    }
+    // if a data upload id was not specified, add a sheet containing search criteria
+    // otherwise, do not include search criteria and instead use data review criteria
+    $data_upload_id === NULL
+      ? $this->addSearchCriteria($pdo, $writer, $search_id)
+      : $this->addDataReviewCriteria($pdo, $writer, $data_upload_id);
 
     $writer->close();
     return $paths['uri'];
   }
-
 
 
   function addSearchCriteria($pdo, $writer, int $search_id) {
@@ -592,6 +671,7 @@ class DatabaseExport {
       $writer->addRows($stmt->fetchAll(PDO::FETCH_NUM));
     }
   }
+
 
   function addDataReviewCriteria($pdo, $writer, int $data_upload_id) {
     $writer->addNewSheetAndMakeItCurrent();
