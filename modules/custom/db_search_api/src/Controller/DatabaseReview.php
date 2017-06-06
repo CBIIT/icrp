@@ -63,12 +63,19 @@ class DatabaseReview {
       @searchCriteriaID   = :search_id,
       @LastBudgetYear     = :last_budget_year');
 
-    $stmt->bindParam(':results_count', $results_count, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
-    $stmt->bindParam(':search_id', $search_id, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
-    $stmt->bindParam(':last_budget_year', $last_budget_year, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
+
+    $output_parameters = [
+      'search_id'         => NULL,
+      'results_count'     => NULL,
+      'last_budget_year'  => NULL,
+    ];
 
     foreach($parameters as $key => &$value) {
       $stmt->bindParam(":$key", $value);
+    }
+
+    foreach($output_parameters as $output_key => &$output_value) {
+      $stmt->bindParam(":$output_key", $output_value, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
     }
 
     $results = [];
@@ -90,10 +97,10 @@ class DatabaseReview {
 
     return [
       'data_upload_id'    => $parameters['data_upload_id'],
-      'search_id'         => $search_id,
-      'results_count'     => $results_count,
+      'search_id'         => $output_parameters['search_id'],
+      'results_count'     => $output_parameters['results_count'],
+      'last_budget_year'  => $output_parameters['last_budget_year'],
       'results'           => $results,
-      'last_budget_year'  => $last_budget_year,
     ];
   }
 
