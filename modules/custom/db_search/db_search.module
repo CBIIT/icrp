@@ -1,6 +1,6 @@
 <?php
 
-function db_search_view_theme($existing, $type, $theme, $path) {
+function db_search_theme($existing, $type, $theme, $path) {
   return [
     'database_search' => [
       'variables' => [
