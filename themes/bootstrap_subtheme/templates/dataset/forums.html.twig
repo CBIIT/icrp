@@ -16,8 +16,16 @@
 #}
 {% if icrp_debug %}
 	<span class="icrp-debug">forums.html.twig</span><br>
+	 <script>console.info("forums.html.twig");</script>
+	<script>console.log({{ _context | json_encode | raw }});</script>
+{% for column in header %}
+	{{ column.data }}<br>
+
+{% endfor %}
+
 {% endif %}
 <div>
+Container or not<br>
 {{ attach_library('classy/forum') }}
 {% if forums_defined %}
   <div class="forum">

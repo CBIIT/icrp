@@ -72,6 +72,11 @@ function icrp_preprocess_forums(&$variables) {
   //$variables['attributes']['class'][] = 'red';
 
 }
+function icrp_preprocess_forums__topics(&$variables) {
+  drupal_set_message("forums__topics");
+  kint($variables);
+  var_dump($variables);
+ }
 function icrp_preprocess_forum_list(&$variables) {
   //$variables['icrp_debug'] = true;
   //drupal_set_message("Added icrp_debug to variables.  See if you can access in twig.");

@@ -72,9 +72,11 @@
 
     */
     //If anonymous don't redirect to member /FundingOrgs from the Global Reach image.
+    /*
     if(title == 'Global Reach' && $("#navbar-collapse").find('a').text() == "Log in") {
       return "/current_partners";
     }
+    */
     var routes = [{
         title : 'Global Reach',
         url : '/FundingOrgs'
