@@ -515,8 +515,8 @@ class DatabaseSearch {
       @PageNumber     = :page_number,
       @SortCol        = :sort_column,
       @SortDirection  = :sort_direction,
-      @ResultCount    = :results_count,
-      @LastBudgetYear = :last_budget_year');
+      @ResultCount    = :results_count
+      ');
 
     $output_parameters = [
       'results_count'     => NULL,
