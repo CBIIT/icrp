@@ -7,10 +7,6 @@ namespace Composer\Autoload;
 class ComposerStaticInit1431985e958125ad551089251541ebb5
 {
     public static $prefixLengthsPsr4 = array (
-        'P' => 
-        array (
-            'PhpOffice\\PhpSpreadsheet\\' => 25,
-        ),
         'B' => 
         array (
             'Box\\Spout\\' => 10,
@@ -18,10 +14,6 @@ class ComposerStaticInit1431985e958125ad551089251541ebb5
     );
 
     public static $prefixDirsPsr4 = array (
-        'PhpOffice\\PhpSpreadsheet\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet',
-        ),
         'Box\\Spout\\' => 
         array (
             0 => __DIR__ . '/..' . '/box/spout/src/Spout',

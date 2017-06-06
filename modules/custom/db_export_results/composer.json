@@ -3,8 +3,7 @@
     "minimum-stability": "dev",
     "require": {
         "box/spout": "^2.7",
-        "phpoffice/phpexcel": "dev-master",
-        "phpoffice/phpspreadsheet": "dev-master"
+        "phpoffice/phpexcel": "dev-master"
     }
 
 }
