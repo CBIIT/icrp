@@ -53,30 +53,26 @@ class DatabaseReview {
   public static function reviewSearchResults(PDO $pdo, array $parameters): array {
 
     $parameters['sort_column'] = self::SORT_COLUMN_MAP[$parameters['sort_column']];
-    $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE GetProjectsByDataUploadID
-      @DataUploadID       = :data_upload_id,
-      @PageSize           = :page_size,
-      @PageNumber         = :page_number,
-      @SortCol            = :sort_column,
-      @SortDirection      = :sort_direction,
-      @ResultCount        = :results_count,
-      @searchCriteriaID   = :search_id,
-      @LastBudgetYear     = :last_budget_year');
-
-
     $output_parameters = [
-      'search_id'         => NULL,
-      'results_count'     => NULL,
-      'last_budget_year'  => NULL,
+      'search_id' => NULL,
     ];
 
-    foreach($parameters as $key => &$value) {
-      $stmt->bindParam(":$key", $value);
-    }
+    $query_defaults = 'SET NOCOUNT ON; ';
+    $query_string = '
+      EXECUTE GetProjectsByDataUploadID
+        @DataUploadID       = :data_upload_id,
+        @PageSize           = :page_size,
+        @PageNumber         = :page_number,
+        @SortCol            = :sort_column,
+        @SortDirection      = :sort_direction,
+        @searchCriteriaID   = :search_id,
+        @ResultCount        = NULL';
 
-    foreach($output_parameters as $output_key => &$output_value) {
-      $stmt->bindParam(":$output_key", $output_value, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
-    }
+    $stmt = PDOBuilder::createPreparedStatement(
+      $pdo,
+      $query_defaults . $query_string,
+      $parameters,
+      $output_parameters);
 
     $results = [];
     if ($stmt->execute()) {
@@ -93,13 +89,9 @@ class DatabaseReview {
       }
     }
 
-    $_SESSION['database_search_id'] = $search_id;
-
     return [
       'data_upload_id'    => $parameters['data_upload_id'],
       'search_id'         => $output_parameters['search_id'],
-      'results_count'     => $output_parameters['results_count'],
-      'last_budget_year'  => $output_parameters['last_budget_year'],
       'results'           => $results,
     ];
   }

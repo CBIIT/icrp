@@ -442,11 +442,13 @@ class DatabaseSearch {
    */
   public static function getSearchSummary(PDO $pdo, array $parameters = ['search_id' => -1]): array {
 
-    $stmt = $pdo->prepare('SET NOCOUNT ON;
-      EXECUTE GetProjectSearchSummaryBySearchID
-        @SearchID = :search_id');
-
-    PDOBuilder::bindParameters($stmt, $parameters);
+    $query_defaults = 'SET NOCOUNT ON; ';
+    $stmt = PDOBuilder::createPreparedStatement(
+      $pdo,
+      $query_defaults .
+      'EXECUTE GetProjectSearchSummaryBySearchID
+        @SearchID = :search_id',
+      $parameters);
 
     if ($stmt->execute()) {
       $summary = $stmt->fetch(PDO::FETCH_ASSOC);
