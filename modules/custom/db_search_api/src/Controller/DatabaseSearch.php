@@ -455,13 +455,11 @@ class DatabaseSearch {
       @IsChildhood          = :is_childhood_cancer,
       @CSOList              = :cso_research_areas,
       @searchCriteriaID     = :search_id,
-      @ResultCount          = :results_count,
-      @LastBudgetYear       = :last_budget_year');
+      @ResultCount          = :results_count');
 
     $output_parameters = [
       'search_id'         => NULL,
       'results_count'     => NULL,
-      'last_budget_year'  => NULL,
     ];
 
     foreach($parameters as $input_key => &$input_value) {
@@ -492,7 +490,6 @@ class DatabaseSearch {
     return [
       'search_id'           => $output_parameters['search_id'],
       'results_count'       => $output_parameters['results_count'],
-      'last_budget_year'    => $output_parameters['last_budget_year'],
       'results'             => $results,
       'display_parameters'  => self::getSearchParametersForDisplay($pdo, ['search_id' => $output_parameters['search_id']]),
     ];
@@ -515,8 +512,7 @@ class DatabaseSearch {
       @PageNumber     = :page_number,
       @SortCol        = :sort_column,
       @SortDirection  = :sort_direction,
-      @ResultCount    = :results_count
-      ');
+      @ResultCount    = :results_count');
 
     $output_parameters = [
       'results_count'     => NULL,
@@ -550,7 +546,6 @@ class DatabaseSearch {
     return [
       'search_id'           => $parameters['search_id'],
       'results_count'       => $output_parameters['results_count'],
-      'last_budget_year'    => $output_parameters['last_budget_year'],
       'display_parameters'  => self::getSearchParametersForDisplay($pdo, ['search_id' => $parameters['search_id']]),
       'results'             => $results,
     ];
