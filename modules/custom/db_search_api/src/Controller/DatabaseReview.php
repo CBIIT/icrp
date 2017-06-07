@@ -60,12 +60,14 @@ class DatabaseReview {
       @SortCol            = :sort_column,
       @SortDirection      = :sort_direction,
       @ResultCount        = :results_count,
-      @searchCriteriaID   = :search_id');
+      @searchCriteriaID   = :search_id,
+      @LastBudgetYear     = :last_budget_year');
 
 
     $output_parameters = [
       'search_id'         => NULL,
       'results_count'     => NULL,
+      'last_budget_year'  => NULL,
     ];
 
     foreach($parameters as $key => &$value) {
@@ -97,6 +99,7 @@ class DatabaseReview {
       'data_upload_id'    => $parameters['data_upload_id'],
       'search_id'         => $output_parameters['search_id'],
       'results_count'     => $output_parameters['results_count'],
+      'last_budget_year'  => $output_parameters['last_budget_year'],
       'results'           => $results,
     ];
   }
