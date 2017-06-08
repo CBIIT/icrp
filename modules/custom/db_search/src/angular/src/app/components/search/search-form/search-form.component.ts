@@ -83,11 +83,19 @@ export class SearchFormComponent {
   submit() {
 
     this.parameters = {};
+
+    if (this.form.controls['search_terms'].value &&
+      !this.form.controls['search_type'].value) {
+
+      this.form.controls['search_type'].patchValue('all');
+    }
+
     for (let key in this.form.controls) {
       let value = this.form.controls[key].value;
 
-      if (value != null && value.length > 0 || value === true)
+      if (value != null && value.length > 0 || value === true) {
         this.parameters[key] = value;
+      }
     }
 
     window.setTimeout(e =>

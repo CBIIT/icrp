@@ -6,15 +6,14 @@
     <span [innerHTML]="getSummary()">
     </span>
   </div>
-  <div right-header class="bold blue" >
+  <div right-header class="blue" >
     <div *ngIf="projectCount && relatedProjectCount">
-      <span tooltip="Parent projects">
-        Total Projects: {{ projectCount.toLocaleString() }}
-      </span>
-      /
-      <span tooltip="Including linked sub-projects or supplements">
+      <b tooltip="Parent projects">
+        Total Projects: {{ projectCount.toLocaleString() }} /
+      </b>
+      <b tooltip="Including linked sub-projects or supplements">
         Total Related Projects: {{ relatedProjectCount.toLocaleString() }}
-      </span>
+      </b>
     </div>
   </div>
 
