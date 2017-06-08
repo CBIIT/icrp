@@ -34,7 +34,7 @@ CREATE TABLE UploadWorkBook (
 	FundingMechanismCode VARCHAR(30),
 	FundingMechanism VARCHAR(200),
 	FundingOrgAbbr VARCHAR(50),
-	FundingDiv VARCHAR(50),
+	FundingDiv VARCHAR(75),
 	FundingDivAbbr VARCHAR(50),
 	FundingContact VARCHAR(50),
 	PILastName VARCHAR(50),
@@ -61,7 +61,7 @@ CREATE TABLE UploadWorkBook (
 GO
 
 BULK INSERT UploadWorkBook
-FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_New_PANCAN_20170410.csv'  
+FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_New_NCI_20170608.csv'  
 WITH
 (
 	FIRSTROW = 2,

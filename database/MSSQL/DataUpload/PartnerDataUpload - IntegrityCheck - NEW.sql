@@ -1,3 +1,4 @@
+
 /***********************************************************************************************/
 -- Data Integrigy Check
 /***********************************************************************************************/
@@ -13,45 +14,80 @@ GO
 --go
 --drop table #parentProjects
 --go
+--drop table #a
+--go
 
-DECLARE @SponsorCode varchar(25) = 'PanCAN'
-DECLARE @HasParentRelationship bit = 1
+DECLARE @SponsorCode varchar(25) = 'NIH'
+--DECLARE @HasParentRelationship bit = 1
 
 -------------------------------------------------------------------
 -- Check AwardCode uniqueness
 -------------------------------------------------------------------
 PRINT 'Checking Unique AwardCode ...'
-SELECT Distinct AwardCode INTO #awardCodes FROM UploadWorkBook
+SELECT Distinct AwardCode INTO #a FROM UploadWorkBook
 
-IF @HasParentRelationship = 1
-BEGIN
+--IF @HasParentRelationship = 1
+--BEGIN
 	PRINT 'Checking Parent projects ...'
 	SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'  -- CA
- END
-ELSE
-	PRINT '@HasParentRelationship=0  -- uncomment this'
-	--SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook
+-- END
+--ELSE
+--	PRINT '@HasParentRelationship=0  -- uncomment this'
+--	--SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook
+
+SELECT * INTO #awardCodes FROM (
+	SELECT 'Existing' AS Type, a.AwardCode FROM #a a JOIN Project p ON a.AwardCode = p.AwardCode
+	UNION
+	SELECT 'New' AS Type, a.AwardCode FROM #a a LEFT JOIN Project p ON a.AwardCode = p.AwardCode WHERE p.AwardCode IS NULL
+) a
 
 DECLARE @TotalRelatedProjects INT
 DECLARE @TotalAwardCodes INT
-DECLARE @TotalParentProjects INT
+DECLARE @TotalProjectsWithParentCategory INT
+DECLARE @TotalNewParentProjects INT
+DECLARE @ExistingParentProjects INT
 
 SELECT @TotalRelatedProjects = COUNT(*) FROM UploadWorkBook
-SELECT @TotalAwardCodes = COUNT(*) FROM #awardCodes
-SELECT @TotalParentProjects = COUNT(*) FROM #parentProjects
+SELECT @TotalAwardCodes = COUNT(*) FROM #a
+SELECT @TotalProjectsWithParentCategory = COUNT(*) FROM #parentProjects
+SELECT @ExistingParentProjects = COUNT(*) FROM #AwardCodes WHERE Type='Existing'
+SELECT @TotalNewParentProjects = COUNT(*) FROM #AwardCodes WHERE Type='New'
 
-PRINT 'Total RelatedProjects= ' + CAST(@TotalRelatedProjects AS VARCHAR(25))
-PRINT 'Total Awards= ' + CAST(@TotalAwardCodes AS VARCHAR(25))
-PRINT 'Total Parent Awards= ' + CAST(@TotalParentProjects AS VARCHAR(25))
 
-PRINT 'Checking Total parent projects = total award codes...'
-IF @TotalAwardCodes <> @TotalParentProjects
+PRINT 'Total Imported Project Funding= ' + CAST(@TotalRelatedProjects AS VARCHAR(25))
+PRINT 'Total AwardCodes (parent) = ' + + CAST(@TotalAwardCodes AS VARCHAR(25))
+PRINT '  => New Parent Awards Count= ' + CAST(@TotalNewParentProjects AS VARCHAR(25))
+PRINT '  => Existing Parent Awards Count = ' + CAST(@ExistingParentProjects AS VARCHAR(25))
+PRINT 'Projects with Parent Category Count = ' + CAST(@TotalProjectsWithParentCategory AS VARCHAR(25))
+
+-------------------------------------------------------------------
+-- Check New Parent Project without Parent Category 
+-------------------------------------------------------------------
+PRINT 'Checking New Parent Project Category ...'
+
+
+SELECT n.AwardCode INTO #noParent FROM 
+(SELECT * FROM #awardcodes where Type='New') n
+LEFT JOIN #parentProjects p ON n.AwardCode = p.AwardCode
+WHERE p.AwardCode IS NULL
+
+IF EXISTS (SELECT * FROM #noParent)
 BEGIN
-  PRINT 'ERROR ==> Total parent projects <> total award codes'
-  SELECT 'No parent Category' AS Issue, AwardCode FROM #awardCodes WHERE AwardCode NOT IN (SELECT AwardCode FROM #parentProjects)
+	PRINT 'ERROR ==> New AwardCode without Parent Category'
+	SELECT 'Issue - New AwardCode without Parent Category' AS Issue, AwardCode FROM #noParent
 END
 ELSE
-	PRINT 'Checking Total parent projects = total award codes  ==> Pass'
+	PRINT 'Checking new AwardCode with Parent Category  ==> Pass'
+
+-------------------------------------------------------------------
+-- Check AwardCode with Incorrect Parent Category 
+-------------------------------------------------------------------
+PRINT 'Checking AwardCode with Incorrect Parent Category  ...'
+
+SELECT 'Issue AwardCode Should NOT be Parent' AS Issue, p.* FROM 
+(SELECT * FROM #awardcodes where Type='New') n
+RIGHT JOIN #parentProjects p ON n.AwardCode = p.AwardCode
+WHERE n.AwardCode IS NULL
 
 -------------------------------------------------------------------
 -- Check BudgetDates
@@ -59,18 +95,19 @@ ELSE
 PRINT 'Checking Budget Dates........'
 --drop table #budgetDates
 
-SELECT AwardCode, AwardStartDate, AwardEndDate, BudgetStartDate, BudgetEndDate, DATEDIFF(day, BudgetStartDate, BudgetEndDate) AS duration INTO #budgetDates FROM UploadWorkBook
+SELECT AwardCode, AltID, AwardStartDate, AwardEndDate, BudgetStartDate, BudgetEndDate, DATEDIFF(day, AwardStartDate, AwardEndDate) AS AwardDuration, 
+		DATEDIFF(day, BudgetStartDate, BudgetEndDate) AS BudgetDuration INTO #budgetDates FROM UploadWorkBook
 
-IF EXISTS (SELECT * FROM #budgetDates WHERE duration < 2)
+IF EXISTS (SELECT * FROM #budgetDates WHERE AwardDuration < 0 OR BudgetDuration < 0)
 BEGIN
-  PRINT 'ERROR ==> Budget Durations <= 1 day'
-  SELECT 'Budget Duration too small' AS Issue, * FROM #budgetDates WHERE duration < 2
+  PRINT 'ERROR ==> Award or Budget Durations < 0 day'
+  SELECT 'Award or Budget Duration too small' AS Issue, * FROM #budgetDates WHERE AwardDuration < 0 OR BudgetDuration < 0
 END
 ELSE
 BEGIN
 DECLARE @minduration int
-	SELECT @minduration = MIN(duration) FROM #budgetDates
-	PRINT 'Checking Budget Dates (MIN duration is ' + CAST (@minduration AS varchar(10)) + ' => Pass'
+	SELECT @minduration = MIN(AwardDuration) FROM #budgetDates
+	PRINT 'Checking Award/Budget Dates (MIN duration is ' + CAST (@minduration AS varchar(10)) + ' => Pass'
 END
 
 --select * from UploadWorkBook where awardcode='10238_2'
@@ -101,7 +138,7 @@ END
 IF EXISTS (select csocodes, csorel from UploadWorkBook where ISNULL(csocodes,'')='' or ISNULL(csorel,'')='')
 BEGIN
   PRINT 'ERROR ==> Missing CSO Codes / Relevance'
-  SELECT DISTINCT 'Missing CSO Codes / / Relevance' AS Issue, AwardCode, AltId from UploadWorkBook 	
+  SELECT DISTINCT 'Missing CSO Codes / Relevance' AS Issue, AwardCode, AltId, CSOCodes, CSORel from UploadWorkBook 	
 	WHERE ISNULL(csocodes,'')='' or ISNULL(csoRel,'')=''
 END
 ELSE
@@ -137,23 +174,25 @@ ELSE
 -------------------------------------------------------------------
 -- Check AwardType Codes
 -------------------------------------------------------------------
-IF EXISTS (select AwardType from UploadWorkBook where ISNULL(AwardType,'') NOT IN ('R','C','T'))
-BEGIN
-  PRINT 'ERROR ==> Incorrect AwardType'
-  SELECT DISTINCT 'Incorrect AwardType' AS Issue, AwardType from UploadWorkBook 
-	WHERE ISNULL(AwardType,'') NOT IN ('R','C','T')
-END
-ELSE
-	PRINT 'Checking Incorrect AwardType ==> Pass'
+--IF EXISTS (select AwardType from UploadWorkBook where ISNULL(AwardType,'') NOT IN ('R','C','T'))
+--BEGIN
+--  PRINT 'ERROR ==> Incorrect AwardType'
+--  SELECT DISTINCT 'Incorrect AwardType' AS Issue, AwardCode, AltId, AwardType from UploadWorkBook 
+--	WHERE ISNULL(AwardType,'') NOT IN ('R','C','T')
+--END
+--ELSE
+--	PRINT 'Checking Incorrect AwardType ==> Pass'
+
+	
 
 -------------------------------------------------------------------
 -- Check Annulized Value
 -------------------------------------------------------------------
-IF EXISTS (select IsAnnualized from UploadWorkBook where ISNULL(IsAnnualized,'') NOT IN ('A','N'))
+IF EXISTS (select IsAnnualized from UploadWorkBook where ISNULL(IsAnnualized,'') NOT IN ('Y','N'))
 BEGIN
   PRINT 'ERROR ==> Incorrect Annualized Value'
-  SELECT DISTINCT 'Incorrect Annualized' AS Issue, IsAnnualized from UploadWorkBook 
-	WHERE ISNULL(IsAnnualized,'') NOT IN ('A','N')
+  SELECT DISTINCT 'Incorrect Annualized' AS Issue, AwardCode, AltId, IsAnnualized from UploadWorkBook 
+	WHERE ISNULL(IsAnnualized,'') NOT IN ('Y','N')
 END
 ELSE
 	PRINT 'Checking Incorrect Annualized ==> Pass'
@@ -175,53 +214,56 @@ ELSE
 -- Check FundingDiv
 -------------------------------------------------------------------
 IF EXISTS (SELECT DISTINCT FundingDivAbbr from UploadWorkBook 
-	WHERE FundingDivAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingDivision))
+	WHERE (ISNULL(FundingDivAbbr, '')) != '' AND (FundingDivAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingDivision)))
 BEGIN
   PRINT 'ERROR ==> FundingDiv Not Exist --> Add FundingDiv First'
- SELECT DISTINCT 'Missing FundingDiv' AS Issue, FundingDivAbbr from UploadWorkBook 
-	WHERE FundingDivAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingDivision)
+ SELECT DISTINCT 'Missing FundingDiv' AS Issue, AwardCode, AltID, FundingDivAbbr from UploadWorkBook 
+	WHERE (ISNULL(FundingDivAbbr, '')) != '' AND (FundingDivAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingDivision))
 END
 ELSE
 	PRINT 'Checking FundingDiv  ==> Pass'
-
--------------------------------------------------------------------
--- Check unique Project Funding Altid 
--------------------------------------------------------------------
-IF EXISTS (SELECT Altid, Count(*) AS Count FROM UploadWorkBook GROUP BY Altid HAVING COUNT(*) > 1)
-BEGIN
-  PRINT 'ERROR ==> Altid not unique'
- SELECT 'Duplicate Altid' AS Issue, Altid, Count(*) AS Count FROM UploadWorkBook GROUP BY Altid HAVING COUNT(*) > 1
-END
-ELSE
-	PRINT 'Checking unique Project Funding Altid   ==> Pass'
-
+	
 -------------------------------------------------------------------
 -- Check duplicate Project Funding
 -------------------------------------------------------------------
-IF EXISTS (select AltId, count(*) from UploadWorkBook group by AwardCode, AltId, BudgetStartDate, BudgetEndDate having count(*) >1)
+SELECT AltAwardCode, FundingOrgAbbr, COUNT(*) AS Count INTO #dup FROM 
+(
+	SELECT AltId AS AltAwardCode, FundingOrgAbbr FROM UploadWorkBook
+	UNION 
+	(SELECT f.AltAwardCode, o.Abbreviation AS FundingOrgAbbr FROM ProjectFunding f JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID)
+) a
+group by AltAwardCode, FundingOrgAbbr having count(*) >1
+
+IF EXISTS (select * from #dup)
 BEGIN
-SELECT 'Duplicate Project Funding' AS Issue, AwardCode,  AltId, BudgetStartDate, BudgetEndDate, count(*) AS Count from UploadWorkBook group by AwardCode, AltId, BudgetStartDate, BudgetEndDate having count(*) >1
+SELECT 'Duplicate Project Funding' AS Issue, AltAwardCode,  FundingOrgAbbr, [count] from #dup
 END 
 ELSE
 	PRINT 'Checking duplicate Project Funding   ==> Pass'
 
+	
 ------------------------------------------------------------------
 -- Check if AwardCodes already exist in ICRP
 -------------------------------------------------------------------
 IF EXISTS (select * FROM #parentProjects WHERE AwardCode IN (SELECT AwardCode From Project))
 BEGIN
 	PRINT 'ERROR ==> Parent AwardCode already exist'
-	SELECT 'AltAwardCode Exists' AS Issue, AwardCode FROM (select AwardCode FROM #parentProjects WHERE AwardCode IN (SELECT AwardCode From Project)) p
+	SELECT 'Parent AwardCode Exists' AS Issue, AwardCode FROM (select AwardCode FROM #parentProjects WHERE AwardCode IN (SELECT AwardCode From Project)) p
 END 
 
 ------------------------------------------------------------------
 -- Check if AltAwardCodes already exist in ICRP
 -------------------------------------------------------------------
-IF EXISTS (select AltID FROM UploadWorkbook WHERE AltID IN (SELECT AltAwardCode From ProjectFunding))
+SELECT u.AwardCode, u.AltID INTO #AltId FROM UploadWorkbook u
+JOIN (SELECT f.ALtAwardCode, o.Abbreviation AS FundingOrgAbbr FROM ProjectFunding f JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID) e ON u.AltID = e.ALtAwardCode AND u.FundingOrgAbbr = e.FundingOrgAbbr
+
+IF EXISTS (select * from #AltId)
 BEGIN
-	PRINT 'ERROR ==> AltAwardCode already exist'
-	SELECT 'AltAwardCode Already Exists' AS Issue, AltID AS AltAwardCode FROM (select AltID FROM UploadWorkbook WHERE AltID IN (SELECT AltAwardCode From ProjectFunding)) f
+	PRINT 'ERROR ==> AltAwardCode already exist in ICRP'
+	SELECT 'AltAwardCode Already Exists in ICRP' AS Issue, AwardCode, AltID AS AltAwardCode FROM #AltId
 END 
+ELSE
+	PRINT 'Checking AltAwardCode NOT exist in ICRP ==> Pass'
 
 -------------------------------------------------------------------
 -- Check Institutions
@@ -229,18 +271,15 @@ END
 --drop table #missingInst
 --go
 
+-- Check both Institution lookup and mapping tables
 SELECT u.InstitutionICRP, u.SubmittedInstitution, u.City INTO #missingInst FROM UploadWorkBook u
-LEFT JOIN Institution i ON (u.InstitutionICRP = i.Name AND u.City = i.City)
---LEFT JOIN InstitutionMapping m ON (u.InstitutionICRP = m.OldName AND u.City = m.OldCity) OR (u.InstitutionICRP = m.OldName AND u.City = m.newCity)
-WHERE (i.InstitutionID IS NULL) --AND (m.InstitutionMappingID IS NULL)
---Weill Cornell Graduate School of Medical Sciences
---select * from institution where name like '%Cornell %'
---update institution SET Name='Weill Cornell Graduate School of Medical Sciences', Postal='NY 10065' where institutionid=885
+	LEFT JOIN Institution i ON (u.InstitutionICRP = i.Name AND u.City = i.City)
+	LEFT JOIN InstitutionMapping m ON (u.InstitutionICRP = m.OldName AND u.City = m.OldCity) 
+WHERE (i.InstitutionID IS NULL) AND (m.InstitutionMappingID IS NULL)
 
---select * from #missingInst
 IF EXISTS (select * FROM #missingInst)
 BEGIN
-	PRINT 'Checking Institution Mapping   ==> Some cannot be mapped'
+	PRINT 'ERROR => Checking Institution Mapping (Some cannot be mapped)'
 
 	SELECT DISTINCT 'Institution cannot be mapped' AS Issue, w.InstitutionICRP AS 'workbook - Institution Name', w.city AS 'workbook - Institution city'
 	FROM (select InstitutionICRP, city FROM #missingInst group by InstitutionICRP, city) m
@@ -264,10 +303,9 @@ ELSE
 --INSERT INTO InstitutionMapping (OldName, OldCity, NewName, NewCity) SELECT 'William Beaumont Hospital Research Institute', 'Royal Oak', 'William Beaumont Hospital', 'Royal Oak'
 
 -------------------------------------------------------------------
--- PreCheck no duplicate institutions and no missing pi info
+-- PreCheck no multiple PIs/Institutions per funding
 -------------------------------------------------------------------
 --drop table #dupPI
-
 select f.projectfundingid into #dupPI from projectfunding f
 	join projectfundinginvestigator i on f.projectfundingid = i.projectfundingid
 	join fundingorg o on f.FundingOrgID = o.FundingOrgID
@@ -290,7 +328,9 @@ END
 ELSE
 	PRINT 'Pre-Checking duplicate PIs ==> Pass'
 
--- checking missing PI
+-------------------------------------------------------------------
+-- PreCheck no missing PI info
+-------------------------------------------------------------------
 select f.ProjectFundingID into #missingPI from projectfunding f
 join fundingorg o on f.FundingOrgID = o.FundingOrgID
 left join ProjectFundingInvestigator pi on f.projectfundingid = pi.projectfundingid
@@ -299,7 +339,7 @@ where o.SponsorCode = @SponsorCode and pi.ProjectFundingID is null
 	
 IF EXISTS (select * FROM #missingPI)
 BEGIN
-	SELECT DISTINCT 'Pre-Check Missing PIs' AS Issue, *
+	SELECT DISTINCT 'ERROR => Pre-Check Missing PIs' AS Issue, *
 	from #missingPI
 END 
 ELSE

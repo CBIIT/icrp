@@ -32,8 +32,7 @@ CREATE PROCEDURE [dbo].[GetProjectsByCriteria]
 	@cancerTypeList varchar(1000) = NULL, 
 	@projectTypeList varchar(1000) = NULL,
 	@CSOList varchar(1000) = NULL,	
-	@IsChildhood bit = NULL,
-	@LastBudgetYear INT OUTPUT,  -- return the last year of the project budget date range	
+	@IsChildhood bit = NULL,	
 	@searchCriteriaID INT OUTPUT,  -- return the searchID	
 	@ResultCount INT OUTPUT  -- return the searchID	
 	
@@ -207,6 +206,11 @@ AS
 	----------------------------------
 	-- Save search criteria
 	----------------------------------	
+	DECLARE @TotalRelatedProjectCount INT
+	DECLARE @LastBudgetYear INT
+
+	SELECT @TotalRelatedProjectCount=COUNT(*) FROM #Proj
+
 	SELECT DISTINCT ProjectID INTO #baseProj FROM #proj
 	
 	DECLARE @ProjectIDList VARCHAR(max) = '' 	
@@ -223,8 +227,8 @@ AS
 			@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList, @FundingOrgTypeList,	@IsChildhood)
 									 
 	SELECT @searchCriteriaID = SCOPE_IDENTITY()	
-
-	INSERT INTO SearchResult VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, 0)
+		
+	INSERT INTO SearchResult (SearchCriteriaID, Results,ResultCount, TotalRelatedProjectCount, LastBudgetYear, IsEmailSent) VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, @TotalRelatedProjectCount, @LastBudgetYear, 0)	
 	
 	----------------------------------	
 	-- Sort and Pagination
@@ -351,34 +355,39 @@ CREATE PROCEDURE [dbo].[GetProjectsByDataUploadID]
 	@PageNumber int = NULL, -- return all results by default; otherwise pass in the page number
 	@SortCol varchar(50) = 'title', -- Ex: 'title', 'pi', 'code', 'inst', 'FO',....
 	@SortDirection varchar(4) = 'ASC',  -- 'ASC' or 'DESC'
-    @DataUploadID INT,
-    @LastBudgetYear INT OUTPUT,  -- return the last year of the project budget date range	
+    @DataUploadID INT,    
 	@searchCriteriaID INT OUTPUT,  -- return the searchID	
 	@ResultCount INT OUTPUT  -- return the searchID		
 AS   
 
+	DECLARE @TotalRelatedProjectCount INT
+	DECLARE @LastBudgetYear INT
+
+	SELECT ProjectID, ProjectFundingID, BudgetEndDate  INTO #import FROM ProjectFunding WHERE DataUploadStatusID = @DataUploadID
+	SELECT @TotalRelatedProjectCount = COUNT(*) FROM #import
+	SELECT @LastBudgetYear = DATEPART(year, MAX(BudgetEndDate)) FROM #import
+		
 	------------------------------------------------------
 	-- Get all imported projects/projectfunding by DataUploadStatusID
 	------------------------------------------------------	
-	SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID INTO #import FROM ProjectFunding WHERE DataUploadStatusID = @DataUploadID GROUP BY ProjectID 
-	SELECT @ResultCount = COUNT(*) FROM #import
-	SELECT @LastBudgetYear = DATEPART(year, MAX(f.BudgetENdDate)) FROM #import i JOIN ProjectFunding f ON i.ProjectID = f.ProjectID
+	SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID INTO #base FROM #import GROUP BY ProjectID 
+	SELECT @ResultCount = COUNT(*) FROM #base	
 
 	----------------------------------
 	-- Save search criteria
-	----------------------------------		
+	----------------------------------			
 	DECLARE @ProjectIDList VARCHAR(max) = '' 	
 	
 	SELECT @ProjectIDList = @ProjectIDList + 
            ISNULL(CASE WHEN LEN(@ProjectIDList) = 0 THEN '' ELSE ',' END + CONVERT( VarChar(20), ProjectID), '')
-	FROM #import	
+	FROM #base	
 
 	INSERT INTO SearchCriteria (SearchDate) VALUES (getdate())
-									 
+
+										 
 	SELECT @searchCriteriaID = SCOPE_IDENTITY()	
 
-	INSERT INTO SearchResult VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, 0)
-	
+	INSERT INTO SearchResult (SearchCriteriaID, Results,ResultCount, TotalRelatedProjectCount, LastBudgetYear, IsEmailSent) VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, @TotalRelatedProjectCount, @LastBudgetYear, 0)	
 
 	----------------------------------	
 	-- Sort and Pagination
@@ -386,7 +395,7 @@ AS
 	----------------------------------
 	SELECT r.ProjectID, p.AwardCode, r.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
 		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort 
-	FROM #import r
+	FROM #base r
 		JOIN Project p ON r.ProjectID = p.ProjectID		 
 		 JOIN ProjectFunding f ON r.ProjectFundingID = f.projectFundingID
 		 JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
@@ -443,6 +452,20 @@ AS
 
 GO
 
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetProjectSearchSummary]    */
+----------------------------------------------------------------------------------------------------------
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectSearchSummaryBySearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetProjectSearchSummaryBySearchID]
+GO 
+
+CREATE PROCEDURE [dbo].[GetProjectSearchSummaryBySearchID]  
+    @SearchID INT
+AS   
+  SELECT ResultCount AS TotalProjectCount, TotalRelatedProjectCount, LastBudgetYear FROM SearchResult  WHERE SearchCriteriaID = @SearchID
+
+GO
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetProjectCountryStatsBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
@@ -1586,7 +1609,6 @@ CREATE  PROCEDURE [dbo].[DeleteOldSearchResults]
 
 AS
 
-
 SELECT c.SearchCriteriaID INTO #old 
 FROM searchresult r
 	join searchCriteria c ON r.SearchCriteriaID = c.SearchCriteriaID
@@ -1600,3 +1622,462 @@ WHERE  SearchCriteriaID IN (SELECT SearchCriteriaID FROM #old)
 
 GO
 
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[DataUpload_IntegrityCheck]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DataUpload_IntegrityCheck]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[DataUpload_IntegrityCheck]
+GO 
+
+CREATE PROCEDURE [dbo].[DataUpload_IntegrityCheck] 
+  
+AS
+
+/***********************************************************************************************/
+-- Data Integrigy Check Rules - New Upload
+--
+-- 1	Rule	Check Duplicate AltAwardCodes
+-- 2	Rule	Check New AwardCodes with Missing Parent Category
+-- 3	Rule	Check Old AwardCode with Parent Category
+-- 4	Rule	Check Incorrect Award or Budget Duration
+---5	Rule	Check Incorrect Funding Amounts
+-- 6	Rule	Check Incorrect CSO Codes/Relevance
+-- 7	Rule	Check Historical CSO Codes
+-- 8	Rule	Check CancerType Codes/Relevance
+-- 9	Rule	Check Annulized Value
+-- 10	Rule	Check FundingOrg Existance
+-- 11	Rule	Check FundingOrgDiv Existance
+-- 12	Rule	Check not-mapped Institution
+--
+/***********************************************************************************************/
+
+DECLARE @DataUploadReport TABLE
+(
+	[ID] INT,
+	[Type] varchar(25),
+	[Description] varchar(250),
+	[Count] INT
+)
+
+-------------------------------------------------------------------
+-- Workbook Summary
+-------------------------------------------------------------------
+SELECT Distinct AwardCode INTO #a FROM UploadWorkBook
+
+--Checking Parent projects ...
+SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'  -- CA
+
+SELECT * INTO #awardCodes FROM (
+	SELECT 'Existing' AS Type, a.AwardCode FROM #a a JOIN Project p ON a.AwardCode = p.AwardCode
+	UNION
+	SELECT 'New' AS Type, a.AwardCode FROM #a a LEFT JOIN Project p ON a.AwardCode = p.AwardCode WHERE p.AwardCode IS NULL
+) a
+
+DECLARE @TotalProjectFunding INT
+DECLARE @TotalAwardCodes INT
+DECLARE @TotalProjectsWithParentCategory INT
+DECLARE @TotalNewParentProjects INT
+DECLARE @ExistingParentProjects INT
+
+SELECT @TotalProjectFunding = COUNT(*) FROM UploadWorkBook
+SELECT @TotalAwardCodes = COUNT(*) FROM #a
+SELECT @TotalProjectsWithParentCategory = COUNT(*) FROM #parentProjects
+SELECT @ExistingParentProjects = COUNT(*) FROM #AwardCodes WHERE Type='Existing'
+SELECT @TotalNewParentProjects = COUNT(*) FROM #AwardCodes WHERE Type='New'
+
+INSERT INTO @DataUploadReport VALUES (0, 'Summary', 'Total Imported Project Funding',  @TotalProjectFunding)
+INSERT INTO @DataUploadReport VALUES (0, 'Summary', 'Total Project AwardCodes',  @TotalAwardCodes)
+INSERT INTO @DataUploadReport VALUES (0, 'Summary', 'New AwardCodes',  @TotalNewParentProjects)
+INSERT INTO @DataUploadReport VALUES (0, 'Summary', 'Existing AwardCodes',  @ExistingParentProjects)
+INSERT INTO @DataUploadReport VALUES (0, 'Summary', 'New AwardCodes with Parent Category',  @TotalProjectsWithParentCategory)
+
+-------------------------------------------------------------------
+-- Check unique Project Funding AltAwardCode 
+-------------------------------------------------------------------
+--SELECT Altid INTO #dupAltId FROM UploadWorkBook GROUP BY Altid HAVING COUNT(*) > 1
+
+--IF EXISTS (SELECT * FROM #dupAltId)
+--	INSERT INTO @DataUploadReport SELECT 1, 'Rule', 'Check Duplicate AltAwardCodes', COUNT(*) FROM #dupAltId
+--ELSE
+--	INSERT INTO @DataUploadReport SELECT 1, 'Rule', 'Check Duplicate AltAwardCodes', 0
+
+------------------------------------------------------------------
+-- Check if AltAwardCodes already exist in ICRP
+-------------------------------------------------------------------
+--SELECT u.AwardCode, u.AltID INTO #AltId FROM UploadWorkbook u
+--JOIN (SELECT f.ALtAwardCode, o.Abbreviation AS FundingOrgAbbr FROM ProjectFunding f JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID) e ON u.AltID = e.ALtAwardCode AND u.FundingOrgAbbr = e.FundingOrgAbbr
+
+--IF EXISTS (select * from #AltId)
+--BEGIN
+--	PRINT 'ERROR ==> AltAwardCode already exist in ICRP'
+--	SELECT 'AltAwardCode Already Exists in ICRP' AS Issue, AwardCode, AltID AS AltAwardCode FROM #AltId
+--END 
+--ELSE
+--	PRINT 'Checking AltAwardCode NOT exist in ICRP ==> Pass'
+	
+------------------------------------------------------------------
+-- Check if AltAwardCodes not unique (check both workbook and existing ProjectFunding)
+-------------------------------------------------------------------
+SELECT * INTO #dupAltId FROM (
+	SELECT Altid AS AltAwardCode FROM UploadWorkBook 
+	UNION
+	SELECT AltAwardCode FROM ProjectFunding
+	) a GROUP BY AltAwardCode HAVING COUNT(*) > 1
+
+
+IF EXISTS (SELECT * FROM #dupAltId)
+	INSERT INTO @DataUploadReport SELECT 1, 'Rule', 'Check Duplicate AltAwardCodes', COUNT(*) FROM #dupAltId
+ELSE
+	INSERT INTO @DataUploadReport SELECT 1, 'Rule', 'Check Duplicate AltAwardCodes', 0
+
+
+-------------------------------------------------------------------
+-- Check New AWardCodes without Parent Category 
+-------------------------------------------------------------------
+SELECT n.AwardCode INTO #newNoParent FROM 
+(SELECT * FROM #awardcodes where Type='New') n
+LEFT JOIN #parentProjects p ON n.AwardCode = p.AwardCode
+WHERE p.AwardCode IS NULL
+
+IF EXISTS (SELECT * FROM #newNoParent)
+	INSERT INTO @DataUploadReport SELECT 2, 'Rule', 'Check New AwardCodes with Missing Parent Category', COUNT(*) FROM #newNoParent
+ELSE
+	INSERT INTO @DataUploadReport SELECT 2, 'Rule', 'Check New AwardCodes with Missing Parent Category', 0
+
+-------------------------------------------------------------------
+-- Check Old AwardCode with Parent Category 
+-------------------------------------------------------------------
+SELECT 'Issue AwardCode Should NOT be Parent' AS Issue, p.* INTO #oldWithParent FROM 
+(SELECT * FROM #awardcodes where Type='Existing') n
+JOIN #parentProjects p ON n.AwardCode = p.AwardCode
+
+IF EXISTS (SELECT * FROM #oldWithParent)
+	INSERT INTO @DataUploadReport SELECT 3, 'Rule', 'Check Old AwardCode with Parent Category', COUNT(*) FROM #oldWithParent
+ELSE
+	INSERT INTO @DataUploadReport SELECT 3, 'Rule', 'Check Old AwardCode with Parent Category', 0
+
+-------------------------------------------------------------------
+-- Check BudgetDates
+-------------------------------------------------------------------
+SELECT AwardCode, AltID, AwardStartDate, AwardEndDate, BudgetStartDate, BudgetEndDate, DATEDIFF(day, AwardStartDate, AwardEndDate) AS AwardDuration, 
+		DATEDIFF(day, BudgetStartDate, BudgetEndDate) AS BudgetDuration INTO #budgetDates FROM UploadWorkBook 		
+
+IF EXISTS (SELECT * FROM #budgetDates WHERE AwardDuration < 0 OR BudgetDuration < 0)
+	INSERT INTO @DataUploadReport SELECT 4, 'Rule', 'Check Incorrect Award or Budget Duration', COUNT(*) FROM #budgetDates WHERE AwardDuration < 0 OR BudgetDuration < 0
+ELSE
+	INSERT INTO @DataUploadReport SELECT 4, 'Rule', 'Check Incorrect Award or Budget Duration', 0
+	
+-------------------------------------------------------------------
+-- Check Funding Amount
+-------------------------------------------------------------------
+SELECT AwardCode, AwardStartDate, AwardEndDate, BudgetStartDate, BudgetEndDate, AwardFunding INTO #fundingAmount FROM UploadWorkBook WHERE ISNULL(AwardFunding,0) < 0
+
+IF EXISTS (SELECT * FROM #fundingAmount WHERE ISNULL(AwardFunding,0) < 0)
+  INSERT INTO @DataUploadReport SELECT 5, 'Rule', 'Check Incorrect Funding Amounts', COUNT(*) FROM #fundingAmount WHERE ISNULL(AwardFunding,0) < 0
+ELSE
+	INSERT INTO @DataUploadReport SELECT 5, 'Rule', 'Check Incorrect Funding Amounts', 0
+
+-------------------------------------------------------------------
+-- Check CSO Codes
+-------------------------------------------------------------------
+SELECT csocodes, csorel INTO #cso from UploadWorkBook where ISNULL(csocodes,'')='' or ISNULL(csorel,'')=''
+
+IF EXISTS (select * from #cso)
+	INSERT INTO @DataUploadReport SELECT 6, 'Rule', 'Check Incorrect CSO Codes/Relevance', COUNT(*) FROM #cso
+ELSE
+	INSERT INTO @DataUploadReport SELECT 6, 'Rule', 'Check Incorrect CSO Codes/Relevance', 0
+		
+-------------------------------------------------------------------
+-- Check Historical CSO Codes
+-------------------------------------------------------------------
+SELECT CSOCodes INTO #oldCSO from UploadWorkBook where sitecodes like '%7.1%' OR sitecodes like '%7.2%' OR sitecodes like '%7.3%' OR sitecodes like '%1.6%' OR sitecodes like '%6.8%'
+
+IF EXISTS (select * FROM #oldCSO)
+	INSERT INTO @DataUploadReport SELECT 7, 'Rule', 'Check Historical CSO Codes', COUNT(*) FROM #oldCSO
+ELSE
+	INSERT INTO @DataUploadReport SELECT 7, 'Rule', 'Check Historical CSO Codes', 0
+
+-------------------------------------------------------------------
+-- Check CancerType Codes
+-------------------------------------------------------------------
+SELECT sitecodes, siterel INTO #site from UploadWorkBook where ISNULL(sitecodes,'')='' or ISNULL(siterel,'')=''
+
+IF EXISTS (select * FROM #site)
+	INSERT INTO @DataUploadReport SELECT 8, 'Rule', 'Check CancerType Codes/Relevance', COUNT(*) FROM #site
+ELSE
+	INSERT INTO @DataUploadReport SELECT 8, 'Rule', 'Check CancerType Codes/Relevance', 0
+	
+-------------------------------------------------------------------
+-- Check AwardType Codes - TBD
+-------------------------------------------------------------------
+--IF EXISTS (select AwardType from UploadWorkBook where ISNULL(AwardType,'') NOT IN ('R','C','T'))
+--BEGIN
+--  PRINT 'ERROR ==> Incorrect AwardType'
+--  SELECT DISTINCT 'Incorrect AwardType' AS Issue, AwardCode, AltId, AwardType from UploadWorkBook 
+--	WHERE ISNULL(AwardType,'') NOT IN ('R','C','T')
+--END
+--ELSE
+--	PRINT 'Checking Incorrect AwardType ==> Pass'	
+
+-------------------------------------------------------------------
+-- Check Annulized Value
+-------------------------------------------------------------------
+SELECT IsAnnualized INTO #annu from UploadWorkBook where ISNULL(IsAnnualized,'') NOT IN ('Y','N')
+
+IF EXISTS (select * FROM #annu)
+	INSERT INTO @DataUploadReport SELECT 9, 'Rule', 'Check Annulized Value', COUNT(*) FROM #annu
+ELSE
+	INSERT INTO @DataUploadReport SELECT 9, 'Rule', 'Check Annulized Value', 0
+
+-------------------------------------------------------------------
+-- Check FundingOrg
+-------------------------------------------------------------------
+SELECT DISTINCT FundingOrgAbbr INTO #org from UploadWorkBook 
+where FundingOrgAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingOrg)
+
+IF EXISTS (SELECT * FROM #org)
+	INSERT INTO @DataUploadReport SELECT 10, 'Rule', 'Check FundingOrg Existance', COUNT(*) FROM #org
+ELSE
+	INSERT INTO @DataUploadReport SELECT 10, 'Rule', 'Check FundingOrg Existance', 0
+
+-------------------------------------------------------------------
+-- Check FundinOrggDiv
+-------------------------------------------------------------------
+SELECT DISTINCT FundingDivAbbr INTO #orgDiv from UploadWorkBook 
+	WHERE (ISNULL(FundingDivAbbr, '')) != '' AND (FundingDivAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingDivision))
+	
+IF EXISTS (SELECT * FROM #orgDiv)
+	INSERT INTO @DataUploadReport SELECT 11, 'Rule', 'Check FundingOrgDiv Existance', COUNT(*) FROM #org
+ELSE
+	INSERT INTO @DataUploadReport SELECT 11, 'Rule', 'Check FundingOrgDiv Existance', 0
+
+	
+-------------------------------------------------------------------
+-- Check Institutions (Check both Institution lookup and mapping tables)
+-------------------------------------------------------------------
+SELECT DISTINCT u.InstitutionICRP, u.SubmittedInstitution, u.City INTO #missingInst FROM UploadWorkBook u
+	LEFT JOIN Institution i ON (u.InstitutionICRP = i.Name AND u.City = i.City)
+	LEFT JOIN InstitutionMapping m ON (u.InstitutionICRP = m.OldName AND u.City = m.OldCity) 
+WHERE (i.InstitutionID IS NULL) AND (m.InstitutionMappingID IS NULL)
+
+IF EXISTS (select * FROM #missingInst)
+	INSERT INTO @DataUploadReport SELECT 12, 'Rule', 'Check not-mapped Institution', COUNT(*) FROM #missingInst
+ELSE
+	INSERT INTO @DataUploadReport SELECT 12, 'Rule', 'Check not-mapped Institution', 0
+
+-------------------------------------------------------------------
+-- Return Data IntegrityCheck Report
+-------------------------------------------------------------------
+SELECT * FROM @DataUploadReport
+
+GO
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[DataUpload_GetDateCheckDetails]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DataUpload_GetDateCheckDetails]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[DataUpload_GetDateCheckDetails]
+GO 
+
+CREATE PROCEDURE [dbo].[DataUpload_GetDateCheckDetails] 
+@RuleId INT
+  
+AS
+
+/***********************************************************************************************/
+-- Data Integrigy Check Rules - New Upload
+--
+-- 1	Rule	Check Duplicate AltAwardCodes
+-- 2	Rule	Check New AwardCodes with Missing Parent Category
+-- 3	Rule	Check Old AwardCode with Parent Category
+-- 4	Rule	Check Incorrect Award or Budget Duration
+---5	Rule	Check Incorrect Funding Amounts
+-- 6	Rule	Check Incorrect CSO Codes/Relevance
+-- 7	Rule	Check Historical CSO Codes
+-- 8	Rule	Check CancerType Codes/Relevance
+-- 9	Rule	Check Annulized Value
+-- 10	Rule	Check FundingOrg Existance
+-- 11	Rule	Check FundingOrgDiv Existance
+-- 12	Rule	Check not-mapped Institution
+--
+/***********************************************************************************************/
+
+SELECT Distinct AwardCode INTO #a FROM UploadWorkBook
+
+--Checking Parent projects ...
+SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'  -- CA
+
+SELECT * INTO #awardCodes FROM (
+	SELECT 'Existing' AS Type, a.AwardCode FROM #a a JOIN Project p ON a.AwardCode = p.AwardCode
+	UNION
+	SELECT 'New' AS Type, a.AwardCode FROM #a a LEFT JOIN Project p ON a.AwardCode = p.AwardCode WHERE p.AwardCode IS NULL
+) a
+
+------------------------------------------------------------------
+-- Check if AltAwardCodes not unique (check both workbook and existing ProjectFunding)
+-------------------------------------------------------------------
+IF @RuleId = 1
+BEGIN
+	SELECT * INTO #dupAltId FROM (
+		SELECT Altid AS AltAwardCode FROM UploadWorkBook 
+		UNION
+		SELECT AltAwardCode FROM ProjectFunding
+		) a 
+	GROUP BY AltAwardCode HAVING COUNT(*) > 1
+
+	SELECT u.AwardCode, u.AltID AS AltAwardCode, u.BudgetStartDate, u.BudgetEndDate, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel  
+	FROM #dupAltId d JOIN UploadWorkbook u ON d.AltAwardCode = u.AltID
+
+END
+
+-------------------------------------------------------------------
+-- Check New AwardCodes without Parent Category 
+-------------------------------------------------------------------
+IF @RuleId = 2
+BEGIN
+	SELECT n.AwardCode INTO #newNoParent FROM 
+	(SELECT * FROM #awardcodes where Type='New') n
+	LEFT JOIN #parentProjects p ON n.AwardCode = p.AwardCode
+	WHERE p.AwardCode IS NULL
+
+	SELECT u.AwardCode, u.AltID AS AltAwardCode, u.BudgetStartDate, u.BudgetEndDate, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel  
+	FROM #newNoParent d JOIN UploadWorkbook u ON d.AwardCode = u.AwardCode
+END
+
+-------------------------------------------------------------------
+-- Check Old AwardCode with Parent Category 
+-------------------------------------------------------------------
+IF @RuleId = 3
+BEGIN
+	SELECT p.* INTO #oldWithParent FROM 
+		(SELECT * FROM #awardcodes where Type='Existing') n
+		JOIN #parentProjects p ON n.AwardCode = p.AwardCode
+
+	SELECT u.AwardCode, u.AltID AS AltAwardCode, u.BudgetStartDate, u.BudgetEndDate, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel  
+	FROM #oldWithParent d JOIN UploadWorkbook u ON d.AwardCode = u.AwardCode
+END
+
+-------------------------------------------------------------------
+-- Check BudgetDates
+-------------------------------------------------------------------
+IF @RuleId = 4
+BEGIN
+	SELECT AwardCode, AltID, AwardStartDate, AwardEndDate, BudgetStartDate, BudgetEndDate, DATEDIFF(day, AwardStartDate, AwardEndDate) AS AwardDuration, 
+		DATEDIFF(day, BudgetStartDate, BudgetEndDate) AS BudgetDuration INTO #budgetDates FROM UploadWorkBook 		
+
+	SELECT u.AwardCode, u.AltID AS AltAwardCode, u.BudgetStartDate, u.BudgetEndDate, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel  
+	FROM #budgetDates c JOIN UploadWorkbook u ON c.AwardCode = u.AwardCode WHERE c.AwardDuration < 0 OR c.BudgetDuration < 0
+
+END
+	
+-------------------------------------------------------------------
+-- Check Funding Amount
+-------------------------------------------------------------------
+IF @RuleId = 5
+BEGIN
+	SELECT AltID, AwardStartDate, AwardEndDate, BudgetStartDate, BudgetEndDate, AwardFunding INTO #fundingAmount FROM UploadWorkBook WHERE ISNULL(AwardFunding,0) < 0
+
+	SELECT u.AwardCode, u.AltID AS AltAwardCode, u.BudgetStartDate, u.BudgetEndDate, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel  
+	FROM #fundingAmount c JOIN UploadWorkbook u ON c.AltID = u.AltID 
+
+END
+
+-------------------------------------------------------------------
+-- Check CSO Codes
+-------------------------------------------------------------------
+IF @RuleId = 6
+BEGIN
+	SELECT AltID, csocodes, csorel INTO #cso from UploadWorkBook where ISNULL(csocodes,'')='' or ISNULL(csorel,'')=''
+	
+	SELECT u.AwardCode, u.AltID AS AltAwardCode, u.BudgetStartDate, u.BudgetEndDate, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel  
+	FROM #cso c JOIN UploadWorkbook u ON c.AltID = u.AltID
+END 
+		
+-------------------------------------------------------------------
+-- Check Historical CSO Codes
+-------------------------------------------------------------------
+IF @RuleId = 7
+BEGIN
+	SELECT AltID, CSOCodes INTO #oldCSO from UploadWorkBook where sitecodes like '%7.1%' OR sitecodes like '%7.2%' OR sitecodes like '%7.3%' OR sitecodes like '%1.6%' OR sitecodes like '%6.8%'
+
+	SELECT u.AwardCode, u.AltID AS AltAwardCode, u.BudgetStartDate, u.BudgetEndDate, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel  
+	FROM #oldCSO c JOIN UploadWorkbook u ON c.AltID = u.AltID
+END 
+
+-------------------------------------------------------------------
+-- Check CancerType Codes
+-------------------------------------------------------------------
+IF @RuleId = 8
+BEGIN
+	SELECT AltID, sitecodes, siterel INTO #site from UploadWorkBook where ISNULL(sitecodes,'')='' or ISNULL(siterel,'')=''
+
+	SELECT u.AwardCode, u.AltID AS AltAwardCode, u.BudgetStartDate, u.BudgetEndDate, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel  
+	FROM #site c JOIN UploadWorkbook u ON c.AltID = u.AltID
+END 
+
+-------------------------------------------------------------------
+-- Check AwardType Codes - TBD
+-------------------------------------------------------------------
+--IF EXISTS (select AwardType from UploadWorkBook where ISNULL(AwardType,'') NOT IN ('R','C','T'))
+--BEGIN
+--  PRINT 'ERROR ==> Incorrect AwardType'
+--  SELECT DISTINCT 'Incorrect AwardType' AS Issue, AwardCode, AltId, AwardType from UploadWorkBook 
+--	WHERE ISNULL(AwardType,'') NOT IN ('R','C','T')
+--END
+--ELSE
+--	PRINT 'Checking Incorrect AwardType ==> Pass'	
+
+-------------------------------------------------------------------
+-- Check Annulized Value
+-------------------------------------------------------------------
+IF @RuleId = 9
+BEGIN
+	SELECT AltID, IsAnnualized INTO #annu from UploadWorkBook where ISNULL(IsAnnualized,'') NOT IN ('Y','N')
+
+	SELECT u.AwardCode, u.AltID AS AltAwardCode, u.IsAnnualized, u.BudgetStartDate, u.BudgetEndDate, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel  
+	FROM #annu c JOIN UploadWorkbook u ON c.AltID = u.AltID
+END 
+
+-------------------------------------------------------------------
+-- Check FundingOrg
+-------------------------------------------------------------------
+IF @RuleId = 10
+BEGIN
+	SELECT DISTINCT FundingOrgAbbr INTO #org from UploadWorkBook 
+	where FundingOrgAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingOrg)
+	
+	SELECT u.AwardCode, u.AltID AS AltAwardCode, u.FundingOrgAbbr, u.BudgetStartDate, u.BudgetEndDate, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel  
+	FROM #org c JOIN UploadWorkbook u ON c.FundingOrgAbbr = u.FundingOrgAbbr
+END 
+
+-------------------------------------------------------------------
+-- Check FundinOrggDiv
+-------------------------------------------------------------------
+IF @RuleId = 11
+BEGIN
+
+	SELECT DISTINCT FundingDivAbbr INTO #orgDiv from UploadWorkBook 
+	WHERE (ISNULL(FundingDivAbbr, '')) != '' AND (FundingDivAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingDivision))
+	
+	SELECT u.AwardCode, u.AltID AS AltAwardCode, u.FundingDivAbbr, u.BudgetStartDate, u.BudgetEndDate, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel  
+	FROM #orgDiv c JOIN UploadWorkbook u ON c.FundingDivAbbr = u.FundingDivAbbr
+END 
+	
+-------------------------------------------------------------------
+-- Check Institutions (Check both Institution lookup and mapping tables)
+-------------------------------------------------------------------
+IF @RuleId = 12
+BEGIN
+
+	SELECT DISTINCT u.InstitutionICRP, u.SubmittedInstitution, u.City INTO #missingInst FROM UploadWorkBook u
+		LEFT JOIN Institution i ON (u.InstitutionICRP = i.Name AND u.City = i.City)
+		LEFT JOIN InstitutionMapping m ON (u.InstitutionICRP = m.OldName AND u.City = m.OldCity) 
+	WHERE (i.InstitutionID IS NULL) AND (m.InstitutionMappingID IS NULL)
+	
+	SELECT DISTINCT u.InstitutionICRP, u.City
+	FROM #missingInst c JOIN UploadWorkbook u ON c.InstitutionICRP = u.InstitutionICRP AND c.City = u.City
+END 
+	
+GO

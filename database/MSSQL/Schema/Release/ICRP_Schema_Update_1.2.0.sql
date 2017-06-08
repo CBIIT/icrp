@@ -40,6 +40,12 @@ GO
 /*************************************************/
 /******		UPDATE TABLE        			******/
 /*************************************************/
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[SearchResult]') AND name = 'TotalRelatedProjectCount')
+	ALTER TABLE [SearchResult] ADD [TotalRelatedProjectCount] INT NULL
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[SearchResult]') AND name = 'LastBudgetYear')
+	ALTER TABLE [SearchResult] ADD [LastBudgetYear] INT NULL
+
 
 /*************************************************/
 /******					Data				******/
