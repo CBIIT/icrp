@@ -6,6 +6,7 @@
  */
 
 namespace Drupal\db_search_api\Controller;
+
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Database;
 use Symfony\Component\HttpFoundation\Request;
@@ -101,7 +102,7 @@ class SearchController extends ControllerBase {
 
   /**
    * Merges all arrays from right to left - the last array provided contains the
-   * full set properties that will be present on the merged array
+   * full set of properties that will be present on the merged array
    *
    * @param array ...$arrays
    * @return array
@@ -115,29 +116,30 @@ class SearchController extends ControllerBase {
 
   ## Routes for Database Search Tool
   public static function getFields() {
-    $data = DatabaseSearch::getSearchFields(Database::getConnection());
+    $data = DatabaseSearch::getSearchFields(PDOBuilder::getConnection());
     return self::createResponse($data);
   }
 
 
   public static function getSearchResults(Request $request) {
     $parameters = self::array_merge_intersection($request->query->all(), self::DEFAULT_SEARCH_PARAMETERS);
-    $data = DatabaseSearch::getSearchResults(Database::getConnection(), $parameters);
+    $data = DatabaseSearch::getSearchResults(PDOBuilder::getConnection(), $parameters);
     return self::createResponse($data);
   }
 
 
   public static function getSortedPaginatedResults(Request $request) {
     $parameters = self::array_merge_intersection($request->query->all(), self::DEFAULT_SORT_PAGINATE_PARAMETERS);
-    $data = DatabaseSearch::getSortedPaginatedResults(Database::getConnection(), $parameters);
+    $data = DatabaseSearch::getSortedPaginatedResults(PDOBuilder::getConnection(), $parameters);
     return self::createResponse($data);
   }
 
 
   public static function getAnalytics(Request $request) {
     $parameters = $request->query->all();
+
     $data = in_array($parameters['type'], self::PUBLIC_ANALYTICS_TYPES)
-      ? DatabaseSearch::getAnalytics(Database::getConnection(), $parameters)
+      ? DatabaseSearch::getAnalytics(PDOBuilder::getConnection(), $parameters)
       : [];
 
     return self::createResponse($data);
@@ -148,7 +150,7 @@ class SearchController extends ControllerBase {
     $parameters = $request->query->all();
 
     $data = in_array($parameters['type'], self::PARTNER_ANALYTICS_TYPES)
-      ? DatabaseSearch::getAnalytics(Database::getConnection(), $parameters)
+      ? DatabaseSearch::getAnalytics(PDOBuilder::getConnection(), $parameters)
       : [];
 
     return self::createResponse($data);
@@ -156,7 +158,7 @@ class SearchController extends ControllerBase {
 
 
   public static function getSearchParameters(Request $request) {
-    $connection = Database::getConnection('icrp_database');
+    $connection = PDOBuilder::getConnection('icrp_database');
     $parameters = self::array_merge_intersection($request->query->all(), ['search_id' => -1]);
     $data = DatabaseSearch::getSearchParameters($connection, $parameters);
     return self::createResponse($data);
@@ -164,7 +166,7 @@ class SearchController extends ControllerBase {
 
 
   public static function getSearchSummary(Request $request) {
-    $connection = Database::getConnection('icrp_database');
+    $connection = PDOBuilder::getConnection('icrp_database');
     $parameters = self::array_merge_intersection($request->query->all(), ['search_id' => -1]);
     $data = DatabaseSearch::getSearchSummary($connection, $parameters);
     return self::createResponse($data);
@@ -173,19 +175,17 @@ class SearchController extends ControllerBase {
 
   ## Routes for Data Upload Review Tool
   public static function reviewFields() {
-    $connection = Database::getConnection('icrp_load_database');
+    $connection = PDOBuilder::getConnection('icrp_load_database');
     $data = DatabaseReview::reviewFields($connection);
     return self::createResponse($data);
   }
 
 
   public static function reviewAnalytics(Request $request) {
-    $connection = Database::getConnection('icrp_load_database');
+    $connection = PDOBuilder::getConnection('icrp_load_database');
     $parameters = $request->query->all();
 
-    if ($parameters['type'] === 'project_funding_amounts_by_year'
-        && !array_key_exists('year', $parameters)) {
-
+    if (!array_key_exists('year', $parameters)) {
       $year = DatabaseReview::reviewFields($connection)['conversion_years'][0]['value'];
       $parameters['year'] = $year;
     }
@@ -199,7 +199,7 @@ class SearchController extends ControllerBase {
 
 
   public static function reviewSearchResults(Request $request) {
-    $connection = Database::getConnection('icrp_load_database');
+    $connection = PDOBuilder::getConnection('icrp_load_database');
     $parameters = self::array_merge_intersection($request->query->all(), self::DEFAULT_DATA_UPLOAD_REVIEW_PARAMETERS);
     $data = DatabaseReview::reviewSearchResults($connection, $parameters);
     return self::createResponse($data);
@@ -207,14 +207,14 @@ class SearchController extends ControllerBase {
 
 
   public static function reviewSponsorUploads(Request $request) {
-    $connection = Database::getConnection('icrp_load_database');
+    $connection = PDOBuilder::getConnection('icrp_load_database');
     $data = DatabaseReview::reviewSponsorUploads($connection);
     return self::createResponse($data);
   }
 
 
   public static function reviewSearchSummary(Request $request) {
-    $connection = Database::getConnection('icrp_load_database');
+    $connection = PDOBuilder::getConnection('icrp_load_database');
     $parameters = self::array_merge_intersection($request->query->all(), ['search_id' => -1]);
     $data = DatabaseSearch::getSearchSummary($connection, $parameters);
     return self::createResponse($data);

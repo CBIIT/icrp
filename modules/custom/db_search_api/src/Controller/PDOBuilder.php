@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\db_export_results\Controller;
+namespace Drupal\db_search_api\Controller;
 use Drupal;
 use PDO;
 use PDOStatement;
@@ -51,8 +51,8 @@ class PDOBuilder {
   public static function createPreparedStatement(
     PDO $pdo,
     string $query,
-    array $input_parameters = [],
-    array &$output_parameters = []
+    array $input_parameters = NULL,
+    array &$output_parameters = NULL
   ): PDOStatement {
 
     $stmt = $pdo->prepare($query);
@@ -68,7 +68,7 @@ class PDOBuilder {
    * @param array $output_parameters
    * @return void
    */
-  public static function bindParameters(PDOStatement &$stmt, array $input_parameters, array &$output_parameters = []): PDOStatement {
+  public static function bindParameters(PDOStatement &$stmt, array $input_parameters = NULL, array &$output_parameters = NULL): PDOStatement {
 
     // retrieves the query string used to create the statement
     $query_string = $stmt->queryString;
@@ -80,9 +80,9 @@ class PDOBuilder {
     }
 
     // binds output parameters to the query string if they exist
-    foreach($output_parameters as $key => &$value) {
+    foreach($output_parameters as $key => &$output) {
       if (strpos($query_string, ":$key") !== false)
-        $stmt->bindParam(":$key", $value, PDO::PARAM_INPUT_OUTPUT, 2048);
+        $stmt->bindParam(":$key", $output['value'], $output['type'] | PDO::PARAM_INPUT_OUTPUT, 2048);
     }
 
     return $stmt;

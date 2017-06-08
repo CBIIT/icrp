@@ -54,7 +54,10 @@ class DatabaseReview {
 
     $parameters['sort_column'] = self::SORT_COLUMN_MAP[$parameters['sort_column']];
     $output_parameters = [
-      'search_id' => NULL,
+      'search_id' => [
+        'value' => 0,
+        'type'  => PDO::PARAM_INT,
+      ],
     ];
 
     $query_defaults = 'SET NOCOUNT ON; ';
@@ -91,7 +94,7 @@ class DatabaseReview {
 
     return [
       'data_upload_id'    => $parameters['data_upload_id'],
-      'search_id'         => $output_parameters['search_id'],
+      'search_id'         => $output_parameters['search_id']['value'],
       'results'           => $results,
     ];
   }

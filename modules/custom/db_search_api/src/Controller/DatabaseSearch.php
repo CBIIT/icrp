@@ -111,6 +111,7 @@ class DatabaseSearch {
   public static function getSearchParameters(PDO $pdo, array $parameters = ['search_id' => -1]): array {
 
     $stmt = PDOBuilder::createPreparedStatement(
+      $pdo,
       'SELECT * FROM SearchCriteria
         WHERE SearchCriteriaID = :search_id',
       $parameters
@@ -120,24 +121,28 @@ class DatabaseSearch {
     if ($stmt->execute())
       $results = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    function split($string) {
+      return $string ? explode(',', $string) : null;
+    }
+
     return $results ? array_filter([
       'search_terms'                 => $results['Terms'],
       'search_type'                  => $results['TermSearchType'],
-      'years'                        => explode(',', $results['YearList']),
+      'years'                        => split($results['YearList']),
       'institution'                  => $results['Institution'],
       'pi_first_name'                => $results['piLastName'],
       'pi_last_name'                 => $results['piFirstName'],
       'pi_orcid'                     => $results['piORCiD'],
       'award_code'                   => $results['AwardCode'],
-      'countries'                    => explode(',', $results['CountryList']),
-      'states'                       => explode(',', $results['StateList']),
-      'cities'                       => explode(',', $results['CityList']),
-      'funding_organizations'        => explode(',', $results['FundingOrgList']),
-      'funding_organization_types'   => explode(',', $results['FundingOrgTypeList']),
+      'countries'                    => split($results['CountryList']),
+      'states'                       => split($results['StateList']),
+      'cities'                       => split($results['CityList']),
+      'funding_organizations'        => split($results['FundingOrgList']),
+      'funding_organization_types'   => split($results['FundingOrgTypeList']),
       'is_childhood_cancer'          => $results['IsChildhood'],
-      'cancer_types'                 => explode(',', $results['CancerTypeList']),
-      'project_types'                => explode(',', $results['ProjectTypeList']),
-      'cso_research_areas'           => explode(',', $results['CSOList']),
+      'cancer_types'                 => split($results['CancerTypeList']),
+      'project_types'                => split($results['ProjectTypeList']),
+      'cso_research_areas'           => split($results['CSOList']),
     ]) : [];
   }
 
@@ -152,6 +157,7 @@ class DatabaseSearch {
 
     $query_defaults = 'SET NOCOUNT ON; ';
     $stmt = PDOBuilder::createPreparedStatement(
+      $pdo,
       $query_defaults .
       'EXECUTE GetSearchCriteriaBySearchID
         @SearchID=:search_id',
@@ -162,7 +168,7 @@ class DatabaseSearch {
         return $stmt->fetchAll(PDO::FETCH_NUM);
     }
 
-    return [];
+   return [];
   }
 
   /**
@@ -276,8 +282,14 @@ class DatabaseSearch {
     if (!array_key_exists($type, $queries)) return [];
 
     $output_parameters = [
-      ':results_count'  => NULL,
-      ':results_amount' => NULL,
+      'results_count'  => [
+        'value' => 0,
+        'type'  => PDO::PARAM_INT,
+      ],
+      'results_amount' => [
+        'value' => 0,
+        'type'  => PDO::PARAM_STR,
+      ],
     ];
 
     $query_defaults = 'SET NOCOUNT ON; ';
@@ -306,12 +318,21 @@ class DatabaseSearch {
       }
     }
 
-    return [
+    $output = [
       'search_id'      => intval($parameters['search_id']),
       'results'        => $results,
-      'results_count'  => floatval($output_parameters['results_count']),
-      'results_amount' => floatval($output_parameters['results_amount']),
     ];
+
+    // add either results_count or results_amount to the output
+    if (strpos($type, 'project_counts') !== false)
+      $key = 'results_count';
+
+    else if (strpos($type, 'project_funding_amounts') !== false)
+      $key = 'results_amount';
+
+    $output[$key] = floatval($output_parameters[$key]['value']);
+
+    return $output;
   }
 
 
@@ -326,7 +347,10 @@ class DatabaseSearch {
 
     $parameters['sort_column'] = self::SORT_COLUMN_MAP[$parameters['sort_column']];
     $output_parameters = [
-      'search_id' => NULL,
+      'search_id' => [
+        'value' => 0,
+        'type'  => PDO::PARAM_INT,
+      ],
     ];
 
     $query_defaults = 'SET NOCOUNT ON; ';
@@ -360,7 +384,7 @@ class DatabaseSearch {
       $pdo,
       $query_defaults . $query_string,
       $parameters,
-      $output_parameter);
+      $output_parameters);
 
     $results = [];
     if ($stmt->execute()) {
@@ -377,10 +401,12 @@ class DatabaseSearch {
       }
     }
 
+    $search_id = $output_parameters['search_id']['value'];
+
     return [
-      'search_id'           => $output_parameters['search_id'],
+      'search_id'           => $search_id,
       'results'             => $results,
-      'search_parameters'   => self::getSearchParametersAsTable($pdo, ['search_id' => $output_parameters['search_id']]),
+      'search_parameters'   => self::getSearchParametersAsTable($pdo, ['search_id' => $search_id]),
     ];
   }
 
@@ -426,10 +452,11 @@ class DatabaseSearch {
       }
     }
 
+    $search_id = intval($parameters['search_id']);
     return [
-      'search_id'           => intval($parameters['search_id']),
+      'search_id'           => $search_id,
       'results'             => $results,
-      'search_parameters'   => self::getSearchParametersAsTable($pdo, ['search_id' => $parameters['search_id']]),
+      'search_parameters'   => self::getSearchParametersAsTable($pdo, ['search_id' => $search_id]),
     ];
   }
 
