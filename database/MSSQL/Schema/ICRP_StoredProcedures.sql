@@ -1631,7 +1631,8 @@ DROP PROCEDURE [dbo].[DataUpload_IntegrityCheck]
 GO 
 
 CREATE PROCEDURE [dbo].[DataUpload_IntegrityCheck] 
-  
+ @Type VARCHAR (10)  = 'New' -- 'New' or 'Update'
+
 AS
 
 /***********************************************************************************************/
