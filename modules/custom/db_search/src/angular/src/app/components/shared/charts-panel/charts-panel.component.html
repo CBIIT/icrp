@@ -41,7 +41,7 @@
     <div style="position: relative">
       <ui-chart
         type="pie"
-        primaryKey="count"
+        primaryKey="project_count"
         [data]="analytics.project_counts_by_country && analytics.project_counts_by_country.results">
       </ui-chart>
     </div>
@@ -50,7 +50,7 @@
   <div class="col-md-3 text-center">
     <ui-chart
       type="pie"
-      label="Projects by CSO Category"
+      label="Projects by CSO"
       primaryKey="relevance"
       [data]="analytics.project_counts_by_cso_research_area && analytics.project_counts_by_cso_research_area.results">
     </ui-chart>
@@ -70,7 +70,7 @@
     <ui-chart
       type="pie"
       label="Projects by Type"
-      primaryKey="count"
+      primaryKey="project_count"
       [data]="analytics.project_counts_by_type && analytics.project_counts_by_type.results">
     </ui-chart>
   </div>
@@ -84,7 +84,7 @@
     <div style="position: relative">
       <ui-chart
         type="pie"
-        primaryKey="amount"
+        primaryKey="funding_amount"
         [data]="analytics.project_funding_amounts_by_country && analytics.project_funding_amounts_by_country?.results">
       </ui-chart>
     </div>
@@ -93,8 +93,8 @@
   <div class="col-md-3 text-center">
     <ui-chart
       type="pie"
-      label="Award Amounts by CSO Category"
-      primaryKey="amount"
+      label="Award Amounts by CSO"
+      primaryKey="funding_amount"
       [data]="analytics.project_funding_amounts_by_cso_research_area && analytics.project_funding_amounts_by_cso_research_area?.results">
     </ui-chart>
   </div>
@@ -103,7 +103,7 @@
     <ui-chart
       type="pie"
       label="Award Amounts by Cancer Type"
-      primaryKey="amount"
+      primaryKey="funding_amount"
       [data]="analytics.project_funding_amounts_by_cancer_type && analytics.project_funding_amounts_by_cancer_type?.results">
     </ui-chart>
   </div>
@@ -113,7 +113,7 @@
     <ui-chart
       type="pie"
       label="Award Amounts by Type"
-      primaryKey="amount"
+      primaryKey="funding_amount"
       [data]="analytics.project_funding_amounts_by_type && analytics.project_funding_amounts_by_type?.results">
     </ui-chart>
   </div>
@@ -127,7 +127,7 @@
       *ngIf="form.controls.display_type.value === 'project_counts'"
       type="line"
       label="Project Counts by Year"
-      primaryKey="count"
+      primaryKey="project_count"
       xAxisLabel="Year"
       yAxisLabel="Project Counts"
       tooltipDescriptor="Projects"
@@ -138,7 +138,7 @@
       *ngIf="form.controls.display_type.value === 'award_amounts'"
       type="line"
       label="Award Amounts by Year"
-      primaryKey="amount"
+      primaryKey="funding_amount"
       xAxisLabel="Year"
       yAxisLabel="Amount (USD)"
       tooltipDescriptor="USD"

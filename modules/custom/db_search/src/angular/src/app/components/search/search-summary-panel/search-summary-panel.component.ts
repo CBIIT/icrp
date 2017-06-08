@@ -6,9 +6,9 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./search-summary-panel.component.css']
 })
 export class SearchSummaryPanelComponent {
-  @Input() analytics: any = {};
   @Input() displayParameters: any = [];
-  @Input() numResults: number;
+  @Input() projectCount: number;
+  @Input() relatedProjectCount: number;
   @Input() loading: boolean = true;
 
   map = {

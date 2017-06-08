@@ -65,15 +65,15 @@ export class PieChart {
                   let rows = [];
                   for (let key of keys) {
                     let displayKey = {
-                      count: 'Total',
+                      project_count: 'Total',
                       relevance: 'Relevance',
-                      amount: 'Amount'
+                      funding_amount: 'Amount'
                     }[key] || key;
 
                     let value = parseFloat(entry[key]);
                     let displayValue = '';
 
-                    if (key === 'amount') {
+                    if (key === 'funding_amount') {
                         displayValue = value.toLocaleString('en-US', {
                             style: 'currency',
                             currency: 'USD',

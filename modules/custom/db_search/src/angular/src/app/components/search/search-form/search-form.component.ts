@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { SearchService } from '../../../services/search.service';
+import { StoreService } from '../../../services/store.service';
 
 /**
  * The <icrp-search-form> component renders the search form panel and
@@ -50,6 +51,7 @@ export class SearchFormComponent {
   constructor(
     private formBuilder: FormBuilder,
     private searchService: SearchService,
+    private storeService: StoreService,
   ) {
     this.search = new EventEmitter<object>();
 
@@ -155,5 +157,10 @@ export class SearchFormComponent {
   clearLocations() {
     this.form.controls['states'].patchValue([]);
     this.form.controls['cities'].patchValue([]);
+  }
+
+  clearForm() {
+    this.form.reset();
+    this.storeService.clearAll();
   }
 }
