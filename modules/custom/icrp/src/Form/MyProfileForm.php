@@ -74,12 +74,17 @@ x(del)         Internal Communications
 
          */
         $this->subCommittees = array(
+            "field_subcommittee_partner_news",
             "field_subcommittee_annual_meetin",
             "field_subcommittee_membership",
             "field_subcommittee_cso_coding",
             "field_subcommittee_evaluation",
             "field_subcommittee_partner_opera",
             "field_subcommittee_web_site",
+        );
+        $this->notifications = array(
+            "field_notify_new_posts",
+            //"field_notify_new_events",
         );
 
     }
@@ -231,9 +236,36 @@ function system_user_timezone(&$form, FormStateInterface $form_state) {
             '#markup' => t($markup),
         );
 
-        $form['container']['committee'] = array(
+        /* Notification Settings */
+        $form['container']['notify'] = array(
             '#type' => 'fieldset',
             '#prefix' => '<div class="col-sm-6">',
+            '#suffix' => '</div>',
+            '#title' => 'Notification Settings',
+        );
+
+        //kint($user);
+
+        /* Notifications */
+        foreach($this->notifications as $key => $field_notify) {
+            $form['container']['notify'][$field_notify] = array(
+                '#type' => 'checkbox',
+                '#prefix' => '<div title="'.t($user->get($field_notify)->getFieldDefinition()->getDescription()).'">',
+                '#suffix' => '</div>',
+                '#title' => t($user->get($field_notify)->getFieldDefinition()->getLabel()),
+                '#default_value' => (int)$user->get($field_notify)->value,
+                '#attributes' => array(
+                    'id' => array($field_notify),
+                    'title' => array(t($user->get($field_notify)->getFieldDefinition()->getLabel())),
+                )
+
+            );
+        }
+
+        /* Container Committee */
+        $form['container']['committee'] = array(
+            '#type' => 'fieldset',
+            '#prefix' => '<div class="col-sm-6"  style="margin-top:20px;">',
             '#suffix' => '</div>',
             '#title' => 'ICRP Subcommittees',
         );
@@ -242,6 +274,8 @@ function system_user_timezone(&$form, FormStateInterface $form_state) {
         foreach($this->subCommittees as $key => $field_subcommittee) {
             $form['container']['committee'][$field_subcommittee] = array(
                 '#type' => 'checkbox',
+                '#prefix' => '<div title="'.t($user->get($field_subcommittee)->getFieldDefinition()->getDescription()).'">',
+                '#suffix' => '</div>',
                 '#title' => t($user->get($field_subcommittee)->getFieldDefinition()->getLabel()),
                 '#default_value' => (int)$user->get($field_subcommittee)->value,
                 '#attributes' => array(
@@ -374,6 +408,9 @@ function system_user_timezone(&$form, FormStateInterface $form_state) {
         $this->entityManager->set("field_first_name", $form_state->getValue('field_first_name'));
         $this->entityManager->set("field_last_name", $form_state->getValue('field_last_name'));
         $this->entityManager->setEmail($form_state->getValue('email'));
+        foreach($this->notifications as $key => $field) {
+            $this->entityManager->set($field, $form_values[$field]);
+        }
         foreach($this->subCommittees as $key => $field) {
             $this->entityManager->set($field, $form_values[$field]);
         }
