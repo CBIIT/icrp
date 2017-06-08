@@ -1,0 +1,9 @@
+<?php
+
+function data_load_theme($existing, $type, $theme, $path) {
+    return [
+        'data_load' => [
+            'variables' => [],
+        ],
+    ];
+}

@@ -1,0 +1,44 @@
+data_load.data_load:
+  path: '/dataload'
+  defaults:
+    _controller: '\Drupal\data_load\Controller\DataLoadController::load'
+    _title: 'Load Data'
+  requirements:
+    _permission: 'authenticated'
+dataload.load_data_mysql:    
+  path: '/loaddata_mysql'
+  defaults:
+    _controller: '\Drupal\data_load\Controller\DataLoadController::loaddata_mysql'
+    _title: 'Load Data'
+  requirements:
+    _permission: 'access content'
+  methods: [POST]
+dataload.load_data_mssql:    
+  path: '/loaddata_mssql'
+  defaults:
+    _controller: '\Drupal\data_load\Controller\DataLoadController::loaddata_mssql'
+    _title: 'Load Data'
+  requirements:
+    _permission: 'access content'
+  methods: [POST]
+dataload.get_data:
+  path: '/getdata'
+  defaults:
+    _controller:  '\Drupal\data_load\Controller\DataLoadController::getdata'
+    _title: 'Get Data'
+  requirements:
+    _permission: 'access content'
+dataload.get_data_mssql:
+  path: '/getdata_mssql'
+  defaults:
+    _controller:  '\Drupal\data_load\Controller\DataLoadController::getdata_mssql'
+    _title: 'Get Data'
+  requirements:
+    _permission: 'access content'
+dataload.ping:
+  path: '/dataload/ping'
+  defaults:
+    _controller: 'Drupal\data_load\Controller\DataLoadController::ping'
+    _title: 'Ping'
+  requirements:
+    _permission: 'access content'

@@ -1,0 +1,7 @@
+name: ICRP Data Load Module
+description: Enables users to load projects into the ICRP database
+
+type: module
+core: 8.x
+
+package: ICRP Modules
