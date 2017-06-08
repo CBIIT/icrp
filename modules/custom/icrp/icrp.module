@@ -10,16 +10,7 @@ use Drupal\Core\Mail\MailManagerInterface;
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Template;
-/* From forum.module */
-use Drupal\comment\CommentInterface;
-use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Url;
-/*use Drupal\Core\Form\FormStateInterface; 
-use Drupal\Core\Routing\RouteMatchInterface; */
-use Drupal\taxonomy\VocabularyInterface;
-use Drupal\user\Entity\User;
+use Drupal\Core\Datetime\DrupalDateTime;
 
 /*
  * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
@@ -61,12 +52,49 @@ function icrp_views_data() {
   drupal_set_message("icrp_views_data");
 }
 */
+function last_forum_visit() {
+  $long_date_template = 'F j, Y g:i A';
+  $last_visit_text = '';
+
+  $uid = \Drupal::currentUser()->id();
+  //drupal_set_message("uid: ".$uid);
+  $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+  //dpm($user);
+
+  $last_visit_date_raw = $user->get('field_last_forum_visit')->value;
+  //drupal_set_message("Visit Date Raw", 'status', FALSE);
+
+  //drupal_set_message("What is this: ");
+  //dpm($last_visit_date_raw);
+
+  if($last_visit_date_raw !== NULL) {
+    $last_visit_timestamp = new DrupalDateTime($last_visit_date_raw, 'UTC');
+    // Update the timezone to the system default.
+    //$last_visit_timestamp->setTimezone(timezone_open(drupal_get_user_timezone()));
+    $last_visit_date = $last_visit_timestamp->format($long_date_template);
+
+    //drupal_set_message("last_visit_timestamp");
+    //dpm($last_visit_date);
+    $last_visit_text = 'Last visited: '.$last_visit_date;
+  }
+
+  $current_datetime = new DrupalDateTime('now');
+  $datetime_storage = $current_datetime->format(DATETIME_DATETIME_STORAGE_FORMAT);
+  //dpm($datetime_storage);
+  $user->set("field_last_forum_visit", $datetime_storage);
+  $user->save();
+
+
+  return $last_visit_text;
+}
 function icrp_preprocess_forums(&$variables) {
 
   if($variables['term']) {
     $variables['tid'] = $variables['term']->id();
     $variables['tname'] = $variables['term']->getName();
     $variables['tdescription'] = $variables['term']->getDescription();
+    $variables['last_forum_visit'] = last_forum_visit();
+
     //$variables['newname'] = $variables['term']->value('name');
     //dpm($variables);
   }

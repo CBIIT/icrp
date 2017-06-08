@@ -24,7 +24,7 @@
 {% endfor %}
 
 {% endif %}
-<h2>{{ tname }}</h2>
+<h1>{{ tname }}</h1>
 <table style="width:100%;margin-bottom:5px;">
 	<tbody>
 		<tr style="min-height:30px;">
@@ -32,7 +32,7 @@
 			<td style="text-align:right;vertical-align:bottom;white-space:nowrap;">
 
 		{% if tid == '6' %} 
-				<span class="pull-right" style="font-size:smaller;">Your last login June 7, 2017 12:12PM</span>
+				<span class="pull-right" style="font-size:smaller;">{{ last_forum_visit }}</span>
 		{% else %}
 				<a cdata-drupal-link-system-path="node/add/forum" data-drupal-link-query="{&quot;forum_id&quot;:&quot;{{ tid }}&quot;}" class="btn btn-xs btn-success" href="/node/add/forum?forum_id={{ tid }}">Add new Forum thread</a>
 		{% endif %}
