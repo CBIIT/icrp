@@ -38,6 +38,10 @@ table#forum { border: 1px solid #eaeaea; width: 100%; }
 
 #forum .last-reply { font-size: 12px; }
 */
+.nopadding {
+   padding: 0 !important;
+   margin: 0 !important;
+}
 .node-forum .field-name-body { margin: 10px 0; }
 
 .node-forum .field-type-taxonomy-term-reference { float: none; }
