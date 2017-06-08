@@ -84,6 +84,32 @@ x(del)         Internal Communications
 
     }
 
+/*
+function system_user_timezone(&$form, FormStateInterface $form_state) {
+  $user = \Drupal::currentUser();
+
+  $account = $form_state->getFormObject()->getEntity();
+  $form['timezone'] = [
+    '#type' => 'details',
+    '#title' => t('Locale settings'),
+    '#open' => TRUE,
+    '#weight' => 6,
+  ];
+  $form['timezone']['timezone'] = [
+    '#type' => 'select',
+    '#title' => t('Time zone'),
+    '#default_value' => $account->getTimezone() ? $account->getTimezone() : \Drupal::config('system.date')->get('timezone.default'),
+    '#options' => system_time_zones($account->id() != $user->id()),
+    '#description' => t('Select the desired local time and time zone. Dates and times throughout this site will be displayed using this time zone.'),
+  ];
+  $user_input = $form_state->getUserInput();
+  if (!$account->getTimezone() && $account->id() == $user->id() && empty($user_input['timezone'])) {
+    $form['timezone']['#attached']['library'][] = 'core/drupal.timezone';
+    $form['timezone']['timezone']['#attributes'] = ['class' => ['timezone-detect']];
+  }
+}
+*/
+
     /**
      * {@inheritdoc}
      */
@@ -140,7 +166,29 @@ x(del)         Internal Communications
             '#default_value' => $user->getEmail(),
             '#required' => TRUE,
         );
-
+        
+  //$user = \Drupal::currentUser();
+/*
+  $account = $form_state->getFormObject()->getEntity();
+  $form['timezone'] = [
+    '#type' => 'details',
+    '#title' => t('Locale settings'),
+    '#open' => TRUE,
+    '#weight' => 6,
+  ];
+  $form['timezone']['timezone'] = [
+    '#type' => 'select',
+    '#title' => t('Time zone'),
+    '#default_value' => $account->getTimezone() ? $account->getTimezone() : \Drupal::config('system.date')->get('timezone.default'),
+    '#options' => system_time_zones($account->id() != $user->id()),
+    '#description' => t('Select the desired local time and time zone. Dates and times throughout this site will be displayed using this time zone.'),
+  ];
+  $user_input = $form_state->getUserInput();
+  if (!$account->getTimezone() && $account->id() == $user->id() && empty($user_input['timezone'])) {
+    $form['timezone']['#attached']['library'][] = 'core/drupal.timezone';
+    $form['timezone']['timezone']['#attributes'] = ['class' => ['timezone-detect']];
+  }
+*/
         /* Password Form */
         $form['container']['name']['password'] = array(
             '#type' => 'details',

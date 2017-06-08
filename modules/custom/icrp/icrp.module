@@ -10,6 +10,7 @@ use Drupal\Core\Mail\MailManagerInterface;
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Template;
+use Drupal\Core\Datetime\DrupalDateTime;
 
 /*
  * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
@@ -24,9 +25,100 @@ use Drupal\Core\Template;
  *   7. #post_render
  *
  */
+
+
+/**
+ * Prepares variables for forums templates.
+ *
+ * Default template: forums.html.twig.
+ *
+ * @param array $variables
+ *   An array containing the following elements:
+ *   - forums: An array of all forum objects to display for the given taxonomy
+ *     term ID. If tid = 0 then all the top-level forums are displayed.
+ *   - topics: An array of all the topics in the current forum.
+ *   - parents: An array of taxonomy term objects that are ancestors of the
+ *     current term ID.
+ *   - term: Taxonomy term of the current forum.
+ *   - sortby: One of the following integers indicating the sort criteria:
+ *     - 1: Date - newest first.
+ *     - 2: Date - oldest first.
+ *     - 3: Posts with the most comments first.
+ *     - 4: Posts with the least comments first.
+ *   - forum_per_page: The maximum number of topics to display per page.
+ */
 /*
+function icrp_views_data() {
+  drupal_set_message("icrp_views_data");
+}
+*/
+function last_forum_visit() {
+  $long_date_template = 'F j, Y g:i A';
+  $last_visit_text = '';
 
+  $uid = \Drupal::currentUser()->id();
+  $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
 
+  $last_visit_date_raw = $user->get('field_last_forum_visit')->value;
+  if($last_visit_date_raw !== NULL) {
+    $last_visit_timestamp = new DrupalDateTime($last_visit_date_raw, 'UTC');
+    // Update the timezone to the system default.
+    //$last_visit_timestamp->setTimezone(timezone_open(drupal_get_user_timezone()));
+    $last_visit_date = $last_visit_timestamp->format($long_date_template);
+
+    //drupal_set_message("last_visit_timestamp");
+    //dpm($last_visit_date);
+    $last_visit_text = 'Last visited: '.$last_visit_date;
+  }
+
+  $current_datetime = new DrupalDateTime('now');
+  $datetime_storage = $current_datetime->format(DATETIME_DATETIME_STORAGE_FORMAT);
+  $user->set("field_last_forum_visit", $datetime_storage);
+  $user->save();
+
+  return $last_visit_text;
+}
+
+function icrp_preprocess_forums(&$variables) {
+
+  if($variables['term']) {
+    $variables['tid'] = $variables['term']->id();
+    $variables['tname'] = $variables['term']->getName();
+    $variables['tdescription'] = $variables['term']->getDescription();
+    $variables['last_forum_visit'] = last_forum_visit();
+
+    //$variables['newname'] = $variables['term']->value('name');
+    //dpm($variables);
+  }
+/*
+  if ($variables['forums_defined'] = count($variables['forums']) || count($variables['parents'])) {
+    if (!empty($variables['forums'])) {
+      $variables['forums'] = array(
+        '#theme' => 'forum_list',
+        '#forums' => $variables['forums'],
+        '#parents' => $variables['parents'],
+        '#tid' => $variables['tid'],
+      );
+    }
+
+    if ($variables['term'] && empty($variables['term']->forum_container->value) && !empty($variables['topics'])) {
+      $forum_topic_list_header = $variables['header'];
+
+      $table = array(
+        '#theme' => 'table__forum_topic_list',
+        '#responsive' => FALSE,
+        '#attributes' => array('id' => 'forum-topic-' . $variables['tid']),
+        '#header' => array(),
+        '#rows' => array(),
+      );
+
+      if (!empty($forum_topic_list_header)) {
+        $table['#header'] = $forum_topic_list_header;
+      }
+*/
+}
+
+/*
 function icrp_user_login($account) {
     // We want to redirect user on login.
     $response = new RedirectResponse("mypath");
@@ -35,17 +127,19 @@ function icrp_user_login($account) {
 }
 */
 
-/*
-function icrp_user_login($account) {
+/**
+ * Implements hook_preprocess_HOOK() for block templates.
+ */
+function icrp_preprocess_block(&$variables) {
+  /*drupal_set_message("icrp_preprocess_block");
+  kint($variables['configuration']);
 
-    drupal_Set_message("I control you.");
-
-    $url = "/home";
-    $response = new Symfony\Component\HttpFoundation\RedirectResponse($url);
-    $response->send();
-    return;
+  if ($variables['configuration']['provider'] == 'forum') {
+    $variables['attributes']['role'] = 'navigation';
+  }
+  */
 }
-*/
+
 function icrp_preprocess_menu_local_action(&$variables) {
   $link = $variables['element']['#link'];
   $link += array(
@@ -63,19 +157,11 @@ function icrp_preprocess_menu_local_action(&$variables) {
   );
 }
 
-function icrp_preprocess_forums(&$variables) {
-  //$variables['last_post'][8] = 'Hello Steve.  How did it go?';
-  //drupal_set_message("Added icrp_debug to variables.  See if you can access in twig.");
-  //$variables['attributes'] = new \Drupal\Core\Template\Attribute();
-  //kint($variables['attributes']);
-  //$variables['attributes']['class'] = array(); // Needed to initialize the AttributeArray object.  
-  //$variables['attributes']['class'][] = 'red';
-
-}
 function icrp_preprocess_forums__topics(&$variables) {
-  drupal_set_message("forums__topics");
-  kint($variables);
-  var_dump($variables);
+  //drupal_set_message("forums__topics");
+  //drupal_set_message($variables['forums']['topics']['#theme']);
+  //kint($variables['forums']);
+  //var_dump($variables);
  }
 function icrp_preprocess_forum_list(&$variables) {
   //$variables['icrp_debug'] = true;
@@ -99,6 +185,14 @@ function icrp_template_preprocess_default_variables_alter(&$variables) {
 
 function icrp_user_format_name_alter(&$name, $account) {
   // Display the user's uid instead of name.
+  //drupal_set_message("user_format_name");
+  //dpm($name);
+  //dpm($account->id());
+  //$name = "Hello User";
+  $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($account->id());
+  $name = $user->get('field_first_name')->value." ".$user->get('field_last_name')->value;
+
+
   //kint($account->get('field_first_name')->value);
   /*
   if ($account->id()) {
