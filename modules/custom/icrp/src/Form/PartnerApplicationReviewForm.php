@@ -25,14 +25,14 @@ class PartnerApplicationReviewForm extends FormBase
     protected $connection;
 
     /**
-    * Webform Submission Data 
+    * Webform Submission Data
     *
     * @var object
     */
 
     protected $results;
     /**
-    * Webform Submission ID 
+    * Webform Submission ID
     *
     * @var integer
     */
@@ -146,10 +146,10 @@ class PartnerApplicationReviewForm extends FormBase
             ["label" => 'Research Investment Budget', 'field' => 'tier_radio_budget_range'],
             ["label" => 'the preferred date for payment of annual membership contributions', 'field' => 'payment_radio'],
             );
-        
+
         $body = $this->addLabelsToBody($labels);
         $this->displaySectionDetail($section, $body, $form, "closed");
-        
+
         /* Contact Person */
         $section = "Contact Person";
         $labels = array(["label" => 'Name', 'field' => 'name'],
@@ -163,7 +163,7 @@ class PartnerApplicationReviewForm extends FormBase
             ["label" => 'Country', 'field' => 'country'],
             ["label" => 'ZIP/Postal Code', 'field' => 'postal_code'],
             );
-        
+
         $body = $this->addLabelsToBody($labels, 'property');
         $this->displaySectionDetail($section, $body, $form, "closed");
 
@@ -206,7 +206,7 @@ class PartnerApplicationReviewForm extends FormBase
                 foreach($results as $row) {
                     $uri = $row['uri'];
                     $uri = str_replace("public://", "/sites/default/files/", $uri);
-                    $filename = $row['filename']; 
+                    $filename = $row['filename'];
                 }
                 $link = '<a target="_blank" href="'.$uri.'">'.$filename.'</a>';
                 array_push($links, $link);
@@ -307,7 +307,7 @@ class PartnerApplicationReviewForm extends FormBase
         return "[Variable not found]";
     }
 
-    
+
     private function bootstrapContatainer($title, $body, $panel_state="collapsed") {
         //drupal_set_message("bootstrapContatainer: ".$title);
         $random = new \Drupal\Component\Utility\Random();
@@ -320,7 +320,7 @@ class PartnerApplicationReviewForm extends FormBase
   <div class="form-item js-form-item form-wrapper js-form-wrapper panel panel-default">
     <div class="panel-heading">
         <a href="#'.$uid.'" class="panel-title '.$this->t($panel_state).'" role="button" data-toggle="collapse" aria-pressed="true" aria-expanded="true" aria-controls="edit-organization-information--content">'.$title.'</a>
-      
+
     </div>
     <div id="'.$uid.'" class="panel-body panel-collapse fade collapse in" aria-expanded="true" style="">
     '.$body.'
@@ -345,7 +345,7 @@ class PartnerApplicationReviewForm extends FormBase
         */
 
     }
-    
+
     public function validateForm(array &$form, FormStateInterface $form_state)
     {
         $form_values = $form_state->getValues();
@@ -359,7 +359,7 @@ class PartnerApplicationReviewForm extends FormBase
     }
     private function setValue($field, $value) {
         //Connect to database and get submission data
-        $sql = "UPDATE webform_submission_data 
+        $sql = "UPDATE webform_submission_data
             SET value = '{$value}'
             where sid = ".t($this->sid)
             ." and webform_id = 'icrp_partnership_applicaion_form'
@@ -414,17 +414,51 @@ class PartnerApplicationReviewForm extends FormBase
         //drupal_set_message(print_r($form_state->getValues(), TRUE));
         $application_status = $form_values['status'];
         $this->setValue("application_status", $application_status);
-        
+
         drupal_flush_all_caches();
         //$membership_status = ($form_values['status'] == 0) ? 'Blocked' : 'Active';
         if($application_status == "Completed") {
             $this->sendPartnershipApplicationApprovedEmail();
+//          \Drupal\db_admin\Controller\PartnerApplication::saveApplication($this->getPartialFormValues());
             $message = "Application for ".$this->getValue('organization_name')." is now completed and an email has been sent to the organization.";
         } else {
             $message = "Application  for ".$this->getValue('organization_name')." is now archived.";
-        } 
+        }
 
         drupal_set_message(t($message));
+    }
+
+    public function getPartialFormValues() {
+
+        $required_fields = [
+            'organization_name',
+            'country',
+            'email',
+            'description_of_the_organization',
+        ];
+
+        // wrap fields in single quotes and join them with commas
+        $query_fields = implode(',',
+            array_map(function($str) {
+                return "'$str'";
+            }, $required_fields)
+        );
+
+        $stmt = $this->connection->prepare(
+            "SELECT name, value FROM webform_submission_data
+                WHERE webform_id = 'icrp_partnership_applicaion_form'
+                AND name IN ($query_fields)
+                AND sid = :sid"
+        );
+
+        $results = [];
+        if ($stmt->execute([':sid' => $this->sid])) {
+            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $results[$row['name']] = $row['value'];
+            }
+        }
+
+        return $results;
     }
 
 }
