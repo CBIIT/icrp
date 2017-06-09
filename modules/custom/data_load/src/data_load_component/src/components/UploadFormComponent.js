@@ -118,7 +118,9 @@ class UploadFormComponent extends Component {
             }
             that.updateParent(stats, projects);
         } else {
-            alert("Oops! ");
+            // response.status, response.statusText
+            let message = await response.text();
+            alert("Oops! " + message);
         }
     }
 
