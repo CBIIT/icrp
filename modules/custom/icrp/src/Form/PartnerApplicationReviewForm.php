@@ -408,8 +408,7 @@ class PartnerApplicationReviewForm extends FormBase
 
     }
 
-    public function submitForm(array &$form, FormStateInterface $form_state)
-    {
+    public function submitForm(array &$form, FormStateInterface $form_state) {
 
         $form_values = $form_state->getValues();
         //drupal_set_message(print_r($form_state->getValues(), TRUE));
@@ -419,36 +418,40 @@ class PartnerApplicationReviewForm extends FormBase
         drupal_flush_all_caches();
         //$membership_status = ($form_values['status'] == 0) ? 'Blocked' : 'Active';
 
-        $partial_form_values = $this->getPartialFormValues();
-
         if($application_status == "Completed") {
             $this->sendPartnershipApplicationApprovedEmail();
             $message = "Application for ".$this->getValue('organization_name')." is now completed and an email has been sent to the organization.";
-            $partial_form_values['is_completed'] = true;
         } else {
             $message = "Application  for ".$this->getValue('organization_name')." is now archived.";
-            $partial_form_values['is_completed'] = false;
         }
 
-        //drupal_set_message(print_r($partial_form_values, TRUE));
+        $partial_form_values = [
+            'id' => $this->sid,
+            'is_completed' => $application_status == 'Completed',
+        ] + $this->getFormValues([
+            'organization_name',
+            'country',
+            'email',
+            'description_of_the_organization',
+        ]);
+
         \Drupal::service('event_dispatcher')
             ->dispatch('db_admin.add_partner_application', new GenericEvent($partial_form_values));
         drupal_set_message(t($message));
     }
 
-    public function getPartialFormValues() {
-
-        $required_fields = [
-            'organization_name',
-            'country',
-            'email',
-            'description_of_the_organization',
-        ];
+    /**
+     * Retrives the specified values from the submitted webform
+     *
+     * @param array $names - The names of the fields to retrieve
+     * @return array - An associative array containing key-value pairs for the supplied names
+     */
+    public function getFormValues(array $names): array {
 
         $submission_data = array_filter(
             $this->getWebformSubmissionData(),
-            function($row) use ($required_fields) {
-                return in_array($row['name'], $required_fields);
+            function($row) use ($names) {
+                return in_array($row['name'], $names);
             }
         );
 
