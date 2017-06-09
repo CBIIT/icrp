@@ -13,6 +13,7 @@ use Drupal\Core\Database\Database;
 use Drupal\Core\Mail\MailManagerInterface;
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Html;
+use Symfony\Component\EventDispatcher\GenericEvent;
 
 class PartnerApplicationReviewForm extends FormBase
 {
@@ -417,14 +418,21 @@ class PartnerApplicationReviewForm extends FormBase
 
         drupal_flush_all_caches();
         //$membership_status = ($form_values['status'] == 0) ? 'Blocked' : 'Active';
+
+        $partial_form_values = $this->getPartialFormValues();
+
         if($application_status == "Completed") {
             $this->sendPartnershipApplicationApprovedEmail();
-//          \Drupal\db_admin\Controller\PartnerApplication::saveApplication($this->getPartialFormValues());
             $message = "Application for ".$this->getValue('organization_name')." is now completed and an email has been sent to the organization.";
+            $partial_form_values['is_completed'] = true;
         } else {
             $message = "Application  for ".$this->getValue('organization_name')." is now archived.";
+            $partial_form_values['is_completed'] = false;
         }
 
+        //drupal_set_message(print_r($partial_form_values, TRUE));
+        \Drupal::service('event_dispatcher')
+            ->dispatch('db_admin.add_partner_application', new GenericEvent($partial_form_values));
         drupal_set_message(t($message));
     }
 
@@ -437,28 +445,19 @@ class PartnerApplicationReviewForm extends FormBase
             'description_of_the_organization',
         ];
 
-        // wrap fields in single quotes and join them with commas
-        $query_fields = implode(',',
-            array_map(function($str) {
-                return "'$str'";
-            }, $required_fields)
-        );
-
-        $stmt = $this->connection->prepare(
-            "SELECT name, value FROM webform_submission_data
-                WHERE webform_id = 'icrp_partnership_applicaion_form'
-                AND name IN ($query_fields)
-                AND sid = :sid"
-        );
-
-        $results = [];
-        if ($stmt->execute([':sid' => $this->sid])) {
-            while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-                $results[$row['name']] = $row['value'];
+        $submission_data = array_filter(
+            $this->getWebformSubmissionData(),
+            function($row) use ($required_fields) {
+                return in_array($row['name'], $required_fields);
             }
-        }
+        );
 
-        return $results;
+        return array_reduce(
+            $submission_data,
+            function($accumulator = [], $row) {
+                $accumulator[$row['name']] = $row['value'];
+                return $accumulator;
+            }
+        );
     }
-
 }
