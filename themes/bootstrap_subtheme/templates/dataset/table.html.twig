@@ -45,12 +45,32 @@
   <script>console.info("table.html.twig");</script>
   <script>console.log({{ _context | json_encode | raw }});</script>
 
+<h4>dump(rows);</h4>
+<div style="border: 1px solid blue">
+{{ dump(footer) }}
+</div>
+<h4>dump(footer);</h4>
+<div style="border: 1px solid blue">
+{{ dump(footer) }}
+</div>
+<h4>dump(no_striping);</h4>
+<div style="border: 1px solid blue">
+{{ dump(no_striping) }}
+</div>
+<h4>dump(header_columns);</h4>
+<div style="border: 1px solid blue">
+{{ dump(header_columns) }}
+</div>
+
+<h4>dump(attributes);</h4>
 <div style="border: 1px solid blue">
 {{ dump(attributes) }}
 </div>
+<h4>dump(header);</h4>
 <div style="border: 1px solid green">
 {{ dump(header) }}
 </div>
+<h4>dump(content)</h4>
 <div>
 {{ dump(content) }}
 </div>
@@ -101,9 +121,14 @@
           ]
         %}
         <tr{{ row.attributes.addClass(row_classes) }}>
+
           {% for cell in row.cells %}
-            <{{ cell.tag }}{{ cell.attributes }}>
+            <{{ cell.tag }}{{ cell.attributes }} style="text-algin=center;">
+            {% if loop.index == 2 %}
+              {{ cell.icrp_markup |raw }}
+            {% else %}
               {{- cell.content -}}
+            {% endif %}
             </{{ cell.tag }}>
           {% endfor %}
         </tr>

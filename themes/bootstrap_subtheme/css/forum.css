@@ -57,7 +57,9 @@ table#forum { border: 1px solid #eaeaea; width: 100%; }
 .forum__name {
   font-size: 1.5em;
 }
-
+#edit-taxonomy-forums-wrapper {
+	display:none;
+}
 /* forum topic (i.e. thread) */
 /*
 .table-forum-topic thead tr th, .table-forum-topic thead tr td { background: #FFE599; font-weight: 700; border:none; padding: 11px; }
