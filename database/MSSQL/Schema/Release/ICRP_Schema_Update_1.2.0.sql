@@ -46,8 +46,14 @@ IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[S
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[SearchResult]') AND name = 'LastBudgetYear')
 	ALTER TABLE [SearchResult] ADD [LastBudgetYear] INT NULL
 
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[Country]') AND name = 'Currency')
+	ALTER TABLE [Country] ADD [Currency] [varchar](3) NULL
+
 
 /*************************************************/
 /******					Data				******/
 /*************************************************/
+UPDATE Country SET Currency = cur.Currency
+FROM Country c
+join (select distinct country, currency from fundingorg) cur ON c.Abbreviation = cur.country
 
