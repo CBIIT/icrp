@@ -1,0 +1,9 @@
+## Routes for Database Admin Pages
+
+
+test_event:
+  path: /test-event
+  defaults: { _controller: 'Drupal\db_admin\Controller\AdminController::dispatchSampleEvent' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
