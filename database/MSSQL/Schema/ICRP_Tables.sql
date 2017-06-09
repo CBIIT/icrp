@@ -90,6 +90,7 @@ CREATE TABLE [dbo].[Country](
 	[Abbreviation] [varchar](3) NOT NULL,
 	[Name] [varchar](75) NOT NULL,
 	[IncomeBand] [varchar](25) NULL,
+	[Currency] [varchar](3) NOT NULL,
  CONSTRAINT [PK_Country] PRIMARY KEY CLUSTERED 
 (
 	[Abbreviation] ASC

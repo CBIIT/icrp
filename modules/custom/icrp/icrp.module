@@ -11,6 +11,7 @@ use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Template;
 use Drupal\Core\Datetime\DrupalDateTime;
+use Drupal\Core\GeneratedLink;
 
 /*
  * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
@@ -52,6 +53,11 @@ function icrp_views_data() {
   drupal_set_message("icrp_views_data");
 }
 */
+function icrp_views_data_alter(array &$data) { 
+  drupal_set_message("icrp_views_data_alter");
+  //dpm($data);
+}
+
 function last_forum_visit() {
   $long_date_template = 'F j, Y g:i A';
   $last_visit_text = '';
@@ -90,6 +96,67 @@ function icrp_preprocess_forums(&$variables) {
     //$variables['newname'] = $variables['term']->value('name');
     //dpm($variables);
   }
+}
+
+function processForumData($cell, $cell_index, $row_index, &$variables) {
+  //dpm($cell);
+  switch($cell_index) {
+    case 0:
+      //Column 0: Process Thread icon, Thread Name(link), and Summary
+      //drupal_set_message("-->Process Column 0");
+      //drupal_set_message("--->Theme:".$cell['content'][0]['#theme']);
+      break;
+    case 1:
+      //Column 1: Process Thread icon, Thread Name(link), and Summary
+      //drupal_set_message("-->Process Column 1");
+      $html = '<div style="text-align:center;">';
+      $html .= '<div><span class="forum__posts" title="Number of replies in this thread.">';
+      $html .= $cell['content'][0]['#prefix'];
+      $html .= '</span></div>';
+      $html .= $cell['content'][0]['#markup'];
+      $html .= '</div>';
+      $variables['rows'][$row_index]['cells'][$cell_index]['icrp_markup'] = $html;
+      break;
+    case 2:
+      //Column 1: Process Thread icon, Thread Name(link), and Summary
+      //drupal_set_message("-->Process Column 2");
+      break;
+
+  }
+}
+
+function icrp_preprocess_table(&$variables) {
+
+  if(substr($variables['attributes']['id'], 0, 11) != 'forum-topic') {
+    return;
+  }
+
+  //dpm($variables);
+  $forum_id = substr($variables['attributes']['id'], 12);
+  // Header: Change Topic column to Thread
+  $variables['header'][0]['content']->setGeneratedLink('Thread');
+  //Customize Rows and Cells 
+  //dpm($variables['rows']);
+  //drupal_set_message("Row Count: ".count($variables['rows']));
+  foreach($variables['rows'] as $row_index => $row) {
+    //drupal_set_message("row number: ".$row_index);
+    foreach($row['cells'] as $cell_index => $cell) {
+      //drupal_set_message("->cell number: ".$cell_index);
+      processForumData($cell, $cell_index, $row_index, $variables);
+
+    }
+  }
+  //Get Node ID for this row
+  
+  //$link = new GeneratedLink();
+  //$link->setGeneratedLink('<a href="/forum/'.$forum_id.'?sort=asc&amp;order=Topic" title="sort by Thread">Thread</a>');
+
+  //$variables['header'][0]['content'] = $link;
+
+  //$gl = new GeneratedLink()->setGeneratedLink('<a hef="http://www.example.com">test</a>');
+  //dpm($link);
+}
+
 /*
   if ($variables['forums_defined'] = count($variables['forums']) || count($variables['parents'])) {
     if (!empty($variables['forums'])) {
@@ -116,7 +183,6 @@ function icrp_preprocess_forums(&$variables) {
         $table['#header'] = $forum_topic_list_header;
       }
 */
-}
 
 /*
 function icrp_user_login($account) {
@@ -445,6 +511,10 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             //drupal_set_message("user_register_form");
             //\Drupal\icrp\Importer\OrganizationRestClient::populateOrganizations();
             OrganizationRestClient::populateOrganizations();
+            break;
+        case 'node_forum_form':
+            //$form['sticky']['#access'] = true;
+            //dpm($form);
             break;
         case 'user_login':
         case 'user_login_form':
