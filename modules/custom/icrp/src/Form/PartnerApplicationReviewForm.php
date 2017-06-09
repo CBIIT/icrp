@@ -425,6 +425,8 @@ class PartnerApplicationReviewForm extends FormBase
             $message = "Application  for ".$this->getValue('organization_name')." is now archived.";
         }
 
+        drupal_set_message(t($message));
+
         $partial_form_values = [
             'id' => $this->sid,
             'is_completed' => $application_status == 'Completed',
@@ -437,14 +439,13 @@ class PartnerApplicationReviewForm extends FormBase
 
         \Drupal::service('event_dispatcher')
             ->dispatch('db_admin.add_partner_application', new GenericEvent($partial_form_values));
-        drupal_set_message(t($message));
     }
 
     /**
-     * Retrives the specified values from the submitted webform
+     * Retrieves the specified values from the submitted webform
      *
      * @param array $names - The names of the fields to retrieve
-     * @return array - An associative array containing key-value pairs for the supplied names
+     * @return array - An associative array containing key/value pairs for the supplied names
      */
     public function getFormValues(array $names): array {
 
