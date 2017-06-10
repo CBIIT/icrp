@@ -97,6 +97,10 @@ function icrp_preprocess_forums(&$variables) {
     //dpm($variables);
   }
 }
+function icrp_preprocess_forum_icon(&$variables) {
+  //drupal_set_message("icrp_preprocess_forum_icon");
+  //dpm($variables);
+}
 
 function processForumData($cell, $cell_index, $row_index, &$variables) {
   //dpm($cell);
@@ -105,12 +109,22 @@ function processForumData($cell, $cell_index, $row_index, &$variables) {
       //Column 0: Process Thread icon, Thread Name(link), and Summary
       //drupal_set_message("-->Process Column 0");
       //drupal_set_message("--->Theme:".$cell['content'][0]['#theme']);
+      //dpm($cell);
+      $new_thread = $cell['content'][0]['#first_new'];
+      $new_posts = $cell['content'][0]['#new_posts']; 
+
+      /* Create output for this cell */
+      //$html = '<div">';
+      //$html .= '</div>';
+
+      //$variables['rows'][$row_index]['cells'][$cell_index]['icrp_markup'] = $html;
+
       break;
     case 1:
       //Column 1: Process Thread icon, Thread Name(link), and Summary
       //drupal_set_message("-->Process Column 1");
       $html = '<div style="text-align:center;">';
-      $html .= '<div><span class="forum__posts" title="Number of replies in this thread.">';
+      $html .= '<div><span class="forum__posts">';
       $html .= $cell['content'][0]['#prefix'];
       $html .= '</span></div>';
       $html .= $cell['content'][0]['#markup'];

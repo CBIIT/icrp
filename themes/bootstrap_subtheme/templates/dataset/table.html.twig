@@ -121,7 +121,6 @@
           ]
         %}
         <tr{{ row.attributes.addClass(row_classes) }}>
-
           {% for cell in row.cells %}
             <{{ cell.tag }}{{ cell.attributes }} style="text-algin=center;">
             {% if loop.index == 2 %}
@@ -141,27 +140,23 @@
       </tr>
     </tbody>
   {% endif %}
+  <!-- Add Forum Icons to Forum Detail table -->
   <tfoot>
     <tr>
       <td colspan="3" style="vertical-align: middle;">
         <div class="topic-status-legend">
           <i class="fa fa-comment fa-2x fa-fw topic-status topic-status-new" title="New Posts available"></i><span>New posts</span>
-          <i class="fa fa-comment fa-2x fa-fw topic-status topic-status-nonew" title="No new posts available"></i><span>No new posts</span>
+          <i class="fa fa-comment fa-2x fa-fw topic-status topic-status-default" title="No new posts available"></i><span>No new posts</span>
           <i class="fa fa-comment fa-2x fa-fw topic-status topic-status-closed" title="Thread is closed for comments"></i><span>Closed</span>
         </div>
       </td>
     </tr>
   </tfoot>
 
-  {{ footer }}
-  <div>Legend before footer</div>
   {% if footer %}
     <tfoot>
       {% for row in footer %}
         <tr{{ row.attributes }}>
-          <td colspan="3">
-            Legend
-          </td>
           {% for cell in row.cells %}
             <{{ cell.tag }}{{ cell.attributes }}>
               {{- cell.content -}}

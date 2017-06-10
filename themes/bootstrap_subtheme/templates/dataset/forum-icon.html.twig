@@ -15,10 +15,18 @@
  *
  * @see template_preprocess_forum_icon()
  */
+
+/**
+ * Language difference between Drupal and ICRP:
+ * Closed Topic = Closed Thread
+ * New comments = New posts
+ * Normal topic = No new posts
+ */
+
 #}
-{% if icrp_debug %}
-	<span style="font-size:8px;font-weight:bold">forum-icon.html.twig</span><br>
-{% endif %}	
+
+{#
+
 {%
   set classes = [
     'forum__icon',
@@ -31,3 +39,27 @@
   {%- endif %}
   <span class="visually-hidden">{{ icon_title }}</span>
 </div>
+
+#}
+{% if icrp_debug %}
+	<span style="font-size:8px;font-weight:bold">forum-icon.html.twig</span><br>
+	{{ icon_status }}<br>
+	<script>console.info("forum-icon.html.twig");</script>
+  	<script>console.log({{ _context | json_encode | raw }});</script>
+{% endif %}	
+
+
+<div sytle="float:left;">
+	{% if icon_status == 'new' %}
+		<i class="fa fa-comment fa-2x fa-fw topic-status topic-status-new" title="New posts"></i>
+	{% elseif icon_status == 'default' %}
+		<i class="fa fa-comment fa-2x fa-fw topic-status topic-status-default" title="No new posts"></i>
+	{% elseif icon_status == 'closed' %}
+		<i class="fa fa-comment fa-2x fa-fw topic-status topic-status-closed" title="Closed thread"></i>
+	{% endif %}
+	{% if first_new -%}
+		<a id="new"></a>
+	{%- endif %}
+	<span class="visually-hidden">{{ icon_title }}</span>
+</div>
+
