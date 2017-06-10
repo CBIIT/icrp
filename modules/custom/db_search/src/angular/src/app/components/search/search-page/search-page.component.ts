@@ -142,14 +142,20 @@ export class SearchPageComponent implements AfterViewInit {
         .subscribe(e => {
           this.state[field] = this.storeService.get(field);
 
-          if (field === 'searchParameters') {
-            this.searchForm.setParameters(this.state[field], true);
-          }
+          switch(field) {
+            case 'searchParameters':
+              this.searchForm.setParameters(this.state[field], true);
+              break;
 
-          if (field === 'lastBudgetYear') {
-            Observable.of(this.state.lastBudgetYear.toString())
-              .delay(0)
-              .subscribe(year => this.chartsPanel.form.controls.conversion_year.patchValue(year));
+            case 'lastBudgetYear':
+              Observable.of(this.state.lastBudgetYear.toString())
+                .delay(0)
+                .subscribe(year => this.chartsPanel.form.controls.conversion_year.patchValue(year));
+              break;
+
+            case 'searchID':
+              this.sharedService.set('searchID', this.state.searchID);
+              break;
           }
       });
     }
@@ -236,6 +242,7 @@ export class SearchPageComponent implements AfterViewInit {
   getSortedPaginatedResults(parameters) {
     let params = deepCopy(parameters);
     this.storeService.set('sortPaginateParameters', parameters);
+    this.sharedService.set('searchID', this.state.searchID);
 
     params.search_id = this.state.searchID;
 
