@@ -38,6 +38,33 @@ table#forum { border: 1px solid #eaeaea; width: 100%; }
 
 #forum .last-reply { font-size: 12px; }
 */
+/* topic-status */
+.topic-status-legend {
+	padding:5px;
+	margin-left:20px;
+}
+.topic-status-legend > span {
+	vertical-align:top;
+}
+
+.topic-status {
+	text-shadow: 2px 2px 2px #ccc;
+	margin-right:5px;
+	margin-left:10px;
+}
+
+.topic-status-new {
+	color: #009E11;
+}
+.topic-status-nonew {
+	color: #BF9000;
+}
+.topic-status-closed {
+	color:grey;
+}
+
+
+/* forum */
 .node-forum .field-name-body { margin: 10px 0; }
 
 .node-forum .field-type-taxonomy-term-reference { float: none; }

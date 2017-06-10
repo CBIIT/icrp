@@ -54,7 +54,7 @@ function icrp_views_data() {
 }
 */
 function icrp_views_data_alter(array &$data) { 
-  drupal_set_message("icrp_views_data_alter");
+  //drupal_set_message("icrp_views_data_alter");
   //dpm($data);
 }
 
@@ -126,6 +126,8 @@ function processForumData($cell, $cell_index, $row_index, &$variables) {
 }
 
 function icrp_preprocess_table(&$variables) {
+
+  //dpm($variables);
 
   if(substr($variables['attributes']['id'], 0, 11) != 'forum-topic') {
     return;

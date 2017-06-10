@@ -12,13 +12,19 @@
 {% if breadcrumb %}
     <ol class="breadcrumb">
         {% for item in breadcrumb %}
+            {% if loop.index > 1 %}
             <li {{ item.attributes }}>
                 {% if item.url %}
-                    <a href="{{ item.url }}">{{ item.text }}</a>
+                    {% if item.url == '/forum' %}
+                        <a href="/forum/6">Forum</a>
+                    {% else %}
+                        <a href="{{ item.url }}">{{ item.text }}</a>
+                    {% endif %}
                 {% else %}
                     {{ item.text }}
                 {% endif %}
             </li>
+            {% endif %}
         {% endfor %}
     </ol>
 {% endif %}
