@@ -98,12 +98,36 @@ function last_forum_visit() {
 }
 
 function icrp_preprocess_forums(&$variables) {
+  //dpm($variables);
 
   if($variables['term']) {
     $variables['tid'] = $variables['term']->id();
     $variables['tname'] = $variables['term']->getName();
     $variables['tdescription'] = $variables['term']->getDescription();
     $variables['last_forum_visit'] = last_forum_visit();
+    switch($variables['tid']) {
+      case 7:
+        $variables['tfontawesome_icon'] = 'fa-newspaper-o';
+        break;
+      case 8:
+        $variables['tfontawesome_icon'] = 'fa-comments-o';
+        break;
+      case 9:
+        $variables['tfontawesome_icon'] = 'fa-group';
+        break;
+      case 10:
+        $variables['tfontawesome_icon'] = 'fa-file-code-o';
+        break;
+      case 11:
+        $variables['tfontawesome_icon'] = 'fa-dashboard';
+        break;
+      case 12:
+        $variables['tfontawesome_icon'] = 'fa-globe';
+        break;
+      case 13:
+        $variables['tfontawesome_icon'] = 'fa-database';
+        break;
+    }
 
     //$variables['newname'] = $variables['term']->value('name');
     //dpm($variables);
@@ -119,7 +143,7 @@ function getNodeIdFromMarkup($html) {
   return preg_replace("/[^0-9,.]/", "", $html);;
 }
 function getThreadNodeInfo($thread_node_id) {
-  $text_summary_max_length = 30;
+  $text_summary_max_length = 254;
   $node = \Drupal::entityTypeManager()->getStorage('node')->load($thread_node_id);
   //$summary = $node['#values']['body']['x-dfault'][0]['summary'];
 

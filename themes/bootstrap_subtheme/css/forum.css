@@ -68,6 +68,9 @@ table#forum { border: 1px solid #eaeaea; width: 100%; }
 
 .node-forum .field-type-taxonomy-term-reference { float: none; }
 
+.forum-topic-icon {
+	color: #e7b348;
+}
 .forum__topics {
 	background-color:#2A78E4;
 	border: 1px solid blue;

@@ -24,13 +24,18 @@
 {% endfor %}
 
 {% endif %}
-<h1>{{ tname }}</h1>
+
+{% if tid == '6' %} 
+	<h1>{{ tname }}</h1>
+{% else %}
+	<h1> <i class="fa {{ tfontawesome_icon }} fa-fw forum-topic-icon" title="New Posts available"></i> {{ tname }}</h1>
+{% endif %}
+
 <table style="width:100%;margin-bottom:5px;">
 	<tbody>
 		<tr style="min-height:30px;">
 			<td style="padding:3px;">{{ tdescription|raw }}</td>
 			<td style="text-align:right;vertical-align:bottom;white-space:nowrap;">
-
 		{% if tid == '6' %} 
 				<span class="pull-right" style="font-size:smaller;">{{ last_forum_visit }}</span>
 		{% else %}
