@@ -1,12 +1,11 @@
 <?php
 
+
 namespace Drupal\data_load\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Reader\CSV;
 use \PDO;
 
 class DataLoadController {
@@ -107,7 +106,6 @@ class DataLoadController {
         return self::addCorsHeaders(new JsonResponse($response));
     }
     
-    
     public function loaddata_mssql(Request $request) {
         $uploaddir = getcwd() . '/modules/custom/data_load/uploads/';
         $fileName = '';
@@ -127,25 +125,31 @@ class DataLoadController {
         try {
             $conn = self::getConnection();
             $conn->exec("TRUNCATE TABLE UploadWorkBook_Svet");
-            $stmt = $conn->prepare("INSERT INTO UploadWorkBook_Svet (
-            [AwardCode], [AwardStartDate], [AwardEndDate], [SourceId], [AltId],
-            [AwardTitle], [Category], [AwardType], [Childhood], [BudgetStartDate],
-            [BudgetEndDate], [CSOCodes], [CSORel], [SiteCodes], [SiteRel],
-            [AwardFunding], [IsAnnualized], [FundingMechanismCode], [FundingMechanism],
-            [FundingOrgAbbr], [FundingDiv], [FundingDivAbbr], [FundingContact],
-            [PILastName], [PIFirstName], [SubmittedInstitution], [City], [State],
-            [Country], [PostalZipCode], [InstitutionICRP], [Latitute], [Longitute],
-            [GRID], [TechAbstract], [PublicAbstract], [RelatedAwardCode], [RelationshipType],
-            [ORCID], [OtherResearcherID], [OtherResearcherIDType], [InternalUseOnly])
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO UploadWorkBook_Svet ([AwardCode], [AwardStartDate], [AwardEndDate], [SourceId], [AltId], [AwardTitle], [Category],
+            [AwardType], [Childhood], [BudgetStartDate], [BudgetEndDate], [CSOCodes], [CSORel], [SiteCodes], [SiteRel], [AwardFunding], [IsAnnualized], [FundingMechanismCode], [FundingMechanism],
+            [FundingOrgAbbr], [FundingDiv], [FundingDivAbbr], [FundingContact], [PILastName], [PIFirstName], [SubmittedInstitution], [City], [State], [Country], [PostalZipCode], [InstitutionICRP], [Latitute], [Longitute], [GRID],
+            [TechAbstract], [PublicAbstract], [RelatedAwardCode], [RelationshipType], [ORCID], [OtherResearcherID], [OtherResearcherIDType], [InternalUseOnly]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             
-            $reader =  new \PhpOffice\PhpSpreadsheet\Reader\CSV();
-            $reader->setDelimiter('|')->setSheetIndex(0);
-            $worksheet = $reader->load($uploaddir . $fileName);
-            $contents = $worksheet->getSheet(0)->toArray();
-            for ($i = 1; $i < count($contents); $i++) {
-                $stmt->execute($contents[$i]);
+            $csvReader = new CSVReader($uploaddir . $fileName, 42, '|');
+            try {
+                $csvReader->checkHeaders();
+            } catch (InvalidFileFormatException $e) {
+                $response = new Response(
+                'Content',
+                Response::HTTP_BAD_REQUEST,
+                array('content-type' => 'text/html')
+                );
+                $response->setContent($e->getMessage() );
+                $csvReader->close();
+                return self::addCorsHeaders($response);
             }
+            
+            while( ($lineArr = $csvReader->getNextLine()) != false ) {
+                $stmt->execute($lineArr);
+            }
+            
+            $csvReader->close();
             
             $rowCount = $conn->query("SELECT COUNT(*) FROM UploadWorkBook_Svet")->fetchColumn();
             $stmt = $conn->prepare("SELECT TOP(25) * FROM UploadWorkBook_Svet ORDER BY InternalId");
