@@ -123,7 +123,10 @@
         <tr{{ row.attributes.addClass(row_classes) }}>
           {% for cell in row.cells %}
             <{{ cell.tag }}{{ cell.attributes }} style="text-algin=center;">
-            {% if loop.index == 2 %}
+            {% if loop.index == 1 %}
+              {{- cell.content -}}
+              {{ cell.icrp_markup |raw }}
+            {% elseif loop.index == 2 %}
               {{ cell.icrp_markup |raw }}
             {% else %}
               {{- cell.content -}}

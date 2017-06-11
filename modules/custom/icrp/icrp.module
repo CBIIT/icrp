@@ -53,6 +53,18 @@ function icrp_views_data() {
   drupal_set_message("icrp_views_data");
 }
 */
+function makeRandomString($max=6) {
+    $i = 0; //Reset the counter.
+    $possible_keys = " 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    $keys_length = strlen($possible_keys);
+    $str = ""; //Let's declare the string, to add later.
+    while($i<$max) {
+        $rand = mt_rand(1,$keys_length-1);
+        $str.= $possible_keys[$rand];
+        $i++;
+    }
+    return $str;
+}
 function icrp_views_data_alter(array &$data) { 
   //drupal_set_message("icrp_views_data_alter");
   //dpm($data);
@@ -101,6 +113,31 @@ function icrp_preprocess_forum_icon(&$variables) {
   //drupal_set_message("icrp_preprocess_forum_icon");
   //dpm($variables);
 }
+function getNodeIdFromMarkup($html) {
+  //remove all non numeric numbers from $html to get the nodeId.  Weird but true
+  //Did not see node id anywere except inside #markup.
+  return preg_replace("/[^0-9,.]/", "", $html);;
+}
+function getThreadNodeInfo($thread_node_id) {
+  $text_summary_max_length = 30;
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($thread_node_id);
+  //$summary = $node['#values']['body']['x-dfault'][0]['summary'];
+
+  //dpm($node);
+  $summary = "Hello";
+
+  //$summary =  $node->get('summary')->value; 
+  $body =  $node->get('body')->value; 
+  $summary_raw =  $node->get('body')->summary; 
+  if($summary_raw == "") {
+    $summary = text_summary(rtrim(strip_tags($body)), NULL, $text_summary_max_length);
+  } else {
+    $summary = text_summary($summary_raw, NULL,  $text_summary_max_length);
+
+  }
+
+  return array($node->getTitle(), "<b>".$summary."</b></br>Body: ".$body."</br>Summary Raw: ".$summary_raw);
+}
 
 function processForumData($cell, $cell_index, $row_index, &$variables) {
   //dpm($cell);
@@ -110,14 +147,25 @@ function processForumData($cell, $cell_index, $row_index, &$variables) {
       //drupal_set_message("-->Process Column 0");
       //drupal_set_message("--->Theme:".$cell['content'][0]['#theme']);
       //dpm($cell);
+
       $new_thread = $cell['content'][0]['#first_new'];
       $new_posts = $cell['content'][0]['#new_posts']; 
-
+/*
+<div class="forum__title">
+  <div><a href="/node/599" hreflang="en">Thread 9</a></div><div>
+    <span>By <span title="View user profile." href="/user/6" lang="" about="/user/6" typeof="Person" property="schema:name" datatype="">ICRP Manager</span> 22 hours 45 minutes ago</span>
+  </div>
+</div>
+*/
+      $thread_node_id = getNodeIdFromMarkup(substr($cell['content'][1]['#markup'], 0, 60));
+      list($thread_title, $thread_summary) = getThreadNodeInfo($thread_node_id);
       /* Create output for this cell */
-      //$html = '<div">';
-      //$html .= '</div>';
+      $html = '<span>';
+      $html .= '  <div class="forum-thread-title"><a href="/node/'.$thread_node_id.'" hreflang="en">'.$thread_title.'</a></div>';
+      $html .= '<div class=".forum-thread-title">'.$thread_summary.'</div>';
+      $html .= '</span>';
 
-      //$variables['rows'][$row_index]['cells'][$cell_index]['icrp_markup'] = $html;
+      $variables['rows'][$row_index]['cells'][$cell_index]['icrp_markup'] = $html;
 
       break;
     case 1:

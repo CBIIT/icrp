@@ -45,12 +45,6 @@
  * @see template_process()
  */
 #}
-{% if icrp_debug %}
-  logged_in: {{ logged_in ? 'true' : 'false'}}<br>
-  <span class="icrp-debug">block--system.html.twig</span><br>
-  <script>console.info("block--system.html.twig");</script>
-  <script>console.log({{ _context | json_encode | raw }});</script>
-{% endif %}
 
 {% block content %}
   {{ content }}
