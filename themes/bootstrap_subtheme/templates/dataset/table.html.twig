@@ -100,12 +100,21 @@
     <thead>
       <tr>
         {% for cell in header %}
+          {{ cell.active_table_sort }}
+          {{ cell.attributes }}
           {%
             set cell_classes = [
               cell.active_table_sort ? 'is-active',
             ]
           %}
-          <{{ cell.tag }}{{ cell.attributes.addClass(cell_classes) }}>
+          {% if loop.index == 1 %}
+            {% set cell_bs_width = ['col-sm-6'] %}
+          {% elseif loop.index == 2 %}
+            {% set cell_bs_width = ['col-sm-1'] %}
+          {% elseif loop.index == 3 %}
+            {% set cell_bs_width = ['col-sm-5'] %}
+          {% endif %}
+          <{{ cell.tag }}{{ cell.attributes.addClass(cell_classes).addClass(cell_bs_width) }}>
             {{- cell.content -}}
           </{{ cell.tag }}>
         {% endfor %}
@@ -133,6 +142,8 @@
               {{- cell.content -}}
             {% endif %}
             </{{ cell.tag }}>
+          
+
           {% endfor %}
         </tr>
       {% endfor %}

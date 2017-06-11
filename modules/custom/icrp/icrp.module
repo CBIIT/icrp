@@ -146,10 +146,6 @@ function getThreadNodeInfo($thread_node_id) {
   $text_summary_max_length = 254;
   $node = \Drupal::entityTypeManager()->getStorage('node')->load($thread_node_id);
   //$summary = $node['#values']['body']['x-dfault'][0]['summary'];
-
-  //dpm($node);
-  $summary = "Hello";
-
   //$summary =  $node->get('summary')->value; 
   $body =  $node->get('body')->value; 
   $summary_raw =  $node->get('body')->summary; 
@@ -159,8 +155,8 @@ function getThreadNodeInfo($thread_node_id) {
     $summary = text_summary($summary_raw, NULL,  $text_summary_max_length);
 
   }
-
-  return array($node->getTitle(), "<b>".$summary."</b></br>Body: ".$body."</br>Summary Raw: ".$summary_raw);
+  //return array($node->getTitle(), "<b>".$summary."</b></br>Body: ".$body."</br>Summary Raw: ".$summary_raw);
+  return array($node->getTitle(), $summary);
 }
 
 function processForumData($cell, $cell_index, $row_index, &$variables) {
@@ -211,18 +207,44 @@ function processForumData($cell, $cell_index, $row_index, &$variables) {
   }
 }
 
+function changeHeaderTitle($header_title, $forum_id, $sort_order) {
+  drupal_set_message($sort_order);
+
+  //Change header name but maintain dynamic sorting functionality
+  $generatedLink = '<a href="/forum/'.$forum_id.'?sort=asc&amp;order=Topic" title="sort by '.$header_title.'">'.$header_title.'</a>';
+  if($sort_order == "descending") {
+    $generatedLink = '
+      <a href="/forum/'.$forum_id.'?sort=asc&amp;order=Topic" title="sort by '.$header_title.'">'.$header_title.'
+        <span class="tablesort tablesort--asc"><span class="visually-hidden">Sort ascending</span></span>
+      </a>
+    ';
+  }
+  if($sort_order == "ascending") {
+    $generatedLink = '
+      <a href="/forum/'.$forum_id.'?sort=desc&amp;order=Topic" title="sort by '.$header_title.'">'.$header_title.'
+        <span class="tablesort tablesort--desc"><span class="visually-hidden">Sort descending</span></span>
+      </a>  
+    ';
+  }
+  return $generatedLink;
+}
+
+
 function icrp_preprocess_table(&$variables) {
 
-  //dpm($variables);
+  dpm($variables);
 
   if(substr($variables['attributes']['id'], 0, 11) != 'forum-topic') {
     return;
   }
 
-  //dpm($variables);
   $forum_id = substr($variables['attributes']['id'], 12);
-  // Header: Change Topic column to Thread
-  $variables['header'][0]['content']->setGeneratedLink('Thread');
+  $sort_order = "";
+  if(isset($variables['header'][0]['attributes']->storage()['aria-sort'])) {
+    $sort_order = $variables['header'][0]['attributes']->storage()['aria-sort']->value();
+  }
+
+  $variables['header'][0]['content']->setGeneratedLink(changeHeaderTitle("Thread", $forum_id, $sort_order));
   //Customize Rows and Cells 
   //dpm($variables['rows']);
   //drupal_set_message("Row Count: ".count($variables['rows']));
