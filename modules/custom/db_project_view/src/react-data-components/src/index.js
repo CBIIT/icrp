@@ -93,7 +93,11 @@ fetch('/getFundingOrg')
       let obj = {};
       for (let key in row) {
         if (key === 'IsAnnualized') {
-          obj[key] = row[key] === '1' ? 'YES' : 'NO'
+          obj[key] = row[key] === '1' ? 'YES' : 'NO';
+        }
+
+        else if (key === 'LastImportDate') {
+          obj[key] = row[key].split(' ')[0];
         }
 
         else {
