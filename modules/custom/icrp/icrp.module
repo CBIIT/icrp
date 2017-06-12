@@ -65,6 +65,7 @@ function makeRandomString($max=6) {
     }
     return $str;
 }
+
 function icrp_views_data_alter(array &$data) { 
   //drupal_set_message("icrp_views_data_alter");
   //dpm($data);
@@ -158,57 +159,71 @@ function getThreadNodeInfo($thread_node_id) {
   //return array($node->getTitle(), "<b>".$summary."</b></br>Body: ".$body."</br>Summary Raw: ".$summary_raw);
   return array($node->getTitle(), $summary);
 }
+function lastComment($node_id) {
+  $comment = "This is the last comment for ".$node_id;
 
-function processForumData($cell, $cell_index, $row_index, &$variables) {
+  $query = "select ccb.comment_body_value FROM comment_entity_statistics ces, comment__comment_body ccb ";
+  $query .= "where ces.cid = ccb.entity_id and ces.entity_id = {$node_id} ";
+  $query .= "order by ces.cid desc limit 1;";
+
+  $result=db_query($query);
+  $row = $result->fetchObject();
+  $comment = "<i>No replies</i>";
+  if(isset($row->comment_body_value)) {
+    $comment = $row->comment_body_value;
+
+  }
+
+  return rtrim(strip_tags($comment));  
+}
+
+function processForumData($cell, $cell_index, $row_index, &$variables, $thread_node_id) {
   //dpm($cell);
   switch($cell_index) {
     case 0:
       //Column 0: Process Thread icon, Thread Name(link), and Summary
-      //drupal_set_message("-->Process Column 0");
-      //drupal_set_message("--->Theme:".$cell['content'][0]['#theme']);
-      //dpm($cell);
 
-      $new_thread = $cell['content'][0]['#first_new'];
-      $new_posts = $cell['content'][0]['#new_posts']; 
-/*
-<div class="forum__title">
-  <div><a href="/node/599" hreflang="en">Thread 9</a></div><div>
-    <span>By <span title="View user profile." href="/user/6" lang="" about="/user/6" typeof="Person" property="schema:name" datatype="">ICRP Manager</span> 22 hours 45 minutes ago</span>
-  </div>
-</div>
-*/
-      $thread_node_id = getNodeIdFromMarkup(substr($cell['content'][1]['#markup'], 0, 60));
       list($thread_title, $thread_summary) = getThreadNodeInfo($thread_node_id);
       /* Create output for this cell */
       $html = '<span>';
       $html .= '  <div class="forum-thread-title"><a href="/node/'.$thread_node_id.'" hreflang="en">'.$thread_title.'</a></div>';
       $html .= '<div class=".forum-thread-title">'.$thread_summary.'</div>';
       $html .= '</span>';
-
       $variables['rows'][$row_index]['cells'][$cell_index]['icrp_markup'] = $html;
 
       break;
     case 1:
       //Column 1: Process Thread icon, Thread Name(link), and Summary
-      //drupal_set_message("-->Process Column 1");
-      $html = '<div style="text-align:center;">';
+      $replies = str_replace("<br />","", $cell['content'][0]['#markup']);
+      //$replies = str_replace("posts","replies", $replies);
+      //$replies = str_replace("post","reply", $replies);
+
+      $html = '<div style="text-align:center;padding-top:10px;">';
       $html .= '<div><span class="forum__posts">';
       $html .= $cell['content'][0]['#prefix'];
       $html .= '</span></div>';
-      $html .= $cell['content'][0]['#markup'];
+      $html .= '<div style="text-align:center;padding-top:10px; white-space: nowrap;">'.$replies.'</div>';
       $html .= '</div>';
       $variables['rows'][$row_index]['cells'][$cell_index]['icrp_markup'] = $html;
       break;
     case 2:
-      //Column 1: Process Thread icon, Thread Name(link), and Summary
-      //drupal_set_message("-->Process Column 2");
+      //Column 2: Process Thread icon, Thread Name(link), and Summary
+      //$thread_node_id = getNodeIdFromMarkup(substr($cell['content'][1]['#markup'], 0, 60));
+      // Set #num_posts to cell reference so we can remove the /n
+      $variables['rows'][$row_index]['cells'][$cell_index]['reply_posts']  = $variables['rows'][$row_index]['cells'][0]['content'][0]['#num_posts'] ;
+      $variables['rows'][$row_index]['cells'][$cell_index]['last_commented_by'] = "Chris Kneisler";
+
+      //$variables['rows'][$row_index]['cells'][$cell_index]['#reply_posts'] = $variables['rows'][$row_index]['cells']
+      $html = '<div>';
+      $html .= lastComment($thread_node_id);
+      $html .= '</div>';
+      $variables['rows'][$row_index]['cells'][$cell_index]['icrp_markup'] = $html;
       break;
 
   }
 }
 
 function changeHeaderTitle($header_title, $forum_id, $sort_order) {
-  drupal_set_message($sort_order);
 
   //Change header name but maintain dynamic sorting functionality
   $generatedLink = '<a href="/forum/'.$forum_id.'?sort=asc&amp;order=Topic" title="sort by '.$header_title.'">'.$header_title.'</a>';
@@ -232,76 +247,25 @@ function changeHeaderTitle($header_title, $forum_id, $sort_order) {
 
 function icrp_preprocess_table(&$variables) {
 
-  dpm($variables);
-
+  // Exit if not preprocess for forum-topic
   if(substr($variables['attributes']['id'], 0, 11) != 'forum-topic') {
     return;
   }
-
+  //Change the Header from Topic to Thread
   $forum_id = substr($variables['attributes']['id'], 12);
   $sort_order = "";
   if(isset($variables['header'][0]['attributes']->storage()['aria-sort'])) {
     $sort_order = $variables['header'][0]['attributes']->storage()['aria-sort']->value();
   }
-
   $variables['header'][0]['content']->setGeneratedLink(changeHeaderTitle("Thread", $forum_id, $sort_order));
   //Customize Rows and Cells 
-  //dpm($variables['rows']);
-  //drupal_set_message("Row Count: ".count($variables['rows']));
   foreach($variables['rows'] as $row_index => $row) {
-    //drupal_set_message("row number: ".$row_index);
+    $thread_node_id = getNodeIdFromMarkup(substr($row['cells'][0]['content'][1]['#markup'], 0, 60));
     foreach($row['cells'] as $cell_index => $cell) {
-      //drupal_set_message("->cell number: ".$cell_index);
-      processForumData($cell, $cell_index, $row_index, $variables);
-
+      processForumData($cell, $cell_index, $row_index, $variables, $thread_node_id);
     }
   }
-  //Get Node ID for this row
-  
-  //$link = new GeneratedLink();
-  //$link->setGeneratedLink('<a href="/forum/'.$forum_id.'?sort=asc&amp;order=Topic" title="sort by Thread">Thread</a>');
-
-  //$variables['header'][0]['content'] = $link;
-
-  //$gl = new GeneratedLink()->setGeneratedLink('<a hef="http://www.example.com">test</a>');
-  //dpm($link);
 }
-
-/*
-  if ($variables['forums_defined'] = count($variables['forums']) || count($variables['parents'])) {
-    if (!empty($variables['forums'])) {
-      $variables['forums'] = array(
-        '#theme' => 'forum_list',
-        '#forums' => $variables['forums'],
-        '#parents' => $variables['parents'],
-        '#tid' => $variables['tid'],
-      );
-    }
-
-    if ($variables['term'] && empty($variables['term']->forum_container->value) && !empty($variables['topics'])) {
-      $forum_topic_list_header = $variables['header'];
-
-      $table = array(
-        '#theme' => 'table__forum_topic_list',
-        '#responsive' => FALSE,
-        '#attributes' => array('id' => 'forum-topic-' . $variables['tid']),
-        '#header' => array(),
-        '#rows' => array(),
-      );
-
-      if (!empty($forum_topic_list_header)) {
-        $table['#header'] = $forum_topic_list_header;
-      }
-*/
-
-/*
-function icrp_user_login($account) {
-    // We want to redirect user on login.
-    $response = new RedirectResponse("mypath");
-    $response->send();
-    return;
-}
-*/
 
 /**
  * Implements hook_preprocess_HOOK() for block templates.

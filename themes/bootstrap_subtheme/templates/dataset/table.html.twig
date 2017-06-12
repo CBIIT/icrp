@@ -100,8 +100,6 @@
     <thead>
       <tr>
         {% for cell in header %}
-          {{ cell.active_table_sort }}
-          {{ cell.attributes }}
           {%
             set cell_classes = [
               cell.active_table_sort ? 'is-active',
@@ -138,8 +136,13 @@
               {{ cell.icrp_markup |raw }}
             {% elseif loop.index == 2 %}
               {{ cell.icrp_markup |raw }}
-            {% else %}
-              {{- cell.content -}}
+            {% elseif loop.index == 3 %}
+              {{ cell.icrp_markup |raw }}
+              {% if cell.reply_posts > 0 %}
+                <div style="margin-top:10px;">
+                    {{- cell.content -}}
+                </div>
+              {% endif %}
             {% endif %}
             </{{ cell.tag }}>
           
