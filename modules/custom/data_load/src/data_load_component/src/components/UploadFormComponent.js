@@ -32,8 +32,8 @@ class UploadFormComponent extends Component {
     }
 
     /** Sends the response up to the parent */
-    updateParent(stats, projects) {
-        this.props.onFileUploadSuccess(stats, projects);
+    updateParent(stats, columns, projects) {
+        this.props.onFileUploadSuccess(stats, columns, projects);
     }
 
     /** Submission date change handler */
@@ -101,11 +101,12 @@ class UploadFormComponent extends Component {
         data.append("data", fileData, uuidV4() + '.csv');
         data.append("uploadType", this.state.uploadType);
         var that = this;
-        let response = await fetch('http://icrp-dataload/loaddata_mssql/', { method: 'POST', body: data });
+        let response = await fetch('http://icrp-dataload/loaddata_mssql/', {  method: 'POST', body: data });
 
         if (response.ok) {
             let result = await response.json();
             const totalRows = result.rowCount;
+            const columns = result.columns;
             const projects = result.projects;
             const totalPages = Math.ceil(totalRows / 25);
 
@@ -116,7 +117,7 @@ class UploadFormComponent extends Component {
                 showingFrom: 1,
                 showingTo: 25
             }
-            that.updateParent(stats, projects);
+            that.updateParent(stats, columns, projects);
         } else {
             // response.status, response.statusText
             let message = await response.text();

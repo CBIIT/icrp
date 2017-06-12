@@ -198,8 +198,8 @@ class DataTableComponent extends Component {
                 latitude={row.Latitute}
                 longitude={row.Longitute}
                 grid={row.GRID}
-                techAbstract= 'details' //{row.TechAbstract}
-                publicAbstract= 'details' //{row.PublicAbstract}
+                techAbstract='details' //{row.TechAbstract}
+                publicAbstract='details' //{row.PublicAbstract}
                 relatedAwardCode={row.RelatedAwardCode}
                 relationshipType={row.RelationshipType}
                 orcid={row.ORCID}
@@ -210,7 +210,7 @@ class DataTableComponent extends Component {
         return (
             <div>
                 Total Records: {this.props.stats.totalRows}
-                < Table responsive striped bordered condensed hover>
+                < Table striped bordered condensed hover>
                     <thead>
                         <TableHeader />
                     </thead>

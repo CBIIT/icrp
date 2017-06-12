@@ -49,11 +49,11 @@ class CSVReader {
                     }
                     
                     // The end of the line was reached. Convert to array and return
-                    $lineArr = explode($this->delimiter, $line, $this->numColumns);
+                    $lineArr = explode($this->delimiter, $line);
                     $lineArr = array_map(function($value) {
                         return $value === "" ? NULL : $value;
                     }, $lineArr);
-                    return $lineArr;
+                    return array_slice($lineArr, 0, $this->numColumns);
                 }
                 // Continue reading...
                 

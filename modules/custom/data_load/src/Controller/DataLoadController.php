@@ -92,10 +92,21 @@ class DataLoadController {
     public function getdata_mssql(Request $request) {
         $page = $request->request->get(page);
         
+        $sortDirectionKeys = array("ASC", "DESC");
+        $key = array_Search($request->request->get(sortDirection), $sortDirectionKeys);
+        $sortDirection = $sortDirectionKeys[$key];
+        
+        $orderByKeys = array("InternalId", "AwardCode", "AwardStartDate", "AwardEndDate", "SourceId", "AltId", "AwardTitle", "Category",
+        "AwardType", "Childhood", "BudgetStartDate", "BudgetEndDate", "CSOCodes", "CSORel", "SiteCodes", "SiteRel", "AwardFunding", "IsAnnualized", "FundingMechanismCode", "FundingMechanism",
+        "FundingOrgAbbr", "FundingDiv", "FundingDivAbbr", "FundingContact", "PILastName", "PIFirstName", "SubmittedInstitution", "City", "State", "Country", "PostalZipCode", "InstitutionICRP", "Latitute", "Longitute", "GRID",
+        "TechAbstract", "PublicAbstract", "RelatedAwardCode", "RelationshipType", "ORCID", "OtherResearcherID", "OtherResearcherIDType", "InternalUseOnly");
+        $key = array_Search($request->request->get(sortDirection), $orderByKeys);
+        $sortColumn = $orderByKeys[$key];
+        
         $conn = self::getConnection();
         
         $offset = ($page - 1) * 25;
-        $stmt = $conn->prepare("SELECT * FROM  ( SELECT ROW_NUMBER() OVER(ORDER BY InternalId) NUM, * FROM UploadWorkBook_Svet ) A WHERE NUM > ? AND NUM <= ?");
+        $stmt = $conn->prepare("SELECT * FROM  ( SELECT ROW_NUMBER() OVER(ORDER BY $sortColumn $sortDirection) NUM, * FROM UploadWorkBook_Svet ) A WHERE NUM > ? AND NUM <= ?");
         $stmt->execute(array($offset, $offset + 25));
         $projects = $stmt->fetchAll();
         $stmt = null;
@@ -152,13 +163,25 @@ class DataLoadController {
             $csvReader->close();
             
             $rowCount = $conn->query("SELECT COUNT(*) FROM UploadWorkBook_Svet")->fetchColumn();
-            $stmt = $conn->prepare("SELECT TOP(25) * FROM UploadWorkBook_Svet ORDER BY InternalId");
+            $stmt = $conn->prepare("SELECT ORDINAL_POSITION, COLUMN_NAME FROM icrp_dataload.INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'UploadWorkBook_Svet' ORDER BY ORDINAL_POSITION");
+            $stmt->execute();
+            $columns = $stmt->fetchAll();
+            
+            $stmt = $conn->prepare("SELECT TOP(25) " . implode(", ", array_column($columns, 'COLUMN_NAME')) . " FROM UploadWorkBook_Svet ORDER BY InternalId");
+            
             $stmt->execute();
             $projects = $stmt->fetchAll();
+            
+            $columnsResult = [];
+            foreach ($columns as $columnObjArr ) {
+                $obj = array('key' => $columnObjArr['COLUMN_NAME'], 'name' => $columnObjArr['COLUMN_NAME'], 'width' => 200, 'resizable' => true, 'filterable' => true, 'sortable' => true);
+                array_push($columnsResult, $obj);
+            }
+            
             $stmt = null;
             $conn = null;
             
-            $response=array('rowCount' => $rowCount, 'projects' => $projects);
+            $response=array('rowCount' => $rowCount, 'columns' => $columnsResult, 'projects' => $projects);
         }
         catch(PDOException $e)
         {

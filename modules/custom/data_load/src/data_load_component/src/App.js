@@ -9,6 +9,7 @@ import DataTableComponent from './components/DataTableComponent';
 import NavigationComponent from './components/NavigationComponent';
 import ValidationConfiguratorComponent from './components/ValidationConfiguratorComponent';
 import ValidationSummaryComponent from './components/ValidationSummaryComponent';
+import NewTableComponent from './components/NewTableComponent';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import './App.css';
@@ -20,17 +21,21 @@ class App extends Component {
     this.state = {
       showDataTable: false,
       stats: {},
+      columns: [],
       projects: [],
       tab2Disabled: true,
-      tab3Disabled: true
+      tab3Disabled: true,
+      sortColumn: 'InternalId',
+      sortDirection: 'ASC'
 
     }
     this.handleFileUpload = this.handleFileUpload.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
+    this.handleSortChange = this.handleSortChange.bind(this);
   }
 
-  handleFileUpload(stats, projects) {
-    this.setState({ stats: stats, projects: projects, showDataTable: stats ? true : false, tab2Disabled: stats ? false : true });
+  handleFileUpload(stats, columns, projects) {
+    this.setState({ stats: stats, columns: columns, projects: projects, showDataTable: stats ? true : false, tab2Disabled: stats ? false : true });
   }
 
   handlePageChange(page, projects) {
@@ -44,6 +49,10 @@ class App extends Component {
     this.setState({ stats: newStats, projects: projects });
   }
 
+  handleSortChange(sortColumn, sortDirection, projects) {
+    this.setState({ sortColumn: sortColumn, sortDirection: sortDirection, projects: projects });
+  }
+
   render() {
     return (
       <div>
@@ -51,8 +60,10 @@ class App extends Component {
           <Tab eventKey={1} title="Load Workbook">
             <div className="tab-container">
               <UploadFormComponent onFileUploadSuccess={this.handleFileUpload} />
+              {/*{this.state.showDataTable ?
+                <DataTableComponent stats={this.state.stats} projects={this.state.projects} onPageChange={this.handlePageChange} /> : null}*/}
               {this.state.showDataTable ?
-                <DataTableComponent stats={this.state.stats} projects={this.state.projects} onPageChange={this.handlePageChange} /> : null}
+                <NewTableComponent stats={this.state.stats} sortColumn={this.state.sortColumn} sortDirection={this.state.sortDirection} columns={this.state.columns} projects={this.state.projects} onSortChange={this.handleSortChange} onPageChange={this.handlePageChange} /> : null}
 
               <NavigationComponent hasBackButton={false} hasNextButton={true} nextDisabled={this.state.tab2Disabled} />
 
