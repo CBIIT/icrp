@@ -140,7 +140,7 @@ class DatabaseReview {
           'project_cancer_type_count'           => $counts['ProjectCancerTypeCount'],
           'project_type_count'                  => $counts['Project_ProjectTypeCount'],
           'project_abstract_count'              => $counts['ProjectAbstractCount'],
-          'project_search_count'                => $counts['ProjectSearchCount'],
+//        'project_search_count'                => $counts['ProjectSearchCount'],
         ];
       }
     }
