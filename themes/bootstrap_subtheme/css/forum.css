@@ -38,10 +38,39 @@ table#forum { border: 1px solid #eaeaea; width: 100%; }
 
 #forum .last-reply { font-size: 12px; }
 */
+/* topic-status */
+.topic-status-legend {
+	padding:5px;
+	margin-left:20px;
+}
+.topic-status-legend > span {
+	vertical-align:top;
+}
+
+.topic-status {
+	text-shadow: 2px 2px 2px #ccc;
+	margin-right:5px;
+	margin-left:10px;
+}
+
+.topic-status-new {
+	color: #009E11;
+}
+.topic-status-default {
+	color: #BF9000;
+}
+.topic-status-closed {
+	color:grey;
+}
+
+/* forum */
 .node-forum .field-name-body { margin: 10px 0; }
 
 .node-forum .field-type-taxonomy-term-reference { float: none; }
 
+.forum-topic-icon {
+	color: #e7b348;
+}
 .forum__topics {
 	background-color:#2A78E4;
 	border: 1px solid blue;
@@ -60,6 +89,17 @@ table#forum { border: 1px solid #eaeaea; width: 100%; }
 #edit-taxonomy-forums-wrapper {
 	display:none;
 }
+.forum__title {
+	display:none;
+}
+.forum-thread-title {
+	font-size:large;
+	font-weight:bold;
+}
+.forum-thread-summary {
+/*	font-weight:bold; */
+}
+
 /* forum topic (i.e. thread) */
 /*
 .table-forum-topic thead tr th, .table-forum-topic thead tr td { background: #FFE599; font-weight: 700; border:none; padding: 11px; }

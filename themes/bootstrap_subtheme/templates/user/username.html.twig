@@ -18,8 +18,12 @@
  * @ingroup themeable
  */
 #}
+
+{#
 {% if link_path -%}
   <a{{ attributes }}>{{ name }}{{ extra }}</a>
 {%- else -%}
   <span{{ attributes }}>{{ name }}{{ extra }}</span>
 {%- endif -%}
+#}
+<span{{ attributes }}>{{ name }}{{ extra }}</span>
