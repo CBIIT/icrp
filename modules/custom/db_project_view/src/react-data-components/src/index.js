@@ -97,7 +97,8 @@ fetch('/getFundingOrg')
         }
 
         else if (key === 'LastImportDate') {
-          obj[key] = row[key].split(' ')[0];
+          let lastImportDate = row[key];
+          obj[key] = lastImportDate ? lastImportDate.split(' ')[0] : null;
         }
 
         else {
