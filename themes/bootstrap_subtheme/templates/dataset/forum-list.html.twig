@@ -129,7 +129,7 @@
         {{ forum.last_reply| raw | slice(0,1150) }}<br>
 #}
         {% if (forum.num_topics == 0) %}
-          <span class="forum__last-reply">No Posts</span>
+          <span class="forum__last-reply" style="font-style:italic;">No Posts</span>
         {% else %}
           <span class="forum__last-reply">{{ forum.last_reply|raw }}</span>
         {% endif %}

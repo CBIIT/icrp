@@ -170,11 +170,11 @@ function lastComment($node_id) {
   $row = $result->fetchObject();
   $comment = "<i>No replies</i>";
   if(isset($row->comment_body_value)) {
-    $comment = $row->comment_body_value;
+    $comment = strip_tags($row->comment_body_value);
 
   }
 
-  return rtrim(strip_tags($comment));  
+  return rtrim($comment);  
 }
 
 function processForumData($cell, $cell_index, $row_index, &$variables, $thread_node_id) {
@@ -211,8 +211,6 @@ function processForumData($cell, $cell_index, $row_index, &$variables, $thread_n
       //$thread_node_id = getNodeIdFromMarkup(substr($cell['content'][1]['#markup'], 0, 60));
       // Set #num_posts to cell reference so we can remove the /n
       $variables['rows'][$row_index]['cells'][$cell_index]['reply_posts']  = $variables['rows'][$row_index]['cells'][0]['content'][0]['#num_posts'] ;
-      $variables['rows'][$row_index]['cells'][$cell_index]['last_commented_by'] = "Chris Kneisler";
-
       //$variables['rows'][$row_index]['cells'][$cell_index]['#reply_posts'] = $variables['rows'][$row_index]['cells']
       $html = '<div>';
       $html .= lastComment($thread_node_id);
@@ -280,6 +278,11 @@ function icrp_preprocess_block(&$variables) {
   */
 }
 
+function getForumTitle($forum_node_id) {
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($forum_node_id);
+  return $node->getTitle();
+}
+
 function icrp_preprocess_menu_local_action(&$variables) {
   $link = $variables['element']['#link'];
   $link += array(
@@ -295,6 +298,27 @@ function icrp_preprocess_menu_local_action(&$variables) {
     '#options' => $link['localized_options'],
     '#url' => $link['url'],
   );
+}
+
+function icrp_preprocess_node(&$variables) {
+  // Exit if node type is not a forum
+  $node = $variables['node']; 
+  if($node->getType() != "forum") {
+    return;
+  }
+  $variables['ttitle'] = $node->getTitle();
+  $created_timestamp = DrupalDateTime::createFromTimestamp($node->getCreatedTime());
+  //$last_visit_timestamp->setTimezone(timezone_open(drupal_get_user_timezone()));
+  $variables['tthread_created_time'] = $created_timestamp->format("D, F j, Y g:i A");
+
+  $variables['tstatus'] = $node->get('status')->value;
+
+  //$variables['tforum_tid'] = $node->get('forum_tid');
+  //$variables['tforum_title'] = getForumTitle($node->get('forum_tid'));
+
+  //drupal_set_message("We got a forum node");
+  //drupal_set_message($node->getType());
+  //dpm($variables);
 }
 
 function icrp_preprocess_forums__topics(&$variables) {
@@ -318,7 +342,7 @@ function icrp_preprocess_forum_list(&$variables) {
 function icrp_template_preprocess_default_variables_alter(&$variables) {
   $variables['icrp_debug'] = false;
   //$variables['icrp_debug'] = true;
-  $variables['is_admin'] = 'Dont know';
+  //$variables['is_admin'] = 'Dont know';
   //drupal_set_message("We got something now");
   //var_dump($variables);
 }
