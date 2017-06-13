@@ -306,19 +306,31 @@ function icrp_preprocess_node(&$variables) {
   if($node->getType() != "forum") {
     return;
   }
+
   $variables['ttitle'] = $node->getTitle();
   $created_timestamp = DrupalDateTime::createFromTimestamp($node->getCreatedTime());
   //$last_visit_timestamp->setTimezone(timezone_open(drupal_get_user_timezone()));
   $variables['tthread_created_time'] = $created_timestamp->format("D, F j, Y g:i A");
-
   $variables['tstatus'] = $node->get('status')->value;
+  $variables['tnid'] = $node->get('nid')->value;
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($variables['tnid']);
+  dpm($node);
+  $variables['tbody'] =  $node->get('body')->value; 
+  $variables['tcomment_forum']['comment_count'] =  $node->get('comment_forum')->comment_count; 
+  $variables['tcomment_forum']['status'] =  $node->get('comment_forum')->status; 
+  $variables['tforum_tid'] =  $node->get('taxonomy_forums')->target_id; 
+  
+  $forum = Drupal\taxonomy\Entity\Term::load($variables['tforum_tid']);
+  $variables['tforum_name'] =  $forum->getName(); 
+
+  dpm($forum);  
 
   //$variables['tforum_tid'] = $node->get('forum_tid');
   //$variables['tforum_title'] = getForumTitle($node->get('forum_tid'));
 
   //drupal_set_message("We got a forum node");
   //drupal_set_message($node->getType());
-  //dpm($variables);
+  dpm($variables);
 }
 
 function icrp_preprocess_forums__topics(&$variables) {

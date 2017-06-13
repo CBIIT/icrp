@@ -64,6 +64,15 @@ table#forum { border: 1px solid #eaeaea; width: 100%; }
 }
 
 /* forum */
+.breadcrumb {
+	margin-bottom:10px;
+}
+.label-pill {
+  padding-right: .6em;
+  padding-left: .6em;
+  border-radius: 10rem;
+}
+
 .node-forum .field-name-body { margin: 10px 0; }
 
 .node-forum .field-type-taxonomy-term-reference { float: none; }
