@@ -121,6 +121,7 @@ We got a Forum NODE...<br>
 
 {{ attach_library('classy/node') }}
     <div{{ content_attributes.addClass('node__content', 'clearfix') }}>
+    Links here:
       {% block content %}
         {{ content|without('links') }}
       {% endblock %}
