@@ -181,52 +181,60 @@ jQuery(function() {
                     'core' : {
                         'check_callback': true,
                         'data' : folders,
+                        'dblclick_toggle': false,
                         'multiple': false
                     }
-                }).on('ready.jstree', function(e, data) {
+                }).on('loaded.jstree', function(e, data) {
                     tree = $('#library-tree').jstree();
                     var searchString = functions.getParameterByName('search'),
-                        nodeString = functions.getParameterByName('nodeId');
+                        nodeString = functions.getParameterByName('nodeId'),
+                        json = tree.get_json();
                     if (searchString) {
                         $('#library [name="library-keywords"]').val(searchString);
                         functions.search();
                     } else if (nodeString) {
                         tree.select_node(nodeString);
-                    } else {
-                        var json = tree.get_json();
+                    } else if (role == 'public') {
                         for (var index = 0; index < json.length; index++) {
-                            if (!json[index].state.hidden && (role !== "public" || json[index].text == "Publications")) break;
+                            if (!json[index].state.hidden && json[index].text == "Publications") break;
                         }
                         if (index < json.length) tree.select_node(json[index]);
                     }
+                    for (var index = 0; index < json.length; index++) {
+                        var node = json[index],
+                            count = node.data.unarchivedCount;
+                        tree.get_node(node, true).append('<span title="'+count+' active document'+(count>1?'s':'')+' in this category.">'+count+'</span>');
+                    }
+                    tree.open_all();
                 }).on('refresh.jstree', function() {
-                    var node = functions.getNode();
-                    if (node === undefined || node.state.hidden) {
+                    var json = tree.get_json(),
+                        state = (functions.getNode()||{'state':{'hidden':true}}).state.hidden;
+                    if (state) {
                         tree.deselect_all();
-                        var json = tree.get_json();
-                        for (var index = 0; index < json.length; index++) {
-                            if (!json[index].state.hidden) break;
-                        }
-                        tree.select_node(tree.get_json()[index]);
+                    }
+                    for (var index = 0; index < json.length; index++) {
+                        var node = json[index],
+                            count = node.data.unarchivedCount;
+                        tree.get_node(node, true).children(':nth-child(2)').after('<span title="'+count+' active document'+(count>1?'s':'')+' in this category.">'+count+'</span>');
                     }
                 }).on('rename_node.jstree',function(e, data) {
-                  var node = functions.getNode(),
-                      parent = tree.get_node(node.parents[0]);
-                  parent.children = parent.children.map(function(entry) { return tree.get_node(entry); }).sort(functions.caselessSort);
-                  if ($('#library-display .frame').hasClass('archived')) {
-                      functions.showArchives(e);
-                  } else {
-                      functions.hideArchives(e);
-                  }
+                    var node = functions.getNode(),
+                        parent = tree.get_node(node.parents[0]);
+                    parent.children = parent.children.map(function(entry) { return tree.get_node(entry); }).sort(functions.caselessSort);
+                    if ($('#library-display .frame').hasClass('archived')) {
+                        functions.showArchives(e);
+                    } else {
+                        functions.hideArchives(e);
+                    }
                 }).on('move_node.jstree',function(e, data) {
-                  var node = functions.getNode(),
-                      parent = tree.get_node(node.parents[0]);
-                  parent.children = parent.children.map(function(entry) { return tree.get_node(entry); }).sort(functions.caselessSort);
-                  if ($('#library-display .frame').hasClass('archived')) {
-                      functions.showArchives(e);
-                  } else {
-                      functions.hideArchives(e);
-                  }
+                    var node = functions.getNode(),
+                        parent = tree.get_node(node.parents[0]);
+                    parent.children = parent.children.map(function(entry) { return tree.get_node(entry); }).sort(functions.caselessSort);
+                    if ($('#library-display .frame').hasClass('archived')) {
+                        functions.showArchives(e);
+                    } else {
+                        functions.hideArchives(e);
+                    }
                 }).on('changed.jstree', function(e, data) {
                     var nodes = data.selected;
                     if (nodes.length > 0) {
@@ -237,6 +245,15 @@ jQuery(function() {
                         lGet(path+'folder/'+nodes[0]).done(function(response) {
                             functions.writeDisplay(response.files,role==="public");
                         });
+                    }
+                }).on('dblclick.jstree', function(e, data) {
+                    var node = functions.getNode();
+                    if (node !== undefined) {
+                        if (node.state.opened) {
+                            tree.close_all(node);
+                        } else {
+                            tree.open_all(node);
+                        }
                     }
                 });
             });
@@ -518,8 +535,8 @@ jQuery(function() {
                               '<div class="item">'+
                                   '<div title="'+(isPublic?'Public Document':'Non-Public Document')+'"></div>'+
                                   '<div><a href="'+path+'file/'+id+'/'+file+'" target="_blank">'+file+'</a></div>'+
-                                  '<button class="admin edit-file" title="Edit File"></button>'+
-                                  '<button class="admin '+(isArchived?'restore-file':'archive-file')+'" title="'+(isArchived?'Restore File':'Archive File')+'"></button>'+
+                                  '<button class="admin edit-file" title="Edit File"><a></a></button>'+
+                                  '<button class="admin '+(isArchived?'restore-file':'archive-file')+'" title="'+(isArchived?'Restore File':'Archive File')+'"><a></a></button>'+
                               '</div>'+
                           '</div>'
                         ).children('*:last-child').data('library-file-data',entry);

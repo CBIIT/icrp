@@ -3,6 +3,8 @@
 #library .partner,
 #library .private,
 #library .public,
+#library-tree .jstree-node .jstree-node:before,
+#library-tree .jstree-anchor > .jstree-icon,
 #library-display .frame:not(.archived) .item-wrapper.archived,
 #library-display .frame.preview .item-wrapper .edit-file,
 #library-display .frame.preview .item-wrapper .archive-file,
@@ -59,6 +61,14 @@
 #library-search .browse > *:first-child {
   border-width: 1px;
 }
+#library-search .browse-header {
+  background: #ede3c9;
+  background: -webkit-linear-gradient(to bottom, #f7f1e5 0%, #ede3c9 100%);
+  background: -o-linear-gradient(to bottom, #f7f1e5 0%, #ede3c9 100%);
+  background: -moz-linear-gradient(to bottom, #f7f1e5 0%, #ede3c9 100%);
+  background: linear-gradient(to bottom, #f7f1e5 0%, #ede3c9 100%);
+  padding: .5em;
+}
 #library-search .browse-header > * {
   margin: 5px;
 }
@@ -88,8 +98,69 @@
 }
 #library-tree {
   overflow: auto;
-  padding: 5px 0px 0px;
   width: 100%;
+}
+#library-tree .jstree-icon {
+  background: none;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+#library-tree .jstree-anchor {
+  width: 22em;
+  height: -webkit-calc(100% - 15px - 5em);
+  height: -o-calc(100% - 15px - 5em);
+  height: -moz-calc(100% - 15px - 5em);
+  width: calc(100% - 15px - 5em);
+}
+#library-tree .jstree-anchor ~ * .jstree-anchor {
+  width: 95%;
+  height: -webkit-calc(100% - 15px);
+  height: -o-calc(100% - 15px);
+  height: -moz-calc(100% - 15px);
+  width: calc(100% - 15px);
+}
+#library-tree .jstree-node {
+  background: transparent;
+  padding: .5em;
+  position: relative;
+  z-index: 1;
+}
+#library-tree .jstree-node:before {
+  background: #f9f9ed;
+  background: -webkit-linear-gradient(to bottom, #fefdfc 0%, #f9f9ed 100%);
+  background: -o-linear-gradient(to bottom, #fefdfc 0%, #f9f9ed 100%);
+  background: -moz-linear-gradient(to bottom, #fefdfc 0%, #f9f9ed 100%);
+  background: linear-gradient(to bottom, #fefdfc 0%, #f9f9ed 100%);
+  content: '';
+  display: block;
+  height: 2.6em;
+  height: -webkit-calc(1em + 24px);
+  height: -o-calc(1em + 24px);
+  height: -moz-calc(1em + 24px);
+  height: calc(1em + 24px);
+  left: 0px;
+  position: absolute;
+  top: 0px;
+  width: 100%;
+  z-index: -1;
+}
+#library-tree .jstree-node > span {
+    background: #1e90ff;
+    border-radius: 1.6em;
+    color: #fff;
+    display: inline-block;
+    margin: 0px .5em;
+    text-align: center;
+    width: 4em;
+}
+#library-tree .jstree-closed > .jstree-icon {
+  background-image: url('/icrp/modules/library/src/assets/css/expand.png');
+}
+#library-tree .jstree-open > .jstree-icon {
+  background-image: url('/icrp/modules/library/src/assets/css/contract.png');
+}
+#library-tree .jstree-node ul {
+  padding: .5em 0px 0px;
 }
 #library-management,
 #library-management2 {
@@ -183,42 +254,62 @@
 #library-display .frame:not(.preview) .item {
   display: table-row;
 }
-#library-display .frame:not(.preview) .item div:nth-child(2) {
-  display: table-cell;
-  height: 1em;
-  line-height: 1em;
-  padding: 5px 10px;
-}
 #library-display .frame:not(.preview) .item div:first-child {
   display: table-cell;
   background: url('file.png') no-repeat center/contain;
   height: 1.1em;
+  vertical-align: top;
   width: 1.2em;
 }
 #library-display .frame:not(.preview) .public-doc .item div:first-child {
   background: url('file-public.png') no-repeat center/contain;
 }
+#library-display .frame:not(.preview) .item div:nth-child(2) {
+  display: table-cell;
+  height: 1.6em;
+  line-height: 1.6em;
+  padding: 0px 10px;
+  vertical-align: top;
+}
 #library.admin #library-display .frame:not(.preview) .item button.admin {
   border: 0px;
   background: transparent;
   display: table-cell;
-  margin: 5px;
-  padding: 0px;
+  height: 1.6em;
+  margin: 0px;
+  padding: 0px 5px;
+  vertical-align: top;
 }
-#library-display .frame:not(.preview) .item button:before {
+#library-display .frame:not(.preview) .item button a:before {
+  content: '\00a0';
+  display: inline-block;
+  height: 1.6em;
+  line-height: 1.6em;
+  width: 1.77em;
+}
+#library-display .frame:not(.preview) .item button a:after {
   content: '';
-  display: block;
-  height: 1.1em;
-  width: 1.3em;
+  display: inline-block;
+  height: 1.6em;
+  line-height:1.6em;
 }
-#library-display .frame:not(.preview) .item .edit-file:before {
+#library-display .frame:not(.preview) .item .edit-file a:before {
   background: url('file-edit.png') no-repeat 1px 0px/contain;
 }
-#library-display .frame:not(.preview) .item .archive-file:before {
+#library-display .frame:not(.preview) .item .edit-file a:after {
+  content: 'Edit';
+}
+#library-display .frame:not(.preview) .item .archive-file a:before {
   background: url('file-remove.png') no-repeat 1px 0px/contain;
 }
-#library-display .frame:not(.preview) .item .restore-file:before {
+#library-display .frame:not(.preview) .item .archive-file a:after {
+  content: 'Archive';
+}
+#library-display .frame:not(.preview) .item .restore-file a:before {
   background: url('file-add.png') no-repeat 1px 0px/contain;
+}
+#library-display .frame:not(.preview) .item .restore-file a:after {
+  content: 'Restore';
 }
 #library-display .frame .item.archived a {
   color: grey;
@@ -284,7 +375,7 @@
     float: left;
     height: 58.5em;
     margin: 0px 1em 0px 0px;
-    width: 21em;
+    width: 32em;
   }
   #library-tree {
     height: 45.5em;
