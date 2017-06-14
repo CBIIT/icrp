@@ -371,7 +371,9 @@ function icrp_user_format_name_alter(&$name, $account) {
   //dpm($account->id());
   //$name = "Hello User";
   $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($account->id());
-  $name = $user->get('field_first_name')->value." ".$user->get('field_last_name')->value;
+  if(isset($user)) {
+    $name = $user->get('field_first_name')->value." ".$user->get('field_last_name')->value;
+  }
 
 
   //kint($account->get('field_first_name')->value);

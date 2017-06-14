@@ -70,7 +70,6 @@
 {% endif %}
 
 {% if threaded %}
-  Threaded is True<br>
   {{ attach_library('classy/drupal.comment.threaded') }}
 {% endif %}
 {%
@@ -82,6 +81,7 @@
     author_id and author_id == commented_entity.getOwnerId() ? 'by-' ~ commented_entity.getEntityTypeId() ~ '-author',
   ]
 %}
+<hr style="margin:0px;padding:0px;">
 <article{{ attributes.addClass(classes) }}>
   <table class="table table-striped table-bordered table-condensed table-forum-topic-detail">
     <theader>
