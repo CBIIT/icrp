@@ -15,6 +15,19 @@ thead tr th, thead tr td, tbody tr th, tbody tr td { padding: 8px; line-height: 
 	font-weight:bold;
 	color:red;
 }
+.field.field--name-taxonomy-forums.field--type-entity-reference.field--label-inline {
+	display:none;
+}
+table.table-forum-topic-detail {
+	margin-bottom: 10px;
+}
+table.table-forum-topic-detail > tbody > td {
+	padding: 20px;
+}
+
+li.comment-reply {
+	display:none;
+}
 .action-links {
 	display:none;
 }
@@ -64,6 +77,15 @@ table#forum { border: 1px solid #eaeaea; width: 100%; }
 }
 
 /* forum */
+.breadcrumb {
+	margin-bottom:10px;
+}
+.label-pill {
+  padding-right: .6em;
+  padding-left: .6em;
+  border-radius: 10rem;
+}
+
 .node-forum .field-name-body { margin: 10px 0; }
 
 .node-forum .field-type-taxonomy-term-reference { float: none; }
