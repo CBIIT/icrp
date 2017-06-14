@@ -89,13 +89,14 @@ class UploadFormComponent extends Component {
 
     /** Resets the form */
     handleReset() {
-        this.setState({ uploadType: 'new', sponsorCode: '', sponsorCodeValid: true, submissionDate: '', submissionDateValid: true, fileId: '' });
+        this.setState({ uploadType: 'new', sponsorCode: '', sponsorCodeValid: true, submissionDate: '', submissionDateValid: true, fileId: '', submitDisabled: true });
         document.getElementById("fileId").value = null;
-        this.updateParent(null, null);
+        this.updateParent(null, null, []);
     }
 
     /** Form upload */
     async upload() {
+        this.props.onLoadingStart();
         var data = new FormData();
         var fileData = this.state.fileId;// document.getElementById("fileId").files[0];
         data.append("data", fileData, uuidV4() + '.csv');
@@ -112,7 +113,7 @@ class UploadFormComponent extends Component {
 
             const stats = {
                 totalRows: totalRows,
-                page: 1,
+               
                 totalPages: totalPages,
                 showingFrom: 1,
                 showingTo: 25
