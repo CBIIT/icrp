@@ -53,6 +53,12 @@ function icrp_views_data() {
   drupal_set_message("icrp_views_data");
 }
 */
+function icrp_preprocess_field(&$variables) {
+  drupal_set_message("preprocess_field");
+  //dpm("HEllo", "hello2", "hello3");
+  //dpm($variables);
+}
+
 function makeRandomString($max=6) {
     $i = 0; //Reset the counter.
     $possible_keys = " 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -314,7 +320,7 @@ function icrp_preprocess_node(&$variables) {
   $variables['tstatus'] = $node->get('status')->value;
   $variables['tnid'] = $node->get('nid')->value;
   $node = \Drupal::entityTypeManager()->getStorage('node')->load($variables['tnid']);
-  dpm($node);
+  //dpm($node);
   $variables['tbody'] =  $node->get('body')->value; 
   $variables['tcomment_forum']['comment_count'] =  $node->get('comment_forum')->comment_count; 
   $variables['tcomment_forum']['status'] =  $node->get('comment_forum')->status; 
@@ -323,14 +329,14 @@ function icrp_preprocess_node(&$variables) {
   $forum = Drupal\taxonomy\Entity\Term::load($variables['tforum_tid']);
   $variables['tforum_name'] =  $forum->getName(); 
 
-  dpm($forum);  
+  //dpm($forum);  
 
   //$variables['tforum_tid'] = $node->get('forum_tid');
   //$variables['tforum_title'] = getForumTitle($node->get('forum_tid'));
 
   //drupal_set_message("We got a forum node");
   //drupal_set_message($node->getType());
-  dpm($variables);
+  //dpm($variables);
 }
 
 function icrp_preprocess_forums__topics(&$variables) {
@@ -340,7 +346,6 @@ function icrp_preprocess_forums__topics(&$variables) {
   //var_dump($variables);
  }
 function icrp_preprocess_forum_list(&$variables) {
-  //$variables['icrp_debug'] = true;
   //drupal_set_message("Added icrp_debug to variables.  See if you can access in twig.");
   $variables['last_post'][9] = 'Yes, I got it.  So cool';
   //drupal_set_message($variables['last_post'][9]);
