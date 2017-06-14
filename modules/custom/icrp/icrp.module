@@ -53,11 +53,81 @@ function icrp_views_data() {
   drupal_set_message("icrp_views_data");
 }
 */
-function icrp_preprocess_field(&$variables) {
-  drupal_set_message("preprocess_field");
-  //dpm("HEllo", "hello2", "hello3");
-  //dpm($variables);
+function icrp_preprocess_comment(&$variables) {
+    //drupal_set_message("icrp_preprocess_comment");
+    //dpm($variables);
+    //$config->get('timezone.user.configurable');
+    //Get users Organization
+    //$variables['element']['#object'] is A comment
+    //$variables['element']['#object']->comment_body is A comment
+    //drupal_set_message("Comment Body");
+    $comment = $variables['elements']['#comment'];
+
+    //Get Comment id, date_created, user organization
+    $comment_uid = $comment->getOwnerId();
+    $tcreated_time = $comment->getCreatedTime();
+    //Set Date format
+    $long_date_template = 'F j, Y g:i A';
+    $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime());
+
+    //dpm($created_time);
+    $variables['tcreated_time'] = $created_time->format($long_date_template);
+    $variables['ttimezone'] = drupal_get_user_timezone();
+
+    //Set Date format
+    $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($comment_uid);
+
+    $field_organization_target_id = $user->get('field_organization')->target_id;
+    $variables['torganization_target_id'] = $field_organization_target_id; 
+    $node = \Drupal::entityTypeManager()->getStorage('node')->load($field_organization_target_id);
+    $variables['torganization'] =  $node->get('body')->value; 
+    //dpm($variables);
 }
+
+/*
+function icrp_preprocess_field(&$variables) {
+  if($variables['field_name'] == "comment_body") {
+    drupal_set_message("preprocess_field");
+    //$config->get('timezone.user.configurable');
+    //Get users Organization
+    //$variables['element']['#object'] is A comment
+    //$variables['element']['#object']->comment_body is A comment
+    drupal_set_message("Comment Body");
+    $comment = $variables['element']['#object'];
+    //Get Comment id, date_created, user organization
+    $comment_uid = $comment->getOwnerId();
+    $tcreated_time = $comment->getCreatedTime();
+    //Set Date format
+    $long_date_template = 'F j, Y g:i A';
+    $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime());
+
+    //dpm($created_time);
+    $variables['tcreated_time'] = $created_time->format($long_date_template);
+    $variables['ttimezone'] = drupal_get_user_timezone();
+
+    //Set Date format
+    $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($comment_uid);
+
+    //dpm($user);
+    //user id table user
+    //field_organization_target_id = user__filed_organization
+
+    $field_organization_target_id = $user->get('field_organization')->target_id;
+    $variables['torganization_target_id'] = $field_organization_target_id; 
+    $node = \Drupal::entityTypeManager()->getStorage('node')->load($field_organization_target_id);
+    $variables['torganization'] =  $node->get('body')->value; 
+
+    //drupal_set_message("comment_uid: ".$comment_uid);
+    //dpm($variables);
+
+    //dpm("HEllo", "hello2", "hello3");
+    //dpm($variables);
+  }
+  $variables["gotone"]= "How are you?";
+  //dpm($variables);
+
+}
+*/
 
 function makeRandomString($max=6) {
     $i = 0; //Reset the counter.
@@ -86,7 +156,7 @@ function last_forum_visit() {
 
   $last_visit_date_raw = $user->get('field_last_forum_visit')->value;
   if($last_visit_date_raw !== NULL) {
-    $last_visit_timestamp = new DrupalDateTime($last_visit_date_raw, 'UTC');
+    $last_visit_timestamp = new DrupalDateTime($last_visit_date_raw);
     // Update the timezone to the system default.
     //$last_visit_timestamp->setTimezone(timezone_open(drupal_get_user_timezone()));
     $last_visit_date = $last_visit_timestamp->format($long_date_template);
@@ -346,10 +416,6 @@ function icrp_preprocess_forums__topics(&$variables) {
   //var_dump($variables);
  }
 function icrp_preprocess_forum_list(&$variables) {
-  //drupal_set_message("Added icrp_debug to variables.  See if you can access in twig.");
-  $variables['last_post'][9] = 'Yes, I got it.  So cool';
-  //drupal_set_message($variables['last_post'][9]);
-  $variables['hello'] = 'World';
   //drupal_set_message("Added chris to variables.  See if you can access in twig.");
   //kint($variables);
   //drupal_set_message(print_r($variables, true));

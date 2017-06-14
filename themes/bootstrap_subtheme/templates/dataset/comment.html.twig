@@ -88,7 +88,7 @@
       <tr>
         <td colspan="2" style="font-weight:bold;background-color:#EFEFEF;">
           <span class="hidden label label-pill label-primary" title="New reply" data-comment-timestamp="{{ new_indicator_timestamp }}"></span>
-          <span>{{ created }}</span>
+          <span>{{ tcreated_time }}</span>
 
             {% if content.links %}
               <span class="pull-right" style="height:21px;">
@@ -105,7 +105,8 @@
         <td style="width:30%;">
           <div class="comment__meta">
             <div style="font-weight:bold">{{ author }}</div>
-            <div>Susan Komen Foundation (get ORGANIZATION)</div>
+
+            <div>{{ torganization }}</div>
             {#
             <span>{% trans %}- {% endtrans %}{{ author }}{% trans %} <i>{% endtrans %}{{ created }}</i></span>
             #}
