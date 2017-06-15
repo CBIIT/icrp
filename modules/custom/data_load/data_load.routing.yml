@@ -1,10 +1,3 @@
-data_load.data_load:
-  path: '/dataload'
-  defaults:
-    _controller: '\Drupal\data_load\Controller\DataLoadController::load'
-    _title: 'Load Data'
-  requirements:
-    _permission: 'authenticated'
 dataload.load_data_mysql:    
   path: '/loaddata_mysql'
   defaults:
@@ -35,6 +28,22 @@ dataload.get_data_mssql:
     _title: 'Get Data'
   requirements:
     _permission: 'access content'
+dataload.integrity_check:
+  path: '/dataload/integrity_check_mssql'
+  defaults:
+    _controller:  '\Drupal\data_load\Controller\DataLoadController::integrity_check_mssql'
+    _title: 'Integrity Check'
+  requirements:
+    _permission: 'access content'
+  methods: [POST]
+dataload.integrity_check_details:
+  path: '/dataload/integrity_check_details_mssql'
+  defaults:
+    _controller:  '\Drupal\data_load\Controller\DataLoadController::integrity_check_details_mssql'
+    _title: 'Integrity Check Details'
+  requirements:
+    _permission: 'access content'
+  methods: [POST]  
 dataload.ping:
   path: '/dataload/ping'
   defaults:

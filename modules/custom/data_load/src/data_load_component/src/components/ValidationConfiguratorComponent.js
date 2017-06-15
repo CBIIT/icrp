@@ -38,6 +38,38 @@ class ValidationCategory extends Component {
 
 class ValidationConfiguratorComponent extends Component {
 
+    constructor(props) {
+        super(props);
+
+        this.checkIntegrity = this.checkIntegrity.bind(this);
+        this.updateParent = this.updateParent.bind(this);
+    }
+
+    updateParent(results) {
+        this.props.onValidationResults(results);
+    }
+
+    async checkIntegrity() {
+
+        var data = new FormData();
+        data.append('type', 'new');
+        var that = this;
+        let response = await fetch('http://icrp-dataload/dataload/integrity_check_mssql/', { method: 'POST', body: data });
+
+        if (response.ok) {
+            let results = await response.json();
+            // filter result type Summary
+            results = results['results'].filter(result => { return result.Type === 'Rule'; }).
+                map(result => {
+                    return { name: result.Description, validationResult:  (result.Count == 0 ? 'Pass' : 'Failed') };
+                });
+            that.updateParent(results);
+        } else {
+            let message = await response.text();
+            alert("Oops! " + message);
+        }
+    }
+
     render() {
 
         const validationCategory = {
@@ -94,7 +126,7 @@ class ValidationConfiguratorComponent extends Component {
                     <FormGroup className="lower-buttons-250">
                         <Col lg={12} lgOffset={0} sm={2} smOffset={5} xs={2} xsOffset={4}>
                             <ButtonToolbar>
-                                <Button>Check Data</Button>
+                                <Button onClick={this.checkIntegrity}>Check Data</Button>
                             </ButtonToolbar>
                         </Col>
                     </FormGroup>

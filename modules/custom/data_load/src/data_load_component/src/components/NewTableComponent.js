@@ -76,7 +76,6 @@ class NewTableComponent extends Component {
             let result = await response.json();
             const projects = result.projects;
             that.handlePageOrSortChange(page, sortColumn, sortDirection, projects);
-            // that.handleSortChange(sortColumn, sortDirection, projects);
         } else {
             alert("Oops! ");
         }

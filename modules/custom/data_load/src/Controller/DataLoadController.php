@@ -60,17 +60,27 @@ class DataLoadController {
         );
     }
     
-    
-    public function load() {
+    public function integrity_check_mssql(Request $request) {
+        $conn = self::getConnection();
+        $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE DataUpload_IntegrityCheck @type=:type');
+        //$stmt->bindParam(':type', $request->request->get('New'));
+        $stmt->bindParam(':type', $request->request->get(type));
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $response=array('results' => $results);
         
-        return [
-        '#theme' => 'data_load',
-        '#attached' => [
-        'library' => [
-        'data_load/resources'
-        ],
-        ],
-        ];
+        return self::addCorsHeaders(new JsonResponse($response));
+    }
+    
+    public function integrity_check_details_mssql(Request $request) {
+        $conn = self::getConnection();
+        $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE DataUpload_IntegrityCheckDetails @RuleId=:ruleId');
+        $stmt->bindParam(':ruleId', $request->request->get(ruleId));
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $response=array('results' => $results);
+        
+        return self::addCorsHeaders(new JsonResponse($response));
     }
     
     public function getdata(Request $request) {
@@ -78,7 +88,8 @@ class DataLoadController {
         $conn = self::getConnection();
         
         $offset = ($page - 1) * 25;
-        $stmt = $conn->prepare("SELECT * FROM wb ORDER BY InternalId limit " . $offset . " , 25");
+        $stmt = $conn->prepare('SELECT * FROM wb ORDER BY InternalId limit :offset, 25');
+        $stmt->bindParam(':offset', $offset);
         $stmt->execute();
         $projects = $stmt->fetchAll();
         $stmt = null;
@@ -100,7 +111,7 @@ class DataLoadController {
         "AwardType", "Childhood", "BudgetStartDate", "BudgetEndDate", "CSOCodes", "CSORel", "SiteCodes", "SiteRel", "AwardFunding", "IsAnnualized", "FundingMechanismCode", "FundingMechanism",
         "FundingOrgAbbr", "FundingDiv", "FundingDivAbbr", "FundingContact", "PILastName", "PIFirstName", "SubmittedInstitution", "City", "State", "Country", "PostalZipCode", "InstitutionICRP", "Latitute", "Longitute", "GRID",
         "TechAbstract", "PublicAbstract", "RelatedAwardCode", "RelationshipType", "ORCID", "OtherResearcherID", "OtherResearcherIDType", "InternalUseOnly");
-        $key = array_Search($request->request->get(sortDirection), $orderByKeys);
+        $key = array_Search($request->request->get(sortColumn), $orderByKeys);
         $sortColumn = $orderByKeys[$key];
         
         $conn = self::getConnection();

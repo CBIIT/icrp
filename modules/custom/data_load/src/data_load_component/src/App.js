@@ -29,12 +29,14 @@ class App extends Component {
       page: 1,
       sortColumn: 'InternalId',
       sortDirection: 'ASC',
-      loading: false
+      loading: false,
+      validationResults: []
 
     }
     this.handleFileUpload = this.handleFileUpload.bind(this);
     this.handleDataTableChange = this.handleDataTableChange.bind(this);
     this.handleLoadingStateChange = this.handleLoadingStateChange.bind(this);
+    this.handleValidationResults = this.handleValidationResults.bind(this);
   }
 
   handleFileUpload(stats, columns, projects) {
@@ -49,6 +51,10 @@ class App extends Component {
     this.setState({ page: page, sortColumn: sortColumn, sortDirection: sortDirection, projects: projects });
   }
 
+  handleValidationResults(results) {
+    this.setState({ validationResults: results });
+  }
+
   render() {
     return (
       <div>
@@ -57,26 +63,26 @@ class App extends Component {
           <Tab eventKey={1} title="Load Workbook">
             <div className="tab-container">
               <UploadFormComponent onFileUploadSuccess={this.handleFileUpload} onLoadingStart={this.handleLoadingStateChange} />
-                {/*<DataTableComponent stats={this.state.stats} projects={this.state.projects} onPageChange={this.handlePageChange} />*/}
-                <NewTableComponent visible={this.state.showDataTable} stats={this.state.stats} page={this.state.page} 
-                sortColumn={this.state.sortColumn} sortDirection={this.state.sortDirection} 
+              {/*<DataTableComponent stats={this.state.stats} projects={this.state.projects} onPageChange={this.handlePageChange} />*/}
+              <NewTableComponent visible={this.state.showDataTable} stats={this.state.stats} page={this.state.page}
+                sortColumn={this.state.sortColumn} sortDirection={this.state.sortDirection}
                 columns={this.state.columns} projects={this.state.projects} onChange={this.handleDataTableChange} />
 
               <NavigationComponent hasBackButton={false} hasNextButton={true} nextDisabled={this.state.tab2Disabled} />
 
             </div>
           </Tab>
-          <Tab eventKey={2} title="Data Integrity Check">
+          <Tab eventKey={2} title="Data Integrity Check" disabled={this.state.tab2Disabled} >
             <div className="tab-container">
-              <ValidationConfiguratorComponent />
-              <ValidationSummaryComponent />
+              <ValidationConfiguratorComponent onValidationResults={this.handleValidationResults} />
+              <ValidationSummaryComponent validationResults={this.state.validationResults} />
 
               <NavigationComponent hasBackButton={true} hasNextButton={true} nextDisabled={this.state.tab3Disabled} />
 
             </div>
           </Tab>
 
-          <Tab eventKey={3} title="Import">
+          <Tab eventKey={3} title="Import" disabled={this.state.tab3Disabled}>
             <div className="tab-container">
 
             </div>
