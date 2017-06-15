@@ -26,4 +26,11 @@ table.display-parameters  tbody  tr  td {
   padding-right: 10px;
 }
 
+.responsive-wrapper {
+    width: 100%;
+    min-height: .01%;
+    overflow-y: hidden;
+    overflow-x: auto;  
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+}
 

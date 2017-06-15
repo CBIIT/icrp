@@ -12,6 +12,13 @@ path {
     stroke: #444;
 }
 
+.chart-label {
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: visible;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
 
 .d3-tooltip {
   color: #555;
