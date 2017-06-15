@@ -415,8 +415,37 @@ function icrp_preprocess_forums__topics(&$variables) {
   //kint($variables['forums']);
   //var_dump($variables);
  }
+function getLastPostFromTopicID($tid) {
+
+  $query = "SELECT * FROM taxonomy_index ti where ti.tid = {$tid} order by ti.nid desc limit 1;";
+  $result=db_query($query);
+  $row = $result->fetchObject();
+  $comment = "";
+  if(isset($row->nid)) {
+    $comment = lastComment($row->nid);
+    $query = "select ccb.comment_body_value, cfd.name, cfd.uid, cfd.changed ";
+    $query .= "FROM taxonomy_index ti, comment_field_data cfd, comment__comment_body ccb ";
+    $query .= "where ti.nid = cfd.entity_id and cfd.cid = ccb.entity_id and ti.tid = {$tid} "; 
+    $query .= "order by cfd.changed desc; ";
+    $result=db_query($query);
+    $row = $result->fetchObject();
+    if(isset($row->comment_body_value)) {
+      $comment = $row->comment_body_value."<div> by <b>".$row->name."</b></div>";
+    }
+
+  }
+
+  return $comment;
+}
+
 function icrp_preprocess_forum_list(&$variables) {
   //drupal_set_message("Added chris to variables.  See if you can access in twig.");
+  foreach($variables['forums'] as $tid =>$term ) {
+    //drupal_set_message("Term: $tid");
+    //dpm($term);
+    $variables['tforums'][$tid]['last_post'] = getLastPostFromTopicID($tid);
+  }
+  //dpm($variables);
   //kint($variables);
   //drupal_set_message(print_r($variables, true));
 
