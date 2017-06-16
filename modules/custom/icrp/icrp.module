@@ -80,7 +80,7 @@ function icrp_preprocess_comment(&$variables) {
     $field_organization_target_id = $user->get('field_organization')->target_id;
     $variables['torganization_target_id'] = $field_organization_target_id; 
     $node = \Drupal::entityTypeManager()->getStorage('node')->load($field_organization_target_id);
-    //$variables['torganization'] =  $node->get('body')->value; 
+    $variables['torganization'] =  $node->get('body')->value; 
     //dpm($variables);
 }
 
