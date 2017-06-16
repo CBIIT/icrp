@@ -203,6 +203,9 @@
 #library-display > div:first-child {
   overflow: auto;
 }
+#library-display .display-header {
+    margin-bottom: 1em;
+}
 #library-display .frame {
   overflow: auto;
   width: 100%;

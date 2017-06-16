@@ -208,7 +208,9 @@ jQuery(function() {
                     tree.open_all();
                 }).on('refresh.jstree', function() {
                     var json = tree.get_json(),
-                        state = (functions.getNode()||{'state':{'hidden':true}}).state.hidden;
+                        state = (functions.getNode()||{'state':{'hidden':true}}).state.hidden,
+                        frame = $('#library-display .frame'),
+                        isArchived = frame.hasClass('archived');
                     if (state) {
                         tree.deselect_all();
                     }
@@ -217,6 +219,7 @@ jQuery(function() {
                             count = node.data.unarchivedCount;
                         tree.get_node(node, true).children(':nth-child(2)').after('<span title="'+count+' active document'+(count>1?'s':'')+' in this category.">'+count+'</span>');
                     }
+                    $('#library-display .display-header .document-count').html((isArchived ? frame.children() : frame.children(':not(.archived)')).length);
                 }).on('rename_node.jstree',function(e, data) {
                     var node = functions.getNode(),
                         parent = tree.get_node(node.parents[0]);
@@ -237,12 +240,16 @@ jQuery(function() {
                     }
                 }).on('changed.jstree', function(e, data) {
                     var nodes = data.selected;
-                    if (nodes.length > 0) {
-                        if (!window.history.state || (window.history.state.nodeId !== nodes[0])) {
-                            functions.pushstate({'nodeId':nodes[0]});
+                    if (nodes.length === 0) {
+                        $('#library-display .display-header .folder-name').html("None");
+                    } else {
+                        var node = tree.get_node(nodes[0]);
+                        if (!window.history.state || (window.history.state.nodeId !== node.id)) {
+                            functions.pushstate({'nodeId':node.id});
                         }
                         $('#library-search [name="library-keywords"]').val('');
-                        lGet(path+'folder/'+nodes[0]).done(function(response) {
+                        $('#library-display .display-header .folder-name').html(node.text);
+                        lGet(path+'folder/'+node.id).done(function(response) {
                             functions.writeDisplay(response.files,role==="public");
                         });
                     }
@@ -496,7 +503,9 @@ jQuery(function() {
             });
         },
         'writeDisplay': function(files,isPublic) {
-            var frame = $('#library-display .frame').empty();
+            var frame = $('#library-display .frame').empty(),
+                isArchived = frame.hasClass('archived');
+            $('#library-display .display-header .document-count').html((isArchived ? files : files.filter(function(entry) {return entry.ArchivedDate === null})).length);
             if (files.length > 0) {
                 if (isPublic) {
                     frame.addClass('preview');
@@ -545,7 +554,6 @@ jQuery(function() {
             } else {
                 frame.removeClass('preview');
             }
-            frame.append('<div class="item-wrapper"><div class="item">No Files Found</div></div>');
         }
     };
     functions.initialize();
