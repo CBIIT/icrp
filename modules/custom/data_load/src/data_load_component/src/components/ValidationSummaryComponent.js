@@ -1,49 +1,73 @@
 import React, { Component } from 'react';
 import {
-    Col,
-    Row,
     ListGroup,
-    ListGroupItem,
     Modal,
     Button
 } from 'react-bootstrap';
+import ListGroupItemComponent from './ListGroupItemComponent';
+import DataTableComponent from './DataTableComponent';
 
 class ValidationSummaryComponent extends Component {
 
     constructor(props) {
         super(props);
-
         this.state = { showModal: false };
-
         this.closeModal = this.closeModal.bind(this);
         this.openModal = this.openModal.bind(this);
+        this.updateParent = this.updateParent.bind(this);
     }
 
     closeModal() {
-        this.setState({ showModal: false });
+        this.setState({ showModal: false, modalDetails: [] });
     }
 
-    openModal() {
-        this.setState({ showModal: true });
+    updateParent(validationDetailsResults) {
+        this.props.onValidationDetailsResults(validationDetailsResults);
+    }
+
+    async openModal(ruleId) {
+        // this.props.onLoadingStart();
+        var data = new FormData();
+        data.append('ruleId', ruleId);
+        var that = this;
+        let response = await fetch('http://icrp-dataload/dataload/integrity_check_details_mssql/', { method: 'POST', body: data });
+        // this.props.onLoadingEnd();
+
+        if (response.ok) {
+            let results = await response.json();
+            // filter result type Summary
+            // results = results['results'].filter(result =>
+            // { return result.Type === 'Rule'; }).map(result => {
+            //     return { name: result.Description, validationResult: (parseInt(result.Count, 10) === 0 ? 'Pass' : 'Failed') };
+            // });
+
+            // that.updateParent(results['results']);
+
+            await that.setState({ modalDetails: results['results'] });
+            // that.updateParent(results);
+            // that.props.onLoadingEnd();
+            that.setState({ showModal: true });
+        } else {
+            let message = await response.text();
+            alert("Oops! " + message);
+        }
     }
 
     render() {
-
-        if (!this.props.validationResults.length === 0)
+        debugger;
+        if (this.props.validationResults.length === 0)
             return null;
 
-
         let validationResults = [];
-
+        let ruleId = 0;
         this.props.validationResults.forEach(result => {
+            const _bsStyle = result.validationResult === 'Failed' ? "danger" : "default";
             validationResults.push(
-                <ListGroupItem bsStyle={result.validationResult === 'Failed' ? "danger" : "default"} onClick={this.openModal}>
-                    <Row>
-                        <Col xs={6}>{result.name}</Col>
-                        <Col xs={2}>{result.validationResult}</Col>
-                    </Row>
-                </ListGroupItem>)
+                <ListGroupItemComponent bsStyle={_bsStyle} result={result} ruleId={++ruleId} clickHandler={this.openModal} />
+            )
         });
+        
+        // let showModal = this.props.validationDetailsResults.length !== 0 ? true : false;
 
         return (
 
@@ -53,26 +77,12 @@ class ValidationSummaryComponent extends Component {
                     {validationResults}
                 </ListGroup>
 
-                <Modal show={this.state.showModal} onHide={this.close}>
+                <Modal show={this.state.showModal} onHide={this.closeModal}>
                     <Modal.Header closeButton>
-                        <Modal.Title>Modal heading</Modal.Title>
+                        <Modal.Title>Details</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <h4>Text in a modal</h4>
-                        <p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula.</p>
-
-                        <hr />
-
-                        <h4>Overflowing text to show scroll behavior</h4>
-                        <p>Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.</p>
-                        <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.</p>
-                        <p>Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus auctor fringilla.</p>
-                        <p>Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.</p>
-                        <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.</p>
-                        <p>Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus auctor fringilla.</p>
-                        <p>Cras mattis consectetur purus sit amet fermentum. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.</p>
-                        <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Vivamus sagittis lacus vel augue laoreet rutrum faucibus dolor auctor.</p>
-                        <p>Aenean lacinia bibendum nulla sed consectetur. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec sed odio dui. Donec ullamcorper nulla non metus auctor fringilla.</p>
+                        <DataTableComponent details={this.state.modalDetails} />
                     </Modal.Body>
                     <Modal.Footer>
                         <Button onClick={this.closeModal}>Close</Button>

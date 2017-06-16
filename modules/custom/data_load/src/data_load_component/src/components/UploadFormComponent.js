@@ -28,12 +28,17 @@ class UploadFormComponent extends Component {
         this.handleInputChange = this.handleInputChange.bind(this);
         this.handleReset = this.handleReset.bind(this);
         this.updateParent = this.updateParent.bind(this);
+        this.resetParent = this.resetParent.bind(this);
         this.state = { uploadType: 'new', sponsorCode: '', sponsorCodeValid: true, submissionDate: '', submissionDateValid: true, submitDisabled: true }
     }
 
     /** Sends the response up to the parent */
     updateParent(stats, columns, projects) {
         this.props.onFileUploadSuccess(stats, columns, projects);
+    }
+
+    resetParent() {
+        this.props.onReset();
     }
 
     /** Submission date change handler */
@@ -91,7 +96,7 @@ class UploadFormComponent extends Component {
     handleReset() {
         this.setState({ uploadType: 'new', sponsorCode: '', sponsorCodeValid: true, submissionDate: '', submissionDateValid: true, fileId: '', submitDisabled: true });
         document.getElementById("fileId").value = null;
-        this.updateParent(null, null, []);
+        this.resetParent();
     }
 
     /** Form upload */
@@ -102,7 +107,7 @@ class UploadFormComponent extends Component {
         data.append("data", fileData, uuidV4() + '.csv');
         data.append("uploadType", this.state.uploadType);
         var that = this;
-        let response = await fetch('http://icrp-dataload/loaddata_mssql/', {  method: 'POST', body: data });
+        let response = await fetch('http://icrp-dataload/loaddata_mssql/', { method: 'POST', body: data });
 
         if (response.ok) {
             let result = await response.json();
@@ -113,7 +118,7 @@ class UploadFormComponent extends Component {
 
             const stats = {
                 totalRows: totalRows,
-               
+
                 totalPages: totalPages,
                 showingFrom: 1,
                 showingTo: 25

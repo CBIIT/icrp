@@ -50,7 +50,7 @@ class ValidationConfiguratorComponent extends Component {
     }
 
     async checkIntegrity() {
-
+        this.props.onLoadingStart();
         var data = new FormData();
         data.append('type', 'new');
         var that = this;
@@ -59,10 +59,14 @@ class ValidationConfiguratorComponent extends Component {
         if (response.ok) {
             let results = await response.json();
             // filter result type Summary
-            results = results['results'].filter(result => { return result.Type === 'Rule'; }).
-                map(result => {
-                    return { name: result.Description, validationResult:  (result.Count == 0 ? 'Pass' : 'Failed') };
-                });
+            results = results['results'].filter(result =>
+            { return result.Type === 'Rule'; }).map(result => {
+                return {
+                    name: result.Description,
+                    validationResult: (parseInt(result.Count, 10) === 0 ? 'Pass' : 'Failed'),
+                    key: uuidV4() 
+                };
+            });
             that.updateParent(results);
         } else {
             let message = await response.text();

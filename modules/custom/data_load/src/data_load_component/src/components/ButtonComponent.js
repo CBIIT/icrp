@@ -5,17 +5,11 @@ class ButtonComponent extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      className: props.className,
-      title: props.title,
-      disabled: props.disabled
-    }
-
     this.handleClick = this.handleClick.bind(this);
   }
 
   handleClick() {
-    alert(this.state.title + ' button was clicked');
+    this.props.clickHandler(this.props.nextTab);
   }
 
   render() {
