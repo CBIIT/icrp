@@ -22,6 +22,9 @@ h1 {
     font-weight: normal;
     margin-top: 0px;
 }
+h2 {
+    margin-top: 0px;
+}
 .carousel-inner > .item:hover, .carousel-inner > .item:focus {
     color: #ffffff;
     opacity: 0.9;

@@ -142,6 +142,10 @@ function makeRandomString($max=6) {
     return $str;
 }
 
+function icrp_preprocess_form(&$variables) {
+  //dpm($variables);
+
+}
 function icrp_views_data_alter(array &$data) { 
   //drupal_set_message("icrp_views_data_alter");
   //dpm($data);
@@ -383,7 +387,7 @@ function icrp_preprocess_node(&$variables) {
     return;
   }
 
-  dpm($variables);
+  //dpm($variables);
 
   $variables['ttitle'] = $node->getTitle();
   $created_timestamp = DrupalDateTime::createFromTimestamp($node->getCreatedTime());
@@ -771,9 +775,10 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             //\Drupal\icrp\Importer\OrganizationRestClient::populateOrganizations();
             OrganizationRestClient::populateOrganizations();
             break;
-        case 'node_forum_form':
+        case 'comment_comment_forum_form':
             //$form['sticky']['#access'] = true;
             //dpm($form);
+            $form['actions']['submit']['#value'] = t('Post Reply');
             break;
         case 'user_login':
         case 'user_login_form':

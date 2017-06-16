@@ -86,6 +86,8 @@
   </li>
 </ol>
 
+{{ attach_library('classy/node') }}
+
 {%
   set classes = [
     'node',
@@ -97,45 +99,34 @@
     'clearfix',
   ]
 %}
-{#
-{{ attach_library('classy/node') }}
-    <div{{ content_attributes.addClass('node__content', 'clearfix') }}>
-    Links here:
-      {% block content %}
-        {{ content|without('links') }}
-      {% endblock %}
-    </div>
-
-#}
 <article{{ attributes.addClass(classes) }}>
   <header>
-
-  {% if page %}
-    <h2>{{ ttitle }}</h2>
-    <p>{{ tbody|raw }}</p>
-      <table style="width:100%;margin-bottom:5px;">
-        <tbody>
-          <tr style="min-height:30px;">
-            <td style="padding:3px;">Replies: <span class="badge" title="Number of replies to this post.">{{ tcomment_forum.comment_count }}</span></td>
-            <td style="padding:3px;">Created by {{ author_name }} on {{ tthread_created_time }}</td>
-            <td style="text-align:right;vertical-align:bottom;white-space:nowrap;">
-              <span class="pull-right" style="font-size:smaller;">{{ last_forum_visit }}</span>
-              {% if tcomment_forum.status == "1" %}
-                <h6>Status: <span class="label label-pill label-danger"  title="This thread is closed for comment.">Closed</span></h6>
-              {% else %}
-                <a cdata-drupal-link-system-path="node" class="btn btn-xs btn-success" href="/comment/reply/node/{{ tnid }}/comment_forum">Post Reply</a>
-              {% endif %}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-  {% else %}
-      <h2>Post Reply</h2>
-      <p>
-        <div><b>Forum:</b>&nbsp;{{ ttitle }}</div>
-        <div><b>Thread:</b>&nbsp;{{ ttitle }}</div>
-      </p>
-  {% endif %}
+    {% if page %}
+      <h2>{{ ttitle }}</h2>
+      <p>{{ tbody|raw }}</p>
+        <table style="width:100%;margin-bottom:5px;">
+          <tbody>
+            <tr style="min-height:30px;">
+              <td style="padding:3px;">Replies: <span class="badge" title="Number of replies to this post.">{{ tcomment_forum.comment_count }}</span></td>
+              <td style="padding:3px;">Created by {{ author_name }} on {{ tthread_created_time }}</td>
+              <td style="text-align:right;vertical-align:bottom;white-space:nowrap;">
+                <span class="pull-right" style="font-size:smaller;">{{ last_forum_visit }}</span>
+                {% if tcomment_forum.status == "1" %}
+                  <h6>Status: <span class="label label-pill label-danger"  title="This thread is closed for comment.">Closed</span></h6>
+                {% else %}
+                  <a cdata-drupal-link-system-path="node" class="btn btn-xs btn-success" href="/comment/reply/node/{{ tnid }}/comment_forum">Post Reply</a>
+                {% endif %}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+    {% else %}
+        <h2>Post Reply</h2>
+        <div style="padding-bottom:20px;">
+          <div><b>Forum:</b>&nbsp;{{ tforum_name }}</div>
+          <div><b>Thread:</b>&nbsp;{{ ttitle }}</div>
+        </div>
+    {% endif %}
   </header>
 
 {#
@@ -155,27 +146,13 @@
       {% endif %}
     </header>
 #}
-    {% if not page %}
-        <div class ="container">
-          <div class = "row">
-            <div class="col-sm-10 col-md-offset-1">
-              <div class="col-sm-12">Forum:</div>
-              <div class="col-sm-12">Thread:</div>
-    {% endif %}
 
-              <div{{ content_attributes.addClass('node__content', 'clearfix') }}>
-                {% block content %}
-                  {{ content|without('links') }}
-                {% endblock %}
-              </div>
-              <a style="display:none;" name="latest">Latest</a>
-
-
-    {% if not page %}
-            </div>
-          </div>
-        </div>
-    {% endif %}
+  <div{{ content_attributes.addClass('node__content', 'clearfix') }}>
+    {% block content %}
+      {{ content|without('links') }}
+    {% endblock %}
+  </div>
+  <a name="latest"></a>
 
 {#
     {% if content.links %}
