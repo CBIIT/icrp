@@ -4,6 +4,20 @@
 test_event:
   path: /test-event
   defaults: { _controller: 'Drupal\db_admin\Controller\AdminController::dispatchSampleEvent' }
-  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
+
+## Get possible form fields values
+api.admin.funding_organizations.fields:
+  path: /api/admin/funding_organizations/fields
+  defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::getFundingOrganizationFields' }
+  requirements:
+    _access: 'TRUE'
+
+
+api.admin.funding_organizations.add:
+  path: /api/admin/funding_organizations/add
+  defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::addFundingOrganization' }
   requirements:
     _access: 'TRUE'

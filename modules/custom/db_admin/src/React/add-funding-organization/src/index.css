@@ -21,12 +21,22 @@ body {
 }
 
 .bordered {
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
+  border-radius: 2px;
 }
 
 .red {
   color: #d9534f;
 }
+
+select.select {
+  min-width: 400px;
+}
+
+option.disabled {
+  color: #ddd;
+}
+
 
 @media (max-width: 991px) {
   .visible-responsive {
