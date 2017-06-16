@@ -171,6 +171,20 @@ function system_user_timezone(&$form, FormStateInterface $form_state) {
             '#default_value' => $user->getEmail(),
             '#required' => TRUE,
         );
+        /*
+        $form['container']['name']['timezone'] = array(
+            '#type' => 'select',
+            '#title' => t('Timezone'),
+            '#default_value' => drupal_get_user_timezone(),
+            '#required' => TRUE,
+            '#options' => [
+                    '1' => 'One',
+                    'America/North_Dakota/Center' => 'America/North_Dakota/Center',
+                    '3' => 'America/New_York',
+                  ],
+
+        );
+        */
         
   //$user = \Drupal::currentUser();
 /*

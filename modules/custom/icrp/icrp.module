@@ -142,6 +142,10 @@ function makeRandomString($max=6) {
     return $str;
 }
 
+function icrp_preprocess_form(&$variables) {
+  //dpm($variables);
+
+}
 function icrp_views_data_alter(array &$data) { 
   //drupal_set_message("icrp_views_data_alter");
   //dpm($data);
@@ -383,6 +387,8 @@ function icrp_preprocess_node(&$variables) {
     return;
   }
 
+  //dpm($variables);
+
   $variables['ttitle'] = $node->getTitle();
   $created_timestamp = DrupalDateTime::createFromTimestamp($node->getCreatedTime());
   //$last_visit_timestamp->setTimezone(timezone_open(drupal_get_user_timezone()));
@@ -415,8 +421,82 @@ function icrp_preprocess_forums__topics(&$variables) {
   //kint($variables['forums']);
   //var_dump($variables);
  }
+
+function getNodeBody($nid) {
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  return $node->get('body')->value; 
+}
+
+function getLastPostFromTopicID($tid) {
+    //Count number oc comments for this Thread
+    $query = "select count(*) as comment_count ";
+    $query .= "FROM taxonomy_index ti, comment_field_data cfd, comment__comment_body ccb ";
+    $query .= "where ti.nid = cfd.entity_id and cfd.cid = ccb.entity_id and ti.tid = {$tid}; ";
+    $result=db_query($query);
+    $row = $result->fetchObject();
+    //return "Comment Count: ".$row->comment_count;
+ 
+
+  //
+  // If there are now only one topic, then return the Topic Body, else get the last reply.
+  //
+    //
+    // If Comment count is zero.  Return Thread Topic Title and Body instead. If available.
+    // Else get the last reply.
+    //
+    if($row->comment_count == 0) {
+      $query = "SELECT count(*) as count FROM taxonomy_index ti where ti.tid = {$tid} ";
+      $query .= "order by ti.created desc limit 1; ";
+      $result=db_query($query);
+      $row = $result->fetchObject();
+      if(isset($row->count)  && $row->count == 1) {
+        $query = "SELECT nid FROM taxonomy_index ti where ti.tid = {$tid} ";
+        $query .= "order by ti.created desc limit 1; ";
+        $result=db_query($query);
+        $row = $result->fetchObject();
+        list($thread_title, $thread_summary) = getThreadNodeInfo($row->nid);
+        $comment = "<div><b>$thread_title</b></div><div>$thread_summary</div>"; 
+
+        return array($row->nid, $comment);
+      }
+    }
+
+
+  $query = "SELECT * FROM taxonomy_index ti where ti.tid = {$tid} order by ti.nid desc limit 1;";
+  $result=db_query($query);
+  $row = $result->fetchObject();
+  $comment = "";
+  $nid = "unknown";
+  if(isset($row->nid)) {
+    //$comment = lastComment($row->nid);
+    $query = "select ti.nid, ccb.comment_body_value, cfd.name, cfd.uid, cfd.changed ";
+    $query .= "FROM taxonomy_index ti, comment_field_data cfd, comment__comment_body ccb ";
+    $query .= "where ti.nid = cfd.entity_id and cfd.cid = ccb.entity_id and ti.tid = {$tid} "; 
+    $query .= "order by cfd.changed desc; ";
+    $result=db_query($query);
+    $row = $result->fetchObject();
+    if(isset($row->comment_body_value)) {
+      $comment = $row->comment_body_value."<div style='display:none;'> by <b>".$row->name."</b></div>";
+    }
+    $nid = $row->nid;
+
+  }
+
+  return array($nid, $comment);
+}
+
 function icrp_preprocess_forum_list(&$variables) {
   //drupal_set_message("Added chris to variables.  See if you can access in twig.");
+  foreach($variables['forums'] as $tid =>$term ) {
+    //drupal_set_message("Term: $tid");
+    //dpm($term);
+    list($nid, $last_post) = getLastPostFromTopicID($tid);
+    $variables['tforums'][$tid]['last_post'] = $last_post;
+    $variables['tforums'][$tid]['nid'] = $nid;
+
+    //$variables['tforums'][$tid]['last_post'] = "Hello";
+  }
+  //dpm($variables);
   //kint($variables);
   //drupal_set_message(print_r($variables, true));
 
@@ -695,9 +775,10 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             //\Drupal\icrp\Importer\OrganizationRestClient::populateOrganizations();
             OrganizationRestClient::populateOrganizations();
             break;
-        case 'node_forum_form':
+        case 'comment_comment_forum_form':
             //$form['sticky']['#access'] = true;
             //dpm($form);
+            $form['actions']['submit']['#value'] = t('Post Reply');
             break;
         case 'user_login':
         case 'user_login_form':
