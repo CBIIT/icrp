@@ -134,7 +134,9 @@
         {% else %}
           {% set t = loop.index + 6 %}
           <div style="margin-bottom:10px;">{{ tforums[ t ].last_post | raw }}</div>
-          <div class="forum__last-reply">{{ forum.last_reply|raw }}</div>
+          <div class="forum__last-reply">{{ forum.last_reply|raw }}
+            <span class="pull-right"><a href="/node/{{ tforums[ t ].nid }}#latest">View this post</a></span>
+          </div>
         {% endif %}
         
         </td>

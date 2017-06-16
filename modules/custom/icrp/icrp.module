@@ -451,8 +451,9 @@ function getLastPostFromTopicID($tid) {
         $result=db_query($query);
         $row = $result->fetchObject();
         list($thread_title, $thread_summary) = getThreadNodeInfo($row->nid);
-        
-        return "<div><b>$thread_title</b></div><div>$thread_summary</div>";
+        $comment = "<div><b>$thread_title</b></div><div>$thread_summary</div>"; 
+
+        return array($row->nid, $comment);
       }
     }
 
@@ -461,9 +462,10 @@ function getLastPostFromTopicID($tid) {
   $result=db_query($query);
   $row = $result->fetchObject();
   $comment = "";
+  $nid = "unknown";
   if(isset($row->nid)) {
-    $comment = lastComment($row->nid);
-    $query = "select ccb.comment_body_value, cfd.name, cfd.uid, cfd.changed ";
+    //$comment = lastComment($row->nid);
+    $query = "select ti.nid, ccb.comment_body_value, cfd.name, cfd.uid, cfd.changed ";
     $query .= "FROM taxonomy_index ti, comment_field_data cfd, comment__comment_body ccb ";
     $query .= "where ti.nid = cfd.entity_id and cfd.cid = ccb.entity_id and ti.tid = {$tid} "; 
     $query .= "order by cfd.changed desc; ";
@@ -472,10 +474,11 @@ function getLastPostFromTopicID($tid) {
     if(isset($row->comment_body_value)) {
       $comment = $row->comment_body_value."<div style='display:none;'> by <b>".$row->name."</b></div>";
     }
+    $nid = $row->nid;
 
   }
 
-  return $comment;
+  return array($nid, $comment);
 }
 
 function icrp_preprocess_forum_list(&$variables) {
@@ -483,7 +486,10 @@ function icrp_preprocess_forum_list(&$variables) {
   foreach($variables['forums'] as $tid =>$term ) {
     //drupal_set_message("Term: $tid");
     //dpm($term);
-    $variables['tforums'][$tid]['last_post'] = getLastPostFromTopicID($tid);
+    list($nid, $last_post) = getLastPostFromTopicID($tid);
+    $variables['tforums'][$tid]['last_post'] = $last_post;
+    $variables['tforums'][$tid]['nid'] = $nid;
+
     //$variables['tforums'][$tid]['last_post'] = "Hello";
   }
   //dpm($variables);
