@@ -20,12 +20,19 @@
 {% endfor %}
 <div class="tab-content partner-content">
 	<div id="welcome" class="tab-pane fade in active">
+	{# Old Code.  Rewrote to use partnerhomewelcome for both
 		{% if isManager=="true" %}
 			{{ drupal_block('partnerhomewelcomemanagereditbutton') }}
 			{{ drupal_block('partnerhomewelcomemanager') }}
 		{% else %}
 			{{ drupal_block('partnerhomewelcome') }}
 		{% endif %}
+		#}
+		{{ drupal_block('partnerhomewelcome') }}
+		{% if isManager=="true" %}
+			{{ drupal_block('partnerhomewelcomemanager') }}
+		{% endif %}
+
 	</div>
 
 	<div id="partner-calendar" class="tab-pane fade">

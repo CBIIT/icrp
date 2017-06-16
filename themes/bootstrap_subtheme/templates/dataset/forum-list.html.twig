@@ -133,9 +133,6 @@
           <span class="forum__last-reply" style="font-style:italic;">No Posts</span>
         {% else %}
           {% set t = loop.index + 6 %}
-          {% if tforum[t].last_reply == "" %}
-            <div> No replies </div>
-          {% endif %}
           <div style="margin-bottom:10px;">{{ tforums[ t ].last_post | raw }}</div>
           <div class="forum__last-reply">{{ forum.last_reply|raw }}</div>
         {% endif %}

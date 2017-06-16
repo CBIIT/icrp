@@ -80,7 +80,7 @@ function icrp_preprocess_comment(&$variables) {
     $field_organization_target_id = $user->get('field_organization')->target_id;
     $variables['torganization_target_id'] = $field_organization_target_id; 
     $node = \Drupal::entityTypeManager()->getStorage('node')->load($field_organization_target_id);
-    $variables['torganization'] =  $node->get('body')->value; 
+    //$variables['torganization'] =  $node->get('body')->value; 
     //dpm($variables);
 }
 
@@ -383,6 +383,8 @@ function icrp_preprocess_node(&$variables) {
     return;
   }
 
+  dpm($variables);
+
   $variables['ttitle'] = $node->getTitle();
   $created_timestamp = DrupalDateTime::createFromTimestamp($node->getCreatedTime());
   //$last_visit_timestamp->setTimezone(timezone_open(drupal_get_user_timezone()));
@@ -415,7 +417,45 @@ function icrp_preprocess_forums__topics(&$variables) {
   //kint($variables['forums']);
   //var_dump($variables);
  }
+
+function getNodeBody($nid) {
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  return $node->get('body')->value; 
+}
+
 function getLastPostFromTopicID($tid) {
+    //Count number oc comments for this Thread
+    $query = "select count(*) as comment_count ";
+    $query .= "FROM taxonomy_index ti, comment_field_data cfd, comment__comment_body ccb ";
+    $query .= "where ti.nid = cfd.entity_id and cfd.cid = ccb.entity_id and ti.tid = {$tid}; ";
+    $result=db_query($query);
+    $row = $result->fetchObject();
+    //return "Comment Count: ".$row->comment_count;
+ 
+
+  //
+  // If there are now only one topic, then return the Topic Body, else get the last reply.
+  //
+    //
+    // If Comment count is zero.  Return Thread Topic Title and Body instead. If available.
+    // Else get the last reply.
+    //
+    if($row->comment_count == 0) {
+      $query = "SELECT count(*) as count FROM taxonomy_index ti where ti.tid = {$tid} ";
+      $query .= "order by ti.created desc limit 1; ";
+      $result=db_query($query);
+      $row = $result->fetchObject();
+      if(isset($row->count)  && $row->count == 1) {
+        $query = "SELECT nid FROM taxonomy_index ti where ti.tid = {$tid} ";
+        $query .= "order by ti.created desc limit 1; ";
+        $result=db_query($query);
+        $row = $result->fetchObject();
+        list($thread_title, $thread_summary) = getThreadNodeInfo($row->nid);
+        
+        return "<div><b>$thread_title</b></div><div>$thread_summary</div>";
+      }
+    }
+
 
   $query = "SELECT * FROM taxonomy_index ti where ti.tid = {$tid} order by ti.nid desc limit 1;";
   $result=db_query($query);
@@ -430,7 +470,7 @@ function getLastPostFromTopicID($tid) {
     $result=db_query($query);
     $row = $result->fetchObject();
     if(isset($row->comment_body_value)) {
-      $comment = $row->comment_body_value."<div> by <b>".$row->name."</b></div>";
+      $comment = $row->comment_body_value."<div style='display:none;'> by <b>".$row->name."</b></div>";
     }
 
   }
@@ -444,6 +484,7 @@ function icrp_preprocess_forum_list(&$variables) {
     //drupal_set_message("Term: $tid");
     //dpm($term);
     $variables['tforums'][$tid]['last_post'] = getLastPostFromTopicID($tid);
+    //$variables['tforums'][$tid]['last_post'] = "Hello";
   }
   //dpm($variables);
   //kint($variables);
