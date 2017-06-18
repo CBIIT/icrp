@@ -87,9 +87,12 @@
   <li>
     <a href="/forum/6">ICRP Partnership Forum</a>
   </li>
+  {% if tforum_name is defined %}
   <li>
     <a href="/forum/{{ tforum_tid }}">{{ tforum_name }}</a>
   </li>
+  {% endif %}
+
   <li class="active">
     {{ ttitle }}
   </li>
@@ -114,15 +117,15 @@
     {% if page %}
       <h2>{{ ttitle }}
 
-{% if manager %}
-  <span class="pull-right" style="font-size:12px;">
-    <!--  This goes to edit screen that doesn't allow you to close... :(
+        {% if manager %}
+          <span class="pull-right" style="font-size:12px;">
+            <!--  This goes to edit screen that doesn't allow you to close... :(
 
-    <a class="pull-right" href="/admin/structure/forum/edit/forum/{{ tforum_tid }}">Edit</a>
-    <a class="pull-right" href="/thread/{{ tforum_tid }}?action=close">Close</a>
-    -->
-  </span>
-{% endif %}
+            <a class="pull-right" href="/admin/structure/forum/edit/forum/{{ tforum_tid }}">Edit</a>
+            <a class="pull-right" href="/thread/{{ tforum_tid }}?action=close">Close</a>
+            -->
+          </span>
+        {% endif %}
 
       </h2>
       <p>{{ tbody|raw }}</p>
@@ -142,6 +145,10 @@
             </tr>
           </tbody>
         </table>
+        {% if tcomment_forum.status == "2" and tcomment_forum.comment_count == 0 %}
+          <hr>
+          <div style="padding-left:20px;" title="Click on the Post Reply button to comment on this post."><em>There are no replies to this post.  Click the <strong>Post Reply</strong> button to comment on this thread.</em></div>
+        {% endif %}
     {% else %}
         <h2>Post Reply</h2>
         <div style="padding-bottom:20px;">
