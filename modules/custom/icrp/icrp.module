@@ -410,7 +410,7 @@ function icrp_preprocess_node(&$variables) {
     return;
   }
 
-  //dpm($variables);
+  dpm($variables);
 
   $variables['ttitle'] = $node->getTitle();
   $created_timestamp = DrupalDateTime::createFromTimestamp($node->getCreatedTime());
