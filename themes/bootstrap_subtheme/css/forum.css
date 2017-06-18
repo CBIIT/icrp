@@ -24,9 +24,11 @@ table.table-forum-topic-detail {
 table.table-forum-topic-detail > tbody > td {
 	padding: 20px;
 }
-
 li.comment-reply {
 	display:none;
+}
+ul.links.inline.list-inline >li > a {
+	font-weight:normal;
 }
 .action-links {
 	display:none;

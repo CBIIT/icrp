@@ -53,6 +53,14 @@ function icrp_views_data() {
   drupal_set_message("icrp_views_data");
 }
 */
+
+function icrp_preprocess_page(&$variables) {
+  //kint($variables['page']['content']);
+  //ICRP Partnership Forum
+
+  //dpm($variables['page']);
+}
+
 function icrp_preprocess_comment(&$variables) {
     //drupal_set_message("icrp_preprocess_comment");
     //dpm($variables);
@@ -143,9 +151,23 @@ function makeRandomString($max=6) {
 }
 
 function icrp_preprocess_form(&$variables) {
-  //dpm($variables);
+  if(isset($variables['element']['#form_id']) && $variables['element']['#form_id'] == "node_forum_form") {
 
+    $form_id = $variables['element']['#form_id'];
+    //drupal_set_message('Form_id: '.$form_id);
+    $tid = \Drupal::request()->query->get('forum_id');
+    //drupal_set_message("$tid:");
+    //Look up Forum Category and Thread for this forum_id
+  
+    $query = "select name, description__value FROM taxonomy_term_field_data where tid = {$tid}; ";
+  
+    $result = db_query($query);
+    $row = $result->fetchObject();
+    $variables['tforum_category'] = $row->name;
+    $variables['tforum_description'] = $row->description__value;
+  }
 }
+
 function icrp_views_data_alter(array &$data) { 
   //drupal_set_message("icrp_views_data_alter");
   //dpm($data);
@@ -382,7 +404,8 @@ function icrp_preprocess_menu_local_action(&$variables) {
 
 function icrp_preprocess_node(&$variables) {
   // Exit if node type is not a forum
-  $node = $variables['node']; 
+  $node = $variables['node'];
+  //drupal_set_message($node->getType()); 
   if($node->getType() != "forum") {
     return;
   }
@@ -780,7 +803,8 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             //dpm($form);
             $form['actions']['submit']['#value'] = t('Post Reply');
             break;
-        case 'user_login':
+        case 'node_forum_form':
+            $form['actions']['submit']['#value'] = t('Add New Thread');
         case 'user_login_form':
             //$form['link'] = array('#markup' => t("<div style=padding:20px;'><a href='/user/password'>Forgot Password?</a></div>"));
             break;

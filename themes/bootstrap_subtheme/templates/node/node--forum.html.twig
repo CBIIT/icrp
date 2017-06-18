@@ -69,7 +69,16 @@
   <span class="icrp-debug">node--forum.html.twig</span><br>
   <script>console.info("node--forum.html.twig");</script>
   <script>console.log({{ _context | json_encode | raw }});</script>
+  {{ dump(user.roles) }}
+
 {% endif %}
+{% set manager = false %}
+{% for role in user.roles %}
+  {% if (role == "manager") or (role == "administrator") %}
+    {% set manager = true %}
+  {% endif %}
+{% endfor %}
+
 <!--  Breadcrumb -->
 <ol class="breadcrumb">
   <li>
@@ -99,10 +108,23 @@
     'clearfix',
   ]
 %}
+
 <article{{ attributes.addClass(classes) }}>
   <header>
     {% if page %}
-      <h2>{{ ttitle }}</h2>
+      <h2>{{ ttitle }}
+
+{% if manager %}
+  <span class="pull-right" style="font-size:12px;">
+    <!--  This goes to edit screen that doesn't allow you to close... :(
+
+    <a class="pull-right" href="/admin/structure/forum/edit/forum/{{ tforum_tid }}">Edit</a>
+    <a class="pull-right" href="/thread/{{ tforum_tid }}?action=close">Close</a>
+    -->
+  </span>
+{% endif %}
+
+      </h2>
       <p>{{ tbody|raw }}</p>
         <table style="width:100%;margin-bottom:5px;">
           <tbody>
@@ -123,7 +145,7 @@
     {% else %}
         <h2>Post Reply</h2>
         <div style="padding-bottom:20px;">
-          <div><b>Forum:</b>&nbsp;{{ tforum_name }}</div>
+          <div><b>Forum Category:</b>&nbsp;{{ tforum_name }}</div>
           <div><b>Thread:</b>&nbsp;{{ ttitle }}</div>
         </div>
     {% endif %}

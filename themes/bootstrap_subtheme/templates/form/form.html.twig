@@ -27,6 +27,23 @@
         </div>
       </div>
     </div>
+{% elseif attributes.id == "node-forum-form"  %}
+    <h2>Add New Thread</h2>
+    <div><b>Forum Category:</b>&nbsp;{{ tforum_category }}</div>
+    <div style="padding-bottom:10px;"><b>Description:</b>&nbsp;{{ tforum_description|striptags('<em>')|raw }}</div>
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <!--
+            <p style="padding:15px;">Please enter a <span style="font-weight:bold;">Subject</span> and <span style="font-weight:bold;">Post</span> to start a new discussion thread.  Optionally, click on <b>Edit Summary</b> add a <span style="font-weight:bold;">Summary</span> to the thread.</p>
+            -->
+            <div class="well">
+
+                <form {{ attributes }}>
+                    {{ children }}
+                </form>
+            </div>
+        </div>
+    </div>
 {% else %}
     <form {{ attributes }}>
         {{ children }}
