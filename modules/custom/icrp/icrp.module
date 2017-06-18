@@ -419,7 +419,7 @@ function icrp_preprocess_node(&$variables) {
   $variables['tthread_created_time'] = $created_timestamp->format("D, F j, Y g:i A");
   $variables['tstatus'] = $node->get('status')->value;
   $variables['tnid'] = $node->get('nid')->value;
-  drupal_set_message("nid: ".$variables['tnid']);
+  //drupal_set_message("nid: ".$variables['tnid']);
   $tnode = \Drupal::entityTypeManager()->getStorage('node')->load($variables['tnid']);
   //dpm($node2);
   if(isset($tnode)){
@@ -440,7 +440,7 @@ function icrp_preprocess_node(&$variables) {
       }
     }
   }
-  dpm($variables);
+  //dpm($variables);
 }
 
 function icrp_preprocess_forums__topics(&$variables) {
