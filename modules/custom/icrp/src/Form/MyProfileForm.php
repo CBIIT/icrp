@@ -171,23 +171,20 @@ function system_user_timezone(&$form, FormStateInterface $form_state) {
             '#default_value' => $user->getEmail(),
             '#required' => TRUE,
         );
-        /*
+        
         $form['container']['name']['timezone'] = array(
             '#type' => 'select',
-            '#title' => t('Timezone'),
+            '#title' => t('Time zone'),
             '#default_value' => drupal_get_user_timezone(),
+            '#description' => t('Select the desired local time and time zone. Dates and times throughout this site will be displayed using this time zone.'),
             '#required' => TRUE,
-            '#options' => [
-                    '1' => 'One',
-                    'America/North_Dakota/Center' => 'America/North_Dakota/Center',
-                    '3' => 'America/New_York',
-                  ],
-
+            '#options' => system_time_zones(),
         );
-        */
+
         
-  //$user = \Drupal::currentUser();
 /*
+  //$user = \Drupal::currentUser();
+
   $account = $form_state->getFormObject()->getEntity();
   $form['timezone'] = [
     '#type' => 'details',
@@ -422,6 +419,7 @@ function system_user_timezone(&$form, FormStateInterface $form_state) {
         $this->entityManager->set("field_first_name", $form_state->getValue('field_first_name'));
         $this->entityManager->set("field_last_name", $form_state->getValue('field_last_name'));
         $this->entityManager->setEmail($form_state->getValue('email'));
+        $this->entityManager->set("timezone", $form_state->getValue('timezone'));
         foreach($this->notifications as $key => $field) {
             $this->entityManager->set($field, $form_values[$field]);
         }
@@ -434,11 +432,11 @@ function system_user_timezone(&$form, FormStateInterface $form_state) {
             $this->entityManager->setPassword($form_state->getValue('password_new'));
         }
         $this->entityManager->save();
-
+        /*
         foreach ($form_state->getValues() as $key => $value) {
-           // drupal_set_message($key . ': ' . $value);
+           drupal_set_message($key . ': ' . $value);
         }
-
+        */
         drupal_set_message("Your profile changes have been saved.");
 
     }

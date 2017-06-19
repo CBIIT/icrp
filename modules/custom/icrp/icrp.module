@@ -53,6 +53,14 @@ function icrp_views_data() {
   drupal_set_message("icrp_views_data");
 }
 */
+
+function icrp_preprocess_page(&$variables) {
+  //kint($variables['page']['content']);
+  //ICRP Partnership Forum
+
+  //dpm($variables['page']);
+}
+
 function icrp_preprocess_comment(&$variables) {
     //drupal_set_message("icrp_preprocess_comment");
     //dpm($variables);
@@ -143,9 +151,23 @@ function makeRandomString($max=6) {
 }
 
 function icrp_preprocess_form(&$variables) {
-  //dpm($variables);
+  if(isset($variables['element']['#form_id']) && $variables['element']['#form_id'] == "node_forum_form") {
 
+    $form_id = $variables['element']['#form_id'];
+    //drupal_set_message('Form_id: '.$form_id);
+    $tid = \Drupal::request()->query->get('forum_id');
+    //drupal_set_message("$tid:");
+    //Look up Forum Category and Thread for this forum_id
+  
+    $query = "select name, description__value FROM taxonomy_term_field_data where tid = {$tid}; ";
+  
+    $result = db_query($query);
+    $row = $result->fetchObject();
+    $variables['tforum_category'] = $row->name;
+    $variables['tforum_description'] = $row->description__value;
+  }
 }
+
 function icrp_views_data_alter(array &$data) { 
   //drupal_set_message("icrp_views_data_alter");
   //dpm($data);
@@ -382,7 +404,8 @@ function icrp_preprocess_menu_local_action(&$variables) {
 
 function icrp_preprocess_node(&$variables) {
   // Exit if node type is not a forum
-  $node = $variables['node']; 
+  $node = $variables['node'];
+  //drupal_set_message($node->getType()); 
   if($node->getType() != "forum") {
     return;
   }
@@ -390,28 +413,33 @@ function icrp_preprocess_node(&$variables) {
   //dpm($variables);
 
   $variables['ttitle'] = $node->getTitle();
+  //drupal_set_message($variables['ttitle']);
   $created_timestamp = DrupalDateTime::createFromTimestamp($node->getCreatedTime());
   //$last_visit_timestamp->setTimezone(timezone_open(drupal_get_user_timezone()));
   $variables['tthread_created_time'] = $created_timestamp->format("D, F j, Y g:i A");
   $variables['tstatus'] = $node->get('status')->value;
   $variables['tnid'] = $node->get('nid')->value;
-  $node = \Drupal::entityTypeManager()->getStorage('node')->load($variables['tnid']);
-  //dpm($node);
-  $variables['tbody'] =  $node->get('body')->value; 
-  $variables['tcomment_forum']['comment_count'] =  $node->get('comment_forum')->comment_count; 
-  $variables['tcomment_forum']['status'] =  $node->get('comment_forum')->status; 
-  $variables['tforum_tid'] =  $node->get('taxonomy_forums')->target_id; 
-  
-  $forum = Drupal\taxonomy\Entity\Term::load($variables['tforum_tid']);
-  $variables['tforum_name'] =  $forum->getName(); 
-
-  //dpm($forum);  
-
-  //$variables['tforum_tid'] = $node->get('forum_tid');
-  //$variables['tforum_title'] = getForumTitle($node->get('forum_tid'));
-
-  //drupal_set_message("We got a forum node");
-  //drupal_set_message($node->getType());
+  //drupal_set_message("nid: ".$variables['tnid']);
+  $tnode = \Drupal::entityTypeManager()->getStorage('node')->load($variables['tnid']);
+  //dpm($node2);
+  if(isset($tnode)){
+    //drupal_set_message("We got a node");
+    //dpm($node);
+    $variables['tbody'] =  $tnode->get('body')->value; 
+    //drupal_set_message($variables['tbody']);
+    $variables['tcomment_forum']['comment_count'] =  $tnode->get('comment_forum')->comment_count; 
+    $variables['tcomment_forum']['status'] =  $tnode->get('comment_forum')->status; 
+    $variables['tforum_tid'] =  $tnode->get('taxonomy_forums')->target_id; 
+    if(isset($variables['tforum_tid'])) {
+      //drupal_set_message($variables['tforum_tid']);
+      $forum = Drupal\taxonomy\Entity\Term::load($variables['tforum_tid']);
+      if(isset($forum)){
+        $variables['tforum_name'] =  $forum->getName(); 
+      } else {
+        $variables['tforum_name'] =  "unknown"; 
+      }
+    }
+  }
   //dpm($variables);
 }
 
@@ -780,7 +808,8 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             //dpm($form);
             $form['actions']['submit']['#value'] = t('Post Reply');
             break;
-        case 'user_login':
+        case 'node_forum_form':
+            $form['actions']['submit']['#value'] = t('Add New Thread');
         case 'user_login_form':
             //$form['link'] = array('#markup' => t("<div style=padding:20px;'><a href='/user/password'>Forgot Password?</a></div>"));
             break;
