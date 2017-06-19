@@ -1,0 +1,19 @@
+add_funding_organization:
+  css:
+    theme:
+      assets/add_funding_organization/main.css: {}
+
+  js:
+    assets/add_funding_organization/service-worker.js: {}
+    assets/add_funding_organization/main.js: {}
+
+
+add_partner:
+  css:
+    theme:
+      assets/add_partner/main.css: {}
+
+  js:
+    assets/add_partner/service-worker.js: {}
+    assets/add_partner/main.js: {}
+

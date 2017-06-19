@@ -6,5 +6,5 @@ import './index.css';
 
 ReactDOM.render(
   <Form />,
-  document.getElementById('add-funding-organization'),
+  document.getElementById('add-partner'),
   registerServiceWorker);
