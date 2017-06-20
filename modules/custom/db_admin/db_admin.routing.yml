@@ -56,6 +56,7 @@ api.admin.partners.content.deprecated:
   defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addPartnerPage' }
   requirements:
     _access: 'TRUE'
+    _role: 'authenticated'
 
 ## Get page for adding funding organizations
 api.admin.funding_organizations.content.deprecated:
@@ -63,9 +64,11 @@ api.admin.funding_organizations.content.deprecated:
   defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addFundingOrganizationPage' }
   requirements:
     _access: 'TRUE'
+    _role: 'authenticated'
 
 test_event:
   path: /api/admin/test-event
   defaults: { _controller: 'Drupal\db_admin\Controller\AdminController::dispatchSampleEvent' }
   requirements:
     _access: 'TRUE'
+    _role: 'authenticated'
