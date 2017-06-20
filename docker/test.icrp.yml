@@ -15,3 +15,5 @@ services:
     container_name: test-icrp
     volumes:
       - ./run/tests:/tests
+    env_file:
+      - .test_env

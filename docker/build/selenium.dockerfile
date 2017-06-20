@@ -37,7 +37,7 @@ RUN dbus-uuidgen > /var/lib/dbus/machine-id
 
 RUN curl -L https://chromedriver.storage.googleapis.com/2.30/chromedriver_linux64.zip -o /tmp/chromedriver.zip \
  && curl -L https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2 -o /tmp/phantomjs.tar.bz2 \
- && curl -L https://github.com/mozilla/geckodriver/releases/download/v0.17.0/geckodriver-v0.17.0-linux64.tar.gz -o geckodriver.tar.gz \
+ && curl -L https://github.com/mozilla/geckodriver/releases/download/v0.17.0/geckodriver-v0.17.0-linux64.tar.gz -o /tmp/geckodriver.tar.gz \
  && tar xf /tmp/geckodriver.tar.gz -C /usr/local/bin geckodriver \
  && tar xjf /tmp/phantomjs.tar.bz2 -C /usr/local/bin phantomjs-2.1.1-linux-x86_64/bin/phantomjs --strip-components=2 \
  && unzip /tmp/chromedriver.zip -d /usr/local/bin \
