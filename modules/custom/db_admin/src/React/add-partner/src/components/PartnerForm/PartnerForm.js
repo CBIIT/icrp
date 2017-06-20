@@ -10,7 +10,7 @@ let Asterisk = () =>
 <span className="margin-right red">*</span>
 
 let DisabledOverlay = ({active}) =>
-  active 
+  active
   ? <div className="disabled-overlay"></div>
   : null
 
@@ -26,7 +26,7 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
 
     <Row>
       <Col md={6} className="margin-bottom">
-        <FormGroup controlId="select-partner" bsSize="small" validationState={validation.partner === false ? 'warning' : null}>
+        <FormGroup controlId="select-partner" bsSize="small" validationState={validation.partner === false ? 'error' : null}>
           <ControlLabel className="margin-right">Partner <Asterisk /></ControlLabel>
           <FormControl
             componentClass="select"
@@ -47,7 +47,7 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
       </Col>
 
       <Col md={6} className="margin-bottom">
-        <FormGroup bsSize="small" validationState={validation.joinedDate === false ? 'warning' : null}>
+        <FormGroup bsSize="small" validationState={validation.joinedDate === false ? 'error' : null}>
           <ControlLabel className="margin-right">Joined Date <Asterisk /></ControlLabel>
           <div className="display-flex">
             <DatePicker
@@ -64,12 +64,12 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
           { validation.joinedDate === false && <HelpBlock>This field is required.</HelpBlock> }
         </FormGroup>
       </Col>
-    </Row>    
+    </Row>
 
 
     <Row>
       <Col md={6} className="margin-bottom">
-        <FormGroup controlId="selectCountry" bsSize="small" validationState={validation.country === false ? 'warning' : null}>
+        <FormGroup controlId="selectCountry" bsSize="small" validationState={validation.country === false ? 'error' : null}>
           <ControlLabel className="margin-right">Country <Asterisk /></ControlLabel>
           <FormControl
             componentClass="select"
@@ -90,7 +90,7 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
       </Col>
 
       <Col md={6} className="margin-bottom">
-        <FormGroup  controlId="selectEmail" bsSize="small" validationState={validation.email === false ? 'warning' : null}>
+        <FormGroup  controlId="selectEmail" bsSize="small" validationState={validation.email === false ? 'error' : null}>
           <ControlLabel className="margin-right">Email <Asterisk /></ControlLabel>
           <FormControl
             type="text"
@@ -115,7 +115,7 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
 
     <Row>
       <Col md={6} className="margin-bottom">
-        <FormGroup  controlId="partner-sponsor-code" bsSize="small" validationState={validation.sponsorCode === false ? 'warning' : null}>
+        <FormGroup  controlId="partner-sponsor-code" bsSize="small" validationState={validation.sponsorCode === false ? 'error' : null}>
           <ControlLabel className="margin-right">Sponsor Code <Asterisk /></ControlLabel>
           <FormControl
             type="text"
@@ -172,10 +172,10 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
                 </div>
 
                 <span className="pointer form-group-addon-sm">Browse...</span>
-                <input 
-                  type="file" 
-                  name="logo-file" 
-                  id="logo-file" 
+                <input
+                  type="file"
+                  name="logo-file"
+                  id="logo-file"
                   className="logo-file"
                   onChange={event => changeCallback('logoFile', event.target['files'][0])}
                 />
@@ -199,9 +199,9 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
     </FormGroup>
 
 
-      <FormGroup  className="no-margin" controlId="partner-terms-and-conditions" bsSize="small" validationState={validation.agreeToTerms === false ? 'warning' : null}>
+      <FormGroup  className="no-margin" controlId="partner-terms-and-conditions" bsSize="small" validationState={validation.agreeToTerms === false ? 'error' : null}>
         <Checkbox
-          checked={form.agreeToTerms} 
+          checked={form.agreeToTerms}
           onChange={event => changeCallback('agreeToTerms', event.target['checked'])}>
           <span className="semibold margin-right">Agreed to Terms and Conditions</span>
           <Asterisk />
@@ -214,7 +214,7 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
     <FormGroup className="no-margin" controlId="partner-funding-organization" bsSize="small" validationState={null}>
       <div className="flex-inline">
         <Checkbox
-          checked={form.isFundingOrganization} 
+          checked={form.isFundingOrganization}
           onChange={event => changeCallback('isFundingOrganization', event.target['checked'])}>
           <span className="semibold">Add as a Partner Funding Organization</span>
         </Checkbox>
@@ -228,7 +228,7 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
       <DisabledOverlay active={!form.isFundingOrganization} />
       <Form inline>
         <Col md={6} className="margin-bottom">
-          <FormGroup controlId="selectOrganizationType" bsSize="small" validationState={validation.organizationType === false ? 'warning' : null}> 
+          <FormGroup controlId="selectOrganizationType" bsSize="small" validationState={validation.organizationType === false ? 'error' : null}>
             <ControlLabel className="margin-right">Organization Type <Asterisk /></ControlLabel>
             <FormControl
               componentClass="select"
@@ -253,7 +253,7 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
           <FormGroup className="no-margin" controlId="partner-funding-is-annualized" bsSize="small" validationState={null}>
             <div className="flex-inline">
               <Checkbox
-                checked={form.isAnnualized} 
+                checked={form.isAnnualized}
                 onChange={event => changeCallback('isAnnualized', event.target['checked'])}>
                 <b>Annualized Funding</b>
               </Checkbox>

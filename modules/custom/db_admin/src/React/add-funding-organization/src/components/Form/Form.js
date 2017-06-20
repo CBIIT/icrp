@@ -32,7 +32,7 @@ export default class Form extends React.Component {
       },
       loading: true,
       message: {
-        
+
       }
     };
 
@@ -41,9 +41,14 @@ export default class Form extends React.Component {
 
   async getFields() {
 
+    let protocol = window.location.protocol;
     let hostname = window.location.hostname;
-    let endpoint = `http://${hostname}/api/admin/funding_organizations/fields`;
-    let response = await fetch(endpoint);
+    let endpoint = `${protocol}//${hostname}/api/admin/funding_organizations/fields`;
+
+    if (hostname === 'localhost')
+      endpoint = 'https://icrpartnership-dev.org/api/admin/funding_organizations/fields';
+
+    let response = await fetch(endpoint, { credentials: 'same-origin' });
     let data = await response.json()
 
     let fields = this.state.fields;
@@ -106,7 +111,7 @@ export default class Form extends React.Component {
     this.setState({
       validation: validationState
     })
-    
+
     return valid;
   }
 
@@ -133,13 +138,18 @@ export default class Form extends React.Component {
         let formValue = form[key];
         formData.set(formKey, formValue);
       }
-      
+
+      let protocol = window.location.protocol;
       let hostname = window.location.hostname;
-      let endpoint = `http:///${hostname}/api/admin/funding_organizations/add`;
+      let endpoint = `${protocol}//${hostname}/api/admin/funding_organizations/add`;
+
+      if (hostname === 'localhost')
+        endpoint = 'https://icrpartnership-dev.org/api/admin/funding_organizations/add';
 
       let response = await fetch(endpoint, {
         method: 'POST',
         body: formData,
+        credentials: 'same-origin',
       });
 
       let messages = await response.json();
@@ -173,15 +183,6 @@ export default class Form extends React.Component {
       validation: {},
 
     })
-  }
-
-  async getFormFields() {
-    let response = await fetch(`${this.props.endpoint}/api/admin/add_funding_organization/fields`);
-    let fields = await response.json();
-
-    this.setState({
-      fields: fields
-    });
   }
 
 
