@@ -99,18 +99,20 @@
   {% if header %}
     <thead>
       <tr>
+        <th style="width:60px;"></th>
         {% for cell in header %}
           {%
             set cell_classes = [
               cell.active_table_sort ? 'is-active',
             ]
           %}
+
           {% if loop.index == 1 %}
-            {% set cell_bs_width = ['col-sm-6'] %}
+            {#  {% set cell_bs_width = ['col-sm-5'] %} #}
           {% elseif loop.index == 2 %}
             {% set cell_bs_width = ['col-sm-1'] %}
           {% elseif loop.index == 3 %}
-            {% set cell_bs_width = ['col-sm-5'] %}
+            {% set cell_bs_width = ['col-sm-6'] %}
           {% endif %}
           <{{ cell.tag }}{{ cell.attributes.addClass(cell_classes).addClass(cell_bs_width) }}>
             {{- cell.content -}}
@@ -133,6 +135,8 @@
             <{{ cell.tag }}{{ cell.attributes }} style="text-algin=center;">
             {% if loop.index == 1 %}
               {{- cell.content -}}
+              </td>
+              <td>
               {{ cell.icrp_markup |raw }}
             {% elseif loop.index == 2 %}
               {{ cell.icrp_markup |raw }}
@@ -158,23 +162,13 @@
       </tr>
     </tbody>
   {% endif %}
-  <!-- Add Forum Icons to Forum Detail table -->
-  <tfoot>
-    <tr>
-      <td colspan="3" style="vertical-align: middle;">
-        <div class="topic-status-legend">
-          <i class="fa fa-comment fa-2x fa-fw topic-status topic-status-new" title="New Posts available"></i><span>New posts</span>
-          <i class="fa fa-comment fa-2x fa-fw topic-status topic-status-default" title="No new posts available"></i><span>No new posts</span>
-          <i class="fa fa-comment fa-2x fa-fw topic-status topic-status-closed" title="Thread is closed for comments"></i><span>Closed</span>
-        </div>
-      </td>
-    </tr>
-  </tfoot>
 
   {% if footer %}
     <tfoot>
       {% for row in footer %}
         <tr{{ row.attributes }}>
+          <td>
+          </td>
           {% for cell in row.cells %}
             <{{ cell.tag }}{{ cell.attributes }}>
               {{- cell.content -}}

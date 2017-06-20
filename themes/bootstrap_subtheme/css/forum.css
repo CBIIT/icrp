@@ -91,21 +91,30 @@ table#forum { border: 1px solid #eaeaea; width: 100%; }
 .node-forum .field-name-body { margin: 10px 0; }
 
 .node-forum .field-type-taxonomy-term-reference { float: none; }
-
+/* User submitted */
+span.submitted {
+	color:grey;
+	font-size:small;
+}
+/* forum */
 .forum-topic-icon {
 	color: #e7b348;
 }
 .forum__topics {
 	background-color:#2A78E4;
-	border: 1px solid blue;
+	border: 1px solid #2A78E4;
 	color:white;
 	padding:4px 8px;
+	display:inline-block; 
+	min-width:35px
 }
 .forum__posts {
 	background-color: #B45F06;
 	border: 1px solid #B47F06;
 	color:white;
 	padding:4px 8px;
+	display:inline-block; 
+	min-width:35px
 }
 .forum__name {
   font-size: 1.5em;
