@@ -120,14 +120,15 @@
 }
 
 .form-group-addon-sm {
-  height: 30px;
+  height: 33px;
   background-color: #f5f5f5;
   border: 1px solid #ccc;
   border-radius: 0 4px 4px 0;
   line-height: 1.5;
-  font-size: 12px;
-  padding: 5px 6px;
+  font-size: 14px;
+  padding: 5px 10px;
 }
+
 .placeholder {
   color: #aaa;
 }
