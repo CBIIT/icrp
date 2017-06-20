@@ -3,6 +3,7 @@
 namespace Drupal\library\Controller;
 
 #require_once("Zipstream.php");
+#use Zipstream; ## once we run composer install in the deployment script we can use this instead
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;

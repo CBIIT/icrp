@@ -20,7 +20,7 @@ public class TestICRPWebsite {
     }
 
     @Test
-    public void siteShouldBePubliclyAccessible() {
+    public void shouldBePubliclyAccessible() {
         String websiteUrl =
             System.getProperty("website.url");
         System.out.println("Using " + websiteUrl);
