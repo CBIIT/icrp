@@ -19,7 +19,7 @@ const FundingOrganizationForm = ({form, fields, validation, changeCallback, subm
     <Row className="bordered padding-top margin-bottom">
       <Form inline>
         <Col md={6} className="margin-bottom">
-          <FormGroup controlId="selectPartner" bsSize="small" validationState={validation.partner === false ? 'warning' : null}> 
+          <FormGroup controlId="selectPartner" bsSize="small" validationState={validation.partner === false ? 'warning' : null}>
             <ControlLabel className="margin-right">Partner <Asterisk /></ControlLabel>
             <FormControl
               componentClass="select"
@@ -40,8 +40,8 @@ const FundingOrganizationForm = ({form, fields, validation, changeCallback, subm
         </Col>
 
         <Col md={6} className="margin-bottom">
-          <Row>
-            
+          <Row className="m-t-3">
+
             <Col md={4}>
               <ControlLabel className="margin-right">Member Type <Asterisk /></ControlLabel>
             </Col>
