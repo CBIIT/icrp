@@ -6,6 +6,7 @@ api.admin.partners.content:
   defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addPartnerPage' }
   requirements:
     _access: 'TRUE'
+    _role: 'authenticated'
 
 ## Get page for adding funding organizations
 api.admin.funding_organizations.content:
@@ -13,7 +14,7 @@ api.admin.funding_organizations.content:
   defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addFundingOrganizationPage' }
   requirements:
     _access: 'TRUE'
-
+    _role: 'authenticated'
 
 
 ## Get form fields for funding organizations
