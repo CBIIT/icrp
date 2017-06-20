@@ -90,7 +90,15 @@ class ValidationConfiguratorComponent extends Component {
         var data = new FormData();
         data.append('type', 'new');
         var that = this;
-        let response = await fetch('http://icrp-dataload/dataload/integrity_check_mssql/', { method: 'POST', body: data });
+        let protocol = window.location.protocol;
+        let hostname = window.location.hostname;
+        let pathname = 'dataload/integrity_check_mssql';
+        if (hostname === 'localhost') {
+            protocol = 'http:';
+            hostname = 'icrp-dataload';
+        }
+
+        let response = await fetch(`${protocol}//${hostname}/${pathname}`, { method: 'POST', body: data });
 
         if (response.ok) {
             let results = await response.json();
@@ -140,11 +148,11 @@ class ValidationConfiguratorComponent extends Component {
 
                 </Col>
                 <Col lg={3} md={4} sm={6} xs={12}>
-                    <ValidationCategory validationCategory={cancerTypeCategory} onCheck={this.toggleCheck}/>
-                    <ValidationCategory validationCategory={institutionCategory} onCheck={this.toggleCheck}/>
+                    <ValidationCategory validationCategory={cancerTypeCategory} onCheck={this.toggleCheck} />
+                    <ValidationCategory validationCategory={institutionCategory} onCheck={this.toggleCheck} />
                 </Col>
                 <Col lg={3} md={4} sm={6} xs={12} >
-                    <ValidationCategory validationCategory={csoCategory} onCheck={this.toggleCheck}/>
+                    <ValidationCategory validationCategory={csoCategory} onCheck={this.toggleCheck} />
                 </Col>
                 <Col lg={3} xs={12} className="responsive-border-right">
                     <FormGroup className="lower-buttons-250">

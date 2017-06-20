@@ -56,7 +56,7 @@ class UploadFormComponent extends Component {
         switch (type) {
             case 'file':
                 value = target.files[0];
-                await this.setState({originalFileName: target.files[0].name});
+                await this.setState({ originalFileName: target.files[0].name });
                 break;
             case 'checkbox':
                 value = target.checked;
@@ -109,7 +109,15 @@ class UploadFormComponent extends Component {
         data.append("originalFileName", this.state.originalFileName);
         data.append('uploadType', this.state.uploadType);
         var that = this;
-        let response = await fetch('http://icrp-dataload/loaddata_mssql/', { method: 'POST', body: data });
+        let protocol = window.location.protocol;
+        let hostname = window.location.hostname;
+        let pathname = 'dataload/loaddata_mssql';
+        if (hostname === 'localhost') {
+            protocol = 'http:';
+            hostname = 'icrp-dataload';
+        }
+        debugger;
+        let response = await fetch(`${protocol}//${hostname}/${pathname}`, { method: 'POST', body: data });
 
         if (response.ok) {
             let result = await response.json();

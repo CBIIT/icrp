@@ -26,12 +26,19 @@ class ValidationSummaryComponent extends Component {
     }
 
     async openModal(ruleId) {
-
         this.setState({ loading: true });
         var data = new FormData();
         data.append('ruleId', ruleId);
         var that = this;
-        let response = await fetch('http://icrp-dataload/dataload/integrity_check_details_mssql/', { method: 'POST', body: data });
+        let protocol = window.location.protocol;
+        let hostname = window.location.hostname;
+        let pathname = 'dataload/integrity_check_details_mssql';
+        if (hostname === 'localhost') {
+            protocol = 'http:';
+            hostname = 'icrp-dataload';
+        }
+
+        let response = await fetch(`${protocol}//${hostname}/${pathname}`, { method: 'POST', body: data });
 
         if (response.ok) {
             let results = await response.json();
@@ -48,14 +55,14 @@ class ValidationSummaryComponent extends Component {
 
         let validationRules = this.props.validationRules;
         let validationResults = [];
-        let ruleId = 0;
         this.props.validationResults.forEach(result => {
-            const isChecked = validationRules.find(rule => rule.id === parseInt(result.id, 10)).checked;
+            const resultId = parseInt(result.id, 10);
+            const isChecked = validationRules.find(rule => rule.id === resultId).checked;
             if (isChecked) {
                 let validationResult = result.validationResult;
                 const _bsStyle = validationResult === 'Failed' ? "danger" : "default";
                 validationResults.push(
-                    <ListGroupItemComponent bsStyle={_bsStyle} result={result} ruleId={++ruleId} clickHandler={this.openModal} />
+                    <ListGroupItemComponent bsStyle={_bsStyle} result={result} ruleId={resultId} clickHandler={this.openModal} />
                 )
             }
         });

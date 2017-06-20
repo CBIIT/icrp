@@ -70,7 +70,16 @@ class NewTableComponent extends Component {
         data.append('sortColumn', sortColumn);
         data.append('sortDirection', sortDirection);
         var that = this;
-        let response = await fetch('http://icrp-dataload/getdata_mssql/', { method: 'POST', body: data });
+        let protocol = window.location.protocol;
+        let hostname = window.location.hostname;
+        let pathname = 'dataload/getdata_mssql';
+
+        if (hostname === 'localhost') {
+            protocol = 'http:';
+            hostname = 'icrp-dataload';
+        }
+
+        let response = await fetch(`${protocol}//${hostname}/${pathname}`, { method: 'POST', body: data });
 
         if (response.ok) {
             let result = await response.json();
@@ -96,17 +105,17 @@ class NewTableComponent extends Component {
         const page = this.props.stats.page;
 
         return (
-                <div>
-                    Total Records: {this.props.stats.totalRows}
-                    <ReactDataGrid
-                        onGridSort={this.handleGridSort}
-                        columns={columns}
-                        rowGetter={this.rowGetter}
-                        rowsCount={rowCount}
-                        minHeight={500} />
-                    Page {page} of {totalPages} (Showing {this.props.stats.showingFrom} - {this.props.stats.showingTo} of {this.props.stats.totalRows}) < br />
-                    <TablePagination stats={this.props.stats} page={this.props.page} onPageChange={this.handlePageChange} />
-                </div>
+            <div>
+                Total Records: {this.props.stats.totalRows}
+                <ReactDataGrid
+                    onGridSort={this.handleGridSort}
+                    columns={columns}
+                    rowGetter={this.rowGetter}
+                    rowsCount={rowCount}
+                    minHeight={500} />
+                Page {page} of {totalPages} (Showing {this.props.stats.showingFrom} - {this.props.stats.showingTo} of {this.props.stats.totalRows}) < br />
+                <TablePagination stats={this.props.stats} page={this.props.page} onPageChange={this.handlePageChange} />
+            </div>
         );
     }
 
