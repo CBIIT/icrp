@@ -506,7 +506,9 @@ function getLastPostFromTopicID($tid) {
     if(isset($row->comment_body_value)) {
       $comment = $row->comment_body_value."<div style='display:none;'> by <b>".$row->name."</b></div>";
     }
-    $nid = $row->nid;
+    if(isset($row->nid)) {
+      $nid = $row->nid;
+    }
 
   }
 
