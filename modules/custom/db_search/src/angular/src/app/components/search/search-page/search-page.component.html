@@ -18,8 +18,8 @@
     <icrp-search-summary-panel
       #summarypanel
       [displayParameters]="state.displayParameters"
-      [analytics]="state.analytics"
-      [numResults]="state.numResults"
+      [projectCount]="state.projectCount"
+      [relatedProjectCount]="state.relatedProjectCount"
       [loading]="state.loading"
       >
     </icrp-search-summary-panel>
@@ -39,6 +39,7 @@
 
     <div *ngIf="state.loading || state.results && state.results.length > 0">
       <icrp-charts-panel
+        #chartspanel
         [analytics]="state.analytics"
         [fields]="fields"
         (requestChart)="this.getAnalytics(state.searchID, [$event.type], $event.year)">
@@ -54,7 +55,7 @@
       <icrp-results-table-panel
         [loading]="state.loading"
         [results]="state.results"
-        [numResults]="state.numResults"
+        [numResults]="state.projectCount"
         (sortPaginate)="getSortedPaginatedResults($event)">
       </icrp-results-table-panel>
     </div>

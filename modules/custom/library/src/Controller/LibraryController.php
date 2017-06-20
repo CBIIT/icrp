@@ -2,20 +2,25 @@
 
 namespace Drupal\library\Controller;
 
+#require_once("Zipstream.php");
+#use Zipstream; ## once we run composer install in the deployment script we can use this instead
+
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Url;
 use Ds\Set;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use PDO;
 
 class LibraryController extends ControllerBase {
   public function testQuery() {
-    return new JsonResponse(array(),Response::HTTP_FORBIDDEN);
+    return new JsonResponse(array(),$status=Response::HTTP_FORBIDDEN);
     $return = array();
     $connection = self::get_connection();
     $stmt = $connection->prepare(
-      "SELECT Filename,IsPublic FROM Library WHERE DisplayName='Day 2.2_DB-ACS-Breast Cancer Gen Test.pptx'"
+      "SELECT * FROM Library WHERE LibraryID IN (5,1121)"
     );
     if ($stmt->execute()) {
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -26,7 +31,7 @@ class LibraryController extends ControllerBase {
         array_push($return,$row_output);
       }
     }
-    return new JsonResponse($return);
+    return new BinaryFileResponse($zip);
   }
 
   private static $initFolderQuery = array(
@@ -355,7 +360,7 @@ class LibraryController extends ControllerBase {
       $stmt = $connection->prepare("SELECT IsPublic FROM Library WHERE IsPublic=1 AND ThumbnailFilename=:file");
       $stmt->bindParam(":file",$file);
       if (!$stmt->execute() || $stmt->rowCount() == 0) {
-        return new JsonResponse($stmt->rowCount(),$status=Response::HTTP_FORBIDDEN);
+        return new RedirectResponse(Url::fromUserInput('/user/login',array("query"=>array("destination"=>\Drupal::request()->getRequestUri())))->toString(),$status=Response::HTTP_TEMPORARY_REDIRECT);
       }
     }
     return self::getFile(join('/',array("thumbs",$file)));
@@ -405,29 +410,11 @@ class LibraryController extends ControllerBase {
 
   private function archiveFolder($id) {
     $connection = self::get_connection();
-    //$stmt1 = $connection->prepare("UPDATE LibraryFolder SET ArchivedDate=GETDATE() WHERE ArchivedDate IS NULL AND LibraryFolderID=:lfid;");
-    //$stmt1->bindParam(":lfid",$id);
-    $stmt2 = $connection->prepare("UPDATE Library SET ArchivedDate=GETDATE(), UpdatedDate=GETDATE() WHERE ArchivedDate IS NULL AND LibraryFolderID=:lfid;");
-    $stmt2->bindParam(":lfid",$id);
-    if (/*$stmt1->execute() && */$stmt2->execute()) {
-      $success = true;
-      /*
-      $stmt = $connection->prepare("SELECT LibraryFolderID FROM LibraryFolder WHERE ArchivedDate IS NULL AND ParentFolderID=:pfid;");
-      $stmt->bindParam(":pfid",$id);
-      if ($stmt->execute()) {
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-          $row_output = array();
-          foreach ($row as $key=>$value) {
-            $row_output[$key] = $value;
-          }
-          $id = $row_output['LibraryFolderID'];
-          $result = self::archiveFolder($id);
-          if (!$result["success"]) $success = false;
-        }
-      }
-      */
+    $stmt = $connection->prepare("UPDATE Library SET ArchivedDate=GETDATE(), UpdatedDate=GETDATE() WHERE ArchivedDate IS NULL AND LibraryFolderID=:lfid;");
+    $stmt->bindParam(":lfid",$id);
+    if ($stmt->execute()) {
       return array(
-        "success"=>$success
+        "success"=>true
       );
     }
     return array(
@@ -462,8 +449,31 @@ class LibraryController extends ControllerBase {
     return $returnValue;
   }
 
+  public function bulkDownload() {
+    $downloads = explode(",",\Drupal::request()->query->get('downloads'));
+    $result = array();
+    $connection = self::get_connection();
+    $stmt = $connection->prepare("SELECT * FROM Library WHERE ArchivedDate IS NULL AND LibraryID IN (".implode(",",array_fill(0,count($downloads),"?")).")");
+    foreach ($downloads as $k => $id)
+      $stmt->bindValue(($k+1), $id);
+    #$zip = new \Zipstream\ZipStream('archive.zip');
+    if ($stmt->execute()) {
+      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $row_output = array();
+        foreach ($row as $key=>$value) {
+          $row_output[$key] = $value;
+        }
+        array_push($result,$row_output);
+        #try {
+        #  $zip->addFileFromPath($row_output['DisplayName'],join('/',array(drupal_realpath('public://library/uploads'),$row_output['Filename'])));
+        #} catch (\Zipstream\Exception\FileNotFoundException $e) { }
+      }
+    }
+    #$zip->finish();
+    return new Response();
+  }
+
   public function fileDownload($id,$name) {
-    //return new JsonResponse(array(),Response::HTTP_FORBIDDEN);
     $connection = self::get_connection();
     $request = "SELECT Filename FROM Library WHERE LibraryID=:lfid AND DisplayName=:file";
     if (self::getRole() == "public") {
@@ -473,7 +483,7 @@ class LibraryController extends ControllerBase {
     $stmt->bindParam(":lfid",$id);
     $stmt->bindParam(":file",$name);
     if (!$stmt->execute() || $stmt->rowCount() == 0) {
-      return new JsonResponse(array(),$status=Response::HTTP_FORBIDDEN);
+      return new RedirectResponse(Url::fromUserInput('/user/login',array("query"=>array("destination"=>\Drupal::request()->getRequestUri())))->toString(),$status=Response::HTTP_TEMPORARY_REDIRECT);
     }
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     $row_output = array();

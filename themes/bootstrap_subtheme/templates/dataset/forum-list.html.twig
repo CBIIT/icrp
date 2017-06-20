@@ -38,17 +38,13 @@
   <script>console.info("forums-list.html.twig");</script>
   <script>console.log({{ _context | json_encode | raw }});</script>
 
+  <script>console.log({{ forums | json_encode | raw }});</script>
   {#%# for child_id, forum in forums %#}
     {#{ child_id }#}
   {#% endfor %#}
 
 {% endif %}
 
-<h2>ICRP Partnership Forum</h2>
-<!--
-<hr style="border: 1px solid orange;">
--->
-<p>To start viewing messages, select the forum that you want to visit from the selection below.</p>
 <table id="forum" class="table table-bordered table-striped table-condensed table-narrow">
   <thead>
     <tr>
@@ -57,9 +53,6 @@
       <th>{{ 'Last Post'|t }}</th>
     </tr>
   </thead>
-  {% if icrp_debug %}
-    <script>console.log({{ forums | json_encode | raw }});</script>
-  {% endif %}
 
   <tbody>
   {% for child_id, forum in forums %}
@@ -78,7 +71,6 @@
           <div class="indented">
         {% endfor %}
         {# Set a uniqueicon for each forum-id #}
-        {% set icon = "fa-car" %}
         {% if child_id == 7 %}
           {% set icon = "fa-newspaper-o" %}
         {% elseif child_id == 8 %}
@@ -136,10 +128,15 @@
         {{ forum.last_reply| raw | slice(0,50) }}<br>
         {{ forum.last_reply| raw | slice(0,1150) }}<br>
 #}
+
         {% if (forum.num_topics == 0) %}
-          <span class="forum__last-reply">No Posts</span>
+          <span class="forum__last-reply" style="font-style:italic;">No Posts</span>
         {% else %}
-          <span class="forum__last-reply">{{ forum.last_reply|raw }}</span>
+          {% set t = loop.index + 6 %}
+          <div style="margin-bottom:10px;">{{ tforums[ t ].last_post | raw }}</div>
+          <div class="forum__last-reply">{{ forum.last_reply|raw }}
+            <span class="pull-right"><a href="/node/{{ tforums[ t ].nid }}#latest">View this post</a></span>
+          </div>
         {% endif %}
         
         </td>

@@ -45,31 +45,41 @@
   <script>console.info("table.html.twig");</script>
   <script>console.log({{ _context | json_encode | raw }});</script>
 
-set caption = 'Hello World'
+<h4>dump(rows);</h4>
+<div style="border: 1px solid blue">
+{{ dump(footer) }}
+</div>
+<h4>dump(footer);</h4>
+<div style="border: 1px solid blue">
+{{ dump(footer) }}
+</div>
+<h4>dump(no_striping);</h4>
+<div style="border: 1px solid blue">
+{{ dump(no_striping) }}
+</div>
+<h4>dump(header_columns);</h4>
+<div style="border: 1px solid blue">
+{{ dump(header_columns) }}
+</div>
+
+<h4>dump(attributes);</h4>
 <div style="border: 1px solid blue">
 {{ dump(attributes) }}
 </div>
+<h4>dump(header);</h4>
 <div style="border: 1px solid green">
 {{ dump(header) }}
 </div>
+<h4>dump(content)</h4>
 <div>
 {{ dump(content) }}
 </div>
 
 {% endif %}
 
-<h2>Forum Number 9</h2>
-<div>
-<p class="pull-left">
-Here is your new forum.
-</p>
-<div class="pull-right">
-  <a cdata-drupal-link-system-path="node/add/forum" data-drupal-link-query="{&quot;forum_id&quot;:&quot;9&quot;}" class="btn btn-xs btn-success" href="/node/add/forum?forum_id=9">Add new Forum thread</a>
-</div>
-</div>
-
 <!-- <table{{ attributes }}> -->
 <table {{ attributes }} class="table table-striped table-bordered table-condensed sticky-enabled table-forum-topic">
+<!--  <col width="60%"> -->
   {% if caption %}
     <caption>{{ caption }}</caption>
   {% endif %}
@@ -89,13 +99,22 @@ Here is your new forum.
   {% if header %}
     <thead>
       <tr>
+        <th style="width:60px;"></th>
         {% for cell in header %}
           {%
             set cell_classes = [
               cell.active_table_sort ? 'is-active',
             ]
           %}
-          <{{ cell.tag }}{{ cell.attributes.addClass(cell_classes) }}>
+
+          {% if loop.index == 1 %}
+            {#  {% set cell_bs_width = ['col-sm-5'] %} #}
+          {% elseif loop.index == 2 %}
+            {% set cell_bs_width = ['col-sm-1'] %}
+          {% elseif loop.index == 3 %}
+            {% set cell_bs_width = ['col-sm-6'] %}
+          {% endif %}
+          <{{ cell.tag }}{{ cell.attributes.addClass(cell_classes).addClass(cell_bs_width) }}>
             {{- cell.content -}}
           </{{ cell.tag }}>
         {% endfor %}
@@ -113,9 +132,25 @@ Here is your new forum.
         %}
         <tr{{ row.attributes.addClass(row_classes) }}>
           {% for cell in row.cells %}
-            <{{ cell.tag }}{{ cell.attributes }}>
+            <{{ cell.tag }}{{ cell.attributes }} style="text-algin=center;">
+            {% if loop.index == 1 %}
               {{- cell.content -}}
+              </td>
+              <td>
+              {{ cell.icrp_markup |raw }}
+            {% elseif loop.index == 2 %}
+              {{ cell.icrp_markup |raw }}
+            {% elseif loop.index == 3 %}
+              {{ cell.icrp_markup |raw }}
+              {% if cell.reply_posts > 0 %}
+                <div style="margin-top:10px;">
+                    {{- cell.content -}}
+                </div>
+              {% endif %}
+            {% endif %}
             </{{ cell.tag }}>
+          
+
           {% endfor %}
         </tr>
       {% endfor %}
@@ -127,10 +162,13 @@ Here is your new forum.
       </tr>
     </tbody>
   {% endif %}
+
   {% if footer %}
     <tfoot>
       {% for row in footer %}
         <tr{{ row.attributes }}>
+          <td>
+          </td>
           {% for cell in row.cells %}
             <{{ cell.tag }}{{ cell.attributes }}>
               {{- cell.content -}}

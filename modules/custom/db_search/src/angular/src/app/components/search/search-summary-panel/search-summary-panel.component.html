@@ -6,19 +6,18 @@
     <span [innerHTML]="getSummary()">
     </span>
   </div>
-  <div right-header class="bold blue" >
-    <div *ngIf="numResults && analytics.project_counts_by_country && analytics.project_counts_by_country.results_count">
-      <span tooltip="Parent projects">
-        Total Projects: {{ numResults.toLocaleString() }}
-      </span>
-
-      <span *ngIf="analytics.project_counts_by_country && analytics.project_counts_by_country.results_count" tooltip="Including linked sub-projects or supplements">
-        / Total Related Projects: {{ analytics.project_counts_by_country && analytics.project_counts_by_country.results_count.toLocaleString() }}
-      </span>
+  <div right-header class="blue" >
+    <div *ngIf="projectCount && relatedProjectCount">
+      <b tooltip="Parent projects">
+        Total Projects: {{ projectCount.toLocaleString() }} /
+      </b>
+      <b tooltip="Including linked sub-projects or supplements">
+        Total Related Projects: {{ relatedProjectCount.toLocaleString() }}
+      </b>
     </div>
   </div>
 
-  <div class="table-responsive vertical-padding" *ngIf="!loading">
+  <div class="responsive-wrapper vertical-padding" *ngIf="!loading">
     <table class="display-parameters">
       <tbody>
         <tr *ngFor="let row of displayParameters">

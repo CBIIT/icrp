@@ -64,7 +64,11 @@
  * @see template_preprocess_comment()
  */
 #}
-<span style="font-size:8px; color:red">comment.html.twig</span><br>
+{% if icrp_debug %}
+  <script>console.info("comment.html.twig");</script>
+  <script>console.log({{ _context | json_encode | raw }});</script>
+{% endif %}
+
 {% if threaded %}
   {{ attach_library('classy/drupal.comment.threaded') }}
 {% endif %}
@@ -72,40 +76,75 @@
   set classes = [
     'comment',
     'js-comment',
-    status != 'published' ? 'comment--' ~ status,
+    status != 'published' ? status,
     comment.owner.anonymous ? 'by-anonymous',
     author_id and author_id == commented_entity.getOwnerId() ? 'by-' ~ commented_entity.getEntityTypeId() ~ '-author',
-    'clearfix',
   ]
 %}
-<article role="article"{{ attributes.addClass(classes)|without('role') }}>
-  {#
-    Hide the "new" indicator by default, let a piece of JavaScript ask the
-    server which comments are new for the user. Rendering the final "new"
-    indicator here would break the render cache.
-  #}
-  <span class="hidden" data-comment-timestamp="{{ new_indicator_timestamp }}"></span>
+<hr style="margin:0px;padding:0px;">
+<article{{ attributes.addClass(classes) }}>
+  <table class="table table-striped table-bordered table-condensed table-forum-topic-detail">
+    <theader>
+      <tr>
+        <td colspan="2" style="font-weight:bold;background-color:#EFEFEF;">
+          <span class="hidden label label-pill label-primary" title="New reply" data-comment-timestamp="{{ new_indicator_timestamp }}"></span>
+          <span>{{ tcreated_time }}</span>
 
-  <blockquote {{ content_attributes.addClass('comment__content') }} style="font-weight:bold;">
-    {% if title %}
-      {{ title_prefix }}
-      <!--
-        <h3{{ title_attributes }}>{{ title }}</h3>
-        -->
-      {{ title_suffix }}
-    {% endif %}
-    {{ content|without('links') }}
-  </blockquote>
+            {% if content.links %}
+              <span class="pull-right" style="height:21px;">
+                <nav>{{ content.links }}</nav>
+              </span>
+            {% endif %}
 
-  <div class="comment__meta">
+          </span>
+        </td>
+      </tr>
+    </theader>
+    <tbody>
+      <tr>
+        <td style="width:30%;">
+          <div class="comment__meta">
+            <div style="font-weight:bold">{{ author }}</div>
 
-    <span>{% trans %}- {% endtrans %}{{ author }}{% trans %} <i>{% endtrans %} {{ created }}</i></span>
+            <div>{{ torganization }}</div>
+            {#
+            <span>{% trans %}- {% endtrans %}{{ author }}{% trans %} <i>{% endtrans %}{{ created }}</i></span>
+            #}
+            {% if parent %}
+              <p class="visually-hidden">{{ parent }}</p>
+            {% endif %}
+          </div>
+        </td>
+        {#
+          Hide the "new" indicator by default, let a piece of JavaScript ask the
+          server which comments are new for the user. Rendering the final "new"
+          indicator here would break the render cache.
+        #}
+        <td style="background-color:#F3F7FC;padding:10px;width:70%;">
+          <div {{ content_attributes.addClass('comment__content') }}>
+            {{ content|without('links') }}
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
     {% if parent %}
-      <p class="visually-hidden">{{ parent }}</p>
+      <p class="parent visually-hidden">{{ parent }}</p>
     {% endif %}
-  </div>
 
-  {% if content.links %}
-    <nav>{{ content.links }}</nav>
-  {% endif %}
+  <footer class="comment__meta visually-hidden">
+    {{ user_picture }}
+    <p class="comment__submitted">{{ submitted }}</p>
+
+    {#
+      Indicate the semantic relationship between parent and child comments for
+      accessibility. The list is difficult to navigate in a screen reader
+      without this information.
+    #}
+    {% if parent %}
+      <p class="parent visually-hidden">{{ parent }}</p>
+    {% endif %}
+
+    {{ permalink }}
+  </footer>
 </article>

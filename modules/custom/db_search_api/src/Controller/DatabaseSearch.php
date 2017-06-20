@@ -7,10 +7,10 @@
 namespace Drupal\db_search_api\Controller;
 
 use PDO;
+use PDOStatement;
 
 /**
  * Static functions for db_search_api routes.
- *
  */
 class DatabaseSearch {
 
@@ -49,107 +49,6 @@ class DatabaseSearch {
     'award_code'                 => 'code',
   ];
 
-  /**
-  * Creates a tree from an array of data that contains groups indexed by columns
-  * @param array $data - an array containing value-label pairs, as well as group identifiers
-  * @param int $height - the current level of the tree being generated
-  * @param string $prefix - the group prefix
-  * @param string $format - the formatting string used to generate group node labels
-  * @return An array containining search parameters
-  */
-  private static function createTree(array $data, int $height, string $prefix = 'group_', string $format = '%s'): array {
-
-    // get group column containing root elements
-    $group_key = $prefix . $height;
-
-    // get unique group names from column
-    $group_names = array_unique(array_column($data, $group_key));
-
-    // populate the current level of the tree with group nodes
-    $root = array_map(function($group_name) use ($format) {
-      return [
-        'value'    => $group_name,
-        'label'    => sprintf($format, $group_name),
-        'children' => [],
-      ];
-    }, array_values($group_names));
-
-    // populate each node's children
-    foreach($root as &$node) {
-
-      // fetch rows with groups filtered by the current node's value
-      $rows = array_filter($data, function($row) use ($group_key, $node) {
-        return $row[$group_key] == $node['value'];
-      });
-
-      // if this is not a leaf node, generate a subtree with values based on the child group column
-      if ($height > 1) {
-        $node['children'] = self::createTree($rows, $height - 1, $prefix, $format);
-      }
-
-      // if this is a leaf node, generate children with values based on the contents of the 'value' column
-      else {
-        foreach($rows as $row) {
-          array_push($node['children'], [
-            'value' => $row['value'],
-            'label' => $row['label'],
-            'children' => [],
-          ]);
-        }
-      }
-    }
-
-    return $root;
-  }
-
-  /**
-   * Flattens nodes with only one child
-   *
-   */
-  private static function flattenTree(&$node) {
-
-    $children = &$node['children'];
-
-    if (count($children) === 1 && count($children[0]['children']) === 0) {
-      $node = &$children[0];
-      $children = &$node['children'];
-    }
-
-    foreach($children as &$child) {
-      $child = self::flattenTree($child);
-    }
-
-    return $node;
-  }
-
-  private static function countChildren($node) {
-    $children = $node['children'];
-    $total = count($children);
-
-    foreach($children as $child) {
-      $total += self::countChildren($child);
-    }
-
-    return $total;
-  }
-
-  private static function sortTree(&$node) {
-    usort($node['children'], function ($a, $b) {
-      $countA = self::countChildren($a);
-      $countB = self::countChildren($b);
-
-      if ($countA != $countB)
-        return $countB - $countA;
-
-      return strcasecmp($a['label'], $b['label']);
-    });
-
-    foreach($node['children'] as &$child) {
-      $child = self::sortTree($child);
-    }
-
-    return $node;
-  }
 
   /**
   * Retrieves valid field values to be used as query parameters
@@ -158,20 +57,7 @@ class DatabaseSearch {
   */
   public static function getSearchFields(PDO $pdo): array {
 
-    $fields = [
-      'years'                       => [],
-      'countries'                   => [],
-      'states'                      => [],
-      'cities'                      => [],
-      'funding_organization_types'  => [],
-      'funding_organizations'       => [],
-      'cancer_types'                => [],
-      'is_childhood_cancer'         => [],
-      'project_types'               => [],
-      'cso_research_areas'          => [],
-      'conversion_years'            => [],
-    ];
-
+    $fields = [];
     $queries = [
       'years'                       => 'SELECT MIN(CalendarYear) AS min_year, MAX(CalendarYear) AS max_year FROM ProjectFundingExt',
       'countries'                   => 'SELECT Abbreviation AS [value], Name AS [label] FROM Country ORDER BY [label]',
@@ -190,14 +76,12 @@ class DatabaseSearch {
       $fields[$key] = $pdo->query($value)->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    $funding_organizations = self::flattenTree(self::createTree($fields['funding_organizations'], 3, 'group_', 'All %s Organizations')[0]);
-    $fields['funding_organizations'] = [self::sortTree($funding_organizations)];
-    $fields['cso_research_areas'] = [self::flattenTree(self::createTree($fields['cso_research_areas'], 2)[0])];
-    $fields['is_childhood_cancer'] = [
-      ['value' => 1, 'label' => 'Yes'],
-      ['value' => 0, 'label' => 'No'],
-    ];
+    // create trees for funding organizations and cso research areas
+    $funding_organizations = TreeBuilder::flattenTree(TreeBuilder::createTree($fields['funding_organizations'], 3, 'group_', 'All %s Organizations')[0]);
+    $fields['funding_organizations'] = [TreeBuilder::sortTree($funding_organizations)];
+    $fields['cso_research_areas'] = [TreeBuilder::flattenTree(TreeBuilder::createTree($fields['cso_research_areas'], 2)[0])];
 
+    // provide an array of years
     $min_year = $fields['years'][0]['min_year'];
     $max_year = $fields['years'][0]['max_year'];
 
@@ -207,6 +91,12 @@ class DatabaseSearch {
         'label' => strval($year),
       ];
     }, range($max_year, $min_year, -1));
+
+    // provide parameters for is_childhood_cancer
+    $fields['is_childhood_cancer'] = [
+      ['value' => 1, 'label' => 'Yes'],
+      ['value' => 0, 'label' => 'No'],
+    ];
 
     return $fields;
   }
@@ -220,18 +110,22 @@ class DatabaseSearch {
   */
   public static function getSearchParameters(PDO $pdo, array $parameters = ['search_id' => -1]): array {
 
-    $stmt = $pdo->prepare('SELECT * FROM SearchCriteria WHERE SearchCriteriaID=:search_id');
+    $stmt = PDOBuilder::createPreparedStatement(
+      $pdo,
+      'SELECT * FROM SearchCriteria
+        WHERE SearchCriteriaID = :search_id',
+      $parameters
+    );
 
     $results = [];
-    if ($stmt->execute([':search_id' => $parameters['search_id']])) {
-        $results = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($stmt->execute())
+      $results = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    function split($string) {
+      return $string ? explode(',', $string) : null;
     }
 
-    function split($str) {
-      return empty($str) ? null : explode(',', $str);
-    }
-
-    return empty($results) ? [false] : [
+    return $results ? array_filter([
       'search_terms'                 => $results['Terms'],
       'search_type'                  => $results['TermSearchType'],
       'years'                        => split($results['YearList']),
@@ -249,19 +143,32 @@ class DatabaseSearch {
       'cancer_types'                 => split($results['CancerTypeList']),
       'project_types'                => split($results['ProjectTypeList']),
       'cso_research_areas'           => split($results['CSOList']),
-    ];
+    ]) : [];
   }
 
-  public static function getSearchParametersForDisplay(PDO $pdo, array $parameters = ['search_id' => -1]): array {
+  /**
+   * Retrieves search parameters as a table suitable for display to the client
+   *
+   * @param PDO $pdo
+   * @param array $parameters
+   * @return array
+   */
+  public static function getSearchParametersAsTable(PDO $pdo, array $parameters = ['search_id' => -1]): array {
 
-    $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE GetSearchCriteriaBySearchID @SearchID=:search_id');
+    $query_defaults = 'SET NOCOUNT ON; ';
+    $stmt = PDOBuilder::createPreparedStatement(
+      $pdo,
+      $query_defaults .
+      'EXECUTE GetSearchCriteriaBySearchID
+        @SearchID=:search_id',
+      $parameters
+    );
 
-    $results = [];
-    if ($stmt->execute([':search_id' => $parameters['search_id']])) {
-        $results = $stmt->fetchAll(PDO::FETCH_NUM);
+    if ($stmt->execute()) {
+        return $stmt->fetchAll(PDO::FETCH_NUM);
     }
 
-    return $results;
+   return [];
   }
 
   /**
@@ -278,145 +185,152 @@ class DatabaseSearch {
     $pdo->setAttribute(PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE, true);
     $pdo->setAttribute(PDO::SQLSRV_ATTR_ENCODING, PDO::SQLSRV_ENCODING_SYSTEM);
 
-    $search_id = $parameters['search_id'];
-    $type      = $parameters['type'];
-
-    $queryDefaults = 'SET NOCOUNT ON;';
-
+    // define queries to be performed for each type
     $queries = [
-      'project_counts_by_country'           => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year, @Type = Count',
-      'project_counts_by_cso_research_area' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year, @Type = Count',
-      'project_counts_by_cancer_type'       => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year, @Type = Count',
-      'project_counts_by_type'              => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year, @Type = Count',
-      'project_counts_by_year'              => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year',
+      'project_counts_by_country'                     => 'EXECUTE GetProjectCountryStatsBySearchID      @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
+      'project_counts_by_cso_research_area'           => 'EXECUTE GetProjectCSOStatsBySearchID          @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
+      'project_counts_by_cancer_type'                 => 'EXECUTE GetProjectCancerTypeStatsBySearchID   @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
+      'project_counts_by_type'                        => 'EXECUTE GetProjectTypeStatsBySearchID         @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
+      'project_counts_by_year'                        => 'EXECUTE GetProjectAwardStatsBySearchID        @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount',
 
-      'project_funding_amounts_by_country'            => 'EXECUTE GetProjectCountryStatsBySearchID      @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year, @Type = Amount',
-      'project_funding_amounts_by_cso_research_area'  => 'EXECUTE GetProjectCSOStatsBySearchID          @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year, @Type = Amount',
-      'project_funding_amounts_by_cancer_type'        => 'EXECUTE GetProjectCancerTypeStatsBySearchID   @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year, @Type = Amount',
-      'project_funding_amounts_by_type'               => 'EXECUTE GetProjectTypeStatsBySearchID         @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year, @Type = Amount',
-      'project_funding_amounts_by_year'               => 'EXECUTE GetProjectAwardStatsBySearchID        @SearchID = :search_id, @ResultCount = :results_count, @ResultAmount = :results_amount, @Year = :year',
+      'project_funding_amounts_by_country'            => 'EXECUTE GetProjectCountryStatsBySearchID      @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
+      'project_funding_amounts_by_cso_research_area'  => 'EXECUTE GetProjectCSOStatsBySearchID          @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
+      'project_funding_amounts_by_cancer_type'        => 'EXECUTE GetProjectCancerTypeStatsBySearchID   @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
+      'project_funding_amounts_by_type'               => 'EXECUTE GetProjectTypeStatsBySearchID         @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
+      'project_funding_amounts_by_year'               => 'EXECUTE GetProjectAwardStatsBySearchID        @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount',
     ];
 
-    // select which query to perform
-    if (!array_key_exists($type, $queries)) { return []; }
-    $stmt = $pdo->prepare($queryDefaults . $queries[$type]);
-
-    // define which columns to retrieve
-    $column_mappings = [
+    // define which columns to retrieve from the query results
+    $column_maps = [
       'project_counts_by_country' => [
         'label' => 'country',
-        'data' => [
-          'count' => 'Count',
+        'data'  => [
+          'project_count'   => 'Count',
         ],
       ],
 
       'project_counts_by_cso_research_area' => [
         'label' => 'categoryName',
-        'data' => [
-          'count' => 'ProjectCount',
-          'relevance' => 'Relevance',
+        'data'  => [
+          'project_count'   => 'ProjectCount',
+          'relevance'       => 'Relevance',
         ],
       ],
 
       'project_counts_by_cancer_type' => [
         'label' => 'CancerType',
-        'data' => [
-          'count' => 'ProjectCount',
-          'relevance' => 'Relevance',
+        'data'  => [
+          'project_count'   => 'ProjectCount',
+          'relevance'       => 'Relevance',
         ],
       ],
 
       'project_counts_by_type' => [
         'label' => 'ProjectType',
-        'data' => [
-          'count' => 'Count',
+        'data'  => [
+          'project_count'   => 'Count',
         ],
       ],
 
       'project_counts_by_year' => [
         'label' => 'Year',
-        'data' => [
-          'count' => 'Count',
+        'data'  => [
+          'project_count'   => 'Count',
         ],
       ],
-
 
 
       'project_funding_amounts_by_country' => [
         'label' => 'country',
-        'data' => [
-          'amount' => 'USDAmount',
+        'data'  => [
+          'funding_amount'  => 'USDAmount',
         ],
       ],
-
 
       'project_funding_amounts_by_cso_research_area' => [
         'label' => 'categoryName',
         'data' => [
-          'amount' => 'USDAmount',
+          'funding_amount'  => 'USDAmount',
         ],
       ],
-
 
       'project_funding_amounts_by_cancer_type' => [
         'label' => 'CancerType',
         'data' => [
-          'amount' => 'USDAmount',
+          'funding_amount'  => 'USDAmount',
         ],
       ],
-
 
       'project_funding_amounts_by_type' => [
         'label' => 'ProjectType',
         'data' => [
-          'amount' => 'USDAmount',
+          'funding_amount'  => 'USDAmount',
         ],
       ],
-
 
       'project_funding_amounts_by_year' => [
         'label' => 'Year',
         'data' => [
-          'amount' => 'amount',
+          'funding_amount'  => 'amount',
         ],
       ],
     ];
 
-    // define output object
-    $output = [
-      'search_id'      => intval($search_id),
-      'results'        => [],
-      'results_count'  => NULL,
-      'results_amount' => NULL,
+    $type = $parameters['type'];
+
+    // select which query to perform
+    if (!array_key_exists($type, $queries)) return [];
+
+    $output_parameters = [
+      'results_count'  => [
+        'value' => 0,
+        'type'  => PDO::PARAM_INT,
+      ],
+      'results_amount' => [
+        'value' => 0,
+        'type'  => PDO::PARAM_STR,
+      ],
     ];
 
-    // bind parameters to statement
-    $stmt->bindParam(':search_id', $search_id);
-    $stmt->bindParam(':year', $parameters['year']);
-    $stmt->bindParam(':results_count', $results_count, PDO::PARAM_INT  | PDO::PARAM_INPUT_OUTPUT, 1000);
-    $stmt->bindParam(':results_amount', $results_amount, PDO::PARAM_STR  | PDO::PARAM_INPUT_OUTPUT, 1000);
-
+    $query_defaults = 'SET NOCOUNT ON; ';
+    $stmt = PDOBuilder::createPreparedStatement(
+      $pdo,
+      $query_defaults . $queries[$type],
+      $parameters,
+      $output_parameters
+    );
 
     // execute statement and update output object
+    $results = [];
     if ($stmt->execute()) {
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
-        $column_map = $column_mappings[$type];
-        $label = $row[$column_map['label']];
+        $column_map = $column_maps[$type];
+        $item = [
+          'label' => $row[$column_map['label']],
+          'data' => [],
+        ];
 
-        $data = [];
-        foreach($column_map['data'] as $key => $value)
-          $data[$key] = floatval($row[$value]);
+        foreach($column_map['data'] as $key => $database_column)
+          $item['data'][$key] = floatval($row[$database_column]);
 
-        array_push($output['results'], [
-          'label' => $label,
-          'data' => $data,
-        ]);
+        array_push($results, $item);
       }
     }
 
-    $output['results_count'] = floatval($results_count);
-    $output['results_amount'] = floatval($results_amount);
+    $output = [
+      'search_id'      => intval($parameters['search_id']),
+      'results'        => $results,
+    ];
+
+    // add either results_count or results_amount to the output
+    if (strpos($type, 'project_counts') !== false)
+      $key = 'results_count';
+
+    else if (strpos($type, 'project_funding_amounts') !== false)
+      $key = 'results_amount';
+
+    $output[$key] = floatval($output_parameters[$key]['value']);
 
     return $output;
   }
@@ -432,50 +346,50 @@ class DatabaseSearch {
   public static function getSearchResults(PDO $pdo, array $parameters): array {
 
     $parameters['sort_column'] = self::SORT_COLUMN_MAP[$parameters['sort_column']];
-    $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE GetProjectsByCriteria
-      @PageSize             = :page_size,
-      @PageNumber           = :page_number,
-      @SortCol              = :sort_column,
-      @SortDirection        = :sort_direction,
-      @terms                = :search_terms,
-      @termSearchType       = :search_type,
-      @yearList             = :years,
-      @institution          = :institution,
-      @piFirstName          = :pi_first_name,
-      @piLastName           = :pi_last_name,
-      @piORCiD              = :pi_orcid,
-      @awardCode            = :award_code,
-      @countryList          = :countries,
-      @stateList            = :states,
-      @cityList             = :cities,
-      @FundingOrgTypeList   = :funding_organization_types,
-      @fundingOrgList       = :funding_organizations,
-      @cancerTypeList       = :cancer_types,
-      @projectTypeList      = :project_types,
-      @IsChildhood          = :is_childhood_cancer,
-      @CSOList              = :cso_research_areas,
-      @searchCriteriaID     = :search_id,
-      @ResultCount          = :results_count,
-      @LastBudgetYear       = :last_budget_year');
-
     $output_parameters = [
-      'search_id'         => NULL,
-      'results_count'     => NULL,
-      'last_budget_year'  => NULL,
+      'search_id' => [
+        'value' => 0,
+        'type'  => PDO::PARAM_INT,
+      ],
     ];
 
-    foreach($parameters as $input_key => &$input_value) {
-      $stmt->bindParam(":$input_key", $input_value);
-    }
+    $query_defaults = 'SET NOCOUNT ON; ';
+    $query_string = '
+      EXECUTE GetProjectsByCriteria
+        @PageSize             = :page_size,
+        @PageNumber           = :page_number,
+        @SortCol              = :sort_column,
+        @SortDirection        = :sort_direction,
+        @terms                = :search_terms,
+        @termSearchType       = :search_type,
+        @yearList             = :years,
+        @institution          = :institution,
+        @piFirstName          = :pi_first_name,
+        @piLastName           = :pi_last_name,
+        @piORCiD              = :pi_orcid,
+        @awardCode            = :award_code,
+        @countryList          = :countries,
+        @stateList            = :states,
+        @cityList             = :cities,
+        @FundingOrgTypeList   = :funding_organization_types,
+        @fundingOrgList       = :funding_organizations,
+        @cancerTypeList       = :cancer_types,
+        @projectTypeList      = :project_types,
+        @IsChildhood          = :is_childhood_cancer,
+        @CSOList              = :cso_research_areas,
+        @searchCriteriaID     = :search_id,
+        @ResultCount          = NULL';
 
-    foreach($output_parameters as $output_key => &$output_value) {
-      $stmt->bindParam(":$output_key", $output_value, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
-    }
+    $stmt = PDOBuilder::createPreparedStatement(
+      $pdo,
+      $query_defaults . $query_string,
+      $parameters,
+      $output_parameters);
 
     $results = [];
     if ($stmt->execute()) {
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        array_push($results, [
+        $results[] = [
           'project_id'            => $row['ProjectID'],
           'project_title'         => $row['Title'],
           'pi_name'               => "$row[piLastName], $row[piFirstName]",
@@ -483,18 +397,16 @@ class DatabaseSearch {
           'country'               => $row['country'],
           'funding_organization'  => $row['FundingOrgShort'],
           'award_code'            => $row['AwardCode'],
-        ]);
+        ];
       }
     }
 
-    $_SESSION['database_search_id'] = $output_parameters['search_id'];
+    $search_id = $output_parameters['search_id']['value'];
 
     return [
-      'search_id'           => $output_parameters['search_id'],
-      'results_count'       => $output_parameters['results_count'],
-      'last_budget_year'    => $output_parameters['last_budget_year'],
+      'search_id'           => $search_id,
       'results'             => $results,
-      'display_parameters'  => self::getSearchParametersForDisplay($pdo, ['search_id' => $output_parameters['search_id']]),
+      'search_parameters'   => self::getSearchParametersAsTable($pdo, ['search_id' => $search_id]),
     ];
   }
 
@@ -509,26 +421,21 @@ class DatabaseSearch {
   public static function getSortedPaginatedResults(PDO $pdo, array $parameters): array {
 
     $parameters['sort_column'] = self::SORT_COLUMN_MAP[$parameters['sort_column']];
-    $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE GetProjectsBySearchID
-      @SearchID       = :search_id,
-      @PageSize       = :page_size,
-      @PageNumber     = :page_number,
-      @SortCol        = :sort_column,
-      @SortDirection  = :sort_direction,
-      @ResultCount    = :results_count
-      ');
 
-    $output_parameters = [
-      'results_count'     => NULL,
-    ];
+    $query_defaults = 'SET NOCOUNT ON; ';
+    $query_string = '
+      EXECUTE GetProjectsBySearchID
+        @SearchID       = :search_id,
+        @PageSize       = :page_size,
+        @PageNumber     = :page_number,
+        @SortCol        = :sort_column,
+        @SortDirection  = :sort_direction,
+        @ResultCount    = NULL';
 
-    foreach($parameters as $key => &$value) {
-      $stmt->bindParam(":$key", $value);
-    }
-
-    foreach($output_parameters as $output_key => &$output_value) {
-      $stmt->bindParam(":$output_key", $output_value, PDO::PARAM_INT | PDO::PARAM_INPUT_OUTPUT, 1000);
-    }
+    $stmt = PDOBuilder::createPreparedStatement(
+      $pdo,
+      $query_defaults . $query_string,
+      $parameters);
 
     $results = [];
     if ($stmt->execute()) {
@@ -545,14 +452,40 @@ class DatabaseSearch {
       }
     }
 
-    $_SESSION['database_search_id'] = $parameters['search_id'];
-
+    $search_id = intval($parameters['search_id']);
     return [
-      'search_id'           => $parameters['search_id'],
-      'results_count'       => $output_parameters['results_count'],
-      'last_budget_year'    => $output_parameters['last_budget_year'],
-      'display_parameters'  => self::getSearchParametersForDisplay($pdo, ['search_id' => $parameters['search_id']]),
+      'search_id'           => $search_id,
       'results'             => $results,
+      'search_parameters'   => self::getSearchParametersAsTable($pdo, ['search_id' => $search_id]),
     ];
+  }
+
+  /**
+   * Retrieves a summary of the search results given a particular search id
+   *
+   * @param PDO $pdo
+   * @param array $parameters
+   * @return array
+   */
+  public static function getSearchSummary(PDO $pdo, array $parameters = ['search_id' => -1]): array {
+
+    $query_defaults = 'SET NOCOUNT ON; ';
+    $stmt = PDOBuilder::createPreparedStatement(
+      $pdo,
+      $query_defaults .
+      'EXECUTE GetProjectSearchSummaryBySearchID
+        @SearchID = :search_id',
+      $parameters);
+
+    if ($stmt->execute()) {
+      $summary = $stmt->fetch(PDO::FETCH_ASSOC);
+      return [
+        'project_count'         => $summary['TotalProjectCount'],
+        'related_project_count' => $summary['TotalRelatedProjectCount'],
+        'last_budget_year'      => $summary['LastBudgetYear'],
+      ];
+    }
+
+    return [];
   }
 }

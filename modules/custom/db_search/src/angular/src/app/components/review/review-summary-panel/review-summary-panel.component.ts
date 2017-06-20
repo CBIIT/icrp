@@ -19,7 +19,7 @@ export class ReviewSummaryPanelComponent {
     project_cancer_type_count: 'Project Cancer Type Count',
     project_type_count: 'Project Type Count',
     project_abstract_count: 'Project Abstract Count',
-    project_search_count: 'Project Search Count'
+//  project_search_count: 'Project Search Count'
   }
 
   keys = Object.keys(this.mapKeys);

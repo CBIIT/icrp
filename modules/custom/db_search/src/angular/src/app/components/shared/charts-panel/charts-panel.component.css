@@ -1,9 +1,11 @@
 .chart-type-selector {
-  display: inline-block;
   border: 1px solid #ddd;
   margin: 0px auto 20px;
   padding: 10px 40px;
+
   text-align: center;
+  display: inline-block;
+
 }
 
 .chart-type-selector label {
@@ -19,4 +21,8 @@
 .disabled, .disabled select {
   color: #888;
   cursor: not-allowed;
+}
+
+.inline-block {
+  display: inline-block
 }

@@ -18,8 +18,9 @@
       Award Amounts (USD)
     </label>
 
-    <span *ngIf="fields && fields.conversion_years" [ngClass]="{
-      disabled: (form.controls.display_type.value === 'project_counts')
+    <div *ngIf="fields && fields.conversion_years" [ngClass]="{
+      'disabled': (form.controls.display_type.value === 'project_counts'),
+      'inline-block': true
     }">
       Use Currency Rates From
       <select
@@ -28,35 +29,35 @@
       >
         <option *ngFor="let year of fields.conversion_years" [value]="year.value">{{ year.label }}</option>
       </select>
-    </span>
+    </div>
   </div>
 </form>
 
 
 <div class="row form-group" *ngIf="form.controls.display_type.value === 'project_counts'">
-  <div class="col-md-3 text-center">
+  <div class="col-sm-6 col-md-3 text-center">
 
-    <label>Projects by Country</label>
 
     <div style="position: relative">
       <ui-chart
         type="pie"
-        primaryKey="count"
+        label="Projects by Country"
+        primaryKey="project_count"
         [data]="analytics.project_counts_by_country && analytics.project_counts_by_country.results">
       </ui-chart>
     </div>
   </div>
 
-  <div class="col-md-3 text-center">
+  <div class="col-sm-6 col-md-3 text-center">
     <ui-chart
       type="pie"
-      label="Projects by CSO Category"
+      label="Projects by CSO"
       primaryKey="relevance"
       [data]="analytics.project_counts_by_cso_research_area && analytics.project_counts_by_cso_research_area.results">
     </ui-chart>
   </div>
 
-  <div class="col-md-3 text-center">
+  <div class="col-sm-6 col-md-3 text-center">
     <ui-chart
       type="pie"
       label="Projects by Cancer Type"
@@ -66,54 +67,53 @@
   </div>
 
 
-  <div class="col-md-3 text-center">
+  <div class="col-sm-6 col-md-3 text-center">
     <ui-chart
       type="pie"
       label="Projects by Type"
-      primaryKey="count"
+      primaryKey="project_count"
       [data]="analytics.project_counts_by_type && analytics.project_counts_by_type.results">
     </ui-chart>
   </div>
 </div>
 
 <div class="row form-group" *ngIf="form.controls.display_type.value === 'award_amounts'">
-  <div class="col-md-3 text-center">
-
-    <label>Award Amounts by Country</label>
+  <div class="col-sm-6 col-md-3 text-center">
 
     <div style="position: relative">
       <ui-chart
         type="pie"
-        primaryKey="amount"
+        label="Amounts by Country"
+        primaryKey="funding_amount"
         [data]="analytics.project_funding_amounts_by_country && analytics.project_funding_amounts_by_country?.results">
       </ui-chart>
     </div>
   </div>
 
-  <div class="col-md-3 text-center">
+  <div class="col-sm-6 col-md-3 text-center">
     <ui-chart
       type="pie"
-      label="Award Amounts by CSO Category"
-      primaryKey="amount"
+      label="Amounts by CSO"
+      primaryKey="funding_amount"
       [data]="analytics.project_funding_amounts_by_cso_research_area && analytics.project_funding_amounts_by_cso_research_area?.results">
     </ui-chart>
   </div>
 
-  <div class="col-md-3 text-center">
+  <div class="col-sm-6 col-md-3 text-center">
     <ui-chart
       type="pie"
-      label="Award Amounts by Cancer Type"
-      primaryKey="amount"
+      label="Amounts by Cancer Type"
+      primaryKey="funding_amount"
       [data]="analytics.project_funding_amounts_by_cancer_type && analytics.project_funding_amounts_by_cancer_type?.results">
     </ui-chart>
   </div>
 
 
-  <div class="col-md-3 text-center">
+  <div class="col-sm-6 col-md-3 text-center">
     <ui-chart
       type="pie"
-      label="Award Amounts by Type"
-      primaryKey="amount"
+      label="Amounts by Project Type"
+      primaryKey="funding_amount"
       [data]="analytics.project_funding_amounts_by_type && analytics.project_funding_amounts_by_type?.results">
     </ui-chart>
   </div>
@@ -127,7 +127,7 @@
       *ngIf="form.controls.display_type.value === 'project_counts'"
       type="line"
       label="Project Counts by Year"
-      primaryKey="count"
+      primaryKey="project_count"
       xAxisLabel="Year"
       yAxisLabel="Project Counts"
       tooltipDescriptor="Projects"
@@ -137,8 +137,8 @@
     <ui-chart
       *ngIf="form.controls.display_type.value === 'award_amounts'"
       type="line"
-      label="Award Amounts by Year"
-      primaryKey="amount"
+      label="Amounts by Year"
+      primaryKey="funding_amount"
       xAxisLabel="Year"
       yAxisLabel="Amount (USD)"
       tooltipDescriptor="USD"

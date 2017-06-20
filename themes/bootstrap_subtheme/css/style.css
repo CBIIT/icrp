@@ -22,6 +22,9 @@ h1 {
     font-weight: normal;
     margin-top: 0px;
 }
+h2 {
+    margin-top: 0px;
+}
 .carousel-inner > .item:hover, .carousel-inner > .item:focus {
     color: #ffffff;
     opacity: 0.9;
@@ -293,7 +296,7 @@ h1 {
     font-weight: normal;
 }
 h2 {
-    font-size: 28px;
+    font-size: 24px;
     font-weight: normal;
 }
 body {
@@ -339,6 +342,9 @@ div#cso-document-container > div > h1 {
     content: "(Optional)";
     color: red;
     padding-right:5px;
+}
+#edit-committee {
+    margin-top:20px;
 }
 
 /*  */

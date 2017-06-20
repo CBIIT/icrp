@@ -1,0 +1,14 @@
+<?php
+
+
+function db_admin_theme($existing, $type, $theme, $path) {
+  return [
+    'add_funding_organization' => [
+      'variables' => [],
+    ],
+
+    'add_partner' => [
+      'variables' => [],
+    ],
+  ];
+}

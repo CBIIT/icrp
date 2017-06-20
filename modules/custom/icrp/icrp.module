@@ -10,6 +10,8 @@ use Drupal\Core\Mail\MailManagerInterface;
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Template;
+use Drupal\Core\Datetime\DrupalDateTime;
+use Drupal\Core\GeneratedLink;
 
 /*
  * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
@@ -24,28 +26,369 @@ use Drupal\Core\Template;
  *   7. #post_render
  *
  */
+
+
+/**
+ * Prepares variables for forums templates.
+ *
+ * Default template: forums.html.twig.
+ *
+ * @param array $variables
+ *   An array containing the following elements:
+ *   - forums: An array of all forum objects to display for the given taxonomy
+ *     term ID. If tid = 0 then all the top-level forums are displayed.
+ *   - topics: An array of all the topics in the current forum.
+ *   - parents: An array of taxonomy term objects that are ancestors of the
+ *     current term ID.
+ *   - term: Taxonomy term of the current forum.
+ *   - sortby: One of the following integers indicating the sort criteria:
+ *     - 1: Date - newest first.
+ *     - 2: Date - oldest first.
+ *     - 3: Posts with the most comments first.
+ *     - 4: Posts with the least comments first.
+ *   - forum_per_page: The maximum number of topics to display per page.
+ */
 /*
-
-
-function icrp_user_login($account) {
-    // We want to redirect user on login.
-    $response = new RedirectResponse("mypath");
-    $response->send();
-    return;
+function icrp_views_data() {
+  drupal_set_message("icrp_views_data");
 }
 */
 
+function icrp_preprocess_page(&$variables) {
+  //kint($variables['page']['content']);
+  //ICRP Partnership Forum
+
+  //dpm($variables['page']);
+}
+
+function icrp_preprocess_comment(&$variables) {
+    //drupal_set_message("icrp_preprocess_comment");
+    //dpm($variables);
+    //$config->get('timezone.user.configurable');
+    //Get users Organization
+    //$variables['element']['#object'] is A comment
+    //$variables['element']['#object']->comment_body is A comment
+    //drupal_set_message("Comment Body");
+    $comment = $variables['elements']['#comment'];
+
+    //Get Comment id, date_created, user organization
+    $comment_uid = $comment->getOwnerId();
+    $tcreated_time = $comment->getCreatedTime();
+    //Set Date format
+    $long_date_template = 'F j, Y g:i A';
+    $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime());
+
+    //dpm($created_time);
+    $variables['tcreated_time'] = $created_time->format($long_date_template);
+    $variables['ttimezone'] = drupal_get_user_timezone();
+
+    //Set Date format
+    $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($comment_uid);
+
+    $field_organization_target_id = $user->get('field_organization')->target_id;
+    $variables['torganization_target_id'] = $field_organization_target_id; 
+    $node = \Drupal::entityTypeManager()->getStorage('node')->load($field_organization_target_id);
+    $variables['torganization'] =  $node->get('body')->value; 
+    //dpm($variables);
+}
+
 /*
-function icrp_user_login($account) {
+function icrp_preprocess_field(&$variables) {
+  if($variables['field_name'] == "comment_body") {
+    drupal_set_message("preprocess_field");
+    //$config->get('timezone.user.configurable');
+    //Get users Organization
+    //$variables['element']['#object'] is A comment
+    //$variables['element']['#object']->comment_body is A comment
+    drupal_set_message("Comment Body");
+    $comment = $variables['element']['#object'];
+    //Get Comment id, date_created, user organization
+    $comment_uid = $comment->getOwnerId();
+    $tcreated_time = $comment->getCreatedTime();
+    //Set Date format
+    $long_date_template = 'F j, Y g:i A';
+    $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime());
 
-    drupal_Set_message("I control you.");
+    //dpm($created_time);
+    $variables['tcreated_time'] = $created_time->format($long_date_template);
+    $variables['ttimezone'] = drupal_get_user_timezone();
 
-    $url = "/home";
-    $response = new Symfony\Component\HttpFoundation\RedirectResponse($url);
-    $response->send();
-    return;
+    //Set Date format
+    $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($comment_uid);
+
+    //dpm($user);
+    //user id table user
+    //field_organization_target_id = user__filed_organization
+
+    $field_organization_target_id = $user->get('field_organization')->target_id;
+    $variables['torganization_target_id'] = $field_organization_target_id; 
+    $node = \Drupal::entityTypeManager()->getStorage('node')->load($field_organization_target_id);
+    $variables['torganization'] =  $node->get('body')->value; 
+
+    //drupal_set_message("comment_uid: ".$comment_uid);
+    //dpm($variables);
+
+    //dpm("HEllo", "hello2", "hello3");
+    //dpm($variables);
+  }
+  $variables["gotone"]= "How are you?";
+  //dpm($variables);
+
 }
 */
+
+function makeRandomString($max=6) {
+    $i = 0; //Reset the counter.
+    $possible_keys = " 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    $keys_length = strlen($possible_keys);
+    $str = ""; //Let's declare the string, to add later.
+    while($i<$max) {
+        $rand = mt_rand(1,$keys_length-1);
+        $str.= $possible_keys[$rand];
+        $i++;
+    }
+    return $str;
+}
+
+function icrp_preprocess_form(&$variables) {
+  if(isset($variables['element']['#form_id']) && $variables['element']['#form_id'] == "node_forum_form") {
+
+    $form_id = $variables['element']['#form_id'];
+    //drupal_set_message('Form_id: '.$form_id);
+    $tid = \Drupal::request()->query->get('forum_id');
+    //drupal_set_message("$tid:");
+    //Look up Forum Category and Thread for this forum_id
+  
+    $query = "select name, description__value FROM taxonomy_term_field_data where tid = {$tid}; ";
+  
+    $result = db_query($query);
+    $row = $result->fetchObject();
+    $variables['tforum_category'] = $row->name;
+    $variables['tforum_description'] = $row->description__value;
+  }
+}
+
+function icrp_views_data_alter(array &$data) { 
+  //drupal_set_message("icrp_views_data_alter");
+  //dpm($data);
+}
+
+function last_forum_visit() {
+  $long_date_template = 'F j, Y g:i A';
+  $last_visit_text = '';
+
+  $uid = \Drupal::currentUser()->id();
+  $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+
+  $last_visit_date_raw = $user->get('field_last_forum_visit')->value;
+  if($last_visit_date_raw !== NULL) {
+    $last_visit_timestamp = new DrupalDateTime($last_visit_date_raw);
+    // Update the timezone to the system default.
+    //$last_visit_timestamp->setTimezone(timezone_open(drupal_get_user_timezone()));
+    $last_visit_date = $last_visit_timestamp->format($long_date_template);
+
+    //drupal_set_message("last_visit_timestamp");
+    //dpm($last_visit_date);
+    $last_visit_text = 'Last visited: '.$last_visit_date;
+  }
+
+  $current_datetime = new DrupalDateTime('now');
+  $datetime_storage = $current_datetime->format(DATETIME_DATETIME_STORAGE_FORMAT);
+  $user->set("field_last_forum_visit", $datetime_storage);
+  $user->save();
+
+  return $last_visit_text;
+}
+
+function icrp_preprocess_forums(&$variables) {
+  //dpm($variables);
+
+  if($variables['term']) {
+    $variables['tid'] = $variables['term']->id();
+    $variables['tname'] = $variables['term']->getName();
+    $variables['tdescription'] = $variables['term']->getDescription();
+    $variables['last_forum_visit'] = last_forum_visit();
+    switch($variables['tid']) {
+      case 7:
+        $variables['tfontawesome_icon'] = 'fa-newspaper-o';
+        break;
+      case 8:
+        $variables['tfontawesome_icon'] = 'fa-comments-o';
+        break;
+      case 9:
+        $variables['tfontawesome_icon'] = 'fa-group';
+        break;
+      case 10:
+        $variables['tfontawesome_icon'] = 'fa-file-code-o';
+        break;
+      case 11:
+        $variables['tfontawesome_icon'] = 'fa-dashboard';
+        break;
+      case 12:
+        $variables['tfontawesome_icon'] = 'fa-globe';
+        break;
+      case 13:
+        $variables['tfontawesome_icon'] = 'fa-database';
+        break;
+    }
+
+    //$variables['newname'] = $variables['term']->value('name');
+    //dpm($variables);
+  }
+}
+function icrp_preprocess_forum_icon(&$variables) {
+  //drupal_set_message("icrp_preprocess_forum_icon");
+  //dpm($variables);
+}
+function getNodeIdFromMarkup($html) {
+  //remove all non numeric numbers from $html to get the nodeId.  Weird but true
+  //Did not see node id anywere except inside #markup.
+  return preg_replace("/[^0-9,.]/", "", $html);;
+}
+function getThreadNodeInfo($thread_node_id) {
+  $text_summary_max_length = 254;
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($thread_node_id);
+  //$summary = $node['#values']['body']['x-dfault'][0]['summary'];
+  //$summary =  $node->get('summary')->value; 
+  $body =  $node->get('body')->value; 
+  $summary_raw =  $node->get('body')->summary; 
+  if($summary_raw == "") {
+    $summary = text_summary(rtrim(strip_tags($body)), NULL, $text_summary_max_length);
+  } else {
+    $summary = text_summary($summary_raw, NULL,  $text_summary_max_length);
+
+  }
+  //return array($node->getTitle(), "<b>".$summary."</b></br>Body: ".$body."</br>Summary Raw: ".$summary_raw);
+  return array($node->getTitle(), $summary);
+}
+function lastComment($node_id) {
+  $comment = "This is the last comment for ".$node_id;
+
+  $query = "select ccb.comment_body_value FROM comment_entity_statistics ces, comment__comment_body ccb ";
+  $query .= "where ces.cid = ccb.entity_id and ces.entity_id = {$node_id} ";
+  $query .= "order by ces.cid desc limit 1;";
+
+  $result=db_query($query);
+  $row = $result->fetchObject();
+  $comment = "<i>No replies</i>";
+  if(isset($row->comment_body_value)) {
+    $comment = strip_tags($row->comment_body_value);
+
+  }
+
+  return rtrim($comment);  
+}
+
+function processForumData($cell, $cell_index, $row_index, &$variables, $thread_node_id) {
+  //dpm($cell);
+  switch($cell_index) {
+    case 0:
+      //Column 0: Process Thread icon, Thread Name(link), and Summary
+
+      list($thread_title, $thread_summary) = getThreadNodeInfo($thread_node_id);
+      /* Create output for this cell */
+      $html = '<span>';
+      $html .= '  <div class="forum-thread-title"><a href="/node/'.$thread_node_id.'" hreflang="en">'.$thread_title.'</a></div>';
+      $html .= '<div class=".forum-thread-title">'.$thread_summary.'</div>';
+      $html .= '</span>';
+      $variables['rows'][$row_index]['cells'][$cell_index]['icrp_markup'] = $html;
+
+      break;
+    case 1:
+      //Column 1: Process Thread icon, Thread Name(link), and Summary
+      $replies = str_replace("<br />","", $cell['content'][0]['#markup']);
+      //$replies = str_replace("posts","replies", $replies);
+      //$replies = str_replace("post","reply", $replies);
+
+      $html = '<div style="text-align:center;padding-top:10px;">';
+      $html .= '<div><span class="forum__posts">';
+      $html .= $cell['content'][0]['#prefix'];
+      $html .= '</span></div>';
+      $html .= '<div style="text-align:center;padding-top:10px; white-space: nowrap;">'.$replies.'</div>';
+      $html .= '</div>';
+      $variables['rows'][$row_index]['cells'][$cell_index]['icrp_markup'] = $html;
+      break;
+    case 2:
+      //Column 2: Process Thread icon, Thread Name(link), and Summary
+      //$thread_node_id = getNodeIdFromMarkup(substr($cell['content'][1]['#markup'], 0, 60));
+      // Set #num_posts to cell reference so we can remove the /n
+      $variables['rows'][$row_index]['cells'][$cell_index]['reply_posts']  = $variables['rows'][$row_index]['cells'][0]['content'][0]['#num_posts'] ;
+      //$variables['rows'][$row_index]['cells'][$cell_index]['#reply_posts'] = $variables['rows'][$row_index]['cells']
+      $html = '<div>';
+      $html .= lastComment($thread_node_id);
+      $html .= '</div>';
+      $variables['rows'][$row_index]['cells'][$cell_index]['icrp_markup'] = $html;
+      break;
+
+  }
+}
+
+function changeHeaderTitle($header_title, $forum_id, $sort_order) {
+
+  //Change header name but maintain dynamic sorting functionality
+  $generatedLink = '<a href="/forum/'.$forum_id.'?sort=asc&amp;order=Topic" title="sort by '.$header_title.'">'.$header_title.'</a>';
+  if($sort_order == "descending") {
+    $generatedLink = '
+      <a href="/forum/'.$forum_id.'?sort=asc&amp;order=Topic" title="sort by '.$header_title.'">'.$header_title.'
+        <span class="tablesort tablesort--asc"><span class="visually-hidden">Sort ascending</span></span>
+      </a>
+    ';
+  }
+  if($sort_order == "ascending") {
+    $generatedLink = '
+      <a href="/forum/'.$forum_id.'?sort=desc&amp;order=Topic" title="sort by '.$header_title.'">'.$header_title.'
+        <span class="tablesort tablesort--desc"><span class="visually-hidden">Sort descending</span></span>
+      </a>  
+    ';
+  }
+  return $generatedLink;
+}
+
+
+function icrp_preprocess_table(&$variables) {
+
+  // Exit if not preprocess for forum-topic
+  if(substr($variables['attributes']['id'], 0, 11) != 'forum-topic') {
+    return;
+  }
+  //Change the Header from Topic to Thread
+  $forum_id = substr($variables['attributes']['id'], 12);
+  $sort_order = "";
+  if(isset($variables['header'][0]['attributes']->storage()['aria-sort'])) {
+    $sort_order = $variables['header'][0]['attributes']->storage()['aria-sort']->value();
+  }
+  // Change Last reply to Last Reply
+  $last_reply_header = $variables['header'][2]['content']->getGeneratedLink();
+  $variables['header'][2]['content']->setGeneratedLink(str_replace("Last reply", "Last Reply", $last_reply_header));
+
+  $variables['header'][0]['content']->setGeneratedLink(changeHeaderTitle("Thread", $forum_id, $sort_order));
+  //Customize Rows and Cells 
+  foreach($variables['rows'] as $row_index => $row) {
+    $thread_node_id = getNodeIdFromMarkup(substr($row['cells'][0]['content'][1]['#markup'], 0, 60));
+    foreach($row['cells'] as $cell_index => $cell) {
+      processForumData($cell, $cell_index, $row_index, $variables, $thread_node_id);
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for block templates.
+ */
+function icrp_preprocess_block(&$variables) {
+  /*drupal_set_message("icrp_preprocess_block");
+  kint($variables['configuration']);
+
+  if ($variables['configuration']['provider'] == 'forum') {
+    $variables['attributes']['role'] = 'navigation';
+  }
+  */
+}
+
+function getForumTitle($forum_node_id) {
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($forum_node_id);
+  return $node->getTitle();
+}
+
 function icrp_preprocess_menu_local_action(&$variables) {
   $link = $variables['element']['#link'];
   $link += array(
@@ -63,27 +406,131 @@ function icrp_preprocess_menu_local_action(&$variables) {
   );
 }
 
-function icrp_preprocess_forums(&$variables) {
-  //$variables['last_post'][8] = 'Hello Steve.  How did it go?';
-  //drupal_set_message("Added icrp_debug to variables.  See if you can access in twig.");
-  //$variables['attributes'] = new \Drupal\Core\Template\Attribute();
-  //kint($variables['attributes']);
-  //$variables['attributes']['class'] = array(); // Needed to initialize the AttributeArray object.  
-  //$variables['attributes']['class'][] = 'red';
+function icrp_preprocess_node(&$variables) {
+  // Exit if node type is not a forum
+  $node = $variables['node'];
+  //drupal_set_message($node->getType()); 
+  if($node->getType() != "forum") {
+    return;
+  }
 
+  //dpm($variables);
+
+  $variables['ttitle'] = $node->getTitle();
+  //drupal_set_message($variables['ttitle']);
+  $created_timestamp = DrupalDateTime::createFromTimestamp($node->getCreatedTime());
+  //$last_visit_timestamp->setTimezone(timezone_open(drupal_get_user_timezone()));
+  $variables['tthread_created_time'] = $created_timestamp->format("D, F j, Y g:i A");
+  $variables['tstatus'] = $node->get('status')->value;
+  $variables['tnid'] = $node->get('nid')->value;
+  //drupal_set_message("nid: ".$variables['tnid']);
+  $tnode = \Drupal::entityTypeManager()->getStorage('node')->load($variables['tnid']);
+  //dpm($node2);
+  if(isset($tnode)){
+    //drupal_set_message("We got a node");
+    //dpm($node);
+    $variables['tbody'] =  $tnode->get('body')->value; 
+    //drupal_set_message($variables['tbody']);
+    $variables['tcomment_forum']['comment_count'] =  $tnode->get('comment_forum')->comment_count; 
+    $variables['tcomment_forum']['status'] =  $tnode->get('comment_forum')->status; 
+    $variables['tforum_tid'] =  $tnode->get('taxonomy_forums')->target_id; 
+    if(isset($variables['tforum_tid'])) {
+      //drupal_set_message($variables['tforum_tid']);
+      $forum = Drupal\taxonomy\Entity\Term::load($variables['tforum_tid']);
+      if(isset($forum)){
+        $variables['tforum_name'] =  $forum->getName(); 
+      } else {
+        $variables['tforum_name'] =  "unknown"; 
+      }
+    }
+  }
+  //dpm($variables);
 }
+
 function icrp_preprocess_forums__topics(&$variables) {
-  drupal_set_message("forums__topics");
-  kint($variables);
-  var_dump($variables);
+  //drupal_set_message("forums__topics");
+  //drupal_set_message($variables['forums']['topics']['#theme']);
+  //kint($variables['forums']);
+  //var_dump($variables);
  }
+
+function getNodeBody($nid) {
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  return $node->get('body')->value; 
+}
+
+function getLastPostFromTopicID($tid) {
+    //Count number oc comments for this Thread
+    $query = "select count(*) as comment_count ";
+    $query .= "FROM taxonomy_index ti, comment_field_data cfd, comment__comment_body ccb ";
+    $query .= "where ti.nid = cfd.entity_id and cfd.cid = ccb.entity_id and ti.tid = {$tid}; ";
+    $result=db_query($query);
+    $row = $result->fetchObject();
+    //return "Comment Count: ".$row->comment_count;
+ 
+
+  //
+  // If there are now only one topic, then return the Topic Body, else get the last reply.
+  //
+    //
+    // If Comment count is zero.  Return Thread Topic Title and Body instead. If available.
+    // Else get the last reply.
+    //
+    if($row->comment_count == 0) {
+      $query = "SELECT count(*) as count FROM taxonomy_index ti where ti.tid = {$tid} ";
+      $query .= "order by ti.created desc limit 1; ";
+      $result=db_query($query);
+      $row = $result->fetchObject();
+      if(isset($row->count)  && $row->count == 1) {
+        $query = "SELECT nid FROM taxonomy_index ti where ti.tid = {$tid} ";
+        $query .= "order by ti.created desc limit 1; ";
+        $result=db_query($query);
+        $row = $result->fetchObject();
+        list($thread_title, $thread_summary) = getThreadNodeInfo($row->nid);
+        $comment = "<div><b>$thread_title</b></div><div>$thread_summary</div>"; 
+
+        return array($row->nid, $comment);
+      }
+    }
+
+
+  $query = "SELECT * FROM taxonomy_index ti where ti.tid = {$tid} order by ti.nid desc limit 1;";
+  $result=db_query($query);
+  $row = $result->fetchObject();
+  $comment = "";
+  $nid = "unknown";
+  if(isset($row->nid)) {
+    //$comment = lastComment($row->nid);
+    $query = "select ti.nid, ccb.comment_body_value, cfd.name, cfd.uid, cfd.changed ";
+    $query .= "FROM taxonomy_index ti, comment_field_data cfd, comment__comment_body ccb ";
+    $query .= "where ti.nid = cfd.entity_id and cfd.cid = ccb.entity_id and ti.tid = {$tid} "; 
+    $query .= "order by cfd.changed desc; ";
+    $result=db_query($query);
+    $row = $result->fetchObject();
+    if(isset($row->comment_body_value)) {
+      $comment = $row->comment_body_value."<div style='display:none;'> by <b>".$row->name."</b></div>";
+    }
+    if(isset($row->nid)) {
+      $nid = $row->nid;
+    }
+
+  }
+
+  return array($nid, $comment);
+}
+
 function icrp_preprocess_forum_list(&$variables) {
-  //$variables['icrp_debug'] = true;
-  //drupal_set_message("Added icrp_debug to variables.  See if you can access in twig.");
-  $variables['last_post'][9] = 'Yes, I got it.  So cool';
-  //drupal_set_message($variables['last_post'][9]);
-  $variables['hello'] = 'World';
   //drupal_set_message("Added chris to variables.  See if you can access in twig.");
+  foreach($variables['forums'] as $tid =>$term ) {
+    //drupal_set_message("Term: $tid");
+    //dpm($term);
+    list($nid, $last_post) = getLastPostFromTopicID($tid);
+    $variables['tforums'][$tid]['last_post'] = $last_post;
+    $variables['tforums'][$tid]['nid'] = $nid;
+
+    //$variables['tforums'][$tid]['last_post'] = "Hello";
+  }
+  //dpm($variables);
   //kint($variables);
   //drupal_set_message(print_r($variables, true));
 
@@ -92,13 +539,23 @@ function icrp_preprocess_forum_list(&$variables) {
 function icrp_template_preprocess_default_variables_alter(&$variables) {
   $variables['icrp_debug'] = false;
   //$variables['icrp_debug'] = true;
-  $variables['is_admin'] = 'Dont know';
+  //$variables['is_admin'] = 'Dont know';
   //drupal_set_message("We got something now");
   //var_dump($variables);
 }
 
 function icrp_user_format_name_alter(&$name, $account) {
   // Display the user's uid instead of name.
+  //drupal_set_message("user_format_name");
+  //dpm($name);
+  //dpm($account->id());
+  //$name = "Hello User";
+  $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($account->id());
+  if(isset($user)) {
+    $name = $user->get('field_first_name')->value." ".$user->get('field_last_name')->value;
+  }
+
+
   //kint($account->get('field_first_name')->value);
   /*
   if ($account->id()) {
@@ -352,7 +809,13 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             //\Drupal\icrp\Importer\OrganizationRestClient::populateOrganizations();
             OrganizationRestClient::populateOrganizations();
             break;
-        case 'user_login':
+        case 'comment_comment_forum_form':
+            //$form['sticky']['#access'] = true;
+            //dpm($form);
+            $form['actions']['submit']['#value'] = t('Post Reply');
+            break;
+        case 'node_forum_form':
+            $form['actions']['submit']['#value'] = t('Add New Thread');
         case 'user_login_form':
             //$form['link'] = array('#markup' => t("<div style=padding:20px;'><a href='/user/password'>Forgot Password?</a></div>"));
             break;

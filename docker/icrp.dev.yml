@@ -12,25 +12,25 @@ services:
     build:
       context: ./build 
       dockerfile: drupal.dev.dockerfile
-    container_name: icrp-drupal-dev
+    container_name: icrp-drupal
     depends_on:
      - db
     links:
      - db
     ports:
       - '80:80'
-      - '443:443' 
+      - '443:443'
     volumes:
-      - ./run/drupal:/var/www/html
+      - ./run:/var/www/html
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost']
   db:
-    image: 'mysql:latest'
-    container_name: icrp-mysql-dev
+    image: 'mariadb:latest'
+    container_name: icrp-mysql
     expose:
       - '3306'
     ports:
-      - '3307:3306'
+      - '3306:3306'
     env_file:
       - .env
     volumes:

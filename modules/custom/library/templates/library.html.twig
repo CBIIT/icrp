@@ -20,7 +20,7 @@
         </div>
         <div class="browse">
           <div class="browse-header">
-            <h4>Browse</h4>
+            <h4>Category</h4>
             <div class="admin">
               <input type="checkbox" id="library-show-archives" name="show_archives"/>
               <label for="show_archives">Show Archives</label>
@@ -28,20 +28,28 @@
           </div>
           <div id="library-tree"></div>
           <div id="library-management" class="admin">
-            <a href="javascript:void(0);" id="library-create-root-folder" class="admin">Create Folder</a>
-            <a href="javascript:void(0);" id="library-edit-folder" class="admin">Edit Folder</a>
+            <a href="javascript:void(0);" id="library-create-root-folder" class="admin">Create Category</a>
+            <a href="javascript:void(0);" id="library-edit-folder" class="admin">Edit Category</a>
           </div>
         </div>
       </div>
       <div id="library-display">
-          <div>
-            <div class="frame preview"></div>
+        <div>
+          <div class="display-header">
+            <span>Current Folder:</span>
+            <span class="folder-name">None</span>
+            <span>/ Total Documents:</span>
+            <span class="document-count">0</span>
           </div>
-          <div id="library-management2" class="admin partner">
-            <a href="javascript:void(0);" id="library-upload-file" class="admin partner">Upload New File</a>
-            <a href="javascript:void(0);" id="library-create-folder" class="admin">Create Subfolder</a>
-            <a href="javascript:void(0);" id="library-archive-folder" class="admin">Archive All Files</a>
+          <div class="frame">
           </div>
+        </div>
+        <div id="library-management2">
+          <a href="javascript:void(0);" id="library-upload-file" class="admin partner">Upload New File</a>
+          <a href="javascript:void(0);" id="library-create-folder" class="admin">Create Subfolder</a>
+          <a href="javascript:void(0);" id="library-archive-folder" class="admin">Archive All Files</a>
+          <a href="javascript:void(0);" id="library-download-all" class="admin partner private">Download All</a>
+        </div>
       </div>
     </div>
   </div>

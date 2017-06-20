@@ -15,6 +15,7 @@ export class SearchPageComponent implements AfterViewInit {
 
   @ViewChild('searchform') searchForm;
   @ViewChild('summarypanel') summaryPanel;
+  @ViewChild('chartspanel') chartsPanel;
 
   search$: Observable<any>;
   fields: any = {};
@@ -28,7 +29,9 @@ export class SearchPageComponent implements AfterViewInit {
     sortPaginateParameters: {},
     displayParameters: [],
     results: [],
-    numResults: 0,
+    projectCount: 0,
+    relatedProjectCount: 0,
+    lastBudgetYear: 0,
     analytics: {},
     expiredSearchID: false,
   }
@@ -40,28 +43,27 @@ export class SearchPageComponent implements AfterViewInit {
     public sharedService: SharedService,
   ) {
     this.resetAnalytics();
+    this.storeService.clearAll()
   }
 
   ngAfterViewInit() {
     this.state.searchID = getSearchID();
 
-
     this.updateFields()
       .subscribe(e => {
+
         if (this.isStoredStateValid()) {
           this.loadingMessage = 'Loading Data';
           this.restoreState();
         }
 
+
         else {
+          this.storeService.clearAll();
           this.loadingMessage = 'Fetching Data';
           this.retrieveInitialResults();
         }
-
       })
-
-
-
   }
 
   retrieveInitialResults() {
@@ -75,7 +77,7 @@ export class SearchPageComponent implements AfterViewInit {
     let storedFields = this.storeService.get('fields');
     if (storedFields) {
       return Observable.of(true)
-        .delay(10)
+        .delay(0)
         .map(e => {
           this.fields = storedFields;
           this.searchForm.setFields(storedFields);
@@ -97,7 +99,9 @@ export class SearchPageComponent implements AfterViewInit {
       'searchParameters',
       'displayParameters',
       'results',
-      'numResults',
+      'projectCount',
+      'relatedProjectCount',
+      'lastBudgetYear',
       'analytics'
     ];
 
@@ -110,8 +114,10 @@ export class SearchPageComponent implements AfterViewInit {
     }
 
     for (let field of storedFields) {
-      if (!this.storeService.exists(field) || !this.storeService.get(field))
+      if (!this.storeService.exists(field) || !this.storeService.get(field)) {
+        console.log('error retrieving: ', field);
         return false;
+      }
     }
 
     return true;
@@ -124,20 +130,34 @@ export class SearchPageComponent implements AfterViewInit {
       'sortPaginateParameters',
       'displayParameters',
       'results',
-      'numResults',
+      'projectCount',
+      'relatedProjectCount',
+      'lastBudgetYear',
       'analytics'
     ];
 
     for (let field of storedFields) {
       Observable.of(true)
-        .delay(100)
+        .delay(0)
         .subscribe(e => {
           this.state[field] = this.storeService.get(field);
 
-          if (field === 'searchParameters') {
-            this.searchForm.setParameters(this.state[field], true);
+          switch(field) {
+            case 'searchParameters':
+              this.searchForm.setParameters(this.state[field], true);
+              break;
+
+            case 'lastBudgetYear':
+              Observable.of(this.state.lastBudgetYear.toString())
+                .delay(0)
+                .subscribe(year => this.chartsPanel.form.controls.conversion_year.patchValue(year));
+              break;
+
+            case 'searchID':
+              this.sharedService.set('searchID', this.state.searchID);
+              break;
           }
-        });
+      });
     }
 
     Observable.of(false)
@@ -165,9 +185,9 @@ export class SearchPageComponent implements AfterViewInit {
           }
 
           this.searchForm.setParameters(parameters);
-          this.getSearchResults({
-            parameters: parameters,
-          });
+          this.getSortedPaginatedResults({ search_id: searchID });
+          this.getSearchSummary(true)
+            .subscribe(e => this.getAnalytics(searchID));
         }
 
       });
@@ -202,6 +222,10 @@ export class SearchPageComponent implements AfterViewInit {
       let loadingTrue$ = Observable.timer(250)
         .subscribe(e => this.state.analytics[key] = []);
 
+      if (year == null) {
+        year = this.state.lastBudgetYear;
+      }
+
       this.searchService.getAnalytics({
         search_id: id,
         type: key,
@@ -218,6 +242,7 @@ export class SearchPageComponent implements AfterViewInit {
   getSortedPaginatedResults(parameters) {
     let params = deepCopy(parameters);
     this.storeService.set('sortPaginateParameters', parameters);
+    this.sharedService.set('searchID', this.state.searchID);
 
     params.search_id = this.state.searchID;
 
@@ -230,7 +255,7 @@ export class SearchPageComponent implements AfterViewInit {
         this.state.results = response.results;
         loadingTrue$.unsubscribe();
         this.state.loading = false;
-      })
+      });
   }
 
   getSearchResults(event: any) {
@@ -242,27 +267,57 @@ export class SearchPageComponent implements AfterViewInit {
       .subscribe(response => {
         this.state.searchID = response.search_id;
         this.state.results = response.results;
-        this.state.numResults = response.results_count;
         this.state.displayParameters = response.display_parameters;
         this.state.loading = false;
-        this.getAnalytics(this.state.searchID);
+
+        this.getSearchSummary(true)
+          .subscribe(e => this.getAnalytics(this.state.searchID));
 
         this.sharedService.set('searchID', this.state.searchID);
 
-        let storedFields = [
+        this.storeService.set('previouslyAuthenticated', this.sharedService.get('authenticated'));
+        this.storeFields([
           'searchID',
           'searchParameters',
           'displayParameters',
           'results',
-          'numResults',
-        ];
+        ]);
+      });
+  }
 
-        for (let field of storedFields) {
-          this.storeService.set(field, this.state[field]);
+  getSearchSummary(updateConversionYear: boolean = true) {
+    return this.searchService.getSearchSummary({ search_id: this.state.searchID })
+      .map(response => {
+        this.state.projectCount = +response.project_count;
+        this.state.relatedProjectCount = +response.related_project_count;
+
+
+        if (updateConversionYear) {
+          let validYears = this.fields.conversion_years.map(e => +e.value);
+          let budgetYear = +response.last_budget_year;
+
+          this.state.lastBudgetYear = (validYears.indexOf(budgetYear) > -1)
+            ? budgetYear
+            : validYears[0];
+
+          this.chartsPanel.form.controls.conversion_year.patchValue(this.state.lastBudgetYear.toString());
         }
 
-        this.storeService.set('previouslyAuthenticated', this.sharedService.get('authenticated'));
-      });
+
+        this.storeFields([
+          'projectCount',
+          'relatedProjectCount',
+          'lastBudgetYear',
+        ]);
+
+        return this.state;
+      })
+  }
+
+  storeFields(fields) {
+    for (let field of fields) {
+      this.storeService.set(field, this.state[field]);
+    }
   }
 
 

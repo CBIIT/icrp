@@ -74,6 +74,7 @@ x(del)         Internal Communications
 
          */
         $this->subCommittees = array(
+            "field_subcommittee_partner_news",
             "field_subcommittee_annual_meetin",
             "field_subcommittee_membership",
             "field_subcommittee_cso_coding",
@@ -81,8 +82,38 @@ x(del)         Internal Communications
             "field_subcommittee_partner_opera",
             "field_subcommittee_web_site",
         );
+        $this->notifications = array(
+            "field_notify_new_posts",
+            //"field_notify_new_events",
+        );
 
     }
+
+/*
+function system_user_timezone(&$form, FormStateInterface $form_state) {
+  $user = \Drupal::currentUser();
+
+  $account = $form_state->getFormObject()->getEntity();
+  $form['timezone'] = [
+    '#type' => 'details',
+    '#title' => t('Locale settings'),
+    '#open' => TRUE,
+    '#weight' => 6,
+  ];
+  $form['timezone']['timezone'] = [
+    '#type' => 'select',
+    '#title' => t('Time zone'),
+    '#default_value' => $account->getTimezone() ? $account->getTimezone() : \Drupal::config('system.date')->get('timezone.default'),
+    '#options' => system_time_zones($account->id() != $user->id()),
+    '#description' => t('Select the desired local time and time zone. Dates and times throughout this site will be displayed using this time zone.'),
+  ];
+  $user_input = $form_state->getUserInput();
+  if (!$account->getTimezone() && $account->id() == $user->id() && empty($user_input['timezone'])) {
+    $form['timezone']['#attached']['library'][] = 'core/drupal.timezone';
+    $form['timezone']['timezone']['#attributes'] = ['class' => ['timezone-detect']];
+  }
+}
+*/
 
     /**
      * {@inheritdoc}
@@ -140,7 +171,40 @@ x(del)         Internal Communications
             '#default_value' => $user->getEmail(),
             '#required' => TRUE,
         );
+        
+        $form['container']['name']['timezone'] = array(
+            '#type' => 'select',
+            '#title' => t('Time zone'),
+            '#default_value' => drupal_get_user_timezone(),
+            '#description' => t('Select the desired local time and time zone. Dates and times throughout this site will be displayed using this time zone.'),
+            '#required' => TRUE,
+            '#options' => system_time_zones(),
+        );
 
+        
+/*
+  //$user = \Drupal::currentUser();
+
+  $account = $form_state->getFormObject()->getEntity();
+  $form['timezone'] = [
+    '#type' => 'details',
+    '#title' => t('Locale settings'),
+    '#open' => TRUE,
+    '#weight' => 6,
+  ];
+  $form['timezone']['timezone'] = [
+    '#type' => 'select',
+    '#title' => t('Time zone'),
+    '#default_value' => $account->getTimezone() ? $account->getTimezone() : \Drupal::config('system.date')->get('timezone.default'),
+    '#options' => system_time_zones($account->id() != $user->id()),
+    '#description' => t('Select the desired local time and time zone. Dates and times throughout this site will be displayed using this time zone.'),
+  ];
+  $user_input = $form_state->getUserInput();
+  if (!$account->getTimezone() && $account->id() == $user->id() && empty($user_input['timezone'])) {
+    $form['timezone']['#attached']['library'][] = 'core/drupal.timezone';
+    $form['timezone']['timezone']['#attributes'] = ['class' => ['timezone-detect']];
+  }
+*/
         /* Password Form */
         $form['container']['name']['password'] = array(
             '#type' => 'details',
@@ -183,9 +247,36 @@ x(del)         Internal Communications
             '#markup' => t($markup),
         );
 
-        $form['container']['committee'] = array(
+        /* Notification Settings */
+        $form['container']['notify'] = array(
             '#type' => 'fieldset',
             '#prefix' => '<div class="col-sm-6">',
+            '#suffix' => '</div>',
+            '#title' => 'Notification Settings',
+        );
+
+        //kint($user);
+
+        /* Notifications */
+        foreach($this->notifications as $key => $field_notify) {
+            $form['container']['notify'][$field_notify] = array(
+                '#type' => 'checkbox',
+                '#prefix' => '<div title="'.t($user->get($field_notify)->getFieldDefinition()->getDescription()).'">',
+                '#suffix' => '</div>',
+                '#title' => t($user->get($field_notify)->getFieldDefinition()->getLabel()),
+                '#default_value' => (int)$user->get($field_notify)->value,
+                '#attributes' => array(
+                    'id' => array($field_notify),
+                    'title' => array(t($user->get($field_notify)->getFieldDefinition()->getLabel())),
+                )
+
+            );
+        }
+
+        /* Container Committee */
+        $form['container']['committee'] = array(
+            '#type' => 'fieldset',
+            '#prefix' => '<div class="col-sm-6"  style="margin-top:20px;">',
             '#suffix' => '</div>',
             '#title' => 'ICRP Subcommittees',
         );
@@ -194,6 +285,8 @@ x(del)         Internal Communications
         foreach($this->subCommittees as $key => $field_subcommittee) {
             $form['container']['committee'][$field_subcommittee] = array(
                 '#type' => 'checkbox',
+                '#prefix' => '<div title="'.t($user->get($field_subcommittee)->getFieldDefinition()->getDescription()).'">',
+                '#suffix' => '</div>',
                 '#title' => t($user->get($field_subcommittee)->getFieldDefinition()->getLabel()),
                 '#default_value' => (int)$user->get($field_subcommittee)->value,
                 '#attributes' => array(
@@ -326,6 +419,10 @@ x(del)         Internal Communications
         $this->entityManager->set("field_first_name", $form_state->getValue('field_first_name'));
         $this->entityManager->set("field_last_name", $form_state->getValue('field_last_name'));
         $this->entityManager->setEmail($form_state->getValue('email'));
+        $this->entityManager->set("timezone", $form_state->getValue('timezone'));
+        foreach($this->notifications as $key => $field) {
+            $this->entityManager->set($field, $form_values[$field]);
+        }
         foreach($this->subCommittees as $key => $field) {
             $this->entityManager->set($field, $form_values[$field]);
         }
@@ -335,11 +432,11 @@ x(del)         Internal Communications
             $this->entityManager->setPassword($form_state->getValue('password_new'));
         }
         $this->entityManager->save();
-
+        /*
         foreach ($form_state->getValues() as $key => $value) {
-           // drupal_set_message($key . ': ' . $value);
+           drupal_set_message($key . ': ' . $value);
         }
-
+        */
         drupal_set_message("Your profile changes have been saved.");
 
     }

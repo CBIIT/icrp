@@ -52,7 +52,7 @@ class DatabaseExportController extends ControllerBase {
 
   function exportSearchResults(Request $request) {
     $pdo = Database::getConnection();
-    $search_id = $request->query->get('search_id', $_SESSION['database_search_id']);
+    $search_id = $request->query->get('search_id', NULL);
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_PUBLIC, intval($search_id));
     return self::createResponse($uri);
@@ -60,7 +60,7 @@ class DatabaseExportController extends ControllerBase {
 
   function exportSearchResultsForPartners(Request $request) {
     $pdo = Database::getConnection();
-    $search_id = $request->query->get('search_id', $_SESSION['database_search_id']);
+    $search_id = $request->query->get('search_id', NULL);
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_PARTNERS, intval($search_id));
     return self::createResponse($uri);
@@ -68,7 +68,7 @@ class DatabaseExportController extends ControllerBase {
 
   function exportSearchResultsInSingleSheet(Request $request) {
     $pdo = Database::getConnection();
-    $search_id = $request->query->get('search_id', $_SESSION['database_search_id']);
+    $search_id = $request->query->get('search_id', NULL);
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_AS_SINGLE_SHEET, intval($search_id));
     return self::createResponse($uri);
@@ -76,7 +76,7 @@ class DatabaseExportController extends ControllerBase {
 
   function exportAbstracts(Request $request) {
     $pdo = Database::getConnection();
-    $search_id = $request->query->get('search_id', $_SESSION['database_search_id']);
+    $search_id = $request->query->get('search_id', NULL);
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_WITH_ABSTRACTS, intval($search_id));
     return self::createResponse($uri);
@@ -84,7 +84,7 @@ class DatabaseExportController extends ControllerBase {
 
   function exportAbstractsInSingleSheet(Request $request) {
     $pdo = Database::getConnection();
-    $search_id = $request->query->get('search_id', $_SESSION['database_search_id']);
+    $search_id = $request->query->get('search_id', NULL);
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET, intval($search_id));
     return self::createResponse($uri);
@@ -92,7 +92,7 @@ class DatabaseExportController extends ControllerBase {
 
   function exportGraphs(Request $request) {
     $pdo = Database::getConnection();
-    $search_id = $request->query->get('search_id', $_SESSION['database_search_id']);
+    $search_id = $request->query->get('search_id', NULL);
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PUBLIC, intval($search_id));
     return self::createResponse($uri);
@@ -100,7 +100,7 @@ class DatabaseExportController extends ControllerBase {
 
   function exportGraphsForPartners(Request $request) {
     $pdo = Database::getConnection();
-    $search_id = $request->query->get('search_id', $_SESSION['database_search_id']);
+    $search_id = $request->query->get('search_id', NULL);
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PARTNERS, intval($search_id));
     return self::createResponse($uri);
@@ -109,7 +109,7 @@ class DatabaseExportController extends ControllerBase {
 
   function reviewExportSearchResults(Request $request) {
     $pdo = Database::getConnection('icrp_load_database');
-    $search_id = $request->query->get('search_id', $_SESSION['database_search_id']);
+    $search_id = $request->query->get('search_id', NULL);
     $data_upload_id = $request->query->get('data_upload_id', NULL);
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_PUBLIC, intval($search_id), intval($data_upload_id));
@@ -118,7 +118,7 @@ class DatabaseExportController extends ControllerBase {
 
   function reviewExportSearchResultsForPartners(Request $request) {
     $pdo = Database::getConnection('icrp_load_database');
-    $search_id = $request->query->get('search_id', $_SESSION['database_search_id']);
+    $search_id = $request->query->get('search_id', NULL);
     $data_upload_id = $request->query->get('data_upload_id', NULL);
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_PARTNERS, intval($search_id), intval($data_upload_id));
@@ -127,7 +127,7 @@ class DatabaseExportController extends ControllerBase {
 
   function reviewExportSearchResultsInSingleSheet(Request $request) {
     $pdo = Database::getConnection('icrp_load_database');
-    $search_id = $request->query->get('search_id', $_SESSION['database_search_id']);
+    $search_id = $request->query->get('search_id', NULL);
     $data_upload_id = $request->query->get('data_upload_id', NULL);
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_AS_SINGLE_SHEET, intval($search_id), intval($data_upload_id));
@@ -136,7 +136,7 @@ class DatabaseExportController extends ControllerBase {
 
   function reviewExportAbstracts(Request $request) {
     $pdo = Database::getConnection('icrp_load_database');
-    $search_id = $request->query->get('search_id', $_SESSION['database_search_id']);
+    $search_id = $request->query->get('search_id', NULL);
     $data_upload_id = $request->query->get('data_upload_id', NULL);
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_WITH_ABSTRACTS, intval($search_id), intval($data_upload_id));
@@ -145,7 +145,7 @@ class DatabaseExportController extends ControllerBase {
 
   function reviewExportAbstractsInSingleSheet(Request $request) {
     $pdo = Database::getConnection('icrp_load_database');
-    $search_id = $request->query->get('search_id', $_SESSION['database_search_id']);
+    $search_id = $request->query->get('search_id', NULL);
     $data_upload_id = $request->query->get('data_upload_id', NULL);
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET, intval($search_id), intval($data_upload_id));
@@ -154,7 +154,7 @@ class DatabaseExportController extends ControllerBase {
 
   function reviewExportGraphs(Request $request) {
     $pdo = Database::getConnection('icrp_load_database');
-    $search_id = $request->query->get('search_id', $_SESSION['database_search_id']);
+    $search_id = $request->query->get('search_id', NULL);
     $data_upload_id = $request->query->get('data_upload_id', NULL);
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PUBLIC, intval($search_id));
@@ -163,7 +163,7 @@ class DatabaseExportController extends ControllerBase {
 
   function reviewExportGraphsForPartners(Request $request) {
     $pdo = Database::getConnection('icrp_load_database');
-    $search_id = $request->query->get('search_id', $_SESSION['database_search_id']);
+    $search_id = $request->query->get('search_id', NULL);
     $data_upload_id = $request->query->get('data_upload_id', NULL);
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PARTNERS, intval($search_id));
