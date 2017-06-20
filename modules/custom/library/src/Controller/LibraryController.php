@@ -2,7 +2,7 @@
 
 namespace Drupal\library\Controller;
 
-require_once("Zipstream.php");
+use Zipstream;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
