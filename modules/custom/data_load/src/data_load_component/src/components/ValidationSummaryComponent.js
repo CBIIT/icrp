@@ -6,15 +6,15 @@ import {
 } from 'react-bootstrap';
 import ListGroupItemComponent from './ListGroupItemComponent';
 import DataTableComponent from './DataTableComponent';
+import Spinner from './SpinnerComponent'
 
 class ValidationSummaryComponent extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { showModal: false };
+        this.state = { showModal: false, loading: false };
         this.closeModal = this.closeModal.bind(this);
         this.openModal = this.openModal.bind(this);
-        this.updateParent = this.updateParent.bind(this);
     }
 
     closeModal() {
@@ -26,27 +26,16 @@ class ValidationSummaryComponent extends Component {
     }
 
     async openModal(ruleId) {
-        // this.props.onLoadingStart();
+
+        this.setState({ loading: true });
         var data = new FormData();
         data.append('ruleId', ruleId);
         var that = this;
         let response = await fetch('http://icrp-dataload/dataload/integrity_check_details_mssql/', { method: 'POST', body: data });
-        // this.props.onLoadingEnd();
 
         if (response.ok) {
             let results = await response.json();
-            // filter result type Summary
-            // results = results['results'].filter(result =>
-            // { return result.Type === 'Rule'; }).map(result => {
-            //     return { name: result.Description, validationResult: (parseInt(result.Count, 10) === 0 ? 'Pass' : 'Failed') };
-            // });
-
-            // that.updateParent(results['results']);
-
-            await that.setState({ modalDetails: results['results'] });
-            // that.updateParent(results);
-            // that.props.onLoadingEnd();
-            that.setState({ showModal: true });
+            that.setState({ modalDetails: results['results'], loading: false, showModal: true });
         } else {
             let message = await response.text();
             alert("Oops! " + message);
@@ -54,24 +43,27 @@ class ValidationSummaryComponent extends Component {
     }
 
     render() {
-        debugger;
         if (this.props.validationResults.length === 0)
             return null;
 
+        let validationRules = this.props.validationRules;
         let validationResults = [];
         let ruleId = 0;
         this.props.validationResults.forEach(result => {
-            const _bsStyle = result.validationResult === 'Failed' ? "danger" : "default";
-            validationResults.push(
-                <ListGroupItemComponent bsStyle={_bsStyle} result={result} ruleId={++ruleId} clickHandler={this.openModal} />
-            )
+            const isChecked = validationRules.find(rule => rule.id === parseInt(result.id, 10)).checked;
+            if (isChecked) {
+                let validationResult = result.validationResult;
+                const _bsStyle = validationResult === 'Failed' ? "danger" : "default";
+                validationResults.push(
+                    <ListGroupItemComponent bsStyle={_bsStyle} result={result} ruleId={++ruleId} clickHandler={this.openModal} />
+                )
+            }
         });
-        
-        // let showModal = this.props.validationDetailsResults.length !== 0 ? true : false;
 
         return (
 
             <div>
+                <Spinner message="Loading Content..." visible={this.state.loading} />
                 <h3>Data Integrity Check Summary:</h3>
                 <ListGroup>
                     {validationResults}

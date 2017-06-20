@@ -14,7 +14,7 @@ class ListGroupItemComponent extends Component {
 
     render() {
         return (
-            <ListGroupItem bsStyle={this.props.bsStyle} onClick={this.handleClick}>
+            <ListGroupItem bsStyle={this.props.bsStyle} onClick={this.props.result.validationResult === 'Failed' ? this.handleClick : null}>
                 <Row>
                     <Col xs={6}>{this.props.result.name}</Col>
                     <Col xs={2}>{this.props.result.validationResult}</Col>

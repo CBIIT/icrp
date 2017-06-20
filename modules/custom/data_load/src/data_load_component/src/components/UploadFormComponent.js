@@ -56,6 +56,7 @@ class UploadFormComponent extends Component {
         switch (type) {
             case 'file':
                 value = target.files[0];
+                await this.setState({originalFileName: target.files[0].name});
                 break;
             case 'checkbox':
                 value = target.checked;
@@ -103,9 +104,10 @@ class UploadFormComponent extends Component {
     async upload() {
         this.props.onLoadingStart();
         var data = new FormData();
-        var fileData = this.state.fileId;// document.getElementById("fileId").files[0];
-        data.append("data", fileData, uuidV4() + '.csv');
-        data.append("uploadType", this.state.uploadType);
+        var fileData = this.state.fileId;
+        data.append('data', fileData, uuidV4() + '.csv');
+        data.append("originalFileName", this.state.originalFileName);
+        data.append('uploadType', this.state.uploadType);
         var that = this;
         let response = await fetch('http://icrp-dataload/loaddata_mssql/', { method: 'POST', body: data });
 

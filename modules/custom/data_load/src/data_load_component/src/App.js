@@ -3,7 +3,6 @@ import {
   Tabs,
   Tab,
 } from 'react-bootstrap';
-// import moment from 'moment';
 import UploadFormComponent from './components/UploadFormComponent';
 import NavigationComponent from './components/NavigationComponent';
 import ValidationConfiguratorComponent from './components/ValidationConfiguratorComponent';
@@ -31,7 +30,8 @@ class App extends Component {
       sortColumn: 'InternalId',
       sortDirection: 'ASC',
       loading: false,
-      validationResults: []
+      validationResults: [],
+      validationRules: []
     }
     this.handleFileUpload = this.handleFileUpload.bind(this);
     this.handleDataTableChange = this.handleDataTableChange.bind(this);
@@ -39,7 +39,6 @@ class App extends Component {
     this.handleValidationResults = this.handleValidationResults.bind(this);
     this.handleTabSelect = this.handleTabSelect.bind(this);
     this.reset = this.reset.bind(this);
-    this.handleEndLoading = this.handleEndLoading.bind(this);
   }
 
   reset() {
@@ -55,7 +54,8 @@ class App extends Component {
       sortColumn: 'InternalId',
       sortDirection: 'ASC',
       loading: false,
-      validationResults: []
+      validationResults: [],
+      validationRules: []
     })
   }
 
@@ -64,19 +64,15 @@ class App extends Component {
   }
 
   handleLoadingStateChange() {
-    this.setState({ loading: true, validationResults: [], tab2Disabled: true, tab3Disabled: true });
+    this.setState({ loading: true, validationResults: [], validationRules: [] });
   }
 
   handleDataTableChange(page, sortColumn, sortDirection, projects) {
     this.setState({ page: page, sortColumn: sortColumn, sortDirection: sortDirection, projects: projects });
   }
 
-  handleValidationResults(results) {
-    this.setState({ validationResults: results, loading: false });
-  }
-
-  handleEndLoading() {
-    this.setState({ loading: false });
+  handleValidationResults(results, validationRules) {
+    this.setState({ validationResults: results, validationRules: validationRules, loading: false });
   }
 
   handleTabSelect(key) {
@@ -102,7 +98,7 @@ class App extends Component {
           <Tab eventKey={2} title="Data Integrity Check" disabled={this.state.tab2Disabled} >
             <div className="tab-container">
               <ValidationConfiguratorComponent onValidationResults={this.handleValidationResults} onLoadingStart={this.handleLoadingStateChange} />
-              <ValidationSummaryComponent validationResults={this.state.validationResults}  onLoadingStart={this.handleLoadingStateChange} onLoadingEnd={this.handleEndLoading} />
+              <ValidationSummaryComponent validationResults={this.state.validationResults} validationRules={this.state.validationRules} />
 
               <NavigationComponent hasBackButton={true} hasNextButton={true} nextDisabled={this.state.tab3Disabled} clickHandler={this.handleTabSelect} thisTabId={2} cancelUrl={'https://icrpartnership-dev.org/FundingOrgs'} />
 
