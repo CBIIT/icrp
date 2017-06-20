@@ -21,6 +21,14 @@ library.search:
   requirements:
     _permission: 'access content'
 
+library.bulk:
+  path: '/library/bulk'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::bulkDownload'
+  methods:  [GET]
+  requirements:
+    _role: 'administrator+manager+partner'
+
 library.testQuery:
   path: '/library/testQuery'
   defaults:

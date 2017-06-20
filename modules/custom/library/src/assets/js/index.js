@@ -68,6 +68,13 @@ jQuery(function() {
             });
             e.preventDefault();
         },
+        'bulkDownload': function(e) {
+            e.preventDefault();
+            var ids = [];
+            $('#library-display .frame').children(':not(.archived)').each(function(i,e) { ids.push($(e).data('libraryFileData').LibraryID); });
+            window.open('/icrp/library/bulk?downloads='+ids.join(','));
+            return false;
+        },
         'caselessSort': function(a, b) {
             return a.text.toLowerCase() > b.text.toLowerCase() ? 1 : a.text.toLowerCase() < b.text.toLowerCase() ? -1 : 0
         },
@@ -579,6 +586,7 @@ jQuery(function() {
     $('#library-upload-file').on('click',function(e) {
         functions.createNew(e,false);
     });
+    $('#library-download-all').on('click',functions.bulkDownload);
     $('#library-archive-folder').on('click',functions.archiveFolder);
     $('#library-show-archives').on('change',function(e) {
         if (this.checked) {
