@@ -19,7 +19,7 @@ const FundingOrganizationForm = ({form, fields, validation, changeCallback, subm
     <Row className="bordered padding-top margin-bottom">
       <Form inline>
         <Col md={6} className="margin-bottom">
-          <FormGroup controlId="selectPartner" bsSize="small" validationState={validation.partner === false ? 'warning' : null}>
+          <FormGroup controlId="selectPartner" bsSize="small" validationState={validation.partner === false ? 'error' : null}>
             <ControlLabel className="margin-right">Partner <Asterisk /></ControlLabel>
             <FormControl
               componentClass="select"
@@ -76,7 +76,7 @@ const FundingOrganizationForm = ({form, fields, validation, changeCallback, subm
 
     <Row>
       <Col md={6} className="margin-bottom">
-        <FormGroup bsSize="small" validationState={validation.name === false ? 'warning' : null}>
+        <FormGroup bsSize="small" validationState={validation.name === false ? 'error' : null}>
           <ControlLabel className="margin-right">Name <Asterisk /></ControlLabel>
           <FormControl
             type="text"
@@ -91,7 +91,7 @@ const FundingOrganizationForm = ({form, fields, validation, changeCallback, subm
       </Col>
 
       <Col md={6} className="margin-bottom">
-        <FormGroup bsSize="small" validationState={validation.abbreviation === false ? 'warning' : null}>
+        <FormGroup bsSize="small" validationState={validation.abbreviation === false ? 'error' : null}>
           <ControlLabel className="margin-right">Abbreviation <Asterisk /></ControlLabel>
           <FormControl
             type="text"
@@ -108,7 +108,7 @@ const FundingOrganizationForm = ({form, fields, validation, changeCallback, subm
 
     <Row>
       <Col md={6} className="margin-bottom">
-          <FormGroup controlId="selectOrganizationType" bsSize="small" validationState={validation.organizationType === false ? 'warning' : null}>
+          <FormGroup controlId="selectOrganizationType" bsSize="small" validationState={validation.organizationType === false ? 'error' : null}>
             <ControlLabel className="margin-right">Organization Type <Asterisk /></ControlLabel>
             <FormControl
               componentClass="select"
@@ -144,7 +144,7 @@ const FundingOrganizationForm = ({form, fields, validation, changeCallback, subm
 
     <Row>
       <Col md={6} className="margin-bottom">
-        <FormGroup controlId="selectCountry" bsSize="small" validationState={validation.country === false ? 'warning' : null}>
+        <FormGroup controlId="selectCountry" bsSize="small" validationState={validation.country === false ? 'error' : null}>
           <ControlLabel className="margin-right">Country <Asterisk /></ControlLabel>
           <FormControl
             componentClass="select"
@@ -165,7 +165,7 @@ const FundingOrganizationForm = ({form, fields, validation, changeCallback, subm
       </Col>
 
       <Col md={6} className="margin-bottom">
-        <FormGroup controlId="selectCurrency" bsSize="small" validationState={validation.currency === false ? 'warning' : null}>
+        <FormGroup controlId="selectCurrency" bsSize="small" validationState={validation.currency === false ? 'error' : null}>
           <ControlLabel className="margin-right">Currency <Asterisk /></ControlLabel>
           <FormControl
             componentClass="select"
