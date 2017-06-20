@@ -1,5 +1,12 @@
+dataload.app:
+  path: '/dataload'
+  defaults:
+    _controller: '\Drupal\data_load\Controller\DataLoadController::load_app'
+    _title: 'Data Loading Tool'
+  requirements:
+    _permission: 'authenticated'
 dataload.load_data_mysql:    
-  path: '/loaddata_mysql'
+  path: '/dataload/loaddata_mysql'
   defaults:
     _controller: '\Drupal\data_load\Controller\DataLoadController::loaddata_mysql'
     _title: 'Load Data'
@@ -7,7 +14,7 @@ dataload.load_data_mysql:
     _permission: 'access content'
   methods: [POST]
 dataload.load_data_mssql:    
-  path: '/loaddata_mssql'
+  path: '/dataload/loaddata_mssql'
   defaults:
     _controller: '\Drupal\data_load\Controller\DataLoadController::loaddata_mssql'
     _title: 'Load Data'
@@ -15,14 +22,14 @@ dataload.load_data_mssql:
     _permission: 'access content'
   methods: [POST]
 dataload.get_data:
-  path: '/getdata'
+  path: '/dataload/getdata'
   defaults:
     _controller:  '\Drupal\data_load\Controller\DataLoadController::getdata'
     _title: 'Get Data'
   requirements:
     _permission: 'access content'
 dataload.get_data_mssql:
-  path: '/getdata_mssql'
+  path: '/dataload/getdata_mssql'
   defaults:
     _controller:  '\Drupal\data_load\Controller\DataLoadController::getdata_mssql'
     _title: 'Get Data'
