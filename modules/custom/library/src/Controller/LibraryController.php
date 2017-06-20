@@ -2,6 +2,8 @@
 
 namespace Drupal\library\Controller;
 
+require_once("Zipstream.php");
+
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
 use Ds\Set;
@@ -13,11 +15,11 @@ use PDO;
 
 class LibraryController extends ControllerBase {
   public function testQuery() {
-    return new JsonResponse(array(),Response::HTTP_FORBIDDEN);
+    return new JsonResponse(array(),$status=Response::HTTP_FORBIDDEN);
     $return = array();
     $connection = self::get_connection();
     $stmt = $connection->prepare(
-      "SELECT Filename,IsPublic FROM Library WHERE DisplayName='Day 2.2_DB-ACS-Breast Cancer Gen Test.pptx'"
+      "SELECT * FROM Library WHERE LibraryID IN (5,1121)"
     );
     if ($stmt->execute()) {
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -28,7 +30,7 @@ class LibraryController extends ControllerBase {
         array_push($return,$row_output);
       }
     }
-    return new JsonResponse($return);
+    return new BinaryFileResponse($zip);
   }
 
   private static $initFolderQuery = array(
@@ -444,6 +446,30 @@ class LibraryController extends ControllerBase {
       }
     }
     return $returnValue;
+  }
+
+  public function bulkDownload() {
+    $downloads = explode(",",\Drupal::request()->query->get('downloads'));
+    $result = array();
+    $connection = self::get_connection();
+    $stmt = $connection->prepare("SELECT * FROM Library WHERE ArchivedDate IS NULL AND LibraryID IN (".implode(",",array_fill(0,count($downloads),"?")).")");
+    foreach ($downloads as $k => $id)
+      $stmt->bindValue(($k+1), $id);
+    $zip = new \Zipstream\ZipStream('archive.zip');
+    if ($stmt->execute()) {
+      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $row_output = array();
+        foreach ($row as $key=>$value) {
+          $row_output[$key] = $value;
+        }
+        array_push($result,$row_output);
+        try {
+          $zip->addFileFromPath($row_output['DisplayName'],join('/',array(drupal_realpath('public://library/uploads'),$row_output['Filename'])));
+        } catch (\Zipstream\Exception\FileNotFoundException $e) { }
+      }
+    }
+    $zip->finish();
+    return new Response();
   }
 
   public function fileDownload($id,$name) {

@@ -9,8 +9,6 @@
 #library-display .frame.preview .item-wrapper .edit-file,
 #library-display .frame.preview .item-wrapper .archive-file,
 #library-display .frame.preview .item-wrapper .restore-file,
-#library-display .frame .item-wrapper:not(.archived) ~ .item-wrapper:last-child,
-#library-display .frame.archived .item-wrapper.archived ~ .item-wrapper:last-child,
 #library-parameters.folder > :not(.folder),
 #library-parameters .not_public ~ div {
   display: none;
