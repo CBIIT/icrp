@@ -1,6 +1,6 @@
-db_email_results.content:
-  path: '/EmailResults'
+email.results:
+  path: '/api/database/email-results'
   defaults: { _controller: '\Drupal\db_email_results\Controller\EmailResultsController::emailResults' }
-  methods:  [GET]    
+  methods: [ GET ]
   requirements:
-    _permission: 'access content'
+    _access: 'TRUE'
