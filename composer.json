@@ -6,7 +6,10 @@
     "require": {
         "composer/installers": "^1.0.24",
         "wikimedia/composer-merge-plugin": "~1.4",
-        "maennchen/zipstream-php": "^0.4.1"
+        "maennchen/zipstream-php": "^0.4.1",
+        "phpmailer/phpmailer": "~5.2",
+        "phpoffice/phpexcel": "~1.8.1",
+        "box/spout": "^2.7.2"
     },
     "replace": {
         "drupal/core": "~8.3"
