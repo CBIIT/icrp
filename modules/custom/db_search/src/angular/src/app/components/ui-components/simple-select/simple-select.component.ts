@@ -112,6 +112,8 @@ export class SimpleSelectComponent {
       this.valid = false;
     }
 
+    this.emitValue();
+
   }
 
   focusInput(event: any) {

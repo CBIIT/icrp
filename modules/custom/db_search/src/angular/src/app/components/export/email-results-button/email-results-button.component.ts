@@ -3,6 +3,7 @@ import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 
 import { ModalDirective  } from 'ngx-bootstrap/modal';
 import { ExportService } from '../../../services/export.service';
+import { SharedService } from '../../../services/shared.service';
 
 @Component({
   selector: 'icrp-email-results-button',
@@ -23,15 +24,19 @@ export class EmailResultsButtonComponent {
   }
 
   constructor(
+    private sharedService: SharedService,
     private exportService: ExportService,
     private formbuilder: FormBuilder
   ) {
 
     this.emailForm = formbuilder.group({
-      name: ['',  Validators.required],   
+      name: ['',  Validators.required],
       recipient_emails: [[], Validators.required],
       personal_message: [''],
     });
+
+    this.emailForm.valueChanges
+      .subscribe(data => console.log(data));
   }
 
   sendEmail() {
@@ -43,8 +48,9 @@ export class EmailResultsButtonComponent {
     };
 
     let params = {
+      search_id: +this.sharedService.get('searchID'),
       name:  this.emailForm.controls['name'].value,
-      recipient_email: this.emailForm.controls['recipient_emails'].value,
+      recipient_emails: this.emailForm.controls['recipient_emails'].value,
       personal_message: this.emailForm.controls['personal_message'].value,
     }
 
@@ -60,7 +66,7 @@ export class EmailResultsButtonComponent {
 
   closeModal() {
     this.emailResultsModal.hide();
-    
+
     this.state = {
       initial: true,
       success: false,
@@ -69,7 +75,7 @@ export class EmailResultsButtonComponent {
     }
 
     this.emailForm.patchValue({
-      name: '', 
+      name: '',
       recipient_emails: [],
       personal_message: '',
     })
