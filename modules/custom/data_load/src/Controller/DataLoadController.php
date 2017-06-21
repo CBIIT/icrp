@@ -59,15 +59,15 @@ class DataLoadController {
         $cfg['options']
         );
     }
-    
+
     public function load_app() {
         return [
-        '#theme'    => 'data_load',
-        '#attached' => [
-        'library'   => [
-        'data_load/resources'
-        ],
-        ],
+            '#theme'    => 'data_load',
+            '#attached' => [
+                'library'   => [
+                    'data_load/resources'
+                ],
+            ],
         ];
     }
     
@@ -159,53 +159,53 @@ class DataLoadController {
         try {
             $conn = self::getConnection();
             $conn->exec("DROP TABLE IF EXISTS UploadWorkBook_Svet");
-            $conn->exec("CREATE TABLE UploadWorkBook_Svet (
-            InternalId int IDENTITY (1,1),
-            AwardCode NVARCHAR(50),
-            AwardStartDate Date,
-            AwardEndDate date,
-            SourceId VARCHAR(50),
-            AltId VARCHAR(50),
-            AwardTitle VARCHAR(1000),
-            Category VARCHAR(25),
-            AwardType VARCHAR(50),
-            Childhood VARCHAR(5),
-            BudgetStartDate date,
-            BudgetEndDate date,
-            CSOCodes VARCHAR(500),
-            CSORel VARCHAR(500),
-            SiteCodes VARCHAR(500),
-            SiteRel VARCHAR(500),
-            AwardFunding float,
-            IsAnnualized VARCHAR(1),
-            FundingMechanismCode VARCHAR(30),
-            FundingMechanism VARCHAR(200),
-            FundingOrgAbbr VARCHAR(50),
-            FundingDiv VARCHAR(75),
-            FundingDivAbbr VARCHAR(50),
-            FundingContact VARCHAR(50),
-            PILastName VARCHAR(50),
-            PIFirstName VARCHAR(50),
-            SubmittedInstitution VARCHAR(250),
-            City VARCHAR(50),
-            State VARCHAR(3),
-            Country VARCHAR(3),
-            PostalZipCode VARCHAR(15),
-            InstitutionICRP VARCHAR(4000),
-            Latitute decimal(9,6),
-            Longitute decimal(9,6),
-            GRID VARCHAR(50),
-            TechAbstract NVARCHAR(max),
-            PublicAbstract NVARCHAR(max),
-            RelatedAwardCode VARCHAR(200),
-            RelationshipType VARCHAR(200),
-            ORCID VARCHAR(25),
-            OtherResearcherID INT,
-            OtherResearcherIDType VARCHAR(1000),
-            InternalUseOnly  NVARCHAR(MAX),
-            OriginalFileName VARCHAR(200)
-            )");
-            
+            $conn->exec("CREATE TABLE UploadWorkBook_Svet (	
+                        InternalId int IDENTITY (1,1), 
+	                    AwardCode NVARCHAR(50),
+	                    AwardStartDate Date,
+	                    AwardEndDate date,
+                        SourceId VARCHAR(50),
+                        AltId VARCHAR(50),
+                        AwardTitle VARCHAR(1000),
+                        Category VARCHAR(25),
+                        AwardType VARCHAR(50),
+                        Childhood VARCHAR(5),
+                        BudgetStartDate date,
+                        BudgetEndDate date,
+                        CSOCodes VARCHAR(500),
+                        CSORel VARCHAR(500),
+                        SiteCodes VARCHAR(500),
+                        SiteRel VARCHAR(500),
+                        AwardFunding float,
+                        IsAnnualized VARCHAR(1),
+                        FundingMechanismCode VARCHAR(30),
+                        FundingMechanism VARCHAR(200),
+                        FundingOrgAbbr VARCHAR(50),
+                        FundingDiv VARCHAR(75),
+                        FundingDivAbbr VARCHAR(50),
+                        FundingContact VARCHAR(50),
+                        PILastName VARCHAR(50),
+                        PIFirstName VARCHAR(50),
+                        SubmittedInstitution VARCHAR(250),
+                        City VARCHAR(50),
+                        State VARCHAR(3),
+                        Country VARCHAR(3),
+                        PostalZipCode VARCHAR(15),
+                        InstitutionICRP VARCHAR(4000),
+                        Latitute decimal(9,6),
+                        Longitute decimal(9,6),
+                        GRID VARCHAR(50),
+                        TechAbstract NVARCHAR(max),
+                        PublicAbstract NVARCHAR(max),
+                        RelatedAwardCode VARCHAR(200),
+                        RelationshipType VARCHAR(200),
+                        ORCID VARCHAR(25),
+                        OtherResearcherID INT,
+                        OtherResearcherIDType VARCHAR(1000),
+                        InternalUseOnly  NVARCHAR(MAX),
+                        OriginalFileName VARCHAR(200)
+                        )");
+
             $stmt = $conn->prepare("INSERT INTO UploadWorkBook_Svet ([AwardCode], [AwardStartDate], [AwardEndDate], [SourceId], [AltId], [AwardTitle], [Category],
             [AwardType], [Childhood], [BudgetStartDate], [BudgetEndDate], [CSOCodes], [CSORel], [SiteCodes], [SiteRel], [AwardFunding], [IsAnnualized], [FundingMechanismCode], [FundingMechanism],
             [FundingOrgAbbr], [FundingDiv], [FundingDivAbbr], [FundingContact], [PILastName], [PIFirstName], [SubmittedInstitution], [City], [State], [Country], [PostalZipCode], [InstitutionICRP], [Latitute], [Longitute], [GRID],
@@ -234,7 +234,9 @@ class DataLoadController {
             $csvReader->close();
             
             $rowCount = $conn->query("SELECT COUNT(*) FROM UploadWorkBook_Svet")->fetchColumn();
-            $stmt = $conn->prepare("SELECT ORDINAL_POSITION, COLUMN_NAME FROM icrp_dataload.INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'UploadWorkBook_Svet' ORDER BY ORDINAL_POSITION");
+            $stmt = $conn->prepare("SELECT ORDINAL_POSITION, COLUMN_NAME FROM icrp_dataload.INFORMATION_SCHEMA.COLUMNS 
+                                    WHERE TABLE_NAME = 'UploadWorkBook_Svet' AND COLUMN_NAME != 'InternalId' AND COLUMN_NAME != 'OriginalFileName' 
+                                    ORDER BY ORDINAL_POSITION");
             $stmt->execute();
             $columns = $stmt->fetchAll();
             
@@ -392,6 +394,5 @@ class DataLoadController {
         return new Response('Ping you back!');
     }
 }
-
 
 ?>

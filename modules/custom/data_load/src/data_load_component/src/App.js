@@ -72,7 +72,16 @@ class App extends Component {
   }
 
   handleValidationResults(results, validationRules) {
-    this.setState({ validationResults: results, validationRules: validationRules, loading: false });
+    let tab3Disabled = false;
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i];
+      if (result.validationResult === 'Failed' && validationRules.find(rule => rule.id === parseInt(result.id, 10)).checked) {
+        tab3Disabled = true;
+        break;
+      }
+    }
+
+    this.setState({ validationResults: results, validationRules: validationRules, loading: false, tab3Disabled: tab3Disabled });
   }
 
   handleTabSelect(key) {
