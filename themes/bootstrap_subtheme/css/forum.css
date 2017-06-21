@@ -55,7 +55,7 @@ table#forum { border: 1px solid #eaeaea; width: 100%; }
 */
 /* topic-status */
 .topic-status-legend {
-	padding:5px;
+	/*padding:5px;*/
 	margin-left:20px;
 }
 .topic-status-legend > span {
@@ -79,6 +79,10 @@ table#forum { border: 1px solid #eaeaea; width: 100%; }
 }
 
 /* forum */
+.pagination {
+	margin:5px 0px;
+}
+
 .breadcrumb {
 	margin-bottom:10px;
 }
