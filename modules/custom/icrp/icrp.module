@@ -478,10 +478,10 @@ function getLastPostFromTopicID($tid) {
     //
     if($row->comment_count == 0) {
       $query = "SELECT count(*) as count FROM taxonomy_index ti where ti.tid = {$tid} ";
-      $query .= "order by ti.created desc limit 1; ";
+      //$query .= "order by ti.created desc limit 1; ";
       $result=db_query($query);
       $row = $result->fetchObject();
-      if(isset($row->count)  && $row->count == 1) {
+      if(isset($row->count)  && $row->count > 0) {
         $query = "SELECT nid FROM taxonomy_index ti where ti.tid = {$tid} ";
         $query .= "order by ti.created desc limit 1; ";
         $result=db_query($query);
