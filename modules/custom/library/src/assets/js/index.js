@@ -72,7 +72,7 @@ jQuery(function() {
             e.preventDefault();
             var ids = [];
             $('#library-display .frame').children(':not(.archived)').each(function(i,e) { ids.push($(e).data('libraryFileData').LibraryID); });
-            window.open('/icrp/library/bulk?downloads='+ids.join(','));
+            window.open(path+'bulk?downloads='+ids.join(','));
             return false;
         },
         'caselessSort': function(a, b) {
