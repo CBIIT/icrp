@@ -58,7 +58,7 @@ FROM `Partner`
 ORDER BY `Country`, `Name`//
 
 
-CREATE DEFINER=`t3chn0shaman`@`%` PROCEDURE `GetFundingOrgs`(
+CREATE PROCEDURE `GetFundingOrgs`(
 	IN `@type` VARCHAR(15)
 )
 LANGUAGE SQL
@@ -91,7 +91,7 @@ BEGIN
 END//
 
 
-CREATE DEFINER=`t3chn0shaman`@`%` PROCEDURE `GetPartnerOrgs`()
+CREATE PROCEDURE `GetPartnerOrgs`()
 LANGUAGE SQL
 NOT DETERMINISTIC
 CONTAINS SQL

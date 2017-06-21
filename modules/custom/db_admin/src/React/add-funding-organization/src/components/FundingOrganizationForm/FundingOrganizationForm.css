@@ -1,0 +1,47 @@
+
+.margin-right {
+  margin-right: 5px;
+}
+
+.margin-bottom {
+  margin-bottom: 10px;
+}
+
+.padding-top {
+  padding-top: 10px;
+}
+
+.vertical-padding {
+  padding: 10px 0;
+}
+
+.bordered {
+  border: 1px solid #ddd;
+  border-radius: 2px;
+}
+
+.red {
+  color: #d9534f;
+}
+
+.m-t-3 {
+  margin-top: 3px;
+}
+
+select.select {
+  min-width: 400px;
+}
+
+option.disabled {
+  color: #ddd;
+}
+
+textarea {
+  resize: vertical;
+}
+
+@media (max-width: 991px) {
+  .visible-responsive {
+    display: none;
+  }
+}

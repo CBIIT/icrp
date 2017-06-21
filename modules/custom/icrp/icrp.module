@@ -53,6 +53,14 @@ function icrp_views_data() {
   drupal_set_message("icrp_views_data");
 }
 */
+
+function icrp_preprocess_page(&$variables) {
+  //kint($variables['page']['content']);
+  //ICRP Partnership Forum
+
+  //dpm($variables['page']);
+}
+
 function icrp_preprocess_comment(&$variables) {
     //drupal_set_message("icrp_preprocess_comment");
     //dpm($variables);
@@ -140,6 +148,24 @@ function makeRandomString($max=6) {
         $i++;
     }
     return $str;
+}
+
+function icrp_preprocess_form(&$variables) {
+  if(isset($variables['element']['#form_id']) && $variables['element']['#form_id'] == "node_forum_form") {
+
+    $form_id = $variables['element']['#form_id'];
+    //drupal_set_message('Form_id: '.$form_id);
+    $tid = \Drupal::request()->query->get('forum_id');
+    //drupal_set_message("$tid:");
+    //Look up Forum Category and Thread for this forum_id
+  
+    $query = "select name, description__value FROM taxonomy_term_field_data where tid = {$tid}; ";
+  
+    $result = db_query($query);
+    $row = $result->fetchObject();
+    $variables['tforum_category'] = $row->name;
+    $variables['tforum_description'] = $row->description__value;
+  }
 }
 
 function icrp_views_data_alter(array &$data) { 
@@ -331,6 +357,10 @@ function icrp_preprocess_table(&$variables) {
   if(isset($variables['header'][0]['attributes']->storage()['aria-sort'])) {
     $sort_order = $variables['header'][0]['attributes']->storage()['aria-sort']->value();
   }
+  // Change Last reply to Last Reply
+  $last_reply_header = $variables['header'][2]['content']->getGeneratedLink();
+  $variables['header'][2]['content']->setGeneratedLink(str_replace("Last reply", "Last Reply", $last_reply_header));
+
   $variables['header'][0]['content']->setGeneratedLink(changeHeaderTitle("Thread", $forum_id, $sort_order));
   //Customize Rows and Cells 
   foreach($variables['rows'] as $row_index => $row) {
@@ -378,34 +408,42 @@ function icrp_preprocess_menu_local_action(&$variables) {
 
 function icrp_preprocess_node(&$variables) {
   // Exit if node type is not a forum
-  $node = $variables['node']; 
+  $node = $variables['node'];
+  //drupal_set_message($node->getType()); 
   if($node->getType() != "forum") {
     return;
   }
 
+  //dpm($variables);
+
   $variables['ttitle'] = $node->getTitle();
+  //drupal_set_message($variables['ttitle']);
   $created_timestamp = DrupalDateTime::createFromTimestamp($node->getCreatedTime());
   //$last_visit_timestamp->setTimezone(timezone_open(drupal_get_user_timezone()));
   $variables['tthread_created_time'] = $created_timestamp->format("D, F j, Y g:i A");
   $variables['tstatus'] = $node->get('status')->value;
   $variables['tnid'] = $node->get('nid')->value;
-  $node = \Drupal::entityTypeManager()->getStorage('node')->load($variables['tnid']);
-  //dpm($node);
-  $variables['tbody'] =  $node->get('body')->value; 
-  $variables['tcomment_forum']['comment_count'] =  $node->get('comment_forum')->comment_count; 
-  $variables['tcomment_forum']['status'] =  $node->get('comment_forum')->status; 
-  $variables['tforum_tid'] =  $node->get('taxonomy_forums')->target_id; 
-  
-  $forum = Drupal\taxonomy\Entity\Term::load($variables['tforum_tid']);
-  $variables['tforum_name'] =  $forum->getName(); 
-
-  //dpm($forum);  
-
-  //$variables['tforum_tid'] = $node->get('forum_tid');
-  //$variables['tforum_title'] = getForumTitle($node->get('forum_tid'));
-
-  //drupal_set_message("We got a forum node");
-  //drupal_set_message($node->getType());
+  //drupal_set_message("nid: ".$variables['tnid']);
+  $tnode = \Drupal::entityTypeManager()->getStorage('node')->load($variables['tnid']);
+  //dpm($node2);
+  if(isset($tnode)){
+    //drupal_set_message("We got a node");
+    //dpm($node);
+    $variables['tbody'] =  $tnode->get('body')->value; 
+    //drupal_set_message($variables['tbody']);
+    $variables['tcomment_forum']['comment_count'] =  $tnode->get('comment_forum')->comment_count; 
+    $variables['tcomment_forum']['status'] =  $tnode->get('comment_forum')->status; 
+    $variables['tforum_tid'] =  $tnode->get('taxonomy_forums')->target_id; 
+    if(isset($variables['tforum_tid'])) {
+      //drupal_set_message($variables['tforum_tid']);
+      $forum = Drupal\taxonomy\Entity\Term::load($variables['tforum_tid']);
+      if(isset($forum)){
+        $variables['tforum_name'] =  $forum->getName(); 
+      } else {
+        $variables['tforum_name'] =  "unknown"; 
+      }
+    }
+  }
   //dpm($variables);
 }
 
@@ -415,8 +453,84 @@ function icrp_preprocess_forums__topics(&$variables) {
   //kint($variables['forums']);
   //var_dump($variables);
  }
+
+function getNodeBody($nid) {
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  return $node->get('body')->value; 
+}
+
+function getLastPostFromTopicID($tid) {
+    //Count number oc comments for this Thread
+    $query = "select count(*) as comment_count ";
+    $query .= "FROM taxonomy_index ti, comment_field_data cfd, comment__comment_body ccb ";
+    $query .= "where ti.nid = cfd.entity_id and cfd.cid = ccb.entity_id and ti.tid = {$tid}; ";
+    $result=db_query($query);
+    $row = $result->fetchObject();
+    //return "Comment Count: ".$row->comment_count;
+ 
+
+  //
+  // If there are now only one topic, then return the Topic Body, else get the last reply.
+  //
+    //
+    // If Comment count is zero.  Return Thread Topic Title and Body instead. If available.
+    // Else get the last reply.
+    //
+    if($row->comment_count == 0) {
+      $query = "SELECT count(*) as count FROM taxonomy_index ti where ti.tid = {$tid} ";
+      //$query .= "order by ti.created desc limit 1; ";
+      $result=db_query($query);
+      $row = $result->fetchObject();
+      if(isset($row->count)  && $row->count > 0) {
+        $query = "SELECT nid FROM taxonomy_index ti where ti.tid = {$tid} ";
+        $query .= "order by ti.created desc limit 1; ";
+        $result=db_query($query);
+        $row = $result->fetchObject();
+        list($thread_title, $thread_summary) = getThreadNodeInfo($row->nid);
+        $comment = "<div><b>$thread_title</b></div><div>$thread_summary</div>"; 
+
+        return array($row->nid, $comment);
+      }
+    }
+
+
+  $query = "SELECT * FROM taxonomy_index ti where ti.tid = {$tid} order by ti.nid desc limit 1;";
+  $result=db_query($query);
+  $row = $result->fetchObject();
+  $comment = "";
+  $nid = "unknown";
+  if(isset($row->nid)) {
+    //$comment = lastComment($row->nid);
+    $query = "select ti.nid, ccb.comment_body_value, cfd.name, cfd.uid, cfd.changed ";
+    $query .= "FROM taxonomy_index ti, comment_field_data cfd, comment__comment_body ccb ";
+    $query .= "where ti.nid = cfd.entity_id and cfd.cid = ccb.entity_id and ti.tid = {$tid} "; 
+    $query .= "order by cfd.changed desc; ";
+    $result=db_query($query);
+    $row = $result->fetchObject();
+    if(isset($row->comment_body_value)) {
+      $comment = $row->comment_body_value."<div style='display:none;'> by <b>".$row->name."</b></div>";
+    }
+    if(isset($row->nid)) {
+      $nid = $row->nid;
+    }
+
+  }
+
+  return array($nid, $comment);
+}
+
 function icrp_preprocess_forum_list(&$variables) {
   //drupal_set_message("Added chris to variables.  See if you can access in twig.");
+  foreach($variables['forums'] as $tid =>$term ) {
+    //drupal_set_message("Term: $tid");
+    //dpm($term);
+    list($nid, $last_post) = getLastPostFromTopicID($tid);
+    $variables['tforums'][$tid]['last_post'] = $last_post;
+    $variables['tforums'][$tid]['nid'] = $nid;
+
+    //$variables['tforums'][$tid]['last_post'] = "Hello";
+  }
+  //dpm($variables);
   //kint($variables);
   //drupal_set_message(print_r($variables, true));
 
@@ -695,11 +809,13 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             //\Drupal\icrp\Importer\OrganizationRestClient::populateOrganizations();
             OrganizationRestClient::populateOrganizations();
             break;
-        case 'node_forum_form':
+        case 'comment_comment_forum_form':
             //$form['sticky']['#access'] = true;
             //dpm($form);
+            $form['actions']['submit']['#value'] = t('Post Reply');
             break;
-        case 'user_login':
+        case 'node_forum_form':
+            $form['actions']['submit']['#value'] = t('Add New Thread');
         case 'user_login_form':
             //$form['link'] = array('#markup' => t("<div style=padding:20px;'><a href='/user/password'>Forgot Password?</a></div>"));
             break;

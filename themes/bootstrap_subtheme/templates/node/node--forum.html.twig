@@ -69,8 +69,18 @@
   <span class="icrp-debug">node--forum.html.twig</span><br>
   <script>console.info("node--forum.html.twig");</script>
   <script>console.log({{ _context | json_encode | raw }});</script>
+  {{ dump(user.roles) }}
+
 {% endif %}
+{% set manager = false %}
+{% for role in user.roles %}
+  {% if (role == "manager") or (role == "administrator") %}
+    {% set manager = true %}
+  {% endif %}
+{% endfor %}
+
 <!--  Breadcrumb -->
+{#
 <ol class="breadcrumb">
   <li>
     <a href="/forum/6">Forum</a>
@@ -78,16 +88,18 @@
   <li>
     <a href="/forum/6">ICRP Partnership Forum</a>
   </li>
+  {% if tforum_name is defined %}
   <li>
     <a href="/forum/{{ tforum_tid }}">{{ tforum_name }}</a>
   </li>
+  {% endif %}
+
   <li class="active">
     {{ ttitle }}
   </li>
 </ol>
-{% if tstatus == "0" %}
-  This Thread is closed
-{% endif %}
+#}
+{{ attach_library('classy/node') }}
 
 {%
   set classes = [
@@ -100,36 +112,51 @@
     'clearfix',
   ]
 %}
-{#
-{{ attach_library('classy/node') }}
-    <div{{ content_attributes.addClass('node__content', 'clearfix') }}>
-    Links here:
-      {% block content %}
-        {{ content|without('links') }}
-      {% endblock %}
-    </div>
 
-#}
 <article{{ attributes.addClass(classes) }}>
   <header>
-  <h1>{{ ttitle }}</h1>
-  <p>{{ tbody|raw }}</p>
-    <table style="width:100%;margin-bottom:5px;">
-      <tbody>
-        <tr style="min-height:30px;">
-          <td style="padding:3px;">Replies: <span class="badge" title="Number of replies to this post.">{{ tcomment_forum.comment_count }}</span></td>
-          <td style="padding:3px;">Created by {{ author_name }} on {{ tthread_created_time }}</td>
-          <td style="text-align:right;vertical-align:bottom;white-space:nowrap;">
-            <span class="pull-right" style="font-size:smaller;">{{ last_forum_visit }}</span>
-            {% if tcomment_forum.status == "1" %}
-              <h6>Status: <span class="label label-pill label-danger"  title="This thread is closed for comment.">Closed</span></h6>
-            {% else %}
-              <a cdata-drupal-link-system-path="node" class="btn btn-xs btn-success" href="/comment/reply/node/{{ tnid }}/comment_forum">Post Reply</a>
-            {% endif %}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    {% if page %}
+      <h2>{{ ttitle }}
+
+        {% if manager %}
+          <span class="pull-right" style="font-size:12px;">
+            <!--  This goes to edit screen that doesn't allow you to close... :(
+
+            <a class="pull-right" href="/admin/structure/forum/edit/forum/{{ tforum_tid }}">Edit</a>
+            <a class="pull-right" href="/thread/{{ tforum_tid }}?action=close">Close</a>
+            -->
+          </span>
+        {% endif %}
+
+      </h2>
+      <p>{{ tbody|raw }}</p>
+        <table style="width:100%;margin-bottom:5px;">
+          <tbody>
+            <tr style="min-height:30px;">
+              <td style="padding:3px;">Replies: <span class="badge" title="Number of replies to this post.">{{ tcomment_forum.comment_count }}</span></td>
+              <td style="padding:3px;">Created by {{ author_name }} on {{ tthread_created_time }}</td>
+              <td style="text-align:right;vertical-align:bottom;white-space:nowrap;">
+                <span class="pull-right" style="font-size:smaller;">{{ last_forum_visit }}</span>
+                {% if tcomment_forum.status == "1" %}
+                  <h6>Status: <span class="label label-pill label-danger"  title="This thread is closed for comment.">Closed</span></h6>
+                {% else %}
+                  <a cdata-drupal-link-system-path="node" class="btn btn-xs btn-success" href="/comment/reply/node/{{ tnid }}/comment_forum">Post Reply</a>
+                {% endif %}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        {% if tcomment_forum.status == "2" and tcomment_forum.comment_count == 0 %}
+          <hr>
+          <div style="padding-left:20px;" title="Click on the Post Reply button to comment on this post."><em>There are no replies to this post.  Click the <strong>Post Reply</strong> button to comment on this thread.</em></div>
+        {% endif %}
+    {% else %}
+        <h2>Post Reply</h2>
+        <div style="padding-bottom:20px;">
+          <div><b>Forum Category:</b>&nbsp;{{ tforum_name }}</div>
+          <div><b>Thread:</b>&nbsp;{{ ttitle }}</div>
+        </div>
+    {% endif %}
   </header>
 
 {#
@@ -149,11 +176,14 @@
       {% endif %}
     </header>
 #}
-    <div{{ content_attributes.addClass('node__content', 'clearfix') }}>
-      {% block content %}
-        {{ content|without('links') }}
-      {% endblock %}
-    </div>
+
+  <div{{ content_attributes.addClass('node__content', 'clearfix') }}>
+    {% block content %}
+      {{ content|without('links') }}
+    {% endblock %}
+  </div>
+  <a name="latest"></a>
+
 {#
     {% if content.links %}
       <footer class="link-wrapper">

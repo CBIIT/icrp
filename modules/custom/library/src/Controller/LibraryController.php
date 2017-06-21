@@ -454,7 +454,11 @@ class LibraryController extends ControllerBase {
     $stmt = $connection->prepare("SELECT * FROM Library WHERE ArchivedDate IS NULL AND LibraryID IN (".implode(",",array_fill(0,count($downloads),"?")).")");
     foreach ($downloads as $k => $id)
       $stmt->bindValue(($k+1), $id);
+<<<<<<< HEAD
     $zip = new ZipStream('archive.zip');
+=======
+    #$zip = new \Zipstream\ZipStream('archive.zip');
+>>>>>>> master
     if ($stmt->execute()) {
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $row_output = array();
@@ -462,12 +466,12 @@ class LibraryController extends ControllerBase {
           $row_output[$key] = $value;
         }
         array_push($result,$row_output);
-        try {
-          $zip->addFileFromPath($row_output['DisplayName'],join('/',array(drupal_realpath('public://library/uploads'),$row_output['Filename'])));
-        } catch (\Zipstream\Exception\FileNotFoundException $e) { }
+        #try {
+        #  $zip->addFileFromPath($row_output['DisplayName'],join('/',array(drupal_realpath('public://library/uploads'),$row_output['Filename'])));
+        #} catch (\Zipstream\Exception\FileNotFoundException $e) { }
       }
     }
-    $zip->finish();
+    #$zip->finish();
     return new Response();
   }
 

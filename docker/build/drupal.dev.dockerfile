@@ -7,7 +7,7 @@ LABEL \
     VERSION="1.0" \
     UID="DRUPAL_8"
 
-RUN curl --silent --location https://rpm.nodesource.com/setup_7.x | bash - \ 
+RUN curl --silent --location https://rpm.nodesource.com/setup_8.x | bash - \ 
  && curl https://packages.microsoft.com/config/rhel/7/prod.repo -o /etc/yum.repos.d/mssql-release.repo \
  && yum makecache fast \ 
  && yum -y update \
@@ -36,12 +36,12 @@ RUN curl --silent --location https://rpm.nodesource.com/setup_7.x | bash - \
     php71u-pdo \
 #   php71u-pdo-dblib \
     php71u-pecl-apcu \
-    php71u-pecl-xdebug \
+#   php71u-pecl-xdebug \
     php71u-pgsql \
     php71u-xml \
+ && yum -y remove unixODBC-utf16 unixODBC-utf16-devel \
  && ACCEPT_EULA=Y yum -y install msodbcsql mssql-tools \
- && yum -y remove unixODBC \
- && yum -y install unixODBC-utf16-devel \
+ && yum -y install unixODBC-devel \
  && yum -y clean all \
  && pecl install sqlsrv \
  && pecl install pdo_sqlsrv

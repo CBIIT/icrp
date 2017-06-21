@@ -119,7 +119,7 @@
                 <a href="{{ forum.new_url }}">{{ forum.new_text }}</a>
               </div>
             {% endif %}
-        <td>
+        <td class="last-reply" style="max-width:300px; overflow:hidden;">
 {#
         {{ (forum.last_reply is empty) ? "Empty" : "Full" }}<br>
         {{ forum.last_reply| length }}<br>
@@ -128,10 +128,15 @@
         {{ forum.last_reply| raw | slice(0,50) }}<br>
         {{ forum.last_reply| raw | slice(0,1150) }}<br>
 #}
+
         {% if (forum.num_topics == 0) %}
           <span class="forum__last-reply" style="font-style:italic;">No Posts</span>
         {% else %}
-          <span class="forum__last-reply">{{ forum.last_reply|raw }}</span>
+          {% set t = loop.index + 6 %}
+          <div style="margin-bottom:10px;">{{ tforums[ t ].last_post | raw }}</div>
+          <div class="forum__last-reply">{{ forum.last_reply|raw }}
+            <span class="pull-right"><a href="/node/{{ tforums[ t ].nid }}#latest">View this post</a></span>
+          </div>
         {% endif %}
         
         </td>

@@ -1,0 +1,19 @@
+# Before running docker-compose, ensure that the the following resources exist: 
+#  - ./run/drupal/    ## contains all drupal files (mounted under document root)
+#  - ./run/icrp.sql   ## contains a .sql dump of the current database
+#
+# After running docker-compose, the deployment script should:
+#  - restore the database from the .sql dump
+#  - rebuild the drupal cache
+
+version: '3' 
+services:
+  selenium:
+    build:
+      context: ./build 
+      dockerfile: selenium.dockerfile
+    container_name: test-icrp
+    volumes:
+      - ./run/tests:/tests
+    env_file:
+      - .test_env

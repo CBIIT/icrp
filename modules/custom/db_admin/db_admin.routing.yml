@@ -1,9 +1,74 @@
 ## Routes for Database Admin Pages
 
-
-test_event:
-  path: /test-event
-  defaults: { _controller: 'Drupal\db_admin\Controller\AdminController::dispatchSampleEvent' }
-  methods: [ GET ]
+## Get page for adding partners
+api.admin.partners.content:
+  path: /admin/add-partner
+  defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addPartnerPage' }
   requirements:
     _access: 'TRUE'
+    _role: 'authenticated'
+
+## Get page for adding funding organizations
+api.admin.funding_organizations.content:
+  path: /admin/add-funding-organization
+  defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addFundingOrganizationPage' }
+  requirements:
+    _access: 'TRUE'
+    _role: 'authenticated'
+
+
+## Get form fields for funding organizations
+api.admin.funding_organizations.fields:
+  path: /api/admin/funding_organizations/fields
+  defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::getFundingOrganizationFields' }
+  requirements:
+    _access: 'TRUE'
+
+## Add funding organization
+api.admin.funding_organizations.add:
+  path: /api/admin/funding_organizations/add
+  defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::addFundingOrganization' }
+  requirements:
+    _access: 'TRUE'
+
+
+## Get form fields for partners
+api.admin.partners.fields:
+  path: /api/admin/partners/fields
+  defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::getPartnerFields' }
+  requirements:
+    _access: 'TRUE'
+
+
+## Add partner
+api.admin.partners.add:
+  path: /api/admin/partners/add
+  defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::addPartner' }
+  requirements:
+    _access: 'TRUE'
+
+
+## Deprecated Routes
+
+## Get page for adding partners
+api.admin.partners.content.deprecated:
+  path: /AddPartner
+  defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addPartnerPage' }
+  requirements:
+    _access: 'TRUE'
+    _role: 'authenticated'
+
+## Get page for adding funding organizations
+api.admin.funding_organizations.content.deprecated:
+  path: /AddFundingOrg
+  defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addFundingOrganizationPage' }
+  requirements:
+    _access: 'TRUE'
+    _role: 'authenticated'
+
+test_event:
+  path: /api/admin/test-event
+  defaults: { _controller: 'Drupal\db_admin\Controller\AdminController::dispatchSampleEvent' }
+  requirements:
+    _access: 'TRUE'
+    _role: 'authenticated'

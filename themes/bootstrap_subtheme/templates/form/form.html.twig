@@ -12,57 +12,38 @@
 #}
 {# Add form-horizontal to a form #}
 {% if attributes.id == "views-exposed-form-user-account-administration-tool-page-1" %}
-    <!--
-    <form class="form-inline" >
-        <div class="form-group">
-            <label for="edit-field-membership-status-value" class="control-label">Status: </label>
-            <div class="" style="display: inline-block;"><select aria-required="true" required="required" name="field_membership_status_value" id="edit-field-membership-status-value" data-msg-required="This field is required." class="form-select required form-control" data-drupal-selector="edit-field-membership-status-value"><option value="Registering">Registering</option><option selected="selected" value="Active">Active</option><option value="Blocked">Blocked</option></select></div>
-            <div id="edit-actions" class="form-actions form-group js-form-wrapper form-wrapper" data-drupal-selector="edit-actions">
-                <button name="" value="Apply" id="edit-submit-user-account-administration-tool" type="submit" class="button js-form-submit form-submit btn-info btn" data-drupal-selector="edit-submit-user-account-administration-tool">Apply</button>
-            </div>
-        </div>
-    </form>
-    <hr>
-    -->
     <form class="form-inline" id="form-membership-status">
         <div class="form-group">
             {{ children }}
         </div>
     </form>
-    <!--
-    <form class="form-horizontal">
-        <div class="form-group">
-            <label class="control-label col-sm-1" for="email">Email:</label>
-            <div class="col-sm-10">
-                <input type="email" class="form-control" id="email" placeholder="Enter email">
+{% elseif attributes.id == "comment-form"  %}
+    <div class ="container">
+      <div class = "row">
+        <div class="col-12 well">
+            <form {{ attributes }}>
+                {{ children }}
+            </form>
+        </div>
+      </div>
+    </div>
+{% elseif attributes.id == "node-forum-form"  %}
+    <h2>Add New Thread</h2>
+    <div><b>Forum Category:</b>&nbsp;{{ tforum_category }}</div>
+    <div style="padding-bottom:10px;"><b>Description:</b>&nbsp;{{ tforum_description|striptags('<em>')|raw }}</div>
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <!--
+            <p style="padding:15px;">Please enter a <span style="font-weight:bold;">Subject</span> and <span style="font-weight:bold;">Post</span> to start a new discussion thread.  Optionally, click on <b>Edit Summary</b> add a <span style="font-weight:bold;">Summary</span> to the thread.</p>
+            -->
+            <div class="well">
+
+                <form {{ attributes }}>
+                    {{ children }}
+                </form>
             </div>
         </div>
-        <div class="form-group">
-            <label class="control-label col-sm-1" for="pwd">Password:</label>
-            <div class="col-sm-10">
-                <input type="password" class="form-control" id="pwd" placeholder="Enter password">
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="control-label col-sm-2" for="pwd">First Name:</label>
-            <div class="col-sm-10">
-                <span class="form-control" style="border:none;box-shadow:none;">Chris</span>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="col-sm-offset-1 col-sm-10">
-                <div class="checkbox">
-                    <label><input type="checkbox"> Remember me</label>
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="col-sm-offset-1 col-sm-10">
-                <button type="submit" class="btn btn-default">Submit</button>
-            </div>
-        </div>
-    </form>
-    -->
+    </div>
 {% else %}
     <form {{ attributes }}>
         {{ children }}
