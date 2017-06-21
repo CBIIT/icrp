@@ -462,12 +462,12 @@ class LibraryController extends ControllerBase {
           $row_output[$key] = $value;
         }
         array_push($result,$row_output);
-        #try {
-        #  $zip->addFileFromPath($row_output['DisplayName'],join('/',array(drupal_realpath('public://library/uploads'),$row_output['Filename'])));
-        #} catch (\Zipstream\Exception\FileNotFoundException $e) { }
+        try {
+          $zip->addFileFromPath($row_output['DisplayName'],join('/',array(drupal_realpath('public://library/uploads'),$row_output['Filename'])));
+        } catch (\Zipstream\Exception\FileNotFoundException $e) { }
       }
     }
-    #$zip->finish();
+    $zip->finish();
     return new Response();
   }
 
