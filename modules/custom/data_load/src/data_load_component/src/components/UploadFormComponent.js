@@ -111,7 +111,7 @@ class UploadFormComponent extends Component {
         var that = this;
         let protocol = window.location.protocol;
         let hostname = window.location.hostname;
-        let pathname = 'dataload/loaddata_mssql';
+        let pathname = 'DataUploadTool/loaddata_mssql';
         if (hostname === 'localhost') {
             protocol = 'http:';
             hostname = 'icrp-dataload';

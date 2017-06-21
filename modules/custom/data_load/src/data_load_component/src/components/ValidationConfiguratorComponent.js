@@ -92,7 +92,7 @@ class ValidationConfiguratorComponent extends Component {
         var that = this;
         let protocol = window.location.protocol;
         let hostname = window.location.hostname;
-        let pathname = 'dataload/integrity_check_mssql';
+        let pathname = 'DataUploadTool/integrity_check_mssql';
         if (hostname === 'localhost') {
             protocol = 'http:';
             hostname = 'icrp-dataload';

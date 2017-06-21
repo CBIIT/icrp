@@ -72,7 +72,7 @@ class NewTableComponent extends Component {
         var that = this;
         let protocol = window.location.protocol;
         let hostname = window.location.hostname;
-        let pathname = 'dataload/getdata_mssql';
+        let pathname = 'DataUploadTool/getdata_mssql';
 
         if (hostname === 'localhost') {
             protocol = 'http:';
