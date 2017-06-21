@@ -102,7 +102,7 @@ class NewTableComponent extends Component {
         const columns = this.props.columns;
         const rowCount = this.props.projects.length;
         const totalPages = this.props.stats.totalPages;
-        const page = this.props.stats.page;
+        const page = this.props.page;
 
         return (
             <div>
