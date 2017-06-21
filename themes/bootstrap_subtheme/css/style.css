@@ -248,6 +248,7 @@ body {
 /* Header */
 header {
     margin-bottom:0px;
+    overflow:hidden;
 }
 
 .navbar-default {
