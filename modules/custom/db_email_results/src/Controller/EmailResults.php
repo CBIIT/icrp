@@ -11,7 +11,6 @@ require_once 'class.smtp.php';
 use Drupal;
 use PHPMailer;
 use PDO;
-use PDOBuilder;
 use PDOException;
 
 class EmailResults {
@@ -67,7 +66,8 @@ class EmailResults {
     $mail->Username   = $properties['config']['email_username'];
     $mail->Password   = $properties['config']['email_password'];
     $mail->Port       = $properties['config']['email_port'];
-    $mail->SMTPSecure = 'tls';
+    $mail->SMTPAuth   = true;
+    $mail->SMTPSecure = 'ssl';
 
     $mail->isHTML(true);
     $mail->setFrom($properties['sender_address']);
@@ -132,12 +132,12 @@ class EmailResults {
     try {
       PDOBuilder::createPreparedStatement(
         PDOBuilder::getConnection(),
-        'SET NOCOUNT ON; EXECUTE UpdateSearchResultMarkEmailSent @SearchID=:search_id',
-        ['search_id', $properties['search_id']]
+        'EXECUTE UpdateSearchResultMarkEmailSent @SearchID=:search_id',
+        ['search_id' => $properties['search_id']]
       )->execute();
     }
 
-    catch (Exception $e) {
+    catch (PDOException $e) {
       return [
         'success' => false,
         'error'   => $e->getMessage(),

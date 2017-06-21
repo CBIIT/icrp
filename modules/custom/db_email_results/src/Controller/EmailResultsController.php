@@ -53,6 +53,7 @@ class EmailResultsController extends ControllerBase {
       $parameters[$key] = $request->query->get($key);
     }
 
+
     $parameters['search_results_url'] =
       ( $request->server->get('HTTPS') ? 'https://' : 'http://' )
       . $request->server->get('SERVER_NAME')
