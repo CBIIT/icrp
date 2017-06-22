@@ -83,7 +83,7 @@ export class SimpleSelectComponent {
     this.emitValue();
   }
 
-  handleKeydownEvent(event: KeyboardEvent) {
+  handleKeyDownEvent(event: KeyboardEvent) {
 
     let input = this.input.nativeElement;
 
@@ -92,12 +92,22 @@ export class SimpleSelectComponent {
       this.addValueToSelection();
     }
 
-    if (event.key === 'Backspace' && !input.value.length) {
+    else if (event.key === 'Backspace' && !input.value.length) {
       this.valid = true;
       this.selectedItems.pop();
     }
 
     this.emitValue();
+  }
+
+  handleKeyUpEvent(event: KeyboardEvent) {
+    let input = this.input.nativeElement;
+    let isValid = this.validationRegex.test(input.value);
+
+    if (this.selectedItems.length === 0 && isValid) {
+      this.propagateChange([input.value]);
+      this.select.emit([input.value]);
+    }
   }
 
   addValueToSelection() {
