@@ -11,7 +11,7 @@ dataload.load_data_mysql:
     _controller: '\Drupal\data_load\Controller\DataLoadController::loaddata_mysql'
     _title: 'Load Data'
   requirements:
-    _permission: 'administer users''
+    _permission: 'administer users'
   methods: [POST]
 dataload.load_data_mssql:    
   path: '/DataUploadTool/loaddata_mssql'
