@@ -59,14 +59,22 @@ class FundingOrganizationManager {
       }
     }
 
-    $stmt = $pdo->prepare("SELECT * FROM FundingOrg WHERE Name = :organization_name AND SponsorCode = :sponsor_code AND Abbreviation = :abbreviation");
-    $stmt->bindParam(':organization_name', $parameters['organization_name']);
-    $stmt->bindParam(':sponsor_code', $parameters['sponsor_code']);
-    $stmt->bindParam(':abbreviation', $parameters['organization_abbreviation']);
+    $stmt = $pdo->prepare("
+      SELECT * FROM FundingOrg 
+      WHERE (Name = :organization_name OR Abbreviation = :abbreviation) 
+      AND SponsorCode = :sponsor_code
+    ");
 
-    if ($stmt->execute()) {
+    if ($stmt->execute([
+      ':organization_name'  => $parameters['organization_name'],
+      ':abbreviation'       => $parameters['organization_abbreviation'],
+      ':sponsor_code'       => $parameters['sponsor_code'],
+    ])) {
       if (!empty($stmt->fetch())) {
-        array_push($errors, ['ERROR' => 'A funding organization with the same name and sponsor code already exists in the database. No changes have been made.']);
+        array_push($errors, [
+          'ERROR' => 'A funding organization with the same name and sponsor code already exists in the database. '
+            . 'No changes have been made.'
+          ]);
       }
     }
 
