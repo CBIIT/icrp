@@ -137,7 +137,12 @@ export default class Form extends React.Component {
 
       for (let key in form) {
         let formKey = parameterMap[key];
-        let formValue = form[key] || null;
+        let formValue = form[key];
+        if (formValue.constructor === String
+          && formValue.length === 0) {
+            formValue = null;
+          }
+
         formData.set(formKey, formValue);
       }
 
