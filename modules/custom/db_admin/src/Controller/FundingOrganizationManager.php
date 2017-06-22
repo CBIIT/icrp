@@ -62,7 +62,7 @@ class FundingOrganizationManager {
     $stmt = $pdo->prepare("SELECT * FROM FundingOrg WHERE Name = :organization_name AND SponsorCode = :sponsor_code AND Abbreviation = :abbreviation");
     $stmt->bindParam(':organization_name', $parameters['organization_name']);
     $stmt->bindParam(':sponsor_code', $parameters['sponsor_code']);
-    $stmt->bindParam(':abbreviation', $parameters['abbreviation']);
+    $stmt->bindParam(':abbreviation', $parameters['organization_abbreviation']);
 
     if ($stmt->execute()) {
       if (!empty($stmt->fetch())) {
