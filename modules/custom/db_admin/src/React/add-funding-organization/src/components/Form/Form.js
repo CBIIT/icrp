@@ -8,14 +8,15 @@ export default class Form extends React.Component {
     this.state = {
       form: {
         partner: '',
-        memberType: '',
+        memberType: 'Associate',
         name: '',
         abbreviation: '',
         organizationType: '',
-        annualizedFunding: false,
+        mapCoordinates: '',
         country: '',
         currency: '',
         note: '',
+        annualizedFunding: false,
       },
       fields: {
         organizationTypes: [
@@ -127,10 +128,11 @@ export default class Form extends React.Component {
         name: 'organization_name',
         abbreviation: 'organization_abbreviation',
         organizationType: 'organization_type',
-        annualizedFunding: 'is_annualized',
+        mapCoordinates: 'map_coordinates',
         country: 'country',
         currency: 'currency',
         note: 'note',
+        annualizedFunding: 'is_annualized',
       };
 
       for (let key in form) {

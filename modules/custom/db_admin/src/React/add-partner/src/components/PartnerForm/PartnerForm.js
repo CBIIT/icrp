@@ -93,13 +93,14 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
         <FormGroup  controlId="selectEmail" bsSize="small" validationState={validation.email === false ? 'error' : null}>
           <ControlLabel className="margin-right">Email <Asterisk /></ControlLabel>
           <FormControl
-            type="text"
+            type="email"
             value={form.email}
-            maxLength={15}
+            maxLength={250}
             onChange={event => changeCallback('email', event.target['value'])}
             placeholder="Enter email for funding organization" />
           <FormControl.Feedback />
           { validation.email === false && <HelpBlock>This field is required.</HelpBlock> }
+          { validation.emailFormat === false && <HelpBlock>Please ensure this field is in the proper format.</HelpBlock> }
         </FormGroup>
       </Col>
     </Row>
@@ -134,7 +135,7 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
           <FormControl
             type="text"
             value={form.website}
-            maxLength={15}
+            maxLength={100}
             onChange={event => changeCallback('website', event.target['value'])}
             placeholder="Enter website" />
           <FormControl.Feedback />
@@ -152,7 +153,7 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
           <FormControl
             type="text"
             value={form.mapCoordinates}
-            maxLength={15}
+            maxLength={50}
             onChange={event => changeCallback('mapCoordinates', event.target['value'])}
             placeholder="Enter map coordinates" />
           <FormControl.Feedback />
@@ -193,7 +194,7 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
       <FormControl
         componentClass="textarea"
         value={form.note}
-        maxLength={4000}
+        maxLength={8000}
         onChange={event => changeCallback('note', event.target['value'])}
         placeholder="Enter note" />
     </FormGroup>
@@ -224,7 +225,7 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
       { validation.isFundingOrganization === false && <HelpBlock>This field is required.</HelpBlock> }
     </FormGroup>
 
-    <Row className="bordered padding-top margin-bottom margin-top position-relative">
+    <div className="bordered padding-top margin-bottom margin-top position-relative clearfix">
       <DisabledOverlay active={!form.isFundingOrganization} />
       <Form inline>
         <Col md={6} className="margin-bottom">
@@ -232,7 +233,7 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
             <ControlLabel className="margin-right">Organization Type <Asterisk /></ControlLabel>
             <FormControl
               componentClass="select"
-              placeholder="Select Organization Type"
+              placeholder="Select organization type"
               value={form.organizationType}
               onChange={event => changeCallback('organizationType', event.target['value'])}>
               <option className="disabled" key={0} hidden>Select Organization Type</option>
@@ -261,7 +262,7 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
           </FormGroup>
         </Col>
 
-    </Row>
+    </div>
 
     <div className="text-center">
       <Button bsStyle="primary" className="margin-right" onClick={submitCallback}>Save</Button>

@@ -59,9 +59,10 @@ class FundingOrganizationManager {
       }
     }
 
-    $stmt = $pdo->prepare("SELECT * FROM FundingOrg WHERE Name = :organization_name OR SponsorCode = :sponsor_code");
+    $stmt = $pdo->prepare("SELECT * FROM FundingOrg WHERE Name = :organization_name OR SponsorCode = :sponsor_code OR Abbreviation = :abbreviation");
     $stmt->bindParam(':organization_name', $parameters['organization_name']);
     $stmt->bindParam(':sponsor_code', $parameters['sponsor_code']);
+    $stmt->bindParam(':abbreviation', $parameters['abbreviation']);
 
     if ($stmt->execute()) {
       if (!empty($stmt->fetch())) {
@@ -87,6 +88,7 @@ class FundingOrganizationManager {
           Name, 
           Abbreviation, 
           Type, 
+          MapCoords,
           Country, 
           Currency, 
           SponsorCode, 
@@ -98,6 +100,7 @@ class FundingOrganizationManager {
           :organization_name, 
           :organization_abbreviation,
           :organization_type,
+          :map_coordinates,
           :country,
           :currency,
           :sponsor_code,
