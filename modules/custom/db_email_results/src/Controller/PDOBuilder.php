@@ -55,8 +55,9 @@ class PDOBuilder {
     array &$output_parameters = NULL
   ): PDOStatement {
 
+    $stmt = $pdo->prepare($query);
     return PDOBuilder::bindParameters(
-      $pdo->prepare($query),
+      $stmt,
       $input_parameters,
       $output_parameters);
   }
