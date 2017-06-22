@@ -72,6 +72,14 @@ api.database.fields:
     _access: 'TRUE'
 
 
+## Get the number of partners and funding organizations
+api.database.counts:
+  path: /api/database/counts
+  defaults: { _controller: \Drupal\db_search_api\Controller\SearchController::getCounts }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
 
 
 ## Routes for Data Upload Review Tool
