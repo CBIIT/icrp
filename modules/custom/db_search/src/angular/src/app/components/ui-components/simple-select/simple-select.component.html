@@ -6,7 +6,8 @@
     </div>
     <div>
       <input class="select-input default" type="text"
-        (keydown)="handleKeydownEvent($event)"
+        (keydown)="handleKeyDownEvent($event)"
+        (keyup)="handleKeyUpEvent($event)"
         (blur)="addValueToSelection()"
         [placeholder]="selectedItems.length ? '' : placeholder"
         #input>

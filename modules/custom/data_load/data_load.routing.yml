@@ -4,14 +4,14 @@ dataload.app:
     _controller: '\Drupal\data_load\Controller\DataLoadController::load_app'
     _title: 'Data Loading Tool'
   requirements:
-    _permission: 'authenticated'
+    _permission: 'administer users'
 dataload.load_data_mysql:    
   path: '/DataUploadTool/loaddata_mysql'
   defaults:
     _controller: '\Drupal\data_load\Controller\DataLoadController::loaddata_mysql'
     _title: 'Load Data'
   requirements:
-    _permission: 'access content'
+    _permission: 'administer users'
   methods: [POST]
 dataload.load_data_mssql:    
   path: '/DataUploadTool/loaddata_mssql'
@@ -19,7 +19,7 @@ dataload.load_data_mssql:
     _controller: '\Drupal\data_load\Controller\DataLoadController::loaddata_mssql'
     _title: 'Load Data'
   requirements:
-    _permission: 'access content'
+    _permission: 'administer users'
   methods: [POST]
 dataload.get_data:
   path: '/DataUploadTool/getdata'
@@ -27,21 +27,21 @@ dataload.get_data:
     _controller:  '\Drupal\data_load\Controller\DataLoadController::getdata'
     _title: 'Get Data'
   requirements:
-    _permission: 'access content'
+    _permission: 'administer users'
 dataload.get_data_mssql:
   path: '/DataUploadTool/getdata_mssql'
   defaults:
     _controller:  '\Drupal\data_load\Controller\DataLoadController::getdata_mssql'
     _title: 'Get Data'
   requirements:
-    _permission: 'access content'
+    _permission: 'administer users'
 dataload.integrity_check:
   path: '/DataUploadTool/integrity_check_mssql'
   defaults:
     _controller:  '\Drupal\data_load\Controller\DataLoadController::integrity_check_mssql'
     _title: 'Integrity Check'
   requirements:
-    _permission: 'access content'
+    _permission: 'administer users'
   methods: [POST]
 dataload.integrity_check_details:
   path: '/DataUploadTool/integrity_check_details_mssql'
@@ -49,7 +49,7 @@ dataload.integrity_check_details:
     _controller:  '\Drupal\data_load\Controller\DataLoadController::integrity_check_details_mssql'
     _title: 'Integrity Check Details'
   requirements:
-    _permission: 'access content'
+    _permission: 'administer users'
   methods: [POST]  
 dataload.ping:
   path: '/DataUploadTool/ping'
@@ -57,4 +57,4 @@ dataload.ping:
     _controller: 'Drupal\data_load\Controller\DataLoadController::ping'
     _title: 'Ping'
   requirements:
-    _permission: 'access content'
+    _permission: 'administer users'
