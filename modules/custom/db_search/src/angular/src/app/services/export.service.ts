@@ -26,9 +26,8 @@ export class ExportService {
     ).map(response => response.text());
   }
 
-  emailResults(params: {"name": string, "recipient_email": string, "personal_message": string}) {
-    //let endpoint = 'http://localhost/ExportResultsPartner';
-    let endpoint = '/EmailResults';
+  emailResults(params: {"search_id": number, "name": string, "recipient_emails": string, "personal_message": string}) {
+    let endpoint = '/api/database/email-results';
     return this.getRequest(endpoint, params);
   }
 

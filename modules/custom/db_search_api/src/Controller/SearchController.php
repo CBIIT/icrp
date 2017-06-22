@@ -173,6 +173,14 @@ class SearchController extends ControllerBase {
   }
 
 
+  public static function getCounts(Request $request) {
+    $connection = PDOBuilder::getConnection('icrp_database');
+    $data = DatabaseSearch::getCounts($connection);
+    return self::createResponse($data);
+  }
+
+
+
   ## Routes for Data Upload Review Tool
   public static function reviewFields() {
     $connection = PDOBuilder::getConnection('icrp_load_database');
