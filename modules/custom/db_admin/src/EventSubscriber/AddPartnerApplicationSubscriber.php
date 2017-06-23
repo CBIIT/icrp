@@ -29,7 +29,7 @@ class AddPartnerApplicationSubscriber implements EventSubscriberInterface {
     }
 
     $stmt = PDOBuilder::getConnection()->prepare('
-      SELECT * FROM PartnerApplication 
+      SELECT * FROM PartnerApplication
         WHERE OrgName = :name
         AND OrgCountry = :country
         AND OrgEmail = :email
@@ -43,7 +43,7 @@ class AddPartnerApplicationSubscriber implements EventSubscriberInterface {
         ':mission'  => $parameters['description_of_the_organization'],
     ];
 
-    if ($stmt->execute(fields) && !empty($stmt->fetchAll())) {
+    if ($stmt->execute($fields) && !empty($stmt->fetchAll())) {
       return false;
     }
 
@@ -57,7 +57,6 @@ class AddPartnerApplicationSubscriber implements EventSubscriberInterface {
     }
 
     $fields = [
-        ':id'       => $parameters['id'],
         ':name'     => $parameters['organization_name'],
         ':country'  => $parameters['country'],
         ':email'    => $parameters['email'],
