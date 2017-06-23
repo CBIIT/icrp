@@ -29,11 +29,21 @@ class AddPartnerApplicationSubscriber implements EventSubscriberInterface {
     }
 
     $stmt = PDOBuilder::getConnection()->prepare('
-      SELECT * FROM PartnerApplication WHERE PartnerApplicationID = :id
+      SELECT * FROM PartnerApplication
+        WHERE OrgName = :name
+        AND OrgCountry = :country
+        AND OrgEmail = :email
+        AND MissionDesc = :mission
     ');
 
-    if ($stmt->execute([':id' => $parameters['id']])
-      && !empty($stmt->fetchAll())) {
+    $fields = [
+        ':name'     => $parameters['organization_name'],
+        ':country'  => $parameters['country'],
+        ':email'    => $parameters['email'],
+        ':mission'  => $parameters['description_of_the_organization'],
+    ];
+
+    if ($stmt->execute($fields) && !empty($stmt->fetchAll())) {
       return false;
     }
 
@@ -47,7 +57,6 @@ class AddPartnerApplicationSubscriber implements EventSubscriberInterface {
     }
 
     $fields = [
-        ':id'       => $parameters['id'],
         ':name'     => $parameters['organization_name'],
         ':country'  => $parameters['country'],
         ':email'    => $parameters['email'],
@@ -55,10 +64,9 @@ class AddPartnerApplicationSubscriber implements EventSubscriberInterface {
     ];
 
     $stmt = PDOBuilder::getConnection()->prepare("
-      SET IDENTITY_INSERT PartnerApplication ON; 
       INSERT INTO PartnerApplication
-                  (PartnerApplicationID,  OrgName, OrgCountry, OrgEmail, MissionDesc,  Status)
-          VALUES  (:id,                   :name,   :country,   :email,   :mission,     'NEW')
+                  (OrgName, OrgCountry, OrgEmail, MissionDesc,  Status)
+          VALUES  (:name,   :country,   :email,   :mission,     'NEW')
     ");
 
     return $stmt->execute($fields);
