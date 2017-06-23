@@ -116,8 +116,8 @@ class UploadFormComponent extends Component {
             protocol = 'http:';
             hostname = 'icrp-dataload';
         }
-        debugger;
-        let response = await fetch(`${protocol}//${hostname}/${pathname}`, { method: 'POST', body: data });
+        // debugger;
+        let response = await fetch(`${protocol}//${hostname}/${pathname}`, { method: 'POST', body: data, credentials: 'same-origin' });
 
         if (response.ok) {
             let result = await response.json();
@@ -135,8 +135,10 @@ class UploadFormComponent extends Component {
             }
             that.updateParent(stats, columns, projects);
         } else {
+            debugger;
             // response.status, response.statusText
             let message = await response.text();
+            // that.handleReset();
             alert("Oops! " + message);
         }
     }
