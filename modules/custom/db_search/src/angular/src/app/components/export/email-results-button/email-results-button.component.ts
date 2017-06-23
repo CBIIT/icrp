@@ -30,8 +30,8 @@ export class EmailResultsButtonComponent {
   ) {
 
     this.emailForm = formbuilder.group({
-      name: ['',  Validators.required],
-      recipient_emails: [[], Validators.required],
+      sender_name: ['',  Validators.required],
+      recipient_addresses: [[], Validators.required],
       personal_message: [''],
     });
 
@@ -49,8 +49,8 @@ export class EmailResultsButtonComponent {
 
     let params = {
       search_id: +this.sharedService.get('searchID'),
-      name:  this.emailForm.controls['name'].value,
-      recipient_emails: this.emailForm.controls['recipient_emails'].value,
+      sender_name:  this.emailForm.controls['sender_name'].value,
+      recipient_addresses: this.emailForm.controls['recipient_addresses'].value,
       personal_message: this.emailForm.controls['personal_message'].value,
     }
 

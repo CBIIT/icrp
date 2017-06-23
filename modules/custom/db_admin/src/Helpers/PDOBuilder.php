@@ -60,6 +60,7 @@ class PDOBuilder {
   }
 
 
+
   /**
    * Binds paramters to a PDOStatement
    *
@@ -74,18 +75,21 @@ class PDOBuilder {
     $query_string = $stmt->queryString;
 
     // binds input parameters to the query string if they exist
-    foreach($input_parameters as $key => &$value) {
-      if (strpos($query_string, ":$key") !== false)
-        $stmt->bindParam(":$key", $value);
+    if ($input_parameters) {
+      foreach($input_parameters as $key => &$value) {
+        if (strpos($query_string, ":$key") !== false)
+          $stmt->bindParam(":$key", $value);
+      }
     }
 
     // binds output parameters to the query string if they exist
-    foreach($output_parameters as $key => &$output) {
-      if (strpos($query_string, ":$key") !== false)
-        $stmt->bindParam(":$key", $output['value'], $output['type'] | PDO::PARAM_INPUT_OUTPUT, 2048);
+    if ($output_parameters) {
+      foreach($output_parameters as $key => &$output) {
+        if (strpos($query_string, ":$key") !== false)
+          $stmt->bindParam(":$key", $output['value'], $output['type'] | PDO::PARAM_INPUT_OUTPUT, 2048);
+      }
     }
 
     return $stmt;
   }
-
 }

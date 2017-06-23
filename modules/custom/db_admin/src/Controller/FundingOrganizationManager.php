@@ -59,13 +59,22 @@ class FundingOrganizationManager {
       }
     }
 
-    $stmt = $pdo->prepare("SELECT * FROM FundingOrg WHERE Name = :organization_name OR SponsorCode = :sponsor_code");
-    $stmt->bindParam(':organization_name', $parameters['organization_name']);
-    $stmt->bindParam(':sponsor_code', $parameters['sponsor_code']);
+    $stmt = $pdo->prepare("
+      SELECT * FROM FundingOrg 
+      WHERE (Name = :organization_name OR Abbreviation = :abbreviation) 
+      AND SponsorCode = :sponsor_code
+    ");
 
-    if ($stmt->execute()) {
+    if ($stmt->execute([
+      ':organization_name'  => $parameters['organization_name'],
+      ':abbreviation'       => $parameters['organization_abbreviation'],
+      ':sponsor_code'       => $parameters['sponsor_code'],
+    ])) {
       if (!empty($stmt->fetch())) {
-        array_push($errors, ['ERROR' => 'A partner with the same name or sponsor code already exists in the database. No changes have been made.']);
+        array_push($errors, [
+          'ERROR' => 'A funding organization with the same name and sponsor code already exists in the database. '
+            . 'No changes have been made.'
+          ]);
       }
     }
 
@@ -87,6 +96,7 @@ class FundingOrganizationManager {
           Name, 
           Abbreviation, 
           Type, 
+          MapCoords,
           Country, 
           Currency, 
           SponsorCode, 
@@ -98,6 +108,7 @@ class FundingOrganizationManager {
           :organization_name, 
           :organization_abbreviation,
           :organization_type,
+          :map_coordinates,
           :country,
           :currency,
           :sponsor_code,

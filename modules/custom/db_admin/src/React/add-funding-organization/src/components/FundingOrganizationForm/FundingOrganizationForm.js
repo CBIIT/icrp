@@ -115,7 +115,7 @@ const FundingOrganizationForm = ({form, fields, validation, changeCallback, subm
               placeholder="Select Partner Organization Type"
               value={form.organizationType}
               onChange={event => changeCallback('organizationType', event.target['value'])}>
-              <option className="disabled" key={0} hidden>Select Organization Type</option>
+              <option className="disabled" key={0} hidden>Select organization type</option>
               {
                 fields.organizationTypes.map((field, index) =>
                   <option key={`${index}_${field}`} value={field}>
@@ -130,15 +130,19 @@ const FundingOrganizationForm = ({form, fields, validation, changeCallback, subm
       </Col>
 
       <Col md={6} className="margin-bottom">
-        <FormGroup bsSize="small">
-          <ControlLabel className="visible-responsive">{' '}</ControlLabel>
 
-          <Checkbox
-            checked={form.annualizedFunding}
-            onChange={event => changeCallback('annualizedFunding', event.target['checked'])}>
-            <b>Annualized Funding</b> <Asterisk />
-          </Checkbox>
+        <FormGroup bsSize="small" validationState={validation.mapCoordinates === false ? 'error' : null}>
+          <ControlLabel className="margin-right">Map Coordinates</ControlLabel>
+          <FormControl
+            type="text"
+            value={form.mapCoordinates}
+            maxLength={50}
+            onChange={event => changeCallback('mapCoordinates', event.target['value'])}
+            placeholder="Enter map coordinates" />
+          <FormControl.Feedback />
+          { validation.mapCoordinates === false && <HelpBlock>This field is required.</HelpBlock> }
         </FormGroup>
+
       </Col>
     </Row>
 
@@ -151,7 +155,7 @@ const FundingOrganizationForm = ({form, fields, validation, changeCallback, subm
             placeholder="Select a Country"
             value={form.country}
             onChange={event => changeCallback('country', event.target['value'])}>
-            <option className="disabled" key={0} hidden>Select a Country</option>
+            <option className="disabled" key={0} hidden>Select a country</option>
             {
               fields.countries.map((field, index) =>
                 <option key={`${index}_${field.value}`} value={field.value}>
@@ -172,7 +176,7 @@ const FundingOrganizationForm = ({form, fields, validation, changeCallback, subm
             placeholder="Select Currency Type"
             value={form.currency}
             onChange={event => changeCallback('currency', event.target['value'])}>
-            <option className="disabled" key={0} hidden>Select a Currency</option>
+            <option className="disabled" key={0} hidden>Select a currency</option>
             {
               fields.currencies.map((field, index) =>
                 <option key={`${index}_${field.value}`} value={field.value}>
@@ -191,11 +195,20 @@ const FundingOrganizationForm = ({form, fields, validation, changeCallback, subm
       <FormControl
         componentClass="textarea"
         placeholder="Enter notes"
-        maxLength={4000}
+        maxLength={8000}
         value={form.note}
         onChange={event => changeCallback('note', event.target['value'])}
       />
     </FormGroup>
+
+    <FormGroup bsSize="small">
+      <Checkbox
+        checked={form.annualizedFunding}
+        onChange={event => changeCallback('annualizedFunding', event.target['checked'])}>
+        <b>Annualized Funding</b>
+      </Checkbox>
+    </FormGroup>
+
 
     <div className="text-center">
       <Button bsStyle="primary" className="margin-right" onClick={submitCallback}>Save</Button>

@@ -65,9 +65,13 @@ export default class Form extends React.Component {
     if (fields.partners && fields.partners.length > 0) {
       let partner = fields.partners[0];
 
+      let country = fields.countries
+        .find(e => e.label === partner.country)
+        .value;
+
       form.partner = partner.partner_name;
       form.joinedDate = moment(partner.joined_date);
-      form.country = partner.country;
+      form.country = country;
       form.description = partner.description;
       form.email = partner.email;
     }
@@ -87,9 +91,13 @@ export default class Form extends React.Component {
       let partner = this.state.fields.partners
         .find(e => e.partner_name === form.partner);
 
+      let country = this.state.fields.countries
+        .find(e => e.label === partner.country)
+        .value;
+
       form.partner = partner.partner_name;
       form.joinedDate = moment(partner.joined_date);
-      form.country = partner.country;
+      form.country = country;
       form.description = partner.description;
       form.email = partner.email;
     }
@@ -112,6 +120,37 @@ export default class Form extends React.Component {
       'sponsorCode',
       'agreeToTerms',
     ];
+    let validationRules = {
+      partner: {
+        required: true
+      },
+
+      joinedDate: {
+        required: true,
+        format: /^\d{4}\-\d{2}-\d{2}$/,
+      },
+
+      country: {
+        required: true,
+      },
+
+      email: {
+        required: true,
+        format: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      },
+
+      description: {
+        required: true,
+      },
+
+      sponsorCode: {
+        required: true,
+      },
+
+      agreedToTerms: {
+        required: true,
+      }
+    }
 
     if (form.isFundingOrganization) {
       requiredFields.push('organizationType');

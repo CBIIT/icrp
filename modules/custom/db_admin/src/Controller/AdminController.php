@@ -26,6 +26,7 @@ class AdminController extends ControllerBase {
     'organization_name'         => NULL,
     'organization_abbreviation' => NULL,
     'organization_type'         => NULL,
+    'map_coordinates'           => NULL,
     'is_annualized'             => NULL,
     'country'                   => NULL,
     'currency'                  => NULL,
