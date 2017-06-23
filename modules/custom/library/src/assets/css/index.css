@@ -59,6 +59,10 @@
 #library-search .browse > *:first-child {
   border-width: 1px;
 }
+#library-search .browse > *:last-child {
+  background: #FBFBFB;
+  border-width: 0px;
+}
 #library-search .browse-header {
   background: #ede3c9;
   background: -webkit-linear-gradient(to bottom, #f7f1e5 0%, #ede3c9 100%);
@@ -119,16 +123,17 @@
 }
 #library-tree .jstree-node {
   background: transparent;
+  color: #845237;
   padding: .5em;
   position: relative;
   z-index: 1;
 }
 #library-tree .jstree-node:before {
   background: #f9f9ed;
-  background: -webkit-linear-gradient(to bottom, #fefdfc 0%, #f9f9ed 100%);
-  background: -o-linear-gradient(to bottom, #fefdfc 0%, #f9f9ed 100%);
-  background: -moz-linear-gradient(to bottom, #fefdfc 0%, #f9f9ed 100%);
-  background: linear-gradient(to bottom, #fefdfc 0%, #f9f9ed 100%);
+  background: -webkit-linear-gradient(to bottom, #f9f9ed 0%, #f7f1e5 100%);
+  background: -o-linear-gradient(to bottom, #f9f9ed 0%, #f7f1e5 100%);
+  background: -moz-linear-gradient(to bottom, #f9f9ed 0%, #f7f1e5 100%);
+  background: linear-gradient(to bottom, #f9f9ed 0%, #f7f1e5 100%);
   content: '';
   display: block;
   height: 2.6em;
@@ -143,22 +148,26 @@
   z-index: -1;
 }
 #library-tree .jstree-node > span {
-    background: #1e90ff;
-    border-radius: 1.6em;
-    color: #fff;
-    display: inline-block;
-    margin: 0px .5em;
+    background: #ede3c9;
+    border-radius: 1.5em;
+    color: #000;
+    display: block;
+    float: right;
+    font-size: .7em;
     text-align: center;
-    width: 4em;
+    width: 3em;
 }
 #library-tree .jstree-closed > .jstree-icon {
-  background-image: url('/icrp/modules/library/src/assets/css/expand.png');
+  background-image: url('expand.png');
 }
 #library-tree .jstree-open > .jstree-icon {
-  background-image: url('/icrp/modules/library/src/assets/css/contract.png');
+  background-image: url('contract.png');
 }
 #library-tree .jstree-node ul {
   padding: .5em 0px 0px;
+}
+#library-tree .jstree-node .jstree-node {
+  color: #000;
 }
 #library-management,
 #library-management2 {
@@ -271,6 +280,7 @@
   line-height: 1.6em;
   padding: 0px 10px;
   vertical-align: top;
+  width: 45.5em;
 }
 #library.admin #library-display .frame:not(.preview) .item button.admin {
   border: 0px;
@@ -320,6 +330,9 @@
 }
 #library-archive-folder:before {
   background: url('folder-remove.png') no-repeat 1px 0px/contain;
+}
+#library-download-all:before {
+  background: url('folder-download.png') no-repeat 1px 0px/contain;
 }
 #library-files {
   font-size: 1.5em;

@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
-use ZipStream\ZipStream;
+use Zipstream\ZipStream;
 
 class LibraryController extends ControllerBase {
   public function testQuery() {

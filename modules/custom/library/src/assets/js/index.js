@@ -169,20 +169,17 @@ jQuery(function() {
             return decodeURIComponent(results[2].replace(/\+/g, " "));
         },
         'hideArchives': function(e) {
-            // $('#library-restore-folder').addClass('hide');
-            $('#library-display .frame').removeClass('archived');
-            var backing = tree.get_json();
-            functions.updateTree(backing,true);
-            tree.settings.core.data = backing;
-            tree.refresh();
             e.preventDefault();
+            $('#library-display .frame').removeClass('archived');
+            var json = tree.get_json();
+            functions.updateTree(json,true);
+            tree.settings.core.data = json;
+            tree.refresh();
         },
         'initialize': function() {
             lGet(path+'initialize').done(function(response) {
                 role = response.role;
                 var folders = functions.mapTree(response.folders);
-                //$('#library-management').removeClass('hide');
-                //$('#library-archive-management').addClass('hide');
                 $('#library').addClass(role);
                 $('#library-tree').jstree({
                     'core' : {
@@ -210,9 +207,8 @@ jQuery(function() {
                     for (var index = 0; index < json.length; index++) {
                         var node = json[index],
                             count = node.data.unarchivedCount;
-                        tree.get_node(node, true).append('<span title="'+count+' active document'+(count>1?'s':'')+' in this category.">'+count+'</span>');
+                        tree.get_node(node, true).children(':nth-child(2)').after('<span title="'+count+' active document'+(count>1?'s':'')+' in this category.">'+count+'</span>');
                     }
-                    tree.open_all();
                 }).on('refresh.jstree', function() {
                     var json = tree.get_json(),
                         state = (functions.getNode()||{'state':{'hidden':true}}).state.hidden,
@@ -221,10 +217,19 @@ jQuery(function() {
                     if (state) {
                         tree.deselect_all();
                     }
-                    for (var index = 0; index < json.length; index++) {
-                        var node = json[index],
-                            count = node.data.unarchivedCount;
-                        tree.get_node(node, true).children(':nth-child(2)').after('<span title="'+count+' active document'+(count>1?'s':'')+' in this category.">'+count+'</span>');
+                    var getCount;
+                    if (isArchived) {
+                        for (var index = 0; index < json.length; index++) {
+                            var node = json[index],
+                                count = node.data.unarchivedCount+node.data.archivedCount;
+                            tree.get_node(node, true).children(':nth-child(2)').after('<span title="'+count+' active document'+(count>1?'s':'')+' in this category.">'+count+'</span>');
+                        }
+                    } else {
+                        for (var index = 0; index < json.length; index++) {
+                            var node = json[index],
+                                count = node.data.unarchivedCount;
+                            tree.get_node(node, true).children(':nth-child(2)').after('<span title="'+count+' active document'+(count>1?'s':'')+' in this category.">'+count+'</span>');
+                        }
                     }
                     $('#library-display .display-header .document-count').html((isArchived ? frame.children() : frame.children(':not(.archived)')).length);
                 }).on('rename_node.jstree',function(e, data) {
@@ -494,12 +499,12 @@ jQuery(function() {
             };
         },
         'showArchives': function(e) {
-            $('#library-display .frame').addClass('archived');
-            var backing = tree.get_json();
-            functions.updateTree(backing,false);
-            tree.settings.core.data = backing;
-            tree.refresh();
             e.preventDefault();
+            $('#library-display .frame').addClass('archived');
+            var json = tree.get_json();
+            functions.updateTree(json,false);
+            tree.settings.core.data = json;
+            tree.refresh();
         },
         'updateTree': function(children, hideArchives) {
             if (role==="admin" || role==="partner") return;
