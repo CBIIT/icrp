@@ -38,7 +38,7 @@ class ValidationSummaryComponent extends Component {
             hostname = 'icrp-dataload';
         }
 
-        let response = await fetch(`${protocol}//${hostname}/${pathname}`, { method: 'POST', body: data });
+        let response = await fetch(`${protocol}//${hostname}/${pathname}`, { method: 'POST', body: data, credentials: 'same-origin' });
 
         if (response.ok) {
             let results = await response.json();
