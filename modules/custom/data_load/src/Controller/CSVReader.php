@@ -10,6 +10,7 @@ class CSVReader {
     private $fd = null;
     private $numColumns = null;
     private $delimiter = null;
+    private $BUFFERSIZE = 8192;
     
     public function __construct($filePath, $numColumns, $delimiter) {
         $this->fd = fopen($filePath, 'rb') or die("Could not open file " . $filePath);
@@ -24,6 +25,7 @@ class CSVReader {
     public function checkHeaders() {
         
         $headerArr = $this->getNextLine();
+        
         if ($headerArr === false || count($headerArr) !== $this->numColumns) {
             throw new InvalidFileFormatException('The file must have ' . $this->numColumns . ' columns.');
         }
@@ -33,7 +35,7 @@ class CSVReader {
         $line = '';
         while (true) {
             // Read from file until \r\n is reached, or buffer is full (0 = default length = 8192 Bytes), or EOF is reached.
-            $lineCandidate = stream_get_line($this->fd, 0, "\r\n");
+            $lineCandidate = stream_get_line($this->fd, $this->BUFFERSIZE, "\r\n");
             
             if ($lineCandidate !== false) {
                 // append what was read to running line. Multiple reads will be necessary for rows longer than default length.
@@ -44,8 +46,13 @@ class CSVReader {
                     // Count the number of delimiters in the line to see if it matches the column number
                     $numDelimiters = substr_count($line, $this->delimiter);
                     if ($numDelimiters < $this->numColumns) {
-                        // What was parsed so far ends with a '|', but this is not the end of the line
-                        continue;
+                        if (strlen($lineCandidate) === $this->BUFFERSIZE) {
+                            // The text parsed so far ends with a the delimiter, but this is not the end of the line - a rare case where the buffer is full and the read in text ends with the delimiter.
+                            continue;
+                        } else {
+                            // A line was read completely and it does not have a full set of columns.
+                            throw new InvalidFileFormatException('Unexpected number of columns in line ' . $line);
+                        }
                     }
                     
                     // The end of the line was reached. Convert to array and return

@@ -138,7 +138,7 @@ class UploadFormComponent extends Component {
             debugger;
             // response.status, response.statusText
             let message = await response.text();
-            // that.handleReset();
+            that.handleReset();
             alert("Oops! " + message);
         }
     }
