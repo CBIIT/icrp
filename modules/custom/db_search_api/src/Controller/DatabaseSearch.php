@@ -488,4 +488,26 @@ class DatabaseSearch {
 
     return [];
   }
+
+  /**
+   * Retrieves the number of partners and funding organizations
+   *
+   * @param PDO $pdo
+   * @return array
+   */
+  public static function getCounts(PDO $pdo): array {
+
+    $fields = [];
+    $queries = [
+      'funding_organizations' => "SELECT COUNT(*) FROM FundingOrg WHERE MemberStatus = 'Current'",
+      'partners'              => 'SELECT COUNT(*) FROM Partner',
+    ];
+
+    // map query results to field values
+    foreach ($queries as $key => $value) {
+      $fields[$key] = intval($pdo->query($value)->fetch(PDO::FETCH_NUM)[0]);
+    }
+
+    return $fields;
+  }
 }

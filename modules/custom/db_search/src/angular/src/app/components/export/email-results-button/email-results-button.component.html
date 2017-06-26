@@ -26,23 +26,23 @@
           <div class="row form-group">
             <label for="name" class="col-sm-3 control-label">Your Name</label>
             <div class="col-sm-9">
-              <input 
-                type="text" 
-                class="input" 
-                id="name" 
-                placeholder="Your Name" 
-                [formControl]="emailForm.controls.name">
+              <input
+                type="text"
+                class="input"
+                id="name"
+                placeholder="Your Name"
+                [formControl]="emailForm.controls.sender_name">
             </div>
           </div>
 
           <div class="row form-group">
             <label for="recipient_emails" class="col-sm-3 control-label">Recipient Emails(s)</label>
             <div class="col-sm-9">
-          
-              <ui-simple-select 
-                id="recipientEmails" 
-                placeholder="Enter multiple email recipients, separated by commas" 
-                [formControl]="emailForm.controls.recipient_emails">
+
+              <ui-simple-select
+                id="recipientEmails"
+                placeholder="Enter multiple email recipients, separated by commas"
+                [formControl]="emailForm.controls.recipient_addresses">
               </ui-simple-select>
 
             </div>
@@ -51,11 +51,11 @@
           <div class="row form-group">
             <label for="personal_message" class="col-sm-3 control-label">Personal Message</label>
             <div class="col-sm-9">
-              <input 
-                type="text" 
-                class="input" 
-                id="personalMessage" 
-                placeholder="Personal Message" 
+              <input
+                type="text"
+                class="input"
+                id="personalMessage"
+                placeholder="Personal Message"
                 [formControl]="emailForm.controls.personal_message" />
             </div>
           </div>

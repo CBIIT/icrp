@@ -1,0 +1,8 @@
+resources:
+  version: 1.0
+  css:
+    theme:
+      src/assets/main.css: {}
+  js:
+    src/assets/service-worker.js: {}
+    src/assets/main.js: {}

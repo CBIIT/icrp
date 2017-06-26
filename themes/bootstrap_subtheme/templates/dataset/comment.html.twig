@@ -120,7 +120,7 @@
           server which comments are new for the user. Rendering the final "new"
           indicator here would break the render cache.
         #}
-        <td style="background-color:#F3F7FC;padding:10px;width:70%;">
+        <td style="background-color:#F3F7FC;padding:10px;width:70%;overflow:hidden;max-width:1200px">
           <div {{ content_attributes.addClass('comment__content') }}>
             {{ content|without('links') }}
           </div>
