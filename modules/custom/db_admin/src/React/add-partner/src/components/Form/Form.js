@@ -33,13 +33,11 @@ export default class Form extends React.Component {
           'Other',
         ],
       },
-      validation: {
+      validationErrors: {
 
       },
       loading: true,
-      message: {
-
-      }
+      messages: [],
     };
 
     this.getFields();
@@ -102,6 +100,8 @@ export default class Form extends React.Component {
       form.email = partner.email;
     }
 
+    console.log(form);
+
     this.setState({
       form: form
     });
@@ -109,17 +109,9 @@ export default class Form extends React.Component {
 
   validate() {
     let form = this.state.form;
-    let validationState = {};
-    let valid = true;
-    let requiredFields = [
-      'partner',
-      'joinedDate',
-      'country',
-      'email',
-      'description',
-      'sponsorCode',
-      'agreeToTerms',
-    ];
+    let validationErrors = {};
+    let isValid = true;
+
     let validationRules = {
       partner: {
         required: true
@@ -127,7 +119,7 @@ export default class Form extends React.Component {
 
       joinedDate: {
         required: true,
-        format: /^\d{4}\-\d{2}-\d{2}$/,
+        format: /^\d{4}-\d{2}-\d{2}$/,
       },
 
       country: {
@@ -147,27 +139,35 @@ export default class Form extends React.Component {
         required: true,
       },
 
-      agreedToTerms: {
-        required: true,
+      organizationType: {
+        required: form.isFundingOrganization
       }
     }
 
-    if (form.isFundingOrganization) {
-      requiredFields.push('organizationType');
-    }
+    for (let field in validationRules) {
+      validationErrors[field] = {};
+      let value = field !== 'joinedDate'
+        ? (form[field] || '').toString().trim()
+        : form[field] ? moment(form[field]).format('YYYY-MM-DD') : '0';
 
-    for (let field of requiredFields) {
-      if (!form[field]) {
-        validationState[field] = false;
-        valid = false;
+      console.log(field, value);
+
+      if (validationRules[field].required && value.constructor === String && value.length === 0) {
+        validationErrors[field].required = true;
+        isValid = false;
+      }
+
+      if (validationRules[field].format && !validationRules[field].format.test(value)) {
+        validationErrors[field].format = true;
+        isValid = false;
       }
     }
 
     this.setState({
-      validation: validationState
+      validationErrors: validationErrors
     })
 
-    return valid;
+    return isValid;
   }
 
   async submit() {
@@ -200,7 +200,7 @@ export default class Form extends React.Component {
         let formKey = parameterMap[key];
         let formValue = form[key];
         if (key === 'joinedDate')
-          formValue = formValue._i;
+          formValue = moment(formValue._d).format('YYYY-MM-DD');
         formData.set(formKey, formValue);
       }
 
@@ -229,7 +229,7 @@ export default class Form extends React.Component {
       if (messages.constructor === Array && messages.length > 0) {
 
         this.setState({
-          message: messages.pop()
+          messages: messages
         });
 
         this.getFields();
@@ -237,10 +237,16 @@ export default class Form extends React.Component {
     }
   }
 
-  dismissMessage() {
+  dismissMessage(index) {
+    let messages = this.deepCopy(this.state.messages);
+    messages.splice(index, 1);
     this.setState({
-      message: {}
+      messages: messages
     })
+  }
+
+  deepCopy(obj) {
+    return JSON.parse(JSON.stringify(obj));
   }
 
   clear() {
@@ -262,24 +268,22 @@ export default class Form extends React.Component {
         organizationType: '',
         isAnnualized: false,
       },
-      validation: {},
-
-    })
+      validationErrors: {},
+      messages: [],
+    });
   }
-
 
   render() {
     return <PartnerForm
       context={this}
-
       form={ this.state.form }
       fields={ this.state.fields }
-      validation={ this.state.validation }
+      validationErrors={ this.state.validationErrors }
       changeCallback={ this.handleChange.bind(this) }
       submitCallback={ this.submit.bind(this) }
       cancelCallback={ this.clear.bind(this) }
       loading={ this.state.loading }
-      message={ this.state.message }
+      messages={ this.state.messages }
       dismissMessage={ this.dismissMessage.bind(this) }
     />
   }
