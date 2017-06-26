@@ -103,6 +103,11 @@ span.submitted {
 	font-size:small;
 }
 /* forum */
+.forum__last-reply {
+	/*max-width:700px;*/
+	overflow:hidden;
+}
+
 .forum-topic-icon {
 	color: #e7b348;
 }
@@ -110,17 +115,21 @@ span.submitted {
 	background-color:#2A78E4;
 	border: 1px solid #2A78E4;
 	color:white;
-	padding:4px 8px;
+	padding:2px 4px;
 	display:inline-block; 
-	min-width:35px
+	min-width:20px;
+	font-size:small;
+	font-weight:bold;
 }
 .forum__posts {
 	background-color: #B45F06;
 	border: 1px solid #B47F06;
 	color:white;
-	padding:4px 8px;
+	padding:2px 4px;
 	display:inline-block; 
-	min-width:35px
+	min-width:20px;
+	font-size:small;
+	font-weight:bold;
 }
 .forum__name {
   font-size: 1.5em;
