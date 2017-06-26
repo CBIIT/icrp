@@ -40,8 +40,8 @@ function buildUploadStatusReportTable(data) {
     { title: 'Partner', tooltip:'Partner', prop: 'Partner' },
     { title: 'Funding Year', tooltip:'Funding year as submitted by the organization', prop: 'FundingYear' },
     { title: 'Status', tooltip:'Process Status', prop: 'Status' },
-    { title: 'Type', tooltip:'Type of upload', prop: 'Type' },
-    { title: 'Project Count', tooltip:'Number of project funding records submitted', prop: 'Count' },
+    { title: 'Type', tooltip:'New data, or updates overwriting existing data', prop: 'Type' },
+    { title: 'Records Imported', tooltip:'Number of project funding records submitted (unique AltIDs)', prop: 'Count' },
     { title: 'Submission Date', tooltip:'Received Data Submission', prop: 'ReceivedDate' },
     { title: 'Stage Date', tooltip:'Copied to Stage DB', prop: 'UploadToStageDate' },
     { title: 'Production Date', tooltip:'Date of upload to live database', prop: 'UploadToProdDate' },
@@ -62,7 +62,7 @@ function buildUploadStatusReportTable(data) {
 
 var elementExists = document.getElementById("funding_org_root");
 if (elementExists == null) {
-fetch('/getUploadStatus')
+fetch('https://icrpartnership-dev.org/getUploadStatus')
   .then(res => res.json())
   .then((rows) => {
 

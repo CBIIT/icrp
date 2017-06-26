@@ -14,19 +14,24 @@ let DisabledOverlay = ({active}) =>
   ? <div className="disabled-overlay"></div>
   : null
 
-const PartnerForm = ({context, form, fields, validation, changeCallback, submitCallback, cancelCallback, loading, message, dismissMessage}) =>
+const PartnerForm = ({context, form, fields, validationErrors, changeCallback, submitCallback, cancelCallback, loading, messages, dismissMessage}) =>
 <div>
   <Spinner message="Loading..." visible={loading} />
 
   <Grid>
-    <Row>
-      { message.ERROR && <Alert bsStyle="danger" onDismiss={dismissMessage}>{message.ERROR}</Alert> }
-      { message.SUCCESS && <Alert bsStyle="success" onDismiss={dismissMessage}>{message.SUCCESS}</Alert> }
-    </Row>
+    {
+      messages.map((message, index) =>
+        <Row>
+          { message.ERROR && <Alert bsStyle="danger" onDismiss={dismissMessage.bind(context, index)}>{message.ERROR}</Alert> }
+          { message.SUCCESS && <Alert bsStyle="success" onDismiss={dismissMessage.bind(context, index)}>{message.SUCCESS}</Alert> }
+        </Row>
+      )
+    }
+
 
     <Row>
       <Col md={6} className="margin-bottom">
-        <FormGroup controlId="select-partner" bsSize="small" validationState={validation.partner === false ? 'error' : null}>
+        <FormGroup controlId="select-partner" bsSize="small" validationState={validationErrors.partner && validationErrors.partner.required ? 'error' : null}>
           <ControlLabel className="margin-right">Partner <Asterisk /></ControlLabel>
           <FormControl
             componentClass="select"
@@ -42,12 +47,12 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
               )
             }
           </FormControl>
-        { validation.partner === false && <HelpBlock>This field is required.</HelpBlock> }
+        { validationErrors.partner && validationErrors.partner.required && <HelpBlock>This field is required.</HelpBlock> }
         </FormGroup>
       </Col>
 
       <Col md={6} className="margin-bottom">
-        <FormGroup bsSize="small" validationState={validation.joinedDate === false ? 'error' : null}>
+        <FormGroup bsSize="small" validationState={validationErrors.joinedDate && (validationErrors.joinedDate.required || validationErrors.joinedDate.format) ? 'error' : null}>
           <ControlLabel className="margin-right">Joined Date <Asterisk /></ControlLabel>
           <div className="display-flex">
             <DatePicker
@@ -61,7 +66,8 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
               { '\uD83D\uDCC5' }
             </div>
           </div>
-          { validation.joinedDate === false && <HelpBlock>This field is required.</HelpBlock> }
+          { validationErrors.joinedDate && validationErrors.joinedDate.required && <HelpBlock>This field is required.</HelpBlock> }
+          { validationErrors.joinedDate && validationErrors.joinedDate.format && <HelpBlock>Please ensure this field is in the proper format.</HelpBlock> }
         </FormGroup>
       </Col>
     </Row>
@@ -69,7 +75,7 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
 
     <Row>
       <Col md={6} className="margin-bottom">
-        <FormGroup controlId="selectCountry" bsSize="small" validationState={validation.country === false ? 'error' : null}>
+        <FormGroup controlId="selectCountry" bsSize="small" validationState={validationErrors.country && validationErrors.country.required ? 'error' : null}>
           <ControlLabel className="margin-right">Country <Asterisk /></ControlLabel>
           <FormControl
             componentClass="select"
@@ -85,12 +91,12 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
               )
             }
           </FormControl>
-        { validation.country === false && <HelpBlock>This field is required.</HelpBlock> }
+        { validationErrors.country && validationErrors.country.required && <HelpBlock>This field is required.</HelpBlock> }
         </FormGroup>
       </Col>
 
       <Col md={6} className="margin-bottom">
-        <FormGroup  controlId="selectEmail" bsSize="small" validationState={validation.email === false ? 'error' : null}>
+        <FormGroup  controlId="selectEmail" bsSize="small" validationState={validationErrors.email && (validationErrors.email.required || validationErrors.email.format) ? 'error' : null}>
           <ControlLabel className="margin-right">Email <Asterisk /></ControlLabel>
           <FormControl
             type="email"
@@ -99,8 +105,8 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
             onChange={event => changeCallback('email', event.target['value'])}
             placeholder="Enter email for funding organization" />
           <FormControl.Feedback />
-          { validation.email === false && <HelpBlock>This field is required.</HelpBlock> }
-          { validation.emailFormat === false && <HelpBlock>Please ensure this field is in the proper format.</HelpBlock> }
+          { validationErrors.email && validationErrors.email.required && <HelpBlock>This field is required.</HelpBlock> }
+          { validationErrors.email && validationErrors.email.format && <HelpBlock>Please ensure this field is in the proper format.</HelpBlock> }
         </FormGroup>
       </Col>
     </Row>
@@ -116,7 +122,7 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
 
     <Row>
       <Col md={6} className="margin-bottom">
-        <FormGroup  controlId="partner-sponsor-code" bsSize="small" validationState={validation.sponsorCode === false ? 'error' : null}>
+        <FormGroup  controlId="partner-sponsor-code" bsSize="small" validationState={validationErrors.sponsorCode && validationErrors.sponsorCode.required ? 'error' : null}>
           <ControlLabel className="margin-right">Sponsor Code <Asterisk /></ControlLabel>
           <FormControl
             type="text"
@@ -125,7 +131,7 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
             onChange={event => changeCallback('sponsorCode', event.target['value'])}
             placeholder="Enter sponsor code" />
           <FormControl.Feedback />
-          { validation.sponsorCode === false && <HelpBlock>This field is required.</HelpBlock> }
+          { validationErrors.sponsorCode && validationErrors.sponsorCode.required && <HelpBlock>This field is required.</HelpBlock> }
         </FormGroup>
       </Col>
 
@@ -139,7 +145,6 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
             onChange={event => changeCallback('website', event.target['value'])}
             placeholder="Enter website" />
           <FormControl.Feedback />
-          { validation.abbreviation === false && <HelpBlock>This field is required.</HelpBlock> }
         </FormGroup>
       </Col>
     </Row>
@@ -157,7 +162,6 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
             onChange={event => changeCallback('mapCoordinates', event.target['value'])}
             placeholder="Enter map coordinates" />
           <FormControl.Feedback />
-          { validation.mapCoordinates === false && <HelpBlock>This field is required.</HelpBlock> }
         </FormGroup>
       </Col>
 
@@ -184,7 +188,6 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
             </label>
 
           <FormControl.Feedback />
-          { validation.abbreviation === false && <HelpBlock>This field is required.</HelpBlock> }
         </FormGroup>
       </Col>
     </Row>
@@ -200,14 +203,12 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
     </FormGroup>
 
 
-      <FormGroup  className="no-margin" controlId="partner-terms-and-conditions" bsSize="small" validationState={validation.agreeToTerms === false ? 'error' : null}>
+      <FormGroup  className="no-margin" controlId="partner-terms-and-conditions" bsSize="small" validationState={null}>
         <Checkbox
           checked={form.agreeToTerms}
           onChange={event => changeCallback('agreeToTerms', event.target['checked'])}>
           <span className="semibold margin-right">Agreed to Terms and Conditions</span>
-          <Asterisk />
         </Checkbox>
-        { validation.agreeToTerms === false && <HelpBlock>This field is required.</HelpBlock> }
       </FormGroup>
 
 
@@ -222,14 +223,13 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
       </div>
 
       <FormControl.Feedback />
-      { validation.isFundingOrganization === false && <HelpBlock>This field is required.</HelpBlock> }
     </FormGroup>
 
     <div className="bordered padding-top margin-bottom margin-top position-relative clearfix">
       <DisabledOverlay active={!form.isFundingOrganization} />
       <Form inline>
         <Col md={6} className="margin-bottom">
-          <FormGroup controlId="selectOrganizationType" bsSize="small" validationState={validation.organizationType === false ? 'error' : null}>
+          <FormGroup controlId="selectOrganizationType" bsSize="small" validationState={validationErrors.organizationType && validationErrors.organizationType.required ? 'error' : null}>
             <ControlLabel className="margin-right">Organization Type <Asterisk /></ControlLabel>
             <FormControl
               componentClass="select"
@@ -245,7 +245,7 @@ const PartnerForm = ({context, form, fields, validation, changeCallback, submitC
                 )
               }
             </FormControl>
-            { validation.organizationType === false && <HelpBlock>This field is required.</HelpBlock> }
+            { validationErrors.organizationType && validationErrors.organizationType.required && <HelpBlock>This field is required.</HelpBlock> }
           </FormGroup>
         </Col>
       </Form>

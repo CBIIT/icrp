@@ -49,7 +49,7 @@ export default class PartialTableUploadStatusReport extends Component {
             </div>
         </div>
 
-        <div className="table-responsive">
+        <div className="table-responsive" style={{overflowX: 'hidden'}}>
           <Table
             className="table table-bordered table-striped table-condensed table-hover table-narrow table-nowrap"
             dataArray={page}
