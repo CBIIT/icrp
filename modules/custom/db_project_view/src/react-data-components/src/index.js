@@ -62,7 +62,7 @@ function buildUploadStatusReportTable(data) {
 
 var elementExists = document.getElementById("funding_org_root");
 if (elementExists == null) {
-fetch('https://icrpartnership-dev.org/getUploadStatus')
+fetch('/getUploadStatus')
   .then(res => res.json())
   .then((rows) => {
 
