@@ -12,7 +12,13 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Template;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\GeneratedLink;
+
 use Drupal\user\Entity\User;
+use Drupal\Core\Form\FormState;
+use Drupal\Core\Url;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /*
  * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
@@ -127,9 +133,9 @@ function icrp_preprocess_comment(&$variables) {
     $tcreated_time = $comment->getCreatedTime();
     //Set Date format
     $long_date_template = 'F j, Y g:i A';
-    //$created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime());
+    //$created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime() , drupal_get_user_timezone());
     //$created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime(), drupal_get_user_timezone());
-    $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime());
+    $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime(), drupal_get_user_timezone());
 
     //dpm($created_time);
     $variables['tcreated_time'] = $created_time->format($long_date_template);
@@ -160,7 +166,7 @@ function icrp_preprocess_field(&$variables) {
     $tcreated_time = $comment->getCreatedTime();
     //Set Date format
     $long_date_template = 'F j, Y g:i A';
-    $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime());
+    $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime(), drupal_get_user_timezone());
 
     //dpm($created_time);
     $variables['tcreated_time'] = $created_time->format($long_date_template);
@@ -532,6 +538,9 @@ function icrp_preprocess_node(&$variables) {
   if($node->getType() != "forum") {
     return;
   }
+  //drupal_set_message("icrp_preprocess_node()");
+  //drupal_set_message("Get owner uid of this thread.  If current user then allow them to edit/delete/close thread");
+
   //dpm($node);
 
   $variables['ttitle'] = $node->getTitle();
@@ -563,6 +572,17 @@ function icrp_preprocess_node(&$variables) {
         $variables['tforum_name'] =  "unknown"; 
       }
     }
+    //See if current user owns this tread
+
+    $author_uid = $node->getOwner()->id();
+    $current_uid = \Drupal::currentUser()->id();
+    if($author_uid == $current_uid) {
+      $variables['tthread_author'] = true;
+    } else {
+      $variables['tthread_author'] = false;
+
+    }
+
   }
   //dpm($variables);
 }
@@ -845,8 +865,8 @@ function icrp_views_pre_render($view) {
 }
 
 function icrp_views_query_alter($view, $query) {
-    drupal_set_message('icrp_views_query_alter');
-    dpm($view);
+    //drupal_set_message('icrp_views_query_alter');
+    //dpm($view);
 
     if($view->id() == 'partner_application_administration_tool_old'){
         $definition = array(
@@ -930,6 +950,21 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             //drupal_set_message("user_register_form");
             //\Drupal\icrp\Importer\OrganizationRestClient::populateOrganizations();
             OrganizationRestClient::populateOrganizations();
+            break;
+        case 'node_forum_edit_form':
+            //dpm($form);
+            break;
+        case 'node_forum_delete_form':
+            //unset($form['actions']['cancel']);
+            break;
+        case 'views_form_content_page_1':
+            //$url = Url::createFromPath('node/1');
+            //return new RedirectResponse($url->toString());
+            //Or try this:
+            //drupal_set_message("Go to node/614");
+            //return new RedirectResponse('node/614');
+            //return new RedirectResponse(\Drupal::url('<front>', [], ['absolute' => TRUE]));
+        
             break;
         case 'comment_comment_forum_form':
             //$form['sticky']['#access'] = true;

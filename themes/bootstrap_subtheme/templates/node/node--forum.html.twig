@@ -144,23 +144,28 @@
           {{ tforum_name }}
       </h2>
 
-      <h4>{{ ttitle }}
+      <h5>{{ ttitle }}
 
-        {% if manager %}
+        {% if manager or tthread_author %}
           <span class="pull-right" style="font-size:12px;">
-            <!--  This goes to edit screen that doesn't allow you to close... :(
-
-            <a class="pull-right" href="/admin/structure/forum/edit/forum/{{ tforum_tid }}">Edit</a>
-            <a class="pull-right" href="/thread/{{ tforum_tid }}?action=close">Close</a>
-            -->
+            <ul class="links inline list-inline">
+              <li class="thread-delete">
+                <a hreflang="en" href="/node/{{ tnid }}/delete?destination=/forum/{{ tforum_tid }}" title="Delete this thread">Delete</a>
+              </li>
+              <li class="thread-edit">
+                <a hreflang="en" href="/node/{{ tnid }}/edit?destination=/forum/{{ tforum_tid }}"  title="Edit this thread">Edit</a>
+              </li>
+            </ul>
           </span>
         {% endif %}
 
-      </h4>
-      <!--
+      </h5>
       <p>{{ tbody|raw }}</p>
-      -->
-      <p>{{ tsummary|raw }}</p>
+      
+      {% if tsummary|length > 1 %}
+        <p><b>Summary:</b>  {{ tsummary|raw }}</p>
+      {% endif %}
+      
         <table style="width:100%;margin-bottom:5px;">
           <tbody>
             <tr style="min-height:30px;">
