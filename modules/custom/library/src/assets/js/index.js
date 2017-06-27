@@ -556,8 +556,10 @@ jQuery(function() {
                               '<div class="item">'+
                                   '<div title="'+(isPublic?'Public Document':'Non-Public Document')+'"></div>'+
                                   '<div><a href="'+path+'file/'+id+'/'+file+'" target="_blank">'+file+'</a></div>'+
-                                  '<button class="admin edit-file" title="Edit File"><a></a></button>'+
-                                  '<button class="admin '+(isArchived?'restore-file':'archive-file')+'" title="'+(isArchived?'Restore File':'Archive File')+'"><a></a></button>'+
+                                  '<div>'+
+                                    '<button class="admin edit-file" title="Edit File"><a></a></button>'+
+                                    '<button class="admin '+(isArchived?'restore-file':'archive-file')+'" title="'+(isArchived?'Restore File':'Archive File')+'"><a></a></button>'+
+                                  '</div>'+
                               '</div>'+
                           '</div>'
                         ).children('*:last-child').data('library-file-data',entry);
