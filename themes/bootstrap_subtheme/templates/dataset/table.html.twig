@@ -150,8 +150,6 @@
               {% endif %}
             {% endif %}
             </{{ cell.tag }}>
-          
-
           {% endfor %}
         </tr>
       {% endfor %}
@@ -180,3 +178,6 @@
     </tfoot>
   {% endif %}
 </table>
+{% if icrp_debug %}
+  <span class="icrp-debug">END table.html.twig</span><br>
+{% endif %}

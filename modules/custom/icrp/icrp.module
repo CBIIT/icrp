@@ -49,6 +49,9 @@ use Drupal\user\Entity\User;
  *     - 4: Posts with the least comments first.
  *   - forum_per_page: The maximum number of topics to display per page.
  */
+function icrp_preprocess_pager(&$variables) {
+}
+
 function icrp_preprocess_forum_submitted(&$variables) {
   //drupal_set_message("icrp_preprocess_forum_submitted");
   //dpm($variables);
@@ -103,7 +106,7 @@ function icrp_query_comment_filter_alter(Drupal\Core\Database\Query\AlterableInt
   } 
 }
 function icrp_preprocess_page(&$variables) {
-  //kint($variables['page']['content']);
+  //drupal_set_message("icrp_preprocess_page");
   //ICRP Partnership Forum
 
   //dpm($variables['page']);
@@ -124,6 +127,8 @@ function icrp_preprocess_comment(&$variables) {
     $tcreated_time = $comment->getCreatedTime();
     //Set Date format
     $long_date_template = 'F j, Y g:i A';
+    //$created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime());
+    //$created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime(), drupal_get_user_timezone());
     $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime());
 
     //dpm($created_time);
@@ -527,8 +532,7 @@ function icrp_preprocess_node(&$variables) {
   if($node->getType() != "forum") {
     return;
   }
-
-  //dpm($variables);
+  //dpm($node);
 
   $variables['ttitle'] = $node->getTitle();
   //drupal_set_message($variables['ttitle']);
@@ -544,6 +548,8 @@ function icrp_preprocess_node(&$variables) {
     //drupal_set_message("We got a node");
     //dpm($node);
     $variables['tbody'] =  $tnode->get('body')->value; 
+    $variables['tsummary'] =  $tnode->get('body')->summary; 
+
     //drupal_set_message($variables['tbody']);
     $variables['tcomment_forum']['comment_count'] =  $tnode->get('comment_forum')->comment_count; 
     $variables['tcomment_forum']['status'] =  $tnode->get('comment_forum')->status; 

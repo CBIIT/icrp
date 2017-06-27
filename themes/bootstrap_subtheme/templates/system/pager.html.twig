@@ -31,14 +31,26 @@
  * @see template_preprocess_pager()
  */
 #}
+
+{% if icrp_debug %}
+  <span class="icrp-debug">pager.html.twig</span><br>
+   <script>console.info("pager.html.twig");</script>
+  <script>console.log({{ _context | json_encode | raw }});</script>
+{% for column in header %}
+  {{ column.data }}<br>
+{% endfor %}
+
+{% endif %}
+
+
 <table style="width:100%;">
     <tr>
       <td colspan="3" style="vertical-align: middle;">
-        <div class="topic-status-legend">
-          <div style="float:left;"><i class="fa fa-comment fa-2x fa-fw topic-status topic-status-new" title="New Posts available"></i><span>New posts</span></div>
-          <div style="float:left;"><i class="fa fa-comment fa-2x fa-fw topic-status topic-status-default" title="No new posts available"></i><span>No new posts</span></div>
-          <div style="float:left;"><i class="fa fa-comment fa-2x fa-fw topic-status topic-status-closed" title="Thread is closed for comments"></i><span>Closed</span></div>
-        </div>
+          <div class="topic-status-legend" style="display:none;">
+            <div style="float:left;"><i class="fa fa-comment fa-2x fa-fw topic-status topic-status-new" title="New Posts available"></i><span>New posts</span></div>
+            <div style="float:left;"><i class="fa fa-comment fa-2x fa-fw topic-status topic-status-default" title="No new posts available"></i><span>No new posts</span></div>
+            <div style="float:left;"><i class="fa fa-comment fa-2x fa-fw topic-status topic-status-closed" title="Thread is closed for comments"></i><span>Closed</span></div>
+          </div>
       </td>
       <td>
 {% if items %}

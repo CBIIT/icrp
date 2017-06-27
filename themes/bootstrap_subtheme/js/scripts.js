@@ -30,6 +30,27 @@
           $(".action-links").hide();
           $("#main-forum-content").show();
           break;
+        case "/forum/7":
+          $(".topic-status-legend").show();
+          break;
+        case "/forum/8":
+          $(".topic-status-legend").show();
+          break;
+        case "/forum/9":
+          $(".topic-status-legend").show();
+          break;
+        case "/forum/10":
+          $(".topic-status-legend").show();
+          break;
+        case "/forum/11":
+          $(".topic-status-legend").show();
+          break;
+        case "/forum/12":
+          $(".topic-status-legend").show();
+          break;
+        case "/forum/13":
+          $(".topic-status-legend").show();
+          break;
         case "/become-a-partner":
           //console.log("You are on the /become-a-partner page.");
           $("#become-a-partner-wells").matchHeight(true);

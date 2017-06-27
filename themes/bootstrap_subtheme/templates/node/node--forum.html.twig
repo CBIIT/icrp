@@ -73,14 +73,18 @@
 
 {% endif %}
 {% set manager = false %}
+{% set administrator = false %}
 {% for role in user.roles %}
   {% if (role == "manager") or (role == "administrator") %}
     {% set manager = true %}
   {% endif %}
+  {% if role == "administrator" %}
+    {% set administrator = true %}
+  {% endif %}
 {% endfor %}
 
 <!--  Breadcrumb -->
-{#
+{% if administrator %}
 <ol class="breadcrumb">
   <li>
     <a href="/forum/6">Forum</a>
@@ -98,7 +102,8 @@
     {{ ttitle }}
   </li>
 </ol>
-#}
+{% endif %}
+
 {{ attach_library('classy/node') }}
 
 {%
@@ -116,7 +121,30 @@
 <article{{ attributes.addClass(classes) }}>
   <header>
     {% if page %}
-      <h2>{{ ttitle }}
+        {# Set a uniqueicon for each forum-id #}
+        {% if tforum_tid == 7 %}
+          {% set icon = "fa-newspaper-o" %}
+        {% elseif tforum_tid == 8 %}
+          {% set icon = " fa-comments-o" %}
+        {% elseif tforum_tid == 9 %}
+          {% set icon = "fa-group" %}
+        {% elseif tforum_tid == 10 %}
+          {% set icon = "fa-file-code-o" %}
+        {% elseif tforum_tid == 11 %}
+          {% set icon = " fa-dashboard" %}
+        {% elseif tforum_tid == 12 %}
+          {% set icon = "fa-globe" %}
+        {% elseif tforum_tid == 13 %}
+          {% set icon = "fa-database" %}
+        {% endif %}
+      <h2 data-link="/forum/{{ tforum_tid }}">
+        <span>
+          <i class="fa {{ icon }} fa-pull-left fa-fw" title="{{ forum.icon_title }}" style="padding:3px 8px;margin-right:15px;color:#E8BD6B;"></i>
+        </span>
+          {{ tforum_name }}
+      </h2>
+
+      <h4>{{ ttitle }}
 
         {% if manager %}
           <span class="pull-right" style="font-size:12px;">
@@ -128,8 +156,11 @@
           </span>
         {% endif %}
 
-      </h2>
+      </h4>
+      <!--
       <p>{{ tbody|raw }}</p>
+      -->
+      <p>{{ tsummary|raw }}</p>
         <table style="width:100%;margin-bottom:5px;">
           <tbody>
             <tr style="min-height:30px;">
