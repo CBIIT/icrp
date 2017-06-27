@@ -1,0 +1,6 @@
+name: ICRP Custom Conditions Module
+description: Custom Conditions Module
+package: ICRP Modules
+type: module
+version: 1.0
+core: 8.x
