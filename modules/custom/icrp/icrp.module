@@ -967,6 +967,10 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
               unset($form['actions']['delete']);
             }
             break;
+        case 'node_forum_form':
+            $form['actions']['submit']['#value'] = t('Add New Thread');
+            //dpm($form);
+            break;
         case 'node_forum_delete_form':
             //unset($form['actions']['cancel']);
             break;
@@ -984,8 +988,6 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             //dpm($form);
             $form['actions']['submit']['#value'] = t('Post Reply');
             break;
-        case 'node_forum_form':
-            $form['actions']['submit']['#value'] = t('Add New Thread');
         case 'user_login_form':
             //$form['link'] = array('#markup' => t("<div style=padding:20px;'><a href='/user/password'>Forgot Password?</a></div>"));
             break;
