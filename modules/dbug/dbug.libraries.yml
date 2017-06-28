@@ -1,0 +1,6 @@
+dbug:
+  css:
+    theme:
+      css/dBug.css: {}
+  js:
+    js/dBug.js: {}

@@ -118,6 +118,11 @@ function icrp_preprocess_page(&$variables) {
   //dpm($variables['page']);
 }
 
+function getOrg($target_id) {
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($target_id);
+  return $node->get('body')->value; 
+}
+
 function icrp_preprocess_comment(&$variables) {
     //drupal_set_message("icrp_preprocess_comment");
     //dpm($variables);
@@ -144,12 +149,11 @@ function icrp_preprocess_comment(&$variables) {
     //Set Date format
     $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($comment_uid);
 
-    $field_organization_target_id = $user->get('field_organization')->target_id;
-    $variables['torganization_target_id'] = $field_organization_target_id; 
-    $node = \Drupal::entityTypeManager()->getStorage('node')->load($field_organization_target_id);
-    $variables['torganization'] =  $node->get('body')->value; 
+    $variables['torganization_target_id'] = $user->get('field_organization')->target_id;
+    $variables['torganization'] =  getOrg($variables['torganization_target_id']); 
     //dpm($variables);
 }
+
 
 /*
 function icrp_preprocess_field(&$variables) {
@@ -574,17 +578,22 @@ function icrp_preprocess_node(&$variables) {
     }
     //See if current user owns this tread
 
-    $author_uid = $node->getOwner()->id();
+    $owner = $node->getOwner();
+    $author_uid = $owner->id();
+
     $current_uid = \Drupal::currentUser()->id();
     if($author_uid == $current_uid) {
       $variables['tthread_author'] = true;
     } else {
       $variables['tthread_author'] = false;
-
     }
+    //Get Author name and Organization 
+    $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($author_uid);
+    $variables['tthread_author_name'] =  $user->get('field_first_name')->value." ".$user->get('field_last_name')->value;
+    $target_id = $user->get('field_organization')->target_id;
+    $variables['tthread_author_org'] = getOrg($target_id);
 
   }
-  //dpm($variables);
 }
 
 function icrp_preprocess_forums__topics(&$variables) {
