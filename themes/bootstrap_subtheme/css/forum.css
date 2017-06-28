@@ -15,6 +15,9 @@ thead tr th, thead tr td, tbody tr th, tbody tr td { padding: 8px; line-height: 
 	font-weight:bold;
 	color:red;
 }
+.entity-meta.tab-content.vertical-tabs-panes {
+	background-color:white;
+}
 .form-item.js-form-item.form-type-checkbox.js-form-type-checkbox.form-item-shadow.js-form-item-shadow.checkbox {
 	display:none;
 }

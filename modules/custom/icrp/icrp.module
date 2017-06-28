@@ -952,7 +952,11 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             OrganizationRestClient::populateOrganizations();
             break;
         case 'node_forum_edit_form':
-            //dpm($form);
+            $uid = \Drupal::currentUser()->id();
+            $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+            if(!($user->hasRole('manager') || $user->hasRole('administrator'))) {
+              unset($form['actions']['delete']);
+            }
             break;
         case 'node_forum_delete_form':
             //unset($form['actions']['cancel']);
