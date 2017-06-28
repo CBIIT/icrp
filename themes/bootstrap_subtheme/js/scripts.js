@@ -68,6 +68,15 @@
     }, 0);
   }
 
+  $.ajax('/api/database/counts')
+    .then(function(response) {
+      for (key in response) {
+        $('[data-count]')
+          .filter(function() { return $(this).attr('data-count') === key })
+          .html(response[key]);
+      }
+  });
+
   $.redirectCarousel = function(e){
     e.preventDefault();
 
