@@ -71,8 +71,7 @@
   $.ajax('/api/database/counts')
     .then(function(response) {
       for (key in response) {
-        $('[data-count]')
-          .filter(function() { return $(this).attr('data-count') === key })
+        $('[data-count="{0}"]'.format(key))
           .html(response[key]);
       }
   });
