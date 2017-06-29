@@ -146,17 +146,18 @@ class PartnerManager {
         
         if ($parameters['is_funding_organization'] === 'true')
           FundingOrganizationManager::addFundingOrganization($pdo, [
-            'sponsor_code'              => $parameters['sponsor_code'],
-            'member_type'               => 'Partner',
             'organization_name'         => $parameters['partner_name'],
             'organization_abbreviation' => $parameters['sponsor_code'],
             'organization_type'         => $parameters['organization_type'],
-            'is_annualized'             => $parameters['is_annualized'],
+            'map_coordinates'           => NULL,
             'country'                   => $parameters['country'],
             'currency'                  => $parameters['currency'],
+            'sponsor_code'              => $parameters['sponsor_code'],
+            'member_type'               => 'Partner',
+            'is_annualized'             => $parameters['is_annualized'],
             'note'                      => $parameters['note'],
           ]);
-
+          
         return [
           ['SUCCESS' => 'The partner has been added to the database.']
         ];
