@@ -70,9 +70,21 @@
       $('[data-toggle="tooltip"]').tooltip({container: 'body'}); 
     }, 0);
   }
+  
+  if ($('[data-count']).length) {
+    $.ajax('/api/database/counts')
+      .then(function(response) {
+        for (key in response) {
+          $('[data-count="{0}"]'.format(key))
+            .html(response[key]);
+        }
+    });
+  }
+
   $.hideCommentStatus = function(e){
     $("div.form-item.js-form-item.form-type-vertical-tabs.js-form-type-vertical-tabs.form-item-.js-form-item-.form-no-label.form-group").hide();
   }
+
   $.redirectCarousel = function(e){
     e.preventDefault();
 
