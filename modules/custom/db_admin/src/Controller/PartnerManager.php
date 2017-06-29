@@ -56,6 +56,12 @@ class PartnerManager {
                           Currency as currency
                           FROM Country
                           ORDER BY label ASC",
+
+      'currencies'  =>  'SELECT
+                          LTRIM(RTRIM(Code)) AS value, 
+                          Description AS label 
+                          FROM Currency
+                          ORDER BY label ASC',
     ];
 
     // map query results to field values
