@@ -28,12 +28,14 @@ class FundingOrganizationManager {
                           FROM Partner p
                           LEFT JOIN Country c ON p.Country = c.Abbreviation
                           ORDER BY label ASC',
+                          
       'countries'   =>  'SELECT
                           LTRIM(RTRIM(Abbreviation)) AS value, 
                           name AS label, 
                           Currency AS currency 
                           FROM icrp_data.dbo.Country
                           ORDER BY label ASC',
+
       'currencies'  =>  'SELECT
                           LTRIM(RTRIM(Code)) AS value, 
                           Description AS label 

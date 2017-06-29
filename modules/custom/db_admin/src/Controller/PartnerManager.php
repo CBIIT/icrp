@@ -50,12 +50,12 @@ class PartnerManager {
                           FROM PartnerApplication
                           WHERE STATUS = 'NEW'",
 
-      'countries'   =>  "SELECT 
+      'countries'   =>  'SELECT 
                           LTRIM(RTRIM(Abbreviation)) AS value, 
                           Name AS label,
                           Currency as currency
                           FROM Country
-                          ORDER BY label ASC",
+                          ORDER BY label ASC',
 
       'currencies'  =>  'SELECT
                           LTRIM(RTRIM(Code)) AS value, 
