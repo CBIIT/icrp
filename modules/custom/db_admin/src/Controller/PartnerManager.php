@@ -143,6 +143,7 @@ class PartnerManager {
 
       if ($stmt->execute()) {
         self::markApplicationAsDone($pdo, $parameters['partner_application_id']);
+        $currency = $parameters['currency'] ? $parameters['currency'] : 'USD';
         
         if ($parameters['is_funding_organization'] === 'true')
           FundingOrganizationManager::addFundingOrganization($pdo, [
@@ -151,7 +152,7 @@ class PartnerManager {
             'organization_type'         => $parameters['organization_type'],
             'map_coordinates'           => $parameters['map_coordinates'],
             'country'                   => $parameters['country'],
-            'currency'                  => $parameters['currency'],
+            'currency'                  => $currency,
             'sponsor_code'              => $parameters['sponsor_code'],
             'member_type'               => 'Partner',
             'is_annualized'             => $parameters['is_annualized'],
