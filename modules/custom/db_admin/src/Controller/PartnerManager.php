@@ -149,7 +149,7 @@ class PartnerManager {
             'organization_name'         => $parameters['partner_name'],
             'organization_abbreviation' => $parameters['sponsor_code'],
             'organization_type'         => $parameters['organization_type'],
-            'map_coordinates'           => NULL,
+            'map_coordinates'           => $parameters['map_coordinates'],
             'country'                   => $parameters['country'],
             'currency'                  => $parameters['currency'],
             'sponsor_code'              => $parameters['sponsor_code'],
