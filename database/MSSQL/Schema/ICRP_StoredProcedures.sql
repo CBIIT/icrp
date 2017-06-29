@@ -1,4 +1,4 @@
-----------------------------------------------------------------------------------------------------------
+ch----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetProjectsByCriteria]    Script Date: 12/14/2016 4:21:47 PM ******/
 ----------------------------------------------------------------------------------------------------------
 SET ANSI_NULLS ON
@@ -549,23 +549,40 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT categoryName, CAST(SUM(Relevance)/100 AS decimal(16,2)) AS Relevance, SUM(USDAmount) AS USDAmount, count(*) AS ProjectCount INTO #stats FROM
-		(SELECT c.categoryName, Relevance, (f.Amount * ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount
+	IF @Type = 'Count'
+	BEGIN
+		SELECT categoryName, CAST(SUM(Relevance)/100 AS decimal(16,2)) AS Relevance, SUM(USDAmount) AS USDAmount, count(*) AS ProjectCount INTO #counts FROM
+			(SELECT c.categoryName, Relevance, (f.Amount * ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount
+			 FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
+				JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
+				JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
+				JOIN CSO c ON c.code = pc.csocode
+				JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
+				LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = o.Currency) r
+		GROUP BY categoryName
+
+		SELECT @ResultCount = SUM(Relevance) FROM #counts			
+		SELECT * FROM #counts ORDER BY Relevance DESC	
+	END
+
+	ELSE 
+	
+	BEGIN --  'Amount'
+		SELECT categoryName, SUM(Relevance)/100 AS Relevance, SUM(USDRelAmount)/100 AS USDAmount, Count(*) AS ProjectCount INTO #amounts FROM
+		(SELECT c.CategoryName, pc.Relevance, (f.Amount*ISNULL(cr.ToCurrencyRate,1)*pc.Relevance) AS USDRelAmount  
 		 FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
 			JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
 			JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
 			JOIN CSO c ON c.code = pc.csocode
 			JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = o.Currency) r
-	GROUP BY categoryName
-		
-	SELECT @ResultCount = SUM(Relevance) FROM #stats	
-	SELECT @ResultAmount = SUM([USDAmount]) FROM #stats
-
-	IF @Type = 'Amount'
-		SELECT * FROM #stats ORDER BY [USDAmount] Desc
-	ELSE		
-		SELECT * FROM #stats ORDER BY Relevance DESC
+		GROUP BY categoryName
+				
+		SELECT @ResultAmount = SUM([USDAmount]) FROM #amounts
+			
+		SELECT * FROM #amounts ORDER BY [USDAmount] Desc
+	
+	END		
 	
 GO
 
@@ -600,23 +617,39 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT CancerType, ISNULL(CAST(SUM(Relevance)/100 AS decimal(16,2)),0) AS Relevance,  SUM(USDAmount) AS USDAmount, Count(*) AS ProjectCount INTO #stats	FROM 
-		(SELECT c.Name AS CancerType, Relevance, (f.Amount * ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount
-		 FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r			
-			JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
-			JOIN ProjectCancerType pc ON f.projectFundingID = pc.projectFundingID	
-			JOIN CancerType c ON c.CancerTypeID = pc.CancerTypeID
-			JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
-			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = o.Currency) r
-	GROUP BY CancerType	
+	IF @Type = 'Count'
+	BEGIN
+		SELECT CancerType, ISNULL(CAST(SUM(Relevance)/100 AS decimal(16,2)),0) AS Relevance,  SUM(USDAmount) AS USDAmount, Count(*) AS ProjectCount INTO #counts	FROM 
+			(SELECT c.Name AS CancerType, Relevance, (f.Amount * ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount
+			 FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r			
+				JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
+				JOIN ProjectCancerType pc ON f.projectFundingID = pc.projectFundingID	
+				JOIN CancerType c ON c.CancerTypeID = pc.CancerTypeID
+				JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
+				LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = o.Currency) r
+		GROUP BY CancerType	
 				
-	SELECT @ResultCount = SUM(Relevance) FROM #stats	
-	SELECT @ResultAmount = SUM([USDAmount]) FROM #stats
+		SELECT @ResultCount = SUM(Relevance) FROM #counts			
+		SELECT * FROM #counts ORDER BY Relevance DESC	
+	END
 
-	IF @Type = 'Amount'
-		SELECT * FROM #stats ORDER BY [USDAmount] Desc
-	ELSE		
-		SELECT * FROM #stats ORDER BY Relevance DESC
+	ELSE 
+	
+	BEGIN --  'Amount'
+		SELECT CancerType, ISNULL(CAST(SUM(Relevance)/100 AS decimal(16,2)),0) AS Relevance,  SUM(USDRelAmount)/100 AS USDAmount, Count(*) AS ProjectCount INTO #amounts	FROM 
+			(SELECT c.Name AS CancerType, Relevance, (f.Amount*ISNULL(cr.ToCurrencyRate,1)*pc.Relevance) AS USDRelAmount
+			 FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r			
+				JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
+				JOIN ProjectCancerType pc ON f.projectFundingID = pc.projectFundingID	
+				JOIN CancerType c ON c.CancerTypeID = pc.CancerTypeID
+				JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
+				LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = o.Currency) r
+		GROUP BY CancerType		
+				
+		SELECT @ResultAmount = SUM([USDAmount]) FROM #amounts			
+		SELECT * FROM #amounts ORDER BY [USDAmount] Desc
+			
+	END
 GO
 
 
@@ -1631,7 +1664,8 @@ DROP PROCEDURE [dbo].[DataUpload_IntegrityCheck]
 GO 
 
 CREATE PROCEDURE [dbo].[DataUpload_IntegrityCheck] 
- @Type VARCHAR (10)  = 'New' -- 'New' or 'Update'
+ @PartnerCode VARCHAR (25),
+ @Type VARCHAR (10)  = 'New' -- 'New' or 'Update' 
 
 AS
 
@@ -1643,13 +1677,22 @@ AS
 -- 3	Rule	Check Old AwardCode with Parent Category
 -- 4	Rule	Check Incorrect Award or Budget Duration
 ---5	Rule	Check Incorrect Funding Amounts
--- 6	Rule	Check Incorrect CSO Codes/Relevance
--- 7	Rule	Check Historical CSO Codes
--- 8	Rule	Check CancerType Codes/Relevance
--- 9	Rule	Check Annulized Value
--- 10	Rule	Check FundingOrg Existance
--- 11	Rule	Check FundingOrgDiv Existance
--- 12	Rule	Check not-mapped Institution
+--
+-- 11	Rule	Check CSO - Missing Codes/Relevance
+-- 12	Rule	Check CSO - Invalid Codes
+-- 13	Rule	Check CSO - Historical Codes
+-- 14	Rule	Check CSO - Not 100% Relevance
+-- 15	Rule	Check CSO - # of codes <> # of Rel
+--
+-- 21	Rule	Check CancerType - Missing Codes/Relevance
+-- 22	Rule	Check CancerType - Invalid Codes
+-- 23	Rule	Check CancerType - Not 100% Relevance
+-- 24	Rule	Check CancerType - # of codes <> # of Rel
+--
+-- 35	Rule	Check Annulized Value
+-- 36	Rule	Check FundingOrg Existance
+-- 37	Rule	Check FundingOrgDiv Existance
+-- 38	Rule	Check not-mapped Institution
 --
 /***********************************************************************************************/
 
@@ -1664,16 +1707,18 @@ DECLARE @DataUploadReport TABLE
 -------------------------------------------------------------------
 -- Workbook Summary
 -------------------------------------------------------------------
-SELECT Distinct AwardCode INTO #a FROM UploadWorkBook
-
 --Checking Parent projects ...
 SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'  -- CA
 
-SELECT * INTO #awardCodes FROM (
-	SELECT 'Existing' AS Type, a.AwardCode FROM #a a JOIN Project p ON a.AwardCode = p.AwardCode
-	UNION
-	SELECT 'New' AS Type, a.AwardCode FROM #a a LEFT JOIN Project p ON a.AwardCode = p.AwardCode WHERE p.AwardCode IS NULL
-) a
+-- Get all AwardCodes
+SELECT Distinct CAST('New' AS VARCHAR(25)) AS Type, CAST(NULL AS INT) AS ProjectID, CAST(NULL AS INT) AS FundingOrgID, AwardCode INTO #awardCodes FROM UploadWorkBook
+
+UPDATE #awardCodes SET Type='Existing', ProjectID=pp.ProjectID, FundingOrgID = pp.FundingOrgID
+FROM #awardCodes a 
+JOIN (SELECT o.FundingOrgID, p.* FROM Project p 
+		JOIN ProjectFunding f ON p.ProjectID = f.ProjectID 
+		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID 
+	  WHERE o.SponsorCode = @PartnerCode) pp ON a.AwardCode = pp.AwardCode	
 
 DECLARE @TotalProjectFunding INT
 DECLARE @TotalAwardCodes INT
@@ -1682,7 +1727,7 @@ DECLARE @TotalNewParentProjects INT
 DECLARE @ExistingParentProjects INT
 
 SELECT @TotalProjectFunding = COUNT(*) FROM UploadWorkBook
-SELECT @TotalAwardCodes = COUNT(*) FROM #a
+SELECT @TotalAwardCodes = COUNT(*) FROM #awardCodes
 SELECT @TotalProjectsWithParentCategory = COUNT(*) FROM #parentProjects
 SELECT @ExistingParentProjects = COUNT(*) FROM #AwardCodes WHERE Type='Existing'
 SELECT @TotalNewParentProjects = COUNT(*) FROM #AwardCodes WHERE Type='New'
@@ -1693,37 +1738,13 @@ INSERT INTO @DataUploadReport VALUES (0, 'Summary', 'New AwardCodes',  @TotalNew
 INSERT INTO @DataUploadReport VALUES (0, 'Summary', 'Existing AwardCodes',  @ExistingParentProjects)
 INSERT INTO @DataUploadReport VALUES (0, 'Summary', 'New AwardCodes with Parent Category',  @TotalProjectsWithParentCategory)
 
--------------------------------------------------------------------
--- Check unique Project Funding AltAwardCode 
--------------------------------------------------------------------
---SELECT Altid INTO #dupAltId FROM UploadWorkBook GROUP BY Altid HAVING COUNT(*) > 1
-
---IF EXISTS (SELECT * FROM #dupAltId)
---	INSERT INTO @DataUploadReport SELECT 1, 'Rule', 'Check Duplicate AltAwardCodes', COUNT(*) FROM #dupAltId
---ELSE
---	INSERT INTO @DataUploadReport SELECT 1, 'Rule', 'Check Duplicate AltAwardCodes', 0
-
-------------------------------------------------------------------
--- Check if AltAwardCodes already exist in ICRP
--------------------------------------------------------------------
---SELECT u.AwardCode, u.AltID INTO #AltId FROM UploadWorkbook u
---JOIN (SELECT f.ALtAwardCode, o.Abbreviation AS FundingOrgAbbr FROM ProjectFunding f JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID) e ON u.AltID = e.ALtAwardCode AND u.FundingOrgAbbr = e.FundingOrgAbbr
-
---IF EXISTS (select * from #AltId)
---BEGIN
---	PRINT 'ERROR ==> AltAwardCode already exist in ICRP'
---	SELECT 'AltAwardCode Already Exists in ICRP' AS Issue, AwardCode, AltID AS AltAwardCode FROM #AltId
---END 
---ELSE
---	PRINT 'Checking AltAwardCode NOT exist in ICRP ==> Pass'
-	
 ------------------------------------------------------------------
 -- Check if AltAwardCodes not unique (check both workbook and existing ProjectFunding)
 -------------------------------------------------------------------
-SELECT * INTO #dupAltId FROM (
-	SELECT Altid AS AltAwardCode FROM UploadWorkBook 
+SELECT AltAwardCode INTO #dupAltId FROM (
+	SELECT 'Workbook' AS Source, Altid AS AltAwardCode FROM UploadWorkBook 
 	UNION
-	SELECT AltAwardCode FROM ProjectFunding
+	SELECT 'Existing' AS Source, AltAwardCode FROM ProjectFunding
 	) a GROUP BY AltAwardCode HAVING COUNT(*) > 1
 
 
@@ -1734,7 +1755,7 @@ ELSE
 
 
 -------------------------------------------------------------------
--- Check New AWardCodes without Parent Category 
+-- Check New AWardCodes without Parent project 
 -------------------------------------------------------------------
 SELECT n.AwardCode INTO #newNoParent FROM 
 (SELECT * FROM #awardcodes where Type='New') n
@@ -1742,21 +1763,21 @@ LEFT JOIN #parentProjects p ON n.AwardCode = p.AwardCode
 WHERE p.AwardCode IS NULL
 
 IF EXISTS (SELECT * FROM #newNoParent)
-	INSERT INTO @DataUploadReport SELECT 2, 'Rule', 'Check New AwardCodes with Missing Parent Category', COUNT(*) FROM #newNoParent
+	INSERT INTO @DataUploadReport SELECT 2, 'Rule', 'Check New AwardCodes without Parent project', COUNT(*) FROM #newNoParent
 ELSE
-	INSERT INTO @DataUploadReport SELECT 2, 'Rule', 'Check New AwardCodes with Missing Parent Category', 0
+	INSERT INTO @DataUploadReport SELECT 2, 'Rule', 'Check New AwardCodes without Parent project', 0
 
 -------------------------------------------------------------------
--- Check Old AwardCode with Parent Category 
+-- Check Existing AwardCode with imported Parent project
 -------------------------------------------------------------------
 SELECT 'Issue AwardCode Should NOT be Parent' AS Issue, p.* INTO #oldWithParent FROM 
 (SELECT * FROM #awardcodes where Type='Existing') n
 JOIN #parentProjects p ON n.AwardCode = p.AwardCode
 
 IF EXISTS (SELECT * FROM #oldWithParent)
-	INSERT INTO @DataUploadReport SELECT 3, 'Rule', 'Check Old AwardCode with Parent Category', COUNT(*) FROM #oldWithParent
+	INSERT INTO @DataUploadReport SELECT 3, 'Rule', 'Check Existing AwardCode with imported Parent project', COUNT(*) FROM #oldWithParent
 ELSE
-	INSERT INTO @DataUploadReport SELECT 3, 'Rule', 'Check Old AwardCode with Parent Category', 0
+	INSERT INTO @DataUploadReport SELECT 3, 'Rule', 'Check Existing AwardCode with imported Parent project', 0
 
 -------------------------------------------------------------------
 -- Check BudgetDates
@@ -1780,35 +1801,201 @@ ELSE
 	INSERT INTO @DataUploadReport SELECT 5, 'Rule', 'Check Incorrect Funding Amounts', 0
 
 -------------------------------------------------------------------
--- Check CSO Codes
+-- Rule 11 - Check CSO - Missing Codes/Relevance
+-- Rule 12 - Check CSO - Invalid Codes
+-- Rule 13 - Check CSO - Not 100% Relevance
+-- Rule 14 - Check CSO - # of codes <> # of Rel
+-- Rule 15 - Check CSO - Historical Codes
 -------------------------------------------------------------------
+-- Rule 11 - Check CSO - Missing Codes/Relevance
 SELECT csocodes, csorel INTO #cso from UploadWorkBook where ISNULL(csocodes,'')='' or ISNULL(csorel,'')=''
 
 IF EXISTS (select * from #cso)
-	INSERT INTO @DataUploadReport SELECT 6, 'Rule', 'Check Incorrect CSO Codes/Relevance', COUNT(*) FROM #cso
+	INSERT INTO @DataUploadReport SELECT 11, 'Rule', 'Check CSO - Missing Codes/Relevance', COUNT(*) FROM #cso
 ELSE
-	INSERT INTO @DataUploadReport SELECT 6, 'Rule', 'Check Incorrect CSO Codes/Relevance', 0
+	INSERT INTO @DataUploadReport SELECT 11, 'Rule', 'Check CSO - Missing Codes/Relevance', 0
+
+-- Rule 12 - Check CSO - Invalid Codes
+SELECT ALtID AS AltAwardCode, CSOCodes, CSORel, SiteCodes, SiteRel, AwardType INTO #list
+FROM UploadWorkBook
+
+CREATE TABLE tmp_pcso
+(
+	Seq INT NOT NULL IDENTITY (1,1),
+	AltAwardCode VARCHAR(50),
+	CSO VARCHAR(2000)	
+)
+
+CREATE TABLE tmp_pcsorel 
+(
+	Seq INT NOT NULL IDENTITY (1,1),
+	AltAwardCode VARCHAR(50),
+	Rel decimal(18,2)
+)
+
+DECLARE @AltAwardCode as VARCHAR(50)
+DECLARE @csoList as NVARCHAR(2000)
+DECLARE @csoRelList as NVARCHAR(2000)
+ 
+DECLARE @csocursor as CURSOR;
+
+SET @csocursor = CURSOR FOR
+SELECT AltAwardCode, CSOCodes , CSORel FROM #list;
+ 
+OPEN @csocursor;
+FETCH NEXT FROM @csocursor INTO @AltAwardCode, @csoList, @csoRelList;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN 
+ INSERT INTO tmp_pcso SELECT @AltAwardCode, value FROM  dbo.ToStrTable(@csoList)
+ INSERT INTO tmp_pcsorel SELECT @AltAwardCode, CAST(value AS decimal(18,2)) FROM  dbo.ToStrTable(@csoRelList) 
+
+ DBCC CHECKIDENT ('tmp_pcso', RESEED, 0)
+ DBCC CHECKIDENT ('tmp_pcsorel', RESEED, 0)
+
+ FETCH NEXT FROM @csocursor INTO @AltAwardCode, @csolist, @csoRelList;
+END
+ 
+CLOSE @csocursor;
+DEALLOCATE @csocursor;
+
+UPDATE tmp_pcso SET cso = LTRIM(RTRIM(cso))
+UPDATE tmp_pcsorel SET Rel = LTRIM(RTRIM(Rel))
+
+SELECT * INTO #CSORelTotal FROM (SELECT AltAwardCode, SUM(Rel) AS TotalRel FROM tmp_pcsorel GROUP BY AltAwardCode) t
+
+SELECT * INTO #invalidCSO FROM tmp_pcso c 
+	LEFT JOIN CSO cso ON c.cso = cso.Code
+WHERE cso.Code IS NULL
+
+IF EXISTS (select * FROM #invalidCSO)
+BEGIN
+	INSERT INTO @DataUploadReport SELECT 12, 'Rule', 'Check CSO - Invalid Codes', COUNT(*) FROM #invalidCSO
+	SELECT '#invalidCSO', * FROM #invalidCSO
+END
+ELSE
+	INSERT INTO @DataUploadReport SELECT 12, 'Rule', 'Check CSO - Invalid Codes', 0
+
+SELECT * INTO #Not100CSORel FROM #CSORelTotal WHERE (TotalRel < 99.00) OR (TotalRel > 100.00)
+
+IF EXISTS (select * FROM #Not100CSORel)
+BEGIN
+	INSERT INTO @DataUploadReport SELECT 13, 'Rule', 'Check CSO - Not 100% Relevance', COUNT(*) FROM #Not100CSORel
+	SELECT '#Not100CSORel', * FROM #Not100CSORel
+END
+ELSE
+	INSERT INTO @DataUploadReport SELECT 13, 'Rule', 'Check CSO - Not 100% Relevance', 0
 		
--------------------------------------------------------------------
+SELECT c.*, r.Rel, r.Seq AS RelSeq INTO #csoNotMatch FROM tmp_pcso c
+FULL OUTER JOIN tmp_pcsorel r ON c.AltAwardCode = r.AltAwardCode AND c.Seq = r.Seq
+WHERE c.AltAwardCode IS NULL OR r.AltAwardCode IS NULL
+
+IF EXISTS (select * FROM #csoNotMatch)
+BEGIN
+	INSERT INTO @DataUploadReport SELECT 14, 'Rule', 'Check CSO - # of codes <> # of Rel', COUNT(*) FROM #csoNotMatch
+	SELECT '#csoNotMatch', * FROM #csoNotMatch
+END
+ELSE
+	INSERT INTO @DataUploadReport SELECT 14, 'Rule', 'Check CSO - # of codes <> # of Rel', 0
+		
 -- Check Historical CSO Codes
--------------------------------------------------------------------
 SELECT CSOCodes INTO #oldCSO from UploadWorkBook where sitecodes like '%7.1%' OR sitecodes like '%7.2%' OR sitecodes like '%7.3%' OR sitecodes like '%1.6%' OR sitecodes like '%6.8%'
 
 IF EXISTS (select * FROM #oldCSO)
-	INSERT INTO @DataUploadReport SELECT 7, 'Rule', 'Check Historical CSO Codes', COUNT(*) FROM #oldCSO
+	INSERT INTO @DataUploadReport SELECT 15, 'Rule', 'Check CSO - Historical Codes', COUNT(*) FROM #oldCSO
 ELSE
-	INSERT INTO @DataUploadReport SELECT 7, 'Rule', 'Check Historical CSO Codes', 0
+	INSERT INTO @DataUploadReport SELECT 15, 'Rule', 'Check CSO - Historical Codes', 0
 
 -------------------------------------------------------------------
--- Check CancerType Codes
+-- 	Rule 21 - 	Check CancerType - Missing Codes/Relevance
+-- 	Rule 22 - 	Check CancerType - Invalid Codes
+-- 	Rule 23 - 	Check CancerType - Not 100% Relevance
+-- 	Rule 24 -	Check CancerType - # of codes <> # of Rel
 -------------------------------------------------------------------
 SELECT sitecodes, siterel INTO #site from UploadWorkBook where ISNULL(sitecodes,'')='' or ISNULL(siterel,'')=''
 
 IF EXISTS (select * FROM #site)
-	INSERT INTO @DataUploadReport SELECT 8, 'Rule', 'Check CancerType Codes/Relevance', COUNT(*) FROM #site
+	INSERT INTO @DataUploadReport SELECT 21, 'Rule', 'Check CancerType - Missing Codes/Relevance', COUNT(*) FROM #site
 ELSE
-	INSERT INTO @DataUploadReport SELECT 8, 'Rule', 'Check CancerType Codes/Relevance', 0
-	
+	INSERT INTO @DataUploadReport SELECT 21, 'Rule', 'Check CancerType - Missing Codes/Relevance', 0
+
+-- Check Invalid CancerType Codes (rule 22)
+
+CREATE TABLE tmp_psite
+(
+	Seq INT NOT NULL IDENTITY (1,1),
+	AltAwardCode VARCHAR(50),
+	Code VARCHAR(2000)	
+)
+
+CREATE TABLE tmp_psiterel
+(
+	Seq INT NOT NULL IDENTITY (1,1),
+	AltAwardCode VARCHAR(50),	
+	Rel VARCHAR(2000)	
+)
+
+DECLARE @siteList as NVARCHAR(2000)
+DECLARE @siteRelList as NVARCHAR(2000)
+ 
+DECLARE @ctcursor as CURSOR;
+
+SET @ctcursor = CURSOR FOR
+SELECT AltAwardCode, SiteCodes , SiteRel FROM #list;
+ 
+OPEN @ctcursor;
+FETCH NEXT FROM @ctcursor INTO @AltAwardCode, @siteList, @siteRelList;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+ INSERT INTO tmp_psite SELECT @AltAwardCode, value FROM  dbo.ToStrTable(@siteList)
+ INSERT INTO tmp_psiterel SELECT @AltAwardCode, value FROM  dbo.ToStrTable(@siteRelList) 
+ 
+ DBCC CHECKIDENT ('tmp_psite', RESEED, 0)
+ DBCC CHECKIDENT ('tmp_psiterel', RESEED, 0)
+
+ FETCH NEXT FROM @ctcursor INTO @AltAwardCode, @siteList, @siteRelList;
+END
+ 
+CLOSE @ctcursor;
+DEALLOCATE @ctcursor;
+
+UPDATE tmp_psite SET code = LTRIM(RTRIM(code))
+UPDATE tmp_psiterel SET Rel = LTRIM(RTRIM(Rel))
+
+SELECT * INTO #siteRelTotal FROM (SELECT AltAwardCode, SUM(CAST(Rel AS float)) AS TotalRel FROM tmp_psiterel GROUP BY AltAwardCode) t
+
+SELECT * INTO #invalidSite FROM tmp_psite s 
+	LEFT JOIN CancerType ct ON s.Code = ct.ICRPCode
+WHERE ct.ICRPCode IS NULL
+
+IF EXISTS (select * FROM #invalidSite)
+	INSERT INTO @DataUploadReport SELECT 22, 'Rule', 'Check CancerType - Invalid Codes', COUNT(*) FROM #invalidSite
+ELSE
+	INSERT INTO @DataUploadReport SELECT 22, 'Rule', 'Check CancerType - Invalid Codes', 0
+
+-- 	Rule 23 - 	Check CancerType - Not 100% Relevance
+SELECT * INTO #Not100SiteRel FROM #siteRelTotal WHERE (CAST(TotalRel AS float) < CAST(99 AS float)) OR (TotalRel > CAST(100 AS float))
+
+IF EXISTS (select * FROM #Not100SiteRel)
+	INSERT INTO @DataUploadReport SELECT 23, 'Rule', 'Check CancerType - Not 100% Relevancel', COUNT(*) FROM #Not100SiteRel
+ELSE
+	INSERT INTO @DataUploadReport SELECT 23, 'Rule', 'Check CancerType - Not 100% Relevances', 0
+
+SELECT '#Not100SiteRel', * FROM #Not100SiteRel
+
+-- 	Rule 24 -	Check CancerType - # of codes <> # of Rel	
+SELECT s.*, r.Rel, r.Seq AS RelSeq INTO #siteNotMatch FROM tmp_psite s
+	FULL OUTER JOIN tmp_psiterel r ON s.AltAwardCode = r.AltAwardCode AND s.Seq = r.Seq
+WHERE s.AltAwardCode IS NULL OR r.AltAwardCode IS NULL
+
+IF EXISTS (select * FROM #siteNotMatch)
+	INSERT INTO @DataUploadReport SELECT 24, 'Rule', 'Check CancerType - # of codes <> # of Rel', COUNT(*) FROM #siteNotMatch
+ELSE
+	INSERT INTO @DataUploadReport SELECT 24, 'Rule', 'Check CancerType - # of codes <> # of Rel', 0
+
+SELECT '#siteNotMatch', * FROM #siteNotMatch
+
 -------------------------------------------------------------------
 -- Check AwardType Codes - TBD
 -------------------------------------------------------------------
@@ -1827,9 +2014,9 @@ ELSE
 SELECT IsAnnualized INTO #annu from UploadWorkBook where ISNULL(IsAnnualized,'') NOT IN ('Y','N')
 
 IF EXISTS (select * FROM #annu)
-	INSERT INTO @DataUploadReport SELECT 9, 'Rule', 'Check Annulized Value', COUNT(*) FROM #annu
+	INSERT INTO @DataUploadReport SELECT 31, 'Rule', 'Check Annulized Value', COUNT(*) FROM #annu
 ELSE
-	INSERT INTO @DataUploadReport SELECT 9, 'Rule', 'Check Annulized Value', 0
+	INSERT INTO @DataUploadReport SELECT 31, 'Rule', 'Check Annulized Value', 0
 
 -------------------------------------------------------------------
 -- Check FundingOrg
@@ -1838,9 +2025,9 @@ SELECT DISTINCT FundingOrgAbbr INTO #org from UploadWorkBook
 where FundingOrgAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingOrg)
 
 IF EXISTS (SELECT * FROM #org)
-	INSERT INTO @DataUploadReport SELECT 10, 'Rule', 'Check FundingOrg Existance', COUNT(*) FROM #org
+	INSERT INTO @DataUploadReport SELECT 32, 'Rule', 'Check FundingOrg Existance', COUNT(*) FROM #org
 ELSE
-	INSERT INTO @DataUploadReport SELECT 10, 'Rule', 'Check FundingOrg Existance', 0
+	INSERT INTO @DataUploadReport SELECT 32, 'Rule', 'Check FundingOrg Existance', 0
 
 -------------------------------------------------------------------
 -- Check FundinOrggDiv
@@ -1849,9 +2036,9 @@ SELECT DISTINCT FundingDivAbbr INTO #orgDiv from UploadWorkBook
 	WHERE (ISNULL(FundingDivAbbr, '')) != '' AND (FundingDivAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingDivision))
 	
 IF EXISTS (SELECT * FROM #orgDiv)
-	INSERT INTO @DataUploadReport SELECT 11, 'Rule', 'Check FundingOrgDiv Existance', COUNT(*) FROM #org
+	INSERT INTO @DataUploadReport SELECT 33, 'Rule', 'Check FundingOrgDiv Existance', COUNT(*) FROM #org
 ELSE
-	INSERT INTO @DataUploadReport SELECT 11, 'Rule', 'Check FundingOrgDiv Existance', 0
+	INSERT INTO @DataUploadReport SELECT 33, 'Rule', 'Check FundingOrgDiv Existance', 0
 
 	
 -------------------------------------------------------------------
@@ -1863,16 +2050,29 @@ SELECT DISTINCT u.InstitutionICRP, u.SubmittedInstitution, u.City INTO #missingI
 WHERE (i.InstitutionID IS NULL) AND (m.InstitutionMappingID IS NULL)
 
 IF EXISTS (select * FROM #missingInst)
-	INSERT INTO @DataUploadReport SELECT 12, 'Rule', 'Check not-mapped Institution', COUNT(*) FROM #missingInst
+	INSERT INTO @DataUploadReport SELECT 34, 'Rule', 'Check not-mapped Institution', COUNT(*) FROM #missingInst
 ELSE
-	INSERT INTO @DataUploadReport SELECT 12, 'Rule', 'Check not-mapped Institution', 0
+	INSERT INTO @DataUploadReport SELECT 34, 'Rule', 'Check not-mapped Institution', 0
 
 -------------------------------------------------------------------
 -- Return Data IntegrityCheck Report
 -------------------------------------------------------------------
 SELECT * FROM @DataUploadReport
 
+-----------------------------------------------------------------
+-- Drop temp table
+-----------------------------------------------------------------
+IF object_id('tmp_pcso') is NOT null
+	drop table tmp_pcso
+IF object_id('tmp_pcsoRel') is NOT null
+	drop table tmp_pcsoRel
+IF object_id('tmp_psite') is NOT null
+	drop table tmp_psite
+IF object_id('tmp_psiterel') is NOT null
+	drop table tmp_psiterel
+
 GO
+
 
 
 ----------------------------------------------------------------------------------------------------------
@@ -1883,7 +2083,8 @@ DROP PROCEDURE [dbo].[DataUpload_IntegrityCheckDetails]
 GO 
 
 CREATE PROCEDURE [dbo].[DataUpload_IntegrityCheckDetails] 
-@RuleId INT
+ @PartnerCode VARCHAR (25),
+ @RuleId INT
   
 AS
 
@@ -1904,17 +2105,18 @@ AS
 -- 12	Rule	Check not-mapped Institution
 --
 /***********************************************************************************************/
-
-SELECT Distinct AwardCode INTO #a FROM UploadWorkBook
-
 --Checking Parent projects ...
 SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'  -- CA
 
-SELECT * INTO #awardCodes FROM (
-	SELECT 'Existing' AS Type, a.AwardCode FROM #a a JOIN Project p ON a.AwardCode = p.AwardCode
-	UNION
-	SELECT 'New' AS Type, a.AwardCode FROM #a a LEFT JOIN Project p ON a.AwardCode = p.AwardCode WHERE p.AwardCode IS NULL
-) a
+-- Get all AwardCodes
+SELECT Distinct 'New' AS Type, AwardCode INTO #awardCodes FROM UploadWorkBook
+
+UPDATE #awardCodes SET Type='Existing' 
+FROM #awardCodes a 
+JOIN (SELECT p.* FROM Project p 
+		JOIN ProjectFunding f ON p.ProjectID = f.ProjectID 
+		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID 
+	  WHERE o.SponsorCode = @PartnerCode) pp ON a.AwardCode = pp.AwardCode
 
 ------------------------------------------------------------------
 -- Check if AltAwardCodes not unique (check both workbook and existing ProjectFunding)
@@ -1986,7 +2188,7 @@ BEGIN
 END
 
 -------------------------------------------------------------------
--- Check CSO Codes
+-- Check Missing CSO Codes 
 -------------------------------------------------------------------
 IF @RuleId = 6
 BEGIN
@@ -1995,7 +2197,57 @@ BEGIN
 	SELECT u.AwardCode, u.AltID AS AltAwardCode, u.BudgetStartDate, u.BudgetEndDate, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel  
 	FROM #cso c JOIN UploadWorkbook u ON c.AltID = u.AltID
 END 
-		
+	
+	
+-------------------------------------------------------------------
+-- Check Invalid CSO Codes
+-------------------------------------------------------------------
+SELECT f.projectID, f.ProjectFundingID, f.AltAwardCode, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel, AwardType INTO #list
+FROM UploadWorkBook u
+JOIN ProjectFunding f ON u.AltId = f.AltAwardCode
+
+DECLARE @pcso TABLE
+(
+	Seq INT NOT NULL IDENTITY (1,1),
+	ProjectFundingID INT,
+	CSO VARCHAR(50)	
+)
+
+DECLARE @pcsorel TABLE
+(
+	Seq INT NOT NULL IDENTITY (1,1),
+	ProjectFundingID INT,	
+	Rel VARCHAR(50)
+)
+
+DECLARE @projectFundingID as INT
+DECLARE @csoList as NVARCHAR(50)
+DECLARE @csoRelList as NVARCHAR(50)
+ 
+DECLARE @csocursor as CURSOR;
+
+SET @csocursor = CURSOR FOR
+SELECT ProjectFundingID, CSOCodes , CSORel FROM #list;
+ 
+OPEN @csocursor;
+FETCH NEXT FROM @csocursor INTO @projectFundingID, @csoList, @csoRelList;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN 
+ INSERT INTO @pcso SELECT @projectFundingID, value FROM  dbo.ToStrTable(@csoList)
+ INSERT INTO @pcsorel SELECT @projectFundingID, value FROM  dbo.ToStrTable(@csoRelList) 
+ FETCH NEXT FROM @csocursor INTO @projectFundingID, @csolist, @csoRelList;
+END
+ 
+CLOSE @csocursor;
+DEALLOCATE @csocursor;
+
+SELECT * INTO #missingCSO FROM @pcso c 
+JOIN @pcsorel r ON c.ProjectFundingID = r.ProjectFundingID AND c.Seq = r.Seq
+LEFT JOIN CSO cso ON c.cso = cso.Code
+WHERE cso.Code IS NULL
+
+	
 -------------------------------------------------------------------
 -- Check Historical CSO Codes
 -------------------------------------------------------------------
@@ -2111,10 +2363,9 @@ AS
 --declare @DataUploadStatusID INT
 
 
-BEGIN TRY
+BEGIN TRANSACTION;
 
-BEGIN TRANSACTION
-     
+BEGIN TRY     
 
 -------------------------------------------------------------------------------------------
 -- Replace open/closing double quotes
@@ -2156,20 +2407,29 @@ BEGIN
 END
 
 /***********************************************************************************************/
---  New AwardCodes 
+--  New AwardCodes for imported partner
 /***********************************************************************************************/
-SELECT AwardCode, MIN(Childhood) AS Childhood, MIN(AwardStartDate) AS AwardStartDate, MIN(AwardEndDate) AS AwardEndDate, MIN(AwardType) AS AwardType INTO #parentProjects FROM (
-	SELECT u.AwardCode, u.Childhood, u.AwardStartDate, u.AwardEndDate, u.AwardType  from UploadWorkBook u
-	LEFT JOIN Project p ON u.AwardCode = p.AwardCode WHERE p.AwardCode IS NULL) a 
-GROUP BY AwardCode
+SELECT Distinct CAST('New' AS VARCHAR(25)) AS Type, CAST(NULL AS INT) AS ProjectID, CAST(NULL AS INT) AS FundingOrgID, AwardCode INTO #awardCodes FROM UploadWorkBook
+
+UPDATE #awardCodes SET Type='Existing', ProjectID=pp.ProjectID, FundingOrgID = pp.FundingOrgID
+FROM #awardCodes a 
+JOIN (SELECT o.FundingOrgID, p.* FROM Project p 
+		JOIN ProjectFunding f ON p.ProjectID = f.ProjectID 
+		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID 
+	  WHERE o.SponsorCode = @PartnerCode) pp ON a.AwardCode = pp.AwardCode	
+
+SELECT u.AwardCode, MIN(u.Childhood) AS Childhood, MIN(u.AwardStartDate) AS AwardStartDate, MIN(u.AwardEndDate) AS AwardEndDate, MIN(u.AwardType) AS AwardType INTO #newParentProjects 
+from UploadWorkBook u
+JOIN (SELECT * FROM #awardCodes WHERE Type='New') n ON u.AwardCode = n.AwardCode
+GROUP BY u.AwardCode
 
 -----------------------------------
 -- Import base Projects
 -----------------------------------
-INSERT INTO Project (IsChildhood, AwardCode, ProjectStartDate, ProjectEndDate, CreatedDate, UpdatedDate)
+INSERT INTO Project (IsChildhood, AwardCode, ProjectStartDate, ProjectEndDate, DataUploadStatusID, CreatedDate, UpdatedDate)
 SELECT CASE ISNULL(Childhood, '') WHEN 'y' THEN 1 ELSE 0 END, 
-		AwardCode, AwardStartDate, AwardEndDate, getdate(), getdate()
-FROM #parentProjects
+		AwardCode, AwardStartDate, AwardEndDate, @DataUploadStatusID, getdate(), getdate()
+FROM #newParentProjects
 
 -----------------------------------
 -- Import Project Abstract
@@ -2187,38 +2447,36 @@ CREATE TABLE UploadAbstractTemp (
 
 DBCC CHECKIDENT ('[UploadAbstractTemp]', RESEED, @seed)
 
-INSERT INTO #UploadAbstract (AwardCode, Altid, TechAbstract, PublicAbstract) SELECT DISTINCT AwardCode, Altid, TechAbstract, PublicAbstract FROM UploadWorkBook 
+INSERT INTO UploadAbstractTemp (AwardCode, Altid, TechAbstract, PublicAbstract) SELECT DISTINCT AwardCode, Altid, TechAbstract, PublicAbstract FROM UploadWorkBook 
 
-UPDATE #UploadAbstract SET PublicAbstract = NULL where PublicAbstract = '0' OR PublicAbstract = ''
-UPDATE #UploadAbstract SET TechAbstract = '' where TechAbstract = '0' OR TechAbstract IS NULL
+UPDATE UploadAbstractTemp SET PublicAbstract = NULL where PublicAbstract = '0' OR PublicAbstract = ''
+UPDATE UploadAbstractTemp SET TechAbstract = '' where TechAbstract = '0' OR TechAbstract IS NULL
 
 SET IDENTITY_INSERT ProjectAbstract ON;  -- SET IDENTITY_INSERT to ON. 
 
 INSERT INTO ProjectAbstract (ProjectAbstractID, TechAbstract, PublicAbstract) 
-SELECT ID, TechAbstract, PublicAbstract FROM #UploadAbstract  WHERE AwardCode IS NOT NULL
+SELECT ID, TechAbstract, PublicAbstract FROM UploadAbstractTemp  WHERE AwardCode IS NOT NULL
 
 SET IDENTITY_INSERT ProjectAbstract OFF;  -- SET IDENTITY_INSERT to OFF. 
 
 -----------------------------------
--- Import ProjectFunding
+-- Import ProjectFunding 
 -----------------------------------
-INSERT INTO ProjectFunding
-SELECT u.AwardTitle, p.ProjectID, o.FundingOrgID, d.FundingDivisionID, a.ID, @DataUploadStatusID,    --ProjectAbtractID
+INSERT INTO ProjectFunding ([Title],[ProjectID],[FundingOrgID],	[FundingDivisionID], [ProjectAbstractID], [DataUploadStatusID],	[Category], [AltAwardCode], [Source_ID], [MechanismCode], 
+	[MechanismTitle], [FundingContact], [IsAnnualized], [Amount], [BudgetStartDate], [BudgetEndDate], [CreatedDate], [UpdatedDate])
+SELECT u.AwardTitle, p.ProjectID, o.FundingOrgID, d.FundingDivisionID, a.ID, @DataUploadStatusID,
 	u.Category, u.AltId, u.SourceId, u.FundingMechanismCode, u.FundingMechanism, u.FundingContact, 
-	CASE ISNULL(u.IsAnnualized, '') WHEN 'A' THEN 1 ELSE 0 END, 
+	CASE ISNULL(u.IsAnnualized, '') WHEN 'A' THEN 1 ELSE 0 END AS IsAnnualized, 
 	u.AwardFunding, 
 	u.BudgetStartDate, u.BudgetEndDate, getdate(), getdate()
 FROM UploadWorkBook u
-JOIN #UploadAbstract a ON u.AwardCode = a.AwardCode AND u.AltId = a.Altid
-JOIN Project p ON u.AwardCode = p.awardCode
+JOIN UploadAbstractTemp a ON u.AwardCode = a.AwardCode AND u.AltId = a.Altid
+JOIN (select distinct p.ProjectID, p.AWardCode from project p  --75035
+	left join projectfunding f on p.projectid = f.projectid
+	left join fundingorg o on o.FundingOrgID = f.fundingorgid
+	where (o.sponsorcode IS NULL) OR (o.Sponsorcode = @PartnerCode)) p ON u.AwardCode = p.awardCode
 JOIN FundingOrg o ON u.FundingOrgAbbr = o.Abbreviation
 LEFT JOIN FundingDivision d ON u.FundingDivAbbr = d.Abbreviation
-
--- Correct ProjectBatract mapping if no TechAbstract
---UPDATE ProjectFunding SET ProjectAbstractID=0
---WHERE ProjectAbstractID IN (select ProjectAbstractID from ProjectAbstract where TechAbstract = '' AND PublicAbstract IS NULL) --or TechAbstract='No abstract available for this Project funding.'
-
---DELETE ProjectAbstract where TechAbstract = ''
 
 -----------------------------------
 -- Import ProjectFundingInvestigator
@@ -2231,10 +2489,156 @@ FROM UploadWorkBook u
 	           FROM Institution i LEFT JOIN InstitutionMapping m ON i.name = m.newName AND i.City = m.newCity) inst 
      ON (u.InstitutionICRP = inst.Name AND u.City = inst.City) OR (u.InstitutionICRP = inst.OldName AND u.City = inst.oldCity)
 
-	 --select * from #t
---	 Violation of PRIMARY KEY constraint 'PK_ProjectFundingInvestigator'. Cannot insert duplicate key in object 'dbo.ProjectFundingInvestigator'. 
---The duplicate key value is (141652, 3525).
---The statement has been terminated.
+-----------------------------------
+-- Import ProjectCSO
+-----------------------------------
+SELECT f.projectID, f.ProjectFundingID, f.AltAwardCode, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel, AwardType INTO #list
+FROM UploadWorkBook u
+JOIN ProjectFunding f ON u.AltId = f.AltAwardCode
+
+CREATE TABLE tmp_pcso
+(
+	Seq INT NOT NULL IDENTITY (1,1),
+	ProjectFundingID INT,
+	CSO VARCHAR(50)	
+)
+
+CREATE TABLE tmp_pcsorel 
+(
+	Seq INT NOT NULL IDENTITY (1,1),
+	ProjectFundingID INT,	
+	Rel VARCHAR(50)
+)
+
+DECLARE @projectFundingID as INT
+DECLARE @csoList as NVARCHAR(50)
+DECLARE @csoRelList as NVARCHAR(50)
+ 
+DECLARE @csocursor as CURSOR;
+
+SET @csocursor = CURSOR FOR
+SELECT ProjectFundingID, CSOCodes , CSORel FROM #list;
+ 
+OPEN @csocursor;
+FETCH NEXT FROM @csocursor INTO @projectFundingID, @csoList, @csoRelList;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+
+ INSERT INTO tmp_pcso SELECT @projectFundingID, value FROM  dbo.ToStrTable(@csoList)
+ INSERT INTO tmp_pcsorel SELECT @projectFundingID, value FROM  dbo.ToStrTable(@csoRelList) 
+
+ DBCC CHECKIDENT ('tmp_pcso', RESEED, 0)
+ DBCC CHECKIDENT ('tmp_pcsorel', RESEED, 0)
+
+ FETCH NEXT FROM @csocursor INTO @projectFundingID, @csolist, @csoRelList;
+END
+ 
+CLOSE @csocursor;
+DEALLOCATE @csocursor;
+
+UPDATE tmp_pcso SET cso = LTRIM(RTRIM(cso))
+UPDATE tmp_pcsorel SET Rel = LTRIM(RTRIM(Rel))
+
+INSERT INTO ProjectCSO SELECT c.ProjectFundingID, c.CSO, r.Rel, 'S', getdate(), getdate()
+FROM tmp_pcso c 
+	JOIN tmp_pcsorel r ON c.ProjectFundingID = r.ProjectFundingID AND c.Seq = r.Seq
+
+-----------------------------------
+-- Import ProjectCancerType
+-----------------------------------
+CREATE TABLE tmp_psite
+(
+	Seq INT NOT NULL IDENTITY (1,1),
+	ProjectFundingID INT,
+	Code VARCHAR(50)	
+)
+
+CREATE TABLE tmp_psiterel
+(
+	Seq INT NOT NULL IDENTITY (1,1),
+	ProjectFundingID INT,	
+	Rel VARCHAR(50)
+)
+
+DECLARE @siteList as NVARCHAR(100)
+DECLARE @siteRelList as NVARCHAR(100)
+ 
+DECLARE @ctcursor as CURSOR;
+
+SET @ctcursor = CURSOR FOR
+SELECT ProjectFundingID, SiteCodes , SiteRel FROM #list;
+ 
+OPEN @ctcursor;
+FETCH NEXT FROM @ctcursor INTO @projectFundingID, @siteList, @siteRelList;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+ 
+ INSERT INTO tmp_psite SELECT @projectFundingID, value FROM  dbo.ToStrTable(@siteList)
+ INSERT INTO tmp_psiterel SELECT @projectFundingID, value FROM  dbo.ToStrTable(@siteRelList) 
+ 
+ DBCC CHECKIDENT ('tmp_psite', RESEED, 0)
+ DBCC CHECKIDENT ('tmp_psiterel', RESEED, 0)
+
+ FETCH NEXT FROM @ctcursor INTO @projectFundingID, @siteList, @siteRelList;
+END
+ 
+CLOSE @ctcursor;
+DEALLOCATE @ctcursor;
+
+UPDATE tmp_psite SET code = LTRIM(RTRIM(code))
+UPDATE tmp_psiterel SET Rel = LTRIM(RTRIM(Rel))
+
+INSERT INTO ProjectCancerType (ProjectFundingID, CancerTypeID, Relevance, RelSource, EnterBy)
+SELECT c.ProjectFundingID, ct.CancerTypeID, r.Rel, 'S', 'S'
+FROM tmp_psite c 
+	JOIN tmp_psiterel r ON c.ProjectFundingID = r.ProjectFundingID AND c.Seq = r.Seq
+	JOIN CancerType ct ON c.code = ct.ICRPCode
+
+-----------------------------------
+-- Import Project_ProjectTye (only the new AwardCode)
+-----------------------------------
+SELECT p.ProjectID, p.AwardCode, b.AwardType INTO #plist FROM #newParentProjects b
+JOIN (SELECT * FROM Project WHERE DataUploadStatusID = @DataUploadStatusID) p ON p.AwardCode = b.AwardCode
+
+	
+DECLARE @ptype TABLE
+(	
+	ProjectID INT,	
+	ProjectType VARCHAR(15)
+)
+
+DECLARE @projectID as INT
+DECLARE @typeList as NVARCHAR(50)
+ 
+DECLARE @ptcursor as CURSOR;
+
+SET @ptcursor = CURSOR FOR
+SELECT ProjectID, AwardType FROM (SELECT DISTINCT ProjectID, AWardType FROM #plist) p;
+ 
+OPEN @ptcursor;
+FETCH NEXT FROM @ptcursor INTO @projectID, @typeList;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+ INSERT INTO @ptype SELECT @projectID, value FROM  dbo.ToStrTable(@typeList) 
+ FETCH NEXT FROM @ptcursor INTO @projectID, @typeList;
+END
+ 
+CLOSE @ptcursor;
+DEALLOCATE @ptcursor;
+
+INSERT INTO Project_ProjectType (ProjectID, ProjectType)
+SELECT ProjectID,
+		CASE ProjectType
+		  WHEN 'C' THEN 'Clinical Trial'
+		  WHEN 'R' THEN 'Research'
+		  WHEN 'T' THEN 'Training'
+		END
+FROM @ptype	
+
+
 ----------------------------------------------------
 -- Post Import Checking
 ----------------------------------------------------
@@ -2287,139 +2691,6 @@ FROM UploadWorkBook u
 --ELSE
 --	PRINT 'Pre-Checking Missing PIs ==> Pass'
 
------------------------------------
--- Import ProjectCSO
------------------------------------
-SELECT f.projectID, f.ProjectFundingID, f.AltAwardCode, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel, AwardType INTO #list
-FROM UploadWorkBook u
-JOIN ProjectFunding f ON u.AltId = f.AltAwardCode
-
-DECLARE @pcso TABLE
-(
-	Seq INT NOT NULL IDENTITY (1,1),
-	ProjectFundingID INT,
-	CSO VARCHAR(50)	
-)
-
-DECLARE @pcsorel TABLE
-(
-	Seq INT NOT NULL IDENTITY (1,1),
-	ProjectFundingID INT,	
-	Rel VARCHAR(50)
-)
-
-DECLARE @projectFundingID as INT
-DECLARE @csoList as NVARCHAR(50)
-DECLARE @csoRelList as NVARCHAR(50)
- 
-DECLARE @csocursor as CURSOR;
-
-SET @csocursor = CURSOR FOR
-SELECT ProjectFundingID, CSOCodes , CSORel FROM #list;
- 
-OPEN @csocursor;
-FETCH NEXT FROM @csocursor INTO @projectFundingID, @csoList, @csoRelList;
-
-WHILE @@FETCH_STATUS = 0
-BEGIN
- INSERT INTO @pcso SELECT @projectFundingID, value FROM  dbo.ToStrTable(@csoList)
- INSERT INTO @pcsorel SELECT @projectFundingID, value FROM  dbo.ToStrTable(@csoRelList) 
- FETCH NEXT FROM @csocursor INTO @projectFundingID, @csolist, @csoRelList;
-END
- 
-CLOSE @csocursor;
-DEALLOCATE @csocursor;
-
-INSERT INTO ProjectCSO SELECT c.ProjectFundingID, c.CSO, r.Rel, 'S', getdate(), getdate()
-FROM @pcso c 
-JOIN @pcsorel r ON c.ProjectFundingID = r.ProjectFundingID AND c.Seq = r.Seq
-
------------------------------------
--- Import ProjectCancerType
------------------------------------
-DECLARE @psite TABLE
-(
-	Seq INT NOT NULL IDENTITY (1,1),
-	ProjectFundingID INT,
-	Code VARCHAR(50)	
-)
-
-DECLARE @psiterel TABLE
-(
-	Seq INT NOT NULL IDENTITY (1,1),
-	ProjectFundingID INT,	
-	Rel VARCHAR(50)
-)
-
-DECLARE @siteList as NVARCHAR(50)
-DECLARE @siteRelList as NVARCHAR(50)
- 
-DECLARE @ctcursor as CURSOR;
-
-SET @ctcursor = CURSOR FOR
-SELECT ProjectFundingID, SiteCodes , SiteRel FROM #list;
- 
-OPEN @ctcursor;
-FETCH NEXT FROM @ctcursor INTO @projectFundingID, @siteList, @siteRelList;
-
-WHILE @@FETCH_STATUS = 0
-BEGIN
- INSERT INTO @psite SELECT @projectFundingID, value FROM  dbo.ToStrTable(@siteList)
- INSERT INTO @psiterel SELECT @projectFundingID, value FROM  dbo.ToStrTable(@siteRelList) 
- FETCH NEXT FROM @ctcursor INTO @projectFundingID, @siteList, @siteRelList;
-END
- 
-CLOSE @ctcursor;
-DEALLOCATE @ctcursor;
-
-INSERT INTO ProjectCancerType (ProjectFundingID, CancerTypeID, Relevance, RelSource, EnterBy)
-SELECT c.ProjectFundingID, ct.CancerTypeID, r.Rel, 'S', 'S'
-FROM @psite c 
-JOIN CancerType ct ON c.code = ct.ICRPCode
-JOIN @psiterel r ON c.ProjectFundingID = r.ProjectFundingID AND c.Seq = r.Seq
-
-
------------------------------------
--- Import Project_ProjectTye (only the new AwardCode)
------------------------------------
-SELECT p.ProjectID, p.AwardCode, b.AwardType INTO #plist FROM #parentProjects b
-JOIN Project p ON p.AwardCode = b.AwardCode
-
-	
-DECLARE @ptype TABLE
-(	
-	ProjectID INT,	
-	ProjectType VARCHAR(15)
-)
-
-DECLARE @projectID as INT
-DECLARE @typeList as NVARCHAR(50)
- 
-DECLARE @ptcursor as CURSOR;
-
-SET @ptcursor = CURSOR FOR
-SELECT ProjectID, AwardType FROM (SELECT DISTINCT ProjectID, AWardType FROM #plist) p;
- 
-OPEN @ptcursor;
-FETCH NEXT FROM @ptcursor INTO @projectID, @typeList;
-
-WHILE @@FETCH_STATUS = 0
-BEGIN
- INSERT INTO @ptype SELECT @projectID, value FROM  dbo.ToStrTable(@typeList) 
- FETCH NEXT FROM @ptcursor INTO @projectID, @typeList;
-END
- 
-CLOSE @ptcursor;
-DEALLOCATE @ptcursor;
-
-INSERT INTO Project_ProjectType (ProjectID, ProjectType)
-SELECT ProjectID,
-		CASE ProjectType
-		  WHEN 'C' THEN 'Clinical Trial'
-		  WHEN 'R' THEN 'Research'
-		  WHEN 'T' THEN 'Training'
-		END
-FROM @ptype	
 
 
 -----------------------------------
@@ -2455,8 +2726,7 @@ SET @DataUploadLogID = IDENT_CURRENT( 'DataUploadLog' )
 DECLARE @Count INT
 
 -- Insert Project Count
-SELECT @Count= COUNT(*) FROM #parentProjects
-
+SELECT @Count=COUNT(*) FROM Project WHERE dataUploadStatusID = @DataUploadStatusID
 UPDATE DataUploadLog SET ProjectCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
 -- Insert ProjectAbstractCount
@@ -2515,19 +2785,39 @@ SELECT @icrp_data_DataUploadStatusID = MAX(DataUploadStatusID) FROM icrp_data.db
 INSERT INTO icrp_data.dbo.DataUploadLog ([DataUploadStatusID], [ProjectCount], [ProjectFundingCount], [ProjectFundingInvestigatorCount], [ProjectCSOCount], [ProjectCancerTypeCount], [Project_ProjectTypeCount], [ProjectAbstractCount], [ProjectSearchCount], [CreatedDate]) 
 select @icrp_data_DataUploadStatusID,[ProjectCount], [ProjectFundingCount], [ProjectFundingInvestigatorCount], [ProjectCSOCount], [ProjectCancerTypeCount], [Project_ProjectTypeCount], [ProjectAbstractCount], [ProjectSearchCount], [CreatedDate] from DataUploadLog where DataUploadStatusID=@DataUploadStatusID
 
+-----------------------------------------------------------------
 -- Drop temp table
+-----------------------------------------------------------------
 IF object_id('UploadAbstractTemp') is NOT null
 	drop table UploadAbstractTemp
+IF object_id('tmp_pcso') is NOT null
+	drop table tmp_pcso
+IF object_id('tmp_pcsoRel') is NOT null
+	drop table tmp_pcsoRel
+IF object_id('tmp_psite') is NOT null
+	drop table tmp_psite
+IF object_id('tmp_psiterel') is NOT null
+	drop table tmp_psiterel
+
+-- Update FundingOrg Import Date/Desc
+IF @IsProd = 1
+BEGIN
+	UPDATE FundingOrg SET LastImportDate=getdate(), LastImportDesc = @ImportNotes FROM 
+	(select distinct FundingOrgAbbr from UploadWorkBook) fo
+	JOIN FundingOrg o ON fo.FundingOrgAbbr = o.Abbreviation
+END 
 
 COMMIT TRANSACTION
 
 END TRY
+
 BEGIN CATCH
-      IF @@trancount > 0 ROLLBACK TRANSACTION
---      DECLARE @msg nvarchar(2048) = error_message()  
-      --RAISERROR (@msg, 16, 1)
+      IF @@trancount > 0 
+		ROLLBACK TRANSACTION
       
+	  DECLARE @msg nvarchar(2048) = error_message()  
+      RAISERROR (@msg, 16, 1)
+	        
 END CATCH  
 
 GO
-

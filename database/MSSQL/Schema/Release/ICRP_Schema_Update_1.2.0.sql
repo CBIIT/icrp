@@ -49,6 +49,12 @@ IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[S
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[Country]') AND name = 'Currency')
 	ALTER TABLE [Country] ADD [Currency] [varchar](3) NULL
 
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[FundingOrg]') AND name = 'MapCoords')
+	ALTER TABLE [FundingOrg] ADD [MapCoords] [varchar](50) NULL
+	
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[Project]') AND name = 'DataUploadStatusID')
+	ALTER TABLE [Project] ADD [DataUploadStatusID] INT NULL
+
 
 /*************************************************/
 /******					Data				******/

@@ -13,6 +13,13 @@ use Drupal\Core\Template;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\Core\GeneratedLink;
 
+use Drupal\user\Entity\User;
+use Drupal\Core\Form\FormState;
+use Drupal\Core\Url;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+
 /*
  * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
  * @25:58 minutes
@@ -48,17 +55,72 @@ use Drupal\Core\GeneratedLink;
  *     - 4: Posts with the least comments first.
  *   - forum_per_page: The maximum number of topics to display per page.
  */
-/*
-function icrp_views_data() {
-  drupal_set_message("icrp_views_data");
+function icrp_preprocess_pager(&$variables) {
 }
-*/
 
+function icrp_preprocess_forum_submitted(&$variables) {
+  //drupal_set_message("icrp_preprocess_forum_submitted");
+  //dpm($variables);
+  $variables['author'] = '';
+  if (isset($variables['topic']->uid)) {
+    $username = array('#theme' => 'username', '#account' => User::load($variables['topic']->uid));
+    $variables['author'] = drupal_render($username);
+    //$elements['#type'] = 'markup';
+    //$elements['#markup'] = 'My Mark Up';
+    //$variables['author'] = drupal_render($elements);
+
+  }
+  $variables['time'] = isset($variables['topic']->created) ? \Drupal::service('date.formatter')->formatTimeDiffSince($variables['topic']->created) : '';
+}
+
+/**
+ * Implements hook_query_TAG_alter() for comment_filter tag.
+ *
+ * @see CommentStorage::loadThread().
+ */
+function icrp_query_comment_filter_alter(Drupal\Core\Database\Query\AlterableInterface $query) {
+  //drupal_set_message("icrp_query_comment_filter_alter");
+  //dpm($query);
+  //dpm($query->getMetaData('field_name'));
+
+  // Change comment order to DESC for 'comment' field.
+  if ($query->getMetaData('field_name') == 'comment_forum') {
+    /** @var \Drupal\Core\Database\Query\SelectInterface $query */
+    $order_by = &$query->getOrderBy();
+    // 'c.cid' is for flat comment lists.
+    if (isset($order_by['c.cid']) && $order_by['c.cid'] == 'ASC') {
+      $order_by['c.cid'] = 'DESC';
+    }
+    // 'torder' is for threated comment lists.
+    if (isset($order_by['torder']) && $order_by['torder'] == 'ASC') {
+      $order_by['torder'] = 'DESC';
+    }
+  }
+// Change comment order to DESC for 'comment' field.
+  if ($query->getMetaData('field_name') == 'field_comments') {
+
+    $order_by = &$query->getOrderBy();
+    $expressions = &$query->getExpressions();
+    // Sorting for threaded comments.
+    if (isset($order_by['torder']) && $order_by['torder'] == 'ASC') {
+      // Get rid of the expressions that prepare the threads for ASC ordering.
+      unset($expressions['torder']);
+      unset($order_by['torder']);
+      // Simply order by the thread field.
+      $order_by['c.thread'] = 'DESC';
+    } 
+  } 
+}
 function icrp_preprocess_page(&$variables) {
-  //kint($variables['page']['content']);
+  //drupal_set_message("icrp_preprocess_page");
   //ICRP Partnership Forum
 
   //dpm($variables['page']);
+}
+
+function getOrg($target_id) {
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($target_id);
+  return $node->get('body')->value; 
 }
 
 function icrp_preprocess_comment(&$variables) {
@@ -76,7 +138,9 @@ function icrp_preprocess_comment(&$variables) {
     $tcreated_time = $comment->getCreatedTime();
     //Set Date format
     $long_date_template = 'F j, Y g:i A';
-    $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime());
+    //$created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime() , drupal_get_user_timezone());
+    //$created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime(), drupal_get_user_timezone());
+    $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime(), drupal_get_user_timezone());
 
     //dpm($created_time);
     $variables['tcreated_time'] = $created_time->format($long_date_template);
@@ -85,12 +149,11 @@ function icrp_preprocess_comment(&$variables) {
     //Set Date format
     $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($comment_uid);
 
-    $field_organization_target_id = $user->get('field_organization')->target_id;
-    $variables['torganization_target_id'] = $field_organization_target_id; 
-    $node = \Drupal::entityTypeManager()->getStorage('node')->load($field_organization_target_id);
-    $variables['torganization'] =  $node->get('body')->value; 
+    $variables['torganization_target_id'] = $user->get('field_organization')->target_id;
+    $variables['torganization'] =  getOrg($variables['torganization_target_id']); 
     //dpm($variables);
 }
+
 
 /*
 function icrp_preprocess_field(&$variables) {
@@ -107,7 +170,7 @@ function icrp_preprocess_field(&$variables) {
     $tcreated_time = $comment->getCreatedTime();
     //Set Date format
     $long_date_template = 'F j, Y g:i A';
-    $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime());
+    $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime(), drupal_get_user_timezone());
 
     //dpm($created_time);
     $variables['tcreated_time'] = $created_time->format($long_date_template);
@@ -167,11 +230,26 @@ function icrp_preprocess_form(&$variables) {
     $variables['tforum_description'] = $row->description__value;
   }
 }
-
+/*
 function icrp_views_data_alter(array &$data) { 
-  //drupal_set_message("icrp_views_data_alter");
-  //dpm($data);
+  drupal_set_message("icrp_views_data_alter");
+    $data['forum_index']['last_comment_timestamp'] = array(
+    'title' => t('Last comment time'),
+    'help' => t('Date and time of when the last comment was posted.'),
+    'field' => array(
+      'id' => 'comment_last_timestamp',
+    ),
+    'sort' => array(
+      'id' => 'date',
+    ),
+    'filter' => array(
+      'id' => 'date',
+    ),
+  );
+
+  dpm($data);
 }
+*/
 
 function last_forum_visit() {
   $long_date_template = 'F j, Y g:i A';
@@ -252,14 +330,16 @@ function getThreadNodeInfo($thread_node_id) {
   //$summary =  $node->get('summary')->value; 
   $body =  $node->get('body')->value; 
   $summary_raw =  $node->get('body')->summary; 
+  /*
   if($summary_raw == "") {
     $summary = text_summary(rtrim(strip_tags($body)), NULL, $text_summary_max_length);
   } else {
     $summary = text_summary($summary_raw, NULL,  $text_summary_max_length);
 
   }
+  */
   //return array($node->getTitle(), "<b>".$summary."</b></br>Body: ".$body."</br>Summary Raw: ".$summary_raw);
-  return array($node->getTitle(), $summary);
+  return array($node->getTitle(), $summary_raw);
 }
 function lastComment($node_id) {
   $comment = "This is the last comment for ".$node_id;
@@ -272,11 +352,50 @@ function lastComment($node_id) {
   $row = $result->fetchObject();
   $comment = "<i>No replies</i>";
   if(isset($row->comment_body_value)) {
-    $comment = strip_tags($row->comment_body_value);
+    $comment = $row->comment_body_value;
 
   }
 
-  return rtrim($comment);  
+  return $comment;  
+}
+function getName($uid, $created) {
+
+  $created_timestamp = DrupalDateTime::createFromTimestamp($created, drupal_get_user_timezone());
+   $variables['author'] = '';
+
+  if (isset($uid)) {
+    $user = User::load($uid);
+    $name = t($user->get('field_first_name')->value." ".$user->get('field_last_name')->value);
+    //$elements['#type'] = 'markup';
+    //$elements['#markup'] = 'My Mark Up';
+    //$variables['author'] = drupal_render($elements);
+
+  }
+
+  $time = isset($created) ? \Drupal::service('date.formatter')->formatTimeDiffSince($created) : '';
+ 
+  
+  //$date = $created_timestamp->format("D, F j, Y g:i A");
+  $date = $created_timestamp->format("Y-m-d h:i:s");
+
+    $html = '<div style="margin-top:10px;"><span class="submitted">By 
+  <span lang="" datatype="" property="schema:name" typeof="schema:Person" about="/user/'.$uid.'" href="/user/'.$uid.'" title="View user profile."><b>'.$name.'</b> </span>'.$time.' ago</span></div>';
+
+  return $html;
+
+}
+
+function firstThreadBody($nid) {
+  $query = "SELECT nfd.uid, nfd.created, nb.body_value FROM node_field_data nfd, node__body nb where nfd.nid = {$nid} and nfd.nid = nb.entity_id";
+  $result=db_query($query);
+  $row = $result->fetchObject();
+  $comment = "<i>No replies</i>";
+  if(isset($row->body_value)) {
+    $comment = $row->body_value;
+    $name = getName($row->uid, $row->created);
+  }
+ $html = $comment.$name;
+  return $html;  
 }
 
 function processForumData($cell, $cell_index, $row_index, &$variables, $thread_node_id) {
@@ -314,9 +433,15 @@ function processForumData($cell, $cell_index, $row_index, &$variables, $thread_n
       // Set #num_posts to cell reference so we can remove the /n
       $variables['rows'][$row_index]['cells'][$cell_index]['reply_posts']  = $variables['rows'][$row_index]['cells'][0]['content'][0]['#num_posts'] ;
       //$variables['rows'][$row_index]['cells'][$cell_index]['#reply_posts'] = $variables['rows'][$row_index]['cells']
-      $html = '<div>';
-      $html .= lastComment($thread_node_id);
-      $html .= '</div>';
+      if($variables['rows'][$row_index]['cells'][0]['content'][0]['#num_posts'] == "0") {
+        $html = '<div>';
+        $html .= firstThreadBody($thread_node_id);
+        $html .= '</div>';
+      } else {
+        $html = '<div>';
+        $html .= lastComment($thread_node_id);
+        $html .= '</div>';
+      }
       $variables['rows'][$row_index]['cells'][$cell_index]['icrp_markup'] = $html;
       break;
 
@@ -347,6 +472,10 @@ function changeHeaderTitle($header_title, $forum_id, $sort_order) {
 
 function icrp_preprocess_table(&$variables) {
 
+  // Exit if not id is not available.
+  if(!isset($variables['attributes']['id'])){
+    return;
+  }
   // Exit if not preprocess for forum-topic
   if(substr($variables['attributes']['id'], 0, 11) != 'forum-topic') {
     return;
@@ -359,7 +488,7 @@ function icrp_preprocess_table(&$variables) {
   }
   // Change Last reply to Last Reply
   $last_reply_header = $variables['header'][2]['content']->getGeneratedLink();
-  $variables['header'][2]['content']->setGeneratedLink(str_replace("Last reply", "Last Reply", $last_reply_header));
+  $variables['header'][2]['content']->setGeneratedLink(str_replace("Last reply", "Last Post", $last_reply_header));
 
   $variables['header'][0]['content']->setGeneratedLink(changeHeaderTitle("Thread", $forum_id, $sort_order));
   //Customize Rows and Cells 
@@ -413,12 +542,14 @@ function icrp_preprocess_node(&$variables) {
   if($node->getType() != "forum") {
     return;
   }
+  //drupal_set_message("icrp_preprocess_node()");
+  //drupal_set_message("Get owner uid of this thread.  If current user then allow them to edit/delete/close thread");
 
-  //dpm($variables);
+  //dpm($node);
 
   $variables['ttitle'] = $node->getTitle();
   //drupal_set_message($variables['ttitle']);
-  $created_timestamp = DrupalDateTime::createFromTimestamp($node->getCreatedTime());
+  $created_timestamp = DrupalDateTime::createFromTimestamp($node->getCreatedTime(), drupal_get_user_timezone());
   //$last_visit_timestamp->setTimezone(timezone_open(drupal_get_user_timezone()));
   $variables['tthread_created_time'] = $created_timestamp->format("D, F j, Y g:i A");
   $variables['tstatus'] = $node->get('status')->value;
@@ -430,6 +561,8 @@ function icrp_preprocess_node(&$variables) {
     //drupal_set_message("We got a node");
     //dpm($node);
     $variables['tbody'] =  $tnode->get('body')->value; 
+    $variables['tsummary'] =  $tnode->get('body')->summary; 
+
     //drupal_set_message($variables['tbody']);
     $variables['tcomment_forum']['comment_count'] =  $tnode->get('comment_forum')->comment_count; 
     $variables['tcomment_forum']['status'] =  $tnode->get('comment_forum')->status; 
@@ -443,8 +576,24 @@ function icrp_preprocess_node(&$variables) {
         $variables['tforum_name'] =  "unknown"; 
       }
     }
+    //See if current user owns this tread
+
+    $owner = $node->getOwner();
+    $author_uid = $owner->id();
+
+    $current_uid = \Drupal::currentUser()->id();
+    if($author_uid == $current_uid) {
+      $variables['tthread_author'] = true;
+    } else {
+      $variables['tthread_author'] = false;
+    }
+    //Get Author name and Organization 
+    $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($author_uid);
+    $variables['tthread_author_name'] =  $user->get('field_first_name')->value." ".$user->get('field_last_name')->value;
+    $target_id = $user->get('field_organization')->target_id;
+    $variables['tthread_author_org'] = getOrg($target_id);
+
   }
-  //dpm($variables);
 }
 
 function icrp_preprocess_forums__topics(&$variables) {
@@ -725,6 +874,8 @@ function icrp_views_pre_render($view) {
 }
 
 function icrp_views_query_alter($view, $query) {
+    //drupal_set_message('icrp_views_query_alter');
+    //dpm($view);
 
     if($view->id() == 'partner_application_administration_tool_old'){
         $definition = array(
@@ -809,13 +960,34 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             //\Drupal\icrp\Importer\OrganizationRestClient::populateOrganizations();
             OrganizationRestClient::populateOrganizations();
             break;
+        case 'node_forum_edit_form':
+            $uid = \Drupal::currentUser()->id();
+            $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+            if(!($user->hasRole('manager') || $user->hasRole('administrator'))) {
+              unset($form['actions']['delete']);
+            }
+            break;
+        case 'node_forum_form':
+            $form['actions']['submit']['#value'] = t('Add New Thread');
+            //dpm($form);
+            break;
+        case 'node_forum_delete_form':
+            //unset($form['actions']['cancel']);
+            break;
+        case 'views_form_content_page_1':
+            //$url = Url::createFromPath('node/1');
+            //return new RedirectResponse($url->toString());
+            //Or try this:
+            //drupal_set_message("Go to node/614");
+            //return new RedirectResponse('node/614');
+            //return new RedirectResponse(\Drupal::url('<front>', [], ['absolute' => TRUE]));
+        
+            break;
         case 'comment_comment_forum_form':
             //$form['sticky']['#access'] = true;
             //dpm($form);
             $form['actions']['submit']['#value'] = t('Post Reply');
             break;
-        case 'node_forum_form':
-            $form['actions']['submit']['#value'] = t('Add New Thread');
         case 'user_login_form':
             //$form['link'] = array('#markup' => t("<div style=padding:20px;'><a href='/user/password'>Forgot Password?</a></div>"));
             break;

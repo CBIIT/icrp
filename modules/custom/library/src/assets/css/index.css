@@ -99,6 +99,7 @@
   margin: 0px 1em 1em;
 }
 #library-tree {
+  background: #f9f9ed;
   overflow: auto;
   width: 100%;
 }
@@ -148,9 +149,9 @@
   z-index: -1;
 }
 #library-tree .jstree-node > span {
-    background: #ede3c9;
+    background: #008cba;
     border-radius: 1.5em;
-    color: #000;
+    color: #FFF;
     display: block;
     float: right;
     font-size: .7em;
@@ -264,8 +265,10 @@
 #library-display .frame:not(.preview) .item {
   display: table-row;
 }
-#library-display .frame:not(.preview) .item div:first-child {
+#library-display .frame:not(.preview) .item > div {
   display: table-cell;
+}
+#library-display .frame:not(.preview) .item div:first-child {
   background: url('file.png') no-repeat center/contain;
   height: 1.1em;
   vertical-align: top;
@@ -274,22 +277,22 @@
 #library-display .frame:not(.preview) .public-doc .item div:first-child {
   background: url('file-public.png') no-repeat center/contain;
 }
-#library-display .frame:not(.preview) .item div:nth-child(2) {
-  display: table-cell;
-  height: 1.6em;
+#library-display .frame:not(.preview) .item > div:nth-child(2) {
   line-height: 1.6em;
   padding: 0px 10px;
   vertical-align: top;
-  width: 45.5em;
+}
+#library-display .frame:not(.preview) .item > div:nth-child(3) {
+  width: 12em;
 }
 #library.admin #library-display .frame:not(.preview) .item button.admin {
   border: 0px;
   background: transparent;
-  display: table-cell;
-  height: 1.6em;
+  display: inline;
   margin: 0px;
   padding: 0px 5px;
   vertical-align: top;
+  width: 6em;
 }
 #library-display .frame:not(.preview) .item button a:before {
   content: '\00a0';
@@ -389,6 +392,9 @@
     float: left;
     height: 58.5em;
     margin: 0px 1em 0px 0px;
+    width: 21em;
+  }
+  #library:not(.public) #library-search {
     width: 32em;
   }
   #library-tree {
