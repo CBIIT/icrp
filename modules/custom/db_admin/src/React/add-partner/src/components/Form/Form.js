@@ -64,12 +64,11 @@ export default class Form extends React.Component {
       let partner = fields.partners[0];
 
       let country = fields.countries
-        .find(e => e.label === partner.country)
-        .value;
+        .find(e => e.label.toLowerCase() === partner.country.toLowerCase());
 
       form.partner = partner.partner_name;
       form.joinedDate = moment(partner.joined_date);
-      form.country = country;
+      form.country = country ? country.value : '';
       form.description = partner.description;
       form.email = partner.email;
     }
