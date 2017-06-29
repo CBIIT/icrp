@@ -41,3 +41,26 @@ sites/simpletest
 # Ignore core phpcs.xml and phpunit.xml.
 core/phpcs.xml
 core/phpunit.xml
+
+/core/
+/profiles/
+/vendor/
+/profiles/
+
+/.csslintrc
+/.editorconfig
+/.eslintignore
+/.eslintrc.json
+/.gitattributes
+/.htaccess
+/LICENSE.txt
+/README.txt
+/autoload.php
+/composer.lock
+/example.gitignore
+/index.php
+/robots.txt
+/sites/README.txt
+/update.php
+/web.config
+
