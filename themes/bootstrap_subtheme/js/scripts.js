@@ -71,7 +71,7 @@
     }, 0);
   }
   
-  if ($('[data-count']).length) {
+  if ($('[data-count]').length) {
     $.ajax('/api/database/counts')
       .then(function(response) {
         for (key in response) {
