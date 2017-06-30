@@ -2,7 +2,7 @@
 
 namespace Drupal\ds\Form;
 
-
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
@@ -109,6 +109,9 @@ class BlockFieldForm extends FieldFormBase implements ContainerInjectionInterfac
       $url = new Url('ds.manage_block_field_config', array('field_key' => $this->field['id']));
       $form_state->setRedirectUrl($url);
     }
+
+    // Invalidate all blocks
+    Cache::invalidateTags(['config:ds.block_base']);
   }
 
 }

@@ -25,15 +25,15 @@ use Drupal\layout_plugin\Layout;
 /**
  * Implements hook_help().
  */
-function ds_help($route_name, RouteMatchInterface $route_match){
+function ds_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
     case 'help.page.ds':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<br/>' . t('The <a href="https://www.drupal.org/project/ds">Display Suite</a> module allows you to take full control over how your content is displayed using a drag and drop interface. Arrange your nodes, views, comments, user data etc. the way you want without having to work your way through dozens of template files.');
+      $output .= '<br/>' . t('The <a href=":link">Display Suite</a> module allows you to take full control over how your content is displayed using a drag and drop interface. Arrange your nodes, views, comments, user data etc. the way you want without having to work your way through dozens of template files.', [':link' => 'https://www.drupal.org/project/ds']);
       $output .= '<br/>' . t('It allows you to apply theme templates to content type displays. It comes with predefined layouts such as "two columns", "three columns stacked", "three columns fluid" et cetera, but also lets you define your own.');
       $output .= '<br/>' . t('Display Suite allows you to create fields from tokens or blocks.  This gives you full control over the way content is displayed without having to maintain dozens of twig files.');
-      $output .= '<br/>' . t('More documentation about Display Suite in Drupal 8 can be found in Drupal\'s <a href="https://www.drupal.org/node/2718943">Community Documentation </a>.');
+      $output .= '<br/>' . t('More documentation about Display Suite in Drupal 8 can be found in Drupal\'s <a href=":documentation">Community Documentation </a>.', [':documentation'=> 'https://www.drupal.org/node/2718943']);
       return $output;
   }
 }
@@ -212,7 +212,7 @@ function ds_entity_view_alter(&$build, EntityInterface $entity, EntityDisplayInt
   $fields = Ds::getFields($entity_type);
   $field_values = !empty($configuration['fields']) ? $configuration['fields'] : array();
 
-  foreach ($configuration['regions'] as $region_name => $region) {
+  foreach ($configuration['regions'] as $region) {
     foreach ($region as $weight => $key) {
       // Ignore if this field is not a DS field, just pull it in from the
       // entity.
@@ -251,7 +251,7 @@ function ds_entity_view_alter(&$build, EntityInterface $entity, EntityDisplayInt
           '#items' => array((object) array('_attributes' => array())),
           '#is_multiple' => $field_instance->isMultiple(),
           '#access' => ($field_permissions && function_exists('ds_extras_ds_field_access')) ? ds_extras_ds_field_access($key, $entity_type) : TRUE,
-          '#formatter' => 'ds_field'
+          '#formatter' => 'ds_field',
         );
 
         if ($field_instance->isMultiple()) {
@@ -287,6 +287,7 @@ function template_preprocess_ds_entity_view(&$variables) {
   unset($build['#render_children']);
   unset($build['#prefix']);
   unset($build['#suffix']);
+  unset($build['#attached']['html_head_link']);
 
   // Create region variables based on the layout settings.
   $use_field_names = \Drupal::config('ds.settings')->get('use_field_names');
@@ -432,13 +433,24 @@ function ds_preprocess_ds_layout(&$variables) {
         if ($entity_classes == 'all_classes') {
           $variables['attributes']['class'][] = Html::cleanCssIdentifier($entity_type);
           $variables['attributes']['class'][] = Html::cleanCssIdentifier($entity_type) . '--type-' . Html::cleanCssIdentifier($bundle);
-          $variables['attributes']['class'][] =  Html::cleanCssIdentifier($entity_type) . '--view-mode-' . Html::cleanCssIdentifier($variables['content']['#view_mode']);
+          $variables['attributes']['class'][] = Html::cleanCssIdentifier($entity_type) . '--view-mode-' . Html::cleanCssIdentifier($variables['content']['#view_mode']);
         }
         elseif ($entity_classes == 'old_view_mode') {
           // Add (old style, non cleaned) view-mode-{name} to classes.
           if (!in_array('view-mode-' . $variables['content']['#view_mode'], $variables['attributes']['class'])) {
             $variables['attributes']['class'][] = 'view-mode-' . $variables['content']['#view_mode'];
           }
+        }
+      }
+
+      // RDF support
+      if ($entity_type == 'node' && function_exists('rdf_preprocess_node')) {
+        $entity = isset($variables[$entity_type]) ? $variables[$entity_type] : (isset($variables['content']['#' . $entity_type]) ? $variables['content']['#' . $entity_type] : '');
+        if ($entity) {
+          $variables['node'] = $entity;
+          // We disable the date feature for now as it throws notices
+          $variables['display_submitted'] = FALSE;
+          rdf_preprocess_node($variables);
         }
       }
 
@@ -695,6 +707,13 @@ function ds_theme_suggestions_field_alter(&$suggestions, $variables) {
       $suggestions[] = $suggestion . '__' . $variables['element']['#entity_type'] . '__' . $variables['element']['#bundle'];
       $suggestions[] = $suggestion . '__' . $variables['element']['#entity_type'] . '__' . $field_name . '__' . $variables['element']['#bundle'];
     }
+
+    // Custom DS fields name may contain colon separators or dashes; replace it
+    // with "__" or "_" to ensure suggestions are compatible with file names on
+    // all systems.
+    foreach ($suggestions as $key => $suggestion) {
+      $suggestions[$key] = str_replace([':', '-'], ['__', '_'], $suggestion);
+    }
   }
 }
 
@@ -931,7 +950,7 @@ function ds_ds_field_operations_alter(&$operations, $field) {
  */
 function ds_entity_type_alter(array &$entity_types) {
   /* @var $entity_types \Drupal\Core\Entity\EntityTypeInterface[] */
-  foreach ($entity_types as $entity_type_id => $entity_type) {
+  foreach ($entity_types as $entity_type) {
     $base_table = $entity_type->getBaseTable();
     if ($entity_type->get('field_ui_base_route') && !empty($base_table)) {
       if ($entity_type->hasLinkTemplate('canonical')) {

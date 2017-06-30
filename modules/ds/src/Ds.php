@@ -51,7 +51,7 @@ class Ds {
    * @return \Drupal\ds\Plugin\DsField\DsFieldInterface
    *   Field instance.
    */
-  public static function getFieldInstance($key, $field, EntityInterface $entity, $view_mode, $display, $build = array()) {
+  public static function getFieldInstance($key, array $field, EntityInterface $entity, $view_mode, $display, array $build = array()) {
     $configuration = array(
       'field' => $field,
       'field_name' => $key,
@@ -103,7 +103,7 @@ class Ds {
    * @param bool $fallback
    *   Whether to fallback to default or not.
    *
-   * @return array|bool $layout
+   * @return array|bool
    *   The display.
    */
   public static function getDisplay($entity_type, $bundle, $view_mode, $fallback = TRUE) {

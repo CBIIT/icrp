@@ -25,8 +25,8 @@ class SnippetController extends ControllerBase {
     $snippet->$op()->save();
     $args = ['%name' => $snippet->label()];
     $message = $op == 'enable'
-      ? t('Snippet %name has been enabled.', $args)
-      : t('Snippet %name has been disabled.', $args);
+      ? $this->t('Snippet %name has been enabled.', $args)
+      : $this->t('Snippet %name has been disabled.', $args);
     drupal_set_message($message);
     return $this->redirect('entity.snippet.collection');
   }

@@ -16,18 +16,20 @@ use Drupal\ds\Ds;
  * Implements hook_entity_base_field_info().
  */
 function ds_switch_view_mode_entity_base_field_info(EntityTypeInterface $entity_type) {
-  // Add the switch field as a base field.
-  $fields = array();
+  if ($entity_type->id() == 'node') {
+    // Add the switch field as a base field.
+    $fields = array();
 
-  $fields['ds_switch'] = BaseFieldDefinition::create('string')
-    ->setLabel(t('DS switch'))
-    ->setName('ds_switch')
-    ->setRevisionable(TRUE)
-    ->setDescription(t('Holds the DS view mode of the node.'))
-    ->setSetting('default_value', '')
-    ->setPropertyConstraints('value', array('Length' => array('max' => 60)));
+    $fields['ds_switch'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('DS switch'))
+      ->setName('ds_switch')
+      ->setRevisionable(TRUE)
+      ->setDescription(t('Holds the DS view mode of the node.'))
+      ->setSetting('default_value', '')
+      ->setPropertyConstraints('value', array('Length' => array('max' => 60)));
 
-  return $fields;
+    return $fields;
+  }
 }
 
 /**
@@ -35,7 +37,9 @@ function ds_switch_view_mode_entity_base_field_info(EntityTypeInterface $entity_
  */
 function ds_switch_view_mode_entity_view_mode_alter(&$view_mode, EntityInterface $entity, $context) {
   if ($entity->getEntityTypeId() == 'node' && node_is_page($entity) && !empty($entity->ds_switch->value) && $view_mode == 'full') {
+    $original_view_mode = $view_mode;
     $view_mode = $entity->ds_switch->value;
+    \Drupal::moduleHandler()->alter('ds_swith_view_mode', $view_mode, $original_view_mode, $entity);
   }
 }
 
@@ -67,7 +71,7 @@ function ds_switch_view_mode_form_node_form_alter(&$form, FormStateInterface $fo
       }
     }
 
-    // Add default layout settings
+    // Add default layout settings.
     $layouts[''] = Ds::getDisplay('node', $node->bundle(), 'default', FALSE);
 
     // Only fire if we have more than 1 option.

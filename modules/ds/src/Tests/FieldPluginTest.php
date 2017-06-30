@@ -13,6 +13,11 @@ class FieldPluginTest extends FastTestBase {
    * Test basic Display Suite fields plugins.
    */
   public function testFieldPlugin() {
+    // Rename the title field.
+    $edit = array(
+      'title_label' => 'alternative article title',
+    );
+    $this->drupalPostForm('admin/structure/types/manage/article', $edit, t('Save content type'));
 
     $this->dsSelectLayout();
 
@@ -35,6 +40,8 @@ class FieldPluginTest extends FastTestBase {
     $this->dsSelectLayout();
 
     $fields = array(
+      'fields[node_title][region]' => 'right',
+      'fields[node_title][label]' => 'inline',
       'fields[node_author][region]' => 'left',
       'fields[node_links][region]' => 'left',
       'fields[body][region]' => 'right',
@@ -77,6 +84,7 @@ class FieldPluginTest extends FastTestBase {
     $this->assertText('Test field plugin that returns zero as an integer', 'Test field plugin that returns zero as an integer is visible.');
     $this->assertText('Test field plugin that returns zero as a string', 'Test field plugin that returns zero as a string is visible.');
     $this->assertText('Test field plugin that returns zero as a floating point number', 'Test field plugin that returns zero as a floating point number is visible.');
+    $this->assertText('alternative article title');
   }
 
 }

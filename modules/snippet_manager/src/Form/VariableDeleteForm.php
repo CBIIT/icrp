@@ -16,14 +16,14 @@ class VariableDeleteForm extends VariableFormBase {
 
     $form = parent::form($form, $form_state);
 
-    $form['#title'] = t(
+    $form['#title'] = $this->t(
       'Are you sure you want to delete the variable %title?',
       ['%title' => $this->getVariableName()]
     );
 
     $form['#attributes']['class'][] = 'confirmation';
     $form['description'] = [
-      '#markup' => t('This action cannot be undone.'),
+      '#markup' => $this->t('This action cannot be undone.'),
     ];
 
     $form['name'] = [
@@ -44,12 +44,12 @@ class VariableDeleteForm extends VariableFormBase {
   protected function actionsElement(array $form, FormStateInterface $form_state) {
     $element = parent::actionsElement($form, $form_state);
 
-    $element['submit']['#value'] = t('Delete');
+    $element['submit']['#value'] = $this->t('Delete');
     $element['delete']['#access'] = FALSE;
 
     $element['cancel'] = [
       '#type' => 'link',
-      '#title' => t('Cancel'),
+      '#title' => $this->t('Cancel'),
       '#attributes' => ['class' => ['button']],
       '#url' => $this->entity->toUrl('edit-form'),
       '#weight' => 10,

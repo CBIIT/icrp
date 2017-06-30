@@ -79,7 +79,7 @@ class FieldDeleteForm extends ConfirmFormBase implements ContainerInjectionInter
     $this->field = $config->get();
 
     if (empty($this->field)) {
-      drupal_set_message(t('Field not found.'));
+      drupal_set_message($this->t('Field not found.'));
       return new RedirectResponse('/admin/structure/ds/fields');
     }
 
@@ -102,7 +102,7 @@ class FieldDeleteForm extends ConfirmFormBase implements ContainerInjectionInter
     // Redirect.
     $url = new Url('ds.fields_list');
     $form_state->setRedirectUrl($url);
-    drupal_set_message(t('The field @field has been deleted.', array('@field' => $field['label'])));
+    drupal_set_message($this->t('The field @field has been deleted.', array('@field' => $field['label'])));
   }
 
   /**

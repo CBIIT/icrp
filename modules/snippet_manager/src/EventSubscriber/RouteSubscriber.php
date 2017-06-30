@@ -34,12 +34,50 @@ class RouteSubscriber extends RouteSubscriberBase {
    * {@inheritdoc}
    */
   protected function alterRoutes(RouteCollection $collection) {
+
+    /* @var \Drupal\snippet_manager\SnippetInterface[] $snippets */
     $snippets = $this->entityTypeManager->getStorage('snippet')->loadByProperties([
       'status' => TRUE,
       'page.status' => TRUE,
     ]);
+
+    $path_index = [];
+    $snippet_routes = [];
     foreach ($snippets as $snippet) {
-      $collection->add('entity.snippet.page.' . $snippet->id(), $this->buildRoute($snippet));
+      $route = $this->buildRoute($snippet);
+      $snippet_routes[$snippet->id()] = $route;
+      $path_index[$snippet->id()] = $route->getPath();
+    }
+
+    // First update existing routes.
+    foreach ($collection->all() as $route_name => $route) {
+      if ($snippet_id = array_search($route->getPath(), $path_index)) {
+        $collection->remove($route_name);
+
+        if (!$snippets[$snippet_id]->get('page')['title']) {
+          // Try to preserve title of original route.
+          if ($title_callback = $route->getDefault('_title_callback')) {
+            $snippet_routes[$snippet_id]->setDefault('_title_callback', $title_callback);
+          }
+          if ($title = $route->getDefault('_title')) {
+            $snippet_routes[$snippet_id]->setDefault('_title', $title);
+          }
+          if ($title_context = $route->getDefault('_title_context')) {
+            $snippet_routes[$snippet_id]->setDefault('_title_context', $title_context);
+          }
+          if ($title_arguments = $route->getDefault('_title_arguments')) {
+            $snippet_routes[$snippet_id]->setDefault('_title_arguments', $title_arguments);
+          }
+        }
+
+        $collection->add($route_name, $snippet_routes[$snippet_id]);
+        unset($snippet_routes[$snippet_id]);
+      }
+    }
+
+    // Create new routes.
+    foreach ($snippet_routes as $snippet_id => $route) {
+      $collection->add('entity.snippet.page.' . $snippet_id, $route);
     }
   }
 
@@ -65,6 +103,7 @@ class RouteSubscriber extends RouteSubscriberBase {
     $requirements['_entity_access'] = 'snippet.view-published';
 
     $options['parameters']['snippet']['type'] = 'entity:snippet';
+    $options['snippet_page'] = TRUE;
 
     $bits = explode('/', $page['path']);
 

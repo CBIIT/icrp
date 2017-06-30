@@ -31,3 +31,21 @@ function ds_update_8001() {
   }
 
 }
+
+/**
+ * Fix ds_switch being added to each content entity.
+ */
+function ds_update_8002() {
+  $entity_definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+  $entity_types = \Drupal::entityTypeManager()->getDefinitions();
+  foreach ($entity_types as $entity_type_id => $entity_type) {
+    if ($entity_type->getGroup() == 'content' && $entity_type_id != 'node') {
+      if ($entity_definition_update_manager->getEntityType($entity_type_id)) {
+        $storage_definition = $entity_definition_update_manager->getFieldStorageDefinition('ds_switch', $entity_type_id);
+        if ($storage_definition) {
+          $entity_definition_update_manager->uninstallFieldStorageDefinition($storage_definition);
+        }
+      }
+    }
+  }
+}

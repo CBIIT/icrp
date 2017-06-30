@@ -49,6 +49,7 @@ interface DsFieldInterface extends ConfigurablePluginInterface, ContainerFactory
    * Gets the current entity.
    *
    * @return \Drupal\Core\Entity\EntityInterface
+   *   The current entity.
    */
   public function entity();
 

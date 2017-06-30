@@ -119,10 +119,10 @@ function ds_field_ui_create_vertical_tabs(&$form) {
  * @param FormStateInterface $form_state
  *   The current form state.
  *
- * @return array $form
+ * @return array
  *   The altered form
  */
-function ds_field_ui_regions($form, FormStateInterface $form_state) {
+function ds_field_ui_regions(array $form, FormStateInterface $form_state) {
 
   // Get the entity_type, bundle and view mode.
   $entity_type = $form['#entity_type'];
@@ -250,7 +250,7 @@ function ds_field_ui_regions($form, FormStateInterface $form_state) {
  * @return string
  *   The region.
  */
-function ds_field_ui_row_region($row) {
+function ds_field_ui_row_region(array $row) {
   return isset($row['region']['#value']) ? $row['region']['#value'] : 'hidden';
 }
 
@@ -583,10 +583,10 @@ function ds_field_ui_layout_clone($form, FormStateInterface $form_state) {
  * @param FormStateInterface $form_state
  *   The form state of the summary.
  *
- * @return array $summary
+ * @return array
  *   The summary.
  */
-function ds_field_settings_summary(DsFieldInterface $plugin_instance, $settings, FormStateInterface $form_state) {
+function ds_field_settings_summary(DsFieldInterface $plugin_instance, array $settings, FormStateInterface $form_state) {
   // Create the form.
   $summary = $plugin_instance->settingsSummary($settings);
 
@@ -613,7 +613,7 @@ function ds_field_settings_summary(DsFieldInterface $plugin_instance, $settings,
  * @param FormStateInterface $form_state
  *   The form state of the form.
  *
- * @return mixed $form
+ * @return mixed
  *   The altered form.
  */
 function ds_field_settings_form(DsFieldInterface $plugin_instance, FormStateInterface $form_state) {
@@ -645,7 +645,7 @@ function ds_field_settings_form(DsFieldInterface $plugin_instance, FormStateInte
  * @param FormStateInterface $form_state
  *   The form state of the form.
  */
-function _ds_field_group_field_ui_fix_notices($form, FormStateInterface $form_state) {
+function _ds_field_group_field_ui_fix_notices(array $form, FormStateInterface $form_state) {
   $field_group = array(
     'group_name' => '',
     'label' => '',
@@ -669,7 +669,7 @@ function _ds_field_group_field_ui_fix_notices($form, FormStateInterface $form_st
  * @param FormStateInterface $form_state
  *   The form_state.
  */
-function _ds_field_ui_table_layouts($entity_type, $bundle, $view_mode, &$form, FormStateInterface $form_state) {
+function _ds_field_ui_table_layouts($entity_type, $bundle, $view_mode, array &$form, FormStateInterface $form_state) {
   $ds_layouts = Ds::getLayouts();
   $layout_options = array('' => t('- None -'));
   $optgroup = '';
@@ -833,7 +833,7 @@ function _ds_field_ui_table_layouts($entity_type, $bundle, $view_mode, &$form, F
  * @param \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display
  *   The entity display object.
  */
-function _ds_field_ui_table_layouts_preview(&$form, FormStateInterface $form_state, $ds_layouts, $layout, EntityViewDisplayInterface $display) {
+function _ds_field_ui_table_layouts_preview(array &$form, FormStateInterface $form_state, array $ds_layouts, array $layout, EntityViewDisplayInterface $display) {
   $layout_string = '';
 
   $form['ds_layouts']['layout'] = array(
@@ -869,7 +869,7 @@ function _ds_field_ui_table_layouts_preview(&$form, FormStateInterface $form_sta
     $selected .= '<br/>' . t('The default template can be found in %path', array('%path' => $chosen_layout['template_path']));
     $suggestions_array = array();
     $suggestions_array[0] = $layout_string . '--' . $display->getTargetEntityTypeId();
-    $suggestions_array[2] = $layout_string . '--' . $display->getTargetBundle() . '-' . $display->getTargetBundle();
+    $suggestions_array[2] = $layout_string . '--' . $display->getTargetEntityTypeId() . '-' . $display->getTargetBundle();
     $suggestions_array[4] = $layout_string . '--' . $display->getTargetEntityTypeId() . '--{id}';
     if ($display->getMode() != 'default') {
       $suggestions_array[1] = $layout_string . '--' . $display->getTargetEntityTypeId() . '-' . $display->getMode();
@@ -1035,7 +1035,7 @@ function ds_field_ui_change_layout_submit($form, FormStateInterface $form_state)
  * @param FormStateInterface $form_state
  *   A collection of form_state properties.
  */
-function _ds_field_ui_fields($entity_type, $bundle, $view_mode, &$form, FormStateInterface $form_state) {
+function _ds_field_ui_fields($entity_type, $bundle, $view_mode, array &$form, FormStateInterface $form_state) {
 
   // Do not add the fields if there is no layout.
   if (!isset($form['#ds_layout'])) {
@@ -1220,7 +1220,7 @@ function _ds_field_ui_fields($entity_type, $bundle, $view_mode, &$form, FormStat
  * @param FormStateInterface $form_state
  *   A collection of form_state properties.
  */
-function _ds_field_ui_core_fields(&$form, FormStateInterface $form_state) {
+function _ds_field_ui_core_fields(array &$form, FormStateInterface $form_state) {
   $entity_type = $form['#entity_type'];
   $bundle = $form['#bundle'];
   /* @var \Drupal\Core\Entity\EntityFormInterface $entity_form */
@@ -1258,7 +1258,6 @@ function _ds_field_ui_core_fields(&$form, FormStateInterface $form_state) {
         $table[$key]['plugin']['settings_edit_form']['actions']['cancel_settings']['#validate'] = array('ds_field_ui_fields_validate');
       }
       else {
-        $table[$key]['settings_edit'] = array();
         if (!empty($table[$key]['settings_summary'])) {
           ds_field_row_form_format_summary_construct($table, $key, $form_state);
         }
@@ -1360,7 +1359,7 @@ function ds_field_row_form_format_summary_construct(&$table, $key, FormStateInte
  * @return array
  *   The sorted array.
  */
-function _ds_sort_fields($a, $subkey) {
+function _ds_sort_fields(array $a, $subkey) {
   $c = array();
   foreach ($a as $k => $v) {
     if (isset($v[$subkey])) {

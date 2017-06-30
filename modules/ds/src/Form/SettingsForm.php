@@ -132,7 +132,7 @@ class SettingsForm extends ConfigFormBase {
 
     $form['fs1']['ft-default'] = array(
       '#type' => 'select',
-      '#title' =>$this->t('Default Field Template'),
+      '#title' => $this->t('Default Field Template'),
       '#options' => $theme_functions,
       '#default_value' => $config->get('ft-default'),
       '#description' => $description,

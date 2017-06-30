@@ -76,7 +76,7 @@ class CssForm extends EntityForm {
     $css = $this->entity->get('css');
 
     $form['css'] = [
-      '#title' => t('CSS'),
+      '#title' => $this->t('CSS'),
       '#type' => 'text_format',
       '#default_value' => $css['value'],
       '#rows' => 10,
@@ -96,20 +96,20 @@ class CssForm extends EntityForm {
 
     $form['css']['status'] = [
       '#type' => 'checkbox',
-      '#title' => t('Enable'),
+      '#title' => $this->t('Enable'),
       '#default_value' => $css['status'],
     ];
 
     $form['css']['group'] = [
       '#type' => 'select',
-      '#title' => t('Group'),
+      '#title' => $this->t('Group'),
       '#default_value' => $css['group'],
       '#options' => [
-        'base' => t('Base'),
-        'layout' => t('Layout'),
-        'component' => t('Component'),
-        'state' => t('State'),
-        'theme' => t('Theme'),
+        'base' => $this->t('Base'),
+        'layout' => $this->t('Layout'),
+        'component' => $this->t('Component'),
+        'state' => $this->t('State'),
+        'theme' => $this->t('Theme'),
       ],
     ];
 
@@ -132,7 +132,7 @@ class CssForm extends EntityForm {
       $options['query'][$this->state->get('system.css_js_query_string') ?: '0'] = NULL;
       $element['open_file'] = [
         '#type' => 'link',
-        '#title' => t('Open file'),
+        '#title' => $this->t('Open file'),
         '#url' => Url::fromUri('base://' . $file_path, $options),
         '#attributes' => ['class' => 'button', 'target' => '_blank'],
         '#weight' => 5,
@@ -147,7 +147,7 @@ class CssForm extends EntityForm {
    */
   public function save(array $form, FormStateInterface $form_state) {
     parent::save($form, $form_state);
-    drupal_set_message(t('Snippet %label has been updated.', ['%label' => $this->entity->label()]));
+    drupal_set_message($this->t('Snippet %label has been updated.', ['%label' => $this->entity->label()]));
   }
 
 }

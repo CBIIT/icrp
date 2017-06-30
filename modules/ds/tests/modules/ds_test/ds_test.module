@@ -5,18 +5,13 @@
  * Display Suite test module.
  */
 
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 
 /**
- * Implements hook_install().
- */
-function ds_test_install() {
-  module_set_weight('ds_test', 3);
-}
-
-/**
- * Implements hook_theme_suggestions_alter()
+ * Implements hook_theme_suggestions_alter().
  */
 function ds_test_theme_suggestions_alter(&$suggestions, $variables, $base_theme_hook) {
   if (isset($variables['content']) && is_array($variables['content']) && isset($variables['content']['#ds_configuration']) && $base_theme_hook != 'ds_entity_view') {
@@ -50,8 +45,8 @@ function ds_test_entity_extra_field_info() {
   // Register a single field to test that
   // extra fields in the hidden region are really hidden.
   $extra['node']['article']['display']['heavy_field'] = array(
-   'label' => t('Heavy extra test field'),
-   'weight' => 10,
+    'label' => t('Heavy extra test field'),
+    'weight' => 10,
   );
 
   return $extra;
@@ -60,7 +55,7 @@ function ds_test_entity_extra_field_info() {
 /**
  * Implements hook_entity_view().
  */
-function ds_test_entity_view(array &$build, \Drupal\Core\Entity\EntityInterface $entity, \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display, $view_mode) {
+function ds_test_entity_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode) {
   $build['ds_extras_extra_test_field'] = array(
     '#markup' => 'This is an extra field made available through "Extra fields" functionality.',
     '#weight' => 10,

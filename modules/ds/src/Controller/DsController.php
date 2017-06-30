@@ -8,8 +8,6 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
 use Drupal\field_ui\FieldUI;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-
 
 /**
  * Returns responses for Display Suite UI routes.

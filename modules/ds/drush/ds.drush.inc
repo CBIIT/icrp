@@ -51,8 +51,7 @@ function ds_drush_command() {
 }
 
 /**
- * Create a basic template and configuration file for a new Display Suite
- * layout.
+ * Create a basic template and configuration file for a Display Suite layout.
  */
 function drush_ds_build($name = NULL) {
   // Determine the layout name.

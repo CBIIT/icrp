@@ -117,7 +117,7 @@ class DynamicFieldPluginTest extends FastTestBase {
 
     // Create a configurable block field.
     $edit = array(
-      'name' => 'Configurable block',
+      'name' => 'Configurable block <script>alert("XSS")</script>',
       'id' => 'test_block_configurable',
       'entities[node]' => '1',
       'block' => 'system_menu_block:tools',
@@ -142,6 +142,7 @@ class DynamicFieldPluginTest extends FastTestBase {
     // Add block to display.
     $fields = array(
       'fields[dynamic_block_field:node-test_block_configurable][region]' => 'left',
+      'fields[dynamic_block_field:node-test_block_configurable][label]' => 'above',
     );
     $this->dsConfigureUi($fields, 'admin/structure/types/manage/article/display');
 
@@ -151,6 +152,9 @@ class DynamicFieldPluginTest extends FastTestBase {
     // Look at node and verify the menu is visible.
     $this->drupalGet('node/' . $node->id());
     $this->assertRaw('Add content', t('Tools menu found.'));
+
+    // Ensure that there is no XSS attack possible
+    $this->assertNoRaw('<script>alert("XSS")</script>', 'Harmful tags are escaped when viewing a block field label.');
 
     // Try to set the depth to 3, to ensure we can save the block.
     $edit = array(

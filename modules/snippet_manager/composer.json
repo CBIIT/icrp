@@ -1,6 +1,6 @@
 {
   "name": "drupal/snippet_manager",
-  "description": "Manages snippets on the site.",
+  "description": "Manages code snippets on Drupal site.",
   "type": "drupal-module",
   "homepage": "https://drupal.org/project/snippet_manager",
   "license": "GPL-2.0+"

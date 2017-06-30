@@ -18,14 +18,14 @@ class FieldController extends ControllerBase implements ContainerInjectionInterf
   /**
    * The config storage.
    *
-   * @var \Drupal\Core\Config\StorageInterface;
+   * @var \Drupal\Core\Config\StorageInterface
    */
   protected $storage;
 
   /**
    * The module handler.
    *
-   * @var \Drupal\Core\Extension\ModuleHandlerInterface;
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
    */
   protected $moduleHandler;
 

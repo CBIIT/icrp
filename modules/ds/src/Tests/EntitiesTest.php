@@ -203,7 +203,8 @@ class EntitiesTest extends FastTestBase {
     );
     $this->drupalPostForm('node/' . $node->id() . '/edit', $edit, t('Save and keep published'));
     $this->drupalGet('node/' . $node->id());
-    $this->assertRaw('<h2>Hi, I am an article &lt;script&gt;alert(&#039;with a javascript tag in the title&#039;);&lt;/script&gt;</h2>');
+    $xpath = $this->xpath('//div[@class="field field--name-node-title field--type-ds field--label-hidden field__item"]/h2');
+    $this->assertTrimEqual($xpath[0], 'Hi, I am an article <script>alert(\'with a javascript tag in the title\');</script>');
   }
 
 }

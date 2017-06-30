@@ -129,7 +129,7 @@ class EmergencyForm extends ConfigFormBase {
    */
   public function submitFieldAttach(array &$form, FormStateInterface $form_state) {
     $this->state->set('ds.disabled', ($this->state->get('ds.disabled', FALSE) ? FALSE : TRUE));
-    drupal_set_message(t('The configuration options have been saved.'));
+    drupal_set_message($this->t('The configuration options have been saved.'));
   }
 
   /**
@@ -162,7 +162,7 @@ class EmergencyForm extends ConfigFormBase {
       }
 
       if ($save) {
-        drupal_set_message(t('Block regions were removed.'));
+        drupal_set_message($this->t('Block regions were removed.'));
 
         // Clear cached block and ds plugin definitions.
         \Drupal::service('plugin.manager.block')->clearCachedDefinitions();

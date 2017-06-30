@@ -102,7 +102,7 @@ class BlockFieldPluginTest extends FastTestBase {
   /**
    * Ensure block is not rendered if block disallows access.
    */
-  function testBlockAccess() {
+  public function testBlockAccess() {
     $block_field_id = Unicode::strtolower($this->randomMachineName());
     $entity_type = 'node';
 
@@ -133,6 +133,37 @@ class BlockFieldPluginTest extends FastTestBase {
     \Drupal::state()->set('ds_test_block__access', TRUE);
     $this->drupalGet($node->toUrl());
     $this->assertRaw(DsTestBlock::BODY_TEXT);
+  }
+
+  /**
+   * Cache contexts, tags and max-age on the block should get merged into the field build array
+   */
+  public function testBlockCache() {
+    $block_field_id = Unicode::strtolower($this->randomMachineName());
+    $entity_type = 'node';
+
+    $edit = [
+      'name' => $this->randomString(),
+      'id' => $block_field_id,
+      'entities[' . $entity_type . ']' => TRUE,
+      'block' => 'ds_cache_test_block',
+    ];
+    $this->dsCreateBlockField($edit);
+
+    $fields['fields[dynamic_block_field:' . $entity_type . '-' . $block_field_id . '][region]'] = 'left';
+    $this->dsSelectLayout();
+    $this->dsConfigureUI($fields);
+
+    $settings['type'] = 'article';
+    $node = $this->drupalCreateNode($settings);
+
+    // Check for query parameters
+    $this->drupalGet($node->toUrl(), ['query' => ['cached' => 1]]);
+    $this->assertRaw('cached=1');
+
+    // Check for query parameters
+    $this->drupalGet($node->toUrl(), ['query' => ['cached' => 2]]);
+    $this->assertRaw('cached=2');
   }
 
 }
