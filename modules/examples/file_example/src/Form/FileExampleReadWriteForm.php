@@ -26,28 +26,28 @@ class FileExampleReadWriteForm extends FormBase {
   /**
    * Interface of the "state" service for site-specific data.
    *
-   * @var \Drupal\Core\State\StateInterface
+   * @var StateInterface
    */
   protected $state;
 
   /**
    * Object used to get request data, such as the session.
    *
-   * @var \Symfony\Component\HttpFoundation\RequestStack
+   * @var RequestStack
    */
   protected $requestStack;
 
   /**
    * Service for manipulating a file system.
    *
-   * @var \Drupal\Core\File\FileSystemInterface
+   * @var FileSystemInterface
    */
   protected $fileSystem;
 
   /**
    * Service for fetching a stream wrapper for a file or directory.
    *
-   * @var \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface
+   * @var StreamWrapperManagerInterface
    */
   protected $streamWrapperManager;
 
@@ -61,24 +61,24 @@ class FileExampleReadWriteForm extends FormBase {
   /**
    * Service for invoking hooks and other module operations.
    *
-   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   * @var ModuleHandlerInterface
    */
   protected $moduleHandler;
 
   /**
    * Constructs a new FileExampleReadWriteForm page.
    *
-   * @param \Drupal\Core\State\StateInterface $state
+   * @param StateInterface $state
    *   Storage interface for state data.
-   * @param \Drupal\Core\File\FileSystemInterface $file_system
+   * @param FileSystemInterface $file_system
    *   Interface for common file system operations.
-   * @param \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface $stream_wrapper_manager
+   * @param StreamWrapperManagerInterface $stream_wrapper_manager
    *   Interface to obtain stream wrappers used to manipulate a given file
    *   scheme.
-   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   * @param ModuleHandlerInterface $module_handler
    *   Interface to get information about the status of modules and other
    *   extensions.
-   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
+   * @param RequestStack $request_stack
    *   Access to the current request, including to session objects.
    */
   public function __construct(
@@ -194,7 +194,7 @@ class FileExampleReadWriteForm extends FormBase {
    * @param string $uri
    *   The URI of the file, like public://test.txt.
    *
-   * @return \Drupal\file\Entity\FileInterface|bool
+   * @return FileInterface|bool
    *   A file object that matches the URI, or FALSE if not a managed file.
    *
    * @todo This should still work. An entity query could be used instead.
@@ -400,8 +400,6 @@ class FileExampleReadWriteForm extends FormBase {
    *    * @param array $form
    *   An associative array containing the structure of the form.
    *
-   * @param array &$form
-   *   The form array.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
    */
@@ -465,8 +463,6 @@ class FileExampleReadWriteForm extends FormBase {
    *    * @param array $form
    *   An associative array containing the structure of the form.
    *
-   * @param array &$form
-   *   The form array.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
    */
@@ -772,7 +768,7 @@ class FileExampleReadWriteForm extends FormBase {
    *
    * @param array $form
    *   FormAPI form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @param FormStateInterface $form_state
    *   FormAPI form state.
    */
   public function handleDirectoryExists(array &$form, FormStateInterface $form_state) {
@@ -810,7 +806,7 @@ class FileExampleReadWriteForm extends FormBase {
    *
    * @param array $form
    *   FormAPI form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   * @param FormStateInterface $form_state
    *   FormAPI form state.
    *
    * @todo Note this does NOT clear any managed file references in Drupal's DB.

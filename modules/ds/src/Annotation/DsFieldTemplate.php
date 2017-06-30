@@ -21,9 +21,9 @@ class DsFieldTemplate extends Plugin {
   /**
    * The human-readable name of the DS field layout plugin.
    *
-   * @var \Drupal\Core\Annotation\Translation
-   *
    * @ingroup plugin_translatable
+   *
+   * @var \Drupal\Core\Annotation\Translation
    */
   public $title;
 

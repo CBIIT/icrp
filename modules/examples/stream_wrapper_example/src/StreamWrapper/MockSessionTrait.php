@@ -22,7 +22,7 @@ trait MockSessionTrait {
   /**
    * A representation of the HTTP request.
    *
-   * @var \Symfony\Component\HttpFoundation\RequestStack|\Prophecy\Prophecy\ProphecyInterface
+   * @var RequestStack|ProphecyInterface
    */
   protected $requestStack;
 

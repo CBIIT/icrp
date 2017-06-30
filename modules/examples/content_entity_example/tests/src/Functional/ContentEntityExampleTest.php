@@ -54,7 +54,6 @@ class ContentEntityExampleTest extends ExamplesBrowserTestBase {
     $assert->fieldValueEquals('name[0][value]', '');
     $assert->fieldValueEquals('name[0][value]', '');
     $assert->fieldValueEquals('name[0][value]', '');
-    $assert->fieldValueEquals('name[0][value]', '');
 
     $user_ref = $web_user->name->value . ' (' . $web_user->id() . ')';
     $assert->fieldValueEquals('user_id[0][target_id]', $user_ref);
@@ -64,7 +63,6 @@ class ContentEntityExampleTest extends ExamplesBrowserTestBase {
       'name[0][value]' => 'test name',
       'first_name[0][value]' => 'test first name',
       'gender' => 'male',
-      'role' => 'administrator',
     );
     $this->drupalPostForm(NULL, $edit, t('Save'));
 
@@ -77,7 +75,6 @@ class ContentEntityExampleTest extends ExamplesBrowserTestBase {
     // Entity shown.
     $assert->pageTextContains('test name');
     $assert->pageTextContains('test first name');
-    $assert->pageTextContains('administrator');
     $assert->pageTextContains('male');
     $assert->linkExists('Add Contact');
     $assert->linkExists('Edit');
@@ -116,7 +113,6 @@ class ContentEntityExampleTest extends ExamplesBrowserTestBase {
         'name' => 'somename',
         'first_name' => 'Joe',
         'gender' => 'female',
-        'role' => 'administrator',
       )
     );
     $contact->save();

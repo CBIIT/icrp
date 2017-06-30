@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\embed\Controller\EmbedController.
+ */
+
 namespace Drupal\embed\Controller;
 
 use Drupal\Core\Ajax\AjaxResponse;
@@ -38,11 +43,11 @@ class EmbedController extends ControllerBase {
       throw new NotFoundHttpException();
     }
 
-    $build = [
+    $build = array(
       '#type' => 'processed_text',
       '#text' => $text,
       '#format' => $filter_format->id(),
-    ];
+    );
 
     $response = new AjaxResponse();
     $response->addCommand(new EmbedInsertCommand($build));

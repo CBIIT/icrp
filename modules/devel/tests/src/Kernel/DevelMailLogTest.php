@@ -164,8 +164,7 @@ EOF;
       ->set('debug_mail_directory', $changed_output_directory)
       ->save();
 
-    $result = $this->mailManager->mail($mail['module'], $mail['key'], $mail['to'], $mail['lang'], $params, $mail['reply']);
-    $this->assertSame(TRUE, $result['result']);
+    $this->mailManager->mail($mail['module'], $mail['key'], $mail['to'], $mail['lang'], $params, $mail['reply']);
     $this->assertFileExists($expected_file_path);
     $this->assertStringEqualsFile($expected_file_path, $expected_output);
 

@@ -86,13 +86,7 @@ class FieldPermissionsServiceTest extends UnitTestCase {
     $storage = $this->prophesize(FieldStorageConfigInterface::class);
     $storage->getThirdPartySetting('field_permissions', 'permission_type', FieldPermissionTypeInterface::ACCESS_PUBLIC)->willReturn('foo');
     $field_definition->getFieldStorageDefinition()->willReturn($storage->reveal());
-    $cases[] = [
-      'view',
-      $field_item_list,
-      $account->reveal(),
-      $field_definition->reveal(),
-      TRUE,
-    ];
+    $cases[] = ['view', $field_item_list, $account->reveal(), $field_definition->reveal(), TRUE];
 
     // No admin roles, but public access.
     $account = $this->prophesize(AccountInterface::class);
@@ -101,13 +95,7 @@ class FieldPermissionsServiceTest extends UnitTestCase {
     $storage = $this->prophesize(FieldStorageConfigInterface::class);
     $storage->getThirdPartySetting('field_permissions', 'permission_type', FieldPermissionTypeInterface::ACCESS_PUBLIC)->willReturn(FieldPermissionTypeInterface::ACCESS_PUBLIC);
     $field_definition->getFieldStorageDefinition()->willReturn($storage->reveal());
-    $cases[] = [
-      'view',
-      $field_item_list,
-      $account->reveal(),
-      $field_definition->reveal(),
-      TRUE,
-    ];
+    $cases[] = ['view', $field_item_list, $account->reveal(), $field_definition->reveal(), TRUE];
 
     // @todo More complex cases.
 

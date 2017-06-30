@@ -7,6 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
 use Drupal\snippet_manager\SnippetVariableBase;
+use Drupal\snippet_manager\SnippetVariableInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -19,7 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *   deriver = "\Drupal\snippet_manager\Plugin\SnippetVariable\ViewDeriver",
  * )
  */
-class View extends SnippetVariableBase implements ContainerFactoryPluginInterface {
+class View extends SnippetVariableBase implements SnippetVariableInterface, ContainerFactoryPluginInterface {
 
   /**
    * The entity type manager service.
@@ -31,12 +32,6 @@ class View extends SnippetVariableBase implements ContainerFactoryPluginInterfac
   /**
    * Constructs View variable object.
    *
-   * @param array $configuration
-   *   A configuration array containing information about the plugin instance.
-   * @param string $plugin_id
-   *   The plugin_id for the plugin instance.
-   * @param mixed $plugin_definition
-   *   The plugin implementation definition.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity manager service.
    */
@@ -71,7 +66,7 @@ class View extends SnippetVariableBase implements ContainerFactoryPluginInterfac
     }
 
     $form['display'] = [
-      '#title' => $this->t('Display'),
+      '#title' => t('Display'),
       '#type' => 'select',
       '#options' => $options,
       '#default_value' => $this->configuration['display'],
@@ -114,7 +109,7 @@ class View extends SnippetVariableBase implements ContainerFactoryPluginInterfac
       ];
       $url = Url::fromRoute('entity.view.edit_display_form', $options);
       $links['edit_view'] = [
-        'title' => $this->t('Edit view'),
+        'title' => t('Edit view'),
         'url' => $url,
       ];
 
@@ -143,12 +138,11 @@ class View extends SnippetVariableBase implements ContainerFactoryPluginInterfac
    * Return the associated view entity.
    *
    * @return \Drupal\views\ViewEntityInterface
-   *   View configuration entity.
+   *    View configuration entity.
    */
   protected function getView() {
-    return $this->entityTypeManager
-      ->getStorage('view')
-      ->load($this->getDerivativeId());
+    $view_storage = $this->entityTypeManager->getStorage('view');
+    return $view_storage->load($this->getDerivativeId());
   }
 
 }

@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Simpletest tests for autologout ajax endpoints.
+ */
+
 namespace Drupal\autologout\Tests;
 
 use Drupal\simpletest\WebTestBase;
@@ -38,7 +43,7 @@ class AutologoutAjaxTest extends WebTestBase {
   public function setUp() {
     parent::setUp();
     // Create and log in our privileged user.
-    $this->privilegedUser = $this->drupalCreateUser([
+    $this->privilegedUser = $this->drupalCreateUser(array(
       'access content',
       'administer site configuration',
       'access site reports',
@@ -48,7 +53,7 @@ class AutologoutAjaxTest extends WebTestBase {
       'administer nodes',
       'administer autologout',
       'change own logout threshold',
-    ]);
+    ));
     $this->drupalLogin($this->privilegedUser);
 
     // Make node page default.

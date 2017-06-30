@@ -58,9 +58,8 @@ class MetatagStringTest extends WebTestBase {
     $this->drupalCreateContentType(['type' => 'page', 'display_submitted' => FALSE]);
 
     // Add a Metatag field to the content type.
-    $this->drupalGet('admin/structure/types');
-    $this->assertResponse(200);
-    $this->drupalGet('admin/structure/types/manage/page/fields/add-field');
+    $this->drupalGet("admin/structure/types");
+    $this->drupalGet("admin/structure/types/manage/page/fields/add-field");
     $this->assertResponse(200);
     $edit = [
       'label' => 'Metatag',
@@ -119,13 +118,11 @@ class MetatagStringTest extends WebTestBase {
     $desc_encodeded = htmlentities($desc_encoded, ENT_QUOTES);
 
     // Update the Global defaults and test them.
-    $this->drupalGet('admin/config/search/metatag/front');
-    $this->assertResponse(200);
     $values = [
       'title' => $title_original,
       'description' => $desc_original,
     ];
-    $this->drupalPostForm(NULL, $values, 'Save');
+    $this->drupalPostForm('admin/config/search/metatag/front', $values, 'Save');
     $this->assertResponse(200);
 
     $metatag_defaults = \Drupal::config('metatag.metatag_defaults.front');
@@ -147,13 +144,12 @@ class MetatagStringTest extends WebTestBase {
     // token value should be correctly translated.
 
     // Create a node.
-    $this->drupalGet('node/add/page');
-    $this->assertResponse(200);
+    $this->drupalGet("node/add/page");
     $edit = [
       'title[0][value]' => $title_original,
       'body[0][value]' => $desc_original,
     ];
-    $this->drupalPostForm(NULL, $edit, t('Save and publish'));
+    $this->drupalPostForm("node/add/page", $edit, t('Save and publish'));
 
     $this->config('system.site')->set('page.front', '/node/1')->save();
 

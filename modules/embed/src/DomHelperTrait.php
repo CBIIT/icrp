@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\embed\DomHelperTrait.
+ */
+
 namespace Drupal\embed;
 
 use Drupal\Component\Utility\Html;
@@ -129,5 +134,4 @@ trait DomHelperTrait {
 
     return $return;
   }
-
 }

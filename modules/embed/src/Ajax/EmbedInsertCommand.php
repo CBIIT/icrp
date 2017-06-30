@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\embed\Ajax\EmbedInsertCommand.
+ */
+
 namespace Drupal\embed\Ajax;
 
 use Drupal\Core\Ajax\CommandInterface;

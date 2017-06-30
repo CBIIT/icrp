@@ -76,7 +76,7 @@ class JsForm extends EntityForm {
     $js = $this->entity->get('js');
 
     $form['js'] = [
-      '#title' => $this->t('JavaScript'),
+      '#title' => t('JavaScript'),
       '#type' => 'text_format',
       '#default_value' => $js['value'],
       '#rows' => 10,
@@ -96,7 +96,7 @@ class JsForm extends EntityForm {
 
     $form['js']['status'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Enable'),
+      '#title' => t('Enable'),
       '#default_value' => $js['status'],
     ];
 
@@ -119,7 +119,7 @@ class JsForm extends EntityForm {
       $options['query'][$this->state->get('system.css_js_query_string') ?: '0'] = NULL;
       $element['open_file'] = [
         '#type' => 'link',
-        '#title' => $this->t('Open file'),
+        '#title' => t('Open file'),
         '#url' => Url::fromUri('base://' . $file_path, $options),
         '#attributes' => ['class' => 'button', 'target' => '_blank'],
         '#weight' => 5,
@@ -134,7 +134,7 @@ class JsForm extends EntityForm {
    */
   public function save(array $form, FormStateInterface $form_state) {
     parent::save($form, $form_state);
-    drupal_set_message($this->t('Snippet %label has been updated.', ['%label' => $this->entity->label()]));
+    drupal_set_message(t('Snippet %label has been updated.', ['%label' => $this->entity->label()]));
   }
 
 }

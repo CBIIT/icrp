@@ -24,13 +24,13 @@ class PageVariantTest extends TestBase {
     drupal_flush_all_caches();
     \Drupal::state()->set('page_variant_snippet', 'beta');
     $this->drupalGet('<front>');
-    $this->assertTextPattern('/MEMBER FOR [0-9]{1,3}/');
+    $this->assertTextPattern('/MEMBER FOR [0-9]{1,3} SECONDS/');
 
     // Check if default page variant still works.
     drupal_flush_all_caches();
     \Drupal::state()->set('page_variant_snippet', NULL);
     $this->drupalGet('<front>');
-    $this->assertTextPattern('/Member for [0-9]{1,3}/');
+    $this->assertTextPattern('/Member for [0-9]{1,3} seconds/');
   }
 
 }

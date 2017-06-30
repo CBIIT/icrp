@@ -23,7 +23,7 @@ class ConditionVariableTest extends TestBase {
    */
   public function testConditionVariable() {
 
-    \Drupal::state()->set('show_snippet', 'alpha');
+    \Drupal::state()->set('show_snippet', TRUE);
 
     $edit = [
       'plugin_id' => 'condition:request_path',

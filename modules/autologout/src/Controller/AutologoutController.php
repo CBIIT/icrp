@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Contains \Drupal\autologout\Controller\AutologoutController.
+ */
 
 namespace Drupal\autologout\Controller;
 
@@ -74,7 +78,7 @@ class AutologoutController extends ControllerBase {
     $markup = $this->autoLogoutManager->createTimer();
 
     $response->addCommand(new Ajax\ReplaceCommand('#timer', $markup));
-    $response->addCommand(new Ajax\SettingsCommand(['time' => $time_remaining_ms]));
+    $response->addCommand(new Ajax\SettingsCommand(array('time' => $time_remaining_ms)));
 
     return $response;
   }

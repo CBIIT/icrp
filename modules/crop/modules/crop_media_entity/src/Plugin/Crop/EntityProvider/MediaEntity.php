@@ -1,9 +1,14 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\crop_media_entity\Plugin\EntityProvider\MediaEntity.
+ */
+
 namespace Drupal\crop_media_entity\Plugin\Crop\EntityProvider;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\crop\EntityProviderBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -20,11 +25,11 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class MediaEntity extends EntityProviderBase implements ContainerFactoryPluginInterface {
 
   /**
-   * Entity type manager service.
+   * Entity manager service.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   * @var \Drupal\Core\Entity\EntityManagerInterface
    */
-  protected $entityTypeManager;
+  protected $entityManager;
 
   /**
    * Constructs media entity integration plugin.
@@ -35,12 +40,12 @@ class MediaEntity extends EntityProviderBase implements ContainerFactoryPluginIn
    *   The plugin_id for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
-   *   Entity type manager service.
+   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   *   Entity manager service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityManagerInterface $entity_manager) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->entityTypeManager = $entity_type_manager;
+    $this->entityManager = $entity_manager;
   }
 
   /**
@@ -51,7 +56,7 @@ class MediaEntity extends EntityProviderBase implements ContainerFactoryPluginIn
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('entity_type.manager')
+      $container->get('entity.manager')
     );
   }
 
@@ -60,7 +65,7 @@ class MediaEntity extends EntityProviderBase implements ContainerFactoryPluginIn
    */
   public function uri(EntityInterface $entity) {
     /** @var \Drupal\media_entity\MediaBundleInterface $bundle */
-    $bundle = $this->entityTypeManager->getStorage('media_bundle')->load($entity->bundle());
+    $bundle = $this->entityManager->getStorage('media_bundle')->load($entity->bundle());
     $image_field = $bundle->getThirdPartySetting('crop', 'image_field');
 
     if ($entity->{$image_field}->first()->isEmpty()) {
@@ -68,7 +73,7 @@ class MediaEntity extends EntityProviderBase implements ContainerFactoryPluginIn
     }
 
     /** @var \Drupal\file\FileInterface $image */
-    $image = $this->entityTypeManager->getStorage('file')->load($entity->{$image_field}->target_id);
+    $image = $this->entityManager->getStorage('file')->load($entity->{$image_field}->target_id);
 
     if (strpos($image->getMimeType(), 'image') !== 0) {
       return FALSE;

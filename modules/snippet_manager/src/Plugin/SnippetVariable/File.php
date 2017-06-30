@@ -4,6 +4,7 @@ namespace Drupal\snippet_manager\Plugin\SnippetVariable;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\snippet_manager\SnippetVariableBase;
+use Drupal\snippet_manager\SnippetVariableInterface;
 
 /**
  * Provides file variable type.
@@ -17,7 +18,7 @@ use Drupal\snippet_manager\SnippetVariableBase;
  *   category = @Translation("Other"),
  * )
  */
-class File extends SnippetVariableBase {
+class File extends SnippetVariableBase implements SnippetVariableInterface {
 
   /**
    * {@inheritdoc}
@@ -33,7 +34,6 @@ class File extends SnippetVariableBase {
     ];
 
     if ($this->configuration['file']) {
-      /* @var \Drupal\file\FileInterface $file */
       $file = \Drupal::service('entity.repository')->loadEntityByUuid('file', $this->configuration['file']);
       if ($file) {
         $form['file']['#default_value'] = [$file->id()];
@@ -41,11 +41,11 @@ class File extends SnippetVariableBase {
     }
 
     $form['format'] = [
-      '#title' => $this->t('Format'),
+      '#title' => t('Format'),
       '#type' => 'radios',
       '#options' => [
-        'generic' => $this->t('Generic'),
-        'url' => $this->t('URL'),
+        'generic' => t('Generic'),
+        'url' => t('URL'),
       ],
       '#default_value' => $this->configuration['format'],
       '#required' => TRUE,
@@ -61,7 +61,6 @@ class File extends SnippetVariableBase {
 
     $values = $form_state->getValues();
     if (isset($values['file'][0])) {
-      /* @var \Drupal\file\FileInterface $file */
       $file = \Drupal::entityTypeManager()->getStorage('file')->load($values['file'][0]);
       $this->configuration['file'] = $file ? $file->uuid() : NULL;
     }

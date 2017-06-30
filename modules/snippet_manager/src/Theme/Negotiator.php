@@ -14,15 +14,15 @@ class Negotiator implements ThemeNegotiatorInterface {
    * {@inheritdoc}
    */
   public function applies(RouteMatchInterface $route_match) {
-    $route = $route_match->getRouteObject();
-    return $route && $route->getOption('snippet_page');
+    return strpos($route_match->getRouteName(), 'entity.snippet.page') === 0;
   }
 
   /**
    * {@inheritdoc}
    */
   public function determineActiveTheme(RouteMatchInterface $route_match) {
-    return $route_match->getParameter('snippet')->get('page')['theme'];
+    $snippet = $route_match->getParameter('snippet');
+    return $snippet->get('page')['theme'];
   }
 
 }

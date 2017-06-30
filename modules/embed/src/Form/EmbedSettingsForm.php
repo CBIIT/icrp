@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\embed\Form\EmbedSettingsForm.
+ */
+
 namespace Drupal\embed\Form;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -85,7 +90,7 @@ class EmbedSettingsForm extends ConfigFormBase {
   }
 
   /**
-   * Form API callback.
+   * Form API callback
    *
    * Removes slashes from the beginning and end of the destination value and
    * ensures that the file directory path is not included at the beginning of the

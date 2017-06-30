@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\embed_test\Plugin\EmbedType\Aircraft.
+ */
+
 namespace Drupal\embed_test\Plugin\EmbedType;
 
 use Drupal\Core\Form\FormStateInterface;
@@ -10,7 +15,7 @@ use Drupal\embed\EmbedType\EmbedTypeBase;
  *
  * @EmbedType(
  *   id = "embed_test_aircraft",
- *   label = @Translation("Aircraft"),
+ *   label = @Translation("Aircraft")
  * )
  */
 class Aircraft extends EmbedTypeBase {

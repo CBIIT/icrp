@@ -98,7 +98,7 @@ class GeneralForm extends EntityForm {
 
     $form['label'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Label'),
+      '#title' => t('Label'),
       '#maxlength' => 255,
       '#default_value' => $this->entity->label(),
       '#required' => TRUE,
@@ -116,7 +116,7 @@ class GeneralForm extends EntityForm {
     // -- Page.
     $form['page'] = [
       '#type' => 'fieldset',
-      '#title' => $this->t('Page'),
+      '#title' => t('Page'),
       '#open' => FALSE,
       '#tree' => TRUE,
       '#group' => 'additional_settings',
@@ -124,14 +124,14 @@ class GeneralForm extends EntityForm {
 
     $form['page']['status'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('Enable snippet page'),
+      '#title' => t('Enable snippet page'),
       '#default_value' => $this->entity->get('page')['status'],
     ];
 
     $form['page']['title'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Title'),
-      '#description' => $this->t('Leave empty to use snippet label as page title.'),
+      '#title' => t('Title'),
+      '#description' => t('Leave empty to use snippet label as page title.'),
       '#default_value' => $this->entity->get('page')['title'],
     ];
 
@@ -142,20 +142,20 @@ class GeneralForm extends EntityForm {
     ];
     $form['page']['path'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Path'),
-      '#description' => $this->t('This page will be displayed by visiting this path on your site. You may use "%placeholder_1" in your URL to represent placeholders. For example, "%placeholder_2". If needed you can even load entities using named route parameters like "%placeholder_3".', $description_args),
+      '#title' => t('Path'),
+      '#description' => t('This page will be displayed by visiting this path on your site. You may use "%placeholder_1" in your URL to represent placeholders. For example, "%placeholder_2". If needed you can even load entities using named route parameters like "%placeholder_3".', $description_args),
       '#default_value' => $this->entity->get('page')['path'],
     ];
 
     $display_variant_wrapper = 'display-variant-settings';
     $form['page']['display_variant'] = [
       '#type' => 'container',
-      '#title' => $this->t('Display variant settings'),
+      '#title' => t('Display variant settings'),
       '#open' => TRUE,
       '#id' => $display_variant_wrapper,
     ];
 
-    $theme_options[''] = $this->t('- Default -');
+    $theme_options[''] = t('- Default -');
     foreach ($this->themeHandler->listInfo() as $theme) {
       if ($theme->status && empty($theme->info['hidden'])) {
         $theme_options[$theme->getName()] = $theme->info['name'];
@@ -164,14 +164,14 @@ class GeneralForm extends EntityForm {
 
     $form['page']['theme'] = [
       '#type' => 'select',
-      '#title' => $this->t('Theme'),
+      '#title' => t('Theme'),
       '#options' => $theme_options,
       '#default_value' => $this->entity->get('page')['theme'],
-      '#description' => $this->t('A theme that will be used to render the page.'),
+      '#description' => t('A theme that will be used to render the page.'),
     ];
 
     $variant_definitions = $this->variantManager->getDefinitions();
-    $options = ['' => $this->t('- Default -')];
+    $options = ['' => t('- Default -')];
     foreach ($variant_definitions as $id => $definition) {
       $options[$id] = $definition['admin_label'];
     }
@@ -180,7 +180,7 @@ class GeneralForm extends EntityForm {
     $display_variant = $this->entity->get('page')['display_variant'];
     $form['page']['display_variant']['id'] = [
       '#type' => 'select',
-      '#title' => $this->t('Display variant'),
+      '#title' => t('Display variant'),
       '#options' => $options,
       '#default_value' => $display_variant['id'],
       '#ajax' => [
@@ -188,7 +188,7 @@ class GeneralForm extends EntityForm {
         'callback' => '::displayVariantSettings',
         'event' => 'change',
       ],
-      '#description' => $this->t('Display variants render the main content in a certain way.'),
+      '#description' => t('Display variants render the main content in a certain way.'),
     ];
 
     if ($display_variant && $display_variant['id']) {
@@ -202,7 +202,7 @@ class GeneralForm extends EntityForm {
     if ($this->moduleHandler->moduleExists('block')) {
       $form['block'] = [
         '#type' => 'fieldset',
-        '#title' => $this->t('Block'),
+        '#title' => t('Block'),
         '#open' => FALSE,
         '#tree' => TRUE,
         '#group' => 'additional_settings',
@@ -210,14 +210,14 @@ class GeneralForm extends EntityForm {
 
       $form['block']['status'] = [
         '#type' => 'checkbox',
-        '#title' => $this->t('Enable snippet block'),
+        '#title' => t('Enable snippet block'),
         '#default_value' => $this->entity->get('block')['status'],
       ];
 
       $form['block']['name'] = [
         '#type' => 'textfield',
-        '#title' => $this->t('Admin description'),
-        '#description' => $this->t('This will appear on blocks layout page.'),
+        '#title' => t('Admin description'),
+        '#description' => t('This will appear on blocks layout page.'),
         '#default_value' => $this->entity->get('block')['name'],
       ];
     }
@@ -225,7 +225,7 @@ class GeneralForm extends EntityForm {
     // -- Access.
     $form['access'] = [
       '#type' => 'fieldset',
-      '#title' => $this->t('Access'),
+      '#title' => t('Access'),
       '#open' => FALSE,
       '#tree' => TRUE,
       '#group' => 'additional_settings',
@@ -234,14 +234,14 @@ class GeneralForm extends EntityForm {
     $form['access']['type'] = [
       '#type' => 'radios',
       '#options' => [
-        'all' => $this->t('Do not limit'),
-        'permission' => $this->t('Permission'),
-        'role' => $this->t('Role'),
+        'all' => t('Do not limit'),
+        'permission' => t('Permission'),
+        'role' => t('Role'),
       ],
       '#default_value' => $this->entity->get('access')['type'],
     ];
 
-    $options = ['' => $this->t('- Select permission -')];
+    $options = ['' => t('- Select permission -')];
     $permissions = $this->permissionHandler->getPermissions();
     foreach ($permissions as $permission => $permission_info) {
       $provider = $permission_info['provider'];
@@ -252,8 +252,8 @@ class GeneralForm extends EntityForm {
     $form['access']['permission'] = [
       '#type' => 'select',
       '#options' => $options,
-      '#title' => $this->t('Permission'),
-      '#description' => $this->t('Only users with the selected permission flag will be able to access this snippet.'),
+      '#title' => t('Permission'),
+      '#description' => t('Only users with the selected permission flag will be able to access this snippet.'),
       '#default_value' => $this->entity->get('access')['permission'],
       '#states' => [
         'visible' => [
@@ -264,9 +264,9 @@ class GeneralForm extends EntityForm {
 
     $form['access']['role'] = [
       '#type' => 'checkboxes',
-      '#title' => $this->t('Role'),
+      '#title' => t('Role'),
       '#options' => array_map('\Drupal\Component\Utility\Html::escape', user_role_names()),
-      '#description' => $this->t('Only the checked roles will be able to access this snippet.'),
+      '#description' => t('Only the checked roles will be able to access this snippet.'),
       '#default_value' => $this->entity->get('access')['role'],
       '#states' => [
         'visible' => [
@@ -295,25 +295,18 @@ class GeneralForm extends EntityForm {
       }
       // Automatically remove '/' and trailing whitespace from path.
       $page['path'] = trim($page['path'], '/');
-
-      // Display variant form is loaded through ajax request. Make sure the
-      // configuration is initialized correctly even when the respected form
-      // element is missing (for instance in test cases).
-      if (empty($page['display_variant']['configuration']['label'])) {
-        $page['display_variant']['configuration']['label'] = '';
-      }
       $form_state->setValue('page', $page);
     }
 
     $access = $form_state->getValue('access');
 
     if ($access['type'] == 'permission' && !$access['permission']) {
-      $form_state->setError($form['access']['permission'], $this->t('You must select a permission if access type is "Permission"'));
+      $form_state->setError($form['access']['permission'], t('You must select a permission if access type is "Permission"'));
     }
 
     $role = array_filter($access['role']);
     if ($access['type'] == 'role' && count($role) == 0) {
-      $form_state->setError($form['access']['role'], $this->t('You must select at least one role if access type is "Role"'));
+      $form_state->setError($form['access']['role'], t('You must select at least one role if access type is "Role"'));
     }
     $form_state->setValue(['access', 'role'], $role);
 
@@ -327,8 +320,8 @@ class GeneralForm extends EntityForm {
 
     $message_arguments = ['%label' => $this->entity->label()];
     $message = $result == SAVED_NEW ?
-      $this->t('Snippet %label has been created.', $message_arguments) :
-      $this->t('Snippet %label has been updated.', $message_arguments);
+      t('Snippet %label has been created.', $message_arguments) :
+      t('Snippet %label has been updated.', $message_arguments);
     drupal_set_message($message);
 
     $form_state->setRedirectUrl($this->entity->toUrl('edit-form'));
@@ -362,22 +355,22 @@ class GeneralForm extends EntityForm {
    *   A list of error strings.
    */
   protected function validatePath($path) {
-    $errors = [];
+    $errors = array();
     if (strpos($path, '%') === 0) {
-      $errors[] = $this->t('"%" may not be used for the first segment of a path.');
+      $errors[] = t('"%" may not be used for the first segment of a path.');
     }
 
     $parsed_url = UrlHelper::parse($path);
     if (empty($parsed_url['path'])) {
-      $errors[] = $this->t('Path is empty.');
+      $errors[] = t('Path is empty.');
     }
 
     if (!empty($parsed_url['query'])) {
-      $errors[] = $this->t('No query allowed.');
+      $errors[] = t('No query allowed.');
     }
 
     if (!parse_url('internal:/' . $path)) {
-      $errors[] = $this->t('Invalid path. Valid characters are alphanumerics as well as "-", ".", "_" and "~".');
+      $errors[] = t('Invalid path. Valid characters are alphanumerics as well as "-", ".", "_" and "~".');
     }
 
     $path_sections = explode('/', $path);
@@ -388,7 +381,7 @@ class GeneralForm extends EntityForm {
         && is_numeric($matches[1]));
     });
     if (!empty($numeric_placeholders)) {
-      $errors[] = $this->t('Numeric placeholders may not be used. Please use plain placeholders (%).');
+      $errors[] = t('Numeric placeholders may not be used. Please use plain placeholders (%).');
     }
     return $errors;
   }

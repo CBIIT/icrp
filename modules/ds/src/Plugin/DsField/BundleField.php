@@ -1,7 +1,6 @@
 <?php
 
 namespace Drupal\ds\Plugin\DsField;
-
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

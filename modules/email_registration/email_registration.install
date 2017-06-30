@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Update and installation requirement hooks for the Email Registration module.
+ * Checks requirements for the email_registration.module.
  */
 
 /**
@@ -22,14 +22,4 @@ function email_registration_requirements() {
   }
 
   return $requirements;
-}
-
-/**
- * Add an option to log in with the username as well as the e-mail address.
- */
-function email_registration_update_8100() {
-  $config_factory = \Drupal::configFactory();
-  $email_registration = $config_factory->getEditable('email_registration.settings');
-  $email_registration->set('login_with_username', FALSE);
-  $email_registration->save();
 }

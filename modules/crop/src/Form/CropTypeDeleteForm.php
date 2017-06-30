@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\crop\Form\CropTypeDeleteForm.
+ */
+
 namespace Drupal\crop\Form;
 
 use Drupal\Core\Entity\EntityConfirmFormBase;
@@ -99,7 +104,7 @@ class CropTypeDeleteForm extends EntityConfirmFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->entity->delete();
     $t_args = array('%name' => $this->entity->label());
-    drupal_set_message($this->t('The crop type %name has been deleted.', $t_args));
+    drupal_set_message(t('The crop type %name has been deleted.', $t_args));
     $this->logger('crop')->notice('Deleted crop type %name.', $t_args);
 
     $form_state->setRedirectUrl($this->getCancelUrl());

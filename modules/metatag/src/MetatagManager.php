@@ -4,12 +4,9 @@ namespace Drupal\metatag;
 
 use Drupal\Component\Render\PlainTextOutput;
 use Drupal\Core\Entity\ContentEntityInterface;
-use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\field\Entity\FieldConfig;
-use Drupal\metatag\Entity\MetatagDefaults;
-use Drupal\views\ViewEntityInterface;
 
 /**
  * Class MetatagManager.
@@ -20,7 +17,7 @@ class MetatagManager implements MetatagManagerInterface {
 
   protected $groupPluginManager;
   protected $tagPluginManager;
-  protected $metatagDefaults;
+
   protected $tokenService;
 
   /**
@@ -37,18 +34,15 @@ class MetatagManager implements MetatagManagerInterface {
    * @param MetatagTagPluginManager $tagPluginManager
    * @param MetatagToken $token
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $channelFactory
-   * @param EntityTypeManager $entityTypeManager
    */
   public function __construct(MetatagGroupPluginManager $groupPluginManager,
                               MetatagTagPluginManager $tagPluginManager,
                               MetatagToken $token,
-                              LoggerChannelFactoryInterface $channelFactory,
-                              EntityTypeManager $entityTypeManager) {
+                              LoggerChannelFactoryInterface $channelFactory) {
     $this->groupPluginManager = $groupPluginManager;
     $this->tagPluginManager = $tagPluginManager;
     $this->tokenService = $token;
     $this->logger = $channelFactory->get('metatag');
-    $this->metatagDefaults = $entityTypeManager->getStorage('metatag_defaults');
   }
 
   /**
@@ -69,39 +63,10 @@ class MetatagManager implements MetatagManagerInterface {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function tagsFromEntityWithDefaults(ContentEntityInterface $entity) {
-    return $this->tagsFromEntity($entity) + $this->defaultTagsFromEntity($entity);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function defaultTagsFromEntity(ContentEntityInterface $entity) {
-    /** @var MetatagDefaults $metatags */
-    $metatags = $this->metatagDefaults->load('global');
-    if (!$metatags) {
-      return NULL;
-    }
-    // Add/overwrite with tags set on the entity type.
-    $entity_type_tags = $this->metatagDefaults->load($entity->getEntityTypeId());
-    if (!is_null($entity_type_tags)) {
-      $metatags->overwriteTags($entity_type_tags->get('tags'));
-    }
-    // Add/overwrite with tags set on the entity bundle.
-    $bundle_metatags = $this->metatagDefaults->load($entity->getEntityTypeId() . '__' . $entity->bundle());
-    if (!is_null($bundle_metatags)) {
-      $metatags->overwriteTags($bundle_metatags->get('tags'));
-    }
-    return $metatags->get('tags');
-  }
-
-  /**
    * Gets the group plugin definitions.
    *
    * @return array
-   *   Group definitions.
+   *   Group definitions
    */
   protected function groupDefinitions() {
     return $this->groupPluginManager->getDefinitions();
@@ -126,10 +91,10 @@ class MetatagManager implements MetatagManagerInterface {
     // Pull the data from the definitions into a new array.
     $groups = [];
     foreach ($metatag_groups as $group_name => $group_info) {
-      $groups[$group_name]['id'] = $group_info['id'];
-      $groups[$group_name]['label'] = $group_info['label']->render();
-      $groups[$group_name]['description'] = $group_info['description'];
-      $groups[$group_name]['weight'] = $group_info['weight'];
+      $id  = $group_info['id'];
+      $groups[$id]['label'] = $group_info['label']->render();
+      $groups[$id]['description'] = $group_info['description'];
+      $groups[$id]['weight'] = $group_info['weight'];
     }
 
     // Create the 'sort by' array.
@@ -153,10 +118,10 @@ class MetatagManager implements MetatagManagerInterface {
     // Pull the data from the definitions into a new array.
     $tags = [];
     foreach ($metatag_tags as $tag_name => $tag_info) {
-      $tags[$tag_name]['id'] = $tag_info['id'];
-      $tags[$tag_name]['label'] = $tag_info['label']->render();
-      $tags[$tag_name]['group'] = $tag_info['group'];
-      $tags[$tag_name]['weight'] = $tag_info['weight'];
+      $id  = $tag_info['id'];
+      $tags[$id]['label'] = $tag_info['label']->render();
+      $tags[$id]['group'] = $tag_info['group'];
+      $tags[$id]['weight'] = $tag_info['weight'];
     }
 
     // Create the 'sort by' array.
@@ -179,7 +144,7 @@ class MetatagManager implements MetatagManagerInterface {
     $groups = $this->sortedGroups();
     $tags = $this->sortedTags();
 
-    foreach ($tags as $tag_name => $tag) {
+    foreach ($tags as $tag_id => $tag) {
       $tag_group = $tag['group'];
 
       if (!isset($groups[$tag_group])) {
@@ -190,7 +155,7 @@ class MetatagManager implements MetatagManagerInterface {
         $tag_group = 'basic';
       }
 
-      $groups[$tag_group]['tags'][$tag_name] = $tag;
+      $groups[$tag_group]['tags'][$tag_id] = $tag;
     }
 
     return $groups;
@@ -200,6 +165,7 @@ class MetatagManager implements MetatagManagerInterface {
    * {@inheritdoc}
    */
   public function form(array $values, array $element, array $token_types = [], array $included_groups = NULL, array $included_tags = NULL) {
+
     // Add the outer fieldset.
     $element += [
       '#type' => 'details',
@@ -210,29 +176,29 @@ class MetatagManager implements MetatagManagerInterface {
     $groups_and_tags = $this->sortedGroupsWithTags();
 
     $first = TRUE;
-    foreach ($groups_and_tags as $group_name => $group) {
+    foreach ($groups_and_tags as $group_id => $group) {
       // Only act on groups that have tags and are in the list of included
       // groups (unless that list is null).
-      if (isset($group['tags']) && (is_null($included_groups) || in_array($group_name, $included_groups) || in_array($group['id'], $included_groups))) {
+      if (isset($group['tags']) && (is_null($included_groups) || in_array($group_id, $included_groups))) {
         // Create the fieldset.
-        $element[$group_name]['#type'] = 'details';
-        $element[$group_name]['#title'] = $group['label'];
-        $element[$group_name]['#description'] = $group['description'];
-        $element[$group_name]['#open'] = $first;
+        $element[$group_id]['#type'] = 'details';
+        $element[$group_id]['#title'] = $group['label'];
+        $element[$group_id]['#description'] = $group['description'];
+        $element[$group_id]['#open'] = $first;
         $first = FALSE;
 
-        foreach ($group['tags'] as $tag_name => $tag) {
+        foreach ($group['tags'] as $tag_id => $tag) {
           // Only act on tags in the included tags list, unless that is null.
-          if (is_null($included_tags) || in_array($tag_name, $included_tags) || in_array($tag['id'], $included_tags)) {
+          if (is_null($included_tags) || in_array($tag_id, $included_tags)) {
             // Make an instance of the tag.
-            $tag = $this->tagPluginManager->createInstance($tag_name);
+            $tag = $this->tagPluginManager->createInstance($tag_id);
 
             // Set the value to the stored value, if any.
-            $tag_value = isset($values[$tag_name]) ? $values[$tag_name] : NULL;
+            $tag_value = isset($values[$tag_id]) ? $values[$tag_id] : NULL;
             $tag->setValue($tag_value);
 
             // Create the bit of form for this tag.
-            $element[$group_name][$tag_name] = $tag->form($element);
+            $element[$group_id][$tag_id] = $tag->form($element);
           }
         }
       }
@@ -272,8 +238,8 @@ class MetatagManager implements MetatagManagerInterface {
   /**
    * Returns a list of the metatags with values from a field.
    *
-   * @param ContentEntityInterface $entity
-   * @param string $field_name
+   * @param $entity
+   * @param $field_name
    */
   protected function getFieldTags(ContentEntityInterface $entity, $field_name) {
     $tags = [];
@@ -289,93 +255,6 @@ class MetatagManager implements MetatagManagerInterface {
   }
 
   /**
-   *
-   *
-   * @param ContentEntityInterface $entity
-   */
-  public function getDefaultMetatags(ContentEntityInterface $entity = NULL) {
-    // Get general global metatags
-    $metatags = $this->getGlobalMetatags();
-    // If that is empty something went wrong.
-    if (!$metatags) {
-      return;
-    }
-
-    // Check if this is a special page.
-    $special_metatags = $this->getSpecialMetatags();
-
-    // Merge with all globals defaults.
-    if ($special_metatags) {
-      $metatags->set('tags', array_merge($metatags->get('tags'), $special_metatags->get('tags')));
-    }
-
-    // Next check if there is this page is an entity that has meta tags.
-    // @TODO: Think about using other defaults, e.g. views. Maybe use plugins?
-    else {
-      if (is_null($entity)) {
-        $entity = metatag_get_route_entity();
-      }
-
-      if (!empty($entity)) {
-        // Get default metatags for a given entity.
-        $entity_defaults = $this->getEntityDefaultMetatags($entity);
-        if ($entity_defaults != NULL) {
-          $metatags->set('tags', array_merge($metatags->get('tags'), $entity_defaults));
-        }
-      }
-    }
-
-    return $metatags->get('tags');
-  }
-
-  /**
-   *
-   */
-  public function getGlobalMetatags() {
-    return $this->metatagDefaults->load('global');
-  }
-
-  /**
-   *
-   */
-  public function getSpecialMetatags() {
-    $metatags = NULL;
-
-    if (\Drupal::service('path.matcher')->isFrontPage()) {
-      $metatags = $this->metatagDefaults->load('front');
-    }
-    elseif (\Drupal::service('current_route_match')->getRouteName() == 'system.403') {
-      $metatags = $this->metatagDefaults->load('403');
-    }
-    elseif (\Drupal::service('current_route_match')->getRouteName() == 'system.404') {
-      $metatags = $this->metatagDefaults->load('404');
-    }
-
-    return $metatags;
-  }
-
-  /**
-   *
-   */
-  public function getEntityDefaultMetatags(ContentEntityInterface $entity) {
-    $entity_metatags = $this->metatagDefaults->load($entity->getEntityTypeId());
-    $metatags = [];
-    if ($entity_metatags != NULL) {
-      // Merge with global defaults.
-      $metatags = array_merge($metatags, $entity_metatags->get('tags'));
-    }
-
-    // Finally, check if we should apply bundle overrides.
-    $bundle_metatags = $this->metatagDefaults->load($entity->getEntityTypeId() . '__' . $entity->bundle());
-    if ($bundle_metatags != NULL) {
-      // Merge with existing defaults.
-      $metatags = array_merge($metatags, $bundle_metatags->get('tags'));
-    }
-
-    return $metatags;
-  }
-
-  /**
    * Generate the elements that go in the attached array in
    * hook_page_attachments.
    *
@@ -383,49 +262,12 @@ class MetatagManager implements MetatagManagerInterface {
    *   The array of tags as plugin_id => value.
    * @param object $entity
    *   Optional entity object to use for token replacements.
-   *
    * @return array
    *   Render array with tag elements.
    */
   public function generateElements($tags, $entity = NULL) {
-    $elements = [];
-    $tags = $this->generateRawElements($tags, $entity);
-
-    foreach ($tags as $name => $tag) {
-      if (!empty($tag)) {
-        $elements['#attached']['html_head'][] = [
-          $tag,
-          $name,
-        ];
-      }
-    }
-
-    return $elements;
-  }
-
-  /**
-   * Generate the actual meta tag values.
-   *
-   * @param array $tags
-   *   The array of tags as plugin_id => value.
-   * @param object $entity
-   *   Optional entity object to use for token replacements.
-   *
-   * @return array
-   *   Render array with tag elements.
-   */
-  public function generateRawElements($tags, $entity = NULL) {
-    $rawTags = [];
-
     $metatag_tags = $this->tagPluginManager->getDefinitions();
-
-    // Order the elements by weight first, as some systems like Facebook care.
-    uksort($tags, function ($tag_name_a, $tag_name_b) use ($metatag_tags) {
-      $weight_a = isset($metatag_tags[$tag_name_a]['weight']) ? $metatag_tags[$tag_name_a]['weight'] : 0;
-      $weight_b = isset($metatag_tags[$tag_name_b]['weight']) ? $metatag_tags[$tag_name_b]['weight'] : 0;
-
-      return ($weight_a < $weight_b) ? -1 : 1;
-    });
+    $elements = [];
 
     // Each element of the $values array is a tag with the tag plugin name
     // as the key.
@@ -438,15 +280,7 @@ class MetatagManager implements MetatagManagerInterface {
         // Render any tokens in the value.
         $token_replacements = [];
         if ($entity) {
-          // @TODO: This needs a better way of discovering the context.
-          if ($entity instanceof ViewEntityInterface) {
-            // Views tokens require the ViewExecutable, not the config entity.
-            // @todo Can we move this into metatag_views somehow?
-            $token_replacements = ['view' => $entity->getExecutable()];
-          }
-          else {
-            $token_replacements = [$entity->getEntityTypeId() => $entity];
-          }
+          $token_replacements = [$entity->getEntityTypeId() => $entity];
         }
 
         // Set the value as sometimes the data needs massaging, such as when
@@ -455,7 +289,6 @@ class MetatagManager implements MetatagManagerInterface {
         // @see @Robots::setValue().
         $tag->setValue($value);
         $langcode = \Drupal::languageManager()->getCurrentLanguage(LanguageInterface::TYPE_CONTENT)->getId();
-
         if ($tag->type() === 'image') {
           $processed_value = $this->tokenService->replace($tag->value(), $token_replacements, ['langcode' => $langcode]);
         }
@@ -470,12 +303,15 @@ class MetatagManager implements MetatagManagerInterface {
         $output = $tag->output();
 
         if (!empty($output)) {
-          $rawTags[$tag_name] = $output;
+          $elements['#attached']['html_head'][] = [
+            $output,
+            $tag_name
+          ];
         }
       }
     }
 
-    return $rawTags;
+    return $elements;
   }
 
   /**

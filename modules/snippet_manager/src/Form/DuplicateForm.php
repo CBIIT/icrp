@@ -18,14 +18,14 @@ class DuplicateForm extends EntityForm {
   public function form(array $form, FormStateInterface $form_state) {
     parent::form($form, $form_state);
 
-    $form['label'] = [
+    $form['label'] = array(
       '#type' => 'textfield',
-      '#title' => $this->t('Snippet name'),
+      '#title' => t('Snippet name'),
       '#required' => TRUE,
       '#size' => 32,
       '#maxlength' => 255,
-      '#default_value' => $this->t('Duplicate of @label', ['@label' => $this->entity->label()]),
-    ];
+      '#default_value' => t('Duplicate of @label', ['@label' => $this->entity->label()]),
+    );
 
     $form['id'] = [
       '#type' => 'machine_name',
@@ -45,7 +45,7 @@ class DuplicateForm extends EntityForm {
   protected function actions(array $form, FormStateInterface $form_state) {
     $actions['submit'] = [
       '#type' => 'submit',
-      '#value' => $this->t('Duplicate'),
+      '#value' => t('Duplicate'),
     ];
     return $actions;
   }

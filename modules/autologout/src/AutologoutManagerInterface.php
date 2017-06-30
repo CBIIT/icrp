@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Definition of Drupal\autologout\AutologoutHelperInterface.
+ */
+
 namespace Drupal\autologout;
 
 /**

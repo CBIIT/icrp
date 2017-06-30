@@ -7,4 +7,5 @@ dependencies:
   enforced:
     module:
       - ds_extras
-      - node
+  module:
+    - node

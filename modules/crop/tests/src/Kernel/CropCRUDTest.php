@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\Tests\crop\Kernel\CropCRUDTest.
+ */
+
 namespace Drupal\Tests\crop\Kernel;
 
 use Drupal\Component\Render\FormattableMarkup;
@@ -40,7 +45,7 @@ class CropCRUDTest extends CropUnitTestBase {
 
     $loaded = $this->container->get('config.factory')->get('crop.type.' . $values['id'])->get();
     foreach ($values as $key => $value) {
-      $this->assertEquals($loaded[$key], $value, new FormattableMarkup('Correct value for @field found.', ['@field' => $key]));
+      $this->assertEqual($loaded[$key], $value, new FormattableMarkup('Correct value for @field found.', ['@field' => $key]));
     }
   }
 
@@ -91,11 +96,11 @@ class CropCRUDTest extends CropUnitTestBase {
     foreach ($values as $key => $value) {
       switch ($key) {
         case 'type':
-          $this->assertEquals($loaded_crop->{$key}->target_id, $value, new FormattableMarkup('Correct value for @field found.', ['@field' => $key]));
+          $this->assertEqual($loaded_crop->{$key}->target_id, $value, new FormattableMarkup('Correct value for @field found.', ['@field' => $key]));
           break;
 
         default:
-          $this->assertEquals($loaded_crop->{$key}->value, $value, new FormattableMarkup('Correct value for @field found.', ['@field' => $key]));
+          $this->assertEqual($loaded_crop->{$key}->value, $value, new FormattableMarkup('Correct value for @field found.', ['@field' => $key]));
           break;
       }
     }

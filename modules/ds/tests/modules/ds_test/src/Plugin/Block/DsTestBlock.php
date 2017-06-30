@@ -35,9 +35,6 @@ class DsTestBlock extends BlockBase {
     return $build;
   }
 
-  /**
-   * Ensure that this object is not cached.
-   */
   public function getCacheMaxAge() {
     return 0;
   }

@@ -14,7 +14,9 @@ class Page extends ControllerBase {
    * Lists the examples provided by form_example.
    */
   public function description() {
-    // This library is required to facilitate the ajax modal form demo.
+    // These libraries are required to facilitate the ajax modal form demo.
+    $content['#attached']['library'][] = 'core/drupal.ajax';
+    $content['#attached']['library'][] = 'core/drupal.dialog';
     $content['#attached']['library'][] = 'core/drupal.dialog.ajax';
     $content['intro'] = [
       '#markup' => '<p>' . $this->t('Form examples to demonstrate common UI solutions using the Drupal Form API.') . '</p>',
@@ -26,17 +28,15 @@ class Page extends ControllerBase {
       '#items' => [
         Link::createFromRoute($this->t('Simple Form'), 'fapi_example.simple_form'),
         Link::createFromRoute($this->t('Multistep Form'), 'fapi_example.multistep_form'),
-        Link::createFromRoute($this->t('Common Input Elements'), 'fapi_example.input_demo'),
-        Link::createFromRoute($this->t('Build Form Demo'), 'fapi_example.build_demo'),
-        Link::createFromRoute($this->t('Container Elements'), 'fapi_example.container_demo'),
-        Link::createFromRoute($this->t('Form State Binding'), 'fapi_example.state_demo'),
-        Link::createFromRoute($this->t('Vertical Tab Elements'), 'fapi_example.vertical_tabs_demo'),
-        Link::createFromRoute($this->t('Ajax Form'), 'fapi_example.ajax_demo'),
-        Link::createFromRoute($this->t('Add-more Button'), 'fapi_example.ajax_addmore'),
+        Link::createFromRoute($this->t('Input Demo'), 'fapi_example.input_demo'),
+        Link::createFromRoute($this->t('Form State Example'), 'fapi_example.state_demo'),
+        Link::createFromRoute($this->t('Container Demo'), 'fapi_example.container_demo'),
+        Link::createFromRoute($this->t('Vertical Tab Demo'), 'fapi_example.vertical_tabs_demo'),
+        Link::createFromRoute($this->t('Ajax Demo'), 'fapi_example.ajax_demo'),
 
         // Attributes are used by the core dialog libraries to invoke the modal.
         Link::createFromRoute(
-          $this->t('Modal Form'),
+          $this->t('Modal Example'),
           'fapi_example.modal_form',
            [],
            [
@@ -46,6 +46,9 @@ class Page extends ControllerBase {
              ],
            ]
         ),
+
+        Link::createFromRoute($this->t('Build Demo'), 'fapi_example.build_demo'),
+        Link::createFromRoute($this->t('Ajax Add More Demo'), 'fapi_example.ajax_addmore'),
       ],
     ];
 

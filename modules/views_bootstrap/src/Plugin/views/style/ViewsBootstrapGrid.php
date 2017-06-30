@@ -14,24 +14,19 @@ use Drupal\Component\Utility\Html;
  * @ViewsStyle(
  *   id = "views_bootstrap_grid",
  *   title = @Translation("Bootstrap Grid"),
- *   help = @Translation("Displays rows in a Bootstrap Grid layout"),
+ *   help = @Translation(""),
  *   theme = "views_bootstrap_grid",
- *   theme_file = "../views_bootstrap.theme.inc",
  *   display_types = {"normal"}
  * )
  */
 class ViewsBootstrapGrid extends StylePluginBase {
   /**
    * Overrides \Drupal\views\Plugin\views\style\StylePluginBase::usesRowPlugin.
-   *
-   * @var bool
    */
   protected $usesRowPlugin = TRUE;
 
   /**
    * Overrides \Drupal\views\Plugin\views\style\StylePluginBase::usesRowClass.
-   *
-   * @var bool
    */
   protected $usesRowClass = TRUE;
 
@@ -62,36 +57,35 @@ class ViewsBootstrapGrid extends StylePluginBase {
   }
 
   /**
-   * Normalize a list of columns.
-   *
-   * Normalize columns based upon the fields that are available. This compares
-   * the fields stored in the style handler
+   * Normalize a list of columns based upon the fields that are
+   * available. This compares the fields stored in the style handler
    * to the list of fields actually in the view, removing fields that
    * have been removed and adding new fields in their own column.
+   *
    * - Each field must be in a column.
-   * - Each column must be based upon a field, and that field is somewhere in
-   * the column.
+   * - Each column must be based upon a field, and that field
+   *   is somewhere in the column.
    * - Any fields not currently represented must be added.
    * - Columns must be re-ordered to match the fields.
    *
-   * @param array $columns
+   * @param $columns
    *   An array of all fields; the key is the id of the field and the
    *   value is the id of the column the field should be in.
-   * @param array|null $fields
+   * @param $fields
    *   The fields to use for the columns. If not provided, they will
    *   be requested from the current display. The running render should
    *   send the fields through, as they may be different than what the
    *   display has listed due to access control or other changes.
    *
    * @return array
-   *   An array of all the sanitized columns.
+   *    An array of all the sanitized columns.
    */
-  public function sanitizeColumns(array $columns, $fields = NULL) {
-    $sanitized = [];
+  public function sanitizeColumns($columns, $fields = NULL) {
+    $sanitized = array();
     if ($fields === NULL) {
       $fields = $this->displayHandler->getOption('fields');
     }
-    // Pre-configure the sanitized array so that the order is retained.
+    // Preconfigure the sanitized array so that the order is retained.
     foreach ($fields as $field => $info) {
       // Set to itself so that if it isn't touched, it gets column
       // status automatically.
@@ -127,25 +121,25 @@ class ViewsBootstrapGrid extends StylePluginBase {
   protected function defineOptions() {
     $options = parent::defineOptions();
 
-    $options['alignment'] = ['default' => 'horizontal'];
-    $options['columns'] = ['default' => '4'];
-    $options['col_xs'] = ['default' => 'col-xs-12'];
-    $options['col_sm'] = ['default' => 'col-sm-12'];
-    $options['col_md'] = ['default' => 'col-md-12'];
-    $options['col_lg'] = ['default' => 'col-lg-12'];
-    $options['automatic_width'] = ['default' => TRUE];
-    $options['col_class_custom'] = ['default' => ''];
-    $options['col_class_default'] = ['default' => TRUE];
-    $options['row_class_custom'] = ['default' => ''];
-    $options['row_class_default'] = ['default' => TRUE];
-    $options['default'] = ['default' => ''];
-    $options['info'] = ['default' => []];
-    $options['override'] = ['default' => TRUE];
-    $options['sticky'] = ['default' => FALSE];
-    $options['order'] = ['default' => 'asc'];
-    $options['caption'] = ['default' => ''];
-    $options['summary'] = ['default' => ''];
-    $options['description'] = ['default' => ''];
+    $options['alignment'] = array('default' => 'horizontal');
+    $options['columns'] = array('default' => '4');
+    $options['col_xs'] = array('default' => 'col-xs-12');
+    $options['col_sm'] = array('default' => 'col-sm-12');
+    $options['col_md'] = array('default' => 'col-md-12');
+    $options['col_lg'] = array('default' => 'col-lg-12');
+    $options['automatic_width'] = array('default' => TRUE);
+    $options['col_class_custom'] = array('default' => '');
+    $options['col_class_default'] = array('default' => TRUE);
+    $options['row_class_custom'] = array('default' => '');
+    $options['row_class_default'] = array('default' => TRUE);
+    $options['default'] = array('default' => '');
+    $options['info'] = array('default' => array());
+    $options['override'] = array('default' => TRUE);
+    $options['sticky'] = array('default' => FALSE);
+    $options['order'] = array('default' => 'asc');
+    $options['caption'] = array('default' => '');
+    $options['summary'] = array('default' => '');
+    $options['description'] = array('default' => '');
     return $options;
   }
 
@@ -155,24 +149,24 @@ class ViewsBootstrapGrid extends StylePluginBase {
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     parent::buildOptionsForm($form, $form_state);
 
-    $form['alignment'] = [
+    $form['alignment'] = array(
       '#type' => 'radios',
-      '#title' => $this->t('Alignment'),
-      '#options' => [
-        'horizontal' => $this->t('Horizontal'),
-        'vertical' => $this->t('Vertical'),
-      ],
-      '#description' => $this->t('Horizontal alignment will place items starting in the upper left and moving right.
+      '#title' => t('Alignment'),
+      '#options' => array(
+        'horizontal' => t('Horizontal'),
+        'vertical' => t('Vertical'),
+      ),
+      '#description' => t('Horizontal alignment will place items starting in the upper left and moving right.
       Vertical alignment will place items starting in the upper left and moving down.'),
       '#default_value' => $this->options['alignment'],
-    ];
+    );
 
-    $form['columns'] = [
+    $form['columns'] = array(
       '#type' => 'select',
-      '#title' => $this->t('Number of columns per row'),
+      '#title' => t('Number of columns per row'),
       '#required' => TRUE,
       '#default_value' => isset($this->options['columns']) ? $this->options['columns'] : NULL,
-      '#options' => [
+      '#options' => array(
         1 => 1,
         2 => 2,
         3 => 3,
@@ -180,24 +174,24 @@ class ViewsBootstrapGrid extends StylePluginBase {
         6 => 6,
         12 => 12,
         999 => $this->t('All'),
-      ],
-    ];
+      ),
+    );
 
-    foreach (['xs', 'sm', 'md', 'lg'] as $size) {
-      $form["col_${size}"] = [
+    foreach (array('xs', 'sm', 'md', 'lg') as $size) {
+      $form["col_${size}"] = array(
         '#type' => 'select',
-        '#title' => $this->t("Number of columns (col-${size})"),
+        '#title' => t("Number of columns (col-${size})"),
         '#required' => TRUE,
         '#default_value' => isset($this->options["col_${size}"]) ? $this->options["col_${size}"] : NULL,
-        '#options' => [
+        '#options' => array(
           "col-${size}-12" => 1,
           "col-${size}-6" => 2,
           "col-${size}-4" => 3,
           "col-${size}-3" => 4,
           "col-${size}-2" => 6,
           "col-${size}-1" => 12,
-        ],
-      ];
+        ),
+      );
     }
   }
 

@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\crop\CropTypeInterface.
+ */
+
 namespace Drupal\crop;
 
 use Drupal\Core\Config\Entity\ConfigEntityInterface;

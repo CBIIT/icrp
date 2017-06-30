@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\crop\EntityProviderManager.
+ */
+
 namespace Drupal\crop;
 
 use Drupal\Core\Cache\CacheBackendInterface;

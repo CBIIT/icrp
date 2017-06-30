@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\crop\CropTypeListBuilder.
+ */
+
 namespace Drupal\crop;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
@@ -70,11 +75,11 @@ class CropTypeListBuilder extends ConfigEntityListBuilder {
     $header = [];
     $header['name'] = t('Name');
     $header['description'] = [
-      'data' => $this->t('Description'),
+      'data' => t('Description'),
       'class' => [RESPONSIVE_PRIORITY_MEDIUM],
     ];
     $header['aspect_ratio'] = [
-      'data' => $this->t('Aspect Ratio'),
+      'data' => t('Aspect Ratio'),
     ];
     $header['usage'] = $this->t('Used in');
     return $header + parent::buildHeader();
@@ -86,7 +91,7 @@ class CropTypeListBuilder extends ConfigEntityListBuilder {
   public function buildRow(EntityInterface $entity) {
     $row = [];
     $row['name'] = [
-      'data' => $entity->label(),
+      'data' => $this->getLabel($entity),
       'class' => ['menu-label'],
     ];
     $row['description'] = Xss::filterAdmin($entity->description);
@@ -108,11 +113,7 @@ class CropTypeListBuilder extends ConfigEntityListBuilder {
 
     $other_image_styles = array_splice($image_styles, 2);
     if ($other_image_styles) {
-      $usage_message = t('@first, @second and @count more', [
-        '@first' => $usage[0],
-        '@second' => $usage[1],
-        '@count' => count($other_image_styles),
-      ]);
+      $usage_message = t('@first, @second and @count more', ['@first' => $usage[0], '@second' => $usage[1], '@count' => count($other_image_styles)]);
     }
     else {
       $usage_message = implode(', ', $usage);
@@ -121,6 +122,7 @@ class CropTypeListBuilder extends ConfigEntityListBuilder {
 
     return $row + parent::buildRow($entity);
   }
+
 
   /**
    * {@inheritdoc}

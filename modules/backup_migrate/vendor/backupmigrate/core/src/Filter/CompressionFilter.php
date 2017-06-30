@@ -89,23 +89,20 @@ class CompressionFilter extends PluginBase implements FileProcessorInterface {
    * @return array
    */
   public function configSchema($params = array()) {
-    $schema = array();
+    $form = array();
 
     if ($params['operation'] == 'backup') {
-      $schema['groups']['file'] = [
-        'title' => 'Backup File',
-      ];
       $compression_options = $this->_availableCompressionAlgorithms();
-      $schema['fields']['compression'] = [
+      $form['fields']['compression'] = [
         'group' => 'file',
-        'type' => 'enum',
+        'type' => count($compression_options) > 1 ? "select" : 'value',
         'title' => 'Compression',
         'options' => $compression_options,
         'actions' => ['backup']
       ];
     }
 
-    return $schema;
+    return $form;
   }
 
 
@@ -114,7 +111,7 @@ class CompressionFilter extends PluginBase implements FileProcessorInterface {
    *
    * @return \BackupMigrate\Core\Config\Config
    */
-  public function configDefaults() {
+  public function confDefaults() {
     return new Config([
       'compression' => $this->_defaultCompressionAlgorithm(),
     ]);
@@ -332,6 +329,21 @@ class CompressionFilter extends PluginBase implements FileProcessorInterface {
     }
 
     return $success;
+  }
+
+
+  /**
+   * Get the default value for the compression type.
+   *
+   * @return string
+   */
+  protected function _confDefault_compression() {
+    $available = array_keys($this->_availableCompressionAlgorithms());
+    // Remove the 'none' option.
+    array_shift($available);
+    $out = array_shift($available);
+    // Return the first available algorithm or 'none' of none other exist.
+    return $out ? $out : 'none';
   }
 
   /**

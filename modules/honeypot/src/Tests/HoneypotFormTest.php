@@ -1,8 +1,14 @@
 <?php
 
+/**
+ * @file
+ * Definition of Drupal\honeypot\Tests\HoneypotFormTest.
+ */
+
 namespace Drupal\honeypot\Tests;
 
 use Drupal\simpletest\WebTestBase;
+use Drupal\Core\Database\Database;
 use Drupal\comment\Tests\CommentTestTrait;
 use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
 use Drupal\contact\Entity\ContactForm;
@@ -27,9 +33,6 @@ class HoneypotFormTest extends WebTestBase {
    */
   public static $modules = ['honeypot', 'node', 'comment', 'contact'];
 
-  /**
-   * Setup before test.
-   */
   public function setUp() {
     // Enable modules required for this test.
     parent::setUp();
@@ -105,9 +108,6 @@ class HoneypotFormTest extends WebTestBase {
     $this->assertText(t('A welcome message with further instructions has been sent to your email address.'), 'User registered successfully.');
   }
 
-  /**
-   * Test for user register honeypot filled.
-   */
   public function testProtectUserRegisterHoneypotFilled() {
     // Set up form and submit it.
     $edit['name'] = $this->randomMachineName();
@@ -119,9 +119,6 @@ class HoneypotFormTest extends WebTestBase {
     $this->assertText(t('There was a problem with your form submission. Please refresh the page and try again.'), 'Registration form protected by honeypot.');
   }
 
-  /**
-   * Test for user register too fast.
-   */
   public function testProtectRegisterUserTooFast() {
     \Drupal::configFactory()->getEditable('honeypot.settings')->set('time_limit', 1)->save();
 
@@ -152,7 +149,7 @@ class HoneypotFormTest extends WebTestBase {
     $comment = 'Test comment.';
 
     // Disable time limit for honeypot.
-    \Drupal::configFactory()->getEditable('honeypot.settings')->set('time_limit', 0)->save();
+    $honeypot_config = \Drupal::configFactory()->getEditable('honeypot.settings')->set('time_limit', 0)->save();
 
     // Log in the web user.
     $this->drupalLogin($this->webUser);
@@ -163,9 +160,6 @@ class HoneypotFormTest extends WebTestBase {
     $this->assertText(t('Your comment has been queued for review'), 'Comment posted successfully.');
   }
 
-  /**
-   * Test for comment form honeypot filled.
-   */
   public function testProtectCommentFormHoneypotFilled() {
     $comment = 'Test comment.';
 
@@ -179,9 +173,6 @@ class HoneypotFormTest extends WebTestBase {
     $this->assertText(t('There was a problem with your form submission. Please refresh the page and try again.'), 'Comment posted successfully.');
   }
 
-  /**
-   * Test for comment form honeypot bypass.
-   */
   public function testProtectCommentFormHoneypotBypass() {
     // Log in the admin user.
     $this->drupalLogin($this->adminUser);
@@ -199,7 +190,7 @@ class HoneypotFormTest extends WebTestBase {
     $this->drupalLogin($this->webUser);
 
     // Reset the time limit to 5 seconds.
-    \Drupal::configFactory()->getEditable('honeypot.settings')->set('time_limit', 5)->save();
+    $honeypot_config = \Drupal::configFactory()->getEditable('honeypot.settings')->set('time_limit', 5)->save();
 
     // Set up the form and submit it.
     $edit["title[0][value]"] = 'Test Page';
@@ -220,14 +211,11 @@ class HoneypotFormTest extends WebTestBase {
     $this->assertNoText(t('There was a problem with your form submission.'), 'Honeypot not blocking node form previews.');
   }
 
-  /**
-   * Test protection on the Contact form.
-   */
   public function testProtectContactForm() {
     $this->drupalLogin($this->adminUser);
 
     // Disable 'protect_all_forms'.
-    \Drupal::configFactory()->getEditable('honeypot.settings')->set('protect_all_forms', FALSE)->save();
+    $honeypot_config = \Drupal::configFactory()->getEditable('honeypot.settings')->set('protect_all_forms', FALSE)->save();
 
     // Create a Website feedback contact form.
     $feedback_form = ContactForm::create([
@@ -250,5 +238,4 @@ class HoneypotFormTest extends WebTestBase {
     $this->drupalGet('contact/feedback');
     $this->assertField('url', 'Honeypot field is added to Contact form.');
   }
-
 }

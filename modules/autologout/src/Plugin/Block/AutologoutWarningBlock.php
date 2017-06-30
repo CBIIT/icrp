@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\autologout\Plugin\Block\AutologoutWarningBlock.
+ */
+
 namespace Drupal\autologout\Plugin\Block;
 
 use Drupal\Core\Block\BlockBase;
@@ -14,7 +19,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  *
  * @Block(
  *   id = "autologout_warning_block",
- *   admin_label = @Translation("Automated logout info"),
+ *   admin_label = @Translation("Automated Logout info"),
  *   category = @Translation("User"),
  * )
  */
@@ -117,7 +122,7 @@ class AutologoutWarningBlock extends BlockBase implements ContainerFactoryPlugin
     }
     else {
       $timeout = (int) $this->autoLogoutSettings->get('timeout');
-      $markup = $this->t('You will be logged out in @time if this page is not refreshed before then.', ['@time' => $this->dateFormatter->formatInterval($timeout)]);
+      $markup = $this->t('You will be logged out in @time if this page is not refreshed before then.', array('@time' => $this->dateFormatter->formatInterval($timeout)));
     }
 
     return [

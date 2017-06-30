@@ -1,7 +1,4 @@
-langcode: en
-status: true
-dependencies: {  }
-id: taxonomy_term
+id: 'taxonomy_term'
 label: 'Taxonomy term'
 tags:
   title: '[term:name] | [site:name]'

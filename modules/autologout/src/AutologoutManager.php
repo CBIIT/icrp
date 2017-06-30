@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Contains \Drupal\autologout\AutologoutManager.
+ */
 
 namespace Drupal\autologout;
 
@@ -88,11 +92,11 @@ class AutologoutManager implements AutologoutManagerInterface {
     $user = \Drupal::currentUser();
 
     if ($this->autoLogoutSettings->get('use_watchdog')) {
-      \Drupal::logger('user')->info('Session automatically closed for %name by autologout.', ['%name' => $user->getAccountName()]);
+      \Drupal::logger('user')->info('Session automatically closed for %name by autologout.', array('%name' => $user->getAccountName()));
     }
 
     // Destroy the current session.
-    $this->moduleHandler->invokeAll('user_logout', [$user]);
+    $this->moduleHandler->invokeAll('user_logout', array($user));
     \Drupal::service('session_manager')->destroy();
     $user->setAccount(new AnonymousUserSession());
   }
@@ -102,7 +106,7 @@ class AutologoutManager implements AutologoutManagerInterface {
    */
   public function getRoleTimeout() {
     $roles = user_roles(TRUE);
-    $role_timeout = [];
+    $role_timeout = array();
 
     // Go through roles, get timeouts for each and return as array.
     foreach ($roles as $name => $role) {
@@ -148,9 +152,9 @@ class AutologoutManager implements AutologoutManagerInterface {
       // Anonymous doesn't get logged out.
       return 0;
     }
-    $user_timeout = \Drupal::service('user.data')->get('autologout', $user->id(), 'timeout');
+    $user_settings = $this->configFactory->get('autologout.user.' . $user->id());
 
-    if (is_numeric($user_timeout)) {
+    if (is_numeric($user_timeout = $user_settings->get('timeout'))) {
       // User timeout takes precedence.
       return $user_timeout;
     }
@@ -158,7 +162,7 @@ class AutologoutManager implements AutologoutManagerInterface {
     // Get role timeouts for user.
     if ($this->autoLogoutSettings->get('role_logout')) {
       $user_roles = $user->getRoles();
-      $output = [];
+      $output = array();
       $timeouts = $this->getRoleTimeout();
       foreach ($user_roles as $rid => $role) {
         if (isset($timeouts[$role])) {

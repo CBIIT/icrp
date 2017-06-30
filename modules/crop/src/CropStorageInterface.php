@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\crop\CropStorageInterface.
+ */
+
 namespace Drupal\crop;
 
 use Drupal\Core\Entity\EntityBundleListenerInterface;

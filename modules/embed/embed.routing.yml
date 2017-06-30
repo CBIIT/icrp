@@ -4,8 +4,6 @@ embed.preview:
     _controller: '\Drupal\embed\Controller\EmbedController::preview'
   requirements:
     _entity_access: 'filter_format.use'
-  options:
-    _theme: ajax_base_page
 
 embed.settings:
   path: '/admin/config/content/embed/settings'
@@ -30,7 +28,7 @@ embed.button_add:
     _entity_form: 'embed_button.add'
     _title: 'Add embed button'
   requirements:
-    _entity_create_access: 'embed_button'
+    _permission: 'administer embed buttons'
 
 entity.embed_button.edit_form:
   path: '/admin/config/content/embed/button/manage/{embed_button}'
@@ -38,7 +36,7 @@ entity.embed_button.edit_form:
     _entity_form: 'embed_button.edit'
     _title: 'Edit embed button'
   requirements:
-    _entity_access: 'embed_button.update'
+    _permission: 'administer embed buttons'
 
 entity.embed_button.delete_form:
   path: '/admin/config/content/embed/button/manage/{embed_button}/delete'

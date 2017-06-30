@@ -112,7 +112,6 @@ class MetatagXssTest extends WebTestBase {
    */
   public function testXssMetatagConfig() {
     $this->drupalGet('admin/config/search/metatag/global');
-    $this->assertResponse(200);
     $values = [
       'title' => $this->xssTitleString,
       'abstract' => $this->xssString,
@@ -146,7 +145,6 @@ class MetatagXssTest extends WebTestBase {
    */
   public function testXssEntityOverride() {
     $this->drupalGet('node/add/metatag_node');
-    $this->assertResponse(200);
     $edit = [
       'title[0][value]' => $this->randomString(32),
       'field_metatag_field[0][basic][title]' => $this->xssTitleString,
@@ -174,7 +172,6 @@ class MetatagXssTest extends WebTestBase {
    */
   public function testXssEntityTitle() {
     $this->drupalGet('node/add/metatag_node');
-    $this->assertResponse(200);
     $edit = [
       'title[0][value]' => $this->xssTitleString,
       'body[0][value]' => $this->randomString() . ' ' . $this->randomString(),
@@ -192,7 +189,6 @@ class MetatagXssTest extends WebTestBase {
    */
   public function testXssEntityBody() {
     $this->drupalGet('node/add/metatag_node');
-    $this->assertResponse(200);
     $edit = [
       'title[0][value]' => $this->randomString(),
       'body[0][value]' => $this->xssTitleString,

@@ -5,9 +5,6 @@
  * Display Suite example layout configuration.
  */
 
-/**
- * Defines a Display Suite layout.
- */
 function ds_example_layout() {
   return array(
     'label' => t('Example layout'),

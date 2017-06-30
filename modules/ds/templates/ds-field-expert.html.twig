@@ -13,7 +13,7 @@
  */
 #}
 
-{{- settings['prefix']|raw|trans -}}
+{{- settings['prefix']|raw -}}
 {% if settings.ow %}
   {% if settings['ow-def-at'] %}
     <{{ settings['ow-el'] }} {{ wrapper_attributes.mergeAttributes(attributes) }}>
@@ -27,7 +27,7 @@
 {% else %}
   {{ _self.field(items, settings, label, content_attributes, field_item_wrapper_attributes, field_wrapper_attributes, label_attributes, label_hidden, element) }}
 {% endif %}
-{{- settings['suffix']|raw|trans -}}
+{{- settings['suffix']|raw -}}
 
 {% macro field(items, settings, label, content_attributes, field_item_wrapper_attributes, field_wrapper_attributes, label_attributes, label_hidden, element) %}
   {% if not label_hidden %}

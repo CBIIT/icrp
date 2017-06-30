@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\embed_test\Plugin\EmbedType\Animal.
+ */
+
 namespace Drupal\embed_test\Plugin\EmbedType;
 
 use Drupal\Core\Form\FormStateInterface;
@@ -10,7 +15,7 @@ use Drupal\embed\EmbedType\EmbedTypeBase;
  *
  * @EmbedType(
  *   id = "embed_test_animal",
- *   label = @Translation("Animals"),
+ *   label = @Translation("Animals")
  * )
  */
 class Animal extends EmbedTypeBase {

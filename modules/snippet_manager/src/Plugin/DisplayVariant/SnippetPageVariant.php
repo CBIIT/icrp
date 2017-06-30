@@ -129,14 +129,14 @@ class SnippetPageVariant extends VariantBase implements PageVariantInterface, Co
 
     if (!$snippet) {
       drupal_set_message(
-        $this->t('Could not load snippet: #%snippet', ['%snippet' => $this->configuration['snippet']]),
+        t('Could not load snippet: #%snippet', ['%snippet' => $this->configuration['snippet']]),
         'error'
       );
     }
 
     $form['snippet'] = [
       '#type' => 'entity_autocomplete',
-      '#title' => $this->t('Snippet'),
+      '#title' => t('Snippet'),
       '#default_value' => $snippet,
       '#maxlength' => 1024,
       '#required' => TRUE,

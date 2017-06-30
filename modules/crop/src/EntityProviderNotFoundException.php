@@ -1,11 +1,14 @@
 <?php
 
+/**
+ * @file
+ * Definition of \Drupal\crop\EntityProviderNotFoundException.
+ */
+
 namespace Drupal\crop;
 
 /**
- * An Error EntityProviderNotFoundException Class.
- *
- * Will be thrown if an non-existing crop entity,
+ * EntityProviderNotFoundException will be thrown if an non-existing crop entity
  * provider plugin was requested.
  */
 class EntityProviderNotFoundException extends \Exception {

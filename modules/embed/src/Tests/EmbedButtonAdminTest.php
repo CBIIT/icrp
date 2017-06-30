@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\embed\Tests\EmbedButtonAdminTest.
+ */
+
 namespace Drupal\embed\Tests;
 
 /**
@@ -25,11 +30,11 @@ class EmbedButtonAdminTest extends EmbedTestBase {
     $this->clickLink('Add embed button');
     $button_id = strtolower($this->randomMachineName());
     $button_label = $this->randomMachineName();
-    $edit = [
+    $edit = array(
       'id' => $button_id,
       'label' => $button_label,
       'type_id' => 'embed_test_default',
-    ];
+    );
     $this->drupalPostForm(NULL, $edit, 'Save');
     // Ensure that the newly created button is listed.
     $this->drupalGet('admin/config/content/embed');
@@ -38,9 +43,9 @@ class EmbedButtonAdminTest extends EmbedTestBase {
     // Edit embed button.
     $this->drupalGet('admin/config/content/embed/button/manage/' . $button_id);
     $new_button_label = $this->randomMachineName();
-    $edit = [
+    $edit = array(
       'label' => $new_button_label,
-    ];
+    );
     $this->drupalPostForm(NULL, $edit, 'Save');
     // Ensure that name and label has been changed.
     $this->drupalGet('admin/config/content/embed');
@@ -49,7 +54,7 @@ class EmbedButtonAdminTest extends EmbedTestBase {
 
     // Delete embed button.
     $this->drupalGet('admin/config/content/embed/button/manage/' . $button_id . '/delete');
-    $this->drupalPostForm(NULL, [], 'Delete');
+    $this->drupalPostForm(NULL, array(), 'Delete');
     // Ensure that the deleted embed button no longer exists.
     $this->drupalGet('admin/config/content/embed/button/manage/' . $button_id);
     $this->assertResponse(404, 'Deleted embed button no longer exists.');
@@ -61,11 +66,11 @@ class EmbedButtonAdminTest extends EmbedTestBase {
   public function testButtonValidation() {
     $this->drupalLogin($this->adminUser);
     $button_id = strtolower($this->randomMachineName());
-    $edit = [
+    $edit = array(
       'id' => $button_id,
       'label' => $this->randomMachineName(),
       'type_id' => 'embed_test_aircraft',
-    ];
+    );
     $this->drupalPostAjaxForm('admin/config/content/embed/button/add', $edit, 'type_id');
     $this->assertFieldByName('type_settings[aircraft_type]', 'fixed-wing');
 

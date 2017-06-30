@@ -125,11 +125,11 @@ class SnippetListBuilder extends ConfigEntityListBuilder {
 
     $build['filters'] = [
       '#type' => 'search',
-      '#title' => $this->t('Filter snippets'),
+      '#title' => t('Filter snippets'),
       '#title_display' => 'invisible',
       '#size' => 30,
       '#weight' => -10,
-      '#placeholder' => $this->t('Filter by snippet name or ID'),
+      '#placeholder' => t('Filter by snippet name or ID'),
       '#attributes' => [
         'data-drupal-selector' => ['sm-snippet-filter'],
         'autocomplete' => 'off',

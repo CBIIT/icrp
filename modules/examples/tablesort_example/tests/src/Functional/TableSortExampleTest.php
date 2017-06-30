@@ -41,12 +41,14 @@ class TableSortExampleTest extends ExamplesBrowserTestBase {
     // Ordered by number decending.
     $item = $this->getSession()->getPage()->find('xpath', '//tbody/tr/td[1]');
     $this->assertEquals(7, $item->getText(), 'Ordered by number decending.');
+    drupal_flush_all_caches();
 
     $this->drupalGet('/examples/tablesort-example', array('query' => array('sort' => 'asc', 'order' => 'Numbers')));
     $assert->statusCodeEquals(200);
     // Ordered by Number ascending.
     $item = $this->getSession()->getPage()->find('xpath', '//tbody/tr/td[1]');
     $this->assertEquals(1, $item->getText(), 'Ordered by Number ascending.');
+    drupal_flush_all_caches();
 
     // Sort by Letters.
     $this->drupalGet('/examples/tablesort-example', array('query' => array('sort' => 'desc', 'order' => 'Letters')));
@@ -54,12 +56,14 @@ class TableSortExampleTest extends ExamplesBrowserTestBase {
     // Ordered by Letters decending.
     $item = $this->getSession()->getPage()->find('xpath', '//tbody/tr/td[2]');
     $this->assertEquals('w', $item->getText(), 'Ordered by Letters decending.');
+    drupal_flush_all_caches();
 
     $this->drupalGet('/examples/tablesort-example', array('query' => array('sort' => 'asc', 'order' => 'Letters')));
     $assert->statusCodeEquals(200);
     // Ordered by Letters ascending.
     $item = $this->getSession()->getPage()->find('xpath', '//tbody/tr/td[2]');
     $this->assertEquals('a', $item->getText(), 'Ordered by Letters ascending.');
+    drupal_flush_all_caches();
 
     // Sort by Mixture.
     $this->drupalGet('/examples/tablesort-example', array('query' => array('sort' => 'desc', 'order' => 'Mixture')));
@@ -67,12 +71,14 @@ class TableSortExampleTest extends ExamplesBrowserTestBase {
     // Ordered by Mixture decending.
     $item = $this->getSession()->getPage()->find('xpath', '//tbody/tr/td[3]');
     $this->assertEquals('t982hkv', $item->getText(), 'Ordered by Mixture decending.');
+    drupal_flush_all_caches();
 
     $this->drupalGet('/examples/tablesort-example', array('query' => array('sort' => 'asc', 'order' => 'Mixture')));
     $assert->statusCodeEquals(200);
     // Ordered by Mixture ascending.
     $item = $this->getSession()->getPage()->find('xpath', '//tbody/tr/td[3]');
     $this->assertEquals('0kuykuh', $item->getText(), 'Ordered by Mixture ascending.');
+    drupal_flush_all_caches();
 
   }
 

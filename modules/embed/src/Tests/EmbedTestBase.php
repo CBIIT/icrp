@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\embed\Tests\TestBase.
+ */
+
 namespace Drupal\embed\Tests;
 
 use Drupal\editor\Entity\Editor;
@@ -17,13 +22,7 @@ abstract class EmbedTestBase extends WebTestBase {
    *
    * @var array
    */
-  public static $modules = [
-    'block',
-    'embed',
-    'embed_test',
-    'editor',
-    'ckeditor',
-  ];
+  public static $modules = ['block', 'embed', 'embed_test', 'editor', 'ckeditor'];
 
   /**
    * The test administrative user.
@@ -49,7 +48,8 @@ abstract class EmbedTestBase extends WebTestBase {
     $format = FilterFormat::create([
       'format' => 'embed_test',
       'name' => 'Embed format',
-      'filters' => [],
+      'filters' => [
+      ],
     ]);
     $format->save();
 

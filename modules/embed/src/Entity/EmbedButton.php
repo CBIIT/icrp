@@ -1,10 +1,17 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\embed\Entity\EmbedButton.
+ */
+
 namespace Drupal\embed\Entity;
 
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\editor\EditorInterface;
 use Drupal\embed\EmbedButtonInterface;
 
 /**
@@ -17,7 +24,7 @@ use Drupal\embed\EmbedButtonInterface;
  *     "form" = {
  *       "add" = "Drupal\embed\Form\EmbedButtonForm",
  *       "edit" = "Drupal\embed\Form\EmbedButtonForm",
- *       "delete" = "Drupal\Core\Entity\EntityDeleteForm",
+ *       "delete" = "Drupal\Core\Entity\EntityDeleteForm"
  *     },
  *     "list_builder" = "Drupal\embed\EmbedButtonListBuilder",
  *   },
@@ -153,7 +160,6 @@ class EmbedButton extends ConfigEntityBase implements EmbedButtonInterface {
    * Gets the embed type plugin manager.
    *
    * @return \Drupal\embed\EmbedType\EmbedTypeManager
-   *   The embed type plugin manager.
    */
   protected function embedTypeManager() {
     return \Drupal::service('plugin.manager.embed.type');
@@ -163,7 +169,6 @@ class EmbedButton extends ConfigEntityBase implements EmbedButtonInterface {
    * Gets the file usage service.
    *
    * @return \Drupal\file\FileUsage\FileUsageInterface
-   *   The file usage service.
    */
   protected function fileUsage() {
     return \Drupal::service('file.usage');

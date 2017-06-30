@@ -21,7 +21,7 @@
  *
  * @see \Drupal\views\Plugin\DsPluginManager
  */
-function hook_ds_fields_info_alter(array &$plugins) {
+function hook_ds_fields_info_alter(&$plugins) {
   $plugins['node_title']['title'] = t('My title');
 }
 
@@ -36,7 +36,7 @@ function hook_ds_fields_info_alter(array &$plugins) {
  *
  * @see \Drupal\views\Plugin\DsFieldTemplatePluginManager
  */
-function hook_ds_field_templates_info_alter(array &$plugins) {
+function hook_ds_field_templates_info_alter(&$plugins) {
   $plugins['expert']['title'] = t('My template');
 }
 
@@ -52,7 +52,7 @@ function hook_ds_field_templates_info_alter(array &$plugins) {
  * @return string
  *   The summary to show on the Field UI.
  */
-function hook_ds_field_format_summary(array $field) {
+function hook_ds_field_format_summary($field) {
   return 'Field summary';
 }
 
@@ -64,7 +64,7 @@ function hook_ds_field_format_summary(array $field) {
  * @param \Drupal\Core\Form\FormStateInterface $form_state
  *   The form_state values.
  */
-function hook_ds_layout_settings_alter(array $record, \Drupal\Core\Form\FormStateInterface $form_state) {
+function hook_ds_layout_settings_alter($record, \Drupal\Core\Form\FormStateInterface $form_state) {
   $record['layout']['settings']['classes'] = array('layout-class');
 }
 
@@ -74,7 +74,7 @@ function hook_ds_layout_settings_alter(array $record, \Drupal\Core\Form\FormStat
  * @param array $layout_render_array
  *   The render array.
  * @param array $context
- *   An array with the context that is being rendered. Available keys are:
+ *   An array with the context that is being rendered. Available keys are
  *   - entity
  *   - entity_type
  *   - bundle
@@ -82,7 +82,7 @@ function hook_ds_layout_settings_alter(array $record, \Drupal\Core\Form\FormStat
  * @param array $vars
  *   All variables available for render. You can use this to add css classes.
  */
-function hook_ds_pre_render_alter(array &$layout_render_array, array $context, array &$vars) {
+function hook_ds_pre_render_alter(&$layout_render_array, $context, &$vars) {
   $layout_render_array['left'][] = array('#markup' => 'cool!', '#weight' => 20);
   $vars['attributes']['class'][] = 'custom';
 }
@@ -99,7 +99,7 @@ function hook_ds_pre_render_alter(array &$layout_render_array, array $context, a
  *   A collection of info for regions. The keys are 'region_options'
  *   and 'table_regions'.
  */
-function hook_ds_layout_region_alter(array $context, array &$region_info) {
+function hook_ds_layout_region_alter($context, &$region_info) {
   $region_info['region_options']['my_region'] = 'New region';
   $region_info['table_regions']['my_region'] = array(
     'title' => \Drupal\Component\Utility\Html::escape('New region'),
@@ -116,7 +116,7 @@ function hook_ds_layout_region_alter(array $context, array &$region_info) {
  * @param array $field_label_options
  *   A collection of field label options.
  */
-function hook_ds_label_options_alter(array &$field_label_options) {
+function hook_ds_label_options_alter(&$field_label_options) {
   $field_label_options['label_after'] = t('Label after field');
 }
 
@@ -132,7 +132,7 @@ function hook_ds_label_options_alter(array &$field_label_options) {
  *     - view_name: the name of the view.
  *     - display: the name of the display of the view.
  */
-function hook_ds_views_view_mode_alter(&$view_mode, array $context) {
+function hook_ds_views_view_mode_alter(&$view_mode, $context) {
   if ($context['view_name'] == 'my_view_name') {
     $view_mode = 'new_view_mode';
   }
@@ -166,7 +166,7 @@ function hook_ds_views_row_render_entity(\Drupal\Core\Entity\EntityInterface $en
  * @param array $context
  *   Collection of parameters (row, view and view_mode).
  */
-function hook_ds_views_row_render_entity_alter(array &$build, array $context) {
+function hook_ds_views_row_render_entity_alter(&$build, $context) {
   // You can do whatever you want to here.
   $build['data'] = array(
     '#markup' => 'Sample text',

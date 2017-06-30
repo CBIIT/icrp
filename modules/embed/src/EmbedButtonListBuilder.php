@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Contains \Drupal\embed\EmbedButtonListBuilder.
+ */
+
 namespace Drupal\embed;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
