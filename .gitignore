@@ -50,6 +50,7 @@ core/phpunit.xml
 /.csslintrc
 /.editorconfig
 /.eslintignore
+/.eslintrc
 /.eslintrc.json
 /.gitattributes
 /.htaccess
@@ -61,6 +62,7 @@ core/phpunit.xml
 /index.php
 /robots.txt
 /sites/README.txt
+/sites/default/default.settings.php
 /update.php
 /web.config
 

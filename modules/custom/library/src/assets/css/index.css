@@ -108,6 +108,9 @@
   background-position: center;
   background-repeat: no-repeat;
 }
+#library-tree > ul > .jstree-node > :nth-child(-n+2) {
+  float: left;
+}
 #library-tree .jstree-anchor {
   width: 22em;
   height: -webkit-calc(100% - 15px - 5em);
