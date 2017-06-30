@@ -99,7 +99,7 @@ jQuery(function() {
             var params = $('#library-parameters').addClass('folder'),
                 ispub = params.find('[name="is_public"]');
             functions.populateParents(1);
-            $('#library-edit h1').html("Create Library Folder");
+            $('#library-edit h1').html("Create Library Category");
             ispub.removeAttr('checked');
             $('#library-edit').addClass('active').siblings().removeClass('active');
         },
@@ -114,8 +114,8 @@ jQuery(function() {
                         nodeId = node.id;
                     } else {
                         BootstrapDialog.alert({
-                                'title': null,
-                                'message': "No folder is currently selected."
+                            'title': null,
+                            'message': "No category is currently selected."
                         });
                     }
                 }
@@ -125,13 +125,13 @@ jQuery(function() {
             } else if (node) {
                 if (nodeId == undefined) nodeId = node.id;
                 functions.populateParents(nodeId);
-                $('#library-edit h1').html("Create Library Folder");
+                $('#library-edit h1').html("Create Library Category");
                 ispub.attr('checked',node.data.isPublic);
                 $('#library-edit').addClass('active').siblings().removeClass('active');
             } else {
                 BootstrapDialog.alert({
                     'title': null,
-                    'message': "No folder is currently selected."
+                    'message': "No category is currently selected."
                 });
             }
         },
@@ -157,7 +157,7 @@ jQuery(function() {
                 functions.createNew(e,true,data.parents[0]==="#"?"1":data.parents[0]);
                 params.find('[name="id_value"]').val(data.id);
                 params.find('[name="title"]').val(data.text);
-                $('#library-edit h1').html("Edit Library Folder");
+                $('#library-edit h1').html("Edit Library Category");
                 ispub.parent().toggleClass('not_public',!data.data.isPublic);
                 ispub.prop('checked',data.data.isPublic);
             }
@@ -371,23 +371,6 @@ jQuery(function() {
                 }
                 functions.showArchives(e);
                 target.removeAttr('disabled');
-            });
-            e.preventDefault();
-        },
-        'restoreFolder': function(e) {
-            var node = functions.getNode(),
-                ancestors = node.parents;
-            ancestors.unshift(node.id);
-            ancestors.pop();
-            lAjax({
-                'url': path+'folder/'+node.id,
-                'method': 'PUT'
-            }).done(function(response) {
-                while (ancestors.length > 0) {
-                    var ancestor = tree.get_node(ancestors.shift());
-                    ancestor.data.isArchived = false;
-                }
-                functions.showArchives(e);
             });
             e.preventDefault();
         },
@@ -618,7 +601,6 @@ jQuery(function() {
             functions.hideArchives(e);
         }
     });
-    //$('#library-restore-folder').on('click', functions.restoreFolder);
     $('#library-display').on('click', '.edit-file', functions.editFile);
     $('#library-display').on('click', '.archive-file', functions.archiveFile);
     $('#library-display').on('click', '.restore-file', functions.restoreFile);
