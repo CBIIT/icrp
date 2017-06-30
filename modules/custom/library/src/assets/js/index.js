@@ -72,6 +72,13 @@ jQuery(function() {
             e.preventDefault();
             var ids = [];
             $('#library-display .frame').children(':not(.archived)').each(function(i,e) { ids.push($(e).data('libraryFileData').LibraryID); });
+            if (ids.length < 1) {
+              BootstrapDialog.alert({
+                'title': null,
+                'message': "No files have been selected for download."
+              });
+              return false;
+            }
             window.open(path+'bulk?downloads='+ids.join(','));
             return false;
         },
