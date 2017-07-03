@@ -9,13 +9,13 @@
     </span>
   </div>
   <div right-header class="bold blue" >
-    <div *ngIf="numResults && analytics.project_counts_by_country && analytics.project_counts_by_country.results_count">
+    <div *ngIf="projectCount">
       <span tooltip="Parent projects">
-        Total Projects: {{ numResults.toLocaleString() }}
+        Total Projects: {{ projectCount.toLocaleString() }}
       </span>
 
-      <span *ngIf="analytics.project_counts_by_country && analytics.project_counts_by_country.results_count" tooltip="Including linked sub-projects or supplements">
-        / Total Related Projects: {{ analytics.project_counts_by_country && analytics.project_counts_by_country.results_count.toLocaleString() }}
+      <span *ngIf="relatedProjectCount" tooltip="Including linked sub-projects or supplements">
+        / Total Related Projects: {{ relatedProjectCount.toLocaleString() }}
       </span>
     </div>
   </div>

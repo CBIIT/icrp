@@ -48,6 +48,12 @@ export class ReviewPageComponent {
     sort_direction: 'asc',
   }
 
+  state = {
+    projectCount: 0,
+    relatedProjectCount: 0,
+    lastBudgetYear: 0
+  }
+
   loading: boolean = true;
   numResults = 0;
   analytics = {
@@ -65,6 +71,8 @@ export class ReviewPageComponent {
   };
 
   fields: any = {};
+
+
 
   searchResults: any[];
   headers = [
@@ -139,6 +147,16 @@ export class ReviewPageComponent {
     });
   }
 
+
+  getSearchSummary(updateConversionYear: boolean = true) {
+    return this.reviewService.getSearchSummary({ search_id: this.searchID })
+      .map(response => {
+        this.state.projectCount = +response.project_count;
+        this.state.relatedProjectCount = +response.related_project_count;
+        return this.state;
+      })
+  }
+
   getAnalytics(id, types = [], year = null) {
     if (!types || types.length === 0)
       types = Object.keys(this.analytics);
@@ -175,6 +193,8 @@ export class ReviewPageComponent {
         if (updateAnalytics) {
           this.getAnalytics(this.searchID);
         }
+
+        this.getSearchSummary().subscribe();
 
         loadingTrue$.unsubscribe();
         this.loading = false;

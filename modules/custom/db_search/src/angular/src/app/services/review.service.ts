@@ -50,6 +50,11 @@ export class ReviewService {
       });
   }
 
+
+  getSearchSummary(parameters: object) {
+    return this.getRequest(`${this.apiRoot}/search_summary`, parameters);
+  }
+
   getAnalytics(parameters: object) {
     return this.getRequest(`${this.apiRoot}/analytics`, parameters);
   }

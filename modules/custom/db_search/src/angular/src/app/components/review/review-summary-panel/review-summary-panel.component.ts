@@ -8,7 +8,9 @@ import { Component, Input } from '@angular/core';
 export class ReviewSummaryPanelComponent {
   @Input() analytics: any = {};
   @Input() currentSponsor: any = {};
-  @Input() numResults: number;
+  @Input() projectCount: number;
+  @Input() relatedProjectCount: number;
+
   @Input() loading: boolean = true;
 
   mapKeys = {
