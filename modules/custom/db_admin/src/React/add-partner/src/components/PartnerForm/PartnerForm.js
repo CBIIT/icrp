@@ -18,6 +18,14 @@ const PartnerForm = ({context, form, fields, validationErrors, changeCallback, s
 <div>
   <Spinner message="Loading..." visible={loading} />
 
+  <div className="form-group">
+    { 
+      fields.partners.length > 0
+      ? 'Select a completed application to add as an ICRP partner.'
+      : 'There are no completed applications available in the database.'
+    }
+  </div>
+
   <Grid>
     {
       messages.map((message, index) =>
@@ -27,7 +35,6 @@ const PartnerForm = ({context, form, fields, validationErrors, changeCallback, s
         </Row>
       )
     }
-
 
     <Row>
       <Col md={6} className="margin-bottom">
@@ -173,7 +180,7 @@ const PartnerForm = ({context, form, fields, validationErrors, changeCallback, s
             <label className="block normal-weight">
               <div className="display-flex">
                 <div className="cursor-text form-control form-control-group">
-                  {form.logoFile ? form.logoFile.name : <span className="placeholder">Select a file</span> }
+                  {form.logoFile ? form.logoFile.name : <span className="placeholder">Select file</span> }
                 </div>
 
                 <span className="pointer form-group-addon-sm">Browse...</span>
@@ -236,7 +243,7 @@ const PartnerForm = ({context, form, fields, validationErrors, changeCallback, s
               placeholder="Select organization type"
               value={form.organizationType}
               onChange={event => changeCallback('organizationType', event.target['value'])}>
-              <option className="disabled" key={0} hidden>Select Organization Type</option>
+              <option className="disabled" key={0} hidden>Select organization type</option>
               {
                 fields.organizationTypes.map((field, index) =>
                   <option key={`${index}_${field}`} value={field}>
@@ -248,20 +255,39 @@ const PartnerForm = ({context, form, fields, validationErrors, changeCallback, s
             { validationErrors.organizationType && validationErrors.organizationType.required && <HelpBlock>This field is required.</HelpBlock> }
           </FormGroup>
         </Col>
-      </Form>
 
-        <Col md={6} className="margin-bottom m-t-4 ">
-          <FormGroup className="no-margin" controlId="partner-funding-is-annualized" bsSize="small" validationState={null}>
-            <div className="flex-inline">
-              <Checkbox
-                checked={form.isAnnualized}
-                onChange={event => changeCallback('isAnnualized', event.target['checked'])}>
-                <b>Annualized Funding</b>
-              </Checkbox>
-            </div>
+        <Col md={6} className="margin-bottom">
+          <FormGroup controlId="selectCurrency" bsSize="small" validationState={validationErrors.currency && validationErrors.currency.required ? 'error' : null}>
+            <ControlLabel className="margin-right">Currency <Asterisk /></ControlLabel>
+            <FormControl
+              componentClass="select"
+              placeholder="Select Currency Type"
+              value={form.currency}
+              onChange={event => changeCallback('currency', event.target['value'])}>
+              <option className="disabled" key={0} hidden>Select currency</option>
+              {
+                fields.currencies.map((field, index) =>
+                  <option key={`${index}_${field.value}`} value={field.value}>
+                    {field.value}
+                  </option>
+                )
+              }
+            </FormControl>
+            { validationErrors.currency && validationErrors.currency.required && <HelpBlock>This field is required.</HelpBlock> }
           </FormGroup>
         </Col>
-
+      </Form>
+      <Col md={12} className="margin-bottom">
+        <FormGroup className="no-margin" controlId="partner-funding-is-annualized" bsSize="small" validationState={null}>
+          <div className="flex-inline">
+            <Checkbox
+              checked={form.isAnnualized}
+              onChange={event => changeCallback('isAnnualized', event.target['checked'])}>
+              <b>Annualized Funding</b>
+            </Checkbox>
+          </div>
+        </FormGroup>        
+      </Col>
     </div>
 
     <div className="text-center">

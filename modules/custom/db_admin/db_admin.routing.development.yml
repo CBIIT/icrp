@@ -6,7 +6,8 @@ api.admin.partners.content:
   defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addPartnerPage' }
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated'
+
+
 
 ## Get page for adding funding organizations
 api.admin.funding_organizations.content:
@@ -14,7 +15,7 @@ api.admin.funding_organizations.content:
   defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addFundingOrganizationPage' }
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated'
+
 
 
 ## Get form fields for funding organizations
@@ -24,12 +25,16 @@ api.admin.funding_organizations.fields:
   requirements:
     _access: 'TRUE'
 
+
+
 ## Add funding organization
 api.admin.funding_organizations.add:
   path: /api/admin/funding_organizations/add
   defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::addFundingOrganization' }
   requirements:
     _access: 'TRUE'
+
+
 
 
 ## Get form fields for partners
@@ -40,12 +45,16 @@ api.admin.partners.fields:
     _access: 'TRUE'
 
 
+
+
 ## Add partner
 api.admin.partners.add:
   path: /api/admin/partners/add
   defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::addPartner' }
   requirements:
     _access: 'TRUE'
+
+
 
 
 ## Deprecated Routes
@@ -56,7 +65,8 @@ api.admin.partners.content.deprecated:
   defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addPartnerPage' }
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated'
+
+
 
 ## Get page for adding funding organizations
 api.admin.funding_organizations.content.deprecated:
@@ -64,11 +74,13 @@ api.admin.funding_organizations.content.deprecated:
   defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addFundingOrganizationPage' }
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated'
+
+
 
 test_event:
   path: /api/admin/test-event
   defaults: { _controller: 'Drupal\db_admin\Controller\AdminController::dispatchSampleEvent' }
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated'
+
+

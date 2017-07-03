@@ -22,11 +22,13 @@ export default class Form extends React.Component {
 
         isFundingOrganization: false,
         organizationType: '',
+        currency: '',
         isAnnualized: false,
       },
       fields: {
         partners: [],
         countries: [],
+        currencies: [],
         organizationTypes: [
           'Government',
           'Non-profit',
@@ -48,8 +50,8 @@ export default class Form extends React.Component {
     let protocol = window.location.protocol;
     let hostname = window.location.hostname;
     let endpoint = `${protocol}//${hostname}/api/admin/partners/fields`;
-    if (hostname === 'localhost')
-      endpoint = 'https://icrpartnership-dev.org/api/admin/partners/fields';
+//    if (hostname === 'localhost')
+//      endpoint = 'https://icrpartnership-dev.org/api/admin/partners/fields';
 
     let response = await fetch(endpoint, { credentials: 'same-origin' });
     let data = await response.json()
@@ -71,6 +73,7 @@ export default class Form extends React.Component {
       form.country = country ? country.value : '';
       form.description = partner.description;
       form.email = partner.email;
+      form.currency = country.currency || '';
     }
 
     this.setState({
@@ -89,17 +92,21 @@ export default class Form extends React.Component {
         .find(e => e.partner_name === form.partner);
 
       let country = this.state.fields.countries
-        .find(e => e.label === partner.country)
-        .value;
+        .find(e => e.label.toLowerCase() === partner.country.toLowerCase());
 
       form.partner = partner.partner_name;
       form.joinedDate = moment(partner.joined_date);
-      form.country = country;
+      form.country = country ? country.value : '';
       form.description = partner.description;
       form.email = partner.email;
     }
 
-    console.log(form);
+    if (field === 'country') {
+      let country = this.state.fields.countries
+        .find(e => e.value === value);
+
+      form.currency = country.currency || '';
+    }
 
     this.setState({
       form: form
@@ -139,6 +146,10 @@ export default class Form extends React.Component {
       },
 
       organizationType: {
+        required: form.isFundingOrganization
+      },
+
+      currency: {
         required: form.isFundingOrganization
       }
     }
@@ -214,8 +225,8 @@ export default class Form extends React.Component {
       let protocol = window.location.protocol;
       let hostname = window.location.hostname;
       let endpoint = `${protocol}//${hostname}/api/admin/partners/add`;
-      if (hostname === 'localhost')
-        endpoint = 'https://icrpartnership-dev.org/api/admin/partners/add';
+//      if (hostname === 'localhost')
+//        endpoint = 'https://icrpartnership-dev.org/api/admin/partners/add';
 
       let response = await fetch(endpoint, {
         method: 'POST',
@@ -273,17 +284,22 @@ export default class Form extends React.Component {
   }
 
   render() {
-    return <PartnerForm
-      context={this}
-      form={ this.state.form }
-      fields={ this.state.fields }
-      validationErrors={ this.state.validationErrors }
-      changeCallback={ this.handleChange.bind(this) }
-      submitCallback={ this.submit.bind(this) }
-      cancelCallback={ this.clear.bind(this) }
-      loading={ this.state.loading }
-      messages={ this.state.messages }
-      dismissMessage={ this.dismissMessage.bind(this) }
-    />
+    return this.state.fields.partners.length 
+    ? <PartnerForm
+        context={ this }
+        form={ this.state.form }
+        fields={ this.state.fields }
+        validationErrors={ this.state.validationErrors }
+        changeCallback={ this.handleChange.bind(this) }
+        submitCallback={ this.submit.bind(this) }
+        cancelCallback={ this.clear.bind(this) }
+        loading={ this.state.loading }
+        messages={ this.state.messages }
+        dismissMessage={ this.dismissMessage.bind(this) }
+      />
+    : <div className="form-group">
+        There are no completed applications available in the database.
+      </div>
+
   }
 }

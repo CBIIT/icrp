@@ -194,15 +194,15 @@ export default class Form extends React.Component {
 
   render() {
     return <FundingOrganizationForm
-      form={ this.state.form }
-      fields={ this.state.fields }
-      validation={ this.state.validation }
-      changeCallback={ this.handleChange.bind(this) }
-      submitCallback={ this.submit.bind(this) }
-      cancelCallback={ this.clear.bind(this) }
-      loading={ this.state.loading }
-      message={ this.state.message }
-      dismissMessage={ this.dismissMessage.bind(this) }
-    />
+        form={ this.state.form }
+        fields={ this.state.fields }
+        validation={ this.state.validation }
+        changeCallback={ this.handleChange.bind(this) }
+        submitCallback={ this.submit.bind(this) }
+        cancelCallback={ this.clear.bind(this) }
+        loading={ this.state.loading }
+        message={ this.state.message }
+        dismissMessage={ this.dismissMessage.bind(this) }
+      />
   }
 }

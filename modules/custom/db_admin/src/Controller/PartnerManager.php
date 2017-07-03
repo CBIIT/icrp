@@ -3,6 +3,7 @@
 namespace Drupal\db_admin\Controller;
 use Drupal\db_admin\Helpers\PDOBuilder;
 use PDO;
+use PDOException;
 
 class PartnerManager {
 
@@ -94,7 +95,7 @@ class PartnerManager {
 
     // check for funding organization
     if ($parameters['is_funding_organization'] === 'true')
-      $errors = FundingOrganizationManager::validate($pdo, [
+      $errors += FundingOrganizationManager::validate($pdo, [
         'sponsor_code'              => $parameters['sponsor_code'],
         'member_type'               => 'Partner',
         'organization_name'         => $parameters['partner_name'],
@@ -149,7 +150,6 @@ class PartnerManager {
 
       if ($stmt->execute()) {
         self::markApplicationAsDone($pdo, $parameters['partner_application_id']);
-        $currency = $parameters['currency'] ? $parameters['currency'] : 'USD';
         
         if ($parameters['is_funding_organization'] === 'true')
           FundingOrganizationManager::addFundingOrganization($pdo, [
@@ -158,7 +158,7 @@ class PartnerManager {
             'organization_type'         => $parameters['organization_type'],
             'map_coordinates'           => $parameters['map_coordinates'],
             'country'                   => $parameters['country'],
-            'currency'                  => $currency,
+            'currency'                  => $parameters['currency'],
             'sponsor_code'              => $parameters['sponsor_code'],
             'member_type'               => 'Partner',
             'is_annualized'             => $parameters['is_annualized'],
@@ -169,6 +169,12 @@ class PartnerManager {
           ['SUCCESS' => 'The partner has been added to the database.']
         ];
       }
+    }
+
+    catch (PDOException $e) {
+      return [
+        ['ERROR' => 'Database Error: ' . $e->getMessage()]
+      ];
     }
 
     catch (Exception $e) {
