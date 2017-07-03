@@ -45,7 +45,7 @@
 /core/
 /profiles/
 /vendor/
-/profiles/
+
 
 /.csslintrc
 /.editorconfig
@@ -65,4 +65,4 @@
 /sites/default/default.settings.php
 /update.php
 /web.config
-
+.vscode
