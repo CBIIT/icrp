@@ -62,7 +62,7 @@ class PartnerManager {
                           LTRIM(RTRIM(Code)) AS value, 
                           Description AS label 
                           FROM Currency
-                          ORDER BY label ASC',
+                          ORDER BY value ASC',
     ];
 
     // map query results to field values

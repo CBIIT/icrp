@@ -284,8 +284,7 @@ export default class Form extends React.Component {
   }
 
   render() {
-    return this.state.fields.partners.length 
-    ? <PartnerForm
+    return <PartnerForm
         context={ this }
         form={ this.state.form }
         fields={ this.state.fields }
@@ -297,9 +296,5 @@ export default class Form extends React.Component {
         messages={ this.state.messages }
         dismissMessage={ this.dismissMessage.bind(this) }
       />
-    : <div className="form-group">
-        There are no completed applications available in the database.
-      </div>
-
   }
 }
