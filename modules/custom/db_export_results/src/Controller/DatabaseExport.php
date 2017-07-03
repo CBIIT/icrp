@@ -61,8 +61,10 @@ class DatabaseExport {
       'Projects by CSO' => [
         'query' => 'EXECUTE GetProjectCSOsBySearchID            @SearchID=:search_id',
         'columns' => [
-          'ProjectID'     => 'ICRP Project ID',
-          'CSOCode'       => 'CSO Code',
+          'ProjectID'             => 'ICRP Project ID',
+          'ICRPProjectFundindID'  => 'ICRP Project Funding ID',
+          'AltAwardCode'          => 'Alt. Award Code',
+          'CSOCode'               => 'CSO Code',
         ],
       ],
 
@@ -70,8 +72,11 @@ class DatabaseExport {
       'Projects by Cancer Type' => [
         'query' => 'EXECUTE GetProjectCancerTypesBySearchID     @SearchID=:search_id',
         'columns' => [
-          'ProjectID'     => 'ICRP Project ID',
-          'CancerType'    => 'Cancer Type',
+          'ProjectID'             => 'ICRP Project ID',
+          'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
+          'AltAwardCode'          => 'Alt. Award Code',
+          'ICRPCode'              => 'ICRP Code',
+          'CancerType'            => 'Cancer Type',
         ],
       ],
     ],
@@ -89,9 +94,11 @@ class DatabaseExport {
       'Projects by CSO' => [
         'query' => 'EXECUTE GetProjectCSOsBySearchID            @SearchID=:search_id',
         'columns' => [
-          'ProjectID'     => 'ICRP Project ID',
-          'CSOCode'       => 'CSO Code',
-          'CSORelevance'  => 'Relevance',
+          'ProjectID'             => 'ICRP Project ID',
+          'ICRPProjectFundindID'  => 'ICRP Project Funding ID',
+          'AltAwardCode'          => 'Alt. Award Code',
+          'CSOCode'               => 'CSO Code',
+          'CSORelevance'          => 'Relevance',
         ],
       ],
 
@@ -99,9 +106,12 @@ class DatabaseExport {
       'Projects by Cancer Type' => [
         'query' => 'EXECUTE GetProjectCancerTypesBySearchID     @SearchID=:search_id',
         'columns' => [
-          'ProjectID'     => 'ICRP Project ID',
-          'CancerType'    => 'Cancer Type',
-          'Relevance'     => 'Relevance',
+          'ProjectID'             => 'ICRP Project ID',
+          'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
+          'AltAwardCode'          => 'Alt. Award Code',
+          'ICRPCode'              => 'ICRP Code',
+          'CancerType'            => 'Cancer Type',
+          'Relevance'             => 'Relevance',
         ],
       ],
     ],
