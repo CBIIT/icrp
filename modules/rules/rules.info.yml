@@ -7,8 +7,8 @@ configure: entity.rules_reaction_rule.collection
 dependencies:
  - typed_data
 
-# Information added by Drupal.org packaging script on 2016-09-30
-version: '8.x-3.0-alpha2'
+# Information added by Drupal.org packaging script on 2017-05-25
+version: '8.x-3.0-alpha3'
 core: '8.x'
 project: 'rules'
-datestamp: 1475248187
+datestamp: 1495743796

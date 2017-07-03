@@ -35,18 +35,23 @@
       </div>
       <div id="library-display">
         <div>
-          <div class="display-header">
-            <span>Current Folder:</span>
-            <span class="folder-name">None</span>
-            <span>/ Total Documents:</span>
-            <span class="document-count">0</span>
+          <div class="display-header clearfix">
+            <div>
+                <span class="search-type">Category:</span>
+                <span class="search-name">None</span>
+            </div>
+            <div>
+                <span>Total Documents:</span>
+                <span class="document-count">0</span>
+            </div>
+            <span>Please select a category or search the entire library using the Keywords search on the left to display a list of documents below.</span>
           </div>
           <div class="frame">
           </div>
         </div>
         <div id="library-management2">
           <a href="javascript:void(0);" id="library-upload-file" class="admin partner">Upload New File</a>
-          <a href="javascript:void(0);" id="library-create-folder" class="admin">Create Subfolder</a>
+          <a href="javascript:void(0);" id="library-create-folder" class="admin">Create Subcategory</a>
           <a href="javascript:void(0);" id="library-archive-folder" class="admin">Archive All Files</a>
           <a href="javascript:void(0);" id="library-download-all" class="admin partner private">Download All</a>
         </div>
@@ -64,7 +69,7 @@
           <span class="required">Required</span>
         </div>
         <div class="folder">
-          <label for="parent" class="required">Parent Folder</label>
+          <label for="parent" class="required">Parent Category</label>
           <select name="parent"></select>
         </div>
         <div>

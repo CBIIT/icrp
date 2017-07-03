@@ -12,18 +12,18 @@
 # core
 
 # Core's dependencies are managed with Composer.
-vendor
+# /vendor
 
 # Ignore configuration files that may contain sensitive information.
-sites/*/settings*.php
-sites/*/services*.yml
+/sites/*/settings*.php
+/sites/*/services*.yml
 
 # Ignore paths that contain user-generated content.
-sites/*/files
-sites/*/private
+/sites/*/files
+/sites/*/private
 
 # Ignore SimpleTest multi-site environment.
-sites/simpletest
+#sites/simpletest
 
 # If you prefer to store your .gitignore file in the sites/ folder, comment
 # or delete the previous settings and uncomment the following ones, instead.
@@ -39,5 +39,30 @@ sites/simpletest
 # simpletest
 
 # Ignore core phpcs.xml and phpunit.xml.
-core/phpcs.xml
-core/phpunit.xml
+#core/phpcs.xml
+#core/phpunit.xml
+
+/core/
+/profiles/
+/vendor/
+/profiles/
+
+/.csslintrc
+/.editorconfig
+/.eslintignore
+/.eslintrc
+/.eslintrc.json
+/.gitattributes
+/.htaccess
+/LICENSE.txt
+/README.txt
+/autoload.php
+/composer.lock
+/example.gitignore
+/index.php
+/robots.txt
+/sites/README.txt
+/sites/default/default.settings.php
+/update.php
+/web.config
+

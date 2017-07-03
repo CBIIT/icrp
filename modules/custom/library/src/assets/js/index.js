@@ -44,13 +44,13 @@ jQuery(function() {
         'archiveFolder': function(e) {
             var node = functions.getNode(),
                 archiveChildren = function(children) {
-                  $.each(children,function(index,child) {
-                      child = tree.get_node(child);
-                      child.data.isArchived = true;
-                      child.data.archivedCount += child.data.unarchivedCount;
-                      child.data.unarchivedCount = 0;
-                      archiveChildren(child.children);
-                  });
+                    $.each(children,function(index,child) {
+                        child = tree.get_node(child);
+                        child.data.isArchived = true;
+                        child.data.archivedCount += child.data.unarchivedCount;
+                        child.data.unarchivedCount = 0;
+                        archiveChildren(child.children);
+                    });
                 };
             lAjax({
                 'url': path+'folder/'+node.id,
@@ -72,6 +72,13 @@ jQuery(function() {
             e.preventDefault();
             var ids = [];
             $('#library-display .frame').children(':not(.archived)').each(function(i,e) { ids.push($(e).data('libraryFileData').LibraryID); });
+            if (ids.length < 1) {
+                BootstrapDialog.alert({
+                    'title': null,
+                    'message': "No files have been selected for download."
+                });
+                return false;
+            }
             window.open(path+'bulk?downloads='+ids.join(','));
             return false;
         },
@@ -92,7 +99,7 @@ jQuery(function() {
             var params = $('#library-parameters').addClass('folder'),
                 ispub = params.find('[name="is_public"]');
             functions.populateParents(1);
-            $('#library-edit h1').html("Create Library Folder");
+            $('#library-edit h1').html("Create Library Category");
             ispub.removeAttr('checked');
             $('#library-edit').addClass('active').siblings().removeClass('active');
         },
@@ -108,7 +115,7 @@ jQuery(function() {
                     } else {
                         BootstrapDialog.alert({
                             'title': null,
-                            'message': "No folder is currently selected."
+                            'message': "No category is currently selected."
                         });
                     }
                 }
@@ -118,13 +125,13 @@ jQuery(function() {
             } else if (node) {
                 if (nodeId == undefined) nodeId = node.id;
                 functions.populateParents(nodeId);
-                $('#library-edit h1').html("Create Library Folder");
+                $('#library-edit h1').html("Create Library Category");
                 ispub.attr('checked',node.data.isPublic);
                 $('#library-edit').addClass('active').siblings().removeClass('active');
             } else {
                 BootstrapDialog.alert({
                     'title': null,
-                    'message': "No folder is currently selected."
+                    'message': "No category is currently selected."
                 });
             }
         },
@@ -150,7 +157,7 @@ jQuery(function() {
                 functions.createNew(e,true,data.parents[0]==="#"?"1":data.parents[0]);
                 params.find('[name="id_value"]').val(data.id);
                 params.find('[name="title"]').val(data.text);
-                $('#library-edit h1').html("Edit Library Folder");
+                $('#library-edit h1').html("Edit Library Category");
                 ispub.parent().toggleClass('not_public',!data.data.isPublic);
                 ispub.prop('checked',data.data.isPublic);
             }
@@ -207,7 +214,7 @@ jQuery(function() {
                     for (var index = 0; index < json.length; index++) {
                         var node = json[index],
                             count = node.data.unarchivedCount;
-                        tree.get_node(node, true).children(':nth-child(2)').after('<span title="'+count+' active document'+(count>1?'s':'')+' in this category.">'+count+'</span>');
+                        tree.get_node(node, true).children(':nth-child(2)').after('<span title="'+count+' active document'+(count>1?'s':'')+' in this category.">'+count+'</span><div class="clearfix"></div>');
                     }
                 }).on('refresh.jstree', function() {
                     var json = tree.get_json(),
@@ -222,13 +229,13 @@ jQuery(function() {
                         for (var index = 0; index < json.length; index++) {
                             var node = json[index],
                                 count = node.data.unarchivedCount+node.data.archivedCount;
-                            tree.get_node(node, true).children(':nth-child(2)').after('<span title="'+count+' active document'+(count>1?'s':'')+' in this category.">'+count+'</span>');
+                            tree.get_node(node, true).children(':nth-child(2)').after('<span title="'+count+' active document'+(count>1?'s':'')+' in this category.">'+count+'</span><div class="clearfix"></div>');
                         }
                     } else {
                         for (var index = 0; index < json.length; index++) {
                             var node = json[index],
                                 count = node.data.unarchivedCount;
-                            tree.get_node(node, true).children(':nth-child(2)').after('<span title="'+count+' active document'+(count>1?'s':'')+' in this category.">'+count+'</span>');
+                            tree.get_node(node, true).children(':nth-child(2)').after('<span title="'+count+' active document'+(count>1?'s':'')+' in this category.">'+count+'</span><div class="clearfix"></div>');
                         }
                     }
                     $('#library-display .display-header .document-count').html((isArchived ? frame.children() : frame.children(':not(.archived)')).length);
@@ -253,14 +260,19 @@ jQuery(function() {
                 }).on('changed.jstree', function(e, data) {
                     var nodes = data.selected;
                     if (nodes.length === 0) {
-                        $('#library-display .display-header .folder-name').html("None");
+                        if (window.history.state && window.history.state.nodeId) {
+                            functions.pushstate({});
+                            $('#library-display .display-header').removeClass('search');
+                            $('#library-display .frame').empty();
+                        }
                     } else {
+                        $('#library-display .display-header').addClass('search').children('.search-type').html('Category:');
                         var node = tree.get_node(nodes[0]);
                         if (!window.history.state || (window.history.state.nodeId !== node.id)) {
                             functions.pushstate({'nodeId':node.id});
                         }
                         $('#library-search [name="library-keywords"]').val('');
-                        $('#library-display .display-header .folder-name').html(node.text);
+                        $('#library-display .display-header .search-name').html(node.text);
                         lGet(path+'folder/'+node.id).done(function(response) {
                             functions.writeDisplay(response.files,role==="public");
                         });
@@ -278,42 +290,42 @@ jQuery(function() {
             });
         },
         'mapTree': function(tree) {
-          var map = {},
-              treeBase = [];
-          $.each(tree,function(index,entry) {
-            var entry = {
-              id: entry.LibraryFolderID,
-              parent: entry.ParentFolderID,
-              text: entry.Name,
-              children: [],
-              data: {
-                archivedCount: parseInt(entry.ArchivedCount),
-                isArchived: entry.ArchivedDate !== null,
-                isPublic: entry.IsPublic == "1",
-                unarchivedCount: parseInt(entry.UnarchivedCount)
-              },
-              state: {
-                disabled: false,
-                hidden: false,
-                opened: false,
-                selected: false
-              }
-            };
-            map[entry.id] = entry;
-          });
-          for (var prop in map) {
-            var entry = map[prop],
-                parent = entry.parent;
-            delete entry.parent;
-            if (map[parent]) {
-              map[parent].children.push(entry);
-            } else {
-              treeBase.push(entry);
+            var map = {},
+                treeBase = [];
+            $.each(tree,function(index,entry) {
+                var entry = {
+                    id: entry.LibraryFolderID,
+                    parent: entry.ParentFolderID,
+                    text: entry.Name,
+                    children: [],
+                    data: {
+                        archivedCount: parseInt(entry.ArchivedCount),
+                        isArchived: entry.ArchivedDate !== null,
+                        isPublic: entry.IsPublic == "1",
+                        unarchivedCount: parseInt(entry.UnarchivedCount)
+                    },
+                    state: {
+                        disabled: false,
+                        hidden: false,
+                        opened: false,
+                        selected: false
+                    }
+                };
+                map[entry.id] = entry;
+            });
+            for (var prop in map) {
+                var entry = map[prop],
+                    parent = entry.parent;
+                delete entry.parent;
+                if (map[parent]) {
+                    map[parent].children.push(entry);
+                } else {
+                    treeBase.push(entry);
+                }
             }
-          }
-          functions.setupTree(treeBase.sort(functions.caselessSort));
-          functions.updateTree(treeBase, true);
-          return treeBase;
+            functions.setupTree(treeBase.sort(functions.caselessSort));
+            functions.updateTree(treeBase, true);
+            return treeBase;
         },
         'populateParents': function(nodeId) {
             var parent = $('#library-parameters [name="parent"]'),
@@ -329,13 +341,13 @@ jQuery(function() {
                 };
             parent.append('<option value="1">ROOT</option>');
             popChildren(json,1);
-        },
+    },
         'pushstate': function(obj) {
             var query = "";
             for (var prop in obj) {
                 query += "&"+prop+"="+obj[prop];
             }
-            query = "?"+query.substring(1);
+            if (query.length > 0) query = "?"+query.substring(1);
             window.history.pushState(obj,window.title,[window.location.protocol, '//',window.location.host,window.location.pathname,query].join(''));
         },
         'restoreFile': function(e) {
@@ -362,23 +374,6 @@ jQuery(function() {
             });
             e.preventDefault();
         },
-        'restoreFolder': function(e) {
-            var node = functions.getNode(),
-                ancestors = node.parents;
-            ancestors.unshift(node.id);
-            ancestors.pop();
-            lAjax({
-                'url': path+'folder/'+node.id,
-                'method': 'PUT'
-            }).done(function(response) {
-                while (ancestors.length > 0) {
-                    var ancestor = tree.get_node(ancestors.shift());
-                    ancestor.data.isArchived = false;
-                }
-                functions.showArchives(e);
-            });
-            e.preventDefault();
-        },
         'saveFile': function(e) {
             var file = $('#library-parameters [name="upload"]'),
                 title = $('#library-parameters [name="title"]').val();
@@ -386,8 +381,8 @@ jQuery(function() {
                 desc = $('#library-parameters [name="description"]').val();
             if ((!file.hasClass('hide') && (file.val()||"") === "") || (!display_name.hasClass('hide') && (display_name.val()||"") === "") || (title||"") === "" || (desc||"") === "") {
                 BootstrapDialog.alert({
-                  'title': null,
-                  'message': "Missing required parameters."
+                    'title': null,
+                    'message': "Missing required parameters."
                 });
             } else {
                 $(e.target).attr('disabled');
@@ -412,8 +407,8 @@ jQuery(function() {
             var title = $('#library-parameters [name="title"]').val();
             if ((title||"") === "") {
                 BootstrapDialog.alert({
-                  'title': null,
-                  'message': "Missing required parameters."
+                    'title': null,
+                    'message': "Missing required parameters."
                 });
             } else {
                 $(e.target).attr('disabled');
@@ -426,43 +421,43 @@ jQuery(function() {
                     'contentType': false,
                     'processData': false
                 }).done(function(response) {
-                  var entry = response.row,
-                      node = functions.getNode(),
-                      parent = entry.ParentFolderID;
-                  entry = {
-                      id: entry.LibraryFolderID,
-                      parent: tree.get_node(entry.ParentFolderID).id||'#',
-                      text: entry.Name,
-                      children: [],
-                      data: {
-                          archivedCount: parseInt(entry.ArchivedCount),
-                          isArchived: entry.ArchivedDate !== null,
-                          isPublic: entry.IsPublic == "1",
-                          unarchivedCount: parseInt(entry.UnarchivedCount)
-                      },
-                      state: {
-                          opened: false,
-                          disabled: false,
-                          selected: false
-                      }
-                  };
-                  if (node && node.id === entry.id) {
-                      node.data.isPublic = entry.data.isPublic;
-                      if (node.text !== entry.text) tree.rename_node(node,entry.text);
-                      if (node.parent != entry.parent) tree.move_node(node,entry.parent);
-                  } else {
-                      tree.deselect_all();
-                      tree.select_node(tree.create_node(entry.parent,entry,'last'));
-                      parent = tree.get_node(entry.parent);
-                      parent.children = parent.children.map(function(entry) { return tree.get_node(entry); }).sort(functions.caselessSort);
-                      if ($('#library-display .frame').hasClass('archived')) {
-                          functions.showArchives(e);
-                      } else {
-                          functions.hideArchives(e);
-                      }
-                  }
-                  functions.closeParams(e);
-                  $(e.target).removeAttr('disabled');
+                    var entry = response.row,
+                        node = functions.getNode(),
+                        parent = entry.ParentFolderID;
+                    entry = {
+                        id: entry.LibraryFolderID,
+                        parent: tree.get_node(entry.ParentFolderID).id||'#',
+                        text: entry.Name,
+                        children: [],
+                        data: {
+                            archivedCount: parseInt(entry.ArchivedCount),
+                            isArchived: entry.ArchivedDate !== null,
+                            isPublic: entry.IsPublic == "1",
+                            unarchivedCount: parseInt(entry.UnarchivedCount)
+                        },
+                        state: {
+                            opened: false,
+                            disabled: false,
+                            selected: false
+                        }
+                    };
+                    if (node && node.id === entry.id) {
+                        node.data.isPublic = entry.data.isPublic;
+                        if (node.text !== entry.text) tree.rename_node(node,entry.text);
+                        if (node.parent != entry.parent) tree.move_node(node,entry.parent);
+                    } else {
+                        tree.deselect_all();
+                        tree.select_node(tree.create_node(entry.parent,entry,'last'));
+                        parent = tree.get_node(entry.parent);
+                        parent.children = parent.children.map(function(entry) { return tree.get_node(entry); }).sort(functions.caselessSort);
+                        if ($('#library-display .frame').hasClass('archived')) {
+                            functions.showArchives(e);
+                        } else {
+                            functions.hideArchives(e);
+                        }
+                    }
+                    functions.closeParams(e);
+                    $(e.target).removeAttr('disabled');
                 });
             }
         },
@@ -478,7 +473,13 @@ jQuery(function() {
                 'contentType': false,
                 'processData': false
             }).done(function(response) {
+                if (!window.history.state || window.history.state.search != val) {
+                    functions.pushstate({'search': val});
+                }
                 tree.deselect_all();
+                $('#library-display .display-header').addClass('search');
+                $('#library-display .display-header .search-type').html("Keywords Search:");
+                $('#library-display .display-header .search-name').html(val);
                 functions.writeDisplay(response,role==="public");
             });
         },
@@ -486,16 +487,16 @@ jQuery(function() {
             var archivedCount = 0,
                 unarchivedCount = 0;
             $.each(children, function(index, entry) {
-              entry.children = entry.children.sort(functions.caselessSort);
-              var results = functions.setupTree(entry.children);
-              entry.data.archivedCount += results.archivedCount;
-              entry.data.unarchivedCount += results.unarchivedCount;
-              archivedCount += entry.data.archivedCount;
-              unarchivedCount += entry.data.unarchivedCount;
+                entry.children = entry.children.sort(functions.caselessSort);
+                var results = functions.setupTree(entry.children);
+                entry.data.archivedCount += results.archivedCount;
+                entry.data.unarchivedCount += results.unarchivedCount;
+                archivedCount += entry.data.archivedCount;
+                unarchivedCount += entry.data.unarchivedCount;
             });
             return {
-              'archivedCount': archivedCount,
-              'unarchivedCount': unarchivedCount
+                'archivedCount': archivedCount,
+                'unarchivedCount': unarchivedCount
             };
         },
         'showArchives': function(e) {
@@ -510,8 +511,8 @@ jQuery(function() {
             if (role==="admin" || role==="partner") return;
             if (hideArchives === undefined) hideArchives = false;
             $.each(children, function(index, entry) {
-              entry.state.hidden = hideArchives && (entry.data.unarchivedCount === 0 || entry.data.isArchived);
-              functions.updateTree(entry.children, hideArchives);
+                entry.state.hidden = hideArchives && (entry.data.unarchivedCount === 0 || entry.data.isArchived);
+                functions.updateTree(entry.children, hideArchives);
             });
         },
         'writeDisplay': function(files,isPublic) {
@@ -534,14 +535,14 @@ jQuery(function() {
                             thumb = path+'file/thumb/'+thumb;
                         }
                         frame.append(
-                          '<div class="item-wrapper'+(isArchived?' archived':'')+'">'+
-                              '<div class="item">'+
-                                  '<h5>'+title+'</h5>'+
-                                  '<img src="'+thumb+'"/>'+
-                                  '<p>'+description+'</p>'+
-                                  '<div><a href="'+path+'file/'+id+'/'+file+'" target="_blank">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
-                              '</div>'+
-                          '</div>'
+                            '<div class="item-wrapper'+(isArchived?' archived':'')+'">'+
+                                '<div class="item">'+
+                                    '<h5>'+title+'</h5>'+
+                                    '<img src="'+thumb+'"/>'+
+                                    '<p>'+description+'</p>'+
+                                    '<div><a href="'+path+'file/'+id+'/'+file+'" target="_blank">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
+                                '</div>'+
+                            '</div>'
                         );
                     });
                 } else {
@@ -552,16 +553,16 @@ jQuery(function() {
                             isArchived = (entry.ArchivedDate !== null),
                             isPublic = (entry.IsPublic == "1");
                         frame.append(
-                          '<div class="item-wrapper'+(isArchived?' archived':'')+(isPublic?' public-doc':'')+'">'+
-                              '<div class="item">'+
-                                  '<div title="'+(isPublic?'Public Document':'Non-Public Document')+'"></div>'+
-                                  '<div><a href="'+path+'file/'+id+'/'+file+'" target="_blank">'+file+'</a></div>'+
-                                  '<div>'+
-                                    '<button class="admin edit-file" title="Edit File"><a></a></button>'+
-                                    '<button class="admin '+(isArchived?'restore-file':'archive-file')+'" title="'+(isArchived?'Restore File':'Archive File')+'"><a></a></button>'+
-                                  '</div>'+
-                              '</div>'+
-                          '</div>'
+                            '<div class="item-wrapper'+(isArchived?' archived':'')+(isPublic?' public-doc':'')+'">'+
+                                '<div class="item">'+
+                                    '<div title="'+(isPublic?'Public Document':'Non-Public Document')+'"></div>'+
+                                    '<div><a href="'+path+'file/'+id+'/'+file+'" target="_blank">'+file+'</a></div>'+
+                                    '<div>'+
+                                        '<button class="admin edit-file" title="Edit File"><a></a></button>'+
+                                        '<button class="admin '+(isArchived?'restore-file':'archive-file')+'" title="'+(isArchived?'Restore File':'Archive File')+'"><a></a></button>'+
+                                    '</div>'+
+                                '</div>'+
+                            '</div>'
                         ).children('*:last-child').data('library-file-data',entry);
                     });
                 }
@@ -573,15 +574,13 @@ jQuery(function() {
     functions.initialize();
     $('#library-search .searchbar [name="library-keywords"]').on('keypress', function(e) {
         if (e.which == 13) {
-          e.preventDefault();
-          $('#library-search-button').trigger('click');
+            e.preventDefault();
+            $('#library-search-button').trigger('click');
         }
     });
     $('#library-search-button').on('click', function(e) {
-        var val = $('#library [name="library-keywords"]').val();
         e.preventDefault();
         functions.search();
-        functions.pushstate({'search': val});
     });
     $('#library-create-folder').on('click',function(e) {
         functions.createNew(e,true);
@@ -602,7 +601,6 @@ jQuery(function() {
             functions.hideArchives(e);
         }
     });
-    //$('#library-restore-folder').on('click', functions.restoreFolder);
     $('#library-display').on('click', '.edit-file', functions.editFile);
     $('#library-display').on('click', '.archive-file', functions.archiveFile);
     $('#library-display').on('click', '.restore-file', functions.restoreFile);

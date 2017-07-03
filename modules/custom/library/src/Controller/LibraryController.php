@@ -454,7 +454,7 @@ class LibraryController extends ControllerBase {
     $stmt = $connection->prepare("SELECT * FROM Library WHERE ArchivedDate IS NULL AND LibraryID IN (".implode(",",array_fill(0,count($downloads),"?")).")");
     foreach ($downloads as $k => $id)
       $stmt->bindValue(($k+1), $id);
-    $zip = new ZipStream('archive.zip');
+    $zip = new \ZipStream\ZipStream('archive.zip');
     if ($stmt->execute()) {
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $row_output = array();
