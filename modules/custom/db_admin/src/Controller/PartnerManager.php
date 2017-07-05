@@ -161,7 +161,7 @@ class PartnerManager {
             'currency'                  => $parameters['currency'],
             'sponsor_code'              => $parameters['sponsor_code'],
             'member_type'               => 'Partner',
-            'is_annualized'             => $parameters['is_annualized'] === 'true',
+            'is_annualized'             => $parameters['is_annualized'],
             'note'                      => $parameters['note'],
           ]);
           

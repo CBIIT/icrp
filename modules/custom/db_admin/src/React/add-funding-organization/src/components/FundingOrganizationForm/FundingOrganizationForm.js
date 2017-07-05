@@ -16,7 +16,7 @@ const FundingOrganizationForm = ({form, fields, validation, changeCallback, subm
       { message.SUCCESS && <Alert bsStyle="success" onDismiss={dismissMessage}>{message.SUCCESS}</Alert> }
     </Row>
 
-    <Row className="bordered padding-top margin-bottom">
+    <div className="clearfix bordered padding-top margin-bottom">
       <Form inline>
         <Col md={6} className="margin-bottom">
           <FormGroup controlId="selectPartner" bsSize="small" validationState={validation.partner === false ? 'error' : null}>
@@ -72,7 +72,7 @@ const FundingOrganizationForm = ({form, fields, validation, changeCallback, subm
 
         </Col>
       </Form>
-    </Row>
+    </div>
 
     <Row>
       <Col md={6} className="margin-bottom">
@@ -180,7 +180,7 @@ const FundingOrganizationForm = ({form, fields, validation, changeCallback, subm
             {
               fields.currencies.map((field, index) =>
                 <option key={`${index}_${field.value}`} value={field.value}>
-                  {field.label}
+                  {field.value}
                 </option>
               )
             }

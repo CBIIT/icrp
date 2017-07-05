@@ -46,8 +46,8 @@ export default class Form extends React.Component {
     let hostname = window.location.hostname;
     let endpoint = `${protocol}//${hostname}/api/admin/funding_organizations/fields`;
 
-    if (hostname === 'localhost')
-      endpoint = 'https://icrpartnership-dev.org/api/admin/funding_organizations/fields';
+//    if (hostname === 'localhost')
+//      endpoint = 'https://icrpartnership-dev.org/api/admin/funding_organizations/fields';
 
     let response = await fetch(endpoint, { credentials: 'same-origin' });
     let data = await response.json()
@@ -138,19 +138,16 @@ export default class Form extends React.Component {
       for (let key in form) {
         let formKey = parameterMap[key];
         let formValue = form[key];
-        if (formValue.constructor === String && formValue.length === 0) {
-          continue;
-        }
-
-        formData.set(formKey, formValue);
+        if (formValue !== '')
+          formData.set(formKey, formValue);
       }
 
       let protocol = window.location.protocol;
       let hostname = window.location.hostname;
       let endpoint = `${protocol}//${hostname}/api/admin/funding_organizations/add`;
 
-      if (hostname === 'localhost')
-        endpoint = 'https://icrpartnership-dev.org/api/admin/funding_organizations/add';
+//      if (hostname === 'localhost')
+//        endpoint = 'https://icrpartnership-dev.org/api/admin/funding_organizations/add';
 
       let response = await fetch(endpoint, {
         method: 'POST',
