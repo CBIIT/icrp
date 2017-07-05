@@ -176,6 +176,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
       <Col md={6} className='margin-bottom'>
         <FormGroup  controlId='partner-logo-file' bsSize='small' validationState={null}>
           <ControlLabel className='margin-right'>Logo File</ControlLabel>
+          <i>(jpg, png or gif)</i>
 
             <label className='block normal-weight'>
               <div className='display-flex'>
@@ -189,6 +190,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
                   name='logo-file'
                   id='logo-file'
                   className='logo-file'
+                  accept='image/x-png,image/gif,image/jpeg'
                   onChange={event => changeCallback('logoFile', event.target['files'][0])}
                 />
               </div>
