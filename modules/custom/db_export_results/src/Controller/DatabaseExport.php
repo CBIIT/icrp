@@ -608,7 +608,7 @@ class DatabaseExport {
         ],
         'site_url' => [
           'type' => PDO::PARAM_STR,
-          'value' => $this->getUrlBase() . $url_path_prefix . '/projects/',
+          'value' => $this->getUrlBase() . $url_path_prefix . '/project/',
         ],
       ];
 
