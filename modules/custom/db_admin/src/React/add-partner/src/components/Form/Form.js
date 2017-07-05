@@ -73,7 +73,12 @@ export default class Form extends React.Component {
       form.country = country ? country.value : '';
       form.description = partner.description;
       form.email = partner.email;
-      form.currency = country.currency || '';
+
+      form.currency = '';
+      if (fields.currencies
+        .find(e => e.value === country.currency)) {
+        form.currency = country.currency || '';
+      }
     }
 
     this.setState({
@@ -88,6 +93,7 @@ export default class Form extends React.Component {
     form[field] = value;
 
     if (field === 'partner') {
+
       let partner = this.state.fields.partners
         .find(e => e.partner_name === form.partner);
 
@@ -104,8 +110,12 @@ export default class Form extends React.Component {
     if (field === 'country') {
       let country = this.state.fields.countries
         .find(e => e.value === value);
-
-      form.currency = country.currency || '';
+      
+      form.currency = '';
+      if (this.state.fields.currencies
+        .find(e => e.value === country.currency)) {
+        form.currency = country.currency || '';
+      }
     }
 
     this.setState({
@@ -160,7 +170,6 @@ export default class Form extends React.Component {
         ? (form[field] || '').toString().trim()
         : form[field] ? moment(form[field]).format('YYYY-MM-DD') : '0';
 
-      console.log(field, value);
 
       if (validationRules[field].required && value.constructor === String && value.length === 0) {
         validationErrors[field].required = true;
@@ -211,7 +220,9 @@ export default class Form extends React.Component {
         let formValue = form[key];
         if (key === 'joinedDate')
           formValue = moment(formValue._d).format('YYYY-MM-DD');
-        formData.set(formKey, formValue);
+
+        if (formValue !== '')
+          formData.set(formKey, formValue);
       }
 
       let partner = this.state.fields.partners
@@ -284,17 +295,20 @@ export default class Form extends React.Component {
   }
 
   render() {
+    let form = {
+      values: this.state.form,
+      fields: this.state.fields,
+      validationErrors: this.state.validationErrors,
+      messages: this.state.messages,
+    };
+
     return <PartnerForm
-        context={ this }
-        form={ this.state.form }
-        fields={ this.state.fields }
-        validationErrors={ this.state.validationErrors }
-        changeCallback={ this.handleChange.bind(this) }
-        submitCallback={ this.submit.bind(this) }
-        cancelCallback={ this.clear.bind(this) }
-        loading={ this.state.loading }
-        messages={ this.state.messages }
-        dismissMessage={ this.dismissMessage.bind(this) }
+        context={this}
+        form={form}
+        changeCallback={this.handleChange.bind(this)}
+        submitCallback={this.submit.bind(this)}
+        resetCallback={this.clear.bind(this)}
+        dismissMessageCallback={this.dismissMessage.bind(this)}
       />
   }
 }
