@@ -301,6 +301,7 @@
 }
 #library-display .frame:not(.preview) .item > div:nth-child(3) {
     width: 12em;
+    white-space: nowrap;
 }
 #library.admin #library-display .frame:not(.preview) .item button.admin {
     border: 0px;
