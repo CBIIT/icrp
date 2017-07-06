@@ -123,7 +123,7 @@
         url : '/db_search'
     },{
         title : 'Connect',
-        url : '/become-a-partner'
+        url : '/about-us'
     },{
         title : 'Our Mission',
         url : '/library'
