@@ -80,7 +80,12 @@ export default class Form extends React.Component {
 
     if (field === 'country') {
       let country = this.state.fields.countries.find(e => e.value === value);
-      formState.currency = country.currency;
+
+      formState.currency = '';
+      if (this.state.fields.currencies
+        .find(e => e.value === country.currency)) {
+        formState.currency = country.currency;
+      }
     }
 
     this.setState({
