@@ -224,6 +224,7 @@
     color: #e7b348;
     float: left;
     font-size: 1.2em;
+    font-weight: bold;
 }
 #library-display .display-header > :nth-child(2) {
     color: #999;
