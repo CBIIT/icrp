@@ -357,7 +357,7 @@
 #library-files {
     font-size: 1.5em;
     margin: 0px auto;
-    width: 40em;
+    width: 42em;
 }
 #library-controls {
     display: table;
@@ -390,7 +390,7 @@
 #library-parameters label {
     display: table-cell;
     vertical-align: top;
-    width: 7em;
+    width: 10em;
 }
 #library-parameters input:not([type="checkbox"]),
 #library-parameters select,
