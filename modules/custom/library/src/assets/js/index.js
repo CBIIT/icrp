@@ -266,7 +266,7 @@ jQuery(function() {
                             $('#library-display .frame').empty();
                         }
                     } else {
-                        $('#library-display .display-header').addClass('search').children('.search-type').html('Category:');
+                        $('#library-display .display-header').addClass('search').find('.search-type').html('Category:');
                         var node = tree.get_node(nodes[0]);
                         if (!window.history.state || (window.history.state.nodeId !== node.id)) {
                             functions.pushstate({'nodeId':node.id});
