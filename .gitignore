@@ -45,7 +45,7 @@
 /core/
 /profiles/
 /vendor/
-
+/temp/
 
 /.csslintrc
 /.editorconfig
