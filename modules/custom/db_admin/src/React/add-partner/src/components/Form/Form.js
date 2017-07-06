@@ -212,6 +212,7 @@ export default class Form extends React.Component {
         isFundingOrganization: 'is_funding_organization',
         organizationType: 'organization_type',
         isAnnualized: 'is_annualized',
+        currency: 'currency',
       };
 
 
@@ -221,7 +222,7 @@ export default class Form extends React.Component {
         if (key === 'joinedDate')
           formValue = moment(formValue._d).format('YYYY-MM-DD');
 
-        if (formValue !== '')
+        if (formValue !== '' && formValue !== null)
           formData.set(formKey, formValue);
       }
 

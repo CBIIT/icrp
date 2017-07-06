@@ -150,7 +150,7 @@ class PartnerManager {
 
       if ($stmt->execute()) {
         self::markApplicationAsDone($pdo, $parameters['partner_application_id']);
-        
+
         if ($parameters['is_funding_organization'] === 'true')
           FundingOrganizationManager::addFundingOrganization($pdo, [
             'organization_name'         => $parameters['partner_name'],
