@@ -71,7 +71,7 @@ WITH
 )
 GO  
 
-select * from UploadWorkBook
+--select * from UploadWorkBook
 -----------------------------------
 -- Workbook Datafix - Institution  -- KOMEN
 -----------------------------------
