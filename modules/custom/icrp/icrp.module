@@ -20,6 +20,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+
 /*
  * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
  * @25:58 minutes
@@ -55,6 +57,22 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
  *     - 4: Posts with the least comments first.
  *   - forum_per_page: The maximum number of topics to display per page.
  */
+function icrp_user_view($account, $view_mode, $langcode) {
+  //drupal_set_message("User view");
+  //$response = $event->getResponse();
+  //$response = new RedirectResponse('/home');
+  //return $response->send();  
+
+}
+
+function icrp_node_view($node, $view_mode, $langcode) {
+  //drupal_set_message("Node view");
+  /*
+  if ($node->nid == $node_to_alter) {
+    $node->content['my_module_additional_content'] = node_view($the_other_node);
+  }
+  */
+}
 function icrp_preprocess_pager(&$variables) {
 }
 
@@ -808,7 +826,9 @@ function icrp_theme() {
         ],
     ];
 }
-
+function icrp_confirm_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+  drupal_set_message("confirm_form");
+}
 /**
  * Implements hook_form_alter().
  */
@@ -972,6 +992,11 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             //dpm($form);
             break;
         case 'node_forum_delete_form':
+            //node-forum-delete-form
+            //drupal_set_message("Node Forum Delete Form");
+            //dpm($form);
+            //$desc = $form['description']['#markup']; //TranslatableMarkup
+            $form['description']['#markup'] = new TranslatableMarkup("By deleting this post, you will also delete all replies. Are you sure you want to delete the entire thread?");
             //unset($form['actions']['cancel']);
             break;
         case 'views_form_content_page_1':
