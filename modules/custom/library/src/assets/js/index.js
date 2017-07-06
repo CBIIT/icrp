@@ -558,8 +558,8 @@ jQuery(function() {
                                     '<div title="'+(isPublic?'Public Document':'Non-Public Document')+'"></div>'+
                                     '<div><a href="'+path+'file/'+id+'/'+file+'" target="_blank">'+file+'</a></div>'+
                                     '<div>'+
-                                        '<button class="admin edit-file" title="Edit File"><a></a></button>'+
-                                        '<button class="admin '+(isArchived?'restore-file':'archive-file')+'" title="'+(isArchived?'Restore File':'Archive File')+'"><a></a></button>'+
+                                        '<button class="admin edit-file" title="Edit Document Metadata"><a></a></button>'+
+                                        '<button class="admin '+(isArchived?'restore-file':'archive-file')+'" title="'+(isArchived?'Restore Document':'Archive Document')+'"><a></a></button>'+
                                     '</div>'+
                                 '</div>'+
                             '</div>'
