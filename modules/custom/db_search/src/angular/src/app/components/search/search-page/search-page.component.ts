@@ -51,18 +51,18 @@ export class SearchPageComponent implements AfterViewInit {
 
     this.updateFields()
       .subscribe(e => {
-
+/*
         if (this.isStoredStateValid()) {
           this.loadingMessage = 'Loading Data';
           this.restoreState();
         }
+*/
 
-
-        else {
+//        else {
           this.storeService.clearAll();
           this.loadingMessage = 'Fetching Data';
           this.retrieveInitialResults();
-        }
+ //       }
       })
   }
 
@@ -94,6 +94,8 @@ export class SearchPageComponent implements AfterViewInit {
   }
 
   isStoredStateValid() {
+
+
     let storedFields = [
       'searchID',
       'searchParameters',
