@@ -1,5 +1,6 @@
 import React from 'react';
-import PartnerForm from '../PartnerForm/';
+import PartnerForm from '../PartnerForm';
+import Spinner from '../Spinner';
 import moment from 'moment';
 
 export default class Form extends React.Component {
@@ -7,124 +8,127 @@ export default class Form extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      form: {
-        partner: '',
-        joinedDate: null,
-        country: '',
-        email: '',
-        description: '',
-        sponsorCode: '',
-        website: '',
-        mapCoordinates: '',
-        logoFile: '',
-        note: '',
-        agreeToTerms: false,
-
-        isFundingOrganization: false,
-        organizationType: '',
-        currency: '',
-        isAnnualized: false,
-      },
-      fields: {
-        partners: [],
-        countries: [],
-        currencies: [],
-        organizationTypes: [
-          'Government',
-          'Non-profit',
-          'Other',
-        ],
-      },
-      validationErrors: {
-
-      },
       loading: true,
-      messages: [],
+      form: this.getDefaultForm(),
     };
 
-    this.getFields();
+    this.updateFields();
   }
 
-  async getFields() {
+  getDefaultForm() {
+    return {
+      values: this.getDefaultValues(),
+      fields: this.getDefaultFields(),
+      validationErrors: {},
+      messages: [],
+    }
+  }
 
+  getDefaultValues() {
+    return {
+      partner: '',
+      joinedDate: null,
+      country: '',
+      email: '',
+      description: '',
+      sponsorCode: '',
+      website: '',
+      mapCoordinates: '',
+      logoFile: '',
+      note: '',
+      agreeToTerms: false,
+
+      isFundingOrganization: false,
+      organizationType: '',
+      currency: '',
+      isAnnualized: false,
+    };
+  }
+
+  getDefaultFields() {
+    return {
+      partners: [],
+      countries: [],
+      currencies: [],
+      organizationTypes: [],
+    };
+  }
+
+  async updateFields() {
     let protocol = window.location.protocol;
     let hostname = window.location.hostname;
     let endpoint = `${protocol}//${hostname}/api/admin/partners/fields`;
-//    if (hostname === 'localhost')
-//      endpoint = 'https://icrpartnership-dev.org/api/admin/partners/fields';
 
     let response = await fetch(endpoint, { credentials: 'same-origin' });
-    let data = await response.json()
-
+    let data = await response.json();
     let form = this.state.form;
-    let fields = this.state.fields;
-    for (let key in data) {
-      fields[key] = data[key];
+    form.fields = data;
+
+    this.setState({
+      form: form,
+      loading: false,
+    }, e => {
+      if (data.partners.length > 0) {
+        this.handleChange(
+          'partner',
+          data.partners[0].partner_name
+        );
+      }
+    })
+  }
+
+  updateForm(form, field, value) {
+    let values = form.values;
+    let fields = form.fields;
+
+    values[field] = value;
+
+    const findCurrency = (country, fields) => {
+      if (country) {
+        let currency = fields.currencies.find(e => e.value === country.currency);
+        return currency ? currency.value : '';
+      }
+
+      return '';
     }
 
-    if (fields.partners && fields.partners.length > 0) {
-      let partner = fields.partners[0];
+    if (field === 'partner') {
+      values = this.getDefaultValues();
+
+      let partner = fields.partners
+        .find(e => e.partner_name === value);
 
       let country = fields.countries
         .find(e => e.label.toLowerCase() === partner.country.toLowerCase());
 
-      form.partner = partner.partner_name;
-      form.joinedDate = moment(partner.joined_date);
-      form.country = country ? country.value : '';
-      form.description = partner.description;
-      form.email = partner.email;
-
-      form.currency = '';
-      if (fields.currencies
-        .find(e => e.value === country.currency)) {
-        form.currency = country.currency || '';
-      }
+      values.partner = partner.partner_name;
+      values.joinedDate = moment(partner.joined_date);
+      values.country = country ? country.value : '';
+      values.description = partner.description;
+      values.email = partner.email;
+      values.currency = findCurrency(country, fields);
     }
 
-    this.setState({
-      form: form,
-      fields: fields,
-      loading: false,
-    });
+    if (field === 'country') {
+      let country = fields.countries
+        .find(e => e.value === value);
+
+      values.currency = findCurrency(country, fields);
+    }
+
+    form.values = values;
+    return form;
   }
 
   handleChange(field, value) {
     let form = this.state.form;
-    form[field] = value;
-
-    if (field === 'partner') {
-
-      let partner = this.state.fields.partners
-        .find(e => e.partner_name === form.partner);
-
-      let country = this.state.fields.countries
-        .find(e => e.label.toLowerCase() === partner.country.toLowerCase());
-
-      form.partner = partner.partner_name;
-      form.joinedDate = moment(partner.joined_date);
-      form.country = country ? country.value : '';
-      form.description = partner.description;
-      form.email = partner.email;
-    }
-
-    if (field === 'country') {
-      let country = this.state.fields.countries
-        .find(e => e.value === value);
-      
-      form.currency = '';
-      if (this.state.fields.currencies
-        .find(e => e.value === country.currency)) {
-        form.currency = country.currency || '';
-      }
-    }
-
     this.setState({
-      form: form
+      form: this.updateForm(form, field, value)
     });
   }
 
   validate() {
-    let form = this.state.form;
+    let values = this.state.form.values;
     let validationErrors = {};
     let isValid = true;
 
@@ -156,19 +160,19 @@ export default class Form extends React.Component {
       },
 
       organizationType: {
-        required: form.isFundingOrganization
+        required: values.isFundingOrganization
       },
 
       currency: {
-        required: form.isFundingOrganization
+        required: values.isFundingOrganization
       }
     }
 
     for (let field in validationRules) {
       validationErrors[field] = {};
       let value = field !== 'joinedDate'
-        ? (form[field] || '').toString().trim()
-        : form[field] ? moment(form[field]).format('YYYY-MM-DD') : '0';
+        ? (values[field] || '').toString().trim()
+        : values[field] ? moment(values[field]).format('YYYY-MM-DD') : '0';
 
 
       if (validationRules[field].required && value.constructor === String && value.length === 0) {
@@ -176,15 +180,17 @@ export default class Form extends React.Component {
         isValid = false;
       }
 
-      if (validationRules[field].format && !validationRules[field].format.test(value)) {
+      if (value && validationRules[field].format && !validationRules[field].format.test(value)) {
         validationErrors[field].format = true;
         isValid = false;
       }
     }
 
-    this.setState({
-      validationErrors: validationErrors
-    })
+    let form = this.state.form;
+    form.validationErrors = validationErrors;
+    this.setState(
+      { form: form }
+    );
 
     return isValid;
   }
@@ -193,8 +199,8 @@ export default class Form extends React.Component {
     let isValid = this.validate();
 
     if (isValid) {
-      let form = this.state.form;
-      let formData = new FormData();
+      let values = this.state.form.values;
+      let fields = this.state.form.fields;
 
       let parameterMap = {
         partner: 'partner_name',
@@ -215,10 +221,10 @@ export default class Form extends React.Component {
         currency: 'currency',
       };
 
-
-      for (let key in form) {
+      let formData = new FormData();
+      for (let key in values) {
         let formKey = parameterMap[key];
-        let formValue = form[key];
+        let formValue = values[key];
         if (key === 'joinedDate')
           formValue = moment(formValue._d).format('YYYY-MM-DD');
 
@@ -226,19 +232,13 @@ export default class Form extends React.Component {
           formData.set(formKey, formValue);
       }
 
-      let partner = this.state.fields.partners
-        .find(e => e.partner_name === form.partner);
+      let partner = fields.partners
+        .find(e => e.partner_name === values.partner);
       formData.set('partner_application_id', partner.partner_application_id);
-
-      let country = this.state.fields.countries
-        .find(e => e.value === form.country);
-      formData.set('currency', country.currency);
 
       let protocol = window.location.protocol;
       let hostname = window.location.hostname;
       let endpoint = `${protocol}//${hostname}/api/admin/partners/add`;
-//      if (hostname === 'localhost')
-//        endpoint = 'https://icrpartnership-dev.org/api/admin/partners/add';
 
       let response = await fetch(endpoint, {
         method: 'POST',
@@ -247,24 +247,28 @@ export default class Form extends React.Component {
       });
 
       let messages = await response.json();
+      let form = this.state.form;
 
       if (messages.constructor === Array && messages.length > 0) {
+        form.values = this.getDefaultValues();
+        form.messages = messages;
 
-        this.setState({
-          messages: messages
-        });
-
-        this.getFields();
+        this.setState(
+          { form: form }, 
+          () => this.updateFields()
+        );
       }
     }
   }
 
   dismissMessage(index) {
-    let messages = this.deepCopy(this.state.messages);
+    let form = this.state.form;
+    let messages = this.deepCopy(this.state.form.messages);
     messages.splice(index, 1);
-    this.setState({
-      messages: messages
-    })
+    form.messages = messages;
+    this.setState(
+      { form: form }
+    );
   }
 
   deepCopy(obj) {
@@ -272,44 +276,24 @@ export default class Form extends React.Component {
   }
 
   clear() {
-    this.setState({
-      form: {
-        partner: '',
-        joinedDate: null,
-        country: '',
-        email: '',
-        description: '',
-        sponsorCode: '',
-        website: '',
-        mapCoordinates: '',
-        logoFile: null,
-        note: '',
-        agreeToTerms: false,
-
-        isFundingOrganization: false,
-        organizationType: '',
-        isAnnualized: false,
-      },
-      validationErrors: {},
-      messages: [],
-    });
+    let form = this.state.form;
+    form.values = this.getDefaultValues();
+    this.setState(
+      { form: form }
+    );
   }
 
   render() {
-    let form = {
-      values: this.state.form,
-      fields: this.state.fields,
-      validationErrors: this.state.validationErrors,
-      messages: this.state.messages,
-    };
-
-    return <PartnerForm
+    return <div>
+      <Spinner message="Loading..." visible={this.state.loading} />
+      <PartnerForm
         context={this}
-        form={form}
+        form={this.state.form}
         changeCallback={this.handleChange.bind(this)}
         submitCallback={this.submit.bind(this)}
         resetCallback={this.clear.bind(this)}
         dismissMessageCallback={this.dismissMessage.bind(this)}
       />
+    </div>
   }
 }

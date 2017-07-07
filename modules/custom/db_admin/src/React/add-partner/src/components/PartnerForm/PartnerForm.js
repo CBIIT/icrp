@@ -2,8 +2,6 @@ import React from 'react';
 import { Alert, Button, Checkbox, Col, ControlLabel, Form, FormControl, FormGroup, Grid, HelpBlock, Row } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import DisabledOverlay from '../DisabledOverlay/';
-
-
 import 'react-datepicker/dist/react-datepicker.css';
 import './PartnerForm.css';
 
@@ -13,7 +11,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
 <div>
   <div className='form-group'>
     {
-      form.fields.partners.length > 0
+      form && form.fields && form.fields.partners && form.fields.partners.length > 0
       ? 'Select a completed application to add as an ICRP partner.'
       : 'There are no completed applications available in the database.'
     }
@@ -21,10 +19,17 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
 
   <Grid>
     {
-      form.messages.map((message, index) =>
+      form && form.messages.map((message, index) =>
         <Row>
           { message.ERROR && <Alert bsStyle='danger' onDismiss={dismissMessageCallback.bind(context, index)}>{message.ERROR}</Alert> }
-          { message.SUCCESS && <Alert bsStyle='success' onDismiss={dismissMessageCallback.bind(context, index)}>{message.SUCCESS}</Alert> }
+          { message.SUCCESS && 
+            <Alert bsStyle='success' onDismiss={dismissMessageCallback.bind(context, index)}>
+              { message.SUCCESS } To view a list of current ICRP partners, please visit: <a
+                target='_blank'
+                rel='noopener noreferrer'
+                href={`${window.location.protocol}//${window.location.hostname}/current_partners`}
+              >{window.location.protocol}//{window.location.hostname}/current_partners</a>.
+            </Alert> }
         </Row>
       )
     }
@@ -245,8 +250,8 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
               <option className='disabled' key={0} hidden>Select organization type</option>
               {
                 form.fields.organizationTypes.map((field, index) =>
-                  <option key={`${index}_${field}`} value={field}>
-                    {field}
+                  <option key={`${index}_${field}`} value={field.value}>
+                    {field.label}
                   </option>
                 )
               }
