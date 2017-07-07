@@ -40,6 +40,7 @@ db_search_api.database.analytics_partners:
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
+    _role: 'authenticated'
 
 
 ## Get search parameters for a particular search id

@@ -370,8 +370,9 @@ class DatabaseExport {
    *
    * @return string
    */
-  function getUrlBase(): string {
-    return ($_SERVER['HTTPS'] == true
+  static function getUrlBase(): string {
+    return (
+      (array_key_exists('HTTPS', $_SERVER) && $_SERVER['HTTPS'] == true)
       ? 'https://'
       : 'http://')
       . $_SERVER['SERVER_NAME'];
@@ -439,7 +440,7 @@ class DatabaseExport {
     return chr(ord('A') + $column) . ($row + 1);
   }
 
-  function exportGraphs($pdo, $search_id, $workbook_key, $filename) {
+  function exportGraphs($pdo, $search_id, $data_upload_id, $workbook_key, $filename) {
     $paths = $this->buildOutputPaths($filename);
 
     $excel = new \PHPExcel();
@@ -549,9 +550,29 @@ class DatabaseExport {
       }
     }
 
+    $data = [];
+    $sheet_name = '';
+
+    if ($data_upload_id === NULL) {
+      $data = self::getSearchCriteria($pdo, $search_id);
+      $sheet_name = 'Search Criteria';
+    }
+
+    else {
+      $data = self::getDataReviewCriteria($pdo, $data_upload_id);
+      $sheet_name = 'Data Upload Review';
+    }
+
+    $sheet = $excel->createSheet();
+    $sheet->setTitle($sheet_name);
+    $this->writeArrayToWorksheet($data, $sheet);
+
     $writer = \PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
     $writer->setIncludeCharts(true);
     $writer->save($paths['filepath']);
+
+
+    
     return $paths['uri'];
   }
 
@@ -662,18 +683,85 @@ class DatabaseExport {
       }
     }
 
+    $writer->close();   
+
     // if a data upload id was not specified, add a sheet containing search criteria
     // otherwise, do not include search criteria and instead use data review criteria
     $data_upload_id === NULL
-      ? $this->addSearchCriteria($pdo, $writer, $search_id)
-      : $this->addDataReviewCriteria($pdo, $writer, $data_upload_id);
+      ? $this->addSearchCriteria($pdo, $paths['filepath'], $search_id)
+      : $this->addDataReviewCriteria($pdo, $paths['filepath'], $data_upload_id);
 
-    $writer->close();
     return $paths['uri'];
   }
 
+  function getSearchCriteria($pdo, int $search_id) {
+    $data = [
+      ['International Cancer Research Partnership', $this->getUrlBase()],
+      ['Created: ', $this->getTimestamp()],
+      ['Search Criteria: '],
+    ];
 
-  function addSearchCriteria($pdo, $writer, int $search_id) {
+    $stmt_defaults = 'SET NOCOUNT ON; ';
+    $stmt = $pdo->prepare($stmt_defaults . 'EXECUTE GetSearchCriteriaBySearchID @SearchID=:search_id');
+    if ($stmt->execute([':search_id' => $search_id])) {
+      while ($row = $stmt->fetch(PDO::FETCH_NUM))
+        array_push($data, $row);
+      //$data = $stmt->fetchAll(PDO::FETCH_NUM);
+    }
+
+    return $data;
+  }
+
+  function getDataReviewCriteria($pdo, int $data_upload_id) {
+    $data = [
+      ['International Cancer Research Partnership', $this->getUrlBase()],
+      ['Created: ', $this->getTimestamp()],
+      ['Sponsor Code', 'Funding Years', 'Type', 'Workbook Received Date', 'Note'],
+    ];
+
+    $stmt_defaults = 'SET NOCOUNT ON; ';
+    $stmt = $pdo->prepare($stmt_defaults
+      . 'SELECT [PartnerCode], [FundingYear], [Type], [ReceivedDate], [Note]
+          FROM DataUploadStatus
+          WHERE DataUploadStatusID = :data_upload_id');
+
+    if ($stmt->execute([':data_upload_id' => $data_upload_id])) {
+      while ($row = $stmt->fetch(PDO::FETCH_NUM))
+        array_push($data, $row);
+    }
+
+    return $data;
+  }
+
+  function writeArrayToWorksheet($data, &$sheet) {
+    for ($row = 0; $row < count($data); $row ++) {
+      for ($column = 0; $column < count($data[$row]); $column ++) {
+        $sheet->setCellValueByColumnAndRow($column, $row + 1, $data[$row][$column]);
+      }
+    }
+
+    return $sheet;
+  }
+
+  function addArrayAsWorksheet($data, $sheet_title, $filepath) {
+    $excel = \PHPExcel_IOFactory::createReader('Excel2007')->load($filepath);
+    $sheet = $excel->createSheet();
+    $sheet->setTitle($sheet_title);
+    $sheet = $this->writeArrayToWorksheet($data, $sheet);
+
+    $writer = \PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
+    $writer->setIncludeCharts(true);
+    $writer->save($filepath);
+  }
+
+  function addSearchCriteria($pdo, $filepath, int $search_id) {
+    $data = self::getSearchCriteria($pdo, $search_id);
+    $this->addArrayAsWorksheet($data, 'Search Criteria', $filepath);
+
+/*
+    $writer = WriterFactory::create(Type::XLSX);
+    $writer->open($filepath);
+
     $writer->addNewSheetAndMakeItCurrent();
     $writer->getCurrentSheet()->setName('Search Criteria');
 
@@ -683,15 +771,20 @@ class DatabaseExport {
       ['Search Criteria: '],
     ]);
 
-    $stmt_defaults = 'SET NOCOUNT ON; ';
-    $stmt = $pdo->prepare($stmt_defaults . 'EXECUTE GetSearchCriteriaBySearchID @SearchID=:search_id');
-    if ($stmt->execute([':search_id' => $search_id])) {
-      $writer->addRows($stmt->fetchAll(PDO::FETCH_NUM));
-    }
+    $writer->addRows($stmt->fetchAll(PDO::FETCH_NUM));
+    $writer->close();
+*/
+
   }
 
+  function addDataReviewCriteria($pdo, $filepath, int $data_upload_id) {
+    $data = self::getDataReviewCriteria($pdo, $data_upload_id);
+    $this->addArrayAsWorksheet($data, 'Data Upload Review', $filepath);
 
-  function addDataReviewCriteria($pdo, $writer, int $data_upload_id) {
+    /*
+    $writer = WriterFactory::create(Type::XLSX);
+    $writer->open($filepath);
+
     $writer->addNewSheetAndMakeItCurrent();
     $writer->getCurrentSheet()->setName('Data Upload Review');
 
@@ -710,6 +803,9 @@ class DatabaseExport {
     if ($stmt->execute([':data_upload_id' => $data_upload_id])) {
       $writer->addRows($stmt->fetchAll(PDO::FETCH_NUM));
     }
+
+    $writer->close();
+    */
   }
 
 }

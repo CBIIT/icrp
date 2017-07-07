@@ -45,7 +45,7 @@ class DatabaseExportController extends ControllerBase {
 
     return in_array($workbook_key, [DatabaseExport::EXPORT_GRAPHS_PUBLIC, DatabaseExport::EXPORT_GRAPHS_PARTNERS])
       ? (new DatabaseExport())
-          ->exportGraphs($pdo, $search_id, $workbook_key, $filename)
+          ->exportGraphs($pdo, $search_id, $data_upload_id, $workbook_key, $filename)
       : (new DatabaseExport())
           ->exportResults($pdo, $search_id, $data_upload_id, $workbook_key, $filename, $url_path_prefix);
   }
@@ -157,7 +157,7 @@ class DatabaseExportController extends ControllerBase {
     $search_id = $request->query->get('search_id', NULL);
     $data_upload_id = $request->query->get('data_upload_id', NULL);
 
-    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PUBLIC, intval($search_id));
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PUBLIC, intval($search_id), intval($data_upload_id));
     return self::createResponse($uri);
   }
 
@@ -166,7 +166,7 @@ class DatabaseExportController extends ControllerBase {
     $search_id = $request->query->get('search_id', NULL);
     $data_upload_id = $request->query->get('data_upload_id', NULL);
 
-    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PARTNERS, intval($search_id));
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PARTNERS, intval($search_id), intval($data_upload_id));
     return self::createResponse($uri);
   }
 }
