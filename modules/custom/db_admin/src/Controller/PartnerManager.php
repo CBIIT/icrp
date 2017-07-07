@@ -39,7 +39,6 @@ class PartnerManager {
 
 
   public static function getFields(PDO $pdo) {
-    $fields = [];
     $queries = [
       'partners'    =>  "SELECT
                           PartnerApplicationID as partner_application_id,
@@ -66,9 +65,20 @@ class PartnerManager {
     ];
 
     // map query results to field values
+    $fields = [];
     foreach ($queries as $key => $value) {
       $fields[$key] = $pdo->query($value)->fetchAll(PDO::FETCH_ASSOC);
     }
+    $fields['organizationTypes'] = array_map(function($str) {
+      return [
+        'value' => $str,
+        'label' => $str,
+      ];
+    }, [
+      'Government', 
+      'Non-profit',
+      'Other'
+    ]);
 
     return $fields;
   }
