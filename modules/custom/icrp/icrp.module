@@ -20,8 +20,11 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
+use Drupal\node\NodeInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\comment\Entity\Comment;
+/* To send mail */
+//use Symfony\Component\EventDispatcher\GenericEvent;
 
 /*
  * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
@@ -37,21 +40,98 @@ use Drupal\comment\Entity\Comment;
  *
  */
 
+function sendNewForumPostMail($email, $subject, $body) {
+
+    $mailManager = \Drupal::service('plugin.manager.mail');
+    $module = 'icrp';
+    $key = 'newForumPostMail'; // Replace with Your key
+    //$to = $this->getValue('name')." <".strip_tags($this->getValue("email")).">";
+    $to = $email;
+    $params['subject'] = $subject;
+    $params['body'] = $body;
+    $langcode = \Drupal::currentUser()->getPreferredLangcode();
+    $send = true;
+/*
+    drupal_set_message("module: ".$module);
+    drupal_set_message("key: ".$key);
+    drupal_set_message("to: ".$to);
+    drupal_set_message("langcode: ".$langcode);
+    drupal_set_message("send: ".(string)$send);
+    drupal_set_message("params: ".print_r($params, true));
+    drupal_set_message("CALLING mail from mailManager");
+*/
+    $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
+  //  drupal_set_message("result: ".(string)$result['result']);
+  //  drupal_set_message("result array(): ".print_r($result, true));
+
+    if ($result['result'] != true) {
+        $message = t('New Forum Post - There was a problem sending your email notification to @email.', array('@email' => $to));
+    //    drupal_set_message($message, 'error');
+        \Drupal::logger('mail-log')->error($message);
+        return;
+    }
+
+    $message = t('New Forum Post - An email notification has been sent to @email ', array('@email' => $to));
+    \Drupal::logger('mail-log')->notice($message);
+
+}
+
+
+function getForumEmailDetailsDetails($nid) {
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+
+  $subject = " New ICRP forum post: {Name of Forum - Thread}";
+  $url = "yahoo.com";
+  $forum_category = "Partner News (example)";
+  $thread = "Annual Meeting Planning";
+        $body =
+"
+<b>Forum Category:</b> {$forum_category}
+<b>Thread:</b> {$thread}
+
+<a href=".$url.">Thread Details page</a>
+";
+  return array($subject, $body);
+
+}
+
+function  getForumEmails($nid) {
+  return array("<cpkneisler@gmail.com>");
+}
+
+function sendForumNotification($nid, $type) {
+  /**
+  * url example: http://localhost/node/621?page=0
+  */
+  \Drupal::logger('icrp')->notice('Send Forum Notification: nid='.$nid.' type='.$type) ;
+  list($subject, $body) =  getForumEmailDetailsDetails($nid);
+  $emails = getForumEmails($nid);
+
+  $email = "<cpkneisler@gmail.com>";
+  //Loop through users and send them an e-mail.
+  sendNewForumPostMail($email, $subject, $body);
+
+
+}
+
 function icrp_node_insert(NodeInterface $node) {
-  //drupal_set_message("Node Insert");
-  //drupal_set_message("Type: ". $node->getType());
-  //drupal_set_message($node->getTitle());
-  //drupal_set_message($node->id());
-  //drupal_set_message($node->id());
-  \Drupal::logger('icrp')->notice('Forum Form submit ') ;
+  if($node->getType() == "forum") {
+  /*
+    drupal_set_message("Node Insert");
+    drupal_set_message("Type: ". $node->getType());
+    drupal_set_message($node->getTitle());
+    drupal_set_message($node->id());
+    */
+    $nid = $node->id();
+    $type = "forum";
+    sendForumNotification($nid, $type);
+  }
 }
 
 function icrp_comment_insert(Comment $comment) {
-  //drupal_set_message("Hello2");
   $nid = $comment->getCommentedEntityId();
-  //drupal_set_message("nid = ".$nid);
-  \Drupal::logger('icrp')->notice('Comment Form submit ') ;
-  //dpm($comment);
+  $type = "comment";
+  sendForumNotification($nid, $type);
 }
 
 function icrp_user_view($account, $view_mode, $langcode) {
@@ -750,6 +830,11 @@ The ICRP team";
           $message['subject'] = "ICRP Partnership Application - Completed";
           $message['body'][] = Drupal\Core\Mail\MailFormatHelper::htmlToText($body);
           break;
+    case 'newForumPostMail':
+          $message['from'] = \Drupal::config('system.site')->get('mail');
+          $message['subject'] = $params['subject'];
+          $message['body'][] = Drupal\Core\Mail\MailFormatHelper::htmlToText($params['body']);
+          break;
     }
 }
 /*
@@ -979,6 +1064,7 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             OrganizationRestClient::populateOrganizations();
             break;
         case 'node_forum_edit_form':
+            //dpm($form);
             $uid = \Drupal::currentUser()->id();
             $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
             if(!($user->hasRole('manager') || $user->hasRole('administrator'))) {
@@ -997,14 +1083,8 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             $form['description']['#markup'] = new TranslatableMarkup("By deleting this post, you will also delete all replies. Are you sure you want to delete the entire thread?");
             //unset($form['actions']['cancel']);
             break;
-        case 'views_form_content_page_1':
-            //$url = Url::createFromPath('node/1');
-            //return new RedirectResponse($url->toString());
-            //Or try this:
-            //drupal_set_message("Go to node/614");
-            //return new RedirectResponse('node/614');
-            //return new RedirectResponse(\Drupal::url('<front>', [], ['absolute' => TRUE]));
-        
+        case 'comment_comment_forum_delete_form':
+            $form['description']['#markup'] = new TranslatableMarkup("Are you sure you want to delete this reply?  This action cannot be undone.");
             break;
         case 'comment_comment_forum_form':
             //$form['sticky']['#access'] = true;
