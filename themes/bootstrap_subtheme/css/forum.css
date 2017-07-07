@@ -15,7 +15,7 @@ thead tr th, thead tr td, tbody tr th, tbody tr td { padding: 8px; line-height: 
 	font-weight:bold;
 	color:red;
 }
-#node-forum-delete-form #edit-actions {
+#comment-comment-forum-delete-form #edit-actions, #node-forum-delete-form #edit-actions {
 	margin-top:15px;
 }
 

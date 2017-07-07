@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\comment\Entity\Comment;
 
 /*
  * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
@@ -36,27 +37,23 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
  *
  */
 
+function icrp_node_insert(NodeInterface $node) {
+  //drupal_set_message("Node Insert");
+  //drupal_set_message("Type: ". $node->getType());
+  //drupal_set_message($node->getTitle());
+  //drupal_set_message($node->id());
+  //drupal_set_message($node->id());
+  \Drupal::logger('icrp')->notice('Forum Form submit ') ;
+}
 
-/**
- * Prepares variables for forums templates.
- *
- * Default template: forums.html.twig.
- *
- * @param array $variables
- *   An array containing the following elements:
- *   - forums: An array of all forum objects to display for the given taxonomy
- *     term ID. If tid = 0 then all the top-level forums are displayed.
- *   - topics: An array of all the topics in the current forum.
- *   - parents: An array of taxonomy term objects that are ancestors of the
- *     current term ID.
- *   - term: Taxonomy term of the current forum.
- *   - sortby: One of the following integers indicating the sort criteria:
- *     - 1: Date - newest first.
- *     - 2: Date - oldest first.
- *     - 3: Posts with the most comments first.
- *     - 4: Posts with the least comments first.
- *   - forum_per_page: The maximum number of topics to display per page.
- */
+function icrp_comment_insert(Comment $comment) {
+  //drupal_set_message("Hello2");
+  $nid = $comment->getCommentedEntityId();
+  //drupal_set_message("nid = ".$nid);
+  \Drupal::logger('icrp')->notice('Comment Form submit ') ;
+  //dpm($comment);
+}
+
 function icrp_user_view($account, $view_mode, $langcode) {
   //drupal_set_message("User view");
   //$response = $event->getResponse();
@@ -73,6 +70,7 @@ function icrp_node_view($node, $view_mode, $langcode) {
   }
   */
 }
+
 function icrp_preprocess_pager(&$variables) {
 }
 
