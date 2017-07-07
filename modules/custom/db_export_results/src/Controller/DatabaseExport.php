@@ -757,55 +757,10 @@ class DatabaseExport {
   function addSearchCriteria($pdo, $filepath, int $search_id) {
     $data = self::getSearchCriteria($pdo, $search_id);
     $this->addArrayAsWorksheet($data, 'Search Criteria', $filepath);
-
-/*
-    $writer = WriterFactory::create(Type::XLSX);
-    $writer->open($filepath);
-
-    $writer->addNewSheetAndMakeItCurrent();
-    $writer->getCurrentSheet()->setName('Search Criteria');
-
-    $writer->addRows([
-      ['International Cancer Research Partnership', $this->getUrlBase()],
-      ['Created: ', $this->getTimestamp()],
-      ['Search Criteria: '],
-    ]);
-
-    $writer->addRows($stmt->fetchAll(PDO::FETCH_NUM));
-    $writer->close();
-*/
-
   }
 
   function addDataReviewCriteria($pdo, $filepath, int $data_upload_id) {
     $data = self::getDataReviewCriteria($pdo, $data_upload_id);
     $this->addArrayAsWorksheet($data, 'Data Upload Review', $filepath);
-
-    /*
-    $writer = WriterFactory::create(Type::XLSX);
-    $writer->open($filepath);
-
-    $writer->addNewSheetAndMakeItCurrent();
-    $writer->getCurrentSheet()->setName('Data Upload Review');
-
-    $writer->addRows([
-      ['International Cancer Research Partnership', $this->getUrlBase()],
-      ['Created: ', $this->getTimestamp()],
-      ['Sponsor Code', 'Funding Years', 'Type', 'Workbook Received Date', 'Note'],
-    ]);
-
-    $stmt_defaults = 'SET NOCOUNT ON; ';
-    $stmt = $pdo->prepare($stmt_defaults
-      . 'SELECT [PartnerCode], [FundingYear], [Type], [ReceivedDate], [Note]
-          FROM DataUploadStatus
-          WHERE DataUploadStatusID = :data_upload_id');
-
-    if ($stmt->execute([':data_upload_id' => $data_upload_id])) {
-      $writer->addRows($stmt->fetchAll(PDO::FETCH_NUM));
-    }
-
-    $writer->close();
-    */
   }
-
 }
