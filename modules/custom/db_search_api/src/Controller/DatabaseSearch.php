@@ -69,8 +69,9 @@ class DatabaseSearch {
       'cso_research_areas'          => 'SELECT Code AS [value], Code + \' \' + Name AS [label], CategoryName AS [group_1], \'All Areas\' as [group_2] FROM CSO ORDER BY sortOrder, value',
       'conversion_years'            => 'SELECT DISTINCT Year AS [value], Year AS [label] FROM CurrencyRate ORDER BY Year DESC',
 //    'funding_organizations'       => 'SELECT FundingOrgID AS [value], Name AS [label], SponsorCode AS [group_1], Country AS [group_2], \'Funding\' AS [group_3] FROM FundingOrg WHERE LastImportDate IS NOT NULL',
-      'funding_organizations'       => 
-        'CREATE TABLE TEMPORARY_FUNDING_ORGANIZATIONS (
+      'funding_organizations'       => '
+        SET NOCOUNT ON; 
+        CREATE TABLE TEMPORARY_FUNDING_ORGANIZATIONS (
           FundingOrgID int,
           Name varchar(100),
           Abbreviation varchar(15),
