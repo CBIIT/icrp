@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, Button, Checkbox, Col, ControlLabel, Form, FormControl, FormGroup, Grid, HelpBlock, Row } from 'react-bootstrap';
+import { Alert, Button, Checkbox, Col, ControlLabel, DropdownButton, InputGroup, Form, FormControl, FormGroup, Grid, HelpBlock, MenuItem, Row } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import DisabledOverlay from '../DisabledOverlay/';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -24,11 +24,13 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
           { message.ERROR && <Alert bsStyle='danger' onDismiss={dismissMessageCallback.bind(context, index)}>{message.ERROR}</Alert> }
           { message.SUCCESS && 
             <Alert bsStyle='success' onDismiss={dismissMessageCallback.bind(context, index)}>
-              { message.SUCCESS } To view a list of current ICRP partners, please visit: <a
+              This partner has been successfully saved. You can go to 
+              <a
                 target='_blank'
                 rel='noopener noreferrer'
                 href={`${window.location.protocol}//${window.location.hostname}/current_partners`}
-              >{window.location.protocol}//{window.location.hostname}/current_partners</a>.
+              > Current Partners </a>
+              to view a list of current ICRP partners.
             </Alert> }
         </Row>
       )
@@ -150,12 +152,26 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
       <Col md={6} className='margin-bottom'>
         <FormGroup  controlId='partner-website' bsSize='small' validationState={null}>
           <ControlLabel className='margin-right'>Website</ControlLabel>
-          <FormControl
-            type='text'
-            value={form.values.website}
-            maxLength={100}
-            onChange={event => changeCallback('website', event.target['value'])}
-            placeholder='Enter website' />
+          <div className='display-flex'>
+            <InputGroup>
+              <DropdownButton
+                className='form-group-addon-left-sm'
+                componentClass={InputGroup.Button}
+                id="input-dropdown-addon"
+                title="https://"
+              >
+                <MenuItem key="https">https://</MenuItem>
+                <MenuItem key="http">http://</MenuItem>
+              </DropdownButton>
+              <FormControl
+                className='form-control'
+                type='text'
+                value={form.values.website}
+                maxLength={100}
+                onChange={event => changeCallback('website', event.target['value'])}
+                placeholder='Enter website' />
+              </InputGroup>
+            </div>
           <FormControl.Feedback />
         </FormGroup>
       </Col>
