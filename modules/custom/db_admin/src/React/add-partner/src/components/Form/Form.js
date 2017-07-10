@@ -32,6 +32,7 @@ export default class Form extends React.Component {
       email: '',
       description: '',
       sponsorCode: '',
+      urlProtocol: 'https://',
       website: '',
       mapCoordinates: '',
       logoFile: '',
@@ -79,6 +80,7 @@ export default class Form extends React.Component {
   }
 
   updateForm(form, field, value) {
+
     let values = form.values;
     let fields = form.fields;
 
@@ -202,6 +204,9 @@ export default class Form extends React.Component {
     if (isValid) {
       let values = this.state.form.values;
       let fields = this.state.form.fields;
+
+      // add prefix to url
+      values.website = values.urlProtocol + values.website;
 
       let parameterMap = {
         partner: 'partner_name',

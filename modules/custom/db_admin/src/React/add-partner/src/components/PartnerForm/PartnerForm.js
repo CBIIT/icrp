@@ -24,13 +24,11 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
           { message.ERROR && <Alert bsStyle='danger' onDismiss={dismissMessageCallback.bind(context, index)}>{message.ERROR}</Alert> }
           { message.SUCCESS && 
             <Alert bsStyle='success' onDismiss={dismissMessageCallback.bind(context, index)}>
-              This partner has been successfully saved. You can go to 
-              <a
+              This partner has been successfully saved. You can go to <a
                 target='_blank'
                 rel='noopener noreferrer'
                 href={`${window.location.protocol}//${window.location.hostname}/current_partners`}
-              > Current Partners </a>
-              to view a list of current ICRP partners.
+              >Current Partners</a> to view a list of current ICRP partners.
             </Alert> }
         </Row>
       )
@@ -158,10 +156,18 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
                 className='form-group-addon-left-sm'
                 componentClass={InputGroup.Button}
                 id="input-dropdown-addon"
-                title="https://"
+                title={form.values.urlProtocol}
               >
-                <MenuItem key="https">https://</MenuItem>
-                <MenuItem key="http">http://</MenuItem>
+                {
+                  form.fields.urlProtocols.map((field, index) => 
+                    <MenuItem 
+                      onClick={event => changeCallback('urlProtocol', field.value)}
+                      key={field.value} 
+                      value={field.value}>
+                        {field.label}
+                      </MenuItem>
+                  )
+                }
               </DropdownButton>
               <FormControl
                 className='form-control'
