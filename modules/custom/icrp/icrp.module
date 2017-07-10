@@ -39,7 +39,41 @@ use Drupal\comment\Entity\Comment;
  *   7. #post_render
  *
  */
+/*
+function icrp_mail_alter(&$message) {
 
+  // only alter contact forms
+  if (!empty($message['id']) && $message['id'] == 'contact_page_mail') {
+
+  // make it a bit neater to access fields
+    $contact_message = $message['params']['contact_message'];
+    $name = $contact_message->get('field_name')->getString();
+  $country = $contact_message->get('field_country')->getString();
+  $questions = $contact_message->get('field_questions')->getString();
+  $contactmessage = $contact_message->getMessage();
+  $contact_to_followup = $contact_message->get('field_follow_up_radio')->getString();
+  $by_phone = $contact_message->get('field_follow_up_contact')->getString();
+  $by_email = $contact_message->get('field_follow_up_email')->getString();
+  $by_mail = $contact_message->get('field_by_mail')->getString();
+  $client = $contact_message->get('field_gbt_client')->getString();
+  
+  $message['body'] = [];
+
+  $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
+  
+     // add plain text body string into the $message['body'] array
+    $message_list = array('Name' => $name , 'Country' => $country , 'Questions' => $questions , 
+            'ContactMessage' => $contactmessage , 'How can we contact ?' => $contact_to_followup , 
+            'By Phone' => $by_phone ,'By Email' => $by_email , 'By Mail' => $by_mail , 
+            'Client' => $client);
+    // In line css to handle Design.          
+  $newdata = '<div class="gbtcontact_emailtemplate" style="border:0.5px solid #ADAFAF; text-align: left; padding:3%; width:45%;"><b>Name:</b> ' .$message_list['Name']. '<br><br><b>Country:</b> ' .$message_list['Country'].  '<br><br><b>Question:</b> ' .$message_list['Questions']. '<br><br><b>Message:</b> ' .$message_list['ContactMessage']. '<br><br><b>How can we contact you to follow up?:</b> ' .$message_list['How can we contact you to follow up?']. '<br><br><b>By Phone:</b> ' .$message_list['By Phone']. '<br><br><b>Client:</b> ' .$message_list['Client'].'</div>';
+
+    // Assigning new message to mail body.
+  $message['body'][] = $newdata;
+    }
+}
+*/
 function sendNewForumPostMail($email, $subject, $body) {
 
     $mailManager = \Drupal::service('plugin.manager.mail');
@@ -51,7 +85,7 @@ function sendNewForumPostMail($email, $subject, $body) {
     $params['body'] = $body;
     $langcode = \Drupal::currentUser()->getPreferredLangcode();
     $send = true;
-/*
+
     drupal_set_message("module: ".$module);
     drupal_set_message("key: ".$key);
     drupal_set_message("to: ".$to);
@@ -59,10 +93,10 @@ function sendNewForumPostMail($email, $subject, $body) {
     drupal_set_message("send: ".(string)$send);
     drupal_set_message("params: ".print_r($params, true));
     drupal_set_message("CALLING mail from mailManager");
-*/
+
     $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
-  //  drupal_set_message("result: ".(string)$result['result']);
-  //  drupal_set_message("result array(): ".print_r($result, true));
+    drupal_set_message("result: ".(string)$result['result']);
+    drupal_set_message("result array(): ".print_r($result, true));
 
     if ($result['result'] != true) {
         $message = t('New Forum Post - There was a problem sending your email notification to @email.', array('@email' => $to));
@@ -86,17 +120,42 @@ function getForumEmailDetailsDetails($nid) {
   $thread = "Annual Meeting Planning";
         $body =
 "
-<b>Forum Category:</b> {$forum_category}
-<b>Thread:</b> {$thread}
+<html>
+<head>
+<title>HTML email</title>
+</head>
+<body>
+<p>This email contains HTML Tags!</p>
+<table>
+<tr>
+<th>Firstname</th>
+<th>Lastname</th>
+</tr>
+<tr>
+<td><b>Forum Category:</b></td>
+<td> {$forum_category}</td>
+</tr>
+</tr>
+<tr>
+<td><b>Thread:</b></td>
+<td> {$thread}</td>
+</tr>
+</table>
+</body>
+<footer>
+Footer
 
 <a href=".$url.">Thread Details page</a>
+</footer>
+</html>
+
 ";
   return array($subject, $body);
 
 }
 
 function  getForumEmails($nid) {
-  return array("<cpkneisler@gmail.com>");
+  return array("Chris Kneisler <cpkneisler@gmail.com>");
 }
 
 function sendForumNotification($nid, $type) {
@@ -107,7 +166,7 @@ function sendForumNotification($nid, $type) {
   list($subject, $body) =  getForumEmailDetailsDetails($nid);
   $emails = getForumEmails($nid);
 
-  $email = "<cpkneisler@gmail.com>";
+  $email = "Chris Kneisler <cpkneisler@gmail.com>";
   //Loop through users and send them an e-mail.
   sendNewForumPostMail($email, $subject, $body);
 
@@ -831,9 +890,15 @@ The ICRP team";
           $message['body'][] = Drupal\Core\Mail\MailFormatHelper::htmlToText($body);
           break;
     case 'newForumPostMail':
-          $message['from'] = \Drupal::config('system.site')->get('mail');
+          drupal_set_message("Sending newForumPostMail");
+          drupal_set_message("params");
+          dpm($params);
+          $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
+          $message['from'] = \Drupal::config('system.site')->get('name')." ".\Drupal::config('system.site')->get('mail');
           $message['subject'] = $params['subject'];
-          $message['body'][] = Drupal\Core\Mail\MailFormatHelper::htmlToText($params['body']);
+          $message['body'][] = $params['body'];
+
+          dpm($message);
           break;
     }
 }
