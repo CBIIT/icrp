@@ -48,6 +48,7 @@ export class SearchPageComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.state.searchID = getSearchID();
+    this.storeService.clearAll();
 
     this.updateFields()
       .subscribe(e => {

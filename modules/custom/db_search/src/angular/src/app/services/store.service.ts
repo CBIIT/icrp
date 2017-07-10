@@ -4,6 +4,7 @@ import { Injectable } from '@angular/core';
 export class StoreService {
 
   private fallbackStore: any = {
+    fields: {},
     searchState: {
       parameters: {},
       displayParameters: {},

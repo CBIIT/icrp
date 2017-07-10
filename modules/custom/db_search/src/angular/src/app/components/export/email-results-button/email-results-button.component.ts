@@ -35,8 +35,8 @@ export class EmailResultsButtonComponent {
       personal_message: [''],
     });
 
-    this.emailForm.valueChanges
-      .subscribe(data => console.log(data));
+//    this.emailForm.valueChanges
+//      .subscribe(data => console.log(data));
   }
 
   sendEmail() {
