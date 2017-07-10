@@ -74,29 +74,49 @@ function icrp_mail_alter(&$message) {
     }
 }
 */
+
+/**
+ * Implements hook_mail_alter().
+ */
+function icrp_mail_alter(&$message) {
+  // Drupal hardcodes all mail header as 'text/plain' so we need to set the
+  // header's 'Content-type' to HTML if the EmailWebformHandler's
+  // 'html' flag has been set.
+  // @see \Drupal\Core\Mail\MailManager::mail()
+  // @see \Drupal\webform\Plugin\WebformHandler\EmailWebformHandler::getMessage().
+  //drupal_set_message($message['id']);
+  if (strpos($message['id'], 'icrp_newForumPostMail') === 0) {
+      $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
+  }
+  //drupal_set_message("icrp_mail_alter(message)");
+  //dpm($message);
+}
+
 function sendNewForumPostMail($email, $subject, $body) {
 
     $mailManager = \Drupal::service('plugin.manager.mail');
     $module = 'icrp';
+    $module = 'webform'; //Attempt to user webform plugin.manager.mail.
     $key = 'newForumPostMail'; // Replace with Your key
     //$to = $this->getValue('name')." <".strip_tags($this->getValue("email")).">";
     $to = $email;
     $params['subject'] = $subject;
     $params['body'] = $body;
+    $params['from_mail'] = \Drupal::config('system.site')->get('mail');
     $langcode = \Drupal::currentUser()->getPreferredLangcode();
     $send = true;
 
-    drupal_set_message("module: ".$module);
-    drupal_set_message("key: ".$key);
-    drupal_set_message("to: ".$to);
-    drupal_set_message("langcode: ".$langcode);
-    drupal_set_message("send: ".(string)$send);
-    drupal_set_message("params: ".print_r($params, true));
-    drupal_set_message("CALLING mail from mailManager");
+    //drupal_set_message("module: ".$module);
+    //drupal_set_message("key: ".$key);
+    //drupal_set_message("to: ".$to);
+    //drupal_set_message("langcode: ".$langcode);
+    //drupal_set_message("send: ".(string)$send);
+    //drupal_set_message("params: ".print_r($params, true));
+    //drupal_set_message("CALLING mail from mailManager");
 
     $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
-    drupal_set_message("result: ".(string)$result['result']);
-    drupal_set_message("result array(): ".print_r($result, true));
+    //drupal_set_message("result: ".(string)$result['result']);
+    //drupal_set_message("result array(): ".print_r($result, true));
 
     if ($result['result'] != true) {
         $message = t('New Forum Post - There was a problem sending your email notification to @email.', array('@email' => $to));
@@ -119,12 +139,15 @@ function getForumEmailDetailsDetails($nid) {
   $forum_category = "Partner News (example)";
   $thread = "Annual Meeting Planning";
         $body =
-"
-<html>
-<head>
-<title>HTML email</title>
-</head>
-<body>
+'
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title></title>
+        <style></style>
+    </head>
+<body style="color:black;">
 <p>This email contains HTML Tags!</p>
 <table>
 <tr>
@@ -149,7 +172,7 @@ Footer
 </footer>
 </html>
 
-";
+';
   return array($subject, $body);
 
 }
@@ -890,15 +913,51 @@ The ICRP team";
           $message['body'][] = Drupal\Core\Mail\MailFormatHelper::htmlToText($body);
           break;
     case 'newForumPostMail':
-          drupal_set_message("Sending newForumPostMail");
-          drupal_set_message("params");
-          dpm($params);
-          $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
-          $message['from'] = \Drupal::config('system.site')->get('name')." ".\Drupal::config('system.site')->get('mail');
+
+          //drupal_set_message("Sending newForumPostMail");
+          //drupal_set_message("params");
+          //dpm($params);
+          //$message['from'] = \Drupal::config('system.site')->get('mail');
           $message['subject'] = $params['subject'];
           $message['body'][] = $params['body'];
 
-          dpm($message);
+          // Set the header's 'From' to the 'from_mail' so that the webform's email from
+          // value is used instead of site's email address.
+          // See: \Drupal\Core\Mail\MailManager::mail.
+          if (!empty($params['from_mail'])) {
+            $message['from'] = $params['from_mail'];
+            $message['headers']['From'] = $params['from_mail'];
+            $message['headers']['Reply-to'] = $params['from_mail'];
+            $message['headers']['Return-Path'] = $params['from_mail'];
+          }
+
+          if (!empty($params['cc_mail'])) {
+            $message['headers']['Cc'] = $params['cc_mail'];
+          }
+          if (!empty($params['bcc_mail'])) {
+            $message['headers']['Bcc'] = $params['bcc_mail'];
+          }
+
+          $newdata = '
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title></title>
+        <style></style>
+    </head>
+<body style="color:black;">
+  <a href="yahoo.com">Yahoo.com</a>
+</body>
+</html>
+
+        ';
+          /* Changing */
+          $message['body'] = [];
+          $message['body'][] = $newdata;
+          //dpm($message);
+          //drupal_set_message("BODY");
+          //drupal_set_message($message['body'][0]);
           break;
     }
 }
