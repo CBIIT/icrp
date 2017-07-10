@@ -155,9 +155,8 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
             <span className='display-flex'>
               <DropdownButton
                 className='form-group-addon-left-sm'
-                componentClass={InputGroup.Button}
-
                 title={form.values.urlProtocol}
+                id='select-website-protocol'
               >
                 {
                   form.fields.urlProtocols.map((field, index) => 
