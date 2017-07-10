@@ -147,15 +147,16 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
         </FormGroup>
       </Col>
 
+
       <Col md={6} className='margin-bottom'>
         <FormGroup  controlId='partner-website' bsSize='small' validationState={null}>
           <ControlLabel className='margin-right'>Website</ControlLabel>
           <div className='display-flex'>
-            <InputGroup>
+            <span className='display-flex'>
               <DropdownButton
                 className='form-group-addon-left-sm'
                 componentClass={InputGroup.Button}
-                id="input-dropdown-addon"
+
                 title={form.values.urlProtocol}
               >
                 {
@@ -169,14 +170,14 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
                   )
                 }
               </DropdownButton>
+            </span>
               <FormControl
-                className='form-control'
+                className='form-group-addon-right-sm'
                 type='text'
                 value={form.values.website}
                 maxLength={100}
                 onChange={event => changeCallback('website', event.target['value'])}
                 placeholder='Enter website' />
-              </InputGroup>
             </div>
           <FormControl.Feedback />
         </FormGroup>
