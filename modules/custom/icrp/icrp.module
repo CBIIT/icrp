@@ -84,12 +84,12 @@ function icrp_mail_alter(&$message) {
   // 'html' flag has been set.
   // @see \Drupal\Core\Mail\MailManager::mail()
   // @see \Drupal\webform\Plugin\WebformHandler\EmailWebformHandler::getMessage().
-  drupal_set_message($message['id']);
+  //drupal_set_message($message['id']);
   if (strpos($message['id'], 'icrp_newForumPostMail') === 0) {
       $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
   }
-  drupal_set_message("icrp_mail_alter(message)");
-  dpm($message);
+  //drupal_set_message("icrp_mail_alter(message)");
+  //dpm($message);
 }
 
 function sendNewForumPostMail($email, $subject, $body) {
@@ -106,17 +106,17 @@ function sendNewForumPostMail($email, $subject, $body) {
     $langcode = \Drupal::currentUser()->getPreferredLangcode();
     $send = true;
 
-    drupal_set_message("module: ".$module);
-    drupal_set_message("key: ".$key);
-    drupal_set_message("to: ".$to);
-    drupal_set_message("langcode: ".$langcode);
-    drupal_set_message("send: ".(string)$send);
-    drupal_set_message("params: ".print_r($params, true));
-    drupal_set_message("CALLING mail from mailManager");
+    //drupal_set_message("module: ".$module);
+    //drupal_set_message("key: ".$key);
+    //drupal_set_message("to: ".$to);
+    //drupal_set_message("langcode: ".$langcode);
+    //drupal_set_message("send: ".(string)$send);
+    //drupal_set_message("params: ".print_r($params, true));
+    //drupal_set_message("CALLING mail from mailManager");
 
     $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
-    drupal_set_message("result: ".(string)$result['result']);
-    drupal_set_message("result array(): ".print_r($result, true));
+    //drupal_set_message("result: ".(string)$result['result']);
+    //drupal_set_message("result array(): ".print_r($result, true));
 
     if ($result['result'] != true) {
         $message = t('New Forum Post - There was a problem sending your email notification to @email.', array('@email' => $to));
@@ -914,9 +914,9 @@ The ICRP team";
           break;
     case 'newForumPostMail':
 
-          drupal_set_message("Sending newForumPostMail");
-          drupal_set_message("params");
-          dpm($params);
+          //drupal_set_message("Sending newForumPostMail");
+          //drupal_set_message("params");
+          //dpm($params);
           //$message['from'] = \Drupal::config('system.site')->get('mail');
           $message['subject'] = $params['subject'];
           $message['body'][] = $params['body'];
@@ -955,9 +955,9 @@ The ICRP team";
           /* Changing */
           $message['body'] = [];
           $message['body'][] = $newdata;
-          dpm($message);
-          drupal_set_message("BODY");
-          drupal_set_message($message['body'][0]);
+          //dpm($message);
+          //drupal_set_message("BODY");
+          //drupal_set_message($message['body'][0]);
           break;
     }
 }
