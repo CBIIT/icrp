@@ -64,11 +64,31 @@ class DatabaseSearch {
       'states'                      => 'SELECT Abbreviation AS [value], Name AS [label], Country AS [group_1] FROM State ORDER BY [label]',
       'cities'                      => 'SELECT DISTINCT City AS [value], City AS [label], State AS [group_1], Country AS [group_2] FROM Institution WHERE len(City) > 0 ORDER BY [label]',
       'funding_organization_types'  => 'SELECT FundingOrgType AS [value], FundingOrgType AS [label] FROM lu_FundingOrgType',
-      'funding_organizations'       => 'SELECT FundingOrgID AS [value], Name AS [label], SponsorCode AS [group_1], Country AS [group_2], \'Funding\' AS [group_3] FROM FundingOrg WHERE LastImportDate IS NOT NULL',
       'cancer_types'                => 'SELECT CancerTypeID AS [value], Name AS [label] FROM CancerType ORDER BY [label]',
       'project_types'               => 'SELECT ProjectType AS [value], ProjectType AS [label] FROM ProjectType',
       'cso_research_areas'          => 'SELECT Code AS [value], Code + \' \' + Name AS [label], CategoryName AS [group_1], \'All Areas\' as [group_2] FROM CSO ORDER BY sortOrder, value',
       'conversion_years'            => 'SELECT DISTINCT Year AS [value], Year AS [label] FROM CurrencyRate ORDER BY Year DESC',
+//    'funding_organizations'       => 'SELECT FundingOrgID AS [value], Name AS [label], SponsorCode AS [group_1], Country AS [group_2], \'Funding\' AS [group_3] FROM FundingOrg WHERE LastImportDate IS NOT NULL',
+      'funding_organizations'       => 
+        'CREATE TABLE TEMPORARY_FUNDING_ORGANIZATIONS (
+          FundingOrgID int,
+          Name varchar(100),
+          Abbreviation varchar(15),
+          DisplayName varchar(153),
+          Type varchar(25),
+          MemberType varchar(25),
+          MemberStatus nchar(10),
+          Country varchar(3),
+          Currency varchar(3),
+          SponsorCode varchar(50),
+          IsAnnualized bit,
+          Note varchar(8000),
+          LastImportDate datetime,
+          LastImportDesc varchar(1000),
+        );
+        INSERT INTO TEMPORARY_FUNDING_ORGANIZATIONS EXECUTE GetFundingOrgs @type = search;
+        SELECT FundingOrgID AS [value], Name AS [label], SponsorCode AS [group_1], Country AS [group_2], \'Funding\' AS [group_3] FROM TEMPORARY_FUNDING_ORGANIZATIONS;
+        DROP TABLE TEMPORARY_FUNDING_ORGANIZATIONS;',
     ];
 
     // map query results to field values
