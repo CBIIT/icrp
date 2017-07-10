@@ -135,12 +135,15 @@
   height: 33px;
   background-color: #f5f5f5;
   border: 1px solid #ccc;
-  border-radius: 4px 0 0 4px;
+  border-radius: 4px 0 0 4px !important;
   line-height: 1.5;
   font-size: 14px;
   padding: 5px 10px;
 }
 
+.form-group-sm .form-control.form-group-addon-right-sm {
+  border-radius: 0 3px 3px 0;
+}
 
 .placeholder {
   color: #aaa;
@@ -215,4 +218,8 @@ input.logo-file {
   .visible-responsive {
     display: none;
   }
+}
+
+.inline-block {
+  display: inline-block;
 }

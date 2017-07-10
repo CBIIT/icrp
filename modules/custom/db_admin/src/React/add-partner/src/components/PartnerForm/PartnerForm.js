@@ -24,13 +24,11 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
           { message.ERROR && <Alert bsStyle='danger' onDismiss={dismissMessageCallback.bind(context, index)}>{message.ERROR}</Alert> }
           { message.SUCCESS && 
             <Alert bsStyle='success' onDismiss={dismissMessageCallback.bind(context, index)}>
-              This partner has been successfully saved. You can go to 
-              <a
+              This partner has been successfully saved. You can go to <a
                 target='_blank'
                 rel='noopener noreferrer'
                 href={`${window.location.protocol}//${window.location.hostname}/current_partners`}
-              > Current Partners </a>
-              to view a list of current ICRP partners.
+              >Current Partners</a> to view a list of current ICRP partners.
             </Alert> }
         </Row>
       )
@@ -149,28 +147,37 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
         </FormGroup>
       </Col>
 
+
       <Col md={6} className='margin-bottom'>
         <FormGroup  controlId='partner-website' bsSize='small' validationState={null}>
           <ControlLabel className='margin-right'>Website</ControlLabel>
           <div className='display-flex'>
-            <InputGroup>
+            <span className='display-flex'>
               <DropdownButton
                 className='form-group-addon-left-sm'
                 componentClass={InputGroup.Button}
-                id="input-dropdown-addon"
-                title="https://"
+
+                title={form.values.urlProtocol}
               >
-                <MenuItem key="https">https://</MenuItem>
-                <MenuItem key="http">http://</MenuItem>
+                {
+                  form.fields.urlProtocols.map((field, index) => 
+                    <MenuItem 
+                      onClick={event => changeCallback('urlProtocol', field.value)}
+                      key={field.value} 
+                      value={field.value}>
+                        {field.label}
+                      </MenuItem>
+                  )
+                }
               </DropdownButton>
+            </span>
               <FormControl
-                className='form-control'
+                className='form-group-addon-right-sm'
                 type='text'
                 value={form.values.website}
                 maxLength={100}
                 onChange={event => changeCallback('website', event.target['value'])}
                 placeholder='Enter website' />
-              </InputGroup>
             </div>
           <FormControl.Feedback />
         </FormGroup>

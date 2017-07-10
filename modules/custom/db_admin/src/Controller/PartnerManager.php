@@ -69,15 +69,23 @@ class PartnerManager {
     foreach ($queries as $key => $value) {
       $fields[$key] = $pdo->query($value)->fetchAll(PDO::FETCH_ASSOC);
     }
-    $fields['organizationTypes'] = array_map(function($str) {
+
+    $getValueLabelPair = function ($str) {
       return [
         'value' => $str,
         'label' => $str,
       ];
-    }, [
+    };
+
+    $fields['organizationTypes'] = array_map($getValueLabelPair, [
       'Government', 
       'Non-profit',
       'Other'
+    ]);
+
+    $fields['urlProtocols'] = array_map($getValueLabelPair, [
+      'https://', 
+      'http://',
     ]);
 
     return $fields;
