@@ -23,8 +23,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\node\NodeInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\comment\Entity\Comment;
-/* To send mail */
-//use Symfony\Component\EventDispatcher\GenericEvent;
 
 /*
  * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
@@ -40,45 +38,25 @@ use Drupal\comment\Entity\Comment;
  *
  */
 /*
-function icrp_mail_alter(&$message) {
+/**
+ * Implements hook_theme().
+ */
+function hook_theme($existing, $type, $theme, $path) {
 
-  // only alter contact forms
-  if (!empty($message['id']) && $message['id'] == 'contact_page_mail') {
+   drupal_set_message("icrp_theme()");
 
-  // make it a bit neater to access fields
-    $contact_message = $message['params']['contact_message'];
-    $name = $contact_message->get('field_name')->getString();
-  $country = $contact_message->get('field_country')->getString();
-  $questions = $contact_message->get('field_questions')->getString();
-  $contactmessage = $contact_message->getMessage();
-  $contact_to_followup = $contact_message->get('field_follow_up_radio')->getString();
-  $by_phone = $contact_message->get('field_follow_up_contact')->getString();
-  $by_email = $contact_message->get('field_follow_up_email')->getString();
-  $by_mail = $contact_message->get('field_by_mail')->getString();
-  $client = $contact_message->get('field_gbt_client')->getString();
-  
-  $message['body'] = [];
-
-  $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed; delsp=yes';
-  
-     // add plain text body string into the $message['body'] array
-    $message_list = array('Name' => $name , 'Country' => $country , 'Questions' => $questions , 
-            'ContactMessage' => $contactmessage , 'How can we contact ?' => $contact_to_followup , 
-            'By Phone' => $by_phone ,'By Email' => $by_email , 'By Mail' => $by_mail , 
-            'Client' => $client);
-    // In line css to handle Design.          
-  $newdata = '<div class="gbtcontact_emailtemplate" style="border:0.5px solid #ADAFAF; text-align: left; padding:3%; width:45%;"><b>Name:</b> ' .$message_list['Name']. '<br><br><b>Country:</b> ' .$message_list['Country'].  '<br><br><b>Question:</b> ' .$message_list['Questions']. '<br><br><b>Message:</b> ' .$message_list['ContactMessage']. '<br><br><b>How can we contact you to follow up?:</b> ' .$message_list['How can we contact you to follow up?']. '<br><br><b>By Phone:</b> ' .$message_list['By Phone']. '<br><br><b>Client:</b> ' .$message_list['Client'].'</div>';
-
-    // Assigning new message to mail body.
-  $message['body'][] = $newdata;
-    }
+  return array(
+    'forum_email' => array(
+      'variables' => array('to_name' => NULL, 'from_name' => NULL, 'forum_category' => NULL, 'forum_thread' => NULL, 'message' => NULL, 'forum_category_url' => NULL, 'forum_thread_url' => NULL ),
+    ),
+  );
 }
-*/
 
 /**
  * Implements hook_mail_alter().
  */
 function icrp_mail_alter(&$message) {
+  $message['params']['html'] = true;
   // Drupal hardcodes all mail header as 'text/plain' so we need to set the
   // header's 'Content-type' to HTML if the EmailWebformHandler's
   // 'html' flag has been set.
@@ -86,6 +64,8 @@ function icrp_mail_alter(&$message) {
   // @see \Drupal\webform\Plugin\WebformHandler\EmailWebformHandler::getMessage().
   //drupal_set_message($message['id']);
   if (strpos($message['id'], 'icrp_newForumPostMail') === 0) {
+      //Set format to html (i.e. WebformPhpMail extends PhpMail)
+      //PhpMail does not allow HTML emails but WebformPhpMail does allow.
       $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
   }
   //drupal_set_message("icrp_mail_alter(message)");
@@ -96,14 +76,19 @@ function sendNewForumPostMail($email, $subject, $body) {
 
     $mailManager = \Drupal::service('plugin.manager.mail');
     $module = 'icrp';
-    $module = 'webform'; //Attempt to user webform plugin.manager.mail.
+    $module = 'webform'; //Sset the webform mail plugin so that we can use html
     $key = 'newForumPostMail'; // Replace with Your key
-    //$to = $this->getValue('name')." <".strip_tags($this->getValue("email")).">";
+
     $to = $email;
+
+    $from_name = \Drupal::config('system.site')->get('name');
+    $from_email = \Drupal::config('system.site')->get('mail');
+    $params['from_mail'] = "$from_name <{$from_email}>";
+
     $params['subject'] = $subject;
     $params['body'] = $body;
-    $params['from_mail'] = \Drupal::config('system.site')->get('mail');
-    $langcode = \Drupal::currentUser()->getPreferredLangcode();
+
+    $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
     $send = true;
 
     //drupal_set_message("module: ".$module);
@@ -111,8 +96,6 @@ function sendNewForumPostMail($email, $subject, $body) {
     //drupal_set_message("to: ".$to);
     //drupal_set_message("langcode: ".$langcode);
     //drupal_set_message("send: ".(string)$send);
-    //drupal_set_message("params: ".print_r($params, true));
-    //drupal_set_message("CALLING mail from mailManager");
 
     $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
     //drupal_set_message("result: ".(string)$result['result']);
@@ -131,69 +114,139 @@ function sendNewForumPostMail($email, $subject, $body) {
 }
 
 
-function getForumEmailDetailsDetails($nid) {
+function getForumDetails($nid) {
+  //$nid of the main forum node
+  //$rid of reply id if available
+  //$to_uid is who the email goes to.
+  //drupal_set_message(__FUNCTION__);
+  $host = "https://" . \Drupal::request()->getHost();
+
   $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  //dpm($node);
 
-  $subject = " New ICRP forum post: {Name of Forum - Thread}";
-  $url = "yahoo.com";
-  $forum_category = "Partner News (example)";
-  $thread = "Annual Meeting Planning";
-        $body =
-'
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title></title>
-        <style></style>
-    </head>
-<body style="color:black;">
-<p>This email contains HTML Tags!</p>
-<table>
-<tr>
-<th>Firstname</th>
-<th>Lastname</th>
-</tr>
-<tr>
-<td><b>Forum Category:</b></td>
-<td> {$forum_category}</td>
-</tr>
-</tr>
-<tr>
-<td><b>Thread:</b></td>
-<td> {$thread}</td>
-</tr>
-</table>
-</body>
-<footer>
-Footer
+  $text_summary_max_length = 254;
+  $body =  $node->get('body')->value; 
+  $summary_raw =  $node->get('body')->summary; 
+  if($summary_raw == "") {
+    $fdetail['has_summary'] = false;
+    $summary = text_summary(rtrim(strip_tags($body)), NULL, $text_summary_max_length);
+  } else {
+    $fdetail['has_summary'] = true;
+    $summary = text_summary($summary_raw, NULL,  $text_summary_max_length);
+  }
+  //return array($node->getTitle(), "<b>".$summary."</b></br>Body: ".$body."</br>Summary Raw: ".$summary_raw);
+  //return array($node->getTitle(), $summary_raw);
 
-<a href=".$url.">Thread Details page</a>
-</footer>
-</html>
+  $fdetail['thread_subject'] = $node->getTitle();
+  $fdetail['thread_summary_raw'] = $summary_raw;
+  $fdetail['thread_summary_or_trim_body'] = $summary;
+  $fdetail['thread_author'] = getUserFullName($node->getOwnerId());
+  $fdetail['message'] = $body;
+  
+  $tid =  $node->get('taxonomy_forums')->target_id; 
+  $fdetail['forum_category'] = getTopicName($tid);
 
-';
-  return array($subject, $body);
+  $fdetail['forum_url'] = $host."/forum/".$tid;
+  $fdetail['thread_url'] = $host."/node/".$nid."/page0";
 
+  return $fdetail;
+
+}
+
+function  getReplyEmails($rid) {
+  $rdetails = [];
+
+  return $rdetails;
 }
 
 function  getForumEmails($nid) {
-  return array("Chris Kneisler <cpkneisler@gmail.com>");
+  //Get a list of names and e-mails.  Everybody that is an Active user and is subcribed to this forum and has notifications checked.
+  $forum_members = array(array('first_name' => 'Chris', 'formated_email' => 'Chris Kneisler <cpkneisler@gmail.com>'));
+  return $forum_members;
 }
 
-function sendForumNotification($nid, $type) {
+function sendForumNotification($nid, $rid="0") {
   /**
   * url example: http://localhost/node/621?page=0
   */
-  \Drupal::logger('icrp')->notice('Send Forum Notification: nid='.$nid.' type='.$type) ;
-  list($subject, $body) =  getForumEmailDetailsDetails($nid);
+  \Drupal::logger('icrp')->notice('Send Forum Notification: nid='.$nid.' rid='.$rid) ;
+  $host = "https://" . \Drupal::request()->getHost();
+
+  $forum = getForumDetails($nid);
+  $display_summary = true;
+  if($rid == "0") {
+    //Prepare e-mail for an initial Thread post
+    //Add Subject to 
+    //if there is summary,  then summary on the top and full body below
+    //if there is no summary,  then just full body
+    $author = $forum['thread_author'];
+    $message = $forum['thread_subject'];
+    $display_summary = $forum['has_summary'];
+  } else {
+    $fdetail['thread_summary_or_trim_body'] = "Re: ".$fdetail['thread_summary_or_trim_body'];
+    $reply = getReplyDetails($rid);
+    $author = $reply['reply_author'];
+    $message = $forum['message'];
+  }
+  
+  $subject = "ICRP Forum: {$forum['thread_subject']}";
   $emails = getForumEmails($nid);
-
-  $email = "Chris Kneisler <cpkneisler@gmail.com>";
+  foreach($emails as $key => $email) {
+    //$email = "Chris Kneisler <cpkneisler@gmail.com>";
+    $body = createForumEmailBody($email['first_name'], $subject, $author, $forum['forum_category'],  $forum['thread_subject'], $forum['thread_summary_or_trim_body'], $forum['message'], $forum['forum_url'], $forum['thread_url'], $display_summary, $host);
+    sendNewForumPostMail($email['formated_email'], $subject, $body);
+  }
   //Loop through users and send them an e-mail.
-  sendNewForumPostMail($email, $subject, $body);
+}
 
+function createForumEmailBody($to, $subject, $author, $forum, $thread_subject, $thread_summary, $message, $forum_url, $thread_url, $display_summary, $host) {
+  $body =
+'
+<!DOCTYPE html>
+<html>
 
+<head>
+    <meta charset="UTF-8">
+    <title>Excel To HTML using codebeautify.org</title>
+</head>
+
+<body>
+    <div style="margin-left:auto;margin-right:auto;width:600px;font-size:12px;font-family:Verdana,Arial;color:Black">
+        <a target="_blank" href="'.$host.'">
+            <img width="200" height="40" style="margin-bottom:10px;margin-top:5px" src="'.$host.'/sites/default/files/icrp-logo.png">
+        </a>
+        <div style="border-top:25px solid #142830;border-left:2px solid #142830;border-right:2px solid #142830;border-bottom:2px solid #142830;background-color:white;padding:20px">
+            Hi '.$to.',
+            <br>
+            <p>An
+                <em>ICRP Partner</em>
+                <strong>'.$author.'</strong> just replied to a forum discussion that you are following.
+            </p>
+            <p style="font-weight:bold;font-size:14px;color:grey">
+                <a href="'.$forum_url.'" style="text-decoration: none !important;color:#DD9C28;">'.$forum.'</a> »
+              <a href="'.$thread_url.'" style="text-decoration: none !important;color:#000;font-weight:normal;">'.$thread_subject.'</a>
+            </p>
+            <div style="background-color:#f5f5f5;padding:10px;margin:1em 0">';
+            if($display_summary) {
+              $body .= '<div style="font-weight:bold;font-size:14px;color:#142830;margin-bottom:1em">'.$thread_summary.'</div>';
+            }
+
+              $body .= '<div style="font-weight:normal;font-size:12px;margin-left:15px;margin-bottom:1em">'.$message.'</div>
+            </div>
+            <a target="_blank" href="'.$thread_url.'">
+                <div style="background-color:#008cba;color:white;font-weight:bold;text-align:center;display:inline-block;padding:10px 15px;border-radius:10px">
+                    View Message
+                </div>
+            </a>
+        </div>
+        <p style="font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new posts to ICRP Forums. If you wish to unsubscribe, log in to ICRP and go to
+            <a target="_blank" href="'.$host.'/my-profile">My Profile</a> to uncheck the Subcommittees you don’t want to receive the notifications.
+        </p>
+    </div>
+</body>
+
+</html>';
+  return $body;
 }
 
 function icrp_node_insert(NodeInterface $node) {
@@ -206,16 +259,33 @@ function icrp_node_insert(NodeInterface $node) {
     */
     $nid = $node->id();
     $type = "forum";
-    sendForumNotification($nid, $type);
+    sendForumNotification($nid);
   }
 }
 
 function icrp_comment_insert(Comment $comment) {
   $nid = $comment->getCommentedEntityId();
   $type = "comment";
-  sendForumNotification($nid, $type);
+  dpm($comment);
+  $rid = "20";
+  sendForumNotification($nid, $rid);
 }
 
+function getTopicName($tid) {
+
+  $topic_name = "";
+
+  if(isset($tid)) {
+    $forum = Drupal\taxonomy\Entity\Term::load($tid);
+    if(isset($forum)){
+      $topic_name =  $forum->getName(); 
+    } else {
+      $topic_name =  "unknown"; 
+    }
+  }
+  return $topic_name;
+
+}
 function icrp_user_view($account, $view_mode, $langcode) {
   //drupal_set_message("User view");
   //$response = $event->getResponse();
@@ -492,15 +562,18 @@ function icrp_preprocess_forums(&$variables) {
     //dpm($variables);
   }
 }
+
 function icrp_preprocess_forum_icon(&$variables) {
   //drupal_set_message("icrp_preprocess_forum_icon");
   //dpm($variables);
 }
+
 function getNodeIdFromMarkup($html) {
   //remove all non numeric numbers from $html to get the nodeId.  Weird but true
   //Did not see node id anywere except inside #markup.
   return preg_replace("/[^0-9,.]/", "", $html);;
 }
+
 function getThreadNodeInfo($thread_node_id) {
   $text_summary_max_length = 254;
   $node = \Drupal::entityTypeManager()->getStorage('node')->load($thread_node_id);
@@ -536,6 +609,17 @@ function lastComment($node_id) {
 
   return $comment;  
 }
+
+function getUserFullName($uid) {
+  $full_name = "";
+  if (isset($uid)) {
+    $user = User::load($uid);
+    $full_name = t($user->get('field_first_name')->value." ".$user->get('field_last_name')->value);
+  }
+
+  return $full_name;
+}
+
 function getName($uid, $created) {
 
   $created_timestamp = DrupalDateTime::createFromTimestamp($created, drupal_get_user_timezone());
@@ -948,6 +1032,32 @@ The ICRP team";
     </head>
 <body style="color:black;">
   <a href="yahoo.com">Yahoo.com</a>
+
+<div>
+<div style="margin-left:auto;margin-right:auto;width:600px;font-size:12px;font-family:Verdana,Arial;color:Black">
+  <a data-saferedirecturl="https://www.google.com/url?hl=en&amp;q=https://www.scoutbook.com/&amp;source=gmail&amp;ust=1499804346152000&amp;usg=AFQjCNEQiHno15nNx-EVcrins959vp7bMw" target="_blank" href="https://www.scoutbook.com/"><img width="200" height="40" style="margin-bottom:10px;margin-top:5px" src="https://ci3.googleusercontent.com/proxy/7Xnv32t-JLKZzpcR3XT3o1xOiGIjZHlgw6ihmwyD29qKfoFxT3C3EPpZSWlv5HNh84Em3-q96-iosDDeEWu7luBeeTgLdzXez_2oCP-a2ozpOJSAIGmZtBMb3MUXlWjjfg=s0-d-e1-ft#https://d1kn0x9vzr5n76.cloudfront.net/mobile/images/scoutbookbsalogo400.png" class="CToWUd"></a>
+  <div style="border-top:25px solid #142830;border-left:2px solid #142830;border-right:2px solid #142830;border-bottom:2px solid #142830;background-color:white;padding:20px">
+    Hi Chris,<br>
+    <p>A <span class="il">Scoutbook</span> user <strong>Ruth Porter</strong> just replied to a <span class="il">forum</span> discussion that you are following.</p>
+    <p style="font-weight:bold;font-size:14px;color:#b41818">Cub Scouting <span class="il">Forum</span> »</p>
+
+    <div style="background-color:#f5f5f5;padding:10px;margin:1em 0">
+      <div style="font-weight:bold;font-size:14px;color:#142830;margin-bottom:1em">Re: Changes in Cub <span class="il">Scout</span> Adventure Requirements and Advancement Effective Immediately!</div>
+      <div style="font-weight:normal;font-size:12px;margin-left:15px;margin-bottom:1em">Duty to God I use with large Family involvement. We talk about things, such as reverence, at the meetings, but then assign them to come up with what would bring them closer to God with the help of their parent. They keep track for the time necessary for the requirement and then the parent signs off on it. It has worked out very nicely and gets them to be more involved with their families. </div>
+    </div>
+
+    <a data-saferedirecturl="https://www.google.com/url?hl=en&amp;q=HTTP://www.scoutbook.com/mobile/forums/cub-scouting/94300/changes-in-cub-scout-adventure-requirements-and-advancement-effective-immediately-/&amp;source=gmail&amp;ust=1499804346152000&amp;usg=AFQjCNEwPuBR8-BRdb6ED35fyf2lZV2Dug" target="_blank" href="HTTP://www.scoutbook.com/mobile/forums/cub-scouting/94300/changes-in-cub-scout-adventure-requirements-and-advancement-effective-immediately-/">
+      <div style="background-color:#b41818;color:white;font-weight:bold;text-align:center;display:inline-block;padding:10px 15px;border-radius:10px">
+        View Message
+      </div>
+    </a>
+  </div>
+  <p style="font-size:11px;color:gray">This email was sent to <a target="_blank" style="color:gray" href="MAILTO:cpkneisler@gmail.com">cpkneisler@gmail.com</a>.  
+    If you no longer want to follow this discussion please visit the discussion page and unselect the follow option.
+  </p><div class="yj6qo"></div><div class="adL">
+</div></div><div class="adL">
+</div></div>
+
 </body>
 </html>
 
@@ -1023,16 +1133,7 @@ function partnerApplicationSubmissionsCount() {
 }
 */
 
-/**
- * Implements hook_theme().
- */
-function icrp_theme() {
-    return [
-        'my_profile_form' => [
-            'render element' => 'form',
-        ],
-    ];
-}
+
 function icrp_confirm_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
   drupal_set_message("confirm_form");
 }
