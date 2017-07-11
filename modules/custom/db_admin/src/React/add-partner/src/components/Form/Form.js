@@ -206,7 +206,8 @@ export default class Form extends React.Component {
       let fields = this.state.form.fields;
 
       // add prefix to url
-      values.website = values.urlProtocol + values.website;
+      if (values.website) 
+        values.website = values.urlProtocol + values.website;
 
       let parameterMap = {
         partner: 'partner_name',
