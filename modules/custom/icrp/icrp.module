@@ -196,7 +196,7 @@ function  getForumEmails($nid) {
   //drupal_set_message("Your table is ".$table);
   $query = "select ufd.uid, ufd.mail, uffn.field_first_name_value, ufln.field_last_name_value, ufnnp.field_notify_new_posts_value, sub.".$field." ";  
   $query .= "FROM users_field_data ufd, user__field_first_name uffn, user__field_last_name ufln, user__field_notify_new_posts ufnnp, ".$table." sub ";
-  $query .= "where ufd.uid = uffn.entity_id and ufd.uid = ufln.entity_id and ufd.uid = ufnnp.entity_id and ufd.uid = sub.entity_id ";
+  $query .= "where ufd.status = 1 and ufd.uid = uffn.entity_id and ufd.uid = ufln.entity_id and ufd.uid = ufnnp.entity_id and ufd.uid = sub.entity_id ";
   $query .= "and ufnnp.field_notify_new_posts_value = 1 ";
   $query .= "and sub.".$field." = 1 ";
   //drupal_set_message($query);
