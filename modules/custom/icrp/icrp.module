@@ -168,8 +168,54 @@ function  getReplyDetails($cid) {
 }
 
 function  getForumEmails($nid) {
+  //drupal_set_message(__FUNCTION__);
+
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  $tid =  $node->get('taxonomy_forums')->target_id; 
+  //drupal_set_message("tid: ".$tid);
+  $subCommittees = array(
+      "field_subcommittee_partner_news",
+      "field_subcommittee_annual_meetin",
+      "field_subcommittee_membership",
+      "field_subcommittee_cso_coding",
+      "field_subcommittee_evaluation",
+      "field_subcommittee_partner_opera",
+      "field_subcommittee_web_site",
+  );
+  $table = "";
+  $index = (int)$tid - 7;
+  //drupal_set_message((string)$index);
+  //drupal_set_message(print_r($index, true));
+
+  if($index >= 0) {
+    $table = "user__".$subCommittees[$index];
+    $field = $subCommittees[$index]."_value";
+  } else {
+    drupal_set_message("Could not map field to table", "error");
+  }
+  //drupal_set_message("Your table is ".$table);
+  $query = "select ufd.uid, ufd.mail, uffn.field_first_name_value, ufln.field_last_name_value, ufnnp.field_notify_new_posts_value, sub.".$field." ";  
+  $query .= "FROM users_field_data ufd, user__field_first_name uffn, user__field_last_name ufln, user__field_notify_new_posts ufnnp, ".$table." sub ";
+  $query .= "where ufd.uid = uffn.entity_id and ufd.uid = ufln.entity_id and ufd.uid = ufnnp.entity_id and ufd.uid = sub.entity_id ";
+  $query .= "and ufnnp.field_notify_new_posts_value = 1 ";
+  $query .= "and sub.".$field." = 1 ";
+  //drupal_set_message($query);
   //Get a list of names and e-mails.  Everybody that is an Active user and is subcribed to this forum and has notifications checked.
-  $forum_members = array(array('first_name' => 'Chris', 'formated_email' => 'Chris Kneisler <cpkneisler@gmail.com>'));
+  $result = db_query($query);
+  $forum_members = [];
+  for ($count = 0; $row = $result->fetchObject(); $count++) {
+    $first_name = $row->field_first_name_value;
+    $last_name = $row->field_last_name_value;
+    $email = $row->mail;
+    $formated_email = $first_name." ".$last_name." <".$email.">";
+    $forum_members[] = array('first_name' => $first_name, 'formated_email' => $formated_email);
+  }
+  //drupal_set_message(print_r($forum_members, true));
+  //$variables['tforum_category'] = $row->name;
+  //$variables['tforum_description'] = $row->description__value;
+
+  $forum_members = array(array('first_name' => 'Steve', 'formated_email' => 'Steve <steve@example.com>'));
+
   return $forum_members;
 }
 
