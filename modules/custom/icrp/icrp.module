@@ -274,7 +274,7 @@ function createForumEmailBody($to, $subject, $author, $forum, $thread_subject, $
         <a target="_blank" href="'.$host.'">
             <img width="200" height="40" style="margin-bottom:10px;margin-top:5px" src="'.$host.'/sites/default/files/icrp-logo.png">
         </a>
-        <div style="border-top:25px solid #142830;border-left:2px solid #142830;border-right:2px solid #142830;border-bottom:2px solid #142830;background-color:white;padding:20px">
+        <div style="border-top:25px solid #008cba;border-left:2px solid #008cba;border-right:2px solid #008cba;border-bottom:2px solid #008cba;background-color:white;padding:20px">
             Hi '.$to.',
             <br>
             <p>
@@ -292,7 +292,7 @@ function createForumEmailBody($to, $subject, $author, $forum, $thread_subject, $
               $body .= '<div style="font-weight:normal;font-size:12px;margin-left:15px;margin-bottom:1em">'.$message.'</div>
             </div>
             <a target="_blank" href="'.$thread_url.'">
-                <div style="background-color:#008cba;color:white;font-weight:bold;text-align:center;display:inline-block;padding:10px 15px;border-radius:10px">
+                <div style="background-color:#008cba;color:white;font-weight:bold;text-align:center;display:inline-block;padding:10px 15px;border-radius:10px;max-width:200px;">
                     View Message
                 </div>
             </a>
