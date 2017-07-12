@@ -38,19 +38,6 @@ use Drupal\comment\Entity\Comment;
  *
  */
 /*
-/**
- * Implements hook_theme().
- */
-function hook_theme($existing, $type, $theme, $path) {
-
-   drupal_set_message("icrp_theme()");
-
-  return array(
-    'forum_email' => array(
-      'variables' => array('to_name' => NULL, 'from_name' => NULL, 'forum_category' => NULL, 'forum_thread' => NULL, 'message' => NULL, 'forum_category_url' => NULL, 'forum_thread_url' => NULL ),
-    ),
-  );
-}
 
 /**
  * Implements hook_mail_alter().
@@ -83,7 +70,8 @@ function sendNewForumPostMail($email, $subject, $body) {
 
     $from_name = \Drupal::config('system.site')->get('name');
     $from_email = \Drupal::config('system.site')->get('mail');
-    $params['from_mail'] = "$from_name <{$from_email}>";
+    //$params['from_mail'] = "$from_name <{$from_email}>";
+    $params['from_mail'] = $from_email;
 
     $params['subject'] = $subject;
     $params['body'] = $body;
@@ -91,11 +79,12 @@ function sendNewForumPostMail($email, $subject, $body) {
     $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
     $send = true;
 
-    //drupal_set_message("module: ".$module);
-    //drupal_set_message("key: ".$key);
-    //drupal_set_message("to: ".$to);
-    //drupal_set_message("langcode: ".$langcode);
-    //drupal_set_message("send: ".(string)$send);
+    /*drupal_set_message("module: ".$module);
+    drupal_set_message("key: ".$key);
+    drupal_set_message("to: ".$to);
+    drupal_set_message("langcode: ".$langcode);
+    */
+    //drupal_set_message("body: ".$body);
 
     $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
     //drupal_set_message("result: ".(string)$result['result']);
@@ -113,7 +102,6 @@ function sendNewForumPostMail($email, $subject, $body) {
 
 }
 
-
 function getForumDetails($nid) {
   //$nid of the main forum node
   //$rid of reply id if available
@@ -130,9 +118,15 @@ function getForumDetails($nid) {
   if($summary_raw == "") {
     $fdetail['has_summary'] = false;
     $summary = text_summary(rtrim(strip_tags($body)), NULL, $text_summary_max_length);
+    if(strlen(rtrim(strip_tags($body))) > $text_summary_max_length) {
+      $summary .= " ...";
+    }
   } else {
     $fdetail['has_summary'] = true;
     $summary = text_summary($summary_raw, NULL,  $text_summary_max_length);
+    if(strlen($summary_raw) > $text_summary_max_length) {
+      $summary .= " ...";
+    }
   }
   //return array($node->getTitle(), "<b>".$summary."</b></br>Body: ".$body."</br>Summary Raw: ".$summary_raw);
   //return array($node->getTitle(), $summary_raw);
@@ -147,14 +141,28 @@ function getForumDetails($nid) {
   $fdetail['forum_category'] = getTopicName($tid);
 
   $fdetail['forum_url'] = $host."/forum/".$tid;
-  $fdetail['thread_url'] = $host."/node/".$nid."/page0";
+  $fdetail['thread_url'] = $host."/node/".$nid."?page0";
 
   return $fdetail;
 
 }
 
-function  getReplyEmails($rid) {
-  $rdetails = [];
+function  getReplyDetails($cid) {
+  /** $cid = Comment Id
+  */
+  $query = "select ccb.comment_body_value, ces.last_comment_uid FROM comment_entity_statistics ces, comment__comment_body ccb ";
+  $query .= "where ces.cid =ccb.entity_id and ces.cid = ".$cid.";";
+  $result=db_query($query);
+
+  $row = $result->fetchObject();
+  $comment = "<i>No replies</i>";
+
+  if(isset($row->comment_body_value)) {
+    $rdetails['message'] = $row->comment_body_value;
+  }
+  if(isset($row->last_comment_uid)) {
+    $rdetails['reply_author'] = getUserFullName($row->last_comment_uid);
+  }
 
   return $rdetails;
 }
@@ -165,35 +173,36 @@ function  getForumEmails($nid) {
   return $forum_members;
 }
 
-function sendForumNotification($nid, $rid="0") {
+function sendForumNotification($nid, $cid = "0") {
   /**
   * url example: http://localhost/node/621?page=0
   */
-  \Drupal::logger('icrp')->notice('Send Forum Notification: nid='.$nid.' rid='.$rid) ;
+  \Drupal::logger('icrp')->notice('Send Forum Notification: nid='.$nid.' cid='.$cid) ;
   $host = "https://" . \Drupal::request()->getHost();
 
   $forum = getForumDetails($nid);
   $display_summary = true;
-  if($rid == "0") {
+  if($cid == "0") {
     //Prepare e-mail for an initial Thread post
     //Add Subject to 
     //if there is summary,  then summary on the top and full body below
     //if there is no summary,  then just full body
     $author = $forum['thread_author'];
-    $message = $forum['thread_subject'];
-    $display_summary = $forum['has_summary'];
-  } else {
-    $fdetail['thread_summary_or_trim_body'] = "Re: ".$fdetail['thread_summary_or_trim_body'];
-    $reply = getReplyDetails($rid);
-    $author = $reply['reply_author'];
     $message = $forum['message'];
+    $display_summary = $forum['has_summary'];  //If it has_summary, 
+  } else {
+    $reply = getReplyDetails($cid);
+
+    $forum['thread_summary_or_trim_body'] = "Re: ".$forum['thread_summary_or_trim_body'];
+    $author = $reply['reply_author'];
+    $message = $reply['message'];
   }
   
   $subject = "ICRP Forum: {$forum['thread_subject']}";
   $emails = getForumEmails($nid);
   foreach($emails as $key => $email) {
     //$email = "Chris Kneisler <cpkneisler@gmail.com>";
-    $body = createForumEmailBody($email['first_name'], $subject, $author, $forum['forum_category'],  $forum['thread_subject'], $forum['thread_summary_or_trim_body'], $forum['message'], $forum['forum_url'], $forum['thread_url'], $display_summary, $host);
+    $body = createForumEmailBody($email['first_name'], $subject, $author, $forum['forum_category'],  $forum['thread_subject'], $forum['thread_summary_or_trim_body'], $message, $forum['forum_url'], $forum['thread_url'], $display_summary, $host);
     sendNewForumPostMail($email['formated_email'], $subject, $body);
   }
   //Loop through users and send them an e-mail.
@@ -219,8 +228,7 @@ function createForumEmailBody($to, $subject, $author, $forum, $thread_subject, $
             Hi '.$to.',
             <br>
             <p>An
-                <em>ICRP Partner</em>
-                <strong>'.$author.'</strong> just replied to a forum discussion that you are following.
+                <em>ICRP Partner</em> <strong>'.$author.'</strong> just replied to a forum discussion that you are following.
             </p>
             <p style="font-weight:bold;font-size:14px;color:grey">
                 <a href="'.$forum_url.'" style="text-decoration: none !important;color:#DD9C28;">'.$forum.'</a> »
@@ -240,7 +248,7 @@ function createForumEmailBody($to, $subject, $author, $forum, $thread_subject, $
             </a>
         </div>
         <p style="font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new posts to ICRP Forums. If you wish to unsubscribe, log in to ICRP and go to
-            <a target="_blank" href="'.$host.'/my-profile">My Profile</a> to uncheck the Subcommittees you don’t want to receive the notifications.
+            <a target="_blank" href="'.$host.'/my-profile">My Profile</a> to unselect the subcommittees which you no longer want to receive forum notifications.
         </p>
     </div>
 </body>
@@ -264,11 +272,11 @@ function icrp_node_insert(NodeInterface $node) {
 }
 
 function icrp_comment_insert(Comment $comment) {
+  //  drupal_set_message(__FUNCTION__);
   $nid = $comment->getCommentedEntityId();
-  $type = "comment";
-  dpm($comment);
-  $rid = "20";
-  sendForumNotification($nid, $rid);
+  $cid = $comment->id();
+  //drupal_set_message("Here is your id: ".$cid);
+  sendForumNotification($nid, $cid);
 }
 
 function getTopicName($tid) {
@@ -1022,49 +1030,9 @@ The ICRP team";
             $message['headers']['Bcc'] = $params['bcc_mail'];
           }
 
-          $newdata = '
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title></title>
-        <style></style>
-    </head>
-<body style="color:black;">
-  <a href="yahoo.com">Yahoo.com</a>
-
-<div>
-<div style="margin-left:auto;margin-right:auto;width:600px;font-size:12px;font-family:Verdana,Arial;color:Black">
-  <a data-saferedirecturl="https://www.google.com/url?hl=en&amp;q=https://www.scoutbook.com/&amp;source=gmail&amp;ust=1499804346152000&amp;usg=AFQjCNEQiHno15nNx-EVcrins959vp7bMw" target="_blank" href="https://www.scoutbook.com/"><img width="200" height="40" style="margin-bottom:10px;margin-top:5px" src="https://ci3.googleusercontent.com/proxy/7Xnv32t-JLKZzpcR3XT3o1xOiGIjZHlgw6ihmwyD29qKfoFxT3C3EPpZSWlv5HNh84Em3-q96-iosDDeEWu7luBeeTgLdzXez_2oCP-a2ozpOJSAIGmZtBMb3MUXlWjjfg=s0-d-e1-ft#https://d1kn0x9vzr5n76.cloudfront.net/mobile/images/scoutbookbsalogo400.png" class="CToWUd"></a>
-  <div style="border-top:25px solid #142830;border-left:2px solid #142830;border-right:2px solid #142830;border-bottom:2px solid #142830;background-color:white;padding:20px">
-    Hi Chris,<br>
-    <p>A <span class="il">Scoutbook</span> user <strong>Ruth Porter</strong> just replied to a <span class="il">forum</span> discussion that you are following.</p>
-    <p style="font-weight:bold;font-size:14px;color:#b41818">Cub Scouting <span class="il">Forum</span> »</p>
-
-    <div style="background-color:#f5f5f5;padding:10px;margin:1em 0">
-      <div style="font-weight:bold;font-size:14px;color:#142830;margin-bottom:1em">Re: Changes in Cub <span class="il">Scout</span> Adventure Requirements and Advancement Effective Immediately!</div>
-      <div style="font-weight:normal;font-size:12px;margin-left:15px;margin-bottom:1em">Duty to God I use with large Family involvement. We talk about things, such as reverence, at the meetings, but then assign them to come up with what would bring them closer to God with the help of their parent. They keep track for the time necessary for the requirement and then the parent signs off on it. It has worked out very nicely and gets them to be more involved with their families. </div>
-    </div>
-
-    <a data-saferedirecturl="https://www.google.com/url?hl=en&amp;q=HTTP://www.scoutbook.com/mobile/forums/cub-scouting/94300/changes-in-cub-scout-adventure-requirements-and-advancement-effective-immediately-/&amp;source=gmail&amp;ust=1499804346152000&amp;usg=AFQjCNEwPuBR8-BRdb6ED35fyf2lZV2Dug" target="_blank" href="HTTP://www.scoutbook.com/mobile/forums/cub-scouting/94300/changes-in-cub-scout-adventure-requirements-and-advancement-effective-immediately-/">
-      <div style="background-color:#b41818;color:white;font-weight:bold;text-align:center;display:inline-block;padding:10px 15px;border-radius:10px">
-        View Message
-      </div>
-    </a>
-  </div>
-  <p style="font-size:11px;color:gray">This email was sent to <a target="_blank" style="color:gray" href="MAILTO:cpkneisler@gmail.com">cpkneisler@gmail.com</a>.  
-    If you no longer want to follow this discussion please visit the discussion page and unselect the follow option.
-  </p><div class="yj6qo"></div><div class="adL">
-</div></div><div class="adL">
-</div></div>
-
-</body>
-</html>
-
-        ';
           /* Changing */
-          $message['body'] = [];
-          $message['body'][] = $newdata;
+          //$message['body'] = [];
+          //$message['body'][] = $newdata;
           //dpm($message);
           //drupal_set_message("BODY");
           //drupal_set_message($message['body'][0]);
