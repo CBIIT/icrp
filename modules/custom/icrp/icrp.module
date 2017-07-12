@@ -227,8 +227,8 @@ function createForumEmailBody($to, $subject, $author, $forum, $thread_subject, $
         <div style="border-top:25px solid #142830;border-left:2px solid #142830;border-right:2px solid #142830;border-bottom:2px solid #142830;background-color:white;padding:20px">
             Hi '.$to.',
             <br>
-            <p>An
-                <em>ICRP Partner</em> <strong>'.$author.'</strong> just replied to a forum discussion that you are following.
+            <p>
+                <em>ICRP Partner</em> <strong>'.$author.'</strong> just replied to a forum that you are following.
             </p>
             <p style="font-weight:bold;font-size:14px;color:grey">
                 <a href="'.$forum_url.'" style="text-decoration: none !important;color:#DD9C28;">'.$forum.'</a> »
@@ -247,8 +247,8 @@ function createForumEmailBody($to, $subject, $author, $forum, $thread_subject, $
                 </div>
             </a>
         </div>
-        <p style="font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new posts to ICRP Forums. If you wish to unsubscribe, log in to ICRP and go to
-            <a target="_blank" href="'.$host.'/my-profile">My Profile</a> to unselect the subcommittees which you no longer want to receive forum notifications.
+        <p style="font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new posts to ICRP Forums. If you wish to unsubscribe, log in to ICRP and navigate to
+            <a target="_blank" href="'.$host.'/my-profile">My Profile</a> and unselect the subcommittees which you no longer want to receive forum notifications.
         </p>
     </div>
 </body>
