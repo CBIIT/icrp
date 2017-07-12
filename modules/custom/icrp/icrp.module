@@ -266,7 +266,11 @@ function createForumEmailBody($to, $subject, $author, $forum, $thread_subject, $
 </head>
 
 <body>
-    <div style="margin-left:auto;margin-right:auto;width:600px;font-size:12px;font-family:Verdana,Arial;color:Black">
+  <body>
+    <table style="margin-left:auto;margin-right:auto;">
+      <tr>
+        <td>
+    <div style="width:600px;font-size:12px;font-family:Verdana,Arial;color:black">
         <a target="_blank" href="'.$host.'">
             <img width="200" height="40" style="margin-bottom:10px;margin-top:5px" src="'.$host.'/sites/default/files/icrp-logo.png">
         </a>
@@ -297,6 +301,9 @@ function createForumEmailBody($to, $subject, $author, $forum, $thread_subject, $
             <a target="_blank" href="'.$host.'/my-profile">My Profile</a> and unselect the subcommittees which you no longer want to receive forum notifications.
         </p>
     </div>
+    </td>
+    </tr>
+    </table>
 </body>
 
 </html>';
