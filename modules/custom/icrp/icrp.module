@@ -293,7 +293,7 @@ function createForumEmailBody($to, $subject, $author, $forum, $thread_subject, $
                 </div>
             </a>
         </div>
-        <p style="font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new posts to ICRP Forums. If you wish to unsubscribe, log in to ICRP and navigate to
+        <p style="font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new posts to ICRP Forums. If you wish to unsubscribe, log in to ICRP, navigate to
             <a target="_blank" href="'.$host.'/my-profile">My Profile</a> and unselect the subcommittees which you no longer want to receive forum notifications.
         </p>
     </div>
