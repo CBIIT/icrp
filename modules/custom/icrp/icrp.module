@@ -214,7 +214,7 @@ function  getForumEmails($nid) {
   //$variables['tforum_category'] = $row->name;
   //$variables['tforum_description'] = $row->description__value;
 
-  $forum_members = array(array('first_name' => 'Steve', 'formated_email' => 'Steve <steve@example.com>'));
+  //$forum_members = array(array('first_name' => 'Steve', 'formated_email' => 'Steve <steve@example.com>'));
 
   return $forum_members;
 }
