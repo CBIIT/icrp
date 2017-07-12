@@ -292,13 +292,13 @@ function createForumEmailBody($to, $subject, $author, $forum, $thread_subject, $
               $body .= '<div style="font-weight:normal;font-size:12px;margin-left:15px;margin-bottom:1em">'.$message.'</div>
             </div>
             <a target="_blank" href="'.$thread_url.'">
-                <div style="background-color:#008cba;color:white;font-weight:bold;text-align:center;display:inline-block;padding:10px 15px;border-radius:10px;max-width:200px;">
+                <div style="background-color:#008cba;color:white;font-weight:bold;text-align:center;display:inline-block;padding:10px 15px;border-radius:10px;width:100px;height:18px;">
                     View Message
                 </div>
             </a>
         </div>
         <p style="font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new posts to ICRP Forums. If you wish to unsubscribe, log in to ICRP, navigate to
-            <a target="_blank" href="'.$host.'/my-profile">My Profile</a> and unselect the subcommittees which you no longer want to receive forum notifications.
+            <a target="_blank" href="'.$host.'/my-profile">My Profile</a> and unselect the <em>ICRP Committees and Forums</em> which you no longer want to receive.
         </p>
     </div>
     </td>

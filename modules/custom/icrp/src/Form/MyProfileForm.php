@@ -278,7 +278,7 @@ function system_user_timezone(&$form, FormStateInterface $form_state) {
             '#type' => 'fieldset',
             '#prefix' => '<div class="col-sm-6"  style="margin-top:20px;">',
             '#suffix' => '</div>',
-            '#title' => 'ICRP Subcommittees',
+            '#title' => 'ICRP Committees and Forums',
         );
 
         /* COMMITTEE */
