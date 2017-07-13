@@ -609,8 +609,10 @@ CREATE TABLE IF NOT EXISTS `SearchCriteria` (
 -- Dumping structure for table icrp_data.SearchResult
 CREATE TABLE IF NOT EXISTS `SearchResult` (
   `SearchCriteriaID` int(11) NOT NULL,
-  `Results` longtext,
+  `Results` longtext DEFAULT NULL,
   `ResultCount` int(11) DEFAULT NULL,
+	`TotalRelatedProjectCount` int(11) DEFAULT NULL,
+	`LastBudgetYear` year DEFAULT NULL,
   `IsEmailSent` tinyint(4) DEFAULT NULL,
   PRIMARY KEY (`SearchCriteriaID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=ucs2;

@@ -19,7 +19,7 @@ BEGIN
 	);
 	
 	IF `@input` IS NOT NULL THEN
-	   SET `@ind` = INSTR(@input,',');
+	   SET `@ind` = INSTR(`@input`,',');
 	   WHILE `@ind` > 0 DO
 	      SET `@Value` = CAST(SUBSTRING(`@input`,1,`@ind`-1) AS SIGNED);
 	      SET `@input` = SUBSTRING(`@input`,`@ind`+1);
@@ -50,7 +50,7 @@ BEGIN
 	);
 
 	IF `@input` IS NOT NULL THEN
-	   SET `@ind` = INSTR(@input,',');
+	   SET `@ind` = INSTR(`@input`,',');
 	   WHILE `@ind` > 0 DO
 	      SET `@str` = SUBSTRING(`@input`,1,`@ind`-1);
 	      SET `@input` = SUBSTRING(`@input`,`@ind`+1);
