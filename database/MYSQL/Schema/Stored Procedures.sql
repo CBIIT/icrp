@@ -686,4 +686,126 @@ BEGIN
 END//
 
 
+CREATE PROCEDURE `GetDataUploadInStaging`()
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+SELECT `DataUploadStatusID` AS DataUploadID, `Type`, `PartnerCode` AS SponsorCode, `FundingYear`, `ReceivedDate`, `Note`
+FROM `DataUploadStatus`
+WHERE `Status` = 'Staging'
+ORDER BY `ReceivedDate` DESC//
+
+
+CREATE PROCEDURE `GetDataUploadStatus`()
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+SELECT `PartnerCode` AS Partner,`FundingYear`,`Status`,`ReceivedDate`,`ValidationDate`,`UploadToDevDate`, `UploadToStageDate`,`UploadToProdDate`,`Type`,l.ProjectFundingCount AS Count, `Note`
+FROM `DataUploadStatus` u
+LEFT JOIN `DataUploadLog` l ON u.`DataUploadStatusID` = l.`DataUploadStatusID`
+ORDER BY `ReceivedDate` DESC//
+
+
+CREATE PROCEDURE `GetDataUploadSummary`(
+  IN `@DataUploadID` INT
+)
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+SELECT *
+FROM `DataUploadLog`
+WHERE `DataUploadStatusID`=`@DataUploadID`//
+
+
+DELIMITER //
+
+
+CREATE PROCEDURE `GetProjectsByDataUploadID`(
+  IN `@PageSize` INT = NULL, -- return all by default
+	IN `@PageNumber` INT = NULL, -- return all results by default; otherwise pass in the page number
+	@SortCol varchar(50) = 'title', -- Ex: 'title', 'pi', 'code', 'inst', 'FO',....
+	@SortDirection varchar(4) = 'ASC',  -- 'ASC' or 'DESC'
+    @DataUploadID INT,    
+	@searchCriteriaID INT OUTPUT,  -- return the searchID	
+	@ResultCount INT OUTPUT  -- return the searchID		
+)
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+	DECLARE @TotalRelatedProjectCount INT
+	DECLARE @LastBudgetYear INT
+
+	SELECT ProjectID, ProjectFundingID, BudgetEndDate  INTO #import FROM ProjectFunding WHERE DataUploadStatusID = @DataUploadID
+	SELECT @TotalRelatedProjectCount = COUNT(*) FROM #import
+	SELECT @LastBudgetYear = DATEPART(year, MAX(BudgetEndDate)) FROM #import
+		
+	------------------------------------------------------
+	-- Get all imported projects/projectfunding by DataUploadStatusID
+	------------------------------------------------------	
+	SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID INTO #base FROM #import GROUP BY ProjectID 
+	SELECT @ResultCount = COUNT(*) FROM #base	
+
+	----------------------------------
+	-- Save search criteria
+	----------------------------------			
+	DECLARE @ProjectIDList VARCHAR(max) = '' 	
+	
+	SELECT @ProjectIDList = @ProjectIDList + 
+           ISNULL(CASE WHEN LEN(@ProjectIDList) = 0 THEN '' ELSE ',' END + CONVERT( VarChar(20), ProjectID), '')
+	FROM #base	
+
+	INSERT INTO SearchCriteria (SearchDate) VALUES (getdate())
+
+										 
+	SELECT @searchCriteriaID = SCOPE_IDENTITY()	
+
+	INSERT INTO SearchResult (SearchCriteriaID, Results,ResultCount, TotalRelatedProjectCount, LastBudgetYear, IsEmailSent) VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, @TotalRelatedProjectCount, @LastBudgetYear, 0)	
+
+	----------------------------------	
+	-- Sort and Pagination
+	--   Note: Return only base projects and projects' most recent funding
+	----------------------------------
+	SELECT r.ProjectID, p.AwardCode, r.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
+		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort 
+	FROM #base r
+		JOIN Project p ON r.ProjectID = p.ProjectID		 
+		 JOIN ProjectFunding f ON r.ProjectFundingID = f.projectFundingID
+		 JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
+		 JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+		 JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
+	ORDER BY 
+		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'ASC ' THEN f.Title  END ASC, --title ASC
+		CASE WHEN @SortCol = 'code ' AND @SortDirection = 'ASC' THEN p.AwardCode  END ASC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'ASC' THEN pi.LastName  END ASC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'ASC' THEN pi.FirstName  END ASC,
+		CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'ASC' THEN i.Name  END ASC,
+		CASE WHEN @SortCol = 'city ' AND @SortDirection = 'ASC' THEN i.City  END ASC,
+		CASE WHEN @SortCol = 'state ' AND @SortDirection = 'ASC' THEN i.State  END ASC,
+		CASE WHEN @SortCol = 'country' AND @SortDirection = 'ASC' THEN i.Country  END ASC,
+		CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'ASC' THEN o.Abbreviation  END ASC,
+		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'DESC' THEN f.Title  END DESC,
+		CASE WHEN @SortCol = 'code ' AND @SortDirection = 'DESC' THEN p.AwardCode  END DESC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'DESC' THEN pi.LastName  END DESC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'DESC' THEN pi.FirstName  END DESC,
+		CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'DESC' THEN i.Name END DESC,
+		CASE WHEN @SortCol = 'city ' AND @SortDirection = 'DESC' THEN i.City  END DESC,
+		CASE WHEN @SortCol = 'state ' AND @SortDirection = 'DESC' THEN i.State  END DESC,
+		CASE WHEN @SortCol = 'country' AND @SortDirection = 'DESC' THEN i.Country  END DESC,
+		CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'DESC' THEN o.Abbreviation  END DESC
+	OFFSET ISNULL(@PageSize,50) * (ISNULL(@PageNumber, 1) - 1) ROWS
+	FETCH NEXT 
+		CASE WHEN @PageNumber IS NULL THEN 999999999 ELSE ISNULL(@PageSize,50)
+		END ROWS ONLY									  
+END//
+
+
 DELIMITER ;
