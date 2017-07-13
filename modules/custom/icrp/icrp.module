@@ -243,7 +243,9 @@ function sendForumNotification($nid, $cid = "0") {
     $author = $reply['reply_author'];
     $message = $reply['message'];
   }
-  
+
+  $message = relToAbs($message, $host);
+
   $subject = "ICRP Forum: {$forum['thread_subject']}";
   $emails = getForumEmails($nid);
   foreach($emails as $key => $email) {
@@ -254,59 +256,102 @@ function sendForumNotification($nid, $cid = "0") {
   //Loop through users and send them an e-mail.
 }
 
+function relToAbs($text, $base) {
+
+  if (empty($base))
+    return $text;
+  // base url needs trailing /
+  if (substr($base, -1, 1) != "/")
+    $base .= "/";
+
+  // Replace links
+  /*
+  $pattern = "/<a([^>]*) " .
+             "href=\"[^http|ftp|https|mailto]([^\"]*)\"/";
+  $replace = "<a\${1} href=\"" . $base . "\${2}\"";
+  $text = preg_replace($pattern, $replace, $text);
+  */
+  // Replace images
+  $pattern = "/<img([^>]*) " . 
+             "src=\"[^http|ftp|https]([^\"]*)\"/";
+  $replace = "<img\${1} src=\"" . $base . "\${2}\"";
+  $text = preg_replace($pattern, $replace, $text);
+  //Add max-width:500px; to style
+  $pattern = "/<img /";
+  $replace = "<img style=\"max-width:500px;\" ";
+  $text = preg_replace($pattern, $replace, $text);
+  return $text;
+}
+
 function createForumEmailBody($to, $subject, $author, $forum, $thread_subject, $thread_summary, $message, $forum_url, $thread_url, $display_summary, $host) {
-  $body =
-'
+
+$body = '
 <!DOCTYPE html>
 <html>
 
 <head>
-    <meta charset="UTF-8">
-    <title>Excel To HTML using codebeautify.org</title>
+  <meta charset="UTF-8">
+  <title>ICRP Forum Message</title>
 </head>
 
 <body>
-  <body>
-    <table style="margin-left:auto;margin-right:auto;">
-      <tr>
-        <td>
-    <div style="width:600px;font-size:12px;font-family:Verdana,Arial;color:black">
-        <a target="_blank" href="'.$host.'">
-            <img width="200" height="40" style="margin-bottom:10px;margin-top:5px" src="'.$host.'/sites/default/files/icrp-logo.png">
-        </a>
-        <div style="border-top:25px solid #008cba;border-left:2px solid #008cba;border-right:2px solid #008cba;border-bottom:2px solid #008cba;background-color:white;padding:20px">
-            Hi '.$to.',
-            <br>
-            <p>
-                <em>ICRP Partner</em> <strong>'.$author.'</strong> just replied to a forum that you are following.
-            </p>
-            <p style="font-weight:bold;font-size:14px;color:grey">
-                <a href="'.$forum_url.'" style="text-decoration: none !important;color:#DD9C28;">'.$forum.'</a> »
-              <a href="'.$thread_url.'" style="text-decoration: none !important;color:#000;font-weight:normal;">'.$thread_subject.'</a>
-            </p>
-            <div style="background-color:#f5f5f5;padding:10px;margin:1em 0">';
+  <table style="margin-left:auto;margin-right:auto;width:600px;">
+    <tr>
+      <td>
+        <a target="_blank" href="'.$host.'"> <img width="200" height="40" style="margin-bottom:10px;margin-top:5px" src="'.$host.'/sites/default/files/icrp-logo.png"> </a>
+
+      </td>
+    </tr>
+    <tr>
+      <td style="border-top:25px solid #008cba;border-left:2px solid #008cba;border-right:2px solid #008cba;border-bottom:2px solid #008cba;background-color:white;padding:10px;">
+        <table style="font-family:Verdana,Arial;font-size:12px;padding:10px;width:100%">
+          <tr>
+            <td style="padding-bottom:10px;">Hi '.$to.',
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-bottom:10px;">
+              <em>ICRP Partner</em> <strong>'.$author.'</strong> just replied to a forum that you are following.
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-bottom:10px;">
+              <span style="font-weight:bold;font-size:14px;color:grey"> <a href="'.$forum_url.'" style="text-decoration: none !important;color:#DD9C28;">'.$forum.'</a> » <a href="'.$thread_url.'" style="text-decoration: none !important;color:#000;font-weight:normal;">'.$thread_subject.'</a> </span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-bottom:10px;">
+              <div style="background-color:#f5f5f5;padding:10px;margin:1em 0;">';
             if($display_summary) {
               $body .= '<div style="font-weight:bold;font-size:14px;color:#142830;margin-bottom:1em">'.$thread_summary.'</div>';
             }
 
-              $body .= '<div style="font-weight:normal;font-size:12px;margin-left:15px;margin-bottom:1em">'.$message.'</div>
-            </div>
-            <a target="_blank" href="'.$thread_url.'">
-                <div style="background-color:#008cba;color:white;font-weight:bold;text-align:center;display:inline-block;padding:10px 15px;border-radius:10px;width:100px;height:18px;">
-                    View Message
-                </div>
-            </a>
-        </div>
-        <p style="font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new posts to ICRP Forums. If you wish to unsubscribe, log in to ICRP, navigate to
-            <a target="_blank" href="'.$host.'/my-profile">My Profile</a> and unselect the <em>ICRP Committees and Forums</em> which you no longer want to receive.
-        </p>
-    </div>
-    </td>
+              $body .=  '<div style="font-weight:normal;font-size:12px;margin-left:15px;margin-bottom:1em">'.$message.'</div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <a target="_blank" href="'.$thread_url.'">
+                <div style="background-color:#008cba;color:white;font-weight:bold;text-align:center;display:inline-block;padding:10px 15px;border-radius:10px;width:100px;height:18px;"> View Message </div>
+              </a>
+
+            </td>
+          </tr>
+        </table>
+      </td>
+
     </tr>
-    </table>
+    <tr>
+      <td>
+        <p style="font-family:Verdana,Arial;font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new posts to ICRP Forums. If you wish to unsubscribe, log in to ICRP, navigate to <a target="_blank" href="'.$host.'/my-profile">My Profile</a> and unselect the <em>ICRP Committees and Forums</em> which you no longer want to receive. </p>
+      </td>
+    </tr>
+  </table>
 </body>
 
-</html>';
+</html>
+';
   return $body;
 }
 
