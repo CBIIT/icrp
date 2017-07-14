@@ -10,6 +10,12 @@
           //console.info("You clicked on Caption");
           $.redirectCarousel(e);
       });
+
+      $("div#cso-document-container > div > h2 > a").click(function(e) {
+          //console.info("You clicked on Caption");
+          $.redirectCSOExample(e);
+      });
+
       //alert(window.location.pathname);
       $("li.disabled a").click(function() {
        return false;
@@ -99,6 +105,43 @@
     if(url != "/") {
       window.location.href = url;
     }
+  }
+
+  $.gotoCSOUrl = function(data, id) {
+    //console.info("gotoCSOUrl");
+    //console.info("id: "+id);
+    //console.dir(data);
+    var url = data[id];
+    //alert(url);
+    if (typeof url === 'undefined' || url === null) {
+        // variable is undefined or null
+        console.log('Unable to lookup url with id of '+id);
+    } else {
+      window.location.href = url;
+    }
+  }
+
+  $.getCSOLink = function(id) {
+    if(window.location.hostname == "localhost") {
+      host = "https://icrpartnership-dev.org";
+    } else {
+      host = window.location.protocol + "//" + window.location.hostname;
+    }
+    $.ajax({
+      url: host + "/api/database/examples/cso"
+    })
+    .success(function( data ) {
+        $.gotoCSOUrl(data, id);
+    });
+  }
+
+  $.redirectCSOExample = function(e){
+    e.preventDefault();
+    var id = e.target.id;
+    //console.log("You click on the CSO Example");
+    //console.log(e.target.id);
+    //alert(id);
+    $.getCSOLink(id);
   }
 
   $.imageRoute = function(title) {
