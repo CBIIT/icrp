@@ -117,7 +117,8 @@
         // variable is undefined or null
         console.log('Unable to lookup url with id of '+id);
     } else {
-      window.location.href = url;
+      //window.location.href = url;
+      window.open(url, id);
     }
   }
 
