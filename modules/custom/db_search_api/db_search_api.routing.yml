@@ -83,12 +83,24 @@ api.database.counts:
 
 
 ## Get example funding organizations
-api.database.examples:
-  path: /api/database/examples
-  defaults: { _controller: \Drupal\db_search_api\Controller\SearchController::getExamples }
+## api.database.examples:
+##   path: /api/database/examples
+##   defaults: { _controller: \Drupal\db_search_api\Controller\SearchController::getExamples }
+##   methods: [ GET ]
+##   requirements:
+##     _access: 'TRUE'
+
+
+
+## Get example funding organizations
+api.database.examples.cso:
+  path: /api/database/examples/cso
+  defaults: { _controller: \Drupal\db_search_api\Controller\SearchController::getCsoExamples }
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
+
+
 
 
 

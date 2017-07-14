@@ -187,6 +187,14 @@ class SearchController extends ControllerBase {
   }
 
 
+  public static function getCsoExamples(Request $request) {
+    $connection = PDOBuilder::getConnection('icrp_database');
+    $data = DatabaseMethods::getCsoExamples($connection);
+    return self::createResponse($data);
+  }
+
+
+
 
   ## Routes for Data Upload Review Tool
   public static function reviewFields() {
