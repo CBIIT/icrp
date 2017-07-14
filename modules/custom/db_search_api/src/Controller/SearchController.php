@@ -175,7 +175,14 @@ class SearchController extends ControllerBase {
 
   public static function getCounts(Request $request) {
     $connection = PDOBuilder::getConnection('icrp_database');
-    $data = DatabaseSearch::getCounts($connection);
+    $data = DatabaseMethods::getCounts($connection);
+    return self::createResponse($data);
+  }
+
+
+  public static function getExamples(Request $request) {
+    $connection = PDOBuilder::getConnection('icrp_database');
+    $data = DatabaseMethods::getExamples($connection);
     return self::createResponse($data);
   }
 

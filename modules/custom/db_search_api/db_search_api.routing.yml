@@ -82,6 +82,15 @@ api.database.counts:
     _access: 'TRUE'
 
 
+## Get example funding organizations
+api.database.examples:
+  path: /api/database/examples
+  defaults: { _controller: \Drupal\db_search_api\Controller\SearchController::getExamples }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
+
 
 ## Routes for Data Upload Review Tool
 
