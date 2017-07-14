@@ -180,9 +180,20 @@ export class SearchPageComponent implements AfterViewInit {
           let parameters = removeEmptyProperties(response);
           if (parameters['years']) {
             let currentYear = new Date().getFullYear();
+            let isAuthenticated = this.sharedService.get('authenticated');
+            parameters['include_future_years'] = false;
+
             for(let year of parameters['years']) {
+
               if (year > currentYear) {
-                parameters['include_future_years'] = true;
+                if (isAuthenticated) {
+                  parameters['include_future_years'] = true;
+                }
+
+                else {
+//                  parameters['years'] = this.searchService.getDefaultParameters().years;
+//                  break;
+                }
               }
             }
           }

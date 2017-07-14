@@ -39,7 +39,7 @@ export class SharedService {
     }
 
     else {
-      Observable.of(true)
+      Observable.of(false)
         .subscribe(response => this.set('authenticated', response));
     }
   }

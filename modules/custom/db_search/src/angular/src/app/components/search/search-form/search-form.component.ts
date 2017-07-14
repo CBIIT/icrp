@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { SearchService } from '../../../services/search.service';
 import { StoreService } from '../../../services/store.service';
+import { SharedService } from '../../../services/shared.service';
 
 /**
  * The <icrp-search-form> component renders the search form panel and
@@ -52,6 +53,7 @@ export class SearchFormComponent {
     private formBuilder: FormBuilder,
     private searchService: SearchService,
     private storeService: StoreService,
+    public sharedService: SharedService,
   ) {
     this.search = new EventEmitter<object>();
 
