@@ -320,17 +320,21 @@ ul.nav-pills {
   margin-top:15px;
   margin-bottom:15px;
 }
+
 div#cso-document-container > div > h2 {
     color:DarkBlue;
     font-size:18px;
     font-family: Georgia,"Times New Roman",Times,serif;
 }
+
 div#cso-document-container > div > h1 {
     color:DarkBlue;
-    font-size:24px;
+    font-size:28px;
     font-weight: bold;
     font-family: Georgia,"Times New Roman",Times,serif;
+    margin-top:35px;
 }
+
 #cso-container > div > div > button {
   width:210px;
   margin-top:5px;
