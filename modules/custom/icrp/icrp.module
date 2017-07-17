@@ -135,6 +135,7 @@ function getForumDetails($nid) {
   $fdetail['thread_summary_raw'] = $summary_raw;
   $fdetail['thread_summary_or_trim_body'] = $summary;
   $fdetail['thread_author'] = getUserFullName($node->getOwnerId());
+  $fdetail['thread_author_uid'] = $node->getOwnerId();
   $fdetail['message'] = $body;
   
   $tid =  $node->get('taxonomy_forums')->target_id; 
@@ -162,12 +163,13 @@ function  getReplyDetails($cid) {
   }
   if(isset($row->last_comment_uid)) {
     $rdetails['reply_author'] = getUserFullName($row->last_comment_uid);
+    $rdetails['reply_author_uid'] = $row->last_comment_uid;
   }
 
   return $rdetails;
 }
 
-function  getForumEmails($nid) {
+function  getForumEmails($nid, $author_uid) {
   //drupal_set_message(__FUNCTION__);
 
   $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
@@ -199,6 +201,8 @@ function  getForumEmails($nid) {
   $query .= "where ufd.status = 1 and ufd.uid = uffn.entity_id and ufd.uid = ufln.entity_id and ufd.uid = ufnnp.entity_id and ufd.uid = sub.entity_id ";
   $query .= "and ufnnp.field_notify_new_posts_value = 1 ";
   $query .= "and sub.".$field." = 1 ";
+  $query .= "and ufd.uid <> ".$author_uid." ";
+
   //drupal_set_message($query);
   //Get a list of names and e-mails.  Everybody that is an Active user and is subcribed to this forum and has notifications checked.
   $result = db_query($query);
@@ -233,6 +237,7 @@ function sendForumNotification($nid, $cid = "0") {
     //Add Subject to 
     //if there is summary,  then summary on the top and full body below
     //if there is no summary,  then just full body
+    $author_uid = $forum['thread_author_uid'];
     $author = $forum['thread_author'];
     $message = $forum['message'];
     $display_summary = $forum['has_summary'];  //If it has_summary, 
@@ -240,6 +245,7 @@ function sendForumNotification($nid, $cid = "0") {
     $reply = getReplyDetails($cid);
 
     $forum['thread_summary_or_trim_body'] = "Re: ".$forum['thread_summary_or_trim_body'];
+    $author_uid = $reply['reply_author_uid'];
     $author = $reply['reply_author'];
     $message = $reply['message'];
   }
@@ -247,7 +253,7 @@ function sendForumNotification($nid, $cid = "0") {
   $message = relToAbs($message, $host);
 
   $subject = "ICRP Forum: {$forum['thread_subject']}";
-  $emails = getForumEmails($nid);
+  $emails = getForumEmails($nid, $author_uid);
   foreach($emails as $key => $email) {
     //$email = "Chris Kneisler <cpkneisler@gmail.com>";
     $body = createForumEmailBody($email['first_name'], $subject, $author, $forum['forum_category'],  $forum['thread_subject'], $forum['thread_summary_or_trim_body'], $message, $forum['forum_url'], $forum['thread_url'], $display_summary, $host);
@@ -956,8 +962,9 @@ function icrp_preprocess_node(&$variables) {
       $variables['tthread_author'] = false;
     }
     //Get Author name and Organization 
+    $variables['tthread_author_name'] =  getUserFullName($author_uid);
+
     $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($author_uid);
-    $variables['tthread_author_name'] =  $user->get('field_first_name')->value." ".$user->get('field_last_name')->value;
     $target_id = $user->get('field_organization')->target_id;
     $variables['tthread_author_org'] = getOrg($target_id);
 
