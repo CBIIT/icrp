@@ -813,36 +813,125 @@ BEGIN
     JOIN `Institution` i ON i.`InstitutionID` = pi.`InstitutionID`
     JOIN `FundingOrg` o ON o.`FundingOrgID` = f.`FundingOrgID`
   ORDER BY
-	 CASE WHEN `@SortDirection` = 'ASC' THEN 
-	   CASE
-	     WHEN `@SortCol` = 'code' THEN p.`AwardCode`
-	     WHEN `@SortCol` = 'pi' THEN CONCAT(pi.`LastName`, ' ', pi.`FirstName`)
-		  WHEN `@SortCol` = 'Inst' THEN i.`Name`
-		  WHEN `@SortCol` = 'city' THEN i.`City`
-		  WHEN `@SortCol` = 'state' THEN i.`State`
-		  WHEN `@SortCol` = 'country' THEN i.`Country`
-		  WHEN `@SortCol` = 'FO' THEN o.`Abbreviation`
-		  ELSE f.`Title`
-		END
-	END ASC,
-	CASE WHEN `@SortDirection` = 'DESC' THEN 
-	   CASE
-	     WHEN `@SortCol` = 'code' THEN p.`AwardCode`
-	     WHEN `@SortCol` = 'pi' THEN CONCAT(pi.`LastName`, ' ', pi.`FirstName`)
-		  WHEN `@SortCol` = 'Inst' THEN i.`Name`
-		  WHEN `@SortCol` = 'city' THEN i.`City`
-		  WHEN `@SortCol` = 'state' THEN i.`State`
-		  WHEN `@SortCol` = 'country' THEN i.`Country`
-		  WHEN `@SortCol` = 'FO' THEN o.`Abbreviation`
-		  ELSE f.`Title`
-		END
-	END DESC
+    CASE WHEN `@SortDirection` = 'ASC' THEN 
+      CASE
+        WHEN `@SortCol` = 'code' THEN p.`AwardCode`
+        WHEN `@SortCol` = 'pi' THEN CONCAT(pi.`LastName`, ' ', pi.`FirstName`)
+        WHEN `@SortCol` = 'Inst' THEN i.`Name`
+        WHEN `@SortCol` = 'city' THEN i.`City`
+        WHEN `@SortCol` = 'state' THEN i.`State`
+        WHEN `@SortCol` = 'country' THEN i.`Country`
+        WHEN `@SortCol` = 'FO' THEN o.`Abbreviation`
+        ELSE f.`Title`
+      END
+    END ASC,
+    CASE WHEN `@SortDirection` = 'DESC' THEN 
+      CASE
+        WHEN `@SortCol` = 'code' THEN p.`AwardCode`
+        WHEN `@SortCol` = 'pi' THEN CONCAT(pi.`LastName`, ' ', pi.`FirstName`)
+        WHEN `@SortCol` = 'Inst' THEN i.`Name`
+        WHEN `@SortCol` = 'city' THEN i.`City`
+        WHEN `@SortCol` = 'state' THEN i.`State`
+        WHEN `@SortCol` = 'country' THEN i.`Country`
+        WHEN `@SortCol` = 'FO' THEN o.`Abbreviation`
+        ELSE f.`Title`
+      END
+    END DESC
   LIMIT `@PageSize`
   OFFSET `@PageOffset`;
 END//
 
 
 DELIMITER //
+
+
+CREATE PROCEDURE `GetProjectsBySearchID`(
+  IN `@PageSize` INT,
+  IN `@PageNumber` INT,
+  IN `@SortCol` VARCHAR(7),
+  IN `@SortDirection` VARCHAR(4),
+  IN `@SearchID` INT,
+  OUT `@ResultCount` INT
+)
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+	-- ---------------------------------------------------
+	-- Get saved search results by searchID
+	-- ---------------------------------------------------
+	DECLARE `@ProjectIDs` LONGTEXT DEFAULT CONVERT('' USING ucs2);
+
+	SELECT `ResultCount`, `Results`
+  INTO `@ResultCount`, `@ProjectIDs`
+  FROM `SearchResult`
+  WHERE `SearchCriteriaID` = `@SearchID`;
+
+	-- -------------------------------
+	-- Sort and Pagination
+	-- Note: Return only base projects and projects' most recent funding
+	-- -------------------------------
+  CALL ToIntTable(`@ProjectIDs`);
+
+	SELECT
+    r.`ProjectID`,
+    p.`AwardCode`,
+    maxf.`ProjectFundingID` AS LastProjectFundingID,
+    f.`Title`,
+    pi.`LastName` AS piLastName,
+    pi.`FirstName` AS piFirstName,
+    pi.`ORC_ID` AS piORCiD,
+    i.`Name` AS institution, 
+		f.`Amount`,
+    i.`City`,
+    i.`State`,
+    i.`Country`,
+    o.`FundingOrgID`,
+    o.`Name` AS FundingOrg,
+    o.`Abbreviation` AS FundingOrgShort 
+	FROM `ToIntTable` r
+    JOIN `Project` p ON r.`VALUE` = p.ProjectID
+    JOIN (
+      SELECT
+        `ProjectID`,
+        MAX(`ProjectFundingID`) AS ProjectFundingID
+      FROM `ProjectFunding` f
+      GROUP BY `ProjectID`
+    ) maxf ON r.`VALUE` = maxf.`ProjectID`
+    JOIN `ProjectFunding` f ON maxf.`ProjectFundingID` = f.`ProjectFundingID`
+    JOIN `ProjectFundingInvestigator` pi ON f.`ProjectFundingID` = pi.`ProjectFundingID`
+    JOIN `Institution` i ON i.`InstitutionID` = pi.`InstitutionID`
+    JOIN `FundingOrg` o ON o.`FundingOrgID` = f.`FundingOrgID`
+  ORDER BY
+    CASE WHEN `@SortDirection` = 'ASC' THEN 
+      CASE
+        WHEN `@SortCol` = 'code' THEN p.`AwardCode`
+        WHEN `@SortCol` = 'pi' THEN CONCAT(pi.`LastName`, ' ', pi.`FirstName`)
+        WHEN `@SortCol` = 'Inst' THEN i.`Name`
+        WHEN `@SortCol` = 'city' THEN i.`City`
+        WHEN `@SortCol` = 'state' THEN i.`State`
+        WHEN `@SortCol` = 'country' THEN i.`Country`
+        WHEN `@SortCol` = 'FO' THEN o.`Abbreviation`
+        ELSE f.`Title`
+      END
+    END ASC,
+    CASE WHEN `@SortDirection` = 'DESC' THEN 
+      CASE
+        WHEN `@SortCol` = 'code' THEN p.`AwardCode`
+        WHEN `@SortCol` = 'pi' THEN CONCAT(pi.`LastName`, ' ', pi.`FirstName`)
+        WHEN `@SortCol` = 'Inst' THEN i.`Name`
+        WHEN `@SortCol` = 'city' THEN i.`City`
+        WHEN `@SortCol` = 'state' THEN i.`State`
+        WHEN `@SortCol` = 'country' THEN i.`Country`
+        WHEN `@SortCol` = 'FO' THEN o.`Abbreviation`
+        ELSE f.`Title`
+      END
+    END DESC
+  LIMIT `@PageSize`
+  OFFSET `@PageOffset`;
+END//
 
 
 DELIMITER ;
