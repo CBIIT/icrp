@@ -842,9 +842,6 @@ BEGIN
 END//
 
 
-DELIMITER //
-
-
 CREATE PROCEDURE `GetProjectsBySearchID`(
   IN `@PageSize` INT,
   IN `@PageNumber` INT,
@@ -863,6 +860,10 @@ BEGIN
 	-- Get saved search results by searchID
 	-- ---------------------------------------------------
 	DECLARE `@ProjectIDs` LONGTEXT DEFAULT CONVERT('' USING ucs2);
+  DECLARE `@PageOffset` INT DEFAULT 0;
+
+  SET `@PageSize` = IFNULL(`@PageSize`,50);
+  SET `@PageOffset` = (IFNULL(`@PageNumber`,1)-1)*`@PageSize`;
 
 	SELECT `ResultCount`, `Results`
   INTO `@ResultCount`, `@ProjectIDs`
@@ -876,7 +877,7 @@ BEGIN
   CALL ToIntTable(`@ProjectIDs`);
 
 	SELECT
-    r.`ProjectID`,
+    r.`VALUE` AS ProjectID,
     p.`AwardCode`,
     maxf.`ProjectFundingID` AS LastProjectFundingID,
     f.`Title`,
@@ -933,5 +934,324 @@ BEGIN
   OFFSET `@PageOffset`;
 END//
 
+
+CREATE PROCEDURE `GetSearchCriteriaBySearchID`(
+  IN `@SearchID` INT
+)
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+  DECLARE `@FilterList` LONGTEXT DEFAULT CONVERT('' USING ucs2);
+  
+  DROP TEMPORARY TABLE IF EXISTS `criteria`;
+  DROP TEMPORARY TABLE IF EXISTS `searchCriteria`;
+  CREATE TEMPORARY TABLE IF NOT EXISTS `criteria` AS (
+	  SELECT *
+    FROM `SearchCriteria`
+	  WHERE `SearchCriteriaID`=`@SearchID`
+  );
+  CREATE TEMPORARY TABLE IF NOT EXISTS `searchCriteria` (
+    `Name` VARCHAR(15),
+    `Value` VARCHAR(1000)
+  );
+  INSERT INTO `searchCriteria`
+  SELECT
+    'TermSearchType:' AS Name,
+    `TermSearchType` AS Value
+  FROM `criteria` WHERE `TermSearchType` IS NOT NULL;
+
+  INSERT INTO `searchCriteria`
+  SELECT
+    'Terms:' AS Name,
+    `Terms` AS Value
+  FROM `criteria` WHERE `Terms` IS NOT NULL;
+
+  INSERT INTO `searchCriteria`
+  SELECT
+    'ProjectType:' AS Name,
+    `ProjectTypeList` AS Value
+  FROM `criteria` WHERE `ProjectTypeList` IS NOT NULL;
+
+  INSERT INTO `searchCriteria`
+  SELECT
+    'AwardCode:' AS Name,
+    `AwardCode` AS Value
+  FROM `criteria` WHERE `AwardCode` IS NOT NULL;
+
+  INSERT INTO `searchCriteria`
+  SELECT
+    'Institution:' AS Name,
+    `Institution` AS Value
+  FROM `criteria` WHERE `Institution` IS NOT NULL;
+
+  INSERT INTO `searchCriteria`
+  SELECT
+    'piLastName:' AS Name,
+    `piLastName` AS Value
+  FROM `criteria` WHERE `piLastName` IS NOT NULL;
+
+  INSERT INTO `searchCriteria`
+  SELECT
+    'piFirstName:' AS Name,
+    `piFirstName` AS Value
+  FROM `criteria` WHERE `piFirstName` IS NOT NULL;
+
+  INSERT INTO `searchCriteria`
+  SELECT
+    'piORCiD:' AS Name,
+    `piORCiD` AS Value
+  FROM `criteria` WHERE `piORCiD` IS NOT NULL;
+
+  INSERT INTO `searchCriteria`
+  SELECT
+    'Year:' AS Name,
+    `YearList` AS Value
+  FROM `criteria` WHERE `YearList` IS NOT NULL;
+
+  INSERT INTO `searchCriteria`
+  SELECT
+    'City:' AS Name,
+    `CityList` AS Value
+  FROM `criteria` WHERE `CityList` IS NOT NULL;
+
+  INSERT INTO `searchCriteria`
+  SELECT
+    'State:' AS Name,
+    `StateList` AS Value
+  FROM `criteria` WHERE `StateList` IS NOT NULL;
+
+  INSERT INTO `searchCriteria`
+  SELECT
+    'Country:' AS Name,
+    `CountryList` AS Value
+  FROM `criteria` WHERE `CountryList` IS NOT NULL;
+
+  INSERT INTO `searchCriteria`
+  SELECT
+    'FundingOrgType:' AS Name,
+    `FundingOrgTypeList` AS Value
+  FROM `criteria` WHERE `FundingOrgTypeList` IS NOT NULL;
+
+  SELECT `FundingOrgList` INTO `@FilterList` FROM `criteria`;
+  IF `@FilterList` IS NOT NULL THEN
+    CALL ToIntTable(`@FilterList`);
+    INSERT INTO `searchCriteria` VALUES ('FundingOrg:', '');
+    INSERT INTO `searchCriteria`
+    SELECT
+      '',
+      `SponsorCode` + ' - ' + `Name`
+    FROM `FundingOrg` fo
+      JOIN `ToIntTable` v ON fo.`FundingOrgID` = v.`VALUE`;
+  END IF;
+
+  INSERT INTO `searchCriteria`
+  SELECT
+    'Childhood Cancer:',
+    CASE `IsChildhood` WHEN 1 THEN 'Yes' ELSE 'No' END
+  FROM `criteria` WHERE `IsChildhood` IS NOT NULL;
+
+  SELECT `CancerTypeList` INTO `@FilterList` FROM `criteria`;
+  IF `@FilterList` IS NOT NULL THEN
+    CALL ToIntTable(`@FilterList`);
+    INSERT INTO `searchCriteria` VALUES ('CancerType:', '');
+    INSERT INTO `searchCriteria`
+    SELECT
+      '',
+      `Name`
+    FROM `CancerType` ct
+      JOIN `ToIntTable` v ON ct.`CancerTypeID` = v.`VALUE`;
+  END IF;
+
+  SELECT `CSOList` INTO `@FilterList` FROM `criteria`;
+  IF `@FilterList` IS NOT NULL THEN
+    CALL ToStrTable(`@FilterList`);
+    INSERT INTO `searchCriteria` VALUES ('CSO:', '');
+    INSERT INTO `searchCriteria`
+    SELECT
+      '',
+      `Name`
+    FROM `CSO` c
+      JOIN `ToStrTable` v ON c.`Code` = v.`VALUE`;
+  END IF;
+
+  SELECT * FROM `searchCriteria`;
+END//
+
+
+DELIMITER //
+
+
+CREATE PROCEDURE `GetProjectExportsBySearchID`(
+  IN `@SearchID` INT,
+  IN `@IncludeAbstract` INT,
+  IN `@SiteURL` VARCHAR(250)
+)
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+	-- ---------------------------------------------------
+	-- Get saved search results by searchID
+	-- ---------------------------------------------------
+	DECLARE `@ProjectIDs` LONGTEXT DEFAULT CONVERT('' USING ucs2);
+	DECLARE `@SQLQuery` LONGTEXT DEFAULT CONVERT('' USING ucs2);
+	DECLARE `@PivotColumns` LONGTEXT DEFAULT CONVERT('' USING ucs2);
+  
+	SELECT `Results` INTO `@ProjectIDs` FROM `SearchResult` WHERE `SearchCriteriaID` = `@SearchID`;
+		
+	-- --------------------------------------------------------
+	--  Get all related projects with dolloar amounts
+	-- --------------------------------------------------------
+  CALL ToIntTable(`@ProjectIDs`);
+  DROP TEMPORARY TABLE IF EXISTS `temp`;
+  CREATE TEMPORARY TABLE IF NOT EXISTS `temp` AS (
+    SELECT
+      p.`ProjectID`,
+      f.`ProjectFundingID`,
+      f.`Title` AS AwardTitle,
+      CAST(NULL AS CHAR(100)) AS AwardType,
+      p.`AwardCode`,
+      f.`Source_ID`,
+      f.`AltAwardCode`,
+      f.`Category` AS FundingCategory,
+      CASE p.`IsChildhood`
+        WHEN 1 THEN 'Yes' 
+        WHEN 0 THEN 'No'
+        ELSE ''
+      END AS IsChildhood,  
+      p.`ProjectStartDate` AS AwardStartDate,
+      p.`ProjectEndDate` AS AwardEndDate,
+      f.`BudgetStartDate`,
+      f.`BudgetEndDate`,
+      f.`Amount` AS AwardAmount,
+      CASE f.`IsAnnualized`
+        WHEN 1 THEN 'A'
+        ELSE 'L'
+      END AS FundingIndicator,
+      o.`Currency`,
+      f.`MechanismTitle` AS FundingMechanism,
+      f.`MechanismCode` AS FundingMechanismCode,
+      o.`SponsorCode`,
+      o.`Name` AS FundingOrg,
+      o.`Type` AS FundingOrgType,
+      d.`Name` AS FundingDiv,
+      d.`Abbreviation` AS FundingDivAbbr,
+      f.`FundingContact`,
+      pi.`LastName` AS piLastName,
+      pi.`FirstName` AS piFirstName,
+      pi.`ORC_ID` AS piORCID,
+      i.`Name` AS Institution,
+      i.`City`,
+      i.`State`,
+      i.`Country`,
+      CONCAT(`@SiteURL`,p.`ProjectID`) AS icrpURL,
+      a.`TechAbstract`
+    FROM `ToIntTable` r
+      LEFT JOIN `Project` p ON r.`VALUE` = p.`ProjectID`
+      LEFT JOIN `ProjectFunding` f ON p.`ProjectID` = f.`ProjectID`
+      LEFT JOIN `FundingOrg` o ON o.`FundingOrgID` = f.`FundingOrgID`
+      LEFT JOIN `FundingDivision` d ON d.`FundingDivisionID` = f.`FundingDivisionID`
+      LEFT JOIN `ProjectFundingInvestigator` pi ON pi.`ProjectFundingID` = f.`ProjectFundingID`
+      LEFT JOIN `Institution` i ON i.`InstitutionID` = pi.`InstitutionID`
+      LEFT JOIN `ProjectAbstract` a ON a.`ProjectAbstractID` = f.`ProjectAbstractID`
+  );
+
+  -- Special handling for AwardType	 - convert multiple AwardType to a comma delimited string
+  UPDATE `temp` t
+    JOIN (
+      SELECT
+        `ProjectID`,
+        GROUP_CONCAT(`ProjectType` SEPARATOR ', ') AS AwardTypes
+      FROM `Project_ProjectType` AS pt
+      GROUP BY `ProjectID`
+    ) aw ON t.`ProjectID` = aw.`ProjectID`
+  SET `AwardType` = `AwardTypes`;
+
+	-- --------------------------------------------------------
+	--  Get all calendar amounts and convert them to columns
+	-- --------------------------------------------------------
+
+  -- Get unique values of pivot column  
+  SELECT GROUP_CONCAT(`CY`) INTO `@PivotColumns`
+  FROM (
+    SELECT DISTINCT `CalendarYear` AS CY
+	 FROM `ProjectFundingExt` e
+      JOIN `temp` t ON e.`ProjectFundingID` = t.`ProjectFundingID`
+    ORDER BY CalendarYear
+  ) a;
+
+  SELECT *
+  FROM (
+    SELECT
+      t.ProjectID AS ICRPProjectID,
+      t.ProjectFundingID AS ICRPProjectFundingID,
+      t.AwardTitle,
+      t.AwardType,
+      t.AwardCode,
+      t.Source_ID,
+      t.AltAwardCode,
+      t.FundingCategory,
+      t.IsChildhood,
+      t.AwardStartDate,
+      t.AwardEndDate,
+      t.BudgetStartDate,
+      t.BudgetEndDate,
+      t.AwardAmount,
+      t.FundingIndicator,
+      t.Currency,
+      t.FundingMechanism,
+      t.FundingMechanismCode,
+      t.SponsorCode,
+      t.FundingOrg,
+      t.FundingOrgType,
+      t.FundingDiv,
+      t.FundingDivAbbr,
+      t.FundingContact,
+      t.piLastName,
+      t.piFirstName,
+      t.piORCID,
+      t.Institution,
+      t.City,
+      t.State,
+      t.Country,
+      t.icrpURL,
+      t.TechAbstract,
+      CalendarYear,
+      CalendarAmount
+    FROM `ProjectFundingExt` ext
+      JOIN `temp` t ON ext.`ProjectFundingID` = t.`ProjectFundingID`
+  ) cal
+  PIVOT( SUM(calendaramount) 
+			  FOR calendaryear IN (' + @PivotColumns + ')) AS P
+
+  SELECT `@PivotColumns`;
+END//
+
+
+
+  --Create the dynamic query with all the values for pivot column at runtime
+	SET   @SQLQuery = N'SELECT * FROM (SELECT t.ProjectID AS ICRPProjectID, t.ProjectFundingID AS ICRPProjectFundingID, t.AwardTitle, t.AwardType, 
+		t.AwardCode, t.Source_ID, t.AltAwardCode, t.FundingCategory,
+		t.IsChildhood, t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate,  t.BudgetEndDate, t.AwardAmount, t.FundingIndicator, t.Currency, 
+		t.FundingMechanism, t.FundingMechanismCode, t.SponsorCode, t.FundingOrg, t.FundingOrgType, t.FundingDiv, t.FundingDivAbbr, t.FundingContact, 
+		t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.icrpURL,'
+
+	IF @IncludeAbstract = 1
+		SET @SQLQuery = @SQLQuery + ' t.TechAbstract,'
+
+	SET @SQLQuery = @SQLQuery + ' calendaryear, calendaramount FROM projectfundingext ext
+				JOIN #temp t ON ext.ProjectFundingID = t.ProjectFundingID    
+				) cal			
+		PIVOT( SUM(calendaramount) 
+			  FOR calendaryear IN (' + @PivotColumns + ')) AS P'
+
+	----Execute dynamic query	
+	EXEC sp_executesql @SQLQuery
+END
 
 DELIMITER ;
