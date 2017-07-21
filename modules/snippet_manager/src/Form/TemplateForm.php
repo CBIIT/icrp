@@ -66,7 +66,7 @@ class TemplateForm extends EntityForm {
     $template = $this->entity->get('template');
 
     $form['template'] = [
-      '#title' => t('Template'),
+      '#title' => $this->t('Template'),
       '#type' => 'text_format',
       '#default_value' => $template['value'],
       '#rows' => 10,
@@ -95,18 +95,18 @@ class TemplateForm extends EntityForm {
 
     // -- Variables.
     $header = [
-      t('Name'),
-      t('Type'),
-      t('Plugin'),
-      t('Operations'),
+      $this->t('Name'),
+      $this->t('Type'),
+      $this->t('Plugin'),
+      $this->t('Operations'),
     ];
 
     $form['table'] = [
       '#type' => 'table',
       '#header' => $header,
       '#rows' => [],
-      '#empty' => t('Variables are not configured yet.'),
-      '#caption' => t('Variables'),
+      '#empty' => $this->t('Variables are not configured yet.'),
+      '#caption' => $this->t('Variables'),
       '#attributes' => ['class' => ['sm-variables']],
     ];
 
@@ -118,7 +118,7 @@ class TemplateForm extends EntityForm {
         $variable_plugin = $this->variableManager->createInstance($variable['plugin_id'], $variable['configuration']);
       }
       catch (PluginNotFoundException $exception) {
-        drupal_set_message(t('The %plugin plugin does not exist.', ['%plugin' => $variable['plugin_id']]), 'warning');
+        drupal_set_message($this->t('The %plugin plugin does not exist.', ['%plugin' => $variable['plugin_id']]), 'warning');
       }
 
       $route_parameters = [
@@ -129,14 +129,14 @@ class TemplateForm extends EntityForm {
       $operation_links = [];
       if ($variable_plugin) {
         $operation_links['edit'] = [
-          'title' => t('Edit'),
+          'title' => $this->t('Edit'),
           'url' => Url::fromRoute('snippet_manager.variable_edit_form', $route_parameters),
         ];
         $operation_links += $variable_plugin->getOperations();
       }
       // Allow deletion of broken variables.
       $operation_links['delete'] = [
-        'title' => t('Delete'),
+        'title' => $this->t('Delete'),
         'url' => Url::fromRoute('snippet_manager.variable_delete_form', $route_parameters),
       ];
 
@@ -150,7 +150,7 @@ class TemplateForm extends EntityForm {
         [
           'fragment' => 'snippet-edit-form',
           'attributes' => [
-            'title' => t('Insert to the textarea'),
+            'title' => $this->t('Insert to the textarea'),
             'class' => 'snippet-variable',
           ],
         ]
@@ -159,7 +159,7 @@ class TemplateForm extends EntityForm {
       $form['table']['#rows'][$variable_name] = [
         0 => Link::fromTextAndUrl($variable_name, $variable_url),
         1 => $variable_plugin ? $variable_plugin->getType() : '',
-        2 => $variable['plugin_id'] . ($variable_plugin ? '' : ' - ' . t('missing')),
+        2 => $variable['plugin_id'] . ($variable_plugin ? '' : ' - ' . $this->t('missing')),
         'operations' => ['data' => $operation_data],
       ];
     }
@@ -181,7 +181,7 @@ class TemplateForm extends EntityForm {
     if (!$this->entity->isNew()) {
       $element['add_variable'] = [
         '#type' => 'link',
-        '#title' => t('Add variable'),
+        '#title' => $this->t('Add variable'),
         '#url' => Url::fromRoute('snippet_manager.variable_add_form', ['snippet' => $this->entity->id()]),
         '#attributes' => ['class' => 'button'],
         '#weight' => 5,
@@ -196,7 +196,7 @@ class TemplateForm extends EntityForm {
    */
   public function save(array $form, FormStateInterface $form_state) {
     parent::save($form, $form_state);
-    drupal_set_message(t('Snippet %label has been updated.', ['%label' => $this->entity->label()]));
+    drupal_set_message($this->t('Snippet %label has been updated.', ['%label' => $this->entity->label()]));
   }
 
   /**

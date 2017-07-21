@@ -11,7 +11,7 @@
     attach: function (context, settings) {
 
       /* global CodeMirror */
-      if (typeof CodeMirror == 'undefined') {
+      if (typeof CodeMirror === 'undefined') {
         alert(Drupal.t('CodeMirror library is not loaded!'));
         return;
       }
@@ -128,7 +128,7 @@
         ];
 
         buttons.forEach(function (button, title) {
-          if ($textArea.attr('data-btn-' + button) != undefined) {
+          if (typeof $textArea.attr('data-btn-' + button) !== 'undefined') {
             // @TODO: Add title attribute.
             $('<svg id="sm-button-' + button + '" class="sm-button"><use xlink:href="#icon-' + button + '"></use></svg>')
               .appendTo($toolbar);

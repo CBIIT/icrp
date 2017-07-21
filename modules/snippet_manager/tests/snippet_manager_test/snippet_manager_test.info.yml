@@ -4,11 +4,11 @@ description: Helper module for testing snippet manager.
 package: Testing
 # core: 8.x
 dependencies:
-  - snippet_manager
-  - filter
+  - snippet_manager:snippet_manager
+  - drupal:filter
 
-# Information added by Drupal.org packaging script on 2017-03-01
-version: '8.x-1.0-rc6'
+# Information added by Drupal.org packaging script on 2017-03-26
+version: '8.x-1.0-rc7'
 core: '8.x'
 project: 'snippet_manager'
-datestamp: 1488358692
+datestamp: 1490522289

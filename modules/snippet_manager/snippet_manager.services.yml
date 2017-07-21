@@ -7,6 +7,7 @@ services:
     arguments: ['snippet_manager']
   snippet_manager.display_variant_subscriber:
       class: Drupal\snippet_manager\EventSubscriber\DisplayVariantSubscriber
+      arguments: ['@request_stack']
       tags:
         - { name: event_subscriber }
   twig.loader.snippet:

@@ -8,7 +8,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Condition\ConditionManager;
 
 /**
- * Retrieves snippet variable plugin definitions for all views.
+ * Retrieves snippet variable plugin definitions for conditions.
  */
 class ConditionDeriver extends DeriverBase implements ContainerDeriverInterface {
 

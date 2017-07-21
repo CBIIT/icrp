@@ -4,7 +4,6 @@ namespace Drupal\snippet_manager\Plugin\SnippetVariable;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\snippet_manager\SnippetVariableBase;
-use Drupal\snippet_manager\SnippetVariableInterface;
 
 /**
  * Provides text variable type.
@@ -15,7 +14,7 @@ use Drupal\snippet_manager\SnippetVariableInterface;
  *   category = @Translation("Other"),
  * )
  */
-class Text extends SnippetVariableBase implements SnippetVariableInterface {
+class Text extends SnippetVariableBase {
 
   /**
    * {@inheritdoc}
@@ -23,7 +22,7 @@ class Text extends SnippetVariableBase implements SnippetVariableInterface {
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
 
     $form['content'] = [
-      '#title' => t('Content'),
+      '#title' => $this->t('Content'),
       '#type' => 'text_format',
       '#default_value' => $this->configuration['content']['value'],
       '#format' => $this->configuration['content']['format'],

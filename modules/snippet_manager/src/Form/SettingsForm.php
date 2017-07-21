@@ -2,13 +2,22 @@
 
 namespace Drupal\snippet_manager\Form;
 
-use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Cache\CacheTagsInvalidatorInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
+use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Configure Snippet manager settings for this site.
  */
 class SettingsForm extends ConfigFormBase {
+  /**
+   * The cache tags invalidator.
+   *
+   * @var \Drupal\Core\Cache\CacheTagsInvalidatorInterface
+   */
+  protected $cacheTagsInvalidator;
 
   /**
    * {@inheritdoc}
@@ -25,6 +34,29 @@ class SettingsForm extends ConfigFormBase {
   }
 
   /**
+   * Constructs a \Drupal\system\ConfigFormBase object.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The factory for configuration objects.
+   * @param \Drupal\Core\Cache\CacheTagsInvalidatorInterface $cache_tags_invalidator
+   *   The cache tags invalidator.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, CacheTagsInvalidatorInterface $cache_tags_invalidator) {
+    parent::__construct($config_factory);
+    $this->cacheTagsInvalidator = $cache_tags_invalidator;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('config.factory'),
+      $container->get('cache_tags.invalidator')
+    );
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
@@ -33,40 +65,40 @@ class SettingsForm extends ConfigFormBase {
 
     $form['codemirror'] = [
       '#type' => 'details',
-      '#title' => t('CodeMirror'),
+      '#title' => $this->t('CodeMirror'),
       '#open' => TRUE,
       '#tree' => TRUE,
     ];
 
     $form['codemirror']['cdn'] = [
       '#type' => 'checkbox',
-      '#title' => t('Load the library from CDN'),
+      '#title' => $this->t('Load the library from CDN'),
       '#default_value' => $settings['codemirror']['cdn'],
     ];
 
     $form['codemirror']['toolbar'] = [
       '#type' => 'checkbox',
-      '#title' => t('Enable editor toolbar'),
+      '#title' => $this->t('Enable editor toolbar'),
       '#default_value' => $settings['codemirror']['toolbar'],
     ];
 
     $codemirror_themes = $this->getCodeMirrorThemes();
     $form['codemirror']['theme'] = [
       '#type' => 'select',
-      '#title' => t('Theme'),
+      '#title' => $this->t('Theme'),
       '#options' => array_combine($codemirror_themes, $codemirror_themes),
       '#default_value' => $settings['codemirror']['theme'],
     ];
 
     $form['codemirror']['mode'] = [
       '#type' => 'select',
-      '#title' => t('Syntax mode'),
+      '#title' => $this->t('Syntax mode'),
       '#options' => [
-        'html_twig' => t('HTML/Twig'),
-        'text/html' => t('HTML'),
-        'twig' => t('Twig'),
-        'javascript' => t('Javascript'),
-        'css' => t('CSS'),
+        'html_twig' => $this->t('HTML/Twig'),
+        'text/html' => $this->t('HTML'),
+        'twig' => $this->t('Twig'),
+        'javascript' => $this->t('Javascript'),
+        'css' => $this->t('CSS'),
       ],
       '#default_value' => $settings['codemirror']['mode'],
     ];
@@ -84,7 +116,7 @@ class SettingsForm extends ConfigFormBase {
       ->save();
 
     // Invalidate discovery caches to rebuild asserts.
-    \Drupal::service('cache_tags.invalidator')->invalidateTags(['library_info']);
+    $this->cacheTagsInvalidator->invalidateTags(['library_info']);
 
     parent::submitForm($form, $form_state);
   }
