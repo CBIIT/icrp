@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- */
-
 namespace Drupal\panels_ipe\Form;
 
 use Drupal\block_content\BlockContentForm;
@@ -74,7 +70,7 @@ class PanelsIPEBlockContentForm extends BlockContentForm {
     // Submit the parent form and save. This mimics the normal behavior of the
     // submit element in our parent form(s).
     parent::submitForm($form, $form_state);
-    parent::save($form, $form_state);
+    $this->save($form, $form_state);
 
     // Inform the App that we've created a new Block Content entity.
     if ($form_state->getValue('is_new')) {

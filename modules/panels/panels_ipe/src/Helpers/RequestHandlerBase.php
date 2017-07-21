@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- */
-
 namespace Drupal\panels_ipe\Helpers;
 
 use Drupal\Component\Serialization\Json;
@@ -117,7 +113,7 @@ abstract class RequestHandlerBase implements RequestHandlerInterface {
    * @throws \Drupal\user\TempStoreException
    */
   protected function savePanelsDisplayToTempStore(PanelsDisplayVariant $panels_display) {
-    $this->tempStore->set($panels_display->id(), $panels_display->getConfiguration());
+    $this->tempStore->set($panels_display->getTempStoreId(), $panels_display->getConfiguration());
   }
 
   /**
@@ -128,7 +124,7 @@ abstract class RequestHandlerBase implements RequestHandlerInterface {
    * @throws \Drupal\user\TempStoreException
    */
   protected function deletePanelsDisplayTempStore(PanelsDisplayVariant $panels_display) {
-    $this->tempStore->delete($panels_display->id());
+    $this->tempStore->delete($panels_display->getTempStoreId());
   }
 
   /**

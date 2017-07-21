@@ -10,7 +10,7 @@ services:
     arguments: ['@plugin.manager.display_variant', '@config.typed']
   panels.storage_manager:
     class: Drupal\panels\Storage\PanelsStorageManager
-    arguments: ['@container.namespaces', '@cache.discovery', '@module_handler', '@current_user']
+    arguments: ['@container.namespaces', '@cache.discovery', '@module_handler', '@current_user', '@event_dispatcher']
   panels.storage_access:
     class: Drupal\panels\Storage\PanelsStorageAccess
     arguments: ['@panels.storage_manager']

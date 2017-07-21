@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- */
-
 namespace Drupal\panels;
 
 use Drupal\panels\Plugin\DisplayVariant\PanelsDisplayVariant;
@@ -16,7 +12,7 @@ interface PanelsDisplayManagerInterface {
   /**
    * Create a new panels display.
    *
-   * @param string|\Drupal\layout_plugin\Plugin\Layout\LayoutInterface|NULL $layout
+   * @param string|\Drupal\Core\Layout\LayoutInterface|NULL $layout
    *   The layout plugin object or plugin id. If omitted, the default Panels
    *   layout will be used.
    * @param string|\Drupal\panels\Plugin\DisplayBuilder\DisplayBuilderInterface|NULL $builder

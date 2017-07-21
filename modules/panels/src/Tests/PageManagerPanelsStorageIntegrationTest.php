@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- */
-
 namespace Drupal\panels\Tests;
 
 use Drupal\page_manager\Entity\PageVariant;
@@ -61,7 +57,7 @@ class PageManagerPanelsStorageIntegrationTest extends WebTestBase {
 
     // Choose a layout.
     $edit = [
-      'layout' => 'twocol',
+      'layout' => 'layout_twocol',
     ];
     $this->drupalPostForm(NULL, $edit, 'Next');
 

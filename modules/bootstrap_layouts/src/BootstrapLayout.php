@@ -117,7 +117,7 @@ class BootstrapLayout {
       return isset($this->data['settings'][$name]) ? $this->data['settings'][$name] : $default_value;
     }
     $value = NestedArray::getValue($this->data['settings'], $parts, $key_exists);
-    return $key_exists ? $value : NULL;
+    return $key_exists ? $value : $default_value;
   }
 
   /**

@@ -7,10 +7,10 @@ and [Panels Bootstrap Layouts] modules for Drupal 8.
 
  - [Drupal Bootstrap] or any other theme that utilizes the Bootstrap framework
    grid system and classes.
- - Any module or theme that utilizes the [Layout Plugin] module:
+ - Any module or theme that utilizes the [Layout Discovery] module:
    - [Display Suite]
    - [Panels] (via [Page Manager])
-   - Or any other project that uses Layout Plugin.
+   - Or any other project that uses Layout Discovery.
 
 ## Installation
 
@@ -31,7 +31,6 @@ Display Suite or Panels. But all this project needs is to be installed.
 [Display Suite Bootstrap Layouts]:https://www.drupal.org/project/ds_bootstrap_layouts
 [Panels Bootstrap Layouts]:https://www.drupal.org/project/panels_bootstrap_layouts
 [Drupal Bootstrap]:https://www.drupal.org/project/bootstrap
-[Layout Plugin]:https://www.drupal.org/project/layout_plugin
 [Display Suite]:https://www.drupal.org/project/ds
 [Panels]:https://www.drupal.org/project/panels
 [Page Manager]:https://www.drupal.org/project/page_manager

@@ -10,18 +10,18 @@ use Drupal\Component\Utility\Html;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Template\Attribute;
-use Drupal\layout_plugin\Layout;
 
 /**
  * Implements hook_theme_registry_alter().
  */
 function bootstrap_layouts_theme_registry_alter(&$theme_registry) {
   // Find all Bootstrap Layouts.
-  $layouts = Layout::layoutPluginManager()->getDefinitions();
+  $layouts = \Drupal::service('plugin.manager.core.layout')->getDefinitions();
   $layout_theme_hooks = [];
+  /** @var \Drupal\Core\Layout\LayoutDefinition $info */
   foreach ($layouts as $info) {
-    if ($info['class'] === '\Drupal\bootstrap_layouts\Plugin\Layout\BootstrapLayoutsBase') {
-      $layout_theme_hooks[] = $info['theme'];
+    if ($info->getClass() === 'Drupal\bootstrap_layouts\Plugin\Layout\BootstrapLayoutsBase') {
+      $layout_theme_hooks[] = $info->getThemeHook();
     }
   }
 
@@ -74,9 +74,11 @@ function _bootstrap_layouts_parse_attributes($string = NULL, array $tokens = [])
  *   Variables array, passed by reference.
  */
 function _bootstrap_layouts_preprocess_layout(array &$variables) {
-  // Utilize the BootstrapLayout utility class to normalize DX readability here.
-  $layout = new BootstrapLayout($variables['layout']['id'], [], $variables['settings']);
+  /** @var \Drupal\Core\Layout\LayoutDefinition $layout_definition */
+  $layout_definition = $variables['layout'];
 
+  // Utilize the BootstrapLayout utility class to normalize DX readability here.
+  $layout = new BootstrapLayout($layout_definition->id(), [], $variables['settings']);
 
   // Determine the entity, entity type and bundle.
   /** @var \Drupal\Core\Entity\EntityInterface $entity */
@@ -144,7 +146,7 @@ function _bootstrap_layouts_preprocess_layout(array &$variables) {
   $variables['attributes'] = $attributes;
 
   // Create region variables based on the layout settings.
-  foreach ($layout->getSetting('regions') as $region => $region_settings) {
+  foreach ($layout->getSetting('regions', []) as $region => $region_settings) {
     $region_attributes = new Attribute(_bootstrap_layouts_parse_attributes($region_settings['attributes'], $tokens));
     $region_attributes->addClass(array_keys($region_settings['classes']));
     if (!empty($region_settings['add_region_classes'])) {
