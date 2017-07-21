@@ -5,15 +5,18 @@ package: Layout
 # version: VERSION
 # core: 8.x
 dependencies:
-  - panels
-  - ctools_block
-  # @todo: Break the dependency on Field UI
+  # Core.
+  - layout_discovery
+  # @todo Break the dependency on Field UI.
   - field_ui
-  # @todo: Allow editing without the IPE
-  - panels_ipe
+  # Contrib
+  - ctools:ctools_block
+  - panels:panels
+  # @todo Allow editing without the IPE.
+  - panels:panels_ipe
 
-# Information added by Drupal.org packaging script on 2017-02-04
-version: '8.x-3.0-beta1'
+# Information added by Drupal.org packaging script on 2017-04-28
+version: '8.x-4.0'
 core: '8.x'
 project: 'panelizer'
-datestamp: 1486220585
+datestamp: 1493406088
