@@ -49,10 +49,10 @@ class CalendarPager extends PagerPluginBase {
       return [];
     }
     $items['previous'] = [
-      'url' => $this->getPagerURL($this::PREVIOUS, $input),
+      'url' => $this->getPagerURL(self::PREVIOUS, $input),
     ];
     $items['next'] = [
-      'url' => $this->getPagerURL($this::NEXT, $input),
+      'url' => $this->getPagerURL(self::NEXT, $input),
     ];
     return array(
       '#theme' => $this->themeFunctions(),
@@ -103,7 +103,7 @@ class CalendarPager extends PagerPluginBase {
       }
       $current_position++;
     }
-    
+
     // @todo How do you get display_id here so we can use CalendarHelper::getViewsURL
     return Url::fromUri('internal:/' . $base_path . '/' . implode('/', $arg_vals), ['query' => $input]);
   }

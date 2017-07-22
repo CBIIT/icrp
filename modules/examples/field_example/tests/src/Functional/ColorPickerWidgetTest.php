@@ -1,8 +1,6 @@
 <?php
 
-namespace Drupal\field_example\Tests;
-
-use Drupal\field_example\FieldExampleWebTestBase;
+namespace Drupal\Tests\field_example\Functional;
 
 /**
  * Test the basic functionality of Color Picker Widget.
@@ -16,11 +14,12 @@ use Drupal\field_example\FieldExampleWebTestBase;
  *
  * @ingroup field_example
  */
-class ColorPickerWidgetTest extends FieldExampleWebTestBase {
+class ColorPickerWidgetTest extends FieldExampleBrowserTestBase {
 
   /**
-   * Test scenarios in Field example.
+   * Field example scenario tests.
    *
+   * The following scenarios:
    * - Creates a content type.
    * - Adds a single-valued field_example_rgb to it.
    * - Creates a node of the new type.
@@ -28,7 +27,7 @@ class ColorPickerWidgetTest extends FieldExampleWebTestBase {
    * - Tests the result.
    */
   public function testSingleValueField() {
-
+    $assert = $this->assertSession();
     // Login with Admin and create a field.
     $this->drupalLogin($this->administratorAccount);
     $this->fieldName = $this->createField('field_example_rgb', 'field_example_colorpicker', '1');
@@ -46,15 +45,16 @@ class ColorPickerWidgetTest extends FieldExampleWebTestBase {
 
     // Submit the content creation form.
     $this->drupalPostForm(NULL, $edit, t('Save'));
-    $this->assertText(t('@type @title has been created', array('@type' => $this->contentTypeName, '@title' => $title)));
+    $assert->pageTextContains(t('@type @title has been created', array('@type' => $this->contentTypeName, '@title' => $title)));
 
     // Verify color.
-    $this->assertText(t('The color code in this field is #00ff00'), 'Verify the color');
+    $assert->pageTextContains('The color code in this field is #00ff00');
   }
 
   /**
-   * Test scenarios in Field example.
+   * Field example scenario tests.
    *
+   * The following scenarios:
    * - Creates a content type.
    * - Adds a multivalued field_example_rgb to it.
    * - Creates a node of the new type.
@@ -62,6 +62,7 @@ class ColorPickerWidgetTest extends FieldExampleWebTestBase {
    * - Tests the result.
    */
   public function testMultiValueField() {
+    $assert = $this->assertSession();
 
     // Login with Admin and create a field.
     $this->drupalLogin($this->administratorAccount);
@@ -88,11 +89,11 @@ class ColorPickerWidgetTest extends FieldExampleWebTestBase {
 
     // Submit the content creation form.
     $this->drupalPostForm(NULL, $edit, t('Save'));
-    $this->assertText(t('@type @title has been created', array('@type' => $this->contentTypeName, '@title' => $title)));
+    $assert->pageTextContains(t('@type @title has been created', array('@type' => $this->contentTypeName, '@title' => $title)));
 
     // Verify color.
-    $this->assertText(t('The color code in this field is #00ff00'), 'Verify the color of field 1');
-    $this->assertText(t('The color code in this field is #ffffff'), 'Verify the color of field 2');
+    $assert->pageTextContains('The color code in this field is #00ff00');
+    $assert->pageTextContains('The color code in this field is #ffffff');
   }
 
 }

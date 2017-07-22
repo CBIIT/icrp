@@ -7,8 +7,8 @@ package: 'Access control'
 dependencies:
   - node
 
-# Information added by Drupal.org packaging script on 2016-08-24
+# Information added by Drupal.org packaging script on 2017-05-12
 version: '8.x-1.x-dev'
 core: '8.x'
 project: 'content_access'
-datestamp: 1472027051
+datestamp: 1494566589

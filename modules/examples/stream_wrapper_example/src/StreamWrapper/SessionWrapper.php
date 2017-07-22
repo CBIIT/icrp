@@ -17,7 +17,7 @@ class SessionWrapper {
   /**
    * Representation of the current HTTP request.
    *
-   * @var RequestStack
+   * @var \Symfony\Component\HttpFoundation\RequestStack
    */
   protected $requestStack;
 
@@ -31,7 +31,7 @@ class SessionWrapper {
   /**
    * Construct our helper object.
    *
-   * @param RequestStack $request_stack
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   An object used to read data from the current HTTP request.
    */
   public function __construct(RequestStack $request_stack) {
@@ -42,7 +42,7 @@ class SessionWrapper {
   /**
    * Get a fresh session object.
    *
-   * @return SessionInterface
+   * @return \Symfony\Component\HttpFoundation\Session\SessionInterface
    *   A session object.
    */
   protected function getSession() {
@@ -72,7 +72,7 @@ class SessionWrapper {
    *   The content of the whole session data store, to replace all of the
    *   current data.
    */
-  protected function setStore($store) {
+  protected function setStore(array $store) {
     $session = $this->getSession();
     $session->set(static::SESSION_BASE_ATTRIBUTE, $store);
   }
