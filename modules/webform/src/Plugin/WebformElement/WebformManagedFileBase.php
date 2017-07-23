@@ -3,16 +3,13 @@
 namespace Drupal\webform\Plugin\WebformElement;
 
 use Drupal\Core\Form\FormStateInterface;
-// ISSUE: Below import statement is throwing "Error: Cannot use Drupal\Core\Url
-// as Url because the name is already in use in" when executing any drush
-// webform command that loads this file.
-// use Drupal\Core\Url.
+use Drupal\Core\Url as UrlGenerator;
 use Drupal\Core\StreamWrapper\StreamWrapperInterface;
 use Drupal\Core\Link;
 use Drupal\file\Entity\File;
 use Drupal\file\FileInterface;
 use Drupal\webform\Entity\WebformSubmission;
-use Drupal\webform\WebformElementBase;
+use Drupal\webform\Plugin\WebformElementBase;
 use Drupal\Component\Utility\Bytes;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
@@ -21,6 +18,18 @@ use Drupal\webform\WebformSubmissionInterface;
  * Provides a base class webform 'managed_file' elements.
  */
 abstract class WebformManagedFileBase extends WebformElementBase {
+
+  /**
+   * List of blacklisted mime types that must be downloaded.
+   *
+   * @var array
+   */
+  static protected $blacklistedMimeTypes = [
+    'application/pdf',
+    'application/xml',
+    'image/svg+xml',
+    'text/html',
+  ];
 
   /**
    * {@inheritdoc}
@@ -32,7 +41,6 @@ abstract class WebformManagedFileBase extends WebformElementBase {
     $file_extensions = $this->getFileExtensions();
     return parent::getDefaultProperties() + [
       'multiple' => FALSE,
-      'multiple__header_label' => '',
       'max_filesize' => $max_filesize,
       'file_extensions' => $file_extensions,
       'uri_scheme' => 'private',
@@ -74,7 +82,7 @@ abstract class WebformManagedFileBase extends WebformElementBase {
     }
 
     // Disable File element is there are no visible stream wrappers.
-    $scheme_options = self::getVisibleStreamWrappers();
+    $scheme_options = static::getVisibleStreamWrappers();
     return (empty($scheme_options)) ? FALSE : TRUE;
   }
 
@@ -88,12 +96,12 @@ abstract class WebformManagedFileBase extends WebformElementBase {
     }
     else {
       // Display 'managed_file' stream wrappers warning.
-      $scheme_options = self::getVisibleStreamWrappers();
+      $scheme_options = static::getVisibleStreamWrappers();
       $uri_scheme = $this->getUriScheme($element);
       if (!isset($scheme_options[$uri_scheme]) && $this->currentUser->hasPermission('administer webform')) {
         drupal_set_message($this->t('The \'File\' element is unavailable because a <a href="https://www.drupal.org/documentation/modules/file">private files directory</a> has not been configured and public file uploads have not been enabled. For more information see: <a href="https://www.drupal.org/psa-2016-003">DRUPAL-PSA-2016-003</a>'), 'warning');
         $context = [
-          'link' => Link::fromTextAndUrl($this->t('Edit'), \Drupal\Core\Url::fromRoute('<current>'))->toString(),
+          'link' => Link::fromTextAndUrl($this->t('Edit'), UrlGenerator::fromRoute('<current>'))->toString(),
         ];
         $this->logger->notice("The 'File' element is unavailable because no stream wrappers are available", $context);
       }
@@ -103,9 +111,9 @@ abstract class WebformManagedFileBase extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function prepare(array &$element, WebformSubmissionInterface $webform_submission) {
+  public function prepare(array &$element, WebformSubmissionInterface $webform_submission = NULL) {
     // Track if this element has been processed because the work-around below
-    // for 'Issue #2705471: Webform states File fields' which nests  the
+    // for 'Issue #2705471: Webform states File fields' which nests the
     // 'managed_file' element in a basic container, which triggers this element
     // to processed a second time.
     if (!empty($element['#webform_managed_file_processed'])) {
@@ -117,7 +125,7 @@ abstract class WebformManagedFileBase extends WebformElementBase {
     parent::prepare($element, $webform_submission);
 
     // Check if the URI scheme exists and can be used the upload location.
-    $scheme_options = self::getVisibleStreamWrappers();
+    $scheme_options = static::getVisibleStreamWrappers();
     $uri_scheme = $this->getUriScheme($element);
     if (!isset($scheme_options[$uri_scheme])) {
       $element['#access'] = FALSE;
@@ -142,7 +150,7 @@ abstract class WebformManagedFileBase extends WebformElementBase {
       '#theme' => 'file_upload_help',
       '#description' => '',
       '#upload_validators' => $element['#upload_validators'],
-      '#cardinality' => (empty($element['#multiple'])) ? 1 : -1,
+      '#cardinality' => (empty($element['#multiple'])) ? 1 : $element['#multiple'],
       '#prefix' => '<div class="description">',
       '#suffix' => '</div>',
     ];
@@ -172,20 +180,8 @@ abstract class WebformManagedFileBase extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function format($type, array &$element, $value, array $options = []) {
-    if ($this->hasMultipleValues($element)) {
-      $value = $this->getFiles($element, $value, $options);
-    }
-    else {
-      $value = $this->getFile($element, $value, $options);
-    }
-    return parent::format($type, $element, $value, $options);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function formatHtmlItem(array &$element, $value, array $options = []) {
+  protected function formatHtmlItem(array $element, WebformSubmissionInterface $webform_submission, array $options = []) {
+    $value = $this->getValue($element, $webform_submission, $options);
     $file = $this->getFile($element, $value, $options);
     $format = $this->getItemFormat($element);
     switch ($format) {
@@ -193,7 +189,7 @@ abstract class WebformManagedFileBase extends WebformElementBase {
       case 'url':
       case 'value':
       case 'raw':
-        return $this->formatTextItem($element, $value, $options);
+        return $this->formatTextItem($element, $webform_submission, $options);
 
       case 'link':
         return [
@@ -219,7 +215,8 @@ abstract class WebformManagedFileBase extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  protected function formatTextItem(array &$element, $value, array $options = []) {
+  protected function formatTextItem(array $element, WebformSubmissionInterface $webform_submission, array $options = []) {
+    $value = $this->getValue($element, $webform_submission, $options);
     $file = $this->getFile($element, $value, $options);
     $format = $this->getItemFormat($element);
     switch ($format) {
@@ -509,7 +506,7 @@ abstract class WebformManagedFileBase extends WebformElementBase {
     if (isset($element['#uri_scheme'])) {
       return $element['#uri_scheme'];
     }
-    $scheme_options = self::getVisibleStreamWrappers();
+    $scheme_options = static::getVisibleStreamWrappers();
     if (isset($scheme_options['private'])) {
       return 'private';
     }
@@ -561,7 +558,7 @@ abstract class WebformManagedFileBase extends WebformElementBase {
       '#type' => 'fieldset',
       '#title' => $this->t('File settings'),
     ];
-    $scheme_options = self::getVisibleStreamWrappers();
+    $scheme_options = static::getVisibleStreamWrappers();
 
     $form['file']['uri_scheme'] = [
       '#type' => 'radios',
@@ -611,8 +608,8 @@ abstract class WebformManagedFileBase extends WebformElementBase {
     $form['file']['multiple'] = [
       '#title' => $this->t('Multiple'),
       '#type' => 'checkbox',
-      '#return_value' => TRUE,
       '#description' => $this->t('Check this option if the user should be allowed to upload multiple files.'),
+      '#return_value' => TRUE,
     ];
     return $form;
   }
@@ -674,7 +671,14 @@ abstract class WebformManagedFileBase extends WebformElementBase {
         }
 
         // Return file content headers.
-        return file_get_content_headers($file);
+        $headers = file_get_content_headers($file);
+
+        // Force blacklisted files to be downloaded.
+        if (in_array($headers['Content-Type'], static::$blacklistedMimeTypes)) {
+          $headers['Content-Disposition'] = 'attachment';
+        }
+
+        return $headers;
       }
     }
     return NULL;

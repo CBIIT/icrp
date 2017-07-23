@@ -11,6 +11,7 @@ template: false
 id: test_element_email
 title: 'Test: Element: Email'
 description: 'Tests email_confirm and email_multiple elements.'
+category: 'Test: Element'
 elements: |
   '#attributes':
     novalidate: novalidate
@@ -26,6 +27,10 @@ elements: |
       '#title': 'Multiple email addresses (advanced)'
       '#allow_tokens': true
       '#description': 'Allows tokens to be included in the comma delimited list of emails'
+    email_multiple_three:
+      '#type': webform_email_multiple
+      '#title': 'Multiple email addresses (three)'
+      '#cardinality': 3
   email_confirm:
     '#type': details
     '#title': 'Email confirmation (email_confirm)'
@@ -33,6 +38,10 @@ elements: |
     email_confirm_basic:
       '#type': webform_email_confirm
       '#title': 'Email confirm basic'
+    email_confirm_pattern:
+      '#type': webform_email_confirm
+      '#title': 'Email confirm pattern'
+      '#pattern': '^[a-zA-Z0-9.!#$%&''*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$'
     email_confirm_advanced:
       '#type': webform_email_confirm
       '#title': 'Email confirm advanced'
@@ -44,45 +53,46 @@ elements: |
 css: ''
 javascript: ''
 settings:
+  ajax: false
   page: true
   page_submit_path: ''
   page_confirm_path: ''
-  form_submit_label: ''
   form_submit_once: false
-  form_submit_attributes: {  }
   form_exception_message: ''
-  form_closed_message: ''
+  form_open_message: ''
+  form_close_message: ''
   form_previous_submissions: true
   form_confidential: false
   form_confidential_message: ''
+  form_convert_anonymous: false
   form_prepopulate: false
   form_prepopulate_source_entity: false
+  form_prepopulate_source_entity_required: false
+  form_prepopulate_source_entity_type: ''
   form_disable_autocomplete: false
   form_novalidate: false
   form_unsaved: false
   form_disable_back: false
   form_autofocus: false
   form_details_toggle: false
+  submission_label: ''
+  submission_log: false
+  submission_user_columns: {  }
   wizard_progress_bar: true
   wizard_progress_pages: false
   wizard_progress_percentage: false
-  wizard_next_button_label: ''
-  wizard_next_button_attributes: {  }
-  wizard_prev_button_label: ''
-  wizard_prev_button_attributes: {  }
   wizard_start_label: ''
   wizard_complete: true
   wizard_complete_label: ''
   preview: 0
-  preview_next_button_label: ''
-  preview_next_button_attributes: {  }
-  preview_prev_button_label: ''
-  preview_prev_button_attributes: {  }
+  preview_label: ''
+  preview_title: ''
   preview_message: ''
-  draft: false
+  preview_attributes: {  }
+  preview_excluded_elements: {  }
+  draft: none
+  draft_multiple: false
   draft_auto_save: false
-  draft_button_label: ''
-  draft_button_attributes: {  }
   draft_saved_message: ''
   draft_loaded_message: ''
   confirmation_type: message

@@ -19,7 +19,7 @@ class WebformSubmissionViewTest extends WebformTestBase {
    *
    * @var array
    */
-  protected static $modules = ['filter', 'node', 'webform'];
+  public static $modules = ['filter', 'node', 'webform'];
 
   /**
    * Webforms to load.
@@ -83,7 +83,7 @@ class WebformSubmissionViewTest extends WebformTestBase {
       'language_select' => 'English (en)',
     ];
     foreach ($elements as $label => $value) {
-      $this->assertRaw('<b>' . $label . '</b><br/>' . $value, new FormattableMarkup('Found @label: @value', ['@label' => $label, '@value' => $value]));
+      $this->assertRaw('<b>' . $label . '</b><br />' . $value, new FormattableMarkup('Found @label: @value', ['@label' => $label, '@value' => $value]));
     }
 
     // Check details element.

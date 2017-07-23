@@ -55,6 +55,15 @@ trait WebformEntityTrait {
       $options += $bundle_options;
     }
 
+    /** @var \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository */
+    $entity_repository = \Drupal::service('entity.repository');
+    foreach ($options as $key => $value) {
+      // Set the entity in the correct language for display.
+      $option = \Drupal::entityTypeManager()->getStorage($element['#target_type'])->load($key);
+      $option = $entity_repository->getTranslationFromContext($option);
+      $options[$key] = $option->label();
+    }
+
     // Only select menu can support optgroups.
     if ($element['#type'] !== 'webform_entity_select') {
       $options = OptGroup::flattenOptions($options);

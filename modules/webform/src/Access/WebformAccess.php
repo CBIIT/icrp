@@ -6,7 +6,7 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\webform\Plugin\Field\FieldType\WebformEntityReferenceItem;
-use Drupal\webform\WebformHandlerMessageInterface;
+use Drupal\webform\Plugin\WebformHandlerMessageInterface;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
 
@@ -40,6 +40,39 @@ class WebformAccess {
       $access_result = AccessResult::forbidden();
     }
     return $access_result->addCacheableDependency($webform);
+  }
+
+  /**
+   * Check whether the webform has log.
+   *
+   * @param \Drupal\webform\WebformInterface $webform
+   *   A webform.
+   * @param \Drupal\Core\Entity\EntityInterface|null $source_entity
+   *   The source entity.
+   *
+   * @return \Drupal\Core\Access\AccessResultInterface
+   *   The access result.
+   */
+  public static function checkLogAccess(WebformInterface $webform = NULL, EntityInterface $source_entity = NULL) {
+    // ISSUE:
+    // Devel routes do not use 'webform' parameter which throws the below error.
+    // Some mandatory parameters are missing ("webform") to generate a URL for
+    // route "entity.webform_submission.canonical"
+    //
+    // WORKAROUND:
+    // Make sure webform parameter is set for all routes.
+    // @see webform_menu_local_tasks_alter()
+    if (!$webform && $webform_submission = \Drupal::routeMatch()->getParameter('webform_submission')) {
+      $webform = $webform_submission->getWebform();
+    }
+
+    if (!$webform->hasSubmissionLog()) {
+      $access_result = AccessResult::forbidden()->addCacheableDependency($webform);
+    }
+    else {
+      $access_result = static::checkResultsAccess($webform, $source_entity);
+    }
+    return $access_result->addCacheTags(['config:webform.settings']);
   }
 
   /**
@@ -135,7 +168,7 @@ class WebformAccess {
    */
   public static function checkWebformWizardPagesAccess(WebformInterface $webform) {
     $elements = $webform->getElementsInitialized();
-    foreach ($elements as $key => $element) {
+    foreach ($elements as $element) {
       if (isset($element['#type']) && $element['#type'] == 'webform_wizard_page') {
         return AccessResult::allowed();
       }

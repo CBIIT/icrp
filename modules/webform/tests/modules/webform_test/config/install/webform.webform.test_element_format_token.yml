@@ -11,6 +11,7 @@ template: false
 id: test_element_format_token
 title: 'Test: Element: Format: Token'
 description: 'Test element formatting using tokens.'
+category: 'Test: Element'
 elements: |
   checkboxes:
     '#type': checkboxes
@@ -26,45 +27,46 @@ elements: |
 css: ''
 javascript: ''
 settings:
+  ajax: false
   page: true
   page_submit_path: ''
   page_confirm_path: ''
-  form_submit_label: ''
   form_submit_once: false
-  form_submit_attributes: {  }
   form_exception_message: ''
-  form_closed_message: ''
+  form_open_message: ''
+  form_close_message: ''
   form_previous_submissions: true
   form_confidential: false
   form_confidential_message: ''
+  form_convert_anonymous: false
   form_prepopulate: false
   form_prepopulate_source_entity: false
+  form_prepopulate_source_entity_required: false
+  form_prepopulate_source_entity_type: ''
   form_disable_autocomplete: false
   form_novalidate: false
   form_unsaved: false
   form_disable_back: false
   form_autofocus: false
   form_details_toggle: false
+  submission_label: ''
+  submission_log: false
+  submission_user_columns: {  }
   wizard_progress_bar: true
   wizard_progress_pages: false
   wizard_progress_percentage: false
-  wizard_next_button_label: ''
-  wizard_next_button_attributes: {  }
-  wizard_prev_button_label: ''
-  wizard_prev_button_attributes: {  }
   wizard_start_label: ''
   wizard_complete: true
   wizard_complete_label: ''
   preview: 0
-  preview_next_button_label: ''
-  preview_next_button_attributes: {  }
-  preview_prev_button_label: ''
-  preview_prev_button_attributes: {  }
+  preview_label: ''
+  preview_title: ''
   preview_message: ''
-  draft: false
+  preview_attributes: {  }
+  preview_excluded_elements: {  }
+  draft: none
+  draft_multiple: false
   draft_auto_save: false
-  draft_button_label: ''
-  draft_button_attributes: {  }
   draft_saved_message: ''
   draft_loaded_message: ''
   confirmation_type: page
@@ -121,24 +123,33 @@ handlers:
     status: false
     weight: -9
     settings:
+      states:
+        - completed
       to_mail: default
+      to_options: {  }
       cc_mail: ''
+      cc_options: {  }
       bcc_mail: ''
+      bcc_options: {  }
       from_mail: default
+      from_options: {  }
       from_name: default
       subject: default
       body: |
-        <h3>default:</h3>[webform_submission:values:checkboxes]<hr/>
-        <h3>comma:</h3>[webform_submission:values:checkboxes:value:comma]<hr/>
-        <h3>semicolon:</h3>[webform_submission:values:checkboxes:value:semicolon]<hr/>
-        <h3>and:</h3>[webform_submission:values:checkboxes:value:and]<hr/>
-        <h3>ul:</h3>[webform_submission:values:checkboxes:value:ul]<hr/>
-        <h3>ol:</h3>[webform_submission:values:checkboxes:value:ol]<hr/>
-        <h3>raw:</h3>[webform_submission:values:checkboxes:raw]<hr/>
+        <h3>default:</h3>[webform_submission:values:checkboxes]<hr />
+        <h3>comma:</h3>[webform_submission:values:checkboxes:value:comma]<hr />
+        <h3>semicolon:</h3>[webform_submission:values:checkboxes:value:semicolon]<hr />
+        <h3>and:</h3>[webform_submission:values:checkboxes:value:and]<hr />
+        <h3>ul:</h3>[webform_submission:values:checkboxes:value:ul]<hr />
+        <h3>ol:</h3>[webform_submission:values:checkboxes:value:ol]<hr />
+        <h3>raw:</h3>[webform_submission:values:checkboxes:raw]<hr />
       excluded_elements: {  }
+      ignore_access: false
       html: true
       attachments: false
       debug: true
+      reply_to: ''
+      return_path: ''
   email_text:
     id: email
     label: 'Email (Text)'
@@ -146,10 +157,16 @@ handlers:
     status: false
     weight: -10
     settings:
+      states:
+        - completed
       to_mail: default
+      to_options: {  }
       cc_mail: ''
+      cc_options: {  }
       bcc_mail: ''
+      bcc_options: {  }
       from_mail: default
+      from_options: {  }
       from_name: default
       subject: default
       body: |
@@ -174,6 +191,9 @@ handlers:
         raw:
         [webform_submission:values:checkboxes:raw]
       excluded_elements: {  }
+      ignore_access: false
       html: false
       attachments: false
       debug: true
+      reply_to: ''
+      return_path: ''

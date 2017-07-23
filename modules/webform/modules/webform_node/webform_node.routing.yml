@@ -25,7 +25,20 @@ entity.node.webform.user.submissions:
         type: 'entity:node'
   requirements:
     _custom_access: '\Drupal\webform_node\Access\WebformNodeAccess::checkWebformAccess'
-    _user_is_logged_in: 'TRUE'
+
+entity.node.webform.user.drafts:
+  path: '/node/{node}/webform/drafts'
+  defaults:
+    _entity_list: 'webform_submission'
+    _title: 'Drafts'
+    operation: view
+    entity_access: 'webform.submission_create'
+  options:
+    parameters:
+      node:
+        type: 'entity:node'
+  requirements:
+    _custom_access: '\Drupal\webform_node\Access\WebformNodeAccess::checkWebformAccess'
 
 entity.node.webform.user.submission:
   path: '/node/{node}/webform/submissions/{webform_submission}'
@@ -40,8 +53,7 @@ entity.node.webform.user.submission:
       node:
         type: 'entity:node'
   requirements:
-    _custom_access: '\Drupal\webform_node\Access\WebformNodeAccess::checkWebformAccess'
-    _user_is_logged_in: 'TRUE'
+    _custom_access: '\Drupal\webform_node\Access\WebformNodeAccess::checkWebformSubmissionAccess'
 
 entity.node.webform.user.submission.edit:
   path: '/node/{node}/webform/submissions/{webform_submission}/edit'
@@ -50,6 +62,20 @@ entity.node.webform.user.submission.edit:
     _title_callback: 'Drupal\webform\Controller\WebformSubmissionController::title'
     operation: webform_submission_edit
     entity_access: 'webform_submission.update'
+  options:
+    parameters:
+      node:
+        type: 'entity:node'
+  requirements:
+    _custom_access: '\Drupal\webform_node\Access\WebformNodeAccess::checkWebformSubmissionAccess'
+
+entity.node.webform.user.submission.delete:
+  path: '/node/{node}/webform/submissions/{webform_submission}/delete'
+  defaults:
+    _entity_form: 'webform_submission.delete'
+    _title: 'Delete webform submission'
+    operation: webform_submission_delete
+    entity_access: 'webform_submission.delete'
   options:
     parameters:
       node:
@@ -85,22 +111,8 @@ entity.node.webform.results_submissions:
   requirements:
     _custom_access: '\Drupal\webform_node\Access\WebformNodeAccess::checkWebformResultsAccess'
 
-entity.node.webform.results_table:
-  path: '/node/{node}/webform/results/table'
-  defaults:
-    _entity_list: 'webform_submission'
-    _title_callback: '\Drupal\Core\Entity\Controller\EntityController::title'
-    operation: webform_submission_view
-    entity_access: 'webform.submission_view_any'
-  options:
-    parameters:
-      node:
-        type: 'entity:node'
-  requirements:
-    _custom_access: '\Drupal\webform_node\Access\WebformNodeAccess::checkWebformResultsAccess'
-
-entity.node.webform.results_table.custom:
-  path: '/node/{node}/webform/results/table/custom'
+entity.node.webform.results_submissions.custom:
+  path: '/node/{node}/webform/results/submissions/custom'
   defaults:
     _form: 'Drupal\webform\Form\WebformResultsCustomForm'
     _title: 'Customize table'
@@ -154,6 +166,22 @@ entity.node.webform.results_clear:
         type: 'entity:node'
   requirements:
     _custom_access: '\Drupal\webform_node\Access\WebformNodeAccess::checkWebformResultsAccess'
+
+entity.node.webform.results_log:
+  path: '/node/{node}/webform/results/log'
+  defaults:
+    _controller: '\Drupal\webform_node\Controller\WebformNodeSubmissionLogController::overview'
+    _title_callback: '\Drupal\Core\Entity\Controller\EntityController::title'
+    operation: webform_submission_view
+    entity_access: 'webform.submission_view_any'
+  options:
+    _admin_route: TRUE
+    parameters:
+      node:
+        type: 'entity:node'
+  requirements:
+    _permission: 'access webform submission log'
+    _custom_access: '\Drupal\webform_node\Access\WebformNodeAccess::checkWebformLogAccess'
 
 entity.node.webform_submission.canonical:
   path: '/node/{node}/webform/submission/{webform_submission}'
@@ -241,7 +269,7 @@ entity.node.webform_submission.edit_form.all:
     _title_callback: 'Drupal\webform\Controller\WebformSubmissionController::title'
     operation: webform_submission_edit
     entity_access: 'webform_submission.update'
-    disable_pages: true
+    mode: disable_pages
   options:
     _admin_route: TRUE
     parameters:
@@ -311,3 +339,19 @@ entity.node.webform_submission.delete_form:
         type: 'entity:node'
   requirements:
     _custom_access: '\Drupal\webform_node\Access\WebformNodeAccess::checkWebformSubmissionAccess'
+
+entity.node.webform_submission.log:
+  path: '/node/{node}/webform/submission/{webform_submission}/log'
+  defaults:
+    _controller: '\Drupal\webform\Controller\WebformSubmissionLogController::overview'
+    _title_callback: 'Drupal\webform\Controller\WebformSubmissionController::title'
+    operation: webform_submission_view
+    entity_access: 'webform.submission_view_any'
+  options:
+    _admin_route: TRUE
+    parameters:
+      node:
+        type: 'entity:node'
+  requirements:
+    _permission: 'access webform submission log'
+    _custom_access: '\Drupal\webform_node\Access\WebformNodeAccess::checkWebformLogAccess'

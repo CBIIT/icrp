@@ -2,10 +2,11 @@
 
 namespace Drupal\webform\Plugin\WebformElement;
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Mail\MailFormatHelper;
 use Drupal\filter\Entity\FilterFormat;
-use Drupal\webform\WebformElementBase;
+use Drupal\webform\Plugin\WebformElementBase;
 use Drupal\webform\WebformSubmissionInterface;
 
 /**
@@ -27,11 +28,13 @@ class TextFormat extends WebformElementBase {
    * {@inheritdoc}
    */
   public function getDefaultProperties() {
-    return parent::getDefaultProperties() + [
+    $default_properties = parent::getDefaultProperties() + [
       // Text format settings.
       'allowed_formats' => [],
       'hide_help' => FALSE,
     ];
+    unset($default_properties['disabled']);
+    return $default_properties;
   }
 
   /**
@@ -44,7 +47,7 @@ class TextFormat extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function prepare(array &$element, WebformSubmissionInterface $webform_submission) {
+  public function prepare(array &$element, WebformSubmissionInterface $webform_submission = NULL) {
     parent::prepare($element, $webform_submission);
     $element['#after_build'] = [[get_class($this), 'afterBuild']];
     $element['#attached']['library'][] = 'webform/webform.element.text_format';
@@ -69,6 +72,17 @@ class TextFormat extends WebformElementBase {
     // Hide tips.
     if (!empty($element['#hide_help']) && isset($element['format']['help'])) {
       $element['format']['help']['#attributes']['style'] = 'display: none';
+    }
+    else {
+      // Display tips in a modal.
+      $element['format']['help']['about']['#attributes']['class'][] = 'use-ajax';
+      $element['format']['help']['about']['#attributes'] += [
+        'data-dialog-type' => 'modal',
+        'data-dialog-options' => Json::encode([
+          'dialogClass' => 'webform-text-format-help-dialog',
+          'width' => 800,
+        ]),
+      ];
     }
 
     // Hide filter format if the select menu and help is hidden.
@@ -98,7 +112,9 @@ class TextFormat extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function formatHtmlItem(array &$element, $value, array $options = []) {
+  public function formatHtmlItem(array $element, WebformSubmissionInterface $webform_submission, array $options = []) {
+    $value = $this->getValue($element, $webform_submission, $options);
+
     $value = (isset($value['value'])) ? $value['value'] : $value;
     $format = (isset($value['format'])) ? $value['format'] : $this->getItemFormat($element);
     switch ($format) {
@@ -114,7 +130,9 @@ class TextFormat extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  public function formatTextItem(array &$element, $value, array $options = []) {
+  public function formatTextItem(array $element, WebformSubmissionInterface $webform_submission, array $options = []) {
+    $value = $this->getValue($element, $webform_submission, $options);
+
     $format = (isset($value['format'])) ? $value['format'] : $this->getItemFormat($element);
     switch ($format) {
       case 'raw':
@@ -122,7 +140,7 @@ class TextFormat extends WebformElementBase {
 
       case 'value':
       default:
-        $html = $this->formatHtml($element, $value);
+        $html = $this->formatHtml($element, $webform_submission);
         // Convert any HTML to plain-text.
         $html = MailFormatHelper::htmlToText($html);
         // Wrap the mail body for sending.
@@ -186,6 +204,7 @@ class TextFormat extends WebformElementBase {
       '#type' => 'checkbox',
       '#title' => $this->t('Hide help'),
       '#description' => $this->t("If checked, the 'About text formats' link will be hidden."),
+      '#return_value' => TRUE,
     ];
     return $form;
   }
@@ -200,4 +219,14 @@ class TextFormat extends WebformElementBase {
     parent::validateConfigurationForm($form, $form_state);
   }
 
+  /**
+   * Get composite element.
+   *
+   * @return array
+   *   A composite sub-elements.
+   */
+  public function hasCompositeElement(array $element, $key) {
+    $elements = $this->getCompositeElements();
+    return (isset($elements[$key])) ? TRUE : FALSE;
+  }
 }

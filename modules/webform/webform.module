@@ -24,12 +24,14 @@ use Drupal\webform\Element\WebformMessage;
 use Drupal\webform\Plugin\Field\FieldType\WebformEntityReferenceItem;
 use Drupal\webform\Plugin\WebformElement\ManagedFile;
 use Drupal\webform\Utility\WebformArrayHelper;
+use Drupal\webform\Utility\WebformThemeHelper;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionForm;
 
-module_load_include('inc', 'webform', 'includes/webform.libraries');
-module_load_include('inc', 'webform', 'includes/webform.options');
-module_load_include('inc', 'webform', 'includes/webform.translation');
+require_once __DIR__ . '/includes/webform.date.inc';
+require_once __DIR__ . '/includes/webform.libraries.inc';
+require_once __DIR__ . '/includes/webform.options.inc';
+require_once __DIR__ . '/includes/webform.translation.inc';
 
 /**
  * Implements hook_help().
@@ -100,11 +102,19 @@ function webform_modules_uninstalled($modules) {
 }
 
 /**
+ * Implements hook_user_login().
+ */
+function webform_user_login($account) {
+  // Notify the storage of this log in.
+  \Drupal::entityTypeManager()->getStorage('webform_submission')->userLogin($account);
+}
+
+/**
  * Implements hook_cron().
  */
 function webform_cron() {
   $config = \Drupal::config('webform.settings');
-  \Drupal::entityTypeManager()->getStorage('webform_submission')->purge($config->get('purge_settings.cron_size'));
+  \Drupal::entityTypeManager()->getStorage('webform_submission')->purge($config->get('purge.cron_size'));
 }
 
 /**
@@ -156,6 +166,17 @@ function webform_menu_local_tasks_alter(&$data, $route_name) {
 }
 
 /**
+ * Implements hook_module_implements_alter().
+ */
+function webform_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'form_alter') {
+    $implementation = $implementations['webform'];
+    unset($implementations['webform']);
+    $implementations['webform'] = $implementation;
+  }
+}
+
+/**
  * Implements hook_form_alter().
  */
 function webform_form_alter(&$form, FormStateInterface $form_state, $form_id) {
@@ -187,14 +208,32 @@ function webform_form_alter(&$form, FormStateInterface $form_state, $form_id) {
   }
 
   // Don't include details toggle all for submission forms.
-  $is_submission_form = ($form_state->getFormObject() instanceof WebformSubmissionForm);
+  $form_object = $form_state->getFormObject();
+  if ($form_object instanceof WebformSubmissionForm) {
+    $is_submission_form = TRUE;
+    /** @var \Drupal\webform\WebformSubmissionInterface $webform_submission */
+    $webform_submission = $form_object->getEntity();
+  }
+  else {
+    $is_submission_form = FALSE;
+    $webform_submission = NULL;
+  }
   if (!$is_submission_form) {
     $form['#attributes']['class'][] = 'js-webform-details-toggle';
     $form['#attributes']['class'][] = 'webform-details-toggle';
     $form['#attached']['library'][] = 'webform/webform.element.details.toggle';
   }
+  else {
+    // Since webform's with sourec entities generate unique form IDs,
+    // we need to still call hook_form_webform_submission_WEBFORM_ID_form_alter().
+    if ($webform_submission->getSourceEntity()) {
+      $form_id = 'webform_submission_' . $webform_submission->getWebform()->id() . '_form';
+      $hooks = ['form_' . $form_id];
+      \Drupal::service('module_handler')->alter($hooks, $form, $form_state, $form_id);
+      \Drupal::service('theme.manager')->alter($hooks, $form, $form_state, $form_id);
+    }
 
-  if ($is_submission_form) {
+    // After build.
     $form['#after_build'][] = '_webform_form_after_build';
   }
 }
@@ -216,6 +255,14 @@ function _webform_form_after_build($form, FormStateInterface $form_state) {
 }
 
 /**
+ * Implements hook_webform_submission_form_alter().
+ */
+function webform_webform_submission_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+  // Make webform libraries are always attached to submission form.
+  _webform_page_attachments($form);
+}
+
+/**
  * Implements hook_system_breadcrumb_alter().
  */
 function webform_system_breadcrumb_alter(Breadcrumb &$breadcrumb, RouteMatchInterface $route_match, array $context) {
@@ -234,7 +281,7 @@ function webform_system_breadcrumb_alter(Breadcrumb &$breadcrumb, RouteMatchInte
   }
 
   // Fix 'Help' breadcrumb text.
-  if ($route_match->getRouteName() == 'webform.help') {
+  if ($route_match->getRouteName() == 'webform.help.video') {
     $links = $breadcrumb->getLinks();
     $link = end($links);
     $link->setText(t('Webforms'));
@@ -271,10 +318,32 @@ function webform_mail($key, &$message, $params) {
   // value is used instead of site's email address.
   // See: \Drupal\Core\Mail\MailManager::mail.
   if (!empty($params['from_mail'])) {
-    $message['from'] = $params['from_mail'];
-    $message['headers']['From'] = $params['from_mail'];
-    $message['headers']['Reply-to'] = $params['from_mail'];
-    $message['headers']['Return-Path'] = $params['from_mail'];
+    $message['from'] = $message['headers']['From'] = (!empty($params['from_name'])) ? $params['from_name'] . ' <' . $params['from_mail'] . '>' : $params['from_mail'];
+  }
+
+  // Set header 'Reply-to'.
+  if (!empty($params['reply_to'])) {
+    $message['reply-to'] = $message['headers']['Reply-to'] = $params['reply_to'];
+  }
+  elseif ($default_reply_to = \Drupal::config('webform.settings')->get('mail.default_reply_to')) {
+    $message['reply-to'] = $message['headers']['Reply-to'] = $default_reply_to;
+  }
+  elseif (!empty($params['from_mail'])) {
+    // @todo Determine if the 'reply-to' must only be see to 'from mail' if
+    // 'from mail' has the same domain as the 'site mail'.
+    $message['reply-to'] = $message['headers']['Reply-to'] = $message['from'];
+  }
+
+  // Set header 'Return-Path'.
+  if (!empty($params['return_path'])) {
+    $message['headers']['Sender'] = $message['headers']['Return-Path'] = $params['return_path'];
+  }
+  elseif ($default_return_path = \Drupal::config('webform.settings')->get('mail.default_return_path')) {
+    $message['headers']['Sender'] = $message['headers']['Return-Path'] = $default_return_path;
+
+  }
+  elseif (!empty($params['from_mail'])) {
+    $message['headers']['Sender'] = $message['headers']['Return-Path'] = $params['from_mail'];
   }
 
   if (!empty($params['cc_mail'])) {
@@ -304,31 +373,41 @@ function webform_mail_alter(&$message) {
 /**
  * Implements hook_page_attachments().
  */
-function webform_page_attachments(&$page) {
+function webform_page_attachments(array &$attachments) {
   $route_name = Drupal::routeMatch()->getRouteName();
   $url = Url::fromRoute('<current>')->toString();
 
   // Attach global libraries only to webform specific pages.
   if (preg_match('/^(webform\.|^entity\.([^.]+\.)?webform)/', $route_name) || preg_match('#(/node/add/webform|/admin/help/webform)#', $url)) {
-    // Attach theme specific library to webform routers so that we can tweak
-    // the bartik.theme and seven.theme.
-    $theme = \Drupal::theme()->getActiveTheme()->getName();
-    if (file_exists(drupal_get_path('module', 'webform') . "/css/webform.theme.$theme.css")) {
-      $page['#attached']['library'][] = "webform/webform.theme.$theme";
-    }
-
-    // Attach details element save open/close library.
-    // This ensures pages without a webform will still be able to save the
-    // details element state.
-    if (\Drupal::config('webform.settings')->get('ui.details_save')) {
-      $page['#attached']['library'][] = 'webform/webform.element.details.save';
-    }
+    _webform_page_attachments($attachments);
   }
 
   // Attach codemirror and select2 library to block admin to ensure that the
-  // library is loaded by the webform block is placed using AJAX.
+  // library is loaded by the webform block is placed using Ajax.
   if (strpos($route_name, 'block.admin_display') === 0) {
-    $page['#attached']['library'][] = 'webform/webform.block';
+    $attachments['#attached']['library'][] = 'webform/webform.block';
+  }
+}
+
+/**
+ * Add webform libraries to page attachments.
+ *
+ * @param array $attachments
+ *   An array of page attachments.
+ */
+function _webform_page_attachments(array &$attachments) {
+  $active_theme_names = WebformThemeHelper::getActiveThemeNames();
+  foreach ($active_theme_names as $active_theme_name) {
+    if (file_exists(drupal_get_path('module', 'webform') . "/css/webform.theme.$active_theme_name.css")) {
+      $attachments['#attached']['library'][] = "webform/webform.theme.$active_theme_name";
+    }
+  }
+
+  // Attach details element save open/close library.
+  // This ensures pages without a webform will still be able to save the
+  // details element state.
+  if (\Drupal::config('webform.settings')->get('ui.details_save')) {
+    $attachments['#attached']['library'][] = 'webform/webform.element.details.save';
   }
 }
 
@@ -347,6 +426,16 @@ function webform_css_alter(&$css, AttachedAssetsInterface $assets) {
  * @see \Drupal\webform\WebformSubmissionForm::form
  */
 function webform_js_alter(&$javascript, AttachedAssetsInterface $assets) {
+  // Add Google API key required by webform/libraries.jquery.geocomplete
+  // which is dependency for webform/webform.element.location.
+  // @see \Drupal\webform\Element\WebformLocation::processWebformComposite
+  // @see webform.libraries.yml
+  $settings = $assets->getSettings();
+  if (!empty($settings['webform']['location']['google_maps_api_key'])) {
+    $api_key = $settings['webform']['location']['google_maps_api_key'];
+    $javascript['https://maps.googleapis.com/maps/api/js?key=API_KEY&libraries=places']['data'] = "https://maps.googleapis.com/maps/api/js?key=$api_key&libraries=places";
+  }
+
   _webform_asset_alter($javascript, $assets, 'javascript', 'js');
 }
 
@@ -396,6 +485,7 @@ function webform_file_access(FileInterface $file, $operation, AccountInterface $
   if ($operation == 'download' && $file->isTemporary() && $file->getOwnerId() == 0 && strpos($file->getFileUri(), 'private://webform/') === 0) {
     return AccessResult::forbidden();
   }
+  return AccessResult::neutral();
 }
 
 /**
@@ -414,7 +504,7 @@ function webform_theme() {
       'variables' => ['info' => []],
     ],
     'webform_help_video_youtube' => [
-      'variables' => ['youtube_id' => NULL],
+      'variables' => ['youtube_id' => NULL, 'autoplay' => TRUE],
     ],
 
     'webform' => [
@@ -423,15 +513,22 @@ function webform_theme() {
     'webform_actions' => [
       'render element' => 'element',
     ],
+    'webform_handler_debug_summary' => [
+      'variables' => ['settings' => NULL, 'handler' => NULL],
+    ],
     'webform_handler_email_summary' => [
-      'variables' => ['settings' => NULL, 'handler' => []],
+      'variables' => ['settings' => NULL, 'handler' => NULL],
     ],
     'webform_handler_remote_post_summary' => [
-      'variables' => ['settings' => NULL, 'handler' => []],
+      'variables' => ['settings' => NULL, 'handler' => NULL],
     ],
 
     'webform_confirmation' => [
       'variables' => ['webform' => NULL, 'source_entity' => NULL, 'webform_submission' => NULL],
+    ],
+
+    'webform_preview' => [
+      'variables' => ['webform_submission' => NULL],
     ],
 
     'webform_submission_navigation' => [
@@ -442,50 +539,57 @@ function webform_theme() {
     ],
 
     'webform_submission_html' => [
-      'variables' => ['webform_submission' => NULL, 'source_entity' => NULL],
+      'variables' => ['webform_submission' => NULL, 'source_entity' => NULL, 'excluded_elements' => []],
     ],
     'webform_submission_table' => [
-      'variables' => ['webform_submission' => NULL, 'source_entity' => NULL],
+      'variables' => ['webform_submission' => NULL, 'source_entity' => NULL, 'excluded_elements' => []],
     ],
     'webform_submission_text' => [
-      'variables' => ['webform_submission' => NULL, 'source_entity' => NULL],
+      'variables' => ['webform_submission' => NULL, 'source_entity' => NULL, 'excluded_elements' => []],
     ],
     'webform_submission_yaml' => [
       'variables' => ['webform_submission' => NULL, 'source_entity' => NULL],
     ],
 
     'webform_element_base_html' => [
-      'variables' => ['element' => [], 'value' => NULL, 'options' => []],
+      'variables' => ['element' => [], 'value' => NULL, 'webform_submission' => NULL, 'options' => []],
     ],
     'webform_element_base_text' => [
-      'variables' => ['element' => [], 'value' => NULL, 'options' => []],
+      'variables' => ['element' => [], 'value' => NULL, 'webform_submission' => NULL, 'options' => []],
     ],
 
     'webform_container_base_html' => [
-      'variables' => ['element' => [], 'value' => NULL, 'options' => []],
+      'variables' => ['element' => [], 'value' => NULL, 'webform_submission' => NULL, 'options' => []],
     ],
     'webform_container_base_text' => [
-      'variables' => ['element' => [], 'value' => NULL, 'options' => []],
+      'variables' => ['element' => [], 'value' => NULL, 'webform_submission' => NULL, 'options' => []],
     ],
 
     'webform_element_color_value_swatch' => [
-      'variables' => ['element' => NULL, 'value' => NULL, 'options' => []],
+      'variables' => ['element' => [], 'value' => NULL, 'webform_submission' => NULL, 'options' => []],
     ],
 
     'webform_element_managed_file' => [
-      'variables' => ['element' => NULL, 'value' => NULL, 'options' => [], 'file' => NULL],
+      'variables' => ['element' => [], 'value' => NULL, 'webform_submission' => NULL, 'options' => [], 'file' => NULL],
     ],
     'webform_element_audio_file' => [
-      'variables' => ['element' => NULL, 'value' => NULL, 'options' => [], 'file' => NULL],
+      'variables' => ['element' => [], 'value' => NULL, 'webform_submission' => NULL, 'options' => [], 'file' => NULL],
     ],
     'webform_element_document_file' => [
-      'variables' => ['element' => NULL, 'value' => NULL, 'options' => [], 'file' => NULL],
+      'variables' => ['element' => [], 'value' => NULL, 'webform_submission' => NULL, 'options' => [], 'file' => NULL],
     ],
     'webform_element_image_file' => [
-      'variables' => ['element' => NULL, 'value' => NULL, 'options' => [], 'file' => NULL],
+      'variables' => ['element' => [], 'value' => NULL, 'webform_submission' => NULL, 'options' => [], 'file' => NULL],
     ],
     'webform_element_video_file' => [
-      'variables' => ['element' => NULL, 'value' => NULL, 'options' => [], 'file' => NULL],
+      'variables' => ['element' => [], 'value' => NULL, 'webform_submission' => NULL, 'options' => [], 'file' => NULL],
+    ],
+
+    'webform_email_message_html' => [
+      'variables' => ['message' => '', 'webform_submission' => NULL, 'handler' => NULL],
+    ],
+    'webform_email_message_text' => [
+      'variables' => ['message' => '', 'webform_submission' => NULL, 'handler' => NULL],
     ],
 
     'webform_message' => [
@@ -501,6 +605,9 @@ function webform_theme() {
       'render element' => 'element',
     ],
     'webform_composite_location' => [
+      'render element' => 'element',
+    ],
+    'webform_composite_link' => [
       'render element' => 'element',
     ],
     'webform_composite_name' => [
@@ -522,6 +629,14 @@ function webform_theme() {
     ],
 
     'webform_progress_bar' => [
+      'variables' => [
+        'webform' => NULL,
+        'current_page' => NULL,
+        'max_pages' => 10,
+      ],
+    ],
+
+    'webform_progress_tracker' => [
       'variables' => [
         'webform' => NULL,
         'current_page' => NULL,
@@ -587,6 +702,7 @@ function webform_theme_suggestions_alter(array &$suggestions, array $variables, 
     $suggestions[] = $hook . '__' . $webform->id();
   }
 }
+
 /**
  * Prepares variables for checkboxes templates.
  *

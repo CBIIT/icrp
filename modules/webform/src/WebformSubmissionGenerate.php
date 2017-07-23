@@ -5,6 +5,7 @@ namespace Drupal\webform;
 use Drupal\Core\Form\OptGroup;
 use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\webform\Plugin\WebformElementManagerInterface;
 
 /**
  * Webform submission generator.
@@ -24,14 +25,14 @@ class WebformSubmissionGenerate implements WebformSubmissionGenerateInterface {
   /**
    * The webform token manager.
    *
-   * @var \Drupal\webform\WebformTokenManager
+   * @var \Drupal\webform\WebformTokenManagerInterface
    */
   protected $tokenManager;
 
   /**
    * The webform element manager.
    *
-   * @var \Drupal\webform\WebformElementManagerInterface
+   * @var \Drupal\webform\Plugin\WebformElementManagerInterface
    */
   protected $elementManager;
 
@@ -54,12 +55,12 @@ class WebformSubmissionGenerate implements WebformSubmissionGenerateInterface {
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The configuration object factory.
-   * @param \Drupal\webform\WebformTokenManager $token_manager
+   * @param \Drupal\webform\WebformTokenManagerInterface $token_manager
    *   The webform token manager.
-   * @param \Drupal\webform\WebformElementManagerInterface $element_manager
+   * @param \Drupal\webform\Plugin\WebformElementManagerInterface $element_manager
    *   The webform element manager.
    */
-  public function __construct(ConfigFactoryInterface $config_factory, WebformTokenManager $token_manager, WebformElementManagerInterface $element_manager) {
+  public function __construct(ConfigFactoryInterface $config_factory, WebformTokenManagerInterface $token_manager, WebformElementManagerInterface $element_manager) {
     $this->configFactory = $config_factory;
     $this->tokenManager = $token_manager;
     $this->elementManager = $element_manager;
@@ -94,7 +95,7 @@ class WebformSubmissionGenerate implements WebformSubmissionGenerateInterface {
       'random' => TRUE,
     ];
 
-    /** @var \Drupal\webform\WebformElementInterface $element_handler */
+    /** @var \Drupal\webform\Plugin\WebformElementInterface $element_handler */
     $plugin_id = $this->elementManager->getElementPluginId($element);
     $element_handler = $this->elementManager->createInstance($plugin_id);
 
@@ -120,7 +121,8 @@ class WebformSubmissionGenerate implements WebformSubmissionGenerateInterface {
       if ($options['random']) {
         shuffle($values);
       }
-      return array_slice($values, 0, 3);
+      $limit = (isset($element['#multiple']) && $element['#multiple'] > 1 && $element['#multiple'] < 3) ? $element['#multiple'] : 3;
+      return array_slice($values, 0, $limit);
     }
     else {
       return ($options['random']) ? $values[array_rand($values)] : reset($values);

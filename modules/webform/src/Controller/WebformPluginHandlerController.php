@@ -3,11 +3,12 @@
 namespace Drupal\webform\Controller;
 
 use Drupal\Component\Plugin\PluginManagerInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Url;
 use Drupal\webform\Utility\WebformDialogHelper;
-use Drupal\webform\WebformHandlerInterface;
+use Drupal\webform\Plugin\WebformHandlerInterface;
 use Drupal\webform\WebformInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +17,13 @@ use Symfony\Component\HttpFoundation\Request;
  * Controller for all webform handlers.
  */
 class WebformPluginHandlerController extends ControllerBase implements ContainerInjectionInterface {
+
+  /**
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
 
   /**
    * A webform handler plugin manager.
@@ -27,10 +35,13 @@ class WebformPluginHandlerController extends ControllerBase implements Container
   /**
    * Constructs a WebformPluginHanderController object.
    *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The factory for configuration objects.
    * @param \Drupal\Component\Plugin\PluginManagerInterface $plugin_manager
    *   A webform handler plugin manager.
    */
-  public function __construct(PluginManagerInterface $plugin_manager) {
+  public function __construct(ConfigFactoryInterface $config_factory, PluginManagerInterface $plugin_manager) {
+    $this->configFactory = $config_factory;
     $this->pluginManager = $plugin_manager;
   }
 
@@ -39,6 +50,7 @@ class WebformPluginHandlerController extends ControllerBase implements Container
    */
   public static function create(ContainerInterface $container) {
     return new static(
+      $container->get('config.factory'),
       $container->get('plugin.manager.webform.handler')
     );
   }
@@ -47,20 +59,29 @@ class WebformPluginHandlerController extends ControllerBase implements Container
    * {@inheritdoc}
    */
   public function index() {
+    $excluded_handlers = $this->config('webform.settings')->get('handler.excluded_handlers');
+
     $definitions = $this->pluginManager->getDefinitions();
     $definitions = $this->pluginManager->getSortedDefinitions($definitions);
 
     $rows = [];
     foreach ($definitions as $plugin_id => $definition) {
       $rows[$plugin_id] = [
-        $plugin_id,
-        $definition['label'],
-        $definition['description'],
-        $definition['category'],
-        ($definition['cardinality'] == -1) ? $this->t('Unlimited') : $definition['cardinality'],
-        $definition['results'] ? $this->t('Processed') : $this->t('Ignored'),
-        $definition['provider'],
+        'data' => [
+          $plugin_id,
+          $definition['label'],
+          $definition['description'],
+          $definition['category'],
+          (isset($excluded_handlers[$plugin_id])) ? $this->t('Yes') : $this->t('No'),
+          ($definition['cardinality'] == -1) ? $this->t('Unlimited') : $definition['cardinality'],
+          $definition['submission'] ? $this->t('Required') : $this->t('Optional'),
+          $definition['results'] ? $this->t('Processed') : $this->t('Ignored'),
+          $definition['provider'],
+        ],
       ];
+      if (isset($excluded_handlers[$plugin_id])) {
+        $rows[$plugin_id]['class'] = ['color-warning'];
+      }
     }
 
     ksort($rows);
@@ -71,7 +92,9 @@ class WebformPluginHandlerController extends ControllerBase implements Container
         $this->t('Label'),
         $this->t('Description'),
         $this->t('Category'),
+        $this->t('Excluded'),
         $this->t('Cardinality'),
+        $this->t('Database'),
         $this->t('Results'),
         $this->t('Provided by'),
       ],
@@ -101,6 +124,7 @@ class WebformPluginHandlerController extends ControllerBase implements Container
 
     $definitions = $this->pluginManager->getDefinitions();
     $definitions = $this->pluginManager->getSortedDefinitions($definitions);
+    $definitions = $this->pluginManager->removeExcludeDefinitions($definitions);
 
     $rows = [];
     foreach ($definitions as $plugin_id => $definition) {
@@ -111,13 +135,14 @@ class WebformPluginHandlerController extends ControllerBase implements Container
 
       // Check cardinality.
       $cardinality = $definition['cardinality'];
-      $is_cardinality_unlimited = ($cardinality == WebformHandlerInterface::CARDINALITY_UNLIMITED);
+      $is_cardinality_unlimited = ($cardinality === WebformHandlerInterface::CARDINALITY_UNLIMITED);
       $is_cardinality_reached = ($webform->getHandlers($plugin_id)->count() >= $cardinality);
       if (!$is_cardinality_unlimited && $is_cardinality_reached) {
         continue;
       }
 
       $row = [];
+
       $row['title']['data'] = [
         '#type' => 'inline_template',
         '#template' => '<div class="webform-form-filter-text-source">{{ label }}</div>',
@@ -125,21 +150,38 @@ class WebformPluginHandlerController extends ControllerBase implements Container
           'label' => $definition['label'],
         ],
       ];
+
       $row['description'] = [
         'data' => [
           '#markup' => $definition['description'],
         ],
       ];
+
       $row['category'] = $definition['category'];
-      $links['add'] = [
-        'title' => $this->t('Add handler'),
-        'url' => Url::fromRoute('entity.webform.handler.add_form', ['webform' => $webform->id(), 'webform_handler' => $plugin_id]),
-        'attributes' => WebformDialogHelper::getModalDialogAttributes(800),
-      ];
-      $row['operations']['data'] = [
-        '#type' => 'operations',
-        '#links' => $links,
-      ];
+
+      // Check submission required.
+      $is_submission_required = ($definition['submission'] === WebformHandlerInterface::SUBMISSION_REQUIRED);
+      $is_results_disabled = $webform->getSetting('results_disabled');
+      if ($is_submission_required && $is_results_disabled) {
+        $row['operations']['data'] = [
+          '#type' => 'html_tag',
+          '#tag' => 'span',
+          '#value' => $this->t('Requires saving of submissions.'),
+          '#attributes' => ['class' => ['color-warning']],
+        ];
+      }
+      else {
+        $links['add'] = [
+          'title' => $this->t('Add handler'),
+          'url' => Url::fromRoute('entity.webform.handler.add_form', ['webform' => $webform->id(), 'webform_handler' => $plugin_id]),
+          'attributes' => WebformDialogHelper::getModalDialogAttributes(800),
+        ];
+        $row['operations']['data'] = [
+          '#type' => 'operations',
+          '#links' => $links,
+        ];
+      }
+
       $rows[] = $row;
     }
 

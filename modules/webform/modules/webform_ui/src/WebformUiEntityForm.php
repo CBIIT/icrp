@@ -7,6 +7,7 @@ use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
+use Drupal\webform\Form\WebformEntityAjaxFormTrait;
 use Drupal\webform\Utility\WebformDialogHelper;
 use Drupal\webform\WebformEntityForm;
 
@@ -14,6 +15,8 @@ use Drupal\webform\WebformEntityForm;
  * Base for controller for webform UI.
  */
 class WebformUiEntityForm extends WebformEntityForm {
+
+  use WebformEntityAjaxFormTrait;
 
   /**
    * {@inheritdoc}
@@ -26,212 +29,14 @@ class WebformUiEntityForm extends WebformEntityForm {
       return $form;
     }
 
-    $element_dialog_attributes = WebformDialogHelper::getModalDialogAttributes(800);
-
-    // Track which element has been updated.
-    $element_update = FALSE;
-    if ($this->getRequest()->query->has('element-update')) {
-      $element_update = $this->getRequest()->query->get('element-update');
-      $form['#attached']['drupalSettings']['webformUiElementUpdate'] = $element_update;
-    }
-
-    // Build table header.
-    $header = [];
-    $header['title'] = $this->t('Title');
-    $header['add'] = [
-      'data' => '',
-      'class' => [RESPONSIVE_PRIORITY_MEDIUM, 'webform-ui-element-operations'],
-    ];
-    $header['key'] = [
-      'data' => $this->t('Key'),
-      'class' => [RESPONSIVE_PRIORITY_LOW],
-    ];
-    $header['type'] = [
-      'data' => $this->t('Type'),
-      'class' => [RESPONSIVE_PRIORITY_LOW],
-    ];
-    if ($webform->hasFlexboxLayout()) {
-      $header['flex'] = [
-        'data' => $this->t('Flex'),
-        'class' => [RESPONSIVE_PRIORITY_LOW],
-      ];
-    }
-    $header['required'] = [
-      'data' => $this->t('Required'),
-      'class' => ['webform-ui-element-required', RESPONSIVE_PRIORITY_LOW],
-    ];
-    $header['weight'] = $this->t('Weight');
-    $header['parent'] = $this->t('Parent');
-    if (!$webform->isNew()) {
-      $header['operations'] = [
-        'data' => $this->t('Operations'),
-        'class' => ['webform-ui-element-operations'],
-      ];
-    }
+    $header = $this->getTableHeader();
 
     // Build table rows for elements.
     $rows = [];
     $elements = $this->getOrderableElements();
     $delta = count($elements);
     foreach ($elements as $element) {
-      $key = $element['#webform_key'];
-
-      $plugin_id = $this->elementManager->getElementPluginId($element);
-
-      /** @var \Drupal\webform\WebformElementInterface $webform_element */
-      $webform_element = $this->elementManager->createInstance($plugin_id);
-
-      $is_container = $webform_element->isContainer($element);
-      $is_root = $webform_element->isRoot();
-
-      // If disabled, display warning.
-      if ($webform_element->isDisabled()) {
-        $webform_element->displayDisabledWarning($element);
-      }
-
-      // Get row class names.
-      $row_class = ['draggable'];
-      if ($is_root) {
-        $row_class[] = 'tabledrag-root';
-        $row_class[] = 'webform-ui-element-root';
-      }
-      if (!$is_container) {
-        $row_class[] = 'tabledrag-leaf';
-      }
-      if ($is_container) {
-        $row_class[] = 'webform-ui-element-container';
-      }
-      if (!empty($element['#type'])) {
-        $row_class[] = 'webform-ui-element-type-' . $element['#type'];
-      }
-      $row_class[] = 'webform-ui-element-container';
-
-      // Add classes to updated element.
-      // @see Drupal.behaviors.webformUiElementsUpdate
-      if ($element_update && $element_update == $element['#webform_key']) {
-        $row_class[] = 'color-success';
-        $row_class[] = 'js-webform-ui-element-update';
-      }
-
-      $rows[$key]['#attributes']['class'] = $row_class;
-
-      $indentation = NULL;
-      if ($element['#webform_depth']) {
-        $indentation = [
-          '#theme' => 'indentation',
-          '#size' => $element['#webform_depth'],
-        ];
-      }
-
-      $rows[$key]['title'] = [
-        '#markup' => $element['#admin_title'] ?: $element['#title'],
-        '#prefix' => !empty($indentation) ? $this->renderer->render($indentation) : '',
-      ];
-      if ($is_container) {
-        $route_parameters = [
-          'webform' => $webform->id(),
-        ];
-        $route_options = ['query' => ['parent' => $key]];
-        $rows[$key]['add'] = [
-          '#type' => 'link',
-          '#title' => $this->t('Add element'),
-          '#url' => new Url('entity.webform_ui.element', $route_parameters, $route_options),
-          '#attributes' => WebformDialogHelper::getModalDialogAttributes(800, ['button', 'button-action', 'button--primary', 'button--small']),
-        ];
-      }
-      else {
-        $rows[$key]['add'] = ['#markup' => ''];
-      }
-
-      $rows[$key]['name'] = [
-        '#markup' => $element['#webform_key'],
-      ];
-
-      $rows[$key]['type'] = [
-        '#markup' => $webform_element->getPluginLabel(),
-      ];
-
-      if ($webform->hasFlexboxLayout()) {
-        $rows[$key]['flex'] = [
-          '#markup' => (empty($element['#flex'])) ? 1 : $element['#flex'],
-        ];
-      }
-
-      if ($webform_element->hasProperty('required')) {
-        $rows[$key]['required'] = [
-          '#type' => 'checkbox',
-          '#default_value' => (empty($element['#required'])) ? FALSE : TRUE,
-        ];
-      }
-      else {
-        $rows[$key]['required'] = ['#markup' => ''];
-      }
-
-      $rows[$key]['weight'] = [
-        '#type' => 'weight',
-        '#title' => $this->t('Weight for ID @id', ['@id' => $key]),
-        '#title_display' => 'invisible',
-        '#default_value' => $element['#weight'],
-        '#attributes' => [
-          'class' => ['row-weight'],
-        ],
-        '#delta' => $delta,
-      ];
-
-      $rows[$key]['parent']['key'] = [
-        '#parents' => ['webform_ui_elements', $key, 'key'],
-        '#type' => 'hidden',
-        '#value' => $key,
-        '#attributes' => [
-          'class' => ['row-key'],
-        ],
-      ];
-      $rows[$key]['parent']['parent_key'] = [
-        '#parents' => ['webform_ui_elements', $key, 'parent_key'],
-        '#type' => 'textfield',
-        '#size' => 20,
-        '#title' => $this->t('Parent'),
-        '#title_display' => 'invisible',
-        '#default_value' => $element['#webform_parent_key'],
-        '#attributes' => [
-          'class' => ['row-parent-key'],
-          'readonly' => 'readonly',
-        ],
-      ];
-
-      if (!$webform->isNew()) {
-        $rows[$key]['operations'] = [
-          '#type' => 'operations',
-        ];
-        $rows[$key]['operations']['#links']['edit'] = [
-          'title' => $this->t('Edit'),
-          'url' => new Url('entity.webform_ui.element.edit_form', ['webform' => $webform->id(), 'key' => $key]),
-          'attributes' => $element_dialog_attributes,
-        ];
-        // Issue #2741877 Nested modals don't work: when using CKEditor in a
-        // modal, then clicking the image button opens another modal,
-        // which closes the original modal.
-        // @todo Remove the below workaround once this issue is resolved.
-        if ($webform_element->getPluginId() == 'processed_text') {
-          unset($rows[$key]['operations']['#links']['edit']['attributes']);
-        }
-        $rows[$key]['operations']['#links']['duplicate'] = [
-          'title' => $this->t('Duplicate'),
-          'url' => new Url('entity.webform_ui.element.duplicate_form', [
-            'webform' => $webform->id(),
-            'key' => $key,
-          ]),
-          'attributes' => $element_dialog_attributes,
-        ];
-        $rows[$key]['operations']['#links']['delete'] = [
-          'title' => $this->t('Delete'),
-          'url' => new Url('entity.webform_ui.element.delete_form', [
-            'webform' => $webform->id(),
-            'key' => $key,
-          ]),
-          'attributes' => WebformDialogHelper::getModalDialogAttributes(640),
-        ];
-      }
+      $rows[$element['#webform_key']] = $this->getElementRow($element, $delta);
     }
 
     // Must manually add local actions to the webform because we can't alter local
@@ -289,10 +94,13 @@ class WebformUiEntityForm extends WebformEntityForm {
       ],
     ] + $rows;
 
-    // Must preload libraries required by (modal) dialogs.
-    $form['#attached']['library'][] = 'webform/webform.admin.dialog';
-    $form['#attached']['library'][] = 'webform_ui/webform_ui';
+    if ($rows && !$webform->hasActions()) {
+      $form['webform_ui_elements'] += ['webform_actions_default' => $this->getCustomizeActionsRow()];
+    }
 
+    // Must preload libraries required by (modal) dialogs.
+    WebformDialogHelper::attachLibraries($form);
+    $form['#attached']['library'][] = 'webform_ui/webform_ui';
     return $form;
   }
 
@@ -367,10 +175,11 @@ class WebformUiEntityForm extends WebformEntityForm {
   /**
    * {@inheritdoc}
    */
-  protected function actions(array $form, FormStateInterface $form_state) {
-    $actions = parent::actions($form, $form_state);
-    $actions['submit']['#value'] = ($this->entity->isNew()) ? $this->t('Save') : $this->t('Save elements');
-    return $actions;
+  protected function actionsElement(array $form, FormStateInterface $form_state) {
+    $form = parent::actionsElement($form, $form_state);
+    $form['submit']['#value'] = ($this->entity->isNew()) ? $this->t('Save') : $this->t('Save elements');
+    unset($form['delete']);
+    return $form;
   }
 
   /**
@@ -425,9 +234,6 @@ class WebformUiEntityForm extends WebformEntityForm {
         if (isset($element['#theme'])) {
           $element['#type'] = $element['#theme'];
         }
-        elseif (isset($element['#markup'])) {
-          $element['#type'] = 'markup';
-        }
         else {
           $element['#type'] = '';
         }
@@ -443,6 +249,300 @@ class WebformUiEntityForm extends WebformEntityForm {
       }
     }
     return $elements;
+  }
+
+  /**
+   * Gets the elements table header.
+   *
+   * @return array
+   *   The header elements.
+   */
+  protected function getTableHeader() {
+    /** @var \Drupal\webform\WebformInterface $webform */
+    $webform = $this->getEntity();
+    $header = [];
+    $header['title'] = $this->t('Title');
+    if ($webform->hasContainer()) {
+      $header['add'] = [
+        'data' => '',
+        'class' => [RESPONSIVE_PRIORITY_MEDIUM, 'webform-ui-element-operations'],
+      ];
+    }
+    if (!$this->isQuickEdit()) {
+      $header['key'] = [
+        'data' => $this->t('Key'),
+        'class' => [RESPONSIVE_PRIORITY_LOW],
+      ];
+      $header['type'] = [
+        'data' => $this->t('Type'),
+        'class' => [RESPONSIVE_PRIORITY_LOW],
+      ];
+      if ($webform->hasFlexboxLayout()) {
+        $header['flex'] = [
+          'data' => $this->t('Flex'),
+          'class' => [RESPONSIVE_PRIORITY_LOW],
+        ];
+      }
+      $header['required'] = [
+        'data' => $this->t('Required'),
+        'class' => ['webform-ui-element-required', RESPONSIVE_PRIORITY_LOW],
+      ];
+    }
+    $header['weight'] = $this->t('Weight');
+    $header['parent'] = $this->t('Parent');
+    if (!$this->isQuickEdit()) {
+      $header['operations'] = [
+        'data' => $this->t('Operations'),
+        'class' => ['webform-ui-element-operations'],
+      ];
+    }
+    return $header;
+  }
+
+  /**
+   * Gets an row for a single element.
+   *
+   * @param array $element
+   *   Webform element.
+   * @param int $delta
+   *   The number of elements. @todo is this correct?
+   *
+   * @return array
+   *   The row for the element.
+   */
+  protected function getElementRow(array $element, $delta) {
+    /** @var \Drupal\webform\WebformInterface $webform */
+    $webform = $this->getEntity();
+
+    $row = [];
+
+
+    $element_dialog_attributes = WebformDialogHelper::getModalDialogAttributes(800);
+    $key = $element['#webform_key'];
+
+    $plugin_id = $this->elementManager->getElementPluginId($element);
+
+    /** @var \Drupal\webform\Plugin\WebformElementInterface $webform_element */
+    $webform_element = $this->elementManager->createInstance($plugin_id);
+
+    $is_container = $webform_element->isContainer($element);
+    $is_root = $webform_element->isRoot();
+
+    // If disabled, display warning.
+    if ($webform_element->isDisabled()) {
+      $webform_element->displayDisabledWarning($element);
+    }
+
+    // Get row class names.
+    $row_class = ['draggable'];
+    if ($is_root) {
+      $row_class[] = 'tabledrag-root';
+      $row_class[] = 'webform-ui-element-root';
+    }
+    if (!$is_container) {
+      $row_class[] = 'tabledrag-leaf';
+    }
+    if ($is_container) {
+      $row_class[] = 'webform-ui-element-container';
+    }
+    if (!empty($element['#type'])) {
+      $row_class[] = 'webform-ui-element-type-' . $element['#type'];
+    }
+    else {
+      $row_class[] = 'webform-ui-element-container';
+    }
+
+    // Add element key.
+    $row['#attributes']['data-webform-key'] = $element['#webform_key'];
+
+    $row['#attributes']['class'] = $row_class;
+
+    $indentation = NULL;
+    if ($element['#webform_depth']) {
+      $indentation = [
+        '#theme' => 'indentation',
+        '#size' => $element['#webform_depth'],
+      ];
+    }
+
+    $row['title'] = [
+      '#type' => 'link',
+      '#title' => $element['#admin_title'] ?: $element['#title'],
+      '#url' => new Url('entity.webform_ui.element.edit_form', [
+          'webform' => $webform->id(),
+          'key' => $key,
+        ]),
+      '#attributes' => $element_dialog_attributes,
+      '#prefix' => !empty($indentation) ? $this->renderer->renderPlain($indentation) : '',
+    ];
+
+    if ($webform->hasContainer()) {
+      if ($is_container) {
+        $route_parameters = [
+          'webform' => $webform->id(),
+        ];
+        $route_options = ['query' => ['parent' => $key]];
+        $row['add'] = [
+          '#type' => 'link',
+          '#title' => $this->t('Add element'),
+          '#url' => new Url('entity.webform_ui.element', $route_parameters, $route_options),
+          '#attributes' => WebformDialogHelper::getModalDialogAttributes(800, ['button', 'button-action', 'button--primary', 'button--small']),
+        ];
+      }
+      else {
+        $row['add'] = ['#markup' => ''];
+      }
+    }
+    if (!$this->isQuickEdit()) {
+      $row['name'] = [
+        '#markup' => $element['#webform_key'],
+      ];
+
+      $row['type'] = [
+        '#markup' => $webform_element->getPluginLabel(),
+      ];
+
+      if ($webform->hasFlexboxLayout()) {
+        $row['flex'] = [
+          '#markup' => (empty($element['#flex'])) ? 1 : $element['#flex'],
+        ];
+      }
+
+      if ($webform_element->hasProperty('required')) {
+        $row['required'] = [
+          '#type' => 'checkbox',
+          '#default_value' => (empty($element['#required'])) ? FALSE : TRUE,
+        ];
+      }
+      else {
+        $row['required'] = ['#markup' => ''];
+      }
+    }
+
+    $row['weight'] = [
+      '#type' => 'weight',
+      '#title' => $this->t('Weight for ID @id', ['@id' => $key]),
+      '#title_display' => 'invisible',
+      '#default_value' => $element['#weight'],
+      '#attributes' => [
+        'class' => ['row-weight'],
+      ],
+      '#delta' => $delta,
+    ];
+
+    $row['parent']['key'] = [
+      '#parents' => ['webform_ui_elements', $key, 'key'],
+      '#type' => 'hidden',
+      '#value' => $key,
+      '#attributes' => [
+        'class' => ['row-key'],
+      ],
+    ];
+    $row['parent']['parent_key'] = [
+      '#parents' => ['webform_ui_elements', $key, 'parent_key'],
+      '#type' => 'textfield',
+      '#size' => 20,
+      '#title' => $this->t('Parent'),
+      '#title_display' => 'invisible',
+      '#default_value' => $element['#webform_parent_key'],
+      '#attributes' => [
+        'class' => ['row-parent-key'],
+        'readonly' => 'readonly',
+      ],
+    ];
+
+    if (!$this->isQuickEdit()) {
+      $row['operations'] = [
+        '#type' => 'operations',
+      ];
+      $row['operations']['#links']['edit'] = [
+        'title' => $this->t('Edit'),
+        'url' => new Url(
+          'entity.webform_ui.element.edit_form',
+          [
+            'webform' => $webform->id(),
+            'key' => $key,
+          ]
+        ),
+        'attributes' => $element_dialog_attributes,
+      ];
+      // Issue #2741877 Nested modals don't work: when using CKEditor in a
+      // modal, then clicking the image button opens another modal,
+      // which closes the original modal.
+      // @todo Remove the below workaround once this issue is resolved.
+      if ($webform_element->getPluginId() == 'processed_text') {
+        unset($row['operations']['#links']['edit']['attributes']);
+      }
+      $row['operations']['#links']['duplicate'] = [
+        'title' => $this->t('Duplicate'),
+        'url' => new Url(
+          'entity.webform_ui.element.duplicate_form',
+          [
+            'webform' => $webform->id(),
+            'key' => $key,
+          ]
+        ),
+        'attributes' => $element_dialog_attributes,
+      ];
+      $row['operations']['#links']['delete'] = [
+        'title' => $this->t('Delete'),
+        'url' => new Url(
+          'entity.webform_ui.element.delete_form',
+          [
+            'webform' => $webform->id(),
+            'key' => $key,
+          ]
+        ),
+        'attributes' => WebformDialogHelper::getModalDialogAttributes(700),
+      ];
+    }
+    return $row;
+  }
+
+  /**
+   * Get customize actions row.
+   *
+   * @return array
+   *   The customize actions row.
+   */
+  protected function getCustomizeActionsRow() {
+    /** @var \Drupal\webform\WebformInterface $webform */
+    $webform = $this->getEntity();
+
+    $row = [];
+    $row['#attributes']['class'] = ['webform-ui-element-type-webform_actions'];
+    $row['title'] = [
+      '#type' => 'link',
+      '#title' => $this->t('Submit button(s)'),
+      '#url' => new Url('entity.webform_ui.element.add_form', ['webform' => $webform->id(), 'type' => 'webform_actions'], ['query' => ['key' => 'actions']]),
+      '#attributes' => WebformDialogHelper::getModalDialogAttributes(800),
+    ];
+    if ($webform->hasContainer()) {
+      $row['add'] = ['#markup' => ''];
+    }
+    if (!$this->isQuickEdit()) {
+      $row['name'] = ['#markup' => 'actions'];
+      $row['type'] = [
+        '#markup' => $this->t('Submit button(s)'),
+      ];
+      if ($webform->hasFlexboxLayout()) {
+        $row['flex'] = ['#markup' => 1];
+      }
+      $row['required'] = ['#markup' => ''];
+    }
+    $row['weight'] = ['#markup' => ''];
+    $row['parent'] = ['#markup' => ''];
+    if (!$this->isQuickEdit()) {
+      $row['operations'] = [
+        '#type' => 'operations',
+      ];
+      $row['operations']['#links']['customize'] = [
+        'title' => $this->t('Customize'),
+        'url' => new Url('entity.webform_ui.element.add_form', ['webform' => $webform->id(), 'type' => 'webform_actions'], ['query' => ['key' => 'actions']]),
+        'attributes' => WebformDialogHelper::getModalDialogAttributes(800),
+      ];
+    }
+    return $row;
   }
 
 }

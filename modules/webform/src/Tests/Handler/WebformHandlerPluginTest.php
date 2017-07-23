@@ -2,22 +2,22 @@
 
 namespace Drupal\webform\Tests\Handler;
 
-use Drupal\simpletest\WebTestBase;
 use Drupal\webform\Entity\Webform;
+use Drupal\webform\Tests\WebformTestBase;
 
 /**
  * Tests for the webform handler plugin.
  *
  * @group Webform
  */
-class WebformHandlerPluginTest extends WebTestBase {
+class WebformHandlerPluginTest extends WebformTestBase {
 
   /**
    * Modules to enable.
    *
    * @var array
    */
-  protected static $modules = ['webform', 'webform_test_handler'];
+  public static $modules = ['webform', 'webform_test_handler'];
 
   /**
    * Tests webform element plugin.
@@ -28,6 +28,9 @@ class WebformHandlerPluginTest extends WebTestBase {
     // Check initial dependencies.
     $this->assertEqual($webform->getDependencies(), ['module' => ['webform']]);
 
+    /** @var \Drupal\webform\Plugin\WebformHandlerManagerInterface $handler_manager */
+    $handler_manager = $this->container->get('plugin.manager.webform.handler');
+
     // Add 'test' handler provided by the webform_test.module.
     $webform_handler_configuration = [
       'id' => 'test',
@@ -37,7 +40,8 @@ class WebformHandlerPluginTest extends WebTestBase {
       'weight' => 2,
       'settings' => [],
     ];
-    $webform->addWebformHandler($webform_handler_configuration);
+    $webform_handler = $handler_manager->createInstance('test', $webform_handler_configuration);
+    $webform->addWebformHandler($webform_handler);
     $webform->save();
 
     // Check that handler has been added to the dependencies.

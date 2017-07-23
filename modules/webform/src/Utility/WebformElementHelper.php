@@ -3,6 +3,7 @@
 namespace Drupal\webform\Utility;
 
 use Drupal\Component\Render\FormattableMarkup;
+use Drupal\Component\Render\MarkupInterface;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Render\Element;
@@ -91,6 +92,27 @@ class WebformElementHelper {
       if (Element::property($key)) {
         unset($element[$key]);
       }
+    }
+    return $element;
+  }
+
+  /**
+   * Set a property on all elements.
+   *
+   * @param array $element
+   *   A render element.
+   * @param string $property_key
+   *   The property key.
+   * @param mixed $property_value
+   *   The property value.
+   *
+   * @return array
+   *   A render element with with a property set on all elements.
+   */
+  public static function setPropertyRecursive(array $element, $property_key, $property_value) {
+    $element[$property_key] = $property_value;
+    foreach (Element::children($element) as $key) {
+      self::setPropertyRecursive($element[$key], $property_key, $property_value);
     }
     return $element;
   }
@@ -279,6 +301,26 @@ class WebformElementHelper {
       $flattened_elements += self::getFlattened($element);
     }
     return $flattened_elements;
+  }
+
+  /**
+   * Convert all render(able) markup into strings.
+   *
+   * This method is used to prevent objects from being serialized on form's
+   * that are using #ajax callbacks or rebuilds.
+   *
+   * @param array $elements
+   *   An associative array of elements.
+   */
+  public static function convertRenderMarkupToStrings(array &$elements) {
+    foreach ($elements as $key => &$value) {
+      if (is_array($value)) {
+        self::convertRenderMarkupToStrings($value);
+      }
+      elseif ($value instanceof MarkupInterface) {
+        $elements[$key] = (string) $value;
+      }
+    }
   }
 
 }

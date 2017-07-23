@@ -1,6 +1,6 @@
 /**
  * @file
- * Javascript behaviors for radio buttons.
+ * JavaScript behaviors for radio buttons.
  *
  * Fix #states and #required for radios buttons.
  *
@@ -37,7 +37,7 @@
       }
 
       if (required) {
-        $target.find('input[type="radio"]').attr({'required': 'required', 'aria-required': 'aria-required'})
+        $target.find('input[type="radio"]').attr({'required': 'required', 'aria-required': 'aria-required'});
         $target.find('legend span').addClass('js-form-required form-required');
       }
       else {

@@ -3,7 +3,7 @@
 namespace Drupal\webform_test_handler\Plugin\WebformHandler;
 
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\webform\WebformHandlerBase;
+use Drupal\webform\Plugin\WebformHandlerBase;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\WebformSubmissionInterface;
 
@@ -15,8 +15,9 @@ use Drupal\webform\WebformSubmissionInterface;
  *   label = @Translation("Test"),
  *   category = @Translation("Testing"),
  *   description = @Translation("Tests webform submission handler behaviors."),
- *   cardinality = \Drupal\webform\WebformHandlerInterface::CARDINALITY_SINGLE,
- *   results = \Drupal\webform\WebformHandlerInterface::RESULTS_IGNORED,
+ *   cardinality = \Drupal\webform\Plugin\WebformHandlerInterface::CARDINALITY_SINGLE,
+ *   results = \Drupal\webform\Plugin\WebformHandlerInterface::RESULTS_IGNORED,
+ *   submission = \Drupal\webform\Plugin\WebformHandlerInterface::SUBMISSION_REQUIRED,
  * )
  */
 class TestWebformHandler extends WebformHandlerBase {
@@ -138,6 +139,48 @@ class TestWebformHandler extends WebformHandlerBase {
    */
   public function postSave(WebformSubmissionInterface $webform_submission, $update = TRUE) {
     $this->displayMessage(__FUNCTION__, $update ? 'update' : 'insert');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function createHandler() {
+    $this->displayMessage(__FUNCTION__);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function updateHandler() {
+    $this->displayMessage(__FUNCTION__);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function deleteHandler() {
+    $this->displayMessage(__FUNCTION__);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function createElement($key, array $element) {
+    $this->displayMessage(__FUNCTION__);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function updateElement($key, array $element, array $original_element) {
+    $this->displayMessage(__FUNCTION__);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function deleteElement($key, array $element) {
+    $this->displayMessage(__FUNCTION__);
   }
 
   /**

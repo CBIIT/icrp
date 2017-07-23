@@ -19,7 +19,7 @@ class WebformElementStatesTest extends WebformTestBase {
    *
    * @var array
    */
-  protected static $modules = ['filter', 'file', 'language', 'node', 'webform'];
+  public static $modules = ['filter', 'file', 'language', 'taxonomy', 'node', 'webform'];
 
   /**
    * Webforms to load.
@@ -29,15 +29,25 @@ class WebformElementStatesTest extends WebformTestBase {
   protected static $testWebforms = ['example_elements', 'example_elements_composite', 'test_element_states'];
 
   /**
+   * {@inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp();
+
+    // Create 'tags' vocabulary.
+    $this->createTags();
+  }
+
+  /**
    * Tests element #states selectors for basic and composite elements.
    */
   public function testSelectors() {
-    foreach (['example_elements', 'example_elements_composite'] as $weform_id) {
+    foreach (['example_elements', 'example_elements_composite'] as $webform_id) {
       /** @var \Drupal\webform\WebformInterface $webform */
-      $webform = Webform::load($weform_id);
+      $webform = Webform::load($webform_id);
       $webform->setStatus(WebformInterface::STATUS_OPEN)->save();
 
-      $this->drupalGet('webform/' . $weform_id);
+      $this->drupalGet('webform/' . $webform_id);
 
       $selectors = OptGroup::flattenOptions($webform->getElementsSelectorOptions());
       // Ignore text format and captcha selectors which are not available during

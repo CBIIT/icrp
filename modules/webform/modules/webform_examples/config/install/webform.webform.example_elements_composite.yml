@@ -11,6 +11,7 @@ template: false
 id: example_elements_composite
 title: 'Example: Elements: Composite'
 description: 'Examples of composite elements, includes address, contact, and credit card.'
+category: Example
 elements: |
   webform_address_example:
     '#type': details
@@ -42,6 +43,23 @@ elements: |
     webform_creditcard:
       '#type': webform_creditcard
       '#title': 'Credit card'
+  webform_likert_example:
+    '#type': details
+    '#title': Likert
+    '#open': true
+    webform_likert:
+      '#type': webform_likert
+      '#title': Likert
+      '#questions':
+        q1: 'Please answer question 1?'
+        q2: 'How about now answering question 2?'
+        q3: 'Finally, here is question 3?'
+      '#answers':
+        1: 1
+        2: 2
+        3: 3
+        4: 4
+        5: 5
   webform_link_example:
     '#type': details
     '#title': Link
@@ -61,10 +79,31 @@ elements: |
     webform_location:
       '#type': webform_location
       '#title': Location
+      '#map': true
+      '#geolocation': true
+      '#format': map
     webform_location_multiple:
       '#type': webform_location
       '#title': 'Location multiple'
+      '#map': true
+      '#geolocation': true
+      '#format': map
       '#multiple': true
+  webform_mapping_example:
+    '#type': details
+    '#title': Mapping
+    '#open': true
+    webform_mapping:
+      '#type': webform_mapping
+      '#title': Mapping
+      '#source':
+        one: One
+        two: Two
+        three: Three
+      '#destination':
+        four: Four
+        five: Five
+        six: Six
   webform_name_example:
     '#type': details
     '#title': Name
@@ -89,48 +128,57 @@ elements: |
       '#title': 'Telephone advanced multiple'
       '#multiple': true
       '#multiple__header': true
+  text_format_example:
+    '#type': details
+    '#title': 'Text format'
+    '#open': true
+    text_format:
+      '#type': text_format
+      '#title': 'Text format'
+      '#description': '<b>Known Issues:</b><br /><a href="https://www.drupal.org/node/997826">Issue #997826: #states doesn''t work correctly with type text_format</a><br /><a href="https://www.drupal.org/node/2625128">Issue #2625128: Text format selection stays visible when using editor and a hidden webform state</a><br /><a href="https://www.drupal.org/node/1954968">Issue #1954968: Required CKEditor fields always fail HTML5 validation</a>'
 css: ''
 javascript: ''
 settings:
+  ajax: false
   page: true
   page_submit_path: ''
   page_confirm_path: ''
-  form_submit_label: ''
   form_submit_once: false
-  form_submit_attributes: {  }
   form_exception_message: ''
-  form_closed_message: ''
+  form_open_message: ''
+  form_close_message: ''
   form_previous_submissions: true
   form_confidential: false
   form_confidential_message: ''
+  form_convert_anonymous: false
   form_prepopulate: false
   form_prepopulate_source_entity: false
+  form_prepopulate_source_entity_required: false
+  form_prepopulate_source_entity_type: ''
   form_disable_autocomplete: false
   form_novalidate: false
   form_unsaved: false
   form_disable_back: false
   form_autofocus: false
   form_details_toggle: false
+  submission_label: ''
+  submission_log: false
+  submission_user_columns: {  }
   wizard_progress_bar: true
   wizard_progress_pages: false
   wizard_progress_percentage: false
-  wizard_next_button_label: ''
-  wizard_next_button_attributes: {  }
-  wizard_prev_button_label: ''
-  wizard_prev_button_attributes: {  }
   wizard_start_label: ''
   wizard_complete: true
   wizard_complete_label: ''
   preview: 0
-  preview_next_button_label: ''
-  preview_next_button_attributes: {  }
-  preview_prev_button_label: ''
-  preview_prev_button_attributes: {  }
+  preview_label: ''
+  preview_title: ''
   preview_message: ''
-  draft: false
+  preview_attributes: {  }
+  preview_excluded_elements: {  }
+  draft: none
+  draft_multiple: false
   draft_auto_save: false
-  draft_button_label: ''
-  draft_button_attributes: {  }
   draft_saved_message: ''
   draft_loaded_message: ''
   confirmation_type: page

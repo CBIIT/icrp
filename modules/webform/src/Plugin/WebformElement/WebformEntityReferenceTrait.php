@@ -3,11 +3,11 @@
 namespace Drupal\webform\Plugin\WebformElement;
 
 use Drupal\Component\Utility\Html;
-use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\webform\Element\WebformEntityTrait;
 use Drupal\webform\WebformInterface;
+use Drupal\webform\WebformSubmissionInterface;
 
 /**
  * Provides an 'entity_reference' trait.
@@ -26,7 +26,7 @@ trait WebformEntityReferenceTrait {
       if ($plugin_id == $element_instance->getPluginId()) {
         continue;
       }
-      if ($element_instance instanceof WebformEntityReferenceInterface) {
+      if ($element_instance instanceof WebformElementEntityReferenceInterface) {
         $types[$element_name] = $element_instance->getPluginLabel();
       }
     }
@@ -37,21 +37,12 @@ trait WebformEntityReferenceTrait {
   /**
    * {@inheritdoc}
    */
-  public function format($type, array &$element, $value, array $options = []) {
-    if ($this->hasMultipleValues($element)) {
-      $value = $this->getTargetEntities($element, $value, $options);
+  public function formatHtmlItem(array $element, WebformSubmissionInterface $webform_submission, array $options = []) {
+    $entity = $this->getTargetEntity($element, $webform_submission, $options);
+    if (!$entity) {
+      return '';
     }
-    else {
-      $value = $this->getTargetEntity($element, $value, $options);
-    }
-    return parent::format($type, $element, $value, $options);
-  }
 
-  /**
-   * {@inheritdoc}
-   */
-  public function formatHtmlItem(array &$element, $value, array $options = []) {
-    $entity = $this->getTargetEntity($element, $value, $options);
     $format = $this->getItemFormat($element);
     switch ($format) {
       case 'raw':
@@ -60,7 +51,7 @@ trait WebformEntityReferenceTrait {
       case 'label':
       case 'text':
       case 'breadcrumb':
-        return $this->formatTextItem($element, $value, $options);
+        return $this->formatTextItem($element, $webform_submission, $options);
 
       case 'link':
         return [
@@ -77,8 +68,12 @@ trait WebformEntityReferenceTrait {
   /**
    * {@inheritdoc}
    */
-  public function formatTextItem(array &$element, $value, array $options = []) {
-    $entity = $this->getTargetEntity($element, $value, $options);
+  public function formatTextItem(array $element, WebformSubmissionInterface $webform_submission, array $options = []) {
+    $entity = $this->getTargetEntity($element, $webform_submission, $options);
+    if (!$entity) {
+      return '';
+    }
+
     $format = $this->getItemFormat($element);
     switch ($format) {
       case 'id':
@@ -103,7 +98,7 @@ trait WebformEntityReferenceTrait {
 
       case 'raw':
         $entity_id = $entity->id();
-        $entity_type = $element['#target_type'];
+        $entity_type = $entity->getEntityTypeId();
         return "$entity_type:$entity_id";
 
       case 'text':
@@ -221,8 +216,10 @@ trait WebformEntityReferenceTrait {
   /**
    * {@inheritdoc}
    */
-  public function buildExportRecord(array $element, $value, array $options) {
-    if (!$this->hasMultipleValues($element) && $options['entity_reference_format'] == 'link') {
+  public function buildExportRecord(array $element, WebformSubmissionInterface $webform_submission, array $export_options) {
+    $value = $this->getValue($element, $webform_submission);
+
+    if (!$this->hasMultipleValues($element) && $export_options['entity_reference_format'] == 'link') {
       $entity_type = $this->getTargetType($element);
       $entity_storage = $this->entityTypeManager->getStorage($entity_type);
       $entity_id = $value;
@@ -241,10 +238,10 @@ trait WebformEntityReferenceTrait {
       return $record;
     }
     else {
-      if ($options['entity_reference_format'] == 'id') {
+      if ($export_options['entity_reference_format'] == 'id') {
         $element['#format'] = 'raw';
       }
-      return parent::buildExportRecord($element, $value, $options);
+      return parent::buildExportRecord($element, $webform_submission, $export_options);
     }
   }
 
@@ -259,73 +256,45 @@ trait WebformEntityReferenceTrait {
   }
 
   /**
-   * Get referenced entity type..
-   *
-   * @param array $element
-   *   An element.
-   *
-   * @return string
-   *   A entity type.
+   * {@inheritdoc}
    */
-  protected function getTargetType(array $element) {
+  public function getTargetType(array $element) {
     return $element['#target_type'];
   }
 
   /**
-   * Get referenced entity.
-   *
-   * @param array $element
-   *   An element.
-   * @param array|mixed $value
-   *   A value.
-   * @param array $options
-   *   An array of options.
-   *
-   * @return \Drupal\Core\Entity\EntityInterface
-   *   The referenced entity.
+   * {@inheritdoc}
    */
-  protected function getTargetEntity(array $element, $value, array $options = []) {
+  public function getTargetEntity(array $element, WebformSubmissionInterface $webform_submission, array $options = []) {
+    $value = $this->getValue($element, $webform_submission, $options);
     if (empty($value)) {
       return NULL;
     }
-    if ($value instanceof EntityInterface) {
-      return $value;
-    }
-
-    $target_type = $this->getTargetType($element);
-    $langcode = (!empty($options['langcode'])) ? $options['langcode'] : \Drupal::languageManager()->getCurrentLanguage()->getId();
-    $entity = $this->entityTypeManager->getStorage($target_type)->load($value);
-    if ($entity && method_exists($entity, 'hasTranslation') && $entity->hasTranslation($langcode)) {
-      $entity = $entity->getTranslation($langcode);
-    }
-    return $entity;
+    $entities = $this->getTargetEntities($element, $webform_submission, $options);
+    return reset($entities);
   }
 
   /**
-   * Get referenced entities.
-   *
-   * @param array $element
-   *   An element.
-   * @param array|mixed $value
-   *   A value.
-   * @param array $options
-   *   An array of options.
-   *
-   * @return array
-   *   An associative array containing entities keyed by entity_id.
+   * {@inheritdoc}
    */
-  protected function getTargetEntities(array $element, $value, array $options = []) {
+  public function getTargetEntities(array $element, WebformSubmissionInterface $webform_submission, array $options = []) {
+    $value = $this->getValue($element, $webform_submission, $options);
     if (empty($value)) {
       return [];
     }
 
+    if (!is_array($value)) {
+      $value = [$value];
+    }
+
+    /** @var \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository */
+    $entity_repository = \Drupal::service('entity.repository');
+
     $target_type = $this->getTargetType($element);
-    $langcode = (!empty($options['langcode'])) ? $options['langcode'] : \Drupal::languageManager()->getCurrentLanguage()->getId();
     $entities = $this->entityTypeManager->getStorage($target_type)->loadMultiple($value);
     foreach ($entities as $entity_id => $entity) {
-      if ($entity->hasTranslation($langcode)) {
-        $entities[$entity_id] = $entity->getTranslation($langcode);
-      }
+      // Set the entity in the correct language for display.
+      $entities[$entity_id] = $entity_repository->getTranslationFromContext($entity);
     }
     return $entities;
   }
@@ -341,16 +310,16 @@ trait WebformEntityReferenceTrait {
 
     // Alter element properties.
     if ($properties = $form_state->getValue('properties')) {
-      $target_type = $properties['target_type'];
-      $selection_handler = $properties['selection_handler'];
-      // If the default selection handler has changed  when need to update its
+      $target_type = (isset($properties['target_type'])) ? $properties['target_type'] : 'node';
+      $selection_handler = (isset($properties['selection_handler'])) ? $properties['selection_handler'] : 'default:' . $target_type;
+      // If the default selection handler has changed when need to update its
       // value.
       if (strpos($selection_handler, 'default:') === 0 && $selection_handler != "default:$target_type") {
         $selection_handler = "default:$target_type";
         $selection_settings = [];
       }
       else {
-        $selection_settings = $properties['selection_settings'] ?: [];
+        $selection_settings = (isset($properties['selection_settings'])) ? $properties['selection_settings'] : [];
       }
     }
     else {
@@ -389,7 +358,7 @@ trait WebformEntityReferenceTrait {
     }
 
     // ISSUE:
-    // The AJAX handling for @EntityReferenceSelection plugins is just broken.
+    // The Ajax handling for @EntityReferenceSelection plugins is just broken.
     //
     // WORKAROUND:
     // Implement custom #ajax that refresh the entire details element and
@@ -455,7 +424,7 @@ trait WebformEntityReferenceTrait {
       );
     }
 
-    // Disable AJAX callback that we don't need.
+    // Disable Ajax callback that we don't need.
     unset($form['entity_reference']['selection_settings']['target_bundles']['#ajax']);
     unset($form['entity_reference']['selection_settings']['sort']['field']['#ajax']);
 
@@ -526,7 +495,7 @@ trait WebformEntityReferenceTrait {
   }
 
   /**
-   * AJAX callback for entity reference details element.
+   * Ajax callback for entity reference details element.
    *
    * @param array $form
    *   An associative array containing the structure of the form.

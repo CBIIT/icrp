@@ -13,14 +13,16 @@ use Drupal\node\Entity\Node;
 function webform_demo_application_evaluation_install() {
   // Create a webform:demo_application node with some submissions.
   if (\Drupal::moduleHandler()->moduleExists('webform_node')) {
-    // Create a webfrom node.
+    // Create a webform node.
     $webform_node = Node::create([
       'type' => 'webform',
       'title' => 'Demo: Application',
       'status' => 1,
     ]);
     $webform_node->webform->target_id = 'demo_application';
-    $webform_node->webform->status = 1;
+    $webform_node->webform->status = \Drupal\webform\WebformInterface::STATUS_OPEN;
+    $webform_node->webform->open = '';
+    $webform_node->webform->close = '';
     $webform_node->save();
 
     // Generate some initial webform node applications.
@@ -32,7 +34,7 @@ function webform_demo_application_evaluation_install() {
       $webform_submission_devel_generate = $devel_generate_manager->createInstance('webform_submission', []);
       $webform_submission_devel_generate->generateElements([
         'webform_ids' => [
-          'demo_application' => 'demo_application'
+          'demo_application' => 'demo_application',
         ],
         'entity-type' => 'node',
         'entity-id' => $webform_node->id(),
@@ -50,7 +52,7 @@ function webform_demo_application_evaluation_install() {
     $webform_submission_devel_generate = $devel_generate_manager->createInstance('webform_submission', []);
     $webform_submission_devel_generate->generateElements([
       'webform_ids' => [
-        'demo_application' => 'demo_application'
+        'demo_application' => 'demo_application',
       ],
       'num' => 50,
     ]);
@@ -66,7 +68,7 @@ function webform_demo_application_evaluation_uninstall() {
     ->condition('webform.target_id', 'demo_application')
     ->execute();
   if ($entity_ids) {
-    /** @var $nodes \Drupal\node\Entity\Node[] */
+    /** @var \Drupal\node\Entity\Node[] $nodes */
     $nodes = Node::loadMultiple($entity_ids);
     foreach ($nodes as $node) {
       $node->delete();

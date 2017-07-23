@@ -25,21 +25,22 @@ class WebformUiElementTypeSelectForm extends WebformUiElementTypeFormBase {
   public function buildForm(array $form, FormStateInterface $form_state, WebformInterface $webform = NULL) {
     $parent = $this->getRequest()->query->get('parent');
 
-    $headers = [
-      ['data' => $this->t('Element')],
-      ['data' => $this->t('Category')],
-      ['data' => $this->t('Operations')],
-    ];
+    $headers = [];
+    $headers[] = ['data' => $this->t('Element')];
+    $headers[] = ['data' => $this->t('Category')];
+    if (!$this->isOffCanvasDialog()) {
+      $headers[] = ['data' => $this->t('Operations')];
+    }
 
     $elements = $this->elementManager->getInstances();
     $definitions = $this->getDefinitions();
     $rows = [];
     foreach ($definitions as $plugin_id => $plugin_definition) {
-      /** @var \Drupal\webform\WebformElementInterface $webform_element */
+      /** @var \Drupal\webform\Plugin\WebformElementInterface $webform_element */
       $webform_element = $elements[$plugin_id];
 
-      // Skip disabled or hidden plugins.
-      if ($webform_element->isDisabled() || $webform_element->isHidden()) {
+      // Skip hidden plugins.
+      if ($webform_element->isHidden()) {
         continue;
       }
 
@@ -60,23 +61,22 @@ class WebformUiElementTypeSelectForm extends WebformUiElementTypeFormBase {
         '#suffix' => '</div>',
       ];
       $row['category']['data'] = $plugin_definition['category'];
-      $row['operations']['data'] = [
-        '#type' => 'operations',
-        '#links' => [
-          'add' => [
-            'title' => $this->t('Add element'),
-            'url' => Url::fromRoute('entity.webform_ui.element.add_form', $route_parameters, $route_options),
-            'attributes' => WebformDialogHelper::getModalDialogAttributes(800),
-          ],
-        ],
-      ];
+      if (!$this->isOffCanvasDialog()) {
+        $row['operations']['data'] = [
+          '#type' => 'link',
+          '#title' => $this->t('Add element'),
+          '#url' => Url::fromRoute('entity.webform_ui.element.add_form', $route_parameters, $route_options),
+          '#attributes' => WebformDialogHelper::getModalDialogAttributes(800, ['button', 'button-action', 'button--primary', 'button--small']),
+        ];
+      }
       // Issue #2741877 Nested modals don't work: when using CKEditor in a
       // modal, then clicking the image button opens another modal,
       // which closes the original modal.
       // @todo Remove the below workaround once this issue is resolved.
       if ($webform_element->getPluginId() == 'processed_text') {
         unset($row['title']['data']['#attributes']);
-        unset($row['operations']['data']['#links']['add']['attributes']);
+        unset($row['operations']['data']['#attributes']);
+        $row['operations']['data']['#attributes']['class'] = ['button', 'button-action', 'button--primary', 'button--small'];
       }
 
       $row['title']['data']['#attributes']['class'][] = 'js-webform-tooltip-link';

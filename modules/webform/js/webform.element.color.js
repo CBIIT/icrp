@@ -1,6 +1,6 @@
 /**
  * @file
- * Javascript behaviors for color element integration.
+ * JavaScript behaviors for color element integration.
  */
 
 (function ($, Drupal) {
@@ -25,7 +25,10 @@
         }
         else {
           // Display color input's output to the end user.
-          var $output = $('<input class="form-color-output ' + $element.attr('class') + ' js-webform-element-mask" data-inputmask-mask="\\#######" />').inputmask();
+          var $output = $('<input class="form-color-output ' + $element.attr('class') + ' js-webform-input-mask" data-inputmask-mask="\\#######" />');
+          if ($.fn.inputmask) {
+            $output.inputmask();
+          }
           $output[0].value = $element[0].value;
           $element
             .after($output)
@@ -39,7 +42,7 @@
             $element[0].value = $output[0].value;
           });
         }
-      })
+      });
     }
   };
 

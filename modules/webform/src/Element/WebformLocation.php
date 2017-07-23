@@ -16,9 +16,11 @@ class WebformLocation extends WebformCompositeBase {
    */
   public function getInfo() {
     return parent::getInfo() + [
+      '#theme' => 'webform_composite_location',
       '#api_key' => '',
       '#hidden' => FALSE,
       '#geolocation' => FALSE,
+      '#map' => FALSE,
     ];
   }
 
@@ -81,6 +83,7 @@ class WebformLocation extends WebformCompositeBase {
         'class' => ['webform-location-geocomplete'],
       ],
     ];
+
     $elements += $attributes;
     return $elements;
   }
@@ -135,17 +138,16 @@ class WebformLocation extends WebformCompositeBase {
       $element['value']['#attributes']['data-webform-location-geolocation'] = 'data-webform-location-geolocation';
     }
 
-    // Writing script tags (only once) directly into the page's output to ensure
-    // that Google Maps APi script is loaded using the proper API key.
-    static $google_api;
-    if (empty($google_api)) {
-      $api_key = (!empty($element['#api_key'])) ? $element['#api_key'] : \Drupal::config('webform.settings')->get('elements.default_google_maps_api_key');
-      $element['script'] = [
-        '#markup' => '<script src="https://maps.googleapis.com/maps/api/js?key=' . $api_key . '&libraries=places"></script>',
-        '#allowed_tags' => ['script'],
-      ];
-      $google_api = TRUE;
+    // Set Map attribute.
+    if (!empty($element['#map']) && empty($element['#hidden'])) {
+      $element['value']['#attributes']['data-webform-location-map'] = 'data-webform-location-map';
     }
+
+    // Add Google Maps API key which is required by
+    // https://maps.googleapis.com/maps/api/js?key=API_KEY&libraries=places
+    // @see webform_js_alter()
+    $api_key = (!empty($element['#api_key'])) ? $element['#api_key'] : \Drupal::config('webform.settings')->get('element.default_google_maps_api_key');
+    $element['#attached']['drupalSettings']['webform']['location']['google_maps_api_key'] = $api_key;
 
     $element['#attached']['library'][] = 'webform/webform.element.location';
 

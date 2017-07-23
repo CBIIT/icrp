@@ -106,6 +106,8 @@ function _webform_test_issues() {
     'managed_file' => [
       '2705471' => 'Webform states managed file fields',
       '2113931' => 'File Field design update',
+      '2346893' => 'Duplicate Ajax wrapper around a file field',
+      '2482783' => 'File upload errors not set or shown correctly',
     ],
     'password_confirm' => [
       '1427838' => 'password and password_confirm children do not pick up #states or #attributes',
@@ -188,7 +190,7 @@ function _webform_test_get_example_element($type, array $options = []) {
     return FALSE;
   }
 
-  /** @var \Drupal\webform\WebformElementManagerInterface $element_manager */
+  /** @var \Drupal\webform\Plugin\WebformElementManagerInterface $element_manager */
   $element_manager = \Drupal::service('plugin.manager.webform.element');
 
   $webform_element = $element_manager->createInstance($type);
@@ -206,7 +208,7 @@ function _webform_test_get_example_element($type, array $options = []) {
       foreach ($issues[$type] as $issue_number => $issue_title) {
         $items[$issue_number] = "<a href=\"https://www.drupal.org/node/$issue_number\">Issue #$issue_number: $issue_title</a>";
       }
-      $element['#description'] = '<b>' . t('Known Issues:') . '</b><br/>' . implode('<br/>', $items);
+      $element['#description'] = '<b>' . t('Known Issues:') . '</b><br />' . implode('<br />', $items);
     }
   }
 
@@ -230,7 +232,7 @@ function _webform_test_get_example_element($type, array $options = []) {
     foreach ($issues[$type] as $issue_number => $issue_title) {
       $items[$issue_number] = "<a href=\"https://www.drupal.org/node/$issue_number\">Issue #$issue_number: $issue_title</a>";
     }
-    $element['#description'] = '<b>' . t('Known Issues:') . '</b><br/>' . implode('<br/>', $items);
+    $element['#description'] = '<b>' . t('Known Issues:') . '</b><br />' . implode('<br />', $items);
   }
 
   // Set default element properties.

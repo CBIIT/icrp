@@ -53,6 +53,21 @@ interface WebformMessageManagerInterface {
    */
   const FORM_FILE_UPLOAD_EXCEPTION = 8;
 
+  /**
+   * Handler submission test.
+   */
+  const HANDLER_SUBMISSION_REQUIRED = 9;
+
+  /**
+   * Draft previous.
+   */
+  const DRAFT_PREVIOUS = 10;
+
+  /**
+   * Drafts previous.
+   */
+  const DRAFTS_PREVIOUS = 11;
+
   /****************************************************************************/
   // Configurable message constants.
   // Values corresponds to admin config and webform settings.
@@ -69,9 +84,14 @@ interface WebformMessageManagerInterface {
   const FORM_PREVIEW_MESSAGE = 'preview_message';
 
   /**
+   * Webform opening.
+   */
+  const FORM_OPEN_MESSAGE = 'form_open_message';
+
+  /**
    * Webform closed.
    */
-  const FORM_CLOSED_MESSAGE = 'form_closed_message';
+  const FORM_CLOSE_MESSAGE = 'form_close_message';
 
   /**
    * Webform confidential.
@@ -109,6 +129,16 @@ interface WebformMessageManagerInterface {
   const TEMPLATE_PREVIEW = 'template_preview';
 
   /**
+   * Prepopulate source entity required.
+   */
+  const PREPOPULATE_SOURCE_ENTITY_REQUIRED = 'prepopulate_source_entity_required';
+
+  /**
+   * Prepopulate source entity type.
+   */
+  const PREPOPULATE_SOURCE_ENTITY_TYPE = 'prepopulate_source_entity_type';
+
+  /**
    * Set the webform used for custom messages and token replacement.
    *
    * @param \Drupal\webform\WebformInterface $webform
@@ -144,6 +174,25 @@ interface WebformMessageManagerInterface {
   public function get($key);
 
   /**
+   * Append inline message message to a render array.
+   *
+   * @param array $build
+   *   A render array.
+   * @param string $key
+   *   The name of webform settings message to be displayed.
+   * @param string $type
+   *   (optional) The message's type. Defaults to 'status'. These values are
+   *   supported:
+   *   - 'status'.
+   *   - 'warning'.
+   *   - 'error'.
+   *
+   * @return array
+   *   The render array with webform inline message appended.
+   */
+  public function append(array $build, $key, $type = 'status');
+
+  /**
    * Display message.
    *
    * @param string $key
@@ -154,9 +203,6 @@ interface WebformMessageManagerInterface {
    *   - 'status'.
    *   - 'warning'.
    *   - 'error'.
-   *
-   * @return bool
-   *   TRUE if message was displayed.
    */
   public function display($key, $type = 'status');
 

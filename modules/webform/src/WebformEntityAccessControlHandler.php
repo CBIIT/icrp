@@ -30,7 +30,7 @@ class WebformEntityAccessControlHandler extends EntityAccessControlHandler {
    * {@inheritdoc}
    */
   public function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
-    /** @var  \Drupal\webform\WebformInterface $entity */
+    /** @var \Drupal\webform\WebformInterface $entity */
     // Check 'view' using 'create' custom webform submission access rules.
     // Viewing a webform is the same as creating a webform submission.
     if ($operation == 'view') {
@@ -66,6 +66,11 @@ class WebformEntityAccessControlHandler extends EntityAccessControlHandler {
     if (strpos($operation, 'submission_') === 0) {
       // Allow users with 'view any webform submission' to view all submissions.
       if ($operation == 'submission_view_any' && $account->hasPermission('view any webform submission')) {
+        return AccessResult::allowed();
+      }
+
+      // Allow users with 'view own webform submission' to view own submissions.
+      if ($operation == 'submission_view_own' && $account->hasPermission('view own webform submission')) {
         return AccessResult::allowed();
       }
 

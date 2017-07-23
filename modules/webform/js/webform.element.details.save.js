@@ -1,6 +1,6 @@
 /**
  * @file
- * Javascript behaviors for details element.
+ * JavaScript behaviors for details element.
  */
 
 (function ($, Drupal) {
@@ -27,7 +27,7 @@
           return;
         }
 
-        var open = ($details.attr('open') != 'open') ? 1 : 0;
+        var open = ($details.attr('open') !== 'open') ? '1' : '0';
         localStorage.setItem(name, open);
       });
 
@@ -45,7 +45,7 @@
           return;
         }
 
-        if (open == 1) {
+        if (open === '1') {
           $details.attr('open', 'open');
         }
         else {
@@ -59,10 +59,10 @@
   /**
    * Get the name used to store the state of details element.
    *
-   * @param $details
+   * @param {jQuery} $details
    *   A details element.
    *
-   * @returns string
+   * @return string
    *   The name used to store the state of details element.
    */
   Drupal.webformDetailsSaveGetName = function ($details) {
@@ -91,7 +91,7 @@
       return '';
     }
 
-    // ISSUE: When Drupal renders a webform  in a modal dialog it appends a unique
+    // ISSUE: When Drupal renders a webform in a modal dialog it appends a unique
     // identifier to webform ids and details ids. (ie my-form--FeSFISegTUI)
     // WORKAROUND: Remove the unique id that delimited using double dashes.
     formId = formId.replace(/--.+?$/, '').replace(/-/g, '_');

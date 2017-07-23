@@ -15,28 +15,6 @@ use Drupal\webform\WebformInterface;
 class WebformSubmissionStorageTest extends WebformTestBase {
 
   /**
-   * Modules to enable.
-   *
-   * @var array
-   */
-  protected static $modules = ['webform'];
-
-  /**
-   * {@inheritdoc}
-   */
-  public function setUp() {
-    parent::setUp();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function tearDown() {
-    $this->purgeSubmissions();
-    parent::tearDown();
-  }
-
-  /**
    * Test webform submission storage.
    */
   public function testSubmissionStorage() {
@@ -95,7 +73,7 @@ class WebformSubmissionStorageTest extends WebformTestBase {
     $this->drupalLogout();
 
     // Enable the saving of drafts.
-    $webform->setSetting('draft', TRUE)->save();
+    $webform->setSetting('draft', WebformInterface::DRAFT_AUTHENTICATED)->save();
 
     // Create drafts for user1 and user2.
     $this->drupalLogin($user1);

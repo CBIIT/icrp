@@ -37,7 +37,7 @@ class WebformEntityAccessForm extends EntityForm {
       $form['access'][$name]['roles'] = [
         '#type' => 'webform_roles',
         '#title' => $this->t('Roles'),
-        '#include_anonymous' => (in_array($name, ['create', 'view_any'])) ? TRUE : FALSE,
+        '#include_anonymous' => (!in_array($name, ['update_any', 'delete_any', 'purge_any'])) ? TRUE : FALSE,
         '#default_value' => $access[$name]['roles'],
       ];
       $form['access'][$name]['users'] = [
@@ -71,7 +71,12 @@ class WebformEntityAccessForm extends EntityForm {
     $webform->setAccessRules($access);
     $webform->save();
 
-    $this->logger('webform')->notice('Webform access @label saved.', ['@label' => $webform->label()]);
+    $context = [
+      '@label' => $webform->label(),
+      'link' => $webform->toLink($this->t('Edit'), 'access-form')->toString(),
+    ];
+    $this->logger('webform')->notice('Webform access @label saved.', $context);
+
     drupal_set_message($this->t('Webform access %label saved.', ['%label' => $webform->label()]));
   }
 
