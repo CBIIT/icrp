@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Definition of Drupal\views_bootstrap\Plugin\views\style\ViewsBootstrapCarousel.
- */
-
 namespace Drupal\views_bootstrap\Plugin\views\style;
 
 use Drupal\Core\Form\FormStateInterface;
@@ -20,6 +15,7 @@ use Drupal\views\Plugin\views\style\StylePluginBase;
  *   title = @Translation("Bootstrap Carousel"),
  *   help = @Translation("Displays rows in a Bootstrap Carousel."),
  *   theme = "views_bootstrap_carousel",
+ *   theme_file = "../views_bootstrap.theme.inc",
  *   display_types = {"normal"}
  * )
  */
@@ -37,15 +33,15 @@ class ViewsBootstrapCarousel extends StylePluginBase {
   protected function defineOptions() {
     $options = parent::defineOptions();
 
-    $options['interval'] = array('default' => 5000);
-    $options['navigation'] = array('default' => TRUE);
-    $options['indicators'] = array('default' => TRUE);
-    $options['pause'] = array('default' => TRUE);
-    $options['wrap'] = array('default' => TRUE);
+    $options['interval'] = ['default' => 5000];
+    $options['navigation'] = ['default' => TRUE];
+    $options['indicators'] = ['default' => TRUE];
+    $options['pause'] = ['default' => TRUE];
+    $options['wrap'] = ['default' => TRUE];
 
-    $options['image'] = array('default' => '');
-    $options['title'] = array('default' => '');
-    $options['description'] = array('default' => '');
+    $options['image'] = ['default' => ''];
+    $options['title'] = ['default' => ''];
+    $options['description'] = ['default' => ''];
 
     return $options;
   }
@@ -56,61 +52,62 @@ class ViewsBootstrapCarousel extends StylePluginBase {
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     parent::buildOptionsForm($form, $form_state);
 
-    $fields = array('' => t('<None>'));
+    $fields = ['' => t('<None>')];
     $fields += $this->displayHandler->getFieldLabels(TRUE);
 
-    $form['interval'] = array(
+    $form['interval'] = [
       '#type' => 'number',
       '#title' => $this->t('Interval'),
       '#description' => t('The amount of time to delay between automatically cycling an item. If false, carousel will not automatically cycle.'),
       '#default_value' => $this->options['interval'],
-    );
+    ];
 
-    $form['navigation'] = array(
+    $form['navigation'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Show navigation'),
       '#default_value' => $this->options['navigation'],
-    );
+    ];
 
-    $form['indicators'] = array(
+    $form['indicators'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Show indicators'),
       '#default_value' => $this->options['indicators'],
-    );
+    ];
 
-    $form['pause'] = array(
+    $form['pause'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Pause on hover'),
       '#description' => t('Pauses the cycling of the carousel on mouseenter and resumes the cycling of the carousel on mouseleave.'),
       '#default_value' => $this->options['pause'],
-    );
+    ];
 
-    $form['wrap'] = array(
+    $form['wrap'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Wrap'),
       '#description' => t('The carousel should cycle continuously or have hard stops.'),
       '#default_value' => $this->options['wrap'],
-    );
+    ];
 
-    $form['image'] = array(
+    $form['image'] = [
       '#type' => 'select',
       '#title' => $this->t('Image'),
       '#options' => $fields,
       '#default_value' => $this->options['image'],
-    );
+    ];
 
-    $form['title'] = array(
+    $form['title'] = [
       '#type' => 'select',
       '#title' => $this->t('Title'),
       '#options' => $fields,
       '#default_value' => $this->options['title'],
-    );
+    ];
 
-    $form['description'] = array(
+    $form['description'] = [
       '#type' => 'select',
       '#title' => $this->t('Description'),
       '#options' => $fields,
       '#default_value' => $this->options['description'],
-    );
+    ];
   }
+
 }
