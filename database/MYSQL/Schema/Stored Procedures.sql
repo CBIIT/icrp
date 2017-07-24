@@ -1081,9 +1081,6 @@ BEGIN
 END//
 
 
-DELIMITER //
-
-
 CREATE PROCEDURE `GetProjectExportsBySearchID`(
   IN `@SearchID` INT,
   IN `@IncludeAbstract` INT,
@@ -1199,5 +1196,37 @@ BEGIN
   EXECUTE statement;
   DEALLOCATE PREPARE statement;
 END//
+
+
+CREATE PROCEDURE `GetProjectCSOsBySearchID`(
+  IN `@SearchID` INT
+)
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+  -- ---------------------------------------------------
+  -- Get saved search results by searchID
+  -- ---------------------------------------------------  
+  DECLARE `@ProjectIDs` LONGTEXT;
+  SELECT Results INTO `@ProjectIDs` FROM SearchResult WHERE SearchCriteriaID = `@SearchID`;
+
+  -- --------------------------------------------------------
+  --  Get project CSOs
+  -- --------------------------------------------------------
+  CALL ToIntTable(`@ProjectIDs`);
+
+  SELECT f.`ProjectID`, f.`ProjectFundingID` AS ICRPProjectFundindID, f.`AltAwardCode`, cso.`CSOCode`, cso.`Relevance` AS CSORelevance
+  FROM `ToIntTable` r
+    JOIN `ProjectFunding` f ON f.`ProjectID` = r.`VALUE`
+    JOIN `ProjectCSO` cso ON f.`ProjectFundingID` = cso.`ProjectFundingID`
+  ORDER BY f.`ProjectID`;
+END//
+
+
+DELIMITER //
+
 
 DELIMITER ;
