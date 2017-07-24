@@ -25,6 +25,19 @@ h1 {
 h2 {
     margin-top: 0px;
 }
+
+/* Twig Tweak - drupal_block() fix */
+/* Show block in footer but hide it.  It is show elsewhere on the page. */
+footer > div > section#block-partnerhomewelcome,
+footer > div > section#block-partnerhomewelcomemanager,
+footer > div > section#block-partnerhomepartnercalendareditbutton,
+footer > div > section#block-partnerhomepartnercalendar,
+footer > div > section#block-partnerhomepartnermanagementeditbutton,
+footer > div > section#block-partnerhomepartnermanagement,
+footer > div > section#block-icrpsiteupdateddate  {
+  display:none;
+}
+
 section#block-partnerhomewelcome > div > div > h2,
 section#block-partnerhomewelcomemanager > div > div > h2 {
     margin-top:25px;
