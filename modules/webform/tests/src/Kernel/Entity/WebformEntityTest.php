@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\user\Kernel\Entity;
+namespace Drupal\Tests\webform\Kernel\Entity;
 
 use Drupal\Core\Serialization\Yaml;
 use Drupal\KernelTests\KernelTestBase;
@@ -26,6 +26,7 @@ class WebformEntityTest extends KernelTestBase {
    * Tests some of the methods.
    */
   public function testWebformMethods() {
+    $this->installSchema('webform', ['webform']);
     $this->installConfig('webform');
 
     /**************************************************************************/
@@ -80,53 +81,63 @@ class WebformEntityTest extends KernelTestBase {
     $webform->setStatus(WebformInterface::STATUS_SCHEDULED);
 
     // Check set open date to yesterday.
-    $webform->set('open', date('c', strtotime('today -1 days')));
+    $webform->set('open', date('Y-m-d\TH:i:s', strtotime('today -1 days')));
     $webform->set('close', NULL);
     $this->assertTrue($webform->isOpen());
 
     // Check set open date to tomorrow.
-    $webform->set('open', date('c', strtotime('today +1 day')));
+    $webform->set('open', date('Y-m-d\TH:i:s', strtotime('today +1 day')));
     $webform->set('close', NULL);
     $this->assertFalse($webform->isOpen());
 
     // Check set close date to yesterday.
     $webform->set('open', NULL);
-    $webform->set('close', date('c', strtotime('today -1 day')));
+    $webform->set('close', date('Y-m-d\TH:i:s', strtotime('today -1 day')));
     $this->assertFalse($webform->isOpen());
 
     // Check set close date to tomorrow.
     $webform->set('open', NULL);
-    $webform->set('close', date('c', strtotime('today +1 day')));
+    $webform->set('close', date('Y-m-d\TH:i:s', strtotime('today +1 day')));
     $this->assertTrue($webform->isOpen());
 
     // Check set open date to tomorrow with close date in 10 days.
-    $webform->set('open', date('c', strtotime('today +1 day')));
-    $webform->set('close', date('c', strtotime('today +10 days')));
+    $webform->set('open', date('Y-m-d\TH:i:s', strtotime('today +1 day')));
+    $webform->set('close', date('Y-m-d\TH:i:s', strtotime('today +10 days')));
     $this->assertFalse($webform->isOpen());
+    $this->assertTrue($webform->isOpening());
 
     // Check set open date to yesterday with close date in +10 days.
-    $webform->set('open', date('c', strtotime('today -1 day')));
-    $webform->set('close', date('c', strtotime('today +10 days')));
+    $webform->set('open', date('Y-m-d\TH:i:s', strtotime('today -1 day')));
+    $webform->set('close', date('Y-m-d\TH:i:s', strtotime('today +10 days')));
     $this->assertTrue($webform->isOpen());
 
     // Check set open date to yesterday with close date -10 days.
-    $webform->set('open', date('c', strtotime('today -1 day')));
-    $webform->set('close', date('c', strtotime('today -10 days')));
+    $webform->set('open', date('Y-m-d\TH:i:s', strtotime('today -1 day')));
+    $webform->set('close', date('Y-m-d\TH:i:s', strtotime('today -10 days')));
     $this->assertFalse($webform->isOpen());
+    $this->assertFalse($webform->isOpening());
 
-    // Check that open overridess scheduled.
+    // Check that open overrides scheduled.
     $webform->setStatus(TRUE);
-    $webform->set('open', date('c', strtotime('today -1 day')));
-    $webform->set('close', date('c', strtotime('today -10 days')));
+    $webform->set('open', date('Y-m-d\TH:i:s', strtotime('today -1 day')));
+    $webform->set('close', date('Y-m-d\TH:i:s', strtotime('today -10 days')));
     $this->assertTrue($webform->isOpen());
 
     // Check that closed overrides scheduled.
     $webform->setStatus(FALSE);
-    $webform->set('open', date('c', strtotime('today +1 day')));
-    $webform->set('close', date('c', strtotime('today -10 days')));
+    $webform->set('open', date('Y-m-d\TH:i:s', strtotime('today +1 day')));
+    $webform->set('close', date('Y-m-d\TH:i:s', strtotime('today -10 days')));
     $this->assertFalse($webform->isOpen());
 
+    // Check that open and close date is set to NULL when status is set to open
+    // or closed.
+    $webform->set('open', date('Y-m-d\TH:i:s', strtotime('today +1 day')));
+    $webform->set('close', date('Y-m-d\TH:i:s', strtotime('today -10 days')));
+    $this->assertNotNull($webform->get('open'));
+    $this->assertNotNull($webform->get('close'));
     $webform->setStatus(TRUE);
+    $this->assertNull($webform->get('open'));
+    $this->assertNull($webform->get('close'));
 
     /**************************************************************************/
     // Templates.
@@ -251,7 +262,7 @@ class WebformEntityTest extends KernelTestBase {
       'page_1' => ['#title' => 'Page 1'],
       'page_2' => ['#title' => 'Page 2'],
       'page_3' => ['#title' => 'Page 3'],
-      'complete' => ['#title' => 'Complete'],
+      'webform_complete' => ['#title' => 'Complete'],
     ];
     $this->assertEquals($webform->getPages(), $wizard_pages);
 
@@ -261,17 +272,17 @@ class WebformEntityTest extends KernelTestBase {
       'page_1' => ['#title' => 'Page 1'],
       'page_2' => ['#title' => 'Page 2'],
       'page_3' => ['#title' => 'Page 3'],
-      'preview' => ['#title' => 'Preview'],
-      'complete' => ['#title' => 'Complete'],
+      'webform_preview' => ['#title' => 'Preview'],
+      'webform_complete' => ['#title' => 'Complete'],
     ];
     $this->assertEquals($webform->getPages(), $wizard_pages);
 
     // Check get wizard pages with preview with disable pages.
     $webform->setSetting('preview', TRUE)->save();
     $wizard_pages = [
-      'start' => ['#title' => 'Start'],
-      'preview' => ['#title' => 'Preview'],
-      'complete' => ['#title' => 'Complete'],
+      'webform_start' => ['#title' => 'Start'],
+      'webform_preview' => ['#title' => 'Preview'],
+      'webform_complete' => ['#title' => 'Complete'],
     ];
     $this->assertEquals($webform->getPages(TRUE), $wizard_pages);
 
@@ -285,13 +296,13 @@ class WebformEntityTest extends KernelTestBase {
    * Test paths.
    */
   public function testPaths() {
+    $this->installSchema('webform', ['webform']);
     $this->installConfig('webform');
 
     /** @var \Drupal\webform\WebformInterface $webform */
     $webform = Webform::create(['id' => 'webform_test']);
     $webform->save();
-
-    $aliases = db_query('SELECT source, alias FROM {url_alias}')->fetchAllKeyed();
+    $aliases = \Drupal::database()->query('SELECT source, alias FROM {url_alias}')->fetchAllKeyed();
     $this->assertEquals($aliases['/webform/webform_test'], '/form/webform-test');
     $this->assertEquals($aliases['/webform/webform_test/confirmation'], '/form/webform-test/confirmation');
     $this->assertEquals($aliases['/webform/webform_test/submissions'], '/form/webform-test/submissions');
@@ -301,6 +312,7 @@ class WebformEntityTest extends KernelTestBase {
    * Test elements CRUD operations.
    */
   public function testElementsCrud() {
+    $this->installSchema('webform', ['webform']);
     $this->installEntitySchema('webform_submission');
 
     /** @var \Drupal\webform\WebformInterface $webform */

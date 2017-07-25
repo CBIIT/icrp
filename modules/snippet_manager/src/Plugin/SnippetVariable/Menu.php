@@ -2,13 +2,12 @@
 
 namespace Drupal\snippet_manager\Plugin\SnippetVariable;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Menu\MenuLinkTreeInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\snippet_manager\SnippetVariableBase;
-use Drupal\snippet_manager\SnippetVariableInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 
 /**
  * Provides Menu variable type.
@@ -20,7 +19,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
  *   deriver = "\Drupal\snippet_manager\Plugin\SnippetVariable\MenuDeriver",
  * )
  */
-class Menu extends SnippetVariableBase implements SnippetVariableInterface, ContainerFactoryPluginInterface {
+class Menu extends SnippetVariableBase implements ContainerFactoryPluginInterface {
 
   /**
    * The entity type manager.
@@ -38,7 +37,7 @@ class Menu extends SnippetVariableBase implements SnippetVariableInterface, Cont
   protected $menuTree;
 
   /**
-   * Constructs a new SystemMenuBlock.
+   * Constructs a new menu variable plugin.
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
@@ -81,21 +80,21 @@ class Menu extends SnippetVariableBase implements SnippetVariableInterface, Cont
 
     $form['level'] = [
       '#type' => 'select',
-      '#title' => t('Initial visibility level'),
+      '#title' => $this->t('Initial visibility level'),
       '#default_value' => $config['level'],
       '#options' => $options,
-      '#description' => t('The menu is only visible if the menu item for the current page is at this level or below it. Use level 1 to always display this menu.'),
+      '#description' => $this->t('The menu is only visible if the menu item for the current page is at this level or below it. Use level 1 to always display this menu.'),
       '#required' => TRUE,
     ];
 
-    $options[0] = t('Unlimited');
+    $options[0] = $this->t('Unlimited');
 
     $form['depth'] = [
       '#type' => 'select',
-      '#title' => t('Number of levels to display'),
+      '#title' => $this->t('Number of levels to display'),
       '#default_value' => $config['depth'],
       '#options' => $options,
-      '#description' => t('This maximum number includes the initial level.'),
+      '#description' => $this->t('This maximum number includes the initial level.'),
       '#required' => TRUE,
     ];
 
@@ -151,7 +150,7 @@ class Menu extends SnippetVariableBase implements SnippetVariableInterface, Cont
     // Check implicitly if Menu UI module is enabled.
     if ($menu && $menu->hasLinkTemplate('edit-form')) {
       $links['edit_menu'] = [
-        'title' => t('Edit menu'),
+        'title' => $this->t('Edit menu'),
         'url' => $menu->toUrl('edit-form'),
       ];
     }

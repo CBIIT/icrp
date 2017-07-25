@@ -71,6 +71,7 @@ function _webform_honeypot_form(array &$form, FormStateInterface $form_state, $h
     '#type' => 'checkbox',
     '#title' => t('Protect %label with Honeypot', $t_args),
     '#default_value' => $honeypot,
+    '#return_value' => TRUE,
   ];
 
   if ($honeypot_state != WEBFORM_HONEYPOT_NEUTRAL) {
@@ -91,6 +92,7 @@ function _webform_honeypot_form(array &$form, FormStateInterface $form_state, $h
     '#type' => 'checkbox',
     '#title' => t('Add time restriction to %label', $t_args),
     '#default_value' => $time_restriction,
+    '#return_value' => TRUE,
   ];
 
   if ($time_restriction_state != WEBFORM_HONEYPOT_NEUTRAL) {
@@ -115,19 +117,22 @@ function _webform_honeypot_form(array &$form, FormStateInterface $form_state, $h
  */
 function _webform_honeypot_form_validate(&$form, FormStateInterface $form_state) {
   $third_party_settings = $form_state->getValue('third_party_settings');
-  if ($form_state->get('honeypot_disabled')) {
+  if ($form_state->get('honeypot_disabled') || empty($third_party_settings['honeypot']['honeypot'])) {
     unset($third_party_settings['honeypot']['honeypot']);
   }
-  if ($form_state->get('time_restriction_disabled')) {
+  if ($form_state->get('time_restriction_disabled') || empty($third_party_settings['honeypot']['time_restriction'])) {
     unset($third_party_settings['honeypot']['time_restriction']);
+  }
+  if (empty($third_party_settings['honeypot'])) {
+    unset($third_party_settings['honeypot']);
   }
   $form_state->setValue('third_party_settings', $third_party_settings);
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
+ * Implements hook_webform_admin_third_party_settings_form_alter().
  */
-function honeypot_form_webform_admin_third_party_settings_form_alter(&$form, FormStateInterface $form_state) {
+function honeypot_webform_admin_third_party_settings_form_alter(&$form, FormStateInterface $form_state) {
   /** @var \Drupal\webform\WebformThirdPartySettingsManagerInterface $third_party_settings_manager */
   $third_party_settings_manager = \Drupal::service('webform.third_party_settings_manager');
 
@@ -149,9 +154,9 @@ function honeypot_form_webform_admin_third_party_settings_form_alter(&$form, For
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
+ * Implements hook_webform_third_party_settings_form_alter().
  */
-function honeypot_form_webform_third_party_settings_form_alter(&$form, FormStateInterface $form_state) {
+function honeypot_webform_third_party_settings_form_alter(&$form, FormStateInterface $form_state) {
   /** @var \Drupal\webform\WebformThirdPartySettingsManagerInterface $third_party_settings_manager */
   $third_party_settings_manager = \Drupal::service('webform.third_party_settings_manager');
 

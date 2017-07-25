@@ -552,6 +552,7 @@ class Panelizer implements PanelizerInterface {
     return [
       'content' => $this->t('Content'),
       'layout' => $this->t('Layout'),
+      'revert' => $this->t('Revert to default'),
     ];
   }
 
@@ -590,6 +591,7 @@ class Panelizer implements PanelizerInterface {
       }
     }
 
+    ksort($permissions);
     return $permissions;
   }
 
@@ -619,6 +621,8 @@ class Panelizer implements PanelizerInterface {
       case 'change layout':
         return $account->hasPermission("administer panelizer $entity_type_id $bundle layout");
 
+      case 'revert to default':
+        return $account->hasPermission("administer panelizer $entity_type_id $bundle revert");
     }
 
     return FALSE;
@@ -650,10 +654,10 @@ class Panelizer implements PanelizerInterface {
 
     // @todo: check field access too!
 
-    if ($op == 'revert to default') {
-      // We already have enough permissions at this point.
-      return TRUE;
-    }
+    // if ($op == 'revert to default') {
+    //   // We already have enough permissions at this point.
+    //   return TRUE;
+    // }
 
     return $this->hasOperationPermission($op, $entity->getEntityTypeId(), $entity->bundle(), $account);
   }

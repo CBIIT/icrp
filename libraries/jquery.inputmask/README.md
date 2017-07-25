@@ -1,10 +1,10 @@
-# jquery.inputmask 3.x
+# Inputmask 3.x
 
 Copyright (c) 2010 - 2016 Robin Herbots Licensed under the MIT license ([http://opensource.org/licenses/mit-license.php](http://opensource.org/licenses/mit-license.php))
 
 [![NPM Version][npm-image]][npm-url] [![Dependency Status][david-image]][david-url] [![devDependency Status][david-dev-image]][david-dev-url]
 
-jquery.inputmask is a jQuery plugin which creates an input mask.
+Inputmask is a javascript library which creates an input mask.  Inputmask can run against vanilla javascript, jQuery and jqlite.
 
 An inputmask helps the user with the input by ensuring a predefined format. This can be useful for dates, numerics, phone numbers, ...
 
@@ -27,8 +27,9 @@ Highlights:
 - value formatting / validating without input element
 - AMD/CommonJS support
 - dependencyLibs: vanilla javascript, jQuery, jqlite
+- [Android support](README_android.md)
 
-Demo page see [http://robinherbots.github.io/jquery.inputmask](http://robinherbots.github.io/jquery.inputmask)
+Demo page see [http://robinherbots.github.io/Inputmask](http://robinherbots.github.io/Inputmask)
 
 [![donate](https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=ZNR3EB6JTMMSS)
 
@@ -118,12 +119,14 @@ If you like to automatically bind the inputmask to the inputs marked with the da
 
 If you use a module loader like requireJS
 
-Add in your config.js
+Have a look at the inputmask.loader.js for usage.
+
+Example config.js
 
 ```javascript
 paths: {
   ...
-  "inputmask.dependencyLib": "../dist/inputmask/inputmask.dependencyLib.jquery",
+  "inputmask.dependencyLib": "../dist/inputmask/inputmask.dependencyLib",
   "inputmask": "../dist/inputmask/inputmask",
   ...
 }
@@ -463,7 +466,7 @@ Inputmask("99-999-99").mask(document.querySelectorAll(selector));
 or
 
 ```javascript
-var im : new Inputmask("99-999-99");
+var im = new Inputmask("99-999-99");
 im.mask(document.querySelectorAll(selector));
 ```
 
@@ -562,7 +565,7 @@ $(selector).inputmask("getmetadata");
 ```
 
 ### setvalue
-The setvalue functionality is to set a value to the inputmask like you would do with jQuery.val, BUT it will trigger the internal event used by the inputmask always, whatever the case. This is particular usefull when cloning an inputmask with jQuery.clone.  Cloning an inputmask is not a fully functional clone.  On the first event (mouseenter, focus, ...) the inputmask can detect if it where cloned an can reactivate the masking.  However when setting the value with jQuery.val there is none of the events triggered.  The setvalue functionality does this for you.
+The setvalue functionality is to set a value to the inputmask like you would do with jQuery.val, BUT it will trigger the internal event used by the inputmask always, whatever the case. This is particular usefull when cloning an inputmask with jQuery.clone.  Cloning an inputmask is not a fully functional clone.  On the first event (mouseenter, focus, ...) the inputmask can detect if it where cloned an can reactivate the masking.  However when setting the value with jQuery.val there is none of the events triggered in that case.  The setvalue functionality does this for you.
 
 ### option(options, noremask)
 Get or set an option on an existing inputmask.
@@ -611,7 +614,7 @@ For example, `placeholder: " "` will change the default autofill with empty valu
 
 ```javascript
 $(document).ready(function(){
-  $("#date").inputmask("d/m/y",{ "placeholder": "*" });
+  $("#date").inputmask("99/99/9999",{ "placeholder": "*" });
 });
 ```
 
@@ -619,7 +622,7 @@ or a multi-char placeholder
 
 ```javascript
 $(document).ready(function(){
-  $("#date").inputmask("d/m/y",{ "placeholder": "dd/mm/yyyy" });
+  $("#date").inputmask("99/99/9999",{ "placeholder": "dd/mm/yyyy" });
 });
 ```
 
@@ -668,7 +671,7 @@ Execute a function when the mask is completed
 
 ```javascript
 $(document).ready(function(){
-  $("#date").inputmask("d/m/y",{ "oncomplete": function(){ alert('inputmask complete'); } });
+  $("#date").inputmask("99/99/9999",{ "oncomplete": function(){ alert('inputmask complete'); } });
 });
 ```
 
@@ -677,7 +680,7 @@ Execute a function when the mask is incomplete.  Executes on blur.
 
 ```javascript
 $(document).ready(function(){
-  $("#date").inputmask("d/m/y",{ "onincomplete": function(){ alert('inputmask incomplete'); } });
+  $("#date").inputmask("99/99/9999",{ "onincomplete": function(){ alert('inputmask incomplete'); } });
 });
 ```
 
@@ -686,7 +689,7 @@ Execute a function when the mask is cleared.
 
 ```javascript
 $(document).ready(function(){
-  $("#date").inputmask("d/m/y",{ "oncleared": function(){ alert('inputmask cleared'); } });
+  $("#date").inputmask("99/99/9999",{ "oncleared": function(){ alert('inputmask cleared'); } });
 });
 ```
 
@@ -735,7 +738,7 @@ Clear the incomplete input on blur
 
 ```javascript
 $(document).ready(function(){
-  $("#date").inputmask("d/m/y",{ "clearIncomplete": true } });
+  $("#date").inputmask("99/99/9999",{ "clearIncomplete": true });
 });
 ```
 
@@ -885,15 +888,6 @@ $(document).ready(function(){
 ```
 
 ### skipOptionalPartCharacter
-### showTooltip
-Show the current mask definition as a tooltip.
-
-```javascript
-$(selector).inputmask({ mask: ["999-999-9999 [x99999]", "+099 99 99 9999[9]-9999"], showTooltip: true });
-```
-
-### tooltip
-Specify the tooltip to show.  By default the mask definition will be taken.
 
 ### numericInput
 Numeric input direction.  Keeps the caret at the end.
@@ -924,15 +918,6 @@ Define the radixpoint (decimal separator)<br>Default: ""
 ### groupSeparator (numerics)
 Define the groupseparator<br>Default: ""
 
-### radixFocus (numerics)
-Position the caret to the radixpoint on the initial click into the inputfield.<br>Default: false
-
-### nojumps
-Do not jump over fixed parts in the mask.<br>Default: false
-
-### nojumpsThreshold
-Start nojumps as of<br>Default: 0
-
 ### keepStatic
 Default: null (~false) Use in combination with the alternator syntax Try to keep the mask static while typing. Decisions to alter the mask will be postponed if possible.
 
@@ -943,7 +928,7 @@ typing 1212345123 => should result in +55-12-1234-5123 type extra 4 => switch to
 When passing multiple masks (an array of masks) keepStatic is automatically set to true unless explicitly set through the options.
 
 ### positionCaretOnTab
-When enabled the caret position is set after the latest valid position on TAB Default: false
+When enabled the caret position is set after the latest valid position on TAB Default: true
 
 ### tabThrough
 Allows for tabbing through the different parts of the masked field.<br>Default: false
@@ -990,6 +975,27 @@ Inputmask("(99 99 999999)|(i{+})", {
 Return nothing when the user hasn't entered anything.
 Default: true
 
+### positionCaretOnClick
+Positioning of the caret on click.  Options none, lvp (based on the last valid position (default), radixFocus (position caret to radixpoint on initial click)
+Default: "lvp"
+
+### casing
+Apply casing at the mask-level.
+Options: null, "upper", "lower" or "title"
+Default: null
+
+### inputmode
+Default: "verbatim"
+Specify the inputmode  - already in place for when browsers start to  support them
+https://html.spec.whatwg.org/#input-modalities:-the-inputmode-attribute
+
+### colorMask
+Default: false
+Create a css styleable mask.
+Uses css classes: im-caret, im-static.
+
+You need to include the inputmask.css in your page to use this option in full.
+
 ## General
 ### set a value and apply mask
 this can be done with the traditional jquery.val function (all browsers) or JavaScript value property for browsers which implement lookupGetter or getOwnPropertyDescriptor
@@ -1007,7 +1013,7 @@ with the autoUnmaskoption you can change the return of $.fn.val (or value proper
 
 ```javascript
 $(document).ready(function(){
-  $('#<%= tbDate.ClientID%>').inputmask({ "mask": "d/m/y", 'autoUnmask' : true});    //  value: 23/03/1973
+  $('#<%= tbDate.ClientID%>').inputmask({ "mask": "99/99/9999", 'autoUnmask' : true});    //  value: 23/03/1973
   alert($('#<%= tbDate.ClientID%>').val());    // shows 23031973     (autoUnmask: true)
 
   var tbDate = document.getElementById("<%= tbDate.ClientID%>");
@@ -1023,8 +1029,8 @@ $(document).ready(function(){
 });
 ```
 
-### auto upper/lower- casing inputmask
-You can define within a definition to automatically lowercase or uppercase the entry in an input by giving the casing.<br>Casing can be null, "upper" or "lower"
+### auto-casing inputmask
+You can define within a definition to automatically apply some casing on the entry in an input by giving the casing.<br>Casing can be null, "upper", "lower" or "title".
 
 ```javascript
 Inputmask.extendDefinitions({

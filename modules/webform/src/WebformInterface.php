@@ -6,11 +6,33 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
 use Drupal\Core\Entity\EntityWithPluginCollectionInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\user\EntityOwnerInterface;
+use Drupal\webform\Plugin\WebformHandlerInterface;
 
 /**
  * Provides an interface defining a webform entity.
  */
 interface WebformInterface extends ConfigEntityInterface, EntityWithPluginCollectionInterface, EntityOwnerInterface {
+
+  /**
+   * Denote drafts are not allowed.
+   *
+   * @var string
+   */
+  const DRAFT_NONE = 'none';
+
+  /**
+   * Denote drafts are allowed for authenticated users only.
+   *
+   * @var string
+   */
+  const DRAFT_AUTHENTICATED = 'authenticated';
+
+  /**
+   * Denote drafts are allowed for authenticated and anonymous users.
+   *
+   * @var string
+   */
+  const DRAFT_ALL = 'all';
 
   /**
    * Webform status open.
@@ -55,9 +77,50 @@ interface WebformInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * Determine if the webform is using a Flexbox layout.
    *
    * @return bool
-   *   TRUE if if the webform is using a Flexbox layout.
+   *   TRUE if the webform is using a Flexbox layout.
    */
   public function hasFlexboxLayout();
+
+  /**
+   * Determine if the webform has any containers.
+   *
+   * @return bool
+   *   TRUE if the webform has any containers.
+   */
+  public function hasContainer();
+
+  /**
+   * Determine if the webform has any custom actions (aka submit buttons).
+   *
+   * @return bool
+   *   TRUE if the webform has any custom actions (aka submit buttons).
+   */
+  public function hasActions();
+
+  /**
+   * Get the number of actions (aka submit buttons).
+   *
+   * @return int
+   *   The number of actions (aka submit buttons).
+   */
+  public function getNumberOfActions();
+
+  /**
+   * Determine if the webform has multistep form wizard pages.
+   *
+   * @return bool
+   *   TRUE if the webform has multistep form wizard pages.
+   */
+  public function hasWizardPages();
+
+  /**
+   * Get the number of wizard pages.
+   *
+   * @return int
+   *   The number of wizard pages.
+   */
+  public function getNumberOfWizardPages();
+
 
   /**
    * Sets the status of the configuration entity.
@@ -97,6 +160,14 @@ interface WebformInterface extends ConfigEntityInterface, EntityWithPluginCollec
   public function isScheduled();
 
   /**
+   * Determines if the webform is currently closed but scheduled to open.
+   *
+   * @return bool
+   *   TRUE if the webform is currently closed but scheduled to open.
+   */
+  public function isOpening();
+
+  /**
    * Returns the webform template indicator.
    *
    * @return bool
@@ -119,6 +190,14 @@ interface WebformInterface extends ConfigEntityInterface, EntityWithPluginCollec
    *   TRUE if the webform has submissions.
    */
   public function hasSubmissions();
+
+  /**
+   * Determine if submissions are being logged.
+   *
+   * @return bool
+   *   TRUE if submissions are being logged.
+   */
+  public function hasSubmissionLog();
 
   /**
    * Determine if the current webform is translated.
@@ -213,11 +292,14 @@ interface WebformInterface extends ConfigEntityInterface, EntityWithPluginCollec
    *
    * @param string $key
    *   The key of the setting to retrieve.
+   * @param bool $default
+   *   Flag to lookup the default settings from 'webform.settings' config.
+   *   Only used when rendering webform.
    *
    * @return mixed
    *   The settings value, or NULL if no settings exists.
    */
-  public function getSetting($key);
+  public function getSetting($key, $default = FALSE);
 
   /**
    * Saves a webform setting for a given key.
@@ -296,14 +378,6 @@ interface WebformInterface extends ConfigEntityInterface, EntityWithPluginCollec
   public function getSubmissionForm(array $values = [], $operation = 'default');
 
   /**
-   * Get elements (YAML) value.
-   *
-   * @return string
-   *   The elements raw value.
-   */
-  public function getElementsRaw();
-
-  /**
    * Get original elements (YAML) value.
    *
    * @return string|null
@@ -311,6 +385,22 @@ interface WebformInterface extends ConfigEntityInterface, EntityWithPluginCollec
    *   webforms.
    */
   public function getElementsOriginalRaw();
+
+  /**
+   * Get original elements decoded as an associative array.
+   *
+   * @return array|bool
+   *   Elements as an associative array. Returns FALSE is elements YAML is invalid.
+   */
+  public function getElementsOriginalDecoded();
+
+  /**
+   * Get elements (YAML) value.
+   *
+   * @return string
+   *   The elements raw value.
+   */
+  public function getElementsRaw();
 
   /**
    * Get webform elements decoded as an associative array.
@@ -464,7 +554,7 @@ interface WebformInterface extends ConfigEntityInterface, EntityWithPluginCollec
    * @param string $handler_id
    *   The webform handler ID.
    *
-   * @return \Drupal\webform\WebformHandlerInterface
+   * @return \Drupal\webform\Plugin\WebformHandlerInterface
    *   The webform handler object.
    */
   public function getHandler($handler_id);
@@ -479,34 +569,47 @@ interface WebformInterface extends ConfigEntityInterface, EntityWithPluginCollec
    *   (optional) Status used to return enabled or disabled plugin instances
    *   (ie handlers).
    * @param int $results
-   *   (optional) Value indicating if webform submissions are saved to internal or
-   *   external system.
+   *   (optional) Value indicating if webform submissions are saved to internal
+   *   or external system.
+   * @param int $submission
+   *   (optional) Value indicating if webform submissions must be saved to the
+   *   database.
    *
-   * @return \Drupal\webform\WebformHandlerPluginCollection|\Drupal\webform\WebformHandlerInterface[]
+   * @return \Drupal\webform\Plugin\WebformHandlerPluginCollection|\Drupal\webform\Plugin\WebformHandlerInterface[]
    *   The webform handler plugin collection.
    */
-  public function getHandlers($plugin_id = NULL, $status = NULL, $results = NULL);
+  public function getHandlers($plugin_id = NULL, $status = NULL, $results = NULL, $submission = NULL);
 
   /**
    * Saves a webform handler for this webform.
    *
-   * @param array $configuration
-   *   An array of webform handler configuration.
+   * @param \Drupal\webform\Plugin\WebformHandlerInterface $handler
+   *   The webform handler object.
    *
    * @return string
    *   The webform handler ID.
    */
-  public function addWebformHandler(array $configuration);
+  public function addWebformHandler(WebformHandlerInterface $handler);
 
   /**
-   * Deletes a webform handler from this style.
+   * Update a webform handler for this webform.
    *
-   * @param \Drupal\webform\WebformHandlerInterface $effect
+   * @param \Drupal\webform\Plugin\WebformHandlerInterface $handler
    *   The webform handler object.
    *
    * @return $this
    */
-  public function deleteWebformHandler(WebformHandlerInterface $effect);
+  public function updateWebformHandler(WebformHandlerInterface $handler);
+
+  /**
+   * Deletes a webform handler from this webform.
+   *
+   * @param \Drupal\webform\Plugin\WebformHandlerInterface $handler
+   *   The webform handler object.
+   *
+   * @return $this
+   */
+  public function deleteWebformHandler(WebformHandlerInterface $handler);
 
   /**
    * Invoke a handlers method.
@@ -582,7 +685,7 @@ interface WebformInterface extends ConfigEntityInterface, EntityWithPluginCollec
    *   The key of the data to retrieve.
    *
    * @return bool
-   *   TRUE if the  stored value for a given key exists
+   *   TRUE if the stored value for a given key exists
    */
   public function hasState($key);
 

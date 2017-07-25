@@ -17,12 +17,16 @@ function webform_test_example_elements() {
   // Elements to be ignored.
   $skipped_elements = [
     'table',
+    'webform_computed_token',
+    'webform_computed_twig',
+    'webform_flexbox',
+    'webform_actions',
     'webform_flexbox',
     'webform_test',
     'webform_wizard_page',
   ];
 
-  /** @var \Drupal\webform\WebformElementManagerInterface $element_manager */
+  /** @var \Drupal\webform\Plugin\WebformElementManagerInterface $element_manager */
   $element_manager = \Drupal::service('plugin.manager.webform.element');
 
   $definitions = $element_manager->getDefinitions();
@@ -39,6 +43,10 @@ function webform_test_example_elements() {
       continue;
     }
 
+    if (!empty($definition['composite'])) {
+      continue;
+    }
+
     $webform_element = $elements[$element_type];
     $element = _webform_test_get_example_element($element_type);
     if (!$element) {
@@ -46,9 +54,6 @@ function webform_test_example_elements() {
     }
 
     $category_name = (string) $webform_element->getPluginDefinition()['category'] ?: 'Other elements';
-    if ($category_name == 'Composite elements') {
-      continue;
-    }
     $category_id = preg_replace('/[^a-zA-Z0-9]+/', '_', Unicode::strtolower($category_name));
     if (empty($data[$category_id])) {
       $data[$category_id] = [

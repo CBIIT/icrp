@@ -24,13 +24,15 @@ class Radios extends OptionsBase {
     return parent::getDefaultProperties() + [
       // Form display.
       'options_display' => 'one_column',
+      // iCheck settings.
+      'icheck' => '',
     ];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function prepare(array &$element, WebformSubmissionInterface $webform_submission) {
+  public function prepare(array &$element, WebformSubmissionInterface $webform_submission = NULL) {
     parent::prepare($element, $webform_submission);
 
     // Issue #2856795: If radio buttons are required but not filled form is
@@ -40,4 +42,3 @@ class Radios extends OptionsBase {
   }
 
 }
-

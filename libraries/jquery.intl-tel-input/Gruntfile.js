@@ -8,11 +8,13 @@ module.exports = function(grunt) {
    * TASKS
    */
   // build everything ready for a commit
-  grunt.registerTask('build', ['img', 'sass', 'js', 'jasmine']);
+  grunt.registerTask('build', ['img', 'css', 'js']);
+  // just CSS
+  grunt.registerTask('css', ['sass']);
   // just images
   grunt.registerTask('img', ['responsive_images:retina', 'exec:evenizer', 'responsive_images:regular', 'sprite', 'imagemin']);
   // just javascript
-  grunt.registerTask('js', ['template:js1', 'template:js2', 'jshint', 'uglify', 'replace:one', 'replace:two', 'replace:three']);
+  grunt.registerTask('js', ['template:js', 'jshint', 'uglify', 'replace:one', 'replace:two', 'replace:three']);
   // build examples
   grunt.registerTask('examples', ['template']);
   // Travis CI

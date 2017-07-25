@@ -24,9 +24,6 @@ class WebformConfirmationTest extends WebformTestBase {
   public function setUp() {
     parent::setUp();
 
-    // Create users.
-    $this->createUsers();
-
     // Set page.front (aka <front>) to /node instead of /user/login.
     \Drupal::configFactory()->getEditable('system.site')->set('page.front', '/node')->save();
   }
@@ -36,7 +33,7 @@ class WebformConfirmationTest extends WebformTestBase {
    */
   public function testConfirmation() {
     // Login the admin user.
-    $this->drupalLogin($this->adminWebformUser);
+    $this->drupalLogin($this->rootUser);
 
     /* Test confirmation message (confirmation_type=message) */
 
@@ -55,13 +52,13 @@ class WebformConfirmationTest extends WebformTestBase {
 
     // Check confirmation inline.
     $this->drupalPostForm('webform/test_confirmation_inline', [], t('Submit'));
-    $this->assertRaw('<a href="' . $webform_confirmation_inline->toUrl()->toString() . '" rel="back" title="Back to form">Back to form</a>');
-    $this->assertUrl('webform/test_confirmation_inline', ['query' => ['webform_id' => $webform_confirmation_inline->id()]]);
+    $this->assertRaw('<a href="' . $webform_confirmation_inline->toUrl('canonical', ['absolute' => TRUE])->toString() . '" rel="back" title="Back to form">Back to form</a>');
+    $this->assertUrl('webform/test_confirmation_inline');
 
     // Check confirmation inline with custom query parameters.
     $this->drupalPostForm('webform/test_confirmation_inline', [], t('Submit'), ['query' => ['custom' => 'param']]);
-    $this->assertRaw('<a href="' . $webform_confirmation_inline->toUrl()->toString() . '?custom=param" rel="back" title="Back to form">Back to form</a>');
-    $this->assertUrl('webform/test_confirmation_inline', ['query' => ['custom' => 'param', 'webform_id' => $webform_confirmation_inline->id()]]);
+    $this->assertRaw('<a href="' . $webform_confirmation_inline->toUrl('canonical', ['absolute' => TRUE, 'query' => ['custom' => 'param']])->toString() . '" rel="back" title="Back to form">Back to form</a>');
+    $this->assertUrl('webform/test_confirmation_inline', ['query' => ['custom' => 'param']]);
 
     /* Test confirmation page (confirmation_type=page) */
 

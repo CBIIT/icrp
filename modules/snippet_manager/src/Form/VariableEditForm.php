@@ -17,7 +17,7 @@ class VariableEditForm extends VariableFormBase {
   public function form(array $form, FormStateInterface $form_state) {
     $form = parent::form($form, $form_state);
 
-    $form['#title'] = t(
+    $form['#title'] = $this->t(
       'Edit variable %variable',
       ['%variable' => $this->getVariableName()]
     );

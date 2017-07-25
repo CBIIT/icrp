@@ -1,11 +1,16 @@
 /**
  * @file
- * Javascript behaviors for Telephone element.
+ * JavaScript behaviors for Telephone element.
  */
 
 (function ($, Drupal, drupalSettings) {
 
   'use strict';
+
+  // @see https://github.com/jackocnr/intl-tel-input#options
+  Drupal.webform = Drupal.webform || {};
+  Drupal.webform.intlTelInput = Drupal.webform.intlTelInput || {};
+  Drupal.webform.intlTelInput.options = Drupal.webform.intlTelInput.options || {};
 
   /**
    * Initialize Telephone international element.
@@ -14,6 +19,10 @@
    */
   Drupal.behaviors.webformTelephoneInternational = {
     attach: function (context) {
+      if (!$.fn.intlTelInput) {
+        return;
+      }
+
       $(context).find('input.js-webform-telephone-international').once('webform-telephone-international').each(function () {
         var $telephone = $(this);
 
@@ -23,16 +32,18 @@
 
         // @todo: Figure out how to lazy load utilsScript (build/js/utils.js).
         // @see https://github.com/jackocnr/intl-tel-input#utilities-script
-        $telephone.intlTelInput({
-          'nationalMode': false
-        });
+        var options = $.extend({
+          nationalMode: false,
+          initialCountry: $telephone.attr('data-webform-telephone-international-initial-country') || ''
+        }, Drupal.webform.intlTelInput.options);
+        $telephone.intlTelInput(options);
 
-        var reset = function() {
+        var reset = function () {
           $telephone.removeClass('error');
           $error.hide();
         };
 
-        $telephone.blur(function() {
+        $telephone.blur(function () {
           reset();
           if ($.trim($telephone.val())) {
             if (!$telephone.intlTelInput('isValidNumber')) {
@@ -43,7 +54,7 @@
         });
 
         $telephone.on('keyup change', reset);
-      })
+      });
     }
   };
 

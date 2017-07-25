@@ -9,6 +9,8 @@ use Drupal\Core\Render\ElementInfoManagerInterface;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Serialization\Yaml;
 use Drupal\Core\Url;
+use Drupal\webform\Form\WebformDialogFormTrait;
+use Drupal\webform\Plugin\WebformElementManagerInterface;
 use Drupal\webform\Utility\WebformYaml;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -17,7 +19,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class WebformEntityForm extends BundleEntityFormBase {
 
-  use WebformDialogTrait;
+  use WebformDialogFormTrait;
 
   /**
    * The renderer.
@@ -36,7 +38,7 @@ class WebformEntityForm extends BundleEntityFormBase {
   /**
    * Webform element manager.
    *
-   * @var \Drupal\webform\WebformElementManagerInterface
+   * @var \Drupal\webform\Plugin\WebformElementManagerInterface
    */
   protected $elementManager;
 
@@ -48,9 +50,9 @@ class WebformEntityForm extends BundleEntityFormBase {
   protected $elementsValidator;
 
   /**
-   * The token manager.
+   * The webform token manager.
    *
-   * @var \Drupal\webform\WebformTranslationManagerInterface
+   * @var \Drupal\webform\WebformTokenManagerInterface
    */
   protected $tokenManager;
 
@@ -61,12 +63,12 @@ class WebformEntityForm extends BundleEntityFormBase {
    *   The renderer.
    * @param \Drupal\Core\Render\ElementInfoManagerInterface $element_info
    *   The element manager.
-   * @param \Drupal\webform\WebformElementManagerInterface $element_manager
+   * @param \Drupal\webform\Plugin\WebformElementManagerInterface $element_manager
    *   The webform element manager.
    * @param \Drupal\webform\WebformEntityElementsValidator $elements_validator
    *   Webform element validator.
    * @param \Drupal\webform\WebformTokenManagerInterface $token_manager
-   *   The token manager.
+   *   The webform token manager.
    */
   public function __construct(RendererInterface $renderer, ElementInfoManagerInterface $element_info, WebformElementManagerInterface $element_manager, WebformEntityElementsValidator $elements_validator, WebformTokenManagerInterface $token_manager) {
     $this->renderer = $renderer;
@@ -112,16 +114,11 @@ class WebformEntityForm extends BundleEntityFormBase {
     if ($this->operation == 'duplicate') {
       // Display custom title.
       $form['#title'] = $this->t("Duplicate '@label' form", ['@label' => $webform->label()]);
-      // If template, clear template's description and remove template flag.
-      if ($webform->isTemplate()) {
-        $webform->set('description', '');
-        $webform->set('template', FALSE);
-      }
     }
 
     $form = parent::buildForm($form, $form_state);
-    $form = $this->buildFormDialog($form, $form_state);
-    return $form;
+
+    return $this->buildDialogForm($form, $form_state);
   }
 
   /**
@@ -146,7 +143,6 @@ class WebformEntityForm extends BundleEntityFormBase {
         '#disabled' => (bool) $webform->id() && $this->operation != 'duplicate',
         '#required' => TRUE,
       ];
-
       $form['title'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Title'),
@@ -162,6 +158,15 @@ class WebformEntityForm extends BundleEntityFormBase {
         '#type' => 'webform_html_editor',
         '#title' => $this->t('Administrative description'),
         '#default_value' => $webform->get('description'),
+      ];
+      /** @var \Drupal\webform\WebformEntityStorageInterface $webform_storage */
+      $webform_storage = $this->entityTypeManager->getStorage('webform');
+      $form['category'] = [
+        '#type' => 'webform_select_other',
+        '#title' => $this->t('Category'),
+        '#options' => $webform_storage->getCategories(),
+        '#empty_option' => '<' . $this->t('None') . '>',
+        '#default_value' => $webform->get('category'),
       ];
       $form = $this->protectBundleIdElement($form);
     }
@@ -206,7 +211,7 @@ class WebformEntityForm extends BundleEntityFormBase {
       '#type' => 'webform_codemirror',
       '#mode' => 'yaml',
       '#title' => $this->t('Elements (YAML)'),
-      '#description' => $this->t('Enter a <a href=":form_api_href">Form API (FAPI)</a> and/or a <a href=":render_api_href">Render Array</a> as <a href=":yaml_href">YAML</a>.', $t_args) . '<br/>' .
+      '#description' => $this->t('Enter a <a href=":form_api_href">Form API (FAPI)</a> and/or a <a href=":render_api_href">Render Array</a> as <a href=":yaml_href">YAML</a>.', $t_args) . '<br />' .
       '<em>' . $this->t('Please note that comments are not supported and will be removed.') . '</em>',
       '#default_value' => $this->getElementsWithoutWebformTypePrefix($webform->get('elements')),
       '#required' => TRUE,
@@ -249,13 +254,8 @@ class WebformEntityForm extends BundleEntityFormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    if ($response = $this->validateDialog($form, $form_state)) {
-      return $response;
-    }
-
     parent::submitForm($form, $form_state);
-
-    return $this->redirectForm($form, $form_state, Url::fromRoute('entity.webform.edit_form', ['webform' => $this->getEntity()->id()]));
+    $form_state->setRedirectUrl(Url::fromRoute('entity.webform.edit_form', ['webform' => $this->getEntity()->id()]));
   }
 
   /**
@@ -268,13 +268,18 @@ class WebformEntityForm extends BundleEntityFormBase {
     $is_new = $webform->isNew();
     $webform->save();
 
+    $context = [
+      '@label' => $webform->label(),
+      'link' => $webform->toLink($this->t('Edit'), 'edit-form')->toString()
+    ];
+    $t_args = ['%label' => $webform->label()];
     if ($is_new) {
-      $this->logger('webform')->notice('Webform @label created.', ['@label' => $webform->label()]);
-      drupal_set_message($this->t('Webform %label created.', ['%label' => $webform->label()]));
+      $this->logger('webform')->notice('Webform @label created.', $context);
+      drupal_set_message($this->t('Webform %label created.', $t_args));
     }
     else {
-      $this->logger('webform')->notice('Webform @label elements saved.', ['@label' => $webform->label()]);
-      drupal_set_message($this->t('Webform %label elements saved.', ['%label' => $webform->label()]));
+      $this->logger('webform')->notice('Webform @label elements saved.', $context);
+      drupal_set_message($this->t('Webform %label elements saved.', $t_args));
     }
   }
 

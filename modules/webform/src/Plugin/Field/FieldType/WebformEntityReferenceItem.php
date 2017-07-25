@@ -9,6 +9,8 @@ use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\TypedData\DataDefinition;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\webform\WebformInterface;
 
 /**
  * Defines the 'webform_entity_reference' entity field type.
@@ -42,7 +44,9 @@ class WebformEntityReferenceItem extends EntityReferenceItem {
   public static function defaultFieldSettings() {
     return [
       'default_data' => '',
-      'status' => TRUE,
+      'status' => WebformInterface::STATUS_OPEN,
+      'open' => '',
+      'close' => '',
     ] + parent::defaultFieldSettings();
   }
 
@@ -62,11 +66,19 @@ class WebformEntityReferenceItem extends EntityReferenceItem {
           'type' => 'text',
         ],
         'status' => [
-          'description' => 'Flag to control whether this webform should be open or closed to new submissions.',
-          'type' => 'int',
-          'size' => 'tiny',
-          'unsigned' => TRUE,
-          'default' => 1,
+          'description' => 'Flag to control whether this webform should be open, closed, or scheduled for new submissions.',
+          'type' => 'varchar',
+          'length' => 20,
+        ],
+        'open' => [
+          'description' => 'The open date/time.',
+          'type' => 'varchar',
+          'length' => 20,
+        ],
+        'close' => [
+          'description' => 'The close date/time.',
+          'type' => 'varchar',
+          'length' => 20,
         ],
       ],
       'indexes' => [
@@ -84,9 +96,15 @@ class WebformEntityReferenceItem extends EntityReferenceItem {
     $properties['default_data'] = DataDefinition::create('string')
       ->setLabel(t('Default submission data'));
 
-    $properties['status'] = DataDefinition::create('boolean')
+    $properties['status'] = DataDefinition::create('string')
       ->setLabel(t('Status'))
       ->setDescription(t('Flag to control whether this webform should be open or closed to new submissions.'));
+
+    $properties['open'] = DataDefinition::create('datetime_iso8601')
+      ->setLabel(t('Open value'));
+
+    $properties['close'] = DataDefinition::create('datetime_iso8601')
+      ->setLabel(t('Close value'));
 
     return $properties;
   }
@@ -114,6 +132,47 @@ class WebformEntityReferenceItem extends EntityReferenceItem {
       }
     }
     return '';
+  }
+
+  /**
+   * Get an entity's target webform.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   A fieldable content entity.
+   *
+   * @return \Drupal\webform\WebformInterface|null
+   *   The entity's target webform or NULL.
+   */
+  public static function getEntityWebformTarget(EntityInterface $entity = NULL) {
+    if ($field_name = static::getEntityWebformFieldName($entity)) {
+      return $entity->$field_name->entity;
+    }
+    else {
+      return NULL;
+    }
+  }
+
+  /**
+   * Get the table names for all webform field instances.
+   *
+   * @todo Figure out a better way to determine webform field table names.
+   *
+   * @return array
+   *   An associative array of webform field table names and webform field names.
+   */
+  public static function getTableNames() {
+    /** @var \Drupal\field\FieldStorageConfigInterface[] $field_storage_configs */
+    $field_storage_configs = FieldStorageConfig::loadMultiple();
+    $tables = [];
+    foreach ($field_storage_configs as $field_storage_config) {
+      if ($field_storage_config->getType() == 'webform') {
+        $webform_field_table = \Drupal::database()->tablePrefix($field_storage_config->getTargetEntityTypeId()) . $field_storage_config->getTargetEntityTypeId();
+        $webform_field_name = $field_storage_config->getName();
+        $tables[$webform_field_table . '__' . $webform_field_name] = $webform_field_name;
+        $tables[$webform_field_table . '_revision__' . $webform_field_name] = $webform_field_name;
+      };
+    }
+    return $tables;
   }
 
   /**

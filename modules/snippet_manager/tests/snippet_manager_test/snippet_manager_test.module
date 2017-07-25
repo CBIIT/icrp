@@ -11,12 +11,13 @@ use Drupal\snippet_manager\SnippetInterface;
  * Implements hook_page_bottom().
  */
 function snippet_manager_test_page_bottom(array &$page_bottom) {
-  if (\Drupal::state()->get('show_snippet')) {
+  $snippet_id = \Drupal::state()->get('show_snippet');
+  if ($snippet_id) {
     $page_bottom['wrapper']['#type'] = 'details';
     $page_bottom['wrapper']['#summary'] = 'snippet';
     /** @var \Drupal\snippet_manager\SnippetViewBuilder $view_builder */
     $view_builder = \Drupal::entityTypeManager()->getViewBuilder('snippet');
-    $page_bottom['wrapper']['snippet'] = $view_builder->buildRenderArray('alpha');
+    $page_bottom['wrapper']['snippet'] = $view_builder->buildRenderArray($snippet_id);
   }
 }
 

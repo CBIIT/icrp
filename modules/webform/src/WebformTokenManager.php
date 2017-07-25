@@ -55,14 +55,14 @@ class WebformTokenManager implements WebformTokenManagerInterface {
       return $text;
     }
 
+    // Set token options.
+    $options += ['clear' => TRUE];
+
     // Replace @deprecated [webform-submission] with [webform_submission].
     $text = str_replace('[webform-submission:', '[webform_submission:', $text);
 
     // Set token data based on entity type.
     $this->setTokenData($data, $entity);
-
-    // Set token options.
-    $options += ['clear' => TRUE];
 
     return $this->token->replace($text, $data, $options);
   }
@@ -70,12 +70,12 @@ class WebformTokenManager implements WebformTokenManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function buildTreeLink() {
+  public function buildTreeLink(array $token_types = ['webform', 'webform_submission']) {
     if ($this->moduleHandler->moduleExists('token')) {
       // @todo Issue #2235581: Make Token Dialog support inserting in WYSIWYGs.
       return [
         '#theme' => 'token_tree_link',
-        '#token_types' => ['webform', 'webform_submission'],
+        '#token_types' => $token_types,
         '#click_insert' => FALSE,
         '#dialog' => TRUE,
       ];

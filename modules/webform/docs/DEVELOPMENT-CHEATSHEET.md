@@ -34,6 +34,13 @@ git branch -D [issue-number]-[issue-description]
 git push origin :[issue-number]-[issue-description]
 ```
 
+**Generate Drush Make and Composer Files**
+
+```bash
+drush webform-libraries-make > webform.libraries.make.yml
+drush webform-libraries-composer > composer.json
+```
+
 **Import and Export Configuration**
 
 ```bash
@@ -47,6 +54,7 @@ echo 'true' > modules/webform_node/webform_node.features.yml
 # Make sure all modules that are going to be exported are enabled
 drush en -y webform\
   webform_demo_application_evaluation\
+  webform_demo_event_registration\
   webform_examples\
   webform_templates\
   webform_test\
@@ -55,6 +63,7 @@ drush en -y webform\
   webform_test_options\
   webform_test_views\
   webform_test_translation\
+  webform_scheduled_email_test\
   webform_node;
 
 # Show the difference between the active config and the default config.
@@ -64,15 +73,18 @@ drush features-diff webform_test
 # Export webform configuration from your site.          
 drush features-export -y webform
 drush features-export -y webform_demo_application_evaluation
+drush features-export -y webform_demo_event_registration
 drush features-export -y webform_examples
 drush features-export -y webform_templates
-drush features-export -y webform_test
+drush features-export -y webform_testdrush cr
 drush features-export -y webform_test_element
 drush features-export -y webform_test_handler
 drush features-export -y webform_test_options
 drush features-export -y webform_test_views
 drush features-export -y webform_test_translation
 drush features-export -y webform_node
+drush features-export -y webform_scheduled_email_test
+drush features-export -y webform_test_block_submission_limit
 
 # Revert all feature update to *.info.yml files.
 git checkout -- *.info.yml
@@ -80,6 +92,7 @@ git checkout -- *.info.yml
 # Tidy webform configuration from your site.          
 drush webform-tidy -y --dependencies webform
 drush webform-tidy -y --dependencies webform_demo_application_evaluation
+drush webform-tidy -y --dependencies webform_demo_event_registration
 drush webform-tidy -y --dependencies webform_examples
 drush webform-tidy -y --dependencies webform_templates
 drush webform-tidy -y --dependencies webform_test
@@ -89,6 +102,8 @@ drush webform-tidy -y --dependencies webform_test_options
 drush webform-tidy -y --dependencies webform_test_views
 drush webform-tidy -y --dependencies webform_test_translation
 drush webform-tidy -y --dependencies webform_node
+drush webform-tidy -y --dependencies webform_scheduled_email_test
+drush webform-tidy -y --dependencies webform_test_block_submission_limit
 
 # Re-import all webform configuration into your site.      
 drush features-import -y webform
@@ -102,4 +117,6 @@ drush features-import -y webform_test_options
 drush features-import -y webform_test_views
 drush features-import -y webform_test_translation
 drush features-import -y webform_node
+drush features-import -y webform_scheduled_email_test
+drush features-import -y webform_test_block_submission_limit
 ```

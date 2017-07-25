@@ -3,19 +3,27 @@
 namespace Drupal\webform\Controller;
 
 use Drupal\Component\Render\FormattableMarkup;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Render\ElementInfoManagerInterface;
 use Drupal\Core\Url;
 use Drupal\webform\Utility\WebformReflectionHelper;
-use Drupal\webform\WebformElementManagerInterface;
+use Drupal\webform\Plugin\WebformElementManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Controller for all webform elements.
  */
 class WebformPluginElementController extends ControllerBase implements ContainerInjectionInterface {
+
+  /**
+   * The config factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
 
   /**
    * The module handler.
@@ -34,21 +42,24 @@ class WebformPluginElementController extends ControllerBase implements Container
   /**
    * A webform element plugin manager.
    *
-   * @var \Drupal\webform\WebformElementManagerInterface
+   * @var \Drupal\webform\Plugin\WebformElementManagerInterface
    */
   protected $elementManager;
 
   /**
    * Constructs a WebformPluginElementController object.
    *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The factory for configuration objects.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler.
    * @param \Drupal\Core\Render\ElementInfoManagerInterface $element_info
    *   A element info plugin manager.
-   * @param \Drupal\webform\WebformElementManagerInterface $element_manager
+   * @param \Drupal\webform\Plugin\WebformElementManagerInterface $element_manager
    *   A webform element plugin manager.
    */
-  public function __construct(ModuleHandlerInterface $module_handler, ElementInfoManagerInterface $element_info, WebformElementManagerInterface $element_manager) {
+  public function __construct(ConfigFactoryInterface $config_factory, ModuleHandlerInterface $module_handler, ElementInfoManagerInterface $element_info, WebformElementManagerInterface $element_manager) {
+    $this->configFactory = $config_factory;
     $this->moduleHandler = $module_handler;
     $this->elementInfo = $element_info;
     $this->elementManager = $element_manager;
@@ -59,6 +70,7 @@ class WebformPluginElementController extends ControllerBase implements Container
    */
   public static function create(ContainerInterface $container) {
     return new static(
+      $container->get('config.factory'),
       $container->get('module_handler'),
       $container->get('plugin.manager.element_info'),
       $container->get('plugin.manager.webform.element')
@@ -71,6 +83,8 @@ class WebformPluginElementController extends ControllerBase implements Container
   public function index() {
     $webform_form_element_rows = [];
     $element_rows = [];
+
+    $excluded_elements = $this->config('webform.settings')->get('element.excluded_elements');
 
     $default_properties = [
       // Element settings.
@@ -119,7 +133,7 @@ class WebformPluginElementController extends ControllerBase implements Container
     foreach ($element_plugin_definitions as $element_plugin_id => $element_plugin_definition) {
       if ($this->elementManager->hasDefinition($element_plugin_id)) {
 
-        /** @var \Drupal\webform\WebformElementInterface $webform_element */
+        /** @var \Drupal\webform\Plugin\WebformElementInterface $webform_element */
         $webform_element = $this->elementManager->createInstance($element_plugin_id);
         $webform_element_plugin_definition = $this->elementManager->getDefinition($element_plugin_id);
         $webform_element_info = $webform_element->getInfo();
@@ -135,7 +149,10 @@ class WebformPluginElementController extends ControllerBase implements Container
 
         $related_types = $webform_element->getRelatedTypes($element);
 
+        $dependencies = $webform_element_plugin_definition['dependencies'];
+
         $webform_info_definitions = [
+          'excluded' => isset($excluded_elements[$element_plugin_id]),
           'input' => $webform_element->isInput($element),
           'container' => $webform_element->isContainer($element),
           'root' => $webform_element->isRoot(),
@@ -188,21 +205,26 @@ class WebformPluginElementController extends ControllerBase implements Container
             'url' => $api_url,
           ];
         }
+
         $webform_form_element_rows[$element_plugin_id] = [
           'data' => [
             new FormattableMarkup('<div class="webform-form-filter-text-source">@id</div>', ['@id' => $element_plugin_id]),
-            new FormattableMarkup('<strong>@label</strong><br/>@description', ['@label' => $webform_element->getPluginLabel(), '@description' => $webform_element->getPluginDescription()]),
-            ['data' => ['#markup' => implode('<br/> → ', $parent_classes)], 'nowrap' => 'nowrap'],
-            ['data' => ['#markup' => implode('<br/>', $webform_info)], 'nowrap' => 'nowrap'],
-            ['data' => ['#markup' => implode('<br/>', $element_info)], 'nowrap' => 'nowrap'],
-            ['data' => ['#markup' => implode('<br/>', $properties)]],
-            $formats ? ['data' => ['#markup' => '• ' . implode('<br/>• ', $formats)], 'nowrap' => 'nowrap'] : '',
-            $related_types ? ['data' => ['#markup' => '• ' . implode('<br/>• ', $related_types)], 'nowrap' => 'nowrap'] : '<' . $this->t('none') . '>',
+            new FormattableMarkup('<strong>@label</strong><br />@description', ['@label' => $webform_element->getPluginLabel(), '@description' => $webform_element->getPluginDescription()]),
+            ['data' => ['#markup' => implode('<br /> → ', $parent_classes)], 'nowrap' => 'nowrap'],
+            ['data' => ['#markup' => implode('<br />', $webform_info)], 'nowrap' => 'nowrap'],
+            ['data' => ['#markup' => implode('<br />', $element_info)], 'nowrap' => 'nowrap'],
+            ['data' => ['#markup' => implode('<br />', $properties)]],
+            $formats ? ['data' => ['#markup' => '• ' . implode('<br />• ', $formats)], 'nowrap' => 'nowrap'] : '',
+            $related_types ? ['data' => ['#markup' => '• ' . implode('<br />• ', $related_types)], 'nowrap' => 'nowrap'] : '<' . $this->t('none') . '>',
+            $dependencies ? ['data' => ['#markup' => '• ' . implode('<br />• ', $dependencies)], 'nowrap' => 'nowrap'] : '',
             $element_plugin_definition['provider'],
             $webform_element_plugin_definition['provider'],
             $operations ? ['data' => ['#type' => 'operations', '#links' => $operations]] : '',
           ],
         ];
+        if (isset($excluded_elements[$element_plugin_id])) {
+          $webform_form_element_rows[$element_plugin_id]['class'] = ['color-warning'];
+        }
       }
       else {
         $element_rows[$element_plugin_id] = [
@@ -228,6 +250,13 @@ class WebformPluginElementController extends ControllerBase implements Container
       ],
     ];
 
+    // Display info.
+    $build['info'] = [
+      '#markup' => $this->t('@total elements', ['@total' => count($webform_form_element_rows)]),
+      '#prefix' => '<div>',
+      '#suffix' => '</div>',
+    ];
+
     ksort($webform_form_element_rows);
     $build['webform_elements'] = [
       '#type' => 'table',
@@ -240,6 +269,7 @@ class WebformPluginElementController extends ControllerBase implements Container
         $this->t('Properties'),
         $this->t('Formats'),
         $this->t('Related'),
+        $this->t('Dependencies'),
         $this->t('Provided by'),
         $this->t('Integrated by'),
         $this->t('Operations'),

@@ -94,7 +94,7 @@
       this.renderCategories();
 
       // Flag the current layout.
-      var current_layout_text = '<p>' + Drupal.t('Current Layout') + '</p>';
+      var current_layout_text = '<span class="ipe-current-layout-label">' + Drupal.t('Current') + '</span>';
       this.$('[data-layout-id="' + current_layout + '"]').append(current_layout_text);
 
       // Prepend the current layout as its own category.

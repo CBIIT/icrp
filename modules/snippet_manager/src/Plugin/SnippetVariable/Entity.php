@@ -2,15 +2,15 @@
 
 namespace Drupal\snippet_manager\Plugin\SnippetVariable;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityDisplayRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\snippet_manager\SnippetVariableBase;
-use Drupal\snippet_manager\SnippetVariableInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\snippet_manager\SnippetVariableBase;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides Entity variable type.
@@ -22,7 +22,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
  *   deriver = "\Drupal\snippet_manager\Plugin\SnippetVariable\EntityDeriver",
  * )
  */
-class Entity extends SnippetVariableBase implements SnippetVariableInterface, ContainerFactoryPluginInterface {
+class Entity extends SnippetVariableBase implements ContainerFactoryPluginInterface {
 
   /**
    * Entity type manager.
@@ -116,7 +116,7 @@ class Entity extends SnippetVariableBase implements SnippetVariableInterface, Co
 
       if (!$entity) {
         drupal_set_message(
-          t('Could not load entity: #%entity', ['%entity' => $this->configuration['entity_id']]),
+          $this->t('Could not load entity: #%entity', ['%entity' => $this->configuration['entity_id']]),
           'error'
         );
       }
@@ -132,14 +132,25 @@ class Entity extends SnippetVariableBase implements SnippetVariableInterface, Co
       '#default_value' => $entity,
       '#maxlength' => 2048,
       '#target_type' => $this->entityType,
-      '#description' => t('Leave the field empty to load the entity dynamically from request.'),
+      '#description' => $this->t('Leave the field empty to load the entity dynamically from request.'),
     ];
 
     $form['view_mode'] = [
       '#type' => 'select',
       '#options' => $this->entityDisplayRepository->getViewModeOptions($this->entityType),
-      '#title' => t('View mode'),
+      '#title' => $this->t('View mode'),
       '#default_value' => $this->configuration['view_mode'],
+      '#required' => TRUE,
+    ];
+
+    $form['render_mode'] = [
+      '#title' => $this->t('Render mode'),
+      '#type' => 'radios',
+      '#options' => [
+        'entity' => $this->t('Entity'),
+        'fields' => $this->t('Fields'),
+      ],
+      '#default_value' => $this->configuration['render_mode'],
       '#required' => TRUE,
     ];
 
@@ -189,9 +200,41 @@ class Entity extends SnippetVariableBase implements SnippetVariableInterface, Co
         $entity->addCacheContexts(['url']);
       }
 
-      $build = $this->entityTypeManager
-        ->getViewBuilder($this->entityType)
-        ->view($entity, $this->configuration['view_mode']);
+      $build = [];
+      // We do not configure #cache for this mode assuming it will "bubble" when
+      // entity object is rendered.
+      if ($this->configuration['render_mode'] == 'entity') {
+        $build = $this->entityTypeManager
+          ->getViewBuilder($this->entityType)
+          ->view($entity, $this->configuration['view_mode']);
+      }
+      else {
+        $display_id = $entity->getEntityTypeId() . '.' . $entity->bundle() . '.' . $this->configuration['view_mode'];
+        /* @var \Drupal\Core\Entity\Display\EntityViewDisplayInterface $display_mode */
+        $display_mode = $this->entityTypeManager->getStorage('entity_view_display')->load($display_id);
+        $entity_cache = [
+          'tags' => $entity->getCacheTags(),
+          'contexts' => $entity->getCacheContexts(),
+          'max-age' => $entity->getCacheMaxAge(),
+        ];
+
+        foreach ($display_mode->get('fieldDefinitions') as $field_name => $field_definition) {
+          $build[$field_name] = $entity->{$field_name}->view($this->configuration['view_mode']);
+
+          // The fields may be rendered individually so the cache should be
+          // configured for each one.
+          if (isset($build[$field_name]['#cache'])) {
+            $field_cache = $build[$field_name]['#cache'];
+            $build[$field_name]['#cache'] = [
+              'tags' => Cache::mergeTags($field_cache['tags'], $entity_cache['tags']),
+              'contexts' => Cache::mergeContexts($field_cache['contexts'], $entity_cache['contexts']),
+              'max-age' => Cache::mergeMaxAges($field_cache['max-age'], $entity_cache['max-age']),
+            ];
+          }
+
+        }
+
+      }
 
       return $build;
     }
@@ -217,7 +260,7 @@ class Entity extends SnippetVariableBase implements SnippetVariableInterface, Co
     if ($entity && $entity->hasLinkTemplate('edit-form')) {
       $label = $entity->getEntityType()->getLowercaseLabel();
       $links['edit_entity'] = [
-        'title' => t('Edit @label', ['@label' => $label]),
+        'title' => $this->t('Edit @label', ['@label' => $label]),
         'url' => $entity->toUrl('edit-form'),
       ];
     }
@@ -231,6 +274,7 @@ class Entity extends SnippetVariableBase implements SnippetVariableInterface, Co
     return [
       'entity_id' => NULL,
       'view_mode' => 'default',
+      'render_mode' => 'entity',
     ];
   }
 

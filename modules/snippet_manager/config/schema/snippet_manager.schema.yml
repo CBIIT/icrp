@@ -164,6 +164,12 @@ snippet_manager_variable_settings.entity:*:
     view_mode:
       type: string
       label: View mode
+    render_mode:
+      type: string
+      label: Render mode
+
+snippet_manager_variable_settings.form:*:
+  type: mapping
 
 snippet_manager_variable_settings.file:
   type: mapping

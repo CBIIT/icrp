@@ -3,11 +3,10 @@
 namespace Drupal\webform\Form;
 
 use Drupal\Core\Form\FormBase;
-use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Form\SubformState;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\webform\WebformDialogTrait;
-use Drupal\webform\WebformHandlerInterface;
+use Drupal\webform\Plugin\WebformHandlerInterface;
 use Drupal\webform\WebformInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -16,7 +15,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 abstract class WebformHandlerFormBase extends FormBase {
 
-  use WebformDialogTrait;
+  use WebformDialogFormTrait;
 
   /**
    * The webform.
@@ -28,7 +27,7 @@ abstract class WebformHandlerFormBase extends FormBase {
   /**
    * The webform handler.
    *
-   * @var \Drupal\webform\WebformHandlerInterface
+   * @var \Drupal\webform\Plugin\WebformHandlerInterface
    */
   protected $webformHandler;
 
@@ -73,8 +72,14 @@ abstract class WebformHandlerFormBase extends FormBase {
       $cardinality = $this->webformHandler->cardinality();
       $number_of_instances = $webform->getHandlers($plugin_id)->count();
       if ($cardinality !== WebformHandlerInterface::CARDINALITY_UNLIMITED && $cardinality <= $number_of_instances) {
-        $t_args = ['@number' => $cardinality, '@instances' => $this->formatPlural($cardinality, $this->t('instance is'), $this->t('instances are'))];
-        throw new NotFoundHttpException($this->t('Only @number @instance permitted', $t_args));
+        throw new NotFoundHttpException(
+          $this->formatPlural(
+            $cardinality,
+            'Only @number instance is permitted',
+            'Only @number instances are permitted',
+            ['@number' => $cardinality]
+          )
+        );
       }
     }
 
@@ -94,6 +99,7 @@ abstract class WebformHandlerFormBase extends FormBase {
     $form['status'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Enable the %name handler.', ['%name' => $this->webformHandler->label()]),
+      '#return_value' => TRUE,
       '#default_value' => $this->webformHandler->isEnabled(),
       // Disable broken plugins.
       '#disabled' => ($this->webformHandler->getPluginId() == 'broken'),
@@ -120,7 +126,14 @@ abstract class WebformHandlerFormBase extends FormBase {
       ],
     ];
 
-    $form['settings'] = $this->webformHandler->buildConfigurationForm([], $form_state);
+    $form['#parents'] = [];
+    $form['settings'] = [
+      '#tree' => TRUE,
+      '#parents' => ['settings'],
+    ];
+    $subform_state = SubformState::createForSubform($form['settings'], $form, $form_state);
+    $form['settings'] = $this->webformHandler->buildConfigurationForm($form['settings'], $subform_state);
+
     // Get $form['settings']['#attributes']['novalidate'] and apply it to the
     // $form.
     // This allows handlers with hide/show logic to skip HTML5 validation.
@@ -144,9 +157,7 @@ abstract class WebformHandlerFormBase extends FormBase {
       '#button_type' => 'primary',
     ];
 
-    $form = $this->buildFormDialog($form, $form_state);
-
-    return $form;
+    return $this->buildDialogForm($form, $form_state);
   }
 
   /**
@@ -155,57 +166,51 @@ abstract class WebformHandlerFormBase extends FormBase {
   public function validateForm(array &$form, FormStateInterface $form_state) {
     // The webform handler configuration is stored in the 'settings' key in
     // the webform, pass that through for validation.
-    $settings = $form_state->getValue('settings') ?: [];
-    $handler_state = (new FormState())->setValues($settings);
-    $this->webformHandler->validateConfigurationForm($form, $handler_state);
+    $subform_state = SubformState::createForSubform($form['settings'], $form, $form_state);
+    $this->webformHandler->validateConfigurationForm($form, $subform_state);
 
     // Process handler state webform errors.
-    $this->processHandlerFormErrors($handler_state, $form_state);
+    $this->processHandlerFormErrors($subform_state, $form_state);
 
     // Update the original webform values.
-    $form_state->setValue('settings', $handler_state->getValues());
+    $form_state->setValue('settings', $subform_state->getValues());
   }
 
   /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    if ($response = $this->validateDialog($form, $form_state)) {
-      return $response;
-    }
-
     $form_state->cleanValues();
 
     // The webform handler configuration is stored in the 'settings' key in
     // the webform, pass that through for submission.
-    $handler_data = (new FormState())->setValues($form_state->getValue('settings'));
+    $subform_state = SubformState::createForSubform($form['settings'], $form, $form_state);
+    $this->webformHandler->submitConfigurationForm($form, $subform_state);
 
-    $this->webformHandler->submitConfigurationForm($form, $handler_data);
     // Update the original webform values.
-    $form_state->setValue('settings', $handler_data->getValues());
-
-    $is_new = ($this->webformHandler->getHandlerId()) ? FALSE : TRUE;
+    $form_state->setValue('settings', $subform_state->getValues());
 
     $this->webformHandler->setHandlerId($form_state->getValue('handler_id'));
     $this->webformHandler->setLabel($form_state->getValue('label'));
     $this->webformHandler->setStatus($form_state->getValue('status'));
     $this->webformHandler->setWeight($form_state->getValue('weight'));
-    if ($is_new) {
-      $this->webform->addWebformHandler($this->webformHandler->getConfiguration());
+
+    if ($this instanceof WebformHandlerAddForm) {
+      $this->webform->addWebformHandler($this->webformHandler);
+      drupal_set_message($this->t('The webform handler was successfully added.'));
     }
-    $this->webform->save();
+    else {
+      $this->webform->updateWebformHandler($this->webformHandler);
+      drupal_set_message($this->t('The webform handler was successfully updated.'));
+    }
 
-    // Display status message.
-    drupal_set_message($this->t('The webform handler was successfully applied.'));
-
-    // Redirect.
-    return $this->redirectForm($form, $form_state, $this->webform->toUrl('handlers-form'));
+    $form_state->setRedirectUrl($this->webform->toUrl('handlers-form', ['query' => ['update' => $this->webformHandler->getHandlerId()]]));
   }
 
   /**
    * Generates a unique machine name for a webform handler instance.
    *
-   * @param \Drupal\webform\WebformHandlerInterface $handler
+   * @param \Drupal\webform\Plugin\WebformHandlerInterface $handler
    *   The webform handler.
    *
    * @return string
@@ -243,7 +248,7 @@ abstract class WebformHandlerFormBase extends FormBase {
    *
    * @param \Drupal\Core\Form\FormStateInterface $handler_state
    *   The webform handler webform state.
-   * @param \Drupal\Core\Form\FormStateInterface  &$form_state
+   * @param \Drupal\Core\Form\FormStateInterface &$form_state
    *   The webform state.
    */
   protected function processHandlerFormErrors(FormStateInterface $handler_state, FormStateInterface &$form_state) {

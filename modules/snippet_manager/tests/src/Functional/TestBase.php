@@ -53,13 +53,36 @@ abstract class TestBase extends BrowserTestBase {
   }
 
   /**
-   * Checks that an element specified by a the xpath exists on the current page.
+   * Checks that an element exists on the current page.
+   *
+   * @param string $selector
+   *   The XPath identifying the element to check.
+   *
+   * @deprecated
+   *   Use $this->assertXpath() instead.
+   */
+  protected function assertByXpath($selector) {
+    $this->assertXpath($selector);
+  }
+
+  /**
+   * Checks that an element exists on the current page.
    *
    * @param string $selector
    *   The XPath identifying the element to check.
    */
-  protected function assertByXpath($selector) {
+  protected function assertXpath($selector) {
     $this->assertSession()->elementExists('xpath', $selector);
+  }
+
+  /**
+   * Checks that an element does not exist on the current page.
+   *
+   * @param string $selector
+   *   The XPath identifying the element to check.
+   */
+  protected function assertNoXpath($selector) {
+    $this->assertSession()->elementNotExists('xpath', $selector);
   }
 
   /**
@@ -150,7 +173,13 @@ abstract class TestBase extends BrowserTestBase {
    * Passes if expected page title was found.
    */
   protected function assertPageTitle($title) {
-    $this->assertEquals($title, trim(strip_tags($this->xpath('//h1[@class="page-title"]')[0]->getHtml(), '<em>')));
+    $title_element = $this->xpath('//h1[contains(@class, "page-title")]');
+    if (isset($title_element[0])) {
+      $this->assertEquals($title, trim(strip_tags($title_element[0]->getHtml(), '<em>')));
+    }
+    else {
+      $this->fail('Page title was not found.');
+    }
   }
 
 }

@@ -3,21 +3,21 @@ services:
   # Plugins.
 
   plugin.manager.webform.element:
-    class: Drupal\webform\WebformElementManager
-    parent: default_plugin_manager
+    class: Drupal\webform\Plugin\WebformElementManager
+    arguments: ['@container.namespaces', '@cache.discovery', '@module_handler', '@config.factory', '@plugin.manager.element_info']
 
   plugin.manager.webform.handler:
-    class: Drupal\webform\WebformHandlerManager
-    parent: default_plugin_manager
+    class: Drupal\webform\Plugin\WebformHandlerManager
+    arguments: ['@container.namespaces', '@cache.discovery', '@module_handler', '@config.factory']
 
   plugin.manager.webform.exporter:
-    class: Drupal\webform\WebformExporterManager
-    parent: default_plugin_manager
+    class: Drupal\webform\Plugin\WebformExporterManager
+    arguments: ['@container.namespaces', '@cache.discovery', '@module_handler', '@config.factory']
 
   # Logger.
 
   logger.channel.webform:
-    class: Drupal\Core\Logger\LoggerChannel√
+    class: Drupal\Core\Logger\LoggerChannel
     factory: logger.factory:get
     arguments: ['webform']
 
@@ -39,7 +39,7 @@ services:
 
   webform.libraries_manager:
     class: Drupal\webform\WebformLibrariesManager
-    arguments: ['@config.factory']
+    arguments: ['@config.factory', '@module_handler', '@renderer']
 
   webform.message_manager:
     class: Drupal\webform\WebformMessageManager
@@ -59,7 +59,7 @@ services:
 
   webform_submission.exporter:
     class: Drupal\webform\WebformSubmissionExporter
-    arguments: ['@config.factory', '@entity_type.manager', '@entity.query', '@stream_wrapper_manager', '@plugin.manager.webform.element', '@plugin.manager.webform.exporter']
+    arguments: ['@config.factory', '@file_system', '@entity_type.manager', '@entity.query', '@stream_wrapper_manager', '@plugin.manager.webform.element', '@plugin.manager.webform.exporter']
 
   webform.third_party_settings_manager:
     class: Drupal\webform\WebformThirdPartySettingsManager
@@ -72,10 +72,18 @@ services:
   # Breadcrumb builder.
 
   webform.breadcrumb:
-    class: Drupal\webform\BreadCrumb\WebformBreadcrumbBuilder
+    class: Drupal\webform\Breadcrumb\WebformBreadcrumbBuilder
     arguments: ['@module_handler', '@webform.request', '@string_translation']
     tags:
       - { name: breadcrumb_builder, priority: 1002 }
+
+  # Event subscriber.
+
+  webform.event_subscriber:
+    class: Drupal\webform\EventSubscriber\WebformSubscriber
+    arguments: ['@current_user', '@config.factory']
+    tags:
+      - { name: event_subscriber }
 
   # Route subscriber.
 
@@ -97,3 +105,11 @@ services:
     arguments: ['@current_route_match']
     tags:
       - { name: 'context_provider' }
+
+  # Twig extension.
+
+  webform.twig_extension:
+    class: Drupal\webform\Twig\TwigExtension
+    arguments: ['@webform.token_manager']
+    tags:
+      - { name: twig.extension }

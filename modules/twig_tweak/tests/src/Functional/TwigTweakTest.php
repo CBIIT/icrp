@@ -38,6 +38,8 @@ class TwigTweakTest extends BrowserTestBase {
    * Tests output produced by the Twig extension.
    */
   public function testOutput() {
+    // Title block rendered through drupal_region() is cached by some reason.
+    \Drupal::service('cache_tags.invalidator')->invalidateTags(['block_view']);
     $this->drupalGet('<front>');
 
     // Test default views display.
@@ -64,7 +66,7 @@ class TwigTweakTest extends BrowserTestBase {
 
     // Test block.
     $xpath = '//div[@class = "tt-block"]';
-    $xpath .= '/div[@id="block-powered-by-drupal"]/span[contains(., "Powered by Drupal")]';
+    $xpath .= '/div[@id="block-classy-powered-by-drupal"]/span[contains(., "Powered by Drupal")]';
     $this->assertByXpath($xpath);
 
     // Test region.
@@ -131,6 +133,10 @@ class TwigTweakTest extends BrowserTestBase {
     $xpath = '//div[@class = "messages messages--warning" and contains(., "Hi!")]';
     $this->assertByXpath($xpath);
 
+    // Test page title.
+    $xpath = '//div[@class = "tt-title" and text() = "Beta"]';
+    $this->assertByXpath($xpath);
+
     // Test token replacement.
     $xpath = '//div[@class = "tt-token-replace" and text() = "Site name: Drupal"]';
     $this->assertByXpath($xpath);
@@ -149,15 +155,6 @@ class TwigTweakTest extends BrowserTestBase {
    */
   public function assertByXpath($xpath) {
     $this->assertSession()->elementExists('xpath', $xpath);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function drupalGet($path, array $options = [], array $headers = []) {
-    // Title block rendered through drupal_region() is cached by some reason.
-    \Drupal::service('cache_tags.invalidator')->invalidateTags(['block_view']);
-    return parent::drupalGet($path, $options, $headers);
   }
 
 }

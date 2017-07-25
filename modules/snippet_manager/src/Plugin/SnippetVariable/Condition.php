@@ -11,7 +11,6 @@ use Drupal\Core\Plugin\Context\ContextHandlerInterface;
 use Drupal\Core\Plugin\Context\ContextRepositoryInterface;
 use Drupal\Core\Plugin\ContextAwarePluginInterface;
 use Drupal\snippet_manager\SnippetVariableBase;
-use Drupal\snippet_manager\SnippetVariableInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -26,7 +25,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * )
  * @codingStandardsIgnoreEnd
  */
-class Condition extends SnippetVariableBase implements SnippetVariableInterface, ContainerFactoryPluginInterface {
+class Condition extends SnippetVariableBase implements ContainerFactoryPluginInterface {
 
   /**
    * The condition manager.
@@ -59,6 +58,12 @@ class Condition extends SnippetVariableBase implements SnippetVariableInterface,
   /**
    * Constructor.
    *
+   * @param array $configuration
+   *   A configuration array containing information about the plugin instance.
+   * @param string $plugin_id
+   *   The plugin_id for the plugin instance.
+   * @param mixed $plugin_definition
+   *   The plugin implementation definition.
    * @param \Drupal\Core\Condition\ConditionManager $condition_manager
    *   The condition manager.
    *   The ConditionManager for checking visibility of blocks.
@@ -92,7 +97,7 @@ class Condition extends SnippetVariableBase implements SnippetVariableInterface,
    * {@inheritdoc}
    */
   public function getType() {
-    return t('Boolean');
+    return $this->t('Boolean');
   }
 
   /**

@@ -1,5 +1,6 @@
 services:
   snippet_manager_test.event_subscriber:
       class: Drupal\snippet_manager_test\EventSubscriber\DisplayVariantSubscriber
+      arguments: ['@state']
       tags:
         - { name: event_subscriber }

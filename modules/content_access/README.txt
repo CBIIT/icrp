@@ -4,7 +4,7 @@ Content Access Module
 by Wolfgang Ziegler, nuppla@zites.net
 
 Yet another node access module.
-This module allows you to manage permissions for content types by role. It allows you to specifiy
+This module allows you to manage permissions for content types by role. It allows you to specify
 custom view, view own, edit, edit own, delete and delete own permissions for each content type.
 Optionally you can enable per content access settings, so you can customize the access for each
 content node.
@@ -13,7 +13,7 @@ In particular
   * it comes with sensible defaults, so you need not configure anything and everything stays working
   * it is as flexible as you want. It can work with per content type settings, per content node settings
     as well as with flexible Access Control Lists (with the help of the ACL module).
-  * it trys to reuse existing functionality instead of reimplementing it. So one can install the ACL
+  * it tries to reuse existing functionality instead of reimplementing it. So one can install the ACL
     module and set per user access control settings per content node.
     Furthermore the module provides conditions and actions for the rules module, which allows one
     to configure even rule-based access permissions.

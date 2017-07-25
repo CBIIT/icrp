@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityTypeRepositoryInterface;
 use Drupal\Core\EventSubscriber\AjaxResponseSubscriber;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Routing\RouteProviderInterface;
+use Drupal\Core\Url;
 use Drupal\webform\Plugin\Field\FieldType\WebformEntityReferenceItem;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -96,7 +97,7 @@ class WebformRequest implements WebformRequestInterface {
       }
     }
 
-    foreach ($parameters as $name => $value) {
+    foreach ($parameters as $value) {
       if ($value instanceof EntityInterface) {
         return $value;
       }
@@ -108,13 +109,17 @@ class WebformRequest implements WebformRequestInterface {
    * {@inheritdoc}
    */
   public function getCurrentWebform() {
-    $source_entity = self::getCurrentSourceEntity('webform');
+    $source_entity = static::getCurrentSourceEntity('webform');
     $webform_field_name = WebformEntityReferenceItem::getEntityWebformFieldName($source_entity);
     if ($source_entity && $webform_field_name && $source_entity->hasField($webform_field_name)) {
       return $source_entity->$webform_field_name->entity;
     }
     else {
-      return $this->routeMatch->getParameter('webform');
+      $webform = $this->routeMatch->getParameter('webform');
+      if (is_string($webform)) {
+        $webform = $this->entityTypeManager->getStorage('webform')->load($webform);
+      }
+      return $webform;
     }
   }
 
@@ -132,6 +137,9 @@ class WebformRequest implements WebformRequestInterface {
    */
   public function getWebformSubmissionEntities() {
     $webform_submission = $this->routeMatch->getParameter('webform_submission');
+    if (is_string($webform_submission)) {
+      $webform_submission = $this->entityTypeManager->getStorage('webform_submission')->load($webform_submission);
+    }
     $source_entity = $this->getCurrentSourceEntity('webform_submission');
     return [$webform_submission, $source_entity];
   }
@@ -147,6 +155,15 @@ class WebformRequest implements WebformRequestInterface {
     return $this->request->get(AjaxResponseSubscriber::AJAX_REQUEST_PARAMETER) ? TRUE : FALSE;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function getUrl(EntityInterface $webform_entity, EntityInterface $source_entity = NULL, $route_name, $route_options = []) {
+    $route_name = $this->getRouteName($webform_entity, $source_entity, $route_name);
+    $route_parameters = $this->getRouteParameters($webform_entity, $source_entity);
+    return Url::fromRoute($route_name, $route_parameters, $route_options);
+
+  }
   /**
    * {@inheritdoc}
    */
@@ -166,7 +183,7 @@ class WebformRequest implements WebformRequestInterface {
       $source_entity = NULL;
     }
 
-    if (self::isValidSourceEntity($webform_entity, $source_entity)) {
+    if (static::isValidSourceEntity($webform_entity, $source_entity)) {
       if ($webform_entity instanceof WebformSubmissionInterface) {
         return [
           'webform_submission' => $webform_entity->id(),
@@ -202,7 +219,7 @@ class WebformRequest implements WebformRequestInterface {
       throw new \InvalidArgumentException('Webform entity');
     }
 
-    if (self::isValidSourceEntity($webform, $source_entity)) {
+    if (static::isValidSourceEntity($webform, $source_entity)) {
       return 'entity.' . $source_entity->getEntityTypeId();
     }
     else {

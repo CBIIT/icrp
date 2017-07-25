@@ -10,13 +10,6 @@ namespace Drupal\webform\Tests;
 class WebformStorageTest extends WebformTestBase {
 
   /**
-   * Modules to enable.
-   *
-   * @var array
-   */
-  protected static $modules = ['webform'];
-
-  /**
    * Test webform storage.
    *
    * @see \Drupal\webform\WebformEntityStorage::load

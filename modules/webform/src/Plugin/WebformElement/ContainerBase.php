@@ -2,8 +2,10 @@
 
 namespace Drupal\webform\Plugin\WebformElement;
 
-use Drupal\webform\WebformElementBase;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\webform\Plugin\WebformElementBase;
 use Drupal\webform\WebformInterface;
+use Drupal\webform\WebformSubmissionInterface;
 
 /**
  * Provides a base 'container' class.
@@ -44,15 +46,36 @@ abstract class ContainerBase extends WebformElementBase {
   /**
    * {@inheritdoc}
    */
-  protected function build($format, array &$element, $value, array $options = []) {
+  protected function build($format, array &$element, WebformSubmissionInterface $webform_submission, array $options = []) {
+    /** @var \Drupal\webform\WebformSubmissionViewBuilderInterface $view_builder */
+    $view_builder = \Drupal::entityTypeManager()->getViewBuilder('webform_submission');
+    $value = $view_builder->buildElements($element, $webform_submission, $options, $format);
+
     if (empty($value)) {
       return [];
+    }
+
+    // Add #first and #last property to $children.
+    // This is used to remove return from #last with multiple lines of
+    // text.
+    // @see webform-element-base-text.html.twig
+    reset($value);
+    $first_key = key($value);
+    if (isset($value[$first_key]['#options'])) {
+      $value[$first_key]['#options']['first'] = TRUE;
+    }
+
+    end($value);
+    $last_key = key($value);
+    if (isset($value[$last_key]['#options'])) {
+      $value[$last_key]['#options']['last'] = TRUE;
     }
 
     return [
       '#theme' => 'webform_container_base_' . $format,
       '#element' => $element,
       '#value' => $value,
+      '#webform_submission' => $webform_submission,
       '#options' => $options,
     ];
   }
@@ -69,6 +92,17 @@ abstract class ContainerBase extends WebformElementBase {
    */
   public function getItemFormats() {
     return [];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function form(array $form, FormStateInterface $form_state) {
+    $form = parent::form($form, $form_state);
+    // Containers are wrappers, therefore wrapper classes should be used by the
+    // container element.
+    $form['element_attributes']['attributes']['#classes'] = $this->configFactory->get('webform.settings')->get('element.wrapper_classes');
+    return $form;
   }
 
   /**

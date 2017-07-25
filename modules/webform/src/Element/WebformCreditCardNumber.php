@@ -51,7 +51,7 @@ class WebformCreditCardNumber extends FormElement {
     $value = trim($element['#value']);
     $form_state->setValueForElement($element, $value);
 
-    if ($value !== '' && !self::validCreditCardNumber($value)) {
+    if ($value !== '' && !static::validCreditCardNumber($value)) {
       $form_state->setError($element, t('The credit card number is not valid.'));
     }
   }
@@ -115,7 +115,7 @@ class WebformCreditCardNumber extends FormElement {
   public static function preRenderWebformCreditCardNumber(array $element) {
     $element['#attributes']['type'] = 'text';
     Element::setAttributes($element, ['id', 'name', 'value', 'size', 'maxlength', 'placeholder']);
-    static::setAttributes($element, ['form-textfield', 'form-creditcard-number']);
+    static::setAttributes($element, ['form-textfield', 'webform-creditcard-number']);
     return $element;
   }
 

@@ -21,16 +21,16 @@ class DsField extends Plugin {
   /**
    * The human-readable name of the DS plugin.
    *
-   * @ingroup plugin_translatable
-   *
    * @var \Drupal\Core\Annotation\Translation
+   *
+   * @ingroup plugin_translatable
    */
   public $title;
 
   /**
    * The entity type this plugin should work on.
    *
-   * @var string
+   * @var string|array
    */
   public $entity_type;
 

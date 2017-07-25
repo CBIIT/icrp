@@ -1,8 +1,9 @@
 settings:
   default_page_base_path: form
-  default_form_closed_message: 'Sorry...This form is closed to new submissions.'
+  default_form_open_message: 'This form has not yet been opened to submissions.'
+  default_form_close_message: 'Sorry...This form is closed to new submissions.'
   default_form_exception_message: 'Unable to display this webform. Please contact the site administrator.'
-  default_form_submit_label: Submit
+  default_submit_button_label: Submit
   default_form_submit_once: false
   default_form_confidential_message: 'This form is confidential. You must <a href="[site:login-url]/logout?destination=[current-page:url:relative]">Log out</a> to submit it.'
   default_form_disable_back: false
@@ -22,12 +23,20 @@ settings:
   default_wizard_complete_label: Complete
   default_preview_next_button_label: Preview
   default_preview_prev_button_label: '< Previous'
+  default_preview_label: Preview
+  default_preview_title: '[webform:title]: Preview'
   default_preview_message: 'Please review your submission. Your submission is not complete until you press the "Submit" button!'
   default_draft_button_label: 'Save Draft'
   default_draft_saved_message: 'Submission saved. You may return to this form later and it will restore the current values.'
   default_draft_loaded_message: 'A partially-completed form was found. Please complete the remaining portions.'
   default_confirmation_message: 'New submission added to [webform:title].'
   default_confirmation_back_label: 'Back to form'
+  default_submission_label: '[webform_submission:submitted-to]: Submission #[webform_submission:serial]'
+  default_submission_log: false
+  preview_classes: |
+    messages messages--error
+    messages messages--warning
+    messages messages--status
   confirmation_classes: |
     messages messages--error
     messages messages--warning
@@ -39,6 +48,8 @@ settings:
 assets:
   css: ''
   javascript: ''
+handler:
+  excluded_handlers: {  }
 export:
   exporter: delimited
   delimiter: ','
@@ -55,13 +66,14 @@ export:
   entity_reference_format: link
   likert_answers_format: label
   signature_format: status
+  excluded_exporters: {  }
 batch:
   default_batch_export_size: 500
   default_batch_update_size: 500
   default_batch_delete_size: 500
-purge_settings:
+purge:
   cron_size: 100
-elements:
+element:
   allowed_tags: admin
   wrapper_classes: |
     container-inline clearfix
@@ -76,10 +88,15 @@ elements:
     messages messages--warning
     messages messages--status
   default_description_display: ''
+  default_empty_option: true
+  default_empty_option_required: ''
+  default_empty_option_optional: ''
+  default_icheck: ''
   default_google_maps_api_key: ''
-  excluded_types: {  }
+  excluded_elements: {  }
 file:
   file_public: false
+  file_private_redirect: true
   default_max_filesize: ''
   default_managed_file_extensions: 'gif jpg png bmp eps tif pict psd txt rtf html odf pdf doc docx ppt pptx xls xlsx xml avi mov mp3 ogg wav bz2 dmg gz jar rar sit svg tar zip'
   default_audio_file_extensions: 'mp3 ogg wav'
@@ -88,8 +105,11 @@ file:
   default_video_file_extensions: 'avi mov mp4 ogg wav webm'
 format: {  }
 mail:
+  default_to_mail: '[site:mail]'
   default_from_mail: '[site:mail]'
   default_from_name: '[site:name]'
+  default_reply_to: ''
+  default_return_path: ''
   default_subject: 'Webform submission from: [webform_submission:source-entity]'
   default_body_text: |
     Submitted on [webform_submission:created]
@@ -102,6 +122,7 @@ mail:
     <p>Submitted by: [webform_submission:user]</p>
     <p>Submitted values are:</p>
     [webform_submission:values]
+  roles: {  }
 test:
   types: |
     checkbox:
@@ -185,6 +206,9 @@ test:
     phone:
       - '123-456-7890'
       - '098-765-4321'
+    fax:
+      - '123-456-7890'
+      - '098-765-4321'
     city:
       - 'Springfield'
       - 'Pleasantville'
@@ -201,8 +225,11 @@ ui:
   details_save: true
   dialog_disabled: false
   offcanvas_disabled: false
+  help_menu_disabled: false
   html_editor_disabled: false
-library:
+libraries:
+  excluded_libraries:
+    - jquery.chosen
   cdn: false
 langcode: en
 third_party_settings: {  }

@@ -22,6 +22,9 @@ function webform_test_test_element_format(WebformInterface $webform, $composite 
     'text_format_raw',
     'text_format_value',
     'value',
+    'webform_actions',
+    'webform_computed_token',
+    'webform_computed_twig',
     'webform_element',
     'webform_test',
     // @todo Fix file display
@@ -36,7 +39,7 @@ function webform_test_test_element_format(WebformInterface $webform, $composite 
   /** @var \Drupal\webform\WebformSubmissionGenerateInterface $submission_generate */
   $submission_generate = \Drupal::service('webform_submission.generate');
 
-  /** @var \Drupal\webform\WebformElementManagerInterface $element_manager */
+  /** @var \Drupal\webform\Plugin\WebformElementManagerInterface $element_manager */
   $element_manager = \Drupal::service('plugin.manager.webform.element');
 
   $definitions = $element_manager->getDefinitions();

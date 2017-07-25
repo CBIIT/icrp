@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- */
-
 namespace Drupal\panels;
 
 use Drupal\Core\Config\Schema\SchemaCheckTrait;
@@ -46,7 +42,7 @@ class PanelsDisplayManager implements PanelsDisplayManagerInterface {
 
     // Set the default builder and layout.
     // @todo: load the defaults from config somewhere.
-    $display->setLayout($layout ?: 'onecol');
+    $display->setLayout($layout ?: 'layout_onecol');
     $display->setBuilder($builder ?: 'standard');
 
     return $display;

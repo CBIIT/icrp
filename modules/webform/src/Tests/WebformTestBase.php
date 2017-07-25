@@ -4,11 +4,14 @@ namespace Drupal\webform\Tests;
 
 use Drupal\Component\Render\FormattableMarkup;
 use Drupal\Component\Utility\Unicode;
-use Drupal\Component\Utility\UrlHelper;
-use Drupal\Core\Config\FileStorage;
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\Core\Serialization\Yaml;
 use Drupal\filter\Entity\FilterFormat;
+use Drupal\node\NodeInterface;
 use Drupal\simpletest\WebTestBase;
+use Drupal\taxonomy\Entity\Term;
+use Drupal\taxonomy\Entity\Vocabulary;
+use Drupal\user\Entity\Role;
 use Drupal\webform\WebformInterface;
 use Drupal\webform\Entity\Webform;
 use Drupal\webform\Entity\WebformSubmission;
@@ -18,12 +21,14 @@ use Drupal\webform\Entity\WebformSubmission;
  */
 abstract class WebformTestBase extends WebTestBase {
 
+  use WebformTestTrait;
+
   /**
    * Modules to enable.
    *
    * @var array
    */
-  protected static $modules = ['webform'];
+  public static $modules = ['webform'];
 
   /**
    * Webforms to load.
@@ -88,6 +93,20 @@ abstract class WebformTestBase extends WebTestBase {
   protected $anyWebformUser;
 
   /**
+   * A webform submission own access.
+   *
+   * @var \Drupal\user\UserInterface
+   */
+  protected $ownWebformSubmissionUser;
+
+  /**
+   * A webform submission any access.
+   *
+   * @var \Drupal\user\UserInterface
+   */
+  protected $anyWebformSubmissionUser;
+
+  /**
    * Create webform test users.
    */
   protected function createUsers() {
@@ -104,7 +123,10 @@ abstract class WebformTestBase extends WebTestBase {
 
     // Admin webform user.
     $admin_form_user_permissions = array_merge($default_user_permissions, [
+      'access site reports',
+      'administer site configuration',
       'administer webform',
+      'access webform submission log',
       'create webform',
       'administer users',
     ]);
@@ -125,6 +147,9 @@ abstract class WebformTestBase extends WebTestBase {
       'create webform',
       'edit own webform',
       'delete own webform',
+      'view own webform submission',
+      'edit own webform submission',
+      'delete own webform submission',
     ]));
 
     // Any webform user.
@@ -135,10 +160,37 @@ abstract class WebformTestBase extends WebTestBase {
       'delete any webform',
     ]));
 
+    // Own webform submission user.
+    $this->ownWebformSubmissionUser = $this->drupalCreateUser(array_merge($default_user_permissions, [
+      'view own webform submission',
+      'edit own webform submission',
+      'delete own webform submission',
+    ]));
+
+    // Any webform submission user.
+    $this->anyWebformSubmissionUser = $this->drupalCreateUser(array_merge($default_user_permissions, [
+      'view any webform submission',
+      'edit any webform submission',
+      'delete any webform submission',
+    ]));
+
     // Admin submission user.
     $this->adminSubmissionUser = $this->drupalCreateUser(array_merge($default_user_permissions, [
+      'access webform submission log',
       'administer webform submission',
     ]));
+  }
+
+  /**
+   * Add webform submission own permissions to anonymous role.
+   */
+  protected function addWebformSubmissionOwnPermissionsToAnonymous() {
+    /** @var \Drupal\user\RoleInterface $anonymous_role */
+    $anonymous_role = Role::load('anonymous');
+    $anonymous_role->grantPermission('view own webform submission')
+      ->grantPermission('edit own webform submission')
+      ->grantPermission('delete own webform submission')
+      ->save();
   }
 
   /****************************************************************************/
@@ -153,6 +205,24 @@ abstract class WebformTestBase extends WebTestBase {
     $this->drupalPlaceBlock('page_title_block');
     $this->drupalPlaceBlock('local_tasks_block');
     $this->drupalPlaceBlock('local_actions_block');
+  }
+
+  /**
+   * Place webform test module blocks.
+   *
+   * @param string $module_name
+   *   Test module name.
+   */
+  protected function placeWebformBlocks($module_name) {
+    $config_directory = drupal_get_path('module', 'webform') . '/tests/modules/' . $module_name . '/config';
+    $config_files = file_scan_directory($config_directory, '/block\..*/');
+    foreach ($config_files as $config_file) {
+      $data = Yaml::decode(file_get_contents($config_file->uri));
+      $plugin_id = $data['plugin'];
+      $settings = $data['settings'];
+      unset($settings['id']);
+      $this->drupalPlaceBlock($plugin_id, $settings);
+    }
   }
 
   /****************************************************************************/
@@ -212,7 +282,7 @@ abstract class WebformTestBase extends WebTestBase {
     if (empty($this->nodes)) {
       $this->drupalCreateContentType(['type' => 'page']);
       for ($i = 0; $i < 3; $i++) {
-        $this->nodes[$i] = $this->drupalCreateNode(['type' => 'page', 'title' => 'Node ' . $i, 'status' => NODE_PUBLISHED]);
+        $this->nodes[$i] = $this->drupalCreateNode(['type' => 'page', 'title' => 'Node ' . $i, 'status' => NodeInterface::PUBLISHED]);
         $this->drupalGet('node/' . $this->nodes[$i]->id());
       }
     }
@@ -220,67 +290,41 @@ abstract class WebformTestBase extends WebTestBase {
   }
 
   /****************************************************************************/
-  // Webform.
+  // Taxonomy.
   /****************************************************************************/
 
   /**
-   * Lazy load a test webforms.
-   *
-   * @param array $ids
-   *   Webform ids.
+   * Create the 'tags' taxonomy vocabulary.
    */
-  protected function loadWebforms(array $ids) {
-    foreach ($ids as $id) {
-      $this->loadWebform($id);
+  protected function createTags() {
+    $vocabulary = Vocabulary::create([
+      'name' => 'Tags',
+      'vid' => 'tags',
+      'langcode' => LanguageInterface::LANGCODE_NOT_SPECIFIED,
+    ]);
+    $vocabulary->save();
+    for ($i = 1; $i <= 3; $i++) {
+      $parent_term = Term::create([
+        'name' => "Parent $i",
+        'vid' => 'tags',
+        'langcode' => LanguageInterface::LANGCODE_NOT_SPECIFIED,
+      ]);
+      $parent_term->save();
+      for ($x = 1; $x <= 3; $x++) {
+        $child_term = Term::create([
+          'name' => "Parent $i: Child $x",
+          'parent' => $parent_term->id(),
+          'vid' => 'tags',
+          'langcode' => LanguageInterface::LANGCODE_NOT_SPECIFIED,
+        ]);
+        $child_term->save();
+      }
     }
-    $this->pass(new FormattableMarkup('Loaded webforms: %webforms.', [
-      '%webforms' => implode(', ', $ids),
-    ]));
-
   }
 
-  /**
-   * Lazy load a test webform.
-   *
-   * @param string $id
-   *   Webform id.
-   *
-   * @return \Drupal\webform\WebformInterface|null
-   *   A webform.
-   *
-   * @see \Drupal\views\Tests\ViewTestData::createTestViews
-   */
-  protected function loadWebform($id) {
-    $storage = \Drupal::entityManager()->getStorage('webform');
-    if ($webform = $storage->load($id)) {
-      return $webform;
-    }
-    else {
-      $config_name = 'webform.webform.' . $id;
-      if (strpos($id, 'test_') === 0) {
-        $config_directory = drupal_get_path('module', 'webform') . '/tests/modules/webform_test/config/install';
-      }
-      elseif (strpos($id, 'example_') === 0) {
-        $config_directory = drupal_get_path('module', 'webform') . '/modules/webform_examples/config/install';
-      }
-      elseif (strpos($id, 'template_') === 0) {
-        $config_directory = drupal_get_path('module', 'webform') . '/modules/webform_templates/config/install';
-      }
-      else {
-        throw new \Exception("Webform $id not valid");
-      }
-
-      if (!file_exists("$config_directory/$config_name.yml")) {
-        throw new \Exception("Webform $id does not exist in $config_directory");
-      }
-
-      $file_storage = new FileStorage($config_directory);
-      $values = $file_storage->read($config_name);
-      $webform = $storage->create($values);
-      $webform->save();
-      return $webform;
-    }
-  }
+  /****************************************************************************/
+  // Webform.
+  /****************************************************************************/
 
   /**
    * Create a webform.
@@ -389,29 +433,6 @@ abstract class WebformTestBase extends WebTestBase {
   /****************************************************************************/
 
   /**
-   * Load the specified webform submission from the storage.
-   *
-   * @param int $sid
-   *   The submission identifier.
-   *
-   * @return \Drupal\webform\WebformSubmissionInterface
-   *   The loaded webform submission.
-   */
-  protected function loadSubmission($sid) {
-    /** @var \Drupal\webform\WebformSubmissionStorage $storage */
-    $storage = $this->container->get('entity.manager')->getStorage('webform_submission');
-    $storage->resetCache([$sid]);
-    return $storage->load($sid);
-  }
-
-  /**
-   * Purge all submission before the webform.module is uninstalled.
-   */
-  protected function purgeSubmissions() {
-    db_query('DELETE FROM {webform_submission}');
-  }
-
-  /**
    * Post a new submission to a webform.
    *
    * @param \Drupal\webform\WebformInterface $webform
@@ -425,7 +446,7 @@ abstract class WebformTestBase extends WebTestBase {
    *   The created submission's sid.
    */
   protected function postSubmission(WebformInterface $webform, array $edit = [], $submit = NULL) {
-    $submit = $submit ?: $webform->getSetting('form_submit_label') ?: t('Submit');
+    $submit = $this->getWebformSubmitButtonLabel($webform, $submit);
     $this->drupalPostForm('webform/' . $webform->id(), $edit, $submit);
     return $this->getLastSubmissionId($webform);
   }
@@ -444,10 +465,14 @@ abstract class WebformTestBase extends WebTestBase {
    *   The created test submission's sid.
    */
   protected function postSubmissionTest(WebformInterface $webform, array $edit = [], $submit = NULL) {
-    $submit = $submit ?: $webform->getSetting('form_submit_label') ?: t('Submit');
+    $submit = $this->getWebformSubmitButtonLabel($webform, $submit);
     $this->drupalPostForm('webform/' . $webform->id() . '/test', $edit, $submit);
     return $this->getLastSubmissionId($webform);
   }
+
+  /****************************************************************************/
+  // Log.
+  /****************************************************************************/
 
   /**
    * Get the last submission id.
@@ -455,19 +480,53 @@ abstract class WebformTestBase extends WebTestBase {
    * @return int
    *   The last submission id.
    */
-  protected function getLastSubmissionId($webform) {
-    // Get submission sid.
-    $url = UrlHelper::parse($this->getUrl());
-    if (isset($url['query']['sid'])) {
-      return $url['query']['sid'];
-    }
-    else {
-      $entity_ids = \Drupal::entityQuery('webform_submission')
-        ->sort('sid', 'DESC')
-        ->condition('webform_id', $webform->id())
-        ->execute();
-      return reset($entity_ids);
-    }
+  protected function getLastSubmissionLog() {
+    $query = \Drupal::database()->select('webform_submission_log', 'l');
+    $query->leftJoin('webform_submission', 'ws', 'l.sid = ws.sid');
+    $query->fields('l', [
+      'lid',
+      'uid',
+      'sid',
+      'handler_id',
+      'operation',
+      'message',
+      'timestamp',
+    ]);
+    $query->fields('ws', [
+      'webform_id',
+      'entity_type',
+      'entity_id',
+    ]);
+    $query->orderBy('l.lid', 'DESC');
+    $query->range(0, 1);
+    return $query->execute()->fetch();
+  }
+
+  /**
+   * Get the entire submission log.
+   *
+   * @return int
+   *   The last submission id.
+   */
+  protected function getSubmissionLog() {
+    $query = \Drupal::database()->select('webform_submission_log', 'l');
+    $query->leftJoin('webform_submission', 'ws', 'l.sid = ws.sid');
+    $query->fields('l', [
+      'lid',
+      'uid',
+      'sid',
+      'handler_id',
+      'operation',
+      'message',
+      'timestamp',
+    ]);
+    $query->fields('ws', [
+      'webform_id',
+      'entity_type',
+      'entity_id',
+    ]);
+    $query->orderBy('l.lid', 'DESC');
+    return $query->execute()->fetchAll();
   }
 
   /****************************************************************************/

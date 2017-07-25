@@ -101,7 +101,7 @@ class SnippetLibraryBuilder {
       }
     }
 
-    $message = t('Could not create file %file', ['%file' => $file_path]);
+    $message = $this->t('Could not create file %file', ['%file' => $file_path]);
     drupal_set_message($message, 'error');
     $this->logger->error($message);
 
@@ -153,7 +153,7 @@ class SnippetLibraryBuilder {
    *   The snippet.
    *
    * @return string
-   *    Path to the file.
+   *   Path to the file.
    */
   public function getFilePath($type, SnippetInterface $snippet) {
     return PublicStream::basePath() . '/snippet/' . $snippet->id() . '.' . $type;

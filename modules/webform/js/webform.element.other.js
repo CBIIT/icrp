@@ -1,11 +1,11 @@
 /**
  * @file
- * Javascript behaviors for other elements.
+ * JavaScript behaviors for other elements.
  */
 
 (function ($, Drupal) {
 
-  "use strict";
+  'use strict';
 
   /**
    * Toggle other input (text) field.

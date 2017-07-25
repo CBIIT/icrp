@@ -181,13 +181,6 @@ function content_access_enabled() {
 }
 
 /**
- * Implements hook_disable().
- */
-function content_access_disable() {
-  content_access_disabling(TRUE);
-}
-
-/**
  * Remembers if we have disabled access.
  */
 function content_access_disabling($set = NULL) {

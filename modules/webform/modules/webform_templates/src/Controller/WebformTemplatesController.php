@@ -45,7 +45,7 @@ class WebformTemplatesController extends ControllerBase implements ContainerInje
    * Constructs a WebformTemplatesController object.
    *
    * @param \Drupal\Core\Session\AccountInterface $current_user
-   *   Current user.
+   *   The current user.
    * @param \Drupal\Core\Form\FormBuilderInterface $form_builder
    *   The webform builder.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
@@ -80,6 +80,7 @@ class WebformTemplatesController extends ControllerBase implements ContainerInje
    */
   public function index(Request $request) {
     $keys = $request->get('search');
+    $category = $request->get('category');
 
     // Handler autocomplete redirect.
     if ($keys && preg_match('#\(([^)]+)\)$#', $keys, $match)) {
@@ -91,16 +92,18 @@ class WebformTemplatesController extends ControllerBase implements ContainerInje
     $header = [
       $this->t('Title'),
       ['data' => $this->t('Description'), 'class' => [RESPONSIVE_PRIORITY_LOW]],
+      ['data' => $this->t('Category'), 'class' => [RESPONSIVE_PRIORITY_LOW]],
       ['data' => $this->t('Operations'), 'colspan' => 2],
     ];
 
-    $webforms = $this->getTemplates($keys);
+    $webforms = $this->getTemplates($keys, $category);
     $rows = [];
     foreach ($webforms as $webform) {
       $route_parameters = ['webform' => $webform->id()];
 
       $row['title'] = $webform->toLink();
-      $row['description']['data']['description']['#markup'] = $webform->get('description');
+      $row['description']['data']['#markup'] = $webform->get('description');
+      $row['category']['data']['#markup'] = $webform->get('category');
       if ($this->currentUser->hasPermission('create webform')) {
         $row['select']['data'] = [
           '#type' => 'operations',
@@ -108,7 +111,7 @@ class WebformTemplatesController extends ControllerBase implements ContainerInje
             'duplicate' => [
               'title' => $this->t('Select'),
               'url' => Url::fromRoute('entity.webform.duplicate_form', $route_parameters),
-              'attributes' => WebformDialogHelper::getModalDialogAttributes(640),
+              'attributes' => WebformDialogHelper::getModalDialogAttributes(700),
             ],
           ],
         ];
@@ -128,6 +131,16 @@ class WebformTemplatesController extends ControllerBase implements ContainerInje
 
     $build = [];
     $build['filter_form'] = $this->formBuilder->getForm('\Drupal\webform_templates\Form\WebformTemplatesFilterForm', $keys);
+
+    // Display info.
+    if ($total = count($rows)) {
+      $build['info'] = [
+        '#markup' => $this->formatPlural($total, '@total template', '@total templates', ['@total' => $total]),
+        '#prefix' => '<div>',
+        '#suffix' => '</div>',
+      ];
+    }
+
     $build['table'] = [
       '#type' => 'table',
       '#header' => $header,
@@ -140,7 +153,7 @@ class WebformTemplatesController extends ControllerBase implements ContainerInje
     ];
 
     // Must preload libraries required by (modal) dialogs.
-    $build['#attached']['library'][] = 'webform/webform.admin.dialog';
+    WebformDialogHelper::attachLibraries($build);
 
     return $build;
   }
@@ -168,12 +181,14 @@ class WebformTemplatesController extends ControllerBase implements ContainerInje
    * Get webform templates.
    *
    * @param string $keys
-   *   (optional) Filter templates by key word.
+   *   (optional) Filter templates by keyword.
+   * @param string $category
+   *   (optional) Filter templates by category.
    *
    * @return array|\Drupal\Core\Entity\EntityInterface[]
    *   An array webform entity that are used as templates.
    */
-  protected function getTemplates($keys = '') {
+  protected function getTemplates($keys = '', $category = '') {
     $query = $this->webformStorage->getQuery();
     $query->condition('template', TRUE);
     // Filter by key(word).
@@ -181,8 +196,14 @@ class WebformTemplatesController extends ControllerBase implements ContainerInje
       $or = $query->orConditionGroup()
         ->condition('title', $keys, 'CONTAINS')
         ->condition('description', $keys, 'CONTAINS')
+        ->condition('category', $keys, 'CONTAINS')
         ->condition('elements', $keys, 'CONTAINS');
       $query->condition($or);
+    }
+
+    // Filter by category.
+    if ($category) {
+      $query->condition('category', $category);
     }
 
     $query->sort('title');

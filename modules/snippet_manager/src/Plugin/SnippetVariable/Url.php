@@ -6,7 +6,6 @@ use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url as DrupalUrl;
 use Drupal\snippet_manager\SnippetVariableBase;
-use Drupal\snippet_manager\SnippetVariableInterface;
 
 /**
  * Provides URL variable type.
@@ -17,7 +16,7 @@ use Drupal\snippet_manager\SnippetVariableInterface;
  *   category = @Translation("Other"),
  * )
  */
-class Url extends SnippetVariableBase implements SnippetVariableInterface {
+class Url extends SnippetVariableBase {
 
   /**
    * {@inheritdoc}
@@ -26,10 +25,10 @@ class Url extends SnippetVariableBase implements SnippetVariableInterface {
 
     $form['path'] = [
       '#type' => 'textfield',
-      '#title' => t('Path'),
+      '#title' => $this->t('Path'),
       '#default_value' => $this->configuration['path'],
       '#autocomplete_route_name' => 'snippet_manager.path_autocomplete',
-      '#description' => t('Make sure the path begins with "/".'),
+      '#description' => $this->t('Make sure the path begins with "/".'),
       '#required' => TRUE,
     ];
 
@@ -43,7 +42,7 @@ class Url extends SnippetVariableBase implements SnippetVariableInterface {
     $path = $form_state->getValue('path');
     $parsed_url = UrlHelper::parse($path);
     if ($parsed_url['path'][0] != '/') {
-      $form_state->setErrorByName('path', t('The path should begin with "/".'));
+      $form_state->setErrorByName('path', $this->t('The path should begin with "/".'));
     }
   }
 

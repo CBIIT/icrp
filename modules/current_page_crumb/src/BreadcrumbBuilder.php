@@ -1,10 +1,5 @@
 <?php
 
-/**
- * @file
- * Contains \Drupal\current_page_crumb\BreadcrumbBuilder.
- */
-
 namespace Drupal\current_page_crumb;
 
 use Drupal\Core\Link;

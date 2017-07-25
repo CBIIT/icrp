@@ -8,14 +8,6 @@
 /**
  * Add styles to default (info) message,
  */
-.messages {
-  box-shadow: -8px 0 0 #3b3b3b; /* LTR */
-}
-[dir="rtl"] .messages {
-  box-shadow: 8px 0 0 #3b3b3b;
-  margin-left: 0;
-}
-
 .messages.messages--info {
   color: #31708f;
   background-color: #d9edf7;
@@ -39,6 +31,10 @@
 /**
  * Webform message close link.
  */
+.webform-message--close .messages {
+  padding-right: 35px;
+}
+
 .webform-message--close .webform-message__link {
   display: none;
 }

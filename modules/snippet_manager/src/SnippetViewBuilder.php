@@ -56,7 +56,7 @@ class SnippetViewBuilder extends EntityViewBuilder {
       '#attributes' => ['class' => 'snippet-render-time'],
     ];
     $build['render_time_wrapper']['render_time'] = [
-      '#markup' => t('Render time: %time ms', ['%time' => $render_time]),
+      '#markup' => $this->t('Render time: %time ms', ['%time' => $render_time]),
     ];
 
     $build['#attached']['library'][] = 'snippet_manager/editor';

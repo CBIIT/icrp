@@ -1,7 +1,7 @@
 {#
 /**
  * @file
- * Default theme implementation from webform wizard progress.
+ * Default theme implementation for webform wizard progress.
  *
  * Available variables:
  * - webform: A webform.
@@ -26,7 +26,7 @@
   {% if summary or percentage %}
     <div class="webform-progress__status">
       {% if summary %}
-        <span class="webform-progress__'summary">{{ summary }}</span>
+        <span class="webform-progress__summary">{{ summary }}</span>
         {% if percentage %}
           <span class="webform-progress__percentage">({{ percentage }})</span>
         {% endif %}

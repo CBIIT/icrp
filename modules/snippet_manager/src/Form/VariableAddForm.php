@@ -28,19 +28,19 @@ class VariableAddForm extends VariableFormBase {
 
     $form['plugin_id'] = [
       '#type' => 'select',
-      '#title' => t('Type of the variable'),
+      '#title' => $this->t('Type of the variable'),
       '#options' => $options,
       '#required' => TRUE,
     ];
 
     $form['name'] = [
       '#type' => 'machine_name',
-      '#title' => t('Name of the variable'),
+      '#title' => $this->t('Name of the variable'),
       '#machine_name' => [
         'exists' => [$this->entity, 'variableExists'],
       ],
       '#size' => 25,
-      '#description' => t('Can only contain lowercase letters, numbers, and underscores.'),
+      '#description' => $this->t('Can only contain lowercase letters, numbers, and underscores.'),
       '#required' => TRUE,
     ];
 
@@ -53,7 +53,7 @@ class VariableAddForm extends VariableFormBase {
   protected function actionsElement(array $form, FormStateInterface $form_state) {
     $element = parent::actionsElement($form, $form_state);
 
-    $element['submit']['#value'] = t('Save and continue');
+    $element['submit']['#value'] = $this->t('Save and continue');
     $element['delete']['#access'] = FALSE;
 
     return $element;

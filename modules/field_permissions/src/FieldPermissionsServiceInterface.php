@@ -28,26 +28,18 @@ interface FieldPermissionsServiceInterface {
    *   plugin. However, since it is used in the report page, it would be
    *   difficult to abstract down to the plugin level the way the report
    *   currently works.
+   *
+   * @deprecated This function will be removed before 8.x-1.0
    */
   public static function getList($field_label = '');
-
-  /**
-   * Returns permissions for a given field.
-   *
-   * @param \Drupal\field\FieldStorageConfigInterface $field
-   *   The field to return permissions for.
-   *
-   * @return array
-   *   An array of permissions for a given field, keyed by the permission
-   *   machine name.
-   */
-  public function getPermissionList(FieldStorageConfigInterface $field);
 
   /**
    * Get all field permissions keyed by role ID.
    *
    * @return array
    *   An array of permission information keyed by role ID.
+   *
+   * @deprecated This function will be removed before 8.x-1.0
    */
   public function getPermissionsByRole();
 
@@ -59,6 +51,8 @@ interface FieldPermissionsServiceInterface {
    * @return array
    *   An array of all permissions for all fields that implement the custom
    *   permission type.
+   *
+   * @deprecated This function will be removed before 8.x-1.0
    */
   public function getAllPermissions();
 

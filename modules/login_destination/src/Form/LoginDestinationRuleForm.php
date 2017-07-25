@@ -35,7 +35,7 @@ class LoginDestinationRuleForm extends EntityForm {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    return new static($container->get('entity.manager')
+    return new static($container->get('entity_type.manager')
       ->getStorage('login_destination'));
   }
 
@@ -241,8 +241,8 @@ class LoginDestinationRuleForm extends EntityForm {
     elseif ($scheme === 'entity') {
       list($entity_type, $entity_id) = explode('/', substr($uri, 7), 2);
       // Show the 'entity:' URI as the entity autocomplete would.
-      $entity_manager = \Drupal::entityManager();
-      if ($entity_manager->getDefinition($entity_type, FALSE) && $entity = \Drupal::entityManager()
+      $entity_manager = \Drupal::entityTypeManager();
+      if ($entity_manager->getDefinition($entity_type, FALSE) && $entity = \Drupal::entityTypeManager()
           ->getStorage($entity_type)
           ->load($entity_id)
       ) {

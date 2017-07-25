@@ -13,10 +13,10 @@
 /**
  * Alter the information provided in \Drupal\webform\Annotation\WebformElement.
  *
- * @param array $elements
+ * @param array $definitions
  *   The array of webform handlers, keyed on the machine-readable element name.
  */
-function hook_webform_element_info_alter(array &$elements) {
+function hook_webform_element_info_alter(array &$definitions) {
 
 }
 
@@ -42,7 +42,7 @@ function hook_webform_handler_info_alter(array &$handlers) {
  *   - webform: The webform structure to which elements is being attached.
  *
  * @see \Drupal\webform\WebformSubmissionForm::prepareElements()
- * @see hook_webform_element_ELEMENT_TYPE_form_alter()
+ * @see hook_webform_element_ELEMENT_TYPE_alter()
  */
 function hook_webform_element_alter(array &$element, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
   // Code here acts on all elements included in a webform.
@@ -60,7 +60,7 @@ function hook_webform_element_alter(array &$element, \Drupal\Core\Form\FormState
 /**
  * Alter webform elements for a specific type.
  *
- * Modules can implement hook_webform_element_ELEMENT_TYPE_form_alter() to
+ * Modules can implement hook_webform_element_ELEMENT_TYPE_alter() to
  * modify a specific webform element, rather than using
  * hook_webform_element_alter() and checking the element type.
  *
@@ -69,13 +69,13 @@ function hook_webform_element_alter(array &$element, \Drupal\Core\Form\FormState
  * @param \Drupal\Core\Form\FormStateInterface $form_state
  *   The current state of the form.
  * @param array $context
- *   An associative array. See hook_field_widget_form_alter() for the structure
+ *   An associative array. See hook_field_widget_alter() for the structure
  *   and content of the array.
  *
  * @see \Drupal\webform\WebformSubmissionForm::prepareElements()
  * @see hook_webform_element_alter(()
  */
-function hook_webform_element_ELEMENT_TYPE_form_alter(array &$element, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
+function hook_webform_element_ELEMENT_TYPE_alter(array &$element, \Drupal\Core\Form\FormStateInterface $form_state, array $context) {
   // Add custom data attributes to a specific element type.
   $element['#attributes']['data-custom'] = '{custom data goes here}';
 
@@ -133,6 +133,46 @@ function hook_webform_options_WEBFORM_OPTIONS_ID_alter(array &$options, array &$
  * @ingroup form_api
  */
 function hook_webform_submission_form_alter(array &$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+
+}
+
+/**
+ * Perform alterations on webform admin third party settings form.
+ *
+ * This hook is identical to hook_form_alter() but allows contrib and custom
+ * modules to define third party settings.
+ *
+ * @param array $form
+ *   Nested array of form elements that comprise the webform.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The current state of the form.
+ *
+ * @see \Drupal\webform\Form\WebformAdminSettingsForm
+ * @see webform.honeypot.inc
+ *
+ * @ingroup form_api
+ */
+function hook_webform_admin_third_party_settings_form_alter(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+
+}
+
+/**
+ * Perform alterations on webform third party settings form.
+ *
+ * This hook is identical to hook_form_alter() but allows contrib and custom
+ * modules to define third party settings.
+ *
+ * @param array $form
+ *   Nested array of form elements that comprise the webform.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The current state of the form.
+ *
+ * @see \Drupal\webform\WebformEntitySettingsForm
+ * @see webform.honeypot.inc
+ *
+ * @ingroup form_api
+ */
+function hook_webform_third_party_settings_form_alter(array &$form, \Drupal\Core\Form\FormStateInterface $form_state) {
 
 }
 

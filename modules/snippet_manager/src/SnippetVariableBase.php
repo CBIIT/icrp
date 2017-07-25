@@ -5,11 +5,14 @@ namespace Drupal\snippet_manager;
 use Drupal\Component\Plugin\PluginBase;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 
 /**
  * Base class for snippet variables.
  */
 abstract class SnippetVariableBase extends PluginBase implements SnippetVariableInterface {
+
+  use StringTranslationTrait;
 
   /**
    * {@inheritdoc}
@@ -23,16 +26,15 @@ abstract class SnippetVariableBase extends PluginBase implements SnippetVariable
    * {@inheritdoc}
    */
   public function getType() {
-    return t('String');
+    return $this->t('String');
   }
 
   /**
    * {@inheritdoc}
    */
   public function buildConfigurationForm(array $form, FormStateInterface $form_state) {
-    $form['default'] = [
-      '#type' => 'item',
-      '#markup' => t('This plugin has no configurable options.'),
+    $form['message'] = [
+      '#markup' => $this->t('This plugin has no configurable options.'),
     ];
     return $form;
   }

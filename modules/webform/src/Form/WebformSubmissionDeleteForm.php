@@ -5,7 +5,6 @@ namespace Drupal\webform\Form;
 use Drupal\Core\Entity\ContentEntityDeleteForm;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
 use Drupal\webform\WebformRequestInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -93,9 +92,8 @@ class WebformSubmissionDeleteForm extends ContentEntityDeleteForm {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    $route_name = $this->requestHandler->getRouteName($this->webform, $this->sourceEntity, 'webform.results_submissions');
-    $route_parameters = $this->requestHandler->getRouteParameters($this->webform, $this->sourceEntity);
-    return new Url($route_name, $route_parameters);
+    $base_route_name = (strpos(\Drupal::routeMatch()->getRouteName(), 'webform.user.submission.delete') !== FALSE) ? 'webform.user.submissions' : 'webform.results_submissions';
+    return $this->requestHandler->getUrl($this->webform, $this->sourceEntity, $base_route_name);
   }
 
   /**

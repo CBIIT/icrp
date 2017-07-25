@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- */
-
 namespace Drupal\panels_ipe\Form;
 
 use Drupal\Component\Plugin\PluginManagerInterface;
@@ -265,7 +261,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
     }
 
     // If a temporary configuration for this variant exists, use it.
-    $temp_store_key = $this->panelsDisplay->id();
+    $temp_store_key = $this->panelsDisplay->getTempStoreId();
     if ($variant_config = $this->tempStore->get($temp_store_key)) {
       $this->panelsDisplay->setConfiguration($variant_config);
     }
@@ -288,7 +284,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
     }
 
     // Set the tempstore value.
-    $this->tempStore->set($this->panelsDisplay->id(), $this->panelsDisplay->getConfiguration());
+    $this->tempStore->set($this->panelsDisplay->getTempStoreId(), $this->panelsDisplay->getConfiguration());
 
     // Assemble data required for our App.
     $build = $this->buildBlockInstance($block_instance, $this->panelsDisplay);
@@ -381,7 +377,7 @@ class PanelsIPEBlockPluginForm extends FormBase {
     // If a UUID is provided, the Block should already exist.
     if ($uuid = $form_state->getValue('uuid')) {
       // If a temporary configuration for this variant exists, use it.
-      $temp_store_key = $this->panelsDisplay->id();
+      $temp_store_key = $this->panelsDisplay->getTempStoreId();
       if ($variant_config = $this->tempStore->get($temp_store_key)) {
         $this->panelsDisplay->setConfiguration($variant_config);
       }

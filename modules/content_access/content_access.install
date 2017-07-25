@@ -26,6 +26,13 @@ function content_access_install() {
 }
 
 /**
+ * Implements hook_uninstall().
+ */
+function content_access_uninstall() {
+  content_access_disabling(TRUE);
+}
+
+/**
  * Implements hook_schema().
  */
 function content_access_schema() {

@@ -1,11 +1,16 @@
 /**
  * @file
- * Javascript behaviors for time integration.
+ * JavaScript behaviors for time integration.
  */
 
 (function ($, Drupal) {
 
   'use strict';
+
+  // @see https://github.com/jonthornton/jquery-timepicker#options
+  Drupal.webform = Drupal.webform || {};
+  Drupal.webform.timePicker = Drupal.webform.timePicker || {};
+  Drupal.webform.timePicker.options = Drupal.webform.timePicker.options || {};
 
   /**
    * Attach timepicker fallback on time elements.
@@ -17,18 +22,21 @@
    */
   Drupal.behaviors.webformTime = {
     attach: function (context, settings) {
-      var $context = $(context);
-      // Skip if time inputs are supported by the browser.
-      if (Modernizr.inputtypes.time === true) {
+      if (!$.fn.timepicker) {
         return;
       }
-      $context.find('input[type="time"]').once('timePicker').each(function () {
+
+      $(context).find('input[data-webform-time-format]').once('webformTimePicker').each(function () {
         var $input = $(this);
 
-        var options = {};
-        if ($input.data('webformTimeFormat')) {
-          options.timeFormat = $input.data('webformTimeFormat');
+        // Skip if time inputs are supported by the browser and input is not a text field.
+        // @see \Drupal\webform\Element\WebformDatetime
+        if (window.Modernizr && Modernizr.inputtypes.time === true && $input.attr('type') != 'text') {
+          return;
         }
+
+        var options = {};
+        options.timeFormat = $input.data('webformTimeFormat');
         if ($input.attr('min')) {
           options.minTime = $input.attr('min');
         }
@@ -48,6 +56,8 @@
         else {
           options.step = 1;
         }
+
+        options = $.extend(options, Drupal.webform.timePicker.options);
 
         $input.timepicker(options);
       });

@@ -2,8 +2,6 @@
 
 namespace Drupal\webform\Form;
 
-use Drupal\Core\Url;
-
 /**
  * Webform for webform results clear webform.
  */
@@ -33,9 +31,7 @@ class WebformResultsClearForm extends WebformSubmissionsDeleteFormBase {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    $route_name = $this->requestHandler->getRouteName($this->webform, $this->sourceEntity, 'webform.results_submissions');
-    $route_parameters = $this->requestHandler->getRouteParameters($this->webform, $this->sourceEntity);
-    return new Url($route_name, $route_parameters);
+    return $this->requestHandler->getUrl($this->webform, $this->sourceEntity, 'webform.results_submissions');
   }
 
   /**

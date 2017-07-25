@@ -13,10 +13,10 @@ use Drupal\Component\Annotation\Plugin;
  * \Drupal\webform\Plugin\WebformElement\Email
  *
  * @see hook_webform_element_info_alter()
- * @see \Drupal\webform\WebformElementInterface
- * @see \Drupal\webform\WebformElementBase
- * @see \Drupal\webform\WebformElementManager
- * @see \Drupal\webform\WebformElementManagerInterface
+ * @see \Drupal\webform\Plugin\WebformElementInterface
+ * @see \Drupal\webform\Plugin\WebformElementBase
+ * @see \Drupal\webform\Plugin\WebformElementManager
+ * @see \Drupal\webform\Plugin\WebformElementManagerInterface
  * @see plugin_api
  *
  * @Annotation
@@ -36,6 +36,15 @@ class WebformElement extends Plugin {
    * @var string
    */
   public $api;
+
+  /**
+   * The element's module dependencies.
+   *
+   * @var array
+   *
+   * @see webform_webform_element_info_alter()
+   */
+  public $dependencies = [];
 
   /**
    * The human-readable name of the webform element.

@@ -46,10 +46,10 @@ class WebformOptions extends FormElement {
       }
 
       $options = (is_string($element['#default_value'])) ? Yaml::decode($element['#default_value']) : $element['#default_value'];
-      if (self::hasOptGroup($options)) {
+      if (static::hasOptGroup($options)) {
         return $options;
       }
-      return self::convertOptionsToValues($options);
+      return static::convertOptionsToValues($options);
     }
     elseif (is_array($input) && isset($input['options'])) {
       return (is_string($input['options'])) ? Yaml::decode($input['options']) : $input['options'];
@@ -72,13 +72,13 @@ class WebformOptions extends FormElement {
     WebformElementHelper::fixStatesWrapper($element);
 
     // For options with optgroup display a CodeMirror YAML editor.
-    if (isset($element['#default_value']) && is_array($element['#default_value']) && self::hasOptGroup($element['#default_value'])) {
+    if (isset($element['#default_value']) && is_array($element['#default_value']) && static::hasOptGroup($element['#default_value'])) {
       // Build table.
       $element['options'] = [
         '#type' => 'webform_codemirror',
         '#mode' => 'yaml',
         '#default_value' => Yaml::encode($element['#default_value']),
-        '#description' => t('Key-value pairs MUST be specified as "safe_key: \'Some readable options\'". Use of only alphanumeric characters and underscores is recommended in keys. One option per line.') . '<br/>' .
+        '#description' => t('Key-value pairs MUST be specified as "safe_key: \'Some readable options\'". Use of only alphanumeric characters and underscores is recommended in keys. One option per line.') . '<br />' .
         t('Option groups can be created by using just the group name followed by indented group options.'),
       ];
       return $element;
@@ -94,15 +94,17 @@ class WebformOptions extends FormElement {
             '#title' => t('Option value'),
             '#title_display' => t('invisible'),
             '#placeholder' => t('Enter value'),
+            '#maxlength' => 255,
           ],
           'text' => [
             '#type' => 'textfield',
             '#title' => t('Option text'),
             '#title_display' => t('invisible'),
             '#placeholder' => t('Enter text'),
+            '#maxlength' => 255,
           ],
         ],
-        '#default_value' => (isset($element['#default_value'])) ? self::convertOptionsToValues($element['#default_value']) : [],
+        '#default_value' => (isset($element['#default_value'])) ? static::convertOptionsToValues($element['#default_value']) : [],
       ];
       return $element;
     }
@@ -118,7 +120,7 @@ class WebformOptions extends FormElement {
       $options = Yaml::decode($options_value);
     }
     else {
-      $options = self::convertValuesToOptions($options_value);
+      $options = static::convertValuesToOptions($options_value);
     }
 
     // Validate required options.
