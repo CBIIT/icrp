@@ -32,7 +32,7 @@ export default class Form extends React.Component {
       email: '',
       description: '',
       sponsorCode: '',
-      urlProtocol: 'https://',
+      urlProtocol: 'http://',
       website: '',
       mapCoordinates: '',
       logoFile: '',
