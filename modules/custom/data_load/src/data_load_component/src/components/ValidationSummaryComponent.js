@@ -6,7 +6,16 @@ import {
 } from 'react-bootstrap';
 import ListGroupItemComponent from './ListGroupItemComponent';
 import DataTableComponent from './DataTableComponent';
-import Spinner from './SpinnerComponent'
+import Spinner from './SpinnerComponent';
+import { ListGroupItem, Row, Col } from 'react-bootstrap';
+
+const SummaryItem = ({ object }) =>
+    <ListGroupItem>
+        <Row>
+            <Col xs={6}>{object.name}</Col>
+            <Col xs={2}>{object.count}</Col>
+        </Row>
+    </ListGroupItem>
 
 class ValidationSummaryComponent extends Component {
 
@@ -29,6 +38,7 @@ class ValidationSummaryComponent extends Component {
         this.setState({ loading: true });
         var data = new FormData();
         data.append('ruleId', ruleId);
+        data.append('partnerCode', this.props.sponsorCode);
         var that = this;
         let protocol = window.location.protocol;
         let hostname = window.location.hostname;
@@ -54,8 +64,16 @@ class ValidationSummaryComponent extends Component {
             return null;
 
         let validationRules = this.props.validationRules;
+
+        let validationSummary = [];
+        this.props.validationResults.filter(result => result.id === '0').forEach(result => {
+            validationSummary.push(
+                <SummaryItem object={result} />
+            )
+        });
+        debugger;
         let validationResults = [];
-        this.props.validationResults.forEach(result => {
+        this.props.validationResults.filter(result => result.id !== '0').forEach(result => {
             const resultId = parseInt(result.id, 10);
             const isChecked = validationRules.find(rule => rule.id === resultId).checked;
             if (isChecked) {
@@ -72,6 +90,10 @@ class ValidationSummaryComponent extends Component {
             <div>
                 <Spinner message="Loading Content..." visible={this.state.loading} />
                 <h3>Data Integrity Check Summary:</h3>
+                <ListGroup>
+                    {validationSummary}
+                </ListGroup>
+                <h3>Data Integrity Check Results:</h3>
                 <ListGroup>
                     {validationResults}
                 </ListGroup>

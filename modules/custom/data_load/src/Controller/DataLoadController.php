@@ -72,10 +72,21 @@ class DataLoadController {
     }
     
     public function integrity_check_mssql(Request $request) {
+        set_time_limit(0);
         $conn = self::getConnection();
-        $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE DataUpload_IntegrityCheck @type=:type');
-        //$stmt->bindParam(':type', $request->request->get('New'));
+        $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE DataUpload_IntegrityCheck @Type=:type, @PartnerCode=:partnerCode');
         $stmt->bindParam(':type', $request->request->get(type));
+        $stmt->bindParam(':partnerCode', $request->request->get(partnerCode));
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $response=array('results' => $results);
+        
+        return self::addCorsHeaders(new JsonResponse($response));
+    }
+    
+    public function getValidationRuleDefinitions() {
+        $conn = self::getConnection();
+        $stmt = $conn->prepare('SELECT * FROM lu_DataUploadIntegrityCheckRules');
         $stmt->execute();
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $response=array('results' => $results);
@@ -85,8 +96,9 @@ class DataLoadController {
     
     public function integrity_check_details_mssql(Request $request) {
         $conn = self::getConnection();
-        $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE DataUpload_IntegrityCheckDetails @RuleId=:ruleId');
+        $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE DataUpload_IntegrityCheckDetails @RuleId=:ruleId, @PartnerCode=:partnerCode');
         $stmt->bindParam(':ruleId', $request->request->get(ruleId));
+        $stmt->bindParam(':partnerCode', $request->request->get(partnerCode));
         $stmt->execute();
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $response=array('results' => $results);
@@ -235,20 +247,22 @@ class DataLoadController {
                     if ($lineArr) {
                         array_push($lineArr, $originalFileName);
                         $stmt->execute($lineArr);
-                    } else {
-                        break;
+                    }
+                    else { break; }
+                
                 }
-            } catch (InvalidFileFormatException $e) {
-                $response = new Response(
-                'Content',
-                Response::HTTP_BAD_REQUEST,
-                array('content-type' => 'text/html')
-                );
-                $response->setContent($e->getMessage() );
-                $csvReader->close();
-                return self::addCorsHeaders($response);
+                catch (InvalidFileFormatException $e) {
+                    $response = new Response(
+                    'Content',
+                    Response::HTTP_BAD_REQUEST,
+                    array('content-type' => 'text/html')
+                    );
+                    $response->setContent($e->getMessage() );
+                    $csvReader->close();
+                    return self::addCorsHeaders($response);
+                }
             }
-        }
+        
         
         $csvReader->close();
         
@@ -281,8 +295,8 @@ class DataLoadController {
     }
     
     return self::addCorsHeaders(new JsonResponse($response));
-    
 }
+
 
 public function loaddata_mysql(Request $request) {
     
@@ -413,6 +427,5 @@ public function ping() {
     return new Response('Ping you back!');
 }
 }
-
 
 ?>

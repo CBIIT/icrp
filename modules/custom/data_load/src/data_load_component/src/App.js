@@ -31,7 +31,9 @@ class App extends Component {
       sortDirection: 'ASC',
       loading: false,
       validationResults: [],
-      validationRules: []
+      validationRules: [],
+      uploadType: 'new',
+      sponsorCode: ''
     }
     this.handleFileUpload = this.handleFileUpload.bind(this);
     this.handleDataTableChange = this.handleDataTableChange.bind(this);
@@ -55,12 +57,14 @@ class App extends Component {
       sortDirection: 'ASC',
       loading: false,
       validationResults: [],
-      validationRules: []
+      validationRules: [],
+      uploadType: 'new',
+      sponsorCode: ''
     })
   }
 
-  handleFileUpload(stats, columns, projects) {
-    this.setState({ loading: false, stats: stats, columns: columns, projects: projects, showDataTable: true, tab2Disabled: false });
+  handleFileUpload(stats, columns, projects, sponsorCode, uploadType) {
+    this.setState({ loading: false, stats: stats, columns: columns, projects: projects, showDataTable: true, tab2Disabled: false, sponsorCode: sponsorCode, uploadType: uploadType });
   }
 
   handleLoadingStateChange() {
@@ -75,7 +79,8 @@ class App extends Component {
     let tab3Disabled = false;
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
-      if (result.validationResult === 'Failed' && validationRules.find(rule => rule.id === parseInt(result.id, 10)).checked) {
+      const resultId = parseInt(result.id, 10);
+      if (resultId && result.validationResult === 'Failed' && validationRules.find(rule => rule.id === resultId).checked) {
         tab3Disabled = true;
         break;
       }
@@ -106,8 +111,8 @@ class App extends Component {
           </Tab>
           <Tab eventKey={2} title="Data Integrity Check" disabled={this.state.tab2Disabled} >
             <div className="tab-container">
-              <ValidationConfiguratorComponent onValidationResults={this.handleValidationResults} onLoadingStart={this.handleLoadingStateChange} />
-              <ValidationSummaryComponent validationResults={this.state.validationResults} validationRules={this.state.validationRules} />
+              <ValidationConfiguratorComponent onValidationResults={this.handleValidationResults} onLoadingStart={this.handleLoadingStateChange} uploadType={this.state.uploadType} sponsorCode={this.state.sponsorCode} />
+              <ValidationSummaryComponent validationResults={this.state.validationResults} validationRules={this.state.validationRules} sponsorCode={this.state.sponsorCode} />
 
               <NavigationComponent hasBackButton={true} hasNextButton={true} nextDisabled={this.state.tab3Disabled} clickHandler={this.handleTabSelect} thisTabId={2} cancelUrl={'https://icrpartnership-dev.org/FundingOrgs'} />
 

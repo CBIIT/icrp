@@ -34,7 +34,7 @@ class UploadFormComponent extends Component {
 
     /** Sends the response up to the parent */
     updateParent(stats, columns, projects) {
-        this.props.onFileUploadSuccess(stats, columns, projects);
+        this.props.onFileUploadSuccess(stats, columns, projects, this.state.sponsorCode, this.state.uploadType);
     }
 
     resetParent() {
@@ -108,6 +108,7 @@ class UploadFormComponent extends Component {
         data.append('data', fileData, uuidV4() + '.csv');
         data.append("originalFileName", this.state.originalFileName);
         data.append('uploadType', this.state.uploadType);
+        data.append('sponsorCode', this.state.sponsorCode);
         var that = this;
         let protocol = window.location.protocol;
         let hostname = window.location.hostname;
@@ -116,7 +117,6 @@ class UploadFormComponent extends Component {
             protocol = 'http:';
             hostname = 'icrp-dataload';
         }
-        // debugger;
         let response = await fetch(`${protocol}//${hostname}/${pathname}`, { method: 'POST', body: data, credentials: 'same-origin' });
 
         if (response.ok) {
@@ -135,7 +135,6 @@ class UploadFormComponent extends Component {
             }
             that.updateParent(stats, columns, projects);
         } else {
-            debugger;
             // response.status, response.statusText
             let message = await response.text();
             that.handleReset();

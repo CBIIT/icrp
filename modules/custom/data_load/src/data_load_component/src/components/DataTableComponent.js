@@ -4,62 +4,30 @@ import {
 } from 'react-bootstrap';
 const uuidV4 = require('uuid/v4');
 
-class TableHeader extends Component {
-    render() {
-        return (
-            <tr>
-                <th>Award Code</th>
-                <th>Alt Award Code</th>
-                <th>Budget Start Date</th>
-                <th>Budget End Date</th>
-                <th>CSO Codes</th>
-                <th>CSO Rel</th>
-                <th>Site Codes</th>
-                <th>Site Rel</th>
-            </tr>
-        );
-    }
-}
+const TableHeader = ({ headers }) =>
+    <tr>
+        {Object.values(headers).map(header => <th>{header}</th>)}
+    </tr>
 
-class DataRow extends Component {
-    render() {
-        return (
-            <tr>
-                <td>{this.props.awardCode}</td>
-                <td>{this.props.altAwardDate}</td>
-                <td>{this.props.budgetStartDate}</td>
-                <td>{this.props.budgetEndDate}</td>
-                <td>{this.props.csoCodes}</td>
-                <td>{this.props.csoRel}</td>
-                <td>{this.props.siteCodes}</td>
-                <td>{this.props.siteRel}</td>
-            </tr>
-
-        );
-    }
-}
+const DataRow = ({ object }) =>
+    <tr>
+        {Object.values(object).map(value => <td>{value}</td>)}
+    </tr>
 
 class DataTableComponent extends Component {
 
     render() {
+        let keys = this.props.details.length > 0 ? Object.keys(this.props.details[0]) : [];
+
         let rows = [];
         this.props.details.forEach(row => {
-            rows.push(<DataRow
-                awardCode={row.AwardCode}
-                source={row.AltAwardCode}
-                budgetStartDate={row.BudgetStartDate}
-                budgetEndDate={row.BudgetEndDate}
-                csoCodes={row.CSOCodes}
-                csoRel={row.CSORel}
-                siteCodes={row.SiteCodes}
-                siteRel={row.SiteRel}
-                key={uuidV4()} />)
+            rows.push(<DataRow object={row} key={uuidV4()} />)
         });
         return (
             <div>
                 < Table striped responsive bordered condensed hover>
                     <thead>
-                        <TableHeader />
+                        <TableHeader headers={keys} />
                     </thead>
                     <tbody>
                         {rows}

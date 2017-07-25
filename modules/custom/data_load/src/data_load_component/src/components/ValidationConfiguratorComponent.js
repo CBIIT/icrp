@@ -7,6 +7,7 @@ import {
     ButtonToolbar,
     Checkbox,
 } from 'react-bootstrap';
+import Spinner from './SpinnerComponent';
 const uuidV4 = require('uuid/v4');
 
 class ValidationItem extends Component {
@@ -22,9 +23,15 @@ class ValidationItem extends Component {
     }
 
     render() {
-        return (
-            <Checkbox name={this.props.item.id} defaultChecked={this.props.item.checked} onChange={this.onChange}>{this.props.item.name}</Checkbox>
-        );
+
+        const active = this.props.item.active;
+        if (active) {
+            return (
+                <Checkbox name={this.props.item.id} defaultChecked={this.props.item.checked} disabled={this.props.item.required} onChange={this.onChange}>{this.props.item.name}</Checkbox>
+            );
+        } else {
+            return (<br />);
+        }
     }
 }
 
@@ -55,23 +62,35 @@ class ValidationConfiguratorComponent extends Component {
         this.checkIntegrity = this.checkIntegrity.bind(this);
         this.updateParent = this.updateParent.bind(this);
         this.toggleCheck = this.toggleCheck.bind(this);
+        this.state = { validationRules: [] };
+    }
 
-        this.state = {
-            validationRules: [
-                { id: 1, name: 'Check Duplicate AltAwardCodes', category: 'validation', checked: true },
-                { id: 2, name: 'Check New AwardCodes with Missing Parent Category', category: 'validation', checked: true },
-                { id: 3, name: 'Check Old AwardCode with Parent Category', category: 'validation', checked: true },
-                { id: 4, name: 'Check Incorrect Award or Budget Duration', category: 'validation', checked: true },
-                { id: 5, name: 'Check Incorrect Funding Amounts', category: 'validation', checked: true },
-                { id: 9, name: 'Check Annulized Value', category: 'validation', checked: true },
-                { id: 8, name: 'Check CancerType Codes/Relevance', category: 'cancertype', checked: true },
-                { id: 10, name: 'Check FundingOrg Existance', category: 'institution', checked: true },
-                { id: 11, name: 'Check FundingOrgDiv Existance', category: 'institution', checked: true },
-                { id: 12, name: 'Check not-mapped Institution', category: 'institution', checked: true },
-                { id: 6, name: 'Check Incorrect CSO Codes/Relevance', category: 'cso', checked: true },
-                { id: 7, name: 'Check Historical CSO Codes', category: 'cso', checked: true }
-            ]
-        };
+    componentWillMount() {
+        let protocol = window.location.protocol;
+        let hostname = window.location.hostname;
+        let pathname = 'DataUploadTool/getValidationRuleDefinitions';
+        if (hostname === 'localhost') {
+            protocol = 'http:';
+            hostname = 'icrp-dataload';
+        }
+        this.setState({ loading: true });
+        fetch(`${protocol}//${hostname}/${pathname}`, { method: 'GET', credentials: 'same-origin' })
+            .then(response => response.json())
+            .then(response => {
+                this.setState({
+                    validationRules: response.results.map(result => {
+                        return {
+                            id: parseInt(result.lu_DataUploadIntegrityCheckRules_ID, 10),
+                            name: result.Name,
+                            category: result.Category,
+                            required: result.IsRequired === '1',
+                            active: result.IsActive === '1',
+                            checked: true
+                        }
+                    }), loading: false
+                })
+            });
+
     }
 
     toggleCheck(id) {
@@ -88,7 +107,8 @@ class ValidationConfiguratorComponent extends Component {
     async checkIntegrity() {
         this.props.onLoadingStart();
         var data = new FormData();
-        data.append('type', 'new');
+        data.append('type', this.props.uploadType);
+        data.append('partnerCode', this.props.sponsorCode);
         var that = this;
         let protocol = window.location.protocol;
         let hostname = window.location.hostname;
@@ -103,12 +123,13 @@ class ValidationConfiguratorComponent extends Component {
         if (response.ok) {
             let results = await response.json();
             // filter result type Summary
-            results = results['results'].filter(result =>
-            { return result.Type === 'Rule'; }).map(result => {
+            debugger;
+            results = results['results'].map(result => {
                 return {
                     id: result.ID,
                     name: result.Description,
                     validationResult: (parseInt(result.Count, 10) === 0 ? 'Pass' : 'Failed'),
+                    count: parseInt(result.Count, 10),
                     key: uuidV4()
                 };
             });
@@ -120,52 +141,59 @@ class ValidationConfiguratorComponent extends Component {
     }
 
     render() {
-
-        const validationCategory = {
-            header: 'Validation',
-            items: this.state.validationRules.filter(rule => rule.category === 'validation')
+        const awardCategory = {
+            header: 'Award',
+            items: this.state.validationRules.filter(rule => rule.category === 'Award')
         }
 
         const cancerTypeCategory = {
             header: 'Cancer Type',
-            items: this.state.validationRules.filter(rule => rule.category === 'cancertype')
+            items: this.state.validationRules.filter(rule => rule.category === 'Cancer Type')
         }
 
         const institutionCategory = {
-            header: 'Institution',
-            items: this.state.validationRules.filter(rule => rule.category === 'institution')
+            header: 'Institution / Funding Org',
+            items: this.state.validationRules.filter(rule => rule.category === 'Funding Org / Institution')
         }
 
         const csoCategory = {
             header: 'CSO',
-            items: this.state.validationRules.filter(rule => rule.category === 'cso')
+            items: this.state.validationRules.filter(rule => rule.category === 'CSO')
+        }
+
+        const generalCategory = {
+            header: 'General',
+            items: this.state.validationRules.filter(rule => rule.category === 'General')
         }
 
         return (
-            <Panel>
-                <Col lg={3} md={4} sm={6} xs={12}>
-                    <ValidationCategory validationCategory={validationCategory} onCheck={this.toggleCheck} />
+            <div>
+                <Spinner message="Loading Content..." visible={this.state.loading} />
+                <Panel>
+                    <Col lg={3} md={4} sm={6} xs={12}>
+                        <ValidationCategory validationCategory={generalCategory} onCheck={this.toggleCheck} />
+                        <ValidationCategory validationCategory={awardCategory} onCheck={this.toggleCheck} />
 
-                </Col>
-                <Col lg={3} md={4} sm={6} xs={12}>
-                    <ValidationCategory validationCategory={cancerTypeCategory} onCheck={this.toggleCheck} />
-                    <ValidationCategory validationCategory={institutionCategory} onCheck={this.toggleCheck} />
-                </Col>
-                <Col lg={3} md={4} sm={6} xs={12} >
-                    <ValidationCategory validationCategory={csoCategory} onCheck={this.toggleCheck} />
-                </Col>
-                <Col lg={3} xs={12} className="responsive-border-right">
-                    <FormGroup className="lower-buttons-250">
-                        <Col lg={12} lgOffset={0} sm={2} smOffset={5} xs={2} xsOffset={4}>
-                            <ButtonToolbar>
-                                <Button onClick={this.checkIntegrity}>Check Data</Button>
-                            </ButtonToolbar>
-                        </Col>
-                    </FormGroup>
-                </Col>
-            </Panel>
+                    </Col>
+                    <Col lg={3} md={4} sm={6} xs={12}>
+                        <ValidationCategory validationCategory={cancerTypeCategory} onCheck={this.toggleCheck} />
+                        <ValidationCategory validationCategory={institutionCategory} onCheck={this.toggleCheck} />
+                    </Col>
+                    <Col lg={3} md={4} sm={6} xs={12} >
+                        <ValidationCategory validationCategory={csoCategory} onCheck={this.toggleCheck} />
+                    </Col>
+                    <Col lg={3} xs={12} className="responsive-border-right">
+                        <FormGroup className="lower-buttons-250">
+                            <Col lg={12} lgOffset={0} sm={2} smOffset={5} xs={2} xsOffset={4}>
+                                <ButtonToolbar>
+                                    <Button onClick={this.checkIntegrity}>Check Data</Button>
+                                </ButtonToolbar>
+                            </Col>
+                        </FormGroup>
+                    </Col>
+                </Panel>
 
-
+            </div>
         );
     }
 
