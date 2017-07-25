@@ -1210,7 +1210,7 @@ BEGIN
   -- ---------------------------------------------------
   -- Get saved search results by searchID
   -- ---------------------------------------------------  
-  DECLARE `@ProjectIDs` LONGTEXT;
+  DECLARE `@ProjectIDs` LONGTEXT DEFAULT CONVERT('' using ucs2);
   SELECT Results INTO `@ProjectIDs` FROM SearchResult WHERE SearchCriteriaID = `@SearchID`;
 
   -- --------------------------------------------------------
@@ -1226,7 +1226,175 @@ BEGIN
 END//
 
 
-DELIMITER //
+CREATE PROCEDURE `GetProjectCancerTypesBySearchID`(
+  IN `@SearchID` INT
+)
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+  -- ---------------------------------------------------
+  -- Get saved search results by searchID
+  -- ---------------------------------------------------
+  DECLARE `@ProjectIDs` LONGTEXT DEFAULT CONVERT('' using ucs2);
+  SELECT `Results` INTO `@ProjectIDs` FROM `SearchResult` WHERE `SearchCriteriaID` = `@SearchID`;
+
+  -- --------------------------------------------------------    
+  --  Get project CancerTypes
+  -- --------------------------------------------------------
+  CALL ToIntTable(`@ProjectIDs`);
+  SELECT f.`ProjectID`, f.`ProjectFundingID` AS ICRPProjectFundingID, f.`AltAwardCode`, ct.`ICRPCode`, ct.`Name` AS CancerType, pct.`Relevance` AS Relevance
+  FROM `ToIntTable` r
+    JOIN ProjectFunding f ON f.`ProjectID` = r.`VALUE`
+    JOIN `ProjectCancerType` pct ON f.`ProjectFundingID` = pct.`ProjectFundingID` AND IFNULL(pct.`RelSource`,'')='S'
+    JOIN CancerType ct ON ct.CancerTypeID = pct.CancerTypeID
+  ORDER BY f.`ProjectID`;
+END//
+
+
+CREATE PROCEDURE `GetProjectExportsSingleBySearchID`(
+  IN `@SearchID` INT,
+  IN `@IncludeAbstract` INT,
+  IN `@SiteURL` VARCHAR(250)
+)
+LANGUAGE SQL
+NOT DETERMINISTIC
+CONTAINS SQL
+SQL SECURITY DEFINER
+COMMENT ''
+BEGIN
+  -- ---------------------------------------------------
+  -- Get saved search results by searchID
+  -- ---------------------------------------------------
+  DECLARE `@ProjectIDs` LONGTEXT DEFAULT CONVERT('' USING ucs2);
+  DECLARE `@PivotColumns` LONGTEXT DEFAULT CONVERT('' USING ucs2);
+
+  SET SESSION group_concat_max_len = 18446744073709551615;
+  SET @SQLQuery = CONVERT('' USING ucs2);
+
+  SELECT `Results` INTO `@ProjectIDs` FROM `SearchResult` WHERE `SearchCriteriaID` = `@SearchID`;
+    
+  -- --------------------------------------------------------
+  --  Get all related projects with dollar amounts
+  -- --------------------------------------------------------
+  CALL ToIntTable(`@ProjectIDs`);
+  DROP TEMPORARY TABLE IF EXISTS `temp`;
+  CREATE TEMPORARY TABLE IF NOT EXISTS `temp` AS (
+    SELECT
+      p.`ProjectID`,
+      f.`ProjectFundingID`,
+      f.`Title` AS AwardTitle,
+      CAST(NULL AS CHAR(100)) AS AwardType,
+      p.`AwardCode`,
+      f.`Source_ID`,
+      f.`AltAwardCode`,
+      f.`Category` AS FundingCategory,
+      CASE p.`IsChildhood`
+        WHEN 1 THEN 'Yes' 
+        WHEN 0 THEN 'No'
+        ELSE ''
+      END AS IsChildhood,  
+      p.`ProjectStartDate` AS AwardStartDate,
+      p.`ProjectEndDate` AS AwardEndDate,
+      f.`BudgetStartDate`,
+      f.`BudgetEndDate`,
+      f.`Amount` AS AwardAmount,
+      CASE f.`IsAnnualized`
+        WHEN 1 THEN 'A'
+        ELSE 'L'
+      END AS FundingIndicator,
+      o.`Currency`,
+      f.`MechanismTitle` AS FundingMechanism,
+      f.`MechanismCode` AS FundingMechanismCode,
+      o.`SponsorCode`,
+      o.`Name` AS FundingOrg,
+      o.`Type` AS FundingOrgType,
+      d.`Name` AS FundingDiv,
+      d.`Abbreviation` AS FundingDivAbbr,
+      '' AS FundingContact,
+      #f.`FundingContact`,
+      pi.`LastName` AS piLastName,
+      pi.`FirstName` AS piFirstName,
+      pi.`ORC_ID` AS piORCID,
+      i.`Name` AS Institution,
+      i.`City`,
+      i.`State`,
+      i.`Country`,
+      CONCAT(`@SiteURL`,p.`ProjectID`) AS icrpURL,
+      a.`TechAbstract`
+    FROM `ToIntTable` r
+      LEFT JOIN `Project` p ON r.`VALUE` = p.`ProjectID`
+      LEFT JOIN `ProjectFunding` f ON p.`ProjectID` = f.`ProjectID`
+      LEFT JOIN `FundingOrg` o ON o.`FundingOrgID` = f.`FundingOrgID`
+      LEFT JOIN `FundingDivision` d ON d.`FundingDivisionID` = f.`FundingDivisionID`
+      LEFT JOIN `ProjectFundingInvestigator` pi ON pi.`ProjectFundingID` = f.`ProjectFundingID`
+      LEFT JOIN `Institution` i ON i.`InstitutionID` = pi.`InstitutionID`
+      LEFT JOIN `ProjectAbstract` a ON a.`ProjectAbstractID` = f.`ProjectAbstractID`
+  );
+
+  -- ------------------------------------------------------------------------------------------------
+  -- Special handling for AwardType: convert multiple AwardType to a comma delimited string
+  -- ------------------------------------------------------------------------------------------------
+  UPDATE `temp` t
+    JOIN (
+      SELECT
+        `ProjectID`,
+        GROUP_CONCAT(`ProjectType` SEPARATOR ', ') AS AwardTypes
+      FROM `Project_ProjectType` AS pt
+      GROUP BY `ProjectID`
+    ) aw ON t.`ProjectID` = aw.`ProjectID`
+  SET `AwardType` = `AwardTypes`;
+
+  -- --------------------------------------------------------
+  --  Get all calendar amounts and convert them to columns
+  -- --------------------------------------------------------
+  SELECT CONVERT(GROUP_CONCAT(CONCAT(' SUM(IF(CalendarYear=',CAST(`CY` AS CHAR),',CalendarAmount,0)) AS `',CAST(`CY` AS CHAR),'`')) USING ucs2) INTO @SQLQuery
+  FROM (
+    SELECT DISTINCT `CalendarYear` AS CY
+    FROM `ProjectFundingExt` e
+      JOIN `temp` t ON e.`ProjectFundingID` = t.`ProjectFundingID`
+    ORDER BY CalendarYear
+  ) p;
+
+  -- --------------------------------------------------------
+  --  Get all Project CSOs and convert them to columns
+  -- --------------------------------------------------------
+  SELECT CONCAT(@SQLQuery,', ',CONVERT(GROUP_CONCAT(CONCAT(' MAX(IF(`Code`=\'',`Code`,'\',pcso.`Relevance`,NULL)) AS `',CONCAT(`Code`,' ',`Name`),'`')) USING ucs2)) INTO @SQLQuery
+  FROM (
+    SELECT DISTINCT c.`Code`,c.`Name`
+    FROM `ProjectCSO` pc
+      JOIN `CSO` c ON pc.`CSOCode` = c.`Code`
+      JOIN `temp` t ON pc.`ProjectFundingID` = t.`ProjectFundingID`
+    ORDER BY c.`Code`,c.`Name`
+  ) p;
+  
+  -- --------------------------------------------------------
+  --  Get all project CancerTypes and convert them to columns
+  -- --------------------------------------------------------
+  SELECT CONCAT(@SQLQuery,', ',CONVERT(GROUP_CONCAT(CONCAT(' MAX(IF(c.`Name`=\'',REPLACE(`CancerType`,'\'','\\\''),'\',pc.`Relevance`,NULL)) AS `',`CancerType`,'`')) USING ucs2)) INTO @SQLQuery
+  FROM (
+    SELECT DISTINCT c.`Name` AS CancerType
+    FROM `CancerType` c
+      JOIN `ProjectCancerType` pc ON c.`CancerTypeID` = pc.`CancerTypeID` AND IFNULL(`RelSource`,'')='S'
+      JOIN `temp` t ON pc.`ProjectFundingID` = t.`ProjectFundingID`
+    ORDER BY c.`Name`
+  ) p;
+
+  SET @SQLQuery = CONCAT(
+    'SELECT t.`ProjectID` AS ICRPProjectID, t.`ProjectFundingID` AS ICRPProjectFundingID, t.`AwardTitle`, t.`AwardType`, t.`AwardCode`, t.`Source_ID`, t.`AltAwardCode`, t.`FundingCategory`, t.`IsChildhood`, t.`AwardStartDate`, t.`AwardEndDate`, t.`BudgetStartDate`, t.`BudgetEndDate`, t.`AwardAmount`, t.`FundingIndicator`, t.`Currency`, t.`FundingMechanism`, t.`FundingMechanismCode`, t.`SponsorCode`, t.`FundingOrg`, t.`FundingOrgType`, t.`FundingDiv`, t.`FundingDivAbbr`, t.`FundingContact`, t.`piLastName`, t.`piFirstName`, t.`piORCID`, t.`Institution`, t.`City`, t.`State`, t.`Country`, t.`icrpURL`,',
+    IF(`@IncludeAbstract`=1,' t.TechAbstract,',''),
+    @SQLQuery,
+    ' FROM `ProjectFundingExt` ext JOIN `temp` t ON ext.`ProjectFundingID` = t.`ProjectFundingID` JOIN `ProjectCSO` pcso ON ext.`ProjectFundingID` = pcso.`ProjectFundingID` JOIN `CSO` cso ON pcso.`CSOCode` = cso.`Code` JOIN `ProjectCancerType` pc ON ext.`ProjectFundingID` = pc.`ProjectFundingID` JOIN `CancerType` c ON pc.`CancerTypeID` = c.`CancerTypeID` GROUP BY t.`ProjectID`, t.`ProjectFundingID`, t.`AwardTitle`, t.`AwardType`, t.`AwardCode`, t.`Source_ID`, t.`AltAwardCode`, t.`FundingCategory`, t.`IsChildhood`, t.`AwardStartDate`, t.`AwardEndDate`, t.`BudgetStartDate`, t.`BudgetEndDate`, t.`AwardAmount`, t.`FundingIndicator`, t.`Currency`, t.`FundingMechanism`, t.`FundingMechanismCode`, t.`SponsorCode`, t.`FundingOrg`, t.`FundingOrgType`, t.`FundingDiv`, t.`FundingDivAbbr`, t.`FundingContact`, t.`piLastName`, t.`piFirstName`, t.`piORCID`, t.`Institution`, t.`City`, t.`State`, t.`Country`, t.`icrpURL`',
+    IF(`@IncludeAbstract`=1,', t.TechAbstract',''),
+    ';'
+  );
+  
+  PREPARE statement FROM @SQLQuery;
+  EXECUTE statement;
+  DEALLOCATE PREPARE statement;
+END//
 
 
 DELIMITER ;
