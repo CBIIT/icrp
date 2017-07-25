@@ -1,6 +1,88 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## [3.3.4 - 2016-12-22]
+### Added
+- extra extension points: analyseMask
+- colorMask option ~ css styleable mask
+
+### Updates
+- remove tooltip option
+- remove h,s,d,m,y definitions => use the date/time aliases
+- phone-alias - fine-tune mask sorting
+- make data-inputmask attribute naming configurable (dataAttribute on Inputmask)
+- numeric alias move negation symbols to the edges
+- handle android predictive text enabled
+- rename js/inputmask.dependencyLib.jquery.js to js/inputmask.dependencyLib.js
+- rename dist/inputmask.dependencyLib.jquery.js to dist/inputmask.dependencyLib.js
+- commonjs dep to inputmask.dependencyLib instead to inputmask.dependencyLib.jquery => can be symlinked to another dependencyLib
+- improve inputfallback (Android support)
+
+### Fixed
+- IE11 : SCRIPT438: Object doesn't support property or method 'isFinite' #1472
+- () as literal followed by an optional, doubles the optional template #1453
+- Decimal mask excluding zero with custom RadixPoint and GroupSeparator #1418
+- Can't remove dot from the middle of a word #1439
+- Invalid Leap Year dates can be entered #1368
+- jquery.val returns empty value (when using an unsupported input type) #1415
+- Losing the decimal part when the maximum number of digits is reached #1257
+- Not allowing to change existing number to 0 #1381
+- Numbers get swapped when cursor near suffix. #1278
+- androidHack: Caret positioning needs some fine tuning #1412
+- How can I get "-$123.45", not "$-123.45"? #1360
+- Placeholder color #972
+- Other color on placeholder (wrap placeholder in span, using contenteditable?) #873
+- Error on 3.3.3: Uncaught TypeError: Cannot set property 'generatedInput' of undefined #1399
+- ios 8, safari, on first visit unable to enter any characters #826
+- Numerica mask not run in Galaxy S5 + Chrome + Android #1357
+
+## [3.3.3 - 2016-09-09] - hotfix
+
+### Updates
+- revert moving jquery dependencyLib
+- correct caret positioning - radixFocus & placeholder: ""
+
+### Fixed
+- Build failure in heroku after release of 3.3.2 #1384
+- Error with inputMask any case (v3.3.2) #1383
+
+
+## [3.3.2 - 2016-09-09]
+
+### Added
+- mask-level casing => #1352
+- 'casing': 'title' #1277
+- add quantifier syntax for digits option in numeric alias. #1374
+
+### Updates
+- add bundle in nuget package
+- change default of positionCaretOnTab to true
+- include min files in nuspecs
+- better filter for input targets in inputmask.binder.js
+- improve alternation selection
+- removed nojumps option
+- update phone alias implementation
+	- add unit tests for phonecodes
+- replaced radixFocus option by positionCaretOnClick.  Allows choice for behavior of the caret on click. (none, lvp (default), radixFocus)
+- performance updates
+	- getmasklength
+	- use selective caching in getTests
+
+### Fixed
+- Problems with greedy dynamic masks in current version 3.x #1375
+- Croatian phone mask only supports city of Zagreb #1359
+- Pasting to masked input not working on Android #1061
+- Unable to get property 'forwardPosition' of undefined or null reference IE11 #1342
+- Input event doesn't fire in IE #1287
+- Dynamically changing mask based on number of entered characters #1336
+- change addEventListener not fired in IE11 #1310 - inputmask.dependencyLib.js
+- Hide mask's items that have multiple options #678
+- Bug when typing after a fixed character #1299
+- onUnMask is not being called #1291
+- How Can I have caret position on decimal digit(after decimal point) for currency inputmask ? #1282
+- How to implement mask for these numbers? #840 (alternator)
+- 'setvalue' on mask with a suffix results in suffix being doubled, while `$.fn.val` works fine #1267
+
 ## [3.3.1] - 2016-04-20
 
 ### Updates

@@ -6,11 +6,11 @@
  */
 (function (factory) {
 	if (typeof define === "function" && define.amd) {
-		define(["jqlite"], factory);
+		define("inputmask.dependencyLib", ["jqlite"], factory);
 	} else if (typeof exports === "object") {
 		module.exports = factory(require("jqlite"));
 	} else {
-		factory(jQuery);
+		factory(jqlite);
 	}
 }
 (function ($) {
