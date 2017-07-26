@@ -172,19 +172,20 @@ class ValidationConfiguratorComponent extends Component {
                 <Panel>
                     <Col lg={3} md={4} sm={6} xs={12}>
                         <ValidationCategory validationCategory={generalCategory} onCheck={this.toggleCheck} />
+                        <ValidationCategory validationCategory={institutionCategory} onCheck={this.toggleCheck} />
+                    </Col>
+                    <Col lg={3} md={4} sm={6} xs={12}>
                         <ValidationCategory validationCategory={awardCategory} onCheck={this.toggleCheck} />
-
                     </Col>
                     <Col lg={3} md={4} sm={6} xs={12}>
                         <ValidationCategory validationCategory={cancerTypeCategory} onCheck={this.toggleCheck} />
-                        <ValidationCategory validationCategory={institutionCategory} onCheck={this.toggleCheck} />
                     </Col>
                     <Col lg={3} md={4} sm={6} xs={12} >
                         <ValidationCategory validationCategory={csoCategory} onCheck={this.toggleCheck} />
                     </Col>
-                    <Col lg={3} xs={12} className="responsive-border-right">
-                        <FormGroup className="lower-buttons-250">
-                            <Col lg={12} lgOffset={0} sm={2} smOffset={5} xs={2} xsOffset={4}>
+                    <Col lg={12} xs={12} className="centered-button-bar">
+                        <FormGroup>
+                            <Col lg={12} lgOffset={5} sm={2} smOffset={5} xs={2} xsOffset={4}>
                                 <ButtonToolbar>
                                     <Button onClick={this.checkIntegrity}>Check Data</Button>
                                 </ButtonToolbar>

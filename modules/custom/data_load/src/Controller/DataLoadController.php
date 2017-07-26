@@ -75,6 +75,7 @@ class DataLoadController {
         set_time_limit(0);
         $conn = self::getConnection();
         $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE DataUpload_IntegrityCheck @Type=:type, @PartnerCode=:partnerCode');
+        // $response = array(partnerCode=>$request->request->get(partnerCode), type=> $request->request->get(type));
         $stmt->bindParam(':type', $request->request->get(type));
         $stmt->bindParam(':partnerCode', $request->request->get(partnerCode));
         $stmt->execute();
@@ -140,7 +141,7 @@ class DataLoadController {
         $conn = self::getConnection();
         
         $offset = ($page - 1) * 25;
-        $stmt = $conn->prepare("SELECT * FROM  ( SELECT ROW_NUMBER() OVER(ORDER BY $sortColumn $sortDirection) NUM, * FROM UploadWorkBook_Svet ) A WHERE NUM > ? AND NUM <= ?");
+        $stmt = $conn->prepare("SELECT * FROM  ( SELECT ROW_NUMBER() OVER(ORDER BY $sortColumn $sortDirection) NUM, * FROM UploadWorkBook ) A WHERE NUM > ? AND NUM <= ?");
         $stmt->execute(array($offset, $offset + 25));
         $projects = $stmt->fetchAll();
         $stmt = null;
@@ -170,8 +171,8 @@ class DataLoadController {
         
         try {
             $conn = self::getConnection();
-            $conn->exec("DROP TABLE IF EXISTS UploadWorkBook_Svet");
-            $conn->exec("CREATE TABLE UploadWorkBook_Svet (
+            $conn->exec("DROP TABLE IF EXISTS UploadWorkBook");
+            $conn->exec("CREATE TABLE UploadWorkBook (
             InternalId int IDENTITY (1,1),
             AwardCode NVARCHAR(50),
             AwardStartDate Date,
@@ -218,7 +219,7 @@ class DataLoadController {
             OriginalFileName VARCHAR(200)
             )");
             
-            $stmt = $conn->prepare("INSERT INTO UploadWorkBook_Svet ([AwardCode], [AwardStartDate], [AwardEndDate], [SourceId], [AltId], [AwardTitle], [Category],
+            $stmt = $conn->prepare("INSERT INTO UploadWorkBook ([AwardCode], [AwardStartDate], [AwardEndDate], [SourceId], [AltId], [AwardTitle], [Category],
             [AwardType], [Childhood], [BudgetStartDate], [BudgetEndDate], [CSOCodes], [CSORel], [SiteCodes], [SiteRel], [AwardFunding], [IsAnnualized], [FundingMechanismCode], [FundingMechanism],
             [FundingOrgAbbr], [FundingDiv], [FundingDivAbbr], [FundingContact], [PILastName], [PIFirstName], [SubmittedInstitution], [City], [State], [Country], [PostalZipCode], [InstitutionICRP], [Latitute], [Longitute], [GRID],
             [TechAbstract], [PublicAbstract], [RelatedAwardCode], [RelationshipType], [ORCID], [OtherResearcherID], [OtherResearcherIDType], [InternalUseOnly], [OriginalFileName]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
@@ -266,14 +267,14 @@ class DataLoadController {
         
         $csvReader->close();
         
-        $rowCount = $conn->query("SELECT COUNT(*) FROM UploadWorkBook_Svet")->fetchColumn();
+        $rowCount = $conn->query("SELECT COUNT(*) FROM UploadWorkBook")->fetchColumn();
         $stmt = $conn->prepare("SELECT ORDINAL_POSITION, COLUMN_NAME FROM icrp_dataload.INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'UploadWorkBook_Svet' AND COLUMN_NAME != 'InternalId' AND COLUMN_NAME != 'OriginalFileName'
+        WHERE TABLE_NAME = 'UploadWorkBook' AND COLUMN_NAME != 'InternalId' AND COLUMN_NAME != 'OriginalFileName'
         ORDER BY ORDINAL_POSITION");
         $stmt->execute();
         $columns = $stmt->fetchAll();
         
-        $stmt = $conn->prepare("SELECT TOP(25) " . implode(", ", array_column($columns, 'COLUMN_NAME')) . " FROM UploadWorkBook_Svet ORDER BY InternalId");
+        $stmt = $conn->prepare("SELECT TOP(25) " . implode(", ", array_column($columns, 'COLUMN_NAME')) . " FROM UploadWorkBook ORDER BY InternalId");
         
         $stmt->execute();
         $projects = $stmt->fetchAll();
