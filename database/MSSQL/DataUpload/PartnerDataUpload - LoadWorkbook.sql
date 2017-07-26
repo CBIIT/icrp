@@ -17,7 +17,7 @@ CREATE TABLE UploadWorkBook (
 	AwardCode NVARCHAR(50),
 	AwardStartDate Date,
 	AwardEndDate date,
-	SourceId VARCHAR(50),
+	SourceId VARCHAR(150),
 	AltId VARCHAR(50),
 	AwardTitle VARCHAR(1000),
 	Category VARCHAR(25),
@@ -41,9 +41,9 @@ CREATE TABLE UploadWorkBook (
 	PIFirstName VARCHAR(50),
 	SubmittedInstitution VARCHAR(250),
 	City VARCHAR(50),
-	State VARCHAR(3),
+	State VARCHAR(50),
 	Country VARCHAR(3),
-	PostalZipCode VARCHAR(15),
+	PostalZipCode VARCHAR(50),
 	InstitutionICRP VARCHAR(4000),
 	Latitute decimal(9,6),
 	Longitute decimal(9,6),
@@ -61,17 +61,26 @@ CREATE TABLE UploadWorkBook (
 GO
 
 BULK INSERT UploadWorkBook
-FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_New_NCI_20170608.csv'  
+--FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_CAC2_20170705.csv'  
+FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_CCRA_20170720.csv'
 WITH
 (
 	FIRSTROW = 2,
-	--DATAFILETYPE ='widechar',  -- unicode format
+	DATAFILETYPE ='widechar',  -- unicode format
 	FIELDTERMINATOR = '|',
 	ROWTERMINATOR = '\n'
 )
 GO  
 
 --select * from UploadWorkBook
+
+--select top 1 * from UploadWorkBook where TechAbstract like '%&&%'
+--select techabstract from UploadWorkBook where altid='2015MRC2086'
+--Childhood obesity has important consequences for morbidity and mortality in childhood and in later life. However, there is yet little evidence of effective strategies to prevent childhood obesity. The rising prevalence of obesity even in young pre-school children indicates that efforts to predict and prevent childhood obesity need to start very early in life. The aim of this programme is to promote the prediction and prevention of childhood obesity by identifying genetic, dietary and other factors that act during fetal and infant life.&&My specific research objectives are 1) to identify common genetic variants associated with rapid infant weight gain and childhood obesity; 2) to develop prediction models for childhood obesity and its co-morbidities based on genetic variants, parental obesity, birth weight, infant weight gain, and infant diet, 3) together with the Units Prevention Programme (PI Simon Griffin) to develop and test interventions to avoid excessive infant weight gain and childhood obesity. These objectives are being tested through existing close collaborations with the Avon Longitudinal Study of Parents and Children (ALSPAC), the Southampton Womens Study (SWS), and the Cambridge Baby Growth Study (MRC Epidemiology Unit & Department of Paediatrics, University of Cambridge), and other population-based birth cohort studies. &&Genetic variants are selected based on the results of genome-wide association studies for adult obesity, and timing of puberty, through our involvement in large international consortia. Many of these genetic variants appear to be very relevant to the risk of childhood obesity by influencing rates of weight gain even from the first months of life. Our studies aim to further characterise the infant growth, feeding and behavioural phenotypes that are associated with these genetic markers of adult obesity. &&Prediction models for childhood obesity risk are based on meta-analysis of growth data from a wide range of birth cohort studies. Further refinement of these models will be explored by testing the addition of those early life phenotypes identified by our genetic studies, and through identification of biochemical biomarkers of infant growth and body composition. &&The aetiological role of excess nutrient intake on rapid infant weight gain and childhood obesity risk will be tested by randomised controlled trial of parental education, support and behaviour change, which if successful will lead to wider pragmatic trials to test its application to public health.&&In addition to my specific focus on the infant determinants of childhood obesity, I closely support the research in other programmes of the Epidemiology Unit to understand the role of childhood physical activity in the aetiology and prevention of childhood obesity. &&These research objectives are also closely supported by clinical activities in setting up a secondary referral service for childhood obesity (through the Paediatric Endocrinology & Diabetes Service, Addenbrookes Hospital NHS Trust), and support for local community initiatives in school-based screening and treatment of childhood obesity.
+--Childhood obesity has important consequences for morbidity and mortality in childhood and in later life. However, there is yet little evidence of effective strategies to prevent childhood obesity. The rising prevalence of obesity even in young pre-school children indicates that efforts to predict and prevent childhood obesity need to start very early in life. The aim of this programme is to promote the prediction and prevention of childhood obesity by identifying genetic, dietary and other factors that act during fetal and infant life.|My specific research objectives are 1) to identify common genetic variants associated with rapid infant weight gain and childhood obesity; 2) to develop prediction models for childhood obesity and its co-morbidities based on genetic variants, parental obesity, birth weight, infant weight gain, and infant diet, 3) together with the Units Prevention Programme (PI Simon Griffin) to develop and test interventions to avoid excessive infant weight gain and childhood obesity. These objectives are being tested through existing close collaborations with the Avon Longitudinal Study of Parents and Children (ALSPAC), the Southampton Womens Study (SWS), and the Cambridge Baby Growth Study (MRC Epidemiology Unit & Department of Paediatrics, University of Cambridge), and other population-based birth cohort studies. |Genetic variants are selected based on the results of genome-wide association studies for adult obesity, and timing of puberty, through our involvement in large international consortia. Many of these genetic variants appear to be very relevant to the risk of childhood obesity by influencing rates of weight gain even from the first months of life. Our studies aim to further characterise the infant growth, feeding and behavioural phenotypes that are associated with these genetic markers of adult obesity. |Prediction models for childhood obesity risk are based on meta-analysis of growth data from a wide range of birth cohort studies. Further refinement of these models will be explored by testing the addition of those early life phenotypes identified by our genetic studies, and through identification of biochemical biomarkers of infant growth and body composition. |The aetiological role of excess nutrient intake on rapid infant weight gain and childhood obesity risk will be tested by randomised controlled trial of parental education, support and behaviour change, which if successful will lead to wider pragmatic trials to test its application to public health.|In addition to my specific focus on the infant determinants of childhood obesity, I closely support the research in other programmes of the Epidemiology Unit to understand the role of childhood physical activity in the aetiology and prevention of childhood obesity. |These research objectives are also closely supported by clinical activities in setting up a secondary referral service for childhood obesity (through the Paediatric Endocrinology & Diabetes Service, Addenbrookes Hospital NHS Trust), and support for local community initiatives in school-based screening and treatment of childhood obesity.
+
+--UPDATE UploadWorkBook SET TechAbstract = REPLACE(TechAbstract, '&&', '|')
+
 -----------------------------------
 -- Workbook Datafix - Institution  -- KOMEN
 -----------------------------------

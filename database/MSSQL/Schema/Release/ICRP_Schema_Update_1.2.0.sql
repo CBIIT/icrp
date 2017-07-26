@@ -37,6 +37,62 @@ GO
 
 
 
+IF object_id('lu_DataUploadIntegrityCheckRules') is not null
+DROP TABLE [lu_DataUploadIntegrityCheckRules]
+GO 
+
+CREATE TABLE [dbo].[lu_DataUploadIntegrityCheckRules] (
+	[lu_DataUploadIntegrityCheckRules_ID] [int] NOT NULL,	
+	[Name] [varchar](250) NOT NULL,	
+	[Category] [varchar](50) NOT NULL,
+	[IsRequired] [bit] NOT NULL,
+	[IsActive] [bit] NOT NULL,		
+	[CreatedDate] [datetime] NOT NULL,
+	[UpdatedDate] [datetime] NOT NULL
+)
+
+GO
+
+ALTER TABLE [dbo].[lu_DataUploadIntegrityCheckRules] ADD  CONSTRAINT [DF_lu_DataUploadIntegrityCheckRules_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+
+ALTER TABLE [dbo].[lu_DataUploadIntegrityCheckRules] ADD  CONSTRAINT [DF_lu_DataUploadIntegrityCheckRules_UpdatedDate]  DEFAULT (getdate()) FOR [UpdatedDate]
+GO
+
+
+------------------------------------------------------------------
+-- Insert [lu_DataUploadIntegrityCheckRules] Data
+------------------------------------------------------------------
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (1, 'Required Fields', 'General', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (2, 'Place Holder', 'General', 1, 0, getdate(), getdate())
+
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (11, 'Duplicate AltAwardCodes', 'Award', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (12, 'Missing Parents', 'Award', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (13, 'Renewals imported as Parents', 'Award', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (14, 'Invalid Award Dates', 'Award', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (15, 'Invalid Funding Amounts', 'Award', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (16, 'Invalid Annulized Values', 'Award', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (17, 'Invalid Award Type', 'Award', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (18, 'Place Holder', 'Award', 1, 0, getdate(), getdate())
+
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (21, 'Missing CSO Code/Relevance', 'CSO', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (22, 'Invalid CSO Codes', 'CSO', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (23, 'Relevances not 100% ', 'CSO', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (24, 'Mismatched Codes/Relevances', 'CSO', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (25, 'Using Historical CSO Codes', 'CSO', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (26, 'Place Holder', 'CSO', 1, 0, getdate(), getdate())
+
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (31, 'Missing Cancer Type/Relevance', 'Cancer Type', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (32, 'Invalid Cancer Types', 'Cancer Type', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (33, 'Relevances not 100% ', 'Cancer Type', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (34, 'Mismatched Cancer Types/Relevances', 'Cancer Type', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (35, 'Place Holder', 'Cancer Type', 1, 0, getdate(), getdate())
+
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (41, 'Missing Institution', 'Funding Org / Institution', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (42, 'Missing Funding Org', 'Funding Org / Institution', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (43, 'Missing Funding Org Div', 'Funding Org / Institution', 1, 1, getdate(), getdate())
+INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (44, 'Place Holder', 'Funding Org / Institution', 1, 0, getdate(), getdate())
+
 /*************************************************/
 /******		UPDATE TABLE        			******/
 /*************************************************/
@@ -52,12 +108,36 @@ IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[C
 	ALTER TABLE [Country] ADD [Currency] [varchar](3) NULL
 GO
 
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[CSO]') AND name = 'AltAwardCode1')
+	ALTER TABLE [CSO] ADD [AltAwardCode1] [varchar](100) NULL
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[CSO]') AND name = 'AltAwardCode2')
+	ALTER TABLE [CSO] ADD [AltAwardCode2] [varchar](100) NULL
+GO
+
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[FundingOrg]') AND name = 'MapCoords')
 	ALTER TABLE [FundingOrg] ADD [MapCoords] [varchar](50) NULL
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[FundingOrg]') AND name = 'Website')
+	ALTER TABLE [FundingOrg] ADD [Website] [varchar](200) NULL
 GO
 	
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[Project]') AND name = 'DataUploadStatusID')
 	ALTER TABLE [Project] ADD [DataUploadStatusID] INT NULL
+GO
+
+IF EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[Institution]') AND name = 'State')
+	ALTER TABLE [Institution] ALTER COLUMN [State] VARCHAR(50) NULL
+GO
+
+IF EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[Institution]') AND name = 'Postal')
+	ALTER TABLE [Institution] ALTER COLUMN Postal VARCHAR(50) NULL
+GO
+
+IF EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[ProjectFunding]') AND name = 'Source_ID')
+	ALTER TABLE [ProjectFunding] ALTER COLUMN Source_ID VARCHAR(150) NULL
 GO
 
 /*************************************************/
@@ -69,7 +149,7 @@ join (select distinct country, currency from fundingorg) cur ON c.Abbreviation =
 GO
 
 -----------------------------------------
--- Insert Currency in the Country tab;e
+-- Insert Currency in the Country table
 ----------------------------------------
 PRINT '******************************************************************************'
 PRINT '***************************** Bulk Insert ************************************'
