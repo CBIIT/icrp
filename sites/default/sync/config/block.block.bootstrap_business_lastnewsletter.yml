@@ -1,0 +1,31 @@
+uuid: 7d62c2f1-da33-4b95-9b2e-a9c358c0ae02
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:0cb7e144-c318-4fed-9ba5-8b2e70a88d75'
+  module:
+    - block_content
+    - system
+  theme:
+    - bootstrap_business
+id: bootstrap_business_lastnewsletter
+theme: bootstrap_business
+region: sidebar_second
+weight: -26
+provider: null
+plugin: 'block_content:0cb7e144-c318-4fed-9ba5-8b2e70a88d75'
+settings:
+  id: 'block_content:0cb7e144-c318-4fed-9ba5-8b2e70a88d75'
+  label: 'Last Newsletter'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /home
+    negate: false
+    context_mapping: {  }

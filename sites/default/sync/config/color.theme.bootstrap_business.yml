@@ -1,0 +1,10 @@
+palette:
+  bg: '#f4f7fb'
+  highlight: '#454e59'
+  link: '#4484c7'
+logo: 'public://color/bootstrap_business-554056ee/logo.svg'
+stylesheets:
+  - 'public://color/bootstrap_business-554056ee/colors.css'
+files:
+  - 'public://color/bootstrap_business-554056ee/logo.svg'
+  - 'public://color/bootstrap_business-554056ee/colors.css'

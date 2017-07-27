@@ -1,0 +1,24 @@
+uuid: 2a091459-b642-4aef-b3e2-0415c55ea2f0
+langcode: en
+status: false
+dependencies:
+  config:
+    - system.menu.manager-menu
+  module:
+    - system
+  theme:
+    - bootstrap
+id: managermenu
+theme: bootstrap
+region: navigation
+weight: -9
+provider: null
+plugin: 'system_menu_block:manager-menu'
+settings:
+  id: 'system_menu_block:manager-menu'
+  label: 'Manager Menu'
+  provider: system
+  label_display: visible
+  level: 1
+  depth: 0
+visibility: {  }

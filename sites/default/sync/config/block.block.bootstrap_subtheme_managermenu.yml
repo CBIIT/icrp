@@ -1,0 +1,33 @@
+uuid: fcb26dc4-c1a7-4da9-8632-4d570052affe
+langcode: en
+status: false
+dependencies:
+  config:
+    - system.menu.manager-menu
+  module:
+    - system
+    - user
+  theme:
+    - bootstrap_subtheme
+id: bootstrap_subtheme_managermenu
+theme: bootstrap_subtheme
+region: navigation
+weight: -16
+provider: null
+plugin: 'system_menu_block:manager-menu'
+settings:
+  id: 'system_menu_block:manager-menu'
+  label: 'Manager Menu'
+  provider: system
+  label_display: visible
+  level: 1
+  depth: 0
+visibility:
+  user_role:
+    id: user_role
+    roles:
+      administrator: administrator
+      manager: manager
+    negate: false
+    context_mapping:
+      user: '@user.current_user_context:current_user'

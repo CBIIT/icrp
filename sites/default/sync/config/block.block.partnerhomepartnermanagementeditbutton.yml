@@ -1,0 +1,40 @@
+uuid: 7635e4ea-9c4e-41f5-901b-acf5cef91e18
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:4abed5de-9163-4a96-a80f-16e9623bdc5f'
+  module:
+    - block_content
+    - system
+    - user
+  theme:
+    - bootstrap_subtheme
+id: partnerhomepartnermanagementeditbutton
+theme: bootstrap_subtheme
+region: footer
+weight: -21
+provider: null
+plugin: 'block_content:4abed5de-9163-4a96-a80f-16e9623bdc5f'
+settings:
+  id: 'block_content:4abed5de-9163-4a96-a80f-16e9623bdc5f'
+  label: 'Partner Home Partner Management Edit Button'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: '<front>'
+    negate: false
+    context_mapping: {  }
+  user_role:
+    id: user_role
+    roles:
+      administrator: administrator
+      manager: manager
+    negate: false
+    context_mapping:
+      user: '@user.current_user_context:current_user'
