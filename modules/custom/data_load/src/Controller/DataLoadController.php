@@ -164,7 +164,7 @@ class DataLoadController {
             $from = $uploaddir . $fileName;
             $to = $uploaddir . $fileName . '.utf8';
             exec('iconv -f UTF-16 -t UTF-8 ' . $from . ' -o ' . $to . '; rm ' . $from . '; mv ' . $to . ' ' .$from . ';');
-            exec("sed -i 's/\r/|\r/g' " . $from);
+            // exec("sed -i 's/\r/|\r/g' " . $from);
         }
         
         $response=array('rowCount' => 50, 'projects' => array());
@@ -313,7 +313,7 @@ public function loaddata_mysql(Request $request) {
         $from = $uploaddir . $fileName;
         $to = $uploaddir . $fileName . '.utf8';
         exec('iconv -f UTF-16 -t UTF-8 ' . $from . ' -o ' . $to . '; rm ' . $from . '; mv ' . $to . ' ' .$from . ';');
-        exec("sed -i 's/\r/|\r/g' " . $from);
+        // exec("sed -i 's/\r/|\r/g' " . $from);
     }
     
     $response = 'OK';
