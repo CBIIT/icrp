@@ -19,12 +19,12 @@ class CSVReader {
         $this->numColumns = $numColumns;
         $this->delimiter = $delimiter;
 
-        $this->debug_fd = fopen('/var/www/html/modules/custom/data_load/src/Controller/debug.txt', 'w') or die("Could not open debug file");
+        // $this->debug_fd = fopen('/var/www/html/modules/custom/data_load/src/Controller/debug.txt', 'w') or die("Could not open debug file");
     }
     
     public function close() {
         fclose($this->fd);
-        fclose($this->debug_fd);
+        // fclose($this->debug_fd);
     }
     
     public function checkHeaders() {
