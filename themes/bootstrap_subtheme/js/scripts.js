@@ -17,9 +17,11 @@
       });
 
       //alert(window.location.pathname);
+      /*
       $("li.disabled a").click(function() {
        return false;
       });
+      */
       switch(window.location.pathname) {
         case "/":
           $.getNewsletter();
