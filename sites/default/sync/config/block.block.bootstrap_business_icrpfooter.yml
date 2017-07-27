@@ -1,0 +1,18 @@
+uuid: 377bd05e-bb00-433f-870c-5d0a51a58131
+langcode: en
+status: true
+dependencies:
+  theme:
+    - bootstrap_business
+id: bootstrap_business_icrpfooter
+theme: bootstrap_business
+region: footer
+weight: -27
+provider: null
+plugin: 'snippet:icrp_footer'
+settings:
+  id: 'snippet:icrp_footer'
+  label: 'ICRP Footer'
+  provider: snippet_manager
+  label_display: '0'
+visibility: {  }

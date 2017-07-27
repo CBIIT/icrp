@@ -1,0 +1,31 @@
+uuid: 750cfab8-4fed-4245-b590-0b600063fb56
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:5917d6af-5e3a-4c08-8d3b-c0cdd913a7df'
+  module:
+    - block_content
+    - system
+  theme:
+    - bootstrap_business
+id: bootstrap_business_partnershiptwitter
+theme: bootstrap_business
+region: sidebar_second
+weight: -27
+provider: null
+plugin: 'block_content:5917d6af-5e3a-4c08-8d3b-c0cdd913a7df'
+settings:
+  id: 'block_content:5917d6af-5e3a-4c08-8d3b-c0cdd913a7df'
+  label: 'Partnership Twitter'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /home
+    negate: false
+    context_mapping: {  }

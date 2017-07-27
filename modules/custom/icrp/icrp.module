@@ -687,22 +687,28 @@ function getNodeIdFromMarkup($html) {
 }
 
 function getThreadNodeInfo($thread_node_id) {
+  //drupal_set_message("getThreadNodeInfo");
+
   $text_summary_max_length = 254;
   $node = \Drupal::entityTypeManager()->getStorage('node')->load($thread_node_id);
   //$summary = $node['#values']['body']['x-dfault'][0]['summary'];
   //$summary =  $node->get('summary')->value; 
   $body =  $node->get('body')->value; 
   $summary_raw =  $node->get('body')->summary; 
-  /*
+  
   if($summary_raw == "") {
     $summary = text_summary(rtrim(strip_tags($body)), NULL, $text_summary_max_length);
+    if(strlen(rtrim(strip_tags($body))) > $text_summary_max_length) {
+      $summary .= " ...";
+    }
+
   } else {
     $summary = text_summary($summary_raw, NULL,  $text_summary_max_length);
 
   }
-  */
+  
   //return array($node->getTitle(), "<b>".$summary."</b></br>Body: ".$body."</br>Summary Raw: ".$summary_raw);
-  return array($node->getTitle(), $summary_raw);
+  return array($node->getTitle(), $summary);
 }
 function lastComment($node_id) {
   $comment = "This is the last comment for ".$node_id;

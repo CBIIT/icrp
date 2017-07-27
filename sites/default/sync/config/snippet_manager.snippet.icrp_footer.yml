@@ -1,0 +1,19 @@
+uuid: 24d60667-ab38-4459-b669-aef6d5557363
+langcode: en
+status: true
+dependencies: {  }
+id: icrp_footer
+label: 'ICRP Footer'
+code:
+  value: "What is 5 +8 {{ 5+ 8}}<br>\r\n<div class=\"container\">\r\n\r\n    <div class=\"row\">\r\n        <div class=\"col-sm-4\">\r\n\r\n        <nav id=\"block-footerleft\" aria-labelledby=\"block-footerleft-menu\" role=\"navigation\">\r\n\r\n            <h2 id=\"block-footerleft-menu\">ICRP</h2>\r\n\r\n\r\n            <ul class=\"menu nav\">\r\n                <li class=\"expanded dropdown\">\r\n                    <a data-drupal-link-system-path=\"node/19\" title=\"Become an ICRP partner\" href=\"/become-a-partner\">Become a Partner</a>\r\n                </li>\r\n                <li class=\"expanded dropdown\">\r\n                    <a title=\"Apply for a Partnership\" href=\"/apply-for-partnership\">Apply for Partnership</a>\r\n                </li>\r\n            </ul>\r\n\r\n        </nav>\r\n        </div>\r\n        <div class=\"col-sm-5\">\r\n        <nav id=\"block-footermiddle\" aria-labelledby=\"block-footermiddle-menu\" role=\"navigation\">\r\n\r\n            <h2 id=\"block-footermiddle-menu\" class=\"visually-hidden\">Footer Middle</h2>\r\n\r\n            <ul class=\"menu nav\">\r\n                <li class=\"expanded dropdown\">\r\n                    <a data-drupal-link-system-path=\"node/6\" title=\"About Us\" href=\"/about-us\">About Us</a>\r\n                </li>\r\n                <li class=\"expanded dropdown\">\r\n                    <a data-drupal-link-system-path=\"yamlform/contact\" title=\"Contact Us\" href=\"/contact-us\">Contact Us</a>\r\n                </li>\r\n                <li class=\"expanded dropdown\">\r\n                    <a title=\"ICRP Partnership Tweets\" href=\"https://twitter.com/icrpartners1\" class=\"ext\" target=\"_blank\">Twitter</a>\r\n                </li>\r\n                <li class=\"expanded dropdown\">\r\n                    <a title=\"Terms and Conditions\" href=\"/terms-and-conditions\">Terms and Conditions</a>\r\n                </li>\r\n                <li class=\"expanded dropdown\">\r\n                    <a title=\"Privacy Statement\" href=\"/privacy\">Privacy</a>\r\n                </li>\r\n                <li class=\"expanded dropdown\">\r\n                    <a title=\"Copyright\" href=\"/copyright\">Copyright</a>\r\n                </li>\r\n            </ul>\r\n\r\n\r\n        </nav>\r\n        </div>\r\n        <div class=\"\"col-sm-3\">\r\n        <nav id=\"block-footerright\" aria-labelledby=\"block-footerright-menu\" role=\"navigation\">\r\n\r\n        <h2 id=\"block-footerright-menu\">Quick Links</h2>\r\n\r\n\r\n        <ul class=\"menu nav\">\r\n            <li class=\"expanded dropdown\">\r\n                <a data-drupal-link-system-path=\"node/35\" title=\"Current Partners\" href=\"/current-partners\">Current Partners</a>\r\n            </li>\r\n            <li class=\"expanded dropdown\">\r\n                <a data-drupal-link-system-path=\"faq\" title=\"Frequently Asked Questions\" href=\"/faq\">FAQ</a>\r\n            </li>\r\n        </ul>\r\n\r\n\r\n        </nav>\r\n        </div>\r\n    </div>\r\n\r\n</div>\r\n\r\n\r\n\r\n\r\n\r\n\r\n"
+  format: snippet_manager_test_basic_format
+variables: {  }
+page:
+  status: false
+  url_alias: ''
+  display_variant:
+    id: block_display
+    configuration:
+      page_title: 'ICRP Footer Block'
+      uuid: 29fd2f0e-88b2-4959-8387-918b355701be
+  theme: ''

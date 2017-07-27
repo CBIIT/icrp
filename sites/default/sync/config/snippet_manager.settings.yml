@@ -1,0 +1,8 @@
+codemirror:
+  cdn: true
+  toolbar: true
+  theme: default
+  mode: html_twig
+redirect_page: admin
+_core:
+  default_config_hash: 9y17cofQh0vGwkkyfaSpBTabMRDJkrwFXpwokYB9fKo

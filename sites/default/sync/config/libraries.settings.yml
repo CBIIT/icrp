@@ -1,0 +1,8 @@
+definition:
+  local:
+    path: 'public://library-definitions'
+  remote:
+    enable: true
+    url: 'http://cgit.drupalcode.org/libraries_registry/plain/registry/8'
+_core:
+  default_config_hash: sE4pFr5QZIsVJByQcQ4tivd00kyn7_dogSLI_RT1Lzc

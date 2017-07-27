@@ -1,0 +1,24 @@
+uuid: a28100bb-1caa-45ff-88e0-948b82f3eb7d
+langcode: en
+status: false
+dependencies:
+  config:
+    - system.menu.footer-left
+  module:
+    - system
+  theme:
+    - bootstrap_subtheme
+id: footerleft
+theme: bootstrap_subtheme
+region: navigation
+weight: -19
+provider: null
+plugin: 'system_menu_block:footer-left'
+settings:
+  id: 'system_menu_block:footer-left'
+  label: ICRP
+  provider: system
+  label_display: visible
+  level: 1
+  depth: 0
+visibility: {  }

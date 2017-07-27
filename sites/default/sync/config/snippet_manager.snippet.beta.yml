@@ -1,0 +1,17 @@
+uuid: 1b717fdc-603e-450b-b125-e442254e50e5
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: 8SQpVgJkFmcx8UKS9p27Q5Sv2_2kK-sXroBbfH_EwMw
+id: beta
+label: Beta
+code:
+  value: '<div class="snippet-main-content">-= {{ main_content | render | striptags | upper }} =-</div>'
+  format: snippet_manager_test_basic_format
+variables: {  }
+page:
+  status: false
+  url_alias: ''
+  display_variant:
+    id: ''

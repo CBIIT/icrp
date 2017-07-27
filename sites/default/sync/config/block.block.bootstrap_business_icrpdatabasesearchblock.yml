@@ -1,0 +1,31 @@
+uuid: 370244ba-504d-47c1-9f27-cd41e2fca264
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:0cf0d953-a530-4e94-bdcc-f083eee5f1b2'
+  module:
+    - block_content
+    - system
+  theme:
+    - bootstrap_business
+id: bootstrap_business_icrpdatabasesearchblock
+theme: bootstrap_business
+region: content
+weight: -16
+provider: null
+plugin: 'block_content:0cf0d953-a530-4e94-bdcc-f083eee5f1b2'
+settings:
+  id: 'block_content:0cf0d953-a530-4e94-bdcc-f083eee5f1b2'
+  label: 'Search and Analyze ICRP Database'
+  provider: block_content
+  label_display: visible
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /db
+    negate: false
+    context_mapping: {  }

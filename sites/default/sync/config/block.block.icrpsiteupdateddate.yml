@@ -1,0 +1,25 @@
+uuid: 7f1a548e-2bc2-4eeb-9545-fd0fd7d377cc
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:5966d8e1-559b-4742-9f5f-71648fc454f9'
+  module:
+    - block_content
+  theme:
+    - bootstrap_subtheme
+id: icrpsiteupdateddate
+theme: bootstrap_subtheme
+region: footer
+weight: -19
+provider: null
+plugin: 'block_content:5966d8e1-559b-4742-9f5f-71648fc454f9'
+settings:
+  id: 'block_content:5966d8e1-559b-4742-9f5f-71648fc454f9'
+  label: 'ICRP Site Updated Date'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

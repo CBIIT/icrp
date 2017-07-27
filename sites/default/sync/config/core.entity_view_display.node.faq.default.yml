@@ -1,0 +1,101 @@
+uuid: a89421d6-44b2-4ea5-9e19-ed9138f2b74b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.faq.body
+    - field.field.node.faq.field_detailed_question
+    - node.type.faq
+  module:
+    - ds
+    - panelizer
+    - text
+    - user
+third_party_settings:
+  panelizer:
+    enable: false
+    custom: false
+  ds:
+    layout:
+      id: bs_2col_bricked
+      path: modules/bootstrap_layouts/templates/3.0.0
+      library: ''
+      disable_css: false
+      entity_classes: all_classes
+      settings:
+        layout:
+          wrapper: div
+          classes:
+            - row
+            - clearfix
+          attributes: ''
+        regions:
+          top:
+            wrapper: div
+            classes:
+              - col-sm-12
+            attributes: ''
+          top_left:
+            wrapper: div
+            classes:
+              - col-sm-6
+            attributes: ''
+          top_right:
+            wrapper: div
+            classes:
+              - col-sm-6
+            attributes: ''
+          middle:
+            wrapper: div
+            classes:
+              - col-sm-12
+            attributes: ''
+          bottom_left:
+            wrapper: div
+            classes:
+              - col-sm-6
+            attributes: ''
+          bottom_right:
+            wrapper: div
+            classes:
+              - col-sm-6
+            attributes: ''
+          bottom:
+            wrapper: div
+            classes:
+              - col-sm-12
+            attributes: ''
+    regions:
+      top:
+        - field_faq_category
+        - field_detailed_question
+        - body
+_core:
+  default_config_hash: q1cZh-JjQKAW0mZLCVke0YwK2rFrr3gyC4UEo10Hucc
+id: node.faq.default
+targetEntityType: node
+bundle: faq
+mode: default
+content:
+  body:
+    type: text_default
+    weight: 2
+    settings: {  }
+    third_party_settings: {  }
+    label: hidden
+    region: top
+  field_detailed_question:
+    type: text_default
+    weight: 1
+    settings: {  }
+    third_party_settings: {  }
+    label: visually_hidden
+    region: top
+  path:
+    type: path
+    weight: 2
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+hidden:
+  links: true
