@@ -71,7 +71,6 @@ class ValidationSummaryComponent extends Component {
                 <SummaryItem object={result} />
             )
         });
-        debugger;
         let validationResults = [];
         this.props.validationResults.filter(result => result.id !== '0').forEach(result => {
             const resultId = parseInt(result.id, 10);

@@ -268,7 +268,7 @@ class DataLoadController {
         $csvReader->close();
         
         $rowCount = $conn->query("SELECT COUNT(*) FROM UploadWorkBook")->fetchColumn();
-        $stmt = $conn->prepare("SELECT ORDINAL_POSITION, COLUMN_NAME FROM icrp_dataload.INFORMATION_SCHEMA.COLUMNS
+        $stmt = $conn->prepare("SELECT ORDINAL_POSITION, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
         WHERE TABLE_NAME = 'UploadWorkBook' AND COLUMN_NAME != 'InternalId' AND COLUMN_NAME != 'OriginalFileName'
         ORDER BY ORDINAL_POSITION");
         $stmt->execute();
