@@ -25,7 +25,9 @@ h1 {
 h2 {
     margin-top: 0px;
 }
-
+div#views-bootstrap-frequently-asked-questions-page-1 > div.panel {
+    margin-bottom:21px;
+}
 /* Twig Tweak - drupal_block() fix */
 /* Show block in footer but hide it.  It is show elsewhere on the page. */
 footer > div > section#block-partnerhomewelcome,
