@@ -1,0 +1,22 @@
+uuid: 50cea8bd-e987-450f-8698-d861e2776f32
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.body
+    - node.type.organization
+  module:
+    - text
+id: node.organization.body
+field_name: body
+entity_type: node
+bundle: organization
+label: Body
+description: 'Mission Statement'
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  display_summary: true
+field_type: text_with_summary

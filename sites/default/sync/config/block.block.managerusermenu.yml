@@ -1,0 +1,33 @@
+uuid: 06855deb-d6cb-4888-b911-3bbb49eb2071
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:e31e02bd-0f33-4b5c-a371-b8df01e274f7'
+  module:
+    - block_content
+    - user
+  theme:
+    - bootstrap_subtheme
+id: managerusermenu
+theme: bootstrap_subtheme
+region: header
+weight: -21
+provider: null
+plugin: 'block_content:e31e02bd-0f33-4b5c-a371-b8df01e274f7'
+settings:
+  id: 'block_content:e31e02bd-0f33-4b5c-a371-b8df01e274f7'
+  label: 'Manager User Nav'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  user_role:
+    id: user_role
+    roles:
+      authenticated: authenticated
+    negate: false
+    context_mapping:
+      user: '@user.current_user_context:current_user'

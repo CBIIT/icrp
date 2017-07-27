@@ -1,0 +1,24 @@
+uuid: 9a2507d9-351a-4a3a-b8bf-8837a0f7c953
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_subcommittee_annual_meetin
+  module:
+    - user
+id: user.user.field_subcommittee_annual_meetin
+field_name: field_subcommittee_annual_meetin
+entity_type: user
+bundle: user
+label: 'Annual Meetings'
+description: 'Information about the next annual meeting and information about planning Committee meetings.'
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean
