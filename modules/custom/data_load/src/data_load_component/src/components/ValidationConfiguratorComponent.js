@@ -167,7 +167,7 @@ class ValidationConfiguratorComponent extends Component {
 
         return (
             <div>
-                <Spinner message="Loading Content..." visible={this.state.loading} />
+                <Spinner message="Validating Workbook..." visible={this.state.loading} />
                 <Panel>
                     <Col lg={3} md={4} sm={6} xs={12}>
                         <ValidationCategory validationCategory={generalCategory} onCheck={this.toggleCheck} />

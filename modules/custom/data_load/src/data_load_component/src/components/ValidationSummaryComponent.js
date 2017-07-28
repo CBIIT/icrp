@@ -77,7 +77,7 @@ class ValidationSummaryComponent extends Component {
             const isChecked = validationRules.find(rule => rule.id === resultId).checked;
             if (isChecked) {
                 let validationResult = result.validationResult;
-                const _bsStyle = validationResult === 'Failed' ? "danger" : "default";
+                const _bsStyle = validationResult === 'Failed' ? "danger" : "custom";
                 validationResults.push(
                     <ListGroupItemComponent bsStyle={_bsStyle} result={result} ruleId={resultId} clickHandler={this.openModal} />
                 )
@@ -87,7 +87,7 @@ class ValidationSummaryComponent extends Component {
         return (
 
             <div>
-                <Spinner message="Loading Content..." visible={this.state.loading} />
+                <Spinner message="Loading Details..." visible={this.state.loading} />
                 <h3>Data Integrity Check Summary:</h3>
                 <ListGroup>
                     {validationSummary}

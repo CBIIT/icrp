@@ -281,7 +281,7 @@ class DataLoadController {
         
         $columnsResult = [];
         foreach ($columns as $columnObjArr ) {
-            $obj = array('key' => $columnObjArr['COLUMN_NAME'], 'name' => $columnObjArr['COLUMN_NAME'], 'width' => 200, 'resizable' => true, 'filterable' => true, 'sortable' => true);
+            $obj = array('key' => $columnObjArr['COLUMN_NAME'], 'name' => $columnObjArr['COLUMN_NAME'], 'width' => 100, 'resizable' => true, 'filterable' => true, 'sortable' => true);
             array_push($columnsResult, $obj);
         }
         

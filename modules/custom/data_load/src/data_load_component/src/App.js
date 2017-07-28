@@ -93,10 +93,13 @@ class App extends Component {
     this.setState({ tabKey: key });
   }
 
+
+
   render() {
+    const homeLocation = window.location.protocol + '//' + window.location.host;
     return (
       <div>
-        <Spinner message="Loading Content..." visible={this.state.loading} />
+        <Spinner message="Loading Workbook..." visible={this.state.loading} />
         <Tabs activeKey={this.state.tabKey} onSelect={this.handleTabSelect} id="uncontrolled-tabs">
           <Tab eventKey={1} title="Load Workbook">
             <div className="tab-container">
@@ -105,7 +108,7 @@ class App extends Component {
                 sortColumn={this.state.sortColumn} sortDirection={this.state.sortDirection}
                 columns={this.state.columns} projects={this.state.projects} onChange={this.handleDataTableChange} />
 
-              <NavigationComponent hasBackButton={false} hasNextButton={true} nextDisabled={this.state.tab2Disabled} clickHandler={this.handleTabSelect} thisTabId={1} cancelUrl={'https://icrpartnership-dev.org/FundingOrgs'} />
+              <NavigationComponent hasBackButton={false} hasNextButton={true} nextDisabled={this.state.tab2Disabled} clickHandler={this.handleTabSelect} thisTabId={1} cancelUrl={homeLocation} />
 
             </div>
           </Tab>
@@ -114,7 +117,7 @@ class App extends Component {
               <ValidationConfiguratorComponent onValidationResults={this.handleValidationResults} onLoadingStart={this.handleLoadingStateChange} uploadType={this.state.uploadType} sponsorCode={this.state.sponsorCode} />
               <ValidationSummaryComponent validationResults={this.state.validationResults} validationRules={this.state.validationRules} sponsorCode={this.state.sponsorCode} />
 
-              <NavigationComponent hasBackButton={true} hasNextButton={true} nextDisabled={this.state.tab3Disabled} clickHandler={this.handleTabSelect} thisTabId={2} cancelUrl={'https://icrpartnership-dev.org/FundingOrgs'} />
+              <NavigationComponent hasBackButton={true} hasNextButton={true} nextDisabled={this.state.tab3Disabled} clickHandler={this.handleTabSelect} thisTabId={2} cancelUrl={homeLocation} />
 
             </div>
           </Tab>

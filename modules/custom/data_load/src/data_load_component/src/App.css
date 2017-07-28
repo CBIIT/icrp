@@ -88,5 +88,13 @@
   border-left-color: #ccc;
   right: 1em;
 }
+.red-text {
+  color: red
+}
+
+.green-text {
+  color: green
+}
+
 
 /* Test */
