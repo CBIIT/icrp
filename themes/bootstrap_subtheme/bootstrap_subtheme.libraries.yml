@@ -18,3 +18,4 @@ global-scripts:
     js/scripts.js: {}
   dependencies:
     - core/jquery
+    - core/jquery.ui.dialog
