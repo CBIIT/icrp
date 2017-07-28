@@ -123,7 +123,6 @@ class ValidationConfiguratorComponent extends Component {
         if (response.ok) {
             let results = await response.json();
             // filter result type Summary
-            debugger;
             results = results['results'].map(result => {
                 return {
                     id: result.ID,

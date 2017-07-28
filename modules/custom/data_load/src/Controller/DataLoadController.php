@@ -164,7 +164,7 @@ class DataLoadController {
             $from = $uploaddir . $fileName;
             $to = $uploaddir . $fileName . '.utf8';
             exec('iconv -f UTF-16 -t UTF-8 ' . $from . ' -o ' . $to . '; rm ' . $from . '; mv ' . $to . ' ' .$from . ';');
-            exec("sed -i 's/\r/|\r/g' " . $from);
+            // exec("sed -i 's/\r/|\r/g' " . $from);
         }
         
         $response=array('rowCount' => 50, 'projects' => array());
@@ -268,7 +268,7 @@ class DataLoadController {
         $csvReader->close();
         
         $rowCount = $conn->query("SELECT COUNT(*) FROM UploadWorkBook")->fetchColumn();
-        $stmt = $conn->prepare("SELECT ORDINAL_POSITION, COLUMN_NAME FROM icrp_dataload.INFORMATION_SCHEMA.COLUMNS
+        $stmt = $conn->prepare("SELECT ORDINAL_POSITION, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
         WHERE TABLE_NAME = 'UploadWorkBook' AND COLUMN_NAME != 'InternalId' AND COLUMN_NAME != 'OriginalFileName'
         ORDER BY ORDINAL_POSITION");
         $stmt->execute();
@@ -313,7 +313,7 @@ public function loaddata_mysql(Request $request) {
         $from = $uploaddir . $fileName;
         $to = $uploaddir . $fileName . '.utf8';
         exec('iconv -f UTF-16 -t UTF-8 ' . $from . ' -o ' . $to . '; rm ' . $from . '; mv ' . $to . ' ' .$from . ';');
-        exec("sed -i 's/\r/|\r/g' " . $from);
+        // exec("sed -i 's/\r/|\r/g' " . $from);
     }
     
     $response = 'OK';
