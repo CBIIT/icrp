@@ -13,7 +13,7 @@
 
       $("div#cso-document-container > div > h2 > a").click(function(e) {
           //console.info("You clicked on Caption");
-          $.redirectCSOExample(e);
+          //$.redirectCSOExample(e);
       });
 
       //alert(window.location.pathname);
@@ -86,9 +86,19 @@
       .then(function(response) {
         for (key in response) {
           $('[data-count="{0}"]'.format(key))
-            .html(response[key]);
+            .attr('href', response[key]);
         }
     });
+  }
+
+  if ($('a[id^="cso"]').length) {
+    $.ajax('/api/database/examples/cso')
+      .then(function(response) {
+        for (key in response) {
+          var element = document.getElementById(key);
+          element.href = response[key];
+        }
+      });
   }
 
   $.hideCommentStatus = function(e){
