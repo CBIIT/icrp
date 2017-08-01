@@ -81,16 +81,18 @@
     }, 0);
   }
   
+  // sets tags with the data-count attribute to be dynamic
   if ($('[data-count]').length) {
     $.ajax('/api/database/counts')
       .then(function(response) {
         for (key in response) {
           $('[data-count="{0}"]'.format(key))
-            .attr('href', response[key]);
+            .html(response[key]);
         }
     });
   }
 
+  // attaches cso example hrefs to each button
   if ($('a[id^="cso"]').length) {
     $.ajax('/api/database/examples/cso')
       .then(function(response) {
