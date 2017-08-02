@@ -23,7 +23,6 @@ CREATE TABLE #Institution (
 GO
 
 BULK INSERT #Institution
---FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_CAC2_Institutions.csv'
 FROM 'C:\icrp\database\DataUpload\ICRPSubmission_CCRA_Institutions.csv'
 WITH
 (
@@ -41,11 +40,11 @@ FROM #Institution t JOIN Institution i ON t.Name = i.Name AND t.City = i.City
 
 IF EXISTS (SELECT * FROM #exist)
 BEGIN
-	PRINT 'Checking Duplicate Institutions   ==> ERROR'
+	PRINT 'Checking Existing Institutions   ==> ERROR'
 	SELECT * FROM #exist
 END
 ELSE
-	PRINT 'Checking Duplicate Institutions   ==> Pass'
+	PRINT 'Checking Existing Institutions   ==> Pass'
 
 
 BEGIN TRANSACTION
@@ -56,6 +55,19 @@ LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.City
 WHERE (e.Name IS NULL)
 
 SELECT Name, City FROM Institution GROUP BY Name, City HAVING COUNT(*) >1
+
+SELECT m.* INTO #dup FROM 
+	InstitutionMapping m
+	join Institution i ON m.oldname=i.Name AND m.oldcity = i.city
+	join Institution i2 ON m.newname=i2.Name AND m.newcity = i2.city
+
+IF EXISTS (SELECT * FROM #dup)
+BEGIN
+	PRINT 'Checking Duplicate Institutions   ==> ERROR'
+	SELECT * FROM #exist
+END
+ELSE
+	PRINT 'Checking Duplicate Institutions   ==> Pass'
 
 --commit
 

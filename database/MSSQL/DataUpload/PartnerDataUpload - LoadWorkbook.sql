@@ -61,7 +61,6 @@ CREATE TABLE UploadWorkBook (
 GO
 
 BULK INSERT UploadWorkBook
---FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_CAC2_20170705.csv'  
 FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_CCRA_20170720.csv'
 WITH
 (
