@@ -6,8 +6,10 @@ import {
     FormGroup,
     ButtonToolbar,
     Checkbox,
+    Collapse
 } from 'react-bootstrap';
 import Spinner from './SpinnerComponent';
+import PanelHeader from './PanelHeader';
 const uuidV4 = require('uuid/v4');
 
 class ValidationItem extends Component {
@@ -62,7 +64,7 @@ class ValidationConfiguratorComponent extends Component {
         this.checkIntegrity = this.checkIntegrity.bind(this);
         this.updateParent = this.updateParent.bind(this);
         this.toggleCheck = this.toggleCheck.bind(this);
-        this.state = { validationRules: [] };
+        this.state = { validationRules: [], open: true };
     }
 
     componentWillMount() {
@@ -167,32 +169,34 @@ class ValidationConfiguratorComponent extends Component {
 
         return (
             <div>
+                <PanelHeader onClick={() => this.setState({ open: !this.state.open })} title="Validation Rules" isOpen={this.state.open} />
                 <Spinner message="Validating Workbook..." visible={this.state.loading} />
-                <Panel>
-                    <Col lg={3} md={4} sm={6} xs={12}>
-                        <ValidationCategory validationCategory={generalCategory} onCheck={this.toggleCheck} />
-                        <ValidationCategory validationCategory={institutionCategory} onCheck={this.toggleCheck} />
-                    </Col>
-                    <Col lg={3} md={4} sm={6} xs={12}>
-                        <ValidationCategory validationCategory={awardCategory} onCheck={this.toggleCheck} />
-                    </Col>
-                    <Col lg={3} md={4} sm={6} xs={12}>
-                        <ValidationCategory validationCategory={cancerTypeCategory} onCheck={this.toggleCheck} />
-                    </Col>
-                    <Col lg={3} md={4} sm={6} xs={12} >
-                        <ValidationCategory validationCategory={csoCategory} onCheck={this.toggleCheck} />
-                    </Col>
-                    <Col lg={12} xs={12} className="centered-button-bar">
-                        <FormGroup>
-                            <Col lg={12} lgOffset={5} sm={2} smOffset={5} xs={2} xsOffset={4}>
-                                <ButtonToolbar>
-                                    <Button onClick={this.checkIntegrity}>Check Data</Button>
-                                </ButtonToolbar>
-                            </Col>
-                        </FormGroup>
-                    </Col>
-                </Panel>
-
+                <Collapse in={this.state.open}>
+                    <Panel>
+                        <Col lg={3} md={4} sm={6} xs={12}>
+                            <ValidationCategory validationCategory={generalCategory} onCheck={this.toggleCheck} />
+                            <ValidationCategory validationCategory={institutionCategory} onCheck={this.toggleCheck} />
+                        </Col>
+                        <Col lg={3} md={4} sm={6} xs={12}>
+                            <ValidationCategory validationCategory={awardCategory} onCheck={this.toggleCheck} />
+                        </Col>
+                        <Col lg={3} md={4} sm={6} xs={12}>
+                            <ValidationCategory validationCategory={cancerTypeCategory} onCheck={this.toggleCheck} />
+                        </Col>
+                        <Col lg={3} md={4} sm={6} xs={12} >
+                            <ValidationCategory validationCategory={csoCategory} onCheck={this.toggleCheck} />
+                        </Col>
+                        <Col lg={12} xs={12} className="centered-button-bar">
+                            <FormGroup>
+                                <Col lg={12} lgOffset={5} sm={2} smOffset={5} xs={2} xsOffset={4}>
+                                    <ButtonToolbar>
+                                        <Button onClick={this.checkIntegrity}>Perform Check</Button>
+                                    </ButtonToolbar>
+                                </Col>
+                            </FormGroup>
+                        </Col>
+                    </Panel>
+                </Collapse>
             </div>
         );
     }

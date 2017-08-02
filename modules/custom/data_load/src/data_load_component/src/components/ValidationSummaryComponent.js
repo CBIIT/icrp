@@ -7,7 +7,8 @@ import {
 import ListGroupItemComponent from './ListGroupItemComponent';
 import DataTableComponent from './DataTableComponent';
 import Spinner from './SpinnerComponent';
-import { ListGroupItem, Row, Col } from 'react-bootstrap';
+import PanelHeader from './PanelHeader';
+import { ListGroupItem, Row, Col, Collapse } from 'react-bootstrap';
 
 const SummaryItem = ({ object }) =>
     <ListGroupItem>
@@ -21,7 +22,7 @@ class ValidationSummaryComponent extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { showModal: false, loading: false };
+        this.state = { showModal: false, loading: false, openSummary: false, openDetails: false };
         this.closeModal = this.closeModal.bind(this);
         this.openModal = this.openModal.bind(this);
     }
@@ -77,9 +78,9 @@ class ValidationSummaryComponent extends Component {
             const isChecked = validationRules.find(rule => rule.id === resultId).checked;
             if (isChecked) {
                 let validationResult = result.validationResult;
-                const _bsStyle = validationResult === 'Failed' ? "danger" : "custom";
+                const validationStyle = validationResult === 'Failed' ? "danger-list-item" : "success-list-item";
                 validationResults.push(
-                    <ListGroupItemComponent bsStyle={_bsStyle} result={result} ruleId={resultId} clickHandler={this.openModal} />
+                    <ListGroupItemComponent validationStyle={validationStyle} result={result} ruleId={resultId} clickHandler={this.openModal} />
                 )
             }
         });
@@ -88,16 +89,31 @@ class ValidationSummaryComponent extends Component {
 
             <div>
                 <Spinner message="Loading Details..." visible={this.state.loading} />
-                <h3>Data Integrity Check Summary:</h3>
-                <ListGroup>
-                    {validationSummary}
-                </ListGroup>
-                <h3>Data Integrity Check Results:</h3>
-                <ListGroup>
-                    {validationResults}
-                </ListGroup>
 
-                <Modal show={this.state.showModal} onHide={this.closeModal}>
+
+                <PanelHeader 
+                        onClick={() => this.setState({ openSummary: !this.state.openSummary })} 
+                        title="Data Integrity Check Summary" 
+                        isOpen={this.state.openSummary}
+                />
+                <Collapse in={this.state.openSummary}>
+                    <ListGroup>
+                        {validationSummary}
+                    </ListGroup>
+                </Collapse>
+
+                <PanelHeader 
+                        onClick={() => this.setState({ openDetails: !this.state.openDetails })} 
+                        title="Data Integrity Check Results" 
+                        isOpen={this.state.openDetails}
+                />
+                <Collapse in={this.state.openDetails}>
+                    <ListGroup>
+                        {validationResults}
+                    </ListGroup>
+                </Collapse>
+
+                <Modal show={this.state.showModal} onHide={this.closeModal} bsSize="large">
                     <Modal.Header closeButton>
                         <Modal.Title>Details</Modal.Title>
                     </Modal.Header>

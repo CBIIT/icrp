@@ -1,0 +1,23 @@
+.panel-header {
+    display: flex;
+    cursor: pointer;
+    justify-content: space-between;
+    border: 1px solid #ccc;
+    background-color: #fafafa;
+    padding: 8px;
+}
+
+
+.panel-title {
+    font-weight: 500;
+    font-size: 16px;
+    color: steelblue;
+}
+
+.rotate-45 {
+    transform: rotate(45deg);
+}
+
+.rotate-225 {
+    transform: rotate(225deg);
+}

@@ -9,46 +9,30 @@
   padding: 15px;
 }
 
-.top-border {
-   border-top: 1px solid #ddd;
-   padding-top: 10px;
-}
+ .padding-top {
+    padding-top: 10px;  
+} 
 
 /** Smaller Screens < 992 px */
-@media (max-width: 992px) {
-  .responsive-border {
-    border-top: 1px solid #ddd;
-    padding-top: 10px;
-  }
-}
+/* @media (max-width: 992px) {
+} */
 
 /** Medium Screens >= 992 px */
-@media (min-width: 992px) {
-  .responsive-border {
-    border-left: 1px solid #ddd;
-  }
-}
+/* @media (min-width: 992px) {
+} */
 
 /** Medium screens and below <1200 px */
-@media (max-width: 1200px) {
-  .responsive-border-right {
-    border-top: 1px solid #ddd;
-    padding-top: 10px;
-  }
-}
+/* @media (max-width: 1200px) {
+} */
 
 /** Large Screens >= 1200 px */
 @media (min-width: 1200px) {
-  .lower-buttons-45 {
-    margin-top: +45px;
-  }
-  .responsive-border-right {
-    border-left: 1px solid #ddd;
+  .lower-buttons-40 {
+    margin-top: +40px;
   }
 }
 
 .centered-button-bar {
-  border-top: 1px solid #ddd;
   padding-top: 10px;
 }
 
@@ -88,13 +72,41 @@
   border-left-color: #ccc;
   right: 1em;
 }
-.red-text {
-  color: red
+
+.success-list-item {
+  color: #13A109;
 }
 
-.green-text {
-  color: green
+.danger-list-item {
+  color: #DB0B0B;
+  text-decoration: underline;
 }
 
+ .pagination {
+  margin-top: 0;
+  margin-bottom: 5px;
+} 
 
-/* Test */
+.flex-center {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.no-wrap {
+  white-space: nowrap;
+  text-align: left;
+}
+
+.horizontal-margin {
+  margin-left: 2px;
+  margin-right: 2px;
+}
+
+.btn {
+  min-width: 70px;
+}
+
+.panel {
+  border-radius: 0;
+}
