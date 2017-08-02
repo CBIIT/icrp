@@ -9,7 +9,6 @@ import {
     Radio,
     ControlLabel,
     FormControl,
-    ButtonToolbar,
     HelpBlock
 } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
@@ -148,23 +147,23 @@ class UploadFormComponent extends Component {
                     <Col lg={4} md={5} xs={12}>
                         <FormGroup>
                             {/*Upload Type*/}
-                            <Col componentClass={ControlLabel} xs={4}>
-                                Upload Type
-                          </Col>
+                            <Col componentClass={ControlLabel} xs={12} sm={4}>
+                                <div className="no-wrap">Upload Type</div>
+                            </Col>
 
-                            <Col xs={8}>
-                                <Radio name="uploadType" inline value="new" onChange={this.handleInputChange} checked={this.state.uploadType === 'new'}  disabled={this.state.controlsDisabled}>New</Radio>
+                            <Col xs={12} sm={8}>
+                                <Radio name="uploadType" inline value="new" onChange={this.handleInputChange} checked={this.state.uploadType === 'new'} disabled={this.state.controlsDisabled}>New</Radio>
                                 {' '}
-                                <Radio name="uploadType" inline value="update" onChange={this.handleInputChange} checked={this.state.uploadType === 'update'}  disabled={this.state.controlsDisabled}>Update</Radio>
+                                <Radio name="uploadType" inline value="update" onChange={this.handleInputChange} checked={this.state.uploadType === 'update'} disabled={this.state.controlsDisabled}>Update</Radio>
                             </Col>
                         </FormGroup>
 
                         <FormGroup validationState={this.state.sponsorCodeValid ? null : 'error'}>
                             {/* Sponsor Code */}
-                            <Col componentClass={ControlLabel} xs={4}>
-                                Sponsor Code <span className="red-text">*</span>
+                            <Col componentClass={ControlLabel} xs={12} sm={4}>
+                                <div className="no-wrap">Sponsor Code <span className="red-text">*</span></div>
                             </Col>
-                            <Col xs={8}>
+                            <Col xs={12} sm={8}>
                                 <FormControl type="text" name="sponsorCode" placeholder="Enter sponsor code" value={this.state.sponsorCode} onChange={this.handleInputChange} disabled={this.state.controlsDisabled} />
                                 {!this.state.sponsorCodeValid ? <HelpBlock>Sponsor Code is required and must be &le; 25 characters</HelpBlock> : null}
                             </Col>
@@ -173,28 +172,29 @@ class UploadFormComponent extends Component {
                     </Col>
 
                     {/* Middle Panel */}
-                    <Col lg={6} md={7} xs={12} className="responsive-border">
+                    <Col lg={6} md={7} xs={12}>
                         <FormGroup>
                             {/*Workbook selector*/}
-                            <Col componentClass={ControlLabel} xs={4}>
-                                Workbook File (.csv) <span className="red-text">*</span>
+                            <Col componentClass={ControlLabel} xs={12} sm={4}>
+                                <div className="no-wrap">Workbook File (.csv) <span className="red-text">*</span></div>
                             </Col>
-                            <Col xs={8}>
+                            <Col xs={12} sm={8}>
                                 <FormControl id="fileId" name="fileId" accept=".csv" type="file" className="control-label" onChange={this.handleInputChange} disabled={this.state.controlsDisabled} />
                             </Col>
                         </FormGroup>
 
                         <FormGroup validationState={this.state.submissionDateValid ? null : 'error'}>
                             {/* Submission Date */}
-                            <Col componentClass={ControlLabel} xs={4}>
-                                Submission Date <span className="red-text">*</span>
+                            <Col componentClass={ControlLabel} xs={12} sm={4}>
+                                <div className="no-wrap">Submission Date <span className="red-text">*</span></div>
                             </Col>
-                            <Col xs={8}>
+                            <Col xs={12} sm={8}>
                                 <DatePicker
                                     selected={this.state.submissionDate}
                                     onChange={this.handleSubmissionDateChange}
                                     placeholderText="Click to select a date"
                                     disabled={this.state.controlsDisabled}
+                                    className="form-control"
                                 />
                                 {!this.state.submissionDateValid ? <HelpBlock>Submission Date must be &le; today's date</HelpBlock> : null}
 
@@ -203,15 +203,19 @@ class UploadFormComponent extends Component {
                     </Col>
 
                     {/* Right Panel */}
-                    <Col lg={2} xs={12} className="responsive-border-right">
-                        <FormGroup className="lower-buttons-45">
+                    <Col lg={2} xs={12}>
+                        <div className="lower-buttons-40 text-center">
+                            <Button className="horizontal-margin" onClick={this.upload} disabled={this.state.submitDisabled}>Load</Button>
+                            <Button className="horizontal-margin" onClick={this.handleReset}>Reset</Button>
+                        </div>
+                        {/* <FormGroup className="lower-buttons-45">
                             <Col lg={12} lgOffset={0} md={3} mdOffset={4} xs={8} xsOffset={4}>
                                 <ButtonToolbar>
                                     <Button onClick={this.upload} disabled={this.state.submitDisabled}>Load</Button>
                                     <Button onClick={this.handleReset}>Reset</Button>
                                 </ButtonToolbar>
                             </Col>
-                        </FormGroup>
+                        </FormGroup> */}
                     </Col>
                 </Form>
 

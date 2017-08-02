@@ -1,8 +1,5 @@
 import React, { Component } from 'react';
 import { ListGroupItem, Row, Col } from 'react-bootstrap';
-import { bootstrapUtils } from 'react-bootstrap/lib/utils';
-
-bootstrapUtils.addStyle(ListGroupItem, 'custom');
 
 class ListGroupItemComponent extends Component {
     constructor(props) {
@@ -18,17 +15,10 @@ class ListGroupItemComponent extends Component {
     render() {
         return (
             <div>
-                <style type="text/css">{`
-                .list-group-item-custom {
-                    background-color: white;
-                    color: #3C763D;
-                }
-                `}</style>
-
-                <ListGroupItem bsStyle={this.props.bsStyle} onClick={this.props.result.validationResult === 'Failed' ? this.handleClick : null}>
+                <ListGroupItem onClick={this.props.result.validationResult === 'Failed' ? this.handleClick : null}>
                     <Row>
                         <Col xs={6}>{this.props.result.name}</Col>
-                        <Col xs={2} >{this.props.result.validationResult}</Col>
+                        <Col xs={2} className={this.props.validationStyle}>{this.props.result.validationResult}</Col>
                     </Row>
                 </ListGroupItem>
             </div>

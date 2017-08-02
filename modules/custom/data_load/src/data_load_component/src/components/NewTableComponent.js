@@ -101,24 +101,29 @@ class NewTableComponent extends Component {
 
         const columns = this.props.columns;
         const rowCount = this.props.projects.length;
-        const totalPages = this.props.stats.totalPages;
+        // const totalPages = this.props.stats.totalPages;
         const page = this.props.page;
         const showingFrom = Math.max(page * 25 - 24, 1);
         const showingTo = Math.min(page * 25, this.props.stats.totalRows);
 
         return (
             <div>
-                Total Records: {parseInt(this.props.stats.totalRows, 10).toLocaleString()}
-                <span className="text-right"></span>
+                <div className='flex-center'>
+                    <div>
+                        <b>Show</b> {parseInt(showingFrom, 10).toLocaleString()} - {parseInt(showingTo, 10).toLocaleString()} of <b>{parseInt(this.props.stats.totalRows, 10).toLocaleString()}</b> records
+                    </div>
+                    
+                    <TablePagination stats={this.props.stats} page={this.props.page} onPageChange={this.handlePageChange} />
+                </div>
+                                
                 <ReactDataGrid
                     onGridSort={this.handleGridSort}
                     columns={columns}
                     rowGetter={this.rowGetter}
                     rowsCount={rowCount}
                     minHeight={500} />
-                Page {parseInt(page, 10).toLocaleString()} of {parseInt(totalPages, 10).toLocaleString()} (Showing {parseInt(showingFrom, 10).toLocaleString()} - {parseInt(showingTo, 10).toLocaleString()} of {parseInt(this.props.stats.totalRows, 10).toLocaleString()}) < br />
-                <TablePagination stats={this.props.stats} page={this.props.page} onPageChange={this.handlePageChange} />
-            </div>
+               
+            </div >
         );
     }
 
