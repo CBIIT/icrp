@@ -93,8 +93,6 @@ class App extends Component {
     this.setState({ tabKey: key });
   }
 
-
-
   render() {
     const homeLocation = window.location.protocol + '//' + window.location.host;
     return (

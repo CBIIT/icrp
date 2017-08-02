@@ -78,7 +78,6 @@ class ValidationSummaryComponent extends Component {
             const isChecked = validationRules.find(rule => rule.id === resultId).checked;
             if (isChecked) {
                 let validationResult = result.validationResult;
-                // const _bsStyle = validationResult === 'Failed' ? "custom-danger" : "custom-success";
                 const validationStyle = validationResult === 'Failed' ? "danger-list-item" : "success-list-item";
                 validationResults.push(
                     <ListGroupItemComponent validationStyle={validationStyle} result={result} ruleId={resultId} clickHandler={this.openModal} />
