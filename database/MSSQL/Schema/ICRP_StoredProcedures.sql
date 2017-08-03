@@ -1704,7 +1704,6 @@ AS
 -- Data Integrigy Check Rules - NEW Upload
 --
 -- 1	Rule	Check Required Fields 
--- 2	Rule	Placeholder
 --
 -- 11	Rule	Check Award - Duplicate AltAwardCodes
 -- 12	Rule	Check Award - Missing Parent 
@@ -1713,7 +1712,6 @@ AS
 ---15	Rule	Check Budget - Incorrect Funding Amounts
 -- 16	Rule	Check Budget - Annulized Value
 -- 17	Rule	Check Budget - Invalid Award Type
--- 18	Rule	Check Award - Placeholder
 --
 -- 21	Rule	Check CSO - Missing Codes/Relevance
 -- 22	Rule	Check CSO - Invalid Codes
@@ -1721,7 +1719,6 @@ AS
 -- 24	Rule	Check CSO - Mismatched Codes/Relevances
 -- 25	Rule	Check CSO - Historical Codes
 -- 26	Rule	Check CSO - Duplicate CSO Codes
--- 27	Rule	Check CSO - Placeholder
 --
 -- 31	Rule	Check CancerType - Missing Codes/Relevance
 -- 32	Rule	Check CancerType - Invalid Codes
@@ -1729,12 +1726,10 @@ AS
 -- 34	Rule	Check CancerType - Number of codes <> Number of Rel
 -- 35	Rule	Check CancerType - Duplicate CancerType Codes
 -- 36	Rule	Check CancerType - Duplicate CancerType codes
--- 37	Rule	Check CancerType - Placeholder
 --
 -- 41	Rule	Check FundingOrg Existance
 -- 42	Rule	Check FundingOrgDiv Existance
 -- 43	Rule	Check Institution - not-mapped 
--- 44	Rule	Check CancerType - Placeholder
 --
 
 /***********************************************************************************************/
@@ -2239,7 +2234,6 @@ AS
 --
 --
 -- 1	Rule	Check Required Fields 
--- 2	Rule	Placeholder
 --
 -- 11	Rule	Check Award - Duplicate AltAwardCodes
 -- 12	Rule	Check Award - Missing Parent 
@@ -2248,7 +2242,6 @@ AS
 ---15	Rule	Check Budget - Incorrect Funding Amounts
 -- 16	Rule	Check Budget - Annulized Value
 -- 17	Rule	Check Budget - Invalid Award Type
--- 18	Rule	Check Award - Placeholder
 --
 -- 21	Rule	Check CSO - Missing Codes/Relevance
 -- 22	Rule	Check CSO - Invalid Codes
@@ -2256,34 +2249,27 @@ AS
 -- 24	Rule	Check CSO - Mismatched Codes/Relevances
 -- 25	Rule	Check CSO - Historical Codes
 -- 26	Rule	Check CSO - Duplicate CSO Codes
--- 27	Rule	Check CSO - Placeholder
 --
 -- 31	Rule	Check CancerType - Missing Codes/Relevance
 -- 32	Rule	Check CancerType - Invalid Codes
 -- 33	Rule	Check CancerType - Not 100% Relevance
 -- 34	Rule	Check CancerType - Number of codes <> Number of Rel
 -- 35	Rule	Check CancerType - Duplicate CancerType Codes
--- 36	Rule	Check CancerType - Placeholder
 --
 -- 41	Rule	Check FundingOrg Existance
 -- 42	Rule	Check FundingOrgDiv Existance
 -- 43	Rule	Check Institution - not-mapped 
--- 44	Rule	Check CancerType - Placeholder
 --
 
 /***********************************************************************************************/
 
 IF @RuleId = 1
 BEGIN
-	SELECT 'Placeholder'
+	SELECT 'Placeholder' AS Status
 
 END 
 
-IF @RuleId = 2
-BEGIN
-	SELECT 'Placeholder'
 
-END 
 --Checking Parent projects ...
 SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'  -- CA
 
@@ -2428,19 +2414,12 @@ IF @RuleId = 17
 		JOIN UploadWorkbook u ON a.AltAwardCode = u.AltID		
 	WHERE a.AwardType NOT IN ('R', 'C', 'T')
 
-
-IF @RuleId = 18
-BEGIN
-	SELECT 'Placeholder'
-
-END 
 -------------------------------------------------------------------
 -- 21	Rule	Check CSO - Missing Codes/Relevance
 -- 22	Rule	Check CSO - Invalid Codes
 -- 23	Rule	Check CSO - Not 100% Relevance
 -- 24	Rule	Check CSO - Number of codes <> Number of Rel
 -- 25	Rule	Check CSO - Historical Codes
--- 26	Rule	Placeholder
 -------------------------------------------------------------------
 -------------------------------------------------------------------
 -- Rule 11:  Check CSO - Missing Codes/Relevance
@@ -2558,11 +2537,6 @@ IF @RuleId = 26
 	SELECT d.AltAwardCode, u.CSOCodes, u.CSORel FROM (SELECT DISTINCT AltAwardCode FROM tmp_pcso GROUP BY AltAwardCode, CSO Having Count(*) > 1) d
 		JOIN UploadWorkbook u ON d.AltAwardCode = u.AltID
 
-IF @RuleId = 27
-BEGIN
-	SELECT 'Placeholder'
-
-END 
 -------------------------------------------------------------------
 -- 	Rule 31 - 	Check CancerType - Missing Codes/Relevance
 -- 	Rule 32 - 	Check CancerType - Invalid Codes
@@ -2676,14 +2650,6 @@ IF @RuleId = 35
 	SELECT d.AltAwardCode, u.SiteCodes, u.SiteRel FROM (SELECT DISTINCT AltAwardCode FROM tmp_psite GROUP BY AltAwardCode, Code Having Count(*) > 1) d
 		JOIN UploadWorkbook u ON d.AltAwardCode = u.AltID
 
-
-IF @RuleId = 36
-BEGIN
-	SELECT 'Placeholder'
-
-END 
-
-
 -------------------------------------------------------------------
 -- Check FundingOrg
 -------------------------------------------------------------------
@@ -2722,13 +2688,6 @@ BEGIN
 	
 	SELECT DISTINCT u.InstitutionICRP, u.City
 	FROM #missingInst c JOIN UploadWorkbook u ON c.InstitutionICRP = u.InstitutionICRP AND c.City = u.City
-END 
-
-	
-IF @RuleId = 44
-BEGIN
-	SELECT 'Placeholder'
-
 END 
 
 GO
