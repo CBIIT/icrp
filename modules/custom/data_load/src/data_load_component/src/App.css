@@ -73,6 +73,10 @@
   right: 1em;
 }
 
+.red-text {
+  color: #DB0B0B;
+}
+
 .success-list-item {
   color: #13A109;
 }
@@ -93,6 +97,13 @@
   align-items: center;
 }
 
+.flex-stretch {
+  display: flex;
+  justify-content: space-between;
+  align-content: stretch;
+  flex-flow: row wrap;
+}
+
 .no-wrap {
   white-space: nowrap;
   text-align: left;
@@ -109,4 +120,13 @@
 
 .panel {
   border-radius: 0;
+}
+
+.category-panel {
+  width: 250px;
+  /* white-space: nowrap; */
+}
+
+.category-panel-list {
+  padding: 0px 15px;
 }

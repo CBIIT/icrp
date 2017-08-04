@@ -5,13 +5,17 @@
 ------------------------------------------------------------------
 -- Insert [lu_DataUploadIntegrityCheckRules] Data
 ------------------------------------------------------------------
-UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET Name='Duplicate CSO Codes', Category='CSO', IsActive=1 WHERE lu_DataUploadIntegrityCheckRules_ID= 26
-IF NOT EXISTS (SELECT * FROM [lu_DataUploadIntegrityCheckRules] WHERE lu_DataUploadIntegrityCheckRules_ID= 27)
-	INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (27, 'Place Holder', 'CSO', 1, 0, getdate(), getdate())
+DELETE [lu_DataUploadIntegrityCheckRules] WHERE Name = 'Place Holder'
 
-UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET Name='Duplicate CancerType Codes', Category='Cancer Type', IsActive=1 WHERE lu_DataUploadIntegrityCheckRules_ID= 35
-IF NOT EXISTS (SELECT * FROM [lu_DataUploadIntegrityCheckRules] WHERE lu_DataUploadIntegrityCheckRules_ID= 36)
-	INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (36, 'Place Holder', 'Cancer Type', 1, 0, getdate(), getdate())
+IF NOT EXISTS (SELECT * FROM [lu_DataUploadIntegrityCheckRules] WHERE lu_DataUploadIntegrityCheckRules_ID= 26)
+	INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (26, 'Duplicate CSO Codes', 'CSO', 1, 1, getdate(), getdate())
+ELSE
+	UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET Name='Duplicate CSO Codes', Category='CSO', IsActive=1 WHERE lu_DataUploadIntegrityCheckRules_ID= 26
+
+IF NOT EXISTS (SELECT * FROM [lu_DataUploadIntegrityCheckRules] WHERE lu_DataUploadIntegrityCheckRules_ID= 35)
+	INSERT INTO [dbo].[lu_DataUploadIntegrityCheckRules] VALUES (35, 'Duplicate CancerType Codes', 'Cancer Type', 1, 1, getdate(), getdate())
+ELSE
+	UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET Name='Duplicate CancerType Codes', Category='Cancer Type', IsActive=1 WHERE lu_DataUploadIntegrityCheckRules_ID= 35
 
 UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET Category='Organization' WHERE Category='Funding Org / Institution'
 UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET Name='Missing Host Institutions' WHERE Name='Missing Institution'

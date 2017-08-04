@@ -683,14 +683,19 @@ class DatabaseExport {
       }
     }
 
-    $writer->close();   
+    function addSheetToWorkbook($writer, $sheet_name, $data) {
+      $writer->addNewSheetAndMakeItCurrent();
+      $writer->getCurrentSheet()->setName($sheet_name);
+      $writer->addRows($data);
+    }
 
     // if a data upload id was not specified, add a sheet containing search criteria
     // otherwise, do not include search criteria and instead use data review criteria
     $data_upload_id === NULL
-      ? $this->addSearchCriteria($pdo, $paths['filepath'], $search_id)
-      : $this->addDataReviewCriteria($pdo, $paths['filepath'], $data_upload_id);
+      ? addSheetToWorkbook($writer, 'Search Criteria', $this->getSearchCriteria($pdo, $search_id))
+      : addSheetToWorkbook($writer, 'Data Upload Review', $this->getDataReviewCriteria($pdo, $data_upload_id));
 
+    $writer->close();
     return $paths['uri'];
   }
 

@@ -165,7 +165,7 @@ class UploadFormComponent extends Component {
                             </Col>
                             <Col xs={12} sm={8}>
                                 <FormControl type="text" name="sponsorCode" placeholder="Enter sponsor code" value={this.state.sponsorCode} onChange={this.handleInputChange} disabled={this.state.controlsDisabled} />
-                                {!this.state.sponsorCodeValid ? <HelpBlock>Sponsor Code is required and must be &le; 25 characters</HelpBlock> : null}
+                                {!this.state.sponsorCodeValid ? <HelpBlock>Sponsor Code is required and must be less than 25 characters</HelpBlock> : null}
                             </Col>
 
                         </FormGroup>
@@ -196,7 +196,7 @@ class UploadFormComponent extends Component {
                                     disabled={this.state.controlsDisabled}
                                     className="form-control"
                                 />
-                                {!this.state.submissionDateValid ? <HelpBlock>Submission Date must be &le; today's date</HelpBlock> : null}
+                                {!this.state.submissionDateValid ? <HelpBlock>Submission Date must be on or before today's date</HelpBlock> : null}
 
                             </Col>
                         </FormGroup>
@@ -208,14 +208,6 @@ class UploadFormComponent extends Component {
                             <Button className="horizontal-margin" onClick={this.upload} disabled={this.state.submitDisabled}>Load</Button>
                             <Button className="horizontal-margin" onClick={this.handleReset}>Reset</Button>
                         </div>
-                        {/* <FormGroup className="lower-buttons-45">
-                            <Col lg={12} lgOffset={0} md={3} mdOffset={4} xs={8} xsOffset={4}>
-                                <ButtonToolbar>
-                                    <Button onClick={this.upload} disabled={this.state.submitDisabled}>Load</Button>
-                                    <Button onClick={this.handleReset}>Reset</Button>
-                                </ButtonToolbar>
-                            </Col>
-                        </FormGroup> */}
                     </Col>
                 </Form>
 
