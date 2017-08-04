@@ -80,7 +80,8 @@ class App extends Component {
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
       const resultId = parseInt(result.id, 10);
-      if (resultId && result.validationResult === 'Failed' && validationRules.find(rule => rule.id === resultId).checked) {
+      const validationRule = validationRules.find(rule => rule.id === resultId);
+      if (resultId && result.validationResult === 'Failed' && validationRule.checked & validationRule.active) {
         tab3Disabled = true;
         break;
       }

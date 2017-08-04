@@ -101,7 +101,6 @@ class NewTableComponent extends Component {
 
         const columns = this.props.columns;
         const rowCount = this.props.projects.length;
-        // const totalPages = this.props.stats.totalPages;
         const page = this.props.page;
         const showingFrom = Math.max(page * 25 - 24, 1);
         const showingTo = Math.min(page * 25, this.props.stats.totalRows);
@@ -120,8 +119,8 @@ class NewTableComponent extends Component {
                     onGridSort={this.handleGridSort}
                     columns={columns}
                     rowGetter={this.rowGetter}
-                    rowsCount={rowCount}
-                    minHeight={500} />
+                    rowsCount={rowCount} 
+                    minHeight={950} />  
                
             </div >
         );

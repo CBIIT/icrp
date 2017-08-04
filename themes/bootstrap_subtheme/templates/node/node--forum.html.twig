@@ -69,7 +69,9 @@
   <span class="icrp-debug">node--forum.html.twig</span><br>
   <script>console.info("node--forum.html.twig");</script>
   <script>console.log({{ _context | json_encode | raw }});</script>
-  {{ dump(user.roles) }}
+  {{ dump(user.roles) }}<br>
+    logged_in: {{ logged_in ? 'true' : 'false'}}<br>
+
 
 {% endif %}
 {% set manager = false %}
@@ -118,140 +120,152 @@
   ]
 %}
 
-<article{{ attributes.addClass(classes) }}>
-  <header>
-    {% if page %}
-        {# Set a uniqueicon for each forum-id #}
-        {% if tforum_tid == 7 %}
-          {% set icon = "fa-newspaper-o" %}
-        {% elseif tforum_tid == 8 %}
-          {% set icon = " fa-comments-o" %}
-        {% elseif tforum_tid == 9 %}
-          {% set icon = "fa-group" %}
-        {% elseif tforum_tid == 10 %}
-          {% set icon = "fa-file-code-o" %}
-        {% elseif tforum_tid == 11 %}
-          {% set icon = " fa-dashboard" %}
-        {% elseif tforum_tid == 12 %}
-          {% set icon = "fa-globe" %}
-        {% elseif tforum_tid == 13 %}
-          {% set icon = "fa-database" %}
-        {% endif %}
-      <h2 data-link="/forum/{{ tforum_tid }}">
-        <span>
-          <i class="fa {{ icon }} fa-pull-left fa-fw" title="{{ forum.icon_title }}" style="padding:3px 8px;margin-right:15px;color:#E8BD6B;"></i>
-        </span>
-          {{ tforum_name }}
-      </h2>
-      <h4>{{ ttitle }}</h4>
-      {% if tsummary|length > 1 %}
-        <p style="color:grey">{{ tsummary|raw }}</p>
-      {% endif %}
-<!-- New Post Table -->
-<table class="table table-striped table-bordered table-condensed table-forum-topic-detail">
-    <tbody>
-      <tr>
-        <td style="font-weight:bold;background-color:#F1E8D4;" colspan="2">
-          <span>
-            <b>Thread Post</b>&nbsp;&nbsp;
-              <span style="font-size:smaller;color:grey;">Created on {{ tthread_created_time }}</span></span>
-            {% if manager or tthread_author %}
-              <span style="height:21px;" class="pull-right">
-                <ul class="links inline list-inline">
-                  <li class="thread-edit">
-                    <a hreflang="en" href="/node/{{ tnid }}/edit?destination=/forum/{{ tforum_tid }}"  title="Edit this thread">Edit</a>
-                  </li>
-                </ul>
-              </span>
-            {% endif %}
-        </td>
-      </tr>
-    </tbody>
-    <tbody>
-      <tr>
-        <td style="width:30%;">
-          <div class="comment__meta">
-            <div style="font-weight:bold">
-              <span><b>{{ tthread_author_name }}</b></span>
-            </div>
-            <div>{{ tthread_author_org }}</div>
-          </div>
-        </td>
-        <td style="background-color:#F3F7FC;padding:10px;width:70%;overflow:hidden;max-width:100px">
-          <div class="comment__content">
-            <div>
-              <p>{{ tbody|raw }}</p>
-            </div>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-<!-- END New Post Table -->
-<!-- Status Table -->
-        <table style="width:100%;margin-bottom:10px;margin-top:15px;">
-          <tbody>
-            <tr style="min-height:30px;">
-              <td style="padding:3px;">Replies: <span class="badge" title="Number of replies to this post.">{{ tcomment_forum.comment_count }}</span></td>
-              <td style="padding:3px;"></td>
-              <td style="text-align:right;vertical-align:bottom;white-space:nowrap;">
-                <span class="pull-right" style="font-size:smaller;">{{ last_forum_visit }}</span>
-                {% if tcomment_forum.status == "1" %}
-                  <h6>Status: <span class="label label-pill label-danger"  title="This thread is closed for comment.">Closed</span></h6>
-                {% else %}
-                  <a cdata-drupal-link-system-path="node" class="btn btn-xs btn-success" href="/comment/reply/node/{{ tnid }}/comment_forum">Post Reply</a>
-                {% endif %}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-<!-- END Status Table -->
-        {% if tcomment_forum.status == "2" and tcomment_forum.comment_count == 0 %}
-          <hr>
-          <div style="padding-left:20px;" title="Click on the Post Reply button to comment on this post."><em>There are no replies to this post.  Click the <strong>Post Reply</strong> button to comment on this thread.</em></div>
-        {% endif %}
-    {% else %}
-        <h2>Post Reply</h2>
-        <div style="padding-bottom:20px;">
-          <div><b>Forum Category:</b>&nbsp;{{ tforum_name }}</div>
-          <div><b>Thread:</b>&nbsp;{{ ttitle }}</div>
-        </div>
-    {% endif %}
-  </header>
+{% if logged_in %}
 
-{#
+  <article{{ attributes.addClass(classes) }}>
+
     <header>
-      {{ title_prefix }}
-      {% if not page %}
-        <h2{{ title_attributes.addClass('node__title title') }}>
-          <a href="{{ url }}" rel="bookmark">{{ label }}</a>
+      {% if page %}
+          {# Set a uniqueicon for each forum-id #}
+          {% if tforum_tid == 7 %}
+            {% set icon = "fa-newspaper-o" %}
+          {% elseif tforum_tid == 8 %}
+            {% set icon = " fa-comments-o" %}
+          {% elseif tforum_tid == 9 %}
+            {% set icon = "fa-group" %}
+          {% elseif tforum_tid == 10 %}
+            {% set icon = "fa-file-code-o" %}
+          {% elseif tforum_tid == 11 %}
+            {% set icon = " fa-dashboard" %}
+          {% elseif tforum_tid == 12 %}
+            {% set icon = "fa-globe" %}
+          {% elseif tforum_tid == 13 %}
+            {% set icon = "fa-database" %}
+          {% endif %}
+        <h2 data-link="/forum/{{ tforum_tid }}">
+          <span>
+            <i class="fa {{ icon }} fa-pull-left fa-fw" title="{{ forum.icon_title }}" style="padding:3px 8px;margin-right:15px;color:#E8BD6B;"></i>
+          </span>
+            {{ tforum_name }}
         </h2>
-      {% endif %}
-      {{ title_suffix }}
-      {% if display_submitted %}
-        <div class="meta submitted">
-          {{ author_picture }}
-          <span class="glyphicon glyphicon-calendar"></span> {{ date }}
-        </div>
+        <h4>{{ ttitle }}</h4>
+        {% if tsummary|length > 1 %}
+          <p style="color:grey">{{ tsummary|raw }}</p>
+        {% endif %}
+  <!-- New Post Table -->
+  <table class="table table-striped table-bordered table-condensed table-forum-topic-detail">
+      <tbody>
+        <tr>
+          <td style="font-weight:bold;background-color:#F1E8D4;" colspan="2">
+            <span>
+              <b>Thread Post</b>&nbsp;&nbsp;
+                <span style="font-size:smaller;color:grey;">Created on {{ tthread_created_time }}</span></span>
+              {% if manager or tthread_author %}
+                <span style="height:21px;" class="pull-right">
+                  <ul class="links inline list-inline">
+                    <li class="thread-edit">
+                      <a hreflang="en" href="/node/{{ tnid }}/edit?destination=/forum/{{ tforum_tid }}"  title="Edit this thread">Edit</a>
+                    </li>
+                  </ul>
+                </span>
+              {% endif %}
+          </td>
+        </tr>
+      </tbody>
+      <tbody>
+        <tr>
+          <td style="width:30%;">
+            <div class="comment__meta">
+              <div style="font-weight:bold">
+                <span><b>{{ tthread_author_name }}</b></span>
+              </div>
+              <div>{{ tthread_author_org }}</div>
+            </div>
+          </td>
+          <td style="background-color:#F3F7FC;padding:10px;width:70%;overflow:hidden;max-width:100px">
+            <div class="comment__content">
+              <div>
+                <p>{{ tbody|raw }}</p>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  <!-- END New Post Table -->
+  <!-- Status Table -->
+          <table style="width:100%;margin-bottom:10px;margin-top:15px;">
+            <tbody>
+              <tr style="min-height:30px;">
+                <td style="padding:3px;">Replies: <span class="badge" title="Number of replies to this post.">{{ tcomment_forum.comment_count }}</span></td>
+                <td style="padding:3px;"></td>
+                <td style="text-align:right;vertical-align:bottom;white-space:nowrap;">
+                  <span class="pull-right" style="font-size:smaller;">{{ last_forum_visit }}</span>
+                  {% if tcomment_forum.status == "1" %}
+                    <h6>Status: <span class="label label-pill label-danger"  title="This thread is closed for comment.">Closed</span></h6>
+                  {% else %}
+                    <a cdata-drupal-link-system-path="node" class="btn btn-xs btn-success" href="/comment/reply/node/{{ tnid }}/comment_forum">Post Reply</a>
+                  {% endif %}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+  <!-- END Status Table -->
+          {% if tcomment_forum.status == "2" and tcomment_forum.comment_count == 0 %}
+            <hr>
+            <div style="padding-left:20px;" title="Click on the Post Reply button to comment on this post."><em>There are no replies to this post.  Click the <strong>Post Reply</strong> button to comment on this thread.</em></div>
+          {% endif %}
+      {% else %}
+          <h2>Post Reply</h2>
+          <div style="padding-bottom:20px;">
+            <div><b>Forum Category:</b>&nbsp;{{ tforum_name }}</div>
+            <div><b>Thread:</b>&nbsp;{{ ttitle }}</div>
+          </div>
       {% endif %}
     </header>
-#}
 
-  <div{{ content_attributes.addClass('node__content', 'clearfix') }}>
-    {% block content %}
-      {{ content|without('links') }}
-    {% endblock %}
-  </div>
-  <a name="latest"></a>
+  {#
+      <header>
+        {{ title_prefix }}
+        {% if not page %}
+          <h2{{ title_attributes.addClass('node__title title') }}>
+            <a href="{{ url }}" rel="bookmark">{{ label }}</a>
+          </h2>
+        {% endif %}
+        {{ title_suffix }}
+        {% if display_submitted %}
+          <div class="meta submitted">
+            {{ author_picture }}
+            <span class="glyphicon glyphicon-calendar"></span> {{ date }}
+          </div>
+        {% endif %}
+      </header>
+  #}
 
-{#
-    {% if content.links %}
-      <footer class="link-wrapper">
-        {{ content.links }}
-      </footer>
-    {% endif %}
-#}
-</article>
+    <div{{ content_attributes.addClass('node__content', 'clearfix') }}>
+      {% block content %}
+        {{ content|without('links') }}
+      {% endblock %}
+    </div>
+    <a name="latest"></a>
+
+  {#
+      {% if content.links %}
+        <footer class="link-wrapper">
+          {{ content.links }}
+        </footer>
+      {% endif %}
+  #}
+  </article>
+{% else %}
+
+  <h2>ICRP Partnership Forum</h2>
+
+  <a data-drupal-link-system-path="user/login" data-drupal-link-query="{&quot;destination&quot;:&quot;\/forum\/6&quot;}" class="btn btn-primary" href="/user/login?destination=/forum/6" style="margin:25px;">
+  <span aria-hidden="true" class="icon glyphicon glyphicon-log-in"></span>&nbsp;Log in to post new content in the forum.
+  </a>
+
+{% endif %}
 
 
 {% if icrp_debug %}
