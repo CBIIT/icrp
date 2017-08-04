@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
 import {
     Button,
-    Col,
     Panel,
-    FormGroup,
-    ButtonToolbar,
     Checkbox,
     Collapse
 } from 'react-bootstrap';
@@ -49,9 +46,14 @@ class ValidationCategory extends Component {
         });
 
         return (
-            <Panel header={header}>
-                {validationItems}
-            </Panel>
+            <div className="panel panel-default category-panel">
+                <div className="panel-heading">
+                    {header}
+                </div>
+                <div className="category-panel-list">
+                    {validationItems}
+                </div>
+            </div>
         );
     }
 }
@@ -153,8 +155,8 @@ class ValidationConfiguratorComponent extends Component {
         }
 
         const institutionCategory = {
-            header: 'Institution / Funding Org',
-            items: this.state.validationRules.filter(rule => rule.category === 'Funding Org / Institution')
+            header: 'Organization',
+            items: this.state.validationRules.filter(rule => rule.category === 'Organization')
         }
 
         const csoCategory = {
@@ -173,31 +175,24 @@ class ValidationConfiguratorComponent extends Component {
                 <Spinner message="Validating Workbook..." visible={this.state.loading} />
                 <Collapse in={this.state.open}>
                     <Panel>
-                        <Col lg={3} md={4} sm={6} xs={12}>
-                            <ValidationCategory validationCategory={generalCategory} onCheck={this.toggleCheck} />
-                            <ValidationCategory validationCategory={institutionCategory} onCheck={this.toggleCheck} />
-                        </Col>
-                        <Col lg={3} md={4} sm={6} xs={12}>
+
+                        <div className="flex-stretch">
+                            <div>
+                                <ValidationCategory validationCategory={generalCategory} onCheck={this.toggleCheck} />
+                                <ValidationCategory validationCategory={institutionCategory} onCheck={this.toggleCheck} />
+                            </div>
                             <ValidationCategory validationCategory={awardCategory} onCheck={this.toggleCheck} />
-                        </Col>
-                        <Col lg={3} md={4} sm={6} xs={12}>
                             <ValidationCategory validationCategory={cancerTypeCategory} onCheck={this.toggleCheck} />
-                        </Col>
-                        <Col lg={3} md={4} sm={6} xs={12} >
                             <ValidationCategory validationCategory={csoCategory} onCheck={this.toggleCheck} />
-                        </Col>
-                        <Col lg={12} xs={12} className="centered-button-bar">
-                            <FormGroup>
-                                <Col lg={12} lgOffset={5} sm={2} smOffset={5} xs={2} xsOffset={4}>
-                                    <ButtonToolbar>
-                                        <Button onClick={this.checkIntegrity}>Perform Check</Button>
-                                    </ButtonToolbar>
-                                </Col>
-                            </FormGroup>
-                        </Col>
+
+
+                        </div>
+                        <div className="text-center padding-top">
+                            <Button onClick={this.checkIntegrity}>Perform Check</Button>
+                        </div>
                     </Panel>
                 </Collapse>
-            </div>
+            </div >
         );
     }
 

@@ -61,8 +61,6 @@ class ValidationSummaryComponent extends Component {
     }
 
     render() {
-        if (this.props.validationResults.length === 0)
-            return null;
 
         let validationRules = this.props.validationRules;
 

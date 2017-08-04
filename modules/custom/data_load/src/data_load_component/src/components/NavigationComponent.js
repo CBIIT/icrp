@@ -21,9 +21,6 @@ class NavigationComponent extends Component {
 
                 <ButtonComponent className="horizontal-margin" title='Next' disabled={nextDisabled} clickHandler={this.props.clickHandler} nextTab={thisTabId - 1} />
             ]
-                // < ButtonToolbar >
-                    
-                // </ButtonToolbar >;
         } else {
             if (hasBackButton) {
                 /** Can navigate back only */
