@@ -118,12 +118,10 @@ function system_user_timezone(&$form, FormStateInterface $form_state) {
     /**
      * {@inheritdoc}
      */
-
     public function getFormId()
     {
         return 'my_profile_form_old';
     }
-
     /**
      * {@inheritdoc}
      */
@@ -131,7 +129,7 @@ function system_user_timezone(&$form, FormStateInterface $form_state) {
     {
         $user = $this->entityManager;
 
-        $form['#theme'] = "my_profile_form_old";
+        //$form['#theme'] = "my_profile_form_old";
 
         $form['container'] = array(
             '#type' => 'container',
