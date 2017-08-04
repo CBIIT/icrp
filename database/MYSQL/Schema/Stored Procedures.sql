@@ -66,29 +66,24 @@ NOT DETERMINISTIC
 CONTAINS SQL
 SQL SECURITY DEFINER
 COMMENT ''
-BEGIN
-   IF `@type` IS NULL THEN
-    SET `@type` = 'funding';
-  END IF;
-  SELECT
-    FundingOrgID,
-    Name,
-    Abbreviation,
-    CONCAT(SponsorCode,' - ',Name) AS DisplayName,
-    Type,
-    MemberType,
-    MemberStatus,
-    Country,
-    Currency,
-    SponsorCode,
-    IsAnnualized,
-    Note,
-    LastImportDate,
-    LastImportDesc
-  FROM FundingOrg
-  WHERE (`@type` = 'funding') OR (`@type` = 'Search' AND LastImportDate IS NOT NULL)
-  ORDER BY SponsorCode, Name;
-END//
+SELECT
+  `FundingOrgID`,
+  `Name`,
+  `Abbreviation`,
+  CONCAT(`SponsorCode`,' - ',`Name`) AS DisplayName,
+  `Type`,
+  `MemberType`,
+  `MemberStatus`,
+  `Country`,
+  `Currency`,
+  `SponsorCode`,
+  `IsAnnualized`,
+  `Note`,
+  `LastImportDate`,
+  `LastImportDesc`
+FROM `FundingOrg`
+WHERE `MemberStatus` = 'Current' AND (`@type` = 'funding' OR (`@type` = 'Search' AND `LastImportDate` IS NOT NULL))
+ORDER BY `SponsorCode`, `Name`//
 
 
 CREATE PROCEDURE `GetPartnerOrgs`()
