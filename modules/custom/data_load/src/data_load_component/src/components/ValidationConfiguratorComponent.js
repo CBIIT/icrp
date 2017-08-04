@@ -22,15 +22,9 @@ class ValidationItem extends Component {
     }
 
     render() {
-
-        const active = this.props.item.active;
-        if (active) {
-            return (
-                <Checkbox name={this.props.item.id} defaultChecked={this.props.item.checked} disabled={this.props.item.required} onChange={this.onChange}>{this.props.item.name}</Checkbox>
-            );
-        } else {
-            return (<br />);
-        }
+        return (
+            <Checkbox name={this.props.item.id} defaultChecked={this.props.item.checked} disabled={this.props.item.required} onChange={this.onChange}>{this.props.item.name}</Checkbox>
+        );
     }
 }
 
@@ -146,27 +140,27 @@ class ValidationConfiguratorComponent extends Component {
     render() {
         const awardCategory = {
             header: 'Award',
-            items: this.state.validationRules.filter(rule => rule.category === 'Award')
+            items: this.state.validationRules.filter(rule => rule.category === 'Award' && rule.active)
         }
 
         const cancerTypeCategory = {
             header: 'Cancer Type',
-            items: this.state.validationRules.filter(rule => rule.category === 'Cancer Type')
+            items: this.state.validationRules.filter(rule => rule.category === 'Cancer Type' && rule.active)
         }
 
         const institutionCategory = {
             header: 'Organization',
-            items: this.state.validationRules.filter(rule => rule.category === 'Organization')
+            items: this.state.validationRules.filter(rule => rule.category === 'Organization' && rule.active)
         }
 
         const csoCategory = {
             header: 'CSO',
-            items: this.state.validationRules.filter(rule => rule.category === 'CSO')
+            items: this.state.validationRules.filter(rule => rule.category === 'CSO' && rule.active)
         }
 
         const generalCategory = {
             header: 'General',
-            items: this.state.validationRules.filter(rule => rule.category === 'General')
+            items: this.state.validationRules.filter(rule => rule.category === 'General' && rule.active)
         }
 
         return (

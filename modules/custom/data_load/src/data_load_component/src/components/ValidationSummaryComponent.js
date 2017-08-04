@@ -73,8 +73,11 @@ class ValidationSummaryComponent extends Component {
         let validationResults = [];
         this.props.validationResults.filter(result => result.id !== '0').forEach(result => {
             const resultId = parseInt(result.id, 10);
-            const isChecked = validationRules.find(rule => rule.id === resultId).checked;
-            if (isChecked) {
+            const validationRule = validationRules.find(rule => rule.id === resultId);
+            const isChecked = validationRule.checked;
+            const isActive = validationRule.active;
+
+            if (isChecked && isActive) {
                 let validationResult = result.validationResult;
                 const validationStyle = validationResult === 'Failed' ? "danger-list-item" : "success-list-item";
                 validationResults.push(
