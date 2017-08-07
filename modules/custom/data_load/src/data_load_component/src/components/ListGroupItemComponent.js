@@ -9,7 +9,7 @@ class ListGroupItemComponent extends Component {
 
 
     handleClick() {
-        this.props.clickHandler(this.props.ruleId);
+        this.props.clickHandler(this.props.ruleId, this.props.result.name, this.props.result.count.toLocaleString());
     }
 
     render() {
@@ -18,7 +18,7 @@ class ListGroupItemComponent extends Component {
                 <ListGroupItem onClick={this.props.result.validationResult === 'Failed' ? this.handleClick : null}>
                     <Row>
                         <Col xs={6}>{this.props.result.name}</Col>
-                        <Col xs={2} className={this.props.validationStyle}>{this.props.result.count > 0 ? this.props.result.count : ''} {this.props.result.validationResult}</Col>
+                        <Col xs={2} className={this.props.validationStyle}>{this.props.result.count > 0 ? this.props.result.count.toLocaleString() : ''} {this.props.result.validationResult}</Col>
                     </Row>
                 </ListGroupItem>
             </div>

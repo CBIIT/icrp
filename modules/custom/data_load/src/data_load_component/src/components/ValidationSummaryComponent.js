@@ -14,7 +14,7 @@ const SummaryItem = ({ object }) =>
     <ListGroupItem>
         <Row>
             <Col xs={6}>{object.name}</Col>
-            <Col xs={2}>{object.count}</Col>
+            <Col xs={2}>{object.count.toLocaleString()}</Col>
         </Row>
     </ListGroupItem>
 
@@ -22,7 +22,7 @@ class ValidationSummaryComponent extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { showModal: false, loading: false, openSummary: false, openDetails: false };
+        this.state = { showModal: false, loading: false };
         this.closeModal = this.closeModal.bind(this);
         this.openModal = this.openModal.bind(this);
     }
@@ -31,11 +31,7 @@ class ValidationSummaryComponent extends Component {
         this.setState({ showModal: false, modalDetails: [] });
     }
 
-    updateParent(validationDetailsResults) {
-        this.props.onValidationDetailsResults(validationDetailsResults);
-    }
-
-    async openModal(ruleId) {
+    async openModal(ruleId, ruleName, failureCount) {
         this.setState({ loading: true });
         var data = new FormData();
         data.append('ruleId', ruleId);
@@ -53,7 +49,7 @@ class ValidationSummaryComponent extends Component {
 
         if (response.ok) {
             let results = await response.json();
-            that.setState({ modalDetails: results['results'], loading: false, showModal: true });
+            that.setState({ modalDetails: results['results'], modalRule: ruleName, modalFailureCount: failureCount, loading: false, showModal: true });
         } else {
             let message = await response.text();
             alert("Oops! " + message);
@@ -91,24 +87,23 @@ class ValidationSummaryComponent extends Component {
             <div>
                 <Spinner message="Loading Details..." visible={this.state.loading} />
 
-
-                <PanelHeader 
-                        onClick={() => this.setState({ openSummary: !this.state.openSummary })} 
-                        title="Data Integrity Check Summary" 
-                        isOpen={this.state.openSummary}
+                <PanelHeader
+                    onClick={this.props.summaryToggleHandler}
+                    title="Data Integrity Check Summary"
+                    isOpen={this.props.openSummary}
                 />
-                <Collapse in={this.state.openSummary}>
+                <Collapse in={this.props.openSummary}>
                     <ListGroup>
                         {validationSummary}
                     </ListGroup>
                 </Collapse>
 
-                <PanelHeader 
-                        onClick={() => this.setState({ openDetails: !this.state.openDetails })} 
-                        title="Data Integrity Check Results" 
-                        isOpen={this.state.openDetails}
+                <PanelHeader
+                    onClick={this.props.detailsToggleHandler}
+                    title="Data Integrity Check Results"
+                    isOpen={this.props.openDetails}
                 />
-                <Collapse in={this.state.openDetails}>
+                <Collapse in={this.props.openDetails}>
                     <ListGroup>
                         {validationResults}
                     </ListGroup>
@@ -116,9 +111,10 @@ class ValidationSummaryComponent extends Component {
 
                 <Modal show={this.state.showModal} onHide={this.closeModal} bsSize="large">
                     <Modal.Header closeButton>
-                        <Modal.Title>Details</Modal.Title>
+                        <Modal.Title>Data Integrity Check Details</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
+                        {this.state.modalRule} - <span className="red-text">{this.state.modalFailureCount} Failed</span>
                         <DataTableComponent details={this.state.modalDetails} />
                     </Modal.Body>
                     <Modal.Footer>

@@ -8,7 +8,6 @@ import NavigationComponent from './components/NavigationComponent';
 import ValidationConfiguratorComponent from './components/ValidationConfiguratorComponent';
 import ValidationSummaryComponent from './components/ValidationSummaryComponent';
 import NewTableComponent from './components/NewTableComponent';
-import Spinner from './components/SpinnerComponent'
 
 import 'react-datepicker/dist/react-datepicker.css';
 import './App.css';
@@ -29,17 +28,20 @@ class App extends Component {
       page: 1,
       sortColumn: 'InternalId',
       sortDirection: 'ASC',
-      loading: false,
       validationResults: [],
       validationRules: [],
       uploadType: 'new',
-      sponsorCode: ''
+      sponsorCode: '',
+      openSummary: true,
+      openDetails: true
     }
     this.handleFileUpload = this.handleFileUpload.bind(this);
     this.handleDataTableChange = this.handleDataTableChange.bind(this);
     this.handleLoadingStateChange = this.handleLoadingStateChange.bind(this);
     this.handleValidationResults = this.handleValidationResults.bind(this);
     this.handleTabSelect = this.handleTabSelect.bind(this);
+    this.handleSummaryCollapseToggle = this.handleSummaryCollapseToggle.bind(this);
+    this.handleDetailsCollapseToggle = this.handleDetailsCollapseToggle.bind(this);
     this.reset = this.reset.bind(this);
   }
 
@@ -55,20 +57,21 @@ class App extends Component {
       page: 1,
       sortColumn: 'InternalId',
       sortDirection: 'ASC',
-      loading: false,
       validationResults: [],
       validationRules: [],
       uploadType: 'new',
-      sponsorCode: ''
+      sponsorCode: '',
+      openSummary: true,
+      openDetails: true
     })
   }
 
   handleFileUpload(stats, columns, projects, sponsorCode, uploadType) {
-    this.setState({ loading: false, stats: stats, columns: columns, projects: projects, showDataTable: true, tab2Disabled: false, sponsorCode: sponsorCode, uploadType: uploadType });
+    this.setState({ stats: stats, columns: columns, projects: projects, showDataTable: true, tab2Disabled: false, sponsorCode: sponsorCode, uploadType: uploadType });
   }
 
   handleLoadingStateChange() {
-    this.setState({ loading: true, validationResults: [], validationRules: [] });
+    this.setState({ validationResults: [], validationRules: [] });
   }
 
   handleDataTableChange(page, sortColumn, sortDirection, projects) {
@@ -87,7 +90,15 @@ class App extends Component {
       }
     }
 
-    this.setState({ validationResults: results, validationRules: validationRules, loading: false, tab3Disabled: tab3Disabled });
+    this.setState({ validationResults: results, validationRules: validationRules, tab3Disabled: tab3Disabled, openSummary: true, openDetails: true });
+  }
+
+  handleSummaryCollapseToggle() {
+    this.setState({ openSummary: !this.state.openSummary })
+  }
+
+  handleDetailsCollapseToggle() {
+    this.setState({ openDetails: !this.state.openDetails })
   }
 
   handleTabSelect(key) {
@@ -98,7 +109,6 @@ class App extends Component {
     const homeLocation = window.location.protocol + '//' + window.location.host;
     return (
       <div>
-        <Spinner message="Loading Workbook..." visible={this.state.loading} />
         <Tabs activeKey={this.state.tabKey} onSelect={this.handleTabSelect} id="uncontrolled-tabs">
           <Tab eventKey={1} title="Load Workbook">
             <div className="tab-container">
@@ -114,7 +124,14 @@ class App extends Component {
           <Tab eventKey={2} title="Data Integrity Check" disabled={this.state.tab2Disabled} >
             <div className="tab-container">
               <ValidationConfiguratorComponent onValidationResults={this.handleValidationResults} onLoadingStart={this.handleLoadingStateChange} uploadType={this.state.uploadType} sponsorCode={this.state.sponsorCode} />
-              <ValidationSummaryComponent validationResults={this.state.validationResults} validationRules={this.state.validationRules} sponsorCode={this.state.sponsorCode} />
+              <ValidationSummaryComponent
+                validationResults={this.state.validationResults}
+                validationRules={this.state.validationRules}
+                sponsorCode={this.state.sponsorCode}
+                openSummary={this.state.openSummary}
+                openDetails={this.state.openDetails}
+                summaryToggleHandler={this.handleSummaryCollapseToggle}
+                detailsToggleHandler={this.handleDetailsCollapseToggle} />
 
               <NavigationComponent hasBackButton={true} hasNextButton={true} nextDisabled={this.state.tab3Disabled} clickHandler={this.handleTabSelect} thisTabId={2} cancelUrl={homeLocation} />
 

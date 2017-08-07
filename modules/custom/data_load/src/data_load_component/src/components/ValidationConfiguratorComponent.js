@@ -103,6 +103,7 @@ class ValidationConfiguratorComponent extends Component {
     }
 
     async checkIntegrity() {
+        this.setState({ loading: true });
         this.props.onLoadingStart();
         var data = new FormData();
         data.append('type', this.props.uploadType);
@@ -130,6 +131,7 @@ class ValidationConfiguratorComponent extends Component {
                     key: uuidV4()
                 };
             });
+            that.setState({ loading: false });
             that.updateParent(results);
         } else {
             let message = await response.text();
@@ -166,7 +168,7 @@ class ValidationConfiguratorComponent extends Component {
         return (
             <div>
                 <PanelHeader onClick={() => this.setState({ open: !this.state.open })} title="Validation Rules" isOpen={this.state.open} />
-                <Spinner message="Validating Workbook..." visible={this.state.loading} />
+                <Spinner message="Performing Check..." visible={this.state.loading} />
                 <Collapse in={this.state.open}>
                     <Panel>
 

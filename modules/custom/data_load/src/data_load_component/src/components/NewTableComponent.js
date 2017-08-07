@@ -116,6 +116,7 @@ class NewTableComponent extends Component {
                 </div>
                                 
                 <ReactDataGrid
+                    className="noscroll"
                     onGridSort={this.handleGridSort}
                     columns={columns}
                     rowGetter={this.rowGetter}

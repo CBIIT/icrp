@@ -74,15 +74,15 @@
 }
 
 .red-text {
-  color: #DB0B0B;
+  color: red;
 }
 
 .success-list-item {
-  color: #13A109;
+  color: green;
 }
 
 .danger-list-item {
-  color: #DB0B0B;
+  color: red;
   text-decoration: underline;
 }
 
@@ -120,13 +120,22 @@
 
 .panel {
   border-radius: 0;
+  margin-bottom: 5px;
 }
 
 .category-panel {
-  width: 250px;
-  /* white-space: nowrap; */
+  width: 265px;
+  white-space: nowrap;
 }
 
 .category-panel-list {
+  padding: 0px 15px;
+}
+
+.react-grid-Canvas {
+  overflow-y: hidden !important;
+}
+
+.modal-body {
   padding: 0px 15px;
 }

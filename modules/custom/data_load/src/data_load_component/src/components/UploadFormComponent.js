@@ -11,6 +11,7 @@ import {
     FormControl,
     HelpBlock
 } from 'react-bootstrap';
+import Spinner from './SpinnerComponent';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 const uuidV4 = require('uuid/v4');
@@ -28,7 +29,7 @@ class UploadFormComponent extends Component {
         this.handleReset = this.handleReset.bind(this);
         this.updateParent = this.updateParent.bind(this);
         this.resetParent = this.resetParent.bind(this);
-        this.state = { uploadType: 'new', sponsorCode: '', sponsorCodeValid: true, submissionDate: '', submissionDateValid: true, submitDisabled: true }
+        this.state = { uploadType: 'new', sponsorCode: '', sponsorCodeValid: true, submissionDate: '', submissionDateValid: true, submitDisabled: true, loading: false }
     }
 
     /** Sends the response up to the parent */
@@ -102,6 +103,7 @@ class UploadFormComponent extends Component {
     /** Form upload */
     async upload() {
         this.props.onLoadingStart();
+        this.setState({loading: true});
         var data = new FormData();
         var fileData = this.state.fileId;
         data.append('data', fileData, uuidV4() + '.csv');
@@ -129,7 +131,7 @@ class UploadFormComponent extends Component {
                 totalRows: totalRows,
                 totalPages: totalPages
             }
-            that.setState({ controlsDisabled: true, submitDisabled: true });
+            that.setState({ controlsDisabled: true, submitDisabled: true, loading: false });
             that.updateParent(stats, columns, projects);
         } else {
             // response.status, response.statusText
@@ -141,77 +143,80 @@ class UploadFormComponent extends Component {
 
     render() {
         return (
-            <Panel onClick={this.handleClick}>
-                <Form horizontal>
-                    {/* Left Panel */}
-                    <Col lg={4} md={5} xs={12}>
-                        <FormGroup>
-                            {/*Upload Type*/}
-                            <Col componentClass={ControlLabel} xs={12} sm={4}>
-                                <div className="no-wrap">Upload Type</div>
-                            </Col>
+            <div>
+                <Spinner message="Loading Workbook..." visible={this.state.loading} />
+                <Panel onClick={this.handleClick}>
+                    <Form horizontal>
+                        {/* Left Panel */}
+                        <Col lg={4} md={5} xs={12}>
+                            <FormGroup>
+                                {/*Upload Type*/}
+                                <Col componentClass={ControlLabel} xs={12} sm={4}>
+                                    <div className="no-wrap">Upload Type</div>
+                                </Col>
 
-                            <Col xs={12} sm={8}>
-                                <Radio name="uploadType" inline value="new" onChange={this.handleInputChange} checked={this.state.uploadType === 'new'} disabled={this.state.controlsDisabled}>New</Radio>
-                                {' '}
-                                <Radio name="uploadType" inline value="update" onChange={this.handleInputChange} checked={this.state.uploadType === 'update'} disabled={this.state.controlsDisabled}>Update</Radio>
-                            </Col>
-                        </FormGroup>
+                                <Col xs={12} sm={8}>
+                                    <Radio name="uploadType" inline value="new" onChange={this.handleInputChange} checked={this.state.uploadType === 'new'} disabled={this.state.controlsDisabled}>New</Radio>
+                                    {' '}
+                                    <Radio name="uploadType" inline value="update" onChange={this.handleInputChange} checked={this.state.uploadType === 'update'} disabled={this.state.controlsDisabled}>Update</Radio>
+                                </Col>
+                            </FormGroup>
 
-                        <FormGroup validationState={this.state.sponsorCodeValid ? null : 'error'}>
-                            {/* Sponsor Code */}
-                            <Col componentClass={ControlLabel} xs={12} sm={4}>
-                                <div className="no-wrap">Sponsor Code <span className="red-text">*</span></div>
-                            </Col>
-                            <Col xs={12} sm={8}>
-                                <FormControl type="text" name="sponsorCode" placeholder="Enter sponsor code" value={this.state.sponsorCode} onChange={this.handleInputChange} disabled={this.state.controlsDisabled} />
-                                {!this.state.sponsorCodeValid ? <HelpBlock>Sponsor Code is required and must be less than 25 characters</HelpBlock> : null}
-                            </Col>
+                            <FormGroup validationState={this.state.sponsorCodeValid ? null : 'error'}>
+                                {/* Sponsor Code */}
+                                <Col componentClass={ControlLabel} xs={12} sm={4}>
+                                    <div className="no-wrap">Sponsor Code <span className="red-text">*</span></div>
+                                </Col>
+                                <Col xs={12} sm={8}>
+                                    <FormControl type="text" name="sponsorCode" placeholder="Enter sponsor code" value={this.state.sponsorCode} onChange={this.handleInputChange} disabled={this.state.controlsDisabled} />
+                                    {!this.state.sponsorCodeValid ? <HelpBlock>Sponsor Code is required and must be less than 25 characters</HelpBlock> : null}
+                                </Col>
 
-                        </FormGroup>
-                    </Col>
+                            </FormGroup>
+                        </Col>
 
-                    {/* Middle Panel */}
-                    <Col lg={6} md={7} xs={12}>
-                        <FormGroup>
-                            {/*Workbook selector*/}
-                            <Col componentClass={ControlLabel} xs={12} sm={4}>
-                                <div className="no-wrap">Workbook File (.csv) <span className="red-text">*</span></div>
-                            </Col>
-                            <Col xs={12} sm={8}>
-                                <FormControl id="fileId" name="fileId" accept=".csv" type="file" className="control-label" onChange={this.handleInputChange} disabled={this.state.controlsDisabled} />
-                            </Col>
-                        </FormGroup>
+                        {/* Middle Panel */}
+                        <Col lg={6} md={7} xs={12}>
+                            <FormGroup>
+                                {/*Workbook selector*/}
+                                <Col componentClass={ControlLabel} xs={12} sm={4}>
+                                    <div className="no-wrap">Workbook File (.csv) <span className="red-text">*</span></div>
+                                </Col>
+                                <Col xs={12} sm={8}>
+                                    <FormControl id="fileId" name="fileId" accept=".csv" type="file" className="control-label" onChange={this.handleInputChange} disabled={this.state.controlsDisabled} />
+                                </Col>
+                            </FormGroup>
 
-                        <FormGroup validationState={this.state.submissionDateValid ? null : 'error'}>
-                            {/* Submission Date */}
-                            <Col componentClass={ControlLabel} xs={12} sm={4}>
-                                <div className="no-wrap">Submission Date <span className="red-text">*</span></div>
-                            </Col>
-                            <Col xs={12} sm={8}>
-                                <DatePicker
-                                    selected={this.state.submissionDate}
-                                    onChange={this.handleSubmissionDateChange}
-                                    placeholderText="Click to select a date"
-                                    disabled={this.state.controlsDisabled}
-                                    className="form-control"
-                                />
-                                {!this.state.submissionDateValid ? <HelpBlock>Submission Date must be on or before today's date</HelpBlock> : null}
+                            <FormGroup validationState={this.state.submissionDateValid ? null : 'error'}>
+                                {/* Submission Date */}
+                                <Col componentClass={ControlLabel} xs={12} sm={4}>
+                                    <div className="no-wrap">Submission Date <span className="red-text">*</span></div>
+                                </Col>
+                                <Col xs={12} sm={8}>
+                                    <DatePicker
+                                        selected={this.state.submissionDate}
+                                        onChange={this.handleSubmissionDateChange}
+                                        placeholderText="Click to select a date"
+                                        disabled={this.state.controlsDisabled}
+                                        className="form-control"
+                                    />
+                                    {!this.state.submissionDateValid ? <HelpBlock>Submission Date must be on or before today's date</HelpBlock> : null}
 
-                            </Col>
-                        </FormGroup>
-                    </Col>
+                                </Col>
+                            </FormGroup>
+                        </Col>
 
-                    {/* Right Panel */}
-                    <Col lg={2} xs={12}>
-                        <div className="lower-buttons-40 text-center">
-                            <Button className="horizontal-margin" onClick={this.upload} disabled={this.state.submitDisabled}>Load</Button>
-                            <Button className="horizontal-margin" onClick={this.handleReset}>Reset</Button>
-                        </div>
-                    </Col>
-                </Form>
+                        {/* Right Panel */}
+                        <Col lg={2} xs={12}>
+                            <div className="lower-buttons-40 text-center">
+                                <Button className="horizontal-margin" onClick={this.upload} disabled={this.state.submitDisabled}>Load</Button>
+                                <Button className="horizontal-margin" onClick={this.handleReset}>Reset</Button>
+                            </div>
+                        </Col>
+                    </Form>
 
-            </Panel>
+                </Panel>
+            </div>
         );
     }
 }
