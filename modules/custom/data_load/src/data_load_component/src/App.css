@@ -124,7 +124,7 @@
 }
 
 .category-panel {
-  width: 265px;
+  min-width: 255px;
   white-space: nowrap;
 }
 
