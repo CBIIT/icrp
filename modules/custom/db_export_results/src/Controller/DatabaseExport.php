@@ -654,22 +654,24 @@ class DatabaseExport {
         $writer->addRow(array_values($sheet_columns));
 
         // iterate over each of the rows in the results
-
         // if we are using all table columns, we may insert each row without processing it
         if ($use_database_columns) {
           while ($row = $results->fetch(PDO::FETCH_NUM)) {
-            $writer->addRow($row);
+            $writer->addRow(
+              array_map(function($value) {
+                return substr($value, 0, 32767);
+              }, $row)
+            );
           }
         }
 
         // otherwise, apply the column mappings specified in the definition
         else {
-
           $columns = array_keys($sheet_columns);
           while ($row = $results->fetch(PDO::FETCH_ASSOC)) {
             $writer->addRow(
               array_map(function($column) use ($row) {
-                return $row[$column];
+                return substr($row[$column], 0, 32767);
               }, $columns)
             );
           }
