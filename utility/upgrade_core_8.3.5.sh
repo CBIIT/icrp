@@ -9,7 +9,7 @@ drush cr
 echo "*"
 echo "* Updating to latest Drupal Core (8.3.5)"
 echo "*"
-drush -y up drupal
+drush -y up drupal-8.3.5
 echo "*"
 echo "* Setting site to live MODE"
 echo "*"
