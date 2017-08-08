@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS `Country` (
   `Abbreviation` varchar(3) NOT NULL,
   `Name` varchar(75) NOT NULL,
   `IncomeBand` varchar(25) DEFAULT NULL,
+	`Currency` varchar(3) DEFAULT NULL,
   PRIMARY KEY (`Abbreviation`),
   UNIQUE KEY `UNIQUE` (`CountryID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
@@ -62,9 +63,11 @@ CREATE TABLE IF NOT EXISTS `CSO` (
   `CategoryName` varchar(100) NOT NULL,
   `WeightName` decimal(1,0) NOT NULL,
   `SortOrder` int(11) NOT NULL,
-  `IsActive` tinyint(4) NOT NULL DEFAULT '1',
+  `IsActive` bit(1) NOT NULL DEFAULT b'1',
   `CreatedDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `UpdatedDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	`AltAwardCode1` varchar(100) DEFAULT NULL,
+	`AltAwardCode2` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`Code`),
   UNIQUE KEY `UNIQUE` (`CSOID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
@@ -174,6 +177,8 @@ CREATE TABLE IF NOT EXISTS `FundingOrg` (
   `LastImportDesc` varchar(1000) DEFAULT NULL,
   `CreatedDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `UpdatedDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	`MapCoords` varchar(50) DEFAULT NULL,
+	`Website` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`FundingOrgID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
 
@@ -401,6 +406,7 @@ CREATE TABLE IF NOT EXISTS `Project` (
   `ProjectEndDate` date DEFAULT NULL,
   `CreatedDate` datetime DEFAULT CURRENT_TIMESTAMP,
   `UpdatedDate` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	`DataUploadStatusID` int(11) DEFAULT NULL,
   PRIMARY KEY (`ProjectID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
 
