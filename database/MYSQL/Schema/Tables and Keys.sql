@@ -16,6 +16,31 @@
 CREATE DATABASE IF NOT EXISTS `icrp_data` /*!40100 DEFAULT CHARACTER SET ucs2 */;
 USE `icrp_data`;
 
+-- Dumping structure for table icrp_data.Archive-2015-08-18_CSO_ver_1
+CREATE TABLE IF NOT EXISTS `Archive-2015-08-18_CSO_ver_1` (
+  `id` int(11) NOT NULL,
+  `code` varchar(20) DEFAULT NULL,
+  `name` varchar(100) DEFAULT NULL,
+  `category` varchar(100) DEFAULT NULL,
+  `categoryCode` int(11) DEFAULT NULL,
+  `sortOrder` int(11) DEFAULT NULL,
+  `WeightName` decimal(1,0) DEFAULT NULL,
+  `ShortName` varchar(100) DEFAULT NULL,
+  `CreatedDate` datetime DEFAULT NULL,
+  `UpdatedDate` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
+
+-- Data exporting was unselected.
+-- Dumping structure for table icrp_data.Archive-2015-08-18_ProjectCSO_ver_1
+CREATE TABLE IF NOT EXISTS `Archive-2015-08-18_ProjectCSO_ver_1` (
+  `ProjectID` int(11) NOT NULL,
+  `CSOID` int(11) NOT NULL,
+  `Relevance` double DEFAULT NULL,
+  `RelSource` varchar(1) DEFAULT NULL,
+  `CreatedDate` datetime NOT NULL,
+  `UpdatedDate` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
+
 -- Data exporting was unselected.
 -- Dumping structure for table icrp_data.CancerType
 CREATE TABLE IF NOT EXISTS `CancerType` (
@@ -538,6 +563,26 @@ CREATE TABLE IF NOT EXISTS `Project_ProjectType` (
   `UpdatedDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`ProjectID`,`ProjectType`),
   KEY `IX_Project_ProjectType_ProjectID` (`ProjectID`)
+) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
+
+-- Data exporting was unselected.
+-- Dumping structure for table icrp_data.RelatedProjects
+CREATE TABLE IF NOT EXISTS `RelatedProjects` (
+  `ProjectID` int(11) NOT NULL,
+  `RelatedProjectID` int(11) DEFAULT NULL,
+  `Relationship` varchar(50) NOT NULL,
+  `GroupID` int(11) DEFAULT NULL,
+  `CreatedDate` datetime NOT NULL,
+  `UpdatedDate` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
+
+-- Data exporting was unselected.
+-- Dumping structure for table icrp_data.RelatedSites
+CREATE TABLE IF NOT EXISTS `RelatedSites` (
+  `GeneralSiteID` int(11) NOT NULL,
+  `SpecificSiteID` int(11) NOT NULL,
+  `CreatedDate` datetime NOT NULL,
+  `UpdatedDate` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
 
 -- Data exporting was unselected.
