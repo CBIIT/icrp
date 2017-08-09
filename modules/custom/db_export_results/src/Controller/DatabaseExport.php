@@ -726,9 +726,7 @@ class DatabaseExport {
       ['Sponsor Code', 'Funding Years', 'Type', 'Workbook Received Date', 'Note'],
     ];
 
-    $stmt_defaults = 'SET NOCOUNT ON; ';
-    $stmt = $pdo->prepare($stmt_defaults
-      . 'SELECT [PartnerCode], [FundingYear], [Type], [ReceivedDate], [Note]
+    $stmt = $pdo->prepare('SELECT [PartnerCode], [FundingYear], [Type], [ReceivedDate], [Note]
           FROM DataUploadStatus
           WHERE DataUploadStatusID = :data_upload_id');
 
