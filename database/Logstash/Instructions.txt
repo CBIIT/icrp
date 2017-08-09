@@ -1,0 +1,6 @@
+Install Logstash
+Install rolling-sql-updates.logstash.conf
+Add jruby path to binary paths
+
+> bin/logstash-plugin install logstash-input-jdbc
+> 
