@@ -1,4 +1,5 @@
 Install Logstash
+Install MySQL driver
 Install rolling-sql-updates.logstash.conf
 Add jruby path to binary paths
 
