@@ -181,7 +181,7 @@ class ValidationConfiguratorComponent extends Component {
                             </div>
                             <ValidationCategory validationCategory={awardCategory} onCheck={this.toggleCheck} />
                             <ValidationCategory validationCategory={cancerTypeCategory} onCheck={this.toggleCheck} />
-                            <div style={{'margin-bottom': '21px'}}>
+                            <div style={{'margin-bottom': '21px', 'display': 'flex'}}>
                                 <ValidationCategory validationCategory={csoCategory} onCheck={this.toggleCheck} />
                             </div>
 

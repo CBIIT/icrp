@@ -76,8 +76,12 @@ class DataLoadController {
         $conn = self::getConnection();
         $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE DataUpload_IntegrityCheck @Type=:type, @PartnerCode=:partnerCode');
         // $response = array(partnerCode=>$request->request->get(partnerCode), type=> $request->request->get(type));
-        $stmt->bindParam(':type', $request->request->get('type'));
-        $stmt->bindParam(':partnerCode', $request->request->get('partnerCode'));
+        
+        $type = $request->request->get('type');
+        $partnerCode = $request->request->get('partnerCode');
+        $stmt->bindParam(':type', $type);
+        $stmt->bindParam(':partnerCode', $partnerCode);
+        
         $stmt->execute();
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $response=array('results' => $results);
