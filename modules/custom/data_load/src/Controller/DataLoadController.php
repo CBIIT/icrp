@@ -76,8 +76,8 @@ class DataLoadController {
         $conn = self::getConnection();
         $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE DataUpload_IntegrityCheck @Type=:type, @PartnerCode=:partnerCode');
         // $response = array(partnerCode=>$request->request->get(partnerCode), type=> $request->request->get(type));
-        $stmt->bindParam(':type', $request->request->get(type));
-        $stmt->bindParam(':partnerCode', $request->request->get(partnerCode));
+        $stmt->bindParam(':type', $request->request->get('type'));
+        $stmt->bindParam(':partnerCode', $request->request->get('partnerCode'));
         $stmt->execute();
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $response=array('results' => $results);
@@ -98,8 +98,8 @@ class DataLoadController {
     public function integrity_check_details_mssql(Request $request) {
         $conn = self::getConnection();
         $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE DataUpload_IntegrityCheckDetails @RuleId=:ruleId, @PartnerCode=:partnerCode');
-        $stmt->bindParam(':ruleId', $request->request->get(ruleId));
-        $stmt->bindParam(':partnerCode', $request->request->get(partnerCode));
+        $stmt->bindParam(':ruleId', $request->request->get('ruleId'));
+        $stmt->bindParam(':partnerCode', $request->request->get('partnerCode'));
         $stmt->execute();
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $response=array('results' => $results);
@@ -108,7 +108,7 @@ class DataLoadController {
     }
     
     public function getdata(Request $request) {
-        $page = $request->request->get(page);
+        $page = $request->request->get('page');
         $conn = self::getConnection();
         
         $offset = ($page - 1) * 25;
@@ -125,17 +125,17 @@ class DataLoadController {
     }
     
     public function getdata_mssql(Request $request) {
-        $page = $request->request->get(page);
+        $page = $request->request->get('page');
         
         $sortDirectionKeys = array("ASC", "DESC");
-        $key = array_Search($request->request->get(sortDirection), $sortDirectionKeys);
+        $key = array_Search($request->request->get('sortDirection'), $sortDirectionKeys);
         $sortDirection = $sortDirectionKeys[$key];
         
         $orderByKeys = array("InternalId", "AwardCode", "AwardStartDate", "AwardEndDate", "SourceId", "AltId", "AwardTitle", "Category",
         "AwardType", "Childhood", "BudgetStartDate", "BudgetEndDate", "CSOCodes", "CSORel", "SiteCodes", "SiteRel", "AwardFunding", "IsAnnualized", "FundingMechanismCode", "FundingMechanism",
         "FundingOrgAbbr", "FundingDiv", "FundingDivAbbr", "FundingContact", "PILastName", "PIFirstName", "SubmittedInstitution", "City", "State", "Country", "PostalZipCode", "InstitutionICRP", "Latitute", "Longitute", "GRID",
         "TechAbstract", "PublicAbstract", "RelatedAwardCode", "RelationshipType", "ORCID", "OtherResearcherID", "OtherResearcherIDType", "InternalUseOnly");
-        $key = array_Search($request->request->get(sortColumn), $orderByKeys);
+        $key = array_Search($request->request->get('sortColumn'), $orderByKeys);
         $sortColumn = $orderByKeys[$key];
         
         $conn = self::getConnection();
@@ -156,7 +156,7 @@ class DataLoadController {
         $uploaddir = getcwd() . '/modules/custom/data_load/uploads/';
         $fileName = '';
         $response = '';
-        $originalFileName = $request->request->get(originalFileName);
+        $originalFileName = $request->request->get('originalFileName');
         foreach($request->files as $uploadedFile) {
             $fileName = $uploadedFile->getClientOriginalName();
             $file = $uploadedFile->move($uploaddir, $fileName);

@@ -23,7 +23,9 @@ class ValidationItem extends Component {
 
     render() {
         return (
-            <Checkbox name={this.props.item.id} defaultChecked={this.props.item.checked} disabled={this.props.item.required} onChange={this.onChange}>{this.props.item.name}</Checkbox>
+            <Checkbox name={this.props.item.id} defaultChecked={this.props.item.checked} disabled={this.props.item.required} onChange={this.onChange}>
+                <div className="nowrap">{this.props.item.name}</div>
+            </Checkbox>
         );
     }
 }
@@ -179,8 +181,9 @@ class ValidationConfiguratorComponent extends Component {
                             </div>
                             <ValidationCategory validationCategory={awardCategory} onCheck={this.toggleCheck} />
                             <ValidationCategory validationCategory={cancerTypeCategory} onCheck={this.toggleCheck} />
-                            <ValidationCategory validationCategory={csoCategory} onCheck={this.toggleCheck} />
-
+                            <div style={{'margin-bottom': '21px'}}>
+                                <ValidationCategory validationCategory={csoCategory} onCheck={this.toggleCheck} />
+                            </div>
 
                         </div>
                         <div className="text-center padding-top">
