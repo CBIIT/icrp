@@ -1,7 +1,11 @@
 Install Logstash
 Install MySQL driver
 Install, update, and rename logstash configuration template files
-Add jruby path to binary paths
 
+#Add jruby path to binary paths, if necessary
 > bin/logstash-plugin install logstash-input-jdbc
+> bin/logstash-plugin install logstash-filter-mutate
+> bin/logstash-plugin install logstash-filter-aggregate
+# Uncomment stdout line from config output to enable commandline viewing of data
+# This will slow things down significantly
 > bin/logstash -f <path to config>
