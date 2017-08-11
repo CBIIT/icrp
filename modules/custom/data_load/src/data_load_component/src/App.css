@@ -139,3 +139,12 @@
 .modal-body {
   padding: 0px 15px;
 }
+
+.nowrap {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.standard-font-size {
+  font-size: 15px !important;
+}

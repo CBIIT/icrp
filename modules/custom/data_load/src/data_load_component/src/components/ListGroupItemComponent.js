@@ -16,7 +16,7 @@ class ListGroupItemComponent extends Component {
         return (
             <div>
                 <ListGroupItem onClick={this.props.result.validationResult === 'Failed' ? this.handleClick : null}>
-                    <Row>
+                    <Row className="standard-font-size">
                         <Col xs={6}>{this.props.result.name}</Col>
                         <Col xs={2} className={this.props.validationStyle}>{this.props.result.count > 0 ? this.props.result.count.toLocaleString() : ''} {this.props.result.validationResult}</Col>
                     </Row>

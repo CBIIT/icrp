@@ -84,6 +84,12 @@ class App extends Component {
       const result = results[i];
       const resultId = parseInt(result.id, 10);
       const validationRule = validationRules.find(rule => rule.id === resultId);
+
+      this.setState({
+        openSummary: true,
+        openDetails: true,
+      })
+
       if (resultId && result.validationResult === 'Failed' && validationRule.checked & validationRule.active) {
         tab3Disabled = true;
         break;
