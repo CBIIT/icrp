@@ -8,4 +8,6 @@ Install, update, and rename logstash configuration template files
 > bin/logstash-plugin install logstash-filter-aggregate
 # Uncomment stdout line from config output to enable commandline viewing of data
 # This will slow things down significantly
-> bin/logstash -f <path to config>
+> bin/logstash -f <path to config>\ProjectInstall.logstash.conf
+> bin/logstash -w 1 -f <path to config>\ProjectSearchUpdate.logstash.conf
+> bin/logstash -w 1 -f <path to config>\ProjectFundingUpdate.logstash.conf
