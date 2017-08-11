@@ -59,8 +59,8 @@ SELECT
 	i.`Name` AS `Institution`, `City`, `State`, i.`Country`,
 	o.`Name` AS `FundingOrg`, o.`Abbreviation` AS `FundingOrgShort`, o.`Type` AS `FundingOrgType`,
 	c.`CancerTypeID`, c.`Name` AS `CancerType`,
-	GROUP_CONCAT(DISTINCT ext.CalendarYear) AS CalendarYears,
-	GROUP_CONCAT(DISTINCT cso.CSOCode) AS CSOCodes
+	CONVERT(GROUP_CONCAT(DISTINCT CONVERT(ext.CalendarYear USING utf8)) USING ucs2) AS CalendarYears,
+	CONVERT(GROUP_CONCAT(DISTINCT CONVERT(cso.CSOCode USING utf8)) USING ucs2) AS CSOCodes
 FROM `ProjectFunding` pf
   JOIN `ProjectFundingInvestigator` fi ON fi.`ProjectFundingID` = pf.`ProjectFundingID`
   JOIN `Institution` i ON i.`InstitutionID` = fi.`InstitutionID`

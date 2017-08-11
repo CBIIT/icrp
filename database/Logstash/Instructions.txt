@@ -1,7 +1,7 @@
 Install Logstash
 Install MySQL driver
-Install rolling-sql-updates.logstash.conf
+Install, update, and rename logstash configuration template files
 Add jruby path to binary paths
 
 > bin/logstash-plugin install logstash-input-jdbc
-> 
+> bin/logstash -f <path to config>
