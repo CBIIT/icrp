@@ -99,7 +99,7 @@
 
 .flex-stretch {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-content: stretch;
   flex-flow: row wrap;
 }
@@ -146,5 +146,6 @@
 }
 
 .standard-font-size {
+  font-weight: normal !important;
   font-size: 15px !important;
 }

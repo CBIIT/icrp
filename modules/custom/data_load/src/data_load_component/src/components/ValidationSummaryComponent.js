@@ -12,7 +12,7 @@ import { ListGroupItem, Row, Col, Collapse } from 'react-bootstrap';
 
 const SummaryItem = ({ object }) =>
     <ListGroupItem>
-        <Row>
+        <Row className="standard-font-size">
             <Col xs={6}>{object.name}</Col>
             <Col xs={2}>{object.count.toLocaleString()}</Col>
         </Row>
@@ -102,6 +102,7 @@ class ValidationSummaryComponent extends Component {
                     onClick={this.props.detailsToggleHandler}
                     title="Data Integrity Check Results"
                     isOpen={this.props.openDetails}
+                    
                 />
                 <Collapse in={this.props.openDetails}>
                     <ListGroup>
