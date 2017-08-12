@@ -58,9 +58,9 @@ SELECT
 	`LastName` AS `piLastName`, `FirstName` AS `piFirstName`, `ORC_ID` AS `piORCiD`,
 	i.`Name` AS `Institution`, `City`, `State`, i.`Country`,
 	o.`Name` AS `FundingOrg`, o.`Abbreviation` AS `FundingOrgShort`, o.`Type` AS `FundingOrgType`,
-	c.`CancerTypeID`, c.`Name` AS `CancerType`,
-	CONVERT(GROUP_CONCAT(DISTINCT CONVERT(ext.CalendarYear USING utf8)) USING ucs2) AS CalendarYears,
-	CONVERT(GROUP_CONCAT(DISTINCT CONVERT(cso.CSOCode USING utf8)) USING ucs2) AS CSOCodes
+	CONVERT(GROUP_CONCAT(DISTINCT CONVERT(c.`CancerTypeID` USING utf8)) USING ucs2) AS CancerTypes,
+	CONVERT(GROUP_CONCAT(DISTINCT CONVERT(ext.`CalendarYear` USING utf8)) USING ucs2) AS CalendarYears,
+	CONVERT(GROUP_CONCAT(DISTINCT CONVERT(cso.`CSOCode` USING utf8)) USING ucs2) AS CSOCodes
 FROM `ProjectFunding` pf
   JOIN `ProjectFundingInvestigator` fi ON fi.`ProjectFundingID` = pf.`ProjectFundingID`
   JOIN `Institution` i ON i.`InstitutionID` = fi.`InstitutionID`
@@ -69,5 +69,5 @@ FROM `ProjectFunding` pf
   JOIN `CancerType` c ON c.`CancerTypeID` = ct.`CancerTypeID`
   JOIN `ProjectFundingExt` ext ON ext.`ProjectFundingID` = pf.`ProjectFundingID`
   JOIN `ProjectCSO` cso ON cso.`ProjectFundingID` = pf.`ProjectFundingID`
-GROUP BY pf.`ProjectFundingID`, c.`CancerTypeID`
-ORDER BY `ProjectID`, pf.`ProjectFundingID`, c.`CancerTypeID`;
+GROUP BY pf.`ProjectFundingID`
+ORDER BY `ProjectID`, pf.`ProjectFundingID`, ext.`CalendarYear`, cso.`CSOCode`, c.`CancerTypeID`;
