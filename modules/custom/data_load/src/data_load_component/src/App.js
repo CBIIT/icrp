@@ -37,6 +37,7 @@ class App extends Component {
       exportDisabled: true,
       fileName: '',
       loadingExport: false,
+      
     }
     this.handleFileUpload = this.handleFileUpload.bind(this);
     this.handleDataTableChange = this.handleDataTableChange.bind(this);
