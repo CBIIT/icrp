@@ -64,12 +64,30 @@ dataload.integrity_check_details:
     _access: 'TRUE'
     _role: 'authenticated+admin'    
     _role: 'authenticated+manager'
-  methods: [POST]  
+  methods: [POST]
+dataload.get_validation_rule_definitions:
+  path: '/DataUploadTool/getValidationRuleDefinitions'
+  defaults:
+    _controller:  '\Drupal\data_load\Controller\DataLoadController::getValidationRuleDefinitions'
+    _title: 'Get Validation Rules'
+  requirements:
+    _access: 'TRUE'
+    _role: 'authenticated+admin'    
+    _role: 'authenticated+manager'
 dataload.ping:
   path: '/DataUploadTool/ping'
   defaults:
     _controller: 'Drupal\data_load\Controller\DataLoadController::ping'
     _title: 'Ping'
+  requirements:
+    _access: 'TRUE'
+    _role: 'authenticated+admin'    
+    _role: 'authenticated+manager'
+
+dataload.export:
+  path: '/DataUploadTool/export'
+  defaults:
+    _controller: 'Drupal\data_load\Controller\DataLoadController::export'
   requirements:
     _access: 'TRUE'
     _role: 'authenticated+admin'    

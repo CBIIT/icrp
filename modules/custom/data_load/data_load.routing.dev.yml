@@ -5,6 +5,8 @@ dataload.app:
     _title: 'Data Loading Tool'
   requirements:
     _access: 'TRUE'
+        
+   
 dataload.load_data_mysql:    
   path: '/DataUploadTool/loaddata_mysql'
   defaults:
@@ -12,6 +14,8 @@ dataload.load_data_mysql:
     _title: 'Load Data'
   requirements:
     _access: 'TRUE'
+        
+   
   methods: [POST]
 dataload.load_data_mssql:    
   path: '/DataUploadTool/loaddata_mssql'
@@ -20,6 +24,8 @@ dataload.load_data_mssql:
     _title: 'Load Data'
   requirements:
     _access: 'TRUE'
+        
+   
   methods: [POST]
 dataload.get_data:
   path: '/DataUploadTool/getdata'
@@ -28,6 +34,8 @@ dataload.get_data:
     _title: 'Get Data'
   requirements:
     _access: 'TRUE'
+        
+   
 dataload.get_data_mssql:
   path: '/DataUploadTool/getdata_mssql'
   defaults:
@@ -35,6 +43,8 @@ dataload.get_data_mssql:
     _title: 'Get Data'
   requirements:
     _access: 'TRUE'
+        
+   
 dataload.integrity_check:
   path: '/DataUploadTool/integrity_check_mssql'
   defaults:
@@ -42,6 +52,8 @@ dataload.integrity_check:
     _title: 'Integrity Check'
   requirements:
     _access: 'TRUE'
+        
+   
   methods: [POST]
 dataload.integrity_check_details:
   path: '/DataUploadTool/integrity_check_details_mssql'
@@ -50,7 +62,18 @@ dataload.integrity_check_details:
     _title: 'Integrity Check Details'
   requirements:
     _access: 'TRUE'
-  methods: [POST]  
+        
+   
+  methods: [POST]
+dataload.get_validation_rule_definitions:
+  path: '/DataUploadTool/getValidationRuleDefinitions'
+  defaults:
+    _controller:  '\Drupal\data_load\Controller\DataLoadController::getValidationRuleDefinitions'
+    _title: 'Get Validation Rules'
+  requirements:
+    _access: 'TRUE'
+        
+   
 dataload.ping:
   path: '/DataUploadTool/ping'
   defaults:
@@ -58,3 +81,14 @@ dataload.ping:
     _title: 'Ping'
   requirements:
     _access: 'TRUE'
+        
+   
+
+dataload.export:
+  path: '/DataUploadTool/export'
+  defaults:
+    _controller: 'Drupal\data_load\Controller\DataLoadController::export'
+  requirements:
+    _access: 'TRUE'
+        
+   
