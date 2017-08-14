@@ -441,6 +441,8 @@ class DataLoadController {
             $excludedRules = explode(',', $excludedRules);
         }
 
+        //error_log(print_r($excludedRules));
+
         $exportsFolder = getcwd() . '/modules/custom/data_load/exports/';
         if (!file_exists($exportsFolder)) {
             mkdir($exportsFolder, 0744, true);
@@ -462,7 +464,7 @@ class DataLoadController {
 
         $results = $stmt->fetchAll();
 
-        $validRules = array_filter($results, function($row) {
+        $validRules = array_filter($results, function($row) use ($excludedRules) {
             return $row['Type'] === 'Rule'
                 && $row['Count'] > 0
                 && !in_array($row['ID'], $excludedRules);
@@ -496,10 +498,29 @@ class DataLoadController {
             $sheet = $writer->addNewSheetAndMakeItCurrent();
         }
 
-        $integrityCheckSummary = array_map(function($row) {
-            return [$row['Description'], $row['Count']];
-        }, $results);
 
+        $integrityCheckCounts = array_reduce($results, function($acc, $row) {
+            if ($row['Type'] == 'Summary' ) {
+                array_push($acc, [
+                    $row['Description'],
+                    $row['Count'],
+                ]);
+            }
+
+            return $acc;
+        }, []);
+
+        $integrityCheckSummary = array_reduce($results, function($acc, $row) use ($excludedRules) {
+            if ($row['Type'] == 'Rule' && !in_array($row['ID'], $excludedRules)) {
+                array_push($acc, [
+                    $row['Description'],
+                    $row['Count'],
+                ]);
+            }
+
+            return $acc;
+        }, []);
+        
         $sheet->setName('Integrity Check Summary');
         $writer->addRows([
             ['Integrity Check Summary'],
@@ -507,11 +528,15 @@ class DataLoadController {
             ['Partner Code:', $partnerCode],
             ['Upload Type:', $type],
             [''],
-
-            ['Description', 'Count'],
         ]);
 
+        $writer->addRow(['Summarized Counts']);
+        $writer->addRows($integrityCheckCounts);
+
+        $writer->addRow(['']);
+        $writer->addRow(['Failing Validation Rules']);
         $writer->addRows($integrityCheckSummary);
+
 
         $writer->close();
         return self::addCorsHeaders(new JsonResponse($fileName));
