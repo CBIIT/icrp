@@ -543,6 +543,19 @@ class DataLoadController {
         
     }
 
+    public function getSponsorCodes() {
+        return self::addCorsHeaders(
+            new JsonResponse(
+                array_column(
+                    self::getConnection()
+                        ->query('SELECT SponsorCode from Partner')
+                        ->fetchAll(PDO::FETCH_NUM),
+                    0
+                )
+            )
+        );
+    }
+
     public function ping() {
         
         return new Response('Ping you back!');

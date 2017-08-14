@@ -92,3 +92,12 @@ dataload.export:
     _access: 'TRUE'
     _role: 'authenticated+admin'    
     _role: 'authenticated+manager'
+
+dataload.sponsor_codes:
+  path: '/DataUploadTool/getSponsorCodes'
+  defaults:
+    _controller: 'Drupal\data_load\Controller\DataLoadController::getSponsorCodes'
+  requirements:
+    _access: 'TRUE'
+    _role: 'authenticated+admin'    
+    _role: 'authenticated+manager'
