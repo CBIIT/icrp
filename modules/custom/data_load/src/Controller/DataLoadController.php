@@ -427,14 +427,27 @@ class DataLoadController {
     }
 
     public function export(Request $request) {
-        return self::addCorsHeaders(new JsonResponse("sample response"));
+        $excludedRules = $request->request->get('excludedRules', []);
+        $originalFileName = $request->request->get('originalFileName', 'N/A');
+        
+        $exportsFolder = getcwd() . '/modules/custom/data_load/exports/';
+        if (!file_exists($exportsFolder)) {
+            mkdir($exportsFolder, 0744, true);
+        }
+
+        $fileName = 'test.xlsx';
+        $filePath = $exportsFolder . $fileName;
+
+
+
+        return self::addCorsHeaders(new JsonResponse($fileName));
         
     }
 
-public function ping() {
-    
-    return new Response('Ping you back!');
-}
+    public function ping() {
+        
+        return new Response('Ping you back!');
+    }
 }
 
 ?>
