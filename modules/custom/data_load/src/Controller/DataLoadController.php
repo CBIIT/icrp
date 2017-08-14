@@ -3,9 +3,13 @@
 
 namespace Drupal\data_load\Controller;
 
+require_once __DIR__ . '/../../vendor/autoload.php';
+
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Box\Spout\Writer\WriterFactory;
+use Box\Spout\Common\Type;
 use \PDO;
 
 class DataLoadController {
@@ -429,17 +433,83 @@ class DataLoadController {
     public function export(Request $request) {
         $excludedRules = $request->request->get('excludedRules', []);
         $originalFileName = $request->request->get('originalFileName', 'N/A');
-        
+        $type = $request->request->get('type', 'N/A');
+        $partnerCode = $request->request->get('partnerCode', 'N/A');
+
         $exportsFolder = getcwd() . '/modules/custom/data_load/exports/';
         if (!file_exists($exportsFolder)) {
             mkdir($exportsFolder, 0744, true);
         }
 
-        $fileName = 'test.xlsx';
+        $fileName = uniqid('Data_Upload_Export_') . '.xlsx';
         $filePath = $exportsFolder . $fileName;
 
+        $writer = WriterFactory::create(Type::XLSX); 
+        $writer->openToFile($filePath);
+
+        $conn = self::getConnection();
+        $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE DataUpload_IntegrityCheck @Type=:type, @PartnerCode=:partnerCode');
+
+        $stmt->execute([
+            ':type' => $type,
+            ':partnerCode' => $partnerCode,
+        ]);
+
+        $results = $stmt->fetchAll();
+
+        $validRules = array_filter($results, function($row) {
+            return $row['Type'] === 'Rule'
+                && $row['Count'] > 0
+                && !in_array($row['ID'], $excludedRules);
+        });
 
 
+        $sheet = $writer->getCurrentSheet();
+        foreach ($validRules as $rule) {
+            $title = substr($rule['Description'], 0, 31);
+            $sheet->setName($title);
+
+            $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE DataUpload_IntegrityCheckDetails @RuleId=:ruleId, @PartnerCode=:partnerCode');
+
+            $stmt->execute([
+                ':ruleId' => $rule['ID'],
+                ':partnerCode' => $partnerCode,
+            ]);
+
+            $headers = [];
+            foreach(range(0, $stmt->columnCount() - 1) as $index) {
+                $meta = $stmt->getColumnMeta($index);
+                array_push($headers, $meta['name']);
+            }
+
+            $writer->addRows([
+                [$rule['Description']],
+                [''],
+                $headers,
+            ]);
+            $writer->addRows($stmt->fetchAll(PDO::FETCH_NUM));
+            $sheet = $writer->addNewSheetAndMakeItCurrent();
+        }
+
+        $integrityCheckSummary = array_map(function($row) {
+            return [$row['Description'], $row['Count']];
+        }, $results);
+
+        $sheet->setName('Integrity Check Summary');
+        $writer->addRows([
+            ['Integrity Check Summary'],
+            ['Original File:', $originalFileName],
+            ['Excluded Rules: ', implode(', ', $excludedRules)],
+            ['Partner Code:', $partnerCode],
+            ['Upload Type:', $type],
+            [''],
+
+            ['Description', 'Count'],
+        ]);
+
+        $writer->addRows($integrityCheckSummary);
+
+        $writer->close();
         return self::addCorsHeaders(new JsonResponse($fileName));
         
     }
