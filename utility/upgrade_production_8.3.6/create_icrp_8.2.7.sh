@@ -1,7 +1,10 @@
 #
 # Creates a Drupal 8.2.7 Website from Scratch.
 #
-
+# Define a timestamp function
+timestamp() {
+  date +"%T"
+}
 if [ "$5" = "" ]
 then
   echo "**"
@@ -11,21 +14,27 @@ then
   echo "**"
   exit
 fi
+echo -n "START TIME: "
+timestamp
 DOC_ROOT=$1 
 DB_NAME=$2
 DB_USER=$3
 DB_PASS=$4
 SETTINGS_PHP_PATH=$5
 # Clear cache - causing problems.  Needed sudo to remove root files.
+
 echo "**"
 echo "* Clear cache files causing problems."
 echo "**"
-ls -latr ~/.composer/cache/files/doctrine/orm
-ls -latr ~/.composer/cache/files//incenteev/composer-parameter-handler
-ls -latr ~/.composer/cache/files//jdorn/sql-formatter
-sudo rm -f ~/.composer/cache/files//doctrine/orm/*
-sudo rm -f ~/.composer/cache/files//incenteev/composer-parameter-handler/*
-sudo rm -f ~/.composer/cache/files//jdorn/sql-formatter/*
+echo "composer clear-cache"
+#composer clear-cache
+
+#ls -latr ~/.composer/cache/files/doctrine/orm
+#ls -latr ~/.composer/cache/files//incenteev/composer-parameter-handler
+#ls -latr ~/.composer/cache/files//jdorn/sql-formatter
+#sudo rm -f ~/.composer/cache/files//doctrine/orm/*
+#sudo rm -f ~/.composer/cache/files//incenteev/composer-parameter-handler/*
+#sudo rm -f ~/.composer/cache/files//jdorn/sql-formatter/*
 sudo rm -rf ~/.composer/cache/files/*
 
 #rm all files
@@ -102,6 +111,8 @@ drush cr
 echo "**"
 echo "* ICRP 1.2 is ready"
 echo "**"
+echo -n "END TIME: "
+timestamp
 echo "**"
 echo "* Install Production database now and clear cache."
 echo "**"

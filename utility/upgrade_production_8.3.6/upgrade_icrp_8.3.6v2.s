@@ -30,8 +30,15 @@ echo "You should have your composer.json"
 echo "**"
 echo "* composer update drupal/core --with-dependencies"
 echo "**"
-composer update drupal/core  --with-dependencies
-drush cr 
+#composer update drupal/core  --with-dependencies
+echo "**"
+echo "* Not using composer this time."
+echo "**"
+echo "**"
+echo "* Update webform and webform views to latest."
+echo "**"
+
+#drush cr 
 echo "**"
 echo "* Upgrade to Drupal 8.3.6 completed"
 echo "**"

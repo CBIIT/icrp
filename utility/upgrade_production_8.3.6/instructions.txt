@@ -1,0 +1,24 @@
+STEP 1: Create Drupal 8.2.7 with ICRP 1.2 from github
+
+Instructions:
+ 	1.  Change dirctory one up from directory from DOCROOT
+	2.  ./craete_icrp_8.2.7.sh <DOC_ROOT> <DB_NAME> <DB_USER> <DB_PASS> <FULL DIR to settings.php>
+
+STEP 2: Upgrade Drupal to 8.3.6 with ICRP 1.2
+
+Instructions:
+ 	1.  Change dirctory one up from directory from DOCROOT
+ 	2.  ./upgrade_icrp_8.3.6.sh <DOC_ROOT>
+
+STEP 3: Manually import production Database (icrp.sql)
+
+Instructions:
+	1. mysql -u<DB_USER> -p<DB_PASS> icrp < icrp.sql
+	2. drush cr
+
+STEP 4: Fix Bootrap Layout
+Instructions:
+ 	1.  Change dirctory one up from directory from DOCROOT
+ 	2.  ./fix_layout.sh
+ 
+
