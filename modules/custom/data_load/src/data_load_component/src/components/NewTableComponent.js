@@ -76,7 +76,7 @@ class NewTableComponent extends Component {
 
         if (hostname === 'localhost') {
             protocol = 'http:';
-            hostname = 'icrp-dataload';
+            //hostname = 'icrp-dataload';
         }
 
         let response = await fetch(`${protocol}//${hostname}/${pathname}`, { method: 'POST', body: data, credentials: 'same-origin' });

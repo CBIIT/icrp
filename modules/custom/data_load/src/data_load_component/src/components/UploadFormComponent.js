@@ -34,7 +34,7 @@ class UploadFormComponent extends Component {
 
     /** Sends the response up to the parent */
     updateParent(stats, columns, projects) {
-        this.props.onFileUploadSuccess(stats, columns, projects, this.state.sponsorCode, this.state.uploadType);
+        this.props.onFileUploadSuccess(stats, columns, projects, this.state.sponsorCode, this.state.uploadType, this.state.originalFileName);
     }
 
     resetParent() {
@@ -116,7 +116,7 @@ class UploadFormComponent extends Component {
         let pathname = 'DataUploadTool/loaddata_mssql';
         if (hostname === 'localhost') {
             protocol = 'http:';
-            hostname = 'icrp-dataload';
+            //hostname = 'icrp-dataload';
         }
         let response = await fetch(`${protocol}//${hostname}/${pathname}`, { method: 'POST', body: data, credentials: 'same-origin' });
 

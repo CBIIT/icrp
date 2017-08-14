@@ -433,8 +433,13 @@ class DataLoadController {
     public function export(Request $request) {
         $excludedRules = $request->request->get('excludedRules', []);
         $originalFileName = $request->request->get('originalFileName', 'N/A');
-        $type = $request->request->get('type', 'N/A');
+        $type = $request->request->get('uploadType', 'N/A');
         $partnerCode = $request->request->get('partnerCode', 'N/A');
+
+        // ensure excluded rules is an array 
+        if ($excludedRules) {
+            $excludedRules = explode(',', $excludedRules);
+        }
 
         $exportsFolder = getcwd() . '/modules/custom/data_load/exports/';
         if (!file_exists($exportsFolder)) {
@@ -499,7 +504,6 @@ class DataLoadController {
         $writer->addRows([
             ['Integrity Check Summary'],
             ['Original File:', $originalFileName],
-            ['Excluded Rules: ', implode(', ', $excludedRules)],
             ['Partner Code:', $partnerCode],
             ['Upload Type:', $type],
             [''],

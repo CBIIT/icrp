@@ -33,7 +33,10 @@ class App extends Component {
       uploadType: 'new',
       sponsorCode: '',
       openSummary: true,
-      openDetails: true
+      openDetails: true,
+      exportDisabled: true,
+      fileName: '',
+      loadingExport: false,
     }
     this.handleFileUpload = this.handleFileUpload.bind(this);
     this.handleDataTableChange = this.handleDataTableChange.bind(this);
@@ -42,6 +45,7 @@ class App extends Component {
     this.handleTabSelect = this.handleTabSelect.bind(this);
     this.handleSummaryCollapseToggle = this.handleSummaryCollapseToggle.bind(this);
     this.handleDetailsCollapseToggle = this.handleDetailsCollapseToggle.bind(this);
+    this.handleExport = this.handleExport.bind(this);
     this.reset = this.reset.bind(this);
   }
 
@@ -62,12 +66,15 @@ class App extends Component {
       uploadType: 'new',
       sponsorCode: '',
       openSummary: true,
-      openDetails: true
+      openDetails: true,
+      exportDisabled: true,
+      fileName: '',
+      loadingExport: false,
     })
   }
 
-  handleFileUpload(stats, columns, projects, sponsorCode, uploadType) {
-    this.setState({ stats: stats, columns: columns, projects: projects, showDataTable: true, tab2Disabled: false, sponsorCode: sponsorCode, uploadType: uploadType });
+  handleFileUpload(stats, columns, projects, sponsorCode, uploadType, fileName) {
+    this.setState({ stats: stats, columns: columns, projects: projects, showDataTable: true, tab2Disabled: false, sponsorCode: sponsorCode, uploadType: uploadType, fileName: fileName });
   }
 
   handleLoadingStateChange() {
@@ -96,7 +103,7 @@ class App extends Component {
       }
     }
 
-    this.setState({ validationResults: results, validationRules: validationRules, tab3Disabled: tab3Disabled, openSummary: true, openDetails: true });
+    this.setState({ validationResults: results, validationRules: validationRules, tab3Disabled: tab3Disabled, openSummary: true, openDetails: true, exportDisabled: false });
   }
 
   handleSummaryCollapseToggle() {
@@ -109,6 +116,46 @@ class App extends Component {
 
   handleTabSelect(key) {
     this.setState({ tabKey: key });
+  }
+
+  async handleExport() {
+
+    this.setState({
+      loadingExport: true,
+    })
+
+    let parameters = {
+      excludedRules: this.state.validationRules.filter(rule => !rule.checked || !rule.active).map(rule => rule.id).join(','),
+      originalFileName: this.state.fileName,
+      uploadType: this.state.uploadType,
+      partnerCode: this.state.sponsorCode,
+    };
+
+    let data = new FormData();
+    for(let key in parameters) {
+      data.append(key, parameters[key]);
+    }
+
+    let protocol = window.location.protocol;
+    let hostname = window.location.hostname;
+    let pathname = 'DataUploadTool/export';
+    if (hostname === 'localhost') {
+        protocol = 'http:';
+        //hostname = 'icrp-dataload';
+    }
+
+    let response = await fetch(`${protocol}//${hostname}/${pathname}`, { method: 'POST', body: data, credentials: 'same-origin' });
+    let filePath = `${protocol}//${hostname}/modules/custom/data_load/exports/${await response.json()}`;
+
+    console.log(filePath);
+
+    this.setState({
+      loadingExport: false,
+    })
+
+    window.location.href = (filePath);
+
+
   }
 
   render() {
@@ -129,7 +176,16 @@ class App extends Component {
           </Tab>
           <Tab eventKey={2} title="Data Integrity Check" disabled={this.state.tab2Disabled} >
             <div className="tab-container">
-              <ValidationConfiguratorComponent onValidationResults={this.handleValidationResults} onLoadingStart={this.handleLoadingStateChange} uploadType={this.state.uploadType} sponsorCode={this.state.sponsorCode} />
+              <ValidationConfiguratorComponent 
+                onValidationResults={this.handleValidationResults} 
+                onLoadingStart={this.handleLoadingStateChange} 
+                uploadType={this.state.uploadType} 
+                sponsorCode={this.state.sponsorCode} 
+                exportDisabled={this.state.exportDisabled}
+                onExport={this.handleExport}  
+                loadingExport={this.state.loadingExport}
+              />
+
               <ValidationSummaryComponent
                 validationResults={this.state.validationResults}
                 validationRules={this.state.validationRules}

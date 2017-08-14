@@ -71,7 +71,7 @@ class ValidationConfiguratorComponent extends Component {
         let pathname = 'DataUploadTool/getValidationRuleDefinitions';
         if (hostname === 'localhost') {
             protocol = 'http:';
-            hostname = 'icrp-dataload';
+            //hostname = 'icrp-dataload';
         }
         this.setState({ loading: true });
         fetch(`${protocol}//${hostname}/${pathname}`, { method: 'GET', credentials: 'same-origin' })
@@ -116,7 +116,7 @@ class ValidationConfiguratorComponent extends Component {
         let pathname = 'DataUploadTool/integrity_check_mssql';
         if (hostname === 'localhost') {
             protocol = 'http:';
-            hostname = 'icrp-dataload';
+            //hostname = 'icrp-dataload';
         }
 
         let response = await fetch(`${protocol}//${hostname}/${pathname}`, { method: 'POST', body: data, credentials: 'same-origin' });
@@ -171,6 +171,8 @@ class ValidationConfiguratorComponent extends Component {
             <div>
                 <PanelHeader onClick={() => this.setState({ open: !this.state.open })} title="Validation Rules" isOpen={this.state.open} />
                 <Spinner message="Performing Check..." visible={this.state.loading} />
+                <Spinner message="Generating Export..." visible={this.props.loadingExport} />
+
                 <Collapse in={this.state.open}>
                     <Panel>
 
@@ -188,6 +190,7 @@ class ValidationConfiguratorComponent extends Component {
                         </div>
                         <div className="text-center padding-top">
                             <Button onClick={this.checkIntegrity}>Perform Check</Button>
+                            <Button onClick={this.props.onExport} disabled={this.props.exportDisabled} style={{'margin-left': '10px'}}>Export Results</Button>                            
                         </div>
                     </Panel>
                 </Collapse>
