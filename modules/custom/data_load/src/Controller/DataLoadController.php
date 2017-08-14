@@ -267,165 +267,169 @@ class DataLoadController {
                     return self::addCorsHeaders($response);
                 }
             }
-        
-        
-        $csvReader->close();
-        
-        $rowCount = $conn->query("SELECT COUNT(*) FROM UploadWorkBook")->fetchColumn();
-        $stmt = $conn->prepare("SELECT ORDINAL_POSITION, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'UploadWorkBook' AND COLUMN_NAME != 'InternalId' AND COLUMN_NAME != 'OriginalFileName'
-        ORDER BY ORDINAL_POSITION");
-        $stmt->execute();
-        $columns = $stmt->fetchAll();
-        
-        $stmt = $conn->prepare("SELECT TOP(25) " . implode(", ", array_column($columns, 'COLUMN_NAME')) . " FROM UploadWorkBook ORDER BY InternalId");
-        
-        $stmt->execute();
-        $projects = $stmt->fetchAll();
-        
-        $columnsResult = [];
-        foreach ($columns as $columnObjArr ) {
-            $obj = array('key' => $columnObjArr['COLUMN_NAME'], 'name' => $columnObjArr['COLUMN_NAME'], 'width' => 100, 'resizable' => true, 'filterable' => true, 'sortable' => true);
-            array_push($columnsResult, $obj);
+            
+            $csvReader->close();
+            
+            $rowCount = $conn->query("SELECT COUNT(*) FROM UploadWorkBook")->fetchColumn();
+            $stmt = $conn->prepare("SELECT ORDINAL_POSITION, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+            WHERE TABLE_NAME = 'UploadWorkBook' AND COLUMN_NAME != 'InternalId' AND COLUMN_NAME != 'OriginalFileName'
+            ORDER BY ORDINAL_POSITION");
+            $stmt->execute();
+            $columns = $stmt->fetchAll();
+            
+            $stmt = $conn->prepare("SELECT TOP(25) " . implode(", ", array_column($columns, 'COLUMN_NAME')) . " FROM UploadWorkBook ORDER BY InternalId");
+            
+            $stmt->execute();
+            $projects = $stmt->fetchAll();
+            
+            $columnsResult = [];
+            foreach ($columns as $columnObjArr ) {
+                $obj = array('key' => $columnObjArr['COLUMN_NAME'], 'name' => $columnObjArr['COLUMN_NAME'], 'width' => 100, 'resizable' => true, 'filterable' => true, 'sortable' => true);
+                array_push($columnsResult, $obj);
+            }
+            
+            $stmt = null;
+            $conn = null;
+            
+            $response=array('rowCount' => $rowCount, 'columns' => $columnsResult, 'projects' => $projects);
+        }
+        catch(PDOException $e)
+        {
+            $response = $e->getMessage();
         }
         
-        $stmt = null;
-        $conn = null;
+        return self::addCorsHeaders(new JsonResponse($response));
+    }
+
+
+    public function loaddata_mysql(Request $request) {
         
-        $response=array('rowCount' => $rowCount, 'columns' => $columnsResult, 'projects' => $projects);
-    }
-    catch(PDOException $e)
-    {
-        $response = $e->getMessage();
-    }
-    
-    return self::addCorsHeaders(new JsonResponse($response));
-}
-
-
-public function loaddata_mysql(Request $request) {
-    
-    $headers = $request->headers;
-    $uploaddir = getcwd() . '/modules/custom/data_load/uploads/';
-    chdir($uploaddir);
-    $fileName = '';
-    $response = '';
-    foreach($request->files as $uploadedFile) {
-        $fileName = $uploadedFile->getClientOriginalName();
-        $file = $uploadedFile->move($uploaddir, $fileName);
+        $headers = $request->headers;
+        $uploaddir = getcwd() . '/modules/custom/data_load/uploads/';
         chdir($uploaddir);
-        $from = $uploaddir . $fileName;
-        $to = $uploaddir . $fileName . '.utf8';
-        exec('iconv -f UTF-16 -t UTF-8 ' . $from . ' -o ' . $to . '; rm ' . $from . '; mv ' . $to . ' ' .$from . ';');
-        // exec("sed -i 's/\r/|\r/g' " . $from);
-    }
-    
-    $response = 'OK';
-    
-    try
-    {
-        $conn = self::getConnection();
-        $conn->exec("Truncate wb; ALTER TABLE wb AUTO_INCREMENT = 1; LOAD DATA LOCAL INFILE '" . $uploaddir . $fileName . "' INTO TABLE wb FIELDS TERMINATED BY '|' LINES TERMINATED BY '\r\n' IGNORE 1 LINES
-        (@AwardCode,
-        @AwardStartDate,
-        @AwardEndDate,
-        @SourceId,
-        @AltId,
-        @AwardTitle,
-        @Category,
-        @AwardType,
-        @Childhood,
-        @BudgetStartDate,
-        @BudgetEndDate,
-        @CSOCodes,
-        @CSORel,
-        @SiteCodes,
-        @SiteRel,
-        @AwardFunding,
-        @IsAnnualized,
-        @FundingMechanismCode,
-        @FundingMechanism,
-        @FundingOrgAbbr,
-        @FundingDiv,
-        @FundingDivAbbr,
-        @FundingContact,
-        @PILastName,
-        @PIFirstName,
-        @SubmittedInstitution,
-        @City,
-        @State,
-        @Country,
-        @PostalZipCode,
-        @InstitutionICRP,
-        @Latitute,
-        @Longitute,
-        @GRID,
-        @TechAbstract,
-        @PublicAbstract,
-        @RelatedAwardCode,
-        @RelationshipType,
-        @ORCID,
-        @OtherResearcherID,
-        @OtherResearcherIDType,
-        @InternalUseOnly)
-        SET
-        AwardCode = nullif(@AwardCode,''),
-        AwardStartDate = STR_TO_DATE(@AwardStartDate, '%c/%e/%Y'),
-        AwardEndDate = STR_TO_DATE(@AwardEndDate, '%c/%e/%Y'),
-        AltId = nullif(@AltId,''),
-        AwardTitle = nullif(@AwardTitle,''),
-        Category = nullif(@Category,''),
-        AwardType = nullif(@AwardType,''),
-        Childhood = nullif(@Childhood,''),
-        BudgetStartDate = STR_TO_DATE(@BudgetStartDate, '%c/%e/%Y'),
-        BudgetEndDate = STR_TO_DATE(@BudgetEndDate, '%c/%e/%Y'),
-        CSOCodes = nullif(@CSOCodes,''),
-        CSORel = nullif(@CSORel,''),
-        SiteCodes = nullif(@SiteCodes,''),
-        SiteRel = nullif(@SiteRel,''),
-        AwardFunding = nullif(@AwardFunding,''),
-        IsAnnualized = nullif(@IsAnnualized,''),
-        FundingMechanismCode = nullif(@FundingMechanismCode,''),
-        FundingMechanism = nullif(@FundingMechanism,''),
-        FundingOrgAbbr = nullif(@FundingOrgAbbr,''),
-        FundingDiv = nullif(@FundingDiv,''),
-        FundingDivAbbr = nullif(@FundingDivAbbr,''),
-        FundingContact = nullif(@FundingContact,''),
-        PILastName = nullif(@PILastName,''),
-        PIFirstName = nullif(@PIFirstName,''),
-        SubmittedInstitution = nullif(@SubmittedInstitution,''),
-        City = nullif(@City,''),
-        State = nullif(@State,''),
-        Country = nullif(@Country,''),
-        PostalZipCode = nullif(@PostalZipCode,''),
-        InstitutionICRP = nullif(@InstitutionICRP,''),
-        Longitute = nullif(@Longitute,''),
-        GRID = nullif(@GRID,''),
-        TechAbstract = nullif(@TechAbstract,''),
-        PublicAbstract = nullif(@PublicAbstract,''),
-        RelatedAwardCode = nullif(@RelatedAwardCode,''),
-        RelationshipType = nullif(@RelationshipType,''),
-        ORCID = nullif(@ORCID,''),
-        OtherResearcherID = nullif(@OtherResearcherID,''),
-        OtherResearcherIDType = nullif(@OtherResearcherIDType,''),
-        InternalUseOnly = nullif(@InternalUseOnly,'')");
+        $fileName = '';
+        $response = '';
+        foreach($request->files as $uploadedFile) {
+            $fileName = $uploadedFile->getClientOriginalName();
+            $file = $uploadedFile->move($uploaddir, $fileName);
+            chdir($uploaddir);
+            $from = $uploaddir . $fileName;
+            $to = $uploaddir . $fileName . '.utf8';
+            exec('iconv -f UTF-16 -t UTF-8 ' . $from . ' -o ' . $to . '; rm ' . $from . '; mv ' . $to . ' ' .$from . ';');
+            // exec("sed -i 's/\r/|\r/g' " . $from);
+        }
         
-        $rowCount = $conn->query("SELECT COUNT(*) FROM wb")->fetchColumn();
-        $stmt = $conn->prepare("SELECT * FROM wb ORDER BY InternalId limit 25");
-        $stmt->execute();
-        $projects = $stmt->fetchAll();
-        $stmt = null;
-        $conn = null;
+        $response = 'OK';
         
-        $response=array('rowCount' => $rowCount, 'projects' => $projects);
+        try
+        {
+            $conn = self::getConnection();
+            $conn->exec("Truncate wb; ALTER TABLE wb AUTO_INCREMENT = 1; LOAD DATA LOCAL INFILE '" . $uploaddir . $fileName . "' INTO TABLE wb FIELDS TERMINATED BY '|' LINES TERMINATED BY '\r\n' IGNORE 1 LINES
+            (@AwardCode,
+            @AwardStartDate,
+            @AwardEndDate,
+            @SourceId,
+            @AltId,
+            @AwardTitle,
+            @Category,
+            @AwardType,
+            @Childhood,
+            @BudgetStartDate,
+            @BudgetEndDate,
+            @CSOCodes,
+            @CSORel,
+            @SiteCodes,
+            @SiteRel,
+            @AwardFunding,
+            @IsAnnualized,
+            @FundingMechanismCode,
+            @FundingMechanism,
+            @FundingOrgAbbr,
+            @FundingDiv,
+            @FundingDivAbbr,
+            @FundingContact,
+            @PILastName,
+            @PIFirstName,
+            @SubmittedInstitution,
+            @City,
+            @State,
+            @Country,
+            @PostalZipCode,
+            @InstitutionICRP,
+            @Latitute,
+            @Longitute,
+            @GRID,
+            @TechAbstract,
+            @PublicAbstract,
+            @RelatedAwardCode,
+            @RelationshipType,
+            @ORCID,
+            @OtherResearcherID,
+            @OtherResearcherIDType,
+            @InternalUseOnly)
+            SET
+            AwardCode = nullif(@AwardCode,''),
+            AwardStartDate = STR_TO_DATE(@AwardStartDate, '%c/%e/%Y'),
+            AwardEndDate = STR_TO_DATE(@AwardEndDate, '%c/%e/%Y'),
+            AltId = nullif(@AltId,''),
+            AwardTitle = nullif(@AwardTitle,''),
+            Category = nullif(@Category,''),
+            AwardType = nullif(@AwardType,''),
+            Childhood = nullif(@Childhood,''),
+            BudgetStartDate = STR_TO_DATE(@BudgetStartDate, '%c/%e/%Y'),
+            BudgetEndDate = STR_TO_DATE(@BudgetEndDate, '%c/%e/%Y'),
+            CSOCodes = nullif(@CSOCodes,''),
+            CSORel = nullif(@CSORel,''),
+            SiteCodes = nullif(@SiteCodes,''),
+            SiteRel = nullif(@SiteRel,''),
+            AwardFunding = nullif(@AwardFunding,''),
+            IsAnnualized = nullif(@IsAnnualized,''),
+            FundingMechanismCode = nullif(@FundingMechanismCode,''),
+            FundingMechanism = nullif(@FundingMechanism,''),
+            FundingOrgAbbr = nullif(@FundingOrgAbbr,''),
+            FundingDiv = nullif(@FundingDiv,''),
+            FundingDivAbbr = nullif(@FundingDivAbbr,''),
+            FundingContact = nullif(@FundingContact,''),
+            PILastName = nullif(@PILastName,''),
+            PIFirstName = nullif(@PIFirstName,''),
+            SubmittedInstitution = nullif(@SubmittedInstitution,''),
+            City = nullif(@City,''),
+            State = nullif(@State,''),
+            Country = nullif(@Country,''),
+            PostalZipCode = nullif(@PostalZipCode,''),
+            InstitutionICRP = nullif(@InstitutionICRP,''),
+            Longitute = nullif(@Longitute,''),
+            GRID = nullif(@GRID,''),
+            TechAbstract = nullif(@TechAbstract,''),
+            PublicAbstract = nullif(@PublicAbstract,''),
+            RelatedAwardCode = nullif(@RelatedAwardCode,''),
+            RelationshipType = nullif(@RelationshipType,''),
+            ORCID = nullif(@ORCID,''),
+            OtherResearcherID = nullif(@OtherResearcherID,''),
+            OtherResearcherIDType = nullif(@OtherResearcherIDType,''),
+            InternalUseOnly = nullif(@InternalUseOnly,'')");
+            
+            $rowCount = $conn->query("SELECT COUNT(*) FROM wb")->fetchColumn();
+            $stmt = $conn->prepare("SELECT * FROM wb ORDER BY InternalId limit 25");
+            $stmt->execute();
+            $projects = $stmt->fetchAll();
+            $stmt = null;
+            $conn = null;
+            
+            $response=array('rowCount' => $rowCount, 'projects' => $projects);
+            
+        }
+        catch(PDOException $e)
+        {
+            $response = $e->getMessage();
+        }
+        return self::addCorsHeaders(new JsonResponse($response));
+    }
+
+    public function export(Request $request) {
+        return self::addCorsHeaders(new JsonResponse("sample response"));
         
     }
-    catch(PDOException $e)
-    {
-        $response = $e->getMessage();
-    }
-    return self::addCorsHeaders(new JsonResponse($response));
-}
 
 public function ping() {
     

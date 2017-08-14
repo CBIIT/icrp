@@ -83,3 +83,12 @@ dataload.ping:
     _access: 'TRUE'
     _role: 'authenticated+admin'    
     _role: 'authenticated+manager'
+
+dataload.export:
+  path: '/DataUploadTool/export'
+  defaults:
+    _controller: 'Drupal\data_load\Controller\DataLoadController::export'
+  requirements:
+    _access: 'TRUE'
+    _role: 'authenticated+admin'    
+    _role: 'authenticated+manager'
