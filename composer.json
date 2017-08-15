@@ -9,7 +9,8 @@
         "maennchen/zipstream-php": "^0.4.1",
         "phpmailer/phpmailer": "~5.2",
         "phpoffice/phpexcel": "~1.8.1",
-        "box/spout": "^2.7.2"
+        "box/spout": "^2.7.2",
+        "elasticsearch/elasticsearch": "~5.0"
     },
     "replace": {
         "drupal/core": "~8.3"
