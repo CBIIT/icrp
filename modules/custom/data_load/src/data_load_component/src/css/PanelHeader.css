@@ -7,6 +7,11 @@
     padding: 8px;
 }
 
+.component-panel-header-disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
 
 .component-panel-title {
     font-weight: 500;

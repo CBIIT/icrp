@@ -116,12 +116,12 @@ class NewTableComponent extends Component {
                 </div>
                                 
                 <ReactDataGrid
-                    className="noscroll"
                     onGridSort={this.handleGridSort}
                     columns={columns}
                     rowGetter={this.rowGetter}
                     rowsCount={rowCount} 
-                    minHeight={950} />  
+                    minHeight={rowCount > 25 ? 20 + (25 * 35) : 20 + ((rowCount + 1) * 35)}
+                    />  
                
             </div >
         );

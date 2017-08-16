@@ -184,7 +184,7 @@ class UploadFormComponent extends Component {
                                 <Col xs={12} sm={8}>
                                     <Radio name="uploadType" inline value="new" onChange={this.handleInputChange} checked={this.state.uploadType === 'new'} disabled={this.state.controlsDisabled}>New</Radio>
                                     {' '}
-                                    <Radio name="uploadType" inline value="update" onChange={this.handleInputChange} checked={this.state.uploadType === 'update'} disabled={this.state.controlsDisabled}>Update</Radio>
+                                    <Radio name="uploadType" inline value="update" onChange={this.handleInputChange} checked={this.state.uploadType === 'update'} disabled={true /*this.state.controlsDisabled*/}>Update</Radio>
                                 </Col>
                             </FormGroup>
 
@@ -201,8 +201,9 @@ class UploadFormComponent extends Component {
                                         componentClass="select" 
                                         value={this.state.sponsorCode} 
                                         onChange={this.handleInputChange}
-                                        disabled={this.state.controlsDisabled}> 
-                                        <option value="" hidden>Select a sponsor code</option>
+                                        disabled={this.state.controlsDisabled}
+                                        required> 
+                                        <option value="" disabled hidden>Select a sponsor code</option>
                                         {
                                             this.state.sponsorCodes.map(code => <option value={code}>{code}</option>)
                                         }

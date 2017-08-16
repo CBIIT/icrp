@@ -8,6 +8,7 @@ import NavigationComponent from './components/NavigationComponent';
 import ValidationConfiguratorComponent from './components/ValidationConfiguratorComponent';
 import ValidationSummaryComponent from './components/ValidationSummaryComponent';
 import NewTableComponent from './components/NewTableComponent';
+import Spinner from './components/SpinnerComponent';
 
 import 'react-datepicker/dist/react-datepicker.css';
 import './App.css';
@@ -32,13 +33,16 @@ class App extends Component {
       validationRules: [],
       uploadType: 'new',
       sponsorCode: '',
-      openSummary: true,
-      openDetails: true,
+      openSummary: false,
+      openDetails: false,
+      openSummaryDisabled: true,
+      openDetailsDisabled: true,
+      
       exportDisabled: true,
       fileName: '',
       loadingExport: false,
-      
     }
+
     this.handleFileUpload = this.handleFileUpload.bind(this);
     this.handleDataTableChange = this.handleDataTableChange.bind(this);
     this.handleLoadingStateChange = this.handleLoadingStateChange.bind(this);
@@ -66,8 +70,10 @@ class App extends Component {
       validationRules: [],
       uploadType: 'new',
       sponsorCode: '',
-      openSummary: true,
-      openDetails: true,
+      openSummary: false,
+      openDetails: false,
+      openSummaryDisabled: true,
+      openDetailsDisabled: true,
       exportDisabled: true,
       fileName: '',
       loadingExport: false,
@@ -100,11 +106,14 @@ class App extends Component {
 
       if (resultId && result.validationResult === 'Failed' && validationRule.checked & validationRule.active) {
         tab3Disabled = true;
+        this.setState({
+          exportDisabled: false
+        })
         break;
       }
     }
 
-    this.setState({ validationResults: results, validationRules: validationRules, tab3Disabled: tab3Disabled, openSummary: true, openDetails: true, exportDisabled: false });
+    this.setState({ validationResults: results, validationRules: validationRules, tab3Disabled: tab3Disabled, openSummary: true, openDetails: true,  openSummaryDisabled: false, openDetailsDisabled: false});
   }
 
   handleSummaryCollapseToggle() {
@@ -163,15 +172,33 @@ class App extends Component {
     const homeLocation = window.location.protocol + '//' + window.location.host;
     return (
       <div>
+        <Spinner message="Generating Export..." visible={this.state.loadingExport} />
+
         <Tabs activeKey={this.state.tabKey} onSelect={this.handleTabSelect} id="uncontrolled-tabs">
           <Tab eventKey={1} title="Load Workbook">
             <div className="tab-container">
-              <UploadFormComponent onFileUploadSuccess={this.handleFileUpload} onLoadingStart={this.handleLoadingStateChange} onReset={this.reset} />
-              <NewTableComponent visible={this.state.showDataTable} stats={this.state.stats} page={this.state.page}
-                sortColumn={this.state.sortColumn} sortDirection={this.state.sortDirection}
-                columns={this.state.columns} projects={this.state.projects} onChange={this.handleDataTableChange} />
+              <UploadFormComponent 
+                onFileUploadSuccess={this.handleFileUpload} 
+                onLoadingStart={this.handleLoadingStateChange} 
+                onReset={this.reset} />
+              
+              <NewTableComponent 
+                visible={this.state.showDataTable} 
+                stats={this.state.stats} 
+                page={this.state.page}
+                sortColumn={this.state.sortColumn} 
+                sortDirection={this.state.sortDirection}
+                columns={this.state.columns} 
+                projects={this.state.projects} 
+                onChange={this.handleDataTableChange} />
 
-              <NavigationComponent hasBackButton={false} hasNextButton={true} nextDisabled={this.state.tab2Disabled} clickHandler={this.handleTabSelect} thisTabId={1} cancelUrl={homeLocation} />
+              <NavigationComponent 
+                hasBackButton={false} 
+                hasNextButton={true} 
+                nextDisabled={this.state.tab2Disabled} 
+                clickHandler={this.handleTabSelect} 
+                thisTabId={1} 
+                cancelUrl={homeLocation} />
 
             </div>
           </Tab>
@@ -182,9 +209,6 @@ class App extends Component {
                 onLoadingStart={this.handleLoadingStateChange} 
                 uploadType={this.state.uploadType} 
                 sponsorCode={this.state.sponsorCode} 
-                exportDisabled={this.state.exportDisabled}
-                onExport={this.handleExport}  
-                loadingExport={this.state.loadingExport}
               />
 
               <ValidationSummaryComponent
@@ -193,10 +217,27 @@ class App extends Component {
                 sponsorCode={this.state.sponsorCode}
                 openSummary={this.state.openSummary}
                 openDetails={this.state.openDetails}
-                summaryToggleHandler={this.handleSummaryCollapseToggle}
-                detailsToggleHandler={this.handleDetailsCollapseToggle} />
+                openSummaryDisabled={this.state.openSummaryDisabled}
+                openDetailsDisabled={this.state.openDetailsDisabled}
 
-              <NavigationComponent hasBackButton={true} hasNextButton={true} nextDisabled={this.state.tab3Disabled} clickHandler={this.handleTabSelect} thisTabId={2} cancelUrl={homeLocation} />
+                summaryToggleHandler={this.handleSummaryCollapseToggle}
+                detailsToggleHandler={this.handleDetailsCollapseToggle} 
+
+                exportDisabled={this.state.exportDisabled}
+                onExport={this.handleExport}  
+                loadingExport={this.state.loadingExport}
+                
+                
+                
+                />
+
+              <NavigationComponent 
+                hasBackButton={true} 
+                hasNextButton={true} 
+                nextDisabled={this.state.tab3Disabled} 
+                clickHandler={this.handleTabSelect} 
+                thisTabId={2} 
+                cancelUrl={homeLocation} />
 
             </div>
           </Tab>

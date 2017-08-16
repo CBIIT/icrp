@@ -91,23 +91,35 @@ class ValidationSummaryComponent extends Component {
                     onClick={this.props.summaryToggleHandler}
                     title="Data Integrity Check Summary"
                     isOpen={this.props.openSummary}
+                    isActive={!this.props.openSummaryDisabled}
                 />
                 <Collapse in={this.props.openSummary}>
-                    <ListGroup>
-                        {validationSummary}
-                    </ListGroup>
+                    <div className="validation-summary-panel">
+                        <ListGroup>
+                            {validationSummary}
+                        </ListGroup>
+                    </div>
                 </Collapse>
 
                 <PanelHeader
                     onClick={this.props.detailsToggleHandler}
                     title="Data Integrity Check Results"
                     isOpen={this.props.openDetails}
-                    
+                    isActive={!this.props.openDetailsDisabled}
                 />
+               
                 <Collapse in={this.props.openDetails}>
-                    <ListGroup>
-                        {validationResults}
-                    </ListGroup>
+                    <div className="validation-summary-panel" style={{position: 'relative'}}>
+                        <Button 
+                            className="responsive-pull-right"
+                            onClick={this.props.onExport} 
+                            disabled={this.props.exportDisabled}>
+                            Export Error Records
+                        </Button>                 
+                        <ListGroup style={{position: 'relative'}}>
+                            {validationResults}
+                        </ListGroup>
+                    </div>
                 </Collapse>
 
                 <Modal show={this.state.showModal} onHide={this.closeModal} bsSize="large">

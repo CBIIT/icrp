@@ -42,7 +42,7 @@ class ValidationCategory extends Component {
         });
 
         return (
-            <div className="panel panel-default category-panel">
+            <div className="panel panel-default category-panel" {...this.props}>
                 <div className="panel-heading">
                     {header}
                 </div>
@@ -171,26 +171,48 @@ class ValidationConfiguratorComponent extends Component {
             <div>
                 <PanelHeader onClick={() => this.setState({ open: !this.state.open })} title="Validation Rules" isOpen={this.state.open} />
                 <Spinner message="Performing Check..." visible={this.state.loading} />
-                <Spinner message="Generating Export..." visible={this.props.loadingExport} />
-
                 <Collapse in={this.state.open}>
                     <Panel>
 
                         <div className="flex-stretch">
-                            <div>
-                                <ValidationCategory validationCategory={generalCategory} onCheck={this.toggleCheck} />
-                                <ValidationCategory validationCategory={institutionCategory} onCheck={this.toggleCheck} />
+                            <div className="panel-flex">
+                                <ValidationCategory 
+                                    validationCategory={generalCategory} 
+                                    onCheck={this.toggleCheck} 
+                                />
+                                <ValidationCategory 
+                                    validationCategory={institutionCategory} 
+                                    onCheck={this.toggleCheck} 
+                                />
                             </div>
-                            <ValidationCategory validationCategory={awardCategory} onCheck={this.toggleCheck} />
-                            <ValidationCategory validationCategory={cancerTypeCategory} onCheck={this.toggleCheck} />
-                            <div style={{'margin-bottom': '21px', 'display': 'flex'}}>
-                                <ValidationCategory validationCategory={csoCategory} onCheck={this.toggleCheck} />
+
+                            <div className="panel-flex">
+                                <ValidationCategory 
+                                    className="panel panel-default category-panel max-height"
+                                    validationCategory={awardCategory} 
+                                    onCheck={this.toggleCheck}
+                                 />
+                            </div>
+
+                            <div className="panel-flex">
+                                <ValidationCategory 
+                                    className="panel panel-default category-panel max-height"
+                                    validationCategory={cancerTypeCategory} 
+                                    onCheck={this.toggleCheck}
+                                 />
+                            </div>
+
+                            <div className="panel-flex">
+                                <ValidationCategory 
+                                    className="panel panel-default category-panel max-height"
+                                    validationCategory={csoCategory} 
+                                    onCheck={this.toggleCheck}
+                                 />
                             </div>
 
                         </div>
                         <div className="text-center padding-top">
                             <Button onClick={this.checkIntegrity}>Perform Check</Button>
-                            <Button onClick={this.props.onExport} disabled={this.props.exportDisabled} style={{'margin-left': '10px'}}>Export Results</Button>                            
                         </div>
                     </Panel>
                 </Collapse>
