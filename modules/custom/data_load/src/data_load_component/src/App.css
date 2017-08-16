@@ -181,7 +181,7 @@
 }
 
 .list-group-item {
-  border: none;
+  border: none !important;
 }
 
 select:required:invalid {
