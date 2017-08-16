@@ -16,7 +16,7 @@ echo "cd $DOC_ROOT"
 cd $DOC_ROOT
 #Download shell
 echo "**"
-echo "* Upgrade to 8.3.6"
+echo "* Upgrade to 8.3.7"
 echo "**"
 git clone https://github.com/genesis55/myproject.git
 cd myproject
@@ -36,10 +36,10 @@ composer update
 drush updatedb -y
 drush cr 
 echo "**"
-echo "* Upgrade to Drupal 8.3.6 completed"
+echo "* Upgrade to Drupal 8.3.7 completed"
 echo "**"
 echo "**"
-echo "* NEXT: Run update_icrp_8.3.6_modules.sh"
+echo "* NEXT: Run remove_layout_plugin.sh"
 echo "**"
 
 

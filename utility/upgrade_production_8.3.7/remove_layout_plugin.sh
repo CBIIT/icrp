@@ -1,5 +1,5 @@
 #
-# Upgrade to Drupal 8.3.6 Website from Scratch.
+# Upgrade to Drupal 8.3.7
 #
 
 if [ "$1" = "" ]

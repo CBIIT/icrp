@@ -55,16 +55,21 @@ composer create-project drupal-composer/drupal-project:8.x-dev $DOC_ROOT --stabi
 
 cd $DOC_ROOT
 #Download shell
-echo "**"
-echo "* Create 8.2.7 site"
-echo "**"
-git clone https://github.com/genesis55/myproject.git
-cd myproject
-git checkout tags/d8.2.7
+#echo "**"
+#echo "* Create 8.2.7 site"
+#echo "**"
+#git clone https://github.com/genesis55/myproject.git
+#cd myproject
+#git checkout tags/d8.2.7
 
-cd ..
-cp myproject/composer.json .
-rm -rf myproject
+#cd ..
+#cp myproject/composer.json .
+#rm -rf myproject
+echo "**"
+echo "* Copy composer.json.8.2.7 and run composer update "
+echo "**"
+cp ../icrp/utility/upgrade_production_8.3.7/composer/composer.json.8.2.7 ./composer.json
+
 echo "You should have your composer.json"
 
 # Run composer update

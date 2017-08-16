@@ -1,6 +1,5 @@
 #
-# Upgrade to Drupal 8.3.6 Website from Scratch.
-#
+# Upgrade to Drupal 8.3.7#
 timestamp() {
   date +"%T"
 }
@@ -39,7 +38,7 @@ composer update
 drush updatedb -y
 drush cr 
 echo "**"
-echo "* You have successfully upgraded ICRP 1.2 to Drupal 8.3.6 - Congratulations!"
+echo "* You have successfully upgraded ICRP 1.2 to Drupal 8.3.7 - Congratulations!"
 echo "**"
 echo "**"
 echo "* NEXT: Test your new site"
