@@ -20,19 +20,20 @@ cd $DOC_ROOT
 echo "**"
 echo "* Modules that need to be upgraded after Layout Discovery is enabled."
 echo "**"
-git clone https://github.com/genesis55/myproject.git
-cd myproject
-git checkout tags/d8.3.6v5
+#git clone https://github.com/genesis55/myproject.git
+#cd myproject
+#git checkout tags/d8.3.6v5
 
-cd ..
-cp myproject/composer.json .
-rm -rf myproject
-echo "You should have your composer.json"
+#cd ..
+#cp myproject/composer.json .
+#rm -rf myproject
+#echo "You should have your composer.json"
 
 # Run composer update
 echo "**"
 echo "* composer update drupal/core --with-dependencies"
 echo "**"
+cp ../icrp/utility/upgrade_production_8.3.7/composer/composer.json.final ./composer.json
 composer update
 # drupal/core  --with-dependencies
 drush updatedb -y

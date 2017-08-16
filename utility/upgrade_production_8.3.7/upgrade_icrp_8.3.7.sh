@@ -18,19 +18,20 @@ cd $DOC_ROOT
 echo "**"
 echo "* Upgrade to 8.3.7"
 echo "**"
-git clone https://github.com/genesis55/myproject.git
-cd myproject
-git checkout tags/d8.3.6v4
+#git clone https://github.com/genesis55/myproject.git
+#cd myproject
+#git checkout tags/d8.3.6v4
 
-cd ..
-cp myproject/composer.json .
-rm -rf myproject
-echo "You should have your composer.json"
+#cd ..
+#cp myproject/composer.json .
+#rm -rf myproject
+#echo "You should have your composer.json"
 
 # Run composer update
 echo "**"
 echo "* composer update drupal/core --with-dependencies"
 echo "**"
+cp ../icrp/utility/upgrade_production_8.3.7/composer/composer.json.8.3.7 ./composer.json
 composer update
 # drupal/core  --with-dependencies
 drush updatedb -y
