@@ -16,11 +16,12 @@ echo "cd $DOC_ROOT"
 cd $DOC_ROOT
 #Download shell
 echo "**"
-echo "* Upgarde to 8.3.6"
+echo "* Upgrade to 8.3.6"
 echo "**"
 git clone https://github.com/genesis55/myproject.git
 cd myproject
-git checkout tags/d8.3.6v2
+git checkout tags/d8.3.6v4
+
 cd ..
 cp myproject/composer.json .
 rm -rf myproject
@@ -30,7 +31,9 @@ echo "You should have your composer.json"
 echo "**"
 echo "* composer update drupal/core --with-dependencies"
 echo "**"
-composer update drupal/core  --with-dependencies
+composer update
+# drupal/core  --with-dependencies
+drush updatedb -y
 drush cr 
 echo "**"
 echo "* Upgrade to Drupal 8.3.6 completed"

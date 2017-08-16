@@ -24,10 +24,10 @@ SETTINGS_PHP_PATH=$5
 # Clear cache - causing problems.  Needed sudo to remove root files.
 
 echo "**"
-echo "* Clear cache files causing problems."
+echo "* Clear cache files (without this it was causing problems.)"
 echo "**"
 echo "composer clear-cache"
-#composer clear-cache
+composer clear-cache
 
 #ls -latr ~/.composer/cache/files/doctrine/orm
 #ls -latr ~/.composer/cache/files//incenteev/composer-parameter-handler
@@ -35,7 +35,7 @@ echo "composer clear-cache"
 #sudo rm -f ~/.composer/cache/files//doctrine/orm/*
 #sudo rm -f ~/.composer/cache/files//incenteev/composer-parameter-handler/*
 #sudo rm -f ~/.composer/cache/files//jdorn/sql-formatter/*
-sudo rm -rf ~/.composer/cache/files/*
+#sudo rm -rf ~/.composer/cache/files/*
 
 #rm all files
 echo "**"
@@ -106,6 +106,8 @@ cp $SETTINGS_PHP_PATH/settings.php ../default/
 echo "**"
 echo "* Import database"
 echo "**"
+mysqladmin -u$DB_USER -p$DB_PASS -f drop $DB_NAME
+mysqladmin -u$DB_USER -p$DB_PASS create $DB_NAME
 mysql -u$DB_USER -p$DB_PASS $DB_NAME < icrp.sql
 drush cr
 echo "**"
