@@ -24,7 +24,7 @@ class ValidationItem extends Component {
     render() {
         return (
             <Checkbox name={this.props.item.id} defaultChecked={this.props.item.checked} disabled={this.props.item.required} onChange={this.onChange}>
-                <div className="nowrap">{this.props.item.name}</div>
+                <div className="nowrap" style={{color: this.props.item.required ? 'grey' : 'black'}}>{this.props.item.name}</div>
             </Checkbox>
         );
     }
