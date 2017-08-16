@@ -1,0 +1,98 @@
+{
+    "name": "drupal-composer/drupal-project",
+    "description": "Project template for Drupal 8 projects with composer",
+    "type": "project",
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "",
+            "role": ""
+        }
+    ],
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        }
+    ],
+    "require": {
+        "composer/installers": "^1.2",
+        "cweagans/composer-patches": "^1.6",
+        "drupal-composer/drupal-scaffold": "^2.2",
+        "drupal/admin_toolbar": "1.19",
+        "drupal/autologout": "1.0",
+        "drupal/calendar": "1.x-dev",
+        "drupal/console": "~1.0",
+        "drupal/content_access": "1.x-dev",
+        "drupal/core": "8.3.6",
+        "drupal/crop": "1.2",
+        "drupal/ctools": "3.0",
+        "drupal/devel": "~1.0",
+        "drupal/email_registration": "1.0-rc5@RC",
+        "drupal/embed": "1.0",
+        "drupal/examples": "1.x-dev",
+        "drupal/field_permissions": "1.0-beta2@beta",
+        "drupal/honeypot": "1.27",
+        "drupal/metatag": "1.2",
+        "drupal/page_manager": "4.0-beta2@beta",
+        "drupal/panelizer": "4.0",
+        "drupal/panels": "4.2",
+        "drupal/pathauto": "1.0",
+        "drupal/snippet_manager": "1.0-rc7@RC",
+        "drupal/twig_tweak": "1.8",
+        "drupal/views_bootstrap": "3.x-dev",
+        "drupal/webform": "5.0-beta16@beta",
+        "drupal/webform_views": "5.0-alpha2@alpha",
+        "drush/drush": "~8.0",
+        "webflo/drupal-finder": "^0|^1.0.0",
+        "webmozart/path-util": "^2.3"
+    },
+    "require-dev": {
+        "drupal/devel": "~1.0",
+        "behat/mink": "~1.7",
+        "behat/mink-goutte-driver": "~1.2",
+        "jcalderonzumba/gastonjs": "~1.0.2",
+        "jcalderonzumba/mink-phantomjs-driver": "~0.3.1",
+        "mikey179/vfsstream": "~1.2",
+        "phpunit/phpunit": ">=4.8.28 <5",
+        "symfony/css-selector": "~2.8"
+    },
+    "conflict": {
+        "drupal/drupal": "*"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+      "sort-packages": true
+    },
+    "autoload": {
+        "classmap": [
+            "scripts/composer/ScriptHandler.php"
+        ]
+    },
+    "scripts": {
+        "drupal-scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
+        "pre-install-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
+        ],
+        "pre-update-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
+        ],
+        "post-install-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ],
+        "post-update-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ]
+    },
+    "extra": {
+        "installer-paths": {
+            "core": ["type:drupal-core"],
+            "libraries/{$name}": ["type:drupal-library"],
+            "modules/{$name}": ["type:drupal-module"],
+            "profiles/{$name}": ["type:drupal-profile"],
+            "themes/{$name}": ["type:drupal-theme"],
+            "drush/{$name}": ["type:drupal-drush"]
+        }
+    }
+}

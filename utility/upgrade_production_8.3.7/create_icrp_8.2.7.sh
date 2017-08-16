@@ -1,3 +1,6 @@
+rm -rf icrp
+git clone https://github.com/CBIIT/icrp.git
+
 #
 # Creates a Drupal 8.2.7 Website from Scratch.
 #
