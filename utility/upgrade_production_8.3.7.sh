@@ -1,3 +1,11 @@
+#!/bin/bash
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run as root" 
+   exit 1
+fi
+
+cd /local/drupal/icrp
+
 echo "*****************************************************************"
 echo " Upgrading ICRP 1.2 on Drupal 8.2.7 to ICRP 1.2 on Drupal 8.3.7 *"
 echo "*****************************************************************"
