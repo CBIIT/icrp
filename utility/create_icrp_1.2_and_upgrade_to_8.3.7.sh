@@ -12,6 +12,9 @@ then
   echo "**"
   exit
 fi
+DB_NAME=$1
+DB_USER=$2
+DB_PASS=$3 
 
 echo "*************************************"
 echo "* Create Drupal 8.2.7 with ICRP 1.2 *"
@@ -19,24 +22,19 @@ echo "*************************************"
 
 cd /local/drupal/
 rm -rf icrp/
+echo "tar xzf /home/centos/icrp-backups/icrp_1.2.tgz"
 tar xzf /home/centos/icrp-backups/icrp_1.2.tgz
 
-echo "*************************************"
-echo "* Create Drupal 8.2.7 with ICRP 1.2 *"
-echo "*************************************"
-cd /local/drupal/
-rm -rf icrp/
-tar xzf /home/centos/icrp-backups/icrp_1.2.tgz
+echo "********************************************************"
+echo "* Importing ICRP 1.2 database tags/icrp_1.2.0_20170718 *"
+echo "********************************************************"
 
 echo "**"
-echo "* The next command may need your github username and password"
 echo "* git clone https://<username>:<password>@github.com/CBIIT/icrp.git\n**"
 echo "**"
-rm -rf icrp
-cd /home/centos
+cd /tmp
+rm -rf icrp/
 git clone https://github.com/CBIIT/icrp.git
-#git clone https://<username>:<password>@github.com/CBIIT/icrp.git
-
 cd icrp
 echo "**"
 echo "* Switching to 1.2"
@@ -47,11 +45,14 @@ git checkout tags/icrp_1.2.0_20170718
 echo "**"
 echo "* Import database"
 echo "**"
-mysqladmin -u$DB_USER -p$DB_PASS -f drop $DB_NAME
-mysqladmin -u$DB_USER -p$DB_PASS create $DB_NAME
-mysql -u$DB_USER -p$DB_PASS $DB_NAME < icrp.sql
-
-git checkout master
+echo "DB_NAME: $DB_NAME"
+echo "DB_USER: $DB_USER"
+echo "DB_PASS: $DB_PASS"
+mysqladmin -u$DB_USER -p$DB_PASS -hlocalhost -f drop $DB_NAME
+mysqladmin -u$DB_USER -p$DB_PASS -hlocalhost create $DB_NAME
+mysql -u$DB_USER -p$DB_PASS -hlocalhost $DB_NAME  < icrp.sql
+cd ..
+rm -rf icrp/
 
 echo "**"
 echo "* Drupal 8.2.7 ICRP 1.2 is ready"
@@ -67,10 +68,13 @@ cd icrp/sites/default/sync
 mkdir config
 chmod -R 755 config
 
+cd /local/drupal/icrp
+drush cr
+
 echo "**"
 echo "* Run upgrade to Drupal 8.3.7 with ICPR 1.2 *"
 echo "**"
-
-/home/centos/icrp/utility/upgrade_produciton_8.3.7.sh
+exit
+#/home/centos/icrp/utility/upgrade_produciton_8.3.7.sh
 
 

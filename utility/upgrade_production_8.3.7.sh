@@ -21,6 +21,7 @@ echo "*"
 echo "* Updating to latest Drupal Core (8.3.7)"
 echo "*"
 drush -y up
+drush cr
 
 echo "*"
 echo "* Remove layout_plugin "
