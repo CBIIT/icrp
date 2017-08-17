@@ -23,7 +23,9 @@ class ValidationItem extends Component {
 
     render() {
         return (
-            <Checkbox name={this.props.item.id} defaultChecked={this.props.item.checked} disabled={this.props.item.required} onChange={this.onChange}>{this.props.item.name}</Checkbox>
+            <Checkbox name={this.props.item.id} defaultChecked={this.props.item.checked} disabled={this.props.item.required} onChange={this.onChange}>
+                <div className="nowrap" style={{color: this.props.item.required ? 'grey' : 'black'}}>{this.props.item.name}</div>
+            </Checkbox>
         );
     }
 }
@@ -40,7 +42,7 @@ class ValidationCategory extends Component {
         });
 
         return (
-            <div className="panel panel-default category-panel">
+            <div className="panel panel-default category-panel" {...this.props}>
                 <div className="panel-heading">
                     {header}
                 </div>
@@ -69,7 +71,7 @@ class ValidationConfiguratorComponent extends Component {
         let pathname = 'DataUploadTool/getValidationRuleDefinitions';
         if (hostname === 'localhost') {
             protocol = 'http:';
-            hostname = 'icrp-dataload';
+            //hostname = 'icrp-dataload';
         }
         this.setState({ loading: true });
         fetch(`${protocol}//${hostname}/${pathname}`, { method: 'GET', credentials: 'same-origin' })
@@ -114,7 +116,7 @@ class ValidationConfiguratorComponent extends Component {
         let pathname = 'DataUploadTool/integrity_check_mssql';
         if (hostname === 'localhost') {
             protocol = 'http:';
-            hostname = 'icrp-dataload';
+            //hostname = 'icrp-dataload';
         }
 
         let response = await fetch(`${protocol}//${hostname}/${pathname}`, { method: 'POST', body: data, credentials: 'same-origin' });
@@ -173,14 +175,40 @@ class ValidationConfiguratorComponent extends Component {
                     <Panel>
 
                         <div className="flex-stretch">
-                            <div>
-                                <ValidationCategory validationCategory={generalCategory} onCheck={this.toggleCheck} />
-                                <ValidationCategory validationCategory={institutionCategory} onCheck={this.toggleCheck} />
+                            <div className="panel-flex">
+                                <ValidationCategory 
+                                    validationCategory={generalCategory} 
+                                    onCheck={this.toggleCheck} 
+                                />
+                                <ValidationCategory 
+                                    validationCategory={institutionCategory} 
+                                    onCheck={this.toggleCheck} 
+                                />
                             </div>
-                            <ValidationCategory validationCategory={awardCategory} onCheck={this.toggleCheck} />
-                            <ValidationCategory validationCategory={cancerTypeCategory} onCheck={this.toggleCheck} />
-                            <ValidationCategory validationCategory={csoCategory} onCheck={this.toggleCheck} />
 
+                            <div className="panel-flex">
+                                <ValidationCategory 
+                                    className="panel panel-default category-panel max-height"
+                                    validationCategory={awardCategory} 
+                                    onCheck={this.toggleCheck}
+                                 />
+                            </div>
+
+                            <div className="panel-flex">
+                                <ValidationCategory 
+                                    className="panel panel-default category-panel max-height"
+                                    validationCategory={cancerTypeCategory} 
+                                    onCheck={this.toggleCheck}
+                                 />
+                            </div>
+
+                            <div className="panel-flex">
+                                <ValidationCategory 
+                                    className="panel panel-default category-panel max-height"
+                                    validationCategory={csoCategory} 
+                                    onCheck={this.toggleCheck}
+                                 />
+                            </div>
 
                         </div>
                         <div className="text-center padding-top">

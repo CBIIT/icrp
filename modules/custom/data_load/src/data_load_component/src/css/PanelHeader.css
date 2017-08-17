@@ -1,4 +1,4 @@
-.panel-header {
+.component-panel-header {
     display: flex;
     cursor: pointer;
     justify-content: space-between;
@@ -7,8 +7,13 @@
     padding: 8px;
 }
 
+.component-panel-header-disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+}
 
-.panel-title {
+
+.component-panel-title {
     font-weight: 500;
     font-size: 16px;
     color: steelblue;

@@ -29,12 +29,23 @@ class UploadFormComponent extends Component {
         this.handleReset = this.handleReset.bind(this);
         this.updateParent = this.updateParent.bind(this);
         this.resetParent = this.resetParent.bind(this);
-        this.state = { uploadType: 'new', sponsorCode: '', sponsorCodeValid: true, submissionDate: '', submissionDateValid: true, submitDisabled: true, loading: false }
+        this.state = {
+            uploadType: 'new', 
+            sponsorCodes: [], 
+            sponsorCode: '', 
+            sponsorCodeValid: true, 
+            submissionDate: '', 
+            submissionDateValid: true, 
+            submitDisabled: true, 
+            loading: false
+        }
+
+        this.getSponsorCodes();
     }
 
     /** Sends the response up to the parent */
     updateParent(stats, columns, projects) {
-        this.props.onFileUploadSuccess(stats, columns, projects, this.state.sponsorCode, this.state.uploadType);
+        this.props.onFileUploadSuccess(stats, columns, projects, this.state.sponsorCode, this.state.uploadType, this.state.originalFileName);
     }
 
     resetParent() {
@@ -46,6 +57,21 @@ class UploadFormComponent extends Component {
         await this.setState({ submissionDate: date });
         await this.validateInput('submissionDate');
         this.updateSubmissionEnabled();
+    }
+
+    async getSponsorCodes() {
+        let protocol = window.location.protocol;
+        let hostname = window.location.hostname;
+        let pathname = 'DataUploadTool/getSponsorCodes';
+        if (hostname === 'localhost') {
+            protocol = 'http:';
+            //hostname = 'icrp-dataload';
+        }
+        let response = await fetch(`${protocol}//${hostname}/${pathname}`, { method: 'GET', credentials: 'same-origin' });
+
+        this.setState({
+            sponsorCodes: await response.json()
+        });
     }
 
     /** Generic input change handler */
@@ -116,7 +142,7 @@ class UploadFormComponent extends Component {
         let pathname = 'DataUploadTool/loaddata_mssql';
         if (hostname === 'localhost') {
             protocol = 'http:';
-            hostname = 'icrp-dataload';
+            //hostname = 'icrp-dataload';
         }
         let response = await fetch(`${protocol}//${hostname}/${pathname}`, { method: 'POST', body: data, credentials: 'same-origin' });
 
@@ -158,7 +184,7 @@ class UploadFormComponent extends Component {
                                 <Col xs={12} sm={8}>
                                     <Radio name="uploadType" inline value="new" onChange={this.handleInputChange} checked={this.state.uploadType === 'new'} disabled={this.state.controlsDisabled}>New</Radio>
                                     {' '}
-                                    <Radio name="uploadType" inline value="update" onChange={this.handleInputChange} checked={this.state.uploadType === 'update'} disabled={this.state.controlsDisabled}>Update</Radio>
+                                    <Radio name="uploadType" inline value="update" onChange={this.handleInputChange} checked={this.state.uploadType === 'update'} disabled={true /*this.state.controlsDisabled*/}>Update</Radio>
                                 </Col>
                             </FormGroup>
 
@@ -168,8 +194,22 @@ class UploadFormComponent extends Component {
                                     <div className="no-wrap">Sponsor Code <span className="red-text">*</span></div>
                                 </Col>
                                 <Col xs={12} sm={8}>
-                                    <FormControl type="text" name="sponsorCode" placeholder="Enter sponsor code" value={this.state.sponsorCode} onChange={this.handleInputChange} disabled={this.state.controlsDisabled} />
-                                    {!this.state.sponsorCodeValid ? <HelpBlock>Sponsor Code is required and must be less than 25 characters</HelpBlock> : null}
+                                    {/* <FormControl type="text" name="sponsorCode" placeholder="Enter sponsor code" value={this.state.sponsorCode} onChange={this.handleInputChange}disabled={this.state.controlsDisabled} />  
+                                    */}
+                                    <FormControl 
+                                        name="sponsorCode"
+                                        componentClass="select" 
+                                        value={this.state.sponsorCode} 
+                                        onChange={this.handleInputChange}
+                                        disabled={this.state.controlsDisabled}
+                                        required> 
+                                        <option value="" disabled hidden>Select a sponsor code</option>
+                                        {
+                                            this.state.sponsorCodes.map(code => <option value={code}>{code}</option>)
+                                        }
+                                    </FormControl>
+                                    
+                                    {!this.state.sponsorCodeValid ? <HelpBlock>Sponsor Code is required.</HelpBlock> : null}
                                 </Col>
 
                             </FormGroup>

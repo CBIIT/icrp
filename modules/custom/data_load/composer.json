@@ -1,0 +1,6 @@
+{
+    "name": "icrp/data_load",
+    "require": {
+        "box/spout": "^2.7"
+    }
+}
