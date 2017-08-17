@@ -1818,7 +1818,6 @@ DECLARE @DataUploadReport TABLE
 	[Description] varchar(250),
 	[Count] INT
 )
-
 -------------------------------------------------------------------
 -- Workbook Summary
 -------------------------------------------------------------------
@@ -1836,34 +1835,50 @@ JOIN (SELECT o.FundingOrgID, p.* FROM Project p
 -- Get Project Funding record with parent category
 SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'
 
-DECLARE @TotalProjectFunding INT
 DECLARE @TotalAwardCodes INT
-DECLARE @TotalProjectsWithParentCategory INT
 DECLARE @TotalNewParentProjects INT
 DECLARE @ExistingParentProjects INT
 
-SELECT @TotalProjectFunding = COUNT(*) FROM UploadWorkBook
 SELECT @TotalAwardCodes = COUNT(*) FROM #awardCodes
-SELECT @TotalProjectsWithParentCategory = COUNT(*) FROM #parentProjects
-SELECT @ExistingParentProjects = COUNT(*) FROM #AwardCodes WHERE Type='Existing'
 SELECT @TotalNewParentProjects = COUNT(*) FROM #AwardCodes WHERE Type='New'
+SELECT @ExistingParentProjects = COUNT(*) FROM #AwardCodes WHERE Type='Existing'
 
-INSERT INTO @DataUploadReport VALUES (0, 'Summary', 'Total Base Projects (AwardCodes)',  @TotalAwardCodes)
-INSERT INTO @DataUploadReport VALUES (0, 'Summary', 'New Projects',  @TotalNewParentProjects)
-INSERT INTO @DataUploadReport VALUES (0, 'Summary', 'Existing Projects',  @ExistingParentProjects)
+INSERT INTO @DataUploadReport VALUES (0, 'Summary', 'Total Base Projects (Unique AwardCodes)',  @TotalAwardCodes)
+INSERT INTO @DataUploadReport VALUES (0, 'Summary', '------- New Base Projects',  @TotalNewParentProjects)
+INSERT INTO @DataUploadReport VALUES (0, 'Summary', '------- Existing Base Projects',  @ExistingParentProjects)
+
+DECLARE @TotalProjectFunding INT
+DECLARE @ProjectFundingForNew INT
+DECLARE @ProjectFundingForExisting INT
+DECLARE @TotalProjectsWithParentCategory INT
+
+SELECT @TotalProjectFunding = COUNT(*) FROM UploadWorkBook
+SELECT @ProjectFundingForNew = COUNT(*) FROM UploadWorkBook u JOIN #AwardCodes b ON u.AwardCode = b.AwardCode WHERE b.Type='New'
+SELECT @ProjectFundingForExisting = COUNT(*) FROM UploadWorkBook u JOIN #AwardCodes b ON u.AwardCode = b.AwardCode WHERE b.Type='Existing'
+SELECT @TotalProjectsWithParentCategory = COUNT(*) FROM #parentProjects
+
 INSERT INTO @DataUploadReport VALUES (0, 'Summary', 'Total Project Funding Records',  @TotalProjectFunding)
-INSERT INTO @DataUploadReport VALUES (0, 'Summary', 'New Awards Funding Records',  @TotalProjectFunding)
-INSERT INTO @DataUploadReport VALUES (0, 'Summary', 'Renewal Funding Records',  @TotalProjectFunding)
+INSERT INTO @DataUploadReport VALUES (0, 'Summary', '------- Funding Records for new Projects',  @ProjectFundingForNew)
+INSERT INTO @DataUploadReport VALUES (0, 'Summary', '------- Funding Records for existing projects',  @ProjectFundingForExisting)
 --INSERT INTO @DataUploadReport VALUES (0, 'Summary', 'New AwardCodes with Parent Category',  @TotalProjectsWithParentCategory)
 
 ------------------------------------------------------------------
 -- Check General rules
 -------------------------------------------------------------------
-INSERT INTO @DataUploadReport SELECT 1, 'Rule', 'Check Required Fields', 0
+DECLARE @RuleName VARCHAR(100)
+DECLARE @RuleID INT
+
+SET @RuleID= 1
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
+INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 ------------------------------------------------------------------
 -- Check if AltAwardCodes not unique (check both workbook and existing ProjectFunding)
 -------------------------------------------------------------------
+SET @RuleID= 11
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 DECLARE @DupAltID TABLE
 (
 	[Source] varchar(25),
@@ -1876,69 +1891,87 @@ INSERT INTO @DupAltID SELECT 'ICRP' AS Source, AltAwardCode, 1 FROM ProjectFundi
 JOIN UploadWorkBook u ON f.AltAwardCode = u.AltID
 
 IF EXISTS (SELECT * FROM @DupAltID)
-	INSERT INTO @DataUploadReport SELECT 11, 'Rule', 'Check Duplicate AltAwardCodes', COUNT(*) FROM @DupAltID
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM @DupAltID
 ELSE
-	INSERT INTO @DataUploadReport SELECT 11, 'Rule', 'Check Duplicate AltAwardCodes', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -------------------------------------------------------------------
 -- Check New AwardCodes without Parent project 
 -------------------------------------------------------------------
+SET @RuleID= 12
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 SELECT n.AwardCode INTO #newNoParent FROM 
 (SELECT * FROM #awardcodes where Type='New') n
 LEFT JOIN #parentProjects p ON n.AwardCode = p.AwardCode
 WHERE p.AwardCode IS NULL
 
 IF EXISTS (SELECT * FROM #newNoParent)
-	INSERT INTO @DataUploadReport SELECT 12, 'Rule', 'Check New AwardCodes without Parent project', COUNT(*) FROM #newNoParent
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #newNoParent
 ELSE
-	INSERT INTO @DataUploadReport SELECT 12, 'Rule', 'Check New AwardCodes without Parent project', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -------------------------------------------------------------------
 -- Check renewals imported as Parent 
 -------------------------------------------------------------------
+SET @RuleID= 13
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 SELECT 'Issue AwardCode Should NOT be Parent' AS Issue, p.* INTO #RenewalWithParent FROM 
 (SELECT * FROM #awardcodes where Type='Existing') n
 JOIN #parentProjects p ON n.AwardCode = p.AwardCode
 
 IF EXISTS (SELECT * FROM #RenewalWithParent)
-	INSERT INTO @DataUploadReport SELECT 13, 'Rule', 'Renewals imported as Parents', COUNT(*) FROM #RenewalWithParent
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #RenewalWithParent
 ELSE
-	INSERT INTO @DataUploadReport SELECT 13, 'Rule', 'Renewals imported as Parents', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -------------------------------------------------------------------
 -- Check BudgetDates
 -------------------------------------------------------------------
+SET @RuleID= 14
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 SELECT AwardCode, AltID, AwardStartDate, AwardEndDate, BudgetStartDate, BudgetEndDate, DATEDIFF(day, AwardStartDate, AwardEndDate) AS AwardDuration, 
 		DATEDIFF(day, BudgetStartDate, BudgetEndDate) AS BudgetDuration INTO #budgetDates FROM UploadWorkBook 		
 
 IF EXISTS (SELECT * FROM #budgetDates WHERE AwardDuration < 0 OR BudgetDuration < 0)
-	INSERT INTO @DataUploadReport SELECT 14, 'Rule', 'Check Incorrect Award or Budget Duration', COUNT(*) FROM #budgetDates WHERE AwardDuration < 0 OR BudgetDuration < 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #budgetDates WHERE AwardDuration < 0 OR BudgetDuration < 0
 ELSE
-	INSERT INTO @DataUploadReport SELECT 14, 'Rule', 'Check Incorrect Award or Budget Duration', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 	
 -------------------------------------------------------------------
 -- Check Funding Amount
 -------------------------------------------------------------------
+SET @RuleID= 15
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 SELECT AwardCode, AwardStartDate, AwardEndDate, BudgetStartDate, BudgetEndDate, AwardFunding INTO #fundingAmount FROM UploadWorkBook WHERE ISNULL(AwardFunding,0) < 0
 
 IF EXISTS (SELECT * FROM #fundingAmount WHERE ISNULL(AwardFunding,0) < 0)
-  INSERT INTO @DataUploadReport SELECT 15, 'Rule', 'Check Incorrect Funding Amounts', COUNT(*) FROM #fundingAmount WHERE ISNULL(AwardFunding,0) < 0
+  INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #fundingAmount WHERE ISNULL(AwardFunding,0) < 0
 ELSE
-	INSERT INTO @DataUploadReport SELECT 15, 'Rule', 'Check Incorrect Funding Amounts', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -------------------------------------------------------------------
 -- Rule -Check Annulized Value
 -------------------------------------------------------------------
+SET @RuleID= 16
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 SELECT IsAnnualized INTO #annu from UploadWorkBook where ISNULL(IsAnnualized,'') NOT IN ('Y','N')
 
 IF EXISTS (select * FROM #annu)
-	INSERT INTO @DataUploadReport SELECT 16, 'Rule', 'Check Annulized Value', COUNT(*) FROM #annu
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #annu
 ELSE
-	INSERT INTO @DataUploadReport SELECT 16, 'Rule', 'Check Annulized Value', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -------------------------------------------------------------------
 -- Rule -Check AwardType Value
 -------------------------------------------------------------------
+SET @RuleID= 17
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 IF object_id('tmp_awardtype') is NOT null
 	drop table tmp_awardtype
 
@@ -1980,10 +2013,10 @@ WHERE AwardType NOT IN ('R', 'C', 'T')
 
 IF EXISTS (select * FROM #invalidAwardType)
 BEGIN
-	INSERT INTO @DataUploadReport SELECT 17, 'Rule', 'Check Invalid Award Type', COUNT(*) FROM #invalidAwardType	
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #invalidAwardType	
 END
 ELSE
-	INSERT INTO @DataUploadReport SELECT 17, 'Rule', 'Check Invalid Award Type', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -------------------------------------------------------------------
 -- Rule 21 - Check CSO - Missing Codes/Relevance
@@ -1993,13 +2026,15 @@ ELSE
 -- Rule 25 - Check CSO - Historical Codes
 -- Rule 26 - Check CSO - Historical Codes
 -------------------------------------------------------------------
--- Rule 21 - Check CSO - Missing Codes/Relevance
+SET @RuleID= 21
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 SELECT csocodes, csorel INTO #cso from UploadWorkBook where ISNULL(csocodes,'')='' or ISNULL(csorel,'')=''
 
 IF EXISTS (select * from #cso)
-	INSERT INTO @DataUploadReport SELECT 21, 'Rule', 'Check CSO - Missing Codes/Relevance', COUNT(*) FROM #cso
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #cso
 ELSE
-	INSERT INTO @DataUploadReport SELECT 21, 'Rule', 'Check CSO - Missing Codes/Relevance', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -----------------------------------------------------------------
 -- Prepare CSO temp tables
@@ -2059,66 +2094,81 @@ UPDATE tmp_pcso SET cso = LTRIM(RTRIM(cso))
 -----------------------------------------------------------------
 -- Rule 22 - Check CSO - Invalid Codes
 -----------------------------------------------------------------
+SET @RuleID= 22
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 SELECT * INTO #invalidCSO FROM tmp_pcso c 
 	LEFT JOIN CSO cso ON c.cso = cso.Code
 WHERE cso.Code IS NULL
 
 IF EXISTS (select * FROM #invalidCSO)
 BEGIN
-	INSERT INTO @DataUploadReport SELECT 22, 'Rule', 'Check CSO - Invalid Codes', COUNT(*) FROM #invalidCSO	
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #invalidCSO	
 END
 ELSE
-	INSERT INTO @DataUploadReport SELECT 22, 'Rule', 'Check CSO - Invalid Codes', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -----------------------------------------------------------------
 -- Rule 23 - Check CSO - Not 100% Relevance
 -----------------------------------------------------------------
+SET @RuleID= 23
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 SELECT * INTO #Not100CSORel 
 FROM (SELECT AltAwardCode, SUM(Rel) AS TotalRel FROM tmp_pcsorel GROUP BY AltAwardCode) t 
 WHERE (TotalRel < 99.00) OR (TotalRel > 100.00)
 
 IF EXISTS (select * FROM #Not100CSORel)
 BEGIN
-	INSERT INTO @DataUploadReport SELECT 23, 'Rule', 'Check CSO - Not 100% Relevance', COUNT(*) FROM #Not100CSORel	
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #Not100CSORel	
 END
 ELSE
-	INSERT INTO @DataUploadReport SELECT 23, 'Rule', 'Check CSO - Not 100% Relevance', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -----------------------------------------------------------------
 -- Rule 24 - Check CSO - # of codes <> # of Rel		
 -----------------------------------------------------------------
+SET @RuleID= 24
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 SELECT c.*, r.Rel, r.Seq AS RelSeq INTO #csoNotMatch FROM tmp_pcso c
 FULL OUTER JOIN tmp_pcsorel r ON c.AltAwardCode = r.AltAwardCode AND c.Seq = r.Seq
 WHERE c.AltAwardCode IS NULL OR r.AltAwardCode IS NULL
 
 IF EXISTS (select * FROM #csoNotMatch)
 BEGIN
-	INSERT INTO @DataUploadReport SELECT 24, 'Rule', 'Check CSO - # of codes <> # of Rel', COUNT(*) FROM #csoNotMatch	
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #csoNotMatch	
 END
 ELSE
-	INSERT INTO @DataUploadReport SELECT 24, 'Rule', 'Check CSO - # of codes <> # of Rel', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 	
 -----------------------------------------------------------------	
 -- 25 Check Historical CSO Codes
 -----------------------------------------------------------------
+SET @RuleID= 25
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 SELECT t.* INTO #oldCSO FROM tmp_pcso t
 	JOIN CSO c ON t.CSO = c.Code 	
 WHERE c.IsActive <> 1
 
 IF EXISTS (select * FROM #oldCSO)
-	INSERT INTO @DataUploadReport SELECT 25, 'Rule', 'Check CSO - Historical Codes', COUNT(*) FROM #oldCSO
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #oldCSO
 ELSE
-	INSERT INTO @DataUploadReport SELECT 25, 'Rule', 'Check CSO - Historical Codes', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -----------------------------------------------------------------	
 -- 26 Check Duplicate CSO Codes
 -----------------------------------------------------------------
+SET @RuleID= 26
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 SELECT AltAwardCode, CSO INTO #dupCSO FROM tmp_pcso GROUP BY AltAwardCode, CSO Having Count(*) > 1
 
 IF EXISTS (select * FROM #dupCSO)
-	INSERT INTO @DataUploadReport SELECT 26, 'Rule', 'Check CSO - Duplicate CSO Codes', COUNT(*) FROM #dupCSO
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #dupCSO
 ELSE
-	INSERT INTO @DataUploadReport SELECT 26, 'Rule', 'Check CSO - Duplicate CSO Codes', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -------------------------------------------------------------------
 -- 	Rule 31 - 	Check CancerType - Missing Codes/Relevance
@@ -2127,14 +2177,15 @@ ELSE
 -- 	Rule 34 -	Check CancerType - # of codes <> # of Rel
 -- 	Rule 35 -	Check CancerType - Duplicate CancerType Codes
 -------------------------------------------------------------------
+SET @RuleID= 31
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
 
--- 	Rule 21 - 	Check CancerType - Missing Codes/Relevance
 SELECT sitecodes, siterel INTO #site from UploadWorkBook where ISNULL(sitecodes,'')='' or ISNULL(siterel,'')=''
 
 IF EXISTS (select * FROM #site)
-	INSERT INTO @DataUploadReport SELECT 31, 'Rule', 'Check CancerType - Missing Codes/Relevance', COUNT(*) FROM #site
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #site
 ELSE
-	INSERT INTO @DataUploadReport SELECT 31, 'Rule', 'Check CancerType - Missing Codes/Relevance', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -----------------------------------------------------------------
 -- Prepare CSO temp tables
@@ -2191,48 +2242,60 @@ UPDATE tmp_psite SET code = LTRIM(RTRIM(code))
 -----------------------------------------------------------------	
 -- 	Rule 32 - 	Check CancerType - Invalid Codes
 -----------------------------------------------------------------	
+SET @RuleID= 32
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 SELECT * INTO #invalidSite FROM tmp_psite s 
 	LEFT JOIN CancerType ct ON s.Code = ct.ICRPCode
 WHERE ct.ICRPCode IS NULL
 
 IF EXISTS (select * FROM #invalidSite)
-	INSERT INTO @DataUploadReport SELECT 32, 'Rule', 'Check CancerType - Invalid Codes', COUNT(*) FROM #invalidSite
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #invalidSite
 ELSE
-	INSERT INTO @DataUploadReport SELECT 32, 'Rule', 'Check CancerType - Invalid Codes', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -----------------------------------------------------------------	
 -- 	Rule 33 - 	Check CancerType - Not 100% Relevance
 -----------------------------------------------------------------	
+SET @RuleID= 33
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 SELECT * INTO #Not100SiteRel
  FROM (SELECT AltAwardCode, SUM(Rel) AS TotalRel FROM tmp_psiterel GROUP BY AltAwardCode) t
  WHERE (TotalRel < 99.00) OR (TotalRel > 100.00)
 
 IF EXISTS (select * FROM #Not100SiteRel)
-	INSERT INTO @DataUploadReport SELECT 33, 'Rule', 'Check CancerType - Not 100% Relevancel', COUNT(*) FROM #Not100SiteRel
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #Not100SiteRel
 ELSE
-	INSERT INTO @DataUploadReport SELECT 33, 'Rule', 'Check CancerType - Not 100% Relevances', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -----------------------------------------------------------------	
 -- 	Rule 34 -	Check CancerType - # of codes <> # of Rel	
 -----------------------------------------------------------------	
+SET @RuleID= 34
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 SELECT s.*, r.Rel, r.Seq AS RelSeq INTO #siteNotMatch FROM tmp_psite s
 	FULL OUTER JOIN tmp_psiterel r ON s.AltAwardCode = r.AltAwardCode AND s.Seq = r.Seq
 WHERE s.AltAwardCode IS NULL OR r.AltAwardCode IS NULL
 
 IF EXISTS (select * FROM #siteNotMatch)
-	INSERT INTO @DataUploadReport SELECT 34, 'Rule', 'Check CancerType - # of codes <> # of Rel', COUNT(*) FROM #siteNotMatch
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #siteNotMatch
 ELSE
-	INSERT INTO @DataUploadReport SELECT 34, 'Rule', 'Check CancerType - # of codes <> # of Rel', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -----------------------------------------------------------------	
 -- 35 Check Duplicate CancerType Codes
 -----------------------------------------------------------------
+SET @RuleID= 35
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 SELECT AltAwardCode, Code INTO #dupSite FROM tmp_psite GROUP BY AltAwardCode, Code Having Count(*) > 1
 
 IF EXISTS (select * FROM #dupSite)
-	INSERT INTO @DataUploadReport SELECT 35, 'Rule', 'Check CancerType - Duplicate CancerType Codes', COUNT(*) FROM #dupSite
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #dupSite
 ELSE
-	INSERT INTO @DataUploadReport SELECT 35, 'Rule', 'Check CancerType - Duplicate CancerType Codes', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -------------------------------------------------------------------
 -- Check AwardType/ProjectTye Codes - TBD
@@ -2249,38 +2312,47 @@ ELSE
 -------------------------------------------------------------------
 -- Check FundingOrg
 -------------------------------------------------------------------
+SET @RuleID= 41
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 SELECT DISTINCT FundingOrgAbbr INTO #org from UploadWorkBook 
 where FundingOrgAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingOrg)
 
 IF EXISTS (SELECT * FROM #org)
-	INSERT INTO @DataUploadReport SELECT 41, 'Rule', 'Check FundingOrg Existance', COUNT(*) FROM #org
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #org
 ELSE
-	INSERT INTO @DataUploadReport SELECT 41, 'Rule', 'Check FundingOrg Existance', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -------------------------------------------------------------------
 -- Check FundinOrggDiv
 -------------------------------------------------------------------
+SET @RuleID= 42
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 SELECT DISTINCT FundingDivAbbr INTO #orgDiv from UploadWorkBook 
 	WHERE (ISNULL(FundingDivAbbr, '')) != '' AND (FundingDivAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingDivision))
 	
 IF EXISTS (SELECT * FROM #orgDiv)
-	INSERT INTO @DataUploadReport SELECT 42, 'Rule', 'Check FundingOrgDiv Existance', COUNT(*) FROM #org
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #org
 ELSE
-	INSERT INTO @DataUploadReport SELECT 42, 'Rule', 'Check FundingOrgDiv Existance', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 	
 -------------------------------------------------------------------
 -- Check Institutions (Check both Institution lookup and mapping tables)
 -------------------------------------------------------------------
+SET @RuleID= 43
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+
 SELECT DISTINCT u.InstitutionICRP, u.City INTO #missingInst FROM UploadWorkBook u
 	LEFT JOIN Institution i ON (u.InstitutionICRP = i.Name AND u.City = i.City)
 	LEFT JOIN InstitutionMapping m ON (u.InstitutionICRP = m.OldName AND u.City = m.OldCity) 
 WHERE (i.InstitutionID IS NULL) AND (m.InstitutionMappingID IS NULL)
 
 IF EXISTS (select * FROM #missingInst)
-	INSERT INTO @DataUploadReport SELECT 43, 'Rule', 'Check not-mapped Institution', COUNT(*) FROM #missingInst
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #missingInst
 ELSE
-	INSERT INTO @DataUploadReport SELECT 43, 'Rule', 'Check not-mapped Institution', 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 		
 -------------------------------------------------------------------
 -- Return Data IntegrityCheck Report
