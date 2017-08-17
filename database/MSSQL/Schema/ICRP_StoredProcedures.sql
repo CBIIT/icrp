@@ -1059,31 +1059,35 @@ AS
 	) AS p	 
 	ORDER BY p.CalendarYear	 
 
- 
 	--Create the dynamic query with all the values for pivot column at runtime
 	SET   @SQLQuery = N'SELECT * FROM (SELECT t.ProjectID AS ICRPProjectID, t.ProjectFundingID AS ICRPProjectFundingID, t.AwardTitle, t.AwardType, 
 		t.AwardCode, t.Source_ID, t.AltAwardCode, t.FundingCategory,
 		t.IsChildhood, t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate,  t.BudgetEndDate, t.AwardAmount, t.FundingIndicator, t.Currency, 
 		t.FundingMechanism, t.FundingMechanismCode, t.SponsorCode, t.FundingOrg, t.FundingOrgType, t.FundingDiv, t.FundingDivAbbr, t.FundingContact, 
-		t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.icrpURL,'
+		t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.icrpURL'
 
 	IF @IncludeAbstract = 1
-		SET @SQLQuery = @SQLQuery + ' t.TechAbstract,'
+		SET @SQLQuery = @SQLQuery + ', t.TechAbstract'
 
-	SET @SQLQuery = @SQLQuery + ' calendaryear, calendaramount FROM projectfundingext ext
+	IF @PivotColumns IS NOT NULL  
+	BEGIN
+		SET @SQLQuery = @SQLQuery + ', calendaryear, calendaramount FROM projectfundingext ext
 				JOIN #temp t ON ext.ProjectFundingID = t.ProjectFundingID    
 				) cal			
 		PIVOT( SUM(calendaramount) 
-			  FOR calendaryear IN (' + @PivotColumns + ')) AS P'
+				FOR calendaryear IN (' + @PivotColumns + ')) AS P'		
+	END
 
-	----Execute dynamic query	
-	EXEC sp_executesql @SQLQuery
+	ELSE
+	
+	BEGIN
+		SET @SQLQuery = @SQLQuery + ' FROM #temp t) AS P'		
+	END
+
+	----Execute dynamic query		
+	EXEC sp_executesql @SQLQuery	
     											  
-
-    											  
-GO
-
- 
+GO 
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetProjectCSOsBySearchID]    Script Date: 12/14/2016 4:21:37 PM ******/
@@ -1370,37 +1374,56 @@ AS
 	SET   @SQLQuery = N'SELECT * '+
 		'FROM (SELECT t.ProjectID AS ICRPProjectID, t.ProjectFundingID AS ICRPProjectFundingID, t.AwardCode, t.AwardTitle, t.AwardType, t.Source_ID, t.AltAwardCode, FundingCategory, IsChildhood,
 				t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate, t.BudgetEndDate, t.AwardAmount, t.FundingIndicator, t.Currency, t.FundingMechanism, t.FundingMechanismCode, SponsorCode, t.FundingOrg, FundingOrgType,
-				t.FundingDiv, t.FundingDivAbbr, t.FundingContact, t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.icrpURL,'
+				t.FundingDiv, t.FundingDivAbbr, t.FundingContact, t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.icrpURL'
 	IF @IncludeAbstract = 1
-		SET @SQLQuery = @SQLQuery + ' t.TechAbstract,'
+		SET @SQLQuery = @SQLQuery + ', t.TechAbstract'
 
-		SET @SQLQuery = @SQLQuery +  N'calendaryear, calendaramount, cso.code + '' '' + cso.Name AS cso, pcso.Relevance AS csoRel, c.Name AS CancerType, pc.Relevance AS CancerTypeRel	
-				FROM projectfundingext ext
-					JOIN #temp t ON ext.ProjectFundingID = t.ProjectFundingID   
-					JOIN ProjectCSO pcso ON ext.projectFundingID = pcso.projectFundingID
-					JOIN CSO cso ON pcso.CSOCode = cso.Code
-					JOIN ProjectCancerType pc ON ext.projectFundingID = pc.projectFundingID
-					JOIN CancerType c ON pc.CancerTypeID = c.CancerTypeID 
-				) exp			
-		PIVOT
-		( 
-			SUM(calendaramount) 
-			  FOR calendaryear IN (' + @PivotColumns_Years + ')
-		) AS amount
+	IF (@PivotColumns_Years IS NOT NULL)
+		SET @SQLQuery = @SQLQuery +  N', calendaryear, calendaramount'
+		
+	IF (@PivotColumns_CSOs IS NOT NULL)
+		SET @SQLQuery = @SQLQuery +  N', cso.code + '' '' + cso.Name AS cso, pcso.Relevance AS csoRel'
 
-		PIVOT
-		( 
-			MAX(csoRel)
-			  FOR cso IN  (' + @PivotColumns_CSOs + ')
-		) AS c
+	IF (@PivotColumns_CancerTypes IS NOT NULL)
+		SET @SQLQuery = @SQLQuery +  N', c.Name AS CancerType, pc.Relevance AS CancerTypeRel'
+		
+	SET @SQLQuery = @SQLQuery +  N' FROM #temp t'
 
-		PIVOT
-		( 
-			MAX(CancerTypeRel)
-			  FOR CancerType IN (' + @PivotColumns_CancerTypes + ')
-		) AS cancer'
+	IF (@PivotColumns_Years IS NOT NULL)
+		SET @SQLQuery = @SQLQuery +  N' JOIN projectfundingext ext ON ext.ProjectFundingID = t.ProjectFundingID'
+	
+	IF (@PivotColumns_CSOs IS NOT NULL)
+		SET @SQLQuery = @SQLQuery +  N' JOIN ProjectCSO pcso ON t.projectFundingID = pcso.projectFundingID
+										JOIN CSO cso ON pcso.CSOCode = cso.Code'
+
+	IF (@PivotColumns_CancerTypes IS NOT NULL)
+		SET @SQLQuery = @SQLQuery +  N' JOIN ProjectCancerType pc ON t.projectFundingID = pc.projectFundingID
+										JOIN CancerType c ON pc.CancerTypeID = c.CancerTypeID'
+	SET @SQLQuery = @SQLQuery +  N' ) exp'
+	
+	IF (@PivotColumns_Years IS NOT NULL)
+		SET @SQLQuery = @SQLQuery +  N' PIVOT
+										( 
+											SUM(calendaramount) 
+											  FOR calendaryear IN (' + @PivotColumns_Years + ')
+										) AS amount'
+
+	IF (@PivotColumns_CSOs IS NOT NULL)
+		SET @SQLQuery = @SQLQuery +  N' PIVOT
+										( 
+											MAX(csoRel)
+											  FOR cso IN  (' + @PivotColumns_CSOs + ')
+										) AS c'
+
+	IF (@PivotColumns_CancerTypes IS NOT NULL)
+		SET @SQLQuery = @SQLQuery +  N' PIVOT
+										( 
+											MAX(CancerTypeRel)
+											  FOR CancerType IN (' + @PivotColumns_CancerTypes + ')
+										) AS cancer'
 		
 	----Execute dynamic query	
+	--PRINT @SQLQuery  
 	EXEC sp_executesql @SQLQuery  
     											  
 GO
@@ -1683,6 +1706,60 @@ WHERE  SearchCriteriaID IN (SELECT SearchCriteriaID FROM #old)
 
 DELETE searchCriteria
 WHERE  SearchCriteriaID IN (SELECT SearchCriteriaID FROM #old)
+
+GO
+
+
+
+
+/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+/****** Object:  StoredProcedure [dbo].[AddInstitutions]    Script Date: 12/14/2016 4:21:37 PM ******/
+/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AddInstitutions]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[AddInstitutions]
+GO 
+
+CREATE PROCEDURE [dbo].[AddInstitutions] 
+  
+AS
+
+BEGIN TRANSACTION;
+
+BEGIN TRY     	
+
+
+	IF object_id('tmp_LoadIInstitutions') is null
+	BEGIN
+		   RAISERROR ('Table tmp_LoadIInstitutions not found', 16, 1)
+	END
+
+	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] INTO #exist 
+	FROM tmp_LoadIInstitutions u JOIN Institution i ON u.Name = i.Name AND u.City = i.City	
+
+	-- DO NOT insert the institutions which already exist in the Institutions lookup 
+	INSERT INTO Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
+	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM tmp_LoadIInstitutions i
+		LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.City
+	WHERE (e.Name IS NULL)
+	
+	SELECT * FROM #exist
+
+	IF object_id('tmp_LoadIInstitutions') is not null
+		DROP TABLE tmp_LoadIInstitutions
+
+	COMMIT TRANSACTION
+
+END TRY
+
+BEGIN CATCH
+      IF @@trancount > 0 
+		ROLLBACK TRANSACTION
+      
+	  DECLARE @msg nvarchar(2048) = error_message()  
+      RAISERROR (@msg, 16, 1)
+	        
+END CATCH  
 
 GO
 
@@ -2195,7 +2272,7 @@ ELSE
 -------------------------------------------------------------------
 -- Check Institutions (Check both Institution lookup and mapping tables)
 -------------------------------------------------------------------
-SELECT DISTINCT u.InstitutionICRP, u.SubmittedInstitution, u.City INTO #missingInst FROM UploadWorkBook u
+SELECT DISTINCT u.InstitutionICRP, u.City INTO #missingInst FROM UploadWorkBook u
 	LEFT JOIN Institution i ON (u.InstitutionICRP = i.Name AND u.City = i.City)
 	LEFT JOIN InstitutionMapping m ON (u.InstitutionICRP = m.OldName AND u.City = m.OldCity) 
 WHERE (i.InstitutionID IS NULL) AND (m.InstitutionMappingID IS NULL)
@@ -2214,7 +2291,7 @@ GO
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*																																														*/
-/****** Object:  StoredProcedure [dbo].[DataUpload_GetDateCheckDetails]    Script Date: 12/14/2016 4:21:37 PM																		*****/
+/****** Object:  StoredProcedure [dbo].[DataUpload_IntegrityCheckDetails]    Script Date: 12/14/2016 4:21:37 PM																		*****/
 /*																																														*/
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -2291,14 +2368,14 @@ BEGIN
 
 	DECLARE @DupAltID TABLE
 	(
-		[Source] varchar(25),
+		[Dup Source] varchar(25),
 		[AltAwardCode] varchar(50),	
-		[Count] INT
+		[Dup Count] INT
 	)
 
-	INSERT INTO @DupAltID SELECT 'Workbook' AS Source, Altid AS AltAwardCode, Count(*) FROM UploadWorkBook GROUP BY Altid HAVING COUNT(*) > 1
-	INSERT INTO @DupAltID SELECT 'ICRP & Workbook' AS Source, AltAwardCode, 1 FROM ProjectFunding f
-	JOIN UploadWorkBook u ON f.AltAwardCode = u.AltID
+	INSERT INTO @DupAltID SELECT 'Duplicate in Workbook' AS Source, Altid AS AltAwardCode, Count(*) AS "Dup Count" FROM UploadWorkBook GROUP BY Altid HAVING COUNT(*) > 1
+	INSERT INTO @DupAltID SELECT 'Exist in ICRP' AS Source, AltAwardCode, 1 FROM ProjectFunding f
+		JOIN UploadWorkBook u ON f.AltAwardCode = u.AltID
 
 	SELECT * FROM @DupAltID
 
