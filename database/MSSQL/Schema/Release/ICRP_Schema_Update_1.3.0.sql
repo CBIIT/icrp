@@ -22,6 +22,9 @@ UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET Name='Missing Host Instituti
 UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET Name='Missing Funding Organizations' WHERE Name='Missing Funding Org'
 UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET Name='Missing Funding Organization Divs' WHERE Name='Missing Funding Org Div'
 
+UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET IsRequired =1
+UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET IsRequired =0 WHERE lu_DataUploadIntegrityCheckRules_ID IN (12, 13, 15)
+
 
 /*************************************************/
 /******		UPDATE TABLE        			******/
@@ -30,3 +33,4 @@ UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET Name='Missing Funding Organi
 /*************************************************/
 /******					Data				******/
 /*************************************************/
+

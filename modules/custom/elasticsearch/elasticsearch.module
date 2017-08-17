@@ -1,0 +1,14 @@
+<?php
+
+/**
+ * @file
+ * ICRP Elasticsearch
+ */
+
+function elasticsearch_theme($existing, $type, $theme, $path) {
+  return [
+    'elasticsearch' => [
+      'variables' => [],
+    ]
+  ];
+}

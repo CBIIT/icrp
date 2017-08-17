@@ -64,7 +64,7 @@ SELECT m.* INTO #dup FROM
 IF EXISTS (SELECT * FROM #dup)
 BEGIN
 	PRINT 'Checking Duplicate Institutions   ==> ERROR'
-	SELECT * FROM #exist
+	SELECT * FROM #dup
 END
 ELSE
 	PRINT 'Checking Duplicate Institutions   ==> Pass'
@@ -72,3 +72,4 @@ ELSE
 --commit
 
 rollback
+
