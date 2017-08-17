@@ -1,4 +1,3 @@
-rm -rf icrp
 git clone https://github.com/CBIIT/icrp.git
 
 #
