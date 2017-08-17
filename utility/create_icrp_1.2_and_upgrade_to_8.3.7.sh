@@ -51,6 +51,8 @@ mysqladmin -u$DB_USER -p$DB_PASS -f drop $DB_NAME
 mysqladmin -u$DB_USER -p$DB_PASS create $DB_NAME
 mysql -u$DB_USER -p$DB_PASS $DB_NAME < icrp.sql
 
+git checkout master
+
 echo "**"
 echo "* Drupal 8.2.7 ICRP 1.2 is ready"
 echo "**"
@@ -64,12 +66,11 @@ cd /local/drupal/
 cd icrp/sites/default/sync
 mkdir config
 chmod -R 755 config
-cd /local/drupal/icrp
 
 echo "**"
 echo "* Run upgrade to Drupal 8.3.7 with ICPR 1.2 *"
 echo "**"
 
-git clone https://github.com/CBIIT/icrp.git
-./utility/
+/home/centos/icrp/utility/upgrade_produciton_8.3.7.sh
+
 
