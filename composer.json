@@ -21,6 +21,7 @@
         "phpmailer/phpmailer": "~5.2",
         "phpoffice/phpexcel": "~1.8.1",
         "box/spout": "^2.7.2",
+        "elasticsearch/elasticsearch": "~5.0",
         "composer/installers": "^1.2",
         "cweagans/composer-patches": "^1.6",
         "drupal-composer/drupal-scaffold": "^2.2",

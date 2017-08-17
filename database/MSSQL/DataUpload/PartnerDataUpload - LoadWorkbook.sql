@@ -61,7 +61,7 @@ CREATE TABLE UploadWorkBook (
 GO
 
 BULK INSERT UploadWorkBook
-FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_CCRA_20170720.csv'
+FROM 'C:\icrp\database\DataUpload\ICRPDataSubmission_ASTRO_20170809.csv'
 WITH
 (
 	FIRSTROW = 2,

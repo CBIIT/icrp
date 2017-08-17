@@ -73,6 +73,7 @@ CREATE TABLE IF NOT EXISTS `Country` (
   `Abbreviation` varchar(3) NOT NULL,
   `Name` varchar(75) NOT NULL,
   `IncomeBand` varchar(25) DEFAULT NULL,
+	`Currency` varchar(3) DEFAULT NULL,
   PRIMARY KEY (`Abbreviation`),
   UNIQUE KEY `UNIQUE` (`CountryID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
@@ -87,9 +88,11 @@ CREATE TABLE IF NOT EXISTS `CSO` (
   `CategoryName` varchar(100) NOT NULL,
   `WeightName` decimal(1,0) NOT NULL,
   `SortOrder` int(11) NOT NULL,
-  `IsActive` tinyint(4) NOT NULL DEFAULT '1',
+  `IsActive` bit(1) NOT NULL DEFAULT b'1',
   `CreatedDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `UpdatedDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	`AltAwardCode1` varchar(100) DEFAULT NULL,
+	`AltAwardCode2` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`Code`),
   UNIQUE KEY `UNIQUE` (`CSOID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
@@ -199,6 +202,8 @@ CREATE TABLE IF NOT EXISTS `FundingOrg` (
   `LastImportDesc` varchar(1000) DEFAULT NULL,
   `CreatedDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `UpdatedDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	`MapCoords` varchar(50) DEFAULT NULL,
+	`Website` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`FundingOrgID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
 
@@ -426,6 +431,7 @@ CREATE TABLE IF NOT EXISTS `Project` (
   `ProjectEndDate` date DEFAULT NULL,
   `CreatedDate` datetime DEFAULT CURRENT_TIMESTAMP,
   `UpdatedDate` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	`DataUploadStatusID` int(11) DEFAULT NULL,
   PRIMARY KEY (`ProjectID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
 
@@ -609,18 +615,12 @@ CREATE TABLE IF NOT EXISTS `SearchCriteria` (
 -- Dumping structure for table icrp_data.SearchResult
 CREATE TABLE IF NOT EXISTS `SearchResult` (
   `SearchCriteriaID` int(11) NOT NULL,
-  `Results` longtext,
+  `Results` longtext DEFAULT NULL,
   `ResultCount` int(11) DEFAULT NULL,
+	`TotalRelatedProjectCount` int(11) DEFAULT NULL,
+	`LastBudgetYear` year DEFAULT NULL,
   `IsEmailSent` tinyint(4) DEFAULT NULL,
   PRIMARY KEY (`SearchCriteriaID`)
-) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
-
--- Data exporting was unselected.
--- Dumping structure for table icrp_data.sortedProjects
-CREATE TABLE IF NOT EXISTS `sortedProjects` (
-  `SortedProjectID` int(11) NOT NULL AUTO_INCREMENT,
-  `OldProjectID` int(11) NOT NULL,
-  PRIMARY KEY (`SortedProjectID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
 
 -- Data exporting was unselected.
@@ -646,219 +646,8 @@ CREATE TABLE IF NOT EXISTS `sysdiagrams` (
 ) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
 
 -- Data exporting was unselected.
--- Dumping structure for table icrp_data.UploadInstitution
-CREATE TABLE IF NOT EXISTS `UploadInstitution` (
-  `DataIssue_ICRP` varchar(250) NOT NULL,
-  `institution_ICRP` varchar(250) NOT NULL,
-  `city_ICRP` varchar(250) NOT NULL,
-  `city_ICRP_corrected` varchar(250) NOT NULL,
-  `state_ICRP` varchar(250) NOT NULL,
-  `state_ICRP_corrected` varchar(250) NOT NULL,
-  `country_ICRP` varchar(250) NOT NULL,
-  `country_ICRP_corrected` varchar(250) NOT NULL,
-  `ICRP_CURRENT_Combination_Inst_City` varchar(250) NOT NULL,
-  `MATCHGRID` varchar(250) NOT NULL,
-  `MATCHGRIDNote` varchar(1000) NOT NULL,
-  `IsNOTEMultiHost` varchar(250) NOT NULL,
-  `DedupInstitution` varchar(250) NOT NULL,
-  `Check` varchar(50) NOT NULL,
-  `City_Clean` varchar(250) NOT NULL,
-  `State_Clean` varchar(250) DEFAULT NULL,
-  `Name_GRID` varchar(250) NOT NULL,
-  `City_GRID` varchar(250) NOT NULL,
-  `Country_GRID` varchar(250) NOT NULL,
-  `Country_ICRP_ISO` varchar(250) NOT NULL,
-  `ID_GRID` varchar(250) NOT NULL,
-  `Lat_GRID` decimal(9,6) DEFAULT NULL,
-  `Lng_GRID` decimal(9,6) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
-
--- Data exporting was unselected.
--- Dumping structure for table icrp_data.UploadNIHFundingAmountUpdate
-CREATE TABLE IF NOT EXISTS `UploadNIHFundingAmountUpdate` (
-  `ProjectID` int(11) DEFAULT NULL,
-  `AwardCode` varchar(150) DEFAULT NULL,
-  `AltAwardCode` varchar(150) DEFAULT NULL,
-  `Amount` double DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
-
--- Data exporting was unselected.
 -- Dumping structure for table icrp_data.UploadWorkBook
 CREATE TABLE IF NOT EXISTS `UploadWorkBook` (
-  `AwardCode` varchar(50) DEFAULT NULL,
-  `AwardStartDate` date DEFAULT NULL,
-  `AwardEndDate` date DEFAULT NULL,
-  `SourceId` varchar(50) DEFAULT NULL,
-  `AltId` varchar(50) DEFAULT NULL,
-  `AwardTitle` varchar(1000) DEFAULT NULL,
-  `Category` varchar(25) DEFAULT NULL,
-  `AwardType` varchar(50) DEFAULT NULL,
-  `Childhood` varchar(5) DEFAULT NULL,
-  `BudgetStartDate` date DEFAULT NULL,
-  `BudgetEndDate` date DEFAULT NULL,
-  `CSOCodes` varchar(500) DEFAULT NULL,
-  `CSORel` varchar(500) DEFAULT NULL,
-  `SiteCodes` varchar(500) DEFAULT NULL,
-  `SiteRel` varchar(500) DEFAULT NULL,
-  `AwardFunding` double DEFAULT NULL,
-  `IsAnnualized` varchar(1) DEFAULT NULL,
-  `FundingMechanismCode` varchar(30) DEFAULT NULL,
-  `FundingMechanism` varchar(200) DEFAULT NULL,
-  `FundingOrgAbbr` varchar(50) DEFAULT NULL,
-  `FundingDiv` varchar(50) DEFAULT NULL,
-  `FundingDivAbbr` varchar(50) DEFAULT NULL,
-  `FundingContact` varchar(50) DEFAULT NULL,
-  `PILastName` varchar(50) DEFAULT NULL,
-  `PIFirstName` varchar(50) DEFAULT NULL,
-  `SubmittedInstitution` varchar(250) DEFAULT NULL,
-  `City` varchar(50) DEFAULT NULL,
-  `State` varchar(3) DEFAULT NULL,
-  `Country` varchar(3) DEFAULT NULL,
-  `PostalZipCode` varchar(15) DEFAULT NULL,
-  `InstitutionICRP` varchar(4000) DEFAULT NULL,
-  `Latitute` decimal(9,6) DEFAULT NULL,
-  `Longitute` decimal(9,6) DEFAULT NULL,
-  `GRID` varchar(50) DEFAULT NULL,
-  `RelatedAwardCode` varchar(200) DEFAULT NULL,
-  `RelationshipType` varchar(200) DEFAULT NULL,
-  `ORCID` varchar(25) DEFAULT NULL,
-  `OtherResearcherID` int(11) DEFAULT NULL,
-  `OtherResearcherIDType` varchar(1000) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
-
--- Data exporting was unselected.
--- Dumping structure for table icrp_data.UploadWorkBook_ASTRO
-CREATE TABLE IF NOT EXISTS `UploadWorkBook_ASTRO` (
-  `AwardCode` varchar(50) DEFAULT NULL,
-  `AwardStartDate` date DEFAULT NULL,
-  `AwardEndDate` date DEFAULT NULL,
-  `SourceId` varchar(50) DEFAULT NULL,
-  `AltId` varchar(50) DEFAULT NULL,
-  `AwardTitle` varchar(1000) DEFAULT NULL,
-  `Category` varchar(25) DEFAULT NULL,
-  `AwardType` varchar(50) DEFAULT NULL,
-  `Childhood` varchar(5) DEFAULT NULL,
-  `BudgetStartDate` date DEFAULT NULL,
-  `BudgetEndDate` date DEFAULT NULL,
-  `CSOCodes` varchar(500) DEFAULT NULL,
-  `CSORel` varchar(500) DEFAULT NULL,
-  `SiteCodes` varchar(500) DEFAULT NULL,
-  `SiteRel` varchar(500) DEFAULT NULL,
-  `AwardFunding` double DEFAULT NULL,
-  `IsAnnualized` varchar(1) DEFAULT NULL,
-  `FundingMechanismCode` varchar(30) DEFAULT NULL,
-  `FundingMechanism` varchar(200) DEFAULT NULL,
-  `FundingOrgAbbr` varchar(50) DEFAULT NULL,
-  `FundingDiv` varchar(50) DEFAULT NULL,
-  `FundingDivAbbr` varchar(50) DEFAULT NULL,
-  `FundingContact` varchar(50) DEFAULT NULL,
-  `PILastName` varchar(50) DEFAULT NULL,
-  `PIFirstName` varchar(50) DEFAULT NULL,
-  `SubmittedInstitution` varchar(250) DEFAULT NULL,
-  `City` varchar(50) DEFAULT NULL,
-  `State` varchar(3) DEFAULT NULL,
-  `Country` varchar(3) DEFAULT NULL,
-  `PostalZipCode` varchar(15) DEFAULT NULL,
-  `InstitutionICRP` varchar(4000) DEFAULT NULL,
-  `Latitute` decimal(9,6) DEFAULT NULL,
-  `Longitute` decimal(9,6) DEFAULT NULL,
-  `GRID` varchar(50) DEFAULT NULL,
-  `RelatedAwardCode` varchar(200) DEFAULT NULL,
-  `RelationshipType` varchar(200) DEFAULT NULL,
-  `ORCID` varchar(25) DEFAULT NULL,
-  `OtherResearcherID` int(11) DEFAULT NULL,
-  `OtherResearcherIDType` varchar(1000) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
-
--- Data exporting was unselected.
--- Dumping structure for table icrp_data.UploadWorkBook_CA
-CREATE TABLE IF NOT EXISTS `UploadWorkBook_CA` (
-  `AwardCode` varchar(50) DEFAULT NULL,
-  `AwardStartDate` date DEFAULT NULL,
-  `AwardEndDate` date DEFAULT NULL,
-  `SourceId` varchar(50) DEFAULT NULL,
-  `AltId` varchar(50) DEFAULT NULL,
-  `AwardTitle` varchar(1000) DEFAULT NULL,
-  `Category` varchar(25) DEFAULT NULL,
-  `AwardType` varchar(50) DEFAULT NULL,
-  `Childhood` varchar(5) DEFAULT NULL,
-  `BudgetStartDate` date DEFAULT NULL,
-  `BudgetEndDate` date DEFAULT NULL,
-  `CSOCodes` varchar(500) DEFAULT NULL,
-  `CSORel` varchar(500) DEFAULT NULL,
-  `SiteCodes` varchar(500) DEFAULT NULL,
-  `SiteRel` varchar(500) DEFAULT NULL,
-  `AwardFunding` double DEFAULT NULL,
-  `IsAnnualized` varchar(1) DEFAULT NULL,
-  `FundingMechanismCode` varchar(30) DEFAULT NULL,
-  `FundingMechanism` varchar(200) DEFAULT NULL,
-  `FundingOrgAbbr` varchar(50) DEFAULT NULL,
-  `FundingDiv` varchar(50) DEFAULT NULL,
-  `FundingDivAbbr` varchar(50) DEFAULT NULL,
-  `FundingContact` varchar(50) DEFAULT NULL,
-  `PILastName` varchar(50) DEFAULT NULL,
-  `PIFirstName` varchar(50) DEFAULT NULL,
-  `Institution` varchar(250) DEFAULT NULL,
-  `City` varchar(50) DEFAULT NULL,
-  `State` varchar(3) DEFAULT NULL,
-  `Country` varchar(3) DEFAULT NULL,
-  `PostalZipCode` varchar(15) DEFAULT NULL,
-  `InstitutionOfficeUseOnly` varchar(4000) DEFAULT NULL,
-  `Latitute` decimal(9,6) DEFAULT NULL,
-  `Longitute` decimal(9,6) DEFAULT NULL,
-  `GRID` varchar(50) DEFAULT NULL,
-  `ORCID` varchar(25) DEFAULT NULL,
-  `OtherResearcherID` int(11) DEFAULT NULL,
-  `OtherResearcherIDType` varchar(1000) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
-
--- Data exporting was unselected.
--- Dumping structure for table icrp_data.UploadWorkBook_KOMEN
-CREATE TABLE IF NOT EXISTS `UploadWorkBook_KOMEN` (
-  `AwardCode` varchar(50) DEFAULT NULL,
-  `AwardStartDate` date DEFAULT NULL,
-  `AwardEndDate` date DEFAULT NULL,
-  `SourceId` varchar(50) DEFAULT NULL,
-  `AltId` varchar(50) DEFAULT NULL,
-  `AwardTitle` varchar(1000) DEFAULT NULL,
-  `Category` varchar(25) DEFAULT NULL,
-  `AwardType` varchar(50) DEFAULT NULL,
-  `Childhood` varchar(5) DEFAULT NULL,
-  `BudgetStartDate` date DEFAULT NULL,
-  `BudgetEndDate` date DEFAULT NULL,
-  `CSOCodes` varchar(500) DEFAULT NULL,
-  `CSORel` varchar(500) DEFAULT NULL,
-  `SiteCodes` varchar(500) DEFAULT NULL,
-  `SiteRel` varchar(500) DEFAULT NULL,
-  `AwardFunding` double DEFAULT NULL,
-  `IsAnnualized` varchar(1) DEFAULT NULL,
-  `FundingMechanismCode` varchar(30) DEFAULT NULL,
-  `FundingMechanism` varchar(200) DEFAULT NULL,
-  `FundingOrgAbbr` varchar(50) DEFAULT NULL,
-  `FundingDiv` varchar(50) DEFAULT NULL,
-  `FundingDivAbbr` varchar(50) DEFAULT NULL,
-  `FundingContact` varchar(50) DEFAULT NULL,
-  `PILastName` varchar(50) DEFAULT NULL,
-  `PIFirstName` varchar(50) DEFAULT NULL,
-  `SubmittedInstitution` varchar(250) DEFAULT NULL,
-  `City` varchar(50) DEFAULT NULL,
-  `State` varchar(3) DEFAULT NULL,
-  `Country` varchar(3) DEFAULT NULL,
-  `PostalZipCode` varchar(15) DEFAULT NULL,
-  `InstitutionICRP` varchar(4000) DEFAULT NULL,
-  `Latitute` decimal(9,6) DEFAULT NULL,
-  `Longitute` decimal(9,6) DEFAULT NULL,
-  `GRID` varchar(50) DEFAULT NULL,
-  `RelatedAwardCode` varchar(200) DEFAULT NULL,
-  `RelationshipType` varchar(200) DEFAULT NULL,
-  `ORCID` varchar(25) DEFAULT NULL,
-  `OtherResearcherID` int(11) DEFAULT NULL,
-  `OtherResearcherIDType` varchar(1000) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=ucs2;
-
--- Data exporting was unselected.
--- Dumping structure for table icrp_data.UploadWorkBook_New_PanCAN
-CREATE TABLE IF NOT EXISTS `UploadWorkBook_New_PanCAN` (
   `AwardCode` varchar(50) DEFAULT NULL,
   `AwardStartDate` date DEFAULT NULL,
   `AwardEndDate` date DEFAULT NULL,

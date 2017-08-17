@@ -90,12 +90,10 @@ class LibraryController extends ControllerBase {
   );
 
   public function content() {
-	
-	$request = \Drupal::request();
-	if ($route = $request->attributes->get(\Symfony\Cmf\Component\Routing\RouteObjectInterface::ROUTE_OBJECT)) {
-		$route->setDefault('_title', 'Library');
-	} 
-	  
+    $request = \Drupal::request();
+    if ($route = $request->attributes->get(\Symfony\Cmf\Component\Routing\RouteObjectInterface::ROUTE_OBJECT)) {
+      $route->setDefault('_title', 'Library');
+    }
     return [
       '#theme' => 'library',
       '#attached' => [

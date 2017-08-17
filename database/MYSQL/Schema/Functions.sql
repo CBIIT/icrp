@@ -1,5 +1,6 @@
 DELIMITER //
 
+DROP PROCEDURE IF EXISTS `ToIntTable`//
 
 CREATE PROCEDURE `ToIntTable`(
 	IN `@input` LONGTEXT
@@ -10,27 +11,34 @@ CONTAINS SQL
 SQL SECURITY DEFINER
 COMMENT ''
 BEGIN
-	DECLARE `@Value` INT DEFAULT 0;
-	DECLARE `@ind` INT DEFAULT 0;
-
-	DROP TEMPORARY TABLE IF EXISTS ToIntTable;
+	DECLARE `@sql` LONGTEXT DEFAULT '';
+    
+    DROP TEMPORARY TABLE IF EXISTS ToIntTable;
 	CREATE TEMPORARY TABLE IF NOT EXISTS ToIntTable (
 		VALUE INT
 	);
 	
+	-- SET group_concat_max_len=100000 
 	IF `@input` IS NOT NULL THEN
-	   SET `@ind` = INSTR(@input,',');
-	   WHILE `@ind` > 0 DO
-	      SET `@Value` = CAST(SUBSTRING(`@input`,1,`@ind`-1) AS SIGNED);
-	      SET `@input` = SUBSTRING(`@input`,`@ind`+1);
-	      INSERT INTO ToIntTable VALUES (`@Value`);
-	      SET `@ind` = INSTR(`@input`,',');
-	   END WHILE;
-	   SET `@Value` = CAST(`@input` AS SIGNED);
-	   INSERT INTO ToIntTable VALUES (`@Value`);
+	
+	drop temporary table if exists temp;
+
+		create temporary table temp( val INT );
+		
+		set @sql = concat("insert into temp (val) values (", 
+							replace((select group_concat(`@input`) as data from t), ",", "),("),
+							");"                            
+						 );
+		
+		prepare stmt1 from @sql;
+		execute stmt1;
+		insert into ToIntTable select distinct(val) from temp;
+
 	END IF;
 END//
 
+
+DROP PROCEDURE IF EXISTS `ToStrTable`//
 
 CREATE PROCEDURE `ToStrTable`(
 	IN `@input` LONGTEXT
@@ -41,23 +49,29 @@ CONTAINS SQL
 SQL SECURITY DEFINER
 COMMENT ''
 BEGIN
-	DECLARE `@str` VARCHAR(20) DEFAULT '';
-	DECLARE `@ind` INT DEFAULT 0;
-
+	DECLARE `@sql` LONGTEXT DEFAULT '';
+    
 	DROP TEMPORARY TABLE IF EXISTS ToStrTable;
 	CREATE TEMPORARY TABLE IF NOT EXISTS ToStrTable (
-		VALUE INT
+		VALUE VARCHAR(50)
 	);
-
+    
+    -- SET group_concat_max_len=100000 
 	IF `@input` IS NOT NULL THEN
-	   SET `@ind` = INSTR(@input,',');
-	   WHILE `@ind` > 0 DO
-	      SET `@str` = SUBSTRING(`@input`,1,`@ind`-1);
-	      SET `@input` = SUBSTRING(`@input`,`@ind`+1);
-	      INSERT INTO ToStrTable VALUES (`@str`);
-	      SET `@ind` = INSTR(`@input`,',');
-	   END WHILE;
-	   INSERT INTO ToStrTable VALUES (`@input`);
+	
+	drop temporary table if exists temp;
+
+		create temporary table temp( val VARCHAR(50) );
+		
+		set @sql = concat("insert into temp (val) values ('", 
+							replace((select group_concat(`@input`) as data from t), ",", "'),('"),
+							"');"                            
+						 );
+		
+		prepare stmt1 from @sql;
+		execute stmt1;
+		insert into ToStrTable select distinct(val) from temp;
+
 	END IF;
 END//
 
