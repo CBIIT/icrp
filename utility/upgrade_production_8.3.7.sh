@@ -21,7 +21,7 @@ drush cr
 echo "*"
 echo "* Updating to latest Drupal Core (8.3.7)"
 echo "*"
-drush -y up  drupal-8.3.7
+drush -y up drupal-8.3.7
 drush cr
 
 echo "*"
@@ -45,15 +45,16 @@ drush pmu panelizer -y
 echo "* Uninstall panels"
 drush pmu panels_ipe -y
 drush pmu panels -y
+
 echo "**"
 echo "* Uninstall layout_plugin_views and layout_plugin"
 echo "**"
-#drush pmu layout_plugin_views -y
+drush pmu layout_plugin_views -y
 #drush pmu layout_plugin -y
 #drush pmu bootstrap_layouts -y
 #drush pmu layout_plugin -y
-#drush updatedb -y
-#drush cr
+drush updatedb -y
+drush cr
 # 1. download panels 4, then bootstrap_layouts 5. order matters
 #drush dl panels-8.x-4.0-alpha1 -y
 drush dl bootstrap_layouts-8.x-5.x-dev -y

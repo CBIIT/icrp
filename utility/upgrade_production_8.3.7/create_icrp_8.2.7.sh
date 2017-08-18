@@ -67,7 +67,7 @@ cd $DOC_ROOT
 echo "**"
 echo "* Copy composer.json.8.2.7 and run composer update "
 echo "**"
-cp ../icrp/utility/upgrade_production_8.3.7/composer/composer.json.8.2.7 ./composer.json
+cp ../tmp/utility/upgrade_production_8.3.7/composer/composer.json.8.2.7 ./composer.json
 
 echo "You should have your composer.json"
 
@@ -101,6 +101,7 @@ cp -r themes/* ../../themes
 mkdir -p ../../libraries
 cp -r libraries/* ../../libraries
 cp -r sites/default/ ../default/
+cp -rf /local/drupal/icrp-old/sites/default/files /local/drupal/$DOC_ROOT/sites/default/
 
 #cp settings.php to the new site.
 echo "**"
@@ -113,9 +114,9 @@ cp $SETTINGS_PHP_PATH/settings.php ../default/
 echo "**"
 echo "* Import database"
 echo "**"
-mysqladmin -u$DB_USER -p$DB_PASS -f drop $DB_NAME
-mysqladmin -u$DB_USER -p$DB_PASS create $DB_NAME
-mysql -u$DB_USER -p$DB_PASS $DB_NAME < icrp.sql
+#mysqladmin -u$DB_USER -p$DB_PASS -f drop $DB_NAME
+#mysqladmin -u$DB_USER -p$DB_PASS create $DB_NAME
+#mysql -u$DB_USER -p$DB_PASS $DB_NAME < icrp.sql
 drush cr
 echo "**"
 echo "* ICRP 1.2 is ready"
