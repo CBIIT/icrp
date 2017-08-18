@@ -1804,9 +1804,9 @@ AS
 -- 35	Rule	Check CancerType - Duplicate CancerType Codes
 -- 36	Rule	Check CancerType - Duplicate CancerType codes
 --
--- 41	Rule	Check FundingOrg Existance
--- 42	Rule	Check FundingOrgDiv Existance
--- 43	Rule	Check Institution - not-mapped 
+-- 41	Rule	Check Institution - not-mapped 
+-- 42	Rule	Check FundingOrg Existance
+-- 43	Rule	Check FundingOrgDiv Existance
 --
 
 /***********************************************************************************************/
@@ -1827,13 +1827,13 @@ INTO #awardCodes FROM UploadWorkBook
 
 UPDATE #awardCodes SET Type='Existing', ProjectID=pp.ProjectID, FundingOrgID = pp.FundingOrgID
 FROM #awardCodes a 
-JOIN (SELECT o.FundingOrgID, p.* FROM Project p 
+JOIN (SELECT p.ProjectID, o.FundingOrgID, p.AwardCode FROM Project p 
 		JOIN ProjectFunding f ON p.ProjectID = f.ProjectID 
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID 
-	  WHERE o.SponsorCode = @PartnerCode) pp ON a.AwardCode = pp.AwardCode	
+	  WHERE o.SponsorCode = 'CCRA') pp ON a.AwardCode = pp.AwardCode	
 
 -- Get Project Funding record with parent category
-SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'
+SELECT AwardCode, AltID, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'
 
 DECLARE @TotalAwardCodes INT
 DECLARE @TotalNewParentProjects INT
@@ -1915,13 +1915,13 @@ ELSE
 -- Check renewals imported as Parent 
 -------------------------------------------------------------------
 SET @RuleID= 13
-select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+SELECT @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
+	
+SELECT 'Issue: AitAwardCode Should NOT be Parent' AS Issue, p.* INTO #RenewalWithParent 
+FROM (SELECT AwardCode FROM #awardcodes where Type='Existing') e
+	  JOIN #parentProjects p ON e.AwardCode = p.AwardCode
 
-SELECT 'Issue AwardCode Should NOT be Parent' AS Issue, p.* INTO #RenewalWithParent FROM 
-(SELECT * FROM #awardcodes where Type='Existing') n
-JOIN #parentProjects p ON n.AwardCode = p.AwardCode
-
-IF EXISTS (SELECT * FROM #RenewalWithParent)
+IF EXISTS (SELECT AltID FROM #RenewalWithParent)
 	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #RenewalWithParent
 ELSE
 	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
@@ -2308,11 +2308,27 @@ ELSE
 --END
 --ELSE
 --	PRINT 'Checking Incorrect AwardType ==> Pass'	
+	
+-------------------------------------------------------------------
+-- Check Institutions (Check both Institution lookup and mapping tables)
+-------------------------------------------------------------------
+SET @RuleID= 41
+select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
 
+SELECT DISTINCT u.InstitutionICRP, u.City INTO #missingInst FROM UploadWorkBook u
+	LEFT JOIN Institution i ON (u.InstitutionICRP = i.Name AND u.City = i.City)
+	LEFT JOIN InstitutionMapping m ON (u.InstitutionICRP = m.OldName AND u.City = m.OldCity) 
+WHERE (i.InstitutionID IS NULL) AND (m.InstitutionMappingID IS NULL)
+
+IF EXISTS (select * FROM #missingInst)
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #missingInst
+ELSE
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
+		
 -------------------------------------------------------------------
 -- Check FundingOrg
 -------------------------------------------------------------------
-SET @RuleID= 41
+SET @RuleID= 42
 select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
 
 SELECT DISTINCT FundingOrgAbbr INTO #org from UploadWorkBook 
@@ -2326,7 +2342,7 @@ ELSE
 -------------------------------------------------------------------
 -- Check FundinOrggDiv
 -------------------------------------------------------------------
-SET @RuleID= 42
+SET @RuleID= 43
 select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
 
 SELECT DISTINCT FundingDivAbbr INTO #orgDiv from UploadWorkBook 
@@ -2337,23 +2353,7 @@ IF EXISTS (SELECT * FROM #orgDiv)
 ELSE
 	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
-	
--------------------------------------------------------------------
--- Check Institutions (Check both Institution lookup and mapping tables)
--------------------------------------------------------------------
-SET @RuleID= 43
-select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
 
-SELECT DISTINCT u.InstitutionICRP, u.City INTO #missingInst FROM UploadWorkBook u
-	LEFT JOIN Institution i ON (u.InstitutionICRP = i.Name AND u.City = i.City)
-	LEFT JOIN InstitutionMapping m ON (u.InstitutionICRP = m.OldName AND u.City = m.OldCity) 
-WHERE (i.InstitutionID IS NULL) AND (m.InstitutionMappingID IS NULL)
-
-IF EXISTS (select * FROM #missingInst)
-	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #missingInst
-ELSE
-	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
-		
 -------------------------------------------------------------------
 -- Return Data IntegrityCheck Report
 -------------------------------------------------------------------
@@ -2405,9 +2405,9 @@ AS
 -- 34	Rule	Check CancerType - Number of codes <> Number of Rel
 -- 35	Rule	Check CancerType - Duplicate CancerType Codes
 --
--- 41	Rule	Check FundingOrg Existance
--- 42	Rule	Check FundingOrgDiv Existance
--- 43	Rule	Check Institution - not-mapped 
+-- 41	Rule	Check Institution - not-mapped 
+-- 42	Rule	Check FundingOrg Existance
+-- 43	Rule	Check FundingOrgDiv Existance
 --
 
 /***********************************************************************************************/
@@ -2420,7 +2420,7 @@ END
 
 
 --Checking Parent projects ...
-SELECT AwardCode, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'  -- CA
+SELECT AwardCode, AltID, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'
 
 -- Get all AwardCodes
 SELECT Distinct CAST('New' AS VARCHAR(25)) AS Type, AwardCode INTO #awardCodes FROM UploadWorkBook
@@ -2472,13 +2472,13 @@ END
 -------------------------------------------------------------------
 IF @RuleId = 13
 BEGIN
-	SELECT p.* INTO #RenewalWithParent FROM 
-		(SELECT * FROM #awardcodes where Type='Existing') n
-		JOIN #parentProjects p ON n.AwardCode = p.AwardCode
+	SELECT p.AltID INTO #RenewalWithParent FROM 
+		(SELECT AwardCode FROM #awardcodes where Type='Existing') e		
+		JOIN #parentProjects p ON e.AwardCode = p.AwardCode
 		
 	SELECT DISTINCT u.AwardCode, u.AltID AS AltAwardCode, u.BudgetStartDate, u.BudgetEndDate
 	FROM #RenewalWithParent d 
-	JOIN UploadWorkbook u ON d.AwardCode = u.AwardCode
+	JOIN UploadWorkbook u ON d.AltID = u.AltID
 END
 
 -------------------------------------------------------------------
@@ -2798,36 +2798,11 @@ SELECT DISTINCT u.AwardCode, u.AltID AS AltAwardCode, u.SiteCodes, u.SiteRel
 IF @RuleId = 35
 	SELECT d.AltAwardCode, u.SiteCodes, u.SiteRel FROM (SELECT DISTINCT AltAwardCode FROM tmp_psite GROUP BY AltAwardCode, Code Having Count(*) > 1) d
 		JOIN UploadWorkbook u ON d.AltAwardCode = u.AltID
-
--------------------------------------------------------------------
--- Check FundingOrg
--------------------------------------------------------------------
-IF @RuleId = 41
-BEGIN
-	SELECT DISTINCT FundingOrgAbbr INTO #org from UploadWorkBook 
-	where FundingOrgAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingOrg)
-	
-	SELECT DISTINCT c.*	FROM #org c 
-	JOIN UploadWorkbook u ON c.FundingOrgAbbr = u.FundingOrgAbbr
-END 
-
--------------------------------------------------------------------
--- Check FundinOrggDiv
--------------------------------------------------------------------
-IF @RuleId = 42
-BEGIN
-
-	SELECT DISTINCT FundingDivAbbr INTO #orgDiv from UploadWorkBook 
-	WHERE (ISNULL(FundingDivAbbr, '')) != '' AND (FundingDivAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingDivision))
-	
-	SELECT u.AwardCode, u.AltID AS AltAwardCode, u.FundingDivAbbr, u.BudgetStartDate, u.BudgetEndDate, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel  
-	FROM #orgDiv c JOIN UploadWorkbook u ON c.FundingDivAbbr = u.FundingDivAbbr
-END 
-	
+				
 -------------------------------------------------------------------
 -- Check Institutions (Check both Institution lookup and mapping tables)
 -------------------------------------------------------------------
-IF @RuleId = 43
+IF @RuleId = 41
 BEGIN
 
 	SELECT DISTINCT u.InstitutionICRP, u.SubmittedInstitution, u.City INTO #missingInst FROM UploadWorkBook u
@@ -2839,6 +2814,31 @@ BEGIN
 	FROM #missingInst c JOIN UploadWorkbook u ON c.InstitutionICRP = u.InstitutionICRP AND c.City = u.City
 END 
 
+-------------------------------------------------------------------
+-- Check FundingOrg
+-------------------------------------------------------------------
+IF @RuleId = 42
+BEGIN
+	SELECT DISTINCT FundingOrgAbbr INTO #org from UploadWorkBook 
+	where FundingOrgAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingOrg)
+	
+	SELECT DISTINCT c.*	FROM #org c 
+	JOIN UploadWorkbook u ON c.FundingOrgAbbr = u.FundingOrgAbbr
+END 
+
+-------------------------------------------------------------------
+-- Check FundinOrggDiv
+-------------------------------------------------------------------
+IF @RuleId = 43
+BEGIN
+
+	SELECT DISTINCT FundingDivAbbr INTO #orgDiv from UploadWorkBook 
+	WHERE (ISNULL(FundingDivAbbr, '')) != '' AND (FundingDivAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingDivision))
+	
+	SELECT u.AwardCode, u.AltID AS AltAwardCode, u.FundingDivAbbr, u.BudgetStartDate, u.BudgetEndDate, u.CSOCodes, u.CSORel, u.SiteCodes, u.SiteRel  
+	FROM #orgDiv c JOIN UploadWorkbook u ON c.FundingDivAbbr = u.FundingDivAbbr
+END 
+	
 GO
 
 
