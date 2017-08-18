@@ -29,11 +29,15 @@ echo "**"
 #rm -rf myproject
 #echo "You should have your composer.json"
 
+#Need to overwrite this file
+
 # Run composer update
+
 echo "**"
 echo "* composer update drupal/core --with-dependencies"
 echo "**"
-cp ../icrp/utility/upgrade_production_8.3.7/composer/composer.json.final ./composer.json
+mv composer.json composer.json.8.2.7
+cp ../tmp/utility/upgrade_production_8.3.7/composer/composer.json.final ./composer.json
 composer update
 # drupal/core  --with-dependencies
 drush updatedb -y
@@ -47,6 +51,8 @@ echo "**"
 echo "**"
 echo "* NOTE: Please remember that the Partner Home page and FAQ have issues.  These issues will be fixed when updating to current code."
 echo "**"
+sudo chmod -R 755 sites themes modules libraries
+sudo chmod -R 744 sites composer.json
 echo -n "END TIME: "
 timestamp
 
