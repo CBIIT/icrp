@@ -31,7 +31,7 @@ echo "**"
 echo "**"
 echo "* composer update drupal/core --with-dependencies"
 echo "**"
-cp ../icrp/utility/upgrade_production_8.3.7/composer/composer.json.8.3.7 ./composer.json
+cp ../tmp/utility/upgrade_production_8.3.7/composer/composer.json.8.3.7 ./composer.json
 composer update
 # drupal/core  --with-dependencies
 drush updatedb -y

@@ -1,0 +1,11 @@
+sudo su -
+cd /local/drupal
+mv icrp icrp-old
+mkdir tmp icrp
+chown -R drupal:drupal tmp icrp
+sudo su drupal
+rm -rf tmp/.git
+drupal@ip-172-30-0-233 /local/drupal$ rm -rf tmp/.gitignore
+drupal@ip-172-30-0-233 /local/drupal$ rm -rf tmp/*
+git clone https://github.com/CBIIT/icrp.git tmp
+tmp/utility/upgrade_production_8.3.7/create_icrp_8.2.7.sh  icrp icrp icrp <DB_PASS> /local/drupal/icrp-old/sites/default

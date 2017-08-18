@@ -1,0 +1,83 @@
+#!/bin/bash -ex
+ 
+source ~/.bash_profile
+ 
+IFS=- read TARGET TYPE <<< ${target_host}
+echo "Target Host: $TARGET"
+ 
+echo "Removing old build archive."
+rm -rf ../icrp.tgz
+ 
+pushd modules/custom/db_search/src/angular/
+ 
+echo "Installing dependencies"
+yarn install
+ 
+echo "Starting ng build"
+yarn build
+ 
+echo "Removing node modules"
+# rm -rf node_modules
+ 
+popd
+ 
+echo "Packaging build"
+# tar -czf ../icrp.tgz --exclude-vcs --exclude $PWD/node_modules .
+tar -czf ../icrp.tgz --exclude-vcs .
+ 
+echo "Build Completed! Starting Deployment to ${TARGET}"
+scp ../icrp.tgz centos@${TARGET}:
+ 
+ 
+ssh centos@${TARGET} << EOF
+set -ex
+rm -rf ./icrp &&  mkdir icrp && tar -xzf icrp.tgz -C icrp
+#EOF
+ 
+# echo "Recreating database"
+cd icrp
+mysqladmin -uicrp -p<password> -hlocalhost -f drop icrp
+mysqladmin -uicrp -p<password> -hlocalhost create icrp
+mysql -uicrp -p<password> -hlocalhost icrp < icrp.sql
+EOF
+ 
+ssh -T centos@${TARGET} << EOF
+set -ex
+cd /local/drupal/icrp
+echo "Removing old backups"
+sudo rm -rf sites.bak modules.bak themes.bak libraries.bak
+echo "Creating backups"
+sudo mv sites sites.bak && sudo mv modules modules.bak && sudo mv themes themes.bak && sudo mv libraries libraries.bak
+echo "Deploying new sites, modules, themes, libraries"
+sudo cp -R ~/icrp/sites/ . && sudo cp -R ~/icrp/modules/ . && sudo cp -R ~/icrp/themes/ . && sudo cp -R ~/icrp/libraries/ . && sudo cp ~/icrp/composer.json .
+ 
+echo "Copying php settings"
+sudo cp /home/centos/settings.php sites/default/
+ 
+echo "Copy library files"
+sudo rm -R sites/default/files/library
+sudo mv sites.bak/default/files/library sites/default/files/library
+ 
+echo "Performing owner changes"
+sudo chown -R apache.nobody modules && sudo chown -R apache.nobody sites && sudo chown -R apache.nobody themes && sudo chown -R apache.nobody libraries &&
+sudo chown apache.nobody composer.json
+ 
+echo "Changing access rights of sites, themes, modules, libraries"
+sudo chmod -R 755 sites themes modules libraries
+ 
+echo "Import Drupal Configuration from sync directory"
+#drush cim
+ 
+echo "Run drush cache-rebuild"
+drush --druplicon cr
+ 
+echo "Copy config.ini"
+sudo mkdir -p /local/drupal/icrp/modules/custom/db_search_api/src/Controllerpwd
+ 
+sudo chown -R apache.nobody /local/drupal/icrp/modules
+EOF
+ 
+echo "Clean up"
+rm -rf ../icrp.tgz
+ 
+echo "Deployment Completed!" 

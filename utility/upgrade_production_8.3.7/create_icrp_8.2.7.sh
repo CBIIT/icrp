@@ -82,34 +82,26 @@ echo "**"
 echo "* The next command may need your github username and password"
 echo "* git clone https://<username>:<password>@github.com/CBIIT/icrp.git\n**"
 echo "**"
-cd sites
-git clone https://github.com/CBIIT/icrp.git
+#cd sites
+#git clone https://github.com/CBIIT/icrp.git
 #git clone https://<username>:<password>@github.com/CBIIT/icrp.git
 
-cd icrp
-echo "**"
-echo "* Switching to 1.2"
-echo "**"
-git checkout tags/icrp_1.2.0_20170718
+#cd icrp
+#echo "**"
+#echo "* Switching to 1.2"
+#echo "**"
+#git checkout tags/icrp_1.2.0_20170718
 
 #cp modules, themes, libraries, and default directories
 echo "**"
 echo "* Copy themes and libraries"
 echo "**"
-cp -r modules/* ../../modules
-cp -r themes/* ../../themes
-mkdir -p ../../libraries
-cp -r libraries/* ../../libraries
-cp -r sites/default/ ../default/
-cp -rf /local/drupal/icrp-old/sites/default/files /local/drupal/$DOC_ROOT/sites/default/
-
-#cp settings.php to the new site.
-echo "**"
-echo "* Copy themes and libraries"
-echo "**"
-echo "cp $SETTINGS_PHP_PATH/settings.php ../default/"
-cp $SETTINGS_PHP_PATH/settings.php ../default/
-
+#cp -r modules/* ../../modules
+#cp -r themes/* ../../themes
+#mkdir -p ../../libraries
+#cp -r libraries/* ../../libraries
+#cp -r sites/default/ ../default/
+#cp -rf /local/drupal/icrp-old/sites/default/files /local/drupal/$DOC_ROOT/sites/default/
 #import database to icrp
 echo "**"
 echo "* Import database"
@@ -117,7 +109,8 @@ echo "**"
 #mysqladmin -u$DB_USER -p$DB_PASS -f drop $DB_NAME
 #mysqladmin -u$DB_USER -p$DB_PASS create $DB_NAME
 #mysql -u$DB_USER -p$DB_PASS $DB_NAME < icrp.sql
-drush cr
+#drush cr
+
 echo "**"
 echo "* ICRP 1.2 is ready"
 echo "**"
