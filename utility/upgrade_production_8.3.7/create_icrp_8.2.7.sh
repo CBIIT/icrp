@@ -7,12 +7,13 @@ git clone https://github.com/CBIIT/icrp.git
 timestamp() {
   date +"%T"
 }
-if [ "$5" = "" ]
+if [ "$1" = "" ]
 then
   echo "**"
-  echo "* Syntax: $0 <DOC_ROOT> <DB_NAME> <DB_USER> <DB_PASSWORD> <SETTINGS_PHP_PATH>"
-  echo "* Enter the document root, db name, db user, and db password"
-  echo "* Enter the FULL path to the settings.php file to replace after the build"
+  echo "* Syntax: $0 <DOC_ROOT>"
+  # <DB_NAME> <DB_USER> <DB_PASSWORD> <SETTINGS_PHP_PATH>"
+  #echo "* Enter the document root, db name, db user, and db password"
+  #echo "* Enter the FULL path to the settings.php file to replace after the build"
   echo "**"
   exit
 fi
@@ -44,7 +45,10 @@ echo "**"
 echo "* Remove all files from $DOC_ROOT"
 echo "**"
 echo "mkdir -p $DOC_ROOT"
-rm -rf $DOC_ROOT
+rm -rf $DOC_ROOT/.git
+rm -rf $DOC_ROOT/.gitignore
+rm -rf $DOC_ROOT/*
+
 mkdir -p $DOC_ROOT
 
 echo "**"
