@@ -1,6 +1,7 @@
 {
     "name": "icrp/data_load",
     "require": {
-        "box/spout": "^2.7"
+        "box/spout": "^2.7",
+        "league/csv": "^9.0"
     }
 }

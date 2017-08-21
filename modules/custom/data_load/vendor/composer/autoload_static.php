@@ -6,7 +6,15 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit2eccee4accf0ee527805b65cf67720f6
 {
+    public static $files = array (
+        '9e4824c5afbdc1482b6025ce3d4dfde8' => __DIR__ . '/..' . '/league/csv/src/functions_include.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
+        'L' => 
+        array (
+            'League\\Csv\\' => 11,
+        ),
         'B' => 
         array (
             'Box\\Spout\\' => 10,
@@ -14,6 +22,10 @@ class ComposerStaticInit2eccee4accf0ee527805b65cf67720f6
     );
 
     public static $prefixDirsPsr4 = array (
+        'League\\Csv\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/league/csv/src',
+        ),
         'Box\\Spout\\' => 
         array (
             0 => __DIR__ . '/..' . '/box/spout/src/Spout',
