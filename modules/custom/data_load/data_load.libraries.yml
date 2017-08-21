@@ -6,3 +6,12 @@ resources:
   js:
     src/assets/service-worker.js: {}
     src/assets/main.js: {}
+
+
+add_institutions:
+  version: 1.0
+  css:
+    theme:
+      src/assets/add_institutions/main.css: {}
+  js:
+    src/assets/add_institutions/main.js: {}
