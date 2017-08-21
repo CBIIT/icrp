@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import {
+    Alert,
     Form,
     Button,
     Col,
@@ -163,13 +164,19 @@ class UploadFormComponent extends Component {
             // response.status, response.statusText
             let message = await response.text();
             that.handleReset();
-            alert("Oops! " + message);
+            this.setState({loading: false, errorMessage: message});
         }
     }
 
     render() {
         return (
             <div>
+                {this.state.errorMessage && 
+                    <Alert 
+                        bsStyle="danger" 
+                        onDismiss={ev => this.setState({errorMessage: null})}>
+                        The number of columns in the import file do not match the number of fields required
+                    </Alert>}
                 <Spinner message="Loading Workbook..." visible={this.state.loading} />
                 <Panel onClick={this.handleClick}>
                     <Form horizontal>
