@@ -8,6 +8,10 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
+
+
+use League\Csv\Reader;
+use League\Csv\CharsetConverter;
 use Box\Spout\Writer\WriterFactory;
 use Box\Spout\Common\Type;
 use \PDO;
@@ -232,46 +236,34 @@ class DataLoadController {
             [FundingOrgAbbr], [FundingDiv], [FundingDivAbbr], [FundingContact], [PILastName], [PIFirstName], [SubmittedInstitution], [City], [State], [Country], [PostalZipCode], [InstitutionICRP], [Latitute], [Longitute], [GRID],
             [TechAbstract], [PublicAbstract], [RelatedAwardCode], [RelationshipType], [ORCID], [OtherResearcherID], [OtherResearcherIDType], [InternalUseOnly], [OriginalFileName]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
             ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-            
+
             $csvReader = new CSVReader($uploaddir . $fileName, 42, '|');
             
             // Read the header row and check the number of columns is as expected
             try {
                 $csvReader->checkHeaders();
+
+                $index = 0;
+                while ($line = $csvReader->getNextLine()) {
+                    array_push($line, $originalFileName);
+                    
+                    $index ++;
+                    //error_log($index);
+                    //error_log(json_encode($line));
+                    $stmt->execute($line);
+                }
+
             } catch (InvalidFileFormatException $e) {
                 $response = new Response(
-                'Content',
-                Response::HTTP_BAD_REQUEST,
-                array('content-type' => 'text/html')
+                    'Content',
+                    Response::HTTP_BAD_REQUEST,
+                    array('content-type' => 'text/html')
                 );
                 $response->setContent($e->getMessage() );
                 $csvReader->close();
                 return self::addCorsHeaders($response);
             }
-            
-            // Read the content rows
-            while(true) {
-                try {
-                    $lineArr = $csvReader->getNextLine();
-                    if ($lineArr) {
-                        array_push($lineArr, $originalFileName);
-                        $stmt->execute($lineArr);
-                    }
-                    else { break; }
-                
-                }
-                catch (InvalidFileFormatException $e) {
-                    $response = new Response(
-                    'Content',
-                    Response::HTTP_BAD_REQUEST,
-                    array('content-type' => 'text/html')
-                    );
-                    $response->setContent($e->getMessage() );
-                    $csvReader->close();
-                    return self::addCorsHeaders($response);
-                }
-            }
-            
+
             $csvReader->close();
             
             $rowCount = $conn->query("SELECT COUNT(*) FROM UploadWorkBook")->fetchColumn();
@@ -431,17 +423,14 @@ class DataLoadController {
     }
 
     public function export(Request $request) {
-        $excludedRules = $request->request->get('excludedRules', []);
+        $exportRules = $request->request->get('exportRules', []);
         $originalFileName = $request->request->get('originalFileName', 'N/A');
         $type = $request->request->get('uploadType', 'N/A');
         $partnerCode = $request->request->get('partnerCode', 'N/A');
 
-        // ensure excluded rules is an array 
-        if ($excludedRules) {
-            $excludedRules = explode(',', $excludedRules);
+        if ($exportRules) {
+            $exportRules = json_decode($exportRules, true);
         }
-
-        //error_log(print_r($excludedRules));
 
         $exportsFolder = getcwd() . '/modules/custom/data_load/exports/';
         if (!file_exists($exportsFolder)) {
@@ -455,31 +444,17 @@ class DataLoadController {
         $writer->openToFile($filePath);
 
         $conn = self::getConnection();
-        $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE DataUpload_IntegrityCheck @Type=:type, @PartnerCode=:partnerCode');
-
-        $stmt->execute([
-            ':type' => $type,
-            ':partnerCode' => $partnerCode,
-        ]);
-
-        $results = $stmt->fetchAll();
-
-        $validRules = array_filter($results, function($row) use ($excludedRules) {
-            return $row['Type'] === 'Rule'
-                && $row['Count'] > 0
-                && !in_array($row['ID'], $excludedRules);
-        });
-
-
-        $sheet = $writer->getCurrentSheet();
-        foreach ($validRules as $rule) {
-            $title = substr($rule['Description'], 0, 31);
+        
+        foreach ($exportRules as $sheetIndex => $rule) {
+            $sheet = $writer->getCurrentSheet();
+            
+            $title = substr($rule['name'], 0, 31);
             $sheet->setName($title);
 
             $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE DataUpload_IntegrityCheckDetails @RuleId=:ruleId, @PartnerCode=:partnerCode');
 
             $stmt->execute([
-                ':ruleId' => $rule['ID'],
+                ':ruleId' => $rule['id'],
                 ':partnerCode' => $partnerCode,
             ]);
 
@@ -490,53 +465,16 @@ class DataLoadController {
             }
 
             $writer->addRows([
-                [$rule['Description']],
+                [$rule['name']],
                 [''],
                 $headers,
             ]);
             $writer->addRows($stmt->fetchAll(PDO::FETCH_NUM));
-            $sheet = $writer->addNewSheetAndMakeItCurrent();
+            
+            if ($sheetIndex < count($exportRules) - 1) {
+                $writer->addNewSheetAndMakeItCurrent();
+            }
         }
-
-
-        $integrityCheckCounts = array_reduce($results, function($acc, $row) {
-            if ($row['Type'] == 'Summary' ) {
-                array_push($acc, [
-                    $row['Description'],
-                    $row['Count'],
-                ]);
-            }
-
-            return $acc;
-        }, []);
-
-        $integrityCheckSummary = array_reduce($results, function($acc, $row) use ($excludedRules) {
-            if ($row['Type'] == 'Rule' && !in_array($row['ID'], $excludedRules)) {
-                array_push($acc, [
-                    $row['Description'],
-                    $row['Count'],
-                ]);
-            }
-
-            return $acc;
-        }, []);
-        
-        $sheet->setName('Integrity Check Summary');
-        $writer->addRows([
-            ['Integrity Check Summary'],
-            ['Original File:', $originalFileName],
-            ['Partner Code:', $partnerCode],
-            ['Upload Type:', $type],
-            [''],
-        ]);
-
-        $writer->addRow(['Summarized Counts']);
-        $writer->addRows($integrityCheckCounts);
-
-        $writer->addRow(['']);
-        $writer->addRow(['Failing Validation Rules']);
-        $writer->addRows($integrityCheckSummary);
-
 
         $writer->close();
         return self::addCorsHeaders(new JsonResponse($fileName));

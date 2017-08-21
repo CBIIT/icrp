@@ -128,14 +128,14 @@ class App extends Component {
     this.setState({ tabKey: key });
   }
 
-  async handleExport() {
+  async handleExport(failedRules) {
 
     this.setState({
       loadingExport: true,
     })
 
     let parameters = {
-      excludedRules: this.state.validationRules.filter(rule => !rule.checked || !rule.active).map(rule => rule.id).join(','),
+      exportRules: JSON.stringify(failedRules),
       originalFileName: this.state.fileName,
       uploadType: this.state.uploadType,
       partnerCode: this.state.sponsorCode,

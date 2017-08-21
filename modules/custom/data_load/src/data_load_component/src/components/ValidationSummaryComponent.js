@@ -81,6 +81,15 @@ class ValidationSummaryComponent extends Component {
                 )
             }
         });
+        
+
+        let failedRules = this.props.validationResults
+            .filter(result => parseInt(result.id) !== 0)
+            .filter(result => result.validationResult === 'Failed')
+            .map(result => ({
+                id: parseInt(result.id),
+                name: result.name
+            }));
 
         return (
 
@@ -112,7 +121,7 @@ class ValidationSummaryComponent extends Component {
                     <div className="validation-summary-panel" style={{position: 'relative'}}>
                         <Button 
                             className="responsive-pull-right"
-                            onClick={this.props.onExport} 
+                            onClick={event => this.props.onExport(failedRules)} 
                             disabled={this.props.exportDisabled}>
                             Export Error Records
                         </Button>                 
