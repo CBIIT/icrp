@@ -31,6 +31,7 @@ export default class FileInput extends Component {
           <label className="m-l-10">Institution File (.csv) *</label>
           <input
             type="file"
+            accept=".csv"
             className="m-l-10"
             ref={fileInput => this.elements.fileInput = fileInput}
             onChange={event => this.readFile(event.target.files[0])}
