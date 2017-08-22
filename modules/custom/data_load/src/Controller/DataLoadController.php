@@ -497,7 +497,9 @@ class DataLoadController {
         foreach ($exportRules as $sheetIndex => $rule) {
             $sheet = $writer->getCurrentSheet();
 
+            // do not allow \ / ? * : [ or ] in title
             $title = substr($rule['name'], 0, 31);
+            $title = preg_replace('[\\\\\/\?\*\[\]]', '', $title);
             $sheet->setName($title);
 
             $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE DataUpload_IntegrityCheckDetails @RuleId=:ruleId, @PartnerCode=:partnerCode');

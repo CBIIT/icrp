@@ -59,14 +59,19 @@ class DataGrid extends Component {
       pageSize,
     } = this.state;
 
+    const showingFrom = Math.max(activePage * 25 - 24, 1);
+    const showingTo = Math.min(activePage * pageSize, rows.length);
+
     return (
       !this.props.visible ? null :
       <div className={this.props.className}>
           <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center' }}>
             <div className="pagination">
-              Showing {(activePage - 1) * pageSize + 1} - {activePage * pageSize} entries of {rows.length}
+              <b>Showing</b> {showingFrom.toLocaleString()} - {showingTo.toLocaleString()} of <b>{rows.length.toLocaleString()}</b> records
             </div>
-            <Pagination
+            {
+              rows.length > pageSize &&
+              <Pagination
               prev
               next
               first
@@ -78,6 +83,7 @@ class DataGrid extends Component {
               activePage={activePage}
               onSelect={page => this.handlePagination(page)}
             />
+          }
           </div>
 
         <ReactDataGrid

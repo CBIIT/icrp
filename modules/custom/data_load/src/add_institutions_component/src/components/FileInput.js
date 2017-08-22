@@ -5,7 +5,7 @@ import { parse } from '../services/ParseCSV';
 export default class FileInput extends Component {
 
   elements = {
-    fileInput: null;
+    fileInput: null
   }
 
   state = {
@@ -41,7 +41,7 @@ export default class FileInput extends Component {
           <Button
             className="m-t-5 m-r-5"
             onClick={event => onLoad(this.state)}
-            disabled={!this.elements.fileInput.value}>
+            disabled={!this.elements.fileInput || !this.elements.fileInput.value}>
             Load
           </Button>
 

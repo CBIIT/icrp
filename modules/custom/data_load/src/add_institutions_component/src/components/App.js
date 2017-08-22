@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Button, Col, FormGroup, Row } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import DataGrid from './DataGrid';
 import FileInput from './FileInput';
 import { parse } from '../services/ParseCSV';
@@ -21,14 +21,36 @@ export default class App extends Component {
 
   reset(elements) {
     this.setState(this.initialState());
-
     for (let key in elements) {
       elements[key].value = '';
     }
   }
 
-  addInstitutions() {
+  showTable(event) {
+    let {headers, institutions} = event;
+    let showTable = true;
+    this.setState({headers, institutions, showTable});
+  }
 
+  async addInstitutions() {
+
+    let { headers, institutions } = this.state;
+    let data = institutions.map(institution =>
+      headers.map(header => institution[header])
+    );
+
+    let protocol = window.location.protocol;
+    let hostname = window.location.hostname;
+    let pathname = 'DataUploadTool/addInstitutions';
+    let response = await fetch(`${protocol}//${hostname}/${pathname}`, {
+      method: 'POST',
+      credentials: 'same-origin',
+      body: JSON.stringify(data),
+    });
+
+    this.setState({
+      failedInstitutions: await response.json()
+    });
   }
 
   render() {
@@ -37,18 +59,16 @@ export default class App extends Component {
       institutions,
       failedInstitutions,
       showTable,
-      showModal
+      showModal,
     } = this.state;
 
     return (
       <div>
         <div className="bordered clearfix m-b-10">
           <FileInput
-             onLoad={state => this.setState(state)}
+             onLoad={event => this.showTable(event)}
              onReset={elements => this.reset(elements)}
           />
-
-          <br />
 
           <DataGrid
             className="m-5"
@@ -59,7 +79,6 @@ export default class App extends Component {
         </div>
 
         <div className="text-center">
-
           <Button
             className="m-5"
             onClick={event => this.addInstitutions()}>
@@ -72,6 +91,15 @@ export default class App extends Component {
             Cancel
           </Button>
         </div>
+        {
+          failedInstitutions.length &&
+          <DataGrid
+            className="m-5"
+            visible={showTable}
+            rows={failedInstitutions}
+            columns={headers}
+          />
+        }
       </div>
     );
   }
