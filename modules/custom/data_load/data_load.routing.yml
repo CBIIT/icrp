@@ -98,3 +98,12 @@ dataload.sponsor_codes:
     _controller: 'Drupal\data_load\Controller\DataLoadController::getSponsorCodes'
   requirements:
     _access: 'TRUE'
+
+
+
+dataload.sponsor_codes:
+  path: '/DataUploadTool/addInstitutions'
+  defaults:
+    _controller: 'Drupal\data_load\Controller\AddInstitutionsController::addInstitutionsRoute'
+  requirements:
+    _access: 'TRUE'
