@@ -7,3 +7,34 @@ body {
 .bordered {
   border: 1px solid #ccc;
 }
+
+.pagination {
+  margin: 4px 0 !important;
+}
+
+.m-5 {
+  margin: 5px;
+}
+
+.m-t-5 {
+  margin-top: 5px;
+}
+
+.m-b-5 {
+  margin-bottom: 5px;
+}
+
+.m-l-5 {
+  margin-left: 5px;
+}
+
+
+.m-r-5 {
+  margin-right: 5px;
+}
+
+
+
+.m-b-10 {
+  margin-bottom: 10px;
+}

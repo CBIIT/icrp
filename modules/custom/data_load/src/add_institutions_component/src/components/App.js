@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import { Button } from 'react-bootstrap';
-import ReactDataGrid from 'react-data-grid';
+import { Button, Col, FormGroup, Row } from 'react-bootstrap';
+import DataGrid from './DataGrid';
 import { parse } from '../services/ParseCSV';
 
 export default class App extends Component {
@@ -25,23 +25,11 @@ export default class App extends Component {
     let file = element.files[0];
     let csv = await parse(file);
 
-    console.log(csv, file);
-    
-    let headers = csv.meta.fields
-      .map(header => ({
-        key: header,
-        name: header,
-        sortable: true,
-        resizable: true,
-        width: 140,
-        
-      })
-    );
-    
     this.setState({
       file: file,
       institutions: csv.data,
-      headers: headers,
+      headers: csv.meta.fields,
+      showTable: false,
     });
   }
 
@@ -54,67 +42,75 @@ export default class App extends Component {
   }
 
 
-  handleGridSort(sortColumn, sortDirection) {
-    const comparer = (a, b) => {
-      if (sortDirection === 'ASC') {
-        return (a[sortColumn] > b[sortColumn]) ? 1 : -1;
-      } else if (sortDirection === 'DESC') {
-        return (a[sortColumn] < b[sortColumn]) ? 1 : -1;
-      }
-    };
-
-    const rows = sortDirection === 'NONE' ? this.state.originalRows.slice(0) : this.state.rows.sort(comparer);
-
-//    this.setState({ rows });
-  }
-
   addInstitutions() {
 
   }
   
 
   render() {
-    let {file, institutions, failedInstitutions, headers} = this.state;
+    let {
+      file, 
+      institutions, 
+      failedInstitutions, 
+      headers, 
+      showTable, 
+      showModal
+    } = this.state;
 
     return (
       <div>
-        <div className="bordered">
-          <label>Institution File (.csv) *</label> 
-          <input 
-            type="file" 
-            ref={fileInput => this.elements.fileInput = fileInput}
-            onChange={event => this.loadFile(event.target)} 
-          />
+        <div className="bordered clearfix m-b-10">
+          <Row className="form-group">
+            <Col sm={6}>
+              <label className="m-l-5">Institution File (.csv) *</label> 
+              <input 
+                type="file" 
+                className="m-l-5"
+                ref={fileInput => this.elements.fileInput = fileInput}
+                onChange={event => this.loadFile(event.target)} 
+              />
+            </Col>
 
-          <Button 
-            onClick={event => this.setState({showTable: true})} 
-            disabled={!file}>
-            Load
-          </Button>
+            <Col sm={6} className="text-right">
+              <Button 
+                className="m-t-5 m-r-5"
+                onClick={event => this.setState({showTable: true})} 
+                disabled={!file}>
+                Load
+              </Button>
 
-          <Button onClick={event => this.reset()}>
-            Reset
-          </Button>
+              <Button 
+                className="m-t-5 m-r-5"
+                onClick={event => this.reset()}>
+                Reset
+              </Button>
+            </Col>
+          </Row>
 
           <br />
 
-          <ReactDataGrid
-            columns={headers}
-            rowGetter={index => institutions[index]}
-            rowsCount={institutions.length}
-            onGridSort={(column, direction) => this.handleGridSort(column, direction)}
-            minHeight={institutions.length > 25 ? 
-              20 + (25 * 35) 
-              : 20 + ((institutions.length + 1) * 35)}
-          />;          
+          <div className="m-5">
+            <DataGrid
+              visible={showTable}
+              rows={institutions}
+              columns={headers}
+            />
+          </div>
         </div>
-        
 
-
-
-        <div>
-          <Button onClick={event => this.addInstitutions()}>Add Institutions</Button>
-          <Button href={this.CANCEL_URL}>Cancel</Button>
+        <div className="text-center">
+          
+          <Button
+            className="m-5"
+            onClick={event => this.addInstitutions()}>
+            Add Institutions
+          </Button>
+          
+          <Button 
+            className="m-5"
+            href={this.CANCEL_URL}>
+            Cancel
+          </Button>
         </div>
       </div>
     );

@@ -47,6 +47,4 @@ class AddInstitutionsController {
     $data = self::addInstitutions($institutions);
     return new JsonResponse($data);
   }
-
-
 }
