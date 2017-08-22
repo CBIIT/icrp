@@ -187,7 +187,7 @@ class DataLoadController {
             AwardCode NVARCHAR(50),
             AwardStartDate Date,
             AwardEndDate date,
-            SourceId VARCHAR(50),
+            SourceId VARCHAR(150),
             AltId VARCHAR(50),
             AwardTitle VARCHAR(1000),
             Category VARCHAR(25),
@@ -279,7 +279,7 @@ class DataLoadController {
                         Response::HTTP_BAD_REQUEST,
                         array('content-type' => 'text/html')
                     );
-                    $response->setContent($response = $e->getMessage());
+                    $response->setContent($e->getMessage());
                     return self::addCorsHeaders($response);
                 }
 
