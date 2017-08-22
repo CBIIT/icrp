@@ -51,8 +51,6 @@ echo "**"
 echo "**"
 echo "* NOTE: Please remember that the Partner Home page and FAQ have issues.  These issues will be fixed when updating to current code."
 echo "**"
-sudo chmod -R 755 sites themes modules libraries
-sudo chmod -R 744 sites composer.json
 echo -n "END TIME: "
 timestamp
 

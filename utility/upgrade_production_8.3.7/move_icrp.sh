@@ -21,7 +21,7 @@ echo "Copy default/all"
 sudo cp -pr /local/drupal/icrp-old/sites/all/ sites/all/
 echo "Copy default/files"
 rm -rf sites/files
-sudo cp -pr /local/drupal/icrp-old/sites/default/files/ sites/default/files
+sudo cp -pr /local/drupal/icrp-old/sites/default/files/ /local/drupal/$DOC_ROOT/sites/default/files
 
 echo "Performing owner changes"
 sudo chown -R apache.nobody modules && sudo chown -R apache.nobody sites && sudo chown -R apache.nobody themes && sudo chown -R apache.nobody libraries &&

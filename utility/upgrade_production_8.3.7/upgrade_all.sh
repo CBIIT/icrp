@@ -24,26 +24,22 @@ tmp/utility/upgrade_production_8.3.7/create_icrp_8.2.7.sh icrp
 
 #STEP 2: Move ICRP assets (As SuperUser)
 sudo su -  (or exit from drupal user)
+chmod 775 -R tmp/utility/upgrade_production_8.3.7
 tmp/utility/upgrade_production_8.3.7/move_icrp.sh icrp
 
 #STEP 3: Upgrade to 8.3.7
 sudo chmod -R 777 icrp/sites icrp/themes icrp/modules icrp/libraries icrp/composer.json
 #Change to DRUPAL USER
 tmp/utility/upgrade_production_8.3.7/upgrade_icrp_8.3.7.sh icrp
-#Change to root
-sudo chmod -R 755 icrp/sites icrp/themes icrp/modules icrp/libraries
-sudo chmod -R 744 icrp/composer.json
 
 #STEP 4: Remove layout_plugin
 tmp/utility/upgrade_production_8.3.7/remove_layout_plugin.sh icrp
+#Change to root
 
 #STEP 5: Upgrade the rest of the modules
-sudo chmod -R 777 icrp/sites icrp/themes icrp/modules icrp/libraries icrp/composer.json
 #Run this as DRUPAL USER
 tmp/utility/upgrade_production_8.3.7/upgrade_modules.sh icrp
-#Change to root
-sudo chmod -R 755 icrp/sites icrp/themes icrp/modules icrp/libraries
-sudo chmod -R 744 icrp/composer.json
+#Change to ROOT
 #clean up
 rm -rf icrp-old tmp
 echo "Upgrade Complete"
