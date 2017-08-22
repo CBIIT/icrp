@@ -43,8 +43,8 @@ class DataGrid extends Component {
       }
     };
 
-    const rows = sortDirection === 'NONE' 
-      ? this.state.originalRows.slice(0) 
+    const rows = sortDirection === 'NONE'
+      ? this.state.originalRows.slice(0)
       : this.state.rows.sort(comparer);
 
     this.setState({ rows });
@@ -60,8 +60,8 @@ class DataGrid extends Component {
     } = this.state;
 
     return (
-      !this.props.visible ? null : 
-      <div>
+      !this.props.visible ? null :
+      <div className={this.props.className}>
           <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center' }}>
             <div className="pagination">
               Showing {(activePage - 1) * pageSize + 1} - {activePage * pageSize} entries of {rows.length}
@@ -76,7 +76,7 @@ class DataGrid extends Component {
               items={Math.ceil(rows.length / pageSize)}
               maxButtons={5}
               activePage={activePage}
-              onSelect={page => this.handlePagination(page)} 
+              onSelect={page => this.handlePagination(page)}
             />
           </div>
 
@@ -85,8 +85,8 @@ class DataGrid extends Component {
           rowGetter={index => rows[index]}
           rowsCount={rows.length}
           onGridSort={(column, direction) => this.handleGridSort(column, direction)}
-          minHeight={rows.length > pageSize 
-            ? 20 + (pageSize * 35) 
+          minHeight={rows.length > pageSize
+            ? 20 + (pageSize * 35)
             : 20 + ((rows.length + 1) * 35)}
         />
       </div>
