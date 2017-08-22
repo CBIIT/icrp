@@ -1,7 +1,7 @@
 #!/bin/bash
 
 TEMP_DIR="$PWD/temp"
-DRUPAL_VERSION="8.3.6"
+DRUPAL_VERSION="8.3.7"
 DRUPAL_FILENAME="drupal-$DRUPAL_VERSION.tar.gz"
 DRUPAL_FILEPATH="$TEMP_DIR/$DRUPAL_FILENAME"
 DRUPAL_URL="http://ftp.drupal.org/files/projects/$DRUPAL_FILENAME"
