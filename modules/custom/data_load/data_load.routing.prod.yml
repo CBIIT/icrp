@@ -101,3 +101,25 @@ dataload.sponsor_codes:
     _access: 'TRUE'
     _role: 'authenticated+admin'    
     _role: 'authenticated+manager'
+
+
+dataload.add_institutions:
+  path: '/DataUploadTool/addInstitutions'
+  defaults:
+    _controller: 'Drupal\data_load\Controller\AddInstitutionsController::addInstitutionsRoute'
+  requirements:
+    _access: 'TRUE'
+    _role: 'authenticated+admin'    
+    _role: 'authenticated+manager'
+
+add_institutions.app:
+  path: '/AddInstitutions'
+  defaults:
+    _controller: '\Drupal\data_load\Controller\AddInstitutionsController::addInstitutionsApp'
+    _title: 'Add Institutions Tool'
+  requirements:
+    _access: 'TRUE'
+    _role: 'authenticated+admin'    
+    _role: 'authenticated+manager'
+
+
