@@ -14,6 +14,7 @@ rm -rf tmp
 rm -rf icrp
 mkdir tmp icrp
 chown -R drupal:drupal tmp icrp
+chmod -R 775 tmp/utility/upgrade_production_8.3.7
 
 #Change to DRUPAL USER
 sudo su drupal
@@ -40,6 +41,8 @@ tmp/utility/upgrade_production_8.3.7/remove_layout_plugin.sh icrp
 #Run this as DRUPAL USER
 tmp/utility/upgrade_production_8.3.7/upgrade_modules.sh icrp
 #Change to ROOT
+sudo chmod -R 755 icrp/sites icrp/themes icrp/modules icrp/libraries
+sudo chmod -R 744 icrp/composer.json
 #clean up
 rm -rf icrp-old tmp
 echo "Upgrade Complete"
