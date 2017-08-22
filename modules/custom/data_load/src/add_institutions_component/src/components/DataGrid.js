@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import ReactDataGrid from 'react-data-grid';
-import { Row, Col, Pagination } from 'react-bootstrap';
+import { Pagination } from 'react-bootstrap';
 
 import PropTypes from 'prop-types';
 
@@ -12,6 +12,8 @@ class DataGrid extends Component {
     columns: [],
     activePage: 1,
     pageSize: 25,
+    sortColumn: null,
+    sortDirection: 'NONE',
   };
 
   componentWillReceiveProps(props) {
@@ -25,13 +27,31 @@ class DataGrid extends Component {
           name: column,
           sortable: true,
           resizable: true,
-          width: 140,
+          width: 240,
         })),
     });
   }
+  
 
-  handlePagination(event) {
-    console.log(event);
+  handlePagination(activePage) {
+    let { sortColumn, sortDirection } = this.state;
+
+    const comparer = (a, b) => {
+      if (sortDirection === 'ASC') {
+        return (a[sortColumn] > b[sortColumn]) ? 1 : -1;
+      } else if (sortDirection === 'DESC') {
+        return (a[sortColumn] < b[sortColumn]) ? 1 : -1;
+      }
+    };
+
+    let { pageSize } = this.state;
+
+    const rows = (sortDirection === 'NONE'
+      ? this.state.originalRows.slice(0)
+      : this.state.originalRows.slice(0).sort(comparer)
+    ).slice((activePage - 1) * pageSize, activePage * pageSize)
+
+    this.setState({ rows, activePage});
   }
 
   handleGridSort(sortColumn, sortDirection) {
@@ -43,45 +63,48 @@ class DataGrid extends Component {
       }
     };
 
-    const rows = sortDirection === 'NONE'
-      ? this.state.originalRows.slice(0)
-      : this.state.rows.sort(comparer);
+    let { activePage, pageSize } = this.state;
 
-    this.setState({ rows });
+    const rows = (sortDirection === 'NONE'
+      ? this.state.originalRows.slice(0)
+      : this.state.originalRows.slice(0).sort(comparer)
+    ).slice((activePage - 1) * pageSize, activePage * pageSize)
+
+    this.setState({ rows, sortColumn, sortDirection });
   }
 
   render() {
-    console.log('rendering datagrid', this.state, this.props);
     let {
       columns,
+      originalRows,
       rows,
       activePage,
       pageSize,
     } = this.state;
 
     const showingFrom = Math.max(activePage * 25 - 24, 1);
-    const showingTo = Math.min(activePage * pageSize, rows.length);
+    const showingTo = Math.min(activePage * pageSize, originalRows.length);
 
     return (
       !this.props.visible ? null :
       <div className={this.props.className}>
           <div style={{display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center' }}>
             <div className="pagination">
-              <b>Showing</b> {showingFrom.toLocaleString()} - {showingTo.toLocaleString()} of <b>{rows.length.toLocaleString()}</b> records
+              <b>Showing</b> {showingFrom.toLocaleString()} - {showingTo.toLocaleString()} of <b>{originalRows.length.toLocaleString()}</b> records
             </div>
             {
-              rows.length > pageSize &&
+              originalRows.length > pageSize &&
               <Pagination
-              prev
-              next
-              first
-              last
-              ellipsis
-              boundaryLinks
-              items={Math.ceil(rows.length / pageSize)}
-              maxButtons={5}
-              activePage={activePage}
-              onSelect={page => this.handlePagination(page)}
+                prev
+                next
+                first
+                last
+                ellipsis
+                boundaryLinks
+                items={Math.ceil(originalRows.length / pageSize)}
+                maxButtons={5}
+                activePage={activePage}
+                onSelect={page => this.handlePagination(page)}
             />
           }
           </div>

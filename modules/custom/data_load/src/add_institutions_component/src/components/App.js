@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { Alert, Button, Modal } from 'react-bootstrap';
 import DataGrid from './DataGrid';
 import FileInput from './FileInput';
-import { parse } from '../services/ParseCSV';
+import Spinner from './Spinner';
 
 export default class App extends Component {
 
@@ -17,6 +17,7 @@ export default class App extends Component {
       showTable: false,
       showModal: false,
       showMessage: false,
+      loading: false,
     }
   }
 
@@ -36,6 +37,9 @@ export default class App extends Component {
 
   async addInstitutions() {
 
+    this.setState({
+      loading: true,
+    })
     let { headers, institutions } = this.state;
     let data = institutions.map(institution =>
       headers.map(header => institution[header])
@@ -50,11 +54,11 @@ export default class App extends Component {
       body: JSON.stringify(data),
     });
 
-    let failedInstitutions = await response.json();
-    let showMessage = true;
-    console.log(failedInstitutions);
-
-    this.setState({ failedInstitutions, showMessage });
+    this.setState({ 
+      failedInstitutions: await response.json(), 
+      showMessage: true,
+      loading: false 
+    });
   }
 
   render() {
@@ -65,6 +69,7 @@ export default class App extends Component {
       showMessage,
       showTable,
       showModal,
+      loading,
     } = this.state;
 
     let successCount = institutions.length - failedInstitutions.length;
@@ -72,28 +77,25 @@ export default class App extends Component {
 
     return (
       <div>
-        { showMessage && failedCount > 0 &&
-          <Alert bsStyle="danger" onDismiss={event => this.setState({showMessage: false})}>
-            {successCount} institutions were added successfully
-            <span class="m-l-5" style={{cursor: 'pointer'}} onClick={event => this.setState({showModal: true})}>
-              . {failedCount} failed to add because they already exist in the system.
-            </span>
-          </Alert>
-        }
-
-        { showMessage && failedCount == 0 &&
-          <Alert onDismiss={event => this.setState({showMessage: false})}>
+        <Spinner visible={loading} message="Loading..." />
+        { showMessage && 
+          <Alert bsStyle={ failedCount ? 'danger' : 'success' } onDismiss={event => this.setState({showMessage: false})}>
             {successCount} institutions were added successfully.
+            { failedCount > 0 &&
+              <span style={{cursor: 'pointer', marginLeft: '5px', textDecoration: 'underline'}} onClick={event => this.setState({showModal: true})}>
+                {failedCount} failed to add because they already exist in the system.
+              </span>
+            }
           </Alert>
         }
 
-        <Modal show={showModal} onHide={event => this.setState({showModal: false})}>
+        <Modal show={showModal} onHide={event => this.setState({showModal: false})} bsSize="lg">
           <Modal.Header closeButton>
-            <Modal.Title>Institutions</Modal.Title>
+            <Modal.Title>Failed Records</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <DataGrid
-              className="m-5"
+              className="m-10"
               visible={showTable}
               rows={failedInstitutions}
               columns={headers}
@@ -108,10 +110,11 @@ export default class App extends Component {
           <FileInput
              onLoad={event => this.showTable(event)}
              onReset={elements => this.reset(elements)}
+             disabled={headers.length > 0}
           />
 
           <DataGrid
-            className="m-5"
+            className="m-10"
             visible={showTable}
             rows={institutions}
             columns={headers}
@@ -120,13 +123,13 @@ export default class App extends Component {
 
         <div className="text-center">
           <Button
-            className="m-5"
+            className="m-10"
             onClick={event => this.addInstitutions()}>
             Add Institutions
           </Button>
 
           <Button
-            className="m-5"
+            className="m-10"
             href={this.CANCEL_URL}>
             Cancel
           </Button>

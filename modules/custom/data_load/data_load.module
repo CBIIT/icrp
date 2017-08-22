@@ -5,5 +5,8 @@ function data_load_theme($existing, $type, $theme, $path) {
         'data_load' => [
             'variables' => [],
         ],
+        'add_institutions' => [
+            'variables' => [],
+        ],
     ];
 }

@@ -49,12 +49,12 @@ class AddInstitutionsController {
     /**
     * Adds CORS Headers to a response
     */
-    function addCorsHeaders($response) {
-      $response->headers->set('Access-Control-Allow-Headers', 'origin, content-type, accept');
-      $response->headers->set('Access-Control-Allow-Origin', '*');
-      $response->headers->set('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, PATCH, OPTIONS');
+  private static function addCorsHeaders($response) {
+    $response->headers->set('Access-Control-Allow-Headers', 'origin, content-type, accept');
+    $response->headers->set('Access-Control-Allow-Origin', '*');
+    $response->headers->set('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, PATCH, OPTIONS');
 
-      return $response;
+    return $response;
   }
 
   public static function addInstitutionsRoute(Request $request) {
@@ -64,4 +64,17 @@ class AddInstitutionsController {
     $data = self::addInstitutions($pdo, $institutions);
     return self::addCorsHeaders(new JsonResponse($data));
   }
+
+
+  public function addInstitutionsApp() {
+    return [
+    '#theme'    => 'add_institutions',
+    '#attached' => [
+    'library'   => [
+    'data_load/add_institutions'
+    ],
+    ],
+    ];
+}
+
 }

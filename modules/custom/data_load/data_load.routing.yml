@@ -6,7 +6,6 @@ dataload.app:
   requirements:
     _access: 'TRUE'
 
-
 dataload.load_data_mysql:
   path: '/DataUploadTool/loaddata_mysql'
   defaults:
@@ -107,3 +106,14 @@ dataload.add_institutions:
     _controller: 'Drupal\data_load\Controller\AddInstitutionsController::addInstitutionsRoute'
   requirements:
     _access: 'TRUE'
+
+
+add_institutions.app:
+  path: '/AddInstitutions'
+  defaults:
+    _controller: '\Drupal\data_load\Controller\AddInstitutionsController::addInstitutionsApp'
+    _title: 'Add Institutions Tool'
+  requirements:
+    _access: 'TRUE'
+
+
