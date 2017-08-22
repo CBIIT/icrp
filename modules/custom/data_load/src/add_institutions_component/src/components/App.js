@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Button } from 'react-bootstrap';
+import { Alert, Button, Modal } from 'react-bootstrap';
 import DataGrid from './DataGrid';
 import FileInput from './FileInput';
 import { parse } from '../services/ParseCSV';
@@ -16,6 +16,7 @@ export default class App extends Component {
       failedInstitutions: [],
       showTable: false,
       showModal: false,
+      showMessage: false,
     }
   }
 
@@ -29,7 +30,8 @@ export default class App extends Component {
   showTable(event) {
     let {headers, institutions} = event;
     let showTable = true;
-    this.setState({headers, institutions, showTable});
+    let showMessage = false;
+    this.setState({ headers, institutions, showTable, showMessage });
   }
 
   async addInstitutions() {
@@ -48,9 +50,11 @@ export default class App extends Component {
       body: JSON.stringify(data),
     });
 
-    this.setState({
-      failedInstitutions: await response.json()
-    });
+    let failedInstitutions = await response.json();
+    let showMessage = true;
+    console.log(failedInstitutions);
+
+    this.setState({ failedInstitutions, showMessage });
   }
 
   render() {
@@ -58,12 +62,48 @@ export default class App extends Component {
       headers,
       institutions,
       failedInstitutions,
+      showMessage,
       showTable,
       showModal,
     } = this.state;
 
+    let successCount = institutions.length - failedInstitutions.length;
+    let failedCount = failedInstitutions.length;
+
     return (
       <div>
+        { showMessage && failedCount > 0 &&
+          <Alert bsStyle="danger" onDismiss={event => this.setState({showMessage: false})}>
+            {successCount} institutions were added successfully
+            <span class="m-l-5" style={{cursor: 'pointer'}} onClick={event => this.setState({showModal: true})}>
+              . {failedCount} failed to add because they already exist in the system.
+            </span>
+          </Alert>
+        }
+
+        { showMessage && failedCount == 0 &&
+          <Alert onDismiss={event => this.setState({showMessage: false})}>
+            {successCount} institutions were added successfully.
+          </Alert>
+        }
+
+        <Modal show={showModal} onHide={event => this.setState({showModal: false})}>
+          <Modal.Header closeButton>
+            <Modal.Title>Institutions</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <DataGrid
+              className="m-5"
+              visible={showTable}
+              rows={failedInstitutions}
+              columns={headers}
+            />
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={event => this.setState({showModal: false})}>Close</Button>
+          </Modal.Footer>
+        </Modal>
+
         <div className="bordered clearfix m-b-10">
           <FileInput
              onLoad={event => this.showTable(event)}
@@ -91,15 +131,6 @@ export default class App extends Component {
             Cancel
           </Button>
         </div>
-        {
-          failedInstitutions.length &&
-          <DataGrid
-            className="m-5"
-            visible={showTable}
-            rows={failedInstitutions}
-            columns={headers}
-          />
-        }
       </div>
     );
   }
