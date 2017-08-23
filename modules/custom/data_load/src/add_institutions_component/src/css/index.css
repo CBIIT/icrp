@@ -31,3 +31,11 @@ body {
 .m-r-10 {
   margin-right: 10px;
 }
+
+.failed-link {
+  cursor: pointer;
+  margin-left: 5px;
+  margin-right: 5px;
+  text-decoration: underline;
+  color: red;
+}

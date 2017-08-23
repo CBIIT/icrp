@@ -18,6 +18,7 @@ export default class App extends Component {
       showModal: false,
       showMessage: false,
       loading: false,
+      error: false,
     }
   }
 
@@ -48,17 +49,24 @@ export default class App extends Component {
     let protocol = window.location.protocol;
     let hostname = window.location.hostname;
     let pathname = 'DataUploadTool/addInstitutions';
-    let response = await fetch(`${protocol}//${hostname}/${pathname}`, {
-      method: 'POST',
-      credentials: 'same-origin',
-      body: JSON.stringify(data),
-    });
+    try {
+      let response = await fetch(`${protocol}//${hostname}/${pathname}`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: JSON.stringify(data),
+      });
 
-    this.setState({ 
-      failedInstitutions: await response.json(), 
-      showMessage: true,
-      loading: false 
-    });
+      this.setState({
+        failedInstitutions: await response.json(),
+        showMessage: true,
+        loading: false
+      });
+    } catch (e) {
+      this.setState({
+        loading: false,
+        error: true,
+      })
+    }
   }
 
   render() {
@@ -70,6 +78,7 @@ export default class App extends Component {
       showTable,
       showModal,
       loading,
+      error,
     } = this.state;
 
     let successCount = institutions.length - failedInstitutions.length;
@@ -78,18 +87,24 @@ export default class App extends Component {
     return (
       <div>
         <Spinner visible={loading} message="Loading..." />
-        { showMessage && 
-          <Alert bsStyle={ failedCount ? 'warning' : 'success' } onDismiss={event => this.setState({showMessage: false})}>
-            {successCount === 1 && `${successCount} institution was added successfully.`} 
-            {successCount !== 1 && `${successCount} institutions were added successfully.`} 
-            { failedCount > 0 && 
+        { showMessage &&
+          <Alert bsStyle="success" onDismiss={event => this.setState({showMessage: false})}>
+            {successCount === 1 && `${successCount} institution was added successfully.`}
+            {successCount !== 1 && `${successCount} institutions were added successfully.`}
+            { failedCount > 0 &&
               <span>
-                <a style={{cursor: 'pointer', marginLeft: '5px', marginRight: '5px', textDecoration: 'underline'}} onClick={event => this.setState({showModal: true})}>
-                  {failedCount} failed 
+                <a className="failed-link" onClick={event => this.setState({showModal: true})}>
+                  {failedCount} failed
                 </a>
                 to add because they already exist in the system.
               </span>
             }
+          </Alert>
+        }
+
+        { error &&
+          <Alert bsStyle="warning" onDismiss={event => this.setState({error: false})}>
+            An error occured while attempting to connect to the database. Please try again later.
           </Alert>
         }
 
