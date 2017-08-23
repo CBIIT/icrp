@@ -214,7 +214,7 @@ jQuery(function() {
                     for (var index = 0; index < json.length; index++) {
                         var node = json[index],
                             count = node.data.unarchivedCount;
-                        tree.get_node(node, true).children(':nth-child(2)').after('<span title="'+count+' active document'+(count>1?'s':'')+' in this category.">'+count+'</span><div class="clearfix"></div>');
+                        tree.get_node(node, true).children(':nth-child(2)').after('<span title="'+count+' active document'+(count!==1?'s':'')+' in this category.">'+count+'</span><div class="clearfix"></div>');
                     }
                 }).on('refresh.jstree', function() {
                     var json = tree.get_json(),
@@ -229,13 +229,13 @@ jQuery(function() {
                         for (var index = 0; index < json.length; index++) {
                             var node = json[index],
                                 count = node.data.unarchivedCount+node.data.archivedCount;
-                            tree.get_node(node, true).children(':nth-child(2)').after('<span title="'+count+' active document'+(count>1?'s':'')+' in this category.">'+count+'</span><div class="clearfix"></div>');
+                            tree.get_node(node, true).children(':nth-child(2)').after('<span title="'+count+' active document'+(count!==1?'s':'')+' in this category.">'+count+'</span><div class="clearfix"></div>');
                         }
                     } else {
                         for (var index = 0; index < json.length; index++) {
                             var node = json[index],
                                 count = node.data.unarchivedCount;
-                            tree.get_node(node, true).children(':nth-child(2)').after('<span title="'+count+' active document'+(count>1?'s':'')+' in this category.">'+count+'</span><div class="clearfix"></div>');
+                            tree.get_node(node, true).children(':nth-child(2)').after('<span title="'+count+' active document'+(count!==1?'s':'')+' in this category.">'+count+'</span><div class="clearfix"></div>');
                         }
                     }
                     $('#library-display .display-header .document-count').html((isArchived ? frame.children() : frame.children(':not(.archived)')).length);
@@ -430,10 +430,10 @@ jQuery(function() {
                         text: entry.Name,
                         children: [],
                         data: {
-                            archivedCount: parseInt(entry.ArchivedCount),
+                            archivedCount: parseInt(entry.ArchivedCount)||0,
                             isArchived: entry.ArchivedDate !== null,
                             isPublic: entry.IsPublic == "1",
-                            unarchivedCount: parseInt(entry.UnarchivedCount)
+                            unarchivedCount: parseInt(entry.UnarchivedCount)||0
                         },
                         state: {
                             opened: false,
