@@ -260,7 +260,7 @@ class DataLoadController {
                     if (strtolower($key) === 'awardfunding') {
 //                        error_log("$key replacing $value");
                         $value = floatval(str_replace(',', '', $value));
-                        $value = round($val, 2);
+                        $value = round($value, 2);
                     }
 
                     return $value ? $value : NULL;
@@ -536,14 +536,14 @@ class DataLoadController {
     }
 
     public function getSponsorCodes() {
+        $conn = self::getConnection();
+        $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE GetPartners;');
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_NUM);
+
         return self::addCorsHeaders(
             new JsonResponse(
-                array_column(
-                    self::getConnection()
-                        ->query('SELECT SponsorCode from Partner')
-                        ->fetchAll(PDO::FETCH_NUM),
-                    0
-                )
+                array_column($results, 1)
             )
         );
     }

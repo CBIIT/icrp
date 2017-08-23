@@ -7,7 +7,6 @@ dataload.app:
     _access: 'TRUE'
     _role: 'authenticated+admin'
     _role: 'authenticated+manager'
-
 dataload.load_data_mysql:
   path: '/DataUploadTool/loaddata_mysql'
   defaults:
@@ -18,7 +17,6 @@ dataload.load_data_mysql:
     _role: 'authenticated+admin'
     _role: 'authenticated+manager'
   methods: [POST]
-
 dataload.load_data_mssql:
   path: '/DataUploadTool/loaddata_mssql'
   defaults:
