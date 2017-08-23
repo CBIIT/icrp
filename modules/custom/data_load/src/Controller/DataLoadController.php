@@ -100,7 +100,7 @@ class DataLoadController {
         $stmt = $conn->prepare('SELECT * FROM lu_DataUploadIntegrityCheckRules');
         $stmt->execute();
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $response=array('results' => $results);
+        $response = ['results' => $results];
 
         return self::addCorsHeaders(new JsonResponse($response));
     }
@@ -112,7 +112,7 @@ class DataLoadController {
         $stmt->bindParam(':partnerCode', $request->request->get('partnerCode'));
         $stmt->execute();
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $response=array('results' => $results);
+        $response = ['results' => $results];
 
         return self::addCorsHeaders(new JsonResponse($response));
     }
@@ -129,7 +129,7 @@ class DataLoadController {
         $stmt = null;
         $conn = null;
 
-        $response=array('projects' => $projects);
+        $response ['projects' => $projects];
 
         return self::addCorsHeaders(new JsonResponse($response));
     }
@@ -157,7 +157,7 @@ class DataLoadController {
         $stmt = null;
         $conn = null;
 
-        $response=array('projects' => $projects);
+        $response = ['projects' => $projects];
 
         return self::addCorsHeaders(new JsonResponse($response));
     }
@@ -199,7 +199,7 @@ class DataLoadController {
             CSORel VARCHAR(500),
             SiteCodes VARCHAR(500),
             SiteRel VARCHAR(500),
-            AwardFunding float,
+            AwardFunding decimal(16,2),
             IsAnnualized VARCHAR(1),
             FundingMechanismCode VARCHAR(30),
             FundingMechanism VARCHAR(200),
@@ -249,15 +249,12 @@ class DataLoadController {
                 return self::addCorsHeaders($response);
             }
 
-            foreach($csv as $row) {
+            foreach($csv as $index => $row) {
                 $values = array_map(function($key, $value) {
                     if (strtolower($key) === 'awardfunding') {
 //                        error_log("$key replacing $value");
                         $value = floatval(str_replace(',', '', $value));
-                    }
-
-                    if (strtolower($key) === 'state') {
-                        $value = substr($value, 0, 3);
+                        $value = round($val, 2);
                     }
 
                     return $value ? $value : NULL;
@@ -279,7 +276,7 @@ class DataLoadController {
                         Response::HTTP_BAD_REQUEST,
                         array('content-type' => 'text/html')
                     );
-                    $response->setContent($e->getMessage());
+                    $response->setContent("The input file contains a malformed row. Please check line no: " . $index);
                     return self::addCorsHeaders($response);
                 }
 
