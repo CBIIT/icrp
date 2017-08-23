@@ -5,26 +5,26 @@ dataload.app:
     _title: 'Data Loading Tool'
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated+admin'    
+    _role: 'authenticated+admin'
     _role: 'authenticated+manager'
-dataload.load_data_mysql:    
+dataload.load_data_mysql:
   path: '/DataUploadTool/loaddata_mysql'
   defaults:
     _controller: '\Drupal\data_load\Controller\DataLoadController::loaddata_mysql'
     _title: 'Load Data'
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated+admin'    
+    _role: 'authenticated+admin'
     _role: 'authenticated+manager'
   methods: [POST]
-dataload.load_data_mssql:    
+dataload.load_data_mssql:
   path: '/DataUploadTool/loaddata_mssql'
   defaults:
     _controller: '\Drupal\data_load\Controller\DataLoadController::loaddata_mssql'
     _title: 'Load Data'
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated+admin'    
+    _role: 'authenticated+admin'
     _role: 'authenticated+manager'
   methods: [POST]
 dataload.get_data:
@@ -34,7 +34,7 @@ dataload.get_data:
     _title: 'Get Data'
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated+admin'    
+    _role: 'authenticated+admin'
     _role: 'authenticated+manager'
 dataload.get_data_mssql:
   path: '/DataUploadTool/getdata_mssql'
@@ -43,7 +43,7 @@ dataload.get_data_mssql:
     _title: 'Get Data'
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated+admin'    
+    _role: 'authenticated+admin'
     _role: 'authenticated+manager'
 dataload.integrity_check:
   path: '/DataUploadTool/integrity_check_mssql'
@@ -52,7 +52,7 @@ dataload.integrity_check:
     _title: 'Integrity Check'
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated+admin'    
+    _role: 'authenticated+admin'
     _role: 'authenticated+manager'
   methods: [POST]
 dataload.integrity_check_details:
@@ -62,7 +62,7 @@ dataload.integrity_check_details:
     _title: 'Integrity Check Details'
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated+admin'    
+    _role: 'authenticated+admin'
     _role: 'authenticated+manager'
   methods: [POST]
 dataload.get_validation_rule_definitions:
@@ -72,8 +72,21 @@ dataload.get_validation_rule_definitions:
     _title: 'Get Validation Rules'
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated+admin'    
+    _role: 'authenticated+admin'
     _role: 'authenticated+manager'
+
+
+
+dataload.importProjects:
+  path: '/DataUploadTool/importProjects'
+  defaults:
+    _controller:  '\Drupal\data_load\Controller\DataLoadController::importProjects'
+  requirements:
+    _access: 'TRUE'
+    _role: 'authenticated+admin'
+    _role: 'authenticated+manager'
+
+
 dataload.ping:
   path: '/DataUploadTool/ping'
   defaults:
@@ -81,7 +94,7 @@ dataload.ping:
     _title: 'Ping'
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated+admin'    
+    _role: 'authenticated+admin'
     _role: 'authenticated+manager'
 
 dataload.export:
@@ -90,7 +103,7 @@ dataload.export:
     _controller: 'Drupal\data_load\Controller\DataLoadController::export'
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated+admin'    
+    _role: 'authenticated+admin'
     _role: 'authenticated+manager'
 
 dataload.sponsor_codes:
@@ -99,7 +112,7 @@ dataload.sponsor_codes:
     _controller: 'Drupal\data_load\Controller\DataLoadController::getSponsorCodes'
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated+admin'    
+    _role: 'authenticated+admin'
     _role: 'authenticated+manager'
 
 
@@ -109,7 +122,7 @@ dataload.add_institutions:
     _controller: 'Drupal\data_load\Controller\AddInstitutionsController::addInstitutionsRoute'
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated+admin'    
+    _role: 'authenticated+admin'
     _role: 'authenticated+manager'
 
 add_institutions.app:
@@ -119,7 +132,7 @@ add_institutions.app:
     _title: 'Add Institutions Tool'
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated+admin'    
+    _role: 'authenticated+admin'
     _role: 'authenticated+manager'
 
 

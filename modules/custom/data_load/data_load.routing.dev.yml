@@ -73,6 +73,14 @@ dataload.get_validation_rule_definitions:
     _access: 'TRUE'
 
 
+dataload.importProjects:
+  path: '/DataUploadTool/importProjects'
+  defaults:
+    _controller:  '\Drupal\data_load\Controller\DataLoadController::importProjects'
+  requirements:
+    _access: 'TRUE'
+
+
 dataload.ping:
   path: '/DataUploadTool/ping'
   defaults:

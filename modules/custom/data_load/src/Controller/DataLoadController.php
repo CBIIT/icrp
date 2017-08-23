@@ -535,7 +535,7 @@ class DataLoadController {
 
     }
 
-    public function getSponsorCodes() {
+    public static function getSponsorCodes() {
         $conn = self::getConnection();
         $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE GetPartners;');
         $stmt->execute();
@@ -544,6 +544,39 @@ class DataLoadController {
         return self::addCorsHeaders(
             new JsonResponse(
                 array_column($results, 1)
+            )
+        );
+    }
+
+    public static function importProjects(Request $request) {
+        $partnerCode = $request->request->get('partnerCode', 'N/A');
+        $fundingYears = $request->request->get('fundingYears', '');
+        $importNotes = $request->request->get('importNotes', '');
+        $receivedDate = $request->request->get('receivedDate', ''); // eg: 01/01/2001
+        $type = $request->request->get('type', ''); // 'New' or 'Update'
+
+        $conn = self::getConnection();
+        $stmt = $conn->prepare('
+            SET NOCOUNT ON;
+            EXECUTE DataUpload_Import
+                @PartnerCode = :partnerCode,
+                @fundingYears = :fundingYears,
+                @importNotes = :importNotes,
+                @receivedDate = :receivedDate,
+                @type = :type;
+        ');
+
+        $stmt->execute([
+            'partnerCode' => $partnerCode,
+            'fundingYears' => $fundingYears,
+            'importNotes' => $importNotes,
+            'receivedDate' => $receivedDate,
+            'type' => $type,
+        ]);
+
+        return self::addCorsHeaders(
+            new JsonResponse(
+                $stmt->fetchAll()
             )
         );
     }
