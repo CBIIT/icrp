@@ -79,11 +79,15 @@ export default class App extends Component {
       <div>
         <Spinner visible={loading} message="Loading..." />
         { showMessage && 
-          <Alert bsStyle={ failedCount ? 'danger' : 'success' } onDismiss={event => this.setState({showMessage: false})}>
-            {successCount} institutions were added successfully.
-            { failedCount > 0 &&
-              <span style={{cursor: 'pointer', marginLeft: '5px', textDecoration: 'underline'}} onClick={event => this.setState({showModal: true})}>
-                {failedCount} failed to add because they already exist in the system.
+          <Alert bsStyle={ failedCount ? 'warning' : 'success' } onDismiss={event => this.setState({showMessage: false})}>
+            {successCount === 1 && `${successCount} institution was added successfully.`} 
+            {successCount !== 1 && `${successCount} institutions were added successfully.`} 
+            { failedCount > 0 && 
+              <span>
+                <a style={{cursor: 'pointer', marginLeft: '5px', marginRight: '5px', textDecoration: 'underline'}} onClick={event => this.setState({showModal: true})}>
+                  {failedCount} failed 
+                </a>
+                to add because they already exist in the system.
               </span>
             }
           </Alert>
@@ -124,6 +128,7 @@ export default class App extends Component {
         <div className="text-center">
           <Button
             className="m-10"
+            disabled={!showTable}
             onClick={event => this.addInstitutions()}>
             Add Institutions
           </Button>
