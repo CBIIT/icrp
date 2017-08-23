@@ -31,13 +31,13 @@ class UploadFormComponent extends Component {
         this.updateParent = this.updateParent.bind(this);
         this.resetParent = this.resetParent.bind(this);
         this.state = {
-            uploadType: 'new', 
-            sponsorCodes: [], 
-            sponsorCode: '', 
-            sponsorCodeValid: true, 
-            submissionDate: '', 
-            submissionDateValid: true, 
-            submitDisabled: true, 
+            uploadType: 'new',
+            sponsorCodes: [],
+            sponsorCode: '',
+            sponsorCodeValid: true,
+            submissionDate: '',
+            submissionDateValid: true,
+            submitDisabled: true,
             loading: false
         }
 
@@ -171,11 +171,11 @@ class UploadFormComponent extends Component {
     render() {
         return (
             <div>
-                {this.state.errorMessage && 
-                    <Alert 
-                        bsStyle="danger" 
+                {this.state.errorMessage &&
+                    <Alert
+                        bsStyle="danger"
                         onDismiss={ev => this.setState({errorMessage: null})}>
-                        The number of columns in the import file do not match the number of fields required
+                        { this.state.errorMessage }
                     </Alert>}
                 <Spinner message="Loading Workbook..." visible={this.state.loading} />
                 <Panel onClick={this.handleClick}>
@@ -201,21 +201,21 @@ class UploadFormComponent extends Component {
                                     <div className="no-wrap">Sponsor Code <span className="red-text">*</span></div>
                                 </Col>
                                 <Col xs={12} sm={8}>
-                                    {/* <FormControl type="text" name="sponsorCode" placeholder="Enter sponsor code" value={this.state.sponsorCode} onChange={this.handleInputChange}disabled={this.state.controlsDisabled} />  
+                                    {/* <FormControl type="text" name="sponsorCode" placeholder="Enter sponsor code" value={this.state.sponsorCode} onChange={this.handleInputChange}disabled={this.state.controlsDisabled} />
                                     */}
-                                    <FormControl 
+                                    <FormControl
                                         name="sponsorCode"
-                                        componentClass="select" 
-                                        value={this.state.sponsorCode} 
+                                        componentClass="select"
+                                        value={this.state.sponsorCode}
                                         onChange={this.handleInputChange}
                                         disabled={this.state.controlsDisabled}
-                                        required> 
+                                        required>
                                         <option value="" disabled hidden>Select a sponsor code</option>
                                         {
                                             this.state.sponsorCodes.map(code => <option value={code}>{code}</option>)
                                         }
                                     </FormControl>
-                                    
+
                                     {!this.state.sponsorCodeValid ? <HelpBlock>Sponsor Code is required.</HelpBlock> : null}
                                 </Col>
 

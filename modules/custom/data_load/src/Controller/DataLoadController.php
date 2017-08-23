@@ -108,8 +108,12 @@ class DataLoadController {
     public function integrity_check_details_mssql(Request $request) {
         $conn = self::getConnection();
         $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE DataUpload_IntegrityCheckDetails @RuleId=:ruleId, @PartnerCode=:partnerCode');
-        $stmt->bindParam(':ruleId', $request->request->get('ruleId'));
-        $stmt->bindParam(':partnerCode', $request->request->get('partnerCode'));
+
+        $ruleId = $request->request->get('ruleId');
+        $partnerCode = $request->request->get('partnerCode');
+
+        $stmt->bindParam(':ruleId', $ruleId);
+        $stmt->bindParam(':partnerCode', $partnerCode);
         $stmt->execute();
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $response = ['results' => $results];
@@ -129,23 +133,25 @@ class DataLoadController {
         $stmt = null;
         $conn = null;
 
-        $response ['projects' => $projects];
+        $response = ['projects' => $projects];
 
         return self::addCorsHeaders(new JsonResponse($response));
     }
 
     public function getdata_mssql(Request $request) {
         $page = $request->request->get('page');
+        $sortDirection = $request->request->get('sortDirection');
+        $sortColumn = $request->request->get('sortColumn');
 
         $sortDirectionKeys = array("ASC", "DESC");
-        $key = array_Search($request->request->get('sortDirection'), $sortDirectionKeys);
+        $key = array_search($sortDirection, $sortDirectionKeys);
         $sortDirection = $sortDirectionKeys[$key];
 
         $orderByKeys = array("InternalId", "AwardCode", "AwardStartDate", "AwardEndDate", "SourceId", "AltId", "AwardTitle", "Category",
         "AwardType", "Childhood", "BudgetStartDate", "BudgetEndDate", "CSOCodes", "CSORel", "SiteCodes", "SiteRel", "AwardFunding", "IsAnnualized", "FundingMechanismCode", "FundingMechanism",
         "FundingOrgAbbr", "FundingDiv", "FundingDivAbbr", "FundingContact", "PILastName", "PIFirstName", "SubmittedInstitution", "City", "State", "Country", "PostalZipCode", "InstitutionICRP", "Latitute", "Longitute", "GRID",
         "TechAbstract", "PublicAbstract", "RelatedAwardCode", "RelationshipType", "ORCID", "OtherResearcherID", "OtherResearcherIDType", "InternalUseOnly");
-        $key = array_Search($request->request->get('sortColumn'), $orderByKeys);
+        $key = array_search($sortColumn, $orderByKeys);
         $sortColumn = $orderByKeys[$key];
 
         $conn = self::getConnection();
@@ -276,7 +282,7 @@ class DataLoadController {
                         Response::HTTP_BAD_REQUEST,
                         array('content-type' => 'text/html')
                     );
-                    $response->setContent("The input file contains a malformed row. Please check line no: " . $index);
+                    $response->setContent("The input file contains a malformed row. Please check line " . ($index + 1) . ".");
                     return self::addCorsHeaders($response);
                 }
 
