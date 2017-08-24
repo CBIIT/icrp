@@ -12,8 +12,8 @@ class AddInstitutionsController {
 
   private static function initializeTable(PDO $pdo): void {
     $pdo->exec("
-      DROP TABLE IF EXISTS tmp_LoadIInstitutions;
-      CREATE TABLE tmp_LoadIInstitutions (
+      DROP TABLE IF EXISTS tmp_LoadInstitutions;
+      CREATE TABLE tmp_LoadInstitutions (
         Id            INT IDENTITY (1,1),
         Name          VARCHAR(250),
         City          VARCHAR(50),
@@ -31,7 +31,7 @@ class AddInstitutionsController {
 
     self::initializeTable($pdo);
     $stmt = $pdo->prepare(
-      "INSERT INTO tmp_LoadIInstitutions ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID])
+      "INSERT INTO tmp_LoadInstitutions ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID])
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
     foreach($institutions as $institution) {
