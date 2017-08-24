@@ -71,6 +71,10 @@ table.table-bordered > tfoot > tr > th {
 }
 
 
+table.table-striped > thead > tr {
+  background-color: #eee;
+}
+
 table.table-bordered > thead > tr > th:last-child,
 table.table-bordered > tbody > tr > th:last-child,
 table.table-bordered > tfoot > tr > th:last-child {
