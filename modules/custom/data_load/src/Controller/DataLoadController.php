@@ -537,7 +537,7 @@ class DataLoadController {
 
     public static function getSponsorCodes() {
         $conn = self::getConnection();
-        $stmt = $conn->prepare('SET NOCOUNT ON; USE icrp_data; EXECUTE GetPartners;');
+        $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE GetPartners;');
         $stmt->execute();
         $results = $stmt->fetchAll(PDO::FETCH_NUM);
 
