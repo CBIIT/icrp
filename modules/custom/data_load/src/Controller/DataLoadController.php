@@ -282,7 +282,7 @@ class DataLoadController {
                         Response::HTTP_BAD_REQUEST,
                         array('content-type' => 'text/html')
                     );
-                    $response->setContent("The input file contains a malformed row. Please check line " . ($index + 1) . ".");
+                    $response->setContent("The input file contains an invalid row. Please check line " . ($index + 1) . ".");
                     return self::addCorsHeaders($response);
                 }
 
