@@ -26,10 +26,11 @@ export default class DataGrid extends Component {
       originalRows: rows,
       rows: rows.slice(0, this.state.pageSize),
       columns: columns
-        .map(column => ({
+        .map((column, index) => ({
           key: column,
           name: column,
           sortDirection: 'NONE',
+          width: index === 0 ? '400px' : '120px'
         })),
     });
   }
@@ -64,6 +65,8 @@ export default class DataGrid extends Component {
       }
     };
 
+    console.log(sortColumn, sortDirection);
+
     let { activePage, pageSize } = this.state;
 
     const rows = (sortDirection === 'NONE'
@@ -81,6 +84,8 @@ export default class DataGrid extends Component {
       rows,
       activePage,
       pageSize,
+      sortColumn,
+      sortDirection,
     } = this.state;
 
     const showingFrom = Math.max(activePage * 25 - 24, 1);
@@ -110,20 +115,31 @@ export default class DataGrid extends Component {
           }
           </div>
 
-        <Table striped bordered condensed hover>
+        <table className="table table-striped table-bordered table-hover">
           <thead>
             <tr>
               {
                 columns.map(column =>
-                  <td >
-                    <span>{column.name}</span>
-                    {/* <span style={{
-                      display: column.sortDirection === 'NONE' ? 'none' : 'inline-block',
-                      transform: {
-                        ASC: 'rotate(-45)',
-                        DESC: 'rotate(45)',
-                      }[column.sortDirection]
-                    }}></span> */}
+                  <td
+                    style={{width: column.width || 'auto'}}
+                    onClick={event => {
+                      let index = (1 + this.sortDirections.indexOf(sortDirection)) % this.sortDirections.length;
+                      console.log(index, this.sortDirections[index]);
+                      this.handleGridSort(column.key, this.sortDirections[index])
+                    }}>
+                    <div className="table-header-flex">
+                      <span>{column.name}</span>
+                      {
+                        column.key === sortColumn && sortDirection !== 'NONE' &&
+                        <span className="rotate-45">
+                        {
+                          sortDirection === 'ASC'
+                          ? '\u25E4'
+                          : '\u25E2'
+                        }
+                        </span>
+                      }
+                    </div>
                   </td>
                 )
               }
@@ -134,13 +150,18 @@ export default class DataGrid extends Component {
             rows.map(row =>
               <tr>{
                 columns.map(column =>
-                  <td title={row[column.key]}>{row[column.key]}</td>
+                  <td
+                    style={{width: column.width || 'auto'}}
+                    title={row[column.key]}
+                  >
+                    {row[column.key]}
+                  </td>
                 )
               }</tr>
             )
           }
           </tbody>
-        </Table>
+        </table>
 
 {/*
         <ReactDataGrid

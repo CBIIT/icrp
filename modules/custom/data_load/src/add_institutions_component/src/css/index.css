@@ -39,3 +39,9 @@ body {
   text-decoration: underline;
   color: red;
 }
+
+@media (min-width: 1200px) {
+  .modal-lg {
+    width: 80% !important;
+  }
+}
