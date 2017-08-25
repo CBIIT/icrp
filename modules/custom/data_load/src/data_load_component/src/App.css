@@ -10,8 +10,8 @@
 }
 
  .padding-top {
-    padding-top: 10px;  
-} 
+    padding-top: 10px;
+}
 
 /** Smaller Screens < 992 px */
 /* @media (max-width: 992px) {
@@ -40,7 +40,7 @@
     display: block;
     left: 10px;
     top: 0px;
-    
+
   }
 }
 
@@ -110,7 +110,7 @@
  .pagination {
   margin-top: 0;
   margin-bottom: 5px;
-} 
+}
 
 .flex-center {
   display: flex;
@@ -206,4 +206,9 @@ option {
 
 .max-height {
   height: 100%;
+}
+
+.row-centered {
+  display: flex;
+  align-content: center;
 }

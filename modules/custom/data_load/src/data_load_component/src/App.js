@@ -32,8 +32,9 @@ class App extends Component {
       sortDirection: 'ASC',
       validationResults: [],
       validationRules: [],
-      uploadType: 'new',
+      uploadType: 'New',
       sponsorCode: '',
+      receivedDate: null,
       openSummary: false,
       openDetails: false,
       openSummaryDisabled: true,
@@ -69,8 +70,9 @@ class App extends Component {
       sortDirection: 'ASC',
       validationResults: [],
       validationRules: [],
-      uploadType: 'new',
+      uploadType: 'New',
       sponsorCode: '',
+      receivedDate: null,
       openSummary: false,
       openDetails: false,
       openSummaryDisabled: true,
@@ -81,8 +83,18 @@ class App extends Component {
     })
   }
 
-  handleFileUpload(stats, columns, projects, sponsorCode, uploadType, fileName) {
-    this.setState({ stats: stats, columns: columns, projects: projects, showDataTable: true, tab2Disabled: false, sponsorCode: sponsorCode, uploadType: uploadType, fileName: fileName });
+  handleFileUpload(stats, columns, projects, sponsorCode, uploadType, fileName, receivedDate) {
+    this.setState({
+      stats: stats,
+      columns: columns,
+      projects: projects,
+      showDataTable: true,
+      tab2Disabled: false,
+      sponsorCode: sponsorCode,
+      uploadType: uploadType,
+      receivedDate: receivedDate,
+      fileName: fileName
+    });
   }
 
   handleLoadingStateChange() {
@@ -246,7 +258,13 @@ class App extends Component {
           <Tab eventKey={3} title="Import" disabled={this.state.tab3Disabled}>
             <div className="tab-container">
 
-              <ImportPage />
+              <ImportPage
+                type={this.state.uploadType}
+                partnerCode={this.state.sponsorCode}
+                receivedDate={this.state.receivedDate}
+                onNavigation={key => this.setState({ tabKey: key })}
+                cancelUrl={homeLocation}
+              />
 
             </div>
           </Tab>

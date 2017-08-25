@@ -46,7 +46,8 @@ class DataLoadController {
                 $cfg['options'] = [
                 PDO::SQLSRV_ATTR_ENCODING    => PDO::SQLSRV_ENCODING_UTF8,
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::SQLSRV_ATTR_QUERY_TIMEOUT => 0,
                 ];
                 break;
             case 'mysql':
@@ -548,11 +549,14 @@ class DataLoadController {
     }
 
     public static function importProjects(Request $request) {
-        $partnerCode = $request->request->get('partnerCode', 'N/A');
-        $fundingYears = $request->request->get('fundingYears', '');
-        $importNotes = $request->request->get('importNotes', '');
-        $receivedDate = $request->request->get('receivedDate', ''); // eg: 01/01/2001
-        $type = $request->request->get('type', ''); // 'New' or 'Update'
+
+        $params = json_decode($request->getContent(), true);
+
+        $partnerCode = $params['partnerCode'] ?? '';
+        $fundingYears = $params['fundingYears'] ?? '';
+        $importNotes = $params['importNotes'] ?? '';
+        $receivedDate = $params['receivedDate'] ?? NULL;
+        $type = $params['type'] ?? '';
 
         $conn = self::getConnection();
         $stmt = $conn->prepare('
@@ -565,19 +569,29 @@ class DataLoadController {
                 @type = :type;
         ');
 
-        $stmt->execute([
-            'partnerCode' => $partnerCode,
-            'fundingYears' => $fundingYears,
-            'importNotes' => $importNotes,
-            'receivedDate' => $receivedDate,
-            'type' => $type,
-        ]);
+        try {
+            $stmt->execute([
+                'partnerCode' => $partnerCode,
+                'fundingYears' => $fundingYears,
+                'importNotes' => $importNotes,
+                'receivedDate' => $receivedDate,
+                'type' => $type,
+            ]);
 
-        return self::addCorsHeaders(
-            new JsonResponse(
-                $stmt->fetchAll()
-            )
-        );
+            return self::addCorsHeaders(
+                new JsonResponse(
+                    $conn->query('select top 1 * from DataUploadLog order by DataUploadLogID desc')->fetch()
+                )
+            );
+
+        }
+        catch(PDOException $e) {
+            return self::addCorsHeaders(
+                new JsonResponse(
+                    ['ERROR' => $e->getMessage()]
+                )
+            );
+        }
     }
 
     public static function ping() {

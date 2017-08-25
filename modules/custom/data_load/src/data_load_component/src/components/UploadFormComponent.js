@@ -31,7 +31,7 @@ class UploadFormComponent extends Component {
         this.updateParent = this.updateParent.bind(this);
         this.resetParent = this.resetParent.bind(this);
         this.state = {
-            uploadType: 'new',
+            uploadType: 'New',
             sponsorCodes: [],
             sponsorCode: '',
             sponsorCodeValid: true,
@@ -46,7 +46,7 @@ class UploadFormComponent extends Component {
 
     /** Sends the response up to the parent */
     updateParent(stats, columns, projects) {
-        this.props.onFileUploadSuccess(stats, columns, projects, this.state.sponsorCode, this.state.uploadType, this.state.originalFileName);
+        this.props.onFileUploadSuccess(stats, columns, projects, this.state.sponsorCode, this.state.uploadType, this.state.originalFileName, this.state.submissionDate.format("YYYY-MM-DD"));
     }
 
     resetParent() {
@@ -163,7 +163,7 @@ class UploadFormComponent extends Component {
         } else {
             // response.status, response.statusText
             let message = await response.text();
-            that.handleReset();
+            //that.handleReset();
             this.setState({loading: false, errorMessage: message});
         }
     }
@@ -189,9 +189,9 @@ class UploadFormComponent extends Component {
                                 </Col>
 
                                 <Col xs={12} sm={8}>
-                                    <Radio name="uploadType" inline value="new" onChange={this.handleInputChange} checked={this.state.uploadType === 'new'} disabled={this.state.controlsDisabled}>New</Radio>
+                                    <Radio name="uploadType" inline value="New" onChange={this.handleInputChange} checked={this.state.uploadType === 'New'} disabled={this.state.controlsDisabled}>New</Radio>
                                     {' '}
-                                    <Radio name="uploadType" inline value="update" onChange={this.handleInputChange} checked={this.state.uploadType === 'update'} disabled={true /*this.state.controlsDisabled*/}>Update</Radio>
+                                    <Radio name="uploadType" inline value="Update" onChange={this.handleInputChange} checked={this.state.uploadType === 'Update'} disabled={true /*this.state.controlsDisabled*/}>Update</Radio>
                                 </Col>
                             </FormGroup>
 

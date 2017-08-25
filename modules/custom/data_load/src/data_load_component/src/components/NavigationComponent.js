@@ -19,7 +19,7 @@ class NavigationComponent extends Component {
             navigationButtons = [
                 <ButtonComponent className="horizontal-margin" title='Back' disabled={false} clickHandler={this.props.clickHandler} nextTab={thisTabId - 1} />,
 
-                <ButtonComponent className="horizontal-margin" title='Next' disabled={nextDisabled} clickHandler={this.props.clickHandler} nextTab={thisTabId - 1} />
+                <ButtonComponent className="horizontal-margin" title='Next' disabled={nextDisabled} clickHandler={this.props.clickHandler} nextTab={thisTabId + 1} />
             ]
         } else {
             if (hasBackButton) {
