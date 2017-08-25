@@ -263,7 +263,7 @@ class DataLoadController {
                         $value = round($value, 2);
                     }
 
-                    return $value ? $value : NULL;
+                    return strlen($value) > 0 ? $value : NULL;
                 }, array_keys($row), array_values($row));
 
 //                error_log(json_encode($row));
@@ -548,6 +548,24 @@ class DataLoadController {
         );
     }
 
+    private static function addMissingInstitutions() {
+        $pdo = self::getConnection();
+        $pdo->exec('
+            DROP TABLE IF EXISTS tmp_LoadInstitutions;
+            SELECT InternalId as Id,
+              InstitutionICRP as Name,
+              City,
+              State,
+              Country,
+              PostalZipCode as Postal,
+              Longitute as Longitude,
+              Latitute as Latitude,
+              GRID
+              INTO tmp_LoadInstitutions FROM UploadWorkbook;
+            EXEC AddInstitutions;
+        ');
+    }
+
     public static function importProjects(Request $request) {
 
         $params = json_decode($request->getContent(), true);
@@ -570,6 +588,8 @@ class DataLoadController {
         ');
 
         try {
+            self::addMissingInstitutions();
+
             $stmt->execute([
                 'partnerCode' => $partnerCode,
                 'fundingYears' => $fundingYears,
@@ -580,17 +600,23 @@ class DataLoadController {
 
             return self::addCorsHeaders(
                 new JsonResponse(
-                    $conn->query('select top 1 * from DataUploadLog order by DataUploadLogID desc')->fetch()
+                    $stmt->fetch()
                 )
             );
 
         }
         catch(PDOException $e) {
-            return self::addCorsHeaders(
-                new JsonResponse(
-                    ['ERROR' => $e->getMessage()]
-                )
+
+            error_log("Failed to run DataUpload_Import with parameters: " . json_encode($params));
+            error_log($e->getMessage());
+
+            $response = new Response(
+                'Content',
+                Response::HTTP_BAD_REQUEST,
+                array('content-type' => 'text/html')
             );
+            $response->setContent($e->getMessage());
+            return self::addCorsHeaders($response);
         }
     }
 

@@ -37,7 +37,7 @@ class AddInstitutionsController {
     foreach($institutions as $institution) {
 
       $data = array_map(function($value) {
-        return $value ? $value : NULL;
+        return strlen($value) > 0 ? $value : NULL;
       }, $institution);
 
       $stmt->execute($data);
