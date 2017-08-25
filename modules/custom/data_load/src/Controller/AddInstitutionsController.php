@@ -66,7 +66,7 @@ class AddInstitutionsController {
   }
 
 
-  public function addInstitutionsApp() {
+  public static function addInstitutionsApp() {
     return [
     '#theme'    => 'add_institutions',
     '#attached' => [

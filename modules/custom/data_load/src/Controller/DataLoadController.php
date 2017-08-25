@@ -19,7 +19,7 @@ class DataLoadController {
     /**
     * Adds CORS Headers to a response
     */
-    function addCorsHeaders($response) {
+    static function addCorsHeaders($response) {
         $response->headers->set('Access-Control-Allow-Headers', 'origin, content-type, accept');
         $response->headers->set('Access-Control-Allow-Origin', '*');
         $response->headers->set('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, PATCH, OPTIONS');
@@ -27,7 +27,7 @@ class DataLoadController {
         return $response;
     }
 
-    function getConnection() {
+    static function getConnection() {
         $cfg=[];
         $icrp_dataload_db = \Drupal::config('icrp_load_database');
         foreach(['driver', 'host', 'port', 'database', 'username', 'password'] as $key) {
@@ -66,7 +66,7 @@ class DataLoadController {
         );
     }
 
-    public function load_app() {
+    public static function load_app() {
         return [
         '#theme'    => 'data_load',
         '#attached' => [
@@ -77,7 +77,7 @@ class DataLoadController {
         ];
     }
 
-    public function integrity_check_mssql(Request $request) {
+    public static function integrity_check_mssql(Request $request) {
         set_time_limit(0);
         $conn = self::getConnection();
         $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE DataUpload_IntegrityCheck @Type=:type, @PartnerCode=:partnerCode');
@@ -95,7 +95,7 @@ class DataLoadController {
         return self::addCorsHeaders(new JsonResponse($response));
     }
 
-    public function getValidationRuleDefinitions() {
+    public static function getValidationRuleDefinitions() {
         $conn = self::getConnection();
         $stmt = $conn->prepare('SELECT * FROM lu_DataUploadIntegrityCheckRules');
         $stmt->execute();
@@ -105,7 +105,7 @@ class DataLoadController {
         return self::addCorsHeaders(new JsonResponse($response));
     }
 
-    public function integrity_check_details_mssql(Request $request) {
+    public static function integrity_check_details_mssql(Request $request) {
         $conn = self::getConnection();
         $stmt = $conn->prepare('SET NOCOUNT ON; EXECUTE DataUpload_IntegrityCheckDetails @RuleId=:ruleId, @PartnerCode=:partnerCode');
 
@@ -121,7 +121,7 @@ class DataLoadController {
         return self::addCorsHeaders(new JsonResponse($response));
     }
 
-    public function getdata(Request $request) {
+    public static function getdata(Request $request) {
         $page = $request->request->get('page');
         $conn = self::getConnection();
 
@@ -138,7 +138,7 @@ class DataLoadController {
         return self::addCorsHeaders(new JsonResponse($response));
     }
 
-    public function getdata_mssql(Request $request) {
+    public static function getdata_mssql(Request $request) {
         $page = $request->request->get('page');
         $sortDirection = $request->request->get('sortDirection');
         $sortColumn = $request->request->get('sortColumn');
@@ -168,7 +168,7 @@ class DataLoadController {
         return self::addCorsHeaders(new JsonResponse($response));
     }
 
-    public function loaddata_mssql(Request $request) {
+    public static function loaddata_mssql(Request $request) {
         $uploaddir = getcwd() . '/modules/custom/data_load/uploads/';
         $fileName = '';
         $response = '';
@@ -251,7 +251,6 @@ class DataLoadController {
                     array('content-type' => 'text/html')
                 );
                 $response->setContent('The input file does not contain the expected number of columns.');
-                $csvReader->close();
                 return self::addCorsHeaders($response);
             }
 
@@ -350,7 +349,7 @@ class DataLoadController {
     }
 
 
-    public function loaddata_mysql(Request $request) {
+    public static function loaddata_mysql(Request $request) {
 
         $headers = $request->headers;
         $uploaddir = getcwd() . '/modules/custom/data_load/uploads/';
@@ -474,7 +473,7 @@ class DataLoadController {
         return self::addCorsHeaders(new JsonResponse($response));
     }
 
-    public function export(Request $request) {
+    public static function export(Request $request) {
         $exportRules = $request->request->get('exportRules', []);
         $originalFileName = $request->request->get('originalFileName', 'N/A');
         $type = $request->request->get('uploadType', 'N/A');
@@ -581,7 +580,7 @@ class DataLoadController {
         );
     }
 
-    public function ping() {
+    public static function ping() {
 
         return new Response('Ping you back!');
     }
