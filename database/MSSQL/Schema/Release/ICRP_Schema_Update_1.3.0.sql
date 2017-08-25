@@ -21,6 +21,7 @@ UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET Category='Organization' WHER
 UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET Name='Missing Host Institutions' WHERE Name='Missing Institution'
 UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET Name='Missing Funding Organizations' WHERE Name='Missing Funding Org'
 UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET Name='Missing Funding Organization Divs' WHERE Name='Missing Funding Org Div'
+UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET Name='Invalid Annualized Values' WHERE lu_DataUploadIntegrityCheckRules_ID = 16
 
 UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET IsRequired =1
 UPDATE [dbo].[lu_DataUploadIntegrityCheckRules] SET IsRequired =0 WHERE lu_DataUploadIntegrityCheckRules_ID IN (12, 13, 15)

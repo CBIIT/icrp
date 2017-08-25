@@ -1187,7 +1187,7 @@ SELECT [Name]
       ,[Website]      
       ,CAST([JoinedDate] AS DATE)AS JoinDate      
   FROM [Partner]
-  ORDER BY [Country], [Name]
+  ORDER BY SponsorCode
 
   GO
 
@@ -1729,37 +1729,46 @@ BEGIN TRANSACTION;
 BEGIN TRY     	
 
 
-	IF object_id('tmp_LoadIInstitutions') is null
+	IF object_id('tmp_LoadInstitutions') is null
 	BEGIN
-		   RAISERROR ('Table tmp_LoadIInstitutions not found', 16, 1)
+		   RAISERROR ('Table tmp_LoadInstitutions not found', 16, 1)
 	END
 
 	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] INTO #exist 
-	FROM tmp_LoadIInstitutions u JOIN Institution i ON u.Name = i.Name AND u.City = i.City	
+	FROM tmp_LoadInstitutions u JOIN Institution i ON u.Name = i.Name AND u.City = i.City	
 
-	-- DO NOT insert the institutions which already exist in the Institutions lookup 
-	INSERT INTO Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
-	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM tmp_LoadIInstitutions i
+	-- Insert into icrp_data: DO NOT insert the institutions which already exist in the Institutions lookup 
+	INSERT INTO icrp_data.dbo.Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
+	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM tmp_LoadInstitutions i
 		LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.City
 	WHERE (e.Name IS NULL)
-	
+
+	-- Insert into icrp_dataload: Only insert the institutions which not exist in the Institutions lookup 		
+	INSERT INTO icrp_dataload.dbo.Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
+	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM tmp_LoadInstitutions i
+		LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.City
+	WHERE (e.Name IS NULL)
+
+	-- return institutions those exist and not been inserted 
 	SELECT * FROM #exist
 
-	IF object_id('tmp_LoadIInstitutions') is not null
-		DROP TABLE tmp_LoadIInstitutions
+	IF object_id('tmp_LoadInstitutions') is not null
+		DROP TABLE tmp_LoadInstitutions
 
 	COMMIT TRANSACTION
 
 END TRY
 
 BEGIN CATCH
-      IF @@trancount > 0 
+      -- IF @@trancount > 0 
 		ROLLBACK TRANSACTION
       
 	  DECLARE @msg nvarchar(2048) = error_message()  
       RAISERROR (@msg, 16, 1)
 	        
 END CATCH  
+
+
 
 GO
 
@@ -1830,7 +1839,7 @@ FROM #awardCodes a
 JOIN (SELECT p.ProjectID, o.FundingOrgID, p.AwardCode FROM Project p 
 		JOIN ProjectFunding f ON p.ProjectID = f.ProjectID 
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID 
-	  WHERE o.SponsorCode = 'CCRA') pp ON a.AwardCode = pp.AwardCode	
+	  WHERE o.SponsorCode = @PartnerCode) pp ON a.AwardCode = pp.AwardCode	
 
 -- Get Project Funding record with parent category
 SELECT AwardCode, AltID, Childhood, AwardStartDate, AwardEndDate INTO #parentProjects from UploadWorkBook where Category='Parent'
@@ -3337,6 +3346,10 @@ UPDATE DataUploadLog SET ProjectSearchCount = @Count WHERE DataUploadLogID = @Da
 INSERT INTO icrp_data.dbo.DataUploadLog ([DataUploadStatusID], [ProjectCount], [ProjectFundingCount], [ProjectFundingInvestigatorCount], [ProjectCSOCount], [ProjectCancerTypeCount], [Project_ProjectTypeCount], [ProjectAbstractCount], [ProjectSearchCount], [CreatedDate]) 
 	SELECT @DataUploadStatusID_prod, [ProjectCount], [ProjectFundingCount], [ProjectFundingInvestigatorCount], [ProjectCSOCount], [ProjectCancerTypeCount], [Project_ProjectTypeCount], [ProjectAbstractCount], [ProjectSearchCount], [CreatedDate] 
 	FROM icrp_dataload.dbo.DataUploadLog where DataUploadStatusID=@DataUploadStatusID_stage
+
+
+-- return dataupload counts
+SELECT * from DataUploadLog where DataUploadLogID=@DataUploadLogID
 
 -----------------------------------------------------------------
 -- Drop temp table
