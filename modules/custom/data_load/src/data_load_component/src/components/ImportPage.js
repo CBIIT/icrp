@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {
+    Alert,
     Button,
     Panel,
 } from 'react-bootstrap';
@@ -32,6 +33,7 @@ export default class ImportPage extends Component {
     results: {},
     isPristine: true,
     validationErrors: {},
+    error: false,
   };
 
   validate() {
@@ -123,29 +125,49 @@ export default class ImportPage extends Component {
       body: JSON.stringify(parameters),
     });
 
-    let data = await response.json();
-    console.log(data);
-    this.setState({
-      results: data,
-      loading: false,
-    })
+    if (response.ok) {
+      let data = await response.json();
+      console.log(data);
+      this.setState({
+        results: data,
+        loading: false,
+        error: false,
+        message: 'The uploaded projects were imported successfuly.',
+      })
+    }
+
+    else {
+      let data = await response.text();
+      console.log(data);
+      this.setState({
+        results: data,
+        loading: false,
+        error: false,
+        message: 'The uploaded projects were not imported successfuly: ' + data,
+      })
+    }
   }
 
   render() {
 
-    let { fundingYearMin, fundingYearMax, importNotes, loading, message, results, validationErrors, isPristine } = this.state;
+    let { fundingYearMin, fundingYearMax, importNotes, loading, message, results, validationErrors, isPristine, error } = this.state;
     let { type, cancelUrl } = this.props;
 
     return (
       <div>
         <Spinner visible={loading} />
 
+        {this.state.message &&
+          <Alert
+              bsStyle={error ? "danger" : "success"}
+              onDismiss={ev => this.setState({message: '', error: false})}>
+              { this.state.message }
+          </Alert>}
+
+
         <div className="form-group">
           Please provide the following information and click Import to import the data to staging.
         </div>
-
-
-
 
         <div className="panel panel-default category-panel form-group">
             <div class="panel-heading">Data Upload Information</div>
