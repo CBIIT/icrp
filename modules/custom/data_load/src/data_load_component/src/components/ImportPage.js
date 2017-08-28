@@ -170,7 +170,7 @@ export default class ImportPage extends Component {
         </div>
 
         <div className="panel panel-default category-panel form-group">
-            <div class="panel-heading">Data Upload Information</div>
+            <div className="panel-heading">Data Upload Information</div>
 
             <div style={{marginTop: '15px'}}>
 
