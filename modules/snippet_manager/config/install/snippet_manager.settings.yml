@@ -1,5 +1,0 @@
-codemirror:
- cdn: true
- toolbar: true
- theme: default
- mode: html_twig
