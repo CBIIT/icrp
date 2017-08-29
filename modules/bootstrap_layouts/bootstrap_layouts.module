@@ -15,6 +15,12 @@ use Drupal\Core\Template\Attribute;
  * Implements hook_theme_registry_alter().
  */
 function bootstrap_layouts_theme_registry_alter(&$theme_registry) {
+  // Immediately return if the layout manager cannot be loaded.
+  // This can happen during the update process.
+  if (!\Drupal::hasService('plugin.manager.core.layout')) {
+    return;
+  }
+
   // Find all Bootstrap Layouts.
   $layouts = \Drupal::service('plugin.manager.core.layout')->getDefinitions();
   $layout_theme_hooks = [];

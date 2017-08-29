@@ -1,0 +1,214 @@
+snippet_manager.settings:
+  type: config_object
+  label: Snippet manager settings
+  mapping:
+    codemirror:
+      type: mapping
+      label: CodeMirror settings
+      mapping:
+        cdn:
+          type: boolean
+          label: Load CodeMirror library from CDN
+        toolbar:
+          type: boolean
+          label: Enable editor toolbar
+        mode:
+          type: string
+          label: CodeMirror mode
+        theme:
+          type: string
+          label: CodeMirror theme
+
+snippet_manager.snippet.*:
+  type: config_entity
+  label: Snippet
+  mapping:
+    uuid:
+      type: string
+    id:
+      type: string
+      label: ID
+    label:
+      type: label
+      label: Label
+    page:
+      type: mapping
+      label: Page settings
+      mapping:
+        status:
+          type: boolean
+          label: Status
+        title:
+          type: string
+          label: Title
+        path:
+          type: string
+          label: Path
+        display_variant:
+          type: mapping
+          label: Display variant
+          mapping:
+            id:
+              type: string
+              label: ID
+            configuration:
+              type: mapping
+              label: Configuration
+              mapping:
+                label:
+                  label: Label
+                  type: string
+        theme:
+          type: string
+          label: Theme
+    block:
+      type: mapping
+      label: Block settings
+      mapping:
+        status:
+          type: boolean
+          label: Status
+        name:
+          type: string
+          label: Name
+    access:
+      type: mapping
+      label: Access
+      mapping:
+        type:
+          type: string
+          label: Type
+        permission:
+          type: string
+          label: Permission
+        role:
+          type: sequence
+          label: Permission
+          sequence:
+            type: string
+            label: Role ID
+    template:
+      type: mapping
+      label: Template
+      mapping:
+        value:
+          label: Value
+          type: string
+        format:
+          label: Format
+          type: string
+    css:
+      type: mapping
+      label: CSS
+      mapping:
+        status:
+          type: boolean
+          label: Status
+        value:
+          label: Code
+          type: string
+        format:
+          label: Format
+          type: string
+        group:
+          label: Group
+          type: string
+    js:
+      type: mapping
+      label: JS
+      mapping:
+        status:
+          type: boolean
+          label: Status
+        value:
+          label: Code
+          type: string
+        format:
+          label: Format
+          type: string
+    variables:
+      label: Variables
+      type: sequence
+      sequence:
+        type: mapping
+        label: Variable settings
+        mapping:
+          plugin_id:
+            type: string
+            label: Plugin ID
+          configuration:
+            type: snippet_manager_variable_settings.[%parent.plugin_id]
+            label: Configuration
+
+# Drupal core does not provide schema for this plugin.
+# @see https://www.drupal.org/node/2787529
+snippet_manager_variable_settings.condition:current_theme:
+  type: condition.plugin
+  mapping:
+    theme:
+      type: string
+      label: Theme
+
+snippet_manager_variable_settings.condition:node_type:
+  type: condition.plugin.node_type
+
+snippet_manager_variable_settings.condition:request_path:
+  type: condition.plugin.request_path
+
+snippet_manager_variable_settings.entity:*:
+  type: mapping
+  mapping:
+    entity_id:
+      type: string
+      label: Entity ID
+    view_mode:
+      type: string
+      label: View mode
+    render_mode:
+      type: string
+      label: Render mode
+
+snippet_manager_variable_settings.form:*:
+  type: mapping
+
+snippet_manager_variable_settings.file:
+  type: mapping
+  mapping:
+    file:
+      type: string
+      label: File UUID
+    format:
+      type: string
+      label: Format
+
+snippet_manager_variable_settings.url:
+  type: mapping
+  mapping:
+    path:
+      type: string
+      label: Path
+
+snippet_manager_variable_settings.text:
+  type: mapping
+  mapping:
+    content:
+      type: text_format
+      label: Content
+
+snippet_manager_variable_settings.view:*:
+  type: mapping
+  mapping:
+    display:
+      type: string
+      label: Display
+
+snippet_manager_variable_settings.menu:*:
+  type: mapping
+  mapping:
+  mapping:
+    level:
+      type: integer
+      label: Starting level
+    depth:
+      type: integer
+      label: Maximum number of levels

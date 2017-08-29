@@ -1,0 +1,11 @@
+name: dBug for Drupal
+type: module
+description: Drupal version of ColdFusion's cfdump
+# core: 8.x
+package: Development
+
+# Information added by Drupal.org packaging script on 2017-03-29
+version: '8.x-1.0'
+core: '8.x'
+project: 'dbug'
+datestamp: 1490823789

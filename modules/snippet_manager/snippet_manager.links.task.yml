@@ -1,0 +1,55 @@
+entity.snippet.collection:
+  title: List
+  route_name: entity.snippet.collection
+  base_route: entity.snippet.collection
+
+snippet_manager.settings:
+  title: Settings
+  route_name: snippet_manager.settings
+  base_route: entity.snippet.collection
+
+entity.snippet.view:
+  title: View
+  route_name: entity.snippet.canonical
+  base_route: entity.snippet.canonical
+
+entity.snippet.view_canonical:
+  route_name: entity.snippet.canonical
+  title: Rendered
+  parent_id: entity.snippet.view
+
+entity.snippet.view_source:
+  route_name: entity.snippet.source
+  title: HTML Source
+  parent_id: entity.snippet.view
+
+entity.snippet.edit_form:
+  title: Edit
+  route_name: entity.snippet.edit_form
+  base_route: entity.snippet.canonical
+
+entity.snippet.edit_general:
+  title: General
+  route_name: entity.snippet.edit_form
+  parent_id: entity.snippet.edit_form
+
+entity.snippet.edit_template:
+  title: Template
+  route_name: entity.snippet.template_edit_form
+  parent_id: entity.snippet.edit_form
+
+entity.snippet.edit_css:
+  title: CSS
+  route_name: entity.snippet.css_edit_form
+  parent_id: entity.snippet.edit_form
+
+entity.snippet.edit_js:
+  title: JavaScript
+  route_name: entity.snippet.js_edit_form
+  parent_id: entity.snippet.edit_form
+
+entity.snippet.delete_form:
+  title: Delete
+  route_name: entity.snippet.delete_form
+  base_route: entity.snippet.canonical
+  weight: 10

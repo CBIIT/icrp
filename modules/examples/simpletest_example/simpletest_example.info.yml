@@ -15,8 +15,8 @@ dependencies:
   - drupal:text
   - examples:examples
 
-# Information added by Drupal.org packaging script on 2017-07-25
+# Information added by Drupal.org packaging script on 2017-08-11
 version: '8.x-1.x-dev'
 core: '8.x'
 project: 'examples'
-datestamp: 1500941045
+datestamp: 1502475248

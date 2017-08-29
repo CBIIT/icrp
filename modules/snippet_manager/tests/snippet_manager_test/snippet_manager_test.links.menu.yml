@@ -1,0 +1,16 @@
+snippet_manager_test.link_1:
+  title: Link 1
+  menu_name: snippet-manager-test
+  route_name: <front>
+  expanded: true
+snippet_manager_test.link_2:
+  title: Link 2
+  menu_name: snippet-manager-test
+  route_name: <front>
+  parent: snippet_manager_test.link_1
+  expanded: true
+snippet_manager_test.link_3:
+  title: Link 3
+  menu_name: snippet-manager-test
+  route_name: <front>
+  parent: snippet_manager_test.link_2

@@ -1,0 +1,15 @@
+snippet_manager.overview:
+  title: Snippets
+  description: Manage code snippets.
+  parent: system.admin_structure
+  route_name: entity.snippet.collection
+
+snippet_manager.add_snippet:
+  title: Add snippet
+  parent: snippet_manager.overview
+  route_name: entity.snippet.add_form
+
+snippet_manager.settings:
+  title: Settings
+  parent: snippet_manager.overview
+  route_name: snippet_manager.settings

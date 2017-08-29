@@ -18,14 +18,14 @@ class FapiExampleWebTest extends ExamplesBrowserTestBase {
   /**
    * Our module dependencies.
    *
-   * @var array List of test dependencies.
+   * @var string[]
    */
-  static public $modules = array('fapi_example');
+  static public $modules = ['fapi_example'];
 
   /**
    * The installation profile to use with this test.
    *
-   * @var string Installation profile required for test.
+   * @var string
    */
   protected $profile = 'minimal';
 
@@ -289,7 +289,7 @@ class FapiExampleWebTest extends ExamplesBrowserTestBase {
 
     // Enter the value in field-1.
     // and click on 'Add one more' button.
-    $edit = array();
+    $edit = [];
     $edit['names_fieldset[name][0]'] = $name_one;
     $this->drupalPostForm('/examples/fapi-example/ajax-addmore', $edit, t('Add one more'));
 

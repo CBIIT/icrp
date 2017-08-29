@@ -54,9 +54,9 @@ class ProtectedPrivatesTest extends UnitTestCase {
    * Good data provider.
    */
   public function addDataProvider() {
-    return array(
-      array(5, 2, 3),
-    );
+    return [
+      [5, 2, 3],
+    ];
   }
 
   /**
@@ -78,7 +78,7 @@ class ProtectedPrivatesTest extends UnitTestCase {
     // Create a new ProtectedPrivates object.
     $pp = new ProtectedPrivates();
     // Use the reflection to invoke on the object.
-    $sum = $private_method->invokeArgs($pp, array($a, $b));
+    $sum = $private_method->invokeArgs($pp, [$a, $b]);
     // Make an assertion.
     $this->assertEquals($expected, $sum);
   }
@@ -87,9 +87,9 @@ class ProtectedPrivatesTest extends UnitTestCase {
    * Bad data provider.
    */
   public function addBadDataProvider() {
-    return array(
-      array('string', array()),
-    );
+    return [
+      ['string', []],
+    ];
   }
 
   /**
@@ -112,7 +112,7 @@ class ProtectedPrivatesTest extends UnitTestCase {
     $pp = new ProtectedPrivates();
     // Use the reflection to invoke on the object.
     // This should throw an exception.
-    $private_method->invokeArgs($pp, array($a, $b));
+    $private_method->invokeArgs($pp, [$a, $b]);
   }
 
   /**
@@ -129,7 +129,7 @@ class ProtectedPrivatesTest extends UnitTestCase {
    */
   public function testProtectedAdd($expected, $a, $b) {
     $stub = new ProtectedPrivatesSubclass();
-    $this->assertEquals($expected, $stub->sub_protectedAdd($a, $b));
+    $this->assertEquals($expected, $stub->subclassProtectedAdd($a, $b));
   }
 
   /**
@@ -143,7 +143,7 @@ class ProtectedPrivatesTest extends UnitTestCase {
    */
   public function testProtectedAddBadData($a, $b) {
     $stub = new ProtectedPrivatesSubclass();
-    $stub->sub_protectedAdd($a, $b);
+    $stub->subclassProtectedAdd($a, $b);
   }
 
 }

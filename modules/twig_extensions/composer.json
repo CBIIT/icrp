@@ -1,0 +1,16 @@
+{
+  "name": "drupal/twig_extensions",
+  "type": "drupal-module",
+  "description": "Twig Extensions",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "http://drupal.org/project/twig_extensions",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "http://drupal.org/project/issues/twig_extensions",
+    "source": "http://cgit.drupalcode.org/twig_extensions"
+  },
+  "require": {
+    "twig/extensions": "^1.3"
+  }
+}

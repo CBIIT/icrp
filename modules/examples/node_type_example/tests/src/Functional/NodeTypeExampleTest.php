@@ -20,7 +20,7 @@ class NodeTypeExampleTest extends ExamplesBrowserTestBase {
    *
    * @var array
    */
-  public static $modules = array('node', 'node_type_example');
+  public static $modules = ['node', 'node_type_example'];
 
   /**
    * The installation profile to use with this test.
@@ -41,9 +41,9 @@ class NodeTypeExampleTest extends ExamplesBrowserTestBase {
    *   - The value is the link that should appear on that page.
    */
   protected function providerMenuLinks() {
-    return array(
+    return [
       '' => '/examples/node-type-example',
-    );
+    ];
   }
 
   /**
@@ -78,7 +78,7 @@ class NodeTypeExampleTest extends ExamplesBrowserTestBase {
     $assert = $this->assertSession();
 
     // Log in an admin user.
-    $admin_user = $this->drupalCreateUser(array('administer content types'));
+    $admin_user = $this->drupalCreateUser(['administer content types']);
     $this->drupalLogin($admin_user);
 
     // Get a list of content types.
@@ -101,20 +101,20 @@ class NodeTypeExampleTest extends ExamplesBrowserTestBase {
     }
 
     // Log in a content creator.
-    $creator_user = $this->drupalCreateUser(array('create basic_content_type content'));
+    $creator_user = $this->drupalCreateUser(['create basic_content_type content']);
     $this->drupalLogin($creator_user);
 
     // Create a node.
-    $edit = array();
+    $edit = [];
     $edit['title[0][value]'] = $this->randomMachineName(8);
     $edit['body[0][value]'] = $this->randomMachineName(16);
     $this->drupalPostForm('/node/add/basic_content_type', $edit, t('Save'));
 
     // Check that the Basic page has been created.
-    $assert->pageTextContains(t('@post @title has been created.', array(
+    $assert->pageTextContains(t('@post @title has been created.', [
       '@post' => 'Example: Basic Content Type',
       '@title' => $edit['title[0][value]'],
-    )));
+    ]));
 
     // Check that the node exists in the database.
     $node = $this->drupalGetNodeByTitle($edit['title[0][value]']);
@@ -151,6 +151,25 @@ class NodeTypeExampleTest extends ExamplesBrowserTestBase {
     // Verify all fields and data of created content is shown.
     $this->assertText($title);
     $this->assertText($body);
+  }
+
+
+  /**
+   * Verify that user can uninstall and then reinstall node_type_example.
+   */
+  public function testUninstallReinstall() {
+    $session = $this->assertSession();
+
+    // Uninstalling module.
+    $module_installer = $this->container->get('module_installer');
+    $module_installer->uninstall(['node_type_example']);
+    $this->drupalGet('examples/node-type-example');
+    $session->statusCodeEquals(404);
+
+    // Re-installing module.
+    $module_installer->install(['node_type_example']);
+    $this->drupalGet('examples/node-type-example');
+    $session->statusCodeEquals(200);
   }
 
 }
