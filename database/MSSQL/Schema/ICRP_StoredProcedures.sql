@@ -1422,8 +1422,7 @@ AS
 											  FOR CancerType IN (' + @PivotColumns_CancerTypes + ')
 										) AS cancer'
 		
-	----Execute dynamic query	
-	--PRINT @SQLQuery  
+	----Execute dynamic query		
 	EXEC sp_executesql @SQLQuery  
     											  
 GO
@@ -1819,6 +1818,8 @@ AS
 --
 
 /***********************************************************************************************/
+-- Suppress all messages for better performance 
+SET NOCOUNT ON
 
 DECLARE @DataUploadReport TABLE
 (
@@ -2089,8 +2090,8 @@ BEGIN
 	 WHEN '' THEN 0.00 ELSE CAST(value AS decimal(18,2)) END  
  FROM  dbo.ToStrTable(@csoRelList) 
 
- DBCC CHECKIDENT ('tmp_pcso', RESEED, 0)
- DBCC CHECKIDENT ('tmp_pcsorel', RESEED, 0)
+ DBCC CHECKIDENT ('tmp_pcso', RESEED, 0) WITH NO_INFOMSGS
+ DBCC CHECKIDENT ('tmp_pcsorel', RESEED, 0) WITH NO_INFOMSGS
 
  FETCH NEXT FROM @csocursor INTO @AltAwardCode, @csolist, @csoRelList;
 END
@@ -2237,8 +2238,8 @@ BEGIN
 	 WHEN '' THEN 0.00 ELSE CAST(value AS decimal(18,2)) END  
  FROM  dbo.ToStrTable(@siteRelList) 
  
- DBCC CHECKIDENT ('tmp_psite', RESEED, 0)
- DBCC CHECKIDENT ('tmp_psiterel', RESEED, 0)
+ DBCC CHECKIDENT ('tmp_psite', RESEED, 0) WITH NO_INFOMSGS
+ DBCC CHECKIDENT ('tmp_psiterel', RESEED, 0) WITH NO_INFOMSGS
 
  FETCH NEXT FROM @ctcursor INTO @AltAwardCode, @siteList, @siteRelList;
 END
@@ -2637,8 +2638,8 @@ BEGIN
 		WHEN '' THEN 0.00 ELSE CAST(value AS decimal(18,2)) END  
 		FROM  dbo.ToStrTable(@csoRelList) 
 
-		DBCC CHECKIDENT ('tmp_pcso', RESEED, 0)
-		DBCC CHECKIDENT ('tmp_pcsorel', RESEED, 0)
+		DBCC CHECKIDENT ('tmp_pcso', RESEED, 0) WITH NO_INFOMSGS
+		DBCC CHECKIDENT ('tmp_pcsorel', RESEED, 0) WITH NO_INFOMSGS
 
 		FETCH NEXT FROM @csocursor INTO @AltAwardCode, @csolist, @csoRelList;
 	END
@@ -2758,8 +2759,8 @@ BEGIN
 		WHEN '' THEN 0.00 ELSE CAST(value AS decimal(18,2)) END  
 		FROM  dbo.ToStrTable(@siteRelList) 
  
-		DBCC CHECKIDENT ('tmp_psite', RESEED, 0)
-		DBCC CHECKIDENT ('tmp_psiterel', RESEED, 0)
+		DBCC CHECKIDENT ('tmp_psite', RESEED, 0) WITH NO_INFOMSGS
+		DBCC CHECKIDENT ('tmp_psiterel', RESEED, 0) WITH NO_INFOMSGS
 
 		FETCH NEXT FROM @ctcursor INTO @AltAwardCode, @siteList, @siteRelList;
 	END
@@ -2869,12 +2870,6 @@ CREATE PROCEDURE [dbo].[DataUpload_Import]
   
 AS
 
---declare @PartnerCode varchar(25) = 'NIH'
---declare @FundingYears VARCHAR(25) = '2014'
---declare @ImportNotes  VARCHAR(1000) = 'NCI FY2014 New'
---declare @ReceivedDate  datetime = '06-07-2017'
---declare @Type varchar(25) = 'NEW' 
-
 BEGIN TRANSACTION;
 
 BEGIN TRY     
@@ -2953,7 +2948,7 @@ CREATE TABLE UploadAbstractTemp (
 	PublicAbstract NVARCHAR (MAX) NULL
 ) ON [PRIMARY]
 
-DBCC CHECKIDENT ('[UploadAbstractTemp]', RESEED, @seed)
+DBCC CHECKIDENT ('[UploadAbstractTemp]', RESEED, @seed) WITH NO_INFOMSGS
 
 INSERT INTO UploadAbstractTemp (AwardCode, Altid, TechAbstract, PublicAbstract) SELECT DISTINCT AwardCode, Altid, TechAbstract, PublicAbstract FROM UploadWorkBook 
 
@@ -3047,8 +3042,8 @@ BEGIN
 			WHEN '' THEN 0.00 ELSE CAST(value AS decimal(18,2)) END 
 		FROM  dbo.ToStrTable(@csoRelList) 
 
-	 DBCC CHECKIDENT ('tmp_pcso', RESEED, 0)
-	 DBCC CHECKIDENT ('tmp_pcsorel', RESEED, 0)
+	 DBCC CHECKIDENT ('tmp_pcso', RESEED, 0) WITH NO_INFOMSGS
+	 DBCC CHECKIDENT ('tmp_pcsorel', RESEED, 0) WITH NO_INFOMSGS
 
 	 FETCH NEXT FROM @csocursor INTO @AltAwardCode, @csolist, @csoRelList;
 	END
@@ -3123,8 +3118,8 @@ BEGIN
 			WHEN '' THEN 0.00 ELSE CAST(value AS decimal(18,2)) END 
 		 FROM  dbo.ToStrTable(@siteRelList) 
  
-	 DBCC CHECKIDENT ('tmp_psite', RESEED, 0)
-	 DBCC CHECKIDENT ('tmp_psiterel', RESEED, 0)
+	 DBCC CHECKIDENT ('tmp_psite', RESEED, 0) WITH NO_INFOMSGS
+	 DBCC CHECKIDENT ('tmp_psiterel', RESEED, 0) WITH NO_INFOMSGS
 
 	 FETCH NEXT FROM @ctcursor INTO @sAltAwardCode, @siteList, @siteRelList;
 	END
@@ -3197,7 +3192,7 @@ select f.altawardcode, o.SponsorCode, o.Name AS FundingOrg into #postSponsor
 	where f.DataUploadStatusID = @DataUploadStatusID_stage and o.SponsorCode <> @PartnerCode
 
 IF EXISTS (select * from #postSponsor)
-	PRINT 'Post Import Check - Sponsor Code - Failed'
+	 RAISERROR ('Post Import Check Error - Mis-matched Sponsor Code not match', 16, 1);
 
 -------------------------------------------------------------------------------------------
 ---- checking Missing PI
@@ -3209,7 +3204,7 @@ select f.altawardcode, u.SubmittedInstitution , u.institutionICRP, u.city into #
 	where f.DataUploadStatusID = @DataUploadStatusID_stage and pi.InstitutionID = 1
 
 IF EXISTS (select * from #postNotmappedInst)
-	PRINT 'Post Import Check - Instititutions Mapping - Failed'
+	RAISERROR ('Post Import Check Error - Non-mapped Instititutions Mapping', 16, 1);	
 
 -------------------------------------------------------------------------------------------
 ---- checking Duplicate PI
@@ -3222,8 +3217,8 @@ select f.projectfundingid, f.AltAwardCode, count(*) AS Count into #postdupPI
 	group by f.projectfundingid,f.AltAwardCode having count(*) > 1
 
 	
-IF EXISTS (select * FROM #postdupPI)
-	PRINT 'Post-Checking duplicate PIs ==> Failed'
+IF EXISTS (select * FROM #postdupPI)	
+	RAISERROR ('Post Import Check Error - duplicate PIs', 16, 1);	
 	
 -------------------------------------------------------------------------------------------
 ---- checking missing PI
@@ -3233,9 +3228,8 @@ left join ProjectFundingInvestigator pi on f.projectfundingid = pi.projectfundin
 where f.DataUploadStatusID = @DataUploadStatusID_stage and pi.ProjectFundingID is null
 
 	
-IF EXISTS (select * FROM #postMissingPI)
-	PRINT 'Pre-Checking Missing PIs ==> Failed'
-
+IF EXISTS (select * FROM #postMissingPI)	
+	RAISERROR ('Post Import Check Error - Missing PIs', 16, 1);	
 	
 -------------------------------------------------------------------------------------------
 ---- checking missing CSO
@@ -3245,8 +3239,8 @@ left join ProjectCSO pc on f.projectfundingid = pc.projectfundingid
 where f.DataUploadStatusID = @DataUploadStatusID_stage and pc.ProjectFundingID is null
 
 	
-IF EXISTS (select * FROM #postMissingCSO)
-	PRINT 'Pre-Checking Missing CSO ==> Failed'
+IF EXISTS (select * FROM #postMissingCSO)	
+	RAISERROR ('Post Import Check Error - Missing CSO', 16, 1);	
 
 -------------------------------------------------------------------------------------------
 ---- checking missing CancerType
@@ -3256,9 +3250,8 @@ left join ProjectCancerType ct on f.projectfundingid = ct.projectfundingid
 where f.DataUploadStatusID = @DataUploadStatusID_stage and ct.ProjectFundingID is null
 
 	
-IF EXISTS (select * FROM #postMissingCSO)
-	PRINT 'Pre-Checking Missing CancerType ==> Failed'
-
+IF EXISTS (select * FROM #postMissingCSO)	
+	RAISERROR ('Post Import Check Error - Missing CancerType', 16, 1);	
 
 -----------------------------------
 -- Import ProjectFundingExt
@@ -3271,7 +3264,7 @@ IF EXISTS (select * FROM #postMissingCSO)
 --------------------------------------------------------------------------------------------
 DELETE FROM ProjectSearch
 
-DBCC CHECKIDENT ('[ProjectSearch]', RESEED, 0)
+DBCC CHECKIDENT ('[ProjectSearch]', RESEED, 0) WITH NO_INFOMSGS
 
 -- REBUILD All Abstract
 INSERT INTO ProjectSearch (ProjectID, [Content])
@@ -3460,7 +3453,7 @@ BEGIN TRY
 		PublicAbstract NVARCHAR (MAX) NULL
 	) ON [PRIMARY]
 
-	DBCC CHECKIDENT ('[UploadAbstractTemp]', RESEED, @seed)
+	DBCC CHECKIDENT ('[UploadAbstractTemp]', RESEED, @seed) WITH NO_INFOMSGS
 
 	INSERT INTO UploadAbstractTemp (ProjectFundindID, TechAbstract,	PublicAbstract) SELECT pf.projectFundingID, a.[TechAbstract], a.[PublicAbstract]
 		FROM icrp_dataload.dbo.projectAbstract a
@@ -3663,7 +3656,7 @@ BEGIN TRY
 
 	DELETE FROM icrp_data.dbo.ProjectSearch
 
-	DBCC CHECKIDENT ('[ProjectSearch]', RESEED, 0)
+	DBCC CHECKIDENT ('[ProjectSearch]', RESEED, 0) WITH NO_INFOMSGS
 
 	-- REBUILD All Abstract
 	INSERT INTO icrp_data.dbo.ProjectSearch (ProjectID, [Content])
