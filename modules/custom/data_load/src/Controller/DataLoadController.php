@@ -548,6 +548,70 @@ class DataLoadController {
         );
     }
 
+    private static function calculateFundingAmounts() {
+
+        $pdo = self::getConnection();
+        $statement = $pdo->prepare('
+                            INSERT INTO ProjectFundingExt(
+                                    ProjectFundingID, 
+                                    CalendarYear, 
+                                    CalendarAmount) 
+                            VALUES(:id, :year, :amount)');
+
+        foreach($pdo->query('
+                        SELECT ProjectId, 
+                            pf.ProjectFundingID, 
+                            BudgetStartDate, 
+                            BudgetEndDate, 
+                            Amount 
+                        FROM ProjectFunding pf 
+                        LEFT OUTER JOIN ProjectFundingExt pfe 
+                        ON pf.ProjectFundingID = pfe.ProjectFundingID 
+                        WHERE  pfe.ProjectFundingID IS NULL 
+                        AND pf.BudgetStartDate IS NOT NULL 
+                        AND pf.BudgetEndDate IS NOT NULL 
+                        AND pf.BudgetEndDate >= pf.BudgetStartDate
+                        ') as $row) {
+
+            $projectFundingID = $row['ProjectFundingID'];
+            $start_date = strtotime($row['BudgetStartDate']);
+            $end_date = strtotime($row['BudgetEndDate']);
+            $start_date = mktime(0, 0, 0, date('m', $start_date), date('d', $start_date), date('Y', $start_date));
+            $end_date = mktime(0, 0, 0, date('m', $end_date), date('d', $end_date), date('Y', $end_date));
+            $total_amount = $row['Amount'];
+            $number_of_days = ($end_date - $start_date) / (60 * 60 * 24) + 1;
+            $amount_per_day = $total_amount / $number_of_days;
+
+            $current_date = $start_date;
+            $current_year = date('Y', $start_date);
+
+            $day_counter = 0;
+
+            while($current_date <= $end_date) {
+            
+                if (date('Y', $current_date) == $current_year) {
+                    $day_counter++;
+                } else {
+                    $years[$current_year] = array('year' => $current_year, 'amount' => $day_counter * $amount_per_day, 'days' => $day_counter);
+                    $current_year = date('Y', $current_date);
+                    $day_counter = 1;
+                }
+                $current_date = mktime(0, 0, 0, date('m', $current_date), date('d', $current_date) + 1, date('Y', $current_date));
+            }
+
+            $years[$current_year] = array('year' => $current_year, 'amount' => $day_counter * $amount_per_day, 'days' => $day_counter);
+
+            foreach($years as $year_arr) {
+                $statement->execute(array('id' => $projectFundingID, 'year' => $year_arr['year'], 'amount' => $year_arr['amount']));
+            }
+        
+            $years = null;
+        }
+        $statement = null;
+        $pdo = null;      
+    }
+
+
     private static function addMissingInstitutions() {
         $pdo = self::getConnection();
         $pdo->exec('
@@ -597,6 +661,8 @@ class DataLoadController {
                 'receivedDate' => $receivedDate,
                 'type' => $type,
             ]);
+
+            self::calculateFundingAmounts();
 
             return self::addCorsHeaders(
                 new JsonResponse(
