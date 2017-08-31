@@ -36,7 +36,11 @@ export default class ImportPage extends Component {
     message: '',
     results: {},
     isPristine: true,
-    validationErrors: {},
+    validationErrors: {
+      importNotes: {
+        required: true,
+      }
+    },
     error: false,
   };
 
@@ -46,9 +50,11 @@ export default class ImportPage extends Component {
       return false;
   }
 
-  setValue(key, value) {
+  async setValue(key, value) {
 
-    let { fundingYearMin, fundingYearMax, importNotes } = this.state;
+    await this.setState({[key]: value});
+
+    let { fundingYearMin, fundingYearMax, importNotes, validationErrors } = this.state;
     
     let validationRules = {
       fundingYearMin: {
@@ -65,10 +71,8 @@ export default class ImportPage extends Component {
         required: true,
       },
 
-      
     }[key] || {};
 
-    let validationErrors = this.state.validationErrors;
     validationErrors[key] = {};
 
     for(let rule in validationRules) {
@@ -85,7 +89,7 @@ export default class ImportPage extends Component {
       }
 
       if (rule === 'isLessThanMaxYear') {
-        if (+fundingYearMin > +fundingYearMax) {
+        if (parseInt(fundingYearMin) > parseInt(fundingYearMax)) {
           validationErrors[key].isLessThanMaxYear = true;
         }
       }
@@ -210,6 +214,8 @@ export default class ImportPage extends Component {
                     placeholder="Enter last year"
                     style={{display: 'inline-block', width: '200px'}}
                   />
+                </div>
+                <div>
 
                   {
                     validationErrors.fundingYearMin && validationErrors.fundingYearMin.required &&
@@ -246,12 +252,12 @@ export default class ImportPage extends Component {
                     onChange={event => this.setValue('importNotes', event.target.value)}
                     id="importNotes"
                     className="form-control"
-                    maxlength="1000"
+                    maxLength="1000"
                     placeholder="Enter import notes"
                     style={{width: '80%'}}
                   />
                   {
-                    validationErrors.importNotes && validationErrors.importNotes.required &&
+                    !isPristine && validationErrors.importNotes && validationErrors.importNotes.required &&
                     <div style={{color: 'red'}}>Please ensure this field is not empty.</div>
                   }
                 </div>
@@ -301,7 +307,6 @@ export default class ImportPage extends Component {
             </div>
           </div>
         }
-
 
 
         <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '15px'}}>
