@@ -122,7 +122,6 @@ export default class ImportPage extends Component {
 
     if (response.ok) {
       let data = await response.json();
-      console.log(data);
       this.setState({
         results: data,
         loading: false,
@@ -133,11 +132,9 @@ export default class ImportPage extends Component {
 
     else {
       let data = await response.text();
-      console.log(data);
       this.setState({
-        results: data,
         loading: false,
-        error: false,
+        error: true,
         message: 'The uploaded projects were not imported successfuly: ' + data,
       })
     }
