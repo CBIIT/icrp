@@ -2421,6 +2421,7 @@ AS
 --
 
 /***********************************************************************************************/
+SET NOCOUNT ON
 
 IF @RuleId = 1
 BEGIN
@@ -2870,9 +2871,14 @@ CREATE PROCEDURE [dbo].[DataUpload_Import]
   
 AS
 
+SET NOCOUNT ON
+
 BEGIN TRANSACTION;
 
 BEGIN TRY     
+
+--IF @ImportNotes = 'error'
+--	RAISERROR ('Simulated Error for testing...', 16, 1);
 
 -------------------------------------------------------------------------------------------
 -- Replace open/closing double quotes
@@ -3262,16 +3268,13 @@ IF EXISTS (select * FROM #postMissingCSO)
 -------------------------------------------------------------------------------------------
 -- Rebuild ProjectSearch   -- 75608 ~ 2.20 mins)
 --------------------------------------------------------------------------------------------
-DELETE FROM ProjectSearch
-
-DBCC CHECKIDENT ('[ProjectSearch]', RESEED, 0) WITH NO_INFOMSGS
-
--- REBUILD All Abstract
 INSERT INTO ProjectSearch (ProjectID, [Content])
 SELECT ma.ProjectID, '<Title>'+ ma.Title+'</Title><FundingContact>'+ ISNULL(ma.fundingContact, '')+ '</FundingContact><TechAbstract>' + ma.TechAbstract  + '</TechAbstract><PublicAbstract>'+ ISNULL(ma.PublicAbstract,'') +'<PublicAbstract>' 
-FROM (SELECT MAX(f.ProjectID) AS ProjectID, f.Title, f.FundingContact, a.TechAbstract,a.PublicAbstract FROM ProjectAbstract a
-		JOIN ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
-		GROUP BY f.Title, a.TechAbstract, a.PublicAbstract,  f.FundingContact) ma
+FROM (SELECT MAX(f.ProjectID) AS ProjectID, f.Title, f.FundingContact, a.TechAbstract,a.PublicAbstract 
+	FROM ProjectAbstract a
+	JOIN ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
+	WHERE f.DataUploadStatusID = @DataUploadStatusID_stage
+	GROUP BY f.Title, a.TechAbstract, a.PublicAbstract,  f.FundingContact) ma
 
 -------------------------------------------------------------------------------------------
 -- Insert DataUploadLog 
@@ -3654,17 +3657,16 @@ BEGIN TRY
 	--------------------------------------------------------------------------------------------
 	PRINT 'Rebuild [ProjectSearch]'
 
-	DELETE FROM icrp_data.dbo.ProjectSearch
-
-	DBCC CHECKIDENT ('[ProjectSearch]', RESEED, 0) WITH NO_INFOMSGS
-
-	-- REBUILD All Abstract
-	INSERT INTO icrp_data.dbo.ProjectSearch (ProjectID, [Content])
+	-------------------------------------------------------------------------------------------
+-- Rebuild ProjectSearch   -- 75608 ~ 2.20 mins)
+--------------------------------------------------------------------------------------------
+	INSERT INTO ProjectSearch (ProjectID, [Content])
 	SELECT ma.ProjectID, '<Title>'+ ma.Title+'</Title><FundingContact>'+ ISNULL(ma.fundingContact, '')+ '</FundingContact><TechAbstract>' + ma.TechAbstract  + '</TechAbstract><PublicAbstract>'+ ISNULL(ma.PublicAbstract,'') +'<PublicAbstract>' 
 	FROM (SELECT MAX(f.ProjectID) AS ProjectID, f.Title, f.FundingContact, a.TechAbstract,a.PublicAbstract 
 			FROM ProjectAbstract a
-				JOIN ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
-			GROUP BY f.Title, a.TechAbstract, a.PublicAbstract,  f.FundingContact) ma
+			JOIN ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
+			WHERE f.DataUploadStatusID = @DataUploadStatusID_Prod
+			GROUP BY f.Title, a.TechAbstract, a.PublicAbstract,  f.FundingContact) ma	
 
 	PRINT 'Total Imported ProjectSearch = ' + CAST(@@RowCount AS varchar(10))
 
