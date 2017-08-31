@@ -1,6 +1,6 @@
-name: Icrp
+name: ICRP
 type: module
-description: 'Icrp Drupal 8 module.'
+description: 'ICRP Drupal 8 module.'
 package: ICRP Modules
 version: 1.0
 core: '8.x'

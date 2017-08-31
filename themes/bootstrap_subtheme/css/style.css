@@ -44,6 +44,11 @@ section#block-partnerhomewelcome > div > div > h2,
 section#block-partnerhomewelcomemanager > div > div > h2 {
     margin-top:25px;
 }
+
+div.webform-element > label.control-label {
+    display:none;
+}
+
 .carousel-inner > .item:hover, .carousel-inner > .item:focus {
     color: #ffffff;
     opacity: 0.9;
