@@ -1,32 +1,16 @@
 import React, { Component } from 'react';
 import {
-    Alert,
-    Button,
-    Panel,
+  Alert,
+  Button,
+  Panel,
 } from 'react-bootstrap';
 import Spinner from './SpinnerComponent';
 
 const Asterisk = () => <span className="red-text">*</span>
 
-const ResultsTable = ({rows}) =>
-  <div className="table-responsive" style={{maxWidth: '500px'}}>
-    {
-      rows.map(row =>
-        <tr>
-          {
-            row.map(value => {
-              <td title={value}>{value}</td>
-            })
-          }
-        </tr>
-      )
-    }
-  </div>
-
-
 export default class ImportPage extends Component {
 
-  DEFAULT_YEAR = (new Date()).getFullYear() -1;
+  DEFAULT_YEAR = (new Date()).getFullYear() - 1;
 
   state = {
     fundingYearMin: this.DEFAULT_YEAR,
@@ -36,26 +20,14 @@ export default class ImportPage extends Component {
     message: '',
     results: {},
     isPristine: true,
-    validationErrors: {
-      importNotes: {
-        required: true,
-      }
-    },
+    validationErrors: {},
     error: false,
   };
 
-  validate() {
-    let { fundingYearMin, fundingYearMax, importNotes } = this.state;
-    if (!parseInt(fundingYearMax) || !parseInt(fundingYearMin))
-      return false;
-  }
-
-  async setValue(key, value) {
-
-    await this.setState({[key]: value});
+  validate(key, value) {
 
     let { fundingYearMin, fundingYearMax, importNotes, validationErrors } = this.state;
-    
+
     let validationRules = {
       fundingYearMin: {
         required: true,
@@ -65,6 +37,7 @@ export default class ImportPage extends Component {
 
       fundingYearMax: {
         isNumeric: true,
+        isLessThanMaxYear: true,
       },
 
       importNotes: {
@@ -75,7 +48,7 @@ export default class ImportPage extends Component {
 
     validationErrors[key] = {};
 
-    for(let rule in validationRules) {
+    for (let rule in validationRules) {
       if (rule === 'required' && !value) {
         validationErrors[key].required = true;
       }
@@ -89,6 +62,13 @@ export default class ImportPage extends Component {
       }
 
       if (rule === 'isLessThanMaxYear') {
+
+        if (validationRules.fundingYearMin && validationRules.fundingYearMin.isLessThanMaxYear)
+          delete validationRules.fundingYearMin.isLessThanMaxYear;
+
+        if (validationRules.fundingYearMax && validationRules.fundingYearMax.isLessThanMaxYear)
+          delete validationRules.fundingYearMax.isLessThanMaxYear;
+
         if (parseInt(fundingYearMin) > parseInt(fundingYearMax)) {
           validationErrors[key].isLessThanMaxYear = true;
         }
@@ -99,21 +79,22 @@ export default class ImportPage extends Component {
       delete validationErrors[key];
     }
 
-    console.log(validationErrors);
+    /* Allow import when there are no validation errors and all required fields have values */
+    let allowImport = Object.keys(validationErrors).length === 0 && fundingYearMin && fundingYearMax && importNotes;
 
+    this.setState({ validationErrors, allowImport });
+  }
 
+  setValue(key, value) {
     this.setState({
       [key]: value,
-      validationErrors: validationErrors,
       isPristine: false,
-    })
-
-
+    }, e => this.validate(key, value));
   }
 
   async importProjects() {
 
-    this.setState({loading: true})
+    this.setState({ loading: true })
     let { partnerCode, receivedDate, type } = this.props;
     let { fundingYearMin, fundingYearMax, importNotes } = this.state;
 
@@ -131,8 +112,7 @@ export default class ImportPage extends Component {
     let hostname = window.location.hostname;
     let pathname = 'DataUploadTool/importProjects';
     if (hostname === 'localhost') {
-        protocol = 'http:';
-        //hostname = 'icrp-dataload';
+      protocol = 'http:';
     }
     let response = await fetch(`${protocol}//${hostname}/${pathname}`, {
       method: 'POST',
@@ -174,9 +154,9 @@ export default class ImportPage extends Component {
 
         {this.state.message &&
           <Alert
-              bsStyle={error ? "danger" : "success"}
-              onDismiss={ev => this.setState({message: '', error: false})}>
-              { this.state.message }
+            bsStyle={error ? "danger" : "success"}
+            onDismiss={ev => this.setState({ message: '', error: false })}>
+            {this.state.message}
           </Alert>}
 
 
@@ -185,84 +165,85 @@ export default class ImportPage extends Component {
         </div>
 
         <div className="panel panel-default category-panel form-group">
-            <div className="panel-heading">Data Upload Information</div>
+          <div className="panel-heading">Data Upload Information</div>
 
-            <div style={{marginTop: '15px'}}>
+          <div style={{ marginTop: '15px' }}>
 
-              <div className="form-group" style={{display: 'flex', flexFlow: 'wrap'}}>
-                <div style={{width: '120px', maxWidth: '120px', minWidth: '120px'}} className="text-right">
-                  <label for="fundingYear" style={{marginTop: '5px', marginRight: '5px'}}>Funding Year <Asterisk /> </label>
-                </div>
-                <div style={{display: 'flex', flexFlow: 'wrap', alignItems: 'center'}}>
-                  <input
-                      value={fundingYearMin}
-                      type="number"
-                      onChange={event => this.setValue('fundingYearMin', event.target.value)}
-                      id="fundingYear"
-                      className="form-control"
-                      placeholder="Enter first year"
-                      style={{display: 'inline-block', width: '200px'}}
-                  />
-
-                  <span style={{marginLeft: '5px', marginRight: '5px'}}>-</span>
-
-                  <input
-                    value={fundingYearMax}
-                    type="number"
-                    onChange={event => this.setValue('fundingYearMax', event.target.value)}
-                    className="form-control"
-                    placeholder="Enter last year"
-                    style={{display: 'inline-block', width: '200px'}}
-                  />
-                </div>
-                <div>
-
-                  {
-                    validationErrors.fundingYearMin && validationErrors.fundingYearMin.required &&
-                    <div style={{color: 'red', marginLeft: '5px'}}>Please enter a value for the first funding year.</div>
-                  }
-
-                  {
-                    validationErrors.fundingYearMin && validationErrors.fundingYearMin.isNumeric &&
-                    <div style={{color: 'red', marginLeft: '5px'}}>Please ensure that the first funding year provided is a valid year.</div>
-                  }
-
-                  {
-                    validationErrors.fundingYearMax && validationErrors.fundingYearMin.isNumeric &&
-                    <div style={{color: 'red', marginLeft: '5px'}}>Please ensure that the last funding year provided is a valid year.</div>
-                  }
-
-                  {
-                    validationErrors.fundingYearMin && validationErrors.fundingYearMin.isLessThanMaxYear &&
-                    <div style={{color: 'red', marginLeft: '5px'}}>Please ensure that the first funding year is less than the last funding year.</div>
-                  }
-
-
-                </div>
+            <div className="form-group" style={{ display: 'flex', flexFlow: 'wrap' }}>
+              <div style={{ width: '120px', maxWidth: '120px', minWidth: '120px' }} className="text-right">
+                <label for="fundingYear" style={{ marginTop: '5px', marginRight: '5px' }}>Funding Year <Asterisk /> </label>
               </div>
+              <div style={{ display: 'flex', flexFlow: 'wrap', alignItems: 'center' }}>
+                <input
+                  value={fundingYearMin}
+                  type="number"
+                  onChange={event => this.setValue('fundingYearMin', event.target.value)}
+                  id="fundingYear"
+                  className="form-control"
+                  placeholder="Enter first year"
+                  style={{ display: 'inline-block', width: '200px' }}
+                />
 
+                <span style={{ marginLeft: '5px', marginRight: '5px' }}>-</span>
 
-              <div className="form-group" style={{display: 'flex', flexFlow: 'wrap'}}>
-                <div style={{width: '120px', maxWidth: '120px', minWidth: '120px'}} className="text-right">
-                  <label for="importNotes" style={{marginRight: '5px'}}>Import Notes <Asterisk /> </label>
-                </div>
-                <div style={{width: '80%'}}>
-                  <textarea
-                    value={importNotes}
-                    onChange={event => this.setValue('importNotes', event.target.value)}
-                    id="importNotes"
-                    className="form-control"
-                    maxLength="1000"
-                    placeholder="Enter import notes"
-                    style={{width: '80%'}}
-                  />
-                  {
-                    !isPristine && validationErrors.importNotes && validationErrors.importNotes.required &&
-                    <div style={{color: 'red'}}>Please ensure this field is not empty.</div>
-                  }
-                </div>
+                <input
+                  value={fundingYearMax}
+                  type="number"
+                  onChange={event => this.setValue('fundingYearMax', event.target.value)}
+                  className="form-control"
+                  placeholder="Enter last year"
+                  style={{ display: 'inline-block', width: '200px' }}
+                />
               </div>
-              <br />
+              <div>
+
+                {
+                  validationErrors.fundingYearMin && validationErrors.fundingYearMin.required &&
+                  <div style={{ color: 'red', marginLeft: '5px' }}>Please enter a value for the first funding year.</div>
+                }
+
+                {
+                  validationErrors.fundingYearMin && validationErrors.fundingYearMin.isNumeric &&
+                  <div style={{ color: 'red', marginLeft: '5px' }}>Please ensure that the first funding year provided is a valid year.</div>
+                }
+
+                {
+                  validationErrors.fundingYearMax && validationErrors.fundingYearMax.isNumeric &&
+                  <div style={{ color: 'red', marginLeft: '5px' }}>Please ensure that the last funding year provided is a valid year.</div>
+                }
+
+                {
+                  ((validationErrors.fundingYearMin && validationErrors.fundingYearMin.isLessThanMaxYear) ||
+                    (validationErrors.fundingYearMax && validationErrors.fundingYearMax.isLessThanMaxYear)) &&
+                  <div style={{ color: 'red', marginLeft: '5px' }}>Please ensure that the first funding year is less than the last funding year.</div>
+                }
+
+
+              </div>
+            </div>
+
+
+            <div className="form-group" style={{ display: 'flex', flexFlow: 'wrap' }}>
+              <div style={{ width: '120px', maxWidth: '120px', minWidth: '120px' }} className="text-right">
+                <label for="importNotes" style={{ marginRight: '5px' }}>Import Notes <Asterisk /> </label>
+              </div>
+              <div style={{ width: '80%' }}>
+                <textarea
+                  value={importNotes}
+                  onChange={event => this.setValue('importNotes', event.target.value)}
+                  id="importNotes"
+                  className="form-control"
+                  maxLength="1000"
+                  placeholder="Enter import notes"
+                  style={{ width: '80%' }}
+                />
+                {
+                  !isPristine && validationErrors.importNotes && validationErrors.importNotes.required &&
+                  <div style={{ color: 'red' }}>Please ensure this field is not empty.</div>
+                }
+              </div>
+            </div>
+            <br />
           </div>
         </div>
 
@@ -274,7 +255,7 @@ export default class ImportPage extends Component {
             </div>
 
             <div class="table-responsive">
-              <table style={{border: 'none', width: '300px' }}>
+              <table style={{ border: 'none', width: '300px' }}>
                 <tr>
                   <td>Project Count</td>
                   <td>{results.ProjectCount.toLocaleString()}</td>
@@ -309,13 +290,13 @@ export default class ImportPage extends Component {
         }
 
 
-        <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '15px'}}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px' }}>
           <div />
           <div>
             <Button className="horizontal-margin" onClick={event => this.props.onNavigation(2)}>Back</Button>
             <Button className="horizontal-margin"
               onClick={event => this.importProjects()}
-              disabled={isPristine || Object.keys(this.state.validationErrors).length > 0 || Object.keys(results).length > 0}>
+              disabled={isPristine || Object.keys(this.state.validationErrors).length > 0 || !this.state.allowImport || Object.keys(results).length > 0}>
               Import
             </Button>
           </div>

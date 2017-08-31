@@ -13,9 +13,8 @@ dataload.load_data_mysql:
     _title: 'Load Data'
   requirements:
     _access: 'TRUE'
-
-
   methods: [POST]
+
 dataload.load_data_mssql:
   path: '/DataUploadTool/loaddata_mssql'
   defaults:
@@ -23,9 +22,8 @@ dataload.load_data_mssql:
     _title: 'Load Data'
   requirements:
     _access: 'TRUE'
-
-
   methods: [POST]
+
 dataload.get_data:
   path: '/DataUploadTool/getdata'
   defaults:
@@ -33,7 +31,6 @@ dataload.get_data:
     _title: 'Get Data'
   requirements:
     _access: 'TRUE'
-
 
 dataload.get_data_mssql:
   path: '/DataUploadTool/getdata_mssql'
@@ -43,7 +40,6 @@ dataload.get_data_mssql:
   requirements:
     _access: 'TRUE'
 
-
 dataload.integrity_check:
   path: '/DataUploadTool/integrity_check_mssql'
   defaults:
@@ -52,8 +48,8 @@ dataload.integrity_check:
   requirements:
     _access: 'TRUE'
 
-
   methods: [POST]
+
 dataload.integrity_check_details:
   path: '/DataUploadTool/integrity_check_details_mssql'
   defaults:
@@ -61,9 +57,8 @@ dataload.integrity_check_details:
     _title: 'Integrity Check Details'
   requirements:
     _access: 'TRUE'
-
-
   methods: [POST]
+
 dataload.get_validation_rule_definitions:
   path: '/DataUploadTool/getValidationRuleDefinitions'
   defaults:
@@ -72,14 +67,12 @@ dataload.get_validation_rule_definitions:
   requirements:
     _access: 'TRUE'
 
-
 dataload.importProjects:
   path: '/DataUploadTool/importProjects'
   defaults:
     _controller:  '\Drupal\data_load\Controller\DataLoadController::importProjects'
   requirements:
     _access: 'TRUE'
-
 
 dataload.ping:
   path: '/DataUploadTool/ping'
@@ -89,15 +82,12 @@ dataload.ping:
   requirements:
     _access: 'TRUE'
 
-
-
 dataload.export:
   path: '/DataUploadTool/export'
   defaults:
     _controller: 'Drupal\data_load\Controller\DataLoadController::export'
   requirements:
     _access: 'TRUE'
-
 
 dataload.sponsor_codes:
   path: '/DataUploadTool/getSponsorCodes'
@@ -106,15 +96,12 @@ dataload.sponsor_codes:
   requirements:
     _access: 'TRUE'
 
-
-
 dataload.add_institutions:
   path: '/DataUploadTool/addInstitutions'
   defaults:
     _controller: 'Drupal\data_load\Controller\AddInstitutionsController::addInstitutionsRoute'
   requirements:
     _access: 'TRUE'
-
 
 add_institutions.app:
   path: '/AddInstitutions'
@@ -123,5 +110,3 @@ add_institutions.app:
     _title: 'Add Institutions Tool'
   requirements:
     _access: 'TRUE'
-
-
