@@ -6,6 +6,8 @@ import {
 } from 'react-bootstrap';
 import Spinner from './SpinnerComponent';
 
+const Asterisk = () => <span className="red-text">*</span>
+
 const ResultsTable = ({rows}) =>
   <div className="table-responsive" style={{maxWidth: '500px'}}>
     {
@@ -24,9 +26,11 @@ const ResultsTable = ({rows}) =>
 
 export default class ImportPage extends Component {
 
+  DEFAULT_YEAR = (new Date()).getFullYear() -1;
+
   state = {
-    fundingYearMin: '',
-    fundingYearMax: '',
+    fundingYearMin: this.DEFAULT_YEAR,
+    fundingYearMax: this.DEFAULT_YEAR,
     importNotes: '',
     loading: false,
     message: '',
@@ -43,10 +47,14 @@ export default class ImportPage extends Component {
   }
 
   setValue(key, value) {
+
+    let { fundingYearMin, fundingYearMax, importNotes } = this.state;
+    
     let validationRules = {
       fundingYearMin: {
         required: true,
         isNumeric: true,
+        isLessThanMaxYear: true,
       },
 
       fundingYearMax: {
@@ -55,7 +63,9 @@ export default class ImportPage extends Component {
 
       importNotes: {
         required: true,
-      }
+      },
+
+      
     }[key] || {};
 
     let validationErrors = this.state.validationErrors;
@@ -72,6 +82,12 @@ export default class ImportPage extends Component {
         && (+value < 1 || +value > 9999)
       ) {
         validationErrors[key].isNumeric = true;
+      }
+
+      if (rule === 'isLessThanMaxYear') {
+        if (+fundingYearMin > +fundingYearMax) {
+          validationErrors[key].isLessThanMaxYear = true;
+        }
       }
     }
 
@@ -97,12 +113,7 @@ export default class ImportPage extends Component {
     let { partnerCode, receivedDate, type } = this.props;
     let { fundingYearMin, fundingYearMax, importNotes } = this.state;
 
-    let years = [+fundingYearMin];
-    for (let i = +fundingYearMin + 1; i <= +fundingYearMax; i ++) {
-      years.push(i);
-    }
-
-    let fundingYears = years.join(',');
+    let fundingYears = `${fundingYearMin} - ${fundingYearMax}`;
 
     const parameters = {
       partnerCode,
@@ -176,7 +187,7 @@ export default class ImportPage extends Component {
 
               <div className="form-group" style={{display: 'flex', flexFlow: 'wrap'}}>
                 <div style={{width: '120px', maxWidth: '120px', minWidth: '120px'}} className="text-right">
-                  <label for="fundingYear" style={{marginTop: '5px', marginRight: '5px'}}>Funding Year * </label>
+                  <label for="fundingYear" style={{marginTop: '5px', marginRight: '5px'}}>Funding Year <Asterisk /> </label>
                 </div>
                 <div style={{display: 'flex', flexFlow: 'wrap', alignItems: 'center'}}>
                   <input
@@ -215,13 +226,19 @@ export default class ImportPage extends Component {
                     <div style={{color: 'red', marginLeft: '5px'}}>Please ensure that the last funding year provided is a valid year.</div>
                   }
 
+                  {
+                    validationErrors.fundingYearMin && validationErrors.fundingYearMin.isLessThanMaxYear &&
+                    <div style={{color: 'red', marginLeft: '5px'}}>Please ensure that the first funding year is less than the last funding year.</div>
+                  }
+
+
                 </div>
               </div>
 
 
               <div className="form-group" style={{display: 'flex', flexFlow: 'wrap'}}>
                 <div style={{width: '120px', maxWidth: '120px', minWidth: '120px'}} className="text-right">
-                  <label for="importNotes" style={{marginRight: '5px'}}>Import Notes * </label>
+                  <label for="importNotes" style={{marginRight: '5px'}}>Import Notes <Asterisk /> </label>
                 </div>
                 <div style={{width: '80%'}}>
                   <textarea
@@ -229,6 +246,7 @@ export default class ImportPage extends Component {
                     onChange={event => this.setValue('importNotes', event.target.value)}
                     id="importNotes"
                     className="form-control"
+                    maxlength="1000"
                     placeholder="Enter import notes"
                     style={{width: '80%'}}
                   />
