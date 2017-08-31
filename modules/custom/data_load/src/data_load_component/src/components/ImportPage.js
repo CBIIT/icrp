@@ -98,7 +98,7 @@ export default class ImportPage extends Component {
     let { partnerCode, receivedDate, type } = this.props;
     let { fundingYearMin, fundingYearMax, importNotes } = this.state;
 
-    let fundingYears = `${fundingYearMin} - ${fundingYearMax}`;
+    let fundingYears = fundingYearMin !== fundingYearMax ? `${fundingYearMin} - ${fundingYearMax}` : fundingYearMin;
 
     const parameters = {
       partnerCode,
