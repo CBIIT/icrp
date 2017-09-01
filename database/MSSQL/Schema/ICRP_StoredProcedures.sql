@@ -2342,7 +2342,7 @@ SET @RuleID= 42
 select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
 
 SELECT DISTINCT FundingOrgAbbr INTO #org from UploadWorkBook 
-where FundingOrgAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingOrg)
+where FundingOrgAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingOrg WHERE SponsorCode=@PartnerCode)
 
 IF EXISTS (SELECT * FROM #org)
 	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #org
@@ -2830,8 +2830,8 @@ END
 -------------------------------------------------------------------
 IF @RuleId = 42
 BEGIN
-	SELECT DISTINCT FundingOrgAbbr INTO #org from UploadWorkBook 
-	where FundingOrgAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingOrg)
+	SELECT DISTINCT FundingOrgAbbr, @PartnerCode AS SponsorCode INTO #org from UploadWorkBook 
+	where FundingOrgAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingOrg WHERE SponsorCode=@PartnerCode)
 	
 	SELECT DISTINCT c.*	FROM #org c 
 	JOIN UploadWorkbook u ON c.FundingOrgAbbr = u.FundingOrgAbbr
@@ -2984,7 +2984,7 @@ JOIN (select distinct p.ProjectID, p.AWardCode from project p  --75035
 	left join projectfunding f on p.projectid = f.projectid
 	left join fundingorg o on o.FundingOrgID = f.fundingorgid
 	where (o.sponsorcode IS NULL) OR (o.Sponsorcode = @PartnerCode)) p ON u.AwardCode = p.awardCode
-JOIN FundingOrg o ON u.FundingOrgAbbr = o.Abbreviation
+JOIN FundingOrg o ON u.FundingOrgAbbr = o.Abbreviation AND o.SponsorCode = @PartnerCode
 LEFT JOIN FundingDivision d ON u.FundingDivAbbr = d.Abbreviation
 
 -----------------------------------
@@ -3394,6 +3394,8 @@ CREATE PROCEDURE [dbo].[DataUpload_SyncProd]
 @DataUploadStatusID_Stage INT
 
 AS
+
+SET NOCOUNT ON
 
 -------------------------------------------------
 -- Retrieve DataUploadStatusID and Seed Info
