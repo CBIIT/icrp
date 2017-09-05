@@ -42,6 +42,7 @@ db_search_api.database.analytics_partners:
     _access: 'TRUE'
 
 
+
 ## Get search parameters for a particular search id
 ## Sample request: /api/database/search_parameters?search_id=1
 db_search_api.database.search_parameters:
@@ -81,6 +82,27 @@ api.database.counts:
     _access: 'TRUE'
 
 
+## Get example funding organizations
+## api.database.examples:
+##   path: /api/database/examples
+##   defaults: { _controller: \Drupal\db_search_api\Controller\SearchController::getExamples }
+##   methods: [ GET ]
+##   requirements:
+##     _access: 'TRUE'
+
+
+
+## Get example funding organizations
+api.database.examples.cso:
+  path: /api/database/examples/cso
+  defaults: { _controller: \Drupal\db_search_api\Controller\SearchController::getCsoExamples }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
+
+
+
 
 ## Routes for Data Upload Review Tool
 
@@ -112,6 +134,7 @@ api.database.review.analytics:
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
+
 
 
 ## Get sponsor uploads table

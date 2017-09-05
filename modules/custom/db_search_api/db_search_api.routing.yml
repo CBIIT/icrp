@@ -134,6 +134,7 @@ api.database.review.analytics:
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
+    _role: 'authenticated'
 
 
 ## Get sponsor uploads table

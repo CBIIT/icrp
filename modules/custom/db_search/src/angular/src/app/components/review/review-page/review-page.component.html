@@ -42,7 +42,7 @@
   <icrp-results-table-panel
     [loading]="loading"
     [results]="searchResults"
-    [numResults]="numResults"
+    [numResults]="state.projectCount"
     (sortPaginate)="sortPaginate($event)">
   </icrp-results-table-panel>
 
