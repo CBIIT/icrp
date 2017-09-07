@@ -1733,18 +1733,20 @@ BEGIN TRY
 		   RAISERROR ('Table tmp_LoadInstitutions not found', 16, 1)
 	END
 
-	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] INTO #exist 
-	FROM tmp_LoadInstitutions u JOIN Institution i ON u.Name = i.Name AND u.City = i.City	
+	SELECT Name, City, MAX([State]) AS [State], MAX([Country]) AS [Country], MAX([Postal]) AS [Postal], MAX([Longitude]) AS [Longitude], MAX([Latitude]) AS [Latitude], MAX([GRID]) AS Grid INTO #unique FROM tmp_LoadInstitutions GROUP BY Name, City
+
+	SELECT DISTINCT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] INTO #exist 
+	FROM #unique u JOIN Institution i ON u.Name = i.Name AND u.City = i.City	
 
 	-- Insert into icrp_data: DO NOT insert the institutions which already exist in the Institutions lookup 
 	INSERT INTO icrp_data.dbo.Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
-	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM tmp_LoadInstitutions i
+	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM #unique i
 		LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.City
 	WHERE (e.Name IS NULL)
 
 	-- Insert into icrp_dataload: Only insert the institutions which not exist in the Institutions lookup 		
 	INSERT INTO icrp_dataload.dbo.Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
-	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM tmp_LoadInstitutions i
+	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM #unique i		
 		LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.City
 	WHERE (e.Name IS NULL)
 
