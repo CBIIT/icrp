@@ -612,24 +612,6 @@ class DataLoadController {
     }
 
 
-    private static function addMissingInstitutions() {
-        $pdo = self::getConnection();
-        $pdo->exec('
-            DROP TABLE IF EXISTS tmp_LoadInstitutions;
-            SELECT InternalId as Id,
-              InstitutionICRP as Name,
-              City,
-              State,
-              Country,
-              PostalZipCode as Postal,
-              Longitute as Longitude,
-              Latitute as Latitude,
-              GRID
-              INTO tmp_LoadInstitutions FROM UploadWorkbook;
-            EXEC AddInstitutions;
-        ');
-    }
-
     public static function importProjects(Request $request) {
 
         $params = json_decode($request->getContent(), true);
@@ -652,7 +634,6 @@ class DataLoadController {
         ');
 
         try {
-            self::addMissingInstitutions();
 
             $stmt->execute([
                 'partnerCode' => $partnerCode,
