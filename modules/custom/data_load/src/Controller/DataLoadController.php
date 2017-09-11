@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use League\Csv\Reader;
-use League\Csv\CharsetConverter;
 use Box\Spout\Writer\WriterFactory;
 use Box\Spout\Common\Type;
 use \PDO;
@@ -245,7 +244,6 @@ class DataLoadController {
 
             $csv = Reader::createFromPath($uploaddir . $fileName);
             $csv->setHeaderOffset(0); //set the CSV header offset
-            CharsetConverter::addTo($csv, 'utf-8', 'utf-8');
 
             if (count($csv->getHeader()) !== 42) {
                 $response = new Response(
