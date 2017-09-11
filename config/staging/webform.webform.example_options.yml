@@ -1,0 +1,117 @@
+langcode: en
+status: closed
+dependencies: {  }
+open: null
+close: null
+uid: null
+template: false
+id: example_options
+title: 'Example: Options'
+description: 'Examples of all available select menu, radio, and checkbox options.'
+category: Example
+elements: "general:\n  '#type': details\n  '#title': 'General options'\n  '#open': true\n  creditcard_codes:\n    '#type': select\n    '#title': 'Credit card codes (creditcard_codes)'\n    '#options': creditcard_codes\n  size:\n    '#type': select\n    '#title': 'Size (size)'\n    '#options': size\n  time_zones:\n    '#type': select\n    '#title': 'Time zones (time_zones)'\n    '#options': time_zones\n  yes_no:\n    '#type': select\n    '#title': 'Yes/No (yes_no)'\n    '#options': yes_no\nbio:\n  '#type': details\n  '#title': 'Biographical options'\n  '#open': true\n  education:\n    '#type': select\n    '#title': 'Education (education)'\n    '#options': education\n  employment_status:\n    '#type': select\n    '#title': 'Employment status (employment_status)'\n    '#options': employment_status\n  ethnicity:\n    '#type': select\n    '#title': 'Ethnicity (ethnicity)'\n    '#options': ethnicity\n  gender:\n    '#type': select\n    '#title': 'Gender (gender)'\n    '#options': gender\n  industry:\n    '#type': select\n    '#title': 'Industry (industry)'\n    '#options': industry\n  languages:\n    '#type': select\n    '#title': 'Languages (languages)'\n    '#options': languages\n  marital_status:\n    '#type': select\n    '#title': 'Marital status (marital_status)'\n    '#options': marital_status\n  relationship:\n    '#type': select\n    '#title': 'Relationship (relationship)'\n    '#options': relationship\n  titles:\n    '#type': select\n    '#title': 'Titles (titles)'\n    '#options': titles\nlocation:\n  '#type': details\n  '#title': 'Location options'\n  '#open': true\n  country_codes:\n    '#type': select\n    '#title': 'Country codes (country_codes)'\n    '#options': country_codes\n  country_names:\n    '#type': select\n    '#title': 'Country names (country_names)'\n    '#options': country_names\n  state_codes:\n    '#type': select\n    '#title': 'State codes (state_codes)'\n    '#options': state_codes\n  state_names:\n    '#type': select\n    '#title': 'State names (state_names)'\n    '#options': state_names\n  state_province_codes:\n    '#type': select\n    '#title': 'State/Province codes (state_province_codes)'\n    '#options': state_province_codes\n  state_province_names:\n    '#type': select\n    '#title': 'State/Province names (state_province_names)'\n    '#options': state_province_names\ndate:\n  '#type': details\n  '#title': 'Date options'\n  '#open': true\n  days:\n    '#type': select\n    '#title': 'Days (days)'\n    '#options': days\n  months:\n    '#type': select\n    '#title': 'Months (months)'\n    '#options': months\nlikert:\n  '#type': details\n  '#title': 'Likert options'\n  '#open': true\n  likert_agreement:\n    '#type': webform_likert\n    '#title': 'Likert: Agreement (likert_agreement)'\n    '#questions':\n      q1: 'Please answer question 1?'\n      q2: 'How about now answering question 2?'\n      q3: 'Finally, here is question 3?'\n    '#answers': likert_agreement\n  likert_comparison:\n    '#type': webform_likert\n    '#title': 'Likert: Comparison (likert_comparison)'\n    '#questions':\n      q1: 'Please answer question 1?'\n      q2: 'How about now answering question 2?'\n      q3: 'Finally, here is question 3?'\n    '#answers': likert_comparison\n  likert_importance:\n    '#type': webform_likert\n    '#title': 'Likert: Importance (likert_importance)'\n    '#questions':\n      q1: 'Please answer question 1?'\n      q2: 'How about now answering question 2?'\n      q3: 'Finally, here is question 3?'\n    '#answers': likert_importance\n  likert_satisfaction:\n    '#type': webform_likert\n    '#title': 'Likert: Satisfaction (likert_satisfaction)'\n    '#questions':\n      q1: 'Please answer question 1?'\n      q2: 'How about now answering question 2?'\n      q3: 'Finally, here is question 3?'\n    '#answers': likert_satisfaction\n  likert_ten_scale:\n    '#type': webform_likert\n    '#title': 'Likert: Ten Scale (likert_ten_scale)'\n    '#questions':\n      q1: 'Please answer question 1?'\n      q2: 'How about now answering question 2?'\n      q3: 'Finally, here is question 3?'\n    '#answers': likert_ten_scale\n  likert_would_you:\n    '#type': webform_likert\n    '#title': 'Likert: Would You (likert_would_you)'\n    '#questions':\n      q1: 'Please answer question 1?'\n      q2: 'How about now answering question 2?'\n      q3: 'Finally, here is question 3?'\n    '#answers': likert_would_you\nrange_options:\n  '#title': 'Range Options'\n  '#type': details\n  '#open': true\n  number_range:\n    '#type': select\n    '#title': 'Range (1-10)'\n    '#options': range\n    '#min': 1\n    '#max': 10\n    '#step': 1\n  number_padded_range:\n    '#type': select\n    '#title': 'Range (001-010)'\n    '#options': range\n    '#min': 1\n    '#max': 10\n    '#step': 1\n    '#pad_length': 3\n    '#pad_string': '0'\n  letter_uppercase_range:\n    '#type': select\n    '#title': 'Range (A-Z)'\n    '#options': range\n    '#min': A\n    '#max': Z\n  letter_lowercase_range:\n    '#type': select\n    '#title': 'Range (a-z)'\n    '#options': range\n    '#min': a\n    '#max': z\n"
+css: ''
+javascript: ''
+settings:
+  ajax: false
+  page: true
+  page_submit_path: ''
+  page_confirm_path: ''
+  form_submit_once: false
+  form_exception_message: ''
+  form_open_message: ''
+  form_close_message: ''
+  form_previous_submissions: true
+  form_confidential: false
+  form_confidential_message: ''
+  form_convert_anonymous: false
+  form_prepopulate: false
+  form_prepopulate_source_entity: false
+  form_prepopulate_source_entity_required: false
+  form_prepopulate_source_entity_type: ''
+  form_reset: false
+  form_disable_autocomplete: false
+  form_novalidate: false
+  form_unsaved: false
+  form_disable_back: false
+  form_autofocus: false
+  form_details_toggle: false
+  submission_label: ''
+  submission_log: false
+  submission_user_columns: {  }
+  wizard_progress_bar: true
+  wizard_progress_pages: false
+  wizard_progress_percentage: false
+  wizard_start_label: ''
+  wizard_complete: true
+  wizard_complete_label: ''
+  preview: 0
+  preview_label: ''
+  preview_title: ''
+  preview_message: ''
+  preview_attributes: {  }
+  preview_excluded_elements: {  }
+  preview_exclude_empty: true
+  draft: none
+  draft_multiple: false
+  draft_auto_save: false
+  draft_saved_message: ''
+  draft_loaded_message: ''
+  confirmation_type: page
+  confirmation_title: ''
+  confirmation_message: ''
+  confirmation_url: ''
+  confirmation_attributes: {  }
+  confirmation_back: true
+  confirmation_back_label: ''
+  confirmation_back_attributes: {  }
+  limit_total: null
+  limit_total_message: ''
+  limit_user: null
+  limit_user_message: ''
+  purge: none
+  purge_days: null
+  entity_limit_total: null
+  entity_limit_user: null
+  results_disabled: false
+  results_disabled_ignore: false
+  token_update: false
+access:
+  create:
+    roles:
+      - anonymous
+      - authenticated
+    users: {  }
+    permissions: {  }
+  view_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  update_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  delete_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  purge_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  view_own:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  update_own:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  delete_own:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+handlers: {  }
+uuid: b85329e9-9890-4bdb-8fae-75f436d21311
+_core:
+  default_config_hash: SGpSRbjEPfX8EPskDQy529wNdwZIQLtqHBKg5vlqJnc

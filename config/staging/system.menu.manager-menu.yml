@@ -1,0 +1,8 @@
+uuid: d6cc4e96-ada2-4f8b-a915-a236b87db7cd
+langcode: en
+status: true
+dependencies: {  }
+id: manager-menu
+label: 'Manager Menu'
+description: 'Helpful links for managers'
+locked: false

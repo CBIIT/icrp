@@ -1,0 +1,9 @@
+uuid: 2c666936-fd82-450e-8069-f661ffd06269
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: FEHdzwNpJ0DeLryKdX_pqI0J-AJdyfc_rvVYg7rvwpc
+id: education
+label: Education
+options: "High School: High School\nAssociate Degree: Associate Degree\nAssociate Degree: Associate Degree\nGraduate or Professional Degree: Graduate or Professional Degree\nSome College: Some College\n"
