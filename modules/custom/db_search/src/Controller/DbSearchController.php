@@ -23,6 +23,7 @@ class DbSearchController {
   public function data_upload_review_content() {
     return [
       '#theme' => 'data_upload_review',
+      '#user_roles' => implode(',', self::getRoles()),
       '#attached' => [
         'library' => [
           'db_search/default'
@@ -31,7 +32,12 @@ class DbSearchController {
     ];
   }
 
-  public function authenticate() {
+  public static function getRoles(): array {
+    $current_user = \Drupal::currentUser();
+    return $current_user->getRoles();
+  }
+
+  public static function authenticate() {
     return new Response('authenticated');
   }
 }

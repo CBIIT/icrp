@@ -14,6 +14,7 @@ export class SharedService {
     is_production: false,
     searchID: null,
     dataUploadID: null,
+    userRoles: [],
   };
 
   constructor(private http: Http) {

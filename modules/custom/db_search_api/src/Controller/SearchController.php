@@ -242,4 +242,12 @@ class SearchController extends ControllerBase {
     $data = DatabaseSearch::getSearchSummary($connection, $parameters);
     return self::createResponse($data);
   }
+
+
+  public static function reviewSyncProd(Request $request) {
+    $connection = PDOBuilder::getConnection('icrp_load_database');
+    $parameters = self::array_merge_intersection($request->query->all(), ['data_upload_id' => -1]);
+    $data = DatabaseReview::reviewSyncProd($connection, $parameters);
+    return self::createResponse($data);
+  }  
 }

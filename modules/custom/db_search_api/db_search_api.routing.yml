@@ -155,4 +155,12 @@ db_search_api.database.review.search_summary:
   requirements:
     _access: 'TRUE'
 
-
+## Syncs prod for a particular data upload id
+## Sample request: /api/database/sync_prod?data_upload_id=1
+db_search_api.database.review.sync_prod:
+  path: '/api/database/review/sync_prod'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSyncProd' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+    _role: 'manager'

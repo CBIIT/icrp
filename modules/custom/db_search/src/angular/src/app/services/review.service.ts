@@ -64,5 +64,9 @@ export class ReviewService {
     return this.getRequest(`${this.apiRoot}/fields`)
   }
 
+  syncProd(parameters: object) {
+    return this.getRequest(`${this.apiRoot}/sync_prod`, parameters)
+  }
+
 
 }

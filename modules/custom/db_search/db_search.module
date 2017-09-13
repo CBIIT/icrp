@@ -13,6 +13,7 @@ function db_search_theme($existing, $type, $theme, $path) {
       'variables' => [
         'api_root' => NULL,
         'component_type' => NULL,
+        'user_roles' => NULL,
       ],
     ],
   ];

@@ -1,3 +1,11 @@
+<alert *ngIf="showAlert" [type]="success ? 'success' : 'danger'" dismissible="true">
+  {{success 
+      ? "The projects have been successfully imported into the production database."
+      : "The projects were not imported successfully." 
+  }}
+</alert>
+
+
 <table class="table table-bordered table-striped table-hover">
   <thead>
     <tr>
@@ -6,6 +14,7 @@
       <th>Type</th>
       <th>Workbook Received Date</th>
       <th>Note</th>
+      <th *ngIf="sharedService.get('userRoles').indexOf('manager') !== -1">Action</th>
     </tr>
   </thead>
   <tbody>
@@ -15,6 +24,7 @@
       <td>{{ row.type }}</td>
       <td>{{ row.received_date }}</td>
       <td>{{ row.note }}</td>
+      <td *ngIf="sharedService.get('userRoles').indexOf('manager') !== -1"><button class="btn btn-primary btn-xs" (click)="syncProd(row.data_upload_id)">Update Prod</button></td>
     </tr>
   </tbody>
 </table>
