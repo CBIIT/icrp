@@ -3007,9 +3007,9 @@ IF object_id('tmp_pcso') is null OR object_id('tmp_pcsoRel') is null
 BEGIN
 
 	IF object_id('tmp_pcso') is NOT null
-		drop table tmp_psite
+		drop table tmp_pcso
 	IF object_id('tmp_pcsoRel') is NOT null
-		drop table tmp_psiterel	
+		drop table tmp_pcsoRel	
 	
 	-----------------------------------
 	-- Import ProjectCSO
@@ -3030,7 +3030,7 @@ BEGIN
 		Rel Decimal (18, 2)
 	)
 
-	DECLARE @AltAwardCode as INT
+	DECLARE @AltAwardCode as VARCHAR(50)
 	DECLARE @csoList as NVARCHAR(50)
 	DECLARE @csoRelList as NVARCHAR(50)
  
@@ -3393,7 +3393,7 @@ GO
 
 CREATE PROCEDURE [dbo].[DataUpload_SyncProd]    
 
-@DataUploadStatusID_Stage INT
+@DataUploadID INT
 
 AS
 
@@ -3402,9 +3402,12 @@ SET NOCOUNT ON
 -------------------------------------------------
 -- Retrieve DataUploadStatusID and Seed Info
 ------------------------------------------------
+declare @DataUploadStatusID_Stage INT
 declare @DataUploadStatusID_Prod INT
 declare @PartnerCode VARCHAR(25)
 declare @Type VARCHAR(25)
+
+SET @DataUploadStatusID_Stage = @DataUploadID
 
 BEGIN TRANSACTION;
 
@@ -3422,23 +3425,21 @@ BEGIN TRY
       RAISERROR ('Failed to retrieve Prod DataUploadStatusID', 16, 1)
 	END
 	
-	PRINT 'icrp_data DataUploadStatusID = ' + CAST(@DataUploadStatusID_Prod AS varchar(25))
-	PRINT 'icrp_dataload DataUploadStatusID = ' + CAST(@DataUploadStatusID_Stage AS varchar(25))
-	PRINT 'PartnerCode = ' + @PartnerCode
-	PRINT 'Type = ' + @Type
+	--PRINT 'icrp_data DataUploadStatusID = ' + CAST(@DataUploadStatusID_Prod AS varchar(25))
+	--PRINT 'icrp_dataload DataUploadStatusID = ' + CAST(@DataUploadStatusID_Stage AS varchar(25))
+	--PRINT 'PartnerCode = ' + @PartnerCode
+	--PRINT 'Type = ' + @Type
 
 	/***********************************************************************************************/
 	-- Import Data
 	/***********************************************************************************************/
-	PRINT '*******************************************************************************'
-	PRINT '***************************** Import Data  ************************************'
-	PRINT '******************************************************************************'
+	--PRINT '*******************************************************************************'
+	--PRINT '***************************** Import Data  ************************************'
+	--PRINT '******************************************************************************'
 
 	-----------------------------------
 	-- Import Project
 	-----------------------------------
-	PRINT '-- Import Project'
-
 	INSERT INTO icrp_data.dbo.project ([IsChildhood], [AwardCode], [ProjectStartDate], [ProjectEndDate], [DataUploadStatusID], [CreatedDate], [UpdatedDate])
 	SELECT [IsChildhood],[AwardCode],[ProjectStartDate],[ProjectEndDate], @DataUploadStatusID_Prod, getdate(),getdate()
 	FROM icrp_dataload.dbo.Project WHERE [DataUploadStatusID] = @DataUploadStatusID_Stage	
@@ -3446,8 +3447,6 @@ BEGIN TRY
 	-----------------------------------
 	-- Import Project Abstract
 	-----------------------------------
-	PRINT '-- Import Project Abstract'
-	
 	DECLARE @seed INT
 	SELECT @seed=MAX(projectAbstractID)+1 FROM projectAbstract 
 	PRINT 'ProjectAbstract Seed = ' + CAST(@seed AS varchar(25))
@@ -3480,8 +3479,6 @@ BEGIN TRY
 	-----------------------------------
 	-- Import ProjectFunding
 	-----------------------------------
-	PRINT '-- Import ProjectFunding'	
-
 	INSERT INTO icrp_data.dbo.projectfunding ([Title],[ProjectID],[FundingOrgID],	[FundingDivisionID],[ProjectAbstractID],[DataUploadStatusID],[Category],[AltAwardCode],[Source_ID],
 		[MechanismCode],[MechanismTitle],[FundingContact],[IsAnnualized],[Amount],[BudgetStartDate],[BudgetEndDate],[CreatedDate],[UpdatedDate])
 	
@@ -3509,8 +3506,6 @@ BEGIN TRY
 	-----------------------------------
 	-- Import ProjectFundingInvestigator
 	-----------------------------------
-	PRINT '-- Import ProjectFundingInvestigator'
-
 	INSERT INTO icrp_data.dbo.ProjectFundingInvestigator
 	SELECT newpf.ProjectFundingID, pi.LastName, pi.FirstName, pi.ORC_ID, pi.OtherResearch_ID, pi.OtherResearch_Type, pi.IsPrivateInvestigator, ISNULL(newi.InstitutionID,1), InstitutionNameSubmitted, getdate(),getdate()
 	FROM icrp_dataload.dbo.ProjectFundingInvestigator pi
@@ -3523,8 +3518,6 @@ BEGIN TRY
 	-----------------------------------
 	-- Import ProjectCSO
 	-----------------------------------
-	PRINT '-- Import ProjectCSO'
-
 	INSERT INTO icrp_data.dbo.ProjectCSO
 	SELECT new.ProjectFundingID, cso.CSOCode, cso.Relevance, cso.RelSource, getdate(),getdate()
 	FROM icrp_dataload.dbo.ProjectCSO cso
@@ -3535,8 +3528,6 @@ BEGIN TRY
 	-----------------------------------
 	-- Import ProjectCancerType
 	-----------------------------------
-	PRINT '-- Import ProjectCancerType'
-
 	INSERT INTO icrp_data.dbo.ProjectCancerType
 	SELECT new.ProjectFundingID, ct.CancerTypeID, ct.Relevance, ct.RelSource, getdate(),getdate(), ct.EnterBy
 	FROM icrp_dataload.dbo.ProjectCancerType ct
@@ -3547,8 +3538,6 @@ BEGIN TRY
 	-----------------------------------
 	-- Import Project_ProjectTye
 	-----------------------------------
-	PRINT '-- Import Project_ProjectTye'
-
 	INSERT INTO icrp_data.dbo.Project_ProjectType
 	SELECT DISTINCT np.ProjectID, pt.ProjectType, getdate(),getdate()
 	FROM icrp_dataload.dbo.Project_ProjectType pt
@@ -3559,8 +3548,6 @@ BEGIN TRY
 	-----------------------------------
 	-- Import ProjectFundingExt
 	-----------------------------------
-	PRINT '-- Import ProjectFundingExt'
-
 	INSERT INTO icrp_data.dbo.ProjectFundingExt
 	SELECT new.ProjectFundingID, ex.CalendarYear, ex.CalendarAmount, getdate(),getdate()
 	FROM icrp_dataload.dbo.ProjectFundingExt ex
@@ -3582,8 +3569,8 @@ BEGIN TRY
 
 	IF EXISTS (select * from #postSponsor)
 	BEGIN
-		PRINT 'Post Import Check - Sponsor Code - Failed'
-		RAISERROR ('Post Import Check - Sponsor Code - Failed', 16, 1)
+		PRINT 'Post Prod Sync Check - Sponsor Code - Failed'
+		RAISERROR ('Post Prod Sync  Check - Sponsor Code - Failed', 16, 1)
 	END
 
 	-------------------------------------------------------------------------------------------
@@ -3596,8 +3583,8 @@ BEGIN TRY
 
 	IF EXISTS (select * from #postNotmappedInst)
 	BEGIN
-		PRINT 'Post Import Check - Instititutions Mapping - Failed'
-		RAISERROR ('Post Import Check - Instititutions Mapping - Failed', 16, 1)
+		PRINT 'Post Prod Sync  Check - Instititutions Mapping - Failed'
+		RAISERROR ('Post Prod Sync  Check - Instititutions Mapping - Failed', 16, 1)
 	END		
 
 	-------------------------------------------------------------------------------------------
@@ -3655,13 +3642,7 @@ BEGIN TRY
 		RAISERROR ('Pre-Checking Missing CancerType ==> Failed', 16, 1)
 	END	
 
-
-	-------------------------------------------------------------------------------------------
-	-- Rebuild ProjectSearch   -- 75608 ~ 2.20 mins)
-	--------------------------------------------------------------------------------------------
-	PRINT 'Rebuild [ProjectSearch]'
-
-	-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 -- Rebuild ProjectSearch   -- 75608 ~ 2.20 mins)
 --------------------------------------------------------------------------------------------
 	INSERT INTO ProjectSearch (ProjectID, [Content])
@@ -3672,19 +3653,15 @@ BEGIN TRY
 			WHERE f.DataUploadStatusID = @DataUploadStatusID_Prod
 			GROUP BY f.Title, a.TechAbstract, a.PublicAbstract,  f.FundingContact) ma	
 
-	PRINT 'Total Imported ProjectSearch = ' + CAST(@@RowCount AS varchar(10))
+	-- PRINT 'Total Imported ProjectSearch = ' + CAST(@@RowCount AS varchar(10))
 
 	-------------------------------------------------------------------------------------------
 	-- Insert DataUploadLog 
-	--------------------------------------------------------------------------------------------
-	PRINT 'INSERT DataUploadLog'
-
+	--------------------------------------------------------------------------------------------	
 	DECLARE @DataUploadLogID INT
 
 	SELECT @DataUploadLogID = DataUploadLogID FROM icrp_data.dbo.DataUploadLog WHERE DataUploadStatusID = @DataUploadStatusID_Prod	
-	
-	PRINT '@DataUploadLogID = ' + CAST(@DataUploadLogID AS varchar(10))
-
+		
 	DECLARE @Count INT
 
 	-- Insert Project Count
@@ -3753,34 +3730,125 @@ BEGIN TRY
 	--------------------------------------------------------------------------------------------
 	UPDATE icrp_data.dbo.DataUploadStatus SET Status = 'Completed', [UploadToProdDate] = getdate() WHERE DataUploadStatusID = @DataUploadStatusID_Prod
 	UPDATE icrp_dataload.dbo.DataUploadStatus SET Status = 'Completed', [UploadToProdDate] = getdate()  WHERE DataUploadStatusID = @DataUploadStatusID_Stage
-
-	--SELECT * from icrp_data.dbo.DataUploadStatus WHERE DataUploadStatusID = @DataUploadStatusID_Prod
-	--SELECT * from icrp_dataload.dbo.DataUploadStatus  WHERE DataUploadStatusID = @DataUploadStatusID_Stage	
-	--select * from icrp_dataload.dbo.datauploadlog WHERE DataUploadStatusID = @DataUploadStatusID_Stage
-	--SELECT * from icrp_data.dbo.datauploadlog WHERE DataUploadStatusID = @DataUploadStatusID_Prod
-	
 	
 	-----------------------------------------------------------------
 	-- Drop temp table
 	-----------------------------------------------------------------
 	IF object_id('UploadAbstractTemp') is NOT null
 		drop table UploadAbstractTemp
-
-	PRINT 'Post checing => pass and commit'
+			
 	COMMIT TRANSACTION
 
 END TRY
 
 BEGIN CATCH
-      --IF @@trancount > 0 
-	  BEGIN
-		PRINT 'Error => rollback'
+      --IF @@trancount > 0 	  
 		ROLLBACK TRANSACTION
-	  END
-      
+	        
 	  DECLARE @msg nvarchar(2048) = error_message()  
       RAISERROR (@msg, 16, 1)
 	        
 END CATCH  
 
 GO
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetMapRegionData]    Script Date: 12/14/2016 4:21:47 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetMapRegionDataBySearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetMapRegionDataBySearchID]
+GO 
+
+CREATE PROCEDURE [dbo].[GetMapRegionDataBySearchID]  
+@SearchID INT,
+@AggregatedProjectCount INT OUTPUT,
+@AggregatedPICount INT OUTPUT,
+@AggregatedCollabCount INT OUTPUT  
+AS   
+
+	DECLARE @funding TABLE
+	(
+		ProjectFundingID INT
+	)
+
+	-- No filters. Return all counts - total related projects = 168423
+	IF @SearchID = 0
+	BEGIN
+		INSERT INTO @funding SELECT ProjectFundingID FROM ProjectFunding 
+	END
+	ELSE  -- filtered results (based on searchID)
+	BEGIN
+		DECLARE @ProjectIDs VARCHAR(max) 	
+		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID					
+
+		INSERT INTO @funding SELECT f.ProjectFundingID 
+		FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
+			JOIN Project p ON r.ProjectID = p.ProjectID
+			JOIN ProjectFunding f ON r.ProjectID = f.ProjectID			
+	END
+
+	SELECT r.RegionID, pf.ProjectFundingID, p.IsPrivateInvestigator INTO #tmp
+		FROM @funding pf
+			JOIN ProjectFundingInvestigator p ON pf.ProjectFundingID = p.ProjectFundingID
+			JOIN Institution i ON p.InstitutionID = i.InstitutionID
+			JOIN Country c ON i.Country = c.Abbreviation	
+			JOIN lu_Region r ON c.RegionID=r.RegionID	
+
+	SELECT RegionID, Count(*) AS Count INTO #proj FROM (SELECT DISTINCT RegionID, ProjectFundingID FROM #tmp) proj GROUP BY RegionID
+	SELECT RegionID, Count(*) AS Count INTO #pi FROM (SELECT RegionID FROM #tmp WHERE IsPrivateInvestigator=1) p GROUP BY RegionID
+	SELECT RegionID, Count(*) AS Count INTO #collab FROM (SELECT RegionID FROM #tmp WHERE IsPrivateInvestigator=0) collab GROUP BY RegionID
+
+	-- Return RelatedProject Count, PI Count and collaborator Count by region
+	SELECT r.RegionID, r.Name AS Region, ISNULL(p.Count, 0) AS TotalRelatedProjectCount, ISNULL(pi.Count,0) AS TotalPICount, ISNULL(c.Count, 0) AS TotalCollaboratorCount, r.Latitude, r.Longitude
+	FROM #proj p
+		LEFT JOIN #pi  pi ON p.RegionID = pi.RegionID
+		LEFT JOIN #collab c ON c.RegionID = pi.RegionID
+		LEFT JOIN lu_Region r ON p.RegionID = r.RegionID
+
+	SELECT @AggregatedProjectCount=SUM(Count) FROM #proj	
+	SELECT @AggregatedPICount=SUM(Count) FROM #pi	
+	SELECT @AggregatedCollabCount=SUM(Count) FROM #collab	
+	
+GO
+
+
+--CREATE PROCEDURE [dbo].[GetMapRegionDataBySearchID]  	
+--@SearchID INT
+--AS   
+
+--	DECLARE @regions TABLE
+--	(
+--		[RegionID] INT,
+--		[Region] varchar(50),
+--		[TotalRelatedProjectCount] INT,
+--		[TotalPICount] INT,
+--		[TotalCollaboratorCount] INT,
+--		[Latitude] [decimal](9, 6) NULL,
+--		[Longitude] [decimal](9, 6) NULL
+--	)
+
+--	INSERT INTO @regions 
+--		SELECT RegionID, Name, 56345, 54233, 76943, Latitude, Longitude FROM (SELECT RegionID, Name, Latitude, Longitude FROM lu_Region WHERE RegionID=1) r
+--	INSERT INTO @regions 
+--		SELECT RegionID, Name, 6890, 6845, 7890, Latitude, Longitude FROM (SELECT RegionID, Name, Latitude, Longitude FROM lu_Region WHERE RegionID=2) r
+--	INSERT INTO @regions 
+--		SELECT RegionID, Name, 7801, 6654, 12654, Latitude, Longitude FROM (SELECT RegionID, Name, Latitude, Longitude FROM lu_Region WHERE RegionID=3) r
+--	INSERT INTO @regions 
+--		SELECT RegionID, Name, 1456, 1435, 2340, Latitude, Longitude FROM (SELECT RegionID, Name, Latitude, Longitude FROM lu_Region WHERE RegionID=4) r
+--	INSERT INTO @regions 
+--		SELECT RegionID, Name, 1034, 1033, 2134, Latitude, Longitude FROM (SELECT RegionID, Name, Latitude, Longitude FROM lu_Region WHERE RegionID=5) r
+--	INSERT INTO @regions 
+--		SELECT RegionID, Name, 89, 87, 90, Latitude, Longitude FROM (SELECT RegionID, Name, Latitude, Longitude FROM lu_Region WHERE RegionID=6) r
+--	INSERT INTO @regions 
+--		SELECT RegionID, Name, 1, 1, 1, Latitude, Longitude FROM (SELECT RegionID, Name, Latitude, Longitude FROM lu_Region WHERE RegionID=7) r
+
+--	SELECT [Region], [TotalRelatedProjectCount], [TotalPICount], [TotalCollaboratorCount], Latitude, Longitude FROM @regions	
+	    	
+--GO
