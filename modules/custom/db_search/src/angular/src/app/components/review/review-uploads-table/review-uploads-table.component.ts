@@ -13,6 +13,8 @@ export class ReviewUploadsTableComponent {
   success: boolean = false;
   showAlert: boolean = false;
 
+  loadingMessage = 'Update in Progress...';
+
   @Input() uploads: any[] = [];
   @Output() select: EventEmitter<any> = new EventEmitter<any>();
 

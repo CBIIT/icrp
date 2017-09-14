@@ -1,3 +1,9 @@
+<ui-overlay [active]="loading" [fullscreen]="true">
+  <ui-spinner></ui-spinner>
+  <br>{{ loadingMessage }}
+
+</ui-overlay>
+
 <alert *ngIf="showAlert" [type]="success ? 'success' : 'danger'" dismissible="true">
   {{success 
       ? "Congratulations! The selected partner data book has been successfully loaded into the production database."
