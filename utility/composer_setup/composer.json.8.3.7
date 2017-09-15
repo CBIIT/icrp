@@ -17,6 +17,18 @@
         "backup_migrate": {
             "type": "vcs",
             "url": "https://github.com/backupmigrate/backup_migrate_core"
+        },
+        "jqueryvalidate": {
+            "type": "package",
+            "package": {
+                "name": "jqueryvalidate",
+                "version": "1.14.0",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://jqueryvalidation.org/files/jquery-validation-1.14.0.zip",
+                    "type": "zip"
+                }
+            }
         }
     },
     "require": {
@@ -33,8 +45,8 @@
         "drupal/bootstrap_layouts": "5.0-alpha1@alpha",
         "drupal/calendar": "1.x-dev",
         "drupal/calendar_datetime": "1.x-dev",
-        "drupal/clientside_validation": "^1.0@RC",
-        "drupal/clientside_validation_jquery": "^1.0@RC",
+        "drupal/clientside_validation": "1.0-rc3@RC",
+        "drupal/clientside_validation_jquery": "1.0-rc3@RC",
         "drupal/console": "^1.0.1",
         "drupal/content_access": "1.x-dev",
         "drupal/core": "8.3.7",
@@ -79,7 +91,7 @@
         "drupal/security_review": "1.x-dev",
         "drupal/token": "^1.0",
         "drupal/toolbar_themes": "1.0-alpha4@alpha",
-        "drupal/twig_tweak": "^1.8",
+        "drupal/twig_tweak": "1.8",
         "drupal/twitter_block": "3.0-alpha0@alpha",
         "drupal/typed_data": "^1.0@alpha",
         "drupal/user_import": "1.x-dev",
@@ -134,6 +146,9 @@
         ],
         "post-update-cmd": [
             "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ],
+        "post-create-project-cmd": [
+             "cd modules/faq; git apply ../../missing_argument_4_in_2743715-6.patch;"
         ]
     },
     "extra": {
