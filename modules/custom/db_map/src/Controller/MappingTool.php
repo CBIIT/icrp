@@ -34,7 +34,7 @@ class MappingTool {
         ],
       ];
       
-      $data = PDOBuilder::executePreparedStatement(
+      $regions = PDOBuilder::executePreparedStatement(
         $pdo, 
         'SET NOCOUNT ON; EXECUTE GetMapRegionDataBySearchID
             @SearchID = :searchId,
@@ -44,16 +44,40 @@ class MappingTool {
         $parameters,
         $counts
       )->fetchAll();
-
+      
+      // extract the values for each count
       foreach($counts as $key => $entry) {
         $counts[$key] = $entry['value'];
       }
       
+      // map regions to standard format
+      $regions = array_map(function($region) {
+        return [
+          'label' => $region['Region'],
+          'value' => $region['RegionID'],
+          'coordinates' => [
+            'latitude' => floatval($region['Latitude']),
+            'longitude' => floatval($region['Longitude']),
+          ],
+          'data' => [
+            'relatedProjects' => $region['TotalRelatedProjectCount'],
+            'primaryInvestigators' => $region['TotalPICount'],
+            'collaborators' => $region['TotalCollaboratorCount'],
+          ],
+        ];
+      }, $regions);
+
+      // sort regions
+      usort($regions, function($a, $b) {
+        return $a['value'] - $b['value'];
+      });      
+
       return [
-        'data' => $data,
+        'regions' => $regions,
         'counts' => $counts,
       ];
     }
+
 
     catch (PDOException $ex) {
       $message = $ex->getMessage();
