@@ -4,4 +4,5 @@ default:
     theme:
       src/assets/main.css: {}
   js:
+    https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg: {}
     src/assets/main.js: {}
