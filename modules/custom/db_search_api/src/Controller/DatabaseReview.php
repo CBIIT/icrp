@@ -158,10 +158,10 @@ class DatabaseReview {
     try {
       $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE DataUpload_SyncProd @DataUploadID=:data_upload_id');
       $stmt->bindParam(':data_upload_id', $parameters['data_upload_id']);
-      if ($stmt->execute()) {
-        $result = $stmt->fetch(PDO::FETCH_NUM)[0];
-        return $result == 0;
+     if ($stmt->execute()) { 
+        return true;
       }
+      return false; 
     } 
     catch(\PDOException $e) {
       error_log($e->getMessage());
