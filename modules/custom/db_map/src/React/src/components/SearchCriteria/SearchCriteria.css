@@ -1,0 +1,27 @@
+.search-criteria-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 10px;
+  padding: 4px 10px;
+
+  border: 1px solid #ddd;
+  background: linear-gradient(#fff, #eee);
+
+  cursor: pointer;
+}
+
+.blue-text {
+  color: steelblue;
+  font-weight: bold;
+}
+
+.rotate-45 {
+  display: inline-block;
+  transform: rotate(45deg);
+}
+
+.margin-right {
+  margin-right: 5px;
+}

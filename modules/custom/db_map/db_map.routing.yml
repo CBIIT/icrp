@@ -1,0 +1,24 @@
+map:
+  path: '/map'
+  defaults:
+    _controller: '\Drupal\db_map\Controller\MapController::getContent'
+    _title: 'Project Map'
+  requirements:
+    _access: 'TRUE'
+
+
+getAllRegions:
+  path: '/map/getAllRegions'
+  defaults:
+    _controller: '\Drupal\db_map\Controller\MapController::getAllRegions'
+  requirements:
+    _access: 'TRUE'
+
+
+getSearchParameters:
+  path: '/map/getSearchParameters'
+  defaults:
+    _controller: '\Drupal\db_map\Controller\MapController::getSearchParameters'
+  requirements:
+    _access: 'TRUE'
+
