@@ -18,6 +18,6 @@ export class AppComponent {
     let el = elementRef.nativeElement;
     sharedService.set('apiRoot', el.getAttribute('data-api-root') || '');
     sharedService.set('componentType', el.getAttribute('data-component-type'));
-    sharedService.set('userRoles', el.getAttribute('data-user-roles').split(','));
+    sharedService.set('userRoles', (el.getAttribute('data-user-roles') || '').split(','));
   }
 }
