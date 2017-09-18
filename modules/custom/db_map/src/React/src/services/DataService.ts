@@ -21,15 +21,15 @@ export const getRequest = async (url: string, params: object) => {
   return await response.json();
 }
 
-export const getAllRegions = async (searchId: number): 
+export const getRegions = async (searchId: number):
   Promise<{
-    regions: Location[], 
+    locations: Location[],
     counts: {
-      projects: number, 
-      primaryInvestigators: number, 
+      projects: number,
+      primaryInvestigators: number,
       collaborators: number,
     }
-  }> => 
-  await getRequest(`${BASE_URL}/map/getAllRegions/?${stringify({searchId})}`, {
+  }> =>
+  await getRequest(`${BASE_URL}/map/getRegions/?${stringify({searchId})}`, {
     credentials: 'same-origin'
   });

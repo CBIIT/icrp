@@ -17,7 +17,7 @@ class MappingTool {
    * @param int $searchId
    * @return void
    */
-  public static function getAllRegions(PDO $pdo, array $parameters = ['searchId' => 0]): array {
+  public static function getRegions(PDO $pdo, array $parameters = ['searchId' => 0]): array {
     try {
       $counts = [
         'projects' => [
@@ -33,9 +33,9 @@ class MappingTool {
           'value' => 0,
         ],
       ];
-      
+
       $regions = PDOBuilder::executePreparedStatement(
-        $pdo, 
+        $pdo,
         'SET NOCOUNT ON; EXECUTE GetMapRegionDataBySearchID
             @SearchID = :searchId,
             @AggregatedProjectCount = :projects,
@@ -44,12 +44,12 @@ class MappingTool {
         $parameters,
         $counts
       )->fetchAll();
-      
+
       // extract the values for each count
       foreach($counts as $key => $entry) {
         $counts[$key] = $entry['value'];
       }
-      
+
       // map regions to standard format
       $regions = array_map(function($region) {
         return [
@@ -70,10 +70,10 @@ class MappingTool {
       // sort regions
       usort($regions, function($a, $b) {
         return $a['value'] - $b['value'];
-      });      
+      });
 
       return [
-        'regions' => $regions,
+        'locations' => $regions,
         'counts' => $counts,
       ];
     }
@@ -95,7 +95,7 @@ class MappingTool {
    * @return array
    */
   public static function getSearchParameters(PDO $pdo, array $parameters = ['searchId' => -1]): array {
-    
+
     try {
       return PDOBuilder::executePreparedStatement(
         $pdo,

@@ -21,8 +21,8 @@ class GoogleMap extends React.Component<
   mapContainer: HTMLDivElement | null = null;
   state = {
     counts: {
-      projects: 0, 
-      primaryInvestigators: 0, 
+      projects: 0,
+      primaryInvestigators: 0,
       collaborators: 0,
     }
   }
@@ -32,8 +32,8 @@ class GoogleMap extends React.Component<
     this.map = new google.maps.Map(this.mapContainer, DEFAULT_OPTIONS);
     let searchId = qs.parse(window.location.search).sid || 0;
 
-    let data = await DataService.getAllRegions(searchId);
-    let regions = data.regions;
+    let data = await DataService.getRegions(searchId);
+    let regions = data.locations;
     let counts = data.counts;
 
     regions.forEach(region => {
@@ -52,6 +52,8 @@ class GoogleMap extends React.Component<
 
     this.setState({counts});
   }
+
+
 
   render() {
     return (

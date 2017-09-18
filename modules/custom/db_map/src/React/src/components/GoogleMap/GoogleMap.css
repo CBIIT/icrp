@@ -2,24 +2,3 @@
   height: 650px;
   z-index: 0;
 }
-
-.map-overlay {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  width: 100%;
-  min-height: 32px;
-  max-height: 32px;
-
-  padding-left: 2px;
-  padding-right: 2px;
-
-
-  z-index: 1;
-}
-
-.translucent {
-  opacity: 0.7;
-  background-color: #59ABE3;
-}
