@@ -1,0 +1,75 @@
+ Package                          Name                                                         Type    Version        
+ Access control                   Content Access (content_access)                              Module                 
+ Administration                   Admin Toolbar (admin_toolbar)                                Module  8.x-1.19       
+ Administration                   Admin Toolbar Extra Tools (admin_toolbar_tools)              Module  8.x-1.19       
+ Administration                   Toolbar Themes (toolbar_themes)                              Module  8.x-1.0-alpha4 
+ Chaos tool suite                 Chaos tools (ctools)                                         Module  8.x-3.0        
+ Chaos tool suite (Experimental)  Chaos tools blocks (ctools_block)                            Module  8.x-3.0        
+ Chaos tool suite (Experimental)  Chaos tools Views (ctools_views)                             Module  8.x-3.0        
+ Clientside Validation            Clientside Validation (clientside_validation)                Module  8.x-1.0-rc3    
+ Clientside Validation            Clientside Validation jQuery (clientside_validation_jquery)  Module  8.x-1.0-rc3    
+ Custom                           Linkit (linkit)                                              Module  8.x-5.0-beta5  
+ Custom                           Search kint (search_kint)                                    Module  8.x-1.0        
+ Date/Time                        Calendar (calendar)                                          Module                 
+ Date/Time                        Calendar Datetime (calendar_datetime)                        Module                 
+ Deployment                       User Import (user_import)                                    Module                 
+ Display Suite                    Display Suite (ds)                                           Module  8.x-3.1        
+ Display Suite                    Display Suite Extras (ds_extras)                             Module  8.x-3.1        
+ Display Suite                    Display Suite Switch View Mode (ds_switch_view_mode)         Module  8.x-3.1        
+ Example modules                  Examples for Developers (examples)                           Module                 
+ Example modules                  Plugin type example (plugin_type_example)                    Module                 
+ FAQ                              Frequently Asked Questions (faq)                             Module  8.3.7          
+ field                            Field Permissions (field_permissions)                        Module  8.x-1.0-beta2  
+ Filters                          Entity Embed (entity_embed)                                  Module  8.x-1.0-beta2  
+ ICRP Modules                     ICRP (icrp)                                                  Module  1              
+ ICRP Modules                     ICRP Custom Conditions Module (icrp_custom_conditions)       Module  1              
+ ICRP Modules                     ICRP Data Load Module (data_load)                            Module                 
+ ICRP Modules                     ICRP Database Admin Pages (db_admin)                         Module  0.2            
+ ICRP Modules                     ICRP Database Search API (db_search_api)                     Module  0.2            
+ ICRP Modules                     ICRP Database Search Results Export (db_export_results)      Module                 
+ ICRP Modules                     ICRP Database Search/Review (db_search)                      Module  1.1            
+ ICRP Modules                     ICRP Email Project Search Results (db_email_results)         Module  0.1            
+ ICRP Modules                     ICRP Library Module (library)                                Module  1              
+ ICRP Modules                     ICRP Partner Cancer Types List (db_cancer_type_list)         Module  0.1            
+ ICRP Modules                     ICRP Project View (db_project_view)                          Module  0.1            
+ Images                           Focal Point (focal_point)                                    Module  8.x-1.0-beta4  
+ Layout                           Bootstrap Layouts (bootstrap_layouts)                        Module  8.x-5.0-alpha1 
+ Layout                           Page Manager (page_manager)                                  Module  8.x-4.0-beta2  
+ Layout                           Page Manager UI (page_manager_ui)                            Module  8.x-4.0-beta2  
+ Layout                           Panelizer (panelizer)                                        Module  8.x-4.0        
+ Media                            Crop API (crop)                                              Module  8.x-1.2        
+ Media                            Media entity (media_entity)                                  Module  8.x-1.6        
+ Media                            Media entity Twitter (media_entity_twitter)                  Module  8.x-1.3        
+ Other                            Advanced Link (editor_advanced_link)                         Module  8.x-1.4        
+ Other                            Automated Logout (autologout)                                Module  8.x-1.0        
+ Other                            Backup and Migrate (backup_migrate)                          Module  8.x-4.0-alpha2 
+ Other                            Email Registration (email_registration)                      Module  8.x-1.0-rc5    
+ Other                            Embed (embed)                                                Module  8.x-1.0        
+ Other                            Entity (entity)                                              Module  8.x-1.0-alpha4 
+ Other                            Entity notification (entity_notification)                    Module  8.x-1.0        
+ Other                            Font Awesome (fontawesome)                                   Module  8.x-1.2        
+ Other                            Libraries (libraries)                                        Module                 
+ Other                            Partnership Import (partnership_import)                      Module                 
+ Other                            Pathauto (pathauto)                                          Module  8.x-1.0        
+ Other                            Recovery Password (recovery_pass)                            Module  8.x-1.0        
+ Other                            Token (token)                                                Module  8.x-1.0        
+ Other                            Twig tweak (twig_tweak)                                      Module  8.x-1.8        
+ Other                            Twitter Block (twitter_block)                                Module  8.x-3.0-alpha0 
+ Other                            Typed Data (typed_data)                                      Module  8.x-1.0-alpha1 
+ Panels                           Panels (panels)                                              Module  8.x-4.2        
+ Panels                           Panels IPE (panels_ipe)                                      Module  8.x-4.2        
+ Rules                            Rules (rules)                                                Module  8.x-3.0-alpha3 
+ Security                         Security Review (security_review)                            Module                 
+ SEO                              Metatag (metatag)                                            Module  8.x-1.2        
+ Spam control                     Honeypot (honeypot)                                          Module  8.x-1.27       
+ Statistics                       Google Analytics (google_analytics)                          Module  8.x-2.1        
+ User interface                   External Links (extlink)                                     Module  8.x-1.0        
+ Views                            DataTables (datatables)                                      Module  8.x-1.0-rc1    
+ Views                            Views Bootstrap (views_bootstrap)                            Module                 
+ Views                            Views templates (views_templates)                            Module  8.x-1.0-alpha1 
+ Webform                          Webform (webform)                                            Module  8.x-5.0-beta16 
+ Webform                          Webform UI (webform_ui)                                      Module  8.x-5.0-beta16 
+ Webform                          Webform views (webform_views)                                Module  8.x-5.0-alpha2 
+ Bootstrap                        Bootstrap (bootstrap)                                        Theme   8.x-3.5        
+ Bootstrap                        Bootstrap Sub-Theme (CDN) (bootstrap_subtheme)               Theme                  
+

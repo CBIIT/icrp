@@ -15,6 +15,8 @@ fi
 echo -n "START TIME: "
 timestamp
 DOC_ROOT=$1 
+HOME="/home/centos/icrp"
+#HOME="/github/old3.drupal8.dev"
 echo "**"
 echo "* Clear cache files (without this it was causing problems.)"
 echo "**"
@@ -65,23 +67,22 @@ composer update
 echo "**"
 echo "* copy themes, libraries, and modules/custom"
 echo "**"
-mysql -udrupal -pdrupal icrp < /github/old3.drupal8.dev/sites/icrp/obsolete.icrp.sql
 
-cp /github/old3.drupal8.dev/sites/default/settings.php sites/default/
+cp $HOME/sites/default/settings.php sites/default/
 
 mkdir modules/custom
-cp -rp /github/old3.drupal8.dev/modules/custom/ modules/custom/ 
+cp -rp $HOME/modules/custom/ modules/custom/ 
+cp -rp $HOME/themes/ themes/
+cp -rp $HOME/libraries/ libraries/
 
-cp -rp /github/old3.drupal8.dev/themes/ themes/
-
-cp -rp /github/old3.drupal8.dev/libraries/ libraries/
+cp -rp $HOME/sites/default/files/ sites/default/files/
 
 #Copy files directory
 #Apply path to FAQ
 #Fix clientside_validation dependancy problem
 
 #Refresh Database
-mysql -udrupal -pdrupal icrp < /github/old3.drupal8.dev/sites/icrp/obsolete.icrp.sql 
+#mysql -udrupal -pdrupal icrp < $HOME/sites/icrp/obsolete.icrp.sql 
 drush cr
 
 echo "**"
