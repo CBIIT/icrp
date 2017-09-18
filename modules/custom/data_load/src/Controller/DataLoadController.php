@@ -662,7 +662,18 @@ class DataLoadController {
                 Response::HTTP_BAD_REQUEST,
                 array('content-type' => 'text/html')
             );
-            $response->setContent($e->getMessage());
+
+            // Remove the text prepended to the user-defined error message by SQL Server
+            $messageArray = explode("[SQL Server]", $e->getMessage(), 2);
+            $message = "";
+            if (count($messageArray == 2)) {
+                $message = $messageArray[1];
+            } else {
+                $message = $messageArray[0];
+            }
+            $message .= ". The import was aborted.";
+
+            $response->setContent($message);
             return self::addCorsHeaders($response);
         }
     }
