@@ -35,11 +35,17 @@ GO
 /*************************************************/
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[Country]') AND name = 'RegionID')
 	ALTER TABLE Country ADD RegionID INT NULL
+GO
 
 IF EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[ProjectFundingInvestigator]') AND name = 'LastName')
 	ALTER TABLE ProjectFundingInvestigator ALTER COLUMN LastName VARCHAR(100) NULL
 
 GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[SearchCriteria]') AND name = 'RegionList')
+	ALTER TABLE SearchCriteria ADD RegionList varchar(100) NULL
+GO
+
 
 
 /*************************************************/
