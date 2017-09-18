@@ -952,6 +952,9 @@ IF EXISTS (SELECT * FROM #criteria WHERE StateList IS NOT NULL)
 IF EXISTS (SELECT * FROM #criteria WHERE CountryList IS NOT NULL)
 	INSERT INTO @SearchCriteria SELECT 'Country:', CountryList FROM #criteria
 
+IF EXISTS (SELECT * FROM #criteria WHERE RegionList IS NOT NULL)
+	INSERT INTO @SearchCriteria SELECT 'Region:', RegionList FROM #criteria
+
 IF EXISTS (SELECT * FROM #criteria WHERE FundingOrgTypeList IS NOT NULL)
 	INSERT INTO @SearchCriteria SELECT 'FundingOrgType:', FundingOrgTypeList FROM #criteria	
 
@@ -1021,7 +1024,7 @@ AS
 		p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
 		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency,
 		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.SponsorCode, o.Name AS FundingOrg, o.Type AS FundingOrgType, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, 
-		f.FundingContact, pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
+		f.FundingContact, pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, l.Name AS Region, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
 	INTO #temp
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
 		LEFT JOIN Project p ON r.ProjectID = p.ProjectID		
@@ -1030,6 +1033,8 @@ AS
 		LEFT JOIN FundingDivision d ON d.FundingDivisionID = f.FundingDivisionID
 		LEFT JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID		
 		LEFT JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+		LEFT JOIN Country c ON c.Abbreviation = i.Country
+		LEFT JOIN lu_Region l ON c.RegionID = l.RegionID
 		LEFT JOIN ProjectAbstract a ON a.ProjectAbstractID = f.ProjectAbstractID	
 	
 	-- Special handling for AwardType	 - convert multiple AwardType to a comma delimited string
@@ -1064,7 +1069,7 @@ AS
 		t.AwardCode, t.Source_ID, t.AltAwardCode, t.FundingCategory,
 		t.IsChildhood, t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate,  t.BudgetEndDate, t.AwardAmount, t.FundingIndicator, t.Currency, 
 		t.FundingMechanism, t.FundingMechanismCode, t.SponsorCode, t.FundingOrg, t.FundingOrgType, t.FundingDiv, t.FundingDivAbbr, t.FundingContact, 
-		t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.icrpURL'
+		t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.Region, t.icrpURL'
 
 	IF @IncludeAbstract = 1
 		SET @SQLQuery = @SQLQuery + ', t.TechAbstract'
@@ -1306,7 +1311,7 @@ AS
 		p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
 		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency, 
 		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.SponsorCode, o.Name AS FundingOrg, o.Type AS FundingOrgType, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, '' AS FundingContact, 
-		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
+		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, l.Name AS Region, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
 	INTO #temp
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
 		LEFT JOIN Project p ON r.ProjectID = p.ProjectID		
@@ -1315,6 +1320,8 @@ AS
 		LEFT JOIN FundingDivision d ON d.FundingDivisionID = f.FundingDivisionID
 		LEFT JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID		
 		LEFT JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+		LEFT JOIN Country c ON c.Abbreviation = i.Country
+		LEFT JOIN lu_Region l ON c.RegionID = l.RegionID
 		LEFT JOIN ProjectAbstract a ON a.ProjectAbstractID = f.ProjectAbstractID	
 
 	---------------------------------------------------------------------------------------------------		
@@ -1374,7 +1381,7 @@ AS
 	SET   @SQLQuery = N'SELECT * '+
 		'FROM (SELECT t.ProjectID AS ICRPProjectID, t.ProjectFundingID AS ICRPProjectFundingID, t.AwardCode, t.AwardTitle, t.AwardType, t.Source_ID, t.AltAwardCode, FundingCategory, IsChildhood,
 				t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate, t.BudgetEndDate, t.AwardAmount, t.FundingIndicator, t.Currency, t.FundingMechanism, t.FundingMechanismCode, SponsorCode, t.FundingOrg, FundingOrgType,
-				t.FundingDiv, t.FundingDivAbbr, t.FundingContact, t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.icrpURL'
+				t.FundingDiv, t.FundingDivAbbr, t.FundingContact, t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.Region, t.icrpURL'
 	IF @IncludeAbstract = 1
 		SET @SQLQuery = @SQLQuery + ', t.TechAbstract'
 
@@ -1571,9 +1578,10 @@ CREATE  PROCEDURE [dbo].[GetCountryCodeLookup]
     
 AS   
 
-SELECT Abbreviation AS Code, Name AS Country
-FROM Country
-ORDER BY Code
+SELECT c.Abbreviation AS Code, c.Name AS Country, r.RegionID, r.Name AS Region
+FROM Country c
+JOIN lu_Region r ON c.RegionID = r.RegionID
+ORDER BY c.Abbreviation
 
 GO
 
@@ -1621,10 +1629,12 @@ CREATE  PROCEDURE [dbo].[GetInstitutionLookup]
     
 AS   
 
-SELECT Name, City, State, Country, Postal, Longitude, Latitude, GRID
-FROM Institution
-WHERE Name <> 'Missing'
-ORDER BY Name
+SELECT i.Name, i.City, i.State, i.Postal, i.Country, l.Name AS Region, i.Longitude, i.Latitude, i.GRID
+FROM Institution i
+JOIN Country c ON i.Country = c.Abbreviation
+JOIN lu_Region l ON c.RegionID = l.RegionID
+WHERE i.Name <> 'Missing'
+ORDER BY i.Name
 
 GO
 
@@ -3413,11 +3423,13 @@ BEGIN TRANSACTION;
 
 BEGIN TRY 
 
-	IF ((SELECT COUNT(*) FROM icrp_data.dbo.DataUploadStatus p
-		JOIN icrp_dataload.dbo.DataUploadStatus s ON p.PartnerCode = s.PartnerCode AND p.FundingYear = s.FundingYear AND p.Type = s.Type WHERE s.DataUploadStatusID = @DataUploadStatusID_Stage) = 1)
+	IF ((SELECT COUNT(*) FROM (SELECT * FROM icrp_data.dbo.DataUploadStatus WHERE Status = 'Staging') p
+		JOIN (SELECT * FROM icrp_dataload.dbo.DataUploadStatus WHERE Status = 'Staging') s ON p.PartnerCode = s.PartnerCode AND p.FundingYear = s.FundingYear AND p.Type = s.Type WHERE s.DataUploadStatusID = 75) = 1)
 	BEGIN
-		SELECT @DataUploadStatusID_Prod = p.DataUploadStatusID, @Type = p.[Type], @PartnerCode=p.PartnerCode FROM icrp_data.dbo.DataUploadStatus p
-			JOIN icrp_dataload.dbo.DataUploadStatus s ON p.PartnerCode = s.PartnerCode AND p.FundingYear = s.FundingYear AND p.Type = s.Type
+		SELECT @DataUploadStatusID_Prod = p.DataUploadStatusID, @Type = p.[Type], @PartnerCode=p.PartnerCode 
+
+		FROM (SELECT * FROM icrp_data.dbo.DataUploadStatus WHERE Status = 'Staging') p
+			JOIN (SELECT * FROM icrp_dataload.dbo.DataUploadStatus WHERE Status = 'Staging') s ON p.PartnerCode = s.PartnerCode AND p.FundingYear = s.FundingYear AND p.Type = s.Type
 		WHERE s.DataUploadStatusID = @DataUploadStatusID_Stage
 	END
 	ELSE
@@ -3425,18 +3437,10 @@ BEGIN TRY
       RAISERROR ('Failed to retrieve Prod DataUploadStatusID', 16, 1)
 	END
 	
-	--PRINT 'icrp_data DataUploadStatusID = ' + CAST(@DataUploadStatusID_Prod AS varchar(25))
-	--PRINT 'icrp_dataload DataUploadStatusID = ' + CAST(@DataUploadStatusID_Stage AS varchar(25))
-	--PRINT 'PartnerCode = ' + @PartnerCode
-	--PRINT 'Type = ' + @Type
 
 	/***********************************************************************************************/
 	-- Import Data
 	/***********************************************************************************************/
-	--PRINT '*******************************************************************************'
-	--PRINT '***************************** Import Data  ************************************'
-	--PRINT '******************************************************************************'
-
 	-----------------------------------
 	-- Import Project
 	-----------------------------------
@@ -3449,9 +3453,7 @@ BEGIN TRY
 	-----------------------------------
 	DECLARE @seed INT
 	SELECT @seed=MAX(projectAbstractID)+1 FROM projectAbstract 
-	PRINT 'ProjectAbstract Seed = ' + CAST(@seed AS varchar(25))
-
-
+	
 	CREATE TABLE UploadAbstractTemp (	
 		ID INT NOT NULL IDENTITY(1,1),
 		ProjectFundindID INT,	
@@ -3472,9 +3474,6 @@ BEGIN TRY
 	FROM UploadAbstractTemp 
 
 	SET IDENTITY_INSERT icrp_data.dbo.projectAbstract OFF;  -- SET IDENTITY_INSERT to ON. 
-
-	--select count(*) from projectAbstract --136948, 145092
-	--print 145092 - 136948
 
 	-----------------------------------
 	-- Import ProjectFunding
@@ -3568,8 +3567,7 @@ BEGIN TRY
 		where f.DataUploadStatusID = @DataUploadStatusID_Prod and o.SponsorCode <> @PartnerCode
 
 	IF EXISTS (select * from #postSponsor)
-	BEGIN
-		PRINT 'Post Prod Sync Check - Sponsor Code - Failed'
+	BEGIN		
 		RAISERROR ('Post Prod Sync  Check - Sponsor Code - Failed', 16, 1)
 	END
 
@@ -3582,8 +3580,7 @@ BEGIN TRY
 		where f.DataUploadStatusID = @DataUploadStatusID_Prod and pi.InstitutionID = 1
 
 	IF EXISTS (select * from #postNotmappedInst)
-	BEGIN
-		PRINT 'Post Prod Sync  Check - Instititutions Mapping - Failed'
+	BEGIN		
 		RAISERROR ('Post Prod Sync  Check - Instititutions Mapping - Failed', 16, 1)
 	END		
 
@@ -3597,8 +3594,7 @@ BEGIN TRY
 	group by f.projectfundingid,f.AltAwardCode having count(*) > 1
 	
 	IF EXISTS (select * FROM #postdupPI)		
-	BEGIN
-		PRINT 'Post-Checking duplicate PIs ==> Failed'
+	BEGIN		
 		RAISERROR ('Post-Checking duplicate PIs ==> Failed', 16, 1)
 	END	
 	
@@ -3610,8 +3606,7 @@ BEGIN TRY
 	where f.DataUploadStatusID = @DataUploadStatusID_Prod and pi.ProjectFundingID is null
 		
 	IF EXISTS (select * FROM #postMissingPI)	
-	BEGIN
-		PRINT 'Pre-Checking Missing PIs ==> Failed'
+	BEGIN		
 		RAISERROR ('Pre-Checking Missing PIs ==> Failed', 16, 1)
 	END	
 	
@@ -3623,8 +3618,7 @@ BEGIN TRY
 	where f.DataUploadStatusID = @DataUploadStatusID_Prod and pc.ProjectFundingID is null
 	
 	IF EXISTS (select * FROM #postMissingCSO)
-		BEGIN
-		PRINT 'Pre-Checking Missing CSO ==> Failed'
+	BEGIN
 		RAISERROR ('Pre-Checking Missing CSO ==> Failed', 16, 1)
 	END		
 
@@ -3637,8 +3631,7 @@ BEGIN TRY
 
 	
 	IF EXISTS (select * FROM #postMissingCSO)			
-	BEGIN
-		PRINT 'Pre-Checking Missing CancerType ==> Failed'
+	BEGIN		
 		RAISERROR ('Pre-Checking Missing CancerType ==> Failed', 16, 1)
 	END	
 
@@ -3652,9 +3645,7 @@ BEGIN TRY
 			JOIN ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
 			WHERE f.DataUploadStatusID = @DataUploadStatusID_Prod
 			GROUP BY f.Title, a.TechAbstract, a.PublicAbstract,  f.FundingContact) ma	
-
-	-- PRINT 'Total Imported ProjectSearch = ' + CAST(@@RowCount AS varchar(10))
-
+				
 	-------------------------------------------------------------------------------------------
 	-- Insert DataUploadLog 
 	--------------------------------------------------------------------------------------------	
@@ -3773,7 +3764,7 @@ CREATE PROCEDURE [dbo].[GetMapRegionDataBySearchID]
 @AggregatedCollabCount INT OUTPUT  
 AS   
 
-	DECLARE @funding TABLE
+		DECLARE @funding TABLE
 	(
 		ProjectFundingID INT
 	)
@@ -3802,8 +3793,8 @@ AS
 			JOIN lu_Region r ON c.RegionID=r.RegionID	
 
 	SELECT RegionID, Count(*) AS Count INTO #proj FROM (SELECT DISTINCT RegionID, ProjectFundingID FROM #tmp) proj GROUP BY RegionID
-	SELECT RegionID, Count(*) AS Count INTO #pi FROM (SELECT RegionID FROM #tmp WHERE IsPrivateInvestigator=1) p GROUP BY RegionID
-	SELECT RegionID, Count(*) AS Count INTO #collab FROM (SELECT RegionID FROM #tmp WHERE IsPrivateInvestigator=0) collab GROUP BY RegionID
+	SELECT RegionID, Count(*) AS Count INTO #pi FROM (SELECT RegionID, ProjectFundingID FROM #tmp WHERE IsPrivateInvestigator=1) p GROUP BY RegionID
+	SELECT RegionID, Count(*) AS Count INTO #collab FROM (SELECT RegionID, ProjectFundingID FROM #tmp WHERE IsPrivateInvestigator=0) collab GROUP BY RegionID
 
 	-- Return RelatedProject Count, PI Count and collaborator Count by region
 	SELECT r.RegionID, r.Name AS Region, ISNULL(p.Count, 0) AS TotalRelatedProjectCount, ISNULL(pi.Count,0) AS TotalPICount, ISNULL(c.Count, 0) AS TotalCollaboratorCount, r.Latitude, r.Longitude
@@ -3812,9 +3803,9 @@ AS
 		LEFT JOIN #collab c ON c.RegionID = pi.RegionID
 		LEFT JOIN lu_Region r ON p.RegionID = r.RegionID
 
-	SELECT @AggregatedProjectCount=SUM(Count) FROM #proj	
+	SELECT @AggregatedProjectCount= Count(*) FROM (SELECT DISTINCT ProjectFundingID FROM #tmp) proj
 	SELECT @AggregatedPICount=SUM(Count) FROM #pi	
-	SELECT @AggregatedCollabCount=SUM(Count) FROM #collab	
+	SELECT @AggregatedCollabCount=SUM(Count) FROM #collab		
 	
 GO
 
