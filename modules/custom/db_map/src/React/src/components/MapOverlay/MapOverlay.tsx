@@ -4,14 +4,14 @@ import './MapOverlay.css';
 export interface MapOverlayProps {
   height?: number;
   backgroundColor?: string;
-  children: any[];
+  children: React.Component[];
 };
 
 const MapOverlay = (props: MapOverlayProps) =>
   <div>
     <div className="map-overlay position-absolute translucent" />
     <div className="map-overlay position-absolute">
-      { ...props.children }
+      { props.children }
     </div>
   </div>
 

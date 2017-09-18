@@ -19,14 +19,21 @@ class GoogleMap extends React.Component<
 
   map: google.maps.Map;
   mapContainer: HTMLDivElement | null = null;
+
   state = {
+    location: {
+      lat: 0,
+      lng: 0,
+    },
+
+
+
     counts: {
       projects: 0,
       primaryInvestigators: 0,
       collaborators: 0,
     }
   }
-
 
   async componentDidMount() {
     this.map = new google.maps.Map(this.mapContainer, DEFAULT_OPTIONS);
@@ -53,28 +60,17 @@ class GoogleMap extends React.Component<
     this.setState({counts});
   }
 
+  componentWillReceiveProps(nextProps) {
+
+  }
 
 
   render() {
     return (
-
-      <div>
-        <SearchCriteria {...this.state.counts} />
-        <div className="text-right" style={{marginBottom: '4px'}}>
-          <a href="#">View ICRP Data</a>
-        </div>
-
-        <div className="position-relative">
-          <div className="map-overlay position-absolute translucent">
-          </div>
-          <div className="map-overlay position-absolute">
-            <LocationSelector />
-          </div>
-
-
-          <div className="map-container position-relative" ref={el => this.mapContainer = el} />
-        </div>
-      </div>
+      <div
+        className="map-container position-relative"
+        ref={el => this.mapContainer = el}
+      />
     );
   }
 }

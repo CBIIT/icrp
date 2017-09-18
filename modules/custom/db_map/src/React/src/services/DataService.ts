@@ -3,10 +3,7 @@ import { stringify } from 'query-string';
 export interface Location {
   label: string;
   value: string;
-  coordinates: {
-    latitude: number;
-    longitude: number;
-  }
+  coordinates: google.maps.LatLngLiteral;
   data: {
     relatedProjects: number;
     primaryInvestigators: number;
