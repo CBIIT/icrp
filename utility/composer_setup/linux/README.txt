@@ -8,15 +8,21 @@ exit
 sudo su
 
 #Move Site out of the way
-mv /local/drupal/icrp /local/drupal/icrp
+cd /local/drupal
+rm -f moveit.sh composerit.sh composer.json.8.3.7 makeit.sh missing_argument_4_in_2743715-6.patch
+mv icrp icrp-old
 cp /home/drupal/icrp/utility/composer_setup/scripts/* /local/drupal
-chown drupal:drupal /local/drupal/makeit.sh /local/drupal/composer.json.8.3.7 /local/drupal/missing_argument_4_in_2743715-6.patch
+chown drupal:drupal moveit.sh composerit.sh composer.json.8.3.7 makeit.sh missing_argument_4_in_2743715-6.patch
+#Create directory
+mkdir test
+chown drupal:drupal test
+
 exit
 
 #Create a Compser Site
 #Change to drupal user
 sudo su - drupal
-/local/drupal
+cd /local/drupal
 ./composerit.sh test
 
 
