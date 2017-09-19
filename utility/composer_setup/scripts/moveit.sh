@@ -8,7 +8,7 @@ DOC_ROOT=$1
 echo "Deploying new sites, modules, themes, libraries"
 cd /local/drupal/$DOC_ROOT
 OLD="/local/drupal/icrp-old"
-sudo cp -R $OLD/modules/custom ./custom && sudo cp -R $OLD/themes/ . && sudo cp -R $OLD/libraries/ . 
+sudo cp -R $OLD/modules/custom modules/. && sudo cp -R $OLD/themes/ . && sudo cp -R $OLD/libraries/ . 
 
 echo "Copying php settings"
 #sudo cp /home/centos/settings.php sites/default/
