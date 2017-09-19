@@ -4,7 +4,7 @@ import './MapOverlay.css';
 export interface MapOverlayProps {
   height?: number;
   backgroundColor?: string;
-  children: React.Component[];
+  children: JSX.Element;
 };
 
 const MapOverlay = (props: MapOverlayProps) =>

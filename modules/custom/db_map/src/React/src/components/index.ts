@@ -1,5 +1,20 @@
-import GoogleMap from './GoogleMap/GoogleMap';
-import LocationSelector from './LocationSelector/LocationSelector';
-import SearchCriteria from './SearchCriteria/SearchCriteria';
 
-export { GoogleMap, LocationSelector, SearchCriteria };
+import App from './App/App';
+import GoogleMap, {GoogleMapProps} from './GoogleMap/GoogleMap';
+import LocationSelector from './LocationSelector/LocationSelector';
+import MapOverlay from './MapOverlay/MapOverlay';
+import SearchCriteria from './SearchCriteria/SearchCriteria';
+import Spinner from './Spinner/Spinner';
+import SummaryGrid from './SummaryGrid/SummaryGrid';
+
+
+export {
+  App,
+  GoogleMap,
+  GoogleMapProps,
+  LocationSelector,
+  MapOverlay,
+  SearchCriteria,
+  Spinner,
+  SummaryGrid
+};

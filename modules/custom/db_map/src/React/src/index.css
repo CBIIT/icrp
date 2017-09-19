@@ -4,6 +4,10 @@ body {
   font-family:  -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
 }
 
+.inline-block {
+  display: inline-block;
+}
+
 .position-relative {
   position: relative;
 }
@@ -18,4 +22,12 @@ body {
 
 .align-items-center {
   align-items: center;
+}
+
+.margin-top {
+  margin-top: 10px;
+}
+
+.margin-bottom {
+  margin-bottom: 10px;
 }

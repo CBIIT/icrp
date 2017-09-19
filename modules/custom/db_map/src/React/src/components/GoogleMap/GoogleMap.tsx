@@ -1,69 +1,47 @@
 import * as React from 'react';
-import * as qs from 'query-string';
-import { LocationSelector, SearchCriteria } from '..'
 import { DEFAULT_OPTIONS } from '../../services/MapConstants';
 import { addLabel, addDataMarker } from '../../services/MapHelpers';
-import * as DataService from '../../services/DataService';
+import { Location } from '../../services/DataService';
 import './GoogleMap.css';
 
-class GoogleMap extends React.Component<
-  object,
-  {
-    counts: {
-      projects: number,
-      primaryInvestigators: number,
-      collaborators: number,
-    }
-  }
-> {
+export interface GoogleMapProps {
+  zoom: number;
+  coordinates: google.maps.LatLngLiteral;
+  locations: Location[];
+}
+
+class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
   map: google.maps.Map;
   mapContainer: HTMLDivElement | null = null;
 
-  state = {
-    location: {
-      lat: 0,
-      lng: 0,
-    },
-
-
-
-    counts: {
-      projects: 0,
-      primaryInvestigators: 0,
-      collaborators: 0,
-    }
-  }
-
   async componentDidMount() {
     this.map = new google.maps.Map(this.mapContainer, DEFAULT_OPTIONS);
-    let searchId = qs.parse(window.location.search).sid || 0;
-
-    let data = await DataService.getRegions(searchId);
-    let regions = data.locations;
-    let counts = data.counts;
-
-    regions.forEach(region => {
-      let location = {
-        lat: region.coordinates.latitude,
-        lng: region.coordinates.longitude,
-      };
-
-      let total: number = Object.keys(region.data)
-        .map(key => region.data[key])
-        .reduce((acc, curr) => acc + curr, 0)
-
-      addLabel(region.label, location, this.map);
-      addDataMarker(total, 30, location, this.map);
-    });
-
-    this.setState({counts});
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: GoogleMapProps) {
+    if (this.map !== null) {
+      let { coordinates, locations, zoom } = nextProps;
 
+      this.map.setZoom(zoom);
+      this.map.setCenter(coordinates);
+
+      this.map.data.forEach(feature =>
+        this.map.data.remove(feature));
+
+      locations.forEach((location: Location) => {
+        let { label, coordinates, data } = location;
+
+        let sum = 0;
+        for (let key in data || {}) {
+          sum += data && data[key];
+        }
+
+        addLabel(label, coordinates, this.map);
+        addDataMarker(sum, 30, coordinates, this.map);
+      });
+    }
   }
-
 
   render() {
     return (
