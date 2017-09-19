@@ -31,3 +31,7 @@ body {
 .margin-bottom {
   margin-bottom: 10px !important;
 }
+
+table.popover-table td {
+  padding-right: 8px;
+}

@@ -21,13 +21,16 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
   componentWillReceiveProps(nextProps: GoogleMapProps) {
     if (this.map !== null) {
+
+      let map = this.map;
+
       let { coordinates, locations, zoom } = nextProps;
 
-      this.map.setZoom(zoom);
-      this.map.setCenter(coordinates);
+      map.setZoom(zoom);
+      map.setCenter(coordinates);
 
-      this.map.data.forEach(feature =>
-        this.map.data.remove(feature));
+      map.data.forEach(feature =>
+        map.data.remove(feature));
 
       locations.forEach((location: Location) => {
         let { label, coordinates, data } = location;
@@ -37,8 +40,41 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
           sum += data && data[key];
         }
 
-        addLabel(label, coordinates, this.map);
-        addDataMarker(sum, 30, coordinates, this.map);
+        addLabel(label, coordinates, map);
+        let marker = addDataMarker(sum, 30, coordinates, map);
+
+        let infoWindow = new google.maps.InfoWindow({
+          content: `
+          <div>
+            <b>${label}</b>
+            <hr style="margin-top: 5px; margin-bottom: 5px" />
+            <table class="popover-table">
+              <tbody>
+                <tr>
+                  <td>Total Projects</td>
+                  <td>${data.relatedProjects.toLocaleString()}</td>
+                </tr>
+
+                <tr>
+                  <td>Total PIs</td>
+                  <td>${data.primaryInvestigators.toLocaleString()}</td>
+                </tr>
+
+                <tr>
+                  <td>Total Collaborators</td>
+                  <td>${data.collaborators.toLocaleString()}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          `
+        });
+
+        marker.addListener('click', () => {
+          infoWindow.open(map, marker);
+        })
+
+
       });
     }
   }
