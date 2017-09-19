@@ -74,7 +74,9 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
           infoWindow.open(map, marker);
         })
 
-
+        map.addListener('click', () =>
+          infoWindow.close()
+        )
       });
     }
   }

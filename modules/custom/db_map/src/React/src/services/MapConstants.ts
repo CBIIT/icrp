@@ -60,10 +60,11 @@ export const DEFAULT_STYLES: google.maps.MapTypeStyle[] = [
 ];
 
 export const DEFAULT_OPTIONS: google.maps.MapOptions = {
-  center: {lat: 20, lng: 0},
+  center: {lat: 25, lng: 0},
   zoom: 2,
   minZoom: 2,
   disableDefaultUI: true,
+  zoomControl: true,
   backgroundColor: '#64aad8',
   styles: DEFAULT_STYLES,
 }

@@ -37,7 +37,7 @@ export default class App extends React.Component<{}, AppState> {
   state = {
     zoom: 2,
     coordinates: {
-      lat: 0,
+      lat: 30,
       lng: 0,
     },
     locations: [],
@@ -124,7 +124,7 @@ export default class App extends React.Component<{}, AppState> {
       <div>
         <Spinner visible={!locations.length} message="Loading Map..." />
         <SearchCriteria searchCriteria={searchCriteria} counts={totalCounts} />
-        <div className="text-right" style={{marginBottom: '4px'}}>
+        <div className="text-right margin-top">
           <a href={`/db_search/?sid=${searchId}`}>View ICRP Data</a>
         </div>
         <div className="position-relative">
@@ -133,7 +133,7 @@ export default class App extends React.Component<{}, AppState> {
           </MapOverlay>
           <GoogleMap
             coordinates={coordinates}
-            locations={locations.slice(0)}
+            locations={locations}
             zoom={zoom}
           />
         </div>
@@ -149,7 +149,6 @@ export default class App extends React.Component<{}, AppState> {
         }
 
         <SummaryGrid locations={locations} />
-
       </div>
     );
   }

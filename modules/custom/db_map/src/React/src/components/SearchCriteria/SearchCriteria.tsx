@@ -54,7 +54,7 @@ export default class SearchCriteria extends React.Component<SearchCriteriaProps,
           <div>
             <div
               className="margin-right inline-block"
-              style={{transform: `rotate(${isOpen ? 135: 45}deg)`}}>
+              style={{transform: `rotate(${isOpen ? 135 : 45}deg)`}}>
               {'\u25E5'}
             </div>
             <b>Search Criteria: </b>
@@ -78,7 +78,6 @@ export default class SearchCriteria extends React.Component<SearchCriteriaProps,
             <UndecoratedTable rows={searchCriteria.table} />
           </div>
         }
-        <br />
       </div>
     )
   }
