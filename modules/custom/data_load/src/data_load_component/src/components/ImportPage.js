@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import {
   Alert,
   Button,
-  Panel,
 } from 'react-bootstrap';
 import Spinner from './SpinnerComponent';
 
@@ -22,6 +21,7 @@ export default class ImportPage extends Component {
     isPristine: true,
     validationErrors: {},
     error: false,
+    importComplete: false
   };
 
   validate(key, value) {
@@ -63,11 +63,14 @@ export default class ImportPage extends Component {
 
       if (rule === 'isLessThanMaxYear') {
 
-        if (validationRules.fundingYearMin && validationRules.fundingYearMin.isLessThanMaxYear)
-          delete validationRules.fundingYearMin.isLessThanMaxYear;
+        if (validationErrors.fundingYearMin && validationErrors.fundingYearMin.isLessThanMaxYear) {
+          delete validationErrors.fundingYearMin.isLessThanMaxYear;
 
-        if (validationRules.fundingYearMax && validationRules.fundingYearMax.isLessThanMaxYear)
-          delete validationRules.fundingYearMax.isLessThanMaxYear;
+        }
+
+        if (validationErrors.fundingYearMax && validationErrors.fundingYearMax.isLessThanMaxYear) {
+          delete validationErrors.fundingYearMax.isLessThanMaxYear;
+        }
 
         if (parseInt(fundingYearMin) > parseInt(fundingYearMax)) {
           validationErrors[key].isLessThanMaxYear = true;
@@ -127,6 +130,7 @@ export default class ImportPage extends Component {
         loading: false,
         error: false,
         message: 'The uploaded projects were imported successfuly.',
+        importComplete: true,
       })
     }
 
@@ -142,7 +146,7 @@ export default class ImportPage extends Component {
 
   render() {
 
-    let { fundingYearMin, fundingYearMax, importNotes, loading, message, results, validationErrors, isPristine, error } = this.state;
+    let { fundingYearMin, fundingYearMax, importNotes, loading, message, results, validationErrors, isPristine, error, importComplete } = this.state;
     let { type, cancelUrl } = this.props;
 
     return (
@@ -156,91 +160,93 @@ export default class ImportPage extends Component {
             {this.state.message}
           </Alert>}
 
+        <div style={{ display: !importComplete ? 'block' : 'none' }}>
 
-        <div className="form-group">
-          Please provide the following information and click Import to import the data to staging.
+          <div className="form-group">
+            Please provide the following information and click Import to import the data to staging.
         </div>
 
-        <div className="panel panel-default category-panel form-group">
-          <div className="panel-heading">Data Upload Information</div>
+          <div className="panel panel-default category-panel form-group">
+            <div className="panel-heading">Data Upload Information</div>
 
-          <div style={{ marginTop: '15px' }}>
+            <div style={{ marginTop: '15px' }}>
 
-            <div className="form-group" style={{ display: 'flex', flexFlow: 'wrap' }}>
-              <div style={{ width: '120px', maxWidth: '120px', minWidth: '120px' }} className="text-right">
-                <label for="fundingYear" style={{ marginTop: '5px', marginRight: '5px' }}>Funding Year <Asterisk /> </label>
+              <div className="form-group" style={{ display: 'flex', flexFlow: 'wrap' }}>
+                <div style={{ width: '120px', maxWidth: '120px', minWidth: '120px' }} className="text-right">
+                  <label for="fundingYear" style={{ marginTop: '5px', marginRight: '5px' }}>Funding Year <Asterisk /> </label>
+                </div>
+                <div style={{ display: 'flex', flexFlow: 'wrap', alignItems: 'center' }}>
+                  <input
+                    value={fundingYearMin}
+                    type="number"
+                    onChange={event => this.setValue('fundingYearMin', event.target.value)}
+                    id="fundingYear"
+                    className="form-control"
+                    placeholder="Enter first year"
+                    style={{ display: 'inline-block', width: '200px' }}
+                  />
+
+                  <span style={{ marginLeft: '5px', marginRight: '5px' }}>-</span>
+
+                  <input
+                    value={fundingYearMax}
+                    type="number"
+                    onChange={event => this.setValue('fundingYearMax', event.target.value)}
+                    className="form-control"
+                    placeholder="Enter last year"
+                    style={{ display: 'inline-block', width: '200px' }}
+                  />
+                </div>
+                <div>
+
+                  {
+                    validationErrors.fundingYearMin && validationErrors.fundingYearMin.required &&
+                    <div style={{ color: 'red', marginLeft: '5px' }}>Please enter a value for the first funding year.</div>
+                  }
+
+                  {
+                    validationErrors.fundingYearMin && validationErrors.fundingYearMin.isNumeric &&
+                    <div style={{ color: 'red', marginLeft: '5px' }}>Please ensure that the first funding year provided is a valid year.</div>
+                  }
+
+                  {
+                    validationErrors.fundingYearMax && validationErrors.fundingYearMax.isNumeric &&
+                    <div style={{ color: 'red', marginLeft: '5px' }}>Please ensure that the last funding year provided is a valid year.</div>
+                  }
+
+                  {
+                    ((validationErrors.fundingYearMin && validationErrors.fundingYearMin.isLessThanMaxYear) ||
+                      (validationErrors.fundingYearMax && validationErrors.fundingYearMax.isLessThanMaxYear)) &&
+                    <div style={{ color: 'red', marginLeft: '5px' }}>Please ensure that the first funding year is less than the last funding year.</div>
+                  }
+
+
+                </div>
               </div>
-              <div style={{ display: 'flex', flexFlow: 'wrap', alignItems: 'center' }}>
-                <input
-                  value={fundingYearMin}
-                  type="number"
-                  onChange={event => this.setValue('fundingYearMin', event.target.value)}
-                  id="fundingYear"
-                  className="form-control"
-                  placeholder="Enter first year"
-                  style={{ display: 'inline-block', width: '200px' }}
-                />
 
-                <span style={{ marginLeft: '5px', marginRight: '5px' }}>-</span>
 
-                <input
-                  value={fundingYearMax}
-                  type="number"
-                  onChange={event => this.setValue('fundingYearMax', event.target.value)}
-                  className="form-control"
-                  placeholder="Enter last year"
-                  style={{ display: 'inline-block', width: '200px' }}
-                />
+              <div className="form-group" style={{ display: 'flex', flexFlow: 'wrap' }}>
+                <div style={{ width: '120px', maxWidth: '120px', minWidth: '120px' }} className="text-right">
+                  <label for="importNotes" style={{ marginRight: '5px' }}>Import Notes <Asterisk /> </label>
+                </div>
+                <div style={{ width: '80%' }}>
+                  <textarea
+                    value={importNotes}
+                    onChange={event => this.setValue('importNotes', event.target.value)}
+                    id="importNotes"
+                    className="form-control"
+                    maxLength="1000"
+                    placeholder="Enter import notes"
+                    style={{ width: '80%' }}
+                  />
+                  {
+                    !isPristine && validationErrors.importNotes && validationErrors.importNotes.required &&
+                    <div style={{ color: 'red' }}>Please ensure this field is not empty.</div>
+                  }
+                </div>
               </div>
-              <div>
-
-                {
-                  validationErrors.fundingYearMin && validationErrors.fundingYearMin.required &&
-                  <div style={{ color: 'red', marginLeft: '5px' }}>Please enter a value for the first funding year.</div>
-                }
-
-                {
-                  validationErrors.fundingYearMin && validationErrors.fundingYearMin.isNumeric &&
-                  <div style={{ color: 'red', marginLeft: '5px' }}>Please ensure that the first funding year provided is a valid year.</div>
-                }
-
-                {
-                  validationErrors.fundingYearMax && validationErrors.fundingYearMax.isNumeric &&
-                  <div style={{ color: 'red', marginLeft: '5px' }}>Please ensure that the last funding year provided is a valid year.</div>
-                }
-
-                {
-                  ((validationErrors.fundingYearMin && validationErrors.fundingYearMin.isLessThanMaxYear) ||
-                    (validationErrors.fundingYearMax && validationErrors.fundingYearMax.isLessThanMaxYear)) &&
-                  <div style={{ color: 'red', marginLeft: '5px' }}>Please ensure that the first funding year is less than the last funding year.</div>
-                }
-
-
-              </div>
+              <br />
             </div>
-
-
-            <div className="form-group" style={{ display: 'flex', flexFlow: 'wrap' }}>
-              <div style={{ width: '120px', maxWidth: '120px', minWidth: '120px' }} className="text-right">
-                <label for="importNotes" style={{ marginRight: '5px' }}>Import Notes <Asterisk /> </label>
-              </div>
-              <div style={{ width: '80%' }}>
-                <textarea
-                  value={importNotes}
-                  onChange={event => this.setValue('importNotes', event.target.value)}
-                  id="importNotes"
-                  className="form-control"
-                  maxLength="1000"
-                  placeholder="Enter import notes"
-                  style={{ width: '80%' }}
-                />
-                {
-                  !isPristine && validationErrors.importNotes && validationErrors.importNotes.required &&
-                  <div style={{ color: 'red' }}>Please ensure this field is not empty.</div>
-                }
-              </div>
-            </div>
-            <br />
           </div>
         </div>
 
