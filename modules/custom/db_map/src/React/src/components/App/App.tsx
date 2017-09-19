@@ -62,7 +62,8 @@ export default class App extends React.Component<{}, AppState> {
     let searchCriteria = {
       summary: searchParameters.length > 0
         ? searchParameters
-          .map(e => e[0].toString().replace(':', ''))
+          .map(e => e[0].toString().replace(':', '').trim())
+          .filter(e => e.length > 0)
           .join(' + ')
         : 'All',
       table: searchParameters,
