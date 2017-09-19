@@ -56,8 +56,8 @@ class MappingTool {
           'label' => $region['Region'],
           'value' => $region['RegionID'],
           'coordinates' => [
-            'latitude' => floatval($region['Latitude']),
-            'longitude' => floatval($region['Longitude']),
+            'lat' => floatval($region['Latitude']),
+            'lng' => floatval($region['Longitude']),
           ],
           'data' => [
             'relatedProjects' => $region['TotalRelatedProjectCount'],

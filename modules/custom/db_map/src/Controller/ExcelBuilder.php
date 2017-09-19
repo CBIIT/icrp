@@ -29,6 +29,7 @@ class ExcelBuilder {
         if ($index < count($sheets) - 1)
           $writer->addNewSheetAndMakeItCurrent();
       }
+
       $writer->close();
       return $filePath;
     }
