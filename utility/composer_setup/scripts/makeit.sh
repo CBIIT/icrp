@@ -16,7 +16,7 @@ echo -n "START TIME: "
 timestamp
 DOC_ROOT=$1 
 HOME="/home/centos/icrp"
-#HOME="/github/old3.drupal8.dev"
+HOME="/github/old3.drupal8.dev"
 echo "**"
 echo "* Clear cache files (without this it was causing problems.)"
 echo "**"
@@ -82,7 +82,7 @@ cp -rp $HOME/sites/default/files/ sites/default/files/
 #Fix clientside_validation dependancy problem
 
 #Refresh Database
-#mysql -udrupal -pdrupal icrp < $HOME/sites/icrp/obsolete.icrp.sql 
+mysql -udrupal -pdrupal icrp < $HOME/sites/icrp/obsolete.icrp.sql 
 drush cr
 
 echo "**"

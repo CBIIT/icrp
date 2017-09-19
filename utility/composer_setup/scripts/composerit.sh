@@ -34,7 +34,7 @@ rm -rf $DOC_ROOT/*
 mkdir -p $DOC_ROOT
 
 echo "**"
-echo "* Composer init"
+echo "* Composer create initial drupal-compser project."
 echo "**"
 composer create-project drupal-composer/drupal-project:8.x-dev $DOC_ROOT --stability dev --no-interaction
 

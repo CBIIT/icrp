@@ -32,4 +32,11 @@ exit
 sudo su
 cd /local/drupal
 ./moveit.sh icrp
+exit
+
+#Clear Cache
+sudo su - drupal
+cd /local/drupal/icrp
+drush cr
+
 
