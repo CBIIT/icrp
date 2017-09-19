@@ -11,8 +11,6 @@ import {
 import * as DataService from '../../services/DataService';
 import { BASE_URL, getRegions, getExcelExport, Location, ExcelSheet } from '../../services/DataService';
 
-
-
 export interface AppState {
   zoom: number;
   coordinates: google.maps.LatLngLiteral;
@@ -144,7 +142,9 @@ export default class App extends React.Component<{}, AppState> {
             className="btn btn-default btn-sm margin-top margin-bottom"
             onClick={event => this.export()}
           >
-            Export
+            <span className="margin-right">
+              Export
+            </span>
           </button>
         }
 

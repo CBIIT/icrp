@@ -37,7 +37,6 @@ export const getRegions = async (searchId: number): Promise<RegionInterface> =>
     credentials: 'same-origin'
   });
 
-
 export const getSearchParameters = async (searchId: number): Promise<(string|number)[][]> =>
   await request(`${BASE_URL}/map/getSearchParameters/?${stringify({searchId})}`, {
     credentials: 'same-origin'
