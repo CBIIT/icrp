@@ -122,7 +122,7 @@ class UploadFormComponent extends Component {
 
     /** Resets the form */
     handleReset() {
-        this.setState({ uploadType: 'New', sponsorCode: '', sponsorCodeValid: true, submissionDate: '', submissionDateValid: true, fileId: '', submitDisabled: true, controlsDisabled: false });
+        this.setState({ uploadType: 'New', sponsorCode: '', sponsorCodeValid: true, submissionDate: '', submissionDateValid: true, fileId: '', submitDisabled: true, controlsDisabled: false, errorMessage: null });
         document.getElementById("fileId").value = null;
         this.resetParent();
     }
