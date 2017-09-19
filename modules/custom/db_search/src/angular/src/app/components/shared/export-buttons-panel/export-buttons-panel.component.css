@@ -1,3 +1,9 @@
 .margin-bottom {
   margin-bottom: 5px;
 }
+
+.button-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

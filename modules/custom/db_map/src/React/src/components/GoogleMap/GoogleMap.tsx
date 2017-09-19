@@ -1,78 +1,92 @@
 import * as React from 'react';
-import * as qs from 'query-string';
-import { LocationSelector, SearchCriteria } from '..'
 import { DEFAULT_OPTIONS } from '../../services/MapConstants';
 import { addLabel, addDataMarker } from '../../services/MapHelpers';
-import * as DataService from '../../services/DataService';
+import { Location } from '../../services/DataService';
 import './GoogleMap.css';
 
-class GoogleMap extends React.Component<
-  object,
-  {
-    counts: {
-      projects: number,
-      primaryInvestigators: number,
-      collaborators: number,
-    }
-  }
-> {
+export interface GoogleMapProps {
+  zoom: number;
+  coordinates: google.maps.LatLngLiteral;
+  locations: Location[];
+}
+
+class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
   map: google.maps.Map;
   mapContainer: HTMLDivElement | null = null;
-  state = {
-    counts: {
-      projects: 0, 
-      primaryInvestigators: 0, 
-      collaborators: 0,
-    }
-  }
-
 
   async componentDidMount() {
     this.map = new google.maps.Map(this.mapContainer, DEFAULT_OPTIONS);
-    let searchId = qs.parse(window.location.search).sid || 0;
+  }
 
-    let data = await DataService.getAllRegions(searchId);
-    let regions = data.regions;
-    let counts = data.counts;
+  componentWillReceiveProps(nextProps: GoogleMapProps) {
+    if (this.map !== null) {
 
-    regions.forEach(region => {
-      let location = {
-        lat: region.coordinates.latitude,
-        lng: region.coordinates.longitude,
-      };
+      let map = this.map;
 
-      let total: number = Object.keys(region.data)
-        .map(key => region.data[key])
-        .reduce((acc, curr) => acc + curr, 0)
+      let { coordinates, locations, zoom } = nextProps;
 
-      addLabel(region.label, location, this.map);
-      addDataMarker(total, 30, location, this.map);
-    });
+      map.setZoom(zoom);
+      map.setCenter(coordinates);
 
-    this.setState({counts});
+      map.data.forEach(feature =>
+        map.data.remove(feature));
+
+      locations.forEach((location: Location) => {
+        let { label, coordinates, data } = location;
+
+        let sum = 0;
+        for (let key in data || {}) {
+          sum += data && data[key];
+        }
+
+        addLabel(label, coordinates, map);
+        let marker = addDataMarker(sum, 30, coordinates, map);
+
+        let infoWindow = new google.maps.InfoWindow({
+          content: `
+          <div>
+            <b>${label}</b>
+            <hr style="margin-top: 5px; margin-bottom: 5px" />
+            <table class="popover-table">
+              <tbody>
+                <tr>
+                  <td>Total Projects</td>
+                  <td>${data.relatedProjects.toLocaleString()}</td>
+                </tr>
+
+                <tr>
+                  <td>Total PIs</td>
+                  <td>${data.primaryInvestigators.toLocaleString()}</td>
+                </tr>
+
+                <tr>
+                  <td>Total Collaborators</td>
+                  <td>${data.collaborators.toLocaleString()}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          `
+        });
+
+        marker.addListener('click', () => {
+          infoWindow.open(map, marker);
+        })
+
+        map.addListener('click', () =>
+          infoWindow.close()
+        )
+      });
+    }
   }
 
   render() {
     return (
-
-      <div>
-        <SearchCriteria {...this.state.counts} />
-        <div className="text-right" style={{marginBottom: '4px'}}>
-          <a href="#">View ICRP Data</a>
-        </div>
-
-        <div className="position-relative">
-          <div className="map-overlay position-absolute translucent">
-          </div>
-          <div className="map-overlay position-absolute">
-            <LocationSelector />
-          </div>
-
-
-          <div className="map-container position-relative" ref={el => this.mapContainer = el} />
-        </div>
-      </div>
+      <div
+        className="map-container position-relative"
+        ref={el => this.mapContainer = el}
+      />
     );
   }
 }

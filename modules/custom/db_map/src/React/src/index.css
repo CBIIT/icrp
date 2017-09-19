@@ -1,7 +1,11 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+  font-family:  -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+.inline-block {
+  display: inline-block;
 }
 
 .position-relative {
@@ -18,4 +22,16 @@ body {
 
 .align-items-center {
   align-items: center;
+}
+
+.margin-top {
+  margin-top: 10px !important;
+}
+
+.margin-bottom {
+  margin-bottom: 10px !important;
+}
+
+table.popover-table td {
+  padding-right: 8px;
 }

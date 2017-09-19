@@ -1,7 +1,14 @@
 import * as React from 'react';
 import './LocationSelector.css';
 
+
+export interface SampleProps {
+
+}
+
 interface LocationSelectorProps {
+
+
 }
 
 interface Filter {

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { GoogleMap } from './components';
+import { App } from './components';
 import './index.css';
 
 ReactDOM.render(
-  <GoogleMap />,
+  <App />,
   document.getElementById('icrp-map') as HTMLElement
 );

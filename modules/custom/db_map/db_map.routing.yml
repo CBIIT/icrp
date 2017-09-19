@@ -8,9 +8,9 @@ map:
 
 
 getAllRegions:
-  path: '/map/getAllRegions'
+  path: '/map/getRegions'
   defaults:
-    _controller: '\Drupal\db_map\Controller\MapController::getAllRegions'
+    _controller: '\Drupal\db_map\Controller\MapController::getRegions'
   requirements:
     _access: 'TRUE'
 
@@ -19,6 +19,14 @@ getSearchParameters:
   path: '/map/getSearchParameters'
   defaults:
     _controller: '\Drupal\db_map\Controller\MapController::getSearchParameters'
+  requirements:
+    _access: 'TRUE'
+
+
+getExcelExport:
+  path: '/map/getExcelExport'
+  defaults:
+    _controller: '\Drupal\db_map\Controller\MapController::getExcelExport'
   requirements:
     _access: 'TRUE'
 
