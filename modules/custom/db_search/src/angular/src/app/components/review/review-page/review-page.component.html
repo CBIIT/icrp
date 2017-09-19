@@ -2,17 +2,32 @@
   There are currently no submitted workbooks pending for review. Go to <a href="/uploadStatusReport">Data Upload Status Report</a>  to view the Information about the status of data submissions and uploads to the ICRP database.
 </div>
 
-<div *ngIf="sponsorUploadsTable && sponsorUploadsTable.length > 0">
+<ui-overlay [active]="loading" [fullscreen]="true">
+    <ui-spinner></ui-spinner>
+    <br>{{ loadingMessage }}
+</ui-overlay>
+  
+<alert *ngIf="showAlert" [type]="success ? 'success' : 'danger'" dismissible="true">
+  {{success 
+      ? "Congratulations! The selected partner data book has been successfully loaded into the production database."
+      : "Internal error. The operation is aborted." 
+  }}
+</alert>
 
+<div *ngIf="sponsorUploadsTable && sponsorUploadsTable.length > 0">
 
   <div class="form-group">
     The following submitted workbooks have been uploaded to the staging website. Please select the relevant Sponsor Code to review
   your data and contact us by email to identify any problems or to approve your data to go live.
   </div>
 
+
+
   <icrp-review-uploads-table
     [uploads]="sponsorUploadsTable"
-    (select)="selectUploadID($event)">
+    (select)="selectUploadID($event)"
+    (syncProd)="syncProd($event)"
+  >
   </icrp-review-uploads-table>
 
   <icrp-review-summary-panel

@@ -1,17 +1,3 @@
-<ui-overlay [active]="loading" [fullscreen]="true">
-  <ui-spinner></ui-spinner>
-  <br>{{ loadingMessage }}
-
-</ui-overlay>
-
-<alert *ngIf="showAlert" [type]="success ? 'success' : 'danger'" dismissible="true">
-  {{success 
-      ? "Congratulations! The selected partner data book has been successfully loaded into the production database."
-      : "Internal error. The operation is aborted." 
-  }}
-</alert>
-
-
 <table class="table table-bordered table-striped table-hover">
   <thead>
     <tr>
@@ -30,7 +16,11 @@
       <td>{{ row.type }}</td>
       <td>{{ row.received_date }}</td>
       <td>{{ row.note }}</td>
-      <td *ngIf="sharedService.get('userRoles').indexOf('manager') !== -1"><button class="btn btn-primary btn-xs" (click)="syncProd(row.data_upload_id)">Update Prod</button></td>
+      <td *ngIf="sharedService.get('userRoles').indexOf('manager') !== -1">
+        <button class="btn btn-primary btn-xs" (click)="syncProd.emit(row.data_upload_id)">
+          Update Prod
+        </button>
+      </td>
     </tr>
   </tbody>
 </table>
