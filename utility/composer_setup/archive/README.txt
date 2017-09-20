@@ -1,42 +1,48 @@
+#As centos user
+#Login to root
+sudo su
+
 #Clone icrp and checkout branch icrp_1.3
 #Change to drupal user
-sudo su - drupal
+su drupal
+cd ~
 git clone https://github.com/CBIIT/icrp.git && cd icrp && git checkout icrp_1.3
 exit
 
 #Change user to Super User
-sudo su
+#You should already be root or 'sudo su'
 
 #Move Site out of the way
 cd /local/drupal
-rm -f moveit.sh composerit.sh composer.json.8.3.7 makeit.sh missing_argument_4_in_2743715-6.patch
 mv icrp icrp-old
-cp /home/drupal/icrp/utility/composer_setup/scripts/* /local/drupal
+rm -f moveit.sh composerit.sh composer.json.8.3.7 makeit.sh missing_argument_4_in_2743715-6.patch addcomposer.sh README.txt
+cp -p /home/drupal/icrp/utility/composer_setup/scripts/* /local/drupal
+cp -p /home/drupal/icrp/utility/composer_setup/archive/* /local/drupal
 chown drupal:drupal moveit.sh composerit.sh composer.json.8.3.7 makeit.sh missing_argument_4_in_2743715-6.patch
 #Create directory
 mkdir icrp
 chown drupal:drupal icrp
 chmod -R 755 icrp
 
-exit
-
 #Create a Compser Site
 #Change to drupal user
-sudo su - drupal
+su drupal
 cd /local/drupal
 ./composerit.sh icrp
 exit
 
 #Move ICRP Assets
 #Change user to Super User
-sudo su
+#You should be root user or 'sudo su'
 cd /local/drupal
 ./moveit.sh icrp
-exit
+
+#Clean Up
+rm -f moveit.sh composerit.sh composer.json.8.3.7 makeit.sh missing_argument_4_in_2743715-6.patch addcomposer.sh README.txt
+rm -f icrp/missing_argument_4_in_2743715-6.patch
+rm -rf icrp-old
 
 #Clear Cache
-sudo su - drupal
+su drupal
 cd /local/drupal/icrp
 drush cr
-
-
