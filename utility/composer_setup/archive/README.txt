@@ -11,7 +11,6 @@ git clone https://github.com/CBIIT/icrp.git && cd icrp && git checkout icrp_1.3
 cd /local/drupal/icrp
 drush pmu panelizer -y
 drush cr
-
 exit
 
 #Change user to Super User
@@ -43,7 +42,7 @@ cd /local/drupal
 
 #Clean Up
 #You should already be root or 'sudo su'
-rm -f moveit.sh composerit.sh omposer.json.8.3.7 missing_argument_4_in_2743715-6.patch
+rm -f moveit.sh composerit.sh composer.json.8.3.7 missing_argument_4_in_2743715-6.patch
 rm -rf icrp-old
 
 #Clear Cache
