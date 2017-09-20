@@ -798,18 +798,21 @@ IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetPr
 DROP PROCEDURE [dbo].[GetProjectFunding]
 GO 
 
-CREATE PROCEDURE [dbo].[GetProjectFunding]
+CREATE PROCEDURE [dbo].[GetProjectFunding] 
     @ProjectID INT    
 AS  
 
-SELECT pf.ProjectFundingID, pf.title, fi.LastName AS piLastName, fi.FirstName AS piFirstName, fi.ORC_ID,
-		i.Name AS Institution, i.City, i.State, i.Country, pf.Category,
+SELECT pf.ProjectFundingID, pf.title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID, co.Count AS CollabCount,
+		i.Name AS Institution, i.City, i.State, i.Country, r.Name AS Region, pf.Category,
 		pf.ALtAwardCode AS AltAwardCode, o.Abbreviation AS FundingOrganization,	pf.BudgetStartDate, pf.BudgetEndDate
 FROM Project p
 	JOIN ProjectFunding pf ON p.ProjectID = pf.ProjectID
-	JOIN ProjectFundingInvestigator fi ON pf.ProjectFundingID = fi.ProjectFundingID
-	JOIN Institution i ON i.InstitutionID = fi.InstitutionID	
+	JOIN (SELECT ProjectFundingID, InstitutionID, LastName, FirstName, ORC_ID FROM ProjectFundingInvestigator WHERE IsPrivateInvestigator = 1) pi ON pf.ProjectFundingID = pi.ProjectFundingID  -- PI	
+	JOIN Institution i ON i.InstitutionID = pi.InstitutionID	
+	JOIN Country c ON i.Country = c.Abbreviation
+	JOIN lu_Region r ON r.RegionID = c.RegionID
 	JOIN FundingOrg o ON o.FundingOrgID = pf.FundingOrgID
+	LEFT JOIN (SELECT ProjectFundingID, COUNT(*) AS [Count] FROM ProjectFundingInvestigator WHERE IsPrivateInvestigator = 0 GROUP BY ProjectFundingID) co ON pf.ProjectFundingID = co.ProjectFundingID  -- Collaborators
 WHERE p.ProjectID = @ProjectID
 ORDER BY pf.BudgetStartDate DESC, pf.AltAwardCode DESC
 
@@ -882,17 +885,19 @@ IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetPr
 DROP PROCEDURE [dbo].[GetProjectFundingDetail]
 GO 
 
-CREATE PROCEDURE [dbo].[GetProjectFundingDetail]
+CREATE PROCEDURE [dbo].[GetProjectFundingDetail] 
     @ProjectFundingID INT    
 AS   
  
 SELECT f.Title, f.AltAwardCode, f.Source_ID,  f.BudgetStartDate,  f.BudgetEndDate, o.Name AS FundingOrg, f.Amount, o.currency, 
 	f.MechanismCode, f.MechanismTitle, ISNULL(f.MechanismCode, '') + ' - ' + ISNULL(f.MechanismTitle, '') AS FundingMechanism, 
-	f.FundingContact, pi.LastName + ', ' + pi.FirstName AS piName, pi.ORC_ID, i.Name AS Institution, i.City, i.State, i.Country, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract
+	f.FundingContact, pi.LastName + ', ' + pi.FirstName AS piName, pi.ORC_ID, pi.IsPrivateInvestigator, i.Name AS Institution, i.City, i.State, i.Country, i.Latitude, i.Longitude, r.Name AS Region, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract
 FROM ProjectFunding f	
 	JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
 	JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID
 	JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+	JOIN Country c ON i.Country = c.Abbreviation
+	JOIN lu_Region r ON r.RegionID = c.RegionID
 	JOIN ProjectAbstract a ON f.ProjectAbstractID = a.ProjectAbstractID
 WHERE f.ProjectFundingID = @ProjectFundingID
 
@@ -918,7 +923,7 @@ AS
 
 DECLARE @filterList varchar(2000)
 
-SELECT * INTO #criteria FROM SearchCriteria WHERE SearchCriteriaID =@SearchID
+SELECT * INTO #criteria FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 
 DECLARE @SearchCriteria TABLE
 (
@@ -928,28 +933,28 @@ DECLARE @SearchCriteria TABLE
 
 
 IF EXISTS (SELECT * FROM #criteria WHERE TermSearchType IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'TermSearchType:', TermSearchType FROM #criteria
+	INSERT INTO @SearchCriteria SELECT 'Term Search Type:', TermSearchType FROM #criteria
 
 IF EXISTS (SELECT * FROM #criteria WHERE Terms IS NOT NULL)
 	INSERT INTO @SearchCriteria SELECT 'Terms:', Terms FROM #criteria
 
 IF EXISTS (SELECT * FROM #criteria WHERE ProjectTypeList IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'ProjectType:', ProjectTypeList FROM #criteria
+	INSERT INTO @SearchCriteria SELECT 'Project Type:', ProjectTypeList FROM #criteria
 
 IF EXISTS (SELECT * FROM #criteria WHERE AwardCode IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'AwardCode:', AwardCode FROM #criteria
+	INSERT INTO @SearchCriteria SELECT 'Award Code:', AwardCode FROM #criteria
 
 IF EXISTS (SELECT * FROM #criteria WHERE Institution IS NOT NULL)
 	INSERT INTO @SearchCriteria SELECT 'Institution:', Institution FROM #criteria
 
 IF EXISTS (SELECT * FROM #criteria WHERE piLastName IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'piLastName:', piLastName FROM #criteria
+	INSERT INTO @SearchCriteria SELECT 'PI LastName:', piLastName FROM #criteria
 
 IF EXISTS (SELECT * FROM #criteria WHERE piFirstName IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'piFirstName:', piFirstName FROM #criteria
+	INSERT INTO @SearchCriteria SELECT 'PI FirstName:', piFirstName FROM #criteria
 
 IF EXISTS (SELECT * FROM #criteria WHERE piORCiD IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'piORCiD', piORCiD FROM #criteria
+	INSERT INTO @SearchCriteria SELECT 'PI ORCiD', piORCiD FROM #criteria
 
 IF EXISTS (SELECT * FROM #criteria WHERE YearList IS NOT NULL)
 	INSERT INTO @SearchCriteria SELECT 'Year:', YearList FROM #criteria
@@ -963,17 +968,21 @@ IF EXISTS (SELECT * FROM #criteria WHERE StateList IS NOT NULL)
 IF EXISTS (SELECT * FROM #criteria WHERE CountryList IS NOT NULL)
 	INSERT INTO @SearchCriteria SELECT 'Country:', CountryList FROM #criteria
 
-IF EXISTS (SELECT * FROM #criteria WHERE RegionList IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'Region:', RegionList FROM #criteria
+SELECT @filterList= RegionList FROM #criteria
+IF @filterList IS NOT NULL
+BEGIN
+	INSERT INTO @SearchCriteria VALUES ('Region:', '')
+	INSERT INTO @SearchCriteria SELECT '', Name FROM lu_Region WHERE RegionID IN (SELECT * FROM dbo.ToIntTable(@filterList))
+END
 
 IF EXISTS (SELECT * FROM #criteria WHERE FundingOrgTypeList IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'FundingOrgType:', FundingOrgTypeList FROM #criteria	
+	INSERT INTO @SearchCriteria SELECT 'Funding Org Type:', FundingOrgTypeList FROM #criteria	
 
---select * from #criteria
+
 SELECT @filterList= FundingOrgList FROM #criteria
 IF @filterList IS NOT NULL
 BEGIN
-	INSERT INTO @SearchCriteria VALUES ('FundingOrg:', '')
+	INSERT INTO @SearchCriteria VALUES ('Funding Organization:', '')
 	INSERT INTO @SearchCriteria SELECT '', SponsorCode + ' - ' + Name FROM FundingOrg WHERE FundingOrgID IN (SELECT * FROM dbo.ToIntTable(@filterList))
 END
 
@@ -983,7 +992,7 @@ IF EXISTS (SELECT * FROM #criteria WHERE IsChildhood IS NOT NULL)
 SELECT @filterList= CancerTypeList FROM #criteria
 IF @filterList IS NOT NULL
 BEGIN
-	INSERT INTO @SearchCriteria VALUES ('CancerType:', '')
+	INSERT INTO @SearchCriteria VALUES ('Cancer Type:', '')
 	INSERT INTO @SearchCriteria SELECT '', Name FROM CancerType WHERE CancerTypeID IN (SELECT * FROM dbo.ToIntTable(@filterList))
 END
 
@@ -995,6 +1004,7 @@ BEGIN
 END
 
 	select * from @SearchCriteria
+
 
 GO
 
