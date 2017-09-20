@@ -47,6 +47,7 @@ class SearchController extends ControllerBase {
     'pi_last_name'               => NULL,
     'pi_orcid'                   => NULL,
     'award_code'                 => NULL,
+    'regions'                    => NULL,
     'countries'                  => NULL,
     'states'                     => NULL,
     'cities'                     => NULL,
@@ -249,5 +250,5 @@ class SearchController extends ControllerBase {
     $parameters = self::array_merge_intersection($request->query->all(), ['data_upload_id' => -1]);
     $data = DatabaseReview::reviewSyncProd($connection, $parameters);
     return self::createResponse($data);
-  }  
+  }
 }

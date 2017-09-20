@@ -27,6 +27,7 @@ class DatabaseSearch {
     'pi_last_name'               => 'piLastName',
     'pi_orcid'                   => 'piORCiD',
     'award_code'                 => 'AwardCode',
+    'regions'                    => 'RegionList',
     'countries'                  => 'CountryList',
     'states'                     => 'StateList',
     'cities'                     => 'CityList',
@@ -60,7 +61,8 @@ class DatabaseSearch {
     $fields = [];
     $queries = [
       'years'                       => 'SELECT MIN(CalendarYear) AS min_year, MAX(CalendarYear) AS max_year FROM ProjectFundingExt',
-      'countries'                   => 'SELECT Abbreviation AS [value], Name AS [label] FROM Country ORDER BY [label]',
+      'regions'                     => 'SELECT RegionID AS [value], Name AS [label] FROM lu_Region ORDER BY [RegionID]',
+      'countries'                   => 'SELECT Abbreviation AS [value], Name AS [label], RegionID AS [group_1] FROM Country ORDER BY [label]',
       'states'                      => 'SELECT Abbreviation AS [value], Name AS [label], Country AS [group_1] FROM State ORDER BY [label]',
       'cities'                      => 'SELECT DISTINCT City AS [value], City AS [label], State AS [group_1], Country AS [group_2] FROM Institution WHERE len(City) > 0 ORDER BY [label]',
       'funding_organization_types'  => 'SELECT FundingOrgType AS [value], FundingOrgType AS [label] FROM lu_FundingOrgType',
@@ -70,7 +72,7 @@ class DatabaseSearch {
       'conversion_years'            => 'SELECT DISTINCT Year AS [value], Year AS [label] FROM CurrencyRate ORDER BY Year DESC',
 //    'funding_organizations'       => 'SELECT FundingOrgID AS [value], Name AS [label], SponsorCode AS [group_1], Country AS [group_2], \'Funding\' AS [group_3] FROM FundingOrg WHERE LastImportDate IS NOT NULL',
       'funding_organizations'       => '
-        SET NOCOUNT ON; 
+        SET NOCOUNT ON;
         CREATE TABLE TEMPORARY_FUNDING_ORGANIZATIONS (
           FundingOrgID int,
           Name varchar(100),
@@ -155,6 +157,7 @@ class DatabaseSearch {
       'pi_last_name'                 => $results['piFirstName'],
       'pi_orcid'                     => $results['piORCiD'],
       'award_code'                   => $results['AwardCode'],
+      'regions'                      => split($results['RegionList']),
       'countries'                    => split($results['CountryList']),
       'states'                       => split($results['StateList']),
       'cities'                       => split($results['CityList']),
@@ -389,6 +392,7 @@ class DatabaseSearch {
         @piLastName           = :pi_last_name,
         @piORCiD              = :pi_orcid,
         @awardCode            = :award_code,
+        @regionList           = :regions,
         @countryList          = :countries,
         @stateList            = :states,
         @cityList             = :cities,
