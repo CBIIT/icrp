@@ -7,7 +7,7 @@ map:
     _access: 'TRUE'
 
 
-getAllRegions:
+getRegions:
   path: '/map/getRegions'
   defaults:
     _controller: '\Drupal\db_map\Controller\MapController::getRegions'
@@ -19,6 +19,14 @@ getSearchParameters:
   path: '/map/getSearchParameters'
   defaults:
     _controller: '\Drupal\db_map\Controller\MapController::getSearchParameters'
+  requirements:
+    _access: 'TRUE'
+
+
+getNewSearchId:
+  path: '/map/getNewSearchId'
+  defaults:
+    _controller: '\Drupal\db_map\Controller\MapController::getNewSearchId'
   requirements:
     _access: 'TRUE'
 
