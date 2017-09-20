@@ -140,7 +140,6 @@ export default class App extends React.Component<{}, AppState> {
       totalCounts,
     } = this.state;
 
-
     return (
       <div>
         <Spinner visible={loading} message={loadingMessage} />
