@@ -10,7 +10,9 @@ import {
 
 import { PieChart } from './ui-chart.pie';
 import { LineChart } from './ui-chart.line';
-import * as d3 from 'd3';
+//import * as d3 from 'd3';
+
+declare const d3;
 
 @Component({
   selector: 'ui-chart',

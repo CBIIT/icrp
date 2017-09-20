@@ -36,7 +36,7 @@ class MappingTool {
 
       $regions = PDOBuilder::executePreparedStatement(
         $pdo,
-        'SET NOCOUNT ON; EXECUTE GetMapRegionDataBySearchID
+        'SET NOCOUNT ON; EXECUTE GetMapRegionsBySearchID
             @SearchID = :searchId,
             @AggregatedProjectCount = :projects,
             @AggregatedPICount = :primaryInvestigators,

@@ -5,6 +5,7 @@ import { HttpModule } from '@angular/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
+
 import { SearchPageComponent } from './components/search/search-page/search-page.component';
 import { ReviewPageComponent } from './components/review/review-page/review-page.component';
 import { SearchFormComponent } from './components/search/search-form/search-form.component';
@@ -15,7 +16,7 @@ import { UiChartComponent } from './components/ui-components/chart/ui-chart.comp
 
 import { TreeViewModule } from './components/ui-components/treeview';
 import { SelectModule } from './components/ui-components/select';
-import { SpinnerModule } from 'angular-ui-components';
+import { SpinnerModule } from './components/ui-components/spinner';
 
 import { SharedService } from './services/shared.service';
 import { SearchService } from './services/search.service';
@@ -25,10 +26,6 @@ import { StoreService } from './services/store.service';
 
 import { TooltipModule, PaginationModule, ModalModule, AlertModule } from 'ngx-bootstrap';
 
-
-import 'rxjs/add/operator/map'
-import 'rxjs/add/operator/catch'
-import 'rxjs/add/operator/mergeMap';
 import { SummaryPanelComponent } from './components/shared/summary-panel/summary-panel.component';
 import { IconComponent } from './components/ui-components/icon/icon.component';
 import { ChartsPanelComponent } from './components/shared/charts-panel/charts-panel.component';
@@ -41,6 +38,10 @@ import { OverlayComponent } from './components/ui-components/overlay/overlay.com
 import { ResultsTablePanelComponent } from './components/shared/results-table-panel/results-table-panel.component';
 import { SimpleSelectComponent } from './components/ui-components/simple-select/simple-select.component';
 import { SearchSummaryPanelComponent } from './components/search/search-summary-panel/search-summary-panel.component';
+
+import 'rxjs/add/operator/map'
+import 'rxjs/add/operator/catch'
+import 'rxjs/add/operator/mergeMap';
 
 @NgModule({
   declarations: [
