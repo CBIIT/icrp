@@ -34,7 +34,7 @@ rm -rf web/
 echo "**"
 echo "* Copy composer.json.8.3.7 and run composer update "
 echo "**"
-cp ../composer.json.8.3.7.without.panelizer ./composer.json
+cp ../composer.json.8.3.7 ./composer.json
 cp ../missing_argument_4_in_2743715-6.patch .
 
 echo "You should have your composer.json"
