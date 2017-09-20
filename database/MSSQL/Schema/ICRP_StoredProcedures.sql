@@ -27,6 +27,7 @@ CREATE PROCEDURE [dbo].[GetProjectsByCriteria]
 	@cityList varchar(1000) = NULL, 
 	@stateList varchar(1000) = NULL,
 	@countryList varchar(1000) = NULL,
+	@regionList varchar(100) = NULL,
 	@FundingOrgTypeList varchar(50) = NULL,
 	@fundingOrgList varchar(1000) = NULL, 
 	@cancerTypeList varchar(1000) = NULL, 
@@ -88,8 +89,18 @@ AS
 		WHERE ProjectID NOT IN 			
 			(SELECT ProjectID FROM #Proj WHERE [Country] IN (SELECT * FROM dbo.ToStrTable(@countryList)))				
 	END
+	
+	-------------------------------------------------------------------------
+	-- Exclude the projects which funding PI Region do NOT meet the criteria
+	-------------------------------------------------------------------------
+	IF @regionList  IS NOT NULL
+	BEGIN
+		DELETE FROM #proj 
+		WHERE RegionID NOT IN 			
+			(SELECT RegionID FROM #Proj WHERE [RegionID] IN (SELECT * FROM dbo.ToIntTable(@regionList)))				
+	END
 
-		-------------------------------------------------------------------------
+	-------------------------------------------------------------------------
 	-- Exclude the projects which funding Org type do NOT meet the criteria
 	-------------------------------------------------------------------------
 	IF @fundingOrgTypeList  IS NOT NULL
@@ -222,8 +233,8 @@ AS
 	FROM #baseProj	
 
 	INSERT INTO SearchCriteria ([termSearchType],[terms],[institution],[piLastName],[piFirstName],[piORCiD],[awardCode],
-		[yearList], [cityList],[stateList],[countryList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [IsChildhood])
-		VALUES ( @termSearchType,@terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode,@yearList,@cityList,@stateList,@countryList,
+		[yearList], [cityList],[stateList],[countryList],[regionList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [IsChildhood])
+		VALUES ( @termSearchType,@terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode,@yearList,@cityList,@stateList,@countryList,@regionList,
 			@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList, @FundingOrgTypeList,	@IsChildhood)
 									 
 	SELECT @searchCriteriaID = SCOPE_IDENTITY()	
@@ -250,7 +261,7 @@ AS
 		CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'ASC' THEN i.Name  END ASC,
 		CASE WHEN @SortCol = 'city ' AND @SortDirection = 'ASC' THEN i.City  END ASC,
 		CASE WHEN @SortCol = 'state ' AND @SortDirection = 'ASC' THEN i.State  END ASC,
-		CASE WHEN @SortCol = 'country' AND @SortDirection = 'ASC' THEN i.Country  END ASC,
+		CASE WHEN @SortCol = 'country' AND @SortDirection = 'ASC' THEN i.Country  END ASC,		
 		CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'ASC' THEN o.Abbreviation  END ASC,
 		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'DESC' THEN f.Title  END DESC,
 		CASE WHEN @SortCol = 'code ' AND @SortDirection = 'DESC' THEN p.AwardCode  END DESC,
@@ -259,7 +270,7 @@ AS
 		CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'DESC' THEN i.Name END DESC,
 		CASE WHEN @SortCol = 'city ' AND @SortDirection = 'DESC' THEN i.City  END DESC,
 		CASE WHEN @SortCol = 'state ' AND @SortDirection = 'DESC' THEN i.State  END DESC,
-		CASE WHEN @SortCol = 'country' AND @SortDirection = 'DESC' THEN i.Country  END DESC,
+		CASE WHEN @SortCol = 'country' AND @SortDirection = 'DESC' THEN i.Country  END DESC,		
 		CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'DESC' THEN o.Abbreviation  END DESC
 	OFFSET ISNULL(@PageSize,50) * (ISNULL(@PageNumber, 1) - 1) ROWS
 	FETCH NEXT 
@@ -3424,7 +3435,7 @@ BEGIN TRANSACTION;
 BEGIN TRY 
 
 	IF ((SELECT COUNT(*) FROM (SELECT * FROM icrp_data.dbo.DataUploadStatus WHERE Status = 'Staging') p
-		JOIN (SELECT * FROM icrp_dataload.dbo.DataUploadStatus WHERE Status = 'Staging') s ON p.PartnerCode = s.PartnerCode AND p.FundingYear = s.FundingYear AND p.Type = s.Type WHERE s.DataUploadStatusID = 75) = 1)
+		JOIN (SELECT * FROM icrp_dataload.dbo.DataUploadStatus WHERE Status = 'Staging') s ON p.PartnerCode = s.PartnerCode AND p.FundingYear = s.FundingYear AND p.Type = s.Type WHERE s.DataUploadStatusID = @DataUploadStatusID_Stage) = 1)
 	BEGIN
 		SELECT @DataUploadStatusID_Prod = p.DataUploadStatusID, @Type = p.[Type], @PartnerCode=p.PartnerCode 
 
@@ -3745,7 +3756,7 @@ GO
 
 
 ----------------------------------------------------------------------------------------------------------
-/****** Object:  StoredProcedure [dbo].[GetMapRegionData]    Script Date: 12/14/2016 4:21:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[GetMapRegionsBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
 ----------------------------------------------------------------------------------------------------------
 SET ANSI_NULLS ON
 GO
@@ -3753,11 +3764,11 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetMapRegionDataBySearchID]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetMapRegionDataBySearchID]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetMapRegionsBySearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetMapRegionsBySearchID]
 GO 
 
-CREATE PROCEDURE [dbo].[GetMapRegionDataBySearchID]  
+CREATE PROCEDURE [dbo].[GetMapRegionsBySearchID]  
 @SearchID INT,
 @AggregatedProjectCount INT OUTPUT,
 @AggregatedPICount INT OUTPUT,
@@ -3810,36 +3821,168 @@ AS
 GO
 
 
---CREATE PROCEDURE [dbo].[GetMapRegionDataBySearchID]  	
---@SearchID INT
---AS   
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetMapCountriesBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
 
---	DECLARE @regions TABLE
---	(
---		[RegionID] INT,
---		[Region] varchar(50),
---		[TotalRelatedProjectCount] INT,
---		[TotalPICount] INT,
---		[TotalCollaboratorCount] INT,
---		[Latitude] [decimal](9, 6) NULL,
---		[Longitude] [decimal](9, 6) NULL
---	)
+SET QUOTED_IDENTIFIER ON
+GO
 
---	INSERT INTO @regions 
---		SELECT RegionID, Name, 56345, 54233, 76943, Latitude, Longitude FROM (SELECT RegionID, Name, Latitude, Longitude FROM lu_Region WHERE RegionID=1) r
---	INSERT INTO @regions 
---		SELECT RegionID, Name, 6890, 6845, 7890, Latitude, Longitude FROM (SELECT RegionID, Name, Latitude, Longitude FROM lu_Region WHERE RegionID=2) r
---	INSERT INTO @regions 
---		SELECT RegionID, Name, 7801, 6654, 12654, Latitude, Longitude FROM (SELECT RegionID, Name, Latitude, Longitude FROM lu_Region WHERE RegionID=3) r
---	INSERT INTO @regions 
---		SELECT RegionID, Name, 1456, 1435, 2340, Latitude, Longitude FROM (SELECT RegionID, Name, Latitude, Longitude FROM lu_Region WHERE RegionID=4) r
---	INSERT INTO @regions 
---		SELECT RegionID, Name, 1034, 1033, 2134, Latitude, Longitude FROM (SELECT RegionID, Name, Latitude, Longitude FROM lu_Region WHERE RegionID=5) r
---	INSERT INTO @regions 
---		SELECT RegionID, Name, 89, 87, 90, Latitude, Longitude FROM (SELECT RegionID, Name, Latitude, Longitude FROM lu_Region WHERE RegionID=6) r
---	INSERT INTO @regions 
---		SELECT RegionID, Name, 1, 1, 1, Latitude, Longitude FROM (SELECT RegionID, Name, Latitude, Longitude FROM lu_Region WHERE RegionID=7) r
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetMapCountriesBySearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetMapCountriesBySearchID]
+GO 
 
---	SELECT [Region], [TotalRelatedProjectCount], [TotalPICount], [TotalCollaboratorCount], Latitude, Longitude FROM @regions	
-	    	
---GO
+CREATE PROCEDURE [dbo].[GetMapCountriesBySearchID]  
+@SearchID INT,
+@RegionID INT,
+@AggregatedProjectCount INT OUTPUT,
+@AggregatedPICount INT OUTPUT,
+@AggregatedCollabCount INT OUTPUT  
+AS   
+
+	DECLARE @funding TABLE
+	(
+		ProjectFundingID INT
+	)
+
+	-- No filters. Return all counts - total related projects = 168423
+	IF @SearchID = 0
+	BEGIN
+		INSERT INTO @funding SELECT ProjectFundingID FROM ProjectFunding 
+	END
+	ELSE  -- filtered results (based on searchID)
+	BEGIN
+		DECLARE @ProjectIDs VARCHAR(max) 	
+		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID					
+
+		INSERT INTO @funding SELECT f.ProjectFundingID 
+		FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
+			JOIN Project p ON r.ProjectID = p.ProjectID
+			JOIN ProjectFunding f ON r.ProjectID = f.ProjectID			
+	END
+
+	SELECT c.Abbreviation AS Country, pf.ProjectFundingID, p.IsPrivateInvestigator INTO #tmp
+		FROM @funding pf
+			JOIN ProjectFundingInvestigator p ON pf.ProjectFundingID = p.ProjectFundingID
+			JOIN Institution i ON p.InstitutionID = i.InstitutionID
+			JOIN Country c ON i.Country = c.Abbreviation			
+		WHERE c.RegionID = @RegionID
+
+	SELECT Country, Count(*) AS Count INTO #proj FROM (SELECT DISTINCT Country, ProjectFundingID FROM #tmp) proj GROUP BY Country
+	SELECT Country, Count(*) AS Count INTO #pi FROM (SELECT Country, ProjectFundingID FROM #tmp WHERE IsPrivateInvestigator=1) p GROUP BY Country
+	SELECT Country, Count(*) AS Count INTO #collab FROM (SELECT Country, ProjectFundingID FROM #tmp WHERE IsPrivateInvestigator=0) collab GROUP BY Country
+
+	-- Return RelatedProject Count, PI Count and collaborator Count by region
+	SELECT p.Country, ISNULL(p.Count, 0) AS TotalRelatedProjectCount, ISNULL(pi.Count,0) AS TotalPICount, ISNULL(c.Count, 0) AS TotalCollaboratorCount
+	FROM #proj p
+		LEFT JOIN #pi  pi ON p.Country = pi.Country
+		LEFT JOIN #collab c ON c.Country = pi.Country		
+
+	SELECT @AggregatedProjectCount= Count(*) FROM (SELECT DISTINCT ProjectFundingID FROM #tmp) proj
+	SELECT @AggregatedPICount=SUM(Count) FROM #pi	
+	SELECT @AggregatedCollabCount=SUM(Count) FROM #collab		
+	
+GO
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetProjectsFromMapBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectsFromMapBySearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetProjectsFromMapBySearchID]
+GO 
+
+CREATE PROCEDURE [dbo].[GetProjectsFromMapBySearchID]  
+@SearchID INT,
+@RegionID INT = NULL,
+@Country VARCHAR(3) = NULL,
+@City VARCHAR(50) = NULL,
+@searchCriteriaID INT OUTPUT,  -- return the searchID	
+@ResultCount INT OUTPUT  -- return the searchID		
+AS   
+
+	DECLARE @project TABLE
+	(
+		ProjectID INT
+
+	)
+		
+	IF @SearchID = 0  -- No filters. Return all projects 
+	BEGIN
+		INSERT INTO @project SELECT ProjectID FROM Project 
+	END
+	ELSE  -- filtered projects (based on searchID)
+	BEGIN
+		DECLARE @ProjectIDs VARCHAR(max) 	
+		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID					
+		
+		INSERT INTO @project SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+	END
+
+	-- Further drill down - Filter on Region, Country or City
+	SELECT p.ProjectID, pf.BudgetEndDate INTO #Proj
+		FROM @project p
+			JOIN ProjectFunding pf ON pf.ProjectFundingID = p.ProjectID
+			JOIN ProjectFundingInvestigator pi ON pf.ProjectFundingID = pi.ProjectFundingID
+			JOIN Institution i ON pi.InstitutionID = i.InstitutionID
+			JOIN Country c ON i.Country = c.Abbreviation			
+		WHERE (@RegionID IS NULL OR @RegionID = c.RegionID) AND (@Country IS NULL OR @Country = i.Country) AND (@City IS NULL OR @City = i.City)
+
+	
+----------------------------------
+	-- Save search criteria
+	----------------------------------	
+	DECLARE @TotalRelatedProjectCount INT
+	DECLARE @LastBudgetYear INT
+
+	SELECT @TotalRelatedProjectCount=COUNT(*) FROM #Proj
+
+	SELECT DISTINCT ProjectID INTO #baseProj FROM #proj
+	
+	DECLARE @ProjectIDList VARCHAR(max) = '' 	
+	SELECT @ResultCount=COUNT(*) FROM #baseProj	
+	SELECT @LastBudgetYear=DATEPART(year, MAX(BudgetEndDate)) FROM #proj
+
+	SELECT @ProjectIDList = @ProjectIDList + 
+           ISNULL(CASE WHEN LEN(@ProjectIDList) = 0 THEN '' ELSE ',' END + CONVERT( VarChar(20), ProjectID), '')
+	FROM #baseProj	
+
+	IF @SearchID=0
+	BEGIN
+	INSERT INTO SearchCriteria ([cityList],[countryList],[RegionList])
+		SELECT @City, @Country,@RegionID		
+	END
+	ELSE
+	BEGIN
+	INSERT INTO SearchCriteria ([termSearchType],[terms],[institution],[piLastName],[piFirstName],[piORCiD],[awardCode],
+		[yearList], [cityList],[stateList],[countryList],[RegionList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [IsChildhood])
+		SELECT [termSearchType],[terms],[institution],[piLastName],[piFirstName],[piORCiD],[awardCode],
+			[yearList], @City,[stateList],@Country,@RegionID, [fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [IsChildhood]
+		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
+	END									 
+	SELECT @searchCriteriaID = SCOPE_IDENTITY()	
+		
+	INSERT INTO SearchResult (SearchCriteriaID, Results,ResultCount, TotalRelatedProjectCount, LastBudgetYear, IsEmailSent) VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, @TotalRelatedProjectCount, @LastBudgetYear, 0)	
+	
+	----------------------------------	
+	-- Sort and Pagination
+	--   Note: Return only base projects and projects' most recent funding
+	----------------------------------
+	SELECT p.*, maxf.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
+		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort FROM
+		(SELECT DISTINCT ProjectID FROM #proj) p
+		 JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f GROUP BY ProjectID) maxf ON p.ProjectID = maxf.ProjectID
+		 JOIN ProjectFunding f ON maxf.ProjectFundingID = f.projectFundingID
+		 JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
+		 JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+		 JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
+	ORDER BY title ASC	OFFSET 0 ROWS FETCH NEXT 50 ROWS ONLY
+
+GO
+
