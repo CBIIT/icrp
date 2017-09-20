@@ -15,10 +15,9 @@ exit
 #Move Site out of the way
 cd /local/drupal
 mv icrp icrp-old
-rm -f moveit.sh composerit.sh composer.json.8.3.7 makeit.sh missing_argument_4_in_2743715-6.patch addcomposer.sh README.txt
+rm -f moveit.sh composerit.sh fix_panelizer.sh composer.json.8.3.7 composer.json.8.3.7.without.panelizer missing_argument_4_in_2743715-6.patch
 cp -p /home/drupal/icrp/utility/composer_setup/scripts/* /local/drupal
-cp -p /home/drupal/icrp/utility/composer_setup/archive/* /local/drupal
-chown drupal:drupal moveit.sh composerit.sh composer.json.8.3.7 makeit.sh missing_argument_4_in_2743715-6.patch
+chown drupal:drupal composerit.sh fix_panelizer.sh composer.json.8.3.7 composer.json.8.3.7.without.panelizer missing_argument_4_in_2743715-6.patch
 #Create directory
 mkdir icrp
 chown drupal:drupal icrp
@@ -37,12 +36,15 @@ exit
 cd /local/drupal
 ./moveit.sh icrp
 
+#Fix Panelizer
+su drupal
+cd /local/drupal
+./fix_panelizer.sh icrp
+exit
+
 #Clean Up
-rm -f moveit.sh composerit.sh composer.json.8.3.7 makeit.sh missing_argument_4_in_2743715-6.patch addcomposer.sh README.txt
+#You should already be root or 'sudo su'
+rm -f moveit.sh composerit.sh fix_panelizer.sh composer.json.8.3.7 composer.json.8.3.7.without.panelizer missing_argument_4_in_2743715-6.patch
 rm -f icrp/missing_argument_4_in_2743715-6.patch
 rm -rf icrp-old
 
-#Clear Cache
-su drupal
-cd /local/drupal/icrp
-drush cr

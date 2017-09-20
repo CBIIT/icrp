@@ -29,32 +29,20 @@ echo "Copy default/files"
 cp -pr $OLD/sites/default/files/ /local/drupal/$DOC_ROOT/sites/default/.
 
 echo "Performing owner changes"
-chown -R apache.nobody sites/default/files
+chown -R apache.nobody sites
 
 #chown -R apache.nobody modules && chown -R apache.nobody sites && chown -R apache.nobody themes && chown -R apache.nobody libraries 
 #chown -R drupal.drupal modules && chown -R drupal.drupal sites && chown -R drupal.drupal themes && chown -R drupal.drupal libraries 
 #chown apache.nobody composer.json
  
-echo "Changing access rights of sites, themes, modules, libraries"
+#echo "Changing access rights of sites, themes, modules, libraries"
 #sudo chmod -R 755 sites themes modules libraries
  
-echo "Import Drupal Configuration from sync directory"
-#drush cim
  
-echo "Run drush cache-rebuild"
-#drush cr
- 
-echo "Copy config.ini"
+echo "Make Controllerpwd directory for db_search_api"
 mkdir -p modules/custom/db_search_api/src/Controllerpwd
 chown -R apache.nobody modules/custom/db_search_api/src/Controllerpwd
 chmod -R 755 modules/custom/db_search_api/src/Controllerpwd
-
-#sudo chown -R apache.nobody /local/drupal/icrp/modules
- 
-#echo "Clean up"
-#rm -rf ../icrp.tgz
- 
-echo "Deployment Completed!" 
 
 echo "**"
 echo "* Assets have been moved"

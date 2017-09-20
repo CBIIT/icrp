@@ -1,0 +1,173 @@
+{
+    "name": "drupal-composer/drupal-project",
+    "description": "Project template for Drupal 8 projects with composer",
+    "type": "project",
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "",
+            "role": ""
+        }
+    ],
+    "repositories": {
+        "0": {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        },
+        "backup_migrate": {
+            "type": "vcs",
+            "url": "https://github.com/backupmigrate/backup_migrate_core"
+        },
+        "jqueryvalidate": {
+            "type": "package",
+            "package": {
+                "name": "jqueryvalidate",
+                "version": "1.14.0",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://jqueryvalidation.org/files/jquery-validation-1.14.0.zip",
+                    "type": "zip"
+                }
+            }
+        }
+    },
+    "require": {
+        "box/spout": "^2.7.2",
+        "ckeditor/ckeditor": "^4.7",
+        "composer/installers": "^1.2",
+        "cweagans/composer-patches": "^1.6",
+        "drupal-composer/drupal-scaffold": "^2.2",
+        "drupal/admin_toolbar": "1.19",
+        "drupal/admin_toolbar_tools": "1.19",
+        "drupal/autologout": "1.0",
+        "drupal/backup_migrate": "4.0-alpha2@alpha",
+        "drupal/bootstrap": "3.5",
+        "drupal/bootstrap_layouts": "5.0-alpha1@alpha",
+        "drupal/calendar": "1.x-dev",
+        "drupal/calendar_datetime": "1.x-dev",
+        "drupal/clientside_validation": "1.0-rc3@RC",
+        "drupal/clientside_validation_jquery": "1.0-rc3@RC",
+        "drupal/console": "^1.0.1",
+        "drupal/content_access": "1.x-dev",
+        "drupal/core": "8.3.7",
+        "drupal/crop": "1.2",
+        "drupal/ctools": "3.0",
+        "drupal/ctools_block": "3.0",
+        "drupal/ctools_views": "3.0",
+        "drupal/datatables": "1.0-rc1@RC",
+        "drupal/devel": "~1.0",
+        "drupal/ds": "3.1",
+        "drupal/ds_extras": "3.1",
+        "drupal/ds_switch_view_mode": "3.1",
+        "drupal/editor_advanced_link": "1.4",
+        "drupal/email_registration": "1.0-rc5@RC",
+        "drupal/embed": "1.0",
+        "drupal/entity": "1.0-alpha4@alpha",
+        "drupal/entity_embed": "1.0-beta2@beta",
+        "drupal/entity_notification": "^1.0",
+        "drupal/examples": "1.x-dev",
+        "drupal/extlink": "1.0",
+        "drupal/faq": "1.x-dev",
+        "drupal/field_permissions": "1.0-beta2@beta",
+        "drupal/focal_point": "1.0-beta4@beta",
+        "drupal/fontawesome": "1.2",
+        "drupal/google_analytics": "^2.1",
+        "drupal/honeypot": "^1.27",
+        "drupal/libraries": "3.x-dev",
+        "drupal/linkit": "5.0-beta5@beta",
+        "drupal/media_entity": "1.6",
+        "drupal/media_entity_twitter": "1.3",
+        "drupal/metatag": "^1.2",
+        "drupal/page_manager": "4.0-beta2@beta",
+        "drupal/page_manager_ui": "4.0-beta2@beta",
+        "drupal/panels": "^4.2",
+        "drupal/panels_ipe": "^4.2",
+        "drupal/pathauto": "^1.0",
+        "drupal/plugin_type_example": "1.x-dev",
+        "drupal/recovery_pass": "^1.0",
+        "drupal/rules": "^3.0@alpha",
+        "drupal/search_kint": "1.0",
+        "drupal/security_review": "1.x-dev",
+        "drupal/token": "^1.0",
+        "drupal/toolbar_themes": "1.0-alpha4@alpha",
+        "drupal/twig_tweak": "1.8",
+        "drupal/twitter_block": "3.0-alpha0@alpha",
+        "drupal/typed_data": "^1.0@alpha",
+        "drupal/user_import": "1.x-dev",
+        "drupal/views_bootstrap": "3.x-dev",
+        "drupal/webform": "5.0-beta16@beta",
+        "drupal/webform_ui": "5.0-beta16@beta",
+        "drupal/webform_views": "5.0-alpha2@alpha",
+        "drush/drush": "~8.0",
+        "intelogie/signature-pad": "^1.5",
+        "maennchen/zipstream-php": "^0.4.1",
+        "mbostock/d3": "^3.5",
+        "phpmailer/phpmailer": "~5.2",
+        "phpoffice/phpexcel": "~1.8.1",
+        "psr/log": "dev-master",
+        "select2/select2": "^4.0",
+        "webflo/drupal-finder": "^1.0.0",
+        "webmozart/path-util": "^2.3",
+        "wikimedia/composer-merge-plugin": "~1.4"
+    },
+    "require-dev": {
+        "behat/mink": "~1.7",
+        "behat/mink-goutte-driver": "~1.2",
+        "jcalderonzumba/gastonjs": "~1.0.2",
+        "jcalderonzumba/mink-phantomjs-driver": "~0.3.1",
+        "mikey179/vfsstream": "~1.2",
+        "phpunit/phpunit": ">=4.8.28 <5",
+        "symfony/css-selector": "~2.8"
+    },
+    "conflict": {
+        "drupal/drupal": "*"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true
+    },
+    "autoload": {
+        "classmap": [
+            "scripts/composer/ScriptHandler.php"
+        ]
+    },
+    "scripts": {
+        "drupal-scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
+        "pre-install-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
+        ],
+        "pre-update-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
+        ],
+        "post-install-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ],
+        "post-update-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
+             "cd modules/faq; git apply ../../missing_argument_4_in_2743715-6.patch; echo \"FAQ Patch (missing_argument_4) Installed.\""
+        ]
+    },
+    "extra": {
+        "installer-paths": {
+            "core": [
+                "type:drupal-core"
+            ],
+            "libraries/{$name}": [
+                "type:drupal-library"
+            ],
+            "modules/{$name}": [
+                "type:drupal-module"
+            ],
+            "profiles/{$name}": [
+                "type:drupal-profile"
+            ],
+            "themes/{$name}": [
+                "type:drupal-theme"
+            ],
+            "drush/contrib/{$name}": [
+                "type:drupal-drush"
+            ]
+        }
+    }
+}
