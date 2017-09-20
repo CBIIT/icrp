@@ -32,6 +32,10 @@ body {
   margin-bottom: 10px !important;
 }
 
+.cursor-pointer {
+  cursor: pointer;
+}
+
 table.popover-table td {
   padding-right: 8px;
 }

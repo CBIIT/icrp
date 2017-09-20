@@ -95,12 +95,32 @@ class MapController extends ControllerBase {
 
 
   /**
+   * Retrieves search parameters for the given search id
+   *
+   * @param Request $request A GET request that contains the following parameters:
+   *  searchId - the original search id from the database search page (or 0, if we have )
+   * @return JSONResponse
+   */
+  public static function getNewSearchId(Request $request): JSONResponse {
+    $connection = PDOBuilder::getConnection('icrp_database');
+    $parameters = self::array_merge_intersection($request->query->all(), [
+      'searchId' => 0,
+      'region' => NULL,
+      'country' => NULL,
+      'city' => NULL,
+    ]);
+    $data = MappingTool::getNewSearchId($connection, $parameters);
+    return self::createResponse($data);
+  }
+
+
+  /**
    * Creates an arbitrary excel report based on the supplied json object.
    *
    * For example:
    * [
-   *    {title: 'Sheet one', data: ['A', 'B', 'C']},
-   *    {title: 'Sheet two', data: ['D', 'E', 'F']},
+   *    {title: 'Sheet one', rows: ['A', 'B', 'C']},
+   *    {title: 'Sheet two', rows: ['D', 'E', 'F']},
    * ];
    *
    * @param Request $request Contains a json body that will be converted to an excel document

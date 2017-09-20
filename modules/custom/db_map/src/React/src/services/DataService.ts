@@ -25,6 +25,13 @@ export interface RegionInterface {
   };
 }
 
+export interface MapLevelInterface {
+  searchId: number;
+  region?: number;
+  country?: string;
+  city?: string;
+}
+
 export const BASE_URL = `${window.location.protocol}//${window.location.hostname}`;
 
 export const request = async (url: string, params: object) => {
@@ -42,9 +49,14 @@ export const getSearchParameters = async (searchId: number): Promise<(string|num
     credentials: 'same-origin'
   });
 
-export const getExcelExport = async(data: ExcelSheet[]): Promise<string> =>
+export const getExcelExport = async (data: ExcelSheet[]): Promise<string> =>
   await request(`${BASE_URL}/map/getExcelExport/`, {
     method: 'POST',
     body: JSON.stringify(data),
     credentials: 'same-origin'
   });
+
+export const getNewSearchId = async (searchId: number, region?: number, country?: string, city?: string): Promise<{newSearchId: number}> =>
+  await request(`${BASE_URL}/map/getNewSearchId/?${stringify({searchId, region, country, city})}`, {
+    credentials: 'same-origin'
+  })
