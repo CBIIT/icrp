@@ -13,7 +13,6 @@ then
   exit
 fi
 echo -n "START TIME: "
-timestamp
 DOC_ROOT=$1 
 
 echo "**"
@@ -21,15 +20,6 @@ echo "* Clear cache files (without this it was causing problems.)"
 echo "**"
 echo "composer clear-cache"
 composer clear-cache
-
-#rm all files
-echo "**"
-echo "* Remove all files from $DOC_ROOT"
-echo "**"
-echo "mkdir -p $DOC_ROOT"
-rm -rf $DOC_ROOT/.git
-rm -rf $DOC_ROOT/.gitignore
-rm -rf $DOC_ROOT/*
 
 mkdir -p $DOC_ROOT
 
