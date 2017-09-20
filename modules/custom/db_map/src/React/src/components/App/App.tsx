@@ -9,9 +9,11 @@ import {
   SummaryGrid,
 } from '..'
 import * as DataService from '../../services/DataService';
-import { BASE_URL, getRegions, getExcelExport, Location, ExcelSheet } from '../../services/DataService';
+import { BASE_URL, getRegions, getExcelExport, getNewSearchId, Location, ExcelSheet, MapLevelInterface } from '../../services/DataService';
 
 export interface AppState {
+  loading: boolean;
+  loadingMessage: string;
   zoom: number;
   coordinates: google.maps.LatLngLiteral;
   locations: Location[];
@@ -33,6 +35,8 @@ export interface AppState {
 export default class App extends React.Component<{}, AppState> {
 
   state = {
+    loading: true,
+    loadingMessage: 'Loading Map...',
     zoom: 2,
     coordinates: {
       lat: 30,
@@ -60,9 +64,9 @@ export default class App extends React.Component<{}, AppState> {
     let searchCriteria = {
       summary: searchParameters.length > 0
         ? searchParameters
-          .map(e => e[0].toString().replace(':', '').trim())
-          .filter(e => e.length > 0)
-          .join(' + ')
+            .map(e => e[0].toString().replace(':', '').trim())
+            .filter(e => e.length > 0)
+            .join(' + ')
         : 'All',
       table: searchParameters,
       parsed: {},
@@ -73,8 +77,25 @@ export default class App extends React.Component<{}, AppState> {
       locations: data.locations,
       totalCounts: data.counts,
       searchCriteria: searchCriteria,
+      loading: false,
     });
   }
+
+
+  async redirectToSearchPage(searchId: number, region?: number, country?: string, city?: string) {
+    this.setState({
+      loading: true,
+      loadingMessage: 'Loading Search Page...'
+    });
+
+    let response = await getNewSearchId(searchId, region, country, city);
+    let uri = `${BASE_URL}/db_search/?sid=${response['newSearchId']}`;
+    window.document.location.href = uri;
+    this.setState({
+      loading: false
+    });
+  }
+
 
   async export() {
 
@@ -109,6 +130,8 @@ export default class App extends React.Component<{}, AppState> {
 
   render() {
     let {
+      loading,
+      loadingMessage,
       locations,
       coordinates,
       zoom,
@@ -117,13 +140,12 @@ export default class App extends React.Component<{}, AppState> {
       totalCounts,
     } = this.state;
 
-
     return (
       <div>
-        <Spinner visible={!locations.length} message="Loading Map..." />
+        <Spinner visible={loading} message={loadingMessage} />
         <SearchCriteria searchCriteria={searchCriteria} counts={totalCounts} />
         <div className="text-right margin-top">
-          <a href={`/db_search/?sid=${searchId}`}>View ICRP Data</a>
+          <a className="cursor-pointer" onClick={event => this.redirectToSearchPage(searchId)}>View ICRP Data</a>
         </div>
         <div className="position-relative">
           <MapOverlay>
@@ -148,7 +170,14 @@ export default class App extends React.Component<{}, AppState> {
           </button>
         }
 
-        <SummaryGrid locations={locations} />
+        <SummaryGrid
+          locations={locations}
+          type="Region"
+          searchId={searchId}
+          onSelect={
+            ({searchId, region, country, city}: MapLevelInterface) =>
+              this.redirectToSearchPage(searchId, region, country, city)
+          } />
       </div>
     );
   }

@@ -111,4 +111,56 @@ class MappingTool {
       return ['ERROR' => $message];
     }
   }
+
+  /**
+   * Retrieves search criteria id based on current search id
+   * region, country, and city
+   *
+   * @param PDO $pdo
+   * @param array $parameters
+   * @return array
+   */
+  public static function getNewSearchId(
+    PDO $pdo,
+    array $parameters = [
+      'searchId' => 0,
+      'region' => NULL,
+      'country' => NULL,
+      'city' => NULL
+  ]): array {
+    try {
+      $output = [
+        'newSearchId' => [
+          'type' => PDO::PARAM_INT,
+          'value' => 0,
+        ],
+      ];
+
+      PDOBuilder::executePreparedStatement(
+        $pdo,
+        'SET NOCOUNT ON; EXECUTE GetProjectsFromMapBySearchID
+            @SearchID = :searchId,
+            @RegionID = :region,
+            @Country = :country,
+            @City = :city,
+            @SearchCriteriaID = :newSearchId,
+            @ResultCount = NULL',
+        $parameters,
+        $output
+      )->fetchAll();
+
+      // extract the values for each output parameter
+      foreach($output as $key => $entry) {
+        $output[$key] = $entry['value'];
+      }
+
+      return $output;
+    }
+
+    catch (PDOException $ex) {
+      $message = $ex->getMessage();
+      error_log($message);
+      return ['ERROR' => $message];
+    }
+  }
 }
