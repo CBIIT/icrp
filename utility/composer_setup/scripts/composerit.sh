@@ -21,7 +21,7 @@ echo "**"
 echo "composer clear-cache"
 composer clear-cache
 
-mkdir -p $DOC_ROOT
+#mkdir -p $DOC_ROOT
 
 echo "**"
 echo "* Composer create initial drupal-compser project."
