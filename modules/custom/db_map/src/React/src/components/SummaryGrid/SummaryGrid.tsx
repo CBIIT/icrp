@@ -36,9 +36,9 @@ const SummaryGrid = ({locations, type, onSelect, searchId}: SummaryGridProps) =>
                 {row.label}
               </a>
             </td>
-            <td>{row.data.relatedProjects}</td>
-            <td>{row.data.primaryInvestigators}</td>
-            <td>{row.data.collaborators}</td>
+            <td>{row.data.relatedProjects.toLocaleString()}</td>
+            <td>{row.data.primaryInvestigators.toLocaleString()}</td>
+            <td>{row.data.collaborators.toLocaleString()}</td>
           </tr>
         )
       }
