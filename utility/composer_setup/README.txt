@@ -6,7 +6,13 @@ sudo su
 #Change to drupal user
 su drupal
 cd ~
+#Option 1: (If you haven't cloned)
 git clone https://github.com/CBIIT/icrp.git && cd icrp && git checkout icrp_1.3
+#Option 2:  (If a clone of icrp exists)
+cd icrp
+git pull
+git branch (Check to make sure you are on the icrp_1.3 branch)
+
 #Uninstall panelizer
 cd /local/drupal/icrp
 drush pmu panelizer -y

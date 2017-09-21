@@ -8,13 +8,7 @@ DOC_ROOT=$1
 echo "Deploying new sites, modules, themes, libraries"
 cd /local/drupal/$DOC_ROOT
 OLD="/local/drupal/icrp-old"
-cp -rp $OLD/modules/custom modules/. && cp -rp $OLD/themes/bootstrap_subtheme themes/. && cp -rp $OLD/libraries/ . 
-
-#Fix Unicode.php
-#mv themes/bootstrap/src/Utility/Unicode.php themes/bootstrap/src/Utility/Unicode.php.bak
-echo "Patch Unicode"
-rm -f themes/bootstrap/src/Utility/Unicode.php
-cp -p $OLD/themes/bootstrap/src/Utility/Unicode.php themes/bootstrap/src/Utility/.
+cp -rp $OLD/modules/custom modules/. && cp -rp $OLD/themes themes/. && cp -rp $OLD/libraries/.
 
 echo "Copying php settings"
 #sudo cp /home/centos/settings.php sites/default/
