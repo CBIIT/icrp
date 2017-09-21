@@ -1,11 +1,10 @@
 global-styling:
   css:
     theme:
-      css/style.css: {}
-      css/hoverover.css: {}
-      css/bootstrap-yeti-navbar.css: {}
       https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css: {type: external, minified: true}
       https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css: {type: external, minified: false}
+      css/bootstrap-yeti-navbar.css: {}
+      css/style.css: {}
       css/bootstrap-overrides.css: {}
       css/forum.css: {}
  
@@ -13,8 +12,8 @@ global-scripts:
   version: 1
   js:
     https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.22.0/polyfill.min.js: { type: external, minified: true }
-    js/init_globals.js: {}
     https://cdnjs.cloudflare.com/ajax/libs/jquery.matchHeight/0.7.0/jquery.matchHeight-min.js: { type: external, minified: true }
+    js/init_globals.js: {}
     js/scripts.js: {}
   dependencies:
     - core/jquery
