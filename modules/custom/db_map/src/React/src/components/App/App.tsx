@@ -158,6 +158,8 @@ export default class App extends React.Component<{}, AppState> {
           />
         </div>
 
+
+
         {
           locations.length > 0 &&
           <button
