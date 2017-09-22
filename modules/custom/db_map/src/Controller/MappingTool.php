@@ -10,16 +10,101 @@ use PDOStatement;
  */
 class MappingTool {
 
+  const QUERY_MAP = [
+    'region' => [
+      'sql' => '
+        SET NOCOUNT ON;
+        EXECUTE GetMapRegionsBySearchID
+          @SearchID = :searchId,
+          @AggregatedProjectCount = :projects,
+          @AggregatedPICount = :primaryInvestigators,
+          @AggregatedCollabCount = :collaborators',
+
+      'inputParameters' => [
+        'searchId'
+      ],
+
+      'columns' => [
+        'value' => 'RegionID',
+        'label' => 'Region',
+      ],
+    ],
+
+    'country' => [
+      'sql' => '
+        SET NOCOUNT ON;
+        EXECUTE GetMapCountriesBySearchID
+          @SearchID = :searchId,
+          @RegionID = :region,
+          @AggregatedProjectCount = :projects,
+          @AggregatedPICount = :primaryInvestigators,
+          @AggregatedCollabCount = :collaborators',
+
+      'inputParameters' => [
+        'searchId',
+        'region',
+      ],
+
+      'columns' => [
+        'value' => 'Country',
+        'label' => 'Country',
+      ],
+    ],
+
+    'city' => [
+      'sql' => '
+        SET NOCOUNT ON;
+        EXECUTE GetMapCitiesBySearchID
+          @SearchID = :searchId,
+          @Vountry = :country,
+          @AggregatedProjectCount = :projects,
+          @AggregatedPICount = :primaryInvestigators,
+          @AggregatedCollabCount = :collaborators',
+
+      'inputParameters' => [
+        'searchId',
+        'region',
+        'country',
+      ],
+
+      'columns' => [
+        'value' => 'City',
+        'label' => 'City',
+      ],
+    ],
+  ];
+
   /**
-   * Returns data for all regions
+   * Returns data for a specific type of map view (level).
    *
    * @param PDO $pdo
-   * @param int $searchId
-   * @return void
+   * @param array $parameters
+   * {
+   *  searchId: number
+   *  level: 'region' | 'country' | 'city'
+   *  region: number;
+   *  country: string;
+   *  city: state;
+   * }
+   *
+   * @return array
+   * An array containing Locations
+   * Each Location is comprised of the following keys:
+   *   label: the display name for this location
+   *   value: the internal name for this location (used to query db)
+   *   coordinates: a latitude/longitude literal
+   *   data: any data associated with this location
+   *         required keys:
+   *           relatedProjects: Number of related projects
+   *           primaryInvestigators: Number of PIs
+   *           collaborators: Number of collaborators
    */
-  public static function getRegions(PDO $pdo, array $parameters = ['searchId' => 0]): array {
+  public static function getLocations(
+    PDO $pdo,
+    array $parameters = ['searchId' => 0, 'type' => 'region']
+  ): array {
     try {
-      $counts = [
+      $output = [
         'projects' => [
           'type' => PDO::PARAM_INT,
           'value' => 0,
@@ -34,50 +119,52 @@ class MappingTool {
         ],
       ];
 
-      $regions = PDOBuilder::executePreparedStatement(
+      if (!in_array($parameters['type'], ['region', 'country', 'city'])) {
+        $parameters['type'] = 'region';
+      }
+
+      $query = self::QUERY_MAP[$parameters['type']];
+      $locations = PDOBuilder::executePreparedStatement(
         $pdo,
-        'SET NOCOUNT ON; EXECUTE GetMapRegionsBySearchID
-            @SearchID = :searchId,
-            @AggregatedProjectCount = :projects,
-            @AggregatedPICount = :primaryInvestigators,
-            @AggregatedCollabCount = :collaborators',
-        $parameters,
-        $counts
+        $query['sql'],
+        self::filterArray($parameters, $query['inputParameters']),
+        $output
       )->fetchAll();
 
       // extract the values for each count
-      foreach($counts as $key => $entry) {
+      $counts = [];
+      foreach($output as $key => $entry) {
         $counts[$key] = $entry['value'];
       }
 
-      // map regions to standard format
-      $regions = array_map(function($region) {
+      // map to standard Location format
+      $locations = array_map(function($location) use ($query) {
+        $columns = $query['columns'];
         return [
-          'label' => $region['Region'],
-          'value' => $region['RegionID'],
+          'label' => $location[$columns['label']],
+          'value' => $location[$columns['value']],
           'coordinates' => [
-            'lat' => floatval($region['Latitude']),
-            'lng' => floatval($region['Longitude']),
+            'lat' => floatval($location['Latitude']),
+            'lng' => floatval($location['Longitude']),
           ],
           'data' => [
-            'relatedProjects' => $region['TotalRelatedProjectCount'],
-            'primaryInvestigators' => $region['TotalPICount'],
-            'collaborators' => $region['TotalCollaboratorCount'],
+            'relatedProjects' => $location['TotalRelatedProjectCount'],
+            'primaryInvestigators' => $location['TotalPICount'],
+            'collaborators' => $location['TotalCollaboratorCount'],
           ],
         ];
-      }, $regions);
+      }, $locations);
 
-      // sort regions
-      usort($regions, function($a, $b) {
+      // sort locations
+      usort($locations, function($a, $b) {
         return $a['value'] - $b['value'];
       });
 
       return [
-        'locations' => $regions,
+        'locations' => $locations,
         'counts' => $counts,
       ];
     }
-
 
     catch (PDOException $ex) {
       $message = $ex->getMessage();
@@ -162,5 +249,22 @@ class MappingTool {
       error_log($message);
       return ['ERROR' => $message];
     }
+  }
+
+  /**
+   * Creates a new array from an existing array with only the specified keys
+   *
+   * @param array $input
+   * @param array $allowedKeys
+   * @return void
+   */
+  private static function filterArray(array $input, array $allowedKeys): array {
+    return array_filter(
+      $input,
+      function($key) use ($allowedKeys) {
+        return in_array($key, $allowedKeys);
+      },
+      ARRAY_FILTER_USE_KEY
+    );
   }
 }

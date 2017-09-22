@@ -7,10 +7,10 @@ map:
     _access: 'TRUE'
 
 
-getRegions:
-  path: '/map/getRegions'
+getLocations:
+  path: '/map/getLocations'
   defaults:
-    _controller: '\Drupal\db_map\Controller\MapController::getRegions'
+    _controller: '\Drupal\db_map\Controller\MapController::getLocations'
   requirements:
     _access: 'TRUE'
 

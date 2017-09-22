@@ -18,6 +18,20 @@ use PDO;
 class MapController extends ControllerBase {
 
   /**
+   * Merges all arrays from right to left - the last array provided contains the
+   * full set of properties that will be present on the merged array
+   *
+   * @param array ...$arrays
+   * @return array
+   */
+  private static function array_merge_intersection(...$arrays): array {
+    $source = end($arrays);
+    $intersection = array_intersect_key(...$arrays);
+    return array_merge($source, $intersection);
+  }
+
+
+  /**
    * Creates a new JSON response with CORS headers
    *
    * @param any $data
@@ -32,20 +46,6 @@ class MapController extends ControllerBase {
       'Access-Control-Allow-Methods' => 'GET, POST',
     // ensure that the response contains formatted json
     ])->setEncodingOptions((new JsonResponse())->getEncodingOptions() | JSON_PRETTY_PRINT);
-  }
-
-
-  /**
-   * Merges all arrays from right to left - the last array provided contains the
-   * full set of properties that will be present on the merged array
-   *
-   * @param array ...$arrays
-   * @return array
-   */
-  private static function array_merge_intersection(...$arrays): array {
-    $source = end($arrays);
-    $intersection = array_intersect_key(...$arrays);
-    return array_merge($source, $intersection);
   }
 
 
@@ -67,15 +67,24 @@ class MapController extends ControllerBase {
 
 
   /**
-   * Retrieves all regions for the given search id.
+   * Retrieves all locations for the given search id.
    *
    * @param Request $request A GET request that contains the searchId parameter
    * @return JSONReponse
    */
-  public static function getRegions(Request $request): JSONResponse {
+  public static function getLocations(Request $request): JSONResponse {
     $connection = PDOBuilder::getConnection('icrp_database');
-    $parameters = self::array_merge_intersection($request->query->all(), ['searchId' => 0]);
-    $data = MappingTool::getRegions($connection, $parameters);
+    $parameters = self::array_merge_intersection(
+      $request->query->all(),
+      [
+        'searchId' => 0,
+        'type' => 'region',
+        'region' => 1,
+        'country' => '',
+        'city' => '',
+      ]
+    );
+    $data = MappingTool::getLocations($connection, $parameters);
     return self::createResponse($data);
   }
 

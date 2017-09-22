@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\db_map\Controller;
+
 use Drupal;
 use PDO;
 use PDOStatement;
@@ -44,7 +45,7 @@ class PDOBuilder {
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
 //      PDO::ATTR_ERRMODE            => PDO::ERRMODE_SILENT,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE => TRUE,        
+        PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE => TRUE,
       ]
     );
   }
@@ -62,7 +63,7 @@ class PDOBuilder {
     $stmt->execute();
     return $stmt;
   }
-  
+
 
   public static function createPreparedStatement(
     PDO $pdo,

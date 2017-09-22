@@ -32,6 +32,13 @@ export interface MapLevelInterface {
   city?: string;
 }
 
+export interface LocationApiInterface {
+  searchId: number;
+  type?: 'region' | 'country' | 'city';
+  region?: string;
+  country?: string;
+}
+
 export const BASE_URL = `${window.location.protocol}//${window.location.hostname}`;
 
 export const request = async (url: string, params: object) => {
@@ -39,8 +46,8 @@ export const request = async (url: string, params: object) => {
   return await response.json();
 }
 
-export const getRegions = async (searchId: number): Promise<RegionInterface> =>
-  await request(`${BASE_URL}/map/getRegions/?${stringify({searchId})}`, {
+export const getLocations = async (params: LocationApiInterface): Promise<RegionInterface> =>
+  await request(`${BASE_URL}/map/getLocations/?${stringify(params)}`, {
     credentials: 'same-origin'
   });
 

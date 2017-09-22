@@ -2,8 +2,6 @@
 
 namespace Drupal\db_map\Controller;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-
 use Box\Spout\Writer\WriterFactory;
 use Box\Spout\Common\Type;
 use Box\Spout\Writer\Style\StyleBuilder;
