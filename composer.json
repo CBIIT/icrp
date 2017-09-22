@@ -144,7 +144,7 @@
         ],
         "post-update-cmd": [
             "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
-             "cd modules/faq; git apply ./modules/custom/faq/missing_argument_4_in_2743715-6.patch; echo \"FAQ Patch (missing_argument_4) Installed.\""
+             "cd modules/faq; git apply ../custom/faq/missing_argument_4_in_2743715-6.patch; echo \"FAQ Patch (missing_argument_4) Installed.\""
         ]
     },
     "extra": {
