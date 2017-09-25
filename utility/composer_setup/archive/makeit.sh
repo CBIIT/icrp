@@ -13,7 +13,6 @@ then
   exit
 fi
 echo -n "START TIME: "
-timestamp
 DOC_ROOT=$1 
 #HOME="/home/centos/icrp"
 HOME='/github/old3.drupal8.dev'
