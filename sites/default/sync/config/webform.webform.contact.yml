@@ -29,6 +29,7 @@ settings:
   form_prepopulate_source_entity: false
   form_prepopulate_source_entity_required: false
   form_prepopulate_source_entity_type: ''
+  form_reset: false
   form_disable_autocomplete: false
   form_novalidate: false
   form_unsaved: false
@@ -50,6 +51,7 @@ settings:
   preview_message: ''
   preview_attributes: {  }
   preview_excluded_elements: {  }
+  preview_exclude_empty: true
   draft: none
   draft_multiple: false
   draft_auto_save: false
@@ -80,41 +82,49 @@ access:
       - anonymous
       - authenticated
     users: {  }
+    permissions: {  }
   view_any:
     roles:
       - administrator
       - manager
     users: {  }
+    permissions: {  }
   update_any:
     roles:
       - administrator
       - manager
     users: {  }
+    permissions: {  }
   delete_any:
     roles:
       - administrator
       - manager
     users: {  }
+    permissions: {  }
   purge_any:
     roles:
       - administrator
       - manager
     users: {  }
+    permissions: {  }
   view_own:
     roles:
       - administrator
       - manager
     users: {  }
+    permissions: {  }
   update_own:
     roles:
       - administrator
       - manager
     users: {  }
+    permissions: {  }
   delete_own:
     roles:
       - administrator
       - manager
     users: {  }
+    permissions: {  }
 handlers:
   email_confirmation:
     id: email
@@ -134,7 +144,7 @@ handlers:
       from_mail: '[site:mail]'
       from_options: {  }
       from_name: 'International Cancer Research Partnership '
-      subject: '[webform_submission:values:type_of_issue:value]'
+      subject: '[webform_submission:values:type_of_issue:raw]'
       body: 'Thank you for contacting ICRP. We will respond to your query as soon as possible and you should receive a response within 3 days.'
       excluded_elements:
         type_of_issue: type_of_issue
@@ -144,6 +154,7 @@ handlers:
         email: email
         phone_number: phone_number
       ignore_access: false
+      exclude_empty: true
       html: true
       attachments: false
       debug: false
@@ -166,11 +177,12 @@ handlers:
       bcc_options: {  }
       from_mail: '[webform-submission:values:email:raw]'
       from_options: {  }
-      from_name: '[webform-submission:values:name:value]'
-      subject: '[webform_submission:values:type_of_issue:value]'
+      from_name: '[webform-submission:values:name:raw]'
+      subject: '[webform_submission:values:type_of_issue:raw]'
       body: default
       excluded_elements: {  }
       ignore_access: false
+      exclude_empty: true
       html: true
       attachments: false
       debug: false

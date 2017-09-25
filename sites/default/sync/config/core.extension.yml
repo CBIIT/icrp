@@ -77,7 +77,6 @@ module:
   page_cache: 0
   page_manager: 0
   page_manager_ui: 0
-  panelizer: 0
   panels: 0
   panels_ipe: 0
   partnership_import: 0
@@ -93,7 +92,6 @@ module:
   security_review: 0
   serialization: 0
   shortcut: 0
-  snippet_manager: 0
   syslog: 0
   system: 0
   taxonomy: 0
