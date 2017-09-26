@@ -141,8 +141,8 @@ class MappingTool {
       $locations = array_map(function($location) use ($query) {
         $columns = $query['columns'];
         return [
-          'label' => $location[$columns['label']],
-          'value' => $location[$columns['value']],
+          'label' => strval($location[$columns['label']]),
+          'value' => strval($location[$columns['value']]),
           'coordinates' => [
             'lat' => floatval($location['Latitude']),
             'lng' => floatval($location['Longitude']),
@@ -157,7 +157,13 @@ class MappingTool {
 
       // sort locations
       usort($locations, function($a, $b) {
-        return $a['value'] - $b['value'];
+        $a = $a['value'];
+        $b = $b['value'];
+
+        if (is_numeric($a) && is_numeric($b))
+          return floatval($a) - floatval($b);
+        else
+          return strcmp(strval($a), strval($b));
       });
 
       return [
@@ -214,7 +220,7 @@ class MappingTool {
       'region' => NULL,
       'country' => NULL,
       'city' => NULL
-  ]): array {
+  ]) {
     try {
       $output = [
         'newSearchId' => [
@@ -236,12 +242,7 @@ class MappingTool {
         $output
       )->fetchAll();
 
-      // extract the values for each output parameter
-      foreach($output as $key => $entry) {
-        $output[$key] = $entry['value'];
-      }
-
-      return $output;
+      return $output['newSearchId']['value'];
     }
 
     catch (PDOException $ex) {

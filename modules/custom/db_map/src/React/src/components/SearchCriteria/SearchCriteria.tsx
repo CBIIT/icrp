@@ -4,7 +4,6 @@ import './SearchCriteria.css';
 export interface SearchCriteriaProps {
   searchCriteria: {
     summary: string,
-    parsed: {},
     table: (string|number)[][],
   };
 

@@ -27,7 +27,7 @@ export const addDataMarker = (data: number, scale: number, location: {lat: numbe
   new google.maps.Marker({
     map: map,
     position: location,
-    zIndex: 1,
+    zIndex: 2,
     label: {
       color: 'white',
       text: data.toLocaleString(),
@@ -42,7 +42,7 @@ export const addDataMarker = (data: number, scale: number, location: {lat: numbe
     icon: {
       path: google.maps.SymbolPath.CIRCLE,
       scale: scale,
-      fillOpacity: 0.75,
+      fillOpacity: 0.6,
       strokeOpacity: 0.4,
       fillColor: '#2574A9',
       strokeColor: '#52B3D9',
