@@ -1,7 +1,7 @@
 
 
 
-export const addLabel = (label: string, location: {lat: number, lng: number}, map: google.maps.Map) =>
+export const addLabel = (label: string, location: google.maps.LatLngLiteral, map: google.maps.Map) =>
   new google.maps.Marker({
     map: map,
     position: location,
@@ -21,16 +21,16 @@ export const addLabel = (label: string, location: {lat: number, lng: number}, ma
       path: 'M 0 0',
       strokeOpacity: 0,
     },
-  })
+  });
 
-export const addDataMarker = (data: number, scale: number, location: {lat: number, lng: number}, map: google.maps.Map) =>
+export const addDataMarker = (label: number, scale: number, location: google.maps.LatLngLiteral, map: google.maps.Map) =>
   new google.maps.Marker({
     map: map,
     position: location,
     zIndex: 2,
     label: {
       color: 'white',
-      text: data.toLocaleString(),
+      text: label.toLocaleString(),
       fontSize: '13px',
       fontWeight: '500',
       fontFamily: `
@@ -48,4 +48,4 @@ export const addDataMarker = (data: number, scale: number, location: {lat: numbe
       strokeColor: '#52B3D9',
       strokeWeight: 4,
     },
-  })
+  });
