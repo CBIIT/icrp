@@ -612,24 +612,6 @@ class DataLoadController {
     }
 
 
-    private static function addMissingInstitutions() {
-        $pdo = self::getConnection();
-        $pdo->exec('
-            DROP TABLE IF EXISTS tmp_LoadInstitutions;
-            SELECT InternalId as Id,
-              InstitutionICRP as Name,
-              City,
-              State,
-              Country,
-              PostalZipCode as Postal,
-              Longitute as Longitude,
-              Latitute as Latitude,
-              GRID
-              INTO tmp_LoadInstitutions FROM UploadWorkbook;
-            EXEC AddInstitutions;
-        ');
-    }
-
     public static function importProjects(Request $request) {
 
         $params = json_decode($request->getContent(), true);
@@ -652,7 +634,6 @@ class DataLoadController {
         ');
 
         try {
-            self::addMissingInstitutions();
 
             $stmt->execute([
                 'partnerCode' => $partnerCode,
@@ -681,7 +662,18 @@ class DataLoadController {
                 Response::HTTP_BAD_REQUEST,
                 array('content-type' => 'text/html')
             );
-            $response->setContent($e->getMessage());
+
+            // Remove the text prepended to the user-defined error message by SQL Server
+            $messageArray = explode("[SQL Server]", $e->getMessage(), 2);
+            $message = "";
+            if (count($messageArray == 2)) {
+                $message = $messageArray[1];
+            } else {
+                $message = $messageArray[0];
+            }
+            $message .= ". The import was aborted.";
+
+            $response->setContent($message);
             return self::addCorsHeaders($response);
         }
     }

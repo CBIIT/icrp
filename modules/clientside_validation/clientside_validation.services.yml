@@ -1,4 +1,0 @@
-services:
-  plugin.manager.clientside_validation.validators:
-    class: Drupal\clientside_validation\ValidatorManager
-    parent: default_plugin_manager

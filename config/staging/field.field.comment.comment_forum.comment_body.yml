@@ -1,0 +1,23 @@
+uuid: cd9da09a-4b7f-4907-b287-110b48690276
+langcode: en
+status: true
+dependencies:
+  config:
+    - comment.type.comment_forum
+    - field.storage.comment.comment_body
+  module:
+    - text
+_core:
+  default_config_hash: WuaSPL5QS8oJbnd1mPGSSJ-Pt7arUBnbMHXGNm1BjS8
+id: comment.comment_forum.comment_body
+field_name: comment_body
+entity_type: comment
+bundle: comment_forum
+label: Message
+description: 'Enter a reply message to post to the thread.'
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text_long

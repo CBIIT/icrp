@@ -27,6 +27,7 @@ CREATE PROCEDURE [dbo].[GetProjectsByCriteria]
 	@cityList varchar(1000) = NULL, 
 	@stateList varchar(1000) = NULL,
 	@countryList varchar(1000) = NULL,
+	@regionList varchar(100) = NULL,
 	@FundingOrgTypeList varchar(50) = NULL,
 	@fundingOrgList varchar(1000) = NULL, 
 	@cancerTypeList varchar(1000) = NULL, 
@@ -88,8 +89,18 @@ AS
 		WHERE ProjectID NOT IN 			
 			(SELECT ProjectID FROM #Proj WHERE [Country] IN (SELECT * FROM dbo.ToStrTable(@countryList)))				
 	END
+	
+	-------------------------------------------------------------------------
+	-- Exclude the projects which funding PI Region do NOT meet the criteria
+	-------------------------------------------------------------------------
+	IF @regionList  IS NOT NULL
+	BEGIN
+		DELETE FROM #proj 
+		WHERE RegionID NOT IN 			
+			(SELECT RegionID FROM #Proj WHERE [RegionID] IN (SELECT * FROM dbo.ToIntTable(@regionList)))				
+	END
 
-		-------------------------------------------------------------------------
+	-------------------------------------------------------------------------
 	-- Exclude the projects which funding Org type do NOT meet the criteria
 	-------------------------------------------------------------------------
 	IF @fundingOrgTypeList  IS NOT NULL
@@ -222,8 +233,8 @@ AS
 	FROM #baseProj	
 
 	INSERT INTO SearchCriteria ([termSearchType],[terms],[institution],[piLastName],[piFirstName],[piORCiD],[awardCode],
-		[yearList], [cityList],[stateList],[countryList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [IsChildhood])
-		VALUES ( @termSearchType,@terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode,@yearList,@cityList,@stateList,@countryList,
+		[yearList], [cityList],[stateList],[countryList],[regionList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [IsChildhood])
+		VALUES ( @termSearchType,@terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode,@yearList,@cityList,@stateList,@countryList,@regionList,
 			@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList, @FundingOrgTypeList,	@IsChildhood)
 									 
 	SELECT @searchCriteriaID = SCOPE_IDENTITY()	
@@ -250,7 +261,7 @@ AS
 		CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'ASC' THEN i.Name  END ASC,
 		CASE WHEN @SortCol = 'city ' AND @SortDirection = 'ASC' THEN i.City  END ASC,
 		CASE WHEN @SortCol = 'state ' AND @SortDirection = 'ASC' THEN i.State  END ASC,
-		CASE WHEN @SortCol = 'country' AND @SortDirection = 'ASC' THEN i.Country  END ASC,
+		CASE WHEN @SortCol = 'country' AND @SortDirection = 'ASC' THEN i.Country  END ASC,		
 		CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'ASC' THEN o.Abbreviation  END ASC,
 		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'DESC' THEN f.Title  END DESC,
 		CASE WHEN @SortCol = 'code ' AND @SortDirection = 'DESC' THEN p.AwardCode  END DESC,
@@ -259,7 +270,7 @@ AS
 		CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'DESC' THEN i.Name END DESC,
 		CASE WHEN @SortCol = 'city ' AND @SortDirection = 'DESC' THEN i.City  END DESC,
 		CASE WHEN @SortCol = 'state ' AND @SortDirection = 'DESC' THEN i.State  END DESC,
-		CASE WHEN @SortCol = 'country' AND @SortDirection = 'DESC' THEN i.Country  END DESC,
+		CASE WHEN @SortCol = 'country' AND @SortDirection = 'DESC' THEN i.Country  END DESC,		
 		CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'DESC' THEN o.Abbreviation  END DESC
 	OFFSET ISNULL(@PageSize,50) * (ISNULL(@PageNumber, 1) - 1) ROWS
 	FETCH NEXT 
@@ -787,18 +798,21 @@ IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetPr
 DROP PROCEDURE [dbo].[GetProjectFunding]
 GO 
 
-CREATE PROCEDURE [dbo].[GetProjectFunding]
+CREATE PROCEDURE [dbo].[GetProjectFunding] 
     @ProjectID INT    
 AS  
 
-SELECT pf.ProjectFundingID, pf.title, fi.LastName AS piLastName, fi.FirstName AS piFirstName, fi.ORC_ID,
-		i.Name AS Institution, i.City, i.State, i.Country, pf.Category,
+SELECT pf.ProjectFundingID, pf.title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID, co.Count AS CollabCount,
+		i.Name AS Institution, i.City, i.State, i.Country, r.Name AS Region, pf.Category,
 		pf.ALtAwardCode AS AltAwardCode, o.Abbreviation AS FundingOrganization,	pf.BudgetStartDate, pf.BudgetEndDate
 FROM Project p
 	JOIN ProjectFunding pf ON p.ProjectID = pf.ProjectID
-	JOIN ProjectFundingInvestigator fi ON pf.ProjectFundingID = fi.ProjectFundingID
-	JOIN Institution i ON i.InstitutionID = fi.InstitutionID	
+	JOIN (SELECT ProjectFundingID, InstitutionID, LastName, FirstName, ORC_ID FROM ProjectFundingInvestigator WHERE IsPrivateInvestigator = 1) pi ON pf.ProjectFundingID = pi.ProjectFundingID  -- PI	
+	JOIN Institution i ON i.InstitutionID = pi.InstitutionID	
+	JOIN Country c ON i.Country = c.Abbreviation
+	JOIN lu_Region r ON r.RegionID = c.RegionID
 	JOIN FundingOrg o ON o.FundingOrgID = pf.FundingOrgID
+	LEFT JOIN (SELECT ProjectFundingID, COUNT(*) AS [Count] FROM ProjectFundingInvestigator WHERE IsPrivateInvestigator = 0 GROUP BY ProjectFundingID) co ON pf.ProjectFundingID = co.ProjectFundingID  -- Collaborators
 WHERE p.ProjectID = @ProjectID
 ORDER BY pf.BudgetStartDate DESC, pf.AltAwardCode DESC
 
@@ -871,17 +885,19 @@ IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetPr
 DROP PROCEDURE [dbo].[GetProjectFundingDetail]
 GO 
 
-CREATE PROCEDURE [dbo].[GetProjectFundingDetail]
+CREATE PROCEDURE [dbo].[GetProjectFundingDetail] 
     @ProjectFundingID INT    
 AS   
  
 SELECT f.Title, f.AltAwardCode, f.Source_ID,  f.BudgetStartDate,  f.BudgetEndDate, o.Name AS FundingOrg, f.Amount, o.currency, 
 	f.MechanismCode, f.MechanismTitle, ISNULL(f.MechanismCode, '') + ' - ' + ISNULL(f.MechanismTitle, '') AS FundingMechanism, 
-	f.FundingContact, pi.LastName + ', ' + pi.FirstName AS piName, pi.ORC_ID, i.Name AS Institution, i.City, i.State, i.Country, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract
+	f.FundingContact, pi.LastName + ', ' + pi.FirstName AS piName, pi.ORC_ID, pi.IsPrivateInvestigator, i.Name AS Institution, i.City, i.State, i.Country, i.Latitude, i.Longitude, r.Name AS Region, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract
 FROM ProjectFunding f	
 	JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
 	JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID
 	JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+	JOIN Country c ON i.Country = c.Abbreviation
+	JOIN lu_Region r ON r.RegionID = c.RegionID
 	JOIN ProjectAbstract a ON f.ProjectAbstractID = a.ProjectAbstractID
 WHERE f.ProjectFundingID = @ProjectFundingID
 
@@ -907,7 +923,7 @@ AS
 
 DECLARE @filterList varchar(2000)
 
-SELECT * INTO #criteria FROM SearchCriteria WHERE SearchCriteriaID =@SearchID
+SELECT * INTO #criteria FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 
 DECLARE @SearchCriteria TABLE
 (
@@ -917,28 +933,28 @@ DECLARE @SearchCriteria TABLE
 
 
 IF EXISTS (SELECT * FROM #criteria WHERE TermSearchType IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'TermSearchType:', TermSearchType FROM #criteria
+	INSERT INTO @SearchCriteria SELECT 'Term Search Type:', TermSearchType FROM #criteria
 
 IF EXISTS (SELECT * FROM #criteria WHERE Terms IS NOT NULL)
 	INSERT INTO @SearchCriteria SELECT 'Terms:', Terms FROM #criteria
 
 IF EXISTS (SELECT * FROM #criteria WHERE ProjectTypeList IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'ProjectType:', ProjectTypeList FROM #criteria
+	INSERT INTO @SearchCriteria SELECT 'Project Type:', ProjectTypeList FROM #criteria
 
 IF EXISTS (SELECT * FROM #criteria WHERE AwardCode IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'AwardCode:', AwardCode FROM #criteria
+	INSERT INTO @SearchCriteria SELECT 'Award Code:', AwardCode FROM #criteria
 
 IF EXISTS (SELECT * FROM #criteria WHERE Institution IS NOT NULL)
 	INSERT INTO @SearchCriteria SELECT 'Institution:', Institution FROM #criteria
 
 IF EXISTS (SELECT * FROM #criteria WHERE piLastName IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'piLastName:', piLastName FROM #criteria
+	INSERT INTO @SearchCriteria SELECT 'PI LastName:', piLastName FROM #criteria
 
 IF EXISTS (SELECT * FROM #criteria WHERE piFirstName IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'piFirstName:', piFirstName FROM #criteria
+	INSERT INTO @SearchCriteria SELECT 'PI FirstName:', piFirstName FROM #criteria
 
 IF EXISTS (SELECT * FROM #criteria WHERE piORCiD IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'piORCiD', piORCiD FROM #criteria
+	INSERT INTO @SearchCriteria SELECT 'PI ORCiD', piORCiD FROM #criteria
 
 IF EXISTS (SELECT * FROM #criteria WHERE YearList IS NOT NULL)
 	INSERT INTO @SearchCriteria SELECT 'Year:', YearList FROM #criteria
@@ -952,14 +968,21 @@ IF EXISTS (SELECT * FROM #criteria WHERE StateList IS NOT NULL)
 IF EXISTS (SELECT * FROM #criteria WHERE CountryList IS NOT NULL)
 	INSERT INTO @SearchCriteria SELECT 'Country:', CountryList FROM #criteria
 
-IF EXISTS (SELECT * FROM #criteria WHERE FundingOrgTypeList IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'FundingOrgType:', FundingOrgTypeList FROM #criteria	
+SELECT @filterList= RegionList FROM #criteria
+IF @filterList IS NOT NULL
+BEGIN
+	INSERT INTO @SearchCriteria VALUES ('Region:', '')
+	INSERT INTO @SearchCriteria SELECT '', Name FROM lu_Region WHERE RegionID IN (SELECT * FROM dbo.ToIntTable(@filterList))
+END
 
---select * from #criteria
+IF EXISTS (SELECT * FROM #criteria WHERE FundingOrgTypeList IS NOT NULL)
+	INSERT INTO @SearchCriteria SELECT 'Funding Org Type:', FundingOrgTypeList FROM #criteria	
+
+
 SELECT @filterList= FundingOrgList FROM #criteria
 IF @filterList IS NOT NULL
 BEGIN
-	INSERT INTO @SearchCriteria VALUES ('FundingOrg:', '')
+	INSERT INTO @SearchCriteria VALUES ('Funding Organization:', '')
 	INSERT INTO @SearchCriteria SELECT '', SponsorCode + ' - ' + Name FROM FundingOrg WHERE FundingOrgID IN (SELECT * FROM dbo.ToIntTable(@filterList))
 END
 
@@ -969,7 +992,7 @@ IF EXISTS (SELECT * FROM #criteria WHERE IsChildhood IS NOT NULL)
 SELECT @filterList= CancerTypeList FROM #criteria
 IF @filterList IS NOT NULL
 BEGIN
-	INSERT INTO @SearchCriteria VALUES ('CancerType:', '')
+	INSERT INTO @SearchCriteria VALUES ('Cancer Type:', '')
 	INSERT INTO @SearchCriteria SELECT '', Name FROM CancerType WHERE CancerTypeID IN (SELECT * FROM dbo.ToIntTable(@filterList))
 END
 
@@ -981,6 +1004,7 @@ BEGIN
 END
 
 	select * from @SearchCriteria
+
 
 GO
 
@@ -1021,7 +1045,7 @@ AS
 		p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
 		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency,
 		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.SponsorCode, o.Name AS FundingOrg, o.Type AS FundingOrgType, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, 
-		f.FundingContact, pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
+		f.FundingContact, pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, l.Name AS Region, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
 	INTO #temp
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
 		LEFT JOIN Project p ON r.ProjectID = p.ProjectID		
@@ -1030,6 +1054,8 @@ AS
 		LEFT JOIN FundingDivision d ON d.FundingDivisionID = f.FundingDivisionID
 		LEFT JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID		
 		LEFT JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+		LEFT JOIN Country c ON c.Abbreviation = i.Country
+		LEFT JOIN lu_Region l ON c.RegionID = l.RegionID
 		LEFT JOIN ProjectAbstract a ON a.ProjectAbstractID = f.ProjectAbstractID	
 	
 	-- Special handling for AwardType	 - convert multiple AwardType to a comma delimited string
@@ -1064,7 +1090,7 @@ AS
 		t.AwardCode, t.Source_ID, t.AltAwardCode, t.FundingCategory,
 		t.IsChildhood, t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate,  t.BudgetEndDate, t.AwardAmount, t.FundingIndicator, t.Currency, 
 		t.FundingMechanism, t.FundingMechanismCode, t.SponsorCode, t.FundingOrg, t.FundingOrgType, t.FundingDiv, t.FundingDivAbbr, t.FundingContact, 
-		t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.icrpURL'
+		t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.Region, t.icrpURL'
 
 	IF @IncludeAbstract = 1
 		SET @SQLQuery = @SQLQuery + ', t.TechAbstract'
@@ -1306,7 +1332,7 @@ AS
 		p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
 		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency, 
 		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.SponsorCode, o.Name AS FundingOrg, o.Type AS FundingOrgType, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, '' AS FundingContact, 
-		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
+		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, l.Name AS Region, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
 	INTO #temp
 	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
 		LEFT JOIN Project p ON r.ProjectID = p.ProjectID		
@@ -1315,6 +1341,8 @@ AS
 		LEFT JOIN FundingDivision d ON d.FundingDivisionID = f.FundingDivisionID
 		LEFT JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID		
 		LEFT JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+		LEFT JOIN Country c ON c.Abbreviation = i.Country
+		LEFT JOIN lu_Region l ON c.RegionID = l.RegionID
 		LEFT JOIN ProjectAbstract a ON a.ProjectAbstractID = f.ProjectAbstractID	
 
 	---------------------------------------------------------------------------------------------------		
@@ -1374,7 +1402,7 @@ AS
 	SET   @SQLQuery = N'SELECT * '+
 		'FROM (SELECT t.ProjectID AS ICRPProjectID, t.ProjectFundingID AS ICRPProjectFundingID, t.AwardCode, t.AwardTitle, t.AwardType, t.Source_ID, t.AltAwardCode, FundingCategory, IsChildhood,
 				t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate, t.BudgetEndDate, t.AwardAmount, t.FundingIndicator, t.Currency, t.FundingMechanism, t.FundingMechanismCode, SponsorCode, t.FundingOrg, FundingOrgType,
-				t.FundingDiv, t.FundingDivAbbr, t.FundingContact, t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.icrpURL'
+				t.FundingDiv, t.FundingDivAbbr, t.FundingContact, t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.Region, t.icrpURL'
 	IF @IncludeAbstract = 1
 		SET @SQLQuery = @SQLQuery + ', t.TechAbstract'
 
@@ -1571,9 +1599,10 @@ CREATE  PROCEDURE [dbo].[GetCountryCodeLookup]
     
 AS   
 
-SELECT Abbreviation AS Code, Name AS Country
-FROM Country
-ORDER BY Code
+SELECT c.Abbreviation AS Code, c.Name AS Country, r.RegionID, r.Name AS Region
+FROM Country c
+JOIN lu_Region r ON c.RegionID = r.RegionID
+ORDER BY c.Abbreviation
 
 GO
 
@@ -1621,10 +1650,12 @@ CREATE  PROCEDURE [dbo].[GetInstitutionLookup]
     
 AS   
 
-SELECT Name, City, State, Country, Postal, Longitude, Latitude, GRID
-FROM Institution
-WHERE Name <> 'Missing'
-ORDER BY Name
+SELECT i.Name, i.City, i.State, i.Postal, i.Country, l.Name AS Region, i.Longitude, i.Latitude, i.GRID
+FROM Institution i
+JOIN Country c ON i.Country = c.Abbreviation
+JOIN lu_Region l ON c.RegionID = l.RegionID
+WHERE i.Name <> 'Missing'
+ORDER BY i.Name
 
 GO
 
@@ -1733,18 +1764,20 @@ BEGIN TRY
 		   RAISERROR ('Table tmp_LoadInstitutions not found', 16, 1)
 	END
 
-	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] INTO #exist 
-	FROM tmp_LoadInstitutions u JOIN Institution i ON u.Name = i.Name AND u.City = i.City	
+	SELECT Name, City, MAX([State]) AS [State], MAX([Country]) AS [Country], MAX([Postal]) AS [Postal], MAX([Longitude]) AS [Longitude], MAX([Latitude]) AS [Latitude], MAX([GRID]) AS Grid INTO #unique FROM tmp_LoadInstitutions GROUP BY Name, City
+
+	SELECT DISTINCT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] INTO #exist 
+	FROM #unique u JOIN Institution i ON u.Name = i.Name AND u.City = i.City	
 
 	-- Insert into icrp_data: DO NOT insert the institutions which already exist in the Institutions lookup 
 	INSERT INTO icrp_data.dbo.Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
-	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM tmp_LoadInstitutions i
+	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM #unique i
 		LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.City
 	WHERE (e.Name IS NULL)
 
 	-- Insert into icrp_dataload: Only insert the institutions which not exist in the Institutions lookup 		
 	INSERT INTO icrp_dataload.dbo.Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
-	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM tmp_LoadInstitutions i
+	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM #unique i		
 		LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.City
 	WHERE (e.Name IS NULL)
 
@@ -3005,9 +3038,9 @@ IF object_id('tmp_pcso') is null OR object_id('tmp_pcsoRel') is null
 BEGIN
 
 	IF object_id('tmp_pcso') is NOT null
-		drop table tmp_psite
+		drop table tmp_pcso
 	IF object_id('tmp_pcsoRel') is NOT null
-		drop table tmp_psiterel	
+		drop table tmp_pcsoRel	
 	
 	-----------------------------------
 	-- Import ProjectCSO
@@ -3028,7 +3061,7 @@ BEGIN
 		Rel Decimal (18, 2)
 	)
 
-	DECLARE @AltAwardCode as INT
+	DECLARE @AltAwardCode as VARCHAR(50)
 	DECLARE @csoList as NVARCHAR(50)
 	DECLARE @csoRelList as NVARCHAR(50)
  
@@ -3391,7 +3424,7 @@ GO
 
 CREATE PROCEDURE [dbo].[DataUpload_SyncProd]    
 
-@DataUploadStatusID_Stage INT
+@DataUploadID INT
 
 AS
 
@@ -3400,19 +3433,24 @@ SET NOCOUNT ON
 -------------------------------------------------
 -- Retrieve DataUploadStatusID and Seed Info
 ------------------------------------------------
+declare @DataUploadStatusID_Stage INT
 declare @DataUploadStatusID_Prod INT
 declare @PartnerCode VARCHAR(25)
 declare @Type VARCHAR(25)
+
+SET @DataUploadStatusID_Stage = @DataUploadID
 
 BEGIN TRANSACTION;
 
 BEGIN TRY 
 
-	IF ((SELECT COUNT(*) FROM icrp_data.dbo.DataUploadStatus p
-		JOIN icrp_dataload.dbo.DataUploadStatus s ON p.PartnerCode = s.PartnerCode AND p.FundingYear = s.FundingYear AND p.Type = s.Type WHERE s.DataUploadStatusID = @DataUploadStatusID_Stage) = 1)
+	IF ((SELECT COUNT(*) FROM (SELECT * FROM icrp_data.dbo.DataUploadStatus WHERE Status = 'Staging') p
+		JOIN (SELECT * FROM icrp_dataload.dbo.DataUploadStatus WHERE Status = 'Staging') s ON p.PartnerCode = s.PartnerCode AND p.FundingYear = s.FundingYear AND p.Type = s.Type WHERE s.DataUploadStatusID = @DataUploadStatusID_Stage) = 1)
 	BEGIN
-		SELECT @DataUploadStatusID_Prod = p.DataUploadStatusID, @Type = p.[Type], @PartnerCode=p.PartnerCode FROM icrp_data.dbo.DataUploadStatus p
-			JOIN icrp_dataload.dbo.DataUploadStatus s ON p.PartnerCode = s.PartnerCode AND p.FundingYear = s.FundingYear AND p.Type = s.Type
+		SELECT @DataUploadStatusID_Prod = p.DataUploadStatusID, @Type = p.[Type], @PartnerCode=p.PartnerCode 
+
+		FROM (SELECT * FROM icrp_data.dbo.DataUploadStatus WHERE Status = 'Staging') p
+			JOIN (SELECT * FROM icrp_dataload.dbo.DataUploadStatus WHERE Status = 'Staging') s ON p.PartnerCode = s.PartnerCode AND p.FundingYear = s.FundingYear AND p.Type = s.Type
 		WHERE s.DataUploadStatusID = @DataUploadStatusID_Stage
 	END
 	ELSE
@@ -3420,23 +3458,13 @@ BEGIN TRY
       RAISERROR ('Failed to retrieve Prod DataUploadStatusID', 16, 1)
 	END
 	
-	PRINT 'icrp_data DataUploadStatusID = ' + CAST(@DataUploadStatusID_Prod AS varchar(25))
-	PRINT 'icrp_dataload DataUploadStatusID = ' + CAST(@DataUploadStatusID_Stage AS varchar(25))
-	PRINT 'PartnerCode = ' + @PartnerCode
-	PRINT 'Type = ' + @Type
 
 	/***********************************************************************************************/
 	-- Import Data
 	/***********************************************************************************************/
-	PRINT '*******************************************************************************'
-	PRINT '***************************** Import Data  ************************************'
-	PRINT '******************************************************************************'
-
 	-----------------------------------
 	-- Import Project
 	-----------------------------------
-	PRINT '-- Import Project'
-
 	INSERT INTO icrp_data.dbo.project ([IsChildhood], [AwardCode], [ProjectStartDate], [ProjectEndDate], [DataUploadStatusID], [CreatedDate], [UpdatedDate])
 	SELECT [IsChildhood],[AwardCode],[ProjectStartDate],[ProjectEndDate], @DataUploadStatusID_Prod, getdate(),getdate()
 	FROM icrp_dataload.dbo.Project WHERE [DataUploadStatusID] = @DataUploadStatusID_Stage	
@@ -3444,13 +3472,9 @@ BEGIN TRY
 	-----------------------------------
 	-- Import Project Abstract
 	-----------------------------------
-	PRINT '-- Import Project Abstract'
-	
 	DECLARE @seed INT
 	SELECT @seed=MAX(projectAbstractID)+1 FROM projectAbstract 
-	PRINT 'ProjectAbstract Seed = ' + CAST(@seed AS varchar(25))
-
-
+	
 	CREATE TABLE UploadAbstractTemp (	
 		ID INT NOT NULL IDENTITY(1,1),
 		ProjectFundindID INT,	
@@ -3472,14 +3496,9 @@ BEGIN TRY
 
 	SET IDENTITY_INSERT icrp_data.dbo.projectAbstract OFF;  -- SET IDENTITY_INSERT to ON. 
 
-	--select count(*) from projectAbstract --136948, 145092
-	--print 145092 - 136948
-
 	-----------------------------------
 	-- Import ProjectFunding
 	-----------------------------------
-	PRINT '-- Import ProjectFunding'	
-
 	INSERT INTO icrp_data.dbo.projectfunding ([Title],[ProjectID],[FundingOrgID],	[FundingDivisionID],[ProjectAbstractID],[DataUploadStatusID],[Category],[AltAwardCode],[Source_ID],
 		[MechanismCode],[MechanismTitle],[FundingContact],[IsAnnualized],[Amount],[BudgetStartDate],[BudgetEndDate],[CreatedDate],[UpdatedDate])
 	
@@ -3507,8 +3526,6 @@ BEGIN TRY
 	-----------------------------------
 	-- Import ProjectFundingInvestigator
 	-----------------------------------
-	PRINT '-- Import ProjectFundingInvestigator'
-
 	INSERT INTO icrp_data.dbo.ProjectFundingInvestigator
 	SELECT newpf.ProjectFundingID, pi.LastName, pi.FirstName, pi.ORC_ID, pi.OtherResearch_ID, pi.OtherResearch_Type, pi.IsPrivateInvestigator, ISNULL(newi.InstitutionID,1), InstitutionNameSubmitted, getdate(),getdate()
 	FROM icrp_dataload.dbo.ProjectFundingInvestigator pi
@@ -3521,8 +3538,6 @@ BEGIN TRY
 	-----------------------------------
 	-- Import ProjectCSO
 	-----------------------------------
-	PRINT '-- Import ProjectCSO'
-
 	INSERT INTO icrp_data.dbo.ProjectCSO
 	SELECT new.ProjectFundingID, cso.CSOCode, cso.Relevance, cso.RelSource, getdate(),getdate()
 	FROM icrp_dataload.dbo.ProjectCSO cso
@@ -3533,8 +3548,6 @@ BEGIN TRY
 	-----------------------------------
 	-- Import ProjectCancerType
 	-----------------------------------
-	PRINT '-- Import ProjectCancerType'
-
 	INSERT INTO icrp_data.dbo.ProjectCancerType
 	SELECT new.ProjectFundingID, ct.CancerTypeID, ct.Relevance, ct.RelSource, getdate(),getdate(), ct.EnterBy
 	FROM icrp_dataload.dbo.ProjectCancerType ct
@@ -3545,8 +3558,6 @@ BEGIN TRY
 	-----------------------------------
 	-- Import Project_ProjectTye
 	-----------------------------------
-	PRINT '-- Import Project_ProjectTye'
-
 	INSERT INTO icrp_data.dbo.Project_ProjectType
 	SELECT DISTINCT np.ProjectID, pt.ProjectType, getdate(),getdate()
 	FROM icrp_dataload.dbo.Project_ProjectType pt
@@ -3557,8 +3568,6 @@ BEGIN TRY
 	-----------------------------------
 	-- Import ProjectFundingExt
 	-----------------------------------
-	PRINT '-- Import ProjectFundingExt'
-
 	INSERT INTO icrp_data.dbo.ProjectFundingExt
 	SELECT new.ProjectFundingID, ex.CalendarYear, ex.CalendarAmount, getdate(),getdate()
 	FROM icrp_dataload.dbo.ProjectFundingExt ex
@@ -3579,9 +3588,8 @@ BEGIN TRY
 		where f.DataUploadStatusID = @DataUploadStatusID_Prod and o.SponsorCode <> @PartnerCode
 
 	IF EXISTS (select * from #postSponsor)
-	BEGIN
-		PRINT 'Post Import Check - Sponsor Code - Failed'
-		RAISERROR ('Post Import Check - Sponsor Code - Failed', 16, 1)
+	BEGIN		
+		RAISERROR ('Post Prod Sync  Check - Sponsor Code - Failed', 16, 1)
 	END
 
 	-------------------------------------------------------------------------------------------
@@ -3593,9 +3601,8 @@ BEGIN TRY
 		where f.DataUploadStatusID = @DataUploadStatusID_Prod and pi.InstitutionID = 1
 
 	IF EXISTS (select * from #postNotmappedInst)
-	BEGIN
-		PRINT 'Post Import Check - Instititutions Mapping - Failed'
-		RAISERROR ('Post Import Check - Instititutions Mapping - Failed', 16, 1)
+	BEGIN		
+		RAISERROR ('Post Prod Sync  Check - Instititutions Mapping - Failed', 16, 1)
 	END		
 
 	-------------------------------------------------------------------------------------------
@@ -3608,8 +3615,7 @@ BEGIN TRY
 	group by f.projectfundingid,f.AltAwardCode having count(*) > 1
 	
 	IF EXISTS (select * FROM #postdupPI)		
-	BEGIN
-		PRINT 'Post-Checking duplicate PIs ==> Failed'
+	BEGIN		
 		RAISERROR ('Post-Checking duplicate PIs ==> Failed', 16, 1)
 	END	
 	
@@ -3621,8 +3627,7 @@ BEGIN TRY
 	where f.DataUploadStatusID = @DataUploadStatusID_Prod and pi.ProjectFundingID is null
 		
 	IF EXISTS (select * FROM #postMissingPI)	
-	BEGIN
-		PRINT 'Pre-Checking Missing PIs ==> Failed'
+	BEGIN		
 		RAISERROR ('Pre-Checking Missing PIs ==> Failed', 16, 1)
 	END	
 	
@@ -3634,8 +3639,7 @@ BEGIN TRY
 	where f.DataUploadStatusID = @DataUploadStatusID_Prod and pc.ProjectFundingID is null
 	
 	IF EXISTS (select * FROM #postMissingCSO)
-		BEGIN
-		PRINT 'Pre-Checking Missing CSO ==> Failed'
+	BEGIN
 		RAISERROR ('Pre-Checking Missing CSO ==> Failed', 16, 1)
 	END		
 
@@ -3648,18 +3652,11 @@ BEGIN TRY
 
 	
 	IF EXISTS (select * FROM #postMissingCSO)			
-	BEGIN
-		PRINT 'Pre-Checking Missing CancerType ==> Failed'
+	BEGIN		
 		RAISERROR ('Pre-Checking Missing CancerType ==> Failed', 16, 1)
 	END	
 
-
-	-------------------------------------------------------------------------------------------
-	-- Rebuild ProjectSearch   -- 75608 ~ 2.20 mins)
-	--------------------------------------------------------------------------------------------
-	PRINT 'Rebuild [ProjectSearch]'
-
-	-------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------
 -- Rebuild ProjectSearch   -- 75608 ~ 2.20 mins)
 --------------------------------------------------------------------------------------------
 	INSERT INTO ProjectSearch (ProjectID, [Content])
@@ -3669,20 +3666,14 @@ BEGIN TRY
 			JOIN ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
 			WHERE f.DataUploadStatusID = @DataUploadStatusID_Prod
 			GROUP BY f.Title, a.TechAbstract, a.PublicAbstract,  f.FundingContact) ma	
-
-	PRINT 'Total Imported ProjectSearch = ' + CAST(@@RowCount AS varchar(10))
-
+				
 	-------------------------------------------------------------------------------------------
 	-- Insert DataUploadLog 
-	--------------------------------------------------------------------------------------------
-	PRINT 'INSERT DataUploadLog'
-
+	--------------------------------------------------------------------------------------------	
 	DECLARE @DataUploadLogID INT
 
 	SELECT @DataUploadLogID = DataUploadLogID FROM icrp_data.dbo.DataUploadLog WHERE DataUploadStatusID = @DataUploadStatusID_Prod	
-	
-	PRINT '@DataUploadLogID = ' + CAST(@DataUploadLogID AS varchar(10))
-
+		
 	DECLARE @Count INT
 
 	-- Insert Project Count
@@ -3751,34 +3742,257 @@ BEGIN TRY
 	--------------------------------------------------------------------------------------------
 	UPDATE icrp_data.dbo.DataUploadStatus SET Status = 'Completed', [UploadToProdDate] = getdate() WHERE DataUploadStatusID = @DataUploadStatusID_Prod
 	UPDATE icrp_dataload.dbo.DataUploadStatus SET Status = 'Completed', [UploadToProdDate] = getdate()  WHERE DataUploadStatusID = @DataUploadStatusID_Stage
-
-	--SELECT * from icrp_data.dbo.DataUploadStatus WHERE DataUploadStatusID = @DataUploadStatusID_Prod
-	--SELECT * from icrp_dataload.dbo.DataUploadStatus  WHERE DataUploadStatusID = @DataUploadStatusID_Stage	
-	--select * from icrp_dataload.dbo.datauploadlog WHERE DataUploadStatusID = @DataUploadStatusID_Stage
-	--SELECT * from icrp_data.dbo.datauploadlog WHERE DataUploadStatusID = @DataUploadStatusID_Prod
-	
 	
 	-----------------------------------------------------------------
 	-- Drop temp table
 	-----------------------------------------------------------------
 	IF object_id('UploadAbstractTemp') is NOT null
 		drop table UploadAbstractTemp
-
-	PRINT 'Post checing => pass and commit'
+			
 	COMMIT TRANSACTION
 
 END TRY
 
 BEGIN CATCH
-      --IF @@trancount > 0 
-	  BEGIN
-		PRINT 'Error => rollback'
+      --IF @@trancount > 0 	  
 		ROLLBACK TRANSACTION
-	  END
-      
+	        
 	  DECLARE @msg nvarchar(2048) = error_message()  
       RAISERROR (@msg, 16, 1)
 	        
 END CATCH  
 
 GO
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetMapRegionsBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetMapRegionsBySearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetMapRegionsBySearchID]
+GO 
+
+CREATE PROCEDURE [dbo].[GetMapRegionsBySearchID]  
+@SearchID INT,
+@AggregatedProjectCount INT OUTPUT,
+@AggregatedPICount INT OUTPUT,
+@AggregatedCollabCount INT OUTPUT  
+AS   
+
+		DECLARE @funding TABLE
+	(
+		ProjectFundingID INT
+	)
+
+	-- No filters. Return all counts - total related projects = 168423
+	IF @SearchID = 0
+	BEGIN
+		INSERT INTO @funding SELECT ProjectFundingID FROM ProjectFunding 
+	END
+	ELSE  -- filtered results (based on searchID)
+	BEGIN
+		DECLARE @ProjectIDs VARCHAR(max) 	
+		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID					
+
+		INSERT INTO @funding SELECT f.ProjectFundingID 
+		FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
+			JOIN Project p ON r.ProjectID = p.ProjectID
+			JOIN ProjectFunding f ON r.ProjectID = f.ProjectID			
+	END
+
+	SELECT r.RegionID, pf.ProjectFundingID, p.IsPrivateInvestigator INTO #tmp
+		FROM @funding pf
+			JOIN ProjectFundingInvestigator p ON pf.ProjectFundingID = p.ProjectFundingID
+			JOIN Institution i ON p.InstitutionID = i.InstitutionID
+			JOIN Country c ON i.Country = c.Abbreviation	
+			JOIN lu_Region r ON c.RegionID=r.RegionID	
+
+	SELECT RegionID, Count(*) AS Count INTO #proj FROM (SELECT DISTINCT RegionID, ProjectFundingID FROM #tmp) proj GROUP BY RegionID
+	SELECT RegionID, Count(*) AS Count INTO #pi FROM (SELECT RegionID, ProjectFundingID FROM #tmp WHERE IsPrivateInvestigator=1) p GROUP BY RegionID
+	SELECT RegionID, Count(*) AS Count INTO #collab FROM (SELECT RegionID, ProjectFundingID FROM #tmp WHERE IsPrivateInvestigator=0) collab GROUP BY RegionID
+
+	-- Return RelatedProject Count, PI Count and collaborator Count by region
+	SELECT r.RegionID, r.Name AS Region, ISNULL(p.Count, 0) AS TotalRelatedProjectCount, ISNULL(pi.Count,0) AS TotalPICount, ISNULL(c.Count, 0) AS TotalCollaboratorCount, r.Latitude, r.Longitude
+	FROM #proj p
+		LEFT JOIN #pi  pi ON p.RegionID = pi.RegionID
+		LEFT JOIN #collab c ON c.RegionID = pi.RegionID
+		LEFT JOIN lu_Region r ON p.RegionID = r.RegionID
+
+	SELECT @AggregatedProjectCount= Count(*) FROM (SELECT DISTINCT ProjectFundingID FROM #tmp) proj
+	SELECT @AggregatedPICount=SUM(Count) FROM #pi	
+	SELECT @AggregatedCollabCount=SUM(Count) FROM #collab		
+	
+GO
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetMapCountriesBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetMapCountriesBySearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetMapCountriesBySearchID]
+GO 
+
+CREATE PROCEDURE [dbo].[GetMapCountriesBySearchID]  
+@SearchID INT,
+@RegionID INT,
+@AggregatedProjectCount INT OUTPUT,
+@AggregatedPICount INT OUTPUT,
+@AggregatedCollabCount INT OUTPUT  
+AS   
+
+	DECLARE @funding TABLE
+	(
+		ProjectFundingID INT
+	)
+
+	-- No filters. Return all counts - total related projects = 168423
+	IF @SearchID = 0
+	BEGIN
+		INSERT INTO @funding SELECT ProjectFundingID FROM ProjectFunding 
+	END
+	ELSE  -- filtered results (based on searchID)
+	BEGIN
+		DECLARE @ProjectIDs VARCHAR(max) 	
+		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID					
+
+		INSERT INTO @funding SELECT f.ProjectFundingID 
+		FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
+			JOIN Project p ON r.ProjectID = p.ProjectID
+			JOIN ProjectFunding f ON r.ProjectID = f.ProjectID			
+	END
+
+	SELECT c.Abbreviation AS Country, pf.ProjectFundingID, p.IsPrivateInvestigator INTO #tmp
+		FROM @funding pf
+			JOIN ProjectFundingInvestigator p ON pf.ProjectFundingID = p.ProjectFundingID
+			JOIN Institution i ON p.InstitutionID = i.InstitutionID
+			JOIN Country c ON i.Country = c.Abbreviation			
+		WHERE c.RegionID = @RegionID
+
+	SELECT Country, Count(*) AS Count INTO #proj FROM (SELECT DISTINCT Country, ProjectFundingID FROM #tmp) proj GROUP BY Country
+	SELECT Country, Count(*) AS Count INTO #pi FROM (SELECT Country, ProjectFundingID FROM #tmp WHERE IsPrivateInvestigator=1) p GROUP BY Country
+	SELECT Country, Count(*) AS Count INTO #collab FROM (SELECT Country, ProjectFundingID FROM #tmp WHERE IsPrivateInvestigator=0) collab GROUP BY Country
+
+	-- Return RelatedProject Count, PI Count and collaborator Count by region
+	SELECT p.Country, ISNULL(p.Count, 0) AS TotalRelatedProjectCount, ISNULL(pi.Count,0) AS TotalPICount, ISNULL(c.Count, 0) AS TotalCollaboratorCount
+	FROM #proj p
+		LEFT JOIN #pi  pi ON p.Country = pi.Country
+		LEFT JOIN #collab c ON c.Country = pi.Country		
+
+	SELECT @AggregatedProjectCount= Count(*) FROM (SELECT DISTINCT ProjectFundingID FROM #tmp) proj
+	SELECT @AggregatedPICount=SUM(Count) FROM #pi	
+	SELECT @AggregatedCollabCount=SUM(Count) FROM #collab		
+	
+GO
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetProjectsFromMapBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectsFromMapBySearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetProjectsFromMapBySearchID]
+GO 
+
+CREATE PROCEDURE [dbo].[GetProjectsFromMapBySearchID]  
+@SearchID INT,
+@RegionID INT = NULL,
+@Country VARCHAR(3) = NULL,
+@City VARCHAR(50) = NULL,
+@searchCriteriaID INT OUTPUT,  -- return the searchID	
+@ResultCount INT OUTPUT  -- return the searchID		
+AS   
+
+	DECLARE @project TABLE
+	(
+		ProjectID INT
+
+	)
+		
+	IF @SearchID = 0  -- No filters. Return all projects 
+	BEGIN
+		INSERT INTO @project SELECT ProjectID FROM Project 
+	END
+	ELSE  -- filtered projects (based on searchID)
+	BEGIN
+		DECLARE @ProjectIDs VARCHAR(max) 	
+		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID					
+		
+		INSERT INTO @project SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+	END
+
+	-- Further drill down - Filter on Region, Country or City
+	SELECT p.ProjectID, pf.BudgetEndDate INTO #Proj
+		FROM @project p
+			JOIN ProjectFunding pf ON pf.ProjectFundingID = p.ProjectID
+			JOIN ProjectFundingInvestigator pi ON pf.ProjectFundingID = pi.ProjectFundingID
+			JOIN Institution i ON pi.InstitutionID = i.InstitutionID
+			JOIN Country c ON i.Country = c.Abbreviation			
+		WHERE (@RegionID IS NULL OR @RegionID = c.RegionID) AND (@Country IS NULL OR @Country = i.Country) AND (@City IS NULL OR @City = i.City)
+
+	
+----------------------------------
+	-- Save search criteria
+	----------------------------------	
+	DECLARE @TotalRelatedProjectCount INT
+	DECLARE @LastBudgetYear INT
+
+	SELECT @TotalRelatedProjectCount=COUNT(*) FROM #Proj
+
+	SELECT DISTINCT ProjectID INTO #baseProj FROM #proj
+	
+	DECLARE @ProjectIDList VARCHAR(max) = '' 	
+	SELECT @ResultCount=COUNT(*) FROM #baseProj	
+	SELECT @LastBudgetYear=DATEPART(year, MAX(BudgetEndDate)) FROM #proj
+
+	SELECT @ProjectIDList = @ProjectIDList + 
+           ISNULL(CASE WHEN LEN(@ProjectIDList) = 0 THEN '' ELSE ',' END + CONVERT( VarChar(20), ProjectID), '')
+	FROM #baseProj	
+
+	IF @SearchID=0
+	BEGIN
+	INSERT INTO SearchCriteria ([cityList],[countryList],[RegionList])
+		SELECT @City, @Country,@RegionID		
+	END
+	ELSE
+	BEGIN
+	INSERT INTO SearchCriteria ([termSearchType],[terms],[institution],[piLastName],[piFirstName],[piORCiD],[awardCode],
+		[yearList], [cityList],[stateList],[countryList],[RegionList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [IsChildhood])
+		SELECT [termSearchType],[terms],[institution],[piLastName],[piFirstName],[piORCiD],[awardCode],
+			[yearList], @City,[stateList],@Country,@RegionID, [fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [IsChildhood]
+		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
+	END									 
+	SELECT @searchCriteriaID = SCOPE_IDENTITY()	
+		
+	INSERT INTO SearchResult (SearchCriteriaID, Results,ResultCount, TotalRelatedProjectCount, LastBudgetYear, IsEmailSent) VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, @TotalRelatedProjectCount, @LastBudgetYear, 0)	
+	
+	----------------------------------	
+	-- Sort and Pagination
+	--   Note: Return only base projects and projects' most recent funding
+	----------------------------------
+	SELECT p.*, maxf.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
+		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort FROM
+		(SELECT DISTINCT ProjectID FROM #proj) p
+		 JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f GROUP BY ProjectID) maxf ON p.ProjectID = maxf.ProjectID
+		 JOIN ProjectFunding f ON maxf.ProjectFundingID = f.projectFundingID
+		 JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
+		 JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+		 JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
+	ORDER BY title ASC	OFFSET 0 ROWS FETCH NEXT 50 ROWS ONLY
+
+GO
+

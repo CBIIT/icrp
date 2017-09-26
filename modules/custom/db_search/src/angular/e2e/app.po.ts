@@ -1,11 +1,11 @@
-import { browser, element, by } from 'protractor';
+import { browser, by, element } from 'protractor';
 
-export class IcrpSearchFrontendPage {
+export class AppPage {
   navigateTo() {
     return browser.get('/');
   }
 
   getParagraphText() {
-    return element(by.css('icrp-root h1')).getText();
+    return element(by.css('app-root h1')).getText();
   }
 }

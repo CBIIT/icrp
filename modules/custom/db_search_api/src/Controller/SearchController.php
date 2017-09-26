@@ -47,6 +47,7 @@ class SearchController extends ControllerBase {
     'pi_last_name'               => NULL,
     'pi_orcid'                   => NULL,
     'award_code'                 => NULL,
+    'regions'                    => NULL,
     'countries'                  => NULL,
     'states'                     => NULL,
     'cities'                     => NULL,
@@ -240,6 +241,14 @@ class SearchController extends ControllerBase {
     $connection = PDOBuilder::getConnection('icrp_load_database');
     $parameters = self::array_merge_intersection($request->query->all(), ['search_id' => -1]);
     $data = DatabaseSearch::getSearchSummary($connection, $parameters);
+    return self::createResponse($data);
+  }
+
+
+  public static function reviewSyncProd(Request $request) {
+    $connection = PDOBuilder::getConnection('icrp_load_database');
+    $parameters = self::array_merge_intersection($request->query->all(), ['data_upload_id' => -1]);
+    $data = DatabaseReview::reviewSyncProd($connection, $parameters);
     return self::createResponse($data);
   }
 }

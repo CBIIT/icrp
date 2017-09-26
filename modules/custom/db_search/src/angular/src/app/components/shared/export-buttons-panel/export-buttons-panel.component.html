@@ -1,36 +1,41 @@
-<div class="clearfix margin-bottom">
-  <icrp-email-results-button
-    *ngIf="sharedService.get('componentType') === 'search'">
-  </icrp-email-results-button>
+<div class="margin-bottom button-panel">
 
-  <icrp-export-button
-    label="Export Results"
-    [endpoint]="getRoutes().exportResults">
+  <div>
+    <icrp-email-results-button
+      *ngIf="sharedService.get('componentType') === 'search'">
+    </icrp-email-results-button>
+
+    <icrp-export-button
+      label="Export Results"
+      [endpoint]="getRoutes().exportResults">
+      </icrp-export-button>
+
+    <icrp-export-button
+      *ngIf="authenticated"
+      label="Export Single"
+      [endpoint]="getRoutes().exportResultsSingle">
     </icrp-export-button>
 
-  <icrp-export-button
-    *ngIf="authenticated"
-    label="Export Single"
-    [endpoint]="getRoutes().exportResultsSingle">
-  </icrp-export-button>
+    <icrp-export-button
+      *ngIf="authenticated"
+      label="Export Abstracts"
+      [endpoint]="getRoutes().exportAbstracts">
+    </icrp-export-button>
 
-  <icrp-export-button
-    *ngIf="authenticated"
-    label="Export Abstracts"
-    [endpoint]="getRoutes().exportAbstracts">
-  </icrp-export-button>
+    <icrp-export-button
+      *ngIf="authenticated"
+      label="Export Abstracts Single"
+      [endpoint]="getRoutes().exportAbstractsSingle">
+    </icrp-export-button>
 
-  <icrp-export-button
-    *ngIf="authenticated"
-    label="Export Abstracts Single"
-    [endpoint]="getRoutes().exportAbstractsSingle">
-  </icrp-export-button>
-
-  <span class="pull-right">
     <icrp-export-button
       label="Export Graphs"
       [endpoint]="getRoutes().exportGraphs">
     </icrp-export-button>
+  </div>
+
+  <span *ngIf="sharedService.get('componentType') === 'search'">
+    <a [href]="'/map/?sid=' + sharedService.get('searchID')">View ICRP Map</a>
   </span>
 </div>
 

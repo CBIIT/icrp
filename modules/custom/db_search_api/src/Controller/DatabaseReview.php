@@ -147,4 +147,25 @@ class DatabaseReview {
 
     return $results;
   }
+
+  /**
+  * Calls the DataUpload_SyncProd stored procedure with the given data upload id
+  * @param array $parameters - The data upload id (data_upload_id)
+  * @param PDO $pdo - The PDO connection object
+  * @api
+  */
+  public static function reviewSyncProd(PDO $pdo, array $parameters) {
+    try {
+      $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE DataUpload_SyncProd @DataUploadID=:data_upload_id');
+      $stmt->bindParam(':data_upload_id', $parameters['data_upload_id']);
+     if ($stmt->execute()) { 
+        return true;
+      }
+      return false; 
+    } 
+    catch(\PDOException $e) {
+      error_log($e->getMessage());
+      return false;
+    }
+  }
 }

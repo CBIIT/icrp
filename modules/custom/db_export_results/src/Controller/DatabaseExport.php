@@ -51,6 +51,7 @@ class DatabaseExport {
           'City'          => 'City',
           'State'         => 'State',
           'Country'       => 'Country',
+          'Region'        => 'Region',
           'FundingOrg'    => 'Funding Organization',
           'AwardCode'     => 'Award Code',
           'icrpURL'       => 'View in ICRP',

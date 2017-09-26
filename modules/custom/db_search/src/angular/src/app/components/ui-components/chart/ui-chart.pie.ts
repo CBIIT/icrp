@@ -1,4 +1,5 @@
-import * as d3 from 'd3';
+// import * as d3 from 'd3';
+declare const d3;
 
 export class PieChart {
 

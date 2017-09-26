@@ -17,4 +17,9 @@
   update PartnerOrg SET IsActive= 0 WHERE PartnerOrgID=75
   update PartnerOrg SET IsActive= 0 WHERE PartnerOrgID=76
 
---  select * from PartnerOrg where SponsorCode='ncri'
+-- 2017/9/12
+insert into PartnerOrg VALUES ('The Anticancer Fund', 'ACF Belgium', 'partner', 1, getdate(), getdate())
+
+-- select * from PartnerOrg where SponsorCode='ncri'
+-- select * from PartnerOrg where membertype='partner'
+-- select * from partner

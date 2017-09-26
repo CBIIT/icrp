@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * @file
+ * ICRP DB Project View module.
+ */
+
+require_once __DIR__ . './vendor/autoload.php';
+
+function db_map_theme($existing, $type, $theme, $path) {
+  return [
+    'db_map' => [
+      'variables' => []
+    ]
+  ];
+}

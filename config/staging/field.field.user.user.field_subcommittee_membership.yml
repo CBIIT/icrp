@@ -1,0 +1,24 @@
+uuid: daa6cc19-283c-4574-a2f1-0c835fcc96d0
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_subcommittee_membership
+  module:
+    - user
+id: user.user.field_subcommittee_membership
+field_name: field_subcommittee_membership
+entity_type: user
+bundle: user
+label: 'Communications and Membership'
+description: 'Communications, outreach and membership news; and information about Communications & Membership Committee meetings.'
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

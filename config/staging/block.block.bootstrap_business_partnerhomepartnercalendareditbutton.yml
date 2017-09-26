@@ -1,0 +1,25 @@
+uuid: b1379a7b-7b4f-4251-b754-074cff018356
+langcode: en
+status: false
+dependencies:
+  content:
+    - 'block_content:basic:77338cdf-20f9-4d1e-a96a-e4301b529ab5'
+  module:
+    - block_content
+  theme:
+    - bootstrap_business
+id: bootstrap_business_partnerhomepartnercalendareditbutton
+theme: bootstrap_business
+region: pre_header_first
+weight: -9
+provider: null
+plugin: 'block_content:77338cdf-20f9-4d1e-a96a-e4301b529ab5'
+settings:
+  id: 'block_content:77338cdf-20f9-4d1e-a96a-e4301b529ab5'
+  label: 'Partner Home Partner Calendar Edit Button'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

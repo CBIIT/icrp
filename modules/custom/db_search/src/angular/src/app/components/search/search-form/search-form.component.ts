@@ -28,6 +28,7 @@ export class SearchFormComponent {
     pi_orcid: [],
     award_code: [],
 
+    regions: [],
     countries: [],
     states: [],
     cities: [],
@@ -69,6 +70,7 @@ export class SearchFormComponent {
       pi_orcid: [''],
       award_code: [''],
 
+      regions: [''],
       countries: [''],
       states: [''],
       cities: [''],

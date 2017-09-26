@@ -93,9 +93,9 @@
 
     <label class="form-label" for="years_active" tooltip="Awards active in the calendar year. Default view shows most recent 2 years, click below to select additional years.">Year Active</label>
 
-    <label 
-      class="pull-right" 
-      style="font-weight: normal" 
+    <label
+      class="pull-right"
+      style="font-weight: normal"
       tooltip="Search for projects with funding in future years. Note that future portfolios may be incomplete."
       [style.display]="this.sharedService.get('authenticated') ? 'inline-block' : 'none'"
     >
@@ -185,6 +185,16 @@
       [formControl]="form.controls.award_code"
       (change)="updateDisplayParameters('award_code', [awardcode.value])"
       >
+
+    <label class="form-label" for="regions" tooltip="Select one or more regions">Region</label>
+    <ui-select
+      placeholder="Enter Regions"
+      tooltip="Select one or more regions"
+      [items]="fields.regions"
+      [formControl]="form.controls.regions"
+      (select)="clearLocations();"
+      >
+    </ui-select>
 
     <label class="form-label" for="countries" tooltip="Select one or more countries">Country</label>
     <ui-select

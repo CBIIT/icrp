@@ -1,0 +1,13 @@
+uuid: edf1dfc2-020a-4033-8310-64154e480971
+langcode: en
+status: true
+dependencies: {  }
+id: partner
+label: Partner
+weight: 4
+is_admin: null
+permissions:
+  - 'access user profiles'
+  - 'create forum content'
+  - 'edit own forum content'
+  - 'use advanced search'

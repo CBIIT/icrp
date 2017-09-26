@@ -6,6 +6,7 @@
       <th>Type</th>
       <th>Workbook Received Date</th>
       <th>Note</th>
+      <th *ngIf="sharedService.get('userRoles').indexOf('manager') !== -1">Action</th>
     </tr>
   </thead>
   <tbody>
@@ -15,6 +16,11 @@
       <td>{{ row.type }}</td>
       <td>{{ row.received_date }}</td>
       <td>{{ row.note }}</td>
+      <td *ngIf="sharedService.get('userRoles').indexOf('manager') !== -1">
+        <button class="btn btn-primary btn-xs" (click)="syncProd.emit(row.data_upload_id)">
+          Update Prod
+        </button>
+      </td>
     </tr>
   </tbody>
 </table>

@@ -115,6 +115,15 @@ export class ReviewPageComponent {
     },
   ];
 
+
+
+
+  success: boolean = false;
+  showAlert: boolean = false;
+
+  loadingMessage = 'Update in Progress...';
+
+
   constructor(
     private reviewService: ReviewService,
     private sharedService: SharedService) {
@@ -232,6 +241,24 @@ export class ReviewPageComponent {
     }
   }
 
+
+  syncProd(uploadID: number) {
+    this.loading = true;
+    this.showAlert = false;
+    this.success = true;
+    
+    this.reviewService.syncProd({data_upload_id: uploadID})
+      .subscribe(response => {
+        console.log(response);
+
+        this.success = response;
+        this.showAlert = true;
+        this.loading = false;
+
+        // retrieve initial data upload results
+        this.getSponsorUploads();        
+      });
+  }  
 
   resetAnalytics() {
     this.analytics = {

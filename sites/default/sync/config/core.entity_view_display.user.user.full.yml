@@ -25,7 +25,6 @@ dependencies:
     - datetime
     - ds
     - options
-    - panelizer
     - user
 third_party_settings:
   ds:
@@ -69,11 +68,6 @@ third_party_settings:
           wrapper: ''
           class: ''
           link: false
-  panelizer:
-    enable: false
-    custom: false
-    allow: false
-    default: default
 _core:
   default_config_hash: L2mtwGWH_7wDRCMIR4r_Iu_jmvQ10DV1L8ht8iNZ5qY
 id: user.user.full

@@ -1,0 +1,45 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family:  -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+.inline-block {
+  display: inline-block;
+}
+
+.position-relative {
+  position: relative;
+}
+
+.position-absolute {
+  position: absolute;
+}
+
+.display-flex {
+  display: flex;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+.margin-top {
+  margin-top: 10px !important;
+}
+
+.margin-bottom {
+  margin-bottom: 10px !important;
+}
+
+.margin-left {
+  margin-left: 5px !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+table.popover-table td {
+  padding-right: 8px;
+}
