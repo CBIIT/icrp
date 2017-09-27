@@ -66,3 +66,12 @@
 /update.php
 /web.config
 .vscode
+settings.local.php
+
+# ignore everything in the modules folder
+# except for the "custom" folder
+# we should instead simply ignore everything
+# in the /modules/contrib folder
+
+/modules/*
+!/modules/custom
