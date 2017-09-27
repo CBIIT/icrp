@@ -8,13 +8,9 @@ dependencies:
     - node.type.faq
   module:
     - ds
-    - panelizer
     - text
     - user
 third_party_settings:
-  panelizer:
-    enable: false
-    custom: false
   ds:
     layout:
       id: bs_2col_bricked
