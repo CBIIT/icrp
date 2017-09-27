@@ -307,6 +307,7 @@ class ProjectViewController extends ControllerBase {
       '#collaborators' => $results['collaborators'],
       '#cancer_types' => $results['cancer_types'],
       '#cso_research_areas' => $results['cso_research_areas'],
+      '#project_id' => $project_id,
       '#attached' => [
         'library' => [
           'db_project_view/funding_view_resources'
@@ -324,6 +325,7 @@ class ProjectViewController extends ControllerBase {
       '#collaborators' => $results['collaborators'],
       '#cancer_types' => $results['cancer_types'],
       '#cso_research_areas' => $results['cso_research_areas'],
+      '#project_id' => $project_id,
       '#attached' => [
         'library' => [
           'db_project_view/funding_view_resources'

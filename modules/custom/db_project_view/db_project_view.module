@@ -30,7 +30,8 @@ function db_project_view_theme($existing, $type, $theme, $path) {
           'funding_details' => NULL,
           'collaborators' => NULL,
           'cancer_types' => NULL,
-          'cso_research_areas' => NULL
+          'cso_research_areas' => NULL,
+          'project_id' => NULL
         ),
     ),
     'funding_org_view' => array (

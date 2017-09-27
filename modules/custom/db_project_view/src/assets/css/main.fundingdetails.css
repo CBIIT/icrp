@@ -1,3 +1,7 @@
+h5 .viewmap {
+  float: right;
+}
+
 table.project-collaborators {
   border-collapse: collapse;
   width: 100%;
