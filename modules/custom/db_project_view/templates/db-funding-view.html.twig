@@ -71,6 +71,8 @@
   </dd>
   <dt>Institution</dt>
   <dd>{{ funding_details.institution | default('N/A')}}</dd>
+  <dt>Region</dt>
+  <dd>{{ funding_details.region | default('N/A') }}</dd>
   <dt>Location</dt>
   <dd>
     {% if funding_details.city %}
@@ -79,10 +81,58 @@
     {% if funding_details.state %}
      {{ funding_details.state }}, 
     {% endif %}
-  {{ funding_details.country | default('N/A')}}</dd>
+    {{ funding_details.country | default('N/A')}}
+  </dd>
 </dl>
 
 <hr>
+
+<h5 class="h5 margin-top" style="margin-top: 20px">Collaborators</h4>
+<div class="table-responsive margin-top">
+  <table class="project-collaborators">
+    <thead>
+      <tr>
+        <th class="limited-width">Name</th>
+        <th>ORC_ID</th> 
+        <th class="limited-width">Institution</th>
+        <th>Region</th>
+        <th>Location</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in collaborators %}
+        <tr>
+          <td class="limited-width">
+              {{ row.pi_name | default('N/A') | raw }}
+          </td>
+          <td>
+              {% if row.pi_orcid %}
+                <a href="https://orcid.org/{{ row.pi_orcid }}" target="_blank" title="Visit the collaborators's ORCiD.org profile">
+                  <img style="margin: 0 4px" src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="ORCiD Logo">
+                  {{ row.pi_orcid }}
+                </a>
+              {% endif %}
+          </td>
+          <td>{{ row.institution | default('N/A')}}</td>
+          <td>{{ row.region | default('N/A') }}</td>
+          <td>
+              {% if row.city %}
+               {{ row.city }}, 
+              {% endif %}
+              {% if row.state %}
+               {{ row.state }}, 
+              {% endif %}
+              {{ row.country | default('N/A')}}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% if collaborators|length > 5 %}
+<div class="form-group"><button id="buttonShowAll" class="btn btn-default btn-sm">Show All</button></div>
+{% endif %}
+<hr/>
 
 {% if funding_details.technical_abstract %}
 <h4>Technical Abstract</h4>

@@ -62,10 +62,14 @@ class ProjectViewController extends ControllerBase {
       'Title' => 'project_title',
       'piName' => 'pi_name',
       'ORC_ID' => 'pi_orcid',
+      'IsPrincipalInvestigator' => 'is_pi',
       'Institution' => 'institution',
       'City' => 'city',
       'State' => 'state',
       'Country' => 'country',
+      'Latitude' => 'lat',
+      'Longitude' => 'long',
+      'Region' => 'region',
       'Category' => 'award_type',
       'AltAwardCode' => 'alt_award_code',
       'FundingOrg' => 'funding_organization',
@@ -204,11 +208,10 @@ class ProjectViewController extends ControllerBase {
     ];
 
     // map queries to return values
-    return array_reduce(
+    $results = array_reduce(
       array_map(function($key, $value) use ($pdo, $funding_id) {
         $stmt = $pdo->prepare($value);
         $stmt->execute([':funding_id' => $funding_id]);
-
         // map the result of each query to each template key
         return [$key => array_map(function($row) use ($key) {
 
@@ -221,6 +224,10 @@ class ProjectViewController extends ControllerBase {
         }, $stmt->fetchAll(PDO::FETCH_ASSOC))];
       }, array_keys($queries), $queries),
     'array_merge', []);
+    $funding_details = $results['project_funding_details'];
+    $results['project_funding_details'] = array_shift($funding_details);
+    $results['collaborators'] = $funding_details;
+    return $results;
   }
 
 
@@ -296,7 +303,8 @@ class ProjectViewController extends ControllerBase {
     return [
       '#theme' => 'db_funding_view',
       '#page_title' => 'Project Funding Details',
-      '#funding_details' => $results['project_funding_details'][0],
+      '#funding_details' => $results['project_funding_details'],
+      '#collaborators' => $results['collaborators'],
       '#cancer_types' => $results['cancer_types'],
       '#cso_research_areas' => $results['cso_research_areas'],
       '#attached' => [
@@ -312,7 +320,8 @@ class ProjectViewController extends ControllerBase {
     return [
       '#theme' => 'db_funding_view',
       '#page_title' => 'Data Review - Project Funding Details',
-      '#funding_details' => $results['project_funding_details'][0],
+      '#funding_details' => $results['project_funding_details'],
+      '#collaborators' => $results['collaborators'],
       '#cancer_types' => $results['cancer_types'],
       '#cso_research_areas' => $results['cso_research_areas'],
       '#attached' => [

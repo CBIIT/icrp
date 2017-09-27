@@ -28,6 +28,7 @@ function db_project_view_theme($existing, $type, $theme, $path) {
       'variables' => array(
           'page_title' => NULL,
           'funding_details' => NULL,
+          'collaborators' => NULL,
           'cancer_types' => NULL,
           'cso_research_areas' => NULL
         ),
