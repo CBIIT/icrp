@@ -22,6 +22,7 @@ funding_view_resources:
   css:
     theme:
       src/assets/css/styles.css: {}
+      src/assets/css/main.fundingdetails.css: {}
   js:
     src/assets/js/main.fundingview.js: {}
     src/assets/js/scripts.js: {}
