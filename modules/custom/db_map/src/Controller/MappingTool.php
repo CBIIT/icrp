@@ -56,7 +56,8 @@ class MappingTool {
         SET NOCOUNT ON;
         EXECUTE GetMapCitiesBySearchID
           @SearchID = :searchId,
-          @Vountry = :country,
+          @RegionID = :region,
+          @Country = :country,
           @AggregatedProjectCount = :projects,
           @AggregatedPICount = :primaryInvestigators,
           @AggregatedCollabCount = :collaborators',
