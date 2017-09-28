@@ -66,3 +66,7 @@
 /update.php
 /web.config
 .vscode
+
+#Ignore modules but include modules/custom
+modules/*
+!modules/custom
