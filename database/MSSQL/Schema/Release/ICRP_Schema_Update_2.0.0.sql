@@ -37,6 +37,14 @@ IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[C
 	ALTER TABLE Country ADD RegionID INT NULL
 GO
 
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[Country]') AND name = 'Latitude')
+	ALTER TABLE Country ADD [Latitude] [decimal](9, 6) NULL
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[Country]') AND name = 'Longitude')
+	ALTER TABLE Country ADD [Longitude] [decimal](9, 6) NULL
+GO
+
 IF EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[ProjectFundingInvestigator]') AND name = 'LastName')
 	ALTER TABLE ProjectFundingInvestigator ALTER COLUMN LastName VARCHAR(100) NULL
 
@@ -46,6 +54,9 @@ IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[S
 	ALTER TABLE SearchCriteria ADD RegionList varchar(100) NULL
 GO
 
+IF EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[ProjectFundingInvestigator]') AND name = 'IsPrivateInvestigator')
+	EXEC sp_rename 'ProjectFundingInvestigator.IsPrivateInvestigator', 'ProjectFundingInvestigator.IsPrincipalInvestigator', 'COLUMN';  
+GO  
 
 
 /*************************************************/
@@ -59,10 +70,17 @@ IF NOT EXISTS (SELECT * FROM lu_Region WHERE RegionID = 2)
 	INSERT INTO lu_Region ([RegionID], [Name], [Latitude], [Longitude]) SELECT 2, 'Latin America & Caribbean', -17.902996, -58.974609 
 IF NOT EXISTS (SELECT * FROM lu_Region WHERE RegionID = 3)
 	INSERT INTO lu_Region ([RegionID], [Name], [Latitude], [Longitude]) SELECT 3, 'Europe & Central Asia', 43.383062, 20.478515
+
 IF NOT EXISTS (SELECT * FROM lu_Region WHERE RegionID = 4)
-	INSERT INTO lu_Region ([RegionID], [Name], [Latitude], [Longitude]) SELECT 4, 'South Asia', 8.138043, 102.392578
+	INSERT INTO lu_Region ([RegionID], [Name], [Latitude], [Longitude]) SELECT 4, 'South Asia', 23.152948, 77.299819
+ELSE
+	UPDATE lu_Region SET [Latitude] = 23.152948, [Longitude] = 77.299819
+
 IF NOT EXISTS (SELECT * FROM lu_Region WHERE RegionID = 5)
-	INSERT INTO lu_Region ([RegionID], [Name], [Latitude], [Longitude]) SELECT 5, 'East Asia & Pacific', 36.095683, 113.291015
+	INSERT INTO lu_Region ([RegionID], [Name], [Latitude], [Longitude]) SELECT 5, 'East Asia & Pacific', 29.451519, 116.674819
+ELSE
+	UPDATE lu_Region SET [Latitude] = 29.451519, [Longitude] = 116.674819
+
 IF NOT EXISTS (SELECT * FROM lu_Region WHERE RegionID = 6)
 	INSERT INTO lu_Region ([RegionID], [Name], [Latitude], [Longitude]) SELECT 6, 'Middle East & North Africa', 26.187443, 29.619140
 IF NOT EXISTS (SELECT * FROM lu_Region WHERE RegionID = 7)
@@ -70,6 +88,9 @@ IF NOT EXISTS (SELECT * FROM lu_Region WHERE RegionID = 7)
 
 GO
 
+IF NOT EXISTS (SELECT * FROM lu_Region WHERE RegionID = 8)
+	INSERT INTO lu_Region ([RegionID], [Name], [Latitude], [Longitude]) SELECT 8, 'Australia & New Zealand', -31.353637, 149.414063
+GO
 
 /*************************************************/
 /******					Keys				******/

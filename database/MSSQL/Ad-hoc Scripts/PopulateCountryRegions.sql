@@ -22,7 +22,7 @@ WITH
 (
 	FIRSTROW = 2,
 	--DATAFILETYPE ='widechar',  -- unicode format
-	FIELDTERMINATOR = '|',
+	FIELDTERMINATOR = ',',
 	ROWTERMINATOR = '\n'
 )
 GO  
@@ -34,4 +34,7 @@ FROM #Region r
 JOIN lu_Region l ON r.Region = l.Name
 JOIN Country c ON r.Country = c.Abbreviation
 
-select * from country where regionID is null
+--select * from country where regionID is null
+
+
+--select RegionID, count(*) from country group by RegionID
