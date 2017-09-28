@@ -78,7 +78,7 @@ class MapController extends ControllerBase {
       $request->query->all(),
       [
         'searchId' => 0,
-        'type' => 'region',
+        'type' => 'regions',
         'region' => 1,
         'country' => '',
         'city' => '',

@@ -1,4 +1,4 @@
-export const MAP_DEFAULT_STYLE: google.maps.MapTypeStyle[] = [
+export const UNLABELED_MAP: google.maps.MapTypeStyle[] = [
   {
     "elementType": "geometry",
     "stylers": [
@@ -59,7 +59,7 @@ export const MAP_DEFAULT_STYLE: google.maps.MapTypeStyle[] = [
   }
 ];
 
-export const MAP_LABELED_STYLE: google.maps.MapTypeStyle[] = [
+export const LABELED_MAP: google.maps.MapTypeStyle[] = [
   {
     "elementType": "geometry",
     "stylers": [
@@ -120,7 +120,6 @@ export const MAP_LABELED_STYLE: google.maps.MapTypeStyle[] = [
   }
 ];
 
-
 export const DEFAULT_OPTIONS: google.maps.MapOptions = {
   center: {lat: 25, lng: 0},
   zoom: 2,
@@ -128,5 +127,5 @@ export const DEFAULT_OPTIONS: google.maps.MapOptions = {
   disableDefaultUI: true,
   zoomControl: true,
   backgroundColor: '#64aad8',
-  styles: MAP_DEFAULT_STYLE,
+  styles: UNLABELED_MAP,
 }

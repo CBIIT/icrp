@@ -1,4 +1,4 @@
-
+import { Location } from './DataService';
 
 
 export const addLabel = (label: string, location: google.maps.LatLngLiteral, map: google.maps.Map) =>
@@ -49,3 +49,33 @@ export const addDataMarker = (label: number, scale: number, location: google.map
       strokeWeight: 4,
     },
   });
+
+
+
+export const createInfoWindow = ({label, data}: Location) => (
+  new google.maps.InfoWindow({
+    content: `
+      <div>
+        <b>${label}</b>
+        <hr style="margin-top: 5px; margin-bottom: 5px" />
+        <table class="popover-table">
+          <tbody>
+            <tr>
+              <td>Total Projects</td>
+              <td>${data.projects.toLocaleString()}</td>
+            </tr>
+
+            <tr>
+              <td>Total PIs</td>
+              <td>${data.primaryInvestigators.toLocaleString()}</td>
+            </tr>
+
+            <tr>
+              <td>Total Collaborators</td>
+              <td>${data.collaborators.toLocaleString()}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+  `})
+);

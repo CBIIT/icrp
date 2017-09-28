@@ -1,6 +1,14 @@
 import { stringify } from 'query-string';
 import { ExcelSheet } from './ExportService';
 
+export type ViewLevel = 'regions' | 'countries' | 'cities' | undefined;
+
+export interface LocationCounts {
+  projects: number;
+  primaryInvestigators: number;
+  collaborators: number;
+}
+
 /**
  * Defines a Location, which represents the projects
  * for a specified region, country, or city.
@@ -20,24 +28,7 @@ export interface Location {
   label: string;
   value: string;
   coordinates: google.maps.LatLngLiteral;
-  data: {
-    projects: number;
-    primaryInvestigators: number;
-    collaborators: number;
-  }
-}
-
-/**
- * Defines the type of filters used to
- *
- * @export
- * @interface LocationFilters
- */
-export interface LocationFilters {
-  searchId: number;
-  region?: string;
-  country?: string;
-  city?: string;
+  data: LocationCounts
 }
 
 /**
@@ -64,7 +55,7 @@ export interface LocationFilters {
  */
 export interface LocationApiRequest {
   searchId: number;
-  type: 'region' | 'country' | 'city';
+  type?: ViewLevel;
   region?: string;
   country?: string;
 }
@@ -82,11 +73,7 @@ export interface LocationApiRequest {
  */
 export interface LocationApiResponse {
   locations: Location[];
-  counts: {
-    projects: number,
-    primaryInvestigators: number,
-    collaborators: number,
-  };
+  counts: LocationCounts;
 }
 
 /**
@@ -116,10 +103,10 @@ export const getExcelExport = async (data: ExcelSheet[]): Promise<string> =>
     credentials: 'same-origin'
   });
 
-export const getNewSearchId = async (filters: LocationFilters): Promise<number> =>
+export const getNewSearchId = async (filters: LocationApiRequest): Promise<number> =>
   await jsonRequest(`${BASE_URL}/map/getNewSearchId/?${stringify(filters)}`, {
     credentials: 'same-origin'
   });
 
-export const getSearchParametersFromFilters = async(filters: LocationFilters): Promise<(string|number)[][]> =>
+export const getSearchParametersFromFilters = async(filters: LocationApiRequest): Promise<(string|number)[][]> =>
   await getSearchParameters(await getNewSearchId(filters));

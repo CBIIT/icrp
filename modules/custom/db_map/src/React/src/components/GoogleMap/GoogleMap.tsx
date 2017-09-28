@@ -1,18 +1,25 @@
 import * as React from 'react';
-import { DEFAULT_OPTIONS, MAP_LABELED, MAP_DEFAULT_STYLE } from '../../services/MapConstants';
-import { addLabel, addDataMarker } from '../../services/MapHelpers';
-import { Location } from '../../services/DataService';
+import { DEFAULT_OPTIONS, LABELED_MAP, UNLABELED_MAP } from '../../services/MapConstants';
+import { addLabel, addDataMarker, createInfoWindow } from '../../services/MapHelpers';
+import { Location, ViewLevel } from '../../services/DataService';
 import './GoogleMap.css';
 
 export interface GoogleMapProps {
-  zoom: number;
-  coordinates: google.maps.LatLngLiteral;
-  autofit: boolean;
   locations: Location[];
+  viewLevel: ViewLevel;
   showDataLabels: boolean;
   showMapLabels: boolean;
   onSelect: (location: Location) => void;
 }
+
+const sum = (object: any): number => {
+  let sum = 0;
+  for (let key in object) {
+    sum += object && object[key];
+  }
+  return sum;
+}
+
 
 class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
@@ -32,106 +39,81 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
     });
   }
 
-  createInfoWindow({label, data}: Location) {
-    return new google.maps.InfoWindow({
-      content: `
-        <div>
-          <b>${label}</b>
-          <hr style="margin-top: 5px; margin-bottom: 5px" />
-          <table class="popover-table">
-            <tbody>
-              <tr>
-                <td>Total Projects</td>
-                <td>${data.relatedProjects.toLocaleString()}</td>
-              </tr>
-
-              <tr>
-                <td>Total PIs</td>
-                <td>${data.primaryInvestigators.toLocaleString()}</td>
-              </tr>
-
-              <tr>
-                <td>Total Collaborators</td>
-                <td>${data.collaborators.toLocaleString()}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-    `});
-  }
 
 
-
-  componentWillReceiveProps({ coordinates, locations, zoom, showDataLabels, showMapLabels }: GoogleMapProps) {
+  componentWillReceiveProps({ viewLevel, locations, showDataLabels, showMapLabels }: GoogleMapProps) {
 
     if (this.map !== null && locations !== this.locations) {
 
       this.locations = locations;
-      let { onSelect} = this.props;
 
       let map = this.map;
       let bounds = new google.maps.LatLngBounds();
+      let dataMarkerSize = locations.length > 10 ? 22 : 30;
+      let { onSelect} = this.props;
 
-      if (!this.props.autofit) {
-        map.setZoom(zoom);
-        map.setCenter(coordinates);
-      }
-
-      map.data.forEach(feature => {
-        console.log(feature);
-      });
-
+      // clear all markers
       this.markers.forEach(marker => {
         marker.setMap(null);
       })
 
+      // clear all labels
       this.labels.forEach(labels => {
         labels.setMap(null);
       })
 
+      // conditionally display map lables
       this.map.setOptions({
-        styles: showMapLabels ? MAP_LABELED : MAP_DEFAULT_STYLE
+        styles: showMapLabels ? LABELED_MAP : UNLABELED_MAP
       });
 
-      let dataMarkerSize = locations.length > 10 ? 22 : 30;
 
+      // for each location, do the following:
       locations.forEach((location: Location) => {
-        let { label, coordinates, data } = location;
 
-        if (this.props.autofit) {
-          bounds.extend(coordinates);
-          map.fitBounds(bounds);
-        }
+        // extract label, data, and coordinates from location
+        let { coordinates, data, label } = location;
 
-        let sum = 0;
-        for (let key in data) {
-          sum += data && data[key];
-        }
+        // expand the bounds for this map
+        bounds.extend(coordinates);
 
+        // if we are displaying data labels,
+        // display them above the circles
         if (showDataLabels) {
-          let labelMarker = addLabel(label, coordinates, map);
+          let labelCoordinates: google.maps.LatLngLiteral = {
+            lng: coordinates.lng + dataMarkerSize + 5,
+            ...coordinates
+          }
+          let labelMarker = addLabel(label, labelCoordinates, map);
           window.setTimeout(() => this.labels.push(labelMarker), 0);
         }
 
-        let marker = addDataMarker(sum, dataMarkerSize, coordinates, map);
-        let infoWindow = this.createInfoWindow(location);
+        // add a marker at the specified location
+        let marker = addDataMarker(sum(data), dataMarkerSize, coordinates, map);
 
+        // add an info window containing the data
+        let infoWindow = createInfoWindow(location);
+
+        // store these references so we can delete them later
         window.setTimeout(() => {
           this.infoWindows.push(infoWindow);
           this.markers.push(marker);
         }, 0);
 
+        // close all other info windows when this marker is clicked
         marker.addListener('click', () => {
           this.infoWindows.forEach(window => window.close());
           infoWindow.open(map, marker);
         });
 
+        // open a new location when this is clicked
         marker.addListener('dblclick', event => {
           infoWindow.close();
           onSelect(location);
         });
       });
 
+      map.fitBounds(bounds);
     }
   }
 

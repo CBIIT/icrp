@@ -15,11 +15,8 @@ interface ExcelExportParameters {
   };
 
   locations: Location[],
-  type: 'region' | 'country' | 'city';
+  type: string;
 }
-
-const toTitleCase = (str: string) =>
-  `${str[0].toLocaleUpperCase()}${str.substr(1)}`;
 
 export const excelExport = async ({searchCriteria, locations, type}: ExcelExportParameters) => {
 
@@ -36,10 +33,10 @@ export const excelExport = async ({searchCriteria, locations, type}: ExcelExport
     {
       title: 'Data',
       rows: [
-        [toTitleCase(type), 'Total Projects', 'Total PIs', 'Total Collaborators'],
+        [type, 'Total Projects', 'Total PIs', 'Total Collaborators'],
         ...locations.map(row => [
           row.label,
-          row.data.relatedProjects,
+          row.data.projects,
           row.data.primaryInvestigators,
           row.data.collaborators,
         ])

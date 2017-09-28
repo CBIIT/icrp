@@ -11,7 +11,7 @@ use PDOStatement;
 class MappingTool {
 
   const QUERY_MAP = [
-    'region' => [
+    'regions' => [
       'sql' => '
         SET NOCOUNT ON;
         EXECUTE GetMapRegionsBySearchID
@@ -30,7 +30,7 @@ class MappingTool {
       ],
     ],
 
-    'country' => [
+    'countries' => [
       'sql' => '
         SET NOCOUNT ON;
         EXECUTE GetMapCountriesBySearchID
@@ -51,7 +51,7 @@ class MappingTool {
       ],
     ],
 
-    'city' => [
+    'cities' => [
       'sql' => '
         SET NOCOUNT ON;
         EXECUTE GetMapCitiesBySearchID
@@ -148,23 +148,23 @@ class MappingTool {
             'lng' => floatval($location['Longitude']),
           ],
           'data' => [
-            'relatedProjects' => $location['TotalRelatedProjectCount'],
+            'projects' => $location['TotalRelatedProjectCount'],
             'primaryInvestigators' => $location['TotalPICount'],
             'collaborators' => $location['TotalCollaboratorCount'],
           ],
         ];
       }, $locations);
 
-      // sort locations
-      usort($locations, function($a, $b) {
-        $a = $a['value'];
-        $b = $b['value'];
+      // do not sort locations
+      // usort($locations, function($a, $b) {
+      //   $a = $a['value'];
+      //   $b = $b['value'];
 
-        if (is_numeric($a) && is_numeric($b))
-          return floatval($a) - floatval($b);
-        else
-          return strcmp(strval($a), strval($b));
-      });
+      //   if (is_numeric($a) && is_numeric($b))
+      //     return floatval($a) - floatval($b);
+      //   else
+      //     return strcmp(strval($a), strval($b));
+      // });
 
       return [
         'locations' => $locations,

@@ -6,7 +6,7 @@ import MapOverlay from './MapOverlay/MapOverlay';
 import SearchCriteria from './SearchCriteria/SearchCriteria';
 import Spinner from './Spinner/Spinner';
 import SummaryGrid from './SummaryGrid/SummaryGrid';
-
+import ExportButton form './ExportButton/ExportButton';
 
 export {
   App,
@@ -16,5 +16,6 @@ export {
   MapOverlay,
   SearchCriteria,
   Spinner,
-  SummaryGrid
+  SummaryGrid,
+  ExportButton
 };
