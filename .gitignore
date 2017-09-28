@@ -46,6 +46,8 @@
 /profiles/
 /vendor/
 /temp/
+/libraries/
+/components/
 
 /.csslintrc
 /.editorconfig
