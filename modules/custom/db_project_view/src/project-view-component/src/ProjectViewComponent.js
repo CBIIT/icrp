@@ -118,7 +118,7 @@ class ProjectViewComponent extends Component {
           },
           {
             label: 'Collabos.',
-            value: 'collaborators_count',
+            value: 'collaborator_count',
             tooltip: 'Collaborators Count',
             link: 'collaborator_url',
             external: true,
@@ -127,6 +127,11 @@ class ProjectViewComponent extends Component {
             label: 'Institution',
             value: 'institution',
             tooltip: 'PI Institution',
+          },
+          {
+            label: 'Region',
+            value: 'region',
+            tooltip: 'Region of Principal Investigator',
           },
           {
             label: 'Location',
@@ -146,10 +151,11 @@ class ProjectViewComponent extends Component {
             : 'N/A',
           pi_name: [row.pi_last_name, row.pi_first_name].filter(e => e && e.length).join(', '),
           pi_orcid_url: row.pi_orcid ? `http://orcid.org/${row.pi_orcid}` : null,
-          collaborator_count: row.collaborators_count,
-          collaborator_url: row.collaborators_count ? `/project/people-map/${row.project_funding_id}` : null,
+          collaborator_count: row.collaborator_count,
+          collaborator_url: row.collaborator_count ? `/project/people-map/${row.project_funding_id}` : null,
           institution: row.institution,
-          location: [row.city, row.state, row.country, row.region].filter(e => e && e.length).join(', '),
+          region: row.region,
+          location: [row.city, row.state, row.country].filter(e => e && e.length).join(', '),
         }))
       }
 

@@ -1,5 +1,13 @@
-h5 .viewmap {
-  float: right;
+div.project-collaborators-header {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: end;
+  -ms-flex-align: end;
+  align-items: flex-end;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
 }
 
 table.project-collaborators {
@@ -7,7 +15,6 @@ table.project-collaborators {
   width: 100%;
   font-size: 14px;
 }
-
 
 table.project-collaborators > thead > tr > th {
   background-color: #EEE;
