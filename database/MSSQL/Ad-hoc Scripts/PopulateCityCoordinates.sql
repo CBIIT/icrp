@@ -21,7 +21,7 @@ GO
 
 
 BULK INSERT #CityCoordinates
-FROM 'C:\ICRP\database\DataImport\CurrentRelease\CityCoordinates.csv'
+FROM 'C:\ICRP\database\DataImport\CurrentRelease\CityCoordinates3.csv'
 WITH
 (
 	FIRSTROW = 2,
