@@ -7,11 +7,11 @@ export interface MapOverlayProps {
   children: JSX.Element;
 };
 
-const MapOverlay = (props: MapOverlayProps) =>
+const MapOverlay = ({children}: MapOverlayProps) =>
   <div>
     <div className="map-overlay position-absolute translucent" />
     <div className="map-overlay position-absolute">
-      { props.children }
+      { children }
     </div>
   </div>
 

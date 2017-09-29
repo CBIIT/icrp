@@ -4,9 +4,9 @@ import GoogleMap, {GoogleMapProps} from './GoogleMap/GoogleMap';
 import LocationSelector from './LocationSelector/LocationSelector';
 import MapOverlay from './MapOverlay/MapOverlay';
 import SearchCriteria from './SearchCriteria/SearchCriteria';
-import Spinner from './Spinner/Spinner';
+import LoadingSpinner from './LoadingSpinner/LoadingSpinner';
 import SummaryGrid from './SummaryGrid/SummaryGrid';
-import ExportButton form './ExportButton/ExportButton';
+import ExportButton from './ExportButton/ExportButton';
 
 export {
   App,
@@ -15,7 +15,7 @@ export {
   LocationSelector,
   MapOverlay,
   SearchCriteria,
-  Spinner,
+  LoadingSpinner,
   SummaryGrid,
   ExportButton
 };

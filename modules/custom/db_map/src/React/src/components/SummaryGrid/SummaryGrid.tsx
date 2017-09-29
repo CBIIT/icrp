@@ -1,74 +1,37 @@
 import * as React from 'react';
 import { ComponentBase  } from 'resub';
-import { locations } from '../../stores/Locations';
-import { locationFilters } from '../../stores/LocationFilters';
-
-import { Location, ViewLevel, LocationApiRequest } from '../../services/DataService';
+import { store } from '../../services/Store';
+import { Location, ViewLevel, LocationFilters, parseViewLevel, getNextLocationFilters } from '../../services/DataService';
 
 interface SummaryGridProps {
-  onSelect: (props: LocationApiRequest) => void;
+  onSelect: (locationFilters: LocationFilters) => void | Promise<void>;
 }
 
 interface SummaryGridState {
   locations: Location[];
-  locationFilters: LocationApiRequest;
+  locationFilters: LocationFilters;
   viewLevel: ViewLevel;
 }
 
 export default class SummaryGrid extends ComponentBase<SummaryGridProps & React.Props<any>, SummaryGridState> {
   _buildState(): SummaryGridState {
     return {
-      locations: locations.get(),
-      viewLevel: locationFilters.getViewLevel(),
-      locationFilters: locationFilters.getApiRequest(),
+      locations: store.getLocations(),
+      viewLevel: store.getViewLevel(),
+      locationFilters: store.getLocationFilters(),
     }
-  }
-
-  selectLocation(location: Location) {
-    const { onSelect } = this.props;
-    const { viewLevel, locationFilters } = this.state;
-
-    let nextViewLevel: ViewLevel = 'regions';
-
-    if (viewLevel === 'regions') {
-      nextViewLevel = 'countries';
-    }
-
-    else if (viewLevel == 'countries') {
-      nextViewLevel = 'cities';
-    }
-
-    let locationApiRequest: LocationApiRequest = {
-      type: nextViewLevel,
-      ...locationFilters
-    }
-
-    if (viewLevel === 'regions') {
-      delete locationApiRequest.region;
-      delete locationApiRequest.country;
-    }
-
-    if (viewLevel === 'countries') {
-      locationApiRequest.region = location.value;
-      delete locationApiRequest.country;
-    }
-
-    else if (viewLevel === 'cities') {
-      locationApiRequest.country = location.value;
-    }
-
-    onSelect(locationApiRequest);
   }
 
   render() {
-    const { locations, viewLevel } = this.state;
+    const { onSelect } = this.props;
+    const { locations, viewLevel, locationFilters } = this.state;
 
-    return (
+    return !locations || !locations.length ? null : (
       <div className="table-responsive">
         <table className="table table-bordered table-striped table-hover table-nowrap">
           <thead>
             <tr>
-              <th>{{regions: 'Region', countries: 'Country', cities: 'City'}[viewLevel || 'regions']}</th>
+              <th>{parseViewLevel(viewLevel)}</th>
               <th>Total Projects</th>
               <th>Total PIs</th>
               <th>Total Collaborators</th>
@@ -79,13 +42,16 @@ export default class SummaryGrid extends ComponentBase<SummaryGridProps & React.
             locations.map((location: Location, index: number) =>
               <tr key={index}>
                 <td>
-                  <a className="cursor-pointer" onClick={event => this.selectLocation(location)}>
+                  <a className="cursor-pointer" 
+                    onClick={event => onSelect(
+                      getNextLocationFilters(location, locationFilters)
+                    )}>
                     {location.label}
                   </a>
                 </td>
-                <td>{location.data.projects.toLocaleString()}</td>
-                <td>{location.data.primaryInvestigators.toLocaleString()}</td>
-                <td>{location.data.collaborators.toLocaleString()}</td>
+                <td>{location.counts.projects.toLocaleString()}</td>
+                <td>{location.counts.primaryInvestigators.toLocaleString()}</td>
+                <td>{location.counts.collaborators.toLocaleString()}</td>
               </tr>
             )
           }

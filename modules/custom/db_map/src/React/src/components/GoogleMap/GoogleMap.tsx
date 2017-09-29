@@ -1,15 +1,16 @@
 import * as React from 'react';
 import { DEFAULT_OPTIONS, LABELED_MAP, UNLABELED_MAP } from '../../services/MapConstants';
 import { addLabel, addDataMarker, createInfoWindow } from '../../services/MapHelpers';
-import { Location, ViewLevel } from '../../services/DataService';
+import { getNextLocationFilters, Location, ViewLevel, LocationFilters } from '../../services/DataService';
 import './GoogleMap.css';
 
 export interface GoogleMapProps {
   locations: Location[];
   viewLevel: ViewLevel;
+  locationFilters: LocationFilters; 
   showDataLabels: boolean;
   showMapLabels: boolean;
-  onSelect: (location: Location) => void;
+  onSelect: (locationFilters: LocationFilters) => void;
 }
 
 const sum = (object: any): number => {
@@ -19,7 +20,6 @@ const sum = (object: any): number => {
   }
   return sum;
 }
-
 
 class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
@@ -41,7 +41,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
 
 
-  componentWillReceiveProps({ viewLevel, locations, showDataLabels, showMapLabels }: GoogleMapProps) {
+  componentWillReceiveProps({ viewLevel, locations, locationFilters, showDataLabels, showMapLabels }: GoogleMapProps) {
 
     if (this.map !== null && locations !== this.locations) {
 
@@ -72,7 +72,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       locations.forEach((location: Location) => {
 
         // extract label, data, and coordinates from location
-        let { coordinates, data, label } = location;
+        let { coordinates, counts, label } = location;
 
         // expand the bounds for this map
         bounds.extend(coordinates);
@@ -89,7 +89,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         }
 
         // add a marker at the specified location
-        let marker = addDataMarker(sum(data), dataMarkerSize, coordinates, map);
+        let marker = addDataMarker(sum(counts), dataMarkerSize, coordinates, map);
 
         // add an info window containing the data
         let infoWindow = createInfoWindow(location);
@@ -109,11 +109,34 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         // open a new location when this is clicked
         marker.addListener('dblclick', event => {
           infoWindow.close();
-          onSelect(location);
+          onSelect(
+            getNextLocationFilters(location, locationFilters)
+          );
         });
       });
 
       map.fitBounds(bounds);
+
+      if (viewLevel === 'regions') {
+        map.setCenter({
+          lat: 25,
+          lng: 0,
+        })
+      }
+
+      if (viewLevel === 'regions' && map.getZoom() > 3) {
+        map.setZoom(3);
+      }
+
+      if (viewLevel === 'countries' && map.getZoom() > 5) {
+        map.setZoom(5);
+      }
+
+
+      if (viewLevel === 'cities' && map.getZoom() > 7) {
+        map.setZoom(7);
+      }      
+
     }
   }
 

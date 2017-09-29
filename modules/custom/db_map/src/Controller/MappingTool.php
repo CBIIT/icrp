@@ -120,8 +120,8 @@ class MappingTool {
         ],
       ];
 
-      if (!in_array($parameters['type'], ['region', 'country', 'city'])) {
-        $parameters['type'] = 'region';
+      if (!in_array($parameters['type'], array_keys(self::QUERY_MAP))) {
+        $parameters['type'] = array_keys(self::QUERY_MAP)[0];
       }
 
       $query = self::QUERY_MAP[$parameters['type']];
@@ -148,24 +148,13 @@ class MappingTool {
             'lat' => floatval($location['Latitude']),
             'lng' => floatval($location['Longitude']),
           ],
-          'data' => [
+          'counts' => [
             'projects' => $location['TotalRelatedProjectCount'],
             'primaryInvestigators' => $location['TotalPICount'],
             'collaborators' => $location['TotalCollaboratorCount'],
           ],
         ];
       }, $locations);
-
-      // do not sort locations
-      // usort($locations, function($a, $b) {
-      //   $a = $a['value'];
-      //   $b = $b['value'];
-
-      //   if (is_numeric($a) && is_numeric($b))
-      //     return floatval($a) - floatval($b);
-      //   else
-      //     return strcmp(strval($a), strval($b));
-      // });
 
       return [
         'locations' => $locations,

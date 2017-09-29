@@ -1,7 +1,6 @@
-import { stringify } from 'query-string';
-import { ExcelSheet } from './ExportService';
+import { parse, stringify } from 'query-string';
 
-export type ViewLevel = 'regions' | 'countries' | 'cities' | undefined;
+export type ViewLevel = 'regions' | 'countries' | 'cities';
 
 export interface LocationCounts {
   projects: number;
@@ -28,7 +27,7 @@ export interface Location {
   label: string;
   value: string;
   coordinates: google.maps.LatLngLiteral;
-  data: LocationCounts
+  counts: LocationCounts
 }
 
 /**
@@ -53,9 +52,9 @@ export interface Location {
  * @export
  * @interface LocationApiRequest
  */
-export interface LocationApiRequest {
+export interface LocationFilters {
   searchId: number;
-  type?: ViewLevel;
+  type: ViewLevel;
   region?: string;
   country?: string;
 }
@@ -69,9 +68,9 @@ export interface LocationApiRequest {
  * collaborators
  *
  * @export
- * @interface LocationApiResponse
+ * @interface LocationResponse
  */
-export interface LocationApiResponse {
+export interface LocationResponse {
   locations: Location[];
   counts: LocationCounts;
 }
@@ -81,32 +80,60 @@ export interface LocationApiResponse {
  */
 export const BASE_URL = `${window.location.protocol}//${window.location.hostname}`;
 
+export const SEARCH_ID = +parse(window.location.search).sid || 0;
+
 export const jsonRequest = async (url: string, params: object) => {
   let response = await fetch(url, params);
   return await response.json();
 }
 
-export const getLocations = async (params: LocationApiRequest): Promise<LocationApiResponse> =>
+export const getLocations = async (params: LocationFilters): Promise<LocationResponse> =>
   await jsonRequest(`${BASE_URL}/map/getLocations/?${stringify(params)}`, {
     credentials: 'same-origin'
   });
 
-export const getSearchParameters = async (searchId: number): Promise<(string|number)[][]> =>
+export const getSearchParameters = async (searchId: number): Promise<any[][]> =>
   await jsonRequest(`${BASE_URL}/map/getSearchParameters/?${stringify({searchId})}`, {
     credentials: 'same-origin'
   });
 
-export const getExcelExport = async (data: ExcelSheet[]): Promise<string> =>
-  await jsonRequest(`${BASE_URL}/map/getExcelExport/`, {
-    method: 'POST',
-    body: JSON.stringify(data),
-    credentials: 'same-origin'
-  });
-
-export const getNewSearchId = async (filters: LocationApiRequest): Promise<number> =>
+export const getNewSearchId = async (filters: LocationFilters): Promise<number> =>
   await jsonRequest(`${BASE_URL}/map/getNewSearchId/?${stringify(filters)}`, {
     credentials: 'same-origin'
   });
 
-export const getSearchParametersFromFilters = async(filters: LocationApiRequest): Promise<(string|number)[][]> =>
+export const getSearchParametersFromFilters = async(filters: LocationFilters): Promise<any[][]> =>
   await getSearchParameters(await getNewSearchId(filters));
+
+export const parseViewLevel = (viewLevel: ViewLevel): string => ({
+  regions: 'Region',
+  countries: 'Country',
+  cities: 'Cities',
+}[viewLevel])
+
+export const summarizeCriteria = (criteria: any[][]): string =>
+  criteria.length > 0
+  ? criteria
+    .map(row => row[0].toString().replace(':', '').trim())
+    .filter(str => str.length > 0)
+    .join(' + ')
+  : 'All';
+
+export const getNextViewLevel = (viewLevel: ViewLevel): ViewLevel => ({
+  regions: 'countries',
+  countries: 'cities',
+}[viewLevel])
+
+export const getNextLocationFilters = (location: Location, locationFilters: LocationFilters): LocationFilters => {
+  let key = {
+    regions: 'region',
+    countries: 'country',
+    cities: 'city',
+  }[locationFilters.type];
+
+  return { 
+    ...locationFilters,
+    type: getNextViewLevel(locationFilters.type),
+    [key]: location.value,
+  };
+} 

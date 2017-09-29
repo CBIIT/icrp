@@ -1,51 +1,38 @@
 import * as React from 'react';
 import { ComponentBase } from 'resub';
-import { locations } from '../../stores/Locations';
-import { searchCriteria } from '../../stores/SearchCriteria';
-import { locationFilters } from '../../stores/LocationFilters';
-
-import { excelExport } from '../../services/ExportService';
+import { store } from '../../services/Store';
+import { buildSheets, getExcelExportUrl } from '../../services/ExcelExport';
 import { Location, ViewLevel } from '../../services/DataService';
 
 interface ExportButtonState {
   locations: Location[];
   searchCriteria: (string|number)[][];
-  searchCriteriaSummary: string;
   viewLevel: ViewLevel;
 }
 
 export default class ExportButton extends ComponentBase<{}, ExportButtonState> {
   _buildState(): ExportButtonState {
     return {
-      locations: locations.get(),
-      searchCriteria: searchCriteria.get(),
-      searchCriteriaSummary: searchCriteria.getSummary(),
-      viewLevel: locationFilters.getViewLevel(),
+      locations: store.getLocations(),
+      searchCriteria: store.getSearchCriteria(), 
+      viewLevel: store.getViewLevel(),
     }
   }
 
-  export() {
+  async export() {
     const {
       locations,
       searchCriteria,
-      searchCriteriaSummary,
       viewLevel
     } = this.state;
 
-    const type = {
-      regions: 'Region',
-      countries: 'Country',
-      cities: 'City',
-    }[viewLevel || 'regions'];
-
-    excelExport({
-      searchCriteria: {
-        summary: searchCriteriaSummary,
-        table: searchCriteria
-      },
+    const sheets = buildSheets({
+      searchCriteria: searchCriteria,
       locations: locations,
-      type: type
-    })
+      viewLevel: viewLevel
+    });
+
+    window.location.href = await getExcelExportUrl(sheets);
   }
 
   render() {
