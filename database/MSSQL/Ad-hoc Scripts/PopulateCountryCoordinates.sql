@@ -18,7 +18,7 @@ CREATE TABLE #CountryCoordinates (
 GO
 
 BULK INSERT #CountryCoordinates
-FROM 'C:\ICRP\database\DataImport\CountryCoordinates.csv'
+FROM 'C:\ICRP\database\DataImport\CurrentRelease\CountryCoordinates.csv'
 WITH
 (
 	FIRSTROW = 2,
@@ -28,13 +28,12 @@ WITH
 )
 GO  
 
-select * from #CountryCoordinates
+select * from #CountryCoordinates -- where country='uk'
 
 UPDATE Country SET [Latitude] = cc.[Latitude], [Longitude]= cc.[Longitude]
 FROM Country c
 JOIN #CountryCoordinates cc ON cc.Country = c.Abbreviation
 
---select * from country where Abbreviation = 'us'
 
 --select * from #CountryCoordinates where country = 'us'
 --select * from country where [Longitude] is null

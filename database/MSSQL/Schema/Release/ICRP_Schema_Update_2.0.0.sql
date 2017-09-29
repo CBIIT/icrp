@@ -58,6 +58,34 @@ IF EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[Proje
 	EXEC sp_rename 'ProjectFundingInvestigator.IsPrivateInvestigator', 'ProjectFundingInvestigator.IsPrincipalInvestigator', 'COLUMN';  
 GO  
 
+--IF EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[Partner]') AND name = 'MapCoords')
+--	ALTER TABLE Partner DROP COLUMN MapCoords
+
+--GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[Partner]') AND name = 'Longitude')
+	ALTER TABLE Partner ADD Longitude [decimal](9, 6) NULL
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[Partner]') AND name = 'Latitude')
+	ALTER TABLE Partner ADD Latitude [decimal](9, 6) NULL
+GO
+
+
+--IF EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[FundingOrg]') AND name = 'MapCoords')
+--	ALTER TABLE Partner DROP COLUMN MapCoords
+
+--GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[FundingOrg]') AND name = 'Longitude')
+	ALTER TABLE FundingOrg ADD Longitude [decimal](9, 6) NULL
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[FundingOrg]') AND name = 'Latitude')
+	ALTER TABLE FundingOrg ADD Latitude [decimal](9, 6) NULL
+GO
+
+
 
 /*************************************************/
 /******					Data				******/

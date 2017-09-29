@@ -1,25 +1,52 @@
-  insert into PartnerOrg VALUES ('A Kids'' Brain Tumor Cure Foundation', 'CAC2', 'Associate', 1, getdate(), getdate())
-  insert into PartnerOrg VALUES ('Be Strong, Fight On!', 'CAC2', 'Associate', 1, getdate(), getdate())
-  insert into PartnerOrg VALUES ('Bear Necessities Pediatric Cancer Foundation', 'CAC2', 'Associate', 1, getdate(), getdate())
-  insert into PartnerOrg VALUES ('Elaine Roberts Foundation', 'CAC2', 'Associate', 1, getdate(), getdate())
-  insert into PartnerOrg VALUES ('Flashes of Hope', 'CAC2', 'Associate', 1, getdate(), getdate())
-  insert into PartnerOrg VALUES ('I Care I Cure', 'CAC2', 'Associate', 1, getdate(), getdate())
-  update PartnerOrg SET Name='Noah’s Light Foundation' WHERE PartnerOrgID=11
+-- 9/28/2017
+-- Update Partner
+Select * from Partner
+select * from partnerorg where membertype='partner'
 
-  insert into PartnerOrg VALUES ('Pancreatic Cancer Research Fund', 'NCRI', 'Associate', 1, getdate(), getdate())
-  insert into PartnerOrg VALUES ('Breast Cancer Now', 'NCRI', 'Associate', 1, getdate(), getdate())
-  update PartnerOrg SET Name='Alberta Innovates' WHERE PartnerOrgID=20
-  update PartnerOrg SET Name='Fondation du cancer du sein du Québec / Quebec Breast Cancer Foundation' WHERE PartnerOrgID=38
-  update PartnerOrg SET Name='Bloodwise' WHERE PartnerOrgID=81
-  update PartnerOrg SET Name='Worldwide Cancer Research' WHERE PartnerOrgID=73
-  update PartnerOrg SET Name='Health and Care Research Wales' WHERE PartnerOrgID=92
+SELECT * FROM Partner WHERE SponsorCode='AVONFDN'
+SELECT * FROM Partner WHERE SponsorCode='KWF'
+SELECT * FROM Partner WHERE SponsorCode='INCa'
 
-  update PartnerOrg SET IsActive= 0 WHERE PartnerOrgID=75
-  update PartnerOrg SET IsActive= 0 WHERE PartnerOrgID=76
+SELECT * FROM PartnerOrg WHERE SponsorCode='AVONFDN'
+SELECT * FROM PartnerOrg WHERE SponsorCode='KWF'
+SELECT * FROM PartnerOrg WHERE SponsorCode='INCa'
 
--- 2017/9/12
-insert into PartnerOrg VALUES ('The Anticancer Fund', 'ACF Belgium', 'partner', 1, getdate(), getdate())
+SELECT * FROM icrp_data_dev.dbo.PartnerOrg WHERE SponsorCode='AVONFDN'
+SELECT * FROM icrp_data_dev.dbo.PartnerOrg WHERE SponsorCode='KWF'
+SELECT * FROM icrp_data_dev.dbo.PartnerOrg WHERE SponsorCode='INCa'
 
--- select * from PartnerOrg where SponsorCode='ncri'
--- select * from PartnerOrg where membertype='partner'
--- select * from partner
+BEGIN TRANSACTION
+
+UPDATE Partner SET Name = 'AVON Breast Cancer Crusade' WHERE SponsorCode='AVONFDN'
+UPDATE Partner SET Name = 'Dutch Cancer Society (KWF)' WHERE SponsorCode='KWF'
+UPDATE Partner SET Name = 'French National Cancer Institute (INCa)' WHERE SponsorCode='INCa'
+
+UPDATE PartnerOrg SET Name = 'AVON Breast Cancer Crusade' WHERE SponsorCode='AVONFDN' AND MemberType = 'Partner' 
+UPDATE PartnerOrg SET Name = 'Dutch Cancer Society (KWF)' WHERE SponsorCode='KWF' AND MemberType = 'Partner' 
+UPDATE PartnerOrg SET Name = 'French National Cancer Institute (INCa)' WHERE SponsorCode='INCa' AND MemberType = 'Partner' 
+
+COMMIT
+
+BEGIN TRANSACTION
+UPDATE Partner SET JoinedDate = '1/1/2000' WHERE SponsorCode IN ('ACS', 'CBCRP','CDMRP','KOMEN','NCRI','NIH','ONSF')
+COMMIT
+
+
+-- Update FundingOrg
+Select * from FundingOrg WHERE Abbreviation IN ('AVONFDN', 'AT')
+select * from partnerorg where membertype='Associate' and SponsorCode IN ('NIH', 'AVONFDN')
+
+BEGIN TRANSACTION
+UPDATE FundingOrg SET Name = 'AVON Breast Cancer Crusade' WHERE SponsorCode='AVONFDN' AND Abbreviation = 'AVONFDN'
+UPDATE FundingOrg SET Name = 'National Center for Complementary and Integrative Health' WHERE SponsorCode='NIH' AND Abbreviation = 'AT'
+
+
+UPDATE PartnerOrg SET Name = 'AVON Breast Cancer Crusade' WHERE Name ='Avon Foundation for Women' AND MemberType = 'Associate'
+UPDATE PartnerOrg SET Name = 'National Center for Complementary and Integrative Health' WHERE Name ='National Center for Complementary and Alternative Medicine' AND MemberType = 'Associate'
+
+COMMIT
+
+
+
+
+
