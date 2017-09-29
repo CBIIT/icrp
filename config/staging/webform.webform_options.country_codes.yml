@@ -1,9 +1,0 @@
-uuid: 702cbaf2-6116-41b9-ab34-8b16bea9f732
-langcode: en
-status: true
-dependencies: {  }
-_core:
-  default_config_hash: qy-Gvop0anPGjbIPiObmD6wBG9Gs4hIjBlnkhwbkTnA
-id: country_codes
-label: 'Country codes'
-options: ''
