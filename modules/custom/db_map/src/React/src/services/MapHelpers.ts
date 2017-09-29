@@ -1,6 +1,6 @@
 import { Location } from './DataService';
 
-export const addLabel = (label: string, location: google.maps.LatLngLiteral, map: google.maps.Map) =>
+export const addLabel = (label: string, location: google.maps.LatLngLiteral | google.maps.LatLng, map: google.maps.Map) =>
   new google.maps.Marker({
     map: map,
     position: location,
@@ -8,7 +8,7 @@ export const addLabel = (label: string, location: google.maps.LatLngLiteral, map
     label: {
       color: '#2574A9',
       text: label.toLocaleUpperCase(),
-      fontSize: '14px',
+      fontSize: '17px',
       fontWeight: '500',
       fontFamily: `
         -apple-system, system-ui, BlinkMacSystemFont,
@@ -22,7 +22,7 @@ export const addLabel = (label: string, location: google.maps.LatLngLiteral, map
     },
   });
 
-export const addDataMarker = (label: number, scale: number, location: google.maps.LatLngLiteral, map: google.maps.Map) =>
+export const addDataMarker = (label: number, scale: number, location: google.maps.LatLngLiteral  | google.maps.LatLng, map: google.maps.Map) =>
   new google.maps.Marker({
     map: map,
     position: location,
@@ -58,7 +58,7 @@ export const createInfoWindow = ({label, counts}: Location) =>
         <table class="popover-table">
           <tbody>
             <tr>
-              <td>Total Projects</td>
+              <td>Total Related Projects</td>
               <td>${counts.projects.toLocaleString()}</td>
             </tr>
 

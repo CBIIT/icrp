@@ -109,7 +109,7 @@ export default class App extends ComponentBase<{}, AppState> {
             viewLevel={viewLevel}
             locationFilters={locationFilters}
             showMapLabels={viewLevel !== 'regions'}
-            showDataLabels={viewLevel === 'regions'}
+            showDataLabels={true || viewLevel === 'regions'}
             onSelect={locationFilters => this.selectLocation(locationFilters)}
           />
         </div>

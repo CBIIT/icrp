@@ -4,6 +4,8 @@ import { addLabel, addDataMarker, createInfoWindow } from '../../services/MapHel
 import { getNextLocationFilters, Location, ViewLevel, LocationFilters } from '../../services/DataService';
 import './GoogleMap.css';
 
+declare const MarkerClusterer: object;
+
 export interface GoogleMapProps {
   locations: Location[];
   viewLevel: ViewLevel;
@@ -80,13 +82,22 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         // if we are displaying data labels,
         // display them above the circles
         if (showDataLabels) {
-          let labelCoordinates: google.maps.LatLngLiteral = {
-            lng: coordinates.lng + dataMarkerSize + 5,
-            ...coordinates
-          }
+
+          let latLng = new google.maps.LatLng(coordinates.lat, coordinates.lng);
+//          let point = new google.maps.Point(coordinates.lng, coordinates.lat);
+          let point = map.getProjection().fromLatLngToPoint(latLng);
+          let labelCoordinates = map.getProjection().fromPointToLatLng(point);
+
+          let labelCoordinate2s: google.maps.LatLngLiteral = {
+            ...coordinates,
+            lat: coordinates.lat,
+          } ;labelCoordinate2s;
+
           let labelMarker = addLabel(label, labelCoordinates, map);
           window.setTimeout(() => this.labels.push(labelMarker), 0);
         }
+
+        MarkerClusterer;
 
         // add a marker at the specified location
         let marker = addDataMarker(sum(counts), dataMarkerSize, coordinates, map);
