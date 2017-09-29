@@ -120,7 +120,7 @@
     },
     "autoload": {
         "classmap": [
-            "utility/composer_setup/ScriptHandler.php"
+            "ScriptHandler.php"
         ]
     },
     "scripts": {
