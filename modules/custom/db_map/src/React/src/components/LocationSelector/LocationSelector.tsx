@@ -1,67 +1,51 @@
 import * as React from 'react';
+import { ComponentBase  } from 'resub';
+import { store } from '../../services/Store';
+import { ViewLevel, LocationFilters } from '../../services/DataService';
 import './LocationSelector.css';
 
-
-export interface SampleProps {
-
-}
-
-interface LocationSelectorProps {
-
-
-}
-
-interface Filter {
+interface ViewLevelTag {
+  location?: Location;
+  viewLevel: ViewLevel;
   label: string;
   value: string;
 }
 
-interface LocationSelectorTagInterface {
-  text: string;
-  first?: boolean,
+interface ViewLevelSelectorState {
+  locationFilters: LocationFilters;
 }
 
+const ViewLevelTag = ({label}: ViewLevelTag) =>
+<span className="position-relative">
+  <div className="bg-chevron">
+    {label}
+  </div>
+</span>
 
-const LocationSelectorTag = (props: LocationSelectorTagInterface) =>
-  <span className="position-relative">
-    <div className={props.first ? 'bg-chevron first' : 'bg-chevron'}>
-      {props.text}
-    </div>
-  </span>
+export default class ViewLevelSelector extends ComponentBase<{}, ViewLevelSelectorState> {
 
-export default class LocationSelector extends React.Component<LocationSelectorProps, {filters: Filter[]}> {
+  _buildState(): ViewLevelSelectorState {
+    return {
+      locationFilters: store.getLocationFilters()
+    };
+  }
 
-  state: {filters: Filter[]} = {
-    filters: [
+  buildTags(): ViewLevelTag[] {
+    const viewLevelTags: ViewLevelTag[] = [
       {
+        viewLevel: 'regions',
         label: 'All Regions',
-        value: ''
-      },
-      // {
-      //   label: 'North America',
-      //   value: ''
-      // }
+        value: '0',
+      }
+    ];
 
-    ]
+    return viewLevelTags
   }
-
-  constructor(props: LocationSelectorProps) {
-    super(props);
-
-  }
-
-
 
   render() {
     return (
       <div className="display-flex align-items-center">
-      {
-        this.state.filters.map((filter, index) =>
-          <LocationSelectorTag text={filter.label} first={index === 0} />
-        )
-      }
       </div>
-
     )
   }
 }

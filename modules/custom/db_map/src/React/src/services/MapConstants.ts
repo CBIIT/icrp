@@ -1,62 +1,123 @@
-export const DEFAULT_STYLES: google.maps.MapTypeStyle[] = [
+export const UNLABELED_MAP: google.maps.MapTypeStyle[] = [
   {
-    'elementType': 'geometry',
-    'stylers': [
+    "elementType": "geometry",
+    "stylers": [
       {
-        'color': '#f5f5f5'
+        "color": "#f5f5f5"
       }
     ]
   },
   {
-    'elementType': 'labels',
-    'stylers': [
+    "elementType": "labels",
+    "stylers": [
       {
-        'visibility': 'off'
+        "visibility": "off"
       }
     ]
   },
   {
-    'featureType': 'administrative.country',
-    'elementType': 'geometry.stroke',
-    'stylers': [
+    "featureType": "administrative.country",
+    "elementType": "geometry.stroke",
+    "stylers": [
       {
-        'color': '#a0cce7'
-      },
-    ]
-  },
-  {
-    'featureType': 'poi',
-    'stylers': [
-      {
-        'visibility': 'off'
+        "color": "#a0cce7"
       }
     ]
   },
   {
-    'featureType': 'road',
-    'stylers': [
+    "featureType": "poi",
+    "stylers": [
       {
-        'visibility': 'off'
+        "visibility": "off"
       }
     ]
   },
   {
-    'featureType': 'transit',
-    'stylers': [
+    "featureType": "road",
+    "stylers": [
       {
-        'visibility': 'off'
+        "visibility": "off"
       }
     ]
   },
   {
-    'featureType': 'water',
-    'elementType': 'geometry.fill',
-    'stylers': [
+    "featureType": "transit",
+    "stylers": [
       {
-        'color': '#64aad8'
+        "visibility": "off"
       }
     ]
   },
+  {
+    "featureType": "water",
+    "elementType": "geometry.fill",
+    "stylers": [
+      {
+        "color": "#64aad8"
+      }
+    ]
+  }
+];
+
+export const LABELED_MAP: google.maps.MapTypeStyle[] = [
+  {
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#f5f5f5"
+      }
+    ]
+  },
+  {
+    "elementType": "labels",
+    "stylers": [
+      {
+        "lightness": 40
+      }
+    ]
+  },
+  {
+    "featureType": "administrative.country",
+    "elementType": "geometry.stroke",
+    "stylers": [
+      {
+        "color": "#a0cce7"
+      }
+    ]
+  },
+  {
+    "featureType": "poi",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "transit",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "geometry.fill",
+    "stylers": [
+      {
+        "color": "#64aad8"
+      }
+    ]
+  }
 ];
 
 export const DEFAULT_OPTIONS: google.maps.MapOptions = {
@@ -66,5 +127,5 @@ export const DEFAULT_OPTIONS: google.maps.MapOptions = {
   disableDefaultUI: true,
   zoomControl: true,
   backgroundColor: '#64aad8',
-  styles: DEFAULT_STYLES,
+  styles: UNLABELED_MAP,
 }

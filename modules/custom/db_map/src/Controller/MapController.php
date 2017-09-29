@@ -40,7 +40,7 @@ class MapController extends ControllerBase {
   private static function createResponse($data): JSONResponse {
     return JsonResponse::create(
       $data,
-      isset($data['ERROR']) ? 400 : 200, [
+      (is_array($data) && isset($data['ERROR'])) ? 400 : 200, [
       'Access-Control-Allow-Headers' => 'origin, content-type, accept',
       'Access-Control-Allow-Origin'  => '*',
       'Access-Control-Allow-Methods' => 'GET, POST',
@@ -78,7 +78,7 @@ class MapController extends ControllerBase {
       $request->query->all(),
       [
         'searchId' => 0,
-        'type' => 'region',
+        'type' => 'regions',
         'region' => 1,
         'country' => '',
         'city' => '',

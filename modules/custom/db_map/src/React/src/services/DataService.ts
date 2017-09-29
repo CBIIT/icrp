@@ -1,69 +1,139 @@
-import { stringify } from 'query-string';
+import { parse, stringify } from 'query-string';
 
+export type ViewLevel = 'regions' | 'countries' | 'cities';
+
+export interface LocationCounts {
+  projects: number;
+  primaryInvestigators: number;
+  collaborators: number;
+}
+
+/**
+ * Defines a Location, which represents the projects
+ * for a specified region, country, or city.
+ *
+ * label - the display label for this location
+ *
+ * value - the value used internally to perform queries
+ *
+ * coordinates - the latitude/longitude for this location
+ *
+ * data - any additional information about this location
+ *
+ * @export
+ * @interface Location
+ */
 export interface Location {
   label: string;
-  value: string | number;
+  value: string;
   coordinates: google.maps.LatLngLiteral;
-  data: {
-    relatedProjects: number;
-    primaryInvestigators: number;
-    collaborators: number;
-  }
+  counts: LocationCounts
 }
 
-export interface ExcelSheet {
-  title: string;
-  rows: (number|string)[][];
-}
-
-export interface RegionInterface {
-  locations: Location[];
-  counts: {
-    projects: number,
-    primaryInvestigators: number,
-    collaborators: number,
-  };
-}
-
-export interface MapLevelInterface {
+/**
+ * Defines the parameters used to fetch information
+ * on a set of Locations.
+ *
+ * By specifying a type, we may request various
+ * types of locations.
+ *
+ * For example, to request regions given a particular
+ * search id, we would specify the type as 'region'
+ *
+ * To request country locations, we would specify
+ * the type as 'country', and in addition provide
+ * a region (based on the region id, which is the
+ * Location's 'value' property)
+ *
+ * To request city locations, we would specify
+ * the type as 'city', and provide the region id,
+ * as well as the country id.
+ *
+ * @export
+ * @interface LocationApiRequest
+ */
+export interface LocationFilters {
   searchId: number;
-  region?: number;
-  country?: string;
-  city?: string;
-}
-
-export interface LocationApiInterface {
-  searchId: number;
-  type?: 'region' | 'country' | 'city';
+  type: ViewLevel;
   region?: string;
   country?: string;
 }
 
+/**
+ * Represents the response from getLocations
+ * This response contains the locations of the
+ * specified type (region, country, or city)
+ * as well as the total numbers of related
+ * projects, primary investigators, and
+ * collaborators
+ *
+ * @export
+ * @interface LocationResponse
+ */
+export interface LocationResponse {
+  locations: Location[];
+  counts: LocationCounts;
+}
+
+/**
+ * The base url used to make all api requests
+ */
 export const BASE_URL = `${window.location.protocol}//${window.location.hostname}`;
 
-export const request = async (url: string, params: object) => {
+export const SEARCH_ID = +parse(window.location.search).sid || 0;
+
+export const jsonRequest = async (url: string, params: object) => {
   let response = await fetch(url, params);
   return await response.json();
 }
 
-export const getLocations = async (params: LocationApiInterface): Promise<RegionInterface> =>
-  await request(`${BASE_URL}/map/getLocations/?${stringify(params)}`, {
+export const getLocations = async (params: LocationFilters): Promise<LocationResponse> =>
+  await jsonRequest(`${BASE_URL}/map/getLocations/?${stringify(params)}`, {
     credentials: 'same-origin'
   });
 
-export const getSearchParameters = async (searchId: number): Promise<(string|number)[][]> =>
-  await request(`${BASE_URL}/map/getSearchParameters/?${stringify({searchId})}`, {
+export const getSearchParameters = async (searchId: number): Promise<any[][]> =>
+  await jsonRequest(`${BASE_URL}/map/getSearchParameters/?${stringify({searchId})}`, {
     credentials: 'same-origin'
   });
 
-export const getExcelExport = async (data: ExcelSheet[]): Promise<string> =>
-  await request(`${BASE_URL}/map/getExcelExport/`, {
-    method: 'POST',
-    body: JSON.stringify(data),
+export const getNewSearchId = async (filters: LocationFilters): Promise<number> =>
+  await jsonRequest(`${BASE_URL}/map/getNewSearchId/?${stringify(filters)}`, {
     credentials: 'same-origin'
   });
 
-export const getNewSearchId = async (searchId: number, region?: number, country?: string, city?: string): Promise<{newSearchId: number}> =>
-  await request(`${BASE_URL}/map/getNewSearchId/?${stringify({searchId, region, country, city})}`, {
-    credentials: 'same-origin'
-  })
+export const getSearchParametersFromFilters = async(filters: LocationFilters): Promise<any[][]> =>
+  await getSearchParameters(await getNewSearchId(filters));
+
+export const parseViewLevel = (viewLevel: ViewLevel): string => ({
+  regions: 'Region',
+  countries: 'Country',
+  cities: 'Cities',
+}[viewLevel])
+
+export const summarizeCriteria = (criteria: any[][]): string =>
+  criteria.length > 0
+  ? criteria
+    .map(row => row[0].toString().replace(':', '').trim())
+    .filter(str => str.length > 0)
+    .join(' + ')
+  : 'All';
+
+export const getNextViewLevel = (viewLevel: ViewLevel): ViewLevel => ({
+  regions: 'countries',
+  countries: 'cities',
+}[viewLevel])
+
+export const getNextLocationFilters = (location: Location, locationFilters: LocationFilters): LocationFilters => {
+  let key = {
+    regions: 'region',
+    countries: 'country',
+    cities: 'city',
+  }[locationFilters.type];
+
+  return { 
+    ...locationFilters,
+    type: getNextViewLevel(locationFilters.type),
+    [key]: location.value,
+  };
+} 

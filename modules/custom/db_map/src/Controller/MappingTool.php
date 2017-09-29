@@ -11,7 +11,7 @@ use PDOStatement;
 class MappingTool {
 
   const QUERY_MAP = [
-    'region' => [
+    'regions' => [
       'sql' => '
         SET NOCOUNT ON;
         EXECUTE GetMapRegionsBySearchID
@@ -30,7 +30,7 @@ class MappingTool {
       ],
     ],
 
-    'country' => [
+    'countries' => [
       'sql' => '
         SET NOCOUNT ON;
         EXECUTE GetMapCountriesBySearchID
@@ -51,12 +51,13 @@ class MappingTool {
       ],
     ],
 
-    'city' => [
+    'cities' => [
       'sql' => '
         SET NOCOUNT ON;
         EXECUTE GetMapCitiesBySearchID
           @SearchID = :searchId,
-          @Vountry = :country,
+          @RegionID = :region,
+          @Country = :country,
           @AggregatedProjectCount = :projects,
           @AggregatedPICount = :primaryInvestigators,
           @AggregatedCollabCount = :collaborators',
@@ -119,8 +120,8 @@ class MappingTool {
         ],
       ];
 
-      if (!in_array($parameters['type'], ['region', 'country', 'city'])) {
-        $parameters['type'] = 'region';
+      if (!in_array($parameters['type'], array_keys(self::QUERY_MAP))) {
+        $parameters['type'] = array_keys(self::QUERY_MAP)[0];
       }
 
       $query = self::QUERY_MAP[$parameters['type']];
@@ -141,24 +142,19 @@ class MappingTool {
       $locations = array_map(function($location) use ($query) {
         $columns = $query['columns'];
         return [
-          'label' => $location[$columns['label']],
-          'value' => $location[$columns['value']],
+          'label' => strval($location[$columns['label']]),
+          'value' => strval($location[$columns['value']]),
           'coordinates' => [
             'lat' => floatval($location['Latitude']),
             'lng' => floatval($location['Longitude']),
           ],
-          'data' => [
-            'relatedProjects' => $location['TotalRelatedProjectCount'],
+          'counts' => [
+            'projects' => $location['TotalRelatedProjectCount'],
             'primaryInvestigators' => $location['TotalPICount'],
             'collaborators' => $location['TotalCollaboratorCount'],
           ],
         ];
       }, $locations);
-
-      // sort locations
-      usort($locations, function($a, $b) {
-        return $a['value'] - $b['value'];
-      });
 
       return [
         'locations' => $locations,
@@ -214,7 +210,7 @@ class MappingTool {
       'region' => NULL,
       'country' => NULL,
       'city' => NULL
-  ]): array {
+  ]) {
     try {
       $output = [
         'newSearchId' => [
@@ -236,12 +232,7 @@ class MappingTool {
         $output
       )->fetchAll();
 
-      // extract the values for each output parameter
-      foreach($output as $key => $entry) {
-        $output[$key] = $entry['value'];
-      }
-
-      return $output;
+      return $output['newSearchId']['value'];
     }
 
     catch (PDOException $ex) {

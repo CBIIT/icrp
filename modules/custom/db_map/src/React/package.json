@@ -1,23 +1,26 @@
 {
-  "name": "icrp-map",
+  "name": "counter-redux",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@types/googlemaps": "^3.26.20",
-    "@types/jest": "^20.0.8",
-    "@types/node": "^8.0.27",
-    "@types/query-string": "^5.0.0",
-    "@types/react": "^16.0.5",
-    "@types/react-dom": "^15.5.4",
     "query-string": "^5.0.0",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
-    "react-scripts-ts": "2.6.0"
+    "react-scripts-ts": "2.7.0",
+    "resub": "^0.0.20"
   },
   "scripts": {
     "start": "react-scripts-ts start",
     "build": "react-scripts-ts build",
     "test": "react-scripts-ts test --env=jsdom",
     "eject": "react-scripts-ts eject"
+  },
+  "devDependencies": {
+    "@types/googlemaps": "^3.29.0",
+    "@types/jest": "^21.1.0",
+    "@types/node": "^8.0.30",
+    "@types/query-string": "^5.0.0",
+    "@types/react": "^16.0.7",
+    "@types/react-dom": "^15.5.5"
   }
 }

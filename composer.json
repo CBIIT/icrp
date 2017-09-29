@@ -1,16 +1,8 @@
 {
-    "name": "drupal-composer/drupal-project",
-    "description": "Project template for Drupal 8 projects with composer",
-    "type": "project",
-    "license": "GPL-2.0+",
-    "authors": [
-        {
-            "name": "",
-            "role": ""
-        }
-    ],
+    "name": "cbiit/icrp",
+    "description": "Website for International Cancer Research Project",
     "repositories": {
-        "0": {
+        "drupal": {
             "type": "composer",
             "url": "https://packages.drupal.org/8"
         },
@@ -128,7 +120,7 @@
     },
     "autoload": {
         "classmap": [
-            "scripts/composer/ScriptHandler.php"
+            "utility/composer_setup/ScriptHandler.php"
         ]
     },
     "scripts": {
@@ -140,7 +132,8 @@
             "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
         ],
         "post-install-cmd": [
-            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
+            "@composer run drupal-scaffold"
         ]       
     },
     "extra": {
@@ -162,6 +155,15 @@
             ],
             "drush/contrib/{$name}": [
                 "type:drupal-drush"
+            ]
+        },
+        "drupal-scaffold": {
+            "excludes": [
+                "sites/default/default.services.yml",
+                "sites/default/default.settings.php",
+                "sites/development.services.yml",
+                "sites/example.settings.local.php",
+                "sites/example.sites.php"
             ]
         }
     }

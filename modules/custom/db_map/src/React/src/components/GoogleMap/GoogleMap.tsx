@@ -1,87 +1,142 @@
 import * as React from 'react';
-import { DEFAULT_OPTIONS } from '../../services/MapConstants';
-import { addLabel, addDataMarker } from '../../services/MapHelpers';
-import { Location } from '../../services/DataService';
+import { DEFAULT_OPTIONS, LABELED_MAP, UNLABELED_MAP } from '../../services/MapConstants';
+import { addLabel, addDataMarker, createInfoWindow } from '../../services/MapHelpers';
+import { getNextLocationFilters, Location, ViewLevel, LocationFilters } from '../../services/DataService';
 import './GoogleMap.css';
 
 export interface GoogleMapProps {
-  zoom: number;
-  coordinates: google.maps.LatLngLiteral;
   locations: Location[];
+  viewLevel: ViewLevel;
+  locationFilters: LocationFilters; 
+  showDataLabels: boolean;
+  showMapLabels: boolean;
+  onSelect: (locationFilters: LocationFilters) => void;
+}
+
+const sum = (object: any): number => {
+  let sum = 0;
+  for (let key in object) {
+    sum += object && object[key];
+  }
+  return sum;
 }
 
 class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
   map: google.maps.Map;
   mapContainer: HTMLDivElement | null = null;
+
+  locations: Location[];
+  markers: google.maps.Marker[] = [];
+  labels: google.maps.Marker[] = [];
   infoWindows: google.maps.InfoWindow[] = [];
 
   async componentDidMount() {
     this.map = new google.maps.Map(this.mapContainer, DEFAULT_OPTIONS);
+
+    this.map.addListener('click', () => {
+      this.infoWindows.forEach(window => window.close());
+    });
   }
 
-  createInfoWindow({label, data}: Location) {
-    return new google.maps.InfoWindow({
-      content: `
-        <div>
-          <b>${label}</b>
-          <hr style="margin-top: 5px; margin-bottom: 5px" />
-          <table class="popover-table">
-            <tbody>
-              <tr>
-                <td>Total Projects</td>
-                <td>${data.relatedProjects.toLocaleString()}</td>
-              </tr>
 
-              <tr>
-                <td>Total PIs</td>
-                <td>${data.primaryInvestigators.toLocaleString()}</td>
-              </tr>
 
-              <tr>
-                <td>Total Collaborators</td>
-                <td>${data.collaborators.toLocaleString()}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-    `});
-  }
+  componentWillReceiveProps({ viewLevel, locations, locationFilters, showDataLabels, showMapLabels }: GoogleMapProps) {
 
-  componentWillReceiveProps({ coordinates, locations, zoom }: GoogleMapProps) {
-    if (this.map !== null) {
+    if (this.map !== null && locations !== this.locations) {
+
+      this.locations = locations;
+
       let map = this.map;
+      let bounds = new google.maps.LatLngBounds();
+      let dataMarkerSize = locations.length > 10 ? 22 : 30;
+      let { onSelect} = this.props;
 
-      map.setZoom(zoom);
-      map.setCenter(coordinates);
+      // clear all markers
+      this.markers.forEach(marker => {
+        marker.setMap(null);
+      })
 
-      map.data.forEach(feature => {
-        console.log(feature);
-        map.data.remove(feature);
+      // clear all labels
+      this.labels.forEach(labels => {
+        labels.setMap(null);
+      })
+
+      // conditionally display map lables
+      this.map.setOptions({
+        styles: showMapLabels ? LABELED_MAP : UNLABELED_MAP
       });
 
-      locations.forEach((location: Location) => {
-        let { label, coordinates, data } = location;
 
-        let sum = 0;
-        for (let key in data) {
-          sum += data && data[key];
+      // for each location, do the following:
+      locations.forEach((location: Location) => {
+
+        // extract label, data, and coordinates from location
+        let { coordinates, counts, label } = location;
+
+        // expand the bounds for this map
+        bounds.extend(coordinates);
+
+        // if we are displaying data labels,
+        // display them above the circles
+        if (showDataLabels) {
+          let labelCoordinates: google.maps.LatLngLiteral = {
+            lng: coordinates.lng + dataMarkerSize + 5,
+            ...coordinates
+          }
+          let labelMarker = addLabel(label, labelCoordinates, map);
+          window.setTimeout(() => this.labels.push(labelMarker), 0);
         }
 
-        addLabel(label, coordinates, map);
-        let marker = addDataMarker(sum, 30, coordinates, map);
-        let infoWindow = this.createInfoWindow(location);
-        this.infoWindows.push(infoWindow);
+        // add a marker at the specified location
+        let marker = addDataMarker(sum(counts), dataMarkerSize, coordinates, map);
 
+        // add an info window containing the data
+        let infoWindow = createInfoWindow(location);
+
+        // store these references so we can delete them later
+        window.setTimeout(() => {
+          this.infoWindows.push(infoWindow);
+          this.markers.push(marker);
+        }, 0);
+
+        // close all other info windows when this marker is clicked
         marker.addListener('click', () => {
           this.infoWindows.forEach(window => window.close());
           infoWindow.open(map, marker);
         });
+
+        // open a new location when this is clicked
         marker.addListener('dblclick', event => {
           infoWindow.close();
-        })
-        map.addListener('click', () => infoWindow.close());
+          onSelect(
+            getNextLocationFilters(location, locationFilters)
+          );
+        });
       });
+
+      map.fitBounds(bounds);
+
+      if (viewLevel === 'regions') {
+        map.setCenter({
+          lat: 25,
+          lng: 0,
+        })
+      }
+
+      if (viewLevel === 'regions' && map.getZoom() > 3) {
+        map.setZoom(3);
+      }
+
+      if (viewLevel === 'countries' && map.getZoom() > 5) {
+        map.setZoom(5);
+      }
+
+
+      if (viewLevel === 'cities' && map.getZoom() > 7) {
+        map.setZoom(7);
+      }      
+
     }
   }
 

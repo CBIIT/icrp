@@ -13,6 +13,7 @@
 
 .search-criteria-panel {
   border: 1px solid #e4e4e4;
+  border-top: none;
   box-shadow: 0 0 4px #eaeaea;
   padding: 4px 10px;
 }
@@ -21,13 +22,3 @@
   color: steelblue;
   font-weight: bold;
 }
-
-.rotate-45 {
-  display: inline-block;
-  transform: rotate(45deg);
-}
-
-.margin-right {
-  margin-right: 5px;
-}
-

@@ -1,42 +1,16 @@
 import * as React from 'react';
+import { LocationCounts, summarizeCriteria } from '../../services/DataService';
+import { BorderlessTable } from './BorderlessTable';
 import './SearchCriteria.css';
 
-export interface SearchCriteriaProps {
-  searchCriteria: {
-    summary: string,
-    parsed: {},
-    table: (string|number)[][],
-  };
-
-  counts: {
-    projects: number,
-    primaryInvestigators: number,
-    collaborators: number,
-  };
+interface SearchCriteriaProps {
+  searchCriteria: any[][];
+  counts: LocationCounts;
 }
 
-export interface SearchCriteriaState {
+interface SearchCriteriaState {
   isOpen: boolean;
 }
-
-const UndecoratedTable = ({ rows }: {rows: (string|number)[][]}) =>
-  <table>
-    <tbody>
-    {rows.map((row, rowIndex) =>
-      <tr key={rowIndex}>
-      {row.map((data, columnIndex) =>
-        <td
-          key={`${rowIndex}_${columnIndex}`}
-          style={{
-            padding: '4px 10px',
-            fontWeight: columnIndex === 0 ? 'bold' : 'normal'
-          }}>
-          {data}
-        </td>)}
-      </tr>
-    )}
-    </tbody>
-  </table>
 
 export default class SearchCriteria extends React.Component<SearchCriteriaProps, SearchCriteriaState> {
 
@@ -50,7 +24,7 @@ export default class SearchCriteria extends React.Component<SearchCriteriaProps,
       <div>
         <div
           className="search-criteria-bar"
-          onClick={event => searchCriteria.table.length > 0 && this.setState({isOpen: !isOpen})}>
+          onClick={event => searchCriteria.length > 0 && this.setState({isOpen: !isOpen})}>
           <div>
             <div
               className="margin-right inline-block"
@@ -58,7 +32,7 @@ export default class SearchCriteria extends React.Component<SearchCriteriaProps,
               {'\u25E5'}
             </div>
             <b>Search Criteria: </b>
-            { searchCriteria.summary }
+            { summarizeCriteria(searchCriteria) }
           </div>
 
           <div className="blue-text">
@@ -73,9 +47,9 @@ export default class SearchCriteria extends React.Component<SearchCriteriaProps,
           </div>
         </div>
         {
-          isOpen &&
+          isOpen && searchCriteria.length > 0 &&
           <div className="search-criteria-panel">
-            <UndecoratedTable rows={searchCriteria.table} />
+            <BorderlessTable rows={searchCriteria} />
           </div>
         }
       </div>

@@ -1,7 +1,6 @@
+import { Location } from './DataService';
 
-
-
-export const addLabel = (label: string, location: {lat: number, lng: number}, map: google.maps.Map) =>
+export const addLabel = (label: string, location: google.maps.LatLngLiteral, map: google.maps.Map) =>
   new google.maps.Marker({
     map: map,
     position: location,
@@ -21,16 +20,16 @@ export const addLabel = (label: string, location: {lat: number, lng: number}, ma
       path: 'M 0 0',
       strokeOpacity: 0,
     },
-  })
+  });
 
-export const addDataMarker = (data: number, scale: number, location: {lat: number, lng: number}, map: google.maps.Map) =>
+export const addDataMarker = (label: number, scale: number, location: google.maps.LatLngLiteral, map: google.maps.Map) =>
   new google.maps.Marker({
     map: map,
     position: location,
-    zIndex: 1,
+    zIndex: 2,
     label: {
       color: 'white',
-      text: data.toLocaleString(),
+      text: label.toLocaleString(),
       fontSize: '13px',
       fontWeight: '500',
       fontFamily: `
@@ -42,10 +41,37 @@ export const addDataMarker = (data: number, scale: number, location: {lat: numbe
     icon: {
       path: google.maps.SymbolPath.CIRCLE,
       scale: scale,
-      fillOpacity: 0.75,
+      fillOpacity: 0.6,
       strokeOpacity: 0.4,
       fillColor: '#2574A9',
       strokeColor: '#52B3D9',
       strokeWeight: 4,
     },
-  })
+  });
+
+export const createInfoWindow = ({label, counts}: Location) =>
+  new google.maps.InfoWindow({
+    content: `
+      <div>
+        <b>${label}</b>
+        <hr style="margin-top: 5px; margin-bottom: 5px" />
+        <table class="popover-table">
+          <tbody>
+            <tr>
+              <td>Total Projects</td>
+              <td>${counts.projects.toLocaleString()}</td>
+            </tr>
+
+            <tr>
+              <td>Total PIs</td>
+              <td>${counts.primaryInvestigators.toLocaleString()}</td>
+            </tr>
+
+            <tr>
+              <td>Total Collaborators</td>
+              <td>${counts.collaborators.toLocaleString()}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+  `});

@@ -46,6 +46,8 @@
 /profiles/
 /vendor/
 /temp/
+/libraries/
+/components/
 
 /.csslintrc
 /.editorconfig
@@ -68,5 +70,12 @@
 .vscode
 
 #Ignore modules but include modules/custom
-modules/*
-!modules/custom
+settings.local.php
+
+# ignore everything in the modules folder
+# except for the "custom" folder
+# we should instead simply ignore everything
+# in the /modules/contrib folder
+
+/modules/*
+!/modules/custom
