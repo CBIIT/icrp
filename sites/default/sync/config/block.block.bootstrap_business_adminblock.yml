@@ -1,0 +1,27 @@
+uuid: 6a9f8424-453b-4094-bcf6-da2fb542bfaa
+langcode: en
+status: false
+dependencies:
+  module:
+    - user
+  theme:
+    - bootstrap_business
+id: bootstrap_business_adminblock
+theme: bootstrap_business
+region: pre_header_first
+weight: -27
+provider: null
+plugin: 'snippet:admin_block'
+settings:
+  id: 'snippet:admin_block'
+  label: 'Admin Block'
+  provider: snippet_manager
+  label_display: visible
+visibility:
+  user_role:
+    id: user_role
+    roles:
+      administrator: administrator
+    negate: false
+    context_mapping:
+      user: '@user.current_user_context:current_user'

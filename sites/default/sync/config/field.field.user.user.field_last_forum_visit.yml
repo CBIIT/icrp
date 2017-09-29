@@ -1,0 +1,21 @@
+uuid: 81be8c84-92cc-4e43-8243-c34d51e5eeb0
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_last_forum_visit
+  module:
+    - datetime
+    - user
+id: user.user.field_last_forum_visit
+field_name: field_last_forum_visit
+entity_type: user
+bundle: user
+label: 'Last Forum Visit'
+description: 'Date and time of last Forum visit.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

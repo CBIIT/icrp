@@ -1,0 +1,24 @@
+uuid: a6ca77af-f431-425e-858c-94a3295ed264
+langcode: en
+status: false
+dependencies:
+  config:
+    - views.view.simple
+  module:
+    - views
+  theme:
+    - bootstrap
+id: views_block__simple_block_1
+theme: bootstrap
+region: navigation
+weight: -3
+provider: null
+plugin: 'views_block:simple-block_1'
+settings:
+  id: 'views_block:simple-block_1'
+  label: ''
+  provider: views
+  label_display: visible
+  views_label: ''
+  items_per_page: none
+visibility: {  }

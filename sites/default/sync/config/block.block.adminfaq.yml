@@ -1,0 +1,38 @@
+uuid: 8040a2b3-3708-4dfd-8463-d51bd36ca735
+langcode: en
+status: true
+dependencies:
+  config:
+    - system.menu.admin-faq
+  module:
+    - system
+    - user
+  theme:
+    - bootstrap_subtheme
+id: adminfaq
+theme: bootstrap_subtheme
+region: highlighted
+weight: 0
+provider: null
+plugin: 'system_menu_block:admin-faq'
+settings:
+  id: 'system_menu_block:admin-faq'
+  label: 'Admin FAQ'
+  provider: system
+  label_display: '0'
+  level: 1
+  depth: 0
+visibility:
+  request_path:
+    id: request_path
+    pages: /faq
+    negate: false
+    context_mapping: {  }
+  user_role:
+    id: user_role
+    roles:
+      administrator: administrator
+      manager: manager
+    negate: false
+    context_mapping:
+      user: '@user.current_user_context:current_user'

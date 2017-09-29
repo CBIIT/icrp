@@ -1,0 +1,31 @@
+uuid: 76ab040c-d091-44d1-a581-0f68e0f68cb7
+langcode: en
+status: false
+dependencies:
+  content:
+    - 'block_content:basic:bd40e7c1-6d47-486c-9d05-9fc6f1a1976f'
+  module:
+    - block_content
+    - system
+  theme:
+    - bootstrap_subtheme
+id: bootstrap_subtheme_twitterlink
+theme: bootstrap_subtheme
+region: navigation
+weight: 9
+provider: null
+plugin: 'block_content:bd40e7c1-6d47-486c-9d05-9fc6f1a1976f'
+settings:
+  id: 'block_content:bd40e7c1-6d47-486c-9d05-9fc6f1a1976f'
+  label: 'twitter link'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /home
+    negate: false
+    context_mapping: {  }

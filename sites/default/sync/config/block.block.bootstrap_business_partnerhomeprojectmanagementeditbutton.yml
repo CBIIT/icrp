@@ -1,0 +1,25 @@
+uuid: 8147fed6-d738-4960-8ae2-353e0a5e34af
+langcode: en
+status: false
+dependencies:
+  content:
+    - 'block_content:basic:b06c3544-d886-4b28-a4cd-4dc36f98b719'
+  module:
+    - block_content
+  theme:
+    - bootstrap_business
+id: bootstrap_business_partnerhomeprojectmanagementeditbutton
+theme: bootstrap_business
+region: pre_header_first
+weight: -5
+provider: null
+plugin: 'block_content:b06c3544-d886-4b28-a4cd-4dc36f98b719'
+settings:
+  id: 'block_content:b06c3544-d886-4b28-a4cd-4dc36f98b719'
+  label: 'Partner Home Project Management Edit Button'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

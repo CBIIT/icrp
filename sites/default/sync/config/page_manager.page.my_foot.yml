@@ -1,0 +1,12 @@
+uuid: 9085c000-715c-4736-a859-ad35283aa82a
+langcode: en
+status: true
+dependencies: {  }
+id: my_foot
+label: 'My Foot'
+description: 'ICRP Footer Block'
+use_admin_theme: false
+path: /myfoot
+access_logic: and
+access_conditions: {  }
+parameters: {  }
