@@ -38,7 +38,9 @@ CREATE PROCEDURE [dbo].[GetProjectsByCriteria]
 	@ResultCount INT OUTPUT  -- return the searchID	
 	
 AS   
-----------------------------------
+	DECLARE @IsFiltered bit = 0
+
+	----------------------------------
 	-- Get all Projects 
 	----------------------------------
 	SELECT * INTO #proj  FROM vwProjectFundings   -- All project funding records including PI and collaborator
@@ -47,7 +49,9 @@ AS
 	-- Exclude the projects which funding institutions and PI do NOT meet the criteria
 	-------------------------------------------------------------------------
 	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@awardCode IS NOT NULL) OR (@IsChildhood IS NOT NULL)
-	BEGIN		
+	BEGIN	
+		SET @IsFiltered = 1	
+
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 
 			(SELECT ProjectID FROM #Proj WHERE 
@@ -65,6 +69,8 @@ AS
 	-------------------------------------------------------------------------
 	IF @cityList  IS NOT NULL
 	BEGIN
+		SET @IsFiltered = 1	
+
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 
 			(SELECT ProjectID FROM #Proj WHERE city IN (SELECT * FROM dbo.ToStrTable(@cityList)))		
@@ -75,6 +81,8 @@ AS
 	-------------------------------------------------------------------------
 	IF @stateList  IS NOT NULL
 	BEGIN
+		SET @IsFiltered = 1	
+
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 			
 			(SELECT ProjectID FROM #Proj WHERE [State] IN (SELECT * FROM dbo.ToStrTable(@stateList)))				
@@ -85,6 +93,8 @@ AS
 	-------------------------------------------------------------------------
 	IF @countryList  IS NOT NULL
 	BEGIN
+		SET @IsFiltered = 1	
+
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 			
 			(SELECT ProjectID FROM #Proj WHERE [Country] IN (SELECT * FROM dbo.ToStrTable(@countryList)))				
@@ -95,6 +105,8 @@ AS
 	-------------------------------------------------------------------------
 	IF @regionList  IS NOT NULL
 	BEGIN
+		SET @IsFiltered = 1	
+
 		DELETE FROM #proj 
 		WHERE RegionID NOT IN 			
 			(SELECT RegionID FROM #Proj WHERE [RegionID] IN (SELECT * FROM dbo.ToIntTable(@regionList)))				
@@ -105,6 +117,8 @@ AS
 	-------------------------------------------------------------------------
 	IF @fundingOrgTypeList  IS NOT NULL
 	BEGIN
+		SET @IsFiltered = 1	
+
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 			
 			(SELECT ProjectID FROM #Proj WHERE FundingOrgType IN (SELECT * FROM dbo.ToStrTable(@FundingOrgTypeList)))
@@ -115,6 +129,8 @@ AS
 	-------------------------------------------------------------------------
 	IF @fundingOrgList IS NOT NULL
 	BEGIN
+		SET @IsFiltered = 1	
+
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 			
 			(SELECT ProjectID FROM #Proj WHERE FundingOrgID IN (SELECT * FROM dbo.ToIntTable(@fundingOrgList)))
@@ -125,6 +141,8 @@ AS
 	-------------------------------------------------------------------------
 	IF @cancerTypeList  IS NOT NULL
 	BEGIN
+		SET @IsFiltered = 1	
+
 		-- include all related cancertype IDs if search by roll-up cancer type 
 		SELECT l.CancerTypeID, r.CancerTypeID AS RelatedCancerTypeID INTO #ct 
 			FROM (SELECT VALUE AS CancerTypeID FROM dbo.ToIntTable(@cancerTypeList)) l
@@ -149,6 +167,8 @@ AS
 	-------------------------------------------------------------------------
 	IF @projectTypeList  IS NOT NULL
 	BEGIN
+		SET @IsFiltered = 1	
+
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 			
 			(SELECT p.ProjectID FROM #Proj p
@@ -160,6 +180,8 @@ AS
 	-------------------------------------------------------------------------	
 	IF @CSOList  IS NOT NULL
 	BEGIN
+		SET @IsFiltered = 1	
+
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 			
 			(SELECT p.ProjectID FROM #Proj p
@@ -171,6 +193,8 @@ AS
 	-------------------------------------------------------------------------	
 	IF @yearList IS NOT NULL
 	BEGIN
+		SET @IsFiltered = 1	
+
 		DELETE FROM #proj 
 		WHERE ProjectID NOT IN 			
 			(SELECT DISTINCT p.ProjectID FROM #Proj p
@@ -184,6 +208,8 @@ AS
 	-------------------------------------------------------------------------	
 	IF (@termSearchType IS NOT NULL) AND (@terms IS NOT NULL)
 	BEGIN
+		SET @IsFiltered = 1	
+
 		DECLARE @searchWords VARCHAR(1000)
 
 		SELECT @searchWords = 
@@ -215,31 +241,39 @@ AS
 	END	
 
 	----------------------------------
-	-- Save search criteria
+	-- Retrieve Result counts
 	----------------------------------	
 	DECLARE @TotalRelatedProjectCount INT
 	DECLARE @LastBudgetYear INT
 
-	SELECT @TotalRelatedProjectCount=COUNT(*) FROM (SELECT DISTINCT ProjectFundingID FROM #Proj) u
-
-	SELECT DISTINCT ProjectID INTO #baseProj FROM #proj
+	SELECT DISTINCT ProjectID INTO #baseProj FROM #proj	
 	
-	DECLARE @ProjectIDList VARCHAR(max) = '' 	
 	SELECT @ResultCount=COUNT(*) FROM #baseProj	
-	SELECT @LastBudgetYear=DATEPART(year, MAX(BudgetEndDate)) FROM #proj
+	SELECT @TotalRelatedProjectCount=COUNT(*) FROM (SELECT DISTINCT ProjectFundingID FROM #Proj) u	
+	SELECT @LastBudgetYear=DATEPART(year, MAX(BudgetEndDate)) FROM #proj	
 
-	SELECT @ProjectIDList = @ProjectIDList + 
-           ISNULL(CASE WHEN LEN(@ProjectIDList) = 0 THEN '' ELSE ',' END + CONVERT( VarChar(20), ProjectID), '')
-	FROM #baseProj	
+	----------------------------------
+	-- Save search criteria
+	----------------------------------	
+	SET @searchCriteriaID = 0  -- no filters
 
-	INSERT INTO SearchCriteria ([termSearchType],[terms],[institution],[piLastName],[piFirstName],[piORCiD],[awardCode],
-		[yearList], [cityList],[stateList],[countryList],[regionList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [IsChildhood])
-		VALUES ( @termSearchType,@terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode,@yearList,@cityList,@stateList,@countryList,@regionList,
-			@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList, @FundingOrgTypeList,	@IsChildhood)
+	IF @IsFiltered = 1   -- Only record search criteria if filtered
+	BEGIN
+		DECLARE @ProjectIDList VARCHAR(max) = '' 	
+	
+		SELECT @ProjectIDList = @ProjectIDList + 
+			   ISNULL(CASE WHEN LEN(@ProjectIDList) = 0 THEN '' ELSE ',' END + CONVERT( VarChar(20), ProjectID), '')
+		FROM #baseProj	
+
+		INSERT INTO SearchCriteria ([termSearchType],[terms],[institution],[piLastName],[piFirstName],[piORCiD],[awardCode],
+			[yearList], [cityList],[stateList],[countryList],[regionList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [IsChildhood])
+			VALUES ( @termSearchType,@terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode,@yearList,@cityList,@stateList,@countryList,@regionList,
+				@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList, @FundingOrgTypeList,	@IsChildhood)
 									 
-	SELECT @searchCriteriaID = SCOPE_IDENTITY()	
+		SELECT @searchCriteriaID = SCOPE_IDENTITY()	
 		
-	INSERT INTO SearchResult (SearchCriteriaID, Results,ResultCount, TotalRelatedProjectCount, LastBudgetYear, IsEmailSent) VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, @TotalRelatedProjectCount, @LastBudgetYear, 0)	
+		INSERT INTO SearchResult (SearchCriteriaID, Results,ResultCount, TotalRelatedProjectCount, LastBudgetYear, IsEmailSent) VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, @TotalRelatedProjectCount, @LastBudgetYear, 0)	
+	END
 	
 	----------------------------------	
 	-- Sort and Pagination
@@ -301,8 +335,22 @@ AS
 	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
+	DECLARE @Result TABLE (
+		ProjectID INT NOT NULL
+	)
+
 	DECLARE @ProjectIDs VARCHAR(max) 
-	SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
+	IF @SearchID = 0
+	BEGIN
+		INSERT INTO @Result SELECT DISTINCT ProjectID From vwProjectFundings
+		SELECT @ResultCount = COUNT(*) FROM @Result
+	END
+	ELSE
+	BEGIN
+		SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
+		
+		INSERT INTO @Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+	END
 
 	----------------------------------	
 	-- Sort and Pagination
@@ -310,13 +358,13 @@ AS
 	----------------------------------
 	SELECT r.ProjectID, p.AwardCode, maxf.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
 		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort 
-	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
+	FROM @Result r
 		JOIN Project p ON r.ProjectID = p.ProjectID
-		 JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f GROUP BY ProjectID) maxf ON r.ProjectID = maxf.ProjectID
-		 JOIN ProjectFunding f ON maxf.ProjectFundingID = f.projectFundingID
-		 JOIN  (SELECT * FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON f.projectFundingID = pi.projectFundingID
-		 JOIN Institution i ON i.InstitutionID = pi.InstitutionID
-		 JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
+		JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f GROUP BY ProjectID) maxf ON r.ProjectID = maxf.ProjectID
+		JOIN ProjectFunding f ON maxf.ProjectFundingID = f.projectFundingID
+		JOIN  (SELECT * FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON f.projectFundingID = pi.projectFundingID
+		JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+		JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
 	ORDER BY 
 		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'ASC ' THEN f.Title  END ASC, --title ASC
 		CASE WHEN @SortCol = 'code ' AND @SortDirection = 'ASC' THEN p.AwardCode  END ASC,
@@ -470,7 +518,14 @@ GO
 CREATE PROCEDURE [dbo].[GetProjectSearchSummaryBySearchID]  
     @SearchID INT
 AS   
-  SELECT ResultCount AS TotalProjectCount, TotalRelatedProjectCount, LastBudgetYear FROM SearchResult  WHERE SearchCriteriaID = @SearchID
+	IF @SearchID = 0
+	BEGIN
+	   SELECT ResultCount AS TotalProjectCount, TotalRelatedProjectCount, LastBudgetYear FROM SearchResult  WHERE SearchCriteriaID = @SearchID  -- TBD
+	END
+	ELSE
+	BEGIN
+		SELECT ResultCount AS TotalProjectCount, TotalRelatedProjectCount, LastBudgetYear FROM SearchResult  WHERE SearchCriteriaID = @SearchID
+	END
 
 GO
 
@@ -495,18 +550,33 @@ CREATE PROCEDURE [dbo].[GetProjectCountryStatsBySearchID]
 	@ResultAmount float OUTPUT  -- return the searchID	
 
 AS   
-  	------------------------------------------------------
+
+	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
+	DECLARE @Result TABLE (
+		ProjectID INT NOT NULL
+	)
+
 	DECLARE @ProjectIDs VARCHAR(max) 
-	SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+	IF @SearchID = 0
+	BEGIN
+		INSERT INTO @Result SELECT DISTINCT ProjectID From vwProjectFundings
+		SELECT @ResultCount = COUNT(*) FROM @Result
+	END
+	ELSE
+	BEGIN
+		SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
+		
+		INSERT INTO @Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+	END
 	
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
 	SELECT country, COUNT(*) AS Count, SUM(USDAmount) AS USDAmount INTO #stats FROM 
 		(SELECT i.country, (f.Amount * ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount 
-		 FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
+		 FROM @Result r		
 			JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
 			JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
 			JOIN Institution i ON i.InstitutionID = pi.InstitutionID
@@ -547,11 +617,25 @@ CREATE PROCEDURE [dbo].[GetProjectCSOStatsBySearchID]
 	@ResultAmount float OUTPUT  -- return the amount	
 
 AS   
-  	------------------------------------------------------
+  ------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
+	DECLARE @Result TABLE (
+		ProjectID INT NOT NULL
+	)
+
 	DECLARE @ProjectIDs VARCHAR(max) 
-	SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+	IF @SearchID = 0
+	BEGIN
+		INSERT INTO @Result SELECT DISTINCT ProjectID From vwProjectFundings
+		SELECT @ResultCount = COUNT(*) FROM @Result
+	END
+	ELSE
+	BEGIN
+		SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
+		
+		INSERT INTO @Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+	END	
 	
 	----------------------------------		
 	--   Find all related projects 
@@ -560,7 +644,7 @@ AS
 	BEGIN
 		SELECT categoryName, CAST(SUM(Relevance)/100 AS decimal(16,2)) AS Relevance, SUM(USDAmount) AS USDAmount, count(*) AS ProjectCount INTO #counts FROM
 			(SELECT c.categoryName, Relevance, (f.Amount * ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount
-			 FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
+			 FROM @Result r		
 				JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
 				JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
 				JOIN CSO c ON c.code = pc.csocode
@@ -615,11 +699,27 @@ CREATE PROCEDURE [dbo].[GetProjectCancerTypeStatsBySearchID]
 	@ResultAmount float OUTPUT  -- return the total amounts
 
 AS   
-    	------------------------------------------------------
+
+	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
+	DECLARE @Result TABLE (
+		ProjectID INT NOT NULL
+	)
+
 	DECLARE @ProjectIDs VARCHAR(max) 
-	SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID
+	IF @SearchID = 0
+	BEGIN
+		INSERT INTO @Result SELECT DISTINCT ProjectID From vwProjectFundings
+		SELECT @ResultCount = COUNT(*) FROM @Result
+	END
+	ELSE
+	BEGIN
+		SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
+		
+		INSERT INTO @Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+	END
+	
 	
 	----------------------------------		
 	--   Find all related projects 
@@ -628,7 +728,7 @@ AS
 	BEGIN
 		SELECT CancerType, ISNULL(CAST(SUM(Relevance)/100 AS decimal(16,2)),0) AS Relevance,  SUM(USDAmount) AS USDAmount, Count(*) AS ProjectCount INTO #counts	FROM 
 			(SELECT c.Name AS CancerType, Relevance, (f.Amount * ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount
-			 FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r			
+			 FROM @Result r			
 				JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
 				JOIN (SELECT * FROM ProjectCancerType WHERE ISNULL(RelSource, '')='S') pc ON f.projectFundingID = pc.projectFundingID	
 				JOIN CancerType c ON c.CancerTypeID = pc.CancerTypeID
@@ -682,18 +782,33 @@ CREATE PROCEDURE [dbo].[GetProjectTypeStatsBySearchID]
 	@ResultAmount float OUTPUT  -- return the searchID	
 
 AS   
+
   	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
+	DECLARE @Result TABLE (
+		ProjectID INT NOT NULL
+	)
+
 	DECLARE @ProjectIDs VARCHAR(max) 
-	SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+	IF @SearchID = 0
+	BEGIN
+		INSERT INTO @Result SELECT DISTINCT ProjectID From vwProjectFundings
+		SELECT @ResultCount = COUNT(*) FROM @Result
+	END
+	ELSE
+	BEGIN
+		SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
+		
+		INSERT INTO @Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+	END	
 	
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
 	SELECT ProjectType, COUNT(*) AS Count, SUM(USDAmount) AS USDAmount INTO #stats FROM 
 		(SELECT pt.ProjectType, (f.Amount * ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount 
-		 FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
+		 FROM @Result r		
 			JOIN ProjectFunding f ON f.ProjectID = r.ProjectID			
 			JOIN Project_ProjectType pt ON r.ProjectID = pt.ProjectID				
 			JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
@@ -731,18 +846,33 @@ CREATE PROCEDURE [dbo].[GetProjectAwardStatsBySearchID]
 	@ResultCount INT OUTPUT,  -- return the total project count		
 	@ResultAmount float OUTPUT  -- return the total project funding amount	
 AS   
-  	------------------------------------------------------
+
+	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
+	DECLARE @Result TABLE (
+		ProjectID INT NOT NULL
+	)
+
 	DECLARE @ProjectIDs VARCHAR(max) 
-	SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+	IF @SearchID = 0
+	BEGIN
+		INSERT INTO @Result SELECT DISTINCT ProjectID From vwProjectFundings
+		SELECT @ResultCount = COUNT(*) FROM @Result
+	END
+	ELSE
+	BEGIN
+		SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
+		
+		INSERT INTO @Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+	END
 	
---------------------------------------------------------------------		
+	--------------------------------------------------------------------		
 	--   Find all related projects and convert to USD dollars
 	--------------------------------------------------------------------
 	SELECT r.ProjectID, ext.CalendarYear AS Year, ext.CalendarAmount, (ext.CalendarAmount*ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount, 
 		ISNULL(cr.ToCurrencyRate, 1) AS ToCurrencyRate INTO #statsPart
-	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r		
+	FROM @Result r		
 		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID
 		JOIN ProjectFundingExt ext ON ext.ProjectFundingID = f.ProjectFundingID
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
@@ -917,90 +1047,95 @@ CREATE PROCEDURE [dbo].[GetSearchCriteriaBySearchID]
     @SearchID INT
 AS  
 
-DECLARE @filterList varchar(2000)
-
-SELECT * INTO #criteria FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
-
 DECLARE @SearchCriteria TABLE
 (
 	[Name] varchar(50),
 	[Value] varchar(250)
 )
 
-
-IF EXISTS (SELECT * FROM #criteria WHERE TermSearchType IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'Term Search Type:', TermSearchType FROM #criteria
-
-IF EXISTS (SELECT * FROM #criteria WHERE Terms IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'Terms:', Terms FROM #criteria
-
-IF EXISTS (SELECT * FROM #criteria WHERE ProjectTypeList IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'Project Type(s):', ProjectTypeList FROM #criteria
-
-IF EXISTS (SELECT * FROM #criteria WHERE AwardCode IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'Award Code:', AwardCode FROM #criteria
-
-IF EXISTS (SELECT * FROM #criteria WHERE Institution IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'Institution:', Institution FROM #criteria
-
-IF EXISTS (SELECT * FROM #criteria WHERE piLastName IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'PI Last Name:', piLastName FROM #criteria
-
-IF EXISTS (SELECT * FROM #criteria WHERE piFirstName IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'PI First Name:', piFirstName FROM #criteria
-
-IF EXISTS (SELECT * FROM #criteria WHERE piORCiD IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'PI ORCiD', piORCiD FROM #criteria
-
-IF EXISTS (SELECT * FROM #criteria WHERE YearList IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'Year(s):', YearList FROM #criteria
-
-IF EXISTS (SELECT * FROM #criteria WHERE CityList IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'City:', CityList FROM #criteria
-
-IF EXISTS (SELECT * FROM #criteria WHERE StateList IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'State:', StateList FROM #criteria
-
-IF EXISTS (SELECT * FROM #criteria WHERE CountryList IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'Country(ies):', CountryList FROM #criteria
-
-SELECT @filterList= RegionList FROM #criteria
-IF @filterList IS NOT NULL
+IF @SearchID = 0
 BEGIN
-	INSERT INTO @SearchCriteria VALUES ('Region(s):', '')
-	INSERT INTO @SearchCriteria SELECT '', Name FROM lu_Region WHERE RegionID IN (SELECT * FROM dbo.ToIntTable(@filterList))
+	SELECT * FROM @SearchCriteria
 END
-
-IF EXISTS (SELECT * FROM #criteria WHERE FundingOrgTypeList IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'Funding Org Type(s):', FundingOrgTypeList FROM #criteria	
-
-
-SELECT @filterList= FundingOrgList FROM #criteria
-IF @filterList IS NOT NULL
+ELSE
 BEGIN
-	INSERT INTO @SearchCriteria VALUES ('Funding Organization(s):', '')
-	INSERT INTO @SearchCriteria SELECT '', SponsorCode + ' - ' + Name FROM FundingOrg WHERE FundingOrgID IN (SELECT * FROM dbo.ToIntTable(@filterList))
+	DECLARE @filterList varchar(2000)
+
+	SELECT * INTO #criteria FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
+
+	IF EXISTS (SELECT * FROM #criteria WHERE TermSearchType IS NOT NULL)
+		INSERT INTO @SearchCriteria SELECT 'Term Search Type:', TermSearchType FROM #criteria
+
+	IF EXISTS (SELECT * FROM #criteria WHERE Terms IS NOT NULL)
+		INSERT INTO @SearchCriteria SELECT 'Terms:', Terms FROM #criteria
+
+	IF EXISTS (SELECT * FROM #criteria WHERE ProjectTypeList IS NOT NULL)
+		INSERT INTO @SearchCriteria SELECT 'Project Type(s):', ProjectTypeList FROM #criteria
+
+	IF EXISTS (SELECT * FROM #criteria WHERE AwardCode IS NOT NULL)
+		INSERT INTO @SearchCriteria SELECT 'Award Code:', AwardCode FROM #criteria
+
+	IF EXISTS (SELECT * FROM #criteria WHERE Institution IS NOT NULL)
+		INSERT INTO @SearchCriteria SELECT 'Institution:', Institution FROM #criteria
+
+	IF EXISTS (SELECT * FROM #criteria WHERE piLastName IS NOT NULL)
+		INSERT INTO @SearchCriteria SELECT 'PI Last Name:', piLastName FROM #criteria
+
+	IF EXISTS (SELECT * FROM #criteria WHERE piFirstName IS NOT NULL)
+		INSERT INTO @SearchCriteria SELECT 'PI First Name:', piFirstName FROM #criteria
+
+	IF EXISTS (SELECT * FROM #criteria WHERE piORCiD IS NOT NULL)
+		INSERT INTO @SearchCriteria SELECT 'PI ORCiD', piORCiD FROM #criteria
+
+	IF EXISTS (SELECT * FROM #criteria WHERE YearList IS NOT NULL)
+		INSERT INTO @SearchCriteria SELECT 'Year(s):', YearList FROM #criteria
+
+	IF EXISTS (SELECT * FROM #criteria WHERE CityList IS NOT NULL)
+		INSERT INTO @SearchCriteria SELECT 'City:', CityList FROM #criteria
+
+	IF EXISTS (SELECT * FROM #criteria WHERE StateList IS NOT NULL)
+		INSERT INTO @SearchCriteria SELECT 'State:', StateList FROM #criteria
+
+	IF EXISTS (SELECT * FROM #criteria WHERE CountryList IS NOT NULL)
+		INSERT INTO @SearchCriteria SELECT 'Country(ies):', CountryList FROM #criteria
+
+	SELECT @filterList= RegionList FROM #criteria
+	IF @filterList IS NOT NULL
+	BEGIN
+		INSERT INTO @SearchCriteria VALUES ('Region(s):', '')
+		INSERT INTO @SearchCriteria SELECT '', Name FROM lu_Region WHERE RegionID IN (SELECT * FROM dbo.ToIntTable(@filterList))
+	END
+
+	IF EXISTS (SELECT * FROM #criteria WHERE FundingOrgTypeList IS NOT NULL)
+		INSERT INTO @SearchCriteria SELECT 'Funding Org Type(s):', FundingOrgTypeList FROM #criteria	
+
+
+	SELECT @filterList= FundingOrgList FROM #criteria
+	IF @filterList IS NOT NULL
+	BEGIN
+		INSERT INTO @SearchCriteria VALUES ('Funding Organization(s):', '')
+		INSERT INTO @SearchCriteria SELECT '', SponsorCode + ' - ' + Name FROM FundingOrg WHERE FundingOrgID IN (SELECT * FROM dbo.ToIntTable(@filterList))
+	END
+
+	IF EXISTS (SELECT * FROM #criteria WHERE IsChildhood IS NOT NULL)
+		INSERT INTO @SearchCriteria SELECT 'Childhood Cancer:', CASE IsChildhood WHEN 1 THEN 'Yes' ELSE 'No' END FROM #criteria
+
+	SELECT @filterList= CancerTypeList FROM #criteria
+	IF @filterList IS NOT NULL
+	BEGIN
+		INSERT INTO @SearchCriteria VALUES ('Cancer Type(s):', '')
+		INSERT INTO @SearchCriteria SELECT '', Name FROM CancerType WHERE CancerTypeID IN (SELECT * FROM dbo.ToIntTable(@filterList))
+	END
+
+	SELECT @filterList= CSOList FROM #criteria
+	IF @filterList IS NOT NULL
+	BEGIN
+		INSERT INTO @SearchCriteria VALUES ('CSO(s):', '')
+		INSERT INTO @SearchCriteria SELECT '', Name FROM CSO WHERE Code IN (SELECT * FROM dbo.ToStrTable(@filterList))
+	END
+
+		select * from @SearchCriteria
 END
-
-IF EXISTS (SELECT * FROM #criteria WHERE IsChildhood IS NOT NULL)
-	INSERT INTO @SearchCriteria SELECT 'Childhood Cancer:', CASE IsChildhood WHEN 1 THEN 'Yes' ELSE 'No' END FROM #criteria
-
-SELECT @filterList= CancerTypeList FROM #criteria
-IF @filterList IS NOT NULL
-BEGIN
-	INSERT INTO @SearchCriteria VALUES ('Cancer Type(s):', '')
-	INSERT INTO @SearchCriteria SELECT '', Name FROM CancerType WHERE CancerTypeID IN (SELECT * FROM dbo.ToIntTable(@filterList))
-END
-
-SELECT @filterList= CSOList FROM #criteria
-IF @filterList IS NOT NULL
-BEGIN
-	INSERT INTO @SearchCriteria VALUES ('CSO(s):', '')
-	INSERT INTO @SearchCriteria SELECT '', Name FROM CSO WHERE Code IN (SELECT * FROM dbo.ToStrTable(@filterList))
-END
-
-	select * from @SearchCriteria
-
 
 GO
 
@@ -1027,8 +1162,21 @@ AS
 	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
+	DECLARE @Result TABLE (
+		ProjectID INT NOT NULL
+	)
+
 	DECLARE @ProjectIDs VARCHAR(max) 
-	SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+	IF @SearchID = 0
+	BEGIN
+		INSERT INTO @Result SELECT DISTINCT ProjectID From vwProjectFundings		
+	END
+	ELSE
+	BEGIN
+		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
+		
+		INSERT INTO @Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+	END
 		
 	-----------------------------------------------------------		
 	--  Get all related projects with dolloar amounts
@@ -1043,7 +1191,7 @@ AS
 		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.SponsorCode, o.Name AS FundingOrg, o.Type AS FundingOrgType, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, 
 		f.FundingContact, pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, l.Name AS Region, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
 	INTO #temp
-	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
+	FROM @Result r
 		LEFT JOIN Project p ON r.ProjectID = p.ProjectID		
 		LEFT JOIN ProjectFunding f ON p.ProjectID = f.PROJECTID
 		LEFT JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
@@ -1130,15 +1278,27 @@ AS
 	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
-	DECLARE @ProjectIDs VARCHAR(max) 
-	SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+	DECLARE @Result TABLE (
+		ProjectID INT NOT NULL
+	)
 
+	DECLARE @ProjectIDs VARCHAR(max) 
+	IF @SearchID = 0
+	BEGIN
+		INSERT INTO @Result SELECT DISTINCT ProjectID From vwProjectFundings		
+	END
+	ELSE
+	BEGIN
+		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
+		
+		INSERT INTO @Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+	END
 	-----------------------------------------------------------		
 	--  Get project CSOs
 	-----------------------------------------------------------			 
 	SELECT f.ProjectID, f.ProjectFundingID AS ICRPProjectFundindID, f.AltAwardCode, cso.CSOCode, cso.Relevance AS CSORelevance
 	INTO #temp 
-	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
+	FROM @Result r
 		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID
 		JOIN ProjectCSO cso ON f.ProjectFundingID = cso.ProjectFundingID
 	
@@ -1167,15 +1327,28 @@ AS
 	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
+	DECLARE @Result TABLE (
+		ProjectID INT NOT NULL
+	)
+
 	DECLARE @ProjectIDs VARCHAR(max) 
-	SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+	IF @SearchID = 0
+	BEGIN
+		INSERT INTO @Result SELECT DISTINCT ProjectID From vwProjectFundings		
+	END
+	ELSE
+	BEGIN
+		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
+		
+		INSERT INTO @Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+	END
 
 	-----------------------------------------------------------		
 	--  Get project CancerTypes
 	-----------------------------------------------------------			 
 	SELECT f.ProjectID, f.ProjectFundingID AS ICRPProjectFundingID, f.AltAwardCode, ct.ICRPCode, ct.Name AS CancerType, pct.Relevance AS Relevance
 	INTO #temp 
-	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
+	FROM @Result r
 		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID
 		JOIN (SELECT * FROM ProjectCancerType WHERE ISNULL(RelSource, '')='S') pct ON f.ProjectFundingID = pct.ProjectFundingID
 		JOIN CancerType ct ON ct.CancerTypeID = pct.CancerTypeID
@@ -1311,12 +1484,24 @@ CREATE  PROCEDURE [dbo].[GetProjectExportsSingleBySearchID]
 	 
 AS   
 
-------------------------------------------------------
+	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
+	DECLARE @Result TABLE (
+		ProjectID INT NOT NULL
+	)
+
 	DECLARE @ProjectIDs VARCHAR(max) 
-	SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID	
+	IF @SearchID = 0
+	BEGIN
+		INSERT INTO @Result SELECT DISTINCT ProjectID From vwProjectFundings		
+	END
+	ELSE
+	BEGIN
+		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
 		
+		INSERT INTO @Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+	END		
 	-----------------------------------------------------------		
 	--  Get all related projects with dolloar amounts
 	-----------------------------------------------------------
@@ -1330,7 +1515,7 @@ AS
 		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.SponsorCode, o.Name AS FundingOrg, o.Type AS FundingOrgType, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, '' AS FundingContact, 
 		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, l.Name AS Region, @Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
 	INTO #temp
-	FROM (SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)) r
+	FROM @Result r
 		LEFT JOIN Project p ON r.ProjectID = p.ProjectID		
 		LEFT JOIN ProjectFunding f ON p.ProjectID = f.PROJECTID
 		LEFT JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
