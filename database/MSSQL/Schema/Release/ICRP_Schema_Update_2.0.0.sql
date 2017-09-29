@@ -30,6 +30,25 @@ CREATE TABLE [dbo].[lu_Region](
 
 GO
 
+
+IF object_id('lu_City') is null
+BEGIN
+
+	CREATE TABLE [dbo].[lu_City](
+		[CityID] [int] IDENTITY(1,1) NOT NULL,
+		[Name] [varchar](100) NOT NULL,		
+		[Country] [varchar](2) NOT NULL,		
+		[Latitude] [decimal](9, 6) NULL,
+		[Longitude] [decimal](9, 6) NULL
+		CONSTRAINT [PK_lu_City] PRIMARY KEY CLUSTERED 
+	(
+		[CityID] ASC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY]
+
+END
+GO
+
 /*************************************************/
 /******		UPDATE TABLE        			******/
 /*************************************************/
