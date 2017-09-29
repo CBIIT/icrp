@@ -1,8 +1,0 @@
-uuid: 72bf7b84-1884-4046-b021-8865f3232e3c
-langcode: en
-status: true
-dependencies: {  }
-id: footer-right
-label: 'Footer Right'
-description: 'ICRP Footer Right Menu'
-locked: false

@@ -1,9 +1,0 @@
-uuid: b942418f-32b6-4ca1-a687-087f315ac94a
-langcode: en
-status: true
-dependencies: {  }
-_core:
-  default_config_hash: VUu3_vmCXS-tPhOE2ZWvL8fdPL_iCVavOp_S-1HO0IU
-id: time_zones
-label: 'Time zones'
-options: ''
