@@ -9,7 +9,7 @@ declare const MarkerClusterer: object;
 export interface GoogleMapProps {
   locations: Location[];
   viewLevel: ViewLevel;
-  locationFilters: LocationFilters; 
+  locationFilters: LocationFilters;
   showDataLabels: boolean;
   showMapLabels: boolean;
   onSelect: (locationFilters: LocationFilters) => void;
@@ -86,6 +86,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
           let latLng = new google.maps.LatLng(coordinates.lat, coordinates.lng);
 //          let point = new google.maps.Point(coordinates.lng, coordinates.lat);
           let point = map.getProjection().fromLatLngToPoint(latLng);
+          point.y -= 6.5 *  (1 / map.getZoom());
           let labelCoordinates = map.getProjection().fromPointToLatLng(point);
 
           let labelCoordinate2s: google.maps.LatLngLiteral = {
@@ -127,11 +128,21 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       });
 
       map.fitBounds(bounds);
+      map.setOptions({
+        maxZoom: 10
+      })
+
 
       if (viewLevel === 'regions') {
         map.setCenter({
           lat: 25,
           lng: 0,
+        })
+        map.setOptions({
+          maxZoom: 4
+        })
+        map.setOptions({
+          minZoom: 2
         })
       }
 
@@ -146,7 +157,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
       if (viewLevel === 'cities' && map.getZoom() > 7) {
         map.setZoom(7);
-      }      
+      }
 
     }
   }
