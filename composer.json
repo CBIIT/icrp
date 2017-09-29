@@ -165,6 +165,11 @@
                 "sites/example.settings.local.php",
                 "sites/example.sites.php"
             ]
+        },
+        "patches": {
+            "drupal/faq": {
+                "FAQ patch for node access error": "https://www.drupal.org/files/issues/missing_argument_4_on_node_access--2743715-10.patch"
+            }
         }
     }
 }
