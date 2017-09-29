@@ -108,7 +108,7 @@ export const getSearchParametersFromFilters = async(filters: LocationFilters): P
 export const parseViewLevel = (viewLevel: ViewLevel): string => ({
   regions: 'Region',
   countries: 'Country',
-  cities: 'Cities',
+  cities: 'City',
 }[viewLevel])
 
 export const summarizeCriteria = (criteria: any[][]): string =>
@@ -131,9 +131,9 @@ export const getNextLocationFilters = (location: Location, locationFilters: Loca
     cities: 'city',
   }[locationFilters.type];
 
-  return { 
+  return {
     ...locationFilters,
     type: getNextViewLevel(locationFilters.type),
     [key]: location.value,
   };
-} 
+}

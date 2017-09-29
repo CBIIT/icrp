@@ -39,6 +39,29 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
     this.map.addListener('click', () => {
       this.infoWindows.forEach(window => window.close());
     });
+
+    this.map.addListener('zoom_changed', () => {
+    let { locations, showDataLabels } = this.props;
+      // clear all labels
+      this.labels.forEach(labels => {
+        labels.setMap(null);
+      });
+
+      this.labels = [];
+      if (showDataLabels && locations && locations.length) {
+        locations.forEach(location => {
+          let { coordinates, label } = location;
+
+          let latLng = new google.maps.LatLng(coordinates.lat, coordinates.lng);
+          let point = this.map.getProjection().fromLatLngToPoint(latLng);
+          point.y -= 10 / this.map.getZoom();
+
+          let labelCoordinates = this.map.getProjection().fromPointToLatLng(point);
+          let labelMarker = addLabel(label, labelCoordinates, this.map);
+          window.setTimeout(() => this.labels.push(labelMarker), 0);
+        })
+      }
+    });
   }
 
 
@@ -69,12 +92,14 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         styles: showMapLabels ? LABELED_MAP : UNLABELED_MAP
       });
 
-
       // for each location, do the following:
       locations.forEach((location: Location) => {
 
         // extract label, data, and coordinates from location
         let { coordinates, counts, label } = location;
+
+        if (coordinates.lat === 0 && coordinates.lng === 0)
+          return;
 
         // expand the bounds for this map
         bounds.extend(coordinates);
@@ -82,18 +107,11 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         // if we are displaying data labels,
         // display them above the circles
         if (showDataLabels) {
-
           let latLng = new google.maps.LatLng(coordinates.lat, coordinates.lng);
-//          let point = new google.maps.Point(coordinates.lng, coordinates.lat);
           let point = map.getProjection().fromLatLngToPoint(latLng);
-          point.y -= 6.5 *  (1 / map.getZoom());
+          point.y -= 10 / (this.map.getZoom() - 0.5);
+
           let labelCoordinates = map.getProjection().fromPointToLatLng(point);
-
-          let labelCoordinate2s: google.maps.LatLngLiteral = {
-            ...coordinates,
-            lat: coordinates.lat,
-          } ;labelCoordinate2s;
-
           let labelMarker = addLabel(label, labelCoordinates, map);
           window.setTimeout(() => this.labels.push(labelMarker), 0);
         }

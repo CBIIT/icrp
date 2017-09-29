@@ -18,7 +18,7 @@ import {
   getLocations,
   getNewSearchId,
   getSearchParametersFromFilters,
-  
+
   Location,
   LocationCounts,
   LocationFilters,
@@ -109,7 +109,7 @@ export default class App extends ComponentBase<{}, AppState> {
             viewLevel={viewLevel}
             locationFilters={locationFilters}
             showMapLabels={viewLevel !== 'regions'}
-            showDataLabels={true || viewLevel === 'regions'}
+            showDataLabels={viewLevel === 'regions'}
             onSelect={locationFilters => this.selectLocation(locationFilters)}
           />
         </div>
