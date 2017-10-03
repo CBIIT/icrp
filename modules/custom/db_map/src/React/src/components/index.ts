@@ -1,7 +1,7 @@
 
 import App from './App/App';
 import GoogleMap, {GoogleMapProps} from './GoogleMap/GoogleMap';
-import LocationSelector from './LocationSelector/LocationSelector';
+import ViewLevelSelector from './ViewLevelSelector/ViewLevelSelector';
 import MapOverlay from './MapOverlay/MapOverlay';
 import SearchCriteria from './SearchCriteria/SearchCriteria';
 import LoadingSpinner from './LoadingSpinner/LoadingSpinner';
@@ -12,7 +12,7 @@ export {
   App,
   GoogleMap,
   GoogleMapProps,
-  LocationSelector,
+  ViewLevelSelector,
   MapOverlay,
   SearchCriteria,
   LoadingSpinner,
