@@ -152,7 +152,7 @@ class ProjectViewComponent extends Component {
           pi_name: [row.pi_last_name, row.pi_first_name].filter(e => e && e.length).join(', '),
           pi_orcid_url: row.pi_orcid ? `http://orcid.org/${row.pi_orcid}` : null,
           collaborator_count: row.collaborator_count,
-          collaborator_url: row.collaborator_count ? `/project/people-map/${row.project_funding_id}` : null,
+          collaborator_url: row.collaborator_count ? `/map/people/${row.project_funding_id}` : null,
           institution: row.institution,
           region: row.region,
           location: [row.city, row.state, row.country].filter(e => e && e.length).join(', '),

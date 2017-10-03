@@ -38,3 +38,11 @@ getExcelExport:
   requirements:
     _access: 'TRUE'
 
+
+getPeopleMap:
+  path: '/map/people/{project_id}'
+  defaults:
+    _controller: '\Drupal\db_map\Controller\MapController::getPeopleMap'
+  requirements:
+    _permission: 'access content'
+    project_id: '[0-9]{1,9}'
