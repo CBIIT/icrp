@@ -27,7 +27,7 @@ drupalSettings.db_map = {
         angle = angle1 > angle2 ? angle1 : angle2;
     angle = angle < 0 ? angle+360 : angle;
     var map = new google.maps.Map(document.getElementById('icrp-map'), {
-      zoom: Math.round(Math.log(map_width*360/angle/256)/Math.LN2)-1,
+      zoom: Math.floor(Math.log(map_width*360/angle/256)/Math.LN2),
       center: {
         lat: (map_center.latmin+map_center.latmax)/2,
         lng: (map_center.lngmin+map_center.lngmax)/2,
@@ -95,22 +95,35 @@ drupalSettings.db_map = {
     });
     var pi = [],
         collab = [],
-        polyline = [];
+        polyline = [],
+        iw = new google.maps.InfoWindow({closeBoxURL:""});
     for (var index in db_people_map.funding_details) {
       var detail = db_people_map.funding_details[index],
-          is_pi = parseInt(detail.is_pi);
-      var loc = {
-        'lat': parseFloat(detail.lat),
-        'lng': parseFloat(detail.long)
-      };
-      (is_pi?pi:collab).push(
-        new google.maps.Marker({
-          map: map,
-          icon: is_pi ? baseUrl+'orangepin.png' : baseUrl+'yellowpin.png',
-          position: loc,
-          title: detail.pi_name,
-        })
-      );
+          is_pi = parseInt(detail.is_pi),
+          loc = {
+            lat: parseFloat(detail.lat),
+            lng: parseFloat(detail.long)
+          },
+          marker = new google.maps.Marker({
+            map: map,
+            icon: is_pi ? baseUrl+'orangepin.png' : baseUrl+'yellowpin.png',
+            position: loc,
+            title: detail.pi_name,
+          }),
+          content = 'PI: '+detail.pi_name+'<br/>'+
+                   'Institution: '+detail.institution+'<br/>'+
+                   'Location: '+[detail.city, detail.state, detail.country].filter(e => e && e.length).join(', ');
+      marker.addListener('click',(function(marker,content,infowindow) {
+        return function() {
+          if (infowindow.getMap() === null || typeof infowindow.getMap() === 'undefined' || infowindow.getAnchor() !== marker) {
+            infowindow.setContent(content);
+            infowindow.setAnchor(marker);
+          } else {
+            infowindow.close();
+          }
+        };
+      })(marker,content,iw));
+      (is_pi?pi:collab).push(marker);
     }
     for (var i in pi) {
       for (var j in collab) {
