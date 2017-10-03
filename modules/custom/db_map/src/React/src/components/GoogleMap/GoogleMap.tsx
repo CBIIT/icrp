@@ -162,6 +162,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         map.setOptions({
           minZoom: 2
         })
+        map.setZoom(2);
       }
 
       if (viewLevel === 'regions' && map.getZoom() > 3) {

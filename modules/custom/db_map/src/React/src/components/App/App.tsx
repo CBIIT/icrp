@@ -14,9 +14,11 @@ import {
 
 import {
   BASE_URL,
+  SEARCH_ID,
 
   getLocations,
   getNewSearchId,
+  getSearchParameters,
   getSearchParametersFromFilters,
 
   Location,
@@ -76,8 +78,16 @@ export default class App extends ComponentBase<{}, AppState> {
   async updateSearchCriteria() {
     const { locationFilters } = this.state;
     store.setSearchCriteria([['Loading...']]);
-    let response = await getSearchParametersFromFilters(locationFilters);
-    store.setSearchCriteria(response);
+
+    if (SEARCH_ID == 0) {
+      let response = await getSearchParametersFromFilters(locationFilters);
+      store.setSearchCriteria(response);
+    }
+
+    else {
+      let response = await getSearchParameters(SEARCH_ID);
+      store.setSearchCriteria(response);
+    }
   }
 
   render() {
