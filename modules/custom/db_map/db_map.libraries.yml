@@ -7,3 +7,13 @@ default:
     https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg: {}
     https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js: {}
     src/assets/main.js: {}
+
+
+map.people:
+  version: 1.0
+  css:
+    theme:
+      src/assets/main.css: {}
+  js:
+    src/assets/db_people_map.js: {}
+    https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg&callback=drupalSettings.db_map.initMap: {async: true, defer: true}

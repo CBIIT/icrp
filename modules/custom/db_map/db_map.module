@@ -11,6 +11,13 @@ function db_map_theme($existing, $type, $theme, $path) {
   return [
     'db_map' => [
       'variables' => []
+    ],
+    'db_people_map' => [
+      'variables' => [
+        'funding_details' => NULL,
+        'pi_count' => NULL,
+        'project_id' => NULL
+      ]
     ]
   ];
 }

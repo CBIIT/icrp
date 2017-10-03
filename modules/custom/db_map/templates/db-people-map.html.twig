@@ -1,0 +1,14 @@
+<h1>Project Funding People Map</h1>
+<div class="search-criteria-bar">
+  <div>
+    <div class="margin-right inline-block" style="transform: rotate(45deg);">◥</div>
+    <b>AltAwardCode: </b>{{funding_details[0].alt_award_code}}
+  </div>
+  <div class="blue-text">Total PIs: {{pi_count}} / Total Collabs: {{(funding_details|length - pi_count)}}</div></div>
+<div class="text-right margin-top"><a href="/project/funding-details/{{project_id}}" class="cursor-pointer">View Project Funding Details</a></div>
+<div id="icrp-map" class="map-container"></div>
+<script>
+  var db_people_map = {
+    funding_details: {{funding_details|json_encode|raw}}
+  };
+</script>

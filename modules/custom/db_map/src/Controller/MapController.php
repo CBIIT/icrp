@@ -16,6 +16,35 @@ use PDO;
  * Controller routines for db_map routes.
  */
 class MapController extends ControllerBase {
+  const FUNDING_FIELD_MAP = [
+    'project_funding_details' => [
+      'Title' => 'project_title',
+      'piName' => 'pi_name',
+      'ORC_ID' => 'pi_orcid',
+      'IsPrincipalInvestigator' => 'is_pi',
+      'Institution' => 'institution',
+      'City' => 'city',
+      'State' => 'state',
+      'Country' => 'country',
+      'Latitude' => 'lat',
+      'Longitude' => 'long',
+      'Region' => 'region',
+      'Category' => 'award_type',
+      'AltAwardCode' => 'alt_award_code',
+      'FundingOrg' => 'funding_organization',
+      'BudgetStartDate' => 'budget_start_date',
+      'BudgetEndDate' => 'budget_end_date',
+      'Amount' => 'funding_amount',
+      'TechAbstract' => 'technical_abstract',
+      'PublicAbstract' => 'public_abstract',
+      'Source_ID' => 'source_id',
+      'currency' => 'currency',
+      'MechanismCode' => 'mechanism_code',
+      'MechanismTitle' => 'mechanism_title',
+      'FundingMechanism' => 'funding_mechanism',
+      'FundingContact' => 'funding_contact',
+    ],
+  ];
 
   /**
    * Merges all arrays from right to left - the last array provided contains the
@@ -60,6 +89,27 @@ class MapController extends ControllerBase {
       '#attached' => [
         'library' => [
           'db_map/default'
+        ],
+      ],
+    ];
+  }
+
+
+  /**
+   * Returns the Drupal render array for the index page for this module
+   *
+   * @return array
+   */
+   public function getPeopleMap($project_id): array {
+    $results = self::get_funding($project_id, 'icrp_load_database');
+    return [
+      '#theme' => 'db_people_map',
+      '#funding_details' => $results['project_funding_details'],
+      '#pi_count' => $results['pi_count'],
+      '#project_id' => $project_id,
+      '#attached' => [
+        'library' => [
+          'db_map/map.people'
         ],
       ],
     ];
@@ -122,6 +172,67 @@ class MapController extends ControllerBase {
     return self::createResponse($data);
   }
 
+
+  public function get_funding($funding_id, $config_key = 'icrp_database') {
+    $pdo = self::get_connection($config_key);
+  
+    $queries = [
+      'project_funding_details' => 'GetProjectFundingDetail :funding_id',
+    ];
+  
+    // map queries to return values
+    $results = array_reduce(
+      array_map(function($key, $value) use ($pdo, $funding_id) {
+        $stmt = $pdo->prepare($value);
+        $stmt->execute([':funding_id' => $funding_id]);
+        // map the result of each query to each template key
+        return [$key => array_map(function($row) use ($key) {
+  
+          // map each field in the row to a template variable
+          return array_reduce(
+            array_map(function($row_key, $row_value) use ($key) {
+                return [self::FUNDING_FIELD_MAP[$key][$row_key] => $row_value];
+            }, array_keys($row), $row)
+          , 'array_merge', []);
+        }, $stmt->fetchAll(PDO::FETCH_ASSOC))];
+      }, array_keys($queries), $queries),
+    'array_merge', []);
+    $results['pi_count'] = count(array_filter($results['project_funding_details'], function($detail) {
+      return $detail['is_pi'] > 0;
+    }));
+    return $results;
+  }
+  
+
+  function get_connection($config_key = 'icrp_database') {
+    $cfg = [];
+    $icrp_database = \Drupal::config($config_key);
+    foreach(['driver', 'host', 'port', 'database', 'username', 'password'] as $key) {
+        $cfg[$key] = $icrp_database->get($key);
+    }
+    
+    // connection string
+    $cfg['dsn'] =
+      $cfg['driver'] .
+      ":Server={$cfg['host']},{$cfg['port']}" .
+      ";Database={$cfg['database']}";
+
+    // default configuration options
+    $cfg['options'] = [
+      PDO::SQLSRV_ATTR_ENCODING    => PDO::SQLSRV_ENCODING_UTF8,
+      PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+      PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    ];
+
+    // create new PDO object
+    return new PDO(
+      $cfg['dsn'],
+      $cfg['username'],
+      $cfg['password'],
+      $cfg['options']
+    );
+  }
+    
 
   /**
    * Creates an arbitrary excel report based on the supplied json object.
