@@ -47,18 +47,22 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         labels.setMap(null);
       });
 
-      this.labels = [];
       if (showDataLabels && locations && locations.length) {
         locations.forEach(location => {
           let { coordinates, label } = location;
+          let projection = this.map.getProjection();
 
-          let latLng = new google.maps.LatLng(coordinates.lat, coordinates.lng);
-          let point = this.map.getProjection().fromLatLngToPoint(latLng);
-          point.y -= 10 / this.map.getZoom();
-
-          let labelCoordinates = this.map.getProjection().fromPointToLatLng(point);
-          let labelMarker = addLabel(label, labelCoordinates, this.map);
-          window.setTimeout(() => this.labels.push(labelMarker), 0);
+          if (projection) {
+            this.labels = [];
+            let latLng = new google.maps.LatLng(coordinates.lat, coordinates.lng);
+            let point = this.map.getProjection().fromLatLngToPoint(latLng);
+            point.y -= 10 / this.map.getZoom();
+  
+            let labelCoordinates = this.map.getProjection().fromPointToLatLng(point);
+            let labelMarker = addLabel(label, labelCoordinates, this.map);
+            window.setTimeout(() => this.labels.push(labelMarker), 0);
+  
+          }
         })
       }
     });
@@ -108,12 +112,17 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         // display them above the circles
         if (showDataLabels) {
           let latLng = new google.maps.LatLng(coordinates.lat, coordinates.lng);
-          let point = map.getProjection().fromLatLngToPoint(latLng);
-          point.y -= 10 / (this.map.getZoom() - 0.5);
 
-          let labelCoordinates = map.getProjection().fromPointToLatLng(point);
-          let labelMarker = addLabel(label, labelCoordinates, map);
-          window.setTimeout(() => this.labels.push(labelMarker), 0);
+          let projection = map.getProjection();
+
+          if (projection) {
+            let point = projection.fromLatLngToPoint(latLng);
+            point.y -= 10 / (this.map.getZoom() - 0.5);
+  
+            let labelCoordinates = map.getProjection().fromPointToLatLng(point);
+            let labelMarker = addLabel(label, labelCoordinates, map);
+            window.setTimeout(() => this.labels.push(labelMarker), 0);
+          }
         }
 
         MarkerClusterer;
@@ -137,19 +146,20 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         });
 
         // open a new location when this is clicked
-        marker.addListener('dblclick', event => {
-          infoWindow.close();
-          onSelect(
-            getNextLocationFilters(location, locationFilters)
-          );
+        if (viewLevel !== 'cities')
+          marker.addListener('dblclick', event => {
+            infoWindow.close();
+            onSelect(
+              getNextLocationFilters(location, locationFilters)
+            );
+          });
+      
         });
-      });
 
       map.fitBounds(bounds);
       map.setOptions({
-        maxZoom: 10
-      })
-
+        maxZoom: 15
+      });
 
       if (viewLevel === 'regions') {
         map.setCenter({
