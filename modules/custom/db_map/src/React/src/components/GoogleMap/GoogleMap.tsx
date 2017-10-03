@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { DEFAULT_OPTIONS, LABELED_MAP, UNLABELED_MAP } from '../../services/MapConstants';
-import { addLabel, addDataMarker, createInfoWindow } from '../../services/MapHelpers';
+import { createLabel, addDataMarker, createInfoWindow } from '../../services/MapHelpers';
 import { getNextLocationFilters, Location, ViewLevel, LocationFilters } from '../../services/DataService';
 import './GoogleMap.css';
 
@@ -39,36 +39,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
     this.map.addListener('click', () => {
       this.infoWindows.forEach(window => window.close());
     });
-
-    this.map.addListener('zoom_changed', () => {
-    let { locations, showDataLabels } = this.props;
-      // clear all labels
-      this.labels.forEach(labels => {
-        labels.setMap(null);
-      });
-
-      if (showDataLabels && locations && locations.length) {
-        locations.forEach(location => {
-          let { coordinates, label } = location;
-          let projection = this.map.getProjection();
-
-          if (projection) {
-            this.labels = [];
-            let latLng = new google.maps.LatLng(coordinates.lat, coordinates.lng);
-            let point = this.map.getProjection().fromLatLngToPoint(latLng);
-            point.y -= 10 / this.map.getZoom();
-  
-            let labelCoordinates = this.map.getProjection().fromPointToLatLng(point);
-            let labelMarker = addLabel(label, labelCoordinates, this.map);
-            window.setTimeout(() => this.labels.push(labelMarker), 0);
-  
-          }
-        })
-      }
-    });
   }
-
-
 
   componentWillReceiveProps({ viewLevel, locations, locationFilters, showDataLabels, showMapLabels }: GoogleMapProps) {
 
@@ -87,14 +58,18 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       })
 
       // clear all labels
-      this.labels.forEach(labels => {
-        labels.setMap(null);
-      })
+      this.labels.forEach(label => {
+        label.setMap(null);
+      });
+
+      this.labels = [];
 
       // conditionally display map lables
       this.map.setOptions({
         styles: showMapLabels ? LABELED_MAP : UNLABELED_MAP
       });
+
+      MarkerClusterer;
 
       // for each location, do the following:
       locations.forEach((location: Location) => {
@@ -120,12 +95,11 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
             point.y -= 10 / (this.map.getZoom() - 0.5);
   
             let labelCoordinates = map.getProjection().fromPointToLatLng(point);
-            let labelMarker = addLabel(label, labelCoordinates, map);
+            let labelMarker = createLabel(label, labelCoordinates);
+            labelMarker.setMap(map);
             window.setTimeout(() => this.labels.push(labelMarker), 0);
           }
         }
-
-        MarkerClusterer;
 
         // add a marker at the specified location
         let marker = addDataMarker(sum(counts), dataMarkerSize, coordinates, map);

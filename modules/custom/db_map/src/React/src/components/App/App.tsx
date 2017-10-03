@@ -4,7 +4,7 @@ import { store } from '../../services/Store';
 
 import {
   GoogleMap,
-  LocationSelector,
+  ViewLevelSelector,
   MapOverlay,
   SearchCriteria,
   LoadingSpinner,
@@ -60,9 +60,18 @@ export default class App extends ComponentBase<{}, AppState> {
   async redirectToSearchPage(locationFilters: LocationFilters) {
     store.setLoading(true);
     store.setLoadingMessage('Loading Search Page...');
-    let searchId = await getNewSearchId(locationFilters);
-    let uri = `${BASE_URL}/db_search/?sid=${searchId}`;
-    window.document.location.href = uri;
+
+    if (SEARCH_ID == 0 && !locationFilters.country && !locationFilters.region) {
+      let searchId = 0;
+      let uri = `${BASE_URL}/db_search/?sid=${searchId}`;
+      window.document.location.href = uri;
+    }
+
+    else {
+      let searchId = await getNewSearchId(locationFilters);
+      let uri = `${BASE_URL}/db_search/?sid=${searchId}`;
+      window.document.location.href = uri;
+    }
   }
 
   async selectLocation(locationFilters: LocationFilters) {
@@ -117,7 +126,7 @@ export default class App extends ComponentBase<{}, AppState> {
         </div>
         <div className="position-relative">
           <MapOverlay>
-            <LocationSelector />
+            <ViewLevelSelector onSelect={locationFilters => this.selectLocation(locationFilters)} />
           </MapOverlay>
           <GoogleMap
             locations={locations}

@@ -137,3 +137,17 @@ export const getNextLocationFilters = (location: Location, locationFilters: Loca
     [key]: location.value,
   };
 }
+
+export const getRegionFromId = (regionId: string | undefined) => ({
+  '1': 'North America',
+  '2': 'Latin America & Caribbean',
+  '3': 'Europe & Central Asia',
+  '4': 'South Asia',
+  '5': 'East Asia & Pacific',
+  '6': 'Middle East & North Africa',
+  '7': 'Sub-Saharan Africa',
+  '8': 'Australia & New Zealand',
+  '0': 'Region',
+})[regionId || '0'];
+
+
