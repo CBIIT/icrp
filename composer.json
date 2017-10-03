@@ -21,9 +21,22 @@
                     "type": "zip"
                 }
             }
+        },
+        "arshaw_fullcalendar": {
+            "type": "package",
+            "package": {
+                "name": "arshaw/fullcalendar",
+                "version": "3.5.6",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://github.com/arshaw/fullcalendar/releases/download/v3.5.1/fullcalendar-3.5.1.zip",
+                    "type": "zip"
+                }
+            }
         }
     },
     "require": {
+        "arshaw/fullcalendar": "3.5.6",
         "box/spout": "^2.7.2",
         "ckeditor/ckeditor": "^4.7",
         "composer/installers": "^1.2",
@@ -62,6 +75,7 @@
         "drupal/field_permissions": "1.0-beta2@beta",
         "drupal/focal_point": "1.0-beta4@beta",
         "drupal/fontawesome": "1.2",
+        "drupal/fullcalendar": "1.0-alpha2@alpha",
         "drupal/google_analytics": "2.1",
         "drupal/honeypot": "1.27",
         "drupal/libraries": "3.x-dev",
@@ -90,6 +104,7 @@
         "drupal/webform_ui": "5.0-beta16@beta",
         "drupal/webform_views": "5.0-alpha2@alpha",
         "drush/drush": "~8.0",
+        "fullcalendar/fullcalendar": "^3.5",
         "intelogie/signature-pad": "^1.5",
         "maennchen/zipstream-php": "^0.4.1",
         "mbostock/d3": "^3.5",
