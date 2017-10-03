@@ -37,6 +37,8 @@ export interface AppState {
 
 export default class App extends ComponentBase<{}, AppState> {
 
+  initialLoad = true;
+
   _buildState(): AppState {
     return {
       viewLevel: store.getViewLevel(),
@@ -79,13 +81,16 @@ export default class App extends ComponentBase<{}, AppState> {
     const { locationFilters } = this.state;
     store.setSearchCriteria([['Loading...']]);
 
-    if (SEARCH_ID == 0) {
-      let response = await getSearchParametersFromFilters(locationFilters);
+    console.log('inital view', this.initialLoad);
+
+    if (this.initialLoad) {
+      let response = await getSearchParameters(SEARCH_ID);
       store.setSearchCriteria(response);
+      this.initialLoad = false;
     }
 
     else {
-      let response = await getSearchParameters(SEARCH_ID);
+      let response = await getSearchParametersFromFilters(locationFilters);
       store.setSearchCriteria(response);
     }
   }
