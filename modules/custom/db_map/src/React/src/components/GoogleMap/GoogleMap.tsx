@@ -15,14 +15,6 @@ export interface GoogleMapProps {
   onSelect: (locationFilters: LocationFilters) => void;
 }
 
-const sum = (object: any): number => {
-  let sum = 0;
-  for (let key in object) {
-    sum += object && object[key];
-  }
-  return sum;
-}
-
 class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
   map: google.maps.Map;
@@ -102,7 +94,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         }
 
         // add a marker at the specified location
-        let marker = addDataMarker(sum(counts), dataMarkerSize, coordinates, map);
+        let marker = addDataMarker(counts.projects, dataMarkerSize, coordinates, map);
 
         // add an info window containing the data
         let infoWindow = createInfoWindow(location);
