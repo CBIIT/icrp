@@ -11,6 +11,10 @@ dependencies:
     - image
     - text
     - user
+third_party_settings:
+  panelizer:
+    enable: false
+    custom: false
 id: node.slideshow.default
 targetEntityType: node
 bundle: slideshow

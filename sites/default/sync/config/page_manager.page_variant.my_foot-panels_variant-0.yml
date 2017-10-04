@@ -22,7 +22,7 @@ variant_settings:
       label_display: visible
       level: 1
       depth: 0
-      region: left
+      region: first
       weight: 0
       uuid: d3a5deff-cc5f-4379-9221-f12dd54815c5
       context_mapping: {  }
@@ -33,7 +33,7 @@ variant_settings:
       label_display: '0'
       level: 1
       depth: 0
-      region: middle
+      region: first
       weight: 0
       uuid: 8db24d0a-8abf-4428-96f2-da2dc02fc74c
       context_mapping: {  }
@@ -44,7 +44,7 @@ variant_settings:
       label_display: visible
       level: 1
       depth: 0
-      region: right
+      region: first
       weight: 0
       uuid: af6e1529-9a67-4f6a-add8-88792489e65f
       context_mapping: {  }
