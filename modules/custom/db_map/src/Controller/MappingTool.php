@@ -46,7 +46,7 @@ class MappingTool {
       ],
 
       'columns' => [
-        'value' => 'Country',
+        'value' => 'Abbreviation',
         'label' => 'Country',
       ],
     ],
