@@ -1,8 +1,7 @@
 import { Location } from './DataService';
 
-export const addLabel = (label: string, location: google.maps.LatLngLiteral | google.maps.LatLng, map: google.maps.Map) =>
+export const createLabel = (label: string, location: google.maps.LatLngLiteral | google.maps.LatLng) =>
   new google.maps.Marker({
-    map: map,
     position: location,
     zIndex: 0,
     label: {

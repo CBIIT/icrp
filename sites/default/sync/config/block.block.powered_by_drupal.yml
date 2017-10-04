@@ -5,11 +5,11 @@ dependencies:
   module:
     - system
   theme:
-    - null
+    - bootstrap
 _core:
   default_config_hash: 0fKwLIUOyXTjC2AQnASwnGiB1-t1GMo0wppV2ls6GZA
 id: powered_by_drupal
-theme: null
+theme: bootstrap
 region: main
 weight: 10
 provider: null

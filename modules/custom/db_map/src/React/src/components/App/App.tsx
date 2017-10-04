@@ -4,7 +4,7 @@ import { store } from '../../services/Store';
 
 import {
   GoogleMap,
-  LocationSelector,
+  ViewLevelSelector,
   MapOverlay,
   SearchCriteria,
   LoadingSpinner,
@@ -14,9 +14,11 @@ import {
 
 import {
   BASE_URL,
+  SEARCH_ID,
 
   getLocations,
   getNewSearchId,
+  getSearchParameters,
   getSearchParametersFromFilters,
 
   Location,
@@ -34,6 +36,8 @@ export interface AppState {
 }
 
 export default class App extends ComponentBase<{}, AppState> {
+
+  initialLoad = true;
 
   _buildState(): AppState {
     return {
@@ -56,9 +60,18 @@ export default class App extends ComponentBase<{}, AppState> {
   async redirectToSearchPage(locationFilters: LocationFilters) {
     store.setLoading(true);
     store.setLoadingMessage('Loading Search Page...');
-    let searchId = await getNewSearchId(locationFilters);
-    let uri = `${BASE_URL}/db_search/?sid=${searchId}`;
-    window.document.location.href = uri;
+
+    if (SEARCH_ID == 0 && !locationFilters.country && !locationFilters.region) {
+      let searchId = 0;
+      let uri = `${BASE_URL}/db_search/?sid=${searchId}`;
+      window.document.location.href = uri;
+    }
+
+    else {
+      let searchId = await getNewSearchId(locationFilters);
+      let uri = `${BASE_URL}/db_search/?sid=${searchId}`;
+      window.document.location.href = uri;
+    }
   }
 
   async selectLocation(locationFilters: LocationFilters) {
@@ -76,8 +89,19 @@ export default class App extends ComponentBase<{}, AppState> {
   async updateSearchCriteria() {
     const { locationFilters } = this.state;
     store.setSearchCriteria([['Loading...']]);
-    let response = await getSearchParametersFromFilters(locationFilters);
-    store.setSearchCriteria(response);
+
+    console.log('inital view', this.initialLoad);
+
+    if (this.initialLoad) {
+      let response = await getSearchParameters(SEARCH_ID);
+      store.setSearchCriteria(response);
+      this.initialLoad = false;
+    }
+
+    else {
+      let response = await getSearchParametersFromFilters(locationFilters);
+      store.setSearchCriteria(response);
+    }
   }
 
   render() {
@@ -102,7 +126,7 @@ export default class App extends ComponentBase<{}, AppState> {
         </div>
         <div className="position-relative">
           <MapOverlay>
-            <LocationSelector />
+            <ViewLevelSelector onSelect={locationFilters => this.selectLocation(locationFilters)} />
           </MapOverlay>
           <GoogleMap
             locations={locations}

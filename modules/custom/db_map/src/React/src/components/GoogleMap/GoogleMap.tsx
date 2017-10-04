@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { DEFAULT_OPTIONS, LABELED_MAP, UNLABELED_MAP } from '../../services/MapConstants';
-import { addLabel, addDataMarker, createInfoWindow } from '../../services/MapHelpers';
+import { createLabel, addDataMarker, createInfoWindow } from '../../services/MapHelpers';
 import { getNextLocationFilters, Location, ViewLevel, LocationFilters } from '../../services/DataService';
 import './GoogleMap.css';
 
@@ -13,14 +13,6 @@ export interface GoogleMapProps {
   showDataLabels: boolean;
   showMapLabels: boolean;
   onSelect: (locationFilters: LocationFilters) => void;
-}
-
-const sum = (object: any): number => {
-  let sum = 0;
-  for (let key in object) {
-    sum += object && object[key];
-  }
-  return sum;
 }
 
 class GoogleMap extends React.Component<GoogleMapProps, {}> {
@@ -39,32 +31,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
     this.map.addListener('click', () => {
       this.infoWindows.forEach(window => window.close());
     });
-
-    this.map.addListener('zoom_changed', () => {
-    let { locations, showDataLabels } = this.props;
-      // clear all labels
-      this.labels.forEach(labels => {
-        labels.setMap(null);
-      });
-
-      this.labels = [];
-      if (showDataLabels && locations && locations.length) {
-        locations.forEach(location => {
-          let { coordinates, label } = location;
-
-          let latLng = new google.maps.LatLng(coordinates.lat, coordinates.lng);
-          let point = this.map.getProjection().fromLatLngToPoint(latLng);
-          point.y -= 10 / this.map.getZoom();
-
-          let labelCoordinates = this.map.getProjection().fromPointToLatLng(point);
-          let labelMarker = addLabel(label, labelCoordinates, this.map);
-          window.setTimeout(() => this.labels.push(labelMarker), 0);
-        })
-      }
-    });
   }
-
-
 
   componentWillReceiveProps({ viewLevel, locations, locationFilters, showDataLabels, showMapLabels }: GoogleMapProps) {
 
@@ -83,14 +50,18 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       })
 
       // clear all labels
-      this.labels.forEach(labels => {
-        labels.setMap(null);
-      })
+      this.labels.forEach(label => {
+        label.setMap(null);
+      });
+
+      this.labels = [];
 
       // conditionally display map lables
       this.map.setOptions({
         styles: showMapLabels ? LABELED_MAP : UNLABELED_MAP
       });
+
+      MarkerClusterer;
 
       // for each location, do the following:
       locations.forEach((location: Location) => {
@@ -108,18 +79,22 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         // display them above the circles
         if (showDataLabels) {
           let latLng = new google.maps.LatLng(coordinates.lat, coordinates.lng);
-          let point = map.getProjection().fromLatLngToPoint(latLng);
-          point.y -= 10 / (this.map.getZoom() - 0.5);
 
-          let labelCoordinates = map.getProjection().fromPointToLatLng(point);
-          let labelMarker = addLabel(label, labelCoordinates, map);
-          window.setTimeout(() => this.labels.push(labelMarker), 0);
+          let projection = map.getProjection();
+
+          if (projection) {
+            let point = projection.fromLatLngToPoint(latLng);
+            point.y -= 10 / (this.map.getZoom() - 0.5);
+  
+            let labelCoordinates = map.getProjection().fromPointToLatLng(point);
+            let labelMarker = createLabel(label, labelCoordinates);
+            labelMarker.setMap(map);
+            window.setTimeout(() => this.labels.push(labelMarker), 0);
+          }
         }
 
-        MarkerClusterer;
-
         // add a marker at the specified location
-        let marker = addDataMarker(sum(counts), dataMarkerSize, coordinates, map);
+        let marker = addDataMarker(counts.projects, dataMarkerSize, coordinates, map);
 
         // add an info window containing the data
         let infoWindow = createInfoWindow(location);
@@ -137,19 +112,20 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         });
 
         // open a new location when this is clicked
-        marker.addListener('dblclick', event => {
-          infoWindow.close();
-          onSelect(
-            getNextLocationFilters(location, locationFilters)
-          );
+        if (viewLevel !== 'cities')
+          marker.addListener('dblclick', event => {
+            infoWindow.close();
+            onSelect(
+              getNextLocationFilters(location, locationFilters)
+            );
+          });
+      
         });
-      });
 
       map.fitBounds(bounds);
       map.setOptions({
-        maxZoom: 10
-      })
-
+        maxZoom: 15
+      });
 
       if (viewLevel === 'regions') {
         map.setCenter({
@@ -162,6 +138,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         map.setOptions({
           minZoom: 2
         })
+        map.setZoom(2);
       }
 
       if (viewLevel === 'regions' && map.getZoom() > 3) {

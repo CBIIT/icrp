@@ -142,8 +142,8 @@ class MappingTool {
       $locations = array_map(function($location) use ($query) {
         $columns = $query['columns'];
         return [
-          'label' => strval($location[$columns['label']]),
-          'value' => strval($location[$columns['value']]),
+          'label' => trim(strval($location[$columns['label']])),
+          'value' => trim(strval($location[$columns['value']])),
           'coordinates' => [
             'lat' => floatval($location['Latitude']),
             'lng' => floatval($location['Longitude']),

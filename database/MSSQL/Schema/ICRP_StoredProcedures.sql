@@ -4133,11 +4133,12 @@ AS
 	SELECT City, Count(*) AS Count INTO #collab FROM (SELECT City, ProjectFundingID FROM #tmp WHERE IsPrincipalInvestigator=0) collab GROUP BY City
 
 	-- Return RelatedProject Count, PI Count and collaborator Count by region
-	SELECT p.City, ISNULL(p.Count, 0) AS TotalRelatedProjectCount, ISNULL(pi.Count,0) AS TotalPICount, ISNULL(c.Count, 0) AS TotalCollaboratorCount--, ctry.Latitude, ctry.Longitude
+	SELECT p.City, ISNULL(p.Count, 0) AS TotalRelatedProjectCount, ISNULL(pi.Count,0) AS TotalPICount, ISNULL(c.Count, 0) AS TotalCollaboratorCount, city.Latitude, city.Longitude
 	FROM #proj p
 		--JOIN Country ctry ON ctry.Abbreviation = p.City
 		LEFT JOIN #pi  pi ON p.City = pi.City
 		LEFT JOIN #collab c ON c.City = pi.City		
+		LEFT JOIN lu_City city ON city.Country = @Country AND city.Name = pi.CIty
 	ORDER BY p.Count DESC
 
 	SELECT @AggregatedProjectCount= Count(*) FROM (SELECT DISTINCT ProjectFundingID FROM #tmp) proj
