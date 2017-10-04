@@ -49,6 +49,64 @@ BEGIN
 END
 GO
 
+
+IF object_id('[CountryMapLayer]') is null
+BEGIN
+
+	CREATE TABLE [dbo].[CountryMapLayer] (
+		[MapLayerID] [int] NOT NULL,		
+		[MapLayerLegendID] [int] NOT NULL,		
+		[Country] [varchar] (3) NOT NULL,		
+		[Value] [varchar] (50) NULL				
+	) 
+
+END
+GO
+
+
+IF object_id('lu_MapLayer') is NOT null
+	DROP TABLE lu_MapLayer
+ELSE
+BEGIN
+
+	CREATE TABLE [dbo].[lu_MapLayer] (
+		[MapLayerID] [int] NOT NULL,
+		[ParentMapLayerID] [int] NOT NULL,
+		[Name] [varchar](50) NOT NULL,
+		[Summary] [varchar](500) NULL,
+		[Description] [varchar](500) NULL,
+		[DataSource] [varchar](500) NULL,
+		[CreatedDate] [datetime] not null,
+		[UpdatedDate] [datetime] not null
+	)
+
+END
+
+
+ALTER TABLE [dbo].[lu_MapLayer] ADD  CONSTRAINT [DF_lu_MayLayer_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
+GO
+
+ALTER TABLE [dbo].[lu_MapLayer] ADD  CONSTRAINT [DF_lu_MayLayer_UpdatedDate]  DEFAULT (getdate()) FOR [UpdatedDate]
+GO
+
+
+IF object_id('lu_MapLayerLegend') is null
+BEGIN
+
+	CREATE TABLE [dbo].[lu_MapLayerLegend] (
+		[MapLayerLegendID] [int] IDENTITY(1,1) NOT NULL,
+		[MapLayerID] [int] NOT NULL,
+		[LegendName] [varchar] (150) NULL,
+		[DisplayOrder] [int] NOT NULL
+	CONSTRAINT [PK_lu_MapLayerLegend] PRIMARY KEY CLUSTERED 
+	(
+		[MapLayerLegendID] ASC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY]
+
+END
+
+
 /*************************************************/
 /******		UPDATE TABLE        			******/
 /*************************************************/
@@ -105,21 +163,19 @@ IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[F
 GO
 
 
-
 /*************************************************/
 /******					Data				******/
 /*************************************************/
-
 --  lu_Region
 IF NOT EXISTS (SELECT * FROM lu_Region WHERE RegionID = 1)
 	INSERT INTO lu_Region ([RegionID], [Name], [Latitude], [Longitude]) SELECT 1, 'North America', 42.611695, -104.326171
 IF NOT EXISTS (SELECT * FROM lu_Region WHERE RegionID = 2)
 	INSERT INTO lu_Region ([RegionID], [Name], [Latitude], [Longitude]) SELECT 2, 'Latin America & Caribbean', -17.902996, -58.974609 
 IF NOT EXISTS (SELECT * FROM lu_Region WHERE RegionID = 3)
-	INSERT INTO lu_Region ([RegionID], [Name], [Latitude], [Longitude]) SELECT 3, 'Europe & Central Asia', 43.383062, 20.478515
+	INSERT INTO lu_Region ([RegionID], [Name], [Latitude], [Longitude]) SELECT 3, 'Europe & Central Asia', 48.613534, 21.335449	
 
 IF NOT EXISTS (SELECT * FROM lu_Region WHERE RegionID = 4)
-	INSERT INTO lu_Region ([RegionID], [Name], [Latitude], [Longitude]) SELECT 4, 'South Asia', 23.152948, 77.299819
+	INSERT INTO lu_Region ([RegionID], [Name], [Latitude], [Longitude]) SELECT 4, 'South Asia', 19.532168, 77.585449
 ELSE
 	UPDATE lu_Region SET [Latitude] = 23.152948, [Longitude] = 77.299819
 
@@ -138,6 +194,84 @@ GO
 IF NOT EXISTS (SELECT * FROM lu_Region WHERE RegionID = 8)
 	INSERT INTO lu_Region ([RegionID], [Name], [Latitude], [Longitude]) SELECT 8, 'Australia & New Zealand', -31.353637, 149.414063
 GO
+
+-- SearchResult
+IF NOT EXISTS (SELECT * FROM SearchCriteria WHERE SearchCriteriaID = 0)
+BEGIN
+	SET IDENTITY_INSERT SearchCriteria ON; 
+	INSERT INTO SearchCriteria (SearchCriteriaID, [TermSearchType],[Terms],[Institution],[piLastName],[piFirstName],[piORCiD],[AwardCode],[YearList],[CityList],[StateList],[CountryList],[FundingOrgList],
+		[CancerTypeList],[ProjectTypeList],	[CSOList],[SearchByUserName],[SearchDate],	[FundingOrgTypeList],[IsChildhood],	[RegionList]) 
+		VALUES ( 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, getdate(), NULL, NULL, NULL)	
+	SET IDENTITY_INSERT SearchCriteria OFF; 
+
+	INSERT INTO SearchResult (SearchCriteriaID, Results,ResultCount, TotalRelatedProjectCount, LastBudgetYear, IsEmailSent) VALUES ( 0, NULL, NULL, NULL, NULL, NULL)	
+END
+
+-- lu_MapLayer
+IF NOT EXISTS (SELECT * FROM lu_MapLayer WHERE MapLayerID = 1)
+	INSERT INTO lu_MapLayer ([MapLayerID], [ParentMapLayerID], [Name], [Summary], [Description], [DataSource], [CreatedDate], [UpdatedDate])
+	SELECT 1, 0, 'Cancer Incidence', 
+		'This layer displays the estimated age-standardized rates (world population) of incident cases, both sexes, all cancers excluding non-melanoma skin cancer, worldwide in 2012.', 
+		'Estimated age-standardized rates (world population) of incident cases, both sexes, all cancers excluding non-melanoma skin cancer, worldwide in 2012.',
+		'Ferlay J, Soerjomataram I, Ervik M, et al. GLOBOCAN 2012 v1.0, Cancer Incidence and Mortality Worldwide: IARC CancerBase No. 11 [Internet]. Available from: http://globocan.iarc.fr.', getdate(), getdate()
+
+IF NOT EXISTS (SELECT * FROM lu_MapLayer WHERE MapLayerID = 2)
+	INSERT INTO lu_MapLayer ([MapLayerID], [ParentMapLayerID], [Name], [Summary], [Description], [DataSource], [CreatedDate], [UpdatedDate])
+	SELECT 2, 0, 'Cancer Mortality', 
+		'This layer displays the estimated age-standardized rates (world population) of deaths, both sexes, all cancers excluding non-melanoma skin cancer, worldwide in 2012.',
+		'Estimated age-standardized rates (world population) of deaths, both sexes, all cancers excluding non-melanoma skin cancer, worldwide in 2012.',
+		'Ferlay J, Soerjomataram I, Ervik M, et al. GLOBOCAN 2012 v1.0, Cancer Incidence and Mortality Worldwide: IARC CancerBase No. 11 [Internet]. Available from: http://globocan.iarc.fr.', getdate(), getdate()
+
+IF NOT EXISTS (SELECT * FROM lu_MapLayer WHERE MapLayerID = 3)
+	INSERT INTO lu_MapLayer ([MapLayerID], [ParentMapLayerID], [Name], [Summary], [Description], [DataSource], [CreatedDate], [UpdatedDate])
+	SELECT 3, 0, 'Cancer Prevalence', 
+		'This layer displays the estimated number of prevalence cases (1-year), both sexes, all cancers excluding non-melanoma skin cancer, worldwide in 2012.',
+		'Estimated number of prevalence cases (1-year), both sexes, all cancers excluding non-melanoma skin cancer, worldwide in 2012.',
+		'Ferlay J, Soerjomataram I, Ervik M, et al. GLOBOCAN 2012 v1.0, Cancer Incidence and Mortality Worldwide: IARC CancerBase No. 11 [Internet]. Available from: http://globocan.iarc.fr.', getdate(), getdate()
+
+IF NOT EXISTS (SELECT * FROM lu_MapLayer WHERE MapLayerID = 4)
+	INSERT INTO lu_MapLayer ([MapLayerID], [ParentMapLayerID], [Name], [Summary], [Description], [DataSource], [CreatedDate], [UpdatedDate])
+	SELECT 4, 0, 'World Bank Income Bands', 
+		'This layer displays the 2016 World Bank country classifications by income level, based on estimates of gross national income per capita for 2015.',
+		'This layer displays the 2016 World Bank country classifications by income level, based on estimates of gross national income per capita for 2015.',
+		'https://data.worldbank.org/', getdate(), getdate()
+	
+GO
+
+-- lu_MapLayerLegend
+TRUNCATE TABLE [lu_MapLayerLegend]
+
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 1, '> 244.2', 1
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 1, '174.3 - 244.2', 2
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 1, '137.6 - 174.3', 3
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 1, '101.6 - 137.6', 4
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 1, '< 101.6', 5
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 1, 'No data', 6
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 1, 'Not applicable', 7
+
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 2, '117.0', 1
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 2, '99.9-117.0', 2
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 2, '89.8-99.9', 3
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 2, '74.0-89.8', 4
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 2, '< 74.0', 5
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 2, 'No data', 6
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 2, 'Not applicable', 7
+
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 3, '> 328.7', 1
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 3, '139.6-328.7', 2
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 3, '85.7-139.6', 3
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 3, '62.6-85.7', 4
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 3, '< 62.6', 5
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 3, 'No data', 6
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 3, 'Not applicable', 7
+
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 4, 'High Income', 1
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 4, 'Upper Middle Income', 2
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 4, 'Lower Middle Income', 3
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 4, 'Low Income', 4
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 4, 'No data', 5
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 4, 'Not applicable', 6
+		
 
 /*************************************************/
 /******					Keys				******/
