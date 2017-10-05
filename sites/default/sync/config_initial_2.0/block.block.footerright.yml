@@ -1,0 +1,24 @@
+uuid: 8eb5ec8b-3ea6-4c23-9835-9053ae03f3ae
+langcode: en
+status: false
+dependencies:
+  config:
+    - system.menu.footer-right
+  module:
+    - system
+  theme:
+    - bootstrap_subtheme
+id: footerright
+theme: bootstrap_subtheme
+region: navigation
+weight: -1
+provider: null
+plugin: 'system_menu_block:footer-right'
+settings:
+  id: 'system_menu_block:footer-right'
+  label: 'Quick Links'
+  provider: system
+  label_display: visible
+  level: 1
+  depth: 0
+visibility: {  }
