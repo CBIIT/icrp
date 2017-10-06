@@ -1,0 +1,32 @@
+uuid: d46f8c9f-f416-4fd4-b0eb-de4f2d872e03
+langcode: en
+status: false
+dependencies:
+  config:
+    - system.menu.authenticated-user-menu
+  module:
+    - system
+    - user
+  theme:
+    - bootstrap_business
+id: bootstrap_business_authenticatedusermenu
+theme: bootstrap_business
+region: pre_header_first
+weight: -25
+provider: null
+plugin: 'system_menu_block:authenticated-user-menu'
+settings:
+  id: 'system_menu_block:authenticated-user-menu'
+  label: 'Authenticated User Menu'
+  provider: system
+  label_display: '0'
+  level: 1
+  depth: 0
+visibility:
+  user_role:
+    id: user_role
+    roles:
+      authenticated: authenticated
+    negate: false
+    context_mapping:
+      user: '@user.current_user_context:current_user'

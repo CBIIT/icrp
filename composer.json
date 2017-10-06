@@ -21,9 +21,22 @@
                     "type": "zip"
                 }
             }
+        },
+        "arshaw_fullcalendar": {
+            "type": "package",
+            "package": {
+                "name": "arshaw/fullcalendar",
+                "version": "3.5.6",
+                "type": "drupal-library",
+                "dist": {
+                    "url": "https://github.com/arshaw/fullcalendar/releases/download/v3.5.1/fullcalendar-3.5.1.zip",
+                    "type": "zip"
+                }
+            }
         }
     },
     "require": {
+        "arshaw/fullcalendar": "3.5.6",
         "box/spout": "^2.7.2",
         "ckeditor/ckeditor": "^4.7",
         "composer/installers": "^1.2",
@@ -33,6 +46,7 @@
         "drupal/admin_toolbar_tools": "1.19",
         "drupal/autologout": "1.0",
         "drupal/backup_migrate": "4.0-alpha2@alpha",
+        "drupal/bootstrap": "3.6",
         "drupal/bootstrap_layouts": "5.0-alpha1@alpha",
         "drupal/calendar": "1.x-dev",
         "drupal/calendar_datetime": "1.x-dev",
@@ -46,6 +60,7 @@
         "drupal/ctools_block": "3.0",
         "drupal/ctools_views": "3.0",
         "drupal/datatables": "1.0-rc1@RC",
+        "drupal/datetime_range_timezone": "1.x-dev",
         "drupal/devel": "~1.0",
         "drupal/ds": "3.1",
         "drupal/ds_extras": "3.1",
@@ -62,6 +77,8 @@
         "drupal/field_permissions": "1.0-beta2@beta",
         "drupal/focal_point": "1.0-beta4@beta",
         "drupal/fontawesome": "1.2",
+        "drupal/fullcalendar": "1.x-dev",
+        "drupal/fullcalendar_options": "1.x-dev",
         "drupal/google_analytics": "2.1",
         "drupal/honeypot": "1.27",
         "drupal/libraries": "3.x-dev",
@@ -89,7 +106,9 @@
         "drupal/webform": "5.0-beta16@beta",
         "drupal/webform_ui": "5.0-beta16@beta",
         "drupal/webform_views": "5.0-alpha2@alpha",
+        "drupal/yaml_content": "^1.0@alpha",
         "drush/drush": "~8.0",
+        "fullcalendar/fullcalendar": "^3.5",
         "intelogie/signature-pad": "^1.5",
         "maennchen/zipstream-php": "^0.4.1",
         "mbostock/d3": "^3.5",

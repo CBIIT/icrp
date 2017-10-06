@@ -1,0 +1,12 @@
+uuid: 27931aaf-3912-481a-89ed-f6021d4eb991
+langcode: en
+status: true
+dependencies: {  }
+id: pageone
+label: pageone
+description: ''
+use_admin_theme: false
+path: /pageone
+access_logic: and
+access_conditions: {  }
+parameters: {  }

@@ -1,0 +1,39 @@
+uuid: 9035daeb-a242-4eb0-959a-9df463b57d69
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:abf58477-7823-478a-982b-50286f404dfb'
+  module:
+    - block_content
+    - system
+    - user
+  theme:
+    - bootstrap_subtheme
+id: partnerhomepartnercalendar
+theme: bootstrap_subtheme
+region: footer
+weight: -22
+provider: null
+plugin: 'block_content:abf58477-7823-478a-982b-50286f404dfb'
+settings:
+  id: 'block_content:abf58477-7823-478a-982b-50286f404dfb'
+  label: 'Partner Home Partner Calendar'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: '<front>'
+    negate: false
+    context_mapping: {  }
+  user_role:
+    id: user_role
+    roles:
+      authenticated: authenticated
+    negate: false
+    context_mapping:
+      user: '@user.current_user_context:current_user'

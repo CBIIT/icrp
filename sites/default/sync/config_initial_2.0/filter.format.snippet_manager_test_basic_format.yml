@@ -1,0 +1,19 @@
+uuid: 43340496-8527-4276-9d2e-2582bbe25818
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: 8B2uITAOg7kEaj6jw5PwzRoOk6D6z7F__kDoWGvdg2g
+name: 'Snippet manager test basic format'
+format: snippet_manager_test_basic_format
+weight: 1
+filters:
+  filter_html:
+    id: filter_html
+    provider: filter
+    status: true
+    weight: -10
+    settings:
+      allowed_html: '<div class> <h3> <p> <br> <b> <a href hreflang>'
+      filter_html_help: true
+      filter_html_nofollow: false

@@ -1,0 +1,8 @@
+uuid: a57cd68c-ed6d-481e-9da4-0fb2b09bad86
+langcode: en
+status: true
+dependencies: {  }
+id: admin-faq
+label: 'Admin FAQ'
+description: 'Allow managers to add FAQ'
+locked: false
