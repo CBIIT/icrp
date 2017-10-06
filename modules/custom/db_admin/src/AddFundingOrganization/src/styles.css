@@ -1,0 +1,8 @@
+.vertical-margins {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.bordered {
+  border: 1px solid #ddd;
+}
