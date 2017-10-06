@@ -28,6 +28,7 @@ module:
   data_load: 0
   datatables: 0
   datetime: 0
+  datetime_range: 0
   db_admin: 0
   db_cancer_type_list: 0
   db_email_results: 0

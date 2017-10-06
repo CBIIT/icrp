@@ -106,6 +106,7 @@
         "drupal/webform": "5.0-beta16@beta",
         "drupal/webform_ui": "5.0-beta16@beta",
         "drupal/webform_views": "5.0-alpha2@alpha",
+        "drupal/yaml_content": "^1.0@alpha",
         "drush/drush": "~8.0",
         "fullcalendar/fullcalendar": "^3.5",
         "intelogie/signature-pad": "^1.5",
