@@ -85,12 +85,7 @@ class Unicode extends \Drupal\Component\Utility\Unicode {
    */
   public static function isSimple($string, $length = 250, $allowed_tags = NULL, &$html = FALSE) {
     // Typecast to a string (if an object).
-    if (is_array($string)) {
-      $string_clone = print_r($string, TRUE);
-    }
-    else {
-      $string_clone = (string) $string;
-    }    
+    $string_clone = (string) $string;
 
     // Use the advanced drupal_static() pattern.
     static $drupal_static_fast;

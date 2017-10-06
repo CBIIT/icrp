@@ -1,0 +1,21 @@
+uuid: 2b5b7f56-a78d-48ad-9bf3-2a9610120e80
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_calendar_type
+    - node.type.events
+  module:
+    - options
+id: node.events.field_calendar_type
+field_name: field_calendar_type
+entity_type: node
+bundle: events
+label: 'Calendar Type'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

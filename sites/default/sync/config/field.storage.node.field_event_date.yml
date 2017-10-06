@@ -1,14 +1,10 @@
-uuid: c28a5bae-acae-44a7-933d-4d4ae699c3e4
+uuid: 42c55089-0697-4fa0-8431-ceb3a1ff4d1c
 langcode: en
 status: true
 dependencies:
   module:
     - datetime
-    - field_permissions
     - node
-third_party_settings:
-  field_permissions:
-    permission_type: public
 id: node.field_event_date
 field_name: field_event_date
 entity_type: node

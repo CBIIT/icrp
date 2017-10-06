@@ -1,4 +1,4 @@
-uuid: bac30fe2-f365-4fec-b0e3-22f4d744e013
+uuid: 9d132ba3-2990-4326-b258-fa1d57eefefa
 langcode: en
 status: true
 dependencies:
@@ -25,5 +25,4 @@ content:
   links:
     weight: 100
     region: content
-hidden:
-  field_event_date: true
+hidden: {  }
