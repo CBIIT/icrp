@@ -74,16 +74,11 @@ module:
   link: 0
   linkit: 0
   media_entity: 0
-  media_entity_twitter: 0
   menu_ui: 0
   metatag: 0
   node: 0
   options: 0
   page_cache: 0
-  page_manager: 0
-  page_manager_ui: 0
-  panels: 0
-  panels_ipe: 0
   partnership_import: 0
   path: 0
   plugin_type_example: 0
