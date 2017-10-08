@@ -12,7 +12,7 @@ dependencies:
 id: partnershiptwitter
 theme: bootstrap_subtheme
 region: sidebar_second
-weight: -27
+weight: -26
 provider: null
 plugin: 'block_content:5917d6af-5e3a-4c08-8d3b-c0cdd913a7df'
 settings:

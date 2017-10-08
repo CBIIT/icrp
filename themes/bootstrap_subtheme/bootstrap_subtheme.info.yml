@@ -2,8 +2,8 @@ core: 8.x
 type: theme
 base theme: bootstrap
 
-name: 'Bootstrap Sub-Theme (CDN)'
-description: 'This is the Bootstrap Subtheme'
+name: 'ICRP Bootstrap Sub-Theme (CDN)'
+description: 'This is the ICRP Bootstrap Subtheme'
 package: 'Bootstrap'
 
 regions:
