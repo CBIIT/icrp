@@ -25,6 +25,15 @@ h1 {
 h2 {
     margin-top: 0px;
 }
+
+div.view-next-icrp-meeting-view > div.view-content > div.views-row > div.views-field.views-field-nothing {
+    font-size:18px;
+}
+
+div.view-next-icrp-meeting-view > div.view-content  > div.views-row > div.views-field.views-field-body {
+    margin-top:10px;
+}
+
 div#views-bootstrap-frequently-asked-questions-page-1 > div.panel {
     margin-bottom:21px;
 }
