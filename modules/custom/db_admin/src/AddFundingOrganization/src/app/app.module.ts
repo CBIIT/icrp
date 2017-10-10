@@ -1,6 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout';
+
 
 import { FundingOrganizationFormComponent } from './funding-organization-form/funding-organization-form.component';
 
@@ -11,6 +13,7 @@ import { FundingOrganizationFormComponent } from './funding-organization-form/fu
   imports: [
     BrowserModule,
     FlexLayoutModule,
+    ReactiveFormsModule,
   ],
   providers: [],
   bootstrap: [FundingOrganizationFormComponent]

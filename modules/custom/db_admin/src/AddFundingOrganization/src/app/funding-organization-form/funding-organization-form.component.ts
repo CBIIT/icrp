@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'icrp-funding-organization-form',
@@ -7,7 +8,27 @@ import { Component, OnInit } from '@angular/core';
 })
 export class FundingOrganizationFormComponent implements OnInit {
 
-  constructor() { }
+  form: FormGroup;
+
+  constructor(private formBuilder: FormBuilder) {
+    this.form = this.createForm();
+  }
+
+  createForm(): FormGroup {
+    return this.formBuilder.group({
+      partner: ['', Validators.required],
+      memberType: ['associate', Validators.required],
+      name: '',
+      abbreviation: '',
+      organizationType: '',
+      latitude: null,
+      longitude: null,
+      country: '',
+      currency: '',
+      note: '',
+      annualizedFunding: false,
+    });
+  }
 
   ngOnInit() {
   }

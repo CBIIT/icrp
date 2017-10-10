@@ -1,70 +1,237 @@
-
-<div
-  class="bordered"
-
-  fxLayout="row"
-
-  fxLayoutAlign="start center"
-  fxLayoutGap="15px"
->
-
-  <!-- Select partner -->
+<form [formGroup]="form">
   <div
-    fxLayout
+    class="bordered padded form-group"
+    fxLayout="row"
+    fxLayout.lt-md="column"
+
     fxLayoutAlign="start center"
-  >
+    fxLayoutAlign.lt-md="center start"
+    fxLayoutGap="15px">
+    <div
+      fxFlex
+      fxFlex.lt-md="nogrow"
 
-    <label for="partner">Partner</label>
-    <select class="form-control">
-      <option value="">Select a partner</option>
-    </select>
-  </div>
+      fxLayout="row"
+      fxLayout.lt-md="column"
 
-  <!-- Select member type (Partner or Associate) -->
-  <div
-    fxLayout
-    fxLayoutAlign="start center"
-  >
-    <label for="memberType">Member Type</label>
+      fxLayoutAlign="start center"
+      fxLayoutAlign.lt-md="center start"
 
-      <label>
-        <input type="radio" name="memberType" value="partner">
+      fxLayoutGap="10px"
+      fxLayoutGap.lt-md="5px">
+      <label
+        class="inline nowrap"
+        for="partner"
+        fxFlex="15%"
+        fxFlex.lt-md="nogrow">
+        Partner <span class="text-danger">*</span>
+      </label>
+      <select
+        fxFlex="85%"
+        fxFlex.lt-md="nogrow"
+        id="partner"
+        name="partner"
+        class="form-control"
+        [formControl]="form.controls.partner">
+        <option value="">Select a partner</option>
+      </select>
+    </div>
+
+    <div
+      fxFlex
+      fxFlex.lt-md="nogrow"
+
+      fxLayout="row"
+      fxLayout.lt-md="column"
+
+      fxLayoutAlign="start center"
+      fxLayoutAlign.lt-md="center start"
+
+      fxLayoutGap="10px"
+      fxLayoutGap.lt-md="5px">
+      <label class="inline" for="memberType">
+        Member Type <span class="text-danger">*</span>
+      </label>
+      <input
+        type="hidden"
+        id="memberType"
+        aria-label="This fieldset contains two radio buttons to select whether the chosen organization is a partner or an associate.">
+
+      <label class="inline normal-weight" for="memberTypePartner">
+        <input
+          id="memberTypePartner"
+          type="radio"
+          name="memberType"
+          value="partner"
+          [formControl]="form.controls.memberType">
         Partner
       </label>
 
-      <label>
-        <input type="radio" name="memberType" value="associate">
+      <label class="inline normal-weight" for="memberTypeAssociate">
+        <input
+          id="memberTypeAssociate"
+          type="radio"
+          name="memberType"
+          value="associate"
+          [formControl]="form.controls.memberType">
         Associate
       </label>
-
+    </div>
   </div>
-</div>
 
-<div class="row">
+  <div
+    class="form-group"
+    fxLayout="row"
+    fxLayout.lt-md="column"
+    fxLayoutGap="15px">
+    <div fxFlex fxFlex.lt-md="nogrow">
+      <label for="name">
+        Name <span class="text-danger">*</span>
+      </label>
+      <input
+        id="name"
+        name="name"
+        class="form-control"
+        placeholder="Enter name of funding organization"
+        [formControl]="form.controls.name">
+    </div>
 
-    <!-- Enter name of funding organization -->
-    <div class="col-md-6">A</div>
+    <div fxFlex fxFlex.lt-md="nogrow">
+      <label for="abbreviation">
+        Abbreviation <span class="text-danger">*</span>
+      </label>
+      <input
+        id="abbreviation"
+        name="abbreviation"
+        class="form-control"
+        placeholder="Enter abbreviation for funding organization's name"
+        [formControl]="form.controls.abbreviation">
+    </div>
+  </div>
 
-    <!-- Enter abbreviation for funding organization's name -->
-    <div class="col-md-6">B</div>
+  <div
 
-    <!-- Select funding organization's name -->
-    <div class="col-md-6">A</div>
+    class="form-group"
+    fxLayout="row-wrap"
+    fxLayout.lt-md="column"
+    fxLayoutGap="15px">
+    <div fxFlex fxFlex.lt-md="nogrow">
+      <label for="organizationType">
+        Organization Type <span class="text-danger">*</span>
+      </label>
+      <select
+        id="organizationType"
+        name="organizationType"
+        class="form-control"
+        [formControl]="form.controls.organizationType">
+        <option value="">Select an organization type</option>
+      </select>
+    </div>
 
-    <!-- Enter funding organization's map coordinates (decimal longitude/latitude) -->
-    <div class="col-md-6">B</div>
+    <div fxFlex fxFlex.lt-md="nogrow">
+      <label for="mapCoordinates">Map Coordinates</label>
+      <input
+        type="hidden"
+        id="mapCoordinates"
+        aria-label="This fieldset contains two text input fields to enter the longitude and latitude of the funding organization.">
 
-    <!-- Select funding organization's country -->
-    <div class="col-md-6">A</div>
+      <div
+        fxLayout="row"
+        fxLayout.lt-md="column"
+        fxLayoutGap="15px"
+        fxLayoutGap.lt-md="10px"
+        >
+        <input
+          id="latitude"
+          name="latitude"
+          class="form-control"
+          type="number"
+          placeholder="Enter latitude"
+          fxFlex
+          fxFlex.lt-md="nogrow"
+          [formControl]="form.controls.latitude">
 
-    <!-- Select funding organization's currency -->
-    <div class="col-md-6">B</div>
+        <input
+          id="longitude"
+          name="longitude"
+          class="form-control"
+          type="number"
+          placeholder="Enter longitude"
+          fxFlex
+          fxFlex.lt-md="nogrow"
+          [formControl]="form.controls.longitude">
+      </div>
+    </div>
+  </div>
 
-    <!-- Optional: Enter a note for the funding organization -->
-    <div class="col-md-12">A</div>
 
-    <!-- Optional: Select if funding is annualized -->
-    <div class="col-md-12">B</div>
+  <div
+    class="form-group"
+    fxLayout="row"
+    fxLayout.lt-md="column"
+    fxLayoutGap="15px"
+  >
+    <div fxFlex fxFlex.lt-md="nogrow">
+      <label for="country">
+        Country <span class="text-danger">*</span>
+      </label>
+      <select
+        id="country"
+        name="country"
+        class="form-control"
+        [formControl]="form.controls.country">
+        <option value="">Select a country</option>
+      </select>
+    </div>
 
+    <div fxFlex fxFlex.lt-md="nogrow">
+      <label for="currency">
+        Currency <span class="text-danger">*</span>
+      </label>
+      <select
+        id="currency"
+        name="currency"
+        class="form-control"
+        [formControl]="form.controls.currency">
+        <option value="">Select a currency</option>
+      </select>
+    </div>
+  </div>
 
-</div>
+  <div class="form-group">
+      <label for="note">Note</label>
+      <textarea
+        id="note"
+        name="note"
+        class="form-control vertical-resize default-min-height"
+        placeholder="Enter note (optional)"
+        rows="3"
+        [formControl]="form.controls.note">
+      ></textarea>
+  </div>
+
+  <div
+    class="form-group"
+    fxLayout="row"
+    fxLayoutWrap
+    fxLayoutAlign="space-between center"
+    fxLayoutGap="15px">
+    <label class="inline" for="annualizedFunding">
+      <input
+        id="annualizedFunding"
+        type="checkbox"
+        name="annualizedFunding"
+        [formControl]="form.controls.annualizedFunding">
+      Annualized Funding
+    </label>
+
+    <i class="text-muted">* indicates required fields</i>
+  </div>
+
+  <div class="text-center vertical-margins">
+    <button class="btn btn-primary">Save</button>
+    <button class="btn btn-default">Cancel</button>
+  </div>
+</form>
+
+<pre>{{form.value | json}}</pre>
