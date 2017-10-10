@@ -115,6 +115,8 @@ class ProjectViewComponent extends Component {
             tooltip: 'Principal Investigator',
             link: 'pi_orcid_url',
             external: true,
+            imageSrc: 'https://orcid.org/sites/default/files/images/orcid_16x16.png',
+            imageFlag: 'link',
           },
           {
             label: 'Collabos.',
