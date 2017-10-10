@@ -81,7 +81,9 @@ drupalSettings.db_map = {
             position: loc,
             title: detail.pi_name,
           }),
-          content = 'PI: '+detail.pi_name+'<br/>'+
+          content = (is_pi?'Principal Investigator':'Collaborator')+'<br/>'+
+                    '<hr style="margin:.5em 0px;"/>'+
+                    'PI: '+detail.pi_name+'<br/>'+
                     'Institution: '+detail.institution+'<br/>'+
                     'Location: '+[detail.city, detail.state, detail.country].filter(e => e && e.length).join(', ');
       marker.addListener('click',(function(marker,content,infowindow) {

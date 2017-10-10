@@ -7,6 +7,54 @@
   <div class="blue-text">Total PIs: {{pi_count}} / Total Collabs: {{(funding_details|length - pi_count)}}</div></div>
 <div class="text-right margin-top"><a href="/project/funding-details/{{project_id}}" class="cursor-pointer">View Project Funding Details</a></div>
 <div id="icrp-map" class="map-container"></div>
+<hr/>
+{% if funding_details|length > 0 %}
+<div class="table-responsive margin-top">
+  <table class="project-collaborators table table-bordered table-striped table-condensed table-hover table-narrow table-nowrap">
+    <thead>
+      <tr>
+        <th class="limited-width">Name</th>
+        <th>Type</th>
+        <th>ORC_ID</th> 
+        <th class="limited-width">Institution</th>
+        <th>Region</th>
+        <th>Location</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in funding_details %}
+        <tr>
+          <td class="limited-width">
+              {{ row.pi_name | default('N/A') | raw }}
+          </td>
+          <td>{% if row.is_pi %}Principal Investigator{% else %}Collaborator{% endif %}</td>
+          <td>
+              {% if row.pi_orcid %}
+                <a href="https://orcid.org/{{ row.pi_orcid }}" target="_blank" title="Visit the collaborators's ORCiD.org profile">
+                  <img style="margin: 0 4px" src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="ORCiD Logo">
+                  {{ row.pi_orcid }}
+                </a>
+              {% endif %}
+          </td>
+          <td>{{ row.institution | default('N/A')}}</td>
+          <td>{{ row.region | default('N/A') }}</td>
+          <td>
+              {% if row.city %}
+               {{ row.city }}, 
+              {% endif %}
+              {% if row.state %}
+               {{ row.state }}, 
+              {% endif %}
+              {{ row.country | default('N/A')}}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div><em>This project funding has either no collaborators or the information is not available.</em></div>
+{% endif %}
 <script>
   var db_people_map = {
     funding_details: {{funding_details|json_encode|raw}}
