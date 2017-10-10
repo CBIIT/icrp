@@ -27,7 +27,8 @@ class PartnerManager {
     'description'               => NULL,
     'sponsor_code'              => NULL,
     'website'                   => NULL,
-    'map_coordinates'           => NULL,
+    'latitude'                  => NULL,
+    'longitude'                 => NULL,
     'logo_file'                 => NULL,
     'note'                      => NULL,
     'agree_to_terms'            => NULL,
@@ -37,29 +38,28 @@ class PartnerManager {
     'currency'                  => NULL,
   ];
 
-
   public static function getFields(PDO $pdo) {
     $queries = [
       'partners'    =>  "SELECT
                           PartnerApplicationID as partner_application_id,
-                          OrgName as partner_name, 
-                          OrgCountry as country, 
-                          OrgEmail as email, 
-                          MissionDesc as description, 
-                          CAST(CreatedDate AS DATE) as joined_date 
+                          OrgName as partner_name,
+                          OrgCountry as country,
+                          OrgEmail as email,
+                          MissionDesc as description,
+                          CAST(CreatedDate AS DATE) as joined_date
                           FROM PartnerApplication
                           WHERE STATUS = 'NEW'",
 
-      'countries'   =>  'SELECT 
-                          LTRIM(RTRIM(Abbreviation)) AS value, 
+      'countries'   =>  'SELECT
+                          LTRIM(RTRIM(Abbreviation)) AS value,
                           Name AS label,
                           Currency as currency
                           FROM Country
                           ORDER BY label ASC',
 
       'currencies'  =>  'SELECT
-                          LTRIM(RTRIM(Code)) AS value, 
-                          Description AS label 
+                          LTRIM(RTRIM(Code)) AS value,
+                          Description AS label
                           FROM Currency
                           ORDER BY value ASC',
     ];
@@ -78,13 +78,13 @@ class PartnerManager {
     };
 
     $fields['organizationTypes'] = array_map($getValueLabelPair, [
-      'Government', 
+      'Government',
       'Non-profit',
       'Other'
     ]);
 
     $fields['urlProtocols'] = array_map($getValueLabelPair, [
-      'https://', 
+      'https://',
       'http://',
     ]);
 
@@ -134,11 +134,11 @@ class PartnerManager {
     if (!empty($validation_errors)) {
       return $validation_errors;
     }
-    
+
     try {
 
       $stmt = PDOBuilder::createPreparedStatement(
-        $pdo, 
+        $pdo,
         "INSERT INTO Partner (
           Name,
           JoinedDate,
@@ -147,12 +147,13 @@ class PartnerManager {
           Description,
           SponsorCode,
           Website,
-          MapCoords,
           LogoFile,
           Note,
-          IsDSASigned
+          IsDSASigned,
+          Latitude,
+          Longitude
         ) VALUES (
-          :partner_name, 
+          :partner_name,
           :joined_date,
           :country,
           :email,
@@ -162,7 +163,9 @@ class PartnerManager {
           :map_coordinates,
           :logo_file,
           :note,
-          :agree_to_terms
+          :agree_to_terms,
+          :latitude,
+          :longitude
         )",
       $parameters);
 
@@ -174,15 +177,16 @@ class PartnerManager {
             'organization_name'         => $parameters['partner_name'],
             'organization_abbreviation' => $parameters['sponsor_code'],
             'organization_type'         => $parameters['organization_type'],
-            'map_coordinates'           => $parameters['map_coordinates'],
             'country'                   => $parameters['country'],
             'currency'                  => $parameters['currency'],
             'sponsor_code'              => $parameters['sponsor_code'],
             'member_type'               => 'Partner',
             'is_annualized'             => $parameters['is_annualized'],
             'note'                      => $parameters['note'],
+            'latitude'                  => $parameters['latitude'],
+            'longitude'                 => $parameters['longitude'],
           ]);
-          
+
         return [
           ['SUCCESS' => 'The partner has been added to the database.']
         ];
@@ -208,7 +212,7 @@ class PartnerManager {
 
     try {
       $stmt = PDOBuilder::createPreparedStatement(
-        $pdo,     
+        $pdo,
         "UPDATE PartnerApplication
           SET STATUS = 'COMPLETED'
           WHERE PartnerApplicationID = :partner_application_id",

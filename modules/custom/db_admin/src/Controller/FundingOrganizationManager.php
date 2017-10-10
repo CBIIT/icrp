@@ -20,28 +20,28 @@ class FundingOrganizationManager {
 
   public static function getFields(PDO $pdo) {
     $queries = [
-      'partners'    =>  'SELECT 
-                          p.SponsorCode AS value, 
-                          p.Name AS label, 
-                          p.Country AS country, 
-                          c.Currency AS currency 
+      'partners'    =>  'SELECT
+                          p.SponsorCode AS value,
+                          p.Name AS label,
+                          p.Country AS country,
+                          c.Currency AS currency
                           FROM Partner p
                           LEFT JOIN Country c ON p.Country = c.Abbreviation
                           ORDER BY label ASC',
-                          
+
       'countries'   =>  'SELECT
-                          LTRIM(RTRIM(Abbreviation)) AS value, 
-                          name AS label, 
-                          Currency AS currency 
+                          LTRIM(RTRIM(Abbreviation)) AS value,
+                          name AS label,
+                          Currency AS currency
                           FROM icrp_data.dbo.Country
                           ORDER BY label ASC',
 
       'currencies'  =>  'SELECT
-                          LTRIM(RTRIM(Code)) AS value, 
-                          Description AS label 
+                          LTRIM(RTRIM(Code)) AS value,
+                          Description AS label
                           FROM Currency
                           ORDER BY value ASC',
-    ]; 
+    ];
 
     // map query results to field values
     $fields = [];
@@ -62,8 +62,8 @@ class FundingOrganizationManager {
     }
 
     $stmt = $pdo->prepare("
-      SELECT * FROM FundingOrg 
-      WHERE (Name = :organization_name OR Abbreviation = :abbreviation) 
+      SELECT * FROM FundingOrg
+      WHERE (Name = :organization_name OR Abbreviation = :abbreviation)
       AND SponsorCode = :sponsor_code
     ");
 
@@ -89,35 +89,37 @@ class FundingOrganizationManager {
     if (!empty($validation_errors)) {
       return $validation_errors;
     }
-    
+
     try {
 
       $stmt = PDOBuilder::createPreparedStatement(
-        $pdo, 
+        $pdo,
         "INSERT INTO FundingOrg (
-          Name, 
-          Abbreviation, 
-          Type, 
-          MapCoords,
-          Country, 
-          Currency, 
-          SponsorCode, 
-          MemberType, 
-          MemberStatus, 
-          IsAnnualized, 
-          Note
+          Name,
+          Abbreviation,
+          Type,
+          Country,
+          Currency,
+          SponsorCode,
+          MemberType,
+          MemberStatus,
+          IsAnnualized,
+          Note,
+          Latitude,
+          Longitude
         ) VALUES (
-          :organization_name, 
+          :organization_name,
           :organization_abbreviation,
           :organization_type,
-          :map_coordinates,
           :country,
           :currency,
           :sponsor_code,
           :member_type,
           'Current',
           :is_annualized,
-          :note
+          :note,
+          :latitude,
+          :longitude
         )",
       $parameters);
 
