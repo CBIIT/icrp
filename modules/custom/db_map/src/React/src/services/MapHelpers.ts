@@ -5,7 +5,7 @@ export const createLabel = (label: string, location: google.maps.LatLngLiteral |
     position: location,
     zIndex: 0,
     label: {
-      color: '#2574A9',
+      color: '#336E7B',
       text: label.toLocaleUpperCase(),
       fontSize: '17px',
       fontWeight: '500',

@@ -30,7 +30,7 @@ class DataTable extends Component {
             <thead>
               <tr>
                 {
-                  this.props.columns.map((column, columnIndex) => 
+                  this.props.columns.map((column, columnIndex) =>
                     <th key={columnIndex} title={column.tooltip} data-toggle='tooltip' data-placement='top'>
                       <span>{column.label}</span>
                     </th>
@@ -41,13 +41,13 @@ class DataTable extends Component {
             <tbody>
             {
               this.props.data
-              .filter((row, rowIndex) => 
-                !this.state.collapsed || 
+              .filter((row, rowIndex) =>
+                !this.state.collapsed ||
                 (this.state.collapsed && rowIndex < this.props.limit))
               .map((row, rowIndex) =>
                 <tr key={rowIndex}>
                 {
-                  this.props.columns.map((column, columnIndex) => 
+                  this.props.columns.map((column, columnIndex) =>
                   <td key={columnIndex}>
                     <span>
                     {
@@ -59,6 +59,11 @@ class DataTable extends Component {
                         : row[column.value]
                       ) || ''
                     }
+                    {
+                      column.imageSrc && row[column[column.imageFlag]]
+                      ? <img style={{marginLeft: 4}} src={column.imageSrc} alt="ORCID logo" />
+                      : null
+                    }
                     </span>
                   </td>
                   )
@@ -69,7 +74,7 @@ class DataTable extends Component {
             </tbody>
           </table>
         </div>
-        
+
         {
           this.props.data.length > this.props.limit &&
           <div className='form-group'>
@@ -83,7 +88,7 @@ class DataTable extends Component {
               : 'Show Less' }
             </button>
           </div>
-        }  
+        }
       </div>
     );
   }
