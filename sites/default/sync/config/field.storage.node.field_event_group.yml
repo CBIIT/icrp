@@ -46,8 +46,8 @@ settings:
       value: Webinar
       label: Webinar
     -
-      value: Others
-      label: Others
+      value: Other
+      label: Other
   allowed_values_function: ''
 module: options
 locked: false

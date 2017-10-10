@@ -16,6 +16,8 @@ module:
   clientside_validation: 0
   clientside_validation_jquery: 0
   color: 0
+  colorbox: 0
+  colorbox_load: 0
   comment: 0
   config: 0
   contact: 0
@@ -76,6 +78,7 @@ module:
   media_entity: 0
   menu_ui: 0
   metatag: 0
+  ng_lightbox: 0
   node: 0
   options: 0
   page_cache: 0
@@ -85,6 +88,7 @@ module:
   quickedit: 0
   rdf: 0
   recovery_pass: 0
+  redirect: 0
   responsive_image: 0
   rules: 0
   search: 0

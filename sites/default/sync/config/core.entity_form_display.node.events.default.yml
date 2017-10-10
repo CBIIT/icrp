@@ -6,10 +6,13 @@ dependencies:
     - field.field.node.events.body
     - field.field.node.events.field_calendar_type
     - field.field.node.events.field_event_date
+    - field.field.node.events.field_event_date_range
     - field.field.node.events.field_event_group
+    - field.field.node.events.field_event_group_taxonomy
     - node.type.events
   module:
     - datetime
+    - datetime_range
     - path
     - text
 id: node.events.default
@@ -38,11 +41,26 @@ content:
     third_party_settings: {  }
     type: datetime_default
     region: content
+  field_event_date_range:
+    weight: 27
+    settings: {  }
+    third_party_settings: {  }
+    type: daterange_default
+    region: content
   field_event_group:
     weight: 3
     settings: {  }
     third_party_settings: {  }
     type: options_select
+    region: content
+  field_event_group_taxonomy:
+    weight: 26
+    settings:
+      match_operator: CONTAINS
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: entity_reference_autocomplete
     region: content
   path:
     type: path

@@ -7,6 +7,7 @@ dependencies:
   module:
     - calendar
     - datetime
+    - fullcalendar
     - node
     - options
     - user
@@ -55,20 +56,55 @@ display:
         options:
           pager_placement: top
       style:
-        type: calendar
+        type: fullcalendar
         options:
-          calendar_type: month
-          mini: '0'
-          name_size: '3'
-          with_weekno: '0'
-          max_items: '0'
-          max_items_behavior: more
-          groupby_times: hour
-          groupby_times_custom: null
-          theme_style: '1'
-          groupby_field: ''
-          multiday_theme: '1'
-          multiday_hidden: {  }
+          display:
+            defaultView: month
+            firstDay: '0'
+            weekMode: variable
+          times:
+            default_date: false
+            date: ''
+          left: 'today prev,next'
+          center: title
+          right: 'month agendaWeek agendaDay'
+          timeformat: 'h:mm'
+          advanced: false
+          slotLabelFormat: 'h(:mm)a'
+          timeformatMonth: 'h:mm'
+          timeformatWeek: 'h:mm'
+          timeformatDay: 'h:mm'
+          titleformatMonth: 'MMMM YYYY'
+          titleformatWeek: 'MMM D YYYY'
+          titleformatDay: 'MMMM D YYYY'
+          columnformatMonth: ddd
+          columnformatWeek: 'ddd M/D'
+          columnformatDay: dddd
+          theme: true
+          sameWindow: false
+          contentHeight: 0
+          editable: false
+          fields:
+            title: false
+            title_field: title
+            url: false
+            url_field: title
+            date: false
+            date_field: {  }
+          fullcalendar_options:
+            firstHour: 6
+            minTime: 0
+            maxTime: 24
+            slotMinutes: 30
+            defaultEventMinutes: 120
+            allDaySlot: true
+            weekends: true
+            lazyFetching: true
+            disableDragging: false
+            disableResizing: false
+            dragRevertDuration: 500
+            dayClick: false
+            dayClickView: agendaWeek
       row:
         type: calendar_row
         options:
