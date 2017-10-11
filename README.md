@@ -34,10 +34,9 @@ Required php modules:
 ## Assuming the document root is under the "web" directory:
 git clone https://github.com/CBIIT/icrp web
 
-## Set up site dependencies/drupal scaffold
+## Set up site dependencies
 cd web
 composer install
-composer run drupal-scaffold
 
 ## Copy your settings.local.php file to /sites/default/settings.local.php
 cp ~/settings.local.php ./sites/default/settings.local.php
