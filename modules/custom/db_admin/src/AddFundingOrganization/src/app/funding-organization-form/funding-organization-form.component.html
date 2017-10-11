@@ -1,4 +1,4 @@
-<form [formGroup]="form">
+<form [formGroup]="form" class="vertical-margins">
   <div
     class="bordered padded form-group"
     fxLayout="row"
@@ -32,7 +32,7 @@
         id="partner"
         name="partner"
         class="form-control"
-        [formControl]="form.controls.partner">
+        formControlName="partner">
         <option value="">Select a partner</option>
       </select>
     </div>
@@ -63,7 +63,7 @@
           type="radio"
           name="memberType"
           value="partner"
-          [formControl]="form.controls.memberType">
+          formControlName="memberType">
         Partner
       </label>
 
@@ -73,7 +73,7 @@
           type="radio"
           name="memberType"
           value="associate"
-          [formControl]="form.controls.memberType">
+          formControlName="memberType">
         Associate
       </label>
     </div>
@@ -104,7 +104,7 @@
         id="abbreviation"
         name="abbreviation"
         class="form-control"
-        placeholder="Enter abbreviation for funding organization's name"
+        placeholder="Enter abbreviation for funding organization"
         [formControl]="form.controls.abbreviation">
     </div>
   </div>
@@ -162,6 +162,7 @@
           [formControl]="form.controls.longitude">
       </div>
     </div>
+
   </div>
 
 
@@ -229,9 +230,11 @@
   </div>
 
   <div class="text-center vertical-margins">
-    <button class="btn btn-primary">Save</button>
+    <button class="btn btn-primary" [disabled]="!form.valid">Save</button>
     <button class="btn btn-default">Cancel</button>
   </div>
 </form>
 
 <pre>{{form.value | json}}</pre>
+<pre>{{form.controls['latitude'].errors | json}}</pre>
+<pre>{{form.controls['longitude'].errors | json}}</pre>
