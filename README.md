@@ -9,7 +9,6 @@ This repository contains the source code for the International Cancer Research P
 - php_7.x
 
 #### Required php modules
-Required php modules:
 - gd
 - json
 - mbstring
