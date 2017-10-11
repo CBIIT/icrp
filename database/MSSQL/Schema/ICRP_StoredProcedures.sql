@@ -12,8 +12,8 @@ DROP PROCEDURE [dbo].[GetProjectsByCriteria]
 GO 
 
 CREATE PROCEDURE [dbo].[GetProjectsByCriteria]    
-	@PageSize int = NULL, -- return all by default
-	@PageNumber int = NULL, -- return all results by default; otherwise pass in the page number
+	@PageSize int = 50, -- return all by default
+	@PageNumber int = 1, -- return all results by default; otherwise pass in the page number
 	@SortCol varchar(50) = 'title', -- Ex: 'title', 'pi', 'code', 'inst', 'FO', city, state, country ....
 	@SortDirection varchar(4) = 'ASC',  -- 'ASC' or 'DESC'
     @termSearchType varchar(25) = NULL,  -- No full text search by default; otherwise 'Any', 'None', 'All', 'Exact'
@@ -256,11 +256,12 @@ AS
 	-- Save search criteria
 	----------------------------------	
 	SET @searchCriteriaID = 0  -- no filters
+	
 
 	IF @IsFiltered = 1   -- Only record search criteria if filtered
-	BEGIN
+	BEGIN		
 		DECLARE @ProjectIDList VARCHAR(max) = '' 	
-	
+
 		SELECT @ProjectIDList = @ProjectIDList + 
 			   ISNULL(CASE WHEN LEN(@ProjectIDList) = 0 THEN '' ELSE ',' END + CONVERT( VarChar(20), ProjectID), '')
 		FROM #baseProj	
@@ -270,10 +271,16 @@ AS
 			VALUES ( @termSearchType,@terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode,@yearList,@cityList,@stateList,@countryList,@regionList,
 				@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList, @FundingOrgTypeList,	@IsChildhood)
 									 
-		SELECT @searchCriteriaID = SCOPE_IDENTITY()	
-		
+		SELECT @searchCriteriaID = SCOPE_IDENTITY()		
+
 		INSERT INTO SearchResult (SearchCriteriaID, Results,ResultCount, TotalRelatedProjectCount, LastBudgetYear, IsEmailSent) VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, @TotalRelatedProjectCount, @LastBudgetYear, 0)	
+		
 	END
+	ELSE
+	BEGIN
+		UPDATE SearchResult SET Results = NULL,ResultCount=@ResultCount, TotalRelatedProjectCount=@TotalRelatedProjectCount, LastBudgetYear=@LastBudgetYear, IsEmailSent=0 WHERE SearchCriteriaID =0
+	END
+	
 	
 	----------------------------------	
 	-- Sort and Pagination
@@ -324,8 +331,8 @@ DROP PROCEDURE [dbo].[GetProjectsBySearchID]
 GO 
 
 CREATE PROCEDURE [dbo].[GetProjectsBySearchID]
-    @PageSize int = NULL, -- return all by default
-	@PageNumber int = NULL, -- return all results by default; otherwise pass in the page number
+    @PageSize int = 50, -- return all by default
+	@PageNumber int = 1, -- return all results by default; otherwise pass in the page number
 	@SortCol varchar(50) = 'title', -- Ex: 'title', 'pi', 'code', 'inst', 'FO',....
 	@SortDirection varchar(4) = 'ASC',  -- 'ASC' or 'DESC'
     @SearchID INT,
@@ -3988,12 +3995,40 @@ AS
 			JOIN ProjectFunding f ON r.ProjectID = f.ProjectID			
 	END
 
-	SELECT r.RegionID, pf.ProjectFundingID, p.IsPrincipalInvestigator INTO #tmp
+	
+	SELECT r.RegionID, c.Abbreviation AS Country, i.City, pf.ProjectFundingID, p.IsPrincipalInvestigator INTO #tmp
 		FROM @funding pf
 			JOIN ProjectFundingInvestigator p ON pf.ProjectFundingID = p.ProjectFundingID
 			JOIN Institution i ON p.InstitutionID = i.InstitutionID
 			JOIN Country c ON i.Country = c.Abbreviation	
 			JOIN lu_Region r ON c.RegionID=r.RegionID	
+
+	-- Need to filter further based on Region, Counry and City
+	DECLARE @RegionList VARCHAR(100)
+	DECLARE @CountryList VARCHAR(1000)
+	DECLARE @CityList VARCHAR(1000)
+	--DECLARE @Institution VARCHAR(250)
+
+	SELECT @RegionList=RegionList, @CountryList=CountryList, @CityList = CityList FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
+
+	IF @RegionList IS NOT NULL
+	BEGIN
+		DELETE #tmp FROM #tmp t
+		LEFT JOIN (SELECT [VALUE] AS RegionID FROM dbo.ToIntTable(@RegionList)) r ON r.RegionID = t.RegionID WHERE r.RegionID IS NULL
+	END
+
+	IF @CountryList IS NOT NULL			
+	BEGIN
+		DELETE #tmp FROM #tmp t
+		LEFT JOIN (SELECT [VALUE] AS Country FROM dbo.ToIntTable(@RegionList)) c ON c.Country = t.Country WHERE c.Country IS NULL
+	END
+
+	IF @CityList IS NOT NULL
+	BEGIN
+		DELETE #tmp FROM #tmp t
+		LEFT JOIN (SELECT [VALUE] AS City FROM dbo.ToIntTable(@RegionList)) cty ON cty.City = t.City WHERE cty.City IS NULL
+	END
+
 
 	SELECT RegionID, Count(*) AS Count INTO #proj FROM (SELECT DISTINCT RegionID, ProjectFundingID FROM #tmp) proj GROUP BY RegionID
 	SELECT RegionID, Count(*) AS Count INTO #pi FROM (SELECT RegionID, ProjectFundingID FROM #tmp WHERE IsPrincipalInvestigator=1) p GROUP BY RegionID
@@ -4010,7 +4045,7 @@ AS
 	SELECT @AggregatedProjectCount= Count(*) FROM (SELECT DISTINCT ProjectFundingID FROM #tmp) proj
 	SELECT @AggregatedPICount=SUM(Count) FROM #pi	
 	SELECT @AggregatedCollabCount=SUM(Count) FROM #collab		
-	
+
 GO
 
 
@@ -4068,7 +4103,7 @@ AS
 	SELECT Country, Count(*) AS Count INTO #collab FROM (SELECT Country, ProjectFundingID FROM #tmp WHERE IsPrincipalInvestigator=0) collab GROUP BY Country
 
 	-- Return RelatedProject Count, PI Count and collaborator Count by region
-	SELECT p.Country, ISNULL(p.Count, 0) AS TotalRelatedProjectCount, ISNULL(pi.Count,0) AS TotalPICount, ISNULL(c.Count, 0) AS TotalCollaboratorCount, ctry.Latitude, ctry.Longitude
+	SELECT ctry.Name AS Country, ctry.Abbreviation, ISNULL(p.Count, 0) AS TotalRelatedProjectCount, ISNULL(pi.Count,0) AS TotalPICount, ISNULL(c.Count, 0) AS TotalCollaboratorCount, ctry.Latitude, ctry.Longitude
 	FROM #proj p
 		JOIN Country ctry ON ctry.Abbreviation = p.Country
 		LEFT JOIN #pi  pi ON p.Country = pi.Country
@@ -4316,3 +4351,69 @@ AS
 
 GO
 
+
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetMapLayers]    Script Date: 12/14/2016 4:21:47 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetMapLayers]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetMapLayers]
+GO 
+
+CREATE PROCEDURE [dbo].[GetMapLayers]  
+		
+AS   
+
+	SELECT l.[MapLayerID], p.Name AS GroupName, l.[Name], l.[Summary],l.[Description], l.[DataSource] FROM lu_MapLayer l
+		LEFT JOIN lu_MapLayer p ON l.[ParentMapLayerID] = p.MapLayerID
+	 ORDER BY p.MapLayerID, l.MapLayerID
+GO
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetMapLayerLegend]    Script Date: 12/14/2016 4:21:47 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetMapLayerLegend]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetMapLayerLegend]
+GO 
+
+CREATE PROCEDURE [dbo].[GetMapLayerLegend]  
+	@MapLayerID	INT
+AS   
+
+	SELECT MapLayerLegendID, LegendName FROM lu_MapLayerLegend WHERE MapLayerID = @MapLayerID
+	ORDER BY DisplayOrder
+		
+GO
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetMayLayerByCountry]    Script Date: 12/14/2016 4:21:47 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetMayLayerByCountry]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetMayLayerByCountry]
+GO 
+
+CREATE PROCEDURE [dbo].[GetMayLayerByCountry]  
+	@MapLayerID	INT
+AS   
+
+	SELECT Country, MapLayerLegendID FROM CountryMapLayer WHERE MapLayerID = 1--@MapLayerID	
+		
+GO

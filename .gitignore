@@ -79,3 +79,8 @@ settings.local.php
 
 /modules/*
 !/modules/custom
+
+/themes/*
+!/themes/bootstrap_subtheme
+!/themes/icrp_subtheme
+

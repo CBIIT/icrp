@@ -199,9 +199,10 @@ export class SearchPageComponent implements AfterViewInit {
           }
 
           this.searchForm.setParameters(parameters);
-          this.getSortedPaginatedResults({ search_id: searchID });
-          this.getSearchSummary(true)
-            .subscribe(e => this.getAnalytics(searchID));
+          this.getSortedPaginatedResults({ search_id: searchID }, () => {
+            this.getSearchSummary(true)
+              .subscribe(e => this.getAnalytics(searchID));
+          });
         }
 
       });
@@ -253,7 +254,7 @@ export class SearchPageComponent implements AfterViewInit {
     }
   }
 
-  getSortedPaginatedResults(parameters) {
+  getSortedPaginatedResults(parameters, callback?) {
     let params = deepCopy(parameters);
     this.storeService.set('sortPaginateParameters', parameters);
     this.sharedService.set('searchID', this.state.searchID);
@@ -269,6 +270,10 @@ export class SearchPageComponent implements AfterViewInit {
         this.state.results = response.results;
         loadingTrue$.unsubscribe();
         this.state.loading = false;
+
+        if (callback) {
+          callback();
+        }
       });
   }
 

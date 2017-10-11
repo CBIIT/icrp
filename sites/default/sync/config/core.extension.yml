@@ -16,6 +16,8 @@ module:
   clientside_validation: 0
   clientside_validation_jquery: 0
   color: 0
+  colorbox: 0
+  colorbox_load: 0
   comment: 0
   config: 0
   contact: 0
@@ -28,6 +30,7 @@ module:
   data_load: 0
   datatables: 0
   datetime: 0
+  datetime_range: 0
   db_admin: 0
   db_cancer_type_list: 0
   db_email_results: 0
@@ -37,6 +40,7 @@ module:
   db_search: 0
   db_search_api: 0
   dblog: 0
+  devel: 0
   ds_extras: 0
   ds_switch_view_mode: 0
   dynamic_page_cache: 0
@@ -56,6 +60,8 @@ module:
   filter: 0
   focal_point: 0
   fontawesome: 0
+  fullcalendar: 0
+  fullcalendar_options: 0
   google_analytics: 0
   help: 0
   history: 0
@@ -70,22 +76,19 @@ module:
   link: 0
   linkit: 0
   media_entity: 0
-  media_entity_twitter: 0
   menu_ui: 0
   metatag: 0
+  ng_lightbox: 0
   node: 0
   options: 0
   page_cache: 0
-  page_manager: 0
-  page_manager_ui: 0
-  panels: 0
-  panels_ipe: 0
   partnership_import: 0
   path: 0
   plugin_type_example: 0
   quickedit: 0
   rdf: 0
   recovery_pass: 0
+  redirect: 0
   responsive_image: 0
   rules: 0
   search: 0

@@ -1,0 +1,24 @@
+uuid: 6c991603-b6ba-4a74-b7d9-ba00eda40bdd
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_subcommittee_evaluation
+  module:
+    - user
+id: user.user.field_subcommittee_evaluation
+field_name: field_subcommittee_evaluation
+entity_type: user
+bundle: user
+label: 'Evaluations and Analyses'
+description: "Discussions on current partner evaluation and analysis topics; information about Evaluations Committee meetings; and news about partner or external evaluations of interest.\r\n"
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean
