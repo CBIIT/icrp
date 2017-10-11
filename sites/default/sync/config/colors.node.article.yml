@@ -1,0 +1,10 @@
+type: node
+label: Node
+enabled: false
+palette:
+  bg: '#7933cc'
+  borders: '#7933cc'
+  text: '#ffffff'
+weight: 0
+_core:
+  default_config_hash: vYn8BJg2reRwZzLUyfg8ekZ-S0XuHhQzktrZor54BRw
