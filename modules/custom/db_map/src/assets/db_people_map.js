@@ -98,7 +98,6 @@ drupalSettings.db_map = {
       })(marker,content,iw));
       (is_pi?pi:collab).push(marker);
       markerBounds.extend(marker.getPosition());
-      console.log(loc);
     }
     for (var i in pi) {
       for (var j in collab) {
@@ -120,6 +119,5 @@ drupalSettings.db_map = {
     markerBounds.extend({lat:ne.lat()+latVar,lng:ne.lng()-lngVar});
     markerBounds.extend({lat:sw.lat()-latVar,lng:sw.lng()+lngVar});    
     map.fitBounds(markerBounds);
-    console.log(markerBounds);
   }
 };
