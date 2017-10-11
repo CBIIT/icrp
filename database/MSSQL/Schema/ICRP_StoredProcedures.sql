@@ -1024,7 +1024,7 @@ AS
  
 SELECT f.Title, f.AltAwardCode, f.Source_ID,  f.BudgetStartDate,  f.BudgetEndDate, o.Name AS FundingOrg, f.Amount, o.currency, 
 	f.MechanismCode, f.MechanismTitle, ISNULL(f.MechanismCode, '') + ' - ' + ISNULL(f.MechanismTitle, '') AS FundingMechanism, 
-	f.FundingContact, pi.LastName + ', ' + pi.FirstName AS piName, pi.ORC_ID, pi.IsPrincipalInvestigator, i.Name AS Institution, i.City, i.State, i.Country, i.Latitude, i.Longitude, r.Name AS Region, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract
+	f.FundingContact, CONCAT(pi.LastName, ', ', pi.FirstName) AS piName, pi.ORC_ID, pi.IsPrincipalInvestigator, i.Name AS Institution, i.City, i.State, i.Country, i.Latitude, i.Longitude, r.Name AS Region, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract
 FROM ProjectFunding f	
 	JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
 	JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID
