@@ -174,16 +174,16 @@ class MapController extends ControllerBase {
 
 
   public function get_funding($funding_id, $config_key = 'icrp_database') {
-    $pdo = self::get_connection($config_key);
-  
+    $connection = PDOBuilder::getConnection('icrp_database');
+    
     $queries = [
       'project_funding_details' => 'GetProjectFundingDetail :funding_id',
     ];
   
     // map queries to return values
     $results = array_reduce(
-      array_map(function($key, $value) use ($pdo, $funding_id) {
-        $stmt = $pdo->prepare($value);
+      array_map(function($key, $value) use ($connection, $funding_id) {
+        $stmt = $connection->prepare($value);
         $stmt->execute([':funding_id' => $funding_id]);
         // map the result of each query to each template key
         return [$key => array_map(function($row) use ($key) {
@@ -203,36 +203,6 @@ class MapController extends ControllerBase {
     return $results;
   }
   
-
-  function get_connection($config_key = 'icrp_database') {
-    $cfg = [];
-    $icrp_database = \Drupal::config($config_key);
-    foreach(['driver', 'host', 'port', 'database', 'username', 'password'] as $key) {
-        $cfg[$key] = $icrp_database->get($key);
-    }
-    
-    // connection string
-    $cfg['dsn'] =
-      $cfg['driver'] .
-      ":Server={$cfg['host']},{$cfg['port']}" .
-      ";Database={$cfg['database']}";
-
-    // default configuration options
-    $cfg['options'] = [
-      PDO::SQLSRV_ATTR_ENCODING    => PDO::SQLSRV_ENCODING_UTF8,
-      PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-      PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    ];
-
-    // create new PDO object
-    return new PDO(
-      $cfg['dsn'],
-      $cfg['username'],
-      $cfg['password'],
-      $cfg['options']
-    );
-  }
-    
 
   /**
    * Creates an arbitrary excel report based on the supplied json object.
