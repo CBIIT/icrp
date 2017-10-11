@@ -73,6 +73,32 @@ class MappingTool {
         'label' => 'City',
       ],
     ],
+
+    'institutions' => [
+      'sql' => '
+        SET NOCOUNT ON;
+        EXECUTE GetMapInstitutionsBySearchID
+          @SearchID = :searchId,
+          @RegionID = :region,
+          @Country = :country,
+          @City = :city,
+          @AggregatedProjectCount = :projects,
+          @AggregatedPICount = :primaryInvestigators,
+          @AggregatedCollabCount = :collaborators',
+
+      'inputParameters' => [
+        'searchId',
+        'region',
+        'country',
+        'city',
+      ],
+
+      'columns' => [
+        'value' => 'InstitutionID',
+        'label' => 'Institution',
+      ],
+    ],
+
   ];
 
   /**
