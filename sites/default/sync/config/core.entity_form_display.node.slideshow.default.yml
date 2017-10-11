@@ -5,6 +5,7 @@ dependencies:
   config:
     - field.field.node.slideshow.body
     - field.field.node.slideshow.field_image
+    - field.field.node.slideshow.field_order
     - image.style.thumbnail
     - node.type.slideshow
   module:
@@ -38,6 +39,13 @@ content:
       preview_image_style: thumbnail
     third_party_settings: {  }
     type: image_image
+    region: content
+  field_order:
+    weight: 33
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+    type: number
     region: content
   path:
     type: path

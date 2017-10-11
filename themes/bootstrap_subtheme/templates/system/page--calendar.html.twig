@@ -174,41 +174,11 @@
   <div class="tab-content partner-content">
     <div id="meetings" class="tab-pane fade in active">
         <p>Please click on the events in the calendar for webinar joining details, links to agendas, documents etc.</p>
-        <p>{{ drupal_block('views_block__icrp_meetings_month_view_block_1') }}</p>
-        <p>{{ drupal_view('icrp_meetings_view','block_month','201709') }}</p>
-        <p>{{ drupal_view('icrp_meetings_view','block_year','2014') }}</p>
+        <p>{{ drupal_view('full_calendar_meetings','block_1') }}</p>
     </div>
     <div id="external_events" class="tab-pane fade">
         <p>Please feel free to add any events, awareness days or communications that would be of interest to the partners.</p>
-<!-- ADD PILL MENU - Nested menu here.
-  https://www.w3schools.com/bootstrap/bootstrap_tabs_pills.asp
-
-        <div class="container">
-          <h3>Pills</h3>
-          <ul class="nav nav-pills">
-            <li class="active"><a href="#">Home</a></li>
-            <li><a href="#">Menu 1</a></li>
-            <li><a href="#">Menu 2</a></li>
-            <li><a href="#">Menu 3</a></li>
-          </ul>
-          <div class="tab-content">
-            <div id="home" class="tab-pane fade in active">
-              <h3>HOME</h3>
-              <p>Some content.</p>
-            </div>
-            <div id="menu1" class="tab-pane fade">
-              <h3>Menu 1</h3>
-              <p>Some content in menu 1.</p>
-            </div>
-            <div id="menu2" class="tab-pane fade">
-              <h3>Menu 2</h3>
-              <p>Some content in menu 2.</p>
-            </div>
-          </div>
-        </div>
-      -->
-        <p>{{ drupal_view('icrp_external_events_view','block_month','201710') }}</p>
-        <p>{{ drupal_view('icrp_external_events_view','block_year','2014') }}</p>
+        <p>{{ drupal_view('full_calendar_meetings','block_1') }}</p>
 
     </div>
   </div>

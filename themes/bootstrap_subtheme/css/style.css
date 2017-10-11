@@ -25,7 +25,9 @@ h1 {
 h2 {
     margin-top: 0px;
 }
-
+div.fullcalendar > div > div.fc-center > h2 {
+    color:#222222;
+}
 div.view-next-icrp-meeting-view > div.view-content > div.views-row > div.views-field.views-field-nothing {
     font-size:18px;
 }

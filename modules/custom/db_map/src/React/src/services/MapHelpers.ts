@@ -74,3 +74,63 @@ export const createInfoWindow = ({label, counts}: Location) =>
         </table>
       </div>
   `});
+
+
+export const mapLabels = [
+  {
+      "label": "North America",
+      "coordinates": {
+          "lat": 42.611695,
+          "lng": -104.326171
+      },
+  },
+  {
+      "label": "Europe \u0026 Central Asia",
+      "coordinates": {
+          "lat": 48.613534,
+          "lng": 21.335449
+      },
+  },
+  {
+      "label": "Australia \u0026 New Zealand",
+      "coordinates": {
+          "lat": -31.353637,
+          "lng": 149.414063
+      },
+  },
+  {
+      "label": "East Asia \u0026 Pacific",
+      "coordinates": {
+          "lat": 29.451519,
+          "lng": 116.674819
+      },
+  },
+  {
+      "label": "Middle East \u0026 North Africa",
+      "coordinates": {
+          "lat": 26.187443,
+          "lng": 29.61914
+      },
+  },
+  {
+      "label": "Latin America \u0026 Caribbean",
+      "coordinates": {
+          "lat": -17.902996,
+          "lng": -58.974609
+      },
+  },
+  {
+      "label": "Sub-Saharan Africa",
+      "coordinates": {
+          "lat": -17.232669,
+          "lng": 25.751953
+      },
+  },
+  {
+      "label": "South Asia",
+      "coordinates": {
+          "lat": 19.532168,
+          "lng": 77.585449
+      },
+  }
+];
