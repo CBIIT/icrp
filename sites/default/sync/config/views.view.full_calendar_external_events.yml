@@ -70,7 +70,7 @@ display:
             date: ''
           left: 'today prev,next'
           center: title
-          right: 'month agendaWeek agendaDay'
+          right: 'month agendaWeek agendaDay listYear'
           timeformat: 'h:mm'
           advanced: false
           slotLabelFormat: 'h(:mm)a'
@@ -84,7 +84,7 @@ display:
           columnformatWeek: 'ddd M/D'
           columnformatDay: dddd
           theme: true
-          sameWindow: true
+          sameWindow: false
           contentHeight: 0
           editable: false
           fields:
@@ -95,7 +95,7 @@ display:
             date: false
             date_field: {  }
           fullcalendar_options:
-            firstHour: 6
+            firstHour: 8
             minTime: 0
             maxTime: 24
             slotMinutes: 30

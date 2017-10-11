@@ -70,7 +70,7 @@ display:
             date: ''
           left: 'today prev,next'
           center: title
-          right: 'month agendaWeek agendaDay'
+          right: 'month agendaWeek agendaDay listYear'
           timeformat: 'h:mm'
           advanced: false
           slotLabelFormat: 'h(:mm)a'
@@ -106,7 +106,7 @@ display:
             disableDragging: false
             disableResizing: false
             dragRevertDuration: 500
-            dayClick: false
+            dayClick: true
             dayClickView: agendaDay
       row:
         type: fields
