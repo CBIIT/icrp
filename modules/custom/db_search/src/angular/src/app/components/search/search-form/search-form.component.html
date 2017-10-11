@@ -120,6 +120,17 @@
     </ui-select>
 
     <i style="color: #888; display: block; font-size: 12px; margin: 4px 2px;">Use this indicator to search for awards that are active during the time period you have selected.</i>
+
+    <label class="form-label" for="award_code" tooltip="Full or partial project award code">Project Award Code</label>
+    <input #awardcode
+      class="text input"
+      id="award_code"
+      type="text"
+      placeholder="Award Code"
+      tooltip="Full or partial project award code"
+      [formControl]="form.controls.award_code"
+      (change)="updateDisplayParameters('award_code', [awardcode.value])"
+      >
   </ui-panel>
 
 
@@ -173,17 +184,6 @@
       tooltip="Full or partial ORCiD of the principal investigator"
       [formControl]="form.controls.pi_orcid"
       (change)="updateDisplayParameters('pi_orcid', [piorcid.value])"
-      >
-
-    <label class="form-label" for="award_code" tooltip="Full or partial project award code">Project Award Code</label>
-    <input #awardcode
-      class="text input"
-      id="award_code"
-      type="text"
-      placeholder="Award Code"
-      tooltip="Full or partial project award code"
-      [formControl]="form.controls.award_code"
-      (change)="updateDisplayParameters('award_code', [awardcode.value])"
       >
 
     <label class="form-label" for="regions" tooltip="Select one or more regions">Region</label>

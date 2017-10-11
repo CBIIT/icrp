@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { DEFAULT_OPTIONS, LABELED_MAP, UNLABELED_MAP } from '../../services/MapConstants';
-import { createLabel, addDataMarker, createInfoWindow } from '../../services/MapHelpers';
+import { createLabel, addDataMarker, createInfoWindow, mapLabels } from '../../services/MapHelpers';
 import { getNextLocationFilters, Location, ViewLevel, LocationFilters } from '../../services/DataService';
 import './GoogleMap.css';
 
@@ -67,31 +67,13 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       locations.forEach((location: Location) => {
 
         // extract label, data, and coordinates from location
-        let { coordinates, counts, label } = location;
+        let { coordinates, counts } = location;
 
         if (coordinates.lat === 0 && coordinates.lng === 0)
           return;
 
         // expand the bounds for this map
         bounds.extend(coordinates);
-
-        // if we are displaying data labels,
-        // display them above the circles
-        if (showDataLabels) {
-          let latLng = new google.maps.LatLng(coordinates.lat, coordinates.lng);
-
-          let projection = map.getProjection();
-
-          if (projection) {
-            let point = projection.fromLatLngToPoint(latLng);
-            point.y -= 10 / (this.map.getZoom() - 0.5);
-  
-            let labelCoordinates = map.getProjection().fromPointToLatLng(point);
-            let labelMarker = createLabel(label, labelCoordinates);
-            labelMarker.setMap(map);
-            window.setTimeout(() => this.labels.push(labelMarker), 0);
-          }
-        }
 
         // add a marker at the specified location
         let marker = addDataMarker(counts.projects, dataMarkerSize, coordinates, map);
@@ -119,8 +101,29 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
               getNextLocationFilters(location, locationFilters)
             );
           });
-      
-        });
+      });
+
+      // if we are displaying data labels,
+      // display them above the circles
+      if (showDataLabels) {
+        mapLabels.forEach( ({coordinates, label}) => {
+          let latLng = new google.maps.LatLng(coordinates.lat, coordinates.lng);
+          let projection = map.getProjection();
+
+          if (projection) {
+            let point = projection.fromLatLngToPoint(latLng);
+            point.y -= 10 / (this.map.getZoom() - 0.5);
+
+            let labelCoordinates = map.getProjection().fromPointToLatLng(point);
+
+
+            let labelMarker = createLabel(label, labelCoordinates);
+            labelMarker.setMap(map);
+
+            window.setTimeout(() => this.labels.push(labelMarker), 0);
+          }
+        })
+      }
 
       map.fitBounds(bounds);
       map.setOptions({

@@ -21,10 +21,10 @@ interface ViewLevelSelectorState {
 export default class ViewLevelSelector extends ComponentBase<ViewLevelSelectorProps & React.Props<any>, ViewLevelSelectorState> {
 
   _buildState(): ViewLevelSelectorState {
-    
+
     return {
       locationFilters: store.getLocationFilters(),
-      viewLevel: store.getViewLevel(),  
+      viewLevel: store.getViewLevel(),
     };
   }
 
@@ -37,8 +37,10 @@ export default class ViewLevelSelector extends ComponentBase<ViewLevelSelectorPr
       ...locationFilters,
       type: 'regions',
     };
+
     delete allRegionsFilters.region;
-    
+    delete allRegionsFilters.country;
+
     const viewLevelTags: ViewLevelTag[] = [
       {
         label: 'All Regions',
@@ -51,6 +53,7 @@ export default class ViewLevelSelector extends ComponentBase<ViewLevelSelectorPr
         ...locationFilters,
         type: 'countries',
       };
+      delete regionFilter.country;
 
       viewLevelTags.push({
         label: getRegionFromId(regionFilter.region),
@@ -58,7 +61,7 @@ export default class ViewLevelSelector extends ComponentBase<ViewLevelSelectorPr
       })
     }
 
-    
+
     if (locationFilters.country && viewLevel != 'regions' && viewLevel != 'countries') {
       let regionFilter: LocationFilters = {
         ...locationFilters,
@@ -83,13 +86,13 @@ export default class ViewLevelSelector extends ComponentBase<ViewLevelSelectorPr
     return (
       <div className="display-flex align-items-center position-relative">
       {
-        this.buildTags().map(tag => 
+        this.buildTags().map(tag =>
           <span className="position-relative">
             <div className="bg-chevron" onClick={event => onSelect(tag.locationFilters)}>
               {tag.label}
             </div>
           </span>
-        ) 
+        )
       }
 
 

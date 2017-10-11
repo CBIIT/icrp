@@ -81,7 +81,9 @@ drupalSettings.db_map = {
             position: loc,
             title: detail.pi_name,
           }),
-          content = 'PI: '+detail.pi_name+'<br/>'+
+          content = (is_pi?'Principal Investigator':'Collaborator')+'<br/>'+
+                    '<hr style="margin:.5em 0px;"/>'+
+                    'PI: '+detail.pi_name+'<br/>'+
                     'Institution: '+detail.institution+'<br/>'+
                     'Location: '+[detail.city, detail.state, detail.country].filter(e => e && e.length).join(', ');
       marker.addListener('click',(function(marker,content,infowindow) {
@@ -96,7 +98,6 @@ drupalSettings.db_map = {
       })(marker,content,iw));
       (is_pi?pi:collab).push(marker);
       markerBounds.extend(marker.getPosition());
-      console.log(loc);
     }
     for (var i in pi) {
       for (var j in collab) {
@@ -118,6 +119,5 @@ drupalSettings.db_map = {
     markerBounds.extend({lat:ne.lat()+latVar,lng:ne.lng()-lngVar});
     markerBounds.extend({lat:sw.lat()-latVar,lng:sw.lng()+lngVar});    
     map.fitBounds(markerBounds);
-    console.log(markerBounds);
   }
 };
