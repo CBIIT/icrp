@@ -7,10 +7,6 @@
   resize: vertical;
 }
 
-.default-min-height {
-  min-height: 2.4em;
-}
-
 .nowrap {
   white-space: nowrap;
 }
@@ -22,20 +18,3 @@
 .padded {
   padding: 10px 15px;
 }
-
-label.inline {
-  margin: 0;
-}
-
-label.normal-weight {
-  font-weight: normal;
-}
-
-*[fxLayout="column"] > *[fxFlex]{
-  flex: 1 0 auto !important;
-}
-
-.grey {
-  color: #999;
-}
-
