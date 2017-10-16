@@ -81,8 +81,8 @@ display:
           columnformatMonth: ddd
           columnformatWeek: 'ddd M/D'
           columnformatDay: dddd
-          theme: true
-          sameWindow: false
+          theme: false
+          sameWindow: true
           contentHeight: 0
           editable: false
           fields:
@@ -319,6 +319,8 @@ display:
       relationships: {  }
       arguments: {  }
       display_extenders: {  }
+      css_class: bootstrap_subtheme
+      use_ajax: false
     cache_metadata:
       max-age: -1
       contexts:

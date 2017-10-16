@@ -81,7 +81,7 @@ display:
           columnformatMonth: ddd
           columnformatWeek: 'ddd M/D'
           columnformatDay: dddd
-          theme: true
+          theme: false
           sameWindow: false
           contentHeight: 0
           editable: false
@@ -96,7 +96,7 @@ display:
             minTime: '0'
             slotDuration: '00:30:00'
             defaultTimedEventDuration: '02:00:00'
-            allDaySlot: false
+            allDaySlot: true
             weekends: true
             lazyFetching: true
             dragRevertDuration: 500
@@ -336,6 +336,7 @@ display:
     display_options:
       display_extenders: {  }
       block_description: 'Full Calendar External Events'
+      block_category: Calendar
     cache_metadata:
       max-age: -1
       contexts:

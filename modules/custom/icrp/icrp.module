@@ -1328,6 +1328,49 @@ function icrp_views_query_alter($view, $query) {
     }
   }
 }
+/**
+ * Implements hook_fullcalendar_classes().
+ *
+ * @param $node
+ *   An object representing the node.
+ *
+ * @return
+ *   A string suitable for use as a CSS class.
+ */
+function icrp_fullcalendar_classes($node) {
+  //drupal_set_message(__FUNCTION__);
+  //drupal_set_message("Wow it works");
+
+  $classes = array();
+  $event_group = $node->get('field_event_group')->value;
+  $find = array(" ", "/");
+  $event_id = strtolower(str_replace($find, "-", $event_group));
+
+  //drupal_set_message($event_group);
+  //drupal_set_message($event_id);
+  //dpm($node);
+
+  // Taxonomy Term IDs for coloring.
+  //foreach ($node->taxonomy as $term_id) {
+  $classes[] = 'fc-event-tid-' . $event_id;
+  //}
+
+  return implode(' ', $classes);
+
+}
+
+/**
+ * Implements hook_fullcalendar_editable().
+ */
+function icrp_fullcalendar_editable($entity, $view) {
+  //drupal_set_message(__FUNCTION__);
+  //drupal_set_message("Is this calendar editable");
+  //drupal_set_message("Only editable by Admin or Manager");
+
+  // Here I could inspect the entity or the view to make an informed deciscion,
+  // but in this case I never want to have the event be editable.
+  return FALSE;
+}
 
 function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 
