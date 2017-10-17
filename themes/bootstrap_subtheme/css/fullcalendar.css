@@ -116,3 +116,35 @@ See http://htmlcolorcodes.com/color-names/ for color names
   color: #fff;
   background-color: LIGHTGREEN;
 }
+
+/* Overwrite Year (list) view on the calendar */
+
+/*
+.fc-list-item-time .fc-widget-content {
+  background: white;
+}
+.fc-list-table td {
+    border-width: 1px 0 0;
+    padding: 4px 7px;
+}
+.fc-list-item .fc-event-default .events .fc-event-tid-conference-meeting .fc-event-now .fc-has-url {
+  background-color: white;
+
+}
+.fc-list-item-time .fc-widget-content{
+  color: black;
+}
+.fc-event-default, .fc-event-default .fc-event-skin, .fc-event-default .fc-event-time, .fc-event-default a {
+  border-color: black; 
+  border-style: solid;
+  border-radius: 3px;
+}
+.fc-list-item-title > a {
+  border: 1px solid black;
+}
+.fc-list-item-time .fc-widget-content {
+  background-color: white;
+
+}
+
+*/

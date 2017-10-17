@@ -70,6 +70,11 @@
              // $('#external_events > div > div.fullcalendar').fullCalendar('render');
               $('.fc-today-button').click();
           });
+          if(!$('#add-event-meeting').length)
+            $('div.view-full-calendar-meetings > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-event-meeting" style="margin-top:7px;"><a href="/node/add/events?calendar_type=ICRP Meeting">+ Add Event</a></span>');
+          if(!$('#add-external-event').length)
+            $('div.view-full-calendar-external-events > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-external-event" style="margin-top:7px;"><a href="/node/add/events?calendar_type=External Event">+ Add Event</a></span>');
+
           break;
       }
     }

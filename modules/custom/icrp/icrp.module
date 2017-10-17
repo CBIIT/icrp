@@ -1422,6 +1422,10 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             $form['actions']['submit']['#value'] = t('Add New Thread');
             //dpm($form);
             break;
+        case 'node_events_form':
+            $form['actions']['submit']['#value'] = t('Add New Event');
+            //dpm($form);
+            break;
         case 'node_forum_delete_form':
             //node-forum-delete-form
             //drupal_set_message("Node Forum Delete Form");

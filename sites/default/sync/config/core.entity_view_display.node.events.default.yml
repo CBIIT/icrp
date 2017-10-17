@@ -8,7 +8,6 @@ dependencies:
     - field.field.node.events.field_event_date
     - field.field.node.events.field_event_date_range
     - field.field.node.events.field_event_group
-    - field.field.node.events.field_event_group_taxonomy
     - node.type.events
   module:
     - datetime
@@ -60,14 +59,6 @@ content:
     settings: {  }
     third_party_settings: {  }
     type: list_default
-    region: content
-  field_event_group_taxonomy:
-    weight: 105
-    label: above
-    settings:
-      link: true
-    third_party_settings: {  }
-    type: entity_reference_label
     region: content
   links:
     weight: 100

@@ -10,6 +10,7 @@
  * @see template_preprocess_form()
  */
 #}
+
 {# Add form-horizontal to a form #}
 {% if attributes.id == "views-exposed-form-user-account-administration-tool-page-1" %}
     <form class="form-inline" id="form-membership-status">
@@ -33,11 +34,19 @@
     <div style="padding-bottom:10px;"><b>Description:</b>&nbsp;{{ tforum_description|striptags('<em>')|raw }}</div>
     <div class="row">
         <div class="col-md-10 col-md-offset-1">
-            <!--
-            <p style="padding:15px;">Please enter a <span style="font-weight:bold;">Subject</span> and <span style="font-weight:bold;">Post</span> to start a new discussion thread.  Optionally, click on <b>Edit Summary</b> add a <span style="font-weight:bold;">Summary</span> to the thread.</p>
-            -->
             <div class="well">
-
+                <form {{ attributes }}>
+                    {{ children }}
+                </form>
+            </div>
+        </div>
+    </div>
+{% elseif attributes.id == "node-events-form"  %}
+    <h2>Add New Event</h2>
+    <div><b>Calendar:</b>&nbsp;{{ tforum_category }}</div>
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="well">
                 <form {{ attributes }}>
                     {{ children }}
                 </form>
