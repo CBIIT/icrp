@@ -21,6 +21,7 @@ See http://htmlcolorcodes.com/color-names/ for color names
 .fc-event-tid-partner-news-and-announcements,
 .fc-event-tid-partner-news-and-announcements .fc-event-skin,
 .fc-event-tid-partner-news-and-announcements .fc-event-time,
+.fc-event-tid-partner-news-and-announcements .fc-event-dot,
 .fc-event-tid-partner-news-and-announcements a {
   color: #fff;
   background-color: DARKORANGE;
@@ -30,6 +31,7 @@ See http://htmlcolorcodes.com/color-names/ for color names
 .fc-event-tid-annual-meetings,
 .fc-event-tid-annual-meetings .fc-event-skin,
 .fc-event-tid-annual-meetings .fc-event-time,
+.fc-event-tid-annual-meetings .fc-event-dot,
 .fc-event-tid-annual-meetings a {
   color: #fff;
   background-color: ROYALBLUE;
@@ -39,6 +41,7 @@ See http://htmlcolorcodes.com/color-names/ for color names
 .fc-event-tid-communications-and-membership,
 .fc-event-tid-communications-and-membership .fc-event-skin,
 .fc-event-tid-communications-and-membership .fc-event-time,
+.fc-event-tid-communications-and-membership .fc-event-dot,
 .fc-event-tid-communications-and-membership a {
   color: #fff;
   background-color: TURQUOISE;
@@ -48,6 +51,7 @@ See http://htmlcolorcodes.com/color-names/ for color names
 .fc-event-tid-cso-and-coding,
 .fc-event-tid-cso-and-coding .fc-event-skin,
 .fc-event-tid-cso-and-coding .fc-event-time,
+.fc-event-tid-cso-and-coding .fc-event-dot,
 .fc-event-tid-cso-and-coding a {
   color: #fff;
   background-color: DARKCYAN;
@@ -57,6 +61,7 @@ See http://htmlcolorcodes.com/color-names/ for color names
 .fc-event-tid-evaluations-and-analyses,
 .fc-event-tid-evaluations-and-analyses .fc-event-skin,
 .fc-event-tid-evaluations-and-analyses .fc-event-time,
+.fc-event-tid-evaluations-and-analyses .fc-event-dot,
 .fc-event-tid-evaluations-and-analyses a {
   color: #fff;
   background-color: OLIVEDRAB;
@@ -66,6 +71,7 @@ See http://htmlcolorcodes.com/color-names/ for color names
 .fc-event-tid-partner-operations,
 .fc-event-tid-partner-operations .fc-event-skin,
 .fc-event-tid-partner-operations .fc-event-time,
+.fc-event-tid-partner-operations .fc-event-dot,
 .fc-event-tid-partner-operations a {
   color: #fff;
   background-color: MEDIUMVIOLETRED;
@@ -75,6 +81,7 @@ See http://htmlcolorcodes.com/color-names/ for color names
 .fc-event-tid-website-and-database,
 .fc-event-tid-website-and-database .fc-event-skin,
 .fc-event-tid-website-and-database .fc-event-time,
+.fc-event-tid-website-and-database .fc-event-dot,
 .fc-event-tid-website-and-database a {
   color: #fff;
   background-color: INDIANRED;
@@ -84,6 +91,7 @@ See http://htmlcolorcodes.com/color-names/ for color names
 .fc-event-tid-conference-meeting,
 .fc-event-tid-conference-meeting .fc-event-skin,
 .fc-event-tid-conference-meeting .fc-event-time,
+.fc-event-tid-conference-meeting .fc-event-dot,
 .fc-event-tid-conference-meeting a {
   color: #fff;
   background-color: LIGHTSKYBLUE;
@@ -93,6 +101,7 @@ See http://htmlcolorcodes.com/color-names/ for color names
 .fc-event-tid-twitter-promotional,
 .fc-event-tid-twitter-promotional .fc-event-skin,
 .fc-event-tid-twitter-promotional .fc-event-time,
+.fc-event-tid-twitter-promotional .fc-event-dot,
 .fc-event-tid-twitter-promotional a {
   color: #fff;
   background-color: ORANGERED;
@@ -102,6 +111,7 @@ See http://htmlcolorcodes.com/color-names/ for color names
 .fc-event-tid-webinar,
 .fc-event-tid-webinar .fc-event-skin,
 .fc-event-tid-webinar .fc-event-time,
+.fc-event-tid-webinar .fc-event-dot,
 .fc-event-tid-webinar a {
   color: #fff;
   background-color: GOLD;
@@ -112,39 +122,42 @@ See http://htmlcolorcodes.com/color-names/ for color names
 .fc-event-tid-other,
 .fc-event-tid-other .fc-event-skin,
 .fc-event-tid-other .fc-event-time,
+.fc-event-tid-other .fc-event-dot,
 .fc-event-tid-other a {
   color: #fff;
   background-color: LIGHTGREEN;
 }
-
-/* Overwrite Year (list) view on the calendar */
-
-/*
-.fc-list-item-time .fc-widget-content {
-  background: white;
+.fc-event-tid-annual-meetings > .fc-list-item-time {
+  color:black;
 }
-.fc-list-table td {
-    border-width: 1px 0 0;
-    padding: 4px 7px;
+
+/* Override Year (list) view on the calendar */
+.fc-event-tid-annual-meetings > .fc-list-item-time {
+  color:black;
 }
-.fc-list-item .fc-event-default .events .fc-event-tid-conference-meeting .fc-event-now .fc-has-url {
+.fc-list-item .fc-event-default .events {
   background-color: white;
-
 }
-.fc-list-item-time .fc-widget-content{
+.fc-list-item-time .fc-widget-content {
   color: black;
 }
-.fc-event-default, .fc-event-default .fc-event-skin, .fc-event-default .fc-event-time, .fc-event-default a {
+tr.fc-list-item {
+  background-color:white;
+}
+tr.fc-list-item > .fc-list-item-time {
+  color:black;
+}
+.fc-event-default, 
+.fc-event-default .fc-event-skin, 
+.fc-event-default .fc-event-time, 
+.fc-event-default a {
   border-color: black; 
   border-style: solid;
   border-radius: 3px;
+  border-width: 0px;
+  padding:4px 6px;
 }
-.fc-list-item-title > a {
-  border: 1px solid black;
+tr.fc-list-item > td {
+    border-width: 0px 0 0;
+    padding: 8px 14px;
 }
-.fc-list-item-time .fc-widget-content {
-  background-color: white;
-
-}
-
-*/
