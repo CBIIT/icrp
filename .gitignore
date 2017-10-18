@@ -46,7 +46,7 @@
 /profiles/
 /vendor/
 /temp/
-/libraries/
+# /libraries/
 /components/
 
 /.csslintrc
