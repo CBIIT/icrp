@@ -63,6 +63,8 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
       MarkerClusterer;
 
+      let numShownLocations = 0;
+
       // for each location, do the following:
       locations.forEach((location: Location) => {
 
@@ -71,6 +73,8 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
         if (coordinates.lat === 0 && coordinates.lng === 0)
           return;
+
+        numShownLocations ++;
 
         // expand the bounds for this map
         bounds.extend(coordinates);
@@ -152,9 +156,16 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         map.setZoom(5);
       }
 
-
       if (viewLevel === 'cities' && map.getZoom() > 7) {
         map.setZoom(7);
+      }
+
+      if (numShownLocations <= 1) {
+        map.setZoom(2);
+        map.setCenter({
+          lat: 25,
+          lng: 0,
+        })
       }
 
     }
