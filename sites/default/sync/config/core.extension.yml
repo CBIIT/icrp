@@ -9,6 +9,7 @@ module:
   block: 0
   block_content: 0
   bootstrap_layouts: 0
+  bootstrap_modal_messages: 0
   breakpoint: 0
   calendar: 0
   calendar_datetime: 0
@@ -62,6 +63,7 @@ module:
   focal_point: 0
   fontawesome: 0
   fullcalendar: 0
+  fullcalendar_legend: 0
   fullcalendar_options: 0
   google_analytics: 0
   help: 0
@@ -118,6 +120,7 @@ module:
   webform: 0
   webform_ui: 0
   webform_views: 0
+  yaml_content: 0
   ds: 1
   extlink: 1
   forum: 1

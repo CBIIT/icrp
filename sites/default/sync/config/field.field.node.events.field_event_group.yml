@@ -15,9 +15,7 @@ label: 'Event Group'
 description: 'Select Group associated with this Event.'
 required: true
 translatable: false
-default_value:
-  -
-    value: 'Partner News and Announcements'
+default_value: {  }
 default_value_callback: ''
 settings: {  }
 field_type: list_string

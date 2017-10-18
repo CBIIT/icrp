@@ -3,17 +3,13 @@
     attach: function (context, settings) {
       //$('h2').css('color', 'red');
       $("#edit-keys").attr("placeholder", "Search Website");
-      $("#views-bootstrap-carousel-sideshow-block-1 > div.carousel-inner > div.item").click(function(e) {
+      $("#views-bootstrap-sideshow-block-1 > div.carousel-inner > div.item").click(function(e) {
+          console.info("You clicked on Caption - item");
           $.redirectCarousel(e);
       });
-      $("#views-bootstrap-carousel-sideshow-block-1 > div.carousel-inner > div.item > div.carousel-caption").click(function(e) {
-          //console.info("You clicked on Caption");
+      $("#views-bootstrap-sideshow-block-1 > div.carousel-inner > div.item > div.carousel-caption").click(function(e) {
+          console.info("You clicked on Caption");
           $.redirectCarousel(e);
-      });
-
-      $("div#cso-document-container > div > h2 > a").click(function(e) {
-          //console.info("You clicked on Caption");
-          //$.redirectCSOExample(e);
       });
 
       //alert(window.location.pathname);
@@ -68,7 +64,18 @@
           //console.log("You are on the /become-a-partner page.");
           $("#become-a-partner-wells").matchHeight(true);
           break;
+        case "/calendar":
+          $('.fc-listYear-button').text('Year (list)');
+          $('.nav-tabs a').on('shown.bs.tab', function(event){
+             // $('#external_events > div > div.fullcalendar').fullCalendar('render');
+              $('.fc-today-button').click();
+          });
+          if(!$('#add-event-meeting').length)
+            $('div.view-full-calendar-meetings > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-event-meeting" style="margin-top:7px;"><a href="/node/add/events?calendar_type=ICRP Meeting">+ Add Event</a></span>');
+          if(!$('#add-external-event').length)
+            $('div.view-full-calendar-external-events > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-external-event" style="margin-top:7px;"><a href="/node/add/events?calendar_type=External Event">+ Add Event</a></span>');
 
+          break;
       }
     }
   }

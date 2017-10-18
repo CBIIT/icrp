@@ -11,11 +11,16 @@ id: node.events.field_event_date_range
 field_name: field_event_date_range
 entity_type: node
 bundle: events
-label: event_date_range
-description: ''
-required: false
+label: 'Event Date Range'
+description: 'Enter start and end time for the event.'
+required: true
 translatable: false
-default_value: {  }
+default_value:
+  -
+    default_date_type: now
+    default_date: now
+    default_end_date_type: relative
+    default_end_date: '+2 hours'
 default_value_callback: ''
 settings: {  }
 field_type: daterange

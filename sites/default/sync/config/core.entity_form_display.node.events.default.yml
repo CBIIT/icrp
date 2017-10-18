@@ -8,12 +8,9 @@ dependencies:
     - field.field.node.events.field_event_date
     - field.field.node.events.field_event_date_range
     - field.field.node.events.field_event_group
-    - field.field.node.events.field_event_group_taxonomy
     - node.type.events
   module:
-    - datetime
     - datetime_range
-    - path
     - text
 id: node.events.default
 targetEntityType: node
@@ -29,20 +26,8 @@ content:
       placeholder: ''
     third_party_settings: {  }
     region: content
-  field_calendar_type:
-    weight: 2
-    settings: {  }
-    third_party_settings: {  }
-    type: options_select
-    region: content
-  field_event_date:
-    weight: 4
-    settings: {  }
-    third_party_settings: {  }
-    type: datetime_default
-    region: content
   field_event_date_range:
-    weight: 27
+    weight: 2
     settings: {  }
     third_party_settings: {  }
     type: daterange_default
@@ -53,31 +38,19 @@ content:
     third_party_settings: {  }
     type: options_select
     region: content
-  field_event_group_taxonomy:
-    weight: 26
-    settings:
-      match_operator: CONTAINS
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-    type: entity_reference_autocomplete
-    region: content
-  path:
-    type: path
-    weight: 5
-    region: content
-    settings: {  }
-    third_party_settings: {  }
   title:
     type: string_textfield
     weight: 0
     region: content
     settings:
       size: 60
-      placeholder: ''
+      placeholder: 'Event Name'
     third_party_settings: {  }
 hidden:
   created: true
+  field_calendar_type: true
+  field_event_date: true
+  path: true
   promote: true
   sticky: true
   uid: true

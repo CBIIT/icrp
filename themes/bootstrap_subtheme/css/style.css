@@ -312,17 +312,6 @@ header {
 .layout-region-node-secondary {
     display:none;
 }
-/* Make the Footer the same style as the header */
-footer {
-    background-color: #f7f7f7;
-    border: 1px solid #e5e5e5;
-    border-radius: 4px;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05) inset;
-    margin-bottom: 20px;
-    min-height: 20px;
-    padding: 19px;
-    margin-top:5px;
-}
 /* Adjust front page container */
 
 /* Home Page */

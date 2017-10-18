@@ -48,6 +48,7 @@
         "drupal/backup_migrate": "4.0-alpha2@alpha",
         "drupal/bootstrap": "3.6",
         "drupal/bootstrap_layouts": "5.0-alpha1@alpha",
+        "drupal/bootstrap_modal_messages": "1.x-dev",
         "drupal/calendar": "1.x-dev",
         "drupal/calendar_datetime": "1.x-dev",
         "drupal/clientside_validation": "1.0-rc3@RC",
@@ -188,7 +189,10 @@
         "patches": {
             "drupal/faq": {
                 "FAQ patch for node access error": "https://www.drupal.org/files/issues/missing_argument_4_on_node_access--2743715-10.patch"
-            }
-        }
+            },
+             "drupal/fullcalendar": {
+                "Restore AJAX functionality":
+                "https://www.drupal.org/files/issues/2828939-18-ajax-fix-combined.patch"
+}       }
     }
 }

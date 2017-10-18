@@ -3,11 +3,9 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_event_date
     - field.storage.node.field_event_date_range
     - node.type.events
   module:
-    - datetime
     - datetime_range
     - fullcalendar
     - node
@@ -64,13 +62,13 @@ display:
           display:
             defaultView: month
             firstDay: '0'
-            weekMode: variable
+            weekMode: fixed
           times:
             default_date: false
             date: ''
           left: 'today prev,next'
           center: title
-          right: 'month agendaWeek agendaDay listYear'
+          right: 'listYear month agendaWeek agendaDay '
           timeformat: 'h:mm'
           advanced: false
           slotLabelFormat: 'h(:mm)a'
@@ -83,7 +81,7 @@ display:
           columnformatMonth: ddd
           columnformatWeek: 'ddd M/D'
           columnformatDay: dddd
-          theme: true
+          theme: false
           sameWindow: true
           contentHeight: 0
           editable: false
@@ -95,19 +93,13 @@ display:
             date: false
             date_field: {  }
           fullcalendar_options:
-            firstHour: 8
-            minTime: 0
-            maxTime: 24
-            slotMinutes: 30
-            defaultEventMinutes: 120
+            minTime: '6'
+            slotDuration: '00:30:00'
+            defaultTimedEventDuration: '02:00:00'
             allDaySlot: true
             weekends: true
             lazyFetching: true
-            disableDragging: false
-            disableResizing: false
             dragRevertDuration: 500
-            dayClick: true
-            dayClickView: agendaDay
       row:
         type: fields
         options:
@@ -179,11 +171,6 @@ display:
           multi_type: separator
           separator: ', '
           field_api_classes: false
-        field_event_date:
-          id: field_event_date
-          table: node__field_event_date
-          field: field_event_date
-          plugin_id: field
         field_event_date_range:
           id: field_event_date_range
           table: node__field_event_date_range
@@ -332,6 +319,8 @@ display:
       relationships: {  }
       arguments: {  }
       display_extenders: {  }
+      css_class: bootstrap_subtheme
+      use_ajax: false
     cache_metadata:
       max-age: -1
       contexts:
@@ -340,7 +329,6 @@ display:
         - 'user.node_grants:view'
         - user.permissions
       tags:
-        - 'config:field.storage.node.field_event_date'
         - 'config:field.storage.node.field_event_date_range'
   block_1:
     display_plugin: block
@@ -358,5 +346,4 @@ display:
         - 'user.node_grants:view'
         - user.permissions
       tags:
-        - 'config:field.storage.node.field_event_date'
         - 'config:field.storage.node.field_event_date_range'

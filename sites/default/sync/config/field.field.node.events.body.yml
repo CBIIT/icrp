@@ -11,7 +11,7 @@ id: node.events.body
 field_name: body
 entity_type: node
 bundle: events
-label: Body
+label: 'Event Description'
 description: ''
 required: false
 translatable: true
