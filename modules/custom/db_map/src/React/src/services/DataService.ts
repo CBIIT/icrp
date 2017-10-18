@@ -1,6 +1,6 @@
 import { parse, stringify } from 'query-string';
 
-export type ViewLevel = 'regions' | 'countries' | 'cities';
+export type ViewLevel = 'regions' | 'countries' | 'cities' | 'institutions';
 
 export interface LocationCounts {
   projects: number;
@@ -57,6 +57,7 @@ export interface LocationFilters {
   type: ViewLevel;
   region?: string;
   country?: string;
+  city?: string;
 }
 
 /**
@@ -109,6 +110,7 @@ export const parseViewLevel = (viewLevel: ViewLevel): string => ({
   regions: 'Region',
   countries: 'Country',
   cities: 'City',
+  institutions: 'Institutions',
 }[viewLevel])
 
 export const summarizeCriteria = (criteria: any[][]): string =>
@@ -122,6 +124,7 @@ export const summarizeCriteria = (criteria: any[][]): string =>
 export const getNextViewLevel = (viewLevel: ViewLevel): ViewLevel => ({
   regions: 'countries',
   countries: 'cities',
+  cities: 'institutions',
 }[viewLevel])
 
 export const getNextLocationFilters = (location: Location, locationFilters: LocationFilters): LocationFilters => {
@@ -129,6 +132,7 @@ export const getNextLocationFilters = (location: Location, locationFilters: Loca
     regions: 'region',
     countries: 'country',
     cities: 'city',
+    institutions: 'institution',
   }[locationFilters.type];
 
   return {

@@ -68,8 +68,24 @@ export default class ViewLevelSelector extends ComponentBase<ViewLevelSelectorPr
         type: 'cities',
       };
 
+      delete regionFilter.city;
+
       viewLevelTags.push({
         label: regionFilter.country || 'Country',
+        locationFilters: regionFilter,
+      })
+    }
+
+
+
+    if (locationFilters.city && viewLevel != 'regions' && viewLevel != 'countries' && viewLevel != 'cities') {
+      let regionFilter: LocationFilters = {
+        ...locationFilters,
+        type: 'institutions',
+      };
+
+      viewLevelTags.push({
+        label: regionFilter.city || 'City',
         locationFilters: regionFilter,
       })
     }

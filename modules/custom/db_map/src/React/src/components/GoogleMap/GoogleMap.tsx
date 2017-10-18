@@ -94,7 +94,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         });
 
         // open a new location when this is clicked
-        if (viewLevel !== 'cities')
+        if (viewLevel !== 'institutions')
           marker.addListener('dblclick', event => {
             infoWindow.close();
             onSelect(

@@ -56,6 +56,18 @@ span:nth-child(2) > .bg-chevron:after {
 
 
 
+span:nth-child(3) > .bg-chevron {
+  padding: 2px 8px 2px 14px;
+  background-color: #183b52;
+  color: white;
+}
+
+span:nth-child(3) > .bg-chevron:after {
+  border-color: transparent transparent transparent #183b52;
+  cursor: default;
+}
+
+
 
 span:last-child > .bg-chevron {
   padding: 2px 8px 2px 14px;
