@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {
   ApiFields,
   ApiStatusMessage,
-  FundingOrganizationParameters,
 } from './data.service.types';
 
 @Injectable()
@@ -20,11 +19,10 @@ export class DataService {
     });
   }
 
-  addFundingOrganization(params: FundingOrganizationParameters) {
+  addFundingOrganization(data: FormData) {
     const endpoint = `${this.BASE_HREF}/api/admin/funding_organizations/add`;
-    return this.http.post<ApiStatusMessage>(endpoint, {
+    return this.http.post<ApiStatusMessage[]>(endpoint, data, {
       withCredentials: window.location.hostname === window.location.host,
-      body: JSON.stringify(params),
     });
   }
 }

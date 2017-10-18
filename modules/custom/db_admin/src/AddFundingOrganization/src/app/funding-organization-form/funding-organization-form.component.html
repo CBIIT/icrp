@@ -7,10 +7,6 @@
     {{ message.text }}
   </alert>
 
-
-  <ui-select inputClass="form-control"></ui-select>
-
-
   <div
     class="bordered padded form-group"
     fxLayout="row"
@@ -35,7 +31,7 @@
         fxLayoutGap.lt-md="5px">
         <label
           class="inline nowrap"
-          [ngClass]="{error: !form.controls.partner.pristine && form.controls.partner.errors}"
+          [ngClass]="{error: !form.controls.partner.pristine && form.controls.partner.errors != null}"
           for="partner"
           fxFlex="15%"
           fxFlex.lt-md="nogrow">
@@ -57,7 +53,7 @@
         </select>
       </div>
       <div class="validation-error"
-        *ngIf="!form.controls.partner.pristine && form.controls.partner.errors">
+        *ngIf="!form.controls.partner.pristine && form.controls.partner.errors != null">
         <div *ngIf="form.controls.partner.errors.required">
           Please select a partner.
         </div>
@@ -90,7 +86,7 @@
             id="memberTypePartner"
             type="radio"
             name="memberType"
-            value="partner"
+            value="Partner"
             formControlName="memberType">
           Partner
         </label>
@@ -100,12 +96,12 @@
             id="memberTypeAssociate"
             type="radio"
             name="memberType"
-            value="associate"
+            value="Associate"
             formControlName="memberType">
           Associate
         </label>
       </div>
-      <div *ngIf="!form.controls.partner.pristine && form.controls.partner.errors">
+      <div *ngIf="!form.controls.partner.pristine && form.controls.partner.errors != null">
         &zwj;
       </div>
     </div>
@@ -119,7 +115,9 @@
 
     <div fxFlex fxFlex.lt-md="nogrow" fxLayout="column" >
       <div>
-        <label for="name">
+        <label
+          [ngClass]="{error: !form.controls.name.pristine && form.controls.name.errors != null}"
+          for="name">
           Name <span class="text-danger">*</span>
         </label>
         <i
@@ -136,14 +134,16 @@
           maxlength="100"
           [formControl]="form.controls.name">
       </div>
-      <div class="validation-error" *ngIf="!form.controls.name.pristine && form.controls.name.errors">
+      <div class="validation-error" *ngIf="!form.controls.name.pristine && form.controls.name.errors != null">
         Please provide a name for the funding organization.
       </div>
     </div>
 
     <div fxFlex fxFlex.lt-md="nogrow" fxLayout="column" >
       <div>
-        <label for="abbreviation">
+        <label
+          [ngClass]="{error: !form.controls.abbreviation.pristine && form.controls.abbreviation.errors != null}"
+          for="abbreviation">
           Abbreviation <span class="text-danger">*</span>
         </label>
         <i
@@ -159,7 +159,8 @@
           maxlength="15"
           [formControl]="form.controls.abbreviation">
       </div>
-      <div class="validation-error" *ngIf="!form.controls.abbreviation.pristine && form.controls.abbreviation.errors">
+      <div class="validation-error"
+        *ngIf="!form.controls.abbreviation.pristine && form.controls.abbreviation.errors != null">
         Please provide an abbreviation for the funding organization.
       </div>
     </div>
@@ -172,7 +173,9 @@
     fxLayoutGap="15px">
 
     <div fxFlex fxFlex.lt-md="nogrow" fxLayout="column" >
-      <label for="organizationType">
+      <label
+        [ngClass]="{error: !form.controls.organizationType.pristine && form.controls.organizationType.errors != null}"
+        for="organizationType">
         Organization Type <span class="text-danger">*</span>
       </label>
       <select
@@ -185,13 +188,16 @@
         <option>Non-profit</option>
         <option>Other</option>
       </select>
-      <div class="validation-error" *ngIf="!form.controls.organizationType.pristine && form.controls.organizationType.errors">
+      <div class="validation-error" *ngIf="!form.controls.organizationType.pristine && form.controls.organizationType.errors != null">
         Please select an organization type.
       </div>
     </div>
 
     <div fxFlex fxFlex.lt-md="nogrow" fxLayout="column">
-      <label for="mapCoordinates">
+      <label
+        [ngClass]="{error: (!form.controls.latitude.pristine || !form.controls.longitude.pristine)
+          && (form.controls.latitude.errors != null || form.controls.longitude.errors  != null)}"
+        for="mapCoordinates">
         Map Coordinates
         <i class="text-muted normal-weight">(decimal degrees)</i>
       </label>
@@ -236,26 +242,24 @@
       <div
         class="validation-error"
         *ngIf="(!form.controls.latitude.pristine || !form.controls.longitude.pristine)
-          && (form.controls.latitude.errors || form.controls.longitude.errors)">
+          && (form.controls.latitude.errors != null || form.controls.longitude.errors != null)">
 
-        <div *ngIf="form.controls.latitude.errors
+        <div *ngIf="form.controls.latitude.errors != null
           && (form.controls.latitude.errors.max || form.controls.latitude.errors.min)">
           The latitude should be provided as a decimal number between -90.0 and 90.0 inclusive.
         </div>
 
-        <div *ngIf="form.controls.longitude.errors
+        <div *ngIf="form.controls.longitude.errors != null
           && (form.controls.longitude.errors.max || form.controls.longitude.errors.min)">
           The longitude should be provided as a decimal number between -180.0 and 180.0 inclusive.
         </div>
 
-        <div *ngIf="(form.controls.latitude.errors && form.controls.latitude.errors.requireWith)
-          || (form.controls.longitude.errors && form.controls.longitude.errors.requireWith)">
+        <div *ngIf="(form.controls.latitude.errors != null && form.controls.latitude.errors.requireWith)
+          || (form.controls.longitude.errors != null && form.controls.longitude.errors.requireWith)">
           Both latitude and longitude are required.
         </div>
 
       </div>
-
-
     </div>
   </div>
 
@@ -267,7 +271,9 @@
     fxLayoutGap="15px"
   >
     <div fxFlex fxFlex.lt-md="nogrow" fxLayout="column">
-      <label for="country">
+      <label
+        [ngClass]="{error: !form.controls.country.pristine && form.controls.country.errors != null}"
+        for="country">
         Country <span class="text-danger">*</span>
       </label>
       <select
@@ -283,7 +289,7 @@
         </option>
       </select>
 
-      <div class="validation-error" *ngIf="!form.controls.country.pristine && form.controls.country.errors">
+      <div class="validation-error" *ngIf="!form.controls.country.pristine && form.controls.country.errors != null">
         <div *ngIf="form.controls.country.errors.required">
           Please select a country.
         </div>
@@ -291,7 +297,9 @@
     </div>
 
     <div fxFlex fxFlex.lt-md="nogrow" fxLayout="column">
-      <label for="currency">
+      <label
+        [ngClass]="{error: !form.controls.currency.pristine && form.controls.currency.errors != null}"
+        for="currency">
         Currency <span class="text-danger">*</span>
       </label>
       <select
@@ -307,7 +315,7 @@
         </option>
       </select>
 
-      <div class="validation-error" *ngIf="!form.controls.currency.pristine && form.controls.currency.errors">
+      <div class="validation-error" *ngIf="!form.controls.currency.pristine && form.controls.currency.errors != null">
         <div *ngIf="form.controls.currency.errors.required">
           Please select a currency.
         </div>
@@ -355,8 +363,6 @@
 
   <div class="text-center vertical-margins">
     <button type="submit" class="btn btn-primary standard-width">Save</button>
-    <button class="btn btn-default standard-width">Cancel</button>
+    <button class="btn btn-default standard-width" (click)="resetForm($event)">Cancel</button>
   </div>
 </form>
-
-<pre>{{form.value | json}}</pre>

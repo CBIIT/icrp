@@ -12,8 +12,7 @@ export interface ApiFields {
 }
 
 export interface ApiStatusMessage {
-  error: boolean;
-  message: string;
+  [type: string]: string;
 }
 
 export interface FundingOrganizationParameters {

@@ -1,14 +1,41 @@
 :host {
+  display: inline-block;
   position: relative;
   z-index: 0;
-}
-
-.select-options {
-  position: absolute;
-  background-color: black;
-  z-index: 999;
-}
-
-.select-options > .option {
   width: 100%;
+}
+
+:host > input {
+  cursor: pointer;
+}
+
+:host > input.open {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.dropdown-container {
+  position: absolute;
+  width: 100%;
+
+  max-height: 200px;
+  overflow: auto;
+
+  background-color: white;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+
+  z-index: 1;
+}
+
+.dropdown-option {
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+
+.dropdown-option.selected {
+  background-color: #eee;
 }

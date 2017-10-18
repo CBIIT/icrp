@@ -42,7 +42,7 @@ export class FundingOrganizationFormComponent {
   createForm(): FormGroup {
     let formGroup = this.formBuilder.group({
       partner: ['', Validators.required],
-      memberType: ['associate', Validators.required],
+      memberType: ['Associate', Validators.required],
       name: ['', [Validators.required, Validators.maxLength(100)]],
       abbreviation: ['', [Validators.required, Validators.maxLength(15)]],
       organizationType: ['', Validators.required],
@@ -83,7 +83,7 @@ export class FundingOrganizationFormComponent {
         partner => partner.value === value
       );
 
-      if (partner && partner.country && controls.memberType.value === 'partner') {
+      if (partner && partner.country && controls.memberType.value === 'Partner') {
         controls.name.patchValue(partner.label);
         controls.country.patchValue(partner.country);
       }
@@ -124,7 +124,8 @@ export class FundingOrganizationFormComponent {
     }
   }
 
-  resetForm() {
+  resetForm(event) {
+    event.preventDefault();
     this.form = this.createForm();
   }
 
@@ -133,14 +134,47 @@ export class FundingOrganizationFormComponent {
       this.form.controls[key].markAsDirty();
     }
 
-
     if (this.form.valid) {
-      this.dataService.addFundingOrganization(this.form.value)
+      let formValue = this.form.value;
+      let formData = new FormData();
+      let keyMap = {
+        partner: 'sponsor_code',
+        memberType: 'member_type',
+        name: 'organization_name',
+        abbreviation: 'organization_abbreviation',
+        organizationType: 'organization_type',
+        latitude: 'latitude',
+        longitude: 'longitude',
+        country: 'country',
+        currency: 'currency',
+        note: 'note',
+        annualizedFunding: 'is_annualized'
+      }
+
+      for (let key in formValue) {
+        let value = formValue[key];
+        let mappedKey = keyMap[key];
+
+        if (value !== null && value !== '')
+          formData.set(mappedKey, value);
+      }
+
+      this.dataService.addFundingOrganization(formData)
         .subscribe(response => {
-          // reset form
-          // this.form = this.createForm();
 
+          const typeMap = {
+            ERROR: 'danger',
+            SUCCESS: 'success',
+          };
 
+          for (let responseMessage of response) {
+            let key = Object.keys(responseMessage)[0];
+
+            this.messages.push({
+              type: typeMap[key],
+              text: responseMessage[key]
+            })
+          }
         });
     }
 
@@ -148,7 +182,7 @@ export class FundingOrganizationFormComponent {
       this.messages.push({
         type: 'danger',
         text: 'Some fields have not passed all validation checks. Please update these fields and re-submit the form.'
-      })
+      });
     };
   }
 
