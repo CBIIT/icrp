@@ -4238,11 +4238,12 @@ AS
 	SELECT InstitutionID, Institution, Count(*) AS Count INTO #collab FROM (SELECT InstitutionID, Institution, ProjectFundingID FROM #tmp WHERE IsPrincipalInvestigator=0) collab GROUP BY InstitutionID, Institution
 
 	-- Return RelatedProject Count, PI Count and collaborator Count by region
-	SELECT p.InstitutionID, p.Institution, ISNULL(p.Count, 0) AS TotalRelatedProjectCount, ISNULL(pi.Count,0) AS TotalPICount, ISNULL(c.Count, 0) AS TotalCollaboratorCount--, ctry.Latitude, ctry.Longitude
+	SELECT p.InstitutionID, p.Institution, ISNULL(p.Count, 0) AS TotalRelatedProjectCount, ISNULL(pi.Count,0) AS TotalPICount, ISNULL(c.Count, 0) AS TotalCollaboratorCount, i.Latitude, i.Longitude--, ctry.Latitude, ctry.Longitude
 	FROM #proj p
 		--JOIN Country ctry ON ctry.Abbreviation = p.City
 		LEFT JOIN #pi  pi ON p.InstitutionID  = pi.InstitutionID
-		LEFT JOIN #collab c ON c.InstitutionID = pi.InstitutionID		
+		LEFT JOIN #collab c ON c.InstitutionID = pi.InstitutionID
+		LEFT JOIN Institution i on p.InstitutionID = i.InstitutionID
 	ORDER BY p.Count DESC
 
 	SELECT @AggregatedProjectCount= Count(*) FROM (SELECT DISTINCT ProjectFundingID FROM #tmp) proj
