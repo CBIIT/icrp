@@ -4020,13 +4020,13 @@ AS
 	IF @CountryList IS NOT NULL			
 	BEGIN
 		DELETE #tmp FROM #tmp t
-		LEFT JOIN (SELECT [VALUE] AS Country FROM dbo.ToIntTable(@RegionList)) c ON c.Country = t.Country WHERE c.Country IS NULL
+		LEFT JOIN (SELECT [VALUE] AS Country FROM dbo.ToStrTable(@CountryList)) c ON c.Country = t.Country WHERE c.Country IS NULL
 	END
 
 	IF @CityList IS NOT NULL
 	BEGIN
 		DELETE #tmp FROM #tmp t
-		LEFT JOIN (SELECT [VALUE] AS City FROM dbo.ToIntTable(@RegionList)) cty ON cty.City = t.City WHERE cty.City IS NULL
+		LEFT JOIN (SELECT [VALUE] AS City FROM dbo.ToStrTable(@CityList)) cty ON cty.City = t.City WHERE cty.City IS NULL
 	END
 
 
