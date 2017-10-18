@@ -20,7 +20,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
   <Grid>
     {
       form && form.messages.map((message, index) =>
-        <Row>
+        <Row key={index}>
           { message.ERROR && <Alert bsStyle='danger' onDismiss={dismissMessageCallback.bind(context, index)}>{message.ERROR}</Alert> }
           { message.SUCCESS &&
             <Alert bsStyle='success' onDismiss={dismissMessageCallback.bind(context, index)}>

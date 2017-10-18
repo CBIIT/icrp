@@ -188,8 +188,6 @@ export default class Form extends React.Component {
       }
     }
 
-
-
     for (let field in validationRules) {
       validationErrors[field] = {};
       let value = field !== 'joinedDate'
