@@ -190,6 +190,7 @@ option.disabled {
 }
 
 textarea {
+  min-height: 32px;
   resize: vertical;
 }
 

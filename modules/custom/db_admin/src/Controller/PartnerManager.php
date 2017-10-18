@@ -17,6 +17,8 @@ class PartnerManager {
     'country'                   => NULL,
     'currency'                  => NULL,
     'note'                      => NULL,
+    'latitude'                  => NULL,
+    'longitude'                 => NULL,
   ];
 
   const PARTNER_PARAMETERS = [
@@ -132,6 +134,7 @@ class PartnerManager {
     $validation_errors = self::validate($pdo, $parameters);
 
     if (!empty($validation_errors)) {
+      return $parameters;
       return $validation_errors;
     }
 
@@ -160,7 +163,6 @@ class PartnerManager {
           :description,
           :sponsor_code,
           :website,
-          :map_coordinates,
           :logo_file,
           :note,
           :agree_to_terms,

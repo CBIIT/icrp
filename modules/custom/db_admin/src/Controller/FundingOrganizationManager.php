@@ -16,6 +16,8 @@ class FundingOrganizationManager {
     'country'                   => NULL,
     'currency'                  => NULL,
     'note'                      => NULL,
+    'latitude'                  => NULL,
+    'longitude'                 => NULL,
   ];
 
   public static function getFields(PDO $pdo) {
@@ -130,7 +132,7 @@ class FundingOrganizationManager {
       }
     }
 
-    catch (Exception $e) {
+    catch (PDOException $e) {
       return [
         ['ERROR' => $e->getMessage()]
       ];

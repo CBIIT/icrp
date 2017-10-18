@@ -120,7 +120,6 @@ class AdminController extends ControllerBase {
   public static function addPartner(Request $request) {
     $connection = PDOBuilder::getConnection();
     $parameters = self::array_merge_intersection($request->request->all(), self::PARTNER_PARAMETERS);
-//    return self::createResponse($parameters);
 
     $uploaded_file = $request->files->get('logo_file');
     if ($uploaded_file) {
