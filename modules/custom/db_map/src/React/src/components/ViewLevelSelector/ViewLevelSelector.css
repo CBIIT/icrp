@@ -31,7 +31,7 @@
 
 
 span:nth-child(1) > .bg-chevron {
-  padding: 2px 8px 2px 14px;
+  padding: 2px 8px 2px 20px;
   background-color: #0678be;
   color: white;
 }
@@ -43,7 +43,7 @@ span:nth-child(1) > .bg-chevron:after {
 
 
 span:nth-child(2) > .bg-chevron {
-  padding: 2px 8px 2px 14px;
+  padding: 2px 8px 2px 20px;
   background-color: #065f97;
   color: white;
 }
@@ -53,11 +53,8 @@ span:nth-child(2) > .bg-chevron:after {
   cursor: default;
 }
 
-
-
-
 span:nth-child(3) > .bg-chevron {
-  padding: 2px 8px 2px 14px;
+  padding: 2px 8px 2px 20px;
   background-color: #183b52;
   color: white;
 }
@@ -70,7 +67,7 @@ span:nth-child(3) > .bg-chevron:after {
 
 
 span:last-child > .bg-chevron {
-  padding: 2px 8px 2px 14px;
+  padding: 2px 8px 2px 20px;
   background-color: #fff;
   color: #F89406;
 }

@@ -171,8 +171,8 @@ class MappingTool {
           'label' => trim(strval($location[$columns['label']])),
           'value' => trim(strval($location[$columns['value']])),
           'coordinates' => [
-            'lat' => floatval($location['Latitude']),
-            'lng' => floatval($location['Longitude']),
+            'lat' => floatval($location['Latitude'] ?? 0),
+            'lng' => floatval($location['Longitude'] ?? 0),
           ],
           'counts' => [
             'projects' => $location['TotalRelatedProjectCount'],
