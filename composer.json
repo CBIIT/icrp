@@ -193,6 +193,11 @@
              "drupal/fullcalendar": {
                 "Restore AJAX functionality":
                 "https://www.drupal.org/files/issues/2828939-18-ajax-fix-combined.patch"
-}       }
+            },
+            "drupal/core":{
+                "Patch to fix Daterange while using in a view":
+                "https://www.drupal.org/files/issues/improve_the_views-2786577-165.patch"
+            }
+        }
     }
 }

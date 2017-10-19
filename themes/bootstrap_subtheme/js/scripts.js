@@ -189,6 +189,9 @@
         title : 'Explore',
         url : '/db_search'
     },{
+        title : 'ICRP Map',
+        url : '/map'
+    },{
         title : 'Connect',
         url : '/about-us'
     },{

@@ -36,6 +36,10 @@ div.view-next-icrp-meeting-view > div.view-content  > div.views-row > div.views-
     margin-top:10px;
 }
 
+.views-field .views-field-nothing-1 {
+    margin-top: 10px;
+}
+
 div#views-bootstrap-frequently-asked-questions-page-1 > div.panel {
     margin-bottom:21px;
 }

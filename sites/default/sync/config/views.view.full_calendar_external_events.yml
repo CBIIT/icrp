@@ -69,12 +69,12 @@ display:
           left: 'today prev,next'
           center: title
           right: 'listYear month agendaWeek agendaDay'
-          timeformat: 'h:mm'
-          advanced: false
+          timeformat: 'h:mm t'
+          advanced: true
           slotLabelFormat: 'h(:mm)a'
-          timeformatMonth: 'h:mm'
-          timeformatWeek: 'h:mm'
-          timeformatDay: 'h:mm'
+          timeformatMonth: 'h(:mm)a'
+          timeformatWeek: 'h(:mm)a'
+          timeformatDay: 'h(:mm)a'
           titleformatMonth: 'MMMM YYYY'
           titleformatWeek: 'MMM D YYYY'
           titleformatDay: 'MMMM D YYYY'
@@ -82,7 +82,7 @@ display:
           columnformatWeek: 'ddd M/D'
           columnformatDay: dddd
           theme: false
-          sameWindow: false
+          sameWindow: true
           contentHeight: 0
           editable: false
           fields:
