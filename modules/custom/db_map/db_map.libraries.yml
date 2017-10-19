@@ -14,6 +14,20 @@ map.people:
   css:
     theme:
       src/assets/main.css: {}
+      src/assets/db_people_map.css: {}
   js:
     src/assets/db_people_map.js: {}
-    https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg&callback=drupalSettings.db_map.initMap: {async: true, defer: true}
+    src/assets/db_people_map_controls.js: {}
+    https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg&callback=drupalSettings.db_map.initPeopleMap: {async: true, defer: true}
+
+
+map.layer:
+  version: 1.0
+  css:
+    theme:
+      src/assets/main.css: {}
+  js:
+    src/assets/db_layer_map.js: {}
+    src/assets/db_layer_map_controls.js: {}
+    https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg&callback=drupalSettings.db_map.layer.initMap: {async: true, defer: true}
+

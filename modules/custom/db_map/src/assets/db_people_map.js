@@ -1,5 +1,5 @@
 drupalSettings.db_map = {
-  initMap: function() {
+  initPeopleMap: function() {
     var baseUrl = '/sites/default/files/db_map/',
         markerBounds = new google.maps.LatLngBounds(),
         pi = [],
@@ -83,7 +83,7 @@ drupalSettings.db_map = {
           }),
           content = (is_pi?'Principal Investigator':'Collaborator')+'<br/>'+
                     '<hr style="margin:.5em 0px;"/>'+
-                    'PI: '+detail.pi_name+'<br/>'+
+                    (is_pi?'PI':'Collaborator')+': '+detail.pi_name+'<br/>'+
                     'Institution: '+detail.institution+'<br/>'+
                     'Location: '+[detail.city, detail.state, detail.country].filter(e => e && e.length).join(', ');
       marker.addListener('click',(function(marker,content,infowindow) {
