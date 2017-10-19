@@ -25,6 +25,7 @@ h1 {
 h2 {
     margin-top: 0px;
 }
+/* Full Calendar */
 div.fullcalendar > div > div.fc-center > h2 {
     color:#222222;
 }
@@ -38,6 +39,18 @@ div.view-next-icrp-meeting-view > div.view-content  > div.views-row > div.views-
 
 .views-field .views-field-nothing-1 {
     margin-top: 10px;
+}
+/* Footer Nav (spacing) */
+.navbar-nav > li > a {
+    border: 1px solid transparent;
+    border-radius: 4px;
+    margin: 12.5px 6px;
+}
+.fa {
+    color: #3371a8;
+}
+.fa-inverse {
+    color: #fff;
 }
 
 div#views-bootstrap-frequently-asked-questions-page-1 > div.panel {
