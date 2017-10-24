@@ -21,9 +21,8 @@ export const createLabel = (label: string, location: google.maps.LatLngLiteral |
     },
   });
 
-export const addDataMarker = (label: number, scale: number, location: google.maps.LatLngLiteral  | google.maps.LatLng, map: google.maps.Map) =>
+export const createDataMarker = (label: number, scale: number, location: google.maps.LatLngLiteral  | google.maps.LatLng) =>
   new google.maps.Marker({
-    map: map,
     position: location,
     zIndex: 2,
     label: {
