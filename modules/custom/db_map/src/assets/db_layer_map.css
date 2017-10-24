@@ -4,6 +4,10 @@
   padding: 10px;  
 }
 
+#layer_map_legend > h3 {
+  margin: 0px 0px .5em;
+}
+
 #layer_map_legend > div {
   margin: 5px 0px;
 }
@@ -11,6 +15,10 @@
 #layer_map_legend > div > span:first-child {
   display: inline-block;
   width: 3em;
-  border: 1px solid #000;
+  border: 1px solid #999;
   margin-right: 5px;
+}
+
+#layer_map_legend > div > span.selected:first-child {
+  border-color: #000;
 }
