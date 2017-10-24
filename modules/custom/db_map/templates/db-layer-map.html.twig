@@ -4,6 +4,7 @@
   <option value="{{ row.MapLayerID }}">{{ row.Name }}</option>
 {% endfor %}
 </select>
+<div id="layer_map_legend" class="hide"></div>
 <div id="icrp-map" class="map-container"></div>
 <script>
   var db_layer_map = {

@@ -1,5 +1,6 @@
 drupalSettings.db_map = drupalSettings.db_map||{};
 drupalSettings.db_map.layer = {
+  country: null,
   currLayer: "",
   initMap: function() {
     var map = new google.maps.Map(document.getElementById('icrp-map'), {
@@ -74,29 +75,68 @@ drupalSettings.db_map.layer = {
     drupalSettings.db_map.layer.reset();
     map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push($('#layer_map_legend')[0]);
   },
+  legend: null,
   map: null,
   reset: function() {
+    $('#layer_map_legend').addClass('hide').empty();
     drupalSettings.db_map.layer.map.data.setStyle({
       fillColor: 'transparent',
       strokeWeight: 0
     });
   },
-  update: function(legend,country) {
-    var map = drupalSettings.db_map.layer.map;
-    console.log(legend);
-    var legendHTML = $('<div id="layer_map_legend"><h3>'+$('#db_layer_select').val()+'</h3></div>'),
-        legendline;
-    legend.forEach(function(entry) {
-      legendline = $('<div></div>');
-      legendline.append($('<span style="background:'+entry.LegendColor+';">&nbsp;</span>'));
-      legendline.append($('<span>'+$('<div/>').text(entry.LegendName).html()+'</span>'));
-      legendHTML.append(legendline);
+  selectColor: function(e) {
+    var spans = $('#layer_map_legend span.selected:first-child');
+    if (spans.size() == drupalSettings.db_map.layer.legend.length) {
+      spans.removeClass('selected');
+    }
+    $(this).toggleClass('selected');
+    if ($('#layer_map_legend span.selected:first-child').size() == 0) {
+      $('#layer_map_legend span:first-child').addClass('selected');
+    }
+    drupalSettings.db_map.layer.updateLayers();
+  },
+  updateLayers: function(country) {
+    if (country === undefined) {
+      country = drupalSettings.db_map.layer.country;
+    } else {
+      drupalSettings.db_map.layer.country = country;
+    }
+    var spans = $('#layer_map_legend span.selected:first-child'),
+        map = drupalSettings.db_map.layer.map,
+        legendColors = {},
+        country = {};
+    drupalSettings.db_map.layer.legend.forEach(function(entry) {
+      var legendId = entry.MapLayerLegendID;
+      if ($('#layer_map_legend [data-legend-id="'+legendId+'"]').hasClass('selected')) {
+        legendColors[legendId] = entry.LegendColor;
+      } else {
+        legendColors[legendId] = 'transparent';
+      }
+    });
+    drupalSettings.db_map.layer.country.forEach(function(entry) {
+      country[entry.Country.trim()] = legendColors[entry.MapLayerLegendID];
     });
     map.data.setStyle(function(feature) {
+      var color = country[feature.getId()],
+          weight = color=='transparent'?0:1;
       return {
-        fillColor: country[feature.getId()],
-        strokeWeight: 1
+        fillColor: color,
+        strokeWeight: weight
       };
+    });
+  },
+  updateLegend: function(legend) {
+    drupalSettings.db_map.layer.legend = legend;
+    var legendHTML = $('#layer_map_legend').empty().removeClass('hide').append('<h3>'+$('#db_layer_select option:selected').text()+'</h3>'),
+        legendline,
+        legendcolor;
+    legend.forEach(function(entry) {
+      legendline = $('<div></div>');
+      legendcolor = $('<span class="selected" style="background:'+entry.LegendColor+';" data-legend-id="'+entry.MapLayerLegendID+'">&nbsp;</span>');
+      legendcolor.on('click',drupalSettings.db_map.layer.selectColor);
+      legendline.append(legendcolor);
+      legendline.append($('<span>'+$('<div/>').text(entry.LegendName).html()+'</span>'));
+      legendHTML.append(legendline);
     });
   }
 };
