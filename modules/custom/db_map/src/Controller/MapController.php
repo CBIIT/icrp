@@ -112,7 +112,7 @@ class MapController extends ControllerBase {
 
 
   public function getLayers(): array {
-    $results = self::get_layers('icrp_database');
+    $results = self::get_map_layers('icrp_database');
     return [
       '#theme' => 'db_layer_map',
       '#layers' => $results,
@@ -126,9 +126,11 @@ class MapController extends ControllerBase {
 
 
   public function getLayerMap($layer_id): JsonResponse {
-    $results = self::get_layer($layer_id,'icrp_database');
+    $map_layer_legend = self::get_map_layer_legend($layer_id,'icrp_database');
+    $map_layer_country = self::get_map_layer_by_country($layer_id,'icrp_database');
     return new JsonResponse(array(
-        'x'=>'x'
+      'legend' => $map_layer_legend,
+      'country' => $map_layer_country
     ));
   }
 
@@ -190,7 +192,7 @@ class MapController extends ControllerBase {
   }
 
 
-  public function get_layers($config_key = 'icrp_database') {
+  public function get_map_layers($config_key = 'icrp_database') {
     $connection = PDOBuilder::getConnection('icrp_database');
 
     $stmt = $connection->prepare("EXECUTE GetMapLayers");
@@ -198,13 +200,22 @@ class MapController extends ControllerBase {
     return $stmt->fetchAll();
   }
 
-
-  public function get_layer($layer_id,$config_key = 'icrp_database') {
+  
+  public function get_map_layer_legend($layer_id,$config_key = 'icrp_database') {
     $connection = PDOBuilder::getConnection('icrp_database');
 
-    $stmt = $connection->prepare("EXECUTE GetMapLayers");
-    $stmt->execute();
-    return $stmt->fetchAll();
+    $stmt = $connection->prepare("EXECUTE GetMapLayerLegend :layer_id");    
+    $stmt->execute([':layer_id' => $layer_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+
+  public function get_map_layer_by_country($layer_id,$config_key = 'icrp_database') {
+    $connection = PDOBuilder::getConnection('icrp_database');
+
+    $stmt = $connection->prepare("EXECUTE GetMapLayerByCountry :layer_id");    
+    $stmt->execute([':layer_id' => $layer_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
 
 
