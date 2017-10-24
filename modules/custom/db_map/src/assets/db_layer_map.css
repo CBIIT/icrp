@@ -1,0 +1,16 @@
+#layer_map_legend {
+  background: #FFF;
+  margin-left: 26px;
+  padding: 10px;  
+}
+
+#layer_map_legend > div {
+  margin: 5px 0px;
+}
+
+#layer_map_legend > div > span:first-child {
+  display: inline-block;
+  width: 3em;
+  border: 1px solid #000;
+  margin-right: 5px;
+}

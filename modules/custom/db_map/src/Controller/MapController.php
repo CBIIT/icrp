@@ -66,7 +66,7 @@ class MapController extends ControllerBase {
    * @param any $data
    * @return JSONResponse
    */
-  private static function createResponse($data): JSONResponse {
+  private static function createResponse($data): JsonResponse {
     return JsonResponse::create(
       $data,
       (is_array($data) && isset($data['ERROR'])) ? 400 : 200, [
@@ -95,24 +95,43 @@ class MapController extends ControllerBase {
   }
 
 
-  /**
-   * Returns the Drupal render array for the index page for this module
-   *
-   * @return array
-   */
-   public function getPeopleMap($project_id): array {
-    $results = self::get_funding($project_id, 'icrp_load_database');
+  public function getPeopleMap($funding_id): array {
+    $results = self::get_funding($funding_id, 'icrp_database');
     return [
       '#theme' => 'db_people_map',
       '#funding_details' => $results['project_funding_details'],
       '#pi_count' => $results['pi_count'],
-      '#project_id' => $project_id,
+      '#funding_id' => $funding_id,
       '#attached' => [
         'library' => [
           'db_map/map.people'
         ],
       ],
     ];
+  }
+
+
+  public function getLayers(): array {
+    $results = self::get_map_layers('icrp_database');
+    return [
+      '#theme' => 'db_layer_map',
+      '#layers' => $results,
+      '#attached' => [
+        'library' => [
+          'db_map/map.layer'
+        ],
+      ],
+    ];
+  }
+
+
+  public function getLayerMap($layer_id): JsonResponse {
+    $map_layer_legend = self::get_map_layer_legend($layer_id,'icrp_database');
+    $map_layer_country = self::get_map_layer_by_country($layer_id,'icrp_database');
+    return new JsonResponse(array(
+      'legend' => $map_layer_legend,
+      'country' => $map_layer_country
+    ));
   }
 
 
@@ -170,6 +189,33 @@ class MapController extends ControllerBase {
     ]);
     $data = MappingTool::getNewSearchId($connection, $parameters);
     return self::createResponse($data);
+  }
+
+
+  public function get_map_layers($config_key = 'icrp_database') {
+    $connection = PDOBuilder::getConnection('icrp_database');
+
+    $stmt = $connection->prepare("EXECUTE GetMapLayers");
+    $stmt->execute();
+    return $stmt->fetchAll();
+  }
+
+  
+  public function get_map_layer_legend($layer_id,$config_key = 'icrp_database') {
+    $connection = PDOBuilder::getConnection('icrp_database');
+
+    $stmt = $connection->prepare("EXECUTE GetMapLayerLegend :layer_id");    
+    $stmt->execute([':layer_id' => $layer_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+
+  public function get_map_layer_by_country($layer_id,$config_key = 'icrp_database') {
+    $connection = PDOBuilder::getConnection('icrp_database');
+
+    $stmt = $connection->prepare("EXECUTE GetMapLayerByCountry :layer_id");    
+    $stmt->execute([':layer_id' => $layer_id]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
 
 

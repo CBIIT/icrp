@@ -40,9 +40,26 @@ getExcelExport:
 
 
 getPeopleMap:
-  path: '/map/people/{project_id}'
+  path: '/map/people/{funding_id}'
   defaults:
     _controller: '\Drupal\db_map\Controller\MapController::getPeopleMap'
   requirements:
     _permission: 'access content'
-    project_id: '[0-9]{1,9}'
+    funding_id: '[0-9]{1,9}'
+
+
+getLayers:
+  path: '/map/layer'
+  defaults:
+    _controller: '\Drupal\db_map\Controller\MapController::getLayers'
+  requirements:
+    _permission: 'access content'
+
+
+getLayerMap:
+  path: '/map/layer/data/{layer_id}'
+  defaults:
+    _controller: '\Drupal\db_map\Controller\MapController::getLayerMap'
+  requirements:
+    _permission: 'access content'
+    layer_id: '[0-9]{1,9}'

@@ -18,6 +18,11 @@ function db_map_theme($existing, $type, $theme, $path) {
         'pi_count' => NULL,
         'project_id' => NULL
       ]
-    ]
+    ],
+    'db_layer_map' => [
+      'variables' => [
+        'layers' => NULL,
+      ]
+    ],
   ];
 }
