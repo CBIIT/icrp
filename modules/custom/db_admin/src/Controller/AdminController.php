@@ -26,11 +26,12 @@ class AdminController extends ControllerBase {
     'organization_name'         => NULL,
     'organization_abbreviation' => NULL,
     'organization_type'         => NULL,
-    'map_coordinates'           => NULL,
     'is_annualized'             => NULL,
     'country'                   => NULL,
     'currency'                  => NULL,
     'note'                      => NULL,
+    'latitude'                  => NULL,
+    'longitude'                 => NULL,
   ];
 
   const PARTNER_PARAMETERS = [
@@ -42,7 +43,6 @@ class AdminController extends ControllerBase {
     'description'               => NULL,
     'sponsor_code'              => NULL,
     'website'                   => NULL,
-    'map_coordinates'           => NULL,
     'logo_file'                 => NULL,
     'note'                      => NULL,
     'agree_to_terms'            => NULL,
@@ -50,6 +50,8 @@ class AdminController extends ControllerBase {
     'organization_type'         => NULL,
     'is_annualized'             => NULL,
     'currency'                  => NULL,
+    'latitude'                  => NULL,
+    'longitude'                 => NULL,
   ];
 
   /**
@@ -69,7 +71,7 @@ class AdminController extends ControllerBase {
     $response = JsonResponse::create($data, $status_code, [
       'Access-Control-Allow-Headers' => 'origin, content-type, accept',
       'Access-Control-Allow-Origin'  => '*',
-      'Access-Control-Allow-Methods' => 'GET, POST',
+      'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS',
     ]);
 
     // ensure that the response contains formatted json
@@ -118,7 +120,6 @@ class AdminController extends ControllerBase {
   public static function addPartner(Request $request) {
     $connection = PDOBuilder::getConnection();
     $parameters = self::array_merge_intersection($request->request->all(), self::PARTNER_PARAMETERS);
-//    return self::createResponse($parameters);
 
     $uploaded_file = $request->files->get('logo_file');
     if ($uploaded_file) {

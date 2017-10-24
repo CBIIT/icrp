@@ -35,6 +35,8 @@ export default class Form extends React.Component {
       urlProtocol: 'http://',
       website: '',
       mapCoordinates: '',
+      latitude: '',
+      longitude: '',
       logoFile: '',
       note: '',
       agreeToTerms: false,
@@ -135,6 +137,7 @@ export default class Form extends React.Component {
     let validationErrors = {};
     let isValid = true;
 
+
     let validationRules = {
       partner: {
         required: true
@@ -168,6 +171,20 @@ export default class Form extends React.Component {
 
       currency: {
         required: values.isFundingOrganization
+      },
+
+      latitude: {
+        numeric: true,
+        min: -90,
+        max: 90,
+        required: values.longitude != ''
+      },
+
+      longitude: {
+        numeric: true,
+        min: -180,
+        max: 180,
+        required: values.latitude != ''
       }
     }
 
@@ -187,6 +204,21 @@ export default class Form extends React.Component {
         validationErrors[field].format = true;
         isValid = false;
       }
+
+      if (validationRules[field].numeric && isNaN(value)) {
+        validationErrors[field].numeric = true;
+        isValid = false;
+      }
+
+      if (validationRules[field].min != undefined && +value < validationRules[field].min) {
+        validationErrors[field].min = true;
+        isValid = false;
+      }
+
+      if (validationRules[field].max != undefined && +value > validationRules[field].max) {
+        validationErrors[field].max = true;
+        isValid = false;
+      }
     }
 
     let form = this.state.form;
@@ -202,11 +234,11 @@ export default class Form extends React.Component {
     let isValid = this.validate();
 
     if (isValid) {
-      let values = this.state.form.values;
+      let values = {... this.state.form.values};
       let fields = this.state.form.fields;
 
       // add prefix to url
-      if (values.website) 
+      if (values.website)
         values.website = values.urlProtocol + values.website;
 
       let parameterMap = {
@@ -217,7 +249,6 @@ export default class Form extends React.Component {
         description: 'description',
         sponsorCode: 'sponsor_code',
         website: 'website',
-        mapCoordinates: 'map_coordinates',
         logoFile: 'logo_file',
         note: 'note',
         agreeToTerms: 'agree_to_terms',
@@ -226,17 +257,21 @@ export default class Form extends React.Component {
         organizationType: 'organization_type',
         isAnnualized: 'is_annualized',
         currency: 'currency',
+        latitude: 'latitude',
+        longitude: 'longitude',
       };
 
       let formData = new FormData();
-      for (let key in values) {
+      for (let key in parameterMap) {
         let formKey = parameterMap[key];
         let formValue = values[key];
         if (key === 'joinedDate')
           formValue = moment(formValue._d).format('YYYY-MM-DD');
 
-        if (formValue !== '' && formValue !== null)
+        if (formValue !== '' && formValue !== null) {
+          console.log(formKey, formValue);
           formData.set(formKey, formValue);
+        }
       }
 
       let partner = fields.partners
@@ -261,7 +296,7 @@ export default class Form extends React.Component {
         form.messages = messages;
 
         this.setState(
-          { form: form }, 
+          { form: form },
           () => this.updateFields()
         );
       }

@@ -7,9 +7,7 @@
 
 namespace Drupal\db_admin\Controller;
 
-use Drupal;
 use Drupal\Core\Controller\ControllerBase;
-
 
 /**
  * Controller routines for db_admin pages.
@@ -37,4 +35,3 @@ class ContentController extends ControllerBase {
     ];
   }
 }
-

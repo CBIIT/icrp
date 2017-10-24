@@ -4,7 +4,7 @@ global-styling:
       https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css: {type: external, minified: true}
       https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css: {type: external, minified: false}
       css/bootstrap-yeti-navbar.css: {}
-      css/fullcalendar.css: {}
+      css/fullcalendar-overrides.css: {}
       css/style.css: {}
       css/bootstrap-overrides.css: {}
       css/forum.css: {}

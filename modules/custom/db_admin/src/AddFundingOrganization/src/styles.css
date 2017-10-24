@@ -3,6 +3,18 @@
   margin-bottom: 15px;
 }
 
+.vertical-resize {
+  resize: vertical;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
 .bordered {
   border: 1px solid #ddd;
+}
+
+.padded {
+  padding: 10px 15px;
 }

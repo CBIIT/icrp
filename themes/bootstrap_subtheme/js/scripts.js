@@ -18,7 +18,11 @@
        return false;
       });
       */
-      switch(window.location.pathname) {
+      var url_path = window.location.pathname;
+      if(url_path.substring(0, 9).toLowerCase() == '/calendar') {
+        url_path = '/calendar';
+      }
+      switch(url_path) {
         case "/":
           $.getNewsletter();
           //console.log("You are on the / page.");
@@ -188,6 +192,9 @@
     },{
         title : 'Explore',
         url : '/db_search'
+    },{
+        title : 'ICRP Map',
+        url : '/map'
     },{
         title : 'Connect',
         url : '/about-us'

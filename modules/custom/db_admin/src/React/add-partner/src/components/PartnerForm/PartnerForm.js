@@ -20,9 +20,9 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
   <Grid>
     {
       form && form.messages.map((message, index) =>
-        <Row>
+        <Row key={index}>
           { message.ERROR && <Alert bsStyle='danger' onDismiss={dismissMessageCallback.bind(context, index)}>{message.ERROR}</Alert> }
-          { message.SUCCESS && 
+          { message.SUCCESS &&
             <Alert bsStyle='success' onDismiss={dismissMessageCallback.bind(context, index)}>
               This partner has been successfully saved. You can go to <a
                 target='_blank'
@@ -159,10 +159,10 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
                 id='select-website-protocol'
               >
                 {
-                  form.fields.urlProtocols.map((field, index) => 
-                    <MenuItem 
+                  form.fields.urlProtocols.map((field, index) =>
+                    <MenuItem
                       onClick={event => changeCallback('urlProtocol', field.value)}
-                      key={field.value} 
+                      key={field.value}
                       value={field.value}>
                         {field.label}
                       </MenuItem>
@@ -185,18 +185,63 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
 
 
 
-    <Row>
-      <Col md={6} className='margin-bottom'>
-        <FormGroup  controlId='partner-map-coordinates' bsSize='small' validationState={null}>
-          <ControlLabel className='margin-right'>Map Coordinates</ControlLabel>
-          <FormControl
-            type='text'
-            value={form.values.mapCoordinates}
-            maxLength={50}
-            onChange={event => changeCallback('mapCoordinates', event.target['value'])}
-            placeholder='Enter map coordinates' />
-          <FormControl.Feedback />
-        </FormGroup>
+    <Row className='margin-bottom'>
+      <Col md={6} >
+        <ControlLabel className='margin-right'>Map Coordinates</ControlLabel>
+
+        <Row>
+          <Col md={6} className="form-group-sm">
+            <input
+              type="number"
+              className="form-control form-control-sm"
+              value={form.values.latitude}
+              onChange={event => changeCallback('latitude', event.target['value'])}
+              max="90"
+              min="-90"
+              placeholder='Enter latitude'
+              title="Latitude"
+            />
+          </Col>
+
+          <Col md={6} className="form-group-sm">
+            <input
+              type="number"
+              className="form-control form-control-sm"
+              value={form.values.longitude}
+              onChange={event => changeCallback('longitude', event.target['value'])}
+              max="180"
+              min="-180"
+              placeholder='Enter longitude'
+              title="Longitude"
+            />
+          </Col>
+        </Row>
+
+        {
+          ((form.validationErrors.latitude && form.validationErrors.latitude.required) ||
+          (form.validationErrors.longitude && form.validationErrors.longitude.required)) &&
+          <div className="help-block">
+            Both latitude and longitude should be provided.
+          </div>
+        }
+
+        {
+          form.validationErrors.latitude &&
+          ( form.validationErrors.latitude.min ||
+            form.validationErrors.latitude.max) &&
+          <div className="help-block">
+            The latitude should be provided as a decimal number between -90 and 90.
+          </div>
+        }
+
+        {
+          form.validationErrors.longitude &&
+          ( form.validationErrors.longitude.min ||
+            form.validationErrors.longitude.max) &&
+          <div className="help-block">
+            The longitude should be provided as a decimal number between -180 and 180.
+          </div>
+        }
       </Col>
 
 

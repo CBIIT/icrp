@@ -78,9 +78,12 @@ settings.local.php
 # in the /modules/contrib folder
 
 /modules/*
+
 !/modules/custom
 
 /themes/*
 !/themes/bootstrap_subtheme
 !/themes/icrp_subtheme
+
+!/libraries/.gitkeep
 

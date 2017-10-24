@@ -1372,6 +1372,30 @@ function icrp_fullcalendar_editable($entity, $view) {
   return FALSE;
 }
 
+/**
+ * Implements hook_fullcalendar_api().
+ */
+function icrp_fullcalendar_api() {
+  drupal_set_message(__FUNCTION__);
+  return array(
+    'api' => fullcalendar_api_version(),
+  );
+}
+
+/**
+ * Implements hook_fullcalendar_options_info().
+ */
+function icrp_fullcalendar_options_info() {
+  drupal_set_message(__FUNCTION__);
+  return array(
+    'custom_module' => array(
+      'js' => TRUE,
+      'no_fieldset' => TRUE,
+      'weight' => 5,
+    ),
+  );
+}
+
 function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 
     //drupal_set_message("Form ID: " . $form_id);
