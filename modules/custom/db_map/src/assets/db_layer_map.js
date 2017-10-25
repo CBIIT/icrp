@@ -74,7 +74,9 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
     map.data.loadGeoJson('/modules/custom/db_map/src/assets/countries.json');
     drupalSettings.db_map.layer.reset();
     map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push($('#layer_map_legend')[0]);
+    drupalSettings.db_map.layer.infowindow = new google.maps.InfoWindow({pixelOffset:{height:70,width:0}});
   },
+  infowindow: null,
   layers: db_layer_map.layers,
   legend: null,
   map: null,
@@ -98,11 +100,25 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
   },
   showMoreInfo: function(e) {
     e.preventDefault();
-    var index = $('#layer_map_select').val(),
+    var infowindow = drupalSettings.db_map.layer.infowindow,
+        map = drupalSettings.db_map.layer.map,
+        index = $('#layer_map_select').val(),
         layer = drupalSettings.db_map.layer.layers.filter(function(entry) { return entry.MapLayerID == index; });
     if (layer.length != 1) return false;
     layer = layer[0];
-    console.log(layer.Name,layer.Summary,layer.DataSource);
+    $('#layer_map_info').removeClass('hide');
+    if (infowindow.getMap() === null || typeof infowindow.getMap() === 'undefined') {
+      infowindow.setPosition(map.getCenter());
+      infowindow.setContent(
+        '<h4>'+layer.Name+'</h4>'+
+        '<div>'+layer.Summary+'</div>'+
+        '<h5>Data Source:</h5>'+
+        '<div>'+layer.DataSource+'</div>'
+      );
+      infowindow.open(map);
+    } else {
+      infowindow.close();
+    }
   },
   updateLayers: function(country) {
     if (country === undefined) {
@@ -147,7 +163,6 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
       legendline.append($('<span>'+$('<div/>').text(entry.LegendName).html()+'</span>'));
       legendHTML.append(legendline);
     });
-    
     legendHTML.append($('<div><a href="#">See More Info</a></div>').on('click',drupalSettings.db_map.layer.showMoreInfo));
   }
 });
