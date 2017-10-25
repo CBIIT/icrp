@@ -106,7 +106,7 @@ drupalSettings.db_map = {
             pi[i].position,
             collab[j].position,
           ],
-          strokeColor: '#000000',
+          strokeColor: '#666',
           strokeWeight: 1,
           map: map
         }));
