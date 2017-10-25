@@ -1,5 +1,5 @@
 $(document).ready(function(){
-  $('#db_layer_select').on('change',function(e) {
+  $('#layer_map_select').on('change',function(e) {
     e.preventDefault();
     var old = drupalSettings.db_map.layer.currLayer,
         val = this.value;

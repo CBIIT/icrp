@@ -1,5 +1,5 @@
 drupalSettings.db_map = drupalSettings.db_map||{};
-drupalSettings.db_map.layer = {
+drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
   country: null,
   currLayer: "",
   initMap: function() {
@@ -74,7 +74,10 @@ drupalSettings.db_map.layer = {
     map.data.loadGeoJson('/modules/custom/db_map/src/assets/countries.json');
     drupalSettings.db_map.layer.reset();
     map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push($('#layer_map_legend')[0]);
+    drupalSettings.db_map.layer.infowindow = new google.maps.InfoWindow({pixelOffset:{height:70,width:0}});
   },
+  infowindow: null,
+  layers: db_layer_map.layers,
   legend: null,
   map: null,
   reset: function() {
@@ -94,6 +97,28 @@ drupalSettings.db_map.layer = {
       $('#layer_map_legend span:first-child').addClass('selected');
     }
     drupalSettings.db_map.layer.updateLayers();
+  },
+  showMoreInfo: function(e) {
+    e.preventDefault();
+    var infowindow = drupalSettings.db_map.layer.infowindow,
+        map = drupalSettings.db_map.layer.map,
+        index = $('#layer_map_select').val(),
+        layer = drupalSettings.db_map.layer.layers.filter(function(entry) { return entry.MapLayerID == index; });
+    if (layer.length != 1) return false;
+    layer = layer[0];
+    $('#layer_map_info').removeClass('hide');
+    if (infowindow.getMap() === null || typeof infowindow.getMap() === 'undefined') {
+      infowindow.setPosition(map.getCenter());
+      infowindow.setContent(
+        '<h4>'+layer.Name+'</h4>'+
+        '<div>'+layer.Summary+'</div>'+
+        '<h5>Data Source:</h5>'+
+        '<div>'+layer.DataSource+'</div>'
+      );
+      infowindow.open(map);
+    } else {
+      infowindow.close();
+    }
   },
   updateLayers: function(country) {
     if (country === undefined) {
@@ -127,7 +152,7 @@ drupalSettings.db_map.layer = {
   },
   updateLegend: function(legend) {
     drupalSettings.db_map.layer.legend = legend;
-    var legendHTML = $('#layer_map_legend').empty().removeClass('hide').append('<h3>'+$('#db_layer_select option:selected').text()+'</h3>'),
+    var legendHTML = $('#layer_map_legend').empty().removeClass('hide').append('<h3>'+$('#layer_map_select option:selected').text()+'</h3>'),
         legendline,
         legendcolor;
     legend.forEach(function(entry) {
@@ -138,5 +163,6 @@ drupalSettings.db_map.layer = {
       legendline.append($('<span>'+$('<div/>').text(entry.LegendName).html()+'</span>'));
       legendHTML.append(legendline);
     });
+    legendHTML.append($('<div><a href="#">See More Info</a></div>').on('click',drupalSettings.db_map.layer.showMoreInfo));
   }
-};
+});
