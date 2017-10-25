@@ -64,17 +64,17 @@ display:
             firstDay: '0'
             weekMode: fixed
           times:
-            default_date: false
-            date: ''
+            default_date: true
+            date: '2018-12-01'
           left: 'today prev,next'
           center: title
           right: 'listYear month agendaWeek agendaDay '
           timeformat: 'h:mm t'
           advanced: true
-          slotLabelFormat: 'h(:mm)a'
-          timeformatMonth: 'h(:mm)a'
-          timeformatWeek: 'h(:mm)a'
-          timeformatDay: 'h(:mm)a'
+          slotLabelFormat: 'h(:mm)t'
+          timeformatMonth: 'h(:mm)t'
+          timeformatWeek: 'h(:mm)t'
+          timeformatDay: 'h(:mm)t'
           titleformatMonth: 'MMMM YYYY'
           titleformatWeek: 'MMM D YYYY'
           titleformatDay: 'MMMM D YYYY'
@@ -91,7 +91,8 @@ display:
             url: false
             url_field: title
             date: false
-            date_field: {  }
+            date_field:
+              field_event_date_range: field_event_date_range
           fullcalendar_options:
             minTime: '6'
             slotDuration: '00:30:00'
@@ -99,6 +100,7 @@ display:
             allDaySlot: true
             weekends: true
             lazyFetching: true
+            eventDurationEditable: true
             dragRevertDuration: 500
       row:
         type: fields

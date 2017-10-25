@@ -5,12 +5,10 @@ dependencies:
   config:
     - field.field.node.events.body
     - field.field.node.events.field_calendar_type
-    - field.field.node.events.field_event_date
     - field.field.node.events.field_event_date_range
     - field.field.node.events.field_event_group
     - node.type.events
   module:
-    - datetime
     - datetime_range
     - options
     - text
@@ -33,15 +31,6 @@ content:
     settings: {  }
     third_party_settings: {  }
     type: list_default
-    region: content
-  field_event_date:
-    weight: 104
-    label: above
-    settings:
-      format_type: medium
-      timezone_override: ''
-    third_party_settings: {  }
-    type: datetime_default
     region: content
   field_event_date_range:
     weight: 106

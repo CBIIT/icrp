@@ -25,6 +25,25 @@ h1 {
 h2 {
     margin-top: 0px;
 }
+/* Dialog Box*/
+table .event-table {
+    margin-bottom: 0px;
+}
+.event-table > thead > tr > th,
+.event-table > tbody > tr > th,
+.event-table > tfoot > tr > th,
+.event-table > thead > tr > td,
+.event-table > tbody > tr > td,
+.event-table > tfoot > tr > td {
+    border-top: 0px;
+}
+.event-table td:first-child {
+    font-weight: bold;
+}
+h4.modal-title > .fc-event-default {
+    font-size:20px;
+}
+
 /* Full Calendar */
 div.fullcalendar > div > div.fc-center > h2 {
     color:#222222;

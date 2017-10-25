@@ -1,6 +1,26 @@
 (function ($) {
-  Drupal.behaviors.myModuleBehavior = {
+  /*
+  Drupal.fullcalendar.plugins.fullcalendar = {
+    options: function (fullcalendar, settings) {
+      if (settings.ajax) {
+        fullcalendar.submitInit(settings);
+      }
+      var options = {
+        eventClick: function (event, jsEvent, view) {
+          if (settings.sameWindow) {
+            //window.open(event.url, '_self');
+            var href = "/events/581";
+
+            }
+          }
+      }
+    }
+  }
+  */
+  Drupal.behaviors.icrpBehavior = {
     attach: function (context, settings) {
+      //console.dir(context);
+      //console.dir(settings);
       //$('h2').css('color', 'red');
       $("#edit-keys").attr("placeholder", "Search Website");
       $("#views-bootstrap-sideshow-block-1 > div.carousel-inner > div.item").click(function(e) {
@@ -11,6 +31,86 @@
           console.info("You clicked on Caption");
           $.redirectCarousel(e);
       });
+      $("#dialog").dialog({
+        autoOpen: false,
+        resizable: true,
+        width: "auto",
+        show: {
+          effect: "blind",
+          duration: 1000
+        },
+        hide: {
+          effect: "explode",
+          duration: 1000
+        }
+
+      });
+      $("#dialog-form").dialog({
+        modal: true,
+        autoOpen: false,
+        resizable: false,
+        width: "auto",
+        show: {
+          effect: "blind",
+          duration: 1000
+        },
+        hide: {
+          effect: "explode",
+          duration: 1000
+        },  
+        buttons: [{
+          text: "Edit Event",
+            click: function() {
+              $( this ).dialog( "close" );
+              window.location.href = '/node/585/edit?destination=/calendar';
+            }
+          // Uncommenting the following line would hide the text,
+          // resulting in the label being used as a tooltip
+          //showText: false
+         }]
+      });
+
+      $("#dialog-form .ui-dialog-titlebar").hide();
+        buttons: [
+    {
+      text: "Ok",
+      icon: "ui-icon-heart",
+      click: function() {
+        $( this ).dialog( "close" );
+      }
+ 
+      // Uncommenting the following line would hide the text,
+      // resulting in the label being used as a tooltip
+      //showText: false
+    }
+  ]
+      /*
+      $('body .fullcalendar').on('click', 'a', function() {
+          alert( $(this).attr('href') );
+      });
+      */
+      //$('body .fullcalendar').on('click', 'a', function() {
+
+      //$("body").on(".fullcalendar a", function(e) {
+        /*
+      $('.fullcalendar').on('click', 'a', function(e) {
+        //alert( $(this).attr('href') );
+        e.preventDefault();
+        e.stopPropagation();
+        //$("#dialog-form").html("<img src='" + $(this).prop("href") + "' width='" + $(this).attr("data-width") + "' height='" + $(this).attr("data-height") + "'>");
+        $("#dialog-form").dialog("option", "position", {
+          my: "center",
+          at: "center",
+          of: window
+        });
+
+        if ($("#dialog-form").dialog("isOpen") == false) {
+          $("#dialog-form").dialog("open");
+        }
+      });
+      */
+
+      //uid = Drupal.settings.currentUser;
 
       //alert(window.location.pathname);
       /*

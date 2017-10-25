@@ -162,30 +162,56 @@
         {# Content #}
         {% block content %}
           <a id="main-content"></a>
-<div>
-  <h1>ICRP Calendar</h1>
-  <ul class="nav nav-tabs"><li class="active">
-    <a data-toggle="tab" href="#meetings">Partner Meetings</a>
-  </li>
-  <li>
-    <a data-toggle="tab" href="#external_events">External Events</a>
-  </li>
-  </ul>
-  <div class="tab-content partner-content">
-    <div id="meetings" class="tab-pane fade in active">
-        <p>Please click on the events in the calendar for webinar joining details, links to agendas, documents etc.</p>
-        <p>{{ drupal_view('full_calendar_meetings','block_1') }}</p>
-        <p>{{ drupal_block('fullcalendarmeetinglegend') }}</p>
-    </div>
-    <div id="external_events" class="tab-pane fade in">
-        <p>Please feel free to add any events, awareness days or communications that would be of interest to the partners.</p>
-        <p>{{ drupal_view('full_calendar_external_events','block_1', 'year=2013&month=7') }}</p>
-    </div>
-  </div>
-</div>
+          {% if logged_in == true %}
+            <h1>ICRP Calendar</h1>
+            <ul class="nav nav-tabs"><li class="active">
+              <a data-toggle="tab" href="#meetings">Partner Meetings</a>
+            </li>
+            <li>
+              <a data-toggle="tab" href="#external_events">External Events</a>
+            </li>
+            </ul>
+            <div class="tab-content partner-content">
+              <div id="meetings" class="tab-pane fade in active">
+                  <p>Please click on the events in the calendar for webinar joining details, links to agendas, documents etc.</p>
+                  <p>{{ drupal_view('full_calendar_meetings','block_1') }}</p>
+                  <p>{{ drupal_block('fullcalendarmeetinglegend') }}</p>
+              </div>
+              <div id="external_events" class="tab-pane fade in">
+                  <p>Please feel free to add any events, awareness days or communications that would be of interest to the partners.</p>
+                  <p>{{ drupal_view('full_calendar_external_events','block_1', 'year=2013&month=7') }}</p>
+              </div>
+            </div>
+          </div>
+            <!-- Modal -->
+            <div class="modal fade" id="myModal" role="dialog">
+              <div class="modal-dialog">
+              
+                <!-- Modal content-->
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Modal Header</h4>
+                  </div>
+                  <div class="modal-body">
+                    <p>Some text in the modal.</p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+                
+              </div>
+            </div>
+
+          {% else %}
+          <div class="region region-content">
+            The requested page could not be found.
+          </div>
+
+          {% endif %}
 
         {% endblock %}
-      </section>
 
       {# Sidebar Second #}
       {% if page.sidebar_second %}

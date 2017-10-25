@@ -1,8 +1,8 @@
 global-styling:
   css:
     theme:
-      https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css: {type: external, minified: true}
-      https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css: {type: external, minified: false}
+      https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css: {type: external, minified: true}
+      https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/start/jquery-ui.min.css: {type: external, minified: true}
       css/bootstrap-yeti-navbar.css: {}
       css/fullcalendar-overrides.css: {}
       css/style.css: {}
@@ -18,4 +18,5 @@ global-scripts:
     js/scripts.js: {}
   dependencies:
     - core/jquery
+    - core/jquery.ui
     - core/jquery.ui.dialog

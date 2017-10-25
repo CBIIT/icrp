@@ -30,3 +30,11 @@ icrp.partner_application_review:
   requirements:
     _role: 'authenticated+admin'    
     _role: 'authenticated+manager'
+
+icrp.modal_route:
+  path: /events/{nid}
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::getNodeAsModal'
+  requirements:
+    _format: 'html'
+    _access: 'TRUE'

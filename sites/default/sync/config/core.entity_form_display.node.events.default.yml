@@ -5,7 +5,6 @@ dependencies:
   config:
     - field.field.node.events.body
     - field.field.node.events.field_calendar_type
-    - field.field.node.events.field_event_date
     - field.field.node.events.field_event_date_range
     - field.field.node.events.field_event_group
     - node.type.events
@@ -49,7 +48,6 @@ content:
 hidden:
   created: true
   field_calendar_type: true
-  field_event_date: true
   path: true
   promote: true
   sticky: true
