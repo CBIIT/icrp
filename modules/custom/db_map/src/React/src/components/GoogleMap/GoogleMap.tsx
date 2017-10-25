@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { DEFAULT_OPTIONS, LABELED_MAP, UNLABELED_MAP } from '../../services/MapConstants';
 import { createLabel, createDataMarker, createInfoWindow, mapLabels } from '../../services/MapHelpers';
-import { getNextLocationFilters, Location, ViewLevel, LocationFilters } from '../../services/DataService';
-import { MarkerClusterer } from './MarkerClusterer';
+import { getNextLocationFilters, Location, ViewLevel, LocationFilters, LocationCounts } from '../../services/DataService';
+import { LocationClusterer } from './LocationClusterer';
 import './GoogleMap.css';
 
 export interface GoogleMapProps {
@@ -18,218 +18,245 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
   map: google.maps.Map;
   mapContainer: HTMLDivElement | null = null;
-
-  markerClusterer: MarkerClusterer
+  clusterer: LocationClusterer<Location>;
 
   locations: Location[];
   markers: google.maps.Marker[] = [];
   labels: google.maps.Marker[] = [];
   infoWindows: google.maps.InfoWindow[] = [];
+  shouldRedraw: boolean = false;
 
   async componentDidMount() {
     this.map = new google.maps.Map(this.mapContainer, DEFAULT_OPTIONS);
-    this.markerClusterer = new MarkerClusterer(this.map);
+    this.clusterer = new LocationClusterer(this.map);
 
-    this.map.addListener('click', () => {
+    this.map.addListener('click', (event: google.maps.MouseEvent) => {
       this.infoWindows.forEach(window => window.close());
+      console.log(event.latLng.lat(), event.latLng.lng());
     });
+
+    this.map.addListener('zoom_changed', () => {
+      console.log('zoom changed')
+      if (this.shouldRedraw) {
+        this.redrawMap();
+      }
+
+      else {
+        this.shouldRedraw = true;
+      }
+    })
   }
 
-  componentWillReceiveProps({ viewLevel, locations, locationFilters, showDataLabels, showMapLabels }: GoogleMapProps) {
+  componentWillReceiveProps(props: GoogleMapProps) {
+    this.props = props;
 
-    if (this.map !== null && locations !== this.locations) {
+    if (this.map !== null && props.locations !== this.locations) {
+      this.redrawMap();
+    }
+  }
 
+
+  redrawMap() {
+    const { viewLevel, locations, locationFilters, showDataLabels, showMapLabels, onSelect } = this.props;
+    const map = this.map;
+
+    if (this.map !== null) {
       this.locations = locations;
 
-      let map = this.map;
       let bounds = new google.maps.LatLngBounds();
-      let dataMarkerSize = locations.length > 10 ? 22 : 30;
-      let { onSelect} = this.props;
 
-      // clear all markers
-      this.markerClusterer.clearMarkers();
+      let dataMarkerScale = Math.floor(Math.log10(
+        Math.max(... locations.map(location => location.counts.projects))
+      ));
 
-      // clear all labels
-      this.labels.forEach(label => {
-        label.setMap(null);
-      });
+///      let dataMarkerSize = dataMarkerScale * 6;
+      let dataMarkerSize = 24 - 3.5 / dataMarkerScale;
 
-      this.labels = [];
-
-      // conditionally display map lables
+      // display google map labels if showMapLabels is true
       this.map.setOptions({
         styles: showMapLabels ? LABELED_MAP : UNLABELED_MAP
       });
 
-//      let numShownLocations = 0;
+      // clear all region labels
+      this.labels.forEach(label => label.setMap(null));
+      this.labels = [];
 
-/**
- * export interface Location {
-  label: string;
-  value: string;
-  coordinates: google.maps.LatLngLiteral;
-  counts: LocationCounts
-}
+      this.markers.forEach(marker => marker.setMap(null));
+      this.markers = [];
 
-/**
-
-export interface LocationFilters {
-  searchId: number;
-  type: ViewLevel;
-  region?: string;
-  country?: string;
-  city?: string;
-}
-
- */
-
-
-
+      this.clusterer.clearElements();
       locations.forEach(location => {
-        let { coordinates, counts } = location;
-        let marker = createDataMarker(counts.projects, dataMarkerSize, coordinates);
-        this.markerClusterer.addMarker(marker);
+        if (location.coordinates.lat != 0 && location.coordinates.lng != 0)
+          this.clusterer.addElement(location)
       });
 
-      this.markerClusterer.getClusters().forEach(cluster => {
+      this.clusterer.getClusters().forEach(cluster => {
+        let clusterLocations = cluster.get();
+        bounds.extend(cluster.getCenter());
 
-        let center = cluster.getCenter();
-        let marker = createDataMarker(Math.floor(Math.random() * 5), dataMarkerSize, center);
-        marker.setMap(map);
-        marker.addListener('dblclick', event =>
-          onSelect(
-            getNextLocationFilters({
-              label: 'US',
-              value: 'US',
-              coordinates: {lat: center.lat(), lng: center.lng()},
-              counts: {
-                projects: 0,
-                primaryInvestigators: 0,
-                collaborators: 0,
-              },
-            }, {
-              searchId: 0,
-              type: 'countries',
-              region: '1',
-            })
-          )
-        )
-      })
+        // show a single location
+        if (clusterLocations.length === 1) {
+          let location = clusterLocations[0];
+          let { coordinates, counts } = location;
+          let marker = createDataMarker(counts.projects, dataMarkerSize, coordinates);
+          marker.setMap(map);
 
-      createLabel;
-      createInfoWindow;
-      mapLabels;
-      getNextLocationFilters;
-      bounds;
-      onSelect;
+          // add an info window containing the data
+          let infoWindow = createInfoWindow(location);
 
-      // // for each location, do the following:
-      // locations.forEach((location: Location) => {
+          // store these references so we can delete them later
+          setTimeout(() => {
+            this.infoWindows.push(infoWindow);
+            this.markers.push(marker);
+          }, 0);
 
-      //   // extract label, data, and coordinates from location
-      //   let { coordinates, counts } = location;
+          // close all other info windows when this marker is clicked
+          marker.addListener('click', () => {
+            this.infoWindows.forEach(window => window.close());
+            infoWindow.open(map, marker);
+          });
 
-      //   if (coordinates.lat === 0 && coordinates.lng === 0)
-      //     return;
+          // open a new location when this is clicked
+          if (viewLevel !== 'institutions')
+            marker.addListener('dblclick', event => {
+              infoWindow.close();
+              onSelect(
+                getNextLocationFilters(location, locationFilters)
+              );
+            });
+        }
 
-      //   numShownLocations ++;
+        // show a clustered location
+        else if (clusterLocations.length > 1) {
+          let center = cluster.getCenter();
 
-      //   // expand the bounds for this map
-      //   bounds.extend(coordinates);
+          let counts = clusterLocations.reduce((acc: LocationCounts, location: Location) => {
+            const {projects, primaryInvestigators, collaborators} = location.counts;
 
-      //   // add a marker at the specified location
-      //   let marker = createDataMarker(counts.projects, dataMarkerSize, coordinates);
+            acc.projects += projects;
+            acc.primaryInvestigators += primaryInvestigators;
+            acc.collaborators += collaborators;
 
-      //   this.markerClusterer.addMarker(marker);
+            return acc;
+          }, {
+            projects: 0,
+            primaryInvestigators: 0,
+            collaborators: 0
+          });
 
-      //   // add an info window containing the data
-      //   let infoWindow = createInfoWindow(location);
+          let clusteredLocation: Location = {
+            label: `${clusterLocations.length} ${viewLevel}`,
+            value: '',
+            coordinates: {lat: center.lat(), lng: center.lng()},
+            counts: counts
+          };
 
-      //   // store these references so we can delete them later
-      //   setTimeout(() => {
-      //     this.infoWindows.push(infoWindow);
-      //     this.markers.push(marker);
-      //   }, 0);
+          let marker = createDataMarker(
+            counts.projects,
+            dataMarkerSize,
+            clusteredLocation.coordinates,
+            '#E08283',
+            '#F64747',
+          );
 
-      //   // close all other info windows when this marker is clicked
-      //   marker.addListener('click', () => {
-      //     this.infoWindows.forEach(window => window.close());
-      //     infoWindow.open(map, marker);
-      //   });
+          marker.setMap(map);
 
-      //   // open a new location when this is clicked
-      //   if (viewLevel !== 'institutions')
-      //     marker.addListener('dblclick', event => {
-      //       infoWindow.close();
-      //       onSelect(
-      //         getNextLocationFilters(location, locationFilters)
-      //       );
-      //     });
-      // });
+          // add an info window containing the data
+          let infoWindow = createInfoWindow(clusteredLocation);
 
-      // console.log(this.markerClusterer.getClusters());
+          // store these references so we can delete them later
+          setTimeout(() => {
+            this.infoWindows.push(infoWindow);
+            this.markers.push(marker);
+          }, 0);
 
-      // // if we are displaying data labels,
-      // // display them above the circles
-      // if (showDataLabels) {
-      //   mapLabels.forEach( ({coordinates, label}) => {
-      //     let latLng = new google.maps.LatLng(coordinates.lat, coordinates.lng);
-      //     let projection = map.getProjection();
+          // close all other info windows when this marker is clicked
+          marker.addListener('click', () => {
 
-      //     if (projection) {
-      //       let point = projection.fromLatLngToPoint(latLng);
-      //       point.y -= 10 / (this.map.getZoom() - 0.5);
+            let proj = map.getProjection();
+            let pos = marker.getPosition()
+            console.log(pos.lat(), pos.lng());
 
-      //       let labelCoordinates = map.getProjection().fromPointToLatLng(point);
+            let pt = proj.fromLatLngToPoint(pos);
+            console.log(pt);
 
+            console.log(cluster);
 
-      //       let labelMarker = createLabel(label, labelCoordinates);
-      //       labelMarker.setMap(map);
+            this.infoWindows.forEach(window => window.close());
+            infoWindow.open(map, marker);
+          });
 
-      //       window.setTimeout(() => this.labels.push(labelMarker), 0);
-      //     }
-      //   })
-      // }
+          marker.addListener('dblclick', event => {
+            infoWindow.close();
+            //map.setZoom(map.getZoom() + 1);
+            this.shouldRedraw = false;
+            map.fitBounds(cluster.getBounds())
+            this.redrawMap();
+          });
+        }
+      });
 
-      // map.fitBounds(bounds);
-      // map.setOptions({
-      //   maxZoom: 15
-      // });
+      // if we are displaying data labels,
+      // display them above the circles
+      if (showDataLabels) {
+        mapLabels.forEach( ({coordinates, label}) => {
+          let latLng = new google.maps.LatLng(coordinates.lat, coordinates.lng);
+          let projection = map.getProjection();
 
-      // if (viewLevel === 'regions') {
-      //   map.setCenter({
-      //     lat: 25,
-      //     lng: 0,
-      //   })
-      //   map.setOptions({
-      //     maxZoom: 4
-      //   })
-      //   map.setOptions({
-      //     minZoom: 2
-      //   })
-      //   map.setZoom(2);
-      // }
+          if (projection) {
+            let point = projection.fromLatLngToPoint(latLng);
+            point.y -= 10 / (this.map.getZoom() - 0.5);
 
-      // if (viewLevel === 'regions' && map.getZoom() > 3) {
-      //   map.setZoom(3);
-      // }
+            let labelCoordinates = map.getProjection().fromPointToLatLng(point);
+            let labelMarker = createLabel(label, labelCoordinates);
+            labelMarker.setMap(map);
 
-      // if (viewLevel === 'countries' && map.getZoom() > 5) {
-      //   map.setZoom(5);
-      // }
+            window.setTimeout(() => this.labels.push(labelMarker), 0);
+          }
+        })
+      }
 
-      // if (viewLevel === 'cities' && map.getZoom() > 7) {
-      //   map.setZoom(7);
-      // }
+    //   map.fitBounds(bounds);
+    //   this.shouldRedraw = false;
+    //   map.setOptions({
+    //     maxZoom: 15
+    //   });
 
-      // if (numShownLocations <= 1) {
-      //   map.setZoom(2);
-      //   map.setCenter({
-      //     lat: 25,
-      //     lng: 0,
-      //   })
-      // }
+    //   if (viewLevel === 'regions') {
+    //     this.shouldRedraw = false;
+    //     map.setCenter({
+    //       lat: 25,
+    //       lng: 0,
+    //     })
+    //     map.setOptions({
+    //       maxZoom: 4
+    //     })
+    //     map.setOptions({
+    //       minZoom: 2
+    //     })
+    //     this.shouldRedraw = false;
+    //     map.setZoom(2);
+    //   }
 
+    //   if (viewLevel === 'regions' && map.getZoom() > 3) {
+    //     map.setZoom(3);
+    //   }
+
+    //   if (viewLevel === 'countries' && map.getZoom() > 5) {
+    //     map.setZoom(5);
+    //   }
+
+    //   if (viewLevel === 'cities' && map.getZoom() > 7) {
+    //     map.setZoom(7);
+    //   }
+
+    //   if (false || true) {
+    //     map.setZoom(2);
+    //     map.setCenter({
+    //       lat: 25,
+    //       lng: 0,
+    //     })
+    //   }
     }
   }
 

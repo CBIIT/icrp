@@ -21,7 +21,12 @@ export const createLabel = (label: string, location: google.maps.LatLngLiteral |
     },
   });
 
-export const createDataMarker = (label: number, scale: number, location: google.maps.LatLngLiteral  | google.maps.LatLng) =>
+export const createDataMarker = (
+    label: number,
+    scale: number,
+    location: google.maps.LatLngLiteral  | google.maps.LatLng,
+    fillColor: string = '#2574A9',
+    strokeColor: string = '#52B3D9') =>
   new google.maps.Marker({
     position: location,
     zIndex: 2,
@@ -41,8 +46,8 @@ export const createDataMarker = (label: number, scale: number, location: google.
       scale: scale,
       fillOpacity: 0.6,
       strokeOpacity: 0.4,
-      fillColor: '#2574A9',
-      strokeColor: '#52B3D9',
+      fillColor: fillColor,
+      strokeColor: strokeColor,
       strokeWeight: 4,
     },
   });
