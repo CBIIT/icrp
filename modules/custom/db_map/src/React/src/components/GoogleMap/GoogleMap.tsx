@@ -216,8 +216,19 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         })
       }
 
-    //   map.fitBounds(bounds);
-    //   this.shouldRedraw = false;
+      this.shouldRedraw = false;
+
+      // bounds.extend({
+      //   lat: bounds.getNorthEast().lat() + 5,
+      //   lng: bounds.getNorthEast().lng() + 5
+      // });
+
+      // bounds.extend({
+      //   lat: bounds.getSouthWest().lat() - 5,
+      //   lng: bounds.getSouthWest().lng() - 5
+      // });
+
+      map.fitBounds(bounds);
     //   map.setOptions({
     //     maxZoom: 15
     //   });
