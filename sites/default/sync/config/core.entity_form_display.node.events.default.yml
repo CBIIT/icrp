@@ -7,6 +7,7 @@ dependencies:
     - field.field.node.events.field_calendar_type
     - field.field.node.events.field_event_date_range
     - field.field.node.events.field_event_group
+    - field.field.node.events.field_event_location
     - node.type.events
   module:
     - datetime_range
@@ -36,6 +37,14 @@ content:
     settings: {  }
     third_party_settings: {  }
     type: options_select
+    region: content
+  field_event_location:
+    weight: 26
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
     region: content
   title:
     type: string_textfield

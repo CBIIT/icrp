@@ -918,7 +918,7 @@ function icrp_preprocess_menu_local_action(&$variables) {
 function icrp_preprocess_node(&$variables) {
   // Exit if node type is not a forum
   $node = $variables['node'];
-  drupal_set_message($node->getType()); 
+  //drupal_set_message($node->getType()); 
   //dump($node);
   if($node->getType() == "events") {
     $variables['smart_date_range'] = 'Improved smart date range';
@@ -1079,8 +1079,8 @@ function icrp_preprocess_forum_list(&$variables) {
 }
 
 function icrp_template_preprocess_default_variables_alter(&$variables) {
-  //$variables['icrp_debug'] = false;
-  $variables['icrp_debug'] = true;
+  $variables['icrp_debug'] = false;
+  //$variables['icrp_debug'] = true;
   //$variables['is_admin'] = 'Dont know';
   //drupal_set_message("We got something now");
   //var_dump($variables);

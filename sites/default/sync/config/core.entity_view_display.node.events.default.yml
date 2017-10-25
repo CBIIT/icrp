@@ -7,6 +7,7 @@ dependencies:
     - field.field.node.events.field_calendar_type
     - field.field.node.events.field_event_date_range
     - field.field.node.events.field_event_group
+    - field.field.node.events.field_event_location
     - node.type.events
   module:
     - datetime_range
@@ -21,35 +22,39 @@ content:
   body:
     label: hidden
     type: text_default
-    weight: 101
+    weight: 3
     settings: {  }
     third_party_settings: {  }
-    region: content
-  field_calendar_type:
-    weight: 102
-    label: above
-    settings: {  }
-    third_party_settings: {  }
-    type: list_default
     region: content
   field_event_date_range:
-    weight: 106
-    label: above
+    weight: 1
+    label: hidden
     settings:
-      separator: '-'
-      format_type: medium
       timezone_override: ''
+      date_format: 'F j, Y g:i A (T)'
+      separator: '-'
     third_party_settings: {  }
-    type: daterange_default
+    type: daterange_custom
     region: content
   field_event_group:
-    weight: 103
-    label: above
+    weight: 4
+    label: hidden
     settings: {  }
     third_party_settings: {  }
     type: list_default
     region: content
-  links:
-    weight: 100
+  field_event_location:
+    weight: 2
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
     region: content
-hidden: {  }
+  links:
+    weight: 0
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  field_calendar_type: true

@@ -1,0 +1,61 @@
+uuid: 6bd4d645-fd79-4a67-a787-6640d43e3899
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.node.full
+    - field.field.node.events.body
+    - field.field.node.events.field_calendar_type
+    - field.field.node.events.field_event_date_range
+    - field.field.node.events.field_event_group
+    - field.field.node.events.field_event_location
+    - node.type.events
+  module:
+    - datetime_range
+    - options
+    - text
+    - user
+id: node.events.full
+targetEntityType: node
+bundle: events
+mode: full
+content:
+  body:
+    label: hidden
+    type: text_default
+    weight: 3
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  field_event_date_range:
+    weight: 1
+    label: hidden
+    settings:
+      timezone_override: ''
+      date_format: 'F j, Y g:i A (T)'
+      separator: '-'
+    third_party_settings: {  }
+    type: daterange_custom
+    region: content
+  field_event_group:
+    weight: 4
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    type: list_default
+    region: content
+  field_event_location:
+    type: string
+    weight: 2
+    region: content
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+  links:
+    weight: 0
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  field_calendar_type: true
