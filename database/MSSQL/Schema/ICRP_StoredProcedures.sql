@@ -4168,7 +4168,11 @@ AS
 	SELECT City, Country, State, Count(*) AS Count INTO #collab FROM (SELECT City, Country, State, ProjectFundingID FROM #tmp WHERE IsPrincipalInvestigator=0) collab GROUP BY Country, City, State
 
 	-- Return RelatedProject Count, PI Count and collaborator Count by region
-	SELECT p.City + ' ' + ISNULL(p.State, '') , ISNULL(p.Count, 0) AS TotalRelatedProjectCount, ISNULL(pi.Count,0) AS TotalPICount, ISNULL(c.Count, 0) AS TotalCollaboratorCount, city.Latitude, city.Longitude
+	SELECT 
+	CASE ISNULL(p.State, '')
+		WHEN '' THEN p.City	ELSE p.City + ', ' + ISNULL(p.State, '') 
+	END AS City,
+	ISNULL(p.Count, 0) AS TotalRelatedProjectCount, ISNULL(pi.Count,0) AS TotalPICount, ISNULL(c.Count, 0) AS TotalCollaboratorCount, city.Latitude, city.Longitude
 	FROM #proj p
 		--JOIN Country ctry ON ctry.Abbreviation = p.City
 		LEFT JOIN #pi  pi ON p.City = pi.City
