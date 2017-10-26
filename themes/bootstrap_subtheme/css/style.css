@@ -41,6 +41,7 @@ table .event-table {
     font-weight: bold;
 }
 .event-table img {
+    display:block;
     max-width: 100%;
     height:auto;
 }

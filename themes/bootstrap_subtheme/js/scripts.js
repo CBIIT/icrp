@@ -22,6 +22,7 @@
   Drupal.behaviors.icrpBehavior = {
     attach: function (context, settings) {
       //alert("Your document is ready.  ");
+      /*
       $(window).load(function() {
        // executes when complete page is fully loaded, including all frames, objects and images
         var calendar_ids = Object.keys(Drupal.fullcalendar.cache);
@@ -39,28 +40,8 @@
         console.log("Here is the meeting calendar");
         //console.dir(fullcalendar_meeting);
         //fullcalendar_meeting.fullCalendar('next');
-        /*
-        fullcalendar_meeting.fullCalendar({
-    events: [
-        {
-            title  : 'event1',
-            start  : '2018-01-01'
-        },
-        {
-            title  : 'event2',
-            start  : '2018-01-05',
-            end    : '2018-01-07'
-        },
-        {
-            title  : 'event3',
-            start  : '2018-01-09T12:30:00',
-            allDay : false // will make the time show
-        }
-    ]
-});
-*/
       });
-
+      */
 
       // Get calendar id
       /*
@@ -99,6 +80,7 @@
           console.info("You clicked on Caption");
           $.redirectCarousel(e);
       });
+      /*
       $("#dialog").dialog({
         autoOpen: false,
         resizable: true,
@@ -140,18 +122,19 @@
 
       $("#dialog-form .ui-dialog-titlebar").hide();
         buttons: [
-    {
-      text: "Ok",
-      icon: "ui-icon-heart",
-      click: function() {
-        $( this ).dialog( "close" );
-      }
- 
-      // Uncommenting the following line would hide the text,
-      // resulting in the label being used as a tooltip
-      //showText: false
-    }
-  ]
+          {
+            text: "Ok",
+            icon: "ui-icon-heart",
+            click: function() {
+              $( this ).dialog( "close" );
+            }
+
+            // Uncommenting the following line would hide the text,
+            // resulting in the label being used as a tooltip
+            //showText: false
+          }
+        ]
+      */
       /*
       $('body .fullcalendar').on('click', 'a', function() {
           alert( $(this).attr('href') );
@@ -242,8 +225,22 @@
              // $('#external_events > div > div.fullcalendar').fullCalendar('render');
               $('.fc-today-button').click();
           });
-          if(!$('#add-event-meeting').length)
-            $('div.view-full-calendar-meetings > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-event-meeting" style="margin-top:7px;"><a href="/node/add/events?calendar_type=ICRP Meeting">+ Add Event</a></span>');
+          //console.log("Calendar Page");
+          if(!$('#add-event-meeting').length) {
+            var href = "/user-roles";
+            $.ajax({
+                url:  href
+            })
+            .success(function( data ) {
+              //console.log("data returned")
+              //console.dir(data);
+              var roles = JSON.parse(data);
+              //console.dir(roles);
+              if(!$('#add-event-meeting').length && (($.inArray("administrator", roles)>=0) || ($.inArray("manager", roles)>=0)))
+                  $('div.view-full-calendar-meetings > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-event-meeting" style="margin-top:7px;"><a href="/node/add/events?calendar_type=ICRP Meeting">+ Add Event</a></span>');
+            });
+          }
+
           if(!$('#add-external-event').length)
             $('div.view-full-calendar-external-events > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-external-event" style="margin-top:7px;"><a href="/node/add/events?calendar_type=External Event">+ Add Event</a></span>');
 

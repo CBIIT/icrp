@@ -67,4 +67,34 @@ class IcrpController extends ControllerBase {
         return $response;
 
     }
+    /**
+    * @return JsonResponse
+    */
+    public function getUserRoles() {
+        $uid = \Drupal::currentUser()->id();
+        $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+        $roles = array();
+        if($user->hasRole('administrator')){
+            $roles[] = "administrator";
+        }
+        if($user->hasRole('manager')){
+            $roles[] = "manager";
+        }
+        if($user->hasRole('partner')){
+            $roles[] = "partner";
+        }
+
+        //dump($nid);
+        //$node = Node::load($nid);
+        //$view = node_view($node,'full');
+        //$html = render($view);
+        //$roles = array("partner");
+        //$roles = array("partner", "manager");
+        $html = json_encode($roles, true);
+
+        $response = new JsonResponse($html);
+
+        return $response;
+
+    }
 }
