@@ -1,16 +1,15 @@
-uuid: 1aa3613f-f35e-4a8a-9f26-b6b30d2d29a3
+uuid: 40d38ba0-2343-4668-a0e2-9863b4ca805a
 langcode: en
 status: true
 dependencies:
   config:
     - field.field.node.events.body
     - field.field.node.events.field_calendar_type
-    - field.field.node.events.field_event_date
     - field.field.node.events.field_event_date_range
     - field.field.node.events.field_event_group
+    - field.field.node.events.field_event_location
     - node.type.events
   module:
-    - datetime
     - datetime_range
     - options
     - text
@@ -23,44 +22,39 @@ content:
   body:
     label: hidden
     type: text_default
-    weight: 101
+    weight: 3
     settings: {  }
     third_party_settings: {  }
-    region: content
-  field_calendar_type:
-    weight: 102
-    label: above
-    settings: {  }
-    third_party_settings: {  }
-    type: list_default
-    region: content
-  field_event_date:
-    weight: 104
-    label: above
-    settings:
-      format_type: medium
-      timezone_override: ''
-    third_party_settings: {  }
-    type: datetime_default
     region: content
   field_event_date_range:
-    weight: 106
-    label: above
+    weight: 1
+    label: hidden
     settings:
-      separator: '-'
-      format_type: medium
       timezone_override: ''
+      date_format: 'F j, Y g:i A (T)'
+      separator: '-'
     third_party_settings: {  }
-    type: daterange_default
+    type: daterange_custom
     region: content
   field_event_group:
-    weight: 103
-    label: above
+    weight: 4
+    label: hidden
     settings: {  }
     third_party_settings: {  }
     type: list_default
     region: content
-  links:
-    weight: 100
+  field_event_location:
+    weight: 2
+    label: hidden
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
     region: content
-hidden: {  }
+  links:
+    weight: 0
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+hidden:
+  field_calendar_type: true

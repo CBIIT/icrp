@@ -16,4 +16,4 @@ scrollTime: 0
 slotDuration: 1
 defaultTimedEventDuration: 1
 'eventStartEditable ': 0
-eventDurationEditable: 0
+eventDurationEditable: 1

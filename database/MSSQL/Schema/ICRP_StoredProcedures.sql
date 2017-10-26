@@ -4156,30 +4156,34 @@ AS
 			JOIN ProjectFunding f ON r.ProjectID = f.ProjectID			
 	END
 
-	SELECT i.City, pf.ProjectFundingID, p.IsPrincipalInvestigator INTO #tmp
+	SELECT i.Country, i.City, i.State, pf.ProjectFundingID, p.IsPrincipalInvestigator INTO #tmp
 		FROM @funding pf
 			JOIN ProjectFundingInvestigator p ON pf.ProjectFundingID = p.ProjectFundingID
 			JOIN Institution i ON p.InstitutionID = i.InstitutionID
 			JOIN Country c ON i.Country = c.Abbreviation			
 		WHERE c.RegionID = @RegionID AND c.Abbreviation = @Country
 
-	SELECT City, Count(*) AS Count INTO #proj FROM (SELECT DISTINCT City, ProjectFundingID FROM #tmp) proj GROUP BY City
-	SELECT City, Count(*) AS Count INTO #pi FROM (SELECT City, ProjectFundingID FROM #tmp WHERE IsPrincipalInvestigator=1) p GROUP BY City
-	SELECT City, Count(*) AS Count INTO #collab FROM (SELECT City, ProjectFundingID FROM #tmp WHERE IsPrincipalInvestigator=0) collab GROUP BY City
+	SELECT City, Country, State, Count(*) AS Count INTO #proj FROM (SELECT DISTINCT City, Country, State, ProjectFundingID FROM #tmp) proj GROUP BY Country, City, State
+	SELECT City, Country, State, Count(*) AS Count INTO #pi FROM (SELECT City, Country, State, ProjectFundingID FROM #tmp WHERE IsPrincipalInvestigator=1) p GROUP BY Country, City, State
+	SELECT City, Country, State, Count(*) AS Count INTO #collab FROM (SELECT City, Country, State, ProjectFundingID FROM #tmp WHERE IsPrincipalInvestigator=0) collab GROUP BY Country, City, State
 
 	-- Return RelatedProject Count, PI Count and collaborator Count by region
-	SELECT p.City, ISNULL(p.Count, 0) AS TotalRelatedProjectCount, ISNULL(pi.Count,0) AS TotalPICount, ISNULL(c.Count, 0) AS TotalCollaboratorCount, city.Latitude, city.Longitude
+	SELECT 
+	CASE ISNULL(p.State, '')
+		WHEN '' THEN p.City	ELSE p.City + ', ' + ISNULL(p.State, '') 
+	END AS City,
+	ISNULL(p.Count, 0) AS TotalRelatedProjectCount, ISNULL(pi.Count,0) AS TotalPICount, ISNULL(c.Count, 0) AS TotalCollaboratorCount, city.Latitude, city.Longitude
 	FROM #proj p
 		--JOIN Country ctry ON ctry.Abbreviation = p.City
-		LEFT JOIN #pi  pi ON p.City = pi.City
-		LEFT JOIN #collab c ON c.City = pi.City		
-		LEFT JOIN lu_City city ON city.Country = @Country AND city.Name = pi.CIty
+		LEFT JOIN #pi  pi ON p.City = pi.City AND ISNULL(p.State, '')  = ISNULL(pi.State, '')
+		LEFT JOIN #collab c ON c.City = pi.City	AND ISNULL(p.State, '')  = ISNULL(pi.State, '')
+		LEFT JOIN lu_City city ON city.Country = @Country AND city.Name = pi.CIty AND ISNULL(city.State, '')  = ISNULL(pi.State, '')
 	ORDER BY p.Count DESC
 
 	SELECT @AggregatedProjectCount= Count(*) FROM (SELECT DISTINCT ProjectFundingID FROM #tmp) proj
 	SELECT @AggregatedPICount=SUM(Count) FROM #pi	
-	SELECT @AggregatedCollabCount=SUM(Count) FROM #collab		
-	
+	SELECT @AggregatedCollabCount=SUM(Count) FROM #collab	
+
 GO	
 
 ----------------------------------------------------------------------------------------------------------
@@ -4392,7 +4396,7 @@ CREATE PROCEDURE [dbo].[GetMapLayerLegend]
 	@MapLayerID	INT
 AS   
 
-	SELECT MapLayerLegendID, LegendName FROM lu_MapLayerLegend WHERE MapLayerID = @MapLayerID
+	SELECT MapLayerLegendID, LegendName, LegendColor FROM lu_MapLayerLegend WHERE MapLayerID = @MapLayerID
 	ORDER BY DisplayOrder
 		
 GO

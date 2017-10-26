@@ -2,7 +2,13 @@
 
 namespace Drupal\icrp\Controller;
 
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\OpenDialogCommand;
+use Drupal\Core\Ajax\OpenModalDialogCommand;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\node\Entity\Node;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class IcrpController extends ControllerBase {
 
@@ -37,15 +43,58 @@ class IcrpController extends ControllerBase {
         );
     }
 
-  public function dbSearch() {
-    return array(
-      '#type' => 'markup',
-      '#markup' => t('<app-root>Loading...</app-root>'),
-      '#attached' => array(
-        'library' => array(
-          'hello_world/custom'
-        ),
-      ),
-    );
-  }
+    public function dbSearch() {
+        return array(
+          '#type' => 'markup',
+          '#markup' => t('<app-root>Loading...</app-root>'),
+          '#attached' => array(
+            'library' => array(
+              'hello_world/custom'
+            ),
+          ),
+        );
+    }
+    /**
+    * @return JsonResponse
+    */
+    public function getNodeAsModal($nid) {
+        //dump($nid);
+        $node = Node::load($nid);
+        $view = node_view($node,'full');
+        $html = render($view);
+        $response = new JsonResponse($html);
+
+        return $response;
+
+    }
+    /**
+    * @return JsonResponse
+    */
+    public function getUserRoles() {
+        $uid = \Drupal::currentUser()->id();
+        $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+        $roles = array();
+        if($user->hasRole('administrator')){
+            $roles[] = "administrator";
+        }
+        if($user->hasRole('manager')){
+            $roles[] = "manager";
+        }
+        if($user->hasRole('partner')){
+            $roles[] = "partner";
+        }
+
+        //dump($nid);
+        //$node = Node::load($nid);
+        //$view = node_view($node,'full');
+        //$html = render($view);
+        //$roles = array("partner");
+        //$roles = array("partner", "manager");
+        $html = json_encode($roles, true);
+
+        $response = new JsonResponse($html);
+
+        return $response;
+
+    }
 }

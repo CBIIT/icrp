@@ -36,6 +36,7 @@ funding_org_resources:
       src/assets/css/main.fundingorg.css: {}
   js:
     src/assets/js/main.fundingorg.js: {}
+    src/assets/js/main.fundingorg.notreact.js: {}
 
 upload_status_report_resources:
   version: 1.0
@@ -45,3 +46,10 @@ upload_status_report_resources:
       src/assets/css/main.fundingorg.css: {}
   js:
     src/assets/js/main.fundingorg.js: {}
+
+current_partners_resources:
+  version: 1.0
+  js:
+    src/assets/js/main.currentpartnersview.js: {}
+  dependencies:
+    - db_project_view/resources

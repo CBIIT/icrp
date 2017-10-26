@@ -1,6 +1,75 @@
 (function ($) {
-  Drupal.behaviors.myModuleBehavior = {
+  /*
+  Drupal.fullcalendar.plugins.fullcalendar = {
+    options: function (fullcalendar, settings) {
+      if (settings.ajax) {
+        fullcalendar.submitInit(settings);
+      }
+      var options = {
+        eventClick: function (event, jsEvent, view) {
+          if (settings.sameWindow) {
+            //window.open(event.url, '_self');
+            var href = "/events/581";
+            alert("This is the global script.js I have access too");
+
+
+            }
+          }
+      }
+    }
+  }
+  */
+  Drupal.behaviors.icrpBehavior = {
     attach: function (context, settings) {
+      //alert("Your document is ready.  ");
+      /*
+      $(window).load(function() {
+       // executes when complete page is fully loaded, including all frames, objects and images
+        var calendar_ids = Object.keys(Drupal.fullcalendar.cache);
+        console.dir(calendar_ids);
+        console.log(calendar_ids[0]);
+        console.log(calendar_ids[1]);
+        var meeting_calendar = $(calendar_ids[1]);
+        console.dir(meeting_calendar);
+        var view = meeting_calendar.fullCalendar('getView');
+        console.dir(view);
+        window.view = view;
+        //alert("The view's title is " + view.title);
+        //var fullcalendar_meeting = meeting_calendar;
+
+        console.log("Here is the meeting calendar");
+        //console.dir(fullcalendar_meeting);
+        //fullcalendar_meeting.fullCalendar('next');
+      });
+      */
+
+      // Get calendar id
+      /*
+      var calendar_ids = Object.keys(Drupal.fullcalendar.cache);
+      console.dir(calendar_ids);
+      console.log(calendar_ids[0]);
+      console.log(calendar_ids[1]);
+      var meeting_calendar = $(calendar_ids[0]);
+      console.dir(meeting_calendar);
+      var fullcalendar_meeting = meeting_calendar.fullCalendar({});
+
+      console.log("Here is the meeting calendar");
+      console.dir(fullcalendar_meeting);
+      alert("About to go next");
+      setTimeout(function(){  
+         alert("Hello"); 
+        fullcalendar_meeting.fullCalendar('next');
+       }, 3000);
+       */
+
+//      meeting_calendar.fullCalendar('next');
+
+      // Set it to a variable.
+      // Create an eventClick object
+      // Write the object to the fullcalendar object.
+
+      //console.dir(context);
+      //console.dir(settings);
       //$('h2').css('color', 'red');
       $("#edit-keys").attr("placeholder", "Search Website");
       $("#views-bootstrap-sideshow-block-1 > div.carousel-inner > div.item").click(function(e) {
@@ -11,6 +80,88 @@
           console.info("You clicked on Caption");
           $.redirectCarousel(e);
       });
+      /*
+      $("#dialog").dialog({
+        autoOpen: false,
+        resizable: true,
+        width: "auto",
+        show: {
+          effect: "blind",
+          duration: 1000
+        },
+        hide: {
+          effect: "explode",
+          duration: 1000
+        }
+
+      });
+      $("#dialog-form").dialog({
+        modal: true,
+        autoOpen: false,
+        resizable: false,
+        width: "auto",
+        show: {
+          effect: "blind",
+          duration: 1000
+        },
+        hide: {
+          effect: "explode",
+          duration: 1000
+        },  
+        buttons: [{
+          text: "Edit Event",
+            click: function() {
+              $( this ).dialog( "close" );
+              window.location.href = '/node/585/edit?destination=/calendar';
+            }
+          // Uncommenting the following line would hide the text,
+          // resulting in the label being used as a tooltip
+          //showText: false
+         }]
+      });
+
+      $("#dialog-form .ui-dialog-titlebar").hide();
+        buttons: [
+          {
+            text: "Ok",
+            icon: "ui-icon-heart",
+            click: function() {
+              $( this ).dialog( "close" );
+            }
+
+            // Uncommenting the following line would hide the text,
+            // resulting in the label being used as a tooltip
+            //showText: false
+          }
+        ]
+      */
+      /*
+      $('body .fullcalendar').on('click', 'a', function() {
+          alert( $(this).attr('href') );
+      });
+      */
+      //$('body .fullcalendar').on('click', 'a', function() {
+
+      //$("body").on(".fullcalendar a", function(e) {
+        /*
+      $('.fullcalendar').on('click', 'a', function(e) {
+        //alert( $(this).attr('href') );
+        e.preventDefault();
+        e.stopPropagation();
+        //$("#dialog-form").html("<img src='" + $(this).prop("href") + "' width='" + $(this).attr("data-width") + "' height='" + $(this).attr("data-height") + "'>");
+        $("#dialog-form").dialog("option", "position", {
+          my: "center",
+          at: "center",
+          of: window
+        });
+
+        if ($("#dialog-form").dialog("isOpen") == false) {
+          $("#dialog-form").dialog("open");
+        }
+      });
+      */
+
+      //uid = Drupal.settings.currentUser;
 
       //alert(window.location.pathname);
       /*
@@ -69,13 +220,27 @@
           $("#become-a-partner-wells").matchHeight(true);
           break;
         case "/calendar":
-          $('.fc-listYear-button').text('Year (list)');
+          $('.fc-listYear-button').text('Year');
           $('.nav-tabs a').on('shown.bs.tab', function(event){
              // $('#external_events > div > div.fullcalendar').fullCalendar('render');
               $('.fc-today-button').click();
           });
-          if(!$('#add-event-meeting').length)
-            $('div.view-full-calendar-meetings > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-event-meeting" style="margin-top:7px;"><a href="/node/add/events?calendar_type=ICRP Meeting">+ Add Event</a></span>');
+          //console.log("Calendar Page");
+          if(!$('#add-event-meeting').length) {
+            var href = "/user-roles";
+            $.ajax({
+                url:  href
+            })
+            .success(function( data ) {
+              //console.log("data returned")
+              //console.dir(data);
+              var roles = JSON.parse(data);
+              //console.dir(roles);
+              if(!$('#add-event-meeting').length && (($.inArray("administrator", roles)>=0) || ($.inArray("manager", roles)>=0)))
+                  $('div.view-full-calendar-meetings > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-event-meeting" style="margin-top:7px;"><a href="/node/add/events?calendar_type=ICRP Meeting">+ Add Event</a></span>');
+            });
+          }
+
           if(!$('#add-external-event').length)
             $('div.view-full-calendar-external-events > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-external-event" style="margin-top:7px;"><a href="/node/add/events?calendar_type=External Event">+ Add Event</a></span>');
 

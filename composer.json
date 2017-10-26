@@ -49,6 +49,7 @@
         "drupal/bootstrap": "3.6",
         "drupal/bootstrap_layouts": "5.0-alpha1@alpha",
         "drupal/bootstrap_modal_messages": "1.x-dev",
+        "drupal/calendar": "1.x-dev",
         "drupal/clientside_validation": "1.0-rc3@RC",
         "drupal/clientside_validation_jquery": "1.0-rc3@RC",
         "drupal/colorbox": "^1.4",

@@ -15,6 +15,8 @@ import {
 import Spinner from './SpinnerComponent';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
+import 'moment/locale/en-gb';
+
 const uuidV4 = require('uuid/v4');
 
 class UploadFormComponent extends Component {
@@ -38,9 +40,10 @@ class UploadFormComponent extends Component {
             submissionDate: '',
             submissionDateValid: true,
             submitDisabled: true,
-            loading: false
+            loading: false,
+            locales: [{ code: 'en-US', text: 'United States (mm/dd/yyyy)' }, { code: 'en-GB', text: 'United Kingdom (dd/mm/yyyy)' }],
+            chosenLocale: 'en-US'
         }
-
         this.getSponsorCodes();
     }
 
@@ -122,7 +125,7 @@ class UploadFormComponent extends Component {
 
     /** Resets the form */
     handleReset() {
-        this.setState({ uploadType: 'New', sponsorCode: '', sponsorCodeValid: true, submissionDate: '', submissionDateValid: true, fileId: '', submitDisabled: true, controlsDisabled: false, errorMessage: null });
+        this.setState({ uploadType: 'New', sponsorCode: '', sponsorCodeValid: true, submissionDate: '', submissionDateValid: true, fileId: '', submitDisabled: true, controlsDisabled: false, errorMessage: null, chosenLocale: 'en-US' });
         document.getElementById("fileId").value = null;
         this.resetParent();
     }
@@ -130,13 +133,14 @@ class UploadFormComponent extends Component {
     /** Form upload */
     async upload() {
         this.props.onLoadingStart();
-        this.setState({loading: true});
+        this.setState({ loading: true });
         var data = new FormData();
         var fileData = this.state.fileId;
         data.append('data', fileData, uuidV4() + '.csv');
         data.append("originalFileName", this.state.originalFileName);
         data.append('uploadType', this.state.uploadType);
         data.append('sponsorCode', this.state.sponsorCode);
+        data.append('locale', this.state.chosenLocale);
         var that = this;
         let protocol = window.location.protocol;
         let hostname = window.location.hostname;
@@ -158,13 +162,13 @@ class UploadFormComponent extends Component {
                 totalRows: totalRows,
                 totalPages: totalPages
             }
-            that.setState({ controlsDisabled: true, submitDisabled: true, loading: false });
+            that.setState({ controlsDisabled: true, submitDisabled: true, loading: false, errorMessage: null });
             that.updateParent(stats, columns, projects);
         } else {
             // response.status, response.statusText
             let message = await response.text();
             //that.handleReset();
-            this.setState({loading: false, errorMessage: message});
+            this.setState({ loading: false, errorMessage: message });
         }
     }
 
@@ -174,14 +178,14 @@ class UploadFormComponent extends Component {
                 {this.state.errorMessage &&
                     <Alert
                         bsStyle="danger"
-                        onDismiss={ev => this.setState({errorMessage: null})}>
-                        { this.state.errorMessage }
+                        onDismiss={ev => this.setState({ errorMessage: null })}>
+                        {this.state.errorMessage}
                     </Alert>}
                 <Spinner message="Loading Workbook..." visible={this.state.loading} />
                 <Panel onClick={this.handleClick}>
                     <Form horizontal>
                         {/* Left Panel */}
-                        <Col lg={4} md={5} xs={12}>
+                        <Col lg={4} xs={12}>
                             <FormGroup>
                                 {/*Upload Type*/}
                                 <Col componentClass={ControlLabel} xs={12} sm={4}>
@@ -223,39 +227,64 @@ class UploadFormComponent extends Component {
                         </Col>
 
                         {/* Middle Panel */}
-                        <Col lg={6} md={7} xs={12}>
+                        <Col lg={4} xs={12}>
                             <FormGroup>
                                 {/*Workbook selector*/}
-                                <Col componentClass={ControlLabel} xs={12} sm={4}>
+                                <Col componentClass={ControlLabel} xs={12} sm={4} lg={5}>
                                     <div className="no-wrap">Workbook File (.csv) <span className="red-text">*</span></div>
                                 </Col>
-                                <Col xs={12} sm={8}>
+                                <Col xs={12} sm={8} lg={7}>
                                     <FormControl id="fileId" name="fileId" accept=".csv" type="file" className="control-label" onChange={this.handleInputChange} disabled={this.state.controlsDisabled} />
                                 </Col>
                             </FormGroup>
 
                             <FormGroup validationState={this.state.submissionDateValid ? null : 'error'}>
                                 {/* Submission Date */}
-                                <Col componentClass={ControlLabel} xs={12} sm={4}>
+                                <Col componentClass={ControlLabel} xs={12} sm={4} lg={5}>
                                     <div className="no-wrap">Submission Date <span className="red-text">*</span></div>
                                 </Col>
-                                <Col xs={12} sm={8}>
+                                <Col xs={12} sm={8} lg={7}>
                                     <DatePicker
                                         selected={this.state.submissionDate}
                                         onChange={this.handleSubmissionDateChange}
                                         placeholderText="Click to select a date"
                                         disabled={this.state.controlsDisabled}
                                         className="form-control"
+                                        locale={this.state.chosenLocale}
                                     />
                                     {!this.state.submissionDateValid ? <HelpBlock>Submission Date must be on or before today's date</HelpBlock> : null}
 
                                 </Col>
+
                             </FormGroup>
+
                         </Col>
 
                         {/* Right Panel */}
-                        <Col lg={2} xs={12}>
-                            <div className="lower-buttons-40 text-center">
+                        <Col lg={4} xs={12}>
+                            <FormGroup>
+                                <Col componentClass={ControlLabel} xs={12} sm={4} lg={3}>
+                                    <div className="no-wrap">Date Format   </div>
+                                </Col>
+                                <Col xs={12} sm={8} lg={9}>
+                                    <FormControl
+                                        name="chosenLocale"
+                                        componentClass="select"
+                                        value={this.state.chosenLocale}
+                                        onChange={this.handleInputChange}
+                                        disabled={this.state.controlsDisabled}
+                                        required>
+                                        {
+                                            this.state.locales.map(locale => <option value={locale.code} selected={this.state.chosenLocale === locale.code}>{locale.text}</option>)
+                                        }
+                                    </FormControl>
+                                </Col>
+                            </FormGroup>
+                        </Col>
+
+                        {/* Button Row */}
+                        <Col lg={12} xs={12}>
+                            <div className="text-center padding-top">
                                 <Button className="horizontal-margin" onClick={this.upload} disabled={this.state.submitDisabled}>Load</Button>
                                 <Button className="horizontal-margin" onClick={this.handleReset}>Reset</Button>
                             </div>

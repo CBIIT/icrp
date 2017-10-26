@@ -919,6 +919,18 @@ function icrp_preprocess_node(&$variables) {
   // Exit if node type is not a forum
   $node = $variables['node'];
   //drupal_set_message($node->getType()); 
+  //dump($node);
+  if($node->getType() == "events") {
+    $variables['smart_date_range'] = 'Improved smart date range';
+    $event_group = $node->get('field_event_group')->value;
+    $event_group = $node->get('field_event_group')->value;
+    $find = array(" ", "/");
+    $event_id = strtolower(str_replace($find, "-", $event_group));
+    $class = 'fc-event-tid-' . $event_id;
+    $variables['title_prefix'] = '<span class="fc-event-default '.$class.'">';
+    $variables['title_suffix'] = '</span>';
+ }
+ //dump($variables);
   if($node->getType() != "forum") {
     return;
   }
@@ -1394,6 +1406,17 @@ function icrp_fullcalendar_options_info() {
       'weight' => 5,
     ),
   );
+}
+
+/**
+ * Implement hook_init
+ */
+function icrp_init() {
+  global $user;
+
+  dump($user);
+  
+  drupal_add_js(array('currentUser' => $user->uid), 'setting');
 }
 
 function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {

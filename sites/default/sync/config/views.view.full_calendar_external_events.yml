@@ -68,7 +68,7 @@ display:
             date: ''
           left: 'today prev,next'
           center: title
-          right: 'listYear month agendaWeek agendaDay'
+          right: 'listYear month agendaWeek'
           timeformat: 'h:mm t'
           advanced: true
           slotLabelFormat: 'h(:mm)a'
@@ -99,6 +99,7 @@ display:
             allDaySlot: true
             weekends: true
             lazyFetching: true
+            eventDurationEditable: true
             dragRevertDuration: 500
       row:
         type: fields

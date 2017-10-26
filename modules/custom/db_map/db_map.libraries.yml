@@ -26,6 +26,7 @@ map.layer:
   css:
     theme:
       src/assets/main.css: {}
+      src/assets/db_layer_map.css: {}
   js:
     src/assets/db_layer_map.js: {}
     src/assets/db_layer_map_controls.js: {}

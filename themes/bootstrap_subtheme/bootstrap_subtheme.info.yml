@@ -22,3 +22,8 @@ regions:
 libraries:
   - 'bootstrap_subtheme/global-styling'
   - 'bootstrap_subtheme/global-scripts'
+
+libraries-override:
+  drupal/fullcalendar:
+    js:
+      js/fullcalendar.fullcalendar.js: js/fullcalendar.fullcalendar.js

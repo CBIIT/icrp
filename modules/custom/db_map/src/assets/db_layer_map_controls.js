@@ -1,5 +1,5 @@
 $(document).ready(function(){
-  $('#db_layer_select').on('change',function(e) {
+  $('#layer_map_select').on('change',function(e) {
     e.preventDefault();
     var old = drupalSettings.db_map.layer.currLayer,
         val = this.value;
@@ -10,15 +10,8 @@ $(document).ready(function(){
       $.get({
         url: '/map/layer/data/'+val
       }).done(function(resp) {
-        var legendColors = {},
-            country = {};
-        resp.legend.forEach(function(entry) {
-          legendColors[entry.MapLayerLegendID] = entry.LegendColor;
-        });
-        resp.country.forEach(function(entry) {
-          country[entry.Country.trim()] = legendColors[entry.MapLayerLegendID];
-        });
-        drupalSettings.db_map.layer.update(resp.legend,country);
+        drupalSettings.db_map.layer.updateLegend(resp.legend);
+        drupalSettings.db_map.layer.updateLayers(resp.country);
       });
     }
     drupalSettings.db_map.layer.currLayer = val;
