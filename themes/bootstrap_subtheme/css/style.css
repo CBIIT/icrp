@@ -40,6 +40,11 @@ table .event-table {
 .event-table td:first-child {
     font-weight: bold;
 }
+.event-table img {
+    max-width: 100%;
+    height:auto;
+}
+
 #calendar-modal h4.modal-title > .fc-event-default {
     font-size:18px;
 }
