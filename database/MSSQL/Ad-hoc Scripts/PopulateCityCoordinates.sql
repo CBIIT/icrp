@@ -1,4 +1,4 @@
---drop table #CityCoordinates
+--drop table lu_CityCoordinates
 --GO
 -----------------------------------------
 -- Insert New Host Institutions
@@ -9,47 +9,61 @@ PRINT '*************************************************************************
 
 --SET NOCOUNT ON;  
 --GO 
-CREATE TABLE #CityCoordinates (	
-	[Country] varchar(2) NULL,
-	[City] varchar(250) NULL,
-	[CityAccent] varchar(250) NULL,
+CREATE TABLE lu_CityCoordinates (	
+	[Country] varchar(250) NULL,
+	[City] varchar(250) NULL,		
+	[CityAccent] varchar(250) NULL,	
+	[Region] varchar(250) NULL,
+	[Population] float NULL,
 	[Latitude] [decimal](9, 6) NULL,
-	[Longitude] [decimal](9, 6) NULL
+	[Longitude] [decimal](9, 6) NULL	
 )
 
 GO
 
+INSERT INTO lu_CityCoordinates SELECT DISTINCT Country, CAST(Name AS VARCHAR(250)), CAST(AccentName AS VARCHAR(250)), Region, Population, Latitude, Longitude FROM icrp_data.dbo.lu_City_Global
 
-BULK INSERT #CityCoordinates
-FROM 'C:\ICRP\database\DataImport\CurrentRelease\CityCoordinates3.csv'
-WITH
-(
-	FIRSTROW = 2,
-	DATAFILETYPE ='widechar',  -- unicode format
-	FIELDTERMINATOR = ',',
-	ROWTERMINATOR = '\n'
-)
-GO  
+UPDATE lu_CityCoordinates SET CityAccent='Montréal' WHERE Country = 'CA' AND CityAccent='montreal'
+UPDATE lu_CityCoordinates SET CityAccent='Québec' WHERE Country = 'CA' AND CityAccent='Quebec'
+UPDATE lu_CityCoordinates SET CityAccent='Zürich' WHERE Country = 'CH' AND CityAccent='Zurich'
+UPDATE lu_CityCoordinates SET CityAccent='Münster' WHERE Country = 'DE' AND CityAccent='Munster'
 
-UPDATE #CityCoordinates SET Country='UK' WHERE Country='GB'
-UPDATE #CityCoordinates SET Country='TW' WHERE City='Taipei'
+-- truncate table lu_City_Test
+INSERT INTO lu_City (Name, Country, State, Latitude, Longitude)   -- 847
+SELECT DISTINCT l.[CityAccent], l.Country, i.State, l.Latitude, l.Longitude 
+FROM (SELECT * FROM lu_CityCoordinates WHERE Country ='us') l
+JOIN Institution i ON l.Country = i.Country AND l.[CityAccent] = i.City AND ISNULL(l.Region, '') = ISNULL(i.State, '')
 
-INSERT INTO lu_City SELECT c.[CityAccent], c.Country, CAST(c.Latitude AS DECIMAL(9,6)), CAST(c.Longitude AS DECIMAL(9,6))	
-	FROM (SELECT Country, City, CityAccent, MIN([Latitude]) AS [Latitude], MIN([Longitude]) AS [Longitude] FROM #CityCoordinates GROUP BY Country, City, CityAccent) c
-	JOIN (SELECT DISTINCT Country, CIty FROM Institution) i ON c.country = i.country AND (c.City = i.city OR c.[CityAccent] = i.city)
+INSERT INTO lu_City (Name, Country, State, Latitude, Longitude)   -- 317
+SELECT DISTINCT l.[CityAccent], l.Country, i.State, l.Latitude, l.Longitude FROM
+(SELECT Country, [CityAccent] FROM lu_CityCoordinates WHERE Country <> 'us' GROUP BY [CityAccent], Country Having count(*) = 1) u
+JOIN lu_CityCoordinates l ON l.Country = u.Country AND l.[CityAccent] = u.[CityAccent]
+JOIN Institution i ON u.Country = i.Country AND u.[CityAccent] = i.City
+
+--select * from lu_City
+
+-- Check to make sure all cities have coordinates
+select DISTINCT i.Country, i.City, i.State
+from institution i
+LEFT JOIN lu_City l ON i.Country = l.Country AND i.City = l.Name and ISNULL(i.state, '') = ISNULL(l.state, '')
+WHERE l.latitude is null and i.city <> 'missing'
+order by Country, i.City, i.State
 
 
---select * from #CityCoordinates c -- where country='uk'
-----join (SELECT DISTINCT Country, City FROM institution WHERE ISNULL(Country, '') <> '') i ON c.country = i.country AND (c.City = i.city OR c.[CityAccent] = i.city)  -- 1286 city (only 305 populate)
---RIGHT join (SELECT DISTINCT Country, City FROM institution WHERE ISNULL(Country, '') <> '') i ON c.country = i.country AND (c.City = i.city OR c.[CityAccent] = i.city)-- 1286 city
---where c.Country is null
 
---select name, country  from lu_city group by name, country
---select * from lu_city where name ='Philadelphia'
---select * from lu_City where country ='ca'
---select * from #CityCoordinates where city = 'Taipei'
---select * from #CityCoordinates where city like '%Akron%'
---select * from institution where city = 'Akron'
+--select DISTINCT i.Country, i.City, i.State, a.Region 
+--from institution i
+--LEFT JOIN lu_City_Test l ON i.Country = l.Country AND i.City = l.Name
+--LEFT JOIN lu_CityCoordinates a ON a.Country = i.Country AND a.City = i.City
+--WHERE l.Name is null and i.City <> 'Missing' and a.region is NOT null
+--order by Country, i.City, i.State
 
---select * from #CityCoordinates where country = 'us'
---select * from lu_City -- where [Longitude] is null
+--select * from lu_City_test
+--select * from institution where City='Buenos Aires' and country='AR'
+--select * from lu_City_test where Name='Buenos Aires' and country='AR'
+--select * from lu_MajorCityCoordinates where [CityAccent]='Buenos Aires' and CountryCode2='AR'
+
+--select distinct CountryCode2, [Region] from lu_MajorCityCoordinates
+--select * from lu_MajorCityCoordinates where CityAccent='Springfield' and CountryCode2='US'
+--select * from institution where City='Springfield' and Country='US'
+

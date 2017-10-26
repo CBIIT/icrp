@@ -38,6 +38,7 @@ BEGIN
 		[CityID] [int] IDENTITY(1,1) NOT NULL,
 		[Name] [varchar](100) NOT NULL,		
 		[Country] [varchar](2) NOT NULL,		
+		[State] [varchar](50) NULL,		
 		[Latitude] [decimal](9, 6) NULL,
 		[Longitude] [decimal](9, 6) NULL
 		CONSTRAINT [PK_lu_City] PRIMARY KEY CLUSTERED 
