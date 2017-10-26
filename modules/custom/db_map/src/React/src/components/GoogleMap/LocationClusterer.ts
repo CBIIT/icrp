@@ -23,6 +23,12 @@ export class Cluster<E extends Location> {
   }
 
   public getCenter(): LatLng {
+    return new google.maps.LatLng(
+      this.elements[0].coordinates.lat,
+      this.elements[0].coordinates.lng
+    );
+
+    /*
     let lat = 0;
     let lng = 0;
 
@@ -35,6 +41,7 @@ export class Cluster<E extends Location> {
     lng /= this.elements.length;
 
     return new google.maps.LatLng(lat, lng);
+    */
   }
 
   public getBounds(): google.maps.LatLngBounds {
@@ -99,6 +106,7 @@ export class LocationClusterer<E extends Location> {
   private addElementToClosestCluster(element: E) {
 
     const projection = this.overlay.getProjection();
+    let p = this.map.getProjection();
 
     // minimum distance, in pixels from the center of the closest cluster to the marker
     let minDistance = Number.MAX_VALUE;
@@ -106,6 +114,16 @@ export class LocationClusterer<E extends Location> {
 
     // find the closest cluster
     for (let cluster of this.clusters) {
+
+      let distance = google.maps.geometry.spherical.computeDistanceBetween(
+        new google.maps.LatLng(
+          element.coordinates.lat,
+          element.coordinates.lng,
+        ),
+        cluster.getCenter()
+      )
+
+/*
       const distance: number = this.distanceBetween(
         projection.fromLatLngToDivPixel(cluster.getCenter()),
         projection.fromLatLngToDivPixel(new google.maps.LatLng(
@@ -113,14 +131,14 @@ export class LocationClusterer<E extends Location> {
           element.coordinates.lng
         ))
       );
-
+*/
       if (distance < minDistance) {
         minDistance = distance;
         closestCluster = cluster;
       }
     }
 
-    if (closestCluster === null || minDistance > this.radius ) {
+    if (closestCluster === null || minDistance > this.radius * Math.pow(10, this.map.getZoom())) {
       closestCluster = new Cluster();
       this.clusters.push(closestCluster);
       // console.log('created new cluster for element: ', element, closestCluster.getCenter().toJSON(), minDistance);
