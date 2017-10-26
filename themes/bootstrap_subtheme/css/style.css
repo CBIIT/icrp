@@ -40,10 +40,12 @@ table .event-table {
 .event-table td:first-child {
     font-weight: bold;
 }
-h4.modal-title > .fc-event-default {
-    font-size:20px;
+#calendar-modal h4.modal-title > .fc-event-default {
+    font-size:18px;
 }
-
+#calendar-modal .modal-body {
+    padding: 20px 20px 0px 20px;
+}
 /* Full Calendar */
 div.fullcalendar > div > div.fc-center > h2 {
     color:#222222;

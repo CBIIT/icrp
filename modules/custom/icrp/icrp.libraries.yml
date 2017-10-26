@@ -1,3 +1,9 @@
+drupal.fullcalendar_options_icrp.js:
+  js:
+    js/fullcalendar_options_icrp.fullcalendar.js: { }
+  dependencies:
+    - fullcalendar/drupal.fullcalendar
+
 icrp-corescripts:
   version: VERSION
   js:

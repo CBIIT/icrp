@@ -68,7 +68,7 @@ display:
             date: '2018-12-01'
           left: 'today prev,next'
           center: title
-          right: 'listYear month agendaWeek agendaDay '
+          right: 'listYear month agendaWeek '
           timeformat: 'h:mm t'
           advanced: true
           slotLabelFormat: 'h(:mm)t'

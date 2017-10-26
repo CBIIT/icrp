@@ -1,4 +1,4 @@
-uuid: 6bd4d645-fd79-4a67-a787-6640d43e3899
+uuid: 7047da4d-3f2d-4194-ad7c-d1ae8f2f35bd
 langcode: en
 status: true
 dependencies:
@@ -45,13 +45,13 @@ content:
     type: list_default
     region: content
   field_event_location:
-    type: string
     weight: 2
-    region: content
     label: hidden
     settings:
       link_to_entity: false
     third_party_settings: {  }
+    type: string
+    region: content
   links:
     weight: 0
     region: content
