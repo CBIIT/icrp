@@ -78,7 +78,8 @@ export class LocationClusterer<E extends Location> {
   }
 
   setElements(elements: E[]): void {
-    this.elements = [...elements];
+    this.elements = elements;
+    elements.forEach(e => this.addElementToClosestCluster(e));
   }
 
   public clearElements(): void {
@@ -87,8 +88,7 @@ export class LocationClusterer<E extends Location> {
   }
 
   public addElement(element: E) {
-    //marker.setMap(this.getMap());
-    this.setElements([...this.getElements(), element]);
+    this.elements.push(element);
     this.addElementToClosestCluster(element);
   }
 

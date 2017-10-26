@@ -25,24 +25,24 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
   labels: google.maps.Marker[] = [];
   infoWindows: google.maps.InfoWindow[] = [];
   shouldRedraw: boolean = false;
+  shouldFitBounds: boolean = false;
 
   async componentDidMount() {
     this.map = new google.maps.Map(this.mapContainer, DEFAULT_OPTIONS);
     this.clusterer = new LocationClusterer(this.map);
+    this.clusterer.setRadius(70);
 
     this.map.addListener('click', (event: google.maps.MouseEvent) => {
       this.infoWindows.forEach(window => window.close());
-      console.log(event.latLng.lat(), event.latLng.lng());
+      // console.log(event.latLng.lat(), event.latLng.lng());
     });
 
     this.map.addListener('zoom_changed', () => {
-      console.log('zoom changed')
+      this.shouldFitBounds = false;
+
+      // we should redraw clusters by default
       if (this.shouldRedraw) {
         this.redrawMap();
-      }
-
-      else {
-        this.shouldRedraw = true;
       }
     })
   }
@@ -50,27 +50,40 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
   componentWillReceiveProps(props: GoogleMapProps) {
     this.props = props;
 
+    // redraw this map when recieving new properties
     if (this.map !== null && props.locations !== this.locations) {
+      this.shouldFitBounds = true;
+      this.shouldRedraw = false;
+
+      this.locations = props.locations;
+
+      // clear all region labels
+      this.labels.forEach(label => label.setMap(null));
+      this.labels = [];
+
+      // fit to bounds before redrawing map
+      let bounds = new google.maps.LatLngBounds();
+      props.locations.map(loc => loc.coordinates)
+        .filter(coords => coords.lat != 0 && coords.lng != 0)
+        .forEach(latlng => bounds.extend(latlng));
+      this.map.fitBounds(bounds);
+
+      console.log('fitted map to bounds: ', bounds);
+
+      this.shouldRedraw = true;
       this.redrawMap();
     }
   }
 
-
   redrawMap() {
-    const { viewLevel, locations, locationFilters, showDataLabels, showMapLabels, onSelect } = this.props;
-    const map = this.map;
+    const { viewLevel, locationFilters, showDataLabels, showMapLabels, onSelect } = this.props;
+    let { map, clusterer, locations, labels, markers, infoWindows } = this;
 
-    if (this.map !== null) {
-      this.locations = locations;
-
-      let bounds = new google.maps.LatLngBounds();
-
-      let dataMarkerScale = Math.floor(Math.log10(
+    if (map !== null) {
+      // let bounds = new google.maps.LatLngBounds();
+      let dataMarkerSize = 24 - 3.5 / Math.floor(Math.log10(
         Math.max(... locations.map(location => location.counts.projects))
       ));
-
-///      let dataMarkerSize = dataMarkerScale * 6;
-      let dataMarkerSize = 24 - 3.5 / dataMarkerScale;
 
       // display google map labels if showMapLabels is true
       this.map.setOptions({
@@ -78,21 +91,35 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       });
 
       // clear all region labels
-      this.labels.forEach(label => label.setMap(null));
-      this.labels = [];
+      labels.forEach(label => label.setMap(null));
+      labels = [];
 
-      this.markers.forEach(marker => marker.setMap(null));
-      this.markers = [];
+      // clear all markers
+      markers.forEach(marker => marker.setMap(null));
+      markers = [];
 
-      this.clusterer.clearElements();
-      locations.forEach(location => {
-        if (location.coordinates.lat != 0 && location.coordinates.lng != 0)
-          this.clusterer.addElement(location)
-      });
+      // recreate location clusters
+      clusterer.clearElements();
+      clusterer.setElements(locations
+        .filter(({coordinates}) =>
+          coordinates.lat != 0 && coordinates.lng != 0
+        ))
 
+      // this.clusterer.getClusters().forEach(cluster => {
+      //   let clusterLocations = cluster.get();
+      //   bounds.extend(cluster.getCenter());
+      // });
+
+      // if (this.shouldFitBounds) {
+      //   console.log('fitting bounds for cluster: ', clusterer.getClusters())
+      //   map.fitBounds(bounds);
+      //   this.shouldFitBounds = false;
+      //   this.redrawMap();
+      // }
+
+      // draw each cluster
       this.clusterer.getClusters().forEach(cluster => {
         let clusterLocations = cluster.get();
-        bounds.extend(cluster.getCenter());
 
         // show a single location
         if (clusterLocations.length === 1) {
@@ -172,26 +199,16 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
           // close all other info windows when this marker is clicked
           marker.addListener('click', () => {
-
-            let proj = map.getProjection();
-            let pos = marker.getPosition()
-            console.log(pos.lat(), pos.lng());
-
-            let pt = proj.fromLatLngToPoint(pos);
-            console.log(pt);
-
-            console.log(cluster);
-
             this.infoWindows.forEach(window => window.close());
             infoWindow.open(map, marker);
           });
 
           marker.addListener('dblclick', event => {
             infoWindow.close();
-            //map.setZoom(map.getZoom() + 1);
             this.shouldRedraw = false;
             map.fitBounds(cluster.getBounds())
             this.redrawMap();
+            this.shouldRedraw = true;
           });
         }
       });
@@ -216,58 +233,12 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         })
       }
 
-      this.shouldRedraw = false;
-
-      // bounds.extend({
-      //   lat: bounds.getNorthEast().lat() + 5,
-      //   lng: bounds.getNorthEast().lng() + 5
-      // });
-
-      // bounds.extend({
-      //   lat: bounds.getSouthWest().lat() - 5,
-      //   lng: bounds.getSouthWest().lng() - 5
-      // });
-
-      map.fitBounds(bounds);
-    //   map.setOptions({
-    //     maxZoom: 15
-    //   });
-
-    //   if (viewLevel === 'regions') {
-    //     this.shouldRedraw = false;
-    //     map.setCenter({
-    //       lat: 25,
-    //       lng: 0,
-    //     })
-    //     map.setOptions({
-    //       maxZoom: 4
-    //     })
-    //     map.setOptions({
-    //       minZoom: 2
-    //     })
-    //     this.shouldRedraw = false;
-    //     map.setZoom(2);
-    //   }
-
-    //   if (viewLevel === 'regions' && map.getZoom() > 3) {
-    //     map.setZoom(3);
-    //   }
-
-    //   if (viewLevel === 'countries' && map.getZoom() > 5) {
-    //     map.setZoom(5);
-    //   }
-
-    //   if (viewLevel === 'cities' && map.getZoom() > 7) {
-    //     map.setZoom(7);
-    //   }
-
-    //   if (false || true) {
-    //     map.setZoom(2);
-    //     map.setCenter({
-    //       lat: 25,
-    //       lng: 0,
-    //     })
-    //   }
+      if (viewLevel === 'regions') {
+        map.setCenter({
+          lat: 25,
+          lng: 0,
+        })
+      }
     }
   }
 
