@@ -76,10 +76,10 @@
   <dt>Location</dt>
   <dd>
     {% if funding_details.city %}
-     {{ funding_details.city }}, 
+     {{ funding_details.city }},
     {% endif %}
     {% if funding_details.state %}
-     {{ funding_details.state }}, 
+     {{ funding_details.state }},
     {% endif %}
     {{ funding_details.country | default('N/A')}}
   </dd>
@@ -95,7 +95,9 @@
     <thead>
       <tr>
         <th class="limited-width">Name</th>
-        <th>ORC_ID</th> 
+        {% if show_orcid %}
+          <th>ORC_ID</th>
+        {% endif %}
         <th class="limited-width">Institution</th>
         <th>Region</th>
         <th>Location</th>
@@ -107,22 +109,24 @@
           <td class="limited-width">
               {{ row.pi_name | default('N/A') | raw }}
           </td>
-          <td>
-              {% if row.pi_orcid %}
-                <a href="https://orcid.org/{{ row.pi_orcid }}" target="_blank" title="Visit the collaborators's ORCiD.org profile">
-                  <img style="margin: 0 4px" src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="ORCiD Logo">
-                  {{ row.pi_orcid }}
-                </a>
-              {% endif %}
-          </td>
+          {% if show_orcid %}
+            <td>
+                {% if row.pi_orcid %}
+                  <a href="https://orcid.org/{{ row.pi_orcid }}" target="_blank" title="Visit the collaborators's ORCiD.org profile">
+                    <img style="margin: 0 4px" src="https://orcid.org/sites/default/files/images/orcid_16x16.png" alt="ORCiD Logo">
+                    {{ row.pi_orcid }}
+                  </a>
+                {% endif %}
+            </td>
+          {% endif %}
           <td>{{ row.institution | default('N/A')}}</td>
           <td>{{ row.region | default('N/A') }}</td>
           <td>
               {% if row.city %}
-               {{ row.city }}, 
+               {{ row.city }},
               {% endif %}
               {% if row.state %}
-               {{ row.state }}, 
+               {{ row.state }},
               {% endif %}
               {{ row.country | default('N/A')}}
           </td>

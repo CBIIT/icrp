@@ -34,14 +34,14 @@ class ProjectViewController extends ControllerBase {
       'CollabCount' => 'collaborator_count',
       'Institution' => 'institution',
       'City' => 'city',
-      'State' => 'state', 
+      'State' => 'state',
       'Country' => 'country',
       'Region' => 'region',
-      'Category' => 'award_type', 
-      'AltAwardCode' => 'alt_award_code', 
-      'FundingOrganization' => 'funding_organization', 
-      'BudgetStartDate' => 'budget_start_date', 
-      'BudgetEndDate' => 'budget_end_date', 
+      'Category' => 'award_type',
+      'AltAwardCode' => 'alt_award_code',
+      'FundingOrganization' => 'funding_organization',
+      'BudgetStartDate' => 'budget_start_date',
+      'BudgetEndDate' => 'budget_end_date',
     ],
     'cancer_types' => [
       'CancerType' => 'cancer_type',
@@ -106,7 +106,7 @@ class ProjectViewController extends ControllerBase {
 
   /**
    * Returns a PDO connection to a database
-   * @param $cfg - An associative array containing connection parameters 
+   * @param $cfg - An associative array containing connection parameters
    *   driver:    DB Driver
    *   server:    Server Name
    *   database:  Database
@@ -176,7 +176,7 @@ class ProjectViewController extends ControllerBase {
     return array_reduce(
       array_map(function($key, $value) use ($pdo, $project_id, $project_funding_id) {
         $stmt = $pdo->prepare($value);
-        
+
         if (in_array($key, ['project_details', 'project_funding_details'])) {
           $stmt->execute([':project_id' => $project_id]);
         }
@@ -189,13 +189,13 @@ class ProjectViewController extends ControllerBase {
         return [$key => array_map(function($row) use ($key) {
 
           // map each field in the row to a template variable
-          return array_reduce( 
+          return array_reduce(
             array_map(function($row_key, $row_value) use ($key) {
                 return [self::FIELD_MAP[$key][$row_key] => $row_value];
             }, array_keys($row), $row)
           , 'array_merge', []);
         }, $stmt->fetchAll(PDO::FETCH_ASSOC))];
-      }, array_keys($queries), $queries), 
+      }, array_keys($queries), $queries),
     'array_merge', []);
   }
 
@@ -283,7 +283,7 @@ class ProjectViewController extends ControllerBase {
         ],
       ],
     ];
-  }  
+  }
 
   public function getProjectDetailsReviewContent($project_id) {
     return [
@@ -302,6 +302,10 @@ class ProjectViewController extends ControllerBase {
 
   public function getProjectFundingDetailsContent($project_id) {
     $results = self::get_funding($project_id);
+    $show_orcid = count(array_filter(array_map(function($collaborator) {
+      return $collaborator['pi_orcid'];
+    }, $results['collaborators']))) > 0;
+
     return [
       '#theme' => 'db_funding_view',
       '#page_title' => 'Project Funding Details',
@@ -310,6 +314,7 @@ class ProjectViewController extends ControllerBase {
       '#cancer_types' => $results['cancer_types'],
       '#cso_research_areas' => $results['cso_research_areas'],
       '#project_id' => $project_id,
+      '#show_orcid' => $show_orcid,
       '#attached' => [
         'library' => [
           'db_project_view/funding_view_resources'
@@ -320,6 +325,10 @@ class ProjectViewController extends ControllerBase {
 
   public function getProjectFundingDetailsReviewContent($project_id) {
     $results = self::get_funding($project_id, 'icrp_load_database');
+    $show_orcid = count(array_filter(array_map(function($collaborator) {
+      return $collaborator['pi_orcid'];
+    }, $results['collaborators']))) > 0;
+
     return [
       '#theme' => 'db_funding_view',
       '#page_title' => 'Data Review - Project Funding Details',
@@ -328,6 +337,7 @@ class ProjectViewController extends ControllerBase {
       '#cancer_types' => $results['cancer_types'],
       '#cso_research_areas' => $results['cso_research_areas'],
       '#project_id' => $project_id,
+      '#show_orcid' => $show_orcid,
       '#attached' => [
         'library' => [
           'db_project_view/funding_view_resources'
