@@ -4396,7 +4396,7 @@ CREATE PROCEDURE [dbo].[GetMapLayerLegend]
 	@MapLayerID	INT
 AS   
 
-	SELECT MapLayerLegendID, LegendName FROM lu_MapLayerLegend WHERE MapLayerID = @MapLayerID
+	SELECT MapLayerLegendID, LegendName, LegendColor FROM lu_MapLayerLegend WHERE MapLayerID = @MapLayerID
 	ORDER BY DisplayOrder
 		
 GO

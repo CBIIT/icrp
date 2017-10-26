@@ -98,6 +98,7 @@ BEGIN
 		[MapLayerLegendID] [int] IDENTITY(1,1) NOT NULL,
 		[MapLayerID] [int] NOT NULL,
 		[LegendName] [varchar] (150) NULL,
+		[LegendColor] [varchar] (7) NULL,
 		[DisplayOrder] [int] NOT NULL
 	CONSTRAINT [PK_lu_MapLayerLegend] PRIMARY KEY CLUSTERED 
 	(
@@ -242,37 +243,36 @@ GO
 -- lu_MapLayerLegend
 TRUNCATE TABLE [lu_MapLayerLegend]
 
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 1, '> 244.2', 1
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 1, '174.3 - 244.2', 2
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 1, '137.6 - 174.3', 3
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 1, '101.6 - 137.6', 4
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 1, '< 101.6', 5
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 1, 'No data', 6
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 1, 'Not applicable', 7
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, '> 244.2', '#08519C', 1
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, '174.3 - 244.2', '#3182BD', 2
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, '137.6 - 174.3', '#6BAED6', 3
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, '101.6 - 137.6', '#9ECAE1', 4
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, '< 101.6', '#C6DBEF', 5
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, 'No data', '#F0F0F0', 6
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, 'Not applicable', '#7D7D7D', 7
 
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 2, '117.0', 1
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 2, '99.9-117.0', 2
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 2, '89.8-99.9', 3
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 2, '74.0-89.8', 4
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 2, '< 74.0', 5
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 2, 'No data', 6
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 2, 'Not applicable', 7
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, '117.0', '#08519C', 1
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, '99.9-117.0', '#3182BD', 2
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, '89.8-99.9', '#6BAED6', 3
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, '74.0-89.8', '#9ECAE1', 4
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, '< 74.0', '#C6DBEF', 5
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, 'No data', '#F0F0F0', 6
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, 'Not applicable', '#7D7D7D', 7
 
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 3, '> 328.7', 1
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 3, '139.6-328.7', 2
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 3, '85.7-139.6', 3
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 3, '62.6-85.7', 4
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 3, '< 62.6', 5
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 3, 'No data', 6
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 3, 'Not applicable', 7
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, '> 328.7', '#08519C', 1
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, '139.6-328.7', '#3182BD', 2
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, '85.7-139.6', '#6BAED6', 3
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, '62.6-85.7', '#9ECAE1', 4
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, '< 62.6', '#C6DBEF', 5
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, 'No data', '#F0F0F0', 6
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, 'Not applicable', '#7D7D7D', 7
 
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 4, 'High Income', 1
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 4, 'Upper Middle Income', 2
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 4, 'Lower Middle Income', 3
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 4, 'Low Income', 4
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 4, 'No data', 5
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [DisplayOrder]) SELECT 4, 'Not applicable', 6
-		
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 4, 'High Income', '#08519C', 1
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 4, 'Upper Middle Income', '#467DB5', 2
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 4, 'Lower Middle Income', '#84A8CE', 3
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 4, 'Low Income', '#C2D4E7', 4
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 4, 'No data', '#F0F0F0', 5
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 4, 'Not applicable', '#7D7D7D', 6		
 
 /*************************************************/
 /******					Keys				******/
