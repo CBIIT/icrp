@@ -174,6 +174,7 @@ class DataLoadController {
         $fileName = '';
         $response = '';
         $originalFileName = $request->request->get('originalFileName');
+        $locale = strtolower($request->request->get('locale'));
         foreach($request->files as $uploadedFile) {
             $fileName = $uploadedFile->getClientOriginalName();
             $file = $uploadedFile->move($uploaddir, $fileName);
@@ -256,16 +257,27 @@ class DataLoadController {
             }
 
             foreach($csv as $index => $row) {
-                $values = array_map(function($key, $value) {
-                    if (strtolower($key) === 'awardfunding') {
+              
+                $values = array_map(function($key, $value) use ($locale) {
+                    $key = strtolower($key);
+                    if ($key === 'awardfunding') {
 //                        error_log("$key replacing $value");
                         $value = floatval(str_replace(',', '', $value));
                         $value = round($value, 2);
+                    } else if ($locale === 'en-gb' && (
+                                $key === 'awardstartdate' || 
+                                $key === 'awardenddate' ||
+                                $key === 'budgetstartdate' ||
+                                $key === 'budgetenddate')
+                              ) {
+                        
+                        list($date, $month, $year) = sscanf($value, "%d/%d/%d");
+                        $value = "$month/$date/$year";
                     }
 
                     return strlen($value) > 0 ? $value : NULL;
                 }, array_keys($row), array_values($row));
-
+                
 //                error_log(json_encode($row));
 //                error_log(json_encode($values));
                 array_push($values, $originalFileName);
@@ -276,6 +288,7 @@ class DataLoadController {
 
                     error_log("failed to insert row:");
                     error_log(json_encode($row));
+                    error_log($e);
 
                     $response = new Response(
                         'Content',

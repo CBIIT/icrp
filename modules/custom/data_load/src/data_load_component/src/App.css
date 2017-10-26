@@ -14,8 +14,8 @@
 }
 
 /** Smaller Screens < 992 px */
-/* @media (max-width: 992px) {
-} */
+ /* @media (max-width: 992px) {
+}  */
 
 /** Medium Screens >= 992 px */
 /* @media (min-width: 992px) {
@@ -26,11 +26,8 @@
 } */
 
 /** Large Screens >= 1200 px */
-@media (min-width: 1200px) {
-  .lower-buttons-40 {
-    margin-top: +40px;
-  }
-}
+/* @media (min-width: 1200px) {
+} */
 
 
 /** Smaller Screens < 768px */
