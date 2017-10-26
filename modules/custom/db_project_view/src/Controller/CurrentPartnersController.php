@@ -74,7 +74,7 @@ class CurrentPartnersController extends ControllerBase {
       '#current_partners' => $results['current_partners'],
       '#attached' => [
         'library' => [
-          'db_project_view/resources'
+          'db_project_view/current_partners_resources'
         ],
       ],
     ];
