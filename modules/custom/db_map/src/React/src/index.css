@@ -52,3 +52,7 @@ table.popover-table td {
   display: flex;
   justify-content: space-between;
 }
+
+#icrp-map-header a {
+  line-height: 24px;
+}

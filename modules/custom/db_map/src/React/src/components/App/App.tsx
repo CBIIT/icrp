@@ -117,7 +117,7 @@ export default class App extends ComponentBase<{}, AppState> {
       <div>
         <LoadingSpinner />
         <SearchCriteria searchCriteria={searchCriteria} counts={locationCounts} />
-        <div id="icrp-map-header" className="margin-top flex-space-between">
+        <div id="icrp-map-header" className="margin-top margin-bottom flex-space-between">
           <a
             className="cursor-pointer"
             onClick={event => this.redirectToSearchPage(locationFilters)}>
