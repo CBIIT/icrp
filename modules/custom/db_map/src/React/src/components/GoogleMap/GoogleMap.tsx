@@ -46,7 +46,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       }
     });
 
-    window['createOverlayForMap'](this.map);
+    window['createOverlayForMap']('#icrp-map-header',this.map);
   }
 
   componentWillReceiveProps(props: GoogleMapProps) {

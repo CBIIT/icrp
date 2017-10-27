@@ -100,9 +100,11 @@ class MapController extends ControllerBase {
 
   public static function getPeopleMap($funding_id): array {
     $results = self::get_funding($funding_id, 'icrp_database');
+    $layers = self::get_map_layers('icrp_database');
     return [
       '#theme' => 'db_people_map',
       '#funding_details' => $results['project_funding_details'],
+      '#layers' => $layers,
       '#pi_count' => $results['pi_count'],
       '#funding_id' => $funding_id,
       '#attached' => [
@@ -223,7 +225,7 @@ class MapController extends ControllerBase {
   }
 
 
-  public function get_funding($funding_id, $config_key = 'icrp_database') {
+  public static function get_funding($funding_id, $config_key = 'icrp_database') {
     $connection = PDOBuilder::getConnection('icrp_database');
 
     $queries = [

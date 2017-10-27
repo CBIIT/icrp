@@ -17,13 +17,9 @@ function db_map_theme($existing, $type, $theme, $path) {
     'db_people_map' => [
       'variables' => [
         'funding_details' => NULL,
+        'layers' => NULL,
         'pi_count' => NULL,
         'funding_id' => NULL
-      ]
-    ],
-    'db_layer_map' => [
-      'variables' => [
-        'layers' => NULL,
       ]
     ],
   ];
