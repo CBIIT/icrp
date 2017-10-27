@@ -138,8 +138,10 @@ export default class App extends ComponentBase<{}, AppState> {
           />
         </div>
 
-        <ExportButton />
-        <SummaryGrid onSelect={locationFilters => this.redirectToSearchPage(locationFilters)} />
+        <SummaryGrid onSelect={locationFilters => this.redirectToSearchPage(locationFilters)}>
+          <ExportButton />
+        </SummaryGrid>
+
       </div>
     );
   }

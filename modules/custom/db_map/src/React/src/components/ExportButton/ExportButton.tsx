@@ -14,7 +14,7 @@ export default class ExportButton extends ComponentBase<{}, ExportButtonState> {
   _buildState(): ExportButtonState {
     return {
       locations: store.getLocations(),
-      searchCriteria: store.getSearchCriteria(), 
+      searchCriteria: store.getSearchCriteria(),
       viewLevel: store.getViewLevel(),
     }
   }
@@ -38,7 +38,7 @@ export default class ExportButton extends ComponentBase<{}, ExportButtonState> {
   render() {
     return (
       <button
-        className="btn btn-default btn-sm margin-top margin-bottom"
+        className="btn btn-default btn-sm "
         onClick={event => this.export()}
       >
         <div className="display-flex align-items-center">
