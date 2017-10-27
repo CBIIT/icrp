@@ -10,7 +10,9 @@
 function db_map_theme($existing, $type, $theme, $path) {
   return [
     'db_map' => [
-      'variables' => []
+      'variables' => [
+        'layers' => NULL,
+      ]
     ],
     'db_people_map' => [
       'variables' => [

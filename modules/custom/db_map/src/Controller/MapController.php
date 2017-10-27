@@ -84,8 +84,11 @@ class MapController extends ControllerBase {
    * @return array
    */
   public static function getContent(): array {
+    $results = self::get_map_layers('icrp_database');
+    
     return [
       '#theme' => 'db_map',
+      '#layers' => $results,      
       '#attached' => [
         'library' => [
           'db_map/default'
@@ -95,7 +98,7 @@ class MapController extends ControllerBase {
   }
 
 
-  public function getPeopleMap($funding_id): array {
+  public static function getPeopleMap($funding_id): array {
     $results = self::get_funding($funding_id, 'icrp_database');
     return [
       '#theme' => 'db_people_map',
@@ -111,7 +114,7 @@ class MapController extends ControllerBase {
   }
 
 
-  public function getLayers(): array {
+  public static function getLayers(): array {
     $results = self::get_map_layers('icrp_database');
     return [
       '#theme' => 'db_layer_map',
@@ -192,7 +195,7 @@ class MapController extends ControllerBase {
   }
 
 
-  public function get_map_layers($config_key = 'icrp_database') {
+  public static function get_map_layers($config_key = 'icrp_database') {
     $connection = PDOBuilder::getConnection('icrp_database');
 
     $stmt = $connection->prepare("EXECUTE GetMapLayers");

@@ -47,3 +47,8 @@ body {
 table.popover-table td {
   padding-right: 8px;
 }
+
+.flex-space-between {
+  display: flex;
+  justify-content: space-between;
+}

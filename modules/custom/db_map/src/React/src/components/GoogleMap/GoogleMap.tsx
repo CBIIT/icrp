@@ -44,7 +44,9 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       if (this.shouldRedraw) {
         this.redrawMap();
       }
-    })
+    });
+
+    window['createOverlayForMap'](this.map);
   }
 
   componentWillReceiveProps(props: GoogleMapProps) {
