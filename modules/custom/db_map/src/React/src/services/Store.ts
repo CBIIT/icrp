@@ -17,13 +17,22 @@ class Store extends StoreBase {
     primaryInvestigators: 0,
     collaborators: 0,
   }
-  
+
   locationFilters: LocationFilters = {
     searchId: SEARCH_ID,
     type: 'regions',
   }
 
   searchCriteria: any[][] = [['Loading...']];
+
+  tablePage: number = 1;
+
+  tablePageSize: number = 25;
+
+  setTablePage(tablePage: number) {
+    this.tablePage = tablePage;
+    this.trigger();
+  }
 
   setLoading(loading: boolean) {
     this.loading = loading;
@@ -54,7 +63,7 @@ class Store extends StoreBase {
     this.locationFilters = locationFilters;
     this.trigger();
   }
-  
+
   setSearchId(searchId: number) {
     this.locationFilters = {
       searchId: searchId,
@@ -86,7 +95,7 @@ class Store extends StoreBase {
     }
     this.trigger();
   }
-  
+
   setSearchCriteria(searchCriteria: any[][]) {
     this.searchCriteria = searchCriteria;
     this.trigger();
@@ -116,7 +125,7 @@ class Store extends StoreBase {
   isLoading() {
     return this.loading;
   }
-  
+
   @autoSubscribe
   isLoadingSearchCriteria() {
     return this.loadingSearchCriteria;
@@ -145,6 +154,16 @@ class Store extends StoreBase {
   @autoSubscribe
   getViewLevel() {
     return this.locationFilters.type;
+  }
+
+  @autoSubscribe
+  getTablePage() {
+    return this.tablePage;
+  }
+
+  @autoSubscribe
+  getTablePageSize() {
+    return this.tablePageSize;
   }
 }
 

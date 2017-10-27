@@ -70,7 +70,7 @@ class MappingTool {
 
       'columns' => [
         'value' => 'City',
-        'label' => 'City',
+        'label' => 'DisplayedCity',
       ],
     ],
 

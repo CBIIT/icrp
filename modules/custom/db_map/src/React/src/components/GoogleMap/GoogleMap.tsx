@@ -105,18 +105,6 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
           coordinates.lat != 0 && coordinates.lng != 0
         ))
 
-      // this.clusterer.getClusters().forEach(cluster => {
-      //   let clusterLocations = cluster.get();
-      //   bounds.extend(cluster.getCenter());
-      // });
-
-      // if (this.shouldFitBounds) {
-      //   console.log('fitting bounds for cluster: ', clusterer.getClusters())
-      //   map.fitBounds(bounds);
-      //   this.shouldFitBounds = false;
-      //   this.redrawMap();
-      // }
-
       // draw each cluster
       this.clusterer.getClusters().forEach(cluster => {
         let clusterLocations = cluster.get();
@@ -182,8 +170,8 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
             counts.projects,
             dataMarkerSize,
             clusteredLocation.coordinates,
-            '#E08283',
-            '#F64747',
+            '#EB9532',
+            '#EB974E',
           );
 
           marker.setMap(map);
@@ -239,6 +227,12 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
           lng: 0,
         })
       }
+
+      if (clusterer.getElements().length === 1) {
+        this.shouldRedraw = false;
+        map.setZoom(6);
+      }
+
     }
   }
 
