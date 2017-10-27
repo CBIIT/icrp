@@ -148,7 +148,7 @@ class DataLoadController {
         $key = array_search($sortDirection, $sortDirectionKeys);
         $sortDirection = $sortDirectionKeys[$key];
 
-        $orderByKeys = array("InternalId", "AwardCode", "AwardStartDate", "AwardEndDate", "SourceId", "AltId", "AwardTitle", "Category",
+        $orderByKeys = array("InternalId", "AwardCode", "AwardStartDate", "AwardEndDate", "SourceId", "AltId", "NewAltId", "AwardTitle", "Category",
         "AwardType", "Childhood", "BudgetStartDate", "BudgetEndDate", "CSOCodes", "CSORel", "SiteCodes", "SiteRel", "AwardFunding", "IsAnnualized", "FundingMechanismCode", "FundingMechanism",
         "FundingOrgAbbr", "FundingDiv", "FundingDivAbbr", "FundingContact", "PILastName", "PIFirstName", "SubmittedInstitution", "City", "State", "Country", "PostalZipCode", "InstitutionICRP", "Latitute", "Longitute", "GRID",
         "TechAbstract", "PublicAbstract", "RelatedAwardCode", "RelationshipType", "ORCID", "OtherResearcherID", "OtherResearcherIDType", "InternalUseOnly");
@@ -392,6 +392,7 @@ class DataLoadController {
             @AwardEndDate,
             @SourceId,
             @AltId,
+            @NewAltId
             @AwardTitle,
             @Category,
             @AwardType,
@@ -434,6 +435,7 @@ class DataLoadController {
             AwardStartDate = STR_TO_DATE(@AwardStartDate, '%c/%e/%Y'),
             AwardEndDate = STR_TO_DATE(@AwardEndDate, '%c/%e/%Y'),
             AltId = nullif(@AltId,''),
+            NewAltId = nullif(@NewAltId,''),
             AwardTitle = nullif(@AwardTitle,''),
             Category = nullif(@Category,''),
             AwardType = nullif(@AwardType,''),
