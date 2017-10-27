@@ -5,7 +5,16 @@
     <b>AltAwardCode: </b>{{funding_details[0].alt_award_code}}
   </div>
   <div class="blue-text">Total PIs: {{pi_count}} / Total Collabs: {{(funding_details|length - pi_count)}}</div></div>
-<div class="text-right margin-top"><a href="/project/funding-details/{{funding_id}}" class="cursor-pointer">View Project Funding Details</a></div>
+<div class="flex-space-between margin-bottom margin-top">
+  <select id="layer-map-select">
+    <option value="">--- Select Layer ---</option>
+{% for row in layers %}
+    <option value="{{ row.MapLayerID }}">{{ row.Name }}</option>
+{% endfor %}
+  </select>
+  <a href="/project/funding-details/{{funding_id}}" class="cursor-pointer">View Project Funding Details</a>
+</div>
+<div id="layer-map-legend" class="hide"></div>
 <div id="icrp-map" class="map-container"></div>
 <div class="project-collaborators-header">
   <button id="db_people_map_export" class="btn btn-default btn-sm margin-top margin-bottom">
@@ -68,6 +77,9 @@
 {% endif %}
 <script>
   var db_people_map = {
-    funding_details: {{funding_details|json_encode|raw}}
-  };
+        funding_details: {{funding_details|json_encode|raw}}
+      },
+      db_layer_map = {
+        layers: {{layers|json_encode|raw}}
+      };
 </script>

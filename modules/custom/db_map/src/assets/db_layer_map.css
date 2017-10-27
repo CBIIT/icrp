@@ -1,18 +1,18 @@
-#layer_map_legend {
+#layer-map-legend {
   background-color: #f5f5f5;
   margin-left: 26px;
   padding: 10px;  
 }
 
-#layer_map_legend > h3 {
+#layer-map-legend > h3 {
   margin: 0px 0px .5em;
 }
 
-#layer_map_legend > div {
+#layer-map-legend > div {
   margin: 5px 0px;
 }
 
-#layer_map_legend > div > span:first-child {
+#layer-map-legend > div > span:first-child {
   border: 1px solid #999;
   display: inline-block;
   margin-right: 5px;
@@ -20,6 +20,6 @@
   width: 3em;
 }
 
-#layer_map_legend > div > span.selected:first-child {
+#layer-map-legend > div > span.selected:first-child {
   border-color: #000;
 }

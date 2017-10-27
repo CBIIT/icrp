@@ -6,7 +6,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
     drupalSettings.db_map.layer.map = map;
     map.data.loadGeoJson('/modules/custom/db_map/src/assets/countries.json');
     drupalSettings.db_map.layer.reset();
-    map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push($('#layer_map_legend')[0]);
+    map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push($('#layer-map-legend')[0]);
     drupalSettings.db_map.layer.infowindow = new google.maps.InfoWindow({pixelOffset:{height:70,width:0}});
   },
   infowindow: null,
@@ -14,20 +14,20 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
   legend: null,
   map: null,
   reset: function() {
-    $('#layer_map_legend').addClass('hide').empty();
+    $('#layer-map-legend').addClass('hide').empty();
     drupalSettings.db_map.layer.map.data.setStyle({
       fillColor: 'transparent',
       strokeWeight: 0
     });
   },
   selectColor: function(e) {
-    var spans = $('#layer_map_legend span.selected:first-child');
+    var spans = $('#layer-map-legend span.selected:first-child');
     if (spans.size() == drupalSettings.db_map.layer.legend.length) {
       spans.removeClass('selected');
     }
     $(this).toggleClass('selected');
-    if ($('#layer_map_legend span.selected:first-child').size() == 0) {
-      $('#layer_map_legend span:first-child').addClass('selected');
+    if ($('#layer-map-legend span.selected:first-child').size() == 0) {
+      $('#layer-map-legend span:first-child').addClass('selected');
     }
     drupalSettings.db_map.layer.updateLayers();
   },
@@ -35,7 +35,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
     e.preventDefault();
     var infowindow = drupalSettings.db_map.layer.infowindow,
         map = drupalSettings.db_map.layer.map,
-        index = $('#layer_map_select').val(),
+        index = $('#layer-map-select').val(),
         layer = drupalSettings.db_map.layer.layers.filter(function(entry) { return entry.MapLayerID == index; });
     if (layer.length != 1) return false;
     layer = layer[0];
@@ -59,13 +59,13 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
     } else {
       drupalSettings.db_map.layer.country = country;
     }
-    var spans = $('#layer_map_legend span.selected:first-child'),
+    var spans = $('#layer-map-legend span.selected:first-child'),
         map = drupalSettings.db_map.layer.map,
         legendColors = {},
         country = {};
     drupalSettings.db_map.layer.legend.forEach(function(entry) {
       var legendId = entry.MapLayerLegendID;
-      if ($('#layer_map_legend [data-legend-id="'+legendId+'"]').hasClass('selected')) {
+      if ($('#layer-map-legend [data-legend-id="'+legendId+'"]').hasClass('selected')) {
         legendColors[legendId] = entry.LegendColor;
       } else {
         legendColors[legendId] = 'transparent';
@@ -86,7 +86,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
   },
   updateLegend: function(legend) {
     drupalSettings.db_map.layer.legend = legend;
-    var legendHTML = $('#layer_map_legend').empty().removeClass('hide').append('<h3>'+$('#layer_map_select option:selected').text()+'</h3>'),
+    var legendHTML = $('#layer-map-legend').empty().removeClass('hide').append('<h3>'+$('#layer-map-select option:selected').text()+'</h3>'),
         legendline,
         legendcolor;
     legend.forEach(function(entry) {
@@ -101,7 +101,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
   }
 });
 
-window.createOverlayForMap = function(map) {
-  $('#icrp-map-header').prepend($('#layer_map_select'));
+window.createOverlayForMap = function(selector,map) {
+  if (selector !== undefined) $(selector).prepend($('#layer-map-select'));
   drupalSettings.db_map.layer.initMap(map);
 }
