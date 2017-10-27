@@ -43,7 +43,7 @@ export default class SummaryGrid extends ComponentBase<SummaryGridProps & React.
 
     return !locations || !locations.length ? null : (
       <div>
-        <div className="margin-top" style={{display: 'flex', justifyContent: 'space-between', alignContent: 'flex-end', marginBottom: '5px'}}>
+        <div className="margin-top" style={{display: 'flex', justifyContent: 'space-between', alignContent: 'flex-end', alignItems: 'center', marginBottom: '5px'}}>
           <div>{ children }</div>
           {numItems > 1 &&
             <Pagination
