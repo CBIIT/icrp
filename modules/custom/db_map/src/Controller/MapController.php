@@ -186,6 +186,7 @@ class MapController extends ControllerBase {
       'region' => NULL,
       'country' => NULL,
       'city' => NULL,
+      'institution' => NULL,
     ]);
     $data = MappingTool::getNewSearchId($connection, $parameters);
     return self::createResponse($data);
@@ -200,11 +201,11 @@ class MapController extends ControllerBase {
     return $stmt->fetchAll();
   }
 
-  
+
   public function get_map_layer_legend($layer_id,$config_key = 'icrp_database') {
     $connection = PDOBuilder::getConnection('icrp_database');
 
-    $stmt = $connection->prepare("EXECUTE GetMapLayerLegend :layer_id");    
+    $stmt = $connection->prepare("EXECUTE GetMapLayerLegend :layer_id");
     $stmt->execute([':layer_id' => $layer_id]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
@@ -213,7 +214,7 @@ class MapController extends ControllerBase {
   public function get_map_layer_by_country($layer_id,$config_key = 'icrp_database') {
     $connection = PDOBuilder::getConnection('icrp_database');
 
-    $stmt = $connection->prepare("EXECUTE GetMapLayerByCountry :layer_id");    
+    $stmt = $connection->prepare("EXECUTE GetMapLayerByCountry :layer_id");
     $stmt->execute([':layer_id' => $layer_id]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
@@ -221,11 +222,11 @@ class MapController extends ControllerBase {
 
   public function get_funding($funding_id, $config_key = 'icrp_database') {
     $connection = PDOBuilder::getConnection('icrp_database');
-    
+
     $queries = [
       'project_funding_details' => 'GetProjectFundingDetail :funding_id',
     ];
-  
+
     // map queries to return values
     $results = array_reduce(
       array_map(function($key, $value) use ($connection, $funding_id) {
@@ -233,7 +234,7 @@ class MapController extends ControllerBase {
         $stmt->execute([':funding_id' => $funding_id]);
         // map the result of each query to each template key
         return [$key => array_map(function($row) use ($key) {
-  
+
           // map each field in the row to a template variable
           return array_reduce(
             array_map(function($row_key, $row_value) use ($key) {
@@ -248,7 +249,7 @@ class MapController extends ControllerBase {
     }));
     return $results;
   }
-  
+
 
   /**
    * Creates an arbitrary excel report based on the supplied json object.

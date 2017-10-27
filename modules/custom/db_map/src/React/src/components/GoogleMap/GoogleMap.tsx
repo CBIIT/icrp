@@ -230,9 +230,9 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
       if (clusterer.getElements().length === 1) {
         this.shouldRedraw = false;
-        map.setZoom(6);
+        map.setZoom(4);
+        map.setCenter(clusterer.getElements()[0].coordinates);
       }
-
     }
   }
 

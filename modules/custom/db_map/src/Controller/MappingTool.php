@@ -252,6 +252,7 @@ class MappingTool {
             @RegionID = :region,
             @Country = :country,
             @City = :city,
+            @InstitutionID = :institution,
             @SearchCriteriaID = :newSearchId,
             @ResultCount = NULL',
         $parameters,

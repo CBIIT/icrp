@@ -70,6 +70,7 @@ export default class App extends ComponentBase<{}, AppState> {
     else {
       let searchId = await getNewSearchId(locationFilters);
       let uri = `${BASE_URL}/db_search/?sid=${searchId}`;
+      // console.log(uri);
       window.document.location.href = uri;
     }
   }

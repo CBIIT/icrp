@@ -110,14 +110,6 @@ export class LocationClusterer<E extends Location> {
     // find the closest cluster
     for (let cluster of this.clusters) {
 
-      // let distance = google.maps.geometry.spherical.computeDistanceBetween(
-      //   new google.maps.LatLng(
-      //     element.coordinates.lat,
-      //     element.coordinates.lng,
-      //   ),
-      //   cluster.getCenter()
-      // )
-
       const distance: number = this.distanceBetween(
         projection.fromLatLngToDivPixel(cluster.getCenter()),
         projection.fromLatLngToDivPixel(new google.maps.LatLng(

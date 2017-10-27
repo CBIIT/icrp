@@ -102,19 +102,14 @@ export default class ViewLevelSelector extends ComponentBase<ViewLevelSelectorPr
     return (
       <div className="display-flex align-items-center position-relative">
       {
-        this.buildTags().map(tag =>
-          <span className="position-relative">
+        this.buildTags().map((tag, index) =>
+          <span key={index} className="position-relative">
             <div className="bg-chevron" onClick={event => onSelect(tag.locationFilters)}>
               {tag.label}
             </div>
           </span>
         )
       }
-
-
-
-
-
       </div>
     )
   }

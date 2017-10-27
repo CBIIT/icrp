@@ -58,6 +58,7 @@ export interface LocationFilters {
   region?: string;
   country?: string;
   city?: string;
+  institution?: string;
 }
 
 /**
