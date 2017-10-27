@@ -197,6 +197,7 @@ class DataLoadController {
             AwardEndDate date,
             SourceId VARCHAR(150),
             AltId VARCHAR(50),
+            NewAltId VARCHAR(50),
             AwardTitle VARCHAR(1000),
             Category VARCHAR(25),
             AwardType VARCHAR(50),
@@ -237,16 +238,16 @@ class DataLoadController {
             OriginalFileName VARCHAR(200)
             )");
 
-            $stmt = $conn->prepare("INSERT INTO UploadWorkBook ([AwardCode], [AwardStartDate], [AwardEndDate], [SourceId], [AltId], [AwardTitle], [Category],
+            $stmt = $conn->prepare("INSERT INTO UploadWorkBook ([AwardCode], [AwardStartDate], [AwardEndDate], [SourceId], [AltId], [NewAltId], [AwardTitle], [Category],
             [AwardType], [Childhood], [BudgetStartDate], [BudgetEndDate], [CSOCodes], [CSORel], [SiteCodes], [SiteRel], [AwardFunding], [IsAnnualized], [FundingMechanismCode], [FundingMechanism],
             [FundingOrgAbbr], [FundingDiv], [FundingDivAbbr], [FundingContact], [PILastName], [PIFirstName], [SubmittedInstitution], [City], [State], [Country], [PostalZipCode], [InstitutionICRP], [Latitute], [Longitute], [GRID],
             [TechAbstract], [PublicAbstract], [RelatedAwardCode], [RelationshipType], [ORCID], [OtherResearcherID], [OtherResearcherIDType], [InternalUseOnly], [OriginalFileName]) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
             $csv = Reader::createFromPath($uploaddir . $fileName);
             $csv->setHeaderOffset(0); //set the CSV header offset
 
-            if (count($csv->getHeader()) !== 42) {
+            if (count($csv->getHeader()) !== 43) {
                 $response = new Response(
                     'Content',
                     Response::HTTP_BAD_REQUEST,
