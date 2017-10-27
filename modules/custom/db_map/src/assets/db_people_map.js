@@ -83,7 +83,7 @@ drupalSettings.db_map = {
           }),
           content = (is_pi?'Principal Investigator':'Collaborator')+'<br/>'+
                     '<hr style="margin:.5em 0px;"/>'+
-                    (is_pi?'PI':'Collaborator')+': '+detail.pi_name+'<br/>'+
+                    'Name: '+detail.pi_name+'<br/>'+
                     'Institution: '+detail.institution+'<br/>'+
                     'Location: '+[detail.city, detail.state, detail.country].filter(e => e && e.length).join(', ');
       marker.addListener('click',(function(marker,content,infowindow) {
@@ -106,7 +106,7 @@ drupalSettings.db_map = {
             pi[i].position,
             collab[j].position,
           ],
-          strokeColor: '#000000',
+          strokeColor: '#666',
           strokeWeight: 1,
           map: map
         }));

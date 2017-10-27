@@ -2,14 +2,18 @@ $(document).ready(function(){
   $('#db_people_map_export').on('click',function(e) {
     e.preventDefault();
     var exportObj = [{
-      title: 'Sheet One',
+      title: 'Search Criteria',
       rows: [
-        ['Alt Award Code',db_people_map.funding_details[0].alt_award_code],
-        [],
+        ['Search Criteria:','Award Code'],
+        ['Award Code:',db_people_map.funding_details[0].alt_award_code]
+      ]
+    }, {
+      title: 'Data',
+      rows: [
         ['Name','Type','ORC_ID','Institution','Region','Location']
       ]
     }];
-    $.merge(exportObj[0].rows,db_people_map.funding_details.map(function(entry) {
+    $.merge(exportObj[1].rows,db_people_map.funding_details.map(function(entry) {
       return [
         entry.pi_name,
         entry.is_pi?'Principal Investigator':'Collaborator',
