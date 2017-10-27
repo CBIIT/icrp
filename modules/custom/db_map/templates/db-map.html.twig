@@ -1,3 +1,16 @@
 <h1>ICRP Map</h1>
 
+<select id="layer_map_select">
+  <option value="">--- Select Layer ---</option>
+{% for row in layers %}
+  <option value="{{ row.MapLayerID }}">{{ row.Name }}</option>
+{% endfor %}
+</select>
+<div id="layer_map_legend" class="hide"></div>
 <div id="icrp-map"></div>
+
+<script>
+  var db_layer_map = {
+    layers: {{layers|json_encode|raw}}
+  };
+</script>
