@@ -46,8 +46,8 @@ export class FundingOrganizationFormComponent {
       name: ['', [Validators.required, Validators.maxLength(100)]],
       abbreviation: ['', [Validators.required, Validators.maxLength(15)]],
       organizationType: ['', Validators.required],
-      latitude: [null],
-      longitude: [null],
+      latitude: [null, [Validators.min(-90), Validators.max(90), Validators.required]],
+      longitude: [null, [Validators.min(-180), Validators.max(180), Validators.required]],
       country: ['', Validators.required],
       currency: ['', Validators.required],
       note: ['', Validators.maxLength(8000)],
@@ -55,28 +55,6 @@ export class FundingOrganizationFormComponent {
     });
 
     const controls = formGroup.controls;
-
-    controls.latitude.setValidators([
-      Validators.min(-90),
-      Validators.max(90),
-      this.requireWith(controls.longitude)
-    ]);
-
-    controls.longitude.setValidators([
-      Validators.min(-180),
-      Validators.max(180),
-      this.requireWith(controls.latitude)
-    ]);
-
-    controls.latitude.valueChanges.subscribe(value => {
-      controls.longitude.updateValueAndValidity({emitEvent: false, onlySelf: true})
-      controls.longitude.markAsDirty();
-    });
-
-    controls.longitude.valueChanges.subscribe(value => {
-      controls.latitude.updateValueAndValidity({emitEvent: false, onlySelf: true})
-      controls.latitude.markAsDirty();
-    });
 
     controls.partner.valueChanges.subscribe(value => {
       let partner = this.options.partners.find(
@@ -112,18 +90,7 @@ export class FundingOrganizationFormComponent {
 
     return formGroup;
   }
-
-  requireWith(otherControl: AbstractControl): ValidatorFn {
-    return (control: AbstractControl): {[key: string]: any} => {
-      let invalid = (control.value && !otherControl.value)
-        || (otherControl.value && !control.value);
-
-      return invalid
-        ? { requireWith: true }
-        : null;
-    }
-  }
-
+  
   resetForm(event) {
     event.preventDefault();
     this.form = this.createForm();
@@ -181,7 +148,7 @@ export class FundingOrganizationFormComponent {
     else {
       this.messages.push({
         type: 'danger',
-        text: 'Some fields have not passed all validation checks. Please update these fields and re-submit the form.'
+        text: 'Some fields have not passed all validation checks. Please update these fields and resubmit the form.'
       });
     };
   }

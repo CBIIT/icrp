@@ -198,8 +198,8 @@
         [ngClass]="{error: (!form.controls.latitude.pristine || !form.controls.longitude.pristine)
           && (form.controls.latitude.errors != null || form.controls.longitude.errors  != null)}"
         for="mapCoordinates">
-        Map Coordinates
-        <i class="text-muted normal-weight">(decimal degrees)</i>
+        Map Coordinates <span class="text-danger">*</span>
+        <i class="text-muted normal-weight pull-right">(decimal degrees)</i>
       </label>
       <input
         type="hidden"
@@ -254,8 +254,8 @@
           The longitude should be provided as a decimal number between -180.0 and 180.0 inclusive.
         </div>
 
-        <div *ngIf="(form.controls.latitude.errors != null && form.controls.latitude.errors.requireWith)
-          || (form.controls.longitude.errors != null && form.controls.longitude.errors.requireWith)">
+        <div *ngIf="(form.controls.latitude.errors != null && form.controls.latitude.errors.required)
+          || (form.controls.longitude.errors != null && form.controls.longitude.errors.required)">
           Both latitude and longitude are required.
         </div>
 
