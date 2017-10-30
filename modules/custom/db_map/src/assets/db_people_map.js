@@ -119,6 +119,6 @@ drupalSettings.db_map = {
     markerBounds.extend({lat:ne.lat()+latVar,lng:ne.lng()-lngVar});
     markerBounds.extend({lat:sw.lat()-latVar,lng:sw.lng()+lngVar});    
     map.fitBounds(markerBounds);
-    window.createOverlayForMap(undefined,map);
+    window.createOverlayForMap(map);
   }
 };

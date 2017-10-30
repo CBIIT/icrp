@@ -125,10 +125,7 @@ export default class App extends ComponentBase<{}, AppState> {
             View ICRP Data
           </a>
         </div>
-        <div className="position-relative">
-          <MapOverlay>
-            <ViewLevelSelector onSelect={locationFilters => this.selectLocation(locationFilters)} />
-          </MapOverlay>
+        <div>
           <GoogleMap
             locations={locations}
             viewLevel={viewLevel}

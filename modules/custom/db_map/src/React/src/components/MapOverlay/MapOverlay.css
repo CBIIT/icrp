@@ -1,3 +1,6 @@
+#icrp-map-overlay {
+  width: 100%;
+}
 
 .map-overlay {
   display: flex;

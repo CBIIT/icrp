@@ -8,7 +8,7 @@ export interface MapOverlayProps {
 };
 
 const MapOverlay = ({children}: MapOverlayProps) =>
-  <div>
+  <div id="icrp-map-overlay" className="position-relative">
     <div className="map-overlay position-absolute translucent" />
     <div className="map-overlay position-absolute">
       { children }

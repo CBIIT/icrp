@@ -3,6 +3,10 @@ import { DEFAULT_OPTIONS, LABELED_MAP, UNLABELED_MAP } from '../../services/MapC
 import { createLabel, createDataMarker, createInfoWindow, mapLabels } from '../../services/MapHelpers';
 import { getNextLocationFilters, Location, ViewLevel, LocationFilters, LocationCounts } from '../../services/DataService';
 import { LocationClusterer } from './LocationClusterer';
+import {
+  MapOverlay,
+  ViewLevelSelector
+} from '..';
 import './GoogleMap.css';
 
 export interface GoogleMapProps {
@@ -45,8 +49,9 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         this.redrawMap();
       }
     });
-
-    window['createOverlayForMap']('#icrp-map-header',this.map);
+    
+    this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(this.refs.mapoverlay['childNodes'][0]);
+    window['createOverlayForMap'](this.map);
   }
 
   componentWillReceiveProps(props: GoogleMapProps) {
@@ -240,10 +245,15 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
   render() {
     return (
-      <div
-        className="map-container position-relative"
-        ref={el => this.mapContainer = el}
-      />
+      <div ref="mapoverlay">
+        <MapOverlay>
+          <ViewLevelSelector onSelect={locationFilters => this.props.onSelect(locationFilters)} />
+        </MapOverlay>
+        <div
+          className="map-container position-relative"
+          ref={el => this.mapContainer = el}
+        />
+      </div>
     );
   }
 }

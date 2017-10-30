@@ -7,6 +7,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
     map.data.loadGeoJson('/modules/custom/db_map/src/assets/countries.json');
     drupalSettings.db_map.layer.reset();
     map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push($('#layer-map-legend')[0]);
+    map.controls[google.maps.ControlPosition.TOP_RIGHT].push($('#layer-map-select')[0]);
     drupalSettings.db_map.layer.infowindow = new google.maps.InfoWindow({pixelOffset:{height:70,width:0}});
   },
   infowindow: null,
@@ -80,6 +81,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
       return {
         fillColor: color,
         fillOpacity: 0.7,
+        strokeColor: color,
         strokeWeight: weight
       };
     });
@@ -101,7 +103,6 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
   }
 });
 
-window.createOverlayForMap = function(selector,map) {
-  if (selector !== undefined) $(selector).prepend($('#layer-map-select'));
+window.createOverlayForMap = function(map) {
   drupalSettings.db_map.layer.initMap(map);
 }
