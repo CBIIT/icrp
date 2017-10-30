@@ -187,7 +187,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
 
     <Row className='margin-bottom'>
       <Col md={6} >
-        <ControlLabel className='margin-right'>Map Coordinates</ControlLabel>
+        <ControlLabel className='margin-right'>Map Coordinates <Asterisk /></ControlLabel>
 
         <Row>
           <Col md={6} className="form-group-sm">

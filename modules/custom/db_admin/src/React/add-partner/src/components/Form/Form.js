@@ -177,14 +177,14 @@ export default class Form extends React.Component {
         numeric: true,
         min: -90,
         max: 90,
-        required: values.longitude != ''
+        required: true
       },
 
       longitude: {
         numeric: true,
         min: -180,
         max: 180,
-        required: values.latitude != ''
+        required: true
       }
     }
 
