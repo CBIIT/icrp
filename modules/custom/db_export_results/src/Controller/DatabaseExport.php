@@ -82,19 +82,8 @@ class DatabaseExport {
       ],
 
       'Collaborators' => [
-        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
-        'columns' =>  [
-          'ICRPProjectID'         => 'ICRP Project ID',
-          'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
-          'AltAwardCode'          => 'Alt. Award Code',
-          'piLastName'            => 'Last Name',
-          'piFirstName'           => 'First Name',
-          'Institution'           => 'Institution',
-          'City'                  => 'City',
-          'State'                 => 'State',
-          'Country'               => 'Country',
-          'Region'                => 'Region',
-        ],
+        'query' => 'EXECUTE GetProjectCollaboratorsBysearchID         @SearchID=:search_id',
+        'columns' =>  [],
       ],
     ],
 
@@ -133,19 +122,8 @@ class DatabaseExport {
       ],
 
       'Collaborators' => [
-        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
-        'columns' =>  [
-          'ICRPProjectID'         => 'ICRP Project ID',
-          'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
-          'AltAwardCode'          => 'Alt. Award Code',
-          'piLastName'            => 'Last Name',
-          'piFirstName'           => 'First Name',
-          'Institution'           => 'Institution',
-          'City'                  => 'City',
-          'State'                 => 'State',
-          'Country'               => 'Country',
-          'Region'                => 'Region',
-        ],
+        'query' => 'EXECUTE GetProjectCollaboratorsBysearchID         @SearchID=:search_id',
+        'columns' =>  [],
       ],
     ],
 
@@ -194,19 +172,8 @@ class DatabaseExport {
       ],
 
       'Collaborators' => [
-        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
-        'columns' =>  [
-          'ICRPProjectID'         => 'ICRP Project ID',
-          'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
-          'AltAwardCode'          => 'Alt. Award Code',
-          'piLastName'            => 'Last Name',
-          'piFirstName'           => 'First Name',
-          'Institution'           => 'Institution',
-          'City'                  => 'City',
-          'State'                 => 'State',
-          'Country'               => 'Country',
-          'Region'                => 'Region',
-        ],
+        'query' => 'EXECUTE GetProjectCollaboratorsBysearchID         @SearchID=:search_id',
+        'columns' =>  [],
       ],
     ],
 
