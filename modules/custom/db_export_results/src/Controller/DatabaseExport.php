@@ -80,6 +80,22 @@ class DatabaseExport {
           'CancerType'            => 'Cancer Type',
         ],
       ],
+
+      'Collaborators' => [
+        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
+        'columns' =>  [
+          'ICRPProjectID'         => 'ICRP Project ID',
+          'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
+          'AltAwardCode'          => 'Alt. Award Code',
+          'piLastName'            => 'Last Name',
+          'piFirstName'           => 'First Name',
+          'Institution'           => 'Institution',
+          'City'                  => 'City',
+          'State'                 => 'State',
+          'Country'               => 'Country',
+          'Region'                => 'Region',
+        ],
+      ],
     ],
 
     // Workbook definition for 'EXPORT_RESULTS_PARTNERS' method
@@ -113,6 +129,22 @@ class DatabaseExport {
           'ICRPCode'              => 'ICRP Code',
           'CancerType'            => 'Cancer Type',
           'Relevance'             => 'Relevance',
+        ],
+      ],
+
+      'Collaborators' => [
+        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
+        'columns' =>  [
+          'ICRPProjectID'         => 'ICRP Project ID',
+          'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
+          'AltAwardCode'          => 'Alt. Award Code',
+          'piLastName'            => 'Last Name',
+          'piFirstName'           => 'First Name',
+          'Institution'           => 'Institution',
+          'City'                  => 'City',
+          'State'                 => 'State',
+          'Country'               => 'Country',
+          'Region'                => 'Region',
         ],
       ],
     ],
@@ -158,6 +190,22 @@ class DatabaseExport {
           'ICRPCode'              => 'ICRP Code',
           'CancerType'            => 'Cancer Type',
           'Relevance'             => 'Relevance',
+        ],
+      ],
+
+      'Collaborators' => [
+        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
+        'columns' =>  [
+          'ICRPProjectID'         => 'ICRP Project ID',
+          'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
+          'AltAwardCode'          => 'Alt. Award Code',
+          'piLastName'            => 'Last Name',
+          'piFirstName'           => 'First Name',
+          'Institution'           => 'Institution',
+          'City'                  => 'City',
+          'State'                 => 'State',
+          'Country'               => 'Country',
+          'Region'                => 'Region',
         ],
       ],
     ],
