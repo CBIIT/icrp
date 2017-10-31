@@ -11,8 +11,8 @@ id: node.events.body
 field_name: body
 entity_type: node
 bundle: events
-label: 'Event Description'
-description: ''
+label: Body
+description: 'Enter details of the event.'
 required: false
 translatable: true
 default_value: {  }

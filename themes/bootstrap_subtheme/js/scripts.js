@@ -173,7 +173,11 @@
       if(url_path.substring(0, 9).toLowerCase() == '/calendar') {
         url_path = '/calendar';
       }
+      //alert(url_path);
       switch(url_path) {
+        case "/node/add/events":
+          $.preprocessAddEvents();
+          break;
         case "/":
           $.getNewsletter();
           //console.log("You are on the / page.");
@@ -220,29 +224,7 @@
           $("#become-a-partner-wells").matchHeight(true);
           break;
         case "/calendar":
-          $('.fc-listYear-button').text('Year');
-          $('.nav-tabs a').on('shown.bs.tab', function(event){
-             // $('#external_events > div > div.fullcalendar').fullCalendar('render');
-              $('.fc-today-button').click();
-          });
-          //console.log("Calendar Page");
-          if(!$('#add-event-meeting').length) {
-            var href = "/user-roles";
-            $.ajax({
-                url:  href
-            })
-            .success(function( data ) {
-              //console.log("data returned")
-              //console.dir(data);
-              var roles = JSON.parse(data);
-              //console.dir(roles);
-              if(!$('#add-event-meeting').length && (($.inArray("administrator", roles)>=0) || ($.inArray("manager", roles)>=0)))
-                  $('div.view-full-calendar-meetings > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-event-meeting" style="margin-top:7px;"><a href="/node/add/events?calendar_type=ICRP Meeting">+ Add Event</a></span>');
-            });
-          }
-
-          if(!$('#add-external-event').length)
-            $('div.view-full-calendar-external-events > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-external-event" style="margin-top:7px;"><a href="/node/add/events?calendar_type=External Event">+ Add Event</a></span>');
+          $.preprocessCalendar();
 
           break;
       }
@@ -277,6 +259,52 @@
           element.href = response[key];
         }
       });
+ }
+
+  $.preprocessAddEvents = function(e){
+    var calendar_type =decodeURIComponent($.urlParam("calendar_type"));
+    $('#edit-field-calendar-type').val(calendar_type);
+    if(calendar_type == "ICRP Meeting") {
+      $("#edit-field-event-group option[value='Conference/Meeting']").remove();
+      $("#edit-field-event-group option[value='Twitter Promotional Event']").remove();
+      $("#edit-field-event-group option[value='Webinar']").remove();
+      $("#edit-field-event-group option[value='Other']").remove();
+    } else {
+      $("#edit-field-event-group option[value='Partner News and Announcements']").remove();
+      $("#edit-field-event-group option[value='Annual Meetings']").remove();
+      $("#edit-field-event-group option[value='Communications and Membership']").remove();
+      $("#edit-field-event-group option[value='CSO and Coding']").remove();
+      $("#edit-field-event-group option[value='Evaluations and Analyses']").remove();
+      $("#edit-field-event-group option[value='Partner Operations']").remove();
+      $("#edit-field-event-group option[value='Website and Database']").remove();
+    }
+  }
+
+  $.preprocessCalendar = function(e){
+    $('.fc-listYear-button').text('Year');
+    $('.nav-tabs a').on('shown.bs.tab', function(event){
+       // $('#external_events > div > div.fullcalendar').fullCalendar('render');
+        $('.fc-today-button').click();
+    });
+    //console.log("Calendar Page");
+    if(!$('#add-event-meeting').length) {
+      var href = "/user-roles";
+      $.ajax({
+          url:  href
+      })
+      .success(function( data ) {
+        //console.log("data returned")
+        //console.dir(data);
+        var roles = JSON.parse(data);
+        //console.dir(roles);
+        if(!$('#add-event-meeting').length && (($.inArray("administrator", roles)>=0) || ($.inArray("manager", roles)>=0)))
+            $('div.view-full-calendar-meetings > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-event-meeting" style="margin-top:7px;"><a href="/node/add/events?calendar_type=ICRP Meeting&destination=/calendar">+ Add Event</a></span>');
+      });
+    }
+
+    if(!$('#add-external-event').length)
+      $('div.view-full-calendar-external-events > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-external-event" style="margin-top:7px;"><a href="/node/add/events?calendar_type=External Event&destination=/calendar">+ Add Event</a></span>');
+
   }
 
   $.hideCommentStatus = function(e){
