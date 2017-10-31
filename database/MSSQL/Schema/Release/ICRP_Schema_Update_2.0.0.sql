@@ -215,64 +215,65 @@ IF NOT EXISTS (SELECT * FROM lu_MapLayer WHERE MapLayerID = 1)
 	SELECT 1, 0, 'Cancer Incidence', 
 		'This layer displays the estimated age-standardized rates (world population) of incident cases, both sexes, all cancers excluding non-melanoma skin cancer, worldwide in 2012.', 
 		'Estimated age-standardized rates (world population) of incident cases, both sexes, all cancers excluding non-melanoma skin cancer, worldwide in 2012.',
-		'Ferlay J, Soerjomataram I, Ervik M, et al. GLOBOCAN 2012 v1.0, Cancer Incidence and Mortality Worldwide: IARC CancerBase No. 11 [Internet]. Available from: http://globocan.iarc.fr.', getdate(), getdate()
+		'Ferlay J, Soerjomataram I, Ervik M, et al. GLOBOCAN 2012 v1.0, Cancer Incidence and Mortality Worldwide: IARC CancerBase No. 11 [Internet]. Available from: <a href="http://globocan.iarc.fr" target="_blank">http://globocan.iarc.fr</a>', getdate(), getdate()
 
 IF NOT EXISTS (SELECT * FROM lu_MapLayer WHERE MapLayerID = 2)
 	INSERT INTO lu_MapLayer ([MapLayerID], [ParentMapLayerID], [Name], [Summary], [Description], [DataSource], [CreatedDate], [UpdatedDate])
 	SELECT 2, 0, 'Cancer Mortality', 
 		'This layer displays the estimated age-standardized rates (world population) of deaths, both sexes, all cancers excluding non-melanoma skin cancer, worldwide in 2012.',
 		'Estimated age-standardized rates (world population) of deaths, both sexes, all cancers excluding non-melanoma skin cancer, worldwide in 2012.',
-		'Ferlay J, Soerjomataram I, Ervik M, et al. GLOBOCAN 2012 v1.0, Cancer Incidence and Mortality Worldwide: IARC CancerBase No. 11 [Internet]. Available from: http://globocan.iarc.fr.', getdate(), getdate()
+		'Ferlay J, Soerjomataram I, Ervik M, et al. GLOBOCAN 2012 v1.0, Cancer Incidence and Mortality Worldwide: IARC CancerBase No. 11 [Internet]. Available from: <a href="http://globocan.iarc.fr" target="_blank">http://globocan.iarc.fr.</a>', getdate(), getdate()
 
 IF NOT EXISTS (SELECT * FROM lu_MapLayer WHERE MapLayerID = 3)
 	INSERT INTO lu_MapLayer ([MapLayerID], [ParentMapLayerID], [Name], [Summary], [Description], [DataSource], [CreatedDate], [UpdatedDate])
 	SELECT 3, 0, 'Cancer Prevalence', 
 		'This layer displays the estimated number of prevalence cases (1-year), both sexes, all cancers excluding non-melanoma skin cancer, worldwide in 2012.',
 		'Estimated number of prevalence cases (1-year), both sexes, all cancers excluding non-melanoma skin cancer, worldwide in 2012.',
-		'Ferlay J, Soerjomataram I, Ervik M, et al. GLOBOCAN 2012 v1.0, Cancer Incidence and Mortality Worldwide: IARC CancerBase No. 11 [Internet]. Available from: http://globocan.iarc.fr.', getdate(), getdate()
+		'Ferlay J, Soerjomataram I, Ervik M, et al. GLOBOCAN 2012 v1.0, Cancer Incidence and Mortality Worldwide: IARC CancerBase No. 11 [Internet]. Available from: <a href="http://globocan.iarc.fr" target="_blank">http://globocan.iarc.fr.</a>', getdate(), getdate()
 
 IF NOT EXISTS (SELECT * FROM lu_MapLayer WHERE MapLayerID = 4)
 	INSERT INTO lu_MapLayer ([MapLayerID], [ParentMapLayerID], [Name], [Summary], [Description], [DataSource], [CreatedDate], [UpdatedDate])
 	SELECT 4, 0, 'World Bank Income Bands', 
 		'This layer displays the 2016 World Bank country classifications by income level, based on estimates of gross national income per capita for 2015.',
 		'This layer displays the 2016 World Bank country classifications by income level, based on estimates of gross national income per capita for 2015.',
-		'https://data.worldbank.org/', getdate(), getdate()
+		'<a href="https://data.worldbank.org/" target="_blank">https://data.worldbank.org/</a>', getdate(), getdate()
 	
 GO
 
 -- lu_MapLayerLegend
 TRUNCATE TABLE [lu_MapLayerLegend]
 
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, '> 244.2', '#08519C', 1
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, '174.3 - 244.2', '#3182BD', 2
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, '137.6 - 174.3', '#6BAED6', 3
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, '101.6 - 137.6', '#9ECAE1', 4
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, '< 101.6', '#C6DBEF', 5
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, '> 244.2', '#3d1b00', 1
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, '174.3 - 244.2', '#6d3e1a', 2
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, '137.6 - 174.3', '#91623e', 3
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, '101.6 - 137.6', '#cc9c78', 4
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, '< 101.6', '#f7d4b9', 5
 INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, 'No data', '#F0F0F0', 6
 INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 1, 'Not applicable', '#7D7D7D', 7
 
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, '117.0', '#08519C', 1
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, '99.9-117.0', '#3182BD', 2
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, '89.8-99.9', '#6BAED6', 3
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, '74.0-89.8', '#9ECAE1', 4
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, '< 74.0', '#C6DBEF', 5
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, '117.0', '#330012', 1
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, '99.9-117.0', '#631c35', 2
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, '89.8-99.9', '#99526b', 3
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, '74.0-89.8', '#cc9faf', 4
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, '< 74.0', '#f9dee8', 5
 INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, 'No data', '#F0F0F0', 6
 INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 2, 'Not applicable', '#7D7D7D', 7
 
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, '> 328.7', '#08519C', 1
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, '139.6-328.7', '#3182BD', 2
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, '85.7-139.6', '#6BAED6', 3
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, '62.6-85.7', '#9ECAE1', 4
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, '< 62.6', '#C6DBEF', 5
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, '> 328.7', '#065100', 1
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, '139.6-328.7', '#208c17', 2
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, '85.7-139.6', '#4dc643', 3
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, '62.6-85.7', '#8be884', 4
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, '< 62.6', '#cbf7c8', 5
 INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, 'No data', '#F0F0F0', 6
 INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 3, 'Not applicable', '#7D7D7D', 7
 
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 4, 'High Income', '#08519C', 1
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 4, 'Upper Middle Income', '#467DB5', 2
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 4, 'Lower Middle Income', '#84A8CE', 3
-INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 4, 'Low Income', '#C2D4E7', 4
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 4, 'High Income', '#414700', 1
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 4, 'Upper Middle Income', '#79820e', 2
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 4, 'Lower Middle Income', '#d0d86e', 3
+INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 4, 'Low Income', '#f5f9c2', 4
 INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 4, 'No data', '#F0F0F0', 5
 INSERT INTO [lu_MapLayerLegend] ([MapLayerID], [LegendName], [LegendColor], [DisplayOrder]) SELECT 4, 'Not applicable', '#7D7D7D', 6		
+
 
 /*************************************************/
 /******					Keys				******/

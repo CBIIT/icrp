@@ -1364,6 +1364,56 @@ AS
 GO
 
 
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetProjectCollaboratorsBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectCollaboratorsBysearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetProjectCollaboratorsBysearchID] 
+GO 
+
+CREATE PROCEDURE [dbo].[GetProjectCollaboratorsBysearchID]   
+    @SearchID INT
+AS   
+  ------------------------------------------------------
+	-- Get saved search results by searchID
+	------------------------------------------------------	
+	DECLARE @Result TABLE (
+		ProjectID INT NOT NULL
+	)
+
+	DECLARE @ProjectIDs VARCHAR(max) 
+	IF @SearchID = 0
+	BEGIN
+		INSERT INTO @Result SELECT DISTINCT ProjectID From vwProjectFundings		
+	END
+	ELSE
+	BEGIN
+		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
+		
+		INSERT INTO @Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+	END
+
+	-----------------------------------------------------------		
+	--  Get project CancerTypes
+	-----------------------------------------------------------			 
+	SELECT f.ProjectID, f.ProjectFundingID AS ICRPProjectFundingID, f.AltAwardCode, pi.LastName, pi.FirstName, i.Name AS Institution, i.City, i.State, i.Country, l.Name AS Region	
+	FROM @Result r
+		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID
+		JOIN ProjectFundingInvestigator pi ON f.ProjectFundingID = pi.ProjectFundingID
+		JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+		JOIN Country c ON i.Country = c.Abbreviation
+		JOIN lu_Region l ON c.RegionID = l.RegionID
+	WHERE pi.IsPrincipalInvestigator = 0	
+	ORDER BY f.ProjectID, f.ProjectFundingID
+GO
+
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetPartners]    Script Date: 12/14/2016 4:21:37 PM ******/
 ----------------------------------------------------------------------------------------------------------
@@ -1959,7 +2009,7 @@ BEGIN TRY
 	FROM #unique u JOIN Institution i ON u.Name = i.Name AND u.City = i.City	
 
 	-- Insert into icrp_data: DO NOT insert the institutions which already exist in the Institutions lookup 
-	INSERT INTO icrp_data.dbo.Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
+	INSERT INTO Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
 	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM #unique i
 		LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.City
 	WHERE (e.Name IS NULL)
@@ -1970,7 +2020,14 @@ BEGIN TRY
 		LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.City
 	WHERE (e.Name IS NULL)
 
-	-- return institutions those exist and not been inserted 
+	-- Insert City coordinates into lu_city if they rae new
+	INSERT INTO lu_City (Name, State, Country, Latitude, Longitude)	
+	SELECT i.City, i.State, i.Country, i.Latitude, i.Longitude
+	FROM (SELECT City, State, Country, MIN(Latitude) AS Latitude,  MIN(Longitude) AS Longitude FROM Institution GROUP BY City, State, Country) i
+		LEFT JOIN lu_City c ON i.City=c.Name AND ISNULL(i.State, '') = ISNULL(c.State, '') AND i.Country = c.Country		
+	WHERE i.City <> 'Missing' AND c.Name IS NULL AND i.Latitude IS NOT NULL AND i.Longitude IS NOT NULL
+
+	-- return already exist institutions not being inserted 
 	SELECT * FROM #exist
 
 	IF object_id('tmp_LoadInstitutions') is not null
@@ -1988,8 +2045,6 @@ BEGIN CATCH
       RAISERROR (@msg, 16, 1)
 	        
 END CATCH  
-
-
 
 GO
 
@@ -4168,10 +4223,10 @@ AS
 	SELECT City, Country, State, Count(*) AS Count INTO #collab FROM (SELECT City, Country, State, ProjectFundingID FROM #tmp WHERE IsPrincipalInvestigator=0) collab GROUP BY Country, City, State
 
 	-- Return RelatedProject Count, PI Count and collaborator Count by region
-	SELECT 
+	SELECT p.City, 
 	CASE ISNULL(p.State, '')
 		WHEN '' THEN p.City	ELSE p.City + ', ' + ISNULL(p.State, '') 
-	END AS City,
+	END AS DisplayedCity,
 	ISNULL(p.Count, 0) AS TotalRelatedProjectCount, ISNULL(pi.Count,0) AS TotalPICount, ISNULL(c.Count, 0) AS TotalCollaboratorCount, city.Latitude, city.Longitude
 	FROM #proj p
 		--JOIN Country ctry ON ctry.Abbreviation = p.City
@@ -4257,22 +4312,23 @@ GO
 	
 
 ----------------------------------------------------------------------------------------------------------
-/****** Object:  StoredProcedure [dbo].[GetProjectsFromMapBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[AddNewSearchBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
 ----------------------------------------------------------------------------------------------------------
 SET ANSI_NULLS ON
 GO
 
 SET QUOTED_IDENTIFIER ON
 GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectsFromMapBySearchID]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetProjectsFromMapBySearchID]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AddNewSearchBySearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[AddNewSearchBySearchID]
 GO 
 
-CREATE PROCEDURE [dbo].[GetProjectsFromMapBySearchID]  
+CREATE PROCEDURE [dbo].[AddNewSearchBySearchID]  
 @SearchID INT,
 @RegionID INT = NULL,
 @Country VARCHAR(3) = NULL,
 @City VARCHAR(50) = NULL,
+@InstitutionID INT = NULL,
 @searchCriteriaID INT OUTPUT,  -- return the searchID	
 @ResultCount INT OUTPUT  -- return the searchID		
 AS   
@@ -4302,10 +4358,9 @@ AS
 			JOIN (SELECT * FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator=1) pi ON pf.ProjectFundingID = pi.ProjectFundingID  -- only get pi
 			JOIN Institution i ON pi.InstitutionID = i.InstitutionID
 			JOIN Country c ON i.Country = c.Abbreviation			
-		WHERE (@RegionID IS NULL OR @RegionID = c.RegionID) AND (@Country IS NULL OR @Country = i.Country) AND (@City IS NULL OR @City = i.City)
+		WHERE (@RegionID IS NULL OR @RegionID = c.RegionID) AND (@Country IS NULL OR @Country = i.Country) AND (@City IS NULL OR @City = i.City) AND (@InstitutionID IS NULL OR @InstitutionID = i.InstitutionID)
 
-	
-----------------------------------
+	----------------------------------
 	-- Save search criteria
 	----------------------------------	
 	DECLARE @TotalRelatedProjectCount INT
@@ -4323,37 +4378,47 @@ AS
            ISNULL(CASE WHEN LEN(@ProjectIDList) = 0 THEN '' ELSE ',' END + CONVERT( VarChar(20), ProjectID), '')
 	FROM #baseProj	
 
+	DECLARE @InstitutionName VARCHAR(250)
+	IF @InstitutionID IS NOT NULL
+		SELECT @InstitutionName = Name FROM Institution WHERE InstitutionID = @InstitutionID
+
 	IF @SearchID=0
 	BEGIN
-	INSERT INTO SearchCriteria ([cityList],[countryList],[RegionList])
-		SELECT @City, @Country,@RegionID		
+	INSERT INTO SearchCriteria ([cityList],[countryList],[RegionList], [institution])
+		SELECT @City, @Country,@RegionID, @InstitutionName		
 	END
 	ELSE
-	BEGIN
-	INSERT INTO SearchCriteria ([termSearchType],[terms],[institution],[piLastName],[piFirstName],[piORCiD],[awardCode],
-		[yearList], [cityList],[stateList],[countryList],[RegionList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [IsChildhood])
-		SELECT [termSearchType],[terms],[institution],[piLastName],[piFirstName],[piORCiD],[awardCode],
-			[yearList], @City,[stateList],@Country,@RegionID, [fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [IsChildhood]
-		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
+	BEGIN	  
+
+		INSERT INTO SearchCriteria ([termSearchType],[terms],[piLastName],[piFirstName],[piORCiD],[awardCode],
+			[yearList], [stateList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [IsChildhood], 
+			[institution], [cityList], [countryList], [RegionList])
+
+			SELECT [termSearchType],[terms],[piLastName],[piFirstName],[piORCiD],[awardCode],
+				[yearList], [stateList], [fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [IsChildhood],
+
+				CASE
+				WHEN @InstitutionName IS NULL THEN [institution]
+				ELSE @InstitutionName END,				
+				
+				CASE
+				WHEN @City IS NULL THEN [cityList]
+				ELSE @City END,
+				
+				CASE
+				WHEN @Country IS NULL THEN [countryList]
+				ELSE @Country END,
+
+				CASE
+				WHEN @RegionID IS NULL THEN [RegionList]
+				ELSE @RegionID END		
+				
+			FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 	END									 
-	SELECT @searchCriteriaID = SCOPE_IDENTITY()	
+	SELECT @searchCriteriaID = SCOPE_IDENTITY()		
 		
 	INSERT INTO SearchResult (SearchCriteriaID, Results,ResultCount, TotalRelatedProjectCount, LastBudgetYear, IsEmailSent) VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, @TotalRelatedProjectCount, @LastBudgetYear, 0)	
 	
-	----------------------------------	
-	-- Sort and Pagination
-	--   Note: Return only base projects and projects' most recent funding
-	----------------------------------
-	SELECT p.*, maxf.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
-		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort FROM
-		(SELECT DISTINCT ProjectID FROM #proj) p
-		 JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f GROUP BY ProjectID) maxf ON p.ProjectID = maxf.ProjectID
-		 JOIN ProjectFunding f ON maxf.ProjectFundingID = f.projectFundingID
-		 JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
-		 JOIN Institution i ON i.InstitutionID = pi.InstitutionID
-		 JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
-	ORDER BY title ASC	OFFSET 0 ROWS FETCH NEXT 50 ROWS ONLY
-
 GO
 
 
@@ -4403,7 +4468,7 @@ GO
 
 
 ----------------------------------------------------------------------------------------------------------
-/****** Object:  StoredProcedure [dbo].[GetMayLayerByCountry]    Script Date: 12/14/2016 4:21:47 PM ******/
+/****** Object:  StoredProcedure [dbo].[GetMapLayerByCountry]    Script Date: 12/14/2016 4:21:47 PM ******/
 ----------------------------------------------------------------------------------------------------------
 SET ANSI_NULLS ON
 GO
@@ -4411,14 +4476,14 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetMayLayerByCountry]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetMayLayerByCountry]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetMapLayerByCountry]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].GetMapLayerByCountry
 GO 
 
-CREATE PROCEDURE [dbo].[GetMayLayerByCountry]  
+CREATE PROCEDURE [dbo].GetMapLayerByCountry  
 	@MapLayerID	INT
 AS   
 
-	SELECT Country, MapLayerLegendID FROM CountryMapLayer WHERE MapLayerID = 1--@MapLayerID	
+	SELECT Country, MapLayerLegendID FROM CountryMapLayer WHERE MapLayerID = @MapLayerID	
 		
 GO
