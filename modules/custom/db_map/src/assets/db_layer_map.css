@@ -23,3 +23,19 @@
 #layer-map-legend > div > span.selected:first-child {
   border-color: #000;
 }
+
+#layer-map-legend > *:last-child {
+  font-size: 1.3em;
+  padding-top: 5px;
+}
+
+#layer-map-select {
+  font-size: 20px;
+  line-height: 32px;
+  padding-right: 2px;
+}
+
+#layer-map-select span {
+  color: #FFF;
+  padding-right: 0.5em;
+}

@@ -8,15 +8,6 @@
 <div class="flex-space-between margin-bottom margin-top">
   <a href="/project/funding-details/{{funding_id}}" class="cursor-pointer">View Project Funding Details</a>
 </div>
-<div id="layer-map-select">
-  <select>
-    <option value="">None</option>
-{% for row in layers %}
-    <option value="{{ row.MapLayerID }}">{{ row.Name }}</option>
-{% endfor %}
-  </select>
-</div>
-<div id="layer-map-legend" class="hide"></div>
 <div id="icrp-map" class="map-container"></div>
 <div class="project-collaborators-header">
   <button id="db_people_map_export" class="btn btn-default btn-sm margin-top margin-bottom">

@@ -3,17 +3,41 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
   country: null,
   currLayer: "",
   initMap: function(map) {
+    var layers = drupalSettings.db_map.layer.layers,
+        layerSelect;
     drupalSettings.db_map.layer.map = map;
     map.data.loadGeoJson('/modules/custom/db_map/src/assets/countries.json');
     drupalSettings.db_map.layer.reset();
-    map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push($('#layer-map-legend')[0]);
-    map.controls[google.maps.ControlPosition.TOP_RIGHT].push($('#layer-map-select')[0]);
+    map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push($('<div id="layer-map-legend" class="hide"/>')[0]);
+    layerSelect = $('<select></select>').on('click',drupalSettings.db_map.layer.onSelect);
+    layerSelect.append('<option value="">None</option>');
+    for (var i in layers) {
+      layerSelect.append('<option value="'+layers[i].MapLayerID+'">'+layers[i].Name+'</option>');
+    }
+    map.controls[google.maps.ControlPosition.TOP_RIGHT].push($('<div id="layer-map-select"/>').append($('<span>Layer</span>')).append(layerSelect)[0]);
     drupalSettings.db_map.layer.infowindow = new google.maps.InfoWindow({pixelOffset:{height:70,width:0}});
   },
   infowindow: null,
   layers: db_layer_map.layers,
   legend: null,
   map: null,
+  onSelect: function(e) {
+    e.preventDefault();
+    var old = drupalSettings.db_map.layer.currLayer,
+        val = this.value;
+    if (old === val) return;
+    if (val === "") {
+      drupalSettings.db_map.layer.reset();
+    } else {
+      $.get({
+        url: '/map/layer/data/'+val
+      }).done(function(resp) {
+        drupalSettings.db_map.layer.updateLegend(resp.legend);
+        drupalSettings.db_map.layer.updateLayers(resp.country);
+      });
+    }
+    drupalSettings.db_map.layer.currLayer = val;
+  },
   reset: function() {
     $('#layer-map-legend').addClass('hide').empty();
     drupalSettings.db_map.layer.map.data.setStyle({
@@ -88,7 +112,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
   },
   updateLegend: function(legend) {
     drupalSettings.db_map.layer.legend = legend;
-    var legendHTML = $('#layer-map-legend').empty().removeClass('hide').append('<h3>'+$('#layer-map-select option:selected').text()+'</h3>'),
+    var legendHTML = $('#layer-map-legend').empty().removeClass('hide').append('<h4>'+$('#layer-map-select option:selected').text()+'</h4>'),
         legendline,
         legendcolor;
     legend.forEach(function(entry) {

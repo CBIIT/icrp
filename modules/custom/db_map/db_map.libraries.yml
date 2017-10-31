@@ -7,7 +7,6 @@ default:
   js:
     https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg: {}
     src/assets/db_layer_map.js: {}
-    src/assets/db_layer_map_controls.js: {}
     src/assets/main.js: {}
 
 
@@ -22,5 +21,4 @@ map.people:
     src/assets/db_people_map.js: {}
     src/assets/db_people_map_controls.js: {}
     src/assets/db_layer_map.js: {}
-    src/assets/db_layer_map_controls.js: {}
     https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg&callback=drupalSettings.db_map.initPeopleMap: {async: true, defer: true}
