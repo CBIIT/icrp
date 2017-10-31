@@ -199,7 +199,6 @@
           && (form.controls.latitude.errors != null || form.controls.longitude.errors  != null)}"
         for="mapCoordinates">
         Map Coordinates <span class="text-danger">*</span>
-        <i class="text-muted normal-weight pull-right">(decimal degrees)</i>
       </label>
       <input
         type="hidden"
@@ -217,7 +216,7 @@
           name="latitude"
           class="form-control"
           type="number"
-          placeholder="Enter latitude"
+          placeholder="Enter latitude (eg: 32.30642)"
           fxFlex
           fxFlex.lt-md="nogrow"
           max="90"
@@ -230,7 +229,7 @@
           name="longitude"
           class="form-control"
           type="number"
-          placeholder="Enter longitude"
+          placeholder="Enter longitude (eg: -122.61458)"
           fxFlex
           fxFlex.lt-md="nogrow"
           max="180"
