@@ -28,18 +28,18 @@ class DatabaseExport {
 
   /**
    * Workbook definitions
-   * 
+   *
    * Each entry is an associative array that corresponds to an excel workbook
    * This array contains entries that correspond to sheets within the workbook
-   * The 'query' property of this array specifies the query that is to be performed against the database 
+   * The 'query' property of this array specifies the query that is to be performed against the database
    * The 'columns' property specifies the column mapping that is to be applied to the results set (as well as defining any custom column names)
-   *   - if empty, no mappings will be applied and the entire results set will be written to the specified sheet 
+   *   - if empty, no mappings will be applied and the entire results set will be written to the specified sheet
   */
   private const EXPORT_MAP = [
 
     // Workbook definition for 'EXPORT_RESULTS_PUBLIC' method
     self::EXPORT_RESULTS_PUBLIC  => [
-      
+
       // Sheet definition for 'Search Results'
       'Search Results' => [
         'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
@@ -57,7 +57,7 @@ class DatabaseExport {
           'icrpURL'       => 'View in ICRP',
         ],
       ],
-      
+
       // Sheet definition for 'Projects by CSO'
       'Projects by CSO' => [
         'query' => 'EXECUTE GetProjectCSOsBySearchID            @SearchID=:search_id',
@@ -81,20 +81,9 @@ class DatabaseExport {
         ],
       ],
 
-      'Collaborators' => [
-        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
-        'columns' =>  [
-          'ICRPProjectID'         => 'ICRP Project ID',
-          'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
-          'AltAwardCode'          => 'Alt. Award Code',
-          'piLastName'            => 'Last Name',
-          'piFirstName'           => 'First Name',
-          'Institution'           => 'Institution',
-          'City'                  => 'City',
-          'State'                 => 'State',
-          'Country'               => 'Country',
-          'Region'                => 'Region',
-        ],
+      'Project Collaborators' => [
+        'query' => 'EXECUTE GetProjectCollaboratorsBysearchID         @SearchID=:search_id',
+        'columns' =>  [],
       ],
     ],
 
@@ -106,7 +95,7 @@ class DatabaseExport {
         'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
         'columns' =>  [/* use original columns from database */],
       ],
-      
+
       // Sheet definition for 'Projects by CSO'
       'Projects by CSO' => [
         'query' => 'EXECUTE GetProjectCSOsBySearchID            @SearchID=:search_id',
@@ -132,20 +121,9 @@ class DatabaseExport {
         ],
       ],
 
-      'Collaborators' => [
-        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
-        'columns' =>  [
-          'ICRPProjectID'         => 'ICRP Project ID',
-          'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
-          'AltAwardCode'          => 'Alt. Award Code',
-          'piLastName'            => 'Last Name',
-          'piFirstName'           => 'First Name',
-          'Institution'           => 'Institution',
-          'City'                  => 'City',
-          'State'                 => 'State',
-          'Country'               => 'Country',
-          'Region'                => 'Region',
-        ],
+      'Project Collaborators' => [
+        'query' => 'EXECUTE GetProjectCollaboratorsBysearchID         @SearchID=:search_id',
+        'columns' =>  [],
       ],
     ],
 
@@ -167,7 +145,7 @@ class DatabaseExport {
         'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=1, @SiteURL=:site_url',
         'columns' =>  [/* use original columns from database */],
       ],
-      
+
       // Sheet definition for 'Projects by CSO'
       'Projects by CSO' => [
         'query' => 'EXECUTE GetProjectCSOsBySearchID            @SearchID=:search_id',
@@ -193,20 +171,9 @@ class DatabaseExport {
         ],
       ],
 
-      'Collaborators' => [
-        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
-        'columns' =>  [
-          'ICRPProjectID'         => 'ICRP Project ID',
-          'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
-          'AltAwardCode'          => 'Alt. Award Code',
-          'piLastName'            => 'Last Name',
-          'piFirstName'           => 'First Name',
-          'Institution'           => 'Institution',
-          'City'                  => 'City',
-          'State'                 => 'State',
-          'Country'               => 'Country',
-          'Region'                => 'Region',
-        ],
+      'Project Collaborators' => [
+        'query' => 'EXECUTE GetProjectCollaboratorsBysearchID         @SearchID=:search_id',
+        'columns' =>  [],
       ],
     ],
 
@@ -446,7 +413,7 @@ class DatabaseExport {
   }
 
   /**
-   * Performs the specified query on the database with the given parameters 
+   * Performs the specified query on the database with the given parameters
    * and returns a PDOStatement containing the results set
    *
    * @param PDO $pdo
@@ -461,8 +428,8 @@ class DatabaseExport {
     foreach($parameters as $key => $entry) {
       if (strpos($query, ":$key") !== false) {
         $stmt->bindParam(
-          ":$key", 
-          $entry['value'], 
+          ":$key",
+          $entry['value'],
           $entry['type']
         );
       }
@@ -532,7 +499,7 @@ class DatabaseExport {
         $rows = [array_values($sheet_columns)];
         $columns = array_keys($sheet_columns);
         while ($row = $results->fetch(PDO::FETCH_ASSOC)) {
-          array_push($rows, 
+          array_push($rows,
             array_map(function($column) use ($row) {
               return $row[$column];
             }, $columns)
@@ -621,7 +588,7 @@ class DatabaseExport {
     $writer->save($paths['filepath']);
 
 
-    
+
     return $paths['uri'];
   }
 

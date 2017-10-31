@@ -101,6 +101,8 @@ export class FundingOrganizationFormComponent {
       this.form.controls[key].markAsDirty();
     }
 
+    this.messages = [];    
+
     if (this.form.valid) {
       let formValue = this.form.value;
       let formData = new FormData();
@@ -144,13 +146,6 @@ export class FundingOrganizationFormComponent {
           }
         });
     }
-
-    else {
-      this.messages.push({
-        type: 'danger',
-        text: 'Some fields have not passed all validation checks. Please update these fields and resubmit the form.'
-      });
-    };
   }
 
 }
