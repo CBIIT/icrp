@@ -60,7 +60,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
     e.preventDefault();
     var infowindow = drupalSettings.db_map.layer.infowindow,
         map = drupalSettings.db_map.layer.map,
-        index = $('#layer-map-select').val(),
+        index = drupalSettings.db_map.layer.currLayer,
         layer = drupalSettings.db_map.layer.layers.filter(function(entry) { return entry.MapLayerID == index; });
     if (layer.length != 1) return false;
     layer = layer[0];
