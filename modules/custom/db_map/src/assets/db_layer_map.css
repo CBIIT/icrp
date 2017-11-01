@@ -30,12 +30,20 @@
 }
 
 #layer-map-select {
-  font-size: 20px;
   line-height: 32px;
   padding-right: 2px;
 }
 
 #layer-map-select span {
   color: #FFF;
+  font-size: 20px;
+  margin-top: 2px;
   padding-right: 0.5em;
+}
+
+#layer-map-select select {
+  display: inline-block;
+  font-size: 16px;
+  margin-top: 5px;
+  vertical-align: top;
 }
