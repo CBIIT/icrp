@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ComponentBase  } from 'resub';
 import { store } from '../../services/Store';
-import { LocationFilters, getRegionFromId, ViewLevel } from '../../services/DataService';
+import { LocationFilters, getRegionFromId, getCountryFromAbbreviation, ViewLevel } from '../../services/DataService';
 import './ViewLevelSelector.css';
 
 interface ViewLevelTag {
@@ -71,7 +71,7 @@ export default class ViewLevelSelector extends ComponentBase<ViewLevelSelectorPr
       delete regionFilter.city;
 
       viewLevelTags.push({
-        label: regionFilter.country || 'Country',
+        label: getCountryFromAbbreviation(regionFilter.country || 'Country'),
         locationFilters: regionFilter,
       })
     }

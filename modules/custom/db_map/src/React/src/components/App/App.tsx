@@ -31,12 +31,14 @@ export interface AppState {
   viewLevel: ViewLevel;
   locationFilters: LocationFilters;
   locations: Location[];
+  mapLocations: Location[];
   searchCriteria: any[][];
   locationCounts: LocationCounts
 }
 
 export default class App extends ComponentBase<{}, AppState> {
 
+  state: AppState;
   initialLoad = true;
 
   _buildState(): AppState {
@@ -45,6 +47,7 @@ export default class App extends ComponentBase<{}, AppState> {
       locationFilters: store.getLocationFilters(),
 
       locations: store.getLocations(),
+      mapLocations: store.getMapLocations(),
       searchCriteria: store.getSearchCriteria(),
       locationCounts: store.getLocationCounts(),
     }
@@ -83,6 +86,7 @@ export default class App extends ComponentBase<{}, AppState> {
     store.setLocationFilters(locationFilters);
     store.setLocationCounts(response.counts);
     store.setLocations(response.locations);
+    store.setMapLocations(response.locations);
     store.setLoading(false);
     this.updateSearchCriteria();
   }
@@ -90,8 +94,6 @@ export default class App extends ComponentBase<{}, AppState> {
   async updateSearchCriteria() {
     const { locationFilters } = this.state;
     store.setSearchCriteria([['Loading...']]);
-
-    console.log('inital view', this.initialLoad);
 
     if (this.initialLoad) {
       let response = await getSearchParameters(SEARCH_ID);
@@ -109,6 +111,7 @@ export default class App extends ComponentBase<{}, AppState> {
     let {
       viewLevel,
       locations,
+      mapLocations,
       locationCounts,
       searchCriteria,
       locationFilters,
@@ -127,7 +130,7 @@ export default class App extends ComponentBase<{}, AppState> {
         </div>
         <div>
           <GoogleMap
-            locations={locations}
+            locations={mapLocations}
             viewLevel={viewLevel}
             locationFilters={locationFilters}
             showMapLabels={viewLevel !== 'regions'}

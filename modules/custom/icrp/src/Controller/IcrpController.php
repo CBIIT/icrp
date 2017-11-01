@@ -57,12 +57,26 @@ class IcrpController extends ControllerBase {
     /**
     * @return JsonResponse
     */
-    public function getNodeAsModal($nid) {
+    public function getNodeAsJson($nid) {
         //dump($nid);
         $node = Node::load($nid);
         $view = node_view($node,'full');
         $html = render($view);
         $response = new JsonResponse($html);
+
+        return $response;
+
+    }
+    /**
+    * @return JsonResponse
+    */
+    public function getNodeAsModal($nid) {
+        //dump($nid);
+        $node = Node::load($nid);
+        $view = node_view($node, 'teaser');
+        $html = render($view);
+        $response = new AjaxResponse();
+        $response->addCommand(new OpenModalDialogCommand(t('Modal Title'), $html));
 
         return $response;
 

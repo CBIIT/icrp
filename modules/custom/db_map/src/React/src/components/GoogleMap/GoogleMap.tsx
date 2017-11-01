@@ -1,15 +1,17 @@
 import * as React from 'react';
 import { DEFAULT_OPTIONS, LABELED_MAP, UNLABELED_MAP } from '../../services/MapConstants';
 import { createLabel, createDataMarker, createInfoWindow, mapLabels } from '../../services/MapHelpers';
-import { getNextLocationFilters, Location, ViewLevel, LocationFilters, LocationCounts } from '../../services/DataService';
+import { getNextLocationFilters, Location, ViewLevel, LocationFilters, LocationCounts, parseViewLevel } from '../../services/DataService';
 import { LocationClusterer } from './LocationClusterer';
 import {
   MapOverlay,
   ViewLevelSelector
 } from '..';
 import './GoogleMap.css';
+import { store } from '../../services/Store';
 
 export interface GoogleMapProps {
+  children?: JSX.Element;
   locations: Location[];
   viewLevel: ViewLevel;
   locationFilters: LocationFilters;
@@ -30,6 +32,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
   infoWindows: google.maps.InfoWindow[] = [];
   shouldRedraw: boolean = false;
   shouldFitBounds: boolean = false;
+  clusterClicked: boolean = false;
 
   async componentDidMount() {
     this.map = new google.maps.Map(this.mapContainer, DEFAULT_OPTIONS);
@@ -45,20 +48,24 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       this.shouldFitBounds = false;
 
       // we should redraw clusters by default
-      if (this.shouldRedraw) {
+      if (this.shouldRedraw && !this.clusterClicked) {
         this.redrawMap();
       }
     });
     
     this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(this.refs.mapoverlay['childNodes'][0]);
-    window['createOverlayForMap'](this.map);
+    window['createOverlayForMap'] && window['createOverlayForMap'](this.map);
   }
 
   componentWillReceiveProps(props: GoogleMapProps) {
     this.props = props;
 
+    console.log('recieved new map props', props);
+
     // redraw this map when recieving new properties
     if (this.map !== null && props.locations !== this.locations) {
+      console.log('drawing');
+
       this.shouldFitBounds = true;
       this.shouldRedraw = false;
 
@@ -69,13 +76,60 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       this.labels = [];
 
       // fit to bounds before redrawing map
-      let bounds = new google.maps.LatLngBounds();
-      props.locations.map(loc => loc.coordinates)
-        .filter(coords => coords.lat != 0 && coords.lng != 0)
-        .forEach(latlng => bounds.extend(latlng));
-      this.map.fitBounds(bounds);
 
-      console.log('fitted map to bounds: ', bounds);
+      if (this.locations.length > 1) {
+        let bounds = new google.maps.LatLngBounds();
+        let projection = this.map.getProjection();
+        let overlay = new google.maps.OverlayView();
+        overlay.setMap(this.map);
+        overlay.draw = () => {};
+        let proj = overlay.getProjection()
+        
+
+        props.locations.map(loc => loc.coordinates)
+          .filter(coords => coords.lat != 0 && coords.lng != 0)
+          .forEach(latlng => bounds.extend(latlng));
+
+        let northEast = bounds.getNorthEast();
+        let southWest = bounds.getSouthWest();
+
+        let northEastPoint = proj.fromLatLngToDivPixel(northEast);
+        let southWestPoint = proj.fromLatLngToDivPixel(southWest);
+        
+        let length = northEastPoint.x - southWestPoint.x;
+        let height = southWestPoint.y - northEastPoint.y;
+
+        console.log('length, height', length, height);
+        
+        let scaleX = 1.05;
+        let scaleY = 1.05;
+
+        if (Math.abs(length) < 1 || Math.abs(height) < 1) {
+          scaleX = 1 + Math.abs(length) / 500;
+          scaleY = 1 + Math.abs(height) / 500;
+        }
+
+        northEastPoint.x *= scaleX;
+        northEastPoint.y /= scaleY;
+        
+        southWestPoint.x /= scaleX;
+        southWestPoint.y *= scaleY;
+
+        northEast = proj.fromDivPixelToLatLng(northEastPoint);
+        southWest = proj.fromDivPixelToLatLng(southWestPoint);
+        bounds.extend(northEast);
+        bounds.extend(southWest);
+
+        this.map.fitBounds(bounds);
+      }
+
+      else {
+        this.map.setCenter({
+          lat: 25,
+          lng: 0
+        });
+        this.map.setZoom(2);
+      }
 
       this.shouldRedraw = true;
       this.redrawMap();
@@ -87,10 +141,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
     let { map, clusterer, locations, labels, markers, infoWindows } = this;
 
     if (map !== null) {
-      // let bounds = new google.maps.LatLngBounds();
-      let dataMarkerSize = 24 - 3.5 / Math.floor(Math.log10(
-        Math.max(... locations.map(location => location.counts.projects))
-      ));
+      let dataMarkerSize = 25;
 
       // display google map labels if showMapLabels is true
       this.map.setOptions({
@@ -107,10 +158,12 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
       // recreate location clusters
       clusterer.clearElements();
-      clusterer.setElements(locations
-        .filter(({coordinates}) =>
+      clusterer.setElements(
+        locations.filter(({coordinates}) =>
           coordinates.lat != 0 && coordinates.lng != 0
         ))
+
+      console.log(clusterer.getClusters());
 
       // draw each cluster
       this.clusterer.getClusters().forEach(cluster => {
@@ -123,8 +176,14 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
           let marker = createDataMarker(counts.projects, dataMarkerSize, coordinates);
           marker.setMap(map);
 
+
+          let locationInfo = {
+            ...location,
+            label: `${parseViewLevel(viewLevel)}: ${location.label}`
+          }
+
           // add an info window containing the data
-          let infoWindow = createInfoWindow(location);
+          let infoWindow = createInfoWindow(locationInfo);
 
           // store these references so we can delete them later
           setTimeout(() => {
@@ -167,7 +226,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
           });
 
           let clusteredLocation: Location = {
-            label: `${clusterLocations.length} ${viewLevel}`,
+            label: `${parseViewLevel(viewLevel)} Cluster: ${clusterLocations.length} ${viewLevel}`,
             value: '',
             coordinates: {lat: center.lat(), lng: center.lng()},
             counts: counts
@@ -201,8 +260,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
           marker.addListener('dblclick', event => {
             infoWindow.close();
             this.shouldRedraw = false;
-            map.fitBounds(cluster.getBounds())
-            this.redrawMap();
+            store.setMapLocations(cluster.get());
             this.shouldRedraw = true;
           });
         }
@@ -228,6 +286,8 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         })
       }
 
+      this.shouldRedraw = false;
+      
       if (viewLevel === 'regions') {
         map.setCenter({
           lat: 25,
@@ -236,10 +296,11 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       }
 
       if (clusterer.getElements().length === 1) {
-        this.shouldRedraw = false;
         map.setZoom(4);
         map.setCenter(clusterer.getElements()[0].coordinates);
       }
+
+      this.shouldRedraw = true;
     }
   }
 

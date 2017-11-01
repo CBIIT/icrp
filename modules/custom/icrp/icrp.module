@@ -929,7 +929,7 @@ function icrp_preprocess_node(&$variables) {
     $class = 'fc-event-tid-' . $event_id;
     $variables['title_prefix'] = '<span class="fc-event-default '.$class.'">';
     $variables['title_suffix'] = '</span>';
- }
+  }
  //dump($variables);
   if($node->getType() != "forum") {
     return;
@@ -1407,23 +1407,49 @@ function icrp_fullcalendar_options_info() {
     ),
   );
 }
-
-/**
- * Implement hook_init
- */
-function icrp_init() {
-  global $user;
-
-  dump($user);
-  
-  drupal_add_js(array('currentUser' => $user->uid), 'setting');
-}
+/*
+ "revision" => array:5 [▼
+    "#type" => "checkbox"
+    "#title" => TranslatableMarkup {#1460 ▶}
+    "#default_value" => true
+    "#access" => false
+    "#group" => "revision_information"
+  ]
+*/
 
 function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 
     //drupal_set_message("Form ID: " . $form_id);
+    //dump($form_state);
     //kint(print_r($form, true));
-    switch ($form_id) {
+    $current_form_id = $form_id;
+    if($form_id == 'node_events_edit_form' || $form_id == 'node_events_form') {
+      $current_form_id = 'node_events_forms';
+    }
+    switch ($current_form_id) {
+        case 'node_events_forms':
+            //dump($form_state);
+            //dump($form);
+            $uid = \Drupal::currentUser()->id();
+            $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+            if(!($user->hasRole('manager') || $user->hasRole('administrator'))) {
+              unset($form['actions']['delete']);
+            }
+            unset($form['revision_information']);                     // Remove Revisions section from block edit page
+            unset($form['revision_log']);                     // Remove Revisions section from block edit page
+            unset($form['revision']);                     // Remove Revisions section from block edit page
+
+            unset($form['actions']['preview']);  //Remove Preview
+            $form['title']['widget']['0']['#title'] = "Event Type";     // Set Block Edit heading
+            //Remove Event Type Opgions
+            //if(event_calendar type = "ICRP Meeting")
+            //unset($form['field_event_group']['widget']['#options']['Partner News and Announcements']);
+            $form['field_calendar_type']['#attributes']['style'] = "display:none;";
+            if($form_id == 'node_events_form') {
+              $form['actions']['submit']['#value'] = t('Add New Event');
+            }
+            //dump($form);
+            break;
         case 'block_content_basic_edit_form':
             if (strpos($form['info']['widget']['0']['value']['#default_value'],"Partner Home") !== false ||
                 strpos($form['info']['widget']['0']['value']['#default_value'],"ICRP Site Updated Date") !== false) {
@@ -1469,15 +1495,11 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             $form['actions']['submit']['#value'] = t('Add New Thread');
             //dpm($form);
             break;
-        case 'node_events_form':
-            $form['actions']['submit']['#value'] = t('Add New Event');
-            //dpm($form);
-            break;
         case 'node_forum_delete_form':
             //node-forum-delete-form
             //drupal_set_message("Node Forum Delete Form");
-            //dpm($form);
             //$desc = $form['description']['#markup']; //TranslatableMarkup
+            dump($form);
             $form['description']['#markup'] = new TranslatableMarkup("By deleting this post, you will also delete all replies. Are you sure you want to delete the entire thread?");
             //unset($form['actions']['cancel']);
             break;

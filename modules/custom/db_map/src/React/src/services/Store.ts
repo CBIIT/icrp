@@ -10,6 +10,8 @@ class Store extends StoreBase {
 
   loadingSearchCriteria: boolean = false;
 
+  mapLocations: Location[];
+
   locations: Location[];
 
   locationCounts: LocationCounts = {
@@ -59,6 +61,11 @@ class Store extends StoreBase {
     this.trigger();
   }
 
+  setMapLocations(locations: Location[]) {
+    this.mapLocations = locations;
+    this.trigger();
+  }
+
   setLocationFilters(locationFilters: LocationFilters) {
     this.locationFilters = locationFilters;
     this.trigger();
@@ -104,6 +111,11 @@ class Store extends StoreBase {
   @autoSubscribe
   getLocations() {
     return this.locations;
+  }
+
+  @autoSubscribe
+  getMapLocations() {
+    return this.mapLocations;
   }
 
   @autoSubscribe
