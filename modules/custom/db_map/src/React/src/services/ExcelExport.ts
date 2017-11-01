@@ -11,7 +11,7 @@ export interface ExportFields  {
   viewLevel: ViewLevel;
 }
 
-export const buildSheets = ({searchCriteria, locations, viewLevel}: ExportFields): ExcelSheet[] => 
+export const buildSheets = ({searchCriteria, locations, viewLevel}: ExportFields): ExcelSheet[] =>
   [
     {
       title: 'Search Criteria',
@@ -25,11 +25,11 @@ export const buildSheets = ({searchCriteria, locations, viewLevel}: ExportFields
       title: 'Data',
       rows: [
         [parseViewLevel(viewLevel), 'Total Projects', 'Total PIs', 'Total Collaborators'],
-        ...locations.map(location => [
-          location.label,
-          location.counts.projects,
-          location.counts.primaryInvestigators,
-          location.counts.collaborators,
+        ...locations.map(({label, counts})=> [
+          label,
+          counts.projects,
+          counts.primaryInvestigators,
+          counts.collaborators,
         ])
       ]
     }

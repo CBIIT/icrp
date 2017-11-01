@@ -90,17 +90,17 @@ export const jsonRequest = async (url: string, params: object) => {
 }
 
 export const getLocations = async (params: LocationFilters): Promise<LocationResponse> =>
-  await jsonRequest(`${BASE_URL}/map/getLocations/?${stringify(params)}`, {
+  await jsonRequest(`${BASE_URL}/map/getLocations?${stringify(params)}`, {
     credentials: 'same-origin'
   });
 
 export const getSearchParameters = async (searchId: number): Promise<any[][]> =>
-  await jsonRequest(`${BASE_URL}/map/getSearchParameters/?${stringify({searchId})}`, {
+  await jsonRequest(`${BASE_URL}/map/getSearchParameters?${stringify({searchId})}`, {
     credentials: 'same-origin'
   });
 
 export const getNewSearchId = async (filters: LocationFilters): Promise<number> =>
-  await jsonRequest(`${BASE_URL}/map/getNewSearchId/?${stringify(filters)}`, {
+  await jsonRequest(`${BASE_URL}/map/getNewSearchId?${stringify(filters)}`, {
     credentials: 'same-origin'
   });
 
