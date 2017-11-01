@@ -8,6 +8,9 @@ weight: 4
 is_admin: null
 permissions:
   - 'access user profiles'
+  - 'create events content'
   - 'create forum content'
+  - 'edit own events content'
   - 'edit own forum content'
+  - 'grant own content access'
   - 'use advanced search'

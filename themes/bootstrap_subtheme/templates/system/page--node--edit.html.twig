@@ -56,6 +56,18 @@
  * @see html.html.twig
  */
 #}
+{% set page_title %}
+    {{ page['#title'][4:11] }}
+{% endset %}
+
+<span class="icrp-debug">page--node-edit.html.twig</span><br>
+<script>console.info("page--node-edit.html.twig");</script>
+<script>console.log({{ page['#cache'] | json_encode | raw }});</script>
+<script>console.log({{ page['#title'] | json_encode | raw }});</script>
+<script>console.log({{ page | json_encode | raw }});</script>
+<script>console.log({{ _context | json_encode | raw }});</script>
+<script>console.log({{ _context.page | json_encode | raw }});</script>
+
 {% set container = theme.settings.fluid_container ? 'container-fluid' : 'container' %}
 {# Navbar #}
 {% if page.navigation or page.navigation_collapsible %}
@@ -162,7 +174,11 @@
                 {# Content #}
                 {% block content %}
                     <a id="main-content"></a>
-                    <h1>Edit Thread</h1>
+                    {% if page_title|trim == "Edit Events" %}
+                        <h1>Edit Event</h1>
+                    {% else %}
+                        <h1>Edit Thread</h1>
+                    {% endif %}
                     <div class="row">
                         <div class="col-md-10 col-md-offset-1">
                             <div class="well">

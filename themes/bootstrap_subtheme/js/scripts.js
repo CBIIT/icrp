@@ -303,7 +303,7 @@
     }
 
     if(!$('#add-external-event').length)
-      $('div.view-full-calendar-external-events > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-external-event" style="margin-top:7px;"><a href="/node/add/events?calendar_type=External Event&destination=/calendar">+ Add Event</a></span>');
+      $('div.view-full-calendar-external-events > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-external-event" style="margin-top:7px;"><a href="/node/add/events?calendar_type=External Events&destination=/calendar">+ Add Event</a></span>');
 
   }
 
