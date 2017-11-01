@@ -15,7 +15,7 @@ import {
 import Spinner from './SpinnerComponent';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
-import 'moment/locale/en-gb';
+// import 'moment/locale/en-gb';
 
 const uuidV4 = require('uuid/v4');
 
@@ -85,6 +85,7 @@ class UploadFormComponent extends Component {
         var value = '';
         switch (type) {
             case 'file':
+                console.log(target.files[0].name);
                 value = target.files[0];
                 await this.setState({ originalFileName: target.files[0].name });
                 break;
@@ -185,36 +186,35 @@ class UploadFormComponent extends Component {
                 <Panel onClick={this.handleClick}>
                     <Form horizontal>
                         {/* Left Panel */}
-                        <Col lg={4} xs={12}>
+                        <Col lg={3} xs={12}>
                             <FormGroup>
                                 {/*Upload Type*/}
-                                <Col componentClass={ControlLabel} xs={12} sm={4}>
+                                <Col componentClass={ControlLabel} xs={12} sm={4} lg={5}>
                                     <div className="no-wrap">Upload Type</div>
                                 </Col>
 
-                                <Col xs={12} sm={8}>
+                                <Col xs={12} sm={8} lg={7}>
                                     <Radio name="uploadType" inline value="New" onChange={this.handleInputChange} checked={this.state.uploadType === 'New'} disabled={this.state.controlsDisabled}>New</Radio>
-                                    {' '}
+
                                     <Radio name="uploadType" inline value="Update" onChange={this.handleInputChange} checked={this.state.uploadType === 'Update'} disabled={true /*this.state.controlsDisabled*/}>Update</Radio>
                                 </Col>
                             </FormGroup>
 
                             <FormGroup validationState={this.state.sponsorCodeValid ? null : 'error'}>
                                 {/* Sponsor Code */}
-                                <Col componentClass={ControlLabel} xs={12} sm={4}>
+                                <Col componentClass={ControlLabel} xs={12} sm={4} lg={5}>
                                     <div className="no-wrap">Sponsor Code <span className="red-text">*</span></div>
                                 </Col>
-                                <Col xs={12} sm={8}>
-                                    {/* <FormControl type="text" name="sponsorCode" placeholder="Enter sponsor code" value={this.state.sponsorCode} onChange={this.handleInputChange}disabled={this.state.controlsDisabled} />
-                                    */}
+                                <Col xs={12} sm={8} lg={7}>
                                     <FormControl
                                         name="sponsorCode"
+                                        title="Please select a sponsor code in the list"
                                         componentClass="select"
                                         value={this.state.sponsorCode}
                                         onChange={this.handleInputChange}
                                         disabled={this.state.controlsDisabled}
                                         required>
-                                        <option value="" disabled hidden>Select a sponsor code</option>
+                                        <option value="" disabled hidden>Sponsor code</option>
                                         {
                                             this.state.sponsorCodes.map(code => <option value={code}>{code}</option>)
                                         }
@@ -250,7 +250,6 @@ class UploadFormComponent extends Component {
                                         placeholderText="Click to select a date"
                                         disabled={this.state.controlsDisabled}
                                         className="form-control"
-                                        locale={this.state.chosenLocale}
                                     />
                                     {!this.state.submissionDateValid ? <HelpBlock>Submission Date must be on or before today's date</HelpBlock> : null}
 
@@ -261,14 +260,16 @@ class UploadFormComponent extends Component {
                         </Col>
 
                         {/* Right Panel */}
-                        <Col lg={4} xs={12}>
+                        <Col lg={5} xs={12} className="lower-elem-44">
+
                             <FormGroup>
-                                <Col componentClass={ControlLabel} xs={12} sm={4} lg={3}>
-                                    <div className="no-wrap">Date Format   </div>
+                                <Col componentClass={ControlLabel} xs={12} sm={4} lg={4}>
+                                    <div className="no-wrap">CSV Date Format   </div>
                                 </Col>
-                                <Col xs={12} sm={8} lg={9}>
+                                <Col xs={12} sm={8} lg={8}>
                                     <FormControl
                                         name="chosenLocale"
+                                        title="Please select the date format used in the workbook"
                                         componentClass="select"
                                         value={this.state.chosenLocale}
                                         onChange={this.handleInputChange}

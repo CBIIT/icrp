@@ -26,8 +26,11 @@
 } */
 
 /** Large Screens >= 1200 px */
-/* @media (min-width: 1200px) {
-} */
+ @media (min-width: 1200px) {
+  .lower-elem-44 {
+    margin-top: +44px;
+  }
+} 
 
 
 /** Smaller Screens < 768px */
