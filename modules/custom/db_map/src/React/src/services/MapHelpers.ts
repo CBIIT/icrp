@@ -25,7 +25,7 @@ export const createDataMarker = (
     label: number,
     scale: number,
     location: google.maps.LatLngLiteral  | google.maps.LatLng,
-    fillColor: string = '#2574A9',
+    fillColor: string = '#95bae8',
     strokeColor: string = '#52B3D9') =>
   new google.maps.Marker({
     position: location,
@@ -34,7 +34,7 @@ export const createDataMarker = (
       color: 'white',
       text: label.toLocaleString(),
       fontSize: '13px',
-      fontWeight: '500',
+      fontWeight: '600',
       fontFamily: `
         -apple-system, system-ui, BlinkMacSystemFont,
         "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
@@ -44,11 +44,11 @@ export const createDataMarker = (
     icon: {
       path: google.maps.SymbolPath.CIRCLE,
       scale: scale,
-      fillOpacity: 0.6,
-      strokeOpacity: 0.4,
+      fillOpacity: 0.75,
+      strokeOpacity: 0.85,
       fillColor: fillColor,
       strokeColor: strokeColor,
-      strokeWeight: 4,
+      strokeWeight: 5,
     },
   });
 

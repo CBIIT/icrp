@@ -52,7 +52,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         this.redrawMap();
       }
     });
-    
+
     this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(this.refs.mapoverlay['childNodes'][0]);
     window['createOverlayForMap'] && window['createOverlayForMap'](this.map);
   }
@@ -84,7 +84,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         overlay.setMap(this.map);
         overlay.draw = () => {};
         let proj = overlay.getProjection()
-        
+
 
         props.locations.map(loc => loc.coordinates)
           .filter(coords => coords.lat != 0 && coords.lng != 0)
@@ -95,12 +95,12 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
         let northEastPoint = proj.fromLatLngToDivPixel(northEast);
         let southWestPoint = proj.fromLatLngToDivPixel(southWest);
-        
+
         let length = northEastPoint.x - southWestPoint.x;
         let height = southWestPoint.y - northEastPoint.y;
 
         console.log('length, height', length, height);
-        
+
         let scaleX = 1.05;
         let scaleY = 1.05;
 
@@ -111,7 +111,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
         northEastPoint.x *= scaleX;
         northEastPoint.y /= scaleY;
-        
+
         southWestPoint.x /= scaleX;
         southWestPoint.y *= scaleY;
 
@@ -236,7 +236,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
             counts.projects,
             dataMarkerSize,
             clusteredLocation.coordinates,
-            '#EB9532',
+            '#F9BF3B',
             '#EB974E',
           );
 
@@ -287,7 +287,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       }
 
       this.shouldRedraw = false;
-      
+
       if (viewLevel === 'regions') {
         map.setCenter({
           lat: 25,
