@@ -80,6 +80,11 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       if (this.locations.length > 1) {
         let bounds = new google.maps.LatLngBounds();
         let projection = this.map.getProjection();
+        let overlay = new google.maps.OverlayView();
+        overlay.setMap(this.map);
+        overlay.draw = () => {};
+        let proj = overlay.getProjection()
+        
 
         props.locations.map(loc => loc.coordinates)
           .filter(coords => coords.lat != 0 && coords.lng != 0)
@@ -88,18 +93,30 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         let northEast = bounds.getNorthEast();
         let southWest = bounds.getSouthWest();
 
-        let northEastPoint = projection.fromLatLngToPoint(northEast);
-        let southWestPoint = projection.fromLatLngToPoint(southWest);
-        let rescaleFactor = 1.1;
-
-        northEastPoint.x *= rescaleFactor;
-        northEastPoint.y /= rescaleFactor;
+        let northEastPoint = proj.fromLatLngToDivPixel(northEast);
+        let southWestPoint = proj.fromLatLngToDivPixel(southWest);
         
-        southWestPoint.x /= rescaleFactor;
-        southWestPoint.y *= rescaleFactor;
+        let length = northEastPoint.x - southWestPoint.x;
+        let height = southWestPoint.y - northEastPoint.y;
 
-        northEast = projection.fromPointToLatLng(northEastPoint);
-        southWest = projection.fromPointToLatLng(southWestPoint);
+        console.log('length, height', length, height);
+        
+        let scaleX = 1.05;
+        let scaleY = 1.05;
+
+        if (Math.abs(length) < 1 || Math.abs(height) < 1) {
+          scaleX = 1 + Math.abs(length) / 500;
+          scaleY = 1 + Math.abs(height) / 500;
+        }
+
+        northEastPoint.x *= scaleX;
+        northEastPoint.y /= scaleY;
+        
+        southWestPoint.x /= scaleX;
+        southWestPoint.y *= scaleY;
+
+        northEast = proj.fromDivPixelToLatLng(northEastPoint);
+        southWest = proj.fromDivPixelToLatLng(southWestPoint);
         bounds.extend(northEast);
         bounds.extend(southWest);
 
@@ -281,14 +298,6 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       if (clusterer.getElements().length === 1) {
         map.setZoom(4);
         map.setCenter(clusterer.getElements()[0].coordinates);
-      }
-
-      if (viewLevel === 'countries' && map.getZoom() > 6) {
-        map.setZoom(6);
-      }
-
-      if (viewLevel === 'cities' && map.getZoom() > 10) {
-        map.setZoom(10);
       }
 
       this.shouldRedraw = true;
