@@ -13,6 +13,7 @@
   max-height: 28px;
   display: flex;
   user-select: none;
+  align-items: center;
 }
 
 .bg-chevron::after {
@@ -67,7 +68,7 @@ span:nth-child(3) > .bg-chevron:after {
 
 
 span:last-child > .bg-chevron {
-  padding: 2px 8px 2px 20px;
+  padding: 2px 8px 2px 18px;
   background-color: #fff;
   color: #F89406;
 }
@@ -76,9 +77,6 @@ span:last-child > .bg-chevron:after {
   border-color: transparent transparent transparent #fff;
   cursor: default;
 }
-
-
-
 
 
 .bg-chevron:hover{
