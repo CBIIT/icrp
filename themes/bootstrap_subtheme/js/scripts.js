@@ -177,10 +177,12 @@
       var source = decodeURIComponent($.urlParam("source"));
       if(source  == "Edit Event") {
           $.preprocessAddEvents();
+          $.preprocessFixDateRangeEvents();
       }
       switch(url_path) {
         case "/node/add/events":
           $.preprocessAddEvents();
+          $.preprocessFixDateRangeEvents();
           break;
         case "/":
           $.getNewsletter();
@@ -264,6 +266,24 @@
         }
       });
  }
+  $.preprocessFixDateRangeEvents = function(e){
+    // Fix Date Time Range if avalable.
+    if($('#edit-field-event-date-range-0-end-value-time').length > 0 ){
+      var ids = ["edit-field-event-date-range-0-value-time", "edit-field-event-date-range-0-end-value-time"];
+      $.each( ids, function( key, id ) {
+        //alert(id);
+        var time = $('#'+id).attr('value');
+        if(window.location.pathname == '/node/add/events') {
+          $('#'+id).attr('value', time.substring(0, 3)+"00");  //Round to nearest hour for a new Event
+        } else {
+          $('#'+id).attr('value', time.substring(0, 5));
+        }
+        $('#'+id).attr('step', "900");
+        $('#'+id).attr('size', "10");
+        $('#'+id).attr('title', "Time (e.g. 08:30 PM)");
+      });
+    }
+  }
 
   $.preprocessAddEvents = function(e){
     var calendar_type = decodeURIComponent($.urlParam("calendar_type"));

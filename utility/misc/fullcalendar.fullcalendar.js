@@ -9,6 +9,9 @@
 
   Drupal.fullcalendar.plugins.fullcalendar = {
     options: function (fullcalendar, settings) {
+      console.log("Running FULLCALENDAR settings");
+      console.dir(settings);
+      //alert("Fullcalendar options");
       if (settings.ajax) {
         fullcalendar.submitInit(settings);
       }
@@ -17,65 +20,39 @@
         eventClick: function (event, jsEvent, view) {
           if (settings.sameWindow) {
             //window.open(event.url, '_self');
-            var href = "/events/581";
-            href = "/events/" + event.eid;;
-            console.log("New href");
-            console.log(href);
-            console.dir(event);
-            console.dir(jsEvent);
+            var href_events = "/events/" + event.eid;;
+            var href_permissions = "/node-permissions/" + event.eid;;
+
             $.ajax({
-                url:  href
-            })
-            .success(function( data ) {
-              console.dir(data);
-                //$('#myModal > div.modal-dialog > div.modal-header').html("London Holiday");
-                $('#myModal').html(data);
-                /*
-                $("#dialog-form").dialog("option", "position", {
-                  my: "center",
-                  at: "center",
-                  of: window
-                });
-                */
-                
-                $('#myModal').modal("show");
-            });
-
-
-            /*
-            $("#dialog-form").load(href, function() {
-                  console.log('Load was performed.');
-            });
-            */
-            /*
-            $("#dialog-form").load(href, function(responseTxt, statusTxt, xhr){
-                console.log("We got a hit");
-                console.log(responseTxt);
-                //if(statusTxt == "success")
-                   // alert("External content loaded successfully!");
-                //if(statusTxt == "error")
-                   // alert("Error: " + xhr.status + ": " + xhr.statusText);
-            });
-            */
-            /*
-              var host;
-              if(window.location.hostname == "localhost") {
-                host = "https://icrpartnership-dev.org";
-              } else {
-                host = window.location.protocol + "//" + window.location.hostname;
-              }
-              console.log("Hello");
-              $.ajax({
-                  url:  href
+                url:  href_events
               })
               .success(function( data ) {
-                console.dir(data);
-                  $('#dialog-form').html(data);
+                  console.log(data);
+                  //var node_data =  $('<div/>').html(data).text(); 
+                  //console.log(node_data);
+                  //node_data = JSON.parse(node_data);
+                  //console.dir(node_data);
+                  $('#calendar-modal').html(data);
+                  $('#calendar-modal').modal("show");
+                  $.ajax({
+                      url:  href_permissions
+                    })
+                    .success(function( data ) {
+                      //console.log("User Permissions");
+                      //console.log(data);
+                      var node_permission = JSON.parse(data);
+                      //console.dir(node_permission);
+                      if(node_permission.editable) {
+                        //alert("Show Edit");
+                        $('#event-edit').show();
+                      } else {
+                        //alert("Hide Edit");
+                        $('#event-edit').hide();
 
+                      }
+                  //new Element("script", {src: "core/misc/dialog/dialog.ajax.js", type: "text/javascript"});
+                   });
               });
-              
-            $("#dialog-form").dialog("open");
-*/
           }
           else {
             window.open(event.url);
@@ -142,6 +119,7 @@
       };
 
       // Merge in our settings.
+      console.dir(settings.fullcalendar);
       $.extend(options, settings.fullcalendar);
 
       // Pull in overrides from URL.
