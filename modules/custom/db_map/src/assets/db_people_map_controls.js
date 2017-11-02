@@ -31,4 +31,11 @@ $(document).ready(function(){
       window.location = '/'+resp;
     });
   });
+  $('#buttonShowAll').on('click',function(e) {
+    e.preventDefault();
+    var table = $('table.project-collaborators'),
+        showall = table.hasClass('showall');
+    table.toggleClass('showall',!showall);
+    $(e.target).html('Show '+(showall?'All':'Less'));
+  });
 });
