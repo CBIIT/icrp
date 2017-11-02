@@ -228,16 +228,6 @@ class UploadFormComponent extends Component {
 
                         {/* Middle Panel */}
                         <Col lg={4} xs={12}>
-                            <FormGroup>
-                                {/*Workbook selector*/}
-                                <Col componentClass={ControlLabel} xs={12} sm={4} lg={5}>
-                                    <div className="no-wrap">Workbook File (.csv) <span className="red-text">*</span></div>
-                                </Col>
-                                <Col xs={12} sm={8} lg={7}>
-                                    <FormControl id="fileId" name="fileId" accept=".csv" type="file" className="control-label" onChange={this.handleInputChange} disabled={this.state.controlsDisabled} />
-                                </Col>
-                            </FormGroup>
-
                             <FormGroup validationState={this.state.submissionDateValid ? null : 'error'}>
                                 {/* Submission Date */}
                                 <Col componentClass={ControlLabel} xs={12} sm={4} lg={5}>
@@ -257,10 +247,20 @@ class UploadFormComponent extends Component {
 
                             </FormGroup>
 
+                            <FormGroup>
+                                {/*Workbook selector*/}
+                                <Col componentClass={ControlLabel} xs={12} sm={4} lg={5}>
+                                    <div className="no-wrap">Workbook File (.csv) <span className="red-text">*</span></div>
+                                </Col>
+                                <Col xs={12} sm={8} lg={7}>
+                                    <FormControl id="fileId" name="fileId" accept=".csv" type="file" className="control-label" onChange={this.handleInputChange} disabled={this.state.controlsDisabled} />
+                                </Col>
+                            </FormGroup>
+
                         </Col>
 
                         {/* Right Panel */}
-                        <Col lg={5} xs={12} className="lower-elem-44">
+                        <Col lg={5} xs={12}>
 
                             <FormGroup>
                                 <Col componentClass={ControlLabel} xs={12} sm={4} lg={4}>
@@ -281,15 +281,20 @@ class UploadFormComponent extends Component {
                                     </FormControl>
                                 </Col>
                             </FormGroup>
+
+                            <FormGroup>
+                                <Col lg={12} xs={12}>
+                                    <div className="right-aligned">
+                                        <Button className="horizontal-margin" onClick={this.upload} disabled={this.state.submitDisabled}>Load</Button>
+                                        <Button className="horizontal-margin" onClick={this.handleReset}>Reset</Button>
+                                    </div>
+                                </Col>
+                            </FormGroup>
+
                         </Col>
 
                         {/* Button Row */}
-                        <Col lg={12} xs={12}>
-                            <div className="text-center padding-top">
-                                <Button className="horizontal-margin" onClick={this.upload} disabled={this.state.submitDisabled}>Load</Button>
-                                <Button className="horizontal-margin" onClick={this.handleReset}>Reset</Button>
-                            </div>
-                        </Col>
+
                     </Form>
 
                 </Panel>
