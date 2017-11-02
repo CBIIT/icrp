@@ -13,6 +13,10 @@
     padding-top: 10px;
 }
 
+.small-padding-right {
+  padding-right: 6px !important;
+}
+
 /** Smaller Screens < 992 px */
  /* @media (max-width: 992px) {
 }  */
