@@ -53,10 +53,10 @@
           <td>{{ row.region | default('N/A') }}</td>
           <td>
               {% if row.city %}
-               {{ row.city }}, 
+               {{ row.city }},
               {% endif %}
               {% if row.state %}
-               {{ row.state }}, 
+               {{ row.state }},
               {% endif %}
               {{ row.country | default('N/A')}}
           </td>
@@ -65,6 +65,9 @@
     </tbody>
   </table>
 </div>
+{% if funding_details|length > 5 %}
+<div class="form-group"><button id="buttonShowAll" class="btn btn-default btn-sm">Show All</button></div>
+{% endif %}
 {% else %}
 <div><em>This project funding has either no collaborators or the information is not available.</em></div>
 {% endif %}

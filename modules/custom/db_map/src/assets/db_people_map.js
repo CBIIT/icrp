@@ -83,7 +83,7 @@ drupalSettings.db_map = {
             position: loc,
             title: detail.pi_name,
           }),
-          content = (is_pi?'Principal Investigator':'Collaborator')+'<br/>'+
+          content = '<b>'+(is_pi?'Principal Investigator':'Collaborator')+'</b><br/>'+
                     '<hr style="margin:.5em 0px;"/>'+
                     'Name: '+detail.pi_name+'<br/>'+
                     'Institution: '+detail.institution+'<br/>'+
