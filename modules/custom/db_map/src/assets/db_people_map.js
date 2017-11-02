@@ -7,6 +7,8 @@ drupalSettings.db_map = {
         polyline = [],
         iw = new google.maps.InfoWindow({closeBoxURL:""}),
         map = new google.maps.Map(document.getElementById('icrp-map'), {
+          center: {lat:0,lng:0},
+          zoom: 2,
           styles: [
             {
               "elementType": "geometry",
@@ -117,7 +119,7 @@ drupalSettings.db_map = {
         latVar = Math.max(1-(ne.lat()-sw.lat()),0)/2,
         lngVar = Math.max(1-(ne.lng()-sw.lng()),0)/2;
     markerBounds.extend({lat:ne.lat()+latVar,lng:ne.lng()-lngVar});
-    markerBounds.extend({lat:sw.lat()-latVar,lng:sw.lng()+lngVar});    
+    markerBounds.extend({lat:sw.lat()-latVar,lng:sw.lng()+lngVar});
     map.fitBounds(markerBounds);
     window.createOverlayForMap(map);
   }
