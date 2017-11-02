@@ -214,7 +214,7 @@ class UploadFormComponent extends Component {
                                         onChange={this.handleInputChange}
                                         disabled={this.state.controlsDisabled}
                                         required
-                                        className="small-padding-right">
+                                        className="small-padding">
                                         <option value="" disabled hidden>Sponsor code</option>
                                         {
                                             this.state.sponsorCodes.map(code => <option value={code}>{code}</option>)

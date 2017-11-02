@@ -13,7 +13,8 @@
     padding-top: 10px;
 }
 
-.small-padding-right {
+.small-padding {
+  padding-left: 6px !important;
   padding-right: 6px !important;
 }
 
