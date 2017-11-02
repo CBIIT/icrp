@@ -23,8 +23,12 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
   map: null,
   onSelect: function(e) {
     e.preventDefault();
-    var old = drupalSettings.db_map.layer.currLayer,
+    var infowindow = drupalSettings.db_map.layer.infowindow,
+        old = drupalSettings.db_map.layer.currLayer,
         val = this.value;
+    if (infowindow.getMap() !== null || typeof infowindow.getMap() !== 'undefined') {
+      infowindow.close();
+    }
     if (old === val) return;
     if (val === "") {
       drupalSettings.db_map.layer.reset();
