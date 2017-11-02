@@ -1,0 +1,9 @@
+<div [ngSwitch]="componentType">
+  <icrp-funding-organization-form
+    *ngSwitchCase="'funding-organization-form'">
+  </icrp-funding-organization-form>
+
+  <icrp-partner-form
+    *ngSwitchCase="'partner-form'">
+  </icrp-partner-form>
+</div>
