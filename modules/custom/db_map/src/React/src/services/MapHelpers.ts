@@ -25,7 +25,7 @@ export const createDataMarker = (
     label: number,
     scale: number,
     location: google.maps.LatLngLiteral  | google.maps.LatLng,
-    fillColor: string = '#95bae8',
+    fillColor: string = '#446CB3',
     strokeColor: string = '#52B3D9') =>
   new google.maps.Marker({
     position: location,
