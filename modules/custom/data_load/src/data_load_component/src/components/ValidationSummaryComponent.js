@@ -83,14 +83,14 @@ class ValidationSummaryComponent extends Component {
         });
 
         let failedRules = this.props.validationResults
-            .filter(result => parseInt(result.id) !== 0)
+            .filter(result => parseInt(result.id, 10) !== 0)
             .filter(result => result.validationResult === 'Failed')
             .filter(result => {
                 const rule = validationRules.find(rule => rule.id === +result.id);
                 return rule.checked && rule.active;
             })
             .map(result => ({
-                id: parseInt(result.id),
+                id: parseInt(result.id, 10),
                 name: result.name
             }));
 
