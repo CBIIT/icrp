@@ -173,7 +173,10 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         if (clusterLocations.length === 1) {
           let location = clusterLocations[0];
           let { coordinates, counts } = location;
-          let marker = createDataMarker(counts.projects, dataMarkerSize, coordinates);
+          let marker = createDataMarker(
+            counts.projects,
+            this.calculateMarkerSize(counts.projects),
+            coordinates);
           marker.setMap(map);
 
 
@@ -234,10 +237,13 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
           let marker = createDataMarker(
             counts.projects,
-            dataMarkerSize,
+            this.calculateMarkerSize(counts.projects),
             clusteredLocation.coordinates,
-            '#F9BF3B',
-            '#EB974E',
+            // '#FFC90E',
+            // '#FABD41'
+
+            '#22B14C',
+            '#00B16A'
           );
 
           marker.setMap(map);
@@ -302,6 +308,10 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
       this.shouldRedraw = true;
     }
+  }
+
+  calculateMarkerSize(count: number) {
+    return 14 + Math.floor(Math.log10(count)) * 3;
   }
 
   render() {
