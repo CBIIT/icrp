@@ -210,7 +210,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
               onChange={event => changeCallback('latitude', event.target['value'])}
               max="90"
               min="-90"
-              placeholder='Enter latitude'
+              placeholder='Enter latitude (eg: 32.30642)'
               title="Latitude"
             />
           </Col>
@@ -229,7 +229,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
               onChange={event => changeCallback('longitude', event.target['value'])}
               max="180"
               min="-180"
-              placeholder='Enter longitude'
+              placeholder='Enter longitude (eg: -122.61458)'
               title="Longitude"
             />
           </Col>
