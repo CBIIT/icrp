@@ -86,29 +86,29 @@ class FundingOrganizationManager {
   }
 
   public static function addFundingOrganization(PDO $pdo, array $parameters) {
-    $validation_errors = self::validate($pdo, $parameters);
-
-    if (!empty($validation_errors)) {
-      return $validation_errors;
-    }
-
     try {
+
+      $validation_errors = self::validate($pdo, $parameters);
+
+      if (!empty($validation_errors)) {
+        return $validation_errors;
+      }
 
       $stmt = PDOBuilder::createPreparedStatement(
         $pdo,
         "INSERT INTO FundingOrg (
-          Name,
-          Abbreviation,
-          Type,
-          Country,
-          Currency,
-          SponsorCode,
-          MemberType,
-          MemberStatus,
-          IsAnnualized,
-          Note,
-          Latitude,
-          Longitude
+          [Name],
+          [Abbreviation],
+          [Type],
+          [Country],
+          [Currency],
+          [SponsorCode],
+          [MemberType],
+          [MemberStatus],
+          [IsAnnualized],
+          [Note],
+          [Latitude],
+          [Longitude]
         ) VALUES (
           :organization_name,
           :organization_abbreviation,

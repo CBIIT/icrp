@@ -1,0 +1,344 @@
+<alert *ngFor="let message of messages" [type]="message.type" dismissible="true">
+  {{ message.text }}
+</alert>
+
+<form
+  class="vertical-margins"
+  fxLayout
+  fxLayoutWrap
+  fxLayoutGap="15px"
+  [formGroup]="form"
+  (ngSubmit)="submit()">
+
+  <div
+    class="bordered padded form-group"
+    fxLayout
+    fxLayoutWrap
+    fxLayoutAlign="start center"
+    fxLayoutGap="15px"
+    fxFlex="100%">
+
+    <div
+      ngClass.lt-md="form-group"
+      fxLayout
+      fxLayoutWrap
+      fxFlex="calc(50% - 15px)"
+      fxFlex.lt-md="100%"
+      fxLayoutAlign="start center"
+      fxLayoutGap="10px">
+      <label
+        class="inline nowrap"
+        [ngClass]="{error: !form.controls.partner.pristine && form.controls.partner.errors != null}"
+        for="partner"
+        fxFlex="calc(15% - 10px)"
+        fxFlex.lt-md="100%">
+        Partner <span class="text-danger">*</span>
+      </label>
+      <select
+        fxFlex="calc(85% - 10px)"
+        fxFlex.lt-md="100%"
+        id="partner"
+        name="partner"
+        class="form-control input-sm"
+        formControlName="partner"
+        [ngSwitch]="options.partners.length">
+        <option *ngSwitchCase="0" value="" hidden>Loading...</option>
+        <option *ngSwitchDefault value="" hidden>Select a partner</option>
+        <option *ngFor="let partner of options.partners" [value]="partner.value">
+          {{ partner.label }}
+        </option>
+      </select>
+      <div class="validation-error"
+        fxFlex="100%"
+        *ngIf="!form.controls.partner.pristine && form.controls.partner.errors != null">
+        <div *ngIf="form.controls.partner.errors.required">
+          Please select a partner.
+        </div>
+      </div>
+    </div>
+
+    <div
+      ngClass.lt-md="form-group"
+      fxLayout
+      fxLayout.lt-md="column"
+      fxLayoutWrap
+      fxFlex="calc(50% - 15px)"
+      fxFlex.lt-md="100%"
+      fxLayoutGap="15px"
+      fxLayoutGap.lt-md="5px">
+        <label
+          class="inline" for="memberType">
+          Member Type <span class="text-danger">*</span>
+        </label>
+        <input
+          type="hidden"
+          id="memberType"
+          aria-label="This fieldset contains two radio buttons to select whether the chosen organization is a partner or an associate.">
+
+        <label class="inline normal-weight" for="memberTypePartner">
+          <input
+            id="memberTypePartner"
+            type="radio"
+            name="memberType"
+            value="Partner"
+            formControlName="memberType">
+          Partner
+        </label>
+
+        <label class="inline normal-weight" for="memberTypeAssociate">
+          <input
+            id="memberTypeAssociate"
+            type="radio"
+            name="memberType"
+            value="Associate"
+            formControlName="memberType">
+          Associate
+        </label>
+        <div
+          fxFlex="100%"
+          *ngIf="!form.controls.partner.pristine && form.controls.partner.errors != null">
+          &zwj;
+        </div>
+    </div>
+  </div>
+
+  <div
+    class="form-group"
+    fxFlex="calc(50% - 15px)"
+    fxFlex.lt-md="100%">
+    <div>
+      <label
+        [ngClass]="{error: !form.controls.name.pristine && form.controls.name.errors != null}"
+        for="name"
+        data-required>
+        Name <span class="text-danger">*</span>
+      </label>
+      <input
+        id="name"
+        name="name"
+        class="form-control input-sm"
+        placeholder="Enter name of funding organization (100 characters maximum)"
+        maxlength="100"
+        [formControl]="form.controls.name">
+    </div>
+    <div class="validation-error" *ngIf="!form.controls.name.pristine && form.controls.name.errors != null">
+      Please provide a name for the funding organization.
+    </div>
+  </div>
+
+  <div
+    class="form-group"
+    fxFlex="calc(50% - 15px)"
+    fxFlex.lt-md="100%">
+    <div>
+      <label
+        [ngClass]="{error: !form.controls.abbreviation.pristine && form.controls.abbreviation.errors != null}"
+        for="abbreviation">
+        Abbreviation <span class="text-danger">*</span>
+      </label>
+      <input
+        id="abbreviation"
+        name="abbreviation"
+        class="form-control input-sm"
+        placeholder="Enter abbreviation for funding organization (15 characters maximum)"
+        maxlength="15"
+        [formControl]="form.controls.abbreviation">
+    </div>
+    <div class="validation-error"
+      *ngIf="!form.controls.abbreviation.pristine && form.controls.abbreviation.errors != null">
+      Please provide an abbreviation for the funding organization.
+    </div>
+  </div>
+
+  <div
+    class="form-group"
+    fxFlex="calc(50% - 15px)"
+    fxFlex.lt-md="100%">
+    <label
+      [ngClass]="{error: !form.controls.organizationType.pristine && form.controls.organizationType.errors != null}"
+      for="organizationType">
+      Organization Type <span class="text-danger">*</span>
+    </label>
+    <select
+      id="organizationType"
+      name="organizationType"
+      class="form-control input-sm"
+      [formControl]="form.controls.organizationType">
+      <option value="" hidden>Select an organization type</option>
+      <option>Government</option>
+      <option>Non-profit</option>
+      <option>Other</option>
+    </select>
+    <div class="validation-error" *ngIf="!form.controls.organizationType.pristine && form.controls.organizationType.errors != null">
+      Please select an organization type.
+    </div>
+  </div>
+
+  <div
+    class="form-group"
+    fxFlex="calc(50% - 15px)"
+    fxFlex.lt-md="100%">
+    <label
+      [ngClass]="{error: (!form.controls.latitude.pristine || !form.controls.longitude.pristine)
+        && (form.controls.latitude.errors != null || form.controls.longitude.errors  != null)}"
+      for="mapCoordinates">
+      Map Coordinates <span class="text-danger">*</span>
+    </label>
+    <input
+      type="hidden"
+      id="mapCoordinates"
+      aria-label="This fieldset contains two text input fields to enter the longitude and latitude of the funding organization.">
+
+    <div
+      fxLayout="row"
+      fxLayout.lt-md="column"
+      fxLayoutGap="15px"
+      fxLayoutGap.lt-md="10px"
+      >
+      <input
+        id="latitude"
+        name="latitude"
+        class="form-control input-sm"
+        type="number"
+        placeholder="Enter latitude (eg: 32.30642)"
+        fxFlex
+        fxFlex.lt-md="nogrow"
+        max="90"
+        min="-90"
+        step="0.01"
+        [formControl]="form.controls.latitude">
+
+      <input
+        id="longitude"
+        name="longitude"
+        class="form-control input-sm"
+        type="number"
+        placeholder="Enter longitude (eg: -122.61458)"
+        fxFlex
+        fxFlex.lt-md="nogrow"
+        max="180"
+        min="-180"
+        step="0.01"
+        [formControl]="form.controls.longitude">
+    </div>
+
+    <div
+      class="validation-error"
+      *ngIf="(!form.controls.latitude.pristine || !form.controls.longitude.pristine)
+        && (form.controls.latitude.errors != null || form.controls.longitude.errors != null)">
+
+      <div *ngIf="form.controls.latitude.errors != null
+        && (form.controls.latitude.errors.max || form.controls.latitude.errors.min)">
+        The latitude should be provided as a decimal number between -90.0 and 90.0 inclusive.
+      </div>
+
+      <div *ngIf="form.controls.longitude.errors != null
+        && (form.controls.longitude.errors.max || form.controls.longitude.errors.min)">
+        The longitude should be provided as a decimal number between -180.0 and 180.0 inclusive.
+      </div>
+
+      <div *ngIf="(form.controls.latitude.errors != null && form.controls.latitude.errors.required)
+        || (form.controls.longitude.errors != null && form.controls.longitude.errors.required)">
+        Both latitude and longitude are required.
+      </div>
+
+    </div>
+  </div>
+
+
+  <div
+    class="form-group"
+    fxFlex="calc(50% - 15px)"
+    fxFlex.lt-md="100%">
+    <label
+      [ngClass]="{error: !form.controls.country.pristine && form.controls.country.errors != null}"
+      for="country">
+      Country <span class="text-danger">*</span>
+    </label>
+    <select
+      id="country"
+      name="country"
+      class="form-control input-sm"
+      [formControl]="form.controls.country"
+      [ngSwitch]="options.countries.length">
+      <option *ngSwitchCase="0" value="" hidden>Loading...</option>
+      <option *ngSwitchDefault value="" hidden>Select a country</option>
+      <option *ngFor="let country of options.countries" [value]="country.value">
+        {{ country.label }}
+      </option>
+    </select>
+
+    <div class="validation-error" *ngIf="!form.controls.country.pristine && form.controls.country.errors != null">
+      <div *ngIf="form.controls.country.errors.required">
+        Please select a country.
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="form-group"
+    fxFlex="calc(50% - 15px)"
+    fxFlex.lt-md="100%">
+    <label
+      [ngClass]="{error: !form.controls.currency.pristine && form.controls.currency.errors != null}"
+      for="currency">
+      Currency <span class="text-danger">*</span>
+    </label>
+    <select
+      id="currency"
+      name="currency"
+      class="form-control input-sm"
+      [formControl]="form.controls.currency"
+      [ngSwitch]="options.currencies.length">
+      <option *ngSwitchCase="0" value="" hidden>Loading...</option>
+      <option *ngSwitchDefault value="" hidden>Select a currency</option>
+      <option *ngFor="let currency of options.currencies" [value]="currency.value">
+        {{ currency.label }}
+      </option>
+    </select>
+
+    <div class="validation-error" *ngIf="!form.controls.currency.pristine && form.controls.currency.errors != null">
+      <div *ngIf="form.controls.currency.errors.required">
+        Please select a currency.
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="form-group"
+    fxFlex="100%">
+      <label for="note">Note</label>
+      <textarea
+        id="note"
+        name="note"
+        class="form-control vertical-resize default-min-height"
+        placeholder="Enter note (optional, 1000 characters maximum)"
+        rows="3"
+        maxlength="8000"
+        [formControl]="form.controls.note">
+      ></textarea>
+  </div>
+
+  <div
+    class="form-group"
+    fxLayout
+    fxLayoutWrap
+    fxLayoutAlign="space-between center"
+    fxFlex="100%">
+    <label class="inline" for="annualizedFunding">
+      <input
+        id="annualizedFunding"
+        type="checkbox"
+        name="annualizedFunding"
+        [formControl]="form.controls.annualizedFunding">
+      Annualized Funding
+    </label>
+
+    <i class="text-muted">* indicates required fields</i>
+  </div>
+
+  <div fxFlex="100%" fxLayoutAlign="center center" fxLayoutGap="10px">
+    <button type="submit" class="btn btn-primary standard-width">Save</button>
+    <button class="btn btn-default standard-width" (click)="resetForm($event)">Cancel</button>
+  </div>
+</form>

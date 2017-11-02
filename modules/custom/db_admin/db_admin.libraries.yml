@@ -5,7 +5,6 @@ add_funding_organization:
   js:
     assets/add_funding_organization/inline.bundle.js: {}
     assets/add_funding_organization/polyfills.bundle.js: {}
-    assets/add_funding_organization/vendor.bundle.js: {}
     assets/add_funding_organization/main.bundle.js: {}
 
 add_partner:
