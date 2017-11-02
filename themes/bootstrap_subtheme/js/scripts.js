@@ -174,6 +174,10 @@
         url_path = '/calendar';
       }
       //alert(url_path);
+      var source = decodeURIComponent($.urlParam("source"));
+      if(source  == "Edit Event") {
+          $.preprocessAddEvents();
+      }
       switch(url_path) {
         case "/node/add/events":
           $.preprocessAddEvents();
@@ -262,7 +266,7 @@
  }
 
   $.preprocessAddEvents = function(e){
-    var calendar_type =decodeURIComponent($.urlParam("calendar_type"));
+    var calendar_type = decodeURIComponent($.urlParam("calendar_type"));
     $('#edit-field-calendar-type').val(calendar_type);
     if(calendar_type == "ICRP Meeting") {
       $("#edit-field-event-group option[value='Conference/Meeting']").remove();

@@ -27,6 +27,13 @@ content:
     settings: {  }
     third_party_settings: {  }
     region: content
+  field_calendar_type:
+    type: list_default
+    weight: 5
+    region: content
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
   field_event_date_range:
     weight: 1
     label: hidden
@@ -57,5 +64,4 @@ content:
     region: content
     settings: {  }
     third_party_settings: {  }
-hidden:
-  field_calendar_type: true
+hidden: {  }

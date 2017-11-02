@@ -96,7 +96,7 @@ display:
             minTime: '0'
             slotDuration: '00:30:00'
             defaultTimedEventDuration: '02:00:00'
-            allDaySlot: true
+            allDaySlot: false
             weekends: true
             lazyFetching: true
             eventDurationEditable: true

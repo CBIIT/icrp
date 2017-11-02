@@ -39,6 +39,14 @@ icrp.events_json:
     _format: 'html'
     _access: 'TRUE'
 
+icrp.node_permissions_json:
+  path: /node-permissions/{nid}
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::getNodePermissionsAsJson'
+  requirements:
+    _format: 'html'
+    _access: 'TRUE'
+
 icrp.events_modal:
   path: /events/edit/node/{nid}
   defaults:

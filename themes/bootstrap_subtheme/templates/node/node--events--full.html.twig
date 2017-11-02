@@ -121,18 +121,27 @@
 						    <td>{{ location|striptags|trim }} (<a href="https://www.google.com/maps/place/{{ location|striptags|trim }}" target="_blank">map</a>)</td>
 						  </tr>
 					  {% endif %}
-					  <tr>
-					    <td>Description</td>
-					    <td>{{ content.body }}</td>
-					  </tr>
-					  <tr>
-					    <td>Event Type</td>
-					    <td>{{ content.field_event_group }}</td>
-					  </tr>
+            {% set description %}
+              {{ content.body }}
+            {% endset %}
+            {% if description|striptags|trim|length  %}
+  					  <tr>
+  					    <td>Description</td>
+  					    <td>{{ content.body }}</td>
+  					  </tr>
+            {% endif %}
+            <tr>
+              <td>Event Type</td>
+              <td>{{ content.field_event_group }}</td>
+            </tr>
 					</table>
                   </div>
+                  {% set calendarType %}
+                    {{ content.field_calendar_type }}
+                  {% endset %}
+
                   <div class="modal-footer">
-                    <a type="button" class="btn btn-primary" href="{{ url }}/edit?destination=/calendar" class="use-ajax" data-accepts="application/vnd.drupal-modal">Edit</a>
+                    <a id="event-edit" type="button" class="btn btn-primary" href="{{ url }}/edit?source=Edit Event&destination=/calendar&calendar_type={{ calendarType|striptags|trim }}" class="use-ajax" data-accepts="application/vnd.drupal-modal">Edit</a>
 
                     <!--
                     <a type="button" class="btn btn-primary" href="events/edit{{ url }}?destination=/calendar" class="use-ajax" data-accepts="application/vnd.drupal-modal">Edit</a>

@@ -14,3 +14,4 @@ permissions:
   - 'edit own forum content'
   - 'grant own content access'
   - 'use advanced search'
+  - 'use text format full_html'

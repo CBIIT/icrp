@@ -61,8 +61,47 @@ class IcrpController extends ControllerBase {
         //dump($nid);
         $node = Node::load($nid);
         $view = node_view($node,'full');
+        //dump($view);
         $html = render($view);
         $response = new JsonResponse($html);
+
+        return $response;
+
+    }
+    public function getNodePermissionsAsJson($nid) {
+        //dump($nid);
+        $editable = false;
+        //$node = Node::load($nid);
+        //$view = node_view($node,'full');
+        //dump($view);
+        //$html = render($view);
+        //If Admin or Manager or IsOwner then return true
+        $uid = \Drupal::currentUser()->id();
+        $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+        $roles = array();
+        if($user->hasRole('administrator')){
+            $roles[] = "administrator";
+        }
+        if($user->hasRole('manager')){
+            $roles[] = "manager";
+        }
+        if($user->hasRole('partner')){
+            $roles[] = "partner";
+        }
+        $isOwner = false;
+        $query = "SELECT count(*) as count FROM node_field_data where nid = $nid and uid = $uid;";
+        $result = db_query($query);
+        $row = $result->fetchObject();
+        if(isset($row->count) && $row->count == 1) {
+            $isOwner = true;
+        }        
+        if($user->hasRole('administrator') || $user->hasRole('manager') || $isOwner) {
+            $editable = true;
+        }
+
+        $data = json_encode(array('editable'=> $editable), true);
+        //dump($data);
+        $response = new JsonResponse($data);
 
         return $response;
 
