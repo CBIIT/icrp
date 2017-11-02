@@ -121,22 +121,22 @@
 }
 
 .form-group-addon-sm {
-  height: 33px;
+  height: 36px;
   background-color: #f5f5f5;
   border: 1px solid #ccc;
   border-radius: 0 4px 4px 0;
-  line-height: 1.5;
+  line-height: 1.6;
   font-size: 14px;
   padding: 5px 10px;
 }
 
 
 .form-group-addon-left-sm, .btn-group > .btn.form-group-addon-left-sm {
-  height: 33px;
+  height: 36px;
   background-color: #f5f5f5;
   border: 1px solid #ccc;
   border-radius: 4px 0 0 4px !important;
-  line-height: 1.5;
+  line-height: 1.6;
   font-size: 14px;
   padding: 5px 10px;
 }

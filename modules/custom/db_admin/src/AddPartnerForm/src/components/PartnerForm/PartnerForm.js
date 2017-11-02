@@ -187,11 +187,23 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
 
     <Row className='margin-bottom'>
       <Col md={6} >
-        <ControlLabel className='margin-right'>Map Coordinates <Asterisk /></ControlLabel>
+        <ControlLabel
+          className='margin-right'
+          style={{color: ((form.validationErrors.latitude && form.validationErrors.latitude.required) ||
+          (form.validationErrors.longitude && form.validationErrors.longitude.required)) ? '#a94442' : 'black' }}
+          >
+          Map Coordinates <Asterisk />
+        </ControlLabel>
 
         <Row>
           <Col md={6} className="form-group-sm">
             <input
+              style={{borderColor:
+                (form.validationErrors.latitude
+                  && (form.validationErrors.latitude.required
+                  || form.validationErrors.latitude.min
+                  || form.validationErrors.latitude.max))
+                ? '#a94442' : '#ccc' }}
               type="number"
               className="form-control form-control-sm"
               value={form.values.latitude}
@@ -206,6 +218,12 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
           <Col md={6} className="form-group-sm">
             <input
               type="number"
+              style={{borderColor:
+                (form.validationErrors.longitude
+                  && (form.validationErrors.longitude.required
+                  || form.validationErrors.longitude.min
+                  || form.validationErrors.longitude.max))
+                ? '#a94442' : '#ccc' }}
               className="form-control form-control-sm"
               value={form.values.longitude}
               onChange={event => changeCallback('longitude', event.target['value'])}
