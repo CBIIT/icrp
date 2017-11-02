@@ -53,8 +53,3 @@ table.project-collaborators:not(.showall) > tbody > tr:nth-child(5) ~ tr {
 #icrp-map-header a {
   line-height: 24px;
 }
-
-.flex-space-between {
-  display: flex;
-  justify-content: space-between;
-}
