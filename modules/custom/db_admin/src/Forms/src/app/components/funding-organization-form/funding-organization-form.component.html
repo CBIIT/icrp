@@ -94,7 +94,9 @@
             formControlName="memberType">
           Associate
         </label>
-        <div *ngIf="!form.controls.partner.pristine && form.controls.partner.errors != null">
+        <div
+          fxFlex="100%"
+          *ngIf="!form.controls.partner.pristine && form.controls.partner.errors != null">
           &zwj;
         </div>
     </div>
@@ -115,7 +117,7 @@
         id="name"
         name="name"
         class="form-control input-sm"
-        placeholder="Enter name of funding organization (100 characters maxiumum)"
+        placeholder="Enter name of funding organization (100 characters maximum)"
         maxlength="100"
         [formControl]="form.controls.name">
     </div>
@@ -138,7 +140,7 @@
         id="abbreviation"
         name="abbreviation"
         class="form-control input-sm"
-        placeholder="Enter abbreviation for funding organization (15 characters maxiumum)"
+        placeholder="Enter abbreviation for funding organization (15 characters maximum)"
         maxlength="15"
         [formControl]="form.controls.abbreviation">
     </div>
