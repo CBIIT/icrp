@@ -11,8 +11,11 @@ div.project-collaborators-header {
 }
 
 div.project-collaborators-header > span {
-  line-height: 20.5px;
-  margin: 10.5px 0px;
+  margin-bottom: 10.5px;
+}
+
+div.project-collaborators-header h4 {
+  margin-top: 0px;
 }  
 
 table.project-collaborators {
