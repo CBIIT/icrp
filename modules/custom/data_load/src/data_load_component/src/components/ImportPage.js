@@ -55,7 +55,7 @@ export default class ImportPage extends Component {
 
       if (rule === 'isNumeric'
         && value
-        && isNaN(parseInt(value))
+        && isNaN(parseInt(value, 10))
         && (+value < 1 || +value > 9999)
       ) {
         validationErrors[key].isNumeric = true;
@@ -72,7 +72,7 @@ export default class ImportPage extends Component {
           delete validationErrors.fundingYearMax.isLessThanMaxYear;
         }
 
-        if (parseInt(fundingYearMin) > parseInt(fundingYearMax)) {
+        if (parseInt(fundingYearMin, 10) > parseInt(fundingYearMax, 10)) {
           validationErrors[key].isLessThanMaxYear = true;
         }
       }
@@ -129,7 +129,7 @@ export default class ImportPage extends Component {
         results: data,
         loading: false,
         error: false,
-        message: 'The uploaded projects were imported successfuly.',
+        message: 'The uploaded projects were imported successfully.',
         importComplete: true,
       })
     }
@@ -139,15 +139,15 @@ export default class ImportPage extends Component {
       this.setState({
         loading: false,
         error: true,
-        message: 'The uploaded projects were not imported successfuly: ' + data,
+        message: 'The uploaded projects were not imported successfully: ' + data,
       })
     }
   }
 
   render() {
 
-    let { fundingYearMin, fundingYearMax, importNotes, loading, message, results, validationErrors, isPristine, error, importComplete } = this.state;
-    let { type, cancelUrl } = this.props;
+    let { fundingYearMin, fundingYearMax, importNotes, loading, results, validationErrors, isPristine, error, importComplete } = this.state;
+    let { cancelUrl } = this.props;
 
     return (
       <div>

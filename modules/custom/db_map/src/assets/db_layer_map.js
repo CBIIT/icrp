@@ -105,7 +105,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
       return {
         fillColor: color,
         fillOpacity: 0.7,
-        strokeColor: color,
+        strokeColor: '#FFFFFF',
         strokeWeight: weight
       };
     });
