@@ -56,13 +56,18 @@ export const createInfoWindow = ({label, counts}: Location, callback?: () => voi
   const el = createElement;
   let labelParts = label.split(':').map(e => e.trim());
 
+  let callbackSpan: HTMLElement = el('span', {}, [labelParts[1]]);
+  if (callback) {
+    callbackSpan = el('span', {
+      className: callback ? 'infowindow-link' : '',
+      onClick: () => callback && callback()
+    }, [labelParts[1]])
+  }
+
   return new google.maps.InfoWindow({
     content: el('div', {}, [
       el('b', {className: 'margin-right'}, [labelParts[0], ':']),
-      el('span', {
-        className: callback ? 'infowindow-link' : '',
-        onClick: () => callback && callback()
-      }, [labelParts[1]]),
+      callbackSpan,
 
       el('hr', {style: 'margin-top: 5px; margin-bottom: 5px;'}, []),
       el('table', {className: 'popover-table'}, [
@@ -96,20 +101,22 @@ export const createElement = (type: string | Function, props: {[key: string]: an
     let el = document.createElement(type as string);
 
     for (let propName in props || {}) {
-    if (/^on/.test(propName))
+      if (/^on/.test(propName))
         el.addEventListener(
-        propName.substring(2).toLowerCase(),
-        props[propName]);
-
-    else
+          propName.substring(2).toLowerCase(),
+          props[propName]);
+      else
         el[propName] = props[propName];
     }
 
+
     for (let child of children || []) {
+      if (child) {
         if (child.constructor === String)
           el.appendChild(document.createTextNode(child as string));
         else
           el.appendChild(child as HTMLElement);
+      }
     }
 
     return el;

@@ -179,18 +179,19 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
             coordinates);
           marker.setMap(map);
 
-
+          let infowindowLabel = `${parseViewLevel(viewLevel)}: ${location.label}`
           let locationInfo = {
             ...location,
-            label: `${parseViewLevel(viewLevel)}: ${location.label}`
+            label: infowindowLabel
           }
 
           // add an info window containing the data
-          let infoWindow = createInfoWindow(locationInfo, () => {
-            onSelect(
-              getNextLocationFilters(location, locationFilters)
-            );
-          });
+          let infoWindowCallback: undefined | (() => void)  =
+            viewLevel !== 'institutions'
+              ? () => onSelect(getNextLocationFilters(location, locationFilters))
+              : undefined;
+
+          let infoWindow = createInfoWindow(locationInfo, infoWindowCallback);
 
           // store these references so we can delete them later
           setTimeout(() => {
