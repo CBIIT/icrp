@@ -10,6 +10,7 @@ permissions:
   - 'access user profiles'
   - 'create events content'
   - 'create forum content'
+  - 'delete own events content'
   - 'edit own events content'
   - 'edit own forum content'
   - 'grant own content access'

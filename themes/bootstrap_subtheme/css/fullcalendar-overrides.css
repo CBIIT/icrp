@@ -12,9 +12,9 @@ See http://htmlcolorcodes.com/color-names/ for color names
 7. Website and Database (website-and-database) = INDIANRED
 * External Events
 8. Conference/Meeting (conference-meeting) = LIGHTSKYBLUE
-9. Twiter Promotional Event (twitter-promotional) = ORANGERED
-10. Webinar (webinar) =  DarkKhaki
-11. Other (other) = LIGHTGREEN
+9. Twiter Promotional Event (twitter-promotional) = CRIMSON
+10. Webinar (webinar) =  DARKCYAN
+11. Other (other) = MEDIUMVIOLETRED
 
 */
 /* 1. Partner News and Announcements (partner-news-and-announcements) = DARKORANGE */
@@ -97,27 +97,27 @@ See http://htmlcolorcodes.com/color-names/ for color names
   background-color: LIGHTSKYBLUE;
 }
 
-/* 9. Twiter Promotional Event (twitter-promotional) = ORANGERED */
+/* 9. Twiter Promotional Event (twitter-promotional) = CRIMSON */
 .fc-event-tid-twitter-promotional,
 .fc-event-tid-twitter-promotional .fc-event-skin,
 .fc-event-tid-twitter-promotional .fc-event-time,
 .fc-event-tid-twitter-promotional .fc-event-dot,
 .fc-event-tid-twitter-promotional a {
   color: #fff;
-  background-color: ORANGERED;
+  background-color: CRIMSON;
 }
 
-/* 10. Webinar (webinar) =  DarkKhaki */
+/* 10. Webinar (webinar) =  DARKCYAN */
 .fc-event-tid-webinar,
 .fc-event-tid-webinar .fc-event-skin,
 .fc-event-tid-webinar .fc-event-time,
 .fc-event-tid-webinar .fc-event-dot,
 .fc-event-tid-webinar a {
   color: #fff;
-  background-color: DarkKhaki;
+  background-color: DARKCYAN;
 }
 
-/* 11. Other (other) = LIGHTGREEN */
+/* 11. Other (other) = MEDIUMVIOLETRED */
 
 .fc-event-tid-other,
 .fc-event-tid-other .fc-event-skin,
@@ -125,7 +125,7 @@ See http://htmlcolorcodes.com/color-names/ for color names
 .fc-event-tid-other .fc-event-dot,
 .fc-event-tid-other a {
   color: #fff;
-  background-color: LIGHTGREEN;
+  background-color: MEDIUMVIOLETRED;
 }
 .fc-event-tid-annual-meetings > .fc-list-item-time {
   color:black;
