@@ -53,74 +53,39 @@ export const createDataMarker = (
   });
 
 export const createInfoWindow = ({label, counts}: Location, callback?: () => void) => {
-
   const el = createElement;
-
   let labelParts = label.split(':').map(e => e.trim());
-  let domNode: HTMLElement = el('div', {}, [
-    el('b', {className: 'margin-right'}, [labelParts[0], ':']),
-    el('span', {
-      className: callback ? 'infowindow-link' : '',
-      onClick: () => callback && callback()
-    }, [labelParts[1]]),
-
-    el('hr', {style: 'margin-top: 5px; margin-bottom: 5px;'}, []),
-    el('table', {className: 'popover-table'}, [
-      el('tbody', {}, [
-
-        el('tr', {}, [
-          el('td', {}, ['Total Related Projects']),
-          el('td', {}, [counts.projects.toLocaleString()]),
-        ]),
-
-        el('tr', {}, [
-          el('td', {}, ['Total PIs']),
-          el('td', {}, [counts.primaryInvestigators.toLocaleString()]),
-        ]),
-
-        el('tr', {}, [
-          el('td', {}, ['Total Collaborators']),
-          el('td', {}, [counts.collaborators.toLocaleString()]),
-        ]),
-      ])
-    ])
-
-
-  //       <span onclick="function">${labelParts[1]}</span>
-
-  ])
 
   return new google.maps.InfoWindow({
-    content: domNode
+    content: el('div', {}, [
+      el('b', {className: 'margin-right'}, [labelParts[0], ':']),
+      el('span', {
+        className: callback ? 'infowindow-link' : '',
+        onClick: () => callback && callback()
+      }, [labelParts[1]]),
+
+      el('hr', {style: 'margin-top: 5px; margin-bottom: 5px;'}, []),
+      el('table', {className: 'popover-table'}, [
+        el('tbody', {}, [
+
+          el('tr', {}, [
+            el('td', {}, ['Total Related Projects']),
+            el('td', {}, [counts.projects.toLocaleString()]),
+          ]),
+
+          el('tr', {}, [
+            el('td', {}, ['Total PIs']),
+            el('td', {}, [counts.primaryInvestigators.toLocaleString()]),
+          ]),
+
+          el('tr', {}, [
+            el('td', {}, ['Total Collaborators']),
+            el('td', {}, [counts.collaborators.toLocaleString()]),
+          ]),
+        ])
+      ])
+    ])
   })
-
-  // return new google.maps.InfoWindow({
-  //   content: `
-  //     <div>
-  //       <b>${labelParts[0]}: </b>
-  //       <span onclick="function">${labelParts[1]}</span>
-
-  //       <hr style="margin-top: 5px; margin-bottom: 5px" />
-  //       <table class="popover-table">
-  //         <tbody>
-  //           <tr>
-  //             <td>Total Related Projects</td>
-  //             <td>${counts.projects.toLocaleString()}</td>
-  //           </tr>
-
-  //           <tr>
-  //             <td>Total PIs</td>
-  //             <td>${counts.primaryInvestigators.toLocaleString()}</td>
-  //           </tr>
-
-  //           <tr>
-  //             <td>Total Collaborators</td>
-  //             <td>${counts.collaborators.toLocaleString()}</td>
-  //           </tr>
-  //         </tbody>
-  //       </table>
-  //     </div>
-  // `});
 }
 
 export const createElement = (type: string | Function, props: {[key: string]: any}, children: (HTMLElement|string)[]) => {
