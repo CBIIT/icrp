@@ -9,6 +9,6 @@ _core:
 id: user_search
 label: Users
 path: user
-weight: 0
+weight: -8
 plugin: user_search
 configuration: {  }

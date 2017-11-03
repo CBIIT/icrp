@@ -93,6 +93,7 @@ module:
   responsive_image: 0
   rules: 0
   search: 0
+  search_exclude: 0
   search_kint: 0
   security_review: 0
   serialization: 0

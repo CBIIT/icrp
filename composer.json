@@ -94,6 +94,7 @@
         "drupal/recovery_pass": "1.0",
         "drupal/redirect": "^1.0@beta",
         "drupal/rules": "3.0.0-alpha3@alpha",
+        "drupal/search_exclude": "^1.1",
         "drupal/search_kint": "1.0",
         "drupal/security_review": "1.x-dev",
         "drupal/token": "1.0",
