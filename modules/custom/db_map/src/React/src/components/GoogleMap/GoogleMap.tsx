@@ -37,7 +37,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
   async componentDidMount() {
     this.map = new google.maps.Map(this.mapContainer, DEFAULT_OPTIONS);
     this.clusterer = new LocationClusterer(this.map);
-    this.clusterer.setRadius(70);
+    this.clusterer.setRadius(60);
 
     this.map.addListener('click', (event: google.maps.MouseEvent) => {
       this.infoWindows.forEach(window => window.close());
@@ -242,8 +242,11 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
             // '#FFC90E',
             // '#FABD41'
 
-            '#22B14C',
-            '#00B16A'
+            // '#22B14C',
+            // '#00B16A'
+
+            '#F4BD00',
+            '#FFE280'
           );
 
           marker.setMap(map);
@@ -311,7 +314,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
   }
 
   calculateMarkerSize(count: number) {
-    return 14 + Math.floor(Math.log10(count)) * 3;
+    return 16 + Math.floor(Math.log10(count)) * 2.8;
   }
 
   render() {

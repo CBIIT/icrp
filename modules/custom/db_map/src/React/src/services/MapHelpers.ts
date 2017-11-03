@@ -33,7 +33,7 @@ export const createDataMarker = (
     label: {
       color: 'white',
       text: label.toLocaleString(),
-      fontSize: '15px',
+      fontSize: '14px',
       fontWeight: 'bolder',
       fontFamily: `
         -apple-system, system-ui, BlinkMacSystemFont,
@@ -48,7 +48,7 @@ export const createDataMarker = (
       strokeOpacity: 0.8,
       fillColor: fillColor,
       strokeColor: strokeColor,
-      strokeWeight: 5,
+      strokeWeight: 4,
     },
   });
 
