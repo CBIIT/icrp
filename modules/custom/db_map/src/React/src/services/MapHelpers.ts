@@ -52,33 +52,103 @@ export const createDataMarker = (
     },
   });
 
-export const createInfoWindow = ({label, counts}: Location) =>
-  new google.maps.InfoWindow({
-    content: `
-      <div>
-        <b>${label}</b>
-        <hr style="margin-top: 5px; margin-bottom: 5px" />
-        <table class="popover-table">
-          <tbody>
-            <tr>
-              <td>Total Related Projects</td>
-              <td>${counts.projects.toLocaleString()}</td>
-            </tr>
+export const createInfoWindow = ({label, counts}: Location, callback?: () => void) => {
 
-            <tr>
-              <td>Total PIs</td>
-              <td>${counts.primaryInvestigators.toLocaleString()}</td>
-            </tr>
+  const el = createElement;
 
-            <tr>
-              <td>Total Collaborators</td>
-              <td>${counts.collaborators.toLocaleString()}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-  `});
+  let labelParts = label.split(':').map(e => e.trim());
+  let domNode: HTMLElement = el('div', {}, [
+    el('b', {className: 'margin-right'}, [labelParts[0], ':']),
+    el('span', {
+      className: callback ? 'infowindow-link' : '',
+      onClick: () => callback && callback()
+    }, [labelParts[1]]),
 
+    el('hr', {style: 'margin-top: 5px; margin-bottom: 5px;'}, []),
+    el('table', {className: 'popover-table'}, [
+      el('tbody', {}, [
+
+        el('tr', {}, [
+          el('td', {}, ['Total Related Projects']),
+          el('td', {}, [counts.projects.toLocaleString()]),
+        ]),
+
+        el('tr', {}, [
+          el('td', {}, ['Total PIs']),
+          el('td', {}, [counts.primaryInvestigators.toLocaleString()]),
+        ]),
+
+        el('tr', {}, [
+          el('td', {}, ['Total Collaborators']),
+          el('td', {}, [counts.collaborators.toLocaleString()]),
+        ]),
+      ])
+    ])
+
+
+  //       <span onclick="function">${labelParts[1]}</span>
+
+  ])
+
+  return new google.maps.InfoWindow({
+    content: domNode
+  })
+
+  // return new google.maps.InfoWindow({
+  //   content: `
+  //     <div>
+  //       <b>${labelParts[0]}: </b>
+  //       <span onclick="function">${labelParts[1]}</span>
+
+  //       <hr style="margin-top: 5px; margin-bottom: 5px" />
+  //       <table class="popover-table">
+  //         <tbody>
+  //           <tr>
+  //             <td>Total Related Projects</td>
+  //             <td>${counts.projects.toLocaleString()}</td>
+  //           </tr>
+
+  //           <tr>
+  //             <td>Total PIs</td>
+  //             <td>${counts.primaryInvestigators.toLocaleString()}</td>
+  //           </tr>
+
+  //           <tr>
+  //             <td>Total Collaborators</td>
+  //             <td>${counts.collaborators.toLocaleString()}</td>
+  //           </tr>
+  //         </tbody>
+  //       </table>
+  //     </div>
+  // `});
+}
+
+export const createElement = (type: string | Function, props: {[key: string]: any}, children: (HTMLElement|string)[]) => {
+
+    if (type.constructor === Function)
+        return (type as Function)(props);
+
+    let el = document.createElement(type as string);
+
+    for (let propName in props || {}) {
+    if (/^on/.test(propName))
+        el.addEventListener(
+        propName.substring(2).toLowerCase(),
+        props[propName]);
+
+    else
+        el[propName] = props[propName];
+    }
+
+    for (let child of children || []) {
+        if (child.constructor === String)
+          el.appendChild(document.createTextNode(child as string));
+        else
+          el.appendChild(child as HTMLElement);
+    }
+
+    return el;
+}
 
 export const mapLabels = [
   {

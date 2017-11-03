@@ -186,7 +186,11 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
           }
 
           // add an info window containing the data
-          let infoWindow = createInfoWindow(locationInfo);
+          let infoWindow = createInfoWindow(locationInfo, () => {
+            onSelect(
+              getNextLocationFilters(location, locationFilters)
+            );
+          });
 
           // store these references so we can delete them later
           setTimeout(() => {

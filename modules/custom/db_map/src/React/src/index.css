@@ -53,6 +53,13 @@ table.popover-table td {
   justify-content: space-between;
 }
 
+.infowindow-link {
+  color: #4B77BE;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: bold;
+}
+
 #icrp-map-header a {
   line-height: 24px;
 }
