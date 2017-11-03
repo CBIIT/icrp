@@ -247,7 +247,7 @@ class MappingTool {
 
       PDOBuilder::executePreparedStatement(
         $pdo,
-        'SET NOCOUNT ON; EXECUTE GetProjectsFromMapBySearchID
+        'SET NOCOUNT ON; EXECUTE AddNewSearchBySearchID
             @SearchID = :searchId,
             @RegionID = :region,
             @Country = :country,
@@ -257,7 +257,7 @@ class MappingTool {
             @ResultCount = NULL',
         $parameters,
         $output
-      )->fetchAll();
+      );
 
       return $output['newSearchId']['value'];
     }
