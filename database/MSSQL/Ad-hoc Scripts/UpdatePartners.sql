@@ -18,7 +18,7 @@ CREATE TABLE #Partner (
 GO
 
 BULK INSERT #Partner
-FROM 'C:\icrp\database\DataImport\CurrentRelease\PartnerUpdates.csv'  
+FROM 'C:\ICRP\database\DataImport\CurrentRelease\Coordinates\PartnerCoordinates.csv'  
 WITH
 (
 	FIRSTROW = 2,
@@ -33,6 +33,8 @@ Select * from #Partner
 update #Partner SET Coordinates = REPLACE(Coordinates, '"', '')
 
 begin transaction
+
+select * from partner
 
 UPDATE Partner SET 
 	Latitude = CAST(LEFT(u.[Coordinates], CHARINDEX(',', u.[Coordinates])-1) AS DECIMAL(9,6)),

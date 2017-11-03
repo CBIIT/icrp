@@ -32,7 +32,7 @@ CREATE TABLE #Collaborators (
 GO
 
 BULK INSERT #Collaborators
-FROM 'C:\icrp\database\DataImport\Collaborators\Collaborator_Data_CCRA.csv'
+FROM 'C:\ICRP\database\DataImport\CurrentRelease\Collaborators\Collaborator_Data_CCRA.csv'
 WITH
 (
 	FIRSTROW = 2,
@@ -49,19 +49,23 @@ select distinct c.Institution, c.City from #Collaborators c
 LEFT JOIN Institution i ON c.Institution = i.Name AND c.City = i.City
 WHERE i.InstitutionID IS NULL
 
-select distinct Institution, City, [State],	[Country], [Postal], [Longitude], [Latitude], [GRID] from #Collaborators where IsNewInstitution = 'y'
+--select *
+--from (select distinct Institution, City, [State],	[Country], [Postal], [Longitude], [Latitude], [GRID] from #Collaborators where IsNewInstitution = 'y') n
+--join institution i ON n.Institution = i.name
+
+--select * from institution where name='American College of Radiology - Philadelphia'
 
 -- Insert new institutions
 INSERT INTO Institution (Name, City, [State],[Country], [Postal], [Longitude], [Latitude], [GRID])
 select distinct Institution, City, [State],	[Country], [Postal], [Longitude], [Latitude], [GRID] from #Collaborators where IsNewInstitution = 'y'
 
 -- Insert Collaborators
-INSERT INTO ProjectFundingInvestigator (ProjectFundingID, [LastName], [FirstName], [ORC_ID], [OtherResearch_ID], [OtherResearch_Type], IsPrivateInvestigator, InstitutionID, InstitutionNameSubmitted)
+INSERT INTO ProjectFundingInvestigator (ProjectFundingID, [LastName], [FirstName], [ORC_ID], [OtherResearch_ID], [OtherResearch_Type], IsPrincipalInvestigator, InstitutionID, InstitutionNameSubmitted)
 SELECT pf.ProjectFundingID, c.[LastName], c.[FirstName], c.[ORC_ID], c.[OtherResearchID], c.[OtherResearchType], 0 AS IsPrimaryInvestigator, i.InstitutionID, c.SubmittedInstitution FROM #Collaborators c
 JOIN ProjectFunding pf ON c.AltAwardCode = pf.AltAwardCode
 JOIN Institution i ON c.Institution = i.Name AND c.City = i.City
 
 
-select * from ProjectFundingInvestigator where IsPrivateInvestigator = 0 order by ProjectFundingID
+select * from ProjectFundingInvestigator where IsPrincipalInvestigator = 0 order by ProjectFundingID
 
 

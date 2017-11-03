@@ -944,3 +944,55 @@ END CATCH
 
 GO
 
+
+-------------------------------------------------------------------------------------------
+-- Triggers
+--------------------------------------------------------------------------------------------
+
+/****** Object:  Trigger [dbo].[Trigger_Add_FundingOrg]    Script Date: 11/2/2017 5:19:47 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER TRIGGER [dbo].[Trigger_Add_FundingOrg]
+ON [dbo].[FundingOrg] 
+AFTER INSERT
+AS  
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	-- Insert the newly inserted fundingorg into the PartnerOrg table
+	INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
+	SELECT [Name], [SponsorCode], 'Associate', 1 FROM INSERTED WHERE MemberStatus = 'Current' AND MemberType = 'Associate'
+
+	-- Insert the newly inserted fundingorg into the icrp_dataload database
+	INSERT INTO icrp_dataload_dev.dbo.FundingOrg ([Name],[Abbreviation],[Type],[Country],[Currency],[SponsorCode],[MemberType],[MemberStatus],[IsAnnualized],[Note],[LastImportDate],[LastImportDesc],[CreatedDate],[UpdatedDate],[Website],[Latitude], [Longitude])
+	SELECT [Name],[Abbreviation],[Type],[Country],[Currency],[SponsorCode],[MemberType],[MemberStatus],[IsAnnualized],[Note],[LastImportDate],[LastImportDesc],[CreatedDate],[UpdatedDate],[Website], Latitude, Longitude FROM INSERTED
+
+GO
+
+
+/****** Object:  Trigger [dbo].[Trigger_Add_Partner]    Script Date: 11/2/2017 5:19:13 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER TRIGGER [dbo].[Trigger_Add_Partner]
+ON [dbo].[Partner] 
+AFTER INSERT
+AS  
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	-- Insert the newly inserted partner into the PartnerOrg table
+	INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
+	SELECT [Name], [SponsorCode], 'Partner', 1 FROM INSERTED
+
+	-- Insert the newly inserted partner into the icrp_dataload database
+	INSERT INTO icrp_dataload_dev.dbo.Partner ([Name], [Description],[SponsorCode],[Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate],[Latitude], [Longitude])
+	SELECT [Name], [Description],[SponsorCode],[Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], Latitude, Longitude FROM INSERTED
+
