@@ -257,7 +257,15 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
           marker.setMap(map);
 
           // add an info window containing the data
-          let infoWindow = createInfoWindow(clusteredLocation);
+          let infoWindowCallback: undefined | (() => void)  =
+          viewLevel !== 'institutions'
+            ? () => {
+              this.shouldRedraw = false;
+              store.setMapLocations(cluster.get());
+              this.shouldRedraw = true;
+            }: undefined;
+
+          let infoWindow = createInfoWindow(clusteredLocation, infoWindowCallback);
 
           // store these references so we can delete them later
           setTimeout(() => {
