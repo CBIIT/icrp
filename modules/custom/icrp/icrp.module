@@ -362,6 +362,10 @@ $body = '
 }
 
 function icrp_node_insert(NodeInterface $node) {
+
+  drupal_set_message("node_insert");
+  dpm($node->getType());
+
   if($node->getType() == "forum") {
   /*
     drupal_set_message("Node Insert");

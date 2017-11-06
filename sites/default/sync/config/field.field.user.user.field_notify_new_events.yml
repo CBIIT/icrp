@@ -10,8 +10,8 @@ id: user.user.field_notify_new_events
 field_name: field_notify_new_events
 entity_type: user
 bundle: user
-label: 'Notified of New Events Added/Updated/Deleted to the Calendar'
-description: ''
+label: 'Notify me of new Events to ICRP Committees'
+description: 'Receive an e-mail when a new event is added to the ICRP Calendar.'
 required: false
 translatable: false
 default_value:
