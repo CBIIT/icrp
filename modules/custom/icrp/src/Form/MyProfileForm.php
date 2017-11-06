@@ -84,7 +84,7 @@ x(del)         Internal Communications
         );
         $this->notifications = array(
             "field_notify_new_posts",
-            //"field_notify_new_events",
+            "field_notify_new_events",
         );
 
     }

@@ -63,14 +63,15 @@
 <script>console.log({{ page['#title'] | json_encode | raw }});</script>
 <script>console.log({{ page | json_encode | raw }});</script>
 <script>console.log({{ _context | json_encode | raw }});</script>
+{{ page_title|striptags|trim}}<br>
+{{ telement_id }}<br>
+{{ icrp_debug ? 'Debug ON' : 'Debug OFF' }}<br>
+
 */#}
 
 {% set page_title %}
     {{ page['#title'] }}
 {% endset %}
-{{ page_title|striptags|trim}}<br>
-{{ telement_id }}<br>
-{{ icrp_debug ? 'Debug ON' : 'Debug OFF' }}<br>
 
 
 {% set container = theme.settings.fluid_container ? 'container-fluid' : 'container' %}
