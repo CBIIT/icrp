@@ -100,3 +100,7 @@ table.project-funding-details > tbody > tr > td.limited-width {
 table.project-funding-details > tbody > tr:hover {
   background-color: #FAFAFA;
 }
+
+.margin-left {
+  margin-left: 5px;
+}
