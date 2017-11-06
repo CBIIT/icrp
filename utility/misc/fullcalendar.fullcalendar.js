@@ -33,7 +33,6 @@
                   //node_data = JSON.parse(node_data);
                   //console.dir(node_data);
                   $('#calendar-modal').html(data);
-                  $('#calendar-modal').modal("show");
                   $.ajax({
                       url:  href_permissions
                     })
@@ -48,8 +47,8 @@
                       } else {
                         //alert("Hide Edit");
                         $('#event-edit').hide();
-
                       }
+                      $('#calendar-modal').modal("show");
                   //new Element("script", {src: "core/misc/dialog/dialog.ajax.js", type: "text/javascript"});
                    });
               });

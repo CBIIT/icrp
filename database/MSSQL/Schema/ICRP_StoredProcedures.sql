@@ -4093,7 +4093,7 @@ AS
 	SELECT r.RegionID, r.Name AS Region, ISNULL(p.Count, 0) AS TotalRelatedProjectCount, ISNULL(pi.Count,0) AS TotalPICount, ISNULL(c.Count, 0) AS TotalCollaboratorCount, r.Latitude, r.Longitude
 	FROM #proj p
 		LEFT JOIN #pi  pi ON p.RegionID = pi.RegionID
-		LEFT JOIN #collab c ON c.RegionID = pi.RegionID
+		LEFT JOIN #collab c ON p.RegionID = c.RegionID
 		LEFT JOIN lu_Region r ON p.RegionID = r.RegionID
 	ORDER BY p.Count DESC
 
@@ -4146,13 +4146,21 @@ AS
 			JOIN ProjectFunding f ON r.ProjectID = f.ProjectID			
 	END
 
+	-- Get projects by country for the given Region
+	DECLARE @Countryfilter VARCHAR(1000)
+	DECLARE @InstitutionFilter VARCHAR(250)
+	
+	-- Get the search criteria to be used to remove the pi or collaboratos whose instituions are not the filtered country or institution
+	SELECT @Countryfilter=CountryList, @InstitutionFilter = Institution FROM SearchCriteria WHERE SearchCriteriaID = @SearchID	
+
 	SELECT c.Abbreviation AS Country, pf.ProjectFundingID, p.IsPrincipalInvestigator INTO #tmp
 		FROM @funding pf
 			JOIN ProjectFundingInvestigator p ON pf.ProjectFundingID = p.ProjectFundingID
 			JOIN Institution i ON p.InstitutionID = i.InstitutionID
 			JOIN Country c ON i.Country = c.Abbreviation			
-		WHERE c.RegionID = @RegionID
+		WHERE c.RegionID = @RegionID AND (@Countryfilter IS NULL OR @Countryfilter = i.Country) AND (@InstitutionFilter IS NULL OR @InstitutionFilter = i.Name)
 
+	
 	SELECT Country, Count(*) AS Count INTO #proj FROM (SELECT DISTINCT Country, ProjectFundingID FROM #tmp) proj GROUP BY Country
 	SELECT Country, Count(*) AS Count INTO #pi FROM (SELECT Country, ProjectFundingID FROM #tmp WHERE IsPrincipalInvestigator=1) p GROUP BY Country
 	SELECT Country, Count(*) AS Count INTO #collab FROM (SELECT Country, ProjectFundingID FROM #tmp WHERE IsPrincipalInvestigator=0) collab GROUP BY Country
@@ -4162,13 +4170,12 @@ AS
 	FROM #proj p
 		JOIN Country ctry ON ctry.Abbreviation = p.Country
 		LEFT JOIN #pi  pi ON p.Country = pi.Country
-		LEFT JOIN #collab c ON c.Country = pi.Country		
+		LEFT JOIN #collab c ON p.Country = c.Country		
 	ORDER BY p.Count DESC
 
 	SELECT @AggregatedProjectCount= Count(*) FROM (SELECT DISTINCT ProjectFundingID FROM #tmp) proj
 	SELECT @AggregatedPICount=SUM(Count) FROM #pi	
-	SELECT @AggregatedCollabCount=SUM(Count) FROM #collab		
-	
+	SELECT @AggregatedCollabCount=SUM(Count) FROM #collab	
 	
 GO
 
@@ -4231,8 +4238,8 @@ AS
 	FROM #proj p
 		--JOIN Country ctry ON ctry.Abbreviation = p.City
 		LEFT JOIN #pi  pi ON p.City = pi.City AND ISNULL(p.State, '')  = ISNULL(pi.State, '')
-		LEFT JOIN #collab c ON c.City = pi.City	AND ISNULL(p.State, '')  = ISNULL(pi.State, '')
-		LEFT JOIN lu_City city ON city.Country = @Country AND city.Name = pi.CIty AND ISNULL(city.State, '')  = ISNULL(pi.State, '')
+		LEFT JOIN #collab c ON p.City = c.City	AND ISNULL(p.State, '')  = ISNULL(c.State, '')
+		LEFT JOIN lu_City city ON city.Country = @Country AND city.Name = p.CIty AND ISNULL(city.State, '')  = ISNULL(p.State, '')
 	ORDER BY p.Count DESC
 
 	SELECT @AggregatedProjectCount= Count(*) FROM (SELECT DISTINCT ProjectFundingID FROM #tmp) proj
@@ -4420,8 +4427,6 @@ AS
 	INSERT INTO SearchResult (SearchCriteriaID, Results,ResultCount, TotalRelatedProjectCount, LastBudgetYear, IsEmailSent) VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, @TotalRelatedProjectCount, @LastBudgetYear, 0)	
 	
 GO
-
-
 
 
 ----------------------------------------------------------------------------------------------------------

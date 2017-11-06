@@ -65,6 +65,11 @@
  *   in different view modes.
  */
 #}
+{% if not logged_in %}
+<div class="region region-content">
+  The requested page could not be found.
+</div>
+{% else %}
 {% if icrp_debug %}
   <span class="icrp-debug">node--forum.html.twig</span><br>
   <script>console.info("node--forum.html.twig");</script>
@@ -134,6 +139,10 @@
               <td>Event Type</td>
               <td>{{ content.field_event_group }}</td>
             </tr>
+            <tr>
+              <td>Calendar Type</td>
+              <td>{{ content.field_calendar_type }}</td>
+            </tr>
 					</table>
                   </div>
                   {% set calendarType %}
@@ -151,3 +160,4 @@
                 </div>
 
                </div>
+{% endif %}               

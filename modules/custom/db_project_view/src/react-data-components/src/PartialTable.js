@@ -3,6 +3,38 @@ import Table from './Table';
 import Pagination from './Pagination';
 
 export default class PartialTable extends Component {
+  onExportClick = (e) => {
+    e.preventDefault();
+    var $ = require('jquery');
+    $.get({url:'/getFundingOrg'}).done(function(resp) {
+      var exportObj = [{
+        title: 'Funding Organizations',
+        rows: [
+          ['Name','Type','Abbreviation','Sponsor Code','Country','Currency','Annualized Funding','Last Import Date','Import Description']
+        ]
+      }];
+      $.merge(exportObj[0].rows,resp.map(function(entry) {
+        return [
+          entry.Name,
+          entry.Type,
+          entry.Abbreviation,
+          entry.SponsorCode,
+          entry.Country,
+          entry.Currency,
+          entry.IsAnnualized,
+          entry.LastImportDate,
+          entry.LastImportDesc
+        ];
+      }));
+      $.ajax({
+        url: '/map/getExcelExport/',
+        method: 'POST',
+        data: JSON.stringify(exportObj)
+      }).done(function(resp) {
+        window.location = '/'+resp;
+      });
+    });
+  };
 
   render() {
     const {
@@ -18,18 +50,26 @@ export default class PartialTable extends Component {
     return (
       <div className="container_funding_org">
         <font color="orange"><h1 class="titleOrg margin-right">Funding Organizations</h1></font>
-        <p>
-ICRP organizations submit their latest available research projects or research funding to the ICRP database as soon as possible. Each partner submits data on a different schedule as each has different timelines for awarding, collating and classifying projects, so recent calendar years in the ‘Year active’ search may not yet include all available data for that year. In the table below, the ‘Import Description’ column shows the latest import from each partner, and the date on which that import was uploaded to the database. Organizations that update research funding annually for all projects in the database are listed as ‘yes’ in the ‘Annual funding updates’ column below.
- 	</p>
-
+        <p>ICRP organizations submit their latest available research projects or research funding to the ICRP database as soon as possible. Each partner submits data on a different schedule as each has different timelines for awarding, collating and classifying projects, so recent calendar years in the ‘Year active’ search may not yet include all available data for that year. In the table below, the ‘Import Description’ column shows the latest import from each partner, and the date on which that import was uploaded to the database. Organizations that update research funding annually for all projects in the database are listed as ‘yes’ in the ‘Annual funding updates’ column below.</p>
         <div className="row">
           <style type="text/css">{`
-            .col-xs-3 {margin-top: 10px;}
+            .col-xs-3 {
+              margin-top: 10px;
+            }
+            .col-xs-3 ~ .col-xs-3 ~ .col-xs-3 {
+              margin-top: 0px;
+            }
+            .col-xs-3:last-child {
+              text-align: right;
+            }
             .form-control-input {
               border: 1px solid #AAA;
               border-radius: 4px;
               padding: 6px;
               height: 24px;
+            }
+            #funding_org_export {
+              margin-bottom: 5px;
             }
           `}</style>
           <div className="col-xs-3">
@@ -45,8 +85,7 @@ ICRP organizations submit their latest available research projects or research f
               />
              </div>
           </div>
-          <style type="text/css">{`.col-xs-5 {margin-top: 10px;} `}</style>
-          <div className="col-xs-5">
+          <div className="col-xs-3">
             <div>
               <label htmlFor="page-menu"> Show &nbsp; </label>
               <select
@@ -62,15 +101,27 @@ ICRP organizations submit their latest available research projects or research f
               </select>
               &nbsp; out of  <b>{totalRecords}</b> Funding Organizations
             </div>
-	  </div>
-          <div className="col-xs-4">
-          <style type="text/css">{`.pagination {margin: 5px;} `}</style>
+          </div>
+          <div className="col-xs-3">
+            <style type="text/css">{`.pagination {margin: 5px;} `}</style>
             <Pagination
               className="pagination pull-right"
               currentPage={pageNumber}
               totalPages={totalPages}
               onChangePage={onPageNumberChange}
             />
+          </div>
+          <div className="col-xs-3">
+            <button id="funding_org_export" className="btn btn-default btn-sm" onClick={this.onExportClick}>
+              <div>
+                <svg width="12px" height="12px" viewBox="0 0 16 16">
+                  <g stroke="none" stroke-width="1" fill-rule="evenodd" fill="#000000">
+                    <path d="M4,6 L7,6 L7,0 L9,0 L9,6 L12,6 L8,10 L4,6 L4,6 Z M15,2 L11,2 L11,3 L15,3 L15,11 L1,11 L1,3 L5,3 L5,2 L1,2 C0.45,2 0,2.45 0,3 L0,12 C0,12.55 0.45,13 1,13 L6.34,13 C6.09,13.61 5.48,14.39 4,15 L12,15 C10.52,14.39 9.91,13.61 9.66,13 L15,13 C15.55,13 16,12.55 16,12 L16,3 C16,2.45 15.55,2 15,2 L15,2 Z" id="Shape"></path>
+                  </g>
+                </svg>
+                <span className="margin-left">Export</span>
+              </div>
+            </button>
           </div>
         </div>
         <Table
@@ -81,7 +132,7 @@ ICRP organizations submit their latest available research projects or research f
           buildRowOptions={buildRowOptions}
           sortBy={sortBy}
           onSort={onSort}
-	  />
+    />
       </div>
     );
   }

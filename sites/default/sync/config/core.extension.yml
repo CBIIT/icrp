@@ -9,14 +9,10 @@ module:
   block: 0
   block_content: 0
   bootstrap_layouts: 0
-  bootstrap_modal_messages: 0
   breakpoint: 0
   ckeditor: 0
   clientside_validation: 0
   clientside_validation_jquery: 0
-  color: 0
-  colorbox: 0
-  colorbox_load: 0
   colors: 0
   comment: 0
   config: 0
@@ -79,7 +75,6 @@ module:
   media_entity: 0
   menu_ui: 0
   metatag: 0
-  ng_lightbox: 0
   node: 0
   options: 0
   page_cache: 0
@@ -93,6 +88,7 @@ module:
   responsive_image: 0
   rules: 0
   search: 0
+  search_exclude: 0
   search_kint: 0
   security_review: 0
   serialization: 0

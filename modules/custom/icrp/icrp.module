@@ -482,7 +482,9 @@ function getOrg($target_id) {
   $node = \Drupal::entityTypeManager()->getStorage('node')->load($target_id);
   return $node->get('body')->value; 
 }
-
+function icrp_preprocess_events(&$variables) {
+  drupal_set_message("icrp_preprocess_events");
+}
 function icrp_preprocess_comment(&$variables) {
     //drupal_set_message("icrp_preprocess_comment");
     //dpm($variables);
@@ -574,6 +576,14 @@ function makeRandomString($max=6) {
 }
 
 function icrp_preprocess_form(&$variables) {
+
+  //drupal_set_message("Here we go.  Do your work here.");
+  //dpm($variables);
+  //node-events-delete-form
+
+  if(isset($variables['element']['#form_id'])) {
+    $variables['telement_id'] = $variables['element']['#form_id'];
+  }
   if(isset($variables['element']['#form_id']) && $variables['element']['#form_id'] == "node_forum_form") {
 
     $form_id = $variables['element']['#form_id'];
@@ -589,6 +599,7 @@ function icrp_preprocess_form(&$variables) {
     $variables['tforum_category'] = $row->name;
     $variables['tforum_description'] = $row->description__value;
   }
+  //dpm($variables);
 }
 /*
 function icrp_views_data_alter(array &$data) { 
@@ -1420,8 +1431,10 @@ function icrp_fullcalendar_options_info() {
 function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 
     //drupal_set_message("Form ID: " . $form_id);
+    //dump($form['#attributes']['data-drupal-selector']);
     //dump($form_state);
     //kint(print_r($form, true));
+    //$form['form_id'] = $form_id;
     $current_form_id = $form_id;
     if($form_id == 'node_events_edit_form' || $form_id == 'node_events_form') {
       $current_form_id = 'node_events_forms';
@@ -1432,9 +1445,11 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             //dump($form);
             $uid = \Drupal::currentUser()->id();
             $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+            /*
             if(!($user->hasRole('manager') || $user->hasRole('administrator'))) {
               unset($form['actions']['delete']);
             }
+            */
             unset($form['revision_information']);                     // Remove Revisions section from block edit page
             unset($form['revision_log']);                     // Remove Revisions section from block edit page
             unset($form['revision']);                     // Remove Revisions section from block edit page
@@ -1490,16 +1505,24 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             if(!($user->hasRole('manager') || $user->hasRole('administrator'))) {
               unset($form['actions']['delete']);
             }
+            unset($form['revision_information']);                     // Remove Revisions section from block edit page
+            unset($form['revision_log']);                     // Remove Revisions section from block edit page
+            unset($form['revision']);                     // Remove Revisions section from block edit page
+
             break;
         case 'node_forum_form':
             $form['actions']['submit']['#value'] = t('Add New Thread');
             //dpm($form);
             break;
+        case 'node_events_delete_form':
+            $form['description']['#markup'] = new TranslatableMarkup("Are you sure you want to delete this event?");
+            //dump($form);
+            break;
         case 'node_forum_delete_form':
             //node-forum-delete-form
             //drupal_set_message("Node Forum Delete Form");
             //$desc = $form['description']['#markup']; //TranslatableMarkup
-            dump($form);
+            //dump($form);
             $form['description']['#markup'] = new TranslatableMarkup("By deleting this post, you will also delete all replies. Are you sure you want to delete the entire thread?");
             //unset($form['actions']['cancel']);
             break;

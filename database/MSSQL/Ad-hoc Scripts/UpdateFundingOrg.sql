@@ -18,7 +18,7 @@ CREATE TABLE #FundingOrg (
 GO
 
 BULK INSERT #FundingOrg
-FROM 'C:\icrp\database\DataImport\CurrentRelease\FundingOrgUpdates.csv'  
+FROM 'C:\ICRP\database\DataImport\CurrentRelease\Coordinates\FundingCoordinates.csv'  
 WITH
 (
 	FIRSTROW = 2,
@@ -41,8 +41,16 @@ FROM FundingOrg f
 JOIN #FundingOrg u ON f.SponsorCode = u.Sponsor AND f.Abbreviation = u.Abbreviation
 WHERE u.Coordinates <> '#N/A'
 
---commit
-rollback
+
+UPDATE FundingOrg SET Latitude = 43.727458,	Longitude = -72.611635
+FROM FundingOrg WHERE name = 'Make It Better (MIB) Agents'
+
+commit
+--rollback
+
+
+-- Org Missing coordinates - "Make It Better (MIB) Agents"
+
 
 --select * from FundingOrg where latitude is not null
 --select * from FundingOrg where latitude is null

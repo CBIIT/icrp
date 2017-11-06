@@ -48,12 +48,9 @@
         "drupal/backup_migrate": "4.0-alpha2@alpha",
         "drupal/bootstrap": "3.6",
         "drupal/bootstrap_layouts": "5.0-alpha1@alpha",
-        "drupal/bootstrap_modal_messages": "1.x-dev",
         "drupal/calendar": "1.x-dev",
         "drupal/clientside_validation": "1.0-rc3@RC",
         "drupal/clientside_validation_jquery": "1.0-rc3@RC",
-        "drupal/colorbox": "^1.4",
-        "drupal/colorbox_load": "^1.0@RC",
         "drupal/colors": "1.x-dev",
         "drupal/console": "1.0.1",
         "drupal/content_access": "1.x-dev",
@@ -94,6 +91,7 @@
         "drupal/recovery_pass": "1.0",
         "drupal/redirect": "^1.0@beta",
         "drupal/rules": "3.0.0-alpha3@alpha",
+        "drupal/search_exclude": "^1.1",
         "drupal/search_kint": "1.0",
         "drupal/security_review": "1.x-dev",
         "drupal/token": "1.0",
@@ -153,6 +151,9 @@
         "post-install-cmd": [
             "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
             "@composer run drupal-scaffold"
+        ],
+        "post-update-cmd": [
+            "php -r \"copy('themes/bootstrap_subtheme/js/config/fullcalendar.fullcalendar.js', 'modules/fullcalendar/js/fullcalendar.fullcalendar.js');\""
         ]       
     },
     "extra": {
