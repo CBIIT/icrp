@@ -36,7 +36,6 @@ export class Cluster<E extends Location> {
     lng /= this.elements.length;
 
     return new google.maps.LatLng(lat, lng);
-
   }
 
   public getBounds(): google.maps.LatLngBounds {

@@ -76,7 +76,6 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       this.labels = [];
 
       // fit to bounds before redrawing map
-
       if (this.locations.length > 1) {
         let bounds = new google.maps.LatLngBounds();
         let projection = this.map.getProjection();
@@ -85,7 +84,6 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         overlay.draw = () => {};
         let proj = overlay.getProjection()
 
-
         props.locations.map(loc => loc.coordinates)
           .filter(coords => coords.lat != 0 && coords.lng != 0)
           .forEach(latlng => bounds.extend(latlng));
@@ -93,20 +91,37 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         let northEast = bounds.getNorthEast();
         let southWest = bounds.getSouthWest();
 
+        let diagonalDistance = google.maps.geometry.spherical.computeDistanceBetween(northEast, southWest);
+
         let northEastPoint = proj.fromLatLngToDivPixel(northEast);
         let southWestPoint = proj.fromLatLngToDivPixel(southWest);
 
         let length = northEastPoint.x - southWestPoint.x;
         let height = southWestPoint.y - northEastPoint.y;
 
-        console.log('length, height', length, height);
+        console.log('length, height', length, height, diagonalDistance);
 
-        let scaleX = 1.05;
-        let scaleY = 1.05;
+        let scaleX = 1.0;
+        let scaleY = 1.0;
 
-        if (Math.abs(length) < 1 || Math.abs(height) < 1) {
-          scaleX = 1 + Math.abs(length) / 500;
-          scaleY = 1 + Math.abs(height) / 500;
+        if (diagonalDistance > 100) {
+          let scaleFactor = Math.log(diagonalDistance) / 1000;
+          console.log('increasing scale:', scaleFactor);
+
+          if (diagonalDistance > 1000000) {
+            scaleX += scaleFactor * 5;
+            scaleY += scaleFactor * 5;
+          }
+
+          else if (scaleFactor > 0.01) {
+            scaleX += scaleFactor;
+            scaleY += scaleFactor;
+          }
+
+          else {
+            scaleX += scaleFactor / 10;
+            scaleY += scaleFactor / 10;
+          }
         }
 
         northEastPoint.x *= scaleX;
@@ -244,12 +259,6 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
             counts.projects,
             this.calculateMarkerSize(counts.projects),
             clusteredLocation.coordinates,
-            // '#FFC90E',
-            // '#FABD41'
-
-            // '#22B14C',
-            // '#00B16A'
-
             '#F4BD00',
             '#FFE280'
           );
