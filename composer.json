@@ -151,6 +151,9 @@
         "post-install-cmd": [
             "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
             "@composer run drupal-scaffold"
+        ],
+        "post-update-cmd": [
+            "php -r \"copy('themes/bootstrap_subtheme/js/config/fullcalendar.fullcalendar.js', 'modules/fullcalendar/js/fullcalendar.fullcalendar.js');\""
         ]       
     },
     "extra": {
