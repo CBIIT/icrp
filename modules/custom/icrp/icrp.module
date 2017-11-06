@@ -364,6 +364,7 @@ $body = '
 function icrp_node_insert(NodeInterface $node) {
 
   //drupal_set_message("node_insert");
+  //dump()
   //dpm($node->getType());
 
   if($node->getType() == "forum") {
