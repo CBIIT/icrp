@@ -3,6 +3,38 @@ import Table from './Table';
 import Pagination from './Pagination';
 
 export default class PartialTable extends Component {
+  onExportClick = (e) => {
+    e.preventDefault();
+    var $ = require('jquery');
+    $.get({url:'/getFundingOrg'}).done(function(resp) {
+      var exportObj = [{
+        title: 'Funding Organizations',
+        rows: [
+          ['Name','Type','Abbreviation','Sponsor Code','Country','Currency','Annualized Funding','Last Import Date','Import Description']
+        ]
+      }];
+      $.merge(exportObj[0].rows,resp.map(function(entry) {
+        return [
+          entry.Name,
+          entry.Type,
+          entry.Abbreviation,
+          entry.SponsorCode,
+          entry.Country,
+          entry.Currency,
+          entry.IsAnnualized,
+          entry.LastImportDate,
+          entry.LastImportDesc
+        ];
+      }));
+      $.ajax({
+        url: '/map/getExcelExport/',
+        method: 'POST',
+        data: JSON.stringify(exportObj)
+      }).done(function(resp) {
+        window.location = '/'+resp;
+      });
+    });
+  };
 
   render() {
     const {
@@ -80,7 +112,7 @@ export default class PartialTable extends Component {
             />
           </div>
           <div className="col-xs-3">
-            <button id="funding_org_export" className="btn btn-default btn-sm">
+            <button id="funding_org_export" className="btn btn-default btn-sm" onClick={this.onExportClick}>
               <div>
                 <svg width="12px" height="12px" viewBox="0 0 16 16">
                   <g stroke="none" stroke-width="1" fill-rule="evenodd" fill="#000000">
