@@ -192,11 +192,13 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
           let fillColor = '#0690e0';
           let strokeColor = '#89C4F4';
           let textColor = '#ffffff';
+          let strokeWeight = 4;
 
           if (viewLevel === 'institutions') {
             fillColor = '#ffffff';
-            strokeColor = '#89C4F4';
+            strokeColor = '#0690e0';
             textColor = '#0690e0';
+            strokeWeight = 6;
           }
 
           let marker = createDataMarker(
@@ -205,7 +207,8 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
             coordinates,
             fillColor,
             strokeColor,
-            textColor
+            textColor,
+            strokeWeight
           );
           marker.setMap(map);
 
