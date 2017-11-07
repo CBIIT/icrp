@@ -269,35 +269,33 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
 
         <Row>
           <Col md={6} className="form-group-sm">
-            <FormControl
-              style={{borderColor: anyTrue(form.validationErrors.latitude)
-                  ? '#a94442'
-                  : '#ccc'}}
-              type="number"
-              className="form-control form-control-sm"
-              value={form.values.latitude}
-              onChange={event => changeCallback('latitude', event.target['value'])}
-              max="90"
-              min="-90"
-              placeholder='Enter latitude (eg: 32.30642)'
-              title="Latitude"
-            />
+            <div className={anyTrue(form.validationErrors.latitude) ? 'has-error' : ''}>
+              <FormControl
+                type="number"
+                className="form-control-sm"
+                value={form.values.latitude}
+                onChange={event => changeCallback('latitude', event.target['value'])}
+                max="90"
+                min="-90"
+                placeholder='Enter latitude (eg: 32.30642)'
+                title="Latitude"
+              />
+            </div>
           </Col>
 
           <Col md={6} className="form-group-sm">
-            <FormControl
-              type="number"
-              style={{borderColor: anyTrue(form.validationErrors.longitude)
-                ? '#a94442'
-                : '#ccc' }}
-              className="form-control form-control-sm"
-              value={form.values.longitude}
-              onChange={event => changeCallback('longitude', event.target['value'])}
-              max="180"
-              min="-180"
-              placeholder='Enter longitude (eg: -122.61458)'
-              title="Longitude"
-            />
+            <div className={anyTrue(form.validationErrors.longitude) ? 'has-error' : ''}>
+              <FormControl
+                type="number"
+                className="form-control-sm"
+                value={form.values.longitude}
+                onChange={event => changeCallback('longitude', event.target['value'])}
+                max="180"
+                min="-180"
+                placeholder='Enter longitude (eg: -122.61458)'
+                title="Longitude"
+              />
+            </div>
           </Col>
         </Row>
 
