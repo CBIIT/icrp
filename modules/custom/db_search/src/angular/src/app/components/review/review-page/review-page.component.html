@@ -6,28 +6,27 @@
     <ui-spinner></ui-spinner>
     <br>{{ loadingMessage }}
 </ui-overlay>
-  
-<alert *ngIf="showAlert" [type]="success ? 'success' : 'danger'" dismissible="true">
-  {{success 
-      ? "Congratulations! The selected partner data book has been successfully loaded into the production database."
-      : "Internal error. The operation is aborted." 
-  }}
-</alert>
+
+<div *ngIf="showAlert" *ngSwitch="success">
+  <alert [ngSwitch]="true" type="success" dismissible="true">
+    Congratulations! The selected partner data book has been successfully loaded into the production database.
+  </alert>
+
+  <alert [ngSwitch]="false" [type]="danger" dismissible="true">
+    Internal error. The operation is aborted.
+  </alert>
+</div>
 
 <div *ngIf="sponsorUploadsTable && sponsorUploadsTable.length > 0">
 
   <div class="form-group">
-    The following submitted workbooks have been uploaded to the staging website. Please select the relevant Sponsor Code to review
-  your data and contact us by email to identify any problems or to approve your data to go live.
+    The following submitted workbooks have been uploaded to the staging website. Please select the relevant Sponsor Code to review your data and contact us by email to identify any problems or to approve your data to go live.
   </div>
-
-
 
   <icrp-review-uploads-table
     [uploads]="sponsorUploadsTable"
     (select)="selectUploadID($event)"
-    (syncProd)="syncProd($event)"
-  >
+    (syncProd)="syncProd($event)">
   </icrp-review-uploads-table>
 
   <icrp-review-summary-panel
@@ -35,8 +34,7 @@
     [analytics]="analytics"
     [projectCount]="state.projectCount"
     [relatedProjectCount]="state.relatedProjectCount"
-    [loading]="loading"
-    >
+    [loading]="loading">
   </icrp-review-summary-panel>
 
   <br>
@@ -44,7 +42,11 @@
   <icrp-charts-panel
     [analytics]="analytics"
     [fields]="fields"
-    (requestChart)="this.getAnalytics(searchID, [$event.type], $event.year)">
+    (requestChart)="
+      getAnalytics(
+        searchID,
+        [$event.type],
+        $event.year)">
   </icrp-charts-panel>
 
   <br>
@@ -52,7 +54,6 @@
   <icrp-export-buttons-panel
     [authenticated]="sharedService.get('authenticated')">
   </icrp-export-buttons-panel>
-
 
   <icrp-results-table-panel
     [loading]="loading"
