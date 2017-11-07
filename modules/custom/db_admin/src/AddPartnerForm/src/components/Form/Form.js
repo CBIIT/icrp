@@ -15,6 +15,7 @@ export default class Form extends React.Component {
     this.updateFields();
   }
 
+  // creates a new, empty form
   getDefaultForm() {
     return {
       values: this.getDefaultValues(),
@@ -24,6 +25,7 @@ export default class Form extends React.Component {
     }
   }
 
+  // returns the default values for this form
   getDefaultValues() {
     return {
       partner: '',
@@ -48,6 +50,7 @@ export default class Form extends React.Component {
     };
   }
 
+  // returns the default fields for this form
   getDefaultFields() {
     return {
       partners: [],
@@ -58,6 +61,7 @@ export default class Form extends React.Component {
     };
   }
 
+  // updates this form's fields (partners, organization types, countries, currencies, etc)
   async updateFields() {
     let protocol = window.location.protocol;
     let hostname = window.location.hostname;
@@ -72,6 +76,7 @@ export default class Form extends React.Component {
       form: form,
       loading: false,
     }, e => {
+      // select the first partner application by default
       if (data.partners.length > 0) {
         this.handleChange(
           'partner',
@@ -81,6 +86,7 @@ export default class Form extends React.Component {
     })
   }
 
+  // updates the form's state
   updateForm(form, field, value) {
 
     let values = form.values;
@@ -125,6 +131,7 @@ export default class Form extends React.Component {
     return form;
   }
 
+  // change callback to update the form's values
   handleChange(field, value) {
     let form = this.state.form;
     this.setState({
@@ -132,6 +139,7 @@ export default class Form extends React.Component {
     });
   }
 
+  // validates the form object
   validate() {
     let values = this.state.form.values;
     let validationErrors = {};
@@ -154,7 +162,7 @@ export default class Form extends React.Component {
 
       email: {
         required: true,
-        format: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        format: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
       },
 
       description: {
@@ -194,7 +202,6 @@ export default class Form extends React.Component {
         ? (values[field] || '').toString().trim()
         : values[field] ? moment(values[field]).format('YYYY-MM-DD') : '0';
 
-
       if (validationRules[field].required && value.constructor === String && value.length === 0) {
         validationErrors[field].required = true;
         isValid = false;
@@ -210,12 +217,12 @@ export default class Form extends React.Component {
         isValid = false;
       }
 
-      if (validationRules[field].min != undefined && +value < validationRules[field].min) {
+      if (validationRules[field].min !== undefined && +value < validationRules[field].min) {
         validationErrors[field].min = true;
         isValid = false;
       }
 
-      if (validationRules[field].max != undefined && +value > validationRules[field].max) {
+      if (validationRules[field].max !== undefined && +value > validationRules[field].max) {
         validationErrors[field].max = true;
         isValid = false;
       }
@@ -230,11 +237,12 @@ export default class Form extends React.Component {
     return isValid;
   }
 
+  // submit this form to the endpoint
   async submit() {
     let isValid = this.validate();
 
     if (isValid) {
-      let values = {... this.state.form.values};
+      let values = {...this.state.form.values};
       let fields = this.state.form.fields;
 
       // add prefix to url
@@ -303,28 +311,29 @@ export default class Form extends React.Component {
     }
   }
 
+
+  // updates the state of this form, dismissing the message by index
   dismissMessage(index) {
     let form = this.state.form;
     let messages = this.deepCopy(this.state.form.messages);
     messages.splice(index, 1);
     form.messages = messages;
-    this.setState(
-      { form: form }
-    );
+    this.setState({form});
   }
 
+  // returns a deep copy of an object
   deepCopy(obj) {
     return JSON.parse(JSON.stringify(obj));
   }
 
+  // clears this form (resets all fields to their default values)
   clear() {
     let form = this.state.form;
     form.values = this.getDefaultValues();
-    this.setState(
-      { form: form }
-    );
+    this.setState({form});
   }
 
+  // renders the current state
   render() {
     return <div>
       <Spinner message="Loading..." visible={this.state.loading} />
