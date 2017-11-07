@@ -1435,7 +1435,8 @@ function icrp_fullcalendar_options_info() {
 
 function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 
-    //drupal_set_message("Form ID: " . $form_id);
+    drupal_set_message("Form ID: " . $form_id);
+    dpm($form);
     //dump($form['#attributes']['data-drupal-selector']);
     //dump($form_state);
     //kint(print_r($form, true));
