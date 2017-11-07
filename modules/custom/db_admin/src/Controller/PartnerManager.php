@@ -134,7 +134,6 @@ class PartnerManager {
     $validation_errors = self::validate($pdo, $parameters);
 
     if (!empty($validation_errors)) {
-      return $parameters;
       return $validation_errors;
     }
 

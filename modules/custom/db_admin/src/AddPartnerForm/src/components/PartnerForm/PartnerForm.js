@@ -40,8 +40,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
               bsStyle='success'
               onDismiss={event => dismissMessageCallback(index)}>
 
-              This partner has been successfully saved. You can go to
-              <a
+              The partner has been added to the database. Visit <a
                 target='_blank'
                 rel='noopener noreferrer'
                 href={`${window.location.protocol}//${window.location.hostname}/current_partners`}>
