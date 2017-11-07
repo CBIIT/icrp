@@ -111,9 +111,9 @@ class AdminController extends ControllerBase {
     return self::createResponse($data);
   }
 
-  public static function getPartnerFields() {
+  public static function getPartnerFields(string $isNew) {
     $connection = PDOBuilder::getConnection();
-    $data = PartnerManager::getFields($connection);
+    $data = PartnerManager::getFields($connection,$isNew=='new');
     return self::createResponse($data);
   }
 

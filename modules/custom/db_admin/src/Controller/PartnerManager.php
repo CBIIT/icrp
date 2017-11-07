@@ -40,7 +40,7 @@ class PartnerManager {
     'currency'                  => NULL,
   ];
 
-  public static function getFields(PDO $pdo) {
+  public static function getFields(PDO $pdo, bool $isNew) {
     $queries = [
       'partners'    =>  "SELECT
                           PartnerApplicationID as partner_application_id,
@@ -50,7 +50,7 @@ class PartnerManager {
                           MissionDesc as description,
                           CAST(CreatedDate AS DATE) as joined_date
                           FROM PartnerApplication
-                          WHERE STATUS = 'NEW'",
+                          WHERE STATUS ".($isNew?"":"!")."= 'NEW'",
 
       'countries'   =>  'SELECT
                           LTRIM(RTRIM(Abbreviation)) AS value,

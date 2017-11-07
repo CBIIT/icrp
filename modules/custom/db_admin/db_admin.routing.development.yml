@@ -37,8 +37,10 @@ api.admin.funding_organizations.add:
 
 ## Get form fields for partners
 api.admin.partners.fields:
-  path: /api/admin/partners/fields
-  defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::getPartnerFields' }
+  path: /api/admin/partners/fields/{isNew}
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::getPartnerFields'
+    isNew: ''
   requirements:
     _access: 'TRUE'
 

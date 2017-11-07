@@ -23,7 +23,13 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
       : 'There are no completed applications available in the database.'
   }
   </div>
-
+  <div id="operation_type" className="container">
+    <fieldset className="margin-bottom">
+      <legend>Operation Type</legend>
+      <label><input type="radio" name="operation_type" onChange={event => changeCallback(event.target.name, event.target.value)} value="new" checked={form.values.operation_type==='new'}/>Add</label>
+      <label><input type="radio" name="operation_type" onChange={event => changeCallback(event.target.name, event.target.value)} value="existing" checked={form.values.operation_type==='existing'}/>Update</label>
+    </fieldset>
+  </div>
   <Grid>
     {
       form && form.messages.map((message, index) =>
@@ -261,7 +267,6 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
         <div className={anyTrue(form.validationErrors.latitude, form.validationErrors.longitude)
           ? 'has-error': ''}>
           <ControlLabel
-            validationState={'error'}
             className="margin-right asterisk">
             Map Coordinates
           </ControlLabel>
