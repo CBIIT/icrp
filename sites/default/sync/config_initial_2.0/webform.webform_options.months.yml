@@ -1,9 +1,0 @@
-uuid: 87941a97-ad6b-475e-82e2-66c41c7a5d3c
-langcode: en
-status: true
-dependencies: {  }
-_core:
-  default_config_hash: TFhY-GcRNJp9ZQVlGHYbuxmLKOW3z7cpK5lQAm8yrCc
-id: months
-label: Months
-options: "January: January\nFebruary: February\nMarch: March\nApril: April\nMay: May\nJune: June\nJuly: July\nAugust: August\nSeptember: September\nOctober: October\nNovember: November\nDecember: December\n"

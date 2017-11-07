@@ -1,9 +1,0 @@
-uuid: 7451f985-c651-4fd9-ae6c-40e964309484
-langcode: en
-status: true
-dependencies: {  }
-_core:
-  default_config_hash: rapHLTI5cnLO2r8ad4Bc6fOvq3_tVfl3orp828mYF_Y
-id: likert_would_you
-label: 'Likert: Would You'
-options: "1: Definitely Not\n2: Probably Not\n3: Not Sure\n4: Probably\n5: Definitely\n"

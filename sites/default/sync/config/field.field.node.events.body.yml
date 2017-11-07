@@ -12,11 +12,11 @@ field_name: body
 entity_type: node
 bundle: events
 label: Description
-description: 'Enter details of the event.'
+description: ''
 required: false
 translatable: true
 default_value: {  }
 default_value_callback: ''
 settings:
-  display_summary: true
+  display_summary: false
 field_type: text_with_summary
