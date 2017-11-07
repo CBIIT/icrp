@@ -1,0 +1,19 @@
+uuid: fc8fafab-5d5f-4c44-b307-168e50a3ac25
+langcode: en
+status: true
+dependencies:
+  module:
+    - link
+    - media_entity
+id: media.field_twitter_url_link
+field_name: field_twitter_url_link
+entity_type: media
+type: link
+settings: {  }
+module: link
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

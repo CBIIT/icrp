@@ -1,0 +1,9 @@
+uuid: a5bb5265-2bf4-48c3-94d2-3722a1357dfd
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: QPecax_vbxfSJHuOjnh_-2xhfYrLI3iAjB7KTSeLiaU
+id: marital_status
+label: 'Marital status'
+options: "Single: Single\nMarried: Married\nDivorced: Divorced\nWidowed: Widowed\n"

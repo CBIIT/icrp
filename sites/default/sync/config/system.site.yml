@@ -1,0 +1,16 @@
+uuid: 90b4fc69-8228-4fdc-8bd7-3c0a1d5a333c
+name: 'International Cancer Research Partnership'
+mail: icrpqa@icrpartnership.org
+slogan: 'Our mission is to benefit researchers and cancer patients worldwide.'
+page:
+  403: ''
+  404: ''
+  front: /node/2
+admin_compact_mode: false
+weight_select_max: 100
+langcode: en
+default_langcode: en
+_core:
+  default_config_hash: yXadRE77Va-G6dxhd2kPYapAvbnSvTF6hO4oXiOEynI
+mail_notification: ''
+site_date: 1/10/2017

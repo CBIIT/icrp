@@ -1,0 +1,24 @@
+uuid: 8eabb231-7da7-481f-bf5b-2ac86ab60ef0
+langcode: en
+status: false
+dependencies:
+  config:
+    - views.view.simple
+  module:
+    - views
+  theme:
+    - bootstrap_business
+id: bootstrap_business_views_block__simple_block_1
+theme: bootstrap_business
+region: pre_header_first
+weight: 5
+provider: null
+plugin: 'views_block:simple-block_1'
+settings:
+  id: 'views_block:simple-block_1'
+  label: ''
+  provider: views
+  label_display: visible
+  views_label: ''
+  items_per_page: none
+visibility: {  }

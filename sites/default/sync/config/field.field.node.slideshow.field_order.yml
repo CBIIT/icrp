@@ -1,0 +1,25 @@
+uuid: eb949f65-3616-4e92-9714-5ee388459a74
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_order
+    - node.type.slideshow
+id: node.slideshow.field_order
+field_name: field_order
+entity_type: node
+bundle: slideshow
+label: Order
+description: 'Slideshow image order'
+required: true
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

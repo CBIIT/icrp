@@ -1,0 +1,24 @@
+uuid: 0b161181-d480-4b24-a941-7882f84d8513
+langcode: en
+status: false
+dependencies:
+  config:
+    - system.menu.footer-middle
+  module:
+    - system
+  theme:
+    - bootstrap_subtheme
+id: footermiddle
+theme: bootstrap_subtheme
+region: navigation
+weight: -23
+provider: null
+plugin: 'system_menu_block:footer-middle'
+settings:
+  id: 'system_menu_block:footer-middle'
+  label: 'Footer Middle'
+  provider: system
+  label_display: '0'
+  level: 1
+  depth: 0
+visibility: {  }

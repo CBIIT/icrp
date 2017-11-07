@@ -1,0 +1,25 @@
+uuid: 2ff8b419-8a0f-4f79-aaf4-3f48c472b548
+langcode: en
+status: false
+dependencies:
+  content:
+    - 'block_content:basic:8c71aff9-4894-42a5-bf26-c41c9f8ad280'
+  module:
+    - block_content
+  theme:
+    - bootstrap_business
+id: bootstrap_business_partnerhomewelcome
+theme: bootstrap_business
+region: pre_header_first
+weight: -4
+provider: null
+plugin: 'block_content:8c71aff9-4894-42a5-bf26-c41c9f8ad280'
+settings:
+  id: 'block_content:8c71aff9-4894-42a5-bf26-c41c9f8ad280'
+  label: 'Partner Home Welcome'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility: {  }

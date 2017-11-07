@@ -1,0 +1,18 @@
+uuid: eb417e0c-d76f-4c21-9e6d-3f1c2d27265c
+langcode: en
+status: false
+dependencies:
+  theme:
+    - bootstrap_subtheme
+id: alpha
+theme: bootstrap_subtheme
+region: navigation
+weight: -25
+provider: null
+plugin: 'snippet:alpha'
+settings:
+  id: 'snippet:alpha'
+  label: Alpha
+  provider: snippet_manager
+  label_display: visible
+visibility: {  }

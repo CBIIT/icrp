@@ -1,0 +1,13 @@
+label: Settings
+override: false
+order: null
+fields:
+  bg: Background
+  borders: Borders
+  text: 'Text color'
+palette:
+  bg: '#7933cc'
+  borders: '#7933cc'
+  text: '#ffffff'
+_core:
+  default_config_hash: 03KkGbt7VZTpWYt1wNq9vrL4BTeZzWt2as95akgJveM

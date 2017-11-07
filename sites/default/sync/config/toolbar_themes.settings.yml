@@ -1,0 +1,8 @@
+default_theme: toolbar_mini
+font_size: '12'
+icons: 1
+tabs: 1
+_core:
+  default_config_hash: 1XzzhwMhZ4AXI3Z6BIeLiyv3XW03Fu3GCeM6JJ3IFV4
+actions:
+  submit: Submit
