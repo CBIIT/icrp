@@ -8,7 +8,6 @@ dependencies:
     - field.field.node.events.field_event_date_range
     - field.field.node.events.field_event_group
     - field.field.node.events.field_event_location
-    - field.field.node.events.field_show_end_date
     - node.type.events
   module:
     - datetime_range
@@ -23,8 +22,8 @@ content:
     weight: 2
     settings:
       rows: 9
-      summary_rows: 3
       placeholder: ''
+      summary_rows: 3
     third_party_settings: {  }
     region: content
   field_event_date_range:
@@ -46,13 +45,6 @@ content:
       placeholder: 'Address or location of the event.'
     third_party_settings: {  }
     type: string_textfield
-    region: content
-  field_show_end_date:
-    weight: 4
-    settings:
-      display_label: true
-    third_party_settings: {  }
-    type: boolean_checkbox
     region: content
   title:
     type: string_textfield

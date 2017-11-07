@@ -178,13 +178,15 @@
       if(source  == "Edit Event") {
           $.preprocessAddEvents();
           $.preprocessFixDateRangeEvents();
-          $.preprocessCloneEndDateCheckbox();
+          //$.preprocessCloneEndDateCheckbox();
+
       }
       switch(url_path) {
         case "/node/add/events":
           $.preprocessAddEvents();
+          $.preprocessAddTitle();
           $.preprocessFixDateRangeEvents();
-          $.preprocessCloneEndDateCheckbox();
+          //$.preprocessCloneEndDateCheckbox();
           break;
         case "/":
           $.getNewsletter();
@@ -320,6 +322,9 @@
       $("#edit-field-event-group option[value='Partner Operations']").remove();
       $("#edit-field-event-group option[value='Website and Database']").remove();
     }
+    if(!$('#calendar-title').length) {
+      $('<h4 id="calendar-title">'+calendar_type+' Calendar</h4>').insertBefore("div.well");
+    }
   }
 
   $.preprocessCalendar = function(e){
@@ -339,13 +344,15 @@
         //console.dir(data);
         var roles = JSON.parse(data);
         //console.dir(roles);
-        if(!$('#add-event-meeting').length && (($.inArray("administrator", roles)>=0) || ($.inArray("manager", roles)>=0)))
+        if(!$('#add-event-meeting').length && (($.inArray("administrator", roles)>=0) || ($.inArray("manager", roles)>=0))) {
             $('div.view-full-calendar-meetings > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-event-meeting" style="margin-top:7px;"><a href="/node/add/events?calendar_type=ICRP Meeting&destination=/calendar">+ Add Event</a></span>');
+        }
       });
     }
 
-    if(!$('#add-external-event').length)
+    if(!$('#add-external-event').length) {
       $('div.view-full-calendar-external-events > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-external-event" style="margin-top:7px;"><a href="/node/add/events?calendar_type=External Events&destination=/calendar">+ Add Event</a></span>');
+    }
 
   }
 

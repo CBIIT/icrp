@@ -1432,19 +1432,34 @@ function icrp_fullcalendar_options_info() {
     "#group" => "revision_information"
   ]
 */
+function icrp_cancel_event_submit($form, &$form_state) {
+  $form_state['redirect'] ='https://yahoo.com';
+
+}
 
 function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
 
-    drupal_set_message("Form ID: " . $form_id);
-    dpm($form);
+    //drupal_set_message("Form ID: " . $form_id);
+    //dpm($form);
     //dump($form['#attributes']['data-drupal-selector']);
-    //dump($form_state);
+    //dpm($form_state);
     //kint(print_r($form, true));
     //$form['form_id'] = $form_id;
     $current_form_id = $form_id;
     if($form_id == 'node_events_edit_form' || $form_id == 'node_events_form') {
       $current_form_id = 'node_events_forms';
     }
+    if($form_id == 'node_events_form') {
+      $form['actions']['cancel'] = array(
+        '#type' => 'button',
+        '#prefix' => '<span class="form-actions form-wrapper" id="cancel_event">',
+        '#suffix' => '</span>',
+        '#value' => t('Cancel'),
+        '#weight' => 1000,
+        '#submit' => array('icrp_cancel_event_submit'),
+        '#limit_validation_errors' => array(),
+      );
+    }    
     switch ($current_form_id) {
         case 'node_events_forms':
             //dump($form_state);
@@ -1469,6 +1484,18 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             if($form_id == 'node_events_form') {
               $form['actions']['submit']['#value'] = t('Add New Event');
             }
+/*
+            $form['actions']['cancel'] = array(
+                  '#type' => 'button',
+                  '#value' => t('Cancel')
+            );
+            */
+            /*
+            if (isset($form_state['post']['op']) && $form_state['post']['op'] == t('Cancel')) {
+              drupal_goto('/calendar');
+              //https://www.drupal.org/forum/support/post-installation/2007-04-05/add-a-cancel-button
+            }
+            */
             //dump($form);
             break;
         case 'block_content_basic_edit_form':
