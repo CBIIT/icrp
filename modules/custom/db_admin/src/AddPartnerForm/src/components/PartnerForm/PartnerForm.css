@@ -1,3 +1,9 @@
+.asterisk::after {
+  content: '*';
+  color: red;
+  margin-left: 4px;
+}
+
 
 .no-margin {
   margin: 0 !important;
@@ -14,8 +20,6 @@
 .margin-bottom {
   margin-bottom: 10px;
 }
-
-
 
 .margin-top {
   margin-top: 10px;
@@ -42,8 +46,6 @@
 .m-t-4 {
   margin-top: 4px;
 }
-
-
 
 .m-l-4 {
   margin-left: 4px;

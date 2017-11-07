@@ -5,7 +5,7 @@ default:
       src/assets/main.css: {}
       src/assets/db_layer_map.css: {}
   js:
-    https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg: {}
+    https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg&libraries=geometry: {}
     src/assets/db_layer_map.js: {}
     src/assets/main.js: {}
 
