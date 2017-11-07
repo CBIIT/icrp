@@ -1,9 +1,0 @@
-uuid: cf9ecc9a-34f9-416d-beee-cff76394bc11
-langcode: en
-status: true
-dependencies: {  }
-name: 'Event Groups'
-vid: event_groups
-description: 'Taxonomy of Events by ICRP Group'
-hierarchy: 0
-weight: 0
