@@ -11,7 +11,7 @@ id: node.events.field_event_date_range
 field_name: field_event_date_range
 entity_type: node
 bundle: events
-label: 'Event Date Range'
+label: 'Date of Event'
 description: 'Enter start and end time for the event.'
 required: true
 translatable: false

@@ -8,6 +8,7 @@ dependencies:
     - field.field.node.events.field_event_date_range
     - field.field.node.events.field_event_group
     - field.field.node.events.field_event_location
+    - field.field.node.events.field_show_end_date
     - node.type.events
   module:
     - datetime_range
@@ -57,6 +58,16 @@ content:
       link_to_entity: false
     third_party_settings: {  }
     type: string
+    region: content
+  field_show_end_date:
+    weight: 6
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
     region: content
   links:
     weight: 0

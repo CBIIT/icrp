@@ -178,11 +178,13 @@
       if(source  == "Edit Event") {
           $.preprocessAddEvents();
           $.preprocessFixDateRangeEvents();
+          $.preprocessCloneEndDateCheckbox();
       }
       switch(url_path) {
         case "/node/add/events":
           $.preprocessAddEvents();
           $.preprocessFixDateRangeEvents();
+          $.preprocessCloneEndDateCheckbox();
           break;
         case "/":
           $.getNewsletter();
@@ -266,7 +268,23 @@
         }
       });
  }
-  $.preprocessFixDateRangeEvents = function(e){
+
+  $.preprocessCloneEndDateCheckbox = function(e) {
+
+    $("#edit-field-show-end-date-wrapper").clone().insertBefore("#edit-field-event-date-range-0 > div.panel-body  > label:first-child");
+    $('#edit-field-show-end-date-wrapper:nth-child(2)').remove();
+    //$('<h2>Hello</h2>'.before($('#edit-field-event-date-range-0 > legend');
+    if($('#edit-field-show-end-date-value').val() == "1") {
+      //alert("Hide end time and label. Set end time to start time");
+      $("#edit-field-show-end-date-wrapper > label:nth-child(3)").hide();
+      $('#edit-field-event-date-range-0-end-value').hide();
+      $('#edit-field-event-date-range-0--description').text("Enter start time for the event.");
+    } else {
+      $('#edit-field-event-date-range-0--description').text("Enter start and end time for the event.");
+    }
+    //$('#edit-field-show-end-date-value').parent().hide();
+  } 
+  $.preprocessFixDateRangeEvents = function(e) {
     // Fix Date Time Range if avalable.
     if($('#edit-field-event-date-range-0-end-value-time').length > 0 ){
       var ids = ["edit-field-event-date-range-0-value-time", "edit-field-event-date-range-0-end-value-time"];
