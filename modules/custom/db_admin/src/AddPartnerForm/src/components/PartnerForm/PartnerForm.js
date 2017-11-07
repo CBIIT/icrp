@@ -344,7 +344,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
             <label className='block normal-weight'>
               <div className='display-flex'>
                 <div className='cursor-text form-control form-control-group'>
-                  {form.values.logoFile ? form.values.logoFile.name : <span className='placeholder'>Select file</span> }
+                  {form.values.logoFile ? form.values.logoFile.name : form.values.defaultLogoFile || <span className='placeholder'>Select file</span> }
                 </div>
 
                 <span className='pointer form-group-addon-sm'>Browse...</span>
@@ -384,91 +384,94 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
       </Checkbox>
     </FormGroup>
 
-    <FormGroup className='no-margin' controlId='partner-funding-organization' bsSize='small' validationState={null}>
-      <div className='flex-inline'>
-        <Checkbox
-          name='isFundingOrganization'
-          checked={form.values.isFundingOrganization}
-          onChange={event => changeCallback(event.target.name, event.target.checked)}>
-          <span className='semibold'>Add as a Partner Funding Organization</span>
-        </Checkbox>
-      </div>
-
-      <FormControl.Feedback />
-    </FormGroup>
-
-    <div className='bordered padding-top margin-bottom margin-top position-relative clearfix'>
-      <DisabledOverlay active={!form.values.isFundingOrganization} />
-
-      <Form inline>
-        <Col md={6} className='margin-bottom'>
-          <FormGroup controlId='selectOrganizationType' bsSize='small' validationState={form.validationErrors.organizationType && form.validationErrors.organizationType.required ? 'error' : null}>
-
-            <ControlLabel className='margin-right asterisk'>
-              Organization Type
-            </ControlLabel>
-
-            <FormControl
-              componentClass='select'
-              placeholder='Select organization type'
-              value={form.values.organizationType}
-              onChange={event => changeCallback('organizationType', event.target['value'])}>
-              <option className='disabled' key={0} hidden>Select organization type</option>
-              {form.fields.organizationTypes.map((field, index) =>
-                  <option key={`${index}_${field}`} value={field.value}>
-                    {field.label}
-                  </option>)}
-            </FormControl>
-
-            {form.validationErrors.organizationType
-              && form.validationErrors.organizationType.required
-              && <HelpBlock>This field is required.</HelpBlock>}
-          </FormGroup>
-        </Col>
-
-        <Col md={6} className='margin-bottom'>
-          <FormGroup controlId='selectCurrency' bsSize='small' validationState={form.validationErrors.currency && form.validationErrors.currency.required ? 'error' : null}>
-
-            <ControlLabel className='margin-right asterisk'>
-              Currency
-            </ControlLabel>
-
-            <FormControl
-              name='currency'
-              componentClass='select'
-              placeholder='Select Currency Type'
-              value={form.values.currency}
-              onChange={event => changeCallback(event.target.name, event.target.value)}>
-              <option className='disabled' key={0} hidden>Select currency</option>
-              {
-                form.fields.currencies.map((field, index) =>
-                  <option key={`${index}_${field.value}`} value={field.value}>
-                    {field.value}
-                  </option>
-                )
-              }
-            </FormControl>
-
-            { form.validationErrors.currency && form.validationErrors.currency.required &&
-              <HelpBlock>This field is required.</HelpBlock> }
-          </FormGroup>
-        </Col>
-      </Form>
-
-      <Col md={12} className='margin-bottom'>
-        <FormGroup className='no-margin' controlId='partner-funding-is-annualized' bsSize='small' validationState={null}>
+    { form.values.operation_type === 'new' &&
+      <div>
+        <FormGroup className='no-margin' controlId='partner-funding-organization' bsSize='small' validationState={null}>
           <div className='flex-inline'>
             <Checkbox
-              name='isAnnualized'
-              checked={form.values.isAnnualized}
+              name='isFundingOrganization'
+              checked={form.values.isFundingOrganization}
               onChange={event => changeCallback(event.target.name, event.target.checked)}>
-              <b>Annualized Funding</b>
+              <span className='semibold'>Add as a Partner Funding Organization</span>
             </Checkbox>
           </div>
-        </FormGroup>
-      </Col>
-    </div>
 
+          <FormControl.Feedback />
+        </FormGroup>
+
+        <div className='bordered padding-top margin-bottom margin-top position-relative clearfix'>
+          <DisabledOverlay active={!form.values.isFundingOrganization} />
+
+          <Form inline>
+            <Col md={6} className='margin-bottom'>
+              <FormGroup controlId='selectOrganizationType' bsSize='small' validationState={form.validationErrors.organizationType && form.validationErrors.organizationType.required ? 'error' : null}>
+
+                <ControlLabel className='margin-right asterisk'>
+                  Organization Type
+                </ControlLabel>
+
+                <FormControl
+                  componentClass='select'
+                  placeholder='Select organization type'
+                  value={form.values.organizationType}
+                  onChange={event => changeCallback('organizationType', event.target['value'])}>
+                  <option className='disabled' key={0} hidden>Select organization type</option>
+                  {form.fields.organizationTypes.map((field, index) =>
+                      <option key={`${index}_${field}`} value={field.value}>
+                        {field.label}
+                      </option>)}
+                </FormControl>
+
+                {form.validationErrors.organizationType
+                  && form.validationErrors.organizationType.required
+                  && <HelpBlock>This field is required.</HelpBlock>}
+              </FormGroup>
+            </Col>
+
+            <Col md={6} className='margin-bottom'>
+              <FormGroup controlId='selectCurrency' bsSize='small' validationState={form.validationErrors.currency && form.validationErrors.currency.required ? 'error' : null}>
+
+                <ControlLabel className='margin-right asterisk'>
+                  Currency
+                </ControlLabel>
+
+                <FormControl
+                  name='currency'
+                  componentClass='select'
+                  placeholder='Select Currency Type'
+                  value={form.values.currency}
+                  onChange={event => changeCallback(event.target.name, event.target.value)}>
+                  <option className='disabled' key={0} hidden>Select currency</option>
+                  {
+                    form.fields.currencies.map((field, index) =>
+                      <option key={`${index}_${field.value}`} value={field.value}>
+                        {field.value}
+                      </option>
+                    )
+                  }
+                </FormControl>
+
+                { form.validationErrors.currency && form.validationErrors.currency.required &&
+                  <HelpBlock>This field is required.</HelpBlock> }
+              </FormGroup>
+            </Col>
+          </Form>
+
+          <Col md={12} className='margin-bottom'>
+            <FormGroup className='no-margin' controlId='partner-funding-is-annualized' bsSize='small' validationState={null}>
+              <div className='flex-inline'>
+                <Checkbox
+                  name='isAnnualized'
+                  checked={form.values.isAnnualized}
+                  onChange={event => changeCallback(event.target.name, event.target.checked)}>
+                  <b>Annualized Funding</b>
+                </Checkbox>
+              </div>
+            </FormGroup>
+          </Col>
+        </div>
+      </div>
+    }
     <div className='text-center'>
       <Button bsStyle='primary' className='margin-right' onClick={submitCallback}>Save</Button>
       <Button onClick={resetCallback}>Cancel</Button>

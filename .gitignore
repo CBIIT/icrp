@@ -86,4 +86,4 @@ settings.local.php
 !/themes/icrp_subtheme
 
 !/libraries/.gitkeep
-
+package-lock.json

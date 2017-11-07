@@ -106,18 +106,27 @@ export default class Form extends React.Component {
 
     if (field === 'partner') {
       values = this.getDefaultValues();
+      values.operation_type = form.values.operation_type;
 
       let partner = fields.partners
         .find(e => e.partner_name === value);
 
       let country = fields.countries
-        .find(e => e.label.toLowerCase() === partner.country.toLowerCase());
+        .find(e => e.value.toLowerCase() === partner.country.toLowerCase());
 
       values.partner = partner.partner_name;
       values.joinedDate = moment(partner.joined_date);
       values.country = country ? country.value : '';
       values.description = partner.description;
       values.email = partner.email;
+      values.sponsorCode = partner.sponsor_code;
+      values.urlProtocol = partner.website.substr(0,partner.website.indexOf('//')+2);
+      values.website = partner.website.substr(values.urlProtocol.length);
+      values.latitude = partner.latitude===null?'':partner.latitude;
+      values.longitude = partner.longitude===null?'':partner.longitude;
+      values.defaultLogoFile = partner.logo_file;
+      values.note = partner.note;
+      values.agreeToTerms = parseInt(partner.agree_to_terms);
       values.currency = findCurrency(country, fields);
     }
 

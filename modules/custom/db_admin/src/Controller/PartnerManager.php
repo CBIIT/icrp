@@ -42,16 +42,7 @@ class PartnerManager {
 
   public static function getFields(PDO $pdo, bool $isNew) {
     $queries = [
-      'partners'    =>  "SELECT
-                          PartnerApplicationID as partner_application_id,
-                          OrgName as partner_name,
-                          OrgCountry as country,
-                          OrgEmail as email,
-                          MissionDesc as description,
-                          CAST(CreatedDate AS DATE) as joined_date
-                          FROM PartnerApplication
-                          WHERE STATUS ".($isNew?"":"!")."= 'NEW'",
-
+      'partners'    =>  null,
       'countries'   =>  'SELECT
                           LTRIM(RTRIM(Abbreviation)) AS value,
                           Name AS label,
@@ -65,6 +56,40 @@ class PartnerManager {
                           FROM Currency
                           ORDER BY value ASC',
     ];
+    if ($isNew) {
+      $queries['partners'] = "SELECT
+        PartnerApplicationID as partner_application_id,
+        OrgName as partner_name,
+        OrgCountry as country,
+        OrgEmail as email,
+        MissionDesc as description,
+        CAST(CreatedDate AS DATE) as joined_date,
+        '' as sponsor_code,
+        'http://' as website,
+        '' as latitude,
+        '' as longitude,
+        '' as logo_file,
+        '' as note,
+        0 as agree_to_terms
+        FROM PartnerApplication
+        WHERE STATUS = 'NEW'";
+    } else {
+      $queries['partners'] = "SELECT
+        PartnerID as partner_application_id,
+        Name as partner_name,
+        ISNULL(Country,'') as country,
+        ISNULL(Email,'') as email,
+        Description as description,
+        CAST(JoinedDate AS DATE) as joined_date,
+        SponsorCode as sponsor_code,
+        ISNULL(Website,'http://') as website,
+        Latitude as latitude,
+        Longitude as longitude,
+        LogoFile as logo_file,
+        ISNULL(Note,'') as note,
+        ISNULL(IsDSASigned,0) as agree_to_terms
+        FROM Partner";
+  }
 
     // map query results to field values
     $fields = [];
