@@ -1,6 +1,6 @@
 import { AppPage } from './app.po';
 
-describe('angular App', () => {
+describe('icrp App', () => {
   let page: AppPage;
 
   beforeEach(() => {
@@ -9,6 +9,6 @@ describe('angular App', () => {
 
   it('should display welcome message', () => {
     page.navigateTo();
-    expect(page.getParagraphText()).toEqual('Welcome to app!');
+    expect(page.getParagraphText()).toEqual('Welcome to icrp!');
   });
 });

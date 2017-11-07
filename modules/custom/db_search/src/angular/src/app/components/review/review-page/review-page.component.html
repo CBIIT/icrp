@@ -7,12 +7,12 @@
     <br>{{ loadingMessage }}
 </ui-overlay>
 
-<div *ngIf="showAlert" *ngSwitch="success">
-  <alert [ngSwitch]="true" type="success" dismissible="true">
+<div *ngIf="showAlert" [ngSwitch]="success">
+  <alert *ngSwitchCase="true" type="success" dismissible="true">
     Congratulations! The selected partner data book has been successfully loaded into the production database.
   </alert>
 
-  <alert [ngSwitch]="false" [type]="danger" dismissible="true">
+  <alert *ngSwitchCase="false" [type]="danger" dismissible="true">
     Internal error. The operation is aborted.
   </alert>
 </div>
