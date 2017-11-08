@@ -132,7 +132,7 @@ class PartnerManager {
     $stmt->bindParam(':partner_name', $parameters['partner_name']);
     $stmt->bindParam(':sponsor_code', $parameters['sponsor_code']);
 
-    if ($stmt->execute()) {
+    if (parameters['operation_type'] == 'new' && $stmt->execute()) {
       if (!empty($stmt->fetch())) {
         array_push($errors, ['ERROR' => 'A partner with the same name or sponsor code already exists in the database. No changes have been made.']);
       }
@@ -215,6 +215,56 @@ class PartnerManager {
 
         return [
           ['SUCCESS' => 'The partner has been added to the database.']
+        ];
+      }
+    }
+
+    catch (PDOException $e) {
+      return [
+        ['ERROR' => 'Database Error: ' . $e->getMessage()]
+      ];
+    }
+
+    catch (Exception $e) {
+      return [
+        ['ERROR' => $e->getMessage()]
+      ];
+    }
+
+    return [false];
+  }
+
+  public static function updatePartner(PDO $pdo, array $parameters) {
+    $validation_errors = self::validate($pdo, $parameters);
+
+    if (!empty($validation_errors)) {
+      return $validation_errors;
+    }
+
+    try {
+
+      $stmt = PDOBuilder::createPreparedStatement(
+        $pdo,
+        "UPDATE Partner SET
+          Name = :partner_name,
+          JoinedDate = :joined_date,
+          Country = :country,
+          Email = :email,
+          Description = :description,
+          SponsorCode = :sponsor_code,
+          Website = :website,
+          LogoFile = :logo_file,
+          Note = :note,
+          IsDSASigned = :agree_to_terms,
+          Latitude = :latitude,
+          Longitude = :longitude
+        WHERE PartnerID = :partner_application_id
+        ",
+      $parameters);
+
+      if ($stmt->execute()) {
+        return [
+          ['SUCCESS' => 'The partner has been updated in the database.']
         ];
       }
     }

@@ -52,6 +52,7 @@ class AdminController extends ControllerBase {
     'currency'                  => NULL,
     'latitude'                  => NULL,
     'longitude'                 => NULL,
+    'operation_type'            => NULL,
   ];
 
   /**
@@ -132,7 +133,11 @@ class AdminController extends ControllerBase {
       $parameters['logo_file'] = $uploaded_file->getClientOriginalName();
     }
 
-    $data = PartnerManager::addPartner($connection, $parameters);
+    if ($parameters['operation_type'] == 'new') {
+      $data = PartnerManager::addPartner($connection, $parameters);
+    } else if ($parameters['operation_type'] == 'existing') {
+      $data = PartnerManager::updatePartner($connection, $parameters);
+    }
     return self::createResponse($data);
   }
 

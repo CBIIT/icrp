@@ -282,8 +282,9 @@ export default class Form extends React.Component {
         currency: 'currency',
         latitude: 'latitude',
         longitude: 'longitude',
-      };
 
+        operation_type: 'operation_type'
+      };
       let formData = new FormData();
       for (let key in parameterMap) {
         let formKey = parameterMap[key];
