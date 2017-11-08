@@ -1,3 +1,28 @@
+#operation_type fieldset {
+  border: 1px solid #CCC;
+  padding: 1.5em 1em;
+}
+
+#operation_type legend {
+  border-bottom: 0px;
+  font-size: 13px;
+  font-weight: bold;
+  position: absolute;
+  width: 10em;
+}
+
+#operation_type label {
+  font-weight: normal;
+  margin: 0px 0px 0px 10em;
+}
+
+#operation_type label + label {
+  margin-left: 2em;
+}
+#operation_type label input[type="radio"] {
+  margin-right: 5px;
+}
+
 .asterisk::after {
   content: '*';
   color: red;

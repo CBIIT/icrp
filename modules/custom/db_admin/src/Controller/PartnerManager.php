@@ -40,18 +40,9 @@ class PartnerManager {
     'currency'                  => NULL,
   ];
 
-  public static function getFields(PDO $pdo) {
+  public static function getFields(PDO $pdo, bool $isNew) {
     $queries = [
-      'partners'    =>  "SELECT
-                          PartnerApplicationID as partner_application_id,
-                          OrgName as partner_name,
-                          OrgCountry as country,
-                          OrgEmail as email,
-                          MissionDesc as description,
-                          CAST(CreatedDate AS DATE) as joined_date
-                          FROM PartnerApplication
-                          WHERE STATUS = 'NEW'",
-
+      'partners'    =>  null,
       'countries'   =>  'SELECT
                           LTRIM(RTRIM(Abbreviation)) AS value,
                           Name AS label,
@@ -65,6 +56,40 @@ class PartnerManager {
                           FROM Currency
                           ORDER BY value ASC',
     ];
+    if ($isNew) {
+      $queries['partners'] = "SELECT
+        PartnerApplicationID as partner_application_id,
+        OrgName as partner_name,
+        OrgCountry as country,
+        OrgEmail as email,
+        MissionDesc as description,
+        CAST(CreatedDate AS DATE) as joined_date,
+        '' as sponsor_code,
+        'http://' as website,
+        '' as latitude,
+        '' as longitude,
+        '' as logo_file,
+        '' as note,
+        0 as agree_to_terms
+        FROM PartnerApplication
+        WHERE STATUS = 'NEW'";
+    } else {
+      $queries['partners'] = "SELECT
+        PartnerID as partner_application_id,
+        Name as partner_name,
+        ISNULL(Country,'') as country,
+        ISNULL(Email,'') as email,
+        Description as description,
+        CAST(JoinedDate AS DATE) as joined_date,
+        SponsorCode as sponsor_code,
+        ISNULL(Website,'http://') as website,
+        Latitude as latitude,
+        Longitude as longitude,
+        LogoFile as logo_file,
+        ISNULL(Note,'') as note,
+        ISNULL(IsDSASigned,0) as agree_to_terms
+        FROM Partner";
+  }
 
     // map query results to field values
     $fields = [];
@@ -107,7 +132,7 @@ class PartnerManager {
     $stmt->bindParam(':partner_name', $parameters['partner_name']);
     $stmt->bindParam(':sponsor_code', $parameters['sponsor_code']);
 
-    if ($stmt->execute()) {
+    if (parameters['operation_type'] == 'new' && $stmt->execute()) {
       if (!empty($stmt->fetch())) {
         array_push($errors, ['ERROR' => 'A partner with the same name or sponsor code already exists in the database. No changes have been made.']);
       }
@@ -190,6 +215,56 @@ class PartnerManager {
 
         return [
           ['SUCCESS' => 'The partner has been added to the database.']
+        ];
+      }
+    }
+
+    catch (PDOException $e) {
+      return [
+        ['ERROR' => 'Database Error: ' . $e->getMessage()]
+      ];
+    }
+
+    catch (Exception $e) {
+      return [
+        ['ERROR' => $e->getMessage()]
+      ];
+    }
+
+    return [false];
+  }
+
+  public static function updatePartner(PDO $pdo, array $parameters) {
+    $validation_errors = self::validate($pdo, $parameters);
+
+    if (!empty($validation_errors)) {
+      return $validation_errors;
+    }
+
+    try {
+
+      $stmt = PDOBuilder::createPreparedStatement(
+        $pdo,
+        "UPDATE Partner SET
+          Name = :partner_name,
+          JoinedDate = :joined_date,
+          Country = :country,
+          Email = :email,
+          Description = :description,
+          SponsorCode = :sponsor_code,
+          Website = :website,
+          LogoFile = :logo_file,
+          Note = :note,
+          IsDSASigned = :agree_to_terms,
+          Latitude = :latitude,
+          Longitude = :longitude
+        WHERE PartnerID = :partner_application_id
+        ",
+      $parameters);
+
+      if ($stmt->execute()) {
+        return [
+          ['SUCCESS' => 'The partner has been updated in the database.']
         ];
       }
     }
