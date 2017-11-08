@@ -173,6 +173,10 @@
   border-left: none;
 }
 
+.form-group-sm textarea.form-control {
+  height: 10em;
+}
+
 .placeholder {
   color: #aaa;
 }

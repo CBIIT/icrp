@@ -132,7 +132,7 @@ class AdminController extends ControllerBase {
 
       $parameters['logo_file'] = $uploaded_file->getClientOriginalName();
     }
-
+    
     if ($parameters['operation_type'] == 'new') {
       $data = PartnerManager::addPartner($connection, $parameters);
     } else if ($parameters['operation_type'] == 'existing') {

@@ -133,6 +133,7 @@ export default class Form extends React.Component {
           currency: findCurrency(country, fields),
         });
       }
+      form.validationErrors = {};
     }
 
     if (field === 'country') {
