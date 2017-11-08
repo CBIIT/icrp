@@ -11,7 +11,7 @@ id: node.events.field_event_group
 field_name: field_event_group
 entity_type: node
 bundle: events
-label: 'Event Group'
+label: Group
 description: 'Select Group associated with this event.'
 required: true
 translatable: false
