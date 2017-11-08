@@ -8,16 +8,8 @@ label.normal-weight {
   font-weight: normal;
 }
 
-.default-min-height {
-  min-height: 2.4em;
-}
-
 .standard-width {
   width: 80px;
-}
-
-.wide-margins {
-  margin: 10px;
 }
 
 .asterisk::after {

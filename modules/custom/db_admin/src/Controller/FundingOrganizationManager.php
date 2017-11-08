@@ -22,6 +22,24 @@ class FundingOrganizationManager {
 
   public static function getFields(PDO $pdo) {
     $queries = [
+
+      'funding_organizations' => 'SELECT
+                                    FundingOrgID as funding_organization_id,
+                                    Name as organization_name,
+                                    Type as organization_type,
+                                    Abbreviation as organization_abbreviation,
+                                    SponsorCode as sponsor_code,
+                                    MemberType as member_type,
+                                    MemberStatus as member_status,
+                                    Website as organization_website,
+                                    Country as country,
+                                    Longitude as longitude,
+                                    Latitude as latitude,
+                                    Currency as currency,
+                                    IsAnnualized as is_annualized,
+                                    Note as note
+                                    FROM FundingOrg',
+
       'partners'    =>  'SELECT
                           p.SponsorCode AS value,
                           p.Name AS label,
@@ -122,6 +140,51 @@ class FundingOrganizationManager {
           :note,
           :latitude,
           :longitude
+        )",
+      $parameters);
+
+      if ($stmt->execute()) {
+        return [
+          ['SUCCESS' => 'The funding organization has been added to the database.']
+        ];
+      }
+    }
+
+    catch (PDOException $e) {
+      return [
+        ['ERROR' => $e->getMessage()]
+      ];
+    }
+
+    return [false];
+  }
+
+
+  public static function updateFundingOrganization(PDO $pdo, array $parameters) {
+    try {
+
+      $validation_errors = self::validate($pdo, $parameters);
+
+      if (!empty($validation_errors)) {
+        return $validation_errors;
+      }
+
+      $stmt = PDOBuilder::createPreparedStatement(
+        $pdo,
+        "EXECUTE UpdateFundingOrg
+          @FundingOrgId = :funding_organization_id,
+          @Name = :organization_name,
+          @Abbreviation = :organization_abbreviation,
+          @Type = :organization_type,
+          @Country = :country,
+          @Currency = :currency,
+          @MemberType = :member_type,
+          @MemberStatus = :member_status,
+          @IsAnnualized = :is_annualized,
+          @Note = :note,
+          @Website = :website,
+          @Latitude = :latitude,
+          @Longitude = :longitude
         )",
       $parameters);
 
