@@ -1,8 +1,0 @@
-old_pass_show: 1
-fpass_redirect: '<front>'
-expiry_period: '1'
-email_subject: 'Replacement login information for [user:name] at ICRP'
-email_body: "Dear [user:field_first_name] [user:field_last_name], \r\n\r\nThank you for your request to reset the password for your account with the International Cancer Research Partnership.\r\nYour new password is [user_new_password]\r\n\r\nPlease use this to log in, you will be able to update your password once logged in to the system.\r\n\r\n[site:login-url]\r\n\r\nIf you have any problems, please contact operations@icrpartnership.org\r\n\r\nFrom the ICRP site "
-old_pass_warning: 'You are using old password, your password was reset recently. New Password was sent to your registered email id.'
-_core:
-  default_config_hash: EN1yrnVrmbIaELIQOqQmEhHjnPpro4giRj2mrp_IAgQ

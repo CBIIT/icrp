@@ -26,12 +26,14 @@ export const createDataMarker = (
     scale: number,
     location: google.maps.LatLngLiteral  | google.maps.LatLng,
     fillColor: string = '#0690e0',
-    strokeColor: string = '#129DED') =>
+    strokeColor: string = '#89C4F4',
+    textColor: string = '#ffffff',
+    strokeWeight: number = 4) =>
   new google.maps.Marker({
     position: location,
     zIndex: 2,
     label: {
-      color: 'white',
+      color: textColor,
       text: label.toLocaleString(),
       fontSize: '14px',
       fontWeight: 'bolder',
@@ -48,7 +50,7 @@ export const createDataMarker = (
       strokeOpacity: 0.8,
       fillColor: fillColor,
       strokeColor: strokeColor,
-      strokeWeight: 4,
+      strokeWeight: strokeWeight,
     },
   });
 

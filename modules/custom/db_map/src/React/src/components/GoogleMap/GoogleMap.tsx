@@ -188,10 +188,28 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         if (clusterLocations.length === 1) {
           let location = clusterLocations[0];
           let { coordinates, counts } = location;
+
+          let fillColor = '#0690e0';
+          let strokeColor = '#89C4F4';
+          let textColor = '#ffffff';
+          let strokeWeight = 4;
+
+          if (viewLevel === 'institutions') {
+            fillColor = '#ffffff';
+            strokeColor = '#0690e0';
+            textColor = '#0690e0';
+            strokeWeight = 6;
+          }
+
           let marker = createDataMarker(
             counts.projects,
             this.calculateMarkerSize(counts.projects),
-            coordinates);
+            coordinates,
+            fillColor,
+            strokeColor,
+            textColor,
+            strokeWeight
+          );
           marker.setMap(map);
 
           let infowindowLabel = `${parseViewLevel(viewLevel)}: ${location.label}`
@@ -336,7 +354,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
   }
 
   calculateMarkerSize(count: number) {
-    return 16 + Math.floor(Math.log10(count)) * 2.8;
+    return 16 + Math.floor(Math.log10(count)) * 2.9;
   }
 
   render() {
