@@ -75,7 +75,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
             value={form.values.partner}
             onChange={event => changeCallback(event.target.name, event.target.value)}>
 
-            <option className='disabled' key={0} value='' hidden>Select a partner</option>
+            <option key={0} value='' selected={form.partner=''}>Select a partner</option>
             {
               form.fields.partners.map((field, index) =>
                 <option key={`${index}_${field.partner_name}`} value={field.partner_name}>
