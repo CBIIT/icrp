@@ -52,6 +52,7 @@ class AdminController extends ControllerBase {
     'currency'                  => NULL,
     'latitude'                  => NULL,
     'longitude'                 => NULL,
+    'operation_type'            => NULL,
   ];
 
   /**
@@ -111,9 +112,9 @@ class AdminController extends ControllerBase {
     return self::createResponse($data);
   }
 
-  public static function getPartnerFields() {
+  public static function getPartnerFields(string $isNew) {
     $connection = PDOBuilder::getConnection();
-    $data = PartnerManager::getFields($connection);
+    $data = PartnerManager::getFields($connection,$isNew=='new');
     return self::createResponse($data);
   }
 
@@ -132,7 +133,11 @@ class AdminController extends ControllerBase {
       $parameters['logo_file'] = $uploaded_file->getClientOriginalName();
     }
 
-    $data = PartnerManager::addPartner($connection, $parameters);
+    if ($parameters['operation_type'] == 'new') {
+      $data = PartnerManager::addPartner($connection, $parameters);
+    } else if ($parameters['operation_type'] == 'existing') {
+      $data = PartnerManager::updatePartner($connection, $parameters);
+    }
     return self::createResponse($data);
   }
 

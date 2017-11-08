@@ -33,6 +33,7 @@ export default class Form extends React.Component {
       country: '',
       email: '',
       description: '',
+      operation_type: 'new',
       sponsorCode: '',
       urlProtocol: 'http://',
       website: '',
@@ -63,13 +64,13 @@ export default class Form extends React.Component {
 
   // updates this form's fields (partners, organization types, countries, currencies, etc)
   async updateFields() {
+    let form = this.state.form;
     let protocol = window.location.protocol;
     let hostname = window.location.hostname;
-    let endpoint = `${protocol}//${hostname}/api/admin/partners/fields`;
+    let endpoint = `${protocol}//${hostname}/api/admin/partners/fields/${form.values.operation_type}`;
 
     let response = await fetch(endpoint, { credentials: 'same-origin' });
     let data = await response.json();
-    let form = this.state.form;
     form.fields = data;
 
     this.setState({
@@ -105,18 +106,27 @@ export default class Form extends React.Component {
 
     if (field === 'partner') {
       values = this.getDefaultValues();
+      values.operation_type = form.values.operation_type;
 
       let partner = fields.partners
         .find(e => e.partner_name === value);
 
       let country = fields.countries
-        .find(e => e.label.toLowerCase() === partner.country.toLowerCase());
+        .find(e => e.value.toLowerCase() === partner.country.toLowerCase());
 
       values.partner = partner.partner_name;
       values.joinedDate = moment(partner.joined_date);
       values.country = country ? country.value : '';
       values.description = partner.description;
       values.email = partner.email;
+      values.sponsorCode = partner.sponsor_code;
+      values.urlProtocol = partner.website.substr(0,partner.website.indexOf('//')+2);
+      values.website = partner.website.substr(values.urlProtocol.length);
+      values.latitude = partner.latitude===null?'':partner.latitude;
+      values.longitude = partner.longitude===null?'':partner.longitude;
+      values.defaultLogoFile = partner.logo_file;
+      values.note = partner.note;
+      values.agreeToTerms = parseInt(partner.agree_to_terms);
       values.currency = findCurrency(country, fields);
     }
 
@@ -128,6 +138,11 @@ export default class Form extends React.Component {
     }
 
     form.values = values;
+
+    if (field === 'operation_type') {
+      this.updateFields();
+    }
+
     return form;
   }
 
@@ -267,8 +282,9 @@ export default class Form extends React.Component {
         currency: 'currency',
         latitude: 'latitude',
         longitude: 'longitude',
-      };
 
+        operation_type: 'operation_type'
+      };
       let formData = new FormData();
       for (let key in parameterMap) {
         let formKey = parameterMap[key];
