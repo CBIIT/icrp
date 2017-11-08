@@ -95,7 +95,7 @@ display:
           fullcalendar_options:
             minTime: '0'
             slotDuration: '00:30:00'
-            defaultTimedEventDuration: '02:00:00'
+            defaultTimedEventDuration: '01:00:00'
             allDaySlot: false
             weekends: true
             lazyFetching: true

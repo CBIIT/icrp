@@ -195,8 +195,7 @@ class UploadFormComponent extends Component {
 
                                 <Col xs={12} sm={8} lg={7}>
                                     <Radio name="uploadType" inline value="New" onChange={this.handleInputChange} checked={this.state.uploadType === 'New'} disabled={this.state.controlsDisabled}>New</Radio>
-
-                                    <Radio name="uploadType" inline value="Update" onChange={this.handleInputChange} checked={this.state.uploadType === 'Update'} disabled={true /*this.state.controlsDisabled*/}>Update</Radio>
+                                    <Radio name="uploadType" inline value="Update" onChange={this.handleInputChange} checked={this.state.uploadType === 'Update'} disabled={this.state.controlsDisabled}>Update</Radio>
                                 </Col>
                             </FormGroup>
 

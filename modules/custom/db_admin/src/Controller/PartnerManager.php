@@ -2,6 +2,7 @@
 
 namespace Drupal\db_admin\Controller;
 use Drupal\db_admin\Helpers\PDOBuilder;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use PDO;
 use PDOException;
 
@@ -236,7 +237,7 @@ class PartnerManager {
 
   public static function updatePartner(PDO $pdo, array $parameters) {
     $validation_errors = self::validate($pdo, $parameters);
-
+    
     if (!empty($validation_errors)) {
       return $validation_errors;
     }
@@ -245,7 +246,21 @@ class PartnerManager {
 
       $stmt = PDOBuilder::createPreparedStatement(
         $pdo,
-        "UPDATE Partner SET
+        "EXECUTE UpdatePartner
+          :partner_application_id,
+          :partner_name,
+          :description,
+          :sponsor_code,
+          :email,
+          :agree_to_terms,
+          :country,
+          :website,
+          :logo_file,
+          :note,
+          :joined_date,
+          :latitude,
+          :longitude",
+/*        "UPDATE Partner SET
           Name = :partner_name,
           JoinedDate = :joined_date,
           Country = :country,
@@ -259,7 +274,7 @@ class PartnerManager {
           Latitude = :latitude,
           Longitude = :longitude
         WHERE PartnerID = :partner_application_id
-        ",
+        ",*/
       $parameters);
 
       if ($stmt->execute()) {
