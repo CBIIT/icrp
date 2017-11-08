@@ -62,7 +62,7 @@ class Store extends StoreBase {
   }
 
   setMapLocations(locations: Location[]) {
-    this.mapLocations = locations;
+    this.mapLocations = [...locations];
     this.trigger();
   }
 

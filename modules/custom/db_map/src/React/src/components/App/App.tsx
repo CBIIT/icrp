@@ -107,6 +107,11 @@ export default class App extends ComponentBase<{}, AppState> {
     }
   }
 
+  // do not use '_.equals'
+  shouldComponentUpdate() {
+    return true;
+  }
+
   render() {
     let {
       viewLevel,
