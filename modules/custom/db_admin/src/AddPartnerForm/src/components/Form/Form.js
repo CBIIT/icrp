@@ -2,6 +2,8 @@ import React from 'react';
 import PartnerForm from '../PartnerForm';
 import Spinner from '../Spinner';
 import moment from 'moment';
+import deepcopy from 'deepcopy';
+import extend from 'extend';
 
 export default class Form extends React.Component {
 
@@ -81,7 +83,7 @@ export default class Form extends React.Component {
       if (data.partners.length > 0) {
         this.handleChange(
           'partner',
-          data.partners[0].partner_name
+          ''
         );
       }
     })
@@ -110,24 +112,27 @@ export default class Form extends React.Component {
 
       let partner = fields.partners
         .find(e => e.partner_name === value);
-
-      let country = fields.countries
-        .find(e => e.value.toLowerCase() === partner.country.toLowerCase());
-
-      values.partner = partner.partner_name;
-      values.joinedDate = moment(partner.joined_date);
-      values.country = country ? country.value : '';
-      values.description = partner.description;
-      values.email = partner.email;
-      values.sponsorCode = partner.sponsor_code;
-      values.urlProtocol = partner.website.substr(0,partner.website.indexOf('//')+2);
-      values.website = partner.website.substr(values.urlProtocol.length);
-      values.latitude = partner.latitude===null?'':partner.latitude;
-      values.longitude = partner.longitude===null?'':partner.longitude;
-      values.defaultLogoFile = partner.logo_file;
-      values.note = partner.note;
-      values.agreeToTerms = parseInt(partner.agree_to_terms);
-      values.currency = findCurrency(country, fields);
+      if (partner !== undefined) {
+        let country = fields.countries
+          .find(e => e.value.toLowerCase() === partner.country.toLowerCase());
+        let urlProtocol = partner.website.substr(0,partner.website.indexOf('//')+2);
+        extend(values,{
+          partner: partner.partner_name,
+          joinedDate: moment(partner.joined_date),
+          country: country ? country.value : '',
+          description: partner.description,
+          email: partner.email,
+          sponsorCode: partner.sponsor_code,
+          urlProtocol: urlProtocol,
+          website: partner.website.substr(urlProtocol.length),
+          latitude: partner.latitude===null?'':partner.latitude,
+          longitude: partner.longitude===null?'':partner.longitude,
+          defaultLogoFile: partner.logo_file,
+          note: partner.note,
+          agreeToTerms: parseInt(partner.agree_to_terms),
+          currency: findCurrency(country, fields),
+        });
+      }
     }
 
     if (field === 'country') {
@@ -140,6 +145,7 @@ export default class Form extends React.Component {
     form.values = values;
 
     if (field === 'operation_type') {
+      form.validationErrors = {};
       this.updateFields();
     }
 
@@ -331,15 +337,10 @@ export default class Form extends React.Component {
   // updates the state of this form, dismissing the message by index
   dismissMessage(index) {
     let form = this.state.form;
-    let messages = this.deepCopy(this.state.form.messages);
+    let messages = this.deepcopy(this.state.form.messages);
     messages.splice(index, 1);
     form.messages = messages;
     this.setState({form});
-  }
-
-  // returns a deep copy of an object
-  deepCopy(obj) {
-    return JSON.parse(JSON.stringify(obj));
   }
 
   // clears this form (resets all fields to their default values)
