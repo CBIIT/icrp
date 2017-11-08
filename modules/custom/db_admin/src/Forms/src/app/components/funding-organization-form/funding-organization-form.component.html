@@ -19,6 +19,8 @@
     fxFlex="100%">
 
     <div
+      [ngClass]="{'has-error': form.controls.partner.dirty
+        && form.controls.partner.invalid}"
       ngClass.lt-md="form-group"
       fxLayout
       fxLayoutWrap
@@ -27,15 +29,14 @@
       fxLayoutAlign="start center"
       fxLayoutGap="10px">
       <label
-        class="inline nowrap"
-        [ngClass]="{error: !form.controls.partner.pristine && form.controls.partner.errors != null}"
+        class="control-label nowrap asterisk"
         for="partner"
-        fxFlex="calc(15% - 10px)"
+        fxFlex="calc(20% - 10px)"
         fxFlex.lt-md="100%">
-        Partner <span class="text-danger">*</span>
+        Partner
       </label>
       <select
-        fxFlex="calc(85% - 10px)"
+        fxFlex="calc(80% - 10px)"
         fxFlex.lt-md="100%"
         id="partner"
         name="partner"
@@ -48,12 +49,12 @@
           {{ partner.label }}
         </option>
       </select>
-      <div class="validation-error"
+      <div
+        class="help-block"
         fxFlex="100%"
-        *ngIf="!form.controls.partner.pristine && form.controls.partner.errors != null">
-        <div *ngIf="form.controls.partner.errors.required">
-          Please select a partner.
-        </div>
+        *ngIf="form.controls.partner.dirty
+          && form.controls.partner.errors?.required">
+          This field is required.
       </div>
     </div>
 
@@ -67,8 +68,8 @@
       fxLayoutGap="15px"
       fxLayoutGap.lt-md="5px">
         <label
-          class="inline" for="memberType">
-          Member Type <span class="text-danger">*</span>
+          class="control-label asterisk" for="memberType">
+          Member Type
         </label>
         <input
           type="hidden"
@@ -96,7 +97,7 @@
         </label>
         <div
           fxFlex="100%"
-          *ngIf="!form.controls.partner.pristine && form.controls.partner.errors != null">
+          *ngIf="form.controls.partner.dirty && form.controls.partner.invalid">
           &zwj;
         </div>
     </div>
@@ -104,14 +105,15 @@
 
   <div
     class="form-group"
+    [ngClass]="{'has-error': form.controls.name.dirty
+      && form.controls.name.invalid}"
     fxFlex="calc(50% - 15px)"
     fxFlex.lt-md="100%">
     <div>
       <label
-        [ngClass]="{error: !form.controls.name.pristine && form.controls.name.errors != null}"
         for="name"
-        data-required>
-        Name <span class="text-danger">*</span>
+        class="control-label asterisk">
+        Name
       </label>
       <input
         id="name"
@@ -121,18 +123,22 @@
         maxlength="100"
         [formControl]="form.controls.name">
     </div>
-    <div class="validation-error" *ngIf="!form.controls.name.pristine && form.controls.name.errors != null">
-      Please provide a name for the funding organization.
+    <div class="help-block"
+      *ngIf="form.controls.name.dirty
+        && form.controls.name.errors?.required">
+        This field is required.
     </div>
   </div>
 
   <div
     class="form-group"
+    [ngClass]="{'has-error': form.controls.abbreviation.dirty
+      && form.controls.abbreviation.invalid}"
     fxFlex="calc(50% - 15px)"
     fxFlex.lt-md="100%">
     <div>
       <label
-        [ngClass]="{error: !form.controls.abbreviation.pristine && form.controls.abbreviation.errors != null}"
+        class="control-label"
         for="abbreviation">
         Abbreviation <span class="text-danger">*</span>
       </label>
@@ -144,20 +150,23 @@
         maxlength="15"
         [formControl]="form.controls.abbreviation">
     </div>
-    <div class="validation-error"
-      *ngIf="!form.controls.abbreviation.pristine && form.controls.abbreviation.errors != null">
-      Please provide an abbreviation for the funding organization.
+    <div class="help-block"
+      *ngIf="form.controls.abbreviation.dirty
+        && form.controls.abbreviation.errors?.required">
+      This field is required.
     </div>
   </div>
 
   <div
     class="form-group"
+    [ngClass]="{'has-error': form.controls.organizationType.dirty
+      && form.controls.organizationType.invalid}"
     fxFlex="calc(50% - 15px)"
     fxFlex.lt-md="100%">
     <label
-      [ngClass]="{error: !form.controls.organizationType.pristine && form.controls.organizationType.errors != null}"
+      class="control-label asterisk"
       for="organizationType">
-      Organization Type <span class="text-danger">*</span>
+      Organization Type
     </label>
     <select
       id="organizationType"
@@ -169,20 +178,23 @@
       <option>Non-profit</option>
       <option>Other</option>
     </select>
-    <div class="validation-error" *ngIf="!form.controls.organizationType.pristine && form.controls.organizationType.errors != null">
-      Please select an organization type.
+    <div class="help-block"
+      *ngIf="form.controls.organizationType.dirty
+        && form.controls.organizationType.errors?.required">
+      This field is required.
     </div>
   </div>
 
   <div
     class="form-group"
+    [ngClass]="{'has-error': (form.controls.latitude.dirty && form.controls.latitude.invalid)
+      || (form.controls.longitude.dirty && form.controls.longitude.invalid)}"
     fxFlex="calc(50% - 15px)"
     fxFlex.lt-md="100%">
     <label
-      [ngClass]="{error: (!form.controls.latitude.pristine || !form.controls.longitude.pristine)
-        && (form.controls.latitude.errors != null || form.controls.longitude.errors  != null)}"
+      class="control-label asterisk"
       for="mapCoordinates">
-      Map Coordinates <span class="text-danger">*</span>
+      Map Coordinates
     </label>
     <input
       type="hidden"
@@ -222,38 +234,36 @@
         [formControl]="form.controls.longitude">
     </div>
 
-    <div
-      class="validation-error"
-      *ngIf="(!form.controls.latitude.pristine || !form.controls.longitude.pristine)
-        && (form.controls.latitude.errors != null || form.controls.longitude.errors != null)">
+    <div class="help-block"
+      *ngIf="(form.controls.latitude.dirty && form.controls.latitude.errors?.required)
+        || (form.controls.longitude.dirty && form.controls.longitude.errors?.required)">
+      Both fields are required.
+    </div>
 
-      <div *ngIf="form.controls.latitude.errors != null
-        && (form.controls.latitude.errors.max || form.controls.latitude.errors.min)">
-        The latitude should be provided as a decimal number between -90.0 and 90.0 inclusive.
-      </div>
+    <div class="help-block"
+      *ngIf="form.controls.latitude.dirty
+        && (form.controls.latitude.errors?.min || form.controls.latitude.errors?.max)">
+      The latitude should be provided as a decimal number between -90.0 and 90.0 inclusive.
+    </div>
 
-      <div *ngIf="form.controls.longitude.errors != null
-        && (form.controls.longitude.errors.max || form.controls.longitude.errors.min)">
-        The longitude should be provided as a decimal number between -180.0 and 180.0 inclusive.
-      </div>
-
-      <div *ngIf="(form.controls.latitude.errors != null && form.controls.latitude.errors.required)
-        || (form.controls.longitude.errors != null && form.controls.longitude.errors.required)">
-        Both latitude and longitude are required.
-      </div>
-
+    <div class="help-block"
+      *ngIf="form.controls.longitude.dirty
+        && (form.controls.longitude.errors?.min || form.controls.longitude.errors?.max)">
+      The longitude should be provided as a decimal number between -180.0 and 180.0 inclusive.
     </div>
   </div>
 
 
   <div
     class="form-group"
+    [ngClass]="{'has-error': form.controls.country.dirty
+      && form.controls.country.invalid}"
     fxFlex="calc(50% - 15px)"
     fxFlex.lt-md="100%">
     <label
-      [ngClass]="{error: !form.controls.country.pristine && form.controls.country.errors != null}"
+      class="control-label asterisk"
       for="country">
-      Country <span class="text-danger">*</span>
+      Country
     </label>
     <select
       id="country"
@@ -268,21 +278,23 @@
       </option>
     </select>
 
-    <div class="validation-error" *ngIf="!form.controls.country.pristine && form.controls.country.errors != null">
-      <div *ngIf="form.controls.country.errors.required">
-        Please select a country.
-      </div>
+    <div class="help-block"
+      *ngIf="form.controls.country.dirty
+        && form.controls.country.errors?.required">
+      This field is required.
     </div>
   </div>
 
   <div
     class="form-group"
+    [ngClass]="{'has-error': form.controls.currency.dirty
+      && form.controls.currency.invalid}"
     fxFlex="calc(50% - 15px)"
     fxFlex.lt-md="100%">
     <label
-      [ngClass]="{error: !form.controls.currency.pristine && form.controls.currency.errors != null}"
+      class="control-label asterisk"
       for="currency">
-      Currency <span class="text-danger">*</span>
+      Currency
     </label>
     <select
       id="currency"
@@ -297,10 +309,10 @@
       </option>
     </select>
 
-    <div class="validation-error" *ngIf="!form.controls.currency.pristine && form.controls.currency.errors != null">
-      <div *ngIf="form.controls.currency.errors.required">
-        Please select a currency.
-      </div>
+    <div class="help-block"
+      *ngIf="form.controls.currency.dirty
+        && form.controls.currency.errors?.required">
+      This field is required.
     </div>
   </div>
 
