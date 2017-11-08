@@ -71,9 +71,11 @@
 </div>
 {% else %}
 {% if icrp_debug %}
-  <span class="icrp-debug">node--forum.html.twig</span><br>
-  <script>console.info("node--forum.html.twig");</script>
+  <span class="icrp-debug">node--events.html.twig</span><br>
+  <script>console.info("node--events.html.twig");</script>
   <script>console.log({{ _context | json_encode | raw }});</script>
+  <script>console.info("content");</script>
+  <script>console.log({{ content | json_encode | raw }});</script>
   {{ dump(user.roles) }}<br>
     logged_in: {{ logged_in ? 'true' : 'false'}}<br>
   {{ dump(title_attributes) }}<br>
@@ -131,16 +133,16 @@
             {% endset %}
             {% if description|striptags|trim|length  %}
   					  <tr>
-  					    <td>Description</td>
+  					    <td>{{ content.body['#title'] }}</td>
   					    <td>{{ content.body }}</td>
   					  </tr>
             {% endif %}
             <tr>
-              <td>Event Type</td>
+              <td nowrap>{{ content.field_event_group['#title'] }}</td>
               <td>{{ content.field_event_group }}</td>
             </tr>
-            <tr>
-              <td>Calendar Type</td>
+            <tr style="display:none;">
+              <td>{{ content.field_calendar_type['#title'] }}</td>
               <td>{{ content.field_calendar_type }}</td>
             </tr>
 					</table>
