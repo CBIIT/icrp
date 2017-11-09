@@ -308,12 +308,21 @@
         for="website">
         Website
       </label>
-      <input
+      <!-- <input
         id="website"
         name="website"
         class="form-control input-sm"
         placeholder="Enter website for funding organization"
-        [formControl]="form.controls.website">
+        [formControl]="form.controls.website"> -->
+
+      <website-input
+        inputId="website"
+        inputName="website"
+        placeholder="Enter website for funding organization"
+        selectClass="form-control input-sm border-right-none group-item-left"
+        inputClass="form-control input-sm group-item-right"
+
+      ></website-input>
     </div>
     <div class="help-block"
       *ngIf="form.controls.website.touched
@@ -464,7 +473,8 @@
     fxFlex.lt-md="100%">
 
     <label
-      [hidden]="true"
+      fxShow
+      fxShow.lt-md="false"
       fxFlex="100%"
       style="margin-bottom: 10px;">
       &zwj;

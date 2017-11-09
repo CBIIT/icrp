@@ -22,7 +22,7 @@ class AdminController extends ControllerBase {
 
   const FUNDING_ORGANIZATION_PARAMETERS = [
     'funding_organization_id'   => NULL,
-    'sponsor_code'              => NULL,
+    'partner_id'                => NULL,
     'member_type'               => NULL,
     'member_status'             => NULL,
     'organization_name'         => NULL,

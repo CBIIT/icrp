@@ -8,7 +8,7 @@ use PDOException;
 class FundingOrganizationManager {
 
   const FUNDING_ORGANIZATION_PARAMETERS = [
-    'sponsor_code'              => NULL,
+    'partner_id'                => NULL,
     'member_type'               => NULL,
     'member_status'             => NULL,
     'organization_name'         => NULL,
@@ -27,25 +27,26 @@ class FundingOrganizationManager {
     $queries = [
 
       'funding_organizations' => 'SELECT
-                                    RTRIM(FundingOrgID) AS funding_organization_id,
-                                    RTRIM(Name) AS organization_name,
-                                    RTRIM(Type) AS organization_type,
-                                    RTRIM(Abbreviation) AS organization_abbreviation,
-                                    RTRIM(SponsorCode) AS sponsor_code,
-                                    RTRIM(MemberType) AS member_type,
-                                    RTRIM(MemberStatus) AS member_status,
-                                    RTRIM(Website) AS organization_website,
-                                    RTRIM(Country) AS country,
-                                    RTRIM(Longitude) AS longitude,
-                                    RTRIM(Latitude) AS latitude,
-                                    RTRIM(Currency) AS currency,
-                                    IsAnnualized AS is_annualized,
-                                    RTRIM(Note) AS note
-                                    FROM FundingOrg
+                                    RTRIM(f.FundingOrgID) AS funding_organization_id,
+                                    RTRIM(f.Name) AS organization_name,
+                                    RTRIM(f.Type) AS organization_type,
+                                    RTRIM(f.Abbreviation) AS organization_abbreviation,
+                                    p.PartnerID AS partner_id,
+                                    RTRIM(f.MemberType) AS member_type,
+                                    RTRIM(f.MemberStatus) AS member_status,
+                                    RTRIM(f.Website) AS organization_website,
+                                    RTRIM(f.Country) AS country,
+                                    RTRIM(f.Longitude) AS longitude,
+                                    RTRIM(f.Latitude) AS latitude,
+                                    RTRIM(f.Currency) AS currency,
+                                    f.IsAnnualized AS is_annualized,
+                                    RTRIM(f.Note) AS note
+                                    FROM FundingOrg f
+                                    JOIN Partner p ON f.SponsorCode = p.SponsorCode
                                     ORDER BY organization_name',
 
       'partners'    =>  'SELECT
-                          p.SponsorCode AS value,
+                          p.PartnerID AS value,
                           p.Name AS label,
                           p.Country AS country,
                           c.Currency AS currency
@@ -110,43 +111,28 @@ class FundingOrganizationManager {
   public static function addFundingOrganization(PDO $pdo, array $parameters) {
     try {
 
-      $validation_errors = self::validate($pdo, $parameters);
+      // $validation_errors = self::validate($pdo, $parameters);
 
-      if (!empty($validation_errors)) {
-        return $validation_errors;
-      }
+      // if (!empty($validation_errors)) {
+      //   return $validation_errors;
+      // }
 
       $stmt = PDOBuilder::createPreparedStatement(
         $pdo,
-        "INSERT INTO FundingOrg (
-          [Name],
-          [Abbreviation],
-          [Type],
-          [Country],
-          [Currency],
-          [SponsorCode],
-          [MemberType],
-          [MemberStatus],
-          [IsAnnualized],
-          [Note],
-          [Latitude],
-          [Longitude],
-          [Website]
-        ) VALUES (
-          :organization_name,
-          :organization_abbreviation,
-          :organization_type,
-          :country,
-          :currency,
-          :sponsor_code,
-          :member_type,
-          :member_status,
-          :is_annualized,
-          :note,
-          :latitude,
-          :longitude,
-          :website
-        )",
+        "EXECUTE AddFundingOrg
+          @PartnerID = :partner_id,
+          @Name = :organization_name,
+          @Abbreviation = :organization_abbreviation,
+          @Type = :organization_type,
+          @Country = :country,
+          @Currency = :currency,
+          @MemberType = :member_type,
+          @MemberStatus = :member_status,
+          @IsAnnualized = :is_annualized,
+          @Note = :note,
+          @Website = :website,
+          @Latitude = :latitude,
+          @Longitude = :longitude",
       $parameters);
 
       if ($stmt->execute()) {
@@ -192,20 +178,6 @@ class FundingOrganizationManager {
           @Latitude = :latitude,
           @Longitude = :longitude",
       $parameters);
-
-      // "sponsor_code": "AVONFDN",
-      // "member_type": "Partner",
-      // "member_status": "Current",
-      // "organization_name": null,
-      // "organization_abbreviation": "AV240",
-      // "organization_type": "Non-profit",
-      // "is_annualized": "false",
-      // "country": "US",
-      // "currency": "USD",
-      // "note": null,
-      // "latitude": "10.000000",
-      // "longitude": "10.000000",
-      // "website": null
 
       if ($stmt->execute()) {
         return [

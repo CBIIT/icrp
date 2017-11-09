@@ -1,0 +1,9 @@
+:host select {
+  min-width: 90px;
+  max-width: 90px;
+  background-color: #f4f4f4;
+}
+
+:host select option {
+  background-color: white;
+}

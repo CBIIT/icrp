@@ -54,3 +54,20 @@ input.hidden {
 	z-index: -1;
 }
 
+.border-right-none {
+  border-right-style: none;
+}
+
+.border-left-none {
+  border-left-style: none;
+}
+
+.group-item-left {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.group-item-right {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}

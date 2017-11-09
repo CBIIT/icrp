@@ -70,26 +70,25 @@ export class FundingOrganizationFormComponent {
       }, {emitEvent: false});
 
       if (value === 'Add') {
-        console.log('setting add')
         controls.id.clearValidators();
         controls.name.setValidators([Validators.required]);
       }
 
       if (value === 'Update') {
-        console.log('setting uodate')
         controls.name.clearValidators();
         controls.id.setValidators([Validators.required]);
       }
 
       controls.name.updateValueAndValidity();
       controls.id.updateValueAndValidity();
-    })
+    });
 
     controls.partner.valueChanges.subscribe(value => {
+
       if (controls.operationType.value === 'Add'
         && controls.memberType.value === 'Partner') {
         let partner = this.options.partners.find(
-          partner => partner.value === value
+          partner => +partner.value === +value
         );
 
         if (partner && partner.country) {
@@ -123,12 +122,13 @@ export class FundingOrganizationFormComponent {
     controls.id.valueChanges.subscribe(value => {
       if (this.options.funding_organizations.length > 0 && value != null) {
 
-        console.log(value, this.options.funding_organizations);
         let org = this.options.funding_organizations
           .find(organization => organization.funding_organization_id == value);
 
+        console.log(org);
+
         this.form.patchValue({
-          partner: org.sponsor_code,
+          partner: org.partner_id,
           memberType: org.member_type,
           memberStatus: org.member_status,
           abbreviation: org.organization_abbreviation,
@@ -176,7 +176,7 @@ export class FundingOrganizationFormComponent {
       let formData = new FormData();
       let keyMap = {
         operationType: 'operation_type',
-        partner: 'sponsor_code',
+        partner: 'partner_id',
         memberType: 'member_type',
         memberStatus: 'member_status',
         name: 'organization_name',
