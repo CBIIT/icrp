@@ -9,6 +9,7 @@ class FundingOrganizationManager {
   const FUNDING_ORGANIZATION_PARAMETERS = [
     'sponsor_code'              => NULL,
     'member_type'               => NULL,
+    'member_status'             => NULL,
     'organization_name'         => NULL,
     'organization_abbreviation' => NULL,
     'organization_type'         => NULL,
@@ -18,6 +19,7 @@ class FundingOrganizationManager {
     'note'                      => NULL,
     'latitude'                  => NULL,
     'longitude'                 => NULL,
+    'website'                   => NULL,
   ];
 
   public static function getFields(PDO $pdo) {
@@ -126,7 +128,8 @@ class FundingOrganizationManager {
           [IsAnnualized],
           [Note],
           [Latitude],
-          [Longitude]
+          [Longitude],
+          [Website]
         ) VALUES (
           :organization_name,
           :organization_abbreviation,
@@ -135,11 +138,12 @@ class FundingOrganizationManager {
           :currency,
           :sponsor_code,
           :member_type,
-          'Current',
+          :member_status,
           :is_annualized,
           :note,
           :latitude,
-          :longitude
+          :longitude,
+          :website
         )",
       $parameters);
 
@@ -190,7 +194,7 @@ class FundingOrganizationManager {
 
       if ($stmt->execute()) {
         return [
-          ['SUCCESS' => 'The funding organization has been added to the database.']
+          ['SUCCESS' => 'The funding organization has been updated.']
         ];
       }
     }

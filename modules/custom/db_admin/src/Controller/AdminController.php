@@ -23,6 +23,7 @@ class AdminController extends ControllerBase {
   const FUNDING_ORGANIZATION_PARAMETERS = [
     'sponsor_code'              => NULL,
     'member_type'               => NULL,
+    'member_status'             => NULL,
     'organization_name'         => NULL,
     'organization_abbreviation' => NULL,
     'organization_type'         => NULL,
@@ -32,6 +33,7 @@ class AdminController extends ControllerBase {
     'note'                      => NULL,
     'latitude'                  => NULL,
     'longitude'                 => NULL,
+    'website'                   => NULL,
   ];
 
   const PARTNER_PARAMETERS = [
@@ -112,6 +114,13 @@ class AdminController extends ControllerBase {
     return self::createResponse($data);
   }
 
+  public static function updateFundingOrganization(Request $request) {
+    $connection = PDOBuilder::getConnection();
+    $parameters = self::array_merge_intersection($request->request->all(), self::FUNDING_ORGANIZATION_PARAMETERS);
+    $data = FundingOrganizationManager::updateFundingOrganization($connection, $parameters);
+    return self::createResponse($data);
+  }
+
   public static function getPartnerFields(string $isNew) {
     $connection = PDOBuilder::getConnection();
     $data = PartnerManager::getFields($connection,$isNew=='new');
@@ -132,7 +141,7 @@ class AdminController extends ControllerBase {
 
       $parameters['logo_file'] = $uploaded_file->getClientOriginalName();
     }
-    
+
     if ($parameters['operation_type'] == 'new') {
       $data = PartnerManager::addPartner($connection, $parameters);
     } else if ($parameters['operation_type'] == 'existing') {
