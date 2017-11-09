@@ -7,6 +7,8 @@ import extend from 'extend';
 
 export default class Form extends React.Component {
 
+
+
   constructor(props) {
     super(props);
     this.state = {
@@ -167,7 +169,6 @@ export default class Form extends React.Component {
     let validationErrors = {};
     let isValid = true;
 
-
     let validationRules = {
       partner: {
         required: true
@@ -220,11 +221,14 @@ export default class Form extends React.Component {
 
     for (let field in validationRules) {
       validationErrors[field] = {};
+
+      // if the field is 'joinedDate', then we should parse
+      // the date object as a string in the 'YYYY-MM-DD' format
       let value = field !== 'joinedDate'
         ? (values[field] || '').toString().trim()
-        : values[field] ? moment(values[field]).format('YYYY-MM-DD') : '0';
+        : values[field] ? moment(values[field]).format('YYYY-MM-DD') : '';
 
-      if (validationRules[field].required && value.constructor === String && value.length === 0) {
+      if (validationRules[field].required && (values[field] === null || (value.constructor === String && value.length === 0))) {
         validationErrors[field].required = true;
         isValid = false;
       }

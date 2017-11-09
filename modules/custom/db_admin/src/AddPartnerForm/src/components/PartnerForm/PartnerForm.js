@@ -108,7 +108,9 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
               dateFormat='YYYY-MM-DD'
               selected={form.values.joinedDate}
               onChange={changeCallback.bind(context, 'joinedDate')}
-              onChangeRaw={changeCallback.bind(context, 'joinedDate', null)}
+              onChangeRaw={event => changeCallback('joinedDate', event.target.value)}
+              readOnly
+              isClearable
             />
             <div className='form-group-addon-sm'>
               { '\uD83D\uDCC5' }
@@ -309,7 +311,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
             ((form.validationErrors.latitude && form.validationErrors.latitude.required) ||
             (form.validationErrors.longitude && form.validationErrors.longitude.required)) &&
             <HelpBlock>
-              Both latitude and longitude should be provided.
+              Both fields are required.
             </HelpBlock>
           }
 

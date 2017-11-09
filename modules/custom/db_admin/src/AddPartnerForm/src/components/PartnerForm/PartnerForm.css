@@ -96,6 +96,10 @@
   min-height: 30px;
 }
 
+input[readonly] {
+  background-color: white !important;
+}
+
 .react-datepicker {
   font-size: 1rem !important;
 }
@@ -103,6 +107,12 @@
 .react-datepicker__input-container {
   display: inline-block;
   width: 100%;
+}
+
+.react-datepicker__close-icon {
+  position: absolute;
+  right: 0;
+  top: 15px;
 }
 
 .semibold {
