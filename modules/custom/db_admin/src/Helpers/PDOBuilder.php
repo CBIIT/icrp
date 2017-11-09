@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\db_map\Controller;
+namespace Drupal\db_admin\Controller;
 
 use Drupal;
 use PDO;
