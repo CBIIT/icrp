@@ -120,6 +120,78 @@ export const LABELED_MAP: google.maps.MapTypeStyle[] = [
   }
 ];
 
+
+export const DETAILED_MAP: google.maps.MapTypeStyle[] = [
+  {
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#f5f5f5"
+      }
+    ]
+  },
+  {
+    "elementType": "labels",
+    "stylers": [
+      {
+        "lightness": 40
+      }
+    ]
+  },
+  {
+    "featureType": "administrative.country",
+    "elementType": "geometry.stroke",
+    "stylers": [
+      {
+        "color": "#a0cce7"
+      }
+    ]
+  },
+  {
+    "featureType": "poi",
+    "stylers": [
+      {
+        "visibility": "on",
+
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "stylers": [
+      {
+        "visibility": "on"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "geometry.fill",
+    "stylers": [
+      {
+        "color": "#a0cce7"
+      }
+    ]
+  },
+  {
+    "featureType": "transit",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "geometry.fill",
+    "stylers": [
+      {
+        "color": "#64aad8"
+      }
+    ]
+  },
+];
+
 export const DEFAULT_OPTIONS: google.maps.MapOptions = {
   center: {lat: 25, lng: 0},
   zoom: 2,

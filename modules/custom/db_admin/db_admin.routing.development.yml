@@ -35,6 +35,16 @@ api.admin.funding_organizations.add:
     _access: 'TRUE'
 
 
+
+## Update funding organization
+api.admin.funding_organizations.update:
+  path: /api/admin/funding_organizations/update
+  defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::updateFundingOrganization' }
+  requirements:
+    _access: 'TRUE'
+
+
+
 ## Get form fields for partners
 api.admin.partners.fields:
   path: /api/admin/partners/fields/{isNew}
@@ -43,7 +53,6 @@ api.admin.partners.fields:
     isNew: ''
   requirements:
     _access: 'TRUE'
-
 
 
 

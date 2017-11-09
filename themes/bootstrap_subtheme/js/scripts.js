@@ -80,6 +80,13 @@
           console.info("You clicked on Caption");
           $.redirectCarousel(e);
       });
+      //$('#edit-field-event-date-range-0-value-date').on('change')
+      $('body').on('change', '#edit-field-event-date-range-0-value-date', function(e) {
+        // Action goes here.
+        console.log("You changed the start date");
+        console.dir(e);
+        //edit-field-event-date-range-0-value-date
+      });
       /*
       $("#dialog").dialog({
         autoOpen: false,
@@ -177,6 +184,7 @@
       var source = decodeURIComponent($.urlParam("source"));
       if(source  == "Edit Event") {
           $.preprocessAddEvents();
+          //$.preprocessAddTitle();
           $.preprocessFixDateRangeEvents();
           //$.preprocessCloneEndDateCheckbox();
 
@@ -184,7 +192,7 @@
       switch(url_path) {
         case "/node/add/events":
           $.preprocessAddEvents();
-          $.preprocessAddTitle();
+          //$.preprocessAddTitle();
           $.preprocessFixDateRangeEvents();
           //$.preprocessCloneEndDateCheckbox();
           break;
@@ -287,9 +295,15 @@
     //$('#edit-field-show-end-date-value').parent().hide();
   } 
   $.preprocessFixDateRangeEvents = function(e) {
+
+    $('#edit-field-event-date-range-0-value-date').on('change', function(e) {
+        console.log($('#edit-field-event-date-range-0-value-date').val());
+        $('#edit-field-event-date-range-0-end-value-date').val($('#edit-field-event-date-range-0-value-date').val());
+    });
     // Fix Date Time Range if avalable.
     if($('#edit-field-event-date-range-0-end-value-time').length > 0 ){
       var ids = ["edit-field-event-date-range-0-value-time", "edit-field-event-date-range-0-end-value-time"];
+      
       $.each( ids, function( key, id ) {
         //alert(id);
         var time = $('#'+id).attr('value');
@@ -300,12 +314,14 @@
         }
         $('#'+id).attr('step', "900");
         $('#'+id).attr('size', "10");
-        $('#'+id).attr('title', "Time (e.g. 08:30 PM)");
+        //$('#'+id).attr('title', "Time (e.g. 08:30 PM)");
       });
     }
+
   }
 
   $.preprocessAddEvents = function(e){
+
     var calendar_type = decodeURIComponent($.urlParam("calendar_type"));
     $('#edit-field-calendar-type').val(calendar_type);
     if(calendar_type == "ICRP Meeting") {
@@ -322,9 +338,15 @@
       $("#edit-field-event-group option[value='Partner Operations']").remove();
       $("#edit-field-event-group option[value='Website and Database']").remove();
     }
-    if(!$('#calendar-title').length) {
-      $('<h4 id="calendar-title">'+calendar_type+' Calendar</h4>').insertBefore("div.well");
-    }
+  }
+
+  $.preprocessAddTitle = function(e) {
+      /* Add Title to calendar*/
+      if(!$('#calendar-title').length) {
+        $('<h4 id="calendar-title">'+calendar_type+' Calendar</h4>').insertBefore("div.well");
+      }
+      /* Remove required * from this field */
+      $('#edit-field-event-date-range-0 > div.panel-heading > div.panel-title').removeClass('form-required');
   }
 
   $.preprocessCalendar = function(e){

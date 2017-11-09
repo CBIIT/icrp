@@ -3,10 +3,10 @@
 /*
 See http://htmlcolorcodes.com/color-names/ for color names
 * ICRP Meetings
-1. Partner News and Announcements (partner-news-and-announcements) = DARKORANGE
-2. Annual Meetings (annual-meetings) = ROYALBLUE
+1. Partner News and Announcements (partner-news-and-announcements) = ROYALBLUE
+2. Annual Meetings (annual-meetings) = DARKCYAN
 3. Communications and Membership (communications-and-membership) = TURQUOISE
-4. CSO and Coding (cso-and-coding) = DARKCYAN
+4. CSO and Coding (cso-and-coding) = DARKORANGE
 5. Evaluations and Analyses (evaluations-and-analyses) = OLIVEDRAB
 6. Partner Operations (partner-operations) = MEDIUMVIOLETRED
 7. Website and Database (website-and-database) = INDIANRED
@@ -17,24 +17,24 @@ See http://htmlcolorcodes.com/color-names/ for color names
 11. Other (other) = MEDIUMVIOLETRED
 
 */
-/* 1. Partner News and Announcements (partner-news-and-announcements) = DARKORANGE */
+/* 1. Partner News and Announcements (partner-news-and-announcements) = ROYALBLUE */
 .fc-event-tid-partner-news-and-announcements,
 .fc-event-tid-partner-news-and-announcements .fc-event-skin,
 .fc-event-tid-partner-news-and-announcements .fc-event-time,
 .fc-event-tid-partner-news-and-announcements .fc-event-dot,
 .fc-event-tid-partner-news-and-announcements a {
   color: #fff;
-  background-color: DARKORANGE;
+  background-color: ROYALBLUE;
 }
 
-/* 2. Annual Meetings (annual-meetings) = ROYALBLUE */
+/* 2. Annual Meetings (annual-meetings) = DARKCYAN */
 .fc-event-tid-annual-meetings,
 .fc-event-tid-annual-meetings .fc-event-skin,
 .fc-event-tid-annual-meetings .fc-event-time,
 .fc-event-tid-annual-meetings .fc-event-dot,
 .fc-event-tid-annual-meetings a {
   color: #fff;
-  background-color: ROYALBLUE;
+  background-color: DARKCYAN;
 }
 
 /* 3. Communications and Membership (communications-and-membership) = TURQUOISE */
@@ -54,7 +54,7 @@ See http://htmlcolorcodes.com/color-names/ for color names
 .fc-event-tid-cso-and-coding .fc-event-dot,
 .fc-event-tid-cso-and-coding a {
   color: #fff;
-  background-color: DARKCYAN;
+  background-color: DARKORANGE;
 }
 
 /* 5. Evaluations and Analyses (evaluations-and-analyses) = OLIVEDRAB */

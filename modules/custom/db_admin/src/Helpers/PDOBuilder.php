@@ -1,6 +1,7 @@
 <?php
 
 namespace Drupal\db_admin\Helpers;
+
 use Drupal;
 use PDO;
 use PDOStatement;
@@ -44,9 +45,25 @@ class PDOBuilder {
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
 //      PDO::ATTR_ERRMODE            => PDO::ERRMODE_SILENT,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE => TRUE,
       ]
     );
   }
+
+
+  public static function executePreparedStatement(
+    PDO $pdo,
+    string $query,
+    array $input_parameters = NULL,
+    array &$output_parameters = NULL
+  ): PDOStatement {
+
+    $stmt = $pdo->prepare($query);
+    $stmt = PDOBuilder::bindParameters($stmt, $input_parameters, $output_parameters);
+    $stmt->execute();
+    return $stmt;
+  }
+
 
   public static function createPreparedStatement(
     PDO $pdo,
@@ -58,7 +75,6 @@ class PDOBuilder {
     $stmt = $pdo->prepare($query);
     return PDOBuilder::bindParameters($stmt, $input_parameters, $output_parameters);
   }
-
 
 
   /**
@@ -78,7 +94,7 @@ class PDOBuilder {
     if ($input_parameters) {
       foreach($input_parameters as $key => &$value) {
         if (strpos($query_string, ":$key") !== false)
-          $stmt->bindParam(":$key", $value);
+          $stmt->bindParam($key, $value);
       }
     }
 
@@ -86,10 +102,11 @@ class PDOBuilder {
     if ($output_parameters) {
       foreach($output_parameters as $key => &$output) {
         if (strpos($query_string, ":$key") !== false)
-          $stmt->bindParam(":$key", $output['value'], $output['type'] | PDO::PARAM_INPUT_OUTPUT, 2048);
+          $stmt->bindParam($key, $output['value'], $output['type'] | PDO::PARAM_INPUT_OUTPUT, 2048);
       }
     }
 
     return $stmt;
   }
+
 }

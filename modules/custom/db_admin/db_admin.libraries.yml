@@ -1,4 +1,5 @@
 add_funding_organization:
+  version: 1.0.0
   css:
     theme:
       assets/add_funding_organization/styles.bundle.css: {}
@@ -8,6 +9,7 @@ add_funding_organization:
     assets/add_funding_organization/main.bundle.js: {}
 
 add_partner:
+  version: 1.3.0
   css:
     theme:
       assets/add_partner/main.css: {}

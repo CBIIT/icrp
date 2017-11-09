@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { DEFAULT_OPTIONS, LABELED_MAP, UNLABELED_MAP } from '../../services/MapConstants';
+import { DEFAULT_OPTIONS, LABELED_MAP, UNLABELED_MAP, DETAILED_MAP } from '../../services/MapConstants';
 import { createLabel, createDataMarker, createInfoWindow, mapLabels } from '../../services/MapHelpers';
 import { getNextLocationFilters, Location, ViewLevel, LocationFilters, LocationCounts, parseViewLevel } from '../../services/DataService';
 import { LocationClusterer } from './LocationClusterer';
@@ -86,6 +86,8 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
         props.locations.map(loc => loc.coordinates)
           .filter(coords => coords.lat != 0 && coords.lng != 0)
+          .filter(coords => coords.lat >= -90 && coords.lat <= 90)
+          .filter(coords => coords.lng >= -180 && coords.lng <= 180)
           .forEach(latlng => bounds.extend(latlng));
 
         let northEast = bounds.getNorthEast();
@@ -159,9 +161,18 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       let dataMarkerSize = 25;
 
       // display google map labels if showMapLabels is true
-      this.map.setOptions({
-        styles: showMapLabels ? LABELED_MAP : UNLABELED_MAP
-      });
+
+      let styles = UNLABELED_MAP;
+
+      if (showMapLabels) {
+        styles = LABELED_MAP;
+      }
+
+      if (map.getZoom() > 6) {
+        styles = DETAILED_MAP
+      }
+
+      this.map.setOptions({styles});
 
       // clear all region labels
       labels.forEach(label => label.setMap(null));
@@ -174,14 +185,17 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       // recreate location clusters
       clusterer.clearElements();
       clusterer.setElements(
-        locations.filter(({coordinates}) =>
-          coordinates.lat != 0 && coordinates.lng != 0
-        ))
+        locations
+        .filter(({coordinates}) => coordinates.lat != 0 && coordinates.lng != 0)
+        .filter(({coordinates}) => coordinates.lat >= -90 && coordinates.lat <= 90)
+        .filter(({coordinates}) => coordinates.lng >= -180 && coordinates.lng <= 180)
+      );
 
       console.log(clusterer.getClusters());
 
       // draw each cluster
-      this.clusterer.getClusters().forEach(cluster => {
+      let clusters = this.clusterer.getClusters();
+      clusters.forEach(cluster => {
         let clusterLocations = cluster.get();
 
         // show a single location
@@ -284,13 +298,11 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
           marker.setMap(map);
 
           // add an info window containing the data
-          let infoWindowCallback: undefined | (() => void)  =
-          viewLevel !== 'institutions'
-            ? () => {
-              this.shouldRedraw = false;
-              store.setMapLocations(cluster.get());
-              this.shouldRedraw = true;
-            }: undefined;
+          let infoWindowCallback = () => {
+            this.shouldRedraw = false;
+            store.setMapLocations(cluster.get());
+            this.shouldRedraw = true;
+          }
 
           let infoWindow = createInfoWindow(clusteredLocation, infoWindowCallback);
 
@@ -309,7 +321,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
           marker.addListener('dblclick', event => {
             infoWindow.close();
             this.shouldRedraw = false;
-            store.setMapLocations(cluster.get());
+            store.setMapLocations([...cluster.get()]);
             this.shouldRedraw = true;
           });
         }

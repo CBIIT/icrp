@@ -36,6 +36,15 @@ api.admin.funding_organizations.add:
     _role: 'admin+manager'
 
 
+## Update funding organization
+api.admin.funding_organizations.update:
+  path: /api/admin/funding_organizations/update
+  defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::updateFundingOrganization' }
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+
 
 ## Get form fields for partners
 api.admin.partners.fields:

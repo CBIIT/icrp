@@ -1,5 +1,7 @@
 --drop table #InstitutionCoordinates
 -- drop table #CorrectInstitution
+-- drop table lu_InstitutionCoordsTmp
+-- drop table lu_InstitutionLocationTmp
 --GO
 PRINT '******************************************************************************'
 PRINT '***************************** Bulk Insert ************************************'
@@ -132,10 +134,132 @@ rollback
 commit
 
 
-select count(*) from Institution where Latitude is  null  -- 2112 missing
+------------------------------------------------------------------------------------------------------------
+-- Still have missing coordinates => Import Coordinates based on GRID 
+------------------------------------------------------------------------------------------------------------
+CREATE TABLE lu_InstitutionCoordsTmp (	
+	[Grid] varchar(50) NULL,
+	[Latitude] [decimal](9, 6) NULL,
+	[Longitude] [decimal](9, 6) NULL
+)
 
-select * from Institution where name like 'Ministries of Health%'
+GO
+
+BULK INSERT lu_InstitutionCoordsTmp
+FROM 'C:\ICRP\database\DataImport\CurrentRelease\Institutions\Inst_grid_coords.csv'
+WITH
+(
+	FIRSTROW = 3,
+	DATAFILETYPE ='widechar',  -- unicode format
+	FIELDTERMINATOR = '|',
+	ROWTERMINATOR = '\n'
+)
+GO  
+
+-- institutions with GRID: coordinates imported (351 imported)
+select * FROM institution WHERE ISNULL(GRID,'') <> '' AND ISNULL(Latitude, 0) = 0
+
+begin transaction
+
+UPDATE Institution SET Latitude = t.latitude, Longitude = t.longitude
+FROM institution i
+JOIN (SELECT * FROM lu_InstitutionCoordsTmp WHERE Latitude IS NOT NULL) t ON t.GRID = i.GRID
+WHERE ISNULL(i.GRID,'') <> '' AND ISNULL(i.Latitude, 0) = 0
+
+commit
+
+select * FROM institution WHERE ISNULL(GRID,'') <> '' AND ISNULL(Latitude, 0) = 0
+
+--select count(*) from Institution where ISNULL(Latitude, 0) = 0  -- 1762 missing
+------------------------------------------------------------------------------------------------------------
+-- Still have missing coordinates => Import Coordinates based on Institution Name & City 
+------------------------------------------------------------------------------------------------------------
+CREATE TABLE lu_InstitutionLocationTmp (	
+	[Grid] varchar(50) NULL,
+	[Name] varchar(250) NULL,
+	[City] varchar(50) NULL,
+	[State] varchar(250) NULL,
+	[Country] varchar(50) NULL	
+)
+
+GO
+
+BULK INSERT lu_InstitutionLocationTmp
+FROM 'C:\ICRP\database\DataImport\CurrentRelease\Institutions\Inst_grid_location.csv'
+WITH
+(
+	FIRSTROW = 3,
+	DATAFILETYPE ='widechar',  -- unicode format
+	FIELDTERMINATOR = '|',
+	ROWTERMINATOR = '\n'
+)
+GO  
+
+--select distinct city from institution where country='CA'
+UPDATE lu_InstitutionLocationTmp SET City = 'Montréal' WHERE city = 'Montreal' and country='Canada'
+
+begin transaction  -- update 20 more
+UPDATE institution SET  Latitude = t.latitude, Longitude = t.longitude
+FROM institution i
+JOIN (select l.Name, l.City, l.Country, c.Latitude, c.Longitude from lu_InstitutionLocationTmp l
+		JOIN lu_InstitutionCoordsTmp c ON l.Grid = c.grid
+		where c.Latitude IS NOT NULL) t ON i.Name = t.Name AND i.City = t.City
+WHERE ISNULL(i.latitude,0) = 0
+
+commit
 
 
-select count(*) from Institution where Latitude is null  -- 2112
-select count(*) from Institution where (grid is not null and grid <> '') and Latitude is null  --767
+--select count(*) from Institution where ISNULL(Latitude, 0) = 0  -- 1742 still missing
+
+------------------------------------------------------------------------------------------------------------
+-- ROund 3 - Still have missing coordinates => Import Coordinates based on Institution Name & City 
+------------------------------------------------------------------------------------------------------------
+--drop table lu_InstitutionMissingTmp3
+--go
+
+CREATE TABLE lu_InstitutionMissingTmp3 (	
+	[Name] varchar(500) NULL,	
+	[City] varchar(50) NULL,
+	[State] varchar(250) NULL,
+	[Country] varchar(50) NULL,
+	[Grid] varchar(50) NULL,
+	[Latitude] [decimal](9, 6) NULL,
+	[Longitude] [decimal](9, 6) NULL
+)
+
+GO
+
+BULK INSERT lu_InstitutionMissingTmp3
+FROM 'C:\ICRP\database\DataImport\CurrentRelease\Institutions\ICRPInsitutionMissingCoordinates-grid.csv'
+WITH
+(
+	FIRSTROW = 3,
+	DATAFILETYPE ='widechar',  -- unicode format
+	FIELDTERMINATOR = '|',
+	ROWTERMINATOR = '\n'
+)
+
+BULK INSERT lu_InstitutionMissingTmp3
+FROM 'C:\ICRP\database\DataImport\CurrentRelease\Institutions\ICRPInsitutionMissingCoordinates-no grid.csv'
+WITH
+(
+	FIRSTROW = 3,
+	DATAFILETYPE ='widechar',  -- unicode format
+	FIELDTERMINATOR = '|',
+	ROWTERMINATOR = '\n'
+)
+
+--select count(*) from Institution where ISNULL(Latitude, 0) = 0  -- 1742 still missing
+
+begin transaction
+UPDATE institution SET Latitude = t.[Latitude], [Longitude]= t.[Longitude]
+--select i.* 
+from
+institution i 
+join (select * from lu_InstitutionMissingTmp3 where latitude is not null) t on i.name = t.name and i.city = t.city
+
+commit
+
+--select count(*) from Institution where ISNULL(Latitude, 0) = 0  -- 1349 still missing
+select Name AS Institution, City, ISNULL(State, ''), Country, ISNULL(grid, '') from Institution where ISNULL(Latitude, 0) = 0  and name <> 'Missing'
+

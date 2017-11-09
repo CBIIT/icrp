@@ -41,16 +41,20 @@ export class FundingOrganizationFormComponent {
 
   createForm(): FormGroup {
     let formGroup = this.formBuilder.group({
-      partner: ['', Validators.required],
+      operationType: ['Add', Validators.required],
+      partner: [null, Validators.required],
       memberType: ['Associate', Validators.required],
-      name: ['', [Validators.required, Validators.maxLength(100)]],
-      abbreviation: ['', [Validators.required, Validators.maxLength(15)]],
-      organizationType: ['', Validators.required],
+      memberStatus: ['Current', Validators.required],
+      name: [null, [Validators.required, Validators.maxLength(100)]],
+      id: [null, Validators.required],
+      abbreviation: [null, [Validators.required, Validators.maxLength(15)]],
+      website: [null, [Validators.maxLength(250)]],
+      organizationType: [null, Validators.required],
       latitude: [null, [Validators.min(-90), Validators.max(90), Validators.required]],
       longitude: [null, [Validators.min(-180), Validators.max(180), Validators.required]],
-      country: ['', Validators.required],
-      currency: ['', Validators.required],
-      note: ['', Validators.maxLength(8000)],
+      country: [null, Validators.required],
+      currency: [null, Validators.required],
+      note: [null, Validators.maxLength(8000)],
       annualizedFunding: false,
     });
 
@@ -93,12 +97,15 @@ export class FundingOrganizationFormComponent {
 
   resetForm(event) {
     event.preventDefault();
-    this.form = this.createForm();
+    this.form.reset({
+      memberType: 'Associate',
+      memberStatus: 'Current'
+    });
   }
 
   submit() {
     for (let key in this.form.controls) {
-      this.form.controls[key].markAsDirty();
+      this.form.controls[key].markAsTouched();
     }
 
     this.messages = [];
@@ -107,9 +114,12 @@ export class FundingOrganizationFormComponent {
       let formValue = this.form.value;
       let formData = new FormData();
       let keyMap = {
+        operationType: 'operation_type',
         partner: 'sponsor_code',
         memberType: 'member_type',
+        memberStatus: 'member_status',
         name: 'organization_name',
+        id: 'funding_organization_id',
         abbreviation: 'organization_abbreviation',
         organizationType: 'organization_type',
         latitude: 'latitude',
