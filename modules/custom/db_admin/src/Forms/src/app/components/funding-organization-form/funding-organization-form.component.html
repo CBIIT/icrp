@@ -179,6 +179,16 @@
           formControlName="memberStatus">
         Former
       </label>
+
+      <label class="inline normal-weight" for="memberStatusMerged">
+        <input
+          id="memberStatusMerged"
+          type="radio"
+          name="memberStatus"
+          value="Merged"
+          formControlName="memberStatus">
+        Merged
+      </label>
     </div>
   </div>
 
@@ -195,16 +205,38 @@
         Organization Name
       </label>
       <input
+        *ngIf="form.controls.operationType.value === 'Add'"
         id="name"
         name="name"
         class="form-control input-sm"
         placeholder="Enter name of funding organization (100 characters maximum)"
         maxlength="100"
         [formControl]="form.controls.name">
+
+      <select
+        *ngIf="form.controls.operationType.value === 'Update'"
+        id="id"
+        name="id"
+        class="form-control input-sm"
+        formControlName="id"
+        [ngSwitch]="options?.funding_organizations?.length">
+        <option *ngSwitchCase="0" [value]="null" hidden>Loading...</option>
+        <option *ngSwitchDefault [value]="null" hidden>Select a funding organization</option>
+        <option *ngFor="let organization of options.funding_organizations" [value]="organization.funding_organization_id">
+          {{ organization.organization_name }}
+        </option>
+      </select>
+
     </div>
     <div class="help-block"
       *ngIf="form.controls.name.touched
         && form.controls.name.errors?.required">
+        This field is required.
+    </div>
+
+    <div class="help-block"
+      *ngIf="form.controls.id.touched
+        && form.controls.id.errors?.required">
         This field is required.
     </div>
   </div>
@@ -427,9 +459,16 @@
     class="form-group"
     fxLayout
     fxLayoutWrap
-    fxLayoutAlign="start flex-end"
+    fxLayoutAlign="start flex-start"
     fxFlex="calc(50% - 15px)"
     fxFlex.lt-md="100%">
+
+    <label
+      [hidden]="true"
+      fxFlex="100%"
+      style="margin-bottom: 10px;">
+      &zwj;
+    </label>
     <label
       fxFlex="100%"
       for="annualizedFunding">
@@ -440,15 +479,6 @@
         [formControl]="form.controls.annualizedFunding">
       Annualized Funding
     </label>
-
-    <div
-      [hidden]="true"
-      class="help-block"
-      fxFlex="100%"
-      *ngIf="(form.controls.latitude.touched && form.controls.latitude.invalid)
-      || (form.controls.longitude.touched && form.controls.longitude.invalid)">
-      &zwj;
-    </div>
   </div>
 
   <div

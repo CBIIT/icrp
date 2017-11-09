@@ -25,4 +25,13 @@ export class DataService {
       withCredentials: window.location.hostname === window.location.host,
     });
   }
+
+  updateFundingOrganization(data: FormData) {
+    const endpoint = `${this.BASE_HREF}/api/admin/funding_organizations/update`;
+    return this.http.post<ApiStatusMessage[]>(endpoint, data, {
+      withCredentials: window.location.hostname === window.location.host,
+    });
+  }
+
+
 }

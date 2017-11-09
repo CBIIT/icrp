@@ -14,6 +14,7 @@ export class FundingOrganizationFormComponent {
   form: FormGroup;
 
   options: {
+    funding_organizations: any[],
     partners: Field[],
     countries: Field[],
     currencies: Field[],
@@ -28,6 +29,7 @@ export class FundingOrganizationFormComponent {
     this.form = this.createForm();
 
     this.options = {
+      funding_organizations: [],
       partners: [],
       countries: [],
       currencies: [],
@@ -41,12 +43,12 @@ export class FundingOrganizationFormComponent {
 
   createForm(): FormGroup {
     let formGroup = this.formBuilder.group({
-      operationType: ['Add', Validators.required],
+      operationType: ['Add'],
       partner: [null, Validators.required],
       memberType: ['Associate', Validators.required],
       memberStatus: ['Current', Validators.required],
       name: [null, [Validators.required, Validators.maxLength(100)]],
-      id: [null, Validators.required],
+      id: [null],
       abbreviation: [null, [Validators.required, Validators.maxLength(15)]],
       website: [null, [Validators.maxLength(250)]],
       organizationType: [null, Validators.required],
@@ -60,14 +62,40 @@ export class FundingOrganizationFormComponent {
 
     const controls = formGroup.controls;
 
-    controls.partner.valueChanges.subscribe(value => {
-      let partner = this.options.partners.find(
-        partner => partner.value === value
-      );
+    controls.operationType.valueChanges.subscribe(value => {
+      this.form.reset({
+        operationType: value,
+        memberType: 'Associate',
+        memberStatus: 'Current',
+      }, {emitEvent: false});
 
-      if (partner && partner.country && controls.memberType.value === 'Partner') {
-        controls.name.patchValue(partner.label);
-        controls.country.patchValue(partner.country);
+      if (value === 'Add') {
+        console.log('setting add')
+        controls.id.clearValidators();
+        controls.name.setValidators([Validators.required]);
+      }
+
+      if (value === 'Update') {
+        console.log('setting uodate')
+        controls.name.clearValidators();
+        controls.id.setValidators([Validators.required]);
+      }
+
+      controls.name.updateValueAndValidity();
+      controls.id.updateValueAndValidity();
+    })
+
+    controls.partner.valueChanges.subscribe(value => {
+      if (controls.operationType.value === 'Add'
+        && controls.memberType.value === 'Partner') {
+        let partner = this.options.partners.find(
+          partner => partner.value === value
+        );
+
+        if (partner && partner.country) {
+          controls.name.patchValue(partner.label);
+          controls.country.patchValue(partner.country);
+        }
       }
     });
 
@@ -86,11 +114,35 @@ export class FundingOrganizationFormComponent {
       );
 
       controls.currency.patchValue(
-        currency ? currency.value : ''
+        currency ? currency.value : null
       );
 
       controls.currency.markAsDirty();
     });
+
+    controls.id.valueChanges.subscribe(value => {
+      if (this.options.funding_organizations.length > 0 && value != null) {
+
+        console.log(value, this.options.funding_organizations);
+        let org = this.options.funding_organizations
+          .find(organization => organization.funding_organization_id == value);
+
+        this.form.patchValue({
+          partner: org.sponsor_code,
+          memberType: org.member_type,
+          memberStatus: org.member_status,
+          abbreviation: org.organization_abbreviation,
+          website: org.organization_website,
+          organizationType: org.organization_type,
+          latitude: org.latitude,
+          longitude: org.longitude,
+          country: org.country,
+          currency: org.currency,
+          note: org.note,
+          annualizedFunding: org.is_annualized === 1
+        }, {emitEvent: false});
+      }
+    })
 
     return formGroup;
   }
@@ -98,12 +150,15 @@ export class FundingOrganizationFormComponent {
   resetForm(event) {
     event.preventDefault();
     this.form.reset({
+      operationType: 'Add',
       memberType: 'Associate',
-      memberStatus: 'Current'
+      memberStatus: 'Current',
     });
   }
 
   submit() {
+
+    console.log('clicked submit')
     for (let key in this.form.controls) {
       this.form.controls[key].markAsTouched();
     }
@@ -112,6 +167,12 @@ export class FundingOrganizationFormComponent {
 
     if (this.form.valid) {
       let formValue = this.form.value;
+      if (formValue.id && !formValue.name) {
+        formValue.name = this.options.funding_organizations
+          .find(org => org.funding_organization_id == formValue.id)
+          .organization_name;
+      }
+
       let formData = new FormData();
       let keyMap = {
         operationType: 'operation_type',
@@ -127,7 +188,8 @@ export class FundingOrganizationFormComponent {
         country: 'country',
         currency: 'currency',
         note: 'note',
-        annualizedFunding: 'is_annualized'
+        annualizedFunding: 'is_annualized',
+        website: 'website',
       }
 
       for (let key in formValue) {
@@ -138,23 +200,34 @@ export class FundingOrganizationFormComponent {
           formData.set(mappedKey, value);
       }
 
-      this.dataService.addFundingOrganization(formData)
-        .subscribe(response => {
+      let request = this.form.controls.operationType.value === 'Update'
+        ? this.dataService.updateFundingOrganization(formData)
+        : this.dataService.addFundingOrganization(formData);
 
-          const typeMap = {
-            ERROR: 'danger',
-            SUCCESS: 'success',
-          };
+      console.log('request', request);
 
-          for (let responseMessage of response) {
-            let key = Object.keys(responseMessage)[0];
+      request.subscribe(response => {
+        const typeMap = {
+          ERROR: 'danger',
+          SUCCESS: 'success',
+        };
 
-            this.messages.push({
-              type: typeMap[key],
-              text: responseMessage[key]
-            })
-          }
-        });
+        for (let responseMessage of response) {
+          let key = Object.keys(responseMessage)[0];
+
+          this.messages.push({
+            type: typeMap[key],
+            text: responseMessage[key]
+          })
+        }
+
+        this.dataService.getFields()
+          .subscribe(fields => this.options = fields);
+      });
+    }
+
+    else {
+      console.log(this.form, this.form.errors);
     }
   }
 

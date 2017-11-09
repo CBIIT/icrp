@@ -6,6 +6,7 @@ export interface Field {
 }
 
 export interface ApiFields {
+  funding_organizations: any[];
   partners: Field[],
   countries: Field[],
   currencies: Field[],

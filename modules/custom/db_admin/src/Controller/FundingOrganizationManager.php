@@ -3,6 +3,7 @@
 namespace Drupal\db_admin\Controller;
 use Drupal\db_admin\Helpers\PDOBuilder;
 use PDO;
+use PDOException;
 
 class FundingOrganizationManager {
 
@@ -26,21 +27,22 @@ class FundingOrganizationManager {
     $queries = [
 
       'funding_organizations' => 'SELECT
-                                    FundingOrgID as funding_organization_id,
-                                    Name as organization_name,
-                                    Type as organization_type,
-                                    Abbreviation as organization_abbreviation,
-                                    SponsorCode as sponsor_code,
-                                    MemberType as member_type,
-                                    MemberStatus as member_status,
-                                    Website as organization_website,
-                                    Country as country,
-                                    Longitude as longitude,
-                                    Latitude as latitude,
-                                    Currency as currency,
-                                    IsAnnualized as is_annualized,
-                                    Note as note
-                                    FROM FundingOrg',
+                                    RTRIM(FundingOrgID) AS funding_organization_id,
+                                    RTRIM(Name) AS organization_name,
+                                    RTRIM(Type) AS organization_type,
+                                    RTRIM(Abbreviation) AS organization_abbreviation,
+                                    RTRIM(SponsorCode) AS sponsor_code,
+                                    RTRIM(MemberType) AS member_type,
+                                    RTRIM(MemberStatus) AS member_status,
+                                    RTRIM(Website) AS organization_website,
+                                    RTRIM(Country) AS country,
+                                    RTRIM(Longitude) AS longitude,
+                                    RTRIM(Latitude) AS latitude,
+                                    RTRIM(Currency) AS currency,
+                                    IsAnnualized AS is_annualized,
+                                    RTRIM(Note) AS note
+                                    FROM FundingOrg
+                                    ORDER BY organization_name',
 
       'partners'    =>  'SELECT
                           p.SponsorCode AS value,
@@ -67,7 +69,7 @@ class FundingOrganizationManager {
 
     // map query results to field values
     $fields = [];
-    foreach ($queries as $key => $value)
+    foreach ($queries AS $key => $value)
       $fields[$key] = $pdo->query($value)->fetchAll(PDO::FETCH_ASSOC);
 
     return $fields;
@@ -77,7 +79,7 @@ class FundingOrganizationManager {
     $required_keys = array_keys(self::FUNDING_ORGANIZATION_PARAMETERS);
     $errors = [];
 
-    foreach($required_keys as $key) {
+    foreach($required_keys AS $key) {
       if (!array_key_exists($key, $parameters)) {
         array_push($errors, ['ERROR' => "Parameter [$key] not found."]);
       }
@@ -167,11 +169,11 @@ class FundingOrganizationManager {
   public static function updateFundingOrganization(PDO $pdo, array $parameters) {
     try {
 
-      $validation_errors = self::validate($pdo, $parameters);
+      // $validation_errors = self::validate($pdo, $parameters);
 
-      if (!empty($validation_errors)) {
-        return $validation_errors;
-      }
+      // if (!empty($validation_errors)) {
+      //   return $validation_errors;
+      // }
 
       $stmt = PDOBuilder::createPreparedStatement(
         $pdo,
@@ -188,9 +190,22 @@ class FundingOrganizationManager {
           @Note = :note,
           @Website = :website,
           @Latitude = :latitude,
-          @Longitude = :longitude
-        )",
+          @Longitude = :longitude",
       $parameters);
+
+      // "sponsor_code": "AVONFDN",
+      // "member_type": "Partner",
+      // "member_status": "Current",
+      // "organization_name": null,
+      // "organization_abbreviation": "AV240",
+      // "organization_type": "Non-profit",
+      // "is_annualized": "false",
+      // "country": "US",
+      // "currency": "USD",
+      // "note": null,
+      // "latitude": "10.000000",
+      // "longitude": "10.000000",
+      // "website": null
 
       if ($stmt->execute()) {
         return [
