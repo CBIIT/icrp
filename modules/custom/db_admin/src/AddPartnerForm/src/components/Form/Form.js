@@ -83,10 +83,7 @@ export default class Form extends React.Component {
     }, e => {
       // select the first partner application by default
       if (data.partners.length > 0) {
-        this.handleChange(
-          'partner',
-          ''
-        );
+        this.handleChange('partner','');
       }
     })
   }
@@ -149,6 +146,7 @@ export default class Form extends React.Component {
 
     if (field === 'operation_type') {
       form.validationErrors = {};
+      form.messages = [];
       this.updateFields();
     }
 
@@ -327,13 +325,20 @@ export default class Form extends React.Component {
       let form = this.state.form;
 
       if (messages.constructor === Array && messages.length > 0) {
-        form.values = this.getDefaultValues();
-        form.messages = messages;
+        let hasError = messages.find(e => e.ERROR||false) !== undefined;
 
-        this.setState(
-          { form: form },
-          () => this.updateFields()
-        );
+        form.messages = messages;
+        if (hasError) {
+          this.setState(
+            { form: form }
+          );
+        } else {
+          form.values = this.getDefaultValues();
+          this.setState(
+            { form: form },
+            () => this.updateFields()
+          );
+        }
       }
     }
   }
@@ -342,7 +347,7 @@ export default class Form extends React.Component {
   // updates the state of this form, dismissing the message by index
   dismissMessage(index) {
     let form = this.state.form;
-    let messages = this.deepcopy(this.state.form.messages);
+    let messages = deepcopy(this.state.form.messages);
     messages.splice(index, 1);
     form.messages = messages;
     this.setState({form});

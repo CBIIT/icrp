@@ -285,8 +285,10 @@ class PartnerManager {
     }
 
     catch (PDOException $e) {
+      $errorMessage = $e->getMessage();
+      $errorMessage = preg_replace('/^SQLSTATE\[\d+\]: ?(\[[^\]]*\])*/','',$errorMessage);
       return [
-        ['ERROR' => 'Database Error: ' . $e->getMessage()]
+        ['ERROR' => 'Database Error: ' . $errorMessage]
       ];
     }
 
