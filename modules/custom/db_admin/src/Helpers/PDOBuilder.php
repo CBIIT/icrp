@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\db_admin\Controller;
+namespace Drupal\db_admin\Helpers;
 
 use Drupal;
 use PDO;
