@@ -1,4 +1,5 @@
 add_funding_organization:
+  version: 1.0.0
   css:
     theme:
       assets/add_funding_organization/styles.bundle.css: {}
