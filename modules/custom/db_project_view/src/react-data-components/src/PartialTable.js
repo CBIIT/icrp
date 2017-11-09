@@ -53,26 +53,50 @@ export default class PartialTable extends Component {
         <p>ICRP organizations submit their latest available research projects or research funding to the ICRP database as soon as possible. Each partner submits data on a different schedule as each has different timelines for awarding, collating and classifying projects, so recent calendar years in the ‘Year active’ search may not yet include all available data for that year. In the table below, the ‘Import Description’ column shows the latest import from each partner, and the date on which that import was uploaded to the database. Organizations that update research funding annually for all projects in the database are listed as ‘yes’ in the ‘Annual funding updates’ column below.</p>
         <div className="row">
           <style type="text/css">{`
-            .col-xs-3 {
-              margin-top: 10px;
+            .col-xl-3 {
+              height: 36px;
+              line-height: 36px;
+              margin-bottom: 5px;
             }
-            .col-xs-3 ~ .col-xs-3 ~ .col-xs-3 {
-              margin-top: 0px;
-            }
-            .col-xs-3:last-child {
+            .col-xl-3 + .col-xl-3 + .col-xl-3 + .col-xl-3 {
               text-align: right;
             }
-            .form-control-input {
+          .form-control-input {
               border: 1px solid #AAA;
               border-radius: 4px;
               padding: 6px;
               height: 24px;
             }
             #funding_org_export {
-              margin-bottom: 5px;
+              position: relative;
+              top: -2px;
+            }
+            @media (min-width: 768px) {
+              .col-xl-3 + .col-xl-3 {
+                text-align: right;
+              }
+              .col-xl-3 + .col-xl-3 + .col-xl-3 {
+                text-align: left;
+              }
+            }
+            @media (min-width: 1200px) {
+              .col-xl-3 + .col-xl-3 {
+                text-align: center;
+              }
+              .col-xl-3 + .col-xl-3 + .col-xl-3 {
+                text-align: right;
+              }
+            }
+            @media (min-width: 1450px) {
+              .col-xl-3 + .col-xl-3 + .col-xl-3 {
+                text-align: center;
+              }
+              .col-xl-3 {
+                width: 25%;
+              }
             }
           `}</style>
-          <div className="col-xs-3">
+          <div className="col-xs-12 col-sm-6 col-lg-4 col-xl-3">
             <div>
               <label htmlFor="search-field">Search&nbsp; </label>
               <input
@@ -85,7 +109,7 @@ export default class PartialTable extends Component {
               />
              </div>
           </div>
-          <div className="col-xs-3">
+          <div className="col-xs-12 col-sm-6 col-lg-4 col-xl-3">
             <div>
               <label htmlFor="page-menu"> Show &nbsp; </label>
               <select
@@ -102,16 +126,16 @@ export default class PartialTable extends Component {
               &nbsp; out of  <b>{totalRecords}</b> Funding Organizations
             </div>
           </div>
-          <div className="col-xs-3">
+          <div className="col-xs-12 col-sm-6 col-lg-4 col-xl-3">
             <style type="text/css">{`.pagination {margin: 5px;} `}</style>
             <Pagination
-              className="pagination pull-right"
+              className="pagination"
               currentPage={pageNumber}
               totalPages={totalPages}
               onChangePage={onPageNumberChange}
             />
           </div>
-          <div className="col-xs-3">
+          <div className="col-xs-12 col-sm-6 col-lg-12 col-xl-3">
             <button id="funding_org_export" className="btn btn-default btn-sm" onClick={this.onExportClick}>
               <div>
                 <svg width="12px" height="12px" viewBox="0 0 16 16">
