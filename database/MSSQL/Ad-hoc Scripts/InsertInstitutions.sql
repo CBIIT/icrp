@@ -13,7 +13,7 @@ CREATE TABLE #Institution (
 	[Name] [varchar](250) NOT NULL,
 	[City] [varchar](50) NOT NULL,
 	[State] [varchar](50) NULL,
-	[Country] [varchar](3) NULL,
+	[Country] [varchar](50) NULL,
 	[Postal] [varchar](50) NULL,
 	[Longitude] [decimal](9, 6) NULL,
 	[Latitude] [decimal](9, 6) NULL,	
@@ -23,7 +23,7 @@ CREATE TABLE #Institution (
 GO
 
 BULK INSERT #Institution
-FROM 'C:\icrp\database\DataUpload\ICRPSubmission_CCRA_Institutions.csv'
+FROM 'C:\icrp\database\DataImport\CurrentRelease\Institutions\NIHCollaboratorInstitutions.csv'
 WITH
 (
 	FIRSTROW = 2,
@@ -33,11 +33,26 @@ WITH
 )
 GO  
 
-select * from #Institution
+select i.* from #Institution i
+left join country c ON i.Country = c.Name
+where c.Name is null
+
+select * from country where name like '%Taiw%'
+
+
 
 SELECT i.* INTO #exist 
 FROM #Institution t JOIN Institution i ON t.Name = i.Name AND t.City = i.City
 
+SELECT i.*, t.*
+FROM #Institution t JOIN Institution i ON t.Name = i.Name AND t.City = i.City
+
+Shenzen
+
+Shenzhen
+
+select * from #exist
+select
 IF EXISTS (SELECT * FROM #exist)
 BEGIN
 	PRINT 'Checking Existing Institutions   ==> ERROR'
