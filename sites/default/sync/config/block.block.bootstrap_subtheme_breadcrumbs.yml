@@ -4,7 +4,6 @@ status: true
 dependencies:
   module:
     - system
-    - user
   theme:
     - bootstrap_subtheme
 _core:
@@ -26,10 +25,3 @@ visibility:
     pages: '/forum/*'
     negate: false
     context_mapping: {  }
-  user_role:
-    id: user_role
-    roles:
-      administrator: administrator
-    negate: false
-    context_mapping:
-      user: '@user.current_user_context:current_user'
