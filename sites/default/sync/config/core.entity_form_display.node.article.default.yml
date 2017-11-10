@@ -15,7 +15,7 @@ dependencies:
   module:
     - comment
     - datetime
-    - image
+    - focal_point
     - link
     - path
     - text
@@ -62,11 +62,13 @@ content:
     type: link_default
     region: content
   field_image:
-    type: image_image
+    type: image_focal_point
     weight: 4
     settings:
       progress_indicator: throbber
       preview_image_style: thumbnail
+      preview_link: true
+      offsets: '50,50'
     third_party_settings: {  }
     region: content
   field_image_link:
