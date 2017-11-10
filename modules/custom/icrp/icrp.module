@@ -1480,6 +1480,7 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             //Remove Event Type Opgions
             //if(event_calendar type = "ICRP Meeting")
             //unset($form['field_event_group']['widget']['#options']['Partner News and Announcements']);
+            
             $form['field_calendar_type']['#attributes']['style'] = "display:none;";
             if($form_id == 'node_events_form') {
               $form['actions']['submit']['#value'] = t('Add New Event');

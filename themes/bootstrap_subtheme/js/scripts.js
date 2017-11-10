@@ -184,7 +184,7 @@
       var source = decodeURIComponent($.urlParam("source"));
       if(source  == "Edit Event") {
           $.preprocessAddEvents();
-          //$.preprocessAddTitle();
+          $.preprocessAddTitle();
           $.preprocessFixDateRangeEvents();
           //$.preprocessCloneEndDateCheckbox();
 
@@ -192,7 +192,7 @@
       switch(url_path) {
         case "/node/add/events":
           $.preprocessAddEvents();
-          //$.preprocessAddTitle();
+          $.preprocessAddTitle();
           $.preprocessFixDateRangeEvents();
           //$.preprocessCloneEndDateCheckbox();
           break;
@@ -278,7 +278,7 @@
         }
       });
  }
-
+/*
   $.preprocessCloneEndDateCheckbox = function(e) {
 
     $("#edit-field-show-end-date-wrapper").clone().insertBefore("#edit-field-event-date-range-0 > div.panel-body  > label:first-child");
@@ -293,38 +293,63 @@
       $('#edit-field-event-date-range-0--description').text("Enter start and end time for the event.");
     }
     //$('#edit-field-show-end-date-value').parent().hide();
-  } 
+  }
+*/
+  $.advanceEndDateTime = function() {
+      var eventDuration = 1; //Number of hours between events
+      //var startDate = new Date($('#edit-field-event-date-range-0-value-date').val()+' '+$('#edit-field-event-date-range-0-value-time').val());
+      var endDate = new Date($('#edit-field-event-date-range-0-value-date').val()+' '+$('#edit-field-event-date-range-0-value-time').val());
+      //console.log(endDate instanceof Date && !isNaN(endDate.valueOf()));
+      if(endDate instanceof Date && !isNaN(endDate.valueOf())) {      
+        endDate.setHours(endDate.getHours()+eventDuration);
+        //var endDateFormatted = $.datepicker.formatDate(formatDate, endDate);
+        var endDateFormatted = endDate.getFullYear() + "-" + ("0" + (endDate.getMonth()+1)).slice(-2) + "-" + ("0" + endDate.getDate()).slice(-2);
+        var endTimeFormatted = ("0" + endDate.getHours()).slice(-2) + ":" + ("0" + endDate.getMinutes()).slice(-2);
+        //console.log(endDateFormatted);
+        //console.log(endTimeFormatted);
+        $('#edit-field-event-date-range-0-end-value-date').val(endDateFormatted);
+        $('#edit-field-event-date-range-0-end-value-time').val(endTimeFormatted);
+      }
+  }
+
   $.preprocessFixDateRangeEvents = function(e) {
 
+    var eventDuration = 1;
+
     $('#edit-field-event-date-range-0-value-date').on('change', function(e) {
-        console.log($('#edit-field-event-date-range-0-value-date').val());
+        //console.log($('#edit-field-event-date-range-0-value-date').val());
         $('#edit-field-event-date-range-0-end-value-date').val($('#edit-field-event-date-range-0-value-date').val());
     });
+
+    $('#edit-field-event-date-range-0-value-time').on('change', function(e) {
+      $.advanceEndDateTime();
+    });
+    
     // Fix Date Time Range if avalable.
-    if($('#edit-field-event-date-range-0-end-value-time').length > 0 ){
-      var ids = ["edit-field-event-date-range-0-value-time", "edit-field-event-date-range-0-end-value-time"];
-      
-      $.each( ids, function( key, id ) {
-        //alert(id);
-        var time = $('#'+id).attr('value');
-        if(window.location.pathname == '/node/add/events') {
-          $('#'+id).attr('value', time.substring(0, 3)+"00");  //Round to nearest hour for a new Event
-        } else {
-          $('#'+id).attr('value', time.substring(0, 5));
-        }
-        $('#'+id).attr('step', "900");
-        $('#'+id).attr('size', "10");
-        //$('#'+id).attr('title', "Time (e.g. 08:30 PM)");
-      });
+
+    var ids = ["edit-field-event-date-range-0-value-time", "edit-field-event-date-range-0-end-value-time"];
+    $.each( ids, function( key, id ) {
+      var time = $('#'+id).attr('value');
+      // Remove seconds from time
+      if(window.location.pathname == '/node/add/events') {
+        $('#'+id).attr('value', time.substring(0, 3)+"00");  //Round to nearest hour for a new Event
+      } else {
+        $('#'+id).attr('value', time.substring(0, 5));
+      }
+      $('#'+id).attr('step', "900");  //Set step size to 15 minutes
+      $('#'+id).attr('size', "10");  //Change size on time box
+      //$('#'+id).attr('title', "Time (e.g. 08:30 PM)");
+    });
+    //If a new event add one hour to initial hour and then add an hour for end time.
+    if(window.location.pathname == '/node/add/events') {
+      $.advanceEndDateTime();
     }
 
   }
 
   $.preprocessAddEvents = function(e){
-
     var calendar_type = decodeURIComponent($.urlParam("calendar_type"));
-    $('#edit-field-calendar-type').val(calendar_type);
-    if(calendar_type == "ICRP Meeting") {
+    if(calendar_type == "Partner Meetings") {
       $("#edit-field-event-group option[value='Conference/Meeting']").remove();
       $("#edit-field-event-group option[value='Twitter Promotional Event']").remove();
       $("#edit-field-event-group option[value='Webinar']").remove();
@@ -342,6 +367,8 @@
 
   $.preprocessAddTitle = function(e) {
       /* Add Title to calendar*/
+      var calendar_type = decodeURIComponent($.urlParam("calendar_type"));
+      $('#edit-field-calendar-type').val(calendar_type);
       if(!$('#calendar-title').length) {
         $('<h4 id="calendar-title">'+calendar_type+' Calendar</h4>').insertBefore("div.well");
       }
@@ -367,7 +394,7 @@
         var roles = JSON.parse(data);
         //console.dir(roles);
         if(!$('#add-event-meeting').length && (($.inArray("administrator", roles)>=0) || ($.inArray("manager", roles)>=0))) {
-            $('div.view-full-calendar-meetings > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-event-meeting" style="margin-top:7px;"><a href="/node/add/events?calendar_type=ICRP Meeting&destination=/calendar">+ Add Event</a></span>');
+            $('div.view-full-calendar-meetings > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-event-meeting" style="margin-top:7px;"><a href="/node/add/events?calendar_type=Partner Meetings&destination=/calendar">+ Add Event</a></span>');
         }
       });
     }
