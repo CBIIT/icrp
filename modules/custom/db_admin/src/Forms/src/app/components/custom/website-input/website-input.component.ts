@@ -178,7 +178,6 @@ export class WebsiteInputComponent implements ControlValueAccessor {
 
     if (value) {
       let url = parse(value);
-      console.log(url);
       let protocol = url.protocol || 'http:';
       let resource = `${url.host}${url.pathname}${url.query}`;
 
