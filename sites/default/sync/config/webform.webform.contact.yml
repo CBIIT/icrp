@@ -14,7 +14,6 @@ css: "#edit-contact-us-container-1 .select-wrapper {\r\n    height:40px;\r\n}\r\
 javascript: ''
 settings:
   ajax: false
-  ajax_scroll_top: form
   page: true
   page_submit_path: /contact-us
   page_confirm_path: ''
@@ -44,9 +43,8 @@ settings:
   wizard_progress_pages: false
   wizard_progress_percentage: false
   wizard_start_label: ''
-  wizard_confirmation: true
-  wizard_confirmation_label: ''
-  wizard_track: ''
+  wizard_complete: true
+  wizard_complete_label: ''
   preview: 0
   preview_label: ''
   preview_title: ''
@@ -78,8 +76,6 @@ settings:
   results_disabled: false
   results_disabled_ignore: false
   token_update: false
-  wizard_comfirmation: true
-  wizard_comfirmation_label: ''
 access:
   create:
     roles:
@@ -135,7 +131,6 @@ handlers:
     label: 'Contact Us - to client'
     handler_id: email_confirmation
     status: true
-    conditions: {  }
     weight: 1
     settings:
       states:
@@ -165,14 +160,11 @@ handlers:
       debug: false
       reply_to: ''
       return_path: ''
-      sender_mail: ''
-      sender_name: ''
   email_notification:
     id: email
     label: 'Contact Us - to icrpqa'
     handler_id: email_notification
     status: true
-    conditions: {  }
     weight: 1
     settings:
       states:
@@ -196,8 +188,6 @@ handlers:
       debug: false
       reply_to: ''
       return_path: ''
-      sender_mail: ''
-      sender_name: ''
 uuid: 57fc3062-66ce-49da-974e-a6b70fa0cfb7
 _core:
   default_config_hash: LasCJP-N2njGJZCeGeVp8mWjI36mX21SlCUXoc-NPN4

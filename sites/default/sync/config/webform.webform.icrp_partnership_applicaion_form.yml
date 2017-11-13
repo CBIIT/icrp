@@ -1,13 +1,8 @@
-uuid: 8f43f315-1c61-4e55-bd2a-a4d7863f9695
 langcode: en
 status: open
 dependencies:
   module:
     - honeypot
-third_party_settings:
-  honeypot:
-    honeypot: true
-    time_restriction: true
 open: null
 close: null
 uid: 1
@@ -21,7 +16,6 @@ css: ".my-wrap > label {\r\n  color:blue;\r\n  position: relative;\r\n  min-heig
 javascript: "(function ($) {\r\n    Drupal.behaviors.myModuleBehavior = {\r\n        attach: function (context, settings) {\r\n        \t//$('h2').css('color', 'red');\r\n        \tconsole.log(\"ready\");\r\n          \r\n         \t$('.tier').change(function() {\r\n              var e = $(this);\r\n              $('.tier').attr('checked', false);\r\n              $(e).attr('checked', true);\r\n    \t\t});         \r\n        }\r\n    }\r\n})(jQuery);"
 settings:
   ajax: false
-  ajax_scroll_top: form
   page: true
   page_submit_path: /partner-application
   page_confirm_path: ''
@@ -51,9 +45,8 @@ settings:
   wizard_progress_pages: false
   wizard_progress_percentage: false
   wizard_start_label: ''
-  wizard_confirmation: true
-  wizard_confirmation_label: ''
-  wizard_track: ''
+  wizard_complete: true
+  wizard_complete_label: ''
   preview: 0
   preview_label: ''
   preview_title: ''
@@ -85,8 +78,6 @@ settings:
   results_disabled: false
   results_disabled_ignore: false
   token_update: false
-  wizard_comfirmation: true
-  wizard_comfirmation_label: ''
 access:
   create:
     roles:
@@ -128,7 +119,6 @@ handlers:
     label: 'Partnership Application - to operations'
     handler_id: email
     status: false
-    conditions: {  }
     weight: 0
     settings:
       states:
@@ -152,14 +142,11 @@ handlers:
       debug: false
       reply_to: ''
       return_path: ''
-      sender_mail: ''
-      sender_name: ''
   email_1:
     id: email
     label: 'Parnership Application - to applicant'
     handler_id: email_1
     status: false
-    conditions: {  }
     weight: 2
     settings:
       states:
@@ -214,14 +201,11 @@ handlers:
       debug: false
       reply_to: ''
       return_path: ''
-      sender_mail: ''
-      sender_name: ''
   email_app_to_operations:
     id: email
     label: 'Partnershp Application to operations'
     handler_id: email_app_to_operations
     status: true
-    conditions: {  }
     weight: 2
     settings:
       states:
@@ -276,14 +260,11 @@ handlers:
       debug: false
       reply_to: ''
       return_path: ''
-      sender_mail: ''
-      sender_name: ''
   email_app_to_applicant:
     id: email
     label: 'Partnership Application to applicant'
     handler_id: email_app_to_applicant
     status: true
-    conditions: {  }
     weight: 3
     settings:
       states:
@@ -338,5 +319,8 @@ handlers:
       debug: false
       reply_to: ''
       return_path: ''
-      sender_mail: ''
-      sender_name: ''
+uuid: 8f43f315-1c61-4e55-bd2a-a4d7863f9695
+third_party_settings:
+  honeypot:
+    honeypot: true
+    time_restriction: true

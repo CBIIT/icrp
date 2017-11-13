@@ -47,6 +47,7 @@ module:
   entity: 0
   entity_embed: 0
   entity_notification: 0
+  examples: 0
   faq: 0
   field: 0
   field_permissions: 0
@@ -79,6 +80,7 @@ module:
   page_cache: 0
   partnership_import: 0
   path: 0
+  plugin_type_example: 0
   quickedit: 0
   rdf: 0
   recovery_pass: 0
@@ -97,6 +99,7 @@ module:
   text: 0
   token: 0
   toolbar: 0
+  toolbar_themes: 0
   tour: 0
   tracker: 0
   twig_tweak: 0
