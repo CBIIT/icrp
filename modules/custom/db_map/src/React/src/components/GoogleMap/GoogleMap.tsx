@@ -51,6 +51,13 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       if (this.shouldRedraw && !this.clusterClicked) {
         this.redrawMap();
       }
+
+      // markers do not display sometimes unless the map is panned slightly
+      setTimeout(() => {
+        var center = this.map.getCenter();
+        this.map.panTo({lng: center.lng(), lat: center.lat() + 0.000001});
+        this.map.panTo({lng: center.lng(), lat: center.lat() - 0.000001});
+      }, 400);
     });
 
     this.map.controls[google.maps.ControlPosition.TOP_LEFT].push(this.refs.mapoverlay['childNodes'][0]);

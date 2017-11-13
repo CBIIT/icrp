@@ -107,7 +107,7 @@ export default class App extends ComponentBase<{}, AppState> {
     }
   }
 
-  // do not use '_.equals'
+  // override _.equals
   shouldComponentUpdate() {
     return true;
   }
