@@ -53,13 +53,13 @@
         </label>
         <div
           fxFlex="100%"
-          *ngIf="form.controls.partner.touched && form.controls.partner.invalid">
+          *ngIf="form.controls.partner.dirty && form.controls.partner.invalid">
           &zwj;
         </div>
     </div>
 
     <div
-      [ngClass]="{'has-error': form.controls.partner.touched
+      [ngClass]="{'has-error': form.controls.partner.dirty
         && form.controls.partner.invalid}"
       ngClass.lt-md="form-group"
       fxLayout
@@ -92,7 +92,7 @@
       <div
         class="help-block"
         fxFlex="100%"
-        *ngIf="form.controls.partner.touched
+        *ngIf="form.controls.partner.dirty
           && form.controls.partner.errors?.required">
           This field is required.
       </div>
@@ -194,7 +194,7 @@
 
   <div
     class="form-group"
-    [ngClass]="{'has-error': form.controls.name.touched
+    [ngClass]="{'has-error': form.controls.name.dirty
       && form.controls.name.invalid}"
     fxFlex="calc(50% - 15px)"
     fxFlex.lt-md="100%">
@@ -229,13 +229,13 @@
 
     </div>
     <div class="help-block"
-      *ngIf="form.controls.name.touched
+      *ngIf="form.controls.name.dirty
         && form.controls.name.errors?.required">
         This field is required.
     </div>
 
     <div class="help-block"
-      *ngIf="form.controls.id.touched
+      *ngIf="form.controls.id.dirty
         && form.controls.id.errors?.required">
         This field is required.
     </div>
@@ -243,7 +243,7 @@
 
   <div
     class="form-group"
-    [ngClass]="{'has-error': form.controls.organizationType.touched
+    [ngClass]="{'has-error': form.controls.organizationType.dirty
       && form.controls.organizationType.invalid}"
     fxFlex="calc(50% - 15px)"
     fxFlex.lt-md="100%">
@@ -263,7 +263,7 @@
       <option>Other</option>
     </select>
     <div class="help-block"
-      *ngIf="form.controls.organizationType.touched
+      *ngIf="form.controls.organizationType.dirty
         && form.controls.organizationType.errors?.required">
       This field is required.
     </div>
@@ -271,7 +271,7 @@
 
   <div
     class="form-group"
-    [ngClass]="{'has-error': form.controls.abbreviation.touched
+    [ngClass]="{'has-error': form.controls.abbreviation.dirty
       && form.controls.abbreviation.invalid}"
     fxFlex="calc(50% - 15px)"
     fxFlex.lt-md="100%">
@@ -290,7 +290,7 @@
         [formControl]="form.controls.abbreviation">
     </div>
     <div class="help-block"
-      *ngIf="form.controls.abbreviation.touched
+      *ngIf="form.controls.abbreviation.dirty
         && form.controls.abbreviation.errors?.required">
       This field is required.
     </div>
@@ -298,7 +298,7 @@
 
   <div
     class="form-group"
-    [ngClass]="{'has-error': form.controls.website.touched
+    [ngClass]="{'has-error': form.controls.website.dirty
       && form.controls.website.invalid}"
     fxFlex="calc(50% - 15px)"
     fxFlex.lt-md="100%">
@@ -308,32 +308,26 @@
         for="website">
         Website
       </label>
-      <!-- <input
-        id="website"
-        name="website"
-        class="form-control input-sm"
-        placeholder="Enter website for funding organization"
-        [formControl]="form.controls.website"> -->
-
       <website-input
         inputId="website"
         inputName="website"
         placeholder="Enter website for funding organization"
         selectClass="form-control input-sm border-right-none group-item-left"
         inputClass="form-control input-sm group-item-right"
-
-      ></website-input>
+        formControlName="website">
+      </website-input>
     </div>
+
     <div class="help-block"
-      *ngIf="form.controls.website.touched
-        && form.controls.website.errors?.required">
-      This field is required.
+      *ngIf="form.controls.website.dirty
+        && form.controls.website.errors?.pattern != null">
+      This field should be in a valid format.
     </div>
   </div>
 
   <div
     class="form-group"
-    [ngClass]="{'has-error': form.controls.country.touched
+    [ngClass]="{'has-error': form.controls.country.dirty
       && form.controls.country.invalid}"
     fxFlex="calc(50% - 15px)"
     fxFlex.lt-md="100%">
@@ -356,7 +350,7 @@
     </select>
 
     <div class="help-block"
-      *ngIf="form.controls.country.touched
+      *ngIf="form.controls.country.dirty
         && form.controls.country.errors?.required">
       This field is required.
     </div>
@@ -364,7 +358,7 @@
 
   <div
     class="form-group"
-    [ngClass]="{'has-error': form.controls.currency.touched
+    [ngClass]="{'has-error': form.controls.currency.dirty
       && form.controls.currency.invalid}"
     fxFlex="calc(50% - 15px)"
     fxFlex.lt-md="100%">
@@ -387,7 +381,7 @@
     </select>
 
     <div class="help-block"
-      *ngIf="form.controls.currency.touched
+      *ngIf="form.controls.currency.dirty
         && form.controls.currency.errors?.required">
       This field is required.
     </div>
@@ -395,8 +389,8 @@
 
   <div
     class="form-group"
-    [ngClass]="{'has-error': (form.controls.latitude.touched && form.controls.latitude.invalid)
-      || (form.controls.longitude.touched && form.controls.longitude.invalid)}"
+    [ngClass]="{'has-error': (form.controls.latitude.dirty && form.controls.latitude.invalid)
+      || (form.controls.longitude.dirty && form.controls.longitude.invalid)}"
     fxFlex="calc(50% - 15px)"
     fxFlex.lt-md="100%">
     <label
@@ -443,19 +437,19 @@
     </div>
 
     <div class="help-block"
-      *ngIf="(form.controls.latitude.touched && form.controls.latitude.errors?.required)
-        || (form.controls.longitude.touched && form.controls.longitude.errors?.required)">
+      *ngIf="(form.controls.latitude.dirty && form.controls.latitude.errors?.required)
+        || (form.controls.longitude.dirty && form.controls.longitude.errors?.required)">
       Both fields are required.
     </div>
 
     <div class="help-block"
-      *ngIf="form.controls.latitude.touched
+      *ngIf="form.controls.latitude.dirty
         && (form.controls.latitude.errors?.min || form.controls.latitude.errors?.max)">
       The latitude should be provided as a decimal number between -90.0 and 90.0 inclusive.
     </div>
 
     <div class="help-block"
-      *ngIf="form.controls.longitude.touched
+      *ngIf="form.controls.longitude.dirty
         && (form.controls.longitude.errors?.min || form.controls.longitude.errors?.max)">
       The longitude should be provided as a decimal number between -180.0 and 180.0 inclusive.
     </div>
@@ -515,3 +509,7 @@
     <button class="btn btn-default standard-width" (click)="resetForm($event)">Cancel</button>
   </div>
 </form>
+
+<!-- <pre>
+  {{ form.value | json}}
+</pre> -->

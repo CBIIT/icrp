@@ -50,7 +50,7 @@ export class FundingOrganizationFormComponent {
       name: [null, [Validators.required, Validators.maxLength(100)]],
       id: [null],
       abbreviation: [null, [Validators.required, Validators.maxLength(15)]],
-      website: [null, [Validators.maxLength(250)]],
+      website: [null, [Validators.maxLength(250), Validators.pattern(/^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i)]],
       organizationType: [null, Validators.required],
       latitude: [null, [Validators.min(-90), Validators.max(90), Validators.required]],
       longitude: [null, [Validators.min(-180), Validators.max(180), Validators.required]],
@@ -160,13 +160,13 @@ export class FundingOrganizationFormComponent {
 
     console.log('clicked submit')
     for (let key in this.form.controls) {
-      this.form.controls[key].markAsTouched();
+      this.form.controls[key].markAsDirty();
     }
 
     this.messages = [];
 
     if (this.form.valid) {
-      let formValue = this.form.value;
+      let formValue = {...this.form.value};
       if (formValue.id && !formValue.name) {
         formValue.name = this.options.funding_organizations
           .find(org => org.funding_organization_id == formValue.id)
