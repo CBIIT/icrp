@@ -133,14 +133,14 @@ class PartnerManager {
     $stmt->bindParam(':partner_name', $parameters['partner_name']);
     $stmt->bindParam(':sponsor_code', $parameters['sponsor_code']);
 
-    if (parameters['operation_type'] == 'new' && $stmt->execute()) {
+    if ($parameters['operation_type'] == 'new' && $stmt->execute()) {
       if (!empty($stmt->fetch())) {
         array_push($errors, ['ERROR' => 'A partner with the same name or sponsor code already exists in the database. No changes have been made.']);
       }
     }
 
     // check for funding organization
-    if ($parameters['is_funding_organization'] === 'true')
+    if ($parameters['is_funding_organization'] === 'true') {
       $errors += FundingOrganizationManager::validate($pdo, [
         'sponsor_code'              => $parameters['sponsor_code'],
         'member_type'               => 'Partner',
@@ -152,6 +152,7 @@ class PartnerManager {
         'currency'                  => $parameters['currency'],
         'note'                      => $parameters['note'],
       ]);
+    }
 
     return $errors;
   }
@@ -222,7 +223,7 @@ class PartnerManager {
 
     catch (PDOException $e) {
       return [
-        ['ERROR' => 'Database Error: ' . $e->getMessage()]
+        ['ERROR' => $e->getMessage()]
       ];
     }
 
@@ -288,7 +289,7 @@ class PartnerManager {
       $errorMessage = $e->getMessage();
       $errorMessage = preg_replace('/^SQLSTATE\[\d+\]: ?(\[[^\]]*\])*/','',$errorMessage);
       return [
-        ['ERROR' => 'Database Error: ' . $errorMessage]
+        ['ERROR' => $errorMessage]
       ];
     }
 
