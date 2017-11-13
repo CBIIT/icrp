@@ -183,8 +183,8 @@ input[readonly] {
   border-left: none;
 }
 
-.form-group-sm textarea.form-control {
-  height: 20em;
+.form-group.form-group-sm textarea.form-control {
+  height: 10em;
 }
 
 .placeholder {
