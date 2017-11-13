@@ -32,6 +32,13 @@ content:
     settings: {  }
     third_party_settings: {  }
     region: content
+  status:
+    type: boolean_checkbox
+    settings:
+      display_label: true
+    weight: 121
+    third_party_settings: {  }
+    region: content
   taxonomy_forums:
     type: options_select
     weight: 2

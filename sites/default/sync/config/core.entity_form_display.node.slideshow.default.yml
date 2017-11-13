@@ -9,7 +9,7 @@ dependencies:
     - image.style.thumbnail
     - node.type.slideshow
   module:
-    - image
+    - focal_point
     - path
     - text
 id: node.slideshow.default
@@ -37,8 +37,10 @@ content:
     settings:
       progress_indicator: throbber
       preview_image_style: thumbnail
+      preview_link: true
+      offsets: '50,50'
     third_party_settings: {  }
-    type: image_image
+    type: image_focal_point
     region: content
   field_order:
     weight: 33
@@ -58,6 +60,13 @@ content:
     settings:
       display_label: true
     weight: 15
+    third_party_settings: {  }
+    region: content
+  status:
+    type: boolean_checkbox
+    settings:
+      display_label: true
+    weight: 121
     third_party_settings: {  }
     region: content
   sticky:

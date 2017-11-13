@@ -16,11 +16,11 @@ type: list_string
 settings:
   allowed_values:
     -
-      value: 'ICRP Meeting'
-      label: 'ICRP Meeting'
+      value: 'Partner Meetings'
+      label: 'Partner Meetings'
     -
-      value: 'External Event'
-      label: 'External Event'
+      value: 'External Events'
+      label: 'External Events'
   allowed_values_function: ''
 module: options
 locked: false

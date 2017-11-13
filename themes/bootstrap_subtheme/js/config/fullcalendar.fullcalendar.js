@@ -9,9 +9,6 @@
 
   Drupal.fullcalendar.plugins.fullcalendar = {
     options: function (fullcalendar, settings) {
-      console.log("Running FULLCALENDAR settings");
-      console.dir(settings);
-      //alert("Fullcalendar options");
       if (settings.ajax) {
         fullcalendar.submitInit(settings);
       }
@@ -24,33 +21,34 @@
             var href_permissions = "/node-permissions/" + event.eid;;
 
             $.ajax({
-                url:  href_events
-              })
-              .success(function( data ) {
-                  console.log(data);
-                  //var node_data =  $('<div/>').html(data).text(); 
-                  //console.log(node_data);
-                  //node_data = JSON.parse(node_data);
-                  //console.dir(node_data);
-                  $('#calendar-modal').html(data);
-                  $.ajax({
-                      url:  href_permissions
-                    })
-                    .success(function( data ) {
-                      //console.log("User Permissions");
-                      //console.log(data);
-                      var node_permission = JSON.parse(data);
-                      //console.dir(node_permission);
-                      if(node_permission.editable) {
-                        //alert("Show Edit");
-                        $('#event-edit').show();
-                      } else {
-                        //alert("Hide Edit");
-                        $('#event-edit').hide();
-                      }
-                      $('#calendar-modal').modal("show");
-                  //new Element("script", {src: "core/misc/dialog/dialog.ajax.js", type: "text/javascript"});
-                   });
+                url:  href_events,
+                success: function( data ) {
+                    //console.log(data);
+                    //var node_data =  $('<div/>').html(data).text(); 
+                    //console.log(node_data);
+                    //node_data = JSON.parse(node_data);
+                    //console.dir(node_data);
+                    $('#calendar-modal').html(data);
+                    $.ajax({
+                        url:  href_permissions,
+                        success: function( data ) {
+                          //console.log("User Permissions");
+                          //console.log(data);
+                          var node_permission = JSON.parse(data);
+                          console.log("I am here");
+                          //console.dir(node_permission);
+                          if(node_permission.editable) {
+                            //alert("Show Edit");
+                            $('#event-edit').show();
+                          } else {
+                            //alert("Hide Edit");
+                            $('#event-edit').hide();
+                          }
+                          $('#calendar-modal').modal("show");
+                        }
+                    //new Element("script", {src: "core/misc/dialog/dialog.ajax.js", type: "text/javascript"});
+                     });
+                  }
               });
           }
           else {
@@ -116,9 +114,14 @@
           return false;
         }
       };
+      //Goto default_date in url
+      var default_date = decodeURIComponent($.urlParam("default_date"));
+      if(default_date.length > 0 ) {
+        options.defaultDate = moment(default_date);
+        //console.dir(options);
+      }
 
       // Merge in our settings.
-      console.dir(settings.fullcalendar);
       $.extend(options, settings.fullcalendar);
 
       // Pull in overrides from URL.

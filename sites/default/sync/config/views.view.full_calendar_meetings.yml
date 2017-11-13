@@ -268,7 +268,7 @@ display:
           admin_label: ''
           operator: or
           value:
-            'ICRP Meeting': 'ICRP Meeting'
+            'Partner Meetings': 'Partner Meetings'
           group: 1
           exposed: false
           expose:

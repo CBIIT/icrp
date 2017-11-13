@@ -11,7 +11,7 @@ See http://htmlcolorcodes.com/color-names/ for color names
 6. Partner Operations (partner-operations) = MEDIUMVIOLETRED
 7. Website and Database (website-and-database) = INDIANRED
 * External Events
-8. Conference/Meeting (conference-meeting) = LIGHTSKYBLUE
+8. Conference/Meeting (conference-meeting) = ROYALBLUE
 9. Twiter Promotional Event (twitter-promotional) = CRIMSON
 10. Webinar (webinar) =  DARKCYAN
 11. Other (other) = MEDIUMVIOLETRED
@@ -87,14 +87,14 @@ See http://htmlcolorcodes.com/color-names/ for color names
   background-color: INDIANRED;
 }
 
-/* 8. Conference/Meeting (conference-meeting) = LIGHTSKYBLUE */
+/* 8. Conference/Meeting (conference-meeting) = ROYALBLUE */
 .fc-event-tid-conference-meeting,
 .fc-event-tid-conference-meeting .fc-event-skin,
 .fc-event-tid-conference-meeting .fc-event-time,
 .fc-event-tid-conference-meeting .fc-event-dot,
 .fc-event-tid-conference-meeting a {
   color: #fff;
-  background-color: LIGHTSKYBLUE;
+  background-color: ROYALBLUE;
 }
 
 /* 9. Twiter Promotional Event (twitter-promotional) = CRIMSON */
