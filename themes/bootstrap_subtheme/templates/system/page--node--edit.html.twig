@@ -59,14 +59,14 @@
 {% set page_title %}
     {{ page['#title'][4:11] }}
 {% endset %}
-
-<script>console.info("page--node-edit.html.twig");</script>
-<script>console.log({{ page['#cache'] | json_encode | raw }});</script>
-<script>console.log({{ page['#title'] | json_encode | raw }});</script>
-<script>console.log({{ page | json_encode | raw }});</script>
-<script>console.log({{ _context | json_encode | raw }});</script>
-<script>console.log({{ _context.page | json_encode | raw }});</script>
-
+{% if icrp_debug %}
+    <script>console.info("page--node-edit.html.twig");</script>
+    <script>console.log({{ page['#cache'] | json_encode | raw }});</script>
+    <script>console.log({{ page['#title'] | json_encode | raw }});</script>
+    <script>console.log({{ page | json_encode | raw }});</script>
+    <script>console.log({{ _context | json_encode | raw }});</script>
+    <script>console.log({{ _context.page | json_encode | raw }});</script>
+{% endif %}
 {% set container = theme.settings.fluid_container ? 'container-fluid' : 'container' %}
 {# Navbar #}
 {% if page.navigation or page.navigation_collapsible %}

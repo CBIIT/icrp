@@ -388,8 +388,8 @@
       $.ajax({
           url:  href,
           success: function( data ) {
-              console.log("data returned")
-              console.dir(data);
+              //console.log("data returned")
+              //console.dir(data);
               var roles = JSON.parse(data);
               //console.dir(roles);
               if(!$('#add-event-meeting').length && (($.inArray("administrator", roles)>=0) || ($.inArray("manager", roles)>=0))) {
