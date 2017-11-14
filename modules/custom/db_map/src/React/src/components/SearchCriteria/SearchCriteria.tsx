@@ -36,7 +36,7 @@ export default class SearchCriteria extends React.Component<SearchCriteriaProps,
           </div>
 
           <div className="blue-text">
-            {'Total Related Projects: '}
+            {'Total Projects: '}
               {counts.projects.toLocaleString()}
 
             {` / Total PIs: `}

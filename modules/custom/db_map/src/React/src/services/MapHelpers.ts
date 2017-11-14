@@ -80,7 +80,7 @@ export const createInfoWindow = ({label, counts}: Location, callback?: () => voi
         el('tbody', {}, [
 
           el('tr', {}, [
-            el('td', {}, ['Total Related Projects']),
+            el('td', {}, ['Total Projects']),
             el('td', {}, [counts.projects.toLocaleString()]),
           ]),
 

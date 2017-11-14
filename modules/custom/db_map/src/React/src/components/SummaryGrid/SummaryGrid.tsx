@@ -64,7 +64,7 @@ export default class SummaryGrid extends ComponentBase<SummaryGridProps & React.
             <thead>
               <tr>
                 <th>{parseViewLevel(viewLevel)}</th>
-                <th>Total Related Projects</th>
+                <th>Total Projects</th>
                 <th>Total PIs</th>
                 <th>Total Collaborators</th>
               </tr>
