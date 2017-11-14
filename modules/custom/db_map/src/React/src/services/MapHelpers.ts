@@ -72,6 +72,10 @@ export const createInfoWindow = ({label, counts}: Location, callback?: () => voi
       callbackSpan,
 
       el('hr', {style: 'margin-top: 5px; margin-bottom: 5px;'}, []),
+
+      el('div', {style: 'margin-bottom: 5px; max-width: 200px; font-style: italic; color: #888; font-size: 12px;'}, 
+        [`Projects are counted in the ${labelParts[0].toLowerCase()} if they have a PI or a collaborator located in the ${labelParts[0].toLowerCase()}.`]),
+      
       el('table', {className: 'popover-table'}, [
         el('tbody', {}, [
 
