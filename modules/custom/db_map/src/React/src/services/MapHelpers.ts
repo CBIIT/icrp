@@ -73,7 +73,7 @@ export const createInfoWindow = ({label, counts}: Location, callback?: () => voi
 
       el('hr', {style: 'margin-top: 5px; margin-bottom: 5px;'}, []),
 
-      el('div', {style: 'margin-bottom: 5px; max-width: 200px; font-style: italic; color: #888; font-size: 12px;'}, 
+      el('div', {style: 'margin-bottom: 5px; max-width: 240px; font-style: italic; color: #888; font-size: 12px;'}, 
         [`Projects are counted in the ${labelParts[0].toLowerCase()} if they have a PI or a collaborator located in the ${labelParts[0].toLowerCase()}.`]),
       
       el('table', {className: 'popover-table'}, [
@@ -85,12 +85,18 @@ export const createInfoWindow = ({label, counts}: Location, callback?: () => voi
           ]),
 
           el('tr', {}, [
-            el('td', {}, ['Total PIs']),
+            el('td', {}, [
+              el('span', {className: 'noselect margin-right'}, ['•']),
+              el('span', {}, ['Projects with PI'])
+            ]),
             el('td', {}, [counts.primaryInvestigators.toLocaleString()]),
           ]),
 
           el('tr', {}, [
-            el('td', {}, ['Total Collaborators']),
+            el('td', {}, [
+              el('span', {className: 'noselect margin-right'}, ['•']),
+              el('span', {}, ['Projects with collaborators']),
+            ]),
             el('td', {}, [counts.collaborators.toLocaleString()]),
           ]),
         ])
