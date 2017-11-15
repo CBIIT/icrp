@@ -222,15 +222,25 @@ export class SearchPageComponent implements AfterViewInit {
   }
 
   getAnalytics(id, types = [], year = null) {
-    if (!types || types.length === 0)
-      types = this.sharedService.get('authenticated')
-        ? Object.keys(this.state.analytics)
-        : [
-          'project_counts_by_country',
-          'project_counts_by_cso_research_area',
-          'project_counts_by_cancer_type',
-          'project_counts_by_type',
-        ];
+    // if (!types || types.length === 0)
+    //   types = this.sharedService.get('authenticated')
+    //     ? Object.keys(this.state.analytics)
+    //     : [
+    //       'project_counts_by_country',
+    //       'project_counts_by_cso_research_area',
+    //       'project_counts_by_cancer_type',
+    //       'project_counts_by_type',
+    //     ];
+
+
+    if (!types || types.length === 0) {
+      types = [
+        'project_counts_by_country',
+        'project_counts_by_cso_research_area',
+        'project_counts_by_cancer_type',
+        'project_counts_by_type',
+      ];
+    }
 
     for (let key of types) {
 

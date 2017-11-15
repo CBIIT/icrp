@@ -148,7 +148,7 @@
   </div>
 
   <div class="text-center">
-    <button class="btn btn-primary btn-xs text-center" (click)="showMore = !showMore">Show {{ showMore ? 'Less' : 'More' }}</button>
+    <button class="btn btn-primary btn-xs text-center" (click)="showMore = !showMore; updateCharts();">Show {{ showMore ? 'Less' : 'More' }}</button>
   </div>
 
 </div>
