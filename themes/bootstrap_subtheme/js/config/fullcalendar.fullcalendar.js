@@ -15,10 +15,29 @@
 
       var options = {
         eventAfterAllRender: function(view) {
-          console.dir(view);
+          //console.dir(view);
           var moment = fullcalendar.$calendar.find('.fullcalendar').fullCalendar('getDate');
-          var current_date = moment.format('YYYY-MM-DD');
-          console.log(current_date);
+          var calendar_date = moment.format('YYYY-MM-DD');
+          var calendar_year_month = moment.format('YYYY-MM');
+          //console.log("calendar_date: "+calendar_date);
+          var current_date = new Date();
+          var current_year_month = current_date.getFullYear() + "-" + ("0" + (current_date.getMonth()+1)).slice(-2);
+          var lastCalendarDate = localStorage.getItem('lastCalendarDate');
+          //console.log("current_year_month: "+current_year_month);
+          //console.log("lastCalendarDate: "+ lastCalendarDate);
+          if(lastCalendarDate == null) {
+              localStorage.setItem('lastCalendarDate', calendar_date);
+          }
+          //Only change if not in the current year month.  This prevents it reseting 
+          if(lastCalendarDate) {
+            if(current_year_month != lastCalendarDate.substring(0,6)) {
+              localStorage.setItem('lastCalendarDate', calendar_date);
+              //fullcalendar.$calendar.find('.fullcalendar').fullCalendar('gotoDate', lastCalendarDate);
+
+            } else {
+              console.log("current_year_month == lastCalendarDate");
+            }
+          }
         },
         eventClick: function (event, jsEvent, view) {
           if (settings.sameWindow) {
@@ -114,6 +133,12 @@
       options.eventStartEditable = false;
       options.eventDurationEditable = false;
       options.dragRevertDuration = 500;
+
+      var lastCalendarDate = localStorage.getItem('lastCalendarDate');
+      //alert(lastCalendarDate);
+      if(lastCalendarDate) {
+        options.defaultDate = moment(lastCalendarDate);
+      }
 
       //Goto default_date in url
       var default_date = decodeURIComponent($.urlParam("default_date"));

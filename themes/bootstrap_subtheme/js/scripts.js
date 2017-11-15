@@ -81,12 +81,14 @@
           $.redirectCarousel(e);
       });
       //$('#edit-field-event-date-range-0-value-date').on('change')
+      /*
       $('body').on('change', '#edit-field-event-date-range-0-value-date', function(e) {
         // Action goes here.
         console.log("You changed the start date");
         console.dir(e);
         //edit-field-event-date-range-0-value-date
       });
+      */
       /*
       $("#dialog").dialog({
         autoOpen: false,
@@ -243,6 +245,7 @@
           break;
         case "/calendar":
           $.preprocessCalendar();
+          $.rememberTabs();
 
           break;
       }
@@ -295,6 +298,23 @@
     //$('#edit-field-show-end-date-value').parent().hide();
   }
 */
+  $.rememberTabs = function() {
+    //for bootstrap 3 use 'shown.bs.tab' instead of 'shown' in the next line
+    $('a[data-toggle="tab"]').on('click', function (e) {
+      //save the latest tab; use cookies if you like 'em better:
+      localStorage.setItem('lastCalendarTab', $(e.target).attr('href'));
+    });
+    //go to the latest tab, if it exists:
+    var lastTab = localStorage.getItem('lastCalendarTab');
+    if (lastTab) {
+      //console.log("lastTab"+lastTab);
+      $('a[href="'+lastTab+'"]').click();
+    } else {
+      //console.log("let's click on the partner-meething");
+      $('a[href="#partner-meeting"]').click();
+    }
+  }
+
   $.advanceEndDateTime = function() {
       var eventDuration = 1; //Number of hours between events
       //var startDate = new Date($('#edit-field-event-date-range-0-value-date').val()+' '+$('#edit-field-event-date-range-0-value-time').val());
