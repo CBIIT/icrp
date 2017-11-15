@@ -167,8 +167,14 @@ export class ReviewPageComponent {
   }
 
   getAnalytics(id, types = [], year = null) {
-    if (!types || types.length === 0)
-      types = Object.keys(this.analytics);
+    if (!types || types.length === 0) {
+      types = [
+        'project_counts_by_country',
+        'project_counts_by_cso_research_area',
+        'project_counts_by_cancer_type',
+        'project_counts_by_type',
+      ];
+    }
 
     for (let key of types) {
 
@@ -246,7 +252,7 @@ export class ReviewPageComponent {
     this.loading = true;
     this.showAlert = false;
     this.success = true;
-    
+
     this.reviewService.syncProd({data_upload_id: uploadID})
       .subscribe(response => {
         console.log(response);
@@ -256,9 +262,9 @@ export class ReviewPageComponent {
         this.loading = false;
 
         // retrieve initial data upload results
-        this.getSponsorUploads();        
+        this.getSponsorUploads();
       });
-  }  
+  }
 
   resetAnalytics() {
     this.analytics = {
