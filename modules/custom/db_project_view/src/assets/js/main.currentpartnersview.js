@@ -17,7 +17,7 @@ $(document).ready(function() {
       ];
     }));
     $.ajax({
-      url: '/map/getExcelExport/',
+      url: '/map/getExcelExport/ICRPPartner',
       method: 'POST',
       data: JSON.stringify(exportObj)
     }).done(function(resp) {
