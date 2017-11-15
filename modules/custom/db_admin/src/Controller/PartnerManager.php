@@ -142,8 +142,10 @@ class PartnerManager {
     // check for funding organization
     if ($parameters['is_funding_organization'] === 'true') {
       $errors += FundingOrganizationManager::validate($pdo, [
+        'partner_id'                => null,
         'sponsor_code'              => $parameters['sponsor_code'],
         'member_type'               => 'Partner',
+        'member_status'             => null,
         'organization_name'         => $parameters['partner_name'],
         'organization_abbreviation' => $parameters['sponsor_code'],
         'organization_type'         => $parameters['organization_type'],
@@ -151,6 +153,9 @@ class PartnerManager {
         'country'                   => $parameters['country'],
         'currency'                  => $parameters['currency'],
         'note'                      => $parameters['note'],
+        'website'                   => $parameters['website'],
+        'latitude'                  => $parameters['latitude'],
+        'longitude'                 => $parameters['longitude'],
       ]);
     }
 
@@ -168,62 +173,58 @@ class PartnerManager {
 
       $stmt = PDOBuilder::createPreparedStatement(
         $pdo,
-        "INSERT INTO Partner (
-          Name,
-          JoinedDate,
-          Country,
-          Email,
-          Description,
-          SponsorCode,
-          Website,
-          LogoFile,
-          Note,
-          IsDSASigned,
-          Latitude,
-          Longitude
-        ) VALUES (
+        "EXECUTE AddPartner
           :partner_name,
-          :joined_date,
-          :country,
-          :email,
           :description,
           :sponsor_code,
+          :email,
+          :agree_to_terms,
+          :country,
           :website,
           :logo_file,
           :note,
-          :agree_to_terms,
-          :latitude,
-          :longitude
-        )",
-      $parameters);
+          :joined_date,
+          :longitude,
+          :latitude;
+        SELECT @@IDENTITY AS partner_id;",
+        $parameters);
 
-      if ($stmt->execute()) {
-        self::markApplicationAsDone($pdo, $parameters['partner_application_id']);
+        if ($stmt->execute()) {
+          $row = $stmt->fetch(PDO::FETCH_ASSOC);
+          $parameters['partner_id'] = $row['partner_id'];
+          
+          self::markApplicationAsDone($pdo, $parameters['partner_application_id']);
 
-        if ($parameters['is_funding_organization'] === 'true')
-          FundingOrganizationManager::addFundingOrganization($pdo, [
-            'organization_name'         => $parameters['partner_name'],
-            'organization_abbreviation' => $parameters['sponsor_code'],
-            'organization_type'         => $parameters['organization_type'],
-            'country'                   => $parameters['country'],
-            'currency'                  => $parameters['currency'],
-            'sponsor_code'              => $parameters['sponsor_code'],
-            'member_type'               => 'Partner',
-            'is_annualized'             => $parameters['is_annualized'],
-            'note'                      => $parameters['note'],
-            'latitude'                  => $parameters['latitude'],
-            'longitude'                 => $parameters['longitude'],
-          ]);
+          $returnValues = [
+            ['SUCCESS' => 'The partner has been added to the database.']
+          ];
+          if ($parameters['is_funding_organization'] === 'true') {
+            $returnValues = array_merge($returnValues, FundingOrganizationManager::addFundingOrganization($pdo, [
+              'partner_id'                => $parameters['partner_id'],
+              'organization_name'         => $parameters['partner_name'],
+              'organization_abbreviation' => $parameters['sponsor_code'],
+              'organization_type'         => $parameters['organization_type'],
+              'country'                   => $parameters['country'],
+              'currency'                  => $parameters['currency'],
+              'member_type'               => 'Partner',
+              'member_status'             => null,
+              'is_annualized'             => $parameters['is_annualized'],
+              'note'                      => $parameters['note'],
+              'website'                   => $parameters['website'],
+              'latitude'                  => $parameters['latitude'],
+              'longitude'                 => $parameters['longitude']
+            ]));
+          }
 
-        return [
-          ['SUCCESS' => 'The partner has been added to the database.']
-        ];
+        return $returnValues;
       }
     }
 
     catch (PDOException $e) {
+      $errorMessage = $e->getMessage();
+      $errorMessage = preg_replace('/^SQLSTATE\[\d+\]: ?(\[[^\]]*\])*/','',$errorMessage);
       return [
-        ['ERROR' => $e->getMessage()]
+        ['ERROR' => $errorMessage]
       ];
     }
 
@@ -261,21 +262,6 @@ class PartnerManager {
           :joined_date,
           :latitude,
           :longitude",
-/*        "UPDATE Partner SET
-          Name = :partner_name,
-          JoinedDate = :joined_date,
-          Country = :country,
-          Email = :email,
-          Description = :description,
-          SponsorCode = :sponsor_code,
-          Website = :website,
-          LogoFile = :logo_file,
-          Note = :note,
-          IsDSASigned = :agree_to_terms,
-          Latitude = :latitude,
-          Longitude = :longitude
-        WHERE PartnerID = :partner_application_id
-        ",*/
       $parameters);
 
       if ($stmt->execute()) {
