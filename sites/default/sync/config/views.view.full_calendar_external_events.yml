@@ -93,13 +93,11 @@ display:
             date: false
             date_field: {  }
           fullcalendar_options:
-            minTime: '0'
+            minTime: '6'
             slotDuration: '00:30:00'
             defaultTimedEventDuration: '01:00:00'
-            allDaySlot: false
             weekends: true
             lazyFetching: true
-            eventDurationEditable: true
             dragRevertDuration: 500
       row:
         type: fields
