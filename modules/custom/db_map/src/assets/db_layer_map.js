@@ -51,11 +51,11 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
   },
   selectColor: function(e) {
     var spans = $('#layer-map-legend span.selected:first-child');
-    if (spans.size() == drupalSettings.db_map.layer.legend.length) {
+    if (spans.length == drupalSettings.db_map.layer.legend.length) {
       spans.removeClass('selected');
     }
     $(this).toggleClass('selected');
-    if ($('#layer-map-legend span.selected:first-child').size() == 0) {
+    if ($('#layer-map-legend span.selected:first-child').length == 0) {
       $('#layer-map-legend span:first-child').addClass('selected');
     }
     drupalSettings.db_map.layer.updateLayers();
