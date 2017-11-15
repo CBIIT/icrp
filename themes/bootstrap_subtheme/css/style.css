@@ -64,9 +64,8 @@ div.view-next-icrp-meeting-view > div.view-content  > div.views-row > div.views-
     margin-top:10px;
     margin-bottom:5px;
 }
-
-.views-field .views-field-nothing-1 {
-    margin-top: 10px;
+div.views-field.views-field-nothing-1 {
+    padding-top: 10px;
 }
 /* Footer Nav (spacing) */
 .navbar-nav > li > a {

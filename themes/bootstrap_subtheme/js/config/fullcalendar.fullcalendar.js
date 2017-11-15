@@ -34,7 +34,7 @@
                         url:  href_permissions,
                         success: function( data ) {
                           var node_permission = JSON.parse(data);
-                          console.log("I am here");
+                          //console.log("I am here");
                           if(node_permission.editable) {
                             $('#event-edit').show();
                           } else {
