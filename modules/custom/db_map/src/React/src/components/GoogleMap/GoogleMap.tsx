@@ -248,10 +248,10 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
           let infoWindow = createInfoWindow(locationInfo, infoWindowCallback);
 
           // store these references so we can delete them later
-          setTimeout(() => {
+          // setTimeout(() => {
             this.infoWindows.push(infoWindow);
             this.markers.push(marker);
-          }, 0);
+          // }, 0);
 
           // close all other info windows when this marker is clicked
           marker.addListener('click', () => {
@@ -314,10 +314,10 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
           let infoWindow = createInfoWindow(clusteredLocation, infoWindowCallback);
 
           // store these references so we can delete them later
-          setTimeout(() => {
+          // setTimeout(() => {
             this.infoWindows.push(infoWindow);
             this.markers.push(marker);
-          }, 0);
+          // }, 0);
 
           // close all other info windows when this marker is clicked
           marker.addListener('click', () => {
@@ -342,14 +342,16 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
           let projection = map.getProjection();
 
           if (projection) {
-            let point = projection.fromLatLngToPoint(latLng);
-            point.y -= 10 / (this.map.getZoom() - 0.5);
-
-            let labelCoordinates = map.getProjection().fromPointToLatLng(point);
-            let labelMarker = createLabel(label, labelCoordinates);
+            // let point = projection.fromLatLngToPoint(latLng);
+            // point.y -= 10 / (this.map.getZoom() - 0.5);
+            // let labelCoordinates = map.getProjection().fromPointToLatLng(point);
+            
+            let labelMarker = createLabel(label, {lat: latLng.lat() + 4, lng: latLng.lng()});
             labelMarker.setMap(map);
 
-            window.setTimeout(() => this.labels.push(labelMarker), 0);
+            // window.setTimeout(() => 
+              this.labels.push(labelMarker)
+            // , 0);
           }
         })
       }
