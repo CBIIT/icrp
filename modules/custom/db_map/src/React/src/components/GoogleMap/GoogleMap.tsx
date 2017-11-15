@@ -346,7 +346,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
             // point.y -= 10 / (this.map.getZoom() - 0.5);
             // let labelCoordinates = map.getProjection().fromPointToLatLng(point);
             
-            let labelMarker = createLabel(label, {lat: latLng.lat() + 4, lng: latLng.lng()});
+            let labelMarker = createLabel(label, {lat: latLng.lat() + 6, lng: latLng.lng()});
             labelMarker.setMap(map);
 
             // window.setTimeout(() => 
