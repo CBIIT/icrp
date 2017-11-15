@@ -3,6 +3,7 @@
 </alert>
 
 <form
+  autocomplete="off"
   class="vertical-margins"
   fxLayout
   fxLayoutWrap
@@ -180,7 +181,7 @@
         Former
       </label>
 
-      <label class="inline normal-weight" for="memberStatusMerged">
+      <!-- <label class="inline normal-weight" for="memberStatusMerged">
         <input
           id="memberStatusMerged"
           type="radio"
@@ -188,14 +189,15 @@
           value="Merged"
           formControlName="memberStatus">
         Merged
-      </label>
+      </label> -->
     </div>
   </div>
 
   <div
     class="form-group"
-    [ngClass]="{'has-error': form.controls.name.dirty
-      && form.controls.name.invalid}"
+    [ngClass]="{'has-error':
+      (form.controls.name.dirty && form.controls.name.invalid)
+      || (form.controls.id.dirty && form.controls.id.invalid)}"
     fxFlex="calc(50% - 15px)"
     fxFlex.lt-md="100%">
     <div>
@@ -222,9 +224,14 @@
         [ngSwitch]="options?.funding_organizations?.length">
         <option *ngSwitchCase="0" [value]="null" hidden>Loading...</option>
         <option *ngSwitchDefault [value]="null" hidden>Select a funding organization</option>
-        <option *ngFor="let organization of options.funding_organizations" [value]="organization.funding_organization_id">
-          {{ organization.organization_name }}
-        </option>
+        <ng-container *ngFor="let organization of options.funding_organizations">
+          <option
+            *ngIf="organization.partner_id == form.controls.partner.value
+            || form.controls.partner.value == null"
+            [value]="organization.funding_organization_id">
+            {{ organization.organization_name }}
+          </option>
+        </ng-container>
       </select>
 
     </div>

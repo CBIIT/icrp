@@ -63,6 +63,7 @@ export class FundingOrganizationFormComponent {
     const controls = formGroup.controls;
 
     controls.operationType.valueChanges.subscribe(value => {
+      this.messages = [];
       this.form.reset({
         operationType: value,
         memberType: 'Associate',
@@ -95,6 +96,10 @@ export class FundingOrganizationFormComponent {
           controls.name.patchValue(partner.label);
           controls.country.patchValue(partner.country);
         }
+      }
+
+      else if (controls.operationType.value === 'Update') {
+        controls.id.patchValue(null, {emitEvent: false});
       }
     });
 

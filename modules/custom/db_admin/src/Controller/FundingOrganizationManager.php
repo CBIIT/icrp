@@ -144,7 +144,7 @@ class FundingOrganizationManager {
 
     catch (PDOException $e) {
       return [
-        ['ERROR' => $e->getMessage()]
+        ['ERROR' => preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage())]
       ];
     }
 
@@ -188,7 +188,7 @@ class FundingOrganizationManager {
 
     catch (PDOException $e) {
       return [
-        ['ERROR' => $e->getMessage()]
+        ['ERROR' => preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage())]
       ];
     }
 
