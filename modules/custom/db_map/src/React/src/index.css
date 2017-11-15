@@ -24,6 +24,14 @@ body {
   align-items: center;
 }
 
+.mt-5 {
+  margin-top: 5px;
+}
+
+.mb-5 {
+  margin-bottom: 5px;
+}
+
 .margin-top {
   margin-top: 10px !important;
 }
@@ -67,6 +75,14 @@ table.popover-table td {
   color: #4B77BE;
   cursor: pointer;
   font-weight: bold;
+}
+
+.infowindow-description {
+  color: #888; 
+  font-style: italic; 
+  font-size: 12px;
+  margin-bottom: 5px; 
+  max-width: 280px; 
 }
 
 #icrp-map-header a {

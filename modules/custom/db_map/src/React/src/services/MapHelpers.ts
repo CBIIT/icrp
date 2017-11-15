@@ -67,13 +67,13 @@ export const createInfoWindow = ({label, counts}: Location, callback?: () => voi
   }
 
   return new google.maps.InfoWindow({
-    content: el('div', {}, [
+    content: el('div', {className: 'infowindow'}, [
       el('b', {className: 'margin-right'}, [labelParts[0], ':']),
       callbackSpan,
 
-      el('hr', {style: 'margin-top: 5px; margin-bottom: 5px;'}, []),
+      el('hr', {className: 'mt-5 mb-5'}, []),
 
-      el('div', {style: 'margin-bottom: 5px; max-width: 280px; font-style: italic; color: #888; font-size: 12px;'}, 
+      el('div', {className: 'infowindow-description'}, 
         [`Projects are counted in the ${labelParts[0].toLowerCase()} if they have a PI or a collaborator located in the ${labelParts[0].toLowerCase()}.`]),
       
       el('table', {className: 'popover-table'}, [
