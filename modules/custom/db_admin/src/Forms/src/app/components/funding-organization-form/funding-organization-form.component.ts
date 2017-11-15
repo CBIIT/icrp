@@ -106,12 +106,12 @@ export class FundingOrganizationFormComponent {
           memberStatus: 'Current',
         }, {emitEvent: false});
 
-        let organizations = this.options.funding_organizations
-          .filter(organization => +organization.partner_id == +value) || [];
+        // let organizations = this.options.funding_organizations
+        //   .filter(organization => +organization.partner_id == +value) || [];
 
-        if (organizations.length > 0) {
-          controls.id.patchValue(organizations[0].funding_organization_id);          
-        }
+        // if (organizations.length > 0) {
+        //   controls.id.patchValue(organizations[0].funding_organization_id);          
+        // }
       }
     });
 
