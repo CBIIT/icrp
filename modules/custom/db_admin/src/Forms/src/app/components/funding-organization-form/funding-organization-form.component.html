@@ -226,8 +226,7 @@
         <option *ngSwitchDefault [value]="null" hidden>Select a funding organization</option>
         <ng-container *ngFor="let organization of options.funding_organizations">
           <option
-            *ngIf="organization.partner_id == form.controls.partner.value
-            || form.controls.partner.value == null"
+            *ngIf="organization.partner_id == form.controls.partner.value"
             [value]="organization.funding_organization_id">
             {{ organization.organization_name }}
           </option>

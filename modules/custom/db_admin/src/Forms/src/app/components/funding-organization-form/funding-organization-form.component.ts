@@ -99,7 +99,19 @@ export class FundingOrganizationFormComponent {
       }
 
       else if (controls.operationType.value === 'Update') {
-        controls.id.patchValue(null, {emitEvent: false});
+        this.form.reset({
+          operationType: 'Update',
+          partner: value,
+          memberType: 'Associate',
+          memberStatus: 'Current',
+        }, {emitEvent: false});
+
+        let organizations = this.options.funding_organizations
+          .filter(organization => +organization.partner_id == +value) || [];
+
+        if (organizations.length > 0) {
+          controls.id.patchValue(organizations[0].funding_organization_id);          
+        }
       }
     });
 
@@ -129,8 +141,6 @@ export class FundingOrganizationFormComponent {
 
         let org = this.options.funding_organizations
           .find(organization => organization.funding_organization_id == value);
-
-        console.log(org);
 
         this.form.patchValue({
           partner: org.partner_id,
