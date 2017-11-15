@@ -84,7 +84,7 @@ display:
           theme: false
           sameWindow: true
           contentHeight: 0
-          editable: false
+          editable: true
           fields:
             title: false
             title_field: title

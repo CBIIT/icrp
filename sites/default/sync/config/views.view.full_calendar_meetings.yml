@@ -84,7 +84,7 @@ display:
           theme: false
           sameWindow: true
           contentHeight: 0
-          editable: false
+          editable: true
           fields:
             title: false
             title_field: title
@@ -100,7 +100,7 @@ display:
             allDaySlot: false
             weekends: true
             lazyFetching: true
-            eventDurationEditable: true
+            eventDurationEditable: false
             dragRevertDuration: 500
       row:
         type: fields

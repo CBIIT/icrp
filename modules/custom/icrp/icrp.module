@@ -1391,7 +1391,7 @@ function icrp_fullcalendar_classes($node) {
  * Implements hook_fullcalendar_editable().
  */
 function icrp_fullcalendar_editable($entity, $view) {
-  //drupal_set_message(__FUNCTION__);
+  drupal_set_message(__FUNCTION__);
   //drupal_set_message("Is this calendar editable");
   //drupal_set_message("Only editable by Admin or Manager");
 
@@ -1433,7 +1433,10 @@ function icrp_fullcalendar_options_info() {
   ]
 */
 function icrp_cancel_event_submit($form, &$form_state) {
-  $form_state['redirect'] ='https://yahoo.com';
+  drupal_set_message("Redirect");
+  dpm("Hello");
+  $form_state['redirect'] ='/calendar';
+  $redirect = new RedirectResponse(\Drupal::url('user.page'));
 
 }
 
@@ -1455,6 +1458,7 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
       $current_form_id = 'node_events_forms';
     }
     if($form_id == 'node_events_form') {
+      /*
       $form['actions']['cancel'] = array(
         '#type' => 'button',
         '#prefix' => '<span class="form-actions form-wrapper" id="cancel_event">',
@@ -1462,6 +1466,13 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
         '#value' => t('Cancel'),
         '#weight' => 1000,
         '#submit' => array('icrp_cancel_event_submit'),
+        '#limit_validation_errors' => array(),
+      );
+      */
+      $form['actions']['return'] = array(
+        '#type' => 'markup',
+        '#markup' => t('<a href="/calendar" class="btn btn-link" role="button">Cancel</a>'),
+        '#weight' => 2000,
         '#limit_validation_errors' => array(),
       );
     }    

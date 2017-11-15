@@ -165,21 +165,20 @@
           {% if logged_in == true %}
             <h1>ICRP Calendar</h1>
             <ul class="nav nav-tabs"><li class="active">
-              <a data-toggle="tab" href="#meetings">Partner Meetings</a>
+              <a data-toggle="tab" href="#partner-meetings">Partner Meetings</a>
             </li>
             <li>
-              <a data-toggle="tab" href="#external_events">External Events</a>
+              <a data-toggle="tab" href="#external-events">External Events</a>
             </li>
             </ul>
             <div class="tab-content partner-content">
-              <div id="meetings" class="tab-pane fade in active">
+              <div id="partner-meetings" class="tab-pane fade in active">
                   <p>Please click on the events in the calendar for webinar joining details, links to agendas, documents etc.</p>
                   <p>{{ drupal_view('full_calendar_meetings','block_1') }}</p>
-                  <p>{{ drupal_block('fullcalendarmeetinglegend') }}</p>
               </div>
-              <div id="external_events" class="tab-pane fade in">
+              <div id="external-events" class="tab-pane fade in">
                   <p>Please feel free to add any events, awareness days or communications that would be of interest to the partners.</p>
-                  <p>{{ drupal_view('full_calendar_external_events','block_1', 'year=2013&month=7') }}</p>
+                  <p>{{ drupal_view('full_calendar_external_events','block_1') }}</p>
               </div>
             </div>
           </div>

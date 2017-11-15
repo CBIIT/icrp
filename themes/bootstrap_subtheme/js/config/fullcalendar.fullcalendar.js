@@ -14,6 +14,12 @@
       }
 
       var options = {
+        eventAfterAllRender: function(view) {
+          console.dir(view);
+          var moment = fullcalendar.$calendar.find('.fullcalendar').fullCalendar('getDate');
+          var current_date = moment.format('YYYY-MM-DD');
+          console.log(current_date);
+        },
         eventClick: function (event, jsEvent, view) {
           if (settings.sameWindow) {
             //window.open(event.url, '_self');
@@ -23,30 +29,19 @@
             $.ajax({
                 url:  href_events,
                 success: function( data ) {
-                    //console.log(data);
-                    //var node_data =  $('<div/>').html(data).text(); 
-                    //console.log(node_data);
-                    //node_data = JSON.parse(node_data);
-                    //console.dir(node_data);
                     $('#calendar-modal').html(data);
                     $.ajax({
                         url:  href_permissions,
                         success: function( data ) {
-                          //console.log("User Permissions");
-                          //console.log(data);
                           var node_permission = JSON.parse(data);
                           console.log("I am here");
-                          //console.dir(node_permission);
                           if(node_permission.editable) {
-                            //alert("Show Edit");
                             $('#event-edit').show();
                           } else {
-                            //alert("Hide Edit");
                             $('#event-edit').hide();
                           }
                           $('#calendar-modal').modal("show");
                         }
-                    //new Element("script", {src: "core/misc/dialog/dialog.ajax.js", type: "text/javascript"});
                      });
                   }
               });
@@ -114,6 +109,12 @@
           return false;
         }
       };
+      //Prevent dragable
+      options.editable = false;
+      options.eventStartEditable = false;
+      options.eventDurationEditable = false;
+      options.dragRevertDuration = 500;
+
       //Goto default_date in url
       var default_date = decodeURIComponent($.urlParam("default_date"));
       if(default_date.length > 0 ) {
