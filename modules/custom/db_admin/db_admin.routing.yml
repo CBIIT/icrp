@@ -6,7 +6,7 @@ api.admin.partners.content:
   defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addPartnerPage' }
   requirements:
     _access: 'TRUE'
-
+    _role: 'admin+manager'
 
 
 ## Get page for adding funding organizations
@@ -15,7 +15,7 @@ api.admin.funding_organizations.content:
   defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addFundingOrganizationPage' }
   requirements:
     _access: 'TRUE'
-
+    _role: 'admin+manager'
 
 
 ## Get form fields for funding organizations
@@ -24,7 +24,7 @@ api.admin.funding_organizations.fields:
   defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::getFundingOrganizationFields' }
   requirements:
     _access: 'TRUE'
-
+    _role: 'admin+manager'
 
 
 ## Add funding organization
@@ -33,7 +33,7 @@ api.admin.funding_organizations.add:
   defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::addFundingOrganization' }
   requirements:
     _access: 'TRUE'
-
+    _role: 'admin+manager'
 
 
 ## Update funding organization
@@ -42,6 +42,7 @@ api.admin.funding_organizations.update:
   defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::updateFundingOrganization' }
   requirements:
     _access: 'TRUE'
+    _role: 'admin+manager'
 
 
 
@@ -53,6 +54,7 @@ api.admin.partners.fields:
     isNew: ''
   requirements:
     _access: 'TRUE'
+    _role: 'admin+manager'
 
 
 
@@ -62,8 +64,7 @@ api.admin.partners.add:
   defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::addPartner' }
   requirements:
     _access: 'TRUE'
-
-
+    _role: 'admin+manager'
 
 
 
@@ -75,7 +76,7 @@ api.admin.partners.content.deprecated:
   defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addPartnerPage' }
   requirements:
     _access: 'TRUE'
-
+    _role: 'admin+manager'
 
 
 ## Get page for adding funding organizations
@@ -84,7 +85,7 @@ api.admin.funding_organizations.content.deprecated:
   defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addFundingOrganizationPage' }
   requirements:
     _access: 'TRUE'
-
+    _role: 'admin+manager'
 
 
 test_event:
@@ -92,5 +93,5 @@ test_event:
   defaults: { _controller: 'Drupal\db_admin\Controller\AdminController::dispatchSampleEvent' }
   requirements:
     _access: 'TRUE'
-
+    _role: 'admin+manager'
 
