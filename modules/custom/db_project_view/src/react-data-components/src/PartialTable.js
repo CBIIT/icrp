@@ -27,7 +27,7 @@ export default class PartialTable extends Component {
         ];
       }));
       $.ajax({
-        url: '/map/getExcelExport/',
+        url: '/map/getExcelExport/ICRPFundingOrg',
         method: 'POST',
         data: JSON.stringify(exportObj)
       }).done(function(resp) {

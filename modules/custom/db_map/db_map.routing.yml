@@ -32,9 +32,10 @@ getNewSearchId:
 
 
 getExcelExport:
-  path: '/map/getExcelExport'
+  path: '/map/getExcelExport/{prefix}'
   defaults:
     _controller: '\Drupal\db_map\Controller\MapController::getExcelExport'
+    prefix: 'Map_Export'
   requirements:
     _access: 'TRUE'
 

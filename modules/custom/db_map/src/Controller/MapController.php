@@ -268,9 +268,9 @@ class MapController extends ControllerBase {
    * @param Request $request Contains a json body that will be converted to an excel document
    * @return JSONResponse
    */
-  public static function getExcelExport(Request $request): JSONResponse {
+  public static function getExcelExport(Request $request, string $prefix): JSONResponse {
     $sheets = json_decode($request->getContent(), true);
-    $filename = sprintf("Map_Export_%s.xlsx", uniqid());
+    $filename = sprintf("%s_%s.xlsx", $prefix, uniqid());
     $uri = ExcelBuilder::create($filename, $sheets);
     return self::createResponse($uri);
   }
