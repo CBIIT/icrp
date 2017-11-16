@@ -215,30 +215,14 @@
         case "/contact-us":
           $.populateContactUsForm();
           break;
+        /*
         case "/forum/6/No Need":
           $(".action-links").hide();
           $("#main-forum-content").show();
           break;
+        */
         case "/forum":
           $.preprocessForum();
-          break;
-        case "/forum/8":
-          $(".topic-status-legend").show();
-          break;
-        case "/forum/9":
-          $(".topic-status-legend").show();
-          break;
-        case "/forum/10":
-          $(".topic-status-legend").show();
-          break;
-        case "/forum/11":
-          $(".topic-status-legend").show();
-          break;
-        case "/forum/12":
-          $(".topic-status-legend").show();
-          break;
-        case "/forum/13":
-          $(".topic-status-legend").show();
           break;
         case "/node/add/forum":
           $.hideCommentStatus();

@@ -185,9 +185,6 @@
             ]
         },
         "patches": {
-            "drupal/faq": {
-                "FAQ patch for node access error": "https://www.drupal.org/files/issues/missing_argument_4_on_node_access--2743715-10.patch"
-            },
              "drupal/fullcalendar": {
                 "Restore AJAX functionality":
                 "https://www.drupal.org/files/issues/2828939-18-ajax-fix-combined.patch"
