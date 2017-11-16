@@ -104,9 +104,15 @@ table#forum { border: 1px solid #eaeaea; width: 100%; }
 div.comment__content > div.field.field--name-comment-body.field--type-text-long.field--label-hidden.field--item {
 	overflow:hidden;
 }
+
 .breadcrumb {
 	margin-bottom:10px;
+	background-color: white;
+	text-transform: none;
+	font-size: inherit;
+	border: 0px;
 }
+
 .label-pill {
   padding-right: .6em;
   padding-left: .6em;

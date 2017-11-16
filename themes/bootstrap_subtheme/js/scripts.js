@@ -182,6 +182,10 @@
       if(url_path.substring(0, 9).toLowerCase() == '/calendar') {
         url_path = '/calendar';
       }
+
+      if(url_path.substring(0, 6).toLowerCase() == '/forum' && !(url_path.substring(7, 8) == '6')) {
+        url_path = '/forum';
+      }
       //alert(url_path);
       var source = decodeURIComponent($.urlParam("source"));
       if(source  == "Edit Event") {
@@ -215,8 +219,8 @@
           $(".action-links").hide();
           $("#main-forum-content").show();
           break;
-        case "/forum/7":
-          $(".topic-status-legend").show();
+        case "/forum":
+          $.preprocessForum();
           break;
         case "/forum/8":
           $(".topic-status-legend").show();
@@ -298,6 +302,14 @@
     //$('#edit-field-show-end-date-value').parent().hide();
   }
 */
+  $.preprocessForum = function(e) {
+    if(!$('#new-forum-breadcrumb > #forum-breadcrumb').length) {
+      $( "#forum-breadcrumb" ).clone().prependTo( "#new-forum-breadcrumb" );
+      $( "#new-forum-breadcrumb > #forum-breadcrumb" ).show();
+    }
+    $(".topic-status-legend").show();
+  }
+
   $.rememberTabs = function() {
     //for bootstrap 3 use 'shown.bs.tab' instead of 'shown' in the next line
     $('a[data-toggle="tab"]').on('click', function (e) {

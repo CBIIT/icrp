@@ -147,6 +147,8 @@ class AdminController extends ControllerBase {
       $data = PartnerManager::addPartner($connection, $parameters);
     } else if ($parameters['operation_type'] == 'existing') {
       $data = PartnerManager::updatePartner($connection, $parameters);
+    } else {
+      $data = [["ERROR"=>"Unknown error"]];
     }
     return self::createResponse($data);
   }

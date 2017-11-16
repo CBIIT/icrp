@@ -85,25 +85,6 @@
   {% endif %}
 {% endfor %}
 
-<!--  Breadcrumb -->
-<ol class="breadcrumb">
-  <li>
-    <a href="/forum/6">Forum</a>
-  </li>
-  <li>
-    <a href="/forum/6">ICRP Partnership Forum</a>
-  </li>
-  {% if tforum_name is defined %}
-  <li>
-    <a href="/forum/{{ tforum_tid }}">{{ tforum_name }}</a>
-  </li>
-  {% endif %}
-
-  <li class="active">
-    {{ ttitle }}
-  </li>
-</ol>
-
 {{ attach_library('classy/node') }}
 
 {%
@@ -146,6 +127,24 @@
           </span>
             {{ tforum_name }}
         </h2>
+
+        <!--  Breadcrumb -->
+        <ol class="breadcrumb">
+          <li>
+            <a href="/forum/6">ICRP Partnership Forum</a>
+          </li>
+          {% if tforum_name is defined %}
+          <li>
+            <a href="/forum/{{ tforum_tid }}">{{ tforum_name }}</a>
+          </li>
+          {% endif %}
+          <li class="active">
+            {{ ttitle }}
+          </li>
+        </ol>
+        <!-- End Breadcrumb -->
+
+
         <h4>{{ ttitle }}</h4>
         {% if tsummary|length > 1 %}
           <p style="color:grey">{{ tsummary|raw }}</p>
