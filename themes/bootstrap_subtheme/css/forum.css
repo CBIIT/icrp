@@ -111,6 +111,7 @@ div.comment__content > div.field.field--name-comment-body.field--type-text-long.
 	text-transform: none;
 	font-size: inherit;
 	border: 0px;
+	padding: 0px 0px 0px 10px;
 }
 
 .label-pill {
