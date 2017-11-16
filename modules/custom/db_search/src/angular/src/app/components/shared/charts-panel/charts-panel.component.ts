@@ -101,6 +101,7 @@ export class ChartsPanelComponent implements OnChanges {
     this.analytics['project_funding_amounts_by_year'] = null;
 
     for (let chart of charts) {
+      this.analytics[chart] = null;
       this.requestChart.emit({
         type: chart,
         year: conversion_year.value
@@ -115,6 +116,4 @@ export class ChartsPanelComponent implements OnChanges {
       })
     }
   }
-
-
 }
