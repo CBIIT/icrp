@@ -260,8 +260,8 @@ class PartnerManager {
           :logo_file,
           :note,
           :joined_date,
-          :latitude,
-          :longitude",
+          :longitude,
+          :latitude",
       $parameters);
 
       if ($stmt->execute()) {
