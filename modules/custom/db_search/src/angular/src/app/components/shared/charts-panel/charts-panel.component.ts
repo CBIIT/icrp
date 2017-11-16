@@ -7,7 +7,7 @@ import { SharedService } from '../../../services/shared.service';
   templateUrl: './charts-panel.component.html',
   styleUrls: ['./charts-panel.component.css']
 })
-export class ChartsPanelComponent implements OnChanges, AfterViewInit {
+export class ChartsPanelComponent implements OnChanges {
   @Input() analytics: any = {};
   @Input() fields: any = {};
   @Input() loading: boolean = false;
@@ -37,10 +37,6 @@ export class ChartsPanelComponent implements OnChanges, AfterViewInit {
 
         this.updateCharts();
       });
-  }
-
-  ngAfterViewInit() {
-    console.log('charts panel initialized');
   }
 
   /**
@@ -75,7 +71,7 @@ export class ChartsPanelComponent implements OnChanges, AfterViewInit {
       charts.push('project_funding_amounts_by_year');
     }
 
-    console.log(this.analytics, charts);
+    // console.log(this.analytics, charts);
 
     for (let chart of charts) {
       if (this.analytics[chart] === null) {
@@ -88,18 +84,27 @@ export class ChartsPanelComponent implements OnChanges, AfterViewInit {
   }
 
   updateFundingCharts() {
+
+    const { display_type, conversion_year } = this.form.controls;
+
     let charts = [
       'project_funding_amounts_by_country',
       'project_funding_amounts_by_cso_research_area',
       'project_funding_amounts_by_cancer_type',
       'project_funding_amounts_by_type',
-      'project_funding_amounts_by_year',
     ];
 
+    if (this.showMore && display_type.value === 'award_amounts') {
+      charts.push('project_funding_amounts_by_year');
+    }
+
+    this.analytics['project_funding_amounts_by_year'] = null;
+
     for (let chart of charts) {
+      this.analytics[chart] = null;
       this.requestChart.emit({
         type: chart,
-        year: this.form.controls['conversion_year'].value
+        year: conversion_year.value
       });
     }
   }
@@ -111,6 +116,4 @@ export class ChartsPanelComponent implements OnChanges, AfterViewInit {
       })
     }
   }
-
-
 }
