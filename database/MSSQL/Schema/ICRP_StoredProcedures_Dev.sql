@@ -30,7 +30,7 @@ BEGIN TRY
 	-- Insert into icrp_data: DO NOT insert the institutions which already exist in the Institutions lookup 
 	INSERT INTO icrp_data_dev.dbo.Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
 	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM #unique i
-		LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.City
+		LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.Cityinginvest
 	WHERE (e.Name IS NULL)
 
 	-- Insert into icrp_dataload: Only insert the institutions which not exist in the Institutions lookup 		
@@ -63,6 +63,338 @@ END CATCH
 GO
 
 
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[AddPartner]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AddPartner]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[AddPartner]
+GO 
+
+CREATE  PROCEDURE [dbo].[AddPartner]	
+	@Name [varchar](100),
+	@Description [varchar](max),
+	@SponsorCode [varchar](50),
+	@Email [varchar](75),
+	@IsDSASigned [bit],
+	@Country [varchar](100),
+	@Website [varchar](200),
+	@LogoFile [varchar](100),
+	@Note [varchar](8000),
+	@JoinedDate [datetime],
+	@Longitude [decimal](9, 6),
+	@Latitude [decimal](9, 6) 
+AS   
+
+BEGIN TRANSACTION;
+BEGIN TRY    	
+
+	SET NOCOUNT ON;
+
+	IF EXISTS (SELECT 1 FROM Partner WHERE SponsorCode = @SponsorCode)
+	BEGIN
+		   RAISERROR ('Sponsor Code already existed', 16, 1)
+	END
+
+	INSERT INTO Partner ([Name],[Description], [SponsorCode], [Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Longitude], [Latitude], [CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Longitude, @Latitude, GETDATE(), GETDATE())
+		
+	-- Also insert the new partner into the PartnerOrg table
+	INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
+	SELECT @Name, @SponsorCode, 'Partner', 1 
+
+	-- Also Insert the newly inserted partner into the icrp_dataload database
+	INSERT INTO icrp_dataload_dev.dbo.Partner ([Name], [Description],[SponsorCode],[Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate],[Latitude], [Longitude], [CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Longitude, @Latitude, GETDATE(), GETDATE())
+
+	COMMIT TRANSACTION
+
+END TRY
+
+BEGIN CATCH
+      -- IF @@trancount > 0 
+		ROLLBACK TRANSACTION
+      
+	  DECLARE @msg nvarchar(2048) = error_message()  
+      RAISERROR (@msg, 16, 1)
+	        
+END CATCH  
+
+GO
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[UpdatePartner]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdatePartner]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[UpdatePartner]
+GO 
+
+CREATE  PROCEDURE [dbo].[UpdatePartner]
+	@PartnerID INT,
+	@Name [varchar](100),
+	@Description [varchar](max),
+	@SponsorCode [varchar](50),
+	@Email [varchar](75),
+	@IsDSASigned [bit],
+	@Country [varchar](100),
+	@Website [varchar](200),
+	@LogoFile [varchar](100),
+	@Note [varchar](8000),
+	@JoinedDate [datetime],
+	@Longitude [decimal](9, 6),
+	@Latitude [decimal](9, 6) 
+AS   
+
+BEGIN TRANSACTION;
+BEGIN TRY    	
+
+	DECLARE @OrgSponsorCode [varchar](50)
+	SELECT @OrgSponsorCode = SponsorCode FROM Partner WHERE PartnerID =  @PartnerID
+
+	IF EXISTS (SELECT 1 FROM Partner WHERE PartnerID <> @PartnerID AND SponsorCode = @SponsorCode)
+	BEGIN
+		   RAISERROR ('Sponsor Code already existed', 16, 1)
+	END
+
+	UPDATE Partner SET [Name] = @Name,
+		[Description]  = @Description,
+		[SponsorCode]  = @SponsorCode,
+		[Email]  = @Email,
+		[IsDSASigned] = @IsDSASigned,
+		[Country] = @Country,
+		[Website] = @Website,
+		[LogoFile] = @LogoFile,
+		[Note]  = @Note,
+		[JoinedDate]  = @JoinedDate,	
+		[Longitude]  = @Longitude,
+		[Latitude] = @Latitude,
+		[UpdatedDate] = getdate()
+	WHERE PartnerID =  @PartnerID
+
+	-- Also update icrp_dataload database
+	UPDATE icrp_dataload_dev.dbo.Partner SET [Name] = @Name,
+		[Description]  = @Description,
+		[SponsorCode]  = @SponsorCode,
+		[Email]  = @Email,
+		[IsDSASigned] = @IsDSASigned,
+		[Country] = @Country,
+		[Website] = @Website,
+		[LogoFile] = @LogoFile,
+		[Note]  = @Note,
+		[JoinedDate]  = @JoinedDate,	
+		[Longitude]  = @Longitude,
+		[Latitude] = @Latitude,
+		[UpdatedDate] = getdate()
+	WHERE [SponsorCode] =  @OrgSponsorCode
+
+	-- Also update other tables if the SponsorCode is changed
+	IF (@SponsorCode <> @OrgSponsorCode)
+	BEGIN
+		UPDATE FundingOrg SET SponsorCode = @SponsorCode WHERE SponsorCode=@OrgSponsorCode
+		UPDATE PartnerOrg SET SponsorCode = @SponsorCode WHERE SponsorCode=@OrgSponsorCode
+	END
+
+	COMMIT TRANSACTION
+
+END TRY
+
+BEGIN CATCH
+      -- IF @@trancount > 0 
+		ROLLBACK TRANSACTION
+      
+	  DECLARE @msg nvarchar(2048) = error_message()  
+      RAISERROR (@msg, 16, 1)
+	        
+END CATCH  
+
+GO
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[AddFundingOrg]								****************/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AddFundingOrg]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[AddFundingOrg]
+GO 
+
+CREATE  PROCEDURE [dbo].[AddFundingOrg]	
+	@PartnerID INT,
+	@Name [varchar](100),
+	@Abbreviation [varchar](15),
+	@Type [varchar](25),
+	@Country [varchar](3),
+	@Currency [varchar](3),	
+	@MemberType [varchar](25),
+	@MemberStatus [nchar](10),
+	@IsAnnualized [bit],
+	@Note [varchar](8000),
+	@Website [varchar](200) ,
+	@Longitude [decimal](9, 6),
+	@Latitude [decimal](9, 6)	
+AS   
+
+
+BEGIN TRANSACTION;
+BEGIN TRY    	
+
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	-- Return error if the  abbreviation already exist within the same sponsorcode
+	DECLARE @SponsorCode [varchar](50)
+	SELECT @SponsorCode = SponsorCode FROM Partner WHERE PartnerID =  @PartnerID
+
+	IF EXISTS (SELECT 1 FROM FundingOrg WHERE SponsorCode = @SponsorCode AND Abbreviation = @Abbreviation)
+	BEGIN
+		   RAISERROR ('Funding Org Abbreviation already existed for the partner.', 16, 1)
+	END
+
+	INSERT INTO FundingOrg ([Name], Abbreviation, [Type],[Country], [Currency], [SponsorCode], 	[MemberType], [MemberStatus], [IsAnnualized],[Note], [Website],	[Longitude],[Latitude],	[CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	@IsAnnualized, @Note, @Website, @Longitude, @Latitude, GETDATE(), GETDATE())
+	
+
+	-- Also Insert the new fundingorg into the PartnerOrg table
+	INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
+	VALUES (@Name, @SponsorCode, 'Associate', 1)
+
+	-- Also insert the new fundingorg into the icrp_dataload database
+	INSERT INTO icrp_dataload_dev.dbo.FundingOrg ([Name], Abbreviation, [Type],[Country], [Currency], [SponsorCode], 	[MemberType], [MemberStatus], [IsAnnualized],[Note], [Website],	[Longitude],[Latitude],	[CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	@IsAnnualized, @Note, @Website, @Longitude, @Latitude, GETDATE(), GETDATE())
+	
+	COMMIT TRANSACTION
+
+END TRY
+
+BEGIN CATCH
+      -- IF @@trancount > 0 
+		ROLLBACK TRANSACTION
+      
+	  DECLARE @msg nvarchar(2048) = error_message()  
+      RAISERROR (@msg, 16, 1)
+	        
+END CATCH  
+
+GO
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[UpdateFundingOrg]								****************/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdateFundingOrg]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[UpdateFundingOrg]
+GO 
+
+CREATE  PROCEDURE [dbo].[UpdateFundingOrg]
+	@FundingOrgID INT,
+	@Name [varchar](100),
+	@Abbreviation [varchar](15),
+	@Type [varchar](25),
+	@Country [varchar](3),
+	@Currency [varchar](3),	
+	@MemberType [varchar](25),
+	@MemberStatus [nchar](10),
+	@IsAnnualized [bit],
+	@Note [varchar](8000),
+	@Website [varchar](200) ,
+	@Longitude [decimal](9, 6),
+	@Latitude [decimal](9, 6)	
+AS   
+
+
+BEGIN TRANSACTION;
+BEGIN TRY    	
+
+	DECLARE @OrgAbbrev [varchar](50)
+	DECLARE @SponsorCode [varchar](50)
+	SELECT @OrgAbbrev = Abbreviation, @SponsorCode = SponsorCode FROM FundingOrg WHERE FundingOrgID =  @FundingOrgID
+
+	-- Return error if the  abbreviation already exist within the same sponsorcode
+	IF EXISTS (SELECT 1 FROM FundingOrg WHERE FundingOrgID <> @FundingOrgID AND SponsorCode = @SponsorCode AND Abbreviation = @Abbreviation)
+	BEGIN
+		   RAISERROR ('Funding Org Abbreviation already existed for the partner.', 16, 1)
+	END
+
+	UPDATE FundingOrg SET [Name] = @Name,		
+		Abbreviation  = @Abbreviation,		
+		[Type] = @Type,
+		[Country] = @Country,
+		[Currency] = @Currency,
+		[MemberType] = @MemberType,
+		[MemberStatus] = @MemberStatus,
+		[IsAnnualized] = @IsAnnualized,		
+		[Note]  = @Note,
+		[Website] = @Website,		
+		[Longitude]  = @Longitude,
+		[Latitude] = @Latitude,
+		[UpdatedDate] = getdate()
+	WHERE FundingOrgID =  @FundingOrgID
+
+	-- Also update the icrp_dataload database
+	UPDATE icrp_dataload_dev.dbo.FundingOrg SET [Name] = @Name,		
+		Abbreviation  = @Abbreviation,		
+		[Type] = @Type,
+		[Country] = @Country,
+		[Currency] = @Currency,
+		[MemberType] = @MemberType,
+		[MemberStatus] = @MemberStatus,
+		[IsAnnualized] = @IsAnnualized,		
+		[Note]  = @Note,
+		[Website] = @Website,		
+		[Longitude]  = @Longitude,
+		[Latitude] = @Latitude,
+		[UpdatedDate] = getdate()
+	WHERE SponsorCode = @SponsorCode AND Abbreviation = @OrgAbbrev
+
+	-- Also update PartnerOrg	
+	UPDATE PartnerOrg SET Name = @Name, IsActive = 
+	CASE @MemberStatus
+		WHEN 'Current' THEN '1'  -- Current Member
+		ELSE '0' END             -- Inactive Member
+	WHERE SponsorCode=@SponsorCode AND Name = @OrgAbbrev
+	
+	COMMIT TRANSACTION
+
+END TRY
+
+BEGIN CATCH
+      -- IF @@trancount > 0 
+		ROLLBACK TRANSACTION
+      
+	  DECLARE @msg nvarchar(2048) = error_message()  
+      RAISERROR (@msg, 16, 1)
+	        
+END CATCH  
+
+GO
 
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -203,12 +535,10 @@ LEFT JOIN FundingDivision d ON u.FundingDivAbbr = d.Abbreviation
 -- Import ProjectFundingInvestigator
 -----------------------------------
 INSERT INTO ProjectFundingInvestigator ([ProjectFundingID], [LastName],	[FirstName],[ORC_ID],[OtherResearch_ID],[OtherResearch_Type],[IsPrincipalInvestigator],[InstitutionID],[InstitutionNameSubmitted])
-SELECT DISTINCT f.ProjectFundingID, u.PILastName, u.PIFirstName, u.ORCID, u.OtherResearcherID, u.OtherResearcherIDType, 1 AS isPI, ISNULL(inst.InstitutionID,1) AS InstitutionID, u.SubmittedInstitution
+SELECT DISTINCT f.ProjectFundingID, u.PILastName, u.PIFirstName, u.ORCID, u.OtherResearcherID, u.OtherResearcherIDType, 1 AS isPI, ISNULL(i.InstitutionID,1) AS InstitutionID, u.SubmittedInstitution
 FROM UploadWorkBook u
 	JOIN ProjectFunding f ON u.AltID = f.AltAwardCode
-	LEFT JOIN (SELECT i.InstitutionID, i.Name, i.City, m.OldName, m.oldCity 
-	           FROM Institution i LEFT JOIN InstitutionMapping m ON i.name = m.newName AND i.City = m.newCity) inst 
-     ON (u.InstitutionICRP = inst.Name AND u.City = inst.City) OR (u.InstitutionICRP = inst.OldName AND u.City = inst.oldCity)
+	LEFT JOIN Institution i ON u.InstitutionICRP = i.Name AND u.City = i.City
 
 -----------------------------------------------------------------
 -- Rebuild CSO temp table if not exist
@@ -948,51 +1278,3 @@ GO
 -------------------------------------------------------------------------------------------
 -- Triggers
 --------------------------------------------------------------------------------------------
-
-/****** Object:  Trigger [dbo].[Trigger_Add_FundingOrg]    Script Date: 11/2/2017 5:19:47 PM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
-ALTER TRIGGER [dbo].[Trigger_Add_FundingOrg]
-ON [dbo].[FundingOrg] 
-AFTER INSERT
-AS  
-	-- SET NOCOUNT ON added to prevent extra result sets from
-	-- interfering with SELECT statements.
-	SET NOCOUNT ON;
-
-	-- Insert the newly inserted fundingorg into the PartnerOrg table
-	INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
-	SELECT [Name], [SponsorCode], 'Associate', 1 FROM INSERTED WHERE MemberStatus = 'Current' AND MemberType = 'Associate'
-
-	-- Insert the newly inserted fundingorg into the icrp_dataload database
-	INSERT INTO icrp_dataload_dev.dbo.FundingOrg ([Name],[Abbreviation],[Type],[Country],[Currency],[SponsorCode],[MemberType],[MemberStatus],[IsAnnualized],[Note],[LastImportDate],[LastImportDesc],[CreatedDate],[UpdatedDate],[Website],[Latitude], [Longitude])
-	SELECT [Name],[Abbreviation],[Type],[Country],[Currency],[SponsorCode],[MemberType],[MemberStatus],[IsAnnualized],[Note],[LastImportDate],[LastImportDesc],[CreatedDate],[UpdatedDate],[Website], Latitude, Longitude FROM INSERTED
-
-GO
-
-
-/****** Object:  Trigger [dbo].[Trigger_Add_Partner]    Script Date: 11/2/2017 5:19:13 PM ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
-ALTER TRIGGER [dbo].[Trigger_Add_Partner]
-ON [dbo].[Partner] 
-AFTER INSERT
-AS  
-	-- SET NOCOUNT ON added to prevent extra result sets from
-	-- interfering with SELECT statements.
-	SET NOCOUNT ON;
-
-	-- Insert the newly inserted partner into the PartnerOrg table
-	INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
-	SELECT [Name], [SponsorCode], 'Partner', 1 FROM INSERTED
-
-	-- Insert the newly inserted partner into the icrp_dataload database
-	INSERT INTO icrp_dataload_dev.dbo.Partner ([Name], [Description],[SponsorCode],[Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate],[Latitude], [Longitude])
-	SELECT [Name], [Description],[SponsorCode],[Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], Latitude, Longitude FROM INSERTED
-

@@ -34,7 +34,7 @@ WITH
 )
 GO  
 
---select * from #CountryMapLayer
+select * from #CountryMapLayer where [Abbreviation] in ('IR')
 --select * from country
 --select * from CountryMapLayer
 --truncate table CountryMapLayer
@@ -80,7 +80,7 @@ UPDATE CountryMapLayer SET MapLayerLegendID =
   WHEN  CAST([Value] AS decimal(9,1)) > 117.0 THEN 11
   WHEN  (CAST([Value] AS decimal(9,1)) > 99.9) AND (CAST([Value] AS decimal(9,1)) <= 117.0) THEN 12  -- 99.9-117.0
   WHEN  (CAST([Value] AS decimal(9,1)) > 89.8 ) AND (CAST([Value] AS decimal(9,1)) <= 99.9) THEN 13    -- 89.8-99.9
-  WHEN  (CAST([Value] AS decimal(9,1)) > 74.0) AND (CAST([Value] AS decimal(9,1)) <= 89.8) THEN 114 --74.0-89.8
+  WHEN  (CAST([Value] AS decimal(9,1)) > 74.0) AND (CAST([Value] AS decimal(9,1)) <= 89.8) THEN 14 --74.0-89.8
   WHEN  (CAST([Value] AS decimal(9,1)) > 0) AND (CAST([Value] AS decimal(9,1)) <= 74.0) THEN 15    -- < 74.0  
   ELSE 16
 END)
