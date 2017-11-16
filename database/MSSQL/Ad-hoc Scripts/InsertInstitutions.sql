@@ -33,26 +33,47 @@ WITH
 )
 GO  
 
+
+
+select * from #Institution
+
+-- Any Country not exist in lookup?
 select i.* from #Institution i
-left join country c ON i.Country = c.Name
+left join country c ON i.Country = c.Abbreviation
 where c.Name is null
 
-select * from country where name like '%Taiw%'
+select * from #Institution where ISNULL(Name, '') = '' OR ISNULL(City, '') = ''
+select * from #Institution where ISNULL(latitude, 0) = 0 OR ISNULL(longitude, 0) = 0
 
+-- duplicates (same city+name)
+select i.* into #dup from #Institution i
+join (SELECT Name, City FROM #Institution GROUP BY Name, City having count(*) > 1) u ON i.name=u.name AND i.CIty = u.City
+order by i.Name, i.city
 
+select * from #dup order by Name, city
 
-SELECT i.* INTO #exist 
-FROM #Institution t JOIN Institution i ON t.Name = i.Name AND t.City = i.City
+-- duplicates (same coordinates)
+--drop table #dupcoord
+select distinct i.* into #dupcoord from #Institution i
+JOIN (SELECT latitude, longitude  FROM #Institution GROUP BY latitude, longitude having count(*) > 1) d ON d.latitude = i.latitude AND d.longitude = i.longitude
+WHERE i.name NOT IN (SELECT Name FROM #dup)
+ORDER BY latitude, longitude
 
-SELECT i.*, t.*
-FROM #Institution t JOIN Institution i ON t.Name = i.Name AND t.City = i.City
+--select * from #dupcoord ORDER BY latitude, longitude
 
-Shenzen
-
-Shenzhen
+-- already exist in lookup
+SELECT i.*  INTO #exist 
+FROM #Institution t 
+JOIN Institution i ON t.Name = i.Name AND t.City = i.City
 
 select * from #exist
-select
+
+SELECT t.*
+FROM #Institution t JOIN Institution i ON t.Name = i.Name 
+
+
+
+
 IF EXISTS (SELECT * FROM #exist)
 BEGIN
 	PRINT 'Checking Existing Institutions   ==> ERROR'
@@ -61,15 +82,16 @@ END
 ELSE
 	PRINT 'Checking Existing Institutions   ==> Pass'
 
-
 BEGIN TRANSACTION
--- 177 institutions
+-- 1,237 institutions
 INSERT INTO Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
 SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM #Institution i
 LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.City
-WHERE (e.Name IS NULL)
+WHERE (e.Name IS NULL) 
 
-SELECT Name, City FROM Institution GROUP BY Name, City HAVING COUNT(*) >1
+UPDATE Institution SET City = 'Singapore', GRID='grid.418812.6 ' WHERE Name = 'Institute of Molecular and Cell Biology'
+
+SELECT Name, City, count(*) FROM Institution GROUP BY Name, City HAVING COUNT(*) >1
 
 SELECT m.* INTO #dup FROM 
 	InstitutionMapping m
@@ -88,3 +110,20 @@ ELSE
 
 rollback
 
+--select * from Institution where name in ('IIT Research Institute', 'Louisiana State University Health Sciences Center New Orleans')
+
+
+Name	City	(No column name)
+Queen Elizabeth Central Hospital	Blantyre	2
+Instituto Nacional de Cancerología	Bogota	2
+Fundación Huesped	Buenos Aires	2
+Centre National de Reference en Matière de VIH/SIDA	Bujumbura	2
+IIT Research Institute	Chicago	2
+University Hospital Cologne	Cologne	2
+Kaohsiung Medical University	Kaohsiung City	2
+Udaan Trust	Navi Mumbai	2
+Louisiana State University Health Sciences Center New Orleans	New Orleans	2
+Policlinica Augusto Amaral Peixoto	Rio de Janeiro 	2
+Instituto Salvadoreño Del Seguro Social	San Salvador	2
+Chang Gung Memorial Hospital	Taipei	2
+National Taiwan University Hospital	Taipei	2

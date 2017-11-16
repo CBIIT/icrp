@@ -2618,8 +2618,8 @@ ELSE
 SET @RuleID= 42
 select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
 
-SELECT DISTINCT FundingOrgAbbr INTO #org from UploadWorkBook 
-where FundingOrgAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingOrg WHERE SponsorCode=@PartnerCode)
+SELECT DISTINCT ISNULL(FundingOrgAbbr, 'NULL') AS FundingOrgAbbr  INTO #org from UploadWorkBook 
+where ISNULL(FundingOrgAbbr, 'NULL') NOT IN (SELECT DISTINCT Abbreviation FROM FundingOrg WHERE SponsorCode=@PartnerCode)
 
 IF EXISTS (SELECT * FROM #org)
 	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #org
@@ -3107,11 +3107,11 @@ END
 -------------------------------------------------------------------
 IF @RuleId = 42
 BEGIN
-	SELECT DISTINCT FundingOrgAbbr, @PartnerCode AS SponsorCode INTO #org from UploadWorkBook 
-	where FundingOrgAbbr NOT IN (SELECT DISTINCT Abbreviation FROM FundingOrg WHERE SponsorCode=@PartnerCode)
+	SELECT DISTINCT ISNULL(FundingOrgAbbr, 'NULL') AS FundingOrgAbbr, @PartnerCode AS SponsorCode INTO #org from UploadWorkBook 
+	where ISNULL(FundingOrgAbbr, 'NULL') NOT IN (SELECT DISTINCT Abbreviation FROM FundingOrg WHERE SponsorCode=@PartnerCode)
 	
-	SELECT DISTINCT c.*	FROM #org c 
-	JOIN UploadWorkbook u ON c.FundingOrgAbbr = u.FundingOrgAbbr
+	SELECT DISTINCT u.AltID, c.*	FROM #org c 
+	JOIN UploadWorkbook u ON c.FundingOrgAbbr = ISNULL(u.FundingOrgAbbr, 'NULL')
 END 
 
 -------------------------------------------------------------------
@@ -3268,13 +3268,11 @@ LEFT JOIN FundingDivision d ON u.FundingDivAbbr = d.Abbreviation
 -- Import ProjectFundingInvestigator
 -----------------------------------
 INSERT INTO ProjectFundingInvestigator ([ProjectFundingID], [LastName],	[FirstName],[ORC_ID],[OtherResearch_ID],[OtherResearch_Type],[IsPrincipalInvestigator],[InstitutionID],[InstitutionNameSubmitted])
-SELECT DISTINCT f.ProjectFundingID, u.PILastName, u.PIFirstName, u.ORCID, u.OtherResearcherID, u.OtherResearcherIDType, 1 AS isPI, ISNULL(inst.InstitutionID,1) AS InstitutionID, u.SubmittedInstitution
+SELECT DISTINCT f.ProjectFundingID, u.PILastName, u.PIFirstName, u.ORCID, u.OtherResearcherID, u.OtherResearcherIDType, 1 AS isPI, ISNULL(i.InstitutionID,1) AS InstitutionID, u.SubmittedInstitution
 FROM UploadWorkBook u
 	JOIN ProjectFunding f ON u.AltID = f.AltAwardCode
-	LEFT JOIN (SELECT i.InstitutionID, i.Name, i.City, m.OldName, m.oldCity 
-	           FROM Institution i LEFT JOIN InstitutionMapping m ON i.name = m.newName AND i.City = m.newCity) inst 
-     ON (u.InstitutionICRP = inst.Name AND u.City = inst.City) OR (u.InstitutionICRP = inst.OldName AND u.City = inst.oldCity)
-
+	LEFT JOIN Institution i ON u.InstitutionICRP = i.Name AND u.City = i.City
+	
 -----------------------------------------------------------------
 -- Rebuild CSO temp table if not exist
 -----------------------------------------------------------------
@@ -4535,16 +4533,16 @@ BEGIN TRY
 		   RAISERROR ('Sponsor Code already existed', 16, 1)
 	END
 
-	INSERT INTO Partner ([Name],[Description], [SponsorCode], [Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Longitude], [Latitude], [CreatedDate], [UpdatedDate])
-	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Longitude, @Latitude, GETDATE(), GETDATE())
+	INSERT INTO Partner ([Name],[Description], [SponsorCode], [Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], [CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, GETDATE(), GETDATE())
 		
 	-- Also insert the new partner into the PartnerOrg table
 	INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
 	SELECT @Name, @SponsorCode, 'Partner', 1 
 
 	-- Also Insert the newly inserted partner into the icrp_dataload database
-	INSERT INTO icrp_dataload.dbo.Partner ([Name], [Description],[SponsorCode],[Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate],[Latitude], [Longitude], [CreatedDate], [UpdatedDate])
-	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Longitude, @Latitude, GETDATE(), GETDATE())
+	INSERT INTO icrp_dataload.dbo.Partner ([Name], [Description],[SponsorCode],[Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], [CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, GETDATE(), GETDATE())
 
 	COMMIT TRANSACTION
 
@@ -4703,8 +4701,8 @@ BEGIN TRY
 		   RAISERROR ('Funding Org Abbreviation already existed for the partner.', 16, 1)
 	END
 
-	INSERT INTO FundingOrg ([Name], Abbreviation, [Type],[Country], [Currency], [SponsorCode], 	[MemberType], [MemberStatus], [IsAnnualized],[Note], [Website],	[Longitude],[Latitude],	[CreatedDate], [UpdatedDate])
-	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	@IsAnnualized, @Note, @Website, @Longitude, @Latitude, GETDATE(), GETDATE())
+	INSERT INTO FundingOrg ([Name], Abbreviation, [Type],[Country], [Currency], [SponsorCode], 	[MemberType], [MemberStatus], [IsAnnualized],[Note], [Website],	[Latitude],	[Longitude],[CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	@IsAnnualized, @Note, @Website, @Latitude, @Longitude, GETDATE(), GETDATE())
 	
 
 	-- Also Insert the new fundingorg into the PartnerOrg table
@@ -4712,8 +4710,8 @@ BEGIN TRY
 	VALUES (@Name, @SponsorCode, 'Associate', 1)
 
 	-- Also insert the new fundingorg into the icrp_dataload database
-	INSERT INTO icrp_dataload.dbo.FundingOrg ([Name], Abbreviation, [Type],[Country], [Currency], [SponsorCode], 	[MemberType], [MemberStatus], [IsAnnualized],[Note], [Website],	[Longitude],[Latitude],	[CreatedDate], [UpdatedDate])
-	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	@IsAnnualized, @Note, @Website, @Longitude, @Latitude, GETDATE(), GETDATE())
+	INSERT INTO icrp_dataload.dbo.FundingOrg ([Name], Abbreviation, [Type],[Country], [Currency], [SponsorCode], 	[MemberType], [MemberStatus], [IsAnnualized],[Note], [Website],	[Latitude],	[Longitude], [CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	@IsAnnualized, @Note, @Website, @Latitude, @Longitude, GETDATE(), GETDATE())
 	
 	COMMIT TRANSACTION
 

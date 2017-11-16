@@ -1,5 +1,5 @@
 --1348  => 1269
-select Name AS Institution, City, ISNULL(State, '') AS State, Country, ISNULL(grid, '') AS GRID from Institution where ISNULL(Latitude, 0) = 0  and name <> 'Missing'
+select Name AS Institution, City, ISNULL(State, '') AS State, Country, ISNULL(grid, '') AS GRID, '' AS Latitude, '' AS Longitude from Institution where ISNULL(Latitude, 0) = 0  and name <> 'Missing' ORDER BY Name
 
  begin transaction
  update ProjectFundingInvestigator set institutionid = 39 where institutionid = 38
