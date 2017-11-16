@@ -7,7 +7,7 @@ use PDOException;
 
 class CollaboratorsManager {
 
-  public static function addCollaborators(PDO $connection, array $parameters): array {
+  public static function importCollaborators(PDO $connection, array $parameters): array {
     try {
       return $parameters;
     }

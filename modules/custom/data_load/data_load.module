@@ -5,10 +5,10 @@ function data_load_theme($existing, $type, $theme, $path) {
         'data_load' => [
             'variables' => [],
         ],
-        'add_institutions' => [
+        'import_institutions' => [
             'variables' => [],
         ],
-        'add_collaborators' => [
+        'import_collaborators' => [
             'variables' => [],
         ],
     ];

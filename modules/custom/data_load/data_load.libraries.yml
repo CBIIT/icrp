@@ -8,7 +8,7 @@ resources:
     src/assets/main.js: {}
 
 
-add_institutions:
+import_components:
   version: 1.0
   css:
     theme:

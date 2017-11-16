@@ -24,7 +24,7 @@ class InstitutionsManager {
     ");
   }
 
-  public static function addInstitutions(PDO $pdo, array $institutions) {
+  public static function importInstitutions(PDO $pdo, array $institutions) {
     try {
       self::initializeTable($pdo);
       $stmt = $pdo->prepare(

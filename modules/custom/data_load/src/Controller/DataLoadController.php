@@ -11,8 +11,9 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use League\Csv\Reader;
 use Box\Spout\Writer\WriterFactory;
 use Box\Spout\Common\Type;
-use \PDO;
-use \PDOException;
+use PDO;
+use PDOException;
+use Drupal\data_load\Services\CSVReader;
 
 class DataLoadController {
 
@@ -258,7 +259,7 @@ class DataLoadController {
             }
 
             foreach($csv as $index => $row) {
-              
+
                 $values = array_map(function($key, $value) use ($locale) {
                     $key = strtolower($key);
                     if ($key === 'awardfunding') {
@@ -266,19 +267,19 @@ class DataLoadController {
                         $value = floatval(str_replace(',', '', $value));
                         $value = round($value, 2);
                     } else if ($locale === 'en-gb' && (
-                                $key === 'awardstartdate' || 
+                                $key === 'awardstartdate' ||
                                 $key === 'awardenddate' ||
                                 $key === 'budgetstartdate' ||
                                 $key === 'budgetenddate')
                               ) {
-                        
+
                         list($date, $month, $year) = sscanf($value, "%d/%d/%d");
                         $value = "$month/$date/$year";
                     }
 
                     return strlen($value) > 0 ? $value : NULL;
                 }, array_keys($row), array_values($row));
-                
+
 //                error_log(json_encode($row));
 //                error_log(json_encode($values));
                 array_push($values, $originalFileName);
@@ -569,23 +570,23 @@ class DataLoadController {
         $pdo = self::getConnection();
         $statement = $pdo->prepare('
                             INSERT INTO ProjectFundingExt(
-                                    ProjectFundingID, 
-                                    CalendarYear, 
-                                    CalendarAmount) 
+                                    ProjectFundingID,
+                                    CalendarYear,
+                                    CalendarAmount)
                             VALUES(:id, :year, :amount)');
 
         foreach($pdo->query('
-                        SELECT ProjectId, 
-                            pf.ProjectFundingID, 
-                            BudgetStartDate, 
-                            BudgetEndDate, 
-                            Amount 
-                        FROM ProjectFunding pf 
-                        LEFT OUTER JOIN ProjectFundingExt pfe 
-                        ON pf.ProjectFundingID = pfe.ProjectFundingID 
-                        WHERE  pfe.ProjectFundingID IS NULL 
-                        AND pf.BudgetStartDate IS NOT NULL 
-                        AND pf.BudgetEndDate IS NOT NULL 
+                        SELECT ProjectId,
+                            pf.ProjectFundingID,
+                            BudgetStartDate,
+                            BudgetEndDate,
+                            Amount
+                        FROM ProjectFunding pf
+                        LEFT OUTER JOIN ProjectFundingExt pfe
+                        ON pf.ProjectFundingID = pfe.ProjectFundingID
+                        WHERE  pfe.ProjectFundingID IS NULL
+                        AND pf.BudgetStartDate IS NOT NULL
+                        AND pf.BudgetEndDate IS NOT NULL
                         AND pf.BudgetEndDate >= pf.BudgetStartDate
                         ') as $row) {
 
@@ -604,7 +605,7 @@ class DataLoadController {
             $day_counter = 0;
 
             while($current_date <= $end_date) {
-            
+
                 if (date('Y', $current_date) == $current_year) {
                     $day_counter++;
                 } else {
@@ -620,11 +621,11 @@ class DataLoadController {
             foreach($years as $year_arr) {
                 $statement->execute(array('id' => $projectFundingID, 'year' => $year_arr['year'], 'amount' => $year_arr['amount']));
             }
-        
+
             $years = null;
         }
         $statement = null;
-        $pdo = null;      
+        $pdo = null;
     }
 
 

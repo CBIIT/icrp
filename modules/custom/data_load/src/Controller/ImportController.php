@@ -10,9 +10,18 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Drupal\data_load\Services\PDOBuilder;
 use Drupal\data_load\Services\CollaboratorsManager;
 use Drupal\data_load\Services\InstitutionsManager;
+use Drupal\data_load\Services\DataLoad\MSSQL\DataLoad;
+// use this class instead once migration to MySQL is complete
+// use Drupal\data_load\Services\DataLoad\MYSQL\DataLoad;
 
 class ImportController extends ControllerBase {
 
+  /**
+   * Creates a JSON response with CORS headers from the given data
+   *
+   * @param [type] $data
+   * @return void
+   */
   private static function createResponse($data = NULL) {
     $status_code = array_key_exists('ERROR', $data) ? 400 : 200;
     $response = JsonResponse::create($data, $status_code, [
@@ -27,19 +36,120 @@ class ImportController extends ControllerBase {
     return $response;
   }
 
-  public static function addInstitutions(Request $request): JsonResponse {
+
+  /**
+   * Retrieves sorted and paginated data from the tmp table
+   *
+   * @param Request $request
+   * @return JSONResponse
+   */
+  public static function getData(Request $request): JSONResponse {
     $parameters = json_decode($request->getContent(), true);
     $connection = PDOBuilder::getConnection();
 
-    $data = InstitutionsManager::addInstitutions($connection, $parameters);
+    $data = DataLoad::getData($connection, $parameters);
     return self::createResponse($data);
   }
 
-  public static function addCollaborators(Request $request): JsonResponse {
+
+  /**
+   * Loads data into the tmp table so it can be validated
+   *
+   * @param Request $request
+   * @return JSONResponse
+   */
+  public static function loadData(Request $request): JSONResponse {
     $parameters = json_decode($request->getContent(), true);
     $connection = PDOBuilder::getConnection();
 
-    $data = CollaboratorsManager::addCollaborators($connection, $parameters);
+    $data = DataLoad::loadData($connection, $parameters);
+    return self::createResponse($data);
+  }
+
+
+  /**
+   * Gets validation rules for the data import
+   *
+   * @param Request $request
+   * @return JSONResponse
+   */
+  public static function getValidationRules(Request $request): JSONResponse {
+    $parameters = json_decode($request->getContent(), true);
+    $connection = PDOBuilder::getConnection();
+
+    $data = DataLoad::getValidationRules($connection, $parameters);
+    return self::createResponse($data);
+  }
+
+
+  /**
+   * Gets partners from the database
+   *
+   * @return JSONResponse
+   */
+  public static function getPartners(): JSONResponse {
+    $parameters = json_decode($request->getContent(), true);
+    $connection = PDOBuilder::getConnection();
+
+    $data = DataLoad::getPartners($connection, $parameters);
+    return self::createResponse($data);
+  }
+
+
+  /**
+   * Performs an integrity check on the supplied data
+   *
+   * @param Request $request
+   * @return JsonResponse
+   */
+  public static function integrityCheck(Request $request): JsonResponse {
+    $parameters = json_decode($request->getContent(), true);
+    $connection = PDOBuilder::getConnection();
+
+    $data = DataLoad::integrityCheck($connection, $parameters);
+    return self::createResponse($data);
+  }
+
+
+  /**
+   * Imports projects from the data_load database
+   *
+   * @param Request $request
+   * @return JsonResponse
+   */
+  public static function importProjects(Request $request): JsonResponse {
+    $parameters = json_decode($request->getContent(), true);
+    $connection = PDOBuilder::getConnection();
+
+    $data = DataLoad::importProjects($connection, $parameters);
+    return self::createResponse($data);
+  }
+
+
+  /**
+   * Import Institutions
+   *
+   * @param Request $request
+   * @return JsonResponse
+   */
+  public static function importInstitutions(Request $request): JsonResponse {
+    $parameters = json_decode($request->getContent(), true);
+    $connection = PDOBuilder::getConnection();
+    $data = InstitutionsManager::importInstitutions($connection, $parameters);
+    return self::createResponse($data);
+  }
+
+
+  /**
+   * Import Collaborators
+   *
+   * @param Request $request
+   * @return JsonResponse
+   */
+  public static function importCollaborators(Request $request): JsonResponse {
+    $parameters = json_decode($request->getContent(), true);
+    $connection = PDOBuilder::getConnection();
+    $data = CollaboratorsManager::importCollaborators($connection, $parameters);
     return self::createResponse($data);
   }
 }
