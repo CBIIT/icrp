@@ -70,28 +70,7 @@ class DatabaseSearch {
       'project_types'               => 'SELECT ProjectType AS [value], ProjectType AS [label] FROM ProjectType',
       'cso_research_areas'          => 'SELECT Code AS [value], Code + \' \' + Name AS [label], CategoryName AS [group_1], \'All Areas\' as [group_2] FROM CSO ORDER BY sortOrder, value',
       'conversion_years'            => 'SELECT DISTINCT Year AS [value], Year AS [label] FROM CurrencyRate ORDER BY Year DESC',
-//    'funding_organizations'       => 'SELECT FundingOrgID AS [value], Name AS [label], SponsorCode AS [group_1], Country AS [group_2], \'Funding\' AS [group_3] FROM FundingOrg WHERE LastImportDate IS NOT NULL',
-      'funding_organizations'       => '
-        SET NOCOUNT ON;
-        CREATE TABLE TEMPORARY_FUNDING_ORGANIZATIONS (
-          FundingOrgID int,
-          Name varchar(100),
-          Abbreviation varchar(15),
-          DisplayName varchar(153),
-          Type varchar(25),
-          MemberType varchar(25),
-          MemberStatus nchar(10),
-          Country varchar(3),
-          Currency varchar(3),
-          SponsorCode varchar(50),
-          IsAnnualized bit,
-          Note varchar(8000),
-          LastImportDate datetime,
-          LastImportDesc varchar(1000),
-        );
-        INSERT INTO TEMPORARY_FUNDING_ORGANIZATIONS EXECUTE GetFundingOrgs @type = search;
-        SELECT FundingOrgID AS [value], Name AS [label], SponsorCode AS [group_1], Country AS [group_2], \'Funding\' AS [group_3] FROM TEMPORARY_FUNDING_ORGANIZATIONS;
-        DROP TABLE TEMPORARY_FUNDING_ORGANIZATIONS;',
+      'funding_organizations'       => 'EXECUTE GetFundingOrgs @type = search',
     ];
 
     // map query results to field values
@@ -99,8 +78,20 @@ class DatabaseSearch {
       $fields[$key] = $pdo->query($value)->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // update funding organization base tree
+    $funding_organizations = [];
+    foreach($fields['funding_organizations'] as $funding_organization) {
+      $funding_organizations[] = [
+        'value' => $funding_organization['FundingOrgID'],
+        'label' => $funding_organization['Name'],
+        'group_1' => $funding_organization['SponsorCode'],
+        'group_2' => $funding_organization['Country'],
+        'group_3' => 'Funding',
+      ];
+    }
+
     // create trees for funding organizations and cso research areas
-    $funding_organizations = TreeBuilder::flattenTree(TreeBuilder::createTree($fields['funding_organizations'], 3, 'group_', 'All %s Organizations')[0]);
+    $funding_organizations = TreeBuilder::flattenTree(TreeBuilder::createTree($funding_organizations, 3, 'group_', 'All %s Organizations')[0]);
     $fields['funding_organizations'] = [TreeBuilder::sortTree($funding_organizations)];
     $fields['cso_research_areas'] = [TreeBuilder::flattenTree(TreeBuilder::createTree($fields['cso_research_areas'], 2)[0])];
 
