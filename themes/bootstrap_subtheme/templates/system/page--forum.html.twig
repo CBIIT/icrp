@@ -148,13 +148,6 @@
           {% endblock %}
         {% endif %}
 
-        {# Breadcrumbs #}
-  
-        {% if breadcrumb %}
-          {% block breadcrumb %}
-            {{ breadcrumb }}
-          {% endblock %}
-        {% endif %}
 
         {# Action Links #}
         {% if action_links %}
@@ -186,6 +179,12 @@
           {% else %}
 
             <h2>ICRP Partnership Forum</h2>
+            {# Breadcrumbs #}
+            {% if breadcrumb %}
+              {% block breadcrumb %}
+                {{ breadcrumb }}
+              {% endblock %}
+            {% endif %}
 
             <a data-drupal-link-system-path="user/login" data-drupal-link-query="{&quot;destination&quot;:&quot;\/forum\/6&quot;}" class="btn btn-primary" href="/user/login?destination=/forum/6" style="margin:25px;">
             <span aria-hidden="true" class="icon glyphicon glyphicon-log-in"></span>&nbsp;Log in to post new content in the forum.
