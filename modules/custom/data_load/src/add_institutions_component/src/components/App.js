@@ -48,7 +48,7 @@ export default class App extends Component {
 
     let protocol = window.location.protocol;
     let hostname = window.location.hostname;
-    let pathname = 'DataUploadTool/addInstitutions';
+    let pathname = 'api/institutions/add';
     try {
       let response = await fetch(`${protocol}//${hostname}/${pathname}`, {
         method: 'POST',

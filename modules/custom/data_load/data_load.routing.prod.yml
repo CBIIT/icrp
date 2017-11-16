@@ -107,19 +107,36 @@ dataload.sponsor_codes:
     _access: 'TRUE'
     _role: 'admin+manager'
 
-dataload.add_institutions:
-  path: '/DataUploadTool/addInstitutions'
+add_institutions:
+  path: '/AddInstitutions'
   defaults:
-    _controller: 'Drupal\data_load\Controller\AddInstitutionsController::addInstitutionsRoute'
+    _controller: '\Drupal\data_load\Controller\ContentController::addInstitutions'
+    _title: 'Add Institutions Tool'
   requirements:
     _access: 'TRUE'
     _role: 'admin+manager'
 
-add_institutions.app:
-  path: '/AddInstitutions'
+add_collaborators:
+  path: '/ImportCollaborators'
   defaults:
-    _controller: '\Drupal\data_load\Controller\AddInstitutionsController::addInstitutionsApp'
-    _title: 'Add Institutions Tool'
+    _controller: '\Drupal\data_load\Controller\ContentController::addCollaborators'
+    _title: 'Import Collaborators Tool'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.institutions.add:
+  path: '/api/institutions/add'
+  defaults:
+    _controller: 'Drupal\data_load\Controller\ImportController::addInstitutions'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.collaborators.add:
+  path: '/api/collaborators/add'
+  defaults:
+    _controller: '\Drupal\data_load\Controller\ImportController::addCollaborators'
   requirements:
     _access: 'TRUE'
     _role: 'admin+manager'
