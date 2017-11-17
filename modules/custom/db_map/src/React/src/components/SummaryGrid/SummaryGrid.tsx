@@ -66,21 +66,27 @@ export default class SummaryGrid extends ComponentBase<SummaryGridProps & React.
                 <th>{parseViewLevel(viewLevel)}</th>
                 <th>
                   <OverlayTrigger placement="top" overlay={
-                    <Tooltip id="total-projects">Total projects with PI or collaborators in this region</Tooltip>
+                    <Tooltip id="total-projects">
+                      Total projects with PI or collaborators in this {parseViewLevel(viewLevel).toLowerCase()}
+                    </Tooltip>
                   }>
                     <div>Total Projects</div>
                   </OverlayTrigger>
                 </th>
                 <th>
                   <OverlayTrigger placement="top" overlay={
-                    <Tooltip id="projects-with-pi">Projects with PI in this region</Tooltip>
+                    <Tooltip id="projects-with-pi">
+                      Projects with PI in this {parseViewLevel(viewLevel).toLowerCase()}
+                    </Tooltip>
                   }>
                     <div>Projects with PI</div>
                   </OverlayTrigger>
                 </th>
                 <th>
                   <OverlayTrigger placement="top" overlay={
-                    <Tooltip id="projects-with-collaborators">Projects with collaborator(s) in this region</Tooltip>
+                    <Tooltip id="projects-with-collaborators">
+                      Projects with collaborator(s) in this {parseViewLevel(viewLevel).toLowerCase()}
+                    </Tooltip>
                   }>
                     <div>Projects with Collaborators</div>
                   </OverlayTrigger>
