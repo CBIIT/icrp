@@ -611,8 +611,7 @@ display:
           group_type: group
           admin_label: ''
           operator: in
-          value:
-            'Pending Review': 'Pending Review'
+          value: {  }
           group: 1
           exposed: true
           expose:
