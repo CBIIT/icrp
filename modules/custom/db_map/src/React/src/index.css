@@ -32,6 +32,15 @@ body {
   margin-bottom: 5px;
 }
 
+.ml-5 {
+  margin-left: 5px;
+}
+
+.mr-5 {
+  margin-right: 5px;
+}
+
+
 .margin-top {
   margin-top: 10px !important;
 }
@@ -78,11 +87,11 @@ table.popover-table td {
 }
 
 .infowindow-description {
-  color: #888; 
-  font-style: italic; 
+  color: #888;
+  font-style: italic;
   font-size: 12px;
-  margin-bottom: 5px; 
-  max-width: 280px; 
+  margin-bottom: 5px;
+  max-width: 280px;
 }
 
 #icrp-map-header a {

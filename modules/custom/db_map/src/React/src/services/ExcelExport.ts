@@ -24,7 +24,7 @@ export const buildSheets = ({searchCriteria, locations, viewLevel}: ExportFields
     {
       title: 'Data',
       rows: [
-        [parseViewLevel(viewLevel), 'Total Projects', 'Total PIs', 'Total Collaborators'],
+        [parseViewLevel(viewLevel), 'Total Projects', 'Projects with PI', 'Projects with Collaborators'],
         ...locations.map(({label, counts})=> [
           label,
           counts.projects,

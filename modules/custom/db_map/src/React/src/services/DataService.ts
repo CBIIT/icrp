@@ -2,6 +2,11 @@ import { parse, stringify } from 'query-string';
 
 export type ViewLevel = 'regions' | 'countries' | 'cities' | 'institutions';
 
+/**
+ * Defines LocationCounts,
+ * which contain the associated data
+ * for a particular location.
+ */
 export interface LocationCounts {
   projects: number;
   primaryInvestigators: number;

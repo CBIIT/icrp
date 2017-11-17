@@ -2,7 +2,7 @@ import * as React from 'react';
 import { ComponentBase  } from 'resub';
 import { store } from '../../services/Store';
 import { Location, ViewLevel, LocationFilters, parseViewLevel, getNextLocationFilters } from '../../services/DataService';
-import { Pagination } from 'react-bootstrap';
+import { Pagination, OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 import './SummaryGrid.css';
 
@@ -64,9 +64,27 @@ export default class SummaryGrid extends ComponentBase<SummaryGridProps & React.
             <thead>
               <tr>
                 <th>{parseViewLevel(viewLevel)}</th>
-                <th>Total Projects</th>
-                <th>Total PIs</th>
-                <th>Total Collaborators</th>
+                <th>
+                  <OverlayTrigger placement="top" overlay={
+                    <Tooltip id="total-projects">Total projects with PI or collaborators in this region</Tooltip>
+                  }>
+                    <div>Total Projects</div>
+                  </OverlayTrigger>
+                </th>
+                <th>
+                  <OverlayTrigger placement="top" overlay={
+                    <Tooltip id="projects-with-pi">Projects with PI in this region</Tooltip>
+                  }>
+                    <div>Projects with PI</div>
+                  </OverlayTrigger>
+                </th>
+                <th>
+                  <OverlayTrigger placement="top" overlay={
+                    <Tooltip id="projects-with-collaborators">Projects with collaborator(s) in this region</Tooltip>
+                  }>
+                    <div>Projects with Collaborators</div>
+                  </OverlayTrigger>
+                </th>
               </tr>
             </thead>
             <tbody>
