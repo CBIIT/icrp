@@ -62,7 +62,9 @@ class ImportController extends ControllerBase {
     $parameters = json_decode($request->getContent(), true);
     $connection = PDOBuilder::getConnection();
 
-    $data = DataLoad::loadData($connection, $parameters);
+    // $request->files
+
+    $data = DataLoad::loadData($connection, $parameters, $filePath);
     return self::createResponse($data);
   }
 
@@ -97,7 +99,7 @@ class ImportController extends ControllerBase {
 
 
   /**
-   * Performs an integrity check on the supplied data
+   * Performs an integrity check for a specific partner
    *
    * @param Request $request
    * @return JsonResponse
@@ -107,6 +109,21 @@ class ImportController extends ControllerBase {
     $connection = PDOBuilder::getConnection();
 
     $data = DataLoad::integrityCheck($connection, $parameters);
+    return self::createResponse($data);
+  }
+
+
+  /**
+   * Performs an integrity check for a specific rule
+   *
+   * @param Request $request
+   * @return JsonResponse
+   */
+  public static function integrityCheckDetails(Request $request): JsonResponse {
+    $parameters = json_decode($request->getContent(), true);
+    $connection = PDOBuilder::getConnection();
+
+    $data = DataLoad::integrityCheckDetails($connection, $parameters);
     return self::createResponse($data);
   }
 
