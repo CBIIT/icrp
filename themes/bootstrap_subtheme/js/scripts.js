@@ -301,13 +301,13 @@
       localStorage.setItem('lastCalendarTab', $(e.target).attr('href'));
     });
     //go to the latest tab, if it exists:
+    var open_tab = decodeURIComponent($.urlParam("open_tab"));
     var lastTab = localStorage.getItem('lastCalendarTab');
-    if (lastTab) {
+    if (lastTab && open_tab != 'partner-meetings') {
       //console.log("lastTab"+lastTab);
       $('a[href="'+lastTab+'"]').click();
     } else {
-      //console.log("let's click on the partner-meething");
-      $('a[href="#partner-meeting"]').click();
+      $('a[href="#partner-meetings"]').click();
     }
   }
 
