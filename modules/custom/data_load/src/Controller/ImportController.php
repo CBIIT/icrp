@@ -38,21 +38,6 @@ class ImportController extends ControllerBase {
 
 
   /**
-   * Retrieves sorted and paginated data from the tmp table
-   *
-   * @param Request $request
-   * @return JSONResponse
-   */
-  public static function getData(Request $request): JSONResponse {
-    $parameters = json_decode($request->getContent(), true);
-    $connection = PDOBuilder::getConnection();
-
-    $data = DataLoad::getData($connection, $parameters);
-    return self::createResponse($data);
-  }
-
-
-  /**
    * Loads data into the tmp table so it can be validated
    *
    * @param Request $request
@@ -65,6 +50,21 @@ class ImportController extends ControllerBase {
     // $request->files
 
     $data = DataLoad::loadData($connection, $parameters, $filePath);
+    return self::createResponse($data);
+  }
+
+
+  /**
+   * Retrieves sorted and paginated data from the tmp table
+   *
+   * @param Request $request
+   * @return JSONResponse
+   */
+  public static function getData(Request $request): JSONResponse {
+    $parameters = json_decode($request->getContent(), true);
+    $connection = PDOBuilder::getConnection();
+
+    $data = DataLoad::getData($connection, $parameters);
     return self::createResponse($data);
   }
 

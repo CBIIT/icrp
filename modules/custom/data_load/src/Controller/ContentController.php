@@ -31,7 +31,7 @@ class ContentController {
       '#theme' => 'import_collaborators',
       '#attached' => [
         'library'   => [
-          'data_load/import_components'
+          'data_load/import_collaborators'
         ],
       ],
     ];
@@ -47,7 +47,7 @@ class ContentController {
       '#theme' => 'import_institutions',
       '#attached' => [
         'library'   => [
-          'data_load/import_components'
+          'data_load/import_institutions'
         ],
       ],
     ];
