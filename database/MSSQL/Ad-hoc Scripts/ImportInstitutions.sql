@@ -56,22 +56,27 @@ select * from #dup order by Name, city
 --drop table #dupcoord
 select distinct i.* into #dupcoord from #Institution i
 JOIN (SELECT latitude, longitude  FROM #Institution GROUP BY latitude, longitude having count(*) > 1) d ON d.latitude = i.latitude AND d.longitude = i.longitude
-WHERE i.name NOT IN (SELECT Name FROM #dup)
-ORDER BY latitude, longitude
+WHERE i.name NOT IN (SELECT Name FROM #dup) 
+
+
+select * from #dupcoord ORDER BY latitude, longitude  -- but it's okay if their cities are the same
 
 --select * from #dupcoord ORDER BY latitude, longitude
 
 -- already exist in lookup
-SELECT i.*  INTO #exist 
+--drop table #exist
+
+DELETE #Institution WHERE Name = 'Institute of Molecular and Cell Biology'
+
+SELECT i.Name AS icrpInstitution, i.City AS ICRPCity, i.latitude AS ICRPLat, i.Longitude AS ICRPLong, t.Name AS newInstitution, t.City AS NewCity,  t.latitude, t.Longitude INTO #exist 
 FROM #Institution t 
 JOIN Institution i ON t.Name = i.Name AND t.City = i.City
 
 select * from #exist
 
-SELECT t.*
+-- "St Mary's Hospital" and "University of the West Indies" are okay, they are different sites
+SELECT t.*, i.*
 FROM #Institution t JOIN Institution i ON t.Name = i.Name 
-
-
 
 
 IF EXISTS (SELECT * FROM #exist)
@@ -82,23 +87,28 @@ END
 ELSE
 	PRINT 'Checking Existing Institutions   ==> Pass'
 
+
+SELECT Name, City, count(*) FROM Institution GROUP BY Name, City HAVING COUNT(*) >1
+
 BEGIN TRANSACTION
--- 1,237 institutions
+
+-- 1,199 institutions
 INSERT INTO Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
-SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM #Institution i
-LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.City
-WHERE (e.Name IS NULL) 
+SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] 
+	FROM #Institution i
+	LEFT JOIN #exist e ON i.Name = e.icrpInstitution AND i.City = e.ICRPCity
+WHERE (e.icrpInstitution IS NULL)  
 
 UPDATE Institution SET City = 'Singapore', GRID='grid.418812.6 ' WHERE Name = 'Institute of Molecular and Cell Biology'
 
 SELECT Name, City, count(*) FROM Institution GROUP BY Name, City HAVING COUNT(*) >1
 
-SELECT m.* INTO #dup FROM 
+SELECT m.* INTO #dup2 FROM 
 	InstitutionMapping m
 	join Institution i ON m.oldname=i.Name AND m.oldcity = i.city
 	join Institution i2 ON m.newname=i2.Name AND m.newcity = i2.city
 
-IF EXISTS (SELECT * FROM #dup)
+IF EXISTS (SELECT * FROM #dup2)
 BEGIN
 	PRINT 'Checking Duplicate Institutions   ==> ERROR'
 	SELECT * FROM #dup
@@ -111,19 +121,3 @@ ELSE
 rollback
 
 --select * from Institution where name in ('IIT Research Institute', 'Louisiana State University Health Sciences Center New Orleans')
-
-
-Name	City	(No column name)
-Queen Elizabeth Central Hospital	Blantyre	2
-Instituto Nacional de Cancerología	Bogota	2
-Fundación Huesped	Buenos Aires	2
-Centre National de Reference en Matière de VIH/SIDA	Bujumbura	2
-IIT Research Institute	Chicago	2
-University Hospital Cologne	Cologne	2
-Kaohsiung Medical University	Kaohsiung City	2
-Udaan Trust	Navi Mumbai	2
-Louisiana State University Health Sciences Center New Orleans	New Orleans	2
-Policlinica Augusto Amaral Peixoto	Rio de Janeiro 	2
-Instituto Salvadoreño Del Seguro Social	San Salvador	2
-Chang Gung Memorial Hospital	Taipei	2
-National Taiwan University Hospital	Taipei	2

@@ -2048,6 +2048,104 @@ END CATCH
 
 GO
 
+
+
+/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+/****** Object:  StoredProcedure [dbo].[ImportCollaborators]    Script Date: 12/14/2016 4:21:37 PM ******/
+/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ImportCollaborators]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ImportCollaborators]
+GO 
+
+CREATE PROCEDURE [dbo].[ImportCollaborators]   	
+AS
+
+BEGIN TRY     	
+
+
+	IF object_id('tmp_LoadCollaborators') is null
+	BEGIN
+		   RAISERROR ('Table tmp_LoadCollaborators not found', 16, 1)
+	END
+	
+	-- Replace city name with accent
+	update tmp_LoadCollaborators set city ='Montréal' where city='Montreal'
+	update tmp_LoadCollaborators set city ='Québec' where city='Quebec'
+	update tmp_LoadCollaborators set city ='Zürich' where city='Zurich'
+	update tmp_LoadCollaborators set city ='Pierre-Bénite' where city='Pierre-Benite'
+	update tmp_LoadCollaborators set city ='Umeå' where city='Umea'
+
+	-- Data Check - AltID not exist in ProjectFunding
+	SELECT DISTINCT t.AwardCode, t.AltAwardCode INTO #missingProject
+	from tmp_LoadCollaborators t
+	LEFT JOIN ProjectFunding f ON t.AltAwardCode = f.AltAwardCode
+	WHERE f.AltAwardCode IS NULL
+
+	IF EXISTS (SELECT 1 FROM #missingProject)
+	BEGIN		
+		SELECT 'Missing AltAwardCode', * FROM #missingProject
+		RETURN
+	END	
+
+	-- Data Check - collaborator Institution not exist in Institution lookup
+	SELECT DISTINCT t.Institution, t.City INTO #missingInstitution
+	from tmp_LoadCollaborators t
+	LEFT JOIN Institution i ON t.Institution = i.Name AND t.City = i.City
+	WHERE i.Name IS NULL
+
+	IF EXISTS (SELECT 1 FROM #missingInstitution)
+	BEGIN		
+		SELECT  'Missing Institution', * FROM #missingInstitution
+		RETURN
+	END
+	
+	-- Data Check - collaborators already exist in projectFundingInvestigator table
+	SELECT DISTINCT t.Institution, t.City INTO #existCollaborators
+	from tmp_LoadCollaborators t
+		JOIN ProjectFunding f ON t.AltAwardCode = f.AltAwardCode
+		JOIN ProjectFundingInvestigator pi ON t.LastName = pi.LastName and t.FirstName = pi.FirstName AND f.ProjectFundingID = pi.ProjectFundingID
+		JOIN Institution i ON t.Institution = i.Name AND t.City = i.City		
+	WHERE ISNULL(pi.IsPrincipalInvestigator, 0) = 0
+
+	IF EXISTS (SELECT 1 FROM #existCollaborators)
+	BEGIN		
+		SELECT  'Collaborators already existed', * FROM #existCollaborators
+		RETURN
+	END
+
+	BEGIN TRANSACTION;
+
+	-- Data Check Passed - Start Import 
+	INSERT INTO ProjectFundingInvestigator (ProjectFundingID, InstitutionID, [LastName], [FirstName], [ORC_ID], IsPrincipalInvestigator, OtherResearch_ID, OtherResearch_Type) 
+	SELECT f.ProjectFundingID, i.InstitutionID, t.LastName, t.FirstName, t.ORC_ID, 0, t.OtherResearchID, t.OtherResearchType
+	FROM tmp_LoadCollaborators t
+		JOIN ProjectFunding f ON t.AltAwardCode = f.AltAwardCode
+		JOIN Institution i ON t.Institution = i.Name AND t.City = i.City		
+
+	-- return an empty table
+	SELECT TOP 0 * FROM tmp_LoadCollaborators
+	
+	IF object_id('tmp_LoadCollaborators') is not null
+		DROP TABLE tmp_LoadCollaborators
+
+	COMMIT TRANSACTION
+
+END TRY
+
+BEGIN CATCH
+
+    -- IF @@trancount > 0 
+	ROLLBACK TRANSACTION
+  
+	DECLARE @msg nvarchar(2048) = error_message()  
+     RAISERROR (@msg, 16, 1)
+	        
+END CATCH  
+
+GO
+
+
 /*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /****** Object:  StoredProcedure [dbo].[DataUpload_IntegrityCheck]    Script Date: 12/14/2016 4:21:37 PM ******/
 /*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
