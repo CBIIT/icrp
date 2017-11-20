@@ -1,73 +1,9 @@
 (function ($) {
-  /*
-  Drupal.fullcalendar.plugins.fullcalendar = {
-    options: function (fullcalendar, settings) {
-      if (settings.ajax) {
-        fullcalendar.submitInit(settings);
-      }
-      var options = {
-        eventClick: function (event, jsEvent, view) {
-          if (settings.sameWindow) {
-            //window.open(event.url, '_self');
-            var href = "/events/581";
-            alert("This is the global script.js I have access too");
-
-
-            }
-          }
-      }
-    }
-  }
-  */
   Drupal.behaviors.icrpBehavior = {
     attach: function (context, settings) {
-      //alert("Your document is ready.  ");
-      /*
-      $(window).load(function() {
-       // executes when complete page is fully loaded, including all frames, objects and images
-        var calendar_ids = Object.keys(Drupal.fullcalendar.cache);
-        console.dir(calendar_ids);
-        console.log(calendar_ids[0]);
-        console.log(calendar_ids[1]);
-        var meeting_calendar = $(calendar_ids[1]);
-        console.dir(meeting_calendar);
-        var view = meeting_calendar.fullCalendar('getView');
-        console.dir(view);
-        window.view = view;
-        //alert("The view's title is " + view.title);
-        //var fullcalendar_meeting = meeting_calendar;
-
-        console.log("Here is the meeting calendar");
-        //console.dir(fullcalendar_meeting);
-        //fullcalendar_meeting.fullCalendar('next');
-      });
-      */
-
-      // Get calendar id
-      /*
-      var calendar_ids = Object.keys(Drupal.fullcalendar.cache);
-      console.dir(calendar_ids);
-      console.log(calendar_ids[0]);
-      console.log(calendar_ids[1]);
-      var meeting_calendar = $(calendar_ids[0]);
-      console.dir(meeting_calendar);
-      var fullcalendar_meeting = meeting_calendar.fullCalendar({});
-
-      console.log("Here is the meeting calendar");
-      console.dir(fullcalendar_meeting);
-      alert("About to go next");
-      setTimeout(function(){  
-         alert("Hello"); 
-        fullcalendar_meeting.fullCalendar('next');
-       }, 3000);
-       */
-
-//      meeting_calendar.fullCalendar('next');
-
       // Set it to a variable.
       // Create an eventClick object
       // Write the object to the fullcalendar object.
-
       //console.dir(context);
       //console.dir(settings);
       //$('h2').css('color', 'red');
@@ -80,6 +16,11 @@
           console.info("You clicked on Caption");
           $.redirectCarousel(e);
       });
+      $("#logout").click(function(e) {
+          console.info("You clicked on logout.  Clear Session");
+          sessionStorage.clear();
+      });
+
       //$('#edit-field-event-date-range-0-value-date').on('change')
       /*
       $('body').on('change', '#edit-field-event-date-range-0-value-date', function(e) {
