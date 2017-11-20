@@ -4,6 +4,7 @@ namespace Drupal\data_load\Services;
 
 use PDO;
 use PDOException;
+use Exception;
 
 class CollaboratorsManager {
 
@@ -27,11 +28,21 @@ class CollaboratorsManager {
     ");
   }
 
-  public static function importCollaborators(PDO $connection, array $parameters): array {
+  /**
+   * Imports collaborators into the database
+   *
+   * @param PDO $connection
+   * @param array $data A non-associative array containing the records to be inserted
+   * @return array
+   */
+  public static function importCollaborators(PDO $connection, array $data): array {
+
+    $index = 1;
     try {
+
       self::initializeTable($connection);
 
-      $stmt = $pdo->prepare(
+      $stmt = $connection->prepare(
         "INSERT INTO tmp_LoadCollaborators (
           [AwardCode],
           [AltAwardCode],
@@ -44,23 +55,32 @@ class CollaboratorsManager {
           [OtherResearchType])
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-      foreach($parameters as $row) {
-
-        $data = array_map(function($value) {
+      foreach($data as $row) {
+        $index ++;
+        $parameters = array_map(function($value) {
           return strlen($value) > 0 ? $value : NULL;
         }, $row);
 
-        $stmt->execute($data);
+        $stmt->execute($parameters);
       }
 
-      return $pdo->query("SET NOCOUNT ON; EXEC ImportCollaborators @ImportCount = NULL")->fetchAll();
+      return $connection
+        ->query("SET NOCOUNT ON; EXEC ImportCollaborators @ImportCount = NULL")
+        ->fetchAll();
     }
 
     catch (PDOException $e) {
       return [
-        'ERROR' => preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage())
+        'ERROR' => "An error occured while reading row $index: "
+          . preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage())
       ];
     }
-  }
 
+    catch (Exception $e) {
+      return [
+        'ERROR' => $e->getMessage()
+      ];
+    }
+
+  }
 }

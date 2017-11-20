@@ -1,3 +1,44 @@
-<p>
-  import-collaborators works!
-</p>
+<form
+  class="bordered padded form-group responsive-form"
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+  novalidate>
+
+  <div [ngClass]="{'has-error': form.controls.file.dirty && form.controls.file.invalid}">
+    <label class="control-label" for="input-file">Collaborator File (.csv)*</label>
+    <input type="file" id="input-file" accept=".csv" formControlName="file" />
+
+    <div
+      class="help-block"
+      *ngIf="form.controls.file.dirty && form.controls.file.errors?.required">
+      A file is required.
+    </div>
+
+    <div
+      class="help-block"
+      *ngIf="form.controls.file.dirty && form.controls.file.errors?.pattern">
+      The file provided must be of the correct type.
+    </div>
+  </div>
+
+  <div>
+    <button
+      type="submit"
+      class="btn btn-primary"
+      [disabled]="!form.valid">
+      Load
+    </button>
+
+    <button
+      class="btn btn-default"
+      (click)="reset()">
+      Reset
+    </button>
+  </div>
+</form>
+
+<div [ngClass]="error && 'has-error'">
+  <div class="help-block">
+    {{ message }}
+  </div>
+</div>

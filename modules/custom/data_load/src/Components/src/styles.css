@@ -1,1 +1,33 @@
 /* You can add global styles to this file, and also import other style files */
+
+.bordered {
+  border: 1px solid #ddd;
+}
+
+.padded {
+  padding: 15px;
+}
+
+.responsive-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.responsive-form > div {
+  margin: 5px 0px;
+}
+
+@media (min-width: 768px) {
+  .responsive-form {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .responsive-form > div {
+    margin: 0;
+  }
+
+}

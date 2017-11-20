@@ -23,14 +23,19 @@ class ImportController extends ControllerBase {
    * @return void
    */
   private static function createResponse($data = NULL) {
-    $status_code = array_key_exists('ERROR', $data) ? 400 : 200;
-    $response = JsonResponse::create($data, $status_code, [
+    $status = 200;
+    if (array_key_exists('ERROR', $data)) {
+      $data = $data['ERROR'];
+      $status = 400;
+    }
+
+    $response = JsonResponse::create($data, $status, [
       'Access-Control-Allow-Headers' => 'origin, content-type, accept',
       'Access-Control-Allow-Origin'  => '*',
       'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS',
     ]);
 
-    // pretty print response json
+    // pretty-print response json
     $response->setEncodingOptions($response->getEncodingOptions() | JSON_PRETTY_PRINT);
 
     return $response;
@@ -48,7 +53,6 @@ class ImportController extends ControllerBase {
     $connection = PDOBuilder::getConnection();
 
     // $request->files
-
     $data = DataLoad::loadData($connection, $parameters, $filePath);
     return self::createResponse($data);
   }
