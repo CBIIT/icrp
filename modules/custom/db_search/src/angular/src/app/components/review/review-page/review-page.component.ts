@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { ReviewService } from '../../../services/review.service';
 import { SharedService } from '../../../services/shared.service';
 import {
@@ -34,6 +34,8 @@ import { Observable } from 'rxjs';
   ]
 })
 export class ReviewPageComponent {
+
+  @ViewChild('chartspanel') chartsPanel;
 
   searchID: number | string;
   uploadID: number | string;
@@ -206,7 +208,7 @@ export class ReviewPageComponent {
         this.sharedService.set('searchID', this.searchID);
 
         if (updateAnalytics) {
-          this.getAnalytics(this.searchID);
+          this.chartsPanel.updateCharts(this.searchID);
         }
 
         this.getSearchSummary().subscribe();

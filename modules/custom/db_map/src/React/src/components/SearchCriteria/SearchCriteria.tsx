@@ -39,11 +39,15 @@ export default class SearchCriteria extends React.Component<SearchCriteriaProps,
             {'Total Projects: '}
               {counts.projects.toLocaleString()}
 
-            {` / Total PIs: `}
-              {counts.primaryInvestigators.toLocaleString()}
+            <span className="ml-5">
+              (
+                {`w/ PI: `}
+                  {counts.primaryInvestigators.toLocaleString()}
 
-            {` / Total Collabs: `}
-              {counts.collaborators.toLocaleString()}
+                {`, w/ Collabs.: `}
+                  {counts.collaborators.toLocaleString()}
+              )
+            </span>
           </div>
         </div>
         {

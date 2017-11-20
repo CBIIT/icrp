@@ -201,7 +201,7 @@ export class SearchPageComponent implements AfterViewInit {
           this.searchForm.setParameters(parameters);
           this.getSortedPaginatedResults({ search_id: searchID }, () => {
             this.getSearchSummary(true)
-              .subscribe(e => this.getAnalytics(searchID));
+              .subscribe(e => this.chartsPanel.updateCharts(searchID));
           });
         }
 
@@ -300,7 +300,7 @@ export class SearchPageComponent implements AfterViewInit {
         this.state.loading = false;
 
         this.getSearchSummary(true)
-          .subscribe(e => this.getAnalytics(this.state.searchID));
+          .subscribe(e => this.chartsPanel.updateCharts(this.state.searchID));
 
         this.sharedService.set('searchID', this.state.searchID);
 

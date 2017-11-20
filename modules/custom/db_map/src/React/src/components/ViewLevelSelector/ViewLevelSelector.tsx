@@ -40,6 +40,8 @@ export default class ViewLevelSelector extends ComponentBase<ViewLevelSelectorPr
 
     delete allRegionsFilters.region;
     delete allRegionsFilters.country;
+    delete allRegionsFilters.city;
+    delete allRegionsFilters.institution;
 
     const viewLevelTags: ViewLevelTag[] = [
       {
@@ -53,10 +55,13 @@ export default class ViewLevelSelector extends ComponentBase<ViewLevelSelectorPr
         ...locationFilters,
         type: 'countries',
       };
+
       delete regionFilter.country;
+      delete regionFilter.city;
+      delete regionFilter.institution;
 
       viewLevelTags.push({
-        label: getRegionFromId(regionFilter.region),
+        label: getRegionFromId(locationFilters.region),
         locationFilters: regionFilter,
       })
     }
@@ -69,14 +74,13 @@ export default class ViewLevelSelector extends ComponentBase<ViewLevelSelectorPr
       };
 
       delete regionFilter.city;
+      delete regionFilter.institution;
 
       viewLevelTags.push({
-        label: getCountryFromAbbreviation(regionFilter.country || 'Country'),
+        label: getCountryFromAbbreviation(locationFilters.country || 'Country'),
         locationFilters: regionFilter,
       })
     }
-
-
 
     if (locationFilters.city && viewLevel != 'regions' && viewLevel != 'countries' && viewLevel != 'cities') {
       let regionFilter: LocationFilters = {
@@ -84,8 +88,10 @@ export default class ViewLevelSelector extends ComponentBase<ViewLevelSelectorPr
         type: 'institutions',
       };
 
+      delete regionFilter.institution;
+
       viewLevelTags.push({
-        label: regionFilter.city || 'City',
+        label: locationFilters.city || 'City',
         locationFilters: regionFilter,
       })
     }

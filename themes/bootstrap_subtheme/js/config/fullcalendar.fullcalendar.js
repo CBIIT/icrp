@@ -28,7 +28,7 @@
           if(lastCalendarDate == null) {
               localStorage.setItem('lastCalendarDate', calendar_date);
           }
-          //Only change if not in the current year month.  This prevents it reseting 
+          //Only change if not in the current year month.  This prevents it resetting 
           if(lastCalendarDate) {
             if(current_year_month != lastCalendarDate.substring(0,6)) {
               localStorage.setItem('lastCalendarDate', calendar_date);

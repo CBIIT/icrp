@@ -67,11 +67,11 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
   componentWillReceiveProps(props: GoogleMapProps) {
     this.props = props;
 
-    console.log('recieved new map props', props);
+    // console.log('recieved new map props', props);
 
     // redraw this map when recieving new properties
     if (this.map !== null && props.locations !== this.locations) {
-      console.log('drawing');
+      // console.log('drawing');
 
       this.shouldFitBounds = true;
       this.shouldRedraw = false;
@@ -108,14 +108,14 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         let length = northEastPoint.x - southWestPoint.x;
         let height = southWestPoint.y - northEastPoint.y;
 
-        console.log('length, height', length, height, diagonalDistance);
+        // console.log('length, height', length, height, diagonalDistance);
 
         let scaleX = 1.0;
         let scaleY = 1.0;
 
         if (diagonalDistance > 100) {
           let scaleFactor = Math.log(diagonalDistance) / 1000;
-          console.log('increasing scale:', scaleFactor);
+          // console.log('increasing scale:', scaleFactor);
 
           if (diagonalDistance > 1000000) {
             scaleX += scaleFactor * 5;
@@ -198,7 +198,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         .filter(({coordinates}) => coordinates.lng >= -180 && coordinates.lng <= 180)
       );
 
-      console.log(clusterer.getClusters());
+      // console.log(clusterer.getClusters());
 
       // draw each cluster
       let clusters = this.clusterer.getClusters();
@@ -345,11 +345,11 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
             // let point = projection.fromLatLngToPoint(latLng);
             // point.y -= 10 / (this.map.getZoom() - 0.5);
             // let labelCoordinates = map.getProjection().fromPointToLatLng(point);
-            
+
             let labelMarker = createLabel(label, {lat: latLng.lat() + 6, lng: latLng.lng()});
             labelMarker.setMap(map);
 
-            // window.setTimeout(() => 
+            // window.setTimeout(() =>
               this.labels.push(labelMarker)
             // , 0);
           }

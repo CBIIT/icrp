@@ -1,5 +1,5 @@
 default:
-  version: 1.0
+  version: 1.0.1
   css:
     theme:
       assets/styles.bundle.css: {}
@@ -7,5 +7,4 @@ default:
     https://cdnjs.cloudflare.com/ajax/libs/d3/4.10.2/d3.min.js: {minified: true, external: true}
     assets/inline.bundle.js: {}
     assets/polyfills.bundle.js: {}
-    assets/vendor.bundle.js: {}
     assets/main.bundle.js: {}
