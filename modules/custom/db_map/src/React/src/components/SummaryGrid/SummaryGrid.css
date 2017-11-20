@@ -2,3 +2,21 @@
   margin-top: 0;
   margin-bottom: 0;
 }
+
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 5px;
+}
+
+
+.pagination-select-container {
+  display: flex;
+  align-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 5px;
+}

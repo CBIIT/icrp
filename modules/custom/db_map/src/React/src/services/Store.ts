@@ -36,6 +36,11 @@ class Store extends StoreBase {
     this.trigger();
   }
 
+  setTablePageSize(tablePageSize: number) {
+    this.tablePageSize = tablePageSize;
+    this.trigger();
+  }
+
   setLoading(loading: boolean) {
     this.loading = loading;
     this.trigger();

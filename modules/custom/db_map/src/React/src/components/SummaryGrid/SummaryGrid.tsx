@@ -34,30 +34,60 @@ export default class SummaryGrid extends ComponentBase<SummaryGridProps & React.
     store.setTablePage(page);
   }
 
+  handlePageSizeChange(value: any) {
+    store.setTablePage(1);
+    store.setTablePageSize(+value);
+  }
+
   render() {
     const { onSelect, children } = this.props;
     const { locations, viewLevel, locationFilters, tablePageSize, tablePage } = this.state;
 
+    console.log(this.state);
+
     let numItems = Math.ceil(
       (locations && locations.length || 0) / tablePageSize);
 
+    let showPagination = numItems > 1 || (locations && locations.length > 25);
+
     return !locations || !locations.length ? null : (
       <div>
-        <div className="margin-top" style={{display: 'flex', justifyContent: 'space-between', alignContent: 'flex-end', alignItems: 'center', marginBottom: '5px'}}>
-          <div>{ children }</div>
-          {numItems > 1 &&
-            <Pagination
-              bsSize="small"
-              items={numItems}
-              activePage={tablePage}
-              onSelect={this.handleSelect}
-              boundaryLinks={true}
-              ellipsis={true}
-              maxButtons={5}
-              prev
-              next
-            />
+        <div className="margin-top pagination-container">
+
+          {showPagination &&
+            <div className="pagination-select-container">
+              <div style={{marginRight: '100px'}}>
+                {'Show '}
+                <select value={tablePageSize} onChange={event => this.handlePageSizeChange(+event.target.value)}>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                  <option value={150}>150</option>
+                  <option value={200}>200</option>
+                  <option value={250}>250</option>
+                  <option value={300}>300</option>
+                </select>
+
+                {` out of `}
+                <b>{locations && locations.length}</b>
+                {` entries`}
+              </div>
+
+              <Pagination
+                bsSize="small"
+                items={numItems}
+                activePage={tablePage}
+                onSelect={this.handleSelect}
+                boundaryLinks={true}
+                ellipsis={true}
+                maxButtons={5}
+                prev
+                next
+              />
+            </div>
           }
+
+          <div style={{marginBottom: '5px'}}>{ children }</div>
         </div>
         <div className="table-responsive">
           <table className="table table-bordered table-striped table-hover table-nowrap">
@@ -116,6 +146,40 @@ export default class SummaryGrid extends ComponentBase<SummaryGridProps & React.
             </tbody>
           </table>
         </div>
+
+
+          {showPagination &&
+            <div className="pagination-select-container">
+              <div style={{marginRight: '100px'}}>
+                {'Show '}
+                <select value={tablePageSize} onChange={event => this.handlePageSizeChange(+event.target.value)}>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                  <option value={150}>150</option>
+                  <option value={200}>200</option>
+                  <option value={250}>250</option>
+                  <option value={300}>300</option>
+                </select>
+
+                {` out of `}
+                <b>{locations && locations.length}</b>
+                {` entries`}
+              </div>
+
+              <Pagination
+                bsSize="small"
+                items={numItems}
+                activePage={tablePage}
+                onSelect={this.handleSelect}
+                boundaryLinks={true}
+                ellipsis={true}
+                maxButtons={5}
+                prev
+                next
+              />
+            </div>
+          }
       </div>
     );
   }
