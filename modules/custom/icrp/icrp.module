@@ -71,6 +71,7 @@ function sendNewForumPostMail($email, $subject, $body) {
     $from_name = \Drupal::config('system.site')->get('name');
     $from_email = \Drupal::config('system.site')->get('mail');
     //$params['from_mail'] = "$from_name <{$from_email}>";
+    $params['from_name'] = "";
     $params['from_mail'] = $from_email;
 
     $params['subject'] = $subject;

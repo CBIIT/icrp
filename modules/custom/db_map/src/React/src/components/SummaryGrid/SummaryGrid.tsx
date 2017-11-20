@@ -49,6 +49,7 @@ export default class SummaryGrid extends ComponentBase<SummaryGridProps & React.
       (locations && locations.length || 0) / tablePageSize);
 
     let showPagination = numItems > 1 || (locations && locations.length > 25);
+    showPagination = true;
 
     return !locations || !locations.length ? null : (
       <div>
