@@ -237,6 +237,63 @@ function  getForumEmails($nid, $author_uid) {
   return $forum_members;
 }
 
+function getEventDetails($nid) {
+  //$nid of the main forum node
+  //$rid of reply id if available
+  //$to_uid is who the email goes to.
+  //drupal_set_message(__FUNCTION__);
+  $host = "https://" . \Drupal::request()->getHost();
+
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  //dpm($node);
+  $detail['event_title'] = $node->getTitle();
+  $detail['message'] = $node->get('body')->value;
+
+  $event_date = '2017/12';
+  $detail['calendar_url'] = $host."/calendar?default_date=".$event_date;
+
+  return $detail;
+
+}
+
+
+function sendEventNotification($nid) {
+  \Drupal::logger('icrp')->notice('Send Event Notification: nid='.$nid.' cid='.$cid) ;
+  $host = "https://" . \Drupal::request()->getHost();
+
+  $event = getEventDetails($nid);
+/*
+  $display_summary = true;
+  if($cid == "0") {
+    //Prepare e-mail for an initial Thread post
+    //Add Subject to 
+    //if there is summary,  then summary on the top and full body below
+    //if there is no summary,  then just full body
+    $author_uid = $forum['thread_author_uid'];
+    $author = $forum['thread_author'];
+    $message = $forum['message'];
+    $display_summary = $forum['has_summary'];  //If it has_summary, 
+  } else {
+    $reply = getReplyDetails($cid);
+    $forum['thread_summary_or_trim_body'] = "Re: ".$forum['thread_summary_or_trim_body'];
+    $author_uid = $reply['reply_author_uid'];
+    $author = $reply['reply_author'];
+    $message = $reply['message'];
+  }
+
+  $message = relToAbs($message, $host);
+  $subject = "ICRP Event: {$event['event_title']}";
+  $emails = getForumEmails($nid, $author_uid);
+  foreach($emails as $key => $email) {
+    //$email = "Chris Kneisler <cpkneisler@gmail.com>";
+    $body = createForumEmailBody($email['first_name'], $subject, $author, $forum['forum_category'],  $forum['thread_subject'], $forum['thread_summary_or_trim_body'], $message, $forum['forum_url'], $forum['thread_url'], $display_summary, $host);
+    sendNewForumPostMail($email['formated_email'], $subject, $body);
+  }
+  //Loop through users and send them an e-mail.
+  */
+
+}
+
 function sendForumNotification($nid, $cid = "0") {
   /**
   * url example: http://localhost/node/621?page=0
@@ -378,14 +435,13 @@ $body = '
 function icrp_node_insert(NodeInterface $node) {
 
   //drupal_set_message("node_insert");
-  //dump()
-  //dpm($node->getType());
   $nid = $node->id();
   if($node->getType() == "events") {
     //drupal_set_message("New Event - Send email");
     //drupal_set_message($node->getTitle());
     //drupal_set_message($node->id());
     //dpm($node);
+    //sendEventNotification($nid);
   }
   if($node->getType() == "forum") {
   /*
