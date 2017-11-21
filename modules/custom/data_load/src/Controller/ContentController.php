@@ -5,32 +5,49 @@ namespace Drupal\data_load\Controller;
 class ContentController {
 
   /**
+   * Returns a render array for the "Data Load Tool" page
+   *
+   * @return array
+   */
+  public static function dataLoad(): array {
+    return [
+      '#theme' => 'data_load',
+      '#attached' => [
+        'library' => [
+          'data_load/resources'
+        ],
+      ],
+    ];
+  }
+
+
+  /**
    * Returns a render array for the "Import Collaborators" page
    *
    * @return array
    */
-  public static function addCollaborators(): array {
+  public static function importCollaborators(): array {
     return [
-      '#theme' => 'add_collaborators',
+      '#theme' => 'import_collaborators',
       '#attached' => [
         'library'   => [
-          'data_load/add_institutions'
+          'data_load/import_collaborators'
         ],
       ],
     ];
   }
 
   /**
-   * Returns a render array for the "Add Institutions" page
+   * Returns a render array for the "Import Institutions" page
    *
    * @return array
    */
-  public static function addInstitutions(): array {
+  public static function importInstitutions(): array {
     return [
-      '#theme' => 'add_institutions',
+      '#theme' => 'import_institutions',
       '#attached' => [
         'library'   => [
-          'data_load/add_institutions'
+          'data_load/import_institutions'
         ],
       ],
     ];

@@ -1,14 +1,20 @@
 <?php
 
+use Symfony\Component\Debug\ErrorHandler;
+use Symfony\Component\Debug\ExceptionHandler;
+
+ErrorHandler::register();
+ExceptionHandler::register();
+
 function data_load_theme($existing, $type, $theme, $path) {
     return [
         'data_load' => [
             'variables' => [],
         ],
-        'add_institutions' => [
+        'import_institutions' => [
             'variables' => [],
         ],
-        'add_collaborators' => [
+        'import_collaborators' => [
             'variables' => [],
         ],
     ];

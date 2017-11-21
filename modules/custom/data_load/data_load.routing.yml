@@ -5,7 +5,7 @@ dataload.app:
     _title: 'Data Loading Tool'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
+
 
 dataload.load_data_mysql:
   path: '/DataUploadTool/loaddata_mysql'
@@ -14,7 +14,7 @@ dataload.load_data_mysql:
     _title: 'Load Data'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
+
   methods: [POST]
 
 dataload.load_data_mssql:
@@ -24,7 +24,7 @@ dataload.load_data_mssql:
     _title: 'Load Data'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
+
   methods: [POST]
 
 dataload.get_data:
@@ -34,7 +34,7 @@ dataload.get_data:
     _title: 'Get Data'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
+
 
 dataload.get_data_mssql:
   path: '/DataUploadTool/getdata_mssql'
@@ -43,7 +43,7 @@ dataload.get_data_mssql:
     _title: 'Get Data'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
+
 
 dataload.integrity_check:
   path: '/DataUploadTool/integrity_check_mssql'
@@ -52,7 +52,7 @@ dataload.integrity_check:
     _title: 'Integrity Check'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
+
   methods: [POST]
 
 dataload.integrity_check_details:
@@ -62,7 +62,7 @@ dataload.integrity_check_details:
     _title: 'Integrity Check Details'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
+
   methods: [POST]
 
 dataload.get_validation_rule_definitions:
@@ -72,7 +72,7 @@ dataload.get_validation_rule_definitions:
     _title: 'Get Validation Rules'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
+
 
 dataload.importProjects:
   path: '/DataUploadTool/importProjects'
@@ -80,7 +80,7 @@ dataload.importProjects:
     _controller:  '\Drupal\data_load\Controller\DataLoadController::importProjects'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
+
 
 dataload.ping:
   path: '/DataUploadTool/ping'
@@ -89,7 +89,7 @@ dataload.ping:
     _title: 'Ping'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
+
 
 dataload.export:
   path: '/DataUploadTool/export'
@@ -97,7 +97,7 @@ dataload.export:
     _controller: 'Drupal\data_load\Controller\DataLoadController::export'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
+
 
 dataload.sponsor_codes:
   path: '/DataUploadTool/getSponsorCodes'
@@ -105,38 +105,46 @@ dataload.sponsor_codes:
     _controller: 'Drupal\data_load\Controller\DataLoadController::getSponsorCodes'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
+
 
 add_institutions:
   path: '/AddInstitutions'
   defaults:
-    _controller: '\Drupal\data_load\Controller\ContentController::addInstitutions'
+    _controller: '\Drupal\data_load\Controller\ContentController::importInstitutions'
     _title: 'Add Institutions Tool'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
+
 
 add_collaborators:
   path: '/ImportCollaborators'
   defaults:
-    _controller: '\Drupal\data_load\Controller\ContentController::addCollaborators'
+    _controller: '\Drupal\data_load\Controller\ContentController::importCollaborators'
     _title: 'Import Collaborators Tool'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
-api.institutions.add:
-  path: '/api/institutions/add'
+
+api.institutions.import:
+  path: '/api/institutions/import'
   defaults:
-    _controller: 'Drupal\data_load\Controller\ImportController::addInstitutions'
+    _controller: 'Drupal\data_load\Controller\ImportController::importInstitutions'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
-api.collaborators.add:
-  path: '/api/collaborators/add'
+
+api.collaborators.import:
+  path: '/api/collaborators/import'
   defaults:
-    _controller: '\Drupal\data_load\Controller\ImportController::addCollaborators'
+    _controller: '\Drupal\data_load\Controller\ImportController::importCollaborators'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
+
+
+api.getExcelExport:
+  path: '/api/getExcelExport/{prefix}'
+  defaults:
+    _controller: '\Drupal\data_load\Controller\ImportController::getExcelExport'
+    prefix: 'Data_Export'
+  requirements:
+    _access: 'TRUE'

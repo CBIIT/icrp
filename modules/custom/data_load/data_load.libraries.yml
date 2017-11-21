@@ -7,11 +7,20 @@ resources:
     src/assets/service-worker.js: {}
     src/assets/main.js: {}
 
-
-add_institutions:
+import_institutions:
   version: 1.0
   css:
     theme:
-      src/assets/add_institutions/main.css: {}
+      src/assets/import-institutions/main.css: {}
   js:
-    src/assets/add_institutions/main.js: {}
+    src/assets/import-institutions/main.js: {}
+
+import_collaborators:
+  version: 1.0
+  css:
+    theme:
+      src/assets/import-collaborators/styles.bundle.css: {}
+  js:
+    src/assets/import-collaborators/inline.bundle.js: {}
+    src/assets/import-collaborators/polyfills.bundle.js: {}
+    src/assets/import-collaborators/main.bundle.js: {}

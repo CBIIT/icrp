@@ -17,6 +17,7 @@ class PDOBuilder {
    */
   public static function getConnection(string $database = 'icrp_database'): PDO {
 
+
     /**
      * Drupal configuration object for the specified database
      *
@@ -130,7 +131,5 @@ class PDOBuilder {
     $stmt->execute();
     return $stmt;
   }
-
-
 
 }

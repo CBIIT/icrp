@@ -1,3 +1,64 @@
-<p>
-  import-collaborators works!
-</p>
+
+<ui-overlay [active]="loading">
+  <ui-spinner></ui-spinner>
+  <div>Loading</div>
+</ui-overlay>
+
+<form
+  class="bordered padded form-group responsive-form"
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+  novalidate>
+
+  <div [ngClass]="{'has-error': form.controls.file.dirty && form.controls.file.invalid}">
+    <label class="control-label" for="input-file">Collaborator File (.csv)*</label>
+    <input type="file" id="input-file" accept=".csv" formControlName="file" />
+
+    <div
+      class="help-block"
+      *ngIf="form.controls.file.dirty && form.controls.file.errors?.required">
+      A file is required.
+    </div>
+
+    <div
+      class="help-block"
+      *ngIf="form.controls.file.dirty && form.controls.file.errors?.pattern">
+      The file provided must be of the correct type.
+    </div>
+  </div>
+
+  <div>
+    <button
+      type="submit"
+      class="btn btn-primary"
+      [disabled]="!form.valid">
+      Import
+    </button>
+
+    <button
+      class="btn btn-default"
+      (click)="reset()">
+      Reset
+    </button>
+  </div>
+</form>
+
+<div class="form-group clearfix">
+  <div class="pull-left" [ngClass]="error ? 'text-danger' : 'text-success'">
+    {{ message }}
+  </div>
+
+  <button
+    *ngIf="records?.length > 0"
+    class="pull-right btn btn-default btn-xs display-flex align-center"
+    (click)="export()">
+    <ui-icon type="desktop-download"></ui-icon>
+    <div>Export</div>
+  </button>
+</div>
+
+<ui-table *ngIf="records?.length > 0"
+  [headers]="['Error', 'Institution', 'City']"
+  [data]="records">
+</ui-table>
+

@@ -6,6 +6,7 @@ dataload.app:
   requirements:
     _access: 'TRUE'
 
+
 dataload.load_data_mysql:
   path: '/DataUploadTool/loaddata_mysql'
   defaults:
@@ -13,6 +14,7 @@ dataload.load_data_mysql:
     _title: 'Load Data'
   requirements:
     _access: 'TRUE'
+
   methods: [POST]
 
 dataload.load_data_mssql:
@@ -22,6 +24,7 @@ dataload.load_data_mssql:
     _title: 'Load Data'
   requirements:
     _access: 'TRUE'
+
   methods: [POST]
 
 dataload.get_data:
@@ -32,6 +35,7 @@ dataload.get_data:
   requirements:
     _access: 'TRUE'
 
+
 dataload.get_data_mssql:
   path: '/DataUploadTool/getdata_mssql'
   defaults:
@@ -39,6 +43,7 @@ dataload.get_data_mssql:
     _title: 'Get Data'
   requirements:
     _access: 'TRUE'
+
 
 dataload.integrity_check:
   path: '/DataUploadTool/integrity_check_mssql'
@@ -57,6 +62,7 @@ dataload.integrity_check_details:
     _title: 'Integrity Check Details'
   requirements:
     _access: 'TRUE'
+
   methods: [POST]
 
 dataload.get_validation_rule_definitions:
@@ -67,12 +73,14 @@ dataload.get_validation_rule_definitions:
   requirements:
     _access: 'TRUE'
 
+
 dataload.importProjects:
   path: '/DataUploadTool/importProjects'
   defaults:
     _controller:  '\Drupal\data_load\Controller\DataLoadController::importProjects'
   requirements:
     _access: 'TRUE'
+
 
 dataload.ping:
   path: '/DataUploadTool/ping'
@@ -82,12 +90,14 @@ dataload.ping:
   requirements:
     _access: 'TRUE'
 
+
 dataload.export:
   path: '/DataUploadTool/export'
   defaults:
     _controller: 'Drupal\data_load\Controller\DataLoadController::export'
   requirements:
     _access: 'TRUE'
+
 
 dataload.sponsor_codes:
   path: '/DataUploadTool/getSponsorCodes'
@@ -100,29 +110,41 @@ dataload.sponsor_codes:
 add_institutions:
   path: '/AddInstitutions'
   defaults:
-    _controller: '\Drupal\data_load\Controller\ContentController::addInstitutions'
+    _controller: '\Drupal\data_load\Controller\ContentController::importInstitutions'
     _title: 'Add Institutions Tool'
   requirements:
     _access: 'TRUE'
 
+
 add_collaborators:
   path: '/ImportCollaborators'
   defaults:
-    _controller: '\Drupal\data_load\Controller\ContentController::addCollaborators'
+    _controller: '\Drupal\data_load\Controller\ContentController::importCollaborators'
     _title: 'Import Collaborators Tool'
   requirements:
     _access: 'TRUE'
 
-api.institutions.add:
-  path: '/api/institutions/add'
+
+api.institutions.import:
+  path: '/api/institutions/import'
   defaults:
-    _controller: 'Drupal\data_load\Controller\ImportController::addInstitutions'
+    _controller: 'Drupal\data_load\Controller\ImportController::importInstitutions'
   requirements:
     _access: 'TRUE'
 
-api.collaborators.add:
-  path: '/api/collaborators/add'
+
+api.collaborators.import:
+  path: '/api/collaborators/import'
   defaults:
-    _controller: '\Drupal\data_load\Controller\ImportController::addCollaborators'
+    _controller: '\Drupal\data_load\Controller\ImportController::importCollaborators'
+  requirements:
+    _access: 'TRUE'
+
+
+api.getExcelExport:
+  path: '/api/getExcelExport/{prefix}'
+  defaults:
+    _controller: '\Drupal\data_load\Controller\ImportController::getExcelExport'
+    prefix: 'Data_Export'
   requirements:
     _access: 'TRUE'
