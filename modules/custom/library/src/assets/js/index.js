@@ -381,7 +381,7 @@ jQuery(function() {
                 title = $('#library-parameters [name="title"]').val();
                 display_name = $('#library-parameters [name="display_name"]');
                 desc = $('#library-parameters [name="description"]').val();
-            if ((!file.hasClass('hide') && (file.val()||"") === "") || (!display_name.hasClass('hide') && (display_name.val()||"") === "") || (title||"") === "" || (desc||"") === "") {
+            if ((display_name.hasClass('hide') && (file.val()||"") === "") || (!display_name.hasClass('hide') && (display_name.val()||"") === "") || (title||"") === "" || (desc||"") === "") {
                 BootstrapDialog.alert({
                     'title': null,
                     'message': "Missing required parameters."
