@@ -327,22 +327,31 @@ class LibraryController extends ControllerBase {
         ));
       }
     } else {
-      $stmt = $connection->prepare("UPDATE Library SET LibraryFolderID=:lfid, Title=:title, Description=:desc, IsPublic=:ip, UpdatedDate=GETDATE(), DisplayName=:display WHERE LibraryID=:lid");
+      $stmt = $connection->prepare("EXECUTE UpdateLibraryFile
+          :lid,
+          :lfid,
+          :title,
+          :desc,
+          :ip,
+          :file,
+          :display
+        ");
+      $stmt->bindParam(":lid",$params["id_value"]);
       $stmt->bindParam(":lfid",$params["parent"]);
       $stmt->bindParam(":title",$params["title"]);
       $stmt->bindParam(":desc",$params["description"]);
       $stmt->bindParam(":ip",$params["is_public"]);
+      if ($upload) {
+        $stmt->bindValue(":file",$upload->getClientOriginalName());
+      } else {
+        $stmt->bindValue(":file",null,PDO::PARAM_NULL);
+      }
       $stmt->bindParam(":display",$params["display_name"]);
-      $stmt->bindParam(":lid",$params["id_value"]);
       if ($stmt->execute()) {
-          $stmt = $connection->prepare("SELECT Filename, ThumbnailFilename FROM Library WHERE LibraryID=:lid");
-          $stmt->bindParam(":lid",$params["id_value"]);
-          if ($stmt->execute()) {
-            $row = array_merge(array(),$stmt->fetchAll(PDO::FETCH_ASSOC))[0];
-            $upload->move("public://library/uploads",$row['Filename']);
-            if ($thumb) $thumb->move("public://library/uploads/thumbs",$row['ThumbnailFilename']);
-            return self::getFolder($params["parent"]);
-          }
+          $row = array_merge(array(),$stmt->fetchAll(PDO::FETCH_ASSOC))[0];
+          if ($upload) $upload->move("public://library/uploads",$row['Filename']);
+          //if ($thumb) $thumb->move("public://library/uploads/thumbs",$row['ThumbnailFilename']);
+          return self::getFolder($params["parent"]);
       }
     }
     return new JsonResponse(array(
