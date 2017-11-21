@@ -102,6 +102,19 @@ function sendNewForumPostMail($email, $subject, $body) {
     \Drupal::logger('mail-log')->notice($message);
 
 }
+/**
+ * Implements template_preprocess_status_messages().
+ */
+/*
+function icrp_preprocess_status_messages(&$variables) {
+  //drupal_set_message("Why no work.  Message here");
+  drupal_set_message(__FUNCTION__);
+  //dpm($variables);
+  foreach($variables['message_list']['status'] as $mix) {
+    drupal_set_message(gettype($mix));
+  }
+}
+*/
 
 function getForumDetails($nid) {
   //$nid of the main forum node
@@ -367,7 +380,13 @@ function icrp_node_insert(NodeInterface $node) {
   //drupal_set_message("node_insert");
   //dump()
   //dpm($node->getType());
-
+  $nid = $node->id();
+  if($node->getType() == "events") {
+    //drupal_set_message("New Event - Send email");
+    //drupal_set_message($node->getTitle());
+    //drupal_set_message($node->id());
+    //dpm($node);
+  }
   if($node->getType() == "forum") {
   /*
     drupal_set_message("Node Insert");
@@ -375,8 +394,6 @@ function icrp_node_insert(NodeInterface $node) {
     drupal_set_message($node->getTitle());
     drupal_set_message($node->id());
     */
-    $nid = $node->id();
-    $type = "forum";
     sendForumNotification($nid);
   }
 }

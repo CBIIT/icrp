@@ -228,11 +228,13 @@
   }
 */
   $.preprocessForum = function(e) {
+    /*
     if(!$('#new-forum-breadcrumb > #forum-breadcrumb').length) {
       $( "#forum-breadcrumb" ).clone().prependTo( "#new-forum-breadcrumb" );
       $( "#new-forum-breadcrumb > #forum-breadcrumb" ).show();
     }
     $(".topic-status-legend").show();
+    */
   }
 
   $.rememberTabs = function() {
