@@ -73,7 +73,7 @@ drupalSettings.db_map = {
         });
     for (var index in db_people_map.funding_details) {
       var detail = db_people_map.funding_details[index];
-      if ((detail.lat || detail.lat === 0) && detail.lng || (detail.lng === 0)) {
+      if ((detail.lat || detail.lat === 0) && (detail.long || detail.long === 0)) {
         boundsFound = true;
         var is_pi = parseInt(detail.is_pi),
             loc = {
