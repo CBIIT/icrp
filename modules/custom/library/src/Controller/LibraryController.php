@@ -285,12 +285,14 @@ class LibraryController extends ControllerBase {
     if (!isset($params["title"]) || empty($params["title"]) ||
         !isset($params["parent"]) || !is_numeric($params["parent"]) ||
         !isset($params["description"]) || empty($params["description"]) ||
-        ($new && ($upload == null || !$upload->isValid()))
+        ($new && $upload == null) ||
+        ($upload != null && !$upload->isValid())
       ) {
       return new JsonResponse(array(
           "success"=>false
       ),Response::HTTP_BAD_REQUEST);
     }
+
     if ($thumb && !$thumb->isValid()) $thumb = null;
     $connection = self::get_connection();
     if ($new) {
@@ -306,7 +308,7 @@ class LibraryController extends ControllerBase {
           }
           break;
         }
-        $stmt = $connection->prepare("INSERT INTO Library (Title,LibraryFolderID,Filename,ThumbnailFilename,Description,IsPublic,ArchivedDate,DisplayName) OUTPUT INSERTED.* VALUES (:title,:lfid,:file,:thumb,:desc,:ip,:ad ,:display);");
+        $stmt = $connection->prepare("INSERT INTO Library (Title,LibraryFolderID,Filename,ThumbnailFilename,Description,IsPublic,ArchivedDate,DisplayName) OUTPUT INSERTED.* VALUES (:title,:lfid,:file,:thumb,:desc,:ip,:ad,:display);");
         $stmt->bindParam(":title",$params["title"]);
         $stmt->bindParam(":lfid",$params["parent"]);
         $stmt->bindValue(":file",$upload->getClientOriginalName());
@@ -321,16 +323,11 @@ class LibraryController extends ControllerBase {
         $stmt->bindParam(":ip",$params["is_public"]);
         $stmt->bindParam(":ad",$row_output["ArchivedDate"]);
         if ($stmt->execute()) {
-          while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $row_output = array();
-            foreach ($row as $key=>$value) {
-              $row_output[$key] = $value;
-            }
-            return new JsonResponse(array(
-              "success"=>true,
-              "row"=>$row_output
-            ));
-          }
+          $row = array_merge(array(),$stmt->fetchAll(PDO::FETCH_ASSOC));
+          return new JsonResponse(array(
+            "success"=>true,
+            "row"=>$row
+          ));
         }
       }
     } else {
@@ -342,7 +339,14 @@ class LibraryController extends ControllerBase {
       $stmt->bindParam(":display",$params["display_name"]);
       $stmt->bindParam(":lid",$params["id_value"]);
       if ($stmt->execute()) {
-          return self::getFolder($params["parent"]);
+          $stmt = $connection->prepare("SELECT Filename, ThumbnailFilename FROM Library WHERE LibraryID=:lid");
+          $stmt->bindParam(":lid",$params["id_value"]);
+          if ($stmt->execute()) {
+            $row = array_merge(array(),$stmt->fetchAll(PDO::FETCH_ASSOC))[0];
+            $upload->move("public://library/uploads",$row['Filename']);
+            if ($thumb) $thumb->move("public://library/uploads/thumbs",$row['ThumbnailFilename']);
+            return self::getFolder($params["parent"]);
+          }
       }
     }
     return new JsonResponse(array(

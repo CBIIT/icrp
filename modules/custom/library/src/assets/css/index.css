@@ -404,6 +404,9 @@
     margin: 20px auto 0px;
     width: 20em;
 }
+[name="display_name"] {
+    margin-bottom: 5px;
+}
 
 @media (min-width: 1200px) {
     #library-search {

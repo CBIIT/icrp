@@ -140,7 +140,7 @@ jQuery(function() {
                 params = $('#library-parameters'),
                 ispub = params.find('[name="is_public"]');
             params.find('[name="id_value"]').val(data.LibraryID);
-            params.find('[name="upload"]').addClass('hide').prev().val(data.DisplayName).removeClass('hide');
+            params.find('[name="upload"]').prev().val(data.DisplayName).removeClass('hide');
             params.find('[name="title"]').val(data.Title);
             params.find('[name="description"]').val(data.Description);
             params.find('[name="thumbnail"]').addClass('hide').prev().html(data.ThumbnailFilename).removeClass('hide');
