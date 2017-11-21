@@ -65,15 +65,19 @@ class CollaboratorsManager {
       }
 
       return $connection
-        ->query("SET NOCOUNT ON; EXEC ImportCollaborators @ImportCount = NULL")
+        ->query("SET NOCOUNT ON; EXEC ImportCollaborators")
         ->fetchAll();
     }
 
     catch (PDOException $e) {
-      return [
-        'ERROR' => "An error occured while reading row $index: "
-          . preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage())
-      ];
+
+      $message = preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage());
+
+      if ($index < count($data)) {
+         $message = "An error occured while reading row $index: $message";
+      }
+
+      return ['ERROR' => $message];
     }
 
     catch (Exception $e) {

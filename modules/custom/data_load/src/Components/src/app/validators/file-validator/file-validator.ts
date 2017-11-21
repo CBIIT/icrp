@@ -9,13 +9,15 @@ const required: ValidatorFn = (control: AbstractControl): {[key: string]: any} =
 const pattern: (pattern: string | RegExp) => ValidatorFn = (pattern: string | RegExp): ValidatorFn =>
 (control: AbstractControl): {[key: string]: any} => {
 
-  const regex = pattern instanceof RegExp
-    ? pattern
-    : new RegExp(pattern);
+  if (control.value) {
+    const regex = pattern instanceof RegExp
+      ? pattern
+      : new RegExp(pattern);
 
-  for(let file of Array.from(control.value as FileList)) {
-    if (!regex.test((file as File).name)) {
-      return {pattern: true};
+    for(let file of Array.from(control.value as FileList)) {
+      if (!regex.test((file as File).name)) {
+        return {pattern: true};
+      }
     }
   }
 

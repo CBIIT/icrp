@@ -140,3 +140,11 @@ api.collaborators.import:
   requirements:
     _access: 'TRUE'
 
+
+api.getExcelExport:
+  path: '/api/getExcelExport/{prefix}'
+  defaults:
+    _controller: '\Drupal\data_load\Controller\ImportController::getExcelExport'
+    prefix: 'Data_Export'
+  requirements:
+    _access: 'TRUE'

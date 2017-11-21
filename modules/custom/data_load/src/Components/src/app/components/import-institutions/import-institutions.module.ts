@@ -2,15 +2,15 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { ImportInstitutionsComponent } from './import-institutions.component';
-import { FileValueAccessorDirective } from '../../directives/file-value-accessor/file-value-accessor.directive';
+import { FileValueAccessorModule } from '../../directives/file-value-accessor/file-value-accessor.module';
 
 @NgModule({
   declarations: [
     ImportInstitutionsComponent,
-    FileValueAccessorDirective,
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    FileValueAccessorModule
   ],
   providers: [],
   bootstrap: [ImportInstitutionsComponent]

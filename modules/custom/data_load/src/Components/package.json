@@ -5,7 +5,11 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build -prod --progress false --output-hashing none --output-path ../assets/import_collaborators",
+    "start:import-collaborators": "ng serve --app import-collaborators",
+    "start:import-institutions": "ng serve --app import-institutions",
+    "build": "ng build -prod --progress false --output-hashing none --output-path ../assets/import-institutions",
+    "build:import-institutions": "ng build -prod --app import-institutions --progress false --output-hashing none --output-path ../assets/import-institutions",
+    "build:import-collaborators": "ng build -prod --app import-collaborators --progress false --output-hashing none --output-path ../assets/import-collaborators",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
@@ -24,6 +28,7 @@
     "@types/papaparse": "^4.1.31",
     "core-js": "^2.4.1",
     "ngx-bootstrap": "^2.0.0-beta.8",
+    "octicons": "^7.0.1",
     "papaparse": "^4.3.6",
     "rxjs": "^5.5.2",
     "zone.js": "^0.8.14"

@@ -7,6 +7,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+use Drupal\data_load\Services\ExcelBuilder;
 use Drupal\data_load\Services\PDOBuilder;
 use Drupal\data_load\Services\CollaboratorsManager;
 use Drupal\data_load\Services\InstitutionsManager;
@@ -24,7 +25,7 @@ class ImportController extends ControllerBase {
    */
   private static function createResponse($data = NULL) {
     $status = 200;
-    if (array_key_exists('ERROR', $data)) {
+    if (is_array($data) && array_key_exists('ERROR', $data)) {
       $data = $data['ERROR'];
       $status = 400;
     }
@@ -173,4 +174,25 @@ class ImportController extends ControllerBase {
     $data = CollaboratorsManager::importCollaborators($connection, $parameters);
     return self::createResponse($data);
   }
+
+
+  /**
+   * Creates an arbitrary excel report based on the supplied json object.
+   *
+   * For example:
+   * [
+   *    {title: 'Sheet one', rows: ['A', 'B', 'C']},
+   *    {title: 'Sheet two', rows: ['D', 'E', 'F']},
+   * ];
+   *
+   * @param Request $request Contains a json body that will be converted to an excel document
+   * @return JSONResponse
+   */
+  public static function getExcelExport(Request $request, string $prefix = 'Data_Export'): JSONResponse {
+    $sheets = json_decode($request->getContent(), true);
+    $filename = sprintf("%s_%s.xlsx", $prefix, uniqid());
+    $uri = ExcelBuilder::create($filename, $sheets);
+    return self::createResponse($uri);
+  }
+
 }

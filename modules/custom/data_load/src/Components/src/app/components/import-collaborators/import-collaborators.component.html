@@ -1,3 +1,9 @@
+
+<ui-overlay [active]="loading">
+  <ui-spinner></ui-spinner>
+  <div>Loading</div>
+</ui-overlay>
+
 <form
   class="bordered padded form-group responsive-form"
   [formGroup]="form"
@@ -26,7 +32,7 @@
       type="submit"
       class="btn btn-primary"
       [disabled]="!form.valid">
-      Load
+      Import
     </button>
 
     <button
@@ -37,8 +43,22 @@
   </div>
 </form>
 
-<div [ngClass]="error && 'has-error'">
-  <div class="help-block">
+<div class="form-group clearfix">
+  <div class="pull-left" [ngClass]="error ? 'text-danger' : 'text-success'">
     {{ message }}
   </div>
+
+  <button
+    *ngIf="records?.length > 0"
+    class="pull-right btn btn-default btn-xs display-flex align-center"
+    (click)="export()">
+    <ui-icon type="desktop-download"></ui-icon>
+    <div>Export</div>
+  </button>
 </div>
+
+<ui-table *ngIf="records?.length > 0"
+  [headers]="['Error', 'Institution', 'City']"
+  [data]="records">
+</ui-table>
+

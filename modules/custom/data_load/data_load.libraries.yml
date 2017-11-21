@@ -11,15 +11,16 @@ import_institutions:
   version: 1.0
   css:
     theme:
-      src/assets/import_institutions/main.css: {}
+      src/assets/import-institutions/main.css: {}
   js:
-    src/assets/import_institutions/main.js: {}
+    src/assets/import-institutions/main.js: {}
 
 import_collaborators:
   version: 1.0
   css:
     theme:
-      src/assets/import_collaborators/main.css: {}
+      src/assets/import-collaborators/styles.bundle.css: {}
   js:
-    https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.3.6/papaparse.min.js: {}
-    src/assets/import_collaborators/main.js: {}
+    src/assets/import-collaborators/inline.bundle.js: {}
+    src/assets/import-collaborators/polyfills.bundle.js: {}
+    src/assets/import-collaborators/main.bundle.js: {}

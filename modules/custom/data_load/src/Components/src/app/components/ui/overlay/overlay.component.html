@@ -1,0 +1,10 @@
+
+  <div [@isActive]="active.toString()">
+
+    <div [class]="fullscreen ? 'loading-overlay-fullscreen': 'loading-overlay'">
+      <div style="text-align: center">
+        <ng-content></ng-content>
+      </div>
+    </div>
+
+  </div>

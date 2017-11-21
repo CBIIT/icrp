@@ -140,3 +140,12 @@ api.collaborators.add:
   requirements:
     _access: 'TRUE'
     _role: 'admin+manager'
+
+api.getExcelExport:
+  path: '/api/getExcelExport/{prefix}'
+  defaults:
+    _controller: '\Drupal\data_load\Controller\ImportController::getExcelExport'
+    prefix: 'Data_Export'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'

@@ -23,16 +23,14 @@ export class ImportService {
     });
   }
 
-  async importCollaborators(files: FileList) {
-    const data = await this.parseCSV(files[0]);
+  async importCollaborators(data: any) {
     const endpoint = `${this.BASE_HREF}/api/collaborators/import`;
     return this.http.post<any[]>(endpoint, JSON.stringify(data), {
       withCredentials: window.location.hostname === window.location.host,
     });
   }
 
-  async importInstitutions(files: FileList) {
-    const data = await this.parseCSV(files[0]);
+  async importInstitutions(data: any) {
     const endpoint = `${this.BASE_HREF}/api/institutions/import`;
     return this.http.post<any[]>(endpoint, JSON.stringify(data), {
       withCredentials: window.location.hostname === window.location.host,

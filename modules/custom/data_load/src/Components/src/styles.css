@@ -14,8 +14,32 @@
   justify-content: space-around;
 }
 
+.display-flex {
+  display: flex !important;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.justify-space-between {
+  justify-content: space-between;
+}
+
+.align-center {
+  align-items: center;
+}
+
 .responsive-form > div {
   margin: 5px 0px;
+}
+
+.pagination {
+  margin: 2px 0;
+}
+
+.vertical-margins {
+  margin: 5px 0;
 }
 
 @media (min-width: 768px) {
