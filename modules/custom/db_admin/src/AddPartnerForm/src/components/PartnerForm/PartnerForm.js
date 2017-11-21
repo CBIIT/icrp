@@ -19,16 +19,9 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
   <div className='form-group'>
   {
     form && form.fields && form.fields.partners && form.fields.partners.length > 0
-      ? 'Select a completed application to add as an ICRP partner.'
+      ? 'Select a completed application to add as an ICRP partner or an existing partner to update.'
       : 'There are no completed applications available in the database.'
   }
-  </div>
-  <div id="operation_type" className="container">
-    <fieldset className="margin-bottom">
-      <legend>Operation Type</legend>
-      <label><input type="radio" name="operation_type" onChange={event => changeCallback(event.target.name, event.target.value)} value="new" checked={form.values.operation_type==='new'}/>Add</label>
-      <label><input type="radio" name="operation_type" onChange={event => changeCallback(event.target.name, event.target.value)} value="existing" checked={form.values.operation_type==='existing'}/>Update</label>
-    </fieldset>
   </div>
   <Grid>
     {
@@ -56,7 +49,15 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
         </Row>
       )
     }
-
+    <Row>
+      <Col sm={12} id="operation_type" className='margin-bottom'>
+        <fieldset>
+          <legend>Operation Type</legend>
+          <label><input type="radio" name="operation_type" onChange={event => changeCallback(event.target.name, event.target.value)} value="new" checked={form.values.operation_type==='new'}/>Add</label>
+          <label><input type="radio" name="operation_type" onChange={event => changeCallback(event.target.name, event.target.value)} value="existing" checked={form.values.operation_type==='existing'}/>Update</label>
+        </fieldset>
+      </Col>
+    </Row>
     <Row>
       <Col md={6} className='margin-bottom'>
         <FormGroup
