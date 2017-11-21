@@ -252,7 +252,7 @@ function getEventDetails($nid) {
   $event_date = '2017/12';
   $detail['calendar_url'] = $host."/calendar?default_date=".$event_date;
 
-  return $fdetail;
+  return $detail;
 
 }
 
@@ -262,7 +262,7 @@ function sendEventNotification($nid) {
   $host = "https://" . \Drupal::request()->getHost();
 
   $event = getEventDetails($nid);
-
+/*
   $display_summary = true;
   if($cid == "0") {
     //Prepare e-mail for an initial Thread post
@@ -275,7 +275,6 @@ function sendEventNotification($nid) {
     $display_summary = $forum['has_summary'];  //If it has_summary, 
   } else {
     $reply = getReplyDetails($cid);
-
     $forum['thread_summary_or_trim_body'] = "Re: ".$forum['thread_summary_or_trim_body'];
     $author_uid = $reply['reply_author_uid'];
     $author = $reply['reply_author'];
@@ -283,8 +282,7 @@ function sendEventNotification($nid) {
   }
 
   $message = relToAbs($message, $host);
-
-  $subject = "ICRP Forum: {$forum['thread_subject']}";
+  $subject = "ICRP Event: {$event['event_title']}";
   $emails = getForumEmails($nid, $author_uid);
   foreach($emails as $key => $email) {
     //$email = "Chris Kneisler <cpkneisler@gmail.com>";
@@ -292,6 +290,7 @@ function sendEventNotification($nid) {
     sendNewForumPostMail($email['formated_email'], $subject, $body);
   }
   //Loop through users and send them an e-mail.
+  */
 
 }
 
@@ -442,7 +441,7 @@ function icrp_node_insert(NodeInterface $node) {
     //drupal_set_message($node->getTitle());
     //drupal_set_message($node->id());
     //dpm($node);
-    sendEventNotification($nid);
+    //sendEventNotification($nid);
   }
   if($node->getType() == "forum") {
   /*
