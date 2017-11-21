@@ -296,39 +296,35 @@ class LibraryController extends ControllerBase {
     if ($thumb && !$thumb->isValid()) $thumb = null;
     $connection = self::get_connection();
     if ($new) {
-      $upload->move("public://library/uploads",$upload->getClientOriginalName());
-      if ($thumb) $thumb->move("public://library/uploads/thumbs",$thumb->getClientOriginalName());
-      $stmt = $connection->prepare("SELECT CASE WHEN ArchivedDate IS NULL THEN NULL ELSE GETDATE() END AS ArchivedDate FROM LibraryFolder WHERE LibraryFolderID=:pfid");
-      $stmt->bindParam(":pfid",$params["parent"]);
+      $stmt = $connection->prepare("
+          EXECUTE AddLibraryFile
+            :lfid,
+            :title,
+            :desc,
+            :ip,
+            :file,
+            :thumb,
+            :display
+        ");
+      $stmt->bindParam(":lfid",$params["parent"]);
+      $stmt->bindParam(":title",$params["title"]);
+      $stmt->bindParam(":desc",$params["description"]);
+      $stmt->bindParam(":ip",$params["is_public"]);
+      $stmt->bindValue(":file",$upload->getClientOriginalName());
+      if ($thumb) {
+        $stmt->bindValue(":thumb",$thumb->getClientOriginalName());
+      } else {
+        $stmt->bindValue(":thumb",null,PDO::PARAM_NULL);
+      }
+      $stmt->bindValue(":display",$upload->getClientOriginalName());
       if ($stmt->execute()) {
-        $row_output = array();
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-          foreach ($row as $key=>$value) {
-            $row_output[$key] = $value;
-          }
-          break;
-        }
-        $stmt = $connection->prepare("INSERT INTO Library (Title,LibraryFolderID,Filename,ThumbnailFilename,Description,IsPublic,ArchivedDate,DisplayName) OUTPUT INSERTED.* VALUES (:title,:lfid,:file,:thumb,:desc,:ip,:ad,:display);");
-        $stmt->bindParam(":title",$params["title"]);
-        $stmt->bindParam(":lfid",$params["parent"]);
-        $stmt->bindValue(":file",$upload->getClientOriginalName());
-        $stmt->bindValue(":display",$upload->getClientOriginalName());
-        if ($thumb) {
-          $stmt->bindValue(":thumb",$thumb->getClientOriginalName());
-        } else {
-          $stmt->bindValue(":thumb",null,PDO::PARAM_NULL);
-        }
-        $stmt->bindParam(":title",$params["title"]);
-        $stmt->bindParam(":desc",$params["description"]);
-        $stmt->bindParam(":ip",$params["is_public"]);
-        $stmt->bindParam(":ad",$row_output["ArchivedDate"]);
-        if ($stmt->execute()) {
-          $row = array_merge(array(),$stmt->fetchAll(PDO::FETCH_ASSOC));
-          return new JsonResponse(array(
-            "success"=>true,
-            "row"=>$row
-          ));
-        }
+        $row = array_merge(array(),$stmt->fetchAll(PDO::FETCH_ASSOC))[0];
+        $upload->move("public://library/uploads",$row['Filename']);
+        if ($thumb) $thumb->move("public://library/uploads/thumbs",$row['ThumbnailFilename']);
+        return new JsonResponse(array(
+          "success"=>true,
+          "row"=>$row
+        ));
       }
     } else {
       $stmt = $connection->prepare("UPDATE Library SET LibraryFolderID=:lfid, Title=:title, Description=:desc, IsPublic=:ip, UpdatedDate=GETDATE(), DisplayName=:display WHERE LibraryID=:lid");
