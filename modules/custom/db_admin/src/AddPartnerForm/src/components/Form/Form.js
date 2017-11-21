@@ -214,6 +214,10 @@ export default class Form extends React.Component {
         min: -180,
         max: 180,
         required: true
+      },
+
+      logoFile: {
+        format: /.+\.(png|gif|jpe?g)/
       }
     }
 
@@ -222,9 +226,14 @@ export default class Form extends React.Component {
 
       // if the field is 'joinedDate', then we should parse
       // the date object as a string in the 'YYYY-MM-DD' format
-      let value = field !== 'joinedDate'
-        ? (values[field] || '').toString().trim()
-        : values[field] ? moment(values[field]).format('YYYY-MM-DD') : '';
+      let value =
+        field === 'logoFile' ?
+          values[field].name :
+          field === 'joinedDate' ?
+            values[field] ?
+              moment(values[field]).format('YYYY-MM-DD') :
+              '' :
+            (values[field] || '').toString().trim();
 
       if (validationRules[field].required && (values[field] === null || (value.constructor === String && value.length === 0))) {
         validationErrors[field].required = true;

@@ -337,30 +337,32 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
 
 
       <Col md={6} className='margin-bottom'>
-        <FormGroup  controlId='partner-logo-file' bsSize='small' validationState={null}>
-          <ControlLabel className='margin-right'>Logo File</ControlLabel>
-          <i>(jpg, png or gif)</i>
+        <div className={anyTrue(form.validationErrors.logoFile) ? 'has-error' : ''}>
+          <FormGroup  controlId='partner-logo-file' bsSize='small' validationState={null}>
+            <ControlLabel className='margin-right'>Logo File</ControlLabel>
+            <i>(jpg, png or gif)</i>
 
-            <label className='block normal-weight'>
-              <div className='display-flex'>
-                <div className='cursor-text form-control form-control-group'>
-                  {form.values.logoFile ? form.values.logoFile.name : form.values.defaultLogoFile || <span className='placeholder'>Select file</span> }
+              <label className='block normal-weight'>
+                <div className='display-flex'>
+                  <div className='cursor-text form-control form-control-group'>
+                    {form.values.logoFile ? form.values.logoFile.name : form.values.defaultLogoFile || <span className='placeholder'>Select file</span> }
+                  </div>
+
+                  <span className='pointer form-group-addon-sm'>Browse...</span>
+                  <FormControl
+                    type='file'
+                    name='logoFile'
+                    id='logo-file'
+                    className='logo-file'
+                    accept='image/x-png,image/gif,image/jpeg'
+                    onChange={event => changeCallback(event.target.name, event.target.files[0])}
+                  />
                 </div>
+              </label>
 
-                <span className='pointer form-group-addon-sm'>Browse...</span>
-                <FormControl
-                  type='file'
-                  name='logoFile'
-                  id='logo-file'
-                  className='logo-file'
-                  accept='image/x-png,image/gif,image/jpeg'
-                  onChange={event => changeCallback(event.target.name, event.target.files[0])}
-                />
-              </div>
-            </label>
-
-          <FormControl.Feedback />
-        </FormGroup>
+            <FormControl.Feedback />
+          </FormGroup>
+        </div>
       </Col>
     </Row>
 
