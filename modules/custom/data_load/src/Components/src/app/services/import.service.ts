@@ -25,7 +25,7 @@ export class ImportService {
 
   async importCollaborators(data: any) {
     const endpoint = `${this.BASE_HREF}/api/collaborators/import`;
-    return this.http.post<any[]>(endpoint, JSON.stringify(data), {
+    return this.http.post<any | any[]>(endpoint, JSON.stringify(data), {
       withCredentials: window.location.hostname === window.location.host,
     });
   }

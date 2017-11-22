@@ -43,11 +43,13 @@
   </div>
 </form>
 
-<div class="form-group clearfix">
-  <div class="pull-left" [ngClass]="error ? 'text-danger' : 'text-success'">
-    {{ message }}
-  </div>
+<div class="form-group" [ngClass]="error ? 'text-danger' : 'text-success'">
+  {{ message }}
+</div>
 
+<ui-table *ngIf="records?.length > 0"
+  [headers]="['Error', 'Institution', 'City']"
+  [data]="records">
   <button
     *ngIf="records?.length > 0"
     class="pull-right btn btn-default btn-xs display-flex align-center"
@@ -55,10 +57,5 @@
     <ui-icon type="desktop-download"></ui-icon>
     <div>Export</div>
   </button>
-</div>
-
-<ui-table *ngIf="records?.length > 0"
-  [headers]="['Error', 'Institution', 'City']"
-  [data]="records">
 </ui-table>
 

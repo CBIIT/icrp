@@ -43,18 +43,20 @@ export class ImportCollaboratorsComponent {
     const csv = await this.importService.parseCSV(this.form.controls.file.value[0]) as ParseResult;
     const data = csv.data;
     data.shift();
+
     const response$ = await this.importService.importCollaborators(data);
     response$.subscribe(
       data => {
-        if (data && data.length > 0) {
-          this.error = true;
-          this.message = 'The following records did not pass the integrity check. The import process has been aborted. Please correct the data file and import again.';
-          this.records = data;
+        if (data.imported !== 0) {
+          this.error = false;
+          this.message = `${data.imported} collaborators have been imported successfully.`;
         }
 
-        else {
-          this.error = false;
-          this.message = 'Collaborators have been imported successfully.';
+        else if (data.errors.length > 0) {
+          this.error = true;
+          this.message = 'The following records did not pass the integrity check. The import process has been aborted. Please correct the data file and import again.';
+          console.log(data.errors);
+          this.records = data.errors;
         }
       },
 

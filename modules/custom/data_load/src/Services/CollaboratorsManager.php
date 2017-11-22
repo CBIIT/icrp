@@ -64,9 +64,26 @@ class CollaboratorsManager {
         $stmt->execute($parameters);
       }
 
-      return $connection
-        ->query("SET NOCOUNT ON; EXEC ImportCollaborators @Count = NULL;")
-        ->fetchAll();
+      // number of institutions successfully imported
+      $imported = [
+        'count' => [
+          'value' => 0,
+          'type' => PDO::PARAM_INT
+        ]
+      ];
+
+      // institutions that were not successfully imported
+      $errors = PDOBuilder::executePreparedStatement(
+        $connection,
+        'SET NOCOUNT ON; EXEC ImportCollaborators @count = NULL',
+        [],
+        $output
+      )->fetchAll();
+
+      return [
+        'imported' => $imported['count']['value'],
+        'errors' => $errors
+      ];
     }
 
     catch (PDOException $e) {
