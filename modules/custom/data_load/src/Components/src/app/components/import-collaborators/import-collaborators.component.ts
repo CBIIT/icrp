@@ -50,12 +50,13 @@ export class ImportCollaboratorsComponent {
       data => {
         if (data.imported !== 0) {
           this.error = false;
-          this.message = `${data.imported} collaborators have been imported successfully.`;
+          this.message = `${data.imported.toLocaleString()} collaborators have been imported successfully.`;
         }
 
         else if (data.errors.length > 0) {
           this.error = true;
-          this.message = 'The following records did not pass the integrity check. The import process has been aborted. Please correct the data file and import again.';
+          // this.message = 'The following records did not pass the integrity check. The import process has been aborted. Please correct the data file and import again.';
+          this.message = 'The following records failed the data check. Import aborted. Please correct the data file and rerun the import.';
           this.records = data.errors;
           this.headers = Object.keys(data.errors[0]);
         }
