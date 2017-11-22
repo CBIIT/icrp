@@ -1,3 +1,117 @@
-<p>
-  import-institutions works!
-</p>
+
+<ui-overlay [active]="loading">
+  <ui-spinner></ui-spinner>
+  <div>Loading</div>
+</ui-overlay>
+
+<form
+  class="bordered padded form-group responsive-form"
+  [formGroup]="form"
+  novalidate>
+
+  <div [ngClass]="{'has-error': form.controls.file.dirty && form.controls.file.invalid}">
+    <label class="control-label" for="input-file">Institutions File (.csv)*</label>
+    <input type="file" id="input-file" accept=".csv" formControlName="file" />
+
+    <div
+      class="help-block"
+      *ngIf="form.controls.file.dirty && form.controls.file.errors?.required">
+      A file is required.
+    </div>
+
+    <div
+      class="help-block"
+      *ngIf="form.controls.file.dirty && form.controls.file.errors?.pattern">
+      The file provided must be of the correct type.
+    </div>
+  </div>
+
+  <div>
+    <button
+      class="btn btn-primary"
+      (click)="load()"
+      [disabled]="!form.valid || records?.length > 0">
+      Load
+    </button>
+
+    <button
+      class="btn btn-default"
+      (click)="reset()">
+      Reset
+    </button>
+  </div>
+</form>
+
+<alert type="danger" *ngIf="error && message?.length > 0" [dismissible]="true">
+  {{ message }}
+</alert>
+
+<alert type="success" *ngIf="success" [dismissible]="true">
+  {{ records.length - invalidRecords.length }} institutions were added successfully.
+  <span *ngIf="invalidRecords.length > 0">
+    <a href="#" class="text-danger" (click)="invalidRecordsModal.show()">
+      {{ invalidRecords.length }}  failed
+    </a>
+    because they already exist in the database.
+  </span>
+</alert>
+
+<div class="form-group">
+  <ui-table *ngIf="records?.length > 0"
+    [headers]="headers"
+    [data]="records">
+  </ui-table>
+</div>
+
+<div class="text-center">
+  <button
+    class="btn btn-primary"
+    (click)="import()"
+    [disabled]="records?.length === 0">
+    Import
+  </button>
+
+  <button
+    class="btn btn-default"
+    (click)="cancel()">
+    Cancel
+  </button>
+</div>
+
+
+<div
+  class="modal fade"
+  bsModal
+  #invalidRecordsModal="bs-modal"
+  [config]="{backdrop: 'static'}"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="show-invalid-records"
+  aria-hidden="true">
+
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">
+          Invalid Records
+        </h4>
+
+        <button
+          type="button"
+          class="close pull-right"
+          aria-label="Close"
+          (click)="invalidRecordsModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <ui-table *ngIf="records?.length > 0"
+            [headers]="invalidRecordHeaders"
+            [data]="invalidRecords">
+          </ui-table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

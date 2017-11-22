@@ -4,6 +4,7 @@ namespace Drupal\data_load\Services;
 
 use PDO;
 use PDOException;
+use Exception;
 
 class InstitutionsManager {
 
@@ -25,6 +26,7 @@ class InstitutionsManager {
   }
 
   public static function importInstitutions(PDO $pdo, array $institutions) {
+    $index = 1;
     try {
       self::initializeTable($pdo);
       $stmt = $pdo->prepare(
@@ -32,7 +34,7 @@ class InstitutionsManager {
           VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
       foreach($institutions as $institution) {
-
+        $index ++;
         $data = array_map(function($value) {
           return strlen($value) > 0 ? $value : NULL;
         }, $institution);
@@ -40,12 +42,25 @@ class InstitutionsManager {
         $stmt->execute($data);
       }
 
-      return $pdo->query("SET NOCOUNT ON; EXEC AddInstitutions")->fetchAll();
+      return $pdo
+        ->query("SET NOCOUNT ON; EXEC ImportInstitutions")
+        ->fetchAll();
     }
 
     catch (PDOException $e) {
+
+      $message = preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage());
+
+      if ($index < count($data)) {
+         $message = "An error occured while reading row $index: $message";
+      }
+
+      return ['ERROR' => $message];
+    }
+
+    catch (Exception $e) {
       return [
-        'ERROR' => preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage())
+        'ERROR' => $e->getMessage()
       ];
     }
   }

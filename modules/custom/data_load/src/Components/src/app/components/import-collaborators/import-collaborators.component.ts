@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FileValidators } from '../../validators/file-validator/file-validator';
-import { ImportService } from '../../services/import.service';
+import { ImportService, ParseResult } from '../../services/import.service';
 import { ExportService } from '../../services/export.service';
 
 @Component({
@@ -40,8 +40,8 @@ export class ImportCollaboratorsComponent {
     this.error = false;
     this.message = '';
 
-    const data = await this.importService.parseCSV(this.form.controls.file.value[0])
-    const response$ = await this.importService.importCollaborators(data);
+    const csv = await this.importService.parseCSV(this.form.controls.file.value[0]) as ParseResult;
+    const response$ = await this.importService.importCollaborators(csv.data);
     response$.subscribe(
       data => {
         if (data && data.length > 0) {

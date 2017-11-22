@@ -68,7 +68,7 @@ export class TableComponent implements OnChanges {
 
     console.log(changes);
 
-    if (changes.headers) {
+    if (changes.headers && changes.headers.currentValue) {
       this._headers = changes.headers.currentValue.map(val =>
         typeof val === 'string'
           ? {value: val, label: val, sortDirection: 'none'}
@@ -76,7 +76,7 @@ export class TableComponent implements OnChanges {
       );
     }
 
-    if (changes.data) {
+    if (changes.data && changes.data.currentValue) {
       this._data = [...changes.data.currentValue];
     }
   }

@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { parse } from 'papaparse';
 
-type ParseResult = PapaParse.ParseResult;
-type ParseError = PapaParse.ParseError;
+export type ParseResult = PapaParse.ParseResult;
+export type ParseError = PapaParse.ParseError;
 
 @Injectable()
 export class ImportService {
@@ -12,13 +12,13 @@ export class ImportService {
 
   constructor(private http: HttpClient) { }
 
-  parseCSV(file: File): Promise<any[] | ParseError> {
+  parseCSV(file: File, header: boolean = false): Promise<ParseResult | ParseError> {
     return new Promise((resolve, reject) => {
       parse(file, {
-        header: false,
+        header: header,
         skipEmptyLines: true,
-        complete: result =>  resolve(result.data.slice(1)),
-        error: error => resolve(error)
+        complete: resolve,
+        error: reject,
       })
     });
   }

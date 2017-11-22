@@ -11,9 +11,11 @@ import_institutions:
   version: 1.0
   css:
     theme:
-      src/assets/import-institutions/main.css: {}
+      src/assets/import-institutions/styles.bundle.css: {}
   js:
-    src/assets/import-institutions/main.js: {}
+    src/assets/import-institutions/inline.bundle.js: {}
+    src/assets/import-institutions/polyfills.bundle.js: {}
+    src/assets/import-institutions/main.bundle.js: {}
 
 import_collaborators:
   version: 1.0
