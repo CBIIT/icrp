@@ -53,12 +53,14 @@
 <ui-table *ngIf="records?.length > 0"
   [headers]="headers"
   [data]="records">
-  <button
-    *ngIf="records?.length > 0"
-    class="pull-right btn btn-default btn-xs display-flex align-center"
-    (click)="export()">
-    <ui-icon type="desktop-download"></ui-icon>
-    <div>Export</div>
-  </button>
+  <div>
+    <button
+      *ngIf="records?.length > 0"
+      class="pull-right btn btn-default btn-xs display-flex align-center"
+      (click)="export()">
+      <ui-icon type="desktop-download"></ui-icon>
+      <div>Export</div>
+    </button>
+  </div>
 </ui-table>
 
