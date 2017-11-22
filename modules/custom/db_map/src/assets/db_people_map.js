@@ -124,12 +124,12 @@ drupalSettings.db_map = {
       }
     }
     if (boundsFound) {
-      //var ne = markerBounds.getNorthEast(),
-      //    sw = markerBounds.getSouthWest(),
-      //    latVar = Math.max(1-(ne.lat()-sw.lat()),0)/2,
-      //    lngVar = Math.max(1-(ne.lng()-sw.lng()),0)/2;
-      //markerBounds.extend({lat:ne.lat()+latVar,lng:ne.lng()-lngVar});
-      //markerBounds.extend({lat:sw.lat()-latVar,lng:sw.lng()+lngVar});
+      var ne = markerBounds.getNorthEast(),
+          sw = markerBounds.getSouthWest(),
+          latVar = Math.max(1-(ne.lat()-sw.lat()),0)/2,
+          lngVar = Math.max(1-(ne.lng()-sw.lng()),0)/2;
+      markerBounds.extend({lat:ne.lat()+latVar,lng:ne.lng()-lngVar});
+      markerBounds.extend({lat:sw.lat()-latVar,lng:sw.lng()+lngVar});
       map.fitBounds(markerBounds);
     }
     window.createOverlayForMap(map);
