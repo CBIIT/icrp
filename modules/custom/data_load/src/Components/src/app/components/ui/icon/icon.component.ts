@@ -9,6 +9,10 @@ import * as octicons from 'octicons';
 export class IconComponent implements AfterViewInit {
   @Input() type: string = 'alert';
 
+  @Input() width: number;
+
+  @Input() height: number;
+
   @ViewChild('container') container: ElementRef;
 
   octicons = null;
@@ -29,8 +33,8 @@ export class IconComponent implements AfterViewInit {
     this.container.nativeElement.innerHTML = `
       <svg
         class="octicon"
-        width="${octicons[this.type].width}"
-        height="${octicons[this.type].height}"
+        width="${this.width || octicons[this.type].width}"
+        height="${this.height || octicons[this.type].height}"
         viewBox="${octicons[this.type].options.viewBox}"
         aria-hidden="true"
       >

@@ -4,6 +4,19 @@
   <div>Loading</div>
 </ui-overlay>
 
+<alert type="danger" *ngIf="error && message?.length > 0" [dismissible]="true">
+  {{ message }}
+</alert>
+
+<alert type="success" *ngIf="success" [dismissible]="true">
+  {{ records.length - invalidRecords.length }} institutions were added successfully.
+  <span *ngIf="invalidRecords.length > 0">
+    <a href="#" class="text-danger" (click)="invalidRecordsModal.show()">
+      {{ invalidRecords.length }} failed</a>
+    because they already exist in the database.
+  </span>
+</alert>
+
 <form
   class="bordered padded form-group responsive-form"
   [formGroup]="form"
@@ -41,19 +54,6 @@
     </button>
   </div>
 </form>
-
-<alert type="danger" *ngIf="error && message?.length > 0" [dismissible]="true">
-  {{ message }}
-</alert>
-
-<alert type="success" *ngIf="success" [dismissible]="true">
-  {{ records.length - invalidRecords.length }} institutions were added successfully.
-  <span *ngIf="invalidRecords.length > 0">
-    <a href="#" class="text-danger" (click)="invalidRecordsModal.show()">
-      {{ invalidRecords.length }} failed</a>
-    because they already exist in the database.
-  </span>
-</alert>
 
 <div class="form-group">
   <ui-table *ngIf="records?.length > 0"

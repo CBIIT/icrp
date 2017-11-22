@@ -4,6 +4,13 @@
   <div>Loading</div>
 </ui-overlay>
 
+<alert
+  *ngIf="message?.length > 0"
+  [type]="error ? 'warning' : 'success'"
+  [dismissible]="true">
+  {{ message }}
+</alert>
+
 <form
   class="bordered padded form-group responsive-form"
   [formGroup]="form"
@@ -43,12 +50,8 @@
   </div>
 </form>
 
-<div class="form-group" [ngClass]="error ? 'text-danger' : 'text-success'">
-  {{ message }}
-</div>
-
 <ui-table *ngIf="records?.length > 0"
-  [headers]="['Error', 'Institution', 'City']"
+  [headers]="headers"
   [data]="records">
   <button
     *ngIf="records?.length > 0"

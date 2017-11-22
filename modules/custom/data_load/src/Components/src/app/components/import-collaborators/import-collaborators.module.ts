@@ -6,6 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { ImportCollaboratorsComponent } from './import-collaborators.component';
 import { FileValueAccessorModule } from '../../directives/file-value-accessor/file-value-accessor.module';
 
+import { AlertModule } from 'ngx-bootstrap';
 import { OverlayModule } from '../ui/overlay';
 import { SpinnerModule } from '../ui/spinner';
 import { IconModule } from '../ui/icon';
@@ -19,6 +20,7 @@ import { TableModule } from '../ui/table';
     BrowserModule,
     HttpClientModule,
     ReactiveFormsModule,
+    AlertModule.forRoot(),
     SpinnerModule.forRoot(),
     OverlayModule,
     IconModule,

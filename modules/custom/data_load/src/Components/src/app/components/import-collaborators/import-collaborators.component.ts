@@ -18,6 +18,7 @@ export class ImportCollaboratorsComponent {
   error: boolean = false;
   message: string = '';
   records: any[] = [];
+  headers: string[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
@@ -55,8 +56,8 @@ export class ImportCollaboratorsComponent {
         else if (data.errors.length > 0) {
           this.error = true;
           this.message = 'The following records did not pass the integrity check. The import process has been aborted. Please correct the data file and import again.';
-          console.log(data.errors);
           this.records = data.errors;
+          this.headers = Object.keys(data.errors[0]);
         }
       },
 
@@ -78,11 +79,11 @@ export class ImportCollaboratorsComponent {
     const sheets = [
       {
         title: 'Invalid Records',
-        rows: [['Error', 'Institution', 'City']]
-          .concat(this.records.map(
-            ({Error, Institution, City}) =>
-              [Error, Institution, City]
-          ))
+        rows: [this.headers]
+          .concat(this.records
+            .map(record => this.headers
+              .map(header => record[header]))
+          )
       },
     ];
 
