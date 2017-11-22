@@ -79,8 +79,13 @@ drupalSettings.db_map = {
             loc = {
               lat: parseFloat(detail.lat),
               lng: parseFloat(detail.long)
-            },
-            marker = new google.maps.Marker({
+            };
+        if (loc.lat > 90 || loc.lat < -90) {
+          let hold = loc.lat;
+          loc.lat = loc.lng;
+          loc.lng = hold;
+        }
+        var marker = new google.maps.Marker({
               map: map,
               icon: is_pi ? baseUrl+'orangepin.png' : baseUrl+'yellowpin.png',
               position: loc,
