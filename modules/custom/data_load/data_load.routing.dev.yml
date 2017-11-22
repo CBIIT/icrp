@@ -6,26 +6,23 @@ dataload.app:
   requirements:
     _access: 'TRUE'
 
-
 dataload.load_data_mysql:
   path: '/DataUploadTool/loaddata_mysql'
   defaults:
     _controller: '\Drupal\data_load\Controller\DataLoadController::loaddata_mysql'
     _title: 'Load Data'
+  methods: [POST]
   requirements:
     _access: 'TRUE'
-
-  methods: [POST]
 
 dataload.load_data_mssql:
   path: '/DataUploadTool/loaddata_mssql'
   defaults:
     _controller: '\Drupal\data_load\Controller\DataLoadController::loaddata_mssql'
     _title: 'Load Data'
+  methods: [POST]
   requirements:
     _access: 'TRUE'
-
-  methods: [POST]
 
 dataload.get_data:
   path: '/DataUploadTool/getdata'
@@ -35,7 +32,6 @@ dataload.get_data:
   requirements:
     _access: 'TRUE'
 
-
 dataload.get_data_mssql:
   path: '/DataUploadTool/getdata_mssql'
   defaults:
@@ -44,7 +40,6 @@ dataload.get_data_mssql:
   requirements:
     _access: 'TRUE'
 
-
 dataload.integrity_check:
   path: '/DataUploadTool/integrity_check_mssql'
   defaults:
@@ -52,7 +47,6 @@ dataload.integrity_check:
     _title: 'Integrity Check'
   requirements:
     _access: 'TRUE'
-
   methods: [POST]
 
 dataload.integrity_check_details:
@@ -62,7 +56,6 @@ dataload.integrity_check_details:
     _title: 'Integrity Check Details'
   requirements:
     _access: 'TRUE'
-
   methods: [POST]
 
 dataload.get_validation_rule_definitions:
@@ -73,14 +66,12 @@ dataload.get_validation_rule_definitions:
   requirements:
     _access: 'TRUE'
 
-
 dataload.importProjects:
   path: '/DataUploadTool/importProjects'
   defaults:
     _controller:  '\Drupal\data_load\Controller\DataLoadController::importProjects'
   requirements:
     _access: 'TRUE'
-
 
 dataload.ping:
   path: '/DataUploadTool/ping'
@@ -90,7 +81,6 @@ dataload.ping:
   requirements:
     _access: 'TRUE'
 
-
 dataload.export:
   path: '/DataUploadTool/export'
   defaults:
@@ -98,14 +88,12 @@ dataload.export:
   requirements:
     _access: 'TRUE'
 
-
 dataload.sponsor_codes:
   path: '/DataUploadTool/getSponsorCodes'
   defaults:
     _controller: 'Drupal\data_load\Controller\DataLoadController::getSponsorCodes'
   requirements:
     _access: 'TRUE'
-
 
 add_institutions:
   path: '/AddInstitutions'
@@ -115,7 +103,6 @@ add_institutions:
   requirements:
     _access: 'TRUE'
 
-
 add_collaborators:
   path: '/ImportCollaborators'
   defaults:
@@ -124,7 +111,6 @@ add_collaborators:
   requirements:
     _access: 'TRUE'
 
-
 api.institutions.import:
   path: '/api/institutions/import'
   defaults:
@@ -132,14 +118,12 @@ api.institutions.import:
   requirements:
     _access: 'TRUE'
 
-
 api.collaborators.import:
   path: '/api/collaborators/import'
   defaults:
     _controller: '\Drupal\data_load\Controller\ImportController::importCollaborators'
   requirements:
     _access: 'TRUE'
-
 
 api.getExcelExport:
   path: '/api/getExcelExport/{prefix}'
