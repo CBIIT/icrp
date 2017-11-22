@@ -96,7 +96,7 @@ dataload.sponsor_codes:
     _access: 'TRUE'
 
 add_institutions:
-  path: '/AddInstitutions'
+  path: '/ImportInstitutions'
   defaults:
     _controller: '\Drupal\data_load\Controller\ContentController::importInstitutions'
     _title: 'Add Institutions Tool'

@@ -5,8 +5,6 @@ dataload.app:
     _title: 'Data Loading Tool'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
-
 
 dataload.load_data_mysql:
   path: '/DataUploadTool/loaddata_mysql'
@@ -16,8 +14,6 @@ dataload.load_data_mysql:
   methods: [POST]
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
-
 
 dataload.load_data_mssql:
   path: '/DataUploadTool/loaddata_mssql'
@@ -27,8 +23,6 @@ dataload.load_data_mssql:
   methods: [POST]
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
-
 
 dataload.get_data:
   path: '/DataUploadTool/getdata'
@@ -37,8 +31,6 @@ dataload.get_data:
     _title: 'Get Data'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
-
 
 dataload.get_data_mssql:
   path: '/DataUploadTool/getdata_mssql'
@@ -47,18 +39,15 @@ dataload.get_data_mssql:
     _title: 'Get Data'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
-
 
 dataload.integrity_check:
   path: '/DataUploadTool/integrity_check_mssql'
   defaults:
     _controller:  '\Drupal\data_load\Controller\DataLoadController::integrity_check_mssql'
     _title: 'Integrity Check'
-  methods: [POST]
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
+  methods: [POST]
 
 dataload.integrity_check_details:
   path: '/DataUploadTool/integrity_check_details_mssql'
@@ -67,8 +56,6 @@ dataload.integrity_check_details:
     _title: 'Integrity Check Details'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
-
   methods: [POST]
 
 dataload.get_validation_rule_definitions:
@@ -78,8 +65,6 @@ dataload.get_validation_rule_definitions:
     _title: 'Get Validation Rules'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
-
 
 dataload.importProjects:
   path: '/DataUploadTool/importProjects'
@@ -87,8 +72,6 @@ dataload.importProjects:
     _controller:  '\Drupal\data_load\Controller\DataLoadController::importProjects'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
-
 
 dataload.ping:
   path: '/DataUploadTool/ping'
@@ -97,8 +80,6 @@ dataload.ping:
     _title: 'Ping'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
-
 
 dataload.export:
   path: '/DataUploadTool/export'
@@ -106,8 +87,6 @@ dataload.export:
     _controller: 'Drupal\data_load\Controller\DataLoadController::export'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
-
 
 dataload.sponsor_codes:
   path: '/DataUploadTool/getSponsorCodes'
@@ -115,18 +94,14 @@ dataload.sponsor_codes:
     _controller: 'Drupal\data_load\Controller\DataLoadController::getSponsorCodes'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
-
 
 add_institutions:
-  path: '/AddInstitutions'
+  path: '/ImportInstitutions'
   defaults:
     _controller: '\Drupal\data_load\Controller\ContentController::importInstitutions'
     _title: 'Add Institutions Tool'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
-
 
 add_collaborators:
   path: '/ImportCollaborators'
@@ -135,8 +110,6 @@ add_collaborators:
     _title: 'Import Collaborators Tool'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
-
 
 api.institutions.import:
   path: '/api/institutions/import'
@@ -144,8 +117,6 @@ api.institutions.import:
     _controller: 'Drupal\data_load\Controller\ImportController::importInstitutions'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
-
 
 api.collaborators.import:
   path: '/api/collaborators/import'
@@ -153,8 +124,6 @@ api.collaborators.import:
     _controller: '\Drupal\data_load\Controller\ImportController::importCollaborators'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
-
 
 api.getExcelExport:
   path: '/api/getExcelExport/{prefix}'
@@ -163,4 +132,3 @@ api.getExcelExport:
     prefix: 'Data_Export'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
