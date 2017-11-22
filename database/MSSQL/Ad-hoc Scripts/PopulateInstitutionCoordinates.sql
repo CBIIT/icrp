@@ -92,6 +92,8 @@ where ic.CorrectName is NOT null
 --rollback
 commit
 
+
+
 -- Update the input dataset
 UPDATE #InstitutionCoordinates SET Name = CorrectName
 where CorrectName is not null
@@ -208,7 +210,6 @@ WHERE ISNULL(i.latitude,0) = 0
 
 commit
 
-
 --select count(*) from Institution where ISNULL(Latitude, 0) = 0  -- 1742 still missing
 
 ------------------------------------------------------------------------------------------------------------
@@ -263,3 +264,22 @@ commit
 --select count(*) from Institution where ISNULL(Latitude, 0) = 0  -- 1349 still missing
 select Name AS Institution, City, ISNULL(State, ''), Country, ISNULL(grid, '') from Institution where ISNULL(Latitude, 0) = 0  and name <> 'Missing'
 
+-- Manual fix
+begin transaction
+update institution set Latitude= 39.953187, Longitude= -75.174967  where Name = 'NRG Oncology Foundation, Inc.' and Latitude is null
+update institution set latitude =27.967570, Longitude =-82.511962 where name = 'H. Lee Moffitt Cancer Center & Research Institute, Inc.' And city ='Tampa'
+update institution set latitude = NULL, Longitude = NULL where latitude=0.0 and longitude = 0.0
+
+commit
+
+-- swap coordinates
+begin transaction
+select * from institution where country='us' and (latitude > 65 or latitude < 15) AND (longitude > -63 or longitude < -148)
+
+update institution set latitude = us.longitude, longitude = us.latitude
+from Institution i
+join (select * from institution where country='us' and (latitude > 65 or latitude < 15) AND (longitude > -63 or longitude < -148)) us on i.institutionid =us.institutionid
+
+select * from institution where country='us' and (latitude > 65 or latitude < 15) AND (longitude > -63 or longitude < -148)
+
+commit

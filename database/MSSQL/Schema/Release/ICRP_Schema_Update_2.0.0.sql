@@ -67,22 +67,17 @@ GO
 
 IF object_id('lu_MapLayer') is NOT null
 	DROP TABLE lu_MapLayer
-ELSE
-BEGIN
-
-	CREATE TABLE [dbo].[lu_MapLayer] (
-		[MapLayerID] [int] NOT NULL,
-		[ParentMapLayerID] [int] NOT NULL,
-		[Name] [varchar](50) NOT NULL,
-		[Summary] [varchar](500) NULL,
-		[Description] [varchar](500) NULL,
-		[DataSource] [varchar](500) NULL,
-		[CreatedDate] [datetime] not null,
-		[UpdatedDate] [datetime] not null
-	)
-
-END
-
+	
+CREATE TABLE [dbo].[lu_MapLayer] (
+	[MapLayerID] [int] NOT NULL,
+	[ParentMapLayerID] [int] NOT NULL,
+	[Name] [varchar](50) NOT NULL,
+	[Summary] [varchar](500) NULL,
+	[Description] [varchar](500) NULL,
+	[DataSource] [varchar](500) NULL,
+	[CreatedDate] [datetime] not null,
+	[UpdatedDate] [datetime] not null
+)
 
 ALTER TABLE [dbo].[lu_MapLayer] ADD  CONSTRAINT [DF_lu_MayLayer_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
 GO
@@ -165,10 +160,30 @@ IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[F
 	ALTER TABLE FundingOrg ADD Latitude [decimal](9, 6) NULL
 GO
 
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[lu_DataUploadIntegrityCheckRules]') AND name = 'Type')
+	ALTER TABLE lu_DataUploadIntegrityCheckRules ADD Type varchar(25) NULL
+GO
+
+
 
 /*************************************************/
 /******					Data				******/
 /*************************************************/
+-- lu_DataUploadIntegrityCheckRules
+UPDATE lu_DataUploadIntegrityCheckRules SET Type = 'Both'
+
+IF NOT EXISTS (SELECT * FROM lu_DataUploadIntegrityCheckRules WHERE lu_DataUploadIntegrityCheckRules_ID = 18)
+	INSERT INTO lu_DataUploadIntegrityCheckRules (lu_DataUploadIntegrityCheckRules_ID, [Name],[Category],[IsRequired],[IsActive], Type, CreatedDate, UpdatedDate) SELECT 18, 'Missing AltAwardCodes', 'Award', 1, 1, 'Update', getdate(), getdate()
+GO
+
+IF EXISTS (SELECT * FROM lu_DataUploadIntegrityCheckRules WHERE lu_DataUploadIntegrityCheckRules_ID = 13)
+	UPDATE lu_DataUploadIntegrityCheckRules SET Name = 'Multiple Parents' WHERE lu_DataUploadIntegrityCheckRules_ID = 13
+GO
+
+IF EXISTS (SELECT * FROM lu_DataUploadIntegrityCheckRules WHERE lu_DataUploadIntegrityCheckRules_ID = 11)
+	UPDATE lu_DataUploadIntegrityCheckRules SET Type = 'New' WHERE lu_DataUploadIntegrityCheckRules_ID = 11
+GO
+
 --  lu_Region
 IF NOT EXISTS (SELECT * FROM lu_Region WHERE RegionID = 1)
 	INSERT INTO lu_Region ([RegionID], [Name], [Latitude], [Longitude]) SELECT 1, 'North America', 42.611695, -104.326171

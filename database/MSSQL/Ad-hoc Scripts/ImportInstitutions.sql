@@ -36,6 +36,15 @@ GO
 
 
 select * from #Institution
+update #Institution set city ='Montréal' where city='Montreal'
+update #Institution set city ='Québec' where city='Quebec'
+update #Institution set city ='Zürich' where city='Zurich'
+update #Institution set city ='Pierre-Bénite' where city='Pierre-Benite'
+update #Institution set city ='Umeå' where city='Umea'
+
+
+update tmp_LoadInstitutions set name = 'Francis Crick Institute' where name ='London Research Institute'
+update tmp_LoadInstitutions set city  = 'Parkville' where name ='Ludwig Institute for Cancer Research' and city ='Melbourne'
 
 -- Any Country not exist in lookup?
 select i.* from #Institution i

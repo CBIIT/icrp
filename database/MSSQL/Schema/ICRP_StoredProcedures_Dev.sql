@@ -1,14 +1,13 @@
 
-
 /*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-/****** Object:  StoredProcedure [dbo].[AddInstitutions]    Script Date: 12/14/2016 4:21:37 PM ******/
+/****** Object:  StoredProcedure [dbo].[ImportInstitutions]    Script Date: 12/14/2016 4:21:37 PM ******/
 /*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AddInstitutions]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[AddInstitutions]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ImportInstitutions]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[ImportInstitutions]
 GO 
 
-CREATE PROCEDURE [dbo].[AddInstitutions] 
+CREATE PROCEDURE [dbo].[ImportInstitutions] 
   
 AS
 
@@ -28,9 +27,9 @@ BEGIN TRY
 	FROM #unique u JOIN Institution i ON u.Name = i.Name AND u.City = i.City	
 
 	-- Insert into icrp_data: DO NOT insert the institutions which already exist in the Institutions lookup 
-	INSERT INTO icrp_data_dev.dbo.Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
+	INSERT INTO Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
 	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM #unique i
-		LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.Cityinginvest
+		LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.City
 	WHERE (e.Name IS NULL)
 
 	-- Insert into icrp_dataload: Only insert the institutions which not exist in the Institutions lookup 		
@@ -39,7 +38,14 @@ BEGIN TRY
 		LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.City
 	WHERE (e.Name IS NULL)
 
-	-- return institutions those exist and not been inserted 
+	-- Insert City coordinates into lu_city if they rae new
+	INSERT INTO lu_City (Name, State, Country, Latitude, Longitude)	
+	SELECT i.City, i.State, i.Country, i.Latitude, i.Longitude
+	FROM (SELECT City, State, Country, MIN(Latitude) AS Latitude,  MIN(Longitude) AS Longitude FROM Institution GROUP BY City, State, Country) i
+		LEFT JOIN lu_City c ON i.City=c.Name AND ISNULL(i.State, '') = ISNULL(c.State, '') AND i.Country = c.Country		
+	WHERE i.City <> 'Missing' AND c.Name IS NULL AND i.Latitude IS NOT NULL AND i.Longitude IS NOT NULL
+
+	-- return already exist institutions not being inserted 
 	SELECT * FROM #exist
 
 	IF object_id('tmp_LoadInstitutions') is not null
@@ -58,355 +64,19 @@ BEGIN CATCH
 	        
 END CATCH  
 
-
-
-GO
-
-
-
-
-----------------------------------------------------------------------------------------------------------
-/****** Object:  StoredProcedure [dbo].[AddPartner]    Script Date: 12/14/2016 4:21:37 PM ******/
-----------------------------------------------------------------------------------------------------------
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AddPartner]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[AddPartner]
-GO 
-
-CREATE  PROCEDURE [dbo].[AddPartner]	
-	@Name [varchar](100),
-	@Description [varchar](max),
-	@SponsorCode [varchar](50),
-	@Email [varchar](75),
-	@IsDSASigned [bit],
-	@Country [varchar](100),
-	@Website [varchar](200),
-	@LogoFile [varchar](100),
-	@Note [varchar](8000),
-	@JoinedDate [datetime],
-	@Longitude [decimal](9, 6),
-	@Latitude [decimal](9, 6) 
-AS   
-
-BEGIN TRANSACTION;
-BEGIN TRY    	
-
-	SET NOCOUNT ON;
-
-	IF EXISTS (SELECT 1 FROM Partner WHERE SponsorCode = @SponsorCode)
-	BEGIN
-		   RAISERROR ('Sponsor Code already existed', 16, 1)
-	END
-
-	INSERT INTO Partner ([Name],[Description], [SponsorCode], [Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Longitude], [Latitude], [CreatedDate], [UpdatedDate])
-	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Longitude, @Latitude, GETDATE(), GETDATE())
-		
-	-- Also insert the new partner into the PartnerOrg table
-	INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
-	SELECT @Name, @SponsorCode, 'Partner', 1 
-
-	-- Also Insert the newly inserted partner into the icrp_dataload database
-	INSERT INTO icrp_dataload_dev.dbo.Partner ([Name], [Description],[SponsorCode],[Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate],[Latitude], [Longitude], [CreatedDate], [UpdatedDate])
-	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Longitude, @Latitude, GETDATE(), GETDATE())
-
-	COMMIT TRANSACTION
-
-END TRY
-
-BEGIN CATCH
-      -- IF @@trancount > 0 
-		ROLLBACK TRANSACTION
-      
-	  DECLARE @msg nvarchar(2048) = error_message()  
-      RAISERROR (@msg, 16, 1)
-	        
-END CATCH  
-
-GO
-
-----------------------------------------------------------------------------------------------------------
-/****** Object:  StoredProcedure [dbo].[UpdatePartner]    Script Date: 12/14/2016 4:21:37 PM ******/
-----------------------------------------------------------------------------------------------------------
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdatePartner]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[UpdatePartner]
-GO 
-
-CREATE  PROCEDURE [dbo].[UpdatePartner]
-	@PartnerID INT,
-	@Name [varchar](100),
-	@Description [varchar](max),
-	@SponsorCode [varchar](50),
-	@Email [varchar](75),
-	@IsDSASigned [bit],
-	@Country [varchar](100),
-	@Website [varchar](200),
-	@LogoFile [varchar](100),
-	@Note [varchar](8000),
-	@JoinedDate [datetime],
-	@Longitude [decimal](9, 6),
-	@Latitude [decimal](9, 6) 
-AS   
-
-BEGIN TRANSACTION;
-BEGIN TRY    	
-
-	DECLARE @OrgSponsorCode [varchar](50)
-	SELECT @OrgSponsorCode = SponsorCode FROM Partner WHERE PartnerID =  @PartnerID
-
-	IF EXISTS (SELECT 1 FROM Partner WHERE PartnerID <> @PartnerID AND SponsorCode = @SponsorCode)
-	BEGIN
-		   RAISERROR ('Sponsor Code already existed', 16, 1)
-	END
-
-	UPDATE Partner SET [Name] = @Name,
-		[Description]  = @Description,
-		[SponsorCode]  = @SponsorCode,
-		[Email]  = @Email,
-		[IsDSASigned] = @IsDSASigned,
-		[Country] = @Country,
-		[Website] = @Website,
-		[LogoFile] = @LogoFile,
-		[Note]  = @Note,
-		[JoinedDate]  = @JoinedDate,	
-		[Longitude]  = @Longitude,
-		[Latitude] = @Latitude,
-		[UpdatedDate] = getdate()
-	WHERE PartnerID =  @PartnerID
-
-	-- Also update icrp_dataload database
-	UPDATE icrp_dataload_dev.dbo.Partner SET [Name] = @Name,
-		[Description]  = @Description,
-		[SponsorCode]  = @SponsorCode,
-		[Email]  = @Email,
-		[IsDSASigned] = @IsDSASigned,
-		[Country] = @Country,
-		[Website] = @Website,
-		[LogoFile] = @LogoFile,
-		[Note]  = @Note,
-		[JoinedDate]  = @JoinedDate,	
-		[Longitude]  = @Longitude,
-		[Latitude] = @Latitude,
-		[UpdatedDate] = getdate()
-	WHERE [SponsorCode] =  @OrgSponsorCode
-
-	-- Also update other tables if the SponsorCode is changed
-	IF (@SponsorCode <> @OrgSponsorCode)
-	BEGIN
-		UPDATE FundingOrg SET SponsorCode = @SponsorCode WHERE SponsorCode=@OrgSponsorCode
-		UPDATE PartnerOrg SET SponsorCode = @SponsorCode WHERE SponsorCode=@OrgSponsorCode
-	END
-
-	COMMIT TRANSACTION
-
-END TRY
-
-BEGIN CATCH
-      -- IF @@trancount > 0 
-		ROLLBACK TRANSACTION
-      
-	  DECLARE @msg nvarchar(2048) = error_message()  
-      RAISERROR (@msg, 16, 1)
-	        
-END CATCH  
-
-GO
-
-
-----------------------------------------------------------------------------------------------------------
-/****** Object:  StoredProcedure [dbo].[AddFundingOrg]								****************/
-----------------------------------------------------------------------------------------------------------
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AddFundingOrg]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[AddFundingOrg]
-GO 
-
-CREATE  PROCEDURE [dbo].[AddFundingOrg]	
-	@PartnerID INT,
-	@Name [varchar](100),
-	@Abbreviation [varchar](15),
-	@Type [varchar](25),
-	@Country [varchar](3),
-	@Currency [varchar](3),	
-	@MemberType [varchar](25),
-	@MemberStatus [nchar](10),
-	@IsAnnualized [bit],
-	@Note [varchar](8000),
-	@Website [varchar](200) ,
-	@Longitude [decimal](9, 6),
-	@Latitude [decimal](9, 6)	
-AS   
-
-
-BEGIN TRANSACTION;
-BEGIN TRY    	
-
-	-- SET NOCOUNT ON added to prevent extra result sets from
-	-- interfering with SELECT statements.
-	SET NOCOUNT ON;
-
-	-- Return error if the  abbreviation already exist within the same sponsorcode
-	DECLARE @SponsorCode [varchar](50)
-	SELECT @SponsorCode = SponsorCode FROM Partner WHERE PartnerID =  @PartnerID
-
-	IF EXISTS (SELECT 1 FROM FundingOrg WHERE SponsorCode = @SponsorCode AND Abbreviation = @Abbreviation)
-	BEGIN
-		   RAISERROR ('Funding Org Abbreviation already existed for the partner.', 16, 1)
-	END
-
-	INSERT INTO FundingOrg ([Name], Abbreviation, [Type],[Country], [Currency], [SponsorCode], 	[MemberType], [MemberStatus], [IsAnnualized],[Note], [Website],	[Longitude],[Latitude],	[CreatedDate], [UpdatedDate])
-	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	@IsAnnualized, @Note, @Website, @Longitude, @Latitude, GETDATE(), GETDATE())
-	
-
-	-- Also Insert the new fundingorg into the PartnerOrg table
-	INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
-	VALUES (@Name, @SponsorCode, 'Associate', 1)
-
-	-- Also insert the new fundingorg into the icrp_dataload database
-	INSERT INTO icrp_dataload_dev.dbo.FundingOrg ([Name], Abbreviation, [Type],[Country], [Currency], [SponsorCode], 	[MemberType], [MemberStatus], [IsAnnualized],[Note], [Website],	[Longitude],[Latitude],	[CreatedDate], [UpdatedDate])
-	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	@IsAnnualized, @Note, @Website, @Longitude, @Latitude, GETDATE(), GETDATE())
-	
-	COMMIT TRANSACTION
-
-END TRY
-
-BEGIN CATCH
-      -- IF @@trancount > 0 
-		ROLLBACK TRANSACTION
-      
-	  DECLARE @msg nvarchar(2048) = error_message()  
-      RAISERROR (@msg, 16, 1)
-	        
-END CATCH  
-
-GO
-
-----------------------------------------------------------------------------------------------------------
-/****** Object:  StoredProcedure [dbo].[UpdateFundingOrg]								****************/
-----------------------------------------------------------------------------------------------------------
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdateFundingOrg]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[UpdateFundingOrg]
-GO 
-
-CREATE  PROCEDURE [dbo].[UpdateFundingOrg]
-	@FundingOrgID INT,
-	@Name [varchar](100),
-	@Abbreviation [varchar](15),
-	@Type [varchar](25),
-	@Country [varchar](3),
-	@Currency [varchar](3),	
-	@MemberType [varchar](25),
-	@MemberStatus [nchar](10),
-	@IsAnnualized [bit],
-	@Note [varchar](8000),
-	@Website [varchar](200) ,
-	@Longitude [decimal](9, 6),
-	@Latitude [decimal](9, 6)	
-AS   
-
-
-BEGIN TRANSACTION;
-BEGIN TRY    	
-
-	DECLARE @OrgAbbrev [varchar](50)
-	DECLARE @SponsorCode [varchar](50)
-	SELECT @OrgAbbrev = Abbreviation, @SponsorCode = SponsorCode FROM FundingOrg WHERE FundingOrgID =  @FundingOrgID
-
-	-- Return error if the  abbreviation already exist within the same sponsorcode
-	IF EXISTS (SELECT 1 FROM FundingOrg WHERE FundingOrgID <> @FundingOrgID AND SponsorCode = @SponsorCode AND Abbreviation = @Abbreviation)
-	BEGIN
-		   RAISERROR ('Funding Org Abbreviation already existed for the partner.', 16, 1)
-	END
-
-	UPDATE FundingOrg SET [Name] = @Name,		
-		Abbreviation  = @Abbreviation,		
-		[Type] = @Type,
-		[Country] = @Country,
-		[Currency] = @Currency,
-		[MemberType] = @MemberType,
-		[MemberStatus] = @MemberStatus,
-		[IsAnnualized] = @IsAnnualized,		
-		[Note]  = @Note,
-		[Website] = @Website,		
-		[Longitude]  = @Longitude,
-		[Latitude] = @Latitude,
-		[UpdatedDate] = getdate()
-	WHERE FundingOrgID =  @FundingOrgID
-
-	-- Also update the icrp_dataload database
-	UPDATE icrp_dataload_dev.dbo.FundingOrg SET [Name] = @Name,		
-		Abbreviation  = @Abbreviation,		
-		[Type] = @Type,
-		[Country] = @Country,
-		[Currency] = @Currency,
-		[MemberType] = @MemberType,
-		[MemberStatus] = @MemberStatus,
-		[IsAnnualized] = @IsAnnualized,		
-		[Note]  = @Note,
-		[Website] = @Website,		
-		[Longitude]  = @Longitude,
-		[Latitude] = @Latitude,
-		[UpdatedDate] = getdate()
-	WHERE SponsorCode = @SponsorCode AND Abbreviation = @OrgAbbrev
-
-	-- Also update PartnerOrg	
-	UPDATE PartnerOrg SET Name = @Name, IsActive = 
-	CASE @MemberStatus
-		WHEN 'Current' THEN '1'  -- Current Member
-		ELSE '0' END             -- Inactive Member
-	WHERE SponsorCode=@SponsorCode AND Name = @OrgAbbrev
-	
-	COMMIT TRANSACTION
-
-END TRY
-
-BEGIN CATCH
-      -- IF @@trancount > 0 
-		ROLLBACK TRANSACTION
-      
-	  DECLARE @msg nvarchar(2048) = error_message()  
-      RAISERROR (@msg, 16, 1)
-	        
-END CATCH  
-
 GO
 
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*																																														*/
-/****** Object:  StoredProcedure [dbo].[DataUpload_Import]    Script Date: 12/14/2016 4:21:37 PM																					*****/
+/****** Object:  StoredProcedure [dbo].[DataUpload_ImportNew]    Script Date: 12/14/2016 4:21:37 PM																					*****/
 /*																																														*/
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DataUpload_Import]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[DataUpload_Import]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DataUpload_ImportNew]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[DataUpload_ImportNew]
 GO 
 
-CREATE PROCEDURE [dbo].[DataUpload_Import] 
+CREATE PROCEDURE [dbo].[DataUpload_ImportNew] 
 @PartnerCode varchar(25),
 @FundingYears VARCHAR(25),
 @ImportNotes  VARCHAR(1000),
@@ -539,7 +209,7 @@ SELECT DISTINCT f.ProjectFundingID, u.PILastName, u.PIFirstName, u.ORCID, u.Othe
 FROM UploadWorkBook u
 	JOIN ProjectFunding f ON u.AltID = f.AltAwardCode
 	LEFT JOIN Institution i ON u.InstitutionICRP = i.Name AND u.City = i.City
-
+	
 -----------------------------------------------------------------
 -- Rebuild CSO temp table if not exist
 -----------------------------------------------------------------
@@ -772,7 +442,7 @@ IF EXISTS (select * FROM #postdupPI)
 ---- checking missing PI
 -------------------------------------------------------------------------------------------
 select f.ProjectFundingID into #postMissingPI from projectfunding f
-left join ProjectFundingInvestigator pi on f.projectfundingid = pi.projectfundingid
+left join (SELECT projectFundingID, InstitutionID FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator =1) pi on f.projectfundingid = pi.projectfundingid
 where f.DataUploadStatusID = @DataUploadStatusID_stage and pi.ProjectFundingID is null
 
 	
@@ -883,11 +553,12 @@ UPDATE DataUploadLog SET ProjectSearchCount = @Count WHERE DataUploadLogID = @Da
 
 INSERT INTO icrp_data_dev.dbo.DataUploadLog ([DataUploadStatusID], [ProjectCount], [ProjectFundingCount], [ProjectFundingInvestigatorCount], [ProjectCSOCount], [ProjectCancerTypeCount], [Project_ProjectTypeCount], [ProjectAbstractCount], [ProjectSearchCount], [CreatedDate]) 
 	SELECT @DataUploadStatusID_prod, [ProjectCount], [ProjectFundingCount], [ProjectFundingInvestigatorCount], [ProjectCSOCount], [ProjectCancerTypeCount], [Project_ProjectTypeCount], [ProjectAbstractCount], [ProjectSearchCount], [CreatedDate] 
-	FROM icrp_dataload_dev.dbo.DataUploadLog where DataUploadStatusID=@DataUploadStatusID_stage
-
+	FROM icrp_dataload.dbo.DataUploadLog where DataUploadStatusID=@DataUploadStatusID_stage
 
 -- return dataupload counts
-SELECT * from DataUploadLog where DataUploadLogID=@DataUploadLogID
+SELECT  [DataUploadLogID],[DataUploadStatusID],[ProjectCount],[ProjectFundingCount],[ProjectFundingInvestigatorCount],[ProjectCSOCount],
+		[ProjectCancerTypeCount],[Project_ProjectTypeCount],[ProjectAbstractCount],[ProjectSearchCount]
+FROM DataUploadLog where DataUploadLogID=@DataUploadLogID
 
 -----------------------------------------------------------------
 -- Drop temp table
@@ -922,6 +593,522 @@ END CATCH
 GO
 
 
+/*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+/*																																														*/
+/****** Object:  StoredProcedure [dbo].[DataUpload_ImportUpdate]																													*****/
+/*																																														*/
+/*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DataUpload_ImportUpdate]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[DataUpload_ImportUpdate]
+GO 
+
+CREATE PROCEDURE [dbo].[DataUpload_ImportUpdate] 
+@PartnerCode varchar(25),
+@FundingYears VARCHAR(25),
+@ImportNotes  VARCHAR(1000),
+@ReceivedDate  datetime
+  
+AS
+
+SET NOCOUNT ON;  
+
+-----------------------------------
+-- SET DataUpload Parameters
+-----------------------------------
+--DECLARE @DataUploadStatusID INT = 67
+--DECLARE @PartnerCode varchar(25) = 'PanCAN'
+--DECLARE @FundingYears VARCHAR(25) = '2015'
+--DECLARE @ImportNotes  VARCHAR(1000) = 'FY2015 Update'
+
+BEGIN TRANSACTION;
+
+BEGIN TRY     
+
+DECLARE @Type varchar(15) = 'UPDATE'
+
+--IF @ImportNotes = 'error'
+--	RAISERROR ('Simulated Error for testing...', 16, 1);
+
+-------------------------------------------------------------------------------------------
+-- Replace open/closing double quotes
+--------------------------------------------------------------------------------------------
+UPDATE UploadWorkbook SET AwardTitle = REPLACE(AwardTitle, '""', '"')
+UPDATE UploadWorkbook SET AwardTitle = REPLACE(AwardTitle, '""', '"')
+UPDATE UploadWorkbook SET techabstract = REPLACE(techabstract, '""', '"')
+UPDATE UploadWorkbook SET techabstract = REPLACE(techabstract, '""', '"')
+
+UPDATE UploadWorkbook SET AwardTitle = SUBSTRING(AwardTitle, 2, LEN(AwardTitle)-2)
+where LEFT(AwardTitle, 1) = '"' AND RIGHT(AwardTitle, 1) = '"' 
+
+UPDATE UploadWorkbook SET techabstract = SUBSTRING(techabstract, 2, LEN(techabstract)-2)
+where LEFT(techabstract, 1) = '"' AND RIGHT(techabstract, 1) = '"'
+
+-- replace city with accent names
+update UploadWorkbook set city ='Montréal' where city='Montreal'
+update UploadWorkbook set city ='Québec' where city='Quebec'
+update UploadWorkbook set city ='Zürich' where city='Zurich'
+update UploadWorkbook set city ='Pierre-Bénite' where city='Pierre-Benite'
+update UploadWorkbook set city ='Umeå' where city='Umea'
+
+-----------------------------------
+-- Insert Data Upload Status
+-----------------------------------
+DECLARE @DataUploadStatusID_stage INT
+DECLARE @DataUploadStatusID_prod INT
+
+INSERT INTO DataUploadStatus ([PartnerCode],[FundingYear],[Status], [Type],[ReceivedDate],[ValidationDate],[UploadToDevDate],[UploadToStageDate],[UploadToProdDate],[Note],[CreatedDate])
+VALUES (@PartnerCode, @FundingYears, 'Staging', @Type, @ReceivedDate, getdate(), getdate(), getdate(),  NULL, @ImportNotes, getdate())
+	
+SET @DataUploadStatusID_stage = IDENT_CURRENT( 'DataUploadStatus' )  
+	
+-- also insert a DataUploadStatus record in icrp_data
+INSERT INTO icrp_data_dev.dbo.DataUploadStatus ([PartnerCode],[FundingYear],[Status], [Type],[ReceivedDate],[ValidationDate],[UploadToDevDate],[UploadToStageDate],[UploadToProdDate],[Note],[CreatedDate])
+VALUES (@PartnerCode, @FundingYears, 'Staging', @Type, @ReceivedDate, getdate(), getdate(), getdate(),  NULL, @ImportNotes, getdate())
+
+SET @DataUploadStatusID_prod = IDENT_CURRENT( 'icrp_data_dev.dbo.DataUploadStatus' )  
+
+/***********************************************************************************************/
+-- Import Data
+/***********************************************************************************************/
+
+
+-------------------------------------------------------
+-- Update base Projects - Childhood, ProjectDates
+------------------------------------------------------
+UPDATE Project SET IsChildhood = 
+	CASE ISNULL(Childhood, '') WHEN 'y' THEN 1 ELSE 0 END, 
+ProjectStartDate = u.AwardStartDate, ProjectEndDate = u.AwardEndDate, UpdatedDate = getdate(), DataUploadStatusID = @DataUploadStatusID_stage
+FROM Project p
+	JOIN UploadWorkbook u ON p.AwardCode = u.AWardCode
+
+-----------------------------------
+-- Update Project Abstract
+-----------------------------------
+UPDATE ProjectAbstract SET TechAbstract=u.TechAbstract, PublicAbstract=u.PublicAbstract
+FROM UploadWorkbook u
+	JOIN ProjectFunding f ON u.AltID = f.AltAwardCode
+	JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID AND u.FundingOrgAbbr = o.Abbreviation	
+	JOIN ProjectAbstract a ON a.ProjectAbstractID = f.ProjectAbstractID	
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+-- Update ProjectFunding - AwardAmount, Title, Category, AwardDates, Source_ID, Mechanism, FundingContact,IsAnnualized
+--------------------------------------------------------------------------------------------------------------------------------------------
+UPDATE ProjectFunding SET	Title = u.AwardTitle, Category = u.Category, Source_ID = u.SourceID, 
+							MechanismCode = u.FundingMechanismCode, MechanismTitle = u.FundingMechanism, FundingContact = u.FundingContact,
+							IsAnnualized = 
+								CASE ISNULL(u.IsAnnualized, '') 
+								WHEN 'y' THEN 1 ELSE 0 END,
+						 Amount  = u.AwardFunding, BudgetStartDate = u.BudgetStartDate, BudgetEndDate = u.BudgetEndDate, UpdatedDate = getdate(),
+						 DataUploadStatusID =  @DataUploadStatusID_stage
+FROM ProjectFunding f 
+	JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
+	JOIN UploadWorkbook u ON u.AltID = f.AltAwardCode AND u.FundingOrgAbbr = o.Abbreviation	
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+-- Update ProjectFundingInvestigator  - PI name, ORCiD, Institution, OtherResearcherID, OtherResearcherIDType
+--------------------------------------------------------------------------------------------------------------------------------------------
+UPDATE ProjectFundingInvestigator SET LastName = u.PILastName, FirstName = u.PIFirstName, ORC_ID = u.ORCID, OtherResearch_ID= u.OtherResearcherID, OtherResearch_Type = u.OtherResearcherIDType, 
+										InstitutionID = ISNULL(i.InstitutionID,1), InstitutionNameSubmitted = u.SubmittedInstitution, UpdatedDate = getdate()
+FROM ProjectFundingInvestigator pi
+	JOIN ProjectFunding f ON pi.projectfundingid = f.ProjectFundingID
+	JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID 
+	JOIN UploadWorkbook u ON u.AltID = f.AltAwardCode AND u.FundingOrgAbbr = o.Abbreviation		
+	LEFT JOIN Institution i ON i.Name = u.InstitutionICRP AND i.City = i.City
+
+	
+-----------------------------------------------------------------
+-- Rebuild CSO temp table if not exist
+-----------------------------------------------------------------
+IF object_id('tmp_pcso') is null OR object_id('tmp_pcsoRel') is null
+BEGIN
+
+	IF object_id('tmp_pcso') is NOT null
+		drop table tmp_pcso
+	IF object_id('tmp_pcsoRel') is NOT null
+		drop table tmp_pcsoRel	
+	
+	-----------------------------------
+	-- Import ProjectCSO
+	-----------------------------------
+	SELECT AltID AS AltAwardCode, CSOCodes, CSORel INTO #clist FROM UploadWorkBook 
+
+	CREATE TABLE tmp_pcso
+	(
+		Seq INT NOT NULL IDENTITY (1,1),
+		AltAwardCode VARCHAR(50),
+		CSO VARCHAR(50)	
+	)
+
+	CREATE TABLE tmp_pcsorel 
+	(
+		Seq INT NOT NULL IDENTITY (1,1),
+		AltAwardCode VARCHAR(50),
+		Rel Decimal (18, 2)
+	)
+
+	DECLARE @AltAwardCode as VARCHAR(50)
+	DECLARE @csoList as NVARCHAR(50)
+	DECLARE @csoRelList as NVARCHAR(50)
+ 
+	DECLARE @csocursor as CURSOR;
+
+	SET @csocursor = CURSOR FOR
+	SELECT AltAwardCode, CSOCodes , CSORel FROM #clist;
+ 
+	OPEN @csocursor;
+	FETCH NEXT FROM @csocursor INTO @AltAwardCode, @csoList, @csoRelList;
+
+	WHILE @@FETCH_STATUS = 0
+	BEGIN
+
+	 INSERT INTO tmp_pcso SELECT @AltAwardCode, value FROM  dbo.ToStrTable(@csoList)
+	 INSERT INTO tmp_pcsorel SELECT @AltAwardCode, CASE LTRIM(RTRIM(value))
+			WHEN '' THEN 0.00 ELSE CAST(value AS decimal(18,2)) END 
+		FROM  dbo.ToStrTable(@csoRelList) 
+
+	 DBCC CHECKIDENT ('tmp_pcso', RESEED, 0) WITH NO_INFOMSGS
+	 DBCC CHECKIDENT ('tmp_pcsorel', RESEED, 0) WITH NO_INFOMSGS
+
+	 FETCH NEXT FROM @csocursor INTO @AltAwardCode, @csolist, @csoRelList;
+	END
+ 
+	CLOSE @csocursor;
+	DEALLOCATE @csocursor;
+
+	UPDATE tmp_pcso SET CSO = LTRIM(RTRIM(CSO))	
+
+END
+
+-----------------------------------
+-- Update ProjectCSO
+-----------------------------------
+DELETE ProjectCSO WHERE ProjectFundingID IN
+	(SELECT ProjectFundingID FROM ProjectFunding WHERE DataUploadStatusID = @DataUploadStatusID_stage)
+
+INSERT INTO ProjectCSO SELECT f.ProjectFundingID, c.CSO, r.Rel, 'S', getdate(), getdate()
+FROM tmp_pcso c 
+	JOIN tmp_pcsorel r ON c.AltAwardCode = r.AltAwardCode AND c.Seq = r.Seq
+	JOIN ProjectFunding f ON c.AltAwardCode = f.AltAwardCode
+
+
+-----------------------------------
+-- Import ProjectCancerType
+-----------------------------------
+
+-----------------------------------------------------------------
+-- Rebuild Site temp table if not exist
+-----------------------------------------------------------------
+IF object_id('tmp_psite') is null OR object_id('tmp_psiterel') is null
+BEGIN
+
+	IF object_id('tmp_psite') is NOT null
+		drop table tmp_psite
+	IF object_id('tmp_psiterel') is NOT null
+		drop table tmp_psiterel	
+
+	SELECT f.projectID, f.ProjectFundingID, f.AltAwardCode, u.SiteCodes, u.SiteRel INTO #slist
+	FROM UploadWorkBook u
+	JOIN ProjectFunding f ON u.AltId = f.AltAwardCode
+
+	CREATE TABLE tmp_psite
+	(
+		Seq INT NOT NULL IDENTITY (1,1),
+		AltAwardCode VARCHAR(50),
+		Code VARCHAR(50)	
+	)
+
+	CREATE TABLE tmp_psiterel
+	(
+		Seq INT NOT NULL IDENTITY (1,1),
+		AltAwardCode VARCHAR(50),	
+		Rel Decimal (18, 2)
+	)
+	
+	DECLARE @sAltAwardCode as VARCHAR(50)
+	DECLARE @siteList as NVARCHAR(2000)
+	DECLARE @siteRelList as NVARCHAR(2000)
+ 
+	DECLARE @ctcursor as CURSOR;
+
+	SET @ctcursor = CURSOR FOR
+	SELECT AltAwardCode, SiteCodes , SiteRel FROM #slist;
+ 
+	OPEN @ctcursor;
+	FETCH NEXT FROM @ctcursor INTO @sAltAwardCode, @siteList, @siteRelList;
+
+	WHILE @@FETCH_STATUS = 0
+	BEGIN
+ 
+	 INSERT INTO tmp_psite SELECT @sAltAwardCode, value FROM  dbo.ToStrTable(@siteList)
+	 INSERT INTO tmp_psiterel SELECT @sAltAwardCode, 
+		 CASE LTRIM(RTRIM(value))
+			WHEN '' THEN 0.00 ELSE CAST(value AS decimal(18,2)) END 
+		 FROM  dbo.ToStrTable(@siteRelList) 
+ 
+	 DBCC CHECKIDENT ('tmp_psite', RESEED, 0) WITH NO_INFOMSGS
+	 DBCC CHECKIDENT ('tmp_psiterel', RESEED, 0) WITH NO_INFOMSGS
+
+	 FETCH NEXT FROM @ctcursor INTO @sAltAwardCode, @siteList, @siteRelList;
+	END
+ 
+	CLOSE @ctcursor;
+	DEALLOCATE @ctcursor;
+
+	UPDATE tmp_psite SET code = LTRIM(RTRIM(code))	
+END
+
+
+-----------------------------------
+-- Update ProjectCancerType
+-----------------------------------
+DELETE ProjectCancerType WHERE ProjectFundingID IN
+	(SELECT ProjectFundingID FROM ProjectFunding WHERE DataUploadStatusID = @DataUploadStatusID_stage)
+
+INSERT INTO ProjectCancerType (ProjectFundingID, CancerTypeID, Relevance, RelSource, EnterBy)
+SELECT f.ProjectFundingID, ct.CancerTypeID, r.Rel, 'S', 'S'
+FROM tmp_psite c 
+	JOIN tmp_psiterel r ON c.AltAwardCode = r.AltAwardCode AND c.Seq = r.Seq
+	JOIN CancerType ct ON c.code = ct.ICRPCode
+	JOIN ProjectFunding f ON c.AltAwardCode = f.AltAwardCode
+
+----------------------------------------------------------------------
+-- Import Project_ProjectTye (only the new AwardCode)
+----------------------------------------------------------------------
+SELECT p.ProjectID, p.AwardCode, b.AwardType INTO #plist 
+FROM (SELECT AwardCode, MAX(AWardType) AS AwardType FROM UploadWorkbook GROUP BY AwardCode) b
+JOIN (SELECT * FROM Project WHERE DataUploadStatusID = @DataUploadStatusID_stage) p ON p.AwardCode = b.AwardCode
+	
+DECLARE @ptype TABLE
+(	
+	ProjectID INT,	
+	ProjectType VARCHAR(15)
+)
+
+DECLARE @projectID as INT
+DECLARE @typeList as NVARCHAR(50)
+ 
+DECLARE @ptcursor as CURSOR;
+
+SET @ptcursor = CURSOR FOR
+SELECT ProjectID, AwardType FROM (SELECT DISTINCT ProjectID, AWardType FROM #plist) p;
+ 
+OPEN @ptcursor;
+FETCH NEXT FROM @ptcursor INTO @projectID, @typeList;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+ INSERT INTO @ptype SELECT @projectID, value FROM  dbo.ToStrTable(@typeList) 
+ FETCH NEXT FROM @ptcursor INTO @projectID, @typeList;
+END
+ 
+CLOSE @ptcursor;
+DEALLOCATE @ptcursor;
+
+----------------------------------------------------------------------
+-- Update Award Type (Project_ProjectType)
+----------------------------------------------------------------------
+DELETE Project_ProjectType WHERE ProjectID IN
+	(SELECT ProjectID FROM Project WHERE DataUploadStatusID = @DataUploadStatusID_stage)
+
+INSERT INTO Project_ProjectType (ProjectID, ProjectType)
+SELECT ProjectID,
+		CASE ProjectType
+		  WHEN 'C' THEN 'Clinical Trial'
+		  WHEN 'R' THEN 'Research'
+		  WHEN 'T' THEN 'Training'
+		END
+FROM @ptype	
+
+
+----------------------------------------------------
+-- Post Import Checking
+----------------------------------------------------
+-------------------------------------------------------------------------------------------
+---- checking Imported Award Sponsor
+-------------------------------------------------------------------------------------------	
+select f.altawardcode, o.SponsorCode, o.Name AS FundingOrg into #postSponsor
+	from projectfunding f 
+		join FundingOrg o on o.FundingOrgID = f.FundingOrgID
+	where f.DataUploadStatusID = @DataUploadStatusID_stage and o.SponsorCode <> @PartnerCode
+
+IF EXISTS (select * from #postSponsor)
+	 RAISERROR ('Post Import Check Error - Mis-matched Sponsor Code not match', 16, 1);
+
+-------------------------------------------------------------------------------------------
+---- checking Missing PI
+-------------------------------------------------------------------------------------------	
+select f.altawardcode, u.SubmittedInstitution , u.institutionICRP, u.city into #postNotmappedInst 
+	from ProjectFundingInvestigator pi 
+		join projectfunding f on pi.ProjectFundingID = f.ProjectFundingID					
+		join UploadWorkBook u ON f.AltAwardCode = u.AltId
+	where f.DataUploadStatusID = @DataUploadStatusID_stage and pi.InstitutionID = 1
+
+IF EXISTS (select * from #postNotmappedInst)
+	RAISERROR ('Post Import Check Error - Non-mapped Instititutions Mapping', 16, 1);	
+
+-------------------------------------------------------------------------------------------
+---- checking Duplicate PI
+-------------------------------------------------------------------------------------------	
+select f.projectfundingid, f.AltAwardCode, count(*) AS Count into #postdupPI 
+	from projectfunding f
+		join projectfundinginvestigator i on f.projectfundingid = i.projectfundingid	
+		join UploadWorkBook u ON f.AltAwardCode = u.AltId
+	where f.DataUploadStatusID = @DataUploadStatusID_stage AND i.IsPrincipalInvestigator=1
+	group by f.projectfundingid,f.AltAwardCode having count(*) > 1
+
+	
+IF EXISTS (select * FROM #postdupPI)	
+	RAISERROR ('Post Import Check Error - duplicate PIs', 16, 1);	
+	
+-------------------------------------------------------------------------------------------
+---- checking missing PI
+-------------------------------------------------------------------------------------------
+select f.ProjectFundingID into #postMissingPI from projectfunding f
+left join (SELECT projectFundingID, InstitutionID FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator =1) pi on f.projectfundingid = pi.projectfundingid
+where f.DataUploadStatusID = @DataUploadStatusID_stage and pi.ProjectFundingID is null
+
+	
+IF EXISTS (select * FROM #postMissingPI)	
+	RAISERROR ('Post Import Check Error - Missing PIs', 16, 1);	
+	
+-------------------------------------------------------------------------------------------
+---- checking missing CSO
+-------------------------------------------------------------------------------------------
+select f.ProjectFundingID into #postMissingCSO from projectfunding f
+left join ProjectCSO pc on f.projectfundingid = pc.projectfundingid
+where f.DataUploadStatusID = @DataUploadStatusID_stage and pc.ProjectFundingID is null
+
+	
+IF EXISTS (select * FROM #postMissingCSO)	
+	RAISERROR ('Post Import Check Error - Missing CSO', 16, 1);	
+
+-------------------------------------------------------------------------------------------
+---- checking missing CancerType
+-------------------------------------------------------------------------------------------
+select f.ProjectFundingID into #postMissingSite from projectfunding f
+left join ProjectCancerType ct on f.projectfundingid = ct.projectfundingid
+where f.DataUploadStatusID = @DataUploadStatusID_stage and ct.ProjectFundingID is null
+
+	
+IF EXISTS (select * FROM #postMissingCSO)	
+	RAISERROR ('Post Import Check Error - Missing CancerType', 16, 1);	
+
+
+-------------------------------------------------------------------------------------------
+-- Rebuild ProjectSearch   -- 75608 ~ 2.20 mins)
+--------------------------------------------------------------------------------------------
+INSERT INTO ProjectSearch (ProjectID, [Content])
+SELECT ma.ProjectID, '<Title>'+ ma.Title+'</Title><FundingContact>'+ ISNULL(ma.fundingContact, '')+ '</FundingContact><TechAbstract>' + ma.TechAbstract  + '</TechAbstract><PublicAbstract>'+ ISNULL(ma.PublicAbstract,'') +'<PublicAbstract>' 
+FROM (SELECT MAX(f.ProjectID) AS ProjectID, f.Title, f.FundingContact, a.TechAbstract,a.PublicAbstract 
+	FROM ProjectAbstract a
+	JOIN ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
+	WHERE f.DataUploadStatusID = @DataUploadStatusID_stage
+	GROUP BY f.Title, a.TechAbstract, a.PublicAbstract,  f.FundingContact) ma
+
+-------------------------------------------------------------------------------------------
+-- Insert DataUploadLog 
+--------------------------------------------------------------------------------------------
+DECLARE @DataUploadLogID INT
+
+INSERT INTO DataUploadLog (DataUploadStatusID, [CreatedDate])
+VALUES (@DataUploadStatusID_stage, getdate())
+
+SET @DataUploadLogID = IDENT_CURRENT( 'DataUploadLog' )  
+
+DECLARE @Count INT
+
+-- Insert Project Count
+SELECT @Count=COUNT(*) FROM Project WHERE dataUploadStatusID = @DataUploadStatusID_stage
+UPDATE DataUploadLog SET ProjectCount = @Count WHERE DataUploadLogID = @DataUploadLogID
+
+-- Insert ProjectAbstractCount
+SELECT @Count=COUNT(*) FROM ProjectAbstract a
+JOIN ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
+WHERE f.dataUploadStatusID = @DataUploadStatusID_stage
+
+UPDATE DataUploadLog SET ProjectAbstractCount = @count WHERE DataUploadLogID = @DataUploadLogID
+
+-- Insert ProjectCSOCount
+SELECT @Count=COUNT(*) FROM ProjectCSO c 
+JOIN ProjectFunding f ON c.ProjectFundingID = f.ProjectFundingID
+WHERE f.dataUploadStatusID = @DataUploadStatusID_stage
+
+UPDATE DataUploadLog SET ProjectCSOCount = @Count WHERE DataUploadLogID = @DataUploadLogID
+
+-- Insert ProjectCancerTypeCount Count
+SELECT @Count=COUNT(*) FROM ProjectCancerType c 
+JOIN ProjectFunding f ON c.ProjectFundingID = f.ProjectFundingID
+WHERE f.dataUploadStatusID = @DataUploadStatusID_stage
+
+UPDATE DataUploadLog SET ProjectCancerTypeCount = @Count WHERE DataUploadLogID = @DataUploadLogID
+
+-- Insert Project_ProjectType Count
+SELECT @Count=COUNT(*) FROM 
+(SELECT DISTINCT t.ProjectID, t.ProjectType FROM Project_ProjectType t
+JOIN #plist p ON t.ProjectID = p.ProjectID
+) pt
+
+UPDATE DataUploadLog SET Project_ProjectTypeCount = @Count WHERE DataUploadLogID = @DataUploadLogID
+
+-- Insert ProjectFundingCount
+SELECT @Count=COUNT(*) FROM ProjectFunding 
+WHERE dataUploadStatusID = @DataUploadStatusID_stage
+
+UPDATE DataUploadLog SET ProjectFundingCount = @Count WHERE DataUploadLogID = @DataUploadLogID
+
+-- Insert ProjectFundingInvestigatorCount Count
+SELECT @Count=COUNT(*) FROM ProjectFundingInvestigator pi
+JOIN ProjectFunding f ON pi.ProjectFundingID = f.ProjectFundingID
+WHERE f.dataUploadStatusID = @DataUploadStatusID_stage
+
+UPDATE DataUploadLog SET ProjectFundingInvestigatorCount = @Count WHERE DataUploadLogID = @DataUploadLogID
+
+-- Insert ProjectSearch TotalCount
+SELECT @Count=COUNT(*) FROM ProjectSearch
+
+UPDATE DataUploadLog SET ProjectSearchCount = @Count WHERE DataUploadLogID = @DataUploadLogID
+
+INSERT INTO icrp_data_dev.dbo.DataUploadLog ([DataUploadStatusID], [ProjectCount], [ProjectFundingCount], [ProjectFundingInvestigatorCount], [ProjectCSOCount], [ProjectCancerTypeCount], [Project_ProjectTypeCount], [ProjectAbstractCount], [ProjectSearchCount], [CreatedDate]) 
+	SELECT @DataUploadStatusID_prod, [ProjectCount], [ProjectFundingCount], [ProjectFundingInvestigatorCount], [ProjectCSOCount], [ProjectCancerTypeCount], [Project_ProjectTypeCount], [ProjectAbstractCount], [ProjectSearchCount], [CreatedDate] 
+	FROM icrp_dataload.dbo.DataUploadLog where DataUploadStatusID=@DataUploadStatusID_stage
+
+
+-- return dataupload counts
+SELECT  [DataUploadLogID],[DataUploadStatusID],[ProjectCount],[ProjectFundingCount],[ProjectFundingInvestigatorCount],[ProjectCSOCount],
+		[ProjectCancerTypeCount],[Project_ProjectTypeCount],[ProjectAbstractCount],[ProjectSearchCount]
+FROM DataUploadLog where DataUploadLogID=@DataUploadLogID
+
+-----------------------------------------------------------------
+-- Drop temp table
+-----------------------------------------------------------------
+IF object_id('UploadAbstractTemp') is NOT null
+	drop table UploadAbstractTemp
+IF object_id('tmp_pcso') is NOT null
+	drop table tmp_pcso
+IF object_id('tmp_pcsoRel') is NOT null
+	drop table tmp_pcsoRel
+IF object_id('tmp_psite') is NOT null
+	drop table tmp_psite
+IF object_id('tmp_psiterel') is NOT null
+	drop table tmp_psiterel
+IF object_id('tmp_awardType') is NOT null
+	drop table tmp_awardType
+
+
+COMMIT TRANSACTION
+
+END TRY
+
+BEGIN CATCH
+      IF @@trancount > 0 
+		ROLLBACK TRANSACTION
+      
+	  DECLARE @msg nvarchar(2048) = error_message()  
+      RAISERROR (@msg, 16, 1)
+	        
+END CATCH  
+
+GO
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*																																														*/
@@ -983,7 +1170,7 @@ BEGIN TRY
 	-- Import Project Abstract
 	-----------------------------------
 	DECLARE @seed INT
-	SELECT @seed=MAX(projectAbstractID)+1 FROM projectAbstract 
+	SELECT @seed=MAX(projectAbstractID)+1 FROM icrp_data_dev.dbo.projectAbstract 
 	
 	CREATE TABLE UploadAbstractTemp (	
 		ID INT NOT NULL IDENTITY(1,1),
@@ -1036,7 +1223,7 @@ BEGIN TRY
 	-----------------------------------
 	-- Import ProjectFundingInvestigator
 	-----------------------------------
-	INSERT INTO icrp_data_dev.dbo.ProjectFundingInvestigator
+	INSERT INTO icrp_data_dve.dbo.ProjectFundingInvestigator
 	SELECT newpf.ProjectFundingID, pi.LastName, pi.FirstName, pi.ORC_ID, pi.OtherResearch_ID, pi.OtherResearch_Type, pi.IsPrincipalInvestigator, ISNULL(newi.InstitutionID,1), InstitutionNameSubmitted, getdate(),getdate()
 	FROM icrp_dataload_dev.dbo.ProjectFundingInvestigator pi
 		JOIN icrp_dataload_dev.dbo.projectfunding pf ON pi.ProjectFundingID =  pf.ProjectFundingID  
@@ -1275,6 +1462,336 @@ END CATCH
 GO
 
 
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[AddPartner]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AddPartner]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[AddPartner]
+GO 
+
+CREATE  PROCEDURE [dbo].[AddPartner]	
+	@Name [varchar](100),
+	@Description [varchar](max),
+	@SponsorCode [varchar](50),
+	@Email [varchar](75),
+	@IsDSASigned [bit],
+	@Country [varchar](100),
+	@Website [varchar](200),
+	@LogoFile [varchar](100),
+	@Note [varchar](8000),
+	@JoinedDate [datetime],
+	@Longitude [decimal](9, 6),
+	@Latitude [decimal](9, 6) 
+AS   
+
+BEGIN TRANSACTION;
+BEGIN TRY    	
+
+	SET NOCOUNT ON;
+
+	IF EXISTS (SELECT 1 FROM Partner WHERE SponsorCode = @SponsorCode)
+	BEGIN
+		   RAISERROR ('Sponsor Code already existed', 16, 1)
+	END
+
+	INSERT INTO Partner ([Name],[Description], [SponsorCode], [Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], [CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, GETDATE(), GETDATE())
+		
+	-- Also insert the new partner into the PartnerOrg table
+	INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
+	SELECT @Name, @SponsorCode, 'Partner', 1 
+
+	-- Also Insert the newly inserted partner into the icrp_dataload database
+	INSERT INTO icrp_dataload_dev.dbo.Partner ([Name], [Description],[SponsorCode],[Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], [CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, GETDATE(), GETDATE())
+
+	COMMIT TRANSACTION
+
+END TRY
+
+BEGIN CATCH
+      -- IF @@trancount > 0 
+		ROLLBACK TRANSACTION
+      
+	  DECLARE @msg nvarchar(2048) = error_message()  
+      RAISERROR (@msg, 16, 1)
+	        
+END CATCH  
+
+GO
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[UpdatePartner]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdatePartner]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[UpdatePartner]
+GO 
+
+CREATE  PROCEDURE [dbo].[UpdatePartner]
+	@PartnerID INT,
+	@Name [varchar](100),
+	@Description [varchar](max),
+	@SponsorCode [varchar](50),
+	@Email [varchar](75),
+	@IsDSASigned [bit],
+	@Country [varchar](100),
+	@Website [varchar](200),
+	@LogoFile [varchar](100),
+	@Note [varchar](8000),
+	@JoinedDate [datetime],
+	@Longitude [decimal](9, 6),
+	@Latitude [decimal](9, 6) 
+AS   
+
+BEGIN TRANSACTION;
+BEGIN TRY    	
+
+	DECLARE @OrgSponsorCode [varchar](50)
+	SELECT @OrgSponsorCode = SponsorCode FROM Partner WHERE PartnerID =  @PartnerID
+
+	IF EXISTS (SELECT 1 FROM Partner WHERE PartnerID <> @PartnerID AND SponsorCode = @SponsorCode)
+	BEGIN
+		   RAISERROR ('Sponsor Code already existed', 16, 1)
+	END
+
+	UPDATE Partner SET [Name] = @Name,
+		[Description]  = @Description,
+		[SponsorCode]  = @SponsorCode,
+		[Email]  = @Email,
+		[IsDSASigned] = @IsDSASigned,
+		[Country] = @Country,
+		[Website] = @Website,
+		[LogoFile] = @LogoFile,
+		[Note]  = @Note,
+		[JoinedDate]  = @JoinedDate,	
+		[Longitude]  = @Longitude,
+		[Latitude] = @Latitude,
+		[UpdatedDate] = getdate()
+	WHERE PartnerID =  @PartnerID
+
+	-- Also update icrp_dataload database
+	UPDATE icrp_dataload_dev.dbo.Partner SET [Name] = @Name,
+		[Description]  = @Description,
+		[SponsorCode]  = @SponsorCode,
+		[Email]  = @Email,
+		[IsDSASigned] = @IsDSASigned,
+		[Country] = @Country,
+		[Website] = @Website,
+		[LogoFile] = @LogoFile,
+		[Note]  = @Note,
+		[JoinedDate]  = @JoinedDate,	
+		[Longitude]  = @Longitude,
+		[Latitude] = @Latitude,
+		[UpdatedDate] = getdate()
+	WHERE [SponsorCode] =  @OrgSponsorCode
+
+	-- Also update other tables if the SponsorCode is changed
+	IF (@SponsorCode <> @OrgSponsorCode)
+	BEGIN
+		UPDATE FundingOrg SET SponsorCode = @SponsorCode WHERE SponsorCode=@OrgSponsorCode
+		UPDATE PartnerOrg SET SponsorCode = @SponsorCode WHERE SponsorCode=@OrgSponsorCode
+	END
+
+	COMMIT TRANSACTION
+
+END TRY
+
+BEGIN CATCH
+      -- IF @@trancount > 0 
+		ROLLBACK TRANSACTION
+      
+	  DECLARE @msg nvarchar(2048) = error_message()  
+      RAISERROR (@msg, 16, 1)
+	        
+END CATCH  
+
+GO
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[AddFundingOrg]								****************/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AddFundingOrg]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[AddFundingOrg]
+GO 
+
+CREATE  PROCEDURE [dbo].[AddFundingOrg]	
+	@PartnerID INT,
+	@Name [varchar](100),
+	@Abbreviation [varchar](15),
+	@Type [varchar](25),
+	@Country [varchar](3),
+	@Currency [varchar](3),	
+	@MemberType [varchar](25),
+	@MemberStatus [nchar](10),
+	@IsAnnualized [bit],
+	@Note [varchar](8000),
+	@Website [varchar](200) ,
+	@Longitude [decimal](9, 6),
+	@Latitude [decimal](9, 6)	
+AS   
+
+
+BEGIN TRANSACTION;
+BEGIN TRY    	
+
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	-- Return error if the  abbreviation already exist within the same sponsorcode
+	DECLARE @SponsorCode [varchar](50)
+	SELECT @SponsorCode = SponsorCode FROM Partner WHERE PartnerID =  @PartnerID
+
+	IF EXISTS (SELECT 1 FROM FundingOrg WHERE SponsorCode = @SponsorCode AND Abbreviation = @Abbreviation)
+	BEGIN
+		   RAISERROR ('Funding Org Abbreviation already existed for the partner.', 16, 1)
+	END
+
+	INSERT INTO FundingOrg ([Name], Abbreviation, [Type],[Country], [Currency], [SponsorCode], 	[MemberType], [MemberStatus], [IsAnnualized],[Note], [Website],	[Latitude],	[Longitude],[CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	@IsAnnualized, @Note, @Website, @Latitude, @Longitude, GETDATE(), GETDATE())
+	
+
+	-- Also Insert the new fundingorg into the PartnerOrg table
+	INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
+	VALUES (@Name, @SponsorCode, 'Associate', 1)
+
+	-- Also insert the new fundingorg into the icrp_dataload database
+	INSERT INTO icrp_dataload_dev.dbo.FundingOrg ([Name], Abbreviation, [Type],[Country], [Currency], [SponsorCode], 	[MemberType], [MemberStatus], [IsAnnualized],[Note], [Website],	[Latitude],	[Longitude], [CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	@IsAnnualized, @Note, @Website, @Latitude, @Longitude, GETDATE(), GETDATE())
+	
+	COMMIT TRANSACTION
+
+END TRY
+
+BEGIN CATCH
+      -- IF @@trancount > 0 
+		ROLLBACK TRANSACTION
+      
+	  DECLARE @msg nvarchar(2048) = error_message()  
+      RAISERROR (@msg, 16, 1)
+	        
+END CATCH  
+
+GO
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[UpdateFundingOrg]								****************/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdateFundingOrg]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[UpdateFundingOrg]
+GO 
+
+CREATE  PROCEDURE [dbo].[UpdateFundingOrg]
+	@FundingOrgID INT,
+	@Name [varchar](100),
+	@Abbreviation [varchar](15),
+	@Type [varchar](25),
+	@Country [varchar](3),
+	@Currency [varchar](3),	
+	@MemberType [varchar](25),
+	@MemberStatus [nchar](10),
+	@IsAnnualized [bit],
+	@Note [varchar](8000),
+	@Website [varchar](200) ,
+	@Longitude [decimal](9, 6),
+	@Latitude [decimal](9, 6)	
+AS   
+
+
+BEGIN TRANSACTION;
+BEGIN TRY    	
+
+	DECLARE @OrgAbbrev [varchar](50)
+	DECLARE @SponsorCode [varchar](50)
+	SELECT @OrgAbbrev = Abbreviation, @SponsorCode = SponsorCode FROM FundingOrg WHERE FundingOrgID =  @FundingOrgID
+
+	-- Return error if the  abbreviation already exist within the same sponsorcode
+	IF EXISTS (SELECT 1 FROM FundingOrg WHERE FundingOrgID <> @FundingOrgID AND SponsorCode = @SponsorCode AND Abbreviation = @Abbreviation)
+	BEGIN
+		   RAISERROR ('Funding Org Abbreviation already existed for the partner.', 16, 1)
+	END
+
+	UPDATE FundingOrg SET [Name] = @Name,		
+		Abbreviation  = @Abbreviation,		
+		[Type] = @Type,
+		[Country] = @Country,
+		[Currency] = @Currency,
+		[MemberType] = @MemberType,
+		[MemberStatus] = @MemberStatus,
+		[IsAnnualized] = @IsAnnualized,		
+		[Note]  = @Note,
+		[Website] = @Website,		
+		[Longitude]  = @Longitude,
+		[Latitude] = @Latitude,
+		[UpdatedDate] = getdate()
+	WHERE FundingOrgID =  @FundingOrgID
+
+	-- Also update the icrp_dataload database
+	UPDATE icrp_dataload_dev.dbo.FundingOrg SET [Name] = @Name,		
+		Abbreviation  = @Abbreviation,		
+		[Type] = @Type,
+		[Country] = @Country,
+		[Currency] = @Currency,
+		[MemberType] = @MemberType,
+		[MemberStatus] = @MemberStatus,
+		[IsAnnualized] = @IsAnnualized,		
+		[Note]  = @Note,
+		[Website] = @Website,		
+		[Longitude]  = @Longitude,
+		[Latitude] = @Latitude,
+		[UpdatedDate] = getdate()
+	WHERE SponsorCode = @SponsorCode AND Abbreviation = @OrgAbbrev
+
+	-- Also update PartnerOrg	
+	UPDATE PartnerOrg SET Name = @Name, IsActive = 
+	CASE @MemberStatus
+		WHEN 'Current' THEN '1'  -- Current Member
+		ELSE '0' END             -- Inactive Member
+	WHERE SponsorCode=@SponsorCode AND Name = @OrgAbbrev
+	
+	COMMIT TRANSACTION
+
+END TRY
+
+BEGIN CATCH
+      -- IF @@trancount > 0 
+		ROLLBACK TRANSACTION
+      
+	  DECLARE @msg nvarchar(2048) = error_message()  
+      RAISERROR (@msg, 16, 1)
+	        
+END CATCH  
+
+GO
 -------------------------------------------------------------------------------------------
 -- Triggers
 --------------------------------------------------------------------------------------------
