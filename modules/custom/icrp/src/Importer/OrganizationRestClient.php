@@ -64,7 +64,9 @@ class OrganizationRestClient {
             //$result = $client->get($url, ['Accept' => 'application/json']);
             $result = $client->get($url, ['Accept' => 'text/plain']);
             $status = $result->getStatusCode();
-
+            \Drupal::logger('icrp')->warning("url: ".$url);
+            //\Drupal::logger('icrp')->warning("result: ".print_r($result, true));
+            //\Drupal::logger('icrp')->warning("status: " . $status);
             if ($status != 200) {
                 \Drupal::logger('icrp')->warning("getRestOrganization failed: Status Code: " . $status);
                 return array();
@@ -107,21 +109,21 @@ class OrganizationRestClient {
         // Get a list of current organizations
         $sql = "SELECT field_organization_id_value FROM node__field_organization_id;";
         $current_organization_ids = db_query($sql)->fetchCol();
-        //drupal_set_message(print_r($current_organization_ids, true));
+        drupal_set_message(print_r($current_organization_ids, true));
 
         // If Organization doesn't exist then save into database
 
         foreach ($organizations as $key => $organization) {
             $organization_id = $organization["ID"];
-            //drupal_set_message($organization['ID'].", ".$organization['Name'].", ".$organization['IsActive']);
+            drupal_set_message($organization['ID'].", ".$organization['Name'].", ".$organization['IsActive']);
             //Look up Organization $nid
-            //\Drupal::logger('icrp')->notice("Looking for: ".$organization['ID']);
+            \Drupal::logger('icrp')->notice("Looking for: ".$organization['ID']);
 
             if (!in_array(intval($organization['ID']), $current_organization_ids)) {
-                //drupal_set_message("Adding: org: ".$organization['ID']);
+                drupal_set_message("Adding: org: ".$organization['ID']);
                 self::addOrganization($organization);
             } else {
-                //drupal_set_message("Update org: ".$organization['ID']);
+                drupal_set_message("Update org: ".$organization['ID']);
                 self::updateOrganization($organization);
             }
 
@@ -159,7 +161,6 @@ class OrganizationRestClient {
             \Drupal::logger('icrp')->warning("Organization Not found: ID:" . $organization['ID']);
             //drupal_set_message("Organization not found nid: ".$nid, 'warning');
         }
-
 
     }
     /*
