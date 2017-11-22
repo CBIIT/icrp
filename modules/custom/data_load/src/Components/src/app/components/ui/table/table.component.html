@@ -30,10 +30,9 @@
   <table class="table table-striped table-hover">
     <thead class="noselect">
       <tr>
-        <th *ngFor="let header of _headers">
-          <div
-            class="table-header"
-            (click)="sort(header.value)">
+        <th *ngFor="let header of _headers"
+          (click)="sort(header.value)">
+          <div class="table-header">
             <span>{{ header.label }}</span>
             <span
               *ngIf="header.sortDirection !== 'none'"

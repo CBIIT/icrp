@@ -65,7 +65,7 @@ class CollaboratorsManager {
       }
 
       return $connection
-        ->query("SET NOCOUNT ON; EXEC ImportCollaborators")
+        ->query("SET NOCOUNT ON; EXEC ImportCollaborators @Count = NULL;")
         ->fetchAll();
     }
 
