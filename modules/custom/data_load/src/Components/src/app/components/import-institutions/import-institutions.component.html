@@ -11,7 +11,7 @@
 
   <div [ngClass]="{'has-error': form.controls.file.dirty && form.controls.file.invalid}">
     <label class="control-label" for="input-file">Institutions File (.csv)*</label>
-    <input type="file" id="input-file" accept=".csv" formControlName="file" />
+    <input type="file" id="input-file" accept=".csv" formControlName="file" [disabled]="records?.length > 0" />
 
     <div
       class="help-block"
@@ -50,8 +50,7 @@
   {{ records.length - invalidRecords.length }} institutions were added successfully.
   <span *ngIf="invalidRecords.length > 0">
     <a href="#" class="text-danger" (click)="invalidRecordsModal.show()">
-      {{ invalidRecords.length }}  failed
-    </a>
+      {{ invalidRecords.length }} failed</a>
     because they already exist in the database.
   </span>
 </alert>

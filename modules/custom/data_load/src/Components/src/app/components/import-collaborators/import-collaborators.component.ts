@@ -41,7 +41,9 @@ export class ImportCollaboratorsComponent {
     this.message = '';
 
     const csv = await this.importService.parseCSV(this.form.controls.file.value[0]) as ParseResult;
-    const response$ = await this.importService.importCollaborators(csv.data);
+    const data = csv.data;
+    data.shift();
+    const response$ = await this.importService.importCollaborators(data);
     response$.subscribe(
       data => {
         if (data && data.length > 0) {
@@ -60,6 +62,7 @@ export class ImportCollaboratorsComponent {
         this.error = true;
         this.message = error;
         console.error(error);
+        this.loading = false;
       },
 
       () => {
