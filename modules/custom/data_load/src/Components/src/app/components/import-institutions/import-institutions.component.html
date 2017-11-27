@@ -24,7 +24,7 @@
 
   <div [ngClass]="{'has-error': form.controls.file.dirty && form.controls.file.invalid}">
     <label class="control-label" for="input-file">Institutions File (.csv)*</label>
-    <input type="file" id="input-file" accept=".csv" formControlName="file" [disabled]="records?.length > 0" />
+    <input type="file" id="input-file" accept=".csv" formControlName="file" />
 
     <div
       class="help-block"
