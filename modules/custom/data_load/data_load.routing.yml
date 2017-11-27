@@ -1,123 +1,117 @@
-dataload.app:
+########################################
+## Routes for content pages:
+##   /DataUploadTool
+##   /ImportCollaborators
+##   /ImportInstitutions
+########################################
+data_upload_tool.content:
   path: '/DataUploadTool'
   defaults:
-    _controller: '\Drupal\data_load\Controller\DataLoadController::load_app'
-    _title: 'Data Loading Tool'
+    _controller: '\Drupal\data_load\Controller\ContentController::dataUploadTool'
+    _title: 'Data Upload Tool'
   requirements:
     _access: 'TRUE'
 
-dataload.load_data_mysql:
-  path: '/DataUploadTool/loaddata_mysql'
+
+import_collaborators.content:
+  path: '/ImportCollaborators'
   defaults:
-    _controller: '\Drupal\data_load\Controller\DataLoadController::loaddata_mysql'
-    _title: 'Load Data'
-  methods: [POST]
+    _controller: '\Drupal\data_load\Controller\ContentController::importCollaborators'
+    _title: 'Import Collaborators'
   requirements:
     _access: 'TRUE'
 
-dataload.load_data_mssql:
-  path: '/DataUploadTool/loaddata_mssql'
+
+import_institutions.content:
+  path: '/ImportInstitutions'
   defaults:
-    _controller: '\Drupal\data_load\Controller\DataLoadController::loaddata_mssql'
-    _title: 'Load Data'
-  methods: [POST]
+    _controller: '\Drupal\data_load\Controller\ContentController::importInstitutions'
+    _title: 'Import Institutions'
   requirements:
     _access: 'TRUE'
 
-dataload.get_data:
-  path: '/DataUploadTool/getdata'
+
+
+########################################
+## Data Upload Tool API
+########################################
+loadProjects:
+  path: '/DataUploadTool/loadProjects'
   defaults:
-    _controller:  '\Drupal\data_load\Controller\DataLoadController::getdata'
-    _title: 'Get Data'
+    _controller: '\Drupal\data_load\Controller\DataUploadController::loadProjects'
   requirements:
     _access: 'TRUE'
 
-dataload.get_data_mssql:
-  path: '/DataUploadTool/getdata_mssql'
+
+getProjects:
+  path: '/DataUploadTool/getProjects'
   defaults:
-    _controller:  '\Drupal\data_load\Controller\DataLoadController::getdata_mssql'
-    _title: 'Get Data'
+    _controller:  '\Drupal\data_load\Controller\DataUploadController::getProjects'
   requirements:
     _access: 'TRUE'
 
-dataload.integrity_check:
-  path: '/DataUploadTool/integrity_check_mssql'
-  defaults:
-    _controller:  '\Drupal\data_load\Controller\DataLoadController::integrity_check_mssql'
-    _title: 'Integrity Check'
-  requirements:
-    _access: 'TRUE'
-  methods: [POST]
 
-dataload.integrity_check_details:
-  path: '/DataUploadTool/integrity_check_details_mssql'
-  defaults:
-    _controller:  '\Drupal\data_load\Controller\DataLoadController::integrity_check_details_mssql'
-    _title: 'Integrity Check Details'
-  requirements:
-    _access: 'TRUE'
-  methods: [POST]
-
-dataload.get_validation_rule_definitions:
-  path: '/DataUploadTool/getValidationRuleDefinitions'
-  defaults:
-    _controller:  '\Drupal\data_load\Controller\DataLoadController::getValidationRuleDefinitions'
-    _title: 'Get Validation Rules'
-  requirements:
-    _access: 'TRUE'
-
-dataload.importProjects:
+importProjects:
   path: '/DataUploadTool/importProjects'
   defaults:
-    _controller:  '\Drupal\data_load\Controller\DataLoadController::importProjects'
+    _controller:  '\Drupal\data_load\Controller\DataUploadController::importProjects'
   requirements:
     _access: 'TRUE'
 
-dataload.ping:
+
+getSponsorCodes:
+  path: '/DataUploadTool/getSponsorCodes'
+  defaults:
+    _controller: 'Drupal\data_load\Controller\DataUploadController::getSponsorCodes'
+  requirements:
+    _access: 'TRUE'
+
+
+getValidationRules:
+  path: '/DataUploadTool/getValidationRules'
+  defaults:
+    _controller:  '\Drupal\data_load\Controller\DataUploadController::getValidationRules'
+  requirements:
+    _access: 'TRUE'
+
+
+integrityCheck:
+  path: '/DataUploadTool/integrityCheck'
+  defaults:
+    _controller:  '\Drupal\data_load\Controller\DataUploadController::integrityCheck'
+  requirements:
+    _access: 'TRUE'
+
+
+integrityCheckDetails:
+  path: '/DataUploadTool/integrityCheckDetails'
+  defaults:
+    _controller:  '\Drupal\data_load\Controller\DataUploadController::integrityCheckDetails'
+  requirements:
+    _access: 'TRUE'
+
+
+exportIntegrityCheck:
+  path: '/DataUploadTool/exportIntegrityCheck'
+  defaults:
+    _controller: 'Drupal\data_load\Controller\DataLoadController::exportIntegrityCheck'
+  requirements:
+    _access: 'TRUE'
+
+
+ping:
   path: '/DataUploadTool/ping'
   defaults:
-    _controller: 'Drupal\data_load\Controller\DataLoadController::ping'
+    _controller: 'Drupal\data_load\Controller\DataUploadController::ping'
     _title: 'Ping'
   requirements:
     _access: 'TRUE'
 
-dataload.export:
-  path: '/DataUploadTool/export'
-  defaults:
-    _controller: 'Drupal\data_load\Controller\DataLoadController::export'
-  requirements:
-    _access: 'TRUE'
 
-dataload.sponsor_codes:
-  path: '/DataUploadTool/getSponsorCodes'
-  defaults:
-    _controller: 'Drupal\data_load\Controller\DataLoadController::getSponsorCodes'
-  requirements:
-    _access: 'TRUE'
 
-add_institutions:
-  path: '/ImportInstitutions'
-  defaults:
-    _controller: '\Drupal\data_load\Controller\ContentController::importInstitutions'
-    _title: 'Add Institutions Tool'
-  requirements:
-    _access: 'TRUE'
-
-add_collaborators:
-  path: '/ImportCollaborators'
-  defaults:
-    _controller: '\Drupal\data_load\Controller\ContentController::importCollaborators'
-    _title: 'Import Collaborators Tool'
-  requirements:
-    _access: 'TRUE'
-
-api.institutions.import:
-  path: '/api/institutions/import'
-  defaults:
-    _controller: 'Drupal\data_load\Controller\ImportController::importInstitutions'
-  requirements:
-    _access: 'TRUE'
-
+########################################
+## Import Collaborators API
+########################################
 api.collaborators.import:
   path: '/api/collaborators/import'
   defaults:
@@ -125,6 +119,23 @@ api.collaborators.import:
   requirements:
     _access: 'TRUE'
 
+
+
+########################################
+## Import Institutions API
+########################################
+api.institutions.import:
+  path: '/api/institutions/import'
+  defaults:
+    _controller: 'Drupal\data_load\Controller\ImportController::importInstitutions'
+  requirements:
+    _access: 'TRUE'
+
+
+
+########################################
+## Shared API
+########################################
 api.getExcelExport:
   path: '/api/getExcelExport/{prefix}'
   defaults:

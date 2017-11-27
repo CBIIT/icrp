@@ -1,11 +1,10 @@
-resources:
-  version: 1.0
+data_upload_tool:
+  version: 1.0.0
   css:
     theme:
-      src/assets/main.css: {}
+      src/assets/data-upload-tool/main.css: {}
   js:
-    src/assets/service-worker.js: {}
-    src/assets/main.js: {}
+    src/assets/data-upload-tool/main.js: {}
 
 import_institutions:
   version: 1.0.2

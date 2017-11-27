@@ -5,16 +5,16 @@ namespace Drupal\data_load\Controller;
 class ContentController {
 
   /**
-   * Returns a render array for the "Data Load Tool" page
+   * Returns a render array for the "Data Upload Tool" page
    *
    * @return array
    */
-  public static function dataLoad(): array {
+  public static function dataUploadTool(): array {
     return [
-      '#theme' => 'data_load',
+      '#theme' => 'data_upload_tool',
       '#attached' => [
         'library' => [
-          'data_load/resources'
+          'data_load/data_upload_tool'
         ],
       ],
     ];
