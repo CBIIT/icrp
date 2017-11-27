@@ -62,6 +62,7 @@ export class ImportInstitutionsComponent  {
     const response$ = await this.importService.importInstitutions(data);
     response$.subscribe(
       data => {
+        this.loading = false;
         this.success = true;
         this.invalidRecords = data;
         this.invalidRecordHeaders = Object.keys(this.invalidRecords[0]);
@@ -73,10 +74,6 @@ export class ImportInstitutionsComponent  {
         this.message = error;
         console.error(error);
       },
-
-      () => {
-        this.loading = false;
-      }
     );
   }
 

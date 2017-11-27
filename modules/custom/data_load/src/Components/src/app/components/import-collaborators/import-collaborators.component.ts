@@ -48,6 +48,8 @@ export class ImportCollaboratorsComponent {
     const response$ = await this.importService.importCollaborators(data);
     response$.subscribe(
       data => {
+        this.loading = false;
+
         if (data.imported !== 0) {
           this.error = false;
           this.message = `${data.imported.toLocaleString()} collaborators have been imported successfully.`;
@@ -65,13 +67,9 @@ export class ImportCollaboratorsComponent {
       ({error}) => {
         this.error = true;
         this.message = error;
+        this.loading = false;
         console.error(error);
-        this.loading = false;
       },
-
-      () => {
-        this.loading = false;
-      }
     );
   }
 
