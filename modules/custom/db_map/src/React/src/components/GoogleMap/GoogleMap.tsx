@@ -171,11 +171,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
       let styles = UNLABELED_MAP;
 
-      if (showMapLabels) {
-        styles = LABELED_MAP;
-      }
-
-      if (map.getZoom() > 6) {
+      if (map.getZoom() > 2) {
         styles = DETAILED_MAP
       }
 
@@ -358,7 +354,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
       this.shouldRedraw = false;
 
-      if (viewLevel === 'regions') {
+      if (viewLevel === 'regions' && map.getZoom() < 3) {
         map.setCenter({
           lat: 25,
           lng: 0,
