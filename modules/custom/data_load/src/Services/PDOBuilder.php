@@ -32,6 +32,22 @@ class PDOBuilder {
      */
     $cfg = Drupal::config($database)->get();
 
+    // default configuration options
+    $cfg['options'] = [
+      'sqlsrv' => [
+        PDO::SQLSRV_ATTR_ENCODING    => PDO::SQLSRV_ENCODING_UTF8,
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE => TRUE,
+        PDO::SQLSRV_ATTR_QUERY_TIMEOUT => 0,
+      ],
+      'mysql' => [
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::MYSQL_ATTR_LOCAL_INFILE => TRUE
+      ]
+    ][$cfg['driver']];
+
     return new PDO(
       vsprintf('%s:Server=%s,%s;Database=%s', [
         $cfg['driver'],
@@ -41,13 +57,7 @@ class PDOBuilder {
       ]),
       $cfg['username'],
       $cfg['password'],
-      [
-        PDO::SQLSRV_ATTR_ENCODING    => PDO::SQLSRV_ENCODING_UTF8,
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-//      PDO::ATTR_ERRMODE            => PDO::ERRMODE_SILENT,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE => TRUE,
-      ]
+      $cfg['options']
     );
   }
 

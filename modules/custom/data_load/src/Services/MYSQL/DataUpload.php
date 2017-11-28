@@ -7,7 +7,7 @@ use Drupal;
 use PDO;
 use SplFileInfo;
 
-class DataLoad {
+class DataUpload {
 
 
     /**
