@@ -1693,7 +1693,8 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             //drupal_set_message("user_register_form");
             //\Drupal\icrp\Importer\OrganizationRestClient::populateOrganizations();
             OrganizationRestClient::populateOrganizations();
-            drupal_flush_all_caches();
+            //We set cache to 1 minute instead of clearing cache.
+            //drupal_flush_all_caches();
 
             break;
         case 'node_forum_edit_form':
