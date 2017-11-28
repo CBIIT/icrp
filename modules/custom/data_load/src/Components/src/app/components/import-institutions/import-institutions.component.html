@@ -1,28 +1,29 @@
 
-<ui-overlay [active]="loading">
+<ui-overlay
+  [active]="loading"
+  [fullscreen]="true">
   <ui-spinner></ui-spinner>
   <div>Loading</div>
 </ui-overlay>
 
-<alert type="danger" *ngIf="error && message?.length > 0" [dismissible]="true">
-  {{ message }}
-</alert>
-
-<alert type="success" *ngIf="success" [dismissible]="true">
-  {{ records.length - invalidRecords.length }} institutions were added successfully.
-  <span *ngIf="invalidRecords.length > 0">
-    <a href="#" class="text-danger" (click)="invalidRecordsModal.show()">
-      {{ invalidRecords.length }} failed</a>
-    because they already exist in the database.
-  </span>
+<alert
+  *ngFor="let alert of alerts"
+  [type]="alert.type"
+  [dismissible]="true">
+  {{ alert.content }}
 </alert>
 
 <form
-  class="bordered padded form-group responsive-form"
+  class="bordered padded vertical-margins"
   [formGroup]="form"
+  fxLayout
+  fxLayout.lt-md="column"
+  fxLayoutAlign="space-between center"
+  fxLayoutAlign.lt-md="center space-between"
+  fxLayoutGap="15px"
   novalidate>
 
-  <div [ngClass]="{'has-error': form.controls.file.dirty && form.controls.file.invalid}">
+  <div [class.has-error]="form.controls.file.dirty && form.controls.file.invalid">
     <label class="control-label" for="input-file">Institutions File (.csv)*</label>
     <input type="file" id="input-file" accept=".csv" formControlName="file" />
 
@@ -55,10 +56,22 @@
   </div>
 </form>
 
-<div class="form-group">
+<div
+  class="form-group"
+  [class.has-error]="hasInvalidRecords">
   <ui-table *ngIf="records?.length > 0"
     [headers]="headers"
     [data]="records">
+    <div *ngIf="hasInvalidRecords && records?.length > 0">
+      <button
+        fxLayout
+        fxLayoutAlign="space-between center"
+        class="pull-right btn btn-default btn-xs"
+        (click)="export()">
+        <ui-icon type="desktop-download"></ui-icon>
+        <div>Export</div>
+      </button>
+    </div>
   </ui-table>
 </div>
 
@@ -66,7 +79,7 @@
   <button
     class="btn btn-primary"
     (click)="import()"
-    [disabled]="records?.length === 0">
+    [disabled]="importDisabled">
     Import
   </button>
 
@@ -75,41 +88,4 @@
     (click)="cancel()">
     Cancel
   </button>
-</div>
-
-<div
-  class="modal fade"
-  bsModal
-  #invalidRecordsModal="bs-modal"
-  [config]="{backdrop: 'static'}"
-  tabindex="-1"
-  role="dialog"
-  aria-labelledby="show-invalid-records"
-  aria-hidden="true">
-
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title pull-left">
-          Invalid Records
-        </h4>
-
-        <button
-          type="button"
-          class="close pull-right"
-          aria-label="Close"
-          (click)="invalidRecordsModal.hide()">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <ui-table *ngIf="records?.length > 0"
-            [headers]="invalidRecordHeaders"
-            [data]="invalidRecords">
-          </ui-table>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>

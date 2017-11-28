@@ -1,4 +1,4 @@
-/* You can add global styles to this file, and also import other style files */
+/** Global css styles */
 
 .bordered {
   border: 1px solid #ddd;
@@ -6,32 +6,6 @@
 
 .padded {
   padding: 15px;
-}
-
-.responsive-form {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-}
-
-.display-flex {
-  display: flex !important;
-}
-
-.flex-wrap {
-  flex-wrap: wrap;
-}
-
-.justify-space-between {
-  justify-content: space-between;
-}
-
-.align-center {
-  align-items: center;
-}
-
-.responsive-form > div {
-  margin: 5px 0px;
 }
 
 .pagination {
@@ -42,16 +16,6 @@
   margin: 5px 0;
 }
 
-@media (min-width: 768px) {
-  .responsive-form {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .responsive-form > div {
-    margin: 0;
-  }
-
+.has-error table > tbody > tr > td:first-child {
+  color: red;
 }

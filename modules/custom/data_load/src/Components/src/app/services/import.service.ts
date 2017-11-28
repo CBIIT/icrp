@@ -40,11 +40,8 @@ export class ImportService {
 
           // parse as object
           else {
-            console.log('parse as object', data);
             for (let key in data) {
-              console.log(key, data[key]);
               if (data[key] === 'NULL') {
-                console.log('null found', data);
                 data[key] = null;
               }
             }
