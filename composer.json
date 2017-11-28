@@ -94,7 +94,6 @@
         "drupal/search_kint": "1.0",
         "drupal/security_review": "1.x-dev",
         "drupal/token": "1.0",
-        "drupal/toolbar_themes": "1.0-alpha4@alpha",
         "drupal/twig_tweak": "1.9",
         "drupal/typed_data": "1.0.0-alpha1@alpha",
         "drupal/user_import": "1.x-dev",
