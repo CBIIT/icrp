@@ -131,6 +131,11 @@ drupalSettings.db_map = {
       markerBounds.extend({lat:ne.lat()+latVar,lng:ne.lng()-lngVar});
       markerBounds.extend({lat:sw.lat()-latVar,lng:sw.lng()+lngVar});
       map.fitBounds(markerBounds);
+      google.maps.event.addListenerOnce(map, 'bounds_changed', function(event) {
+        if (this.getZoom() < 2) {
+          this.setZoom(2);
+        }
+      });
     }
     window.createOverlayForMap(map);
   }
