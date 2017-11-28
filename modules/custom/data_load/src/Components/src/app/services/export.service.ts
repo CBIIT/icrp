@@ -1,17 +1,24 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { saveAs } from 'file-saver';
+import * as Excel from 'exceljs/dist/es5/exceljs.browser';
+
+export interface Sheet {
+  title: string;
+  rows: any[][];
+}
 
 @Injectable()
 export class ExportService {
+  async exportAsExcel(sheets: Sheet[], filename: string = 'Data_Export.xlsx') {
+    const workbook = new Excel.Workbook();
 
-  BASE_HREF = `${window.location.protocol}//${window.location.hostname}`
+    sheets.forEach(sheet => workbook
+      .addWorksheet(sheet.title)
+      .addRows(sheet.rows));
 
-  constructor(private http: HttpClient) { }
+    const buffer = await workbook.xlsx.writeBuffer({base64: true});
+    const blob = new Blob([buffer], {type: 'application/octet-stream'});
 
-  getExcelExport(data: any[], prefix: string = 'Data_Export') {
-    const endpoint = `${this.BASE_HREF}/api/getExcelExport/${prefix}/`;
-    return this.http.post<string>(endpoint, JSON.stringify(data), {
-      withCredentials: window.location.hostname === window.location.host,
-    });
+    saveAs(blob, filename);
   }
 }

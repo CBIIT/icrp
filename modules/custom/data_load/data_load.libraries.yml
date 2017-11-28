@@ -7,7 +7,7 @@ data_upload_tool:
     src/assets/data-upload-tool/main.js: {}
 
 import_institutions:
-  version: 1.0.2
+  version: 1.0.4
   css:
     theme:
       src/assets/import-institutions/styles.bundle.css: {}
@@ -17,7 +17,7 @@ import_institutions:
     src/assets/import-institutions/main.bundle.js: {}
 
 import_collaborators:
-  version: 1.0.2
+  version: 1.0.4
   css:
     theme:
       src/assets/import-collaborators/styles.bundle.css: {}

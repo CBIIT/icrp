@@ -2,33 +2,32 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FileValidators } from '../../validators/file-validator/file-validator';
 import { ImportService, ParseResult, ParseError } from '../../services/import.service';
-import { tr } from 'ngx-bootstrap/bs-moment/i18n/tr';
+import { ExportService } from '../../services/export.service';
 
 @Component({
   selector: 'icrp-import-institutions',
   templateUrl: './import-institutions.component.html',
   styleUrls: ['./import-institutions.component.css'],
-  providers: [ImportService],
 })
 export class ImportInstitutionsComponent  {
 
   form: FormGroup;
 
   loading: boolean = false;
-  error: boolean = false;
-  success: boolean = false;
+  alerts: {type: string, content: string}[] = [];
 
-  message: string = '';
   records: any[] = [];
   headers: string[] = [];
 
-  invalidRecords: any[] = [];
-  invalidRecordHeaders: string[] = [];
+  hasInvalidRecords: boolean = false;
+  importDisabled: boolean = true;
 
+  EXPECTED_COLUMNS: number = 8;
 
   constructor(
     private formBuilder: FormBuilder,
     private importService: ImportService,
+    private exportService: ExportService,
   ) {
     this.form = formBuilder.group({
       file: ['', [
@@ -42,11 +41,25 @@ export class ImportInstitutionsComponent  {
     if (!this.form.valid)
       return;
 
+    this.alerts = [];
+    this.loading = true;
     const csv = await this.importService
       .parseCSV(this.form.controls.file.value[0], true) as ParseResult;
+    this.loading = false;
 
-    this.headers = csv.meta.fields;
-    this.records = csv.data;
+    if (csv.meta.fields.length === this.EXPECTED_COLUMNS) {
+      this.headers = csv.meta.fields;
+      this.records = csv.data;
+      this.importDisabled = false;
+    }
+
+    else {
+      this.alerts.push({
+        type: 'danger',
+        content: 'The input file does not contain the expected number of columns.'
+      });
+    }
+
   }
 
   async import() {
@@ -54,43 +67,67 @@ export class ImportInstitutionsComponent  {
       return;
 
     this.loading = true;
-    this.error = false;
-    this.success = false;
-    this.message = '';
+    this.importDisabled = true;
+    this.hasInvalidRecords = false;
+    this.alerts = [];
 
-    const data = this.records.map(row => this.headers.map(header => row[header]));
-    const response$ = await this.importService.importInstitutions(data);
+    const records = this.records.map(row => this.headers.map(header => row[header]));
+    const response$ = await this.importService.importInstitutions(records);
     response$.subscribe(
       data => {
-        this.success = true;
-        this.invalidRecords = data;
-        this.invalidRecordHeaders = Object.keys(this.invalidRecords[0]);
+        this.loading = false;
+
+        if (Array.isArray(data) && data.length > 0) {
+          this.hasInvalidRecords = true;
+          this.records = data;
+          this.headers = Object.keys(data[0]);
+          this.alerts.push({
+            type: 'warning',
+            content: 'The following records failed the data check. Import aborted. Please correct the data file and rerun the import.'
+          });
+        } else {
+          this.alerts.push({
+            type: 'success',
+            content: `${records.length.toLocaleString()} institutions have been successfully imported.`
+          });
+        }
       },
 
       ({error}) => {
         this.loading = false;
-        this.error = true;
-        this.message = error;
-        console.error(error);
+        this.alerts.push({
+          type: 'danger',
+          content: error,
+        });
       },
-
-      () => {
-        this.loading = false;
-      }
     );
+  }
+
+  export() {
+    const filename: string = this.form.controls.file.value[0].name
+      .replace(/.csv$/, '_Errors.xlsx');
+
+    const sheets = [{
+      title: 'Invalid Records',
+      rows: [this.headers]
+        .concat(this.records
+          .map(record => this.headers
+            .map(header => record[header])))
+    }];
+
+    this.exportService.exportAsExcel(sheets, filename);
   }
 
   reset() {
     this.form.reset();
-    this.error = false;
-    this.success = false;
-    this.message = '';
+    this.alerts = [];
     this.records = [];
     this.headers = [];
+    this.importDisabled = true;
+    this.hasInvalidRecords = false;
   }
 
   cancel() {
     window.location.href = `${window.location.protocol}//${window.location.hostname}`;
   }
-
 }

@@ -10,21 +10,19 @@ class CollaboratorsManager {
 
   private static function initializeTable(PDO $pdo): void {
     $pdo->exec("
-      IF OBJECT_ID('tmp_LoadCollaborators') IS NOT NULL
-        DELETE FROM tmp_LoadCollaborators;
-
-      ELSE
-        CREATE TABLE tmp_LoadCollaborators (
-          AwardCode VARCHAR(75) NOT NULL,
-          AltAwardCode VARCHAR(75) NOT NULL,
-          LastName VARCHAR(100),
-          FirstName VARCHAR(100),
-          Institution VARCHAR(250) NOT NULL,
-          City VARCHAR(50) NOT NULL,
-          ORC_ID VARCHAR(19),
-          OtherResearchID INT,
-          OtherResearchType VARCHAR(50)
-        );
+      DROP TABLE IF EXISTS tmp_LoadCollaborators;
+      CREATE TABLE tmp_LoadCollaborators (
+        AwardCode VARCHAR(75) NOT NULL,
+        AltAwardCode VARCHAR(75) NOT NULL,
+        LastName VARCHAR(100),
+        FirstName VARCHAR(100),
+        SubmittedInstitution VARCHAR(250),
+        Institution VARCHAR(250) NOT NULL,
+        City VARCHAR(50) NOT NULL,
+        ORC_ID VARCHAR(19),
+        OtherResearchID INT,
+        OtherResearchType VARCHAR(50)
+      );
     ");
   }
 
@@ -37,7 +35,6 @@ class CollaboratorsManager {
    */
   public static function importCollaborators(PDO $connection, array $data): array {
 
-    $index = 1;
     try {
 
       self::initializeTable($connection);
@@ -48,15 +45,15 @@ class CollaboratorsManager {
           [AltAwardCode],
           [LastName],
           [FirstName],
+          [SubmittedInstitution],
           [Institution],
           [City],
           [ORC_ID],
           [OtherResearchID],
           [OtherResearchType])
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-      foreach($data as $row) {
-        $index ++;
+      foreach($data as $index => $row) {
         $parameters = array_map(function($value) {
           return strlen($value) > 0 ? $value : NULL;
         }, $row);
@@ -64,33 +61,37 @@ class CollaboratorsManager {
         $stmt->execute($parameters);
       }
 
-      // number of institutions successfully imported
-      $imported = [
-        'count' => [
-          'value' => 0,
-          'type' => PDO::PARAM_INT
-        ]
-      ];
+      // return any collaborators that were not successfully imported
+      return $connection
+        ->query("SET NOCOUNT ON; EXEC ImportCollaborators @count = NULL")
+        ->fetchAll();
 
-      // institutions that were not successfully imported
-      $errors = PDOBuilder::executePreparedStatement(
-        $connection,
-        'SET NOCOUNT ON; EXEC ImportCollaborators @count = NULL',
-        [],
-        $output
-      )->fetchAll();
+      // // number of institutions successfully imported
+      // $imported = [
+      //   'count' => [
+      //     'value' => 0,
+      //     'type' => PDO::PARAM_INT
+      //   ]
+      // ];
 
-      return [
-        'imported' => $imported['count']['value'],
-        'errors' => $errors
-      ];
+      // // institutions that were not successfully imported
+      // $errors = PDOBuilder::executePreparedStatement(
+      //   $connection,
+      //   'SET NOCOUNT ON; EXEC ImportCollaborators @count = NULL',
+      //   [],
+      //   $output
+      // )->fetchAll();
+
+      // return [
+      //   'imported' => $imported['count']['value'],
+      //   'errors' => $errors
+      // ];
     }
 
     catch (PDOException $e) {
-
       $message = preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage());
 
-      if ($index < count($data)) {
+      if ($index++ < count($data)) {
          $message = "An error occured while reading row $index: $message";
       }
 

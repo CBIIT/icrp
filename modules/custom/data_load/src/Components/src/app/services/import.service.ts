@@ -13,12 +13,49 @@ export class ImportService {
   constructor(private http: HttpClient) { }
 
   parseCSV(file: File, header: boolean = false): Promise<ParseResult | ParseError> {
+
+    let parseResults: ParseResult = {
+      data: [],
+      errors: [],
+      meta: {
+        delimiter: '',
+        linebreak: '',
+        aborted: false,
+        fields: [],
+        truncated: false,
+      }
+    };
+
     return new Promise((resolve, reject) => {
       parse(file, {
         header: header,
         skipEmptyLines: true,
-        complete: resolve,
-        error: reject,
+        step: results => {
+          let data = results.data[0];
+
+          // parse as array
+          if (Array.isArray(data)) {
+            data = data.map(e => e === 'NULL' ? null : e);
+          }
+
+          // parse as object
+          else {
+            for (let key in data) {
+              if (data[key] === 'NULL') {
+                data[key] = null;
+              }
+            }
+          }
+
+          parseResults.meta = results.meta;
+          parseResults.data.push(data);
+          parseResults.errors = {
+            ...parseResults.errors,
+            ...results.errors
+          };
+        },
+        complete: () => resolve(parseResults),
+        error: () => reject,
       })
     });
   }
