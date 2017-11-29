@@ -273,7 +273,6 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
             className="margin-right asterisk">
             Map Coordinates
           </ControlLabel>
-        </div>
 
         <Row>
           <Col md={6} className="form-group-sm">
@@ -306,8 +305,6 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
             </div>
           </Col>
         </Row>
-
-        <div className="has-error">
           {
             ((form.validationErrors.latitude && form.validationErrors.latitude.required) ||
             (form.validationErrors.longitude && form.validationErrors.longitude.required)) &&
@@ -339,11 +336,10 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
 
       <Col md={6} className='margin-bottom'>
         <div className={anyTrue(form.validationErrors.logoFile) ? 'has-error' : ''}>
-          <FormGroup  controlId='partner-logo-file' bsSize='small' validationState={null}>
+          <FormGroup controlId='partner-logo-file' bsSize='small' validationState={null}>
             <ControlLabel className='margin-right'>Logo File</ControlLabel>
-            <i>(jpg, png or gif)</i>
-
-              <label className='block normal-weight'>
+              <i>(jpg, png or gif)</i>
+              <label className='block normal-weight' style={{'margin-bottom':'0px'}}>
                 <div className='display-flex'>
                   <div className='cursor-text form-control form-control-group'>
                     {form.values.logoFile ? form.values.logoFile.name : form.values.defaultLogoFile || <span className='placeholder'>Select file</span> }
@@ -362,6 +358,10 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
               </label>
 
             <FormControl.Feedback />
+            { form.validationErrors.logoFile &&
+              form.validationErrors.logoFile.format &&
+              <HelpBlock>Selected file was not a jpg, png or gif.</HelpBlock>
+            }
           </FormGroup>
         </div>
       </Col>
