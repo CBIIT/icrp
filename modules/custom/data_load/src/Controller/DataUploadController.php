@@ -2,6 +2,7 @@
 
 namespace Drupal\data_load\Controller;
 
+use Exception;
 use Drupal;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,17 +13,18 @@ use Drupal\data_load\Services\PDOBuilder;
 use Drupal\data_load\Services\FileHandler;
 use Drupal\data_load\Services\CollaboratorsManager;
 use Drupal\data_load\Services\InstitutionsManager;
-use Drupal\data_load\Services\DataUpload\MSSQL\DataUpload;
+use Drupal\data_load\Services\MSSQL\DataUpload;
 // use this class instead once migration to MySQL is complete
-// use Drupal\data_load\Services\DataUpload\MYSQL\DataUpload;
+// use Drupal\data_load\Services\MYSQL\DataUpload;
 
 class DataUploadController extends ControllerBase {
 
   function __construct() {
-    foreach(['uploads', 'output'] as $folder)
+    foreach(['./uploads', './output'] as $folder)
       if (!file_exists($folder))
         mkdir($folder, 0744);
   }
+
 
   /**
    * Creates a JSON response with CORS headers from the given data
@@ -62,7 +64,8 @@ class DataUploadController extends ControllerBase {
   public static function loadProjects(Request $request): JSONResponse {
     $parameters = $request->request->all();
     $connection = PDOBuilder::getConnection('icrp_load_database');
-    $file = $request->files->get('file')->move('uploads', uniqid().'csv');
+    $directory = drupal_get_path('module', 'data_load') . '/uploads';
+    $file = $request->files->get('file')->move($directory, uniqid() . '.csv');
 
     $data = DataUpload::loadProjects($connection, $parameters, $file->getRealPath());
     return self::createResponse($data);
@@ -156,6 +159,7 @@ class DataUploadController extends ControllerBase {
     return self::createResponse($data);
   }
 
+
   /**
    * Retrieves integrity check details for a specific rule
    * Expects a json object with the following schema:
@@ -173,5 +177,10 @@ class DataUploadController extends ControllerBase {
 
     $data = DataUpload::integrityCheckDetails($connection, $parameters);
     return self::createResponse($data);
+  }
+
+
+  public static function ping() {
+    return self::createResponse('ping you back!');
   }
 }

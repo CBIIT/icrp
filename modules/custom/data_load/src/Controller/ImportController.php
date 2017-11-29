@@ -7,13 +7,9 @@ use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-use Drupal\data_load\Services\ExcelBuilder;
 use Drupal\data_load\Services\PDOBuilder;
 use Drupal\data_load\Services\CollaboratorsManager;
 use Drupal\data_load\Services\InstitutionsManager;
-use Drupal\data_load\Services\DataLoad\MSSQL\DataLoad;
-// use this class instead once migration to MySQL is complete
-// use Drupal\data_load\Services\DataLoad\MYSQL\DataLoad;
 
 class ImportController extends ControllerBase {
 

@@ -9,54 +9,55 @@ use League\Csv\Reader;
 use Exception;
 use PDO;
 use PDOException;
-use SplFileInfo;
+use PDOStatement;
 
 class DataUpload {
 
     const WORKBOOK_COLUMNS = [
-        'InternalId' => 'int IDENTITY (1,1)',
-        'AwardCode' => 'NVARCHAR(50)',
-        'AwardStartDate' => 'DATE',
-        'AwardEndDate' => 'DATE',
-        'SourceId' => 'VARCHAR(150)',
-        'AltId' => 'VARCHAR(50)',
-        'AwardTitle' => 'VARCHAR(1000)',
-        'Category' => 'VARCHAR(25)',
-        'AwardType' => 'VARCHAR(50)',
-        'Childhood' => 'VARCHAR(5)',
-        'BudgetStartDate' => 'DATE',
-        'BudgetEndDate' => 'DATE',
-        'CSOCodes' => 'VARCHAR(500)',
-        'CSORel' => 'VARCHAR(500)',
-        'SiteCodes' => 'VARCHAR(500)',
-        'SiteRel' => 'VARCHAR(500)',
-        'AwardFunding' => 'DECIMAL(16,2)',
-        'IsAnnualized' => 'VARCHAR(1)',
-        'FundingMechanismCode' => 'VARCHAR(30)',
-        'FundingMechanism' => 'VARCHAR(200)',
-        'FundingOrgAbbr' => 'VARCHAR(50)',
-        'FundingDiv' => 'VARCHAR(75)',
-        'FundingDivAbbr' => 'VARCHAR(50)',
-        'FundingContact' => 'VARCHAR(50)',
-        'PILastName' => 'VARCHAR(50)',
-        'PIFirstName' => 'VARCHAR(50)',
-        'SubmittedInstitution' => 'VARCHAR(250)',
-        'City' => 'VARCHAR(50)',
-        'State' => 'VARCHAR(150)',
-        'Country' => 'VARCHAR(3)',
-        'PostalZipCode' => 'VARCHAR(15)',
-        'InstitutionICRP' => 'VARCHAR(4000)',
-        'Latitute' => 'DECIMAL(9,6)',
-        'Longitute' => 'DECIMAL(9,6)',
-        'GRID' => 'VARCHAR(50)',
-        'TechAbstract' => 'NVARCHAR(MAX)',
-        'PublicAbstract' => 'NVARCHAR(MAX)',
-        'RelatedAwardCode' => 'VARCHAR(200)',
-        'RelationshipType' => 'VARCHAR(200)',
-        'ORCID' => 'VARCHAR(25)',
-        'OtherResearcherID' => 'INT',
-        'OtherResearcherIDType' => 'VARCHAR(1000)',
-        'InternalUseOnly' => 'NVARCHAR(MAX)'
+        'InternalId' => 'int identity',
+        'AwardCode' => 'nvarchar(50)',
+        'AwardStartDate' => 'date',
+        'AwardEndDate' => 'date',
+        'SourceId' => 'varchar(150)',
+        'AltId' => 'varchar(50)',
+        'NewAltId' => 'varchar(50)',
+        'AwardTitle' => 'varchar(1000)',
+        'Category' => 'varchar(25)',
+        'AwardType' => 'varchar(50)',
+        'Childhood' => 'varchar(5)',
+        'BudgetStartDate' => 'date',
+        'BudgetEndDate' => 'date',
+        'CSOCodes' => 'varchar(500)',
+        'CSORel' => 'varchar(500)',
+        'SiteCodes' => 'varchar(500)',
+        'SiteRel' => 'varchar(500)',
+        'AwardFunding' => 'decimal(16,2)',
+        'IsAnnualized' => 'varchar(1)',
+        'FundingMechanismCode' => 'varchar(30)',
+        'FundingMechanism' => 'varchar(200)',
+        'FundingOrgAbbr' => 'varchar(50)',
+        'FundingDiv' => 'varchar(75)',
+        'FundingDivAbbr' => 'varchar(50)',
+        'FundingContact' => 'varchar(50)',
+        'PILastName' => 'varchar(50)',
+        'PIFirstName' => 'varchar(50)',
+        'SubmittedInstitution' => 'varchar(250)',
+        'City' => 'varchar(50)',
+        'State' => 'varchar(50)',
+        'Country' => 'varchar(3)',
+        'PostalZipCode' => 'varchar(50)',
+        'InstitutionICRP' => 'varchar(4000)',
+        'Latitute' => 'decimal(9,6)',
+        'Longitute' => 'decimal(9,6)',
+        'GRID' => 'varchar(250)',
+        'TechAbstract' => 'nvarchar(max)',
+        'PublicAbstract' => 'nvarchar(max)',
+        'RelatedAwardCode' => 'varchar(200)',
+        'RelationshipType' => 'varchar(200)',
+        'ORCID' => 'varchar(25)',
+        'OtherResearcherID' => 'int',
+        'OtherResearcherIDType' => 'varchar(1000)',
+        'InternalUseOnly' => 'nvarchar(max)',
     ];
 
 
@@ -67,7 +68,7 @@ class DataUpload {
      */
     public static function getPartners(PDO $connection): array {
         return $connection
-            ->query('SELECT SponsorCode FROM Partner')
+            ->query('SELECT SponsorCode FROM Partner ORDER BY SponsorCode')
             ->fetchAll(PDO::FETCH_COLUMN);
     }
 
@@ -78,7 +79,14 @@ class DataUpload {
      */
     public static function getValidationRules(PDO $connection): array {
         return $connection
-            ->query('SELECT * FROM lu_DataUploadIntegrityCheckRules')
+            ->query('SELECT
+                lu_DataUploadIntegrityCheckRules_ID as id,
+                Name as name,
+                Category as category,
+                IsRequired as isRequired,
+                IsActive as isActive,
+                Type as type
+                FROM lu_DataUploadIntegrityCheckRules')
             ->fetchAll();
     }
 
@@ -114,7 +122,7 @@ class DataUpload {
      * @param string $partnerCode The partner code for the upload
      * @return array
      */
-    public function integrityCheckDetails(PDO $pdo, array $parameters): array {
+    public function integrityCheckDetails(PDO $connection, array $parameters): array {
         try {
             return PDOBuilder::executePreparedStatement(
                 $connection,
@@ -140,9 +148,9 @@ class DataUpload {
      * @param string $sortColumn The column to sort by (defaults to InternalId)
      * @return array Sorted and paginated rows from the current workbook
      */
-    public static function getProjects(PDO $pdo, array $parameters): array {
-        $page = $parameters['page'] ?? 1;
-        $pageSize = $parameters['pageSize'] ?? 25;
+    public static function getProjects(PDO $connection, array $parameters): array {
+        $page = intval($parameters['page']) ?? 1;
+        $pageSize = intval($parameters['pageSize']) ?? 25;
         $sortDirection = $parameters['sortDirection'] ?? 'ASC';
         $sortColumn = $parameters['sortColumn'] ?? 'InternalId';
 
@@ -165,13 +173,11 @@ class DataUpload {
         ];
 
         try {
-            return PDOBuilder::executePreparedStatement(
-                $connection,
-                'SELECT * FROM UploadWorkbook
-                    ORDER BY :sortColumn :sortDirection
-                    OFFSET :offset ROWS FETCH NEXT :pageSize ROWS ONLY',
-                $options
-            )->fetchAll();
+            return $connection
+                ->query("SELECT * FROM UploadWorkbook
+                        ORDER BY $options[sortColumn] $options[sortDirection]
+                        OFFSET $options[offset] ROWS FETCH NEXT $options[pageSize] ROWS ONLY")
+                ->fetchAll();
         }
 
         catch (PDOException $e) {
@@ -192,7 +198,7 @@ class DataUpload {
      */
     public static function loadProjects(PDO $connection, array $parameters, string $filePath = NULL): array {
         try {
-            $locale = $parameters['locale'] ?? 'en-us';
+            $locale = $parameters['locale'] ?? 'en-US';
             $columns = self::WORKBOOK_COLUMNS;
 
             // create a temp table for the records
@@ -214,8 +220,8 @@ class DataUpload {
                     ->setHeaderOffset(0);
             }
 
-            // ensure that the file contains 42 header columns
-            if (count($csv->getHeader()) !== 42) {
+            // ensure that the file contains 43 header columns
+            if (count($csv->getHeader()) !== 43) {
                 throw new Exception('The input file does not contain the expected number of headers.');
             }
 
@@ -227,14 +233,21 @@ class DataUpload {
                     if (strtolower($key) === 'awardfunding') {
                         $value = floatval(str_replace(',', '', $value));
                         $value = round($value, 2);
-                    } else if ($locale === 'en-gb' && in_array($key, [
+                    } else if (in_array(strtolower($key), [
                         'awardstartdate',
                         'awardenddate',
                         'budgetstartdate',
                         'budgetenddate',
                     ])) {
-                        list($date, $month, $year) = sscanf($value, "%d/%d/%d");
-                        $value = "$month/$date/$year";
+                        if (strtolower($locale) === 'en-gb') {
+                            list($day, $month, $year) = sscanf($value, "%d/%d/%d");
+                        }
+
+                        if (strtolower($locale) === 'en-us') {
+                            list($month, $day, $year) = sscanf($value, "%d/%d/%d");
+                        }
+
+                        $value = "$year-$month-$day";
                     }
 
                     return $value ? $value : NULL;
@@ -245,16 +258,16 @@ class DataUpload {
                 }
 
                 catch(PDOException $e) {
+                    ++$index;
                     error_log($e->getMessage());
-                    $line = $index + 1;
                     $message = preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage());
-                    throw new Exception("The input file contains an invalid row. Please check line ${line} (${message})");
+                    throw new Exception("The input file contains an invalid row. Please check line ${index} (${message})");
                 }
             }
 
             return [
                 'count' => $connection->query('SELECT COUNT(*) FROM UploadWorkBook')->fetchColumn(),
-                'projects' => self::getData($connection, [
+                'projects' => self::getProjects($connection, [
                     'page' => 1,
                     'pageSize' => 25,
                     'sortDirection' => 'ASC',
@@ -414,7 +427,7 @@ class DataUpload {
         );
 
         return $connection->prepare(
-            "INSERT INTO $table ($tableColumns) VALUES $columnPlaceholders"
+            "INSERT INTO $table ($tableColumns) VALUES ($columnPlaceholders)"
         );
     }
 }

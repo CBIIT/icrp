@@ -1,0 +1,12 @@
+{
+    "name": "icrp/data_load",
+    "require": {
+        "league/csv": "^9.1"
+    },
+    "authors": [
+        {
+            "name": "Brian Park",
+            "email": "park-brian@users.noreply.github.com"
+        }
+    ]
+}

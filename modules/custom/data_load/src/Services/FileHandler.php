@@ -38,16 +38,16 @@ class FileHandler {
 
         // ensure that files with the same names but different
         // contents do not overwrite each other
-        $fileName = sha1_file($file->getRealPath());
+        $fileName = sha1_file($file->getRealPath()) . 'csv';
 
         // attempt to move file to uploads folder
         $file = move_uploaded_file(
-          $file->getFilename(),
+          $file->getRealPath(),
           join(DIRECTORY_SEPARATOR, [$uploadsFolder, $fileName])
         );
 
         // returns the absolute path to the file
-        return $file->getRealPath();
+        return !$file ? null : $file->getRealPath();
     }
 
 
