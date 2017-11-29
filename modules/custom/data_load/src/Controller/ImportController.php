@@ -42,112 +42,6 @@ class ImportController extends ControllerBase {
     return $response;
   }
 
-
-  /**
-   * Loads data into the tmp table so it can be validated
-   *
-   * @param Request $request
-   * @return JSONResponse
-   */
-  public static function loadData(Request $request): JSONResponse {
-    $parameters = json_decode($request->getContent(), true);
-    $connection = PDOBuilder::getConnection();
-
-    // $request->files
-    $data = DataLoad::loadData($connection, $parameters, $filePath);
-    return self::createResponse($data);
-  }
-
-
-  /**
-   * Retrieves sorted and paginated data from the tmp table
-   *
-   * @param Request $request
-   * @return JSONResponse
-   */
-  public static function getData(Request $request): JSONResponse {
-    $parameters = json_decode($request->getContent(), true);
-    $connection = PDOBuilder::getConnection();
-
-    $data = DataLoad::getData($connection, $parameters);
-    return self::createResponse($data);
-  }
-
-
-  /**
-   * Gets validation rules for the data import
-   *
-   * @param Request $request
-   * @return JSONResponse
-   */
-  public static function getValidationRules(Request $request): JSONResponse {
-    $parameters = json_decode($request->getContent(), true);
-    $connection = PDOBuilder::getConnection();
-
-    $data = DataLoad::getValidationRules($connection, $parameters);
-    return self::createResponse($data);
-  }
-
-
-  /**
-   * Gets partners from the database
-   *
-   * @return JSONResponse
-   */
-  public static function getPartners(): JSONResponse {
-    $parameters = json_decode($request->getContent(), true);
-    $connection = PDOBuilder::getConnection();
-
-    $data = DataLoad::getPartners($connection, $parameters);
-    return self::createResponse($data);
-  }
-
-
-  /**
-   * Performs an integrity check for a specific partner
-   *
-   * @param Request $request
-   * @return JsonResponse
-   */
-  public static function integrityCheck(Request $request): JsonResponse {
-    $parameters = json_decode($request->getContent(), true);
-    $connection = PDOBuilder::getConnection();
-
-    $data = DataLoad::integrityCheck($connection, $parameters);
-    return self::createResponse($data);
-  }
-
-
-  /**
-   * Performs an integrity check for a specific rule
-   *
-   * @param Request $request
-   * @return JsonResponse
-   */
-  public static function integrityCheckDetails(Request $request): JsonResponse {
-    $parameters = json_decode($request->getContent(), true);
-    $connection = PDOBuilder::getConnection();
-
-    $data = DataLoad::integrityCheckDetails($connection, $parameters);
-    return self::createResponse($data);
-  }
-
-
-  /**
-   * Imports projects from the data_load database
-   *
-   * @param Request $request
-   * @return JsonResponse
-   */
-  public static function importProjects(Request $request): JsonResponse {
-    $parameters = json_decode($request->getContent(), true);
-    $connection = PDOBuilder::getConnection();
-
-    $data = DataLoad::importProjects($connection, $parameters);
-    return self::createResponse($data);
-  }
-
-
   /**
    * Import Institutions
    *
@@ -160,7 +54,6 @@ class ImportController extends ControllerBase {
     $data = InstitutionsManager::importInstitutions($connection, $parameters);
     return self::createResponse($data);
   }
-
 
   /**
    * Import Collaborators

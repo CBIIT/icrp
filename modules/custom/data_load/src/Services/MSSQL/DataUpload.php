@@ -6,6 +6,7 @@ use Drupal\data_load\Controller\Services\FileHandler;
 use Drupal\data_load\Controller\Services\PDOBuilder;
 use League\Csv\Reader;
 
+use Exception;
 use PDO;
 use PDOException;
 use SplFileInfo;
@@ -64,7 +65,7 @@ class DataUpload {
      *
      * @return array A list of partner sponsor codes
      */
-    public static function getSponsorCodes(PDO $connection): array {
+    public static function getPartners(PDO $connection): array {
         return $connection
             ->query('SELECT SponsorCode FROM Partner')
             ->fetchAll(PDO::FETCH_COLUMN);
@@ -88,10 +89,7 @@ class DataUpload {
      * @param string $partnerCode
      * @return array
      */
-    public static function integrityCheck(
-        PDO $connection,
-        array $parameters = ['type' => '', 'partnerCode' => '']): array {
-
+    public static function integrityCheck(PDO $connection, array $parameters): array {
         try {
             return PDOBuilder::executePreparedStatement(
                 $connection,
@@ -108,6 +106,7 @@ class DataUpload {
         }
     }
 
+
     /**
      * Retrieves integrity check details for a specific rule
      *
@@ -115,7 +114,7 @@ class DataUpload {
      * @param string $partnerCode The partner code for the upload
      * @return array
      */
-    public function integrityCheckDetails(string $ruleId, string $partnerCode): array {
+    public function integrityCheckDetails(PDO $pdo, array $parameters): array {
         try {
             return PDOBuilder::executePreparedStatement(
                 $connection,
@@ -132,6 +131,7 @@ class DataUpload {
         }
     }
 
+
     /**
      * Retrieves sorted and paginated rows from the uploaded workbook
      *
@@ -140,11 +140,11 @@ class DataUpload {
      * @param string $sortColumn The column to sort by (defaults to InternalId)
      * @return array Sorted and paginated rows from the current workbook
      */
-    public static function getPartners(
-        int $page = 1,
-        int $pageSize = 25,
-        string $sortDirection = 'ASC',
-        string $sortColumn = 'InternalId'): array {
+    public static function getProjects(PDO $pdo, array $parameters): array {
+        $page = $parameters['page'] ?? 1;
+        $pageSize = $parameters['pageSize'] ?? 25;
+        $sortDirection = $parameters['sortDirection'] ?? 'ASC';
+        $sortColumn = $parameters['sortColumn'] ?? 'InternalId';
 
         $sortDirectionKeys = ['ASC', 'DESC'];
         $sortColumnKeys = array_keys(self::WORKBOOK_COLUMNS);
@@ -190,21 +190,17 @@ class DataUpload {
      *   'columns'  => The column names used in this workbook
      *   'projects' => The first 25 projects from the workbook
      */
-    public static function loadProjects(PDO $connection, string $filePath, string $fileName = NULL): array {
-
-        if (!$fileName) {
-            $fileName = (new SplFileInfo($filePath))->getFilename();
-            error_log("Filename: " . $fileName);
-        }
-
+    public static function loadProjects(PDO $connection, array $parameters, string $filePath = NULL): array {
         try {
-            $pdo = Database::getConnection();
-
+            $locale = $parameters['locale'] ?? 'en-us';
             $columns = self::WORKBOOK_COLUMNS;
-            self::createTable($pdo, 'UploadWorkBook', $columns);
 
+            // create a temp table for the records
+            self::createTable($connection, 'UploadWorkBook', $columns);
+
+            // create a PDOStatment for inserting records into the workbook
             unset($columns['InternalId']);
-            $stmt = self::getInsertStmt($pdo, 'UploadWorkBook', $columns);
+            $stmt = self::getInsertStmt($connection, 'UploadWorkBook', $columns);
 
             $csv = Reader::createFromPath($filePath)
                 ->setHeaderOffset(0);
@@ -218,11 +214,15 @@ class DataUpload {
                     ->setHeaderOffset(0);
             }
 
+            // ensure that the file contains 42 header columns
             if (count($csv->getHeader()) !== 42) {
                 throw new Exception('The input file does not contain the expected number of headers.');
             }
 
+            // read each row into the table
             foreach($csv as $index => $row) {
+
+                // ensure that values are parsed correctly before insertion
                 $values = array_map(function($key, $value) use ($locale) {
                     if (strtolower($key) === 'awardfunding') {
                         $value = floatval(str_replace(',', '', $value));
@@ -247,13 +247,19 @@ class DataUpload {
                 catch(PDOException $e) {
                     error_log($e->getMessage());
                     $line = $index + 1;
-                    throw new Exception("The input file contains an invalid row. Please check line ${line}.");
+                    $message = preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage());
+                    throw new Exception("The input file contains an invalid row. Please check line ${line} (${message})");
                 }
             }
 
             return [
-                'count' => $pdo->query('SELECT COUNT(*) FROM UploadWorkBook')->fetchColumn(),
-                'projects' => self::getData(),
+                'count' => $connection->query('SELECT COUNT(*) FROM UploadWorkBook')->fetchColumn(),
+                'projects' => self::getData($connection, [
+                    'page' => 1,
+                    'pageSize' => 25,
+                    'sortDirection' => 'ASC',
+                    'sortColumn' => 'InternalId',
+                ]),
             ];
         }
 
@@ -264,69 +270,58 @@ class DataUpload {
     }
 
 
-    public static function importProjects(
-        $partnerCode = '',
-        $fundingYears = [],
-        $importNotes = '',
-        $receivedDate = '',
-        $type = '') {
-
-
+    /**
+     * Imports projects from the staging database to the production database
+     *
+     * @param PDO $connection The database connection object
+     * @param array $parameters An associative array:
+     *   partnerCode: A partner code (from getPartners)
+     *   fundingYears: The year range as a string (eg: '2016 - 2017')
+     *   importNotes: Import notes (optional)
+     *   receivedDate: The date this import was received ('YYYY-MM-DD')
+     *   type: The type of import ('UPDATE' or 'NEW')
+     * @return array
+     */
+    public static function importProjects(PDO $connection, array $parameters): array {
         try {
             $stmt = PDOBuilder::executePreparedStatement(
                 $connection,
-                'SET NOCOUNT ON;
-                EXECUTE DataUpload_Import
-                    @PartnerCode = :partnerCode,
-                    @fundingYears = :fundingYears,
-                    @importNotes = :importNotes,
-                    @receivedDate = :receivedDate,
-                    @type = :type;',
+                $parameters['type'] === 'NEW'
+                    ? 'SET NOCOUNT ON;
+                        EXECUTE DataUpload_ImportNew
+                            @PartnerCode = :partnerCode,
+                            @fundingYears = :fundingYears,
+                            @importNotes = :importNotes,
+                            @receivedDate = :receivedDate'
+                    : 'SET NOCOUNT ON;
+                        EXECUTE DataUpload_ImportUpdate
+                            @PartnerCode = :partnerCode,
+                            @fundingYears = :fundingYears,
+                            @importNotes = :importNotes,
+                            @receivedDate = :receivedDate',
                 $parameters
             );
 
             self::calculateFundingAmounts($connection);
-            return $stmt->fetch();
+            return $stmt->fetchAll();
         }
 
         catch (PDOException $e) {
             return ['ERROR' => preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage())];
         }
-
-
-        // $conn = self::getConnection();
-        // $stmt = $conn->prepare('
-        //     SET NOCOUNT ON;
-        //     EXECUTE DataUpload_Import
-        //         @PartnerCode = :partnerCode,
-        //         @fundingYears = :fundingYears,
-        //         @importNotes = :importNotes,
-        //         @receivedDate = :receivedDate,
-        //         @type = :type;
-        // ');
-
-        // $stmt->execute([
-        //     'partnerCode' => $partnerCode,
-        //     'fundingYears' => $fundingYears,
-        //     'importNotes' => $importNotes,
-        //     'receivedDate' => $receivedDate,
-        //     'type' => $type,
-        // ]);
-
-        // return $stmt->fetchAll();
     }
 
 
-    private static function calculateFundingAmounts(PDO $pdo) {
+    private static function calculateFundingAmounts(PDO $connection) {
 
-        $statement = $pdo->prepare('
+        $statement = $connection->prepare('
                             INSERT INTO ProjectFundingExt(
                                     ProjectFundingID,
                                     CalendarYear,
                                     CalendarAmount)
                             VALUES(:id, :year, :amount)');
 
-        foreach($pdo->query('
+        foreach($connection->query('
                         SELECT ProjectId,
                             pf.ProjectFundingID,
                             BudgetStartDate,
@@ -376,16 +371,15 @@ class DataUpload {
     }
 
 
-
     /**
      * Creates a temporary table with the specified name and column definitions
      *
-     * @param PDO $pdo The PDO connection object
+     * @param PDO $connection The PDO connection object
      * @param string $name The name of the table
      * @param array $columns The column definitions (an associative array containing names and types)
      * @return void
      */
-    private static function createTable(PDO $pdo, string $name, array $columns): void {
+    private static function createTable(PDO $connection, string $name, array $columns): void {
 
         $columnDefinitions = implode(',', array_map(
             function($key, $value) { return "$key $value"; },
@@ -393,21 +387,22 @@ class DataUpload {
             array_values($columns)
         ));
 
-        $pdo->exec("
+        $connection->exec("
             DROP TABLE IF EXISTS ${name};
             CREATE TABLE ${name} ($columnDefinitions);
         ");
     }
 
+
     /**
      * Creates a prepared statement to be used for inserting values into a table
      *
-     * @param PDO $pdo The PDO connection object
+     * @param PDO $connection The PDO connection object
      * @param string $table The name of the table
      * @param array $columns The columns to use in this statement
      * @return PDOStatement
      */
-    private static function getInsertStmt(PDO $pdo, string $table, array $columns): PDOStatement {
+    private static function getInsertStmt(PDO $connection, string $table, array $columns): PDOStatement {
 
         $tableColumns = implode(',', array_map(
             function($column) { return "[$column]"; },
@@ -418,80 +413,8 @@ class DataUpload {
             array_fill(0, count($columns), '?')
         );
 
-        return $pdo->prepare(
+        return $connection->prepare(
             "INSERT INTO $table ($tableColumns) VALUES $columnPlaceholders"
         );
     }
-
-
-    // /**
-    //  * Generates an excel export for the integrity check results
-    //  *
-    //  * @param array $exportRules A list of validation rule ids
-    //  * @param string $partnerCode The sponsor code for the uploaded projects
-    //  * @return string The path to the generated export file
-    //  */
-    // public static function exportIntegrityCheck(array $exportRules = [], string $partnerCode = ''): string {
-
-    //     $exportsFolder = join(DIRECTORY_SEPARATOR, [self::getModulePath(), 'exports']);
-
-    //     if (!file_exists($exportsFolder)) {
-    //         mkdir($exportsFolder, 0744, true);
-    //     }
-
-    //     $timestamp = date('Ymd_G.i.s');
-    //     $fileName = "Data_Upload_Validation_Results_${timestamp}.xlsx";
-    //     $filePath = join(DIRECTORY_SEPARATOR, [$exportsFolder, $fileName]);
-    //     unlink($filePath);
-
-    //     $writer = WriterFactory::create(Type::XLSX);
-    //     $writer->openToFile($filePath);
-
-    //     $pdo = self::getConnection();
-
-    //     // iterate over each of the export rules
-    //     foreach ($exportRules as $index => $rule) {
-    //         $sheet = $writer->getCurrentSheet();
-
-    //         // do not allow \ / ? * : [ or ] in title
-    //         $title = preg_replace('/[\\\\\/\?\*\[\]]/', '', $rule['name']);
-    //         $sheet->setName(substr($title, 0, 31));
-
-    //         $stmt = $pdo->prepare('
-    //             SET NOCOUNT ON;
-    //             EXECUTE DataUpload_IntegrityCheckDetails
-    //                 @RuleId = :ruleId,
-    //                 @PartnerCode = :partnerCode;
-    //         ');
-
-    //         $stmt->execute([
-    //             'ruleId' => $rule['id'],
-    //             'partnerCode' => $partnerCode,
-    //         ]);
-
-    //         $headers = [];
-    //         foreach(range(0, $stmt->columnCount() - 1) as $i) {
-    //             $meta = $stmt->getColumnMeta($i);
-    //             array_push($headers, $meta['name']);
-    //         }
-
-    //         $writer->addRows([
-    //             [$rule['name']],
-    //             [''],
-    //             $headers,
-    //         ]);
-
-    //         while ($row = $stmt->fetch(PDO::FETCH_NUM)) {
-    //             $writer->addRow($row);
-    //         }
-
-    //         if ($index < count($exportRules) - 1) {
-    //             $writer->addNewSheetAndMakeItCurrent();
-    //         }
-    //     }
-
-    //     $writer->close();
-    //     return $fileName;
-    // }
-
 }

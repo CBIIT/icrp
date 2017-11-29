@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 use Drupal\data_load\Services\ExcelBuilder;
 use Drupal\data_load\Services\PDOBuilder;
+use Drupal\data_load\Services\FileHandler;
 use Drupal\data_load\Services\CollaboratorsManager;
 use Drupal\data_load\Services\InstitutionsManager;
 use Drupal\data_load\Services\DataUpload\MSSQL\DataUpload;
@@ -16,6 +17,12 @@ use Drupal\data_load\Services\DataUpload\MSSQL\DataUpload;
 // use Drupal\data_load\Services\DataUpload\MYSQL\DataUpload;
 
 class DataUploadController extends ControllerBase {
+
+  function __construct() {
+    foreach(['uploads', 'output'] as $folder)
+      if (!file_exists($folder))
+        mkdir($folder, 0744);
+  }
 
   /**
    * Creates a JSON response with CORS headers from the given data
@@ -45,22 +52,31 @@ class DataUploadController extends ControllerBase {
 
   /**
    * Loads data into the tmp table so it can be validated
+   * Expects the following form data keys:
+   *   locale: 'en-us' or 'en-gb'
+   *   file: uploaded file
    *
    * @param Request $request
    * @return JSONResponse
    */
   public static function loadProjects(Request $request): JSONResponse {
-    $parameters = json_decode($request->getContent(), true);
+    $parameters = $request->request->all();
     $connection = PDOBuilder::getConnection('icrp_load_database');
+    $file = $request->files->get('file')->move('uploads', uniqid().'csv');
 
-    // $request->files
-    $data = DataUpload::loadProjects($connection, $parameters, $filePath);
+    $data = DataUpload::loadProjects($connection, $parameters, $file->getRealPath());
     return self::createResponse($data);
   }
 
 
   /**
-   * Retrieves sorted and paginated data from the tmp table
+   * Retrieves sorted and paginated rows from the uploaded workbook
+   * Expects a json object with the followiing schema:
+   * {
+   *   page: The page to retrieve
+   *   sortDirection: 'ASC' or 'DESC'
+   *   sortColumn: The column to sort by
+   * }
    *
    * @param Request $request
    * @return JSONResponse
@@ -76,6 +92,14 @@ class DataUploadController extends ControllerBase {
 
   /**
    * Imports projects from the data_load database
+   * Expects a json object with the following schema:
+   * {
+   *   partnerCode: A partner code (from getSponsorCodes)
+   *   fundingYears: The year range as a string (eg: '2016 - 2017')
+   *   importNotes: Import notes (optional)
+   *   receivedDate: The date this import was received ('YYYY-MM-DD')
+   *   type: The type of import ('UPDATE' or 'NEW')
+   * }
    *
    * @param Request $request
    * @return JsonResponse
@@ -90,12 +114,11 @@ class DataUploadController extends ControllerBase {
 
 
   /**
-   * Gets validation rules for the data import
+   * Retrieves data validation rules for the integrity check
    *
-   * @param Request $request
    * @return JSONResponse
    */
-  public static function getValidationRules(Request $request): JSONResponse {
+  public static function getValidationRules(): JSONResponse {
     $connection = PDOBuilder::getConnection('icrp_load_database');
     $data = DataUpload::getValidationRules($connection);
     return self::createResponse($data);
@@ -103,7 +126,7 @@ class DataUploadController extends ControllerBase {
 
 
   /**
-   * Gets partners from the database
+   * Retrieves partner sponsor codes
    *
    * @return JSONResponse
    */
@@ -115,7 +138,12 @@ class DataUploadController extends ControllerBase {
 
 
   /**
-   * Performs an integrity check for a specific partner
+   * Executes an integrity check for a specific partner
+   * Expects a json object with the following schema:
+   * {
+   *   type: 'UPDATE' or 'NEW'
+   *   partnerCode: a valid sponsor code
+   * }
    *
    * @param Request $request
    * @return JsonResponse
@@ -128,9 +156,13 @@ class DataUploadController extends ControllerBase {
     return self::createResponse($data);
   }
 
-
   /**
-   * Performs an integrity check for a specific rule
+   * Retrieves integrity check details for a specific rule
+   * Expects a json object with the following schema:
+   * {
+   *   ruleId: The rule id (from 'getValidationRules')
+   *   partnerCode: a valid sponsor code
+   * }
    *
    * @param Request $request
    * @return JsonResponse

@@ -59,10 +59,10 @@ importProjects:
     _access: 'TRUE'
     _role: 'admin+manager'
 
-getSponsorCodes:
-  path: '/DataUploadTool/getSponsorCodes'
+getPartners:
+  path: '/DataUploadTool/getPartners'
   defaults:
-    _controller: 'Drupal\data_load\Controller\DataUploadController::getSponsorCodes'
+    _controller: 'Drupal\data_load\Controller\DataUploadController::getPartners'
   requirements:
     _access: 'TRUE'
     _role: 'admin+manager'

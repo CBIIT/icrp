@@ -59,10 +59,10 @@ importProjects:
     _access: 'TRUE'
 
 
-getSponsorCodes:
-  path: '/DataUploadTool/getSponsorCodes'
+getPartners:
+  path: '/DataUploadTool/getPartners'
   defaults:
-    _controller: 'Drupal\data_load\Controller\DataUploadController::getSponsorCodes'
+    _controller: 'Drupal\data_load\Controller\DataUploadController::getPartners'
   requirements:
     _access: 'TRUE'
 
@@ -87,14 +87,6 @@ integrityCheckDetails:
   path: '/DataUploadTool/integrityCheckDetails'
   defaults:
     _controller:  '\Drupal\data_load\Controller\DataUploadController::integrityCheckDetails'
-  requirements:
-    _access: 'TRUE'
-
-
-exportIntegrityCheck:
-  path: '/DataUploadTool/exportIntegrityCheck'
-  defaults:
-    _controller: 'Drupal\data_load\Controller\DataLoadController::exportIntegrityCheck'
   requirements:
     _access: 'TRUE'
 
@@ -139,7 +131,7 @@ api.institutions.import:
 api.getExcelExport:
   path: '/api/getExcelExport/{prefix}'
   defaults:
-    _controller: '\Drupal\data_load\Controller\ImportController::getExcelExport'
+    _controller: '\Drupal\data_load\Controller\ExportController::getExcelExport'
     prefix: 'Data_Export'
   requirements:
     _access: 'TRUE'
