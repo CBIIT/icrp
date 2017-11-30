@@ -1578,13 +1578,6 @@ function icrp_fullcalendar_options_info() {
     "#group" => "revision_information"
   ]
 */
-function icrp_cancel_event_submit($form, &$form_state) {
-  drupal_set_message("Redirect");
-  dpm("Hello");
-  $form_state['redirect'] ='/calendar';
-  $redirect = new RedirectResponse(\Drupal::url('user.page'));
-
-}
 
 function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
     //$request = \Drupal::request();
@@ -1623,6 +1616,23 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
       );
     }    
     switch ($current_form_id) {
+        case 'node_faq_form':
+            unset($form['actions']['preview']); //Remove Preview
+      $form['actions']['return'] = array(
+        '#type' => 'markup',
+        '#markup' => t('<a href="/faq" class="btn btn-link" role="button">Cancel</a>'),
+        '#weight' => 2000,
+        '#limit_validation_errors' => array(),
+      );
+          break;
+        case 'node_faq_edit_form':
+            unset($form['revision_information']); // Remove Revisions section from block edit page
+            unset($form['revision_log']); // Remove Revisions section from block edit page
+            unset($form['revision']); // Remove Revisions section from block edit page
+
+            unset($form['actions']['preview']); //Remove Preview
+
+          break;
         case 'node_events_forms':
             //dump($form_state);
             //dump($form);
@@ -1633,15 +1643,12 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
               unset($form['actions']['delete']);
             }
             */
-            unset($form['revision_information']);                     // Remove Revisions section from block edit page
-            unset($form['revision_log']);                     // Remove Revisions section from block edit page
-            unset($form['revision']);                     // Remove Revisions section from block edit page
+            unset($form['revision_information']); // Remove Revisions section from block edit page
+            unset($form['revision_log']); // Remove Revisions section from block edit page
+            unset($form['revision']); // Remove Revisions section from block edit page
 
-            unset($form['actions']['preview']);  //Remove Preview
+            unset($form['actions']['preview']); //Remove Preview
             $form['title']['widget']['0']['#title'] = "Event Type";     // Set Block Edit heading
-            //Remove Event Type Opgions
-            //if(event_calendar type = "ICRP Meeting")
-            //unset($form['field_event_group']['widget']['#options']['Partner News and Announcements']);
             
             $form['field_calendar_type']['#attributes']['style'] = "display:none;";
             if($form_id == 'node_events_form') {
@@ -1673,9 +1680,9 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
                 } else {
                     $blockTitle = "Edit block [" . $form['info']['widget']['0']['value']['#default_value'] . "]";
                 }
-                unset($form['revision_information']);                     // Remove Revisions section from block edit page
-                unset($form['actions']['delete']);                        // Remove Delete button from block edot page
-                unset($form['info']);                                     // Remove ablity to edit block title
+                unset($form['revision_information']); // Remove Revisions section from block edit page
+                unset($form['actions']['delete']); // Remove Delete button from block edot page
+                unset($form['info']); // Remove ablity to edit block title
 
                 $form['body']['widget']['0']['#title'] = $blockTitle;     // Set Block Edit heading
 /*
@@ -1704,24 +1711,19 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             if(!($user->hasRole('manager') || $user->hasRole('administrator'))) {
               unset($form['actions']['delete']);
             }
-            unset($form['revision_information']);                     // Remove Revisions section from block edit page
-            unset($form['revision_log']);                     // Remove Revisions section from block edit page
-            unset($form['revision']);                     // Remove Revisions section from block edit page
+            unset($form['revision_information']); // Remove Revisions section from block edit page
+            unset($form['revision_log']); // Remove Revisions section from block edit page
+            unset($form['revision']); // Remove Revisions section from block edit page
 
             break;
         case 'node_forum_form':
             $form['actions']['submit']['#value'] = t('Add New Thread');
-            //dpm($form);
             break;
         case 'node_events_delete_form':
             $form['description']['#markup'] = new TranslatableMarkup("Are you sure you want to delete this event?");
-            //dump($form);
             break;
         case 'node_forum_delete_form':
             //node-forum-delete-form
-            //drupal_set_message("Node Forum Delete Form");
-            //$desc = $form['description']['#markup']; //TranslatableMarkup
-            //dump($form);
             $form['description']['#markup'] = new TranslatableMarkup("By deleting this post, you will also delete all replies. Are you sure you want to delete the entire thread?");
             //unset($form['actions']['cancel']);
             break;
@@ -1730,7 +1732,6 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             break;
         case 'comment_comment_forum_form':
             //$form['sticky']['#access'] = true;
-            //dpm($form);
             $form['actions']['submit']['#value'] = t('Post Reply');
             break;
         case 'user_login_form':
