@@ -31,6 +31,10 @@ class Store extends StoreBase {
 
   tablePageSize: number = 25;
 
+  tableSortColumn: string = '';
+
+  tableSortDirection: string = 'ASC';
+
   setTablePage(tablePage: number) {
     this.tablePage = tablePage;
     this.trigger();
@@ -38,6 +42,16 @@ class Store extends StoreBase {
 
   setTablePageSize(tablePageSize: number) {
     this.tablePageSize = tablePageSize;
+    this.trigger();
+  }
+
+  setTableSortColumn(tableSortColumn: string) {
+    this.tableSortColumn = tableSortColumn;
+    this.trigger();
+  }
+
+  setTableSortDirection(tableSortDirection: string) {
+    this.tableSortDirection = tableSortDirection;
     this.trigger();
   }
 
@@ -181,6 +195,16 @@ class Store extends StoreBase {
   @autoSubscribe
   getTablePageSize() {
     return this.tablePageSize;
+  }
+
+  @autoSubscribe
+  getTableSortColumn() {
+    return this.tableSortColumn;
+  }
+
+  @autoSubscribe
+  getTableSortDirection() {
+    return this.tableSortDirection;
   }
 }
 
