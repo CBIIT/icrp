@@ -1,0 +1,52 @@
+th {
+  cursor: pointer;
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.table.table-nowrap > thead > tr > th,
+.table.table-nowrap > tbody > tr > td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+.rotate-45 {
+  transform: rotate(45deg);
+}
+
+
+.rotate-225 {
+  transform: rotate(225deg);
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table-header-sort {
+  margin-left: 5px;
+}
+
+.table-pagination-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 4px;
+}

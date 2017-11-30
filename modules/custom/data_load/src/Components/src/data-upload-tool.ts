@@ -1,12 +1,12 @@
 import { enableProdMode } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 
-import { ImportCollaboratorsModule } from './app/modules/import-collaborators/import-collaborators.module';
+import { DataUploadToolModule } from './app/modules/data-upload-tool/data-upload-tool.module';
 import { environment } from './environments/environment';
 
 if (environment.production) {
   enableProdMode();
 }
 
-platformBrowserDynamic().bootstrapModule(ImportCollaboratorsModule)
+platformBrowserDynamic().bootstrapModule(DataUploadToolModule)
   .catch(err => console.log(err));

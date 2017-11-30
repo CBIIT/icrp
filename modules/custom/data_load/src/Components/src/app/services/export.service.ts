@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { saveAs } from 'file-saver';
-import { Workbook } from 'exceljs';
+import { Workbook } from 'exceljs/dist/es5/exceljs.browser';
 
 export interface Sheet {
   title: string;

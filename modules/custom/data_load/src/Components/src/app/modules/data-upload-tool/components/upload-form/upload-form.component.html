@@ -1,0 +1,189 @@
+<form 
+  [formGroup]="form"
+  class="bordered padded form-group"
+  fxLayout
+  fxLayoutWrap
+  fxLayoutAlign="start center">
+
+  <div
+    class="form-group pl-5 pr-5"
+    fxLayout
+    fxLayoutWrap
+    fxFlex="33%"
+    fxFlex.lt-lg="100%"
+    fxLayoutAlign="space-between center">
+
+    <label 
+      class="control-label"
+      fxFlex="40%"
+      fxFlex.lt-sm="100%">
+      Upload Type
+    </label>
+
+    <div 
+      fxLayout 
+      fxLayoutWrap
+      fxLayoutGap="15px"
+      fxFlex="60%">
+      <label for="uploadTypeNew">
+        <input 
+          type="radio"
+          id="uploadTypeNew"
+          value="NEW"
+          formControlName="uploadType"
+        />
+        New
+      </label>
+
+      <label for="uploadTypeUpdate">
+        <input 
+          type="radio"
+          placeholder="Click to select a date"
+          id="uploadTypeUpdate"
+          value="UPDATE"
+          formControlName="uploadType"
+        />
+        Update
+      </label>
+    </div>
+  </div>
+
+  <div
+    class="form-group pl-5 pr-5"
+    [class.has-error]="form.controls.csvDateFormat.dirty && form.controls.csvDateFormat.invalid"
+    fxLayout
+    fxLayoutWrap
+    fxFlex="33%"
+    fxFlex.lt-lg="100%"
+    fxLayoutAlign="space-between center">
+
+    <label 
+      class="control-label asterisk"
+      fxFlex="40%"
+      fxFlex.lt-sm="100%">
+      Submission Date
+    </label>
+
+    <input type="text"
+      fxFlex="60%"
+      fxFlex.lt-sm="100%"
+      class="form-control input-sm"
+      bsDatepicker
+      placeholder="Select a date"
+      [maxDate]="currentDate"
+      [bsConfig]="{locale: form.controls.csvDateFormat.value}"
+      formControlName="submissionDate"
+      [readonly]="true">
+
+    <div 
+      fxFlex="100%"
+      class="help-block"
+      *ngIf="form.controls.csvDateFormat.dirty 
+        && form.controls.csvDateFormat.errors?.max">
+      This field exceeds the maximum value.
+    </div>
+
+  </div>
+
+  <div
+    class="form-group pl-5 pr-5"
+    fxLayout
+    fxLayoutWrap
+    fxFlex="33%"
+    fxFlex.lt-lg="100%"
+    fxLayoutAlign="space-between center">
+
+    <label 
+      class="control-label asterisk"
+      fxFlex="40%"
+      fxFlex.lt-sm="100%">
+      CSV Date Format
+    </label>
+
+    <select 
+      fxFlex="60%"
+      fxFlex.lt-sm="100%"
+      class="form-control input-sm"
+      formControlName="csvDateFormat">
+      <option 
+        *ngFor="let format of csvDateFormats"
+        [value]="format.value">
+        {{ format.label }}
+      </option>
+    </select>
+  </div>
+
+
+  <div
+    class="form-group pl-5 pr-5"
+    fxLayout
+    fxLayoutWrap
+    fxFlex="33%"
+    fxFlex.lt-lg="100%"
+    fxLayoutAlign="space-between center">
+
+    <label 
+      class="control-label asterisk"
+      fxFlex="40%"
+      fxFlex.lt-sm="100%">
+      Sponsor Code
+    </label>
+
+    <select 
+      fxFlex="60%"
+      fxFlex.lt-sm="100%"
+      class="form-control input-sm"
+      formControlName="sponsorCode">
+      <option [value]="null" hidden>Select a sponsor code</option>
+      <option *ngFor="let sponsorCode of sponsorCodes">
+        {{ sponsorCode }}
+      </option>
+    </select>
+  </div>
+  
+  <div
+    class="form-group pl-5 pr-5"
+    [class.has-error]="form.controls.file.dirty && form.controls.file.invalid"
+    fxLayout
+    fxLayoutWrap
+    fxFlex="33%"
+    fxFlex.lt-lg="100%"
+    fxLayoutAlign="space-between center">
+
+    <label
+      class="control-label asterisk"
+      fxFlex="40%"
+      fxFlex.lt-sm="100%">
+      Workbook File (.csv)
+    </label>
+
+    <input
+      fxFlex="60%"
+      fxFlex.lt-sm="100%"
+      type="file"
+      formControlName="file"
+      accept=".csv">
+  </div>
+  
+  <div
+    class="form-group pl-5 pr-5"
+    fxLayout
+    fxFlex="33%"
+    fxFlex.lt-lg="100%"
+    fxLayoutAlign="end center"
+    fxLayoutAlign.lt-lg="center center"
+    fxLayoutGap="10px">
+    <button 
+      class="btn btn-primary btn-sm" 
+      [disabled]="form.invalid || loadDisabled"
+      (click)="submit()">
+      Load
+    </button>
+    
+    <button 
+      class="btn btn-default btn-sm" 
+      (click)="reset()">
+        Reset
+    </button>
+  </div>
+</form>

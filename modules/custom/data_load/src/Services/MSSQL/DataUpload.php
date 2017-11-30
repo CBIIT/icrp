@@ -2,8 +2,8 @@
 
 namespace Drupal\data_load\Services\MSSQL;
 
-use Drupal\data_load\Controller\Services\FileHandler;
-use Drupal\data_load\Controller\Services\PDOBuilder;
+use Drupal\data_load\Services\FileHandler;
+use Drupal\data_load\Services\PDOBuilder;
 use League\Csv\Reader;
 
 use Exception;
@@ -122,7 +122,7 @@ class DataUpload {
      * @param string $partnerCode The partner code for the upload
      * @return array
      */
-    public function integrityCheckDetails(PDO $connection, array $parameters): array {
+    public static function integrityCheckDetails(PDO $connection, array $parameters): array {
         try {
             return PDOBuilder::executePreparedStatement(
                 $connection,
@@ -154,7 +154,7 @@ class DataUpload {
         $sortDirection = $parameters['sortDirection'] ?? 'ASC';
         $sortColumn = $parameters['sortColumn'] ?? 'InternalId';
 
-        $sortDirectionKeys = ['ASC', 'DESC'];
+        $sortDirectionKeys = ['asc', 'desc'];
         $sortColumnKeys = array_keys(self::WORKBOOK_COLUMNS);
 
         if (!in_array($sortDirection, $sortDirectionKeys)) {
@@ -172,9 +172,13 @@ class DataUpload {
             'pageSize' => $pageSize,
         ];
 
+        $columns = array_keys(self::WORKBOOK_COLUMNS);
+        array_shift($columns);
+        $columnNames = implode(',', $columns);
+
         try {
             return $connection
-                ->query("SELECT * FROM UploadWorkbook
+                ->query("SELECT $columnNames FROM UploadWorkbook
                         ORDER BY $options[sortColumn] $options[sortDirection]
                         OFFSET $options[offset] ROWS FETCH NEXT $options[pageSize] ROWS ONLY")
                 ->fetchAll();
@@ -220,6 +224,10 @@ class DataUpload {
                     ->setHeaderOffset(0);
             }
 
+            if (count($csv->getHeader()) === 42) {
+                throw new Exception('The input file is using an unsupported version of the Partner Data Upload workbook format.');
+            }
+
             // ensure that the file contains 43 header columns
             if (count($csv->getHeader()) !== 43) {
                 throw new Exception('The input file does not contain the expected number of headers.');
@@ -239,13 +247,11 @@ class DataUpload {
                         'budgetstartdate',
                         'budgetenddate',
                     ])) {
-                        if (strtolower($locale) === 'en-gb') {
-                            list($day, $month, $year) = sscanf($value, "%d/%d/%d");
-                        }
-
-                        if (strtolower($locale) === 'en-us') {
+                        if (strtolower($locale) === 'en')
                             list($month, $day, $year) = sscanf($value, "%d/%d/%d");
-                        }
+
+                        else if (strtolower($locale) === 'en-gb')
+                            list($day, $month, $year) = sscanf($value, "%d/%d/%d");
 
                         $value = "$year-$month-$day";
                     }
@@ -299,7 +305,7 @@ class DataUpload {
         try {
             $stmt = PDOBuilder::executePreparedStatement(
                 $connection,
-                $parameters['type'] === 'NEW'
+                strtolower($parameters['type']) === 'new'
                     ? 'SET NOCOUNT ON;
                         EXECUTE DataUpload_ImportNew
                             @PartnerCode = :partnerCode,

@@ -1,0 +1,57 @@
+<div *ngIf="data && data.length > 0" class="table-pagination-container">
+    <div class="pagination">
+      <strong>Show</strong>
+      {{ (page - 1) * pageSize + 1 | number }}
+      -
+      {{ min(count, page * pageSize) | number }}
+      of <strong>{{ count | number }}</strong> records
+    </div>
+  
+    <div>
+      <pagination
+        [boundaryLinks]="true"
+        [totalItems]="count"
+        (pageChanged)="page = $event.page; emit();"
+        [maxSize]="5"
+        [itemsPerPage]="pageSize"
+        class="pagination-sm"
+        previousText="&lsaquo;"
+        nextText="&rsaquo;"
+        firstText="&laquo;"
+        lastText="&raquo;">
+      </pagination>
+    </div>
+  </div>
+  
+  <div class="table-responsive">
+    <table class="table table-striped table-hover table-bordered table-nowrap">
+      <thead class="noselect">
+        <tr>
+          <th *ngFor="let header of _headers"
+            (click)="sort(header.value)">
+            <div class="table-header">
+              <span>{{ header.label }}</span>
+              <span
+                [style.visibility]="header.sortDirection === 'none' ? 'hidden' : 'visible'"
+                class="table-header-sort"
+                [class.rotate-45]="header.sortDirection === 'asc'"
+                [class.rotate-225]="header.sortDirection === 'desc'">
+                &#9700;
+              </span>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of data">
+          <td *ngFor="let header of _headers">
+            <div [title]="row[header.value]">
+              {{ row[header.value] }}
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  
