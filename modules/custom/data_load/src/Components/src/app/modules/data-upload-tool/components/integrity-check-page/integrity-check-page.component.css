@@ -1,0 +1,27 @@
+
+.panel-body {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.panel-body label {
+  display: block;
+  white-space: nowrap;
+}
+
+label.disabled {
+  cursor: not-allowed;
+  color: #bbb;
+  pointer-events: none;
+}
+
+table.two-columns {
+  width: 100%;
+  font-size: 15px;
+}
+
+table.two-columns td,
+table.two-columns th {
+  width: 50%;
+  padding: 5px 10px;
+}

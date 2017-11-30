@@ -171,7 +171,7 @@ table.table-centered-header > tfoot > tr > th {
  */
 
 .panel-heading {
-  padding: 10px 15px;
+  padding: 6px 15px !important;
 }
 
 .panel-heading:hover {
@@ -454,6 +454,10 @@ form[action="/user-account-administration-tool"] > div > div {
 /* Overwrite yeti form */
 .navbar {
   margin-bottom: 10px;
+}
+
+form.form-group {
+	margin-bottom: 15px !important;
 }
 /*
 .main-container > div > div.col-sm-12 {

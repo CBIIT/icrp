@@ -6,7 +6,7 @@
 namespace Drupal\db_export_results\Controller;
 
 require_once 'PHPExcel.php';
-require_once 'spout-2.7.1/src/Spout/Autoloader/autoload.php';
+// require_once 'spout-2.7.1/src/Spout/Autoloader/autoload.php';
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Database;

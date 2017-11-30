@@ -3,7 +3,7 @@ import {
   Tabs,
   Tab,
 } from 'react-bootstrap';
-import UploadFormComponent from './components/UploadFormComponent';
+import UploadForm from './components/UploadForm';
 import NavigationComponent from './components/NavigationComponent';
 import ValidationConfiguratorComponent from './components/ValidationConfiguratorComponent';
 import ValidationSummaryComponent from './components/ValidationSummaryComponent';
@@ -190,7 +190,7 @@ class App extends Component {
         <Tabs activeKey={this.state.tabKey} onSelect={this.handleTabSelect} id="uncontrolled-tabs">
           <Tab eventKey={1} title="Load Workbook">
             <div className="tab-container">
-              <UploadFormComponent
+              <UploadForm
                 onFileUploadSuccess={this.handleFileUpload}
                 onLoadingStart={this.handleLoadingStateChange}
                 onReset={this.reset} />

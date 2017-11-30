@@ -8,11 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.7/yeti/bootstrap.css" />
+  <link rel="stylesheet" href="https://unpkg.com/ngx-bootstrap/datepicker/bs-datepicker.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js"></script>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
-    <icrp-import-collaborators></icrp-import-collaborators>
-    <icrp-import-institutions></icrp-import-institutions>
+    <div class="container">
+      <icrp-data-upload-tool></icrp-data-upload-tool>
+      <icrp-import-collaborators></icrp-import-collaborators>
+      <icrp-import-institutions></icrp-import-institutions>
+    </div>
 </body>
 </html>

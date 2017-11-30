@@ -2,7 +2,7 @@
 
 namespace Drupal\db_export_results\Controller;
 
-require __DIR__ . '/../../vendor/autoload.php';
+// require __DIR__ . '/../../vendor/autoload.php';
 require_once 'PHPExcel.php';
 
 use DateTime;

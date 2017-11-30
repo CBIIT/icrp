@@ -1,11 +1,13 @@
-resources:
-  version: 1.0
+data_upload_tool:
+  version: 1.0.0
   css:
     theme:
-      src/assets/main.css: {}
+      https://unpkg.com/ngx-bootstrap/datepicker/bs-datepicker.css: {}
+      src/assets/data-upload-tool/styles.bundle.css: {}
   js:
-    src/assets/service-worker.js: {}
-    src/assets/main.js: {}
+    src/assets/data-upload-tool/inline.bundle.js: {}
+    src/assets/data-upload-tool/polyfills.bundle.js: {}
+    src/assets/data-upload-tool/main.bundle.js: {}
 
 import_institutions:
   version: 1.0.4

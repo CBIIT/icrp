@@ -1,7 +1,12 @@
 {
     "name": "icrp/data_load",
     "require": {
-        "box/spout": "^2.7",
-        "league/csv": "^9.0"
-    }
+        "league/csv": "^9.1"
+    },
+    "authors": [
+        {
+            "name": "Brian Park",
+            "email": "park-brian@users.noreply.github.com"
+        }
+    ]
 }

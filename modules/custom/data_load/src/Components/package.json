@@ -5,9 +5,11 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "start:data-upload-tool": "ng serve --app data-upload-tool",
     "start:import-collaborators": "ng serve --app import-collaborators",
     "start:import-institutions": "ng serve --app import-institutions",
-    "build": "yarn build:import-institutions && yarn build:import-collaborators",
+    "build": "yarn build:data-upload-tool && yarn build:import-institutions && yarn build:import-collaborators",
+    "build:data-upload-tool": "ng build -prod --app data-upload-tool --progress false --output-hashing none --output-path ../assets/data-upload-tool",
     "build:import-institutions": "ng build -prod --app import-institutions --progress false --output-hashing none --output-path ../assets/import-institutions",
     "build:import-collaborators": "ng build -prod --app import-collaborators --progress false --output-hashing none --output-path ../assets/import-collaborators",
     "test": "ng test",

@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 9.0.0
+* @version 9.1.1
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -130,7 +130,7 @@ class CharsetConverter extends php_user_filter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function onCreate()
     {
@@ -154,7 +154,7 @@ class CharsetConverter extends php_user_filter
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function filter($in, $out, &$consumed, $closing)
     {

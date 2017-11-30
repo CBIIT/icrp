@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 9.0.0
+* @version 9.1.1
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace League\Csv;
 
-use RuntimeException;
 use SeekableIterator;
 use SplFileObject;
 use TypeError;
@@ -93,31 +92,33 @@ class Stream implements SeekableIterator
     protected $escape = '\\';
 
     /**
+     * Tell whether the current stream is seekable;
+     *
+     * @var bool
+     */
+    protected $is_seekable = false;
+
+    /**
      * New instance
      *
      * @param resource $resource stream type resource
-     *
-     * @throws RuntimeException if the argument passed is not a seeakable stream resource
      */
     public function __construct($resource)
     {
         if (!is_resource($resource)) {
-            throw new TypeError(sprintf('Argument passed must be a seekable stream resource, %s given', gettype($resource)));
+            throw new TypeError(sprintf('Argument passed must be a stream resource, %s given', gettype($resource)));
         }
 
         if ('stream' !== ($type = get_resource_type($resource))) {
-            throw new TypeError(sprintf('Argument passed must be a seekable stream resource, %s resource given', $type));
+            throw new TypeError(sprintf('Argument passed must be a stream resource, %s resource given', $type));
         }
 
-        if (!stream_get_meta_data($resource)['seekable']) {
-            throw new Exception('Argument passed must be a seekable stream resource');
-        }
-
+        $this->is_seekable = stream_get_meta_data($resource)['seekable'];
         $this->stream = $resource;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function __destruct()
     {
@@ -127,7 +128,7 @@ class Stream implements SeekableIterator
 
         array_walk_recursive($this->filters, $walker);
 
-        if ($this->should_close_stream) {
+        if ($this->should_close_stream && is_resource($this->stream)) {
             fclose($this->stream);
         }
 
@@ -135,7 +136,7 @@ class Stream implements SeekableIterator
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function __clone()
     {
@@ -143,7 +144,7 @@ class Stream implements SeekableIterator
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function __debugInfo()
     {
@@ -175,7 +176,7 @@ class Stream implements SeekableIterator
         }
 
         if (!$resource = @fopen(...$args)) {
-            throw new Exception(error_get_last()['message']);
+            throw new Exception(sprintf('`%s`: failed to open stream: No such file or directory', $path));
         }
 
         $instance = new static($resource);
@@ -221,7 +222,7 @@ class Stream implements SeekableIterator
             return;
         }
 
-        throw new Exception(error_get_last()['message']);
+        throw new Exception(sprintf('unable to locate filter `%s`', $filtername));
     }
 
     /**
@@ -334,9 +335,14 @@ class Stream implements SeekableIterator
      *
      * @see http://php.net/manual/en/splfileobject.rewind.php
      *
+     * @throws Exception if the stream resource is not seekable
      */
     public function rewind()
     {
+        if (!$this->is_seekable) {
+            throw new Exception('stream does not support seeking');
+        }
+
         rewind($this->stream);
         $this->offset = 0;
         $this->value = false;
@@ -398,7 +404,6 @@ class Stream implements SeekableIterator
      *
      * @see http://php.net/manual/en/splfileobject.seek.php
      *
-     *
      * @param  int       $position
      * @throws Exception if the position is negative
      */
@@ -452,10 +457,16 @@ class Stream implements SeekableIterator
      * @param int $offset
      * @param int $whence
      *
+     * @throws Exception if the stream resource is not seekable
+     *
      * @return int
      */
     public function fseek(int $offset, int $whence = SEEK_SET)
     {
+        if (!$this->is_seekable) {
+            throw new Exception('stream does not support seeking');
+        }
+
         return fseek($this->stream, $offset, $whence);
     }
 

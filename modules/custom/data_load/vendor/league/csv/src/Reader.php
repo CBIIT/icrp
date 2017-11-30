@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 9.0.0
+* @version 9.1.1
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -57,9 +57,17 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     protected $nb_records = -1;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected $stream_filter_mode = STREAM_FILTER_READ;
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function createFromPath(string $path, string $open_mode = 'r', $context = null): AbstractCsv
+    {
+        return new static(Stream::createFromPath($path, $open_mode, $context));
+    }
 
     /**
      * Returns the header offset
@@ -146,7 +154,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function __call($method, array $arguments)
     {
@@ -159,7 +167,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function count(): int
     {
@@ -171,7 +179,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getIterator(): Iterator
     {
@@ -179,7 +187,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function jsonSerialize(): array
     {
@@ -329,7 +337,7 @@ class Reader extends AbstractCsv implements Countable, IteratorAggregate, JsonSe
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function resetProperties()
     {

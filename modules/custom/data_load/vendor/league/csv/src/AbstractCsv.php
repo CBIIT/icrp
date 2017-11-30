@@ -4,7 +4,7 @@
 *
 * @license http://opensource.org/licenses/MIT
 * @link https://github.com/thephpleague/csv/
-* @version 9.0.0
+* @version 9.1.1
 * @package League.csv
 *
 * For the full copyright and license information, please view the LICENSE
@@ -16,7 +16,6 @@ namespace League\Csv;
 
 use Generator;
 use SplFileObject;
-use function League\Csv\bom_match;
 
 /**
  * An abstract class to enable CSV document loading.
@@ -96,7 +95,7 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function __destruct()
     {
@@ -104,7 +103,7 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function __clone()
     {
@@ -253,24 +252,11 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
-     * Retrieves the CSV content
-     *
-     * @return string
-     */
-    public function __toString(): string
-    {
-        $raw = '';
-        foreach ($this->chunk(8192) as $chunk) {
-            $raw .= $chunk;
-        }
-
-        return $raw;
-    }
-
-    /**
      * Retuns the CSV document as a Generator of string chunk
      *
      * @param int $length number of bytes read
+     *
+     * @throws Exception if the number of bytes is lesser than 1
      *
      * @return Generator
      */
@@ -293,6 +279,36 @@ abstract class AbstractCsv implements ByteSequence
     }
 
     /**
+     * DEPRECATION WARNING! This method will be removed in the next major point release
+     *
+     * @deprecated deprecated since version 9.1.0
+     * @see AbstractCsv::getContent
+     *
+     * Retrieves the CSV content
+     *
+     * @return string
+     */
+    public function __toString(): string
+    {
+        return $this->getContent();
+    }
+
+    /**
+     * Retrieves the CSV content
+     *
+     * @return string
+     */
+    public function getContent(): string
+    {
+        $raw = '';
+        foreach ($this->chunk(8192) as $chunk) {
+            $raw .= $chunk;
+        }
+
+        return $raw;
+    }
+
+    /**
      * Outputs all data on the CSV file
      *
      * @param string $filename CSV downloaded name if present adds extra headers
@@ -303,18 +319,49 @@ abstract class AbstractCsv implements ByteSequence
     public function output(string $filename = null): int
     {
         if (null !== $filename) {
-            header('Content-Type: text/csv');
-            header('Content-Transfer-Encoding: binary');
-            header('Content-Description: File Transfer');
-            header('Content-Disposition: attachment; filename="'.rawurlencode($filename).'"');
+            $this->sendHeaders($filename);
         }
-
         $input_bom = $this->getInputBOM();
         $this->document->rewind();
         $this->document->fseek(strlen($input_bom));
         echo $this->output_bom;
 
         return strlen($this->output_bom) + $this->document->fpassthru();
+    }
+
+    /**
+     * Send the CSV headers
+     *
+     * Adapted from Symfony\Component\HttpFoundation\ResponseHeaderBag::makeDisposition
+     *
+     * @param string|null $filename CSV disposition name
+     *
+     * @throws Exception if the submitted header is invalid according to RFC 6266
+     *
+     * @see https://tools.ietf.org/html/rfc6266#section-4.3
+     */
+    protected function sendHeaders(string $filename)
+    {
+        if (strlen($filename) != strcspn($filename, '\\/')) {
+            throw new Exception('The filename cannot contain the "/" and "\\" characters.');
+        }
+
+        $flag = FILTER_FLAG_STRIP_LOW;
+        if (strlen($filename) !== mb_strlen($filename)) {
+            $flag |= FILTER_FLAG_STRIP_HIGH;
+        }
+
+        $filenameFallback = str_replace('%', '', filter_var($filename, FILTER_SANITIZE_STRING, $flag));
+
+        $disposition = sprintf('attachment; filename="%s"', str_replace('"', '\\"', $filenameFallback));
+        if ($filename !== $filenameFallback) {
+            $disposition .= sprintf("; filename*=utf-8''%s", rawurlencode($filename));
+        }
+
+        header('Content-Type: text/csv');
+        header('Content-Transfer-Encoding: binary');
+        header('Content-Description: File Transfer');
+        header('Content-Disposition: '.$disposition);
     }
 
     /**

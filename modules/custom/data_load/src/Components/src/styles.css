@@ -1,15 +1,42 @@
 /** Global css styles */
 
+.asterisk::after {
+  content: '*';
+  color: red;
+}
+
 .bordered {
   border: 1px solid #ddd;
+}
+
+input[readonly] {
+  background-color: white !important;
+}
+
+.inline-block {
+  display: inline-block !important;
 }
 
 .padded {
   padding: 15px;
 }
 
+.pl-5 {
+  padding-left: 5px;
+}
+
+.pr-5 {
+  padding-right: 5px;
+}
+
 .pagination {
   margin: 2px 0;
+}
+
+.tab-content {
+  border: 1px solid #ddd;
+  border-top: none;
+  padding: 15px;
 }
 
 .vertical-margins {
@@ -18,4 +45,12 @@
 
 .has-error table > tbody > tr > td:first-child {
   color: red;
+}
+
+.rotate-45 {
+  transform: rotate(45deg);
+}
+
+.rotate-225 {
+  transform: rotate(225deg);
 }
