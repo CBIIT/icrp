@@ -242,8 +242,6 @@ export class DataGrid extends React.Component<DataGridProps, DataGridState> {
               next
             />
           </div>
-
-          <div style={{marginBottom: '5px'}}>{ this.props.children }</div>
         </div>
 
       </div>
