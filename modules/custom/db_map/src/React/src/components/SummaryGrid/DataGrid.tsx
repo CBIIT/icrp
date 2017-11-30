@@ -72,7 +72,7 @@ export class DataGrid extends React.Component<DataGridProps, DataGridState> {
     const nextSortDirection: string = {
       none: 'asc',
       asc: 'desc',
-      desc: 'none'
+      desc: 'asc'
     }[header.sortDirection || 'none'];
 
     headers.forEach((header: DataGridHeader, index: number) => 
