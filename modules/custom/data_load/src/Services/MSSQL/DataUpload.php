@@ -86,7 +86,8 @@ class DataUpload {
                 IsRequired as isRequired,
                 IsActive as isActive,
                 Type as type
-                FROM lu_DataUploadIntegrityCheckRules')
+                FROM lu_DataUploadIntegrityCheckRules
+                ORDER BY DisplayOrder')
             ->fetchAll();
     }
 
@@ -129,6 +130,7 @@ class DataUpload {
                 'SET NOCOUNT ON;
                 EXECUTE DataUpload_IntegrityCheckDetails
                     @RuleId=:ruleId,
+                    @Type = :type,
                     @PartnerCode=:partnerCode;',
                 $parameters
             )->fetchAll();

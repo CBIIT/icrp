@@ -131,7 +131,8 @@ export class IntegrityCheckPageComponent {
 
     this.dataUpload.integrityCheckDetails({
       partnerCode: this.sharedData.get('sponsorCode'),
-      ruleId: ruleId
+      ruleId: ruleId,
+      type: this.uploadType,
     }).subscribe(response => {
       this.sharedData.merge({loading: false});
       this.details = response;
@@ -139,7 +140,8 @@ export class IntegrityCheckPageComponent {
 
       if (this.details && this.details.length > 0)
         this.detailHeaders = Object.keys(this.details[0]);
-        modal.show();
+
+      modal.show();
     })
   }
 
