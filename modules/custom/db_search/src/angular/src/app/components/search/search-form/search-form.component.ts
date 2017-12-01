@@ -64,7 +64,7 @@ export class SearchFormComponent {
       years: [''],
       include_future_years: [],
 
-      investigator_type: [null],  // 	'All', 'PI', 'Collab'
+      investigator_type: [null],  // 	(null) 'All', 'PI', 'Collab'
       institution: [''],
       pi_first_name: [''],
       pi_last_name: [''],
