@@ -34,7 +34,7 @@ WITH
 )
 GO  
 
-select * from #CountryMapLayer where [Abbreviation] in ('IR')
+--select * from #CountryMapLayer where [Abbreviation] in ('IR')
 --select * from country
 --select * from CountryMapLayer
 --truncate table CountryMapLayer

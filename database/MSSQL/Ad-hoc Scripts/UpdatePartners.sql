@@ -42,8 +42,7 @@ UPDATE Partner SET
 FROM Partner p
 JOIN #Partner u ON p.SponsorCode = u.Sponsor
 
-select * from Partner where SponsorCode='NCRI'
-select * from #Partner where Sponsor='NCRI'  -- -0.106753	51.531633
+select * from Partner where latitude is null
 
---commit
-rollback
+commit
+--rollback
