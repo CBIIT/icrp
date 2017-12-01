@@ -52,7 +52,7 @@
       <ng-container *ngFor="let row of _data; let i = index">
         <tr *ngIf="i >= pageSize * (pageNumber - 1)
           && i < pageSize * pageNumber">
-          <td *ngFor="let header of _headers" [title]="row[header.value]">
+          <td *ngFor="let header of _headers" [title]="row[header.value] || 'No value supplied'">
             {{ row[header.value] }}
           </td>
         </tr>
