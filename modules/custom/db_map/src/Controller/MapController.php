@@ -93,6 +93,12 @@ class MapController extends ControllerBase {
         'library' => [
           'db_map/default'
         ],
+
+        ## https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Render%21HtmlResponseAttachmentsProcessor.php/function/HtmlResponseAttachmentsProcessor%3A%3AprocessAttachments/
+        'http_header' => [
+          ['Cache-Control', 'no-cache, max-age=0, must-revalidate, no-store'],
+          ['custom-header', 'browser-specific-string'],
+        ],
       ],
     ];
   }
