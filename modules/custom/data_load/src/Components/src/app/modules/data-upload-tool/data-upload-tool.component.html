@@ -5,24 +5,52 @@
 
 <tabset #tabs>
   <tab heading="Load Workbook">
-    <data-upload-page></data-upload-page>
+    <data-upload-page
+      (reset)="reset()"
+      #uploadPage>
+    </data-upload-page>
     <div class="text-center">
-      <button class="btn btn-default" [disabled]="!workbookValid" (click)="selectTab(1)">Next</button>
-      <button class="btn btn-default" (click)="cancel()">Cancel</button>
+      <button
+        class="btn btn-default"
+        [disabled]="!workbookValid"
+        (click)="selectTab(1)">
+        Next
+      </button>
+      <button
+        class="btn btn-default"
+        (click)="cancel()">
+        Cancel
+      </button>
     </div>
   </tab>
 
   <tab heading="Data Integrity Check" [disabled]="!workbookValid">
-    <data-integrity-check-page></data-integrity-check-page>
+    <data-integrity-check-page
+      #integrityCheckPage>
+    </data-integrity-check-page>
     <div class="text-center">
-      <button class="btn btn-default" (click)="selectTab(0)">Previous</button>
-      <button class="btn btn-default" [disabled]="!integrityCheckValid" (click)="selectTab(2)">Next</button>
-      <button class="btn btn-default" (click)="cancel()">Cancel</button>
+      <button
+        class="btn btn-default"
+        (click)="selectTab(0)">
+        Previous
+      </button>
+      <button
+        class="btn btn-default"
+        [disabled]="!integrityCheckValid"
+        (click)="selectTab(2)">
+        Next
+      </button>
+      <button
+        class="btn btn-default"
+        (click)="cancel()">
+        Cancel
+      </button>
     </div>
   </tab>
 
-  <tab heading="Import" [disabled]="!integrityCheckValid">
+  <tab heading="Import" [disabled]="!integrityCheckValid" >
     <data-import-page
+      #importPage
       (previous)="selectTab(1)"
       (cancel)="cancel()">
     </data-import-page>

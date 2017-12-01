@@ -1,4 +1,4 @@
-<form 
+<form
   [formGroup]="form"
   class="bordered padded form-group"
   fxLayout
@@ -13,20 +13,20 @@
     fxFlex.lt-lg="100%"
     fxLayoutAlign="space-between center">
 
-    <label 
+    <label
       class="control-label"
       fxFlex="40%"
       fxFlex.lt-sm="100%">
       Upload Type
     </label>
 
-    <div 
-      fxLayout 
+    <div
+      fxLayout
       fxLayoutWrap
       fxLayoutGap="15px"
       fxFlex="60%">
       <label for="uploadTypeNew">
-        <input 
+        <input
           type="radio"
           id="uploadTypeNew"
           value="NEW"
@@ -36,7 +36,7 @@
       </label>
 
       <label for="uploadTypeUpdate">
-        <input 
+        <input
           type="radio"
           placeholder="Click to select a date"
           id="uploadTypeUpdate"
@@ -46,18 +46,26 @@
         Update
       </label>
     </div>
+
+    <div
+      fxFlex="100%"
+      class="help-block"
+      *ngIf="form.controls.submissionDate.dirty
+        && form.controls.submissionDate.errors?.max">
+      &nbsp;
+    </div>
   </div>
 
   <div
     class="form-group pl-5 pr-5"
-    [class.has-error]="form.controls.csvDateFormat.dirty && form.controls.csvDateFormat.invalid"
+    [class.has-error]="form.controls.submissionDate.dirty && form.controls.submissionDate.invalid"
     fxLayout
     fxLayoutWrap
     fxFlex="33%"
     fxFlex.lt-lg="100%"
     fxLayoutAlign="space-between center">
 
-    <label 
+    <label
       class="control-label asterisk"
       fxFlex="40%"
       fxFlex.lt-sm="100%">
@@ -70,18 +78,29 @@
       class="form-control input-sm"
       bsDatepicker
       placeholder="Select a date"
-      [maxDate]="currentDate"
-      [bsConfig]="{locale: form.controls.csvDateFormat.value}"
       formControlName="submissionDate"
+      [bsConfig]="{
+        containerClass: 'theme-dark-blue',
+        showWeekNumbers: false
+      }"
       [readonly]="true">
 
-    <div 
+    <div
       fxFlex="100%"
       class="help-block"
-      *ngIf="form.controls.csvDateFormat.dirty 
-        && form.controls.csvDateFormat.errors?.max">
-      This field exceeds the maximum value.
+      *ngIf="form.controls.submissionDate.dirty
+        && form.controls.submissionDate.errors?.max">
+        Submission Date must be on or before today's date
     </div>
+
+    <div
+      fxFlex="100%"
+      class="help-block"
+      *ngIf="form.controls.submissionDate.dirty
+        && form.controls.submissionDate.errors?.required">
+        Submission Date is required
+    </div>
+
 
   </div>
 
@@ -93,24 +112,34 @@
     fxFlex.lt-lg="100%"
     fxLayoutAlign="space-between center">
 
-    <label 
+    <label
       class="control-label asterisk"
       fxFlex="40%"
       fxFlex.lt-sm="100%">
       CSV Date Format
     </label>
 
-    <select 
+    <select
       fxFlex="60%"
       fxFlex.lt-sm="100%"
       class="form-control input-sm"
       formControlName="csvDateFormat">
-      <option 
+      <option
         *ngFor="let format of csvDateFormats"
         [value]="format.value">
         {{ format.label }}
       </option>
     </select>
+
+
+    <div
+      fxFlex="100%"
+      class="help-block"
+      *ngIf="form.controls.submissionDate.dirty
+        && form.controls.submissionDate.errors?.max">
+      &nbsp;
+    </div>
+
   </div>
 
 
@@ -122,14 +151,14 @@
     fxFlex.lt-lg="100%"
     fxLayoutAlign="space-between center">
 
-    <label 
+    <label
       class="control-label asterisk"
       fxFlex="40%"
       fxFlex.lt-sm="100%">
       Sponsor Code
     </label>
 
-    <select 
+    <select
       fxFlex="60%"
       fxFlex.lt-sm="100%"
       class="form-control input-sm"
@@ -140,7 +169,7 @@
       </option>
     </select>
   </div>
-  
+
   <div
     class="form-group pl-5 pr-5"
     [class.has-error]="form.controls.file.dirty && form.controls.file.invalid"
@@ -164,7 +193,7 @@
       formControlName="file"
       accept=".csv">
   </div>
-  
+
   <div
     class="form-group pl-5 pr-5"
     fxLayout
@@ -173,15 +202,15 @@
     fxLayoutAlign="end center"
     fxLayoutAlign.lt-lg="center center"
     fxLayoutGap="10px">
-    <button 
-      class="btn btn-primary btn-sm" 
+    <button
+      class="btn btn-primary btn-sm"
       [disabled]="form.invalid || loadDisabled"
       (click)="submit()">
       Load
     </button>
-    
-    <button 
-      class="btn btn-default btn-sm" 
+
+    <button
+      class="btn btn-default btn-sm"
       (click)="reset()">
         Reset
     </button>

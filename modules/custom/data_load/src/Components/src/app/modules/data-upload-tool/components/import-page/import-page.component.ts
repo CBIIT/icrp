@@ -11,7 +11,7 @@ import { DataUploadService } from '../../../../services/data-upload.service';
 export class ImportPageComponent {
 
   alerts: {type: string, message: string}[] = [];
-  
+
   form: FormGroup;
 
   @Output() previous: EventEmitter<any> = new EventEmitter();
@@ -35,7 +35,7 @@ export class ImportPageComponent {
 
     fundingYearEnd.valueChanges.subscribe(value => {
       fundingYearStart.setValidators([
-        Validators.required, 
+        Validators.required,
         Validators.max(value)
       ]);
 
@@ -43,25 +43,31 @@ export class ImportPageComponent {
     });
  }
 
+ reset() {
+   this.form.reset({
+     fundingYearStart: 2016,
+     fundingYearEnd: 2016,
+   });
+ }
+
  submit() {
 
   this.alerts = [];
-  
+
   let {
-    fundingYearStart, 
-    fundingYearEnd, 
+    fundingYearStart,
+    fundingYearEnd,
     importNotes
   } = this.form.controls;
 
-
   this.sharedData.merge({
     loading: true
-  });  
+  });
 
   this.dataUpload.importProjects({
     type: this.sharedData.get('uploadType'),
     fundingYears: [
-      fundingYearStart.value, 
+      fundingYearStart.value,
       fundingYearEnd.value,
     ].join('-'),
     importNotes: importNotes.value,
@@ -73,7 +79,7 @@ export class ImportPageComponent {
         type: 'success',
         message: 'The following records have been successfully imported to staging. Please use the <a href="/data-upload-review">Data Review Tool</a> to review the imported data.',
       });
-      
+
       this.sharedData.merge({
         loading: false,
       })
@@ -91,13 +97,5 @@ export class ImportPageComponent {
       });
     }
   )
-
-   
  }
-
- 
-
-
-
-
 }

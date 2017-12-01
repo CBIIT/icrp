@@ -7,7 +7,7 @@ import { DataUploadService } from '../../../../services/data-upload.service';
 
 import { defineLocale } from 'ngx-bootstrap/bs-moment';
 import { enGb } from 'ngx-bootstrap/locale';
-defineLocale('en-GB', enGb); 
+defineLocale('en-GB', enGb);
 
 @Component({
   selector: 'data-upload-form',
@@ -19,11 +19,11 @@ export class UploadFormComponent {
   @Output() onSubmit: EventEmitter<any> = new EventEmitter();
 
   @Output() onReset: EventEmitter<any> = new EventEmitter();
-  
+
   form: FormGroup;
-  
+
   currentDate: Date = new Date();
-  
+
   csvDateFormats = [
     {value: 'en', label: 'United States (mm/dd/yyyy)'},
     {value: 'en-GB', label: 'United Kingdom (dd/mm/yyyy)'},
@@ -32,7 +32,7 @@ export class UploadFormComponent {
   sponsorCodes = [];
 
   loadDisabled: boolean = false;
-  
+
   constructor(
     private formBuilder: FormBuilder,
     private dataUpload: DataUploadService) {
@@ -40,12 +40,12 @@ export class UploadFormComponent {
       uploadType: ['NEW'],
       submissionDate: [null, [
         Validators.required,
-        DateValidators.max(this.currentDate)
+        DateValidators.max(new Date())
       ]],
       csvDateFormat: ['en'],
       sponsorCode: [null, Validators.required],
       file: [null, [
-        FileValidators.required, 
+        FileValidators.required,
         FileValidators.pattern(/csv$/),
       ]],
     });
@@ -62,8 +62,11 @@ export class UploadFormComponent {
 
   reset() {
     this.form.enable();
+
+    this.form.controls.submissionDate.patchValue(null);
+
     this.form.reset({
-      uploadType: 'NEW', 
+      uploadType: 'NEW',
       csvDateFormat: 'en'
     });
 

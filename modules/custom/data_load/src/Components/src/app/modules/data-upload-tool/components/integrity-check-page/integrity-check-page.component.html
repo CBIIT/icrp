@@ -17,27 +17,28 @@
       fxLayoutWrap
       fxLayoutAlign="space-between stretch"
       fxLayoutGap="10px">
-    
+
       <div
-        class="panel"
+        fxLayout
+        fxLayoutWrap
+        [ngClass.lt-md]="['panel', 'no-border']"
         fxFlex="calc(25% - 10px)"
         fxFlex.lt-lg="calc(50% - 10px)"
         fxFlex.lt-md="100%"
-        fxLayout="column"
         fxLayoutAlign="space-between stretch">
 
-        <div class="panel panel-default">
+        <div fxFlex="100%" class="panel panel-default">
           <div class="panel-heading">General</div>
           <div class="panel-body">
             <ng-container *ngFor="let rule of validationRules">
-              <div 
+              <div
                 class="checkbox"
                 *ngIf="rule.category === 'General'">
               <label [class.disabled]="rule.isRequired === 1">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     [name]="rule.id"
-                    [value]="rule.id" 
+                    [value]="rule.id"
                     [title]="rule.name"
                     [formControlName]="rule.id"
                     >
@@ -48,18 +49,18 @@
           </div>
         </div>
 
-        <div class="panel panel-default">
+        <div fxFlex="100%" class="panel panel-default">
           <div class="panel-heading">Organization</div>
           <div class="panel-body">
             <ng-container *ngFor="let rule of validationRules">
-              <div 
+              <div
                 class="checkbox"
                 *ngIf="rule.category === 'Organization'">
                 <label [class.disabled]="rule.isRequired === 1">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     [name]="rule.id"
-                    [value]="rule.id" 
+                    [value]="rule.id"
                     [title]="rule.name"
                     [formControlName]="rule.id"
                     >
@@ -71,7 +72,7 @@
         </div>
       </div>
 
-      <div 
+      <div
         fxFlex="calc(25% - 10px)"
         fxFlex.lt-lg="calc(50% - 10px)"
         fxFlex.lt-md="100%"
@@ -79,14 +80,14 @@
         <div class="panel-heading">Award</div>
         <div class="panel-body">
           <ng-container *ngFor="let rule of validationRules">
-            <div 
+            <div
               class="checkbox"
               *ngIf="rule.category === 'Award'">
               <label [class.disabled]="rule.isRequired === 1">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   [name]="rule.id"
-                  [value]="rule.id" 
+                  [value]="rule.id"
                   [title]="rule.name"
                   [formControlName]="rule.id">
                 {{ rule.name }}
@@ -97,7 +98,7 @@
       </div>
 
 
-      <div 
+      <div
         fxFlex="calc(25% - 10px)"
         fxFlex.lt-lg="calc(50% - 10px)"
         fxFlex.lt-md="100%"
@@ -105,14 +106,14 @@
         <div class="panel-heading">Cancer Type</div>
         <div class="panel-body">
           <ng-container *ngFor="let rule of validationRules">
-            <div 
+            <div
               class="checkbox"
               *ngIf="rule.category === 'Cancer Type'">
               <label [class.disabled]="rule.isRequired === 1">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   [name]="rule.id"
-                  [value]="rule.id" 
+                  [value]="rule.id"
                   [title]="rule.name"
                   [formControlName]="rule.id"
                   >
@@ -132,14 +133,14 @@
         <div class="panel-heading">CSO</div>
         <div class="panel-body">
           <ng-container *ngFor="let rule of validationRules">
-            <div 
+            <div
               class="checkbox"
               *ngIf="rule.category === 'CSO'">
               <label [class.disabled]="rule.isRequired === 1">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   [name]="rule.id"
-                  [value]="rule.id" 
+                  [value]="rule.id"
                   [title]="rule.name"
                   [formControlName]="rule.id"
                   >
@@ -155,7 +156,7 @@
     </form>
 
     <div class="text-center form-group">
-      <button 
+      <button
         class="btn btn-default"
         (click)="submit()">
         Perform Check
@@ -163,7 +164,7 @@
     </div>
   </accordion-group>
 
-  <accordion-group 
+  <accordion-group
     [(isOpen)]="showSummary"
     [isDisabled]="summary?.length === 0">
 
@@ -185,7 +186,7 @@
     </table>
   </accordion-group>
 
-  <accordion-group 
+  <accordion-group
     [(isOpen)]="showResults"
     [isDisabled]="results?.length === 0">
     <div accordion-heading>
@@ -207,26 +208,26 @@
             Pass
           </span>
 
-          <a 
-            href="#" 
-            class="text-danger" 
+          <a
+            href="#"
+            class="text-danger"
             *ngIf="row.Count > 0"
             (click)="getIntegrityCheckDetails(row.ID, row.Description, staticModal)"
             >
             <u>{{ row.Count }} Failed</u>
           </a>
 
-          <button 
-            *ngIf="i === 0 && !integrityCheckValid" 
-            class="btn btn-default" 
+          <button
+            *ngIf="i === 0 && !integrityCheckValid"
+            class="btn btn-default"
             style="position: absolute; right: 5px; top: 5px;"
             (click)="export()">
             Export Error Records
           </button>
-          
+
         </td>
       </tr>
-    </table>    
+    </table>
   </accordion-group>
 </accordion>
 

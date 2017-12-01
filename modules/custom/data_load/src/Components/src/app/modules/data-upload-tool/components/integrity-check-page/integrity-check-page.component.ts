@@ -19,6 +19,8 @@ export class IntegrityCheckPageComponent {
 
   validationRules: any[] = [];
 
+  _validationRules: any[] = [];
+
   showRules: boolean = true;
 
   showSummary: boolean = false;
@@ -37,6 +39,9 @@ export class IntegrityCheckPageComponent {
 
   integrityCheckValid: boolean = false;
 
+  uploadType: string;
+
+
   // @ViewChild('template')
   // templateRef: TemplateRef<any>;
 
@@ -49,25 +54,35 @@ export class IntegrityCheckPageComponent {
     private modalService: BsModalService,
     private exportService: ExportService
   ) {
-
     this.form = this.formBuilder.group({});
+    this.sharedData.events.subscribe(data => {
+      this.uploadType = data.uploadType || 'New';
+      this.updateValidationRules();
+    });
 
-    const uploadType = this.sharedData.get('uploadType') || 'New';
+    this.dataUpload.getValidationRules()
+      .subscribe(response => this._validationRules = response)
+  }
 
-    dataUpload.getValidationRules()
-      .subscribe(response => {
-        let rules = response
-          .filter(rule => rule.isActive === 1)
-          .filter(rule => ['BOTH', uploadType.toUpperCase()].includes(rule.type.toUpperCase()))
+  updateValidationRules() {
+    let rules = this._validationRules
+      .filter(rule => rule.isActive === 1)
+      .filter(rule => ['BOTH', this.uploadType.toUpperCase()].includes(rule.type.toUpperCase()))
 
-        this.validationRules = rules;
-        this.form = this.formBuilder.group(
-          rules.reduce((prev, curr) => ({
-            ...prev,
-            [curr.id]: {value: true, disabled: curr.isRequired === 1},
-          }), {})         
-        );
-      });
+    this.validationRules = rules;
+    this.form = this.formBuilder.group(
+      rules.reduce((prev, curr) => ({
+        ...prev,
+        [curr.id]: {value: true, disabled: curr.isRequired === 1},
+      }), {})
+    );
+  }
+
+  reset() {
+    this.summary = [];
+    this.results = [];
+    this.showSummary = false;
+    this.showResults = false;
   }
 
   submit() {
@@ -110,6 +125,10 @@ export class IntegrityCheckPageComponent {
 
   getIntegrityCheckDetails(ruleId: number, description: string, modal: any) {
     this.sharedData.merge({loading: true});
+
+    this.details = [];
+    this.detailHeaders = [];
+
     this.dataUpload.integrityCheckDetails({
       partnerCode: this.sharedData.get('sponsorCode'),
       ruleId: ruleId
@@ -132,13 +151,13 @@ export class IntegrityCheckPageComponent {
 
     const flattenRows = rows => {
       if (rows.length === 0) {
-        return [[]];
+        return [''];
       }
 
       const keys = Object.keys(rows[0]);
       return [
         keys,
-        ...rows.map(row => 
+        ...rows.map(row =>
           keys.map(key => row[key]))
       ];
     }

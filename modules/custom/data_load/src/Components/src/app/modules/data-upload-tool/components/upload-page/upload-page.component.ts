@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { DataUploadService } from '../../../../services/data-upload.service';
 import { SharedDataService } from '../../../../services/shared-data.service';
 import { Observable } from 'rxjs/Observable';
@@ -15,6 +15,8 @@ export class UploadPageComponent {
     private sharedData: SharedDataService
   ) {}
 
+  @Output() reset: EventEmitter<any> = new EventEmitter();
+
   alerts: {type: string, message: string}[] = [];
   loading: boolean = false;
   nextEnabled: boolean = false;
@@ -23,7 +25,6 @@ export class UploadPageComponent {
   headers: any[] = [];
 
   onSubmit(event) {
-    console.log(event);
     this.sharedData.merge({
       loading: true,
       workbookValid: false,
@@ -38,7 +39,7 @@ export class UploadPageComponent {
 
     this.alerts = [];
     this.nextEnabled = false;
-    
+
     this.dataUpload.loadProjects({
       file: event.file[0],
       locale: event.csvDateFormat,
@@ -63,9 +64,7 @@ export class UploadPageComponent {
           message: error,
         });
 
-        this.sharedData.merge({
-          loading: false
-        });
+        this.sharedData.set('loading', false);
       }
     )
   }
@@ -84,5 +83,6 @@ export class UploadPageComponent {
     this.projects = [];
     this.count = 0;
     this.sharedData.clear();
+    this.reset.emit();
   }
 }
