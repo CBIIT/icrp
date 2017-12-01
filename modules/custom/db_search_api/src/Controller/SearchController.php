@@ -43,6 +43,7 @@ class SearchController extends ControllerBase {
     'search_type'                => NULL,
     'years'                      => NULL,
     'institution'                => NULL,
+    'investigator_type'          => NULL,
     'pi_first_name'              => NULL,
     'pi_last_name'               => NULL,
     'pi_orcid'                   => NULL,

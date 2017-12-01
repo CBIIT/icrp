@@ -23,3 +23,30 @@ label {
 .vertical-spacer {
   margin: 15px 0;
 }
+
+@media(min-width: 1201px) {
+  .inline-controls {
+    flex-direction: row;
+    display: flex;
+    align-items: center;
+  }
+
+  .inline-controls > label {
+    margin: 5px 15px 5px 0px;
+    white-space: nowrap;
+    overflow: visible;
+  }
+}
+
+@media(max-width: 1200px) {
+  .inline-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .inline-controls > label {
+    margin: 5px 0;
+  }
+  
+}

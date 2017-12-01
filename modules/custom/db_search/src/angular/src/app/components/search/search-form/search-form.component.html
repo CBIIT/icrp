@@ -137,6 +137,59 @@
 
   <!-- Institutions and Investigators -->
   <ui-panel title="Institutions and Investigators">
+
+    <div class="form-group inline-controls">
+      <label
+        class="radio-label"
+        for="investigator_type_all"
+        placement="top"
+        tooltip="PIs and Collaborators">
+        <input
+          class="radio-input"
+          type="radio"
+          id="investigator_type_all"
+          name="investigator_type"
+          [value]="null"
+          [formControl]="form.controls.investigator_type"
+          (change)="updateDisplayParameters('investigator_type', ['All'])">
+        All
+      </label>
+
+      <label
+        class="radio-label"
+        for="investigator_type_pi"
+        placement="top"
+        tooltip="PIs only">
+        <input
+          class="radio-input"
+          type="radio"
+          id="investigator_type_pi"
+          name="investigator_type"
+          value="PI"
+          [formControl]="form.controls.investigator_type"
+          (change)="updateDisplayParameters('investigator_type', ['PI'])">
+        PIs only
+      </label>
+
+      <label
+        class="radio-label"
+        for="investigator_type_collaborators"
+        placement="top"
+        tooltip="Collaborators only">
+        <input
+          class="radio-input"
+          type="radio"
+          id="investigator_type_collaborators"
+          name="investigator_type"
+          value="Collab"
+          [formControl]="form.controls.investigator_type"
+          (change)="updateDisplayParameters('investigator_type', ['Collab'])">
+        Collaborators only
+      </label>
+    </div>
+
+
+
     <label class="form-label" for="institution" tooltip="Full or partial institution name">Institution Name</label>
     <input #institution
       class="text input"
@@ -145,18 +198,17 @@
       placeholder="Full or partial name"
       tooltip="Full or partial institution name"
       [formControl]="form.controls.institution"
-      (change)="updateDisplayParameters('institution', [institution.value])"
-      >
+      (change)="updateDisplayParameters('institution', [institution.value])">
 
-    <label class="form-label" for="pi_first_name" tooltip="Full or partial name of the principal investigator">Principal Investigator</label>
+    <label class="form-label" for="pi_first_name" tooltip="Full or partial name of the PI or collaborator">PI or Collaborator</label>
     <div class="row">
       <div class="col-md-6">
         <input #pifirstname
           class="text input"
           type="text"
           id="pi_first_name"
-          placeholder="First name or initial"
-          tooltip="Full or partial first name of the principal investigator"
+          placeholder="First name"
+          tooltip="Full or partial first name of the PI or collaborator"
           [formControl]="form.controls.pi_first_name"
           (change)="updateDisplayParameters('pi_first_name', [pifirstname.value])"
           >
@@ -168,7 +220,7 @@
           type="text"
           id="pi_last_name"
           placeholder="Last name"
-          tooltip="Full or partial last name of the principal investigator"
+          tooltip="Full or partial last name of the PI or collaborator"
           [formControl]="form.controls.pi_last_name"
           (change)="updateDisplayParameters('pi_last_name', [pilastname.value])"
           >
