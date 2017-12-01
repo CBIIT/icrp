@@ -38,7 +38,7 @@ export class DataGrid extends React.Component<DataGridProps, DataGridState> {
 
   componentWillReceiveProps(props: DataGridProps) {
     if (props.headers) {
-      const _headers = props.headers.map(header => 
+      const _headers = props.headers.map(header =>
         typeof header === "string" ? {
           value: header,
           label: header,
@@ -46,7 +46,7 @@ export class DataGrid extends React.Component<DataGridProps, DataGridState> {
           sortDirection: 'none'
         } : header
       );
-      
+
       this.setState({_headers})
     }
 
@@ -75,8 +75,8 @@ export class DataGrid extends React.Component<DataGridProps, DataGridState> {
       desc: 'asc'
     }[header.sortDirection || 'none'];
 
-    headers.forEach((header: DataGridHeader, index: number) => 
-      header.sortDirection = index === headerIndex 
+    headers.forEach((header: DataGridHeader, index: number) =>
+      header.sortDirection = index === headerIndex
         ? nextSortDirection : 'none');
 
     if (header.sortDirection === 'none') {
@@ -96,7 +96,7 @@ export class DataGrid extends React.Component<DataGridProps, DataGridState> {
             return isNaN(a) || isNaN(b)
               ? a.localeCompare(b)
               : +a - +b;
-  
+
           case 'desc':
             return isNaN(a) || isNaN(b)
               ? b.localeCompare(a)
@@ -169,7 +169,7 @@ export class DataGrid extends React.Component<DataGridProps, DataGridState> {
         <table className="table table-striped table-hover table-nowrap">
           <thead>
             <tr>
-            {_headers.map((header: DataGridHeader, index: number) => 
+            {_headers.map((header: DataGridHeader, index: number) =>
               <th key={header.value}>
                   <OverlayTrigger placement="top" overlay={
                     <Tooltip id={header.value}>
@@ -187,18 +187,18 @@ export class DataGrid extends React.Component<DataGridProps, DataGridState> {
                     }}>
                       &#9700;
                     </span>
-                    
+
                   </div>
                 </OverlayTrigger>
               </th>)}
             </tr>
           </thead>
-          
+
           <tbody>
-            {_data.map((row: any[], rowIndex: number) => 
+            {_data.map((row: any[], rowIndex: number) =>
               (!(rowIndex >= (_page - 1) * _pageSize && rowIndex < _page * _pageSize) ? null :
               <tr key={rowIndex}>
-                {_headers.map((header: DataGridHeader, columnIndex: number) => 
+                {_headers.map((header: DataGridHeader, columnIndex: number) =>
                   <td key={`${rowIndex}_${columnIndex}`}>
                     <span
                       className={header.callback ? 'callback-link' : ''}
@@ -232,7 +232,7 @@ export class DataGrid extends React.Component<DataGridProps, DataGridState> {
 
             <Pagination
               bsSize="small"
-              items={_data.length}
+              items={Math.ceil(_data.length/_pageSize)}
               activePage={_page}
               onSelect={(page: any) => this.setPage(page as number)}
               boundaryLinks={true}
@@ -242,8 +242,8 @@ export class DataGrid extends React.Component<DataGridProps, DataGridState> {
               next
             />
           </div>
-        </div>
 
+        </div>
       </div>
     );
   }
