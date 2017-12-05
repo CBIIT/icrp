@@ -12,14 +12,14 @@ class InstitutionsManager {
     $pdo->exec("
       DROP TABLE IF EXISTS tmp_LoadInstitutions;
       CREATE TABLE tmp_LoadInstitutions (
-        Id            INT IDENTITY (1,1),
+        ID            INT IDENTITY (1,1),
         Name          VARCHAR(250),
         City          VARCHAR(50),
         State         VARCHAR(50),
         Country       VARCHAR(3),
         Postal        VARCHAR(50),
-        Longitude     DECIMAL(9, 6),
         Latitude      DECIMAL(9, 6),
+        Longitude     DECIMAL(9, 6),
         GRID          VARCHAR(250)
       );
     ");
