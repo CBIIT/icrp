@@ -89,7 +89,6 @@ export class FundingOrganizationFormComponent {
 
       for (let key in controls) {
         if (!['operationType', 'partner'].includes(key)) {
-          console.log('should operate on', value, key)
           value == null
             ? controls[key].disable({emitEvent: false})
             : controls[key].enable({emitEvent: false})
