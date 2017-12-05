@@ -30,7 +30,7 @@ class InstitutionsManager {
     try {
       self::initializeTable($pdo);
       $stmt = $pdo->prepare(
-        "INSERT INTO tmp_LoadInstitutions ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID])
+        "INSERT INTO tmp_LoadInstitutions ([Name], [City], [State], [Country], [Postal], [Latitude], [Longitude], [GRID])
           VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
       foreach($institutions as $institution) {
