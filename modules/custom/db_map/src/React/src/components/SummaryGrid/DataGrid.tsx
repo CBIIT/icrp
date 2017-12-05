@@ -131,6 +131,16 @@ export class DataGrid extends React.Component<DataGridProps, DataGridState> {
 
     return (
       <div className="table-responsive">
+      {
+        _data.length <= _pageSize ?
+        <div className="margin-top pagination-container">
+          <span>
+            {`Showing `}
+            <b>{_data && _data.length}</b>
+            {` entries`}
+          </span>
+          <div style={{marginBottom: '5px'}}>{ this.props.children }</div>
+        </div> :
         <div className="margin-top pagination-container">
           <div className="pagination-select-container">
             <div style={{marginRight: '100px'}}>
@@ -165,6 +175,7 @@ export class DataGrid extends React.Component<DataGridProps, DataGridState> {
 
           <div style={{marginBottom: '5px'}}>{ this.props.children }</div>
         </div>
+      }
 
         <table className="table table-striped table-hover table-nowrap">
           <thead>
@@ -211,39 +222,43 @@ export class DataGrid extends React.Component<DataGridProps, DataGridState> {
             ))}
           </tbody>
         </table>
-        <div className="margin-top pagination-container">
-          <div className="pagination-select-container">
-            <div style={{marginRight: '100px'}}>
-              {'Show '}
-              <select value={_pageSize} onChange={event => this.setPageSize(+event.target.value)}>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-                <option value={150}>150</option>
-                <option value={200}>200</option>
-                <option value={250}>250</option>
-                <option value={300}>300</option>
-              </select>
+        {
+          _data.length > _pageSize &&
+          <div className="margin-top pagination-container">
+            <div className="pagination-select-container">
+              <div style={{marginRight: '100px'}}>
+                {'Show '}
+                <select value={_pageSize} onChange={event => this.setPageSize(+event.target.value)}>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                  <option value={150}>150</option>
+                  <option value={200}>200</option>
+                  <option value={250}>250</option>
+                  <option value={300}>300</option>
+                </select>
 
-              {` out of `}
-              <b>{_data && _data.length}</b>
-              {` entries`}
+                {` out of `}
+                <b>{_data && _data.length}</b>
+                {` entries`}
+              </div>
+
+              <Pagination
+                bsSize="small"
+                items={Math.ceil(_data.length/_pageSize)}
+                activePage={_page}
+                onSelect={(page: any) => this.setPage(page as number)}
+                boundaryLinks={true}
+                ellipsis={true}
+                maxButtons={5}
+                prev
+                next
+              />
             </div>
 
-            <Pagination
-              bsSize="small"
-              items={Math.ceil(_data.length/_pageSize)}
-              activePage={_page}
-              onSelect={(page: any) => this.setPage(page as number)}
-              boundaryLinks={true}
-              ellipsis={true}
-              maxButtons={5}
-              prev
-              next
-            />
           </div>
+        }
 
-        </div>
       </div>
     );
   }
