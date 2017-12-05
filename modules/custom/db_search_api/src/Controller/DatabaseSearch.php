@@ -411,7 +411,7 @@ class DatabaseSearch {
         $results[] = [
           'project_id'            => $row['ProjectID'],
           'project_title'         => $row['Title'],
-          'pi_name'               => "$row[piLastName], $row[piFirstName]",
+          'pi_name'               => implode(', ', array_filter([$row['piLastName'], $row['piFirstName']])),
           'institution'           => $row['institution'],
           'country'               => $row['country'],
           'funding_organization'  => $row['FundingOrgShort'],
@@ -462,7 +462,7 @@ class DatabaseSearch {
         array_push($results, [
           'project_id'            => $row['ProjectID'],
           'project_title'         => $row['Title'],
-          'pi_name'               => "$row[piLastName], $row[piFirstName]",
+          'pi_name'               => implode(', ', array_filter([$row['piLastName'], $row['piFirstName']])),
           'institution'           => $row['institution'],
           'country'               => $row['country'],
           'funding_organization'  => $row['FundingOrgShort'],
