@@ -82,9 +82,19 @@ export class FundingOrganizationFormComponent {
 
       controls.name.updateValueAndValidity();
       controls.id.updateValueAndValidity();
+      controls.partner.updateValueAndValidity();
     });
 
     controls.partner.valueChanges.subscribe(value => {
+
+      for (let key in controls) {
+        if (!['operationType', 'partner'].includes(key)) {
+          console.log('should operate on', value, key)
+          value == null
+            ? controls[key].disable({emitEvent: false})
+            : controls[key].enable({emitEvent: false})
+        }
+      }
 
       if (controls.operationType.value === 'Add'
         && controls.memberType.value === 'Partner') {
@@ -110,7 +120,7 @@ export class FundingOrganizationFormComponent {
         //   .filter(organization => +organization.partner_id == +value) || [];
 
         // if (organizations.length > 0) {
-        //   controls.id.patchValue(organizations[0].funding_organization_id);          
+        //   controls.id.patchValue(organizations[0].funding_organization_id);
         // }
       }
     });
@@ -158,6 +168,8 @@ export class FundingOrganizationFormComponent {
         }, {emitEvent: false});
       }
     })
+
+    controls.partner.updateValueAndValidity();
 
     return formGroup;
   }
