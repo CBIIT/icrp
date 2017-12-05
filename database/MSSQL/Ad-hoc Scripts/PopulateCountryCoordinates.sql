@@ -34,6 +34,11 @@ UPDATE Country SET [Latitude] = cc.[Latitude], [Longitude]= cc.[Longitude]
 FROM Country c
 JOIN #CountryCoordinates cc ON cc.Country = c.Abbreviation
 
+-- testing
+select * FROM (select distinct country from Institution) i
+JOIN Country c ON i.Country = c.Abbreviation
+WHERE c.Latitude is null or c.Longitude is null
+
 
 --select * from #CountryCoordinates where country = 'us'
 --select * from country where [Longitude] is null

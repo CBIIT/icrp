@@ -31,7 +31,7 @@ BULK INSERT #InstitutionCoordinates
 FROM 'C:\ICRP\database\DataImport\CurrentRelease\Coordinates\ICRPInstitutionCoordinates.csv'
 WITH
 (
-	FIRSTROW = 3,
+	FIRSTROW = 2,
 	DATAFILETYPE ='widechar',  -- unicode format
 	FIELDTERMINATOR = '|',
 	ROWTERMINATOR = '\n'
@@ -41,7 +41,15 @@ GO
 -- remove empty rows
 delete #InstitutionCoordinates where name is null
 
---select * from #InstitutionCoordinates where name like 'Roslin%'
+select * from #InstitutionCoordinates
+
+update Institution set city ='Montréal' where city='Montreal'
+update Institution set city ='Québec' where city='Quebec'
+update Institution set city ='Zürich' where city='Zurich'
+update Institution set city ='Pierre-Bénite' where city='Pierre-Benite'
+update Institution set city ='Umeå' where city='Umea'
+update Institution set city ='Münster' where city='Munster'
+
 --select * from institution where name like 'Roslin%'
 --Board of Trustees of University of  Illi
 --Board of Trustees of University of Illi
@@ -151,7 +159,7 @@ BULK INSERT lu_InstitutionCoordsTmp
 FROM 'C:\ICRP\database\DataImport\CurrentRelease\Institutions\Inst_grid_coords.csv'
 WITH
 (
-	FIRSTROW = 3,
+	FIRSTROW = 2,
 	DATAFILETYPE ='widechar',  -- unicode format
 	FIELDTERMINATOR = '|',
 	ROWTERMINATOR = '\n'
@@ -190,7 +198,7 @@ BULK INSERT lu_InstitutionLocationTmp
 FROM 'C:\ICRP\database\DataImport\CurrentRelease\Institutions\Inst_grid_location.csv'
 WITH
 (
-	FIRSTROW = 3,
+	FIRSTROW = 2,
 	DATAFILETYPE ='widechar',  -- unicode format
 	FIELDTERMINATOR = '|',
 	ROWTERMINATOR = '\n'
@@ -234,7 +242,7 @@ BULK INSERT lu_InstitutionMissingTmp3
 FROM 'C:\ICRP\database\DataImport\CurrentRelease\Institutions\ICRPInsitutionMissingCoordinates-grid.csv'
 WITH
 (
-	FIRSTROW = 3,
+	FIRSTROW = 2,
 	DATAFILETYPE ='widechar',  -- unicode format
 	FIELDTERMINATOR = '|',
 	ROWTERMINATOR = '\n'
@@ -244,7 +252,7 @@ BULK INSERT lu_InstitutionMissingTmp3
 FROM 'C:\ICRP\database\DataImport\CurrentRelease\Institutions\ICRPInsitutionMissingCoordinates-no grid.csv'
 WITH
 (
-	FIRSTROW = 3,
+	FIRSTROW = 2,
 	DATAFILETYPE ='widechar',  -- unicode format
 	FIELDTERMINATOR = '|',
 	ROWTERMINATOR = '\n'
@@ -269,10 +277,73 @@ begin transaction
 update institution set Latitude= 39.953187, Longitude= -75.174967  where Name = 'NRG Oncology Foundation, Inc.' and Latitude is null
 update institution set latitude =27.967570, Longitude =-82.511962 where name = 'H. Lee Moffitt Cancer Center & Research Institute, Inc.' And city ='Tampa'
 update institution set latitude = NULL, Longitude = NULL where latitude=0.0 and longitude = 0.0
+update institution set latitude=40.45307, longitude=-80.003969 where name='NSABP FOUNDATION, INC.' and city='Pittsburgh'
 
 commit
 
+
+------------------------------------------------------------------------------------------------------------
+-- ROund 4 - Last Institution file from Lynne - done in prod
+------------------------------------------------------------------------------------------------------------
+--drop table lu_InstitutionMissingTmp4
+--go
+
+CREATE TABLE #lu_InstitutionMissingTmp4 (	
+	[Name] varchar(500) NULL,	
+	[CorrectName] varchar(500) NULL,	
+	[City] varchar(50) NULL,
+	[CorrectCity] varchar(50) NULL,
+	[State] varchar(250) NULL,
+	[CorrectState] varchar(250) NULL,
+	[Country] varchar(50) NULL,
+	[CorrectCountry] varchar(50) NULL,
+	[Grid] varchar(50) NULL,
+	[Latitude] varchar(50) NULL,
+	[Longitude] varchar(50) NULL,
+	[Note] varchar(250) NULL
+)
+
+GO
+
+BULK INSERT #lu_InstitutionMissingTmp4
+FROM 'C:\ICRP\database\DataImport\CurrentRelease\Institutions\InstitutionMissingCoordinates.csv'
+WITH
+(
+	FIRSTROW = 2,
+	DATAFILETYPE ='widechar',  -- unicode format
+	FIELDTERMINATOR = '|',
+	ROWTERMINATOR = '\n'
+)
+
+UPDATE INSTITUTION set name =t.[CorrectName]
+FROM INSTITUTION i
+JOIN (select distinct name, city, [CorrectName] from #lu_InstitutionMissingTmp4 WHERE CorrectName IS NOT NULL) t ON t.Name = i.name and t.city = i.city
+
+UPDATE #lu_InstitutionMissingTmp4 set name = [CorrectName] WHERE CorrectName IS NOT NULL
+
+UPDATE INSTITUTION set city =t.[CorrectCity]
+FROM INSTITUTION i
+JOIN (select distinct name, city, [CorrectCity] from #lu_InstitutionMissingTmp4 WHERE [CorrectCity] IS NOT NULL) t ON t.Name = i.name and t.city = i.city
+
+UPDATE #lu_InstitutionMissingTmp4 set city = [CorrectCity] WHERE [CorrectCity] IS NOT NULL
+
+UPDATE INSTITUTION set state =t.[CorrectState]
+FROM INSTITUTION i
+JOIN (select distinct name, city, [CorrectState] from #lu_InstitutionMissingTmp4 WHERE CorrectState IS NOT NULL) t ON t.Name = i.name and t.city = i.city
+
+UPDATE INSTITUTION set country =t.[CorrectCountry]
+FROM INSTITUTION i
+JOIN (select distinct name, city, [CorrectCountry] from #lu_InstitutionMissingTmp4 WHERE [CorrectCountry] IS NOT NULL) t ON t.Name = i.name and t.city = i.city
+
+UPDATE INSTITUTION set latitude = CAST(t.latitude AS decimal(9,6)), longitude =CAST(t.longitude AS decimal(9,6))
+FROM INSTITUTION i
+JOIN (select distinct name, city, latitude, longitude from #lu_InstitutionMissingTmp4 WHERE latitude <> 'done') t ON t.Name = i.name and t.city = i.city
+
+
+--select * from INSTITUTION where isnull(latitude,0)  =0
+-------------------------------------------------------
 -- swap coordinates
+-------------------------------------------------------
 begin transaction
 select * from institution where country='us' and (latitude > 65 or latitude < 15) AND (longitude > -63 or longitude < -148)
 

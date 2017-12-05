@@ -160,11 +160,17 @@ IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[F
 	ALTER TABLE FundingOrg ADD Latitude [decimal](9, 6) NULL
 GO
 
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[lu_DataUploadIntegrityCheckRules]') AND name = 'DisplayOrder')
+	ALTER TABLE lu_DataUploadIntegrityCheckRules ADD DisplayOrder int NULL
+GO
+
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[lu_DataUploadIntegrityCheckRules]') AND name = 'Type')
 	ALTER TABLE lu_DataUploadIntegrityCheckRules ADD Type varchar(25) NULL
 GO
 
-
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[SearchCriteria]') AND name = 'InvestigatorType')
+	ALTER TABLE SearchCriteria ADD InvestigatorType varchar(25) NULL
+GO
 
 /*************************************************/
 /******					Data				******/
@@ -174,15 +180,37 @@ UPDATE lu_DataUploadIntegrityCheckRules SET Type = 'Both'
 
 IF NOT EXISTS (SELECT * FROM lu_DataUploadIntegrityCheckRules WHERE lu_DataUploadIntegrityCheckRules_ID = 18)
 	INSERT INTO lu_DataUploadIntegrityCheckRules (lu_DataUploadIntegrityCheckRules_ID, [Name],[Category],[IsRequired],[IsActive], Type, CreatedDate, UpdatedDate) SELECT 18, 'Missing AltAwardCodes', 'Award', 1, 1, 'Update', getdate(), getdate()
+ELSE
+	UPDATE lu_DataUploadIntegrityCheckRules SET Type='Update' WHERE lu_DataUploadIntegrityCheckRules_ID = 18
 GO
 
 IF EXISTS (SELECT * FROM lu_DataUploadIntegrityCheckRules WHERE lu_DataUploadIntegrityCheckRules_ID = 13)
 	UPDATE lu_DataUploadIntegrityCheckRules SET Name = 'Multiple Parents' WHERE lu_DataUploadIntegrityCheckRules_ID = 13
 GO
 
-IF EXISTS (SELECT * FROM lu_DataUploadIntegrityCheckRules WHERE lu_DataUploadIntegrityCheckRules_ID = 11)
-	UPDATE lu_DataUploadIntegrityCheckRules SET Type = 'New' WHERE lu_DataUploadIntegrityCheckRules_ID = 11
-GO
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 1 WHERE lu_DataUploadIntegrityCheckRules_ID =1
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 1 WHERE lu_DataUploadIntegrityCheckRules_ID =18
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 2 WHERE lu_DataUploadIntegrityCheckRules_ID =11
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 3 WHERE lu_DataUploadIntegrityCheckRules_ID =12
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 4 WHERE lu_DataUploadIntegrityCheckRules_ID =13
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 5 WHERE lu_DataUploadIntegrityCheckRules_ID =14
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 6 WHERE lu_DataUploadIntegrityCheckRules_ID =15
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 7 WHERE lu_DataUploadIntegrityCheckRules_ID =16
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 8 WHERE lu_DataUploadIntegrityCheckRules_ID =17
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 1 WHERE lu_DataUploadIntegrityCheckRules_ID =21
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 2 WHERE lu_DataUploadIntegrityCheckRules_ID =22
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 3 WHERE lu_DataUploadIntegrityCheckRules_ID =23
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 4 WHERE lu_DataUploadIntegrityCheckRules_ID =24
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 5 WHERE lu_DataUploadIntegrityCheckRules_ID =25
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 6 WHERE lu_DataUploadIntegrityCheckRules_ID =26
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 1 WHERE lu_DataUploadIntegrityCheckRules_ID =31
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 2 WHERE lu_DataUploadIntegrityCheckRules_ID =32
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 3 WHERE lu_DataUploadIntegrityCheckRules_ID =33
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 4 WHERE lu_DataUploadIntegrityCheckRules_ID =34
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 5 WHERE lu_DataUploadIntegrityCheckRules_ID =35
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 1 WHERE lu_DataUploadIntegrityCheckRules_ID =41
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 2 WHERE lu_DataUploadIntegrityCheckRules_ID =42
+UPDATE lu_DataUploadIntegrityCheckRules SET DisplayOrder = 3 WHERE lu_DataUploadIntegrityCheckRules_ID =43
 
 --  lu_Region
 IF NOT EXISTS (SELECT * FROM lu_Region WHERE RegionID = 1)
@@ -319,3 +347,15 @@ ALTER TABLE [ProjectFundingInvestigator]
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 
 GO
+
+
+/*************************************************/
+/******	 Obsolete SPs						******/
+/*************************************************/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AddInstitutions]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[AddInstitutions]
+GO 
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DataUpload_Import]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[DataUpload_Import]
+GO 

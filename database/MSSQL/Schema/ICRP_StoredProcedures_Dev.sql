@@ -1,4 +1,5 @@
 
+
 /*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /****** Object:  StoredProcedure [dbo].[ImportInstitutions]    Script Date: 12/14/2016 4:21:37 PM ******/
 /*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -11,34 +12,84 @@ CREATE PROCEDURE [dbo].[ImportInstitutions]
   
 AS
 
-BEGIN TRANSACTION;
-
 BEGIN TRY     	
-
 
 	IF object_id('tmp_LoadInstitutions') is null
 	BEGIN
 		   RAISERROR ('Table tmp_LoadInstitutions not found', 16, 1)
 	END
 
-	SELECT Name, City, MAX([State]) AS [State], MAX([Country]) AS [Country], MAX([Postal]) AS [Postal], MAX([Longitude]) AS [Longitude], MAX([Latitude]) AS [Latitude], MAX([GRID]) AS Grid INTO #unique FROM tmp_LoadInstitutions GROUP BY Name, City
+	-- replace city with accent names
+	update tmp_LoadInstitutions set city ='Montréal' where city='Montreal'
+	update tmp_LoadInstitutions set city ='Québec' where city='Quebec'
+	update tmp_LoadInstitutions set city ='Zürich' where city='Zurich'
+	update tmp_LoadInstitutions set city ='Pierre-Bénite' where city='Pierre-Benite'
+	update tmp_LoadInstitutions set city ='Umeå' where city='Umea'
+	update tmp_LoadInstitutions set city ='Münster' where city='Munster'	
 
-	SELECT DISTINCT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] INTO #exist 
-	FROM #unique u JOIN Institution i ON u.Name = i.Name AND u.City = i.City	
+	UPDATE tmp_LoadInstitutions set city = NULL where city='' OR city='NULL'
+	UPDATE tmp_LoadInstitutionsset set State = NULL where State='' OR State='NULL'
+	UPDATE tmp_LoadInstitutionsset set Country = NULL where Country='' OR Country='NULL'
+	UPDATE tmp_LoadInstitutionsset set Latitude = NULL where Latitude=0
+	UPDATE tmp_LoadInstitutionsset set Longitude = NULL where Longitude=0
 
+	SELECT Name, City, Country
+		INTO #invalidCountry FROM tmp_LoadInstitutions WHERE Country NOT IN (SELECT Abbreviation FROM Country)
+
+	IF EXISTS (SELECT 1 FROM #invalidCountry)
+	BEGIN		
+		
+		SELECT 'Invalid Country Code' AS [Data Issue], * FROM #invalidCountry
+		RETURN
+	END	
+
+	SELECT Name, City, Latitude, Longitude
+		INTO #missingReqFields FROM tmp_LoadInstitutions WHERE ISNULL(NAME , '') = '' OR ISNULL(City , '') = '' OR ISNULL(Latitude , 0) = 0 OR ISNULL(Longitude , 0) = 0
+
+	IF EXISTS (SELECT 1 FROM #missingReqFields)
+	BEGIN		
+		
+		SELECT 'Required Field Missing' AS [Data Issue], * FROM #missingReqFields
+		RETURN
+	END	
+
+	SELECT Name, City, MAX([State]) AS [State], MAX([Country]) AS [Country], MAX([Postal]) AS [Postal], MAX([Longitude]) AS [Longitude], MAX([Latitude]) AS [Latitude], MAX([GRID]) AS Grid 
+	INTO #unique FROM tmp_LoadInstitutions GROUP BY Name, City
+
+	SELECT DISTINCT CONCAT(u.Name, ',  ', u.City) AS [Institution], CONCAT(u.State, ' ', u.Country) AS [Imported location], CONCAT(i.State, ' ', i.Country) AS [Existing location]
+	INTO #exist FROM #unique u 
+	JOIN Institution i ON u.Name = i.Name AND u.City = i.City	
+
+	IF EXISTS (SELECT 1 FROM #exist)
+	BEGIN		
+		
+		SELECT 'Existing Institutions' AS [Data Issue], * FROM #exist
+		RETURN
+	END	
+
+	SELECT DISTINCT CONCAT(t.Name, ',  ', t.City) AS [Imported Institution], CONCAT(m.[NewName], ',  ', m.[NewCity] ) AS [Existing Institution]
+	INTO #dup FROM tmp_LoadInstitutions t
+	JOIN InstitutionMapping m ON m.OldName = t.Name AND m.OldCity = t.City	
+
+	IF EXISTS (SELECT 1 FROM #exist)
+	BEGIN		
+		
+		SELECT 'Potential Duplicates' AS [Data Issue], * FROM #dup
+		RETURN
+	END	
+
+	select * from tmp_LoadInstitutions where city is null
+	BEGIN TRANSACTION;
+	
 	-- Insert into icrp_data: DO NOT insert the institutions which already exist in the Institutions lookup 
 	INSERT INTO Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
-	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM #unique i
-		LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.City
-	WHERE (e.Name IS NULL)
+		SELECT [Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID] FROM #unique 		
 
 	-- Insert into icrp_dataload: Only insert the institutions which not exist in the Institutions lookup 		
 	INSERT INTO icrp_dataload_dev.dbo.Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
-	SELECT i.[Name], i.[City], i.[State], i.[Country], i.[Postal], i.[Longitude], i.[Latitude], i.[GRID] FROM #unique i		
-		LEFT JOIN #exist e ON i.Name = e.Name AND i.City = e.City
-	WHERE (e.Name IS NULL)
+		SELECT [Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID] FROM #unique			
 
-	-- Insert City coordinates into lu_city if they rae new
+	-- Insert City coordinates into lu_city if they don't exist in lu_City
 	INSERT INTO lu_City (Name, State, Country, Latitude, Longitude)	
 	SELECT i.City, i.State, i.Country, i.Latitude, i.Longitude
 	FROM (SELECT City, State, Country, MIN(Latitude) AS Latitude,  MIN(Longitude) AS Longitude FROM Institution GROUP BY City, State, Country) i
@@ -67,6 +118,7 @@ END CATCH
 GO
 
 
+
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /*																																														*/
 /****** Object:  StoredProcedure [dbo].[DataUpload_ImportNew]    Script Date: 12/14/2016 4:21:37 PM																					*****/
@@ -80,10 +132,11 @@ CREATE PROCEDURE [dbo].[DataUpload_ImportNew]
 @PartnerCode varchar(25),
 @FundingYears VARCHAR(25),
 @ImportNotes  VARCHAR(1000),
-@ReceivedDate  datetime,
-@Type varchar(25)  -- 'New', 'Update'
+@ReceivedDate  datetime
   
 AS
+
+DECLARE @Type varchar(25) = 'NEW'
 
 SET NOCOUNT ON
 
@@ -553,7 +606,7 @@ UPDATE DataUploadLog SET ProjectSearchCount = @Count WHERE DataUploadLogID = @Da
 
 INSERT INTO icrp_data_dev.dbo.DataUploadLog ([DataUploadStatusID], [ProjectCount], [ProjectFundingCount], [ProjectFundingInvestigatorCount], [ProjectCSOCount], [ProjectCancerTypeCount], [Project_ProjectTypeCount], [ProjectAbstractCount], [ProjectSearchCount], [CreatedDate]) 
 	SELECT @DataUploadStatusID_prod, [ProjectCount], [ProjectFundingCount], [ProjectFundingInvestigatorCount], [ProjectCSOCount], [ProjectCancerTypeCount], [Project_ProjectTypeCount], [ProjectAbstractCount], [ProjectSearchCount], [CreatedDate] 
-	FROM icrp_dataload.dbo.DataUploadLog where DataUploadStatusID=@DataUploadStatusID_stage
+	FROM icrp_dataload_dev.dbo.DataUploadLog where DataUploadStatusID=@DataUploadStatusID_stage
 
 -- return dataupload counts
 SELECT  [DataUploadLogID],[DataUploadStatusID],[ProjectCount],[ProjectFundingCount],[ProjectFundingInvestigatorCount],[ProjectCSOCount],
@@ -1070,7 +1123,7 @@ UPDATE DataUploadLog SET ProjectSearchCount = @Count WHERE DataUploadLogID = @Da
 
 INSERT INTO icrp_data_dev.dbo.DataUploadLog ([DataUploadStatusID], [ProjectCount], [ProjectFundingCount], [ProjectFundingInvestigatorCount], [ProjectCSOCount], [ProjectCancerTypeCount], [Project_ProjectTypeCount], [ProjectAbstractCount], [ProjectSearchCount], [CreatedDate]) 
 	SELECT @DataUploadStatusID_prod, [ProjectCount], [ProjectFundingCount], [ProjectFundingInvestigatorCount], [ProjectCSOCount], [ProjectCancerTypeCount], [Project_ProjectTypeCount], [ProjectAbstractCount], [ProjectSearchCount], [CreatedDate] 
-	FROM icrp_dataload.dbo.DataUploadLog where DataUploadStatusID=@DataUploadStatusID_stage
+	FROM icrp_dataload_dev.dbo.DataUploadLog where DataUploadStatusID=@DataUploadStatusID_stage
 
 
 -- return dataupload counts
@@ -1374,7 +1427,7 @@ BEGIN TRY
 	DECLARE @Count INT
 
 	-- Insert Project Count
-	SELECT @Count=COUNT(*) FROM Project	
+	SELECT @Count=COUNT(*) FROM icrp_data_dev.dbo.Project	
 	WHERE dataUploadStatusID = @DataUploadStatusID_Prod
 
 	UPDATE icrp_data_dev.dbo.DataUploadLog SET ProjectCount = @Count WHERE DataUploadLogID = @DataUploadLogID

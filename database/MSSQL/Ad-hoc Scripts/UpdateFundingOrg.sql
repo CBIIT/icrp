@@ -34,6 +34,8 @@ update #FundingOrg SET Coordinates = REPLACE(Coordinates, '"', '')
 
 begin transaction
 
+select * from FundingOrg where Latitude is null
+
 UPDATE FundingOrg SET 
 	Latitude = CAST(LEFT(u.[Coordinates], CHARINDEX(',', u.[Coordinates])-1) AS DECIMAL(9,6)),
 	Longitude = CAST(RIGHT(u.[Coordinates], len(u.[Coordinates]) - CHARINDEX(',', u.[Coordinates])) AS DECIMAL(9,6))	
@@ -44,6 +46,9 @@ WHERE u.Coordinates <> '#N/A'
 
 UPDATE FundingOrg SET Latitude = 43.727458,	Longitude = -72.611635
 FROM FundingOrg WHERE name = 'Make It Better (MIB) Agents'
+
+select * from FundingOrg where Latitude is null and MemberStatus <> 'Merged'
+select * from #FundingOrg where  Abbreviation in ('aicr', 'Breakthrough','LRF','Breast Can Cam','NL')
 
 commit
 --rollback
