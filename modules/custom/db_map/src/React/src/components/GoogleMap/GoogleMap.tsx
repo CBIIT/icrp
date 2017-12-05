@@ -361,19 +361,10 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       }
 
       this.shouldRedraw = false;
-
-      if (viewLevel === 'regions' && map.getZoom() < 3) {
-        map.setCenter({
-          lat: 25,
-          lng: 0,
-        })
-      }
-
-      if (clusterer.getElements().length === 1) {
+      if (clusterer.getElements().length === 1 && viewLevel !== 'regions') {
         map.setZoom(4);
         map.setCenter(clusterer.getElements()[0].coordinates);
       }
-
       this.shouldRedraw = true;
     }
   }
