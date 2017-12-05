@@ -89,7 +89,11 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         let overlay = new google.maps.OverlayView();
         overlay.setMap(this.map);
         overlay.draw = () => {};
-        let proj = overlay.getProjection()
+        let proj = overlay.getProjection();
+
+        if (!proj || !projection) {
+          window.location.reload();
+        }
 
         props.locations.map(loc => loc.coordinates)
           .filter(coords => coords.lat != 0 && coords.lng != 0)
