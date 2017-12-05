@@ -85,10 +85,9 @@ class MapController extends ControllerBase {
    */
   public static function getContent(): array {
     $results = self::get_map_layers('icrp_database');
-    
     return [
       '#theme' => 'db_map',
-      '#layers' => $results,      
+      '#layers' => $results,
       '#attached' => [
         'library' => [
           'db_map/default'

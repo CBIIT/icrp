@@ -23,6 +23,7 @@ export interface GoogleMapProps {
 class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
   map: google.maps.Map;
+  overlay: google.maps.OverlayView;
   mapContainer: HTMLDivElement | null = null;
   clusterer: LocationClusterer<Location>;
 
@@ -33,11 +34,16 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
   shouldRedraw: boolean = false;
   shouldFitBounds: boolean = false;
   clusterClicked: boolean = false;
+  // override = false;
 
-  async componentDidMount() {
+  componentDidMount() {
     this.map = new google.maps.Map(this.mapContainer, DEFAULT_OPTIONS);
     this.clusterer = new LocationClusterer(this.map);
     this.clusterer.setRadius(60);
+
+    this.overlay = new google.maps.OverlayView();
+    this.overlay.setMap(this.map);
+    this.overlay.draw = () => {};
 
     this.map.addListener('click', (event: google.maps.MouseEvent) => {
       this.infoWindows.forEach(window => window.close());
@@ -70,9 +76,10 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
     // console.log('recieved new map props', props);
 
     // redraw this map when recieving new properties
-    if (this.map !== null && props.locations !== this.locations) {
+    if (this.map !== null && this.overlay && props.locations !== this.locations) {
       // console.log('drawing');
 
+      // this.override = false;
       this.shouldFitBounds = true;
       this.shouldRedraw = false;
 
@@ -86,10 +93,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       if (this.locations.length > 1) {
         let bounds = new google.maps.LatLngBounds();
         let projection = this.map.getProjection();
-        let overlay = new google.maps.OverlayView();
-        overlay.setMap(this.map);
-        overlay.draw = () => {};
-        let proj = overlay.getProjection();
+        let proj = this.overlay.getProjection();
 
         if (!proj || !projection) {
           window.location.reload();
