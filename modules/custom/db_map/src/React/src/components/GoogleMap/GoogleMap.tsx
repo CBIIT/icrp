@@ -152,20 +152,30 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         bounds.extend(northEast);
         bounds.extend(southWest);
 
-        this.map.fitBounds(bounds);
+        if (props.viewLevel === 'regions') {
+          this.applyDefaultView();
+        }
+
+        else {
+          this.map.fitBounds(bounds);
+        }
       }
 
       else {
-        this.map.setCenter({
-          lat: 25,
-          lng: 0
-        });
-        this.map.setZoom(2);
+        this.applyDefaultView();
       }
 
       this.shouldRedraw = true;
       this.redrawMap();
     }
+  }
+
+  applyDefaultView() {
+    this.map.setCenter({
+      lat: 25,
+      lng: 0
+    });
+    this.map.setZoom(2);
   }
 
   redrawMap() {
@@ -291,8 +301,29 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
             collaborators: 0
           });
 
+          let maxLocation = clusterLocations.reduce((acc: Location, curr: Location) =>
+            curr.counts.projects > acc.counts.projects
+              ? curr
+              : acc
+          , clusterLocations[0]);
+
+          let topLocation = maxLocation.label;
+          let numLocations = clusterLocations.length - 1;
+
+          let viewLevelNoun = viewLevel;
+
+          if (numLocations === 1) {
+            viewLevelNoun = {
+              regions: 'region',
+              countries: 'country',
+              cities: 'city',
+              institutions: 'institution',
+            }[viewLevelNoun] as ViewLevel || viewLevelNoun;
+          }
+
+
           let clusteredLocation: Location = {
-            label: `${parseViewLevel(viewLevel)} Cluster: ${clusterLocations.length} ${viewLevel}`,
+            label: `${parseViewLevel(viewLevel)} Cluster: ${topLocation} and ${numLocations} other ${viewLevelNoun}`,
             value: '',
             coordinates: {lat: center.lat(), lng: center.lng()},
             counts: counts
