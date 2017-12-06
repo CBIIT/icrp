@@ -212,4 +212,10 @@ export class WebsiteInputComponent implements ControlValueAccessor {
       resource: value || ''
     });
   }
+
+  setDisabledState(isDisabled: boolean) {
+    isDisabled
+      ? this.form.disable()
+      : this.form.enable();
+  }
 }
