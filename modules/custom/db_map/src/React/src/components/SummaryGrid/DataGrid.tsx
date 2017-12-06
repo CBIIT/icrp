@@ -135,7 +135,7 @@ export class DataGrid extends React.Component<DataGridProps, DataGridState> {
         _data.length <= _pageSize ?
         <div className="margin-top pagination-container">
           <span>
-            {`Showing `}
+            {`Total `}
             <b>{_data && _data.length}</b>
             {` entries`}
           </span>
