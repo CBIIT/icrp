@@ -288,7 +288,7 @@ class DatabaseSearch {
       'project_funding_amounts_by_year' => [
         'label' => 'Year',
         'data' => [
-          'funding_amount'  => 'amount',
+          'funding_amount'  => 'USDAmount',
         ],
       ],
     ];
