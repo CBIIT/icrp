@@ -6,7 +6,7 @@
       {{ min(count, page * pageSize) | number }}
       of <strong>{{ count | number }}</strong> records
     </div>
-  
+
     <div>
       <pagination
         [boundaryLinks]="true"
@@ -22,14 +22,14 @@
       </pagination>
     </div>
   </div>
-  
+
   <div class="table-responsive">
-    <table class="table table-striped table-hover table-bordered table-nowrap">
+    <table class="table table-striped table-hover table-bordered table-nowrap" #table>
       <thead class="noselect">
         <tr>
           <th *ngFor="let header of _headers"
             (click)="sort(header.value)">
-            <div class="table-header">
+            <div class="table-header nowrap">
               <span>{{ header.label }}</span>
               <span
                 [style.visibility]="header.sortDirection === 'none' ? 'hidden' : 'visible'"
@@ -45,7 +45,7 @@
       <tbody>
         <tr *ngFor="let row of data">
           <td *ngFor="let header of _headers">
-            <div [title]="row[header.value]">
+            <div [title]="row[header.value]" class="nowrap">
               {{ row[header.value] }}
             </div>
           </td>
@@ -53,5 +53,4 @@
       </tbody>
     </table>
   </div>
-  
-  
+
