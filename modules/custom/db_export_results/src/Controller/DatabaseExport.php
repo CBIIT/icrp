@@ -63,7 +63,7 @@ class DatabaseExport {
         'query' => 'EXECUTE GetProjectCSOsBySearchID            @SearchID=:search_id',
         'columns' => [
           'ProjectID'             => 'ICRP Project ID',
-          'ICRPProjectFundindID'  => 'ICRP Project Funding ID',
+          'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
           'AltAwardCode'          => 'Alt. Award Code',
           'CSOCode'               => 'CSO Code',
         ],
@@ -74,7 +74,7 @@ class DatabaseExport {
         'query' => 'EXECUTE GetProjectCancerTypesBySearchID     @SearchID=:search_id',
         'columns' => [
           'ProjectID'             => 'ICRP Project ID',
-          'ICRPProjectFundindID'  => 'ICRP Project Funding ID',
+          'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
           'AltAwardCode'          => 'Alt. Award Code',
           'ICRPCode'              => 'ICRP Code',
           'CancerType'            => 'Cancer Type',
