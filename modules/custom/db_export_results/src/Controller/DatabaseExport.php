@@ -58,7 +58,7 @@ class DatabaseExport {
         ],
       ],
 
-      // Sheet definition for 'Projects by CSO'
+      // // Sheet definition for 'Projects by CSO'
       'Projects by CSO' => [
         'query' => 'EXECUTE GetProjectCSOsBySearchID            @SearchID=:search_id',
         'columns' => [
@@ -69,12 +69,12 @@ class DatabaseExport {
         ],
       ],
 
-      // Sheet definition for 'Projects by Cancer Type'
+      // // Sheet definition for 'Projects by Cancer Type'
       'Projects by Cancer Type' => [
         'query' => 'EXECUTE GetProjectCancerTypesBySearchID     @SearchID=:search_id',
         'columns' => [
           'ProjectID'             => 'ICRP Project ID',
-          'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
+          'ICRPProjectFundindID'  => 'ICRP Project Funding ID',
           'AltAwardCode'          => 'Alt. Award Code',
           'ICRPCode'              => 'ICRP Code',
           'CancerType'            => 'Cancer Type',
@@ -101,7 +101,7 @@ class DatabaseExport {
         'query' => 'EXECUTE GetProjectCSOsBySearchID            @SearchID=:search_id',
         'columns' => [
           'ProjectID'             => 'ICRP Project ID',
-          'ICRPProjectFundindID'  => 'ICRP Project Funding ID',
+          'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
           'AltAwardCode'          => 'Alt. Award Code',
           'CSOCode'               => 'CSO Code',
           'CSORelevance'          => 'Relevance',
@@ -687,7 +687,9 @@ class DatabaseExport {
           while ($row = $results->fetch(PDO::FETCH_ASSOC)) {
             $writer->addRow(
               array_map(function($column) use ($row) {
-                return substr($row[$column], 0, 32767);
+                return array_key_exists($column, $row)
+                  ? substr($row[$column], 0, 32767)
+                  : '';
               }, $columns)
             );
           }
