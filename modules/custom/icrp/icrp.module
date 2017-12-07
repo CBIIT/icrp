@@ -1618,13 +1618,13 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
     switch ($current_form_id) {
         case 'node_faq_form':
             unset($form['actions']['preview']); //Remove Preview
-      $form['actions']['return'] = array(
-        '#type' => 'markup',
-        '#markup' => t('<a href="/faq" class="btn btn-link" role="button">Cancel</a>'),
-        '#weight' => 2000,
-        '#limit_validation_errors' => array(),
-      );
-          break;
+            $form['actions']['return'] = array(
+              '#type' => 'markup',
+              '#markup' => t('<a href="/faq" class="btn btn-link" role="button">Cancel</a>'),
+              '#weight' => 2000,
+              '#limit_validation_errors' => array(),
+            );
+            break;
         case 'node_faq_edit_form':
             unset($form['revision_information']); // Remove Revisions section from block edit page
             unset($form['revision_log']); // Remove Revisions section from block edit page
@@ -1632,7 +1632,7 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
 
             unset($form['actions']['preview']); //Remove Preview
 
-          break;
+            break;
         case 'node_events_forms':
             //dump($form_state);
             //dump($form);
@@ -1654,7 +1654,7 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             if($form_id == 'node_events_form') {
               $form['actions']['submit']['#value'] = t('Add New Event');
             }
-/*
+            /*
             $form['actions']['cancel'] = array(
                   '#type' => 'button',
                   '#value' => t('Cancel')
@@ -1700,6 +1700,7 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
             //drupal_set_message("user_register_form");
             //\Drupal\icrp\Importer\OrganizationRestClient::populateOrganizations();
             OrganizationRestClient::populateOrganizations();
+            \Drupal::service('page_cache_kill_switch')->trigger();
             //We set cache to 1 minute instead of clearing cache.
             //drupal_flush_all_caches();
 
