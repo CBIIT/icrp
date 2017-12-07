@@ -90,7 +90,7 @@ drupalSettings.db_map = {
               icon: is_pi ? baseUrl+'orangepin.png' : baseUrl+'yellowpin.png',
               position: loc
             }),
-            content = '<b>'+(is_pi?'Principal Investigator':'Collaborator')+':</b> '+(detail.pi_name==', '?'N/A':detail.pi_name)+'<br/>'+
+            content = '<b>'+(is_pi?'Principal Investigator':'Collaborator')+':</b> '+(detail.pi_name==""?'Name not available':detail.pi_name)+'<br/>'+
                       '<hr style="margin:.5em 0px;"/>'+
                       'Institution: '+detail.institution+'<br/>'+
                       'Location: '+[detail.city, detail.state, detail.country].filter(e => e && e.length).join(', ');
