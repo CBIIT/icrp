@@ -25,7 +25,7 @@ export class LineChart {
         let parsedData = data.map(el => ({
             value: +el.data[primaryKey],
             label: +el.label
-        })).sort();
+        })).sort((a, b) => +a.label - +b.label);
 
         let host = d3.select(element);
         let tooltip = d3.select(tooltipEl)
