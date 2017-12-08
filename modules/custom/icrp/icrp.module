@@ -103,6 +103,50 @@ function sendNewForumPostMail($email, $subject, $body) {
 
 }
 
+function sendNewEventsPostMail($email, $subject, $body) {
+
+    $mailManager = \Drupal::service('plugin.manager.mail');
+    $module = 'icrp';
+    $module = 'webform'; //Sset the webform mail plugin so that we can use html
+    $key = 'newForumPostMail'; // Replace with Your key
+
+    $to = $email;
+
+    $from_name = \Drupal::config('system.site')->get('name');
+    $from_email = \Drupal::config('system.site')->get('mail');
+    //$params['from_mail'] = "$from_name <{$from_email}>";
+    $params['from_name'] = "";
+    $params['from_mail'] = $from_email;
+
+    $params['subject'] = $subject;
+    $params['body'] = $body;
+
+    $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+    $send = true;
+
+    /*drupal_set_message("module: ".$module);
+    drupal_set_message("key: ".$key);
+    drupal_set_message("to: ".$to);
+    drupal_set_message("langcode: ".$langcode);
+    */
+    //drupal_set_message("body: ".$body);
+
+    $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
+    //drupal_set_message("result: ".(string)$result['result']);
+    //drupal_set_message("result array(): ".print_r($result, true));
+
+    if ($result['result'] != true) {
+        $message = t('New Events Post - There was a problem sending your email notification to @email.', array('@email' => $to));
+    //    drupal_set_message($message, 'error');
+        \Drupal::logger('mail-log')->error($message);
+        return;
+    }
+
+    $message = t('New Events Post - An email notification has been sent to @email ', array('@email' => $to));
+    \Drupal::logger('mail-log')->notice($message);
+
+}
+
 function getForumDetails($nid) {
   //$nid of the main forum node
   //$rid of reply id if available
@@ -259,7 +303,7 @@ function sendForumNotification($nid, $cid = "0") {
   foreach($emails as $key => $email) {
     //$email = "Chris Kneisler <cpkneisler@gmail.com>";
     $body = createForumEmailBody($email['first_name'], $subject, $author, $forum['forum_category'],  $forum['thread_subject'], $forum['thread_summary_or_trim_body'], $message, $forum['forum_url'], $forum['thread_url'], $display_summary, $host);
-    sendNewForumPostMail($email['formated_email'], $subject, $body);
+    sendNewEventsPostMail($email['formated_email'], $subject, $body);
   }
   //Loop through users and send them an e-mail.
 }
@@ -424,10 +468,10 @@ function sendEventsNotification($nid, $type) {
     }
     //drupal_set_message(t("date_range: ".$date_range), 'status', TRUE);
 
-    $body = createEventsEmailBody($email['first_name'], $subject, $event['event_title'], $date_range, $event['body'], $event['calendar_url'], $update, $host, $event['group_color']);
+    $body = createEventsEmailBody($email['first_name'], $subject, $event['event_title'], $date_range, $event['body'], $event['location'], $event['calendar_url'], $update, $host, $event['group_color']);
     //drupal_set_message($body);
     
-    //sendNewForumPostMail($email['formated_email'], $subject, $body);
+    sendNewForumPostMail($email['formated_email'], $subject, $body);
   }
   //Loop through users and send them an e-mail.
 }
@@ -534,7 +578,7 @@ function  getEventsEmails($nid, $author_uid) {
   return $forum_members;
 }
 
-function createEventsEmailBody($to, $subject, $event_title, $date_range, $message, $calendar_url, $update, $host, $group_color) {
+function createEventsEmailBody($to, $subject, $event_title, $date_range, $message, $location, $calendar_url, $update, $host, $group_color) {
 
 $body = '
 <!DOCTYPE html>
@@ -581,13 +625,21 @@ $body = '
                 <div style="font-weight:normal;font-size:12px;margin-left:15px;margin-bottom:1em">'.$message.'</div>
               </div>
             </td>
-          </tr>
+          </tr>';
+          if(strlen($location) > 0) {
+              $body .= '
+                <tr>
+                  <td style="padding-bottom:10px;">
+                    <div>Location: '.$location.' (<a target="_blank" href="https://www.google.com/maps/place/'.$location.'">map</a>)</div>
+                  </td>
+                </tr>';
+          }
+          $body .= '
           <tr>
             <td>
               <a target="_blank" href="'.$calendar_url.'">
                 <div style="background-color:#008cba;color:white;font-weight:bold;text-align:center;display:inline-block;padding:10px 15px;border-radius:10px;width:200px;height:18px;"> Partner Meeting Calendar </div>
               </a>
-
             </td>
           </tr>
         </table>
@@ -614,10 +666,10 @@ function icrp_node_insert(NodeInterface $node) {
   $nid = $node->id();
   //drupal_set_message("node insert type: ".$node->getType());
   if($node->getType() == "events") {
-    drupal_set_message("Node Insert");
-    drupal_set_message("Type: ". $node->getType());
-    drupal_set_message($node->getTitle());
-    drupal_set_message($node->id());
+    //drupal_set_message("Node Insert");
+    //drupal_set_message("Type: ". $node->getType());
+    //drupal_set_message($node->getTitle());
+    //drupal_set_message($node->id());
     sendEventsNotification($node->id(), 'create');
 
   }
@@ -1418,67 +1470,6 @@ The ICRP team";
           break;
     }
 }
-/*
-function partnerApplicationSubmissionsTable() {
-    //First Check to see if there are any Submitted Applications
-    //If count is zero, then display all Active Submissions
-    $markup = '<h1>Partner Application Administration Tool</h1>';
-    $markup .= '<table id="partner-application-table" class="table table-striped table-bordered table-condensed cols-6 sticky-enabled">
-  <thead>
-  <tr>
-    <th>Organization</th>
-    <th>City</th>
-    <th>Country</th>
-    <th>Email</th>
-    <th>Date Submitted</th>
-    <th>Review Data</th>
-    <th>Status</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr>
-    <td>Universal Cancer Research</td>
-    <td>London</td>
-    <td>United Kingdom</td>
-    <td>nobel.price@universalcancerresearch.org</td>
-    <td>10/14/2016</td>
-    <td><a href="#">Review</a></td>
-    <td>Pending Review</td>
-  </tr>
-  <tr>
-    <td>American Cancer Society</td>
-    <td>Atlanta</td>
-    <td>Georgia</td>
-    <td>tech@cancer.org</td>
-    <td>5/24/2015</td>
-    <td><a href="#">Review</a></td>
-    <td>Pending Review</td>
-  </tr>
-  <tr>
-    <td>Susan G. Komen Breast Cancer Foundation</td>
-    <td>Dallas</td>
-    <td>Texas</td>
-    <td>sue@komen.org</td>
-    <td>10/14/2016</td>
-    <td><a href="#">Review</a></td>
-    <td>Pending Review</td>
-  </tr>
-  </tbody>
-</table> ';
-    return $markup;
-}
-
-function partnerApplicationSubmissionsData() {
-    //Query table and return JSON of "PENDING Review" Applications
-    return 'jsonData';
-}
-
-function partnerApplicationSubmissionsCount() {
-    //Perform SQL to add
-
-    return 2;
-}
-*/
 
 
 function icrp_confirm_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
