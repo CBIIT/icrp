@@ -102,19 +102,6 @@ function sendNewForumPostMail($email, $subject, $body) {
     \Drupal::logger('mail-log')->notice($message);
 
 }
-/**
- * Implements template_preprocess_status_messages().
- */
-/*
-function icrp_preprocess_status_messages(&$variables) {
-  //drupal_set_message("Why no work.  Message here");
-  drupal_set_message(__FUNCTION__);
-  //dpm($variables);
-  foreach($variables['message_list']['status'] as $mix) {
-    drupal_set_message(gettype($mix));
-  }
-}
-*/
 
 function getForumDetails($nid) {
   //$nid of the main forum node
@@ -237,62 +224,6 @@ function  getForumEmails($nid, $author_uid) {
   return $forum_members;
 }
 
-function getEventDetails($nid) {
-  //$nid of the main forum node
-  //$rid of reply id if available
-  //$to_uid is who the email goes to.
-  //drupal_set_message(__FUNCTION__);
-  $host = "https://" . \Drupal::request()->getHost();
-
-  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
-  //dpm($node);
-  $detail['event_title'] = $node->getTitle();
-  $detail['message'] = $node->get('body')->value;
-
-  $event_date = '2017/12';
-  $detail['calendar_url'] = $host."/calendar?default_date=".$event_date;
-
-  return $detail;
-
-}
-
-
-function sendEventNotification($nid) {
-  \Drupal::logger('icrp')->notice('Send Event Notification: nid='.$nid.' cid='.$cid) ;
-  $host = "https://" . \Drupal::request()->getHost();
-
-  $event = getEventDetails($nid);
-/*
-  $display_summary = true;
-  if($cid == "0") {
-    //Prepare e-mail for an initial Thread post
-    //Add Subject to 
-    //if there is summary,  then summary on the top and full body below
-    //if there is no summary,  then just full body
-    $author_uid = $forum['thread_author_uid'];
-    $author = $forum['thread_author'];
-    $message = $forum['message'];
-    $display_summary = $forum['has_summary'];  //If it has_summary, 
-  } else {
-    $reply = getReplyDetails($cid);
-    $forum['thread_summary_or_trim_body'] = "Re: ".$forum['thread_summary_or_trim_body'];
-    $author_uid = $reply['reply_author_uid'];
-    $author = $reply['reply_author'];
-    $message = $reply['message'];
-  }
-
-  $message = relToAbs($message, $host);
-  $subject = "ICRP Event: {$event['event_title']}";
-  $emails = getForumEmails($nid, $author_uid);
-  foreach($emails as $key => $email) {
-    //$email = "Chris Kneisler <cpkneisler@gmail.com>";
-    $body = createForumEmailBody($email['first_name'], $subject, $author, $forum['forum_category'],  $forum['thread_subject'], $forum['thread_summary_or_trim_body'], $message, $forum['forum_url'], $forum['thread_url'], $display_summary, $host);
-    sendNewForumPostMail($email['formated_email'], $subject, $body);
-  }
-  //Loop through users and send them an e-mail.
-  */
-
-}
 
 function sendForumNotification($nid, $cid = "0") {
   /**
@@ -362,77 +293,7 @@ function relToAbs($text, $base) {
 
 function createForumEmailBody($to, $subject, $author, $forum, $thread_subject, $thread_summary, $message, $forum_url, $thread_url, $display_summary, $host) {
 
-$body = '
-<!DOCTYPE html>
-<html>
-
-<head>
-  <meta charset="UTF-8">
-  <title>ICRP Forum Message</title>
-</head>
-
-<body>
-  <table style="margin-left:auto;margin-right:auto;width:600px;">
-    <tr>
-      <td>
-        <a target="_blank" href="'.$host.'"> <img width="200" height="40" style="margin-bottom:10px;margin-top:5px" src="'.$host.'/sites/default/files/icrp-logo.png"> </a>
-
-      </td>
-    </tr>
-    <tr>
-      <td style="border-top:25px solid #008cba;border-left:2px solid #008cba;border-right:2px solid #008cba;border-bottom:2px solid #008cba;background-color:white;padding:10px;">
-        <table style="font-family:Verdana,Arial;font-size:12px;padding:10px;width:100%">
-          <tr>
-            <td style="padding-bottom:10px;">Hi '.$to.',
-            </td>
-          </tr>
-          <tr>
-            <td style="padding-bottom:10px;">
-              <em>ICRP Partner</em> <strong>'.$author.'</strong> just replied to a forum that you are following.
-            </td>
-          </tr>
-          <tr>
-            <td style="padding-bottom:10px;">
-              <span style="font-weight:bold;font-size:14px;color:grey"> <a href="'.$forum_url.'" style="text-decoration: none !important;color:#DD9C28;">'.$forum.'</a> » <a href="'.$thread_url.'" style="text-decoration: none !important;color:#000;font-weight:normal;">'.$thread_subject.'</a> </span>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding-bottom:10px;">
-              <div style="background-color:#f5f5f5;padding:10px;margin:1em 0;">';
-            if($display_summary) {
-              $body .= '<div style="font-weight:bold;font-size:14px;color:#142830;margin-bottom:1em">'.$thread_summary.'</div>';
-            }
-
-              $body .=  '<div style="font-weight:normal;font-size:12px;margin-left:15px;margin-bottom:1em">'.$message.'</div>
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              <a target="_blank" href="'.$thread_url.'">
-                <div style="background-color:#008cba;color:white;font-weight:bold;text-align:center;display:inline-block;padding:10px 15px;border-radius:10px;width:100px;height:18px;"> View Message </div>
-              </a>
-
-            </td>
-          </tr>
-        </table>
-      </td>
-
-    </tr>
-    <tr>
-      <td>
-        <p style="font-family:Verdana,Arial;font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new posts to ICRP Forums. If you wish to unsubscribe, log in to ICRP, navigate to <a target="_blank" href="'.$host.'/my-profile">My Profile</a> and unselect the <em>ICRP Committees and Forums</em> which you no longer want to receive. </p>
-      </td>
-    </tr>
-  </table>
-</body>
-
-</html>
-';
-  return $body;
-}
-
-function createEventEmailBody($to, $subject, $author, $forum, $thread_subject, $thread_summary, $message, $forum_url, $thread_url, $display_summary, $host) {
+$no = "";
 
 $body = '
 <!DOCTYPE html>
@@ -503,20 +364,265 @@ $body = '
 ';
   return $body;
 }
+
+  /*
+  // How to get entity->id() to node.
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($entity->id());
+  if($node->getType() == "events") {
+    precheckEventEmail($entity);
+  }
+  */
+
+
+function icrp_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
+  //drupal_set_message(__FUNCTION__);
+  //drupal_set_message("Bundle:".$entity->bundle());
+  if($entity->bundle() == "events") {
+    if (isset($entity->original)) {
+      //This is an Update of an existing Event
+      //Check to see if date has changed
+      $date_range_original = $entity->original->get('field_event_date_range')->getString();
+      $date_range = $entity->get('field_event_date_range')->getString();
+      if($date_range != $date_range_original) {
+        //drupal_set_message("Date has CHANGED", "warning", TRUE);
+        sendEventsNotification($entity->id(), 'update');
+      }
+    }
+  }
+}
+
+
+function sendEventsNotification($nid, $type) {
+  //drupal_set_message(__FUNCTION__);
+  //drupal_set_message("Message Type:".$type);
+
+  \Drupal::logger('icrp')->notice('Send Event Notification: nid='.$nid);
+  $host = "https://" . \Drupal::request()->getHost();
+  $event = getEventsDetails($nid);
+  //dpm($event);
+  $message = $event['body'];
+
+  $message = relToAbs($message, $host);
+
+  $subject = "ICRP Meeting Reminder - {$event['event_title']}";
+  $emails = getEventsEmails($nid, $event['author_uid']);
+
+  //drupal_set_message("Emails");
+  //dpm($emails);
+  $update = ($type == 'update');
+  foreach($emails as $key => $email) {
+    //$email = "Chris Kneisler <cpkneisler@gmail.com>";
+    $date_start = $event['date_start']; //Need to use timezone for each email.
+    $event_start_date = new DrupalDateTime($event['date_start'], 'UTC');
+    //dpm($event_start_date);
+    $event_start_date->setTimezone(new \DateTimeZone($email['timezone']));
+    //dpm($event_start_date);
+    $date_range = $event['date_start']; //Need to use timezone for each email.
+    $date_range = $event_start_date->format('l, F j, Y')." at ".$event_start_date->format('g:i A (T)');
+    if($update){
+      $date_range = '<span style="color:green">Date Changed: </span>'.$date_range;
+    }
+    //drupal_set_message(t("date_range: ".$date_range), 'status', TRUE);
+
+    $body = createEventsEmailBody($email['first_name'], $subject, $event['event_title'], $date_range, $event['body'], $event['calendar_url'], $update, $host, $event['group_color']);
+    //drupal_set_message($body);
+    
+    //sendNewForumPostMail($email['formated_email'], $subject, $body);
+  }
+  //Loop through users and send them an e-mail.
+}
+
+function getEventsDetails($nid) {
+  //drupal_set_message(__FUNCTION__);
+  //$nid of the main forum node
+  //$rid of reply id if available
+  //$to_uid is who the email goes to.
+  //drupal_set_message(__FUNCTION__);
+  $host = "https://" . \Drupal::request()->getHost();
+
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  //dpm($node);
+  $detail['event_title'] = $node->getTitle();
+  $detail['body'] = $node->get('body')->value;
+  $detail['date_range'] = $node->get('field_event_date_range')->getString();
+  $detail['date_start'] = $node->get('field_event_date_range')->value;
+  $detail['date_end'] = $node->get('field_event_date_range')->end_date->format(DATETIME_DATETIME_STORAGE_FORMAT);;
+
+  $detail['location'] = $node->get('field_event_location')->value;
+  $detail['calendar_type'] = $node->get('field_calendar_type')->value;
+
+  $detail['author'] = getUserFullName($node->getOwnerId());
+  $detail['author_uid'] = $node->getOwnerId();
+
+  //Get Group Color for this event
+  $event_group =  $node->get('field_event_group')->value; 
+  $group_color = array(
+      "Partner News and Announcements" => "ROYALBLUE",
+      "Annual Meetings" => "DARKCYAN",
+      "Communications and Membership" => "TURQUOISE",
+      "CSO and Coding" => "DARKORANGE",
+      "Evaluations and Analyses" => "OLIVEDRAB",
+      "Partner Operations" => "MEDIUMVIOLETRED",
+      "Website and Database" => "INDIANRED",
+  );
+  $detail['group_color'] = $group_color[$event_group];
+
+  $event_date = substr($detail['date_range'], 0, 7);
+
+  $detail['calendar_url'] = $host."/calendar?default_date=".$event_date;
+
+  return $detail;
+
+}
+
+function  getEventsEmails($nid, $author_uid) {
+  //drupal_set_message(__FUNCTION__);
+
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  //dpm($node);
+
+  $event_group =  $node->get('field_event_group')->value; 
+  //drupal_set_message("calendar_type: ".$event_group);
+  $subCommittees = array(
+      "Partner News and Announcements" => "field_subcommittee_partner_news",
+      "Annual Meetings" => "field_subcommittee_annual_meetin",
+      "Communications and Membership" => "field_subcommittee_membership",
+      "CSO and Coding" => "field_subcommittee_cso_coding",
+      "Evaluations and Analyses" => "field_subcommittee_evaluation",
+      "Partner Operations" => "field_subcommittee_partner_opera",
+      "Website and Database" => "field_subcommittee_web_site",
+  );
+
+  $table = "";
+
+  if(isset($subCommittees[$event_group])) {
+    $table = "user__".$subCommittees[$event_group];
+    $field = $subCommittees[$event_group]."_value";
+  } else {
+    drupal_set_message(t($event_group." not found in subcommittees."), 'warning', FALSE);
+  }
+
+  $query = "select ufd.uid, ufd.mail, ufd.timezone, uffn.field_first_name_value, ufln.field_last_name_value, ufnne.field_notify_new_events_value, sub.".$field." ";  
+  $query .= "FROM users_field_data ufd, user__field_first_name uffn, user__field_last_name ufln, user__field_notify_new_events ufnne, ".$table." sub ";
+  $query .= "where ufd.status = 1 and ufd.uid = uffn.entity_id and ufd.uid = ufln.entity_id and ufd.uid = ufnne.entity_id and ufd.uid = sub.entity_id ";
+  $query .= "and ufnne.field_notify_new_events_value = 1 ";
+  $query .= "and sub.".$field." = 1 ";
+  $query .= "and ufd.uid <> ".$author_uid." ";
+
+  //drupal_set_message($query);
+  //dpm($query);
+
+  //Get a list of names and e-mails.  Everybody that is an Active user and is subcribed to this forum and has notifications checked.
+  $result = db_query($query);
+  $forum_members = [];
+  for ($count = 0; $row = $result->fetchObject(); $count++) {
+    $first_name = $row->field_first_name_value;
+    $last_name = $row->field_last_name_value;
+    $email = $row->mail;
+    $timezone = $row->timezone;
+    $formated_email = $first_name." ".$last_name." <".$email.">";
+
+    $forum_members[] = array('first_name' => $first_name, 'formated_email' => $formated_email, 'timezone' => $timezone);
+  }
+  //drupal_set_message(print_r($forum_members, true));
+
+  //$variables['tforum_category'] = $row->name;
+  //$variables['tforum_description'] = $row->description__value;
+
+  //$forum_members = array(array('first_name' => 'Steve', 'formated_email' => 'Steve <steve@example.com>'));
+
+  return $forum_members;
+}
+
+function createEventsEmailBody($to, $subject, $event_title, $date_range, $message, $calendar_url, $update, $host, $group_color) {
+
+$body = '
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>'.$subject.'</title>
+</head>
+
+<body>
+  <table style="margin-left:auto;margin-right:auto;width:600px;">
+    <tr>
+      <td>
+        <a target="_blank" href="'.$host.'"> <img width="200" height="40" style="margin-bottom:10px;margin-top:5px" src="'.$host.'/sites/default/files/icrp-logo.png"> </a>
+
+      </td>
+    </tr>
+    <tr>
+      <td style="border-top:25px solid '.$group_color.';border-left:2px solid '.$group_color.';border-right:2px solid '.$group_color.';border-bottom:2px solid '.$group_color.';background-color:white;padding:10px;">
+        <table style="font-family:Verdana,Arial;font-size:12px;padding:10px;width:100%">
+          <tr>
+            <td style="padding-bottom:10px;">Hi '.$to.',
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-bottom:10px;">
+              This ICRP partner meeting is coming up soon:
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span style="font-size:20px;color:#853E0E;"><em>'.$event_title.'</em></span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-bottom:10px;">
+              '.$date_range.'
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-bottom:10px;">
+              <div style="background-color:#f5f5f5;padding:10px;margin:1em 0;">
+                <div style="font-weight:normal;font-size:12px;margin-left:15px;margin-bottom:1em">'.$message.'</div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <a target="_blank" href="'.$calendar_url.'">
+                <div style="background-color:#008cba;color:white;font-weight:bold;text-align:center;display:inline-block;padding:10px 15px;border-radius:10px;width:200px;height:18px;"> Partner Meeting Calendar </div>
+              </a>
+
+            </td>
+          </tr>
+        </table>
+      </td>
+
+    </tr>
+    <tr>
+      <td>
+        <p style="font-family:Verdana,Arial;font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new events coming soon. If you wish to unsubscribe, log in to ICRP, navigate to <a target="_blank" href="'.$host.'/my-profile">My Profile</a> and unselect the <em>Notify me of new Events to ICRP Committees<em> check box.</p>
+      </td>
+    </tr>
+  </table>
+</body>
+
+</html>
+';
+  return $body;
+}
+
 
 function icrp_node_insert(NodeInterface $node) {
 
   //drupal_set_message("node_insert");
   $nid = $node->id();
+  //drupal_set_message("node insert type: ".$node->getType());
   if($node->getType() == "events") {
-    //drupal_set_message("New Event - Send email");
-    //drupal_set_message($node->getTitle());
-    //drupal_set_message($node->id());
-    //dpm($node);
-    //sendEventNotification($nid);
+    drupal_set_message("Node Insert");
+    drupal_set_message("Type: ". $node->getType());
+    drupal_set_message($node->getTitle());
+    drupal_set_message($node->id());
+    sendEventsNotification($node->id(), 'create');
+
   }
   if($node->getType() == "forum") {
-  /*
+    /*
     drupal_set_message("Node Insert");
     drupal_set_message("Type: ". $node->getType());
     drupal_set_message($node->getTitle());
@@ -555,18 +661,6 @@ function icrp_user_view($account, $view_mode, $langcode) {
   //$response = new RedirectResponse('/home');
   //return $response->send();  
 
-}
-
-function icrp_node_view($node, $view_mode, $langcode) {
-  //drupal_set_message("Node view");
-  /*
-  if ($node->nid == $node_to_alter) {
-    $node->content['my_module_additional_content'] = node_view($the_other_node);
-  }
-  */
-}
-
-function icrp_preprocess_pager(&$variables) {
 }
 
 function icrp_preprocess_forum_submitted(&$variables) {
