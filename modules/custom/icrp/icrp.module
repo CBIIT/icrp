@@ -469,7 +469,7 @@ function sendEventsNotification($nid, $type) {
     //drupal_set_message(t("date_range: ".$date_range), 'status', TRUE);
 
     $body = createEventsEmailBody($email['first_name'], $subject, $event['event_title'], $date_range, $event['body'], $event['location'], $event['calendar_url'], $update, $host, $event['group_color']);
-    drupal_set_message($body);
+    //drupal_set_message($body);
     
     sendNewForumPostMail($email['formated_email'], $subject, $body);
   }
