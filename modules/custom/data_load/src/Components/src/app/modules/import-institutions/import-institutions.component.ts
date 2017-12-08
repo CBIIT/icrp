@@ -54,6 +54,7 @@ export class ImportInstitutionsComponent  {
     }
 
     else {
+      window.scroll(0, 0);
       this.alerts.push({
         type: 'danger',
         content: 'The input file does not contain the expected number of columns.'
@@ -75,6 +76,7 @@ export class ImportInstitutionsComponent  {
     const response$ = await this.importService.importInstitutions(records);
     response$.subscribe(
       data => {
+        window.scroll(0, 0);
         this.loading = false;
 
         if (Array.isArray(data) && data.length > 0) {
@@ -94,6 +96,7 @@ export class ImportInstitutionsComponent  {
       },
 
       ({error}) => {
+        window.scroll(0, 0);
         this.loading = false;
         this.alerts.push({
           type: 'danger',
