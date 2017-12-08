@@ -162,7 +162,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       }
 
       else {
-        this.applyDefaultView();
+        // this.applyDefaultView();
       }
 
       this.shouldRedraw = true;

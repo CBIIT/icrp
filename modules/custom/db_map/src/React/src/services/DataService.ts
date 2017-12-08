@@ -62,6 +62,7 @@ export interface LocationFilters {
   type: ViewLevel;
   region?: string;
   country?: string;
+  state?: string;
   city?: string;
   institution?: string;
 }
@@ -141,11 +142,23 @@ export const getNextLocationFilters = (location: Location, locationFilters: Loca
     institutions: 'institution',
   }[locationFilters.type];
 
-  return {
+  let filters = {
     ...locationFilters,
     type: getNextViewLevel(locationFilters.type),
     [key]: location.value,
   };
+
+  delete filters.state;
+
+  if (key === 'city') {
+    let state = (location.label.split(',').pop() as String).trim();
+    if (state && /^[A-Z]{2}$/.test(state))
+      filters.state = state;
+  }
+
+  // console.log('called getNextLocationFilters', location, locationFilters, filters);
+
+  return filters;
 }
 
 export const getRegionFromId = (regionId: string | undefined) => ({
