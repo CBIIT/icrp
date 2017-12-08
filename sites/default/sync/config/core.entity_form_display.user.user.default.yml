@@ -32,9 +32,9 @@ mode: default
 content:
   account:
     weight: 5
+    region: content
     settings: {  }
     third_party_settings: {  }
-    region: content
   field_can_upload_library_files:
     type: options_buttons
     weight: 3
@@ -69,18 +69,25 @@ content:
     settings: {  }
     third_party_settings: {  }
     region: content
+  field_notify_new_events:
+    type: boolean_checkbox
+    weight: 10
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  field_notify_new_posts:
+    type: boolean_checkbox
+    weight: 9
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
   field_organization:
     type: options_select
     weight: 2
     settings: {  }
     third_party_settings: {  }
-    region: content
-  field_subcommittee_new:
-    weight: 9
-    settings:
-      display_label: true
-    third_party_settings: {  }
-    type: boolean_checkbox
     region: content
   field_subcommittee_partner_news:
     weight: 8
@@ -91,17 +98,16 @@ content:
     region: content
   timezone:
     weight: 7
+    region: content
     settings: {  }
     third_party_settings: {  }
-    region: content
 hidden:
   contact: true
-  field_notify_new_events: true
-  field_notify_new_posts: true
   field_subcommittee_annual_meetin: true
   field_subcommittee_cso_coding: true
   field_subcommittee_evaluation: true
   field_subcommittee_membership: true
+  field_subcommittee_new: true
   field_subcommittee_partner_opera: true
   field_subcommittee_web_site: true
   google_analytics: true
