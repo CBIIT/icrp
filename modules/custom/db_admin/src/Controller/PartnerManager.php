@@ -192,14 +192,14 @@ class PartnerManager {
         if ($stmt->execute()) {
           $row = $stmt->fetch(PDO::FETCH_ASSOC);
           $parameters['partner_id'] = $row['partner_id'];
-          
+
           self::markApplicationAsDone($pdo, $parameters['partner_application_id']);
 
           $returnValues = [
             ['SUCCESS' => 'The partner has been added to the database.']
           ];
           if ($parameters['is_funding_organization'] === 'true') {
-            $returnValues = array_merge($returnValues, FundingOrganizationManager::addFundingOrganization($pdo, [
+            $fundingOrgStatus = FundingOrganizationManager::addFundingOrganization($pdo, [
               'partner_id'                => $parameters['partner_id'],
               'organization_name'         => $parameters['partner_name'],
               'organization_abbreviation' => $parameters['sponsor_code'],
@@ -213,7 +213,15 @@ class PartnerManager {
               'website'                   => $parameters['website'],
               'latitude'                  => $parameters['latitude'],
               'longitude'                 => $parameters['longitude']
-            ]));
+            ]);
+
+            if (array_key_exists('SUCCESS', $fundingOrgStatus[0])) {
+              $returnValues[0]['SUCCESS'] = 'The partner and funding organization have been added to the database.';
+            }
+
+            else {
+              $returnValues = array_merge($returnValues, $fundingOrgStatus);
+            }
           }
 
         return $returnValues;
@@ -239,7 +247,7 @@ class PartnerManager {
 
   public static function updatePartner(PDO $pdo, array $parameters) {
     $validation_errors = self::validate($pdo, $parameters);
-    
+
     if (!empty($validation_errors)) {
       return $validation_errors;
     }

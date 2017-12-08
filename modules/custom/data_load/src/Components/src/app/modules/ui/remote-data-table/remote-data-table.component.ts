@@ -1,4 +1,6 @@
-import { Component, OnChanges, Input, Output, SimpleChanges, EventEmitter } from '@angular/core';
+import { Component, OnChanges, Input, Output, SimpleChanges, EventEmitter, AfterViewChecked } from '@angular/core';
+import { enableResizableColumns } from './ResizableColumns';
+import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
 
 interface RequestParameters {
   page: number;
@@ -19,25 +21,29 @@ interface Header {
   templateUrl: './remote-data-table.component.html',
   styleUrls: ['./remote-data-table.component.css']
 })
-export class RemoteDataTableComponent implements OnChanges {
+export class RemoteDataTableComponent implements OnChanges, AfterViewInit {
 
   @Input() count: number = 0;
 
   @Input() headers: string[] = [];
-  
+
   @Input() data: any[] = [];
 
   @Output() request: EventEmitter<RequestParameters> = new EventEmitter();
 
+  @ViewChild('table') tableRef: ElementRef;
+
   _headers: Header[] = [];
 
   page = 1;
-  
+
   pageSize = 25;
 
   sortColumn = '';
 
   sortDirection = 'ASC';
+
+  math = Math;
 
 
   sort(columnName: string) {
@@ -73,12 +79,20 @@ export class RemoteDataTableComponent implements OnChanges {
     return Math.min(a, b);
   }
 
+
+  ngAfterViewInit() {
+    let table: HTMLTableElement = this.tableRef.nativeElement;
+    enableResizableColumns(table, {
+      preserveWidth: false
+    })
+  }
+
   ngOnChanges(changes: SimpleChanges) {
 
     if (changes.headers && changes.headers.currentValue) {
       this._headers = changes.headers.currentValue.map(val => ({
-          value: val, 
-          label: val, 
+          value: val,
+          label: val,
           sortDirection: 'none'
         }));
       }

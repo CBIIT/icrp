@@ -258,7 +258,13 @@ export class SearchPageComponent implements AfterViewInit {
       })
       .subscribe(response => {
         loadingTrue$.unsubscribe();
-        this.state.analytics[key] = response
+
+        if (['project_counts_by_year', 'project_funding_amounts_by_year'].indexOf(key) > -1) {
+          console.log(key, response);
+        }
+
+        this.state.analytics[key] = response;
+
         this.storeService.merge('analytics', this.state.analytics);
       });
     }

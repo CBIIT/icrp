@@ -208,13 +208,13 @@ class DatabaseSearch {
       'project_counts_by_cso_research_area'           => 'EXECUTE GetProjectCSOStatsBySearchID          @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
       'project_counts_by_cancer_type'                 => 'EXECUTE GetProjectCancerTypeStatsBySearchID   @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
       'project_counts_by_type'                        => 'EXECUTE GetProjectTypeStatsBySearchID         @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
-      'project_counts_by_year'                        => 'EXECUTE GetProjectAwardStatsBySearchID        @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount',
+      'project_counts_by_year'                        => 'EXECUTE GetProjectAwardStatsBySearchID        @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
 
       'project_funding_amounts_by_country'            => 'EXECUTE GetProjectCountryStatsBySearchID      @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
       'project_funding_amounts_by_cso_research_area'  => 'EXECUTE GetProjectCSOStatsBySearchID          @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
       'project_funding_amounts_by_cancer_type'        => 'EXECUTE GetProjectCancerTypeStatsBySearchID   @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
       'project_funding_amounts_by_type'               => 'EXECUTE GetProjectTypeStatsBySearchID         @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
-      'project_funding_amounts_by_year'               => 'EXECUTE GetProjectAwardStatsBySearchID        @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount',
+      'project_funding_amounts_by_year'               => 'EXECUTE GetProjectAwardStatsBySearchID        @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
     ];
 
     // define which columns to retrieve from the query results
@@ -288,7 +288,7 @@ class DatabaseSearch {
       'project_funding_amounts_by_year' => [
         'label' => 'Year',
         'data' => [
-          'funding_amount'  => 'amount',
+          'funding_amount'  => 'USDAmount',
         ],
       ],
     ];
@@ -411,7 +411,7 @@ class DatabaseSearch {
         $results[] = [
           'project_id'            => $row['ProjectID'],
           'project_title'         => $row['Title'],
-          'pi_name'               => "$row[piLastName], $row[piFirstName]",
+          'pi_name'               => implode(', ', array_filter([$row['piLastName'], $row['piFirstName']])),
           'institution'           => $row['institution'],
           'country'               => $row['country'],
           'funding_organization'  => $row['FundingOrgShort'],
@@ -462,7 +462,7 @@ class DatabaseSearch {
         array_push($results, [
           'project_id'            => $row['ProjectID'],
           'project_title'         => $row['Title'],
-          'pi_name'               => "$row[piLastName], $row[piFirstName]",
+          'pi_name'               => implode(', ', array_filter([$row['piLastName'], $row['piFirstName']])),
           'institution'           => $row['institution'],
           'country'               => $row['country'],
           'funding_organization'  => $row['FundingOrgShort'],

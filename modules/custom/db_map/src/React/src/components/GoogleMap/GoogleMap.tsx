@@ -23,6 +23,7 @@ export interface GoogleMapProps {
 class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
   map: google.maps.Map;
+  overlay: google.maps.OverlayView;
   mapContainer: HTMLDivElement | null = null;
   clusterer: LocationClusterer<Location>;
 
@@ -33,11 +34,16 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
   shouldRedraw: boolean = false;
   shouldFitBounds: boolean = false;
   clusterClicked: boolean = false;
+  // override = false;
 
-  async componentDidMount() {
+  componentDidMount() {
     this.map = new google.maps.Map(this.mapContainer, DEFAULT_OPTIONS);
     this.clusterer = new LocationClusterer(this.map);
     this.clusterer.setRadius(60);
+
+    this.overlay = new google.maps.OverlayView();
+    this.overlay.setMap(this.map);
+    this.overlay.draw = () => {};
 
     this.map.addListener('click', (event: google.maps.MouseEvent) => {
       this.infoWindows.forEach(window => window.close());
@@ -70,9 +76,10 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
     // console.log('recieved new map props', props);
 
     // redraw this map when recieving new properties
-    if (this.map !== null && props.locations !== this.locations) {
+    if (this.map !== null && this.overlay && props.locations !== this.locations) {
       // console.log('drawing');
 
+      // this.override = false;
       this.shouldFitBounds = true;
       this.shouldRedraw = false;
 
@@ -86,10 +93,11 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       if (this.locations.length > 1) {
         let bounds = new google.maps.LatLngBounds();
         let projection = this.map.getProjection();
-        let overlay = new google.maps.OverlayView();
-        overlay.setMap(this.map);
-        overlay.draw = () => {};
-        let proj = overlay.getProjection()
+        let proj = this.overlay.getProjection();
+
+        if (!proj || !projection) {
+          window.location.reload();
+        }
 
         props.locations.map(loc => loc.coordinates)
           .filter(coords => coords.lat != 0 && coords.lng != 0)
@@ -144,20 +152,30 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         bounds.extend(northEast);
         bounds.extend(southWest);
 
-        this.map.fitBounds(bounds);
+        if (props.viewLevel === 'regions') {
+          this.applyDefaultView();
+        }
+
+        else {
+          this.map.fitBounds(bounds);
+        }
       }
 
       else {
-        this.map.setCenter({
-          lat: 25,
-          lng: 0
-        });
-        this.map.setZoom(2);
+        this.applyDefaultView();
       }
 
       this.shouldRedraw = true;
       this.redrawMap();
     }
+  }
+
+  applyDefaultView() {
+    this.map.setCenter({
+      lat: 25,
+      lng: 0
+    });
+    this.map.setZoom(2);
   }
 
   redrawMap() {
@@ -283,8 +301,29 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
             collaborators: 0
           });
 
+          let maxLocation = clusterLocations.reduce((acc: Location, curr: Location) =>
+            curr.counts.projects > acc.counts.projects
+              ? curr
+              : acc
+          , clusterLocations[0]);
+
+          let topLocation = maxLocation.label;
+          let numLocations = clusterLocations.length - 1;
+
+          let viewLevelNoun = viewLevel;
+
+          if (numLocations === 1) {
+            viewLevelNoun = {
+              regions: 'region',
+              countries: 'country',
+              cities: 'city',
+              institutions: 'institution',
+            }[viewLevelNoun] as ViewLevel || viewLevelNoun;
+          }
+
+
           let clusteredLocation: Location = {
-            label: `${parseViewLevel(viewLevel)} Cluster: ${clusterLocations.length} ${viewLevel}`,
+            label: `${parseViewLevel(viewLevel)} Cluster: ${topLocation} and ${numLocations} other ${viewLevelNoun}`,
             value: '',
             coordinates: {lat: center.lat(), lng: center.lng()},
             counts: counts
@@ -353,19 +392,10 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       }
 
       this.shouldRedraw = false;
-
-      if (viewLevel === 'regions' && map.getZoom() < 3) {
-        map.setCenter({
-          lat: 25,
-          lng: 0,
-        })
-      }
-
-      if (clusterer.getElements().length === 1) {
+      if (clusterer.getElements().length === 1 && viewLevel !== 'regions') {
         map.setZoom(4);
         map.setCenter(clusterer.getElements()[0].coordinates);
       }
-
       this.shouldRedraw = true;
     }
   }

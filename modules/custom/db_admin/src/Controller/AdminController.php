@@ -91,7 +91,7 @@ class AdminController extends ControllerBase {
       $event = new GenericEvent([
         'id' => $i,
         'organization_name' => "Sample Organization $i",
-        'country' => 'US',
+        'country' => 'Italy',
         'email' => "email@organization$i",
         'description_of_the_organization' => "Mission Statement for Organization $i",
         'is_completed' => true,

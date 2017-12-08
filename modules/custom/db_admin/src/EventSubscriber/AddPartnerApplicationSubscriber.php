@@ -56,6 +56,16 @@ class AddPartnerApplicationSubscriber implements EventSubscriberInterface {
       return false;
     }
 
+    // replace country name with country abbreviation
+    $countryStmt = PDOBuilder::getConnection()->prepare("
+      SELECT RTRIM(Abbreviation) FROM Country
+        WHERE name = ?
+        OR Abbreviation = ?
+    ");
+
+    $countryStmt->execute([$parameters['country'], $parameters['country']]);
+    $parameters['country'] = $countryStmt->fetchColumn() ?? $parameters['country'];
+
     $fields = [
         ':name'     => $parameters['organization_name'],
         ':country'  => $parameters['country'],

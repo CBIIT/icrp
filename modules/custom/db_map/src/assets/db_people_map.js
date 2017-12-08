@@ -88,10 +88,9 @@ drupalSettings.db_map = {
         var marker = new google.maps.Marker({
               map: map,
               icon: is_pi ? baseUrl+'orangepin.png' : baseUrl+'yellowpin.png',
-              position: loc,
-              title: detail.pi_name,
+              position: loc
             }),
-            content = '<b>'+(is_pi?'Principal Investigator':'Collaborator')+':</b> '+detail.pi_name+'<br/>'+
+            content = '<b>'+(is_pi?'Principal Investigator':'Collaborator')+':</b> '+(detail.pi_name==""?'Name not available':detail.pi_name)+'<br/>'+
                       '<hr style="margin:.5em 0px;"/>'+
                       'Institution: '+detail.institution+'<br/>'+
                       'Location: '+[detail.city, detail.state, detail.country].filter(e => e && e.length).join(', ');
