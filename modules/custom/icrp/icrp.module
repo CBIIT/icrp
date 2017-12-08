@@ -1437,7 +1437,7 @@ function icrp_hook_form_alter(array &$form, FormStateInterface $form_state, $for
 }
 */
 
-function icrp_views_pre_render($view) {
+function icrp_views_pre_render(ViewExecutable $view) {
   // Scramble the order of the rows shown on this result page.
   // Note that this could be done earlier, but not later in the view execution
   // process.
@@ -1699,9 +1699,7 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
         case 'user_register_form':
             //drupal_set_message("user_register_form");
             //\Drupal\icrp\Importer\OrganizationRestClient::populateOrganizations();
-            \Drupal::cache('render')->deleteAll();
             OrganizationRestClient::populateOrganizations();
-            //drupal_set_message(json_encode(\Drupal::cache('render')->deleteAll()));
             //\Drupal::service('page_cache_kill_switch')->trigger();
             //We set cache to 1 minute instead of clearing cache.
             //drupal_flush_all_caches();
@@ -1740,5 +1738,11 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
         case 'user_login_form':
             //$form['link'] = array('#markup' => t("<div style=padding:20px;'><a href='/user/password'>Forgot Password?</a></div>"));
             break;
+    }
+
+    function icrp_views_post_render(ViewExecutable $view, &$output, CachePluginBase $cache) {
+        drupal_set_message('post_render');
+        $cache->options['results_lifespan'] = 0;
+      $cache->options['output_lifespan'] = 0;
     }
 }
