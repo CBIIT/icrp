@@ -8,6 +8,7 @@ namespace Drupal\icrp\Importer;
 use \Drupal\icrp\Controller\IcrpController;
 use Symfony\Component\HttpFoundation\Request;
 use \Drupal\node\Entity\Node;
+use PDO;
 
 class OrganizationRestClient {
     /*
@@ -43,59 +44,14 @@ class OrganizationRestClient {
     *   If the rest service does not work an empty array is returned.
     */
     private static function getRestOrganizations() {
-        //Example: http://drupal.stackexchange.com/questions/128274/consuming-restful-web-services
-        //Documentation: http://docs.guzzlephp.org/en/latest/
-
-        //Use ajax to pull url
-        //$host = "https://icrpartnership-test.org";
-        //if host is localhost then point to a known address
-
-        if(strcmp(\Drupal::request()->getHttpHost(), "localhost") ==0) {
-            $host = "https://icrpartnership-dev.org";
-        } else {
-            $host = \Drupal::request()->getSchemeAndHttpHost();
+        $organizations = [];
+        $connection = self::get_connection();
+        $stmt = $connection->prepare(
+            "EXECUTE GetPartnerOrgs"
+        );
+        if ($stmt->execute()) {
+            $organizations = array_merge([],$stmt->fetchAll(PDO::FETCH_ASSOC));
         }
-
-        $url = $host . "/getFundingOrgNames";
-
-        \Drupal::logger('icrp')->notice("getRestOrganization pulling url: " . $url);
-        try {
-            $client = \Drupal::service('http_client');
-            //$result = $client->get($url, ['Accept' => 'application/json']);
-            $result = $client->get($url, ['Accept' => 'text/plain']);
-            $status = $result->getStatusCode();
-            //\Drupal::logger('icrp')->warning("result: ".print_r($result, true));
-            //\Drupal::logger('icrp')->warning("status: " . $status);
-            if ($status != 200) {
-                \Drupal::logger('icrp')->warning("getRestOrganization failed: Status Code: " . $status);
-                return array();
-            }
-        } catch (Exception $e) {
-            \Drupal::logger('icrp')->warning("Rest Service failed: " . $e->getMessage());
-            return array();
-        }
-
-        //drupal_set_message($status);
-
-        $output = $result->getBody();
-        //drupal_set_message($output);
-        /* "auto" is expanded to "ASCII,JIS,UTF-8,EUC-JP,SJIS" */
-        /*
-        $output = '
-        [{"ID":"1","Name":"ACS - American Cancer Society is the best","IsActive":"0"},
-        {"ID":"2","Name":"AICR (USA) - American Institute for Cancer Research","IsActive":"0"},
-        {"ID":"3","Name":"AVONFDN - AVON Foundation","IsActive":"1"},
-        {"ID":"4","Name":"AVONFDN - Avon Foundation for Women","IsActive":"1"},
-        {"ID":"5","Name":"CAC2 - Alex\'s Lemonade Stand Foundation is great","IsActive":"1"},
-        {"ID":"6","Name":"CAC2 - Braden\'s Hope For Childhood Cancer","IsActive":"1"},
-        {"ID":"7","Name":"CAC2 - Taking over this org.","IsActive":"0"},
-        {"ID":"8","Name":"CAC2 - CSCN Alliance","IsActive":"0"},
-        {"ID":"9","Name":"CAC2 - Luck2Tuck","IsActive":"1"},
-        {"ID":"11","Name":"We got this.","IsActive":"1"},
-        {"ID":"10","Name":"CAC2 - Noah\'s Light","IsActive":"1"}]';
-        */
-        //drupal_set_message($output);
-        $organizations = json_decode($output, true);
 
         return $organizations;
     }
@@ -176,4 +132,43 @@ class OrganizationRestClient {
                                     'type' => 'organization'));
         $node->save();
     }
+
+  /**
+   * Returns a PDO connection to a database
+   * @param $cfg - An associative array containing connection parameters 
+   *   driver:    DB Driver
+   *   server:    Server Name
+   *   database:  Database
+   *   user:      Username
+   *   password:  Password
+   *
+   * @return A PDO connection
+   * @throws PDOException
+   */
+  private static function get_connection() {
+    $cfg = [];
+    $icrp_database = \Drupal::config('icrp_database');
+    foreach(['driver', 'host', 'port', 'database', 'username', 'password'] as $key) {
+       $cfg[$key] = $icrp_database->get($key);
+    }
+    // connection string
+    $cfg['dsn'] =
+      $cfg['driver'] .
+      ":Server={$cfg['host']},{$cfg['port']}" .
+      ";Database={$cfg['database']};ConnectionPooling=0";
+    // default configuration options
+    $cfg['options'] = [
+      PDO::SQLSRV_ATTR_ENCODING    => PDO::SQLSRV_ENCODING_UTF8,
+      PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+      PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+  //  PDO::ATTR_EMULATE_PREPARES   => false,
+    ];
+    // create new PDO object
+    return new PDO(
+      $cfg['dsn'],
+      $cfg['username'],
+      $cfg['password'],
+      $cfg['options']
+    );
+  }
 }
