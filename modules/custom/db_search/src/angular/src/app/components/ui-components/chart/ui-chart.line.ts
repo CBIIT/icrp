@@ -61,7 +61,7 @@ export class LineChart {
 
         g.append("g")
             .attr("transform", `translate(0, ${height})`)
-            .call(d3.axisBottom(x).ticks(Math.min(5, Math.min(data.length, 1))).tickFormat(d => Math.floor(d)))
+            .call(d3.axisBottom(x).ticks(Math.min(5, data.length - 1)).tickFormat(d => Math.floor(d)))
             .append("text")
             .attr("fill", "#000")
             .attr("x", width / 2)
