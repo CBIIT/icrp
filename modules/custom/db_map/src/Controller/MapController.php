@@ -160,6 +160,7 @@ class MapController extends ControllerBase {
         'type' => 'regions',
         'region' => 1,
         'country' => '',
+        'state' => '',
         'city' => '',
       ]
     );
