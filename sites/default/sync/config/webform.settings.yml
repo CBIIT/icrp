@@ -124,9 +124,7 @@ ui:
   description_help: true
   html_editor_disabled: false
 libraries:
-  excluded_libraries:
-    - jquery.chosen
-    - jquery.chosen
+  excluded_libraries: {  }
 requirements:
   cdn: true
   bootstrap: true
