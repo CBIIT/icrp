@@ -61,14 +61,8 @@ function createHandle() {
 function updateHandles(table: HTMLTableElement, overlay: HTMLDivElement, config?: Configuration) {
   let handles = overlay.children as HTMLCollectionOf<HTMLDivElement>;
   let headers = table.tHead.children[0].children as HTMLCollectionOf<HTMLTableHeaderCellElement>;
-  let numHandles = headers.length;
 
-  // if preserveWidth is true, only apply these changes to inner resize handlers (do not change table width)
-  if (config && config.preserveWidth) {
-    numHandles --;
-  }
-
-  for (let i = 0; i < numHandles; i++) {
+  for (let i = 0; i < headers.length - 1; i++) {
     let header: HTMLTableHeaderCellElement = headers[i];
     let handle: HTMLDivElement = handles[i] || overlay.appendChild(createHandle());
 
@@ -149,14 +143,11 @@ export function enableResizableColumns(table: HTMLTableElement, config?: Configu
   table.parentElement.insertBefore(overlay, table);
 
   setStyles(overlay, {
-    position: 'absolute',
+    position: 'relative',
     width: `${table.clientWidth - 2}px`
   });
 
   setWidth(table, table.clientWidth - 2);
-  // setStyles(table, {
-  //   width: `${table.clientWidth - 3}px`,
-  // })
 
   // populate overlay div with resize handles
   updateHandles(table, overlay, config);
@@ -194,18 +185,23 @@ export function enableResizableColumns(table: HTMLTableElement, config?: Configu
       let index = state.initial.leftColumnIndex;
 
       let leftCellWidth = state.initial.leftCellWidth + offset + 1;
-      let rightCellWidth = state.initial.rightCellWidth - offset + 1;
 
-      if (leftCellWidth > 15 && rightCellWidth > 15) {
-        setColumnWidth(table, index, leftCellWidth);
+      // update the sizes of both columns
+      if (config && config.preserveWidth) {
+        let rightCellWidth = state.initial.rightCellWidth - offset + 1;
 
-        if (config && config.preserveWidth) {
+        if (leftCellWidth > 15 && rightCellWidth > 15) {
+          setColumnWidth(table, index, leftCellWidth);
           setColumnWidth(table, index + 1, rightCellWidth);
         }
+      }
 
-        else {
-          setWidth(table, state.initial.tableWidth + offset);
+      // only update the size of the left column
+      else {
+        if (leftCellWidth > 15) {
+          setColumnWidth(table, index, leftCellWidth);
         }
+        setWidth(table, state.initial.tableWidth + offset);
       }
 
       updateHandles(table, overlay);

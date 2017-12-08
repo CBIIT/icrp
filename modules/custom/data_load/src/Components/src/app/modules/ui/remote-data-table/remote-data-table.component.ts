@@ -1,4 +1,4 @@
-import { Component, OnChanges, Input, Output, SimpleChanges, EventEmitter, AfterViewChecked } from '@angular/core';
+import { Component, OnChanges, ElementRef, ViewChild, Input, Output, SimpleChanges, EventEmitter, AfterViewChecked } from '@angular/core';
 import { enableResizableColumns } from './ResizableColumns';
 import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
 
