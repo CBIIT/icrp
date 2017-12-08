@@ -1663,15 +1663,375 @@ function icrp_fullcalendar_options_info() {
     ),
   );
 }
-/*
- "revision" => array:5 [▼
-    "#type" => "checkbox"
-    "#title" => TranslatableMarkup {#1460 ▶}
-    "#default_value" => true
-    "#access" => false
-    "#group" => "revision_information"
-  ]
-*/
+
+function getDataCaveatsHTML() {
+  $html = '
+ <h1>ICRP Data Caveats</h1>
+ 
+ <table class="caveats">
+  <tbody>
+    <tr>
+      <th class="orgCategory" colspan="2">Single-funder organizations</th>
+    </tr>
+    <tr>
+      <th>Partner</th>
+      <th>Caveat</th>
+    </tr>
+    <tr>
+      <td class="partnerName">ACS</td>
+      <td>Dollar amounts found in the ICRP database are different than what is reported in the American Cancer Society\'s Annual Report. This is because the annual report has been audited. The dollar amounts spent on research reported in this document includes operating expenses of the Research Department. Additionally, the dollar amounts also exclude all grants that were cancelled after being awarded, but includes money that was returned from grants cancelled in the current year that were awarded in previous years. The dollar amounts reported in the database are unaudited and include grants awarded each fiscal year, exclusive of grants that cancelled before activation.</td>
+    </tr>
+    <tr>
+      <td class="partnerName">CBCRP</td>
+      <td>The California Breast Cancer Research Program grants are awarded only to individuals or institutions in California. Grants to the University of California receive only direct funds, while grants to other institutions also receive indirect costs (overhead) at 25% or the federally negotiated rate. Collaborative awards are counted in graphs and tables by the number of co-Principal Investigators rather than the number of projects.</td>
+    </tr>
+    <!--    K O M E N    -->
+    <tr>
+      <td class="partnerName">Komen</td>
+      <td>Dollar amounts found in the ICRP database are different than what is reported on Komen\'s website or in Komen\'s Annual Report for the following reasons:
+      <ol>
+        <li>Komen commits all funds necessary to support a research grant in the year it is awarded. Therefore, Komen\'s website reports on the full amount of each grant in the year it is initiated, while the ICRP data is annualized, as described.</li>
+        <li>Komen funds research grants to our Scientific Advisors (Scientific Advisory Board members and Komen Scholars) and also provides discretionary funding of research-related projects that are not traditional research grants (e.g. support of the Komen Tissue Bank, ASCO and AACR meeting support). These are included in the overall Research Program spending, as reported in our Annual Report and on our website, but are not included in the ICRP database.</li>
+      </ol>
+      </td>
+    </tr>
+    <tr>
+      <td class="partnerName">NIH</td>
+      <td>i. Starting in FY2007 NCI reports funding supplements, etc., for each grant separately instead of including them in the main project, therefore the number of projects may differ significantly from those of previous years.<br />
+      <br />
+      ii. Projects with a cost of $0 include those that were a no-cost extension of the grant or when funding was provided by another NIH institute or center for that FY.<br />
+      <br />
+      iii. Projects with missing beginning/end dates include intramural projects that were funded for the entire FY and continue on into subsequent years.<br />
+      <br />
+      iv. NCI dollars in the ICRP database may not match dollars from other NCI-only databases. "Research Management Services" are not included in the ICRP database. These include technical and administrative services, including central administration, overall program direction, grant and contract administration, human resources, program coordination, and financial management.</td>
+    </tr>
+  </tbody>
+ </table>
+ 
+ <p>&nbsp;</p>
+ 
+ <table class="caveats">
+  <tbody>
+    <tr>
+      <th class="orgCategory" colspan="2">UK Organizations that are part of NCRI</th>
+    </tr>
+    <tr>
+      <th>Partner</th>
+      <th>Caveat</th>
+    </tr>
+    <tr>
+      <td class="partnerName">NCRI<br />
+      (GENERIC)</td>
+      <td>"NCRI submits data to ICRP on behalf of all UK NCRI members from its Cancer Research Database (CaRD). The database only includes entries where funding can be directly attributed to a set of clearly defined research objectives. This means that the CaRD only contains information on all direct research funding (project, programme, fellowship, unit and institute) financed by NCRI Member organizations, for which an abstract has been submitted and where the project is active on 1 April in any given year. Examples of funding that are currently outside the scope of CaRD are infrastructure, meeting grants and research management support."</td>
+    </tr>
+    <tr>
+      <td class="partnerName">Breakthrough (UK)</td>
+      <td>The ICRP database includes all Breakthrough Breast Cancer\'s research spend reported through its Annual Reports &amp; Accounts. There is some variance due to different reporting periods (1 April snapshot versus full financial year) meaning that some research spend that is already committed may not be included in the ICRP figures. Expenditure on non-research charitable activities and management support costs are excluded from the NCRI, and by extension, the ICRP dataset. For further information on Breakthrough\'s research please visit <a href="http://www.breakthroughresearch.org.uk" target="_blank">www.breakthroughresearch.org.uk</a> or email <a href="mailto:research@breakhtrough.org.uk">research@breakthrough.org.uk</a></td>
+    </tr>
+    <tr>
+      <td class="partnerName">CR-UK (UK)</td>
+      <td>The ICRP database includes around 70% of Cancer Research UK\'s direct research spend per financial year as reported through its Annual Reports &amp; Accounts. There is some variance due to different reporting periods (1 April snapshot versus full financial year) meaning that some direct research spend that is planned for allocation will not be included in the ICRP figures. Expenditure on vital research services, technology transfer, meeting grants, research management support and infrastructure to support Cancer Research UK\'s activities is excluded from the NCRI, and by extension, the ICRP dataset.</td>
+    </tr>
+    <tr>
+      <td class="partnerName">Department of Health (UK)</td>
+      <td>There will always be some variance between the figures available on ICRP and the figures reported publicly by DH. There are two reasons for this. Firstly, there is variance due to different reporting periods (1 April snapshot of ICRP versus full financial year reporting by DH). Secondly, the Department\'s National Institute for Health Research (NIHR) encompasses various expenditure on NHS infrastructure for research relevant to cancer that is not in a format that it is possible to capture for ICRP.</td>
+    </tr>
+    <tr>
+      <td class="partnerName">Macmillan (UK)</td>
+      <td>The ICRP database represents about 90% of Macmillan Cancer Support\'s direct research spend per financial year. There is some variance due to different reporting periods (1 April snapshot versus full financial year) meaning that some direct research spend that is planned for allocation will not be included in the ICRP figures. Expenditure on research management support and infrastructure to support Macmillan Cancer Support\'s activities is excluded from the NCRI, and by extension, the ICRP dataset.</td>
+    </tr>
+    <tr>
+      <td class="partnerName">Scottish Government Health Directorates (UK)</td>
+      <td>Scottish Government is committed to improve the health of the Scottish population and the Chief Scientist\'s Office (CSO) funds across a broad range of relevant disease areas. Overall, 75% of the CSO spend is committed to research infrastructure in NHSScotland. This and much other research expenditure is therefore outside the NCRI remit and, by extension, the ICRP dataset.</td>
+    </tr>
+    <tr>
+      <td class="partnerName">Worldwide Cancer Research(UK)</td>
+      <td>Worldwide Cancer Research is unique in that the majority of our funding is awarded to researchers in countries outside the UK. Like many UK research charities, Worldwide Cancer Research only funds the direct costs of research. This creates significant problems in making quantitative comparisons between our funding and that provided by some of the other agencies in the ICRP, which fund both the direct and indirect costs (often called overheads) of research.</td>
+    </tr>
+  </tbody>
+ </table>
+ 
+ <p>&nbsp;</p>
+ 
+ <table class="caveats">
+  <tbody>
+    <tr>
+      <th class="orgCategory" colspan="2">Canadian organizations who are part of the CCRA</th>
+    </tr>
+    <tr>
+      <th>Partner</th>
+      <th>Caveat</th>
+    </tr>
+    <tr>
+      <td class="partnerName">CCRA</td>
+      <td>Caveats/limitations specific to Canadian Cancer Research Alliance organizations can be accessed <a href="./ICRPDataCaveatsCCRA">here</a>.</td>
+    </tr>
+  </tbody>
+ </table>
+ 
+ <p>&nbsp;</p>';
+
+ return $html;
+}
+
+function getDataCaveatsCCRAHTML() {
+  $html = '
+<h1>ICRP Data Caveats - CCRA Organizations</h1>
+
+<div id="content">
+<h3>General data caveats</h3>
+
+<p>Caveats/limitations of the Canadian Cancer Research Survey (CCRS) as documented in CCRA reports are applicable and will not be repeated here. Please consult the available publications at the CCRA web site: <a href="http://www.ccra-acrc.ca/aboutus_publications_en.htm" target="_blank">http://www.ccra-acrc.ca/aboutus_publications_en.htm</a>. This document describes caveats specific to the subset of CCRS data provided to the ICRP.<br />
+<br />
+Data reported by CCRA will vary from the ICRP data as follows:</p>
+
+<table class="caveats">
+  <tbody>
+    <tr class="orgCategory">
+      <th>Difference</th>
+      <th>Detail</th>
+      <th>Impact on investment figures</th>
+    </tr>
+    <tr>
+      <td>Not all CCRS participating organizations are included in the ICRP.</td>
+      <td>For the period 2005-2007, CCRA submitted data to the ICRP for 18 organizations and the three multi-funded initiatives (CBCRA, CPCRI, and CTCRI). This data represents ~30% of the investment documented/reported by the CCRS. We will address this issue, in part, with the 2008 data year submission as we will open data submission to all CCRS participating organizations.</td>
+      <td>Major for 2005-2007; medium impact expected from 2008 on.</td>
+    </tr>
+    <tr>
+      <td>Not all CCRS projects are (will be) included in the ICRP.</td>
+      <td>Even with all organizations included, some discrepancies will remain. Specifically, "related support" grants (i.e., travel awards, workshops/symposia, LOIs, etc.) and equipment/infrastructure grants that have a cancer relevance weighting of less than 100% are not reported to the ICRP, but are included in reports released by CCRA.</td>
+      <td>Medium overall; major impact expected for some organizations (e.g., CFI).</td>
+    </tr>
+    <tr>
+      <td>ICRP uses a different approach to calculating annual project investment.</td>
+      <td>CCRA provides ICRP with the full project amount and start and end dates. A pro-rated calculation is used to derive annual investment. CCRA bases its prorated calculations on annual project amounts (where those data are available) to account for differences in dollar flow.</td>
+      <td>Minor</td>
+    </tr>
+    <tr>
+      <td>ICRP uses different site coding conventions.</td>
+      <td>The cancer site/type codes used within the CCRS are different from ICRP site codes so results by site will vary in some instances.</td>
+      <td>Minor</td>
+    </tr>
+    <tr>
+      <td>ICRP has technical limitations.</td>
+      <td>ICRP has a technical limit of 12 site codes and 8 CSO codes and this requires truncation for a couple of large-scale projects within the CCRS.</td>
+      <td>Very minor</td>
+    </tr>
+    <tr>
+      <td>CCRA provides less descriptive information about its projects to ICRP.</td>
+      <td>Lay abstracts are submitted by CCRA to the ICRP in lieu of scientific abstracts and in their language of origin. For projects without lay abstracts (and there are a significant number of these), only titles are provided. An English translation is provided alongside all French project titles to facilitate use of the search engine.</td>
+      <td>No impact on investment figures, but limits full functionality of search engine especially for organizations that do not collect/report lay abstracts.</td>
+    </tr>
+  </tbody>
+</table>
+&nbsp;
+
+<h2>Specific implications for individual organizations reporting to the CCRS, 2005–2007</h2>
+
+<table class="caveats">
+  <tbody>
+    <tr class="orgCategory">
+      <th>Organization</th>
+      <th>Excluded within ICRP</th>
+      <th>$ Implications 2005-2007</th>
+    </tr>
+    <tr>
+      <td>Alberta Cancer Foundation</td>
+      <td>24 projects (conferences/workshops/travel)</td>
+      <td>3% of investment not included in ICRP (CAD$1M)</td>
+    </tr>
+    <tr>
+      <td>Alberta Innovates - Health Solutions</td>
+      <td>20 projects (9 conference grants, 8 major equipment, 1 scholar/equipment, 1 community health research - visiting lecturer, 1 special initiative funding)</td>
+      <td>1% of investment not included in ICRP (CAD$0.1M)</td>
+    </tr>
+    <tr>
+      <td>Brain Tumour Foundation of Canada</td>
+      <td>All projects (17)</td>
+      <td>Total investment not included in ICRP (CAD$0.4M)</td>
+    </tr>
+    <tr>
+      <td>C17 Research Network</td>
+      <td>All projects (8)</td>
+      <td>Total investment not included in ICRP (CAD$0.3M)</td>
+    </tr>
+    <tr>
+      <td>Canada Foundation for Innovation</td>
+      <td>All projects (332)</td>
+      <td>Total investment not included in ICRP (CAD$256M)</td>
+    </tr>
+    <tr>
+      <td>Canada Research Chairs Program</td>
+      <td>All projects (264)</td>
+      <td>Total investment not included in ICRP (CAD$55M)</td>
+    </tr>
+    <tr>
+      <td>Canadian Association of Radiation Oncology</td>
+      <td>All projects (36)</td>
+      <td>Total investment not included in ICRP (CAD$0.6M)</td>
+    </tr>
+    <tr>
+      <td>Canadian Breast Cancer Foundation</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Canadian Breast Cancer Research Alliance</td>
+      <td>3 projects (knowledge translation grants)</td>
+      <td>Less than 1% of investment not included in ICRP (less than CAD$0.1M)</td>
+    </tr>
+    <tr>
+      <td>Canadian Cancer Society</td>
+      <td>48 projects (38 student travel awards, 10 workshop/symposium awards)</td>
+      <td>Less than 1% of investment not included in ICRP (CAD$0.1M)</td>
+    </tr>
+    <tr>
+      <td>Canadian Institutes of Health Research</td>
+      <td>147 projects (43 multi-user equipment &amp; maintenance grants, 31 research resource grants, 40 LOIs, 32 workshop/travel/planning/KT, 1 other)</td>
+      <td>2% of investment not included in ICRP (CAD$5.4M)</td>
+    </tr>
+    <tr>
+      <td>Canadian Prostate Cancer Research Initiative</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Canadian Tobacco Control Research Initiative</td>
+      <td>100 projects (72 travel grants, 15 letters of intent; 7 planning grants; 6 workshop grants)</td>
+      <td>6% of investment not included in ICRP (CAD$0.3M)</td>
+    </tr>
+    <tr>
+      <td>Canary Foundation of Canada</td>
+      <td>All projects (7)</td>
+      <td>Total investment not included in ICRP (CAD$0.8M)</td>
+    </tr>
+    <tr>
+      <td>Cancer Care Nova Scotia</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Cancer Care Ontario</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>CancerCare Manitoba</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Fonds de la recherche en santè du Quèbec</td>
+      <td>1 project (FRSQ - Inserm (France) Program for Short-term Exchanges)</td>
+      <td>Less than 1% of investment not included in ICRP (less than CAD$0.1M)</td>
+    </tr>
+    <tr>
+      <td>Genome Canada</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Manitoba Health Research Council</td>
+      <td>All projects (43)</td>
+      <td>Total investment not included in ICRP (CAD$1.3M)</td>
+    </tr>
+    <tr>
+      <td>Medical Research Fund of New Brunswick</td>
+      <td>All projects (3)</td>
+      <td>Total investment not included in ICRP (less than CAD$0.1M)</td>
+    </tr>
+    <tr>
+      <td>Michael Smith Foundation for Health Research</td>
+      <td>13 projects (3 team planning awards; 5 research unit awards; 4 technology/methodology platform; 1 institutional infrastructure program)</td>
+      <td>5% of investment not included in ICRP (CAD$18.6M)</td>
+    </tr>
+    <tr>
+      <td>National Research Council of Canada</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Natural Sciences and Engineering Research Council</td>
+      <td>All projects (348)</td>
+      <td>Total investment not included in ICRP (CAD$15M)</td>
+    </tr>
+    <tr>
+      <td>Networks of Centres of Excellence</td>
+      <td>All projects (20)</td>
+      <td>Total investment not included in ICRP (CAD$4M)</td>
+    </tr>
+    <tr>
+      <td>Nova Scotia Health Research Foundation</td>
+      <td>All projects (34)</td>
+      <td>Total investment not included in ICRP (CAD$1M)</td>
+    </tr>
+    <tr>
+      <td>Ontario Institute for Cancer Research</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Ovarian Cancer Canada</td>
+      <td>All projects (12)</td>
+      <td>Total investment not included in ICRP (CAD$0.4M)</td>
+    </tr>
+    <tr>
+      <td>Prostate Cancer Canada</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Quebec Breast Cancer Foundation</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Saskatchewan Cancer Agency</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Saskatchewan Health Research Foundation</td>
+      <td>All projects (31)</td>
+      <td>Total investment not included in ICRP (CAD$0.9M)</td>
+    </tr>
+    <tr>
+      <td>Social Sciences and Humanities Research Council</td>
+      <td>All projects (54)</td>
+      <td>Total investment not included in ICRP (CAD$1.6M)</td>
+    </tr>
+    <tr>
+      <td>The Cancer Research Society</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>The Kidney Foundation of Canada</td>
+      <td>All projects (9)</td>
+      <td>Total investment not included in ICRP (CAD$0.5M)</td>
+    </tr>
+    <tr>
+      <td>The Leukemia &amp; Lymphoma Society of Canada</td>
+      <td>All projects (76)</td>
+      <td>Total investment not included in ICRP (CAD$2.6M)</td>
+    </tr>
+    <tr>
+      <td>The Terry Fox Foundation</td>
+      <td>8 Cancer Research Symposium projects</td>
+      <td>Less than 1% of investment not included in ICRP (less than CAD$0.1M)</td>
+    </tr>
+    <tr style="background-color:#DDD; font-weight:bold;">
+      <td>Overall</td>
+      <td>1,658 projects</td>
+      <td>~30% of total investment not included in ICRP ($349M)</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>&nbsp;</p>';
+  return $html;
+}
 
 function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
     //$request = \Drupal::request();
