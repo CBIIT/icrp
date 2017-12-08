@@ -62,3 +62,11 @@ icrp.user_roles:
   requirements:
     _format: 'html'
     _access: 'TRUE'
+
+icrp.icrp_data_caveats:
+  path: /ICRPDataCaveats
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::getDataCaveats'
+  requirements:
+    _permission: 'access content'
+    _role: 'authenticated'

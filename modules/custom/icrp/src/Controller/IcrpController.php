@@ -54,6 +54,13 @@ class IcrpController extends ControllerBase {
           ),
         );
     }
+
+    public function getDataCaveats() {
+        return array(
+            '#markup' => getDataCaveatsHTML(),
+        );
+    }
+
     /**
     * @return JsonResponse
     */
