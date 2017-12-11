@@ -419,8 +419,8 @@ $body = '
 
 
 function icrp_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
-  drupal_set_message(__FUNCTION__);
-  drupal_set_message("Bundle:".$entity->bundle());
+  //drupal_set_message(__FUNCTION__);
+  //drupal_set_message("Bundle:".$entity->bundle());
   //drupal_set_message($entity->get('field_calendar_type')->value);
   //Only send emails for events that are Partner Meetings
   if($entity->bundle() == "events" && $entity->get('field_calendar_type')->value == "Partner Meetings") {
@@ -430,8 +430,8 @@ function icrp_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
       $date_range_original = $entity->original->get('field_event_date_range')->getString();
       $date_range = $entity->get('field_event_date_range')->getString();
       if($date_range != $date_range_original) {
-        drupal_set_message("Date has CHANGED", "warning", TRUE);
-        dpm($entity);
+        //drupal_set_message("Date has CHANGED", "warning", TRUE);
+        //dpm($entity);
         sendEventsNotification($entity->id(), 'update');
       }
     }
@@ -472,7 +472,7 @@ function sendEventsNotification($nid, $type) {
     //drupal_set_message(t("date_range: ".$date_range), 'status', TRUE);
 
     $body = createEventsEmailBody($email['first_name'], $subject, $event['event_title'], $date_range, $event['body'], $event['location'], $event['calendar_url'], $update, $host, $event['group_color']);
-    drupal_set_message($body);
+    //drupal_set_message($body);
     
     sendNewForumPostMail($email['formated_email'], $subject, $body);
   }
