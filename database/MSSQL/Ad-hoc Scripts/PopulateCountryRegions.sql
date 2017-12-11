@@ -17,7 +17,7 @@ CREATE TABLE #Region (
 GO
 
 BULK INSERT #Region
-FROM 'C:\ICRP\database\DataImport\CurrentRelease\Coordinates\CountryRegionMappings.csv'
+FROM 'C:\ICRP\database\DataImport\CurrentRelease\Country\CountryRegionMappings.csv'
 WITH
 (
 	FIRSTROW = 2,

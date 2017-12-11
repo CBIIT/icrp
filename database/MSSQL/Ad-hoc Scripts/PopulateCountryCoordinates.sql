@@ -18,7 +18,7 @@ CREATE TABLE #CountryCoordinates (
 GO
 
 BULK INSERT #CountryCoordinates
-FROM 'C:\ICRP\database\DataImport\CurrentRelease\Coordinates\CountryCoordinates.csv'
+FROM 'C:\ICRP\database\DataImport\CurrentRelease\Country\CountryCoordinates.csv'
 WITH
 (
 	FIRSTROW = 2,
@@ -35,7 +35,7 @@ FROM Country c
 JOIN #CountryCoordinates cc ON cc.Country = c.Abbreviation
 
 -- testing
-select * FROM (select distinct country from Institution) i
+select 'Check Missing Country Coord.' AS Issue, * FROM (select distinct country from Institution) i
 JOIN Country c ON i.Country = c.Abbreviation
 WHERE c.Latitude is null or c.Longitude is null
 

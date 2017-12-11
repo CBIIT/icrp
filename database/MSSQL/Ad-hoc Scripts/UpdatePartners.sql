@@ -18,7 +18,7 @@ CREATE TABLE #Partner (
 GO
 
 BULK INSERT #Partner
-FROM 'C:\ICRP\database\DataImport\CurrentRelease\Coordinates\PartnerCoordinates.csv'  
+FROM 'C:\ICRP\database\DataImport\CurrentRelease\Org\PartnerCoordinates.csv'  
 WITH
 (
 	FIRSTROW = 2,
