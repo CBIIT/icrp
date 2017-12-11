@@ -503,16 +503,18 @@ function getEventsDetails($nid) {
 
   //Get Group Color for this event
   $event_group =  $node->get('field_event_group')->value; 
+  $config = \Drupal::service('config.factory')->get('icrp.settings');
+  //drupal_set_message($config->get('event_group_color.partner_news_and_announcements'));
   $group_color = array(
-      "Partner News and Announcements" => "ROYALBLUE",
-      "Annual Meetings" => "DARKCYAN",
-      "Communications and Membership" => "TURQUOISE",
-      "CSO and Coding" => "DARKORANGE",
-      "Evaluations and Analyses" => "OLIVEDRAB",
-      "Partner Operations" => "MEDIUMVIOLETRED",
-      "Website and Database" => "INDIANRED",
+      "Partner News and Announcements" => $config->get('event_group_color.partner_news_and_announcements'),
+      "Annual Meetings" => $config->get('event_group_color.annual_meetings'),
+      "Communications and Membership" => $config->get('event_group_color.communications_and_membership'),
+      "CSO and Coding" => $config->get('event_group_color.cso_and_coding'),
+      "Evaluations and Analyses" => $config->get('event_group_color.evaluations_and_analyses'),
+      "Partner Operations" => $config->get('event_group_color.partner_operations'),
+      "Website and Database" => $config->get('event_group_color.website_and_database'),
   );
-
+  //dpm($group_color);
   if(isset($group_color[$event_group])) {
     $detail['group_color'] = $group_color[$event_group];
   } else {
@@ -673,7 +675,7 @@ function icrp_node_insert(NodeInterface $node) {
   //drupal_set_message("function: ".__FUNCTION__);
   $nid = $node->id();
   //drupal_set_message("node insert type: ".$node->getType());
-  drupal_set_message($node->get('field_calendar_type')->value);
+  //drupal_set_message($node->get('field_calendar_type')->value);
   //Only send emails for events that are Partner Meetings
   if($node->getType() == "events" && $node->get('field_calendar_type')->value == "Partner Meetings") {
     //drupal_set_message("Node Insert");
