@@ -181,7 +181,7 @@ export class DataGrid extends React.Component<DataGridProps, DataGridState> {
           <thead>
             <tr>
             {_headers.map((header: DataGridHeader, index: number) =>
-              <th key={header.value}>
+              <th key={header.value} style={{width: `${100 / _headers.length}%`}}>
                   <OverlayTrigger placement="top" overlay={
                     <Tooltip id={header.value}>
                       {header.tooltip || header.label}
