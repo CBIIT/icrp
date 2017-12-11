@@ -164,13 +164,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         bounds.extend(northEast);
         bounds.extend(southWest);
 
-        if (props.viewLevel === 'regions') {
-          this.applyDefaultView();
-        }
-
-        else {
-          this.map.fitBounds(bounds);
-        }
+        this.map.fitBounds(bounds);
       }
 
       else {
@@ -180,8 +174,19 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       this.shouldRedraw = true;
 
       if (props.locations.length === 1) {
-        this.map.setZoom(this.map.getZoom() + 1);
         this.map.setCenter(props.locations[0].coordinates);
+
+        if (props.viewLevel === 'countries') {
+          this.map.setZoom(4);
+        }
+
+        else {
+          this.map.setZoom(this.map.getZoom() + 1);
+        }
+      }
+
+      if (props.viewLevel === 'regions') {
+        this.applyDefaultView();
       }
 
       this.redrawMap();
