@@ -421,7 +421,9 @@ $body = '
 function icrp_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
   //drupal_set_message(__FUNCTION__);
   //drupal_set_message("Bundle:".$entity->bundle());
-  if($entity->bundle() == "events") {
+  //drupal_set_message($entity->get('field_calendar_type')->value);
+  //Only send emails for events that are Partner Meetings
+  if($entity->bundle() == "events" && $entity->get('field_calendar_type')->value == "Partner Meetings") {
     if (isset($entity->original)) {
       //This is an Update of an existing Event
       //Check to see if date has changed
@@ -429,6 +431,7 @@ function icrp_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
       $date_range = $entity->get('field_event_date_range')->getString();
       if($date_range != $date_range_original) {
         //drupal_set_message("Date has CHANGED", "warning", TRUE);
+        //dpm($entity);
         sendEventsNotification($entity->id(), 'update');
       }
     }
@@ -500,16 +503,24 @@ function getEventsDetails($nid) {
 
   //Get Group Color for this event
   $event_group =  $node->get('field_event_group')->value; 
+  $config = \Drupal::service('config.factory')->get('icrp.settings');
+  //drupal_set_message($config->get('event_group_color.partner_news_and_announcements'));
   $group_color = array(
-      "Partner News and Announcements" => "ROYALBLUE",
-      "Annual Meetings" => "DARKCYAN",
-      "Communications and Membership" => "TURQUOISE",
-      "CSO and Coding" => "DARKORANGE",
-      "Evaluations and Analyses" => "OLIVEDRAB",
-      "Partner Operations" => "MEDIUMVIOLETRED",
-      "Website and Database" => "INDIANRED",
+      "Partner News and Announcements" => $config->get('event_group_color.partner_news_and_announcements'),
+      "Annual Meetings" => $config->get('event_group_color.annual_meetings'),
+      "Communications and Membership" => $config->get('event_group_color.communications_and_membership'),
+      "CSO and Coding" => $config->get('event_group_color.cso_and_coding'),
+      "Evaluations and Analyses" => $config->get('event_group_color.evaluations_and_analyses'),
+      "Partner Operations" => $config->get('event_group_color.partner_operations'),
+      "Website and Database" => $config->get('event_group_color.website_and_database'),
   );
-  $detail['group_color'] = $group_color[$event_group];
+  //dpm($group_color);
+  if(isset($group_color[$event_group])) {
+    $detail['group_color'] = $group_color[$event_group];
+  } else {
+    drupal_set_message($event_group." not found.", 'warning');
+    return $detail;
+  }
 
   $event_date = substr($detail['date_range'], 0, 7);
 
@@ -661,11 +672,12 @@ $body = '
 
 
 function icrp_node_insert(NodeInterface $node) {
-
-  //drupal_set_message("node_insert");
+  //drupal_set_message("function: ".__FUNCTION__);
   $nid = $node->id();
   //drupal_set_message("node insert type: ".$node->getType());
-  if($node->getType() == "events") {
+  //drupal_set_message($node->get('field_calendar_type')->value);
+  //Only send emails for events that are Partner Meetings
+  if($node->getType() == "events" && $node->get('field_calendar_type')->value == "Partner Meetings") {
     //drupal_set_message("Node Insert");
     //drupal_set_message("Type: ". $node->getType());
     //drupal_set_message($node->getTitle());
