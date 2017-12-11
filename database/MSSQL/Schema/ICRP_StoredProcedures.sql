@@ -626,11 +626,13 @@ AS
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 	END
 		
+	SELECT ProjectID INTO #proj FROM @Result
+
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
 	SELECT DISTINCT f.ProjectID, f.ProjectFundingID, f.Amount, pii.Country, o.Currency INTO #pf 
-	FROM @Result r		
+	FROM #proj r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
@@ -787,12 +789,14 @@ AS
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID	
 
 	END	
+	
+	SELECT ProjectID INTO #proj FROM @Result
 
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, c.categoryName, pc.Relevance, f.Amount, o.Currency INTO #pf 
-	FROM @Result r		
+	FROM #proj r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
@@ -949,28 +953,26 @@ AS
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 
 	END
-	
-	-- FInd out CancerType Rollups
-	IF @CancerTypelist IS NOT NULL
-	BEGIN
-		-- include all related cancertype IDs if search by roll-up cancer type 
-		SELECT l.CancerTypeID, r.CancerTypeID AS RelatedCancerTypeID INTO #ct 
-			FROM (SELECT VALUE AS CancerTypeID FROM dbo.ToIntTable(@cancerTypeList)) l
-			LEFT JOIN CancerTypeRollUp r ON l.cancertypeid = r.CancerTyperollupID
 
-		SELECT DISTINCT cancertypeid INTO #ctlist FROM
-		(
-			SELECT cancertypeid FROM #ct
-			UNION
-			SELECT Relatedcancertypeid AS cancertypeid FROM #ct WHERE Relatedcancertypeid IS NOT NULL
-		) ct	
-	END
+	SELECT ProjectID INTO #proj FROM @Result
+
+	-- CancerType Rollups - include all related cancertype IDs if search by roll-up cancer type 
+	SELECT l.CancerTypeID, r.CancerTypeID AS RelatedCancerTypeID INTO #ct 
+		FROM (SELECT VALUE AS CancerTypeID FROM dbo.ToIntTable(@cancerTypeList)) l
+		LEFT JOIN CancerTypeRollUp r ON l.cancertypeid = r.CancerTyperollupID
+
+	SELECT DISTINCT cancertypeid INTO #ctlist FROM
+	(
+		SELECT cancertypeid FROM #ct
+		UNION
+		SELECT Relatedcancertypeid AS cancertypeid FROM #ct WHERE Relatedcancertypeid IS NOT NULL
+	) ct	
 
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, ct.Name AS CancerType, pc.Relevance, f.Amount, o.Currency INTO #pf 
-	FROM @Result r		
+	FROM #proj r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
@@ -1116,12 +1118,13 @@ AS
 		
 	END	
 	
-	
+	SELECT ProjectID INTO #proj FROM @Result
+
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, pt.ProjectType, f.Amount, o.Currency INTO #pf 
-	FROM @Result r		
+	FROM #proj r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
 		JOIN Project_ProjectType pt ON r.ProjectID = pt.ProjectID
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
@@ -1283,11 +1286,13 @@ AS
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 	END
 	
+	SELECT ProjectID INTO #proj FROM @Result
+
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, ext.CalendarYear, ext.CalendarAmount, o.Currency INTO #pf 
-	FROM @Result r		
+	FROM #proj r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
 		JOIN ProjectFundingExt ext ON ext.ProjectFundingID = f.ProjectFundingID
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
@@ -5863,7 +5868,7 @@ AS
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
 
-	DECLARE @base TABLE
+	DECLARE @result TABLE
 	(
 		ProjectID INT
 	)
@@ -5871,13 +5876,13 @@ AS
 	-- No filters. Return all counts - total related projects = 168423
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO @base SELECT ProjectID FROM Project
+		INSERT INTO @result SELECT ProjectID FROM Project
 	END
 	ELSE  -- filtered results (based on searchID)
 	BEGIN		
 		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID					
 
-		INSERT INTO @base SELECT  [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+		INSERT INTO @result SELECT  [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
 
 		-- get search criteria to filter project funding records
 		SELECT @YearList = YearList,
@@ -5898,11 +5903,13 @@ AS
 
 	END
 
+	SELECT ProjectID INTO #base FROM @result
+
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
 	SELECT DISTINCT c.RegionID, c.Abbreviation AS Country, i.City, f.ProjectFundingID, people.IsPrincipalInvestigator INTO #pf 
-	FROM @base b		
+	FROM #base b		
 		JOIN ProjectFunding f ON b.ProjectID = f.ProjectID	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
@@ -6018,7 +6025,7 @@ AS
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
 
-	DECLARE @base TABLE
+	DECLARE @result TABLE
 	(
 		ProjectID INT
 	)
@@ -6026,13 +6033,13 @@ AS
 	-- No filters. Return all counts - total related projects = 168423
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO @base SELECT ProjectID FROM Project
+		INSERT INTO @result SELECT ProjectID FROM Project
 	END
 	ELSE  -- filtered results (based on searchID)
 	BEGIN		
 		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID					
 
-		INSERT INTO @base SELECT  [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+		INSERT INTO @result SELECT  [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
 
 		-- get search criteria to filter project funding records
 		SELECT @YearList = YearList,
@@ -6052,11 +6059,13 @@ AS
 
 	END
 
+	SELECT ProjectID INTO #base FROM @result
+
 	----------------------------------		
 	--   Filter on related projects
 	----------------------------------
 	SELECT DISTINCT c.RegionID, c.Abbreviation AS Country, i.City, f.ProjectFundingID, people.IsPrincipalInvestigator INTO #pf 
-	FROM @base b		
+	FROM #base b		
 		JOIN ProjectFunding f ON b.ProjectID = f.ProjectID	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
@@ -6169,7 +6178,7 @@ AS
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
 
-	DECLARE @base TABLE
+	DECLARE @result TABLE
 	(
 		ProjectID INT
 	)
@@ -6177,13 +6186,13 @@ AS
 	-- No filters. Return all counts - total related projects = 168423
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO @base SELECT ProjectID FROM Project
+		INSERT INTO @result SELECT ProjectID FROM Project
 	END
 	ELSE  -- filtered results (based on searchID)
 	BEGIN		
 		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID					
 
-		INSERT INTO @base SELECT  [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+		INSERT INTO @result SELECT  [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
 
 		-- get search criteria to filter project funding records
 		SELECT @YearList = YearList,				
@@ -6201,12 +6210,14 @@ AS
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 
 	END
+	
+	SELECT ProjectID INTO #base FROM @result
 
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
 	SELECT DISTINCT f.ProjectFundingID, c.RegionID, c.Abbreviation AS Country, i.City, i.State, people.IsPrincipalInvestigator INTO #pf 
-	FROM @base b		
+	FROM #base b		
 		JOIN ProjectFunding f ON b.ProjectID = f.ProjectID	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
@@ -6324,7 +6335,7 @@ DECLARE @ProjectIDs VARCHAR(max)
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
 
-	DECLARE @base TABLE
+	DECLARE @result TABLE
 	(
 		ProjectID INT
 	)
@@ -6332,13 +6343,13 @@ DECLARE @ProjectIDs VARCHAR(max)
 	-- No filters. Return all counts - total related projects = 168423
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO @base SELECT ProjectID FROM Project
+		INSERT INTO @result SELECT ProjectID FROM Project
 	END
 	ELSE  -- filtered results (based on searchID)
 	BEGIN		
 		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID					
 
-		INSERT INTO @base SELECT  [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+		INSERT INTO @result SELECT  [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
 
 		-- get search criteria to filter project funding records
 		SELECT @YearList = YearList,				
@@ -6355,11 +6366,13 @@ DECLARE @ProjectIDs VARCHAR(max)
 
 	END
 
+	SELECT ProjectID INTO #base FROM @result
+	
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------		
 	SELECT DISTINCT i.InstitutionID, i.Name AS Institution, i.City, f.ProjectFundingID, people.IsPrincipalInvestigator INTO #pf 
-	FROM @base b		
+	FROM #base b		
 		JOIN ProjectFunding f ON b.ProjectID = f.ProjectID	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
