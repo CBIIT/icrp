@@ -6,8 +6,8 @@ default:
       src/assets/db_layer_map.css: {}
   js:
     ## localhost only
-    ## https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg&libraries=geometry: {type: external}
-    https://maps.googleapis.com/maps/api/js?key=AIzaSyCGWGjju-VhYkWhFSL06xYtq0UAfe_kl_s&libraries=geometry: {type: external}
+    https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg&libraries=geometry: {type: external}
+    # https://maps.googleapis.com/maps/api/js?key=AIzaSyCGWGjju-VhYkWhFSL06xYtq0UAfe_kl_s&libraries=geometry: {type: external}
     src/assets/db_layer_map.js: {}
     src/assets/main.js: {}
 
@@ -24,5 +24,5 @@ map.people:
     src/assets/db_people_map_controls.js: {}
     src/assets/db_layer_map.js: {}
     ## localhost only
-    ## https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg&callback=drupalSettings.db_map.initPeopleMap: {async: true, defer: true}
-    https://maps.googleapis.com/maps/api/js?key=AIzaSyCGWGjju-VhYkWhFSL06xYtq0UAfe_kl_s&callback=drupalSettings.db_map.initPeopleMap: {async: true, defer: true}
+    https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg&callback=drupalSettings.db_map.initPeopleMap: {async: true, defer: true}
+    # https://maps.googleapis.com/maps/api/js?key=AIzaSyCGWGjju-VhYkWhFSL06xYtq0UAfe_kl_s&callback=drupalSettings.db_map.initPeopleMap: {async: true, defer: true}
