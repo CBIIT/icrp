@@ -14,6 +14,8 @@ export class ImportPageComponent {
 
   form: FormGroup;
 
+  submitted: boolean = false;
+
   @Output() previous: EventEmitter<any> = new EventEmitter();
 
   @Output() cancel: EventEmitter<any> = new EventEmitter();
@@ -44,6 +46,7 @@ export class ImportPageComponent {
  }
 
  reset() {
+   this.submitted = false;
    this.form.reset({
      fundingYearStart: 2016,
      fundingYearEnd: 2016,
@@ -52,6 +55,7 @@ export class ImportPageComponent {
 
  submit() {
 
+  this.submitted = true;
   this.alerts = [];
 
   let {
