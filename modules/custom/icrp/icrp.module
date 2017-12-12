@@ -186,8 +186,8 @@ function getForumDetails($nid) {
   $tid =  $node->get('taxonomy_forums')->target_id; 
   $fdetail['forum_category'] = getTopicName($tid);
 
-  $fdetail['forum_url'] = $host."/forum/".$tid;
-  $fdetail['thread_url'] = $host."/node/".$nid."?page0";
+  $fdetail['forum_url'] = $host."/user/login?destination=/forum/".$tid;
+  $fdetail['thread_url'] = $host."/user/login?destination=/node/".$nid."?page0";
 
   return $fdetail;
 
@@ -303,6 +303,7 @@ function sendForumNotification($nid, $cid = "0") {
   foreach($emails as $key => $email) {
     //$email = "Chris Kneisler <cpkneisler@gmail.com>";
     $body = createForumEmailBody($email['first_name'], $subject, $author, $forum['forum_category'],  $forum['thread_subject'], $forum['thread_summary_or_trim_body'], $message, $forum['forum_url'], $forum['thread_url'], $display_summary, $host);
+    //drupal_set_message($body);
     sendNewEventsPostMail($email['formated_email'], $subject, $body);
   }
   //Loop through users and send them an e-mail.
@@ -398,7 +399,7 @@ $body = '
     </tr>
     <tr>
       <td>
-        <p style="font-family:Verdana,Arial;font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new posts to ICRP Forums. If you wish to unsubscribe, log in to ICRP, navigate to <a target="_blank" href="'.$host.'/my-profile">My Profile</a> and unselect the <em>ICRP Committees and Forums</em> which you no longer want to receive. </p>
+        <p style="font-family:Verdana,Arial;font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new posts to ICRP Forums. If you wish to unsubscribe, log in to ICRP, navigate to <a target="_blank" href="'.$host.'/user/login?destination=/my-profile">My Profile</a> and unselect the <em>ICRP Committees and Forums</em> which you no longer want to receive. </p>
       </td>
     </tr>
   </table>
@@ -524,8 +525,7 @@ function getEventsDetails($nid) {
 
   $event_date = substr($detail['date_range'], 0, 7);
 
-  $detail['calendar_url'] = $host."/calendar?default_date=".$event_date;
-
+  $detail['calendar_url'] = $host."/user/login?destination=/calendar?default_date=".$event_date."&amp;open_tab=partner-meetings";
   return $detail;
 
 }
@@ -659,7 +659,7 @@ $body = '
     </tr>
     <tr>
       <td>
-        <p style="font-family:Verdana,Arial;font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new events coming soon. If you wish to unsubscribe, log in to ICRP, navigate to <a target="_blank" href="'.$host.'/my-profile">My Profile</a> and unselect the <em>Notify me of new Events to ICRP Committees<em> check box.</p>
+        <p style="font-family:Verdana,Arial;font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new events coming soon. If you wish to unsubscribe, log in to ICRP, navigate to <a target="_blank" href="'.$host.'/user/login?destination=/my-profile">My Profile</a> and unselect the <em>Notify me of new Events to ICRP Committees<em> check box.</p>
       </td>
     </tr>
   </table>
