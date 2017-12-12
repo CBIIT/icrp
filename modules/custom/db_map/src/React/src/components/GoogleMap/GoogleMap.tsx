@@ -39,7 +39,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
   componentDidMount() {
     this.map = new google.maps.Map(this.mapContainer, DEFAULT_OPTIONS);
     this.clusterer = new LocationClusterer(this.map);
-    this.clusterer.setRadius(60);
+    this.clusterer.setRadius(40);
 
     this.overlay = new google.maps.OverlayView();
     this.overlay.setMap(this.map);
@@ -56,7 +56,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       if (this.map.getZoom() < 3) {
         this.map.setOptions({
           styles: UNLABELED_MAP
-        });        
+        });
       }
 
       else {

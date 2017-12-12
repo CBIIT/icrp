@@ -151,9 +151,12 @@ export const getNextLocationFilters = (location: Location, locationFilters: Loca
   delete filters.state;
 
   if (key === 'city') {
-    let state = (location.label.split(',').pop() as String).trim();
-    if (state && /^[A-Z]{2}$/.test(state))
-      filters.state = state;
+    let labels = location.label.split(',');
+    if (labels.length > 1) {
+      let state = (labels.pop() as String).trim();
+      if (state && /^[A-Za-z0-9]{2,15}$/.test(state))
+        filters.state = state;
+    }
   }
 
   // console.log('called getNextLocationFilters', location, locationFilters, filters);
