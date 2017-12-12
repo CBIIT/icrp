@@ -41,7 +41,8 @@ export default class SummaryGrid extends ComponentBase<SummaryGridProps & React.
         callback: (name: string, index: number) => {
           let location = locations.find(loc => loc.label === name);
           onSelect(getNextLocationFilters(location as Location, locationFilters));
-        }
+        },
+        width: '40%',
       },
 
       {
@@ -49,6 +50,7 @@ export default class SummaryGrid extends ComponentBase<SummaryGridProps & React.
         value: 'projects',
         tooltip: `Total projects with PI or collaborators in this ${parseViewLevel(viewLevel).toLowerCase()}`,
         sortDirection: 'desc',
+        width: '20%',
       },
 
       {
@@ -56,6 +58,7 @@ export default class SummaryGrid extends ComponentBase<SummaryGridProps & React.
         value: 'primaryInvestigators',
         tooltip: `Projects with PI in this ${parseViewLevel(viewLevel).toLowerCase()}`,
         sortDirection: 'none',
+        width: '20%',
       },
 
       {
@@ -63,6 +66,7 @@ export default class SummaryGrid extends ComponentBase<SummaryGridProps & React.
         value: 'collaborators',
         tooltip: `Projects with collaborator(s) in this ${parseViewLevel(viewLevel).toLowerCase()}`,
         sortDirection: 'none',
+        width: '20%',
       },
     ];
 
@@ -74,7 +78,7 @@ export default class SummaryGrid extends ComponentBase<SummaryGridProps & React.
     }));
 
     return (
-      <DataGrid 
+      <DataGrid
         headers={headers}
         data={data}>
         {children}

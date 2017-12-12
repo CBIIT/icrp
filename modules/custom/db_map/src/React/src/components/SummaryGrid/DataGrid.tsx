@@ -8,6 +8,7 @@ export interface DataGridHeader {
   tooltip?: string;
   sortDirection?: string; // 'asc', 'desc', or 'none'
   callback?: (value: any, index: number) => any;
+  width?: string;
 }
 
 export interface DataGridProps {
@@ -24,7 +25,7 @@ interface DataGridState {
 }
 
 export class DataGrid extends React.Component<DataGridProps, DataGridState> {
-  state = {
+  state: DataGridState = {
     _headers: [],
     _originalData: [],
     _data: [],
@@ -43,7 +44,8 @@ export class DataGrid extends React.Component<DataGridProps, DataGridState> {
           value: header,
           label: header,
           tooltip: header,
-          sortDirection: 'none'
+          sortDirection: 'none',
+          width: '',
         } : header
       );
 
@@ -181,7 +183,7 @@ export class DataGrid extends React.Component<DataGridProps, DataGridState> {
           <thead>
             <tr>
             {_headers.map((header: DataGridHeader, index: number) =>
-              <th key={header.value} style={{width: `${100 / _headers.length}%`}}>
+              <th key={header.value} style={{width: header.width || `${100 / _headers.length}%`}}>
                   <OverlayTrigger placement="top" overlay={
                     <Tooltip id={header.value}>
                       {header.tooltip || header.label}
