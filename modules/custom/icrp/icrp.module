@@ -451,13 +451,27 @@ function sendEventsNotification($nid, $type, $entity="") {
   $message = $event['body'];
 
   $message = relToAbs($message, $host);
+  //drupal_set_message("type: ".$type);
 
-  $subject = "ICRP Meeting Reminder - {$event['event_title']}";
-  $emails = getEventsEmails($nid, $event['author_uid'], $entity);
+  switch ($type) {
+    case 'create':
+      $subject = "ICRP Meeting (New) - {$event['event_title']}";
+      $intro = "The following ICRP partner meeting has been added to the calendar:";
+      break;
+    case 'update':
+      $subject = "ICRP Meeting Update - {$event['event_title']}";
+      $intro = "The following ICRP partner meeting date has changed:";
+      break;
+    case 'delete':
+      $subject = "ICRP Meeting Canceled - {$event['event_title']}";
+      $intro = 'The following ICRP partner meeting has been <span style="color:red">Canceled</span>:';
+      break;
+  }
+
+  $emails = getEventsEmails($nid, $event['author_uid']);
 
   //drupal_set_message("Emails");
   //dpm($emails);
-  $update = ($type == 'update');
   foreach($emails as $key => $email) {
     $event_start_date = new DrupalDateTime($event['date_start'], 'UTC');
     $event_end_date = new DrupalDateTime($event['date_end'], 'UTC');
@@ -476,12 +490,15 @@ function sendEventsNotification($nid, $type, $entity="") {
     if($event_start_date->format('Y-m-d H:i') == $event_end_date->format('Y-m-d H:i')) {
       $date_range = $event_start_date->format('l, F j, Y')." at ".$event_start_date->format('g:i A (T)');
     }
-    if($update){
+    if($type == 'update'){
       $date_range = '<span style="color:green">Date Changed: </span>'.$date_range;
     }
-    //drupal_set_message(t("date_range: ".$date_range), 'status', TRUE);
+    if($type == 'delete'){
+      $date_range = '<span style="color:red">Date Canceled: </span><strike>'.$date_range.'</strike>';
+    }
 
-    $body = createEventsEmailBody($email['first_name'], $subject, $event['event_title'], $date_range, $event['body'], $event['location'], $event['calendar_url'], $update, $host, $event['group_color']);
+    //drupal_set_message(t("date_range: ".$date_range), 'status', TRUE);
+    $body = createEventsEmailBody($email['first_name'], $subject, $event['event_title'], $date_range, $event['body'], $event['location'], $event['calendar_url'], $host, $event['group_color'], $intro);
     //drupal_set_message($body);
     sendNewForumPostMail($email['formated_email'], $subject, $body);
   }
@@ -599,7 +616,7 @@ function  getEventsEmails($nid, $author_uid) {
   return $forum_members;
 }
 
-function createEventsEmailBody($to, $subject, $event_title, $date_range, $message, $location, $calendar_url, $update, $host, $group_color) {
+function createEventsEmailBody($to, $subject, $event_title, $date_range, $message, $location, $calendar_url, $host, $group_color, $intro) {
 
 $body = '
 <!DOCTYPE html>
@@ -626,8 +643,7 @@ $body = '
             </td>
           </tr>
           <tr>
-            <td style="padding-bottom:10px;">
-              This ICRP partner meeting is coming up soon:
+            <td style="padding-bottom:10px;">'.$intro.'
             </td>
           </tr>
           <tr>
@@ -680,6 +696,11 @@ $body = '
   return $body;
 }
 
+function icrp_node_predelete(Drupal\Core\Entity\EntityInterface $entity) {
+  if($entity->bundle() == "events" && $entity->get('field_calendar_type')->value == "Partner Meetings") {
+    sendEventsNotification($entity->id(), 'delete', $entity);
+  }
+}
 
 function icrp_node_insert(NodeInterface $node) {
   //drupal_set_message("function: ".__FUNCTION__);
