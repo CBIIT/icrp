@@ -433,40 +433,49 @@ function icrp_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
       if($date_range != $date_range_original) {
         //drupal_set_message("Date has CHANGED", "warning", TRUE);
         //dpm($entity);
-        sendEventsNotification($entity->id(), 'update');
+        sendEventsNotification($entity->id(), 'update', $entity);
       }
     }
   }
 }
 
 
-function sendEventsNotification($nid, $type) {
+function sendEventsNotification($nid, $type, $entity="") {
   //drupal_set_message(__FUNCTION__);
   //drupal_set_message("Message Type:".$type);
 
   \Drupal::logger('icrp')->notice('Send Event Notification: nid='.$nid);
   $host = "https://" . \Drupal::request()->getHost();
-  $event = getEventsDetails($nid);
+  $event = getEventsDetails($nid, $entity);
   //dpm($event);
   $message = $event['body'];
 
   $message = relToAbs($message, $host);
 
   $subject = "ICRP Meeting Reminder - {$event['event_title']}";
-  $emails = getEventsEmails($nid, $event['author_uid']);
+  $emails = getEventsEmails($nid, $event['author_uid'], $entity);
 
   //drupal_set_message("Emails");
   //dpm($emails);
   $update = ($type == 'update');
   foreach($emails as $key => $email) {
-    //$email = "Chris Kneisler <cpkneisler@gmail.com>";
-    $date_start = $event['date_start']; //Need to use timezone for each email.
     $event_start_date = new DrupalDateTime($event['date_start'], 'UTC');
-    //dpm($event_start_date);
+    $event_end_date = new DrupalDateTime($event['date_end'], 'UTC');
     $event_start_date->setTimezone(new \DateTimeZone($email['timezone']));
-    //dpm($event_start_date);
-    $date_range = $event['date_start']; //Need to use timezone for each email.
-    $date_range = $event_start_date->format('l, F j, Y')." at ".$event_start_date->format('g:i A (T)');
+    $event_end_date->setTimezone(new \DateTimeZone($email['timezone']));
+    $date_range = "Unknown"; //Need to use timezone for each email.
+    //Same date
+    if($event_start_date->format('Y-m-d') == $event_end_date->format('Y-m-d')) {
+      $date_range = $event_start_date->format('l, F j, Y')." at ".$event_start_date->format('g:i A')." - ".$event_end_date->format('g:i A (T)');
+    }
+    //different date
+    if($event_start_date->format('Y-m-d') <> $event_end_date->format('Y-m-d')) {
+      $date_range = $event_start_date->format('l, F j, Y')." at ".$event_start_date->format('g:i A (T)')." - ".$event_end_date->format('l, F j, Y g:i A (T)');
+    }
+    //Same date/time
+    if($event_start_date->format('Y-m-d H:i') == $event_end_date->format('Y-m-d H:i')) {
+      $date_range = $event_start_date->format('l, F j, Y')." at ".$event_start_date->format('g:i A (T)');
+    }
     if($update){
       $date_range = '<span style="color:green">Date Changed: </span>'.$date_range;
     }
@@ -474,22 +483,26 @@ function sendEventsNotification($nid, $type) {
 
     $body = createEventsEmailBody($email['first_name'], $subject, $event['event_title'], $date_range, $event['body'], $event['location'], $event['calendar_url'], $update, $host, $event['group_color']);
     //drupal_set_message($body);
-    
     sendNewForumPostMail($email['formated_email'], $subject, $body);
   }
   //Loop through users and send them an e-mail.
 }
 
-function getEventsDetails($nid) {
+function getEventsDetails($nid, $entity) {
   //drupal_set_message(__FUNCTION__);
   //$nid of the main forum node
   //$rid of reply id if available
   //$to_uid is who the email goes to.
   //drupal_set_message(__FUNCTION__);
+
   $host = "https://" . \Drupal::request()->getHost();
 
-  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
-  //dpm($node);
+  if(isset($entity) && $entity<>""){
+    //drupal_set_message("We got an update entity");
+    $node = $entity;
+  } else {
+    $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  }
   $detail['event_title'] = $node->getTitle();
   $detail['body'] = $node->get('body')->value;
   $detail['date_range'] = $node->get('field_event_date_range')->getString();
@@ -501,11 +514,9 @@ function getEventsDetails($nid) {
 
   $detail['author'] = getUserFullName($node->getOwnerId());
   $detail['author_uid'] = $node->getOwnerId();
-
   //Get Group Color for this event
   $event_group =  $node->get('field_event_group')->value; 
   $config = \Drupal::service('config.factory')->get('icrp.settings');
-  //drupal_set_message($config->get('event_group_color.partner_news_and_announcements'));
   $group_color = array(
       "Partner News and Announcements" => $config->get('event_group_color.partner_news_and_announcements'),
       "Annual Meetings" => $config->get('event_group_color.annual_meetings'),
@@ -515,7 +526,6 @@ function getEventsDetails($nid) {
       "Partner Operations" => $config->get('event_group_color.partner_operations'),
       "Website and Database" => $config->get('event_group_color.website_and_database'),
   );
-  //dpm($group_color);
   if(isset($group_color[$event_group])) {
     $detail['group_color'] = $group_color[$event_group];
   } else {
