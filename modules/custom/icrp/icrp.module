@@ -496,9 +496,8 @@ function sendEventsNotification($nid, $type, $entity="") {
     if($type == 'delete'){
       $date_range = '<span style="color:red">Date Canceled: </span><strike>'.$date_range.'</strike>';
     }
-
     //drupal_set_message(t("date_range: ".$date_range), 'status', TRUE);
-    $body = createEventsEmailBody($email['first_name'], $subject, $event['event_title'], $date_range, $event['body'], $event['location'], $event['calendar_url'], $host, $event['group_color'], $intro);
+    $body = createEventsEmailBody($email['first_name'], $subject, $event['event_title'], $date_range, $event['body'], $event['event_type'], $event['location'], $event['calendar_url'], $host, $event['group_color'], $intro);
     //drupal_set_message($body);
     sendNewForumPostMail($email['formated_email'], $subject, $body);
   }
@@ -531,6 +530,7 @@ function getEventsDetails($nid, $entity) {
 
   $detail['author'] = getUserFullName($node->getOwnerId());
   $detail['author_uid'] = $node->getOwnerId();
+  $detail['event_type'] = $node->get('field_event_group')->value;
   //Get Group Color for this event
   $event_group =  $node->get('field_event_group')->value; 
   $config = \Drupal::service('config.factory')->get('icrp.settings');
@@ -616,7 +616,7 @@ function  getEventsEmails($nid, $author_uid) {
   return $forum_members;
 }
 
-function createEventsEmailBody($to, $subject, $event_title, $date_range, $message, $location, $calendar_url, $host, $group_color, $intro) {
+function createEventsEmailBody($to, $subject, $event_title, $date_range, $message, $event_type, $location, $calendar_url, $host, $group_color, $intro) {
 
 $body = '
 <!DOCTYPE html>
@@ -628,15 +628,18 @@ $body = '
 </head>
 
 <body>
-  <table style="margin-left:auto;margin-right:auto;width:600px;">
+  <table style="margin-left:auto;margin-right:auto;width:600px;font-family:Verdana,Arial;font-size:12px;border-collapse:collapse;">
     <tr>
       <td>
         <a target="_blank" href="'.$host.'"> <img width="200" height="40" style="margin-bottom:10px;margin-top:5px" src="'.$host.'/sites/default/files/icrp-logo.png"> </a>
 
       </td>
     </tr>
+    <tr style="background-color:'.$group_color.';color:white;">
+      <td style="border:2px solid '.$group_color.';padding:10px;">ICRP Committee: '.$event_type.'</td>
+    </tr>
     <tr>
-      <td style="border-top:25px solid '.$group_color.';border-left:2px solid '.$group_color.';border-right:2px solid '.$group_color.';border-bottom:2px solid '.$group_color.';background-color:white;padding:10px;">
+      <td style="border:2px solid '.$group_color.';background-color:white;padding:10px;">
         <table style="font-family:Verdana,Arial;font-size:12px;padding:10px;width:100%">
           <tr>
             <td style="padding-bottom:10px;">Hi '.$to.',
