@@ -169,7 +169,8 @@ export class IntegrityCheckPageComponent {
       rows: [[rule.Description]].concat(flattenRows(
         await this.dataUpload.integrityCheckDetails({
           partnerCode: sponsorCode,
-          ruleId: rule.ID
+          ruleId: rule.ID,
+          type: this.uploadType,
         }).toPromise())
       )
     })));
