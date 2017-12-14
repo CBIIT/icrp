@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { parse, ParseError, ParseResult } from 'papaparse';
+import { parse } from 'papaparse';
+
+type ParseError = PapaParse.ParseError;
+type ParseResult = PapaParse.ParseResult;
 
 export { ParseError, ParseResult }
 
