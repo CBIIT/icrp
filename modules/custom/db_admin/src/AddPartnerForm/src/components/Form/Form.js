@@ -128,7 +128,7 @@ export default class Form extends React.Component {
           longitude: partner.longitude===null?'':partner.longitude,
           defaultLogoFile: partner.logo_file,
           note: partner.note,
-          agreeToTerms: parseInt(partner.agree_to_terms),
+          agreeToTerms: parseInt(partner.agree_to_terms, 10),
           currency: findCurrency(country, fields),
         });
       }
@@ -140,6 +140,14 @@ export default class Form extends React.Component {
         .find(e => e.value === value);
 
       values.currency = findCurrency(country, fields);
+    }
+
+    if (field === 'website') {
+      let protocolMatches = values.website.match(/^https*:\/\//);
+      if (protocolMatches && protocolMatches[0]) {
+        values.urlProtocol = protocolMatches[0];
+        values.website = values.website.replace(/^https*:\/\//, '');
+      }
     }
 
     form.values = values;
