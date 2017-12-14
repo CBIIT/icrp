@@ -164,7 +164,7 @@
       class="form-control input-sm"
       formControlName="sponsorCode">
       <option [value]="null" hidden>Select a sponsor code</option>
-      <option *ngFor="let sponsorCode of sponsorCodes">
+      <option *ngFor="let sponsorCode of sponsorCodes" [value]="sponsorCode">
         {{ sponsorCode }}
       </option>
     </select>
