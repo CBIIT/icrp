@@ -165,7 +165,7 @@ export class IntegrityCheckPageComponent {
     }
 
     const sheets = await Promise.all(rules.map(async rule => await ({
-      title: rule.Description,
+      title: rule.Description.substring(0, 31),
       rows: [[rule.Description]].concat(flattenRows(
         await this.dataUpload.integrityCheckDetails({
           partnerCode: sponsorCode,
@@ -174,7 +174,7 @@ export class IntegrityCheckPageComponent {
         }).toPromise())
       )
     })));
-
+    
     this.exportService.exportAsExcel(sheets);
   }
 
