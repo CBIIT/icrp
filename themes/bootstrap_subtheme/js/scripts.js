@@ -20,105 +20,6 @@
           console.info("You clicked on logout.  Clear Session");
           sessionStorage.clear();
       });
-
-      //$('#edit-field-event-date-range-0-value-date').on('change')
-      /*
-      $('body').on('change', '#edit-field-event-date-range-0-value-date', function(e) {
-        // Action goes here.
-        console.log("You changed the start date");
-        console.dir(e);
-        //edit-field-event-date-range-0-value-date
-      });
-      */
-      /*
-      $("#dialog").dialog({
-        autoOpen: false,
-        resizable: true,
-        width: "auto",
-        show: {
-          effect: "blind",
-          duration: 1000
-        },
-        hide: {
-          effect: "explode",
-          duration: 1000
-        }
-
-      });
-      $("#dialog-form").dialog({
-        modal: true,
-        autoOpen: false,
-        resizable: false,
-        width: "auto",
-        show: {
-          effect: "blind",
-          duration: 1000
-        },
-        hide: {
-          effect: "explode",
-          duration: 1000
-        },  
-        buttons: [{
-          text: "Edit Event",
-            click: function() {
-              $( this ).dialog( "close" );
-              window.location.href = '/node/585/edit?destination=/calendar';
-            }
-          // Uncommenting the following line would hide the text,
-          // resulting in the label being used as a tooltip
-          //showText: false
-         }]
-      });
-
-      $("#dialog-form .ui-dialog-titlebar").hide();
-        buttons: [
-          {
-            text: "Ok",
-            icon: "ui-icon-heart",
-            click: function() {
-              $( this ).dialog( "close" );
-            }
-
-            // Uncommenting the following line would hide the text,
-            // resulting in the label being used as a tooltip
-            //showText: false
-          }
-        ]
-      */
-      /*
-      $('body .fullcalendar').on('click', 'a', function() {
-          alert( $(this).attr('href') );
-      });
-      */
-      //$('body .fullcalendar').on('click', 'a', function() {
-
-      //$("body").on(".fullcalendar a", function(e) {
-        /*
-      $('.fullcalendar').on('click', 'a', function(e) {
-        //alert( $(this).attr('href') );
-        e.preventDefault();
-        e.stopPropagation();
-        //$("#dialog-form").html("<img src='" + $(this).prop("href") + "' width='" + $(this).attr("data-width") + "' height='" + $(this).attr("data-height") + "'>");
-        $("#dialog-form").dialog("option", "position", {
-          my: "center",
-          at: "center",
-          of: window
-        });
-
-        if ($("#dialog-form").dialog("isOpen") == false) {
-          $("#dialog-form").dialog("open");
-        }
-      });
-      */
-
-      //uid = Drupal.settings.currentUser;
-
-      //alert(window.location.pathname);
-      /*
-      $("li.disabled a").click(function() {
-       return false;
-      });
-      */
       var url_path = window.location.pathname;
       if(url_path.substring(0, 9).toLowerCase() == '/calendar') {
         url_path = '/calendar';
@@ -156,12 +57,6 @@
         case "/contact-us":
           $.populateContactUsForm();
           break;
-        /*
-        case "/forum/6/No Need":
-          $(".action-links").hide();
-          $("#main-forum-content").show();
-          break;
-        */
         case "/forum":
           $.preprocessForum();
           break;
@@ -253,29 +148,53 @@
   }
 
   $.advanceEndDateTime = function() {
-      var eventDuration = 1; //Number of hours between events
+      //console.log("function: advanceEndDateTime");
+      var eventDuration = 2; //Number of hours between events
       //var startDate = new Date($('#edit-field-event-date-range-0-value-date').val()+' '+$('#edit-field-event-date-range-0-value-time').val());
-      var endDate = new Date($('#edit-field-event-date-range-0-value-date').val()+' '+$('#edit-field-event-date-range-0-value-time').val());
+      var startDate = new Date($('#edit-field-event-date-range-0-value-date').val()+' '+$('#edit-field-event-date-range-0-value-time').val());
+      var endDateOnly = new Date($('#edit-field-event-date-range-0-end-value-date').val()+' '+$('#edit-field-event-date-range-0-end-value-time').val());
+      //console.dir(endDateOnly);
       //console.log(endDate instanceof Date && !isNaN(endDate.valueOf()));
-      if(endDate instanceof Date && !isNaN(endDate.valueOf())) {      
-        endDate.setHours(endDate.getHours()+eventDuration);
+      if(startDate instanceof Date && !isNaN(startDate.valueOf())) {
+        //console.log("BEFORE CHANGE");
+        //console.log("Start Date: "+$('#edit-field-event-date-range-0-value-date').val()+' '+$('#edit-field-event-date-range-0-value-time').val());
+        //console.log("End Date: "+$('#edit-field-event-date-range-0-end-value-date').val()+' '+$('#edit-field-event-date-range-0-end-value-time').val());
+        
+        startDate.setHours(startDate.getHours()+eventDuration);
+        //console.log(startDate.getUTCDate());
+        startDateOnly = new Date(startDate.getUTCFullYear() + "-"+ (startDate.getUTCMonth()+1) + "-" + (startDate.getUTCDate()));
+        //console.log("What is this: "+startDate.getUTCFullYear() + "-"+ (startDate.getUTCMonth()+1) + "-" + (startDate.getUTCDate()));
+        //console.log("Start Date Only : "+startDateOnly.getUTCFullYear() + "-" + ("0" + (startDateOnly.getUTCMonth()+1)).slice(-2) + "-" + ("0" + startDateOnly.getUTCDate()).slice(-2));
+        //console.log("End Date Only : "+endDateOnly.getUTCFullYear() + "-" + ("0" + (endDateOnly.getUTCMonth()+1)).slice(-2) + "-" + ("0" + endDateOnly.getUTCDate()).slice(-2));
+
+        if(startDateOnly > endDateOnly) {
+          //console.log("startDateOnly is larger then endDateOnly");
+          finalEndDateOnly = new Date(startDateOnly.getUTCFullYear() + "-"+ (startDateOnly.getUTCMonth()+1) + "-" + (startDateOnly.getUTCDate()));
+        } else {
+          finalEndDateOnly = new Date(endDateOnly.getUTCFullYear() + "-"+ (endDateOnly.getUTCMonth()+1) + "-" + (endDateOnly.getUTCDate()));
+        }
+        //console.log("Final End Date Only : "+finalEndDateOnly.getUTCFullYear() + "-" + ("0" + (finalEndDateOnly.getUTCMonth()+1)).slice(-2) + "-" + ("0" + finalEndDateOnly.getUTCDate()).slice(-2));
+        //console.log("END DATE OBJECT");
+        //console.dir(endDate);
         //var endDateFormatted = $.datepicker.formatDate(formatDate, endDate);
-        var endDateFormatted = endDate.getFullYear() + "-" + ("0" + (endDate.getMonth()+1)).slice(-2) + "-" + ("0" + endDate.getDate()).slice(-2);
-        var endTimeFormatted = ("0" + endDate.getHours()).slice(-2) + ":" + ("0" + endDate.getMinutes()).slice(-2);
-        //console.log(endDateFormatted);
-        //console.log(endTimeFormatted);
-        $('#edit-field-event-date-range-0-end-value-date').val(endDateFormatted);
-        $('#edit-field-event-date-range-0-end-value-time').val(endTimeFormatted);
+        var endDateFormattedWithDuration = finalEndDateOnly.getUTCFullYear() + "-" + ("0" + (finalEndDateOnly.getUTCMonth()+1)).slice(-2) + "-" + ("0" + finalEndDateOnly.getUTCDate()).slice(-2);
+        var endTimeFormattedWithDuration = ("0" + startDate.getHours()).slice(-2) + ":" + ("0" + startDate.getMinutes()).slice(-2);
+
+        $('#edit-field-event-date-range-0-end-value-date').val(endDateFormattedWithDuration);
+        $('#edit-field-event-date-range-0-end-value-time').val(endTimeFormattedWithDuration);
       }
   }
 
   $.preprocessFixDateRangeEvents = function(e) {
-
-    var eventDuration = 1;
-
     $('#edit-field-event-date-range-0-value-date').on('change', function(e) {
+      var newDate = new Date($('#edit-field-event-date-range-0-value-date').val());
+      var oldDate = new Date($('#edit-field-event-date-range-0-end-value-date').val());
+      //console.log("New Date Only : "+newDate.getFullYear() + "-" + ("0" + (newDate.getMonth()+1)).slice(-2) + "-" + ("0" + newDate.getUTCDate()).slice(-2));
+      //console.log("Old Date Only : "+oldDate.getFullYear() + "-" + ("0" + (oldDate.getMonth()+1)).slice(-2) + "-" + ("0" + oldDate.getUTCDate()).slice(-2));
         //console.log($('#edit-field-event-date-range-0-value-date').val());
+      if(newDate > oldDate) {
         $('#edit-field-event-date-range-0-end-value-date').val($('#edit-field-event-date-range-0-value-date').val());
+      }
     });
 
     $('#edit-field-event-date-range-0-value-time').on('change', function(e) {
