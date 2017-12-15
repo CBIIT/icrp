@@ -42,7 +42,8 @@
 
   <div>
     <button
-      class="btn btn-primary"
+      class="btn btn-default"
+      [class.btn-primary]="form.valid && records?.length === 0"
       (click)="load()"
       [disabled]="!form.valid || records?.length > 0">
       Load

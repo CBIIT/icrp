@@ -1,5 +1,5 @@
-<alert 
-  *ngFor="let alert of alerts" 
+<alert
+  *ngFor="let alert of alerts"
   [dismissible]="true"
   [type]="alert.type">
   <div [innerHTML]="alert.message"></div>
@@ -20,7 +20,7 @@
       fxLayout
       fxLayoutWrap
       fxLayoutAlign="start center">
-      
+
       <label
         class="control-label asterisk"
         fxFlex="15%"
@@ -35,22 +35,22 @@
         fxFlex.lt-md="100%"
         fxLayoutGap="10px"
         fxLayoutAlign="start center">
-        
-        <input 
+
+        <input
           type="number"
-          fxFlex="1 1 100px" 
+          fxFlex="1 1 100px"
           class="form-control input-sm"
           formControlName="fundingYearStart"
           [max]="form.controls.fundingYearEnd.value"
         >
         <span >-</span>
-        <input 
+        <input
           type="number"
-          fxFlex="1 1 100px" 
+          fxFlex="1 1 100px"
           class="form-control input-sm"
           formControlName="fundingYearEnd"
         >
-      
+
       </div>
 
       <div
@@ -79,9 +79,9 @@
         fxLayoutWrap
         fxFlex="85%"
         fxFlex.lt-md="100%">
-        
-        <textarea 
-          cols="70" 
+
+        <textarea
+          cols="70"
           rows="4"
           class="form-control input-sm"
           placeholder="Enter import notes"
@@ -94,6 +94,6 @@
 <br>
 <div class="text-center form-group clearfix">
   <button class="btn btn-default" (click)="previous.emit()">Previous</button>
-  <button class="btn btn-default" [disabled]="form.invalid" (click)="submit()">Import</button>
+  <button class="btn btn-default" [disabled]="submitted || form.invalid" (click)="submit()">Import</button>
   <button class="btn btn-default pull-right" (click)="cancel.emit()">Cancel</button>
 </div>

@@ -18,7 +18,7 @@ CREATE TABLE #FundingOrg (
 GO
 
 BULK INSERT #FundingOrg
-FROM 'C:\ICRP\database\DataImport\CurrentRelease\Coordinates\FundingCoordinates.csv'  
+FROM 'C:\ICRP\database\DataImport\CurrentRelease\Org\FundingCoordinates.csv'  
 WITH
 (
 	FIRSTROW = 2,
@@ -47,8 +47,11 @@ WHERE u.Coordinates <> '#N/A'
 UPDATE FundingOrg SET Latitude = 43.727458,	Longitude = -72.611635
 FROM FundingOrg WHERE name = 'Make It Better (MIB) Agents'
 
-select * from FundingOrg where Latitude is null and MemberStatus <> 'Merged'
-select * from #FundingOrg where  Abbreviation in ('aicr', 'Breakthrough','LRF','Breast Can Cam','NL')
+UPDATE FundingOrg SET Latitude = 51.519299, Longitude = -0.130819 WHERE Abbreviation='WCRF UK'
+UPDATE FundingOrg SET Latitude = 48.897882, Longitude = 2.252738 WHERE Abbreviation='WCRF FR'
+UPDATE FundingOrg SET Latitude = 52.363813, Longitude = 4.906801 WHERE Abbreviation='WCRF NL'
+
+select 'Missing Coords' AS Issue, * from FundingOrg where Latitude is null and MemberStatus <> 'Merged'
 
 commit
 --rollback

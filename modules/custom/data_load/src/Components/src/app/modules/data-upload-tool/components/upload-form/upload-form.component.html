@@ -164,7 +164,7 @@
       class="form-control input-sm"
       formControlName="sponsorCode">
       <option [value]="null" hidden>Select a sponsor code</option>
-      <option *ngFor="let sponsorCode of sponsorCodes">
+      <option *ngFor="let sponsorCode of sponsorCodes" [value]="sponsorCode">
         {{ sponsorCode }}
       </option>
     </select>
@@ -175,19 +175,21 @@
     [class.has-error]="form.controls.file.dirty && form.controls.file.invalid"
     fxLayout
     fxLayoutWrap
-    fxFlex="33%"
+    fxFlex="49.5%"
     fxFlex.lt-lg="100%"
     fxLayoutAlign="space-between center">
 
     <label
       class="control-label asterisk"
-      fxFlex="40%"
+      fxFlex="26.666%"
+      fxFlex.lt-lg="40%"
       fxFlex.lt-sm="100%">
       Workbook File (.csv)
     </label>
 
     <input
-      fxFlex="60%"
+      fxFlex="73.333%"
+      fxFlex.lt-lg="60%"
       fxFlex.lt-sm="100%"
       type="file"
       formControlName="file"
@@ -197,7 +199,7 @@
   <div
     class="form-group pl-5 pr-5"
     fxLayout
-    fxFlex="33%"
+    fxFlex="16.5%"
     fxFlex.lt-lg="100%"
     fxLayoutAlign="end center"
     fxLayoutAlign.lt-lg="center center"

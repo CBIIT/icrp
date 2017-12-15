@@ -76,6 +76,8 @@ export default class App extends ComponentBase<{}, AppState> {
       // console.log(uri);
       window.document.location.href = uri;
     }
+
+    store.setLoading(false);
   }
 
   async selectLocation(locationFilters: LocationFilters) {

@@ -81,6 +81,7 @@ class MappingTool {
           @SearchID = :searchId,
           @RegionID = :region,
           @Country = :country,
+          @State = :state,
           @City = :city,
           @AggregatedProjectCount = :projects,
           @AggregatedPICount = :primaryInvestigators,
@@ -90,6 +91,7 @@ class MappingTool {
         'searchId',
         'region',
         'country',
+        'state',
         'city',
       ],
 

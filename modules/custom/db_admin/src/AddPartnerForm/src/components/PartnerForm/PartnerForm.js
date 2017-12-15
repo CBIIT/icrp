@@ -61,7 +61,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
     <Row>
       <Col md={6} className='margin-bottom'>
         <FormGroup
-          controlId='select-partner'
+          id='select-partner'
           bsSize='small'
           validationState={anyTrue(form.validationErrors.partner) ? 'error' : null }>
 
@@ -131,7 +131,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
     <Row>
       <Col md={6} className='margin-bottom'>
         <FormGroup
-          controlId='selectCountry'
+          id='selectCountry'
           bsSize='small'
           validationState={form.validationErrors.country
             && form.validationErrors.country.required
@@ -164,7 +164,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
       </Col>
 
       <Col md={6} className='margin-bottom'>
-        <FormGroup  controlId='selectEmail' bsSize='small' validationState={form.validationErrors.email && (form.validationErrors.email.required || form.validationErrors.email.format) ? 'error' : null}>
+        <FormGroup  id='selectEmail' bsSize='small' validationState={form.validationErrors.email && (form.validationErrors.email.required || form.validationErrors.email.format) ? 'error' : null}>
           <ControlLabel className='margin-right asterisk'>Email</ControlLabel>
           <FormControl
             name='email'
@@ -188,7 +188,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
 
     <Row>
       <Col md={12} className='margin-bottom'>
-        <FormGroup controlId='partner-description' bsSize='small' validationState={form.validationErrors.description && form.validationErrors.description.required ? 'error' : null}>
+        <FormGroup id='partner-description' bsSize='small' validationState={form.validationErrors.description && form.validationErrors.description.required ? 'error' : null}>
           <ControlLabel className='margin-right asterisk'>Description</ControlLabel>
           <FormControl
             name='description'
@@ -208,7 +208,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
 
     <Row>
       <Col md={6} className='margin-bottom'>
-        <FormGroup  controlId='partner-sponsor-code' bsSize='small' validationState={form.validationErrors.sponsorCode && form.validationErrors.sponsorCode.required ? 'error' : null}>
+        <FormGroup  id='partner-sponsor-code' bsSize='small' validationState={form.validationErrors.sponsorCode && form.validationErrors.sponsorCode.required ? 'error' : null}>
           <ControlLabel className='margin-right asterisk'>Sponsor Code</ControlLabel>
           <FormControl
             name='sponsorCode'
@@ -226,7 +226,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
 
 
       <Col md={6} className='margin-bottom'>
-        <FormGroup  controlId='partner-website' bsSize='small' validationState={null}>
+        <FormGroup  id='partner-website' bsSize='small' validationState={null}>
           <ControlLabel className='margin-right'>
             Website
           </ControlLabel>
@@ -336,10 +336,10 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
 
       <Col md={6} className='margin-bottom'>
         <div className={anyTrue(form.validationErrors.logoFile) ? 'has-error' : ''}>
-          <FormGroup controlId='partner-logo-file' bsSize='small' validationState={null}>
+          <FormGroup id='partner-logo-file' bsSize='small' validationState={null}>
             <ControlLabel className='margin-right'>Logo File</ControlLabel>
               <i>(jpg, png or gif)</i>
-              <label className='block normal-weight' style={{'margin-bottom':'0px'}}>
+              <label className='block normal-weight' style={{marginBottom:'0px'}}>
                 <div className='display-flex'>
                   <div className='cursor-text form-control form-control-group'>
                     {form.values.logoFile ? form.values.logoFile.name : form.values.defaultLogoFile || <span className='placeholder'>Select file</span> }
@@ -367,7 +367,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
       </Col>
     </Row>
 
-    <FormGroup controlId='partner-note' bsSize='small'>
+    <FormGroup id='partner-note' bsSize='small'>
       <ControlLabel>Note</ControlLabel>
       <FormControl
         name='note'
@@ -378,7 +378,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
         placeholder='Enter note' />
     </FormGroup>
 
-    <FormGroup className='no-margin' controlId='partner-terms-and-conditions' bsSize='small' validationState={null}>
+    <FormGroup className='no-margin' id='partner-terms-and-conditions' bsSize='small' validationState={null}>
       <Checkbox
         name='agreeToTerms'
         checked={form.values.agreeToTerms}
@@ -389,7 +389,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
 
     { form.values.operation_type === 'new' &&
       <div>
-        <FormGroup className='no-margin' controlId='partner-funding-organization' bsSize='small' validationState={null}>
+        <FormGroup className='no-margin' id='partner-funding-organization' bsSize='small' validationState={null}>
           <div className='flex-inline'>
             <Checkbox
               name='isFundingOrganization'
@@ -407,7 +407,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
 
           <Form inline>
             <Col md={6} className='margin-bottom'>
-              <FormGroup controlId='selectOrganizationType' bsSize='small' validationState={form.validationErrors.organizationType && form.validationErrors.organizationType.required ? 'error' : null}>
+              <FormGroup id='selectOrganizationType' bsSize='small' validationState={form.validationErrors.organizationType && form.validationErrors.organizationType.required ? 'error' : null}>
 
                 <ControlLabel className='margin-right asterisk'>
                   Organization Type
@@ -432,7 +432,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
             </Col>
 
             <Col md={6} className='margin-bottom'>
-              <FormGroup controlId='selectCurrency' bsSize='small' validationState={form.validationErrors.currency && form.validationErrors.currency.required ? 'error' : null}>
+              <FormGroup id='selectCurrency' bsSize='small' validationState={form.validationErrors.currency && form.validationErrors.currency.required ? 'error' : null}>
 
                 <ControlLabel className='margin-right asterisk'>
                   Currency
@@ -461,7 +461,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
           </Form>
 
           <Col md={12} className='margin-bottom'>
-            <FormGroup className='no-margin' controlId='partner-funding-is-annualized' bsSize='small' validationState={null}>
+            <FormGroup className='no-margin' id='partner-funding-is-annualized' bsSize='small' validationState={null}>
               <div className='flex-inline'>
                 <Checkbox
                   name='isAnnualized'

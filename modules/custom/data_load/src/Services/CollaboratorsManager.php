@@ -12,13 +12,13 @@ class CollaboratorsManager {
     $pdo->exec("
       DROP TABLE IF EXISTS tmp_LoadCollaborators;
       CREATE TABLE tmp_LoadCollaborators (
-        AwardCode VARCHAR(75) NOT NULL,
-        AltAwardCode VARCHAR(75) NOT NULL,
+        AwardCode VARCHAR(75),
+        AltAwardCode VARCHAR(75),
         LastName VARCHAR(100),
         FirstName VARCHAR(100),
         SubmittedInstitution VARCHAR(250),
-        Institution VARCHAR(250) NOT NULL,
-        City VARCHAR(50) NOT NULL,
+        Institution VARCHAR(250),
+        City VARCHAR(50),
         ORC_ID VARCHAR(19),
         OtherResearchID INT,
         OtherResearchType VARCHAR(50)

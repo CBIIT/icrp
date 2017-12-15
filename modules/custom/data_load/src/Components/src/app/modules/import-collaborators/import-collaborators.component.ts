@@ -54,6 +54,7 @@ export class ImportCollaboratorsComponent {
     }
 
     else {
+      window.scroll(0, 0);
       this.alerts.push({
         type: 'danger',
         content: 'The input file does not contain the expected number of columns.'
@@ -75,25 +76,39 @@ export class ImportCollaboratorsComponent {
     const response$ = await this.importService.importCollaborators(records);
     response$.subscribe(
       data => {
+        window.scroll(0, 0);
         this.loading = false;
 
         if (Array.isArray(data) && data.length > 0) {
-          this.hasInvalidRecords = true;
           this.records = data;
           this.headers = Object.keys(data[0]);
+
+          if (this.headers.includes('Data Issue')) {
+            this.hasInvalidRecords = true;
+            this.alerts.push({
+              type: 'warning',
+              content: 'The following records failed the data check. Import aborted. Please correct the data file and rerun the import.'
+            });
+          }
+
+          else {
+            this.alerts.push({
+              type: 'success',
+              content: `${this.records.length.toLocaleString()} collaborator(s) have been successfully imported.`
+            });
+          }
+        }
+
+        else {
           this.alerts.push({
             type: 'warning',
-            content: 'The following records failed the data check. Import aborted. Please correct the data file and rerun the import.'
-          });
-        } else {
-          this.alerts.push({
-            type: 'success',
-            content: `${records.length.toLocaleString()} collaborators have been successfully imported.`
+            content: 'No records were imported.'
           });
         }
       },
 
       ({error}) => {
+        window.scroll(0, 0);
         this.loading = false;
         this.alerts.push({
           type: 'danger',

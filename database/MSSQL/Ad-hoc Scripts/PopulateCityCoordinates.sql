@@ -37,8 +37,9 @@ UPDATE #CityCoordinates set state = NULL where state = 'NULL'
 UPDATE #CityCoordinates set name = NULL where name = 'NULL'
 UPDATE #CityCoordinates set country = NULL where country = 'NULL'
 
-
-select * from #CityCoordinates
+truncate table lu_City
+go
+select count(*) from #CityCoordinates 
 select * from lu_City
 
 IF NOT EXISTS (SELECT 1 FROM lu_City)
@@ -68,10 +69,17 @@ UPDATE lu_City SET Name='Pierre-Bénite' WHERE Country = 'FR' AND Name='Pierre-Be
 
 select DISTINCT i.*, c.latitude, c.longitude  from lu_City c
 		RIGHT JOIN (select city, state, country from Institution group by  city, state, country) i ON i.city = c.name and i.country = c.country AND ISNULL(i.state, '') = ISNULL(c.state, '')
-		where c.Name is null
+		where c.Name is null and c.name <> 'Missing'
 
---select * from lu_city where name ='Carmarthen'
---select * from institution where city ='Carmarthen'
+-- Insert City coordinates into lu_city if they don't exist in lu_City
+INSERT INTO lu_City (Name, State, Country, Latitude, Longitude)	
+SELECT i.City, i.State, i.Country, i.Latitude, i.Longitude
+FROM (SELECT City, State, Country, MIN(Latitude) AS Latitude,  MIN(Longitude) AS Longitude FROM Institution GROUP BY City, State, Country) i
+	LEFT JOIN lu_City c ON i.City=c.Name AND ISNULL(i.State, '') = ISNULL(c.State, '') AND i.Country = c.Country		
+WHERE i.City <> 'Missing' AND c.Name IS NULL AND i.Latitude IS NOT NULL AND i.Longitude IS NOT NULL
+
+--select * from lu_city where name ='Burwood'
+--select * from institution where city ='Burwood'
 --select * from icrp_data.dbo.lu_CityAll where city ='Carmarthen'-- and region='ma'
 
 --update institution set state = null where state = 'null'

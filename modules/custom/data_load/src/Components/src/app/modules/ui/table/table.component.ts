@@ -1,4 +1,5 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, ViewChild, ElementRef, OnChanges, SimpleChanges } from '@angular/core';
+import { enableResizableColumns, disableResizableColumns } from './ResizableColumns';
 
 interface Header {
   value: string;
@@ -23,6 +24,8 @@ export class TableComponent implements OnChanges {
   @Input()
   data: any[] = [];
 
+  @ViewChild('table') tableRef: ElementRef;
+
   _data: any[] = [];
 
   _headers: Header[] = [];
@@ -44,19 +47,23 @@ export class TableComponent implements OnChanges {
       none: 'asc'
     }[previousDirection];
 
+    const notNumber = (data: any) =>
+      isNaN(data) || data == '' || data == null;
+
     if (header.sortDirection !== 'none') {
       this._data.sort((a: any, b: any) => {
-        let v1 = a[columnName];
-        let v2 = b[columnName];
+        let v1 = a[columnName] || '';
+        let v2 = b[columnName] || '';
 
         switch(header.sortDirection) {
           case 'asc':
-            return isNaN(v1) && isNaN(v2)
+
+            return notNumber(v1) && notNumber(v2)
               ? v1.toString().localeCompare(v2.toString())
               : +v1 - +v2;
 
           case 'desc':
-            return isNaN(v2) && isNaN(v1)
+            return notNumber(v1) && notNumber(v2)
               ? v2.toString().localeCompare(v1.toString())
               : +v2 - +v1;
         }
@@ -65,8 +72,6 @@ export class TableComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-
-    console.log(changes);
 
     if (changes.headers && changes.headers.currentValue) {
       this._headers = changes.headers.currentValue.map(val =>
@@ -79,5 +84,11 @@ export class TableComponent implements OnChanges {
     if (changes.data && changes.data.currentValue) {
       this._data = [...changes.data.currentValue];
     }
+
+    let table: HTMLTableElement = this.tableRef.nativeElement;
+    disableResizableColumns(table);
+    setTimeout(() => enableResizableColumns(table, {
+      preserveWidth: true
+    }), 0);
   }
 }

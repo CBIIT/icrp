@@ -17,10 +17,15 @@ export class LineChart {
             data = [];
         }
 
+        if (data.length === 1) {
+            data.push({...data[0]});
+            data[1].label = (+data[0].label + 0.1).toString();
+        }
+
         let parsedData = data.map(el => ({
             value: +el.data[primaryKey],
             label: +el.label
-        })).sort((a, b) => a.label - b.label);
+        })).sort((a, b) => +a.label - +b.label);
 
         let host = d3.select(element);
         let tooltip = d3.select(tooltipEl)
@@ -30,6 +35,10 @@ export class LineChart {
         let margin = {top: 20, right: 20, bottom: 40, left: 110};
         let width = 1000 - margin.left - margin.right;
         let height = 300 - margin.top - margin.bottom;
+
+        let yExtent = d3.extent(parsedData, (d: any) => d.value);
+        yExtent[1] = yExtent[1] * 1.1;
+        yExtent[0] = yExtent[0] * 0.9;
 
         let g = host
             .attr('width', '100%')
@@ -43,7 +52,7 @@ export class LineChart {
 
         var y = d3.scaleLinear()
             .rangeRound([height, 0])
-            .domain(d3.extent(parsedData, (d: any) => d.value));
+            .domain(yExtent);
 
         var line: any = d3.area()
             .x(d => x(+d['label']))
@@ -52,7 +61,7 @@ export class LineChart {
 
         g.append("g")
             .attr("transform", `translate(0, ${height})`)
-            .call(d3.axisBottom(x).tickFormat(d3.format('d')))
+            .call(d3.axisBottom(x).ticks(Math.min(5, data.length - 1)).tickFormat(d => Math.floor(d)))
             .append("text")
             .attr("fill", "#000")
             .attr("x", width / 2)
@@ -83,7 +92,6 @@ export class LineChart {
             .attr("stroke-width", '1px')
             .attr("d", line);
 
-
         parsedData.forEach(point => {
             g.append('circle')
                 .attr('fill', '#34495E')
@@ -97,7 +105,7 @@ export class LineChart {
                     let value = point.value;
 
                     tooltip.html(`
-                        <b>${label}</b>
+                        <b>${Math.floor(label)}</b>
                         <hr style="margin: 2px"/>
                          ${Number(value).toLocaleString()} ${tooltipDescriptor}`)
                     tooltip.transition()
@@ -118,17 +126,16 @@ export class LineChart {
                 })
         })
 
-/*
-        x.ticks().forEach(tick => {
-            g.append('line')
-                .attr('x1', x(tick))
-                .attr('y1', height)
-                .attr('x2', x(tick))
-                .attr('y2', 0)
-                .attr('stroke', 'black')
-                .attr('opacity', '0.05')
-        })
-*/
+        // x.ticks(Math.min(5, data.length)).forEach(tick => {
+        //     g.append('line')
+        //         .attr('x1', x(tick))
+        //         .attr('y1', height)
+        //         .attr('x2', x(tick))
+        //         .attr('y2', 0)
+        //         .attr('stroke', 'black')
+        //         .attr('opacity', '0.05')
+        // });
+
         y.ticks(5).forEach(tick => {
             g.append('line')
                 .attr('x1', 0)

@@ -2,8 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { parse } from 'papaparse';
 
-export type ParseResult = PapaParse.ParseResult;
-export type ParseError = PapaParse.ParseError;
+type ParseError = PapaParse.ParseError;
+type ParseResult = PapaParse.ParseResult;
+
+export { ParseError, ParseResult }
 
 @Injectable()
 export class ImportService {

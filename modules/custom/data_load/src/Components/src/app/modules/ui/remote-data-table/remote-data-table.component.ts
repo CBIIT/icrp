@@ -1,4 +1,5 @@
-import { Component, OnChanges, Input, Output, SimpleChanges, EventEmitter } from '@angular/core';
+import { Component, OnChanges, ElementRef, ViewChild, Input, Output, SimpleChanges, EventEmitter, AfterViewChecked } from '@angular/core';
+import { enableResizableColumns, disableResizableColumns } from './ResizableColumns';
 
 interface RequestParameters {
   page: number;
@@ -24,20 +25,24 @@ export class RemoteDataTableComponent implements OnChanges {
   @Input() count: number = 0;
 
   @Input() headers: string[] = [];
-  
+
   @Input() data: any[] = [];
 
   @Output() request: EventEmitter<RequestParameters> = new EventEmitter();
 
+  @ViewChild('table') tableRef: ElementRef;
+
   _headers: Header[] = [];
 
   page = 1;
-  
+
   pageSize = 25;
 
   sortColumn = '';
 
   sortDirection = 'ASC';
+
+  math = Math;
 
 
   sort(columnName: string) {
@@ -77,8 +82,8 @@ export class RemoteDataTableComponent implements OnChanges {
 
     if (changes.headers && changes.headers.currentValue) {
       this._headers = changes.headers.currentValue.map(val => ({
-          value: val, 
-          label: val, 
+          value: val,
+          label: val,
           sortDirection: 'none'
         }));
       }
@@ -89,6 +94,12 @@ export class RemoteDataTableComponent implements OnChanges {
     if (changes.count) {
       this.page = 1;
     }
+
+    let table: HTMLTableElement = this.tableRef.nativeElement;
+    disableResizableColumns(table);
+    setTimeout(() => enableResizableColumns(table, {
+      preserveWidth: true
+    }), 0);    
   }
 
 }

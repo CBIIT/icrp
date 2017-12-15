@@ -104,6 +104,32 @@ BEGIN
 END
 
 
+IF object_id('ProjectFundingArchive') is NOT null
+DROP Table ProjectFundingArchive
+GO
+
+CREATE TABLE [dbo].[ProjectFundingArchive] (
+	[ProjectFundingID] [int] NOT NULL,
+	[FundingOrgID] [int] NOT NULL,
+	[FundingDivisionID] [int] NOT NULL,
+	[ProjectAbstractID] [int] NOT NULL,
+	[Title] [nvarchar](1000) NOT NULL,	
+	[Category] [varchar](25) NULL,
+	[AltAwardCode] [varchar](50) NOT NULL,
+	[Source_ID] [varchar](150) NULL,
+	[MechanismCode] [varchar](30) NULL,
+	[MechanismTitle] [varchar](200) NULL,
+	[FundingContact] [varchar](200) NULL,
+	[IsAnnualized] [bit] NOT NULL,
+	[Amount] [float] NULL,	
+	[BudgetStartDate] [date] NULL,
+	[BudgetEndDate] [date] NULL,	
+	[DataUploadStatusID] [int] NULL,
+	[ArchivedDate] [datetime] NOT NULL
+)
+
+GO
+
 /*************************************************/
 /******		UPDATE TABLE        			******/
 /*************************************************/

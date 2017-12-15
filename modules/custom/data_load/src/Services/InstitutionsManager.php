@@ -16,7 +16,7 @@ class InstitutionsManager {
         Name          VARCHAR(250),
         City          VARCHAR(50),
         State         VARCHAR(50),
-        Country       VARCHAR(3),
+        Country       VARCHAR(100),
         Postal        VARCHAR(50),
         Latitude      DECIMAL(9, 6),
         Longitude     DECIMAL(9, 6),

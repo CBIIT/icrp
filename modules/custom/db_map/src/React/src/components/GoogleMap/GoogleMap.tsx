@@ -39,7 +39,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
   componentDidMount() {
     this.map = new google.maps.Map(this.mapContainer, DEFAULT_OPTIONS);
     this.clusterer = new LocationClusterer(this.map);
-    this.clusterer.setRadius(60);
+    this.clusterer.setRadius(40);
 
     this.overlay = new google.maps.OverlayView();
     this.overlay.setMap(this.map);
@@ -52,6 +52,18 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
     this.map.addListener('zoom_changed', () => {
       this.shouldFitBounds = false;
+
+      if (this.map.getZoom() < 3) {
+        this.map.setOptions({
+          styles: UNLABELED_MAP
+        });
+      }
+
+      else {
+        this.map.setOptions({
+          styles: DETAILED_MAP
+        });
+      }
 
       // we should redraw clusters by default
       if (this.shouldRedraw && !this.clusterClicked) {
@@ -152,20 +164,31 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
         bounds.extend(northEast);
         bounds.extend(southWest);
 
-        if (props.viewLevel === 'regions') {
-          this.applyDefaultView();
-        }
-
-        else {
-          this.map.fitBounds(bounds);
-        }
+        this.map.fitBounds(bounds);
       }
 
       else {
-        this.applyDefaultView();
+        // this.applyDefaultView();
       }
 
       this.shouldRedraw = true;
+
+      if (props.locations.length === 1) {
+        this.map.setCenter(props.locations[0].coordinates);
+
+        if (props.viewLevel === 'countries') {
+          this.map.setZoom(4);
+        }
+
+        else {
+          this.map.setZoom(this.map.getZoom() + 1);
+        }
+      }
+
+      if (props.viewLevel === 'regions') {
+        this.applyDefaultView();
+      }
+
       this.redrawMap();
     }
   }
@@ -187,13 +210,13 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
       // display google map labels if showMapLabels is true
 
-      let styles = UNLABELED_MAP;
+      // let styles = UNLABELED_MAP;
 
-      if (map.getZoom() > 2) {
-        styles = DETAILED_MAP
-      }
+      // if (map.getZoom() > 2) {
+      //   styles = DETAILED_MAP
+      // }
 
-      this.map.setOptions({styles});
+      // this.map.setOptions({styles});
 
       // clear all region labels
       labels.forEach(label => label.setMap(null));
@@ -392,10 +415,12 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       }
 
       this.shouldRedraw = false;
-      if (clusterer.getElements().length === 1 && viewLevel !== 'regions') {
-        map.setZoom(4);
-        map.setCenter(clusterer.getElements()[0].coordinates);
-      }
+      // if (clusterer.getElements().length === 1 && viewLevel !== 'regions') {
+      //   map.setZoom(6);
+      //   map.setCenter(clusterer.getElements()[0].coordinates);
+      // }
+
+
       this.shouldRedraw = true;
     }
   }
