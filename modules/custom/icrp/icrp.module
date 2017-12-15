@@ -102,19 +102,50 @@ function sendNewForumPostMail($email, $subject, $body) {
     \Drupal::logger('mail-log')->notice($message);
 
 }
-/**
- * Implements template_preprocess_status_messages().
- */
-/*
-function icrp_preprocess_status_messages(&$variables) {
-  //drupal_set_message("Why no work.  Message here");
-  drupal_set_message(__FUNCTION__);
-  //dpm($variables);
-  foreach($variables['message_list']['status'] as $mix) {
-    drupal_set_message(gettype($mix));
-  }
+
+function sendNewEventsPostMail($email, $subject, $body) {
+
+    $mailManager = \Drupal::service('plugin.manager.mail');
+    $module = 'icrp';
+    $module = 'webform'; //Sset the webform mail plugin so that we can use html
+    $key = 'newForumPostMail'; // Replace with Your key
+
+    $to = $email;
+
+    $from_name = \Drupal::config('system.site')->get('name');
+    $from_email = \Drupal::config('system.site')->get('mail');
+    //$params['from_mail'] = "$from_name <{$from_email}>";
+    $params['from_name'] = "";
+    $params['from_mail'] = $from_email;
+
+    $params['subject'] = $subject;
+    $params['body'] = $body;
+
+    $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+    $send = true;
+
+    /*drupal_set_message("module: ".$module);
+    drupal_set_message("key: ".$key);
+    drupal_set_message("to: ".$to);
+    drupal_set_message("langcode: ".$langcode);
+    */
+    //drupal_set_message("body: ".$body);
+
+    $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
+    //drupal_set_message("result: ".(string)$result['result']);
+    //drupal_set_message("result array(): ".print_r($result, true));
+
+    if ($result['result'] != true) {
+        $message = t('New Events Post - There was a problem sending your email notification to @email.', array('@email' => $to));
+    //    drupal_set_message($message, 'error');
+        \Drupal::logger('mail-log')->error($message);
+        return;
+    }
+
+    $message = t('New Events Post - An email notification has been sent to @email ', array('@email' => $to));
+    \Drupal::logger('mail-log')->notice($message);
+
 }
-*/
 
 function getForumDetails($nid) {
   //$nid of the main forum node
@@ -155,8 +186,8 @@ function getForumDetails($nid) {
   $tid =  $node->get('taxonomy_forums')->target_id; 
   $fdetail['forum_category'] = getTopicName($tid);
 
-  $fdetail['forum_url'] = $host."/forum/".$tid;
-  $fdetail['thread_url'] = $host."/node/".$nid."?page0";
+  $fdetail['forum_url'] = $host."/user/login?destination=/forum/".$tid;
+  $fdetail['thread_url'] = $host."/user/login?destination=/node/".$nid."?page0";
 
   return $fdetail;
 
@@ -237,62 +268,6 @@ function  getForumEmails($nid, $author_uid) {
   return $forum_members;
 }
 
-function getEventDetails($nid) {
-  //$nid of the main forum node
-  //$rid of reply id if available
-  //$to_uid is who the email goes to.
-  //drupal_set_message(__FUNCTION__);
-  $host = "https://" . \Drupal::request()->getHost();
-
-  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
-  //dpm($node);
-  $detail['event_title'] = $node->getTitle();
-  $detail['message'] = $node->get('body')->value;
-
-  $event_date = '2017/12';
-  $detail['calendar_url'] = $host."/calendar?default_date=".$event_date;
-
-  return $detail;
-
-}
-
-
-function sendEventNotification($nid) {
-  \Drupal::logger('icrp')->notice('Send Event Notification: nid='.$nid.' cid='.$cid) ;
-  $host = "https://" . \Drupal::request()->getHost();
-
-  $event = getEventDetails($nid);
-/*
-  $display_summary = true;
-  if($cid == "0") {
-    //Prepare e-mail for an initial Thread post
-    //Add Subject to 
-    //if there is summary,  then summary on the top and full body below
-    //if there is no summary,  then just full body
-    $author_uid = $forum['thread_author_uid'];
-    $author = $forum['thread_author'];
-    $message = $forum['message'];
-    $display_summary = $forum['has_summary'];  //If it has_summary, 
-  } else {
-    $reply = getReplyDetails($cid);
-    $forum['thread_summary_or_trim_body'] = "Re: ".$forum['thread_summary_or_trim_body'];
-    $author_uid = $reply['reply_author_uid'];
-    $author = $reply['reply_author'];
-    $message = $reply['message'];
-  }
-
-  $message = relToAbs($message, $host);
-  $subject = "ICRP Event: {$event['event_title']}";
-  $emails = getForumEmails($nid, $author_uid);
-  foreach($emails as $key => $email) {
-    //$email = "Chris Kneisler <cpkneisler@gmail.com>";
-    $body = createForumEmailBody($email['first_name'], $subject, $author, $forum['forum_category'],  $forum['thread_subject'], $forum['thread_summary_or_trim_body'], $message, $forum['forum_url'], $forum['thread_url'], $display_summary, $host);
-    sendNewForumPostMail($email['formated_email'], $subject, $body);
-  }
-  //Loop through users and send them an e-mail.
-  */
-
-}
 
 function sendForumNotification($nid, $cid = "0") {
   /**
@@ -328,18 +303,34 @@ function sendForumNotification($nid, $cid = "0") {
   foreach($emails as $key => $email) {
     //$email = "Chris Kneisler <cpkneisler@gmail.com>";
     $body = createForumEmailBody($email['first_name'], $subject, $author, $forum['forum_category'],  $forum['thread_subject'], $forum['thread_summary_or_trim_body'], $message, $forum['forum_url'], $forum['thread_url'], $display_summary, $host);
-    sendNewForumPostMail($email['formated_email'], $subject, $body);
+    //drupal_set_message($body);
+    sendNewEventsPostMail($email['formated_email'], $subject, $body);
   }
   //Loop through users and send them an e-mail.
 }
 
-function relToAbs($text, $base) {
+function replaceImgSrc($html, $host) {
+  $doc = new DOMDocument();
+  $doc->loadHTML($html);
 
-  if (empty($base))
+  $tags = $doc->getElementsByTagName('img');
+
+  foreach ($tags as $tag) {
+    $old_src = $tag->getAttribute('src');
+    $new_src_url = $host.$old_src;
+    $tag->setAttribute('src', $new_src_url);
+  }
+
+  return $doc->saveHTML();
+}
+
+function relToAbs($text, $base) {
+  //drupal_set_message("base: ".$base);
+  if (empty($base)) {
     return $text;
+  }
   // base url needs trailing /
-  if (substr($base, -1, 1) != "/")
-    $base .= "/";
+  $base =  rtrim($base, "/ ");
 
   // Replace links
   /*
@@ -349,19 +340,28 @@ function relToAbs($text, $base) {
   $text = preg_replace($pattern, $replace, $text);
   */
   // Replace images
-  $pattern = "/<img([^>]*) " . 
-             "src=\"[^http|ftp|https]([^\"]*)\"/";
-  $replace = "<img\${1} src=\"" . $base . "\${2}\"";
-  $text = preg_replace($pattern, $replace, $text);
+  //drupal_set_message("TEXT BEFORE");
+  //drupal_set_message($text);
+  //$pattern = "/<img([^>]*) "."src=\"[^http|ftp|https]([^\"]*)\"/";
+  //$replace = "<img\${1} src=\"" . $base . "\${2}\"";
+  //$text = preg_replace($pattern, $replace, $text);
+  $text = replaceImgSrc($text, $base);
+  //drupal_set_message("Adding HOST to img");
+  //drupal_set_message($text);
+
   //Add max-width:500px; to style
   $pattern = "/<img /";
   $replace = "<img style=\"max-width:500px;\" ";
   $text = preg_replace($pattern, $replace, $text);
+  //drupal_set_message("Adding MAX-WIDTH");
+  //drupal_set_message($text);
   return $text;
 }
 
 function createForumEmailBody($to, $subject, $author, $forum, $thread_subject, $thread_summary, $message, $forum_url, $thread_url, $display_summary, $host) {
 
+$no = "";
+
 $body = '
 <!DOCTYPE html>
 <html>
@@ -421,7 +421,7 @@ $body = '
     </tr>
     <tr>
       <td>
-        <p style="font-family:Verdana,Arial;font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new posts to ICRP Forums. If you wish to unsubscribe, log in to ICRP, navigate to <a target="_blank" href="'.$host.'/my-profile">My Profile</a> and unselect the <em>ICRP Committees and Forums</em> which you no longer want to receive. </p>
+        <p style="font-family:Verdana,Arial;font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new posts to ICRP Forums. If you wish to unsubscribe, log in to ICRP, navigate to <a target="_blank" href="'.$host.'/user/login?destination=/my-profile">My Profile</a> and unselect the <em>ICRP Committees and Forums</em> which you no longer want to receive. </p>
       </td>
     </tr>
   </table>
@@ -432,7 +432,213 @@ $body = '
   return $body;
 }
 
-function createEventEmailBody($to, $subject, $author, $forum, $thread_subject, $thread_summary, $message, $forum_url, $thread_url, $display_summary, $host) {
+  /*
+  // How to get entity->id() to node.
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($entity->id());
+  if($node->getType() == "events") {
+    precheckEventEmail($entity);
+  }
+  */
+
+
+function icrp_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
+  //drupal_set_message(__FUNCTION__);
+  //drupal_set_message("Bundle:".$entity->bundle());
+  //drupal_set_message($entity->get('field_calendar_type')->value);
+  //Only send emails for events that are Partner Meetings
+  if($entity->bundle() == "events" && $entity->get('field_calendar_type')->value == "Partner Meetings") {
+    if (isset($entity->original)) {
+      //This is an Update of an existing Event
+      //Check to see if date has changed
+      $date_range_original = $entity->original->get('field_event_date_range')->getString();
+      $date_range = $entity->get('field_event_date_range')->getString();
+      if($date_range != $date_range_original) {
+        //drupal_set_message("Date has CHANGED", "warning", TRUE);
+        //dpm($entity);
+        sendEventsNotification($entity->id(), 'update', $entity);
+      }
+    }
+  }
+}
+
+
+function sendEventsNotification($nid, $type, $entity="") {
+  //drupal_set_message(__FUNCTION__);
+  //drupal_set_message("Message Type:".$type);
+
+  \Drupal::logger('icrp')->notice('Send Event Notification: nid='.$nid);
+  $host = "https://" . \Drupal::request()->getHost();
+  $event = getEventsDetails($nid, $entity);
+  //dpm($event);
+  $message = $event['body'];
+  //drupal_set_message($host);
+  $message = relToAbs($message, $host);
+  //drupal_set_message("type: ".$type);
+
+  switch ($type) {
+    case 'create':
+      $subject = "ICRP Meeting (New) - {$event['event_title']}";
+      $intro = "The following ICRP partner meeting has been added to the calendar:";
+      break;
+    case 'update':
+      $subject = "ICRP Meeting Update - {$event['event_title']}";
+      $intro = "The following ICRP partner meeting date has changed:";
+      break;
+    case 'delete':
+      $subject = "ICRP Meeting Canceled - {$event['event_title']}";
+      $intro = 'The following ICRP partner meeting has been <span style="color:red">Canceled</span>:';
+      break;
+  }
+
+  $emails = getEventsEmails($nid, $event['author_uid']);
+
+  //drupal_set_message("Emails");
+  //dpm($emails);
+  foreach($emails as $key => $email) {
+    $event_start_date = new DrupalDateTime($event['date_start'], 'UTC');
+    $event_end_date = new DrupalDateTime($event['date_end'], 'UTC');
+    $event_start_date->setTimezone(new \DateTimeZone($email['timezone']));
+    $event_end_date->setTimezone(new \DateTimeZone($email['timezone']));
+    $date_range = "Unknown"; //Need to use timezone for each email.
+    //Same date
+    if($event_start_date->format('Y-m-d') == $event_end_date->format('Y-m-d')) {
+      $date_range = $event_start_date->format('l, F j, Y')." at ".$event_start_date->format('g:i A')." - ".$event_end_date->format('g:i A (T)');
+    }
+    //different date
+    if($event_start_date->format('Y-m-d') <> $event_end_date->format('Y-m-d')) {
+      $date_range = $event_start_date->format('l, F j, Y')." at ".$event_start_date->format('g:i A (T)')." - ".$event_end_date->format('l, F j, Y g:i A (T)');
+    }
+    //Same date/time
+    if($event_start_date->format('Y-m-d H:i') == $event_end_date->format('Y-m-d H:i')) {
+      $date_range = $event_start_date->format('l, F j, Y')." at ".$event_start_date->format('g:i A (T)');
+    }
+    if($type == 'update'){
+      $date_range = '<span style="color:green">Date Changed: </span>'.$date_range;
+    }
+    if($type == 'delete'){
+      $date_range = '<span style="color:red">Date Canceled: </span><strike>'.$date_range.'</strike>';
+    }
+    //drupal_set_message(t("date_range: ".$date_range), 'status', TRUE);
+    $body = createEventsEmailBody($email['first_name'], $subject, $event['event_title'], $date_range, $message, $event['event_type'], $event['location'], $event['calendar_url'], $host, $event['group_color'], $intro);
+    //drupal_set_message($body);
+    sendNewForumPostMail($email['formated_email'], $subject, $body);
+  }
+  //Loop through users and send them an e-mail.
+}
+
+function getEventsDetails($nid, $entity) {
+  //drupal_set_message(__FUNCTION__);
+  //$nid of the main forum node
+  //$rid of reply id if available
+  //$to_uid is who the email goes to.
+  //drupal_set_message(__FUNCTION__);
+
+  $host = "https://" . \Drupal::request()->getHost();
+
+  if(isset($entity) && $entity<>""){
+    //drupal_set_message("We got an update entity");
+    $node = $entity;
+  } else {
+    $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  }
+  $detail['event_title'] = $node->getTitle();
+  $detail['body'] = $node->get('body')->value;
+  $detail['date_range'] = $node->get('field_event_date_range')->getString();
+  $detail['date_start'] = $node->get('field_event_date_range')->value;
+  $detail['date_end'] = $node->get('field_event_date_range')->end_date->format(DATETIME_DATETIME_STORAGE_FORMAT);;
+
+  $detail['location'] = $node->get('field_event_location')->value;
+  $detail['calendar_type'] = $node->get('field_calendar_type')->value;
+
+  $detail['author'] = getUserFullName($node->getOwnerId());
+  $detail['author_uid'] = $node->getOwnerId();
+  $detail['event_type'] = $node->get('field_event_group')->value;
+  //Get Group Color for this event
+  $event_group =  $node->get('field_event_group')->value; 
+  $config = \Drupal::service('config.factory')->get('icrp.settings');
+  $group_color = array(
+      "Partner News and Announcements" => $config->get('event_group_color.partner_news_and_announcements'),
+      "Annual Meetings" => $config->get('event_group_color.annual_meetings'),
+      "Communications and Membership" => $config->get('event_group_color.communications_and_membership'),
+      "CSO and Coding" => $config->get('event_group_color.cso_and_coding'),
+      "Evaluations and Analyses" => $config->get('event_group_color.evaluations_and_analyses'),
+      "Partner Operations" => $config->get('event_group_color.partner_operations'),
+      "Website and Database" => $config->get('event_group_color.website_and_database'),
+  );
+  if(isset($group_color[$event_group])) {
+    $detail['group_color'] = $group_color[$event_group];
+  } else {
+    drupal_set_message($event_group." not found.", 'warning');
+    return $detail;
+  }
+
+  $event_date = substr($detail['date_range'], 0, 7);
+
+  $detail['calendar_url'] = $host."/user/login?destination=/calendar?default_date=".$event_date."&amp;open_tab=partner-meetings";
+  return $detail;
+
+}
+
+function  getEventsEmails($nid, $author_uid) {
+  //drupal_set_message(__FUNCTION__);
+
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  //dpm($node);
+
+  $event_group =  $node->get('field_event_group')->value; 
+  //drupal_set_message("calendar_type: ".$event_group);
+  $subCommittees = array(
+      "Partner News and Announcements" => "field_subcommittee_partner_news",
+      "Annual Meetings" => "field_subcommittee_annual_meetin",
+      "Communications and Membership" => "field_subcommittee_membership",
+      "CSO and Coding" => "field_subcommittee_cso_coding",
+      "Evaluations and Analyses" => "field_subcommittee_evaluation",
+      "Partner Operations" => "field_subcommittee_partner_opera",
+      "Website and Database" => "field_subcommittee_web_site",
+  );
+
+  $table = "";
+
+  if(isset($subCommittees[$event_group])) {
+    $table = "user__".$subCommittees[$event_group];
+    $field = $subCommittees[$event_group]."_value";
+  } else {
+    drupal_set_message(t($event_group." not found in subcommittees."), 'warning', FALSE);
+  }
+
+  $query = "select ufd.uid, ufd.mail, ufd.timezone, uffn.field_first_name_value, ufln.field_last_name_value, ufnne.field_notify_new_events_value, sub.".$field." ";  
+  $query .= "FROM users_field_data ufd, user__field_first_name uffn, user__field_last_name ufln, user__field_notify_new_events ufnne, ".$table." sub ";
+  $query .= "where ufd.status = 1 and ufd.uid = uffn.entity_id and ufd.uid = ufln.entity_id and ufd.uid = ufnne.entity_id and ufd.uid = sub.entity_id ";
+  $query .= "and ufnne.field_notify_new_events_value = 1 ";
+  $query .= "and sub.".$field." = 1 ";
+  $query .= "and ufd.uid <> ".$author_uid." ";
+
+  //drupal_set_message($query);
+  //dpm($query);
+
+  //Get a list of names and e-mails.  Everybody that is an Active user and is subcribed to this forum and has notifications checked.
+  $result = db_query($query);
+  $forum_members = [];
+  for ($count = 0; $row = $result->fetchObject(); $count++) {
+    $first_name = $row->field_first_name_value;
+    $last_name = $row->field_last_name_value;
+    $email = $row->mail;
+    $timezone = $row->timezone;
+    $formated_email = $first_name." ".$last_name." <".$email.">";
+
+    $forum_members[] = array('first_name' => $first_name, 'formated_email' => $formated_email, 'timezone' => $timezone);
+  }
+  //drupal_set_message(print_r($forum_members, true));
+
+  //$variables['tforum_category'] = $row->name;
+  //$variables['tforum_description'] = $row->description__value;
+
+  //$forum_members = array(array('first_name' => 'Steve', 'formated_email' => 'Steve <steve@example.com>'));
+
+  return $forum_members;
+}
+
+function createEventsEmailBody($to, $subject, $event_title, $date_range, $message, $event_type, $location, $calendar_url, $host, $group_color, $intro) {
 
 $body = '
 <!DOCTYPE html>
@@ -440,51 +646,62 @@ $body = '
 
 <head>
   <meta charset="UTF-8">
-  <title>ICRP Forum Message</title>
+  <title>'.$subject.'</title>
 </head>
 
 <body>
-  <table style="margin-left:auto;margin-right:auto;width:600px;">
+  <table style="margin-left:auto;margin-right:auto;width:600px;font-family:Verdana,Arial;font-size:12px;border-collapse:collapse;">
     <tr>
       <td>
         <a target="_blank" href="'.$host.'"> <img width="200" height="40" style="margin-bottom:10px;margin-top:5px" src="'.$host.'/sites/default/files/icrp-logo.png"> </a>
 
       </td>
     </tr>
+    <tr style="background-color:'.$group_color.';color:white;">
+      <td style="border:2px solid '.$group_color.';padding:10px;">ICRP Committee: '.$event_type.'</td>
+    </tr>
     <tr>
-      <td style="border-top:25px solid #008cba;border-left:2px solid #008cba;border-right:2px solid #008cba;border-bottom:2px solid #008cba;background-color:white;padding:10px;">
+      <td style="border:2px solid '.$group_color.';background-color:white;padding:10px;">
         <table style="font-family:Verdana,Arial;font-size:12px;padding:10px;width:100%">
           <tr>
             <td style="padding-bottom:10px;">Hi '.$to.',
             </td>
           </tr>
           <tr>
-            <td style="padding-bottom:10px;">
-              <em>ICRP Partner</em> <strong>'.$author.'</strong> just replied to a forum that you are following.
-            </td>
-          </tr>
-          <tr>
-            <td style="padding-bottom:10px;">
-              <span style="font-weight:bold;font-size:14px;color:grey"> <a href="'.$forum_url.'" style="text-decoration: none !important;color:#DD9C28;">'.$forum.'</a> » <a href="'.$thread_url.'" style="text-decoration: none !important;color:#000;font-weight:normal;">'.$thread_subject.'</a> </span>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding-bottom:10px;">
-              <div style="background-color:#f5f5f5;padding:10px;margin:1em 0;">';
-            if($display_summary) {
-              $body .= '<div style="font-weight:bold;font-size:14px;color:#142830;margin-bottom:1em">'.$thread_summary.'</div>';
-            }
-
-              $body .=  '<div style="font-weight:normal;font-size:12px;margin-left:15px;margin-bottom:1em">'.$message.'</div>
-              </div>
+            <td style="padding-bottom:10px;">'.$intro.'
             </td>
           </tr>
           <tr>
             <td>
-              <a target="_blank" href="'.$thread_url.'">
-                <div style="background-color:#008cba;color:white;font-weight:bold;text-align:center;display:inline-block;padding:10px 15px;border-radius:10px;width:100px;height:18px;"> View Message </div>
+              <span style="font-size:20px;color:#853E0E;"><em>'.$event_title.'</em></span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-bottom:10px;">
+              '.$date_range.'
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-bottom:10px;">
+              <div style="background-color:#f5f5f5;padding:10px;margin:1em 0;">
+                <div style="font-weight:normal;font-size:12px;margin-left:15px;margin-bottom:1em">'.$message.'</div>
+              </div>
+            </td>
+          </tr>';
+          if(strlen($location) > 0) {
+              $body .= '
+                <tr>
+                  <td style="padding-bottom:10px;">
+                    <div>Location: '.$location.' (<a target="_blank" href="https://www.google.com/maps/place/'.$location.'">map</a>)</div>
+                  </td>
+                </tr>';
+          }
+          $body .= '
+          <tr>
+            <td>
+              <a target="_blank" href="'.$calendar_url.'">
+                <div style="background-color:#008cba;color:white;font-weight:bold;text-align:center;display:inline-block;padding:10px 15px;border-radius:10px;width:200px;height:18px;"> Partner Meeting Calendar </div>
               </a>
-
             </td>
           </tr>
         </table>
@@ -493,7 +710,7 @@ $body = '
     </tr>
     <tr>
       <td>
-        <p style="font-family:Verdana,Arial;font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new posts to ICRP Forums. If you wish to unsubscribe, log in to ICRP, navigate to <a target="_blank" href="'.$host.'/my-profile">My Profile</a> and unselect the <em>ICRP Committees and Forums</em> which you no longer want to receive. </p>
+        <p style="font-family:Verdana,Arial;font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new events coming soon. If you wish to unsubscribe, log in to ICRP, navigate to <a target="_blank" href="'.$host.'/user/login?destination=/my-profile">My Profile</a> and unselect the <em>Notify me of new Events to ICRP Committees<em> check box.</p>
       </td>
     </tr>
   </table>
@@ -502,21 +719,30 @@ $body = '
 </html>
 ';
   return $body;
+}
+
+function icrp_node_predelete(Drupal\Core\Entity\EntityInterface $entity) {
+  if($entity->bundle() == "events" && $entity->get('field_calendar_type')->value == "Partner Meetings") {
+    sendEventsNotification($entity->id(), 'delete', $entity);
+  }
 }
 
 function icrp_node_insert(NodeInterface $node) {
-
-  //drupal_set_message("node_insert");
+  //drupal_set_message("function: ".__FUNCTION__);
   $nid = $node->id();
-  if($node->getType() == "events") {
-    //drupal_set_message("New Event - Send email");
+  //drupal_set_message("node insert type: ".$node->getType());
+  //drupal_set_message($node->get('field_calendar_type')->value);
+  //Only send emails for events that are Partner Meetings
+  if($node->getType() == "events" && $node->get('field_calendar_type')->value == "Partner Meetings") {
+    //drupal_set_message("Node Insert");
+    //drupal_set_message("Type: ". $node->getType());
     //drupal_set_message($node->getTitle());
     //drupal_set_message($node->id());
-    //dpm($node);
-    //sendEventNotification($nid);
+    sendEventsNotification($node->id(), 'create');
+
   }
   if($node->getType() == "forum") {
-  /*
+    /*
     drupal_set_message("Node Insert");
     drupal_set_message("Type: ". $node->getType());
     drupal_set_message($node->getTitle());
@@ -555,18 +781,6 @@ function icrp_user_view($account, $view_mode, $langcode) {
   //$response = new RedirectResponse('/home');
   //return $response->send();  
 
-}
-
-function icrp_node_view($node, $view_mode, $langcode) {
-  //drupal_set_message("Node view");
-  /*
-  if ($node->nid == $node_to_alter) {
-    $node->content['my_module_additional_content'] = node_view($the_other_node);
-  }
-  */
-}
-
-function icrp_preprocess_pager(&$variables) {
 }
 
 function icrp_preprocess_forum_submitted(&$variables) {
@@ -1324,67 +1538,6 @@ The ICRP team";
           break;
     }
 }
-/*
-function partnerApplicationSubmissionsTable() {
-    //First Check to see if there are any Submitted Applications
-    //If count is zero, then display all Active Submissions
-    $markup = '<h1>Partner Application Administration Tool</h1>';
-    $markup .= '<table id="partner-application-table" class="table table-striped table-bordered table-condensed cols-6 sticky-enabled">
-  <thead>
-  <tr>
-    <th>Organization</th>
-    <th>City</th>
-    <th>Country</th>
-    <th>Email</th>
-    <th>Date Submitted</th>
-    <th>Review Data</th>
-    <th>Status</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr>
-    <td>Universal Cancer Research</td>
-    <td>London</td>
-    <td>United Kingdom</td>
-    <td>nobel.price@universalcancerresearch.org</td>
-    <td>10/14/2016</td>
-    <td><a href="#">Review</a></td>
-    <td>Pending Review</td>
-  </tr>
-  <tr>
-    <td>American Cancer Society</td>
-    <td>Atlanta</td>
-    <td>Georgia</td>
-    <td>tech@cancer.org</td>
-    <td>5/24/2015</td>
-    <td><a href="#">Review</a></td>
-    <td>Pending Review</td>
-  </tr>
-  <tr>
-    <td>Susan G. Komen Breast Cancer Foundation</td>
-    <td>Dallas</td>
-    <td>Texas</td>
-    <td>sue@komen.org</td>
-    <td>10/14/2016</td>
-    <td><a href="#">Review</a></td>
-    <td>Pending Review</td>
-  </tr>
-  </tbody>
-</table> ';
-    return $markup;
-}
-
-function partnerApplicationSubmissionsData() {
-    //Query table and return JSON of "PENDING Review" Applications
-    return 'jsonData';
-}
-
-function partnerApplicationSubmissionsCount() {
-    //Perform SQL to add
-
-    return 2;
-}
-*/
 
 
 function icrp_confirm_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
@@ -1569,15 +1722,375 @@ function icrp_fullcalendar_options_info() {
     ),
   );
 }
-/*
- "revision" => array:5 [▼
-    "#type" => "checkbox"
-    "#title" => TranslatableMarkup {#1460 ▶}
-    "#default_value" => true
-    "#access" => false
-    "#group" => "revision_information"
-  ]
-*/
+
+function getDataCaveatsHTML() {
+  $html = '
+ <h1>ICRP Data Caveats</h1>
+ 
+ <table class="caveats">
+  <tbody>
+    <tr>
+      <th class="orgCategory" colspan="2">Single-funder organizations</th>
+    </tr>
+    <tr>
+      <th>Partner</th>
+      <th>Caveat</th>
+    </tr>
+    <tr>
+      <td class="partnerName">ACS</td>
+      <td>Dollar amounts found in the ICRP database are different than what is reported in the American Cancer Society\'s Annual Report. This is because the annual report has been audited. The dollar amounts spent on research reported in this document includes operating expenses of the Research Department. Additionally, the dollar amounts also exclude all grants that were cancelled after being awarded, but includes money that was returned from grants cancelled in the current year that were awarded in previous years. The dollar amounts reported in the database are unaudited and include grants awarded each fiscal year, exclusive of grants that cancelled before activation.</td>
+    </tr>
+    <tr>
+      <td class="partnerName">CBCRP</td>
+      <td>The California Breast Cancer Research Program grants are awarded only to individuals or institutions in California. Grants to the University of California receive only direct funds, while grants to other institutions also receive indirect costs (overhead) at 25% or the federally negotiated rate. Collaborative awards are counted in graphs and tables by the number of co-Principal Investigators rather than the number of projects.</td>
+    </tr>
+    <!--    K O M E N    -->
+    <tr>
+      <td class="partnerName">Komen</td>
+      <td>Dollar amounts found in the ICRP database are different than what is reported on Komen\'s website or in Komen\'s Annual Report for the following reasons:
+      <ol>
+        <li>Komen commits all funds necessary to support a research grant in the year it is awarded. Therefore, Komen\'s website reports on the full amount of each grant in the year it is initiated, while the ICRP data is annualized, as described.</li>
+        <li>Komen funds research grants to our Scientific Advisors (Scientific Advisory Board members and Komen Scholars) and also provides discretionary funding of research-related projects that are not traditional research grants (e.g. support of the Komen Tissue Bank, ASCO and AACR meeting support). These are included in the overall Research Program spending, as reported in our Annual Report and on our website, but are not included in the ICRP database.</li>
+      </ol>
+      </td>
+    </tr>
+    <tr>
+      <td class="partnerName">NIH</td>
+      <td>i. Starting in FY2007 NCI reports funding supplements, etc., for each grant separately instead of including them in the main project, therefore the number of projects may differ significantly from those of previous years.<br />
+      <br />
+      ii. Projects with a cost of $0 include those that were a no-cost extension of the grant or when funding was provided by another NIH institute or center for that FY.<br />
+      <br />
+      iii. Projects with missing beginning/end dates include intramural projects that were funded for the entire FY and continue on into subsequent years.<br />
+      <br />
+      iv. NCI dollars in the ICRP database may not match dollars from other NCI-only databases. "Research Management Services" are not included in the ICRP database. These include technical and administrative services, including central administration, overall program direction, grant and contract administration, human resources, program coordination, and financial management.</td>
+    </tr>
+  </tbody>
+ </table>
+ 
+ <p>&nbsp;</p>
+ 
+ <table class="caveats">
+  <tbody>
+    <tr>
+      <th class="orgCategory" colspan="2">UK Organizations that are part of NCRI</th>
+    </tr>
+    <tr>
+      <th>Partner</th>
+      <th>Caveat</th>
+    </tr>
+    <tr>
+      <td class="partnerName">NCRI<br />
+      (GENERIC)</td>
+      <td>"NCRI submits data to ICRP on behalf of all UK NCRI members from its Cancer Research Database (CaRD). The database only includes entries where funding can be directly attributed to a set of clearly defined research objectives. This means that the CaRD only contains information on all direct research funding (project, programme, fellowship, unit and institute) financed by NCRI Member organizations, for which an abstract has been submitted and where the project is active on 1 April in any given year. Examples of funding that are currently outside the scope of CaRD are infrastructure, meeting grants and research management support."</td>
+    </tr>
+    <tr>
+      <td class="partnerName">Breakthrough (UK)</td>
+      <td>The ICRP database includes all Breakthrough Breast Cancer\'s research spend reported through its Annual Reports &amp; Accounts. There is some variance due to different reporting periods (1 April snapshot versus full financial year) meaning that some research spend that is already committed may not be included in the ICRP figures. Expenditure on non-research charitable activities and management support costs are excluded from the NCRI, and by extension, the ICRP dataset. For further information on Breakthrough\'s research please visit <a href="http://www.breakthroughresearch.org.uk" target="_blank">www.breakthroughresearch.org.uk</a> or email <a href="mailto:research@breakhtrough.org.uk">research@breakthrough.org.uk</a></td>
+    </tr>
+    <tr>
+      <td class="partnerName">CR-UK (UK)</td>
+      <td>The ICRP database includes around 70% of Cancer Research UK\'s direct research spend per financial year as reported through its Annual Reports &amp; Accounts. There is some variance due to different reporting periods (1 April snapshot versus full financial year) meaning that some direct research spend that is planned for allocation will not be included in the ICRP figures. Expenditure on vital research services, technology transfer, meeting grants, research management support and infrastructure to support Cancer Research UK\'s activities is excluded from the NCRI, and by extension, the ICRP dataset.</td>
+    </tr>
+    <tr>
+      <td class="partnerName">Department of Health (UK)</td>
+      <td>There will always be some variance between the figures available on ICRP and the figures reported publicly by DH. There are two reasons for this. Firstly, there is variance due to different reporting periods (1 April snapshot of ICRP versus full financial year reporting by DH). Secondly, the Department\'s National Institute for Health Research (NIHR) encompasses various expenditure on NHS infrastructure for research relevant to cancer that is not in a format that it is possible to capture for ICRP.</td>
+    </tr>
+    <tr>
+      <td class="partnerName">Macmillan (UK)</td>
+      <td>The ICRP database represents about 90% of Macmillan Cancer Support\'s direct research spend per financial year. There is some variance due to different reporting periods (1 April snapshot versus full financial year) meaning that some direct research spend that is planned for allocation will not be included in the ICRP figures. Expenditure on research management support and infrastructure to support Macmillan Cancer Support\'s activities is excluded from the NCRI, and by extension, the ICRP dataset.</td>
+    </tr>
+    <tr>
+      <td class="partnerName">Scottish Government Health Directorates (UK)</td>
+      <td>Scottish Government is committed to improve the health of the Scottish population and the Chief Scientist\'s Office (CSO) funds across a broad range of relevant disease areas. Overall, 75% of the CSO spend is committed to research infrastructure in NHSScotland. This and much other research expenditure is therefore outside the NCRI remit and, by extension, the ICRP dataset.</td>
+    </tr>
+    <tr>
+      <td class="partnerName">Worldwide Cancer Research(UK)</td>
+      <td>Worldwide Cancer Research is unique in that the majority of our funding is awarded to researchers in countries outside the UK. Like many UK research charities, Worldwide Cancer Research only funds the direct costs of research. This creates significant problems in making quantitative comparisons between our funding and that provided by some of the other agencies in the ICRP, which fund both the direct and indirect costs (often called overheads) of research.</td>
+    </tr>
+  </tbody>
+ </table>
+ 
+ <p>&nbsp;</p>
+ 
+ <table class="caveats">
+  <tbody>
+    <tr>
+      <th class="orgCategory" colspan="2">Canadian organizations who are part of the CCRA</th>
+    </tr>
+    <tr>
+      <th>Partner</th>
+      <th>Caveat</th>
+    </tr>
+    <tr>
+      <td class="partnerName">CCRA</td>
+      <td>Caveats/limitations specific to Canadian Cancer Research Alliance organizations can be accessed <a href="./ICRPDataCaveatsCCRA">here</a>.</td>
+    </tr>
+  </tbody>
+ </table>
+ 
+ <p>&nbsp;</p>';
+
+ return $html;
+}
+
+function getDataCaveatsCCRAHTML() {
+  $html = '
+<h1>ICRP Data Caveats - CCRA Organizations</h1>
+
+<div id="content">
+<h3>General data caveats</h3>
+
+<p>Caveats/limitations of the Canadian Cancer Research Survey (CCRS) as documented in CCRA reports are applicable and will not be repeated here. Please consult the available publications at the CCRA web site: <a href="http://www.ccra-acrc.ca/aboutus_publications_en.htm" target="_blank">http://www.ccra-acrc.ca/aboutus_publications_en.htm</a>. This document describes caveats specific to the subset of CCRS data provided to the ICRP.<br />
+<br />
+Data reported by CCRA will vary from the ICRP data as follows:</p>
+
+<table class="caveats">
+  <tbody>
+    <tr class="orgCategory">
+      <th>Difference</th>
+      <th>Detail</th>
+      <th>Impact on investment figures</th>
+    </tr>
+    <tr>
+      <td>Not all CCRS participating organizations are included in the ICRP.</td>
+      <td>For the period 2005-2007, CCRA submitted data to the ICRP for 18 organizations and the three multi-funded initiatives (CBCRA, CPCRI, and CTCRI). This data represents ~30% of the investment documented/reported by the CCRS. We will address this issue, in part, with the 2008 data year submission as we will open data submission to all CCRS participating organizations.</td>
+      <td>Major for 2005-2007; medium impact expected from 2008 on.</td>
+    </tr>
+    <tr>
+      <td>Not all CCRS projects are (will be) included in the ICRP.</td>
+      <td>Even with all organizations included, some discrepancies will remain. Specifically, "related support" grants (i.e., travel awards, workshops/symposia, LOIs, etc.) and equipment/infrastructure grants that have a cancer relevance weighting of less than 100% are not reported to the ICRP, but are included in reports released by CCRA.</td>
+      <td>Medium overall; major impact expected for some organizations (e.g., CFI).</td>
+    </tr>
+    <tr>
+      <td>ICRP uses a different approach to calculating annual project investment.</td>
+      <td>CCRA provides ICRP with the full project amount and start and end dates. A pro-rated calculation is used to derive annual investment. CCRA bases its prorated calculations on annual project amounts (where those data are available) to account for differences in dollar flow.</td>
+      <td>Minor</td>
+    </tr>
+    <tr>
+      <td>ICRP uses different site coding conventions.</td>
+      <td>The cancer site/type codes used within the CCRS are different from ICRP site codes so results by site will vary in some instances.</td>
+      <td>Minor</td>
+    </tr>
+    <tr>
+      <td>ICRP has technical limitations.</td>
+      <td>ICRP has a technical limit of 12 site codes and 8 CSO codes and this requires truncation for a couple of large-scale projects within the CCRS.</td>
+      <td>Very minor</td>
+    </tr>
+    <tr>
+      <td>CCRA provides less descriptive information about its projects to ICRP.</td>
+      <td>Lay abstracts are submitted by CCRA to the ICRP in lieu of scientific abstracts and in their language of origin. For projects without lay abstracts (and there are a significant number of these), only titles are provided. An English translation is provided alongside all French project titles to facilitate use of the search engine.</td>
+      <td>No impact on investment figures, but limits full functionality of search engine especially for organizations that do not collect/report lay abstracts.</td>
+    </tr>
+  </tbody>
+</table>
+&nbsp;
+
+<h2>Specific implications for individual organizations reporting to the CCRS, 2005–2007</h2>
+
+<table class="caveats">
+  <tbody>
+    <tr class="orgCategory">
+      <th>Organization</th>
+      <th>Excluded within ICRP</th>
+      <th>$ Implications 2005-2007</th>
+    </tr>
+    <tr>
+      <td>Alberta Cancer Foundation</td>
+      <td>24 projects (conferences/workshops/travel)</td>
+      <td>3% of investment not included in ICRP (CAD$1M)</td>
+    </tr>
+    <tr>
+      <td>Alberta Innovates - Health Solutions</td>
+      <td>20 projects (9 conference grants, 8 major equipment, 1 scholar/equipment, 1 community health research - visiting lecturer, 1 special initiative funding)</td>
+      <td>1% of investment not included in ICRP (CAD$0.1M)</td>
+    </tr>
+    <tr>
+      <td>Brain Tumour Foundation of Canada</td>
+      <td>All projects (17)</td>
+      <td>Total investment not included in ICRP (CAD$0.4M)</td>
+    </tr>
+    <tr>
+      <td>C17 Research Network</td>
+      <td>All projects (8)</td>
+      <td>Total investment not included in ICRP (CAD$0.3M)</td>
+    </tr>
+    <tr>
+      <td>Canada Foundation for Innovation</td>
+      <td>All projects (332)</td>
+      <td>Total investment not included in ICRP (CAD$256M)</td>
+    </tr>
+    <tr>
+      <td>Canada Research Chairs Program</td>
+      <td>All projects (264)</td>
+      <td>Total investment not included in ICRP (CAD$55M)</td>
+    </tr>
+    <tr>
+      <td>Canadian Association of Radiation Oncology</td>
+      <td>All projects (36)</td>
+      <td>Total investment not included in ICRP (CAD$0.6M)</td>
+    </tr>
+    <tr>
+      <td>Canadian Breast Cancer Foundation</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Canadian Breast Cancer Research Alliance</td>
+      <td>3 projects (knowledge translation grants)</td>
+      <td>Less than 1% of investment not included in ICRP (less than CAD$0.1M)</td>
+    </tr>
+    <tr>
+      <td>Canadian Cancer Society</td>
+      <td>48 projects (38 student travel awards, 10 workshop/symposium awards)</td>
+      <td>Less than 1% of investment not included in ICRP (CAD$0.1M)</td>
+    </tr>
+    <tr>
+      <td>Canadian Institutes of Health Research</td>
+      <td>147 projects (43 multi-user equipment &amp; maintenance grants, 31 research resource grants, 40 LOIs, 32 workshop/travel/planning/KT, 1 other)</td>
+      <td>2% of investment not included in ICRP (CAD$5.4M)</td>
+    </tr>
+    <tr>
+      <td>Canadian Prostate Cancer Research Initiative</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Canadian Tobacco Control Research Initiative</td>
+      <td>100 projects (72 travel grants, 15 letters of intent; 7 planning grants; 6 workshop grants)</td>
+      <td>6% of investment not included in ICRP (CAD$0.3M)</td>
+    </tr>
+    <tr>
+      <td>Canary Foundation of Canada</td>
+      <td>All projects (7)</td>
+      <td>Total investment not included in ICRP (CAD$0.8M)</td>
+    </tr>
+    <tr>
+      <td>Cancer Care Nova Scotia</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Cancer Care Ontario</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>CancerCare Manitoba</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Fonds de la recherche en santè du Quèbec</td>
+      <td>1 project (FRSQ - Inserm (France) Program for Short-term Exchanges)</td>
+      <td>Less than 1% of investment not included in ICRP (less than CAD$0.1M)</td>
+    </tr>
+    <tr>
+      <td>Genome Canada</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Manitoba Health Research Council</td>
+      <td>All projects (43)</td>
+      <td>Total investment not included in ICRP (CAD$1.3M)</td>
+    </tr>
+    <tr>
+      <td>Medical Research Fund of New Brunswick</td>
+      <td>All projects (3)</td>
+      <td>Total investment not included in ICRP (less than CAD$0.1M)</td>
+    </tr>
+    <tr>
+      <td>Michael Smith Foundation for Health Research</td>
+      <td>13 projects (3 team planning awards; 5 research unit awards; 4 technology/methodology platform; 1 institutional infrastructure program)</td>
+      <td>5% of investment not included in ICRP (CAD$18.6M)</td>
+    </tr>
+    <tr>
+      <td>National Research Council of Canada</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Natural Sciences and Engineering Research Council</td>
+      <td>All projects (348)</td>
+      <td>Total investment not included in ICRP (CAD$15M)</td>
+    </tr>
+    <tr>
+      <td>Networks of Centres of Excellence</td>
+      <td>All projects (20)</td>
+      <td>Total investment not included in ICRP (CAD$4M)</td>
+    </tr>
+    <tr>
+      <td>Nova Scotia Health Research Foundation</td>
+      <td>All projects (34)</td>
+      <td>Total investment not included in ICRP (CAD$1M)</td>
+    </tr>
+    <tr>
+      <td>Ontario Institute for Cancer Research</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Ovarian Cancer Canada</td>
+      <td>All projects (12)</td>
+      <td>Total investment not included in ICRP (CAD$0.4M)</td>
+    </tr>
+    <tr>
+      <td>Prostate Cancer Canada</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Quebec Breast Cancer Foundation</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Saskatchewan Cancer Agency</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>Saskatchewan Health Research Foundation</td>
+      <td>All projects (31)</td>
+      <td>Total investment not included in ICRP (CAD$0.9M)</td>
+    </tr>
+    <tr>
+      <td>Social Sciences and Humanities Research Council</td>
+      <td>All projects (54)</td>
+      <td>Total investment not included in ICRP (CAD$1.6M)</td>
+    </tr>
+    <tr>
+      <td>The Cancer Research Society</td>
+      <td>None (all reported)</td>
+      <td>Entire investment included in ICRP</td>
+    </tr>
+    <tr>
+      <td>The Kidney Foundation of Canada</td>
+      <td>All projects (9)</td>
+      <td>Total investment not included in ICRP (CAD$0.5M)</td>
+    </tr>
+    <tr>
+      <td>The Leukemia &amp; Lymphoma Society of Canada</td>
+      <td>All projects (76)</td>
+      <td>Total investment not included in ICRP (CAD$2.6M)</td>
+    </tr>
+    <tr>
+      <td>The Terry Fox Foundation</td>
+      <td>8 Cancer Research Symposium projects</td>
+      <td>Less than 1% of investment not included in ICRP (less than CAD$0.1M)</td>
+    </tr>
+    <tr style="background-color:#DDD; font-weight:bold;">
+      <td>Overall</td>
+      <td>1,658 projects</td>
+      <td>~30% of total investment not included in ICRP ($349M)</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>&nbsp;</p>';
+  return $html;
+}
 
 function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
     //$request = \Drupal::request();
