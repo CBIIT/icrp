@@ -1,5 +1,5 @@
-import { Component, Input, ViewChild, ElementRef, OnChanges, SimpleChanges, AfterViewInit } from '@angular/core';
-import { enableResizableColumns } from './ResizableColumns';
+import { Component, Input, ViewChild, ElementRef, OnChanges, SimpleChanges } from '@angular/core';
+import { enableResizableColumns, disableResizableColumns } from './ResizableColumns';
 
 interface Header {
   value: string;
@@ -13,7 +13,7 @@ interface Header {
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.css']
 })
-export class TableComponent implements OnChanges, AfterViewInit {
+export class TableComponent implements OnChanges {
 
   @Input()
   pageSizes = [25, 50, 100, 150, 200, 250, 300];
@@ -71,13 +71,6 @@ export class TableComponent implements OnChanges, AfterViewInit {
     }
   }
 
-  ngAfterViewInit() {
-    let table: HTMLTableElement = this.tableRef.nativeElement;
-    enableResizableColumns(table, {
-      preserveWidth: true
-    })
-  }
-
   ngOnChanges(changes: SimpleChanges) {
 
     if (changes.headers && changes.headers.currentValue) {
@@ -91,5 +84,11 @@ export class TableComponent implements OnChanges, AfterViewInit {
     if (changes.data && changes.data.currentValue) {
       this._data = [...changes.data.currentValue];
     }
+
+    let table: HTMLTableElement = this.tableRef.nativeElement;
+    disableResizableColumns(table);
+    setTimeout(() => enableResizableColumns(table, {
+      preserveWidth: true
+    }), 0);
   }
 }

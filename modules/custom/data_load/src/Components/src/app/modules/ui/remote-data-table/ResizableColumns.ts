@@ -117,6 +117,16 @@ function initializeColumnWidths(table: HTMLTableElement) {
   }
 }
 
+export function disableResizableColumns(table: HTMLTableElement) {
+  let parent = table.parentElement;
+  let siblings = parent.children;
+  for(let i = 0; i < siblings.length; i ++) {
+    if (siblings[i].getAttribute('data-type') === 'overlay') {
+      parent.removeChild(siblings[i]);
+    }
+  }
+}
+
 /**
  * Enables resizable columns on an HTML table element
  * @param {HTMLTableElement} table The target html table
@@ -140,6 +150,7 @@ export function enableResizableColumns(table: HTMLTableElement, config?: Configu
 
   // initialize resize overlay
   let overlay = document.createElement('div');
+  overlay.setAttribute('data-type', 'overlay');
   table.parentElement.insertBefore(overlay, table);
 
   setStyles(overlay, {
@@ -189,7 +200,6 @@ export function enableResizableColumns(table: HTMLTableElement, config?: Configu
       // update the sizes of both columns
       if (config && config.preserveWidth) {
         let rightCellWidth = state.initial.rightCellWidth - offset + 1;
-
         if (leftCellWidth > 15 && rightCellWidth > 15) {
           setColumnWidth(table, index, leftCellWidth);
           setColumnWidth(table, index + 1, rightCellWidth);

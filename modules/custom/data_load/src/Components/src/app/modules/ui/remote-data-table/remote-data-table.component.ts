@@ -1,6 +1,5 @@
 import { Component, OnChanges, ElementRef, ViewChild, Input, Output, SimpleChanges, EventEmitter, AfterViewChecked } from '@angular/core';
-import { enableResizableColumns } from './ResizableColumns';
-import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
+import { enableResizableColumns, disableResizableColumns } from './ResizableColumns';
 
 interface RequestParameters {
   page: number;
@@ -21,7 +20,7 @@ interface Header {
   templateUrl: './remote-data-table.component.html',
   styleUrls: ['./remote-data-table.component.css']
 })
-export class RemoteDataTableComponent implements OnChanges, AfterViewInit {
+export class RemoteDataTableComponent implements OnChanges {
 
   @Input() count: number = 0;
 
@@ -79,14 +78,6 @@ export class RemoteDataTableComponent implements OnChanges, AfterViewInit {
     return Math.min(a, b);
   }
 
-
-  ngAfterViewInit() {
-    let table: HTMLTableElement = this.tableRef.nativeElement;
-    enableResizableColumns(table, {
-      preserveWidth: false
-    })
-  }
-
   ngOnChanges(changes: SimpleChanges) {
 
     if (changes.headers && changes.headers.currentValue) {
@@ -103,6 +94,12 @@ export class RemoteDataTableComponent implements OnChanges, AfterViewInit {
     if (changes.count) {
       this.page = 1;
     }
+
+    let table: HTMLTableElement = this.tableRef.nativeElement;
+    disableResizableColumns(table);
+    setTimeout(() => enableResizableColumns(table, {
+      preserveWidth: true
+    }), 0);    
   }
 
 }
