@@ -94,7 +94,7 @@ export class ImportCollaboratorsComponent {
           else {
             this.alerts.push({
               type: 'success',
-              content: `${records.length.toLocaleString()} collaborators have been successfully imported.`
+              content: `${this.records.length.toLocaleString()} collaborator(s) have been successfully imported.`
             });
           }
         }

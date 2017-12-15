@@ -94,7 +94,7 @@ export class ImportInstitutionsComponent  {
           else {
             this.alerts.push({
               type: 'success',
-              content: `${records.length.toLocaleString()} institutions have been successfully imported.`
+              content: `${this.records.length.toLocaleString()} institution(s) have been successfully imported.`
             });
           }
         }
