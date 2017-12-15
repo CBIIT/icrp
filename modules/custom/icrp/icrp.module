@@ -309,13 +309,28 @@ function sendForumNotification($nid, $cid = "0") {
   //Loop through users and send them an e-mail.
 }
 
-function relToAbs($text, $base) {
+function replaceImgSrc($html, $host) {
+  $doc = new DOMDocument();
+  $doc->loadHTML($html);
 
-  if (empty($base))
+  $tags = $doc->getElementsByTagName('img');
+
+  foreach ($tags as $tag) {
+    $old_src = $tag->getAttribute('src');
+    $new_src_url = $host.$old_src;
+    $tag->setAttribute('src', $new_src_url);
+  }
+
+  return $doc->saveHTML();
+}
+
+function relToAbs($text, $base) {
+  //drupal_set_message("base: ".$base);
+  if (empty($base)) {
     return $text;
+  }
   // base url needs trailing /
-  if (substr($base, -1, 1) != "/")
-    $base .= "/";
+  $base =  rtrim($base, "/ ");
 
   // Replace links
   /*
@@ -325,14 +340,21 @@ function relToAbs($text, $base) {
   $text = preg_replace($pattern, $replace, $text);
   */
   // Replace images
-  $pattern = "/<img([^>]*) " . 
-             "src=\"[^http|ftp|https]([^\"]*)\"/";
-  $replace = "<img\${1} src=\"" . $base . "\${2}\"";
-  $text = preg_replace($pattern, $replace, $text);
+  //drupal_set_message("TEXT BEFORE");
+  //drupal_set_message($text);
+  //$pattern = "/<img([^>]*) "."src=\"[^http|ftp|https]([^\"]*)\"/";
+  //$replace = "<img\${1} src=\"" . $base . "\${2}\"";
+  //$text = preg_replace($pattern, $replace, $text);
+  $text = replaceImgSrc($text, $base);
+  //drupal_set_message("Adding HOST to img");
+  //drupal_set_message($text);
+
   //Add max-width:500px; to style
   $pattern = "/<img /";
   $replace = "<img style=\"max-width:500px;\" ";
   $text = preg_replace($pattern, $replace, $text);
+  //drupal_set_message("Adding MAX-WIDTH");
+  //drupal_set_message($text);
   return $text;
 }
 
@@ -449,7 +471,7 @@ function sendEventsNotification($nid, $type, $entity="") {
   $event = getEventsDetails($nid, $entity);
   //dpm($event);
   $message = $event['body'];
-
+  //drupal_set_message($host);
   $message = relToAbs($message, $host);
   //drupal_set_message("type: ".$type);
 
@@ -497,7 +519,7 @@ function sendEventsNotification($nid, $type, $entity="") {
       $date_range = '<span style="color:red">Date Canceled: </span><strike>'.$date_range.'</strike>';
     }
     //drupal_set_message(t("date_range: ".$date_range), 'status', TRUE);
-    $body = createEventsEmailBody($email['first_name'], $subject, $event['event_title'], $date_range, $event['body'], $event['event_type'], $event['location'], $event['calendar_url'], $host, $event['group_color'], $intro);
+    $body = createEventsEmailBody($email['first_name'], $subject, $event['event_title'], $date_range, $message, $event['event_type'], $event['location'], $event['calendar_url'], $host, $event['group_color'], $intro);
     //drupal_set_message($body);
     sendNewForumPostMail($email['formated_email'], $subject, $body);
   }

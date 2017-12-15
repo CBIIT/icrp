@@ -63,6 +63,10 @@ class OrganizationRestClient {
     private static function checkOrganizations(array $organizations) {
         $sql = "SELECT field_organization_id_value, entity_id FROM node__field_organization_id;";
         $current_organization_ids = db_query($sql)->fetchAllAssoc('field_organization_id_value',PDO::FETCH_ASSOC);
+        $query = \Drupal::entityQuery('node')
+                   ->condition('type', 'organization', '=')
+                   ->condition('field_organization_id', array_map('self::mapEntityID',$organizations), 'NOT IN');
+        $non_extant_org_ids = array_values($query->execute());
         foreach ($organizations as $key=>$organization) {
             if (array_key_exists($organization['ID'],$current_organization_ids)) {
                 $node = Node::load($current_organization_ids[$organization['ID']]['entity_id']);
@@ -77,6 +81,14 @@ class OrganizationRestClient {
                 self::addOrganization($organization);
             }
         }
+        $nodes_to_delete = Node::loadMultiple($non_extant_org_ids);
+        foreach($nodes_to_delete as $node) {
+            $node->delete();
+        }
+    }
+
+    private static function mapEntityID($entity) {
+        return $entity['ID'];
     }
 
     /*
