@@ -6,6 +6,7 @@ export interface DataGridHeader {
   value: string;
   label: string;
   tooltip?: string;
+  rowTooltip?: string;
   sortDirection?: string; // 'asc', 'desc', or 'none'
   callback?: (value: any, index: number) => any;
   width?: string;
@@ -213,11 +214,18 @@ export class DataGrid extends React.Component<DataGridProps, DataGridState> {
               <tr key={rowIndex}>
                 {_headers.map((header: DataGridHeader, columnIndex: number) =>
                   <td key={`${rowIndex}_${columnIndex}`}>
-                    <span
-                      className={header.callback ? 'callback-link' : ''}
-                      onClick={ev => header.callback && header.callback(row[header.value], rowIndex)}>
-                      {row[header.value].toLocaleString()}
-                    </span>
+                    <OverlayTrigger placement="top" overlay={
+                      !header.rowTooltip ? null :
+                      <Tooltip id={`${rowIndex}_${columnIndex}`}>
+                        {header.rowTooltip}
+                      </Tooltip>
+                    }>                    
+                      <span
+                        className={header.callback ? 'callback-link' : ''}
+                        onClick={ev => header.callback && header.callback(row[header.value], rowIndex)}>
+                        {row[header.value].toLocaleString()}
+                      </span>
+                    </OverlayTrigger>
                   </td>
                 )}
               </tr>

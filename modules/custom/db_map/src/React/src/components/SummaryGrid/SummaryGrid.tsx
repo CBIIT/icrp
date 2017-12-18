@@ -43,6 +43,7 @@ export default class SummaryGrid extends ComponentBase<SummaryGridProps & React.
           onSelect(getNextLocationFilters(location as Location, locationFilters));
         },
         width: '40%',
+        rowTooltip: `Click here to go to ICRP Data to see a list of projects for this ${parseViewLevel(viewLevel).toLowerCase()}.`,
       },
 
       {

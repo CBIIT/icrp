@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { ComponentBase  } from 'resub';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { store } from '../../services/Store';
 import { LocationFilters, getRegionFromId, getCountryFromAbbreviation, ViewLevel } from '../../services/DataService';
 import './ViewLevelSelector.css';
@@ -7,6 +8,7 @@ import './ViewLevelSelector.css';
 interface ViewLevelTag {
   label: string;
   locationFilters: LocationFilters;
+  tooltip?: string;
 }
 
 interface ViewLevelSelectorProps {
@@ -47,6 +49,7 @@ export default class ViewLevelSelector extends ComponentBase<ViewLevelSelectorPr
       {
         label: 'All Regions',
         locationFilters: allRegionsFilters,
+        tooltip: 'Click here to return to all regions.',
       }
     ];
 
@@ -60,9 +63,13 @@ export default class ViewLevelSelector extends ComponentBase<ViewLevelSelectorPr
       delete regionFilter.city;
       delete regionFilter.institution;
 
+
+      let region = getRegionFromId(locationFilters.region);
+
       viewLevelTags.push({
-        label: getRegionFromId(locationFilters.region),
+        label: region,
         locationFilters: regionFilter,
+        tooltip: `Click here to return to ${region}.`,
       })
     }
 
@@ -76,9 +83,12 @@ export default class ViewLevelSelector extends ComponentBase<ViewLevelSelectorPr
       delete regionFilter.city;
       delete regionFilter.institution;
 
+      let country = getCountryFromAbbreviation(locationFilters.country || 'Country');
+
       viewLevelTags.push({
-        label: getCountryFromAbbreviation(locationFilters.country || 'Country'),
+        label: country,
         locationFilters: regionFilter,
+        tooltip: `Click here to return to ${country}.`,
       })
     }
 
@@ -93,6 +103,7 @@ export default class ViewLevelSelector extends ComponentBase<ViewLevelSelectorPr
       viewLevelTags.push({
         label: locationFilters.city || 'City',
         locationFilters: regionFilter,
+        tooltip: `Click here to return to ${locationFilters.city}.`,
       })
     }
 
@@ -110,9 +121,14 @@ export default class ViewLevelSelector extends ComponentBase<ViewLevelSelectorPr
       {
         this.buildTags().map((tag, index) =>
           <span key={index} className="position-relative">
-            <div className="bg-chevron" onClick={event => onSelect(tag.locationFilters)}>
-              {tag.label}
-            </div>
+
+            <OverlayTrigger placement="top" overlay={
+              <Tooltip id="tooltip">{tag.tooltip}</Tooltip>
+            }>
+              <div className="bg-chevron" onClick={event => onSelect(tag.locationFilters)}>
+                {tag.label}
+              </div>
+            </OverlayTrigger>
           </span>
         )
       }
