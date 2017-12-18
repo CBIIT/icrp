@@ -78,6 +78,10 @@ FROM (SELECT City, State, Country, MIN(Latitude) AS Latitude,  MIN(Longitude) AS
 	LEFT JOIN lu_City c ON i.City=c.Name AND ISNULL(i.State, '') = ISNULL(c.State, '') AND i.Country = c.Country		
 WHERE i.City <> 'Missing' AND c.Name IS NULL AND i.Latitude IS NOT NULL AND i.Longitude IS NOT NULL
 
+
+update lu_city set latitude=50.353528, longitude=3.125543 where name='dechy'
+update lu_city set latitude=-1.9578755, Longitude=30.11273499999993 where name='Kigali'
+
 --select * from lu_city where name ='Burwood'
 --select * from institution where city ='Burwood'
 --select * from icrp_data.dbo.lu_CityAll where city ='Carmarthen'-- and region='ma'

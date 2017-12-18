@@ -34,6 +34,8 @@ UPDATE Country SET [Latitude] = cc.[Latitude], [Longitude]= cc.[Longitude]
 FROM Country c
 JOIN #CountryCoordinates cc ON cc.Country = c.Abbreviation
 
+update country set latitude=55.055169, longitude=-4.229736 where abbreviation='uk'
+
 -- testing
 select 'Check Missing Country Coord.' AS Issue, * FROM (select distinct country from Institution) i
 JOIN Country c ON i.Country = c.Abbreviation

@@ -111,7 +111,7 @@ GO
 CREATE TABLE [dbo].[ProjectFundingArchive] (
 	[ProjectFundingID] [int] NOT NULL,
 	[FundingOrgID] [int] NOT NULL,
-	[FundingDivisionID] [int] NOT NULL,
+	[FundingDivisionID] [int] NULL,
 	[ProjectAbstractID] [int] NOT NULL,
 	[Title] [nvarchar](1000) NOT NULL,	
 	[Category] [varchar](25) NULL,
@@ -119,7 +119,7 @@ CREATE TABLE [dbo].[ProjectFundingArchive] (
 	[Source_ID] [varchar](150) NULL,
 	[MechanismCode] [varchar](30) NULL,
 	[MechanismTitle] [varchar](200) NULL,
-	[FundingContact] [varchar](200) NULL,
+	[FundingContact] [varchar](200) NULL
 	[IsAnnualized] [bit] NOT NULL,
 	[Amount] [float] NULL,	
 	[BudgetStartDate] [date] NULL,
@@ -205,9 +205,9 @@ GO
 UPDATE lu_DataUploadIntegrityCheckRules SET Type = 'Both'
 
 IF NOT EXISTS (SELECT * FROM lu_DataUploadIntegrityCheckRules WHERE lu_DataUploadIntegrityCheckRules_ID = 18)
-	INSERT INTO lu_DataUploadIntegrityCheckRules (lu_DataUploadIntegrityCheckRules_ID, [Name],[Category],[IsRequired],[IsActive], Type, CreatedDate, UpdatedDate) SELECT 18, 'Missing AltAwardCodes', 'Award', 1, 1, 'Update', getdate(), getdate()
+	INSERT INTO lu_DataUploadIntegrityCheckRules (lu_DataUploadIntegrityCheckRules_ID, [Name],[Category],[IsRequired],[IsActive], Type, CreatedDate, UpdatedDate) SELECT 18, 'Not Existing Award', 'Award', 1, 1, 'Update', getdate(), getdate()
 ELSE
-	UPDATE lu_DataUploadIntegrityCheckRules SET Type='Update' WHERE lu_DataUploadIntegrityCheckRules_ID = 18
+	UPDATE lu_DataUploadIntegrityCheckRules SET Type='Update', Name='Not Existing Award' WHERE lu_DataUploadIntegrityCheckRules_ID = 18
 GO
 
 IF EXISTS (SELECT * FROM lu_DataUploadIntegrityCheckRules WHERE lu_DataUploadIntegrityCheckRules_ID = 13)

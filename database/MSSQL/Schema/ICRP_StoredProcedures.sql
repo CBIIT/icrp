@@ -376,13 +376,15 @@ AS
 		INSERT INTO @Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
 	END
 
+	SELECT ProjectID INTO #base FROM @Result
+
 	--------------------------------------------------------------------
 	-- Sort and Pagination
 	--   Note: Return only base projects and projects' most recent funding
 	--------------------------------------------------------------------
 	SELECT r.ProjectID, p.AwardCode, maxf.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
 		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort 
-	FROM @Result r
+	FROM #base r
 		JOIN Project p ON r.ProjectID = p.ProjectID
 		JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f GROUP BY ProjectID) maxf ON r.ProjectID = maxf.ProjectID
 		JOIN ProjectFunding f ON maxf.ProjectFundingID = f.projectFundingID
@@ -1682,7 +1684,7 @@ AS
 
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO @Result SELECT DISTINCT ProjectID From vwProjectFundings		
+		INSERT INTO @Result SELECT ProjectID From Project		
 	END
 	ELSE
 	BEGIN
@@ -1708,6 +1710,8 @@ AS
 
 	END
 		
+	SELECT ProjectID INTO #base FROM @Result
+
 	-----------------------------------------------------------		
 	--  Get all related projects with dolloar amounts
 	-----------------------------------------------------------			 
@@ -1722,7 +1726,7 @@ AS
 		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID, i.Name AS Institution, i.City, i.State, i.Country, l.Name AS Region,  -- only PI name and institution
 		@Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
 	INTO #pf
-	FROM @Result r
+	FROM #base r
 		JOIN Project p ON r.ProjectID = p.ProjectID		
 		JOIN ProjectFunding f ON p.ProjectID = f.PROJECTID
 		JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID		
@@ -1917,6 +1921,9 @@ AS
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 
 	END		
+
+	SELECT ProjectID INTO #base FROM @Result
+
 	-----------------------------------------------------------		
 	--  Get all related projects with dolloar amounts
 	-----------------------------------------------------------
@@ -1931,7 +1938,7 @@ AS
 		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, l.Name AS Region,   -- PI only
 		@Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
 	INTO #pf
-	FROM @Result r
+	FROM #base r
 		JOIN Project p ON r.ProjectID = p.ProjectID		
 		JOIN ProjectFunding f ON p.ProjectID = f.PROJECTID
 		JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID		
@@ -2144,7 +2151,7 @@ AS
 
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO @Result SELECT DISTINCT ProjectID From vwProjectFundings		
+		INSERT INTO @Result SELECT ProjectID From Project		
 	END
 	ELSE
 	BEGIN
@@ -2168,12 +2175,15 @@ AS
 			@fundingOrgList = fundingOrgList 
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 	END
+
+	SELECT ProjectID INTO #base FROM @Result
+
 	-----------------------------------------------------------		
 	--  Get all project funding records
 	-----------------------------------------------------------			 
 	SELECT f.ProjectID, f.ProjectFundingID, f.AltAwardCode
 	INTO #pf 
-	FROM @Result r
+	FROM #base r
 		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID
 		
 
@@ -2269,7 +2279,7 @@ AS
 
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO @Result SELECT DISTINCT ProjectID From vwProjectFundings		
+		INSERT INTO @Result SELECT ProjectID From Project		
 	END
 	ELSE
 	BEGIN
@@ -2294,12 +2304,14 @@ AS
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 	END
 
-		-----------------------------------------------------------		
+	SELECT ProjectID INTO #base FROM @Result
+
+	-----------------------------------------------------------		
 	--  Get all project funding records
 	-----------------------------------------------------------			 
 	SELECT f.ProjectID, f.ProjectFundingID, f.AltAwardCode
 	INTO #pf 
-	FROM @Result r
+	FROM #base r
 		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID
 		
 
@@ -2396,7 +2408,7 @@ AS
 	
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO @Result SELECT DISTINCT ProjectID From vwProjectFundings		
+		INSERT INTO @Result SELECT ProjectID From Project		
 	END
 	ELSE
 	BEGIN
@@ -2421,13 +2433,15 @@ AS
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 
 	END
+	
+	SELECT ProjectID INTO #base FROM @Result
 
 	-----------------------------------------------------------		
 	--  Get all project funding records
 	-----------------------------------------------------------			 
 	SELECT f.ProjectID, f.ProjectFundingID, f.AltAwardCode
 	INTO #pf 
-	FROM @Result r
+	FROM #base r
 		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID
 		
 	------------------------------------------------------------------------------
@@ -2655,7 +2669,7 @@ GO
 
 CREATE  PROCEDURE [dbo].[GetPartnerOrgs]    
 AS   
-	SELECT PartnerOrgID AS ID, SponsorCode + ' - ' + Name AS Name , IsActive FROM PartnerOrg ORDER BY SponsorCode, Name
+	SELECT PartnerOrgID AS ID, SponsorCode + ' - ' + Name + CASE MemberType WHEN 'Partner' THEN ' (Partner)' ELSE '' END AS Name , IsActive FROM PartnerOrg ORDER BY SponsorCode, Name
 GO
 
 ----------------------------------------------------------------------------------------------------------
@@ -2903,8 +2917,8 @@ BEGIN TRY
 	UPDATE tmp_LoadInstitutions set Longitude = NULL where Longitude=0
 
 	-- Data Check - Required Field Missing
-	SELECT Name, City, Latitude, Longitude
-		INTO #missingReqFields FROM tmp_LoadInstitutions WHERE ISNULL(NAME , '') = '' OR ISNULL(City , '') = '' OR ISNULL(Latitude , 0) = 0 OR ISNULL(Longitude , 0) = 0
+	SELECT Name, City, Country, Latitude, Longitude
+		INTO #missingReqFields FROM tmp_LoadInstitutions WHERE ISNULL(NAME , '') = '' OR ISNULL(City , '') = '' OR ISNULL(Country , '') = '' OR ISNULL(Latitude , 0) = 0 OR ISNULL(Longitude , 0) = 0
 
 	IF EXISTS (SELECT 1 FROM #missingReqFields)
 	BEGIN		
@@ -2981,7 +2995,7 @@ BEGIN TRY
 	WHERE i.City <> 'Missing' AND c.Name IS NULL AND i.Latitude IS NOT NULL AND i.Longitude IS NOT NULL
 
 	-- return already exist institutions not being inserted 
-	SELECT * FROM #exist
+	SELECT * FROM #unique
 
 	IF object_id('tmp_LoadInstitutions') is not null
 		DROP TABLE tmp_LoadInstitutions
@@ -3103,7 +3117,7 @@ BEGIN TRY
 		SELECT  'Collaborator already exists' AS [Data Issue], * FROM #existCollaborators
 		RETURN
 	END
-
+			
 	SELECT @Count = 0
 
 	BEGIN TRANSACTION;
@@ -3325,10 +3339,11 @@ BEGIN
 	SET @RuleID= 18
 	select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
 
-	SELECT u.AltID AS AltAwardCode, u.FundingOrgAbbr
-		 INTO #missingAltID FROM UploadWorkBook u
-		LEFT JOIN (SELECT f.AltAwardCode, o.Abbreviation FROM ProjectFunding f 
-							JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID) pf ON u.AltId = pf.AltAwardCode AND pf.Abbreviation = u.FundingOrgAbbr
+	SELECT u.AwardCode, u.AltID AS AltAwardCode, u.FundingOrgAbbr INTO #missingAltID 
+	FROM UploadWorkBook u
+		LEFT JOIN (SELECT p.AwardCode, f.AltAwardCode, o.Abbreviation FROM ProjectFunding f 
+					JOIN Project p ON f.ProjectID = p.ProjectID
+					JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID) pf ON u.AltId = pf.AltAwardCode AND pf.Abbreviation = u.FundingOrgAbbr AND pf.AwardCode = u.AwardCode
 	WHERE pf.AltAwardCode IS NULL
 
 	IF EXISTS (SELECT * FROM #missingAltID)
@@ -3943,9 +3958,11 @@ END
 IF @RuleId = 18
 BEGIN
 
-	SELECT u.AwardCode, u.AltId AS AltAwardCode FROM UploadWorkBook u
-		LEFT JOIN ProjectFunding f ON u.AltId = f.AltAwardCode
-	WHERE f.AltAwardCode IS NULL	
+	SELECT u.AwardCode, u.AltId AS AltAwardCode, u.FundingOrgAbbr AS FundingOrg
+	FROM UploadWorkBook u
+		LEFT JOIN (SELECT f.AltAwardCode, o.Abbreviation FROM ProjectFunding f 
+							JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID) pf ON u.AltId = pf.AltAwardCode AND pf.Abbreviation = u.FundingOrgAbbr
+	WHERE pf.AltAwardCode IS NULL
 
 END
 
@@ -4997,6 +5014,21 @@ FROM ProjectFundingInvestigator pi
 	LEFT JOIN Institution i ON i.Name = u.InstitutionICRP AND i.City = i.City
 
 	
+----------------------------------------------------------------------
+-- Remove old records and re-insert
+----------------------------------------------------------------------
+DELETE Project_ProjectType WHERE ProjectID IN
+	(SELECT ProjectID FROM Project WHERE DataUploadStatusID = @DataUploadStatusID_stage)	
+
+DELETE ProjectCSO WHERE ProjectFundingID IN
+	(SELECT ProjectFundingID FROM ProjectFunding WHERE DataUploadStatusID = @DataUploadStatusID_stage)
+
+DELETE ProjectCancerType WHERE ProjectFundingID IN
+	(SELECT ProjectFundingID FROM ProjectFunding WHERE DataUploadStatusID = @DataUploadStatusID_stage)
+
+DELETE ProjectFundingExt WHERE ProjectFundingID IN
+	(SELECT ProjectFundingID FROM ProjectFunding WHERE DataUploadStatusID = @DataUploadStatusID_stage)	
+
 -----------------------------------------------------------------
 -- Rebuild CSO temp table if not exist
 -----------------------------------------------------------------
@@ -5062,10 +5094,7 @@ END
 
 ----------------------------------------------------------------------
 -- ProjectCSO - delete old then insert new
-----------------------------------------------------------------------
-DELETE ProjectCSO WHERE ProjectFundingID IN
-	(SELECT ProjectFundingID FROM ProjectFunding WHERE DataUploadStatusID = @DataUploadStatusID_stage)
-	
+----------------------------------------------------------------------	
 INSERT INTO ProjectCSO SELECT fa.ProjectFundingID, c.CSO, r.Rel, 'S', getdate(), getdate()
 FROM tmp_pcso c 
 	JOIN tmp_pcsorel r ON c.AltAwardCode = r.AltAwardCode AND c.Seq = r.Seq
@@ -5141,9 +5170,6 @@ END
 -----------------------------------
 -- Update ProjectCancerType
 -----------------------------------
-DELETE ProjectCancerType WHERE ProjectFundingID IN
-	(SELECT ProjectFundingID FROM ProjectFunding WHERE DataUploadStatusID = @DataUploadStatusID_stage)
-
 INSERT INTO ProjectCancerType (ProjectFundingID, CancerTypeID, Relevance, RelSource, EnterBy)
 SELECT fa.ProjectFundingID, ct.CancerTypeID, r.Rel, 'S', 'S'
 FROM tmp_psite c 
@@ -5187,9 +5213,6 @@ DEALLOCATE @ptcursor;
 ----------------------------------------------------------------------
 -- Award Type/ProjectType - - delete old then insert new
 ----------------------------------------------------------------------
-DELETE Project_ProjectType WHERE ProjectID IN
-	(SELECT ProjectID FROM Project WHERE DataUploadStatusID = @DataUploadStatusID_stage)
-
 INSERT INTO Project_ProjectType (ProjectID, ProjectType)
 SELECT ProjectID,
 		CASE ProjectType
@@ -5277,13 +5300,18 @@ IF EXISTS (select * FROM #postMissingCSO)
 -------------------------------------------------------------------------------------------
 -- Rebuild ProjectSearch   -- 75608 ~ 2.20 mins)
 --------------------------------------------------------------------------------------------
+DELETE ProjectSearch 		
+FROM  ProjectSearch s
+	JOIN Project p ON s.ProjectID = p.ProjectID	
+WHERE p.DataUploadStatusID = @DataUploadStatusID_Stage	
+		
 INSERT INTO ProjectSearch (ProjectID, [Content])
 SELECT ma.ProjectID, '<Title>'+ ma.Title+'</Title><FundingContact>'+ ISNULL(ma.fundingContact, '')+ '</FundingContact><TechAbstract>' + ma.TechAbstract  + '</TechAbstract><PublicAbstract>'+ ISNULL(ma.PublicAbstract,'') +'<PublicAbstract>' 
-FROM (SELECT MAX(f.ProjectID) AS ProjectID, f.Title, f.FundingContact, a.TechAbstract,a.PublicAbstract 
-	FROM ProjectAbstract a
-	JOIN ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
-	WHERE f.DataUploadStatusID = @DataUploadStatusID_stage
-	GROUP BY f.Title, a.TechAbstract, a.PublicAbstract,  f.FundingContact) ma
+FROM (SELECT MAX(f.ProjectID) AS ProjectID, f.Title, f.FundingContact, a.TechAbstract, a.PublicAbstract 
+		FROM ProjectAbstract a
+			JOIN ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
+			JOIN (SELECT ProjectID FROM Project WHERE DataUploadStatusID = @DataUploadStatusID_Stage) p ON f.ProjectID = p.ProjectID				
+		GROUP BY f.Title, a.TechAbstract, a.PublicAbstract,  f.FundingContact) ma
 
 -------------------------------------------------------------------------------------------
 -- Insert DataUploadLog 
@@ -5414,27 +5442,34 @@ declare @DataUploadStatusID_Stage INT
 declare @DataUploadStatusID_Prod INT
 declare @PartnerCode VARCHAR(25)
 declare @Type VARCHAR(25)
+DECLARE @DataUploadLogID INT
+DECLARE @Count INT
 
 SET @DataUploadStatusID_Stage = @DataUploadID
+
 
 BEGIN TRANSACTION;
 
 BEGIN TRY 
 
-	IF ((SELECT COUNT(*) FROM (SELECT * FROM icrp_data.dbo.DataUploadStatus WHERE Status = 'Staging') p
-		JOIN (SELECT * FROM icrp_dataload.dbo.DataUploadStatus WHERE Status = 'Staging') s ON p.PartnerCode = s.PartnerCode AND p.FundingYear = s.FundingYear AND p.Type = s.Type WHERE s.DataUploadStatusID = @DataUploadStatusID_Stage) = 1)
-	BEGIN
-		SELECT @DataUploadStatusID_Prod = p.DataUploadStatusID, @Type = p.[Type], @PartnerCode=p.PartnerCode 
 
-		FROM (SELECT * FROM icrp_data.dbo.DataUploadStatus WHERE Status = 'Staging') p
-			JOIN (SELECT * FROM icrp_dataload.dbo.DataUploadStatus WHERE Status = 'Staging') s ON p.PartnerCode = s.PartnerCode AND p.FundingYear = s.FundingYear AND p.Type = s.Type
-		WHERE s.DataUploadStatusID = @DataUploadStatusID_Stage
+	IF ( (SELECT COUNT(*) 
+			FROM (SELECT * FROM icrp_data.dbo.DataUploadStatus WHERE Status = 'Staging' ) p
+			JOIN (SELECT * FROM icrp_dataload.dbo.DataUploadStatus WHERE Status = 'Staging' AND DataUploadStatusID = @DataUploadStatusID_Stage) s ON p.PartnerCode = s.PartnerCode AND p.FundingYear = s.FundingYear AND p.Type = s.Type AND p.Note = s.Note) = 1)
+	BEGIN
+	
+		SELECT @DataUploadStatusID_Prod = p.DataUploadStatusID, @Type = p.[Type], @PartnerCode=p.PartnerCode 
+			FROM (SELECT * FROM icrp_data.dbo.DataUploadStatus WHERE Status = 'Staging') p
+				JOIN (SELECT * FROM icrp_dataload.dbo.DataUploadStatus WHERE Status = 'Staging' and DataUploadStatusID = @DataUploadStatusID_Stage) s ON p.PartnerCode = s.PartnerCode AND p.FundingYear = s.FundingYear AND p.Type = s.Type AND p.Note = s.Note
+		
 	END
 	ELSE
 	BEGIN			  
       RAISERROR ('Failed to retrieve Prod DataUploadStatusID', 16, 1)
 	END
 	
+	SELECT @DataUploadLogID = DataUploadLogID FROM icrp_data.dbo.DataUploadLog WHERE DataUploadStatusID = @DataUploadStatusID_Prod	
+
 	/***********************************************************************************************/
 	-- Archive Project Funding records those will be updated
 	/***********************************************************************************************/
@@ -5452,9 +5487,7 @@ BEGIN TRY
 	/***********************************************************************************************/
 	-- Import Data
 	/***********************************************************************************************/
-	-----------------------------------
-	-- Import Project
-	-----------------------------------
+	-- Import Project	
 	IF @Type = 'New'
 	BEGIN
 		INSERT INTO icrp_data.dbo.project ([IsChildhood], [AwardCode], [ProjectStartDate], [ProjectEndDate], [DataUploadStatusID], [CreatedDate], [UpdatedDate])
@@ -5470,6 +5503,9 @@ BEGIN TRY
 		WHERE lp.DataUploadStatusID = @DataUploadStatusID_Stage
 
 	END
+
+	SELECT @Count = @@ROWCOUNT
+	UPDATE icrp_data.dbo.DataUploadLog SET ProjectCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
 	-----------------------------------
 	-- Import Project Abstract
@@ -5496,19 +5532,26 @@ BEGIN TRY
 
 		INSERT INTO icrp_data.dbo.ProjectAbstract ([projectAbstractID], [TechAbstract], [PublicAbstract],[CreatedDate],[UpdatedDate])
 		SELECT ID, [TechAbstract], [PublicAbstract],getdate(),getdate()
-		FROM UploadAbstractTemp 
+		FROM UploadAbstractTemp 		
 
 		SET IDENTITY_INSERT icrp_data.dbo.projectAbstract OFF;  -- SET IDENTITY_INSERT to ON. 
+
+		SELECT @Count = count(*) from UploadAbstractTemp
+		UPDATE icrp_data.dbo.DataUploadLog SET ProjectAbstractCount = @count WHERE DataUploadLogID =	@DataUploadLogID
 	END
 	ELSE  -- Update 
 	BEGIN
 		UPDATE icrp_data.dbo.ProjectAbstract SET TechAbstract = la.TechAbstract, PublicAbstract=la.PublicAbstract, UpdatedDate = getdate()
 		FROM icrp_data.dbo.ProjectAbstract a
 			JOIN icrp_data.dbo.ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
-			JOIN icrp_dataload.dbo.ProjectFundingArchive laf ON f.AltAwardCode = laf.AltAwardCode  -- use the archived AltAwardCode 
-			JOIN icrp_dataload.dbo.ProjectAbstract la ON a.ProjectAbstractID = laf.ProjectAbstractID
-		WHERE f.DataUploadStatusID = @DataUploadStatusID_Stage
-	END
+			JOIN icrp_dataload.dbo.ProjectFundingArchive laf ON f.AltAwardCode = laf.AltAwardCode  -- use the archived AltAwardCode 			
+			JOIN icrp_dataload.dbo.ProjectAbstract la ON la.ProjectAbstractID = laf.ProjectAbstractID			
+		WHERE laf.DataUploadStatusID = @DataUploadStatusID_Stage
+
+		SELECT @Count = @@ROWCOUNT
+		UPDATE icrp_data.dbo.DataUploadLog SET ProjectAbstractCount = @count WHERE DataUploadLogID =	@DataUploadLogID
+
+	END 			
 
 	-----------------------------------
 	-- Import ProjectFunding
@@ -5541,14 +5584,52 @@ BEGIN TRY
 	END
 	ELSE  -- Update 
 	BEGIN
-		UPDATE icrp_data.dbo.ProjectFunding SET AltAwardCode = lf.AltAwardCode, Category = lf.Category, Source_ID = lf.Source_ID, Amount = lf.Amount, BudgetStartDate = lf.BudgetStartDate, BudgetEndDate = lf.BudgetEndDate, 
+		UPDATE icrp_data.dbo.ProjectFunding SET Title = lf.Title,  AltAwardCode = lf.AltAwardCode, Category = lf.Category, Source_ID = lf.Source_ID, Amount = lf.Amount, BudgetStartDate = lf.BudgetStartDate, BudgetEndDate = lf.BudgetEndDate, 
 				IsAnnualized = lf.IsAnnualized, DataUploadStatusID=@DataUploadStatusID_Prod, UpdatedDate = getdate()
 		FROM icrp_data.dbo.ProjectFunding f
 			JOIN (SELECT * FROM icrp_dataload.dbo.ProjectFundingArchive WHERE DataUploadStatusID=@DataUploadStatusID_Stage) laf ON f.AltAwardCode = laf.AltAwardCode  -- use the archived AltAwardCode 
 			JOIN icrp_dataload.dbo.ProjectFunding lf ON laf.ProjectFundingID = lf.ProjectFundingID
 		WHERE lf.DataUploadStatusID = @DataUploadStatusID_Stage
+
 	END
 
+	SELECT @Count = @@ROWCOUNT
+	UPDATE icrp_data.dbo.DataUploadLog SET ProjectFundingCount = @Count WHERE DataUploadLogID = @DataUploadLogID
+
+	-----------------------------------
+	-- Import ProjectFundingInvestigator
+	-----------------------------------
+	IF @Type = 'New'
+	BEGIN
+		INSERT INTO icrp_data.dbo.ProjectFundingInvestigator
+		SELECT f.ProjectFundingID, pi.LastName, pi.FirstName, pi.ORC_ID, pi.OtherResearch_ID, pi.OtherResearch_Type, pi.IsPrincipalInvestigator, ISNULL(newi.InstitutionID,1), InstitutionNameSubmitted, getdate(),getdate()
+		FROM icrp_dataload.dbo.ProjectFundingInvestigator pi
+			JOIN icrp_dataload.dbo.projectfunding lf ON pi.ProjectFundingID =  lf.ProjectFundingID  
+			JOIN icrp_data.dbo.projectfunding f ON f.AltAwardCode =  lf.AltAwardCode  
+			JOIN icrp_dataload.dbo.Institution i ON pi.institutionID = i.institutionID
+			LEFT JOIN icrp_data.dbo.Institution newi ON newi.Name = i.Name AND newi.City = i.City
+		WHERE lf.[DataUploadStatusID] = @DataUploadStatusID_Stage
+	END
+	ELSE  -- Update 
+	BEGIN
+		
+		UPDATE icrp_data.dbo.ProjectFundingInvestigator SET LastName = lpi.LastName, FirstName = lpi.FirstName, ORC_ID = lpi.ORC_ID, OtherResearch_ID= lpi.OtherResearch_ID, OtherResearch_Type = lpi.OtherResearch_Type, 
+										InstitutionID = ISNULL(i.InstitutionID,1), InstitutionNameSubmitted = lpi.InstitutionNameSubmitted, UpdatedDate = getdate()
+		FROM icrp_data.dbo.ProjectFundingInvestigator pi		
+			JOIN icrp_data.dbo.ProjectFunding f ON pi.projectfundingid = f.ProjectFundingID
+			JOIN icrp_dataload.dbo.ProjectFunding lf ON f.AltAwardCode = lf.AltAwardCode		
+			JOIN (SELECT * FROM icrp_dataload.dbo.ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) lpi ON lf.ProjectFundingID = lpi.ProjectFundingID  -- only update PI
+			JOIN icrp_dataload.dbo.Institution li ON li.InstitutionID = lpi.InstitutionID
+			LEFT JOIN icrp_data.dbo.Institution i ON i.Name = li.Name AND i.City = li.City
+		WHERE pi.IsPrincipalInvestigator=1 AND lf.[DataUploadStatusID] = @DataUploadStatusID_Stage
+
+	END
+			
+	SELECT @Count = @@ROWCOUNT
+	UPDATE icrp_data.dbo.DataUploadLog SET ProjectFundingInvestigatorCount = @Count WHERE DataUploadLogID = @DataUploadLogID
+	
+	-----------------------------------
+				
 	----------------------------------------------------------------------
 	-- For Update - some records can be wiped out old and then re-imported 
 	----------------------------------------------------------------------
@@ -5577,32 +5658,6 @@ BEGIN TRY
 	END
 
 	-----------------------------------
-	-- Import ProjectFundingInvestigator
-	-----------------------------------
-	IF @Type = 'New'
-	BEGIN
-		INSERT INTO icrp_data.dbo.ProjectFundingInvestigator
-		SELECT f.ProjectFundingID, pi.LastName, pi.FirstName, pi.ORC_ID, pi.OtherResearch_ID, pi.OtherResearch_Type, pi.IsPrincipalInvestigator, ISNULL(newi.InstitutionID,1), InstitutionNameSubmitted, getdate(),getdate()
-		FROM icrp_dataload.dbo.ProjectFundingInvestigator pi
-			JOIN icrp_dataload.dbo.projectfunding lf ON pi.ProjectFundingID =  lf.ProjectFundingID  
-			JOIN icrp_data.dbo.projectfunding f ON f.AltAwardCode =  lf.AltAwardCode  
-			JOIN icrp_dataload.dbo.Institution i ON pi.institutionID = i.institutionID
-			LEFT JOIN icrp_data.dbo.Institution newi ON newi.Name = i.Name AND newi.City = i.City
-		WHERE lf.[DataUploadStatusID] = @DataUploadStatusID_Stage
-	END
-	ELSE  -- Update 
-	BEGIN
-		UPDATE icrp_data.dbo.ProjectFundingInvestigator SET LastName = lpi.LastName, FirstName = lpi.FirstName, ORC_ID = lpi.ORC_ID, OtherResearch_ID= lpi.OtherResearch_ID, OtherResearch_Type = lpi.OtherResearch_Type, 
-										InstitutionID = ISNULL(i.InstitutionID,1), InstitutionNameSubmitted = lpi.InstitutionNameSubmitted, UpdatedDate = getdate()
-		FROM (SELECT * FROM icrp_data.dbo.ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi
-			JOIN icrp_data.dbo.ProjectFunding f ON pi.projectfundingid = f.ProjectFundingID
-			JOIN icrp_dataload.dbo.ProjectFunding lf ON f.AltAwardCode = lf.AltAwardCode		
-			JOIN (SELECT * FROM icrp_dataload.dbo.ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) lpi ON lf.ProjectFundingID = lpi.ProjectFundingID
-			JOIN icrp_dataload.dbo.Institution li ON li.InstitutionID = lpi.InstitutionID
-			LEFT JOIN icrp_data.dbo.Institution i ON i.Name = li.Name AND i.City = li.City
-	END
-				
-	-----------------------------------
 	-- Import ProjectCSO
 	-----------------------------------
 	INSERT INTO icrp_data.dbo.ProjectCSO
@@ -5611,26 +5666,35 @@ BEGIN TRY
 		JOIN icrp_dataload.dbo.projectfunding lf ON cso.ProjectFundingID =  lf.ProjectFundingID  
 		JOIN icrp_data.dbo.projectfunding f ON f.AltAwardCode =  lf.AltAwardCode  
 	WHERE lf.[DataUploadStatusID] = @DataUploadStatusID_Stage
+	
+	SELECT @Count = @@ROWCOUNT
+	UPDATE icrp_data.dbo.DataUploadLog SET ProjectCSOCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
 	-----------------------------------
 	-- Import ProjectCancerType
 	-----------------------------------
 	INSERT INTO icrp_data.dbo.ProjectCancerType
-	SELECT new.ProjectFundingID, ct.CancerTypeID, ct.Relevance, ct.RelSource, getdate(),getdate(), ct.EnterBy
-	FROM icrp_dataload.dbo.ProjectCancerType ct
-	JOIN icrp_dataload.dbo.projectfunding pf ON ct.ProjectFundingID =  pf.ProjectFundingID  
-	JOIN icrp_data.dbo.projectfunding new ON new.AltAwardCode =  pf.AltAwardCode  
-	WHERE pf.[DataUploadStatusID] = @DataUploadStatusID_Stage
+		SELECT f.ProjectFundingID, lct.CancerTypeID, lct.Relevance, lct.RelSource, getdate(),getdate(),lct.EnterBy
+		FROM icrp_dataload.dbo.ProjectCancerType lct
+			JOIN icrp_dataload.dbo.projectfunding lf ON lct.ProjectFundingID =  lf.ProjectFundingID  
+			JOIN icrp_data.dbo.projectfunding f ON f.AltAwardCode =  lf.AltAwardCode  
+		WHERE lf.[DataUploadStatusID] = @DataUploadStatusID_Stage
+
+	SELECT @Count = @@ROWCOUNT
+	UPDATE icrp_data.dbo.DataUploadLog SET ProjectCancerTypeCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
 	-----------------------------------
 	-- Import Project_ProjectTye
 	-----------------------------------
 	INSERT INTO icrp_data.dbo.Project_ProjectType
-	SELECT DISTINCT np.ProjectID, pt.ProjectType, getdate(),getdate()
+	SELECT DISTINCT p.ProjectID, pt.ProjectType, getdate(),getdate()
 	FROM icrp_dataload.dbo.Project_ProjectType pt
-		JOIN icrp_dataload.dbo.Project p ON pt.ProjectID = p.ProjectID
-		JOIN (SELECT * FROM icrp_data.dbo.Project WHERE DataUploadStatusID = @DataUploadStatusID_Prod) np ON p.AwardCode = np.AwardCode	
-	WHERE p.[DataUploadStatusID] = @DataUploadStatusID_Stage
+		JOIN icrp_dataload.dbo.Project lp ON pt.ProjectID = lp.ProjectID
+		JOIN (SELECT * FROM icrp_data.dbo.Project WHERE DataUploadStatusID = @DataUploadStatusID_Prod) p ON lp.AwardCode = p.AwardCode	
+	WHERE lp.[DataUploadStatusID] = @DataUploadStatusID_Stage
+
+	SELECT @Count = @@ROWCOUNT
+	UPDATE icrp_data.dbo.DataUploadLog SET Project_ProjectTypeCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
 	-----------------------------------
 	-- Import ProjectFundingExt
@@ -5642,13 +5706,22 @@ BEGIN TRY
 		JOIN icrp_data.dbo.projectfunding new ON new.AltAwardCode =  pf.AltAwardCode  
 	WHERE pf.[DataUploadStatusID] = @DataUploadStatusID_Stage
 
-	
 	----------------------------------------------------
 	-- Post Import Checking
-	----------------------------------------------------
-	-------------------------------------------------------------------------------------------
-	---- checking Imported Award Sponsor
-	-------------------------------------------------------------------------------------------	
+	----------------------------------------------------	
+	---- checking updated record counts	
+	select 1 AS row INTO #mismatchUpdates
+	FROM (SELECT * FROM icrp_data.dbo.DataUploadLog WHERE DataUploadStatusID = @DataUploadStatusID_Prod) p
+		JOIN (SELECT * FROM icrp_dataload.dbo.DataUploadLog WHERE DataUploadStatusID = @DataUploadStatusID_Stage) s ON 1=1
+	WHERE p.ProjectCount <> s.ProjectCount OR p.ProjectFundingCount <> s.ProjectFundingCount OR p.ProjectFundingInvestigatorCount <> s.ProjectFundingInvestigatorCount OR p.ProjectCSOCount <> s.ProjectCSOCount 
+		OR p.ProjectCancerTypeCount <> s.ProjectCancerTypeCount OR p.Project_ProjectTypeCount <> s.Project_ProjectTypeCount OR p.ProjectAbstractCount <> s.ProjectAbstractCount OR p.ProjectSearchCount <> s.ProjectSearchCount
+		
+	IF EXISTS (select * FROM #mismatchUpdates)			
+	BEGIN		
+		RAISERROR ('Post Prod Sync Check - Mismatched Updated counts ==> Failed', 16, 1)
+	END	
+
+	---- checking Imported Award Sponsor	
 	select f.altawardcode, o.SponsorCode, o.Name AS FundingOrg into #postSponsor
 		from icrp_data.dbo.projectfunding f 
 			join icrp_data.dbo.FundingOrg o on o.FundingOrgID = f.FundingOrgID
@@ -5656,12 +5729,10 @@ BEGIN TRY
 
 	IF EXISTS (select * from #postSponsor)
 	BEGIN		
-		RAISERROR ('Post Prod Sync  Check - Sponsor Code - Failed', 16, 1)
+		RAISERROR ('Post Prod Sync Check - Sponsor Code - Failed', 16, 1)
 	END
-
-	-------------------------------------------------------------------------------------------
-	---- checking Missing PI
-	-------------------------------------------------------------------------------------------	
+		
+	---- checking Missing PI	
 	select f.altawardcode into #postNotmappedInst 
 		from icrp_data.dbo.ProjectFundingInvestigator pi 
 			join icrp_data.dbo.projectfunding f on pi.ProjectFundingID = f.ProjectFundingID			
@@ -5669,12 +5740,10 @@ BEGIN TRY
 
 	IF EXISTS (select * from #postNotmappedInst)
 	BEGIN		
-		RAISERROR ('Post Prod Sync  Check - Instititutions Mapping - Failed', 16, 1)
+		RAISERROR ('Post Prod Sync Check - Instititutions Mapping - Failed', 16, 1)
 	END		
-
-	-------------------------------------------------------------------------------------------
-	---- checking Duplicate PI
-	-------------------------------------------------------------------------------------------	
+		
+	---- checking Duplicate PI	
 	select f.projectfundingid, f.AltAwardCode, count(*) AS Count into #postdupPI 
 		from icrp_data.dbo.projectfunding f
 			join icrp_data.dbo.projectfundinginvestigator i on f.projectfundingid = i.projectfundingid			
@@ -5683,120 +5752,120 @@ BEGIN TRY
 	
 	IF EXISTS (select * FROM #postdupPI)		
 	BEGIN		
-		RAISERROR ('Post-Checking duplicate PIs ==> Failed', 16, 1)
+		RAISERROR ('Post Prod Sync Check - DUplicate PIs ==> Failed', 16, 1)
 	END	
-	
-	-------------------------------------------------------------------------------------------
-	---- checking missing PI
-	-------------------------------------------------------------------------------------------
+		
+	---- checking missing PI	
 	select f.ProjectFundingID into #postMissingPI from icrp_data.dbo.projectfunding f
 	left join icrp_data.dbo.ProjectFundingInvestigator pi on f.projectfundingid = pi.projectfundingid
 	where f.DataUploadStatusID = @DataUploadStatusID_Prod and pi.ProjectFundingID is null
 		
 	IF EXISTS (select * FROM #postMissingPI)	
 	BEGIN		
-		RAISERROR ('Pre-Checking Missing PIs ==> Failed', 16, 1)
+		RAISERROR ('Post Prod Sync Check - Missing PIs ==> Failed', 16, 1)
 	END	
-	
-	-------------------------------------------------------------------------------------------
-	---- checking missing CSO
-	-------------------------------------------------------------------------------------------
+		
+	---- checking missing CSO	
 	select f.ProjectFundingID into #postMissingCSO from icrp_data.dbo.projectfunding f
 	left join icrp_data.dbo.ProjectCSO pc on f.projectfundingid = pc.projectfundingid
 	where f.DataUploadStatusID = @DataUploadStatusID_Prod and pc.ProjectFundingID is null
 	
 	IF EXISTS (select * FROM #postMissingCSO)
 	BEGIN
-		RAISERROR ('Pre-Checking Missing CSO ==> Failed', 16, 1)
+		RAISERROR ('Post Prod Sync Check - Missong CSOs ==> Failed', 16, 1)
 	END		
-
-	-------------------------------------------------------------------------------------------
-	---- checking missing CancerType
-	-------------------------------------------------------------------------------------------
+		
+	---- checking missing CancerType	
 	select f.ProjectFundingID into #postMissingSite from icrp_data.dbo.projectfunding f
 	left join icrp_data.dbo.ProjectCancerType ct on f.projectfundingid = ct.projectfundingid
 	where f.DataUploadStatusID = @DataUploadStatusID_Prod and ct.ProjectFundingID is null
 
 	
-	IF EXISTS (select * FROM #postMissingCSO)			
+	IF EXISTS (select * FROM #postMissingSite)			
 	BEGIN		
-		RAISERROR ('Pre-Checking Missing CancerType ==> Failed', 16, 1)
+		RAISERROR ('Post Prod Sync Check - Missing CancerTypes -==> Failed', 16, 1)
 	END	
-
+		
 -------------------------------------------------------------------------------------------
 -- Rebuild ProjectSearch   -- 75608 ~ 2.20 mins)
 --------------------------------------------------------------------------------------------
-	INSERT INTO ProjectSearch (ProjectID, [Content])
-	SELECT ma.ProjectID, '<Title>'+ ma.Title+'</Title><FundingContact>'+ ISNULL(ma.fundingContact, '')+ '</FundingContact><TechAbstract>' + ma.TechAbstract  + '</TechAbstract><PublicAbstract>'+ ISNULL(ma.PublicAbstract,'') +'<PublicAbstract>' 
-	FROM (SELECT MAX(f.ProjectID) AS ProjectID, f.Title, f.FundingContact, a.TechAbstract,a.PublicAbstract 
-			FROM ProjectAbstract a
-			JOIN ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
-			WHERE f.DataUploadStatusID = @DataUploadStatusID_Prod
-			GROUP BY f.Title, a.TechAbstract, a.PublicAbstract,  f.FundingContact) ma	
-				
-	-------------------------------------------------------------------------------------------
-	-- Insert DataUploadLog 
-	--------------------------------------------------------------------------------------------	
-	DECLARE @DataUploadLogID INT
-
-	SELECT @DataUploadLogID = DataUploadLogID FROM icrp_data.dbo.DataUploadLog WHERE DataUploadStatusID = @DataUploadStatusID_Prod	
+	DELETE icrp_data.dbo.ProjectSearch 		
+	FROM  icrp_data.dbo.ProjectSearch s
+		JOIN icrp_data.dbo.Project p ON s.ProjectID = p.ProjectID	
+	WHERE p.DataUploadStatusID = @DataUploadStatusID_Prod	
 		
-	DECLARE @Count INT
+	INSERT INTO icrp_data.dbo.ProjectSearch (ProjectID, [Content])
+	SELECT ma.ProjectID, '<Title>'+ ma.Title+'</Title><FundingContact>'+ ISNULL(ma.fundingContact, '')+ '</FundingContact><TechAbstract>' + ma.TechAbstract  + '</TechAbstract><PublicAbstract>'+ ISNULL(ma.PublicAbstract,'') +'<PublicAbstract>' 
+	FROM (SELECT MAX(f.ProjectID) AS ProjectID, f.Title, f.FundingContact, a.TechAbstract, a.PublicAbstract 
+			FROM icrp_data.dbo.ProjectAbstract a
+				JOIN icrp_data.dbo.ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
+				JOIN (SELECT ProjectID FROM icrp_data.dbo.Project WHERE DataUploadStatusID = @DataUploadStatusID_Prod) p ON f.ProjectID = p.ProjectID				
+			GROUP BY f.Title, a.TechAbstract, a.PublicAbstract,  f.FundingContact) ma
 
-	-- Insert Project Count
-	SELECT @Count=COUNT(*) FROM icrp_data.dbo.Project	
-	WHERE dataUploadStatusID = @DataUploadStatusID_Prod
-
-	UPDATE icrp_data.dbo.DataUploadLog SET ProjectCount = @Count WHERE DataUploadLogID = @DataUploadLogID
-
-	-- Insert ProjectAbstractCount
-	SELECT @Count=COUNT(*) FROM icrp_data.dbo.ProjectAbstract a
-		JOIN icrp_data.dbo.ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
-	WHERE f.dataUploadStatusID = @DataUploadStatusID_Prod
-
-	UPDATE DataUploadLog SET ProjectAbstractCount = @count WHERE DataUploadLogID =	@DataUploadLogID
-
-	-- Insert ProjectCSOCount
-	SELECT @Count=COUNT(*) FROM icrp_data.dbo.ProjectCSO c 
-		JOIN icrp_data.dbo.ProjectFunding f ON c.ProjectFundingID = f.ProjectFundingID
-	WHERE f.dataUploadStatusID = @DataUploadStatusID_Prod
-
-	UPDATE icrp_data.dbo.DataUploadLog SET ProjectCSOCount = @Count WHERE DataUploadLogID = @DataUploadLogID
-
-	-- Insert ProjectCancerTypeCount Count
-	SELECT @Count=COUNT(*) FROM icrp_data.dbo.ProjectCancerType c 
-		JOIN icrp_data.dbo.ProjectFunding f ON c.ProjectFundingID = f.ProjectFundingID
-	WHERE f.dataUploadStatusID = @DataUploadStatusID_Prod
-
-	UPDATE icrp_data.dbo.DataUploadLog SET ProjectCancerTypeCount = @Count WHERE DataUploadLogID = @DataUploadLogID
-
-	-- Insert Project_ProjectType Count
-	SELECT @Count=COUNT(*) FROM icrp_data.dbo.Project_ProjectType t
-		JOIN icrp_data.dbo.Project p ON t.ProjectID = p.ProjectID	
-	WHERE p.dataUploadStatusID = @DataUploadStatusID_Prod
-
-	UPDATE DataUploadLog SET Project_ProjectTypeCount = @Count WHERE DataUploadLogID = @DataUploadLogID
-
-	-- Insert ProjectFundingCount
-	SELECT @Count=COUNT(*) FROM icrp_data.dbo.ProjectFunding 
-	WHERE dataUploadStatusID = @DataUploadStatusID_Prod
-
-	UPDATE icrp_data.dbo.DataUploadLog SET ProjectFundingCount = @Count WHERE DataUploadLogID = @DataUploadLogID
-
-	-- Insert ProjectFundingInvestigatorCount Count
-	SELECT @Count=COUNT(*) FROM icrp_data.dbo.ProjectFundingInvestigator pi
-		JOIN icrp_data.dbo.ProjectFunding f ON pi.ProjectFundingID = f.ProjectFundingID
-	WHERE f.dataUploadStatusID = @DataUploadStatusID_Prod
-
-	UPDATE icrp_data.dbo.DataUploadLog SET ProjectFundingInvestigatorCount = @Count WHERE DataUploadLogID = @DataUploadLogID
-
-	-- Insert ProjectSearch TotalCount
-	SELECT @Count=COUNT(*) FROM ProjectSearch
-
+	SELECT @Count = @@ROWCOUNT
 	UPDATE icrp_data.dbo.DataUploadLog SET ProjectSearchCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
 	-------------------------------------------------------------------------------------------
-	-- Update FundingOrg LastImpoet Date/Desc
+	-- Insert DataUploadLog 
+	--------------------------------------------------------------------------------------------			
+	--IF @Type = 'New'
+	--BEGIN
+		
+	--	-- Insert Project Count
+	--	SELECT @Count=COUNT(*) FROM icrp_data.dbo.Project	
+	--	WHERE dataUploadStatusID = @DataUploadStatusID_Prod
+
+	--	UPDATE icrp_data.dbo.DataUploadLog SET ProjectCount = @Count WHERE DataUploadLogID = @DataUploadLogID
+
+	--	-- Insert ProjectAbstractCount
+	--	SELECT @Count=COUNT(*) FROM icrp_data.dbo.ProjectAbstract a
+	--		JOIN icrp_data.dbo.ProjectFunding f ON a.ProjectAbstractID = f.ProjectAbstractID
+	--	WHERE f.dataUploadStatusID = @DataUploadStatusID_Prod
+
+	--	UPDATE DataUploadLog SET ProjectAbstractCount = @count WHERE DataUploadLogID =	@DataUploadLogID
+
+	--	-- Insert ProjectCSOCount
+	--	SELECT @Count=COUNT(*) FROM icrp_data.dbo.ProjectCSO c 
+	--		JOIN icrp_data.dbo.ProjectFunding f ON c.ProjectFundingID = f.ProjectFundingID
+	--	WHERE f.dataUploadStatusID = @DataUploadStatusID_Prod
+
+	--	UPDATE icrp_data.dbo.DataUploadLog SET ProjectCSOCount = @Count WHERE DataUploadLogID = @DataUploadLogID
+
+	--	-- Insert ProjectCancerTypeCount Count
+	--	SELECT @Count=COUNT(*) FROM icrp_data.dbo.ProjectCancerType c 
+	--		JOIN icrp_data.dbo.ProjectFunding f ON c.ProjectFundingID = f.ProjectFundingID
+	--	WHERE f.dataUploadStatusID = @DataUploadStatusID_Prod
+
+	--	UPDATE icrp_data.dbo.DataUploadLog SET ProjectCancerTypeCount = @Count WHERE DataUploadLogID = @DataUploadLogID
+
+	--	-- Insert Project_ProjectType Count
+	--	SELECT @Count=COUNT(*) FROM icrp_data.dbo.Project_ProjectType t
+	--		JOIN icrp_data.dbo.Project p ON t.ProjectID = p.ProjectID	
+	--	WHERE p.dataUploadStatusID = @DataUploadStatusID_Prod
+
+	--	UPDATE DataUploadLog SET Project_ProjectTypeCount = @Count WHERE DataUploadLogID = @DataUploadLogID
+
+	--	-- Insert ProjectFundingCount
+	--	SELECT @Count=COUNT(*) FROM icrp_data.dbo.ProjectFunding 
+	--	WHERE dataUploadStatusID = @DataUploadStatusID_Prod
+
+	--	UPDATE icrp_data.dbo.DataUploadLog SET ProjectFundingCount = @Count WHERE DataUploadLogID = @DataUploadLogID
+
+	--	-- Insert ProjectFundingInvestigatorCount Count
+	--	SELECT @Count=COUNT(*) FROM icrp_data.dbo.ProjectFundingInvestigator pi
+	--		JOIN icrp_data.dbo.ProjectFunding f ON pi.ProjectFundingID = f.ProjectFundingID
+	--	WHERE f.dataUploadStatusID = @DataUploadStatusID_Prod
+
+	--	UPDATE icrp_data.dbo.DataUploadLog SET ProjectFundingInvestigatorCount = @Count WHERE DataUploadLogID = @DataUploadLogID
+
+	--	-- Insert ProjectSearch TotalCount
+	--	SELECT @Count=COUNT(*) FROM ProjectSearch
+
+	--	UPDATE icrp_data.dbo.DataUploadLog SET ProjectSearchCount = @Count WHERE DataUploadLogID = @DataUploadLogID
+	--END
+
+	-------------------------------------------------------------------------------------------
+	-- Update FundingOrg LastImport Date/Desc
 	--------------------------------------------------------------------------------------------
 	UPDATE icrp_data.dbo.fundingorg SET LastImportDate=getdate(), LastImportDesc = i.Note
 	FROM icrp_data.dbo.fundingorg o 
@@ -5828,6 +5897,7 @@ BEGIN CATCH
       RAISERROR (@msg, 16, 1)
 	        
 END CATCH  
+
 
 GO
 
@@ -6831,7 +6901,7 @@ BEGIN TRY
 	END
 
 	INSERT INTO FundingOrg ([Name], Abbreviation, [Type],[Country], [Currency], [SponsorCode], 	[MemberType], [MemberStatus], [IsAnnualized],[Note], [Website],	[Latitude],	[Longitude],[CreatedDate], [UpdatedDate])
-	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	@IsAnnualized, @Note, @Website, @Latitude, @Longitude, GETDATE(), GETDATE())
+	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	ISNULL(@IsAnnualized, 0), @Note, @Website, @Latitude, @Longitude, GETDATE(), GETDATE())
 	
 
 	-- Also Insert the new fundingorg into the PartnerOrg table
@@ -6840,7 +6910,7 @@ BEGIN TRY
 
 	-- Also insert the new fundingorg into the icrp_dataload database
 	INSERT INTO icrp_dataload.dbo.FundingOrg ([Name], Abbreviation, [Type],[Country], [Currency], [SponsorCode], 	[MemberType], [MemberStatus], [IsAnnualized],[Note], [Website],	[Latitude],	[Longitude], [CreatedDate], [UpdatedDate])
-	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	@IsAnnualized, @Note, @Website, @Latitude, @Longitude, GETDATE(), GETDATE())
+	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	ISNULL(@IsAnnualized, 0), @Note, @Website, @Latitude, @Longitude, GETDATE(), GETDATE())
 	
 	COMMIT TRANSACTION
 
@@ -6908,7 +6978,7 @@ BEGIN TRY
 		[Currency] = @Currency,
 		[MemberType] = @MemberType,
 		[MemberStatus] = @MemberStatus,
-		[IsAnnualized] = @IsAnnualized,		
+		[IsAnnualized] = ISNULL(@IsAnnualized, 0),		
 		[Note]  = @Note,
 		[Website] = @Website,		
 		[Longitude]  = @Longitude,
@@ -6924,20 +6994,20 @@ BEGIN TRY
 		[Currency] = @Currency,
 		[MemberType] = @MemberType,
 		[MemberStatus] = @MemberStatus,
-		[IsAnnualized] = @IsAnnualized,		
+		[IsAnnualized] = ISNULL(@IsAnnualized, 0),		
 		[Note]  = @Note,
 		[Website] = @Website,		
 		[Longitude]  = @Longitude,
 		[Latitude] = @Latitude,
 		[UpdatedDate] = getdate()
 	WHERE SponsorCode = @SponsorCode AND Abbreviation = @OrgAbbrev
-
-	-- Also update PartnerOrg	
+		
+	-- Also update PartnerOrg	- from User Registration
 	UPDATE PartnerOrg SET Name = @Name, IsActive = 
-	CASE @MemberStatus
-		WHEN 'Current' THEN '1'  -- Current Member
-		ELSE '0' END             -- Inactive Member
-	WHERE SponsorCode=@SponsorCode AND Name = @OrgAbbrev
+	CASE 
+		WHEN @MemberStatus = 'Current' THEN '1'  -- Current Member
+		ELSE '0' END             -- Former Member
+	WHERE SponsorCode=@SponsorCode AND Name = @Name	
 	
 	COMMIT TRANSACTION
 
