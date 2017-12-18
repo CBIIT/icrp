@@ -101,8 +101,8 @@ export class ImportCollaboratorsComponent {
 
         else {
           this.alerts.push({
-            type: 'warning',
-            content: 'No records were imported.'
+            type: 'success',
+            content: `${this.records.length.toLocaleString()} collaborator(s) have been successfully imported.`
           });
         }
       },
