@@ -305,7 +305,7 @@ class ProjectViewController extends ControllerBase {
     $show_orcid = count(array_filter(array_map(function($collaborator) {
       return $collaborator['pi_orcid'];
     }, $results['collaborators']))) > 0;
-
+    \Drupal::service('page_cache_kill_switch')->trigger();
     return [
       '#theme' => 'db_funding_view',
       '#page_title' => 'Project Funding Details',
@@ -320,6 +320,9 @@ class ProjectViewController extends ControllerBase {
           'db_project_view/funding_view_resources'
         ],
       ],
+      '#cache' => [
+        'max-age' => 0,
+      ],
     ];
   }
 
@@ -328,7 +331,7 @@ class ProjectViewController extends ControllerBase {
     $show_orcid = count(array_filter(array_map(function($collaborator) {
       return $collaborator['pi_orcid'];
     }, $results['collaborators']))) > 0;
-
+    \Drupal::service('page_cache_kill_switch')->trigger();
     return [
       '#theme' => 'db_funding_view',
       '#page_title' => 'Data Review - Project Funding Details',
@@ -342,6 +345,9 @@ class ProjectViewController extends ControllerBase {
         'library' => [
           'db_project_view/funding_view_resources'
         ],
+      ],
+      '#cache' => [
+        'max-age' => 0,
       ],
     ];
 
