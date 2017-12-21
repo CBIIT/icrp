@@ -2871,7 +2871,7 @@ AS
 SELECT c.SearchCriteriaID INTO #old 
 FROM searchresult r
 	join searchCriteria c ON r.SearchCriteriaID = c.SearchCriteriaID
-WHERE  ISNULL(IsEmailSent, 0) = 0 OR DATEDIFF(DAY, c.SearchDate, getdate()) > 30  -- only keep results for 30 days
+WHERE  (ISNULL(IsEmailSent, 0) = 0 OR DATEDIFF(DAY, c.SearchDate, getdate()) > 30) AND (c.SearchCriteriaID <> 0)  -- only keep results for 30 days
 
 DELETE searchresult
 WHERE  SearchCriteriaID IN (SELECT SearchCriteriaID FROM #old)
