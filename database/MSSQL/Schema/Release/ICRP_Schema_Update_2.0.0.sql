@@ -119,7 +119,7 @@ CREATE TABLE [dbo].[ProjectFundingArchive] (
 	[Source_ID] [varchar](150) NULL,
 	[MechanismCode] [varchar](30) NULL,
 	[MechanismTitle] [varchar](200) NULL,
-	[FundingContact] [varchar](200) NULL
+	[FundingContact] [varchar](200) NULL,
 	[IsAnnualized] [bit] NOT NULL,
 	[Amount] [float] NULL,	
 	[BudgetStartDate] [date] NULL,
