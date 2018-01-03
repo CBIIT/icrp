@@ -2884,6 +2884,49 @@ GO
 
 
 /*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+/****** Object:  StoredProcedure [dbo].[MergeInstitutions]    Script Date: 12/29/2016																								 ******/
+/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MergeInstitutions]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[MergeInstitutions]
+GO 
+
+CREATE PROCEDURE [dbo].[MergeInstitutions] 
+@NewName varchar(250),
+@NewCity varchar(50),
+@OldName varchar(250),
+@OldCity varchar(50)
+
+AS
+
+DECLARE @InstitutionID_deleted INT
+DECLARE @InstitutionID_kept INT
+
+IF ( (SELECT Count(1) FROM Institution WHERE Name = @NewName AND City = @NewCity) = 1) 
+	SELECT @InstitutionID_kept= InstitutionID FROM Institution WHERE Name = @NewName AND City = @NewCity
+
+IF ( (SELECT Count(1) FROM Institution WHERE Name = @OldName AND City = @OldCity) = 1) 
+	SELECT @InstitutionID_deleted= InstitutionID FROM Institution WHERE Name = @OldName AND City = @OldCity
+
+IF (@InstitutionID_deleted IS NULL) OR (@InstitutionID_kept IS NULL)
+BEGIN
+	PRINT CONCAT ('Either new or old Institution not found - [New: ', @NewName, ' / ', @NewCity, ']  [Old: ', @OldName, ' / ', @OldCity, ']')
+	RETURN
+END
+
+-- add old institution into mapping table
+IF NOT EXISTS (SELECT 1 FROM InstitutionMapping WHERE OldCity = @OldCity AND OldName = @OldName) 
+	INSERT INTO InstitutionMapping ([NewName], [NewCity], [OldName], [OldCity]) VALUES (@NewName, @NewCity, @OldName, @OldCity)
+ELSE
+	UPDATE InstitutionMapping SET NewName = @NewName, NewCity = @NewCity WHERE OldCity = @OldCity AND OldName = @OldName
+
+UPDATE ProjectFundingInvestigator set institutionid = @InstitutionID_kept where institutionid = @InstitutionID_deleted 
+delete institution where institutionid = @InstitutionID_deleted
+
+GO
+
+
+/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /****** Object:  StoredProcedure [dbo].[ImportInstitutions]    Script Date: 12/14/2016 4:21:37 PM ******/
 /*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
