@@ -1,6 +1,9 @@
+uuid: 57fc3062-66ce-49da-974e-a6b70fa0cfb7
 langcode: en
 status: open
 dependencies: {  }
+_core:
+  default_config_hash: LasCJP-N2njGJZCeGeVp8mWjI36mX21SlCUXoc-NPN4
 open: null
 close: null
 uid: null
@@ -9,7 +12,7 @@ id: contact
 title: 'Contact Us'
 description: 'Basic email contact form.'
 category: ''
-elements: "contact_us:\n  '#type': details\n  '#title': 'Contact Us'\n  '#open': true\n  '#attributes':\n    class:\n      - 'form--inline clearfix'\n  contact_us_container_1:\n    '#type': container\n    '#title': Message\n    '#open': 0\n    '#attributes':\n      class:\n        - clearfix\n      style: 'width:250px;'\n    type_of_issue:\n      '#type': select\n      '#title': 'Type of Issue'\n      '#title_display': before\n      '#wrapper_attributes':\n        class:\n          - 'form--inline clearfix'\n      '#attributes':\n        class:\n          - 'col-sm-3 '\n        style: 'padding-left:20px;'\n      '#options':\n        'User Account': 'User Account'\n        'Partner Application': 'Partner Application'\n        'Partnership Questions': 'Partnership Questions'\n        'Sign Up for Newsletter': 'Sign Up for Newsletter'\n        'Register for CSO Updates': 'Register for CSO Updates'\n        'CSO Question': 'CSO Question'\n        'Data Issue': 'Data Issue'\n        'Website Tech Support': 'Website Tech Support'\n        Other: Other\n      '#required': true\n      '#states':\n        visible:\n          ':input[name=\"contact\"]':\n            value: 'Contact ICRP'\n  contact_us_container_3:\n    '#type': container\n    message:\n      '#type': textarea\n      '#title': Description\n      '#title_display': inline\n      '#size': ''\n      '#placeholder': 'Description of question, issue, or request.'\n      '#attributes':\n        rows: '8'\n        cols: '160'\n      '#required': true\n      '#test': 'Please ignore this email.'\n    contact_us_container_4:\n      '#type': container\n    name:\n      '#type': textfield\n      '#title': Name\n      '#default_value': '[current-user:field_first_name] [current-user:field_last_name]'\n      '#title_display': inline\n      '#placeholder': Name\n      '#required': true\n    email:\n      '#type': email\n      '#title': 'Your Email'\n      '#description': 'Your e-mail address'\n      '#default_value': '[current-user:mail]'\n      '#title_display': inline\n      '#placeholder': Email\n      '#required': true\n    organization:\n      '#type': textfield\n      '#title': Organization\n      '#description': 'Your organization.'\n      '#default_value': '[webform-authenticated-user:field_organization]'\n      '#title_display': inline\n      '#placeholder': Organization\n      '#required': true\n    phone_number:\n      '#type': textfield\n      '#title': 'Phone Number'\n      '#description': 'Enter your phone number'\n      '#title_display': inline\n      '#placeholder': 'Phone Number'\nactions:\n  '#type': webform_actions\n  '#title': 'Submit button(s)'\n  '#submit__label': 'Send message'\n"
+elements: "contact_us:\n  '#type': details\n  '#title': 'Contact Us'\n  '#open': true\n  '#attributes':\n    class:\n      - 'form--inline clearfix'\n  contact_us_container_1:\n    '#type': container\n    '#title': Message\n    '#open': 0\n    '#attributes':\n      class:\n        - clearfix\n      style: 'width:250px;'\n    type_of_issue:\n      '#type': select\n      '#title': 'Type of Issue'\n      '#title_display': before\n      '#wrapper_attributes':\n        class:\n          - 'form--inline clearfix'\n      '#attributes':\n        class:\n          - 'col-sm-3 '\n        style: 'padding-left:20px;'\n      '#options':\n        'User Account': 'User Account'\n        'Partner Application': 'Partner Application'\n        'Partnership Questions': 'Partnership Questions'\n        'Sign Up for Newsletter': 'Sign Up for Newsletter'\n        'Register for CSO Updates': 'Register for CSO Updates'\n        'CSO Question': 'CSO Question'\n        'Data Issue': 'Data Issue'\n        'Website Tech Support': 'Website Tech Support'\n        Other: Other\n      '#required': true\n      '#states':\n        visible:\n          ':input[name=\"contact\"]':\n            value: 'Contact ICRP'\n  contact_us_container_3:\n    '#type': container\n    message:\n      '#type': textarea\n      '#title': Description\n      '#title_display': inline\n      '#size': ''\n      '#placeholder': 'Description of question, issue, or request.'\n      '#attributes':\n        rows: '8'\n        cols: '160'\n      '#required': true\n      '#test': 'Please ignore this email.'\n    contact_us_container_4:\n      '#type': container\n    name:\n      '#type': textfield\n      '#title': Name\n      '#default_value': '[current-user:field_first_name] [current-user:field_last_name]'\n      '#description': 'Your Name'\n      '#title_display': inline\n      '#placeholder': Name\n      '#required': true\n    email:\n      '#type': email\n      '#title': 'Your Email'\n      '#description': 'Your e-mail address'\n      '#default_value': '[current-user:mail]'\n      '#title_display': inline\n      '#placeholder': Email\n      '#required': true\n    organization:\n      '#type': textfield\n      '#title': Organization\n      '#description': 'Your organization.'\n      '#default_value': '[webform-authenticated-user:field_organization]'\n      '#title_display': inline\n      '#placeholder': Organization\n      '#required': true\n    phone_number:\n      '#type': textfield\n      '#title': 'Phone Number'\n      '#description': 'Enter your phone number'\n      '#title_display': inline\n      '#placeholder': 'Phone Number'\nactions:\n  '#type': webform_actions\n  '#title': 'Submit button(s)'\n  '#submit__label': 'Send message'\n"
 css: "#edit-contact-us-container-1 .select-wrapper {\r\n    height:40px;\r\n}\r\n"
 javascript: ''
 settings:
@@ -140,7 +143,7 @@ access:
 handlers:
   email_confirmation:
     id: email
-    label: 'Contact Us - to client'
+    label: 'Contact Us - to ICRP User'
     handler_id: email_confirmation
     status: true
     conditions: {  }
@@ -157,14 +160,14 @@ handlers:
       from_mail: '[site:mail]'
       from_options: {  }
       from_name: 'International Cancer Research Partnership '
-      subject: '[webform_submission:values:type_of_issue:raw]'
-      body: 'Thank you for contacting ICRP. We will respond to your query as soon as possible and you should receive a response within 3 days.'
+      subject: 'ICRP Contact Us - [webform-submission:values:type_of_issue:raw] (ICRP Test)'
+      body: "Dear &nbsp;[webform-submission:values:name:raw],<br />\n<br />\nThank you for contacting ICRP. We will respond to your enquiry as soon as possible and you should receive a response within 3 days.<br />\n<br />\nICRP Operational Team"
       excluded_elements:
         type_of_issue: type_of_issue
         message: message
         name: name
-        organization: organization
         email: email
+        organization: organization
         phone_number: phone_number
       ignore_access: false
       exclude_empty: true
@@ -177,7 +180,7 @@ handlers:
       sender_name: ''
   email_notification:
     id: email
-    label: 'Contact Us - to icrpqa'
+    label: 'Contact Us - to ICRP operation manager'
     handler_id: email_notification
     status: true
     conditions: {  }
@@ -191,11 +194,11 @@ handlers:
       cc_options: {  }
       bcc_mail: ''
       bcc_options: {  }
-      from_mail: '[webform-submission:values:email:raw]'
+      from_mail: default
       from_options: {  }
-      from_name: '[webform-submission:values:name:raw]'
-      subject: '[webform_submission:values:type_of_issue:raw]'
-      body: default
+      from_name: 'International Cancer Research Partnership '
+      subject: 'Contact ICRP - [webform-submission:values:type_of_issue:raw] (ICRP Test)'
+      body: "<em>Submitted on [webform-submission:created]</em><br />\n<br />\n[webform-submission:values]"
       excluded_elements: {  }
       ignore_access: false
       exclude_empty: true
@@ -206,6 +209,3 @@ handlers:
       return_path: ''
       sender_mail: ''
       sender_name: ''
-uuid: 57fc3062-66ce-49da-974e-a6b70fa0cfb7
-_core:
-  default_config_hash: LasCJP-N2njGJZCeGeVp8mWjI36mX21SlCUXoc-NPN4
