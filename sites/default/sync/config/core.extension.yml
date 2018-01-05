@@ -36,7 +36,6 @@ module:
   db_search: 0
   db_search_api: 0
   dblog: 0
-  devel: 0
   ds_extras: 0
   ds_switch_view_mode: 0
   dynamic_page_cache: 0
