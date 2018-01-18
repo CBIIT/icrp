@@ -18,6 +18,11 @@ a {
   color: #1E8BC3;
 }
 
+.ui-autocomplete {
+  max-height: 300px;
+  overflow: auto;
+}
+
 
 /** 
  * Bootstrap alert overrides
