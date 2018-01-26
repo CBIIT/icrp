@@ -6054,8 +6054,7 @@ AS
 	IF @CSOList IS NOT NULL
 		DELETE #pf WHERE ProjectFundingID NOT IN
 			(SELECT f.ProjectFundingID FROM  #pf f
-				JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
-				JOIN CSO c ON c.code = pc.csocode	
+				JOIN ProjectCSO pc ON f.projectFundingID = pc.projectFundingID				
 				WHERE pc.CSOCode IN (SELECT VALUE AS CSOCode FROM dbo.ToStrTable(@CSOList)))		
 
 	IF @CancerTypelist IS NOT NULL
@@ -6070,13 +6069,12 @@ AS
 			SELECT cancertypeid FROM #ct
 			UNION
 			SELECT Relatedcancertypeid AS cancertypeid FROM #ct WHERE Relatedcancertypeid IS NOT NULL
-		) ct
+		) ct		
 
 		DELETE #pf WHERE ProjectFundingID NOT IN
 			(SELECT f.ProjectFundingID FROM  #pf f
-				JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
-				JOIN CancerType ct ON ct.CancerTypeID = pc.CancerTypeID		
-			WHERE ct.CancerTypeID IN (SELECT CancerTypeID FROM #ctlist))
+				JOIN ProjectCancerType pc ON f.projectFundingID = pc.projectFundingID				
+			WHERE pc.CancerTypeID IN (SELECT CancerTypeID FROM #ctlist))
 	END
 
 	
@@ -6210,8 +6208,7 @@ AS
 	IF @CSOList IS NOT NULL
 		DELETE #pf WHERE ProjectFundingID NOT IN
 			(SELECT f.ProjectFundingID FROM  #pf f
-				JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
-				JOIN CSO c ON c.code = pc.csocode	
+				JOIN ProjectCSO pc ON f.projectFundingID = pc.projectFundingID				
 				WHERE pc.CSOCode IN (SELECT VALUE AS CSOCode FROM dbo.ToStrTable(@CSOList)))		
 
 	IF @CancerTypelist IS NOT NULL
@@ -6230,9 +6227,8 @@ AS
 
 		DELETE #pf WHERE ProjectFundingID NOT IN
 			(SELECT f.ProjectFundingID FROM  #pf f
-				JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
-				JOIN CancerType ct ON ct.CancerTypeID = pc.CancerTypeID		
-			WHERE ct.CancerTypeID IN (SELECT CancerTypeID FROM #ctlist))
+				JOIN ProjectCancerType pc ON f.projectFundingID = pc.projectFundingID				
+		WHERE pc.CancerTypeID IN (SELECT CancerTypeID FROM #ctlist))
 	END
 
 
@@ -6361,8 +6357,7 @@ AS
 	IF @CSOList IS NOT NULL
 		DELETE #pf WHERE ProjectFundingID NOT IN
 			(SELECT f.ProjectFundingID FROM  #pf f
-				JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
-				JOIN CSO c ON c.code = pc.csocode	
+				JOIN ProjectCSO pc ON f.projectFundingID = pc.projectFundingID				
 				WHERE pc.CSOCode IN (SELECT VALUE AS CSOCode FROM dbo.ToStrTable(@CSOList)))		
 
 	IF @CancerTypelist IS NOT NULL
@@ -6381,9 +6376,8 @@ AS
 
 		DELETE #pf WHERE ProjectFundingID NOT IN
 			(SELECT f.ProjectFundingID FROM  #pf f
-				JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
-				JOIN CancerType ct ON ct.CancerTypeID = pc.CancerTypeID		
-			WHERE ct.CancerTypeID IN (SELECT CancerTypeID FROM #ctlist))
+				JOIN ProjectCancerType pc ON f.projectFundingID = pc.projectFundingID				
+			WHERE pc.CancerTypeID IN (SELECT CancerTypeID FROM #ctlist))
 	END
 
 	------------------------------------------------------------------------------
@@ -6514,8 +6508,7 @@ DECLARE @ProjectIDs VARCHAR(max)
 	IF @CSOList IS NOT NULL
 		DELETE #pf WHERE ProjectFundingID NOT IN
 			(SELECT f.ProjectFundingID FROM  #pf f
-				JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
-				JOIN CSO c ON c.code = pc.csocode	
+				JOIN ProjectCSO pc ON f.projectFundingID = pc.projectFundingID				
 				WHERE pc.CSOCode IN (SELECT VALUE AS CSOCode FROM dbo.ToStrTable(@CSOList)))		
 
 	IF @CancerTypelist IS NOT NULL
@@ -6534,9 +6527,8 @@ DECLARE @ProjectIDs VARCHAR(max)
 
 		DELETE #pf WHERE ProjectFundingID NOT IN
 			(SELECT f.ProjectFundingID FROM  #pf f
-				JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
-				JOIN CancerType ct ON ct.CancerTypeID = pc.CancerTypeID		
-			WHERE ct.CancerTypeID IN (SELECT CancerTypeID FROM #ctlist))
+				JOIN ProjectCancerType pc ON f.projectFundingID = pc.projectFundingID				
+		WHERE pc.CancerTypeID IN (SELECT CancerTypeID FROM #ctlist))
 	END
 
 	SELECT InstitutionID, Institution, Count(*) AS Count INTO #proj FROM (SELECT DISTINCT InstitutionID, Institution, ProjectFundingID FROM #pf) proj GROUP BY InstitutionID, Institution
