@@ -143,7 +143,7 @@ access:
 handlers:
   email_confirmation:
     id: email
-    label: 'Contact Us - to ICRP User (Dev Site)'
+    label: 'Contact Us - to ICRP User'
     handler_id: email_confirmation
     status: true
     conditions: {  }
@@ -180,7 +180,7 @@ handlers:
       sender_name: ''
   email_notification:
     id: email
-    label: 'Contact Us - to ICRP operation manager (Dev Site)'
+    label: 'Contact Us - to ICRP operation manager'
     handler_id: email_notification
     status: true
     conditions: {  }
