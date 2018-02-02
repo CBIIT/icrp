@@ -499,7 +499,8 @@ class LibraryController extends ControllerBase {
   }
 
   private function getFile($location) {
-    return new BinaryFileResponse(join('/',array(drupal_realpath('public://library/uploads'),$location)));
+    $uploads_folder = \Drupal::config('library')->get('uploads_folder') ?? 'data/library/uploads';
+    return new BinaryFileResponse(join('/',array($uploads_folder,$location)));
   }
 
   private function getFolder($id) {
@@ -553,7 +554,7 @@ class LibraryController extends ControllerBase {
 
   /**
    * Returns a PDO connection to a database
-   * @param $cfg - An associative array containing connection parameters 
+   * @param $cfg - An associative array containing connection parameters
    *   driver:    DB Driver
    *   server:    Server Name
    *   database:  Database
