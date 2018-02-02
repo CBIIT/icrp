@@ -40,9 +40,9 @@ composer install
 ## Copy your settings.local.php file to /sites/default/settings.local.php
 cp ~/settings.local.php ./sites/default/settings.local.php
 
-## Restore the MySQL database from the obsolete.icrp.sql file. For example,
-## assuming we have defined a "drupal" database
-mysql drupal < obsolete.icrp.sql
+## Restore the MySQL database from the icrp-2.0.sql file. 
+## For example, assuming we have defined a "drupal" database:
+mysql drupal < icrp-2.0.sql
 
 ## Rebuild drush cache
 drush cr
