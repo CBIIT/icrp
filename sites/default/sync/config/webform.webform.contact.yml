@@ -1,6 +1,9 @@
+uuid: 57fc3062-66ce-49da-974e-a6b70fa0cfb7
 langcode: en
 status: open
 dependencies: {  }
+_core:
+  default_config_hash: LasCJP-N2njGJZCeGeVp8mWjI36mX21SlCUXoc-NPN4
 open: null
 close: null
 uid: null
@@ -140,7 +143,7 @@ access:
 handlers:
   email_confirmation:
     id: email
-    label: 'Contact Us - to client'
+    label: 'Contact Us - to ICRP User'
     handler_id: email_confirmation
     status: true
     conditions: {  }
@@ -157,14 +160,14 @@ handlers:
       from_mail: '[site:mail]'
       from_options: {  }
       from_name: 'International Cancer Research Partnership '
-      subject: '[webform_submission:values:type_of_issue:raw]'
-      body: 'Thank you for contacting ICRP. We will respond to your query as soon as possible and you should receive a response within 3 days.'
+      subject: 'Contact ICRP - [webform-submission:values:type_of_issue:raw]'
+      body: "Dear &nbsp;[webform-submission:values:name:raw],<br />\n<br />\nThank you for contacting ICRP. We will respond to your enquiry as soon as possible and you should receive a response within 3 days.<br />\n<br />\nICRP Operational Team"
       excluded_elements:
         type_of_issue: type_of_issue
         message: message
         name: name
-        organization: organization
         email: email
+        organization: organization
         phone_number: phone_number
       ignore_access: false
       exclude_empty: true
@@ -177,7 +180,7 @@ handlers:
       sender_name: ''
   email_notification:
     id: email
-    label: 'Contact Us - to icrpqa'
+    label: 'Contact Us - to ICRP operation manager'
     handler_id: email_notification
     status: true
     conditions: {  }
@@ -191,11 +194,11 @@ handlers:
       cc_options: {  }
       bcc_mail: ''
       bcc_options: {  }
-      from_mail: '[webform-submission:values:email:raw]'
+      from_mail: default
       from_options: {  }
-      from_name: '[webform-submission:values:name:raw]'
-      subject: '[webform_submission:values:type_of_issue:raw]'
-      body: default
+      from_name: 'International Cancer Research Partnership'
+      subject: 'Contact ICRP - [webform-submission:values:type_of_issue:raw]'
+      body: "<em>Submitted on [webform-submission:created]</em><br />\n<br />\n[webform-submission:values]"
       excluded_elements: {  }
       ignore_access: false
       exclude_empty: true
@@ -206,6 +209,3 @@ handlers:
       return_path: ''
       sender_mail: ''
       sender_name: ''
-uuid: 57fc3062-66ce-49da-974e-a6b70fa0cfb7
-_core:
-  default_config_hash: LasCJP-N2njGJZCeGeVp8mWjI36mX21SlCUXoc-NPN4
