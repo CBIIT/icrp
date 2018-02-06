@@ -2590,11 +2590,12 @@ CREATE  PROCEDURE [dbo].[GetLatestNewsletter]
     
 AS 
   
-SELECT TOP 1 l.Filename, l.ThumbnailFilename, Title, Description from Library l
-join LibraryFolder f ON l.LibraryFolderID = f.LibraryFolderID where f.Name = 'Newsletters'
+SELECT TOP 1 l.LibraryID, l.Filename, l.ThumbnailFilename, Title, Description 
+FROM Library l
+	JOIN LibraryFolder f ON l.LibraryFolderID = f.LibraryFolderID where f.Name = 'Newsletters'
 ORDER BY l.CreatedDate DESC
 
-  GO
+GO
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetDataUploadStatus]    Script Date: 12/14/2016 4:21:37 PM ******/
