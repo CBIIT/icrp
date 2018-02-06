@@ -88,3 +88,5 @@ settings.local.php
 !/libraries/.gitkeep
 package-lock.json
 !/sites/default/files/user-guides
+
+/data/*
