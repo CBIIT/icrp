@@ -319,8 +319,9 @@ class LibraryController extends ControllerBase {
       $stmt->bindValue(":display",$upload->getClientOriginalName());
       if ($stmt->execute()) {
         $row = array_merge(array(),$stmt->fetchAll(PDO::FETCH_ASSOC))[0];
-        $upload->move("public://library/uploads",$row['Filename']);
-        if ($thumb) $thumb->move("public://library/uploads/thumbs",$row['ThumbnailFilename']);
+        $uploads_folder = \Drupal::config('library')->get('uploads_folder') ?? 'data/library/uploads';
+        $upload->move($uploads_folder,$row['Filename']);
+        if ($thumb) $thumb->move("$uploads_folder/thumbs",$row['ThumbnailFilename']);
         return new JsonResponse(array(
           "success"=>true,
           "row"=>$row
@@ -349,8 +350,9 @@ class LibraryController extends ControllerBase {
       $stmt->bindParam(":display",$params["display_name"]);
       if ($stmt->execute()) {
           $row = array_merge(array(),$stmt->fetchAll(PDO::FETCH_ASSOC))[0];
-          if ($upload) $upload->move("public://library/uploads",$row['Filename']);
-          //if ($thumb) $thumb->move("public://library/uploads/thumbs",$row['ThumbnailFilename']);
+          $uploads_folder = \Drupal::config('library')->get('uploads_folder') ?? 'data/library/uploads';
+          if ($upload) $upload->move($uploads_folder,$row['Filename']);
+          //if ($thumb) $thumb->move("$uploads_folder/thumbs",$row['ThumbnailFilename']);
           return self::getFolder($params["parent"]);
       }
     }
@@ -470,7 +472,8 @@ class LibraryController extends ControllerBase {
         }
         array_push($result,$row_output);
         try {
-          $zip->addFileFromPath($row_output['DisplayName'],join('/',array(drupal_realpath('public://library/uploads'),$row_output['Filename'])));
+          $uploads_folder = \Drupal::config('library')->get('uploads_folder') ?? 'data/library/uploads';
+          $zip->addFileFromPath($row_output['DisplayName'],join('/',array($uploads_folder,$row_output['Filename'])));
         } catch (\Zipstream\Exception\FileNotFoundException $e) { }
       }
     }
