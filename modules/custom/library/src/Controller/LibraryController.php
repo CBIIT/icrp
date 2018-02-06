@@ -13,6 +13,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Zipstream\ZipStream;
 
 class LibraryController extends ControllerBase {
+
+  function __construct() {
+    parent::__construct();
+
+    // ensure the uploads folder exists
+    $uploads_folder = \Drupal::config('library')->get('uploads_folder') ?? 'data/library/uploads';
+    if (!file_exists($uploads_folder))
+      mkdir("$uploads_folder/thumbs", 0744, true);
+  }
+
   public function testQuery() {
     return new JsonResponse(array(),$status=Response::HTTP_FORBIDDEN);
     $return = array();
