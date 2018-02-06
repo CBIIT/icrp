@@ -19,8 +19,12 @@ class LibraryController extends ControllerBase {
 
     // ensure the uploads folder exists
     $uploads_folder = \Drupal::config('library')->get('uploads_folder') ?? 'data/library/uploads';
-    if (!file_exists($uploads_folder))
+    if (!file_exists($uploads_folder)) {
       mkdir("$uploads_folder/thumbs", 0744, true);
+      $file = fopen("$uploads_folder/.htaccess", "w");
+      fwrite($file, "DENY FROM ALL");
+      fclose($file);
+    }
   }
 
   public function testQuery() {
