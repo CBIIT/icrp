@@ -73,7 +73,7 @@ db_project_view.get_funding_org_names:
   requirements:
     _permission: 'access content'
 
-    
+
 db_project_view.get_funding_org:
   path: '/getFundingOrg'
   defaults:
@@ -124,4 +124,3 @@ db_project_view.get_latest_newsletter:
     _title: 'get Latest Newsletter'
   requirements:
     _permission: 'access content'
-

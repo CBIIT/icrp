@@ -430,12 +430,22 @@
   $.showNewsletter = function(newsletter) {
     /*
 
+    old:
     The library PDF File location - icrp/sites/default/files/library/uploads
     Thumbnail location (folder path) - icrp/sites/default/files/library/uploads/thumbs
+    
+    eg: 
+      var pdf = "/sites/default/files/library/uploads/"+newsletter.Filename;
+      var thumbnail = "/sites/default/files/library/uploads/thumbs/"+newsletter.ThumbnailFilename;
 
+    new:
+    The library PDF File location - /library/file/${LibraryID}/${Filename}
+    Thumbnail location (folder path) - /library/file/thumb/${ThumbnailFilename}
     */
-    var pdf = "/sites/default/files/library/uploads/"+newsletter.Filename;
-    var thumbnail = "/sites/default/files/library/uploads/thumbs/"+newsletter.ThumbnailFilename;
+
+    var pdf = "/library/file/"+(newsletter.LibraryID || 0)+"/"+newsletter.Filename;
+    var thumbnail = "/library/file/thumb/"+newsletter.ThumbnailFilename;
+
     $('#last_newsletter').html("<div class='newsletter-title'>"+newsletter.Title+"</div>");
 
     $("#last_newsletter").append("<div class='row text-center'><div class='newsletter-image'><a href='"+pdf+"' title='Latest Newsleter' target='_blank'><img class='center-block' src='"+thumbnail+"' /></a></div></div>");
