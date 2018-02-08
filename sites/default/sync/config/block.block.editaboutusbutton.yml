@@ -1,24 +1,24 @@
-uuid: 5041a45d-88ca-4d04-86ed-92df2488f9e5
+uuid: 2a56905d-ec29-48fc-a167-ff23dab67a5b
 langcode: en
 status: true
 dependencies:
   content:
-    - 'block_content:basic:74d06de4-0a10-4cc2-a878-e4c5a5503c4e'
+    - 'block_content:basic:67e38b55-8fb6-444a-a2c4-c15ea258d572'
   module:
     - block_content
     - system
     - user
   theme:
-    - bootstrap_business
-id: bootstrap_business_welcomeicrppartner
-theme: bootstrap_business
+    - bootstrap_subtheme
+id: editaboutusbutton
+theme: bootstrap_subtheme
 region: content
-weight: 0
+weight: -21
 provider: null
-plugin: 'block_content:74d06de4-0a10-4cc2-a878-e4c5a5503c4e'
+plugin: 'block_content:67e38b55-8fb6-444a-a2c4-c15ea258d572'
 settings:
-  id: 'block_content:74d06de4-0a10-4cc2-a878-e4c5a5503c4e'
-  label: 'Welcome ICRP Partner'
+  id: 'block_content:67e38b55-8fb6-444a-a2c4-c15ea258d572'
+  label: 'Edit About Us Button'
   provider: block_content
   label_display: '0'
   status: true
@@ -27,13 +27,14 @@ settings:
 visibility:
   request_path:
     id: request_path
-    pages: /home
+    pages: /about-us
     negate: false
     context_mapping: {  }
   user_role:
     id: user_role
     roles:
-      authenticated: authenticated
+      administrator: administrator
+      manager: manager
     negate: false
     context_mapping:
       user: '@user.current_user_context:current_user'
