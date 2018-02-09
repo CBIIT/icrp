@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite failures="1" time="218.465" errors="0" skipped="0" tests="10" name="gov.nih.nci.FunctionalSmokeTest">
+  <properties>
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
+    <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.6.0_43\jre\bin"/>
+    <property name="java.vm.version" value="20.14-b01"/>
+    <property name="java.vm.vendor" value="Sun Microsystems Inc."/>
+    <property name="java.vendor.url" value="http://java.sun.com/"/>
+    <property name="path.separator" value=";"/>
+    <property name="guice.disable.misplaced.annotation.check" value="true"/>
+    <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM"/>
+    <property name="file.encoding.pkg" value="sun.io"/>
+    <property name="user.country" value="US"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="sun.os.patch.level" value="Service Pack 1"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="user.dir" value="C:\eclipse\Projects\caNanoLab 2.0"/>
+    <property name="java.runtime.version" value="1.6.0_43-b01"/>
+    <property name="java.awt.graphicsenv" value="sun.awt.Win32GraphicsEnvironment"/>
+    <property name="java.endorsed.dirs" value="C:\Program Files\Java\jdk1.6.0_43\jre\lib\endorsed"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.io.tmpdir" value="C:\Users\ahmeds6\AppData\Local\Temp\"/>
+    <property name="line.separator" value="
+"/>
+    <property name="java.vm.specification.vendor" value="Sun Microsystems Inc."/>
+    <property name="user.variant" value=""/>
+    <property name="os.name" value="Windows 7"/>
+    <property name="classworlds.conf" value="C:\Users\ahmeds6\Projects\.metadata\.plugins\org.eclipse.m2e.launching\launches\m2conf1200357914904209494.tmp"/>
+    <property name="sun.jnu.encoding" value="Cp1252"/>
+    <property name="java.library.path" value="C:\Program Files\Java\jdk1.6.0_43\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:\app\aabradleyea\product\11.2.0\dbhome_1\bin;C:\oraclexe\app\oracle\product\11.2.0\server\bin;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Common Files\Roxio Shared\DLLShared\;C:\Program Files (x86)\Common Files\Roxio Shared\OEM\DLLShared\;C:\Program Files (x86)\Common Files\Roxio Shared\OEM\DLLShared\;C:\Program Files (x86)\Common Files\Roxio Shared\OEM\12.0\DLLShared\;C:\Program Files (x86)\Roxio\OEM\AudioCore\;C:\Program Files\ActivIdentity\ActivClient\;C:\Program Files (x86)\ActivIdentity\ActivClient\;c:\Program Files (x86)\Microsoft SQL Server\90\Tools\binn\;C:\Users\ahmeds6\apache-ant-1.7.0\bin;C:\Program Files (x86)\QuickTime\QTSystem\;C:\Program Files (x86)\MySQL\MySQL Utilities 1.3.4\;C:\Users\ahmeds6\apache-ant-1.7.0\bin;C:\Program Files\Java\jdk1.6.0_43\bin;C:\Users\ahmeds6\apache-maven-3.1.0\bin;C:\Users\ahmeds6\apache-servicemix-4.5.2\bin;C:\Program Files (x86)\AutomationSamurai\;C:\Program Files (x86)\SSH Communications Security\SSH Secure Shell;C:\Program Files\Java\jdk1.6.0_43\bin;."/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="java.class.version" value="50.0"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="os.version" value="6.1"/>
+    <property name="user.home" value="C:\Users\ahmeds6"/>
+    <property name="user.timezone" value="America/New_York"/>
+    <property name="java.awt.printerjob" value="sun.awt.windows.WPrinterJob"/>
+    <property name="file.encoding" value="Cp1252"/>
+    <property name="java.specification.version" value="1.6"/>
+    <property name="user.name" value="ahmeds6"/>
+    <property name="java.class.path" value="/C:/eclipse/configuration/org.eclipse.osgi/bundles/279/1/.cp/jars/plexus-classworlds-2.4.jar"/>
+    <property name="java.vm.specification.version" value="1.0"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="java.home" value="C:\Program Files\Java\jdk1.6.0_43\jre"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -B clean test"/>
+    <property name="java.specification.vendor" value="Sun Microsystems Inc."/>
+    <property name="user.language" value="en"/>
+    <property name="awt.toolkit" value="sun.awt.windows.WToolkit"/>
+    <property name="java.vm.info" value="mixed mode"/>
+    <property name="java.version" value="1.6.0_43"/>
+    <property name="java.ext.dirs" value="C:\Program Files\Java\jdk1.6.0_43\jre\lib\ext;C:\Windows\Sun\Java\lib\ext"/>
+    <property name="sun.boot.class.path" value="C:\Program Files\Java\jdk1.6.0_43\jre\lib\resources.jar;C:\Program Files\Java\jdk1.6.0_43\jre\lib\rt.jar;C:\Program Files\Java\jdk1.6.0_43\jre\lib\sunrsasign.jar;C:\Program Files\Java\jdk1.6.0_43\jre\lib\jsse.jar;C:\Program Files\Java\jdk1.6.0_43\jre\lib\jce.jar;C:\Program Files\Java\jdk1.6.0_43\jre\lib\charsets.jar;C:\Program Files\Java\jdk1.6.0_43\jre\lib\modules\jdk.boot.jar;C:\Program Files\Java\jdk1.6.0_43\jre\classes"/>
+    <property name="java.vendor" value="Sun Microsystems Inc."/>
+    <property name="maven.home" value="C:\eclipse\Projects\caNanoLab 2.0\EMBEDDED"/>
+    <property name="file.separator" value="\"/>
+    <property name="java.vendor.url.bug" value="http://java.sun.com/cgi-bin/bugreport.cgi"/>
+    <property name="maven.bootclasspath" value="/C:/eclipse/configuration/org.eclipse.osgi/bundles/279/1/.cp/jars/plexus-classworlds-2.4.jar"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="sun.desktop" value="windows"/>
+    <property name="sun.cpu.isalist" value="amd64"/>
+  </properties>
+  <testcase time="33.15" classname="gov.nih.nci.FunctionalSmokeTest" name="SamplesSearchByCharacterization"/>
+  <testcase time="20.009" classname="gov.nih.nci.FunctionalSmokeTest" name="verifyFeatureSectionContent"/>
+  <testcase time="23.895" classname="gov.nih.nci.FunctionalSmokeTest" name="verifyWhatsNewSectionContent_downloadLink"/>
+  <testcase time="29.941" classname="gov.nih.nci.FunctionalSmokeTest" name="researcherLoginTest"/>
+  <testcase time="25.726" classname="gov.nih.nci.FunctionalSmokeTest" name="verifyPublicationSearchByKeyword"/>
+  <testcase time="13.896" classname="gov.nih.nci.FunctionalSmokeTest" name="verifyOptions_LoginToSubmitData"/>
+  <testcase time="14.792" classname="gov.nih.nci.FunctionalSmokeTest" name="verifycaNanoLabHowToSectionContent">
+    <failure message="Verification of link By.linkText: How do I find nanotechnology protocols? failed" type="java.lang.AssertionError">java.lang.AssertionError: Verification of link By.linkText: How do I find nanotechnology protocols? failed
+	at org.junit.Assert.fail(Assert.java:88)
+	at gov.nih.nci.HelperMethods.BaseNanoLabMethods.verifyLink(BaseNanoLabMethods.java:67)
+	at gov.nih.nci.FunctionalSmokeTest.verifycaNanoLabHowToSectionContent(FunctionalSmokeTest.java:78)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:27)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:271)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:70)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:309)
+	at org.apache.maven.surefire.junit4.JUnit4TestSet.execute(JUnit4TestSet.java:53)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:123)
+	at org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:104)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	at java.lang.reflect.Method.invoke(Method.java:597)
+	at org.apache.maven.surefire.util.ReflectionUtils.invokeMethodWithArray(ReflectionUtils.java:164)
+	at org.apache.maven.surefire.booter.ProviderFactory$ProviderProxy.invoke(ProviderFactory.java:110)
+	at org.apache.maven.surefire.booter.SurefireStarter.invokeProvider(SurefireStarter.java:175)
+	at org.apache.maven.surefire.booter.SurefireStarter.runSuitesInProcessWhenForked(SurefireStarter.java:107)
+	at org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:68)
+</failure>
+    <system-out> INFO [main] (FunctionalSmokeTest.java:74) - ---------------Begin Test case: 013_Verify_caNanoLab_How To_section_content--------------
+Error link:
+</system-out>
+  </testcase>
+  <testcase time="14.728" classname="gov.nih.nci.FunctionalSmokeTest" name="verifyOptions_BrowsePublicallyAvailabledata"/>
+  <testcase time="20.364" classname="gov.nih.nci.FunctionalSmokeTest" name="verifyBrowseCaNanoLabSectionContent"/>
+  <testcase time="21.858" classname="gov.nih.nci.FunctionalSmokeTest" name="SamplesSearchByKeyword"/>
+</testsuite>
