@@ -26,9 +26,6 @@ public class TestSearchDatabase {
 	public static String HostName = "https://www.icrpartnership-test.org/";
 
 	public static String seleniumUrl = HostName + "";
-
-	public static String ManagerUserName = "manager@icrpartnership.org";
-	public static String ManagerPassword = "ICRPManager!23";
 		
 	//Organization Information Form
 	public static String Organizations_Name = "Leidos";            //Required
@@ -76,7 +73,7 @@ public class TestSearchDatabase {
 				logger.info("---------------Begin Test case: " + testName + "--------------");
 				Test.setupBeforeSuite(seleniumBrowser , seleniumUrl, testName, testDesc);
 				Test.launchSite();
-				Test.login(ManagerUserName, ManagerPassword, "pass");
+				Test.Login_enter_manager_cred_from_json();
 				//Verify Welcome ICRP Partner Page
 				Test.verifyLogin(By.cssSelector("html.js body.user-logged-in.path-frontpage.page-node-type-page.has-glyphicons div.main-container.container.js-quickedit-main-content div.row div.col-sm-12 div.region.region-header nav.navbar.navbar-inverse div.container-fluid div#manager-navbar-collapse.collapse.navbar-collapse ul.nav.navbar-nav.navbar-right li.dropdown a.dropdown-toggle"));
 				Test.expected_vs_actual_verification("Welcome ICRP Partner");

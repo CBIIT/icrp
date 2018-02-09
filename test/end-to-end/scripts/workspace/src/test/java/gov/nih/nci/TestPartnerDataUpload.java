@@ -27,8 +27,6 @@ public class TestPartnerDataUpload {
 
 	public static String seleniumUrl = HostName + "";
 
-	public static String ManagerUserName = "manager@icrpartnership.org";
-	public static String ManagerPassword = "ICRPManager!23";
 		
 	//Organization Information Form
 	public static String Organizations_Name = "Leidos";            //Required
@@ -74,7 +72,7 @@ public class TestPartnerDataUpload {
 				logger.info("---------------Begin Test case: " + testName + "--------------");
 				Test.setupBeforeSuite(seleniumBrowser , seleniumUrl, testName, testDesc);
 				Test.launchSite();
-				Test.login(ManagerUserName, ManagerPassword, "pass");
+				Test.Login_enter_manager_cred_from_json();
 				//Verify First Login Page
 				Test.verifyLogin(By.cssSelector("#manager-navbar-collapse > ul.nav.navbar-nav.navbar-right > li > a"));
 				Test.expected_vs_actual_verification("ICRP Partner");
@@ -286,7 +284,7 @@ public class TestPartnerDataUpload {
 				logger.info("---------------Begin Test case: " + testName + "--------------");
 				Test.setupBeforeSuite(seleniumBrowser , seleniumUrl, testName, testDesc);
 				Test.launchSite();
-				Test.login(ManagerUserName, ManagerPassword, "pass");
+				Test.Login_enter_manager_cred_from_json();
 				//Verify First Login Page
 				Test.verifyLogin(By.cssSelector("#manager-navbar-collapse > ul.nav.navbar-nav.navbar-right > li > a"));
 				Test.expected_vs_actual_verification("ICRP Partner");
