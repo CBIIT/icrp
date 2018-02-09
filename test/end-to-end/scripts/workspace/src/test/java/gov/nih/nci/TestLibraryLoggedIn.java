@@ -27,6 +27,15 @@ public class TestLibraryLoggedIn {
 	public static String HostName = "https://www.icrpartnership-test.org/";
 
 	public static String seleniumUrl = HostName + "";
+
+	public static String ManagerUserName = "manager@icrpartnership.org";
+	public static String ManagerPassword = "ICRPManager!23";
+	public static String PartnerUserName = "partner@icrpartnership.org";
+	public static String PartnerPassword = "ICRPPartner!23";
+	public static String Partner2UserName = "tin.tran@nih.gov";
+	public static String Partner2Password = "Leidos@1";
+		
+	
 	
 	//Organization Information Form
 	public static String Organizations_Name = "Leidos";            //Required
@@ -81,7 +90,7 @@ public class TestLibraryLoggedIn {
 				logger.info("---------------Begin Test case: " + testName + "--------------");
 				Test.setupBeforeSuite(seleniumBrowser , seleniumUrl, testName, testDesc);
 				Test.launchSite();
-				Test.Login_enter_manager_cred_from_json();
+				Test.login(ManagerUserName, ManagerPassword, "pass");
 				//Verify Welcome ICRP Partner Page
 				Test.verifyLogin(By.cssSelector("#manager-navbar-collapse > ul.nav.navbar-nav.navbar-right > li > a"));
 				Test.expected_vs_actual_verification("Welcome ICRP Partner");
@@ -141,7 +150,7 @@ public class TestLibraryLoggedIn {
 				logger.info("---------------Begin Test case: " + testName + "--------------");
 				Test.setupBeforeSuite(seleniumBrowser , seleniumUrl, testName, testDesc);
 				Test.launchSite();
-				Test.Login_enter_manager_cred_from_json();
+				Test.login(ManagerUserName, ManagerPassword, "pass");
 				//Verify Welcome ICRP Partner Page
 				Test.verifyLogin(By.cssSelector("#manager-navbar-collapse > ul.nav.navbar-nav.navbar-right > li > a"));
 				Test.expected_vs_actual_verification("Welcome ICRP Partner");
@@ -217,7 +226,7 @@ public class TestLibraryLoggedIn {
 				logger.info("---------------Begin Test case: " + testName + "--------------");
 				Test.setupBeforeSuite(seleniumBrowser , seleniumUrl, testName, testDesc);
 				Test.launchSite();
-				Test.Login_enter_Partner1_cred_from_json();
+				Test.login(PartnerUserName, PartnerPassword, "pass");
 				//Verify Welcome ICRP Partner Page
 				Test.expected_vs_actual_verification("Welcome ICRP Partner");
 				logger.info("Logged Into Partner Page");
@@ -254,7 +263,7 @@ public class TestLibraryLoggedIn {
 				logger.info("---------------Begin Test case: " + testName + "--------------");
 				Test.setupBeforeSuite(seleniumBrowser , seleniumUrl, testName, testDesc);
 				Test.launchSite();
-				Test.Login_enter_Partner1_cred_from_json();
+				Test.login(PartnerUserName, PartnerPassword, "pass");
 				//Verify Welcome ICRP Partner Page
 				Test.expected_vs_actual_verification("Welcome ICRP Partner");
 				logger.info("Logged Into Partner Page");

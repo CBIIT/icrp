@@ -26,6 +26,9 @@ public class TestCSO {
 	public static String HostName = "https://www.icrpartnership-test.org/";
 
 	public static String seleniumUrl = HostName + "";
+
+	public static String ManagerUserName = "manager@icrpartnership.org";
+	public static String ManagerPassword = "ICRPManager!23";
 		
 	//Organization Information Form
 	public static String Organizations_Name = "Leidos";            //Required

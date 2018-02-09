@@ -27,6 +27,8 @@ public class TestNavigation {
 
 	public static String seleniumUrl = HostName + "";
 
+	public static String ManagerUserName = "manager@icrpartnership.org";
+	public static String ManagerPassword = "ICRPManager!23";
 		
 	//Organization Information Form
 	public static String Organizations_Name = "Leidos";            //Required
@@ -164,7 +166,7 @@ public class TestNavigation {
 				logger.info("---------------Begin Test case: " + testName + "--------------");
 				Test.setupBeforeSuite(seleniumBrowser , seleniumUrl, testName, testDesc);
 				Test.launchSite();
-				Test.Login_enter_manager_cred_from_json();
+				Test.login(ManagerUserName, ManagerPassword, "pass");
 				//Verify First Login Page
 				Test.verifyLogin(By.cssSelector("#manager-navbar-collapse > ul.nav.navbar-nav.navbar-right > li > a"));
 				Test.expected_vs_actual_verification("ICRP Partner");
@@ -287,7 +289,7 @@ public class TestNavigation {
 				logger.info("---------------Begin Test case: " + testName + "--------------");
 				Test.setupBeforeSuite(seleniumBrowser , seleniumUrl, testName, testDesc);
 				Test.launchSite();
-				Test.Login_enter_manager_cred_from_json();
+				Test.login(ManagerUserName, ManagerPassword, "pass");
 				//Verify First Login Page
 				Test.verifyLogin(By.cssSelector("#manager-navbar-collapse > ul.nav.navbar-nav.navbar-right > li > a"));
 				Test.expected_vs_actual_verification("ICRP Partner");

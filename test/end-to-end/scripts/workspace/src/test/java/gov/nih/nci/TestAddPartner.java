@@ -33,6 +33,8 @@ public class TestAddPartner {
 
 	public static String seleniumUrl = HostName + "";
 
+	public static String ManagerUserName = "manager@icrpartnership.org";
+	public static String ManagerPassword = "ICRPManager!23";
 		
 	//Organization Information Form
 	public static String Organizations_Name = "Leidos";            //Required
@@ -83,7 +85,7 @@ public class TestAddPartner {
 				logger.info("---------------Begin Test case: " + testName + "--------------");
 				Test.setupBeforeSuite(seleniumBrowser , seleniumUrl, testName, testDesc);
 				Test.launchSite();
-				Test.Login_enter_manager_cred_from_json();
+				Test.login(ManagerUserName, ManagerPassword, "pass");
 				//Verify Welcome ICRP Partner Page
 				Test.verifyLogin(By.cssSelector("html.js body.user-logged-in.path-frontpage.page-node-type-page.has-glyphicons div.main-container.container.js-quickedit-main-content div.row div.col-sm-12 div.region.region-header nav.navbar.navbar-inverse div.container-fluid div#manager-navbar-collapse.collapse.navbar-collapse ul.nav.navbar-nav.navbar-right li.dropdown a.dropdown-toggle"));
 				Test.expected_vs_actual_verification("Welcome ICRP Partner");
@@ -120,9 +122,9 @@ public class TestAddPartner {
 				
 				//Fill Add Partner Form
 				Test.form_fill_add_partner_info(Sponsor_Code,Website,Map_Coordinates,Longitude,Note);
-				Test.clickLink(By.cssSelector("#partner-terms-and-conditions > div:nth-child(1) > label:nth-child(1) > input:nth-child(1)")); //Agreed to Terms and Conditions
+				Test.clickLink(By.cssSelector("div.no-margin:nth-child(7) > div:nth-child(1) > label:nth-child(1) > input:nth-child(1)")); //Agreed to Terms and Conditions
 				Test.wait_For(1000);
-				Test.clickLink(By.cssSelector("#partner-funding-organization > div:nth-child(1) > div:nth-child(1) > label:nth-child(1) > input:nth-child(1)"));  //Add as a Partner Funding Organization
+				Test.clickLink(By.cssSelector("html.js body.user-logged-in.path-addpartner.has-glyphicons div.main-container.container.js-quickedit-main-content div.row section.col-sm-12 div.region.region-content div#add-partner div div div.container div div.no-margin.form-group.form-group-sm.has-feedback div.flex-inline div.checkbox label input"));  //Add as a Partner Funding Organization
 				Test.wait_For(1000);
 				Test.choose_logo_file_upload();
 				Test.wait_For(1000);
@@ -151,7 +153,7 @@ public class TestAddPartner {
 				
 				//Verify Partner Added to List
 			
-				//Test.verify_Partner_added_to_List();
+				Test.verify_Partner_added_to_List();
 				
 				
 				

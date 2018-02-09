@@ -43,13 +43,10 @@ import java.util.UUID;
 
 //import autoitx4java.*;
 
-import org.apache.commons.io.IOUtils;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONArray;
-//import org.json.simple.parser.JSONParser;
+
+
+
+
 
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -117,79 +114,9 @@ public class BaseMethods extends BaseTestMethods{
 		}
 		
 		
-		//Retrieve login credentials from external JSON file.
-		
-	    public static JSONObject parseJSONFile(String filename) throws JSONException, Exception {
-		        String content = new String(Files.readAllBytes(Paths.get(filename)));
-		        return new JSONObject(content);
-		    }
 		
 		
-		public void Login_enter_manager_cred_from_json() throws Exception, JSONException {
-			
-			click(By.cssSelector("#block-anonymoususermenu > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > a:nth-child(1)"));
-			wait_For(2000);
-	        // String filename = "C://My Frameworks//WebDriver//Application//ICRP//Credentials//credentials.json";
-			String filename = "/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/credentials.json";
-	        JSONObject jsonObject = parseJSONFile(filename);
-	        
-	        String managername = (String) jsonObject.get("manager_name");
-	        String managerpassword = (String) jsonObject.get("manager_password");
-	        
-	        enter(By.name("name"), managername);
-	        wait_For(1000);
-	        logger.info("Manager Name Entered");
-	        enter(By.name("pass"), managerpassword);
-	        wait_For(1000);
-	        logger.info("Manager Password Entered");
-	        click(By.cssSelector("#edit-submit"));
-	        wait_For(1000);
-	        logger.info("Login Button Clicked");
-	        }
 		
-		public void Login_enter_Partner1_cred_from_json() throws Exception, JSONException {
-			
-			click(By.cssSelector("#block-anonymoususermenu > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > a:nth-child(1)"));
-			wait_For(2000);
-	        // String filename = "C://My Frameworks//WebDriver//Application//ICRP//Credentials//credentials.json";
-			String filename = "/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/credentials.json";
-	        JSONObject jsonObject = parseJSONFile(filename);
-	        
-	        String partner1name = (String) jsonObject.get("partner1_name");
-	        String partner1password = (String) jsonObject.get("partner1_password");
-	        
-	        enter(By.name("name"), partner1name);
-	        wait_For(1000);
-	        logger.info("Manager Name Entered");
-	        enter(By.name("pass"), partner1password);
-	        wait_For(1000);
-	        logger.info("Manager Password Entered");
-	        click(By.cssSelector("#edit-submit"));
-	        wait_For(1000);
-	        logger.info("Login Button Clicked");
-	        }
-		
-		public void Login_enter_Partner2_cred_from_json() throws Exception, JSONException {
-			
-			click(By.cssSelector("#block-anonymoususermenu > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > a:nth-child(1)"));
-			wait_For(2000);
-	        // String filename = "C://My Frameworks//WebDriver//Application//ICRP//Credentials//credentials.json";
-			String filename = "/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/credentials.json";
-	        JSONObject jsonObject = parseJSONFile(filename);
-	        
-	        String partner2name = (String) jsonObject.get("partner2_name");
-	        String partner2password = (String) jsonObject.get("partner2_password");
-	        
-	        enter(By.name("name"), partner2name);
-	        wait_For(1000);
-	        logger.info("Manager Name Entered");
-	        enter(By.name("pass"), partner2password);
-	        wait_For(1000);
-	        logger.info("Manager Password Entered");
-	        click(By.cssSelector("#edit-submit"));
-	        wait_For(1000);
-	        logger.info("Login Button Clicked");
-	        }
 		
 		public void verifyLink(By by, String expectedPage) throws TestExecutionException{
 			click(by);
@@ -282,10 +209,10 @@ public class BaseMethods extends BaseTestMethods{
 				}
 				}else {
 					logger.info("Unable to find Link: ["+ gLinkVal +"] on the current page. Clicking Next");
-					boolean boolNLink1 = isDisplayed(By.linkText("Â»"));
-					boolean boolNLink2 = isEnabled(By.linkText("Â»"));
+					boolean boolNLink1 = isDisplayed(By.linkText("Ã‚Â»"));
+					boolean boolNLink2 = isEnabled(By.linkText("Ã‚Â»"));
 					if (boolNLink1 == true && boolNLink2 == true){
-					    click(By.linkText("Â»"));
+					    click(By.linkText("Ã‚Â»"));
 					    int pageLinkNm = i+1;
 					    logger.info("Displaying result page number: ["+ pageLinkNm +"]");
 					}else {
@@ -1194,8 +1121,8 @@ public class BaseMethods extends BaseTestMethods{
 		
 		//enter(By.id("partner-sponsor-code"),Sponsor_Code);
 		//enter(By.id("partner-website"),Website);  
-		enter(By.cssSelector("div.margin-bottom:nth-child(6) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > input:nth-child(1)"),Map_Coordinates);
-		enter(By.cssSelector("div.form-group-sm:nth-child(2) > div:nth-child(1) > input:nth-child(1)"),Longitude);
+		enter(By.cssSelector("div.margin-bottom:nth-child(5) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > input:nth-child(1)"),Map_Coordinates);
+		enter(By.cssSelector("#add-partner > div > div > div:nth-child(3) > div.margin-bottom.row > div:nth-child(1) > div.row > div:nth-child(2) > div > input"),Longitude);
 		enter(By.id("partner-note"),Note);
 		wait_For(2000);
 	}
@@ -1273,11 +1200,10 @@ public class BaseMethods extends BaseTestMethods{
 		//final String randomEmail =  randomEmail();
 		
 		final String randomSponsorCode = "9999" + new SimpleDateFormat("dd.HH.mm.ss").format(new Date());
-		WebElement sponsorcode = selenium.findElement(By.id("partner-sponsor-code"));
-		sponsorcode.sendKeys(randomSponsorCode);
+		WebElement email = selenium.findElement(By.id("partner-sponsor-code"));
+		email.sendKeys(randomSponsorCode);
 		wait_For(3000);
-		logger.info("Sponsor Code Entered");
-		String randomSponsorCodeEntered = getText(By.cssSelector("#partner-sponsor-code"));
+		String randomEmailEntered = getText(By.cssSelector("#partner-sponsor-code"));
 		
 		
 	}
@@ -6128,11 +6054,11 @@ public class BaseMethods extends BaseTestMethods{
 						logger.info("Unable to find match with the expected value: ["+ getContainsSampleName +"]");
 					    int pageLinkNm = r;
 					    int gNextPage = pageLinkNm + 1;
-						boolean boolNLink1 = isDisplayed(By.xpath("//a[contains(text(),'ï¿½')]"));
-						boolean boolNLink2 = isEnabled(By.xpath("//a[contains(text(),'ï¿½')]"));
+						boolean boolNLink1 = isDisplayed(By.xpath("//a[contains(text(),'Ã¯Â¿Â½')]"));
+						boolean boolNLink2 = isEnabled(By.xpath("//a[contains(text(),'Ã¯Â¿Â½')]"));
 						boolean boolNLink3 = verifyElementIsTrueOrFalse(By.xpath("//a[contains(text(),'"+gNextPage+"')]"));
 						if (boolNLink1 == true && boolNLink2 == true && boolNLink3 == true){
-						    click(By.xpath("//a[contains(text(),'ï¿½')]"));
+						    click(By.xpath("//a[contains(text(),'Ã¯Â¿Â½')]"));
 						    try {
 								_wait(3000);
 							} catch (Exception e) {
@@ -6177,11 +6103,11 @@ public class BaseMethods extends BaseTestMethods{
 						logger.info("Unable to find match with the expected value: ["+ getContainsSampleName +"]");
 					    int pageLinkNm = r;
 					    int gNextPage = pageLinkNm + 1;					    
-						boolean boolNLink1 = isDisplayed(By.xpath("//a[contains(text(),'ï¿½')]"));
-						boolean boolNLink2 = isEnabled(By.xpath("//a[contains(text(),'ï¿½')]"));
+						boolean boolNLink1 = isDisplayed(By.xpath("//a[contains(text(),'Ã¯Â¿Â½')]"));
+						boolean boolNLink2 = isEnabled(By.xpath("//a[contains(text(),'Ã¯Â¿Â½')]"));
 						//boolean boolNLink3 = verifyElementIsTrueOrFalse(By.xpath("//a[contains(text(),'"+gNextPage+"')]"));
 						if (boolNLink1 == true && boolNLink2 == true){
-						    click(By.xpath("//a[contains(text(),'ï¿½')]"));
+						    click(By.xpath("//a[contains(text(),'Ã¯Â¿Â½')]"));
 						    try {
 								_wait(3000);
 							} catch (Exception e) {
@@ -10504,7 +10430,7 @@ public class BaseMethods extends BaseTestMethods{
 			}
 			
 			enter(By.id("publicationForm.keywordsStr"), "QA\nTest\nValidation\nPublication");
-			enter(By.id("publicationForm.description"), "PubMed does not include the full text of journal articles; however, click the icon in the top right corner of the abstract display to link to the full text, if available.\n\nIn addition, the abstract display may include a LinkOut â€“ more resources link located at the bottom of the display, with additional full text sources.\n\nAdditional tips for obtaining articles.\n\nSection Contents\n\n    Many articles are available for free.\n    If you are a physician, researcher, or health professional, utilize your affiliation with a medical library or institution.\n    If you are a member of the general public or not affiliated with a medical library or institution, try finding free copies, check with your local library, or go directly to the publisher.");
+			enter(By.id("publicationForm.description"), "PubMed does not include the full text of journal articles; however, click the icon in the top right corner of the abstract display to link to the full text, if available.\n\nIn addition, the abstract display may include a LinkOut Ã¢â‚¬â€œ more resources link located at the bottom of the display, with additional full text sources.\n\nAdditional tips for obtaining articles.\n\nSection Contents\n\n    Many articles are available for free.\n    If you are a physician, researcher, or health professional, utilize your affiliation with a medical library or institution.\n    If you are a member of the general public or not affiliated with a medical library or institution, try finding free copies, check with your local library, or go directly to the publisher.");
 			click(By.id("external1"));
 			enter(By.id("externalUrl"), "http://www.ncbi.nlm.nih.gov/pubmed");
 			click(By.cssSelector(".invisibleTable>tbody>tr>td>a>img"));
@@ -11431,49 +11357,43 @@ public class BaseMethods extends BaseTestMethods{
 		 */
 		
 		public void choose_library_file_upload() throws TestExecutionException {
-			// selenium.findElement(By.name("upload")).sendKeys("C:\\My Frameworks\\WebDriver\\Application\\ICRP\\UploadFile\\Upload.pdf");
-			selenium.findElement(By.name("upload")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/test/end-to-end/scripts/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Upload.pdf");
+			selenium.findElement(By.name("upload")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Upload.pdf");
 			//selenium.findElement(By.name("upload")).sendKeys("/local/content/jenkins/8080/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Upload.pdf");
 		}
 			
 		public void choose_library_image_upload() throws TestExecutionException {
-			// selenium.findElement(By.name("thumbnail")).sendKeys("C:\\My Frameworks\\WebDriver\\Application\\ICRP\\UploadFile\\image.jpg");
-			selenium.findElement(By.name("thumbnail")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/test/end-to-end/scripts/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
+			selenium.findElement(By.name("thumbnail")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
 			//selenium.findElement(By.name("thumbnail")).sendKeys("/local/content/jenkins/8080/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
 		}
 		
 		public void choose_statement_upload() throws TestExecutionException {
-			// selenium.findElement(By.name("files[statement_of_willingness]")).sendKeys("C:\\My Frameworks\\WebDriver\\Application\\ICRP\\UploadFile\\Letter1.txt");
-			selenium.findElement(By.name("files[statement_of_willingness]")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/test/end-to-end/scripts/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Letter1.txt");
+			selenium.findElement(By.name("files[statement_of_willingness]")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Letter1.txt");
+			//selenium.findElement(By.name("files[statement_of_willingness]")).sendKeys("/local/content/jenkins/8080/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Letter1.txt");
 		}
 		
 		public void choose_data_upload() throws TestExecutionException {
-			// selenium.findElement(By.name("fileId")).sendKeys("C:\\My Frameworks\\WebDriver\\Application\\ICRP\\UploadFile\\Automation Partner Upload File - Pos.csv");
-			selenium.findElement(By.name("fileId")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/test/end-to-end/scripts/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Automation Partner Upload File - Pos.csv");
+			selenium.findElement(By.name("fileId")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Automation Partner Upload File - Pos.csv");
+			//selenium.findElement(By.name("files[statement_of_willingness]")).sendKeys("/local/content/jenkins/8080/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Letter1.txt");
 		}
 		
 		public void choose_bad_data_upload() throws TestExecutionException {
-			// selenium.findElement(By.name("fileId")).sendKeys("C:\\My Frameworks\\WebDriver\\Application\\ICRP\\UploadFile\\Automation Partner Upload File - Pos2.csv");
-			selenium.findElement(By.name("fileId")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/test/end-to-end/scripts/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Automation Partner Upload File - Pos2.csv");
-			
+			selenium.findElement(By.name("fileId")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Automation Partner Upload File - Pos2.csv");
+			//selenium.findElement(By.name("files[statement_of_willingness]")).sendKeys("/local/content/jenkins/8080/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Letter1.txt");
 		}
 		
 		public void choose_image_upload() throws TestExecutionException {
-			// selenium.findElement(By.name("files[fid]")).sendKeys("C:\\My Frameworks\\WebDriver\\Application\\ICRP\\UploadFile\\image.jpg");
-			selenium.findElement(By.name("files[fid]")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/test/end-to-end/scripts/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
+			selenium.findElement(By.name("files[fid]")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
 			//selenium.findElement(By.name("files[fid]")).sendKeys("/local/content/jenkins/8080/jobs//ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
 		}
 		
 		
 		public void choose_peer_review_upload() throws TestExecutionException {
-			// selenium.findElement(By.name("files[peer_review_process]")).sendKeys("C:\\My Frameworks\\WebDriver\\Application\\ICRP\\UploadFile\\Letter2.txt");
-			selenium.findElement(By.name("files[peer_review_process]")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/test/end-to-end/scripts/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Letter2.txt");
+			selenium.findElement(By.name("files[peer_review_process]")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Letter2.txt");
 			//selenium.findElement(By.name("files[peer_review_process]")).sendKeys("/local/content/jenkins/8080//jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Letter2.txt");
 		}
 		
 		public void choose_logo_file_upload() throws TestExecutionException {
-			// selenium.findElement(By.name("logoFile")).sendKeys("C:\\My Frameworks\\WebDriver\\Application\\ICRP\\UploadFile\\image.jpg");
-			selenium.findElement(By.name("logoFile")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/test/end-to-end/scripts/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
+			selenium.findElement(By.name("logoFile")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
 			//selenium.findElement(By.name("logo-file")).sendKeys("/local/content/jenkins/8080/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
 		}
 		
