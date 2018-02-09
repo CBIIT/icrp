@@ -26,9 +26,6 @@ public class TestForumAddThread {
 	public static String HostName = "https://www.icrpartnership-test.org/";
 
 	public static String seleniumUrl = HostName + "";
-
-	public static String ManagerUserName = "manager@icrpartnership.org";
-	public static String ManagerPassword = "ICRPManager!23";
 		
 	//Organization Information Form
 	public static String Organizations_Name = "Leidos";            //Required
@@ -82,7 +79,7 @@ public class TestForumAddThread {
 			logger.info("---------------Begin Test case: " + testName + "--------------");
 			Test.setupBeforeSuite(seleniumBrowser , seleniumUrl, testName, testDesc);
 			Test.launchSite();
-			Test.login(ManagerUserName, ManagerPassword, "pass");
+			Test.Login_enter_manager_cred_from_json();
 			//Verify Welcome ICRP Partner Page
 			Test.verifyLogin(By.cssSelector("#manager-navbar-collapse > ul.nav.navbar-nav.navbar-right > li > a"));
 			Test.expected_vs_actual_verification("Welcome ICRP Partner");
@@ -182,7 +179,7 @@ public class TestForumAddThread {
 			logger.info("---------------Begin Test case: " + testName + "--------------");
 			Test.setupBeforeSuite(seleniumBrowser , seleniumUrl, testName, testDesc);
 			Test.launchSite();
-			Test.login(ManagerUserName, ManagerPassword, "pass");
+			Test.Login_enter_manager_cred_from_json();
 			//Verify Welcome ICRP Partner Page
 			Test.verifyLogin(By.cssSelector("#manager-navbar-collapse > ul.nav.navbar-nav.navbar-right > li > a"));
 			Test.expected_vs_actual_verification("Welcome ICRP Partner");
@@ -278,7 +275,7 @@ public class TestForumAddThread {
 			logger.info("---------------Begin Test case: " + testName + "--------------");
 			Test.setupBeforeSuite(seleniumBrowser , seleniumUrl, testName, testDesc);
 			Test.launchSite();
-			Test.login(ManagerUserName, ManagerPassword, "pass");
+			Test.Login_enter_manager_cred_from_json();
 			//Verify Welcome ICRP Partner Page
 			Test.verifyLogin(By.cssSelector("#manager-navbar-collapse > ul.nav.navbar-nav.navbar-right > li > a"));
 			Test.expected_vs_actual_verification("Welcome ICRP Partner");
@@ -394,7 +391,7 @@ public class TestForumAddThread {
 			logger.info("---------------Begin Test case: " + testName + "--------------");
 			Test.setupBeforeSuite(seleniumBrowser , seleniumUrl, testName, testDesc);
 			Test.launchSite();
-			Test.login(ManagerUserName, ManagerPassword, "pass");
+			Test.Login_enter_manager_cred_from_json();
 			//Verify Welcome ICRP Partner Page
 			Test.verifyLogin(By.cssSelector("#manager-navbar-collapse > ul.nav.navbar-nav.navbar-right > li > a"));
 			Test.expected_vs_actual_verification("Welcome ICRP Partner");
@@ -495,9 +492,6 @@ public class TestForumAddThread {
 			Test.setupAfterSuite();		
 		}
 	}
-	
-	
-	
 	
 	
 	@After
