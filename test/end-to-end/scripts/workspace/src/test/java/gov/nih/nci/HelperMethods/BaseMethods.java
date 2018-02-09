@@ -11357,43 +11357,43 @@ public class BaseMethods extends BaseTestMethods{
 		 */
 		
 		public void choose_library_file_upload() throws TestExecutionException {
-			selenium.findElement(By.name("upload")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Upload.pdf");
+			selenium.findElement(By.name("upload")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Upload.pdf");
 			//selenium.findElement(By.name("upload")).sendKeys("/local/content/jenkins/8080/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Upload.pdf");
 		}
 			
 		public void choose_library_image_upload() throws TestExecutionException {
-			selenium.findElement(By.name("thumbnail")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
+			selenium.findElement(By.name("thumbnail")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
 			//selenium.findElement(By.name("thumbnail")).sendKeys("/local/content/jenkins/8080/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
 		}
 		
 		public void choose_statement_upload() throws TestExecutionException {
-			selenium.findElement(By.name("files[statement_of_willingness]")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Letter1.txt");
+			selenium.findElement(By.name("files[statement_of_willingness]")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Letter1.txt");
 			//selenium.findElement(By.name("files[statement_of_willingness]")).sendKeys("/local/content/jenkins/8080/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Letter1.txt");
 		}
 		
 		public void choose_data_upload() throws TestExecutionException {
-			selenium.findElement(By.name("fileId")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Automation Partner Upload File - Pos.csv");
+			selenium.findElement(By.name("fileId")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Automation Partner Upload File - Pos.csv");
 			//selenium.findElement(By.name("files[statement_of_willingness]")).sendKeys("/local/content/jenkins/8080/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Letter1.txt");
 		}
 		
 		public void choose_bad_data_upload() throws TestExecutionException {
-			selenium.findElement(By.name("fileId")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Automation Partner Upload File - Pos2.csv");
+			selenium.findElement(By.name("fileId")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Automation Partner Upload File - Pos2.csv");
 			//selenium.findElement(By.name("files[statement_of_willingness]")).sendKeys("/local/content/jenkins/8080/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Letter1.txt");
 		}
 		
 		public void choose_image_upload() throws TestExecutionException {
-			selenium.findElement(By.name("files[fid]")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
+			selenium.findElement(By.name("files[fid]")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
 			//selenium.findElement(By.name("files[fid]")).sendKeys("/local/content/jenkins/8080/jobs//ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
 		}
 		
 		
 		public void choose_peer_review_upload() throws TestExecutionException {
-			selenium.findElement(By.name("files[peer_review_process]")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Letter2.txt");
+			selenium.findElement(By.name("files[peer_review_process]")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Letter2.txt");
 			//selenium.findElement(By.name("files[peer_review_process]")).sendKeys("/local/content/jenkins/8080//jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/Letter2.txt");
 		}
 		
 		public void choose_logo_file_upload() throws TestExecutionException {
-			selenium.findElement(By.name("logoFile")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
+			selenium.findElement(By.name("logoFile")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
 			//selenium.findElement(By.name("logo-file")).sendKeys("/local/content/jenkins/8080/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
 		}
 		
