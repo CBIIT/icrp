@@ -4879,10 +4879,10 @@ WHERE dataUploadStatusID = @DataUploadStatusID_stage
 
 UPDATE DataUploadLog SET ProjectFundingCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
--- Insert ProjectFundingInvestigatorCount Count
+-- Insert ProjectFundingInvestigatorCount Count (only pi)
 SELECT @Count=COUNT(*) FROM ProjectFundingInvestigator pi
 JOIN ProjectFunding f ON pi.ProjectFundingID = f.ProjectFundingID
-WHERE f.dataUploadStatusID = @DataUploadStatusID_stage
+WHERE pi.IsPrincipalInvestigator = 1 AND  f.dataUploadStatusID = @DataUploadStatusID_stage
 
 UPDATE DataUploadLog SET ProjectFundingInvestigatorCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
@@ -5408,10 +5408,10 @@ WHERE dataUploadStatusID = @DataUploadStatusID_stage
 
 UPDATE DataUploadLog SET ProjectFundingCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
--- Insert ProjectFundingInvestigatorCount Count
+-- Insert ProjectFundingInvestigatorCount Count (only pi)
 SELECT @Count=COUNT(*) FROM ProjectFundingInvestigator pi
 JOIN ProjectFunding f ON pi.ProjectFundingID = f.ProjectFundingID
-WHERE f.dataUploadStatusID = @DataUploadStatusID_stage
+WHERE pi.IsPrincipalInvestigator = 1 AND  f.dataUploadStatusID = @DataUploadStatusID_stage
 
 UPDATE DataUploadLog SET ProjectFundingInvestigatorCount = @Count WHERE DataUploadLogID = @DataUploadLogID
 
