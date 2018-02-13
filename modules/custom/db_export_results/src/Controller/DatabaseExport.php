@@ -340,11 +340,7 @@ class DatabaseExport {
    * Ensure that the output directory exists
    */
   function __construct() {
-    // get the relative path of this module
-    $module_path = drupal_get_path('module', 'db_export_results');
-
-    // set the output directory
-    $this->output_directory = join('/', [$module_path, 'output']);
+    $this->output_directory = \Drupal::config('exports')->get('search') ?? 'data/exports/search';
 
     // create the output directory if it does not exist
     if (!file_exists($this->output_directory)) {
