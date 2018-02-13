@@ -405,7 +405,7 @@ public class TestNavigation {
 				//Test.GoToNewTabWindow();
 				Test.wait_For(3000);
 				//Test.verifyUrl("https://twitter.com/icrpartners1"); //https://twitter.com/icrpartners1?ref_src=twsrc%5Etfw
-				/Test.verifyUrl("https://twitter.com/icrpartners1?ref_src=twsrc%5Etfw");
+				Test.verifyUrl("https://twitter.com/icrpartners1?ref_src=twsrc%5Etfw");
 				Test.wait_For(2000);
 				Test.switchToParentBrowser();
 				//Test.GoToPreviousTabWindow();
