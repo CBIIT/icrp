@@ -19,13 +19,6 @@ use Drupal\data_load\Services\MSSQL\DataUpload;
 
 class DataUploadController extends ControllerBase {
 
-  function __construct() {
-    foreach(['./uploads', './output'] as $folder)
-      if (!file_exists($folder))
-        mkdir($folder, 0744);
-  }
-
-
   /**
    * Creates a JSON response with CORS headers from the given data
    *
@@ -64,9 +57,12 @@ class DataUploadController extends ControllerBase {
   public static function loadProjects(Request $request): JSONResponse {
     $parameters = $request->request->all();
     $connection = PDOBuilder::getConnection('icrp_load_database');
-    $directory = drupal_get_path('module', 'data_load') . '/uploads';
-    $file = $request->files->get('file')->move($directory, uniqid() . '.csv');
+    $uploadsFolder = \Drupal::config('exports')->get('data_load') ?? 'data/uploads/data_load';
 
+    if (!file_exists($uploadsFolder))
+      mkdir($uploadsFolder, 0744, true);
+
+    $file = $request->files->get('file')->move($uploadsFolder, uniqid() . '.csv');
     $data = DataUpload::loadProjects($connection, $parameters, $file->getRealPath());
     return self::createResponse($data);
   }

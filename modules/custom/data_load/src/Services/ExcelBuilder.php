@@ -8,7 +8,14 @@ use Box\Spout\Writer\Style\StyleBuilder;
 
 class ExcelBuilder {
   public static function create(string $filename, array $sheets = null) {
-    $filePath = drupal_get_path('module', 'data_load') . "/output/$filename";
+
+    $exportsFolder = \Drupal::config('exports')->get('data_load') ?? 'data/exports/data_load';
+
+    if (!file_exists($exportsFolder))
+      mkdir($exportsFolder, 0744, true);
+
+    $filePath = "$exportsFolder/$filename";
+
     if ($sheets) {
       $writer = WriterFactory::create(Type::XLSX);
       $writer->openToFile($filePath);
