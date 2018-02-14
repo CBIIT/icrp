@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 public class TestForumAddThread {
 	static BaseMethods Test = new BaseMethods();
 	private static Logger logger=Logger.getLogger("TestSuite");
-	public static String seleniumBrowser = "chrome";
+	public static String seleniumBrowser = "firefox";
 	public static String tier = "dev";
 
 	public static String HostName = "https://www.icrpartnership-test.org/";
@@ -437,12 +437,9 @@ public class TestForumAddThread {
 			//Test.GoToNewTabWindow();
 			Test.wait_For(1000);
 			Test.form_fill_insert_links_url(link_url);
-			logger.info("Entered URL");
 			Test.wait_For(1000);
 			
-			Test.clickLink(By.cssSelector(".modal-footer > button:nth-child(1)")); //#drupal-modal > div > div > div.modal-footer > button
-			
-			
+			Test.clickLink(By.cssSelector("#drupal-modal > div > div > div.modal-footer > button"));
 			
 			Test.switchToParentBrowser();
 			////Test.GoToPreviousTabWindow();

@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 public class TestNavigation {
 	static BaseMethods Test = new BaseMethods();
 	private static Logger logger=Logger.getLogger("TestSuite");
-	public static String seleniumBrowser = "chrome";
+	public static String seleniumBrowser = "firefox";
 	public static String tier = "dev";
 
 	public static String HostName = "https://www.icrpartnership-test.org/";
@@ -406,7 +406,7 @@ public class TestNavigation {
 				Test.wait_For(3000);
 				//Test.verifyUrl("https://twitter.com/icrpartners1"); //https://twitter.com/icrpartners1?ref_src=twsrc%5Etfw
 				Test.verifyUrl("https://twitter.com/icrpartners1?ref_src=twsrc%5Etfw");
-				Test.wait_For(5000);
+				Test.wait_For(2000);
 				Test.switchToParentBrowser();
 				//Test.GoToPreviousTabWindow();
 				

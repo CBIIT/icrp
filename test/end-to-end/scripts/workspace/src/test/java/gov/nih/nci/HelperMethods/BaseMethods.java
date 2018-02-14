@@ -1560,8 +1560,7 @@ public class BaseMethods extends BaseTestMethods{
 		
 		//enter(By.cssSelector("body > div.main-container.container.js-quickedit-main-content > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel.ng-tns-c9-2 > div.ui-panel-content.ng-trigger.ng-trigger-visibilityChanged > ui-select:nth-child(12) > div > div.select-input-container.default > div > input"),option);
     	enter(By.cssSelector("html.js body.user-logged-in.path-db-search.has-glyphicons div.main-container.container.js-quickedit-main-content div.row section.col-sm-12 div.region.region-content icrp-root div icrp-search-page div.row div.col-sm-3 icrp-search-form form.ng-untouched.ng-valid.ng-dirty ui-panel.ng-tns-c9-2 div.ui-panel-content.ng-trigger.ng-trigger-visibilityChanged ui-select.ng-untouched.ng-valid.ng-dirty div.select-container.default div.select-input-container.default div input.select-input.default"),option);
-		clickLink(By.cssSelector("body > div.main-container.container.js-quickedit-main-content > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-9 > icrp-search-summary-panel > icrp-summary-panel > div.title.clearfix > div > div > div > b:nth-child(1)"));
-    }
+	}
 	
     public void enter_award_code(String option) throws TestExecutionException {
 		
