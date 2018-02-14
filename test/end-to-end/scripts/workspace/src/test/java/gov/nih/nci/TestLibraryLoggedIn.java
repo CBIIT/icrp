@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
 public class TestLibraryLoggedIn {
 	static BaseMethods Test = new BaseMethods();
 	private static Logger logger=Logger.getLogger("TestSuite");
-	public static String seleniumBrowser = "firefox";
+	public static String seleniumBrowser = "chrome";
 	public static String tier = "dev";
 
 	public static String HostName = "https://www.icrpartnership-test.org/";

@@ -91,7 +91,7 @@ public class BaseTestMethods {
 			selenium = new FirefoxDriver();
 			
 		} else if (seleniumBrowser.equals("chrome")){
-			File file = new File("C:\\My Frameworks\\WebDriver\\Application\\BrowserSupport\\chromedriver.exe");
+			File file = new File("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/test/end-to-end/scripts/workspace/My Frameworks/WebDriver/Application/BrowserSupport/chromedriver.exe");
 			System.setProperty("webdriver.chrome.driver", file.getAbsolutePath());
 			selenium = new ChromeDriver();
 		}
