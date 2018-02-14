@@ -106,7 +106,8 @@ public class TestSearchDatabase {
 				Test.clickLink(By.cssSelector("body > div.main-container.container.js-quickedit-main-content > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel.ng-tns-c9-3 > div.ui-panel-header"));
 				logger.info("Funding Organizations clicked.");
 				Test.wait_For(2000);
-				Test.clickLink(By.cssSelector("div.multiselect:nth-child(5) > ui-treeview:nth-child(1) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(5) > div:nth-child(1) > label:nth-child(1) > input:nth-child(1)"));
+				//Test.clickLink(By.cssSelector("div.multiselect:nth-child(5) > ui-treeview:nth-child(1) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(5) > div:nth-child(1) > label:nth-child(1) > input:nth-child(1)"));
+				Test.clickLink(By.cssSelector("html.js body.user-logged-in.path-db-search.has-glyphicons div.main-container.container.js-quickedit-main-content div.row section.col-sm-12 div.region.region-content icrp-root div icrp-search-page.ng-star-inserted div.row div.col-sm-3 icrp-search-form form.ng-untouched.ng-valid.ng-dirty ui-panel.ng-tns-c9-3 div.ui-panel-content.ng-trigger.ng-trigger-visibilityChanged div.multiselect.ng-star-inserted ui-treeview.ng-untouched.ng-valid.ng-dirty div div div div div div div label input"));
 				Test.wait_For(5000);
 				logger.info("National Cancer Institute selected.");
 				
