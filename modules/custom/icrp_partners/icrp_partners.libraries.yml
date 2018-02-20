@@ -1,0 +1,7 @@
+content:
+  version: 0.0.1
+  css:
+    theme:
+      src/Assets/main.css: {}
+  js:
+    src/Assets/main.js: {}
