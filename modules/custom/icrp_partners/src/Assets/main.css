@@ -1,0 +1,25 @@
+@media(max-width: 768px) {
+    .nav-tabs > li {
+        display: block;
+        width: 100%;
+    }
+
+    .nav.nav-tabs {
+        margin-right: -2px;
+        border-bottom: none;
+    }
+
+    .tab-content {
+        border-top: 1px solid #dddddd;
+    }
+}
+
+.tab-content {
+    padding: 15px;
+    border: 1px solid #dddddd;
+    border-top: none;
+}
+
+.mr-5 {
+    margin-right: 5rem;
+}

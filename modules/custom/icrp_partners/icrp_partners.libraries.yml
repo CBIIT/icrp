@@ -5,3 +5,4 @@ content:
       src/Assets/main.css: {}
   js:
     src/Assets/main.js: {}
+    src/Assets/partner-map.js: {}

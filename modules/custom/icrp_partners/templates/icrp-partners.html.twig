@@ -1,1 +1,231 @@
 <h1>ICRP Partners and Funding Organizations</h1>
+
+<p>
+    ICRP partners represent a wide range of governmental, public and non-profit cancer research funding organizations from across the world. Our membership includes organizations focused on one type of cancer through to health research organizations supporting
+    research into many cancer types.
+</p>
+
+<ul>
+    <li>
+        <b>Partners</b> are full members and provide nominated contact points for ICRP, and vote on any changes to strategic direction or policies.
+    </li>
+    <li>
+        <b>Associate members</b> are funding organizations who have joined ICRP as part of a consortium. They enjoy full access to the ICRP partner site, can participate in meetings, analyses and networking. Their data submissions are coordinated by the
+        nominated partner.
+    </li>
+</ul>
+
+<p>
+    Find out more about our partners using the map below.
+</p>
+
+
+<div class="visible-xs text-right form-group">
+    <a href="/partners/export" class="btn btn-default btn-sm">
+        <i class="fa fa-download"></i>
+        Export
+    </a>
+</div>
+
+
+<ul class="nav nav-tabs" id="partner-nav">
+    <li role="presentation" class="active">
+        <a href="#map" aria-controls="map" role="tab" data-toggle="tab">
+            Map
+        </a>
+    </li>
+
+    <li role="presentation">
+        <a href="#partners" aria-controls="partners" role="tab" data-toggle="tab">
+            List of Partners
+        </a>
+    </li>
+
+    <li role="presentation">
+        <a href="#funding-organizations" aria-controls="funding-organizations" role="tab" data-toggle="tab">
+            List of Funding Orgs
+        </a>
+    </li>
+
+    <li role="presentation" class="pull-right hidden-xs" style="margin: 0;">
+        <a href="/partners/export" class="btn btn-default btn-sm" style="margin-right: 0">
+            <i class="fa fa-download"></i>
+            Export
+        </a>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="map">
+
+        <h4>ICRP Partners and Associated Members</h4>
+
+        <div>
+            <b>Partner</b>
+            <select>
+                <option value="" hidden >Select a partner</option>
+            </select>
+
+            <input id="exclude-former" type="checkbox">
+            <label for="exclude-former">Exclude Former Partners and Members</label>
+        </div>
+
+
+        <div style="height: 600px" id="partner-map">
+        </div>
+    </div>
+
+
+    <div role="tabpanel" class="tab-pane" id="partners">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-condensed table-hover">
+                <thead>
+                    <tr>
+                        <th style="min-width: 200px"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="ICRP member organization. Partners may represent multiple associate organizations">
+                            Partner Name
+                        </th>
+
+                        <th style="min-width: 120px"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="Abbreviation for the ICRP Partner">
+                            Sponsor Code
+                        </th>
+
+                        <th style="min-width: 80px"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="Country of the partner organization">
+                            Country
+                        </th>
+
+                        <th style="min-width: 120px"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="Date of joining ICRP">
+                            Join Date
+                        </th>
+
+                        <th
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="Description of the goals and activities of the partner">
+                            Mission
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for partner in partners %}
+                    <tr>
+                        <td title="{{ partner.Name }}">
+                            {% if partner.Website %}
+                                <a href="{{partner.Website}}" target="_blank">{{ partner.Name }}</a>
+                            {% else %}
+                                {{ partner.Name }}
+                            {% endif %}
+                        </td>
+                        <td title="{{ partner.SponsorCode }}">{{ partner.SponsorCode }}</td>
+                        <td title="{{ partner.Country }}">{{ partner.Country }}</td>
+                        <td title="{{ partner.JoinDate }}">{{ partner.JoinDate }}</td>
+                        <td title="{{ partner.Description | striptags }}">{{ partner.Description | raw }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div role="tabpanel" class="tab-pane" id="funding-organizations">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-condensed table-hover table-narrow table-nowrap">
+                <thead>
+                    <tr>
+                        <th style="min-width: 200px"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="Full name of the funding organization">
+                            Name
+                        </th>
+
+                        <th style="min-width: 120px"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="Type of funding organization (Government, Non-Profit, Other)">
+                            Type
+                        </th>
+
+                        <th style="min-width: 80px"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="ICRP abbreviation for the funding organization">
+                            Abbreviation
+                        </th>
+
+                        <th style="min-width: 120px"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="Abbreviation of the partner organization submitting data">
+                            Sponsor Code
+                        </th>
+
+                        <th style="min-width: 120px"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="ISO 3166-2 Country Code">
+                            Country
+                        </th>
+
+                        <th style="min-width: 120px"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="Currency in which awards are submitted">
+                            Currency
+                        </th>
+
+                        <th style="min-width: 120px"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="If NO, funding for the lifetime of the award is complete. If YES, funding is updated annually and investment amounts for future years may not yet be complete">
+                            Annualized Funding
+                        </th>
+
+                        <th style="min-width: 120px"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="Date on which the most recent import was uploaded to ICRP">
+                            Last Import Date
+                        </th>
+
+                        <th style="min-width: 120px"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="Description of the latest upload to ICRP">
+                            Import Description
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for organization in fundingOrganizations %}
+                    <tr>
+                        <td title="{{ organization.Name }}">{{ organization.Name }}</td>
+                        <td title="{{ organization.Type }}">{{ organization.Type }}</td>
+                        <td title="{{ organization.Abbreviation }}">{{ organization.Abbreviation }}</td>
+                        <td title="{{ organization.SponsorCode }}">{{ organization.SponsorCode }}</td>
+                        <td title="{{ organization.Country }}">{{ organization.Country }}</td>
+                        <td title="{{ organization.Currency }}">{{ organization.Currency }}</td>
+                        <td title="{{ organization.IsAnnualized ? 'YES' : 'NO' }}">{{ organization.IsAnnualized ? 'YES' : 'NO' }}</td>
+                        <td title="{{ organization.LastImportDate }}">{{ organization.LastImportDate | split(' ')[0] }}</td>
+                        <td title="{{ organization.LastImportDesc }}">{{ organization.LastImportDesc }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- <pre>{{ dump() }}</pre> -->
+
