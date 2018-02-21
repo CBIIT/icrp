@@ -1,30 +1,25 @@
 --drop table #CountryMapLayer
 --GO
------------------------------------------
--- Insert CountryMapLayer
-----------------------------------------
-PRINT '******************************************************************************'
-PRINT '***************************** Bulk Insert ************************************'
-PRINT '******************************************************************************'
+--drop table #MapLayerLegend
+--GO
 
---SET NOCOUNT ON;  
---GO 
-CREATE TABLE #CountryMapLayer (	
-	[CountryID] [int] NOT NULL,
-	[Abbreviation] [varchar](3) NOT NULL,
-	[Name] [varchar](100) NOT NULL,
-	[IncomeBand] [varchar](15) NOT NULL,
-	[Currency] [varchar](15) NOT NULL,
-	[Region] [varchar](100) NOT NULL,
-	[Incidence] [varchar](100) NOT NULL,
-	[Mortality] [varchar](100) NOT NULL,
-	[Prevalence] [varchar](100) NOT NULL
+CREATE TABLE #MapLayerLegend (	
+	[displayorder] [int] NULL,
+	[layerFullName] [varchar](100) NULL,
+	[layerName] [varchar](100) NULL,
+	[ParentName] [varchar](250) NULL,
+	[legendcolor] [varchar](10) NULL,
+	[Summary] [varchar](1000) NULL,
+	[Description] [varchar](1000) NULL,
+	[Min] [varchar](100) NULL,
+	[Max] [varchar](100) NULL,
+	[DataSource] [varchar](1000) NULL
 )
 
 GO
 
-BULK INSERT #CountryMapLayer
-FROM 'C:\icrp\database\DataImport\CurrentRelease\MapLayer\CountryLayerMappings.csv'
+BULK INSERT #MapLayerLegend
+FROM 'C:\icrp\database\DataImport\CurrentRelease\MapLayer\MapLayers_legend_2.1.csv'
 WITH
 (
 	FIRSTROW = 2,
@@ -34,89 +29,245 @@ WITH
 )
 GO  
 
---select * from #CountryMapLayer where [Abbreviation] in ('IR')
+select * from #MapLayerLegend m
+LEFT join lu_MapLayer l on m.ParentName = l.Name
+WHERE m.ParentName IS NULL
+
+update #MapLayerLegend set layerfullname = REPLACE(layerfullname, ' ', '')
+update #MapLayerLegend set layerfullname = REPLACE(layerfullname, '-', '')
+
+
+select * from #MapLayerLegend
+-----------------------------------------
+-- Insert MapLayer - lookup
+----------------------------------------
+-- select * from lu_MapLayer
+-- drop table #tmpMapLayer
+SELECT l.MapLayerID AS ParentMapLayierID, m.ParentName, m.layerName, m.Summary, m.Description, m.DataSource INTO #tmpMapLayer 
+FROM (select ParentName, layerName, Summary, Description, DataSource from #MapLayerLegend group by ParentName, layerName, Summary, Description, DataSource) m
+	join lu_MapLayer l on m.ParentName = l.Name
+
+--select * from #tmpMapLayer
+
+DECLARE @maplayerid int = 5
+DECLARE @parentmaplayerid int
+DECLARE @layerName [varchar](100)
+DECLARE @Summary [varchar](1000) 
+DECLARE @Description [varchar](1000)
+DECLARE @DataSource [varchar](1000)
+DECLARE @cursor as CURSOR;
+
+begin transaction
+
+SET @cursor = CURSOR FOR
+SELECT  ParentMapLayierID, layerName, Summary, Description, DataSource FROM #tmpMapLayer;
+ 
+OPEN @cursor;
+FETCH NEXT FROM @cursor INTO @parentmaplayerid, @layerName, @Summary, @Description, @DataSource;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN 
+
+	INSERT INTO lu_MapLayer SELECT @maplayerid, @parentmaplayerid, @layerName, @Summary, @Description, @DataSource, getdate(), getdate()
+	SET @maplayerid = @maplayerid + 1
+
+ FETCH NEXT FROM @cursor INTO  @parentmaplayerid, @layerName, @Summary, @Description, @DataSource;
+END
+ 
+CLOSE @cursor;
+DEALLOCATE @cursor;
+
+commit
+--rollback
+
+-----------------------------------------
+-- Insert MapLayerLegend - lookup
+----------------------------------------
+--drop table #tmpLegend
+-- delete lu_maplayerlegend where legendcolor = '#999999'
+-- DBCC  CHECKIDENT ('lu_maplayerlegend', reseed, 35)
+--select * from #MapLayerLegend
+
+select distinct  m.displayorder, l.maplayerid, m.ParentName, l.Name, m.legendcolor, CONCAT(ISNULL(m.min, ''), ' - ', ISNULL(m.max, '')) AS legend into #tmpLegend 
+from #MapLayerLegend m
+	join (select distinct p.name as parent, l.* 
+			from lu_maplayer l 	
+			left join lu_maplayer p on p.MapLayerID = l.ParentMapLayerID) l ON m.layerName = l.Name and m.ParentName = l.parent
+
+select * from #tmpLegend order by ParentName, name, displayorder
+
+update #tmpLegend set legend = replace(legend, ' - >=', '> ')
+update #tmpLegend set legend = replace(legend, '<', '<= ')
+
+update #tmpLegend set legend = replace(legend, ' - ', '') WHERE RIGHT(legend, 3) = ' - '
+
+select ParentName, Name as LayerName, displayorder, legend from #tmpLegend order by ParentName, Name, displayorder
+
+select * from #tmpLegend
+
+--delete lu_MapLayerLegend where legendcolor='#999999'
+begin transaction
+	INSERT INTO lu_MapLayerLegend SELECT maplayerid, legend, legendcolor, displayorder from #tmpLegend
+commit
+--rollback
+
+--select * from lu_MapLayerLegend order by MapLayerID, DisplayOrder
+
+-----------------------------------------
+-- Insert MapLayer - data
+----------------------------------------
+PRINT '******************************************************************************'
+PRINT '***************************** Bulk Insert ************************************'
+PRINT '******************************************************************************'
+--delete CountryMapLayer where Maplayerid > 4
+
+--SET NOCOUNT ON;  
+--GO 
+CREATE TABLE #CountryMapLayer (	
+	[Country] [varchar](3) NULL,
+	[BreastCancerIncidence] [varchar](100) NULL,
+	[BreastCancerMortality] [varchar](15) NULL,
+	[CervicalCancerIncidence] [varchar](15) NULL,
+	[CervicalCancerMortality] [varchar](100) NULL,
+	[ColorectalCancerIncidence] [varchar](100) NULL,
+	[ColorectalCancerMortality] [varchar](100) NULL,
+	[LiverCancerIncidence] [varchar](100) NULL,
+	[LiverCancerMortality] [varchar](100) NULL,
+	[LungCancerIncidence] [varchar](100) NULL,
+	[LungCancerMortality] [varchar](100) NULL,	
+	[EsophagealCancerIncidence] [varchar](100) NULL,
+	[EsophagealCancerMortality] [varchar](100) NULL,
+	[ProstateCancerIncidence] [varchar](100) NULL,
+	[ProstateCancerMortality] [varchar](100) NULL,
+	[StomachCancerIncidence] [varchar](100) NULL,
+	[StomachCancerMortality] [varchar](100) NULL,
+	[BladderCancerIncidence] [varchar](100) NULL,
+	[BladderCancerMortality] [varchar](100) NULL,
+	[NonHodgkinLymphomaIncidence] [varchar](100) NULL,
+	[NonHodgkinLymphomaMortality] [varchar](100) NULL
+)
+
+GO
+
+BULK INSERT #CountryMapLayer
+FROM 'C:\icrp\database\DataImport\CurrentRelease\MapLayer\MapLayers_data_2.1.csv'
+WITH
+(
+	FIRSTROW = 2,
+	--DATAFILETYPE ='widechar',  -- unicode format
+	FIELDTERMINATOR = ',',
+	ROWTERMINATOR = '\n'
+)
+GO  
+
+--select top 5 * from #MapLayerLegend
+--select  top 5 * from #CountryMapLayer
+--select  top 5 * from #tmpLegend
+
+update #CountryMapLayer set country = LTRIM(RTRIM(Country))
+
+--select * from #CountryMapLayer 
+--select * from #MapLayerLegend 
 --select * from country
 --select * from CountryMapLayer
 --truncate table CountryMapLayer
 
-INSERT INTO CountryMapLayer (MapLayerID, MapLayerLegendID, Country, [Value]) 
-	SELECT 1, 999, c.[Abbreviation], [Incidence]
-FROM #CountryMapLayer l
-JOIN Country c ON c.[Abbreviation] = l.[Abbreviation]
+DECLARE @LayerFullname VARCHAR (50)
+DECLARE @MapLayerID INT
+DECLARE @cursor as CURSOR;
+DECLARE @sql VARCHAR (2000)
 
-INSERT INTO CountryMapLayer (MapLayerID, MapLayerLegendID, Country, [Value]) 
-	SELECT 2, 999, c.[Abbreviation], [Mortality]
-FROM #CountryMapLayer l
-JOIN Country c ON c.[Abbreviation] = l.[Abbreviation]
+DECLARE @legendcursor as CURSOR
+DECLARE @legendsql VARCHAR (2000)
+DECLARE @legendid INT
+DECLARE @min VARCHAR (2000)
+DECLARE @max VARCHAR (2000)
 
-INSERT INTO CountryMapLayer (MapLayerID, MapLayerLegendID, Country, [Value]) 
-	SELECT 3, 999, c.[Abbreviation], [Prevalence]
-FROM #CountryMapLayer l
-JOIN Country c ON c.[Abbreviation] = l.[Abbreviation]
+begin transaction
 
-INSERT INTO CountryMapLayer (MapLayerID, MapLayerLegendID, Country, [Value]) 
-	SELECT 4, 999, c.[Abbreviation], l.[IncomeBand]
-FROM #CountryMapLayer l
-JOIN Country c ON c.[Abbreviation] = l.[Abbreviation]
+SET @cursor = CURSOR FOR
+SELECT  DISTINCT layerfullname FROM #MapLayerLegend;
+ 
+OPEN @cursor;
+FETCH NEXT FROM @cursor INTO @LayerFullname;
 
-UPDATE CountryMapLayer SET VALUE = NULL WHERE Value = 'NULL' OR Value = ''
+WHILE @@FETCH_STATUS = 0
+BEGIN 
+	SELECT DISTINCT @MapLayerID = p.MapLayerID
+	from  #MapLayerLegend l
+	join (select distinct p.name as parent, l.name, l.MapLayerID, l.ParentMapLayerID 
+				from lu_maplayer l 	
+				join lu_maplayer p on p.MapLayerID = l.ParentMapLayerID) p on l.ParentName = p.parent and l.layerName = p.name
+	WHERE l.layerfullname = @LayerFullname
 
--- Layer Cancer Incidence
-UPDATE CountryMapLayer SET MapLayerLegendID = 
-(CASE  
-  WHEN  CAST([Value] AS decimal(9,1)) > 244.2 THEN 1
-  WHEN  (CAST([Value] AS decimal(9,1)) > 174.3) AND (CAST([Value] AS decimal(9,1)) <= 244.2) THEN 2
-  WHEN  (CAST([Value] AS decimal(9,1)) > 137.6 ) AND (CAST([Value] AS decimal(9,1)) <= 174.3) THEN 3  
-  WHEN  (CAST([Value] AS decimal(9,1)) > 101.6) AND (CAST([Value] AS decimal(9,1)) <= 137.6) THEN 4
-  WHEN  (CAST([Value] AS decimal(9,1)) > 0) AND (CAST([Value] AS decimal(9,1)) <= 101.6) THEN 5  
-  ELSE 6
-END)
-FROM CountryMapLayer
-WHERE MapLayerID=1
+	print @LayerFullname
+	print @MapLayerID
 
--- Layer Cancer Mortality
-UPDATE CountryMapLayer SET MapLayerLegendID = 
-(CASE  
-  WHEN  CAST([Value] AS decimal(9,1)) > 117.0 THEN 11
-  WHEN  (CAST([Value] AS decimal(9,1)) > 99.9) AND (CAST([Value] AS decimal(9,1)) <= 117.0) THEN 12  -- 99.9-117.0
-  WHEN  (CAST([Value] AS decimal(9,1)) > 89.8 ) AND (CAST([Value] AS decimal(9,1)) <= 99.9) THEN 13    -- 89.8-99.9
-  WHEN  (CAST([Value] AS decimal(9,1)) > 74.0) AND (CAST([Value] AS decimal(9,1)) <= 89.8) THEN 14 --74.0-89.8
-  WHEN  (CAST([Value] AS decimal(9,1)) > 0) AND (CAST([Value] AS decimal(9,1)) <= 74.0) THEN 15    -- < 74.0  
-  ELSE 16
-END)
-FROM CountryMapLayer
-WHERE MapLayerID=2
+	/***** Get legendID Sql   ***/
+	SET @legendsql = 'CASE '
 
--- Layer Cancer Prevalence
-UPDATE CountryMapLayer SET MapLayerLegendID = 
-(CASE   
-  WHEN  CAST([Value] AS decimal(9,1)) > 328.7 THEN 21  -- > 328.7
-  WHEN  (CAST([Value] AS decimal(9,1)) > 139.6) AND (CAST([Value] AS decimal(9,1)) <= 328.7) THEN 22  -- 139.6-328.7
-  WHEN  (CAST([Value] AS decimal(9,1)) > 85.7 ) AND (CAST([Value] AS decimal(9,1)) <= 139.6) THEN 23   -- 85.7-139.6
-  WHEN  (CAST([Value] AS decimal(9,1)) > 62.6) AND (CAST([Value] AS decimal(9,1)) <= 85.7) THEN 24 --62.6-85.7
-  WHEN  (CAST([Value] AS decimal(9,1)) > 0) AND (CAST([Value] AS decimal(9,1)) <= 62.6) THEN 25  -- < 62.6  
-  ELSE 26
-END)
-FROM CountryMapLayer
-WHERE MapLayerID=3
+	SET @legendcursor = CURSOR FOR 
+	SELECT l.MapLayerLegendID, m.min, m.max 
+		FROM #MapLayerLegend m
+			JOIN #tmpLegend tl ON m.ParentName = tl.ParentName AND m.layerName = tl.Name AND m.displayorder = tl.displayorder
+			JOIN lu_MapLayerLegend l ON tl.MapLayerID = l.MapLayerID AND tl.displayorder = l.DisplayOrder
+		WHERE m.layerFullName = @LayerFullname
 
--- Layer World Bank Income Bands
-UPDATE CountryMapLayer SET MapLayerLegendID = 
-(CASE   
-  WHEN  ([Value] = 'H') THEN 31
-  WHEN  ([Value] = 'MU') THEN 32
-  WHEN  ([Value] = 'ML') THEN 33
-  WHEN  ([Value] = 'L') THEN 34
-  ELSE 35
-END)
-FROM CountryMapLayer
-WHERE MapLayerID=4
+	OPEN @legendcursor;
+	FETCH NEXT FROM @legendcursor INTO @legendid, @min, @max;
+
+	WHILE @@FETCH_STATUS = 0
+	BEGIN 
+	Print 'legend => ' + CAST(@legendid AS Varchar(100)) + ' / ' + @min + ' / ' + @max
+		IF @min IS NULL 
+			SET @legendsql = @legendsql + '  WHEN  CAST(' + @LayerFullName + ' AS decimal(9,1))' + @max + ' THEN ' + CAST(@legendid AS VARCHAR(10))
+
+		IF @max IS NULL 
+			SET @legendsql = @legendsql + '  WHEN  CAST(' + @LayerFullName + ' AS decimal(9,1))' + @min + ' THEN ' + CAST(@legendid AS VARCHAR(10))
+	
+		IF @min IS NOT NULL AND @max IS NOT NULL 
+			SET @legendsql = @legendsql + '  WHEN  (CAST(' + @LayerFullName + ' AS decimal(9,1)) > ' + @min +  ') AND (CAST(' + @LayerFullName + ' AS decimal(9,1)) <= ' + @max + ') THEN ' + CAST(@legendid AS VARCHAR(10)) 
+				  
+	 FETCH NEXT FROM @legendcursor INTO  @legendid, @min, @max;
+
+	END
+ 
+	CLOSE @legendcursor;
+	DEALLOCATE @legendcursor;
+
+	PRINT (@legendsql)
+
+	SET @sql = 'INSERT INTO CountryMapLayer (MapLayerID, MapLayerLegendID, Country, [Value]) 
+		SELECT ' + CAST(@MapLayerID AS varchar(10)) + ', ' + @legendsql + ' ELSE 6 END, c.[Abbreviation], ' + 'l.' + @LayerFullname + 
+		' FROM #CountryMapLayer l
+		JOIN Country c ON c.[Abbreviation] = l.[Country]'
+		
+	PRINT (@sql)
+	exec (@sql)
+
+	IF @@ROWCOUNT = 0
+		PRINT '===> ERROR - No such layerFullName'
+
+ FETCH NEXT FROM @cursor INTO  @LayerFullname;
+
+END
+ 
+CLOSE @cursor;
+DEALLOCATE @cursor;
+
+commit
+--rollback
 
 --select * from CountryMapLayer
-
 --select * from lu_maplayer
 
 
 /****** Script for SelectTopNRows command from SSMS  ******/
 -- SELECT *  FROM [icrp_data_dev].[dbo].[lu_MapLayerLegend] where maplayerid = 4
 --select * from CountryMapLayer where maplayerid = 4
+
+ SELECT l.MapLayerLegendID, m.min, m.max 
+		FROM #MapLayerLegend m
+			JOIN #tmpLegend tl ON m.ParentName = tl.ParentName AND m.layerName = tl.Name AND m.displayorder = tl.displayorder
+			JOIN lu_MapLayerLegend l ON tl.MapLayerID = l.MapLayerID AND tl.displayorder = l.DisplayOrder
+		WHERE m.layerFullName = 'BladderCancerIncidence'
