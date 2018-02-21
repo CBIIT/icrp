@@ -16,7 +16,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
       var layer = layers[i];
 
       // create an optgroup if this is a parent layer (GroupName == null)
-      if (layer.GroupName == null) {
+      if (layer.GroupName == null) { //} && layer.HasChildren === "y") {
         layerSelect.append(
           // add a default option to the optgroup
           $('<optgroup label="' + layer.Name + '"></optgroup>')
@@ -24,12 +24,20 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
         );
       }
 
+      // add options without children to the seelct node
+      // else if (layer.GroupName == null && layer.HasChildren === "n") {
+      //   layerSelect.append(
+      //     $('<option value="'+layer.MapLayerID+'">'+layer.Name+'</option>')
+      //   );
+      // }
+
       // otherwise, find the optgroup this layer belongs under and append it to that group
-      else {
+      else if (layer.GroupName != null) { // && layer.HasChildren === "n") {
         layerSelect.find('optgroup').filter(function(index, element) {
           return element.label == layer.GroupName;
         }).append('<option value="'+layer.MapLayerID+'">'+layer.Name+'</option>');
       }
+
     }
 
     map.controls[google.maps.ControlPosition.TOP_RIGHT].push($('<div id="layer-map-select"/>').append($('<span>Layer</span>')).append(layerSelect)[0]);
