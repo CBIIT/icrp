@@ -16,28 +16,35 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
       var layer = layers[i];
 
       // create an optgroup if this is a parent layer (GroupName == null)
-      if (layer.GroupName == null) { //} && layer.HasChildren === "y") {
+      if (layer.GroupName == null && layer.HasChildren === "y") {
         layerSelect.append(
           // add a default option to the optgroup
           $('<optgroup label="' + layer.Name + '"></optgroup>')
-            .append('<option value="'+layer.MapLayerID+'">'+'All'+'</option>')
+            .css('color', '#aaa')
+            .append(
+              $('<option value="'+layer.MapLayerID+'">'+'(All Cancer Types)'+'</option>')
+                .css('color', 'black')
+            )
         );
       }
 
       // add options without children to the seelct node
-      // else if (layer.GroupName == null && layer.HasChildren === "n") {
-      //   layerSelect.append(
-      //     $('<option value="'+layer.MapLayerID+'">'+layer.Name+'</option>')
-      //   );
-      // }
-
-      // otherwise, find the optgroup this layer belongs under and append it to that group
-      else if (layer.GroupName != null) { // && layer.HasChildren === "n") {
-        layerSelect.find('optgroup').filter(function(index, element) {
-          return element.label == layer.GroupName;
-        }).append('<option value="'+layer.MapLayerID+'">'+layer.Name+'</option>');
+      else if (layer.GroupName == null && layer.HasChildren === "n") {
+        layerSelect.append(
+          $('<option value="'+layer.MapLayerID+'">'+layer.Name+'</option>')
+            .css('color', 'black')
+        );
       }
 
+      // otherwise, find the optgroup this layer belongs under and append it to that group
+      else if (layer.GroupName != null && layer.HasChildren === "n") {
+        layerSelect.find('optgroup').filter(function(index, element) {
+          return element.label == layer.GroupName;
+        }).append(
+          $('<option value="'+layer.MapLayerID+'">'+layer.Name+'</option>')
+            .css('color', 'black')
+        );
+      }
     }
 
     map.controls[google.maps.ControlPosition.TOP_RIGHT].push($('<div id="layer-map-select"/>').append($('<span>Layer</span>')).append(layerSelect)[0]);
@@ -142,10 +149,21 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
   },
   updateLegend: function(legend) {
     drupalSettings.db_map.layer.legend = legend;
-    var legendHTML = $('#layer-map-legend').empty().removeClass('hide').append('<h4>'+$('#layer-map-select option:selected').text()+'</h4>'),
-        legendline,
-        legendcolor;
-    legend.forEach(function(entry) {
+
+    var legendContent = '<h4>'+$('#layer-map-select option:selected').text()+'</h4>'
+
+    var parent = $('#layer-map-select option:selected').parent();
+    if (parent.length && parent[0].constructor === HTMLOptGroupElement)
+      legendContent = '<h4>' + parent[0].label + '</h4>' + legendContent;
+
+    var legendHTML = $('#layer-map-legend')
+      .empty()
+      .removeClass('hide')
+      .append(legendContent),
+      legendline,
+      legendcolor;
+
+      legend.forEach(function(entry) {
       legendline = $('<div></div>');
       legendcolor = $('<span class="selected" style="background:'+entry.LegendColor+';" data-legend-id="'+entry.MapLayerLegendID+'">&nbsp;</span>');
       legendcolor.on('click',drupalSettings.db_map.layer.selectColor);
