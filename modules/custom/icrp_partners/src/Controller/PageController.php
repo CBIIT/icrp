@@ -23,7 +23,7 @@ class PageController extends ControllerBase {
             '#theme' => 'icrp_partners',
             '#partners' => PDOBuilder::executePreparedStatement(
                 $connection,
-                'GetPartners'
+                'EXECUTE GetPartners'
             )->fetchAll(),
             '#fundingOrganizations' => PDOBuilder::executePreparedStatement(
                 $connection,

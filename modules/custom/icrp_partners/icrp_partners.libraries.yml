@@ -2,7 +2,13 @@ content:
   version: 0.0.1
   css:
     theme:
-      src/Assets/main.css: {}
+      src/Assets/css/main.css: {}
+      src/Assets/css/dataTables.bootstrap.css: {}
   js:
-    src/Assets/main.js: {}
-    src/Assets/partner-map.js: {}
+    https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js: {}
+    src/Assets/js/dataTables.bootstrapExt.js: {}
+    src/Assets/js/dataTables.resizableColumns.js: {}
+    src/Assets/js/partnerMap.js: {}
+    src/Assets/js/fundingOrganizations.js: {}
+  dependencies:
+    - core/jquery

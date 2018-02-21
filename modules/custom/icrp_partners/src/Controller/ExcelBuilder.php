@@ -7,7 +7,7 @@ use Box\Spout\Common\Type;
 use Box\Spout\Writer\Style\StyleBuilder;
 
 class ExcelBuilder {
-  public static function create(string $filename, array $sheets = null) {
+  public static function export(string $filename, array $sheets = null) {
     if ($sheets)
         return function() use ($filename, $sheets) {
             $writer = WriterFactory::create(Type::XLSX);
@@ -30,5 +30,23 @@ class ExcelBuilder {
 
             $writer->close();
         };
+    }
+
+    /**
+     * Sample array of queries:
+     * [[
+     *      'title' => 'Sheet A',
+     *      'query' => 'Select * from table',
+     *      'columns' => [
+     *          'A' => 'Mapped Column Name A'
+     *          'B' => 'Mapped Column Name B'
+     *      ];
+     * ]]
+     *
+     *
+     */
+    public static function exportQueries(PDO $pdo, array $queries, string $filename) {
+
+
     }
 }

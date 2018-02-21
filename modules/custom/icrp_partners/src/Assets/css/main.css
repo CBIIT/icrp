@@ -20,6 +20,22 @@
     border-top: none;
 }
 
-.mr-5 {
-    margin-right: 5rem;
+.table-responsive {
+    position: relative;
+    border: none;
+}
+
+.d-flex-responsive {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.mv-5 {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.mr-40 {
+    margin-right: 40px;
 }

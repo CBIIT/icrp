@@ -1,24 +1,16 @@
 <h1>ICRP Partners and Funding Organizations</h1>
 
 <p>
-    ICRP partners represent a wide range of governmental, public and non-profit cancer research funding organizations from across the world. Our membership includes organizations focused on one type of cancer through to health research organizations supporting
-    research into many cancer types.
+ICRP partners represent a wide range of governmental, public and non-profit cancer research funding organizations from across the world. Our membership includes organizations focused on one type of cancer through to health research organizations supporting research into many cancer types. Partners are full members and provide nominated contact points for ICRP, and vote on any changes to strategic direction or policies.
 </p>
-
-<ul>
-    <li>
-        <b>Partners</b> are full members and provide nominated contact points for ICRP, and vote on any changes to strategic direction or policies.
-    </li>
-    <li>
-        <b>Associate members</b> are funding organizations who have joined ICRP as part of a consortium. They enjoy full access to the ICRP partner site, can participate in meetings, analyses and networking. Their data submissions are coordinated by the
-        nominated partner.
-    </li>
-</ul>
 
 <p>
-    Find out more about our partners using the map below.
+Some funding organizations have joined ICRP as part of a consortium. They enjoy full access to the ICRP partner site, can participate in meetings, analyses and networking. Their data submissions are coordinated by the nominated partner. Former funding organizations (e.g., organizations who have ceased grant funding) whose data is still included in the ICRP database are also listed.
 </p>
 
+<p>
+    Find out more about our partners and funding organizations using the map below.
+</p>
 
 <div class="visible-xs text-right form-group">
     <a href="/partners/export" class="btn btn-default btn-sm">
@@ -26,7 +18,6 @@
         Export
     </a>
 </div>
-
 
 <ul class="nav nav-tabs" id="partner-nav">
     <li role="presentation" class="active">
@@ -57,9 +48,10 @@
 
 <div class="tab-content">
     <div role="tabpanel" class="tab-pane active" id="map">
+        <iframe height="600" src="https://www.google.com/maps/d/u/0/embed?mid=1h2KiS71C4FDBVmIOJu35yzcz7gM&z=2" width="100%" style="border: 1px solid #ddd;"></iframe>
 
+<!--
         <h4>ICRP Partners and Associated Members</h4>
-
         <div>
             <b>Partner</b>
             <select>
@@ -73,6 +65,7 @@
 
         <div style="height: 600px" id="partner-map">
         </div>
+-->
     </div>
 
 
@@ -109,6 +102,13 @@
                             Join Date
                         </th>
 
+                        <th style="min-width: 120px"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="ICRP Member Status">
+                            Status
+                        </th>
+
                         <th
                             data-toggle="tooltip"
                             data-placement="top"
@@ -130,6 +130,7 @@
                         <td title="{{ partner.SponsorCode }}">{{ partner.SponsorCode }}</td>
                         <td title="{{ partner.Country }}">{{ partner.Country }}</td>
                         <td title="{{ partner.JoinDate }}">{{ partner.JoinDate }}</td>
+                        <td title="{{ partner.MemberStatus }}">{{ partner.MemberStatus }}</td>
                         <td title="{{ partner.Description | striptags }}">{{ partner.Description | raw }}</td>
                     </tr>
                 {% endfor %}
@@ -205,6 +206,13 @@
                             title="Description of the latest upload to ICRP">
                             Import Description
                         </th>
+
+                        <th style="min-width: 120px"
+                            data-toggle="tooltip"
+                            data-placement="top"
+                            title="ICRP Member Status">
+                            Status
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -219,6 +227,7 @@
                         <td title="{{ organization.IsAnnualized ? 'YES' : 'NO' }}">{{ organization.IsAnnualized ? 'YES' : 'NO' }}</td>
                         <td title="{{ organization.LastImportDate }}">{{ organization.LastImportDate | split(' ')[0] }}</td>
                         <td title="{{ organization.LastImportDesc }}">{{ organization.LastImportDesc }}</td>
+                        <td title="{{ organization.MemberStatus }}">{{ organization.MemberStatus }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
