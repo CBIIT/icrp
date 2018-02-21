@@ -17,10 +17,10 @@ import gov.nih.nci.HelperMethods.BaseMethods;
 import org.junit.*;
 import org.apache.log4j.Logger;
 //TestNG
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+//import org.testng.Assert;
+//import org.testng.annotations.AfterClass;
+//import org.testng.annotations.BeforeClass;
+//import org.testng.annotations.Test;
 
 public class TestNavigation {
 	static BaseMethods Test = new BaseMethods();
