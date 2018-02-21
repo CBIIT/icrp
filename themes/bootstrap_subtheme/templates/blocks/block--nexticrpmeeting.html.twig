@@ -1,9 +1,7 @@
 <div id="newsletter-container">
-	<div class="row">
-		<span class="fa-stack fa-lg">
-			<i class="fa fa-circle fa-stack-2x"></i>
-			<i class="fa fa-calendar fa-stack-1x fa-inverse"></i>
-		</span>
+	<div style="display: flex; align-items: center;">
+		<i style="color: #3371a8; width: 32px; height: 32px; margin: 0 4px 0 -8px;" class="fas fa-calendar-alt" data-fa-transform="shrink-8" data-fa-mask="fas fa-circle"></i>
+
 		<span class="aside-title"><a href="/calendar">Next ICRP Meeting</a></span>
 	</div>
 	<p>{{ drupal_view('next_icrp_meeting_view', 'block_next_event') }}</p>

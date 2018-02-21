@@ -97,10 +97,12 @@
           </div>
           -->
 
-          <div class="pull-left" data-forum-id="{{child_id}}"><i class="fa {{ icon }} fa-pull-left fa-3x fa-fw" title="{{ forum.icon_title }}" style="padding:10px 10px 30px"></i></div>
+          <div class="pull-left" data-forum-id="{{child_id}}">
+            <i class="fa {{ icon }} fa-2x" title="{{ forum.icon_title }}" style="margin: 0 10px 0 4px; color: steelblue;"></i>
+          </div>
 
           <div class="forum__name"><a href="{{ forum.link }}">{{ forum.label }}</a></div>
-          
+
           {% if forum.description.value %}
             <div class="forum__description">{{ forum.description.value }}</div>
           {% endif %}
@@ -138,7 +140,7 @@
             <span class="pull-right"><a href="/node/{{ tforums[ t ].nid }}#latest">View this post</a></span>
           </div>
         {% endif %}
-        
+
         </td>
       {% endif %}
     </tr>
