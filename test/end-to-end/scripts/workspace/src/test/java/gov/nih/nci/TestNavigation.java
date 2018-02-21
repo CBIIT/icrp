@@ -16,6 +16,11 @@ import gov.nih.nci.HelperMethods.BaseMethods;
 
 import org.junit.*;
 import org.apache.log4j.Logger;
+//TestNG
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 public class TestNavigation {
 	static BaseMethods Test = new BaseMethods();
@@ -363,20 +368,24 @@ public class TestNavigation {
 				//Verify Data Dictionary Page
 				Test.clickLink(By.linkText("Data Dictionary"));
 				Test.wait_For(5000);
-				Test.switchToChildBrowserWindow();
+				//Test.switchToChildBrowserWindow();
 				//Test.GoToNewTabWindow();
 				Test.verifyUrl("https://www.icrpartnership-test.org/sites/default/files/downloads/ICRPDataDictionary.pdf");
 				Test.wait_For(5000);
 				Test.navigate_back();
+				//Test.switchToParentBrowserWindow();
+				
 		
 				//Verify Export Lookup Table
 				Test.wait_For(5000);
-				Test.clickLink(By.cssSelector("html.js body.user-logged-in.path-frontpage.page-node-type-page.has-glyphicons div.main-container.container.js-quickedit-main-content div.row section.col-sm-9 div.region.region-content div.tab-content.partner-content div#welcome.tab-pane.fade.in.active section#block-partnerhomewelcome.block.block-block-content.block-block-content8c71aff9-4894-42a5-bf26-c41c9f8ad280.clearfix div.field.field--name-body.field--type-text-with-summary.field--label-visually_hidden div.field--item ul li a"));
-				Test.wait_For(6000);
-				Test.navigate_back();
+				Test.clickLink(By.cssSelector("section.block-block-content8c71aff9-4894-42a5-bf26-c41c9f8ad280:nth-child(1) > div:nth-child(1) > div:nth-child(2) > ul:nth-child(5) > li:nth-child(4) > a:nth-child(1)"));
+				Test.wait_For(2000);
+				//Test.switchToParentBrowserWindow();
+				//Test.navigate_back();
+				//Test.wait_For(2000);
 				
 				//Verify Data Upload Status Report Page
-				Test.clickLink(By.cssSelector("#block-partnerhomewelcome > div > div.field--item > ul:nth-child(5) > li:nth-child(5) > a"));
+				Test.clickLink(By.cssSelector("html.js body.user-logged-in.path-frontpage.page-node-type-page.has-glyphicons div.main-container.container.js-quickedit-main-content div.row section.col-sm-9 div.region.region-content div.tab-content.partner-content div#welcome.tab-pane.fade.in.active section#block-partnerhomewelcome.block.block-block-content.block-block-content8c71aff9-4894-42a5-bf26-c41c9f8ad280.clearfix div.field.field--name-body.field--type-text-with-summary.field--label-visually_hidden div.field--item ul li a"));
 				Test.wait_For(5000);
 				//Test.wait_until_element_present(By.name("Information about the status of data submissions and uploads to the ICRP database is included below. Please note that each organization has its own data upload schedule and the latest data uploaded for each organization can be seen here."),"Information about the status of data submissions and uploads to the ICRP database is included below. Please note that each organization has its own data upload schedule and the latest data uploaded for each organization can be seen here.");
 				Test.expected_vs_actual_verification("Data Upload Status Report");
@@ -406,7 +415,7 @@ public class TestNavigation {
 				Test.wait_For(3000);
 				//Test.verifyUrl("https://twitter.com/icrpartners1"); //https://twitter.com/icrpartners1?ref_src=twsrc%5Etfw
 				Test.verifyUrl("https://twitter.com/icrpartners1?ref_src=twsrc%5Etfw");
-				Test.wait_For(2000);
+				Test.wait_For(5000);
 				Test.switchToParentBrowser();
 				//Test.GoToPreviousTabWindow();
 				
