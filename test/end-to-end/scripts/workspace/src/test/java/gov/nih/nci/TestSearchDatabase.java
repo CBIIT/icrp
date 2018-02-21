@@ -16,6 +16,11 @@ import gov.nih.nci.HelperMethods.BaseMethods;
 
 import org.junit.*;
 import org.apache.log4j.Logger;
+//TestNG
+//import org.testng.Assert;
+//import org.testng.annotations.AfterClass;
+//import org.testng.annotations.BeforeClass;
+//import org.testng.annotations.Test;
 
 public class TestSearchDatabase {
 	static BaseMethods Test = new BaseMethods();
@@ -103,10 +108,13 @@ public class TestSearchDatabase {
 				Test.enter_country("United States");
 				logger.info("Country selected.");
 				Test.wait_For(5000);
-				Test.clickLink(By.cssSelector("body > div.main-container.container.js-quickedit-main-content > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel.ng-tns-c9-3 > div.ui-panel-header"));
+				//Test.clickLink(By.cssSelector("body > div.main-container.container.js-quickedit-main-content > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel.ng-tns-c9-3 > div.ui-panel-header"));
+				Test.clickLink(By.xpath("/html/body/div[1]/div/section/div[2]/icrp-root/div/icrp-search-page/div/div[1]/icrp-search-form/form/ui-panel[3]/div[1]"));
+				
 				logger.info("Funding Organizations clicked.");
-				Test.wait_For(2000);
+				Test.wait_For(3000);
 				//Test.clickLink(By.cssSelector("div.multiselect:nth-child(5) > ui-treeview:nth-child(1) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(5) > div:nth-child(1) > label:nth-child(1) > input:nth-child(1)"));
+				//Test.clickLink(By.cssSelector("html.js body.user-logged-in.path-db-search.has-glyphicons div.main-container.container.js-quickedit-main-content div.row section.col-sm-12 div.region.region-content icrp-root div icrp-search-page.ng-star-inserted div.row div.col-sm-3 icrp-search-form form.ng-untouched.ng-valid.ng-dirty ui-panel.ng-tns-c9-3 div.ui-panel-content.ng-trigger.ng-trigger-visibilityChanged div.multiselect.ng-star-inserted ui-treeview.ng-untouched.ng-valid.ng-dirty div div div div div div div label input"));
 				Test.clickLink(By.xpath("/html/body/div[1]/div/section/div[2]/icrp-root/div/icrp-search-page/div/div[1]/icrp-search-form/form/ui-panel[3]/div[2]/div/ui-treeview/div/div[1]/div/div[1]/div/div[3]/div/label/input"));
 				Test.wait_For(5000);
 				logger.info("National Cancer Institute selected.");
@@ -178,12 +186,13 @@ public class TestSearchDatabase {
 				Test.wait_until_element_present(By.cssSelector("body > div > div > section > div.region.region-content > h1"),"Search ICRP Database");
 				Test.wait_For(1000);
 				Test.wait_until_element_present(By.cssSelector("#block-anonymoususermenu > div > div.field--item > div:nth-child(2) > a"),"Log in");  //Check user is not logged in
-				Test.wait_For(1000);
+				Test.wait_For(2000);
 				//Click Clear Database
 				
-				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > div > button:nth-child(3)"));
-				//Test.clickLink(By.xpath("/html/body/div[1]/div/section/div[2]/icrp-root/div/icrp-search-page/div/div[1]/icrp-search-form/form/div/button[3]"));
-				Test.wait_For(5000);
+				//Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > div > button:nth-child(3)"));
+				//Test.clickLink(By.xpath("/html/body/div/div/section/div[2]/icrp-root/div/icrp-search-page/div/div[1]/icrp-search-form/form/div/button[3]"));
+				//Test.clickLink(By.cssSelector("html.js body.path-db-search.has-glyphicons div.main-container.container.js-quickedit-main-content div.row section.col-sm-12 div.region.region-content icrp-root div icrp-search-page div.row div.col-sm-3 icrp-search-form form.ng-untouched.ng-valid.ng-dirty div.text-right.vertical-spacer button.btn.btn-default"));
+				//Test.wait_For(5000);
 				logger.info("Click Clear Database");
 				
 				Test.expected_vs_actual_verification("All Years Selected");
