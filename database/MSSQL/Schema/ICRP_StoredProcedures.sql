@@ -6678,8 +6678,12 @@ CREATE PROCEDURE [dbo].[GetMapLayers]
 		
 AS   
 
-	SELECT l.[MapLayerID], p.Name AS GroupName, l.[Name], l.[Summary],l.[Description], l.[DataSource] FROM lu_MapLayer l
+	SELECT l.[MapLayerID], p.Name AS GroupName, l.[Name], l.[Summary],l.[Description], l.[DataSource], 
+		CASE 
+		WHEN g.ChildrenCount IS NULL THEN 'n' ELSE 'y' END AS HasChildren 
+	FROM lu_MapLayer l	
 		LEFT JOIN lu_MapLayer p ON l.[ParentMapLayerID] = p.MapLayerID
+		LEFT JOIN (SELECT [ParentMapLayerID], count(*) AS ChildrenCount FROM lu_MapLayer GROUP BY [ParentMapLayerID]) g ON g.[ParentMapLayerID] = l.MapLayerID	
 	 ORDER BY p.MapLayerID, l.MapLayerID
 GO
 
@@ -6699,11 +6703,15 @@ CREATE PROCEDURE [dbo].[GetMapLayerLegend]
 	@MapLayerID	INT
 AS   
 
-	SELECT MapLayerLegendID, LegendName, LegendColor FROM lu_MapLayerLegend WHERE MapLayerID = @MapLayerID
+SELECT * FROM
+	(
+		SELECT MapLayerLegendID, LegendName, LegendColor, DisplayOrder FROM lu_MapLayerLegend WHERE MapLayerID = @MapLayerID
+		UNION
+		SELECT MapLayerLegendID, LegendName, LegendColor, DisplayOrder FROM lu_MapLayerLegend WHERE MapLayerLegendID = 0
+	) l
 	ORDER BY DisplayOrder
-		
-GO
 
+GO
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetMapLayerByCountry]    Script Date: 12/14/2016 4:21:47 PM ******/
