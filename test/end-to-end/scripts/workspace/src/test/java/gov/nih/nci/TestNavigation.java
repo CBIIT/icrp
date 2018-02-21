@@ -17,10 +17,10 @@ import gov.nih.nci.HelperMethods.BaseMethods;
 import org.junit.*;
 import org.apache.log4j.Logger;
 //TestNG
-//import org.testng.Assert;
-//import org.testng.annotations.AfterClass;
-//import org.testng.annotations.BeforeClass;
-//import org.testng.annotations.Test;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 public class TestNavigation {
 	static BaseMethods Test = new BaseMethods();
@@ -141,12 +141,12 @@ public class TestNavigation {
 				Test.wait_For(5000);
 				//Verify Library page
 				Test.clickLink(By.linkText("Library"));
-				Test.wait_For(5000);
+				Test.wait_For(7000);
 				Test.wait_until_element_present(By.name("The ICRP publishes regular data analyses, newsletters and reports. Please use our library to find reports of interest to the cancer research community, news and announcements. Please note that you must have Adobe's Acrobat Reader to view many of these files. Get Adobe Acrobat Reader free by clicking here . To receive the ICRP newsletter by email please Contact Us."),"The ICRP publishes regular data analyses, newsletters and reports. Please use our library to find reports of interest to the cancer research community, news and announcements. Please note that you must have Adobe's Acrobat Reader to view many of these files. Get Adobe Acrobat Reader free by clicking here . To receive the ICRP newsletter by email please Contact Us.");
 				Test.expected_vs_actual_verification("Library");
 				Test.expected_vs_actual_verification("ICRP Lung Cancer Overview 2016");
 				
-				Test.wait_For(10000);
+				Test.wait_For(1000);
 			
 				//Test.logout();
 				logger.info("---------------End of Test " + testName + "--------------------------------------");
