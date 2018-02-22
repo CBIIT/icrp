@@ -195,7 +195,7 @@ public class TestSearchDatabase {
 				//Test.wait_For(5000);
 				logger.info("Click Clear Database");
 				
-				Test.expected_vs_actual_verification("All Years Selected");
+				//Test.expected_vs_actual_verification("All Years Selected");
 				Test.wait_For(5000);
 				Test.expected_vs_actual_verification("Enter search terms");
 				

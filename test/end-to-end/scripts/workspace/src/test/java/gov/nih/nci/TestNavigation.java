@@ -100,13 +100,13 @@ public class TestNavigation {
 				Test.expected_vs_actual_verification("Research included in this category looks at the biology of how cancer starts and progresses as well as normal biology relevant to these processes");
 				Test.wait_For(5000);
 				//Verify Funding Organizations Page
-				Test.clickLink(By.linkText("ICRP Data"));
-				Test.wait_For(5000);
-				Test.clickLink(By.linkText("Funding Organizations"));
-				Test.wait_For(10000);
-				Test.wait_until_element_present(By.name("Funding Organizations"),"Funding Organizations");
-				Test.expected_vs_actual_verification("ICRP organizations submit their latest available research projects or research funding to the ICRP database as soon as possible.");
-				Test.wait_For(5000);
+				//Test.clickLink(By.linkText("ICRP Data"));
+				//Test.wait_For(5000);
+				//Test.clickLink(By.linkText("Funding Organizations"));
+				//Test.wait_For(10000);
+				//Test.wait_until_element_present(By.name("Funding Organizations"),"Funding Organizations");
+				//Test.expected_vs_actual_verification("ICRP organizations submit their latest available research projects or research funding to the ICRP database as soon as possible.");
+				//Test.wait_For(5000);
 				//Verify Join ICRP and Become a Partner
 				Test.clickLink(By.linkText("Join ICRP"));
 				Test.wait_For(5000);
@@ -118,10 +118,10 @@ public class TestNavigation {
 				//Verify Join ICRP and Become a Partner
 				Test.clickLink(By.linkText("Join ICRP"));
 				Test.wait_For(5000);
-				Test.clickLink(By.linkText("Current Partners"));
+				Test.clickLink(By.linkText("ICRP Partners and Funding Organizations"));
 				Test.wait_For(10000);
 				Test.wait_until_element_present(By.name("CRP partners represent a wide range of governmental, public and non-profit cancer research funding organizations from across the world. Our membership includes organizations focused on one type of cancer through to health research organizations supporting research into many cancer types."),"CRP partners represent a wide range of governmental, public and non-profit cancer research funding organizations from across the world. Our membership includes organizations focused on one type of cancer through to health research organizations supporting research into many cancer types.");
-				Test.expected_vs_actual_verification("Current Partners");
+				Test.expected_vs_actual_verification("ICRP Partners and Funding Organizations");
 				Test.wait_For(5000);
 				//Verify Join ICRP and Partner Application page
 				Test.clickLink(By.linkText("Join ICRP"));
@@ -144,7 +144,7 @@ public class TestNavigation {
 				Test.wait_For(7000);
 				Test.wait_until_element_present(By.name("The ICRP publishes regular data analyses, newsletters and reports. Please use our library to find reports of interest to the cancer research community, news and announcements. Please note that you must have Adobe's Acrobat Reader to view many of these files. Get Adobe Acrobat Reader free by clicking here . To receive the ICRP newsletter by email please Contact Us."),"The ICRP publishes regular data analyses, newsletters and reports. Please use our library to find reports of interest to the cancer research community, news and announcements. Please note that you must have Adobe's Acrobat Reader to view many of these files. Get Adobe Acrobat Reader free by clicking here . To receive the ICRP newsletter by email please Contact Us.");
 				Test.expected_vs_actual_verification("Library");
-				//Test.expected_vs_actual_verification("ICRP Lung Cancer Overview 2016");
+				Test.expected_vs_actual_verification("ICRP Lung Cancer Overview 2016");
 				
 				Test.wait_For(1000);
 			
@@ -192,10 +192,10 @@ public class TestNavigation {
 				//Verify Funding Organizations Page
 				Test.clickLink(By.linkText("Data Resources"));
 				Test.wait_For(5000);
-				Test.clickLink(By.linkText("Funding Organizations"));
+				Test.clickLink(By.linkText("ICRP Partners and Funding Organizations"));
 				Test.wait_For(5000);
-				Test.wait_until_element_present(By.name("ICRP organizations submit their latest available research projects or research funding to the ICRP database as soon as possible. Each partner submits data on a different schedule as each has different timelines for awarding, collating and classifying projects, so recent calendar years in the ‘Year active’ search may not yet include all available data for that year. In the table below, the ‘Import Description’ column shows the latest import from each partner, and the date on which that import was uploaded to the database. Organizations that update research funding annually for all projects in the database are listed as ‘yes’ in the ‘Annual funding updates’ column below."),"ICRP organizations submit their latest available research projects or research funding to the ICRP database as soon as possible. Each partner submits data on a different schedule as each has different timelines for awarding, collating and classifying projects, so recent calendar years in the ‘Year active’ search may not yet include all available data for that year. In the table below, the ‘Import Description’ column shows the latest import from each partner, and the date on which that import was uploaded to the database. Organizations that update research funding annually for all projects in the database are listed as ‘yes’ in the ‘Annual funding updates’ column below.");
-				Test.expected_vs_actual_verification("Funding Organizations");
+				Test.wait_until_element_present(By.name("ICRP partners represent a wide range of governmental, public and non-profit cancer research funding organizations from across the world."),"ICRP partners represent a wide range of governmental, public and non-profit cancer research funding organizations from across the world.");
+				Test.expected_vs_actual_verification("ICRP Partners and Funding Organizations");
 				Test.wait_For(5000);
 				//Verify ICRP Data Caveats Page
 				Test.clickLink(By.linkText("Data Resources"));
