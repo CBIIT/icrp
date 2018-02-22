@@ -9,6 +9,6 @@ content:
     src/Assets/js/dataTables.bootstrapExt.js: {}
     src/Assets/js/dataTables.resizableColumns.js: {}
     src/Assets/js/partnerMap.js: {}
-    src/Assets/js/fundingOrganizations.js: {}
+    src/Assets/js/main.js: {}
   dependencies:
     - core/jquery
