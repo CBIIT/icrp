@@ -238,14 +238,14 @@ public class TestSearchDatabase {
 				//Click Search Criteria and check that only Bladder Cancer and 2013,2013 are listed
 				Test.clickLink(By.cssSelector("span.pull-left:nth-child(1) > div:nth-child(1)"));
 				Test.wait_For(5000);
-				Test.wait_until_element_present(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-9 > icrp-search-summary-panel > icrp-summary-panel > div.content > div > table > tbody > tr:nth-child(1) > td:nth-child(2)"),"2012,2013");
+				Test.wait_until_element_present(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-9 > icrp-search-summary-panel > icrp-summary-panel > div.content > div > table > tbody > tr:nth-child(1) > td:nth-child(2)"),"2018,2017,2012,2013");
 				Test.wait_until_element_present(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-9 > icrp-search-summary-panel > icrp-summary-panel > div.content > div > table > tbody > tr:nth-child(3) > td:nth-child(2)"),"Bladder Cancer");
 				
 				//Click Reset
 				Test.clickLink(By.cssSelector("div.text-right:nth-child(6) > button:nth-child(2)"));
 				Test.wait_For(5000);
-				Test.wait_until_element_present(By.cssSelector("div.select-label:nth-child(1) > div:nth-child(1)"),"2017");
-				Test.wait_until_element_present(By.cssSelector("div.select-label:nth-child(2) > div:nth-child(1)"),"2016");
+				Test.wait_until_element_present(By.cssSelector("div.select-label:nth-child(1) > div:nth-child(1)"),"2018");
+				Test.wait_until_element_present(By.cssSelector("div.select-label:nth-child(2) > div:nth-child(1)"),"2017");
 				
 				Test.wait_For(10000);
 				//Test.logout();

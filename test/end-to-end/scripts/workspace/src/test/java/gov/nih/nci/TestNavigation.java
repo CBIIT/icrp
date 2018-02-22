@@ -407,16 +407,16 @@ public class TestNavigation {
 				
 				//Verify Click on Twitter Page
 				
-				Test.clickLink(By.linkText("Twitter"));
-				Test.wait_For(5000);
-				Test.wait_until_element_present(By.name("We've updated our Privacy Policy, effective June 18th, 2017. You can learn more about what's changed on our Help Center. "),"We've updated our Privacy Policy, effective June 18th, 2017. You can learn more about what's changed on our Help Center. ");
-				Test.switchToChildBrowser();
+				//Test.clickLink(By.linkText("Twitter"));
+				//Test.wait_For(5000);
+				//Test.wait_until_element_present(By.name("We've updated our Privacy Policy, effective June 18th, 2017. You can learn more about what's changed on our Help Center. "),"We've updated our Privacy Policy, effective June 18th, 2017. You can learn more about what's changed on our Help Center. ");
+				//Test.switchToChildBrowser();
 				//Test.GoToNewTabWindow();
-				Test.wait_For(3000);
+				//Test.wait_For(3000);
 				//Test.verifyUrl("https://twitter.com/icrpartners1"); //https://twitter.com/icrpartners1?ref_src=twsrc%5Etfw
-				Test.verifyUrl("https://twitter.com/icrpartners1?ref_src=twsrc%5Etfw");
-				Test.wait_For(5000);
-				Test.switchToParentBrowser();
+				//Test.verifyUrl("https://twitter.com/icrpartners1?ref_src=twsrc%5Etfw");
+				//Test.wait_For(5000);
+				//Test.switchToParentBrowser();
 				//Test.GoToPreviousTabWindow();
 				
 				//Verify Library Page
