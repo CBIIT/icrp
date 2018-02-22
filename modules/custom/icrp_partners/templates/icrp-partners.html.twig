@@ -40,8 +40,16 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
         </a>
     </li>
 
+    {% if logged_in %}
+    <li role="presentation">
+        <a href="#non-partners" aria-controls="non-partners" role="tab" data-toggle="tab">
+            List of Non-Partners
+        </a>
+    </li>
+    {% endif %}
+
     <li role="presentation" class="pull-right hidden-xs" style="margin: 0;">
-        <a href="/partners/export" class="btn btn-default btn-sm" style="margin-right: 0">
+        <a href="/partners{{ logged_in ? '/authenticated' : '' }}/export" class="btn btn-default btn-sm" style="margin-right: 0">
             <i class="fa fa-download"></i>
             Export
         </a>
@@ -72,43 +80,39 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
 
 
     <div role="tabpanel" class="tab-pane" id="partners">
-        <label class="cursor-pointer noselect">
-            <input type="checkbox" id="exclude-former-partners">
-            Exclude Former Partners
-        </label>
         <div style="position: relative; overflow: auto;">
             <table class="table table-bordered table-striped table-condensed table-hover">
                 <thead>
                     <tr>
-                        <th style="min-width: 200px"
+                        <th style="width: 200px"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="ICRP member organization. Partners may represent multiple associate organizations">
                             Partner Name
                         </th>
 
-                        <th style="min-width: 120px"
+                        <th style="width: 120px"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="Abbreviation for the ICRP Partner">
                             Sponsor Code
                         </th>
 
-                        <th style="min-width: 80px"
+                        <th style="width: 90px"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="Country of the partner organization">
                             Country
                         </th>
 
-                        <th style="min-width: 120px"
+                        <th style="width: 120px"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="Date of joining ICRP">
                             Join Date
                         </th>
 
-                        <th style="min-width: 120px"
+                        <th style="width: 120px"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="ICRP Member Status">
@@ -146,78 +150,74 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
     </div>
 
     <div role="tabpanel" class="tab-pane" id="funding-organizations">
-        <label class="cursor-pointer noselect">
-            <input type="checkbox" id="exclude-former-funding-organizations">
-            Exclude Former Funding Organizations
-        </label>
         <div style="position: relative; overflow: auto;">
             <table class="table table-bordered table-striped table-condensed table-hover table-narrow table-nowrap">
                 <thead>
                     <tr>
-                        <th style="min-width: 200px"
+                        <th style="width: 140px"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="Full name of the funding organization">
                             Name
                         </th>
 
-                        <th style="min-width: 120px"
+                        <th style="width: 90px"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="Type of funding organization (Government, Non-Profit, Other)">
                             Type
                         </th>
 
-                        <th style="min-width: 120px"
+                        <th style="width: 90px"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="ICRP Member Status">
                             Status
                         </th>
 
-                        <th style="min-width: 80px"
+                        <th style="width: 90px"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="ICRP abbreviation for the funding organization">
                             Abbreviation
                         </th>
 
-                        <th style="min-width: 120px"
+                        <th style="width: 90px"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="Abbreviation of the partner organization submitting data">
                             Sponsor Code
                         </th>
 
-                        <th style="min-width: 120px"
+                        <th style="width: 70px"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="ISO 3166-2 Country Code">
                             Country
                         </th>
 
-                        <th style="min-width: 120px"
+                        <th style="width: 70px"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="Currency in which awards are submitted">
                             Currency
                         </th>
 
-                        <th style="min-width: 120px"
+                        <th style="width: 90px"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="If NO, funding for the lifetime of the award is complete. If YES, funding is updated annually and investment amounts for future years may not yet be complete">
                             Annualized Funding
                         </th>
 
-                        <th style="min-width: 120px"
+                        <th style="width: 90px"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="Date on which the most recent import was uploaded to ICRP">
                             Last Import Date
                         </th>
 
-                        <th style="min-width: 120px"
+                        <th style="width: 90px"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="Description of the latest upload to ICRP">
@@ -244,6 +244,12 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
             </table>
         </div>
     </div>
+
+    {% if logged_in %}
+    <div role="tabpanel" class="tab-pane" id="non-partners">
+        Content to be determined
+    </div>
+    {% endif %}
 </div>
 
 {# <pre>{{ dump() }}</pre> #}

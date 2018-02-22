@@ -12,3 +12,11 @@ export:
     _controller: '\Drupal\icrp_partners\Controller\PageController::export'
   requirements:
     _access: 'TRUE'
+
+authenticated.export:
+  path: '/partners/authenticated/export'
+  defaults:
+    _controller: '\Drupal\icrp_partners\Controller\PageController::authenticatedExport'
+  requirements:
+    _access: 'TRUE'
+    _role: 'authenticated'

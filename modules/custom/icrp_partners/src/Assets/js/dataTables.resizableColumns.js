@@ -1,4 +1,4 @@
-(function() {
+(function () {
     /**
      * Sets the styles of an element
      * @function setStyles
@@ -21,7 +21,7 @@
         setStyles(el, {
             width: width + "px",
             maxWidth: width + "px",
-            minWidth: width + "px",
+            minWidth: width + "px"
         });
     }
     /**
@@ -36,7 +36,7 @@
             width: '7px',
             marginLeft: '-2px',
             zIndex: '2',
-            cursor: 'ew-resize',
+            cursor: 'ew-resize'
         });
         return handle;
     }
@@ -51,7 +51,8 @@
         for (var i = 0; i < headers.length - 1; i++) {
             var header = headers[i];
             var handle = handles[i] || overlay.appendChild(createHandle());
-            // determine offset of handle relative to the left side of the nearest positioned parent (the table container)
+            // determine offset of handle relative to the left side of the nearest
+            // positioned parent (the table container)
             var offset = header.offsetLeft + header.clientWidth;
             // apply the correct offset to each handle
             setStyles(handle, {
@@ -76,9 +77,9 @@
         var rows = table.tBodies[0].children;
         // sets the width of the appropriate cell in each row
 
-        for (var i = 0; i < rows.length; i ++)
-          setWidth(rows[i].children[columnIndex], width);
-    }
+        for (var i = 0; i < rows.length; i++)
+            setWidth(rows[i].children[columnIndex], width);
+        }
     /**
      * Sets the width of each column to its clientWidth
      * @param {HTMLTableElement} table The target html table
@@ -115,13 +116,15 @@
                 cursorOffset: null,
                 leftColumnIndex: null,
                 leftCellWidth: null,
-                rightCellWidth: null,
-            },
+                rightCellWidth: null
+            }
         };
         // initialize resize overlay
         var overlay = document.createElement('div');
         overlay.setAttribute('data-type', 'overlay');
-        table.parentElement.insertBefore(overlay, table);
+        table
+            .parentElement
+            .insertBefore(overlay, table);
         setStyles(overlay, {
             position: 'relative',
             width: table.clientWidth - 2 + "px"
@@ -147,8 +150,8 @@
                     leftColumnIndex: leftColumnIndex,
                     leftCellWidth: leftCellWidth,
                     rightCellWidth: rightCellWidth,
-                    tableWidth: tableWidth,
-                },
+                    tableWidth: tableWidth
+                }
             };
         };
         // mousemove events will update column sizes
@@ -156,7 +159,7 @@
 
             var dataTableConstant = 0;
             if (window.jQuery.fn.dataTable) {
-              dataTableConstant = 40;
+                dataTableConstant = 27;
             }
 
             if (state.resizing) {
@@ -170,8 +173,7 @@
                         setColumnWidth(table, index, leftCellWidth - dataTableConstant);
                         setColumnWidth(table, index + 1, rightCellWidth - dataTableConstant);
                     }
-                }
-                else {
+                } else {
                     if (leftCellWidth > 15) {
                         setColumnWidth(table, index, leftCellWidth - dataTableConstant);
                     }
@@ -181,13 +183,19 @@
             }
         };
         // mouseup events will stop resizing
-        document.onmouseup = function () { state.resizing = false };
+        document.onmouseup = function () {
+            state.resizing = false
+        };
 
         // ensure that handles are in correct positions
-        table.onmouseover = function() { updateHandles(table, overlay) };
+        table.onmouseover = function () {
+            updateHandles(table, overlay)
+        };
         var headers = table.querySelectorAll('th');
         for (var i = 0; i < headers.length; i++)
-            headers[i].onmouseout = function() { updateHandles(table, overlay) };
+            headers[i].onmouseout = function () {
+                updateHandles(table, overlay)
+            };
 
         for (var i = 0; i < overlay.children.length; i++) {
             overlay.children[i]['dataset'].index = (i).toString();
@@ -199,16 +207,16 @@
     window.enableResizableColumns = enableResizableColumns;
 
     if (window.jQuery) {
-      window.jQuery.fn.enableResizableColumns = function(config) {
-        for (var i = 0; i < this.length; i ++) {
-          enableResizableColumns(this[i], config);
+        window.jQuery.fn.enableResizableColumns = function (config) {
+            for (var i = 0; i < this.length; i++) {
+                enableResizableColumns(this[i], config);
+            }
         }
-      }
 
-      window.jQuery.fn.disableResizableColumns = function() {
-        for (var i = 0; i < this.length; i ++) {
-          disableResizableColumns(this[i]);
+        window.jQuery.fn.disableResizableColumns = function () {
+            for (var i = 0; i < this.length; i++) {
+                disableResizableColumns(this[i]);
+            }
         }
-      }
     }
 })();
