@@ -95,7 +95,11 @@ $(function () {
             })
 
             window.setTimeout(function () {
-                $('#funding-organizations table').enableResizableColumns({preserveWidth: true});
+                $('#funding-organizations table')
+                    .enableResizableColumns({
+                        preserveWidth: true,
+                        columnWidth: 80,
+                    });
             }, 10);
 
             initialized = true;

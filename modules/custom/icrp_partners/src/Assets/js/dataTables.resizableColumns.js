@@ -84,11 +84,12 @@
      * Sets the width of each column to its clientWidth
      * @param {HTMLTableElement} table The target html table
      */
-    function initializeColumnWidths(table) {
+    function initializeColumnWidths(table, config) {
         var headers = table.tHead.children[0].children;
         // sets the width of each table column
         for (var i = 0; i < headers.length; i++) {
-            setColumnWidth(table, i, headers[i].clientWidth + 1);
+            var columnWidth = headers[i].clientWidth + 1;
+            setColumnWidth(table, i, columnWidth);
         }
     }
     function disableResizableColumns(table) {
@@ -107,7 +108,7 @@
      */
     function enableResizableColumns(table, config) {
         // initialize the width of the table
-        initializeColumnWidths(table);
+        initializeColumnWidths(table, config);
         // sets the initial resize state
         var state = {
             resizing: false,
