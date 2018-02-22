@@ -15,20 +15,18 @@ use PDO;
 
 class PageController extends ControllerBase {
     public static function content(): array {
-
-        $connection = PDOBuilder::getConnection();
-
-
+        $pdo = PDOBuilder::getConnection();
         return [
             '#theme' => 'icrp_partners',
+
             '#partners' => PDOBuilder::executePreparedStatement(
-                $connection,
-                'EXECUTE GetPartners'
+                $pdo, 'EXECUTE GetPartners'
             )->fetchAll(),
+
             '#fundingOrganizations' => PDOBuilder::executePreparedStatement(
-                $connection,
-                'EXECUTE GetFundingOrgs @type=funding'
+                $pdo, 'EXECUTE GetFundingOrgs @type=funding'
             )->fetchAll(),
+
             '#attached' => [
                 'library' => [
                     'icrp_partners/content'
@@ -38,32 +36,43 @@ class PageController extends ControllerBase {
     }
 
     public static function export(): StreamedResponse {
-        return new StreamedResponse(
-            ExcelBuilder::create('ICRP Partners.xlsx', [
+        return new StreamedResponse(function() {
+            $pdo = PDOBuilder::getConnection();
+            ExcelBuilder::exportQueries('ICRP Partners.xlsx', [
                 [
                     'title' => 'ICRP Partners',
-                    'rows' => [
-                        ['1', '2', '3'],
-                        ['a', 'b', 'c']
+                    'query' => $pdo->prepare('EXECUTE GetPartners'),
+                    'columns' => [
+                        'Name' => 'Partner Name',
+                        'SponsorCode' => 'Sponsor Code',
+                        'Country' => 'Country',
+                        'JoinDate' => 'Join Date',
+                        'Status' => 'Status',
+                        'Description' => 'Mission',
                     ],
                 ],
 
                 [
                     'title' => 'ICRP Funding Organizations',
-                    'rows' => [
-                        ['1', '2', '3'],
-                        ['a', 'b', 'c']
+                    'query' => $pdo->prepare('EXECUTE GetFundingOrgs @type=funding'),
+                    'columns' => [
+                       'Name' => 'Name',
+                       'Type' => 'Type',
+                       'MemberStatus' => 'Status',
+                       'Abbreviation' => 'Abbreviation',
+                       'SponsorCode' => 'Sponsor Code',
+                       'Country' => 'Country',
+                       'Currency' => 'Currency',
+                       'IsAnnualized' => [
+                           'name' => 'Annualized Funding',
+                           'formatter' => function($value) {
+                                return $value ? 'YES' : 'NO';
+                           }],
+                       'LastImportDate' => 'Last Import Date',
+                       'LastImportDesc' => 'Import Description',
                     ],
                 ],
-
-                [
-                    'title' => 'Non-Partners',
-                    'rows' => [
-                        ['1', '2', '3'],
-                        ['a', 'b', 'c']
-                    ],
-                ],
-            ])
-        );
+            ]);
+        });
     }
 }
