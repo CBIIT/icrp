@@ -6,6 +6,7 @@ content:
       src/Assets/css/dataTables.bootstrap.css: {}
       src/Assets/css/main.css: {}
   js:
+    https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg&libraries=geometry: {type: external}
     https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/js/jquery.dataTables.min.js: {}
     src/Assets/js/dataTables.ext.js: {}
     src/Assets/js/dataTables.resizableColumns.js: {}

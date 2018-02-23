@@ -16,17 +16,33 @@ use PDO;
 class PageController extends ControllerBase {
     public static function content(): array {
         $pdo = PDOBuilder::getConnection();
+
+        $mapData = [
+            'partners' => PDOBuilder::executePreparedStatement(
+                $pdo, "SELECT * FROM Partner"
+            )->fetchAll(),
+            'fundingOrganizations' => PDOBuilder::executePreparedStatement(
+                $pdo, "SELECT * FROM FundingOrg WHERE MemberStatus<>'Merged'"
+            )->fetchAll(),
+        ];
+
+        $partners = PDOBuilder::executePreparedStatement(
+            $pdo, 'EXECUTE GetPartners'
+        )->fetchAll();
+
+        $fundingOrganizations = PDOBuilder::executePreparedStatement(
+            $pdo, 'EXECUTE GetFundingOrgs @type=funding'
+        )->fetchAll();
+
+        usort($partners, function($a, $b) {
+            return strcmp($a['Name'], $b['Name']);
+        });
+
         return [
             '#theme' => 'icrp_partners',
-
-            '#partners' => PDOBuilder::executePreparedStatement(
-                $pdo, 'EXECUTE GetPartners'
-            )->fetchAll(),
-
-            '#fundingOrganizations' => PDOBuilder::executePreparedStatement(
-                $pdo, 'EXECUTE GetFundingOrgs @type=funding'
-            )->fetchAll(),
-
+            '#mapData' => $mapData,
+            '#partners' => $partners,
+            '#fundingOrganizations' => $fundingOrganizations,
             '#attached' => [
                 'library' => [
                     'icrp_partners/content'

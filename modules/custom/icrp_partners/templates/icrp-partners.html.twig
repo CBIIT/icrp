@@ -58,24 +58,25 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
 
 <div class="tab-content">
     <div role="tabpanel" class="tab-pane active" id="map">
-        <iframe height="600" src="https://www.google.com/maps/d/u/0/embed?mid=1h2KiS71C4FDBVmIOJu35yzcz7gM&z=2" width="100%" style="border: 1px solid #ddd;"></iframe>
-
-<!--
+        {# <iframe height="600" src="https://www.google.com/maps/d/u/0/embed?mid=1h2KiS71C4FDBVmIOJu35yzcz7gM&z=2" width="100%" style="border: 1px solid #ddd;"></iframe> #}
         <h4>ICRP Partners and Associated Members</h4>
-        <div>
+        <div class="form-group">
             <b>Partner</b>
-            <select>
-                <option value="" hidden >Select a partner</option>
+            <select id="select-partner" class="form-control form-control-sm" style="display: inline-block; width: 400px; margin-right: 10px;">
+                <option value="">All Partners</option>
+                {% for partner in partners %}
+                    <option value="{{ partner.SponsorCode}}">{{ partner.Name }}</option>
+                {% endfor %}
             </select>
-
-            <input id="exclude-former" type="checkbox">
-            <label for="exclude-former">Exclude Former Partners and Members</label>
+            <label class="cursor-pointer noselect" style="font-weight: normal">
+                <input id="exclude-former" type="checkbox" style="margin-right: 5px">
+                Exclude Former Partners and Members
+            </label>
         </div>
-
 
         <div style="height: 600px" id="partner-map">
+            <i style="color: #AAA;">Loading Map...</i>
         </div>
--->
     </div>
 
 
@@ -251,6 +252,8 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
     </div>
     {% endif %}
 </div>
+
+<script>window.mapData = {{ mapData | json_encode | raw}}</script>
 
 {# <pre>{{ dump() }}</pre> #}
 
