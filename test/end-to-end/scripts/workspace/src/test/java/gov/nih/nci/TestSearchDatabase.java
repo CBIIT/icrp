@@ -196,8 +196,8 @@ public class TestSearchDatabase {
 				logger.info("Click Clear Database");
 				
 				//Test.expected_vs_actual_verification("All Years Selected");
-				Test.wait_For(5000);
-				Test.expected_vs_actual_verification("Enter search terms");
+				//Test.wait_For(5000);
+				//Test.expected_vs_actual_verification("Enter search terms");
 				
 				//Expand Cancer and Project Type
 				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel:nth-child(4) > div.ui-panel-header"));
