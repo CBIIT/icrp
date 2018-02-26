@@ -24,6 +24,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
             .append(
               $('<option value="'+layer.MapLayerID+'">'+'(All Cancer Types)'+'</option>')
                 .css('color', 'black')
+                .data('displayed-name', layer.DisplayedName)
             )
         );
       }
@@ -33,6 +34,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
         layerSelect.append(
           $('<option value="'+layer.MapLayerID+'">'+layer.Name+'</option>')
             .css('color', 'black')
+            .data('displayed-name', layer.DisplayedName)
         );
       }
 
@@ -43,6 +45,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
         }).append(
           $('<option value="'+layer.MapLayerID+'">'+layer.Name+'</option>')
             .css('color', 'black')
+            .data('displayed-name', layer.DisplayedName)
         );
       }
     }
@@ -105,7 +108,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
     if (infowindow.getMap() === null || typeof infowindow.getMap() === 'undefined') {
       infowindow.setPosition(map.getCenter());
       infowindow.setContent(
-        '<h4>'+layer.Name+'</h4>'+
+        '<h4>'+layer.DisplayedName+'</h4>'+
         '<div>'+layer.Summary+'</div>'+
         '<h5>Data Source:</h5>'+
         '<div>'+layer.DataSource+'</div>'
@@ -150,12 +153,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
   updateLegend: function(legend) {
     drupalSettings.db_map.layer.legend = legend;
 
-    var legendContent = '<h4>'+$('#layer-map-select option:selected').text()+'</h4>'
-
-    var parent = $('#layer-map-select option:selected').parent();
-    if (parent.length && parent[0].constructor === HTMLOptGroupElement)
-      legendContent = '<h4>' + parent[0].label + '</h4>' + legendContent;
-
+    var legendContent = '<h4>'+$('#layer-map-select option:selected').data('displayed-name')+'</h4>'
     var legendHTML = $('#layer-map-legend')
       .empty()
       .removeClass('hide')
