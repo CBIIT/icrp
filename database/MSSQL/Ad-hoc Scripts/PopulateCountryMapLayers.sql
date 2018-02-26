@@ -36,6 +36,8 @@ WHERE m.ParentName IS NULL
 update #MapLayerLegend set layerfullname = REPLACE(layerfullname, ' ', '')
 update #MapLayerLegend set layerfullname = REPLACE(layerfullname, '-', '')
 
+update #MapLayerLegend set Min = replace(Min, '<', '<= ')
+update #MapLayerLegend set Max = replace(Max, '>=', '> ')
 
 select * from #MapLayerLegend
 -----------------------------------------
@@ -55,6 +57,7 @@ DECLARE @layerName [varchar](100)
 DECLARE @Summary [varchar](1000) 
 DECLARE @Description [varchar](1000)
 DECLARE @DataSource [varchar](1000)
+DECLARE @layerfullName [varchar](100)
 DECLARE @cursor as CURSOR;
 
 begin transaction
@@ -68,7 +71,8 @@ FETCH NEXT FROM @cursor INTO @parentmaplayerid, @layerName, @Summary, @Descripti
 WHILE @@FETCH_STATUS = 0
 BEGIN 
 
-	INSERT INTO lu_MapLayer SELECT @maplayerid, @parentmaplayerid, @layerName, @Summary, @Description, @DataSource, getdate(), getdate()
+	INSERT INTO lu_MapLayer ([MapLayerID], [ParentMapLayerID], [Name], [DisplayedName], [Summary],[Description], [DataSource], [CreatedDate], [UpdatedDate]) 
+	SELECT @maplayerid, @parentmaplayerid, @layerName, @layerfullName, @Summary, @Description, @DataSource, getdate(), getdate()
 	SET @maplayerid = @maplayerid + 1
 
  FETCH NEXT FROM @cursor INTO  @parentmaplayerid, @layerName, @Summary, @Description, @DataSource;
@@ -84,8 +88,8 @@ commit
 -- Insert MapLayerLegend - lookup
 ----------------------------------------
 --drop table #tmpLegend
--- delete lu_maplayerlegend where legendcolor = '#999999'
--- DBCC  CHECKIDENT ('lu_maplayerlegend', reseed, 35)
+-- delete lu_maplayerlegend where maplayerid > 4
+-- DBCC  CHECKIDENT ('lu_maplayerlegend', reseed, 34)
 --select * from #MapLayerLegend
 
 select distinct  m.displayorder, l.maplayerid, m.ParentName, l.Name, m.legendcolor, CONCAT(ISNULL(m.min, ''), ' - ', ISNULL(m.max, '')) AS legend into #tmpLegend 
@@ -94,16 +98,10 @@ from #MapLayerLegend m
 			from lu_maplayer l 	
 			left join lu_maplayer p on p.MapLayerID = l.ParentMapLayerID) l ON m.layerName = l.Name and m.ParentName = l.parent
 
-select * from #tmpLegend order by ParentName, name, displayorder
-
-update #tmpLegend set legend = replace(legend, ' - >=', '> ')
-update #tmpLegend set legend = replace(legend, '<', '<= ')
-
+update #tmpLegend set legend = replace(legend, ' - >', '>')
 update #tmpLegend set legend = replace(legend, ' - ', '') WHERE RIGHT(legend, 3) = ' - '
 
 select ParentName, Name as LayerName, displayorder, legend from #tmpLegend order by ParentName, Name, displayorder
-
-select * from #tmpLegend
 
 --delete lu_MapLayerLegend where legendcolor='#999999'
 begin transaction
@@ -166,7 +164,10 @@ GO
 
 update #CountryMapLayer set country = LTRIM(RTRIM(Country))
 
---select * from #CountryMapLayer 
+--select * from #tmpLegend where name= 'Cervical Cancer' and ParentName='Cancer Incidence'
+--select * from #MapLayerLegend where layerFullName='CervicalCancerIncidence'
+--select country,CervicalCancerIncidence from #CountryMapLayer where country='sd'
+--select * from CountryMapLayer where country='sd'
 --select * from #MapLayerLegend 
 --select * from country
 --select * from CountryMapLayer
@@ -258,16 +259,26 @@ DEALLOCATE @cursor;
 commit
 --rollback
 
---select * from CountryMapLayer
---select * from lu_maplayer
+/****** Set legend color  ******/
+update lu_MapLayerLegend set LegendColor = '#0DDCFF' where DisplayOrder=5 and  MapLayerID>4
+update lu_MapLayerLegend set LegendColor = '#0BC2E0' where DisplayOrder=4 and  MapLayerID>4
+update lu_MapLayerLegend set LegendColor = '#0994AB' where DisplayOrder=3 and  MapLayerID>4
+update lu_MapLayerLegend set LegendColor = '#066C7D' where DisplayOrder=2 and  MapLayerID>4
+update lu_MapLayerLegend set LegendColor = '#03353D' where DisplayOrder=1 and  MapLayerID>4
+
+select * from lu_MapLayer
+
+select  m.MapLayerID, 
+	CASE 
+	WHEN m.ParentMapLayerID = 0 THEN m.Name 
+	WHEN m.ParentMapLayerID = 1 THEN CONCAT (m.Name, ' ', 'Incidence') 
+	WHEN m.ParentMapLayerID = 2 THEN CONCAT (m.Name, ' ', 'Mortality') 
+	END AS DisplayedName
+INTO #displayedname
+FROM lu_MapLayer m
+LEFT JOIN lu_MapLayer p ON m.ParentMapLayerID = p.MapLayerID
 
 
-/****** Script for SelectTopNRows command from SSMS  ******/
--- SELECT *  FROM [icrp_data_dev].[dbo].[lu_MapLayerLegend] where maplayerid = 4
---select * from CountryMapLayer where maplayerid = 4
-
- SELECT l.MapLayerLegendID, m.min, m.max 
-		FROM #MapLayerLegend m
-			JOIN #tmpLegend tl ON m.ParentName = tl.ParentName AND m.layerName = tl.Name AND m.displayorder = tl.displayorder
-			JOIN lu_MapLayerLegend l ON tl.MapLayerID = l.MapLayerID AND tl.displayorder = l.DisplayOrder
-		WHERE m.layerFullName = 'BladderCancerIncidence'
+UPDATE lu_MapLayer set DisplayedName = t.DisplayedName
+FROM lu_MapLayer m
+JOIN #displayedname t ON m.MapLayerID = t.MapLayerID

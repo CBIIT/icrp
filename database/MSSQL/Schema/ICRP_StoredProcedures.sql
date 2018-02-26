@@ -2510,6 +2510,7 @@ AS
 
 SELECT [Name]
       ,SponsorCode
+	  ,Status
 	  ,[Description]	  
       ,[Country]
       ,[Website]      
@@ -2620,7 +2621,7 @@ SELECT [PartnerCode] AS Partner,[FundingYear],[Status],[ReceivedDate],[Validatio
 	[Note]
 FROM datauploadstatus u
 LEFT JOIN DataUploadLog l ON u.DataUploadStatusID = l.DataUploadStatusID
-ORDER BY u.UploadToProdDate DESC
+ORDER BY u.UploadToStageDate DESC
 
 
 GO
@@ -2649,7 +2650,7 @@ AS
 	SELECT FundingOrgID, Name, Abbreviation, SponsorCode + ' - ' + Name AS DisplayName, Type, MemberType, MemberStatus, Country, Currency, 
 	SponsorCode, IsAnnualized, Note, LastImportDate, LastImportDesc
 	FROM FundingOrg
-	WHERE (@type = 'funding' AND MemberStatus='Current') OR (@type = 'Search' AND LastImportDate IS NOT NULL)
+	WHERE (@type = 'funding' AND MemberStatus<>'Merged') OR (@type = 'Search' AND LastImportDate IS NOT NULL)
 	ORDER BY SponsorCode, Name
 
 GO
@@ -3556,6 +3557,8 @@ IF object_id('tmp_pcso') is NOT null
 	drop table tmp_pcso
 IF object_id('tmp_pcsoRel') is NOT null
 	drop table tmp_pcsoRel
+IF object_id('tmp_mismatched_pcso') is NOT null
+	drop table tmp_mismatched_pcso
 
 SELECT ALtID AS AltAwardCode, CSOCodes, CSORel, SiteCodes, SiteRel, AwardType INTO #list
 FROM UploadWorkBook
@@ -3574,9 +3577,18 @@ CREATE TABLE tmp_pcsorel
 	Rel decimal(18,2)
 )
 
+CREATE TABLE tmp_mismatched_pcso
+(	
+	AltAwardCode VARCHAR(50),
+	csolist VARCHAR(2000),
+	csoRelList VARCHAR(2000)
+)
+
 DECLARE @csoList as NVARCHAR(2000)
 DECLARE @csoRelList as NVARCHAR(2000)
- 
+DECLARE @csoCount as INT
+DECLARE @csoRelCount as INT
+
 DECLARE @csocursor as CURSOR;
 
 SET @csocursor = CURSOR FOR
@@ -3587,14 +3599,24 @@ FETCH NEXT FROM @csocursor INTO @AltAwardCode, @csoList, @csoRelList;
 
 WHILE @@FETCH_STATUS = 0
 BEGIN 
- INSERT INTO tmp_pcso SELECT @AltAwardCode, value FROM  dbo.ToStrTable(@csoList)
- INSERT INTO tmp_pcsorel SELECT @AltAwardCode, 
- CASE LTRIM(RTRIM(value))
-	 WHEN '' THEN 0.00 ELSE CAST(value AS decimal(18,2)) END  
- FROM  dbo.ToStrTable(@csoRelList) 
+ SELECT @csoCount = count(*) FROM STRING_SPLIT(@csolist, ',')  
+ SELECT @csoRelCount = count(*) FROM STRING_SPLIT(@csoRelList, ',')  
 
- DBCC CHECKIDENT ('tmp_pcso', RESEED, 0) WITH NO_INFOMSGS
- DBCC CHECKIDENT ('tmp_pcsorel', RESEED, 0) WITH NO_INFOMSGS
+ IF @csoCount <> @csoRelCount
+ BEGIN
+	INSERT INTO tmp_mismatched_pcso VALUES (@AltAwardCode,@csoList, @csoRelList)
+ END
+ ELSE
+ BEGIN
+	 INSERT INTO tmp_pcso SELECT @AltAwardCode, value FROM  dbo.ToStrTable(@csoList)
+	 INSERT INTO tmp_pcsorel SELECT @AltAwardCode, 
+	 CASE LTRIM(RTRIM(value))
+		 WHEN '' THEN 0.00 ELSE CAST(value AS decimal(18,2)) END  
+	 FROM  dbo.ToStrTable(@csoRelList) 
+
+	 DBCC CHECKIDENT ('tmp_pcso', RESEED, 0) WITH NO_INFOMSGS
+	 DBCC CHECKIDENT ('tmp_pcsorel', RESEED, 0) WITH NO_INFOMSGS
+ END
 
  FETCH NEXT FROM @csocursor INTO @AltAwardCode, @csolist, @csoRelList;
 END
@@ -3639,22 +3661,27 @@ ELSE
 	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -----------------------------------------------------------------
--- Rule 24 - Check CSO - # of codes <> # of Rel		
+-- Rule 24 - Check CSO - Mismatched count (# of codes <> # of Rel)
 -----------------------------------------------------------------
 SET @RuleID= 24
 select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
 
-SELECT c.*, r.Rel, r.Seq AS RelSeq INTO #csoNotMatch FROM tmp_pcso c
-FULL OUTER JOIN tmp_pcsorel r ON c.AltAwardCode = r.AltAwardCode AND c.Seq = r.Seq
+DECLARE @count1 INT
+DECLARE @count2 INT
+
+SELECT @count1=count(1) FROM tmp_mismatched_pcso
+
+SELECT @count2 = count(1) FROM tmp_pcso c
+	FULL OUTER JOIN tmp_pcsorel r ON c.AltAwardCode = r.AltAwardCode AND c.Seq = r.Seq
 WHERE c.AltAwardCode IS NULL OR r.AltAwardCode IS NULL
 
-IF EXISTS (select * FROM #csoNotMatch)
+IF @count1+@count2 > 0 
 BEGIN
-	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #csoNotMatch	
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, @count1+@count2	
 END
 ELSE
 	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
-	
+
 -----------------------------------------------------------------	
 -- 25 Check Historical CSO Codes
 -----------------------------------------------------------------
@@ -3701,12 +3728,14 @@ ELSE
 	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -----------------------------------------------------------------
--- Prepare CSO temp tables
+-- Prepare Site temp tables
 -----------------------------------------------------------------
 IF object_id('tmp_psite') is NOT null
 	drop table tmp_psite
 IF object_id('tmp_psiterel') is NOT null
 	drop table tmp_psiterel
+IF object_id('tmp_mismatched_psite') is NOT null
+	drop table tmp_mismatched_psite
 
 CREATE TABLE tmp_psite
 (
@@ -3722,8 +3751,17 @@ CREATE TABLE tmp_psiterel
 	Rel decimal(18,2)
 )
 
+CREATE TABLE tmp_mismatched_psite
+(	
+	AltAwardCode VARCHAR(50),
+	sitelist VARCHAR(2000),
+	siteRelList VARCHAR(2000)
+)
+
 DECLARE @siteList as NVARCHAR(2000)
 DECLARE @siteRelList as NVARCHAR(2000)
+DECLARE @siteCount as INT
+DECLARE @siteRelCount as INT
  
 DECLARE @ctcursor as CURSOR;
 
@@ -3735,15 +3773,24 @@ FETCH NEXT FROM @ctcursor INTO @AltAwardCode, @siteList, @siteRelList;
 
 WHILE @@FETCH_STATUS = 0
 BEGIN
- INSERT INTO tmp_psite SELECT @AltAwardCode, value FROM  dbo.ToStrTable(@siteList)
- INSERT INTO tmp_psiterel SELECT @AltAwardCode, 
-	CASE LTRIM(RTRIM(value))
-	 WHEN '' THEN 0.00 ELSE CAST(value AS decimal(18,2)) END  
- FROM  dbo.ToStrTable(@siteRelList) 
- 
- DBCC CHECKIDENT ('tmp_psite', RESEED, 0) WITH NO_INFOMSGS
- DBCC CHECKIDENT ('tmp_psiterel', RESEED, 0) WITH NO_INFOMSGS
+ SELECT @siteCount = count(*) FROM STRING_SPLIT(@siteList, ',')  
+ SELECT @siteRelCount = count(*) FROM STRING_SPLIT(@siteRelList, ',')  
 
+ IF @siteCount <> @siteRelCount
+ BEGIN
+	INSERT INTO tmp_mismatched_psite VALUES (@AltAwardCode,@siteList, @siteRelList)
+ END
+ ELSE
+ BEGIN
+	 INSERT INTO tmp_psite SELECT @AltAwardCode, value FROM  dbo.ToStrTable(@siteList)
+	 INSERT INTO tmp_psiterel SELECT @AltAwardCode, 
+		CASE LTRIM(RTRIM(value))
+		 WHEN '' THEN 0.00 ELSE CAST(value AS decimal(18,2)) END  
+	 FROM  dbo.ToStrTable(@siteRelList) 
+ 
+	 DBCC CHECKIDENT ('tmp_psite', RESEED, 0) WITH NO_INFOMSGS
+	 DBCC CHECKIDENT ('tmp_psiterel', RESEED, 0) WITH NO_INFOMSGS
+ END
  FETCH NEXT FROM @ctcursor INTO @AltAwardCode, @siteList, @siteRelList;
 END
  
@@ -3783,17 +3830,22 @@ ELSE
 	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
 -----------------------------------------------------------------	
--- 	Rule 34 -	Check CancerType - # of codes <> # of Rel	
+-- 	Rule 34 -	Check CancerType - Mismatched count (# of codes <> # of Rel	)
 -----------------------------------------------------------------	
 SET @RuleID= 34
 select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
 
-SELECT s.*, r.Rel, r.Seq AS RelSeq INTO #siteNotMatch FROM tmp_psite s
+DECLARE @sitecount1 INT
+DECLARE @sitecount2 INT
+
+SELECT @sitecount1=count(1) FROM tmp_mismatched_psite
+
+SELECT @sitecount2 = count(1) FROM tmp_psite s
 	FULL OUTER JOIN tmp_psiterel r ON s.AltAwardCode = r.AltAwardCode AND s.Seq = r.Seq
 WHERE s.AltAwardCode IS NULL OR r.AltAwardCode IS NULL
 
-IF EXISTS (select * FROM #siteNotMatch)
-	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #siteNotMatch
+IF @sitecount1 + @sitecount2 > 0
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, @count1+@count2
 ELSE
 	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
@@ -4235,6 +4287,12 @@ IF @RuleId = 24
 				FULL OUTER JOIN tmp_pcsorel r ON c.AltAwardCode = r.AltAwardCode AND c.Seq = r.Seq
 				WHERE c.AltAwardCode IS NULL OR r.AltAwardCode IS NULL) t
 	JOIN UploadWorkbook u ON (t.cAltAwardCode = u.AltID) OR (t.rAltAwardCode = u.AltID)
+	
+	UNION
+	
+	SELECT DISTINCT u.AwardCode, AltAwardCode, csolist, csoRelList 
+	FROM tmp_mismatched_pcso t
+		JOIN UploadWorkbook u ON t.AltAwardCode = u.AltID
 
 -------------------------------------------------------------------
 -- Rule - Check Historical CSO Codes
@@ -4353,11 +4411,17 @@ IF @RuleId = 33
 -- 	Rule -	Check CancerType - # of codes <> # of Rel	
 -------------------------------------------------------------------
 IF @RuleId = 34
-SELECT DISTINCT u.AwardCode, u.AltID AS AltAwardCode, u.SiteCodes, u.SiteRel
+	SELECT DISTINCT u.AwardCode, u.AltID AS AltAwardCode, u.SiteCodes, u.SiteRel
 	FROM (SELECT s.AltAwardCode AS sAltAwardCode, r.AltAwardCode AS rAltAwardCode FROM tmp_psite s
 				FULL OUTER JOIN tmp_psiterel r ON s.AltAwardCode = r.AltAwardCode AND s.Seq = r.Seq
 				WHERE s.AltAwardCode IS NULL OR r.AltAwardCode IS NULL) t
 	JOIN UploadWorkbook u ON (t.sAltAwardCode = u.AltID) OR (t.rAltAwardCode = u.AltID)
+		
+	UNION
+	
+	SELECT DISTINCT u.AwardCode, AltAwardCode, sitelist, siteRelList 
+	FROM tmp_mismatched_psite t
+		JOIN UploadWorkbook u ON t.AltAwardCode = u.AltID
 
 -----------------------------------------------------------------	
 -- 26 Check Duplicate CancerType Codes
@@ -6678,13 +6742,13 @@ CREATE PROCEDURE [dbo].[GetMapLayers]
 		
 AS   
 
-	SELECT l.[MapLayerID], p.Name AS GroupName, l.[Name], l.[Summary],l.[Description], l.[DataSource], 
+	SELECT l.[MapLayerID], p.Name AS GroupName, l.[Name], l.DisplayedName, l.[Summary],l.[Description], l.[DataSource], 
 		CASE 
 		WHEN g.ChildrenCount IS NULL THEN 'n' ELSE 'y' END AS HasChildren 
 	FROM lu_MapLayer l	
 		LEFT JOIN lu_MapLayer p ON l.[ParentMapLayerID] = p.MapLayerID
 		LEFT JOIN (SELECT [ParentMapLayerID], count(*) AS ChildrenCount FROM lu_MapLayer GROUP BY [ParentMapLayerID]) g ON g.[ParentMapLayerID] = l.MapLayerID	
-	 ORDER BY p.MapLayerID, l.MapLayerID
+	 ORDER BY p.MapLayerID, l.Name
 GO
 
 ----------------------------------------------------------------------------------------------------------
