@@ -19,10 +19,12 @@ class PageController extends ControllerBase {
 
         $mapData = [
             'partners' => PDOBuilder::executePreparedStatement(
-                $pdo, "SELECT * FROM Partner"
+                $pdo, "EXECUTE GetPartners"
+                // $pdo, "SELECT * FROM Partner"
             )->fetchAll(),
             'fundingOrganizations' => PDOBuilder::executePreparedStatement(
-                $pdo, "SELECT * FROM FundingOrg WHERE MemberStatus<>'Merged'"
+                $pdo, "EXECUTE GetFundingOrgs @type=funding"
+                // $pdo, "SELECT * FROM FundingOrg WHERE MemberStatus<>'Merged'"
             )->fetchAll(),
         ];
 
@@ -35,7 +37,7 @@ class PageController extends ControllerBase {
         )->fetchAll();
 
         usort($partners, function($a, $b) {
-            return strcmp($a['Name'], $b['Name']);
+            return strcmp($a['name'], $b['name']);
         });
 
         return [
@@ -59,12 +61,12 @@ class PageController extends ControllerBase {
                     'title' => 'ICRP Partners',
                     'query' => $pdo->prepare('EXECUTE GetPartners'),
                     'columns' => [
-                        'Name' => 'Partner Name',
-                        'SponsorCode' => 'Sponsor Code',
-                        'Country' => 'Country',
-                        'JoinDate' => 'Join Date',
-                        'Status' => 'Status',
-                        'Description' => 'Mission',
+                        'name' => 'Partner Name',
+                        'sponsorcode' => 'Sponsor Code',
+                        'country' => 'Country',
+                        'joindate' => 'Join Date',
+                        'status' => 'Status',
+                        'description' => 'Mission',
                     ],
                 ],
 
@@ -72,25 +74,26 @@ class PageController extends ControllerBase {
                     'title' => 'ICRP Funding Organizations',
                     'query' => $pdo->prepare('EXECUTE GetFundingOrgs @type=funding'),
                     'columns' => [
-                       'Name' => 'Name',
-                       'Type' => 'Type',
-                       'MemberStatus' => 'Status',
-                       'Abbreviation' => 'Abbreviation',
-                       'SponsorCode' => 'Sponsor Code',
-                       'Country' => 'Country',
-                       'Currency' => 'Currency',
-                       'IsAnnualized' => [
+                       'name' => 'Name',
+                       'type' => 'Type',
+                       'memberstatus' => 'Status',
+                       'abbreviation' => 'Abbreviation',
+                       'sponsorcode' => 'Sponsor Code',
+                       'country' => 'Country',
+                       'currency' => 'Currency',
+                       'isannualized' => [
                            'name' => 'Annualized Funding',
                            'formatter' => function($value) {
                                 return $value ? 'YES' : 'NO';
                            }],
-                       'LastImportDate' => 'Last Import Date',
-                       'LastImportDesc' => 'Import Description',
+                       'lastimportdate' => 'Last Import Date',
+                       'lastimportdesc' => 'Import Description',
                     ],
                 ],
             ]);
         });
     }
+
 
     public static function authenticatedExport(): StreamedResponse {
         return new StreamedResponse(function() {
@@ -100,12 +103,12 @@ class PageController extends ControllerBase {
                     'title' => 'ICRP Partners',
                     'query' => $pdo->prepare('EXECUTE GetPartners'),
                     'columns' => [
-                        'Name' => 'Partner Name',
-                        'SponsorCode' => 'Sponsor Code',
-                        'Country' => 'Country',
-                        'JoinDate' => 'Join Date',
-                        'Status' => 'Status',
-                        'Description' => 'Mission',
+                        'name' => 'Partner Name',
+                        'sponsorcode' => 'Sponsor Code',
+                        'country' => 'Country',
+                        'joindate' => 'Join Date',
+                        'status' => 'Status',
+                        'description' => 'Mission',
                     ],
                 ],
 
@@ -113,24 +116,22 @@ class PageController extends ControllerBase {
                     'title' => 'ICRP Funding Organizations',
                     'query' => $pdo->prepare('EXECUTE GetFundingOrgs @type=funding'),
                     'columns' => [
-                       'Name' => 'Name',
-                       'Type' => 'Type',
-                       'MemberStatus' => 'Status',
-                       'Abbreviation' => 'Abbreviation',
-                       'SponsorCode' => 'Sponsor Code',
-                       'Country' => 'Country',
-                       'Currency' => 'Currency',
-                       'IsAnnualized' => [
+                       'name' => 'Name',
+                       'type' => 'Type',
+                       'memberstatus' => 'Status',
+                       'abbreviation' => 'Abbreviation',
+                       'sponsorcode' => 'Sponsor Code',
+                       'country' => 'Country',
+                       'currency' => 'Currency',
+                       'isannualized' => [
                            'name' => 'Annualized Funding',
                            'formatter' => function($value) {
                                 return $value ? 'YES' : 'NO';
                            }],
-                       'LastImportDate' => 'Last Import Date',
-                       'LastImportDesc' => 'Import Description',
+                       'lastimportdate' => 'Last Import Date',
+                       'lastimportdesc' => 'Import Description',
                     ],
                 ],
-
-
             ]);
         });
     }

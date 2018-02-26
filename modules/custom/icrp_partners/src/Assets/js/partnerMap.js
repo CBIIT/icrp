@@ -43,15 +43,16 @@
         var excludeFormer = $('#exclude-former').prop('checked');
 
         var partners = window.mapData.partners.filter(function (partner) {
-            return !(partner.Latitude == 0 && partner.Longitude == 0)
-                && (sponsorCode == '' || sponsorCode == partner.SponsorCode)
-                && (excludeFormer == false || !/Former/i.test(partner.Status))
+            return !(partner.latitude == 0 && partner.longitude == 0)
+                && (sponsorCode == '' || sponsorCode == partner.sponsorcode)
+                && (excludeFormer == false || !/former/i.test(partner.status))
         })
 
         var fundingOrganizations = window.mapData.fundingOrganizations.filter(function (fundingOrganization) {
-            return !(fundingOrganization.Latitude == 0 && fundingOrganization.Longitude == 0)
-                && (sponsorCode == '' || sponsorCode == fundingOrganization.SponsorCode)
-                && (excludeFormer == false || !/Former/i.test(fundingOrganization.MemberStatus));
+            return !(fundingOrganization.latitude == 0 && fundingOrganization.longitude == 0)
+                && (sponsorCode == '' || sponsorCode == fundingOrganization.sponsorcode)
+                && (excludeFormer == false || !/former/i.test(fundingOrganization.memberstatus))
+                && (!/partner/i.test(fundingOrganization.membertype))
         });
 
         for (var i = 0; i < markers.length; i ++)
@@ -64,32 +65,37 @@
 
         partners.forEach(function(partner) {
             var position = {
-                lng: + partner.Longitude,
-                lat: + partner.Latitude
+                lng: + partner.longitude,
+                lat: + partner.latitude
             };
 
             var infoWindow = new google.maps.InfoWindow({
                 content: $('<div/>')
                     .css('margin', '0 4px 0 0')
-                    .css('line-height', '1.15')
+                    .css('line-height', '1.25')
                     .css('font-weight', 'normal')
                     .append($('<div/>')
                         .addClass('d-flex justify-content-between')
-                        .append($('<b>')
+                        .append($('<div>')
                             .css('margin', '0 16px 8px 0')
                             .html(
-                                partner.Website
+                                partner.website
                                     ? $('<a>', {
-                                        href: partner.Website,
+                                        href: partner.website,
                                         target: '_blank',
-                                    }).text(partner.Name)
-                                    : $('<span>').text(partner.Name))
+                                    }).text(partner.name)
+                                    : $('<span>').text(partner.name))
                             .prepend($('<b>')
                                 .text('Partner:')
-                                .css('margin-right', '4px')))
+                                .css('margin-right', '4px'))
+                            .append($('<span>')
+                                .text(/former/i.test(partner.status) ? '(Former)' : '')
+                                .css('color', '#aaa')
+                                .css('margin-left', '4px')))
+
                         .append(
-                            partner.Email
-                                ? $('<a>', {href: 'mailto:' + partner.Email})
+                            partner.email
+                                ? $('<a>', {href: 'mailto:' + partner.email})
                                     .append('<span style="margin-right: 4px;">email</span>')
                                     .append('<i class="far fa-envelope"></i>')
                                 : ''
@@ -97,16 +103,31 @@
                     )
                     .append($('<hr>').css('margin', '0 0 8px 0'))
                     .append($('<span>').html(
-                        partner.LogoFile
+                        partner.logofile
                             ? $('<img>', {
-                                src: '/data/uploads/partner-logos/' + partner.LogoFile,
-                                alt: 'Logo for ' + partner.Name})
+                                src: '/data/uploads/partner-logos/' + partner.logofile,
+                                alt: 'Logo for ' + partner.name})
                                     .css('max-width', '100px')
                                     .css('max-height', '100px')
                                     .css('margin', '0 10px 6px 0')
                                     .addClass('pull-left')
                             : ''))
-                    .append($('<div />').html(partner.Description))
+                    .append($('<div>').html(partner.description))
+                    .append($('<hr>').css('margin', '8px 0 8px 0'))
+                    .append($('<div>')
+                        .text('Country: ' + partner.country))
+                    .append($('<div>')
+                        .text('Funding Organization: ' + (function(partner) {
+                            var fundingOrganization = mapData.fundingOrganizations.filter(function(fundingOrganization) {
+                                return /partner/i.test(fundingOrganization.membertype)
+                                    && fundingOrganization.sponsorcode === partner.sponsorcode
+                                    && fundingOrganization.name === partner.name
+                            });
+
+                            return fundingOrganization && fundingOrganization.length > 0
+                                ? 'Yes' + (/former/i.test(fundingOrganization[0].memberstatus) ? ' (Former)' : '')
+                                : 'No';
+                        })(partner)))
                     .prop('outerHTML')
             });
 
@@ -124,34 +145,34 @@
 
         fundingOrganizations.forEach(function(fundingOrganization) {
             var position = {
-                lng: + fundingOrganization.Longitude,
-                lat: + fundingOrganization.Latitude
+                lng: + fundingOrganization.longitude,
+                lat: + fundingOrganization.latitude
             };
 
             var infoWindow = new google.maps.InfoWindow({
-                content: $('<div/>')
+                content: $('<div>')
                     .css('margin', '0 4px 0 0')
-                    .css('line-height', '1.15')
+                    .css('line-height', '1.25')
                     .css('font-weight', 'normal')
-                    .append($('<b>')
+                    .append($('<div>')
                         .css('margin', '0 16px 8px 0')
                         .html(
-                            fundingOrganization.Website
+                            fundingOrganization.website
                                 ? $('<a>', {
-                                    href: fundingOrganization.Website,
+                                    href: fundingOrganization.website,
                                     target: '_blank',
-                                }).text(fundingOrganization.Name)
-                                : $('<span>').text(fundingOrganization.Name))
+                                }).text(fundingOrganization.name)
+                                : $('<span>').text(fundingOrganization.name))
                             .prepend($('<b>')
                                 .text('Funding Organization:')
                                 .css('margin-right', '4px')))
-                    .append($('<hr/>').css('margin', '0 0 8px 0'))
-                    .append($('<div/>').html('<b>Partner: </b>'
-                        + partners.filter(function(partner) {
-                            return partner.SponsorCode == fundingOrganization.SponsorCode
-                        })[0].Name))
-                    .append($('<div/>').html('<b>Sponsor Code: </b>' + fundingOrganization.SponsorCode))
-                    .append($('<div/>').html('<b>Country: </b>' + fundingOrganization.Country))
+                    .append($('<hr>').css('margin', '0 0 8px 0'))
+                    .append($('<div>').html('<b>Partner: </b>'
+                        + mapData.partners.filter(function(partner) {
+                            return partner.sponsorcode == fundingOrganization.sponsorcode
+                        })[0].name))
+                    .append($('<div/>').html('<b>Sponsor Code: </b>' + fundingOrganization.sponsorcode))
+                    .append($('<div/>').html('<b>Country: </b>' + fundingOrganization.country))
                     .prop('outerHTML')
             });
 
@@ -167,15 +188,15 @@
             bounds.extend(marker.getPosition());
         })
 
-        if (sponsorCode == '') {
+        if (sponsorCode == '' || (partners.length == 0 && fundingOrganizations.length == 0)) {
             map.panTo({lat: 15, lng: 0});
             map.setZoom(2)
         } else {
             map.fitBounds(bounds);
             if (partners.length + fundingOrganizations.length == 1
                 || (partners.length == 1 && fundingOrganizations.length == 1
-                    && partners[0].Latitude == fundingOrganizations[0].Latitude
-                    && partners[0].Longitude == fundingOrganizations[0].Longitude)
+                    && partners[0].latitude == fundingOrganizations[0].latitude
+                    && partners[0].longitude == fundingOrganizations[0].longitude)
             ) {
                 map.setZoom(4);
             }
