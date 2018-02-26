@@ -2514,7 +2514,11 @@ SELECT [Name]
 	  ,[Description]	  
       ,[Country]
       ,[Website]      
-      ,CAST([JoinedDate] AS DATE)AS JoinDate      
+      ,CAST([JoinedDate] AS DATE)AS JoinDate,
+	  email,
+	  latitude,
+	  longitude,
+	  LogoFile
   FROM [Partner]
   ORDER BY SponsorCode
 
@@ -2647,9 +2651,10 @@ CREATE  PROCEDURE [dbo].[GetFundingOrgs]
      @type varchar(15) = 'funding'	-- 'funding': return all funding organizations; 'Search': return all funding organizations with data uploaded; 	
 AS   
 
-	SELECT FundingOrgID, Name, Abbreviation, SponsorCode + ' - ' + Name AS DisplayName, Type, MemberType, MemberStatus, Country, Currency, 
-	SponsorCode, IsAnnualized, Note, LastImportDate, LastImportDesc
-	FROM FundingOrg
+	SELECT FundingOrgID, fo.Name, fo.Abbreviation, fo.SponsorCode + ' - ' + fo.Name AS DisplayName, fo.Type, fo.MemberType, fo.MemberStatus, fo.Country, fo.Currency, fo.Website,
+			fo.SponsorCode, p.Name AS Partner, fo.IsAnnualized, fo.Note, fo.LastImportDate, fo.LastImportDesc, fo.Latitude, fo.Longitude
+	FROM FundingOrg fo
+		JOIN Partner p ON fo.SponsorCode = p.SponsorCode
 	WHERE (@type = 'funding' AND MemberStatus<>'Merged') OR (@type = 'Search' AND LastImportDate IS NOT NULL)
 	ORDER BY SponsorCode, Name
 
