@@ -17,6 +17,27 @@
     var markers = [];
     var infoWindows = [];
 
+    map.addListener('click', function() {
+        for (var i = 0; i < infoWindows.length; i ++)
+            infoWindows[i].close();
+    });
+
+    // resize map icons when zoom level is changed.
+    map.addListener('zoom_changed', function() {
+        for (let i = 0; i < markers.length; i ++) {
+            if (markers[i].getMap() != null) {
+                let zoom = map.getZoom();
+                let icon = markers[i].getIcon();
+                if (icon) {
+                    markers[i].setIcon({
+                        url: icon.url,
+                        scaledSize: {width: zoom + 12, height: zoom + 16},
+                    });
+                }
+            }
+        }
+    })
+
     $('#select-partner, #exclude-former').change(function () {
         var sponsorCode = $('#select-partner').val();
         var excludeFormer = $('#exclude-former').prop('checked');
@@ -39,6 +60,8 @@
         for (var j = 0; j < infoWindows.length; j ++)
             infoWindows[j].close();
 
+        var bounds = new google.maps.LatLngBounds();
+
         partners.forEach(function(partner) {
             var position = {
                 lng: + partner.Longitude,
@@ -47,18 +70,47 @@
 
             var infoWindow = new google.maps.InfoWindow({
                 content: $('<div/>')
-                    .append($('<h4>').text(partner.Name).css('margin', '0 0 `8px 0').css('display', 'inline-block'))
-                    .append($('<a />', {href: 'mailto:' + partner.Email}).addClass('pull-right').html('email <i class="far fa-envelope"></i>'))
-                    .append($('<hr/>').css('margin', '0 0 8px 0'))
-                    .append($('<img />', {
-                        src: '/sites/default/files/partner-logos/' + partner.LogoFile
-                    }).css('width', '100px').css('margin', '0 10px 10px 0').addClass('pull-left'))
+                    .css('margin', '0 4px 0 0')
+                    .css('line-height', '1.15')
+                    .css('font-weight', 'normal')
+                    .append($('<div/>')
+                        .addClass('d-flex justify-content-between')
+                        .append($('<b>')
+                            .css('margin', '0 16px 8px 0')
+                            .html(
+                                partner.Website
+                                    ? $('<a>', {
+                                        href: partner.Website,
+                                        target: '_blank',
+                                    }).text(partner.Name)
+                                    : $('<span>').text(partner.Name))
+                            .prepend($('<b>')
+                                .text('Partner:')
+                                .css('margin-right', '4px')))
+                        .append(
+                            partner.Email
+                                ? $('<a>', {href: 'mailto:' + partner.Email})
+                                    .append('<span style="margin-right: 4px;">email</span>')
+                                    .append('<i class="far fa-envelope"></i>')
+                                : ''
+                        )
+                    )
+                    .append($('<hr>').css('margin', '0 0 8px 0'))
+                    .append($('<span>').html(
+                        partner.LogoFile
+                            ? $('<img>', {
+                                src: '/data/uploads/partner-logos/' + partner.LogoFile,
+                                alt: 'Logo for ' + partner.Name})
+                                    .css('max-width', '100px')
+                                    .css('max-height', '100px')
+                                    .css('margin', '0 10px 6px 0')
+                                    .addClass('pull-left')
+                            : ''))
                     .append($('<div />').html(partner.Description))
                     .prop('outerHTML')
             });
 
-            var fillOpacity = /current/i.test(partner.Status) ? 1 : 0.5
-            var marker = createMarker('steelblue', position, fillOpacity, 0, map)
+            var marker = createMarker('steelblue', position, 0, map)
             marker.addListener('click', function() {
                for (var i = 0; i < infoWindows.length; i ++)
                    infoWindows[i].close();
@@ -67,6 +119,7 @@
 
             infoWindows.push(infoWindow);
             markers.push(marker);
+            bounds.extend(marker.getPosition());
         });
 
         fundingOrganizations.forEach(function(fundingOrganization) {
@@ -77,13 +130,32 @@
 
             var infoWindow = new google.maps.InfoWindow({
                 content: $('<div/>')
-                    .append($('<h4>').text(fundingOrganization.Name).css('margin', '0 0 `8px 0'))
+                    .css('margin', '0 4px 0 0')
+                    .css('line-height', '1.15')
+                    .css('font-weight', 'normal')
+                    .append($('<b>')
+                        .css('margin', '0 16px 8px 0')
+                        .html(
+                            fundingOrganization.Website
+                                ? $('<a>', {
+                                    href: fundingOrganization.Website,
+                                    target: '_blank',
+                                }).text(fundingOrganization.Name)
+                                : $('<span>').text(fundingOrganization.Name))
+                            .prepend($('<b>')
+                                .text('Funding Organization:')
+                                .css('margin-right', '4px')))
                     .append($('<hr/>').css('margin', '0 0 8px 0'))
-                    .append($('<div />').html())
+                    .append($('<div/>').html('<b>Partner: </b>'
+                        + partners.filter(function(partner) {
+                            return partner.SponsorCode == fundingOrganization.SponsorCode
+                        })[0].Name))
+                    .append($('<div/>').html('<b>Sponsor Code: </b>' + fundingOrganization.SponsorCode))
+                    .append($('<div/>').html('<b>Country: </b>' + fundingOrganization.Country))
                     .prop('outerHTML')
             });
 
-            var marker = createMarker('orange', position, 1, -1, map);
+            var marker = createMarker('orange', position, -1, map);
             marker.addListener('click', function() {
                 for (var i = 0; i < infoWindows.length; i ++)
                     infoWindows[i].close();
@@ -92,27 +164,35 @@
 
             infoWindows.push(infoWindow);
             markers.push(marker);
+            bounds.extend(marker.getPosition());
         })
+
+        if (sponsorCode == '') {
+            map.panTo({lat: 15, lng: 0});
+            map.setZoom(2)
+        } else {
+            map.fitBounds(bounds);
+            if (partners.length + fundingOrganizations.length == 1
+                || (partners.length == 1 && fundingOrganizations.length == 1
+                    && partners[0].Latitude == fundingOrganizations[0].Latitude
+                    && partners[0].Longitude == fundingOrganizations[0].Longitude)
+            ) {
+                map.setZoom(4);
+            }
+        }
 
     }).trigger('change');
 
-    function createMarker(color, position, fillOpacity, zIndex, map) {
-        return new google
-            .maps
-            .Marker({
-                position: position,
-                map: map,
-                icon: {
-                    path: "M 0 0, C -8 -10 8 -10 0 0, M 1 -5, A 1 1 0 1 0 1 -4.999",
-                    fillOpacity: fillOpacity || 1,
-                    fillColor: color,
-                    strokeColor: 'white',
-                    strokeOpacity: 1,
-                    strokeWeight: 1,
-                    scale: 3
-                },
-                zIndex: zIndex || 0
-            });
+    function createMarker(color, position, zIndex, map) {
+        return new google.maps.Marker({
+            position: position,
+            map: map,
+            icon: {
+                url: '/modules/custom/icrp_partners/src/Assets/images/marker.' + color + '.svg',
+                origin: {x: 6, y: 16},
+            },
+            zIndex: zIndex || 0
+        });
     }
 
     function getDefaultStyles() {
