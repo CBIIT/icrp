@@ -167,12 +167,29 @@
                                 .text('Funding Organization:')
                                 .css('margin-right', '4px')))
                     .append($('<hr>').css('margin', '0 0 8px 0'))
-                    .append($('<div>').html('<b>Partner: </b>'
-                        + mapData.partners.filter(function(partner) {
-                            return partner.sponsorcode == fundingOrganization.sponsorcode
-                        })[0].name))
-                    .append($('<div/>').html('<b>Sponsor Code: </b>' + fundingOrganization.sponsorcode))
-                    .append($('<div/>').html('<b>Country: </b>' + fundingOrganization.country))
+                    .append($('<div>')
+                        .addClass('d-flex')
+                        .append($('<div>')
+                            .css('min-width', '100px')
+                            .text('Partner: '))
+                        .append($('<div>')
+                            .text(mapData.partners.filter(function(partner) {
+                                return partner.sponsorcode == fundingOrganization.sponsorcode
+                            })[0].name)))
+                    .append($('<div>')
+                        .addClass('d-flex')
+                        .append($('<div>')
+                            .css('min-width', '100px')
+                            .text('Sponsor Code: '))
+                        .append($('<div>')
+                            .text(fundingOrganization.sponsorcode)))
+                    .append($('<div>')
+                        .addClass('d-flex')
+                        .append($('<div>')
+                            .css('min-width', '100px')
+                            .text('Country: '))
+                        .append($('<div>')
+                            .text(fundingOrganization.country)))
                     .prop('outerHTML')
             });
 
