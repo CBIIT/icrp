@@ -1,21 +1,23 @@
 // @ts-nocheck
 (function () {
-    var map = new google
-        .maps
-        .Map(document.getElementById('partner-map'), {
-            center: {
-                lat: 20,
-                lng: 0
-            },
-            zoom: 2,
-            disableDefaultUI: true,
-            zoomControl: true,
-            backgroundColor: '#64aad8',
-            styles: getDefaultStyles(),
-        });
+    var map = new google.maps.Map(document.getElementById('partner-map'), {
+        center: {
+            lat: 20,
+            lng: 0
+        },
+        zoom: 2,
+        disableDefaultUI: true,
+        zoomControl: true,
+        backgroundColor: '#64aad8',
+        styles: getDefaultStyles(),
+    });
 
     var markers = [];
     var infoWindows = [];
+    var overlayInitialized = false;
+    var overlay = new google.maps.OverlayView();
+    overlay.draw = function() {};
+    overlay.setMap(map);
 
     map.addListener('click', function() {
         for (var i = 0; i < infoWindows.length; i ++)
@@ -37,6 +39,13 @@
             }
         }
     })
+
+    map.addListener('idle', function() {
+        if (!overlayInitialized) {
+            overlayInitialized = true;
+            $('#select-partner').trigger('change');
+        }
+    });
 
     $('#select-partner, #exclude-former').change(function () {
         var sponsorCode = $('#select-partner').val();
@@ -74,7 +83,8 @@
         for (var j = 0; j < infoWindows.length; j ++)
             infoWindows[j].close();
 
-        var bounds = new google.maps.LatLngBounds();
+        markers = [];
+        infoWindows = [];
 
         partners.forEach(function(partner) {
             var position = {
@@ -144,7 +154,12 @@
                     .prop('outerHTML')
             });
 
-            var marker = createMarker('steelblue', position, 0, map)
+            var marker = createMarker('steelblue', position, 1, null);
+            marker.metadata = {
+                name: partner.name,
+                type: 'partner',
+            }
+
             marker.addListener('click', function() {
                for (var i = 0; i < infoWindows.length; i ++)
                    infoWindows[i].close();
@@ -153,15 +168,9 @@
 
             infoWindows.push(infoWindow);
             markers.push(marker);
-            bounds.extend(marker.getPosition());
         });
 
         fundingOrganizations.forEach(function(fundingOrganization) {
-            var position = {
-                lng: + fundingOrganization.longitude,
-                lat: + fundingOrganization.latitude
-            };
-
             var infoWindow = new google.maps.InfoWindow({
                 content: $('<div>')
                     .css('margin', '0 4px 0 0')
@@ -206,7 +215,16 @@
                     .prop('outerHTML')
             });
 
-            var marker = createMarker('orange', position, -1, map);
+            var position = {
+                lng: +fundingOrganization.longitude,
+                lat: +fundingOrganization.latitude
+            };
+            var marker = createMarker('orange', position, -1, null);
+            marker.metadata = {
+                name: fundingOrganization.name,
+                type: 'fundingOrganization',
+            }
+
             marker.addListener('click', function() {
                 for (var i = 0; i < infoWindows.length; i ++)
                     infoWindows[i].close();
@@ -215,24 +233,60 @@
 
             infoWindows.push(infoWindow);
             markers.push(marker);
-            bounds.extend(marker.getPosition());
         })
 
-        if (sponsorCode == '' || (partners.length == 0 && fundingOrganizations.length == 0)) {
-            map.panTo({lat: 15, lng: 0});
-            map.setZoom(2)
-        } else {
-            map.fitBounds(bounds);
-            if (partners.length + fundingOrganizations.length == 1
-                || (partners.length == 1 && fundingOrganizations.length == 1
-                    && partners[0].latitude == fundingOrganizations[0].latitude
-                    && partners[0].longitude == fundingOrganizations[0].longitude)
-            ) {
-                map.setZoom(4);
-            }
-        }
+        // var mapMarkers = markers.filter(function(marker) {
+        //     return marker.getMap() != null;
+        // });
 
-    }).trigger('change');
+        // if (sponsorCode == '' || (partners.length == 0 && fundingOrganizations.length == 0)) {
+        //     map.panTo({lat: 15, lng: 0});
+        //     map.setZoom(2)
+        // } else {
+        //     map.fitBounds(getBounds(mapMarkers));
+        //     if (partners.length + fundingOrganizations.length == 1
+        //         || (partners.length == 1 && fundingOrganizations.length == 1
+        //             && partners[0].latitude == fundingOrganizations[0].latitude
+        //             && partners[0].longitude == fundingOrganizations[0].longitude)
+        //     ) {
+        //         map.setZoom(4);
+        //     }
+        // }
+
+        var groups = groupMarkers(overlay, markers, 60);
+
+        groups.forEach(function(group) {
+
+            console.log(group);
+
+            if (group.length == 1) {
+                group[0].setMap(map);
+                console.log(group[0]);
+            }
+
+            else if (group.length > 1) {
+                console.log('creating group marker');
+                group.forEach(function(marker) {
+                    marker.setMap(map)
+                });
+                var position = getBounds(group).getCenter().toJSON();
+                createMarker('yellow', position, 12, map);
+
+                // var length = group.length;
+                // var position = getBounds(group).getCenter();
+                // setTimeout(function() {
+                //     var groupMarker = createMarker('yellow', position, 0, map);
+                //     group.forEach(function(marker) {
+                //         marker.setMap(null)
+                //     });
+                // }, 100)
+                // console.log(length, position, groupMarker)
+
+            }
+        });
+
+
+    });
 
     function createMarker(color, position, zIndex, map) {
         return new google.maps.Marker({
@@ -244,6 +298,54 @@
             },
             zIndex: zIndex || 0
         });
+    }
+
+    function groupMarkers(overlay, markers, radius) {
+        var groups = [];
+        var projection = overlay.getProjection();
+
+        // iterate through each marker
+        markers.forEach(function(marker) {
+
+            // attempt to find the closest group to the marker
+            var minDistance = Number.MAX_VALUE;
+            var closestGroup = null;
+
+            groups.forEach(function(group) {
+                var distance = distanceBetween(
+                    projection.fromLatLngToDivPixel(getBounds(group).getCenter()),
+                    projection.fromLatLngToDivPixel(marker.getPosition())
+                );
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestGroup = group;
+                }
+            });
+
+            // if we did not find any groups within the minimum radius
+            // then create a new group from the current marker
+            if (closestGroup == null || minDistance > radius) {
+                groups.push([marker])
+            }
+            else if (closestGroup != null) {
+                closestGroup.push(marker);
+            }
+        });
+
+        return groups;
+    }
+
+    function getBounds(markers) {
+        return markers.reduce(function(bounds, marker) {
+            return bounds.extend(marker.getPosition());
+        }, new google.maps.LatLngBounds());
+    }
+
+    function distanceBetween(a, b) {
+        return Math.sqrt(
+            Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2)
+        );
     }
 
     function getDefaultStyles() {
