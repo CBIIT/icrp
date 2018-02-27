@@ -10,7 +10,7 @@
             zoom: 2,
             disableDefaultUI: true,
             zoomControl: true,
-            backgroundColor: 'transparent',
+            backgroundColor: '#64aad8',
             styles: getDefaultStyles(),
         });
 
@@ -41,6 +41,19 @@
     $('#select-partner, #exclude-former').change(function () {
         var sponsorCode = $('#select-partner').val();
         var excludeFormer = $('#exclude-former').prop('checked');
+
+        var totalPartners = window.mapData.partners.filter(function (partner) {
+            return (sponsorCode == '' || sponsorCode == partner.sponsorcode)
+                && (excludeFormer == false || !/former/i.test(partner.status))
+        }).length;
+
+        var totalFundingOrganizations = window.mapData.fundingOrganizations.filter(function (fundingOrganization) {
+            return (sponsorCode == '' || sponsorCode == fundingOrganization.sponsorcode)
+                && (excludeFormer == false || !/former/i.test(fundingOrganization.memberstatus))
+        }).length;
+
+        $('[data-total-partners]').text(totalPartners)
+        $('[data-total-funding-organizations]').text(totalFundingOrganizations);
 
         var partners = window.mapData.partners.filter(function (partner) {
             return !(partner.latitude == 0 && partner.longitude == 0)
