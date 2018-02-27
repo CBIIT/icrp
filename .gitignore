@@ -89,4 +89,5 @@ settings.local.php
 package-lock.json
 !/sites/default/files/user-guides
 
-/data/*
+
+!/data/uploads/partner-logos
