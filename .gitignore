@@ -89,5 +89,5 @@ settings.local.php
 package-lock.json
 !/sites/default/files/user-guides
 
-
+/data/exports/*
 !/data/uploads/partner-logos

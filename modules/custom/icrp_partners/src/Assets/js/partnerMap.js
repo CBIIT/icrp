@@ -112,7 +112,7 @@
                                     .css('margin', '0 10px 6px 0')
                                     .addClass('pull-left')
                             : ''))
-                    .append($('<div>').html(partner.description))
+                    .append($('<div>').addClass('clearfix').html(partner.description))
                     .append($('<hr>').css('margin', '8px 0 8px 0'))
                     .append($('<div>')
                         .text('Country: ' + partner.country))

@@ -62,7 +62,7 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
         <div class="form-group">
             <b>Partner</b>
             <select id="select-partner" class="form-control form-control-sm" style="display: inline-block; width: 400px; margin-right: 10px;">
-                <option value="">All Partners</option>
+                <option value="">(All Partners)</option>
                 {% for partner in partners %}
                     <option value="{{ partner.sponsorcode}}">{{ partner.name }}</option>
                 {% endfor %}
