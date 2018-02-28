@@ -187,22 +187,27 @@ public class TestSearchDatabase {
 				Test.wait_For(1000);
 				Test.wait_until_element_present(By.cssSelector("#block-anonymoususermenu > div > div.field--item > div:nth-child(2) > a"),"Log in");  //Check user is not logged in
 				Test.wait_For(2000);
+				Test.wait_For(5000);
+				
 				//Click Clear Database
 				
-				//Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > div > button:nth-child(3)"));
-				//Test.clickLink(By.xpath("/html/body/div/div/section/div[2]/icrp-root/div/icrp-search-page/div/div[1]/icrp-search-form/form/div/button[3]"));
-				//Test.clickLink(By.cssSelector("html.js body.path-db-search.has-glyphicons div.main-container.container.js-quickedit-main-content div.row section.col-sm-12 div.region.region-content icrp-root div icrp-search-page div.row div.col-sm-3 icrp-search-form form.ng-untouched.ng-valid.ng-dirty div.text-right.vertical-spacer button.btn.btn-default"));
-				//Test.wait_For(5000);
+				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > div > button:nth-child(3)"));
+				logger.info("Clicked Clear button");
+				Test.wait_For(5000);
+				Test.expected_vs_actual_verification("All Years Selected");
+				
 				logger.info("Click Clear Database");
 				
-				//Test.expected_vs_actual_verification("All Years Selected");
-				//Test.wait_For(5000);
+				
+				Test.wait_For(5000);
 				//Test.expected_vs_actual_verification("Enter search terms");
 				
 				//Expand Cancer and Project Type
 				//Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel:nth-child(4) > div.ui-panel-header"));
-				Test.clickLink(By.xpath("/html/body/div/div/section/div[2]/icrp-root/div/icrp-search-page/div/div[1]/icrp-search-form/form/ui-panel[4]/div[1]/div/i"));	
-
+				Test.clickLink(By.xpath("/html/body/div/div/section/div[2]/icrp-root/div/icrp-search-page/div/div[1]/icrp-search-form/form/ui-panel[4]/div[1]"));	
+				
+				
+				Test.wait_For(2000);
 				logger.info("Expand Cancer and Project Type");
 				//Click on Select Cancer Type
 				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel:nth-child(4) > div.ui-panel-content > ui-select:nth-child(2) > div > div.select-input-container.default > div > input"));
