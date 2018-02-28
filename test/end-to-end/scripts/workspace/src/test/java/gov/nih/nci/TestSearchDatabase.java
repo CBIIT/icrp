@@ -200,8 +200,9 @@ public class TestSearchDatabase {
 				//Test.expected_vs_actual_verification("Enter search terms");
 				
 				//Expand Cancer and Project Type
-				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel:nth-child(4) > div.ui-panel-header"));
-				Test.wait_For(2000);
+				//Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel:nth-child(4) > div.ui-panel-header"));
+				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel.ng-tns-c9-4 > div.ui-panel-header"));	
+
 				logger.info("Expand Cancer and Project Type");
 				//Click on Select Cancer Type
 				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel:nth-child(4) > div.ui-panel-content > ui-select:nth-child(2) > div > div.select-input-container.default > div > input"));
