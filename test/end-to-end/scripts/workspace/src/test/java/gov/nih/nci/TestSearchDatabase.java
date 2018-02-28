@@ -201,7 +201,7 @@ public class TestSearchDatabase {
 				
 				//Expand Cancer and Project Type
 				//Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel:nth-child(4) > div.ui-panel-header"));
-				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel.ng-tns-c9-4 > div.ui-panel-header"));	
+				Test.clickLink(By.xpath("/html/body/div/div/section/div[2]/icrp-root/div/icrp-search-page/div/div[1]/icrp-search-form/form/ui-panel[4]/div[1]/div/i"));	
 
 				logger.info("Expand Cancer and Project Type");
 				//Click on Select Cancer Type
