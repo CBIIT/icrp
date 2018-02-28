@@ -9,48 +9,52 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
     map.data.loadGeoJson('/modules/custom/db_map/src/assets/countries.json');
     drupalSettings.db_map.layer.reset();
     map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push($('<div id="layer-map-legend" class="hide"/>')[0]);
-    layerSelect = $('<select></select>').on('change',drupalSettings.db_map.layer.onSelect);
+    layerSelect = $('<select id="select-layer"></select>').on('change',drupalSettings.db_map.layer.onSelect);
     layerSelect.append('<option value="">(None)</option>');
 
-    for (var i in layers) {
-      var layer = layers[i];
+    var orderedLayers = [];
 
-      // create an optgroup if this is a parent layer (GroupName == null)
-      if (layer.GroupName == null && layer.HasChildren === "y") {
-        layerSelect.append(
-          // add a default option to the optgroup
-          $('<optgroup label="' + layer.Name + '"></optgroup>')
-            .css('color', '#aaa')
-            .append(
-              $('<option value="'+layer.MapLayerID+'">'+'(All Cancer Types)'+'</option>')
-                .css('color', 'black')
-                .data('displayed-name', layer.DisplayedName)
-            )
-        );
+    layers.forEach(function(layer) {
+      if (layer.GroupName == null)
+        orderedLayers.push(layer);
+
+      else {
+        var matches = orderedLayers.filter(function(target) {
+          return target.GroupName == layer.GroupName
+            || target.Name == layer.GroupName
+        });
+
+        if (matches) {
+          var lastMatch = matches[matches.length - 1];
+          var index = orderedLayers.indexOf(lastMatch);
+          orderedLayers.splice(index + 1, 0, layer);
+        }
+
+        else {
+          orderedLayers.push(layer);
+        }
       }
+    })
 
-      // add options without children to the seelct node
-      else if (layer.GroupName == null && layer.HasChildren === "n") {
-        layerSelect.append(
-          $('<option value="'+layer.MapLayerID+'">'+layer.Name+'</option>')
-            .css('color', 'black')
-            .data('displayed-name', layer.DisplayedName)
-        );
-      }
+    orderedLayers.forEach(function(layer) {
+      layerSelect.append(
+        $('<option value="'+layer.MapLayerID+'">'+layer.Name+'</option>')
+          .attr('title', layer.DisplayedName)
+          .css('margin-left', layer.GroupName == null ? '0' : '20px')
+          .css('font-weight', layer.GroupName == null ? 'bold' : 'normal')
+      )
+    })
 
-      // otherwise, find the optgroup this layer belongs under and append it to that group
-      else if (layer.GroupName != null && layer.HasChildren === "n") {
-        layerSelect.find('optgroup').filter(function(index, element) {
-          return element.label == layer.GroupName;
-        }).append(
-          $('<option value="'+layer.MapLayerID+'">'+layer.Name+'</option>')
-            .css('color', 'black')
-            .data('displayed-name', layer.DisplayedName)
-        );
-      }
-    }
+    map.controls[google.maps.ControlPosition.TOP_RIGHT]
+      .push($('<div id="layer-map-select"/>')
+        .append($('<span>Layer</span>'))
+        .append(layerSelect)[0]);
 
-    map.controls[google.maps.ControlPosition.TOP_RIGHT].push($('<div id="layer-map-select"/>').append($('<span>Layer</span>')).append(layerSelect)[0]);
+    layerSelect
+      .data('width', '280px')
+      .data('size', '14')
+      .selectpicker();
+
     drupalSettings.db_map.layer.infowindow = new google.maps.InfoWindow({pixelOffset:{height:70,width:0}});
   },
   infowindow: null,
@@ -153,7 +157,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
   updateLegend: function(legend) {
     drupalSettings.db_map.layer.legend = legend;
 
-    var legendContent = '<h4>'+$('#layer-map-select option:selected').data('displayed-name')+'</h4>'
+    var legendContent = '<h4>'+$('#layer-map-select option:selected').attr('title')+'</h4>'
     var legendHTML = $('#layer-map-legend')
       .empty()
       .removeClass('hide')

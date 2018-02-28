@@ -36,7 +36,7 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
     <li role="presentation">
         <a href="#funding-organizations" aria-controls="funding-organizations" role="tab" data-toggle="tab">
             <i style="color: orange" class="fas fa-map-marker-alt"></i>
-            List of Funding Orgs
+            List of Funding Organizations
         </a>
     </li>
 
@@ -59,17 +59,23 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
 <div class="tab-content">
     <div role="tabpanel" class="tab-pane active" id="map">
         {# <iframe height="600" src="https://www.google.com/maps/d/u/0/embed?mid=1h2KiS71C4FDBVmIOJu35yzcz7gM&z=2" width="100%" style="border: 1px solid #ddd;"></iframe> #}
-        <div class="form-group">
-            <b>Partner</b>
-            <select id="select-partner" class="form-control form-control-sm" style="display: inline-block; width: 400px; margin-right: 10px;">
-                <option value="">All Partners</option>
-                {% for partner in partners %}
-                    <option value="{{ partner.sponsorcode}}">{{ partner.name }}</option>
-                {% endfor %}
-            </select>
-            <label class="cursor-pointer noselect" style="font-weight: normal">
-                <input id="exclude-former" type="checkbox" style="margin-right: 5px">
-                Exclude Former Partners and Funding Organizations
+        <div class="d-flex justify-content-between align-items-end mv-5">
+            <div>
+                <b>Partner</b>
+                <select id="select-partner" class="form-control form-control-sm" style="display: inline-block; width: 400px; margin-right: 10px;">
+                    <option value="">(All Partners)</option>
+                    {% for partner in partners %}
+                        <option value="{{ partner.sponsorcode}}">{{ partner.name }}</option>
+                    {% endfor %}
+                </select>
+                <label class="cursor-pointer noselect" style="font-weight: normal">
+                    <input id="exclude-former" type="checkbox" style="margin-right: 5px">
+                    Exclude Former Partners and Funding Organizations
+                </label>
+            </div>
+            <label style="font-weight: normal; margin-bottom: 0;">
+                Total of <span data-total-partners>0</span> Partner(s) /
+                <span data-total-funding-organizations>0</span> Funding Org(s)
             </label>
         </div>
 

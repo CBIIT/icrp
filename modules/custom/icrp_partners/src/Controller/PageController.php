@@ -56,7 +56,7 @@ class PageController extends ControllerBase {
     public static function export(): StreamedResponse {
         return new StreamedResponse(function() {
             $pdo = PDOBuilder::getConnection();
-            ExcelBuilder::exportQueries('ICRP Partners.xlsx', [
+            ExcelBuilder::exportQueries('ICRP Partners and Funding Orgs.xlsx', [
                 [
                     'title' => 'ICRP Partners',
                     'query' => $pdo->prepare('EXECUTE GetPartners'),
@@ -98,7 +98,7 @@ class PageController extends ControllerBase {
     public static function authenticatedExport(): StreamedResponse {
         return new StreamedResponse(function() {
             $pdo = PDOBuilder::getConnection();
-            ExcelBuilder::exportQueries('ICRP Partners.xlsx', [
+            ExcelBuilder::exportQueries('ICRP Partners and Funding Orgs.xlsx', [
                 [
                     'title' => 'ICRP Partners',
                     'query' => $pdo->prepare('EXECUTE GetPartners'),

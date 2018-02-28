@@ -1,5 +1,33 @@
 $(document).ready(function(){
-  $('#db_people_map_export').on('click',function(e) {
+
+  $('table').DataTable({
+    pagingType: 'simple_numbers',
+    lengthMenu: [
+        25, 50, 100, 250
+    ],
+    dom: "<'d-flex align-items-center flex-wrap justify-content-between'"
+        + "<'d-flex align-items-center flex-wrap'<'mr-40 mv-5'li><'mv-5'p>>"
+        + "<'d-flex align-items-center flex-wrap'C>"
+        + "><'table-responsive't>",
+    autoWidth: false,
+    language: {
+        lengthMenu: 'Display _MENU_',
+        info: '<label style="margin-left: 5px">of _TOTAL_ partners</label>',
+        infoFiltered: '',
+        infoEmpty: '',
+    },
+    customDom: function(settings) {
+        return $('<button>')
+          .addClass('btn btn-default btn-sm')
+          .text('Export')
+          .prepend($('<i>')
+            .css('margin-right', '5px')
+            .addClass('fa fa-download'))
+          .click(exportRecords)
+    },
+  })
+
+  function exportRecords(e) {
     e.preventDefault();
     var exportObj = [{
       title: 'Search Criteria',
@@ -30,12 +58,7 @@ $(document).ready(function(){
     }).done(function(resp) {
       window.location = '/'+resp;
     });
-  });
-  $('#buttonShowAll').on('click',function(e) {
-    e.preventDefault();
-    var table = $('table.project-collaborators'),
-        showall = table.hasClass('showall');
-    table.toggleClass('showall',!showall);
-    $(e.target).html('Show '+(showall?'All':'Less'));
-  });
+  }
+
+
 });
