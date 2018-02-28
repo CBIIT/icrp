@@ -1,7 +1,7 @@
 #layer-map-legend {
   background-color: #f5f5f5;
   margin-left: 26px;
-  padding: 10px;  
+  padding: 10px;
 }
 
 #layer-map-legend > h3 {
@@ -31,20 +31,26 @@
 }
 
 #layer-map-select {
-  line-height: 32px;
-  padding-right: 2px;
+  display: flex;
+  align-items: center;
 }
 
-#layer-map-select span {
+#layer-map-select > span:first-child {
   color: #FFF;
   font-size: 20px;
-  margin-top: 2px;
   padding-right: 0.5em;
 }
 
-#layer-map-select select {
-  display: inline-block;
-  font-size: 16px;
-  margin-top: 5px;
-  vertical-align: top;
+#layer-map-select .bootstrap-select {
+  font-size: 14px;
 }
+
+#layer-map-select .bootstrap-select button.btn.dropdown-toggle {
+  padding: 4px;
+}
+
+#layer-map-select .dropdown-menu > li > a {
+  padding: 4px;
+  color: black;
+}
+

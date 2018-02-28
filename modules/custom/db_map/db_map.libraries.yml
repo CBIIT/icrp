@@ -2,12 +2,14 @@ default:
   version: 1.1.0
   css:
     theme:
+      https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css: {}
       src/assets/main.css: {}
       src/assets/db_layer_map.css: {}
   js:
     ## localhost only
     https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg&libraries=geometry: {type: external}
     # https://maps.googleapis.com/maps/api/js?key=AIzaSyCGWGjju-VhYkWhFSL06xYtq0UAfe_kl_s&libraries=geometry: {type: external}
+    https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js: {}
     src/assets/db_layer_map.js: {}
     src/assets/main.js: {}
 
@@ -16,13 +18,15 @@ map.people:
   version: 1.0.1
   css:
     theme:
+      https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css: {}
       src/assets/main.css: {}
       src/assets/db_people_map.css: {}
       src/assets/db_layer_map.css: {}
   js:
-    src/assets/db_people_map.js: {}
-    src/assets/db_people_map_controls.js: {}
-    src/assets/db_layer_map.js: {}
     ## localhost only
     https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg&callback=drupalSettings.db_map.initPeopleMap: {async: true, defer: true}
     # https://maps.googleapis.com/maps/api/js?key=AIzaSyCGWGjju-VhYkWhFSL06xYtq0UAfe_kl_s&callback=drupalSettings.db_map.initPeopleMap: {async: true, defer: true}
+    https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js: {}
+    src/assets/db_people_map.js: {}
+    src/assets/db_people_map_controls.js: {}
+    src/assets/db_layer_map.js: {}
