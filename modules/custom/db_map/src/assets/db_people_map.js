@@ -1,3 +1,7 @@
+$(function() {
+  drupalSettings.db_map.initPeopleMap();
+})
+
 drupalSettings.db_map = {
   initPeopleMap: function() {
     var baseUrl = '/sites/default/files/db_map/',
