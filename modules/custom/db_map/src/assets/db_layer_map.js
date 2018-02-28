@@ -41,6 +41,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
         $('<option value="'+layer.MapLayerID+'">'+layer.Name+'</option>')
           .attr('title', layer.DisplayedName)
           .css('margin-left', layer.GroupName == null ? '0' : '20px')
+          .css('font-weight', layer.GroupName == null ? 'bold' : 'normal')
       )
     })
 
