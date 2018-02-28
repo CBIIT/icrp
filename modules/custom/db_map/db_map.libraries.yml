@@ -19,14 +19,19 @@ map.people:
   css:
     theme:
       https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css: {}
+      https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap-grid.css: {}
       src/assets/main.css: {}
       src/assets/db_people_map.css: {}
       src/assets/db_layer_map.css: {}
+      src/assets/css/dataTables.bootstrap.css: {}
   js:
     ## localhost only
     https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg&libraries=geometry: {async: true, defer: true}
     # https://maps.googleapis.com/maps/api/js?key=AIzaSyCGWGjju-VhYkWhFSL06xYtq0UAfe_kl_s&callback=drupalSettings.db_map.initPeopleMap: {async: true, defer: true}
     https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js: {}
+    https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/js/jquery.dataTables.min.js: {}
+    src/assets/js/dataTables.ext.js: {}
+    src/assets/js/dataTables.resizableColumns.js: {}
     src/assets/db_people_map.js: {}
     src/assets/db_people_map_controls.js: {}
     src/assets/db_layer_map.js: {}

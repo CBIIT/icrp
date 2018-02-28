@@ -46,10 +46,10 @@ table.project-collaborators > tbody > tr:hover {
   background-color: #FAFAFA;
 }
 
-table.project-collaborators:not(.showall) > tbody > tr:nth-child(5) ~ tr {
-  display: none;
-}
-
 #icrp-map-header a {
   line-height: 24px;
+}
+
+.mr-40 {
+  margin-right: 40px;
 }
