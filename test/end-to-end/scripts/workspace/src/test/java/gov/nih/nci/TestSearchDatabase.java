@@ -191,10 +191,10 @@ public class TestSearchDatabase {
 				
 				//Click Clear Database
 				
-				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > div > button:nth-child(3)"));
-				logger.info("Clicked Clear button");
-				Test.wait_For(5000);
-				Test.expected_vs_actual_verification("All Years Selected");
+				//Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > div > button:nth-child(3)"));
+				//logger.info("Clicked Clear button");
+				//Test.wait_For(5000);
+				//Test.expected_vs_actual_verification("All Years Selected");
 				
 				logger.info("Click Clear Database");
 				
