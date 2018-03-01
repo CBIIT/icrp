@@ -14,7 +14,11 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use PDO;
 
 class PageController extends ControllerBase {
+
+
     public static function content(): array {
+        \Drupal::service('page_cache_kill_switch')->trigger();
+
         $pdo = PDOBuilder::getConnection();
 
         $mapData = [
