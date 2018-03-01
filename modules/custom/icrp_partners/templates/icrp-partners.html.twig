@@ -147,7 +147,12 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
                         <td title="{{ partner.country }}">{{ partner.country }}</td>
                         <td title="{{ partner.joindate }}">{{ partner.joindate }}</td>
                         <td title="{{ partner.status }}">{{ partner.status }}</td>
-                        <td title="{{ partner.description | striptags }}">{{ partner.description | raw }}</td>
+                        <td title="{{ partner.description | striptags }}">
+                            {{ partner.description | raw [:200] }}
+                            {% if partner.description | length > 200 %}
+                                <span>...</span>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>
