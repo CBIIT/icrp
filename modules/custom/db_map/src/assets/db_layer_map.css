@@ -54,3 +54,7 @@
   color: black;
 }
 
+#layer-map-select > div > button.btn.btn-default {
+  background-color: white;
+  color: black;
+}
