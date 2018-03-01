@@ -258,7 +258,12 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
     {% endif %}
 </div>
 
-<script>window.mapData = {{ mapData | json_encode | raw}}</script>
+<script>
+window.mapData = {
+    partners: {{ partners | json_encode | raw}},
+    fundingOrganizations: {{ fundingOrganizations | json_encode | raw}}
+}
+</script>
 
 {# <pre>{{ dump() }}</pre> #}
 

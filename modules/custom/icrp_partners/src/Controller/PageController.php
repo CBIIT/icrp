@@ -21,17 +21,6 @@ class PageController extends ControllerBase {
 
         $pdo = PDOBuilder::getConnection();
 
-        $mapData = [
-            'partners' => PDOBuilder::executePreparedStatement(
-                $pdo, "EXECUTE GetPartners"
-                // $pdo, "SELECT * FROM Partner"
-            )->fetchAll(),
-            'fundingOrganizations' => PDOBuilder::executePreparedStatement(
-                $pdo, "EXECUTE GetFundingOrgs @type=funding"
-                // $pdo, "SELECT * FROM FundingOrg WHERE MemberStatus<>'Merged'"
-            )->fetchAll(),
-        ];
-
         $partners = PDOBuilder::executePreparedStatement(
             $pdo, 'EXECUTE GetPartners'
         )->fetchAll();
@@ -46,7 +35,6 @@ class PageController extends ControllerBase {
 
         return [
             '#theme' => 'icrp_partners',
-            '#mapData' => $mapData,
             '#partners' => $partners,
             '#fundingOrganizations' => $fundingOrganizations,
             '#attached' => [
