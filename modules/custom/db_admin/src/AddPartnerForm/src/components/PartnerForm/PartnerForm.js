@@ -42,7 +42,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
               {`${message.SUCCESS}`} Visit <a
                 target='_blank'
                 rel='noopener noreferrer'
-                href={`${window.location.protocol}//${window.location.hostname}/current_partners`}>
+                href={`${window.location.protocol}//${window.location.hostname}/partners`}>
                 Current Partners
               </a> to view a list of current ICRP partners.
             </Alert>}
@@ -101,7 +101,7 @@ const PartnerForm = ({context, form, changeCallback, submitCallback, resetCallba
 
           <ControlLabel className='margin-right asterisk'>
             Joined Date
-          </ControlLabel>
+          </ControlLabel>yarn
 
           <div className='display-flex'>
             <DatePicker

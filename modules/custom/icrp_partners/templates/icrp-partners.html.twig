@@ -59,7 +59,7 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
 <div class="tab-content">
     <div role="tabpanel" class="tab-pane active" id="map">
         {# <iframe height="600" src="https://www.google.com/maps/d/u/0/embed?mid=1h2KiS71C4FDBVmIOJu35yzcz7gM&z=2" width="100%" style="border: 1px solid #ddd;"></iframe> #}
-        <div class="d-flex justify-content-between align-items-end mv-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-end mv-5">
             <div>
                 <b>Partner</b>
                 <select id="select-partner" class="form-control form-control-sm" style="display: inline-block; width: 400px; margin-right: 10px;">
@@ -147,7 +147,12 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
                         <td title="{{ partner.country }}">{{ partner.country }}</td>
                         <td title="{{ partner.joindate }}">{{ partner.joindate }}</td>
                         <td title="{{ partner.status }}">{{ partner.status }}</td>
-                        <td title="{{ partner.description | striptags }}">{{ partner.description | raw }}</td>
+                        <td title="{{ partner.description | striptags }}">
+                            {{ partner.description | raw [:200] }}
+                            {% if partner.description | length > 200 %}
+                                <span>...</span>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -258,7 +263,12 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
     {% endif %}
 </div>
 
-<script>window.mapData = {{ mapData | json_encode | raw}}</script>
+<script>
+window.mapData = {
+    partners: {{ partners | json_encode | raw}},
+    fundingOrganizations: {{ fundingOrganizations | json_encode | raw}}
+}
+</script>
 
 {# <pre>{{ dump() }}</pre> #}
 

@@ -80,10 +80,10 @@
 (function ($) {
   window['enableTooltips'] = function() {
     window.setTimeout(function() {
-      $('[data-toggle="tooltip"]').tooltip({container: 'body'}); 
+      $('[data-toggle="tooltip"]').tooltip({container: 'body'});
     }, 0);
   }
-  
+
   // sets tags with the data-count attribute to be dynamic
   if ($('[data-count]').length) {
     $.ajax('/api/database/counts')
@@ -159,7 +159,7 @@
         //console.log("BEFORE CHANGE");
         //console.log("Start Date: "+$('#edit-field-event-date-range-0-value-date').val()+' '+$('#edit-field-event-date-range-0-value-time').val());
         //console.log("End Date: "+$('#edit-field-event-date-range-0-end-value-date').val()+' '+$('#edit-field-event-date-range-0-end-value-time').val());
-        
+
         startDate.setHours(startDate.getHours()+eventDuration);
         //console.log(startDate.getUTCDate());
         startDateOnly = new Date(startDate.getUTCFullYear() + "-"+ (startDate.getUTCMonth()+1) + "-" + (startDate.getUTCDate()));
@@ -200,7 +200,7 @@
     $('#edit-field-event-date-range-0-value-time').on('change', function(e) {
       $.advanceEndDateTime();
     });
-    
+
     // Fix Date Time Range if avalable.
 
     var ids = ["edit-field-event-date-range-0-value-time", "edit-field-event-date-range-0-end-value-time"];
@@ -290,10 +290,10 @@
 
     var target_title = $(e.target).closest(".item.active").find('img').prop('alt')
     //console.dir(e);
-    //console.log("You click on the Carousel item");        
+    //console.log("You click on the Carousel item");
     //console.log(target_title);
     //var win = window.open($.imageRoute(target_title), '_self');
-    var url = $.imageRoute(target_title); 
+    var url = $.imageRoute(target_title);
     if(url != "/") {
       window.location.href = url;
     }
@@ -324,7 +324,7 @@
       url: host + "/api/database/examples/cso",
       success: function( data ) {
         $.gotoCSOUrl(data, id);
-      }   
+      }
     });
   }
 
@@ -347,15 +347,15 @@
     Search the Database -> to Database Search page
 
     */
-    //If anonymous don't redirect to member /FundingOrgs from the Global Reach image.
+    //If anonymous don't redirect to member /partners from the Global Reach image.
     /*
     if(title == 'Global Reach' && $("#navbar-collapse").find('a').text() == "Log in") {
-      return "/current_partners";
+      return "/partners";
     }
     */
     var routes = [{
         title : 'Global Reach',
-        url : '/FundingOrgs'
+        url : '/'
     },{
         title : 'Explore',
         url : '/db_search'
@@ -376,7 +376,7 @@
     var index = routes.map(function(o) { return o.title; }).indexOf(title);
     //console.log("Going to: "+routes[index].url);
     if(index >= 0) {
-      return routes[index]['url'];   
+      return routes[index]['url'];
     } else {
       return '/';
     }
@@ -421,7 +421,7 @@
       host = window.location.protocol + "//" + window.location.hostname;
     }
     $.ajax({
-      url: host + "/getLatestNewsletter", 
+      url: host + "/getLatestNewsletter",
       success: function( data ) {
         $.showNewsletter(data[0]);
       }
@@ -433,8 +433,8 @@
     old:
     The library PDF File location - icrp/sites/default/files/library/uploads
     Thumbnail location (folder path) - icrp/sites/default/files/library/uploads/thumbs
-    
-    eg: 
+
+    eg:
       var pdf = "/sites/default/files/library/uploads/"+newsletter.Filename;
       var thumbnail = "/sites/default/files/library/uploads/thumbs/"+newsletter.ThumbnailFilename;
 

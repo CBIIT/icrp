@@ -72,6 +72,7 @@ class DatabaseSearch {
       'cso_research_areas'          => 'SELECT Code AS [value], Code + \' \' + Name AS [label], CategoryName AS [group_1], \'All Areas\' as [group_2] FROM CSO ORDER BY sortOrder, value',
       'conversion_years'            => 'SELECT DISTINCT Year AS [value], Year AS [label] FROM CurrencyRate ORDER BY Year DESC',
       'funding_organizations'       => 'EXECUTE GetFundingOrgs @type = search',
+      'funding_organizations_by_sponsor_code' => 'EXECUTE GetFundingOrgs @type = search',
     ];
 
     // map query results to field values
@@ -91,9 +92,24 @@ class DatabaseSearch {
       ];
     }
 
+    $funding_organizations_by_sponsor_code = [];
+    foreach($fields['funding_organizations_by_sponsor_code'] as $funding_organization) {
+      $funding_organizations_by_sponsor_code[] = [
+        'value' => $funding_organization['FundingOrgID'],
+        'label' => $funding_organization['Name'],
+        'group_1' => $funding_organization['SponsorCode'],
+        'group_2' => 'Funding',
+      ];
+    }
+
+
     // create trees for funding organizations and cso research areas
     $funding_organizations = TreeBuilder::flattenTree(TreeBuilder::createTree($funding_organizations, 3, 'group_', 'All %s Organizations')[0]);
+    $funding_organizations_by_sponsor_code = TreeBuilder::createTree($funding_organizations_by_sponsor_code, 2, 'group_', 'All %s Organizations')[0];
+
     $fields['funding_organizations'] = [TreeBuilder::sortTree($funding_organizations)];
+    $fields['funding_organizations_by_sponsor_code'] = [TreeBuilder::sortTree($funding_organizations_by_sponsor_code, false)];
+
     $fields['cso_research_areas'] = [TreeBuilder::flattenTree(TreeBuilder::createTree($fields['cso_research_areas'], 2)[0])];
 
     // provide an array of years

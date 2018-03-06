@@ -5,6 +5,7 @@ $(document).ready(function(){
     lengthMenu: [
         25, 50, 100, 250
     ],
+    order: [],
     dom: "<'d-flex align-items-center flex-wrap justify-content-between'"
         + "<'d-flex align-items-center flex-wrap'<'mr-40 mv-5'li><'mv-5'p>>"
         + "<'d-flex align-items-center flex-wrap'C>"

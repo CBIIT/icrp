@@ -58,14 +58,14 @@ export class TreeViewComponent implements OnChanges, ControlValueAccessor {
         for (let key in attributes) {
           _renderer.setElementAttribute(el, key, attributes[key]);
         }
-      }, 
+      },
       clearElementChildren: (el: HTMLElement) => {
         while (el.firstChild) {
           _renderer.invokeElementMethod(
             el, 'removeChild', [el.firstChild]
           );
         }
-      }, 
+      },
     }
     /** end _renderer helper methods */
   }
@@ -80,18 +80,18 @@ export class TreeViewComponent implements OnChanges, ControlValueAccessor {
     this.updateSelectedNodes(node);
 
     /** Create the node's container */
-    let div: HTMLDivElement = 
+    let div: HTMLDivElement =
       this._renderer.createElement(node.el, 'div');
 
     /** Create the label */
-    let label: HTMLLabelElement = 
+    let label: HTMLLabelElement =
       this._renderer.createElement(div, 'label');
 
     /** Create the checkbox */
-    let checkbox: HTMLInputElement = 
+    let checkbox: HTMLInputElement =
       this._renderer.createElement(label, 'input');
 
-    /** Set the label text */      
+    /** Set the label text */
     this._renderer.createText(label, node.label);
 
     /** Toggle this node when is clicked */
@@ -105,14 +105,14 @@ export class TreeViewComponent implements OnChanges, ControlValueAccessor {
         'type': 'checkbox'
       });
 
-    /** Bind properties to node */      
+    /** Bind properties to node */
     this._r.setElementProperties(
       checkbox, {
         'value': node.value,
         'checked': node.selected
       });
 
-    /** Set appearance of each checkbox/label group */      
+    /** Set appearance of each checkbox/label group */
     this._r.setElementStyles(
       div, {
         'margin-left': '6px',
@@ -174,15 +174,15 @@ export class TreeViewComponent implements OnChanges, ControlValueAccessor {
     this.propagateChange(this.selectedNodes.map(node => node.value));
   }
 
-  
+
   /**
    * Toggles the selected status of the node
-   * @param node 
+   * @param node
    */
   toggleNode(node: TreeNode) {
     /** Toggle the selected property */
     node.selected = !node.selected;
-    
+
     /** If this node has been deselected, deselect its parents as well */
     if (!node.selected) {
       let temp = node;
@@ -219,7 +219,7 @@ export class TreeViewComponent implements OnChanges, ControlValueAccessor {
     let filterSelected = (root: TreeNode, selection: TreeNode[]) => {
       if (root.selected)
         selection.push(root);
-      
+
       for (let child of root.children || []) {
         filterSelected(child, selection);
       }
@@ -235,7 +235,7 @@ export class TreeViewComponent implements OnChanges, ControlValueAccessor {
    * @param node {TreeNode} The current node being compared against the list of selected values
    */
   updateSelectedNodes(node: TreeNode): void {
-    
+
     /** The index of the node in this list */
     let index = this.selectedNodes.findIndex(
       (each: TreeNode) => each.value === node.value
@@ -247,7 +247,7 @@ export class TreeViewComponent implements OnChanges, ControlValueAccessor {
       this.selectedNodes.push(node);
     }
 
-    /** If the node is not selected and is contained within the array of selected nodes, 
+    /** If the node is not selected and is contained within the array of selected nodes,
      *  remove it from the array */
     else if (!node.selected && index > -1) {
       this.selectedNodes.splice(index, 1);
@@ -256,7 +256,7 @@ export class TreeViewComponent implements OnChanges, ControlValueAccessor {
 
   /**
    * Select only nodes that have values found in the specified array
-   * 
+   *
    * @param node {TreeNode} The current node
    * @param values {(string|number)[]} The values which the nodes are checked against
    */
@@ -264,9 +264,14 @@ export class TreeViewComponent implements OnChanges, ControlValueAccessor {
     node.selected = values.indexOf(node.value) > -1;
 
     if (node.children) {
+      let allSelected = node.children.length > 0;
       for (let child of node.children) {
+        if (values.indexOf(child.value) == -1)
+          allSelected = false;
         this.selectNodes(child, values);
       }
+      if (allSelected)
+        node.selected = true;
     }
   }
 
@@ -305,7 +310,7 @@ export class TreeViewComponent implements OnChanges, ControlValueAccessor {
   }
 
 
-  
+
   ensureProperty(object: any, property: string, defaultValue: any) {
     if (object[property] === undefined || object[property] === null) {
       object[property] = defaultValue;

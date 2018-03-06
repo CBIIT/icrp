@@ -34,6 +34,7 @@ export class SearchFormComponent {
     cities: [],
 
     funding_organizations: [],
+    funding_organizations_by_sponsor_code: [],
     funding_organization_types: [],
     cancer_types: [],
     is_childhood_cancer: [],
@@ -46,6 +47,7 @@ export class SearchFormComponent {
 
   form: FormGroup;
 
+  groupFundingOrganizationsBySponsorCode: boolean = true;
   parameters: any = {};
   defaultParameters: any = {};
   displayParameters: any = {};
@@ -77,6 +79,7 @@ export class SearchFormComponent {
       cities: [''],
 
       funding_organizations: [''],
+      funding_organization_group_type: [null],
       funding_organization_types: [''],
       cancer_types: [''],
       is_childhood_cancer: [''],

@@ -10,6 +10,7 @@ $(function () {
                 lengthMenu: [
                     5, 10, 25,
                 ],
+                pageLength: 25,
                 dom: "<'d-flex align-items-center flex-wrap justify-content-between'"
                     + "<'d-flex align-items-center flex-wrap'<'mr-40 mv-5'f><'mr-40 mv-5'C>>"
                     + "<'d-flex align-items-center flex-wrap'<'mr-40 mv-5'li><'mv-5'p>>"

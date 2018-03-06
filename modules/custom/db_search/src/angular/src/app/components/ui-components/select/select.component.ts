@@ -8,9 +8,9 @@ import {
   ViewChild
 } from '@angular/core';
 
-import { 
-  ControlValueAccessor, 
-  NG_VALUE_ACCESSOR 
+import {
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR
 } from '@angular/forms';
 
 @Component({
@@ -26,7 +26,7 @@ import {
     provide: NG_VALUE_ACCESSOR,
     useExisting: forwardRef(() => SelectComponent),
     multi: true
-  }]  
+  }]
 })
 
 export class SelectComponent {
@@ -52,11 +52,11 @@ export class SelectComponent {
   /** Selected items */
   selectedItems: { "value": number | string, "label": any }[];
 
-  /** Indexes of items matching the search results. 
-   * 
-   * Index refers to the index of the item.  
-   * Location refers to the location of the matched text. 
-   */  
+  /** Indexes of items matching the search results.
+   *
+   * Index refers to the index of the item.
+   * Location refers to the location of the matched text.
+   */
   matchingItems: { "value": number | string, "label": any } [];
 
   /** Index of highlighted item in search dropdown */
@@ -102,7 +102,7 @@ export class SelectComponent {
             value: isNaN(+value) ? value : +value
           }
         }
-        
+
         if (item && this.limit == -1 || this.selectedItems.length < this.limit) {
           this.selectedItems.push(item);
         }
@@ -147,8 +147,8 @@ export class SelectComponent {
       this.updateSearchResults();
     }
 
-    if (event.key === 'Backspace' 
-    && this.input.nativeElement.value.length === 0 
+    if (event.key === 'Backspace'
+    && this.input.nativeElement.value.length === 0
     && this.selectedItems.length > 0) {
       this.selectedItems.pop();
       this.updateSearchResults();
@@ -196,7 +196,7 @@ export class SelectComponent {
     let inputValue = this.input.nativeElement.value;
     let inputLength: number = this.input.nativeElement.value.length;
     let displayString = label;
-    
+
     if (inputValue && inputLength) {
       let location = label.toLowerCase().indexOf(inputValue.toLowerCase());
 
@@ -208,7 +208,7 @@ export class SelectComponent {
         displayString = first + '<b>' + mid + '</b>' + end;
       }
     }
-    
+
     return displayString;
   }
 
@@ -254,12 +254,26 @@ export class SelectComponent {
       if (item && !this.selectedItems.find(i => i.label === item.label && i.value === item.value)) {
         if (this.limit == -1 || this.selectedItems.length < this.limit)
           this.selectedItems.push(this.matchingItems[i]);
-      }    
+      }
     }
 
     this.initialHiglightedRangeIndex = -1;
     this.currentHiglightedRangeIndex = -1;
     this.input && this.input.nativeElement && (this.input.nativeElement.value = '');
     this.emitValue();
+  }
+
+  applyValue() {
+    let value = this.input.nativeElement.value;
+    if (this.matchingItems && this.matchingItems.length > 0) {
+      if (this.matchingItems[0].label.toLowerCase() == value.toLowerCase()) {
+        this.addSelectedItem(this.matchingItems[0]);
+        this.updateSearchResults();
+      }
+
+      else {
+        this.input.nativeElement.value = '';
+      }
+    }
   }
 }

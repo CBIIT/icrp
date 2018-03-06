@@ -215,18 +215,25 @@
                                 .css('margin', '0 4px 0 0')
                                 .css('line-height', '1.25')
                                 .css('font-weight', 'normal')
-                                .append($('<div>')
-                                    .css('margin', '0 16px 8px 0')
-                                    .html(
-                                        item.website
-                                            ? $('<a>', {
-                                                href: item.website,
-                                                target: '_blank',
-                                            }).text(item.name)
-                                            : $('<span>').text(item.name))
+                                .append($('<div/>')
+                                    .addClass('d-flex justify-content-between')
+                                    .append($('<div>')
+                                        .css('margin', '0 16px 8px 0')
+                                        .html(
+                                            item.website
+                                                ? $('<a>', {
+                                                    href: item.website,
+                                                    target: '_blank',
+                                                }).text(item.name)
+                                                : $('<span>').text(item.name))
                                         .prepend($('<b>')
                                             .text('Funding Organization:')
-                                            .css('margin-right', '4px')))
+                                            .css('margin-right', '4px'))
+                                        .append($('<span>')
+                                            .text(/former/i.test(item.memberstatus) ? '(Former)' : '')
+                                            .css('color', '#aaa')
+                                            .css('margin-left', '4px')))
+                                )
                                 .append($('<hr>').css('margin', '0 0 8px 0'))
                                 .append($('<div>')
                                     .addClass('d-flex')

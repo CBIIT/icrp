@@ -14,19 +14,12 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use PDO;
 
 class PageController extends ControllerBase {
-    public static function content(): array {
-        $pdo = PDOBuilder::getConnection();
 
-        $mapData = [
-            'partners' => PDOBuilder::executePreparedStatement(
-                $pdo, "EXECUTE GetPartners"
-                // $pdo, "SELECT * FROM Partner"
-            )->fetchAll(),
-            'fundingOrganizations' => PDOBuilder::executePreparedStatement(
-                $pdo, "EXECUTE GetFundingOrgs @type=funding"
-                // $pdo, "SELECT * FROM FundingOrg WHERE MemberStatus<>'Merged'"
-            )->fetchAll(),
-        ];
+
+    public static function content(): array {
+        \Drupal::service('page_cache_kill_switch')->trigger();
+
+        $pdo = PDOBuilder::getConnection();
 
         $partners = PDOBuilder::executePreparedStatement(
             $pdo, 'EXECUTE GetPartners'
@@ -42,7 +35,6 @@ class PageController extends ControllerBase {
 
         return [
             '#theme' => 'icrp_partners',
-            '#mapData' => $mapData,
             '#partners' => $partners,
             '#fundingOrganizations' => $fundingOrganizations,
             '#attached' => [
