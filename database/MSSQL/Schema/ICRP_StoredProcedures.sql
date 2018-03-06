@@ -1523,6 +1523,7 @@ FROM ProjectFunding f
 	JOIN lu_Region r ON r.RegionID = c.RegionID
 	JOIN ProjectAbstract a ON f.ProjectAbstractID = a.ProjectAbstractID
 WHERE f.ProjectFundingID = @ProjectFundingID
+ORDER BY pi.IsPrincipalInvestigator DESC, pi.LastName,  pi.FirstName
 
 GO
 
@@ -2505,20 +2506,19 @@ DROP PROCEDURE [dbo].[GetPartners]
 GO 
 
 CREATE  PROCEDURE [dbo].[GetPartners]
-    
+@NonPartner bit = 0
 AS   
 
-SELECT [Name]
-      ,SponsorCode
-	  ,Status
-	  ,[Description]	  
-      ,[Country]
-      ,[Website]      
-      ,CAST([JoinedDate] AS DATE)AS JoinDate      
-  FROM [Partner]
-  ORDER BY SponsorCode
+IF @NonPartner = 0
+	SELECT PartnerID, [Name],SponsorCode,Status,[Description],[Country],[Website],CAST([JoinedDate] AS DATE)AS JoinDate, email, latitude, longitude, LogoFile, Note
+	FROM [Partner]
+	ORDER BY SponsorCode
+ELSE
+	SELECT [NonParterID], [Name], [Description], [Abbreviation], [Email], [Country], [Address], [Longitude],[Latitude],[Website], [LogoFile], [Note], [EstimatedInvest], [ContactPerson],[Position], [DoNotContact], [CancerOnly],[ResearchFunder]
+	FROM [NonPartner] WHERE ConvertedDate is NULL  -- exclude those already converted to partner
+	ORDER BY [Name]
 
-  GO
+GO
 
 
     
@@ -2647,9 +2647,10 @@ CREATE  PROCEDURE [dbo].[GetFundingOrgs]
      @type varchar(15) = 'funding'	-- 'funding': return all funding organizations; 'Search': return all funding organizations with data uploaded; 	
 AS   
 
-	SELECT FundingOrgID, Name, Abbreviation, SponsorCode + ' - ' + Name AS DisplayName, Type, MemberType, MemberStatus, Country, Currency, 
-	SponsorCode, IsAnnualized, Note, LastImportDate, LastImportDesc
-	FROM FundingOrg
+	SELECT FundingOrgID, fo.Name, fo.Abbreviation, fo.SponsorCode + ' - ' + fo.Name AS DisplayName, fo.Type, fo.MemberType, fo.MemberStatus, fo.Country, fo.Currency, fo.Website,
+			fo.SponsorCode, p.Name AS Partner, fo.IsAnnualized, fo.Note, fo.LastImportDate, fo.LastImportDesc, fo.Latitude, fo.Longitude
+	FROM FundingOrg fo
+		JOIN Partner p ON fo.SponsorCode = p.SponsorCode
 	WHERE (@type = 'funding' AND MemberStatus<>'Merged') OR (@type = 'Search' AND LastImportDate IS NOT NULL)
 	ORDER BY SponsorCode, Name
 
@@ -3257,6 +3258,11 @@ DECLARE @DataUploadReport TABLE
 	[Description] varchar(250),
 	[Count] INT
 )
+
+-------------------------------------------------------------------
+-- Workaround Fix - set SiteCode = 0 if null and rel = 100
+-------------------------------------------------------------------
+update UploadWorkBook set SiteCodes='0' where (SiteCodes is null) AND (SiteRel = '100')
 
 -------------------------------------------------------------------
 -- Get Project Category
@@ -6827,7 +6833,8 @@ CREATE  PROCEDURE [dbo].[AddPartner]
 	@Note [varchar](8000),
 	@JoinedDate [datetime],
 	@Longitude [decimal](9, 6),
-	@Latitude [decimal](9, 6) 
+	@Latitude [decimal](9, 6),
+	@Status [varchar](25) = 'Current'
 AS   
 
 BEGIN TRANSACTION;
@@ -6840,16 +6847,16 @@ BEGIN TRY
 		   RAISERROR ('Sponsor Code already existed', 16, 1)
 	END
 
-	INSERT INTO Partner ([Name],[Description], [SponsorCode], [Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], [CreatedDate], [UpdatedDate])
-	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, GETDATE(), GETDATE())
+	INSERT INTO Partner ([Name],[Description], [SponsorCode], [Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], Status, [CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, @Status, GETDATE(), GETDATE())
 		
 	-- Also insert the new partner into the PartnerOrg table
 	INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
 	SELECT @Name, @SponsorCode, 'Partner', 1 
 
 	-- Also Insert the newly inserted partner into the icrp_dataload database
-	INSERT INTO icrp_dataload.dbo.Partner ([Name], [Description],[SponsorCode],[Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], [CreatedDate], [UpdatedDate])
-	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, GETDATE(), GETDATE())
+	INSERT INTO icrp_dataload.dbo.Partner ([Name], [Description],[SponsorCode],[Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], Status, [CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, @Status, GETDATE(), GETDATE())
 
 	COMMIT TRANSACTION
 
@@ -6893,7 +6900,8 @@ CREATE  PROCEDURE [dbo].[UpdatePartner]
 	@Note [varchar](8000),
 	@JoinedDate [datetime],
 	@Longitude [decimal](9, 6),
-	@Latitude [decimal](9, 6) 
+	@Latitude [decimal](9, 6),
+	@Status [varchar](25) = 'Current'
 AS   
 
 BEGIN TRANSACTION;
@@ -6919,6 +6927,7 @@ BEGIN TRY
 		[JoinedDate]  = @JoinedDate,	
 		[Longitude]  = @Longitude,
 		[Latitude] = @Latitude,
+		[Status] = @Status,
 		[UpdatedDate] = getdate()
 	WHERE PartnerID =  @PartnerID
 
@@ -6935,6 +6944,7 @@ BEGIN TRY
 		[JoinedDate]  = @JoinedDate,	
 		[Longitude]  = @Longitude,
 		[Latitude] = @Latitude,
+		[Status] = @Status,
 		[UpdatedDate] = getdate()
 	WHERE [SponsorCode] =  @OrgSponsorCode
 
