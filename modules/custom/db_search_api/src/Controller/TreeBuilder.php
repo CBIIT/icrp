@@ -89,7 +89,7 @@ class TreeBuilder {
   }
 
   public static function sortTree(&$node, bool $compare_lengths = true) {
-    usort($node['children'], function ($a, $b) {
+    usort($node['children'], function ($a, $b) use ($compare_lengths) {
       $countA = self::countChildren($a);
       $countB = self::countChildren($b);
 
