@@ -88,19 +88,19 @@ class TreeBuilder {
     return $total;
   }
 
-  public static function sortTree(&$node) {
+  public static function sortTree(&$node, bool $compare_lengths = true) {
     usort($node['children'], function ($a, $b) {
       $countA = self::countChildren($a);
       $countB = self::countChildren($b);
 
-      if ($countA != $countB)
+      if ($compare_lengths && $countA != $countB)
         return $countB - $countA;
 
       return strcasecmp($a['label'], $b['label']);
     });
 
     foreach($node['children'] as &$child) {
-      $child = self::sortTree($child);
+      $child = self::sortTree($child, $compare_lengths);
     }
 
     return $node;

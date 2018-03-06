@@ -294,15 +294,61 @@
       >
     </ui-select>
 
-    <br>
 
     <label class="sr-only" for="funding_organizations">Funding Organizations</label>
+
+    <label style="margin-right: 5px;">Group by</label>
+
+    <label
+      class="radio-label"
+      for="funding_organization_group_type_country"
+      placement="top"
+      tooltip="Group funding organizations by country">
+      <input
+        class="radio-input"
+        type="radio"
+        id="funding_organization_group_type_country"
+        name="funding_organization_group_type"
+        [value]="null"
+        [formControl]="form.controls.funding_organization_group_type"
+        checked
+      >
+      Country
+    </label>
+
+    <label
+      class="radio-label"
+      for="funding_organization_group_type_sponsor_code"
+      placement="top"
+      tooltip="Group funding organizations by sponsor">
+      <input
+        class="radio-input"
+        type="radio"
+        id="funding_organization_group_type_sponsor_code"
+        name="funding_organization_group_type"
+        value="sponsor_code"
+        [formControl]="form.controls.funding_organization_group_type"
+      >
+      Sponsor
+    </label>
+
     <div
-      *ngIf="fields.funding_organizations"
+      *ngIf="fields.funding_organizations && form.controls.funding_organization_group_type.value == null"
       class="multiselect"
       tooltip="Select one or more funding organizations">
       <ui-treeview
         [root]="fields.funding_organizations[0]"
+        [formControl]="form.controls.funding_organizations"
+        (select)="updateDisplayParameters('funding_organizations', $event)"
+        >
+      </ui-treeview>
+    </div>
+    <div
+      *ngIf="fields.funding_organizations && form.controls.funding_organization_group_type.value == 'sponsor_code'"
+      class="multiselect"
+      tooltip="Select one or more funding organizations">
+      <ui-treeview
+        [root]="fields.funding_organizations_by_sponsor_code[0]"
         [formControl]="form.controls.funding_organizations"
         (select)="updateDisplayParameters('funding_organizations', $event)"
         >
