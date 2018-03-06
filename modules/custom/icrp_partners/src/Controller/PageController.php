@@ -29,14 +29,27 @@ class PageController extends ControllerBase {
             $pdo, 'EXECUTE GetFundingOrgs @type=funding'
         )->fetchAll();
 
+        $nonPartners = PDOBuilder::executePreparedStatement(
+            $pdo, 'EXECUTE GetPartners @NonPartner=1'
+        )->fetchAll();
+
         usort($partners, function($a, $b) {
             return strcmp($a['name'], $b['name']);
         });
+
+        // ensure websites have a procol specified
+        $nonPartners = array_map(function($record) {
+            if ($record['website'] && !preg_match('/^http(s?):\/\//', $record['website'])) {
+                $record['website'] = 'http://' . $record['website'];
+            }
+            return $record;
+        }, $nonPartners);
 
         return [
             '#theme' => 'icrp_partners',
             '#partners' => $partners,
             '#fundingOrganizations' => $fundingOrganizations,
+            '#nonPartners' => $nonPartners,
             '#attached' => [
                 'library' => [
                     'icrp_partners/content'
@@ -122,6 +135,38 @@ class PageController extends ControllerBase {
                            }],
                        'lastimportdate' => 'Last Import Date',
                        'lastimportdesc' => 'Import Description',
+                    ],
+                ],
+
+                [
+                    'title' => 'Non-Partners',
+                    'query' => $pdo->prepare('EXECUTE GetPartners @NonPartner = 1'),
+                    'columns' => [
+                        'name' => 'Name',
+                        'abbreviation' => 'Abbreviation',
+                        'description' => 'Description',
+                        'estimatedinvest' => 'Est. Investment',
+                        'country' => 'Country',
+                        'email' => 'Email',
+                        'website' => 'Website',
+                        'contactperson' => 'Contact Person',
+                        'position' => 'Position',
+                        'donotcontact' => [
+                            'name' => 'Do Not Contact?',
+                            'formatter' => function($value) {
+                                 return $value ? 'YES' : 'NO';
+                            }],
+                        'canceronly' => [
+                            'name' => 'Cancer Only?',
+                            'formatter' => function($value) {
+                                 return $value ? 'YES' : 'NO';
+                            }],
+                        'researchfunder' => [
+                            'name' => 'Research Funder?',
+                            'formatter' => function($value) {
+                                 return $value ? 'YES' : 'NO';
+                            }],
+                        'note' => 'Notes',
                     ],
                 ],
             ]);

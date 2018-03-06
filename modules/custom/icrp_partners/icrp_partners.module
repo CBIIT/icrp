@@ -7,6 +7,7 @@ function icrp_partners_theme($existing, $type, $theme, $path) {
           'mapData' => [],
           'partners' => [],
           'fundingOrganizations' => [],
+          'nonPartners' => [],
       ]
     ],
   ];

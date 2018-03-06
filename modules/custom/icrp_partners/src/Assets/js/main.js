@@ -107,3 +107,46 @@ $(function () {
         }
     });
 });
+
+
+
+$(function () {
+    var initialized = false;
+    var table;
+
+    $('.nav-tabs a[href="#non-partners"]').on('shown.bs.tab', function (event) {
+        if (!initialized) {
+            table = $('#non-partners table').DataTable({
+                pagingType: 'simple_numbers',
+                lengthMenu: [
+                    5, 10, 25,
+                ],
+                pageLength: 25,
+                dom: "<'d-flex align-items-center flex-wrap justify-content-between'"
+                    + "<'d-flex align-items-center flex-wrap'<'mr-40 mv-5'f><'mr-40 mv-5'C>>"
+                    + "<'d-flex align-items-center flex-wrap'<'mr-40 mv-5'li><'mv-5'p>>"
+                    + "><'table-responsive't>",
+                autoWidth: false,
+                language: {
+                    lengthMenu: 'Display _MENU_',
+                    info: '<label style="margin-left: 5px">of _TOTAL_ records</label>',
+                    infoFiltered: '',
+                    infoEmpty: '',
+                },
+                customDom: function(settings) {
+                    return $('<span>');
+                },
+            })
+
+            window.setTimeout(function () {
+                $('#non-partners table')
+                    .enableResizableColumns({
+                        preserveWidth: true,
+                        columnWidth: 80,
+                    });
+            }, 10);
+
+            initialized = true;
+        }
+    });
+});
