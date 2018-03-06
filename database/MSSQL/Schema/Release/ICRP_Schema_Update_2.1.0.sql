@@ -1,7 +1,41 @@
 /*************************************************/
 /******	NEW TABLE            				******/
-/*************************************************/
+/*************************************************/ 
+IF object_id('[NonPartner]') is null  
+BEGIN
 
+	CREATE TABLE [dbo].[NonPartner] (
+		[NonParterID] [int] IDENTITY(1,1) NOT NULL,		
+		[Name] [varchar](100) NOT NULL,
+		[Description] [varchar](max) NULL,
+		[Abbreviation] [varchar](50) NULL,
+		[Email] [varchar](75) NULL,	
+		[Country] [varchar](2) NULL,	
+		[Address] [varchar](1000) NULL,
+		[Longitude] [decimal](9, 6) NULL,
+		[Latitude] [decimal](9, 6) NULL,
+		[Website] [varchar](200) NULL,
+		[LogoFile] [varchar](100) NULL,
+		[Note] [varchar](8000) NULL,			
+		[EstimatedInvest] [varchar](25) NULL,		
+		[ContactPerson] [varchar](50) NULL,		
+		[Position] [varchar](50) NULL,
+		[DoNotContact] [bit] NULL,
+		[CancerOnly] [bit] NULL,
+		[ResearchFunder] [bit] NULL,
+		[ConvertedDate] [datetime] NULL,
+		[CreatedDate] [datetime] NOT NULL,
+		[UpdatedDate] [datetime] NOT NULL
+		CONSTRAINT [PK_NonParter] PRIMARY KEY CLUSTERED 
+	(
+		[NonParterID] ASC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY]
+
+END
+GO
+
+	
 /*************************************************/
 /******		UPDATE TABLE        			******/
 /*************************************************/

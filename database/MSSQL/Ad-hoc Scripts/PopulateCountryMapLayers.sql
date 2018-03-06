@@ -282,3 +282,6 @@ LEFT JOIN lu_MapLayer p ON m.ParentMapLayerID = p.MapLayerID
 UPDATE lu_MapLayer set DisplayedName = t.DisplayedName
 FROM lu_MapLayer m
 JOIN #displayedname t ON m.MapLayerID = t.MapLayerID
+
+
+update lu_MapLayer set DisplayedName = CONCAT ('All ', Name) Where MapLayerID < 4
