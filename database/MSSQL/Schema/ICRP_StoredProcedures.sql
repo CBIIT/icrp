@@ -3261,8 +3261,10 @@ DECLARE @DataUploadReport TABLE
 
 -------------------------------------------------------------------
 -- Workaround Fix - set SiteCode = 0 if null and rel = 100
+-- Workaround Fix - set [AwardFunding] = 0 if null
 -------------------------------------------------------------------
 update UploadWorkBook set SiteCodes='0' where (SiteCodes is null) AND (SiteRel = '100')
+update UploadWorkBook set [AwardFunding]=0 where [AwardFunding] is null
 
 -------------------------------------------------------------------
 -- Get Project Category
