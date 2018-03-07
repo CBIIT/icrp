@@ -98,7 +98,8 @@ footer > div > section#block-partnerhomepartnercalendareditbutton,
 footer > div > section#block-partnerhomepartnercalendar,
 footer > div > section#block-partnerhomepartnermanagementeditbutton,
 footer > div > section#block-partnerhomepartnermanagement,
-footer > div > section#block-icrpsiteupdateddate  {
+footer > div > section#block-icrpsiteupdateddate,
+.region.region-footer > :not(:first-child) {
   display:none;
 }
 
