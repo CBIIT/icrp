@@ -16,7 +16,7 @@ use PDO;
 class PageController extends ControllerBase {
 
 
-    public static function content(): array {
+    public function content(): array {
         \Drupal::service('page_cache_kill_switch')->trigger();
 
         $pdo = PDOBuilder::getConnection();
@@ -37,13 +37,21 @@ class PageController extends ControllerBase {
             return strcmp($a['name'], $b['name']);
         });
 
-        // ensure websites have a procol specified
-        $nonPartners = array_map(function($record) {
-            if ($record['website'] && !preg_match('/^http(s?):\/\//', $record['website'])) {
+        // do not show partner emails on public site
+        if (($this->currentUser())->isAnonymous())
+            foreach($partners as &$record)
+                unset($record['email']);
+
+        foreach($nonPartners as &$record) {
+            // ensure all websites have a protocol
+            if (!preg_match('/^http(s?):\/\//', $record['website'])) {
                 $record['website'] = 'http://' . $record['website'];
             }
-            return $record;
-        }, $nonPartners);
+
+            // do not include emails if 'Do Not Contact' has been flagged
+            if ($record['donotcontact'])
+                $record['email'] = 'N/A';
+        }
 
         return [
             '#theme' => 'icrp_partners',
@@ -58,7 +66,7 @@ class PageController extends ControllerBase {
         ];
     }
 
-    public static function export(): StreamedResponse {
+    public function export(): StreamedResponse {
         return new StreamedResponse(function() {
             $pdo = PDOBuilder::getConnection();
             ExcelBuilder::exportQueries('ICRP Partners and Funding Orgs.xlsx', [
@@ -100,7 +108,7 @@ class PageController extends ControllerBase {
     }
 
 
-    public static function authenticatedExport(): StreamedResponse {
+    public function authenticatedExport(): StreamedResponse {
         return new StreamedResponse(function() {
             $pdo = PDOBuilder::getConnection();
             ExcelBuilder::exportQueries('ICRP Partners and Funding Orgs.xlsx', [

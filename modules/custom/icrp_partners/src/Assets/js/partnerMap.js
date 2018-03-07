@@ -240,10 +240,7 @@
                                     .append($('<div>')
                                         .css('min-width', '100px')
                                         .text('Partner: '))
-                                    .append($('<div>')
-                                        .text(mapData.partners.filter(function(partner) {
-                                            return partner.sponsorcode == item.sponsorcode
-                                        })[0].name)))
+                                    .append($('<div>').text(item.partner)))
                                 .append($('<div>')
                                     .addClass('d-flex')
                                     .append($('<div>')
