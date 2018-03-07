@@ -175,8 +175,7 @@
                                         ? $('<img>', {
                                             src: '/data/uploads/partner-logos/' + item.logofile,
                                             alt: 'Logo for ' + item.name})
-                                                .css('max-width', '100px')
-                                                .css('max-height', '100px')
+                                                .css('width', '150px')
                                                 .css('margin', '0 10px 6px 0')
                                                 .addClass('pull-left')
                                         : ''))
@@ -193,7 +192,7 @@
                                             ? 'Yes' + (/former/i.test(fundingOrganizations[0].memberstatus) ? ' (Former)' : '')
                                             : 'No';
                                     })(item)))
-                                [0]
+                                .get(0)
                         });
 
                         var marker = createMarker('steelblue', position, 1, map);
@@ -255,7 +254,7 @@
                                         .text('Country: '))
                                     .append($('<div>')
                                         .text(item.country)))
-                                [0]
+                                .get(0)
                         });
 
                         var marker = createMarker('orange', position, -1, map);
@@ -318,7 +317,7 @@
                                 })
                             )
                             .append($('<hr>').css('margin', '0 0 8px 0'))
-                            [0]
+                            .get(0)
                     });
 
                     marker.addListener('click', function() {

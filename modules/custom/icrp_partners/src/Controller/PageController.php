@@ -50,7 +50,7 @@ class PageController extends ControllerBase {
 
             // do not include emails if 'Do Not Contact' has been flagged
             if ($record['donotcontact'])
-                $record['email'] = 'N/A';
+                $record['email'] = '';
         }
 
         return [
@@ -138,7 +138,7 @@ class PageController extends ControllerBase {
                        'currency' => 'Currency',
                        'isannualized' => [
                            'name' => 'Annualized Funding',
-                           'formatter' => function($value) {
+                           'formatter' => function($value, $record) {
                                 return $value ? 'YES' : 'NO';
                            }],
                        'lastimportdate' => 'Last Import Date',
@@ -155,23 +155,27 @@ class PageController extends ControllerBase {
                         'description' => 'Description',
                         'estimatedinvest' => 'Est. Investment',
                         'country' => 'Country',
-                        'email' => 'Email',
+                        'email' => [
+                            'name' => 'Email',
+                            'formatter' => function($value, $record) {
+                                 return $record['donotcontact'] ? '' : $value;
+                            }],
                         'website' => 'Website',
                         'contactperson' => 'Contact Person',
                         'position' => 'Position',
                         'donotcontact' => [
                             'name' => 'Do Not Contact?',
-                            'formatter' => function($value) {
+                            'formatter' => function($value, $record) {
                                  return $value ? 'YES' : 'NO';
                             }],
                         'canceronly' => [
                             'name' => 'Cancer Only?',
-                            'formatter' => function($value) {
+                            'formatter' => function($value, $record) {
                                  return $value ? 'YES' : 'NO';
                             }],
                         'researchfunder' => [
                             'name' => 'Research Funder?',
-                            'formatter' => function($value) {
+                            'formatter' => function($value, $record) {
                                  return $value ? 'YES' : 'NO';
                             }],
                         'note' => 'Notes',

@@ -246,7 +246,7 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
                         <td title="{{ organization.sponsorcode }}">{{ organization.sponsorcode }}</td>
                         <td title="{{ organization.country }}">{{ organization.country }}</td>
                         <td title="{{ organization.currency }}">{{ organization.currency }}</td>
-                        <td title="{{ organization.isannualized ? 'YES' : 'NO' }}">{{ organization.isannualized ? 'YES' : 'NO' }}</td>
+                        <td title="{{ organization.isannualized ? 'YES' : 'NO' }}">{{ organization.isannualized ? '☑' : '☐' }}</td>
                         <td title="{{ organization.lastimportdate }}">{{ organization.lastimportdate | split(' ')[0] }}</td>
                         <td title="{{ organization.lastimportdesc }}">{{ organization.lastimportdesc }}</td>
                     </tr>
@@ -307,10 +307,16 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
                         <th style="width: 90px"
                             data-toggle="tooltip"
                             data-placement="top"
+                            title="Do not contact this organization">
+                            Do Not Contact?
+                        </th>
+
+                        <th style="width: 90px"
+                            data-toggle="tooltip"
+                            data-placement="top"
                             title="Website for organization">
                             Website
                         </th>
-
 
                         <th style="width: 90px"
                             data-toggle="tooltip"
@@ -324,13 +330,6 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
                             data-placement="top"
                             title="Contact person's position">
                             Position
-                        </th>
-
-                        <th style="width: 90px"
-                            data-toggle="tooltip"
-                            data-placement="top"
-                            title="Do not contact this organization">
-                            Do Not Contact?
                         </th>
 
                         <th style="width: 90px"
@@ -360,18 +359,27 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
                     <tr>
                         <td title="{{ record.name }}">{{ record.name }}</td>
                         <td title="{{ record.abbreviation }}">{{ record.abbreviation }}</td>
-                        <td title="{{ record.description }}">{{ record.description }}</td>
+                        <td title="{{ record.description }}">
+                            {{ record.description | raw [:200] }}
+                            {% if record.description | length > 200 %}
+                                <span>...</span>
+                            {% endif %}
+                        </td>
                         <td title="{{ record.estimatedinvest }}">{{ record.estimatedinvest }}</td>
                         <td title="{{ record.country }}">{{ record.country }}</td>
-                        <td title="{{ record.email }}">{{ record.email }}</td>
+                        <td title="{{ record.email ?: 'N/A' }}">
+                            {% if not record.donotcontact %}
+                                <a href="mailto:{{ record.email }}">{{ record.email }}</a>
+                            {% endif %}
+                        </td>
+                        <td title="{{ record.donotcontact ? 'YES' : 'NO' }}" style="padding-left: 10px">{{ record.donotcontact ? '☑' : '☐' }}</td>
                         <td title="{{ record.website }}">
                             <a href="{{record.website}}" target="_blank">{{ record.website }}</a>
                         </td>
                         <td title="{{ record.contactperson }}">{{ record.contactperson }}</td>
                         <td title="{{ record.position }}">{{ record.position }}</td>
-                        <td title="{{ record.donotcontact ? 'YES' : 'NO' }}">{{ record.donotcontact ? 'YES' : 'NO' }}</td>
-                        <td title="{{ record.canceronly ? 'YES' : 'NO' }}">{{ record.canceronly ? 'YES' : 'NO' }}</td>
-                        <td title="{{ record.researchfunder ? 'YES' : 'NO' }}">{{ record.researchfunder ? 'YES' : 'NO' }}</td>
+                        <td title="{{ record.canceronly ? 'YES' : 'NO' }}" style="padding-left: 10px">{{ record.canceronly ? '☑' : '☐' }}</td>
+                        <td title="{{ record.researchfunder ? 'YES' : 'NO' }}" style="padding-left: 10px"   >{{ record.researchfunder ? '☑' : '☐' }}</td>
                         <td title="{{ record.note }}">
                             {{ record.note | raw [:200] }}
                             {% if record.note | length > 200 %}

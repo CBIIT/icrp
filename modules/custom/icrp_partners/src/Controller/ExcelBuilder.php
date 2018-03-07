@@ -83,7 +83,7 @@ class ExcelBuilder {
                     foreach($columns as $columnKey => $columnDef) {
                         if (is_array($columnDef)) {
                             $formatter = $columnDef['formatter'];
-                            $rowValues[] = $formatter($row[$columnKey]);
+                            $rowValues[] = $formatter($row[$columnKey], $row);
                         }
 
                         else {
