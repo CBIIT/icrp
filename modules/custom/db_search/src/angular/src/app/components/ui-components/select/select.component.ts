@@ -270,10 +270,7 @@ export class SelectComponent {
         this.addSelectedItem(this.matchingItems[0]);
         this.updateSearchResults();
       }
-
-      else {
-        this.input.nativeElement.value = '';
-      }
     }
+    this.input.nativeElement.value = '';
   }
 }
