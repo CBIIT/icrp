@@ -13,7 +13,7 @@ $(document).ready(function(){
     autoWidth: false,
     language: {
         lengthMenu: 'Display _MENU_',
-        info: '<label style="margin-left: 5px">of _TOTAL_ partners</label>',
+        info: '<label style="margin-left: 5px">of _TOTAL_ people</label>',
         infoFiltered: '',
         infoEmpty: '',
     },
