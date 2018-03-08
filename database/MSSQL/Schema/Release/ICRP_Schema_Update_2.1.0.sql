@@ -5,7 +5,7 @@ IF object_id('[NonPartner]') is null
 BEGIN
 
 	CREATE TABLE [dbo].[NonPartner] (
-		[NonParterID] [int] IDENTITY(1,1) NOT NULL,		
+		[NonPartnerID] [int] IDENTITY(1,1) NOT NULL,		
 		[Name] [varchar](100) NOT NULL,
 		[Description] [varchar](max) NULL,
 		[Abbreviation] [varchar](50) NULL,

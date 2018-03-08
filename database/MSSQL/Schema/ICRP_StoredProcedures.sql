@@ -2514,7 +2514,7 @@ IF @NonPartner = 0
 	FROM [Partner]
 	ORDER BY SponsorCode
 ELSE
-	SELECT [NonParterID], [Name], [Description], [Abbreviation], [Email], [Country], [Address], [Longitude],[Latitude],[Website], [LogoFile], [Note], [EstimatedInvest], [ContactPerson],[Position], [DoNotContact], [CancerOnly],[ResearchFunder]
+	SELECT [NonPartnerID], [Name], [Description], [Abbreviation], [Email], [Country], [Address], [Longitude],[Latitude],[Website], [LogoFile], [Note], [EstimatedInvest], [ContactPerson],[Position], [DoNotContact], [CancerOnly],[ResearchFunder]
 	FROM [NonPartner] WHERE ConvertedDate is NULL  -- exclude those already converted to partner
 	ORDER BY [Name]
 
@@ -3261,8 +3261,10 @@ DECLARE @DataUploadReport TABLE
 
 -------------------------------------------------------------------
 -- Workaround Fix - set SiteCode = 0 if null and rel = 100
+-- Workaround Fix - set [AwardFunding] = 0 if null
 -------------------------------------------------------------------
 update UploadWorkBook set SiteCodes='0' where (SiteCodes is null) AND (SiteRel = '100')
+update UploadWorkBook set [AwardFunding]=0 where [AwardFunding] is null
 
 -------------------------------------------------------------------
 -- Get Project Category
