@@ -2514,7 +2514,7 @@ IF @NonPartner = 0
 	FROM [Partner]
 	ORDER BY SponsorCode
 ELSE
-	SELECT [NonParterID], [Name], [Description], [Abbreviation], [Email], [Country], [Address], [Longitude],[Latitude],[Website], [LogoFile], [Note], [EstimatedInvest], [ContactPerson],[Position], [DoNotContact], [CancerOnly],[ResearchFunder]
+	SELECT [NonPartnerID], [Name], [Description], [Abbreviation], [Email], [Country], [Address], [Longitude],[Latitude],[Website], [LogoFile], [Note], [EstimatedInvest], [ContactPerson],[Position], [DoNotContact], [CancerOnly],[ResearchFunder]
 	FROM [NonPartner] WHERE ConvertedDate is NULL  -- exclude those already converted to partner
 	ORDER BY [Name]
 
