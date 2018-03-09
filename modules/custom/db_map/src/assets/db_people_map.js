@@ -147,9 +147,15 @@ $(function() {
                     var marker = new google.maps.Marker({
                         position: position,
                         map: map,
+                        label: {
+                            color: 'black',
+                            text: (group.length).toLocaleString(),
+                            fontSize: '10px',
+                            fontWeight: 'bolder',
+                        },
                         icon: {
                             url: '/modules/custom/db_map/src/assets/images/' + filename,
-                            anchor: {x: 16, y: 16},
+                            anchor: {x: 20, y: 20},
                         },
 
                         zIndex: 10
