@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\db_admin\Helpers;
+namespace Drupal\db_admin\Controller;
 
 use Drupal;
 use PDO;
@@ -41,11 +41,12 @@ class PDOBuilder {
       $cfg['username'],
       $cfg['password'],
       [
-        PDO::SQLSRV_ATTR_ENCODING    => PDO::SQLSRV_ENCODING_UTF8,
-        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-//      PDO::ATTR_ERRMODE            => PDO::ERRMODE_SILENT,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE => TRUE,
+        PDO::SQLSRV_ATTR_ENCODING               => PDO::SQLSRV_ENCODING_UTF8,
+        PDO::ATTR_ERRMODE                       => PDO::ERRMODE_EXCEPTION,
+//      PDO::ATTR_ERRMODE                       => PDO::ERRMODE_SILENT,
+        PDO::ATTR_DEFAULT_FETCH_MODE            => PDO::FETCH_ASSOC,
+        PDO::ATTR_CASE                          => PDO::CASE_LOWER,
+        PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE   => TRUE,
       ]
     );
   }

@@ -1,97 +1,76 @@
-## Routes for Database Admin Pages
-
-## Get page for adding partners
-api.admin.partners.content:
-  path: /admin/add-partner
-  defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addPartnerPage' }
+api.admin.partners:
+  path: /admin/partners
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\PageController::partners'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
-
-## Get page for adding funding organizations
-api.admin.funding_organizations.content:
-  path: /admin/add-funding-organization
-  defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addFundingOrganizationPage' }
+api.admin.funding-organizations:
+  path: /admin/funding-organizations
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\PageController::fundingOrganizations'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
-
-## Get form fields for funding organizations
-api.admin.funding_organizations.fields:
-  path: /api/admin/funding_organizations/fields
-  defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::getFundingOrganizationFields' }
+api.admin.funding-organizations.fields:
+  path: /api/admin/funding-organizations/fields
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::getFundingOrganizationFields'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
-
-## Add funding organization
-api.admin.funding_organizations.add:
-  path: /api/admin/funding_organizations/add
-  defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::addFundingOrganization' }
+api.admin.funding-organizations.add:
+  path: /api/admin/funding-organizations/add
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::addFundingOrganization'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
-
-## Update funding organization
-api.admin.funding_organizations.update:
-  path: /api/admin/funding_organizations/update
-  defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::updateFundingOrganization' }
+api.admin.funding-organizations.update:
+  path: /api/admin/funding-organizations/update
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::updateFundingOrganization'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
-
-
-## Get form fields for partners
 api.admin.partners.fields:
-  path: /api/admin/partners/fields/{isNew}
+  path: /api/admin/partners/fields
   defaults:
     _controller: '\Drupal\db_admin\Controller\AdminController::getPartnerFields'
-    isNew: ''
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
-
-
-## Add partner
 api.admin.partners.add:
   path: /api/admin/partners/add
-  defaults: { _controller: '\Drupal\db_admin\Controller\AdminController::addPartner' }
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::addPartner'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
+api.admin.partners.update:
+  path: /api/admin/partners/update
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::updatePartner'
+  requirements:
+    _access: 'TRUE'
 
-
-## Deprecated Routes
-
-## Get page for adding partners
 api.admin.partners.content.deprecated:
   path: /AddPartner
-  defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addPartnerPage' }
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\ContentController::partners'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
-
-## Get page for adding funding organizations
-api.admin.funding_organizations.content.deprecated:
+api.admin.funding-organizations.deprecated:
   path: /AddFundingOrg
-  defaults: { _controller: '\Drupal\db_admin\Controller\ContentController::addFundingOrganizationPage' }
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\PageController::fundingOrganizations'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
-
 
 test_event:
   path: /api/admin/test-event
-  defaults: { _controller: 'Drupal\db_admin\Controller\AdminController::dispatchSampleEvent' }
+  defaults:
+    _controller: 'Drupal\db_admin\Controller\AdminController::dispatchSampleEvent'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
-
