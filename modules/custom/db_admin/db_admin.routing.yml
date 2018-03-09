@@ -57,7 +57,7 @@ api.admin.partners.update:
 api.admin.partners.content.deprecated:
   path: /AddPartner
   defaults:
-    _controller: '\Drupal\db_admin\Controller\ContentController::partners'
+    _controller: '\Drupal\db_admin\Controller\PageController::partners'
   requirements:
     _access: 'TRUE'
 

@@ -15,10 +15,10 @@ use Drupal\Core\Controller\ControllerBase;
 class PageController extends ControllerBase {
   public static function partners() {
     return [
-      '#theme' => 'add_partner',
+      '#theme' => 'partners',
       '#attached' => [
         'library' => [
-          'db_admin/add_partner'
+          'db_admin/partners'
         ],
       ],
     ];
@@ -26,10 +26,10 @@ class PageController extends ControllerBase {
 
   public static function fundingOrganizations() {
     return [
-      '#theme' => 'add_funding_organization',
+      '#theme' => 'funding_organizations',
       '#attached' => [
         'library' => [
-          'db_admin/add_funding_organization'
+          'db_admin/funding_organizations'
         ],
       ],
     ];

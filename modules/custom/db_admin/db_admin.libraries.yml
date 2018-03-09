@@ -1,17 +1,19 @@
-add_funding_organization:
-  version: 1.0.1
+funding_organizations:
+  version: 1.0.2
   css:
     theme:
-      assets/add_funding_organization/styles.bundle.css: {}
+      assets/funding-organizations/styles.bundle.css: {}
   js:
-    assets/add_funding_organization/inline.bundle.js: {}
-    assets/add_funding_organization/polyfills.bundle.js: {}
-    assets/add_funding_organization/main.bundle.js: {}
+    assets/funding-organizations/inline.bundle.js: {}
+    assets/funding-organizations/polyfills.bundle.js: {}
+    assets/funding-organizations/main.bundle.js: {}
 
-add_partner:
-  version: 1.3.1
+partners:
+  version: 1.0.2
   css:
     theme:
-      assets/add_partner/main.css: {}
+      assets/partners/styles.bundle.css: {}
   js:
-    assets/add_partner/main.js: {}
+    assets/partners/inline.bundle.js: {}
+    assets/partners/polyfills.bundle.js: {}
+    assets/partners/main.bundle.js: {}

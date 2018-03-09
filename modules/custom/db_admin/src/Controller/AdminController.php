@@ -106,5 +106,26 @@ class AdminController extends ControllerBase {
       return self::createResponse($message, 500);
     }
   }
+
+  public static function updatePartner(Request $request) {
+    $parameters = $request->request->all();
+    $uploadedFile = $request->files->get('logoFile');
+
+    try {
+      if ($uploadedFile) {
+        $uploadedFile->move('data/uploads/partner-logos');
+        $parameters['logo_file'] = $uploadedFile->getClientOriginalName();
+      }
+
+      $connection = PDOBuilder::getConnection();
+      $data = FundingOrganizations::update($connection, $parameters);
+      return self::createResponse($data);
+    }
+
+    catch (Exception $e) {
+      $message = preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage());
+      return self::createResponse($message, 500);
+    }
+  }
 }
 
