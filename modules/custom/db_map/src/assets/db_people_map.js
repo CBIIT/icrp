@@ -166,7 +166,6 @@ $(function() {
                         }
                     }
 
-
                     var filename = pi && pi.length
                         ? 'marker.group.steelblue.svg'
                         : 'marker.group.orange.svg';
@@ -195,20 +194,22 @@ $(function() {
                     })
                     marker.fixedSize = true;
 
+                    function fitGroupBounds() {
+                        if (distinctPositions) {
+                            map.fitBounds(bounds);
+                            setTimeout(function() {
+                                drawMap();
+                            }, 100);
+                        }
+                    }
+
                     var content = $('<div>')
-                    .append($('<div>')
+                        .append($('<div>')
                         .append($('<b>').text(pi.length ? 'PI: ' : 'Collaborators: '))
                         .append($('<span>')
                             .text(message)
                             .addClass(distinctPositions ? 'link' : '')
-                            .click(function() {
-                                if (distinctPositions) {
-                                    map.fitBounds(bounds);
-                                    setTimeout(function() {
-                                        drawMap();
-                                    }, 100);
-                                }
-                            })
+                            .click(fitGroupBounds)
                         )
                     );
 
@@ -220,7 +221,9 @@ $(function() {
                         for (var i = 0; i < infoWindows.length; i ++)
                             infoWindows[i].close();
                         infoWindow.open(map, marker);
-                    })
+                    });
+
+                    marker.addListener('dblclick', fitGroupBounds);
 
                     infoWindows.push(infoWindow);
                     markers.push(marker);
