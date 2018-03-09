@@ -1,7 +1,5 @@
 // @ts-nocheck
 $(function() {
-
-
     var map = new google.maps.Map(document.getElementById('icrp-map'), {
         center: {
             lat: 20,
@@ -18,6 +16,7 @@ $(function() {
     var markers = [];
     var infoWindows = [];
     var polylines = [];
+    var previousZoom = map.getZoom();
 
     var overlayInitialized = false;
     var overlay = new google.maps.OverlayView();
@@ -39,15 +38,21 @@ $(function() {
 
     // resize map icons when zoom level is changed.
     map.addListener('zoom_changed', function() {
-        for (let i = 0; i < markers.length; i ++) {
-            if (markers[i].getMap() != null) {
-                let zoom = map.getZoom();
-                let icon = markers[i].getIcon();
-                if (icon) {
-                    markers[i].setIcon({
-                        url: icon.url,
-                        scaledSize: {width: zoom + 12, height: zoom + 16},
-                    });
+        if (map.getZoom() != previousZoom) {
+            previousZoom = map.getZoom();
+            setTimeout(function() {
+                drawMap();
+            }, 100)
+            for (let i = 0; i < markers.length; i ++) {
+                if (markers[i].getMap() != null && markers[i].fixedSize == undefined) {
+                    let zoom = map.getZoom();
+                    let icon = markers[i].getIcon();
+                    if (icon) {
+                        markers[i].setIcon({
+                            url: icon.url,
+                            scaledSize: {width: zoom + 12, height: zoom + 16},
+                        });
+                    }
                 }
             }
         }
@@ -74,7 +79,7 @@ $(function() {
 
     function drawMap() {
         clearMarkers();
-        var groups = groupItems(overlay, locations, 40);
+        var groups = groupItems(overlay, locations, 30);
         var centerCoordinates = {lat: 0, lng: 0};
 
         groups.forEach(function(group) {
@@ -99,12 +104,22 @@ $(function() {
                             .get(0)
                     });
 
-                    var marker = createMarker(
-                        item.isPrincipalInvestigator ? 'marker.orange.svg' : 'marker.yellow.svg',
-                        {lat: item.latitude, lng: item.longitude},
-                        item.isPrincipalInvestigator ? 1 : 0,
-                        map
-                    );
+                    var markerIcon = item.isPrincipalInvestigator ? 'marker.steelblue.svg' : 'marker.orange.svg';
+                    var marker = new google.maps.Marker({
+                        position: {
+                            lat: item.latitude,
+                            lng: item.longitude
+                        },
+                        map: map,
+                        icon: {
+                            url: '/modules/custom/db_map/src/assets/images/' + markerIcon,
+                            scaledSize: {
+                                width: map.getZoom() + 12,
+                                height: map.getZoom() + 16,
+                            }
+                        },
+                        zIndex: item.isPrincipalInvestigator ? 1 : 0,
+                    })
 
                     marker.addListener('click', function() {
                     for (var i = 0; i < infoWindows.length; i ++)
@@ -128,45 +143,87 @@ $(function() {
                     }, new google.maps.LatLngBounds());
                     var position = bounds.getCenter();
 
+                    var distinctPositions = false;
+                    group.reduce(function(previous, current) {
+                        if (current.longitude != previous.longitude &&
+                            current.latitude != previous.latitude)
+                            distinctPositions = true;
+                        return current;
+                    });
+
                     var pi = group.filter(function(item) {
                         return item.isPrincipalInvestigator;
                     });
 
                     var message = pi && pi.length > 0
-                        ? '<b>PI: </b>' + pi[0].name + ' and ' + (group.length - 1) + ' other collaborators'
-                        : '<b>Collaborators: </b>' + group[0].name + ' and ' + (group.length - 1) + ' other collaborators';
+                        ? pi[0].name + ' and ' + (group.length - 1) + ' other collaborator(s)'
+                        : group[0].name + ' and ' + (group.length - 1) + ' other collaborator(s)';
 
-                    if (pi && pi.length > 0)
-                        centerCoordinates = position;
+                    if (pi && pi.length > 0) {
+                        centerCoordinates = position = {
+                            lat: pi[0].latitude,
+                            lng: pi[0].longitude
+                        }
+                    }
 
-                    var marker = createMarker('marker.steelblue.svg', position, 2, map);
+                    var filename = pi && pi.length
+                        ? 'marker.group.steelblue.svg'
+                        : 'marker.group.orange.svg';
+
+                    var marker = new google.maps.Marker({
+                        position: position,
+                        map: map,
+                        label: {
+                            color: 'black',
+                            text: (group.length).toLocaleString(),
+                            fontSize: (map.getZoom() / 2 + 8) + 'px',
+                            fontWeight: 'bolder',
+                        },
+                        icon: {
+                            url: '/modules/custom/db_map/src/assets/images/' + filename,
+                            anchor: {
+                                x: 20 + map.getZoom(),
+                                y: 20 + map.getZoom()
+                            },
+                            scaledSize: {
+                                width: map.getZoom() * 2 + 40,
+                                height: map.getZoom() * 2 + 40,
+                            }
+                        },
+                        zIndex: 10
+                    })
+                    marker.fixedSize = true;
+
+                    function fitGroupBounds() {
+                        if (distinctPositions) {
+                            map.fitBounds(bounds);
+                            setTimeout(function() {
+                                drawMap();
+                            }, 100);
+                        }
+                    }
+
+                    var content = $('<div>')
+                        .append($('<div>')
+                        .append($('<b>').text(pi.length ? 'PI: ' : 'Collaborators: '))
+                        .append($('<span>')
+                            .text(message)
+                            .addClass(distinctPositions ? 'link' : '')
+                            .click(fitGroupBounds)
+                        )
+                    );
 
                     var infoWindow = new google.maps.InfoWindow({
-                        content: $('<div>')
-                            .append($('<div>')
-                                .html(message)
-                                .css('color', 'steelblue')
-                                .css('text-decoration', 'underline')
-                                .css('cursor', 'pointer')
-                                .click(function() {
-                                    map.fitBounds(bounds);
-                                    // marker.setMap(null);
-                                    // locations.length = 0;
-                                    // group.forEach(function(item) {
-                                    //     locations.push(item);
-                                    // });
-                                    setTimeout(function() {
-                                        drawMap();
-                                    }, 100);
-                                }))
-                            .get(0)
+                        content: content.get(0)
                     });
 
                     marker.addListener('click', function() {
                         for (var i = 0; i < infoWindows.length; i ++)
                             infoWindows[i].close();
                         infoWindow.open(map, marker);
-                    })
+                    });
+
+                    marker.addListener('dblclick', fitGroupBounds);
 
                     infoWindows.push(infoWindow);
                     markers.push(marker);
@@ -180,6 +237,7 @@ $(function() {
                   centerCoordinates,
                   marker.getPosition(),
                 ],
+                strokeOpacity: '0.5',
                 strokeColor: '#666',
                 strokeWeight: 1,
                 map: map
@@ -214,7 +272,6 @@ $(function() {
             map: map,
             icon: {
                 url: '/modules/custom/db_map/src/assets/images/' + fileName,
-                origin: {x: 6, y: 16},
             },
             zIndex: zIndex || 0
         });
