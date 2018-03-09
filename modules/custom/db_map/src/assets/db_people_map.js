@@ -40,7 +40,7 @@ $(function() {
     // resize map icons when zoom level is changed.
     map.addListener('zoom_changed', function() {
         for (let i = 0; i < markers.length; i ++) {
-            if (markers[i].getMap() != null) {
+            if (markers[i].getMap() != null && markers[i].resizable) {
                 let zoom = map.getZoom();
                 let icon = markers[i].getIcon();
                 if (icon) {
@@ -100,7 +100,7 @@ $(function() {
                     });
 
                     var marker = createMarker(
-                        item.isPrincipalInvestigator ? 'marker.orange.svg' : 'marker.yellow.svg',
+                        item.isPrincipalInvestigator ? 'marker.orange.svg' : 'marker.steelblue.svg',
                         {lat: item.latitude, lng: item.longitude},
                         item.isPrincipalInvestigator ? 1 : 0,
                         map
@@ -139,7 +139,22 @@ $(function() {
                     if (pi && pi.length > 0)
                         centerCoordinates = position;
 
-                    var marker = createMarker('marker.steelblue.svg', position, 2, map);
+
+                    var filename = pi && pi.length
+                        ? 'marker.group.orange.svg'
+                        : 'marker.group.steelblue.svg';
+
+                    var marker = new google.maps.Marker({
+                        position: position,
+                        map: map,
+                        icon: {
+                            url: '/modules/custom/db_map/src/assets/images/' + filename,
+                            anchor: {x: 16, y: 16},
+                        },
+
+                        zIndex: 10
+                    })
+                    marker.resizable = false;
 
                     var infoWindow = new google.maps.InfoWindow({
                         content: $('<div>')
@@ -214,7 +229,6 @@ $(function() {
             map: map,
             icon: {
                 url: '/modules/custom/db_map/src/assets/images/' + fileName,
-                origin: {x: 6, y: 16},
             },
             zIndex: zIndex || 0
         });
