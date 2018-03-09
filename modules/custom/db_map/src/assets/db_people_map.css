@@ -53,3 +53,9 @@ table.project-collaborators > tbody > tr:hover {
 .mr-40 {
   margin-right: 40px;
 }
+
+.link {
+  cursor: pointer;
+  text-decoration: underline;
+  color: steelblue;
+}
