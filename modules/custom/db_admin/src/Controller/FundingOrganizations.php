@@ -20,7 +20,8 @@ class FundingOrganizations {
               RTRIM(abbreviation) as abbreviation,
               name,
               currency
-              FROM Country'
+              FROM Country
+              ORDER BY name'
         )->fetchAll(),
 
       'currencies' =>
@@ -33,8 +34,9 @@ class FundingOrganizations {
     ];
   }
 
-  public static function add(PDO $pdo, array $parameters): boolean {
-    return $pdo->prepare(
+  public static function add(PDO $pdo, array $parameters): bool {
+    return PDOBuilder::createPreparedStatement(
+      $pdo,
       "EXECUTE AddFundingOrg
         @PartnerID = :partnerId,
         @Name = :name,
@@ -48,12 +50,13 @@ class FundingOrganizations {
         @Note = :note,
         @Website = :website,
         @Latitude = :latitude,
-        @Longitude = :longitude"
-      )->execute($parameters);
+        @Longitude = :longitude",
+      $parameters)->execute();
   }
 
-  public static function update(PDO $pdo, array $parameters): boolean {
-    return $pdo->prepare(
+  public static function update(PDO $pdo, array $parameters): bool {
+    return PDOBuilder::createPreparedStatement(
+      $pdo,
       "EXECUTE UpdateFundingOrg
         @FundingOrgId = :fundingOrganizationId,
         @Name = :name,
@@ -67,7 +70,7 @@ class FundingOrganizations {
         @Note = :note,
         @Website = :website,
         @Latitude = :latitude,
-        @Longitude = :longitude"
-    )->execute($parameters);
+        @Longitude = :longitude",
+    $parameters)->execute();
   }
 }

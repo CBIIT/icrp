@@ -29,6 +29,14 @@ class AdminController extends ControllerBase {
     ]);
   }
 
+  private static function emptyToNull($nullables = ['null', '']) {
+    return function($value) use ($nullables) {
+      return in_array($value, ['null', ''], true) ? null
+        // : is_numeric($value) ? floatval($value)
+        : $value;
+    };
+  }
+
   public static function dispatchSampleEvent(Request $request) {
     for ($i = 0; $i < 10; $i ++) {
       $event_name = 'db_admin.add_partner_application';
@@ -55,13 +63,13 @@ class AdminController extends ControllerBase {
   public static function addFundingOrganization(Request $request) {
     try {
       $connection = PDOBuilder::getConnection();
-      $parameters = $request->request->all();
+      $parameters = array_map(self::emptyToNull(), $request->request->all());
       $data = FundingOrganizations::add($connection, $parameters);
-      return self::createResponse($data);
+      return self::createResponse($parameters);
     }
 
     catch (Exception $e) {
-      $message = preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage());
+      $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
       return self::createResponse($message, 500);
     }
   }
@@ -69,13 +77,14 @@ class AdminController extends ControllerBase {
   public static function updateFundingOrganization(Request $request) {
     try {
       $connection = PDOBuilder::getConnection();
-      $parameters = $request->request->all();
+      $parameters = array_map(self::emptyToNull(), $request->request->all());
       $data = FundingOrganizations::update($connection, $parameters);
       return self::createResponse($data);
     }
 
     catch (Exception $e) {
-      $message = preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage());
+      $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
+      return self::createResponse($parameters);
       return self::createResponse($message, 500);
     }
   }
@@ -87,7 +96,7 @@ class AdminController extends ControllerBase {
   }
 
   public static function addPartner(Request $request) {
-    $parameters = $request->request->all();
+    $parameters = array_map(self::emptyToNull(), $request->request->all());
     $uploadedFile = $request->files->get('logoFile');
 
     try {
@@ -102,13 +111,13 @@ class AdminController extends ControllerBase {
     }
 
     catch (Exception $e) {
-      $message = preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage());
+      $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
       return self::createResponse($message, 500);
     }
   }
 
   public static function updatePartner(Request $request) {
-    $parameters = $request->request->all();
+    $parameters = array_map(self::emptyToNull(), $request->request->all());
     $uploadedFile = $request->files->get('logoFile');
 
     try {
@@ -123,7 +132,7 @@ class AdminController extends ControllerBase {
     }
 
     catch (Exception $e) {
-      $message = preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage());
+      $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
       return self::createResponse($message, 500);
     }
   }

@@ -1,5 +1,540 @@
-<form [formGroup]="form">
+<alert *ngFor="let message of messages" [type]="message.type" dismissible="true">
+  {{ message.content }}
+</alert>
 
+<form
+  fxLayout="row wrap"
+  [formGroup]="form">
+
+  <div
+    fxLayout="row wrap"
+    fxFlex="100"
+    class="border mb-4">
+
+    <div
+      class="px-4 py-3"
+      [ngClass]="{'has-error': form.controls.operationType.dirty && form.controls.operationType.invalid}"
+      fxLayout="row wrap"
+      fxFlex="50"
+      fxFlex.lt-md="100"
+      fxLayoutAlign="start center">
+      <label
+        ngClass.lt-md="mb-2"
+        class="m-0 mr-4 font-weight-bold">
+        Operation Type
+      </label>
+
+      <label
+        fxLayout
+        fxFlex="nogrow"
+        fxFlex.lt-md="100"
+        fxLayoutAlign="start center"
+        ngClass.lt-md="mb-2"
+        class="m-0 mr-4 font-weight-normal">
+        <input
+          class="mr-1"
+          type="radio"
+          value="Add"
+          id="operationTypeAdd"
+          formControlName="operationType">
+        Add
+      </label>
+
+      <label
+        fxLayout
+        fxFlex="nogrow"
+        fxFlex.lt-md="100"
+        fxLayoutAlign="start center"
+        ngClass.lt-md="mb-2"
+        class="m-0 font-weight-normal">
+        <input
+          class="mr-1"
+          type="radio"
+          value="Update"
+          id="operationTypeUpdate"
+          formControlName="operationType">
+        Update
+      </label>
+
+      <div
+        *ngIf="form.controls.partnerId.dirty && form.controls.partnerId?.errors?.required"
+        fxLayout
+        fxFlex="100"
+        class="help-block mb-0">
+        &zwj;
+      </div>
+    </div>
+
+    <div
+      class="px-4 py-3"
+      [ngClass]="{'has-error': form.controls.partnerId.dirty && form.controls.partnerId.invalid}"
+      fxLayout="row wrap"
+      fxFlex="50"
+      fxFlex.lt-md="100"
+      fxLayoutAlign="start center">
+
+      <label
+        fxFlex="20"
+        fxFlex.lt-md="100"
+        ngClass.lt-md="mb-2"
+        class="control-label m-0 asterisk font-weight-bold"
+        for="partnerId">
+        Partner
+      </label>
+
+      <select
+        fxFlex="80"
+        fxFlex.lt-md="100"
+        class="form-control input-sm"
+        id="partnerId"
+        formControlName="partnerId">
+        <option
+          [ngValue]="null">
+          Select a partner
+        </option>
+        <option
+          *ngFor="let partner of fields.partners"
+          [ngValue]="partner.partnerid">
+          {{ partner.name }}
+        </option>
+      </select>
+
+      <div
+        *ngIf="form.controls.partnerId.dirty && form.controls.partnerId?.errors?.required"
+        fxLayout
+        fxFlex="100"
+        class="help-block mb-0">
+        This field is required.
+      </div>
+    </div>
+  </div>
+
+  <div
+    fxLayout="row wrap"
+    fxFlex="100"
+    class="border mb-4">
+
+    <div
+      class="px-4 py-3"
+      [ngClass]="{'has-error': form.controls.memberType.dirty && form.controls.memberType.invalid}"
+      fxLayout="row wrap"
+      fxFlex="50"
+      fxFlex.lt-md="100"
+      fxLayoutAlign="start center">
+      <label
+        ngClass.lt-md="mb-2"
+        class="m-0 mr-4 font-weight-bold control-label">
+        Member Type
+      </label>
+
+      <label
+        fxLayout
+        fxFlex="nogrow"
+        fxFlex.lt-md="100"
+        fxLayoutAlign="start center"
+        ngClass.lt-md="mb-2"
+        class="m-0 mr-4  font-weight-normal">
+        <input
+          class="mr-1"
+          type="radio"
+          value="Associate"
+          formControlName="memberType">
+        Associate
+      </label>
+
+      <label
+        fxLayout
+        fxFlex="nogrow"
+        fxFlex.lt-md="100"
+        fxLayoutAlign="start center"
+        ngClass.lt-md="mb-2"
+        class="m-0 mr-4 font-weight-normal">
+        <input
+          class="mr-1"
+          type="radio"
+          value="Partner"
+          formControlName="memberType">
+        Partner
+      </label>
+    </div>
+
+    <div
+      class="px-4 py-3"
+      [ngClass]="{'has-error': form.controls.memberStatus.dirty && form.controls.memberStatus.invalid}"
+      fxLayout="row wrap"
+      fxFlex="50"
+      fxFlex.lt-md="100"
+      fxLayoutAlign="start center">
+      <label
+        ngClass.lt-md="mb-2"
+        class="m-0 mr-4 font-weight-bold control-label">
+        Member Status
+      </label>
+
+      <label
+        fxLayout
+        fxFlex="nogrow"
+        fxFlex.lt-md="100"
+        fxLayoutAlign="start center"
+        ngClass.lt-md="mb-2"
+        class="m-0 mr-4 font-weight-normal">
+        <input
+          class="mr-1"
+          type="radio"
+          value="Current"
+          formControlName="memberStatus">
+        Current
+      </label>
+
+      <label
+        fxLayout
+        fxFlex="nogrow"
+        fxFlex.lt-md="100"
+        fxLayoutAlign="start center"
+        ngClass.lt-md="mb-2"
+        class="m-0 mr-4 font-weight-normal">
+        <input
+          class="mr-1"
+          type="radio"
+          value="Former"
+          formControlName="memberStatus">
+        Former
+      </label>
+    </div>
+
+  </div>
+
+  <div
+    class="mb-4"
+    [ngClass]="{
+      'has-error': form.controls.name.dirty && form.controls.name.invalid,
+      'pr-4': true
+    }"
+    ngClass.lt-md="pr-0"
+    fxLayout="column"
+    fxFlex="50"
+    fxFlex.lt-md="100"
+    fxLayoutAlign="start start">
+    <label
+      class="font-weight-bold control-label asterisk">
+      Organization Name
+    </label>
+    <input
+      class="form-control input-sm"
+      *ngIf="form.controls.operationType.value === 'Add'"
+      maxlength="100"
+      formControlName="name"
+      placeholder="Enter organization name (100 characters maximum)">
+    <select
+      class="form-control input-sm"
+      *ngIf="form.controls.operationType.value === 'Update'"
+      formControlName="fundingOrganizationId">
+      <option [ngValue]="null">Select a funding organization</option>
+      <option
+        *ngFor="let fundingOrganization of fields.currentFundingOrganizations"
+        [ngValue]="fundingOrganization.fundingorgid">
+            {{ fundingOrganization.name }}
+      </option>
+    </select>
+    <div
+      *ngIf="form.controls.name.dirty && form.controls.name?.errors?.required"
+      fxLayout
+      fxFlex="100"
+      class="help-block mb-0">
+      This field is required.
+    </div>
+  </div>
+
+  <div
+    class="mb-4"
+    [ngClass]="{
+      'has-error': form.controls.type.dirty && form.controls.type.invalid,
+      'pl-4': true
+    }"
+    ngClass.lt-md="pl-0"
+    fxLayout="column"
+    fxFlex="50"
+    fxFlex.lt-md="100"
+    fxLayoutAlign="start start">
+    <label
+      class="font-weight-bold control-label asterisk">
+      Organization Type
+    </label>
+    <select
+      class="form-control input-sm"
+      id="type"
+      formControlName="type">
+      <option [ngValue]="null">
+        Select an organization type
+      </option>
+      <option ngValue="Government">
+        Government
+      </option>
+      <option ngValue="Non-profit">
+        Non-profit
+      </option>
+      <option ngValue="Other">
+          Other
+      </option>
+    </select>
+    <div
+      *ngIf="form.controls.type.dirty && form.controls.type?.errors?.required"
+      class="help-block mb-0">
+      This field is required.
+    </div>
+  </div>
+
+  <div
+    class="mb-4"
+    [ngClass]="{
+      'has-error': form.controls.abbreviation.dirty && form.controls.abbreviation.invalid,
+      'pr-4': true
+    }"
+    ngClass.lt-md="pr-0"
+    fxLayout="column"
+    fxFlex="50"
+    fxFlex.lt-md="100"
+    fxLayoutAlign="start start">
+    <label
+      class="font-weight-bold control-label asterisk">
+      Abbreviation
+    </label>
+    <input
+      class="form-control input-sm"
+      maxlength="15"
+      formControlName="abbreviation"
+      placeholder="Enter abbreviation (15 characters maximum)">
+    <div
+      *ngIf="form.controls.abbreviation.dirty && form.controls.abbreviation?.errors?.required"
+      fxLayout
+      fxFlex="100"
+      class="help-block mb-0">
+      This field is required.
+    </div>
+  </div>
+
+  <div
+    class="mb-4"
+    [ngClass]="{
+      'has-error': form.controls.website.dirty && form.controls.website.invalid,
+      'pl-4': true
+    }"
+    ngClass.lt-md="pl-0"
+    fxLayout="column"
+    fxFlex="50"
+    fxFlex.lt-md="100"
+    fxLayoutAlign="start fill">
+    <label
+      class="font-weight-bold control-label">
+      Website
+    </label>
+    <website-input
+      inputId="website"
+      inputName="website"
+      placeholder="Enter website"
+      selectClass="form-control input-sm"
+      inputClass="form-control input-sm border-left-0"
+      formControlName="website">
+    </website-input>
+    <div
+      *ngIf="form.controls.website.dirty && form.controls.website?.errors?.pattern"
+      fxLayout
+      fxFlex="100"
+      class="help-block mb-0">
+      This field should be in a valid format.
+    </div>
+  </div>
+
+  <div
+    class="mb-4"
+    [ngClass]="{
+      'has-error': form.controls.country.dirty && form.controls.country.invalid,
+      'pr-4': true
+    }"
+    ngClass.lt-md="pr-0"
+    fxLayout="column"
+    fxFlex="50"
+    fxFlex.lt-md="100"
+    fxLayoutAlign="start start">
+    <label
+      for="country"
+      class="font-weight-bold control-label asterisk">
+      Country
+    </label>
+    <select
+      class="form-control input-sm"
+      id="country"
+      formControlName="country">
+      <option [ngValue]="null">
+        Select a country
+      </option>
+      <option *ngFor="let country of fields.countries" [ngValue]="country.abbreviation">
+        {{ country.name }}
+      </option>
+    </select>
+    <div
+      *ngIf="form.controls.country.dirty && form.controls.country?.errors?.required"
+      class="help-block mb-0">
+      This field is required.
+    </div>
+  </div>
+
+  <div
+    class="mb-4"
+    [ngClass]="{
+      'has-error': form.controls.currency.dirty && form.controls.currency.invalid,
+      'pl-4': true
+    }"
+    ngClass.lt-md="pl-0"
+    fxLayout="column"
+    fxFlex="50"
+    fxFlex.lt-md="100"
+    fxLayoutAlign="start start">
+    <label
+      for="currency"
+      class="font-weight-bold control-label asterisk">
+      Currency
+    </label>
+    <select
+      class="form-control input-sm"
+      id="currency"
+      formControlName="currency">
+      <option [ngValue]="null">
+        Select a currency
+      </option>
+      <option *ngFor="let currency of fields.currencies" [ngValue]="currency.code">
+        {{ currency.description }}
+      </option>
+    </select>
+    <div
+      *ngIf="form.controls.currency.dirty && form.controls.currency?.errors?.required"
+      class="help-block mb-0">
+      This field is required.
+    </div>
+  </div>
+
+  <div
+    class="mb-4"
+    [ngClass]="{
+      'has-error': (form.controls.latitude.dirty && form.controls.latitude.invalid)
+        || (form.controls.longitude.dirty && form.controls.longitude.invalid),
+      'pr-4': true
+    }"
+    ngClass.lt-md="pr-0"
+    fxLayout="column"
+    fxFlex="50"
+    fxFlex.lt-md="100"
+    fxLayoutAlign="start fill">
+    <label
+      class="font-weight-bold control-label asterisk">
+      Map Coordinates
+    </label>
+    <div
+      fxLayout="row wrap"
+      fxLayoutAlign="space-between center"
+      fxLayoutGap.lt-md="0">
+      <input
+        fxFlex="48%"
+        fxFlex.lt-md="100"
+        type="number"
+        class="form-control input-sm"
+        ngClass.lt-md="mb-3"
+        max="90"
+        min="-90"
+        formControlName="latitude"
+        placeholder="Enter latitude (eg: 32.30642)">
+
+      <input
+        fxFlex="48%"
+        fxFlex.lt-md="100"
+        type="number"
+        class="form-control input-sm"
+        max="180"
+        min="-180"
+        formControlName="longitude"
+        placeholder="Enter longitude (eg: -122.61458)">
+    </div>
+
+    <div
+      *ngIf="(form.controls.longitude.dirty && form.controls.longitude?.errors?.required)
+        || (form.controls.latitude.dirty && form.controls.latitude?.errors?.required)"
+      class="help-block mb-0">
+      Both fields are required.
+    </div>
+
+    <div
+      *ngIf="form.controls.latitude.dirty
+        && (form.controls.latitude?.errors?.min || form.controls.latitude?.errors?.max)"
+      class="help-block mb-0">
+      Latitude should be a decimal number between -90.0 and 90.0 inclusive.
+    </div>
+
+    <div
+      *ngIf="form.controls.longitude.dirty
+        && (form.controls.longitude?.errors?.min || form.controls.longitude?.errors?.max)"
+      class="help-block mb-0">
+      Longitude should be a decimal number between -180.0 and 180.0 inclusive.
+    </div>
+  </div>
+
+
+  <div
+    class="mb-4"
+    ngClass="pl-4"
+    ngClass.lt-md="pl-0"
+    fxFlex="50"
+    fxFlex.lt-md="100"
+    fxLayout
+    fxLayoutAlign="start start"
+    >
+    <div
+      [ngStyle]="{'margin-top.px': 32}"
+      [ngStyle.lt-md]="{'margin-top.px': 0}"
+      fxLayoutAlign="start center"
+      fxLayout>
+      <input
+        type="checkbox"
+        id="isAnnualized"
+        class="mr-1"
+        formControlName="isAnnualized">
+      <label
+        for="isAnnualized"
+        class="m-0 control-label font-weight-bold">
+        Annualized Funding
+      </label>
+    </div>
+  </div>
+
+  <div
+    class="mb-4"
+    fxLayout="column"
+    fxFlex="100"
+    fxLayoutAlign="start start">
+    <label
+      class="font-weight-bold">
+      Note
+    </label>
+    <textarea
+      rows="5"
+      class="form-control input-sm"
+      maxlength="1000"
+      formControlName="note"
+      placeholder="Enter note (optional, 1000 characters maximum)">
+    </textarea>
+  </div>
+
+  <div
+    class="mb-4"
+    fxLayouut
+    fxLayoutGap="10px"
+    fxLayoutAlign="center center"
+    fxFlex="100">
+    <button class="btn btn-sm btn-primary" (click)="submit()" [disabled]="!form.value.partnerId">
+      Save
+    </button>
+
+    <button class="btn btn-sm btn-default" (click)="reset()">
+      Cancel
+    </button>
+  </div>
 </form>
-
-<pre>{{fields | json }}</pre>

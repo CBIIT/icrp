@@ -20,7 +20,8 @@ class Partners {
               RTRIM(abbreviation) as abbreviation,
               name,
               currency
-              FROM Country'
+              FROM Country
+              ORDER BY name'
         )->fetchAll(),
 
       'currencies' =>

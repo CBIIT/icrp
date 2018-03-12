@@ -7,7 +7,7 @@ import 'rxjs/add/operator/map';
 export class FundingOrganizationsApiService {
 
   BASE_HREF = environment.production
-    ? `/api/admin/funding-organization`
+    ? `/api/admin/funding-organizations`
     : `${location.protocol}//${location.hostname}/api/admin/funding-organizations`
 
   constructor(private http: HttpClient) {}
@@ -17,32 +17,41 @@ export class FundingOrganizationsApiService {
       withCredentials: environment.production
     }).map((record: any) => ({
       ...record,
-      fundingOrganizations: record.fundingOrganizations.map(entry => ({
-        ...entry,
-        memberstatus: entry.memberstatus.trim(),
-        isannualized: entry.isannualized === 1,
-        latitude: +entry.latitude || null,
-        longitude: +entry.longitude || null,
-        note: entry.note || null
-      })),
-      partners: record.partners.map(entry => ({
-        ...entry,
-        longitude: +entry.longitude || null,
-        latitude: +entry.latitude || null,
-        note: entry.note || null
-      }))
+      fundingOrganizations: record.fundingOrganizations
+        .map(entry => ({
+          ...entry,
+          memberstatus: entry.memberstatus.trim(),
+          isannualized: entry.isannualized === 1,
+          latitude: +entry.latitude || null,
+          longitude: +entry.longitude || null,
+          note: entry.note || null
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+      partners: record.partners
+        .map(entry => ({
+          ...entry,
+          longitude: +entry.longitude || null,
+          latitude: +entry.latitude || null,
+          note: entry.note || null
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name))
     }));
   }
 
-  add(parameters: any) {
-    return this.http.get(`${this.BASE_HREF}/add`, {
-      withCredentials: environment.production
-    })
+  add(parameters: FormData) {
+    return this.http.post(
+      `${this.BASE_HREF}/add`,
+      parameters,
+      { withCredentials: environment.production }
+    );
   }
 
-  update(parameters: any) {
-    return this.http.get(`${this.BASE_HREF}/update`, {
-      withCredentials: environment.production
-    })
+  update(parameters: FormData) {
+    return this.http.post(
+      `${this.BASE_HREF}/update`,
+      parameters,
+      { withCredentials: environment.production }
+    );
   }
+
 }

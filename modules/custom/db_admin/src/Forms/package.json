@@ -7,9 +7,9 @@
     "start": "ng serve",
     "start:funding-organizations": "ng serve --app funding-organizations",
     "start:partners": "ng serve --app partners",
-    "build": "ng build:funding-organizations && ng build:partners",
-    "build:funding-organizations": "ng build --prod --app funding-organizations",
-    "build:partners": "ng build --prod --app partners",
+    "build": "yarn build:funding-organizations && yarn build:partners",
+    "build:funding-organizations": "ng build --prod --app funding-organizations --progress false --output-hashing none --output-path ../../assets/funding-organizations",
+    "build:partners": "ng build --prod --app partners --progress false --output-hashing none --output-path ../../assets/partners",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
@@ -30,6 +30,7 @@
     "core-js": "^2.4.1",
     "ngx-bootstrap": "^2.0.2",
     "rxjs": "^5.5.6",
+    "url-parse": "^1.2.0",
     "zone.js": "^0.8.19"
   },
   "devDependencies": {

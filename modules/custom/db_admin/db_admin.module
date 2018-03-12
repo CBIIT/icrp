@@ -3,11 +3,11 @@
 
 function db_admin_theme($existing, $type, $theme, $path) {
   return [
-    'add_funding_organization' => [
+    'funding_organizations' => [
       'variables' => [],
     ],
 
-    'add_partner' => [
+    'partners' => [
       'variables' => [],
     ],
   ];
