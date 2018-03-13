@@ -42,6 +42,10 @@ export class FundingOrganizationsFormComponent {
         this.fields.currentFundingOrganizations = [];
         this.initializeFormControls();
     }, errorResponse => {
+      this.messages.push({
+        type: 'danger',
+        content: errorResponse.error
+      });
       console.error(errorResponse.error);
     });
   }

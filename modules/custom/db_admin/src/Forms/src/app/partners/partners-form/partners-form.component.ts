@@ -147,6 +147,10 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
       this.initializeFormControls();
     }, errorResponse => {
       console.log(errorResponse);
+      this.messages.push({
+        type: 'danger',
+        content: errorResponse.error
+      });
     });
   }
 
@@ -158,13 +162,8 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
 
       partnerId.clearValidators();
       partnerApplicationId.clearValidators();
-      partnerId.setValue(null);
-      partnerApplicationId.setValue(null);
-
       nonPartnerId.clearValidators();
       name.clearValidators();
-      nonPartnerId.setValue(null);
-      name.setValue(null);
 
       if (isNonPartner) {
         if (operationType === 'Add') {
@@ -186,10 +185,10 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         }
       }
 
-      // partnerId.updateValueAndValidity();
-      // partnerApplicationId.updateValueAndValidity();
-      // nonPartnerId.updateValueAndValidity();
-      // name.updateValueAndValidity();
+      this.form.reset({
+        operationType: operationType,
+        isNonPartner: isNonPartner.value,
+      }, {emitEvent: false});
     });
 
     controls.isNonPartner.valueChanges.subscribe(isNonPartner => {
@@ -203,13 +202,32 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         isFundingOrganization
        } = controls;
 
-      this.form.reset({
-        isNonPartner: isNonPartner,
-        operationType: controls.operationType.value,
-        status: 'Current',
-      }, {emitEvent: false});
+      let enabledControls = [
+        'operationType',
+        'isNonPartner',
+        'name',
+        'country',
+        'email',
+        'description',
+        'sponsorCode',
+        'website',
+        'latitude',
+        'longitude',
+        'logoFile',
+        'logoFileInput',
+        'note'
+      ];
 
       if (isNonPartner) {
+        enabledControls.push(
+          'nonPartnerId',
+          'estimatedInvestment',
+          'cancerOnly',
+          'researchFunder',
+          'contactPerson',
+          'position',
+          'doNotContact',
+        );
 
         // operationType.updateValueAndValidity();
 
@@ -221,15 +239,41 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
       }
 
       else {
+        enabledControls.push(
+          'partnerId',
+          'partnerApplicationId',
+          'status',
+          'joinedDate',
+          'isDSASigned',
+          'isFundingOrganization',
+          'type',
+          'currency',
+          'isAnnualized'
+        );
+
         latitude.setValidators([Validators.required, Validators.min(-90), Validators.max(90)]);
         longitude.setValidators([Validators.required, Validators.min(-180), Validators.max(180)]);
+      }
+
+      console.log(enabledControls);
+
+      this.form.reset({
+        isNonPartner: isNonPartner,
+        operationType: operationType.value,
+        status: 'Current'
+      }, {emitEvent: false});
+
+      for (let key in controls) {
+        enabledControls.includes(key)
+          ? controls[key].enable({emitEvent: false})
+          : controls[key].disable({emitEvent: false});
       }
     });
 
     controls.logoFileInput.valueChanges.subscribe((logoFileInput: FileList) => {
       const { logoFile } = controls;
       logoFile.setValue(null);
-      if (logoFileInput.length > 0) {
+      if (logoFileInput && logoFileInput.length > 0) {
         const file = logoFileInput[0];
         logoFile.setValue(file.name);
       }
@@ -283,11 +327,46 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
           isDSAsigned: record.isdsasigned,
         });
       }
+    });
+
+    controls.nonPartnerId.valueChanges.subscribe(nonPartnerId => {
+      this.form.reset({
+        nonPartnerId: nonPartnerId,
+        isNonPartner: controls.isNonPartner.value,
+        operationType: controls.operationType.value,
+      }, {emitEvent: false});
+
+      if (nonPartnerId !== null) {
+        const record = this.fields.nonPartners
+          .find(nonPartner => nonPartner.nonpartnerid === nonPartnerId);
+
+        this.form.patchValue({
+          name: record.name,
+          description: record.description,
+          sponsorCode: record.abbreviation,
+          email: record.email,
+          country: record.country,
+          longitude: record.longitude,
+          latitude: record.latitude,
+          website: record.website,
+          logofile: record.logofile,
+          note: record.note,
+          estimatedInvestment: record.estimatedinvest,
+          contactPerson: record.contactperson,
+          position: record.position,
+          doNotContact: record.donotcontact,
+          cancerOnly: record.canceronly,
+          researchFunder: record.researchfunder,
+        });
+      }
     })
 
 
     controls.country.valueChanges.subscribe(country => {
       controls.country.valueChanges.subscribe(value => {
+        if (!controls.currency.enabled)
+          return;
+
         const country = this.fields.countries
           .find(country => country.abbreviation === value);
 
@@ -318,6 +397,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
     })
 
     controls.isFundingOrganization.updateValueAndValidity();
+    controls.isNonPartner.updateValueAndValidity();
 
     console.log(this.fields);
   }
@@ -328,18 +408,30 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
 
     for (let key in this.form.controls) {
       this.form.controls[key].markAsDirty();
-      console.log(this.form.controls[key]);
     }
 
     if (!this.form.valid) {
+      console.log('invalid', this.form.errors);
       document.querySelector('h1').scrollIntoView();
       return;
     }
 
     const formValue = this.form.value;
     const formData = new FormData();
-    for (let key in this.form.value) {
-        formData.append(key, this.form.value[key]);
+    for (let key in formValue) {
+      let value = formValue[key];
+      if (value && value.constructor === FileList) {
+        formData.append(key, value[0], value[0].name);
+      } else if (value && value.constructor === Date) {
+        let date = [
+          value.getFullYear(),
+          (value.getMonth() + 1).toString().padStart(2, '0'),
+          value.getDate().toString().padStart(2, '0')
+        ].join('-');
+        formData.append(key, date);
+      } else {
+        formData.append(key, value);
+      }
     }
 
     const action = this.form.value.operationType.toLowerCase(); // 'add' or 'update'
@@ -353,7 +445,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         let content;
 
         if (action === 'add' && api === 'partnersApi' && formValue.isFundingOrganization)
-          content = `The partner and funding organization have been added.`;
+          content = `The partner has been added as a funding organization.`;
 
         else if (action === 'add' && api === 'partnersApi')
           content = `The partner has been added.`;
@@ -391,7 +483,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
     this.form.reset({
       operationType: 'Add',
       memberType: 'Associate',
-      memberStatus: 'Current',
+      status: 'Current',
     });
   }
 }

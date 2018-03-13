@@ -9,22 +9,22 @@ class NonPartners {
     return PDOBuilder::createPreparedStatement(
       $pdo,
       "EXECUTE AddNonPartner
-        @Name = :name
-        @Description = :description
-        @SponsorCode = :sponsorCode
-        @Email = :email
-        @IsDSASigned = :isDSASigned
-        @Country = :country
-        @Website = :website
-        @LogoFile = :logoFile
-        @Note = :note
-        @Longitude = :longitude
-        @Latitude = :latitude
-        @EstimatedInv = :estimatedInvestment
-        @DoNotContact = :doNotContact
-        @CancerOnly = :cancerOnly
-        @ResearchFunder = :researchFunder
-        @ContactPerson = :contactPerson
+        @Name = :name,
+        @Description = :description,
+        @SponsorCode = :sponsorCode,
+        @Email = :email,
+        @IsDSASigned = :isDSASigned,
+        @Country = :country,
+        @Website = :website,
+        @LogoFile = :logoFile,
+        @Note = :note,
+        @Longitude = :longitude,
+        @Latitude = :latitude,
+        @EstimatedInv = :estimatedInvestment,
+        @DoNotContact = :doNotContact,
+        @CancerOnly = :cancerOnly,
+        @ResearchFunder = :researchFunder,
+        @ContactPerson = :contactPerson,
         @Position = :position;",
       $parameters
     )->execute();
@@ -34,22 +34,22 @@ class NonPartners {
     return PDOBuilder::createPreparedStatement(
       $pdo,
       "EXECUTE UpdateNonPartner
-        @NonPartnerID = :nonPartnerID
-        @Name = :name
-        @Description = :description
-        @SponsorCode = :sponsorCode
-        @Email = :email
-        @Country = :country
-        @Website = :website
-        @LogoFile = :logoFile
-        @Note = :note
-        @Longitude = :longitude
-        @Latitude = :latitude
-        @EstimatedInv = :estimatedInvestment
-        @DoNotContact = :doNotContact
-        @CancerOnly = :cancerOnly
-        @ResearchFunder = :researchFunder
-        @ContactPerson = :contactPerson
+        @NonPartnerID = :nonPartnerID,
+        @Name = :name,
+        @Description = :description,
+        @SponsorCode = :sponsorCode,
+        @Email = :email,
+        @Country = :country,
+        @Website = :website,
+        @LogoFile = :logoFile,
+        @Note = :note,
+        @Longitude = :longitude,
+        @Latitude = :latitude,
+        @EstimatedInv = :estimatedInvestment,
+        @DoNotContact = :doNotContact,
+        @CancerOnly = :cancerOnly,
+        @ResearchFunder = :researchFunder,
+        @ContactPerson = :contactPerson,
         @Position = :position;",
       $parameters
     )->execute();

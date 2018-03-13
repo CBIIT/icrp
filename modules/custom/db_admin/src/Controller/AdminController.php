@@ -29,11 +29,18 @@ class AdminController extends ControllerBase {
     ]);
   }
 
-  private static function emptyToNull($nullables = ['null', '']) {
+  private static function emptyToNull() {
     return function($value) use ($nullables) {
-      return in_array($value, ['null', ''], true) ? null
-        // : is_numeric($value) ? floatval($value)
-        : $value;
+      switch($value) {
+        case 'null':
+        case '':
+          return null;
+        case 'true':
+          return true;
+        case 'false':
+          return false;
+      }
+      return $value;
     };
   }
 
@@ -55,9 +62,16 @@ class AdminController extends ControllerBase {
   }
 
   public static function getFundingOrganizationFields() {
-    $connection = PDOBuilder::getConnection();
-    $data = FundingOrganizations::getFields($connection);
-    return self::createResponse($data);
+    try {
+      $connection = PDOBuilder::getConnection();
+      $data = FundingOrganizations::getFields($connection);
+      return self::createResponse($data);
+    }
+
+    catch (Exception $e) {
+      $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
+      return self::createResponse($message, 500);
+    }
   }
 
   public static function addFundingOrganization(Request $request) {
@@ -84,22 +98,28 @@ class AdminController extends ControllerBase {
 
     catch (Exception $e) {
       $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
-      return self::createResponse($parameters);
       return self::createResponse($message, 500);
     }
   }
 
   public static function getPartnerFields() {
-    $connection = PDOBuilder::getConnection();
-    $data = Partners::getFields($connection);
-    return self::createResponse($data);
+    try {
+      $connection = PDOBuilder::getConnection();
+      $data = Partners::getFields($connection);
+      return self::createResponse($data);
+    }
+
+    catch (Exception $e) {
+      $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
+      return self::createResponse($message, 500);
+    }
   }
 
   public static function addPartner(Request $request) {
-    $parameters = array_map(self::emptyToNull(), $request->request->all());
-    $uploadedFile = $request->files->get('logoFile');
-
     try {
+      $parameters = array_map(self::emptyToNull(), $request->request->all());
+      $uploadedFile = $request->files->get('logoFileInput');
+
       if ($uploadedFile) {
         $uploadedFile->move('data/uploads/partner-logos');
         $parameters['logoFile'] = $uploadedFile->getClientOriginalName();
@@ -111,16 +131,18 @@ class AdminController extends ControllerBase {
     }
 
     catch (Exception $e) {
+      error_log($e->getMessage());
       $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
+      // return self::createResponse($parameters, 500);
       return self::createResponse($message, 500);
     }
   }
 
   public static function updatePartner(Request $request) {
-    $parameters = array_map(self::emptyToNull(), $request->request->all());
-    $uploadedFile = $request->files->get('logoFile');
-
     try {
+      $parameters = array_map(self::emptyToNull(), $request->request->all());
+      $uploadedFile = $request->files->get('logoFileInput');
+
       if ($uploadedFile) {
         $uploadedFile->move('data/uploads/partner-logos');
         $parameters['logoFile'] = $uploadedFile->getClientOriginalName();
@@ -133,16 +155,17 @@ class AdminController extends ControllerBase {
 
     catch (Exception $e) {
       $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
+      // return self::createResponse($parameters, 500);
       return self::createResponse($message, 500);
     }
   }
 
 
   public static function addNonPartner(Request $request) {
-    $parameters = array_map(self::emptyToNull(), $request->request->all());
-    $uploadedFile = $request->files->get('logoFile');
-
     try {
+      $parameters = array_map(self::emptyToNull(), $request->request->all());
+      $uploadedFile = $request->files->get('logoFileInput');
+
       if ($uploadedFile) {
         $uploadedFile->move('data/uploads/partner-logos');
         $parameters['logoFile'] = $uploadedFile->getClientOriginalName();
@@ -160,10 +183,10 @@ class AdminController extends ControllerBase {
   }
 
   public static function updateNonPartner(Request $request) {
-    $parameters = array_map(self::emptyToNull(), $request->request->all());
-    $uploadedFile = $request->files->get('logoFile');
-
     try {
+      $parameters = array_map(self::emptyToNull(), $request->request->all());
+      $uploadedFile = $request->files->get('logoFileInput');
+
       if ($uploadedFile) {
         $uploadedFile->move('data/uploads/partner-logos');
         $parameters['logoFile'] = $uploadedFile->getClientOriginalName();

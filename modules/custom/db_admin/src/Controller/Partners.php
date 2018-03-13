@@ -23,7 +23,7 @@ class Partners {
         )->fetchAll(),
 
       'nonPartners' => $pdo->query(
-        'EXECUTE GetPartners @NonPartner = 1'
+        'EXECUTE GetNonPartners'
         )->fetchAll(),
 
       'countries' => $pdo->query(
@@ -48,34 +48,26 @@ class Partners {
   public static function add(PDO $pdo, array $parameters) {
     $partnerId = PDOBuilder::executePreparedStatement(
       $pdo,
-      "EXECUTE AddPartner
-        @Name = :name
-        @Description = :description
-        @SponsorCode = :sponsorCode
-        @Email = :email
-        @IsDSASigned = :isDSASigned
-        @Country = :country
-        @Website = :website
-        @LogoFile = :logoFile
-        @Note = :note
-        @JoinedDate = :joinedDate
-        @Longitude = :longitude
-        @Latitude = :latitude
-        @Status = :status;
-      SELECT @@IDENTITY;",
-      $parameters
-    )->fetch(PDO::FETCH_COLUMN);
-
-    if ($parameters['isFundingOrganization']) {
-      FundingOrganizations::add(
-        $pdo,
-        $parameters + [
-          'partnerId' => $partnerId,
-          'memberType' => 'Partner',
-          'memberStatus' => 'Current',
-        ]
-      );
-    }
+      "DECLARE @partnerId INT;
+      EXECUTE AddPartner
+        @Name = :name,
+        @Description = :description,
+        @SponsorCode = :sponsorCode,
+        @Email = :email,
+        @IsDSASigned = :isDSASigned,
+        @Country = :country,
+        @Website = :website,
+        @LogoFile = :logoFile,
+        @Note = :note,
+        @JoinedDate = :joinedDate,
+        @Longitude = :longitude,
+        @Latitude = :latitude,
+        @Status = :status,
+        @PartnerID = @partnerId OUTPUT;
+      SELECT @partnerId;",
+      $parameters,
+      $ouput
+    )->fetchColumn();
 
     PDOBuilder::executePreparedStatement(
       $pdo,
@@ -84,25 +76,39 @@ class Partners {
         WHERE PartnerApplicationID = :partnerApplicationId",
       $parameters
     );
+
+    if ($parameters['isFundingOrganization']) {
+      FundingOrganizations::add(
+        $pdo,
+        array_merge($parameters, [
+          'partnerId' => $partnerId,
+          'memberType' => 'Partner',
+          'memberStatus' => 'Current',
+          'abbreviation' => $parameters['sponsorCode'],
+        ])
+      );
+    }
   }
 
   public static function update(PDO $pdo, array $parameters) {
-    return $pdo->prepare(
+    return PDOBuilder::createPreparedStatement(
+      $pdo,
       "EXECUTE UpdatePartner
-        @PartnerID = :partnerID
-        @Name = :name
-        @Description = :description
-        @SponsorCode = :sponsorCode
-        @Email = :email
-        @IsDSASigned = :isDSASigned
-        @Country = :country
-        @Website = :website
-        @LogoFile = :logoFile
-        @Note = :note
-        @JoinedDate = :joinedDate
-        @Longitude = :longitude
-        @Latitude = :latitude
-        @Status = :status"
+        @PartnerID = :partnerId,
+        @Name = :name,
+        @Description = :description,
+        @SponsorCode = :sponsorCode,
+        @Email = :email,
+        @IsDSASigned = :isDSASigned,
+        @Country = :country,
+        @Website = :website,
+        @LogoFile = :logoFile,
+        @Note = :note,
+        @JoinedDate = :joinedDate,
+        @Longitude = :longitude,
+        @Latitude = :latitude,
+        @Status = :status",
+      $parameters
     )->execute();
   }
 }

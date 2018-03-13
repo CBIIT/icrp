@@ -26,7 +26,13 @@ export class PartnersApiService {
           isdsasigned: record.isdsasigned === 1,
           joindate: new Date(date[0], date[1] + 1, date[2])
         }
-      })
+      }),
+      nonPartners: fields.nonPartners.map(record => ({
+        ...record,
+        canceronly: record.canceronly === 1,
+        donotcontact: record.donotcontact === 1,
+        researchfunder: record.researchfunder === 1,
+      }))
     }));
   }
 

@@ -233,7 +233,7 @@
         <option
           *ngFor="let nonPartner of fields.nonPartners"
           [ngValue]="nonPartner.nonpartnerid">
-          {{ partner.name }}
+          {{ nonPartner.name }}
         </option>
       </select>
 
@@ -291,7 +291,6 @@
     </label>
     <input
       class="form-control input-sm"
-      maxlength="15"
       formControlName="email"
       placeholder="Enter email">
     <div
