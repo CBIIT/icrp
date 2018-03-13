@@ -8,11 +8,22 @@ class Partners {
   public static function getFields(PDO $pdo) {
     return [
       'partnerApplications' => $pdo->query(
-          "SELECT * FROM PartnerApplication where status = 'NEW'"
+          "SELECT
+            partnerApplicationID,
+            orgName as name,
+            orgCountry as country,
+            orgEmail as email,
+            missionDesc as description
+          FROM PartnerApplication where status = 'NEW'
+          ORDER BY name"
         )->fetchAll(),
 
       'partners' => $pdo->query(
         'EXECUTE GetPartners'
+        )->fetchAll(),
+
+      'nonPartners' => $pdo->query(
+        'EXECUTE GetPartners @NonPartner = 1'
         )->fetchAll(),
 
       'countries' => $pdo->query(

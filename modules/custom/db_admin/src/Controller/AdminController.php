@@ -102,11 +102,11 @@ class AdminController extends ControllerBase {
     try {
       if ($uploadedFile) {
         $uploadedFile->move('data/uploads/partner-logos');
-        $parameters['logo_file'] = $uploadedFile->getClientOriginalName();
+        $parameters['logoFile'] = $uploadedFile->getClientOriginalName();
       }
 
       $connection = PDOBuilder::getConnection();
-      $data = FundingOrganizations::add($connection, $parameters);
+      $data = Partners::add($connection, $parameters);
       return self::createResponse($data);
     }
 
@@ -123,11 +123,54 @@ class AdminController extends ControllerBase {
     try {
       if ($uploadedFile) {
         $uploadedFile->move('data/uploads/partner-logos');
-        $parameters['logo_file'] = $uploadedFile->getClientOriginalName();
+        $parameters['logoFile'] = $uploadedFile->getClientOriginalName();
       }
 
       $connection = PDOBuilder::getConnection();
-      $data = FundingOrganizations::update($connection, $parameters);
+      $data = Partners::update($connection, $parameters);
+      return self::createResponse($data);
+    }
+
+    catch (Exception $e) {
+      $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
+      return self::createResponse($message, 500);
+    }
+  }
+
+
+  public static function addNonPartner(Request $request) {
+    $parameters = array_map(self::emptyToNull(), $request->request->all());
+    $uploadedFile = $request->files->get('logoFile');
+
+    try {
+      if ($uploadedFile) {
+        $uploadedFile->move('data/uploads/partner-logos');
+        $parameters['logoFile'] = $uploadedFile->getClientOriginalName();
+      }
+
+      $connection = PDOBuilder::getConnection();
+      $data = NonPartners::add($connection, $parameters);
+      return self::createResponse($data);
+    }
+
+    catch (Exception $e) {
+      $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
+      return self::createResponse($message, 500);
+    }
+  }
+
+  public static function updateNonPartner(Request $request) {
+    $parameters = array_map(self::emptyToNull(), $request->request->all());
+    $uploadedFile = $request->files->get('logoFile');
+
+    try {
+      if ($uploadedFile) {
+        $uploadedFile->move('data/uploads/partner-logos');
+        $parameters['logoFile'] = $uploadedFile->getClientOriginalName();
+      }
+
+      $connection = PDOBuilder::getConnection();
+      $data = NonPartners::update($connection, $parameters);
       return self::createResponse($data);
     }
 

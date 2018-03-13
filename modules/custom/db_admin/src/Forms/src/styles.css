@@ -404,5 +404,31 @@
 }
 
 .bg-light-grey {
-  background-color: #f9f9f9;
+  background-color: #f9f9f9 !important;
+}
+
+textarea {
+  resize: vertical;
+}
+
+input[type="file"].hidden {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+.disabled-overlay::after {
+  content: ' ';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 999;
+  top: 0;
+  left: 0;
+  opacity: 0.4;
+  background-color: white;
+  cursor: not-allowed;
 }

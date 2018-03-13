@@ -54,6 +54,20 @@ api.admin.partners.update:
   requirements:
     _access: 'TRUE'
 
+api.admin.non-partners.add:
+  path: /api/admin/non-partners/add
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::addNonPartner'
+  requirements:
+    _access: 'TRUE'
+
+api.admin.non-partners.update:
+  path: /api/admin/non-partners/update
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::updateNonPartner'
+  requirements:
+    _access: 'TRUE'
+
 api.admin.partners.content.deprecated:
   path: /AddPartner
   defaults:
