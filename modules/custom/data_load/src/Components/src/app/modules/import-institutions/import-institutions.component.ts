@@ -22,6 +22,17 @@ export class ImportInstitutionsComponent  {
   hasInvalidRecords: boolean = false;
   importDisabled: boolean = true;
 
+  fixedHeaders = [
+    'Institution Name',
+    'City',
+    'State',
+    'Country',
+    'Postal',
+    'Latitude',
+    'Longitude',
+    'GRID',
+  ];
+
   EXPECTED_COLUMNS: number = 8;
 
   constructor(
@@ -44,12 +55,17 @@ export class ImportInstitutionsComponent  {
     this.alerts = [];
     this.loading = true;
     const csv = await this.importService
-      .parseCSV(this.form.controls.file.value[0], true) as ParseResult;
+      .parseCSV(this.form.controls.file.value[0], false) as ParseResult;
     this.loading = false;
 
-    if (csv.meta.fields.length === this.EXPECTED_COLUMNS) {
-      this.headers = csv.meta.fields;
-      this.records = csv.data;
+    if (csv.data.length > 0) {// && csv.data[0].length === this.EXPECTED_COLUMNS) {
+      this.headers = this.fixedHeaders;
+      this.records = csv.data.map(row => {
+        let record = {};
+        this.headers.forEach((header, index) =>
+          record[header] = row[index] || null)
+        return record;
+      });
       this.importDisabled = false;
     }
 
