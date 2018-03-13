@@ -30,7 +30,7 @@ class PageController extends ControllerBase {
         )->fetchAll();
 
         $nonPartners = PDOBuilder::executePreparedStatement(
-            $pdo, 'EXECUTE GetPartners @NonPartner=1'
+            $pdo, 'EXECUTE GetNonPartners'
         )->fetchAll();
 
         usort($partners, function($a, $b) {
@@ -38,7 +38,7 @@ class PageController extends ControllerBase {
         });
 
         // do not show partner emails on public site
-        if (($this->currentUser())->isAnonymous())
+        if ($this->currentUser()->isAnonymous())
             foreach($partners as &$record)
                 unset($record['email']);
 
@@ -50,7 +50,7 @@ class PageController extends ControllerBase {
 
             // do not include emails if 'Do Not Contact' has been flagged
             if ($record['donotcontact'])
-                $record['email'] = '';
+                unset($record['email']);
         }
 
         return [
@@ -148,7 +148,7 @@ class PageController extends ControllerBase {
 
                 [
                     'title' => 'Non-Partners',
-                    'query' => $pdo->prepare('EXECUTE GetPartners @NonPartner = 1'),
+                    'query' => $pdo->prepare('EXECUTE GetNonPartners'),
                     'columns' => [
                         'name' => 'Name',
                         'abbreviation' => 'Abbreviation',
