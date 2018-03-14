@@ -23,17 +23,19 @@ export class ImportCollaboratorsComponent {
   importDisabled: boolean = true;
 
   fixedHeaders = [
-    'Award Code',
-    'AltID',
-    'PI Last Name',
-    'PI First Name',
-    'Institution',
-    'ICRP Institution',
+    'AwardCode',
+    'AltAwardCode',
+    'Lastname',
+    'FirstName',
+    'Submitted Institution Name',
+    'ICRP Institution Name',
     'City',
     'ORCiD',
     'OtherResearchID',
-    'OtherResearcherIDType'
+    'OtherResearchIDType',
   ];
+
+
 
   EXPECTED_COLUMNS: number = 10;
 
