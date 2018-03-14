@@ -3823,7 +3823,7 @@ SELECT @sitecount2 = count(1) FROM tmp_psite s
 WHERE s.AltAwardCode IS NULL OR r.AltAwardCode IS NULL
 
 IF @sitecount1 + @sitecount2 > 0
-	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, @count1+@count2
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, @sitecount1+@sitecount2
 ELSE
 	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
@@ -5993,8 +5993,8 @@ GO
 /****** Object:  StoredProcedure [dbo].[DataUpload_RevertStageUpload]     Script Date: 12/14/2016 4:21:37 PM																					*****/
 /*																																														*/
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-use icrp_dataload
-go
+--use icrp_dataload
+--go
 
 IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DataUpload_RevertStageUpload]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[DataUpload_RevertStageUpload] 
@@ -7263,6 +7263,8 @@ BEGIN TRY
 		Position  = @Position,		
 		[UpdatedDate] = getdate()
 	WHERE NonPartnerID =  @NonPartnerID
+	
+COMMIT TRANSACTION
 
 END TRY
 

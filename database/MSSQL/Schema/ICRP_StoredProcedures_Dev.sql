@@ -1687,7 +1687,9 @@ CREATE  PROCEDURE [dbo].[AddPartner]
 	@Note [varchar](8000),
 	@JoinedDate [datetime],
 	@Longitude [decimal](9, 6),
-	@Latitude [decimal](9, 6) 
+	@Latitude [decimal](9, 6),
+	@Status [varchar](25) = 'Current',
+	@PartnerID INT OUTPUT  -- return the newly inserted partnerID	
 AS   
 
 BEGIN TRANSACTION;
@@ -1700,16 +1702,18 @@ BEGIN TRY
 		   RAISERROR ('Sponsor Code already existed', 16, 1)
 	END
 
-	INSERT INTO Partner ([Name],[Description], [SponsorCode], [Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], [CreatedDate], [UpdatedDate])
-	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, GETDATE(), GETDATE())
+	INSERT INTO Partner ([Name],[Description], [SponsorCode], [Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], Status, [CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, @Status, GETDATE(), GETDATE())
+
+	SELECT @PartnerID = SCOPE_IDENTITY()
 		
 	-- Also insert the new partner into the PartnerOrg table
 	INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
 	SELECT @Name, @SponsorCode, 'Partner', 1 
 
 	-- Also Insert the newly inserted partner into the icrp_dataload database
-	INSERT INTO icrp_dataload_dev.dbo.Partner ([Name], [Description],[SponsorCode],[Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], [CreatedDate], [UpdatedDate])
-	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, GETDATE(), GETDATE())
+	INSERT INTO icrp_dataload_dev.dbo.Partner ([Name], [Description],[SponsorCode],[Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], Status, [CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, @Status, GETDATE(), GETDATE())
 
 	COMMIT TRANSACTION
 
@@ -1725,6 +1729,7 @@ BEGIN CATCH
 END CATCH  
 
 GO
+
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[UpdatePartner]    Script Date: 12/14/2016 4:21:37 PM ******/
@@ -1753,7 +1758,8 @@ CREATE  PROCEDURE [dbo].[UpdatePartner]
 	@Note [varchar](8000),
 	@JoinedDate [datetime],
 	@Longitude [decimal](9, 6),
-	@Latitude [decimal](9, 6) 
+	@Latitude [decimal](9, 6),
+	@Status [varchar](25) = 'Current'
 AS   
 
 BEGIN TRANSACTION;
@@ -1779,6 +1785,7 @@ BEGIN TRY
 		[JoinedDate]  = @JoinedDate,	
 		[Longitude]  = @Longitude,
 		[Latitude] = @Latitude,
+		[Status] = @Status,
 		[UpdatedDate] = getdate()
 	WHERE PartnerID =  @PartnerID
 
@@ -1795,6 +1802,7 @@ BEGIN TRY
 		[JoinedDate]  = @JoinedDate,	
 		[Longitude]  = @Longitude,
 		[Latitude] = @Latitude,
+		[Status] = @Status,
 		[UpdatedDate] = getdate()
 	WHERE [SponsorCode] =  @OrgSponsorCode
 
@@ -1819,7 +1827,6 @@ BEGIN CATCH
 END CATCH  
 
 GO
-
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[AddFundingOrg]								****************/
