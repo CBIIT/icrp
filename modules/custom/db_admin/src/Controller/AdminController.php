@@ -199,6 +199,7 @@ class AdminController extends ControllerBase {
 
     catch (Exception $e) {
       $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
+      return self::createResponse($parameters, 500);
       return self::createResponse($message, 500);
     }
   }

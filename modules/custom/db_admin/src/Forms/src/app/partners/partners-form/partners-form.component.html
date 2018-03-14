@@ -112,6 +112,13 @@
         formControlName="partnerApplicationId">
         <option
           [ngValue]="null"
+          *ngIf="!fields.partnerApplications"
+          hidden>
+          Loading...
+        </option>
+        <option
+          [ngValue]="null"
+          *ngIf="fields.partnerApplications"
           hidden>
           Select a partner application
         </option>
@@ -131,6 +138,13 @@
         formControlName="partnerId">
         <option
           [ngValue]="null"
+          *ngIf="!fields.partners"
+          hidden>
+          Loading...
+        </option>
+        <option
+          [ngValue]="null"
+          *ngIf="fields.partners"
           hidden>
           Select a partner
         </option>
@@ -227,6 +241,13 @@
         formControlName="nonPartnerId">
         <option
           [ngValue]="null"
+          *ngIf="!fields.nonPartners"
+          hidden>
+          Loading...
+        </option>
+        <option
+          [ngValue]="null"
+          *ngIf="fields.nonPartners"
           hidden>
           Select a partner
         </option>
@@ -260,7 +281,16 @@
       class="form-control input-sm"
       id="country"
       formControlName="country">
-      <option [ngValue]="null">
+      <option
+        [ngValue]="null"
+        *ngIf="!fields.countries"
+        hidden>
+        Loading...
+      </option>
+      <option
+        [ngValue]="null"
+        *ngIf="fields.countries"
+        hidden>
         Select a country
       </option>
       <option *ngFor="let country of fields.countries" [ngValue]="country.abbreviation">
@@ -662,7 +692,7 @@
         fxFlex="30"
         fxFlex.lt-md="100"
         ngClass.lt-md="mb-2"
-        class="m-0 mr-4 font-weight-bold control-label asterisk">
+        class="m-0 mr-4 font-weight-bold control-label">
         Position
       </label>
 
@@ -842,7 +872,10 @@
         class="form-control input-sm"
         id="currency"
         formControlName="currency">
-        <option [ngValue]="null">
+        <option [ngValue]="null" *ngIf="!fields.currencies">
+          Loading...
+        </option>
+        <option [ngValue]="null" *ngIf="fields.currencies">
           Select a currency
         </option>
         <option *ngFor="let currency of fields.currencies" [ngValue]="currency.code">

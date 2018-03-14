@@ -106,8 +106,8 @@ class Partners {
         @Note = :note,
         @JoinedDate = :joinedDate,
         @Longitude = :longitude,
-        @Latitude = :latitude,
-        @Status = :status",
+        @Latitude = :latitude",
+        // @Status = :status",
       $parameters
     )->execute();
   }

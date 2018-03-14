@@ -5,7 +5,7 @@ use PDO;
 
 class NonPartners {
 
-  public static function add(PDO $pdo, array $parameters): boolean {
+  public static function add(PDO $pdo, array $parameters): bool {
     return PDOBuilder::createPreparedStatement(
       $pdo,
       "EXECUTE AddNonPartner
@@ -13,7 +13,6 @@ class NonPartners {
         @Description = :description,
         @SponsorCode = :sponsorCode,
         @Email = :email,
-        @IsDSASigned = :isDSASigned,
         @Country = :country,
         @Website = :website,
         @LogoFile = :logoFile,
@@ -30,11 +29,11 @@ class NonPartners {
     )->execute();
   }
 
-  public static function update(PDO $pdo, array $parameters): boolean {
+  public static function update(PDO $pdo, array $parameters): bool {
     return PDOBuilder::createPreparedStatement(
       $pdo,
       "EXECUTE UpdateNonPartner
-        @NonPartnerID = :nonPartnerID,
+        @NonPartnerID = :nonPartnerId,
         @Name = :name,
         @Description = :description,
         @SponsorCode = :sponsorCode,

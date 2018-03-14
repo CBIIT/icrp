@@ -24,9 +24,17 @@ export class PartnersApiService {
           latitude: +record.latitude,
           longitude: +record.longitude,
           isdsasigned: record.isdsasigned === 1,
-          joindate: new Date(date[0], date[1] + 1, date[2])
+          joindate: new Date(date[0], date[1] - 1, date[2])
         }
       }),
+      partnerApplications: fields.partnerApplications.map(record => ({
+        ...record,
+        country: fields.countries.map(c => c.name).includes(record.country)
+          ? fields.countries.find(c => c.name == record.country).abbreviation
+          : fields.countries.map(c => c.abbreviation).includes(record.country)
+          ? record.country
+          : null,
+      })),
       nonPartners: fields.nonPartners.map(record => ({
         ...record,
         canceronly: record.canceronly === 1,

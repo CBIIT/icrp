@@ -454,10 +454,10 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
           content = `The partner has been updated.`;
 
         else if (action === 'add' && api === 'nonPartnersApi')
-          content = `The propspective partner has been added.`;
+          content = `The prospective partner has been added.`;
 
         else if (action === 'update' && api === 'nonPartnersApi')
-          content = `The propspective partner has been updated.`;
+          content = `The prospective partner has been updated.`;
 
         this.messages.push({
           type: 'success',
@@ -468,6 +468,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
           this.fields = response;
           this.form.controls.partnerId.updateValueAndValidity();
           this.form.controls.nonPartnerId.updateValueAndValidity();
+          this.form.controls.isNonPartner.updateValueAndValidity();
         });
 
       }, errorResponse => {
