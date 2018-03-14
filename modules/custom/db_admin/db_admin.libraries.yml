@@ -2,6 +2,7 @@ funding_organizations:
   version: 1.0.2
   css:
     theme:
+      https://unpkg.com/ngx-bootstrap/datepicker/bs-datepicker.css: {}
       assets/funding-organizations/styles.bundle.css: {}
   js:
     assets/funding-organizations/inline.bundle.js: {}
@@ -12,6 +13,7 @@ partners:
   version: 1.0.2
   css:
     theme:
+      https://unpkg.com/ngx-bootstrap/datepicker/bs-datepicker.css: {}
       assets/partners/styles.bundle.css: {}
   js:
     assets/partners/inline.bundle.js: {}
