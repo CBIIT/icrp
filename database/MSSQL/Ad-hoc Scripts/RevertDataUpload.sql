@@ -1,9 +1,12 @@
-select * from datauploadstatus order by datauploadstatusid desc
-select * from icrp_data.dbo.datauploadstatus order by datauploadstatusid desc
+select top 5 * from datauploadstatus order by datauploadstatusid desc
+select top 5 * from icrp_data.dbo.datauploadstatus order by datauploadstatusid desc
+select top 5 * from datauploadlog order by datauploadstatusid desc
+select top 5 * from icrp_data.dbo.datauploadlog order by datauploadstatusid desc
 
 BEGIN TRANSACTION
 
-DECLARE @datauploadstatusid INT = 64
+DECLARE @datauploadstatusid INT = 94
+DECLARE @datauploadstatusid_prod INT = 94
 
 -- delete ProjectSearch
 PRINT '-- delete ProjectSearch'
@@ -19,11 +22,10 @@ where f.datauploadstatusid=@datauploadstatusid
 PRINT '-- delete Project_ProjectType'
 
 delete Project_ProjectType 
-from projectfunding f
-join project p on p.projectid = f.projectid
+from project p 
 join Project_ProjectType at on p.ProjectID = at.ProjectID
 --join ProjectSearch s on p.projectid=s.ProjectID
-where f.datauploadstatusid=@datauploadstatusid
+where p.datauploadstatusid=@datauploadstatusid
 
 -- delete ProjectCancerType
 PRINT '-- delete ProjectCancerType'
@@ -64,7 +66,7 @@ where f.datauploadstatusid=@datauploadstatusid
 PRINT '-- keep a copy of projectID / ProjectAbstractID'
 
 SELECT ProjectID INTO #ProjectID
-from  projectfunding
+from  project
 where datauploadstatusid=@datauploadstatusid
 
 SELECT ProjectAbstractID INTO #ProjectAbstractID
@@ -101,8 +103,11 @@ where ProjectAbstractID IN (SELECT ProjectAbstractID FROM #ProjectAbstractID)
 
 
 -- delete DataUploadStatus
+Delete DataUploadLog WHERE DataUploadStatusID=@datauploadstatusid
+Delete icrp_data.dbo.DataUploadLog WHERE DataUploadStatusID=@datauploadstatusid_prod
+
 Delete DataUploadStatus WHERE DataUploadStatusID=@datauploadstatusid
-Delete icrp_data.dbo.DataUploadStatus WHERE DataUploadStatusID=@datauploadstatusid
+Delete icrp_data.dbo.DataUploadStatus WHERE DataUploadStatusID=@datauploadstatusid_prod
 
 --Commit
 Rollback

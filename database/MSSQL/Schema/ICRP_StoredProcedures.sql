@@ -2491,36 +2491,6 @@ AS
 GO
 
 
-----------------------------------------------------------------------------------------------------------
-/****** Object:  StoredProcedure [dbo].[GetPartners]    Script Date: 12/14/2016 4:21:37 PM ******/
-----------------------------------------------------------------------------------------------------------
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetPartners]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[GetPartners]
-GO 
-
-CREATE  PROCEDURE [dbo].[GetPartners]
-@NonPartner bit = 0
-AS   
-
-IF @NonPartner = 0
-	SELECT PartnerID, [Name],SponsorCode,Status,[Description],[Country],[Website],CAST([JoinedDate] AS DATE)AS JoinDate, email, latitude, longitude, LogoFile, Note
-	FROM [Partner]
-	ORDER BY SponsorCode
-ELSE
-	SELECT [NonPartnerID], [Name], [Description], [Abbreviation], [Email], [Country], [Address], [Longitude],[Latitude],[Website], [LogoFile], [Note], [EstimatedInvest], [ContactPerson],[Position], [DoNotContact], [CancerOnly],[ResearchFunder]
-	FROM [NonPartner] WHERE ConvertedDate is NULL  -- exclude those already converted to partner
-	ORDER BY [Name]
-
-GO
-
-
     
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetLibraryFolders]    Script Date: 12/14/2016 4:21:37 PM ******/
@@ -6018,6 +5988,144 @@ END CATCH
 GO
 
 
+/*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+/*																																														*/
+/****** Object:  StoredProcedure [dbo].[DataUpload_RevertStageUpload]     Script Date: 12/14/2016 4:21:37 PM																					*****/
+/*																																														*/
+/*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+use icrp_dataload
+go
+
+IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DataUpload_RevertStageUpload]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[DataUpload_RevertStageUpload] 
+GO 
+
+CREATE PROCEDURE [dbo].[DataUpload_RevertStageUpload]    
+
+@datauploadstatusid_stage INT,
+@datauploadstatusid_prod INT
+
+AS
+
+SET NOCOUNT ON
+
+--select * from datauploadstatus where datauploadstatusid = @datauploadstatusid_stage
+--select * from icrp_data.dbo.datauploadstatus where datauploadstatusid = @datauploadstatusid_prod
+--select * from datauploadlog where datauploadstatusid = @datauploadstatusid_stage
+--select * from icrp_data.dbo.datauploadlog where datauploadstatusid = @datauploadstatusid_prod
+
+
+BEGIN TRANSACTION
+-- delete ProjectSearch
+PRINT '-- delete ProjectSearch'
+
+delete ProjectSearch 
+from projectfunding f
+join project p on p.projectid = f.projectid
+join ProjectSearch s on p.projectid=s.ProjectID
+where f.datauploadstatusid=@datauploadstatusid_stage
+
+
+-- delete Project_ProjectType
+PRINT '-- delete Project_ProjectType'
+
+delete Project_ProjectType 
+from project p 
+join Project_ProjectType at on p.ProjectID = at.ProjectID
+--join ProjectSearch s on p.projectid=s.ProjectID
+where p.datauploadstatusid=@datauploadstatusid_stage
+
+-- delete ProjectCancerType
+PRINT '-- delete ProjectCancerType'
+
+delete ProjectCancerType 
+from  projectfunding f
+join ProjectCancerType ct on f.ProjectFundingID = ct.ProjectFundingID
+where f.datauploadstatusid=@datauploadstatusid_stage
+
+-- delete ProjectCSO
+PRINT '-- delete ProjectCSO'
+
+delete ProjectCSO 
+from  projectfunding f
+join ProjectCSO c on f.ProjectFundingID = c.ProjectFundingID
+where f.datauploadstatusid=@datauploadstatusid_stage
+
+
+-- delete ProjectFundingInvestigator
+PRINT '-- delete ProjectFundingInvestigator'
+
+delete ProjectFundingInvestigator 
+from  projectfunding f
+join ProjectFundingInvestigator pi on f.ProjectFundingID = pi.ProjectFundingID
+where f.datauploadstatusid=@datauploadstatusid_stage
+
+
+-- delete ProjectFundingExt
+PRINT '-- delete ProjectFundingExt'
+
+DELETE ProjectFundingExt
+from  projectfunding f
+join ProjectFundingExt e ON f.ProjectFundingID = e.ProjectFundingID
+where f.datauploadstatusid=@datauploadstatusid_stage
+
+
+-- keep a copy of projectID / ProjectAbstractID
+PRINT '-- keep a copy of projectID / ProjectAbstractID'
+
+SELECT ProjectID INTO #ProjectID
+from  project
+where datauploadstatusid=@datauploadstatusid_stage
+
+SELECT ProjectAbstractID INTO #ProjectAbstractID
+from  projectfunding
+where datauploadstatusid=@datauploadstatusid_stage
+
+
+-- delete ProjectFunding
+PRINT '-- delete ProjectFunding'
+
+delete ProjectFunding 
+where datauploadstatusid=@datauploadstatusid_stage
+
+-- delete Project
+PRINT '-- delete Project'
+
+DELETE Project
+where ProjectID IN (SELECT ProjectID FROM #ProjectID)
+
+
+-- delete ProjectAbstract
+PRINT '-- delete ProjectAbstract'
+
+delete ProjectAbstract 
+where ProjectAbstractID IN (SELECT ProjectAbstractID FROM #ProjectAbstractID)
+
+
+-- delete RelatedProjects
+-- Placeholder
+
+-- delete RelatedSites
+-- Placeholder
+
+
+
+-- delete DataUploadStatus
+Delete DataUploadLog WHERE DataUploadStatusID=@datauploadstatusid_stage
+Delete icrp_data.dbo.DataUploadLog WHERE DataUploadStatusID=@datauploadstatusid_prod
+
+Delete DataUploadStatus WHERE DataUploadStatusID=@datauploadstatusid_stage
+Delete icrp_data.dbo.DataUploadStatus WHERE DataUploadStatusID=@datauploadstatusid_prod
+
+
+--select top 5 * from datauploadstatus where datauploadstatusid = @datauploadstatusid_stage
+--select top 5 * from icrp_data.dbo.datauploadstatus where datauploadstatusid = @datauploadstatusid_prod
+--select top 5 * from datauploadlog where datauploadstatusid = @datauploadstatusid_stage
+--select top 5 * from icrp_data.dbo.datauploadlog where datauploadstatusid = @datauploadstatusid_prod
+
+Commit
+--Rollback
+GO
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetMapRegionsBySearchID]    Script Date: 12/14/2016 4:21:47 PM ******/
 ----------------------------------------------------------------------------------------------------------
@@ -6810,6 +6918,54 @@ GO
 
 
 ----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetPartners]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetPartners]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetPartners]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetPartners]
+AS   
+
+	SELECT PartnerID, [Name],SponsorCode,Status,[Description],[Country],[Website],CAST([JoinedDate] AS DATE)AS JoinDate, email, IsDSASigned, latitude, longitude, LogoFile, Note
+	FROM [Partner]
+	ORDER BY SponsorCode
+
+GO
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetNonPartners]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetNonPartners]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetNonPartners]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetNonPartners]
+AS   
+
+	SELECT [NonPartnerID], [Name], [Description], [Abbreviation], [Email], [Country], [Longitude],[Latitude],[Website], [LogoFile], [Note], [EstimatedInvest], [ContactPerson],[Position], [DoNotContact], [CancerOnly],[ResearchFunder]
+	FROM [NonPartner] WHERE ConvertedDate is NULL  -- exclude those already converted to partner
+	ORDER BY [Name]
+
+GO
+
+
+----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[AddPartner]    Script Date: 12/14/2016 4:21:37 PM ******/
 ----------------------------------------------------------------------------------------------------------
 SET ANSI_NULLS ON
@@ -6836,7 +6992,8 @@ CREATE  PROCEDURE [dbo].[AddPartner]
 	@JoinedDate [datetime],
 	@Longitude [decimal](9, 6),
 	@Latitude [decimal](9, 6),
-	@Status [varchar](25) = 'Current'
+	@Status [varchar](25) = 'Current',
+	@PartnerID INT OUTPUT  -- return the newly inserted partnerID	
 AS   
 
 BEGIN TRANSACTION;
@@ -6851,6 +7008,8 @@ BEGIN TRY
 
 	INSERT INTO Partner ([Name],[Description], [SponsorCode], [Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], Status, [CreatedDate], [UpdatedDate])
 	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, @Status, GETDATE(), GETDATE())
+
+	SELECT @PartnerID = SCOPE_IDENTITY()
 		
 	-- Also insert the new partner into the PartnerOrg table
 	INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
@@ -6859,6 +7018,70 @@ BEGIN TRY
 	-- Also Insert the newly inserted partner into the icrp_dataload database
 	INSERT INTO icrp_dataload.dbo.Partner ([Name], [Description],[SponsorCode],[Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], Status, [CreatedDate], [UpdatedDate])
 	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, @Status, GETDATE(), GETDATE())
+
+	COMMIT TRANSACTION
+
+END TRY
+
+BEGIN CATCH
+      -- IF @@trancount > 0 
+		ROLLBACK TRANSACTION
+      
+	  DECLARE @msg nvarchar(2048) = error_message()  
+      RAISERROR (@msg, 16, 1)
+	        
+END CATCH  
+
+GO
+
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[AddNonPartner]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AddNonPartner]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[AddNonPartner]
+GO 
+
+CREATE  PROCEDURE [dbo].[AddNonPartner]	
+	@Name [varchar](100),
+	@Description [varchar](max),
+	@SponsorCode [varchar](50),
+	@Email [varchar](75),	
+	@Country [varchar](100),
+	@Website [varchar](200),
+	@LogoFile [varchar](100),
+	@Note [varchar](8000),	
+	@Longitude [decimal](9, 6),
+	@Latitude [decimal](9, 6),
+	@EstimatedInv [varchar](200),
+	@DoNotContact bit,
+	@CancerOnly bit,
+	@ResearchFunder bit,
+	@ContactPerson [varchar](200),
+	@Position [varchar](100)
+
+AS   
+
+BEGIN TRANSACTION;
+BEGIN TRY    	
+
+	SET NOCOUNT ON;
+
+	IF EXISTS (SELECT 1 FROM Partner WHERE SponsorCode = @SponsorCode)
+	BEGIN
+		   RAISERROR ('Sponsor Code already existed', 16, 1)
+	END
+
+	INSERT INTO NonPartner ([Name],[Description],[Abbreviation],[Email],[Country],[Latitude], [Longitude],[Website],[LogoFile],[Note],[EstimatedInvest],[ContactPerson],[Position],[DoNotContact],[CancerOnly],[ResearchFunder],[CreatedDate],[UpdatedDate] )
+	VALUES (@Name, @Description, @SponsorCode, @Email, @Country, @Latitude, @Longitude, @Website, @LogoFile, @Note,@EstimatedInv, @ContactPerson,@Position, @DoNotContact, @CancerOnly,	@ResearchFunder, GETDATE(), GETDATE())
 
 	COMMIT TRANSACTION
 
@@ -6972,6 +7195,87 @@ END CATCH
 
 GO
 
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[UpdateNonPartner]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdateNonPartner]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[UpdateNonPartner]
+GO 
+
+CREATE  PROCEDURE [dbo].[UpdateNonPartner]	
+	@NonPartnerID int,
+	@Name [varchar](100),
+	@Description [varchar](max),
+	@SponsorCode [varchar](50),
+	@Email [varchar](75),	
+	@Country [varchar](100),
+	@Website [varchar](200),
+	@LogoFile [varchar](100),
+	@Note [varchar](8000),	
+	@Longitude [decimal](9, 6),
+	@Latitude [decimal](9, 6),
+	@EstimatedInv [varchar](200),
+	@DoNotContact bit,
+	@CancerOnly bit,
+	@ResearchFunder bit,
+	@ContactPerson [varchar](200),
+	@Position [varchar](100)
+
+AS   
+
+BEGIN TRANSACTION;
+BEGIN TRY    	
+
+	SET NOCOUNT ON;
+	
+	DECLARE @OrgSponsorCode [varchar](50)
+	SELECT @OrgSponsorCode = Abbreviation FROM NonPartner WHERE NonPartnerID =  @NonPartnerID
+
+	IF EXISTS (SELECT 1 FROM Partner WHERE SponsorCode = @SponsorCode)
+	BEGIN
+		   RAISERROR ('Sponsor Code already existed', 16, 1)
+	END
+
+	UPDATE NonPartner SET 
+		[Name] = @Name,
+		[Description]  = @Description,
+		[Abbreviation]  = @SponsorCode,
+		[Email]  = @Email,		
+		[Country] = @Country,
+		[Website] = @Website,
+		[LogoFile] = @LogoFile,
+		[Note]  = @Note,		
+		[Longitude]  = @Longitude,
+		[Latitude] = @Latitude,
+		EstimatedInvest = @EstimatedInv,
+		DoNotContact  = @DoNotContact,
+		CancerOnly = @CancerOnly,
+		ResearchFunder= @ResearchFunder,
+		ContactPerson  = @ContactPerson,
+		Position  = @Position,		
+		[UpdatedDate] = getdate()
+	WHERE NonPartnerID =  @NonPartnerID
+
+END TRY
+
+BEGIN CATCH
+      -- IF @@trancount > 0 
+		ROLLBACK TRANSACTION
+      
+	  DECLARE @msg nvarchar(2048) = error_message()  
+      RAISERROR (@msg, 16, 1)
+	        
+END CATCH  
+
+GO
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[AddFundingOrg]								****************/
