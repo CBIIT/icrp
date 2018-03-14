@@ -1,18 +1,4 @@
-<form
-  fxLayout
-  [formGroup]="form">
-  <input
-    [ngClass]="inputClass"
-    [placeholder]="placeholder"
-    formControlName="fileName">
-  <label
-    for="file-input-element"
-    [fxFlex]="100px"
-    [ngClass]="labelClass">
-    {{ labelText }}
-  </label>
-  <input
-    type="file"
-    id="file-input-element"
-    (change)="">
-</form>
+<input
+  type="file"
+  id="file-input-element"
+>

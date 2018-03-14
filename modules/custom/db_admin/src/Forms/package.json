@@ -7,7 +7,7 @@
     "start": "ng serve",
     "start:funding-organizations": "ng serve --app funding-organizations",
     "start:partners": "ng serve --app partners",
-    "build": "npm run build:funding-organizations & npm run build:partners",
+    "build": "npm run build:funding-organizations && npm run build:partners",
     "build:funding-organizations": "ng build --prod --app funding-organizations --progress false --output-hashing none --output-path ../../assets/funding-organizations",
     "build:partners": "ng build --prod --app partners --progress false --output-hashing none --output-path ../../assets/partners",
     "test": "ng test",
