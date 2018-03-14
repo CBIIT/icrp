@@ -59,6 +59,7 @@ export class ImportInstitutionsComponent  {
     this.loading = false;
 
     if (csv.data.length > 0) {// && csv.data[0].length === this.EXPECTED_COLUMNS) {
+      csv.data.shift();
       this.headers = this.fixedHeaders;
       this.records = csv.data.map(row => {
         let record = {};
