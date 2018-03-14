@@ -60,7 +60,7 @@ export class ImportCollaboratorsComponent {
       .parseCSV(this.form.controls.file.value[0], false) as ParseResult;
     this.loading = false;
 
-    if (csv.data.length > 0) {// && csv.data[0].length === this.EXPECTED_COLUMNS) {
+    if (csv.data.length > 0 && csv.data[0].length === this.EXPECTED_COLUMNS) {
       csv.data.shift();
       this.headers = this.fixedHeaders;
       this.records = csv.data.map(row => {
