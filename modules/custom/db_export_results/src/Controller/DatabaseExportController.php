@@ -10,6 +10,7 @@ namespace Drupal\db_export_results\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use PDO;
 
 class DatabaseExportController extends ControllerBase {
@@ -40,7 +41,7 @@ class DatabaseExportController extends ControllerBase {
     ][$workbook_key];
 
     $url_path_prefix = $data_upload_id != NULL
-      ? '/review' 
+      ? '/review'
       : '';
 
     return in_array($workbook_key, [DatabaseExport::EXPORT_GRAPHS_PUBLIC, DatabaseExport::EXPORT_GRAPHS_PARTNERS])
@@ -168,5 +169,45 @@ class DatabaseExportController extends ControllerBase {
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PARTNERS, intval($search_id), intval($data_upload_id));
     return self::createResponse($uri);
+  }
+
+  function exportLookupTable(): StreamedResponse {
+    return new StreamedResponse(function() {
+      $pdo = Database::getConnection();
+      ExcelBuilder::exportQueries('ICRP Lookup Tables.xlsx', [
+        [
+          'title' => 'CSO Codes',
+          'query' => $pdo->prepare('SET NOCOUNT ON; EXECUTE GetCSOLookup'),
+        ],
+        [
+          'title' => 'Disease Site Codes',
+          'query' => $pdo->prepare('SET NOCOUNT ON; EXECUTE GetCancerTypeLookUp'),
+        ],
+        [
+          'title' => 'Country Codes',
+          'query' => $pdo->prepare('SET NOCOUNT ON; EXECUTE GetCountryCodeLookup'),
+        ],
+        [
+          'title' => 'Currency Conversions',
+          'query' => $pdo->prepare('SET NOCOUNT ON; EXECUTE GetCurrencyRateLookup'),
+        ],
+        [
+          'title' => 'Institutions',
+          'query' => $pdo->prepare('SET NOCOUNT ON; EXECUTE GetInstitutionLookup'),
+        ],
+      ]);
+    });
+  }
+
+  function exportUploadStatus(): StreamedResponse {
+    return new StreamedResponse(function() {
+        $pdo = Database::getConnection();
+        ExcelBuilder::exportQueries('Data Upload Status.xlsx', [
+            [
+                'title' => 'Data Upload Status Report',
+                'query' => $pdo->prepare('SET NOCOUNT ON; EXECUTE GetDataUploadStatus'),
+            ],
+        ]);
+    });
   }
 }

@@ -91,3 +91,5 @@ package-lock.json
 
 /data/exports/*
 !/data/uploads/partner-logos
+
+/test.php
