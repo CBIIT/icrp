@@ -42,11 +42,15 @@ export class FundingOrganizationsFormComponent {
         this.fields.currentFundingOrganizations = [];
         this.initializeFormControls();
     }, errorResponse => {
+      let error = errorResponse.error;
+      let message = error.constructor === String
+          ? error
+          : 'An unknown error occured while loading this page.';
+
       this.messages.push({
         type: 'danger',
-        content: errorResponse.error
+        content: message
       });
-      console.error(errorResponse.error);
     });
   }
 

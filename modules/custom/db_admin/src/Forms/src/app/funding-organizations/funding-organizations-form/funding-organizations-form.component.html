@@ -89,6 +89,12 @@
         id="partnerId"
         formControlName="partnerId">
         <option
+          *ngIf="!fields.partners"
+          [ngValue]="null">
+          Loading...
+        </option>
+        <option
+          *ngIf="fields.partners"
           [ngValue]="null">
           Select a partner
         </option>
@@ -107,6 +113,108 @@
         This field is required.
       </div>
     </div>
+  </div>
+
+  <div
+    fxLayout="row wrap"
+    fxFlex="100"
+    class="border mb-4">
+
+    <div
+      class="px-4 py-3"
+      [ngClass]="{'has-error': form.controls.name.dirty && form.controls.name.invalid}"
+      fxLayout="row wrap"
+      fxFlex="50"
+      fxFlex.lt-lg="100"
+      fxLayoutAlign="space-between center">
+      <label
+        fxFlex="35"
+        fxFlex.lt-lg="100"
+        class="m-0 font-weight-bold control-label asterisk">
+        Organization Name
+      </label>
+      <input
+        *ngIf="form.controls.operationType.value === 'Add'"
+        fxFlex="64"
+        fxFlex.lt-lg="100"
+        class="form-control input-sm"
+        maxlength="100"
+        formControlName="name"
+        placeholder="Enter organization name (100 characters maximum)">
+      <select
+        *ngIf="form.controls.operationType.value === 'Update'"
+        fxFlex="70"
+        fxFlex.lt-lg="100"
+        class="form-control input-sm"
+        formControlName="fundingOrganizationId">
+        <option [ngValue]="null">Select a funding organization</option>
+        <option
+          *ngFor="let fundingOrganization of fields.currentFundingOrganizations"
+          [ngValue]="fundingOrganization.fundingorgid">
+              {{ fundingOrganization.name }}
+        </option>
+      </select>
+      <div
+        *ngIf="form.controls.name.dirty && form.controls.name?.errors?.required"
+        fxLayout
+        fxFlex="100"
+        class="help-block mb-0">
+        This field is required.
+      </div>
+    </div>
+
+    <div
+      class="px-4 py-3"
+      [ngClass]="{'has-error': form.controls.abbreviation.dirty && form.controls.abbreviation.invalid}"
+      fxLayout="row wrap"
+      fxFlex="37"
+      fxFlex.lt-lg="100"
+      fxLayoutAlign="start center">
+      <label
+        fxFlex="25"
+        fxFlex.lt-lg="100"
+        class="m-0 font-weight-bold control-label asterisk">
+        Abbreviation
+      </label>
+      <input
+        fxFlex="74"
+        fxFlex.lt-lg="100"
+        class="form-control input-sm"
+        maxlength="15"
+        formControlName="abbreviation"
+        placeholder="Enter abbreviation (15 characters maximum)">
+      <div
+        *ngIf="form.controls.abbreviation.dirty && form.controls.abbreviation?.errors?.required"
+        fxLayout
+        fxFlex="100"
+        class="help-block mb-0">
+        This field is required.
+      </div>
+    </div>
+
+    <div
+      class="py-3"
+      ngClass.lt-lg="px-4"
+      fxLayout="row"
+      fxFlex="12"
+      fxFlex.lt-lg="100"
+      fxLayoutAlign="start center">
+      <label
+        fxLayout
+        fxLayoutAlign="start center"
+        class="m-0 font-weight-normal">
+        <input
+          class="mr-1"
+          type="checkbox"
+          value="Partner"
+          formControlName="memberType">
+        Partner Organization
+      </label>
+    </div>
+
+
+
+
   </div>
 
   <div
@@ -365,7 +473,14 @@
       class="form-control input-sm"
       id="country"
       formControlName="country">
-      <option [ngValue]="null">
+      <option
+        *ngIf="!fields.countries"
+        [ngValue]="null">
+        Loading...
+      </option>
+      <option
+        *ngIf="fields.countries"
+        [ngValue]="null">
         Select a country
       </option>
       <option *ngFor="let country of fields.countries" [ngValue]="country.abbreviation">
@@ -399,7 +514,14 @@
       class="form-control input-sm"
       id="currency"
       formControlName="currency">
-      <option [ngValue]="null">
+      <option
+        *ngIf="!fields.currencies"
+        [ngValue]="null">
+        Loading...
+      </option>
+      <option
+        *ngIf="fields.currencies"
+        [ngValue]="null">
         Select a currency
       </option>
       <option *ngFor="let currency of fields.currencies" [ngValue]="currency.code">
