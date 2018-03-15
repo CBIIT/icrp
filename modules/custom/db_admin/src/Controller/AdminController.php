@@ -30,7 +30,7 @@ class AdminController extends ControllerBase {
   }
 
   private static function emptyToNull() {
-    return function($value) use ($nullables) {
+    return function($value) {
       switch($value) {
         case 'null':
         case '':
