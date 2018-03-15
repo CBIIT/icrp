@@ -29,7 +29,8 @@ class FundingOrganizations {
           'SELECT
             code,
             description
-          FROM Currency'
+          FROM Currency
+          ORDER BY code'
         )->fetchAll(),
     ];
   }
