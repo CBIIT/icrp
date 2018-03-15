@@ -445,19 +445,21 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         let content;
 
         if (action === 'add' && api === 'partnersApi' && formValue.isFundingOrganization)
-          content = `The partner has been added as a funding organization.`;
+          content = `The partner has been added as a funding organization. `;
 
         else if (action === 'add' && api === 'partnersApi')
-          content = `The partner has been added.`;
+          content = `The partner has been added. `;
 
         else if (action === 'update' && api === 'partnersApi')
-          content = `The partner has been updated.`;
+          content = `The partner has been updated. `;
 
         else if (action === 'add' && api === 'nonPartnersApi')
-          content = `The prospective partner has been added.`;
+          content = `The prospective partner has been added. `;
 
         else if (action === 'update' && api === 'nonPartnersApi')
-          content = `The prospective partner has been updated.`;
+          content = `The prospective partner has been updated. `;
+
+        content += `Visit <a href="/partners">Current Partners and Funding Organizations</a> to view a list of current ICRP partners. `
 
         this.messages.push({
           type: 'success',

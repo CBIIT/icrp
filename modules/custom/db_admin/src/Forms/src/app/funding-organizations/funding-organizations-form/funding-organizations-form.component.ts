@@ -183,11 +183,14 @@ export class FundingOrganizationsFormComponent {
     this.api[action](formData)
       .subscribe(response => {
         document.querySelector('h1').scrollIntoView();
+        let content = action === 'add'
+          ? `The funding organization has been added. `
+          : `The funding organization has been updated. `
+        content += `Visit <a href="/partners">ICRP Partners and Funding Organizations</a> to view a list of current ICRP funding organizations. `;
+
         this.messages.push({
           type: 'success',
-          content: action === 'add'
-            ? `The funding organization has been added to the database.`
-            : `The funding organization has been updated.`,
+          content: content,
         });
         this.api.fields().subscribe(response => {
           this.fields = response;

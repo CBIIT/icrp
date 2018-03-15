@@ -1,5 +1,5 @@
 <alert *ngFor="let message of messages" [type]="message.type" dismissible="true">
-  {{ message.content }}
+  <div [innerHTML]="message.content"></div>
 </alert>
 
 <form
