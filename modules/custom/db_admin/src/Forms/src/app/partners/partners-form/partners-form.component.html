@@ -2,6 +2,24 @@
   <div [innerHTML]="message.content"></div>
 </alert>
 
+<ng-template #template>
+  <div class="modal-header">
+    <button type="button" class="close" aria-label="Close" (click)="modalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    <h4 class="modal-title">Confirmation</h4>
+  </div>
+
+  <div class="modal-body">
+    <p>Changing the partner to former will inactivate all its associated funding organizations. Are you sure you want to continue?</p>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-sm btn-default" (click)="modalRef.hide()" >No</button>
+    <button type="button" class="btn btn-sm btn-primary" (click)="confirm()" >Yes</button>
+  </div>
+</ng-template>
+
 <form
   fxLayout="row wrap"
   [formGroup]="form">

@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, TemplateRef, ElementRef, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { PartnersApiService } from '../../services/partners-api.service'
 import { HttpErrorResponse } from '@angular/common/http';
 import { NonPartnersApiService } from '../../services/non-partners-api.service';
+import { BsModalService } from 'ngx-bootstrap/modal';
+import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
 
 @Component({
   selector: 'icrp-partners-form',
@@ -18,11 +20,19 @@ export class PartnersFormComponent {
   fields: any = {};
   loading: boolean = false;
   today = new Date();
+  modalRef: BsModalRef;
+
+  @ViewChild('template')
+  template: TemplateRef<any>;
+
+  confirmed: boolean = false;
+
 
   constructor(
     private formBuilder: FormBuilder,
     private partnersApi: PartnersApiService,
-    private nonPartnersApi: NonPartnersApiService
+    private nonPartnersApi: NonPartnersApiService,
+    private modalService: BsModalService
   ) {
 
 /*
@@ -260,7 +270,6 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         longitude.setValidators([Validators.required, Validators.min(-180), Validators.max(180)]);
       }
 
-      console.log(enabledControls);
 
       this.form.reset({
         isNonPartner: isNonPartner,
@@ -424,24 +433,32 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
     controls.isFundingOrganization.updateValueAndValidity();
     controls.isNonPartner.updateValueAndValidity();
 
-    console.log(this.fields);
   }
 
 
   submit() {
     this.messages = [];
+    const formValue = this.form.value;
 
     for (let key in this.form.controls) {
       this.form.controls[key].markAsDirty();
     }
 
     if (!this.form.valid) {
-      console.log('invalid', this.form.errors);
       document.querySelector('h1').scrollIntoView();
       return;
     }
 
-    const formValue = this.form.value;
+    if (!this.confirmed
+      && formValue.operationType === 'Update'
+      && !formValue.isNonPartner
+      && formValue.status === 'Former'
+      && this.fields.partners.find(e => e.partnerid === formValue.partnerId).status === 'Current') {
+      this.openModal(this.template);
+        return;
+    }
+
+    this.confirmed = false;
     const formData = new FormData();
     for (let key in formValue) {
       let value = formValue[key];
@@ -513,5 +530,15 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
       memberType: 'Associate',
       status: 'Current',
     });
+  }
+
+  openModal(template: TemplateRef<any>) {
+    this.modalRef = this.modalService.show(template);
+  }
+
+  confirm(): void {
+    this.confirmed = true;
+    this.modalRef.hide();
+    this.submit();
   }
 }

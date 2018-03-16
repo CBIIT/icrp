@@ -3,7 +3,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { FlexLayoutModule } from '@angular/flex-layout'
-import { AlertModule, BsDatepickerModule  } from 'ngx-bootstrap';
+import { AlertModule, BsDatepickerModule, ModalModule } from 'ngx-bootstrap';
+import { BsModalService } from 'ngx-bootstrap/modal';
 
 import { SharedModule } from '../shared/shared.module';
 import { PartnersApiService } from '../services/partners-api.service'
@@ -18,12 +19,14 @@ import { PartnersFormComponent } from './partners-form/partners-form.component';
     ReactiveFormsModule,
     AlertModule.forRoot(),
     BsDatepickerModule.forRoot(),
+    ModalModule.forRoot(),
     SharedModule,
   ],
   providers: [
     FormBuilder,
     NonPartnersApiService,
     PartnersApiService,
+    BsModalService
   ],
   declarations: [PartnersFormComponent],
   bootstrap: [PartnersFormComponent]
