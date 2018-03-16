@@ -125,26 +125,26 @@
       [ngClass]="{'has-error': form.controls.name.dirty && form.controls.name.invalid}"
       fxLayout="row wrap"
       fxFlex="50"
-      fxFlex.lt-lg="100"
+      fxFlex.lt-md="100"
       fxLayoutAlign="space-between center">
       <label
-        fxFlex="35"
-        fxFlex.lt-lg="100"
+        fxFlex="30"
+        fxFlex.lt-md="100"
         class="m-0 font-weight-bold control-label asterisk">
         Organization Name
       </label>
       <input
         *ngIf="form.controls.operationType.value === 'Add'"
-        fxFlex="64"
-        fxFlex.lt-lg="100"
+        fxFlex="69"
+        fxFlex.lt-md="100"
         class="form-control input-sm"
         maxlength="100"
         formControlName="name"
         placeholder="Enter organization name (100 characters maximum)">
       <select
         *ngIf="form.controls.operationType.value === 'Update'"
-        fxFlex="70"
-        fxFlex.lt-lg="100"
+        fxFlex="69"
+        fxFlex.lt-md="100"
         class="form-control input-sm"
         formControlName="fundingOrganizationId">
         <option [ngValue]="null">Select a funding organization</option>
@@ -167,18 +167,19 @@
       class="px-4 py-3"
       [ngClass]="{'has-error': form.controls.abbreviation.dirty && form.controls.abbreviation.invalid}"
       fxLayout="row wrap"
-      fxFlex="37"
-      fxFlex.lt-lg="100"
+      fxFlex="35"
+      fxFlex.lt-lg="50"
+      fxFlex.lt-md="100"
       fxLayoutAlign="start center">
       <label
-        fxFlex="25"
-        fxFlex.lt-lg="100"
+        fxFlex="28"
+        fxFlex.lt-md="100"
         class="m-0 font-weight-bold control-label asterisk">
         Abbreviation
       </label>
       <input
-        fxFlex="74"
-        fxFlex.lt-lg="100"
+        fxFlex="71"
+        fxFlex.lt-md="100"
         class="form-control input-sm"
         maxlength="15"
         formControlName="abbreviation"
@@ -196,7 +197,7 @@
       class="py-3"
       ngClass.lt-lg="px-4"
       fxLayout="row"
-      fxFlex="12"
+      fxFlex="14"
       fxFlex.lt-lg="100"
       fxLayoutAlign="start center">
       <label
@@ -211,68 +212,108 @@
         Partner Organization
       </label>
     </div>
+  </div>
 
 
+  <div
+    class="mb-4"
+    [ngClass]="{
+      'has-error': form.controls.name.dirty && form.controls.name.invalid,
+      'pr-4': true
+    }"
+    ngClass.lt-md="pr-0"
+    fxLayout="row"
+    fxFlex="50"
+    fxFlex.lt-md="100"
+    fxLayoutAlign="start start">
+    <div
+      class="border px-4 py-3"
+      fxLayout="row wrap"
+      fxLayoutAlign="space-between center"
+      fxFlex="100">
+
+      <div
+        [ngClass]="{
+          'has-error': form.controls.type.dirty && form.controls.type.invalid
+        }"
+        fxFlex="70"
+        fxFlex.lt-lg="100"
+        fxLayout="row wrap"
+        fxLayoutAlign="start center"
+        class="">
+        <label
+          fxFlex="40"
+          fxFlex.lt-md="100"
+          class="m-0 font-weight-bold control-label asterisk">
+          Organization Type
+        </label>
+        <select
+          fxFlex="59"
+          fxFlex.lt-md="100"
+          class="form-control input-sm"
+          id="type"
+          formControlName="type">
+          <option [ngValue]="null">
+            Select an organization type
+          </option>
+          <option ngValue="Government">
+            Government
+          </option>
+          <option ngValue="Non-profit">
+            Non-profit
+          </option>
+          <option ngValue="Other">
+              Other
+          </option>
+        </select>
+        <div
+          fxFlex="100"
+          *ngIf="form.controls.type.dirty && form.controls.type?.errors?.required"
+          class="help-block mb-0">
+          This field is required.
+        </div>
+      </div>
+
+      <div
+        ngClass.lt-lg="mt-3"
+        fxFlex="30"
+        fxFlex.lt-lg="100"
+        fxLayoutAlign="end center"
+        fxLayoutAlign.lt-lg="start center"
+        fxLayout>
+        <input
+          type="checkbox"
+          id="isAnnualized"
+          class="mr-1"
+          formControlName="isAnnualized">
+        <label
+          for="isAnnualized"
+          class="m-0 control-label font-weight-normal">
+          Annualized Funding
+        </label>
+      </div>
 
 
+    </div>
   </div>
 
   <div
-    fxLayout="row wrap"
-    fxFlex="100"
-    class="border mb-4">
-
+    class="mb-4"
+    [ngClass]="{
+      'has-error': form.controls.name.dirty && form.controls.name.invalid,
+      'pl-4': true
+    }"
+    ngClass.lt-md="pl-0"
+    fxLayout="row"
+    fxFlex="50"
+    fxFlex.lt-md="100"
+    fxLayoutAlign="start start">
     <div
-      class="px-4 py-3"
-      [ngClass]="{'has-error': form.controls.memberType.dirty && form.controls.memberType.invalid}"
+      class="border px-4 py-3"
       fxLayout="row wrap"
-      fxFlex="50"
-      fxFlex.lt-md="100"
-      fxLayoutAlign="start center">
-      <label
-        ngClass.lt-md="mb-2"
-        class="m-0 mr-4 font-weight-bold control-label">
-        Member Type
-      </label>
+      fxLayoutAlign="start center"
+      fxFlex="100">
 
-      <label
-        fxLayout
-        fxFlex="nogrow"
-        fxFlex.lt-md="100"
-        fxLayoutAlign="start center"
-        ngClass.lt-md="mb-2"
-        class="m-0 mr-4  font-weight-normal">
-        <input
-          class="mr-1"
-          type="radio"
-          value="Associate"
-          formControlName="memberType">
-        Associate
-      </label>
-
-      <label
-        fxLayout
-        fxFlex="nogrow"
-        fxFlex.lt-md="100"
-        fxLayoutAlign="start center"
-        ngClass.lt-md="mb-2"
-        class="m-0 mr-4 font-weight-normal">
-        <input
-          class="mr-1"
-          type="radio"
-          value="Partner"
-          formControlName="memberType">
-        Partner
-      </label>
-    </div>
-
-    <div
-      class="px-4 py-3"
-      [ngClass]="{'has-error': form.controls.memberStatus.dirty && form.controls.memberStatus.invalid}"
-      fxLayout="row wrap"
-      fxFlex="50"
-      fxFlex.lt-md="100"
-      fxLayoutAlign="start center">
       <label
         ngClass.lt-md="mb-2"
         class="m-0 mr-4 font-weight-bold control-label">
@@ -308,6 +349,14 @@
           formControlName="memberStatus">
         Former
       </label>
+
+      <div
+        fxHide.lt-md
+        class="input-sm"
+        fxFlex="0"
+        style="width: 0px; visibility: hidden;">
+      </div>
+
     </div>
 
   </div>
@@ -608,22 +657,7 @@
     fxFlex.lt-md="100"
     fxLayout
     fxLayoutAlign="start start">
-    <div
-      [ngStyle]="{'margin-top.px': 32}"
-      [ngStyle.lt-md]="{'margin-top.px': 0}"
-      fxLayoutAlign="start center"
-      fxLayout>
-      <input
-        type="checkbox"
-        id="isAnnualized"
-        class="mr-1"
-        formControlName="isAnnualized">
-      <label
-        for="isAnnualized"
-        class="m-0 control-label font-weight-bold">
-        Annualized Funding
-      </label>
-    </div>
+
   </div>
 
   <div

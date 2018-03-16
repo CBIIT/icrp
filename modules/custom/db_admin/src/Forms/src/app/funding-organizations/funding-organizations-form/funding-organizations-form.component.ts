@@ -37,6 +37,10 @@ export class FundingOrganizationsFormComponent {
       note: [null, Validators.maxLength(1000)]
     });
 
+    for (let key in this.form.controls) {
+      this.form.controls[key].disable({emitEvent: false});
+    }
+
     api.fields().subscribe(response => {
         this.fields = response;
         this.fields.currentFundingOrganizations = [];
@@ -46,7 +50,6 @@ export class FundingOrganizationsFormComponent {
       let message = error.constructor === String
           ? error
           : 'An unknown error occured while loading this page.';
-
       this.messages.push({
         type: 'danger',
         content: message
@@ -97,6 +100,8 @@ export class FundingOrganizationsFormComponent {
           partnerId == null
             ? controls[key].disable({emitEvent: false})
             : controls[key].enable({emitEvent: false});
+        } else {
+          controls[key].enable({emitEvent: false})
         }
       }
 
