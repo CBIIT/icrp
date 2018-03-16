@@ -2617,12 +2617,13 @@ CREATE  PROCEDURE [dbo].[GetFundingOrgs]
      @type varchar(15) = 'funding'	-- 'funding': return all funding organizations; 'Search': return all funding organizations with data uploaded; 	
 AS   
 
-	SELECT FundingOrgID, fo.Name, fo.Abbreviation, fo.SponsorCode + ' - ' + fo.Name AS DisplayName, fo.Type, fo.MemberType, fo.MemberStatus, fo.Country, fo.Currency, fo.Website,
+	SELECT FundingOrgID, fo.Name, fo.Abbreviation, fo.SponsorCode + ' - ' + fo.Name AS DisplayName, fo.Type, fo.MemberType, 
+			CASE WHEN p.Status = 'Former' THEN 'Former' ELSE fo.MemberStatus END AS MemberStatus, fo.Country, fo.Currency, fo.Website,
 			fo.SponsorCode, p.Name AS Partner, fo.IsAnnualized, fo.Note, fo.LastImportDate, fo.LastImportDesc, fo.Latitude, fo.Longitude
 	FROM FundingOrg fo
 		JOIN Partner p ON fo.SponsorCode = p.SponsorCode
-	WHERE (@type = 'funding' AND MemberStatus<>'Merged') OR (@type = 'Search' AND LastImportDate IS NOT NULL)
-	ORDER BY SponsorCode, Name
+	WHERE (@type = 'funding' AND fo.MemberStatus<>'Merged') OR (@type = 'Search' AND fo.LastImportDate IS NOT NULL)
+	ORDER BY fo.SponsorCode, fo.Name
 
 GO
 
@@ -2642,7 +2643,13 @@ GO
 
 CREATE  PROCEDURE [dbo].[GetPartnerOrgs]    
 AS   
-	SELECT PartnerOrgID AS ID, SponsorCode + ' - ' + Name + CASE MemberType WHEN 'Partner' THEN ' (Partner)' ELSE '' END AS Name , IsActive FROM PartnerOrg ORDER BY SponsorCode, Name
+	
+	SELECT PartnerOrgID AS ID, 
+			p.SponsorCode + ' - ' + Name + CASE p.MemberType WHEN 'Partner' THEN ' (Partner)' ELSE '' END AS Name , 
+			CASE WHEN f.SponsorCode IS NOT NULL THEN 0 ELSE p.IsActive END AS IsActive
+	FROM PartnerOrg p
+	LEFT JOIN (SELECT SponsorCode FROM Partner WHERE Status = 'Former') f ON p.SponsorCode = f.SponsorCode
+	ORDER BY p.SponsorCode, p.Name
 GO
 
 ----------------------------------------------------------------------------------------------------------
@@ -7018,6 +7025,7 @@ BEGIN TRY
 	-- Also Insert the newly inserted partner into the icrp_dataload database
 	INSERT INTO icrp_dataload.dbo.Partner ([Name], [Description],[SponsorCode],[Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], Status, [CreatedDate], [UpdatedDate])
 	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, @Status, GETDATE(), GETDATE())
+	
 
 	COMMIT TRANSACTION
 
@@ -7173,12 +7181,20 @@ BEGIN TRY
 		[UpdatedDate] = getdate()
 	WHERE [SponsorCode] =  @OrgSponsorCode
 
-	-- Also update other tables if the SponsorCode is changed
-	IF (@SponsorCode <> @OrgSponsorCode)
+	-- Update other tables if the SponsorCode is changed
+	IF  @OrgSponsorCode <> @SponsorCode
 	BEGIN
-		UPDATE FundingOrg SET SponsorCode = @SponsorCode WHERE SponsorCode=@OrgSponsorCode
-		UPDATE PartnerOrg SET SponsorCode = @SponsorCode WHERE SponsorCode=@OrgSponsorCode
+		UPDATE FundingOrg SET SponsorCode = @SponsorCode WHERE SponsorCode = @OrgSponsorCode
+		UPDATE icrp_dataload.dbo.FundingOrg SET SponsorCode = @SponsorCode WHERE SponsorCode = @OrgSponsorCode
+		UPDATE PartnerOrg SET SponsorCode = @SponsorCode WHERE SponsorCode = @OrgSponsorCode
 	END
+
+	-- mark partner in the PartnerOrg Inactive
+	UPDATE PartnerOrg SET IsActive = 
+	CASE 
+		WHEN @Status = 'Current' THEN '1'  -- Current Partner
+		ELSE '0' END             -- Former Partner
+	WHERE SponsorCode=@SponsorCode AND MemberType = 'Partner'
 
 	COMMIT TRANSACTION
 
@@ -7323,21 +7339,30 @@ BEGIN TRY
 
 	IF EXISTS (SELECT 1 FROM FundingOrg WHERE SponsorCode = @SponsorCode AND Abbreviation = @Abbreviation)
 	BEGIN
-		   RAISERROR ('Funding Org Abbreviation already existed for the partner.', 16, 1)
+		   RAISERROR ('Funding Org Abbreviation already exists for this partner.', 16, 1)
+	END
+
+	-- Add a Partner Organization
+	IF @MemberType = 'Partner' AND EXISTS (SELECT 1 FROM FundingOrg WHERE SponsorCode = @SponsorCode AND MemberType = 'Partner')
+	BEGIN	
+		   RAISERROR ('This partner funding organization already exists.', 16, 1)	
 	END
 
 	INSERT INTO FundingOrg ([Name], Abbreviation, [Type],[Country], [Currency], [SponsorCode], 	[MemberType], [MemberStatus], [IsAnnualized],[Note], [Website],	[Latitude],	[Longitude],[CreatedDate], [UpdatedDate])
 	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	ISNULL(@IsAnnualized, 0), @Note, @Website, @Latitude, @Longitude, GETDATE(), GETDATE())
 	
-
-	-- Also Insert the new fundingorg into the PartnerOrg table
-	INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
-	VALUES (@Name, @SponsorCode, 'Associate', 1)
-
 	-- Also insert the new fundingorg into the icrp_dataload database
 	INSERT INTO icrp_dataload.dbo.FundingOrg ([Name], Abbreviation, [Type],[Country], [Currency], [SponsorCode], 	[MemberType], [MemberStatus], [IsAnnualized],[Note], [Website],	[Latitude],	[Longitude], [CreatedDate], [UpdatedDate])
 	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	ISNULL(@IsAnnualized, 0), @Note, @Website, @Latitude, @Longitude, GETDATE(), GETDATE())
 	
+		-- Only Insert the new fundingorg into the PartnerOrg table if it's "associate"
+	IF @MemberType = 'Associate'
+	BEGIN
+		INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
+		VALUES (@Name, @SponsorCode, 'Associate', 1)
+	END
+
+
 	COMMIT TRANSACTION
 
 END TRY
@@ -7387,14 +7412,21 @@ AS
 BEGIN TRANSACTION;
 BEGIN TRY    	
 
+	DECLARE @OrgMemberType [varchar](50)
 	DECLARE @OrgAbbrev [varchar](50)
 	DECLARE @SponsorCode [varchar](50)
-	SELECT @OrgAbbrev = Abbreviation, @SponsorCode = SponsorCode FROM FundingOrg WHERE FundingOrgID =  @FundingOrgID
+	SELECT @OrgAbbrev = Abbreviation, @SponsorCode = SponsorCode, @OrgMemberType = MemberType FROM FundingOrg WHERE FundingOrgID =  @FundingOrgID
 
 	-- Return error if the  abbreviation already exist within the same sponsorcode
 	IF EXISTS (SELECT 1 FROM FundingOrg WHERE FundingOrgID <> @FundingOrgID AND SponsorCode = @SponsorCode AND Abbreviation = @Abbreviation)
 	BEGIN
-		   RAISERROR ('Funding Org Abbreviation already existed for the partner.', 16, 1)
+		   RAISERROR ('Funding Org Abbreviation already exists for this partner. Operation aborted.', 16, 1)
+	END
+
+	-- Return error if this partner already has a partner funding organization
+	IF @MemberType = 'Partner' AND EXISTS (SELECT 1 FROM FundingOrg WHERE FundingOrgID <> @FundingOrgID AND SponsorCode = @SponsorCode AND MemberType='Partner')
+	BEGIN
+		   RAISERROR ('This partner already has a partner funding organization. Operation aborted.', 16, 1)
 	END
 
 	UPDATE FundingOrg SET [Name] = @Name,		
@@ -7429,11 +7461,25 @@ BEGIN TRY
 	WHERE SponsorCode = @SponsorCode AND Abbreviation = @OrgAbbrev
 		
 	-- Also update PartnerOrg	- from User Registration
-	UPDATE PartnerOrg SET Name = @Name, IsActive = 
-	CASE 
-		WHEN @MemberStatus = 'Current' THEN '1'  -- Current Member
-		ELSE '0' END             -- Former Member
-	WHERE SponsorCode=@SponsorCode AND Name = @Name	
+	IF @MemberType = 'Associate'
+	BEGIN
+		IF NOT EXISTS (SELECT 1 FROM PartnerOrg WHERE SponsorCode = @SponsorCode AND Name = @Name AND MemberType='Associate')
+		BEGIN
+			INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
+			VALUES (@Name, @SponsorCode, 'Associate', 1)
+		END
+
+		UPDATE PartnerOrg SET Name = @Name, IsActive = 
+		CASE 
+			WHEN @MemberStatus = 'Current' THEN '1'  -- Current Member
+			ELSE '0' END             -- Former Member
+		WHERE SponsorCode=@SponsorCode AND Name = @Name	
+	END
+	ELSE IF @OrgMemberType = 'Associate' -- Switch from Associate to Partner
+	BEGIN
+		IF EXISTS (SELECT 1 FROM PartnerOrg WHERE SponsorCode = @SponsorCode AND Name = @Name AND MemberType='Associate')
+			DELETE PartnerOrg WHERE SponsorCode = @SponsorCode AND Name = @Name AND MemberType='Associate'
+	END
 	
 	COMMIT TRANSACTION
 
