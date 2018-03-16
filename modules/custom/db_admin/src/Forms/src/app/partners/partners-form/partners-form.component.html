@@ -221,7 +221,7 @@
         class="control-label"
         ngClass.lt-md="mb-2"
         class="m-0 mr-4 font-weight-bold asterisk">
-        Partner
+        Non-Partner
       </label>
       <input
         fxFlex="75"
@@ -229,7 +229,7 @@
         class="form-control input-sm"
         id="name"
         *ngIf="form.value.operationType == 'Add'"
-        placeholder="Enter partner name"
+        placeholder="Enter non-partner name"
         formControlName="name">
 
       <select
@@ -249,7 +249,7 @@
           [ngValue]="null"
           *ngIf="fields.nonPartners"
           hidden>
-          Select a partner
+          Select a non-partner
         </option>
         <option
           *ngFor="let nonPartner of fields.nonPartners"
@@ -926,4 +926,4 @@
 
 </form>
 
-<!-- <pre>{{ form.value | json }}</pre> -->
+<pre>{{ form.value | json }}</pre>

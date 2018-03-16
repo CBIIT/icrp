@@ -6,7 +6,7 @@ import { environment } from '../../environments/environment';
 export class NonPartnersApiService {
 
   BASE_HREF = environment.production
-    ? `/api/admin/partners`
+    ? `/api/admin/non-partners`
     : `${location.protocol}//${location.hostname}/api/admin/non-partners`
 
   constructor(private http: HttpClient) {}

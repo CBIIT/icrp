@@ -188,6 +188,11 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
       this.form.reset({
         operationType: operationType,
         isNonPartner: isNonPartner.value,
+        isFundingOrganization: false,
+        isDSAsigned: false,
+        cancerOnly: false,
+        researchFunder: false,
+        doNotContact: false,
       }, {emitEvent: false});
     });
 
@@ -260,7 +265,12 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
       this.form.reset({
         isNonPartner: isNonPartner,
         operationType: operationType.value,
-        status: 'Current'
+        status: 'Current',
+        isFundingOrganization: false,
+        isDSAsigned: false,
+        cancerOnly: false,
+        researchFunder: false,
+        doNotContact: false,
       }, {emitEvent: false});
 
       for (let key in controls) {
@@ -284,6 +294,11 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         partnerApplicationId: partnerApplicationId,
         operationType: controls.operationType.value,
         status: 'Current',
+        isFundingOrganization: false,
+        isDSAsigned: false,
+        cancerOnly: false,
+        researchFunder: false,
+        doNotContact: false,
       }, {emitEvent: false});
 
       if (partnerApplicationId !== null) {
@@ -304,6 +319,11 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         partnerId: partnerId,
         operationType: controls.operationType.value,
         status: 'Current',
+        isFundingOrganization: false,
+        isDSAsigned: false,
+        cancerOnly: false,
+        researchFunder: false,
+        doNotContact: false,
       }, {emitEvent: false});
 
       if (partnerId !== null) {
@@ -334,6 +354,11 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         nonPartnerId: nonPartnerId,
         isNonPartner: controls.isNonPartner.value,
         operationType: controls.operationType.value,
+        isFundingOrganization: false,
+        isDSAsigned: false,
+        cancerOnly: false,
+        researchFunder: false,
+        doNotContact: false,
       }, {emitEvent: false});
 
       if (nonPartnerId !== null) {
