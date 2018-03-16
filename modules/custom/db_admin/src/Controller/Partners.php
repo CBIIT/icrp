@@ -100,15 +100,15 @@ class Partners {
         @Description = :description,
         @SponsorCode = :sponsorCode,
         @Email = :email,
-        @IsDSASigned = :isDSASigned,
+        @IsDSASigned = :isDsaSigned,
         @Country = :country,
         @Website = :website,
         @LogoFile = :logoFile,
         @Note = :note,
         @JoinedDate = :joinedDate,
         @Longitude = :longitude,
-        @Latitude = :latitude",
-        // @Status = :status",
+        @Latitude = :latitude,
+        @Status = :status",
       $parameters
     )->execute();
   }

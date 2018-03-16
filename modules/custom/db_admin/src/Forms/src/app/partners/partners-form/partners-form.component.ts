@@ -122,7 +122,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
 
       joinedDate: [null, Validators.required],
 
-      isDSASigned: [false],
+      isDsaSigned: [false],
 
       name: [null, [Validators.required, Validators.maxLength(100)]],
       abbreviation: [null, [Validators.required, Validators.maxLength(15)]],
@@ -189,7 +189,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         operationType: operationType,
         isNonPartner: isNonPartner.value,
         isFundingOrganization: false,
-        isDSAsigned: false,
+        isDsaSigned: false,
         cancerOnly: false,
         researchFunder: false,
         doNotContact: false,
@@ -249,7 +249,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
           'partnerApplicationId',
           'status',
           'joinedDate',
-          'isDSASigned',
+          'isDsaSigned',
           'isFundingOrganization',
           'type',
           'currency',
@@ -267,7 +267,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         operationType: operationType.value,
         status: 'Current',
         isFundingOrganization: false,
-        isDSAsigned: false,
+        isDsaSigned: false,
         cancerOnly: false,
         researchFunder: false,
         doNotContact: false,
@@ -295,7 +295,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         operationType: controls.operationType.value,
         status: 'Current',
         isFundingOrganization: false,
-        isDSAsigned: false,
+        isDsaSigned: false,
         cancerOnly: false,
         researchFunder: false,
         doNotContact: false,
@@ -320,7 +320,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         operationType: controls.operationType.value,
         status: 'Current',
         isFundingOrganization: false,
-        isDSAsigned: false,
+        isDsaSigned: false,
         cancerOnly: false,
         researchFunder: false,
         doNotContact: false,
@@ -344,7 +344,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
           longitude: record.longitude,
           logoFile: record.logofile,
           note: record.note,
-          isDSAsigned: record.isdsasigned,
+          isDsaSigned: record.isdsasigned || false,
         });
       }
     });
@@ -355,7 +355,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         isNonPartner: controls.isNonPartner.value,
         operationType: controls.operationType.value,
         isFundingOrganization: false,
-        isDSAsigned: false,
+        isDsaSigned: false,
         cancerOnly: false,
         researchFunder: false,
         doNotContact: false,
@@ -379,9 +379,9 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
           estimatedInvestment: record.estimatedinvest,
           contactPerson: record.contactperson,
           position: record.position,
-          doNotContact: record.donotcontact,
-          cancerOnly: record.canceronly,
-          researchFunder: record.researchfunder,
+          doNotContact: record.donotcontact  || false,
+          cancerOnly: record.canceronly  || false,
+          researchFunder: record.researchfunder  || false,
         });
       }
     })
