@@ -145,7 +145,7 @@ jQuery(function() {
             params.find('[name="upload"]').prev().val(data.DisplayName).removeClass('hide');
             params.find('[name="title"]').val(data.Title);
             params.find('[name="description"]').val(data.Description);
-            params.find('[name="thumbnail"]').addClass('hide').prev().html(data.ThumbnailFilename).removeClass('hide');
+            params.find('[name="thumbnail"]').prev().val(data.ThumbnailFilename).removeClass('hide');
             functions.createNew(e, false, data.LibraryFolderID);
             $('#library-edit h1').html("Edit Library File");
             ispub.parent().toggleClass('not_public',data.IsPublic != "1");
