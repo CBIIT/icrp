@@ -15,6 +15,7 @@ use Zipstream\ZipStream;
 class LibraryController extends ControllerBase {
 
   function __construct() {
+    \Drupal::service('page_cache_kill_switch')->trigger();
     // ensure the uploads folder exists
     $uploads_folder = \Drupal::config('library')->get('uploads_folder') ?? 'data/library/uploads';
     if (!file_exists($uploads_folder)) {
