@@ -1,5 +1,5 @@
 funding_organizations:
-  version: 1.0.3
+  version: 1.0.5
   css:
     theme:
       https://unpkg.com/ngx-bootstrap/datepicker/bs-datepicker.css: {}

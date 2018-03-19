@@ -23,6 +23,7 @@ export class FundingOrganizationsFormComponent {
       operationType: 'Add',
       partnerId: [null, Validators.required],
       memberType: 'Associate',
+      isPartner: false,
       memberStatus: 'Current',
       name: [null, [Validators.required, Validators.maxLength(100)]],
       fundingOrganizationId: [null],
@@ -43,6 +44,7 @@ export class FundingOrganizationsFormComponent {
 
     api.fields().subscribe(response => {
         this.fields = response;
+        console.log(this.fields);
         this.fields.currentFundingOrganizations = [];
         this.initializeFormControls();
     }, errorResponse => {
@@ -67,6 +69,7 @@ export class FundingOrganizationsFormComponent {
         operationType: operationType,
         memberType: 'Associate',
         memberStatus: 'Current',
+        // partnerId: partnerId.value,
       }, {emitEvent: false});
 
       name.clearValidators();
@@ -131,6 +134,16 @@ export class FundingOrganizationsFormComponent {
       controls.partnerId.updateValueAndValidity()
     })
 
+    controls.isPartner.valueChanges.subscribe(isPartner => {
+      controls.memberType.setValue(
+        isPartner ? 'Partner' : 'Associate',
+        {emitEvent: false}
+      );
+
+      if (controls.operationType.value === 'Add')
+        controls.partnerId.updateValueAndValidity()
+    });
+
     controls.country.valueChanges.subscribe(value => {
       const country = this.fields.countries
         .find(country => country.abbreviation === value);
@@ -152,8 +165,11 @@ export class FundingOrganizationsFormComponent {
         const record = this.fields.fundingOrganizations
           .find(fundingOrganization => fundingOrganization.fundingorgid === fundingOrganizationId);
 
+        console.log(record);
+
         this.form.patchValue({
           memberType: record.membertype,
+          isPartner: /Partner/i.test(record.membertype),
           memberStatus: record.memberstatus,
           name: record.name,
           abbreviation: record.abbreviation,

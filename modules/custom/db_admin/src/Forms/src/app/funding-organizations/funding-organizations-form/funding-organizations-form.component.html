@@ -208,7 +208,7 @@
           class="mr-1"
           type="checkbox"
           value="Partner"
-          formControlName="memberType">
+          formControlName="isPartner">
         Partner Organization
       </label>
     </div>
@@ -309,6 +309,7 @@
     fxFlex.lt-md="100"
     fxLayoutAlign="start start">
     <div
+      style="align-self: stretch;"
       class="border px-4 py-3"
       fxLayout="row wrap"
       fxLayoutAlign="start center"
@@ -350,125 +351,76 @@
         Former
       </label>
 
-      <div
-        fxHide.lt-md
-        class="input-sm"
-        fxFlex="0"
-        style="width: 0px; visibility: hidden;">
-      </div>
-
     </div>
 
   </div>
 
+
+
   <div
     class="mb-4"
     [ngClass]="{
-      'has-error': form.controls.name.dirty && form.controls.name.invalid,
+      'has-error': (form.controls.latitude.dirty && form.controls.latitude.invalid)
+        || (form.controls.longitude.dirty && form.controls.longitude.invalid),
       'pr-4': true
     }"
     ngClass.lt-md="pr-0"
     fxLayout="column"
     fxFlex="50"
     fxFlex.lt-md="100"
-    fxLayoutAlign="start start">
+    fxLayoutAlign="start fill">
     <label
       class="font-weight-bold control-label asterisk">
-      Organization Name
+      Map Coordinates
     </label>
-    <input
-      class="form-control input-sm"
-      *ngIf="form.controls.operationType.value === 'Add'"
-      maxlength="100"
-      formControlName="name"
-      placeholder="Enter organization name (100 characters maximum)">
-    <select
-      class="form-control input-sm"
-      *ngIf="form.controls.operationType.value === 'Update'"
-      formControlName="fundingOrganizationId">
-      <option [ngValue]="null">Select a funding organization</option>
-      <option
-        *ngFor="let fundingOrganization of fields.currentFundingOrganizations"
-        [ngValue]="fundingOrganization.fundingorgid">
-            {{ fundingOrganization.name }}
-      </option>
-    </select>
     <div
-      *ngIf="form.controls.name.dirty && form.controls.name?.errors?.required"
-      fxLayout
-      fxFlex="100"
+      fxLayout="row wrap"
+      fxLayoutAlign="space-between center"
+      fxLayoutGap.lt-md="0">
+      <input
+        fxFlex="48%"
+        fxFlex.lt-md="100"
+        type="number"
+        class="form-control input-sm"
+        ngClass.lt-md="mb-3"
+        max="90"
+        min="-90"
+        formControlName="latitude"
+        placeholder="Enter latitude (eg: 32.30642)">
+
+      <input
+        fxFlex="48%"
+        fxFlex.lt-md="100"
+        type="number"
+        class="form-control input-sm"
+        max="180"
+        min="-180"
+        formControlName="longitude"
+        placeholder="Enter longitude (eg: -122.61458)">
+    </div>
+
+    <div
+      *ngIf="(form.controls.longitude.dirty && form.controls.longitude?.errors?.required)
+        || (form.controls.latitude.dirty && form.controls.latitude?.errors?.required)"
       class="help-block mb-0">
-      This field is required.
+      Both fields are required.
+    </div>
+
+    <div
+      *ngIf="form.controls.latitude.dirty
+        && (form.controls.latitude?.errors?.min || form.controls.latitude?.errors?.max)"
+      class="help-block mb-0">
+      Latitude should be a decimal number between -90.0 and 90.0 inclusive.
+    </div>
+
+    <div
+      *ngIf="form.controls.longitude.dirty
+        && (form.controls.longitude?.errors?.min || form.controls.longitude?.errors?.max)"
+      class="help-block mb-0">
+      Longitude should be a decimal number between -180.0 and 180.0 inclusive.
     </div>
   </div>
 
-  <div
-    class="mb-4"
-    [ngClass]="{
-      'has-error': form.controls.type.dirty && form.controls.type.invalid,
-      'pl-4': true
-    }"
-    ngClass.lt-md="pl-0"
-    fxLayout="column"
-    fxFlex="50"
-    fxFlex.lt-md="100"
-    fxLayoutAlign="start start">
-    <label
-      class="font-weight-bold control-label asterisk">
-      Organization Type
-    </label>
-    <select
-      class="form-control input-sm"
-      id="type"
-      formControlName="type">
-      <option [ngValue]="null">
-        Select an organization type
-      </option>
-      <option ngValue="Government">
-        Government
-      </option>
-      <option ngValue="Non-profit">
-        Non-profit
-      </option>
-      <option ngValue="Other">
-          Other
-      </option>
-    </select>
-    <div
-      *ngIf="form.controls.type.dirty && form.controls.type?.errors?.required"
-      class="help-block mb-0">
-      This field is required.
-    </div>
-  </div>
-
-  <div
-    class="mb-4"
-    [ngClass]="{
-      'has-error': form.controls.abbreviation.dirty && form.controls.abbreviation.invalid,
-      'pr-4': true
-    }"
-    ngClass.lt-md="pr-0"
-    fxLayout="column"
-    fxFlex="50"
-    fxFlex.lt-md="100"
-    fxLayoutAlign="start start">
-    <label
-      class="font-weight-bold control-label asterisk">
-      Abbreviation
-    </label>
-    <input
-      class="form-control input-sm"
-      maxlength="15"
-      formControlName="abbreviation"
-      placeholder="Enter abbreviation (15 characters maximum)">
-    <div
-      *ngIf="form.controls.abbreviation.dirty && form.controls.abbreviation?.errors?.required"
-      fxLayout
-      fxFlex="100"
-      class="help-block mb-0">
-      This field is required.
-    </div>
-  </div>
 
   <div
     class="mb-4"
@@ -584,69 +536,6 @@
     </div>
   </div>
 
-  <div
-    class="mb-4"
-    [ngClass]="{
-      'has-error': (form.controls.latitude.dirty && form.controls.latitude.invalid)
-        || (form.controls.longitude.dirty && form.controls.longitude.invalid),
-      'pr-4': true
-    }"
-    ngClass.lt-md="pr-0"
-    fxLayout="column"
-    fxFlex="50"
-    fxFlex.lt-md="100"
-    fxLayoutAlign="start fill">
-    <label
-      class="font-weight-bold control-label asterisk">
-      Map Coordinates
-    </label>
-    <div
-      fxLayout="row wrap"
-      fxLayoutAlign="space-between center"
-      fxLayoutGap.lt-md="0">
-      <input
-        fxFlex="48%"
-        fxFlex.lt-md="100"
-        type="number"
-        class="form-control input-sm"
-        ngClass.lt-md="mb-3"
-        max="90"
-        min="-90"
-        formControlName="latitude"
-        placeholder="Enter latitude (eg: 32.30642)">
-
-      <input
-        fxFlex="48%"
-        fxFlex.lt-md="100"
-        type="number"
-        class="form-control input-sm"
-        max="180"
-        min="-180"
-        formControlName="longitude"
-        placeholder="Enter longitude (eg: -122.61458)">
-    </div>
-
-    <div
-      *ngIf="(form.controls.longitude.dirty && form.controls.longitude?.errors?.required)
-        || (form.controls.latitude.dirty && form.controls.latitude?.errors?.required)"
-      class="help-block mb-0">
-      Both fields are required.
-    </div>
-
-    <div
-      *ngIf="form.controls.latitude.dirty
-        && (form.controls.latitude?.errors?.min || form.controls.latitude?.errors?.max)"
-      class="help-block mb-0">
-      Latitude should be a decimal number between -90.0 and 90.0 inclusive.
-    </div>
-
-    <div
-      *ngIf="form.controls.longitude.dirty
-        && (form.controls.longitude?.errors?.min || form.controls.longitude?.errors?.max)"
-      class="help-block mb-0">
-      Longitude should be a decimal number between -180.0 and 180.0 inclusive.
-    </div>
-  </div>
 
 
   <div
@@ -693,3 +582,5 @@
     </button>
   </div>
 </form>
+
+<!-- <pre>{{ form.value | json }}</pre> -->
