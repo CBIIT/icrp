@@ -139,9 +139,9 @@
         fxFlex.lt-md="100"
         class="form-control input-sm"
         maxlength="100"
-        [readonly]="form.value.isPartner && form.value.operationType == 'Add'"
+        [readonly]="form.value.isPartner"
         formControlName="name"
-        placeholder="Enter organization name (100 characters maximum)">
+        placeholder="100 characters maximum">
       <select
         *ngIf="form.controls.operationType.value === 'Update'"
         fxFlex="69"
@@ -186,9 +186,9 @@
         fxFlex.lt-md="100"
         class="form-control input-sm"
         maxlength="15"
-        [readonly]="form.value.isPartner && form.value.operationType == 'Add'"
+        [readonly]="form.value.isPartner"
         formControlName="abbreviation"
-        placeholder="Enter abbreviation (15 characters maximum)">
+        placeholder="15 characters maximum">
       <div
         *ngIf="form.controls.abbreviation.dirty && form.controls.abbreviation?.errors?.required"
         fxLayout
@@ -568,7 +568,7 @@
       class="form-control input-sm"
       maxlength="1000"
       formControlName="note"
-      placeholder="Enter note (optional, 1000 characters maximum)">
+      placeholder="optional, 1000 characters maximum">
     </textarea>
   </div>
 

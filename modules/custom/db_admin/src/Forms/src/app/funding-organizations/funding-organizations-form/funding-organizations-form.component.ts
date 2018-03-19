@@ -117,22 +117,28 @@ export class FundingOrganizationsFormComponent {
         abbreviation,
         country,
         name,
+        fundingOrganizationId,
         partnerId,
         memberType,
         operationType
       } = controls;
 
       memberType.setValue(isPartner ? 'Partner' : 'Associate');
+      const partner = this.fields.partners
+        .find(partner => partner.partnerid === partnerId.value);
 
       if (isPartner && operationType.value === 'Add') {
-        const partner = this.fields.partners
-          .find(partner => partner.partnerid === partnerId.value);
-
         if (partner) {
           name.patchValue(partner.name);
           abbreviation.patchValue(partner.sponsorcode);
           country.patchValue(partner.country);
         }
+      }
+
+      if (isPartner
+        && operationType.value === 'Update'
+        && fundingOrganizationId.value !== null) {
+        abbreviation.patchValue(partner.sponsorcode);
       }
     });
 
