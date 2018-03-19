@@ -44,8 +44,6 @@ export class FundingOrganizationsFormComponent {
 
     api.fields().subscribe(response => {
         this.fields = response;
-        console.log(this.fields);
-        this.fields.currentFundingOrganizations = [];
         this.initializeFormControls();
     }, errorResponse => {
       let error = errorResponse.error;
@@ -95,53 +93,47 @@ export class FundingOrganizationsFormComponent {
     });
 
     controls.partnerId.valueChanges.subscribe(partnerId => {
-      const {operationType, country, name, memberType} = controls;
+      const {operationType, isPartner, country, name, abbreviation, memberType} = controls;
 
       // disable controls if no partner was selected
       for (let key in controls) {
-        if (!['operationType', 'partnerId'].includes(key)) {
-          partnerId == null
-            ? controls[key].disable({emitEvent: false})
-            : controls[key].enable({emitEvent: false});
-        } else {
-          controls[key].enable({emitEvent: false})
-        }
+        partnerId !== null || ['operationType', 'partnerId'].includes(key)
+          ? controls[key].enable({emitEvent: false})
+          : controls[key].disable({emitEvent: false})
       }
 
-      const partner = this.fields.partners
-        .find(partner => partner.partnerid === partnerId);
-
-      if (partner
-        && operationType.value === 'Add'
-        && memberType.value === 'Partner') {
-        name.patchValue(partner.name);
-        country.patchValue(partner.country);
-      }
-
-      if (partner && operationType.value === 'Update') {
-        this.fields.currentFundingOrganizations = this.fields.fundingOrganizations
-          .filter(fundingOrganization => fundingOrganization.sponsorcode === partner.sponsorcode);
-        this.form.reset({
-          operationType: 'Update',
-          partnerId: partnerId,
-          memberType: 'Associate',
-          memberStatus: 'Current',
-        }, {emitEvent: false});
-      }
+      this.form.reset({
+        operationType: operationType.value,
+        partnerId: partnerId,
+        memberStatus: 'Current',
+        isPartner: false,
+        memberType: 'Associate',
+        isAnnualized: false,
+      }, {emitEvent: false});
     });
 
-    controls.memberType.valueChanges.subscribe(value => {
-      controls.partnerId.updateValueAndValidity()
-    })
-
     controls.isPartner.valueChanges.subscribe(isPartner => {
-      controls.memberType.setValue(
-        isPartner ? 'Partner' : 'Associate',
-        {emitEvent: false}
-      );
+      const {
+        abbreviation,
+        country,
+        name,
+        partnerId,
+        memberType,
+        operationType
+      } = controls;
 
-      if (controls.operationType.value === 'Add')
-        controls.partnerId.updateValueAndValidity()
+      memberType.setValue(isPartner ? 'Partner' : 'Associate');
+
+      if (isPartner && operationType.value === 'Add') {
+        const partner = this.fields.partners
+          .find(partner => partner.partnerid === partnerId.value);
+
+        if (partner) {
+          name.patchValue(partner.name);
+          abbreviation.patchValue(partner.sponsorcode);
+          country.patchValue(partner.country);
+        }
+      }
     });
 
     controls.country.valueChanges.subscribe(value => {

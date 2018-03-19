@@ -20,6 +20,9 @@ export class FundingOrganizationsApiService {
       fundingOrganizations: record.fundingOrganizations
         .map(entry => ({
           ...entry,
+          partnerid: record.partners
+            .find(e => e.sponsorcode === entry.sponsorcode)
+            .partnerid,
           memberstatus: entry.memberstatus.trim(),
           isannualized: entry.isannualized === 1,
           latitude: +entry.latitude || null,

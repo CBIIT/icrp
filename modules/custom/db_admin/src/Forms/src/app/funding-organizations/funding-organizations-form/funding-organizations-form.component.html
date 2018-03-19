@@ -139,6 +139,7 @@
         fxFlex.lt-md="100"
         class="form-control input-sm"
         maxlength="100"
+        [readonly]="form.value.isPartner && form.value.operationType == 'Add'"
         formControlName="name"
         placeholder="Enter organization name (100 characters maximum)">
       <select
@@ -148,11 +149,14 @@
         class="form-control input-sm"
         formControlName="fundingOrganizationId">
         <option [ngValue]="null">Select a funding organization</option>
+        <ng-container *ngFor="let fundingOrganization of fields.fundingOrganizations">
         <option
-          *ngFor="let fundingOrganization of fields.currentFundingOrganizations"
+          *ngIf="fundingOrganization.partnerid === form.value.partnerId"
           [ngValue]="fundingOrganization.fundingorgid">
               {{ fundingOrganization.name }}
         </option>
+        </ng-container>
+
       </select>
       <div
         *ngIf="form.controls.name.dirty && form.controls.name?.errors?.required"
@@ -182,6 +186,7 @@
         fxFlex.lt-md="100"
         class="form-control input-sm"
         maxlength="15"
+        [readonly]="form.value.isPartner && form.value.operationType == 'Add'"
         formControlName="abbreviation"
         placeholder="Enter abbreviation (15 characters maximum)">
       <div
