@@ -1,4 +1,21 @@
 // @ts-nocheck
+$.fn.enableRoutes = function() {
+    $(window).on('hashchange', function(e) {
+        if (!window.location.hash || window.location.hash.length < 2) {
+            window.location.hash = '#map';
+        }
+
+        else if ($('.nav a[href="' + window.location.hash + '"]').tab('show').length) {
+            setTimeout(function() { window.scrollTo(0, 0) }, 0);
+        }
+    }).trigger('hashchange');
+
+    $('.nav a[href^="#"]').click(function(event) {
+        event.preventDefault();
+        window.location.hash = $(this).attr('href');
+    });
+}
+
 $(function () {
     var initialized = false;
     var table;
