@@ -46,6 +46,9 @@ IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[l
 	ALTER TABLE lu_MapLayer ADD DisplayedName VARCHAR(50) NULL
 GO
 
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[LibraryFolder]') AND name = 'Type')
+	ALTER TABLE LibraryFolder ADD Type VARCHAR(50) NULL
+GO
 
 /*************************************************/
 /******					Data				******/
@@ -69,6 +72,9 @@ END
 
 -- Partner
 UPDATE Partner SET Status = 'Current' WHERE Status IS NULL
+
+-- Library
+UPDATE LibraryFolder SET Type = 'General' WHERE Type IS NULL
 
 /*************************************************/
 /******					Keys				******/

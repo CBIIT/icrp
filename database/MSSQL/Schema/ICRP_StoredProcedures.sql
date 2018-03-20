@@ -2510,11 +2510,11 @@ CREATE  PROCEDURE [dbo].[GetLibraryFolders]
     
 AS   
 
-SELECT f.Name AS Folder, p.Name AS ParentFolder,  f.isPublic	
+SELECT f.Name AS Folder, p.Name AS ParentFolder,  f.isPublic, f.Type
 FROM LibraryFolder f 
 JOIN LibraryFolder p ON f.ParentFolderID= p.LibraryFolderID
 
-  GO
+ GO
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetLibraries]    Script Date: 12/14/2016 4:21:37 PM ******/
@@ -2534,7 +2534,7 @@ CREATE  PROCEDURE [dbo].[GetLibraries]
     
 AS   
 
-SELECT l.FileName,ThumbnailFilename AS ThumbnailFilename, l.Title, l.Description, f.Name AS Folder, l.isPublic,
+SELECT l.FileName,ThumbnailFilename AS ThumbnailFilename, l.Title, l.Description, f.Name AS Folder, f.Type, l.isPublic,
 	CASE ISNULL(l.ArchivedDate, '') WHEN '' THEN 0 ELSE 1 END AS IsFileArchived	
 FROM [Library] l
 JOIN LibraryFolder f ON l.LibraryFolderID = f.LibraryFolderID
