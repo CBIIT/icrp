@@ -13,8 +13,7 @@ CREATE TABLE #Nonpartner (
 	[Name] [varchar](100) NOT NULL,
 	[Abbrev] [varchar](50) NOT NULL,
 	[Website] [varchar](50) NOT NULL,
-	[Country] [varchar](25) NOT NULL,
-	[Address] [varchar](1000) NULL,
+	[Country] [varchar](25) NOT NULL,	
 	[Latitude] [decimal](9, 6) NULL,
 	[Longitude] [decimal](9, 6) NULL,
 	[Description] [varchar](2000) NULL,
@@ -45,8 +44,8 @@ GO
 select * from #Nonpartner
 
 
-INSERT INTO Nonpartner ([Name],	[Abbreviation], [Description], [Email],[Country], [Address],[Longitude],[Latitude],[Website],[Note],[EstimatedInvest],	[ContactPerson],[Position],	[DoNotContact],	[CancerOnly],[ResearchFunder], CreatedDate, UpdatedDate)
-SELECT Name, [Abbrev], [Description], [Email],[Country],[Address],[Longitude],[Latitude],[Website],[Note],[EstimatedInvest],[ContactPerson],[Position],	
+INSERT INTO Nonpartner ([Name],	[Abbreviation], [Description], [Email],[Country],[Longitude],[Latitude],[Website],[Note],[EstimatedInvest],	[ContactPerson],[Position],	[DoNotContact],	[CancerOnly],[ResearchFunder], CreatedDate, UpdatedDate)
+SELECT Name, [Abbrev], [Description], [Email],[Country],[Longitude],[Latitude],[Website],[Note],[EstimatedInvest],[ContactPerson],[Position],	
 		CASE [DoNotContact] WHEN 'y' THEN 1 ELSE 0 END,
 		CASE [CancerOnly] WHEN 'y' THEN 1 ELSE 0 END,
 		CASE [ResearchFunder] WHEN 'y' THEN 1 ELSE 0 END,
