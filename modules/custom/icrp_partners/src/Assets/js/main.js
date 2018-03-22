@@ -153,6 +153,14 @@ $(function () {
                 customDom: function(settings) {
                     return $('<span>');
                 },
+                columnDefs: [
+                    { width: '120px' },
+                    { width: '90px' },
+                    { width: '90px' },
+                    { width: '90px' },
+                    { width: '90px' },
+                    { width: '90px' },
+                ]
             })
 
             window.setTimeout(function () {

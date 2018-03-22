@@ -297,7 +297,7 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
                             Country
                         </th>
 
-                        <th style="width: 90px"
+                        <th style="width: 90px; max-width: 120px;"
                             data-toggle="tooltip"
                             data-placement="top"
                             title="Most recent contact for ICRP communication">
@@ -307,49 +307,49 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
                         <th style="width: 90px"
                             data-toggle="tooltip"
                             data-placement="top"
-                            title="Do not contact this organization">
+                            title="This person has requested no contact from ICRP">
                             Do Not Contact?
                         </th>
 
                         <th style="width: 90px"
                             data-toggle="tooltip"
                             data-placement="top"
-                            title="Website for organization">
+                            title="Website of the organization">
                             Website
                         </th>
 
                         <th style="width: 90px"
                             data-toggle="tooltip"
                             data-placement="top"
-                            title="Contact person for organization">
+                            title="Most recent contact person within the organization">
                             Contact Person
                         </th>
 
                         <th style="width: 90px"
                             data-toggle="tooltip"
                             data-placement="top"
-                            title="Contact person's position">
+                            title="Contact person’s position within the organization">
                             Position
                         </th>
 
                         <th style="width: 90px"
                             data-toggle="tooltip"
                             data-placement="top"
-                            title="Organization funds only cancer-related projects">
+                            title="This organization’s sole focus is cancer research or support">
                             Cancer Only?
                         </th>
 
                         <th style="width: 90px"
                             data-toggle="tooltip"
                             data-placement="top"
-                            title="Organization is a research funder">
+                            title="This organization funds research projects">
                             Research Funder?
                         </th>
 
                         <th style="width: 90px"
                             data-toggle="tooltip"
                             data-placement="top"
-                            title="Notes">
+                            title="Notes relating to ICRP contact with this organization">
                             Notes
                         </th>
                     </tr>
@@ -358,7 +358,7 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
                 {% for record in nonPartners %}
                     <tr>
                         <td title="{{ record.name }}">{{ record.name }}</td>
-                        <td title="{{ record.abbreviation }}">{{ record.abbreviation }}</td>
+                        <td style="max-width: 90px" title="{{ record.abbreviation }}">{{ record.abbreviation }}</td>
                         <td title="{{ record.description }}">
                             {{ record.description | raw [:200] }}
                             {% if record.description | length > 200 %}
@@ -366,8 +366,8 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
                             {% endif %}
                         </td>
                         <td title="{{ record.estimatedinvest }}">{{ record.estimatedinvest }}</td>
-                        <td title="{{ record.country }}">{{ record.country }}</td>
-                        <td title="{{ record.email ?: 'N/A' }}">
+                        <td style="max-width: 70px" title="{{ record.country }}">{{ record.country }}</td>
+                        <td style="max-width: 160px" title="{{ record.email ?: 'N/A' }}">
                             {% if not record.donotcontact %}
                                 <a href="mailto:{{ record.email }}">{{ record.email }}</a>
                             {% endif %}
