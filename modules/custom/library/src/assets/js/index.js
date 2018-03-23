@@ -1,3 +1,4 @@
+// @ts-nocheck
 jQuery(function() {
     var $ = jQuery,
         root = window.location.pathname,
@@ -101,6 +102,7 @@ jQuery(function() {
                 ispub = params.find('[name="is_public"]');
             functions.populateParents(1);
             $('#library-edit h1').html("Create Library Category");
+            params.find('[name="library_access"]').val(["General"]);
             ispub.removeAttr('checked');
             $('#library-edit').addClass('active').siblings().removeClass('active');
         },
@@ -159,6 +161,7 @@ jQuery(function() {
                 functions.createNew(e,true,data.parents[0]==="#"?"1":data.parents[0]);
                 params.find('[name="id_value"]').val(data.id);
                 params.find('[name="title"]').val(data.text);
+                params.find('[name="library_access"]').val([data.data.type]);
                 $('#library-edit h1').html("Edit Library Category");
                 ispub.parent().toggleClass('not_public',!data.data.isPublic);
                 ispub.prop('checked',data.data.isPublic);
@@ -304,7 +307,8 @@ jQuery(function() {
                         archivedCount: parseInt(entry.ArchivedCount),
                         isArchived: entry.ArchivedDate !== null,
                         isPublic: entry.IsPublic == "1",
-                        unarchivedCount: parseInt(entry.UnarchivedCount)
+                        unarchivedCount: parseInt(entry.UnarchivedCount),
+                        type: entry.Type,
                     },
                     state: {
                         disabled: false,
@@ -435,7 +439,8 @@ jQuery(function() {
                             archivedCount: parseInt(entry.ArchivedCount)||0,
                             isArchived: entry.ArchivedDate !== null,
                             isPublic: entry.IsPublic == "1",
-                            unarchivedCount: parseInt(entry.UnarchivedCount)||0
+                            unarchivedCount: parseInt(entry.UnarchivedCount)||0,
+                            type: entry.Type
                         },
                         state: {
                             opened: false,
@@ -445,6 +450,7 @@ jQuery(function() {
                     };
                     if (node && node.id === entry.id) {
                         node.data.isPublic = entry.data.isPublic;
+                        node.data.type = entry.data.type;
                         if (node.text !== entry.text) tree.rename_node(node,entry.text);
                         if (node.parent != entry.parent) tree.move_node(node,entry.parent);
                     } else {

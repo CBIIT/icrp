@@ -407,7 +407,18 @@
 [name="display_name"] {
     margin-bottom: 5px;
 }
-
+.display-inline {
+    display: inline !important;
+}
+.width-inherit {
+    width: inherit !important;
+}
+.mr-20 {
+    margin-right: 20px;
+}
+.ml-5 {
+    margin-left: 5px;
+}
 @media (min-width: 1200px) {
     #library-search {
         float: left;
@@ -453,3 +464,4 @@
             padding: 10px;
     }
 }
+

@@ -24,6 +24,8 @@ class LibraryController extends ControllerBase {
       fwrite($file, "DENY FROM ALL");
       fclose($file);
     }
+
+    $this->$uploads_folder = $uploads_folder;
   }
 
   public function testQuery() {
@@ -46,43 +48,47 @@ class LibraryController extends ControllerBase {
   }
 
   private static $initFolderQuery = array(
-    "public" => "SELECT ".
-          "a.*, ".
-          "0 AS ArchivedCount, ".
-          "SUM(CASE WHEN b.ArchivedDate IS NULL THEN 1 ELSE 0 END)-SUM(CASE WHEN b.LibraryID IS NULL THEN 1 ELSE 0 END) AS UnarchivedCount ".
-        "FROM LibraryFolder a ".
-        "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID AND b.IsPublic=1 AND b.archivedDate IS NULL ".
-        "WHERE a.IsPublic=1 AND a.archivedDate IS NULL AND a.ParentFolderID > 0 ".
-        "GROUP BY a.Name, a.LibraryFolderID, a.ParentFolderID, a.IsPublic, a.ArchivedDate, a.CreatedDate, a.UpdatedDate ".
-        "ORDER BY a.Name;",
-    "private" => "SELECT ".
-          "a.*, ".
-          "0 AS ArchivedCount, ".
-          "SUM(CASE WHEN b.ArchivedDate IS NULL THEN 1 ELSE 0 END)-SUM(CASE WHEN b.LibraryID IS NULL THEN 1 ELSE 0 END) AS UnarchivedCount ".
-        "FROM LibraryFolder a ".
-        "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID AND b.archivedDate IS NULL ".
-        "WHERE a.archivedDate IS NULL AND a.ParentFolderID > 0 ".
-        "GROUP BY a.Name, a.LibraryFolderID, a.ParentFolderID, a.IsPublic, a.ArchivedDate, a.CreatedDate, a.UpdatedDate ".
-        "ORDER BY a.Name;",
-    "partner" => "SELECT ".
-          "a.*, ".
-          "0 AS ArchivedCount, ".
-          "SUM(CASE WHEN b.ArchivedDate IS NULL THEN 1 ELSE 0 END)-SUM(CASE WHEN b.LibraryID IS NULL THEN 1 ELSE 0 END) AS UnarchivedCount ".
-        "FROM LibraryFolder a ".
-        "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID AND b.ArchivedDate IS NULL ".
-        "WHERE a.ParentFolderID > 0 ".
-        "GROUP BY a.Name, a.LibraryFolderID, a.ParentFolderID, a.IsPublic, a.ArchivedDate, a.CreatedDate, a.UpdatedDate ".
-        "ORDER BY a.Name;",
-    "admin" => "SELECT ".
-          "a.*, ".
-          "COUNT(b.ArchivedDate) AS ArchivedCount, ".
-          "SUM(CASE WHEN b.ArchivedDate IS NULL THEN 1 ELSE 0 END)-SUM(CASE WHEN b.LibraryID IS NULL THEN 1 ELSE 0 END) AS UnarchivedCount ".
-        "FROM LibraryFolder a ".
-        "LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID ".
-        "WHERE a.ParentFolderID > 0 ".
-        "GROUP BY a.Name, a.LibraryFolderID, a.ParentFolderID, a.IsPublic, a.ArchivedDate, a.CreatedDate, a.UpdatedDate ".
-        "ORDER BY a.Name;"
+    "public" => 'SELECT
+        a.*,
+        0 AS ArchivedCount,
+        SUM(CASE WHEN b.ArchivedDate IS NULL THEN 1 ELSE 0 END)-SUM(CASE WHEN b.LibraryID IS NULL THEN 1 ELSE 0 END) AS UnarchivedCount
+      FROM LibraryFolder a
+      LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID AND b.IsPublic=1 AND b.archivedDate IS NULL
+      WHERE a.IsPublic=1 AND a.archivedDate IS NULL AND a.ParentFolderID > 0
+      GROUP BY a.Name, a.LibraryFolderID, a.ParentFolderID, a.IsPublic, a.ArchivedDate, a.CreatedDate, a.UpdatedDate, a.Type
+      ORDER BY a.Name;',
+
+    "private" => 'SELECT
+        a.*,
+        0 AS ArchivedCount,
+        SUM(CASE WHEN b.ArchivedDate IS NULL THEN 1 ELSE 0 END)-SUM(CASE WHEN b.LibraryID IS NULL THEN 1 ELSE 0 END) AS UnarchivedCount
+      FROM LibraryFolder a
+      LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID AND b.archivedDate IS NULL
+      WHERE a.archivedDate IS NULL AND a.ParentFolderID > 0
+      GROUP BY a.Name, a.LibraryFolderID, a.ParentFolderID, a.IsPublic, a.ArchivedDate, a.CreatedDate, a.UpdatedDate, a.Type
+      ORDER BY a.Name;',
+
+    "partner" => 'SELECT
+        a.*,
+        0 AS ArchivedCount,
+        SUM(CASE WHEN b.ArchivedDate IS NULL THEN 1 ELSE 0 END)-SUM(CASE WHEN b.LibraryID IS NULL THEN 1 ELSE 0 END) AS UnarchivedCount
+      FROM LibraryFolder a
+      LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID AND b.ArchivedDate IS NULL
+      WHERE a.ParentFolderID > 0
+      GROUP BY a.Name, a.LibraryFolderID, a.ParentFolderID, a.IsPublic, a.ArchivedDate, a.CreatedDate, a.UpdatedDate, a.Type
+      ORDER BY a.Name;',
+
+    "admin" => 'SELECT
+        a.*,
+        COUNT(b.ArchivedDate) AS ArchivedCount,
+        SUM(CASE WHEN b.ArchivedDate IS NULL THEN 1 ELSE 0 END)-SUM(CASE WHEN b.LibraryID IS NULL THEN 1 ELSE 0 END) AS UnarchivedCount
+      FROM LibraryFolder a
+      LEFT OUTER JOIN Library b ON a.LibraryFolderID = b.LibraryFolderID
+      WHERE a.ParentFolderID > 0
+      GROUP BY a.Name, a.LibraryFolderID, a.ParentFolderID, a.IsPublic, a.ArchivedDate, a.CreatedDate, a.UpdatedDate, a.Type
+      ORDER BY a.Name'
   );
+
   private static $folderQuery = array(
     "public" => "SELECT * FROM LibraryFolder WHERE IsPublic=1 AND archivedDate IS NULL AND LibraryFolderID=:lfid;",
     "private" => "SELECT * FROM LibraryFolder WHERE archivedDate IS NULL AND LibraryFolderID=:lfid;",
@@ -103,10 +109,6 @@ class LibraryController extends ControllerBase {
   );
 
   public function content() {
-    $request = \Drupal::request();
-    if ($route = $request->attributes->get(\Symfony\Cmf\Component\Routing\RouteObjectInterface::ROUTE_OBJECT)) {
-      $route->setDefault('_title', 'Library');
-    }
     return [
       '#theme' => 'library',
       '#attached' => [
@@ -124,6 +126,7 @@ class LibraryController extends ControllerBase {
       "folders" => []
     );
     $returnValue["role"] = self::getRole();
+    $accessTypes = $this->getAccessTypes();
     $connection = self::get_connection();
     $stmt = $connection->prepare(self::$initFolderQuery[$returnValue["role"]]);
     if ($stmt->execute()) {
@@ -132,7 +135,9 @@ class LibraryController extends ControllerBase {
         foreach ($row as $key=>$value) {
           $row_output[$key] = $value;
         }
-        array_push($returnValue["folders"],$row_output);
+
+        if (in_array($row_output['Type'], $accessTypes))
+          array_push($returnValue["folders"],$row_output);
       }
       $returnValue["initial"] = $returnValue["folders"][0];
     }
@@ -141,6 +146,8 @@ class LibraryController extends ControllerBase {
 
   public function searchFiles() {
     $role = self::getRole();
+    $accessTypes = $this->getAccessTypes();
+
     $keywords = \Drupal::request()->request->get('keywords');
     $keywords = '%'.$keywords.'%';
     $result = array();
@@ -155,7 +162,8 @@ class LibraryController extends ControllerBase {
         foreach ($row as $key=>$value) {
           $row_output[$key] = $value;
         }
-        array_push($result,$row_output);
+        if (in_array($row_output['Type'], $accessTypes))
+          array_push($result,$row_output);
       }
     }
     return new JsonResponse($result);
@@ -239,11 +247,12 @@ class LibraryController extends ControllerBase {
           }
           break;
         }
-        $stmt = $connection->prepare("INSERT INTO LibraryFolder (Name,ParentFolderID,IsPublic,ArchivedDate) OUTPUT INSERTED.* VALUES (:name,:pfid,:ip,:ad);");
+        $stmt = $connection->prepare("INSERT INTO LibraryFolder (Name,ParentFolderID,IsPublic,ArchivedDate,Type) OUTPUT INSERTED.* VALUES (:name,:pfid,:ip,:ad,:type);");
         $stmt->bindParam(":name",$params["title"]);
         $stmt->bindParam(":pfid",$params["parent"]);
         $stmt->bindParam(":ip",$params["is_public"]);
         $stmt->bindParam(":ad",$row_output["ArchivedDate"]);
+        $stmt->bindParam(":type",$params["library_access"]);
         if ($stmt->execute()) {
           while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $row_output = array();
@@ -258,11 +267,12 @@ class LibraryController extends ControllerBase {
         }
       }
     } else {
-      $stmt = $connection->prepare("UPDATE LibraryFolder SET ParentFolderID=:pfid, Name=:name, IsPublic=:ip, UpdatedDate=GETDATE() OUTPUT inserted.* WHERE LibraryFolderID=:lfid");
+      $stmt = $connection->prepare("UPDATE LibraryFolder SET ParentFolderID=:pfid, Name=:name, IsPublic=:ip, Type=:type, UpdatedDate=GETDATE() OUTPUT inserted.* WHERE LibraryFolderID=:lfid");
       $stmt->bindParam(":pfid",$params["parent"]);
       $stmt->bindParam(":name",$params["title"]);
       $stmt->bindParam(":ip",$params["is_public"]);
       $stmt->bindParam(":lfid",$params["id_value"]);
+      $stmt->bindParam(":type",$params["library_access"]);
       if ($stmt->execute()) {
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
           $row_output = array();
@@ -348,24 +358,33 @@ class LibraryController extends ControllerBase {
           :desc,
           :ip,
           :file,
-          :display
+          :display,
+          :thumb
         ");
       $stmt->bindParam(":lid",$params["id_value"]);
       $stmt->bindParam(":lfid",$params["parent"]);
       $stmt->bindParam(":title",$params["title"]);
       $stmt->bindParam(":desc",$params["description"]);
       $stmt->bindParam(":ip",$params["is_public"]);
+
       if ($upload) {
         $stmt->bindValue(":file",$upload->getClientOriginalName());
       } else {
         $stmt->bindValue(":file",null,PDO::PARAM_NULL);
       }
+
+      if ($thumb) {
+        $stmt->bindValue(":thumb",$thumb->getClientOriginalName());
+      } else {
+        $stmt->bindValue(":thumb",null,PDO::PARAM_NULL);
+      }
+
       $stmt->bindParam(":display",$params["display_name"]);
       if ($stmt->execute()) {
           $row = array_merge(array(),$stmt->fetchAll(PDO::FETCH_ASSOC))[0];
           $uploads_folder = \Drupal::config('library')->get('uploads_folder') ?? 'data/library/uploads';
           if ($upload) $upload->move($uploads_folder,$row['Filename']);
-          //if ($thumb) $thumb->move("$uploads_folder/thumbs",$row['ThumbnailFilename']);
+          if ($thumb) $thumb->move("$uploads_folder/thumbs",$row['ThumbnailFilename']);
           return self::getFolder($params["parent"]);
       }
     }
@@ -566,6 +585,21 @@ class LibraryController extends ControllerBase {
       }
     }
     return $role;
+  }
+
+  private function getAccessTypes() {
+    $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+    return array_map(function($record) {
+      $value = $record['value'];
+      switch($record['value']) {
+        case 'general':
+          return 'General';
+        case 'finance':
+          return 'Finance';
+        case 'operations_and_contracts':
+          return 'Operations and Contracts';
+      }
+    }, $user->get('field_library_access')->getValue());
   }
 
   /**
