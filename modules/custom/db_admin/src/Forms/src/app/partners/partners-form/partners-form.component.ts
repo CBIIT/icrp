@@ -214,7 +214,8 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         longitude,
         latitude,
         joinedDate,
-        isFundingOrganization
+        isFundingOrganization,
+        email,
        } = controls;
 
       let enabledControls = [
@@ -248,9 +249,10 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
 
         joinedDate.clearValidators();
         isFundingOrganization.updateValueAndValidity(),
-
         latitude.setValidators([Validators.min(-90), Validators.max(90)]);
         longitude.setValidators([Validators.min(-180), Validators.max(180)]);
+        email.clearValidators();
+        email.updateValueAndValidity();
       }
 
       else {
@@ -268,8 +270,9 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
 
         latitude.setValidators([Validators.required, Validators.min(-90), Validators.max(90)]);
         longitude.setValidators([Validators.required, Validators.min(-180), Validators.max(180)]);
+        email.setValidators([Validators.required, Validators.email]);
+        email.updateValueAndValidity();
       }
-
 
       this.form.reset({
         isNonPartner: isNonPartner,

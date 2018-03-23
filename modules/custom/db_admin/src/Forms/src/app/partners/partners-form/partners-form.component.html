@@ -334,7 +334,8 @@
     fxFlex.lt-md="100"
     fxLayoutAlign="start start">
     <label
-      class="font-weight-bold control-label asterisk">
+      [ngClass]="{'asterisk': !form.value.isNonPartner}"
+      class="font-weight-bold control-label">
       Email
     </label>
     <input
