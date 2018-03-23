@@ -5,7 +5,7 @@ drupal.fullcalendar_options_icrp.js:
     - fullcalendar/drupal.fullcalendar
 
 icrp-corescripts:
-  version: VERSION
+  version: 0.0.1
   js:
     js/icrp.js: {}
   css:
