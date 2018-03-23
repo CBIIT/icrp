@@ -54,6 +54,12 @@ class UserReviewForm extends FormBase
         $field_can_upload_library_files = $user->get("field_can_upload_library_files");
         $can_upload_library_files = $field_can_upload_library_files->value;
 
+        /* Library Access permissions */
+        $field_library_access = $user->get("field_library_access");
+        $library_access = array_map(function($record) {
+            return $record['value'];
+        }, $field_library_access->getValue());
+
         /* Get status */
         $field_status = $user->get("status");
         $status = $field_status->value;
@@ -141,12 +147,6 @@ class UserReviewForm extends FormBase
                 'class' => array(''),
             )
         );
-        $form['container2']['name']['settings']['upload_files'] = array(
-            '#type' => 'checkbox',
-            '#title' => t('Can Upload Library Files'),
-            '#default_value' => $can_upload_library_files,
-            '#help_text' => 'Allow user ability to upload files to the ICRP Library'
-        );
 
         $form['container2']['name']['settings']['status'] = array(
             '#type' => 'radios',
@@ -157,7 +157,6 @@ class UserReviewForm extends FormBase
             ),
             '#default_value' => $status,
             '#help_text' => 'User Status'
-
         );
         $form['container2']['name']['settings']['roles'] = array(
             '#type' => 'checkboxes',
@@ -169,6 +168,26 @@ class UserReviewForm extends FormBase
             '#default_value' => $roles,
             '#help_text' => 'User application roles'
         );
+
+        $form['container2']['name']['settings']['library_access'] = array(
+            '#type' => 'checkboxes',
+            '#title' => 'Library Access',
+            '#options' => array(
+                'general' => t('General'),
+                'finance' => t('Finance'),
+                'operations_and_contracts' => t('Operations and Contracts'),
+            ),
+            '#default_value' => $library_access,
+            '#help_text' => 'Library access levels'
+        );
+
+        $form['container2']['name']['settings']['upload_files'] = array(
+            '#type' => 'checkbox',
+            '#title' => t('Can Upload Library Files'),
+            '#default_value' => $can_upload_library_files,
+            '#help_text' => 'Allow user ability to upload files to the ICRP Library'
+        );
+
         $form['container2']['name']['settings']['actions']['#type'] = 'actions';
         $form['container2']['name']['settings']['actions']['submit'] = array(
             '#type' => 'submit',
@@ -198,8 +217,21 @@ class UserReviewForm extends FormBase
             $form_state->setErrorByName('roles', $this->t('User needs to be assigned at least one Role.'));
         }
 
+        // Check library access
+        $hasNoLibraryAccess = true;
+
+        foreach ($form_values['library_access'] as $access_type) {
+            if ($access_type === "general") {
+                $hasNoLibraryAccess = false;
+            }
+        }
+
+        if ($hasNoLibraryAccess) {
+            $form_state->setErrorByName('library_access', $this->t('User must have general access to library.'));
+        }
+
         // Check Status
-        $hasNoStatus = ($form_values['status'] < 0) ? TRUE : FALSE; 
+        $hasNoStatus = ($form_values['status'] < 0) ? TRUE : FALSE;
         if ($hasNoStatus) {
             $form_state->setErrorByName('status', $this->t('Please select a Status for this user.'));
         }
@@ -209,7 +241,7 @@ class UserReviewForm extends FormBase
     {
 
         $form_values = $form_state->getValues();
-        //drupal_set_message(print_r($form_state->getValues(), TRUE));
+        // drupal_set_message(print_r($form_state->getValues(), TRUE));
 
         $current_uri = \Drupal::request()->getRequestUri();
         $uri_parts = explode("/", $current_uri);
@@ -243,9 +275,32 @@ class UserReviewForm extends FormBase
 
         $user->set("field_can_upload_library_files", $form_values['upload_files']);
         $user->set("status", $form_values['status']);
+
+        $library_access = array_filter(array_values($form_values['library_access']));
+        $user->set("field_library_access", $library_access);
         $user->save();
 
+        $this->bulkFieldUpdate();
         drupal_set_message("User account for ".$user->getDisplayName()."  has been saved and is currently ".strtolower($membership_status).".");
     }
 
+    // ensure all users have "General" access
+    function bulkFieldUpdate() {
+        $uids = \Drupal::entityQuery('user')->execute();
+        $users = \Drupal\user\Entity\User::loadMultiple($uids);
+
+        foreach($users as $user) {
+            $field_library_access = $user->get('field_library_access');
+            $library_access = array_map(function($record) {
+                return $record['value'];
+            }, $field_library_access->getValue());
+
+            // ensure each user has general access to library
+            if (!in_array('general', $library_access)) {
+                $library_access[] = 'general';
+                $user->set('field_library_access', $library_access);
+                $user->save();
+            }
+        }
+    }
 }
