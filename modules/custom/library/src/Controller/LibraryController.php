@@ -102,10 +102,41 @@ class LibraryController extends ControllerBase {
     "admin" => "SELECT * FROM Library WHERE LibraryFolderID=:lfid ORDER BY CreatedDate DESC, LOWER(DisplayName);"
   );
   private static $fileSearch = array(
-    "public" => "SELECT * FROM Library WHERE IsPublic=1 AND archivedDate IS NULL AND (LOWER(DisplayName) LIKE :keywords1 OR LOWER(Title) LIKE :keywords2 OR LOWER(Description) LIKE :keywords3) ORDER BY CreatedDate DESC, LOWER(Title);",
-    "private" => "SELECT * FROM Library WHERE archivedDate IS NULL AND (LOWER(DisplayName) LIKE :keywords1 OR LOWER(Title) LIKE :keywords2 OR LOWER(Description) LIKE :keywords3) ORDER BY CreatedDate DESC, LOWER(Title);",
-    "partner" => "SELECT * FROM Library WHERE archivedDate IS NULL AND (LOWER(DisplayName) LIKE :keywords1 OR LOWER(Title) LIKE :keywords2 OR LOWER(Description) LIKE :keywords3) ORDER BY CreatedDate DESC, LOWER(Title);",
-    "admin" => "SELECT * FROM Library WHERE (LOWER(DisplayName) LIKE :keywords1 OR LOWER(Title) LIKE :keywords2 OR LOWER(Description) LIKE :keywords3) ORDER BY CreatedDate DESC, LOWER(Title);"
+    "public" => "SELECT
+        l.*,
+        lf.Type
+      FROM Library l
+      LEFT JOIN LibraryFolder lf ON l.LibraryFolderID = lf.LibraryFolderID
+      WHERE l.IsPublic=1
+      AND l.archivedDate IS NULL
+      AND l.DisplayName + l.Title + l.Description LIKE :keywords
+      ORDER BY l.CreatedDate DESC, LOWER(Title);",
+
+    "private" => "SELECT
+        l.*,
+        lf.Type
+      FROM Library l
+      LEFT JOIN LibraryFolder lf ON l.LibraryFolderID = lf.LibraryFolderID
+      WHERE archivedDate IS NULL
+      AND l.DisplayName + l.Title + l.Description LIKE :keywords
+      ORDER BY l.CreatedDate DESC, LOWER(l.Title);",
+
+    "partner" => "SELECT
+        l.*,
+        lf.Type
+      FROM Library l
+      LEFT JOIN LibraryFolder lf ON l.LibraryFolderID = lf.LibraryFolderID
+      WHERE archivedDate IS NULL
+      AND l.DisplayName + l.Title + l.Description LIKE :keywords
+      ORDER BY l.CreatedDate DESC, LOWER(l.Title);",
+
+    "admin" => "SELECT
+        l.*,
+        lf.Type
+      FROM Library l
+        LEFT JOIN LibraryFolder lf ON l.LibraryFolderID = lf.LibraryFolderID
+        AND l.DisplayName + l.Title + l.Description LIKE :keywords
+      ORDER BY l.CreatedDate DESC, LOWER(l.Title);",
   );
 
   public function content() {
@@ -153,9 +184,7 @@ class LibraryController extends ControllerBase {
     $result = array();
     $connection = self::get_connection();
     $stmt = $connection->prepare(self::$fileSearch[$role]);
-    $stmt->bindParam(":keywords1",$keywords);
-    $stmt->bindParam(":keywords2",$keywords);
-    $stmt->bindParam(":keywords3",$keywords);
+    $stmt->bindParam(":keywords",$keywords);
     if ($stmt->execute()) {
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $row_output = array();
@@ -589,7 +618,7 @@ class LibraryController extends ControllerBase {
 
   private function getAccessTypes() {
     $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
-    return array_map(function($record) {
+    $accessTypes = array_map(function($record) {
       $value = $record['value'];
       switch($record['value']) {
         case 'general':
@@ -599,7 +628,12 @@ class LibraryController extends ControllerBase {
         case 'operations_and_contracts':
           return 'Operations and Contracts';
       }
-    }, $user->get('field_library_access')->getValue()) ?? ['General'];
+    }, $user->get('field_library_access')->getValue());
+
+    if (empty($accessTypes))
+      $accessTypes[] = 'General';
+
+    return $accessTypes;
   }
 
   /**
