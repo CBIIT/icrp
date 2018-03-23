@@ -599,7 +599,7 @@ class LibraryController extends ControllerBase {
         case 'operations_and_contracts':
           return 'Operations and Contracts';
       }
-    }, $user->get('field_library_access')->getValue());
+    }, $user->get('field_library_access')->getValue()) ?? ['General'];
   }
 
   /**
