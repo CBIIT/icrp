@@ -64,6 +64,7 @@ module:
   honeypot: 0
   icrp: 0
   icrp_custom_conditions: 0
+  icrp_data_tables: 0
   icrp_partners: 0
   image: 0
   inline_form_errors: 0
