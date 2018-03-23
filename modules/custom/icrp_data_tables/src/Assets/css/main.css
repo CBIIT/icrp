@@ -1,0 +1,25 @@
+.cursor-pointer {
+    cursor: pointer;
+}
+.mr-40 {
+    margin-right: 40px;
+}
+.mr-5 {
+    margin-right: 5px;
+}
+.mv-5 {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.noselect {
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -o-user-select: none;
+    user-select: none;
+}
+.table-responsive {
+    position: relative;
+    border: none;
+}

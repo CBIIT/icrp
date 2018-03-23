@@ -1,0 +1,27 @@
+<h1>Cancer Types</h1>
+<p>
+    The ICRP Partners code all awards in the database to one or more of the following cancer types:
+</p>
+
+<div class="table-responsive">
+    <table id="cancer-types" class="dataTable table table-bordered table-striped table-narrow table-nowrap table-condensed">
+        <thead>
+            <tr>
+                <th style="max-width: 170px; width: 170px;" data-toggle="tooltip" data-placement="top" title="Projects are coded to a specific cancer type or Not Site-Specific">Cancer Type</th>
+                <th style="max-width: 80px; width: 80px;" data-toggle="tooltip" data-placement="top" title="Numeric code used in data submission">ICRP Code</th>
+                <th style="max-width: 90px; width: 90px;" data-toggle="tooltip" data-placement="top" title="Closest equivalent code in the International Classification of Diseases v10">ICD-10 Code</th>
+                <th style="max-width: 700px; width: 700px" data-toggle="tooltip" data-placement="top" title="Explanatory note for ICRP Cancer Type">Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+                <tr>
+                    <td style="max-width: 170px; width: 170px;" data-toggle="tooltip" data-placement="top" title="{{ record.name }}">{{ record.name }}</td>
+                    <td style="max-width: 80px; width: 80px;" data-toggle="tooltip" data-placement="top" title="{{ record.icrpcode }}">{{ record.icrpcode }}</td>
+                    <td style="max-width: 90px; width: 90px;" data-toggle="tooltip" data-placement="top" title="{{ record.icd10codeinfo }}">{{ record.icd10codeinfo }}</td>
+                    <td style="max-width: 700px; width: 700px" data-toggle="tooltip" data-placement="top" title="{{ record.description}}">{{ record.description}}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

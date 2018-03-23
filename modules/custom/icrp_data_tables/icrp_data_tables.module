@@ -1,0 +1,16 @@
+<?php
+
+function icrp_data_tables_theme($existing, $type, $theme, $path) {
+  return [
+    'upload_status' => [
+      'variables' => [
+        'records' => NULL,
+      ],
+    ],
+    'cancer_types' => [
+      'variables' => [
+        'records' => NULL,
+      ],
+    ],
+  ];
+}

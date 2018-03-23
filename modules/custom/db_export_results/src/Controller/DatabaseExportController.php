@@ -171,7 +171,7 @@ class DatabaseExportController extends ControllerBase {
     return self::createResponse($uri);
   }
 
-  function exportLookupTable(): StreamedResponse {
+  function lookupTable(): StreamedResponse {
     return new StreamedResponse(function() {
       $pdo = Database::getConnection();
       ExcelBuilder::exportQueries('ICRP Lookup Tables.xlsx', [
@@ -199,7 +199,7 @@ class DatabaseExportController extends ControllerBase {
     });
   }
 
-  function exportUploadStatus(): StreamedResponse {
+  function uploadStatus(): StreamedResponse {
     return new StreamedResponse(function() {
         $pdo = Database::getConnection();
         ExcelBuilder::exportQueries('Data Upload Status.xlsx', [

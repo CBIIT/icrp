@@ -1,0 +1,14 @@
+default:
+  version: 0.0.1
+  css:
+    theme:
+      https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap-grid.css: {}
+      src/Assets/css/dataTables.bootstrap.css: {}
+      src/Assets/css/main.css: {}
+  js:
+    https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/js/jquery.dataTables.min.js: {}
+    src/Assets/js/dataTables.ext.js: {}
+    src/Assets/js/dataTables.resizableColumns.js: {}
+    src/Assets/js/main.js: {}
+  dependencies:
+    - core/jquery

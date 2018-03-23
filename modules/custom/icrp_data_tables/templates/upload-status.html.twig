@@ -1,0 +1,37 @@
+<h1>Data Upload Status Report</h1>
+<p>
+    Information about the status of data submissions and uploads to the ICRP database is included below. Please note that each organization has its own data upload schedule and the latest data uploaded for each organization can be seen <a href="/partners">here</a>.
+</p>
+
+<div class="table-responsive">
+    <table id="upload-status" class="dataTable table table-bordered table-striped table-narrow table-nowrap table-condensed">
+        <thead>
+            <tr>
+                <th style="max-width: 60px; width: 60px;" data-toggle="tooltip" data-placement="top" title="Organization's sponsor code">Partner</th>
+                <th style="max-width: 60px; width: 60px;" data-toggle="tooltip" data-placement="top" title="Funding year as submitted by the organization">Funding Year</th>
+                <th style="max-width: 60px" data-toggle="tooltip" data-placement="top" title="Process Status">Status</th>
+                <th style="max-width: 50px" data-toggle="tooltip" data-placement="top" title="New data, or updates overwriting existing data">Type</th>
+                <th style="max-width: 90px" data-toggle="tooltip" data-placement="top" title="Number of project funding records submitted (unique AltIDs)">Records Imported</th>
+                <th style="max-width: 90px" data-toggle="tooltip" data-placement="top" title="Received Data Submission">Submission Date</th>
+                <th style="max-width: 60px" data-toggle="tooltip" data-placement="top" title="Copied to Stage DB">Stage Date</th>
+                <th style="max-width: 100px" data-toggle="tooltip" data-placement="top" title="Date of upload to live database">Production Date</th>
+                <th style="width: 160px;" data-toggle="tooltip" data-placement="top" title="Description of the latest upload to ICRP">Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+                <tr>
+                    <td style="max-width: 60px; width: 60px;" data-toggle="tooltip" data-placement="top" title="{{ record.partner }}">{{ record.partner }}</td>
+                    <td style="max-width: 60px; width: 60px;" data-toggle="tooltip" data-placement="top" title="{{ record.fundingyear }}">{{ record.fundingyear }}</td>
+                    <td style="max-width: 60px; width: 60px;" data-toggle="tooltip" data-placement="top" title="{{ record.status }}">{{ record.status }}</td>
+                    <td style="max-width: 50px; width: 50px;" data-toggle="tooltip" data-placement="top" title="{{ record.type | title}}">{{ record.type | title}}</td>
+                    <td style="max-width: 90px; width: 90px;" data-toggle="tooltip" data-placement="top" title="{{ record.count }}">{{ record.count }}</td>
+                    <td style="max-width: 90px; width: 90px;" data-toggle="tooltip" data-placement="top" title="{{ record.receiveddate }}">{{ record.receiveddate }}</td>
+                    <td style="max-width: 60px; width: 60px;" data-toggle="tooltip" data-placement="top" title="{{ record.uploadtostagedate }}">{{ record.uploadtostagedate }}</td>
+                    <td style="max-width: 100px; width: 100px;" data-toggle="tooltip" data-placement="top" title="{{ record.uploadtoproddate }}">{{ record.uploadtoproddate }}</td>
+                    <td style="width: 160px;" data-toggle="tooltip" data-placement="top" title="{{ record.note }}">{{ record.note }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

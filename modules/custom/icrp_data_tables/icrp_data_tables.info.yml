@@ -1,0 +1,6 @@
+name: ICRP Data Tables
+description: Implements pages containing custom data tables (/cancer-types, /upload-status, etc)
+package: ICRP Modules
+type: module
+version: 0.1
+core: 8.x
