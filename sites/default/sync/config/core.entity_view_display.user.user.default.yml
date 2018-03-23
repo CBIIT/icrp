@@ -7,6 +7,7 @@ dependencies:
     - field.field.user.user.field_first_name
     - field.field.user.user.field_last_forum_visit
     - field.field.user.user.field_last_name
+    - field.field.user.user.field_library_access
     - field.field.user.user.field_membership_status
     - field.field.user.user.field_notify_new_events
     - field.field.user.user.field_notify_new_posts
@@ -25,6 +26,7 @@ dependencies:
     - datetime
     - ds
     - image
+    - options
     - user
 third_party_settings:
   ds:
@@ -98,6 +100,13 @@ content:
     third_party_settings: {  }
     type: string
     region: left
+  field_library_access:
+    weight: 53
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: list_default
+    region: content
   field_organization:
     weight: 1
     label: above

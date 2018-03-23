@@ -7,6 +7,7 @@ dependencies:
     - field.field.user.user.field_first_name
     - field.field.user.user.field_last_forum_visit
     - field.field.user.user.field_last_name
+    - field.field.user.user.field_library_access
     - field.field.user.user.field_membership_status
     - field.field.user.user.field_notify_new_events
     - field.field.user.user.field_notify_new_posts
@@ -62,6 +63,12 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+    region: content
+  field_library_access:
+    weight: 11
+    settings: {  }
+    third_party_settings: {  }
+    type: options_select
     region: content
   field_membership_status:
     type: options_select
