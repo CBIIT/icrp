@@ -122,13 +122,16 @@ jQuery(function() {
                         });
                     }
                 }
+
                 functions.populateParents(nodeId);
                 $('#library-edit h1').html("Create Library File");
                 $('#library-edit').addClass('active').siblings().removeClass('active');
+                $('#library-access-container').hide();
             } else if (node) {
                 if (nodeId == undefined) nodeId = node.id;
                 functions.populateParents(nodeId);
                 $('#library-edit h1').html("Create Library Category");
+                $('#library-access-container').show();
                 ispub.attr('checked',node.data.isPublic);
                 $('#library-edit').addClass('active').siblings().removeClass('active');
             } else {
@@ -143,6 +146,7 @@ jQuery(function() {
                 params = $('#library-parameters'),
                 ispub = params.find('[name="is_public"]');
             displayname = data.DisplayName;
+            $('#library-access-container').hide();
             params.find('[name="id_value"]').val(data.LibraryID);
             params.find('[name="upload"]').prev().val(data.DisplayName).removeClass('hide');
             params.find('[name="title"]').val(data.Title);
@@ -156,6 +160,7 @@ jQuery(function() {
         'editFolder': function(e) {
             var data = functions.getNode();
             if (data) {
+                $('#library-access-container').show();
                 var params = $('#library-parameters'),
                     ispub = params.find('[name="is_public"]');
                 functions.createNew(e,true,data.parents[0]==="#"?"1":data.parents[0]);
