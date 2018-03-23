@@ -44,8 +44,9 @@ class PageController extends ControllerBase {
 
         foreach($nonPartners as &$record) {
             // ensure all websites have a protocol
-            if (!preg_match('/^http(s?):\/\//', $record['website'])) {
-                $record['website'] = 'http://' . $record['website'];
+            $website = $record['website'];
+            if ($website && !preg_match('/^http(s?):\/\//', $website)) {
+                $record['website'] = "http://$website";
             }
 
             // do not include emails if 'Do Not Contact' has been flagged
