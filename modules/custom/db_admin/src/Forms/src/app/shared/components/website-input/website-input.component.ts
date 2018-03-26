@@ -130,18 +130,25 @@ export class WebsiteInputComponent implements ControlValueAccessor {
     const resource$ = resource.valueChanges.pipe(
       map((value: string = '') => {
         if (/^https?:\/\//.test(value)) {
-          const url = parse(value);
-          const resourceValue = `${url.host}${url.pathname}`;
+
+          let url = null;
+          let resource = value;
+
+          // eliminate any duplicate leading protocol strings
+          do {
+            url = parse(resource);
+            resource = `${url.host}${url.pathname}`;
+          } while (/^https?:$/.test(url.host))
 
           // update the form controls to reflect the new value
           // when valueChanges emits a new value, that value
           // will be used instead of the current value
-          this.form.patchValue({
+          this.form.setValue({
             protocol: url.protocol,
-            resource: resourceValue
+            resource: resource
           });
 
-          return resourceValue;
+          return resource;
         } else {
           return value;
         }
@@ -152,7 +159,10 @@ export class WebsiteInputComponent implements ControlValueAccessor {
     Observable.combineLatest(
       protocol$,
       resource$,
-      (protocol, resource) => `${protocol}//${resource}`
+      (protocol, resource) =>
+        protocol && resource
+          ? `${protocol}//${resource}`
+          : null
     ).subscribe(value => this.value = value)
 
     protocol.updateValueAndValidity();

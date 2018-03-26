@@ -90,19 +90,23 @@
         formControlName="partnerId">
         <option
           *ngIf="!fields.partners"
-          [ngValue]="null">
+          [ngValue]="null"
+          hidden>
           Loading...
         </option>
         <option
           *ngIf="fields.partners"
-          [ngValue]="null">
+          [ngValue]="null"
+          hidden>
           Select a partner
         </option>
-        <option
-          *ngFor="let partner of fields.partners"
-          [ngValue]="partner.partnerid">
-          {{ partner.name }}
-        </option>
+        <ng-container *ngFor="let partner of fields.partners">
+          <option
+            *ngIf="partner.status == 'Current'"
+            [ngValue]="partner.partnerid">
+            {{ partner.name }}
+          </option>
+        </ng-container>
       </select>
 
       <div
@@ -258,7 +262,9 @@
           class="form-control input-sm"
           id="type"
           formControlName="type">
-          <option [ngValue]="null">
+          <option
+            [ngValue]="null"
+            hidden>
             Select an organization type
           </option>
           <option ngValue="Government">
@@ -481,12 +487,14 @@
       formControlName="country">
       <option
         *ngIf="!fields.countries"
-        [ngValue]="null">
+        [ngValue]="null"
+        hidden>
         Loading...
       </option>
       <option
         *ngIf="fields.countries"
-        [ngValue]="null">
+        [ngValue]="null"
+        hidden>
         Select a country
       </option>
       <option *ngFor="let country of fields.countries" [ngValue]="country.abbreviation">
@@ -522,12 +530,14 @@
       formControlName="currency">
       <option
         *ngIf="!fields.currencies"
-        [ngValue]="null">
+        [ngValue]="null"
+        hidden>
         Loading...
       </option>
       <option
         *ngIf="fields.currencies"
-        [ngValue]="null">
+        [ngValue]="null"
+        hidden>
         Select a currency
       </option>
       <option *ngFor="let currency of fields.currencies" [ngValue]="currency.code">
@@ -568,7 +578,7 @@
       class="form-control input-sm"
       maxlength="1000"
       formControlName="note"
-      placeholder="optional, 1000 characters maximum">
+      placeholder="Optional, 1000 characters maximum">
     </textarea>
   </div>
 

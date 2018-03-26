@@ -45,8 +45,9 @@ export class FundingOrganizationsFormComponent {
     api.fields().subscribe(response => {
         this.fields = response;
         this.initializeFormControls();
-    }, errorResponse => {
+    }, (errorResponse: HttpErrorResponse) => {
       let error = errorResponse.error;
+      console.log(errorResponse);
       let message = error.constructor === String
           ? error
           : 'An unknown error occured while loading this page.';

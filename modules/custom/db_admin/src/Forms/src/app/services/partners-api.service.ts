@@ -26,7 +26,7 @@ export class PartnersApiService {
           isdsasigned: record.isdsasigned === 1,
           joindate: new Date(date[0], date[1] - 1, date[2])
         }
-      }),
+      }).sort((a, b) => a.name.localeCompare(b.name)),
       partnerApplications: fields.partnerApplications.map(record => ({
         ...record,
         country: fields.countries.map(c => c.name).includes(record.country)
@@ -40,7 +40,7 @@ export class PartnersApiService {
         canceronly: record.canceronly === 1,
         donotcontact: record.donotcontact === 1,
         researchfunder: record.researchfunder === 1,
-      }))
+      })).sort((a, b) => a.name.localeCompare(b.name))
     }));
   }
 

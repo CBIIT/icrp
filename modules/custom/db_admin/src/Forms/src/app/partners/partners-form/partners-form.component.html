@@ -136,7 +136,13 @@
         </option>
         <option
           [ngValue]="null"
-          *ngIf="fields.partnerApplications"
+          *ngIf="fields.partnerApplications && fields.partnerApplications.length == 0"
+          hidden>
+          No partner applications are available
+        </option>
+        <option
+          [ngValue]="null"
+          *ngIf="fields.partnerApplications && fields.partnerApplications.length > 0"
           hidden>
           Select a partner application
         </option>
