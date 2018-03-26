@@ -617,7 +617,7 @@ jQuery(function() {
     $('#library-display').on('click', '.edit-file', functions.editFile);
     $('#library-display').on('click', '.archive-file', functions.archiveFile);
     $('#library-display').on('click', '.restore-file', functions.restoreFile);
-    $('#library-edit [name="upload"]').on('change', function(e) {
+    $('#library-edit [name="upload"], #library-edit [name="thumbnail"]').on('change', function(e) {
         var filelist = $(this)[0].files;
         if (filelist.length > 0) {
             $(this).prev().val(filelist[0].name);

@@ -404,8 +404,13 @@
     margin: 20px auto 0px;
     width: 20em;
 }
-[name="display_name"] {
+[name="display_name"], [name="thumbnail_display_name"] {
     margin-bottom: 5px;
+}
+[name="thumbnail_display_name"] {
+    cursor: not-allowed;
+    background-color: #f4f4f4;
+    border: 1px solid #aaa;
 }
 .display-inline {
     display: inline !important;
