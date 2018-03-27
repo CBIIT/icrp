@@ -2153,7 +2153,8 @@ GO
 CREATE PROCEDURE [dbo].[GetProjectExportsBySearchID]
      @SearchID INT,
 	 @IncludeAbstract INT = 0,
-	 @SiteURL varchar(250) = 'https://www.icrpartnership.org/project/'
+	 @SiteURL varchar(250) = 'https://www.icrpartnership.org/project/',
+	 @Year smallint = NULL
 	 
 AS   
 
@@ -2179,6 +2180,9 @@ AS
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+
+	IF @Year IS NULL
+		SELECT @Year = MAX(Year) FROM CurrencyRate	
 
 	IF @SearchID = 0
 	BEGIN
@@ -2316,9 +2320,9 @@ AS
 	ORDER BY p.CalendarYear	 
 
 	--Create the dynamic query with all the values for pivot column at runtime
-	SET   @SQLQuery = N'SELECT * FROM (SELECT t.ProjectID AS ICRPProjectID, t.ProjectFundingID AS ICRPProjectFundingID, t.AwardTitle, t.AwardType, 
-		t.AwardCode, t.Source_ID, t.AltAwardCode, t.FundingCategory,
-		t.IsChildhood, t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate,  t.BudgetEndDate, t.AwardAmount, t.FundingIndicator, t.Currency, 
+	SET   @SQLQuery = N'SELECT * FROM (SELECT t.ProjectID AS ICRPProjectID, t.ProjectFundingID AS ICRPProjectFundingID, t.AwardTitle, t.AwardType, t.AwardCode, 
+		t.Source_ID, t.AltAwardCode, t.FundingCategory,	t.IsChildhood, t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate,  t.BudgetEndDate, 
+		t.AwardAmount, CAST((t.AwardAmount * ISNULL(cr.ToCurrencyRate, 1)) AS INT) AS USDAwardAmount, t.FundingIndicator, t.Currency, 
 		t.FundingMechanism, t.FundingMechanismCode, t.SponsorCode, t.FundingOrg, t.FundingOrgType, t.FundingDiv, t.FundingDivAbbr, t.FundingContact, 
 		t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.Region, t.icrpURL'
 
@@ -2327,8 +2331,10 @@ AS
 
 	IF @PivotColumns IS NOT NULL  
 	BEGIN
-		SET @SQLQuery = @SQLQuery + ', calendaryear, calendaramount FROM projectfundingext ext
-				JOIN #pf t ON ext.ProjectFundingID = t.ProjectFundingID    
+		SET @SQLQuery = @SQLQuery + ', calendaryear, CAST((calendaramount * ISNULL(cr.ToCurrencyRate, 1)) AS INT) AS calendaramount
+		 FROM projectfundingext ext
+				JOIN #pf t ON ext.ProjectFundingID = t.ProjectFundingID
+				LEFT JOIN (SELECT FromCurrency, ToCurrencyRate FROM CurrencyRate WHERE ToCurrency = ''USD'' AND Year=' + CAST(@Year AS VARCHAR(4)) + ') cr ON cr.FromCurrency = t.Currency		
 				) cal			
 		PIVOT( SUM(calendaramount) 
 				FOR calendaryear IN (' + @PivotColumns + ')) AS P'		
@@ -2339,13 +2345,12 @@ AS
 	BEGIN
 		SET @SQLQuery = @SQLQuery + ' FROM #pf t) AS P'		
 	END
-
+		
 	----Execute dynamic query		
 	EXEC sp_executesql @SQLQuery
     											  
 GO 
-
-
+ 
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetProjectExportsSingleBySearchID]    Script Date: 12/14/2016 4:21:37 PM ******/
@@ -2364,9 +2369,13 @@ GO
 CREATE  PROCEDURE [dbo].[GetProjectExportsSingleBySearchID]
   @SearchID INT,
   @IncludeAbstract bit  = 0,
-  @SiteURL varchar(250) = 'https://www.icrpartnership.org/project/'
+  @SiteURL varchar(250) = 'https://www.icrpartnership.org/project/',
+  @Year smallint = NULL
 	 
+ 
 AS   
+	IF @Year IS NULL
+		SELECT @Year = MAX(Year) FROM CurrencyRate	
 
 	------------------------------------------------------
 	-- Get saved search results by searchID
@@ -2548,17 +2557,18 @@ AS
 		JOIN #pf t ON  pc.projectfundingid = t.projectfundingid
 	) AS p	 
 	ORDER BY p.CancerType
-
+	
 	--Create the dynamic query with all the values for pivot column at runtime
 	SET   @SQLQuery = N'SELECT * '+
 		'FROM (SELECT t.ProjectID AS ICRPProjectID, t.ProjectFundingID AS ICRPProjectFundingID, t.AwardCode, t.AwardTitle, t.AwardType, t.Source_ID, t.AltAwardCode, FundingCategory, IsChildhood,
-				t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate, t.BudgetEndDate, t.AwardAmount, t.FundingIndicator, t.Currency, t.FundingMechanism, t.FundingMechanismCode, SponsorCode, t.FundingOrg, FundingOrgType,
+				t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate, t.BudgetEndDate, t.AwardAmount, CAST((t.AwardAmount * ISNULL(cr.ToCurrencyRate, 1)) AS INT) AS USDAwardAmount, 
+				t.FundingIndicator, t.Currency, t.FundingMechanism, t.FundingMechanismCode, SponsorCode, t.FundingOrg, FundingOrgType,
 				t.FundingDiv, t.FundingDivAbbr, t.FundingContact, t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.Region, t.icrpURL'
 	IF @IncludeAbstract = 1
 		SET @SQLQuery = @SQLQuery + ', t.TechAbstract'
 
 	IF (@PivotColumns_Years IS NOT NULL)
-		SET @SQLQuery = @SQLQuery +  N', calendaryear, calendaramount'
+		SET @SQLQuery = @SQLQuery +  N', calendaryear, CAST((calendaramount * ISNULL(cr.ToCurrencyRate, 1)) AS INT) AS calendaramount'
 		
 	IF (@PivotColumns_CSOs IS NOT NULL)
 		SET @SQLQuery = @SQLQuery +  N', cso.code + '' '' + cso.Name AS cso, pcso.Relevance AS csoRel'
@@ -2567,9 +2577,6 @@ AS
 		SET @SQLQuery = @SQLQuery +  N', c.Name AS CancerType, pc.Relevance AS CancerTypeRel'
 		
 	SET @SQLQuery = @SQLQuery +  N' FROM #pf t'
-
-	IF (@PivotColumns_Years IS NOT NULL)
-		SET @SQLQuery = @SQLQuery +  N' JOIN projectfundingext ext ON ext.ProjectFundingID = t.ProjectFundingID'
 	
 	IF (@PivotColumns_CSOs IS NOT NULL)
 		SET @SQLQuery = @SQLQuery +  N' JOIN ProjectCSO pcso ON t.projectFundingID = pcso.projectFundingID
@@ -2578,6 +2585,11 @@ AS
 	IF (@PivotColumns_CancerTypes IS NOT NULL)
 		SET @SQLQuery = @SQLQuery +  N' JOIN ProjectCancerType pc ON t.projectFundingID = pc.projectFundingID
 										JOIN CancerType c ON pc.CancerTypeID = c.CancerTypeID'
+
+	IF (@PivotColumns_Years IS NOT NULL)
+		SET @SQLQuery = @SQLQuery +  N' JOIN projectfundingext ext ON ext.ProjectFundingID = t.ProjectFundingID
+										LEFT JOIN (SELECT FromCurrency, ToCurrencyRate FROM CurrencyRate WHERE ToCurrency = ''USD'' AND Year=' + CAST(@Year AS VARCHAR(4)) + ') cr ON cr.FromCurrency = t.Currency'
+
 	SET @SQLQuery = @SQLQuery +  N' ) exp'
 	
 	IF (@PivotColumns_Years IS NOT NULL)
@@ -4538,12 +4550,12 @@ BEGIN
 
 	SELECT u.AwardCode, u.AltId AS AltAwardCode, u.FundingOrgAbbr AS FundingOrg
 	FROM UploadWorkBook u
-		LEFT JOIN (SELECT f.AltAwardCode, o.Abbreviation FROM ProjectFunding f 
-							JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID) pf ON u.AltId = pf.AltAwardCode AND pf.Abbreviation = u.FundingOrgAbbr
+		LEFT JOIN (SELECT p.AwardCode, f.AltAwardCode, o.Abbreviation FROM ProjectFunding f 
+					JOIN Project p ON p.projectid = f.projectid
+					JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID) pf ON u.AltId = pf.AltAwardCode AND pf.Abbreviation = u.FundingOrgAbbr AND pf.AwardCode = u.AwardCode
 	WHERE pf.AltAwardCode IS NULL
 
 END
-
 
 -------------------------------------------------------------------
 -- Get Project Category
