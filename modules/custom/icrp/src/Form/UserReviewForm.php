@@ -217,19 +217,6 @@ class UserReviewForm extends FormBase
             $form_state->setErrorByName('roles', $this->t('User needs to be assigned at least one Role.'));
         }
 
-        // Check library access
-        $hasNoLibraryAccess = true;
-
-        foreach ($form_values['library_access'] as $access_type) {
-            if ($access_type === "general") {
-                $hasNoLibraryAccess = false;
-            }
-        }
-
-        if ($hasNoLibraryAccess) {
-            $form_state->setErrorByName('library_access', $this->t('User must have general access to library.'));
-        }
-
         // Check Status
         $hasNoStatus = ($form_values['status'] < 0) ? TRUE : FALSE;
         if ($hasNoStatus) {
@@ -280,7 +267,7 @@ class UserReviewForm extends FormBase
         $user->set("field_library_access", $library_access);
         $user->save();
 
-        $this->bulkFieldUpdate();
+        // $this->bulkFieldUpdate();
         drupal_set_message("User account for ".$user->getDisplayName()."  has been saved and is currently ".strtolower($membership_status).".");
     }
 
