@@ -1,16 +1,16 @@
 resources:
-  version: 1.0.1
+  version: 1.0.2
   css:
     theme:
-      src/assets/css/index.css: {}
+      css/index.css: {}
   js:
-    src/assets/js/index.js: {}
+    js/index.js: {}
   dependencies:
     - core/jquery
-    - library/jsTree
+    - library/jstree
     - library/bootstrap3-dialog
 
-jsTree:
+jstree:
   remote: https://cdnjs.com/libraries/jstree
   version: 3.3.3
   license:

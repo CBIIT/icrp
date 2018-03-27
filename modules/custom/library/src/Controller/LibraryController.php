@@ -142,6 +142,7 @@ class LibraryController extends ControllerBase {
   public function content() {
     return [
       '#theme' => 'library',
+      '#accessTypes' => $this->getAccessTypes(),
       '#attached' => [
         'library' => [
           'library/resources'
@@ -157,6 +158,7 @@ class LibraryController extends ControllerBase {
       "folders" => []
     );
     $returnValue["role"] = self::getRole();
+    $isAnonymous = \Drupal::currentUser()->isAnonymous();
     $accessTypes = $this->getAccessTypes();
     $connection = self::get_connection();
     $stmt = $connection->prepare(self::$initFolderQuery[$returnValue["role"]]);
@@ -167,8 +169,10 @@ class LibraryController extends ControllerBase {
           $row_output[$key] = $value;
         }
 
-        if (in_array($row_output['Type'], $accessTypes))
+        if (($isAnonymous && $row_output['IsPublic'])
+          || in_array($row_output['Type'], $accessTypes)) {
           array_push($returnValue["folders"],$row_output);
+        }
       }
       $returnValue["initial"] = $returnValue["folders"][0];
     }
@@ -191,8 +195,10 @@ class LibraryController extends ControllerBase {
         foreach ($row as $key=>$value) {
           $row_output[$key] = $value;
         }
-        if (in_array($row_output['Type'], $accessTypes))
+        if (($isAnonymous && $row_output['IsPublic'])
+          || in_array($row_output['Type'], $accessTypes)) {
           array_push($result,$row_output);
+        }
       }
     }
     return new JsonResponse($result);
@@ -619,19 +625,15 @@ class LibraryController extends ControllerBase {
   private function getAccessTypes() {
     $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
     $accessTypes = array_map(function($record) {
-      $value = $record['value'];
-      switch($record['value']) {
-        case 'general':
-          return 'General';
-        case 'finance':
-          return 'Finance';
-        case 'operations_and_contracts':
-          return 'Operations and Contracts';
-      }
+      return [
+        'general' => 'General',
+        'finance' => 'Finance',
+        'operations_and_contracts' => 'Operations and Contracts',
+      ][$record['value']];
     }, $user->get('field_library_access')->getValue());
 
-    if (empty($accessTypes))
-      $accessTypes[] = 'General';
+    // if (empty($accessTypes))
+    //   $accessTypes[] = 'General';
 
     return $accessTypes;
   }

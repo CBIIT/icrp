@@ -7,7 +7,7 @@
         reports of interest to the cancer research community, news and announcements. Please note that you
         must have Adobe's Acrobat Reader to view many of these files. Get Adobe Acrobat Reader free by
         clicking <a href="https://get.adobe.com/reader/">here</a>. To receive the ICRP
-        newsletter by email please <a href="../contact-us?type-of-issue=Sign%20Up%20for%20Newsletter">Contact Us</a>.
+        newsletter by email please <a href="../contact-us?type-of-issue=Sign%20Up%20for%20Newsletter">contact us</a>.
       </p>
     </header>
     <div id="library-view-table">
@@ -44,7 +44,11 @@
                 <span>Total Documents:</span>
                 <span class="document-count">0</span>
             </div>
-            <span>Please select a category or search the entire library using the Keywords search on the left to display a list of documents below.</span>
+            {% if logged_in and accessTypes is empty %}
+              <span>Your user account currently doesn't have access to any ICRP library categories. Please <a href="/contact-us?type-of-issue=User%20Account">contact us</a> to request access.<span>
+            {% else %}
+              <span>Please select a category or search the entire library using the Keywords search on the left to display a list of documents below.</span>
+            {% endif %}
           </div>
           <div class="frame">
           </div>
