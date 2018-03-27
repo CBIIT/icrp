@@ -302,11 +302,20 @@ class LibraryController extends ControllerBase {
         }
       }
     } else {
-      $stmt = $connection->prepare("UPDATE LibraryFolder SET ParentFolderID=:pfid, Name=:name, IsPublic=:ip, Type=:type, UpdatedDate=GETDATE() OUTPUT inserted.* WHERE LibraryFolderID=:lfid");
+      $stmt = $connection->prepare(
+        'EXECUTE UpdateLibraryFolder
+          @LibraryFolderID = :lfid,
+          @Name = :name,
+          @ParentFolderID = :pfid,
+          @IsPublic = :ip,
+          @Type = :type;
+        SELECT * from LibraryFolder where LibraryFolderId = :lfid2;'
+      );
       $stmt->bindParam(":pfid",$params["parent"]);
       $stmt->bindParam(":name",$params["title"]);
       $stmt->bindParam(":ip",$params["is_public"]);
       $stmt->bindParam(":lfid",$params["id_value"]);
+      $stmt->bindParam(":lfid2",$params["id_value"]);
       $stmt->bindParam(":type",$params["library_access"]);
       if ($stmt->execute()) {
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {

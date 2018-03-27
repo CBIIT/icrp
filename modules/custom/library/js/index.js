@@ -111,6 +111,7 @@ jQuery(function() {
             var node = functions.getNode(),
                 params = $('#library-parameters').toggleClass('folder',isFolder),
                 ispub = params.find('[name="is_public"]');
+
             if (!isFolder) {
                 if (nodeId == undefined) {
                     if (node) {
@@ -134,6 +135,7 @@ jQuery(function() {
                 $('#library-access-container').show();
                 ispub.attr('checked',node.data.isPublic);
                 $('#library-edit').addClass('active').siblings().removeClass('active');
+                $('#library-parameters [name="parent"]').change()
             } else {
                 BootstrapDialog.alert({
                     'title': null,
@@ -160,12 +162,14 @@ jQuery(function() {
         'editFolder': function(e) {
             var data = functions.getNode();
             if (data) {
+                console.log(data);
                 $('#library-access-container').show();
                 var params = $('#library-parameters'),
                     ispub = params.find('[name="is_public"]');
                 functions.createNew(e,true,data.parents[0]==="#"?"1":data.parents[0]);
                 params.find('[name="id_value"]').val(data.id);
                 params.find('[name="title"]').val(data.text);
+                $('#library-parameters [name="parent"]').change()
                 params.find('[name="library_access"]').val([data.data.type]);
                 $('#library-edit h1').html("Edit Library Category");
                 ispub.parent().toggleClass('not_public',!data.data.isPublic);
@@ -341,15 +345,21 @@ jQuery(function() {
         'populateParents': function(nodeId) {
             var parent = $('#library-parameters [name="parent"]'),
                 json = tree.get_json(),
-                tab = "&#8193;",
-                popChildren = function(children,tabCount) {
-                    var countedTab = "";
-                    for (var index = 0; index < tabCount; index++) countedTab += tab;
-                    for (var index = 0; index < children.length; index++) {
-                        parent.append('<option value="'+children[index].id+'"'+(children[index].id==nodeId?' SELECTED':'')+'>'+countedTab+children[index].text+'</option>');
-                        popChildren(children[index].children,tabCount+1);
-                    }
-                };
+                tab = "&#8193;";
+
+            function popChildren(children,tabCount) {
+                var countedTab = "";
+                for (var index = 0; index < tabCount; index++) countedTab += tab;
+                children.forEach(function(child) {
+                    $('<option>')
+                        .val(child.id)
+                        .prop('selected', child.id == nodeId)
+                        .html(countedTab + child.text)
+                        .data('library-access', child.data.type)
+                        .appendTo(parent);
+                    popChildren(child.children, tabCount + 1);
+                })
+            };
             parent.append('<option value="1">ROOT</option>');
             popChildren(json,1);
         },
@@ -634,6 +644,12 @@ jQuery(function() {
         }
     });
     $('#library-cancel').on('click',functions.closeParams);
+    $('#library-parameters [name="parent"]').change(function() {
+        $('#library-parameters [name="library_access"]').prop('disabled', this.value != 1)
+        var accessType = $(this).find(":selected").data('library-access') || 'General';
+        $('#library-parameters [name="library_access"]').val([accessType]);
+    });
+
     window.onpopstate = function(e) {
         if (e.state) {
             if (e.state.search) {
