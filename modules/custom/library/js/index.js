@@ -345,12 +345,15 @@ jQuery(function() {
         'populateParents': function(nodeId) {
             var parent = $('#library-parameters [name="parent"]'),
                 json = tree.get_json(),
-                tab = "&#8193;";
-
+                tab = "&#8193;",
+                selected = tree.get_selected(true);
             function popChildren(children,tabCount) {
                 var countedTab = "";
                 for (var index = 0; index < tabCount; index++) countedTab += tab;
                 children.forEach(function(child) {
+                    if (child.id == selected[0].id)
+                        return;
+
                     $('<option>')
                         .val(child.id)
                         .prop('selected', child.id == nodeId)
