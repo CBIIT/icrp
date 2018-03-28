@@ -216,21 +216,27 @@ class DatabaseSearch {
   public static function getAnalytics(PDO $pdo, array $parameters): array {
 
     $pdo->setAttribute(PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE, true);
-    $pdo->setAttribute(PDO::SQLSRV_ATTR_ENCODING, PDO::SQLSRV_ENCODING_SYSTEM);
+    // $pdo->setAttribute(PDO::SQLSRV_ATTR_ENCODING, PDO::SQLSRV_ENCODING_SYSTEM);
 
     // define queries to be performed for each type
     $queries = [
-      'project_counts_by_country'                     => 'EXECUTE GetProjectCountryStatsBySearchID      @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
-      'project_counts_by_cso_research_area'           => 'EXECUTE GetProjectCSOStatsBySearchID          @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
-      'project_counts_by_cancer_type'                 => 'EXECUTE GetProjectCancerTypeStatsBySearchID   @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
-      'project_counts_by_type'                        => 'EXECUTE GetProjectTypeStatsBySearchID         @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
-      'project_counts_by_year'                        => 'EXECUTE GetProjectAwardStatsBySearchID        @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
+      'project_counts_by_country'                         => 'EXECUTE GetProjectCountryStatsBySearchID          @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
+      'project_counts_by_cso_research_area'               => 'EXECUTE GetProjectCSOStatsBySearchID              @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
+      'project_counts_by_cancer_type'                     => 'EXECUTE GetProjectCancerTypeStatsBySearchID       @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
+      'project_counts_by_type'                            => 'EXECUTE GetProjectTypeStatsBySearchID             @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
+      'project_counts_by_year'                            => 'EXECUTE GetProjectAwardStatsBySearchID            @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
+      'project_counts_by_institution'                     => 'EXECUTE GetProjectInstitutionStatsBySearchID      @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
+      'project_counts_by_childhood_cancer'                => 'EXECUTE GetProjectChildhoodCancerStatsBySearchID  @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
+      'project_counts_by_funding_organization'            => 'EXECUTE GetProjectFundingOrgStatsBySearchID       @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
 
-      'project_funding_amounts_by_country'            => 'EXECUTE GetProjectCountryStatsBySearchID      @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
-      'project_funding_amounts_by_cso_research_area'  => 'EXECUTE GetProjectCSOStatsBySearchID          @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
-      'project_funding_amounts_by_cancer_type'        => 'EXECUTE GetProjectCancerTypeStatsBySearchID   @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
-      'project_funding_amounts_by_type'               => 'EXECUTE GetProjectTypeStatsBySearchID         @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
-      'project_funding_amounts_by_year'               => 'EXECUTE GetProjectAwardStatsBySearchID        @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
+      'project_funding_amounts_by_country'                => 'EXECUTE GetProjectCountryStatsBySearchID          @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
+      'project_funding_amounts_by_cso_research_area'      => 'EXECUTE GetProjectCSOStatsBySearchID              @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
+      'project_funding_amounts_by_cancer_type'            => 'EXECUTE GetProjectCancerTypeStatsBySearchID       @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
+      'project_funding_amounts_by_type'                   => 'EXECUTE GetProjectTypeStatsBySearchID             @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
+      'project_funding_amounts_by_year'                   => 'EXECUTE GetProjectAwardStatsBySearchID            @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
+      'project_funding_amounts_by_institution'            => 'EXECUTE GetProjectInstitutionStatsBySearchID      @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
+      'project_funding_amounts_by_childhood_cancer'       => 'EXECUTE GetProjectChildhoodCancerStatsBySearchID  @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
+      'project_funding_amounts_by_funding_organization'   => 'EXECUTE GetProjectFundingOrgStatsBySearchID       @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Amount',
     ];
 
     // define which columns to retrieve from the query results
@@ -272,6 +278,27 @@ class DatabaseSearch {
         ],
       ],
 
+      'project_counts_by_institution' => [
+        'label' => 'Institution',
+        'data'  => [
+          'project_count'   => 'Count',
+        ],
+      ],
+
+      'project_counts_by_childhood_cancer' => [
+        'label' => 'IsChildhood',
+        'data'  => [
+          'project_count'   => 'Count',
+        ],
+      ],
+
+      'project_counts_by_funding_organization' => [
+        'label' => 'FundingOrg',
+        'data'  => [
+          'project_count'   => 'Count',
+        ],
+      ],
+
 
       'project_funding_amounts_by_country' => [
         'label' => 'country',
@@ -305,6 +332,27 @@ class DatabaseSearch {
         'label' => 'Year',
         'data' => [
           'funding_amount'  => 'USDAmount',
+        ],
+      ],
+
+      'project_funding_amounts_by_institution' => [
+        'label' => 'Institution',
+        'data'  => [
+          'funding_amount'   => 'USDAmount',
+        ],
+      ],
+
+      'project_funding_amounts_by_childhood_cancer' => [
+        'label' => 'IsChildhood',
+        'data'  => [
+          'funding_amount'   => 'USDAmount',
+        ],
+      ],
+
+      'project_funding_amounts_by_funding_organization' => [
+        'label' => 'FundingOrg',
+        'data'  => [
+          'funding_amount'   => 'USDAmount',
         ],
       ],
     ];

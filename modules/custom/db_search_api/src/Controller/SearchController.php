@@ -65,6 +65,9 @@ class SearchController extends ControllerBase {
     'project_counts_by_cso_research_area',
     'project_counts_by_cancer_type',
     'project_counts_by_type',
+    'project_counts_by_institution',
+    'project_counts_by_childhood_cancer',
+    'project_counts_by_funding_organization',
   ];
 
   const PARTNER_ANALYTICS_TYPES = [
@@ -73,12 +76,18 @@ class SearchController extends ControllerBase {
     'project_counts_by_cancer_type',
     'project_counts_by_type',
     'project_counts_by_year',
+    'project_counts_by_institution',
+    'project_counts_by_childhood_cancer',
+    'project_counts_by_funding_organization',
 
     'project_funding_amounts_by_country',
     'project_funding_amounts_by_cso_research_area',
     'project_funding_amounts_by_cancer_type',
     'project_funding_amounts_by_type',
     'project_funding_amounts_by_year',
+    'project_funding_amounts_by_institution',
+    'project_funding_amounts_by_childhood_cancer',
+    'project_funding_amounts_by_funding_organization',
   ];
 
 
