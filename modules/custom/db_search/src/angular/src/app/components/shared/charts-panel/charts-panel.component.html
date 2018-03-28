@@ -95,7 +95,7 @@
     <div class="col-md-3 text-center" [hidden]="isHidden('project_counts_by_childhood_cancer')">
       <ui-chart
         type="pie"
-        label="Projects on Childhood Cancer"
+        label="Projects for Childhood Cancer"
         primaryKey="project_count"
         [data]="analytics.project_counts_by_childhood_cancer && analytics.project_counts_by_childhood_cancer.results">
       </ui-chart>
@@ -162,7 +162,7 @@
       <div class="col-md-3 text-center" [hidden]="isHidden('project_funding_amounts_by_childhood_cancer')">
         <ui-chart
           type="pie"
-          label="Amounts on Childhood Cancer"
+          label="Amounts for Childhood Cancer"
           primaryKey="funding_amount"
           [data]="analytics.project_funding_amounts_by_childhood_cancer && analytics.project_funding_amounts_by_childhood_cancer.results">
         </ui-chart>

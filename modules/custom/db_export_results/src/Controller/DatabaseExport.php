@@ -42,7 +42,7 @@ class DatabaseExport {
 
       // Sheet definition for 'Search Results'
       'Search Results' => [
-        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
+        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url, @Year = :year',
         'columns' =>  [
           'AwardTitle'    => 'Project Title',
           'piFirstName'   => 'PI First Name',
@@ -92,7 +92,7 @@ class DatabaseExport {
 
       // Sheet definition for 'Search Results'
       'Search Results' => [
-        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
+        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url, @Year = :year',
         'columns' =>  [/* use original columns from database */],
       ],
 
@@ -132,7 +132,7 @@ class DatabaseExport {
 
       // Sheet definition for 'Search Results'
       'Search Results' => [
-        'query' => 'EXECUTE GetProjectExportsSingleBySearchID   @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url',
+        'query' => 'EXECUTE GetProjectExportsSingleBySearchID   @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url, @Year = :year',
         'columns' =>  [/* use original columns from database */],
       ],
     ],
@@ -142,7 +142,7 @@ class DatabaseExport {
 
       // Sheet definition for 'Search Results'
       'Search Results' => [
-        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=1, @SiteURL=:site_url',
+        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=1, @SiteURL=:site_url, @Year = :year',
         'columns' =>  [/* use original columns from database */],
       ],
 
@@ -182,7 +182,7 @@ class DatabaseExport {
 
       // Sheet definition for 'Search Results'
       'Search Results' => [
-        'query' => 'EXECUTE GetProjectExportsSingleBySearchID   @SearchID=:search_id, @includeAbstract=1, @SiteURL=:site_url',
+        'query' => 'EXECUTE GetProjectExportsSingleBySearchID   @SearchID=:search_id, @includeAbstract=1, @SiteURL=:site_url, @Year = :year',
         'columns' =>  [/* use original columns from database */],
       ],
     ],
@@ -192,7 +192,7 @@ class DatabaseExport {
 
       // Sheet definition for 'Projects by Country'
       'Projects by Country' => [
-        'query' => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
+        'query' => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
         'columns' => [
           'country'       => 'Country',
           'Count'         => 'Project Count',
@@ -201,7 +201,7 @@ class DatabaseExport {
 
       // Sheet definition for 'Projects by CSO'
       'Projects by CSO' => [
-        'query' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
+        'query' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
         'columns' => [
           'categoryName'  => 'CSO Category',
           'Relevance'     => 'Relevance',
@@ -211,7 +211,7 @@ class DatabaseExport {
 
       // Sheet definition for 'Projects by Cancer Type'
       'Projects by Cancer Type' => [
-        'query' => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
+        'query' => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
         'columns' => [
           'CancerType'    => 'Cancer Type',
           'Relevance'     => 'Relevance',
@@ -221,7 +221,7 @@ class DatabaseExport {
 
       // Sheet definition for 'Projects by Type'
       'Projects by Type' => [
-        'query' => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
+        'query' => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
         'columns' => [
           'ProjectType'   => 'Project Type',
           'Count'         => 'Project Count',
@@ -230,9 +230,37 @@ class DatabaseExport {
 
       // Sheet definition for 'Projects by Year'
       'Projects by Year' => [
-        'query' => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL',
+        'query' => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year',
         'columns' => [
           'Year'          => 'Year',
+          'Count'         => 'Project Count',
+        ],
+      ],
+
+      // Sheet definition for 'Projects by Institution'
+      'Projects by Institution' => [
+        'query' => 'EXECUTE GetProjectInstitutionStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+        'columns' => [
+          'Institution'   => 'Institution',
+          'Count'         => 'Project Count',
+        ],
+      ],
+
+
+      // Sheet definition for 'Projects by Childhood Cancer'
+      'Projects for Childhood Cancer' => [
+        'query' => 'EXECUTE GetProjectChildhoodCancerStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+        'columns' => [
+          'IsChildhood'   => 'Is Childhood Cancer?',
+          'Count'         => 'Project Count',
+        ],
+      ],
+
+      // Sheet definition for 'Projects by Funding Organization'
+      'Projects by Organization' => [
+        'query' => 'EXECUTE GetProjectFundingOrgStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+        'columns' => [
+          'FundingOrg'    => 'Funding Organization',
           'Count'         => 'Project Count',
         ],
       ],
@@ -243,7 +271,7 @@ class DatabaseExport {
 
       // Sheet definition for 'Projects by Country'
       'Projects by Country' => [
-        'query' => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
+        'query' => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
         'columns' => [
           'country'       => 'Country',
           'Count'         => 'Project Count',
@@ -252,7 +280,7 @@ class DatabaseExport {
 
       // Sheet definition for 'Projects by CSO'
       'Projects by CSO' => [
-        'query' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
+        'query' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
         'columns' => [
           'categoryName'  => 'CSO Category',
           'Relevance'     => 'Relevance',
@@ -262,7 +290,7 @@ class DatabaseExport {
 
       // Sheet definition for 'Projects by Cancer Type'
       'Projects by Cancer Type' => [
-        'query' => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
+        'query' => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
         'columns' => [
           'CancerType'    => 'Cancer Type',
           'Relevance'     => 'Relevance',
@@ -272,7 +300,7 @@ class DatabaseExport {
 
       // Sheet definition for 'Projects by Type'
       'Projects by Type' => [
-        'query' => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
+        'query' => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
         'columns' => [
           'ProjectType'   => 'Project Type',
           'Count'         => 'Project Count',
@@ -281,17 +309,45 @@ class DatabaseExport {
 
       // Sheet definition for 'Projects by Year'
       'Projects by Year' => [
-        'query' => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Count',
+        'query' => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
         'columns' => [
           'Year'          => 'Year',
           'Count'         => 'Project Count',
         ],
       ],
 
+      // Sheet definition for 'Projects by Institution'
+      'Projects by Institution' => [
+        'query' => 'EXECUTE GetProjectInstitutionStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+        'columns' => [
+          'Institution'   => 'Institution',
+          'Count'         => 'Project Count',
+        ],
+      ],
+
+
+      // Sheet definition for 'Projects by Childhood Cancer'
+      'Projects for Childhood Cancer' => [
+        'query' => 'EXECUTE GetProjectChildhoodCancerStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+        'columns' => [
+          'IsChildhood'   => 'Is Childhood Cancer?',
+          'Count'         => 'Project Count',
+        ],
+      ],
+
+      // Sheet definition for 'Projects by Funding Organization'
+      'Projects by Organization' => [
+        'query' => 'EXECUTE GetProjectFundingOrgStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+        'columns' => [
+          'FundingOrg'    => 'Funding Organization',
+          'Count'         => 'Project Count',
+        ],
+      ],
+
 
       // Sheet definition for 'Funding Amounts by Country'
-      'Funding Amounts by Country' => [
-        'query' => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Amount',
+      'Amounts by Country' => [
+        'query' => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
         'columns' => [
           'country'       => 'Country',
           'USDAmount'     => 'Amount',
@@ -299,8 +355,8 @@ class DatabaseExport {
       ],
 
       // Sheet definition for 'Funding Amounts by CSO'
-      'Funding Amounts by CSO' => [
-        'query' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Amount',
+      'Amounts by CSO' => [
+        'query' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
         'columns' => [
           'categoryName'  => 'CSO Category',
           'USDAmount'     => 'Amount',
@@ -308,8 +364,8 @@ class DatabaseExport {
       ],
 
       // Sheet definition for 'Funding Amounts by Cancer Type'
-      'Funding Amounts by Cancer Type' => [
-        'query' => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Amount',
+      'Amounts by Cancer Type' => [
+        'query' => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
         'columns' => [
           'CancerType'    => 'Cancer Type',
           'USDAmount'     => 'Amount',
@@ -317,8 +373,8 @@ class DatabaseExport {
       ],
 
       // Sheet definition for 'Funding Amounts by Type'
-      'Funding Amounts by Type' => [
-        'query' => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Amount',
+      'Amounts by Type' => [
+        'query' => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
         'columns' => [
           'ProjectType'   => 'Project Type',
           'USDAmount'     => 'Amount',
@@ -326,10 +382,38 @@ class DatabaseExport {
       ],
 
       // Sheet definition for 'Funding Amounts by Year'
-      'Funding Amounts by Year' => [
-        'query' => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = NULL, @Type = Amount',
+      'Amounts by Year' => [
+        'query' => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
         'columns' => [
           'Year'          => 'Year',
+          'USDAmount'     => 'Amount',
+        ],
+      ],
+
+      // Sheet definition for 'Funding Amounts by Institution'
+      'Amounts by Institution' => [
+        'query' => 'EXECUTE GetProjectInstitutionStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
+        'columns' => [
+          'Institution'   => 'Institution',
+          'USDAmount'     => 'Amount',
+        ],
+      ],
+
+
+      // Sheet definition for 'Funding Amounts by Childhood Cancer'
+      'Amounts for Childhood Cancer' => [
+        'query' => 'EXECUTE GetProjectChildhoodCancerStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
+        'columns' => [
+          'IsChildhood'   => 'Is Childhood Cancer?',
+          'USDAmount'     => 'Amount',
+        ],
+      ],
+
+      // Sheet definition for 'Funding Amounts by Funding Organization'
+      'Amounts by Organization' => [
+        'query' => 'EXECUTE GetProjectFundingOrgStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
+        'columns' => [
+          'FundingOrg'    => 'Funding Organization',
           'USDAmount'     => 'Amount',
         ],
       ],
@@ -452,7 +536,7 @@ class DatabaseExport {
     return chr(ord('A') + $column) . ($row + 1);
   }
 
-  function exportGraphs($pdo, $search_id, $data_upload_id, $workbook_key, $filename) {
+  function exportGraphs($pdo, $search_id, $data_upload_id, $year, $workbook_key, $filename) {
     $paths = $this->buildOutputPaths($filename);
 
     $excel = new \PHPExcel();
@@ -476,13 +560,18 @@ class DatabaseExport {
       $sheet_columns = $sheet_definition['columns'];
 
       // set the name of the current sheet
-      $sheet->setTitle(substr($sheet_name, 0, 31));
+      $sheet_name = substr($sheet_name, 0, 31);
+      $sheet->setTitle($sheet_name);
 
       // set up query parameters
       $parameters = [
         'search_id' => [
           'type' => PDO::PARAM_INT,
           'value' => $search_id,
+        ],
+        'year' => [
+          'type' => PDO::PARAM_INT,
+          'value' => $year,
         ],
       ];
 
@@ -594,6 +683,7 @@ class DatabaseExport {
    * @param PDO $pdo
    * @param int $search_id
    * @param int $data_upload_id
+   * @param int $year
    * @param string $workbook_key
    * @param string $filename
    * @param string $url_path_prefix
@@ -603,6 +693,7 @@ class DatabaseExport {
     PDO $pdo,
     int $search_id = NULL,
     int $data_upload_id = NULL,
+    int $year = NULL,
     string $workbook_key = '',
     string $filename = '',
     string $url_path_prefix = ''
@@ -642,6 +733,10 @@ class DatabaseExport {
         'site_url' => [
           'type' => PDO::PARAM_STR,
           'value' => $this->getUrlBase() . $url_path_prefix . '/project/',
+        ],
+        'year' => [
+          'type' => PDO::PARAM_INT,
+          'value' => $year,
         ],
       ];
 

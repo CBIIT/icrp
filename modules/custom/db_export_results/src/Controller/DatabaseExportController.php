@@ -28,7 +28,8 @@ class DatabaseExportController extends ControllerBase {
     PDO $pdo,
     string $workbook_key,
     int $search_id = NULL,
-    int $data_upload_id = NULL) {
+    int $data_upload_id = NULL,
+    int $year = NULL) {
 
     $filename = [
       DatabaseExport::EXPORT_RESULTS_PUBLIC                          => sprintf('ICRP_Search_Results_Export_%s.xlsx', $search_id),
@@ -46,64 +47,71 @@ class DatabaseExportController extends ControllerBase {
 
     return in_array($workbook_key, [DatabaseExport::EXPORT_GRAPHS_PUBLIC, DatabaseExport::EXPORT_GRAPHS_PARTNERS])
       ? (new DatabaseExport())
-          ->exportGraphs($pdo, $search_id, $data_upload_id, $workbook_key, $filename)
+          ->exportGraphs($pdo, $search_id, $data_upload_id, $year, $workbook_key, $filename)
       : (new DatabaseExport())
-          ->exportResults($pdo, $search_id, $data_upload_id, $workbook_key, $filename, $url_path_prefix);
+          ->exportResults($pdo, $search_id, $data_upload_id, $year, $workbook_key, $filename, $url_path_prefix);
   }
 
   function exportSearchResults(Request $request) {
     $pdo = Database::getConnection();
     $search_id = $request->query->get('search_id', NULL);
+    $year = intval($request->query->get('year', NULL));
 
-    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_PUBLIC, intval($search_id));
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_PUBLIC, intval($search_id), NULL, $year);
     return self::createResponse($uri);
   }
 
   function exportSearchResultsForPartners(Request $request) {
     $pdo = Database::getConnection();
     $search_id = $request->query->get('search_id', NULL);
+    $year = intval($request->query->get('year', NULL));
 
-    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_PARTNERS, intval($search_id));
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_PARTNERS, intval($search_id),NULL,  $year);
     return self::createResponse($uri);
   }
 
   function exportSearchResultsInSingleSheet(Request $request) {
     $pdo = Database::getConnection();
     $search_id = $request->query->get('search_id', NULL);
+    $year = intval($request->query->get('year', NULL));
 
-    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_AS_SINGLE_SHEET, intval($search_id));
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_AS_SINGLE_SHEET, intval($search_id), NULL, $year);
     return self::createResponse($uri);
   }
 
   function exportAbstracts(Request $request) {
     $pdo = Database::getConnection();
     $search_id = $request->query->get('search_id', NULL);
+    $year = intval($request->query->get('year', NULL));
 
-    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_WITH_ABSTRACTS, intval($search_id));
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_WITH_ABSTRACTS, intval($search_id), NULL, $year);
     return self::createResponse($uri);
   }
 
   function exportAbstractsInSingleSheet(Request $request) {
     $pdo = Database::getConnection();
     $search_id = $request->query->get('search_id', NULL);
+    $year = intval($request->query->get('year', NULL));
 
-    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET, intval($search_id));
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET, intval($search_id), NULL, $year);
     return self::createResponse($uri);
   }
 
   function exportGraphs(Request $request) {
     $pdo = Database::getConnection();
     $search_id = $request->query->get('search_id', NULL);
+    $year = intval($request->query->get('year', NULL));
 
-    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PUBLIC, intval($search_id));
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PUBLIC, intval($search_id), NULL, $year);
     return self::createResponse($uri);
   }
 
   function exportGraphsForPartners(Request $request) {
     $pdo = Database::getConnection();
     $search_id = $request->query->get('search_id', NULL);
+    $year = intval($request->query->get('year', NULL));
 
-    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PARTNERS, intval($search_id));
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PARTNERS, intval($search_id), NULL, $year);
     return self::createResponse($uri);
   }
 
@@ -112,8 +120,9 @@ class DatabaseExportController extends ControllerBase {
     $pdo = Database::getConnection('icrp_load_database');
     $search_id = $request->query->get('search_id', NULL);
     $data_upload_id = $request->query->get('data_upload_id', NULL);
+    $year = intval($request->query->get('year', NULL));
 
-    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_PUBLIC, intval($search_id), intval($data_upload_id));
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_PUBLIC, intval($search_id), intval($data_upload_id), $year);
     return self::createResponse($uri);
   }
 
@@ -121,8 +130,9 @@ class DatabaseExportController extends ControllerBase {
     $pdo = Database::getConnection('icrp_load_database');
     $search_id = $request->query->get('search_id', NULL);
     $data_upload_id = $request->query->get('data_upload_id', NULL);
+    $year = intval($request->query->get('year', NULL));
 
-    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_PARTNERS, intval($search_id), intval($data_upload_id));
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_PARTNERS, intval($search_id), intval($data_upload_id), $year);
     return self::createResponse($uri);
   }
 
@@ -130,8 +140,9 @@ class DatabaseExportController extends ControllerBase {
     $pdo = Database::getConnection('icrp_load_database');
     $search_id = $request->query->get('search_id', NULL);
     $data_upload_id = $request->query->get('data_upload_id', NULL);
+    $year = intval($request->query->get('year', NULL));
 
-    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_AS_SINGLE_SHEET, intval($search_id), intval($data_upload_id));
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_AS_SINGLE_SHEET, intval($search_id), intval($data_upload_id), $year);
     return self::createResponse($uri);
   }
 
@@ -139,8 +150,9 @@ class DatabaseExportController extends ControllerBase {
     $pdo = Database::getConnection('icrp_load_database');
     $search_id = $request->query->get('search_id', NULL);
     $data_upload_id = $request->query->get('data_upload_id', NULL);
+    $year = intval($request->query->get('year', NULL));
 
-    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_WITH_ABSTRACTS, intval($search_id), intval($data_upload_id));
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_WITH_ABSTRACTS, intval($search_id), intval($data_upload_id), $year);
     return self::createResponse($uri);
   }
 
@@ -148,8 +160,9 @@ class DatabaseExportController extends ControllerBase {
     $pdo = Database::getConnection('icrp_load_database');
     $search_id = $request->query->get('search_id', NULL);
     $data_upload_id = $request->query->get('data_upload_id', NULL);
+    $year = intval($request->query->get('year', NULL));
 
-    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET, intval($search_id), intval($data_upload_id));
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET, intval($search_id), intval($data_upload_id), $year);
     return self::createResponse($uri);
   }
 
@@ -157,8 +170,9 @@ class DatabaseExportController extends ControllerBase {
     $pdo = Database::getConnection('icrp_load_database');
     $search_id = $request->query->get('search_id', NULL);
     $data_upload_id = $request->query->get('data_upload_id', NULL);
+    $year = intval($request->query->get('year', NULL));
 
-    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PUBLIC, intval($search_id), intval($data_upload_id));
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PUBLIC, intval($search_id), intval($data_upload_id), $year);
     return self::createResponse($uri);
   }
 
@@ -166,8 +180,9 @@ class DatabaseExportController extends ControllerBase {
     $pdo = Database::getConnection('icrp_load_database');
     $search_id = $request->query->get('search_id', NULL);
     $data_upload_id = $request->query->get('data_upload_id', NULL);
+    $year = intval($request->query->get('year', NULL));
 
-    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PARTNERS, intval($search_id), intval($data_upload_id));
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PARTNERS, intval($search_id), intval($data_upload_id), $year);
     return self::createResponse($uri);
   }
 

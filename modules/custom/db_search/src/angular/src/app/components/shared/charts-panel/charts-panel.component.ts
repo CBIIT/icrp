@@ -63,6 +63,7 @@ export class ChartsPanelComponent implements OnChanges {
   updateCharts() {
 
     const { display_type, conversion_year } = this.form.controls;
+    this.sharedService.set('conversionYear', +conversion_year.value);
 
     let charts = display_type.value === 'project_counts'
       ? [
@@ -113,6 +114,7 @@ export class ChartsPanelComponent implements OnChanges {
   updateFundingCharts() {
 
     const { display_type, conversion_year } = this.form.controls;
+    this.sharedService.set('conversionYear', +conversion_year.value);
 
     let charts = [
       'project_funding_amounts_by_country',

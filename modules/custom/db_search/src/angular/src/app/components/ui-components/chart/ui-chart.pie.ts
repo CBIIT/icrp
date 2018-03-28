@@ -9,6 +9,9 @@ export class PieChart {
         data: { label: string, data: any }[],
         primaryKey: string) {
 
+        if (data)
+            data = data.slice(0, 100);
+
         let host = d3.select(el);
         let tooltip = d3.select(tooltipEl)
             .attr('class', 'd3-tooltip')

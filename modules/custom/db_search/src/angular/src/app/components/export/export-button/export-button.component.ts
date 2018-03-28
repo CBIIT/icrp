@@ -22,7 +22,8 @@ export class ExportButtonComponent {
   export() {
     let parameters = {
       search_id: this.sharedService.get('searchID'),
-      data_upload_id: this.sharedService.get('dataUploadID')
+      data_upload_id: this.sharedService.get('dataUploadID'),
+      year: this.sharedService.get('conversionYear'),
     }
 
     this.loading = true;
