@@ -26,3 +26,26 @@
 .inline-block {
   display: inline-block
 }
+
+.chart-carousel {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 300px;
+}
+
+.chart-carousel-control {
+  margin-top: 20px;
+  padding: 6px;
+  box-shadow: 0 1px 2px 1px #ccc;
+  border-radius: 3px;
+  cursor: pointer;
+  background-color: #fefefe;
+  animation: background-color 1s;
+}
+
+.chart-carousel-control:hover {
+  box-shadow: 0 1px 3px 1px #ccc;
+  background-color: white;
+}

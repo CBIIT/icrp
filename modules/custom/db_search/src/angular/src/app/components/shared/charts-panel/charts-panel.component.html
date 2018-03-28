@@ -33,54 +33,84 @@
   </div>
 </form>
 
+<div class="chart-carousel form-group">
 
-<div class="row form-group" *ngIf="form.controls.display_type.value === 'project_counts'">
-  <div class="col-sm-6 col-md-3 text-center">
+  <div class="chart-carousel-control"
+    [ngStyle]="{visibility: carouselIndex > 0  ? 'visible' : 'hidden'}"
+    (click)="updateCarousel(-1)">
+    <i class="fas fa-chevron-left" style="color: steelblue"></i>
+  </div>
 
+  <div *ngIf="form.controls.display_type.value === 'project_counts'">
+    <div class="col-md-3 text-center" [hidden]="isHidden('project_counts_by_country')">
+      <div style="position: relative">
+        <ui-chart
+          type="pie"
+          label="Projects by PI Country"
+          primaryKey="project_count"
+          [data]="analytics.project_counts_by_country && analytics.project_counts_by_country.results">
+        </ui-chart>
+      </div>
+    </div>
 
-    <div style="position: relative">
+    <div class="col-md-3 text-center" [hidden]="isHidden('project_counts_by_cso_research_area')">
       <ui-chart
         type="pie"
-        label="Projects by PI Country"
+        label="Projects by CSO"
+        primaryKey="relevance"
+        [data]="analytics.project_counts_by_cso_research_area && analytics.project_counts_by_cso_research_area.results">
+      </ui-chart>
+    </div>
+
+    <div class="col-md-3 text-center" [hidden]="isHidden('project_counts_by_cancer_type')">
+      <ui-chart
+        type="pie"
+        label="Projects by Cancer Type"
+        primaryKey="relevance"
+        [data]="analytics.project_counts_by_cancer_type && analytics.project_counts_by_cancer_type.results">
+      </ui-chart>
+    </div>
+
+
+    <div class="col-md-3 text-center" [hidden]="isHidden('project_counts_by_type')">
+      <ui-chart
+        type="pie"
+        label="Projects by Type"
         primaryKey="project_count"
-        [data]="analytics.project_counts_by_country && analytics.project_counts_by_country.results">
+        [data]="analytics.project_counts_by_type && analytics.project_counts_by_type.results">
+      </ui-chart>
+    </div>
+
+    <div class="col-md-3 text-center" [hidden]="isHidden('project_counts_by_institution')">
+      <ui-chart
+        type="pie"
+        label="Projects by Institution"
+        primaryKey="project_count"
+        [data]="analytics.project_counts_by_institution && analytics.project_counts_by_institution.results">
+      </ui-chart>
+    </div>
+
+    <div class="col-md-3 text-center" [hidden]="isHidden('project_counts_by_childhood_cancer')">
+      <ui-chart
+        type="pie"
+        label="Projects on Childhood Cancer"
+        primaryKey="project_count"
+        [data]="analytics.project_counts_by_childhood_cancer && analytics.project_counts_by_childhood_cancer.results">
+      </ui-chart>
+    </div>
+
+    <div class="col-md-3 text-center" [hidden]="isHidden('project_counts_by_funding_organization')">
+      <ui-chart
+        type="pie"
+        label="Projects by Organization"
+        primaryKey="project_count"
+        [data]="analytics.project_counts_by_funding_organization && analytics.project_counts_by_funding_organization.results">
       </ui-chart>
     </div>
   </div>
 
-  <div class="col-sm-6 col-md-3 text-center">
-    <ui-chart
-      type="pie"
-      label="Projects by CSO"
-      primaryKey="relevance"
-      [data]="analytics.project_counts_by_cso_research_area && analytics.project_counts_by_cso_research_area.results">
-    </ui-chart>
-  </div>
-
-  <div class="col-sm-6 col-md-3 text-center">
-    <ui-chart
-      type="pie"
-      label="Projects by Cancer Type"
-      primaryKey="relevance"
-      [data]="analytics.project_counts_by_cancer_type && analytics.project_counts_by_cancer_type.results">
-    </ui-chart>
-  </div>
-
-
-  <div class="col-sm-6 col-md-3 text-center">
-    <ui-chart
-      type="pie"
-      label="Projects by Type"
-      primaryKey="project_count"
-      [data]="analytics.project_counts_by_type && analytics.project_counts_by_type.results">
-    </ui-chart>
-  </div>
-</div>
-
-<div class="row form-group" *ngIf="form.controls.display_type.value === 'award_amounts'">
-  <div class="col-sm-6 col-md-3 text-center">
-
-    <div style="position: relative">
+  <div *ngIf="form.controls.display_type.value === 'award_amounts'">
+    <div class="col-md-3 text-center" [hidden]="isHidden('project_funding_amounts_by_country')">
       <ui-chart
         type="pie"
         label="Amounts by PI Country"
@@ -88,35 +118,73 @@
         [data]="analytics.project_funding_amounts_by_country && analytics.project_funding_amounts_by_country?.results">
       </ui-chart>
     </div>
+
+    <div class="col-md-3 text-center" [hidden]="isHidden('project_funding_amounts_by_cso_research_area')">
+      <ui-chart
+        type="pie"
+        label="Amounts by CSO"
+        primaryKey="funding_amount"
+        [data]="analytics.project_funding_amounts_by_cso_research_area && analytics.project_funding_amounts_by_cso_research_area?.results">
+      </ui-chart>
+    </div>
+
+    <div class="col-md-3 text-center" [hidden]="isHidden('project_funding_amounts_by_cancer_type')">
+      <ui-chart
+        type="pie"
+        label="Amounts by Cancer Type"
+        primaryKey="funding_amount"
+        [data]="analytics.project_funding_amounts_by_cancer_type && analytics.project_funding_amounts_by_cancer_type?.results">
+      </ui-chart>
+    </div>
+
+
+    <div class="col-md-3 text-center" [hidden]="isHidden('project_funding_amounts_by_type')">
+      <ui-chart
+        type="pie"
+        label="Amounts by Project Type"
+        primaryKey="funding_amount"
+        [data]="analytics.project_funding_amounts_by_type && analytics.project_funding_amounts_by_type?.results">
+      </ui-chart>
+    </div>
+
+
+    <div class="col-md-3 text-center" [hidden]="isHidden('project_funding_amounts_by_institution')">
+        <ui-chart
+          type="pie"
+          label="Amounts by Institution"
+          primaryKey="funding_amount"
+          [data]="analytics.project_funding_amounts_by_institution && analytics.project_funding_amounts_by_institution.results">
+        </ui-chart>
+      </div>
+
+      <div class="col-md-3 text-center" [hidden]="isHidden('project_funding_amounts_by_childhood_cancer')">
+        <ui-chart
+          type="pie"
+          label="Amounts on Childhood Cancer"
+          primaryKey="funding_amount"
+          [data]="analytics.project_funding_amounts_by_childhood_cancer && analytics.project_funding_amounts_by_childhood_cancer.results">
+        </ui-chart>
+      </div>
+
+      <div class="col-md-3 text-center" [hidden]="isHidden('project_funding_amounts_by_funding_organization')">
+        <ui-chart
+          type="pie"
+          label="Amounts by Organization"
+          primaryKey="funding_amount"
+          [data]="analytics.project_funding_amounts_by_funding_organization && analytics.project_funding_amounts_by_funding_organization.results">
+        </ui-chart>
+      </div>
+
+
   </div>
 
-  <div class="col-sm-6 col-md-3 text-center">
-    <ui-chart
-      type="pie"
-      label="Amounts by CSO"
-      primaryKey="funding_amount"
-      [data]="analytics.project_funding_amounts_by_cso_research_area && analytics.project_funding_amounts_by_cso_research_area?.results">
-    </ui-chart>
-  </div>
-
-  <div class="col-sm-6 col-md-3 text-center">
-    <ui-chart
-      type="pie"
-      label="Amounts by Cancer Type"
-      primaryKey="funding_amount"
-      [data]="analytics.project_funding_amounts_by_cancer_type && analytics.project_funding_amounts_by_cancer_type?.results">
-    </ui-chart>
+  <div class="chart-carousel-control"
+    [ngStyle]="{visibility: carouselIndex < (carouselMax - carouselSize)  ? 'visible' : 'hidden'}"
+    (click)="updateCarousel(+1)">
+    <i class="fas fa-chevron-right" style="color: steelblue"></i>
   </div>
 
 
-  <div class="col-sm-6 col-md-3 text-center">
-    <ui-chart
-      type="pie"
-      label="Amounts by Project Type"
-      primaryKey="funding_amount"
-      [data]="analytics.project_funding_amounts_by_type && analytics.project_funding_amounts_by_type?.results">
-    </ui-chart>
-  </div>
 </div>
 
 

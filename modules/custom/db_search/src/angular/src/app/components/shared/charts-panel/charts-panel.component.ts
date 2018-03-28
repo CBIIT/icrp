@@ -17,6 +17,11 @@ export class ChartsPanelComponent implements OnChanges {
   showMore: boolean = false;
   form: FormGroup;
 
+  currentCharts = [];
+  carouselMax = 7;
+  carouselSize = 4;
+  carouselIndex = 0;
+
   constructor(
     public sharedService: SharedService,
     private formBuilder: FormBuilder
@@ -39,6 +44,15 @@ export class ChartsPanelComponent implements OnChanges {
       });
   }
 
+  updateCarousel(offset: number) {
+    let newIndex = this.carouselIndex + offset;
+    if (newIndex >= 0 && newIndex <= this.carouselMax - this.carouselSize) {
+      this.carouselIndex = newIndex;
+      console.log(this.analytics);
+      this.updateCharts();
+    }
+  }
+
   /**
    * Whenever the user modifies a control in the charts panel,
    * determine which charts should be requested and emit
@@ -56,12 +70,21 @@ export class ChartsPanelComponent implements OnChanges {
         'project_counts_by_cso_research_area',
         'project_counts_by_cancer_type',
         'project_counts_by_type',
+        'project_counts_by_institution',
+        'project_counts_by_childhood_cancer',
+        'project_counts_by_funding_organization',
       ] : [
         'project_funding_amounts_by_country',
         'project_funding_amounts_by_cso_research_area',
         'project_funding_amounts_by_cancer_type',
         'project_funding_amounts_by_type',
+        'project_funding_amounts_by_institution',
+        'project_funding_amounts_by_childhood_cancer',
+        'project_funding_amounts_by_funding_organization',
       ];
+
+    charts = charts.slice(this.carouselIndex, this.carouselIndex + this.carouselSize);
+    this.currentCharts = charts;
 
     if (this.showMore && display_type.value === 'project_counts') {
       charts.push('project_counts_by_year');
@@ -83,6 +106,10 @@ export class ChartsPanelComponent implements OnChanges {
     }
   }
 
+  isHidden(chartName) {
+    return !this.currentCharts.includes(chartName);
+  }
+
   updateFundingCharts() {
 
     const { display_type, conversion_year } = this.form.controls;
@@ -92,7 +119,17 @@ export class ChartsPanelComponent implements OnChanges {
       'project_funding_amounts_by_cso_research_area',
       'project_funding_amounts_by_cancer_type',
       'project_funding_amounts_by_type',
+      'project_funding_amounts_by_institution',
+      'project_funding_amounts_by_childhood_cancer',
+      'project_funding_amounts_by_funding_organization',
     ];
+
+    for (let chart of charts) {
+      this.analytics[chart] = null;
+    })
+
+    charts = charts.slice(this.carouselIndex, this.carouselIndex + this.carouselSize);
+    this.currentCharts = charts;
 
     if (this.showMore && display_type.value === 'award_amounts') {
       charts.push('project_funding_amounts_by_year');
