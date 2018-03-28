@@ -38,7 +38,9 @@
   <div class="chart-carousel-control"
     [ngStyle]="{visibility: carouselIndex > 0  ? 'visible' : 'hidden'}"
     (click)="updateCarousel(-1)">
-    <i class="fas fa-chevron-left" style="color: steelblue"></i>
+    <svg width="28" height="28" viewBox="0 0 100 100">
+      <path d="M20 50 L60 90 H 90 L 45 50 L 90 10 H 60 Z" fill="white" stroke="#bbb" stroke-width="5"></path>
+    </svg>
   </div>
 
   <div *ngIf="form.controls.display_type.value === 'project_counts'">
@@ -174,17 +176,15 @@
           [data]="analytics.project_funding_amounts_by_funding_organization && analytics.project_funding_amounts_by_funding_organization.results">
         </ui-chart>
       </div>
-
-
   </div>
 
   <div class="chart-carousel-control"
     [ngStyle]="{visibility: carouselIndex < (carouselMax - carouselSize)  ? 'visible' : 'hidden'}"
     (click)="updateCarousel(+1)">
-    <i class="fas fa-chevron-right" style="color: steelblue"></i>
+    <svg width="28" height="28" viewBox="0 0 100 100">
+      <path d="M80 50 L40 90 H 10 L 55 50 L 10 10 H 40 Z" fill="white" stroke="#bbb" stroke-width="5"></path>
+    </svg>
   </div>
-
-
 </div>
 
 
