@@ -1690,7 +1690,7 @@ AS
 	IF @Type = 'Count'
 	BEGIN	
 		
-		SELECT IsChildhood, COUNT(*) AS [Count], 0  AS USDAmount INTO #CountStats FROM #pf GROUP BY IsChildhood 
+		SELECT CASE IsChildhood WHEN 1 THEN 'Yes' ELSE 'No' END AS IsChildhood, COUNT(*) AS [Count], 0  AS USDAmount INTO #CountStats FROM #pf GROUP BY IsChildhood 
 		SELECT @ResultCount = SUM(Count) FROM #CountStats
 		SELECT * FROM #CountStats ORDER BY [Count] Desc
 			
@@ -1700,7 +1700,7 @@ AS
 	
 	BEGIN 
 
-		SELECT IsChildhood, 0 AS [Count], (SUM(f.Amount) * ISNULL(MAX(cr.ToCurrencyRate), 1)) AS USDAmount INTO #AmountStats 
+		SELECT CASE IsChildhood WHEN 1 THEN 'Yes' ELSE 'No' END AS IsChildhood, 0 AS [Count], (SUM(f.Amount) * ISNULL(MAX(cr.ToCurrencyRate), 1)) AS USDAmount INTO #AmountStats 
 		FROM #pf f
 			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency			
 		GROUP BY IsChildhood 
@@ -8104,3 +8104,63 @@ END CATCH;
 SELECT * FROM LIBRARY WHERE LibraryID=@LibraryID;
 
 GO
+
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[UpdateLibraryFolder]										****************/
+----------------------------------------------------------------------------------------------------------
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdateLibraryFolder]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[UpdateLibraryFolder]
+GO 
+
+CREATE PROCEDURE [dbo].[UpdateLibraryFolder] (	
+	@LibraryFolderID [int],
+	@Name [varchar](200),
+	@ParentFolderID [int],
+	@IsPublic [bit],	
+	@Type varchar(50) = NULL
+) AS
+	
+	SET NOCOUNT ON;
+	IF @Name IS NOT NULL  -- if Name is null, then only update Type for child folders
+	BEGIN
+		
+		UPDATE LibraryFolder SET 
+				Name = @Name,
+				ParentFolderID = @ParentFolderID,
+				IsPublic = @IsPublic,
+				[Type] = @Type,
+				UpdatedDate = getdate()
+		WHERE LibraryFolderID=@LibraryFolderID;
+	END
+
+	IF EXISTS (SELECT 1 FROM LibraryFolder WHERE ParentFolderID=@LibraryFolderID)
+	BEGIN
+	 
+		DECLARE @ChildLibraryFolderID INT
+		DECLARE @OrgType varchar(50) 
+		DECLARE @cursor as CURSOR;
+
+		SET @cursor = CURSOR FOR
+		SELECT LibraryFolderID, Type FROM LibraryFolder WHERE ParentFolderID=@LibraryFolderID;
+ 
+		OPEN @cursor;
+		FETCH NEXT FROM @cursor INTO @ChildLibraryFolderID, @OrgType;
+
+		WHILE @@FETCH_STATUS = 0 AND @OrgType <> @Type
+		BEGIN 
+		 
+		 UPDATE LibraryFolder SET [Type] = @Type	WHERE LibraryFolderID=@ChildLibraryFolderID;
+
+		 -- update all child folders recursively
+		 EXEC [UpdateLibraryFolder] @ChildLibraryFolderID, NULL, NULL, NULL, @Type
+
+		 FETCH NEXT FROM @cursor INTO @ChildLibraryFolderID, @OrgType;
+		END
+ 
+		CLOSE @cursor;
+		DEALLOCATE @cursor;
+		
+	END;
