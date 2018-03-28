@@ -126,7 +126,7 @@ export class ChartsPanelComponent implements OnChanges {
 
     for (let chart of charts) {
       this.analytics[chart] = null;
-    })
+    }
 
     charts = charts.slice(this.carouselIndex, this.carouselIndex + this.carouselSize);
     this.currentCharts = charts;
