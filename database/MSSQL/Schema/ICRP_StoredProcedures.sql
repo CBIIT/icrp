@@ -744,7 +744,7 @@ AS
   ------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
-	DECLARE @Result TABLE (
+	CREATE TABLE #Result (
 		ProjectID INT NOT NULL
 	)
 
@@ -766,13 +766,13 @@ AS
 
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO @Result SELECT ProjectID From Project		
+		INSERT INTO #Result SELECT ProjectID From Project		
 	END
 	ELSE
 	BEGIN
 		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
 		
-		INSERT INTO @Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+		INSERT INTO #Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
 		
 			SELECT @YearList = YearList,
 				@CountryList = CountryList,
@@ -791,14 +791,12 @@ AS
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID	
 
 	END	
-	
-	SELECT ProjectID INTO #proj FROM @Result
 
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, c.categoryName, pc.Relevance, f.Amount, o.Currency INTO #pf 
-	FROM #proj r		
+	FROM #Result r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
@@ -907,7 +905,7 @@ AS
 	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
-	DECLARE @Result TABLE (
+	CREATE TABLE #Result (
 		ProjectID INT NOT NULL
 	)
 
@@ -929,14 +927,14 @@ AS
 
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO @Result SELECT ProjectID From Project
+		INSERT INTO #Result SELECT ProjectID From Project
 	
 	END
 	ELSE
 	BEGIN
 		SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
 		
-		INSERT INTO @Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+		INSERT INTO #Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
 		
 			SELECT @YearList = YearList,
 				@CountryList = CountryList,
@@ -956,7 +954,7 @@ AS
 
 	END
 
-	SELECT ProjectID INTO #proj FROM @Result
+	--SELECT ProjectID INTO #proj FROM @Result
 
 	-- CancerType Rollups - include all related cancertype IDs if search by roll-up cancer type 
 	SELECT l.CancerTypeID, r.CancerTypeID AS RelatedCancerTypeID INTO #ct 
@@ -974,7 +972,7 @@ AS
 	--   Find all related projects 
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, ct.Name AS CancerType, pc.Relevance, f.Amount, o.Currency INTO #pf 
-	FROM #proj r		
+	FROM #Result r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
@@ -1070,7 +1068,7 @@ AS
   	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
-	DECLARE @Result TABLE (
+	CREATE TABLE #Result (
 		ProjectID INT NOT NULL
 	)
 
@@ -1093,13 +1091,13 @@ AS
 	
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO @Result SELECT ProjectID From Project		
+		INSERT INTO #Result SELECT ProjectID From Project		
 	END
 	ELSE
 	BEGIN
 		SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
 		
-		INSERT INTO @Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+		INSERT INTO #Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
 		
 		SELECT @ProjectTypeList = ProjectTypeList,
 				@YearList = YearList,
@@ -1118,15 +1116,13 @@ AS
 				@fundingOrgList = fundingOrgList 
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 		
-	END	
-	
-	SELECT ProjectID INTO #proj FROM @Result
+	END		
 
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, pt.ProjectType, f.Amount, o.Currency INTO #pf 
-	FROM #proj r		
+	FROM #Result r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
 		JOIN Project_ProjectType pt ON r.ProjectID = pt.ProjectID
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
@@ -1238,11 +1234,11 @@ CREATE PROCEDURE [dbo].[GetProjectInstitutionStatsBySearchID]
 	@ResultAmount float OUTPUT  -- return the searchID	
 
 AS   
-
+	
 	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
-	DECLARE @Result TABLE (
+	CREATE TABLE #Result (
 		ProjectID INT NOT NULL
 	)
 
@@ -1264,13 +1260,13 @@ AS
 
 	IF @SearchID = 0  -- all projects
 	BEGIN
-		INSERT INTO @Result SELECT ProjectID From Project		
+		INSERT INTO #Result SELECT ProjectID From Project		
 	END
 	ELSE  -- with filters by searchID
 	BEGIN
 		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
 		
-		INSERT INTO @Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+		INSERT INTO #Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
 
 		-- get search criteria to filter project funding records
 		SELECT @YearList = YearList,
@@ -1294,7 +1290,7 @@ AS
 	--   Find all related projects 
 	----------------------------------
 	SELECT DISTINCT f.ProjectID, f.ProjectFundingID, pii.InstitutionID, pii.Name AS Institution, f.Amount, o.Currency INTO #pf 
-	FROM @Result r		
+	FROM #Result r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
@@ -1407,7 +1403,7 @@ AS
 	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
-	DECLARE @Result TABLE (
+	CREATE TABLE #Result (
 		ProjectID INT NOT NULL
 	)
 
@@ -1429,13 +1425,13 @@ AS
 
 	IF @SearchID = 0  -- all projects
 	BEGIN
-		INSERT INTO @Result SELECT ProjectID From Project		
+		INSERT INTO #Result SELECT ProjectID From Project		
 	END
 	ELSE  -- with filters by searchID
 	BEGIN
 		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
 		
-		INSERT INTO @Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+		INSERT INTO #Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
 
 		-- get search criteria to filter project funding records
 		SELECT @YearList = YearList,
@@ -1459,7 +1455,7 @@ AS
 	--   Find all related projects 
 	----------------------------------
 	SELECT DISTINCT f.ProjectID, f.ProjectFundingID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgAbbrv, f.Amount, o.Currency INTO #pf 
-	FROM @Result r		
+	FROM #Result r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
@@ -1570,7 +1566,7 @@ AS
   	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
-	DECLARE @Result TABLE (
+	CREATE TABLE #Result (
 		ProjectID INT NOT NULL
 	)
 
@@ -1593,13 +1589,13 @@ AS
 	
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO @Result SELECT ProjectID From Project		
+		INSERT INTO #Result SELECT ProjectID From Project		
 	END
 	ELSE
 	BEGIN
 		SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
 		
-		INSERT INTO @Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+		INSERT INTO #Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
 		
 		SELECT @ProjectTypeList = ProjectTypeList,
 				@YearList = YearList,
@@ -1624,7 +1620,7 @@ AS
 	--   Find all related projects (project funding records)
 	-------------------------------------------------------------------		
 	SELECT f.ProjectID, p.IsChildhood, f.ProjectFundingID, f.Amount, o.Currency INTO #pf 
-	FROM @Result r
+	FROM #Result r
 		JOIN Project p ON r.ProjectID = p.ProjectID	
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID			
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
@@ -1690,7 +1686,7 @@ AS
 	IF @Type = 'Count'
 	BEGIN	
 		
-		SELECT CASE IsChildhood WHEN 1 THEN 'Yes' ELSE 'No' END AS IsChildhood, COUNT(*) AS [Count], 0  AS USDAmount INTO #CountStats FROM #pf GROUP BY IsChildhood 
+		SELECT CASE IsChildhood WHEN 1 THEN 'Childhood Cancer: Yes' ELSE 'Childhood Cancer: No' END AS IsChildhood, COUNT(*) AS [Count], 0  AS USDAmount INTO #CountStats FROM #pf GROUP BY IsChildhood 
 		SELECT @ResultCount = SUM(Count) FROM #CountStats
 		SELECT * FROM #CountStats ORDER BY [Count] Desc
 			
@@ -1700,7 +1696,7 @@ AS
 	
 	BEGIN 
 
-		SELECT CASE IsChildhood WHEN 1 THEN 'Yes' ELSE 'No' END AS IsChildhood, 0 AS [Count], (SUM(f.Amount) * ISNULL(MAX(cr.ToCurrencyRate), 1)) AS USDAmount INTO #AmountStats 
+		SELECT CASE IsChildhood WHEN 1 THEN 'Childhood Cancer: Yes' ELSE 'Childhood Cancer: No' END AS IsChildhood, 0 AS [Count], (SUM(f.Amount) * ISNULL(MAX(cr.ToCurrencyRate), 1)) AS USDAmount INTO #AmountStats 
 		FROM #pf f
 			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency			
 		GROUP BY IsChildhood 
