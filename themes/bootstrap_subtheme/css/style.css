@@ -59,6 +59,25 @@ blockquote {
 #calendar-modal .modal-body {
     padding: 20px 20px 0px 20px;
 }
+/* Events and Resources page */
+
+#events-and-resources-card {
+  /*width: 120px; */
+}
+#events-and-resources-card > .card-header {
+    padding: 0.25rem 0.75rem;
+    font-weight:bold;
+}
+#events-and-resources-card > .card-body {
+    padding: 0rem 0.75rem;
+}
+
+/* cellpadding */
+#last-meeting-report-table tr > td {
+  padding: 5px; 
+  vertical-align: top;
+}
+
 /* Full Calendar */
 div.fullcalendar > div > div.fc-center > h2 {
     color:#222222;

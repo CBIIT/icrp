@@ -6,6 +6,7 @@ global-styling:
       css/fullcalendar-overrides.css: {}
       css/style.css: {}
       css/bootstrap-overrides.css: {}
+      css/bootstrap-3-cards.css: {}
       css/forum.css: {}
       css/datacaveats.css: {}
 
