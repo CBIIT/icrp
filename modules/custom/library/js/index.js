@@ -101,6 +101,7 @@ jQuery(function() {
             var params = $('#library-parameters').addClass('folder'),
                 ispub = params.find('[name="is_public"]');
             functions.populateParents(1);
+            $('#library-parameters [name="parent"]').change()
             $('#library-edit h1').html("Create Library Category");
             params.find('[name="library_access"]').val(["General"]);
             ispub.removeAttr('checked');
@@ -111,7 +112,7 @@ jQuery(function() {
             var node = functions.getNode(),
                 params = $('#library-parameters').toggleClass('folder',isFolder),
                 ispub = params.find('[name="is_public"]');
-
+            $('#library-parameters [name="parent"]').change()
             if (!isFolder) {
                 if (nodeId == undefined) {
                     if (node) {
@@ -445,43 +446,48 @@ jQuery(function() {
                     'contentType': false,
                     'processData': false
                 }).done(function(response) {
-                    var entry = response.row,
-                        node = functions.getNode(),
-                        parent = entry.ParentFolderID;
-                    entry = {
-                        id: entry.LibraryFolderID,
-                        parent: tree.get_node(entry.ParentFolderID).id||'#',
-                        text: entry.Name,
-                        children: [],
-                        data: {
-                            archivedCount: parseInt(entry.ArchivedCount)||0,
-                            isArchived: entry.ArchivedDate !== null,
-                            isPublic: entry.IsPublic == "1",
-                            unarchivedCount: parseInt(entry.UnarchivedCount)||0,
-                            type: entry.Type
-                        },
-                        state: {
-                            opened: false,
-                            disabled: false,
-                            selected: false
-                        }
-                    };
-                    if (node && node.id === entry.id) {
-                        node.data.isPublic = entry.data.isPublic;
-                        node.data.type = entry.data.type;
-                        if (node.text !== entry.text) tree.rename_node(node,entry.text);
-                        if (node.parent != entry.parent) tree.move_node(node,entry.parent);
-                    } else {
-                        tree.deselect_all();
-                        tree.select_node(tree.create_node(entry.parent,entry,'last'));
-                        parent = tree.get_node(entry.parent);
-                        parent.children = parent.children.map(function(entry) { return tree.get_node(entry); }).sort(functions.caselessSort);
-                        if ($('#library-display .frame').hasClass('archived')) {
-                            functions.showArchives(e);
-                        } else {
-                            functions.hideArchives(e);
-                        }
-                    }
+                    var id = tree.get_selected();
+                    $.jstree.destroy();
+                    functions.initialize();
+                    tree.select_node(id);
+
+                    // var entry = response.row,
+                    //     node = functions.getNode(),
+                    //     parent = entry.ParentFolderID;
+                    // entry = {
+                    //     id: entry.LibraryFolderID,
+                    //     parent: tree.get_node(entry.ParentFolderID).id||'#',
+                    //     text: entry.Name,
+                    //     children: [],
+                    //     data: {
+                    //         archivedCount: parseInt(entry.ArchivedCount)||0,
+                    //         isArchived: entry.ArchivedDate !== null,
+                    //         isPublic: entry.IsPublic == "1",
+                    //         unarchivedCount: parseInt(entry.UnarchivedCount)||0,
+                    //         type: entry.Type
+                    //     },
+                    //     state: {
+                    //         opened: false,
+                    //         disabled: false,
+                    //         selected: false
+                    //     }
+                    // };
+                    // if (node && node.id === entry.id) {
+                    //     node.data.isPublic = entry.data.isPublic;
+                    //     node.data.type = entry.data.type;
+                    //     if (node.text !== entry.text) tree.rename_node(node,entry.text);
+                    //     if (node.parent != entry.parent) tree.move_node(node,entry.parent);
+                    // } else {
+                    //     tree.deselect_all();
+                    //     tree.select_node(tree.create_node(entry.parent,entry,'last'));
+                    //     parent = tree.get_node(entry.parent);
+                    //     parent.children = parent.children.map(function(entry) { return tree.get_node(entry); }).sort(functions.caselessSort);
+                    //     if ($('#library-display .frame').hasClass('archived')) {
+                    //         functions.showArchives(e);
+                    //     } else {
+                    //         functions.hideArchives(e);
+                    //     }
+                    // }
                     functions.closeParams(e);
                     $(e.target).removeAttr('disabled');
                 });
