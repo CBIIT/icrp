@@ -1,9 +1,13 @@
-.margin-bottom {
-  margin-bottom: 5px;
-}
-
 .button-panel {
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.mr-5 {
+  margin-right: 5px;
+}
+
+.mr-10 {
+  margin-right: 10px;
 }

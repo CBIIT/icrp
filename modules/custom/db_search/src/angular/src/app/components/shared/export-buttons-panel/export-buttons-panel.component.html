@@ -1,41 +1,34 @@
-<div class="margin-bottom button-panel">
+<div style="position: absolute">
+  <ui-overlay [active]="loading" [fullscreen]="true">
+    <ui-spinner></ui-spinner>
+    <br>Fetching Data Export
+  </ui-overlay>
+</div>
 
-  <div>
-    <icrp-email-results-button
-      *ngIf="sharedService.get('componentType') === 'search'">
-    </icrp-email-results-button>
+<div class="button-panel">
+  <span *ngIf="sharedService.get('componentType') === 'search'" class="mr-10">
+    <a [href]="'/map/?sid=' + sharedService.get('searchID')">
+      <strong><u>View ICRP Map</u></strong>
+    </a>
+  </span>
 
-    <icrp-export-button
-      label="Export Results"
-      [endpoint]="getRoutes().exportResults">
-      </icrp-export-button>
-
-    <icrp-export-button
-      *ngIf="authenticated"
-      label="Export Single"
-      [endpoint]="getRoutes().exportResultsSingle">
-    </icrp-export-button>
-
-    <icrp-export-button
-      *ngIf="authenticated"
-      label="Export Abstracts"
-      [endpoint]="getRoutes().exportAbstracts">
-    </icrp-export-button>
-
-    <icrp-export-button
-      *ngIf="authenticated"
-      label="Export Abstracts Single"
-      [endpoint]="getRoutes().exportAbstractsSingle">
-    </icrp-export-button>
-
-    <icrp-export-button
-      label="Export Graphs"
-      [endpoint]="getRoutes().exportGraphs">
-    </icrp-export-button>
+  <div class="btn-group mr-5" dropdown>
+    <button dropdownToggle type="button" class="btn btn-default btn-sm dropdown-toggle">
+      <i class="fas fa-download"></i>
+      Export <span class="caret"></span>
+    </button>
+    <ul *dropdownMenu class="dropdown-menu" role="menu">
+      <li role="menuitem"><a class="dropdown-item" href="#"(click)="export(getRoutes().exportResults)">Projects (Multi-Sheets)</a></li>
+      <li *ngIf="authenticated" role="menuitem"><a class="dropdown-item" href="#"(click)="export(getRoutes().exportResultsSingle)">Projects (Single-Sheet)</a></li>
+      <li *ngIf="authenticated" role="menuitem"><a class="dropdown-item" href="#"(click)="export(getRoutes().exportAbstracts)">Projects with Abstracts (Multi-Sheets)</a></li>
+      <li *ngIf="authenticated" role="menuitem"><a class="dropdown-item" href="#"(click)="export(getRoutes().exportAbstractsSingle)">Projects with Abstracts (Single-Sheet)</a></li>
+      <li role="menuitem"><a class="dropdown-item" href="#"(click)="export(getRoutes().exportGraphs)">All Graphs</a>
+      </li>
+    </ul>
   </div>
 
-  <span *ngIf="sharedService.get('componentType') === 'search'">
-    <a [href]="'/map/?sid=' + sharedService.get('searchID')">View ICRP Map</a>
-  </span>
+  <icrp-email-results-button
+    *ngIf="sharedService.get('componentType') === 'search'">
+  </icrp-email-results-button>
 </div>
 

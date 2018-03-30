@@ -47,10 +47,17 @@
 
       <br>
 
-      <icrp-export-buttons-panel
-        *ngIf="state.results && state.results.length"
-        [authenticated]="sharedService.get('authenticated')">
-      </icrp-export-buttons-panel>
+      <div style="display: flex; justify-content: space-between">
+      <div class="btn-group">
+          <label class="btn btn-default btn-sm" [(ngModel)]="radioModel" btnRadio="Projects">Projects</label>
+          <label class="btn btn-default btn-sm" [(ngModel)]="radioModel" btnRadio="Institutions">Institutions</label>
+        </div>
+
+        <icrp-export-buttons-panel
+          *ngIf="state.results && state.results.length"
+          [authenticated]="sharedService.get('authenticated')">
+        </icrp-export-buttons-panel>
+      </div>
 
       <icrp-results-table-panel
         [loading]="state.loading"

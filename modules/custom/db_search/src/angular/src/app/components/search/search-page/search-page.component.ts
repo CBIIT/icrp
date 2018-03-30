@@ -5,6 +5,7 @@ import { StoreService } from '../../../services/store.service';
 import { Observable } from 'rxjs';
 
 import { parseQuery, range, asLabelValuePair, deepCopy, getSearchID, removeEmptyProperties } from './search-page.functions';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'icrp-search-page',
@@ -21,6 +22,7 @@ export class SearchPageComponent implements AfterViewInit {
   fields: any = {};
 
   loadingMessage = 'Loading Page';
+  radioModel = 'Projects';
 
   state = {
     loading: true,
@@ -36,14 +38,17 @@ export class SearchPageComponent implements AfterViewInit {
     expiredSearchID: false,
   }
 
+  tableSelectorForm: FormGroup;
 
   constructor(
     private searchService: SearchService,
     private storeService: StoreService,
     public sharedService: SharedService,
+    private formBuilder: FormBuilder
   ) {
     this.resetAnalytics();
-    this.storeService.clearAll()
+    this.storeService.clearAll();
+
   }
 
   ngAfterViewInit() {

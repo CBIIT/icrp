@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { SharedService } from '../../../services/shared.service';
+import { ExportService } from '../../../services/export.service';
 
 @Component({
   selector: 'icrp-export-buttons-panel',
@@ -9,7 +10,12 @@ import { SharedService } from '../../../services/shared.service';
 export class ExportButtonsPanelComponent  {
   @Input() authenticated: boolean = false;
 
-  constructor(public sharedService: SharedService) { }
+  loading: boolean = false;
+
+  constructor(
+    public sharedService: SharedService,
+    private exportService: ExportService
+  ) { }
 
   getRoutes() {
     let componentType = this.sharedService.get('componentType');
@@ -30,5 +36,22 @@ export class ExportButtonsPanelComponent  {
         ? `${baseRoute}/partners/search_results/graphs`
         : `${baseRoute}/search_results/graphs`,
     }
+  }
+
+
+  export(endpoint) {
+    let parameters = {
+      search_id: this.sharedService.get('searchID'),
+      data_upload_id: this.sharedService.get('dataUploadID'),
+      year: this.sharedService.get('conversionYear'),
+    }
+
+    this.loading = true;
+    this.exportService.export(endpoint, parameters)
+      .subscribe(
+        response => document.location.href = response,
+        error => console.error(error),
+        () => this.loading = false
+      );
   }
 }

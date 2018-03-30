@@ -24,7 +24,7 @@ import { ReviewService } from './services/review.service';
 import { ExportService } from './services/export.service';
 import { StoreService } from './services/store.service';
 
-import { TooltipModule, PaginationModule, ModalModule, AlertModule } from 'ngx-bootstrap';
+import { TooltipModule, PaginationModule, ModalModule, AlertModule, BsDropdownModule, ButtonsModule } from 'ngx-bootstrap';
 
 import { SummaryPanelComponent } from './components/shared/summary-panel/summary-panel.component';
 import { IconComponent } from './components/ui-components/icon/icon.component';
@@ -76,6 +76,8 @@ import 'rxjs/add/operator/mergeMap';
     PaginationModule.forRoot(),
     ModalModule.forRoot(),
     AlertModule.forRoot(),
+    BsDropdownModule.forRoot(),
+    ButtonsModule.forRoot(),
 
     SpinnerModule.forRoot(),
     SelectModule.forRoot(),
