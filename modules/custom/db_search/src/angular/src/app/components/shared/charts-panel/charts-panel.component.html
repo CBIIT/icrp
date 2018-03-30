@@ -38,8 +38,9 @@
   <div class="chart-carousel-control"
     [ngStyle]="{visibility: carouselIndex > 0  ? 'visible' : 'hidden'}"
     (click)="updateCarousel(-1)">
-    <svg width="28" height="28" viewBox="0 0 100 100">
-      <path d="M20 50 L60 90 H 90 L 45 50 L 90 10 H 60 Z" fill="white" stroke="#bbb" stroke-width="5"></path>
+    <svg width="30" height="30" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="50" fill="white" fill-opacity="0.65" stroke="#ddd" stroke-opacity="0.7" stroke-width="4"></circle>
+      <path d="M 60 20, L 30 50, L 60 80" stroke="black" stroke-width="8" fill="none" stroke-opacity="0.5"></path>
     </svg>
   </div>
 
@@ -178,11 +179,12 @@
       </div>
   </div>
 
-  <div class="chart-carousel-control"
+  <div class="chart-carousel-control" *ngIf="analytics"
     [ngStyle]="{visibility: carouselIndex < (carouselMax - carouselSize)  ? 'visible' : 'hidden'}"
     (click)="updateCarousel(+1)">
-    <svg width="28" height="28" viewBox="0 0 100 100">
-      <path d="M80 50 L40 90 H 10 L 55 50 L 10 10 H 40 Z" fill="white" stroke="#bbb" stroke-width="5"></path>
+    <svg width="30" height="30" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="50" fill="white" fill-opacity="0.65" stroke="#ddd" stroke-opacity="0.7" stroke-width="4"></circle>
+      <path d="M 40 20, L 70 50, L 40 80" stroke="black" stroke-width="8" fill="none" stroke-opacity="0.5"></path>
     </svg>
   </div>
 </div>

@@ -31,17 +31,25 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: fill;
+  align-items: center;
   min-height: 300px;
+  position: relative;
 }
 
 .chart-carousel-control {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  opacity: 0.7;
   cursor: pointer;
-  min-width: 15px;
+  position: absolute;
+  z-index: 9999;
+  margin-top: 20px;
+}
+
+.chart-carousel-control:first-child {
+  left: 0px;
+}
+
+
+.chart-carousel-control:last-child {
+  right: 0px;
 }
 
 
