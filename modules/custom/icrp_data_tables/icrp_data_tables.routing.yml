@@ -1,5 +1,5 @@
 cancerTypes:
-  path: '/cancer-types'
+  path: '/cancer-type-list'
   defaults:
     _controller: '\Drupal\icrp_data_tables\Controller\PageController::cancerTypes'
     _title: 'Cancer Types List'
