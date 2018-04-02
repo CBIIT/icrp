@@ -2,9 +2,6 @@
 
 namespace Drupal\db_export_results\Controller;
 
-// require __DIR__ . '/../../vendor/autoload.php';
-require_once 'PHPExcel.php';
-
 use DateTime;
 use PDO;
 use PDOStatement;
@@ -12,9 +9,17 @@ use PDOStatement;
 use Box\Spout\Writer\WriterFactory;
 use Box\Spout\Common\Type;
 use Box\Spout\Writer\Style\StyleBuilder;
-use PHPExcel;
-use PHPExcel_IOFactory;
 
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Chart\Chart;
+use PhpOffice\PhpSpreadsheet\Chart\DataSeries;
+use PhpOffice\PhpSpreadsheet\Chart\DataSeriesValues;
+use PhpOffice\PhpSpreadsheet\Chart\Legend;
+use PhpOffice\PhpSpreadsheet\Chart\Layout;
+use PhpOffice\PhpSpreadsheet\Chart\PlotArea;
+use PhpOffice\PhpSpreadsheet\Chart\Title;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class DatabaseExport {
 
@@ -228,15 +233,6 @@ class DatabaseExport {
         ],
       ],
 
-      // Sheet definition for 'Projects by Year'
-      'Projects by Year' => [
-        'query' => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year',
-        'columns' => [
-          'Year'          => 'Year',
-          'Count'         => 'Project Count',
-        ],
-      ],
-
       // Sheet definition for 'Projects by Institution'
       'Projects by Institution' => [
         'query' => 'EXECUTE GetProjectInstitutionStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
@@ -373,7 +369,7 @@ class DatabaseExport {
       ],
 
       // Sheet definition for 'Funding Amounts by Type'
-      'Amounts by Type' => [
+      'Amounts by Project Type' => [
         'query' => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
         'columns' => [
           'ProjectType'   => 'Project Type',
@@ -538,6 +534,152 @@ class DatabaseExport {
 
   function exportGraphs($pdo, $search_id, $data_upload_id, $year, $workbook_key, $filename) {
     $paths = $this->buildOutputPaths($filename);
+    $spreadsheet = new Spreadsheet();
+    $spreadsheet->getProperties()
+      ->setTitle('ICRP Data Export')
+      ->setCreator('International Cancer Research Partnership');
+    $sheet = $spreadsheet->getActiveSheet();
+
+    $sheet_definitions = self::EXPORT_MAP[$workbook_key];
+    $sheet_definition_keys = array_keys($sheet_definitions);
+    $last_key = end($sheet_definition_keys);
+
+    // loop through each sheet's definition
+    foreach($sheet_definitions as $sheet_name => $sheet_definition) {
+      // determine the query for the current sheet
+      $sheet_query = $sheet_definition['query'];
+
+      // determine the column names for the current sheet
+      $sheet_columns = $sheet_definition['columns'];
+
+      // set the name of the current sheet
+      $sheet_title = $sheet_name;
+      $sheet_name = substr($sheet_name, 0, 31);
+      $sheet->setTitle($sheet_name);
+
+      // set up query parameters
+      $parameters = [
+        'search_id' => [
+          'type' => PDO::PARAM_INT,
+          'value' => $search_id,
+        ],
+        'year' => [
+          'type' => PDO::PARAM_INT,
+          'value' => $year,
+        ],
+      ];
+
+      // retrieve the results of the query
+      $results = $this->getQueryResults($pdo, $sheet_query, $parameters);
+
+      // if there are results, write them to the current sheet
+      if ($results !== NULL) {
+        $rows = [array_values($sheet_columns)];
+        $columns = array_keys($sheet_columns);
+        while ($row = $results->fetch(PDO::FETCH_ASSOC)) {
+          array_push($rows,
+            array_map(function($column) use ($row) {
+              return $row[$column];
+            }, $columns)
+          );
+        }
+        $sheet->fromArray($rows);
+        $num_rows = count($rows) - 1;
+
+        $dataSeriesLabels = [
+          new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, "'${sheet_name}'" . '!$A$1', NULL, 1),
+          new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, "'${sheet_name}'" . '!$B$1', NULL, 1),
+        ];
+
+        $xAxisTickValues = [
+          new DataSeriesValues(
+            DataSeriesValues::DATASERIES_TYPE_STRING,
+            "'".$sheet_name."'" . '!$A$2:$A$' . ($num_rows + 1), NULL, $num_rows
+          )
+        ];
+
+        $dataSeriesValues = [
+          new DataSeriesValues(
+            DataSeriesValues::DATASERIES_TYPE_NUMBER,
+            "'".$sheet_name."'" . '!$B$2:$B$' . ($num_rows + 1), NULL, $num_rows
+          ),
+        ];
+
+        // Build the dataseries
+        $series = new DataSeries(
+            DataSeries::TYPE_BARCHART, // plotType
+            DataSeries::GROUPING_CLUSTERED, // plotGrouping
+            range(0, count($dataSeriesValues) - 1), // plotOrder
+            $dataSeriesLabels, // plotLabel
+            $xAxisTickValues, // plotCategory
+            $dataSeriesValues        // plotValues
+        );
+
+        $series->setPlotDirection(DataSeries::DIRECTION_COL);
+
+        $layout = (new Layout())
+          ->setShowVal(TRUE);
+
+        // Set the series in the plot area
+        $plotArea = new PlotArea($layout, [$series]);
+
+        // Set the chart legend
+        $legend = new Legend(Legend::POSITION_RIGHT, null, false);
+
+        $title = new Title($sheet_title);
+        $xAxisLabel = new Title($rows[0][0]);
+        $yAxisLabel = new Title($rows[0][1]);
+
+        // Create the chart
+        $chart = new Chart(
+          $sheet_title, // name
+          $title, // title
+          $legend, // legend
+          $plotArea, // plotArea
+          true, // plotVisibleOnly
+          0, // displayBlanksAs
+          $xAxisLabel, // xAxisLabel
+          $yAxisLabel  // yAxisLabel
+        );
+
+        $chart->setTopLeftPosition(self::cell(0, 4));
+        $chart->setBottomRightPosition(self::cell(25, 25));
+
+        $sheet->addChart($chart);
+      }
+
+      // add another sheet if we are not at the last sheet
+      if ($sheet_name !== $last_key) {
+        $sheet = $spreadsheet->createSheet();
+      }
+    }
+
+    $data = [];
+    $sheet_name = '';
+
+    if ($data_upload_id === NULL) {
+      $data = self::getSearchCriteria($pdo, $search_id);
+      $sheet_name = 'Search Criteria';
+    }
+
+    else {
+      $data = self::getDataReviewCriteria($pdo, $data_upload_id);
+      $sheet_name = 'Data Upload Review';
+    }
+
+    $sheet = $spreadsheet->createSheet();
+    $sheet->setTitle($sheet_name);
+    $sheet->fromArray($data);
+
+    (new Xlsx($spreadsheet))
+      ->setIncludeCharts(true)
+      ->save($paths['filepath']);
+
+    return $paths['uri'];
+  }
+
+  function exportGraphsOld($pdo, $search_id, $data_upload_id, $year, $workbook_key, $filename) {
+    $paths = $this->buildOutputPaths($filename);
 
     $excel = new \PHPExcel();
     $excel->getProperties()
@@ -671,6 +813,8 @@ class DatabaseExport {
     $writer = \PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
     $writer->setIncludeCharts(true);
     $writer->save($paths['filepath']);
+
+
 
 
 
