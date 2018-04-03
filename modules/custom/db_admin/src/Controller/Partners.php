@@ -66,8 +66,7 @@ class Partners {
         @Status = :status,
         @PartnerID = @partnerId OUTPUT;
       SELECT @partnerId;",
-      $parameters,
-      $ouput
+      $parameters
     )->fetchColumn();
 
     PDOBuilder::executePreparedStatement(
