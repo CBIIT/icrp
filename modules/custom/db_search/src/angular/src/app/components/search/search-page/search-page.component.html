@@ -47,16 +47,34 @@
 
       <br>
 
-      <div style="display: flex; justify-content: space-between">
-      <div class="btn-group">
-          <label class="btn btn-default btn-sm" [(ngModel)]="radioModel" btnRadio="Projects">Projects</label>
-          <label class="btn btn-default btn-sm" [(ngModel)]="radioModel" btnRadio="Institutions">Institutions</label>
+      <div
+        *ngIf="!state.loading"
+        style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px;">
+        <div style="display: flex">
+          <div class="btn-group mr-5" dropdown>
+            <button dropdownToggle type="button" class="btn btn-default btn-sm dropdown-toggle">
+              {{ selectedTable }} <span class="caret"></span>
+            </button>
+            <ul *dropdownMenu class="dropdown-menu" role="menu">
+              <li role="menuitem">
+                <a class="dropdown-item" href="#" (click)="selectTable('Projects')">Projects</a>
+              </li>
+
+              <li role="menuitem">
+                <a class="dropdown-item" href="#"(click)="selectTable('Institutions')">Institutions</a>
+              </li>
+            </ul>
+          </div>
+
+          <icrp-export-buttons-panel
+            *ngIf="state.results && state.results.length"
+            [authenticated]="sharedService.get('authenticated')">
+          </icrp-export-buttons-panel>
         </div>
 
-        <icrp-export-buttons-panel
-          *ngIf="state.results && state.results.length"
-          [authenticated]="sharedService.get('authenticated')">
-        </icrp-export-buttons-panel>
+        <a [href]="'/map/?sid=' + sharedService.get('searchID')">
+          <strong><u>View ICRP Map</u></strong>
+        </a>
       </div>
 
       <icrp-results-table-panel

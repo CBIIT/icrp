@@ -6,12 +6,6 @@
 </div>
 
 <div class="button-panel">
-  <span *ngIf="sharedService.get('componentType') === 'search'" class="mr-10">
-    <a [href]="'/map/?sid=' + sharedService.get('searchID')">
-      <strong><u>View ICRP Map</u></strong>
-    </a>
-  </span>
-
   <div class="btn-group mr-5" dropdown>
     <button dropdownToggle type="button" class="btn btn-default btn-sm dropdown-toggle">
       <i class="fas fa-download"></i>
@@ -31,4 +25,3 @@
     *ngIf="sharedService.get('componentType') === 'search'">
   </icrp-email-results-button>
 </div>
-

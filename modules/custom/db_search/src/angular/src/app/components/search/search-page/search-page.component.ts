@@ -38,6 +38,8 @@ export class SearchPageComponent implements AfterViewInit {
     expiredSearchID: false,
   }
 
+  selectedTable = 'Projects';
+
   tableSelectorForm: FormGroup;
 
   constructor(
@@ -48,7 +50,6 @@ export class SearchPageComponent implements AfterViewInit {
   ) {
     this.resetAnalytics();
     this.storeService.clearAll();
-
   }
 
   ngAfterViewInit() {
@@ -61,6 +62,10 @@ export class SearchPageComponent implements AfterViewInit {
           this.loadingMessage = 'Fetching Data';
           this.retrieveInitialResults();
       });
+  }
+
+  selectTable(tableName) {
+    this.selectedTable = tableName;
   }
 
   retrieveInitialResults() {
