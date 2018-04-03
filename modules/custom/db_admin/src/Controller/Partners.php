@@ -78,6 +78,15 @@ class Partners {
       $parameters
     );
 
+    PDOBuilder::executePreparedStatement(
+      $pdo,
+      "UPDATE NonPartner
+        SET ConvertedDate = GETDATE()
+        WHERE Name = :name
+        AND Abbreviation = :sponsorCode",
+      $parameters
+    );
+
     if ($parameters['isFundingOrganization']) {
       FundingOrganizations::add(
         $pdo,
