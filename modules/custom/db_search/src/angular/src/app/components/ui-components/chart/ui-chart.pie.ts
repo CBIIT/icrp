@@ -21,7 +21,7 @@ export class PieChart {
         let radius = size / 2;
 
         let arc: any = d3.arc().outerRadius(radius).innerRadius(radius/2);
-        let pie = d3.pie();
+        let pie = d3.pie().sort(null);
 
         let color = d3.scaleOrdinal(d3.schemeCategory20c);
 

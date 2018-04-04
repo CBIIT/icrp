@@ -87,7 +87,7 @@
     <div class="col-md-3 text-center" [hidden]="isHidden('project_counts_by_institution')">
       <ui-chart
         type="pie"
-        label="Projects by Institution"
+        label="Projects by PI Institution"
         primaryKey="project_count"
         [data]="analytics.project_counts_by_institution && analytics.project_counts_by_institution.results">
       </ui-chart>
@@ -154,7 +154,7 @@
     <div class="col-md-3 text-center" [hidden]="isHidden('project_funding_amounts_by_institution')">
         <ui-chart
           type="pie"
-          label="Amounts by Institution"
+          label="Amounts by PI Institution"
           primaryKey="funding_amount"
           [data]="analytics.project_funding_amounts_by_institution && analytics.project_funding_amounts_by_institution.results">
         </ui-chart>
