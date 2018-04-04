@@ -402,7 +402,7 @@ class DatabaseSearch {
         } else {
           $last = &$results[count($results) - 1];
 
-          $last['label'] = 'Other';
+          $last['label'] = 'Others';
           foreach($column_map['data'] as $key => $database_column)
             $last['data'][$key] += floatval($row[$database_column]);
         }
