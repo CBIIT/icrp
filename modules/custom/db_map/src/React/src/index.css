@@ -61,6 +61,10 @@ body {
   cursor: pointer;
 }
 
+table.popover-table {
+  font-weight: normal;
+}
+
 table.popover-table td {
   padding-right: 8px;
 }

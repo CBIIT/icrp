@@ -1,5 +1,5 @@
 default:
-  version: 1.1.0
+  version: 1.1.1
   css:
     theme:
       https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css: {}
@@ -15,7 +15,7 @@ default:
 
 
 map.people:
-  version: 1.0.1
+  version: 1.0.2
   css:
     theme:
       https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css: {}

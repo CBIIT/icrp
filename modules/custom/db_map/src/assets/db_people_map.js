@@ -83,151 +83,152 @@ $(function() {
         var centerCoordinates = {lat: 0, lng: 0};
 
         groups.forEach(function(group) {
+
+            // if the group contains a single entry (not clustered)
             if (group.length == 1) {
-                (function() {
-                    var item = group[0];
-                    var position = {
-                        lng: + item.longitude,
-                        lat: + item.latitude,
-                    };
+                var item = group[0];
+                var position = {
+                    lng: + item.longitude,
+                    lat: + item.latitude,
+                };
 
-                    if (item.isPrincipalInvestigator)
-                        centerCoordinates = position;
+                if (item.isPrincipalInvestigator)
+                    centerCoordinates = position;
 
-                    var infoWindow = new google.maps.InfoWindow({
-                        content: $('<div>')
-                            .append($('<b>').text(item.isPrincipalInvestigator ? 'Principal Investigator: ' : 'Collaborator: '))
-                            .append($('<span>').text(item.name))
-                            .append($('<hr>').css('margin', '0 0 8px 0'))
-                            .append($('<div>').text('Institution: ' + item.institution))
-                            .append($('<div>').text('Location: ' + item.location))
-                            .get(0)
-                    });
+                var infoWindow = new google.maps.InfoWindow({
+                    content: $('<div>')
+                        .css('font-weight', 'normal')
+                        .append($('<b>').text(item.isPrincipalInvestigator ? 'Principal Investigator: ' : 'Collaborator: '))
+                        .append($('<span>').text(item.name))
+                        .append($('<hr>').css('margin', '0 0 8px 0'))
+                        .append($('<div>').text('Institution: ' + item.institution))
+                        .append($('<div>').text('Location: ' + item.location))
+                        .get(0)
+                });
 
-                    var markerIcon = item.isPrincipalInvestigator ? 'marker.steelblue.svg' : 'marker.orange.svg';
-                    var marker = new google.maps.Marker({
-                        position: {
-                            lat: item.latitude,
-                            lng: item.longitude
-                        },
-                        map: map,
-                        icon: {
-                            url: '/modules/custom/db_map/src/assets/images/' + markerIcon,
-                            scaledSize: {
-                                width: map.getZoom() + 12,
-                                height: map.getZoom() + 16,
-                            }
-                        },
-                        zIndex: item.isPrincipalInvestigator ? 1 : 0,
-                    })
+                var markerIcon = item.isPrincipalInvestigator ? 'marker.steelblue.svg' : 'marker.orange.svg';
+                var marker = new google.maps.Marker({
+                    position: {
+                        lat: item.latitude,
+                        lng: item.longitude
+                    },
+                    map: map,
+                    icon: {
+                        url: '/modules/custom/db_map/src/assets/images/' + markerIcon,
+                        scaledSize: {
+                            width: map.getZoom() + 12,
+                            height: map.getZoom() + 16,
+                        }
+                    },
+                    zIndex: item.isPrincipalInvestigator ? 1 : 0,
+                })
 
-                    marker.addListener('click', function() {
-                    for (var i = 0; i < infoWindows.length; i ++)
-                        infoWindows[i].close();
-                        infoWindow.open(map, marker);
-                    });
+                marker.addListener('click', function() {
+                for (var i = 0; i < infoWindows.length; i ++)
+                    infoWindows[i].close();
+                    infoWindow.open(map, marker);
+                });
 
-                    infoWindows.push(infoWindow);
-                    markers.push(marker);
-                })();
+                infoWindows.push(infoWindow);
+                markers.push(marker);
             }
 
+            // if the group contains more than one entry (clustered)
             else if (group.length > 1) {
-                (function() {
-
-                    var bounds = group.reduce(function(bounds, item) {
-                        return bounds.extend({
-                            lat: +item.latitude,
-                            lng: +item.longitude
-                        });
-                    }, new google.maps.LatLngBounds());
-                    var position = bounds.getCenter();
-
-                    var distinctPositions = false;
-                    group.reduce(function(previous, current) {
-                        if (current.longitude != previous.longitude &&
-                            current.latitude != previous.latitude)
-                            distinctPositions = true;
-                        return current;
+                var bounds = group.reduce(function(bounds, item) {
+                    return bounds.extend({
+                        lat: +item.latitude,
+                        lng: +item.longitude
                     });
+                }, new google.maps.LatLngBounds());
+                var position = bounds.getCenter();
 
-                    var pi = group.filter(function(item) {
-                        return item.isPrincipalInvestigator;
-                    });
+                var distinctPositions = false;
+                group.reduce(function(previous, current) {
+                    if (current.longitude != previous.longitude &&
+                        current.latitude != previous.latitude)
+                        distinctPositions = true;
+                    return current;
+                });
 
-                    var message = pi && pi.length > 0
-                        ? pi[0].name + ' and ' + (group.length - 1) + ' other collaborator(s)'
-                        : group[0].name + ' and ' + (group.length - 1) + ' other collaborator(s)';
+                var pi = group.filter(function(item) {
+                    return item.isPrincipalInvestigator;
+                });
 
-                    if (pi && pi.length > 0) {
-                        centerCoordinates = position = {
-                            lat: pi[0].latitude,
-                            lng: pi[0].longitude
-                        }
+                var message = pi && pi.length > 0
+                    ? pi[0].name + ' and ' + (group.length - 1) + ' other collaborator(s)'
+                    : group[0].name + ' and ' + (group.length - 1) + ' other collaborator(s)';
+
+                if (pi && pi.length > 0) {
+                    centerCoordinates = position = {
+                        lat: pi[0].latitude,
+                        lng: pi[0].longitude
                     }
+                }
 
-                    var filename = pi && pi.length
-                        ? 'marker.group.steelblue.svg'
-                        : 'marker.group.orange.svg';
+                var filename = pi && pi.length
+                    ? 'marker.group.steelblue.svg'
+                    : 'marker.group.orange.svg';
 
-                    var marker = new google.maps.Marker({
-                        position: position,
-                        map: map,
-                        label: {
-                            color: 'black',
-                            text: (group.length).toLocaleString(),
-                            fontSize: (map.getZoom() / 2 + 8) + 'px',
-                            fontWeight: 'bolder',
+                var marker = new google.maps.Marker({
+                    position: position,
+                    map: map,
+                    label: {
+                        color: 'black',
+                        text: (group.length).toLocaleString(),
+                        fontSize: (map.getZoom() / 2 + 8) + 'px',
+                        fontWeight: 'bolder',
+                    },
+                    icon: {
+                        url: '/modules/custom/db_map/src/assets/images/' + filename,
+                        anchor: {
+                            x: 20 + map.getZoom(),
+                            y: 20 + map.getZoom()
                         },
-                        icon: {
-                            url: '/modules/custom/db_map/src/assets/images/' + filename,
-                            anchor: {
-                                x: 20 + map.getZoom(),
-                                y: 20 + map.getZoom()
-                            },
-                            scaledSize: {
-                                width: map.getZoom() * 2 + 40,
-                                height: map.getZoom() * 2 + 40,
-                            }
-                        },
-                        zIndex: 10
-                    })
-                    marker.fixedSize = true;
-
-                    function fitGroupBounds() {
-                        if (distinctPositions) {
-                            map.fitBounds(bounds);
-                            setTimeout(function() {
-                                drawMap();
-                            }, 100);
+                        scaledSize: {
+                            width: map.getZoom() * 2 + 40,
+                            height: map.getZoom() * 2 + 40,
                         }
+                    },
+                    zIndex: 10
+                })
+                marker.fixedSize = true;
+
+                function fitGroupBounds() {
+                    if (distinctPositions) {
+                        map.fitBounds(bounds);
+                        setTimeout(function() {
+                            drawMap();
+                        }, 100);
                     }
+                }
 
-                    var content = $('<div>')
-                        .append($('<div>')
-                        .append($('<b>').text(pi.length ? 'PI: ' : 'Collaborators: '))
-                        .append($('<span>')
-                            .text(message)
-                            .addClass(distinctPositions ? 'link' : '')
-                            .click(fitGroupBounds)
-                        )
-                    );
+                var content = $('<div>')
+                    .css('font-weight', 'normal')
+                    .append($('<div>')
+                    .append($('<b>').text(pi.length ? 'PI: ' : 'Collaborators: '))
+                    .append($('<b>')
+                        .text(message)
+                        .css('text-decoration', 'none')
+                        .addClass(distinctPositions ? 'link' : '')
+                        .click(fitGroupBounds)
+                    )
+                );
 
-                    var infoWindow = new google.maps.InfoWindow({
-                        content: content.get(0)
-                    });
+                var infoWindow = new google.maps.InfoWindow({
+                    content: content.get(0)
+                });
 
-                    marker.addListener('click', function() {
-                        for (var i = 0; i < infoWindows.length; i ++)
-                            infoWindows[i].close();
-                        infoWindow.open(map, marker);
-                    });
+                marker.addListener('click', function() {
+                    for (var i = 0; i < infoWindows.length; i ++)
+                        infoWindows[i].close();
+                    infoWindow.open(map, marker);
+                });
 
-                    marker.addListener('dblclick', fitGroupBounds);
+                marker.addListener('dblclick', fitGroupBounds);
 
-                    infoWindows.push(infoWindow);
-                    markers.push(marker);
-                })();
+                infoWindows.push(infoWindow);
+                markers.push(marker);
             }
         });
 
