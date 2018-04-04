@@ -61,6 +61,11 @@ body {
   cursor: pointer;
 }
 
+.infowindow {
+  font-weight: normal;
+  font-size: 13px !important;
+}
+
 table.popover-table {
   font-weight: normal;
 }
