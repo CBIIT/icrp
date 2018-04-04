@@ -213,7 +213,7 @@ class DatabaseSearch {
   * @return array An array containining analytics data for the specified facet
   * @api
   */
-  public static function getAnalytics(PDO $pdo, array $parameters): array {
+  public static function getAnalytics(PDO $pdo, array $parameters, int $limit = 50): array {
 
     $pdo->setAttribute(PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE, true);
     // $pdo->setAttribute(PDO::SQLSRV_ATTR_ENCODING, PDO::SQLSRV_ENCODING_SYSTEM);
@@ -384,6 +384,7 @@ class DatabaseSearch {
     // execute statement and update output object
     $results = [];
     if ($stmt->execute()) {
+      $index = 0;
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
         $column_map = $column_maps[$type];
@@ -392,10 +393,21 @@ class DatabaseSearch {
           'data' => [],
         ];
 
-        foreach($column_map['data'] as $key => $database_column)
-          $item['data'][$key] = floatval($row[$database_column]);
+        if ($index < $limit) {
+          foreach($column_map['data'] as $key => $database_column)
+            $item['data'][$key] = floatval($row[$database_column]);
 
-        array_push($results, $item);
+          $results[] = $item;
+
+        } else {
+          $last = &$results[count($results) - 1];
+
+          $last['label'] = 'Other';
+          foreach($column_map['data'] as $key => $database_column)
+            $last['data'][$key] += floatval($row[$database_column]);
+        }
+
+        $index++;
       }
     }
 
