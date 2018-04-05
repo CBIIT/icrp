@@ -7503,7 +7503,7 @@ public class BaseMethods extends BaseTestMethods{
 		
 		
 		public void selectPartner (String option) throws TestExecutionException {
-			keyEnter(By.id("select-partner"),option);
+			keyEnter(By.cssSelector("#partnerApplicationId"),option);
 			//click(By.cssSelector(".btn.btn-success.btn-xs"));
 			oPDF.enterBlockSteps(bTable,stepCount,"User Actions","selectPartner","Action "+ option + " selected","Pass");
 			stepCount++;				
