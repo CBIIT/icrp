@@ -78,6 +78,18 @@ blockquote {
   vertical-align: top;
 }
 
+#last-meeting-report-img {
+  width:120px;
+  float:left;  
+}
+
+#events-and-resources-1--content > div > div > div > .col-md-9 {
+    padding-left: 0px;
+}
+#events-and-resources-1--content > div > div > div > .col-md-3 {
+    padding: 0px;
+}
+
 /* Full Calendar */
 div.fullcalendar > div > div.fc-center > h2 {
     color:#222222;

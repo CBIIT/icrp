@@ -163,4 +163,11 @@ class IcrpController extends ControllerBase {
         return $response;
 
     }
+
+    public function getEventsAndResources() {
+        return array(
+            '#markup' => getEventsAndResourcesHTML(),
+        );
+    }
+
 }
