@@ -79,7 +79,7 @@ icrp.icrp_data_caveats_ccra:
     _permission: 'access content'
     _role: 'authenticated'
 
-icrp.icrp_events_and_resources1:
+icrp.icrp_events_and_resources:
   path: /events-and-resources
   defaults:
     _controller: '\Drupal\icrp\Controller\IcrpController::getEventsAndResources'

@@ -78,6 +78,10 @@ blockquote {
   vertical-align: top;
 }
 
+#last-meeting-report-table tr:nth-child(2) > td {
+  text-align:center;
+}
+
 #last-meeting-report-img {
   width:120px;
   float:left;  
