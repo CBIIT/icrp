@@ -24,7 +24,8 @@ class NonPartners {
         @CancerOnly = :cancerOnly,
         @ResearchFunder = :researchFunder,
         @ContactPerson = :contactPerson,
-        @Position = :position;",
+        @Position = :position,
+        @DoNotShow = :doNotShow;",
       $parameters
     )->execute();
   }
@@ -49,7 +50,8 @@ class NonPartners {
         @CancerOnly = :cancerOnly,
         @ResearchFunder = :researchFunder,
         @ContactPerson = :contactPerson,
-        @Position = :position;",
+        @Position = :position,
+        @DoNotShow = :doNotShow;",
       $parameters
     )->execute();
   }

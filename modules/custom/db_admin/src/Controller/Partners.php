@@ -23,7 +23,8 @@ class Partners {
         )->fetchAll(),
 
       'nonPartners' => $pdo->query(
-        'EXECUTE GetNonPartners'
+        'SELECT * FROM NonPartner'
+        // 'EXECUTE GetNonPartners'
         )->fetchAll(),
 
       'countries' => $pdo->query(

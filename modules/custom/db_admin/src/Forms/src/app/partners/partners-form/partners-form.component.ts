@@ -145,6 +145,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
       contactPerson: [null],
       position: [null],
       doNotContact: [false],
+      doNotShow: [false],
 
       isFundingOrganization: [false],
       type: [null],
@@ -203,6 +204,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         cancerOnly: false,
         researchFunder: false,
         doNotContact: false,
+        doNotShow: false,
       }, {emitEvent: false});
     });
 
@@ -243,6 +245,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
           'contactPerson',
           'position',
           'doNotContact',
+          'doNotShow',
         );
 
         // operationType.updateValueAndValidity();
@@ -283,6 +286,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         cancerOnly: false,
         researchFunder: false,
         doNotContact: false,
+        doNotShow: false,
       }, {emitEvent: false});
 
       for (let key in controls) {
@@ -311,6 +315,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         cancerOnly: false,
         researchFunder: false,
         doNotContact: false,
+        doNotShow: false,
       }, {emitEvent: false});
 
       if (partnerApplicationId !== null) {
@@ -336,6 +341,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         cancerOnly: false,
         researchFunder: false,
         doNotContact: false,
+        doNotShow: false,
       }, {emitEvent: false});
 
       if (partnerId !== null) {
@@ -371,6 +377,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         cancerOnly: false,
         researchFunder: false,
         doNotContact: false,
+        doNotShow: false,
       }, {emitEvent: false});
 
       if (nonPartnerId !== null) {
@@ -394,6 +401,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
           doNotContact: record.donotcontact  || false,
           cancerOnly: record.canceronly  || false,
           researchFunder: record.researchfunder  || false,
+          doNotShow: record.donotshow || false,
         });
       }
     })

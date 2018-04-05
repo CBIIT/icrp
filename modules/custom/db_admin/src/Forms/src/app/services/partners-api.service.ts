@@ -40,6 +40,7 @@ export class PartnersApiService {
         canceronly: record.canceronly === 1,
         donotcontact: record.donotcontact === 1,
         researchfunder: record.researchfunder === 1,
+        donotshow: record.donotshow === 1,
       })).sort((a, b) => a.name.localeCompare(b.name))
     }));
   }
