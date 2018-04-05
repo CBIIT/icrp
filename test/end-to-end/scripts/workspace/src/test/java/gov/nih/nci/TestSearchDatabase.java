@@ -92,13 +92,13 @@ public class TestSearchDatabase {
 				
 				//Click Clear Database
 				
-				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > div > button:nth-child(3)"));
+				Test.clickLink(By.cssSelector("button.btn:nth-child(3)"));
 				logger.info("Clicked Clear button");
 				Test.wait_For(5000);
 				Test.expected_vs_actual_verification("All Years Selected");
 				
 				//Perform Specific Search
-				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel:nth-child(2) > div.ui-panel-header"));
+				Test.clickLink(By.cssSelector(".ng-tns-c9-2 > div:nth-child(1)"));
 				logger.info("Click Institutions and Investigations");
 				Test.wait_For(5000);
 				//Test.clickLink(By.cssSelector("body > div.main-container.container.js-quickedit-main-content > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel.ng-tns-c9-2 > div.ui-panel-content.ng-trigger.ng-trigger-visibilityChanged > ui-select:nth-child(12) > div > div.select-input-container.default > div > input"));
@@ -108,12 +108,12 @@ public class TestSearchDatabase {
 				Test.enter_country("United States");
 				logger.info("Country selected.");
 				Test.wait_For(5000);
-				//Test.clickLink(By.cssSelector("body > div.main-container.container.js-quickedit-main-content > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel.ng-tns-c9-3 > div.ui-panel-header"));
-				Test.clickLink(By.xpath("/html/body/div[1]/div/section/div[2]/icrp-root/div/icrp-search-page/div/div[1]/icrp-search-form/form/ui-panel[3]/div[1]"));
+				Test.clickLink(By.cssSelector(".ng-tns-c9-3 > div:nth-child(1)"));
+				//Test.clickLink(By.xpath("/html/body/div[1]/div/section/div[2]/icrp-root/div/icrp-search-page/div/div[1]/icrp-search-form/form/ui-panel[3]/div[1]"));
 				
 				logger.info("Funding Organizations clicked.");
 				Test.wait_For(3000);
-				Test.clickLink(By.cssSelector("div.multiselect:nth-child(5) > ui-treeview:nth-child(1) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(5) > div:nth-child(1) > label:nth-child(1) > input:nth-child(1)"));
+				Test.clickLink(By.cssSelector("div.multiselect:nth-child(7) > ui-treeview:nth-child(1) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(3) > div:nth-child(1) > div:nth-child(5) > div:nth-child(1) > label:nth-child(1) > input:nth-child(1)"));
 				//Test.clickLink(By.cssSelector("html.js body.user-logged-in.path-db-search.has-glyphicons div.main-container.container.js-quickedit-main-content div.row section.col-sm-12 div.region.region-content icrp-root div icrp-search-page.ng-star-inserted div.row div.col-sm-3 icrp-search-form form.ng-untouched.ng-valid.ng-dirty ui-panel.ng-tns-c9-3 div.ui-panel-content.ng-trigger.ng-trigger-visibilityChanged div.multiselect.ng-star-inserted ui-treeview.ng-untouched.ng-valid.ng-dirty div div div div div div div label input"));
 				//Test.clickLink(By.xpath("/html/body/div[1]/div/section/div[2]/icrp-root/div/icrp-search-page/div/div[1]/icrp-search-form/form/ui-panel[3]/div[2]/div/ui-treeview/div/div[1]/div/div[1]/div/div[3]/div/label/input"));
 				Test.wait_For(5000);
@@ -191,7 +191,8 @@ public class TestSearchDatabase {
 				
 				//Click Clear Database
 				
-				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > div > button:nth-child(3)"));
+				Test.clickLink(By.cssSelector("button.btn:nth-child(3)"));
+				//Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > div > button:nth-child(3)"));
 				logger.info("Clicked Clear button");
 				Test.wait_For(5000);
 				Test.expected_vs_actual_verification("All Years Selected");
@@ -203,18 +204,18 @@ public class TestSearchDatabase {
 				//Test.expected_vs_actual_verification("Enter search terms");
 				
 				//Expand Cancer and Project Type
-				//Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel:nth-child(4) > div.ui-panel-header"));
-				Test.clickLink(By.xpath("/html/body/div/div/section/div[2]/icrp-root/div/icrp-search-page/div/div[1]/icrp-search-form/form/ui-panel[4]/div[1]"));	
+				Test.clickLink(By.cssSelector(".ng-tns-c9-4 > div:nth-child(1)"));
+				//Test.clickLink(By.xpath("/html/body/div/div/section/div[2]/icrp-root/div/icrp-search-page/div/div[1]/icrp-search-form/form/ui-panel[4]/div[1]"));	
 				
 				
 				Test.wait_For(2000);
 				logger.info("Expand Cancer and Project Type");
 				//Click on Select Cancer Type
-				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel:nth-child(4) > div.ui-panel-content > ui-select:nth-child(2) > div > div.select-input-container.default > div > input"));
+				Test.clickLink(By.cssSelector(".ng-tns-c9-4 > div:nth-child(2) > ui-select:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > input:nth-child(1)"));
 				Test.wait_For(2000);
 				logger.info("Click on Select Cancer Type");
 				//Select Bladder Cancer
-				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel:nth-child(4) > div.ui-panel-content > ui-select:nth-child(2) > div > div.select-dropdown.default > div:nth-child(3)"));
+				Test.clickLink(By.cssSelector("div.select-dropdown-item:nth-child(3)"));
 				Test.wait_For(5000);
 				logger.info("Select Bladder Cancer");
 				//Click Search Button for Bladder Cancer
@@ -232,10 +233,10 @@ public class TestSearchDatabase {
 				Test.wait_until_element_present(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-9 > icrp-search-summary-panel > icrp-summary-panel > div.content > div > table > tbody > tr:nth-child(2) > td:nth-child(2)"),"Bladder Cancer");
 				
 				//Click on Year Active and select 2012 and 2013
-				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel:nth-child(1) > div.ui-panel-content > ui-select > div > div.select-input-container.default > div > input"));
+				Test.clickLink(By.cssSelector(".ng-tns-c9-1 > div:nth-child(2) > ui-select:nth-child(9) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > input:nth-child(1)"));
 				Test.wait_For(2000);
-				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel:nth-child(1) > div.ui-panel-content > ui-select > div > div.select-dropdown.default > div:nth-child(7)"));  //Select 2012
-				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel:nth-child(1) > div.ui-panel-content > ui-select > div > div.select-dropdown.default > div:nth-child(6)"));  //Select 2013
+				Test.clickLink(By.cssSelector(".ng-tns-c9-1 > div:nth-child(2) > ui-select:nth-child(9) > div:nth-child(1) > div:nth-child(2) > div:nth-child(8)"));  //Select 2012
+				Test.clickLink(By.cssSelector(".ng-tns-c9-1 > div:nth-child(2) > ui-select:nth-child(9) > div:nth-child(1) > div:nth-child(2) > div:nth-child(7)"));  //Select 2013
 				
 				//Click Search Button for Bladder Cancer for Years 2012 and 2013
 				Test.clickLink(By.cssSelector("div.text-right:nth-child(6) > button:nth-child(1)"));

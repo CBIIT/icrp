@@ -109,7 +109,8 @@ public class TestUserApplication {
 					
 					//Click Create New Account
 					
-					Test.clickLink(By.xpath("/html/body/div/div/section/div[3]/div/div/form/div[5]/button"));
+					//Test.clickLink(By.xpath("/html/body/div[1]/div/div/section/div[3]/div/div/form/div[5]/button"));
+					Test.clickLink(By.id("edit-submit"));
 					Test.wait_For(4000);
 					logger.info("Click create new account button");
 					
@@ -257,7 +258,8 @@ public class TestUserApplication {
 							
 							//Click Create New Account
 							
-							Test.clickLink(By.xpath("/html/body/div/div/section/div[3]/div/div/form/div[5]/button"));
+							//Test.clickLink(By.xpath("/html/body/div[1]/div/div/section/div[3]/div/div/form/div[5]/button"));
+							Test.clickLink(By.id("edit-submit"));
 							Test.wait_For(4000);
 							logger.info("Click create new account button");
 							
@@ -410,7 +412,8 @@ public class TestUserApplication {
 							
 							//Click Create New Account
 							
-							Test.clickLink(By.xpath("/html/body/div/div/section/div[3]/div/div/form/div[5]/button"));
+							//Test.clickLink(By.xpath("/html/body/div[1]/div/div/section/div[3]/div/div/form/div[5]/button"));
+							Test.clickLink(By.id("edit-submit"));
 							Test.wait_For(4000);
 							logger.info("Click create new account button");
 							
@@ -558,7 +561,8 @@ public class TestUserApplication {
 							
 							//Click Create New Account
 							
-							Test.clickLink(By.xpath("/html/body/div/div/section/div[3]/div/div/form/div[5]/button"));
+							//Test.clickLink(By.xpath("/html/body/div[1]/div/div/section/div[3]/div/div/form/div[5]/button"));
+							Test.clickLink(By.id("edit-submit"));
 							Test.wait_For(4000);
 							logger.info("Click create new account button");
 							

@@ -116,8 +116,8 @@ public class TestCSO {
 				//Test.switchToParentBrowserWindow();
 				//Test.switchToParentBrowserWindow();
 				Test.wait_For(5000);
-				//Test.clickLink(By.cssSelector(".quickedit-field > p:nth-child(120) > a:nth-child(1)"));  //Click Back to Top
-				Test.clickLink(By.xpath("/html/body/div/div/section/div[2]/article/div/div/div[2]/div/div/div/p[46]/a"));
+				Test.clickLink(By.cssSelector(".quickedit-field > p:nth-child(120) > a:nth-child(1)"));  //Click Back to Top
+				//Test.clickLink(By.xpath("/html/body/div/div/section/div[2]/article/div/div/div[2]/div/div/div/p[46]/a"));
 				Test.clickLink(By.cssSelector("#downloadPanel > a:nth-child(19)"));  //Under Download Select Cancer Type List
 				Test.wait_For(2000);
 				Test.verifyUrl("https://www.icrpartnership-test.org/cancer-type-list");

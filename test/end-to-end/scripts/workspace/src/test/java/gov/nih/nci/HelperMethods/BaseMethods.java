@@ -1340,9 +1340,9 @@ public class BaseMethods extends BaseTestMethods{
 			
 			String UserName1 = getText(By.cssSelector("tbody > tr:nth-child(1) > td.views-field.views-field-field-last-name.is-active.views-field-field-first-name"));
 			String UserEmail1 = getText(By.cssSelector("tbody > tr:nth-child(1) > td.views-field.views-field-mail"));
-			String UserOrganization1 =getText(By.cssSelector("body > div.main-container.container.js-quickedit-main-content > div > section > div.region.region-content > div > div > div.view-content > table > tbody > tr:nth-child(1) > td.views-field.views-field-field-organization"));
+			String UserOrganization1 =getText(By.cssSelector(".table > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(3)"));
 			
-			click(By.cssSelector("body > div.main-container.container.js-quickedit-main-content > div > section > div.region.region-content > div > div > div.view-content > table > tbody > tr:nth-child(1) > td.views-field.views-field-nothing-1 > a"));
+			click(By.cssSelector(".table > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(5) > a:nth-child(1)"));
 			wait_For(3000);
 			wait_until_element_present(By.cssSelector("#user-review-form > h1"),"User Review");
 			
