@@ -58,7 +58,7 @@ class ApiController extends ControllerBase {
 
   function latestNewsletter() {
     $record = $this->pdo->query(
-      "EXECUTE GetLatestNewsletter"
+      'EXECUTE GetLatestNewsletter'
     )->fetch();
 
     return new JsonResponse($record);
@@ -66,7 +66,7 @@ class ApiController extends ControllerBase {
 
   function latestMeetingReport() {
     $record = $this->pdo->query(
-      "EXECUTE GetLatestMeetingReport"
+      'EXECUTE GetLatestMeetingReport'
     )->fetch();
 
     return new JsonResponse($record);
@@ -98,6 +98,15 @@ class ApiController extends ControllerBase {
     return new JsonResponse($counts);
   }
 
+  function roundedProjectCounts() {
+    $counts = $this->pdo->query(
+      'SELECT COUNT(*) from Project'
+    )->fetchColumn();
+
+    $roundedCounts = round($counts - 500, -3);
+    return new JsonResponse($roundedCounts);
+  }
+
   /**
    * Retrieves sample project funding ids for each cso code
    *
@@ -105,38 +114,33 @@ class ApiController extends ControllerBase {
    * @return array
    */
   function csoExamples() {
-
-    $stmt = $this->pdo->prepare(
+    $records = $this->pdo->query(
       'EXECUTE GetCSOLookup'
-    );
+    )->fetchAll();
 
     $key_format = 'cso-%s-%s-ex%s';
     $value_format = '/project/funding-details/%s';
-    $fields = [];
 
-    if ($stmt->execute()) {
-      while ($row = $stmt->fetch()) {
-        $cso_code = $row['code'];
-        $project_funding_ids = explode(',', $row['projectfundingids']);
+    $examples = array_reduce($records, function($fields = [], $row) {
+      $cso_code = $row['code'];
+      $project_funding_ids = explode(',', $row['projectfundingids']);
 
-        foreach($project_funding_ids as $index => $project_funding_id) {
-          $split_cso_code = explode('.', $cso_code);
+      foreach($project_funding_ids as $index => $project_funding_id) {
+        $split_cso_code = explode('.', $cso_code);
 
-          if (count($split_cso_code) === 2) {
-            $cso_category = $split_cso_code[0];
-            $cso_subcategory = $split_cso_code[1];
-            $example_index = $index + 1;
+        if (count($split_cso_code) === 2) {
+          $cso_category = $split_cso_code[0];
+          $cso_subcategory = $split_cso_code[1];
+          $example_index = $index + 1;
 
-            $key = sprintf($key_format, $cso_category, $cso_subcategory, $example_index);
-            $value = sprintf($value_format, $project_funding_id);
-            $fields[$key] = $value;
-          }// end if
-        }// end foreach
-      }// end while
-    }// end if
+          $key = sprintf($key_format, $cso_category, $cso_subcategory, $example_index);
+          $value = sprintf($value_format, $project_funding_id);
+          $fields[$key] = $value;
+        }
+      }
+      return $fields;
+    });
 
-    return new JsonResponse($fields);
-
-  }// end getCsoExamples
-
+    return new JsonResponse($examples);
+  }
 }

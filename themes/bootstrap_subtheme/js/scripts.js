@@ -75,29 +75,25 @@
       }
     }
   }
-})(window.jQuery);
 
-(function ($) {
   window['enableTooltips'] = function() {
     window.setTimeout(function() {
       $('[data-toggle="tooltip"]').tooltip({container: 'body'});
     }, 0);
   }
 
-  // sets tags with the data-count attribute to be dynamic
-  if ($('[data-count]').length) {
-    $.ajax('/api/database/counts')
-      .then(function(response) {
-        for (key in response) {
-          $('[data-count="{0}"]'.format(key))
-            .html(response[key]);
-        }
+  // sets tags with the data-count attribute to fetch counts from an api
+  $('[data-count]').each(function() {
+    var el = $(this);
+    var key = el.data('count');
+    $.get('/api/counts/' + key).then(function(response) {
+      el.text(response.toLocaleString());
     });
-  }
+  });
 
   // attaches cso example hrefs to each button
   if ($('a[id^="cso"]').length) {
-    $.ajax('/api/database/examples/cso')
+    $.ajax('/api/examples/cso')
       .then(function(response) {
         for (key in response) {
           var element = document.getElementById(key);
@@ -415,42 +411,14 @@
     return return_val;
   }
   $.getNewsletter = function() {
-    if(window.location.hostname == "localhost") {
-      host = "https://icrpartnership-dev.org";
-    } else {
-      host = window.location.protocol + "//" + window.location.hostname;
-    }
-    $.ajax({
-      url: host + "/getLatestNewsletter",
-      success: function( data ) {
-        $.showNewsletter(data[0]);
-      }
+    $.get('/api/latest/newsletter').then(function(newsletter) {
+      var pdf = "/library/file/"+(newsletter.libraryid || 0)+"/"+newsletter.filename;
+      var thumbnail = "/library/file/thumb/"+newsletter.thumbnailfilename;
+
+      $('#last_newsletter').html("<div class='newsletter-title'>"+newsletter.title+"</div>");
+      $("#last_newsletter").append("<div class='row text-center'><div class='newsletter-image'><a href='"+pdf+"' title='Latest Newsleter' target='_blank'><img class='center-block' src='"+thumbnail+"' /></a></div></div>");
+      $('#last_newsletter').append("<div class='newsletter-description'>"+newsletter.description+"</div>");
+      $("#newsletter-container").show();
     });
-  }
-  $.showNewsletter = function(newsletter) {
-    /*
-
-    old:
-    The library PDF File location - icrp/sites/default/files/library/uploads
-    Thumbnail location (folder path) - icrp/sites/default/files/library/uploads/thumbs
-
-    eg:
-      var pdf = "/sites/default/files/library/uploads/"+newsletter.Filename;
-      var thumbnail = "/sites/default/files/library/uploads/thumbs/"+newsletter.ThumbnailFilename;
-
-    new:
-    The library PDF File location - /library/file/${LibraryID}/${Filename}
-    Thumbnail location (folder path) - /library/file/thumb/${ThumbnailFilename}
-    */
-
-    var pdf = "/library/file/"+(newsletter.LibraryID || 0)+"/"+newsletter.Filename;
-    var thumbnail = "/library/file/thumb/"+newsletter.ThumbnailFilename;
-
-    $('#last_newsletter').html("<div class='newsletter-title'>"+newsletter.Title+"</div>");
-
-    $("#last_newsletter").append("<div class='row text-center'><div class='newsletter-image'><a href='"+pdf+"' title='Latest Newsleter' target='_blank'><img class='center-block' src='"+thumbnail+"' /></a></div></div>");
-    $('#last_newsletter').append("<div class='newsletter-description'>"+newsletter.Description+"</div>");
-
-    $("#newsletter-container").show();
   }
 })(window.jQuery);

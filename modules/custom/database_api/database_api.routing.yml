@@ -16,6 +16,12 @@ api.counts.projects:
   requirements:
     _access: 'TRUE'
 
+api.counts.rounded-projects:
+  path: /api/counts/rounded-projects
+  defaults: { _controller: \Drupal\database_api\Controller\ApiController::roundedProjectCounts }
+  requirements:
+    _access: 'TRUE'
+
 api.counts.partners:
   path: /api/counts/partners
   defaults: { _controller: \Drupal\database_api\Controller\ApiController::partnerCounts }
@@ -28,7 +34,6 @@ api.counts.funding-organizations:
   requirements:
     _access: 'TRUE'
 
-## Get example funding organizations
 api.examples.cso:
   path: /api/examples/cso
   defaults: { _controller: \Drupal\database_api\Controller\ApiController::csoExamples }
