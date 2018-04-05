@@ -2093,9 +2093,31 @@ Data reported by CCRA will vary from the ICRP data as follows:</p>
 }
 
 function getEventsAndResourcesHTML() {
-  $html = '<div id="events-and-resources-container">
-  <h1>Events and Resources</h1>
+  //Render both blocks on this page
+// Get ICRP Events Block
+  $bid = 31; // Get the block id through config, SQL or some other means
+  $block = \Drupal\block_content\Entity\BlockContent::load($bid);
+  $icrp_events_block = \Drupal::entityTypeManager()->getViewBuilder('block_content')->view($block);
+  $icrp_events_rendered = \Drupal::service('renderer')->renderRoot($icrp_events_block);
+// Get External Resources Block
+  $bid = 32;
+  $block = \Drupal\block_content\Entity\BlockContent::load($bid);
+  $external_resources_block = \Drupal::entityTypeManager()->getViewBuilder('block_content')->view($block);
+  $external_resources_rendered = \Drupal::service('renderer')->renderRoot($external_resources_block);
+  // Check to see if this user is Admin or Manger
+  $uid = \Drupal::currentUser()->id();
+  $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
 
+  $icrp_events_edit = '';
+  $external_resources_edit = '';
+  if($user->hasRole('manager') || $user->hasRole('administrator')) {
+    $icrp_events_edit = '<p class="text-right"><a href="/block/31/?destination=events-and-resources">Edit</a></p>';
+    $external_resources_edit = '<p class="text-right"><a href="/block/32/?destination=events-and-resources">Edit</a></p>';
+  }
+
+  $html = '
+  <div id="events-and-resources-container">
+  <h1>Events and Resources</h1>
   <div class="panel panel-default" id="events-and-resources-1">
     <div class="panel-heading"><a aria-controls="events-and-resources-1--content" aria-expanded="true" aria-pressed="true" class="panel-title" data-toggle="collapse" href="#events-and-resources-1--content" role="button">ICRP Events</a></div>
 
@@ -2104,23 +2126,11 @@ function getEventsAndResourcesHTML() {
       <div class="about-us-body">
         <div class="container-fluid">
           <div class="row">
-            <div class="col-9 col-md-9">
-              <p>Content ICRP’s mission is to improve access to information about global cancer research funding and enable cancer research funding organizations to work collaboratively to address common challenges.</p>
-
-              <p>Our <strong>annual meetings</strong> are a great opportunity to connect with other cancer research funders, explore options for collaborative funding and exchange innovative ideas. Registration is free – please see below for information
-                about past and forthcoming meetings.</p>
-
-              <h5>2019 Annual Meeting</h5>
-
-              <p>Further information about the 2019 annual meeting will be posted here during May 2018. To register your interest and be added to the mailing list, please <a href="/contact-us?type-of-issue=Sign%20Up%20for%20Newsletter">contact us</a>.</p>
-
-              <h5>Previous Meetings</h5>
-
-              <p>Please visit <a href="/library?nodeId=4">our library</a> to view summaries of our previous meetings.</p>
+            <div class="col-9 col-md-9">'.$icrp_events_edit.$icrp_events_rendered.'
             </div>
 
-            <div class="col-3 col-md-3" style="padding-right: 0px;padding-left:0px;">
-              <div class="card bg-light mb-3" id="events-and-resources-card" style="width: 100%;">
+            <div class="col-3 col-md-3">
+              <div class="card bg-light mb-3" id="events-and-resources-card">
                 <div class="card-header">ICRP 2017 Annual Meeting Report -Brief Summary</div>
 
                 <div class="card-body">
@@ -2133,7 +2143,7 @@ function getEventsAndResourcesHTML() {
                         <td><span id="last-meeting-report-text">Summary of the ICRP 2017 annual meeting, hosted by the UK National Cancer Research Institute. Meeting theme: "Global collaboration in cancer research: impact and policy"</span></td>
                       </tr>
                       <tr>
-                        <td style="text-align:center;"><a id="last-meeting-report-pdf" href="https://icrpartnership.org/sites/default/files/library/uploads/7343.pdf" target="_blank">Download PDF</a></td>
+                        <td><a id="last-meeting-report-pdf" href="https://icrpartnership.org/sites/default/files/library/uploads/7343.pdf" target="_blank">Download PDF</a></td>
                         <td>&nbsp;</td>
                       </tr>
                     </table>
@@ -2150,30 +2160,7 @@ function getEventsAndResourcesHTML() {
   <div class="panel panel-default" id="events-and-resources-2">
     <div class="panel-heading"><a aria-controls="events-and-resources-2--content" aria-expanded="true" aria-pressed="true" class="panel-title" data-toggle="collapse" href="#events-and-resources-2--content" role="button">External Resources</a></div>
 
-    <div class="panel-body panel-collapse collapse fade in" id="events-and-resources-2--content">
-      <!-- Body 2 -->
-      <div class="about-us-body">
-        <p>ICRP’s aim is to promote international cancer research collaboration and avoid duplication. We collaborate with many other organizations internationally to improve outcomes for cancer patients. Use the links below to find out more.</p>
-
-        <h5>Cancer prevention and cancer control:</h5>
-        <p>
-          <ul>
-            <li><a href="https://www.uicc.org/who-we-are/about-us" target="_blank">Union for International Cancer Control (UICC)</a></li>
-            <li><a href="https://www.iarc.fr/" target="_blank">International Agency for Research on Cancer (IARC)</a></li>
-          </ul>
-        </p>
-        <h5>Cancer Screening</h5>
-
-        <ul>
-          <li><a href="https://healthcaredelivery.cancer.gov/icsn/" target="_blank">International Cancer Screening Network (ICSN)</a></li>
-        </ul>
-
-        <h5>Cancer Trials</h5>
-
-        <ul>
-          <li><a href="http://www.irci.info/" target="_blank">International Rare Cancers Clinical Trials Initiative</a></li>
-        </ul>
-      </div>
+    <div class="panel-body panel-collapse collapse fade in" id="events-and-resources-2--content">'.$external_resources_edit.$external_resources_rendered.'
     </div>
   </div>
 </div>';
@@ -2217,6 +2204,17 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
       );
     }    
     switch ($current_form_id) {
+        case 'block_content_basic_edit_form':
+
+          $uid = \Drupal::currentUser()->id();
+          $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+         if(!($user->hasRole('administrator'))) {
+            unset($form['actions']['delete']);
+            unset($form['revision_information']);
+            unset($form['revision_log']);
+            unset($form['revision']);
+          }
+          break;
         case 'node_faq_form':
             unset($form['actions']['preview']); //Remove Preview
             $form['actions']['return'] = array(
