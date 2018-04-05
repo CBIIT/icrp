@@ -28,7 +28,7 @@ icrp.partner_application_review:
     _title: 'Partner Application Review'
     _form: '\Drupal\icrp\Form\PartnerApplicationReviewForm'
   requirements:
-    _role: 'authenticated+admin'    
+    _role: 'authenticated+admin'
     _role: 'authenticated+manager'
 
 icrp.events_json:
@@ -78,3 +78,11 @@ icrp.icrp_data_caveats_ccra:
   requirements:
     _permission: 'access content'
     _role: 'authenticated'
+
+icrp.icrp_events_and_resources1:
+  path: /events-and-resources
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::getEventsAndResources'
+  requirements:
+    _format: 'html'
+    _access: 'TRUE'
