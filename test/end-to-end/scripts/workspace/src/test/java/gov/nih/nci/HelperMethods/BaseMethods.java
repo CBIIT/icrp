@@ -1190,13 +1190,13 @@ public class BaseMethods extends BaseTestMethods{
 	}
 	
 	
-	public void form_fill_add_partner_info (String Sponsor_Code,String Website,String Map_Coordinates,String Longitude, String Note) throws TestExecutionException {
+public void form_fill_add_partner_info (String Sponsor_Code,String Website,String Map_Coordinates,String Longitude, String Note) throws TestExecutionException {
 		
 		//enter(By.id("partner-sponsor-code"),Sponsor_Code);
 		//enter(By.id("partner-website"),Website);  
-		enter(By.cssSelector("div.margin-bottom:nth-child(6) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > input:nth-child(1)"),Map_Coordinates);
-		enter(By.cssSelector("div.form-group-sm:nth-child(2) > div:nth-child(1) > input:nth-child(1)"),Longitude);
-		enter(By.id("partner-note"),Note);
+		enter(By.cssSelector("input.ng-invalid:nth-child(1)"),Map_Coordinates);
+		enter(By.cssSelector("div.mb-4:nth-child(8) > div:nth-child(2) > input:nth-child(2)"),Longitude);
+		enter(By.cssSelector("textarea.ng-valid"),Note);
 		wait_For(2000);
 	}
 	
@@ -1273,12 +1273,11 @@ public class BaseMethods extends BaseTestMethods{
 		//final String randomEmail =  randomEmail();
 		
 		final String randomSponsorCode = "9999" + new SimpleDateFormat("dd.HH.mm.ss").format(new Date());
-		WebElement sponsorcode = selenium.findElement(By.id("partner-sponsor-code"));
+		WebElement sponsorcode = selenium.findElement(By.cssSelector("body > div.dialog-off-canvas-main-canvas > div > div > section > div.region.region-content > div > icrp-partners-form > form > div:nth-child(6) > input"));
 		sponsorcode.sendKeys(randomSponsorCode);
 		wait_For(3000);
 		logger.info("Sponsor Code Entered");
-		String randomSponsorCodeEntered = getText(By.cssSelector("#partner-sponsor-code"));
-		
+		String randomSponsorCodeEntered = getText(By.cssSelector("body > div.dialog-off-canvas-main-canvas > div > div > section > div.region.region-content > div > icrp-partners-form > form > div:nth-child(6) > input"));
 		
 	}
 		//private static String randomEmail() {
@@ -7510,7 +7509,7 @@ public class BaseMethods extends BaseTestMethods{
 		}
 		
 		public void selectOrganizationType (String option) throws TestExecutionException {
-			keyEnter(By.id("selectOrganizationType"),option);
+			keyEnter(By.cssSelector("#type"),option);
 			//click(By.cssSelector(".btn.btn-success.btn-xs"));
 			oPDF.enterBlockSteps(bTable,stepCount,"User Actions","selectPartner","Action "+ option + " selected","Pass");
 			stepCount++;				
@@ -11473,7 +11472,7 @@ public class BaseMethods extends BaseTestMethods{
 		
 		public void choose_logo_file_upload() throws TestExecutionException {
 			// selenium.findElement(By.name("logoFile")).sendKeys("C:\\My Frameworks\\WebDriver\\Application\\ICRP\\UploadFile\\image.jpg");
-			selenium.findElement(By.name("logoFile")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/test/end-to-end/scripts/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
+			selenium.findElement(By.cssSelector(".border-right-0")).sendKeys("/home/ncianalysis/.jenkins/jobs/ICRP-e2e-testing/workspace/test/end-to-end/scripts/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
 			//selenium.findElement(By.name("logo-file")).sendKeys("/local/content/jenkins/8080/jobs/ICRP/workspace/My Frameworks/WebDriver/Application/ICRP/UploadFile/image.jpg");
 		}
 		

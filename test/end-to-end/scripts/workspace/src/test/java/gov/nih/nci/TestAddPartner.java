@@ -26,7 +26,7 @@ import org.apache.log4j.Logger;
 public class TestAddPartner {
 	static BaseMethods Test = new BaseMethods();
 	private static Logger logger=Logger.getLogger("TestSuite");
-	public static String seleniumBrowser = "firefox";
+	public static String seleniumBrowser = "chrome";
 	public static String tier = "dev";
 
 	public static String HostName = "https://www.icrpartnership-test.org/";
@@ -94,14 +94,17 @@ public class TestAddPartner {
 				Test.wait_For(2000);
 				Test.clickLink(By.linkText("Add / Edit Partner"));
 				Test.wait_For(2000);
-				Test.wait_until_element_present(By.name("Add / Edit Partner"),"Add / Edit Partner");
+				Test.wait_until_element_present(By.cssSelector("html.js body.user-logged-in.path-addpartner.has-glyphicons div.dialog-off-canvas-main-canvas div.main-container.container.js-quickedit-main-content div.row section.col-sm-12 div.region.region-content div.container icrp-partners-form form.ng-untouched.ng-invalid.ng-dirty div.mb-4.pr-4 label.font-weight-bold.control-label.asterisk"),"Add / Edit Partner");
+				logger.info("Add / Edit Partner present");
+				Test.wait_until_element_present(By.cssSelector("html.js body.user-logged-in.path-addpartner.has-glyphicons div.dialog-off-canvas-main-canvas div.main-container.container.js-quickedit-main-content div.row section.col-sm-12 div.region.region-content div.container icrp-partners-form form.ng-untouched.ng-invalid.ng-dirty div.mb-4.pr-4 label.font-weight-bold.control-label.asterisk"),"Country");
+				logger.info("Country field present.");
 				Test.wait_For(2000);
 				
 				//Select a Partner to Add
 				
 				Test.selectPartner("O");
 				Test.wait_For(1000);
-				Test.clickLink(By.id("selectEmail"));
+				//Test.clickLink(By.cssSelector("html.js body.user-logged-in.path-addpartner.has-glyphicons div.dialog-off-canvas-main-canvas div.main-container.container.js-quickedit-main-content div.row section.col-sm-12 div.region.region-content div.container icrp-partners-form form.ng-invalid.ng-dirty.ng-touched div.mb-4.pl-4 input.form-control.input-sm.ng-pristine.ng-invalid.ng-touched"));
 				
 				//Verify Partner Information
 				
@@ -120,13 +123,13 @@ public class TestAddPartner {
 				
 				//Fill Add Partner Form
 				Test.form_fill_add_partner_info(Sponsor_Code,Website,Map_Coordinates,Longitude,Note);
-				Test.clickLink(By.cssSelector("#partner-terms-and-conditions > div:nth-child(1) > label:nth-child(1) > input:nth-child(1)")); //Agreed to Terms and Conditions
+				Test.clickLink(By.cssSelector("#isDsaSigned")); //Agreed to Terms and Conditions
 				Test.wait_For(1000);
-				Test.clickLink(By.cssSelector("#partner-funding-organization > div:nth-child(1) > div:nth-child(1) > label:nth-child(1) > input:nth-child(1)"));  //Add as a Partner Funding Organization
+				Test.clickLink(By.cssSelector("body > div.dialog-off-canvas-main-canvas > div > div > section > div.region.region-content > div > icrp-partners-form > form > div.mb-2 > label > input"));  //Add as a Partner Funding Organization
 				Test.wait_For(1000);
 				Test.choose_logo_file_upload();
 				Test.wait_For(1000);
-				Test.clickLink(By.cssSelector("div.no-margin:nth-child(1) > div:nth-child(1) > div:nth-child(1) > label:nth-child(1) > input:nth-child(1)")); //Select Annualized Funding
+				Test.clickLink(By.cssSelector("#isAnnualized")); //Select Annualized Funding
 				Test.wait_For(1000);
 				Test.wait_until_element_present(By.id("selectCurrency"),"CAD");
 				Test.wait_For(1000);
