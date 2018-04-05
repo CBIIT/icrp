@@ -24,6 +24,7 @@ module:
   ctools_block: 0
   ctools_views: 0
   data_load: 0
+  database_api: 0
   datatables: 0
   datetime: 0
   datetime_range: 0
