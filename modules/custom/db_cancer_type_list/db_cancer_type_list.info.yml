@@ -1,6 +1,0 @@
-name: ICRP Partner Cancer Types List
-description: Allows for viewing the list of cancer types at /partners/cancer-type-list
-package: ICRP Modules
-type: module
-version: 0.1
-core: 8.x

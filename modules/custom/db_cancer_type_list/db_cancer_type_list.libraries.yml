@@ -1,8 +1,0 @@
-resources:
-  version: 1.0
-  css:
-    theme:
-      src/assets/css/main.css: {}
-
-  js:
-    src/assets/js/main.js: {}
