@@ -7521,9 +7521,8 @@ GO
 CREATE  PROCEDURE [dbo].[GetNonPartners]
 AS   
 
-	SELECT [NonPartnerID], [Name], [Description], [Abbreviation], [Email], [Country], [Longitude],[Latitude],[Website], [LogoFile], [Note], [EstimatedInvest], [ContactPerson],[Position], [DoNotContact], [CancerOnly],[ResearchFunder]
-	FROM [NonPartner] WHERE ISNULL(DoNotShow,0)  = 0  -- exclude those flaged with DoNotShow
-	ORDER BY [Name]
+	SELECT [NonPartnerID], [Name], [Description], [Abbreviation], [Email], [Country], [Longitude],[Latitude],[Website], [LogoFile], [Note], [EstimatedInvest], [ContactPerson],[Position], [DoNotContact], [CancerOnly],[ResearchFunder],ISNULL([DoNotShow], 0) AS DoNotShow
+	FROM [NonPartner] ORDER BY [Name]
 
 GO
 
