@@ -79,7 +79,7 @@ public class TestNavigation {
 				Test.launchSite();
 				Test.wait_For(5000);
 				//Verify About Us Page navigation
-				Test.clickLink(By.xpath("/html/body/footer/div/div/div[2]/div/nav/ul/li[1]/a"));
+				Test.clickLink(By.cssSelector("#anonymous-navbar > ul:nth-child(1) > li:nth-child(2) > a:nth-child(1)"));
 				Test.wait_For(5000);
 				Test.expected_vs_actual_verification("About the Partners");
 				Test.wait_For(5000);
@@ -380,12 +380,12 @@ public class TestNavigation {
 				Test.wait_For(5000);
 				Test.clickLink(By.cssSelector("section.block-block-content8c71aff9-4894-42a5-bf26-c41c9f8ad280:nth-child(1) > div:nth-child(1) > div:nth-child(2) > ul:nth-child(5) > li:nth-child(4) > a:nth-child(1)"));
 				Test.wait_For(2000);
-				//Test.switchToParentBrowserWindow();
+				Test.switchToParentBrowserWindow();
 				//Test.navigate_back();
 				//Test.wait_For(2000);
 				
 				//Verify Data Upload Status Report Page
-				Test.clickLink(By.cssSelector("html.js body.user-logged-in.path-frontpage.page-node-type-page.has-glyphicons div.main-container.container.js-quickedit-main-content div.row section.col-sm-9 div.region.region-content div.tab-content.partner-content div#welcome.tab-pane.fade.in.active section#block-partnerhomewelcome.block.block-block-content.block-block-content8c71aff9-4894-42a5-bf26-c41c9f8ad280.clearfix div.field.field--name-body.field--type-text-with-summary.field--label-visually_hidden div.field--item ul li a"));
+				Test.clickLink(By.xpath("/html/body/div[1]/div/div/section/div[2]/div[2]/div[1]/section/div/div[2]/ul[2]/li[6]/a"));
 				Test.wait_For(5000);
 				//Test.wait_until_element_present(By.name("Information about the status of data submissions and uploads to the ICRP database is included below. Please note that each organization has its own data upload schedule and the latest data uploaded for each organization can be seen here."),"Information about the status of data submissions and uploads to the ICRP database is included below. Please note that each organization has its own data upload schedule and the latest data uploaded for each organization can be seen here.");
 				Test.expected_vs_actual_verification("Data Upload Status Report");
