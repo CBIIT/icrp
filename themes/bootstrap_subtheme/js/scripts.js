@@ -35,7 +35,6 @@
           $.preprocessAddTitle();
           $.preprocessFixDateRangeEvents();
           //$.preprocessCloneEndDateCheckbox();
-
       }
       switch(url_path) {
         case "/node/add/events":
@@ -70,7 +69,9 @@
         case "/calendar":
           $.preprocessCalendar();
           $.rememberTabs();
-
+          break;
+        case "/events-and-resources":
+          $.getLastMeetingReport();
           break;
       }
     }
@@ -421,4 +422,20 @@
       $("#newsletter-container").show();
     });
   }
+  $.getLastMeetingReport = function() {
+    $.get('/api/latest/meeting-report').then(function(meetingReport) {
+      var pdf = "/library/file/"+(meetingReport.libraryid || 0)+"/"+meetingReport.filename;
+      var thumbnail = "/library/file/thumb/"+meetingReport.thumbnailfilename;
+      console.log(pdf);
+      console.log(thumbnail);
+      console.log(meetingReport.title);
+      console.log(meetingReport.description);
+      $("#events-and-resources-card > .card-header:eq(0)").text(meetingReport.title);
+      $("#last-meeting-report-img").attr('src', 'https://icrpartnership-dev.org'+thumbnail);
+      $("#last-meeting-report-text").text(meetingReport.description);
+      $("#last-meeting-report-pdf").attr('href', 'https://icrpartnership-dev.org'+pdf);
+      $('#events-and-resources-card').show();
+    });
+  }
+
 })(window.jQuery);

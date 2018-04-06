@@ -2136,16 +2136,16 @@ function getEventsAndResourcesHTML() {
 
             <div class="col-3 col-md-3">
               <div class="card bg-light mb-3" id="events-and-resources-card">
-                <div class="card-header">ICRP 2017 Annual Meeting Report -Brief Summary</div>
+                <div class="card-header">Meeting Report Title</div>
 
                 <div class="card-body">
                   <p class="card-text">
                     <table id="last-meeting-report-table">
                       <tr>
-                        <td><a href="https://icrpartnership.org/sites/default/files/library/uploads/7343.pdf" target="_blank" title="Latest Newsletter">
+                        <td><a href="#" target="_blank" title="Latest Meeting Report">
                     
-                    <img id="last-meeting-report-img" src="https://icrpartnership.org/sites/default/files/library/uploads/thumbs/7343.jpg" /></a></td>
-                        <td><span id="last-meeting-report-text">Summary of the ICRP 2017 annual meeting, hosted by the UK National Cancer Research Institute. Meeting theme: "Global collaboration in cancer research: impact and policy"</span></td>
+                    <img id="last-meeting-report-img" src="" /></a></td>
+                        <td><span id="last-meeting-report-text">Summary of annual meeting"</span></td>
                       </tr>
                       <tr>
                         <td><a id="last-meeting-report-pdf" href="https://icrpartnership.org/sites/default/files/library/uploads/7343.pdf" target="_blank">Download PDF</a></td>

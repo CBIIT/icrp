@@ -118,7 +118,9 @@ fieldset[data-drupal-selector="edit-library-access"] > legend {
 #events-and-resources-1--content > div > div > div > .col-md-3 {
     padding: 0px;
 }
-
+#events-and-resources-card {
+    display:none;
+}
 /* Full Calendar */
 div.fullcalendar > div > div.fc-center > h2 {
     color:#222222;
