@@ -72,6 +72,7 @@
           break;
         case "/events-and-resources":
           $.getLastMeetingReport();
+          $.addIcrpEventsEditLinks();
           break;
       }
     }
@@ -426,16 +427,35 @@
     $.get('/api/latest/meeting-report').then(function(meetingReport) {
       var pdf = "/library/file/"+(meetingReport.libraryid || 0)+"/"+meetingReport.filename;
       var thumbnail = "/library/file/thumb/"+meetingReport.thumbnailfilename;
-      console.log(pdf);
-      console.log(thumbnail);
-      console.log(meetingReport.title);
-      console.log(meetingReport.description);
       $("#events-and-resources-card > .card-header:eq(0)").text(meetingReport.title);
-      $("#last-meeting-report-img").attr('src', 'https://icrpartnership-dev.org'+thumbnail);
+      $("#last-meeting-report-img").attr('src', thumbnail);
       $("#last-meeting-report-text").text(meetingReport.description);
-      $("#last-meeting-report-pdf").attr('href', 'https://icrpartnership-dev.org'+pdf);
+      $("#last-meeting-report-pdf").attr('href', pdf);
       $('#events-and-resources-card').show();
     });
+  }
+
+  $.addIcrpEventsEditLinks = function(){
+    if(!$('#icrp-events-edit-link').length) {
+      var href = "/user-roles";
+      $.ajax({
+        url:  href,
+        success: function( data ) {
+          //console.dir(data);
+          var roles = JSON.parse(data);
+          //console.dir(roles);
+          if(!$('#icrp-events-edit-link').length && (($.inArray("administrator", roles)>=0) || ($.inArray("manager", roles)>=0))) {
+            var html = '<a href="/block/31/?destination=events-and-resources" id="icrp-events-edit-link" class="events-edit-link">Edit</a>';
+            $("#events-and-resources-1 > .panel-heading:eq(0)").append(html);
+          }
+          if(!$('#external-resources-edit-link').length && (($.inArray("administrator", roles)>=0) || ($.inArray("manager", roles)>=0))) {
+              var html = '<a href="/block/32/?destination=events-and-resources" id="external-resources-edit-link" class="events-edit-link">Edit</a>';
+              $("#events-and-resources-2 > .panel-heading:eq(0)").append(html);
+          }
+        }
+       });
+    }
+
   }
 
 })(window.jQuery);

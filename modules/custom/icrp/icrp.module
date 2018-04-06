@@ -2112,14 +2112,14 @@ function getEventsAndResourcesHTML() {
   // Check to see if this user is Admin or Manger
   $uid = \Drupal::currentUser()->id();
   $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
-
+/*
   $icrp_events_edit = '';
   $external_resources_edit = '';
   if($user->hasRole('manager') || $user->hasRole('administrator')) {
     $icrp_events_edit = '<p class="text-right"><a href="/block/31/?destination=events-and-resources">Edit</a></p>';
     $external_resources_edit = '<p class="text-right"><a href="/block/32/?destination=events-and-resources">Edit</a></p>';
   }
-
+*/
   $html = '
   <div id="events-and-resources-container">
   <h1>Events and Resources</h1>
@@ -2131,7 +2131,7 @@ function getEventsAndResourcesHTML() {
       <div class="about-us-body">
         <div class="container-fluid">
           <div class="row">
-            <div class="col-9 col-md-9">'.$icrp_events_edit.$icrp_events_rendered.'
+            <div class="col-9 col-md-9">'.$icrp_events_rendered.'
             </div>
 
             <div class="col-3 col-md-3">
@@ -2165,7 +2165,7 @@ function getEventsAndResourcesHTML() {
   <div class="panel panel-default" id="events-and-resources-2">
     <div class="panel-heading"><a aria-controls="events-and-resources-2--content" aria-expanded="true" aria-pressed="true" class="panel-title" data-toggle="collapse" href="#events-and-resources-2--content" role="button">External Resources</a></div>
 
-    <div class="panel-body panel-collapse collapse fade in" id="events-and-resources-2--content">'.$external_resources_edit.$external_resources_rendered.'
+    <div class="panel-body panel-collapse collapse fade in" id="events-and-resources-2--content">'.$external_resources_rendered.'
     </div>
   </div>
 </div>';

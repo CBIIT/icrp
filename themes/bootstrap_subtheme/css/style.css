@@ -121,6 +121,23 @@ fieldset[data-drupal-selector="edit-library-access"] > legend {
 #events-and-resources-card {
     display:none;
 }
+#events-and-resources-1 > .panel-heading > .panel-title,
+#events-and-resources-2 > .panel-heading > .panel-title {
+    display:inline-block;
+}
+.events-edit-link {
+    float:right;
+    display: block;
+    margin: -10px -15px;
+    padding: 20px 25px;
+}
+
+#edit-container2 {
+    height:389.2px;
+}
+#edit-settings {
+    height: 100%;
+}
 /* Full Calendar */
 div.fullcalendar > div > div.fc-center > h2 {
     color:#222222;
