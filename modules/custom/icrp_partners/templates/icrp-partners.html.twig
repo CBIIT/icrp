@@ -356,6 +356,7 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
                 </thead>
                 <tbody>
                 {% for record in nonPartners %}
+                    {% if not record.donotshow %}
                     <tr>
                         <td title="{{ record.name }}">{{ record.name }}</td>
                         <td style="max-width: 90px" title="{{ record.abbreviation }}">{{ record.abbreviation }}</td>
@@ -387,6 +388,7 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
                             {% endif %}
                         </td>
                     </tr>
+                    {% endif %}
                 {% endfor %}
                 </tbody>
             </table>
