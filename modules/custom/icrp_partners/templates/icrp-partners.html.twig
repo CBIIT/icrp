@@ -137,7 +137,7 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
                 {% for partner in partners %}
                     <tr>
                         <td title="{{ partner.name }}">
-                            {% if partner.Website %}
+                            {% if partner.website %}
                                 <a href="{{partner.website}}" target="_blank">{{ partner.name }}</a>
                             {% else %}
                                 {{ partner.name }}
@@ -239,7 +239,13 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
                 <tbody>
                 {% for organization in fundingOrganizations %}
                     <tr>
-                        <td title="{{ organization.name }}">{{ organization.name }}</td>
+                        <td title="{{ organization.name }}">
+                            {% if organization.website %}
+                                <a href="{{organization.website}}" target="_blank">{{ organization.name }}</a>
+                            {% else %}
+                                {{ organization.name }}
+                            {% endif %}
+                        </td>
                         <td title="{{ organization.type }}">{{ organization.type }}</td>
                         <td title="{{ organization.memberstatus }}">{{ organization.memberstatus }}</td>
                         <td title="{{ organization.abbreviation }}">{{ organization.abbreviation }}</td>
