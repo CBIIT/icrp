@@ -118,10 +118,10 @@ class ApiController extends ControllerBase {
       'EXECUTE GetCSOLookup'
     )->fetchAll();
 
-    $key_format = 'cso-%s-%s-ex%s';
-    $value_format = '/project/funding-details/%s';
-
     $examples = array_reduce($records, function($fields = [], $row) {
+      $key_format = 'cso-%s-%s-ex%s';
+      $value_format = '/project/funding-details/%s';
+
       $cso_code = $row['code'];
       $project_funding_ids = explode(',', $row['projectfundingids']);
 
