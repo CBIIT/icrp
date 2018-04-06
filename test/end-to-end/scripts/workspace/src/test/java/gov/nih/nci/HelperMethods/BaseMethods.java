@@ -1549,7 +1549,7 @@ public void form_fill_add_partner_info (String Sponsor_Code,String Website,Strin
     
     public void form_fill_create_library_file(String title,String description) throws TestExecutionException {
 		
-    	enter(By.cssSelector("div.folder:nth-child(6) > input:nth-child(2)"),title);
+    	enter(By.cssSelector("div.folder:nth-child(5) > input:nth-child(2)"),title);
     	wait_For(2000);
 		enter(By.name("description"),description);
 		wait_For(2000);
