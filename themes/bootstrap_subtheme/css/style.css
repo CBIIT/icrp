@@ -87,6 +87,31 @@ blockquote {
   float:left;  
 }
 
+fieldset[data-drupal-selector="edit-status"] > legend,
+fieldset[data-drupal-selector="edit-roles"] > legend,
+fieldset[data-drupal-selector="edit-library-access"] > legend {
+    float:left;
+    width:125px;
+    padding-top: 8px;
+    border: none;
+}
+
+#can-upload-library-files {
+    font-size: 1em;
+    font-weight: bold;
+    border: none;
+    margin: 0;
+    margin-right: 10px;
+}
+
+#can-upload-library-files-container {
+    padding-bottom: 20px;
+}
+.container-inline .radio label, .container-inline .checkbox label {
+    padding-right: 12px;
+    font-weight: normal;
+}
+
 #events-and-resources-1--content > div > div > div > .col-md-9 {
     padding-left: 0px;
 }

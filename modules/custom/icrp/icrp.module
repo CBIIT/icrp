@@ -2094,15 +2094,20 @@ Data reported by CCRA will vary from the ICRP data as follows:</p>
 
 function getEventsAndResourcesHTML() {
   //Render both blocks on this page
-// Get ICRP Events Block
+  // Get ICRP Events Block
   $bid = 31; // Get the block id through config, SQL or some other means
   $block = \Drupal\block_content\Entity\BlockContent::load($bid);
   $icrp_events_block = \Drupal::entityTypeManager()->getViewBuilder('block_content')->view($block);
+  //$icrp_events_block['#cache']['max-age'] = 0;
+  //$icrp_events_block['body']['#cache']['max-age'] = 0;
   $icrp_events_rendered = \Drupal::service('renderer')->renderRoot($icrp_events_block);
+
 // Get External Resources Block
   $bid = 32;
   $block = \Drupal\block_content\Entity\BlockContent::load($bid);
   $external_resources_block = \Drupal::entityTypeManager()->getViewBuilder('block_content')->view($block);
+  //$external_resources_block['#cache']['max-age'] = 0;
+  //$external_resources_block['body']['#cache']['max-age'] = 0;
   $external_resources_rendered = \Drupal::service('renderer')->renderRoot($external_resources_block);
   // Check to see if this user is Admin or Manger
   $uid = \Drupal::currentUser()->id();

@@ -80,7 +80,6 @@ class UserReviewForm extends FormBase
                 }
             }
         }
-
         $markup = '<h1>User Review</h1>';
         $form['markup_password'] = array(
             '#type' => 'markup',
@@ -147,8 +146,9 @@ class UserReviewForm extends FormBase
                 'class' => array(''),
             )
         );
-
+        // Status: [Blocked | Active]
         $form['container2']['name']['settings']['status'] = array(
+            '#prefix' => '<div class="container-inline">',
             '#type' => 'radios',
             '#title' => ('Status'),
             '#options' => array(
@@ -156,9 +156,11 @@ class UserReviewForm extends FormBase
                 1 => t('Active'),
             ),
             '#default_value' => $status,
-            '#help_text' => 'User Status'
+            '#help_text' => 'User Status',
+            '#suffix' => '</div>',
         );
         $form['container2']['name']['settings']['roles'] = array(
+            '#prefix' => '<div class="container-inline">',
             '#type' => 'checkboxes',
             '#title' => 'Roles',
             '#options' => array(
@@ -166,10 +168,12 @@ class UserReviewForm extends FormBase
                 'partner' => t('Partner'),
             ),
             '#default_value' => $roles,
-            '#help_text' => 'User application roles'
+            '#help_text' => 'User application roles',
+            '#suffix' => '</div>',
         );
 
         $form['container2']['name']['settings']['library_access'] = array(
+            '#prefix' => '<div class="container-inline">',
             '#type' => 'checkboxes',
             '#title' => 'Library Access',
             '#options' => array(
@@ -178,14 +182,19 @@ class UserReviewForm extends FormBase
                 'operations_and_contracts' => t('Operations and Contracts'),
             ),
             '#default_value' => $library_access,
-            '#help_text' => 'Library access levels'
+            '#help_text' => 'Library access levels',
+            '#suffix' => '</div>',
         );
 
+
+        $upload_files_title = '<span id="can-upload-library-files">Can Upload Library Files</span>';
         $form['container2']['name']['settings']['upload_files'] = array(
+            '#prefix' => '<div id ="can-upload-library-files-container" class="container-inline">'.$upload_files_title,
             '#type' => 'checkbox',
-            '#title' => t('Can Upload Library Files'),
+            '#title' => t('&nbsp'),
             '#default_value' => $can_upload_library_files,
-            '#help_text' => 'Allow user ability to upload files to the ICRP Library'
+            '#help_text' => 'Allow user ability to upload files to the ICRP Library',
+            '#suffix' => '</div>',
         );
 
         $form['container2']['name']['settings']['actions']['#type'] = 'actions';

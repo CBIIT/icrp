@@ -149,13 +149,6 @@ class IcrpController extends ControllerBase {
         if($user->hasRole('partner')){
             $roles[] = "partner";
         }
-
-        //dump($nid);
-        //$node = Node::load($nid);
-        //$view = node_view($node,'full');
-        //$html = render($view);
-        //$roles = array("partner");
-        //$roles = array("partner", "manager");
         $html = json_encode($roles, true);
 
         $response = new JsonResponse($html);
@@ -165,8 +158,10 @@ class IcrpController extends ControllerBase {
     }
 
     public function getEventsAndResources() {
+        //\Drupal::service('page_cache_kill_switch')->trigger();
         return array(
             '#markup' => getEventsAndResourcesHTML(),
+            '#cache' => ['max-age' => 0],
         );
     }
 
