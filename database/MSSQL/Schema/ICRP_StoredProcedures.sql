@@ -3073,6 +3073,56 @@ ORDER BY l.CreatedDate DESC
 
 GO
 
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetLatestMeetingReport]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLatestMeetingReport]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetLatestMeetingReport]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetLatestMeetingReport]
+    
+AS 
+  
+select top 1 LibraryID, Filename, ThumbnailFilename, Title, Description from library
+ where LibraryFolderid=4  -- LibraryFolderid 4 is Meeting Reports
+ORDER BY libraryid DESC    
+
+GO
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetLatestNewsletter]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetLatestNewsletter]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetLatestNewsletter]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetLatestNewsletter]
+    
+AS 
+  
+SELECT TOP 1 LibraryID, Filename, ThumbnailFilename, Title, Description 
+FROM Library 
+WHERE LibraryFolderid=3  -- LibraryFolderid 3 is 'Newsletters'
+ORDER BY libraryid DESC  
+
+GO
+
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetDataUploadStatus]    Script Date: 12/14/2016 4:21:37 PM ******/
 ----------------------------------------------------------------------------------------------------------
@@ -7114,9 +7164,9 @@ GO
 
 CREATE PROCEDURE [dbo].[GetMapInstitutionsBySearchID]  
 @SearchID INT,
-@RegionID INT,
-@Country VARCHAR(2),
-@City VARCHAR(50),
+@RegionID INT = NULL,
+@Country VARCHAR(2) = NULL,
+@City VARCHAR(50) = NULL,
 @State VARCHAR(50) = NULL,
 @AggregatedProjectCount INT OUTPUT,
 @AggregatedPICount INT OUTPUT,
@@ -7180,7 +7230,7 @@ DECLARE @ProjectIDs VARCHAR(max)
 		JOIN (SELECT InstitutionID, projectFundingID FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON f.projectFundingID = pi.projectFundingID	  -- find PI country		
 		JOIN Institution pii ON pi.InstitutionID = pii.InstitutionID		-- get PI country
 		JOIN Country c ON c.Abbreviation = i.Country
-	 WHERE  (c.Abbreviation = @Country ) AND (c.RegionID = @RegionID) AND (i.City = @City) AND (ISNULL(i.State, '') = ISNULL(@State,'')) AND
+	 WHERE  (@Country IS NULL OR c.Abbreviation = @Country ) AND (@RegionID IS NULL OR c.RegionID = @RegionID) AND (@City IS NULL OR i.City = @City) AND (@State IS NULL OR ISNULL(i.State, '') = ISNULL(@State,'')) AND
 			((@InvestigatorType IS NULL) OR (@InvestigatorType = 'PI' AND people.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND ISNULL(people.IsPrincipalInvestigator, 0) = 0)) AND   -- Search only PI, Collaborators or all
 			((@institution IS NULL) OR (i.Name like '%'+ @institution +'%')) AND			
 			((@piLastName IS NULL) OR (people.LastName like '%'+ @piLastName +'%')) AND 
@@ -7240,6 +7290,7 @@ DECLARE @ProjectIDs VARCHAR(max)
 	SELECT @AggregatedProjectCount= Count(*) FROM (SELECT DISTINCT ProjectFundingID FROM #pf) proj
 	SELECT @AggregatedPICount=SUM(Count) FROM #pi	
 	SELECT @AggregatedCollabCount=SUM(Count) FROM #collab		
+
 GO	
 	
 
@@ -7470,9 +7521,8 @@ GO
 CREATE  PROCEDURE [dbo].[GetNonPartners]
 AS   
 
-	SELECT [NonPartnerID], [Name], [Description], [Abbreviation], [Email], [Country], [Longitude],[Latitude],[Website], [LogoFile], [Note], [EstimatedInvest], [ContactPerson],[Position], [DoNotContact], [CancerOnly],[ResearchFunder]
-	FROM [NonPartner] WHERE ConvertedDate is NULL  -- exclude those already converted to partner
-	ORDER BY [Name]
+	SELECT [NonPartnerID], [Name], [Description], [Abbreviation], [Email], [Country], [Longitude],[Latitude],[Website], [LogoFile], [Note], [EstimatedInvest], [ContactPerson],[Position], [DoNotContact], [CancerOnly],[ResearchFunder],ISNULL([DoNotShow], 0) AS DoNotShow
+	FROM [NonPartner] ORDER BY [Name]
 
 GO
 
@@ -7523,6 +7573,10 @@ BEGIN TRY
 
 	SELECT @PartnerID = SCOPE_IDENTITY()
 		
+	-- If this new partner is also a non-partner (with same name and sponsorcode), mark it DoNotShow 
+	IF EXISTS (SELECT 1 FROM NonPartner WHERE Name = @Name AND Abbreviation = @SponsorCode)
+	   UPDATE NonPartner SET DoNotShow = 1 WHERE Name = @Name AND Abbreviation = @SponsorCode
+	
 	-- Also insert the new partner into the PartnerOrg table
 	INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
 	SELECT @Name, @SponsorCode, 'Partner', 1 
@@ -7579,7 +7633,8 @@ CREATE  PROCEDURE [dbo].[AddNonPartner]
 	@CancerOnly bit,
 	@ResearchFunder bit,
 	@ContactPerson [varchar](200),
-	@Position [varchar](100)
+	@Position [varchar](100),
+	@DoNotShow bit = NULL
 
 AS   
 
@@ -7593,8 +7648,8 @@ BEGIN TRY
 		   RAISERROR ('Sponsor Code already existed', 16, 1)
 	END
 
-	INSERT INTO NonPartner ([Name],[Description],[Abbreviation],[Email],[Country],[Latitude], [Longitude],[Website],[LogoFile],[Note],[EstimatedInvest],[ContactPerson],[Position],[DoNotContact],[CancerOnly],[ResearchFunder],[CreatedDate],[UpdatedDate] )
-	VALUES (@Name, @Description, @SponsorCode, @Email, @Country, @Latitude, @Longitude, @Website, @LogoFile, @Note,@EstimatedInv, @ContactPerson,@Position, @DoNotContact, @CancerOnly,	@ResearchFunder, GETDATE(), GETDATE())
+	INSERT INTO NonPartner ([Name],[Description],[Abbreviation],[Email],[Country],[Latitude], [Longitude],[Website],[LogoFile],[Note],[EstimatedInvest],[ContactPerson],[Position],[DoNotContact],[CancerOnly],[ResearchFunder],[DoNotShow], [CreatedDate],[UpdatedDate] )
+	VALUES (@Name, @Description, @SponsorCode, @Email, @Country, @Latitude, @Longitude, @Website, @LogoFile, @Note,@EstimatedInv, @ContactPerson,@Position, @DoNotContact, @CancerOnly,	@ResearchFunder, ISNULL(@DoNotShow, 0), GETDATE(), GETDATE())
 
 	COMMIT TRANSACTION
 
@@ -7748,7 +7803,8 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
 	@CancerOnly bit,
 	@ResearchFunder bit,
 	@ContactPerson [varchar](200),
-	@Position [varchar](100)
+	@Position [varchar](100),
+	@DoNotShow bit = NULL
 
 AS   
 
@@ -7782,6 +7838,7 @@ BEGIN TRY
 		ResearchFunder= @ResearchFunder,
 		ContactPerson  = @ContactPerson,
 		Position  = @Position,		
+		DoNotShow = ISNULL(@DoNotShow,0),
 		[UpdatedDate] = getdate()
 	WHERE NonPartnerID =  @NonPartnerID
 	

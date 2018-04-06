@@ -22,7 +22,7 @@ BEGIN
 		[DoNotContact] [bit] NULL,
 		[CancerOnly] [bit] NULL,
 		[ResearchFunder] [bit] NULL,
-		[ConvertedDate] [datetime] NULL,
+		[DoNotShow] [bit] NULL,		
 		[CreatedDate] [datetime] NOT NULL,
 		[UpdatedDate] [datetime] NOT NULL
 		CONSTRAINT [PK_NonParter] PRIMARY KEY CLUSTERED 
@@ -48,6 +48,10 @@ GO
 
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[LibraryFolder]') AND name = 'Type')
 	ALTER TABLE LibraryFolder ADD Type VARCHAR(50) NULL
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[NonPartner]') AND name = 'DoNotShow')
+	ALTER TABLE NonPartner ADD [DoNotShow] [bit] NULL
 GO
 
 /*************************************************/
