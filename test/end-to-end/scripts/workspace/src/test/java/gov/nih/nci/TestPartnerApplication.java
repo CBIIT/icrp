@@ -165,7 +165,7 @@ public class TestPartnerApplication {
 		
 				//Select for Review
 				
-				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > div > div > div.view-content > table > tbody > tr:nth-child(1) > td.views-field.views-field-nothing > a"));
+				Test.clickLink(By.cssSelector(".table > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(6) > a:nth-child(1)"));
 				Test.expected_vs_actual_verification("Less than $5M");
 				
 				//Review and Complete The Application
@@ -283,7 +283,7 @@ public class TestPartnerApplication {
 		
 				//Select for Review
 				
-				Test.clickLink(By.cssSelector("body > div > div > section > div.region.region-content > div > div > div.view-content > table > tbody > tr:nth-child(1) > td.views-field.views-field-nothing > a"));
+				Test.clickLink(By.cssSelector(".table > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(6) > a:nth-child(1)"));
 				Test.expected_vs_actual_verification("Less than $5M");
 				
 				//Review and Complete The Application
