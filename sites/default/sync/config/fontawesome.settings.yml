@@ -6,5 +6,5 @@ method: svg
 use_cdn: true
 external_svg_location: 'https://use.fontawesome.com/releases/v5.0.9/js/all.js'
 use_shim: true
-external_shim_location: 'https://use.fontawesome.com/releases/v5.0.9/js/fa-v4-shim.js'
+external_shim_location: 'https://use.fontawesome.com/releases/v5.0.9/js/v4-shims.js'
 allow_pseudo_elements: false
