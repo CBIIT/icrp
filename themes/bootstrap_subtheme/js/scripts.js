@@ -14,8 +14,17 @@
       });
       $("#views-bootstrap-sideshow-block-1 > div.carousel-inner > div.item > div.carousel-caption").click(function(e) {
           console.info("You clicked on Caption");
-          $.redirectCarousel(e);
+          setTimeout(function(){ $.redirectCarousel(e); }, 3000);
+          
       });
+      /*
+      $(".nav-tabs > li > a").click(function(e) {
+          console.info("You clicked on Tab. Whoa!");
+          console.dir(e);
+          $.tweekHomePageRefreshTwitterBlock();
+          //$.redirectCarousel(e);
+      });
+      */
       $("#logout").click(function(e) {
           console.info("You clicked on logout.  Clear Session");
           sessionStorage.clear();
@@ -45,10 +54,7 @@
           break;
         case "/":
           $.getNewsletter();
-          //console.log("You are on the / page.");
-          break;
-        case "/home":
-          $.getNewsletter();
+          $.tweekHomePage();
           break;
         case "/partner-application-administration-tool":
           $.partnerApplicationAdminTable();
@@ -63,7 +69,7 @@
           $.hideCommentStatus();
           break;
         case "/become-a-partner":
-          //console.log("You are on the /become-a-partner page.");
+          console.log("You are on the /become-a-partner page.");
           $("#become-a-partner-wells").matchHeight(true);
           break;
         case "/calendar":
@@ -455,7 +461,22 @@
         }
        });
     }
+  }
 
+  $.tweekHomePage = function () {
+    $('article').remove();
+    $.tweekHomePageRefreshTwitterBlock();
+  }
+
+  $.tweekHomePageRefreshTwitterBlock = function() {
+    // set the height of the aside to the same as the section height
+    var sectionHeight = $('[role="main"] section').height();
+    //console.log("Current: "+sectionHeight);
+    $('[role="main"] aside').height(sectionHeight);
+    // set the height of the first child in the aside to 100%
+    $('[role="main"] aside > div:first').css('height', '100%');
+    // set the height of the twitter panel to fill the remaining space (minus the padding)
+    $('#twitter-container').height(sectionHeight - $('#newsletter-container').height() - 140)          
   }
 
 })(window.jQuery);
