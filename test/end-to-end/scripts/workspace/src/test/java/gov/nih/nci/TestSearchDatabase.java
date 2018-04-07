@@ -233,7 +233,7 @@ public class TestSearchDatabase {
 				Test.wait_until_element_present(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-9 > icrp-search-summary-panel > icrp-summary-panel > div.content > div > table > tbody > tr:nth-child(2) > td:nth-child(2)"),"Bladder Cancer");
 				
 				//Click on Year Active and select 2012 and 2013
-				Test.clickLink(By.cssSelector(".ng-tns-c9-1 > div:nth-child(2) > ui-select:nth-child(9) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > input:nth-child(1)"));
+				Test.clickLink(By.cssSelector("body > div > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel.ng-tns-c9-1 > div.ui-panel-content.ng-trigger.ng-trigger-visibilityChanged > ui-select > div > div.select-input-container.default > div > input"));
 				Test.wait_For(2000);
 				Test.clickLink(By.cssSelector(".ng-tns-c9-1 > div:nth-child(2) > ui-select:nth-child(9) > div:nth-child(1) > div:nth-child(2) > div:nth-child(8)"));  //Select 2012
 				Test.clickLink(By.cssSelector(".ng-tns-c9-1 > div:nth-child(2) > ui-select:nth-child(9) > div:nth-child(1) > div:nth-child(2) > div:nth-child(7)"));  //Select 2013
