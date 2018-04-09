@@ -37,13 +37,19 @@ git clone https://github.com/CBIIT/icrp web
 cd web
 composer install
 
+## Make sure a settings.php file exists (copy default settings)
+cp -f ./sites/default/default.settings.php ./sites/default/default.php
+
 ## Copy your settings.local.php file to /sites/default/settings.local.php
 cp ~/settings.local.php ./sites/default/settings.local.php
 
 ## Restore the MySQL database from the icrp-2.0.sql file. 
 ## For example, assuming we have defined a "drupal" database:
-mysql drupal < icrp-2.0.sql
+mysql drupal < ./database/MYSQL/SQL_dump/icrp-2.0.sql
 
-## Rebuild drush cache
+## Update drupal database (if needed)
+drush updatedb
+
+## Rebuild drupal cache
 drush cr
 ```
