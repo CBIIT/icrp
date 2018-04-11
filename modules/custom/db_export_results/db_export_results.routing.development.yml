@@ -33,6 +33,13 @@ export.database.partners.search_results.abstracts.single:
   requirements:
     _access: 'TRUE'
 
+export.database.partners.search_results.cso_cancer_types:
+  path: '/api/database/export/partners/search_results/cso_cancer_types'
+  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::exportCsoCancerTypes' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
 export.database.search_results.graphs:
   path: '/api/database/export/search_results/graphs'
   defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::exportGraphs' }
@@ -79,6 +86,13 @@ export.database.review.partners.search_results.abstracts.single:
   requirements:
     _access: 'TRUE'
 
+export.database.review.partners.search_results.cso_cancer_types:
+  path: '/api/database/review/export/partners/search_results/cso_cancer_types'
+  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::reviewExportCsoCancerTypes' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
 export.database.review.partners.search_results.graphs:
   path: '/api/database/review/export/partners/search_results/graphs'
   defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::reviewExportGraphsForPartners' }
@@ -91,18 +105,20 @@ export.database.review.partners.search_results.graphs:
 
 
 
-db_export_results.lookupTable:
-   path: '/ExportLookupTable'
-   defaults:
-     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportLookupTable'
-     _title: 'Project Details'
-   requirements:
-    _permission: 'access content' 
-    
-db_export_results.uploadStatus:
-   path: '/ExportUploadStatus'
-   defaults:
-     _controller: '\Drupal\db_export_results\Controller\ExportResultsController::exportUploadStatus'
-     _title: 'Project Details'
-   requirements:
-    _permission: 'access content'    
+lookupTable:
+  path: '/ExportLookupTable'
+  defaults:
+    _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::lookupTable'
+  requirements:
+    _access: 'TRUE'
+    _role: 'authenticated'
+
+
+uploadStatus:
+  path: '/ExportUploadStatus'
+  defaults:
+    _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::uploadStatus'
+  requirements:
+    _access: 'TRUE'
+    _role: 'authenticated'
+

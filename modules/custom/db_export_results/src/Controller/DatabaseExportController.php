@@ -37,9 +37,11 @@ class DatabaseExportController extends ControllerBase {
       DatabaseExport::EXPORT_RESULTS_AS_SINGLE_SHEET                 => sprintf('ICRP_Search_Results_Single_Sheet_Export_%s.xlsx', $search_id),
       DatabaseExport::EXPORT_RESULTS_WITH_ABSTRACTS                  => sprintf('ICRP_Search_Abstracts_Export_%s.xlsx', $search_id),
       DatabaseExport::EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET  => sprintf('ICRP_Search_Abstracts_Single_Sheet_Export_%s.xlsx', $search_id),
+      DatabaseExport::EXPORT_CSO_CANCER_TYPES                        => sprintf('ICRP_CSO_Cancer_Types_Export_%s.xlsx', $search_id),
       DatabaseExport::EXPORT_GRAPHS_PUBLIC                           => sprintf('ICRP_Search_Results_Graphs_%s.xlsx', $search_id),
       DatabaseExport::EXPORT_GRAPHS_PARTNERS                         => sprintf('ICRP_Search_Results_Graphs_Partners_%s.xlsx', $search_id),
-    ][$workbook_key];
+
+      ][$workbook_key];
 
     $url_path_prefix = $data_upload_id != NULL
       ? '/review'
@@ -66,7 +68,7 @@ class DatabaseExportController extends ControllerBase {
     $search_id = $request->query->get('search_id', NULL);
     $year = intval($request->query->get('year', NULL));
 
-    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_PARTNERS, intval($search_id),NULL,  $year);
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_PARTNERS, intval($search_id), NULL,  $year);
     return self::createResponse($uri);
   }
 
@@ -94,6 +96,15 @@ class DatabaseExportController extends ControllerBase {
     $year = intval($request->query->get('year', NULL));
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET, intval($search_id), NULL, $year);
+    return self::createResponse($uri);
+  }
+
+  function exportCsoCancerTypes(Request $request) {
+    $pdo = Database::getConnection();
+    $search_id = $request->query->get('search_id', NULL);
+    $year = intval($request->query->get('year', NULL));
+
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_CSO_CANCER_TYPES, intval($search_id), NULL, $year);
     return self::createResponse($uri);
   }
 
@@ -165,6 +176,17 @@ class DatabaseExportController extends ControllerBase {
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET, intval($search_id), intval($data_upload_id), $year);
     return self::createResponse($uri);
   }
+
+  function reviewExportCsoCancerTypes(Request $request) {
+    $pdo = Database::getConnection('icrp_load_database');
+    $search_id = $request->query->get('search_id', NULL);
+    $data_upload_id = $request->query->get('data_upload_id', NULL);
+    $year = intval($request->query->get('year', NULL));
+
+    $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_CSO_CANCER_TYPES, intval($search_id), intval($data_upload_id), $year);
+    return self::createResponse($uri);
+  }
+
 
   function reviewExportGraphs(Request $request) {
     $pdo = Database::getConnection('icrp_load_database');

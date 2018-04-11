@@ -28,6 +28,7 @@ class DatabaseExport {
   public const EXPORT_RESULTS_AS_SINGLE_SHEET                 = 'EXPORT_RESULTS_AS_SINGLE_SHEET';
   public const EXPORT_RESULTS_WITH_ABSTRACTS                  = 'EXPORT_RESULTS_WITH_ABSTRACTS';
   public const EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET  = 'EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET';
+  public const EXPORT_CSO_CANCER_TYPES                        = 'EXPORT_CSO_CANCER_TYPES';
   public const EXPORT_GRAPHS_PUBLIC                           = 'EXPORT_GRAPHS_PUBLIC';
   public const EXPORT_GRAPHS_PARTNERS                         = 'EXPORT_GRAPHS_PARTNERS';
 
@@ -188,6 +189,19 @@ class DatabaseExport {
       // Sheet definition for 'Search Results'
       'Search Results' => [
         'query' => 'EXECUTE GetProjectExportsSingleBySearchID   @SearchID=:search_id, @includeAbstract=1, @SiteURL=:site_url, @Year = :year',
+        'columns' =>  [/* use original columns from database */],
+      ],
+    ],
+
+    // Workbook definition for 'EXPORT_CSO_CANCER_TYPES' method
+    self::EXPORT_CSO_CANCER_TYPES => [
+      'Project Counts' => [
+        'query' => 'EXECUTE GetProjectCSOandCancerTypeExportsBySearchID  @SearchID=:search_id, @Type=Count;',
+        'columns' =>  [/* use original columns from database */],
+      ],
+
+      'Project Funding Amounts' => [
+        'query' => 'EXECUTE GetProjectCSOandCancerTypeExportsBySearchID  @SearchID=:search_id, @Type=Amount;',
         'columns' =>  [/* use original columns from database */],
       ],
     ],
