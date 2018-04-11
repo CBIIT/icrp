@@ -150,6 +150,9 @@ class PageController extends ControllerBase {
                 [
                     'title' => 'Non-Partners',
                     'query' => $pdo->prepare('EXECUTE GetNonPartners'),
+                    'filter' => function($record) {
+                        return !$record['donotshow'];
+                    },
                     'columns' => [
                         'name' => 'Name',
                         'abbreviation' => 'Abbreviation',

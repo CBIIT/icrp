@@ -339,7 +339,7 @@
             position: position,
             map: map,
             icon: {
-                url: '/modules/custom/icrp_partners/src/Assets/images/marker.' + color + '.svg',
+                url: '/modules/custom/icrp_partners/images/marker.' + color + '.svg',
                 origin: {x: 6, y: 16},
             },
             zIndex: zIndex || 0

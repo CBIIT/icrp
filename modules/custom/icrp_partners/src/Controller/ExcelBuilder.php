@@ -59,11 +59,14 @@ class ExcelBuilder {
             $writer->getCurrentSheet()->setName($title);
             $query = $sheet['query'];
             $columns = $sheet['columns'] ?? [];
+            $filter = $sheet['filter'] ?? null;
 
             $query->execute();
 
             if (empty($columns)) {
                 while ($row = $query->fetch(PDO::FETCH_NUM)) {
+                    if (is_callable($filter) && !$filter($row))
+                        continue;
                     $writer->addRow($row);
                 }
             }
@@ -79,6 +82,9 @@ class ExcelBuilder {
                 $columnDefs = array_keys($columns);
 
                 foreach ($query as $row) {
+                    if (is_callable($filter) && !$filter($row))
+                        continue;
+
                     $rowValues = [];
                     foreach($columns as $columnKey => $columnDef) {
                         if (is_array($columnDef)) {

@@ -2,15 +2,15 @@ content:
   version: 0.0.2
   css:
     theme:
-      https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap-grid.css: {}
-      src/Assets/css/dataTables.bootstrap.css: {}
-      src/Assets/css/main.css: {}
+      https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.0/css/bootstrap-grid.css: {}
+      css/dataTables.bootstrap.css: {}
+      css/main.css: {}
   js:
     https://maps.googleapis.com/maps/api/js?key=AIzaSyBV2nfg_hugzlZTXMIhZztN6XY8BeRrgyg&libraries=geometry: {type: external}
     https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/js/jquery.dataTables.min.js: {}
-    src/Assets/js/dataTables.ext.js: {}
-    src/Assets/js/dataTables.resizableColumns.js: {}
-    src/Assets/js/partnerMap.js: {}
-    src/Assets/js/main.js: {}
+    js/dataTables.ext.js: {}
+    js/dataTables.resizableColumns.js: {}
+    js/partnerMap.js: {}
+    js/main.js: {}
   dependencies:
     - core/jquery
