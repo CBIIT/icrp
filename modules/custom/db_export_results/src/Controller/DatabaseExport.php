@@ -248,10 +248,10 @@ class DatabaseExport {
       ],
 
       // Sheet definition for 'Projects by Institution'
-      'Projects by Institution' => [
+      'Projects by PI Institution' => [
         'query' => 'EXECUTE GetProjectInstitutionStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
         'columns' => [
-          'Institution'   => 'Institution',
+          'Institution'   => 'PI Institution',
           'Count'         => 'Project Count',
         ],
       ],
@@ -327,10 +327,10 @@ class DatabaseExport {
       ],
 
       // Sheet definition for 'Projects by Institution'
-      'Projects by Institution' => [
+      'Projects by PI Institution' => [
         'query' => 'EXECUTE GetProjectInstitutionStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
         'columns' => [
-          'Institution'   => 'Institution',
+          'Institution'   => 'PI Institution',
           'Count'         => 'Project Count',
         ],
       ],
@@ -401,10 +401,10 @@ class DatabaseExport {
       ],
 
       // Sheet definition for 'Funding Amounts by Institution'
-      'Amounts by Institution' => [
+      'Amounts by PI Institution' => [
         'query' => 'EXECUTE GetProjectInstitutionStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
         'columns' => [
-          'Institution'   => 'Institution',
+          'Institution'   => 'PI Institution',
           'USDAmount'     => 'Amount',
         ],
       ],
