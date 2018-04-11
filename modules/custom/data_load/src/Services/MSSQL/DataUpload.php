@@ -258,7 +258,9 @@ class DataUpload {
                         $value = "$year-$month-$day";
                     }
 
-                    return $value ? $value : NULL;
+                    ## disregard strings that are empty or null
+                    return in_array($value, ['', 'NULL'])
+                        ? NULL : $value;
                 }, array_keys($row), array_values($row));
 
                 try {
