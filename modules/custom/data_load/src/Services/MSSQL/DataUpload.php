@@ -390,6 +390,8 @@ class DataUpload {
             foreach($years as $year_arr) {
                 $statement->execute(array('id' => $projectFundingID, 'year' => $year_arr['year'], 'amount' => $year_arr['amount']));
             }
+
+            $years = null;
         }
     }
 
