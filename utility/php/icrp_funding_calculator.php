@@ -11,7 +11,14 @@ $password = $argv[4];
 try {
     $dbh = new PDO($target_url, $user, $password);
     $statement = $dbh->prepare("INSERT INTO ProjectFundingExt(ProjectFundingID, CalendarYear, CalendarAmount) VALUES(:id, :year, :amount)");
-    foreach($dbh->query('SELECT ProjectId, pf.ProjectFundingID, BudgetStartDate, BudgetEndDate, Amount FROM ProjectFunding pf LEFT  OUTER JOIN ProjectFundingExt pfe ON pf.ProjectFundingID = pfe.ProjectFundingID WHERE  pfe.ProjectFundingID IS NULL AND pf.BudgetStartDate IS NOT NULL AND pf.BudgetEndDate IS NOT NULL AND pf.BudgetEndDate >= pf.BudgetStartDate') as $row) {
+	
+    foreach($dbh->query('SELECT ProjectId, 
+						pf.ProjectFundingID, 
+						BudgetStartDate, 
+						BudgetEndDate, 
+						Amount FROM ProjectFunding pf 
+						LEFT OUTER JOIN ProjectFundingExt pfe ON pf.ProjectFundingID = pfe.ProjectFundingID 
+						WHERE pfe.ProjectFundingID IS NULL AND pf.Amount IS NOT NULL AND pf.BudgetStartDate IS NOT NULL AND pf.BudgetEndDate IS NOT NULL AND pf.BudgetEndDate >= pf.BudgetStartDate') as $row) {
         
         $projectFundingID = $row['ProjectFundingID'];
         $start_date = strtotime($row['BudgetStartDate']);
@@ -48,7 +55,7 @@ try {
             $statement->execute(array("id" => $projectFundingID, "year" => $year_arr['year'], "amount" => $year_arr['amount']));
         }
         
-        $years = null;
+        $years = [];
         
     }
     
