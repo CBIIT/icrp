@@ -354,6 +354,7 @@ class DataUpload {
                         LEFT OUTER JOIN ProjectFundingExt pfe
                         ON pf.ProjectFundingID = pfe.ProjectFundingID
                         WHERE  pfe.ProjectFundingID IS NULL
+						AND pf.Amount IS NOT NULL
                         AND pf.BudgetStartDate IS NOT NULL
                         AND pf.BudgetEndDate IS NOT NULL
                         AND pf.BudgetEndDate >= pf.BudgetStartDate
