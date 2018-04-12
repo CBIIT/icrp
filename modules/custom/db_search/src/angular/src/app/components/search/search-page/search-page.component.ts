@@ -38,7 +38,16 @@ export class SearchPageComponent implements AfterViewInit {
     expiredSearchID: false,
   }
 
-  selectedTable = 'Projects';
+  tables = {
+    projects: 'Projects',
+    institutions: 'PI Institutions'
+  }
+
+  selectedTable = 'projects';
+
+  searchResultViews = {
+    institutions: null
+  }
 
   tableSelectorForm: FormGroup;
 
@@ -66,6 +75,22 @@ export class SearchPageComponent implements AfterViewInit {
 
   selectTable(tableName) {
     this.selectedTable = tableName;
+
+    if (this.selectedTable != 'projects') {
+      if (!this.searchResultViews[this.selectedTable]) {
+        this.searchService.getSearchResultsView({
+          search_id: this.state.searchID,
+          search_view: this.selectedTable,
+          view_type: 'count',
+          year: this.state.lastBudgetYear,
+        }).subscribe(response => {
+          this.searchResultViews[this.selectedTable] = response;
+        });
+      }
+
+
+    }
+
   }
 
   retrieveInitialResults() {
@@ -298,6 +323,12 @@ export class SearchPageComponent implements AfterViewInit {
     this.resetAnalytics();
     this.state.loading = true;
     this.state.searchParameters = this.filterSearchParameters(deepCopy(event.parameters));
+
+    for(let key in this.searchResultViews) {
+      this.searchResultViews[key] = null;
+    }
+
+    this.selectTable('projects')
 
     this.searchService.getSearchResults(this.state.searchParameters)
       .subscribe(response => {

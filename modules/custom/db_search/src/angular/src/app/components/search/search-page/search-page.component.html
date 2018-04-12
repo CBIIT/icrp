@@ -53,15 +53,15 @@
         <div style="display: flex">
           <div class="btn-group mr-5" dropdown>
             <button dropdownToggle type="button" class="btn btn-default dropdown-toggle">
-              {{ selectedTable }} <span class="caret"></span>
+              {{ tables[selectedTable] }} <span class="caret"></span>
             </button>
             <ul *dropdownMenu class="dropdown-menu" role="menu">
               <li role="menuitem">
-                <a class="dropdown-item" href="#" (click)="selectTable('Projects')">Projects</a>
+                <a class="dropdown-item" href="#" (click)="selectTable('projects')">{{ tables.projects }}</a>
               </li>
 
               <li role="menuitem">
-                <a class="dropdown-item" href="#"(click)="selectTable('PI Institutions')">PI Institutions</a>
+                <a class="dropdown-item" href="#"(click)="selectTable('institutions')">{{ tables.institutions }}</a>
               </li>
             </ul>
           </div>
@@ -77,12 +77,23 @@
         </a>
       </div>
 
-      <icrp-results-table-panel
-        [loading]="state.loading"
-        [results]="state.results"
-        [numResults]="state.projectCount"
-        (sortPaginate)="getSortedPaginatedResults($event)">
-      </icrp-results-table-panel>
+      <div [style.display]="selectedTable == 'projects' ? 'block' : 'none'">
+        <icrp-results-table-panel
+          [loading]="state.loading"
+          [results]="state.results"
+          [numResults]="state.projectCount"
+          (sortPaginate)="getSortedPaginatedResults($event)">
+        </icrp-results-table-panel>
+      </div>
+
+      <div [style.display]="selectedTable == 'institutions' ? 'block' : 'none'">
+        <em *ngIf="!searchResultViews.institutions">Loading...</em>
+        <ui-local-table
+          *ngIf="searchResultViews?.institutions?.length > 0"
+          [headers]="['Institution', 'City', 'State', 'Country', 'Count']"
+          [data]="searchResultViews.institutions"></ui-local-table>
+      </div>
+
     </div>
 
 

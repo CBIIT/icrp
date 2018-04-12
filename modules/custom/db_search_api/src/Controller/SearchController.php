@@ -183,28 +183,17 @@ class SearchController extends ControllerBase {
     return self::createResponse($data);
   }
 
-
-  public static function getCounts(Request $request) {
+  public static function getSearchResultsView(Request $request) {
     $connection = PDOBuilder::getConnection('icrp_database');
-    $data = DatabaseMethods::getCounts($connection);
+    $parameters = self::array_merge_intersection($request->query->all(), [
+      'search_view' => NULL,
+      'search_id' => NULL,
+      'view_type' => NULL,
+      'year' => NULL
+    ]);
+    $data = DatabaseSearch::getSearchResultsView($connection, $parameters);
     return self::createResponse($data);
   }
-
-
-  public static function getExamples(Request $request) {
-    $connection = PDOBuilder::getConnection('icrp_database');
-    $data = DatabaseMethods::getExamples($connection);
-    return self::createResponse($data);
-  }
-
-
-  public static function getCsoExamples(Request $request) {
-    $connection = PDOBuilder::getConnection('icrp_database');
-    $data = DatabaseMethods::getCsoExamples($connection);
-    return self::createResponse($data);
-  }
-
-
 
 
   ## Routes for Data Upload Review Tool
@@ -246,7 +235,6 @@ class SearchController extends ControllerBase {
     return self::createResponse($data);
   }
 
-
   public static function reviewSearchSummary(Request $request) {
     $connection = PDOBuilder::getConnection('icrp_load_database');
     $parameters = self::array_merge_intersection($request->query->all(), ['search_id' => -1]);
@@ -254,6 +242,17 @@ class SearchController extends ControllerBase {
     return self::createResponse($data);
   }
 
+  public static function reviewSearchResultsView(Request $request) {
+    $connection = PDOBuilder::getConnection('icrp_load_database');
+    $parameters = self::array_merge_intersection($request->query->all(), [
+      'search_view' => NULL,
+      'search_id' => NULL,
+      'view_type' => NULL,
+      'year' => NULL
+    ]);
+    $data = DatabaseSearch::getSearchResultsView($connection, $parameters);
+    return self::createResponse($data);
+  }
 
   public static function reviewSyncProd(Request $request) {
     $connection = PDOBuilder::getConnection('icrp_load_database');

@@ -10,6 +10,7 @@ import { SearchPageComponent } from './components/search/search-page/search-page
 import { ReviewPageComponent } from './components/review/review-page/review-page.component';
 import { SearchFormComponent } from './components/search/search-form/search-form.component';
 
+import { LocalTableModule } from './components/ui-components/local-table/local.table.module';
 import { TableComponent } from './components/ui-components/table/table.component';
 import { PanelComponent } from './components/ui-components/panel/panel.component'
 import { UiChartComponent } from './components/ui-components/chart/ui-chart.component'
@@ -71,6 +72,7 @@ import 'rxjs/add/operator/mergeMap';
     FormsModule,
     ReactiveFormsModule,
     HttpModule,
+    LocalTableModule,
     BrowserAnimationsModule,
     TooltipModule.forRoot(),
     PaginationModule.forRoot(),

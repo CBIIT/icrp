@@ -62,6 +62,10 @@ export class SearchService {
     return this.getRequest(`${this.apiRoot}/search_summary`, parameters);
   }
 
+  getSearchResultsView(parameters: object) {
+    return this.getRequest(`${this.apiRoot}/search_results_view`, parameters);
+  }
+
   applyProjectUrls(response) {
     let results = response.results
       .map(row => {

@@ -585,6 +585,50 @@ class DatabaseSearch {
   }
 
   /**
+   * Retrieves different views of search results
+   *
+   * @param PDO $pdo
+   * @param array $parameters - an array containing the following keys:
+   *   search_view - the particular view to retrieve ('institutions', 'countries', etc)
+   *   search_id - the search id
+   *   view_type - 'counts' or 'amounts'
+   *   year - the currency conversion year
+   *
+   * @return array
+   */
+  public static function getSearchResultsView(PDO $pdo, array $parameters): array {
+    $query_defaults = 'SET NOCOUNT ON; ';
+    $procedure = [
+      'institutions' => 'GetProjectInstitutionStatsBySearchID',
+    ][$parameters['search_view']];
+
+    if (!$procedure) return [];
+
+    $stmt = PDOBuilder::createPreparedStatement(
+      $pdo,
+      $query_defaults .
+      "EXECUTE $procedure
+        @SearchID = :search_id,
+        @Year = :year,
+        @Type = :view_type,
+        @ResultCount = NULL,
+        @ResultAmount = NULL",
+      $parameters);
+
+    if ($stmt->execute()) {
+      $results = [];
+
+      while ($row = $stmt->fetch()) {
+        unset($row['USDAmount']);
+        $results[] = $row;
+      }
+
+      return $results;
+    }
+    return [];
+  }
+
+  /**
    * Retrieves the number of partners and funding organizations
    *
    * @param PDO $pdo

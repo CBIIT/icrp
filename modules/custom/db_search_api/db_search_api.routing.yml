@@ -63,6 +63,15 @@ db_search_api.database.search_summary:
     _access: 'TRUE'
 
 
+## Get a results view for a particular search id
+## Sample request: /api/database/search_results_view?search_id=1&year=2016&search_view=institution&view_type=count
+db_search_api.database.search_results_view:
+  path: '/api/database/search_results_view'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::getSearchResultsView' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
 
 ## Get possible form fields values
 api.database.fields:
@@ -123,6 +132,16 @@ db_search_api.database.review.search_summary:
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
+
+
+## Get a results view for a particular search id
+db_search_api.database.review.search_results_view:
+  path: '/api/database/review/search_results_view'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSearchResultsView' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
 
 ## Syncs prod for a particular data upload id
 ## Sample request: /api/database/sync_prod?data_upload_id=1
