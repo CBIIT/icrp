@@ -23,6 +23,7 @@ BEGIN
 		[CancerOnly] [bit] NULL,
 		[ResearchFunder] [bit] NULL,
 		[DoNotShow] [bit] NULL,		
+		[ConvertedDate] [datetime] NULL,
 		[CreatedDate] [datetime] NOT NULL,
 		[UpdatedDate] [datetime] NOT NULL
 		CONSTRAINT [PK_NonParter] PRIMARY KEY CLUSTERED 
@@ -52,6 +53,10 @@ GO
 
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[NonPartner]') AND name = 'DoNotShow')
 	ALTER TABLE NonPartner ADD [DoNotShow] [bit] NULL
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[NonPartner]') AND name = 'ConvertedDate')
+	ALTER TABLE NonPartner ADD [ConvertedDate] [datetime] NULL
 GO
 
 /*************************************************/
