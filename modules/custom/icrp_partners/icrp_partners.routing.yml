@@ -20,3 +20,17 @@ authenticated.export:
   requirements:
     _access: 'TRUE'
     _role: 'authenticated'
+
+redirect.current_partners:
+  path: '/current_partners'
+  defaults:
+    _controller: '\Drupal\icrp_partners\Controller\PageController::redirectToContent'
+  requirements:
+    _access: 'TRUE'
+
+redirect.funding_orgs:
+  path: '/FundingOrgs'
+  defaults:
+    _controller: '\Drupal\icrp_partners\Controller\PageController::redirectToContent'
+  requirements:
+    _access: 'TRUE'

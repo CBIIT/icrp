@@ -10,11 +10,15 @@ namespace Drupal\icrp_partners\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use PDO;
 
 class PageController extends ControllerBase {
 
+    public function redirectToContent(): RedirectResponse {
+        return new RedirectResponse('/partners');
+    }
 
     public function content(): array {
         \Drupal::service('page_cache_kill_switch')->trigger();
