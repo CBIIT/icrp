@@ -32,403 +32,6 @@ class DatabaseExport {
   public const EXPORT_GRAPHS_PUBLIC                           = 'EXPORT_GRAPHS_PUBLIC';
   public const EXPORT_GRAPHS_PARTNERS                         = 'EXPORT_GRAPHS_PARTNERS';
 
-  /**
-   * Workbook definitions
-   *
-   * Each entry is an associative array that corresponds to an excel workbook
-   * This array contains entries that correspond to sheets within the workbook
-   * The 'query' property of this array specifies the query that is to be performed against the database
-   * The 'columns' property specifies the column mapping that is to be applied to the results set (as well as defining any custom column names)
-   *   - if empty, no mappings will be applied and the entire results set will be written to the specified sheet
-  */
-  private const EXPORT_MAP = [
-
-    // Workbook definition for 'EXPORT_RESULTS_PUBLIC' method
-    self::EXPORT_RESULTS_PUBLIC  => [
-
-      // Sheet definition for 'Search Results'
-      'Search Results' => [
-        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url, @Year = :year',
-        'columns' =>  [
-          'AwardTitle'    => 'Project Title',
-          'piFirstName'   => 'PI First Name',
-          'piLastName'    => 'PI Last Name',
-          'Institution'   => 'Institution',
-          'City'          => 'City',
-          'State'         => 'State',
-          'Country'       => 'Country',
-          'Region'        => 'Region',
-          'FundingOrg'    => 'Funding Organization',
-          'AwardCode'     => 'Award Code',
-          'icrpURL'       => 'View in ICRP',
-        ],
-      ],
-
-      // // Sheet definition for 'Projects by CSO'
-      'Projects by CSO' => [
-        'query' => 'EXECUTE GetProjectCSOsBySearchID            @SearchID=:search_id',
-        'columns' => [
-          'ProjectID'             => 'ICRP Project ID',
-          'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
-          'AltAwardCode'          => 'Alt. Award Code',
-          'CSOCode'               => 'CSO Code',
-        ],
-      ],
-
-      // // Sheet definition for 'Projects by Cancer Type'
-      'Projects by Cancer Type' => [
-        'query' => 'EXECUTE GetProjectCancerTypesBySearchID     @SearchID=:search_id',
-        'columns' => [
-          'ProjectID'             => 'ICRP Project ID',
-          'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
-          'AltAwardCode'          => 'Alt. Award Code',
-          'ICRPCode'              => 'ICRP Code',
-          'CancerType'            => 'Cancer Type',
-        ],
-      ],
-
-      'Project Collaborators' => [
-        'query' => 'EXECUTE GetProjectCollaboratorsBysearchID         @SearchID=:search_id',
-        'columns' =>  [],
-      ],
-    ],
-
-    // Workbook definition for 'EXPORT_RESULTS_PARTNERS' method
-    self::EXPORT_RESULTS_PARTNERS => [
-
-      // Sheet definition for 'Search Results'
-      'Search Results' => [
-        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url, @Year = :year',
-        'columns' =>  [/* use original columns from database */],
-      ],
-
-      // Sheet definition for 'Projects by CSO'
-      'Projects by CSO' => [
-        'query' => 'EXECUTE GetProjectCSOsBySearchID            @SearchID=:search_id',
-        'columns' => [
-          // 'ProjectID'             => 'ICRP Project ID',
-          // 'ICRPProjectFundindID'  => 'ICRP Project Funding ID',
-          // 'AltAwardCode'          => 'Alt. Award Code',
-          // 'CSOCode'               => 'CSO Code',
-          // 'CSORelevance'          => 'Relevance',
-        ],
-      ],
-
-      // Sheet definition for 'Projects by Cancer Type'
-      'Projects by Cancer Type' => [
-        'query' => 'EXECUTE GetProjectCancerTypesBySearchID     @SearchID=:search_id',
-        'columns' => [
-          // 'ProjectID'             => 'ICRP Project ID',
-          // 'ICRPProjectFundindID'  => 'ICRP Project Funding ID',
-          // 'AltAwardCode'          => 'Alt. Award Code',
-          // 'ICRPCode'              => 'ICRP Code',
-          // 'CancerType'            => 'Cancer Type',
-          // 'Relevance'             => 'Relevance',
-        ],
-      ],
-
-      'Project Collaborators' => [
-        'query' => 'EXECUTE GetProjectCollaboratorsBysearchID         @SearchID=:search_id',
-        'columns' =>  [],
-      ],
-    ],
-
-    // Workbook definition for 'EXPORT_RESULTS_AS_SINGLE_SHEET' method
-    self::EXPORT_RESULTS_AS_SINGLE_SHEET => [
-
-      // Sheet definition for 'Search Results'
-      'Search Results' => [
-        'query' => 'EXECUTE GetProjectExportsSingleBySearchID   @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url, @Year = :year',
-        'columns' =>  [/* use original columns from database */],
-      ],
-    ],
-
-    // Workbook definition for 'EXPORT_RESULTS_WITH_ABSTRACTS' method
-    self::EXPORT_RESULTS_WITH_ABSTRACTS => [
-
-      // Sheet definition for 'Search Results'
-      'Search Results' => [
-        'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=1, @SiteURL=:site_url, @Year = :year',
-        'columns' =>  [/* use original columns from database */],
-      ],
-
-      // Sheet definition for 'Projects by CSO'
-      'Projects by CSO' => [
-        'query' => 'EXECUTE GetProjectCSOsBySearchID            @SearchID=:search_id',
-        'columns' => [
-          // 'ProjectID'             => 'ICRP Project ID',
-          // 'ICRPProjectFundindID'  => 'ICRP Project Funding ID',
-          // 'AltAwardCode'          => 'Alt. Award Code',
-          // 'CSOCode'               => 'CSO Code',
-          // 'CSORelevance'          => 'Relevance',
-        ],
-      ],
-
-      // Sheet definition for 'Projects by Cancer Type'
-      'Projects by Cancer Type' => [
-        'query' => 'EXECUTE GetProjectCancerTypesBySearchID     @SearchID=:search_id',
-        'columns' => [
-          // 'ProjectID'             => 'ICRP Project ID',
-          // 'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
-          // 'AltAwardCode'          => 'Alt. Award Code',
-          // 'ICRPCode'              => 'ICRP Code',
-          // 'CancerType'            => 'Cancer Type',
-          // 'Relevance'             => 'Relevance',
-        ],
-      ],
-
-      'Project Collaborators' => [
-        'query' => 'EXECUTE GetProjectCollaboratorsBysearchID         @SearchID=:search_id',
-        'columns' =>  [],
-      ],
-    ],
-
-    // Workbook definition for 'EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET' method
-    self::EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET => [
-
-      // Sheet definition for 'Search Results'
-      'Search Results' => [
-        'query' => 'EXECUTE GetProjectExportsSingleBySearchID   @SearchID=:search_id, @includeAbstract=1, @SiteURL=:site_url, @Year = :year',
-        'columns' =>  [/* use original columns from database */],
-      ],
-    ],
-
-    // Workbook definition for 'EXPORT_CSO_CANCER_TYPES' method
-    self::EXPORT_CSO_CANCER_TYPES => [
-      'Project Counts' => [
-        'query' => 'EXECUTE GetProjectCSOandCancerTypeExportsBySearchID  @SearchID=:search_id, @Type=Count;',
-        'columns' =>  [/* use original columns from database */],
-      ],
-
-      'Project Funding Amounts' => [
-        'query' => 'EXECUTE GetProjectCSOandCancerTypeExportsBySearchID  @SearchID=:search_id, @Type=Amount;',
-        'columns' =>  [/* use original columns from database */],
-      ],
-    ],
-
-    // Workbook definition for 'EXPORT_GRAPHS_PUBLIC' method
-    self::EXPORT_GRAPHS_PUBLIC => [
-
-      // Sheet definition for 'Projects by Country'
-      'Projects by Country' => [
-        'query' => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
-        'columns' => [
-          'country'       => 'Country',
-          'Count'         => 'Project Count',
-        ],
-      ],
-
-      // Sheet definition for 'Projects by CSO'
-      'Projects by CSO' => [
-        'query' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
-        'columns' => [
-          'categoryName'  => 'CSO Category',
-          'Relevance'     => 'Relevance',
-          'ProjectCount'  => 'Project Count',
-        ],
-      ],
-
-      // Sheet definition for 'Projects by Cancer Type'
-      'Projects by Cancer Type' => [
-        'query' => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
-        'columns' => [
-          'CancerType'    => 'Cancer Type',
-          'Relevance'     => 'Relevance',
-          'ProjectCount'  => 'Project Count',
-        ],
-      ],
-
-      // Sheet definition for 'Projects by Type'
-      'Projects by Type' => [
-        'query' => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
-        'columns' => [
-          'ProjectType'   => 'Project Type',
-          'Count'         => 'Project Count',
-        ],
-      ],
-
-      // Sheet definition for 'Projects by Institution'
-      'Projects by PI Institution' => [
-        'query' => 'EXECUTE GetProjectInstitutionStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
-        'columns' => [
-          'Institution'   => 'PI Institution',
-          'Count'         => 'Project Count',
-        ],
-      ],
-
-
-      // Sheet definition for 'Projects by Childhood Cancer'
-      'Projects for Childhood Cancer' => [
-        'query' => 'EXECUTE GetProjectChildhoodCancerStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
-        'columns' => [
-          'IsChildhood'   => 'Is Childhood Cancer?',
-          'Count'         => 'Project Count',
-        ],
-      ],
-
-      // Sheet definition for 'Projects by Funding Organization'
-      'Projects by Organization' => [
-        'query' => 'EXECUTE GetProjectFundingOrgStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
-        'columns' => [
-          'FundingOrg'    => 'Funding Organization',
-          'Count'         => 'Project Count',
-        ],
-      ],
-    ],
-
-    // Workbook definition for 'EXPORT_GRAPHS_PARTNERS' method
-    self::EXPORT_GRAPHS_PARTNERS => [
-
-      // Sheet definition for 'Projects by Country'
-      'Projects by Country' => [
-        'query' => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
-        'columns' => [
-          'country'       => 'Country',
-          'Count'         => 'Project Count',
-        ],
-      ],
-
-      // Sheet definition for 'Projects by CSO'
-      'Projects by CSO' => [
-        'query' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
-        'columns' => [
-          'categoryName'  => 'CSO Category',
-          'Relevance'     => 'Relevance',
-          'ProjectCount'  => 'Project Count',
-        ],
-      ],
-
-      // Sheet definition for 'Projects by Cancer Type'
-      'Projects by Cancer Type' => [
-        'query' => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
-        'columns' => [
-          'CancerType'    => 'Cancer Type',
-          'Relevance'     => 'Relevance',
-          'ProjectCount'  => 'Project Count',
-        ],
-      ],
-
-      // Sheet definition for 'Projects by Type'
-      'Projects by Type' => [
-        'query' => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
-        'columns' => [
-          'ProjectType'   => 'Project Type',
-          'Count'         => 'Project Count',
-        ],
-      ],
-
-      // Sheet definition for 'Projects by Year'
-      'Projects by Year' => [
-        'query' => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
-        'columns' => [
-          'Year'          => 'Year',
-          'Count'         => 'Project Count',
-        ],
-      ],
-
-      // Sheet definition for 'Projects by Institution'
-      'Projects by PI Institution' => [
-        'query' => 'EXECUTE GetProjectInstitutionStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
-        'columns' => [
-          'Institution'   => 'PI Institution',
-          'Count'         => 'Project Count',
-        ],
-      ],
-
-
-      // Sheet definition for 'Projects by Childhood Cancer'
-      'Projects for Childhood Cancer' => [
-        'query' => 'EXECUTE GetProjectChildhoodCancerStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
-        'columns' => [
-          'IsChildhood'   => 'Is Childhood Cancer?',
-          'Count'         => 'Project Count',
-        ],
-      ],
-
-      // Sheet definition for 'Projects by Funding Organization'
-      'Projects by Organization' => [
-        'query' => 'EXECUTE GetProjectFundingOrgStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
-        'columns' => [
-          'FundingOrg'    => 'Funding Organization',
-          'Count'         => 'Project Count',
-        ],
-      ],
-
-
-      // Sheet definition for 'Funding Amounts by Country'
-      'Amounts by Country' => [
-        'query' => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
-        'columns' => [
-          'country'       => 'Country',
-          'USDAmount'     => 'Amount',
-        ],
-      ],
-
-      // Sheet definition for 'Funding Amounts by CSO'
-      'Amounts by CSO' => [
-        'query' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
-        'columns' => [
-          'categoryName'  => 'CSO Category',
-          'USDAmount'     => 'Amount',
-        ],
-      ],
-
-      // Sheet definition for 'Funding Amounts by Cancer Type'
-      'Amounts by Cancer Type' => [
-        'query' => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
-        'columns' => [
-          'CancerType'    => 'Cancer Type',
-          'USDAmount'     => 'Amount',
-        ],
-      ],
-
-      // Sheet definition for 'Funding Amounts by Type'
-      'Amounts by Project Type' => [
-        'query' => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
-        'columns' => [
-          'ProjectType'   => 'Project Type',
-          'USDAmount'     => 'Amount',
-        ],
-      ],
-
-      // Sheet definition for 'Funding Amounts by Year'
-      'Amounts by Year' => [
-        'query' => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
-        'columns' => [
-          'Year'          => 'Year',
-          'USDAmount'     => 'Amount',
-        ],
-      ],
-
-      // Sheet definition for 'Funding Amounts by Institution'
-      'Amounts by PI Institution' => [
-        'query' => 'EXECUTE GetProjectInstitutionStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
-        'columns' => [
-          'Institution'   => 'PI Institution',
-          'USDAmount'     => 'Amount',
-        ],
-      ],
-
-
-      // Sheet definition for 'Funding Amounts by Childhood Cancer'
-      'Amounts for Childhood Cancer' => [
-        'query' => 'EXECUTE GetProjectChildhoodCancerStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
-        'columns' => [
-          'IsChildhood'   => 'Is Childhood Cancer?',
-          'USDAmount'     => 'Amount',
-        ],
-      ],
-
-      // Sheet definition for 'Funding Amounts by Funding Organization'
-      'Amounts by Organization' => [
-        'query' => 'EXECUTE GetProjectFundingOrgStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
-        'columns' => [
-          'FundingOrg'    => 'Funding Organization',
-          'USDAmount'     => 'Amount',
-        ],
-      ],
-    ],
-  ];
 
   /**
    * Ensure that the output directory exists
@@ -440,6 +43,415 @@ class DatabaseExport {
     if (!file_exists($this->output_directory)) {
       mkdir($this->output_directory, 0744, true);
     }
+
+    /**
+     * Workbook definitions
+     *
+     * Each entry is an associative array that corresponds to an excel workbook
+     * This array contains entries that correspond to sheets within the workbook
+     * The 'query' property of this array specifies the query that is to be performed against the database
+     * The 'columns' property specifies the column mapping that is to be applied to the results set (as well as defining any custom column names)
+     *   - if empty, no mappings will be applied and the entire results set will be written to the specified sheet
+    */
+    $this->EXPORT_MAP = [
+
+      // Workbook definition for 'EXPORT_RESULTS_PUBLIC' method
+      self::EXPORT_RESULTS_PUBLIC  => [
+
+        // Sheet definition for 'Search Results'
+        'Search Results' => [
+          'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url, @Year = :year',
+          'columns' =>  [
+            'AwardTitle'    => 'Project Title',
+            'piFirstName'   => 'PI First Name',
+            'piLastName'    => 'PI Last Name',
+            'Institution'   => 'Institution',
+            'City'          => 'City',
+            'State'         => 'State',
+            'Country'       => 'Country',
+            'Region'        => 'Region',
+            'FundingOrg'    => 'Funding Organization',
+            'AwardCode'     => 'Award Code',
+            'icrpURL'       => 'View in ICRP',
+          ],
+        ],
+
+        // // Sheet definition for 'Projects by CSO'
+        'Projects by CSO' => [
+          'query' => 'EXECUTE GetProjectCSOsBySearchID            @SearchID=:search_id',
+          'columns' => [
+            'ProjectID'             => 'ICRP Project ID',
+            'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
+            'AltAwardCode'          => 'Alt. Award Code',
+            'CSOCode'               => 'CSO Code',
+          ],
+        ],
+
+        // // Sheet definition for 'Projects by Cancer Type'
+        'Projects by Cancer Type' => [
+          'query' => 'EXECUTE GetProjectCancerTypesBySearchID     @SearchID=:search_id',
+          'columns' => [
+            'ProjectID'             => 'ICRP Project ID',
+            'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
+            'AltAwardCode'          => 'Alt. Award Code',
+            'ICRPCode'              => 'ICRP Code',
+            'CancerType'            => 'Cancer Type',
+          ],
+        ],
+
+        'Project Collaborators' => [
+          'query' => 'EXECUTE GetProjectCollaboratorsBysearchID         @SearchID=:search_id',
+          'columns' =>  [],
+        ],
+      ],
+
+      // Workbook definition for 'EXPORT_RESULTS_PARTNERS' method
+      self::EXPORT_RESULTS_PARTNERS => [
+
+        // Sheet definition for 'Search Results'
+        'Search Results' => [
+          'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url, @Year = :year',
+          'columns' =>  [/* use original columns from database */],
+        ],
+
+        // Sheet definition for 'Projects by CSO'
+        'Projects by CSO' => [
+          'query' => 'EXECUTE GetProjectCSOsBySearchID            @SearchID=:search_id',
+          'columns' => [
+            // 'ProjectID'             => 'ICRP Project ID',
+            // 'ICRPProjectFundindID'  => 'ICRP Project Funding ID',
+            // 'AltAwardCode'          => 'Alt. Award Code',
+            // 'CSOCode'               => 'CSO Code',
+            // 'CSORelevance'          => 'Relevance',
+          ],
+        ],
+
+        // Sheet definition for 'Projects by Cancer Type'
+        'Projects by Cancer Type' => [
+          'query' => 'EXECUTE GetProjectCancerTypesBySearchID     @SearchID=:search_id',
+          'columns' => [
+            // 'ProjectID'             => 'ICRP Project ID',
+            // 'ICRPProjectFundindID'  => 'ICRP Project Funding ID',
+            // 'AltAwardCode'          => 'Alt. Award Code',
+            // 'ICRPCode'              => 'ICRP Code',
+            // 'CancerType'            => 'Cancer Type',
+            // 'Relevance'             => 'Relevance',
+          ],
+        ],
+
+        'Project Collaborators' => [
+          'query' => 'EXECUTE GetProjectCollaboratorsBysearchID         @SearchID=:search_id',
+          'columns' =>  [],
+        ],
+      ],
+
+      // Workbook definition for 'EXPORT_RESULTS_AS_SINGLE_SHEET' method
+      self::EXPORT_RESULTS_AS_SINGLE_SHEET => [
+
+        // Sheet definition for 'Search Results'
+        'Search Results' => [
+          'query' => 'EXECUTE GetProjectExportsSingleBySearchID   @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url, @Year = :year',
+          'columns' =>  [/* use original columns from database */],
+        ],
+      ],
+
+      // Workbook definition for 'EXPORT_RESULTS_WITH_ABSTRACTS' method
+      self::EXPORT_RESULTS_WITH_ABSTRACTS => [
+
+        // Sheet definition for 'Search Results'
+        'Search Results' => [
+          'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=1, @SiteURL=:site_url, @Year = :year',
+          'columns' =>  [/* use original columns from database */],
+        ],
+
+        // Sheet definition for 'Projects by CSO'
+        'Projects by CSO' => [
+          'query' => 'EXECUTE GetProjectCSOsBySearchID            @SearchID=:search_id',
+          'columns' => [
+            // 'ProjectID'             => 'ICRP Project ID',
+            // 'ICRPProjectFundindID'  => 'ICRP Project Funding ID',
+            // 'AltAwardCode'          => 'Alt. Award Code',
+            // 'CSOCode'               => 'CSO Code',
+            // 'CSORelevance'          => 'Relevance',
+          ],
+        ],
+
+        // Sheet definition for 'Projects by Cancer Type'
+        'Projects by Cancer Type' => [
+          'query' => 'EXECUTE GetProjectCancerTypesBySearchID     @SearchID=:search_id',
+          'columns' => [
+            // 'ProjectID'             => 'ICRP Project ID',
+            // 'ICRPProjectFundingID'  => 'ICRP Project Funding ID',
+            // 'AltAwardCode'          => 'Alt. Award Code',
+            // 'ICRPCode'              => 'ICRP Code',
+            // 'CancerType'            => 'Cancer Type',
+            // 'Relevance'             => 'Relevance',
+          ],
+        ],
+
+        'Project Collaborators' => [
+          'query' => 'EXECUTE GetProjectCollaboratorsBysearchID         @SearchID=:search_id',
+          'columns' =>  [],
+        ],
+      ],
+
+      // Workbook definition for 'EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET' method
+      self::EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET => [
+
+        // Sheet definition for 'Search Results'
+        'Search Results' => [
+          'query' => 'EXECUTE GetProjectExportsSingleBySearchID   @SearchID=:search_id, @includeAbstract=1, @SiteURL=:site_url, @Year = :year',
+          'columns' =>  [/* use original columns from database */],
+        ],
+      ],
+
+      // Workbook definition for 'EXPORT_CSO_CANCER_TYPES' method
+      self::EXPORT_CSO_CANCER_TYPES => [
+        'Project Counts' => [
+          'query' => 'EXECUTE GetProjectCSOandCancerTypeExportsBySearchID  @SearchID=:search_id, @Type=Count;',
+          'columns' =>  [/* use original columns from database */],
+          'column_formatter' => function($column) {
+            return is_numeric($column)
+              ? "CSO $column"
+              : $column;
+          },
+        ],
+
+        'Project Funding Amounts' => [
+          'query' => 'EXECUTE GetProjectCSOandCancerTypeExportsBySearchID  @SearchID=:search_id, @Type=Amount;',
+          'columns' =>  [/* use original columns from database */],
+          'column_formatter' => function($column) {
+            return is_numeric($column)
+              ? "CSO $column"
+              : $column;
+            },
+          ],
+      ],
+
+      // Workbook definition for 'EXPORT_GRAPHS_PUBLIC' method
+      self::EXPORT_GRAPHS_PUBLIC => [
+
+        // Sheet definition for 'Projects by Country'
+        'Projects by Country' => [
+          'query' => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+          'columns' => [
+            'country'       => 'Country',
+            'Count'         => 'Project Count',
+          ],
+        ],
+
+        // Sheet definition for 'Projects by CSO'
+        'Projects by CSO' => [
+          'query' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+          'columns' => [
+            'categoryName'  => 'CSO Category',
+            'Relevance'     => 'Relevance',
+            'ProjectCount'  => 'Project Count',
+          ],
+        ],
+
+        // Sheet definition for 'Projects by Cancer Type'
+        'Projects by Cancer Type' => [
+          'query' => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+          'columns' => [
+            'CancerType'    => 'Cancer Type',
+            'Relevance'     => 'Relevance',
+            'ProjectCount'  => 'Project Count',
+          ],
+        ],
+
+        // Sheet definition for 'Projects by Type'
+        'Projects by Type' => [
+          'query' => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+          'columns' => [
+            'ProjectType'   => 'Project Type',
+            'Count'         => 'Project Count',
+          ],
+        ],
+
+        // Sheet definition for 'Projects by Institution'
+        'Projects by PI Institution' => [
+          'query' => 'EXECUTE GetProjectInstitutionStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+          'columns' => [
+            'Institution'   => 'PI Institution',
+            'Count'         => 'Project Count',
+          ],
+        ],
+
+
+        // Sheet definition for 'Projects by Childhood Cancer'
+        'Projects for Childhood Cancer' => [
+          'query' => 'EXECUTE GetProjectChildhoodCancerStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+          'columns' => [
+            'IsChildhood'   => 'Is Childhood Cancer?',
+            'Count'         => 'Project Count',
+          ],
+        ],
+
+        // Sheet definition for 'Projects by Funding Organization'
+        'Projects by Organization' => [
+          'query' => 'EXECUTE GetProjectFundingOrgStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+          'columns' => [
+            'FundingOrg'    => 'Funding Organization',
+            'Count'         => 'Project Count',
+          ],
+        ],
+      ],
+
+      // Workbook definition for 'EXPORT_GRAPHS_PARTNERS' method
+      self::EXPORT_GRAPHS_PARTNERS => [
+
+        // Sheet definition for 'Projects by Country'
+        'Projects by Country' => [
+          'query' => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+          'columns' => [
+            'country'       => 'Country',
+            'Count'         => 'Project Count',
+          ],
+        ],
+
+        // Sheet definition for 'Projects by CSO'
+        'Projects by CSO' => [
+          'query' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+          'columns' => [
+            'categoryName'  => 'CSO Category',
+            'Relevance'     => 'Relevance',
+            'ProjectCount'  => 'Project Count',
+          ],
+        ],
+
+        // Sheet definition for 'Projects by Cancer Type'
+        'Projects by Cancer Type' => [
+          'query' => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+          'columns' => [
+            'CancerType'    => 'Cancer Type',
+            'Relevance'     => 'Relevance',
+            'ProjectCount'  => 'Project Count',
+          ],
+        ],
+
+        // Sheet definition for 'Projects by Type'
+        'Projects by Type' => [
+          'query' => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+          'columns' => [
+            'ProjectType'   => 'Project Type',
+            'Count'         => 'Project Count',
+          ],
+        ],
+
+        // Sheet definition for 'Projects by Year'
+        'Projects by Year' => [
+          'query' => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+          'columns' => [
+            'Year'          => 'Year',
+            'Count'         => 'Project Count',
+          ],
+        ],
+
+        // Sheet definition for 'Projects by Institution'
+        'Projects by PI Institution' => [
+          'query' => 'EXECUTE GetProjectInstitutionStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+          'columns' => [
+            'Institution'   => 'PI Institution',
+            'Count'         => 'Project Count',
+          ],
+        ],
+
+
+        // Sheet definition for 'Projects by Childhood Cancer'
+        'Projects for Childhood Cancer' => [
+          'query' => 'EXECUTE GetProjectChildhoodCancerStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+          'columns' => [
+            'IsChildhood'   => 'Is Childhood Cancer?',
+            'Count'         => 'Project Count',
+          ],
+        ],
+
+        // Sheet definition for 'Projects by Funding Organization'
+        'Projects by Organization' => [
+          'query' => 'EXECUTE GetProjectFundingOrgStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Count',
+          'columns' => [
+            'FundingOrg'    => 'Funding Organization',
+            'Count'         => 'Project Count',
+          ],
+        ],
+
+
+        // Sheet definition for 'Funding Amounts by Country'
+        'Amounts by Country' => [
+          'query' => 'EXECUTE GetProjectCountryStatsBySearchID    @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
+          'columns' => [
+            'country'       => 'Country',
+            'USDAmount'     => 'Amount',
+          ],
+        ],
+
+        // Sheet definition for 'Funding Amounts by CSO'
+        'Amounts by CSO' => [
+          'query' => 'EXECUTE GetProjectCSOStatsBySearchID        @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
+          'columns' => [
+            'categoryName'  => 'CSO Category',
+            'USDAmount'     => 'Amount',
+          ],
+        ],
+
+        // Sheet definition for 'Funding Amounts by Cancer Type'
+        'Amounts by Cancer Type' => [
+          'query' => 'EXECUTE GetProjectCancerTypeStatsBySearchID @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
+          'columns' => [
+            'CancerType'    => 'Cancer Type',
+            'USDAmount'     => 'Amount',
+          ],
+        ],
+
+        // Sheet definition for 'Funding Amounts by Type'
+        'Amounts by Project Type' => [
+          'query' => 'EXECUTE GetProjectTypeStatsBySearchID       @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
+          'columns' => [
+            'ProjectType'   => 'Project Type',
+            'USDAmount'     => 'Amount',
+          ],
+        ],
+
+        // Sheet definition for 'Funding Amounts by Year'
+        'Amounts by Year' => [
+          'query' => 'EXECUTE GetProjectAwardStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
+          'columns' => [
+            'Year'          => 'Year',
+            'USDAmount'     => 'Amount',
+          ],
+        ],
+
+        // Sheet definition for 'Funding Amounts by Institution'
+        'Amounts by PI Institution' => [
+          'query' => 'EXECUTE GetProjectInstitutionStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
+          'columns' => [
+            'Institution'   => 'PI Institution',
+            'USDAmount'     => 'Amount',
+          ],
+        ],
+
+
+        // Sheet definition for 'Funding Amounts by Childhood Cancer'
+        'Amounts for Childhood Cancer' => [
+          'query' => 'EXECUTE GetProjectChildhoodCancerStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
+          'columns' => [
+            'IsChildhood'   => 'Is Childhood Cancer?',
+            'USDAmount'     => 'Amount',
+          ],
+        ],
+
+        // Sheet definition for 'Funding Amounts by Funding Organization'
+        'Amounts by Organization' => [
+          'query' => 'EXECUTE GetProjectFundingOrgStatsBySearchID      @SearchID = :search_id, @ResultCount = NULL, @ResultAmount = NULL, @Year = :year, @Type = Amount',
+          'columns' => [
+            'FundingOrg'    => 'Funding Organization',
+            'USDAmount'     => 'Amount',
+          ],
+        ],
+      ],
+    ];
+
   }
 
   /**
@@ -554,7 +566,7 @@ class DatabaseExport {
       ->setCreator('International Cancer Research Partnership');
     $sheet = $spreadsheet->getActiveSheet();
 
-    $sheet_definitions = self::EXPORT_MAP[$workbook_key];
+    $sheet_definitions = $this->EXPORT_MAP[$workbook_key];
     $sheet_definition_keys = array_keys($sheet_definitions);
     $last_key = end($sheet_definition_keys);
 
@@ -700,7 +712,7 @@ class DatabaseExport {
       ->setCreator('International Cancer Research Partnership')
       ->setTitle('Data Export');
 
-    $sheet_definitions = self::EXPORT_MAP[$workbook_key];
+    $sheet_definitions = $this->EXPORT_MAP[$workbook_key];
     $sheet_definition_keys = array_keys($sheet_definitions);
     $last_key = end($sheet_definition_keys);
 
@@ -866,7 +878,7 @@ class DatabaseExport {
         ->build()
     );
 
-    $sheet_definitions = self::EXPORT_MAP[$workbook_key];
+    $sheet_definitions = $this->EXPORT_MAP[$workbook_key];
     $sheet_definition_keys = array_keys($sheet_definitions);
     $last_key = end($sheet_definition_keys);
 
@@ -878,6 +890,8 @@ class DatabaseExport {
 
       // determine the column names for the current sheet
       $sheet_columns = $sheet_definition['columns'];
+
+      $column_formatter = $sheet_definition['column_formatter'] ?? null;
 
       // set the name of the current sheet
       $writer->getCurrentSheet()->setName($sheet_name);
@@ -915,8 +929,14 @@ class DatabaseExport {
           }
         }
 
+        $column_names = array_values($sheet_columns);
+
+        if (is_callable($column_formatter)) {
+          $column_names = array_map($column_formatter, $column_names);
+        }
+
         // add headers to the current sheet
-        $writer->addRow(array_values($sheet_columns));
+        $writer->addRow($column_names);
 
         // iterate over each of the rows in the results
         // if we are using all table columns, we may insert each row without processing it
