@@ -392,7 +392,7 @@ class DataUpload {
                 $statement->execute(array('id' => $projectFundingID, 'year' => $year_arr['year'], 'amount' => $year_arr['amount']));
             }
 
-            $years = null;
+            $years = [];
         }
     }
 
