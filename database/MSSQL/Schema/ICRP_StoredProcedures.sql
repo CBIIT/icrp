@@ -1289,7 +1289,7 @@ AS
 	----------------------------------		
 	--   Find all related projects 
 	----------------------------------
-	SELECT DISTINCT f.ProjectID, f.ProjectFundingID, pii.InstitutionID, pii.Name AS Institution, f.Amount, o.Currency INTO #pf 
+	SELECT DISTINCT f.ProjectID, f.ProjectFundingID, pii.InstitutionID, pii.Name AS Institution, pii.City, pii.state, pii.Country, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
@@ -1353,7 +1353,7 @@ AS
 	IF @Type = 'Count'
 	BEGIN		
 		
-		SELECT Institution, COUNT(*) AS [Count], 0  AS USDAmount INTO #CountStats FROM #pf GROUP BY InstitutionID, Institution
+		SELECT Institution, City, State, Country, COUNT(*) AS [Count], 0  AS USDAmount INTO #CountStats FROM #pf GROUP BY InstitutionID, Institution, City, State, Country
 
 		SELECT @ResultCount = SUM(Count) FROM #CountStats
 		SELECT * FROM #CountStats ORDER BY [Count] Desc
@@ -1364,10 +1364,10 @@ AS
 	
 	BEGIN 
 
-		SELECT Institution, 0 AS [Count], CAST((SUM(f.Amount) * ISNULL(MAX(cr.ToCurrencyRate), 1)) AS Decimal(18,2)) AS USDAmount INTO #AmountStats 
+		SELECT Institution, City, State, Country, 0 AS [Count], CAST((SUM(f.Amount) * ISNULL(MAX(cr.ToCurrencyRate), 1)) AS Decimal(18,2)) AS USDAmount INTO #AmountStats 
 		FROM #pf f			
 			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency			
-		GROUP BY f.InstitutionID, f.Institution
+		GROUP BY f.InstitutionID, f.Institution, City, State, Country
 
 		SELECT @ResultAmount = SUM([USDAmount]) FROM #AmountStats	
 		SELECT * FROM #AmountStats ORDER BY USDAmount Desc		
@@ -2612,6 +2612,195 @@ AS
 	----Execute dynamic query		
 	EXEC sp_executesql @SQLQuery  
     											  
+GO
+
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetProjectCSOandCancerTypeExportsBySearchID]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectCSOandCancerTypeExportsBySearchID]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetProjectCSOandCancerTypeExportsBySearchID]
+GO 
+
+CREATE PROCEDURE [dbo].[GetProjectCSOandCancerTypeExportsBySearchID]
+     @SearchID INT,
+	 @Year INT = NULL,	  -- if null, use the latest currency year available
+	 @Type VARCHAR(25) = 'Count' -- Count' or 'Amount'	 
+AS   
+
+	
+	------------------------------------------------------
+	-- Get saved search results by searchID
+	------------------------------------------------------	
+	CREATE TABLE #Result (
+		ProjectID INT NOT NULL
+	)
+
+	DECLARE @ProjectIDs VARCHAR(max) 	
+	DECLARE @CountryList VARCHAR(1000) = NULL
+	DECLARE @cityList varchar(1000) = NULL 
+	DECLARE @stateList varchar(1000) = NULL	
+	DECLARE @regionList varchar(100) = NULL	
+	DECLARE @Yearlist VARCHAR(1000) = NULL
+	DECLARE @CSOlist VARCHAR(1000) = NULL
+	DECLARE @CancerTypelist VARCHAR(1000) = NULL
+	DECLARE @InvestigatorType varchar(250) = NULL
+	DECLARE @institution varchar(250) = NULL
+	DECLARE @piLastName varchar(50) = NULL
+	DECLARE @piFirstName varchar(50) = NULL
+	DECLARE @piORCiD varchar(50) = NULL
+	DECLARE @FundingOrgTypeList varchar(50) = NULL
+	DECLARE @fundingOrgList varchar(1000) = NULL
+
+
+	IF @Year IS NULL
+		SELECT @Year = MAX(Year) FROM CurrencyRate		
+
+	IF @SearchID = 0
+	BEGIN
+		INSERT INTO #Result SELECT ProjectID From Project
+	
+	END
+	ELSE
+	BEGIN		
+		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
+
+		INSERT INTO #Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+		
+			SELECT @YearList = YearList,
+				@CountryList = CountryList,
+				@CSOlist = CSOlist,
+				@CancerTypelist = CancerTypelist,
+				@InvestigatorType = InvestigatorType,
+				@institution = institution,
+				@piLastName = piLastName,
+				@piFirstName = piFirstName,
+				@piORCiD = piORCiD,
+				@cityList = cityList,
+				@stateList = stateList,
+				@regionList = regionList,
+				@FundingOrgTypeList = FundingOrgTypeList,
+				@fundingOrgList = fundingOrgList 
+		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
+
+	END	
+
+	-- CancerType Rollups - include all related cancertype IDs if search by roll-up cancer type 
+	SELECT l.CancerTypeID, r.CancerTypeID AS RelatedCancerTypeID INTO #ct 
+		FROM (SELECT VALUE AS CancerTypeID FROM dbo.ToIntTable(@cancerTypeList)) l
+		LEFT JOIN CancerTypeRollUp r ON l.cancertypeid = r.CancerTyperollupID
+
+	SELECT DISTINCT cancertypeid INTO #ctlist FROM
+	(
+		SELECT cancertypeid FROM #ct
+		UNION
+		SELECT Relatedcancertypeid AS cancertypeid FROM #ct WHERE Relatedcancertypeid IS NOT NULL
+	) ct	
+
+	----------------------------------		
+	--   Find all related projects 
+	----------------------------------
+	SELECT f.ProjectID, f.ProjectFundingID, pcso.CSOCode, ct.Name AS CancerType, (pcso.Relevance * pc.Relevance)/10000 AS Relvance, f.Amount, o.Currency INTO #pf 
+	FROM #Result r		
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
+		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
+		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
+		JOIN CancerType ct ON ct.CancerTypeID = pc.CancerTypeID	
+		JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pcso ON pcso.ProjectFundingID = f.ProjectFundingID		
+	 WHERE	(@CancerTypelist IS NULL) OR (ct.CancerTypeID IN (SELECT Value AS CSOCode FROM dbo.ToStrTable(@CSOlist))) AND
+			(@CSOlist IS NULL) OR (pcso.CSOCode IN (SELECT CancerTypeID FROM #ctlist)) AND
+			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
+			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))
+						
+	------------------------------------------------------------------------------
+	--   Exclude the project funding records outside of seach criteria
+	------------------------------------------------------------------------------
+	IF @YearList IS NOT NULL
+		DELETE #pf WHERE ProjectFundingID NOT IN
+			(SELECT f.ProjectFundingID FROM  #pf f
+				JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID			
+				WHERE ext.CalendarYear IN (SELECT VALUE AS Year FROM dbo.ToStrTable(@YearList)))
+
+	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@InvestigatorType IS NOT NULL) OR (@CountryList IS NOT NULL) OR (@cityList IS NOT NULL) OR (@stateList IS NOT NULL) OR (@regionList IS NOT NULL)
+		DELETE #pf WHERE ProjectFundingID NOT IN
+			(SELECT DISTINCT f.ProjectFundingID FROM  #pf f
+				JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
+				JOIN Institution i ON pi.InstitutionID = i.InstitutionID	
+				JOIN Country c ON i.Country = c.Abbreviation							
+			WHERE	((@institution IS NULL) OR (i.Name like '%'+ @institution +'%')) AND
+					((@InvestigatorType IS NULL) OR (@InvestigatorType = 'PI' AND pi.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND ISNULL(pi.IsPrincipalInvestigator, 0) = 0)) AND   -- Search only PI, Collaborators or all
+					((@piLastName IS NULL) OR (pi.LastName like '%'+ @piLastName +'%')) AND 
+					((@piFirstName IS NULL) OR (pi.FirstName like '%'+ @piFirstName +'%')) AND
+					((@piORCiD IS NULL) OR (pi.ORC_ID like '%'+ @piORCiD +'%')) AND
+					((@CountryList IS NULL) OR (i.Country IN (SELECT VALUE AS Country FROM dbo.ToStrTable(@CountryList)))) AND
+					((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
+					((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
+					((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))))
+
+	----------------------------------		
+	-- Get CSO and CancerType matrix
+	----------------------------------
+	DECLARE   @SQLQuery AS NVARCHAR(MAX)
+	DECLARE   @PivotCSOColumns AS NVARCHAR(MAX)  	
+
+	--Get unique values of pivot column  		
+	SELECT   @PivotCSOColumns= COALESCE(@PivotCSOColumns + ',','') + QUOTENAME(Code) 
+	FROM CSO ORDER BY Code	 
+	
+	-- Pivot #csosite with one csocode and all cancertype columns
+	IF @Type = 'Count'
+	BEGIN
+		SELECT CSOCode, CancerType, SUM(Relvance) AS ProjectCount INTO #count
+		from #pf 
+		Group by CSOCode, CancerType
+		ORDER BY CSOCode, CancerType	
+
+		SET   @SQLQuery = N'SELECT * INTO #tmp FROM
+		(SELECT CancerType, CSOCode, CAST(ProjectCount AS Decimal(18,2)) AS ProjectCount FROM #count) AS c
+		PIVOT
+		(
+			SUM (ProjectCount)
+			FOR CSOCode IN (' + @PivotCSOColumns + ')' +
+		') AS PivotTable;
+		
+		SELECT * FROM #tmp ORDER BY CancerType
+		'
+	END
+	ELSE IF @Type = 'Amount'
+	BEGIN
+		-- Convert amounts to USD
+		SELECT CSOCode, CancerType, (Relvance*Amount * ISNULL(cr.ToCurrencyRate, 1)) AS ProjectAmount INTO #usd
+		from #pf f
+			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency	
+
+		-- Convert amounts to USD
+		SELECT CSOCode, CancerType, SUM(ProjectAmount) AS ProjectAmount INTO #amount
+		from #usd		
+		Group by CSOCode, CancerType
+		ORDER BY CSOCode, CancerType
+
+		SET   @SQLQuery = N'SELECT * INTO #tmp FROM
+		(SELECT CancerType, CSOCode, CAST(ProjectAmount AS Decimal(18,2)) AS ProjectAmount FROM #amount) AS c
+		PIVOT
+		(
+			SUM (ProjectAmount)
+				FOR CSOCode IN (' + @PivotCSOColumns + ')' +
+		') AS PivotTable;
+		
+		SELECT * FROM #tmp ORDER BY CancerType
+		'		
+	END
+
+	----Execute dynamic query		
+	EXEC sp_executesql @SQLQuery
+	
 GO
 
 
@@ -7522,7 +7711,9 @@ CREATE  PROCEDURE [dbo].[GetNonPartners]
 AS   
 
 	SELECT [NonPartnerID], [Name], [Description], [Abbreviation], [Email], [Country], [Longitude],[Latitude],[Website], [LogoFile], [Note], [EstimatedInvest], [ContactPerson],[Position], [DoNotContact], [CancerOnly],[ResearchFunder],ISNULL([DoNotShow], 0) AS DoNotShow
-	FROM [NonPartner] ORDER BY [Name]
+	FROM [NonPartner] 
+	WHERE ConvertedDate IS NULL
+	ORDER BY [Name]
 
 GO
 
@@ -7575,7 +7766,7 @@ BEGIN TRY
 		
 	-- If this new partner is also a non-partner (with same name and sponsorcode), mark it DoNotShow 
 	IF EXISTS (SELECT 1 FROM NonPartner WHERE Name = @Name AND Abbreviation = @SponsorCode)
-	   UPDATE NonPartner SET DoNotShow = 1 WHERE Name = @Name AND Abbreviation = @SponsorCode
+	   UPDATE NonPartner SET DoNotShow = 1, ConvertedDate=getdate() WHERE Name = @Name AND Abbreviation = @SponsorCode
 	
 	-- Also insert the new partner into the PartnerOrg table
 	INSERT INTO PartnerOrg ([Name], [SponsorCode], [MemberType], [IsActive])
