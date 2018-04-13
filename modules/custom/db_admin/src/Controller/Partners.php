@@ -47,6 +47,7 @@ class Partners {
   }
 
   public static function add(PDO $pdo, array $parameters) {
+
     $partnerId = PDOBuilder::executePreparedStatement(
       $pdo,
       "DECLARE @partnerId INT;
@@ -55,7 +56,7 @@ class Partners {
         @Description = :description,
         @SponsorCode = :sponsorCode,
         @Email = :email,
-        @IsDSASigned = :isDSASigned,
+        @IsDSASigned = :isDsaSigned,
         @Country = :country,
         @Website = :website,
         @LogoFile = :logoFile,
