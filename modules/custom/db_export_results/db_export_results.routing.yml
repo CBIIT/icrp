@@ -102,10 +102,8 @@ export.database.review.partners.search_results.graphs:
 
 
 
-
-
 export.lookup-table:
-  path: '/ExportLookupTable'
+  path: '/export/lookup-table'
   defaults:
     _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::lookupTable'
   requirements:
