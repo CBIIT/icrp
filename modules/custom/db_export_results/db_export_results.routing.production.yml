@@ -64,83 +64,6 @@ export.database.partners.search_results.graphs:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-export.database.search_results:
-  path: '/api/database/export/search_results'
-  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::exportSearchResults' }
-  methods: [ GET ]
-  requirements:
-    _access: 'TRUE'
-
-export.database.partners.search_results:
-  path: '/api/database/export/partners/search_results'
-  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::exportSearchResultsForPartners' }
-  methods: [ GET ]
-  requirements:
-    _access: 'TRUE'
-    _role: 'authenticated'
-
-export.database.partners.search_results.single:
-  path: '/api/database/export/partners/search_results/single'
-  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::exportSearchResultsInSingleSheet' }
-  methods: [ GET ]
-  requirements:
-    _access: 'TRUE'
-    _role: 'authenticated'
-
-export.database.partners.search_results.abstracts:
-  path: '/api/database/export/partners/search_results/abstracts'
-  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::exportAbstracts' }
-  methods: [ GET ]
-  requirements:
-    _access: 'TRUE'
-    _role: 'authenticated'
-
-export.database.partners.search_results.abstracts.single:
-  path: '/api/database/export/partners/search_results/abstracts/single'
-  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::exportAbstractsInSingleSheet' }
-  methods: [ GET ]
-  requirements:
-    _access: 'TRUE'
-    _role: 'authenticated'
-
-export.database.search_results.graphs:
-  path: '/api/database/export/search_results/graphs'
-  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::exportGraphs' }
-  methods: [ GET ]
-  requirements:
-    _access: 'TRUE'
-
-export.database.review.partners.search_results.cso_cancer_types:
-  path: '/api/database/review/export/partners/search_results/cso_cancer_types'
-  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::reviewExportCsoCancerTypes' }
-  methods: [ GET ]
-  requirements:
-    _access: 'TRUE'
-    _role: 'authenticated'
-
-export.database.partners.search_results.graphs:
-  path: '/api/database/export/partners/search_results/graphs'
-  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::exportGraphsForPartners' }
-  methods: [ GET ]
-  requirements:
-    _access: 'TRUE'
-    _role: 'authenticated'
-
-
-
-
-
 export.database.review.partners.search_results:
   path: '/api/database/review/export/partners/search_results'
   defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::reviewExportSearchResultsForPartners' }
@@ -173,6 +96,14 @@ export.database.review.partners.search_results.abstracts.single:
     _access: 'TRUE'
     _role: 'authenticated'
 
+export.database.review.partners.search_results.cso_cancer_types:
+  path: '/api/database/review/export/partners/search_results/cso_cancer_types'
+  defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::reviewExportCsoCancerTypes' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+    _role: 'authenticated'
+
 export.database.review.partners.search_results.graphs:
   path: '/api/database/review/export/partners/search_results/graphs'
   defaults: { _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::reviewExportGraphsForPartners' }
@@ -182,8 +113,8 @@ export.database.review.partners.search_results.graphs:
     _role: 'authenticated'
 
 
-lookupTable:
-  path: '/ExportLookupTable'
+export.lookup-table:
+  path: '/export/lookup-table'
   defaults:
     _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::lookupTable'
   requirements:
@@ -191,8 +122,8 @@ lookupTable:
     _role: 'authenticated'
 
 
-uploadStatus:
-  path: '/ExportUploadStatus'
+export.upload-status:
+  path: '/export/upload-status'
   defaults:
     _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::uploadStatus'
   requirements:

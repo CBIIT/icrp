@@ -105,8 +105,8 @@ export.database.review.partners.search_results.graphs:
 
 
 
-lookupTable:
-  path: '/ExportLookupTable'
+export.lookup-table:
+  path: '/export/lookup-table'
   defaults:
     _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::lookupTable'
   requirements:
@@ -114,8 +114,8 @@ lookupTable:
     _role: 'authenticated'
 
 
-uploadStatus:
-  path: '/ExportUploadStatus'
+export.upload-status:
+  path: '/export/upload-status'
   defaults:
     _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::uploadStatus'
   requirements:
