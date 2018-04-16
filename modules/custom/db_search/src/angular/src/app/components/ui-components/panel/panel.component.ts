@@ -16,7 +16,7 @@ import { trigger, state, style, animate, transition, keyframes } from '@angular/
         opacity: 1,
       })),
       state('false', style({
-        height: 0, 
+        height: 0,
         paddingTop: 0,
         paddingBottom: 0,
         borderTop: 'none',
@@ -30,10 +30,10 @@ import { trigger, state, style, animate, transition, keyframes } from '@angular/
 
     trigger('rotationChanged', [
       state('true', style({
-        transform: 'rotate(0deg)'
+        transform: 'rotate(45deg)'
       })),
       state('false', style({
-        transform: 'rotate(180deg)'
+        transform: 'rotate(225deg)'
       })),
       transition(':enter', animate('0.1s')),
       transition('active <=> inactive', animate('0.15s ease-in-out'))
