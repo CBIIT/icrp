@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PaginationModule } from 'ngx-bootstrap';
+import { PaginationModule, TooltipModule } from 'ngx-bootstrap';
 import { LocalTableComponent } from './local.table.component';
 
 
@@ -8,6 +8,7 @@ import { LocalTableComponent } from './local.table.component';
   imports: [
     CommonModule,
     PaginationModule.forRoot(),
+    TooltipModule.forRoot(),
   ],
   declarations: [LocalTableComponent],
   exports: [LocalTableComponent],

@@ -5,6 +5,7 @@ interface Header {
   value: string;
   label: string;
   sortDirection?: string; // "asc" | "desc" | "none"
+  tooltip?: string;
 }
 
 
@@ -76,7 +77,7 @@ export class LocalTableComponent implements OnChanges {
     if (changes.headers && changes.headers.currentValue) {
       this._headers = changes.headers.currentValue.map(val =>
         typeof val === 'string'
-          ? {value: val, label: val, sortDirection: 'none'}
+          ? {value: val, label: val, sortDirection: 'none', tooltip: val}
           : val
       );
     }

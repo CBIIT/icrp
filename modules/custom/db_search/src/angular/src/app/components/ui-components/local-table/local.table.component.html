@@ -5,7 +5,7 @@
       <tr>
         <th *ngFor="let header of _headers"
           (click)="sort(header.value)">
-          <div class="table-header nowrap">
+          <div class="table-header nowrap" [tooltip]="header.tooltip">
             <span>{{ header.label }}</span>
             <span
               *ngIf="header.sortDirection !== 'none'"

@@ -55,7 +55,7 @@
             <button dropdownToggle type="button" class="btn btn-default dropdown-toggle">
               {{ tables[selectedTable] }} <span class="caret"></span>
             </button>
-            <ul *dropdownMenu class="dropdown-menu" role="menu">
+            <ul *dropdownMenu class="dropdown-menu" role="menu" style="font-size: 14px; margin-top: -5px;">
               <li role="menuitem">
                 <a class="dropdown-item" href="#" (click)="selectTable('projects')">{{ tables.projects }}</a>
               </li>
@@ -90,7 +90,37 @@
         <em *ngIf="!searchResultViews.institutions">Loading...</em>
         <ui-local-table
           *ngIf="searchResultViews?.institutions?.length > 0"
-          [headers]="['Institution', 'City', 'State', 'Country', 'Count']"
+          [headers]="[
+            {
+              value: 'Institution',
+              label: 'Institution',
+              sortDirection: 'none',
+              tooltip: 'Institution Name'
+            },
+            {
+              value: 'City',
+              label: 'City',
+              sortDirection: 'none',
+              tooltip: 'Institution City'
+            },
+            {
+              value: 'State',
+              label: 'State',
+              sortDirection: 'none',
+              tooltip: 'Institution State'
+            },
+            {
+              value: 'Country',
+              label: 'Country',
+              sortDirection: 'none',
+              tooltip: 'Institution Country'
+            },
+            {
+              value: 'Count',
+              label: 'PI Project Count',
+              sortDirection: 'none',
+              tooltip: 'Total PI Project Count'
+            }]"
           [data]="searchResultViews.institutions"></ui-local-table>
       </div>
 
