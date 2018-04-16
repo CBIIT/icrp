@@ -94,7 +94,7 @@ export class PieChart {
                     ].join(': ');
 
 
-                    if (key === primaryKey) {
+                    if (key === primaryKey && !isNaN(entry[key]/sum)) {
                       row += ` (${(100 * entry[key]/sum).toFixed(2)}%)`
                     }
                     rows.push(row);
