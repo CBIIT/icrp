@@ -364,15 +364,15 @@ class LibraryController extends ControllerBase {
     $connection = self::get_connection();
     if ($new) {
       $stmt = $connection->prepare("
-          EXECUTE AddLibraryFile
-            :lfid,
-            :title,
-            :desc,
-            :ip,
-            :file,
-            :thumb,
-            :display
-        ");
+        EXECUTE AddLibraryFile
+        @LibraryFolderID=:lfid,
+        @Title=:title,
+        @Description=:desc,
+        @IsPublic=:ip,
+        @Filename=:file,
+        @ThumbnailFilename=:thumb,
+        @DisplayName=:display
+      ");
       $stmt->bindParam(":lfid",$params["parent"]);
       $stmt->bindParam(":title",$params["title"]);
       $stmt->bindParam(":desc",$params["description"]);
@@ -396,15 +396,15 @@ class LibraryController extends ControllerBase {
       }
     } else {
       $stmt = $connection->prepare("EXECUTE UpdateLibraryFile
-          :lid,
-          :lfid,
-          :title,
-          :desc,
-          :ip,
-          :file,
-          :display,
-          :thumb
-        ");
+        @LibraryID=:lid,
+        @LibraryFolderID=:lfid,
+        @Title=:title,
+        @Description=:desc,
+        @IsPublic=:ip,
+        @Filename=:file,
+        @DisplayName=:display,
+        @ThumbnailFilename=:thumb
+      ");
       $stmt->bindParam(":lid",$params["id_value"]);
       $stmt->bindParam(":lfid",$params["parent"]);
       $stmt->bindParam(":title",$params["title"]);
