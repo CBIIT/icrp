@@ -352,8 +352,8 @@ jQuery(function() {
                 var countedTab = "";
                 for (var index = 0; index < tabCount; index++) countedTab += tab;
                 children.forEach(function(child) {
-                    if (child.id == selected[0].id)
-                        return;
+//                    if (child.id == selected[0].id)
+//                        return;
 
                     $('<option>')
                         .val(child.id)
