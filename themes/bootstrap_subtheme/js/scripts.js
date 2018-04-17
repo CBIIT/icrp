@@ -435,6 +435,7 @@
       var thumbnail = "/library/file/thumb/"+meetingReport.thumbnailfilename;
       $("#events-and-resources-card > .card-header:eq(0)").text(meetingReport.title);
       $("#last-meeting-report-img").attr('src', thumbnail);
+      $("#last-meeting-report-table > a:eq(0)").attr('href', pdf);
       $("#last-meeting-report-text").text(meetingReport.description);
       $("#last-meeting-report-pdf").attr('href', pdf);
       $('#events-and-resources-card').show();
