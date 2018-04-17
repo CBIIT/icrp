@@ -39,7 +39,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
   componentDidMount() {
     this.map = new google.maps.Map(this.mapContainer, DEFAULT_OPTIONS);
     this.clusterer = new LocationClusterer(this.map);
-    this.clusterer.setRadius(40);
+    this.clusterer.setRadius(45);
 
     this.overlay = new google.maps.OverlayView();
     this.overlay.setMap(this.map);
@@ -51,7 +51,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
     });
 
     this.map.addListener('zoom_changed', () => {
-      this.shouldFitBounds = false;
+      // this.shouldFitBounds = false;
 
       if (this.map.getZoom() < 3) {
         this.map.setOptions({
@@ -66,7 +66,7 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       }
 
       // we should redraw clusters by default
-      if (this.shouldRedraw && !this.clusterClicked) {
+      if (this.shouldRedraw || !this.clusterClicked) {
         this.redrawMap();
       }
 
@@ -188,8 +188,9 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       if (props.viewLevel === 'regions') {
         this.applyDefaultView();
       }
-
-      this.redrawMap();
+      setTimeout(() => {
+        this.redrawMap();
+      }, 0)
     }
   }
 
@@ -207,16 +208,6 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
     if (map !== null) {
       let dataMarkerSize = 25;
-
-      // display google map labels if showMapLabels is true
-
-      // let styles = UNLABELED_MAP;
-
-      // if (map.getZoom() > 2) {
-      //   styles = DETAILED_MAP
-      // }
-
-      // this.map.setOptions({styles});
 
       // clear all region labels
       labels.forEach(label => label.setMap(null));
@@ -413,13 +404,6 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
           }
         })
       }
-
-      this.shouldRedraw = false;
-      // if (clusterer.getElements().length === 1 && viewLevel !== 'regions') {
-      //   map.setZoom(6);
-      //   map.setCenter(clusterer.getElements()[0].coordinates);
-      // }
-
 
       this.shouldRedraw = true;
     }
