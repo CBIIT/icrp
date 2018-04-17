@@ -4,7 +4,6 @@ api.admin.partners:
     _controller: '\Drupal\db_admin\Controller\PageController::partners'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
 api.admin.funding-organizations:
   path: /admin/funding-organizations
@@ -12,7 +11,6 @@ api.admin.funding-organizations:
     _controller: '\Drupal\db_admin\Controller\PageController::fundingOrganizations'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
 api.admin.funding-organizations.fields:
   path: /api/admin/funding-organizations/fields
@@ -20,7 +18,6 @@ api.admin.funding-organizations.fields:
     _controller: '\Drupal\db_admin\Controller\AdminController::getFundingOrganizationFields'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
 api.admin.funding-organizations.add:
   path: /api/admin/funding-organizations/add
@@ -28,7 +25,6 @@ api.admin.funding-organizations.add:
     _controller: '\Drupal\db_admin\Controller\AdminController::addFundingOrganization'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
 api.admin.funding-organizations.update:
   path: /api/admin/funding-organizations/update
@@ -36,7 +32,6 @@ api.admin.funding-organizations.update:
     _controller: '\Drupal\db_admin\Controller\AdminController::updateFundingOrganization'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
 api.admin.partners.fields:
   path: /api/admin/partners/fields
@@ -44,7 +39,6 @@ api.admin.partners.fields:
     _controller: '\Drupal\db_admin\Controller\AdminController::getPartnerFields'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
 api.admin.partners.add:
   path: /api/admin/partners/add
@@ -52,7 +46,6 @@ api.admin.partners.add:
     _controller: '\Drupal\db_admin\Controller\AdminController::addPartner'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
 api.admin.partners.update:
   path: /api/admin/partners/update
@@ -60,7 +53,6 @@ api.admin.partners.update:
     _controller: '\Drupal\db_admin\Controller\AdminController::updatePartner'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
 api.admin.non-partners.add:
   path: /api/admin/non-partners/add
@@ -68,7 +60,6 @@ api.admin.non-partners.add:
     _controller: '\Drupal\db_admin\Controller\AdminController::addNonPartner'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
 api.admin.non-partners.update:
   path: /api/admin/non-partners/update
@@ -76,7 +67,6 @@ api.admin.non-partners.update:
     _controller: '\Drupal\db_admin\Controller\AdminController::updateNonPartner'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
 api.admin.partners.content.deprecated:
   path: /AddPartner
@@ -84,7 +74,6 @@ api.admin.partners.content.deprecated:
     _controller: '\Drupal\db_admin\Controller\PageController::partners'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
 api.admin.funding-organizations.deprecated:
   path: /AddFundingOrg
@@ -92,7 +81,6 @@ api.admin.funding-organizations.deprecated:
     _controller: '\Drupal\db_admin\Controller\PageController::fundingOrganizations'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'
 
 test_event:
   path: /api/admin/test-event
@@ -100,4 +88,3 @@ test_event:
     _controller: 'Drupal\db_admin\Controller\AdminController::dispatchSampleEvent'
   requirements:
     _access: 'TRUE'
-    _role: 'admin+manager'

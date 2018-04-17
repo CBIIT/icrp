@@ -138,7 +138,7 @@
         Organization Name
       </label>
       <input
-        *ngIf="form.controls.operationType.value === 'Add'"
+        *ngIf="form.value.operationType === 'Add' || form.value.isPartner"
         fxFlex="69"
         fxFlex.lt-md="100"
         class="form-control input-sm"
@@ -147,7 +147,7 @@
         formControlName="name"
         placeholder="100 characters maximum">
       <select
-        *ngIf="form.controls.operationType.value === 'Update'"
+        *ngIf="form.value.operationType === 'Update' && !form.value.isPartner"
         fxFlex="69"
         fxFlex.lt-md="100"
         class="form-control input-sm"

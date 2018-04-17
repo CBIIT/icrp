@@ -139,7 +139,17 @@ export class FundingOrganizationsFormComponent {
       if (isPartner
         && operationType.value === 'Update'
         && fundingOrganizationId.value !== null) {
+        name.patchValue(partner.name);
         abbreviation.patchValue(partner.sponsorcode);
+      }
+
+      if (!isPartner
+        && operationType.value === 'Update'
+        && fundingOrganizationId.value !== null) {
+          const record = this.fields.fundingOrganizations
+            .find(fundingOrganization => fundingOrganization.fundingorgid === fundingOrganizationId.value);
+
+          name.patchValue(record.name);
       }
     });
 
@@ -181,6 +191,14 @@ export class FundingOrganizationsFormComponent {
           note: record.note,
           isAnnualized: record.isannualized
         }, {emitEvent: false});
+      } else {
+        this.form.reset({
+          operationType: controls.operationType.value,
+          partnerId: controls.partnerId.value,
+          memberStatus: 'Current',
+          isAnnualized: false,
+          isPartner: false,
+        }, {emitEvent: false});
       }
     })
 
@@ -194,7 +212,7 @@ export class FundingOrganizationsFormComponent {
       this.form.controls[key].markAsDirty();
 
     if (!this.form.valid) {
-      document.querySelector('h1').scrollIntoView();
+      window.scrollTo(0, 0);
       return;
     }
 
@@ -206,7 +224,7 @@ export class FundingOrganizationsFormComponent {
     const action = this.form.value.operationType.toLowerCase(); // 'add' or 'update'
     this.api[action](formData)
       .subscribe(response => {
-        document.querySelector('h1').scrollIntoView();
+        window.scrollTo(0, 0);
         let content = action === 'add'
           ? `The funding organization has been added. `
           : `The funding organization has been updated. `
@@ -222,7 +240,7 @@ export class FundingOrganizationsFormComponent {
         });
 
       }, errorResponse => {
-        document.querySelector('h1').scrollIntoView();
+        window.scrollTo(0, 0);
         this.messages.push({
           type: 'danger',
           content: `${errorResponse.error}`,
