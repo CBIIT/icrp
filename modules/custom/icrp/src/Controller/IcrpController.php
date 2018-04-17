@@ -158,7 +158,7 @@ class IcrpController extends ControllerBase {
     }
 
     public function getEventsAndResources() {
-        //\Drupal::service('page_cache_kill_switch')->trigger();
+        \Drupal::service('page_cache_kill_switch')->trigger();
         return array(
             '#markup' => getEventsAndResourcesHTML(),
             '#cache' => ['max-age' => 0],
