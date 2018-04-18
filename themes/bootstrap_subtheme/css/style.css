@@ -138,6 +138,14 @@ fieldset[data-drupal-selector="edit-library-access"] > legend {
 #edit-settings {
     height: 100%;
 }
+
+/* Partner Application Review */
+
+#edit-status--wrapper > div > #edit-status {
+    display: inline-block;
+}
+
+
 /* Full Calendar */
 div.fullcalendar > div > div.fc-center > h2 {
     color:#222222;
