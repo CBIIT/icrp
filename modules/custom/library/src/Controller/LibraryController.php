@@ -260,6 +260,11 @@ class LibraryController extends ControllerBase {
     if (!isset($params['id_value']) || empty($params['id_value'])) {
       $params['id_value'] = null;
     }
+
+    if (!isset($params['library_access']) && isset($params['library_access_subcategory'])) {
+      $params['library_access'] = $params['library_access_subcategory'];
+    }
+
     $new = ($params['id_value'] == null);
     if (!isset($params['is_public'])) {
       $params['is_public'] = "0";
@@ -282,7 +287,11 @@ class LibraryController extends ControllerBase {
           }
           break;
         }
-        $stmt = $connection->prepare("INSERT INTO LibraryFolder (Name,ParentFolderID,IsPublic,ArchivedDate,Type) OUTPUT INSERTED.* VALUES (:name,:pfid,:ip,:ad,:type);");
+        $stmt = $connection->prepare(
+          "INSERT INTO
+            LibraryFolder (Name, ParentFolderID, IsPublic, ArchivedDate, Type) OUTPUT INSERTED.*
+            VALUES        (:name, :pfid, :ip, :ad, :type)");
+
         $stmt->bindParam(":name",$params["title"]);
         $stmt->bindParam(":pfid",$params["parent"]);
         $stmt->bindParam(":ip",$params["is_public"]);

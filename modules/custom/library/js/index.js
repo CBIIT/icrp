@@ -653,6 +653,7 @@ jQuery(function() {
     $('#library-parameters [name="parent"]').change(function() {
         $('#library-parameters [name="library_access"]').prop('disabled', this.value != 1)
         var accessType = $(this).find(":selected").data('library-access') || 'General';
+        $('#library-parameters [name="library_access_subcategory"]').val(accessType);
         $('#library-parameters [name="library_access"]').val([accessType]);
     });
 
