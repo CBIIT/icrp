@@ -88,7 +88,7 @@ $(function() {
      */
     function showFolders(folders) {
         tree = $.jstree(folders);
-        getFolderContents(tree.selected_node())
+        getFiles(tree.selected_node())
             .done(showFiles)
             .fail(handleError)
     }

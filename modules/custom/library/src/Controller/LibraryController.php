@@ -353,6 +353,7 @@ class LibraryController extends ControllerBase {
           "success"=>false
       ),Response::HTTP_FORBIDDEN);
     }
+
     if (!isset($params['is_public'])) {
       $params['is_public'] = "0";
     }
@@ -428,6 +429,8 @@ class LibraryController extends ControllerBase {
 
       if ($thumb) {
         $stmt->bindValue(":thumb",$thumb->getClientOriginalName());
+      } else if ($params['thumbnail_display_name']) {
+        $stmt->bindValue(":thumb",$params['thumbnail_display_name']);
       } else {
         $stmt->bindValue(":thumb",null,PDO::PARAM_NULL);
       }
