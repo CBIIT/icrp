@@ -612,7 +612,11 @@ jQuery(function() {
         functions.search();
     });
     $('#library-create-folder').on('click',function(e) {
-        functions.createNew(e,true);
+        if (functions.getNode()) {
+            functions.createNew(e,true);
+        } else {
+            functions.createNewRoot(e,true);
+        }
     });
     $('#library-create-root-folder').on('click',function(e) {
         functions.createNewRoot(e,true);
