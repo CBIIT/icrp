@@ -623,7 +623,15 @@ jQuery(function() {
     });
     $('#library-edit-folder').on('click',functions.editFolder);
     $('#library-upload-file').on('click',function(e) {
-        functions.createNew(e,false);
+
+        if (functions.getNode()) {
+            functions.createNew(e,false);
+        } else {
+            BootstrapDialog.alert({
+                'title': null,
+                'message': "No category is currently selected."
+            });
+        }
     });
     $('#library-download-all').on('click',functions.bulkDownload);
     $('#library-archive-folder').on('click',functions.archiveFolder);
