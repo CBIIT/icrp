@@ -215,15 +215,25 @@ class DatabaseExport {
               ? "CSO $column"
               : $column;
           },
+          'record_formatter' => function($record) {
+            return is_numeric($record)
+              ? floatval($record)
+              : $record;
+          },
         ],
 
-        'Project Funding Amounts' => [
+        'Project Funding Amounts (USD)' => [
           'query' => 'EXECUTE GetProjectCSOandCancerTypeExportsBySearchID  @SearchID=:search_id, @Type=Amount;',
           'columns' =>  [/* use original columns from database */],
           'column_formatter' => function($column) {
             return is_numeric($column)
               ? "CSO $column"
               : $column;
+            },
+            'record_formatter' => function($record) {
+              return is_numeric($record)
+                ? floatval($record)
+                : $record;
             },
           ],
       ],
@@ -893,6 +903,8 @@ class DatabaseExport {
 
       $column_formatter = $sheet_definition['column_formatter'] ?? null;
 
+      $record_formatter = $sheet_definition['record_formatter'] ?? null;
+
       // set the name of the current sheet
       $writer->getCurrentSheet()->setName($sheet_name);
 
@@ -943,8 +955,11 @@ class DatabaseExport {
         if ($use_database_columns) {
           while ($row = $results->fetch(PDO::FETCH_NUM)) {
             $writer->addRow(
-              array_map(function($value) {
-                return substr($value, 0, 32767);
+              array_map(function($value) use ($record_formatter) {
+                $value = substr($value, 0, 32767);
+                return is_callable($record_formatter)
+                  ? $record_formatter($value)
+                  : $value;
               }, $row)
             );
           }
@@ -955,10 +970,14 @@ class DatabaseExport {
           $columns = array_keys($sheet_columns);
           while ($row = $results->fetch(PDO::FETCH_ASSOC)) {
             $writer->addRow(
-              array_map(function($column) use ($row) {
-                return array_key_exists($column, $row)
-                  ? substr($row[$column], 0, 32767)
-                  : '';
+              array_map(function($column) use ($row, $record_formatter) {
+                if (array_key_exists($column, $row)) {
+                  $value = substr($row[$column], 0, 32767);
+                  return is_callable($record_formatter)
+                    ? $record_formatter($value)
+                    : $value;
+                }
+                return '';
               }, $columns)
             );
           }
