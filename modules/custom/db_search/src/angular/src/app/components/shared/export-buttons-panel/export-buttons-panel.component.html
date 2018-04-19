@@ -14,10 +14,12 @@
     <ul *dropdownMenu class="dropdown-menu" role="menu" style="font-size: 14px">
       <li role="menuitem"><a class="dropdown-item" href="#"(click)="export(getRoutes().exportResults)">Projects (Multi-Sheets)</a></li>
       <li *ngIf="authenticated" role="menuitem"><a class="dropdown-item" href="#"(click)="export(getRoutes().exportResultsSingle)">Projects (Single-Sheet)</a></li>
+      <li *ngIf="authenticated" class="divider dropdown-divider"></li>
       <li *ngIf="authenticated" role="menuitem"><a class="dropdown-item" href="#"(click)="export(getRoutes().exportAbstracts)">Projects with Abstracts (Multi-Sheets)</a></li>
       <li *ngIf="authenticated" role="menuitem"><a class="dropdown-item" href="#"(click)="export(getRoutes().exportAbstractsSingle)">Projects with Abstracts (Single-Sheet)</a></li>
+      <li *ngIf="authenticated" class="divider dropdown-divider"></li>
       <li *ngIf="authenticated" role="menuitem"><a class="dropdown-item" href="#"(click)="export(getRoutes().exportCsoCancerTypes)">Project Cancer Types/CSO</a></li>
-
+      <li class="divider dropdown-divider"></li>
       <li role="menuitem"><a class="dropdown-item" href="#"(click)="export(getRoutes().exportGraphs)">All Graphs</a>
       </li>
     </ul>
