@@ -723,6 +723,10 @@ class DatabaseExport {
       $sheet_name = 'Data Upload Review';
     }
 
+    if ($workbook_key == self::EXPORT_GRAPHS_PARTNERS) {
+      $data[] = ['Currency Conversion Year:', "$year"];
+    }
+
     $sheet = $spreadsheet->createSheet();
     $sheet->setTitle($sheet_name);
     $sheet->fromArray($data);
@@ -734,151 +738,8 @@ class DatabaseExport {
     return $paths['uri'];
   }
 
-  function exportGraphsOld($pdo, $search_id, $data_upload_id, $year, $workbook_key, $filename) {
-    $paths = $this->buildOutputPaths($filename);
-
-    $excel = new \PHPExcel();
-    $excel->getProperties()
-      ->setCreator('International Cancer Research Partnership')
-      ->setTitle('Data Export');
-
-    $sheet_definitions = $this->EXPORT_MAP[$workbook_key];
-    $sheet_definition_keys = array_keys($sheet_definitions);
-    $last_key = end($sheet_definition_keys);
-
-    $sheet = $excel->getSheet(0);
-
-    // loop through each sheet's definition
-    foreach($sheet_definitions as $sheet_name => $sheet_definition) {
-
-      // determine the query for the current sheet
-      $sheet_query = $sheet_definition['query'];
-
-      // determine the column names for the current sheet
-      $sheet_columns = $sheet_definition['columns'];
-
-      // set the name of the current sheet
-      $sheet_name = substr($sheet_name, 0, 31);
-      $sheet->setTitle($sheet_name);
-
-      // set up query parameters
-      $parameters = [
-        'search_id' => [
-          'type' => PDO::PARAM_INT,
-          'value' => $search_id,
-        ],
-        'year' => [
-          'type' => PDO::PARAM_INT,
-          'value' => $year,
-        ],
-      ];
-
-      // retrieve the results of the query
-      $results = $this->getQueryResults($pdo, $sheet_query, $parameters);
-
-      // if there are results, write them to the current sheet
-      if ($results !== NULL) {
-
-        $rows = [array_values($sheet_columns)];
-        $columns = array_keys($sheet_columns);
-        while ($row = $results->fetch(PDO::FETCH_ASSOC)) {
-          array_push($rows,
-            array_map(function($column) use ($row) {
-              return $row[$column];
-            }, $columns)
-          );
-        }
-        $sheet->fromArray($rows, '', self::cell(0, 0));
-        $num_rows = count($rows) - 1;
-
-        $dsl = [
-          new \PHPExcel_Chart_DataSeriesValues('String', "'".$sheet_name."'" . '!$A$1', NULL, 1),
-          new \PHPExcel_Chart_DataSeriesValues('String', "'".$sheet_name."'" . '!$B$1', NULL, 1),
-        ];
-
-        $xal = [
-          new \PHPExcel_Chart_DataSeriesValues('String', "'".$sheet_name."'" . '!$A$2:$A$' . ($num_rows + 1), NULL, $num_rows)
-        ];
-
-        $dsv = [
-          new \PHPExcel_Chart_DataSeriesValues('Number', "'".$sheet_name."'" . '!$B$2:$B$' . ($num_rows + 1), NULL, $num_rows)
-        ];
-
-        $ds = new \PHPExcel_Chart_DataSeries(
-          \PHPExcel_Chart_Dataseries::TYPE_BARCHART,
-          \PHPExcel_Chart_Dataseries::GROUPING_STANDARD,
-          range(0, count($dsv) - 1),
-          $dsl,
-          $xal,
-          $dsv
-        );
-
-        $layout = new \PHPExcel_Chart_Layout();
-        $layout->setShowVal(TRUE);
-
-        $axis_layout = new \PHPExcel_Chart_Layout();
-        $axis_layout->setHeight(10);
-        $axis_layout->setWidth(10);
-
-        $plot_area = new \PHPExcel_Chart_PlotArea($layout, array($ds));
-        $legend = new \PHPExcel_Chart_Legend(\PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);
-
-        $chart = new \PHPExcel_Chart(
-          $sheet_name,
-          (new \PHPExcel_Chart_Title($sheet_name)),
-          $legend,
-          $plot_area,
-          true,
-          0,
-          (new \PHPExcel_Chart_Title($rows[0][0], $axis_layout)),
-          (new \PHPExcel_Chart_Title($rows[0][1], $axis_layout))
-        );
-
-//      $chart->setTopLeftPosition(self::cell(0, 4));
-//      $chart->setBottomRightPosition(self::cell(10, 4 + $num_rows / 2));
-
-        $chart->setTopLeftPosition(self::cell(0, 4));
-        $chart->setBottomRightPosition(self::cell(25, 25));
-
-        $sheet->addChart($chart);
-      }
-
-      // add another sheet
-      if ($sheet_name !== $last_key) {
-        $sheet = $excel->createSheet();
-      }
-    }
-
-    $data = [];
-    $sheet_name = '';
-
-    if ($data_upload_id === NULL) {
-      $data = self::getSearchCriteria($pdo, $search_id);
-      $sheet_name = 'Search Criteria';
-    }
-
-    else {
-      $data = self::getDataReviewCriteria($pdo, $data_upload_id);
-      $sheet_name = 'Data Upload Review';
-    }
-
-    $sheet = $excel->createSheet();
-    $sheet->setTitle($sheet_name);
-    $this->writeArrayToWorksheet($data, $sheet);
-
-    $writer = \PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
-    $writer->setIncludeCharts(true);
-    $writer->save($paths['filepath']);
-
-
-
-
-
-    return $paths['uri'];
-  }
-
   /**
-   * Rxports search results based on the specified configuration
+   * Exports search results based on the specified configuration
    *
    * @param PDO $pdo
    * @param int $search_id
@@ -1022,6 +883,17 @@ class DatabaseExport {
     $data_upload_id === NULL
       ? addSheetToWorkbook($writer, 'Search Criteria', $this->getSearchCriteria($pdo, $search_id))
       : addSheetToWorkbook($writer, 'Data Upload Review', $this->getDataReviewCriteria($pdo, $data_upload_id));
+
+    // Add currency rate and year to last workbook entry
+    if (in_array($workbook_key, [
+      self::EXPORT_RESULTS_PARTNERS,
+      self::EXPORT_RESULTS_AS_SINGLE_SHEET,
+      self::EXPORT_RESULTS_WITH_ABSTRACTS,
+      self::EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET,
+      self::EXPORT_CSO_CANCER_TYPES,
+    ])) {
+      $writer->addRow(['Currency Conversion Year:', "$year"]);
+    }
 
     $writer->close();
     return $paths['uri'];
