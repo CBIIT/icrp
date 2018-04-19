@@ -818,7 +818,7 @@ class DatabaseExport {
           $use_database_columns = true;
           foreach(range(0, $results->columnCount() - 1) as $column_index) {
             $meta = $results->getColumnMeta($column_index);
-            array_push($sheet_columns, $meta['name']);
+            $sheet_columns[] = $meta['name'];
           }
         }
 
@@ -834,15 +834,27 @@ class DatabaseExport {
         // iterate over each of the rows in the results
         // if we are using all table columns, we may insert each row without processing it
         if ($use_database_columns) {
-          while ($row = $results->fetch(PDO::FETCH_NUM)) {
-            $writer->addRow(
-              array_map(function($value) use ($record_formatter) {
-                $value = substr($value, 0, 32767);
-                return is_callable($record_formatter)
-                  ? $record_formatter($value)
-                  : $value;
-              }, $row)
-            );
+
+          // apply a record formatter to each record, if specified
+          // note: this is split into two branches to reduce
+          // the number of checks when no $record_formatter is specified
+          if (is_callable($record_formatter)) {
+            while ($row = $results->fetch(PDO::FETCH_NUM)) {
+              $writer->addRow(
+                array_map(function($value) use ($record_formatter) {
+                  return $record_formatter(substr($value, 0, 32767));
+                }, $row)
+              );
+            }
+          // this case should have identical performance to the original implementation
+          } else {
+            while ($row = $results->fetch(PDO::FETCH_NUM)) {
+              $writer->addRow(
+                array_map(function($value) {
+                  return substr($value, 0, 32767);
+                }, $row)
+              );
+            }
           }
         }
 
