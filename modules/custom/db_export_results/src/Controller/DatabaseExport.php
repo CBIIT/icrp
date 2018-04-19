@@ -112,6 +112,11 @@ class DatabaseExport {
         'Search Results' => [
           'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url, @Year = :year',
           'columns' =>  [/* use original columns from database */],
+          'column_formatter' => function($column) {
+            return is_numeric($column)
+              ? "$column (USD)"
+              : $column;
+          },
         ],
 
         // Sheet definition for 'Projects by CSO'
@@ -152,6 +157,11 @@ class DatabaseExport {
         'Search Results' => [
           'query' => 'EXECUTE GetProjectExportsSingleBySearchID   @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url, @Year = :year',
           'columns' =>  [/* use original columns from database */],
+          'column_formatter' => function($column) {
+            return is_numeric($column)
+              ? "$column (USD)"
+              : $column;
+          },
         ],
       ],
 
@@ -162,6 +172,11 @@ class DatabaseExport {
         'Search Results' => [
           'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=1, @SiteURL=:site_url, @Year = :year',
           'columns' =>  [/* use original columns from database */],
+          'column_formatter' => function($column) {
+            return is_numeric($column)
+              ? "$column (USD)"
+              : $column;
+          },
         ],
 
         // Sheet definition for 'Projects by CSO'
@@ -202,6 +217,11 @@ class DatabaseExport {
         'Search Results' => [
           'query' => 'EXECUTE GetProjectExportsSingleBySearchID   @SearchID=:search_id, @includeAbstract=1, @SiteURL=:site_url, @Year = :year',
           'columns' =>  [/* use original columns from database */],
+          'column_formatter' => function($column) {
+            return is_numeric($column)
+              ? "$column (USD)"
+              : $column;
+          },
         ],
       ],
 
