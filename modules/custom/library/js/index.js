@@ -126,12 +126,13 @@ jQuery(function() {
                 }
 
                 functions.populateParents(nodeId);
-                $('#library-edit h1').html("Create Library File");
+                $('#library-edit h1').html("Upload Library File");
                 $('#library-edit').addClass('active').siblings().removeClass('active');
                 $('#library-access-container').hide();
             } else if (node) {
                 if (nodeId == undefined) nodeId = node.id;
-                functions.populateParents(nodeId);
+                var options = functions.populateParents(nodeId);
+                $(options).find('[value="1"]').remove();
                 $('#library-edit h1').html("Create Library Category");
                 $('#library-access-container').show();
                 ispub.attr('checked',node.data.isPublic);
@@ -154,7 +155,18 @@ jQuery(function() {
             params.find('[name="upload"]').prev().val(data.DisplayName).removeClass('hide');
             params.find('[name="title"]').val(data.Title);
             params.find('[name="description"]').val(data.Description);
-            params.find('[name="thumbnail"]').prev().val(data.ThumbnailFilename).removeClass('hide');
+
+            // ensure the thumnailFileName does not contain the id
+            var thumbnailFilename = data.ThumbnailFilename
+
+            // remove the second to last portion if it is an id
+            if (/.+\.\d+\.\w+$/.test(thumbnailFilename)) {
+                var parts = thumbnailFilename.split('.');
+                parts.splice(parts.length - 2, 1);
+                thumbnailFilename = parts.join('.');
+            }
+
+            params.find('[name="thumbnail"]').prev().val(thumbnailFilename).removeClass('hide');
             functions.createNew(e, false, data.LibraryFolderID);
             $('#library-edit h1').html("Edit Library File");
             ispub.parent().toggleClass('not_public',data.IsPublic != "1");
@@ -343,7 +355,11 @@ jQuery(function() {
             functions.updateTree(treeBase, true);
             return treeBase;
         },
-        'populateParents': function(nodeId) {
+        'populateParents': function(nodeId, disabledNodeIds) {
+            if (disabledNodeIds == undefined) {
+                disabledNodeIds = []
+            }
+
             var parent = $('#library-parameters [name="parent"]'),
                 json = tree.get_json(),
                 tab = "&#8193;",
@@ -355,6 +371,7 @@ jQuery(function() {
                     $('<option>')
                         .val(child.id)
                         .prop('selected', child.id == nodeId)
+                        .prop('disabled', disabledNodeIds.indexOf(child.id) >= 0)
                         .html(countedTab + child.text)
                         .data('library-access', child.data.type)
                         .appendTo(parent);
@@ -363,6 +380,7 @@ jQuery(function() {
             };
             parent.append('<option value="1">ROOT</option>');
             popChildren(json,1);
+            return parent;
         },
         'pushstate': function(obj) {
             var query = "";
@@ -629,7 +647,7 @@ jQuery(function() {
         } else {
             BootstrapDialog.alert({
                 'title': null,
-                'message': "No category is currently selected."
+                'message': 'No category is currently selected. To upload a library file, you must first select a category.',
             });
         }
     });
