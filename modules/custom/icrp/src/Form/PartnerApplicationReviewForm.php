@@ -305,7 +305,7 @@ class PartnerApplicationReviewForm extends FormBase
             }
 
         }
-        return "[Variable not found]";
+        return "";
     }
 
 
