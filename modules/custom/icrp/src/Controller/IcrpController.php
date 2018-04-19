@@ -165,4 +165,20 @@ class IcrpController extends ControllerBase {
         );
     }
 
+    public function getEvents() {
+        \Drupal::service('page_cache_kill_switch')->trigger();
+        return array(
+            '#markup' => 'Events',
+            '#cache' => ['max-age' => 0],
+        );
+    }
+
+    public function getResources() {
+        \Drupal::service('page_cache_kill_switch')->trigger();
+        return array(
+            '#markup' => 'Resources',
+            '#cache' => ['max-age' => 0],
+        );
+    }
+
 }

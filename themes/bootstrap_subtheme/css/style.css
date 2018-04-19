@@ -86,6 +86,9 @@ blockquote {
   width:120px;
   float:left;  
 }
+#last-meeting-report-text {
+  font-size:14px;
+}
 
 fieldset[data-drupal-selector="edit-status"] > legend,
 fieldset[data-drupal-selector="edit-roles"] > legend,
@@ -107,6 +110,7 @@ fieldset[data-drupal-selector="edit-library-access"] > legend {
 #can-upload-library-files-container {
     padding-bottom: 20px;
 }
+
 .container-inline .radio label, .container-inline .checkbox label {
     padding-right: 12px;
     font-weight: normal;
