@@ -37,8 +37,7 @@
     },
     "require": {
         "arshaw/fullcalendar": "3.5.6",
-        "box/spout": "^2.7.2",
-        "ckeditor/ckeditor": "^4.7",
+        "box/spout": "^2.7.2",        
         "composer/installers": "^1.2",
         "cweagans/composer-patches": "^1.6",
         "drupal-composer/drupal-scaffold": "2.2",
