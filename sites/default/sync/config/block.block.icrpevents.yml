@@ -1,0 +1,31 @@
+uuid: 4303efbf-3744-4cfe-812e-07aad18ce708
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:d85520f7-c780-4117-b85b-5c906e478095'
+  module:
+    - block_content
+    - system
+  theme:
+    - bootstrap_subtheme
+id: icrpevents
+theme: bootstrap_subtheme
+region: footer
+weight: 0
+provider: null
+plugin: 'block_content:d85520f7-c780-4117-b85b-5c906e478095'
+settings:
+  id: 'block_content:d85520f7-c780-4117-b85b-5c906e478095'
+  label: 'ICRP Events'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /events
+    negate: false
+    context_mapping: {  }

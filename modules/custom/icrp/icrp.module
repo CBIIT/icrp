@@ -783,6 +783,20 @@ function icrp_user_view($account, $view_mode, $langcode) {
 
 }
 
+/**
+ *  Implements hook_theme().
+ */
+function icrp_theme($existing, $type, $theme, $path) {
+  return [
+    'icrp_events' => [
+      'variables' => ['test_var' => NULL],
+    ],
+    'resources' => [
+      'variables' => ['test_var' => NULL],
+    ]
+  ];
+}
+
 function icrp_preprocess_forum_submitted(&$variables) {
   //drupal_set_message("icrp_preprocess_forum_submitted");
   //dpm($variables);
@@ -2089,86 +2103,6 @@ Data reported by CCRA will vary from the ICRP data as follows:</p>
 </div>
 
 <p>&nbsp;</p>';
-  return $html;
-}
-
-function getEventsAndResourcesHTML() {
-  //Render both blocks on this page
-  // Get ICRP Events Block
-  $bid = 31; // Get the block id through config, SQL or some other means
-  $block = \Drupal\block_content\Entity\BlockContent::load($bid);
-  $icrp_events_block = \Drupal::entityTypeManager()->getViewBuilder('block_content')->view($block);
-  //$icrp_events_block['#cache']['max-age'] = 0;
-  //$icrp_events_block['body']['#cache']['max-age'] = 0;
-  $icrp_events_rendered = \Drupal::service('renderer')->renderRoot($icrp_events_block);
-
-// Get External Resources Block
-  $bid = 32;
-  $block = \Drupal\block_content\Entity\BlockContent::load($bid);
-  $external_resources_block = \Drupal::entityTypeManager()->getViewBuilder('block_content')->view($block);
-  //$external_resources_block['#cache']['max-age'] = 0;
-  //$external_resources_block['body']['#cache']['max-age'] = 0;
-  $external_resources_rendered = \Drupal::service('renderer')->renderRoot($external_resources_block);
-  // Check to see if this user is Admin or Manger
-  $uid = \Drupal::currentUser()->id();
-  $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
-/*
-  $icrp_events_edit = '';
-  $external_resources_edit = '';
-  if($user->hasRole('manager') || $user->hasRole('administrator')) {
-    $icrp_events_edit = '<p class="text-right"><a href="/block/31/?destination=events-and-resources">Edit</a></p>';
-    $external_resources_edit = '<p class="text-right"><a href="/block/32/?destination=events-and-resources">Edit</a></p>';
-  }
-*/
-  $html = '
-  <div id="events-and-resources-container">
-  <h1>Events and Resources</h1>
-  <div class="panel panel-default" id="events-and-resources-1">
-    <div class="panel-heading"><a aria-controls="events-and-resources-1--content" aria-expanded="true" aria-pressed="true" class="panel-title" data-toggle="collapse" href="#events-and-resources-1--content" role="button">ICRP Events</a></div>
-
-    <div class="panel-body panel-collapse collapse fade in" id="events-and-resources-1--content">
-      <!-- Body 1 -->
-      <div class="about-us-body">
-        <div class="container-fluid">
-          <div class="row">
-            <div class="col-9 col-md-9">'.$icrp_events_rendered.'
-            </div>
-
-            <div class="col-3 col-md-3">
-              <div class="card bg-light mb-3" id="events-and-resources-card">
-                <div class="card-header">Meeting Report Title</div>
-
-                <div class="card-body">
-                  <p class="card-text">
-                    <table id="last-meeting-report-table">
-                      <tr>
-                        <td><a href="#" target="_blank" title="Latest Meeting Report">
-                    
-                    <img id="last-meeting-report-img" src="" /></a></td>
-                        <td><span id="last-meeting-report-text">Summary of annual meeting"</span></td>
-                      </tr>
-                      <tr>
-                        <td><a id="last-meeting-report-pdf" href="https://icrpartnership.org/sites/default/files/library/uploads/7343.pdf" target="_blank">Download PDF</a></td>
-                        <td>&nbsp;</td>
-                      </tr>
-                    </table>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel panel-default" id="events-and-resources-2">
-    <div class="panel-heading"><a aria-controls="events-and-resources-2--content" aria-expanded="true" aria-pressed="true" class="panel-title" data-toggle="collapse" href="#events-and-resources-2--content" role="button">External Resources</a></div>
-
-    <div class="panel-body panel-collapse collapse fade in" id="events-and-resources-2--content">'.$external_resources_rendered.'
-    </div>
-  </div>
-</div>';
   return $html;
 }
 

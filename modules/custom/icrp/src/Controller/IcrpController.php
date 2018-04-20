@@ -154,31 +154,23 @@ class IcrpController extends ControllerBase {
         $response = new JsonResponse($html);
 
         return $response;
-
-    }
-
-    public function getEventsAndResources() {
-        \Drupal::service('page_cache_kill_switch')->trigger();
-        return array(
-            '#markup' => getEventsAndResourcesHTML(),
-            '#cache' => ['max-age' => 0],
-        );
     }
 
     public function getEvents() {
-        \Drupal::service('page_cache_kill_switch')->trigger();
-        return array(
-            '#markup' => 'Events',
-            '#cache' => ['max-age' => 0],
-        );
+
+        $renderable = [
+            '#theme' => 'icrp_events',
+            '#test_var' => 'My test variable',
+        ];
+        return $renderable;
     }
 
     public function getResources() {
-        \Drupal::service('page_cache_kill_switch')->trigger();
-        return array(
-            '#markup' => 'Resources',
-            '#cache' => ['max-age' => 0],
-        );
+        $renderable = [
+            '#theme' => 'resources',
+            '#test_var' => 'My test variable',
+        ];
+        return $renderable;
     }
 
 }
