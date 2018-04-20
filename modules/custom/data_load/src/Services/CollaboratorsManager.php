@@ -8,24 +8,6 @@ use Exception;
 
 class CollaboratorsManager {
 
-  private static function initializeTable(PDO $pdo): void {
-    $pdo->exec("
-      DROP TABLE IF EXISTS tmp_LoadCollaborators;
-      CREATE TABLE tmp_LoadCollaborators (
-        AwardCode VARCHAR(75),
-        AltAwardCode VARCHAR(75),
-        LastName VARCHAR(100),
-        FirstName VARCHAR(100),
-        SubmittedInstitution VARCHAR(250),
-        Institution VARCHAR(250),
-        City VARCHAR(50),
-        ORC_ID VARCHAR(19),
-        OtherResearchID INT,
-        OtherResearchType VARCHAR(50)
-      );
-    ");
-  }
-
   /**
    * Imports collaborators into the database
    *
@@ -37,10 +19,20 @@ class CollaboratorsManager {
 
     try {
 
-      self::initializeTable($connection);
-
+      // create a new collaborator import log id
       $stmt = $connection->prepare(
-        "INSERT INTO tmp_LoadCollaborators (
+        'DECLARE @ImportCollaboratorLogID INT;
+        EXECUTE AddImportCollaboratorLog
+          @Count = :count,
+          @ImportCollaboratorLogID = @ImportCollaboratorLogID OUTPUT;
+        SELECT @ImportCollaboratorLogID');
+      $stmt->execute(['count' => count($data)]);
+      $logId = $stmt->fetchColumn();
+
+      // insert records into ImportCollaboratorStaging
+      $stmt = $connection->prepare(
+        'INSERT INTO ImportCollaboratorStaging (
+          [ImportCollaboratorLogID],
           [AwardCode],
           [AltAwardCode],
           [LastName],
@@ -51,41 +43,26 @@ class CollaboratorsManager {
           [ORC_ID],
           [OtherResearchID],
           [OtherResearchType])
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
 
       foreach($data as $index => $row) {
         $parameters = array_map(function($value) {
           return strlen($value) > 0 ? $value : NULL;
         }, $row);
 
+        // prepend rows with the import log id
+        array_unshift($parameters, $logId);
         $stmt->execute($parameters);
       }
 
       // return any collaborators that were not successfully imported
-      return $connection
-        ->query("SET NOCOUNT ON; EXEC ImportCollaborators @count = NULL")
-        ->fetchAll();
-
-      // // number of institutions successfully imported
-      // $imported = [
-      //   'count' => [
-      //     'value' => 0,
-      //     'type' => PDO::PARAM_INT
-      //   ]
-      // ];
-
-      // // institutions that were not successfully imported
-      // $errors = PDOBuilder::executePreparedStatement(
-      //   $connection,
-      //   'SET NOCOUNT ON; EXEC ImportCollaborators @count = NULL',
-      //   [],
-      //   $output
-      // )->fetchAll();
-
-      // return [
-      //   'imported' => $imported['count']['value'],
-      //   'errors' => $errors
-      // ];
+      $stmt = $connection->prepare(
+        'SET NOCOUNT ON;
+        EXECUTE ImportCollaborators
+          @ImportCollaboratorLogID = :logId,
+          @count = NULL');
+      $stmt->execute(['logId' => $logId]);
+      return $stmt->fetchAll();
     }
 
     catch (PDOException $e) {
