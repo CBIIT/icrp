@@ -50,6 +50,13 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
       // console.log(event.latLng.lat(), event.latLng.lng());
     });
 
+    this.map.addListener('idle', (event) => {
+      if (this.shouldRedraw) {
+        this.redrawMap();
+        this.shouldRedraw = false;
+      }
+    })
+
     this.map.addListener('zoom_changed', () => {
       // this.shouldFitBounds = false;
 
@@ -67,7 +74,9 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
       // we should redraw clusters by default
       if (this.shouldRedraw || !this.clusterClicked) {
-        this.redrawMap();
+        setTimeout(() => {
+          this.redrawMap()
+        }, 200);
       }
 
       // markers do not display sometimes unless the map is panned slightly
@@ -178,19 +187,22 @@ class GoogleMap extends React.Component<GoogleMapProps, {}> {
 
         if (props.viewLevel === 'countries') {
           this.map.setZoom(4);
+          return;
         }
 
         else {
           this.map.setZoom(this.map.getZoom() + 1);
+          return;
         }
       }
 
       if (props.viewLevel === 'regions') {
         this.applyDefaultView();
+        return;
       }
-      setTimeout(() => {
-        this.redrawMap();
-      }, 0)
+
+      this.shouldRedraw = true;
+      this.map.setZoom(this.map.getZoom());
     }
   }
 
