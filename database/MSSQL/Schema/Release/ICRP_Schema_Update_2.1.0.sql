@@ -35,6 +35,44 @@ BEGIN
 END
 GO
 
+
+IF object_id('[ImportCollaboratorLog]') is null  
+BEGIN
+
+	CREATE TABLE [dbo].[ImportCollaboratorLog] (
+		[ImportCollaboratorLogID] [int] IDENTITY(1,1) NOT NULL,			
+		[Count] [int] NULL,
+		[Status] VARCHAR (25) NULL,
+		[CreatedDate] [datetime] NOT NULL,
+		[UpdatedDate] [datetime] NOT NULL
+		CONSTRAINT [PK_ImportCollaboratorLogID] PRIMARY KEY CLUSTERED 
+	(
+		[ImportCollaboratorLogID] ASC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY]
+
+END
+GO
+
+IF object_id('[ImportCollaboratorStaging]') is null  
+BEGIN
+
+	CREATE TABLE [dbo].[ImportCollaboratorStaging] (
+		[ImportCollaboratorLogID] [int] NOT NULL,			
+		[AwardCode] [varchar](75) NULL,
+		[AltAwardCode] [varchar](75) NULL,
+		[LastName] [varchar](100) NULL,
+		[FirstName] [varchar](100) NULL,
+		[SubmittedInstitution] [varchar](250) NULL,
+		[Institution] [varchar](250) NULL,
+		[City] [varchar](50) NULL,
+		[ORC_ID] [varchar](19) NULL,
+		[OtherResearchID] [int] NULL,
+		[OtherResearchType] [varchar](50) NULL
+	) ON [PRIMARY]
+
+END
+GO
 	
 /*************************************************/
 /******		UPDATE TABLE        			******/
@@ -84,6 +122,8 @@ UPDATE Partner SET Status = 'Current' WHERE Status IS NULL
 
 -- Library
 UPDATE LibraryFolder SET Type = 'General' WHERE Type IS NULL
+UPDATE Library SET Title=NULL where Title='NULL'
+UPDATE Library SET Description=NULL where Description='NULL'
 
 /*************************************************/
 /******					Keys				******/
