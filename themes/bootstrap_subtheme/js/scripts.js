@@ -76,9 +76,8 @@
           $.preprocessCalendar();
           $.rememberTabs();
           break;
-        case "/events-and-resources":
+        case "/events":
           $.getLastMeetingReport();
-          $.addIcrpEventsEditLinks();
           break;
       }
     }
@@ -435,33 +434,11 @@
       var thumbnail = "/library/file/thumb/"+meetingReport.thumbnailfilename;
       $("#events-and-resources-card > .card-header:eq(0)").text(meetingReport.title);
       $("#last-meeting-report-img").attr('src', thumbnail);
-      $("#last-meeting-report-table > a:eq(0)").attr('href', pdf);
+      $("#last-meeting-report-a-img").attr('href', pdf);
       $("#last-meeting-report-text").text(meetingReport.description);
       $("#last-meeting-report-pdf").attr('href', pdf);
       $('#events-and-resources-card').show();
     });
-  }
-
-  $.addIcrpEventsEditLinks = function(){
-    if(!$('#icrp-events-edit-link').length) {
-      var href = "/user-roles";
-      $.ajax({
-        url:  href,
-        success: function( data ) {
-          //console.dir(data);
-          var roles = JSON.parse(data);
-          //console.dir(roles);
-          if(!$('#icrp-events-edit-link').length && (($.inArray("administrator", roles)>=0) || ($.inArray("manager", roles)>=0))) {
-            var html = '<a href="/block/31/?destination=events-and-resources" id="icrp-events-edit-link" class="events-edit-link">Edit</a>';
-            $("#events-and-resources-1 > .panel-heading:eq(0)").append(html);
-          }
-          if(!$('#external-resources-edit-link').length && (($.inArray("administrator", roles)>=0) || ($.inArray("manager", roles)>=0))) {
-              var html = '<a href="/block/32/?destination=events-and-resources" id="external-resources-edit-link" class="events-edit-link">Edit</a>';
-              $("#events-and-resources-2 > .panel-heading:eq(0)").append(html);
-          }
-        }
-       });
-    }
   }
 
   $.tweekHomePage = function () {

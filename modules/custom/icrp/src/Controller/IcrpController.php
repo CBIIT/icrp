@@ -166,19 +166,33 @@ class IcrpController extends ControllerBase {
     }
 
     public function getEvents() {
-        \Drupal::service('page_cache_kill_switch')->trigger();
+
+        $renderable = [
+            '#theme' => 'icrp_events',
+            '#test_var' => 'My test variable',
+        ];
+        return $renderable;
+/*
+        return [
+  '#theme' => 'twitter_pull_tweet_listing',
+  '#description' => 'foo',
+  '#attributes' => [],
+];
+        $rendered = \Drupal::service('renderer')->render($renderable);
+        dpm($rendered);
         return array(
-            '#markup' => 'Events',
+            '#markup' => $rendered,
             '#cache' => ['max-age' => 0],
         );
+  */
     }
 
     public function getResources() {
-        \Drupal::service('page_cache_kill_switch')->trigger();
-        return array(
-            '#markup' => 'Resources',
-            '#cache' => ['max-age' => 0],
-        );
+        $renderable = [
+            '#theme' => 'resources',
+            '#test_var' => 'My test variable',
+        ];
+        return $renderable;
     }
 
 }

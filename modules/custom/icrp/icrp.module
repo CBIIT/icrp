@@ -783,6 +783,20 @@ function icrp_user_view($account, $view_mode, $langcode) {
 
 }
 
+/**
+ *  Implements hook_theme().
+ */
+function icrp_theme($existing, $type, $theme, $path) {
+  return [
+    'icrp_events' => [
+      'variables' => ['test_var' => NULL],
+    ],
+    'resources' => [
+      'variables' => ['test_var' => NULL],
+    ]
+  ];
+}
+
 function icrp_preprocess_forum_submitted(&$variables) {
   //drupal_set_message("icrp_preprocess_forum_submitted");
   //dpm($variables);
