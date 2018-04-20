@@ -8,30 +8,40 @@ use Exception;
 
 class InstitutionsManager {
 
-  private static function initializeTable(PDO $pdo): void {
-    $pdo->exec("
-      DROP TABLE IF EXISTS tmp_LoadInstitutions;
-      CREATE TABLE tmp_LoadInstitutions (
-        ID            INT IDENTITY (1,1),
-        Name          VARCHAR(250),
-        City          VARCHAR(50),
-        State         VARCHAR(50),
-        Country       VARCHAR(100),
-        Postal        VARCHAR(50),
-        Latitude      DECIMAL(9, 6),
-        Longitude     DECIMAL(9, 6),
-        GRID          VARCHAR(250)
-      );
-    ");
-  }
-
-  public static function importInstitutions(PDO $pdo, array $institutions) {
+  /**
+   * Imports institutions into the database
+   *
+   * @param PDO $connection
+   * @param array $data A non-associative array containing the records to be inserted
+   * @return array
+   */
+  public static function importInstitutions(PDO $connection, array $institutions) {
     $index = 1;
     try {
-      self::initializeTable($pdo);
-      $stmt = $pdo->prepare(
-        "INSERT INTO tmp_LoadInstitutions ([Name], [City], [State], [Country], [Postal], [Latitude], [Longitude], [GRID])
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+
+      // create a new institution import log id
+      $stmt = $connection->prepare(
+        'DECLARE @ImportInstitutionLogID INT;
+        EXECUTE AddImportInstitutionLog
+          @Count = :count,
+          @ImportInstitutionLogID = @ImportInstitutionLogID OUTPUT;
+        SELECT @ImportInstitutionLogID');
+      $stmt->execute(['count' => count($data)]);
+      $logId = $stmt->fetchColumn();
+
+      // insert records into ImportInstitutionStaging
+      $stmt = $connection->prepare(
+        "INSERT INTO ImportInstitutionStaging (
+          [ImportInstitutionLogID],
+          [Name],
+          [City],
+          [State],
+          [Country],
+          [Postal],
+          [Latitude],
+          [Longitude],
+          [GRID])
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
       foreach($institutions as $institution) {
         $index ++;
@@ -39,12 +49,19 @@ class InstitutionsManager {
           return strlen($value) > 0 ? $value : NULL;
         }, $institution);
 
+        // prepend rows with the import log id
+        array_unshift($data, $logId);
         $stmt->execute($data);
       }
 
-      return $pdo
-        ->query("SET NOCOUNT ON; EXEC ImportInstitutions")
-        ->fetchAll();
+      // return any collaborators that were not successfully imported
+      $stmt = $connection->prepare(
+        'SET NOCOUNT ON;
+        EXECUTE ImportInstitutions
+          @ImportInstitutionLogID = :logId,
+          @count = NULL');
+      $stmt->execute(['logId' => $logId]);
+      return $stmt->fetchAll();
     }
 
     catch (PDOException $e) {
