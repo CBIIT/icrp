@@ -114,19 +114,19 @@ jQuery(function() {
                 ispub = params.find('[name="is_public"]');
             $('#library-parameters [name="parent"]').change()
             if (!isFolder) {
-                if (nodeId == undefined) {
-                    if (node) {
-                        nodeId = node.id;
-                    } else {
-                        BootstrapDialog.alert({
-                            'title': null,
-                            'message': "No category is currently selected."
-                        });
-                    }
+                if (nodeId == undefined && node) {
+                    nodeId = node.id;
                 }
 
                 var options = functions.populateParents(nodeId);
                 $(options).find('[value="1"]').remove();
+                if (!node) {
+                    $(options).prepend($('<option>')
+                        .text('Select a Category')
+                        .val(''));
+                    $(options).val('')
+                }
+
                 $('#library-edit h1').html("Upload Library File");
                 $('#library-edit').addClass('active').siblings().removeClass('active');
                 $('#library-access-container').hide();
@@ -418,10 +418,15 @@ jQuery(function() {
         },
         'saveFile': function(e) {
             var file = $('#library-parameters [name="upload"]'),
+                parent = $('#library-parameters [name="parent"]').val(),
                 title = $('#library-parameters [name="title"]').val();
                 display_name = $('#library-parameters [name="display_name"]');
                 desc = $('#library-parameters [name="description"]').val();
-            if ((display_name.hasClass('hide') && (file.val()||"") === "") || (!display_name.hasClass('hide') && (display_name.val()||"") === "") || (title||"") === "" || (desc||"") === "") {
+            if ((display_name.hasClass('hide') && (file.val()||"") === "")
+            || (!display_name.hasClass('hide') && (display_name.val()||"") === "")
+            || (parent||"") === ""
+            || (title||"") === ""
+            || (desc||"") === "") {
                 BootstrapDialog.alert({
                     'title': null,
                     'message': "Missing required parameters."
@@ -643,15 +648,7 @@ jQuery(function() {
     });
     $('#library-edit-folder').on('click',functions.editFolder);
     $('#library-upload-file').on('click',function(e) {
-
-        if (functions.getNode()) {
-            functions.createNew(e,false);
-        } else {
-            BootstrapDialog.alert({
-                'title': null,
-                'message': 'No category is currently selected. To upload a library file, you must first select a category.',
-            });
-        }
+        functions.createNew(e,false);
     });
     $('#library-download-all').on('click',functions.bulkDownload);
     $('#library-archive-folder').on('click',functions.archiveFolder);
