@@ -125,14 +125,14 @@ jQuery(function() {
                     }
                 }
 
-                functions.populateParents(nodeId);
+                var options = functions.populateParents(nodeId);
+                $(options).find('[value="1"]').remove();
                 $('#library-edit h1').html("Upload Library File");
                 $('#library-edit').addClass('active').siblings().removeClass('active');
                 $('#library-access-container').hide();
             } else if (node) {
                 if (nodeId == undefined) nodeId = node.id;
                 var options = functions.populateParents(nodeId);
-                $(options).find('[value="1"]').remove();
                 $('#library-edit h1').html("Create Library Category");
                 $('#library-access-container').show();
                 ispub.attr('checked',node.data.isPublic);
@@ -168,6 +168,8 @@ jQuery(function() {
 
             params.find('[name="thumbnail"]').prev().val(thumbnailFilename).removeClass('hide');
             functions.createNew(e, false, data.LibraryFolderID);
+
+
             $('#library-edit h1').html("Edit Library File");
             ispub.parent().toggleClass('not_public',data.IsPublic != "1");
             ispub.prop('checked',data.IsPublic == "1");
