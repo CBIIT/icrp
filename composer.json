@@ -191,7 +191,9 @@
             },
             "drupal/core":{
                 "Patch to fix Daterange while using in a view":
-                "https://www.drupal.org/files/issues/improve_the_views-2786577-165.patch"
+                "https://www.drupal.org/files/issues/improve_the_views-2786577-165.patch",
+                "Patch to update CKEditor library to 4.9.2":
+                "https://www.drupal.org/files/issues/2018-04-19/2962330-2.patch"
             }
         }
     }
