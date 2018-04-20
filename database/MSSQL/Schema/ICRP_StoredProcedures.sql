@@ -2318,7 +2318,7 @@ AS
 	--Create the dynamic query with all the values for pivot column at runtime
 	SET   @SQLQuery = N'SELECT * FROM (SELECT t.ProjectID AS ICRPProjectID, t.ProjectFundingID AS ICRPProjectFundingID, t.AwardTitle, t.AwardType, t.AwardCode, 
 		t.Source_ID, t.AltAwardCode, t.FundingCategory,	t.IsChildhood, t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate,  t.BudgetEndDate, 
-		t.AwardAmount, CAST((t.AwardAmount * ISNULL(cr.ToCurrencyRate, 1)) AS INT) AS USDAwardAmount, t.FundingIndicator, t.Currency, 
+		CAST((t.AwardAmount * ISNULL(cr.ToCurrencyRate, 1)) AS INT) AS [AwardAmount (USD)], t.AwardAmount AS [AwardAmount (Original)], t.Currency, t.FundingIndicator, 
 		t.FundingMechanism, t.FundingMechanismCode, t.SponsorCode, t.FundingOrg, t.FundingOrgType, t.FundingDiv, t.FundingDivAbbr, t.FundingContact, 
 		t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.Region, t.icrpURL'
 
@@ -2557,8 +2557,8 @@ AS
 	--Create the dynamic query with all the values for pivot column at runtime
 	SET   @SQLQuery = N'SELECT * '+
 		'FROM (SELECT t.ProjectID AS ICRPProjectID, t.ProjectFundingID AS ICRPProjectFundingID, t.AwardCode, t.AwardTitle, t.AwardType, t.Source_ID, t.AltAwardCode, FundingCategory, IsChildhood,
-				t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate, t.BudgetEndDate, t.AwardAmount, CAST((t.AwardAmount * ISNULL(cr.ToCurrencyRate, 1)) AS INT) AS USDAwardAmount, 
-				t.FundingIndicator, t.Currency, t.FundingMechanism, t.FundingMechanismCode, SponsorCode, t.FundingOrg, FundingOrgType,
+				t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate, t.BudgetEndDate, CAST((t.AwardAmount * ISNULL(cr.ToCurrencyRate, 1)) AS INT) AS [AwardAmount (USD)], t.AwardAmount AS [AwardAmount (Original)], 
+				t.Currency, t.FundingIndicator, t.FundingMechanism, t.FundingMechanismCode, SponsorCode, t.FundingOrg, FundingOrgType,
 				t.FundingDiv, t.FundingDivAbbr, t.FundingContact, t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.Region, t.icrpURL'
 	IF @IncludeAbstract = 1
 		SET @SQLQuery = @SQLQuery + ', t.TechAbstract'
@@ -3255,10 +3255,10 @@ CREATE  PROCEDURE [dbo].[GetLatestNewsletter]
     
 AS 
   
-SELECT TOP 1 l.LibraryID, l.Filename, l.ThumbnailFilename, Title, Description 
-FROM Library l
-	JOIN LibraryFolder f ON l.LibraryFolderID = f.LibraryFolderID where f.Name = 'Newsletters'
-ORDER BY l.CreatedDate DESC
+SELECT TOP 1 LibraryID, Filename, ThumbnailFilename, Title, Description 
+FROM Library
+WHERE LibraryFolderid = 3 AND  ArchivedDate IS NULL  -- -- LibraryFolderid 3 is Newsletters
+ORDER BY CreatedDate DESC
 
 GO
 
@@ -3282,7 +3282,7 @@ CREATE  PROCEDURE [dbo].[GetLatestMeetingReport]
 AS 
   
 select top 1 LibraryID, Filename, ThumbnailFilename, Title, Description from library
- where LibraryFolderid=4  -- LibraryFolderid 4 is Meeting Reports
+ where LibraryFolderid=4  AND ArchivedDate IS NULL -- LibraryFolderid 4 is Meeting Reports
 ORDER BY libraryid DESC    
 
 GO
@@ -3783,6 +3783,24 @@ END CATCH
 GO
 
 
+/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+/****** Object:  StoredProcedure [dbo].[ImportCollaborators]    Script Date: 12/14/2016 4:21:37 PM ******/
+/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[InsertImportCollaboratorLog]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[InsertImportCollaboratorLog]
+GO 
+
+CREATE PROCEDURE [dbo].[InsertImportCollaboratorLog]   	
+@Count INT,
+@ImportCollaboratorLogID INT OUTPUT
+AS
+
+INSERT INTO [ImportCollaboratorLog] ([Count], CreatedDate, UpdatedDate) VALUES(@Count, getdate(), getdate())
+
+SELECT @ImportCollaboratorLogID = SCOPE_IDENTITY()		
+
+GO
 
 /*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /****** Object:  StoredProcedure [dbo].[ImportCollaborators]    Script Date: 12/14/2016 4:21:37 PM ******/
@@ -8275,22 +8293,27 @@ BEGIN TRANSACTION;
 BEGIN TRY    	
 	
 	DECLARE @ArchivedDate DATETIME;
-	DECLARE @FileExtension VARCHAR(5) = RIGHT(@Filename,LEN(@Filename)-CHARINDEX('.',@Filename));
 
+	DECLARE @FileExtension VARCHAR(5) = RIGHT(@Filename,LEN(@Filename)-CHARINDEX('.',@Filename));
+	DECLARE @FilenameNoExt VARCHAR(50) = LEFT(@Filename,LEN(@Filename)-LEN(@FileExtension));
+	
 	SELECT @ArchivedDate=(CASE WHEN ArchivedDate IS NULL THEN NULL ELSE GETDATE() END) FROM LibraryFolder WHERE LibraryFolderID=@LibraryFolderID;
 
 	INSERT INTO Library (Title,LibraryFolderID,Filename,ThumbnailFilename,Description,IsPublic,ArchivedDate,DisplayName) VALUES (@Title,@LibraryFolderID,@Filename,@ThumbnailFilename,@Description,@IsPublic,@ArchivedDate,@DisplayName);
 
 	DECLARE @LibraryID INT = SCOPE_IDENTITY();
 
-	IF @ThumbnailFilename IS NULL
-		UPDATE Library SET Filename=CONCAT(@LibraryID,'.',@FileExtension) WHERE LibraryID=@LibraryID
-	ELSE BEGIN
+	-- Append libraryID to file/thumbnail filename to create uniquness
+	UPDATE Library SET Filename=CONCAT(@FilenameNoExt, @LibraryID,'.',@FileExtension) WHERE LibraryID=@LibraryID;
+	
+	IF @ThumbnailFilename IS NOT NULL		
+	BEGIN
 		DECLARE @ThumbExtension VARCHAR(5) = RIGHT(@ThumbnailFilename,LEN(@ThumbnailFilename)-CHARINDEX('.',@ThumbnailFilename));
+		DECLARE @ThumbNoExt VARCHAR(50) = LEFT(@ThumbnailFilename,LEN(@ThumbnailFilename)-LEN(@ThumbExtension));
 
-		UPDATE Library SET Filename=CONCAT(@LibraryID,'.',@FileExtension),ThumbnailFilename=CONCAT(@LibraryID,'.',@ThumbExtension) WHERE LibraryID=@LibraryID;
-	END;
-
+		UPDATE Library SET ThumbnailFilename=CONCAT(@ThumbNoExt, @LibraryID,'.',@ThumbExtension) WHERE LibraryID=@LibraryID;		
+	END
+		
 	SELECT * FROM LIBRARY WHERE LibraryID=@LibraryID;
 	
 COMMIT TRANSACTION
@@ -8328,13 +8351,24 @@ BEGIN TRANSACTION;
 
 BEGIN TRY    	
 	SET NOCOUNT ON;
-	UPDATE Library SET LibraryFolderID=@LibraryFolderID, Title=@Title, Description=@Description, IsPublic=@IsPublic, UpdatedDate=GETDATE(), ThumbnailFilename = @ThumbnailFilename, DisplayName=@DisplayName WHERE LibraryID=@LibraryID;
+	UPDATE Library SET LibraryFolderID=@LibraryFolderID, Title=@Title, Description=@Description, IsPublic=@IsPublic, UpdatedDate=GETDATE(), DisplayName=@DisplayName WHERE LibraryID=@LibraryID;
 
+	-- Append libraryID to file/thumbnail filename to create uniquness		
 	IF @Filename IS NOT NULL 
 	BEGIN
 		DECLARE @FileExtension VARCHAR(5) = RIGHT(@Filename,LEN(@Filename)-CHARINDEX('.',@Filename));
-		UPDATE Library SET Filename=CONCAT(@LibraryID,'.',@FileExtension) WHERE LibraryID=@LibraryID;
+		DECLARE @FilenameNoExt VARCHAR(50) = LEFT(@Filename,LEN(@Filename)-LEN(@FileExtension));
+		
+		UPDATE Library SET Filename=CONCAT(@FilenameNoExt, @LibraryID,'.',@FileExtension) WHERE LibraryID=@LibraryID;
 	END;
+
+	IF @ThumbnailFilename IS NOT NULL	
+	BEGIN	
+		DECLARE @ThumbExtension VARCHAR(5) = RIGHT(@ThumbnailFilename,LEN(@ThumbnailFilename)-CHARINDEX('.',@ThumbnailFilename));
+		DECLARE @ThumbNoExt VARCHAR(50) = LEFT(@ThumbnailFilename,LEN(@ThumbnailFilename)-LEN(@ThumbExtension));
+
+		UPDATE Library SET ThumbnailFilename=CONCAT(@ThumbNoExt, @LibraryID,'.',@ThumbExtension) WHERE LibraryID=@LibraryID;
+	END
 
 COMMIT TRANSACTION
 
