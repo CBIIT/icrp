@@ -154,15 +154,6 @@ class IcrpController extends ControllerBase {
         $response = new JsonResponse($html);
 
         return $response;
-
-    }
-
-    public function getEventsAndResources() {
-        \Drupal::service('page_cache_kill_switch')->trigger();
-        return array(
-            '#markup' => getEventsAndResourcesHTML(),
-            '#cache' => ['max-age' => 0],
-        );
     }
 
     public function getEvents() {
@@ -172,19 +163,6 @@ class IcrpController extends ControllerBase {
             '#test_var' => 'My test variable',
         ];
         return $renderable;
-/*
-        return [
-  '#theme' => 'twitter_pull_tweet_listing',
-  '#description' => 'foo',
-  '#attributes' => [],
-];
-        $rendered = \Drupal::service('renderer')->render($renderable);
-        dpm($rendered);
-        return array(
-            '#markup' => $rendered,
-            '#cache' => ['max-age' => 0],
-        );
-  */
     }
 
     public function getResources() {
