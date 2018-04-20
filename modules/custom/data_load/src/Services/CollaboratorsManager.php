@@ -21,7 +21,8 @@ class CollaboratorsManager {
 
       // create a new collaborator import log id
       $stmt = $connection->prepare(
-        'DECLARE @ImportCollaboratorLogID INT;
+        'SET NOCOUNT ON;
+        DECLARE @ImportCollaboratorLogID INT;
         EXECUTE AddImportCollaboratorLog
           @Count = :count,
           @ImportCollaboratorLogID = @ImportCollaboratorLogID OUTPUT;

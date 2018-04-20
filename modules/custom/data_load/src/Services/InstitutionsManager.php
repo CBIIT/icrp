@@ -21,12 +21,13 @@ class InstitutionsManager {
 
       // create a new institution import log id
       $stmt = $connection->prepare(
-        'DECLARE @ImportInstitutionLogID INT;
+        'SET NOCOUNT ON;
+        DECLARE @ImportInstitutionLogID INT;
         EXECUTE AddImportInstitutionLog
           @Count = :count,
           @ImportInstitutionLogID = @ImportInstitutionLogID OUTPUT;
         SELECT @ImportInstitutionLogID');
-      $stmt->execute(['count' => count($data)]);
+      $stmt->execute(['count' => count($institutions)]);
       $logId = $stmt->fetchColumn();
 
       // insert records into ImportInstitutionStaging
@@ -68,7 +69,7 @@ class InstitutionsManager {
 
       $message = preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage());
 
-      if ($index < count($data)) {
+      if ($index < count($institutions)) {
          $message = "An error occured while reading row $index: $message";
       }
 
