@@ -23,4 +23,5 @@ features:
   comment_user_verification: true
   favicon: true
   node_user_picture: true
+modal_enabled: 0
 table: ''
