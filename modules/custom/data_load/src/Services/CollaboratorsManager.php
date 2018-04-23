@@ -16,9 +16,7 @@ class CollaboratorsManager {
    * @return array
    */
   public static function importCollaborators(PDO $connection, array $data): array {
-
     try {
-
       // create a new collaborator import log id
       $stmt = $connection->prepare(
         'SET NOCOUNT ON;
@@ -81,6 +79,5 @@ class CollaboratorsManager {
         'ERROR' => $e->getMessage()
       ];
     }
-
   }
 }
