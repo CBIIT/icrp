@@ -136,7 +136,7 @@
             {% if loop.index == 1 %}
               {{- cell.content -}}
               </td>
-              <td>
+              <td style="word-wrap:break-word;">
               {{ cell.icrp_markup |raw }}
             {% elseif loop.index == 2 %}
               {{ cell.icrp_markup |raw }}
