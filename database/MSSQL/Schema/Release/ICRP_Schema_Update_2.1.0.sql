@@ -41,8 +41,9 @@ BEGIN
 
 	CREATE TABLE [dbo].[ImportCollaboratorLog] (
 		[ImportCollaboratorLogID] [int] IDENTITY(1,1) NOT NULL,			
-		[Count] [int] NULL,
-		[Status] VARCHAR (25) NULL,
+		[FileCount] [int] NULL,
+		[ImportedCount] [int] NULL,
+		[Status] VARCHAR (25) NULL,  -- Failed, Completed
 		[CreatedDate] [datetime] NOT NULL,
 		[UpdatedDate] [datetime] NOT NULL
 		CONSTRAINT [PK_ImportCollaboratorLogID] PRIMARY KEY CLUSTERED 
@@ -73,6 +74,45 @@ BEGIN
 
 END
 GO
+
+
+IF object_id('[ImportInstitutionLog]') is null  
+BEGIN
+
+	CREATE TABLE [dbo].[ImportInstitutionLog] (
+		[ImportInstitutionLogID] [int] IDENTITY(1,1) NOT NULL,			
+		[FileCount] [int] NULL,
+		[ImportedCount] [int] NULL,
+		[Status] VARCHAR (25) NULL,  -- Failed, Completed
+		[CreatedDate] [datetime] NOT NULL,
+		[UpdatedDate] [datetime] NOT NULL
+		CONSTRAINT [PK_ImportInstitutionLogID] PRIMARY KEY CLUSTERED 
+	(
+		[ImportInstitutionLogID] ASC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY]
+
+END
+GO
+
+IF object_id('[ImportInstitutionStaging]') is null  
+BEGIN
+
+	CREATE TABLE [dbo].[ImportInstitutionStaging] (
+		[ImportInstitutionStagingID][int] NOT NULL,			
+		[ID] [int] IDENTITY(1,1) NOT NULL,
+		[Name] [varchar](250) NULL,
+		[City] [varchar](50) NULL,
+		[State] [varchar](50) NULL,
+		[Country] [varchar](100) NULL,
+		[Postal] [varchar](50) NULL,
+		[Latitude] [decimal](9, 6) NULL,
+		[Longitude] [decimal](9, 6) NULL,
+		[GRID] [varchar](250) NULL
+		) ON [PRIMARY]
+
+END
+GO
 	
 /*************************************************/
 /******		UPDATE TABLE        			******/
@@ -95,6 +135,10 @@ GO
 
 IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[NonPartner]') AND name = 'ConvertedDate')
 	ALTER TABLE NonPartner ADD [ConvertedDate] [datetime] NULL
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[ImportCollaboratorLog]') AND name = 'ImportedCount')
+	ALTER TABLE ImportCollaboratorLog ADD [ImportedCount] INT NULL
 GO
 
 /*************************************************/

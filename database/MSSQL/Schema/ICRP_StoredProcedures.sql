@@ -3255,7 +3255,7 @@ CREATE  PROCEDURE [dbo].[GetLatestNewsletter]
     
 AS 
   
-SELECT TOP 1 LibraryID, Filename, ThumbnailFilename, Title, Description 
+SELECT TOP 1 LibraryID, DisplayName AS Filename, ThumbnailFilename, Title, Description 
 FROM Library
 WHERE LibraryFolderid = 3 AND  ArchivedDate IS NULL  -- -- LibraryFolderid 3 is Newsletters
 ORDER BY CreatedDate DESC
@@ -3281,9 +3281,9 @@ CREATE  PROCEDURE [dbo].[GetLatestMeetingReport]
     
 AS 
   
-select top 1 LibraryID, Filename, ThumbnailFilename, Title, Description from library
- where LibraryFolderid=4  AND ArchivedDate IS NULL -- LibraryFolderid 4 is Meeting Reports
-ORDER BY libraryid DESC    
+SELECT TOP 1 LibraryID, DisplayName AS Filename, ThumbnailFilename, Title, Description from library
+ WHERE LibraryFolderid=4  AND ArchivedDate IS NULL -- LibraryFolderid 4 is Meeting Reports
+ORDER BY libraryid DESC      
 
 GO
 
@@ -3650,6 +3650,26 @@ delete institution where institutionid = @InstitutionID_deleted
 GO
 
 
+
+/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+/****** Object:  StoredProcedure [dbo].[AddImportInstitutionLog]  */
+/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AddImportInstitutionLog]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[AddImportInstitutionLog]
+GO 
+
+CREATE PROCEDURE [dbo].[AddImportInstitutionLog]   	
+@Count INT,
+@ImportInstitutionLogID INT OUTPUT
+AS
+
+INSERT INTO ImportInstitutionLog ([FileCount], CreatedDate, UpdatedDate) VALUES(@Count, getdate(), getdate())
+
+SELECT @ImportInstitutionLogID = SCOPE_IDENTITY()		
+
+GO
+
 /*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /****** Object:  StoredProcedure [dbo].[ImportInstitutions]    Script Date: 12/14/2016 4:21:37 PM ******/
 /*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -3659,33 +3679,32 @@ DROP PROCEDURE [dbo].[ImportInstitutions]
 GO 
 
 CREATE PROCEDURE [dbo].[ImportInstitutions] 
-  
+@ImportInstitutionLogID INT, 	
+@Count INT OUTPUT
 AS
 
 BEGIN TRY     	
-
-	IF object_id('tmp_LoadInstitutions') is null
-	BEGIN
-		   RAISERROR ('Table tmp_LoadInstitutions not found', 16, 1)
-	END
+    -- Move imported institutions records to a temp table 
+	SELECT * INTO #tmp_LoadInstitutions FROM ImportInstitutionStaging WHERE ImportInstitutionLogID = @ImportInstitutionLogID;
+	DELETE ImportInstitutionStaging WHERE ImportInstitutionLogID = @ImportInstitutionLogID;
 
 	-- replace city with accent names
-	update tmp_LoadInstitutions set city ='Montréal' where city='Montreal'
-	update tmp_LoadInstitutions set city ='Québec' where city='Quebec'
-	update tmp_LoadInstitutions set city ='Zürich' where city='Zurich'
-	update tmp_LoadInstitutions set city ='Pierre-Bénite' where city='Pierre-Benite'
-	update tmp_LoadInstitutions set city ='Umeå' where city='Umea'
-	update tmp_LoadInstitutions set city ='Münster' where city='Munster'	
+	update #tmp_LoadInstitutions set city ='Montréal' where city='Montreal'
+	update #tmp_LoadInstitutions set city ='Québec' where city='Quebec'
+	update #tmp_LoadInstitutions set city ='Zürich' where city='Zurich'
+	update #tmp_LoadInstitutions set city ='Pierre-Bénite' where city='Pierre-Benite'
+	update #tmp_LoadInstitutions set city ='Umeå' where city='Umea'
+	update #tmp_LoadInstitutions set city ='Münster' where city='Munster'	
 
-	UPDATE tmp_LoadInstitutions set city = NULL where city='' OR city='NULL'
-	UPDATE tmp_LoadInstitutions set State = NULL where State='' OR State='NULL'
-	UPDATE tmp_LoadInstitutions set Country = NULL where Country='' OR Country='NULL'
-	UPDATE tmp_LoadInstitutions set Latitude = NULL where Latitude=0
-	UPDATE tmp_LoadInstitutions set Longitude = NULL where Longitude=0
+	UPDATE #tmp_LoadInstitutions set city = NULL where city='' OR city='NULL'
+	UPDATE #tmp_LoadInstitutions set State = NULL where State='' OR State='NULL'
+	UPDATE #tmp_LoadInstitutions set Country = NULL where Country='' OR Country='NULL'
+	UPDATE #tmp_LoadInstitutions set Latitude = NULL where Latitude=0
+	UPDATE #tmp_LoadInstitutions set Longitude = NULL where Longitude=0
 
 	-- Data Check - Required Field Missing
 	SELECT Name, City, Country, Latitude, Longitude
-		INTO #missingReqFields FROM tmp_LoadInstitutions WHERE ISNULL(NAME , '') = '' OR ISNULL(City , '') = '' OR ISNULL(Country , '') = '' OR ISNULL(Latitude , 0) = 0 OR ISNULL(Longitude , 0) = 0
+		INTO #missingReqFields FROM #tmp_LoadInstitutions WHERE ISNULL(NAME , '') = '' OR ISNULL(City , '') = '' OR ISNULL(Country , '') = '' OR ISNULL(Latitude , 0) = 0 OR ISNULL(Longitude , 0) = 0
 
 	IF EXISTS (SELECT 1 FROM #missingReqFields)
 	BEGIN		
@@ -3696,7 +3715,7 @@ BEGIN TRY
 
 	-- Data Check - Invalid Country Code
 	SELECT Name, City, Country
-		INTO #invalidCountry FROM tmp_LoadInstitutions WHERE Country NOT IN (SELECT Abbreviation FROM Country)
+		INTO #invalidCountry FROM #tmp_LoadInstitutions WHERE Country NOT IN (SELECT Abbreviation FROM Country)
 
 	IF EXISTS (SELECT 1 FROM #invalidCountry)
 	BEGIN		
@@ -3708,7 +3727,7 @@ BEGIN TRY
 
 	-- Data Check - Invalid Coordinates
 	SELECT Name, City, Country, latitude, longitude
-		INTO #invalidCoodinates FROM tmp_LoadInstitutions WHERE (latitude < -90 or latitude > 90) OR (longitude < -180 or longitude > 180)
+		INTO #invalidCoodinates FROM #tmp_LoadInstitutions WHERE (latitude < -90 or latitude > 90) OR (longitude < -180 or longitude > 180)
 
 	IF EXISTS (SELECT 1 FROM #invalidCoodinates)
 	BEGIN		
@@ -3719,7 +3738,7 @@ BEGIN TRY
 
 	-- Data Check - Existing Institutions
 	SELECT Name, City, MAX([State]) AS [State], MAX([Country]) AS [Country], MAX([Postal]) AS [Postal], MAX([Longitude]) AS [Longitude], MAX([Latitude]) AS [Latitude], MAX([GRID]) AS Grid 
-	INTO #unique FROM tmp_LoadInstitutions GROUP BY Name, City
+	INTO #unique FROM #tmp_LoadInstitutions GROUP BY Name, City
 
 	SELECT DISTINCT CONCAT(u.Name, '/', u.City) AS [Institution/City], CONCAT(u.State, ' ', u.Country) AS [Imported location], CONCAT(i.State, ' ', i.Country) AS [Existing location]
 	INTO #exist FROM #unique u 
@@ -3734,7 +3753,7 @@ BEGIN TRY
 
 	-- Data Check - Potential Duplicates
 	SELECT DISTINCT CONCAT(t.Name, '/', t.City) AS [Imported Institution/City], CONCAT(m.[NewName], '/', m.[NewCity] ) AS [Existing Institution/City]
-	INTO #dup FROM tmp_LoadInstitutions t
+	INTO #dup FROM #tmp_LoadInstitutions t
 	JOIN InstitutionMapping m ON m.OldName = t.Name AND m.OldCity = t.City	
 
 	IF EXISTS (SELECT 1 FROM #exist)
@@ -3746,37 +3765,41 @@ BEGIN TRY
 		
 	BEGIN TRANSACTION;
 	
-	-- Insert into icrp_data: DO NOT insert the institutions which already exist in the Institutions lookup 
-	INSERT INTO Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
-		SELECT [Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID] FROM #unique 		
+		-- Insert into icrp_data: DO NOT insert the institutions which already exist in the Institutions lookup 
+		INSERT INTO Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
+			SELECT [Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID] FROM #unique 		
+	
+		SELECT @Count = @@ROWCOUNT
 
-	-- Insert into icrp_dataload: Only insert the institutions which not exist in the Institutions lookup 		
-	INSERT INTO icrp_dataload.dbo.Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
-		SELECT [Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID] FROM #unique			
+		-- Insert into icrp_dataload: Only insert the institutions which not exist in the Institutions lookup 		
+		INSERT INTO icrp_dataload.dbo.Institution ([Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID]) 
+			SELECT [Name], [City], [State], [Country], [Postal], [Longitude], [Latitude], [GRID] FROM #unique			
 
-	-- Insert City coordinates into lu_city if they don't exist in lu_City
-	INSERT INTO lu_City (Name, State, Country, Latitude, Longitude)	
-	SELECT i.City, i.State, i.Country, i.Latitude, i.Longitude
-	FROM (SELECT City, State, Country, MIN(Latitude) AS Latitude,  MIN(Longitude) AS Longitude FROM Institution GROUP BY City, State, Country) i
-		LEFT JOIN lu_City c ON i.City=c.Name AND ISNULL(i.State, '') = ISNULL(c.State, '') AND i.Country = c.Country		
-	WHERE i.City <> 'Missing' AND c.Name IS NULL AND i.Latitude IS NOT NULL AND i.Longitude IS NOT NULL
+		-- Insert City coordinates into lu_city if they don't exist in lu_City
+		INSERT INTO lu_City (Name, State, Country, Latitude, Longitude)	
+		SELECT i.City, i.State, i.Country, i.Latitude, i.Longitude
+		FROM (SELECT City, State, Country, MIN(Latitude) AS Latitude,  MIN(Longitude) AS Longitude FROM Institution GROUP BY City, State, Country) i
+			LEFT JOIN lu_City c ON i.City=c.Name AND ISNULL(i.State, '') = ISNULL(c.State, '') AND i.Country = c.Country		
+		WHERE i.City <> 'Missing' AND c.Name IS NULL AND i.Latitude IS NOT NULL AND i.Longitude IS NOT NULL
 
-	-- return already exist institutions not being inserted 
-	SELECT * FROM #unique
-
-	IF object_id('tmp_LoadInstitutions') is not null
-		DROP TABLE tmp_LoadInstitutions
+		-- Log Completed status
+		UPDATE ImportInstitutionLog SET [ImportedCount] = @Count, [Status] = 'Completed', [UpdatedDate]=getdate() WHERE ImportInstitutionLogID = @ImportInstitutionLogID
+		
+		-- return already exist institutions not being inserted 
+		SELECT * FROM #unique		
 
 	COMMIT TRANSACTION
 
 END TRY
 
 BEGIN CATCH
-      -- IF @@trancount > 0 
-		ROLLBACK TRANSACTION
-      
-	  DECLARE @msg nvarchar(2048) = error_message()  
-      RAISERROR (@msg, 16, 1)
+    -- IF @@trancount > 0 
+	ROLLBACK TRANSACTION
+      	
+	UPDATE ImportInstitutionLog SET [ImportedCount] = 0, [Status] = 'Failed', [UpdatedDate]=getdate() WHERE ImportInstitutionLogID = @ImportInstitutionLogID	
+
+	DECLARE @msg nvarchar(2048) = error_message()  
+    RAISERROR (@msg, 16, 1)
 	        
 END CATCH  
 
@@ -3784,19 +3807,19 @@ GO
 
 
 /*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-/****** Object:  StoredProcedure [dbo].[ImportCollaborators]    Script Date: 12/14/2016 4:21:37 PM ******/
+/****** Object:  StoredProcedure [dbo].[AddImportCollaboratorLog]    Script Date: 12/14/2016 4:21:37 PM ******/
 /*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[InsertImportCollaboratorLog]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[InsertImportCollaboratorLog]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AddImportCollaboratorLog]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[AddImportCollaboratorLog]
 GO 
 
-CREATE PROCEDURE [dbo].[InsertImportCollaboratorLog]   	
+CREATE PROCEDURE [dbo].[AddImportCollaboratorLog]   	
 @Count INT,
 @ImportCollaboratorLogID INT OUTPUT
 AS
 
-INSERT INTO [ImportCollaboratorLog] ([Count], CreatedDate, UpdatedDate) VALUES(@Count, getdate(), getdate())
+INSERT INTO [ImportCollaboratorLog] ([FileCount], CreatedDate, UpdatedDate) VALUES(@Count, getdate(), getdate())
 
 SELECT @ImportCollaboratorLogID = SCOPE_IDENTITY()		
 
@@ -3810,35 +3833,34 @@ IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Impor
 DROP PROCEDURE [dbo].[ImportCollaborators]
 GO 
 
-CREATE PROCEDURE [dbo].[ImportCollaborators]   	
+CREATE PROCEDURE [dbo].[ImportCollaborators]  
+@ImportCollaboratorLogID INT, 	
 @Count INT OUTPUT
 AS
 
 BEGIN TRY     	
+    -- Move imported collaborator records to a temp table 
+	SELECT * INTO #tmp_LoadCollaborators FROM ImportCollaboratorStaging WHERE ImportCollaboratorLogID = @ImportCollaboratorLogID;
+	DELETE ImportCollaboratorStaging WHERE ImportCollaboratorLogID = @ImportCollaboratorLogID;
 
-
-	IF object_id('tmp_LoadCollaborators') is null
-	BEGIN
-		   RAISERROR ('Table tmp_LoadCollaborators not found', 16, 1)
-	END
 	-- Replace city name with accent
-	update tmp_LoadCollaborators set city ='Montréal' where city='Montreal'
-	update tmp_LoadCollaborators set city ='Québec' where city='Quebec'
-	update tmp_LoadCollaborators set city ='Zürich' where city='Zurich'
-	update tmp_LoadCollaborators set city ='Pierre-Bénite' where city='Pierre-Benite'
-	update tmp_LoadCollaborators set city ='Umeå' where city='Umea'
-	update tmp_LoadCollaborators set city ='Münster' where city='Munster'	
+	update #tmp_LoadCollaborators set city ='Montréal' where city='Montreal'
+	update #tmp_LoadCollaborators set city ='Québec' where city='Quebec'
+	update #tmp_LoadCollaborators set city ='Zürich' where city='Zurich'
+	update #tmp_LoadCollaborators set city ='Pierre-Bénite' where city='Pierre-Benite'
+	update #tmp_LoadCollaborators set city ='Umeå' where city='Umea'
+	update #tmp_LoadCollaborators set city ='Münster' where city='Munster'	
 
 	-- so we don't insert empty space into the table
-	update tmp_LoadCollaborators set lastname = null where lastname=''	
-	update tmp_LoadCollaborators set firstname = null where firstname=''	
-	update tmp_LoadCollaborators set ORC_ID = null where ORC_ID=''	
-	update tmp_LoadCollaborators set OtherResearchID = null where OtherResearchID=''	
-	update tmp_LoadCollaborators set OtherResearchType = null where OtherResearchType=''	
+	update #tmp_LoadCollaborators set lastname = null where lastname=''	
+	update #tmp_LoadCollaborators set firstname = null where firstname=''	
+	update #tmp_LoadCollaborators set ORC_ID = null where ORC_ID=''	
+	update #tmp_LoadCollaborators set OtherResearchID = null where OtherResearchID=''	
+	update #tmp_LoadCollaborators set OtherResearchType = null where OtherResearchType=''	
 		
 	-- Data Check - Missing Required Fields
 	SELECT DISTINCT AwardCode, AltAwardCode, Lastname, FirstName, Institution, City INTO #missingFields
-	FROM tmp_LoadCollaborators WHERE ISNULL(AwardCode, '') = '' OR ISNULL(AltAwardCode,'') = ''	
+	FROM #tmp_LoadCollaborators WHERE ISNULL(AwardCode, '') = '' OR ISNULL(AltAwardCode,'') = ''	
 
 	IF EXISTS (SELECT 1 FROM #missingFields)
 	BEGIN		
@@ -3849,9 +3871,9 @@ BEGIN TRY
 
 	-- Data Check - Duplicate Collaborators in the datafile
 	SELECT AwardCode, AltAwardCode, Lastname, FirstName, Institution, City, ORC_ID INTO #dupEntries
-	FROM tmp_LoadCollaborators 
-	GROUP BY AwardCode, AltAwardCode, Lastname, FirstName, Institution, City, ORC_ID 
-	HAVING COUNT(*) > 1
+		FROM #tmp_LoadCollaborators 
+		GROUP BY AwardCode, AltAwardCode, Lastname, FirstName, Institution, City, ORC_ID 
+		HAVING COUNT(*) > 1
 
 	IF EXISTS (SELECT 1 FROM #dupEntries)
 	BEGIN		
@@ -3862,8 +3884,8 @@ BEGIN TRY
 	
 	-- Data Check - AltID not exist in ProjectFunding
 	SELECT DISTINCT t.AwardCode, t.AltAwardCode INTO #missingProject
-	from tmp_LoadCollaborators t
-	LEFT JOIN ProjectFunding f ON t.AltAwardCode = f.AltAwardCode
+	from #tmp_LoadCollaborators t
+			LEFT JOIN ProjectFunding f ON t.AltAwardCode = f.AltAwardCode
 	WHERE f.AltAwardCode IS NULL
 	
 	IF EXISTS (SELECT 1 FROM #missingProject)
@@ -3875,9 +3897,9 @@ BEGIN TRY
 
 	-- Data Check - collaborator Institution not exist in Institution lookup
 	SELECT DISTINCT CONCAT(t.Institution, '/', t.City)  AS [CollabInstitution], CONCAT(m.NewName, '/', m.NewCity) AS [ICRPInstitution] INTO #missingInstitution
-	from tmp_LoadCollaborators t
-	LEFT JOIN Institution i ON t.Institution = i.Name AND t.City = i.City
-	LEFT JOIN InstitutionMapping m ON m.OldName = t.Institution AND m.OldCity = t.City	
+	from #tmp_LoadCollaborators t
+		LEFT JOIN Institution i ON t.Institution = i.Name AND t.City = i.City
+		LEFT JOIN InstitutionMapping m ON m.OldName = t.Institution AND m.OldCity = t.City	
 	WHERE i.Name IS NULL
 		
 	IF EXISTS (SELECT 1 FROM #missingInstitution)
@@ -3891,7 +3913,7 @@ BEGIN TRY
 	
 	-- Data Check - collaborators already exist in projectFundingInvestigator table
 	SELECT DISTINCT t.AltAwardCode, t.Institution, t.City, t.Lastname, t.Firstname INTO #existCollaborators
-	from tmp_LoadCollaborators t
+	from #tmp_LoadCollaborators t
 		JOIN ProjectFunding f ON t.AltAwardCode = f.AltAwardCode
 		JOIN ProjectFundingInvestigator pi ON t.LastName = pi.LastName and t.FirstName = pi.FirstName AND f.ProjectFundingID = pi.ProjectFundingID
 		JOIN Institution i ON t.Institution = i.Name AND t.City = i.City		
@@ -3907,30 +3929,31 @@ BEGIN TRY
 
 	BEGIN TRANSACTION;
 
-	-- Data Check Passed - Start Import 
-	INSERT INTO ProjectFundingInvestigator (ProjectFundingID, InstitutionID, [LastName], [FirstName], [ORC_ID], IsPrincipalInvestigator, OtherResearch_ID, OtherResearch_Type) 
-	SELECT f.ProjectFundingID, i.InstitutionID, t.LastName, t.FirstName, t.ORC_ID, 0, t.OtherResearchID, t.OtherResearchType
-	FROM tmp_LoadCollaborators t
-		JOIN ProjectFunding f ON t.AltAwardCode = f.AltAwardCode
-		JOIN Institution i ON t.Institution = i.Name AND t.City = i.City		
+		-- Data Check Passed - Start Import 
+		INSERT INTO ProjectFundingInvestigator (ProjectFundingID, InstitutionID, [LastName], [FirstName], [ORC_ID], IsPrincipalInvestigator, OtherResearch_ID, OtherResearch_Type) 
+		SELECT f.ProjectFundingID, i.InstitutionID, t.LastName, t.FirstName, t.ORC_ID, 0, t.OtherResearchID, t.OtherResearchType
+		FROM #tmp_LoadCollaborators t
+			JOIN ProjectFunding f ON t.AltAwardCode = f.AltAwardCode
+			JOIN Institution i ON t.Institution = i.Name AND t.City = i.City		
 
-	SELECT @Count = @@ROWCOUNT
+		SELECT @Count = @@ROWCOUNT
 
-	-- return an empty table
-	SELECT TOP 0 * FROM tmp_LoadCollaborators
-	
-	IF object_id('tmp_LoadCollaborators') is not null
-		DROP TABLE tmp_LoadCollaborators
+		UPDATE ImportCollaboratorLog SET [ImportedCount] = @Count, [Status] = 'Completed', [UpdatedDate]=getdate() WHERE ImportCollaboratorLogID = @ImportCollaboratorLogID
+
+		-- If successful, return an empty table
+		SELECT TOP 0 * FROM #tmp_LoadCollaborators
 
 	COMMIT TRANSACTION
 
 END TRY
 
 BEGIN CATCH
-
+	
     -- IF @@trancount > 0 
 	ROLLBACK TRANSACTION
-  
+  	
+	UPDATE ImportCollaboratorLog SET [ImportedCount] = 0, [Status] = 'Failed', [UpdatedDate]=getdate() WHERE ImportCollaboratorLogID = @ImportCollaboratorLogID	
+
 	DECLARE @msg nvarchar(2048) = error_message()  
      RAISERROR (@msg, 16, 1)
 	        
@@ -3938,6 +3961,29 @@ END CATCH
 
 GO
 
+
+/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+/****** Object:  StoredProcedure [dbo].[AddDataUploadLog]    Script Date: 12/14/2016 4:21:37 PM ******/
+/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+--IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AddDataUploadLog]') AND type in (N'P', N'PC'))
+--DROP PROCEDURE [dbo].[AddDataUploadLog]
+--GO 
+
+--CREATE PROCEDURE [dbo].[AddDataUploadLog]   	
+--@PartnerCode VARCHAR (25),
+--@Type VARCHAR (10)  = 'New', -- 'New' or 'Update'
+--@SubmissionDate Datetime  = NULL,
+--@ImportCollaboratorLogID INT OUTPUT
+--AS
+
+
+--INSERT INTO DataUploadStatus ([PartnerCode],[Status], [Type],[ReceivedDate],[ValidationDate],[UploadToDevDate],[UploadToStageDate],[UploadToProdDate],[Note],[CreatedDate])
+--VALUES (@PartnerCode, @FundingYears, 'Staging', @Type, @ReceivedDate, getdate(), getdate(), getdate(),  NULL, @ImportNotes, getdate())
+
+--SELECT @ImportCollaboratorLogID = SCOPE_IDENTITY()		
+
+--GO
 
 /*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 /****** Object:  StoredProcedure [dbo].[DataUpload_IntegrityCheck]    Script Date: 12/14/2016 4:21:37 PM ******/
@@ -3949,7 +3995,7 @@ GO
 
 CREATE PROCEDURE [dbo].[DataUpload_IntegrityCheck] 
  @PartnerCode VARCHAR (25),
- @Type VARCHAR (10)  = 'New' -- 'New' or 'Update' 
+ @Type VARCHAR (10)  = 'New' -- 'New' or 'Update'  
 
 AS
 
