@@ -435,6 +435,7 @@
     });
   }
   $.getLastMeetingReport = function() {
+
     $.get('/api/latest/meeting-report').then(function(meetingReport) {
       var pdf = "/library/file/"+(meetingReport.libraryid || 0)+"/"+meetingReport.filename;
       var thumbnail = "/library/file/thumb/"+meetingReport.thumbnailfilename;
@@ -443,6 +444,7 @@
       $("#last-meeting-report-a-img").attr('href', pdf);
       $("#last-meeting-report-text").text(meetingReport.description);
       $("#last-meeting-report-pdf").attr('href', pdf);
+      $('#last-meeting-report-pdf').text('Download ' + pdf.split('.').pop().toUpperCase());
       $('#events-and-resources-card').show();
     }).fail(function() {
       alert( "error" );
