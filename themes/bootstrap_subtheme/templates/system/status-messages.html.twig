@@ -42,35 +42,35 @@
   }
 %}
 {% for type, messages in message_list %}
-{%
-  set classes = [
-    'alert',
-    'alert-' ~ status_classes[type],
-    'alert-dismissible',
-  ]
-%}
+  {%
+    set classes = [
+      'alert',
+      'alert-' ~ status_classes[type],
+      'alert-dismissible',
+    ]
+  %}
 
-<div{{ attributes.addClass(classes) }} role="alert">
-  <a href="#" role="button" class="close" data-dismiss="alert" aria-label="{{ 'Close'|t }}"><span aria-hidden="true">&times;</span></a>
-  {% if status_headings[type] %}
-    <h4 class="sr-only">{{ status_headings[type] }}</h4>
-  {% endif %}
-  {% if messages|length > 1 %}
-    <ul class="item-list item-list--messages">
-      {% for message in messages %}
-        <li class="item item--message">{{ message }}</li>
-      {% endfor %}
-    </ul>
-  {% else %}
-  	{# Check for Events and change to Event #}
-	{% set newMessage %}
-		{{ messages|first|striptags|trim|slice(0, 6) }}
-	{% endset %}
-	{% if newMessage|striptags|trim == "Events" %}
-    	{{ messages|first|replace({'Events':'Event'})|raw }}
+  <div{{ attributes.addClass(classes) }} role="alert">
+    <a href="#" role="button" class="close" data-dismiss="alert" aria-label="{{ 'Close'|t }}"><span aria-hidden="true">&times;</span></a>
+    {% if status_headings[type] %}
+      <h4 class="sr-only">{{ status_headings[type] }}</h4>
+    {% endif %}
+    {% if messages|length > 1 %}
+      <ul class="item-list item-list--messages">
+        {% for message in messages %}
+          <li class="item item--message">{{ message }}</li>
+        {% endfor %}
+      </ul>
     {% else %}
-	    {{ messages|first }}
-	{% endif %}
-  {% endif %}
-</div>
+    	{# Check for Events and change to Event #}
+      {% set newMessage %}
+      	{{ messages|first|striptags|trim|slice(0, 6) }}
+      {% endset %}
+      {% if newMessage|striptags|trim == "Events" %}
+          {{ messages|first|striptags|replace({'Events':'Event'})|raw }}
+        {% else %}
+          {{ messages|first }}
+      {% endif %}
+    {% endif %}
+  </div>
 {% endfor %}
