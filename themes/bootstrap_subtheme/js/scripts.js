@@ -395,6 +395,12 @@
     if(typeOfIssue.length > 0 ) {
       $('#edit-type-of-issue').val(typeOfIssue);
     }
+    var currentName = $('#edit-name').val();
+    //console.log("currentName: "+currentName);
+    if(currentName == "[current-user:field_first_name] [current-user:field_last_name]") {
+      console.info("We got a match");
+      $('#edit-name').val('');
+    }
     //Strip anchor from organization.
     var currentOrg = $('#edit-organization').val();
     //console.log('currentOrg: '+currentOrg);
@@ -438,6 +444,8 @@
       $("#last-meeting-report-text").text(meetingReport.description);
       $("#last-meeting-report-pdf").attr('href', pdf);
       $('#events-and-resources-card').show();
+    }).fail(function() {
+      alert( "error" );
     });
   }
 
