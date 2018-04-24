@@ -12,5 +12,8 @@ plugin: search_exclude_node_search
 configuration:
   rankings: {  }
   excluded_bundles:
+    article: article
     events: events
     organization: organization
+    page: page
+    slideshow: slideshow
