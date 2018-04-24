@@ -13,3 +13,4 @@ configuration:
   rankings: {  }
   excluded_bundles:
     events: events
+    organization: organization
