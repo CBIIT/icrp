@@ -54,7 +54,10 @@
           break;
         case "/":
           $.getNewsletter();
-          $.tweekHomePage();
+          // Only tweek page on the Welcome partner page.
+          if($('#welcome').length) {
+            $.tweekHomePage();
+          }
           break;
         case "/partner-application-administration-tool":
           $.partnerApplicationAdminTable();
@@ -435,19 +438,19 @@
     });
   }
   $.getLastMeetingReport = function() {
-
-    $.get('/api/latest/meeting-report').then(function(meetingReport) {
-      var pdf = "/library/file/"+(meetingReport.libraryid || 0)+"/"+meetingReport.filename;
-      var thumbnail = "/library/file/thumb/"+meetingReport.thumbnailfilename;
-      $("#events-and-resources-card > .card-header:eq(0)").text(meetingReport.title);
-      $("#last-meeting-report-img").attr('src', thumbnail);
-      $("#last-meeting-report-a-img").attr('href', pdf);
-      $("#last-meeting-report-text").text(meetingReport.description);
-      $("#last-meeting-report-pdf").attr('href', pdf);
-      $('#last-meeting-report-pdf').text('Download ' + pdf.split('.').pop().toUpperCase());
-      $('#events-and-resources-card').show();
-    }).fail(function() {
-      alert( "error" );
+    $.ajax({
+      url: host + "/api/latest/meeting-report",
+      success: function( meetingReport ) {
+        var pdf = "/library/file/"+(meetingReport.libraryid || 0)+"/"+meetingReport.filename;
+        var thumbnail = "/library/file/thumb/"+meetingReport.thumbnailfilename;
+        $("#events-and-resources-card > .card-header:eq(0)").text(meetingReport.title);
+        $("#last-meeting-report-img").attr('src', thumbnail);
+        $("#last-meeting-report-a-img").attr('href', pdf);
+        $("#last-meeting-report-text").text(meetingReport.description);
+        $("#last-meeting-report-pdf").attr('href', pdf);
+        $('#last-meeting-report-pdf').text('Download ' + pdf.split('.').pop().toUpperCase());
+        $('#events-and-resources-card').show();
+      }
     });
   }
 
