@@ -439,7 +439,7 @@
   }
   $.getLastMeetingReport = function() {
     $.ajax({
-      url: host + "/api/latest/meeting-report",
+      url: "/api/latest/meeting-report",
       success: function( meetingReport ) {
         var pdf = "/library/file/"+(meetingReport.libraryid || 0)+"/"+meetingReport.filename;
         var thumbnail = "/library/file/thumb/"+meetingReport.thumbnailfilename;
