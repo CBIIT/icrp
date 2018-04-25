@@ -85,17 +85,19 @@ public class TestSearchDatabase {
 				Test.wait_For(5000);
 		
 				//Verify Search ICRP Database Page
-				Test.clickLink(By.linkText("Search & Analysis"));
+				Test.clickLink(By.cssSelector("#block-partnerhomewelcome > div > div.field--item > ul:nth-child(3) > li:nth-child(2) > a"));
 				Test.wait_For(5000);
 				Test.expected_vs_actual_verification("Search ICRP Database");
-				Test.wait_For(5000);
+				Test.wait_For(15000);
 				
 				//Click Clear Database
 				
 				Test.clickLink(By.cssSelector("button.btn:nth-child(3)"));
+				//Test.clickLink(By.xpath("/html/body/div[1]/div/div/section/div[2]/icrp-root/div/icrp-search-page/div/div[1]/icrp-search-form/form/div/button[3]"));
 				logger.info("Clicked Clear button");
 				Test.wait_For(5000);
 				Test.expected_vs_actual_verification("All Years Selected");
+				
 				
 				//Perform Specific Search
 				Test.clickLink(By.cssSelector(".ng-tns-c9-2 > div:nth-child(1)"));
