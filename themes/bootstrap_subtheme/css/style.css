@@ -78,18 +78,13 @@ blockquote {
   vertical-align: top;
 }
 
-#last-meeting-report-table tr:nth-child(2) > td {
-  text-align:center;
-}
-
 #last-meeting-report-img {
   width:120px;
   float:left;  
 }
-#last-meeting-report-text {
-  font-size:14px;
+#last-meeting-report-table {
+    font-size:15px;
 }
-
 fieldset[data-drupal-selector="edit-status"] > legend,
 fieldset[data-drupal-selector="edit-roles"] > legend,
 fieldset[data-drupal-selector="edit-library-access"] > legend {
