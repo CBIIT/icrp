@@ -438,11 +438,20 @@
     });
   }
   $.getLastMeetingReport = function() {
-    $.ajax({
-      url: "/api/latest/meeting-report",
-      success: function( meetingReport ) {
+    //$.ajax({
+      //url: "https://icrpartnership-dev.org/api/latest/meeting-report",
+      //success: function( meetingReport ) {
+        var data = [ {
+  "libraryid": 7274,
+  "filename": "ICRP_AnnualMeeting2017_Report.txt",
+  "thumbnailfilename": "free-map-pin-icons.7371.jpg",
+  "title": "ICRP 2017 Annual Meeting Report - Brief Summary",
+  "description": "Summary of the ICRP 2017 annual meeting, hosted by the UK National Cancer Research Institute. Meeting theme: \"Global collaboration in cancer research: impact and policy\""
+}];
+var meetingReport = data[0];
+  console.dir(meetingReport);
         var pdf = "/library/file/"+(meetingReport.libraryid || 0)+"/"+meetingReport.filename;
-        var thumbnail = "/library/file/thumb/"+meetingReport.thumbnailfilename;
+        var thumbnail = "https://icrpartnership-test.org/library/file/thumb/"+meetingReport.thumbnailfilename;
         $("#events-and-resources-card > .card-header:eq(0)").text(meetingReport.title);
         $("#last-meeting-report-img").attr('src', thumbnail);
         $("#last-meeting-report-a-img").attr('href', pdf);
@@ -450,8 +459,8 @@
         $("#last-meeting-report-pdf").attr('href', pdf);
         $('#last-meeting-report-pdf').text('Download ' + pdf.split('.').pop().toUpperCase());
         $('#events-and-resources-card').show();
-      }
-    });
+      //}
+    //});
   }
 
   $.tweekHomePage = function () {
