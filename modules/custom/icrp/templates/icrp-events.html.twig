@@ -16,24 +16,29 @@
 	</div>
     <div>
       <div class="row">
-        <div class="col-9 col-md-9">
+        <div class="col-8 col-md-8">
 			{{ drupal_block('icrpevents') }}
         </div>
-        <div class="col-3 col-md-3">
+        <div class="col-4 col-md-4">
           <div class="card bg-light mb-3" id="events-and-resources-card">
-            <div class="card-header">Meeting Report Title</div>
+            <div class="card-header text-center">Meeting Report Title</div>
 
             <div class="card-body">
               <p class="card-text">
                 <table id="last-meeting-report-table">
                   <tr>
-                    <td>
+                    <td rowspan="2">
                     	<a id="last-meeting-report-a-img" href="#" target="icrp_last_meeting_newsletter" title="Latest Meeting Report">
-                      <img id="last-meeting-report-img" alt="Newsletter" src="" /></a><br>
-                      <span style="margin-left:8px;"><a id="last-meeting-report-pdf" target="icrp_last_meeting_newsletter" href="https://icrpartnership.org/sites/default/files/library/uploads/7343.pdf" target="_blank">Download PDF</a></span>
+                      <img id="last-meeting-report-img" alt="Newsletter" src="" /></a>
                     </td>
                     <td>
                       <span id="last-meeting-report-text">Summary of annual meeting"</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <br>
+                      <span style="margin-left:8px;"><a id="last-meeting-report-pdf" target="icrp_last_meeting_newsletter" href="https://icrpartnership.org/sites/default/files/library/uploads/7343.pdf" target="_blank">Download PDF</a></span>
                     </td>
                   </tr>
                 </table>

@@ -77,9 +77,17 @@ blockquote {
   padding: 5px; 
   vertical-align: top;
 }
+#last-meeting-report-table {
+    margin-bottom:10px;
+}
+
+#last-meeting-report-table tr:nth-child(2) > td {
+  text-align:center;
+  vertical-align: bottom;
+}
 
 #last-meeting-report-img {
-  width:120px;
+  width:150px;
   float:left;  
 }
 #last-meeting-report-table {
