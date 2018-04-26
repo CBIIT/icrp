@@ -111,6 +111,10 @@
         }
       });
  }
+
+  $('.about-us-nodes .collapse:not(:last)').collapse('show');
+  $('.about-us-nodes .views-field-edit-node').css('text-align', 'right');
+
 /*
   $.preprocessCloneEndDateCheckbox = function(e) {
 
