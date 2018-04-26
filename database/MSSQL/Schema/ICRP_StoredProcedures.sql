@@ -3966,22 +3966,22 @@ GO
 /****** Object:  StoredProcedure [dbo].[AddDataUploadLog]    Script Date: 12/14/2016 4:21:37 PM ******/
 /*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
---IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AddDataUploadLog]') AND type in (N'P', N'PC'))
---DROP PROCEDURE [dbo].[AddDataUploadLog]
---GO 
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AddDataUploadStatus]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[AddDataUploadStatus]
+GO 
 
---CREATE PROCEDURE [dbo].[AddDataUploadLog]   	
+--CREATE PROCEDURE [dbo].[AddDataUploadStatus]   	
 --@PartnerCode VARCHAR (25),
 --@Type VARCHAR (10)  = 'New', -- 'New' or 'Update'
 --@SubmissionDate Datetime  = NULL,
---@ImportCollaboratorLogID INT OUTPUT
+--@DataUploadID INT OUTPUT
 --AS
 
 
---INSERT INTO DataUploadStatus ([PartnerCode],[Status], [Type],[ReceivedDate],[ValidationDate],[UploadToDevDate],[UploadToStageDate],[UploadToProdDate],[Note],[CreatedDate])
---VALUES (@PartnerCode, @FundingYears, 'Staging', @Type, @ReceivedDate, getdate(), getdate(), getdate(),  NULL, @ImportNotes, getdate())
+--INSERT INTO DataUploadStatus ([PartnerCode],[Status], [Type],[ReceivedDate],[CreatedDate])
+--VALUES (@PartnerCode, 'Pending', @Type, @SubmissionDate, getdate())
 
---SELECT @ImportCollaboratorLogID = SCOPE_IDENTITY()		
+--SELECT @DataUploadID = SCOPE_IDENTITY()		
 
 --GO
 
@@ -3995,7 +3995,7 @@ GO
 
 CREATE PROCEDURE [dbo].[DataUpload_IntegrityCheck] 
  @PartnerCode VARCHAR (25),
- @Type VARCHAR (10)  = 'New' -- 'New' or 'Update'  
+ @Type VARCHAR (10)  = 'New' -- 'New' or 'Update' 
 
 AS
 
