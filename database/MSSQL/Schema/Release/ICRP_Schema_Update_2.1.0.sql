@@ -99,7 +99,7 @@ IF object_id('[ImportInstitutionStaging]') is null
 BEGIN
 
 	CREATE TABLE [dbo].[ImportInstitutionStaging] (
-		[ImportInstitutionStagingID][int] NOT NULL,			
+		[ImportInstitutionLogID][int] NOT NULL,			
 		[ID] [int] IDENTITY(1,1) NOT NULL,
 		[Name] [varchar](250) NULL,
 		[City] [varchar](50) NULL,
@@ -113,7 +113,59 @@ BEGIN
 
 END
 GO
-	
+
+--IF object_id('[DataUploadStaging]') is null  
+--BEGIN
+--CREATE TABLE [dbo].[DataUploadStaging](
+--	[InternalId] [int] IDENTITY(1,1) NOT NULL,
+--	[DataUploadStatusID] [int] NOT NULL,
+--	[AwardCode] [nvarchar](50) NULL,
+--	[AwardStartDate] [date] NULL,
+--	[AwardEndDate] [date] NULL,
+--	[SourceId] [varchar](150) NULL,
+--	[AltId] [varchar](50) NULL,
+--	[NewAltId] [varchar](50) NULL,
+--	[AwardTitle] [varchar](1000) NULL,
+--	[Category] [varchar](25) NULL,
+--	[AwardType] [varchar](50) NULL,
+--	[Childhood] [varchar](5) NULL,
+--	[BudgetStartDate] [date] NULL,
+--	[BudgetEndDate] [date] NULL,
+--	[CSOCodes] [varchar](500) NULL,
+--	[CSORel] [varchar](500) NULL,
+--	[SiteCodes] [varchar](500) NULL,
+--	[SiteRel] [varchar](500) NULL,
+--	[AwardFunding] [decimal](16, 2) NULL,
+--	[IsAnnualized] [varchar](1) NULL,
+--	[FundingMechanismCode] [varchar](30) NULL,
+--	[FundingMechanism] [varchar](200) NULL,
+--	[FundingOrgAbbr] [varchar](50) NULL,
+--	[FundingDiv] [varchar](75) NULL,
+--	[FundingDivAbbr] [varchar](50) NULL,
+--	[FundingContact] [varchar](50) NULL,
+--	[PILastName] [varchar](50) NULL,
+--	[PIFirstName] [varchar](50) NULL,
+--	[SubmittedInstitution] [varchar](250) NULL,
+--	[City] [varchar](50) NULL,
+--	[State] [varchar](50) NULL,
+--	[Country] [varchar](3) NULL,
+--	[PostalZipCode] [varchar](50) NULL,
+--	[InstitutionICRP] [varchar](4000) NULL,
+--	[Latitute] [decimal](9, 6) NULL,
+--	[Longitute] [decimal](9, 6) NULL,
+--	[GRID] [varchar](250) NULL,
+--	[TechAbstract] [nvarchar](max) NULL,
+--	[PublicAbstract] [nvarchar](max) NULL,
+--	[RelatedAwardCode] [varchar](200) NULL,
+--	[RelationshipType] [varchar](200) NULL,
+--	[ORCID] [varchar](25) NULL,
+--	[OtherResearcherID] [int] NULL,
+--	[OtherResearcherIDType] [varchar](1000) NULL,
+--	[InternalUseOnly] [nvarchar](max) NULL
+--)
+--END	
+--GO
+
 /*************************************************/
 /******		UPDATE TABLE        			******/
 /*************************************************/
