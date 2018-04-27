@@ -3,45 +3,18 @@ START TRANSACTION;
 -- Remove existing url alias for "About Us"
 DELETE FROM url_alias where alias = '/about-us';
 
--- Remove existing node for "About Us"
+-- Remove existing page node for "About Us"
 DELETE FROM node WHERE nid = 6;
 DELETE FROM node_field_data WHERE nid = 6;
 DELETE FROM node_field_revision WHERE nid = 6;
 DELETE FROM node__body WHERE entity_id = 6;
 DELETE FROM node_revision__body WHERE entity_id = 6;
 
-
--- Remove block for "About Us" if it exists
-SELECT id FROM block_content_field_data
-  WHERE info = 'About Us' LIMIT 1
-  INTO @block_id;
-
-DELETE FROM block_content WHERE id = @block_id;
-DELETE FROM block_content__body WHERE entity_id  = @block_id;
-DELETE FROM block_content_field_data WHERE id = @block_id;
-DELETE FROM block_content_field_revision WHERE id = @block_id;
-DELETE FROM block_content_revision WHERE id = @block_id;
-DELETE FROM block_content_revision__body WHERE entity_id = @block_id;
-DELETE FROM config WHERE name = 'block.block.aboutus';
-
--- Remove block for "Edit About Us Button" if it exists
-SELECT id FROM block_content_field_data
-  WHERE info = 'Edit About Us Button' LIMIT 1
-  INTO @block_id;
-
-DELETE FROM block_content WHERE id = @block_id;
-DELETE FROM block_content__body WHERE entity_id  = @block_id;
-DELETE FROM block_content_field_data WHERE id = @block_id;
-DELETE FROM block_content_field_revision WHERE id = @block_id;
-DELETE FROM block_content_revision WHERE id = @block_id;
-DELETE FROM block_content_revision__body WHERE entity_id = @block_id;
-DELETE FROM config WHERE name = 'block.block.editaboutusbutton';
-
+-- Insert taxonomy term "About Us"
 SELECT AUTO_INCREMENT FROM information_schema.tables
   WHERE table_name='taxonomy_term_data' LIMIT 1
   INTO @term_id;
 
--- Insert taxonomy term "About Us"
 INSERT INTO taxonomy_term_data (tid, vid, uuid, langcode)
   VALUES (@term_id, 'page_specific_tags', UUID(), 'en');
 
