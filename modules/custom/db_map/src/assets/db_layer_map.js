@@ -53,7 +53,9 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
     layerSelect
       .data('width', '280px')
       .data('size', '14')
-      .selectpicker();
+      .selectpicker({
+        dropupAuto: false,
+      });
 
     drupalSettings.db_map.layer.infowindow = new google.maps.InfoWindow({pixelOffset:{height:70,width:0}});
   },
