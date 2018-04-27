@@ -580,12 +580,13 @@ class LibraryController extends ControllerBase {
 //    $stmt->bindParam(":file",$name);
 
     $stmt->execute();
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($stmt->rowCount() > 0) {
-      $row = $stmt->fetch(PDO::FETCH_ASSOC);
-      $displayName = row['DisplayName'];
+    if ($row != false) {
+      $displayName = $row['DisplayName'];
 
       if ($displayName != $name) {
+
         return new RedirectResponse("/library/file/$id/$displayName");
       }
 
