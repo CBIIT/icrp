@@ -113,7 +113,20 @@
  }
 
   $('.about-us-nodes .collapse:not(:last)').collapse('show');
-  $('.about-us-nodes .views-field-edit-node').css('text-align', 'right');
+  $('.about-us-nodes .panel').each(function() {
+    $(this).find('.panel-title')
+      .append($(this)
+        .find('.views-field-edit-node a')
+        .css('float', 'right')
+        .css('font-size', '14px')
+        .css('font-weight', '400')
+        .css('color', 'white')
+        .css('margin-top', '-2px')
+        .css('padding', '4px 8px')
+        .css('background-color', 'steelblue')
+        .css('border-radius', '4px')
+      ).find('a').css('text-decoration', 'none');
+  });
 
 /*
   $.preprocessCloneEndDateCheckbox = function(e) {
