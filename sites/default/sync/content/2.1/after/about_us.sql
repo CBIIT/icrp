@@ -111,57 +111,111 @@ INSERT INTO node_field_revision (nid, vid, langcode, title, uid, status, created
 
 INSERT INTO node__body (bundle, deleted, entity_id, revision_id, langcode, delta, body_value, body_summary, body_format)
   VALUES ('basic_node', 0, @entity_id, @revision_id, 'en', 0, '
-<div class="about-us-body">
-<dl><dt>Chair</dt>
-    <dd>Katherine McKenzie, PhD (California Breast Cancer Research Program, US)</dd>
-</dl><dl><dt>Vice-Chair</dt>
-    <dd>Naba Bora, PhD (Congressionally Directed Medical Research Programs (CDMRP), U.S. Dept. of Defense)</dd>
-</dl><dl><dt>Website &amp; Database Committee</dt>
-    <dd>Chair: Michelle Bennett, PhD (NCI Center for Research Strategy, USA)</dd>
-</dl><dl><dt>Finance Committee</dt>
-    <dd>Chair: Kimberly Badovinac, MA, MBA (Canadian Cancer Research Alliance)</dd>
-</dl><dl><dt>Annual Meeting 2017 Committee</dt>
-    <dd>Chair: Stuart Griffiths, PhD (National Cancer Research Institute, UK)</dd>
-</dl><dl><dt>Operations Committee</dt>
-    <dd>Co-Chair: Marion Kavanaugh-Lynch, PhD (California Breast Cancer Research Program, USA)</dd>
-</dl><dl><dt>Communications and Membership Committee</dt>
-    <dd>Chair: Lisa Stevens, PhD (NCI Center for Global Health, USA)</dd>
-    <dd>Vice-Chair: Paul Jackson, PhD (Cancer Australia)</dd>
-</dl><dl><dt>Data Quality and Analysis Committee</dt>
-    <dd>Chair: Kimberly Badovinac, MA, MBA (Canadian Cancer Research Alliance)</dd>
-    <dd>Vice-Chair: Karima Bourougaa, PhD (Institut National du Cancer, France)</dd>
-</dl><dl><dt>Evaluations Committee</dt>
-    <dd>Chair: Kari Wojtanik, PhD (Susan G. Komen for the Cure)</dd>
-</dl><dl><dt>Operations Manager</dt>
-    <dd>Lynne Davies, PhD</dd>
-</dl></div>', '', 'full_html');
+<p><b>Chair</b></p>
+<ul>
+<li>Katherine McKenzie, PhD (California Breast Cancer Research Program, US)</li>
+</ul>
+
+<p><b>Vice-Chair</b></p>
+<ul>
+<li>Naba Bora, PhD (Congressionally Directed Medical Research Programs (CDMRP), U.S. Dept. of Defense)</li>
+</ul>
+
+<p><b>Website & Database Committee</b></p>
+<ul>
+<li>Chair: Michelle Bennett, PhD (NCI Center for Research Strategy, USA)</li>
+</ul>
+
+<p><b>Finance Committee</b></p>
+<ul>
+<li>Chair: Kimberly Badovinac, MA, MBA (Canadian Cancer Research Alliance)</li>
+</ul>
+
+<p><b>Annual Meeting 2017 Committee</b></p>
+<ul>
+<li>Chair: Stuart Griffiths, PhD (National Cancer Research Institute, UK)</li>
+</ul>
+
+<p><b>Operations Committee</b></p>
+<ul>
+<li>Co-Chair: Marion Kavanaugh-Lynch, PhD (California Breast Cancer Research Program, USA)</li>
+</ul>
+
+<p><b>Communications and Membership Committee</b></p>
+<ul>
+<li>Chair: Lisa Stevens, PhD (NCI Center for Global Health, USA)</li>
+<li>Vice-Chair: Paul Jackson, PhD (Cancer Australia)</li>
+</ul>
+
+<p><b>Data Quality and Analysis Committee</b></p>
+<ul>
+<li>Chair: Kimberly Badovinac, MA, MBA (Canadian Cancer Research Alliance)</li>
+<li>Vice-Chair: Karima Bourougaa, PhD (Institut National du Cancer, France)</li>
+</ul>
+
+<p><b>Evaluations Committee</b></p>
+<ul>
+<li>Chair: Kari Wojtanik, PhD (Susan G. Komen for the Cure)</li>
+</ul>
+
+<p><b>Operations Manager</b></p>
+<ul>
+<li>Lynne Davies, PhD</li>
+</ul>', '', 'full_html');
 
 INSERT INTO node_revision__body (bundle, deleted, entity_id, revision_id, langcode, delta, body_value, body_summary, body_format)
   VALUES ('basic_node', 0, @entity_id, @revision_id, 'en', 0, '
-<div class="about-us-body">
-<dl><dt>Chair</dt>
-    <dd>Katherine McKenzie, PhD (California Breast Cancer Research Program, US)</dd>
-</dl><dl><dt>Vice-Chair</dt>
-    <dd>Naba Bora, PhD (Congressionally Directed Medical Research Programs (CDMRP), U.S. Dept. of Defense)</dd>
-</dl><dl><dt>Website &amp; Database Committee</dt>
-    <dd>Chair: Michelle Bennett, PhD (NCI Center for Research Strategy, USA)</dd>
-</dl><dl><dt>Finance Committee</dt>
-    <dd>Chair: Kimberly Badovinac, MA, MBA (Canadian Cancer Research Alliance)</dd>
-</dl><dl><dt>Annual Meeting 2017 Committee</dt>
-    <dd>Chair: Stuart Griffiths, PhD (National Cancer Research Institute, UK)</dd>
-</dl><dl><dt>Operations Committee</dt>
-    <dd>Co-Chair: Marion Kavanaugh-Lynch, PhD (California Breast Cancer Research Program, USA)</dd>
-</dl><dl><dt>Communications and Membership Committee</dt>
-    <dd>Chair: Lisa Stevens, PhD (NCI Center for Global Health, USA)</dd>
-    <dd>Vice-Chair: Paul Jackson, PhD (Cancer Australia)</dd>
-</dl><dl><dt>Data Quality and Analysis Committee</dt>
-    <dd>Chair: Kimberly Badovinac, MA, MBA (Canadian Cancer Research Alliance)</dd>
-    <dd>Vice-Chair: Karima Bourougaa, PhD (Institut National du Cancer, France)</dd>
-</dl><dl><dt>Evaluations Committee</dt>
-    <dd>Chair: Kari Wojtanik, PhD (Susan G. Komen for the Cure)</dd>
-</dl><dl><dt>Operations Manager</dt>
-    <dd>Lynne Davies, PhD</dd>
-</dl></div>', '', 'full_html');
+<p><b>Chair</b></p>
+<ul>
+<li>Katherine McKenzie, PhD (California Breast Cancer Research Program, US)</li>
+</ul>
+
+<p><b>Vice-Chair</b></p>
+<ul>
+<li>Naba Bora, PhD (Congressionally Directed Medical Research Programs (CDMRP), U.S. Dept. of Defense)</li>
+</ul>
+
+<p><b>Website & Database Committee</b></p>
+<ul>
+<li>Chair: Michelle Bennett, PhD (NCI Center for Research Strategy, USA)</li>
+</ul>
+
+<p><b>Finance Committee</b></p>
+<ul>
+<li>Chair: Kimberly Badovinac, MA, MBA (Canadian Cancer Research Alliance)</li>
+</ul>
+
+<p><b>Annual Meeting 2017 Committee</b></p>
+<ul>
+<li>Chair: Stuart Griffiths, PhD (National Cancer Research Institute, UK)</li>
+</ul>
+
+<p><b>Operations Committee</b></p>
+<ul>
+<li>Co-Chair: Marion Kavanaugh-Lynch, PhD (California Breast Cancer Research Program, USA)</li>
+</ul>
+
+<p><b>Communications and Membership Committee</b></p>
+<ul>
+<li>Chair: Lisa Stevens, PhD (NCI Center for Global Health, USA)</li>
+<li>Vice-Chair: Paul Jackson, PhD (Cancer Australia)</li>
+</ul>
+
+<p><b>Data Quality and Analysis Committee</b></p>
+<ul>
+<li>Chair: Kimberly Badovinac, MA, MBA (Canadian Cancer Research Alliance)</li>
+<li>Vice-Chair: Karima Bourougaa, PhD (Institut National du Cancer, France)</li>
+</ul>
+
+<p><b>Evaluations Committee</b></p>
+<ul>
+<li>Chair: Kari Wojtanik, PhD (Susan G. Komen for the Cure)</li>
+</ul>
+
+<p><b>Operations Manager</b></p>
+<ul>
+<li>Lynne Davies, PhD</li>
+</ul>', '', 'full_html');
 
 INSERT INTO node__field_tags (bundle, deleted, entity_id, revision_id, langcode, delta, field_tags_target_id)
   VALUES ('basic_node', 0, @entity_id, @revision_id, 'en', 0, @term_id);

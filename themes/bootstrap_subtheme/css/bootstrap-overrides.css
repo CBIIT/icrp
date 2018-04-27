@@ -204,9 +204,6 @@ table.table-centered-header > tfoot > tr > th {
 
 .about-us-nodes .panel-body ul {
   margin-left: 15px;
-}
-
-.about-us-nodes .panel-body li:last-child {
   margin-bottom: 20px;
 }
 
