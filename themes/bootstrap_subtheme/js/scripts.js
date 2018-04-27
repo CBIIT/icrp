@@ -118,9 +118,11 @@
       .append($(this)
         .find('.views-field-edit-node a')
         .css('float', 'right')
+        .css('font-size', '16px')
+        .css('line-height', '20px')
         .css('font-weight', '400')
         .css('color', 'steelblue')
-      ).find('a').css('text-decoration', 'none');
+      );
   });
 
 /*
