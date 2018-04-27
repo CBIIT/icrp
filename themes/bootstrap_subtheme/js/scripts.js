@@ -15,7 +15,7 @@
       $("#views-bootstrap-sideshow-block-1 > div.carousel-inner > div.item > div.carousel-caption").click(function(e) {
           console.info("You clicked on Caption");
           setTimeout(function(){ $.redirectCarousel(e); }, 3000);
-          
+
       });
       /*
       $(".nav-tabs > li > a").click(function(e) {
@@ -118,13 +118,8 @@
       .append($(this)
         .find('.views-field-edit-node a')
         .css('float', 'right')
-        .css('font-size', '14px')
         .css('font-weight', '400')
-        .css('color', 'white')
-        .css('margin-top', '-2px')
-        .css('padding', '4px 8px')
-        .css('background-color', 'steelblue')
-        .css('border-radius', '4px')
+        .css('color', 'steelblue')
       ).find('a').css('text-decoration', 'none');
   });
 
@@ -493,7 +488,7 @@ var meetingReport = data[0];
     // set the height of the first child in the aside to 100%
     $('[role="main"] aside > div:first').css('height', '100%');
     // set the height of the twitter panel to fill the remaining space (minus the padding)
-    $('#twitter-container').height(sectionHeight - $('#newsletter-container').height() - 140)          
+    $('#twitter-container').height(sectionHeight - $('#newsletter-container').height() - 140)
   }
 
 })(window.jQuery);
