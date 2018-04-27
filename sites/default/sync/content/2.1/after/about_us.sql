@@ -1,4 +1,3 @@
-
 START TRANSACTION;
 
 -- Remove existing url alias for "About Us"
