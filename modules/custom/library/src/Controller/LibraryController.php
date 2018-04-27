@@ -571,22 +571,28 @@ class LibraryController extends ControllerBase {
 
   public function fileDownload($id,$name) {
     $connection = self::get_connection();
-    $request = "SELECT Filename FROM Library WHERE LibraryID=:lfid AND DisplayName=:file";
+    $request = "SELECT Filename, DisplayName FROM Library WHERE LibraryID=:lfid";
     if (self::getRole() == "public") {
       $request .= " AND IsPublic=1";
     }
     $stmt = $connection->prepare($request);
     $stmt->bindParam(":lfid",$id);
-    $stmt->bindParam(":file",$name);
-    if (!$stmt->execute() || $stmt->rowCount() == 0) {
+//    $stmt->bindParam(":file",$name);
+
+    $stmt->execute();
+
+    if ($stmt->rowCount() > 0) {
+      $row = $stmt->fetch(PDO::FETCH_ASSOC);
+      $displayName = row['DisplayName'];
+
+      if ($displayName != $name) {
+        return new RedirectResponse("/library/file/$id/$displayName");
+      }
+
+      return self::getFile($row["Filename"]);
+    } else {
       return new RedirectResponse(Url::fromUserInput('/user/login',array("query"=>array("destination"=>\Drupal::request()->getRequestUri())))->toString(),$status=Response::HTTP_TEMPORARY_REDIRECT);
     }
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    $row_output = array();
-    foreach ($row as $key=>$value) {
-      $row_output[$key] = $value;
-    }
-    return self::getFile($row_output["Filename"]);
   }
 
   private function getFile($location) {
