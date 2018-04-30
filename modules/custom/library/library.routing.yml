@@ -60,9 +60,11 @@ library.file.id.name:
   path: '/library/file/{id}/{name}'
   defaults:
     _controller: '\Drupal\library\Controller\LibraryController::fileDownload'
+    name: ''
   methods:  [GET]
   requirements:
     _permission: 'access content'
+    id: '[0-9]{1,7}'
 
 library.file.id:
   path: '/library/file/{id}'

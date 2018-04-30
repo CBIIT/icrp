@@ -569,30 +569,42 @@ class LibraryController extends ControllerBase {
     return new Response();
   }
 
-  public function fileDownload($id,$name) {
+  public function fileDownload($id, $name) {
     $connection = self::get_connection();
-    $request = "SELECT Filename, DisplayName FROM Library WHERE LibraryID=:lfid";
-    if (self::getRole() == "public") {
-      $request .= " AND IsPublic=1";
-    }
-    $stmt = $connection->prepare($request);
-    $stmt->bindParam(":lfid",$id);
-//    $stmt->bindParam(":file",$name);
+    $stmt = $connection->prepare(
+      'SELECT l.fileName, l.displayName, l.isPublic, lf.type from Library l
+      JOIN LibraryFolder lf ON l.LibraryFolderID = lf.LibraryFolderID
+      where LibraryID = :id');
+    $stmt->execute(['id' => $id]);
 
-    $stmt->execute();
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $record = $stmt->fetch();
+    if ($record === false) {
+      drupal_set_message(t('An invalid file was specified'), 'error');
+      return new RedirectResponse('/library');
+    } else {
+      $displayName = $record['displayName'];
+      $fileName = $record['fileName'];
+      $isPublic = $record['isPublic'] == '1';
+      $type = $record['type'];
+      $isAnonymous = \Drupal::currentUser()->isAnonymous();
+      $isAuthenticated = \Drupal::currentUser()->isAuthenticated();
 
-    if ($row != false) {
-      $displayName = $row['DisplayName'];
-
+      // redirect to correct filename
       if ($displayName != $name) {
-
         return new RedirectResponse("/library/file/$id/$displayName");
       }
 
-      return self::getFile($row["Filename"]);
-    } else {
-      return new RedirectResponse(Url::fromUserInput('/user/login',array("query"=>array("destination"=>\Drupal::request()->getRequestUri())))->toString(),$status=Response::HTTP_TEMPORARY_REDIRECT);
+      // download the file if the user has access
+      if (($isAnonymous && $isPublic)
+       || ($isAuthenticated && in_array($type, $this->getAccessTypes()))
+      ) {
+        return self::getFile($fileName);
+      }
+
+      // otherwise, prompt the user to log in with another account
+      return new RedirectResponse(Url::fromUserInput('/user/login', [
+        'query' => ['destination' => \Drupal::request()->getRequestUri()]
+      ])->toString());
     }
   }
 
