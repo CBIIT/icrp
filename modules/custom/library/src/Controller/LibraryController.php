@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 use Zipstream\ZipStream;
 
 class LibraryController extends ControllerBase {
@@ -569,7 +570,7 @@ class LibraryController extends ControllerBase {
     return new Response();
   }
 
-  public function fileDownload($id, $name) {
+  public function fileDownload(Request $request, $id, $name) {
     $connection = self::get_connection();
     $stmt = $connection->prepare(
       'SELECT l.fileName, l.displayName, l.isPublic, lf.type FROM Library l
@@ -580,7 +581,7 @@ class LibraryController extends ControllerBase {
     $record = $stmt->fetch();
     if ($record === false) {
       drupal_set_message(t('An invalid file was specified'), 'error');
-      return new RedirectResponse('/library');
+      return $this->redirect('icrp.library');
     } else {
       $displayName = $record['displayName'];
       $fileName = $record['fileName'];
@@ -603,21 +604,26 @@ class LibraryController extends ControllerBase {
       // otherwise, prompt anonymous users to log in
       if ($isAnonymous) {
         drupal_set_message(t('Please log in with an account that has access to this file.'), 'error');
-        return new RedirectResponse(Url::fromUserInput('/user/login', [
-          'query' => ['destination' => \Drupal::request()->getRequestUri()]
-        ])->toString());
+        return $this->redirect('user.login', [
+          'destination' => $request->getRequestUri()
+        ]);
 
       // if users are logged in but do not have access, redirect them to the library
       } else {
         drupal_set_message(t('Your account currently does not have access to this file.'), 'error');
-        return new RedirectResponse('/library');
+        return $this->redirect('icrp.library');
       }
     }
   }
 
   private function getFile($location) {
-    $uploads_folder = \Drupal::config('library')->get('uploads_folder') ?? 'data/library/uploads';
-    return new BinaryFileResponse(join('/',array($uploads_folder,$location)));
+    try {
+      $uploads_folder = \Drupal::config('library')->get('uploads_folder') ?? 'data/library/uploads';
+      return new BinaryFileResponse(join('/',array($uploads_folder,$location)));
+    } catch (\Exception $e) {
+      drupal_set_message(t('The file was not found.'), 'error');
+      return $this->redirect('icrp.library');
+    }
   }
 
   private function getFolder($id) {
@@ -683,6 +689,11 @@ class LibraryController extends ControllerBase {
     //   $accessTypes[] = 'General';
 
     return $accessTypes;
+  }
+
+  function getUser() {
+    $id = \Drupal::currentUser()->id();
+    return \Drupal\user\Entity\User::load($id);
   }
 
   /**

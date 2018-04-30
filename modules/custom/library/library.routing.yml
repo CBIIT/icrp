@@ -1,4 +1,4 @@
-library.content:
+icrp.library:
   path: '/library'
   defaults:
     _controller: '\Drupal\library\Controller\LibraryController::content'
@@ -56,7 +56,7 @@ library.folder.post:
     _permission: 'access content'
     _role: 'administrator+manager'
 
-library.file.id.name:
+icrp.library.file.download:
   path: '/library/file/{id}/{name}'
   defaults:
     _controller: '\Drupal\library\Controller\LibraryController::fileDownload'
