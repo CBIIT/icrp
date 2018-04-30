@@ -590,7 +590,7 @@ class LibraryController extends ControllerBase {
       $isAuthenticated = \Drupal::currentUser()->isAuthenticated();
       $hasAccess = in_array($type, $this->getAccessTypes());
 
-      // redirect to correct filename
+      // redirect to the correct filename
       if ($displayName != $name) {
         return new RedirectResponse("/library/file/$id/$displayName");
       }
@@ -600,12 +600,14 @@ class LibraryController extends ControllerBase {
         return $this->getFile($fileName);
       }
 
-      // otherwise, prompt the user to log in with another account
+      // otherwise, prompt anonymous users to log in
       if ($isAnonymous) {
         drupal_set_message(t('Please log in with an account that has access to this file.'), 'error');
         return new RedirectResponse(Url::fromUserInput('/user/login', [
           'query' => ['destination' => \Drupal::request()->getRequestUri()]
         ])->toString());
+
+      // if users are logged in but do not have access, redirect them to the library
       } else {
         drupal_set_message(t('Your account currently does not have access to this file.'), 'error');
         return new RedirectResponse('/library');
