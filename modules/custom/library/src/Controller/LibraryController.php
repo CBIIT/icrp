@@ -572,9 +572,9 @@ class LibraryController extends ControllerBase {
   public function fileDownload($id, $name) {
     $connection = self::get_connection();
     $stmt = $connection->prepare(
-      'SELECT l.fileName, l.displayName, l.isPublic, lf.type from Library l
+      'SELECT l.fileName, l.displayName, l.isPublic, lf.type FROM Library l
       JOIN LibraryFolder lf ON l.LibraryFolderID = lf.LibraryFolderID
-      where LibraryID = :id');
+      WHERE LibraryID = :id');
     $stmt->execute(['id' => $id]);
 
     $record = $stmt->fetch();
@@ -588,6 +588,7 @@ class LibraryController extends ControllerBase {
       $type = $record['type'];
       $isAnonymous = \Drupal::currentUser()->isAnonymous();
       $isAuthenticated = \Drupal::currentUser()->isAuthenticated();
+      $hasAccess = in_array($type, $this->getAccessTypes());
 
       // redirect to correct filename
       if ($displayName != $name) {
@@ -595,16 +596,20 @@ class LibraryController extends ControllerBase {
       }
 
       // download the file if the user has access
-      if (($isAnonymous && $isPublic)
-       || ($isAuthenticated && in_array($type, $this->getAccessTypes()))
-      ) {
-        return self::getFile($fileName);
+      if (($isAnonymous && $isPublic) || ($isAuthenticated && $hasAccess)) {
+        return $this->getFile($fileName);
       }
 
       // otherwise, prompt the user to log in with another account
-      return new RedirectResponse(Url::fromUserInput('/user/login', [
-        'query' => ['destination' => \Drupal::request()->getRequestUri()]
-      ])->toString());
+      if ($isAnonymous) {
+        drupal_set_message(t('Please log in with an account that has access to this file.'), 'error');
+        return new RedirectResponse(Url::fromUserInput('/user/login', [
+          'query' => ['destination' => \Drupal::request()->getRequestUri()]
+        ])->toString());
+      } else {
+        drupal_set_message(t('Your account currently does not have access to this file.'), 'error');
+        return new RedirectResponse('/library');
+      }
     }
   }
 
