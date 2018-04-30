@@ -580,7 +580,7 @@ class LibraryController extends ControllerBase {
 
     $record = $stmt->fetch();
     if ($record === false) {
-      drupal_set_message(t('An invalid file was specified'), 'error');
+      drupal_set_message(t('The file was not found'), 'error');
       return $this->redirect('icrp.library');
     } else {
       $displayName = $record['displayName'];
