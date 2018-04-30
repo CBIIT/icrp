@@ -186,6 +186,11 @@ table.table-centered-header > tfoot > tr > th {
 /**
  * Page-specific panel overrides
  */
+
+.about-us-nodes .panel {
+  margin-bottom: 15px;
+}
+
 .about-us-nodes .panel-heading a {
   text-decoration: none;
 }
