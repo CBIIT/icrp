@@ -16,17 +16,9 @@
     var markers = [];
     var infoWindows = [];
 
-    var overlayInitialized = false;
-    var overlay = new google.maps.OverlayView();
-    overlay.draw = function() {};
-    overlay.setMap(map);
-
-    map.addListener('idle', function() {
-        if (!overlayInitialized) {
-            overlayInitialized = true;
-            $('#select-partner').trigger('change');
-        }
-    });
+    window.setTimeout(function() {
+        $('#select-partner').trigger('change');
+    }, 500);
 
     map.addListener('click', function() {
         for (var i = 0; i < infoWindows.length; i ++)
@@ -48,7 +40,6 @@
             }
         }
     })
-
 
     $('#select-partner, #exclude-former').change(function () {
         var sponsorCode = $('#select-partner').val();
@@ -126,211 +117,145 @@
 
     function drawMap() {
         clearMarkers();
-        var groups = groupItems(overlay, locations, 0);
-        groups.forEach(function(group) {
-            if (group.length == 1) {
-                var item = group[0];
-                var position = {
-                    lng: + item.longitude,
-                    lat: + item.latitude,
-                };
+        locations.forEach(function(item) {
+            var position = {
+                lng: + item.longitude,
+                lat: + item.latitude,
+            };
 
-                if (item.markerType == 'partner') {
-                    (function() {
-                        var infoWindow = new google.maps.InfoWindow({
-                            content: $('<div/>')
-                                .css('margin', '0 4px 0 0')
-                                .css('line-height', '1.25')
-                                .css('font-weight', 'normal')
-                                .append($('<div/>')
-                                    .addClass('d-flex justify-content-between')
-                                    .append($('<div>')
-                                        .css('margin', '0 16px 8px 0')
-                                        .html(
-                                            item.website
-                                                ? $('<a>', {
-                                                    href: item.website,
-                                                    target: '_blank',
-                                                }).text(item.name)
-                                                : $('<span>').text(item.name))
-                                        .prepend($('<b>')
-                                            .text('Partner:')
-                                            .css('margin-right', '4px'))
-                                        .append($('<span>')
-                                            .text(/former/i.test(item.status) ? '(Former)' : '')
-                                            .css('color', '#aaa')
-                                            .css('margin-left', '4px')))
-
-                                    .append(
-                                        item.email
-                                            ? $('<a>', {href: 'mailto:' + item.email})
-                                                .append('<span style="margin-right: 4px;">email</span>')
-                                                .append('<i class="far fa-envelope"></i>')
-                                            : ''
-                                    )
-                                )
-                                .append($('<hr>').css('margin', '0 0 8px 0'))
-                                .append($('<span>').html(
-                                    item.logofile
-                                        ? $('<img>', {
-                                            src: '/data/uploads/partner-logos/' + item.logofile,
-                                            alt: 'Logo for ' + item.name})
-                                                .css('width', '150px')
-                                                .css('margin', '0 10px 6px 0')
-                                                .addClass('pull-left')
-                                        : ''))
-                                .append($('<div>').addClass('clearfix').html(item.description))
-                                .append($('<hr>').css('margin', '8px 0 8px 0'))
-                                .append($('<div>')
-                                    .text('Country: ' + item.country))
-                                .append($('<div>')
-                                    .text('Funding Organization: ' + (function(item) {
-                                        var fundingOrganizations = window.mapData.fundingOrganizations.filter(function (fundingOrganization) {
-                                            return fundingOrganization.name == item.name;
-                                        });
-                                        return fundingOrganizations && fundingOrganizations.length > 0
-                                            ? 'Yes' + (/former/i.test(fundingOrganizations[0].memberstatus) ? ' (Former)' : '')
-                                            : 'No';
-                                    })(item)))
-                                .get(0)
-                        });
-
-                        var marker = createMarker('steelblue', position, 1, map);
-                        marker.addListener('click', function() {
-                        for (var i = 0; i < infoWindows.length; i ++)
-                            infoWindows[i].close();
-                            infoWindow.open(map, marker);
-                        });
-
-                        infoWindows.push(infoWindow);
-                        markers.push(marker);
-                    })();
-                }
-
-                else if (item.markerType == 'fundingOrganization') {
-                    (function() {
-                        var infoWindow = new google.maps.InfoWindow({
-                            content: $('<div>')
-                                .css('margin', '0 4px 0 0')
-                                .css('line-height', '1.25')
-                                .css('font-weight', 'normal')
-                                .append($('<div/>')
-                                    .addClass('d-flex justify-content-between')
-                                    .append($('<div>')
-                                        .css('margin', '0 16px 8px 0')
-                                        .html(
-                                            item.website
-                                                ? $('<a>', {
-                                                    href: item.website,
-                                                    target: '_blank',
-                                                }).text(item.name)
-                                                : $('<span>').text(item.name))
-                                        .prepend($('<b>')
-                                            .text('Funding Organization:')
-                                            .css('margin-right', '4px'))
-                                        .append($('<span>')
-                                            .text(/former/i.test(item.memberstatus) ? '(Former)' : '')
-                                            .css('color', '#aaa')
-                                            .css('margin-left', '4px')))
-                                )
-                                .append($('<hr>').css('margin', '0 0 8px 0'))
-                                .append($('<div>')
-                                    .addClass('d-flex')
-                                    .append($('<div>')
-                                        .css('min-width', '100px')
-                                        .text('Partner: '))
-                                    .append($('<div>').text(item.partner)))
-                                .append($('<div>')
-                                    .addClass('d-flex')
-                                    .append($('<div>')
-                                        .css('min-width', '100px')
-                                        .text('Sponsor Code: '))
-                                    .append($('<div>')
-                                        .text(item.sponsorcode)))
-                                .append($('<div>')
-                                    .addClass('d-flex')
-                                    .append($('<div>')
-                                        .css('min-width', '100px')
-                                        .text('Country: '))
-                                    .append($('<div>')
-                                        .text(item.country)))
-                                .get(0)
-                        });
-
-                        var marker = createMarker('orange', position, -1, map);
-                        marker.addListener('click', function() {
-                            for (var i = 0; i < infoWindows.length; i ++)
-                                infoWindows[i].close();
-                            infoWindow.open(map, marker);
-                        });
-
-                        infoWindows.push(infoWindow);
-                        markers.push(marker);
-                    })();
-                }
-            }
-
-            else if (group.length > 1) {
+            if (item.markerType == 'partner') {
                 (function() {
-                    var bounds = group.reduce(function(bounds, item) {
-                        return bounds.extend({
-                            lat: +item.latitude,
-                            lng: +item.longitude
-                        });
-                    }, new google.maps.LatLngBounds());
-                    var position = bounds.getCenter();
-
-                    var partners = group.filter(function(item) {
-                        return item.markerType === 'partner';
-                    });
-
-                    var fundingOrganizations = group.filter(function(item) {
-                        return item.markerType === 'fundingOrganization';
-                    });
-
-                    var marker = createMarker('green', position, 1, map);
-
                     var infoWindow = new google.maps.InfoWindow({
-                        content: $('<div>')
+                        content: $('<div/>')
                             .css('margin', '0 4px 0 0')
                             .css('line-height', '1.25')
                             .css('font-weight', 'normal')
-                            .append($('<b>')
-                                .text(partners.length + ' Partner(s) and '
-                                    + fundingOrganizations.length + ' Funding Organization(s)')
-                                .css('color', 'steelblue')
-                                .css('text-decoration', 'underline')
-                                .css('cursor', 'pointer')
-                                .click(function() {
-                                    map.fitBounds(bounds);
-                                    marker.setMap(null);
+                            .append($('<div/>')
+                                .addClass('d-flex justify-content-between')
+                                .append($('<div>')
+                                    .css('margin', '0 16px 8px 0')
+                                    .html(
+                                        item.website
+                                            ? $('<a>', {
+                                                href: item.website,
+                                                target: '_blank',
+                                            }).text(item.name)
+                                            : $('<span>').text(item.name))
+                                    .prepend($('<b>')
+                                        .text('Partner:')
+                                        .css('margin-right', '4px'))
+                                    .append($('<span>')
+                                        .text(/former/i.test(item.status) ? '(Former)' : '')
+                                        .css('color', '#aaa')
+                                        .css('margin-left', '4px')))
 
-                                    locations.length = 0;
-                                    group.forEach(function(item) {
-                                        locations.push(item);
-                                    });
-
-                                    setTimeout(function() {
-                                        drawMap();
-                                        map.setZoom(map.getZoom());
-                                    }, 100);
-                                })
+                                .append(
+                                    item.email
+                                        ? $('<a>', {href: 'mailto:' + item.email})
+                                            .append('<span style="margin-right: 4px;">email</span>')
+                                            .append('<i class="far fa-envelope"></i>')
+                                        : ''
+                                )
                             )
                             .append($('<hr>').css('margin', '0 0 8px 0'))
+                            .append($('<span>').html(
+                                item.logofile
+                                    ? $('<img>', {
+                                        src: '/data/uploads/partner-logos/' + item.logofile,
+                                        alt: 'Logo for ' + item.name})
+                                            .css('width', '150px')
+                                            .css('margin', '0 10px 6px 0')
+                                            .addClass('pull-left')
+                                    : ''))
+                            .append($('<div>').addClass('clearfix').html(item.description))
+                            .append($('<hr>').css('margin', '8px 0 8px 0'))
+                            .append($('<div>')
+                                .text('Country: ' + item.country))
+                            .append($('<div>')
+                                .text('Funding Organization: ' + (function(item) {
+                                    var fundingOrganizations = window.mapData.fundingOrganizations.filter(function (fundingOrganization) {
+                                        return fundingOrganization.name == item.name;
+                                    });
+                                    return fundingOrganizations && fundingOrganizations.length > 0
+                                        ? 'Yes' + (/former/i.test(fundingOrganizations[0].memberstatus) ? ' (Former)' : '')
+                                        : 'No';
+                                })(item)))
                             .get(0)
                     });
 
+                    var marker = createMarker('steelblue', position, 1, map);
                     marker.addListener('click', function() {
-                        for (var i = 0; i < infoWindows.length; i ++)
-                            infoWindows[i].close();
+                    for (var i = 0; i < infoWindows.length; i ++)
+                        infoWindows[i].close();
                         infoWindow.open(map, marker);
-                    })
+                    });
 
                     infoWindows.push(infoWindow);
                     markers.push(marker);
                 })();
             }
 
+            else if (item.markerType == 'fundingOrganization') {
+                (function() {
+                    var infoWindow = new google.maps.InfoWindow({
+                        content: $('<div>')
+                            .css('margin', '0 4px 0 0')
+                            .css('line-height', '1.25')
+                            .css('font-weight', 'normal')
+                            .append($('<div/>')
+                                .addClass('d-flex justify-content-between')
+                                .append($('<div>')
+                                    .css('margin', '0 16px 8px 0')
+                                    .html(
+                                        item.website
+                                            ? $('<a>', {
+                                                href: item.website,
+                                                target: '_blank',
+                                            }).text(item.name)
+                                            : $('<span>').text(item.name))
+                                    .prepend($('<b>')
+                                        .text('Funding Organization:')
+                                        .css('margin-right', '4px'))
+                                    .append($('<span>')
+                                        .text(/former/i.test(item.memberstatus) ? '(Former)' : '')
+                                        .css('color', '#aaa')
+                                        .css('margin-left', '4px')))
+                            )
+                            .append($('<hr>').css('margin', '0 0 8px 0'))
+                            .append($('<div>')
+                                .addClass('d-flex')
+                                .append($('<div>')
+                                    .css('min-width', '100px')
+                                    .text('Partner: '))
+                                .append($('<div>').text(item.partner)))
+                            .append($('<div>')
+                                .addClass('d-flex')
+                                .append($('<div>')
+                                    .css('min-width', '100px')
+                                    .text('Sponsor Code: '))
+                                .append($('<div>')
+                                    .text(item.sponsorcode)))
+                            .append($('<div>')
+                                .addClass('d-flex')
+                                .append($('<div>')
+                                    .css('min-width', '100px')
+                                    .text('Country: '))
+                                .append($('<div>')
+                                    .text(item.country)))
+                            .get(0)
+                    });
+
+                    var marker = createMarker('orange', position, -1, map);
+                    marker.addListener('click', function() {
+                        for (var i = 0; i < infoWindows.length; i ++)
+                            infoWindows[i].close();
+                        infoWindow.open(map, marker);
+                    });
+
+                    infoWindows.push(infoWindow);
+                    markers.push(marker);
+                })();
+            }
         });
     }
 
@@ -346,110 +271,10 @@
         });
     }
 
-
-    function groupItems(overlay, locations, radius) {
-
-        if (radius == 0) {
-            return locations.map(function(location) {
-                return [location];
-            })
-        }
-
-        var groups = [];
-        var projection = overlay.getProjection();
-        var markers = (locations || []).map(function(location) {
-            var marker = new google.maps.Marker({
-                position: {
-                    lat: +location.latitude,
-                    lng: +location.longitude
-                }
-            });
-            marker.metadata = location;
-            return marker;
-        })
-
-        // iterate through each marker
-        markers.forEach(function(marker) {
-
-            // attempt to find the closest group to the marker
-            var minDistance = Number.MAX_VALUE;
-            var closestGroup = null;
-
-            groups.forEach(function(group) {
-                var distance = distanceBetween(
-                    projection.fromLatLngToDivPixel(getBounds(group).getCenter()),
-                    projection.fromLatLngToDivPixel(marker.getPosition())
-                );
-
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestGroup = group;
-                }
-            });
-
-            // if we did not find any groups within the minimum radius
-            // then create a new group from the current marker
-            if (closestGroup == null || minDistance > radius) {
-                groups.push([marker])
-            }
-            else if (closestGroup != null) {
-                closestGroup.push(marker);
-            }
-        });
-
-        return groups.map(function(group) {
-            return group.map(function(marker) {
-                return marker.metadata;
-            })
-        });
-    }
-
-    function groupMarkers(overlay, markers, radius) {
-        var groups = [];
-        var projection = overlay.getProjection();
-
-        // iterate through each marker
-        markers.forEach(function(marker) {
-
-            // attempt to find the closest group to the marker
-            var minDistance = Number.MAX_VALUE;
-            var closestGroup = null;
-
-            groups.forEach(function(group) {
-                var distance = distanceBetween(
-                    projection.fromLatLngToDivPixel(getBounds(group).getCenter()),
-                    projection.fromLatLngToDivPixel(marker.getPosition())
-                );
-
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestGroup = group;
-                }
-            });
-
-            // if we did not find any groups within the minimum radius
-            // then create a new group from the current marker
-            if (closestGroup == null || minDistance > radius) {
-                groups.push([marker])
-            }
-            else if (closestGroup != null) {
-                closestGroup.push(marker);
-            }
-        });
-
-        return groups;
-    }
-
     function getBounds(markers) {
         return markers.reduce(function(bounds, marker) {
             return bounds.extend(marker.getPosition());
         }, new google.maps.LatLngBounds());
-    }
-
-    function distanceBetween(a, b) {
-        return Math.sqrt(
-            Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2)
-        );
     }
 
     function getDefaultStyles() {
