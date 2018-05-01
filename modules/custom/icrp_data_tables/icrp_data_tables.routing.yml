@@ -15,3 +15,14 @@ uploadStatus:
   requirements:
     _access: 'TRUE'
     _role: 'authenticated'
+
+
+redirectToUploadStatus:
+  path: '/uploadStatusReport'
+  defaults:
+    _controller: '\Drupal\icrp_data_tables\Controller\PageController::redirectToUploadStatus'
+  requirements:
+    _access: 'TRUE'
+    _role: 'authenticated'
+
+

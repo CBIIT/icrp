@@ -28,6 +28,10 @@ class PageController extends ControllerBase {
         ];
     }
 
+    function redirectToUploadStatus() {
+        return $this->redirect('uploadStatus');        
+    }
+
     function cancerTypes(): array {
         $records = $this->getConnection()
             ->query('SET NOCOUNT ON; SELECT * FROM CancerType ORDER BY SortOrder, Name')
