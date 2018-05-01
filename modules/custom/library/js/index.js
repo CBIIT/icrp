@@ -5,6 +5,7 @@ jQuery(function() {
         tree = null,
         role = null,
         diplayname = null,
+        shouldPushState = true,
         failFunction = function(xhr,status) {
             BootstrapDialog.alert({
                 'title': null,
@@ -385,12 +386,21 @@ jQuery(function() {
             return parent;
         },
         'pushstate': function(obj) {
+            console.log('called pushState', obj)
             var query = "";
             for (var prop in obj) {
                 query += "&"+prop+"="+obj[prop];
             }
             if (query.length > 0) query = "?"+query.substring(1);
-            window.history.pushState(obj,window.title,[window.location.protocol, '//',window.location.host,window.location.pathname,query].join(''));
+
+            if (shouldPushState)
+                window.history.pushState(
+                    obj,
+                    window.title,
+                    [location.protocol, '//', location.host, location.pathname, query].join('')
+                );
+
+            shouldPushState = true;
         },
         'restoreFile': function(e) {
             var node = functions.getNode(),
@@ -687,6 +697,7 @@ jQuery(function() {
     });
 
     window.onpopstate = function(e) {
+        shouldPushState = false;
         if (e.state) {
             if (e.state.search) {
                 $('#library [name="library-keywords"]').val(e.state.search);
@@ -698,5 +709,6 @@ jQuery(function() {
             }
         }
         tree.refresh();
+        shouldPushState = false;
     }
 });
