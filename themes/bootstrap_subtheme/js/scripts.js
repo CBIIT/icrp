@@ -54,9 +54,26 @@
           break;
         case "/":
           $.getNewsletter();
-          // Only tweek page on the Welcome partner page.
+          var timeout = 1000;
+          var inTimeOut = false;
+
+          var sectionHeight = $('[role="main"] section').height();
+          var twitterHeight = $('#twitter-container').height();
+          var newsletterHeight = $('#newsletter-container').height();
+          $(window).resize(function(){
+            var newSectionHeight = $('[role="main"] section').height();
+            if(!(sectionHeight - newSectionHeight > 30) && !inTimeOut) {
+              console.log("Resize");
+              console.log(sectionHeight);
+              console.log(newSectionHeight);
+              //sectionHeight = newSectionHeight;
+              inTimeOut = true;
+              setTimeout(function(){ inTimeOut = false; }, timeout);
+              $.tweekHomePageRefreshTwitterBlock();
+            }
+          });
           if($('#welcome').length) {
-            $.tweekHomePage();
+            //$.tweekHomePage();
           }
           break;
         case "/partner-application-administration-tool":
@@ -72,7 +89,7 @@
           $.hideCommentStatus();
           break;
         case "/become-a-partner":
-          console.log("You are on the /become-a-partner page.");
+          //console.log("You are on the /become-a-partner page.");
           $("#become-a-partner-wells").matchHeight(true);
           break;
         case "/calendar":
@@ -441,6 +458,12 @@
     return return_val;
   }
   $.getNewsletter = function() {
+    console.log("Get Newsletter");
+    console.log("section height");
+    console.log($( "section.col-sm-9" ).height());
+    //$('section:first, aside[role="complementary"]').matchHeight(true);
+    //$('section.col-sm-9, aside[role="complementary"]').matchHeight(true);
+
     $.get('/api/latest/newsletter').then(function(newsletter) {
       var pdf = "/library/file/"+(newsletter.libraryid || 0)+"/"+newsletter.filename;
       var thumbnail = "/library/file/thumb/"+newsletter.thumbnailfilename;
@@ -449,13 +472,15 @@
       $("#last_newsletter").append("<div class='row text-center'><div class='newsletter-image'><a href='"+pdf+"' title='Latest Newsleter' target='_blank'><img class='center-block' src='"+thumbnail+"' /></a></div></div>");
       $('#last_newsletter').append("<div class='newsletter-description'>"+newsletter.description+"</div>");
       $("#newsletter-container").show();
+      $.tweekHomePage();
     });
   }
   $.getLastMeetingReport = function() {
-    //$.ajax({
-      //url: "https://icrpartnership-dev.org/api/latest/meeting-report",
-      //success: function( meetingReport ) {
-        var data = [ {
+    $.ajax({
+      url: "/api/latest/meeting-report",
+      success: function( meetingReport ) {
+/*        var data = [ {
+      url: "https://icrpartnership-dev.org/api/latest/meeting-report",
   "libraryid": 7274,
   "filename": "ICRP_AnnualMeeting2017_Report.txt",
   "thumbnailfilename": "free-map-pin-icons.7371.jpg",
@@ -464,6 +489,7 @@
 }];
 var meetingReport = data[0];
   console.dir(meetingReport);
+*/
         var pdf = "/library/file/"+(meetingReport.libraryid || 0)+"/"+meetingReport.filename;
         var thumbnail = "https://icrpartnership-test.org/library/file/thumb/"+meetingReport.thumbnailfilename;
         $("#events-and-resources-card > .card-header:eq(0)").text(meetingReport.title);
@@ -473,8 +499,8 @@ var meetingReport = data[0];
         $("#last-meeting-report-pdf").attr('href', pdf);
         $('#last-meeting-report-pdf').text('Download ' + pdf.split('.').pop().toUpperCase());
         $('#events-and-resources-card').show();
-      //}
-    //});
+      }
+    });
   }
 
   $.tweekHomePage = function () {
@@ -485,7 +511,12 @@ var meetingReport = data[0];
   $.tweekHomePageRefreshTwitterBlock = function() {
     // set the height of the aside to the same as the section height
     var sectionHeight = $('[role="main"] section').height();
-    //console.log("Current: "+sectionHeight);
+    var twitterHeight = $('#twitter-container').height();
+    var newsletterHeight = $('#newsletter-container').height();
+    console.log("sectionHeight: "+sectionHeight);
+    console.log("twitterHeight: "+twitterHeight);
+    console.log("newsletterHeight: "+newsletterHeight);
+
     $('[role="main"] aside').height(sectionHeight);
     // set the height of the first child in the aside to 100%
     $('[role="main"] aside > div:first').css('height', '100%');
