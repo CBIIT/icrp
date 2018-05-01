@@ -178,7 +178,6 @@ jQuery(function() {
         'editFolder': function(e) {
             var data = functions.getNode();
             if (data) {
-                console.log(data);
                 $('#library-access-container').show();
                 var params = $('#library-parameters'),
                     ispub = params.find('[name="is_public"]');
@@ -706,9 +705,15 @@ jQuery(function() {
             } else if (e.state.nodeId) {
                 tree.deselect_all();
                 tree.select_node(e.state.nodeId);
+            } else {
+                history.back()
             }
         }
         tree.refresh();
         shouldPushState = false;
+
+        if (location.search == '') {
+            history.back()
+        }
     }
 });
