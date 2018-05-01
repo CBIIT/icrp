@@ -1,5 +1,5 @@
 content:
-  version: 0.0.2
+  version: 1.0.2
   css:
     theme:
       https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.0/css/bootstrap-grid.css: {}
