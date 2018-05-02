@@ -611,6 +611,9 @@ div#cso-document-container > div > h1 {
 .fa-stack.fa-lg {
     margin-bottom: 5px;
 }
+aside > div {
+    overflow:hidden;
+}
 .aside-title {
     color: #3371a8;
     font-size: 22px;
