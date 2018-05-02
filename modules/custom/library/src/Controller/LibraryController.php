@@ -581,7 +581,7 @@ class LibraryController extends ControllerBase {
     $record = $stmt->fetch();
     if ($record === false) {
       drupal_set_message(t('The file was not found'), 'error');
-      return $this->redirect('icrp.library');
+      return $this->redirect('library.content');
     } else {
       $displayName = $record['displayName'];
       $fileName = $record['fileName'];
@@ -611,7 +611,7 @@ class LibraryController extends ControllerBase {
       // if users are logged in but do not have access, redirect them to the library
       } else {
         drupal_set_message(t('Your account currently does not have access to this file.'), 'error');
-        return $this->redirect('icrp.library');
+        return $this->redirect('library.content');
       }
     }
   }
@@ -622,7 +622,7 @@ class LibraryController extends ControllerBase {
       return new BinaryFileResponse(join('/',array($uploads_folder,$location)));
     } catch (\Exception $e) {
       drupal_set_message(t('The file was not found.'), 'error');
-      return $this->redirect('icrp.library');
+      return $this->redirect('library.content');
     }
   }
 

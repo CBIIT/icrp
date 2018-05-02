@@ -1,4 +1,4 @@
-icrp.library:
+library.content:
   path: '/library'
   defaults:
     _controller: '\Drupal\library\Controller\LibraryController::content'
