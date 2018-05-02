@@ -12,13 +12,23 @@
         styles: getDefaultStyles(),
     });
 
+    var mapDrawn = false;
     var locations = [];
     var markers = [];
     var infoWindows = [];
 
-    window.setTimeout(function() {
-        $('#select-partner').trigger('change');
-    }, 500);
+
+    map.addListener('idle', function() {
+        if (!mapDrawn) {
+            mapDrawn = true;
+            $('#select-partner').trigger('change');
+
+            // workaround for IE (map not fully initialized)
+            setTimeout(function() {
+                $('#select-partner').trigger('change');
+            }, 2500);
+        }
+    });
 
     map.addListener('click', function() {
         for (var i = 0; i < infoWindows.length; i ++)
@@ -117,7 +127,8 @@
 
     function drawMap() {
         clearMarkers();
-        locations.forEach(function(item) {
+        locations.forEach(function(item, index) {
+
             var position = {
                 lng: + item.longitude,
                 lat: + item.latitude,
@@ -256,12 +267,14 @@
                     markers.push(marker);
                 })();
             }
+
         });
     }
 
     function createMarker(color, position, zIndex, map) {
         return new google.maps.Marker({
             position: position,
+            animation: google.maps.Animation.DROP,
             map: map,
             icon: {
                 url: '/modules/custom/icrp_partners/images/marker.' + color + '.svg',
