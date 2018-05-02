@@ -54,22 +54,27 @@
           break;
         case "/":
           $.getNewsletter();
-          var timeout = 1000;
+          var timeout = 100;
           var inTimeOut = false;
-
-          var sectionHeight = $('[role="main"] section').height();
-          var twitterHeight = $('#twitter-container').height();
-          var newsletterHeight = $('#newsletter-container').height();
+          //var sectionHeight = $('[role="main"] section').height();
+          //var twitterHeight = $('#twitter-container').height();
+          //var newsletterHeight = $('#newsletter-container').height();
           $(window).resize(function(){
             var newSectionHeight = $('[role="main"] section').height();
-            if(!(sectionHeight - newSectionHeight > 30) && !inTimeOut) {
-              console.log("Resize");
-              console.log(sectionHeight);
-              console.log(newSectionHeight);
-              //sectionHeight = newSectionHeight;
+            var newAsideHeight = $('aside').height();
+            //console.log("newSectionHeight: "+newSectionHeight);
+            //console.log("newAsideHeight: "+newAsideHeight);
+            if((Math.abs(newSectionHeight - newAsideHeight) > 1) && !inTimeOut) {
+              //console.log("Resize");
+              //console.log($(window).width());
               inTimeOut = true;
               setTimeout(function(){ inTimeOut = false; }, timeout);
-              $.tweekHomePageRefreshTwitterBlock();
+              if($(window).width() < 755){
+                //Only change the height of the Twitter scroll.
+                $('aside').attr('height', "800px");
+              } else {
+                $.tweekHomePageRefreshTwitterBlock();
+              }
             }
           });
           if($('#welcome').length) {
@@ -511,11 +516,11 @@ var meetingReport = data[0];
   $.tweekHomePageRefreshTwitterBlock = function() {
     // set the height of the aside to the same as the section height
     var sectionHeight = $('[role="main"] section').height();
-    var twitterHeight = $('#twitter-container').height();
-    var newsletterHeight = $('#newsletter-container').height();
-    console.log("sectionHeight: "+sectionHeight);
-    console.log("twitterHeight: "+twitterHeight);
-    console.log("newsletterHeight: "+newsletterHeight);
+    //var twitterHeight = $('#twitter-container').height();
+    //var newsletterHeight = $('#newsletter-container').height();
+    //console.log("sectionHeight: "+sectionHeight);
+    //console.log("twitterHeight: "+twitterHeight);
+    //console.log("newsletterHeight: "+newsletterHeight);
 
     $('[role="main"] aside').height(sectionHeight);
     // set the height of the first child in the aside to 100%
