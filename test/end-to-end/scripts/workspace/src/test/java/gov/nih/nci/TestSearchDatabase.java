@@ -98,7 +98,6 @@ public class TestSearchDatabase {
 				Test.wait_For(5000);
 				Test.expected_vs_actual_verification("All Years Selected");
 				
-				
 				//Perform Specific Search
 				Test.clickLink(By.cssSelector(".ng-tns-c9-2 > div:nth-child(1)"));
 				logger.info("Click Institutions and Investigations");
@@ -182,14 +181,14 @@ public class TestSearchDatabase {
 				Test.wait_For(5000);
 				logger.info("Click ICRP Data");
 				//Click Search Database
-				Test.clickLink(By.cssSelector("#anonymous-navbar > ul > li.dropdown.open > ul > li:nth-child(1) > a"));
+				Test.clickLink(By.cssSelector("body > div > div > div > section > div.region.region-content > div.container-fluid.front-page > div > div > div:nth-child(2) > div:nth-child(2) > p > a:nth-child(2)"));
 				logger.info("Click Search Database");
 				//Verify Search Database Page
 				Test.wait_until_element_present(By.cssSelector("body > div > div > section > div.region.region-content > h1"),"Search ICRP Database");
 				Test.wait_For(1000);
 				Test.wait_until_element_present(By.cssSelector("#block-anonymoususermenu > div > div.field--item > div:nth-child(2) > a"),"Log in");  //Check user is not logged in
 				Test.wait_For(2000);
-				Test.wait_For(5000);
+				Test.wait_For(20000);
 				
 				//Click Clear Database
 				
@@ -206,14 +205,14 @@ public class TestSearchDatabase {
 				//Test.expected_vs_actual_verification("Enter search terms");
 				
 				//Expand Cancer and Project Type
-				Test.clickLink(By.cssSelector(".ng-tns-c9-4 > div:nth-child(1)"));
+				Test.clickLink(By.cssSelector("body > div > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel.ng-tns-c10-4 > div.ui-panel-header > div > div"));
 				//Test.clickLink(By.xpath("/html/body/div/div/section/div[2]/icrp-root/div/icrp-search-page/div/div[1]/icrp-search-form/form/ui-panel[4]/div[1]"));	
 				
 				
 				Test.wait_For(2000);
 				logger.info("Expand Cancer and Project Type");
 				//Click on Select Cancer Type
-				Test.clickLink(By.cssSelector(".ng-tns-c9-4 > div:nth-child(2) > ui-select:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > input:nth-child(1)"));
+				Test.clickLink(By.cssSelector("body > div > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel.ng-tns-c10-4 > div.ui-panel-content.ng-trigger.ng-trigger-visibilityChanged > ui-select:nth-child(2) > div > div.select-input-container.default > div > input"));
 				Test.wait_For(2000);
 				logger.info("Click on Select Cancer Type");
 				//Select Bladder Cancer
@@ -235,10 +234,10 @@ public class TestSearchDatabase {
 				Test.wait_until_element_present(By.cssSelector("body > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-9 > icrp-search-summary-panel > icrp-summary-panel > div.content > div > table > tbody > tr:nth-child(2) > td:nth-child(2)"),"Bladder Cancer");
 				
 				//Click on Year Active and select 2012 and 2013
-				Test.clickLink(By.cssSelector("body > div > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel.ng-tns-c9-1 > div.ui-panel-content.ng-trigger.ng-trigger-visibilityChanged > ui-select > div > div.select-input-container.default > div > input"));
+				Test.clickLink(By.cssSelector("body > div > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel.ng-tns-c10-1 > div.ui-panel-content.ng-trigger.ng-trigger-visibilityChanged > ui-select > div > div.select-input-container.default > div > input"));
 				Test.wait_For(2000);
-				Test.clickLink(By.cssSelector(".ng-tns-c9-1 > div:nth-child(2) > ui-select:nth-child(9) > div:nth-child(1) > div:nth-child(2) > div:nth-child(8)"));  //Select 2012
-				Test.clickLink(By.cssSelector(".ng-tns-c9-1 > div:nth-child(2) > ui-select:nth-child(9) > div:nth-child(1) > div:nth-child(2) > div:nth-child(7)"));  //Select 2013
+				Test.clickLink(By.cssSelector("body > div > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel.ng-tns-c10-1 > div.ui-panel-content.ng-trigger.ng-trigger-visibilityChanged > ui-select > div > div.select-dropdown.default > div:nth-child(8)"));  //Select 2012
+				Test.clickLink(By.cssSelector("body > div > div > div > section > div.region.region-content > icrp-root > div > icrp-search-page > div > div.col-sm-3 > icrp-search-form > form > ui-panel.ng-tns-c10-1 > div.ui-panel-content.ng-trigger.ng-trigger-visibilityChanged > ui-select > div > div.select-dropdown.default > div:nth-child(7)"));  //Select 2013
 				
 				//Click Search Button for Bladder Cancer for Years 2012 and 2013
 				Test.clickLink(By.cssSelector("div.text-right:nth-child(6) > button:nth-child(1)"));
