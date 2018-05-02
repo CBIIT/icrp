@@ -580,7 +580,7 @@ class LibraryController extends ControllerBase {
 
     $record = $stmt->fetch();
     if ($record === false) {
-      drupal_set_message(t('The file was not found'), 'error');
+      // drupal_set_message(t('The file was not found'), 'error');
       return $this->redirect('library.content');
     } else {
       $displayName = $record['displayName'];
@@ -603,14 +603,14 @@ class LibraryController extends ControllerBase {
 
       // otherwise, prompt anonymous users to log in
       if ($isAnonymous) {
-        drupal_set_message(t('Please log in with an account that has access to this file.'), 'error');
+        // drupal_set_message(t('Please log in with an account that has access to this file.'), 'error');
         return $this->redirect('user.login', [
           'destination' => $request->getRequestUri()
         ]);
 
       // if users are logged in but do not have access, redirect them to the library
       } else {
-        drupal_set_message(t('Your account currently does not have access to this file.'), 'error');
+        // drupal_set_message(t('Your account currently does not have access to this file.'), 'error');
         return $this->redirect('library.content');
       }
     }
@@ -621,7 +621,7 @@ class LibraryController extends ControllerBase {
       $uploads_folder = \Drupal::config('library')->get('uploads_folder') ?? 'data/library/uploads';
       return new BinaryFileResponse(join('/',array($uploads_folder,$location)));
     } catch (\Exception $e) {
-      drupal_set_message(t('The file was not found.'), 'error');
+//      drupal_set_message(t('The file was not found.'), 'error');
       return $this->redirect('library.content');
     }
   }
