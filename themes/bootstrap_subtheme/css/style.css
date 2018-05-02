@@ -626,6 +626,9 @@ aside > div {
 .newsletter-image {
     padding:15px;
 }
+#newsletter-description-container {
+    overflow:hidden;
+}
 .newsletter-description{
     padding:5px;
 }

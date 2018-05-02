@@ -69,7 +69,7 @@
               //console.log($(window).width());
               inTimeOut = true;
               setTimeout(function(){ inTimeOut = false; }, timeout);
-              if($(window).width() < 755){
+              if($(window).width() < 768){
                 //Only change the height of the Twitter scroll.
                 $('aside').attr('height', "800px");
               } else {
@@ -463,9 +463,9 @@
     return return_val;
   }
   $.getNewsletter = function() {
-    console.log("Get Newsletter");
-    console.log("section height");
-    console.log($( "section.col-sm-9" ).height());
+    //console.log("Get Newsletter");
+    //console.log("section height");
+    //console.log($( "section.col-sm-9" ).height());
     //$('section:first, aside[role="complementary"]').matchHeight(true);
     //$('section.col-sm-9, aside[role="complementary"]').matchHeight(true);
 
@@ -475,7 +475,8 @@
 
       $('#last_newsletter').html("<div class='newsletter-title'>"+newsletter.title+"</div>");
       $("#last_newsletter").append("<div class='row text-center'><div class='newsletter-image'><a href='"+pdf+"' title='Latest Newsleter' target='_blank'><img class='center-block' src='"+thumbnail+"' /></a></div></div>");
-      $('#last_newsletter').append("<div class='newsletter-description'>"+newsletter.description+"</div>");
+      $('#last_newsletter').append("<div id='newsletter-description-container' ><div class='newsletter-description'>"+newsletter.description+"</div></div>");
+      //$('#last_newsletter').append("<div class='newsletter-description'>"+newsletter.description+"</div>");
       $("#newsletter-container").show();
       $.tweekHomePage();
     });
@@ -526,7 +527,22 @@ var meetingReport = data[0];
     // set the height of the first child in the aside to 100%
     $('[role="main"] aside > div:first').css('height', '100%');
     // set the height of the twitter panel to fill the remaining space (minus the padding)
-    $('#twitter-container').height(sectionHeight - $('#newsletter-container').height() - 140)
+    $('#twitter-container').height(sectionHeight - $('#newsletter-container').height() - 140);
+    // set the height of the Newsletter Description
+    // .newsletter-description height: =  aside.height - newsletter_desc.top + aside.top - offset;
+    const nloffset = 20;
+    var asideHeight = $('aside').height();
+    var newsletter_desc = $(".newsletter-description").offset();
+    var aside = $("aside").offset();
+    var nlheight = asideHeight - newsletter_desc.top + aside.top - nloffset;
+    //console.log("nlheight: "+nlheight);
+    //Newsletter
+    $('.newsletter-description').css('height', nlheight);
+    //Next Meeting View
+    $('.view-next-icrp-meeting-view > .view-empty').css(height, nlheight);
+    $('.views-field-body > div:first-child').css(height, nlheight);
+    //$('#newsletter-description-container').css('height', nlheight);
+
   }
 
 })(window.jQuery);
