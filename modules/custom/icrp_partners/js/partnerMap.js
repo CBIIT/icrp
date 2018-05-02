@@ -274,7 +274,6 @@
     function createMarker(color, position, zIndex, map) {
         return new google.maps.Marker({
             position: position,
-            animation: google.maps.Animation.DROP,
             map: map,
             icon: {
                 url: '/modules/custom/icrp_partners/images/marker.' + color + '.svg',
