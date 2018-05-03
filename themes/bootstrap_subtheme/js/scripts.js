@@ -483,7 +483,7 @@
   }
   $.getLastMeetingReport = function() {
     $.ajax({
-      url: "/api/latest/meeting-report",
+      url: "https://icrpartnership-dev.org/api/latest/meeting-report",
       success: function( meetingReport ) {
 /*        var data = [ {
       url: "https://icrpartnership-dev.org/api/latest/meeting-report",
@@ -506,6 +506,9 @@ var meetingReport = data[0];
         $('#last-meeting-report-pdf').text('Download ' + pdf.split('.').pop().toUpperCase());
         $('#events-and-resources-card').show();
       }
+    }).done(function() {
+      alert("ajax done");
+      $.tweekHomePage();
     });
   }
 
@@ -532,15 +535,32 @@ var meetingReport = data[0];
     // .newsletter-description height: =  aside.height - newsletter_desc.top + aside.top - offset;
     const nloffset = 20;
     var asideHeight = $('aside').height();
-    var newsletter_desc = $(".newsletter-description").offset();
     var aside = $("aside").offset();
-    var nlheight = asideHeight - newsletter_desc.top + aside.top - nloffset;
-    //console.log("nlheight: "+nlheight);
-    //Newsletter
-    $('.newsletter-description').css('height', nlheight);
-    //Next Meeting View
-    $('.view-next-icrp-meeting-view > .view-empty').css(height, nlheight);
-    $('.views-field-body > div:first-child').css(height, nlheight);
+
+    if($(".newsletter-description").length) {
+      console.info("On FRONT PAGE anonymous");
+      var newsletter_desc = $(".newsletter-description").offset();
+      var nlheight = asideHeight - newsletter_desc.top + aside.top - nloffset;
+      $('.newsletter-description').css('height', nlheight);
+    } 
+    if($("#newsletter-container > .views-element-container").length) {
+      var newsletter_container = $("#newsletter-container").offset();
+      var nlheight = asideHeight - newsletter_container.top + aside.top - nloffset;
+      console.info("On WELCOME PAGE partner");
+      console.log(nlheight);
+      var a = $('#newsletter-container > div:first').height();
+      var b = $('.views-field-nothing').height();
+      var c = $('.views-field-nothing-1').height();
+      $('.views-field-body').css('height', nlheight-a-b-c-20);
+      $('.views-field-body').css('overflow', 'hidden');
+      //console.log("nlheight: "+nlheight);
+      //Newsletter
+      //Next Meeting View
+      //$('.view-next-icrp-meeting-view > .view-empty').css('height', nlheight);
+      //$('.views-field-body > .field-content').css('height', nlheight);
+      //$('.views-field-body > .field-content').css('border', '3px solid green' );
+
+    }
     //$('#newsletter-description-container').css('height', nlheight);
 
   }
