@@ -493,6 +493,7 @@ var meetingReport = data[0];
     //console.log($( "section.col-sm-9" ).height());
     //$('section:first, aside[role="complementary"]').matchHeight(true);
     //$('section.col-sm-9, aside[role="complementary"]').matchHeight(true);
+    var host = "";
     $.get('/api/latest/newsletter').then(function(newsletter) {
       if(window.location.hostname == "localhost") {
         var data = [{"libraryid":7430,"filename":"7430.pdf","thumbnailfilename":"7430.jpg","title":"ICRP 2018 Annual Meeting - Summary and Highlights","description":"Find out more about the ICRP\u0027s 2018 Annual Meeting held at the US National Cancer Institute on 11 April, 2018 on the theme of \u0022Advancing cancer research through global partnership: identifying gaps and opportunities\u0022"}];
