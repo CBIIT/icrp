@@ -481,9 +481,10 @@
       $.tweekHomePage();
     });
   }
+
   $.getLastMeetingReport = function() {
     $.ajax({
-      url: "https://icrpartnership-dev.org/api/latest/meeting-report",
+      url: "/api/latest/meeting-report",
       success: function( meetingReport ) {
 /*        var data = [ {
       url: "https://icrpartnership-dev.org/api/latest/meeting-report",
@@ -506,9 +507,6 @@ var meetingReport = data[0];
         $('#last-meeting-report-pdf').text('Download ' + pdf.split('.').pop().toUpperCase());
         $('#events-and-resources-card').show();
       }
-    }).done(function() {
-      alert("ajax done");
-      $.tweekHomePage();
     });
   }
 
