@@ -1,12 +1,6 @@
 (function ($) {
   Drupal.behaviors.icrpBehavior = {
     attach: function (context, settings) {
-      // Set it to a variable.
-      // Create an eventClick object
-      // Write the object to the fullcalendar object.
-      //console.dir(context);
-      //console.dir(settings);
-      //$('h2').css('color', 'red');
       $("#edit-keys").attr("placeholder", "Search Website");
       $("#views-bootstrap-sideshow-block-1 > div.carousel-inner > div.item").click(function(e) {
           console.info("You clicked on Caption - item");
@@ -53,32 +47,33 @@
           //$.preprocessCloneEndDateCheckbox();
           break;
         case "/":
-          $.getNewsletter();
-          var timeout = 100;
-          var inTimeOut = false;
           //var sectionHeight = $('[role="main"] section').height();
           //var twitterHeight = $('#twitter-container').height();
           //var newsletterHeight = $('#newsletter-container').height();
-          $(window).resize(function(){
-            var newSectionHeight = $('[role="main"] section').height();
-            var newAsideHeight = $('aside').height();
-            //console.log("newSectionHeight: "+newSectionHeight);
-            //console.log("newAsideHeight: "+newAsideHeight);
-            if((Math.abs(newSectionHeight - newAsideHeight) > 1) && !inTimeOut) {
-              //console.log("Resize");
-              //console.log($(window).width());
-              inTimeOut = true;
-              setTimeout(function(){ inTimeOut = false; }, timeout);
-              if($(window).width() < 768){
-                //Only change the height of the Twitter scroll.
-                $('aside').attr('height', "800px");
-              } else {
-                $.tweekHomePageRefreshTwitterBlock();
-              }
-            }
-          });
           if($('#welcome').length) {
-            //$.tweekHomePage();
+            $.tweekHomePage();
+            var timeout = 100;
+            var inTimeOut = false;
+            $(window).resize(function(){
+              var newSectionHeight = $('[role="main"] section').height();
+              var newAsideHeight = $('aside').height();
+              //console.log("newSectionHeight: "+newSectionHeight);
+              //console.log("newAsideHeight: "+newAsideHeight);
+              if((Math.abs(newSectionHeight - newAsideHeight) > 1) && !inTimeOut) {
+                //console.log("Resize");
+                //console.log($(window).width());
+                inTimeOut = true;
+                setTimeout(function(){ inTimeOut = false; }, timeout);
+                if($(window).width() < 768){
+                  //Only change the height of the Twitter scroll.
+                  $('aside').attr('height', "800px");
+                } else {
+                  $.tweekHomePageRefreshTwitterBlock();
+                }
+              }
+            });
+          } else {
+            $.getNewsletter();
           }
           break;
         case "/partner-application-administration-tool":
@@ -462,25 +457,6 @@
     }
     return return_val;
   }
-  $.getNewsletter = function() {
-    //console.log("Get Newsletter");
-    //console.log("section height");
-    //console.log($( "section.col-sm-9" ).height());
-    //$('section:first, aside[role="complementary"]').matchHeight(true);
-    //$('section.col-sm-9, aside[role="complementary"]').matchHeight(true);
-
-    $.get('/api/latest/newsletter').then(function(newsletter) {
-      var pdf = "/library/file/"+(newsletter.libraryid || 0)+"/"+newsletter.filename;
-      var thumbnail = "/library/file/thumb/"+newsletter.thumbnailfilename;
-
-      $('#last_newsletter').html("<div class='newsletter-title'>"+newsletter.title+"</div>");
-      $("#last_newsletter").append("<div class='row text-center'><div class='newsletter-image'><a href='"+pdf+"' title='Latest Newsleter' target='_blank'><img class='center-block' src='"+thumbnail+"' /></a></div></div>");
-      $('#last_newsletter').append("<div id='newsletter-description-container' ><div class='newsletter-description'>"+newsletter.description+"</div></div>");
-      //$('#last_newsletter').append("<div class='newsletter-description'>"+newsletter.description+"</div>");
-      $("#newsletter-container").show();
-      $.tweekHomePage();
-    });
-  }
 
   $.getLastMeetingReport = function() {
     $.ajax({
@@ -498,7 +474,7 @@ var meetingReport = data[0];
   console.dir(meetingReport);
 */
         var pdf = "/library/file/"+(meetingReport.libraryid || 0)+"/"+meetingReport.filename;
-        var thumbnail = "https://icrpartnership-test.org/library/file/thumb/"+meetingReport.thumbnailfilename;
+        var thumbnail = "/library/file/thumb/"+meetingReport.thumbnailfilename;
         $("#events-and-resources-card > .card-header:eq(0)").text(meetingReport.title);
         $("#last-meeting-report-img").attr('src', thumbnail);
         $("#last-meeting-report-a-img").attr('href', pdf);
@@ -506,7 +482,33 @@ var meetingReport = data[0];
         $("#last-meeting-report-pdf").attr('href', pdf);
         $('#last-meeting-report-pdf').text('Download ' + pdf.split('.').pop().toUpperCase());
         $('#events-and-resources-card').show();
+        //setTimeout(function() { $.tweekHomePageRefreshTwitterBlock(); }, 250);
       }
+    });
+  }
+
+  $.getNewsletter = function() {
+    //console.log("Get Newsletter");
+    //console.log("section height");
+    //console.log($( "section.col-sm-9" ).height());
+    //$('section:first, aside[role="complementary"]').matchHeight(true);
+    //$('section.col-sm-9, aside[role="complementary"]').matchHeight(true);
+    $.get('/api/latest/newsletter').then(function(newsletter) {
+      if(window.location.hostname == "localhost") {
+        var data = [{"libraryid":7430,"filename":"7430.pdf","thumbnailfilename":"7430.jpg","title":"ICRP 2018 Annual Meeting - Summary and Highlights","description":"Find out more about the ICRP\u0027s 2018 Annual Meeting held at the US National Cancer Institute on 11 April, 2018 on the theme of \u0022Advancing cancer research through global partnership: identifying gaps and opportunities\u0022"}];
+        var newsletter = data[0];
+        host = "https://icrpartnership-dev.org";
+      } 
+
+      console.dir(newsletter);
+      var pdf = host+"/library/file/"+(newsletter.libraryid || 0)+"/"+newsletter.filename;
+      var thumbnail = host+"/library/file/thumb/"+newsletter.thumbnailfilename;
+
+      $('#last_newsletter').html("<div class='newsletter-title'>"+newsletter.title+"</div>");
+      $("#last_newsletter").append("<div class='row text-center'><div class='newsletter-image'><a href='"+pdf+"' title='Latest Newsleter' target='_blank'><img class='center-block' src='"+thumbnail+"' /></a></div></div>");
+      $('#last_newsletter').append("<div id='newsletter-description-container' ><div class='newsletter-description'>"+newsletter.description+"</div></div>");
+      //$('#last_newsletter').append("<div class='newsletter-description'>"+newsletter.description+"</div>");
+      $("#newsletter-container").show();
     });
   }
 
@@ -518,12 +520,6 @@ var meetingReport = data[0];
   $.tweekHomePageRefreshTwitterBlock = function() {
     // set the height of the aside to the same as the section height
     var sectionHeight = $('[role="main"] section').height();
-    //var twitterHeight = $('#twitter-container').height();
-    //var newsletterHeight = $('#newsletter-container').height();
-    //console.log("sectionHeight: "+sectionHeight);
-    //console.log("twitterHeight: "+twitterHeight);
-    //console.log("newsletterHeight: "+newsletterHeight);
-
     $('[role="main"] aside').height(sectionHeight);
     // set the height of the first child in the aside to 100%
     $('[role="main"] aside > div:first').css('height', '100%');
@@ -534,32 +530,26 @@ var meetingReport = data[0];
     const nloffset = 20;
     var asideHeight = $('aside').height();
     var aside = $("aside").offset();
-
+    /*
     if($(".newsletter-description").length) {
-      console.info("On FRONT PAGE anonymous");
+      //console.info("On FRONT PAGE anonymous");
       var newsletter_desc = $(".newsletter-description").offset();
       var nlheight = asideHeight - newsletter_desc.top + aside.top - nloffset;
       $('.newsletter-description').css('height', nlheight);
     } 
+    */
+    
     if($("#newsletter-container > .views-element-container").length) {
       var newsletter_container = $("#newsletter-container").offset();
       var nlheight = asideHeight - newsletter_container.top + aside.top - nloffset;
-      console.info("On WELCOME PAGE partner");
-      console.log(nlheight);
+      //console.info("On WELCOME PAGE partner");
+      //console.log(nlheight);
       var a = $('#newsletter-container > div:first').height();
       var b = $('.views-field-nothing').height();
       var c = $('.views-field-nothing-1').height();
       $('.views-field-body').css('height', nlheight-a-b-c-20);
       $('.views-field-body').css('overflow', 'hidden');
-      //console.log("nlheight: "+nlheight);
-      //Newsletter
-      //Next Meeting View
-      //$('.view-next-icrp-meeting-view > .view-empty').css('height', nlheight);
-      //$('.views-field-body > .field-content').css('height', nlheight);
-      //$('.views-field-body > .field-content').css('border', '3px solid green' );
-
     }
-    //$('#newsletter-description-container').css('height', nlheight);
 
   }
 
