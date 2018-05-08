@@ -2714,8 +2714,8 @@ AS
 		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
 		JOIN CancerType ct ON ct.CancerTypeID = pc.CancerTypeID	
 		JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pcso ON pcso.ProjectFundingID = f.ProjectFundingID		
-	 WHERE	(@CancerTypelist IS NULL) OR (ct.CancerTypeID IN (SELECT Value AS CSOCode FROM dbo.ToStrTable(@CSOlist))) AND
-			(@CSOlist IS NULL) OR (pcso.CSOCode IN (SELECT CancerTypeID FROM #ctlist)) AND
+	 WHERE	(@CancerTypelist IS NULL) OR (ct.CancerTypeID IN (SELECT CancerTypeID FROM #ctlist)) AND
+			(@CSOlist IS NULL) OR (pcso.CSOCode IN (SELECT Value AS CSOCode FROM dbo.ToStrTable(@CSOlist))) AND
 			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
 			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))
 						
