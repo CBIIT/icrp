@@ -2714,8 +2714,8 @@ AS
 		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
 		JOIN CancerType ct ON ct.CancerTypeID = pc.CancerTypeID	
 		JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pcso ON pcso.ProjectFundingID = f.ProjectFundingID		
-	 WHERE	(@CancerTypelist IS NULL) OR (ct.CancerTypeID IN (SELECT Value AS CSOCode FROM dbo.ToStrTable(@CSOlist))) AND
-			(@CSOlist IS NULL) OR (pcso.CSOCode IN (SELECT CancerTypeID FROM #ctlist)) AND
+	 WHERE	(@CancerTypelist IS NULL) OR (ct.CancerTypeID IN (SELECT CancerTypeID FROM #ctlist)) AND
+			(@CSOlist IS NULL) OR (pcso.CSOCode IN (SELECT Value AS CSOCode FROM dbo.ToStrTable(@CSOlist))) AND
 			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
 			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))
 						
@@ -3365,8 +3365,8 @@ AS
 			CASE WHEN p.Status = 'Former' THEN 'Former' ELSE fo.MemberStatus END AS MemberStatus, fo.Country, fo.Currency, fo.Website,
 			fo.SponsorCode, p.Name AS Partner, fo.IsAnnualized, fo.Note, fo.LastImportDate, fo.LastImportDesc, fo.Latitude, fo.Longitude
 	FROM FundingOrg fo
-		JOIN Partner p ON fo.SponsorCode = p.SponsorCode
-	WHERE (@type = 'funding' AND fo.MemberStatus<>'Merged') OR (@type = 'Search' AND fo.LastImportDate IS NOT NULL)
+		JOIN Partner p ON fo.SponsorCode = p.SponsorCode	
+	WHERE (fo.MemberStatus<>'Merged') AND ((@type = 'funding') OR (@type = 'Search' AND fo.LastImportDate IS NOT NULL))
 	ORDER BY fo.SponsorCode, fo.Name
 
 GO
