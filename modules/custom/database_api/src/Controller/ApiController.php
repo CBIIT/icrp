@@ -81,21 +81,19 @@ class ApiController extends ControllerBase {
   }
 
   function fundingOrganizationCounts() {
-    $counts = $this->pdo->query(
-      'EXECUTE GetFundingOrgs;
-      SELECT @@ROWCOUNT;'
-    )->fetchColumn();
+    $records = $this->pdo->query(
+      'SET NOCOUNT ON; EXECUTE GetFundingOrgs;'
+    )->fetchAll();
 
-    return new JsonResponse($counts);
+    return new JsonResponse(count($records));
   }
 
   function partnerCounts() {
-    $counts = $this->pdo->query(
-      'EXECUTE GetPartners;
-      SELECT @@ROWCOUNT;'
-    )->fetchColumn();
+    $records = $this->pdo->query(
+      'SET NOCOUNT ON; EXECUTE GetPartners;'
+    )->fetchAll();
 
-    return new JsonResponse($counts);
+    return new JsonResponse(count($records));
   }
 
   function roundedProjectCounts() {
