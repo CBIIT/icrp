@@ -2633,8 +2633,7 @@ CREATE PROCEDURE [dbo].[GetProjectCSOandCancerTypeExportsBySearchID]
      @SearchID INT,
 	 @Year INT = NULL,	  -- if null, use the latest currency year available
 	 @Type VARCHAR(25) = 'Count' -- Count' or 'Amount'	 
-AS   
-
+AS   		
 	
 	------------------------------------------------------
 	-- Get saved search results by searchID
@@ -2723,10 +2722,21 @@ AS
 	--   Exclude the project funding records outside of seach criteria
 	------------------------------------------------------------------------------
 	IF @YearList IS NOT NULL
-		DELETE #pf WHERE ProjectFundingID NOT IN
-			(SELECT f.ProjectFundingID FROM  #pf f
-				JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID			
-				WHERE ext.CalendarYear IN (SELECT VALUE AS Year FROM dbo.ToStrTable(@YearList)))
+	BEGIN
+		-- Find total calendar amount 
+		SELECT f.ProjectFundingID, sum(ext.CalendarAmount) as amount into #tmpCalAmt
+		FROM (SELECT DISTINCT ProjectFundingID FROM #pf) f
+			JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID	
+		WHERE ext.CalendarYear IN (SELECT VALUE AS Year FROM dbo.ToStrTable(@Yearlist))
+		group by f.ProjectFundingID		
+
+		DELETE #pf 
+		WHERE ProjectFundingID NOT IN (SELECT ProjectFundingID FROM  #tmpCalAmt)
+
+		UPDATE #pf SET Amount = ISNULL(cal.amount,0)
+		FROM #pf f
+		JOIN #tmpCalAmt cal ON f.ProjectFundingID = cal.ProjectFundingID
+	END
 
 	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@InvestigatorType IS NOT NULL) OR (@CountryList IS NOT NULL) OR (@cityList IS NOT NULL) OR (@stateList IS NOT NULL) OR (@regionList IS NOT NULL)
 		DELETE #pf WHERE ProjectFundingID NOT IN
@@ -2776,7 +2786,7 @@ AS
 	ELSE IF @Type = 'Amount'
 	BEGIN
 		-- Convert amounts to USD
-		SELECT CSOCode, CancerType, (Relvance*Amount * ISNULL(cr.ToCurrencyRate, 1)) AS ProjectAmount INTO #usd
+		SELECT CSOCode, CancerType, (ISNULL(Relvance,0)*Amount * ISNULL(cr.ToCurrencyRate, 1)) AS ProjectAmount INTO #usd
 		from #pf f
 			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency	
 
