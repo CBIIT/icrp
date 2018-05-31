@@ -269,7 +269,7 @@ public class TestLibraryLoggedIn {
 				Test.wait_For(5000);
 				
 				//Select a Category
-				Test.clickLink(By.linkText("Meeting Reports"));
+				Test.clickLink(By.linkText("Meeting Info & Reports"));
 				Test.wait_For(2000);
 				
 				//Click on Upload New File
