@@ -164,7 +164,7 @@ public class TestLibraryLoggedIn {
 				Test.wait_For(2000);
 				
 				//Edit Required Fields and Click Save
-				Test.selectParentCategrory("Meeting Reports");
+				Test.selectParentCategrory("Meeting Info & Reports");
 				Test.wait_For(4000);
 				Test.edit_library_file_required_fields(File1,Title1,Description1);
 				Test.wait_For(5000);
@@ -175,7 +175,7 @@ public class TestLibraryLoggedIn {
 				logger.info("Edits are Saved");
 				
 						
-				Test.clickLink(By.linkText("Meeting Reports"));
+				Test.clickLink(By.linkText("Meeting Info & Reports"));
 				Test.wait_For(2000);
 				//Click Edit for a file in the Library
 				Test.clickLink(By.cssSelector("div.item-wrapper:nth-child(3) > div:nth-child(1) > div:nth-child(3) > button:nth-child(1)"));
