@@ -2154,6 +2154,7 @@ CREATE PROCEDURE [dbo].[GetProjectExportsBySearchID]
 	 
 AS   
 
+
 	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
@@ -2218,7 +2219,7 @@ AS
 		   WHEN 1 THEN 'Yes' 
 		   WHEN 0 THEN 'No' ELSE '' 
 		END AS IsChildhood,  
-		p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
+		p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, f.BudgetStartDate,  f.BudgetEndDate, CAST(f.Amount AS DECIMAL(18,2)) AS AwardAmount, 
 		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency,
 		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.SponsorCode, o.Name AS FundingOrg, o.Type AS FundingOrgType, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, f.FundingContact, 
 		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID, i.Name AS Institution, i.City, i.State, i.Country, l.Name AS Region,  -- only PI name and institution
@@ -2318,7 +2319,7 @@ AS
 	--Create the dynamic query with all the values for pivot column at runtime
 	SET   @SQLQuery = N'SELECT * FROM (SELECT t.ProjectID AS ICRPProjectID, t.ProjectFundingID AS ICRPProjectFundingID, t.AwardTitle, t.AwardType, t.AwardCode, 
 		t.Source_ID, t.AltAwardCode, t.FundingCategory,	t.IsChildhood, t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate,  t.BudgetEndDate, 
-		CAST((t.AwardAmount * ISNULL(cr.ToCurrencyRate, 1)) AS INT) AS [AwardAmount (USD)], t.AwardAmount AS [AwardAmount (Original)], t.Currency, t.FundingIndicator, 
+		CAST((t.AwardAmount * ISNULL(cr.ToCurrencyRate, 1)) AS DECIMAL(18,2)) AS [AwardAmount (USD)], t.AwardAmount AS [AwardAmount (Original)], t.Currency, t.FundingIndicator, 
 		t.FundingMechanism, t.FundingMechanismCode, t.SponsorCode, t.FundingOrg, t.FundingOrgType, t.FundingDiv, t.FundingDivAbbr, t.FundingContact, 
 		t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.Region, t.icrpURL'
 
@@ -2327,7 +2328,7 @@ AS
 
 	IF @PivotColumns IS NOT NULL  
 	BEGIN
-		SET @SQLQuery = @SQLQuery + ', calendaryear, CAST((calendaramount * ISNULL(cr.ToCurrencyRate, 1)) AS INT) AS calendaramount
+		SET @SQLQuery = @SQLQuery + ', calendaryear, CAST((calendaramount * ISNULL(cr.ToCurrencyRate, 1)) AS Decimal(18,2)) AS calendaramount
 		 FROM projectfundingext ext
 				JOIN #pf t ON ext.ProjectFundingID = t.ProjectFundingID
 				LEFT JOIN (SELECT FromCurrency, ToCurrencyRate FROM CurrencyRate WHERE ToCurrency = ''USD'' AND Year=' + CAST(@Year AS VARCHAR(4)) + ') cr ON cr.FromCurrency = t.Currency		
@@ -2557,14 +2558,14 @@ AS
 	--Create the dynamic query with all the values for pivot column at runtime
 	SET   @SQLQuery = N'SELECT * '+
 		'FROM (SELECT t.ProjectID AS ICRPProjectID, t.ProjectFundingID AS ICRPProjectFundingID, t.AwardCode, t.AwardTitle, t.AwardType, t.Source_ID, t.AltAwardCode, FundingCategory, IsChildhood,
-				t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate, t.BudgetEndDate, CAST((t.AwardAmount * ISNULL(cr.ToCurrencyRate, 1)) AS INT) AS [AwardAmount (USD)], t.AwardAmount AS [AwardAmount (Original)], 
+				t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate, t.BudgetEndDate, CAST((t.AwardAmount * ISNULL(cr.ToCurrencyRate, 1)) AS DECIMAL(18,2)) AS [AwardAmount (USD)], t.AwardAmount AS [AwardAmount (Original)], 
 				t.Currency, t.FundingIndicator, t.FundingMechanism, t.FundingMechanismCode, SponsorCode, t.FundingOrg, FundingOrgType,
 				t.FundingDiv, t.FundingDivAbbr, t.FundingContact, t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.Region, t.icrpURL'
 	IF @IncludeAbstract = 1
 		SET @SQLQuery = @SQLQuery + ', t.TechAbstract'
 
 	IF (@PivotColumns_Years IS NOT NULL)
-		SET @SQLQuery = @SQLQuery +  N', calendaryear, CAST((calendaramount * ISNULL(cr.ToCurrencyRate, 1)) AS INT) AS calendaramount'
+		SET @SQLQuery = @SQLQuery +  N', calendaryear, CAST((calendaramount * ISNULL(cr.ToCurrencyRate, 1)) AS Decimal(18,2)) AS calendaramount' 
 		
 	IF (@PivotColumns_CSOs IS NOT NULL)
 		SET @SQLQuery = @SQLQuery +  N', cso.code + '' '' + cso.Name AS cso, pcso.Relevance AS csoRel'
