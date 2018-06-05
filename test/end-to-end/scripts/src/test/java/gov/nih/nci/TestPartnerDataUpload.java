@@ -64,7 +64,7 @@ public class TestPartnerDataUpload {
 	
 		//S.N.: 1
 		//Test Name: Partner Data Upload - Valid Data
-		@Test
+/*		@Test
 		public void Partner_Data_Upload_Valid_Data() throws Exception{
 			String testName = "Partner Data Upload - Valid Data";
 			String testDesc = "Partner Data Upload - Valid Data";
@@ -273,7 +273,7 @@ public class TestPartnerDataUpload {
 				Test.setupAfterSuite();		
 			}
 		}
-		
+	*/	
 		//S.N.: 2
 		//Test Name: Partner Data Upload - Invalid File Format
 		@Test
