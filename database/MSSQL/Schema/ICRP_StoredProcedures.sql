@@ -658,11 +658,23 @@ AS
 	--   Exclude the project funding records outside of seach criteria
 	------------------------------------------------------------------------------
 	IF @YearList IS NOT NULL
-		DELETE #pf WHERE ProjectFundingID NOT IN
-			(SELECT f.ProjectFundingID FROM  #pf f
-				JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID			
-				WHERE ext.CalendarYear IN (SELECT VALUE AS Year FROM dbo.ToStrTable(@YearList)))
-		
+		BEGIN
+		-- Find total calendar amount 
+		SELECT f.ProjectFundingID, sum(ext.CalendarAmount) as amount into #tmpCalAmt
+		FROM (SELECT DISTINCT ProjectFundingID FROM #pf) f
+			JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID	
+		WHERE ext.CalendarYear IN (SELECT VALUE AS Year FROM dbo.ToStrTable(@Yearlist))
+		group by f.ProjectFundingID		
+
+		DELETE #pf 
+		WHERE ProjectFundingID NOT IN (SELECT ProjectFundingID FROM  #tmpCalAmt)
+
+		UPDATE #pf SET Amount = ISNULL(cal.amount,0)
+		FROM #pf f
+		JOIN #tmpCalAmt cal ON f.ProjectFundingID = cal.ProjectFundingID
+	END
+
+
 	IF @CSOList IS NOT NULL
 		DELETE #pf WHERE ProjectFundingID NOT IN
 			(SELECT f.ProjectFundingID FROM  #pf f
@@ -830,10 +842,22 @@ AS
 	END
 
 	IF @YearList IS NOT NULL
-		DELETE #pf WHERE ProjectFundingID NOT IN
-			(SELECT f.ProjectFundingID FROM  #pf f
-				JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID			
-				WHERE ext.CalendarYear IN (SELECT VALUE AS Year FROM dbo.ToStrTable(@YearList)))
+	BEGIN
+		-- Find total calendar amount 
+		SELECT f.ProjectFundingID, sum(ext.CalendarAmount) as amount into #tmpCalAmt
+		FROM (SELECT DISTINCT ProjectFundingID FROM #pf) f
+			JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID	
+		WHERE ext.CalendarYear IN (SELECT VALUE AS Year FROM dbo.ToStrTable(@Yearlist))
+		group by f.ProjectFundingID		
+
+		DELETE #pf 
+		WHERE ProjectFundingID NOT IN (SELECT ProjectFundingID FROM  #tmpCalAmt)
+
+		UPDATE #pf SET Amount = ISNULL(cal.amount,0)
+		FROM #pf f
+		JOIN #tmpCalAmt cal ON f.ProjectFundingID = cal.ProjectFundingID
+	END
+
 
 	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@InvestigatorType IS NOT NULL) OR (@CountryList IS NOT NULL) OR (@cityList IS NOT NULL) OR (@stateList IS NOT NULL) OR (@regionList IS NOT NULL)
 		DELETE #pf WHERE ProjectFundingID NOT IN
@@ -992,10 +1016,22 @@ AS
 				WHERE pc.CSOCode IN (SELECT VALUE AS CSOCode FROM dbo.ToStrTable(@CSOList)))
 
 	IF @YearList IS NOT NULL
-		DELETE #pf WHERE ProjectFundingID NOT IN
-			(SELECT f.ProjectFundingID FROM  #pf f
-				JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID			
-				WHERE ext.CalendarYear IN (SELECT VALUE AS Year FROM dbo.ToStrTable(@YearList)))
+		BEGIN
+		-- Find total calendar amount 
+		SELECT f.ProjectFundingID, sum(ext.CalendarAmount) as amount into #tmpCalAmt
+		FROM (SELECT DISTINCT ProjectFundingID FROM #pf) f
+			JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID	
+		WHERE ext.CalendarYear IN (SELECT VALUE AS Year FROM dbo.ToStrTable(@Yearlist))
+		group by f.ProjectFundingID		
+
+		DELETE #pf 
+		WHERE ProjectFundingID NOT IN (SELECT ProjectFundingID FROM  #tmpCalAmt)
+
+		UPDATE #pf SET Amount = ISNULL(cal.amount,0)
+		FROM #pf f
+		JOIN #tmpCalAmt cal ON f.ProjectFundingID = cal.ProjectFundingID
+	END
+
 
 	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@InvestigatorType IS NOT NULL) OR (@CountryList IS NOT NULL) OR (@cityList IS NOT NULL) OR (@stateList IS NOT NULL) OR (@regionList IS NOT NULL)
 		DELETE #pf WHERE ProjectFundingID NOT IN
@@ -1162,10 +1198,22 @@ AS
 	END
 
 	IF @YearList IS NOT NULL
-		DELETE #pf WHERE ProjectFundingID NOT IN
-			(SELECT f.ProjectFundingID FROM  #pf f
-				JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID			
-				WHERE ext.CalendarYear IN (SELECT VALUE AS Year FROM dbo.ToStrTable(@YearList)))
+		BEGIN
+		-- Find total calendar amount 
+		SELECT f.ProjectFundingID, sum(ext.CalendarAmount) as amount into #tmpCalAmt
+		FROM (SELECT DISTINCT ProjectFundingID FROM #pf) f
+			JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID	
+		WHERE ext.CalendarYear IN (SELECT VALUE AS Year FROM dbo.ToStrTable(@Yearlist))
+		group by f.ProjectFundingID		
+
+		DELETE #pf 
+		WHERE ProjectFundingID NOT IN (SELECT ProjectFundingID FROM  #tmpCalAmt)
+
+		UPDATE #pf SET Amount = ISNULL(cal.amount,0)
+		FROM #pf f
+		JOIN #tmpCalAmt cal ON f.ProjectFundingID = cal.ProjectFundingID
+	END
+
 
 	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@InvestigatorType IS NOT NULL) OR (@CountryList IS NOT NULL) OR (@cityList IS NOT NULL) OR (@stateList IS NOT NULL) OR (@regionList IS NOT NULL)
 		DELETE #pf WHERE ProjectFundingID NOT IN
@@ -1314,10 +1362,22 @@ AS
 	--   Exclude the project funding records outside of seach criteria
 	------------------------------------------------------------------------------
 	IF @YearList IS NOT NULL
-		DELETE #pf WHERE ProjectFundingID NOT IN
-			(SELECT f.ProjectFundingID FROM  #pf f
-				JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID			
-				WHERE ext.CalendarYear IN (SELECT VALUE AS Year FROM dbo.ToStrTable(@YearList)))
+		BEGIN
+		-- Find total calendar amount 
+		SELECT f.ProjectFundingID, sum(ext.CalendarAmount) as amount into #tmpCalAmt
+		FROM (SELECT DISTINCT ProjectFundingID FROM #pf) f
+			JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID	
+		WHERE ext.CalendarYear IN (SELECT VALUE AS Year FROM dbo.ToStrTable(@Yearlist))
+		group by f.ProjectFundingID		
+
+		DELETE #pf 
+		WHERE ProjectFundingID NOT IN (SELECT ProjectFundingID FROM  #tmpCalAmt)
+
+		UPDATE #pf SET Amount = ISNULL(cal.amount,0)
+		FROM #pf f
+		JOIN #tmpCalAmt cal ON f.ProjectFundingID = cal.ProjectFundingID
+	END
+
 		
 	IF @CSOList IS NOT NULL
 		DELETE #pf WHERE ProjectFundingID NOT IN
@@ -1479,10 +1539,22 @@ AS
 	--   Exclude the project funding records outside of seach criteria
 	------------------------------------------------------------------------------
 	IF @YearList IS NOT NULL
-		DELETE #pf WHERE ProjectFundingID NOT IN
-			(SELECT f.ProjectFundingID FROM  #pf f
-				JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID			
-				WHERE ext.CalendarYear IN (SELECT VALUE AS Year FROM dbo.ToStrTable(@YearList)))
+		BEGIN
+		-- Find total calendar amount 
+		SELECT f.ProjectFundingID, sum(ext.CalendarAmount) as amount into #tmpCalAmt
+		FROM (SELECT DISTINCT ProjectFundingID FROM #pf) f
+			JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID	
+		WHERE ext.CalendarYear IN (SELECT VALUE AS Year FROM dbo.ToStrTable(@Yearlist))
+		group by f.ProjectFundingID		
+
+		DELETE #pf 
+		WHERE ProjectFundingID NOT IN (SELECT ProjectFundingID FROM  #tmpCalAmt)
+
+		UPDATE #pf SET Amount = ISNULL(cal.amount,0)
+		FROM #pf f
+		JOIN #tmpCalAmt cal ON f.ProjectFundingID = cal.ProjectFundingID
+	END
+
 		
 	IF @CSOList IS NOT NULL
 		DELETE #pf WHERE ProjectFundingID NOT IN
@@ -1659,10 +1731,22 @@ AS
 	END
 
 	IF @YearList IS NOT NULL
-		DELETE #pf WHERE ProjectFundingID NOT IN
-			(SELECT f.ProjectFundingID FROM  #pf f
-				JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID			
-				WHERE ext.CalendarYear IN (SELECT VALUE AS Year FROM dbo.ToStrTable(@YearList)))
+		BEGIN
+		-- Find total calendar amount 
+		SELECT f.ProjectFundingID, sum(ext.CalendarAmount) as amount into #tmpCalAmt
+		FROM (SELECT DISTINCT ProjectFundingID FROM #pf) f
+			JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID	
+		WHERE ext.CalendarYear IN (SELECT VALUE AS Year FROM dbo.ToStrTable(@Yearlist))
+		group by f.ProjectFundingID		
+
+		DELETE #pf 
+		WHERE ProjectFundingID NOT IN (SELECT ProjectFundingID FROM  #tmpCalAmt)
+
+		UPDATE #pf SET Amount = ISNULL(cal.amount,0)
+		FROM #pf f
+		JOIN #tmpCalAmt cal ON f.ProjectFundingID = cal.ProjectFundingID
+	END
+
 
 	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@InvestigatorType IS NOT NULL) OR (@CountryList IS NOT NULL) OR (@cityList IS NOT NULL) OR (@stateList IS NOT NULL) OR (@regionList IS NOT NULL)
 		DELETE #pf WHERE ProjectFundingID NOT IN
@@ -3627,23 +3711,20 @@ DROP PROCEDURE [dbo].[MergeInstitutions]
 GO 
 
 CREATE PROCEDURE [dbo].[MergeInstitutions] 
-@NewName varchar(250),
-@NewCity varchar(50),
-@OldName varchar(250),
-@OldCity varchar(50)
+@InstitutionID_deleted INT,
+@InstitutionID_kept INT
 
 AS
+DECLARE @NewName varchar(250)
+DECLARE @NewCity varchar(50)
+DECLARE @OldName varchar(250)
+DECLARE @OldCity varchar(50)
 
-DECLARE @InstitutionID_deleted INT
-DECLARE @InstitutionID_kept INT
+-- Retrieve institution new/old name / city
+SELECT @NewName = Name, @NewCity = City FROM Institution WHERE InstitutionID= @InstitutionID_kept
+SELECT @OldName = Name, @OldCity = City FROM Institution WHERE InstitutionID= @InstitutionID_deleted
 
-IF ( (SELECT Count(1) FROM Institution WHERE Name = @NewName AND City = @NewCity) = 1) 
-	SELECT @InstitutionID_kept= InstitutionID FROM Institution WHERE Name = @NewName AND City = @NewCity
-
-IF ( (SELECT Count(1) FROM Institution WHERE Name = @OldName AND City = @OldCity) = 1) 
-	SELECT @InstitutionID_deleted= InstitutionID FROM Institution WHERE Name = @OldName AND City = @OldCity
-
-IF (@InstitutionID_deleted IS NULL) OR (@InstitutionID_kept IS NULL)
+IF (@NewName IS NULL) OR (@OldName IS NULL)
 BEGIN
 	PRINT CONCAT ('Either new or old Institution not found - [New: ', @NewName, ' / ', @NewCity, ']  [Old: ', @OldName, ' / ', @OldCity, ']')
 	RETURN
