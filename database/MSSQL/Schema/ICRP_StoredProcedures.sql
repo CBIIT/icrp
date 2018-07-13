@@ -2452,8 +2452,7 @@ CREATE  PROCEDURE [dbo].[GetProjectExportsSingleBySearchID]
   @IncludeAbstract bit  = 0,
   @SiteURL varchar(250) = 'https://www.icrpartnership.org/project/',
   @Year smallint = NULL
-	 
- 
+	  
 AS   
 	IF @Year IS NULL
 		SELECT @Year = MAX(Year) FROM CurrencyRate	
@@ -2514,7 +2513,7 @@ AS
 
 	-----------------------------------------------------------		
 	--  Get all related projects with dolloar amounts
-	-----------------------------------------------------------
+	-----------------------------------------------------------		
 	SELECT DISTINCT p.ProjectID, f.ProjectFundingID, f.Title AS AwardTitle, CAST(NULL AS VARCHAR(100)) AS AwardType, p.AwardCode, f.Source_ID, f.AltAwardCode, f.Category AS FundingCategory,
 		CASE p.IsChildhood 
 		   WHEN 1 THEN 'Yes' 
@@ -2522,31 +2521,35 @@ AS
 		END AS IsChildhood, 
 		p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
 		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency, 
-		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.SponsorCode, o.Name AS FundingOrg, o.Type AS FundingOrgType, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, '' AS FundingContact, 
-		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID,i.Name AS Institution, i.City, i.State, i.Country, l.Name AS Region,   -- PI only
-		@Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, a.TechAbstract
+		f.MechanismTitle AS FundingMechanism, f.MechanismCode AS FundingMechanismCode, o.SponsorCode, o.Name AS FundingOrg, o.Type AS FundingOrgType, d.name AS FundingDiv, d.Abbreviation AS FundingDivAbbr, '' AS FundingContact,
+		pi.LastName  AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCID, pii.Name AS Institution, pii.City, pii.State, pii.Country, pir.Name AS Region,   -- PI info only
+		@Siteurl+CAST(p.Projectid AS varchar(10)) AS icrpURL, f.ProjectAbstractID, CAST('' AS nvarchar(max)) AS TechAbstract
 	INTO #pf
-	FROM #base r
-		JOIN Project p ON r.ProjectID = p.ProjectID		
-		JOIN ProjectFunding f ON p.ProjectID = f.PROJECTID
+	FROM #base b
+		JOIN Project p ON b.ProjectID = p.ProjectID		
+		JOIN ProjectFunding f ON b.ProjectID = f.ProjectID
 		JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID		
-		JOIN ProjectFundingInvestigator people ON people.ProjectFundingID = f.ProjectFundingID		
-		JOIN (SELECT * FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON pi.ProjectFundingID = f.ProjectFundingID	
-		JOIN Institution i ON pi.InstitutionID = i.InstitutionID	-- get PI Instituttion	
-		JOIN Country c ON c.Abbreviation = i.Country
-		JOIN lu_Region l ON c.RegionID = l.RegionID		
-		JOIN ProjectAbstract a ON a.ProjectAbstractID = f.ProjectAbstractID	
+		JOIN ProjectFundingInvestigator people ON f.ProjectFundingID = people.ProjectFundingID		
+		-- pi or collaboratos institutions
+		JOIN Institution i ON people.InstitutionID = i.InstitutionID  
+		JOIN Country c ON c.Abbreviation = i.Country		
+		-- pi institutions
+		JOIN (SELECT * FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON pi.ProjectFundingID = f.ProjectFundingID
+		JOIN Institution pii ON pii.InstitutionID = pi.InstitutionID  -- pi or col institutions
+		JOIN Country pic ON pic.Abbreviation = pii.Country
+		JOIN lu_Region pir ON pic.RegionID = pir.RegionID		
 		LEFT JOIN FundingDivision d ON d.FundingDivisionID = f.FundingDivisionID
 	WHERE	((@institution IS NULL) OR (i.Name like '%'+ @institution +'%')) AND
 			((@InvestigatorType IS NULL) OR (@InvestigatorType = 'PI' AND people.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND people.IsPrincipalInvestigator = 0)) AND   -- Search only PI, Collaborators or all
-			((@piLastName IS NULL) OR (pi.LastName like '%'+ @piLastName +'%')) AND 
-			((@piFirstName IS NULL) OR (pi.FirstName like '%'+ @piFirstName +'%')) AND
-			((@piORCiD IS NULL) OR (pi.ORC_ID like '%'+ @piORCiD +'%')) AND
+			((@piLastName IS NULL) OR (people.LastName like '%'+ @piLastName +'%')) AND 
+			((@piFirstName IS NULL) OR (people.FirstName like '%'+ @piFirstName +'%')) AND
+			((@piORCiD IS NULL) OR (people.ORC_ID like '%'+ @piORCiD +'%')) AND
+			((@CountryList IS NULL) OR (i.Country IN (SELECT VALUE AS CountryCode FROM dbo.ToStrTable(@CountryList)))) AND
 			((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
 			((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
 			((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))) AND
 			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
-			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))
+			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))			
 
 	------------------------------------------------------------------------------
 	--   Exclude the project funding records outside of seach criteria
@@ -2585,6 +2588,13 @@ AS
 			WHERE ct.CancerTypeID IN (SELECT CancerTypeID FROM #ctlist))
 	END
 	
+	-----------------------------------------------------------		
+	--  Get all related projects with dolloar amounts
+	-----------------------------------------------------------	
+	IF @IncludeAbstract = 1
+		UPDATE #pf SET TechAbstract = a.TechAbstract
+		FROM #pf f
+		JOIN ProjectAbstract a ON a.ProjectAbstractID = f.ProjectAbstractID	
 
 	---------------------------------------------------------------------------------------------------		
 	-- Special handling for AwardType: convert multiple AwardType to a comma delimited string
@@ -2644,7 +2654,7 @@ AS
 		'FROM (SELECT t.ProjectID AS ICRPProjectID, t.ProjectFundingID AS ICRPProjectFundingID, t.AwardCode, t.AwardTitle, t.AwardType, t.Source_ID, t.AltAwardCode, FundingCategory, IsChildhood,
 				t.AwardStartDate, t.AwardEndDate, t.BudgetStartDate, t.BudgetEndDate, CAST((t.AwardAmount * ISNULL(cr.ToCurrencyRate, 1)) AS DECIMAL(18,2)) AS [AwardAmount (USD)], t.AwardAmount AS [AwardAmount (Original)], 
 				t.Currency, t.FundingIndicator, t.FundingMechanism, t.FundingMechanismCode, SponsorCode, t.FundingOrg, FundingOrgType,
-				t.FundingDiv, t.FundingDivAbbr, t.FundingContact, t.piLastName, t.piFirstName, t.piORCID, t.Institution, t.City, t.State, t.Country, t.Region, t.icrpURL'
+				t.FundingDiv, t.FundingDivAbbr, t.FundingContact, t.piLastName, t.piFirstName, t.piORCID, t.Institution AS piInstitution, t.City AS piCity, t.State AS piState, t.Country AS piCountry, t.Region AS piRegion, t.icrpURL'
 	IF @IncludeAbstract = 1
 		SET @SQLQuery = @SQLQuery + ', t.TechAbstract'
 
@@ -2695,7 +2705,7 @@ AS
 										) AS cancer'
 		
 	----Execute dynamic query		
-	EXEC sp_executesql @SQLQuery  
+	EXEC sp_executesql @SQLQuery    											  
     											  
 GO
 
