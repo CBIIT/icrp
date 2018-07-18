@@ -4184,10 +4184,11 @@ DECLARE @RuleID INT
 SET @RuleID= 1
 select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
 
-SELECT AltID INTO #MissingAmount FROM UploadWorkBook WHERE AwardFunding IS NULL
+SELECT AwardCode, AltID INTO #MissingFields
+	FROM UploadWorkBook WHERE (ISNULL(AwardCode, '') = '') OR (ISNULL(AltID, '') = '') OR (ISNULL(AwardTitle, '') = '')
 
-IF EXISTS (SELECT 1 FROM #MissingAmount)
-	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #MissingAmount
+IF EXISTS (SELECT 1 FROM #MissingFields)
+	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM #MissingFields
 ELSE
 	INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, 0
 
@@ -4877,10 +4878,12 @@ SET NOCOUNT ON
 
 IF @RuleId = 1
 BEGIN
-	SELECT AwardCode, AltID INTO #MissingAmount FROM UploadWorkBook WHERE AwardFunding IS NULL
 
-	IF EXISTS (SELECT 1 FROM #MissingAmount)
-		SELECT 'Funding Amount' AS [Missing Field], AwardCode, AltID FROM #MissingAmount	
+	SELECT AwardCode, AltID, AwardTitle INTO #MissingFields
+		FROM UploadWorkBook WHERE (ISNULL(AwardCode, '') = '') OR (ISNULL(AltID, '') = '') OR (ISNULL(AwardTitle, '') = '')
+
+	IF EXISTS (SELECT 1 FROM #MissingFields)
+		SELECT AwardCode, AltID, AwardTitle FROM #MissingFields
 	ELSE
 		SELECT 'NA' AS [Missing Field]
 
