@@ -103,7 +103,6 @@
         "drupal/yaml_content": "^1.0@alpha",
         "drush/drush": "~8.0",
         "fullcalendar/fullcalendar": "^3.5",
-        "intelogie/signature-pad": "^1.5",
         "maennchen/zipstream-php": "^0.4.1",
         "mbostock/d3": "^3.5",
         "phpmailer/phpmailer": "~5.2",
