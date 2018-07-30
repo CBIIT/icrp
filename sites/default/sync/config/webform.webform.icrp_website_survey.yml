@@ -4,9 +4,14 @@ status: open
 dependencies:
   module:
     - honeypot
+    - webform_analysis
 third_party_settings:
   honeypot:
     honeypot: true
+  webform_analysis:
+    chart_type: ''
+    components:
+      - reasons_for_visit
 open: null
 close: null
 uid: 1
