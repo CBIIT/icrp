@@ -551,7 +551,6 @@ var meetingReport = data[0];
       $('.views-field-body').css('height', nlheight-a-b-c-20);
       $('.views-field-body').css('overflow', 'hidden');
     }
-
   }
 
   if (!window.surveyDisabled) showSurvey();
@@ -618,6 +617,7 @@ var meetingReport = data[0];
         .css('min-height', '600px');
 
       var dialog = bootbox.dialog({
+        className: 'icrp-survey-modal',
         message: iframe
       });
 

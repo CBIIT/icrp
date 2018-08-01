@@ -832,3 +832,14 @@ ul.icrp-terms-list li:before {
         margin-left: 610px;
     }
 }
+
+
+.icrp-survey-modal .modal-content {
+    border: 4px solid steelblue;
+}
+
+
+.icrp-survey-modal .modal-header {
+    background-color: steelblue;
+    color: white;
+}
