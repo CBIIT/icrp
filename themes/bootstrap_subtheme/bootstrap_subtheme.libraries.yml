@@ -1,7 +1,7 @@
 global-styling:
   css:
     theme:
-      https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/start/jquery-ui.min.css: {type: external, minified: true}
+      https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/theme.min.css: {type: external, minified: true}
       css/bootstrap-yeti-navbar.css: {}
       css/fullcalendar-overrides.css: {}
       css/style.css: {}
@@ -15,8 +15,7 @@ global-scripts:
   js:
     https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js: { type: external, minified: true }
     https://cdnjs.cloudflare.com/ajax/libs/jquery.matchHeight/0.7.0/jquery.matchHeight-min.js: { type: external, minified: true }
-    https://use.fontawesome.com/releases/v5.0.6/js/all.js: { type: external, minified: true, defer: true }
-    https://use.fontawesome.com/releases/v5.0.6/js/v4-shims.js: { type: external, minified: true, defer: true }
+    https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js: { type: external, minified: true }
     js/init_globals.js: {}
     js/scripts.js: {}
   dependencies:

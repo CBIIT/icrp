@@ -554,4 +554,69 @@ var meetingReport = data[0];
 
   }
 
+  (function() { // survey code
+
+    var surveyTaken = JSON.parse(localStorage.getItem('surveyTaken'));
+    var surveyDismissed = JSON.parse(sessionStorage.getItem('surveyDismissed'));
+    
+    if (location.pathname != '/survey')
+    $('header').append(
+        $('<a/>')
+            .html('<i class="fas fa-clipboard-list"></i> Take a survey ')
+            .attr('id', 'take-survey')
+            .attr('href', '/survey')
+            .attr('rel', 'noopener noreferrer')
+            .attr('target', '_blank')
+            .css('background-color', 'steelblue')
+            .css('position', 'absolute')
+            .css('bottom', '0px')
+            .css('right', '25px')
+            .css('display', 'inline-block')
+            .css('color', 'white')
+            .css('padding', '7px 10px')
+            .hide()
+    )
+    
+    if (surveyDismissed && !surveyTaken)
+            $('#take-survey').show();
+    
+    
+    if (!surveyDismissed && !surveyTaken)
+    setTimeout(function() {
+    bootbox.dialog({
+            className: 'icrp-survey-modal',
+            size: 'large',
+            title: 'ICRP Website Survey',
+            message: $('<div>')
+                    .addClass('text-center')
+                    .append($('<h1/>').text('We welcome your feedback'))
+                    .append($('<p/>').text('Help us to improve your experience on the ICRP website by taking this short survey.')),
+            buttons: {
+                    cancel: {
+                            label: 'Maybe Later',
+                            className: 'btn-default',
+                            callback: function() { $('#take-survey').show(); sessionStorage.setItem('surveyDismissed', true) },
+                    },
+                    ok: {
+                            label: 'Take Survey',
+                            className: 'btn-primary',
+                            callback: function() { window.open('/survey') },
+                    },
+            },
+            onEscape: function() { sessionStorage.setItem('surveyDismissed', true); }
+    
+    })
+    }, 5000)
+    
+    if (location.pathname == '/survey') {
+    
+      var observer = new MutationObserver(function() {
+        $('.webform-button--submit').click(function() { localStorage.setItem('surveyTaken', true) })
+      })
+    
+      observer.observe($('[role="main"]')[0], { attributes: false, childList: true, subtree: true })
+    
+    }
+  })();
+
 })(window.jQuery);
