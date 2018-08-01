@@ -554,69 +554,116 @@ var meetingReport = data[0];
 
   }
 
-  (function() { // survey code
+  if (!window.surveyDisabled) showSurvey();
+  function showSurvey() { // survey invitation code
 
-    var surveyTaken = JSON.parse(localStorage.getItem('surveyTaken'));
-    var surveyDismissed = JSON.parse(sessionStorage.getItem('surveyDismissed'));
-    
-    if (location.pathname != '/survey')
-    $('header').append(
-        $('<a/>')
-            .html('<i class="fas fa-clipboard-list"></i> Take a survey ')
-            .attr('id', 'take-survey')
-            .attr('href', '/survey')
-            .attr('rel', 'noopener noreferrer')
-            .attr('target', '_blank')
-            .css('background-color', 'steelblue')
-            .css('position', 'absolute')
-            .css('bottom', '0px')
-            .css('right', '25px')
-            .css('display', 'inline-block')
-            .css('color', 'white')
-            .css('padding', '7px 10px')
-            .hide()
-    )
-    
-    if (surveyDismissed && !surveyTaken)
-            $('#take-survey').show();
-    
-    
-    if (!surveyDismissed && !surveyTaken)
-    setTimeout(function() {
-    bootbox.dialog({
-            className: 'icrp-survey-modal',
-            size: 'large',
-            title: 'ICRP Website Survey',
-            message: $('<div>')
-                    .addClass('text-center')
-                    .append($('<h1/>').text('We welcome your feedback'))
-                    .append($('<p/>').text('Help us to improve your experience on the ICRP website by taking this short survey.')),
-            buttons: {
-                    cancel: {
-                            label: 'Maybe Later',
-                            className: 'btn-default',
-                            callback: function() { $('#take-survey').show(); sessionStorage.setItem('surveyDismissed', true) },
-                    },
-                    ok: {
-                            label: 'Take Survey',
-                            className: 'btn-primary',
-                            callback: function() { window.open('/survey') },
-                    },
-            },
-            onEscape: function() { sessionStorage.setItem('surveyDismissed', true); }
-    
-    })
-    }, 5000)
-    
-    if (location.pathname == '/survey') {
-    
-      var observer = new MutationObserver(function() {
-        $('.webform-button--submit').click(function() { localStorage.setItem('surveyTaken', true) })
-      })
-    
-      observer.observe($('[role="main"]')[0], { attributes: false, childList: true, subtree: true })
-    
+    var storage = {
+      get: function(key) {
+        return JSON.parse(localStorage.getItem(key))
+      },
+      set: function(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+    };
+
+    var surveyTaken = storage.get('surveyTaken');
+    var surveyShown = storage.get('surveyShown');
+
+    // create button to take survey
+    var takeSurveyButton = $('<a/>')
+      .html('<i class="fas fa-clipboard-list"></i> Take a survey')
+      .attr('id', 'take-survey')
+      .attr('href', '#')
+      .css('background-color', 'steelblue')
+      .css('position', 'absolute')
+      .css('bottom', '0px')
+      .css('right', '25px')
+      .css('display', 'inline-block')
+      .css('color', 'white')
+      .css('padding', '7px 10px')
+      .click(showSurveyDialog)
+
+    // only show survey invitation button on non-survey pages  
+    if (location.pathname !== '/survey') {
+      $('header').append(takeSurveyButton.hide())
+      if (!surveyTaken && surveyShown)
+        $('#take-survey').show();
     }
-  })();
+
+    // perform the following on the survey
+    else if (location.pathname === '/survey') {
+      // observe survey and attach click handler when submitted
+      var observer = new MutationObserver(function() {
+        $('.webform-button--submit').click(function() { 
+          storage.set('surveyTaken', true);
+          if (window.parent) {
+            window.parent.postMessage('survey-complete', '*');
+          }
+        });
+      });
+
+      observer.observe($('[role="main"]')[0], { 
+        attributes: false, 
+        childList: true, 
+        subtree: true 
+      });
+    }
+
+    function showSurveyDialog() {
+      var iframe = $('<iframe />')
+        .attr('src', '/survey')
+        .attr('name', 'surveyFrame')
+        .css('border', 'none')
+        .css('width', '100%')
+        .css('min-height', '600px');
+
+      var dialog = bootbox.dialog({
+        message: iframe
+      });
+
+      window.addEventListener('message', function(message) {
+        console.log(message);
+        if (message.data === 'survey-complete') {
+          $('#take-survey').hide();
+          bootbox.hideAll();
+        }
+      })
+    }    
+
+    // show invitation after 5 seconds if it has not been shown before and survey has not been taken
+    if (!surveyShown && !surveyTaken) {
+      setTimeout(function() {
+        bootbox.dialog({
+          className: 'icrp-survey-modal',
+          size: 'large',
+          title: 'ICRP Website Survey',
+          message: $('<div>')
+            .addClass('text-center')
+            .append($('<h1/>').text('We welcome your feedback'))
+            .append($('<p/>').text('Help us to improve your experience on the ICRP website by taking this short survey.')),
+          buttons: {
+            cancel: {
+              label: 'Maybe Later',
+              className: 'btn-default',
+              callback: function() {
+                $('#take-survey').show(); 
+              },
+            },
+            ok: {
+              label: 'Take Survey',
+              className: 'btn-primary',
+              callback: showSurveyDialog
+            },
+          },
+        }).init(function() {
+          storage.set('surveyShown', true);
+        });
+      }, 5000);
+    }
+  }
+/*
+  function include(src) { var script = document.createElement('script'); script.src = src; document.body.appendChild(script); }
+  include('https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js')
+*/
 
 })(window.jQuery);
