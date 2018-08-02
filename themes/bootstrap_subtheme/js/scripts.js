@@ -618,7 +618,8 @@ var meetingReport = data[0];
 
       var dialog = bootbox.dialog({
         className: 'icrp-survey-modal',
-        message: iframe
+        size: 'large',
+        message: iframe,
       });
 
       window.addEventListener('message', function(message) {
