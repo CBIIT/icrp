@@ -1,10 +1,14 @@
+uuid: aa1973c0-0eac-47c7-8afb-1d851268a8df
 langcode: en
 status: closed
 dependencies: {  }
+_core:
+  default_config_hash: ZtW4aT3dR45hetyd9uOq7lVSfwhSnlh6uaNuIrGKVm4
 open: null
 close: null
 uid: null
 template: false
+archive: false
 id: example_layout_flexbox
 title: 'Example: Flexbox layout'
 description: 'Layout example using <a href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/">Flexbox</a>.'
@@ -124,6 +128,3 @@ access:
     users: {  }
     permissions: {  }
 handlers: {  }
-uuid: aa1973c0-0eac-47c7-8afb-1d851268a8df
-_core:
-  default_config_hash: ZtW4aT3dR45hetyd9uOq7lVSfwhSnlh6uaNuIrGKVm4

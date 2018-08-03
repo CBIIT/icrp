@@ -1,10 +1,14 @@
+uuid: d97ff7d9-001b-418a-81f8-8ddff06f6d08
 langcode: en
 status: closed
 dependencies: {  }
+_core:
+  default_config_hash: YtBDBCEXkDJuSc0cqsn1J3ZzGvZxMmvtQjFHZqY6pPU
 open: null
 close: null
 uid: null
 template: true
+archive: false
 id: template_subscribe
 title: Subscribe
 description: 'A subscribe to mailing list form template.'
@@ -134,7 +138,7 @@ handlers:
     settings:
       states:
         - completed
-      to_mail: default
+      to_mail: _default
       to_options: {  }
       cc_mail: ''
       cc_options: {  }
@@ -143,8 +147,8 @@ handlers:
       from_mail: '[webform-submission:values:email:raw]'
       from_options: {  }
       from_name: '[webform-submission:values:first_name] [webform-submission:values:last_name]'
-      subject: default
-      body: default
+      subject: _default
+      body: _default
       excluded_elements: {  }
       ignore_access: false
       exclude_empty: true
@@ -155,6 +159,8 @@ handlers:
       return_path: ''
       sender_mail: ''
       sender_name: ''
+      exclude_empty_checkbox: false
+      twig: false
   debug:
     id: debug
     label: Debug
@@ -163,6 +169,3 @@ handlers:
     conditions: {  }
     weight: 1
     settings: {  }
-uuid: d97ff7d9-001b-418a-81f8-8ddff06f6d08
-_core:
-  default_config_hash: YtBDBCEXkDJuSc0cqsn1J3ZzGvZxMmvtQjFHZqY6pPU

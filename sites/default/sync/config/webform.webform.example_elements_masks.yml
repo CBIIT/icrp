@@ -1,10 +1,14 @@
+uuid: c376020b-cb7b-4412-9ad7-e90ec4ca1910
 langcode: en
 status: closed
 dependencies: {  }
+_core:
+  default_config_hash: GzL6-nR2WdUH7pCqHiFLOFFcwkPS8qILzbmrcCoy4yg
 open: null
 close: null
 uid: null
 template: false
+archive: false
 id: example_elements_masks
 title: 'Example: Elements with masks'
 description: 'Examples of form elements with <a href="https://github.com/RobinHerbots/jquery.inputmask">input mask</a>.'
@@ -124,6 +128,3 @@ access:
     users: {  }
     permissions: {  }
 handlers: {  }
-uuid: c376020b-cb7b-4412-9ad7-e90ec4ca1910
-_core:
-  default_config_hash: GzL6-nR2WdUH7pCqHiFLOFFcwkPS8qILzbmrcCoy4yg

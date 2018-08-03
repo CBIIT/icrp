@@ -1,10 +1,14 @@
+uuid: b85329e9-9890-4bdb-8fae-75f436d21311
 langcode: en
 status: closed
 dependencies: {  }
+_core:
+  default_config_hash: SGpSRbjEPfX8EPskDQy529wNdwZIQLtqHBKg5vlqJnc
 open: null
 close: null
 uid: null
 template: false
+archive: false
 id: example_options
 title: 'Example: Options'
 description: 'Examples of all available select menu, radio, and checkbox options.'
@@ -124,6 +128,3 @@ access:
     users: {  }
     permissions: {  }
 handlers: {  }
-uuid: b85329e9-9890-4bdb-8fae-75f436d21311
-_core:
-  default_config_hash: SGpSRbjEPfX8EPskDQy529wNdwZIQLtqHBKg5vlqJnc

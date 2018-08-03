@@ -1,10 +1,14 @@
+uuid: 078650e1-86ae-48b7-a9e5-40dcb632de3d
 langcode: en
 status: closed
 dependencies: {  }
+_core:
+  default_config_hash: 7yu4SveaDp7jGBiH2uVmpQ889DzR3HZasHGV1tL75v0
 open: null
 close: null
 uid: null
 template: false
+archive: false
 id: example_elements_states
 title: 'Example: Elements with #states API'
 description: 'Examples of Drupal''s element #states API.'
@@ -124,6 +128,3 @@ access:
     users: {  }
     permissions: {  }
 handlers: {  }
-uuid: 078650e1-86ae-48b7-a9e5-40dcb632de3d
-_core:
-  default_config_hash: 7yu4SveaDp7jGBiH2uVmpQ889DzR3HZasHGV1tL75v0

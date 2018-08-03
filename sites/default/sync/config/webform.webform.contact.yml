@@ -8,6 +8,7 @@ open: null
 close: null
 uid: null
 template: false
+archive: false
 id: contact
 title: 'Contact Us'
 description: 'Basic email contact form.'
@@ -178,6 +179,8 @@ handlers:
       return_path: ''
       sender_mail: ''
       sender_name: ''
+      exclude_empty_checkbox: false
+      twig: false
   email_notification:
     id: email
     label: 'Contact Us - to ICRP operation manager'
@@ -194,7 +197,7 @@ handlers:
       cc_options: {  }
       bcc_mail: ''
       bcc_options: {  }
-      from_mail: default
+      from_mail: _default
       from_options: {  }
       from_name: 'International Cancer Research Partnership'
       subject: 'Contact ICRP - [webform-submission:values:type_of_issue:raw]'
@@ -209,3 +212,5 @@ handlers:
       return_path: ''
       sender_mail: ''
       sender_name: ''
+      exclude_empty_checkbox: false
+      twig: false

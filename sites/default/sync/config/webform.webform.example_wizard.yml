@@ -1,10 +1,14 @@
+uuid: f6450ed0-c5c8-4e69-8cae-12c726ab53cd
 langcode: en
 status: closed
 dependencies: {  }
+_core:
+  default_config_hash: rAEXZy0sRfeQ5NUEhPok7UtQT1KTyFJ7PkcPrDznoFY
 open: null
 close: null
 uid: null
 template: false
+archive: false
 id: example_wizard
 title: 'Example: Wizard'
 description: 'An example of multiple step ''wizard'' form.'
@@ -124,6 +128,3 @@ access:
     users: {  }
     permissions: {  }
 handlers: {  }
-uuid: f6450ed0-c5c8-4e69-8cae-12c726ab53cd
-_core:
-  default_config_hash: rAEXZy0sRfeQ5NUEhPok7UtQT1KTyFJ7PkcPrDznoFY
