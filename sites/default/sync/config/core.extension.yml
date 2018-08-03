@@ -111,7 +111,6 @@ module:
   views_templates: 0
   views_ui: 0
   webform: 0
-  webform_analysis: 0
   webform_ui: 0
   webform_views: 0
   yaml_content: 0
