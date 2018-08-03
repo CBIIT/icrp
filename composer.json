@@ -97,10 +97,9 @@
         "drupal/typed_data": "1.0.0-alpha1@alpha",
         "drupal/user_import": "1.x-dev",
         "drupal/views_bootstrap": "3.0",
-        "drupal/webform": "5.0-beta25@beta",
-        "drupal/webform_analysis": "^1.0@beta",
-        "drupal/webform_ui": "5.0-beta25@beta",
-        "drupal/webform_views": "5.0-alpha4@alpha",
+        "drupal/webform": "5.0-rc16",
+        "drupal/webform_ui": "5.0-rc16",
+        "drupal/webform_views": "5.0.0-alpha5",
         "drupal/yaml_content": "^1.0@alpha",
         "drush/drush": "~8.0",
         "fullcalendar/fullcalendar": "^3.5",
@@ -151,7 +150,8 @@
         ],
         "post-update-cmd": [
             "php -r \"copy('themes/bootstrap_subtheme/js/config/fullcalendar.fullcalendar.js', 'modules/fullcalendar/js/fullcalendar.fullcalendar.js');\"",
-            "php -r \"shell_exec('drush webform-libraries-download');\""
+            "drush cr",
+            "drush webform-libraries-download"
         ]       
     },
     "extra": {
@@ -185,9 +185,9 @@
             ]
         },
         "patches": {
-             "drupal/fullcalendar": {
-                "Restore AJAX functionality":
-                "https://www.drupal.org/files/issues/2828939-18-ajax-fix-combined.patch"
+            "drupal/fullcalendar": {
+                "Patch to fix undefined index: module":
+                "https://www.drupal.org/files/issues/fullcalendar-notice_undefined_index_module_in_fullcalendar_legend_preprocess_block-2854562-2.patch"
             },
             "drupal/core":{
                 "Patch to fix Daterange while using in a view":
