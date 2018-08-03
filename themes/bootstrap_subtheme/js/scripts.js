@@ -609,6 +609,7 @@ var meetingReport = data[0];
     }
 
     function showSurveyDialog() {
+      bootbox.hideAll();
       var iframe = $('<iframe />')
         .attr('src', '/survey')
         .attr('name', 'surveyFrame')
@@ -623,10 +624,29 @@ var meetingReport = data[0];
       });
 
       window.addEventListener('message', function(message) {
-        console.log(message);
         if (message.data === 'survey-complete') {
           $('#take-survey').hide();
           bootbox.hideAll();
+          var dialog = bootbox.dialog({
+            className: 'icrp-survey-modal',
+            size: 'large',
+            title: 'ICRP Website Survey',
+            message: $('<div>')
+              .addClass('text-center')
+              .append($('<h1/>').text('Survey Complete'))
+              .append($('<p/>').text('Thank you for taking the time to complete this survey. Your responses have been recorded, and will be used to improve your experience on the ICRP Website.')),
+            buttons: {
+              ok: {
+                label: 'Close',
+                className: 'btn-primary',
+              },
+            },
+          })
+          dialog.init(function() {
+            setTimeout(function() {
+              bootbox.hideAll();
+            }, 10000)
+          })
         }
       })
     }    
@@ -642,6 +662,9 @@ var meetingReport = data[0];
             .addClass('text-center')
             .append($('<h1/>').text('We welcome your feedback'))
             .append($('<p/>').text('Help us to improve your experience on the ICRP website by taking this short survey.')),
+          onEscape: function() {
+            $('#take-survey').show(); 
+          },
           buttons: {
             cancel: {
               label: 'Maybe Later',
@@ -653,7 +676,10 @@ var meetingReport = data[0];
             ok: {
               label: 'Take Survey',
               className: 'btn-primary',
-              callback: showSurveyDialog
+              callback: function() {
+                $('#take-survey').show(); 
+                showSurveyDialog();
+              } 
             },
           },
         }).init(function() {
