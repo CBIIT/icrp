@@ -96,6 +96,7 @@
         "drupal/twig_tweak": "1.9",
         "drupal/typed_data": "1.0.0-alpha1@alpha",
         "drupal/user_import": "1.x-dev",
+        "drupal/video_embed_field": "2.0",
         "drupal/views_bootstrap": "3.0",
         "drupal/webform": "5.0-rc16",
         "drupal/webform_ui": "5.0-rc16",
