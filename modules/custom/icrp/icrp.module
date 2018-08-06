@@ -37,8 +37,18 @@ use Drupal\comment\Entity\Comment;
  *   7. #post_render
  *
  */
-/*
 
+function getSurveyResultsHTML() {
+  //  Load and render a twig template
+  $twig = \Drupal::service('twig');
+  $survey_period = "September 1, 2018 - December 1, 2018";
+  $number_of_responses = "154";
+  
+  $template = $twig->loadTemplate('modules/custom/icrp/templates/survey.results.html.twig');
+  $response = $template->render(['survey_period' => $survey_period, 'number_of_responses' => $number_of_responses]);
+  //$response = "Hello";
+  return $response;
+}
 /**
  * Implements hook_mail_alter().
  */

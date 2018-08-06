@@ -675,6 +675,15 @@ ul.icrp-terms-list li:before {
     margin: 0 1em;    /* any design */
 }
 
+/* Survey Reuslts */
+.survey > div > div > div {
+    border:1px solid black;
+    margin:10px;
+}
+.survey > div > div > div > h3 {
+    font-size:16px;
+    text-align:center;
+
 /* First p showed up on Welcome Page */
 /*
 .field.field--name-body.field--type-text-with-summary.field--label-hidden.field--item > p {

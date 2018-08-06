@@ -173,4 +173,9 @@ class IcrpController extends ControllerBase {
         return $renderable;
     }
 
+    public function getSurveyResults() {
+        return array(
+            '#markup' => getSurveyResultsHTML(),
+        );
+    }
 }

@@ -91,3 +91,10 @@ icrp.resources:
   requirements:
     _format: 'html'
     _access: 'TRUE'
+icrp.survey_results:
+  path: /survey-results
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::getSurveyResults'
+  requirements:
+    _format: 'html'
+    _access: 'TRUE'
