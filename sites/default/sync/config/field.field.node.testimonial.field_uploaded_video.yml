@@ -1,0 +1,30 @@
+uuid: 2b74dcda-3f40-461f-bb94-365d883de297
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_uploaded_video
+    - media.type.image
+    - media.type.video
+    - node.type.testimonial
+id: node.testimonial.field_uploaded_video
+field_name: field_uploaded_video
+entity_type: node
+bundle: testimonial
+label: 'Uploaded Video'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:media'
+  handler_settings:
+    target_bundles:
+      image: image
+      video: video
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: image
+field_type: entity_reference
