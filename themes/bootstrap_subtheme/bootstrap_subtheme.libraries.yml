@@ -2,6 +2,7 @@ global-styling:
   css:
     theme:
       https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/theme.min.css: {type: external, minified: true}
+      https://cdnjs.cloudflare.com/ajax/libs/tachyons/4.11.1/tachyons.min.css: {type: external, minified: true}
       css/bootstrap-yeti-navbar.css: {}
       css/fullcalendar-overrides.css: {}
       css/style.css: {}

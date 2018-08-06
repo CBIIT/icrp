@@ -29,3 +29,8 @@ function bootstrap_subtheme_suggestions_block_alter(array &$suggestions, array $
             break;
     }
 }
+
+function bootstrap_subtheme_preprocess_node(array &$variables) {
+    $variables['user_roles'] = \Drupal::currentUser()->getRoles();
+    // kint($variables);
+}
