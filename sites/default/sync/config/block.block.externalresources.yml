@@ -2,10 +2,7 @@ uuid: c4b4a113-a7bc-424a-904a-aeca7e293c5a
 langcode: en
 status: true
 dependencies:
-  content:
-    - 'block_content:basic:c8e14978-d9d3-41fc-81de-c2757eebe954'
   module:
-    - block_content
     - system
   theme:
     - bootstrap_subtheme
