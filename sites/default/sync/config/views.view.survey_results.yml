@@ -468,7 +468,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
-          label: Famililarity
+          label: Familiarity
           exclude: false
           alter:
             alter_text: true
