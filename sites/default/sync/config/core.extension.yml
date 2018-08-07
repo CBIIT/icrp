@@ -68,6 +68,7 @@ module:
   icrp_partners: 0
   image: 0
   inline_form_errors: 0
+  kint: 0
   layout_discovery: 0
   libraries: 0
   library: 0

@@ -109,6 +109,16 @@
     }, 0);
   }
 
+  // conditionally shows/hides elements
+  // based on show-if-user-roles="role"
+  $('[show-if-user-roles]').each(function() {
+    var el = $(this);
+    var roles = el.attr('show-if-user-roles').split(',');
+    var allowedRoles = drupalSettings.user.roles || [];
+    var hasRole = _.intersection(roles, allowedRoles).length;
+    hasRole ? el.show() : el.hide();
+  })
+
   // sets tags with the data-count attribute to fetch counts from an api
   $('[data-count]').each(function() {
     var el = $(this);
