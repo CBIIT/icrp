@@ -6,6 +6,7 @@ dependencies:
     - views.view.survey_results
   module:
     - system
+    - user
     - views
   theme:
     - bootstrap_subtheme
@@ -28,3 +29,11 @@ visibility:
     pages: /survey-results
     negate: false
     context_mapping: {  }
+  user_role:
+    id: user_role
+    roles:
+      administrator: administrator
+      manager: manager
+    negate: false
+    context_mapping:
+      user: '@user.current_user_context:current_user'
