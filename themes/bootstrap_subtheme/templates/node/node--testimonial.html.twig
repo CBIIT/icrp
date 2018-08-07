@@ -77,60 +77,38 @@
     'b--gold',
     'pa3',
     'shadow-3',
-    'flex',
-    'items-center',
   ]
 %}
 
+{%
+  set has_video = content.field_uploaded_video[0] or content.field_youtube_video_link[0]
+%}
 
 <article{{ attributes.addClass(classes) }}>
+  <div class="row">
 
-  {% if content.field_youtube_video_link and not content.field_uploaded_video %}
-    {{ content.field_youtube_video_link }}
-
-  {% elseif content.field_uploaded_video %}
-    {{ content.field_uploaded_video }}
-  {% endif %}
-
-  <div>
-    {% if 'manager' in user_roles or 'administrator' in user_roles %}
-      <div class="tr">
-        <a href="{{ url }}/edit" class="">edit</a>
+    {% if has_video %}
+      <div class="col-sm-4">
+        {% if content.field_uploaded_video[0] %}
+          {{ content.field_uploaded_video }}
+        {% else %}
+          {{ content.field_youtube_video_link }}
+        {% endif %}
       </div>
     {% endif %}
 
+    <div class="{{ has_video ? 'col-sm-8' : 'col-sm-12'}}">
+      {% if 'manager' in user_roles or 'administrator' in user_roles %}
+        <div class="tr">
+          <a href="{{ url }}/edit" class="">edit</a>
+        </div>
+      {% endif %}
 
-    {{ content.body }}
-    <div class="tr">
-      {{ content.field_source }}
-    </div>
-  </div>
-
-  {# {{ title_prefix }}
-  {% if not page %}
-    <h2{{ title_attributes }}>
-      <a href="{{ url }}" rel="bookmark">{{ label }}</a>
-    </h2>
-  {% endif %}
-  {{ title_suffix }}
-
-  {% if display_submitted %}
-    <footer>
-      {{ author_picture }}
-      <div{{ author_attributes.addClass('author') }}>
-        {% trans %}Submitted by {{ author_name }} on {{ date }}{% endtrans %}
-        {{ metadata }}
+      {{ content.body }}
+      <div class="tr i">
+        {{ content.field_source }}
       </div>
-    </footer>
-  {% endif %}
+    </div>
 
-  <div{{ content_attributes.addClass('content') }}>
-    {{ content }}
-  </div> #}
-
+  </div>{# end row #}
 </article>
-
-
-<script>console.log({{ _context | json_encode | raw }});</script>
-
-<script>console.log({{ user | json_encode | raw }});</script>
