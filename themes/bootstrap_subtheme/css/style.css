@@ -683,7 +683,20 @@ ul.icrp-terms-list li:before {
 .survey > div > div > div > h3 {
     font-size:16px;
     text-align:center;
+}
 
+/* Suvey Results Completed Col */
+.view-survey-results table > thead > tr > th:nth-child(2) {
+    width:110px;
+}
+/* Suvey Results Reason for vist Col */
+.view-survey-results table > thead > tr > th:nth-child(3) {
+    width:270px;
+}
+/* Suvey Results Reason for vist Col */
+.view-survey-results table > thead > tr > th:nth-child(8) {
+    width:300px;
+}
 /* First p showed up on Welcome Page */
 /*
 .field.field--name-body.field--type-text-with-summary.field--label-hidden.field--item > p {

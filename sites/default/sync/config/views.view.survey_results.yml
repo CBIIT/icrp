@@ -70,6 +70,93 @@ display:
           quantity: 5
       style:
         type: views_bootstrap_table
+        options:
+          grouping: {  }
+          row_class: ''
+          default_row_class: true
+          override: 1
+          sticky: 0
+          caption: ''
+          summary: ''
+          description: ''
+          columns:
+            uid: uid
+            uid_1: uid_1
+            completed: completed
+            webform_submission_value: webform_submission_value
+            webform_submission_value_1: webform_submission_value_1
+            webform_submission_value_2: webform_submission_value_2
+            webform_submission_value_3: webform_submission_value_3
+            webform_submission_value_4: webform_submission_value_4
+            webform_submission_value_5: webform_submission_value_5
+          info:
+            uid:
+              sortable: 0
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: 0
+              responsive: ''
+            uid_1:
+              sortable: 0
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: 0
+              responsive: ''
+            completed:
+              sortable: 0
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: 0
+              responsive: priority-low
+            webform_submission_value:
+              align: ''
+              separator: ''
+              empty_column: 0
+              responsive: priority-low
+            webform_submission_value_1:
+              align: ''
+              separator: ''
+              empty_column: 0
+              responsive: ''
+            webform_submission_value_2:
+              sortable: 0
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: 0
+              responsive: ''
+            webform_submission_value_3:
+              sortable: 0
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: 0
+              responsive: ''
+            webform_submission_value_4:
+              sortable: 0
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: 0
+              responsive: ''
+            webform_submission_value_5:
+              sortable: 0
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: 0
+              responsive: ''
+          default: completed
+          empty_table: 0
+          responsive: 1
+          bootstrap_styles:
+            bordered: bordered
+            condensed: condensed
+            striped: 0
+            hover: 0
       row:
         type: fields
       fields:
@@ -281,7 +368,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: "{% set res = webform_submission_value|raw %}\n{% set responses = res|split(',') %}\n\n<ul>\n    {% for response in responses %}\n        <li>{{ response }}</li>\n    {% endfor %}\n</ul>"
+            text: "{% set res = webform_submission_value|raw %}\n{% set responses = res|split(',') %}\n\n<ul>\n    {% for response in responses %}\n    \t{% set response_mod = response|trim %}\n\t\t{% if response_mod == \"To use the database to obtain information about cancer research activity\" %}\n\t\t\t{% set short_response = \"Search cancer reasearch activity\" %}\n\t\t{% elseif response_mod == \"To use the ICRP map to obtain information about cancer research activity and collaborations\" %}\n\t\t\t{% set short_response = \"ICRP map\" %}\n\t\t{% elseif response_mod == \"To obtain information for advocacy efforts\" %}\n\t\t\t{% set short_response = \"Advocacy efforts\" %}\n\n\t\t{% elseif response_mod == \"To obtain information for cancer research planning or strategy\" %}\n\t\t\t{% set short_response = \"Cancer research planning\" %}\n\n\t\t{% elseif response_mod == \"To obtain information about joining ICRP\" %}\n\t\t\t{% set short_response = \"Joining ICRP\" %}\n\n\t\t{% elseif response_mod == \"To find out more about ICRP annual meetings\" %}\n\t\t\t{% set short_response = \"ICRP annual meetings\" %}\n\n\t\t{% elseif response_mod == \"To access a document or report from the Library\" %}\n\t\t\t{% set short_response = \"Access documents from Library\" %}\n\t\t\n\t\t{% elseif response_mod == \"Other (please explain below)\" %}\n\t\t\t{% set short_response = \"Other\" %}\n\t\t\n\t\t{% else %}\n\t\t\t{% set short_response = \"Unknown\" %}\n\t\t\n\t\t{% endif %}\n        <li>{{ short_response }}</li>\n    {% endfor %}\n</ul>"
             make_link: false
             path: ''
             absolute: false
@@ -333,7 +420,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: "{% set res = webform_submission_value_1|raw %}\n{% set responses = res|split(',') %}\n\n<ul>\n    {% for response in responses %}\n        <li>{{ response }}</li>\n    {% endfor %}\n</ul>"
+            text: "{% set res = webform_submission_value_1|raw %}\n{% set responses = res|split(',') %}\n\n<ul>\n    {% for response in responses %}\n    \t{% set response_mod = response|trim %}\n\t\t{% if response_mod == \"Other (please explain below)\" %}\n\t\t\t{% set short_response = \"Other\" %}\n\t\n\t\t{% else %}\n\t\t\t{% set short_response = response_mod %}\n\t\t\n\t\t{% endif %}\n        <li>{{ short_response }}</li>\n\n    {% endfor %}\n</ul>"
             make_link: false
             path: ''
             absolute: false
@@ -384,8 +471,8 @@ display:
           label: Famililarity
           exclude: false
           alter:
-            alter_text: false
-            text: ''
+            alter_text: true
+            text: "{% set response_mod = webform_submission_value_2|slice(0, 4) %}\n{% if response_mod == \"Fami\" %}\n  Familiar\n{% elseif response_mod == \"Some\" %}\n  Somewhat familiar\n{% elseif response_mod == \"Not \" %}\n  Not familiar\n{% else %}\n  Unknown\n{% endif %}"
             make_link: false
             path: ''
             absolute: false
@@ -592,7 +679,22 @@ display:
           entity_type: webform_submission
           entity_field: webform_id
           plugin_id: bundle
-      sorts: {  }
+      sorts:
+        completed:
+          id: completed
+          table: webform_submission
+          field: completed
+          relationship: none
+          group_type: group
+          admin_label: ''
+          order: DESC
+          exposed: false
+          expose:
+            label: ''
+          granularity: second
+          entity_type: webform_submission
+          entity_field: completed
+          plugin_id: date
       title: 'Survey Results'
       header: {  }
       footer: {  }
