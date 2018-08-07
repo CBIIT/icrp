@@ -34,3 +34,10 @@ redirect.funding_orgs:
     _controller: '\Drupal\icrp_partners\Controller\PageController::redirectToContent'
   requirements:
     _access: 'TRUE'
+
+redirect.funding_org:
+  path: '/FundingOrg'
+  defaults:
+    _controller: '\Drupal\icrp_partners\Controller\PageController::redirectToContent'
+  requirements:
+    _access: 'TRUE'
