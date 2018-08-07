@@ -34,7 +34,26 @@ function bootstrap_subtheme_page_attachments_alter(array &$page) {
     $page['#attached']['drupalSettings']['user']['roles'] = \Drupal::currentUser()->getRoles();
 }
 
+function bootstrap_subtheme_preprocess_html(array &$variables) {
+    $referer = \Drupal::request()->headers->get('referer');
+    $shouldRedirect = preg_match("/\/user\/login[\/]?$/", $referer);
+
+    if ($shouldRedirect) {
+        $variables['page']['#attached']['html_head'][] = [
+            [
+                '#tag' => 'meta',
+                '#attributes' => [
+                    'http-equiv' => 'refresh',
+                    'content' => '0;URL="/"',
+                ],
+            ],
+            'redirect-index'
+        ];
+    }
+}
+
 function bootstrap_subtheme_preprocess_node(array &$variables) {
     $variables['user_roles'] = \Drupal::currentUser()->getRoles();
     // kint($variables);
 }
+
