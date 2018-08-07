@@ -35,10 +35,11 @@ function bootstrap_subtheme_page_attachments_alter(array &$page) {
 }
 
 function bootstrap_subtheme_preprocess_html(array &$variables) {
+    $path = \Drupal::request()->getBasePath();
     $referer = \Drupal::request()->headers->get('referer');
-    $shouldRedirect = preg_match("/\/user\/login[\/]?$/", $referer);
+    $fromLogin = preg_match("/\/user\/login[\/]?$/", $referer);
 
-    if ($shouldRedirect) {
+    if ($fromLogin && !empty($path)) {
         $variables['page']['#attached']['html_head'][] = [
             [
                 '#tag' => 'meta',
