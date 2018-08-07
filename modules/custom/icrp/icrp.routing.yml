@@ -97,4 +97,4 @@ icrp.survey_results:
     _controller: '\Drupal\icrp\Controller\IcrpController::getSurveyResults'
   requirements:
     _format: 'html'
-    _access: 'TRUE'
+    _role: 'admin+manager'
