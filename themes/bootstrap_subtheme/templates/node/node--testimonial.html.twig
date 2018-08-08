@@ -100,9 +100,9 @@
 
     <div class="{{ has_video ? 'col-sm-8' : 'col-sm-12'}}">
       {% if 'manager' in user_roles or 'administrator' in user_roles %}
-        <div class="tr mb1 f5">
+        <div class="tr mb1">
           <a href="{{ url }}/edit?destination=/testimonials">
-            <i class="far fa-edit mr1"></i>edit
+            edit
           </a>
         </div>
       {% endif %}

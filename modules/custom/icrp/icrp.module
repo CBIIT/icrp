@@ -2131,7 +2131,7 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
     //dpm($url->getOptions());
     //dpm($url->getRouteParameters());
  
-    //drupal_set_message("Form ID: " . $form_id);
+    // drupal_set_message("Form ID: " . $form_id);
     //dpm($form);
     //dump($form['#attributes']['data-drupal-selector']);
     //dpm($form_state);
@@ -2290,5 +2290,24 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
         case 'user_login_form':
             //$form['link'] = array('#markup' => t("<div style=padding:20px;'><a href='/user/password'>Forgot Password?</a></div>"));
             break;
-    }
+        case 'node_testimonial_edit_form':
+            unset($form['revision_information']);
+            unset($form['revision_log_message']);
+            unset($form['revision']);
+            break;
+        case 'media_video_add_form':
+        case 'media_audio_add_form':
+        case 'media_file_add_form':
+        case 'media_image_add_form':
+        case 'media_embedded_video_add_form':
+          unset($form['revision_information']);
+          unset($form['revision_log_message']);
+
+          // kint($form);
+          // unset($form['published']);
+          // unset($form['url_alias']);
+          // unset($form['author']);
+          break;
+
+        }
 }

@@ -58,3 +58,6 @@ function bootstrap_subtheme_preprocess_node(array &$variables) {
     // kint($variables);
 }
 
+function bootstrap_subtheme_theme_suggestions_entity_add_list_alter(array &$suggestions, array $variables) {
+    //kint($variables);
+}
