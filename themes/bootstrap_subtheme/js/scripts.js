@@ -218,8 +218,13 @@
     ]);
     var data5 = google.visualization.arrayToDataTable([
       ['Answer', 'Response',],
-      ['Yes', 38],
-      ['No', 4],
+      ['Yes', 48],
+      ['No', 2],
+    ]);
+    var data6 = google.visualization.arrayToDataTable([
+      ['Answer', 'Response',],
+      ['Feedback', 28],
+      ['No Response', 12],
     ]);
 
     var options = {
@@ -238,12 +243,14 @@
     var chart3 = new google.visualization.PieChart(document.getElementById('chart_familiarity'));
     var chart4 = new google.visualization.BarChart(document.getElementById('chart_region'));
     var chart5 = new google.visualization.PieChart(document.getElementById('chart_helpful'));
+    var chart6 = new google.visualization.PieChart(document.getElementById('chart_feedback'));
 
     chart1.draw(data1, options);
     chart2.draw(data2, options);
     chart3.draw(data3, options);
     chart4.draw(data4, options);
     chart5.draw(data5, options);
+    chart6.draw(data6, options);
   }
   $.preprocessForum = function(e) {
     if(!$('#new-forum-breadcrumb > #forum-breadcrumb').length) {
