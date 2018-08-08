@@ -99,6 +99,9 @@
         case "/events":
           $.getLastMeetingReport();
           break;
+        case "/survey-results":
+          google.charts.load('current', {packages: ['corechart', 'bar']});
+          google.charts.setOnLoadCallback($.surveyCharts);
       }
     }
   }
@@ -169,6 +172,79 @@
     //$('#edit-field-show-end-date-value').parent().hide();
   }
 */
+  $.surveyCharts = function() {
+    var chart_reasons = $("#chart_reasons").data('table');
+    //console.dir(JSON.parse("{"+chart_reasons+"}"));
+    console.dir(chart_reasons);
+    //var data1 = google.visualization.arrayToDataTable(chart_reasons);
+    var data1 = google.visualization.arrayToDataTable([
+      ['Answer', 'Response',],
+      ['Search cancer reasearch activity', 18],
+      ['ICRP map', 24],
+      ['Advocacy efforts', 2],
+      ['Joining ICRP', 5],
+      ['ICRP annual meetings', 9],
+      ['Access documents from Library', 26],
+      ['Other', 9],
+    ]);
+    
+    var data2 = google.visualization.arrayToDataTable([
+      ['Answer', 'Response',],
+      ['Cancer / health researcher', 20],
+      ['Cancer / health research funding organization', 13],
+      ['Health / cancer policy', 14],
+      ['Healthcare delivery', 6],
+      ['Public health programs/education', 10],
+      ['Advocacy', 10],
+      ['Communications/journalism', 12],
+      ['Student', 4],
+      ['Other', 5],
+    ]);
+    var data3 = google.visualization.arrayToDataTable([
+      ['Answer', 'Response',],
+      ['Familiar', 19],
+      ['Somewhat familiar', 4],
+      ['Not familiar', 3]    ]);
+    var data4 = google.visualization.arrayToDataTable([
+      ['Answer', 'Response',],
+      ['North America', 26],
+      ['South America / Caribbean', 6],
+      ['Europe', 18],
+      ['Asia & Pacific', 15],
+      ['Middle East', 8],
+      ['Africa', 6],
+      ['Australia / New Zealand', 15],
+
+    ]);
+    var data5 = google.visualization.arrayToDataTable([
+      ['Answer', 'Response',],
+      ['Yes', 38],
+      ['No', 4],
+    ]);
+
+    var options = {
+      chartArea: {width: '60%'},
+      hAxis: {
+        minValue: 0
+      },
+      vAxis: {
+        minValue: 0
+      },
+      legend: { position: 'top', maxLines: 3 }
+    };
+
+    var chart1 = new google.visualization.BarChart(document.getElementById('chart_reasons'));
+    var chart2 = new google.visualization.BarChart(document.getElementById('chart_background'));
+    var chart3 = new google.visualization.PieChart(document.getElementById('chart_familiarity'));
+    var chart4 = new google.visualization.BarChart(document.getElementById('chart_region'));
+    var chart5 = new google.visualization.PieChart(document.getElementById('chart_helpful'));
+
+    chart1.draw(data1, options);
+    chart2.draw(data2, options);
+    chart3.draw(data3, options);
+    chart4.draw(data4, options);
+    chart5.draw(data5, options);
+  }
   $.preprocessForum = function(e) {
     if(!$('#new-forum-breadcrumb > #forum-breadcrumb').length) {
       $( "#forum-breadcrumb" ).clone().prependTo( "#new-forum-breadcrumb" );

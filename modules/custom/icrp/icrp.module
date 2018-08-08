@@ -41,11 +41,19 @@ use Drupal\comment\Entity\Comment;
 function getSurveyResultsHTML() {
   //  Load and render a twig template
   $twig = \Drupal::service('twig');
-  $survey_period = "September 1, 2018 - December 1, 2018";
+  $survey_period = "July 30 - August 8, 2018";
   $number_of_responses = "154";
+  $reasons_data = "[['Answer', 'Response'],
+      ['Search cancer reasearch activity', 18],
+      ['ICRP map', 18],
+      ['Advocacy efforts', 2],
+      ['Joining ICRP', 5],
+      ['ICRP annual meetings', 9],
+      ['Access documents from Library', 26],
+      ['Other', 9]]";
   
   $template = $twig->loadTemplate('modules/custom/icrp/templates/survey.results.html.twig');
-  $response = $template->render(['survey_period' => $survey_period, 'number_of_responses' => $number_of_responses]);
+  $response = $template->render(['survey_period' => $survey_period, 'number_of_responses' => $number_of_responses, 'reasons_data' => $reasons_data]);
   //$response = "Hello";
   return $response;
 }

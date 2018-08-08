@@ -1,0 +1,142 @@
+{% set res = webform_submission_value|raw %}
+{% set responses = res|split(',') %}
+
+<ul>
+    {% for response in responses %}
+    	{% set response_mod = response|trim %}
+		{% if response_mod == "To use the database to obtain information about cancer research activity" %}
+			{% set short_response = "Search cancer reasearch activity" %}
+		{% elseif response_mod == "To use the ICRP map to obtain information about cancer research activity and collaborations" %}
+			{% set short_response = "ICRP map" %}
+		{% elseif response_mod == "To obtain information for advocacy efforts" %}
+			{% set short_response = "Advocacy efforts" %}
+
+		{% elseif response_mod == "To obtain information for cancer research planning or strategy" %}
+			{% set short_response = "Cancer research planning" %}
+
+		{% elseif response_mod == "To obtain information about joining ICRP" %}
+			{% set short_response = "Joining ICRP" %}
+
+		{% elseif response_mod == "To find out more about ICRP annual meetings" %}
+			{% set short_response = "ICRP annual meetings" %}
+
+		{% elseif response_mod == "To access a document or report from the Library" %}
+			{% set short_response = "Access documents from Library" %}
+		
+		{% elseif response_mod == "Other (please explain below)" %}
+			{% set short_response = "Other" %}
+		
+		{% else %}
+			{% set short_response = "Unknown" %}
+		
+		{% endif %}
+        <li>{{ short_response }}</li>
+    {% endfor %}
+</ul>
+
+/************ First Question ************/
+{% set res = webform_submission_value|raw %}
+{% set responses = res|split(',') %}
+<ul>
+    {% for response in responses %}	
+		{% set response_mod = response|trim %}
+		{% switch response_mod %}
+		    {% case "To use the database to obtain information about cancer research activity" %}
+		    	<li>Search cancer reasearch activity</li>
+		    {% case "To use the ICRP map to obtain information about cancer research activity and collaborations" %}
+		    	<li>ICRP map</li>
+		    {% default %}
+		    	<li>Unknown</li>
+		{% endswitch %}
+	{% endfor %}
+</ul>
+
+To use the ICRP map to obtain information about cancer research activity and collaborations
+To obtain information for advocacy efforts
+To obtain information for cancer research planning or strategy
+To obtain information about joining ICRP
+To find out more about ICRP annual meetings
+To access a document or report from the Library
+Other (please explain below)
+
+/*Second Question */
+{% set res = webform_submission_value_1|raw %}
+{% set responses = res|split(',') %}
+
+<ul>
+    {% for response in responses %}
+    	{% set response_mod = response|trim %}
+		{% if response_mod == "Other (please explain below)" %}
+			{% set short_response = "Other" %}
+	
+		{% else %}
+			{% set short_response = response_mod %}
+		
+		{% endif %}
+        <li>{{ short_response }}</li>
+
+    {% endfor %}
+</ul>
+Cancer / health researcher
+Cancer / health research funding organization
+Health / cancer policy
+Healthcare delivery
+Public health programs/education
+Advocacy
+Communications/journalism
+Student
+Other (please explain below)
+
+/* Third Question */
+{% set response_mod = webform_submission_value_2|slice(0, 4) %}
+{% if response_mod == "Fami" %}
+	{% set short_response = "Familiar" %}
+
+{% if response_mod == "Some" %}
+	{% set short_response = "Somewhat familiar" %}
+
+{% if response_mod == "Not " %}
+	{% set short_response = "Not familiar" %}
+
+{% else %}
+	{% set short_response = "Unknown" %}
+
+{% endif %}
+{{ short_response }}
+
+/******** THIRD QUESTION *****/
+{% set response_mod = webform_submission_value_2|slice(0, 4) %}
+{% if response_mod == "Fami" %}
+  Familiar
+{% elseif response_mod == "Some" %}
+  Somewhat familiar
+{% elseif response_mod == "Not " %}
+  Not familiar
+{% else %}
+  Unknown
+{% endif %}
+
+
+Familiar - I am an ICRP partner representative or belong to an ICRP partner organization
+Somewhat familiar - I have heard of ICRP, but do not participate in the partnership
+Not familiar - I have never heard of ICRP before today
+
+{% switch matrixBlock.type %}
+
+    {% case "text" %}
+
+        {{ matrixBlock.textField | markdown }}
+
+    {% case "image" %}
+
+        {{ matrixBlock.image[0].getImg() }}
+
+    {% default %}
+
+        <p>A font walks into a bar.</p>
+        <p>The bartender says, “Hey, we don’t serve your type in here!”</p>
+
+{% endswitch %}
+
+
+

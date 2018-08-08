@@ -14,6 +14,7 @@ global-styling:
 global-scripts:
   version: 1
   js:
+    https://www.gstatic.com/charts/loader.js: { type: external, minified: false }
     https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js: { type: external, minified: true }
     https://cdnjs.cloudflare.com/ajax/libs/jquery.matchHeight/0.7.0/jquery.matchHeight-min.js: { type: external, minified: true }
     https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js: { type: external, minified: true }
