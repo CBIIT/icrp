@@ -35,6 +35,7 @@ function bootstrap_subtheme_page_attachments_alter(array &$page) {
 }
 
 function bootstrap_subtheme_preprocess_html(array &$variables) {
+
     $path = \Drupal::request()->getBasePath();
     $referer = \Drupal::request()->headers->get('referer');
     $fromLogin = preg_match("/\/user\/login[\/]?$/", $referer);
@@ -60,4 +61,17 @@ function bootstrap_subtheme_preprocess_node(array &$variables) {
 
 function bootstrap_subtheme_theme_suggestions_entity_add_list_alter(array &$suggestions, array $variables) {
     //kint($variables);
+}
+
+
+function bootstrap_subtheme_preprocess_media_reference_help(&$variables) {
+  $variables['media_add_help'] = t(
+    'Create your media on the <a 
+        href=":add_page" 
+        target="_blank" 
+        window-dialog>
+        media add page</a>
+    (opens a new window), then add it by name to the field below.', 
+    [':add_page' => '/media/add']
+  );
 }

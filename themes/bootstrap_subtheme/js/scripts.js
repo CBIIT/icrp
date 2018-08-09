@@ -140,7 +140,55 @@
           element.href = response[key];
         }
       });
- }
+  }
+
+  // shows anchor targets inside modal dialogs using iframes
+  // to set attributes on the iframe, use iframe-attr="value"
+  // for example, iframe-class="class-a class-b"
+  $('[window-dialog]').click(function(event) {
+    event.preventDefault();
+
+    // create an iframe with default styling
+    var iframe = $('<iframe/>')
+      .attr('src', this.href)
+      .css('width', '100%')
+      .css('min-height', '360px')
+      .css('border', 'none');
+
+    $.each(this.attributes, function(i, attr) {
+      if (/^iframe-/.test(attr.name))
+        iframe.attr(
+          attr.name.replace(/^iframe-/, ''), 
+          attr.value
+        );
+    });
+
+    var dialog = bootbox.dialog({
+      message: iframe,
+    });
+  })
+
+  // $('[dialog-window]').click(function(event) {
+  //   event.preventDefault();
+  //   var iframe = $('<iframe/>', {
+  //     src: this.href
+  //   });
+
+  //   $.each(this.attributes, function(i, attr) {
+  //     if (/^iframe-/.test(attr.name)) {
+  //       var name = attr.name.replace(/^iframe-/, '');
+  //       iframe.attr(name, attr.value);      
+  //     }
+  //   });
+
+  //   console.log(iframe.css());
+
+
+  //   var dialog = bootbox.dialog({
+  //     message: iframe,
+  //   });
+  // })
+
 
   $('.about-us-nodes .collapse:not(:last)').collapse('show');
   $('.about-us-nodes .panel').each(function() {
@@ -645,6 +693,8 @@ var meetingReport = data[0];
       $('.views-field-body').css('overflow', 'hidden');
     }
   }
+
+  
 
   if (!window.surveyDisabled) showSurvey();
   function showSurvey() { // survey invitation code

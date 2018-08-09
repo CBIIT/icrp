@@ -1,0 +1,13 @@
+{# Main #}
+{% block main %}
+    <div role="main" class="main-container {{ container }} js-quickedit-main-content" style="padding: 10px 15px">
+        <section{{ content_attributes }}>
+            {# Content #}
+            {% block content %}
+                <h2>{{ page['#title'] }}</h2>
+                <a id="main-content"></a>
+                {{ page.content }}
+            {% endblock %}
+        </section>
+    </div>
+{% endblock %}

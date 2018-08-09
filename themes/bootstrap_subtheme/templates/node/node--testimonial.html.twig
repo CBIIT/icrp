@@ -81,24 +81,17 @@
   ]
 %}
 
-{%
-  set has_video = content.field_uploaded_video[0] or content.field_youtube_video_link[0]
-%}
+{% set has_media = content.field_media[0] %}
 
 <article{{ attributes.addClass(classes) }}>
   <div class="row">
-
-    {% if has_video %}
+    {% if has_media %}
       <div class="col-sm-4">
-        {% if content.field_uploaded_video[0] %}
-          {{ content.field_uploaded_video }}
-        {% else %}
-          {{ content.field_youtube_video_link }}
-        {% endif %}
+        {{ content.field_media }}
       </div>
     {% endif %}
 
-    <div class="{{ has_video ? 'col-sm-8' : 'col-sm-12'}}">
+    <div class="{{ has_media ? 'col-sm-8' : 'col-sm-12'}}">
       {% if 'manager' in user_roles or 'administrator' in user_roles %}
         <div class="tr mb1">
           <a href="{{ url }}/edit?destination=/testimonials">

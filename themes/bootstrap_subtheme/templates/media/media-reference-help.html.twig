@@ -15,27 +15,18 @@
     'form-wrapper',
   ]
 %}
-<fieldset{{ attributes.addClass(classes) }}>
-  {%
-    set legend_span_classes = [
-      'fieldset-legend',
-      required ? 'js-form-required',
-      required ? 'form-required',
-    ]
-  %}
-  {#  Always wrap fieldset legends in a <span> for CSS positioning. #}
-  <legend{{ legend_attributes }}>
-    <span{{ legend_span_attributes.addClass(legend_span_classes) }}>{{ original_label }}</span>
-  </legend>
+<div{{ attributes.addClass(classes) }}>
+
+  <label class="control-label">{{ original_label }}</label>
 
   <div class="js-form-item form-item">
     {% if media_add_help %}
-      <h4{{ header_attributes.addClass('label') }}>
+      <h4{{ header_attributes.addClass('label', 'sr-only') }}>
         {% trans %}
           Create new media
         {% endtrans %}
-      </h4><br />
-      <div class="description">
+      </h4>
+      <div class="description mb3">
         {{ media_add_help }}
       </div>
     {% endif %}
@@ -63,4 +54,4 @@
     </div>
 
   </div>
-</fieldset>
+</div>
