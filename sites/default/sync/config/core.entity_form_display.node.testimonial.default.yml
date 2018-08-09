@@ -4,13 +4,11 @@ status: true
 dependencies:
   config:
     - field.field.node.testimonial.body
+    - field.field.node.testimonial.field_media
     - field.field.node.testimonial.field_source
-    - field.field.node.testimonial.field_uploaded_video
-    - field.field.node.testimonial.field_youtube_video_link
     - node.type.testimonial
   module:
     - text
-    - video_embed_field
 id: node.testimonial.default
 targetEntityType: node
 bundle: testimonial
@@ -25,16 +23,8 @@ content:
       placeholder: ''
     third_party_settings: {  }
     region: content
-  field_source:
-    weight: 2
-    settings:
-      size: 60
-      placeholder: ''
-    third_party_settings: {  }
-    type: string_textfield
-    region: content
-  field_uploaded_video:
-    weight: 4
+  field_media:
+    weight: 26
     settings:
       match_operator: CONTAINS
       size: 60
@@ -42,11 +32,13 @@ content:
     third_party_settings: {  }
     type: entity_reference_autocomplete
     region: content
-  field_youtube_video_link:
-    weight: 3
-    settings: {  }
+  field_source:
+    weight: 2
+    settings:
+      size: 60
+      placeholder: ''
     third_party_settings: {  }
-    type: video_embed_field_textfield
+    type: string_textfield
     region: content
   title:
     type: string_textfield

@@ -9,7 +9,7 @@ label: File
 description: 'Use local files for reusable media.'
 source: file
 queue_thumbnail_downloads: false
-new_revision: true
+new_revision: false
 source_configuration:
   source_field: field_media_file
 field_map: {  }

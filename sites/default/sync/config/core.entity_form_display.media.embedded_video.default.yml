@@ -1,25 +1,22 @@
-uuid: b278b978-d404-47e7-be65-b7c8d3d95197
+uuid: 35705ed1-fe95-45ad-849b-9f8c2018f5f5
 langcode: en
 status: true
 dependencies:
   config:
-    - field.field.media.file.field_media_file
-    - media.type.file
+    - field.field.media.embedded_video.field_media_video_embed_field
+    - media.type.embedded_video
   module:
-    - file
-_core:
-  default_config_hash: nJ_pAVLU1NRMcrKA5fWh2CgKJ805y9T77jH8KS97rkY
-id: media.file.default
+    - video_embed_field
+id: media.embedded_video.default
 targetEntityType: media
-bundle: file
+bundle: embedded_video
 mode: default
 content:
-  field_media_file:
-    settings:
-      progress_indicator: throbber
-    third_party_settings: {  }
-    type: file_generic
+  field_media_video_embed_field:
     weight: 1
+    settings: {  }
+    third_party_settings: {  }
+    type: video_embed_field_textfield
     region: content
   name:
     type: string_textfield

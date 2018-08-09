@@ -25,7 +25,4 @@ content:
   links:
     weight: 100
     region: content
-hidden:
-  field_source: true
-  field_uploaded_video: true
-  field_youtube_video_link: true
+hidden: {  }

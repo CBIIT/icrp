@@ -1,21 +1,20 @@
-uuid: 86db8d06-865f-4777-9bff-030c164bb9ae
+uuid: 9e102770-3b68-4f98-a8fb-0021e537d237
 langcode: en
 status: true
 dependencies:
   module:
     - field_permissions
     - media
-    - node
+    - video_embed_field
 third_party_settings:
   field_permissions:
     permission_type: public
-id: node.field_uploaded_video
-field_name: field_uploaded_video
-entity_type: node
-type: entity_reference
-settings:
-  target_type: media
-module: core
+id: media.field_media_video_embed_field
+field_name: field_media_video_embed_field
+entity_type: media
+type: video_embed_field
+settings: {  }
+module: video_embed_field
 locked: false
 cardinality: 1
 translatable: true

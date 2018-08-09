@@ -109,6 +109,7 @@ module:
   user: 0
   user_import: 0
   video_embed_field: 0
+  video_embed_media: 0
   views_bootstrap: 0
   views_templates: 0
   views_ui: 0

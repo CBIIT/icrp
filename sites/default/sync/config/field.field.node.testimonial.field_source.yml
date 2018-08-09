@@ -9,7 +9,7 @@ id: node.testimonial.field_source
 field_name: field_source
 entity_type: node
 bundle: testimonial
-label: 'Source''s Name'
+label: 'Source (Name)'
 description: 'Enter the source for this testimonial'
 required: true
 translatable: false
