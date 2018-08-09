@@ -796,7 +796,7 @@ var meetingReport = data[0];
 
     // show invitation after 5 seconds if it has not been shown before and survey has not been taken
     if (!surveyShown && !surveyTaken) {
-      setTimeout(function() {
+      onIdle(function() {
         bootbox.dialog({
           className: 'icrp-survey-modal',
           size: 'large',

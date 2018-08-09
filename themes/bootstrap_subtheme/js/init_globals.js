@@ -19,3 +19,29 @@ function () {
   }
   return str;
 };
+
+/**
+ * Calls a function after a user has been idle for a specified period of time
+ * @param callback {Function} - The function to call
+ * @param delay {number} - The delay (in milliseconds)
+ */ 
+function onIdle(callback, delay) {
+  var timeoutId;
+  var events = ["click", "mousedown", "mouseup", "focus", "blur", "keydown", "change", "mouseup", "click", "dblclick", "mousemove", "mouseover", "mouseout", "mousewheel", "keydown", "keyup", "keypress", "textInput", "touchstart", "touchmove", "touchend", "touchcancel", "resize", "scroll", "zoom", "focus", "blur", "select", "change", "submit", "reset"];
+  
+  function initTimeout() {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(function() {
+      callback();
+      events.forEach(function(event) {
+        removeEventListener(event, initTimeout);
+      });
+    }, delay);
+  }
+  
+  events.forEach(function(event) {
+    addEventListener(event, initTimeout);
+  });
+  
+  initTimeout();
+}
