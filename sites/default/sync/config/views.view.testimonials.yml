@@ -154,7 +154,7 @@ display:
           empty: true
           tokenize: false
           content:
-            value: "<h1>Testimonials</h1>\n\n<h2>How ICRP can help your organization realize its goals</h2>\n\n<blockquote class=\"bw2 b--light-gray\">\n<p>“If you want to go quickly, go alone. If you want to go far, go together”</p>\n</blockquote>\n\n<p>Our partners know that if we are to conquer cancer, we need to work together as funding organizations. Our mission is to use the power of partnership to maximize public and non-profit investment in cancer research for the benefit of patients. To find out more about how our partners benefit from ICRP, watch our <a href=\"#\">video</a>.</p>\n\n<div class=\"f4 mb2\" show-if-user-roles=\"manager,administrator\" hidden>\n  <a href=\"/node/add/testimonial?destination=/testimonials\"><i class=\"fas fa-plus-square mr1\"></i>Add Testimonial</a>\n</div>"
+            value: "<h1>Testimonials</h1>\n\n<blockquote class=\"bw2 b--light-gray f5\">\n<p>“If you want to go quickly, go alone. If you want to go far, go together”</p>\n</blockquote>\n\n<h2>How ICRP can help your organization realize its goals</h2>\n\n<p>Our partners know that if we are to conquer cancer, we need to work together as funding organizations. Our mission is to use the power of partnership to maximize public and non-profit investment in cancer research for the benefit of patients.</p>\n\n<div class=\"f4 mb2\" show-if-user-roles=\"manager,administrator\" hidden>\n  <a href=\"/node/add/testimonial?destination=/testimonials\"><i class=\"fas fa-plus-square mr1\"></i>Add Testimonial</a>\n</div>"
             format: full_html
           plugin_id: text
       footer: {  }
