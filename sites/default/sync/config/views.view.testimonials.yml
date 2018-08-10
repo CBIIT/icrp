@@ -7,7 +7,6 @@ dependencies:
     - node.type.testimonial
   module:
     - node
-    - user
 id: testimonials
 label: Testimonials
 module: views
@@ -24,9 +23,8 @@ display:
     position: 0
     display_options:
       access:
-        type: perm
-        options:
-          perm: 'access content'
+        type: none
+        options: {  }
       cache:
         type: tag
         options: {  }
@@ -168,7 +166,6 @@ display:
         - 'languages:language_content'
         - 'languages:language_interface'
         - 'user.node_grants:view'
-        - user.permissions
       tags: {  }
   testimonials_page:
     display_plugin: page
@@ -184,5 +181,4 @@ display:
         - 'languages:language_content'
         - 'languages:language_interface'
         - 'user.node_grants:view'
-        - user.permissions
       tags: {  }
