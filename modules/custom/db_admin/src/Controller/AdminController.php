@@ -121,8 +121,8 @@ class AdminController extends ControllerBase {
       $uploadedFile = $request->files->get('logoFileInput');
 
       if ($uploadedFile) {
-        $uploadedFile->move('data/uploads/partner-logos');
         $parameters['logoFile'] = $uploadedFile->getClientOriginalName();
+        $uploadedFile->move('data/uploads/partner-logos', $parameters['logoFile']);
       }
 
       $connection = PDOBuilder::getConnection();
@@ -144,8 +144,8 @@ class AdminController extends ControllerBase {
       $uploadedFile = $request->files->get('logoFileInput');
 
       if ($uploadedFile) {
-        $uploadedFile->move('data/uploads/partner-logos');
         $parameters['logoFile'] = $uploadedFile->getClientOriginalName();
+        $uploadedFile->move('data/uploads/partner-logos', $parameters['logoFile']);
       }
 
       $connection = PDOBuilder::getConnection();
@@ -167,8 +167,8 @@ class AdminController extends ControllerBase {
       $uploadedFile = $request->files->get('logoFileInput');
 
       if ($uploadedFile) {
-        $uploadedFile->move('data/uploads/partner-logos');
         $parameters['logoFile'] = $uploadedFile->getClientOriginalName();
+        $uploadedFile->move('data/uploads/partner-logos', $parameters['logoFile']);
       }
 
       $connection = PDOBuilder::getConnection();
@@ -188,8 +188,8 @@ class AdminController extends ControllerBase {
       $uploadedFile = $request->files->get('logoFileInput');
 
       if ($uploadedFile) {
-        $uploadedFile->move('data/uploads/partner-logos');
         $parameters['logoFile'] = $uploadedFile->getClientOriginalName();
+        $uploadedFile->move('data/uploads/partner-logos', $parameters['logoFile']);
       }
 
       $connection = PDOBuilder::getConnection();
