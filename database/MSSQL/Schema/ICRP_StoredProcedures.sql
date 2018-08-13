@@ -8593,3 +8593,49 @@ CREATE PROCEDURE [dbo].[UpdateLibraryFolder] (
 		DEALLOCATE @cursor;
 		
 	END;
+
+GO
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetDataUploadCompletenessDetails]						****************/
+----------------------------------------------------------------------------------------------------------
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetDataUploadCompletenessDetails]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetDataUploadCompletenessDetails]
+GO 
+
+CREATE PROCEDURE [dbo].[GetDataUploadCompletenessDetails]
+AS   
+BEGIN
+
+	SELECT FundingOrgID, FundingOrgAbbrev, Year,
+	CASE 
+		WHEN Year IS NULL THEN 0 
+		WHEN Status IS NULL THEN 0 ELSE Status
+		END AS Status,   -- Status: 0=No Data Upload, 1=Partial Upload, 2=Completed
+	 UpdatedDate AS LastUpdatedDate
+	FROM [DataUploadCompleteness] 
+	ORDER BY FundingOrgAbbrev, Year
+
+END 
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetDataUploadCompletenessSummary]						****************/
+----------------------------------------------------------------------------------------------------------
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetDataUploadCompletenessSummary]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetDataUploadCompletenessSummary]
+GO 
+
+CREATE PROCEDURE [dbo].[GetDataUploadCompletenessSummary]
+AS   
+BEGIN
+
+	SELECT Year,
+		CASE 
+			WHEN MIN(Status) = 2 THEN 2 ELSE 1		
+			END AS Status   -- Status: retrun 1 (partial upload as long as there are any funding orgs have status not 2 (compltete)
+	FROM [DataUploadCompleteness] 
+	GROUP BY Year
+	ORDER BY Year
+
+END 

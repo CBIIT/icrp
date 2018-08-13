@@ -3,11 +3,11 @@
 -- Insert testimonial 1
 
 SELECT AUTO_INCREMENT FROM information_schema.tables
-  WHERE table_name='node' LIMIT 1
+  WHERE table_name='node'
   INTO @entity_id;
 
 SELECT AUTO_INCREMENT FROM information_schema.tables
-  WHERE table_name='node_revision' LIMIT 1
+  WHERE table_name='node_revision'
   INTO @revision_id;
 
 INSERT INTO node (nid, vid, type, uuid, langcode)
@@ -40,11 +40,11 @@ INSERT INTO `node_access` (nid, langcode, fallback, gid, realm, grant_view, gran
 -- Insert testimonial 2
 
 SELECT AUTO_INCREMENT FROM information_schema.tables
-  WHERE table_name='node' LIMIT 1
+  WHERE table_name='node'
   INTO @entity_id;
 
 SELECT AUTO_INCREMENT FROM information_schema.tables
-  WHERE table_name='node_revision' LIMIT 1
+  WHERE table_name='node_revision'
   INTO @revision_id;
 
 INSERT INTO node (nid, vid, type, uuid, langcode)
@@ -77,11 +77,11 @@ INSERT INTO `node_access` (nid, langcode, fallback, gid, realm, grant_view, gran
 -- Insert testimonial 3
 
 SELECT AUTO_INCREMENT FROM information_schema.tables
-  WHERE table_name='node' LIMIT 1
+  WHERE table_name='node'
   INTO @entity_id;
 
 SELECT AUTO_INCREMENT FROM information_schema.tables
-  WHERE table_name='node_revision' LIMIT 1
+  WHERE table_name='node_revision'
   INTO @revision_id;
 
 INSERT INTO node (nid, vid, type, uuid, langcode)
@@ -114,11 +114,11 @@ INSERT INTO `node_access` (nid, langcode, fallback, gid, realm, grant_view, gran
 -- Insert testimonial 4
 
 SELECT AUTO_INCREMENT FROM information_schema.tables
-  WHERE table_name='node' LIMIT 1
+  WHERE table_name='node'
   INTO @entity_id;
 
 SELECT AUTO_INCREMENT FROM information_schema.tables
-  WHERE table_name='node_revision' LIMIT 1
+  WHERE table_name='node_revision'
   INTO @revision_id;
 
 INSERT INTO node (nid, vid, type, uuid, langcode)
