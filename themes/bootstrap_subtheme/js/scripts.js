@@ -713,7 +713,7 @@ var meetingReport = data[0];
 
   
 
-  if (!window.surveyDisabled) showSurvey();
+  if (!drupalSettings.survey.disabled) showSurvey();
   function showSurvey() { // survey invitation code
 
     var storage = {
