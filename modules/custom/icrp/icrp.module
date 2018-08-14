@@ -37,24 +37,76 @@ use Drupal\comment\Entity\Comment;
  *   7. #post_render
  *
  */
+function getSurveyPeriod() {
+  return "July 30 - August 8, 2018";
+}
+
+function getSurveyNumberResponses() {
+
+  return "154";
+}
+
+function getWebformCount($webform_id, $name, $value) {
+ 
+  $query = "SELECT count(*) as count FROM webform_submission_data"; 
+  $query .= " where webform_id = '{$webform_id}'";
+  $query .= " and name = '{$name}'";
+  $query .= " and value = '{$value}';";
+
+  $result=db_query($query);
+  $row = $result->fetchObject();
+
+  $response = 0;
+  if(isset($row->count)) {
+    $response = $row->count;
+  }
+ 
+  return $response;
+}
+
+function getSurveyData($chartname) {
+  $webform_id = "icrp_website_survey";
+
+  switch ($chartname) {
+    case 'reasons':
+      $name = "what_were_your_reasons_for_visiting_the_icrp_site_today";
+      $d1 = getWebformCount($webform_id, $name, 'To use the database to obtain information about cancer research activity');
+      $d2 = getWebformCount($webform_id, $name, 'To use the ICRP map to obtain information about cancer research activity and collaborations');
+      $d3 = getWebformCount($webform_id, $name, 'To obtain information for advocacy efforts');
+      $d4 = getWebformCount($webform_id, $name, 'To obtain information for cancer research planning or strategy');
+      $d5 = getWebformCount($webform_id, $name, 'To obtain information about joining ICRP');
+      $d6 = getWebformCount($webform_id, $name, 'To find out more about ICRP annual meetings');
+      $d7 = getWebformCount($webform_id, $name, 'To access a document or report from the Library');
+      $d8 = getWebformCount($webform_id, $name, 'Other (please explain below)');
+
+      $response = '["Answer", "Response"], ';
+      $response .= '["Search cancer reasearch activity", '.$d1.'], ';
+      $response .= '["ICRP map", '.$d2.'], ';
+      $response .= '["Advocacy efforts", '.$d3.'], ';
+      $response .= '["Cancer research planning", '.$d4.'], ';
+      $response .= '["Joining ICRP", '.$d5.'], ';
+      $response .= '["ICRP annual meetings", '.$d6.'], ';
+      $response .= '["Access documents from Library", '.$d7.'], ';
+      $response .= '["Other", '.$d8.']';
+      break;
+  }
+
+  return $response;
+}
 
 function getSurveyResultsHTML() {
   //  Load and render a twig template
   $twig = \Drupal::service('twig');
-  $survey_period = "July 30 - August 8, 2018";
-  $number_of_responses = "154";
-  $reasons_data = "[['Answer', 'Response'],
-      ['Search cancer reasearch activity', 18],
-      ['ICRP map', 18],
-      ['Advocacy efforts', 2],
-      ['Joining ICRP', 5],
-      ['ICRP annual meetings', 9],
-      ['Access documents from Library', 26],
-      ['Other', 9]]";
-  
+  $survey_period = getSurveyPeriod();
+  $number_of_responses = getSurveyNumberResponses();
+
+  $reasons_data = getSurveyData('reasons');
+
   $template = $twig->loadTemplate('modules/custom/icrp/templates/survey.results.html.twig');
-  $response = $template->render(['survey_period' => $survey_period, 'number_of_responses' => $number_of_responses, 'reasons_data' => $reasons_data]);
-  //$response = "Hello";
+  $response = $template->render(['survey_period' => $survey_period, 
+    'number_of_responses' => $number_of_responses, 
+    'reasons_data' => $reasons_data]);
+
   return $response;
 }
 /**

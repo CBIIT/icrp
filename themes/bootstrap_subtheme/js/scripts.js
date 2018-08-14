@@ -238,12 +238,21 @@
   }
 */
   $.surveyCharts = function() {
+    
+    //Return if charts are already created
+    if($('#chart_reasons > div').length) {
+      return;
+    }
+    //var obj = JSON.parse(my_data);
+
     var chart_reasons = $("#chart_reasons").data('table');
-    //console.dir(JSON.parse("{"+chart_reasons+"}"));
-    console.dir(chart_reasons);
+    console.log(chart_reasons);
+    var data1 = JSON.parse("["+chart_reasons+"]");
+    console.dir(data1);
+    
     //var data1 = google.visualization.arrayToDataTable(chart_reasons);
-    var data1 = google.visualization.arrayToDataTable([
-      ['Answer', 'Response',],
+    var my_data = [
+      ['Answer', 'Response'],
       ['Search cancer reasearch activity', 18],
       ['ICRP map', 24],
       ['Advocacy efforts', 2],
@@ -251,7 +260,9 @@
       ['ICRP annual meetings', 9],
       ['Access documents from Library', 26],
       ['Other', 9],
-    ]);
+    ];
+    var data1 = google.visualization.arrayToDataTable(data1);
+    //var data1 = google.visualization.arrayToDataTable(my_data);
     
     var data2 = google.visualization.arrayToDataTable([
       ['Answer', 'Response',],
