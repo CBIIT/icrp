@@ -40,6 +40,14 @@ getExcelExport:
     _access: 'TRUE'
 
 
+getCustomExcelExport:
+  path: '/exports/excel-export/{prefix}'
+  defaults:
+    _controller: '\Drupal\db_map\Controller\MapController::getExcelExport'
+    prefix: 'Excel_Export'
+  requirements:
+    _access: 'TRUE'
+
 getPeopleMap:
   path: '/map/people/{funding_id}'
   defaults:

@@ -50,10 +50,19 @@ required ? 'form-required',
 Labels for single checkboxes/radios contain the element itself and thus have
 always to be rendered regardless of whether they have a title or not.
 #}
+
+{# {{ kint(element) }} #}
 {%- if title is not empty or is_checkbox or is_radio -%}
     {% if element['#id'] == 'edit-field-membership-status-value' %}
 
         <label for="edit-field-membership-status-value" class="control-label">  {{ title }} </label>
+
+
+    {# Override default title for 'Use existing media' #}
+    {% elseif element['#id'] == 'edit-field-media-0-target-id'  %}
+        <label{{ attributes.addClass(classes) }}>
+            Select uploaded media
+        </label>
 
     {% else %}
         <label{{ attributes.addClass(classes) }}>{{ element }}{{ title }}

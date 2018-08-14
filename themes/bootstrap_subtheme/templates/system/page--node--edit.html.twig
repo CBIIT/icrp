@@ -173,8 +173,11 @@
                 {# Content #}
                 {% block content %}
                     <a id="main-content"></a>
+
                     {% if page_title|trim == "Edit Events" %}
                         <h1>Edit Event</h1>
+                    {% elseif page_title matches '/Edit Test/' %}
+                        <h1>Edit Testimonial</h1>
                     {% else %}
                         <h1>Edit Thread</h1>
                     {% endif %}
