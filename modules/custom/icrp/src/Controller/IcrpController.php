@@ -174,8 +174,10 @@ class IcrpController extends ControllerBase {
     }
 
     public function getSurveyResults() {
+        \Drupal::service('page_cache_kill_switch')->trigger();
         return array(
             '#markup' => getSurveyResultsHTML(),
+            '#cache' => ['max-age' => 0,],    //Set cache for 0 seconds.
         );
     }
 }
