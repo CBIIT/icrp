@@ -245,66 +245,41 @@
     }
     //var obj = JSON.parse(my_data);
 
+    var survey_responses = $("#survey-responses").data('responses');
+    console.log(survey_responses);
+
+    if(parseInt(survey_responses) == 0) {
+      $('#no-survey-results').show();
+      $('.survey-results').hide();
+    } else {
+      $('#no-survey-results').hide();
+      $('.survey-results').show();
+    }
+
     var chart_reasons = $("#chart_reasons").data('table');
-    console.log(chart_reasons);
-    var data1 = JSON.parse("["+chart_reasons+"]");
-    console.dir(data1);
+    var chart_background = $("#chart_background").data('table');
+    var chart_familiarity = $("#chart_familiarity").data('table');
+    var chart_region = $("#chart_region").data('table');
+    var chart_helpful = $("#chart_helpful").data('table');
+    var chart_feedback = $("#chart_feedback").data('table');
+
+    var d1 = JSON.parse("["+chart_reasons+"]");
+    var d2 = JSON.parse("["+chart_background+"]");
+    var d3 = JSON.parse("["+chart_familiarity+"]");
+    var d4 = JSON.parse("["+chart_region+"]");
+    var d5 = JSON.parse("["+chart_helpful+"]");
+    var d6 = JSON.parse("["+chart_feedback+"]");
     
     //var data1 = google.visualization.arrayToDataTable(chart_reasons);
-    var my_data = [
-      ['Answer', 'Response'],
-      ['Search cancer reasearch activity', 18],
-      ['ICRP map', 24],
-      ['Advocacy efforts', 2],
-      ['Joining ICRP', 5],
-      ['ICRP annual meetings', 9],
-      ['Access documents from Library', 26],
-      ['Other', 9],
-    ];
-    var data1 = google.visualization.arrayToDataTable(data1);
-    //var data1 = google.visualization.arrayToDataTable(my_data);
-    
-    var data2 = google.visualization.arrayToDataTable([
-      ['Answer', 'Response',],
-      ['Cancer / health researcher', 20],
-      ['Cancer / health research funding organization', 13],
-      ['Health / cancer policy', 14],
-      ['Healthcare delivery', 6],
-      ['Public health programs/education', 10],
-      ['Advocacy', 10],
-      ['Communications/journalism', 12],
-      ['Student', 4],
-      ['Other', 5],
-    ]);
-    var data3 = google.visualization.arrayToDataTable([
-      ['Answer', 'Response',],
-      ['Familiar', 19],
-      ['Somewhat familiar', 4],
-      ['Not familiar', 3]    ]);
-    var data4 = google.visualization.arrayToDataTable([
-      ['Answer', 'Response',],
-      ['North America', 26],
-      ['South America / Caribbean', 6],
-      ['Europe', 18],
-      ['Asia & Pacific', 15],
-      ['Middle East', 8],
-      ['Africa', 6],
-      ['Australia / New Zealand', 15],
-
-    ]);
-    var data5 = google.visualization.arrayToDataTable([
-      ['Answer', 'Response',],
-      ['Yes', 48],
-      ['No', 2],
-    ]);
-    var data6 = google.visualization.arrayToDataTable([
-      ['Answer', 'Response',],
-      ['Feedback', 28],
-      ['No Response', 12],
-    ]);
+    var data1 = google.visualization.arrayToDataTable(d1);
+    var data2 = google.visualization.arrayToDataTable(d2);
+    var data3 = google.visualization.arrayToDataTable(d3);
+    var data4 = google.visualization.arrayToDataTable(d4);
+    var data5 = google.visualization.arrayToDataTable(d5);
+    var data6 = google.visualization.arrayToDataTable(d6);
 
     var options = {
-      chartArea: {width: '60%'},
+      chartArea: {width: '50%'},
       hAxis: {
         minValue: 0
       },

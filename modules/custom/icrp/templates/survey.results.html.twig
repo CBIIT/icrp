@@ -1,9 +1,13 @@
 <h1>ICRP Website Survey Results</h1>
-<p>
-	<div><b>Suvery Period:</b>:  {{ survey_period }}</div>
-	<div><b>Number of Responses:</b>  {{ number_of_responses }}
-</p>
-<div class="container survey">
+<div class="survey-results">
+	<div><b>Suvery Period:</b>  {{ survey_period }}</div>
+	<div><b>Number of Responses:</b>  <span id="survey-responses" data-responses="{{ number_of_responses }}">{{ number_of_responses }}</span></div>
+</div>
+<div id="no-survey-results" style="display:none;">
+	<h3>No Survey Results</h3>
+	<p>Graphs and Survey results will be shown after someone takes the first ICRP Website Survey.</p>
+</div>
+<div class="container-fluid survey survey-results">
 	<div class="row">
 		<div class="col-md-4">
 			<div>
@@ -20,7 +24,7 @@
 		<div class="col-md-4">
 			<div>
 				<h3>Familiarity</h3>
-				<div id="chart_familiarity" data-table="{{ famililarity_data }}"></div>
+				<div id="chart_familiarity" data-table="{{ familiarity_data }}"></div>
 			</div>
 		</div>
 	</div>
@@ -47,7 +51,7 @@
 </div>
 
 
-<div class="container">
+<div class="container survey-results">
 	<div class="row">
 		<div class="col-md-12">
 			<div class="pull-right">
