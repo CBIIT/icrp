@@ -2310,3 +2310,20 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
           break;
       }
 }
+
+function icrp_field_widget_multivalue_form_alter(array &$elements, FormStateInterface $form_state, array $context) {
+
+  // Do not alter the default settings form.
+  if ($context['default']) {
+    return;
+  }
+
+  // Only act on entity reference fields that reference media.
+  $field_type = $context['items']->getFieldDefinition()->getType();
+  $target_type = $context['items']->getFieldDefinition()->getFieldStorageDefinition()->getSetting('target_type');
+  if ($field_type !== 'entity_reference' ||  $target_type !== 'media') {
+    return;
+  }
+//  kint($elements);
+
+}

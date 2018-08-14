@@ -11,7 +11,7 @@ third_party_settings:
     parent: 'main:'
 name: Testimonial
 type: testimonial
-description: 'A testimonial containing a source, body, and optional embedded videos.'
+description: 'A testimonial containing a source, body, and optional embedded media.'
 help: ''
 new_revision: false
 preview_mode: 1

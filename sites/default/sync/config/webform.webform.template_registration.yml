@@ -1,9 +1,6 @@
-uuid: 0b834192-2c66-4226-b948-16211a341403
 langcode: en
 status: closed
 dependencies: {  }
-_core:
-  default_config_hash: fkRu9cXFwesCs3GBt7ZbdBkUEvIwOibagrjH6NOn1cw
 open: null
 close: null
 uid: null
@@ -37,6 +34,8 @@ settings:
   form_reset: false
   form_disable_autocomplete: false
   form_novalidate: false
+  form_disable_inline_errors: false
+  form_required: false
   form_unsaved: false
   form_disable_back: false
   form_submit_back: false
@@ -47,9 +46,16 @@ settings:
   submission_label: ''
   submission_log: false
   submission_user_columns: {  }
+  submission_user_duplicate: false
   submission_login: false
   submission_login_message: ''
   submission_exception_message: ''
+  submission_locked_message: ''
+  previous_submission_message: ''
+  previous_submissions_message: ''
+  autofill: false
+  autofill_message: ''
+  autofill_excluded_elements: {  }
   wizard_progress_bar: true
   wizard_progress_pages: false
   wizard_progress_percentage: false
@@ -64,6 +70,7 @@ settings:
   preview_attributes: {  }
   preview_excluded_elements: {  }
   preview_exclude_empty: true
+  preview_exclude_empty_checkbox: false
   draft: none
   draft_multiple: false
   draft_auto_save: false
@@ -77,6 +84,8 @@ settings:
   confirmation_back: true
   confirmation_back_label: ''
   confirmation_back_attributes: {  }
+  confirmation_exclude_query: false
+  confirmation_exclude_token: false
   limit_total: null
   limit_total_interval: null
   limit_total_message: ''
@@ -127,6 +136,14 @@ access:
     roles: {  }
     users: {  }
     permissions: {  }
+  administer:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  test:
+    roles: {  }
+    users: {  }
+    permissions: {  }
 handlers:
   email_notification:
     id: email
@@ -144,9 +161,9 @@ handlers:
       cc_options: {  }
       bcc_mail: ''
       bcc_options: {  }
-      from_mail: '[webform-submission:values:email:raw]'
+      from_mail: '[webform_submission:values:email:raw]'
       from_options: {  }
-      from_name: '[webform-submission:values:first_name] [webform-submission:values:last_name]'
+      from_name: '[webform_submission:values:first_name] [webform_submission:values:last_name]'
       subject: _default
       body: _default
       excluded_elements: {  }
@@ -161,3 +178,6 @@ handlers:
       sender_name: ''
       exclude_empty_checkbox: false
       twig: false
+uuid: 0b834192-2c66-4226-b948-16211a341403
+_core:
+  default_config_hash: fkRu9cXFwesCs3GBt7ZbdBkUEvIwOibagrjH6NOn1cw
