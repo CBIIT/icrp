@@ -16,6 +16,16 @@ uploadStatus:
     _access: 'TRUE'
     _role: 'authenticated'
 
+    
+uploadCompleteness:
+  path: '/data-upload-completeness'
+  defaults:
+    _controller: '\Drupal\icrp_data_tables\Controller\PageController::uploadCompleteness'
+    _title: 'Data Upload Completeness Report'
+  requirements:
+    _access: 'TRUE'
+    _role: 'authenticated'
+
 
 redirectToUploadStatus:
   path: '/uploadStatusReport'

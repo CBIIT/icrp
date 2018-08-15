@@ -37,6 +37,37 @@ $(function () {
 
 
 $(function () {
+    var table = $('#upload-completeness').DataTable({
+        pagingType: 'simple_numbers',
+        lengthMenu: [
+            25, 50, 100, 150
+        ],
+        dom: "<'d-flex align-items-center flex-wrap justify-content-between'"
+            + "<li> p"
+            + "><'table-responsive't>",
+        autoWidth: false,
+        language: {
+            lengthMenu: 'Display _MENU_',
+            info: '<label style="margin-left: 5px">of _TOTAL_ funding organizations</label>',
+            infoFiltered: '',
+            infoEmpty: '',
+        },
+        aaSorting: [],
+    });
+
+    setTimeout(function () {
+        $('#upload-completeness')
+            .enableResizableColumns({
+                preserveWidth: true,
+                columnWidth: 80,
+            });
+    }, 0);
+
+    $('#loading').hide();
+});
+
+
+$(function () {
     var table = $('#cancer-types').DataTable({
         dom: "<'table-responsive't>",
         autoWidth: false,

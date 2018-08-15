@@ -2,6 +2,13 @@
 
 function icrp_data_tables_theme($existing, $type, $theme, $path) {
   return [
+    'upload_completeness' => [
+      'variables' => [
+        'base_path' => NULL,
+        'columns' => NULL,
+        'records' => NULL,
+      ],
+    ],
     'upload_status' => [
       'variables' => [
         'records' => NULL,

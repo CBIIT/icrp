@@ -12,6 +12,60 @@ use PDO;
 
 class PageController extends ControllerBase {
 
+    function uploadCompleteness(): array {
+        $rows = $this->getConnection()
+            ->query('SET NOCOUNT ON; EXECUTE GetDataUploadCompletenessDetails')
+            ->fetchAll();
+        
+        $years = array_unique(array_column($rows, 'year'));
+        rsort($years);
+
+        $columns = array_merge([
+            [
+                'key' => 'fundingOrganization',
+                'label' => 'Funding Organization',
+            ],
+
+            [
+                'key' => 'sponsorCode',
+                'label' => 'Sponsor Code',
+            ],
+        ], array_map(function($year) {
+            return [
+                'key' => $year,
+                'label' => $year
+            ];
+        }, $years));
+
+        $records = [];
+        $previousId = null;
+        foreach ($rows as $row) {
+            $currentId = $row['fundingorgid'];
+            if ($currentId != $previousId) {
+                $records[] = [
+                    'fundingOrganization' => $row['fundingorgid'],
+                    'sponsorCode' => $row['fundingorgabbrev']
+                ];
+                $previousId = $currentId;
+            }
+
+            $last = &$records[count($records) - 1];
+            $last[$row['year']] = $row['status'];
+        }
+
+        return [
+            '#theme' => 'upload_completeness',
+            '#records' => $records,
+            '#columns' => $columns,
+            '#base_path' => '/' . drupal_get_path('module', 'icrp_data_tables'),
+            '#attached' => [
+                'library' => [
+                    'icrp_data_tables/default'
+                ],
+            ],
+        ];
+    }
+
     function uploadStatus(): array {
         $records = $this->getConnection()
             ->query('SET NOCOUNT ON; EXECUTE GetDataUploadStatus')
