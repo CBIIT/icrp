@@ -35,11 +35,18 @@ function bootstrap_subtheme_suggestions_block_alter(array &$suggestions, array $
 function bootstrap_subtheme_page_attachments_alter(array &$page) {
     $page['#attached']['drupalSettings']['user']['roles'] = \Drupal::currentUser()->getRoles();
     
+    $date = new DateTime();
     $surveyConfig = Drupal::config('survey')->get();
-    if (empty($surveyConfig)) 
-        $surveyConfig = ['disabled' => false];
+    $surveyDisabled = empty($surveyConfig) ||
+        !isset($surveyConfig['start-date']) || 
+        !isset($surveyConfig['end-date']) ||
+        $surveyConfig['start-date'] == NULL ||
+        new DateTime($surveyConfig['start-date']) > $date ||
+        new DateTime($surveyConfig['end-date']) < $date;
     
-    $page['#attached']['drupalSettings']['survey'] = $surveyConfig;
+    $page['#attached']['drupalSettings']['survey'] = [
+        'disabled' => $surveyDisabled
+    ];
 }
 
 function bootstrap_subtheme_preprocess_html(array &$variables) {
