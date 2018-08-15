@@ -98,3 +98,5 @@ icrp.survey_results:
   requirements:
     _format: 'html'
     _role: 'admin+manager'
+  options:
+    no_cache: 'TRUE'

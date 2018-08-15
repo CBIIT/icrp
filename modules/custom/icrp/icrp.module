@@ -37,24 +37,211 @@ use Drupal\comment\Entity\Comment;
  *   7. #post_render
  *
  */
+function getSurveyPeriod() {
+  $first_date = "";
+  $first_date_short = "";
+  $last_date = "";
+
+  $query = "SELECT DATE_FORMAT(FROM_UNIXTIME(completed), '%M %e, %Y') AS 'first_date', DATE_FORMAT(FROM_UNIXTIME(completed), '%M %e') AS 'first_date_short' FROM webform_submission  where webform_id = 'icrp_website_survey' LIMIT 1;";
+
+  $result=db_query($query);
+  $row = $result->fetchObject();
+
+  if(isset($row->first_date)) {
+    $first_date = $row->first_date;
+  }
+  if(isset($row->first_date_short)) {
+    $first_date_short = $row->first_date_short;
+  }
+
+  $query = "SELECT DATE_FORMAT(FROM_UNIXTIME(completed), '%M %e, %Y') AS 'last_date' FROM webform_submission  where webform_id = 'icrp_website_survey' order by completed desc LIMIT 1;";
+
+  $result=db_query($query);
+  $row = $result->fetchObject();
+
+  if(isset($row->last_date)) {
+    $last_date = $row->last_date;
+  }
+  $response = "";
+  if($first_date == $last_date) {
+    $response = $last_date;
+  } else {
+    $response = $first_date_short." - ".$last_date;
+  }
+
+  return $response;
+}
+
+function getSurveyNumberResponses() {
+  $query = 'SELECT count(*) as count FROM webform_submission';
+  $query .= " where webform_id = 'icrp_website_survey'";
+
+  $result=db_query($query);
+  $row = $result->fetchObject();
+
+  $response = 0;
+  if(isset($row->count)) {
+    $response = $row->count;
+  }
+ 
+  return $response;
+}
+
+function getWebformCount($webform_id, $name, $value) {
+ 
+  $query = "SELECT count(*) as count FROM webform_submission_data"; 
+  $query .= " where webform_id = '{$webform_id}'";
+  $query .= " and name = '{$name}'";
+  $query .= " and value = '{$value}';";
+
+  $result=db_query($query);
+  $row = $result->fetchObject();
+
+  $response = 0;
+  if(isset($row->count)) {
+    $response = $row->count;
+  }
+ 
+  return $response;
+}
+
+function getSurveyData($chartname) {
+  $webform_id = "icrp_website_survey";
+  $response = "";
+
+  switch ($chartname) {
+    case 'reasons':
+      $name = "what_were_your_reasons_for_visiting_the_icrp_site_today";
+      $d1 = getWebformCount($webform_id, $name, 'To use the database to obtain information about cancer research activity');
+      $d2 = getWebformCount($webform_id, $name, 'To use the ICRP map to obtain information about cancer research activity and collaborations');
+      $d3 = getWebformCount($webform_id, $name, 'To obtain information for advocacy efforts');
+      $d4 = getWebformCount($webform_id, $name, 'To obtain information for cancer research planning or strategy');
+      $d5 = getWebformCount($webform_id, $name, 'To obtain information about joining ICRP');
+      $d6 = getWebformCount($webform_id, $name, 'To find out more about ICRP annual meetings');
+      $d7 = getWebformCount($webform_id, $name, 'To access a document or report from the Library');
+      $d8 = getWebformCount($webform_id, $name, 'Other (please explain below)');
+
+      $response = '["Answer", "Response"], ';
+      $response .= '["Search cancer reasearch activity", '.$d1.'], ';
+      $response .= '["ICRP map", '.$d2.'], ';
+      $response .= '["Advocacy efforts", '.$d3.'], ';
+      $response .= '["Cancer research planning", '.$d4.'], ';
+      $response .= '["Joining ICRP", '.$d5.'], ';
+      $response .= '["ICRP annual meetings", '.$d6.'], ';
+      $response .= '["Access documents from Library", '.$d7.'], ';
+      $response .= '["Other", '.$d8.']';
+      break;
+    case 'background':
+      $name = 'which_of_the_following_best_describes_your_background';
+      $d1 = getWebformCount($webform_id, $name, 'Cancer / health researcher');
+      $d2 = getWebformCount($webform_id, $name, 'Cancer / health research funding organization');
+      $d3 = getWebformCount($webform_id, $name, 'Health / cancer policy');
+      $d4 = getWebformCount($webform_id, $name, 'Healthcare delivery');
+      $d5 = getWebformCount($webform_id, $name, 'Public health programs/education');
+      $d6 = getWebformCount($webform_id, $name, 'Advocacy');
+      $d7 = getWebformCount($webform_id, $name, 'Communications/journalism');
+      $d8 = getWebformCount($webform_id, $name, 'Student');
+      $d9 = getWebformCount($webform_id, $name, 'Other (please explain below)');
+      $response = '["Answer", "Response"], ';
+      $response .= '["Cancer / health researcher", '.$d1.'], ';
+      $response .= '["Cancer / health research funding organization", '.$d2.'], ';
+      $response .= '["Health / cancer policy", '.$d3.'], ';
+      $response .= '["Healthcare delivery", '.$d4.'], ';
+      $response .= '["Public health programs/education", '.$d5.'], ';
+      $response .= '["Advocacy", '.$d6.'], ';
+      $response .= '["Communications/journalism", '.$d7.'], ';
+      $response .= '["Student", '.$d8.'], ';
+      $response .= '["Other", '.$d9.']';
+      
+      break;
+    case 'familiarity':
+      $name = 'how_familiar_were_you_with_icrp_before_visiting_the_site_today';
+      $d1 = getWebformCount($webform_id, $name, 'Familiar - I am an ICRP partner representative or belong to an ICRP partner organization');
+      $d2 = getWebformCount($webform_id, $name, 'Somewhat familiar - I have heard of ICRP, but do not participate in the partnership');
+      $d3 = getWebformCount($webform_id, $name, 'Not familiar - I have never heard of ICRP before today');
+      $response = '["Answer", "Response"], ';
+      $response .= '["Familiar", '.$d1.'], ';
+      $response .= '["Somewhat familiar", '.$d2.'], ';
+      $response .= '["Not familiar", '.$d3.']';
+      break;
+    case 'region':
+      $name = 'region';
+      $d1 = getWebformCount($webform_id, $name, 'North America');
+      $d2 = getWebformCount($webform_id, $name, 'South America / Caribbean');
+      $d3 = getWebformCount($webform_id, $name, 'Europe');
+      $d4 = getWebformCount($webform_id, $name, 'Asia & Pacific');
+      $d5 = getWebformCount($webform_id, $name, 'Middle East');
+      $d6 = getWebformCount($webform_id, $name, 'Africa');
+      $d7 = getWebformCount($webform_id, $name, 'Australia / New Zealand');
+
+      $response = '["Answer", "Response"], ';
+      $response .= '["North America", '.$d1.'], ';
+      $response .= '["South America / Caribbean", '.$d2.'], ';
+      $response .= '["Europe", '.$d3.'], ';
+      $response .= '["Asia & Pacific", '.$d4.'], ';
+      $response .= '["Middle East", '.$d5.'], ';
+      $response .= '["Africa", '.$d6.'], ';
+      $response .= '["Australia / New Zealand", '.$d7.']';
+      break;
+    case 'helpful':
+      $name = 'did_you_find_what_you_were_looking_for_today';
+      $d1 = getWebformCount($webform_id, $name, 'Yes');
+      $count = getSurveyNumberResponses();
+      $d2 = $count - $d1;
+      $response = '["Answer", "Response"], ';
+      $response .= '["Yes", '.$d1.'], ';
+      $response .= '["No", '.$d2.'] ';
+      break;
+    case 'feedback':
+      $name = 'please_feel_free_to_share_any_additional_feedback_to_help_us_imp';
+      $d1 = getWebformCount($webform_id, $name, 'Cancer / health researcher');
+
+ 
+      $query = "SELECT count(*) as count_feedback FROM webform_submission_data "; 
+      $query .= " where webform_id = 'icrp_website_survey'"; 
+      $query .= " and name = 'please_feel_free_to_share_any_additional_feedback_to_help_us_imp'"; 
+      $query .= " and value <> '';"; 
+      $feedback = 0;
+      $result=db_query($query);
+      $row = $result->fetchObject();
+      if(isset($row->count_feedback)) {
+        $feedback = $row->count_feedback;
+      }
+      $count = getSurveyNumberResponses();
+
+      $response = '["Answer", "Response"], ';
+      $response .= '["Feedback", '.$feedback.'], ';
+      $response .= '["No Response", '.($count - $feedback).'] ';
+
+      break;
+  }
+
+  return $response;
+}
 
 function getSurveyResultsHTML() {
   //  Load and render a twig template
   $twig = \Drupal::service('twig');
-  $survey_period = "July 30 - August 8, 2018";
-  $number_of_responses = "154";
-  $reasons_data = "[['Answer', 'Response'],
-      ['Search cancer reasearch activity', 18],
-      ['ICRP map', 18],
-      ['Advocacy efforts', 2],
-      ['Joining ICRP', 5],
-      ['ICRP annual meetings', 9],
-      ['Access documents from Library', 26],
-      ['Other', 9]]";
-  
+  $survey_period = getSurveyPeriod();
+  $number_of_responses = getSurveyNumberResponses();
+
+  $reasons_data = getSurveyData('reasons');
+  $background_data = getSurveyData('background');
+  $familiarity_data = getSurveyData('familiarity');
+  $region_data = getSurveyData('region');
+  $helpful_data = getSurveyData('helpful');
+  $feedback_data = getSurveyData('feedback');
+
   $template = $twig->loadTemplate('modules/custom/icrp/templates/survey.results.html.twig');
-  $response = $template->render(['survey_period' => $survey_period, 'number_of_responses' => $number_of_responses, 'reasons_data' => $reasons_data]);
-  //$response = "Hello";
+  $response = $template->render(['survey_period' => $survey_period, 
+    'number_of_responses' => $number_of_responses, 
+    'reasons_data' => $reasons_data,
+    'background_data' => $background_data,
+    'familiarity_data' => $familiarity_data,
+    'region_data' => $region_data,
+    'helpful_data' => $helpful_data,
+    'feedback_data' => $feedback_data]);
+
   return $response;
 }
 /**
