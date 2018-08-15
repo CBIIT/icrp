@@ -38,11 +38,13 @@ function bootstrap_subtheme_page_attachments_alter(array &$page) {
     $date = new DateTime();
     $surveyConfig = Drupal::config('survey')->get();
     $surveyDisabled = empty($surveyConfig) ||
-        !isset($surveyConfig['start-date']) || 
-        !isset($surveyConfig['end-date']) ||
-        $surveyConfig['start-date'] == NULL ||
+        !isset($surveyConfig['start-date']) || // key exists and is not null
+        !array_key_exists('end-date', $surveyConfig) || // only check for existence
         new DateTime($surveyConfig['start-date']) > $date ||
-        new DateTime($surveyConfig['end-date']) < $date;
+        (
+            $surveyConfig['end-date'] != NULL && 
+            new DateTime($surveyConfig['end-date']) < $date
+        );
     
     $page['#attached']['drupalSettings']['survey'] = [
         'disabled' => $surveyDisabled
