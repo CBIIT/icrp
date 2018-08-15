@@ -362,6 +362,8 @@ class DatabaseSearch {
     // select which query to perform
     if (!array_key_exists($type, $queries)) return [];
 
+    $results_count = null;
+    $results_amount = null;
     $output_parameters = [
       'results_count'  => [
         'value' => $results_count,
@@ -440,6 +442,7 @@ class DatabaseSearch {
 
     $parameters['sort_column'] = self::SORT_COLUMN_MAP[$parameters['sort_column']];
     
+    $search_id = null;
     $output_parameters = [
       'search_id' => [
         'value' => $search_id, // we need a reference here
