@@ -133,18 +133,21 @@ class MappingTool {
     array $parameters = ['searchId' => 0, 'type' => 'region']
   ): array {
     try {
+      $projects = null;
+      $primaryInvestigators = null;
+      $collaborators = null;
       $output = [
         'projects' => [
           'type' => PDO::PARAM_INT,
-          'value' => 0,
+          'value' => $projects,
         ],
         'primaryInvestigators' => [
           'type' => PDO::PARAM_INT,
-          'value' => 0,
+          'value' => $primaryInvestigators,
         ],
         'collaborators' => [
           'type' => PDO::PARAM_INT,
-          'value' => 0,
+          'value' => $collaborators,
         ],
       ];
 
@@ -240,10 +243,11 @@ class MappingTool {
       'city' => NULL
   ]) {
     try {
+      $newSearchId = null;
       $output = [
         'newSearchId' => [
           'type' => PDO::PARAM_INT,
-          'value' => 0,
+          'value' => $newSearchId,
         ],
       ];
 
