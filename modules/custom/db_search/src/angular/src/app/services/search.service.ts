@@ -66,6 +66,10 @@ export class SearchService {
     return this.getRequest(`${this.apiRoot}/search_results_view`, parameters);
   }
 
+  getDataUploadCompletenessSummary() {
+    return this.getRequest(`${this.apiRoot}/data_upload_completeness_summary`);
+  }
+
   applyProjectUrls(response) {
     let results = response.results
       .map(row => {

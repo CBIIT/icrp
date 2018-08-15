@@ -1,0 +1,38 @@
+<div class="display-flex margin-v5px items-center">
+  <b class="flex-shrink-0 padding-r5px">
+    <div *ngIf="!authenticated">Data Completeness: </div>
+    <a *ngIf="authenticated" href="/data-upload-completeness">Data Completeness: </a>
+  </b>
+  <div class="display-flex overflow-hidden" title="Yellow: Projects Partially Uploaded, Green: Projects Completely Uploaded">
+    
+    <button 
+      (click)="scrollarea.scrollTo({left: scrollarea.scrollLeft - 120, behavior: 'smooth'})"
+      class="custom-button flex-shrink-0">
+      &lt;
+    </button>
+    
+    <div class="flex-auto nowrap overflow-hidden" #scrollarea>
+      <div 
+        *ngFor="let entry of data"
+        class="display-inline-block white text-center border-white"
+        [ngClass]="{
+          'bg-gray': entry.Status == 0,
+          'bg-yellow': entry.Status == 1,
+          'bg-green': entry.Status == 2
+        }"
+        style="width: 60px;">
+        {{ entry.Year }}
+      </div>
+    </div>
+    
+    <button 
+      (click)="scrollarea.scrollTo({left: scrollarea.scrollLeft + 120, behavior: 'smooth'})"
+      class="custom-button flex-shrink-0">
+      &gt;
+    </button>
+  </div>
+
+  <div class="flex-auto scrollbar-hidden nowrap">
+
+  </div>
+</div>
