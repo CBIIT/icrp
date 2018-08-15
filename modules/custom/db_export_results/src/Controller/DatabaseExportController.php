@@ -19,7 +19,7 @@ class DatabaseExportController extends ControllerBase {
     $response = Response::create($data, 200, [
       'Access-Control-Allow-Headers' => 'origin, content-type, accept',
       'Access-Control-Allow-Origin'  => '*',
-      'Access-Control-Allow-Methods' => 'GET',
+      'Access-Control-Allow-Methods' => 'GET,POST',
     ]);
     return $response;
   }
@@ -246,5 +246,12 @@ class DatabaseExportController extends ControllerBase {
             ],
         ]);
     });
+  }
+
+  function exportCustom(Request $request, $prefix) {
+    $sheets = json_decode($request->getContent(), true);
+    $filename = sprintf("%s_%s.xlsx", $prefix, uniqid());
+    $uri = ExcelBuilder::export($filename, $sheets);
+    return self::createResponse($uri);
   }
 }

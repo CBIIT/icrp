@@ -122,3 +122,11 @@ export.upload-status:
     _access: 'TRUE'
     _role: 'authenticated'
 
+
+export.custom:
+  path: '/api/export/custom/{prefix}'
+  defaults:
+    _controller: '\Drupal\db_export_results\Controller\DatabaseExportController::exportCustom'
+    prefix: 'Export'
+  requirements:
+    _access: 'TRUE'
