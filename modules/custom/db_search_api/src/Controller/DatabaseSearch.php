@@ -364,11 +364,11 @@ class DatabaseSearch {
 
     $output_parameters = [
       'results_count'  => [
-        'value' => 0,
+        'value' => $results_count,
         'type'  => PDO::PARAM_INT,
       ],
       'results_amount' => [
-        'value' => 0,
+        'value' => $results_amount,
         'type'  => PDO::PARAM_STR,
       ],
     ];
@@ -439,9 +439,10 @@ class DatabaseSearch {
   public static function getSearchResults(PDO $pdo, array $parameters): array {
 
     $parameters['sort_column'] = self::SORT_COLUMN_MAP[$parameters['sort_column']];
+    
     $output_parameters = [
       'search_id' => [
-        'value' => 0,
+        'value' => $search_id, // we need a reference here
         'type'  => PDO::PARAM_INT,
       ],
     ];
@@ -626,6 +627,18 @@ class DatabaseSearch {
       return $results;
     }
     return [];
+  }
+
+  /**
+   * Retrieves the data upload completeness summary, an array of years
+   * containing the following values:
+   *  - 1 (partially complete)
+   *  - 2 (complete)
+   */
+  public static function getDataUploadCompletenessSummary(PDO $pdo): array {
+    return $pdo
+      ->query('SET NOCOUNT ON; EXECUTE GetDataUploadCompletenessSummary')
+      ->fetchAll();
   }
 
   /**

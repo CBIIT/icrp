@@ -77,7 +77,7 @@ class PDOBuilder {
     if ($input_parameters) {
       foreach($input_parameters as $key => &$value) {
         if (strpos($query_string, ":$key") !== false)
-          $stmt->bindParam(":$key", $value);
+          $stmt->bindParam($key, $value);
       }
     }
 
@@ -85,7 +85,7 @@ class PDOBuilder {
     if ($output_parameters) {
       foreach($output_parameters as $key => &$output) {
         if (strpos($query_string, ":$key") !== false)
-          $stmt->bindParam(":$key", $output['value'], $output['type'] | PDO::PARAM_INPUT_OUTPUT, 2048);
+          $stmt->bindParam($key, $output['value'], $output['type'] | PDO::PARAM_INPUT_OUTPUT, 2048);
       }
     }
 

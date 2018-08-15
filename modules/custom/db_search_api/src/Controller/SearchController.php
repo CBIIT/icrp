@@ -195,6 +195,11 @@ class SearchController extends ControllerBase {
     return self::createResponse($data);
   }
 
+  public static function getDataUploadCompletenessSummary(Request $request) {
+    $connection = PDOBuilder::getConnection('icrp_database');
+    $data = DatabaseSearch::getDataUploadCompletenessSummary($connection);
+    return self::createResponse($data);
+  }
 
   ## Routes for Data Upload Review Tool
   public static function reviewFields() {
@@ -251,6 +256,12 @@ class SearchController extends ControllerBase {
       'year' => NULL
     ]);
     $data = DatabaseSearch::getSearchResultsView($connection, $parameters);
+    return self::createResponse($data);
+  }
+
+  public static function reviewDataUploadCompletenessSummary(Request $request) {
+    $connection = PDOBuilder::getConnection('icrp_load_database');
+    $data = DatabaseSearch::getDataUploadCompletenessSummary($connection);
     return self::createResponse($data);
   }
 

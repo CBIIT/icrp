@@ -72,6 +72,14 @@ db_search_api.database.search_results_view:
   requirements:
     _access: 'TRUE'
 
+## Gets the data upload completeness summary
+db_search_api.database.data_upload_completeness_summary:
+  path: '/api/database/data_upload_completeness_summary'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::getDataUploadCompletenessSummary' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
 
 ## Get possible form fields values
 api.database.fields:
@@ -141,6 +149,16 @@ db_search_api.database.review.search_results_view:
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
+
+## Gets the data upload completeness summary
+db_search_api.database.review.data_upload_completeness_summary:
+  path: '/api/database/review/data_upload_completeness_summary'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::reviewDataUploadCompletenessSummary' }
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
+
+
 
 
 ## Syncs prod for a particular data upload id

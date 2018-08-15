@@ -55,7 +55,7 @@ class DatabaseReview {
     $parameters['sort_column'] = self::SORT_COLUMN_MAP[$parameters['sort_column']];
     $output_parameters = [
       'search_id' => [
-        'value' => 0,
+        'value' => $search_id,
         'type'  => PDO::PARAM_INT,
       ],
     ];
