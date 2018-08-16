@@ -50,6 +50,9 @@ mysql drupal < ./database/MYSQL/SQL_dump/icrp-2.0.sql
 ## Update drupal database (if needed)
 drush updatedb
 
+## Update entities (optional)
+drush entity-updates
+
 ## Rebuild drupal cache
 drush cr
 ```
