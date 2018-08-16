@@ -1,6 +1,7 @@
 <h1>ICRP Website Survey Results</h1>
+
 <div class="survey-results">
-	<div><b>Suvery Period:</b>  {{ survey_period }}</div>
+	<div><b>Survey Period:</b>  {{ survey_period }}</div>
 	<div><b>Number of Responses:</b>  <span id="survey-responses" data-responses="{{ number_of_responses }}">{{ number_of_responses }}</span></div>
 </div>
 <div id="no-survey-results">
@@ -63,15 +64,13 @@
 	</div>
 </div>
 
+<hr>
 
-<div class="container survey-results">
-	<div class="row">
-		<div class="col-md-12">
-			<div class="pull-right">
-				<a class="btn btn-default" href="/survey-download-results?_format=csv"><i class="fas fa-download"></i> Export</a>
-			</div>
-		</div>
+<div class="survey-results-table">
+	<div class="pull-left site-color"><h2>Individual Responses</h2></div>
+	<div class="pull-right" style="padding-bottom:15px;">
+		<a id="survey-download-btn" class="btn btn-default disabled" href="/survey-download-results?_format=csv"><i class="fas fa-download"></i> Export</a>
 	</div>
-	<hr>
 </div>
+<div class="clearfix"></div>
 
