@@ -30,10 +30,10 @@ class PageController extends ControllerBase {
                 'key' => 'sponsorCode',
                 'label' => 'Sponsor Code',
             ],
-        ], array_map(function($year) {
+        ], array_map(function($value) {
             return [
-                'key' => $year,
-                'label' => $year
+                'key' => $value,
+                'label' => $value
             ];
         }, $years));
 
@@ -43,8 +43,8 @@ class PageController extends ControllerBase {
             $currentId = $row['fundingorgid'];
             if ($currentId != $previousId) {
                 $records[] = [
-                    'fundingOrganization' => $row['fundingorgid'],
-                    'sponsorCode' => $row['fundingorgabbrev']
+                    'fundingOrganization' => $row['fundingorgabbrev'],
+                    'sponsorCode' => $row['sponsorcode']
                 ];
                 $previousId = $currentId;
             }

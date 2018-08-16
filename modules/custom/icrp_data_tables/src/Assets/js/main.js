@@ -55,14 +55,6 @@ $(function () {
         aaSorting: [],
     });
 
-    setTimeout(function () {
-        $('#upload-completeness')
-            .enableResizableColumns({
-                preserveWidth: true,
-                columnWidth: 80,
-            });
-    }, 0);
-
     $('#loading').hide();
 });
 
