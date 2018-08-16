@@ -111,7 +111,8 @@ element:
   excluded_elements: {  }
 html_editor:
   disabled: false
-  format: ''
+  element_format: ''
+  mail_format: ''
   tidy: true
 file:
   file_public: true

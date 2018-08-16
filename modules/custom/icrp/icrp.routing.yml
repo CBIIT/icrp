@@ -100,10 +100,3 @@ icrp.survey_results:
     _role: 'administrator+manager'
   options:
     no_cache: 'TRUE'
-icrp.download_survey_results:
-  path: /download-survey-results
-  defaults:
-    _controller: '\Drupal\icrp\Controller\IcrpController::downloadSurveyResults'
-  requirements:
-    _format: 'html'
-    _role: 'administrator+manager'

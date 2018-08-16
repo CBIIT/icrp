@@ -180,13 +180,5 @@ class IcrpController extends ControllerBase {
             '#cache' => ['max-age' => 0,],    //Set cache for 0 seconds.
         );
     }
-    public function downloadSurveyResults() {
-
-       return array(
-            '#markup' => downloadSurveyResults(),
-            '#cache' => ['max-age' => 0,],    //Set cache for 0 seconds.
-        );
-
-    }
 
 }
