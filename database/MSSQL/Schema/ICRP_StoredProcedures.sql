@@ -8606,18 +8606,23 @@ GO
 CREATE PROCEDURE [dbo].[GetDataUploadCompletenessDetails]
 AS   
 BEGIN
+	
+	DECLARE @CurrYear INT = Year(getdate())
 
-	SELECT FundingOrgID, FundingOrgAbbrev, Year,
+	SELECT c.FundingOrgID, c.FundingOrgAbbrev, f.SponsorCode, c.Year,
 	CASE 
 		WHEN Year IS NULL THEN 0 
 		WHEN Status IS NULL THEN 0 ELSE Status
 		END AS Status,   -- Status: 0=No Data Upload, 1=Partial Upload, 2=Completed
-	 UpdatedDate AS LastUpdatedDate
-	FROM [DataUploadCompleteness] 
-	ORDER BY FundingOrgAbbrev, Year
+	 c.UpdatedDate AS LastUpdatedDate
+	FROM [DataUploadCompleteness] c
+		JOIN FUndingOrg f ON c.FundingOrgID = f.FundingOrgID
+	WHERE c.Year <= @CurrYear
+	ORDER BY f.SponsorCode, c.FundingOrgAbbrev, c.Year
 
 END 
 
+GO
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetDataUploadCompletenessSummary]						****************/
@@ -8629,13 +8634,45 @@ GO
 CREATE PROCEDURE [dbo].[GetDataUploadCompletenessSummary]
 AS   
 BEGIN
+	
+	DECLARE @CurrYear INT = Year(getdate())
 
 	SELECT Year,
 		CASE 
 			WHEN MIN(Status) = 2 THEN 2 ELSE 1		
 			END AS Status   -- Status: retrun 1 (partial upload as long as there are any funding orgs have status not 2 (compltete)
-	FROM [DataUploadCompleteness] 
+	FROM [DataUploadCompleteness] WHERE Year <= @CurrYear
 	GROUP BY Year
-	ORDER BY Year
+	ORDER BY Year DESC
 
 END 
+
+GO
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[UpdateDataUploadCompleteness]						****************/
+----------------------------------------------------------------------------------------------------------
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdateDataUploadCompleteness]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[UpdateDataUploadCompleteness]
+GO 
+
+CREATE PROCEDURE [dbo].[UpdateDataUploadCompleteness]
+
+@FundingOrgID INT,
+@CompletedYears varchar(1000),  --  ex/ '2017, 2015' to mark years 2017 and 2015 completed
+@PartialUploadYears varchar(1000)  --  ex/ '2018, 2016' to mark years 2018 and 2016 partially uploaded
+
+AS  
+
+BEGIN
+	
+	UPDATE DataUploadCompleteness SET Status = 
+		CASE 
+			WHEN Year IN (SELECT * FROM dbo.ToIntTable(@CompletedYears)) THEN 2  -- Completed
+			WHEN Year IN (SELECT * FROM dbo.ToIntTable(@PartialUploadYears)) THEN 1  -- PartialUploaded
+			ELSE 0  -- No Data
+		END 
+
+END 
+
+GO
