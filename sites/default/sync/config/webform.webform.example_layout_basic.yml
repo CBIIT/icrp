@@ -1,6 +1,9 @@
+uuid: 59fb3935-a7c1-42d9-a8e9-34c8bd272579
 langcode: en
 status: closed
 dependencies: {  }
+_core:
+  default_config_hash: BQJylHrLKSxor8vWyjunmw9WKfjigQT0qIUHVBFiDl4
 open: null
 close: null
 uid: null
@@ -145,6 +148,3 @@ access:
     users: {  }
     permissions: {  }
 handlers: {  }
-uuid: 59fb3935-a7c1-42d9-a8e9-34c8bd272579
-_core:
-  default_config_hash: BQJylHrLKSxor8vWyjunmw9WKfjigQT0qIUHVBFiDl4

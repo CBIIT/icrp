@@ -1,6 +1,9 @@
+uuid: d97ff7d9-001b-418a-81f8-8ddff06f6d08
 langcode: en
 status: closed
 dependencies: {  }
+_core:
+  default_config_hash: YtBDBCEXkDJuSc0cqsn1J3ZzGvZxMmvtQjFHZqY6pPU
 open: null
 close: null
 uid: null
@@ -186,6 +189,3 @@ handlers:
     conditions: {  }
     weight: 1
     settings: {  }
-uuid: d97ff7d9-001b-418a-81f8-8ddff06f6d08
-_core:
-  default_config_hash: YtBDBCEXkDJuSc0cqsn1J3ZzGvZxMmvtQjFHZqY6pPU

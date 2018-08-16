@@ -1,6 +1,9 @@
+uuid: 57fc3062-66ce-49da-974e-a6b70fa0cfb7
 langcode: en
 status: open
 dependencies: {  }
+_core:
+  default_config_hash: LasCJP-N2njGJZCeGeVp8mWjI36mX21SlCUXoc-NPN4
 open: null
 close: null
 uid: null
@@ -231,6 +234,3 @@ handlers:
       sender_name: ''
       exclude_empty_checkbox: false
       twig: false
-uuid: 57fc3062-66ce-49da-974e-a6b70fa0cfb7
-_core:
-  default_config_hash: LasCJP-N2njGJZCeGeVp8mWjI36mX21SlCUXoc-NPN4

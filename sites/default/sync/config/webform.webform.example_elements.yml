@@ -1,6 +1,9 @@
+uuid: b6e6e1a4-42d5-4af1-af79-de51a3f97b65
 langcode: en
 status: closed
 dependencies: {  }
+_core:
+  default_config_hash: cAghf1kPD0TMYpp4U5l6nDJuKHu_eI4ncOzikOFXTcw
 open: null
 close: null
 uid: null
@@ -145,6 +148,3 @@ access:
     users: {  }
     permissions: {  }
 handlers: {  }
-uuid: b6e6e1a4-42d5-4af1-af79-de51a3f97b65
-_core:
-  default_config_hash: cAghf1kPD0TMYpp4U5l6nDJuKHu_eI4ncOzikOFXTcw

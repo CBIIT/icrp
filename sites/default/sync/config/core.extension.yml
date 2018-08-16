@@ -20,6 +20,7 @@ module:
   content_access: 0
   contextual: 0
   crop: 0
+  csv_serialization: 0
   ctools: 0
   ctools_block: 0
   ctools_views: 0
@@ -88,6 +89,7 @@ module:
   recovery_pass: 0
   redirect: 0
   responsive_image: 0
+  rest: 0
   rules: 0
   search: 0
   search_exclude: 0
@@ -111,6 +113,7 @@ module:
   video_embed_field: 0
   video_embed_media: 0
   views_bootstrap: 0
+  views_data_export: 0
   views_templates: 0
   views_ui: 0
   webform: 0

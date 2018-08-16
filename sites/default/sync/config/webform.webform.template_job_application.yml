@@ -1,6 +1,9 @@
+uuid: 06283b65-e59d-4afe-9946-9b3e9e9288ef
 langcode: en
 status: closed
 dependencies: {  }
+_core:
+  default_config_hash: suCls3KqeyJG40OHMolkZEgZ5sQyYxcaLclPyktnlhs
 open: null
 close: null
 uid: null
@@ -178,6 +181,3 @@ handlers:
       sender_name: ''
       exclude_empty_checkbox: false
       twig: false
-uuid: 06283b65-e59d-4afe-9946-9b3e9e9288ef
-_core:
-  default_config_hash: suCls3KqeyJG40OHMolkZEgZ5sQyYxcaLclPyktnlhs

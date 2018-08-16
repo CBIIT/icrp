@@ -1,6 +1,9 @@
+uuid: 0b834192-2c66-4226-b948-16211a341403
 langcode: en
 status: closed
 dependencies: {  }
+_core:
+  default_config_hash: fkRu9cXFwesCs3GBt7ZbdBkUEvIwOibagrjH6NOn1cw
 open: null
 close: null
 uid: null
@@ -178,6 +181,3 @@ handlers:
       sender_name: ''
       exclude_empty_checkbox: false
       twig: false
-uuid: 0b834192-2c66-4226-b948-16211a341403
-_core:
-  default_config_hash: fkRu9cXFwesCs3GBt7ZbdBkUEvIwOibagrjH6NOn1cw

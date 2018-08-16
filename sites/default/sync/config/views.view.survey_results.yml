@@ -3,9 +3,16 @@ langcode: en
 status: true
 dependencies:
   config:
+    - user.role.administrator
+    - user.role.manager
     - webform.webform.icrp_website_survey
   module:
+    - csv_serialization
+    - rest
+    - serialization
+    - user
     - views_bootstrap
+    - views_data_export
     - webform
     - webform_views
 id: survey_results
@@ -24,8 +31,11 @@ display:
     position: 0
     display_options:
       access:
-        type: none
-        options: {  }
+        type: role
+        options:
+          role:
+            administrator: administrator
+            manager: manager
       cache:
         type: tag
         options: {  }
@@ -709,6 +719,7 @@ display:
         - 'languages:language_interface'
         - url.query_args
         - user
+        - user.roles
       tags: {  }
   block_1:
     display_plugin: block
@@ -724,4 +735,52 @@ display:
         - 'languages:language_interface'
         - url.query_args
         - user
+        - user.roles
+      tags: {  }
+  data_export_1:
+    display_plugin: data_export
+    id: data_export_1
+    display_title: 'Data export'
+    position: 1
+    display_options:
+      display_extenders: {  }
+      style:
+        type: data_export
+        options:
+          formats:
+            csv: csv
+          csv_settings:
+            delimiter: ','
+            enclosure: '"'
+            escape_char: \
+            strip_tags: true
+            trim: true
+            encoding: utf8
+          xls_settings:
+            xls_format: Excel2007
+            metadata:
+              creator: ''
+              last_modified_by: ''
+              title: ''
+              description: ''
+              subject: ''
+              keywords: ''
+              category: ''
+              manager: ''
+              company: ''
+      path: survey-download-results
+      filename: 'ICRP Website Survey Results.csv'
+      auth:
+        - cookie
+      displays:
+        block_1: block_1
+        default: '0'
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - request_format
+        - user
+        - user.roles
       tags: {  }

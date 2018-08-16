@@ -37,6 +37,33 @@ use Drupal\comment\Entity\Comment;
  *   7. #post_render
  *
  */
+
+/* Survey */
+function downloadSurveyResults() {
+  $webform_id = 'icrp_website_survey';
+  $webform = \Drupal\webform\Entity\Webform::load($webform_id);
+  $submission_exporter = \Drupal::service('webform_submission.exporter');
+  $export_options = $submission_exporter->getDefaultExportOptions();
+  $export_options['delimiter'] = ';';
+  $export_options['multiple_delimiter'] = ',';
+  $export_option['excel'] = true;
+  $export_option['files`'] = true;
+
+  //dump($export_options);
+  //$export_options['range_type'] = 'date';
+  //$export_options['range_start'] = '2018-02-18';
+  //$export_options['range_end'] = '2018-02-26';
+
+  $submission_exporter->setWebform($webform);
+  $submission_exporter->setExporter($export_options);
+  $submission_exporter->generate();
+  $file_path = $submission_exporter->getExportFilePath();
+
+  print file_get_contents($file_path);
+
+  //unlink($file_path);
+  return $file_path;
+}
 function getSurveyPeriod() {
   $first_date = "";
   $first_date_short = "";

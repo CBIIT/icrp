@@ -9,42 +9,55 @@
 </div>
 <div class="container-fluid survey survey-results">
 	<div class="row">
-		<div class="col-md-4">
-			<div>
-				<h3>Reasons for Visit</h3>
-				<div id="chart_reasons" data-table="{{ reasons_data }}"></div>
+		<div class="pull-left">
+			<div class="card">
+			  <div class="card-body">
+			    <h3 class="card-title">Reasons for Visit</h3>
+			 	<div id="chart_reasons" data-table="{{ reasons_data }}"></div>
+			  </div>
 			</div>
 		</div>
-		<div class="col-md-4">
-			<div>
-				<h3>Background</h3>
+		<div class="pull-left">
+			<div class="card">
+			  <div class="card-body">
+			    <h3 class="card-title">Background</h3>
 				<div id="chart_background" data-table="{{ background_data }}"></div>
+			  </div>
 			</div>
 		</div>
-		<div class="col-md-4">
-			<div>
-				<h3>Familiarity</h3>
+		<div class="pull-left">
+			<div class="card">
+			  <div class="card-body">
+			    <h3 class="card-title">Familiarity</h3>
 				<div id="chart_familiarity" data-table="{{ familiarity_data }}"></div>
+			  </div>
 			</div>
 		</div>
 	</div>
+
 	<div class="row">
-		<div class="col-md-4">
-			<div>
-				<h3>Region</h3>
+		<div class="pull-left">
+			<div class="card">
+			  <div class="card-body">
+			    <h3 class="card-title">Region</h3>
 				<div id="chart_region" data-table="{{ region_data }}"></div>
+			  </div>
 			</div>
 		</div>
-		<div class="col-md-4">
-			<div>
-				<h3>Helpful?</h3>
-				<div id="chart_helpful" data-table="{{ helpful_data }}"></div>
+		<div class="pull-left">
+			<div class="card">
+			  <div class="card-body">
+			    <h3 class="card-title">Helpful?</h3>
+			 	<div id="chart_helpful" data-table="{{ helpful_data }}"></div>
+			  </div>
 			</div>
 		</div>
-		<div class="col-md-4">
-			<div>
-				<h3>Feedback</h3>
-				<div id="chart_feedback" data-table="{{ feedback_data }}"></div>
+		<div class="pull-left">
+			<div class="card">
+			  <div class="card-body">
+			    <h3 class="card-title">Feedback</h3>
+			 	<div id="chart_feedback" data-table="{{ feedback_data }}"></div>
+			  </div>
 			</div>
 		</div>
 	</div>
@@ -55,7 +68,7 @@
 	<div class="row">
 		<div class="col-md-12">
 			<div class="pull-right">
-				<a class="btn btn-default" href="#"><i class="fas fa-download"></i> Export</a>
+				<a class="btn btn-default" href="/survey-download-results?_format=csv"><i class="fas fa-download"></i> Export</a>
 			</div>
 		</div>
 	</div>

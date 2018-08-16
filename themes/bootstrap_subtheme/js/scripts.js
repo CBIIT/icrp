@@ -253,7 +253,9 @@
       $('.survey-results').hide();
     } else {
       $('#no-survey-results').hide();
-      $('.survey-results').show();
+      setTimeout(function (){
+        $('.survey-results').slideDown('slow');
+      }, 1500);
     }
 
     var chart_reasons = $("#chart_reasons").data('table');
@@ -277,16 +279,18 @@
     var data4 = google.visualization.arrayToDataTable(d4);
     var data5 = google.visualization.arrayToDataTable(d5);
     var data6 = google.visualization.arrayToDataTable(d6);
-
+// chartArea: {width: 300},
     var options = {
-      chartArea: {width: '50%'},
+      width: 400,
+      height:240,
+
       hAxis: {
         minValue: 0
       },
       vAxis: {
         minValue: 0
       },
-      legend: { position: 'top', maxLines: 3 }
+      legend: { position: 'top'}
     };
 
     var chart1 = new google.visualization.BarChart(document.getElementById('chart_reasons'));
@@ -296,10 +300,14 @@
     var chart5 = new google.visualization.PieChart(document.getElementById('chart_helpful'));
     var chart6 = new google.visualization.PieChart(document.getElementById('chart_feedback'));
 
+    options.legend.position = 'top';
     chart1.draw(data1, options);
     chart2.draw(data2, options);
+    options.legend.position = 'right';
     chart3.draw(data3, options);
+    options.legend.position = 'top';
     chart4.draw(data4, options);
+    options.legend.position = 'right';
     chart5.draw(data5, options);
     chart6.draw(data6, options);
   }

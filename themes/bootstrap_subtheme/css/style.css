@@ -676,13 +676,24 @@ ul.icrp-terms-list li:before {
 }
 
 /* Survey Reuslts */
-.survey > div > div > div {
+/*
+.survey > div > div > div > div {
     border:1px solid black;
     margin:10px;
 }
-.survey > div > div > div > h3 {
+*/
+.survey .row {
+    margin-left:25px;
+
+}
+.survey h3 {
     font-size:16px;
     text-align:center;
+}
+.survey .card {
+    margin:10px;
+    padding-left:10px;
+    padding-right:10px;
 }
 
 /* Suvey Results Completed Col */
@@ -697,9 +708,13 @@ ul.icrp-terms-list li:before {
 .view-survey-results table > thead > tr > th:nth-child(8) {
     width:300px;
 }
-.survey-results, #no-survey-results {
+.survey-results, #no-survey-results, .feed-icons {
     display:none;
 }
+
+.survey-chart-container {
+    padding-left:10px;
+ }
 /* First p showed up on Welcome Page */
 /*
 .field.field--name-body.field--type-text-with-summary.field--label-hidden.field--item > p {

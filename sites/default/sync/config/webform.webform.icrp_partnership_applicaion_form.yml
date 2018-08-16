@@ -1,8 +1,13 @@
+uuid: 8f43f315-1c61-4e55-bd2a-a4d7863f9695
 langcode: en
 status: open
 dependencies:
   module:
     - honeypot
+third_party_settings:
+  honeypot:
+    honeypot: true
+    time_restriction: true
 open: null
 close: null
 uid: 1
@@ -372,8 +377,3 @@ handlers:
       sender_name: ''
       exclude_empty_checkbox: false
       twig: false
-uuid: 8f43f315-1c61-4e55-bd2a-a4d7863f9695
-third_party_settings:
-  honeypot:
-    honeypot: true
-    time_restriction: true

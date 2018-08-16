@@ -1,8 +1,12 @@
+uuid: 66bc1fc1-c308-40b1-aa63-d1889dc5f2d8
 langcode: en
 status: open
 dependencies:
   module:
     - honeypot
+third_party_settings:
+  honeypot:
+    honeypot: true
 open: null
 close: null
 uid: 1
@@ -147,7 +151,3 @@ access:
     users: {  }
     permissions: {  }
 handlers: {  }
-uuid: 66bc1fc1-c308-40b1-aa63-d1889dc5f2d8
-third_party_settings:
-  honeypot:
-    honeypot: true

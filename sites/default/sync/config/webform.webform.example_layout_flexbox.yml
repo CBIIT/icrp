@@ -1,6 +1,9 @@
+uuid: aa1973c0-0eac-47c7-8afb-1d851268a8df
 langcode: en
 status: closed
 dependencies: {  }
+_core:
+  default_config_hash: ZtW4aT3dR45hetyd9uOq7lVSfwhSnlh6uaNuIrGKVm4
 open: null
 close: null
 uid: null
@@ -145,6 +148,3 @@ access:
     users: {  }
     permissions: {  }
 handlers: {  }
-uuid: aa1973c0-0eac-47c7-8afb-1d851268a8df
-_core:
-  default_config_hash: ZtW4aT3dR45hetyd9uOq7lVSfwhSnlh6uaNuIrGKVm4
