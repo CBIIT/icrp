@@ -149,7 +149,7 @@ function getSurveyData($chartname) {
       $d8 = getWebformCount($webform_id, $name, 'Other (please explain below)');
 
       $response = '["Answer", "Response"], ';
-      $response .= '["Search cancer reasearch activity", '.$d1.'], ';
+      $response .= '["Search cancer research activity", '.$d1.'], ';
       $response .= '["ICRP map", '.$d2.'], ';
       $response .= '["Advocacy efforts", '.$d3.'], ';
       $response .= '["Cancer research planning", '.$d4.'], ';
