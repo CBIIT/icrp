@@ -250,13 +250,13 @@
 
     if(parseInt(survey_responses) == 0) {
       $('#no-survey-results').show();
-      $('.survey-results').hide();
+      $('#survey-download-btn').addClass('disabled');
     } else {
       $('#no-survey-results').hide();
-      setTimeout(function (){
-        $('.survey-results').slideDown('slow');
-      }, 1500);
     }
+    setTimeout(function (){
+      $('.survey-results').slideDown('slow');
+    }, 1500);
 
     var chart_reasons = $("#chart_reasons").data('table');
     var chart_background = $("#chart_background").data('table');

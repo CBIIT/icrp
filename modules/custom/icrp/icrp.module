@@ -39,6 +39,34 @@ use Drupal\comment\Entity\Comment;
  */
 
 /* Survey */
+function surveyStatus() {
+  //Get open date to see if Survey is Open
+  $long_date_template = 'F j, Y g:i A';
+  $last_visit_text = '';
+
+  $uid = \Drupal::currentUser()->id();
+  $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+
+  $last_visit_date_raw = $user->get('field_last_forum_visit')->value;
+  if($last_visit_date_raw !== NULL) {
+    $last_visit_timestamp = new DrupalDateTime($last_visit_date_raw);
+    // Update the timezone to the system default.
+    //$last_visit_timestamp->setTimezone(timezone_open(drupal_get_user_timezone()));
+    $last_visit_date = $last_visit_timestamp->format($long_date_template);
+
+    //drupal_set_message("last_visit_timestamp");
+    //dpm($last_visit_date);
+    $last_visit_text = 'Last visited: '.$last_visit_date;
+  }
+
+  $current_datetime = new DrupalDateTime('now');
+  $datetime_storage = $current_datetime->format(DATETIME_DATETIME_STORAGE_FORMAT);
+  $user->set("field_last_forum_visit", $datetime_storage);
+  $user->save();
+
+  return $last_visit_text;
+}
+
 function downloadSurveyResults() {
   $webform_id = 'icrp_website_survey';
   $webform = \Drupal\webform\Entity\Webform::load($webform_id);
@@ -251,6 +279,12 @@ function getSurveyResultsHTML() {
   $twig = \Drupal::service('twig');
   $survey_period = getSurveyPeriod();
   $number_of_responses = getSurveyNumberResponses();
+$config = \Drupal::config('webform.webform.icrp_website_survey');
+// Will print 'Hello'.
+drupal_set_message($config->get('open'));
+// Will print 'en'.
+//print $config->get('langcode');
+
 
   $reasons_data = getSurveyData('reasons');
   $background_data = getSurveyData('background');
