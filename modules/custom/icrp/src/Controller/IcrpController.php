@@ -180,5 +180,13 @@ class IcrpController extends ControllerBase {
             '#cache' => ['max-age' => 0,],    //Set cache for 0 seconds.
         );
     }
+    public function getSurveyConfig() {
+        $status = isSurveyOpen();
+        $data = json_encode(array('isSurveyOpen'=> $status), true);
+        $response = new JsonResponse($data);
+
+        return $response;
+
+    }
 
 }

@@ -7,8 +7,9 @@ dependencies:
 third_party_settings:
   honeypot:
     honeypot: true
-open: '2018-08-04T12:00:00'
+open: '2018-08-17T11:00:00'
 close: null
+weight: 0
 uid: 1
 template: false
 archive: false
@@ -107,6 +108,8 @@ settings:
   results_disabled: false
   results_disabled_ignore: false
   token_update: false
+  wizard_progress_link: false
+  wizard_preview_link: false
 access:
   create:
     roles:

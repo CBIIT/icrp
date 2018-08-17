@@ -39,6 +39,35 @@ use Drupal\comment\Entity\Comment;
  */
 
 /* Survey */
+function isSurveyOpen() {
+    $isSurveyOpen = false;
+    $config = \Drupal::config('webform.webform.icrp_website_survey');
+
+    if(!isset($config)) {
+      return "ICRP Website Survey does not exist";
+    }
+
+    $now = new DrupalDateTime('now');
+    $open = (int) $config->get('open') == "null";
+    $open = !$open ? new DrupalDateTime($config->get('open')) : NULL;
+    $close = (int) $config->get('close') == "null";
+    $close = !$close ? new DrupalDateTime($config->get('close')) : NULL;
+
+    if(!is_null($open)  && is_null($close)) {
+      if($open->getTimestamp() < $now->getTimestamp()) {
+        $isSurveyOpen = true;
+      }
+    }
+    if(!is_null($open)  && !is_null($close)) {
+      if($open->getTimestamp() < $now->getTimestamp() && $close->getTimestamp() > $now->getTimestamp()) {
+        $isSurveyOpen = true;
+      }
+    }
+
+    return $isSurveyOpen;
+
+}
+
 function surveyStatus() {
   //Get open date to see if Survey is Open
   $long_date_template = 'F j, Y g:i A';
@@ -256,7 +285,9 @@ function getSurveyResultsHTML() {
   
   $number_of_responses = getSurveyNumberResponses();
   $config = \Drupal::config('webform.webform.icrp_website_survey');
-//drupal_set_message($config->get('open'));
+  drupal_set_message($config->get('open'));  //DateTime String if scheduled
+  drupal_set_message($config->get('close'));  //DateTime String if scheduled
+  drupal_set_message($config->get('status'));  //'open', 'closed', 'scheduled'
 
 
   $reasons_data = getSurveyData('reasons');

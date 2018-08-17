@@ -100,3 +100,12 @@ icrp.survey_results:
     _role: 'administrator+manager'
   options:
     no_cache: 'TRUE'
+icrp.survey_status:
+  path: /survey-status
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::getSurveyConfig'
+  requirements:
+    _format: 'html'
+    _access: 'TRUE'
+  options:
+    no_cache: 'TRUE'
