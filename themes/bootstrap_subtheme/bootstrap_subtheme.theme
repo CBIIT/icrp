@@ -57,5 +57,4 @@ function bootstrap_subtheme_preprocess_media_reference_help(&$variables) {
         to help locate media.', 
         [':list_url' => Url::fromRoute('entity.media.collection')->toString()]
     );
-
 }
