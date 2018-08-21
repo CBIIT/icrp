@@ -6,6 +6,7 @@ _core:
   default_config_hash: GzL6-nR2WdUH7pCqHiFLOFFcwkPS8qILzbmrcCoy4yg
 open: null
 close: null
+weight: 0
 uid: null
 template: false
 archive: false

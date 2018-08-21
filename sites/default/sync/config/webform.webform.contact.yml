@@ -6,6 +6,7 @@ _core:
   default_config_hash: LasCJP-N2njGJZCeGeVp8mWjI36mX21SlCUXoc-NPN4
 open: null
 close: null
+weight: 0
 uid: null
 template: false
 archive: false

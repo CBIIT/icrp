@@ -34,41 +34,6 @@ function bootstrap_subtheme_suggestions_block_alter(array &$suggestions, array $
 
 function bootstrap_subtheme_page_attachments_alter(array &$page) {
     $page['#attached']['drupalSettings']['user']['roles'] = \Drupal::currentUser()->getRoles();
-    
-    $date = new DateTime();
-    $surveyConfig = Drupal::config('survey')->get();
-    $surveyDisabled = empty($surveyConfig) ||
-        !isset($surveyConfig['start-date']) || // key exists and is not null
-        !array_key_exists('end-date', $surveyConfig) || // only check for existence
-        new DateTime($surveyConfig['start-date']) > $date ||
-        (
-            $surveyConfig['end-date'] != NULL && 
-            new DateTime($surveyConfig['end-date']) < $date
-        );
-    
-    $page['#attached']['drupalSettings']['survey'] = [
-        'disabled' => $surveyDisabled
-    ];
-}
-
-function bootstrap_subtheme_preprocess_html(array &$variables) {
-
-    $path = \Drupal::request()->getBasePath();
-    $referer = \Drupal::request()->headers->get('referer');
-    $fromLogin = preg_match("/\/user\/login[\/]?$/", $referer);
-
-    if ($fromLogin && !empty($path)) {
-        $variables['page']['#attached']['html_head'][] = [
-            [
-                '#tag' => 'meta',
-                '#attributes' => [
-                    'http-equiv' => 'refresh',
-                    'content' => '0;URL="/"',
-                ],
-            ],
-            'redirect-index'
-        ];
-    }
 }
 
 function bootstrap_subtheme_preprocess_node(array &$variables) {
@@ -79,7 +44,6 @@ function bootstrap_subtheme_preprocess_node(array &$variables) {
 function bootstrap_subtheme_theme_suggestions_entity_add_list_alter(array &$suggestions, array $variables) {
     //kint($variables);
 }
-
 
 function bootstrap_subtheme_preprocess_media_reference_help(&$variables) {
     $variables['media_add_help'] = t(
@@ -93,5 +57,4 @@ function bootstrap_subtheme_preprocess_media_reference_help(&$variables) {
         to help locate media.', 
         [':list_url' => Url::fromRoute('entity.media.collection')->toString()]
     );
-
 }
