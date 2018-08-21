@@ -6,7 +6,7 @@ dependencies:
     - field.storage.node.body
     - taxonomy.vocabulary.page_specific_tags
   content:
-    - 'taxonomy_term:page_specific_tags:e8fbdec1-499f-11e8-aef7-0a86d5e0029c'
+    - 'taxonomy_term:page_specific_tags:592255ea-5329-11e8-9e96-0a6448490ca6'
   module:
     - node
     - taxonomy
@@ -321,7 +321,20 @@ display:
           tokenize: false
           content: "<h1>About the Partners</h1>\n<p>The International Cancer Research Partnership (ICRP) is a unique alliance of cancer research organizations from Australia, Canada, France, Japan, the Netherlands, United Kingdom, and the United States.  The Partners share funding information to enhance global collaboration and strategic coordination of research between individual  researchers and organizations.<p>\n<h2>Learn More About...</h2>"
           plugin_id: text_custom
-      footer: {  }
+      footer:
+        area:
+          id: area
+          table: views
+          field: area
+          relationship: none
+          group_type: group
+          admin_label: ''
+          empty: false
+          tokenize: false
+          content:
+            value: "<script>\nwindow.addEventListener('load', function() {\n  var $ = window.jQuery;\n  $('.about-us-nodes .collapse:not(:last)').collapse('show');\n  $('.about-us-nodes .panel').each(function() {\n    $(this).find('.panel-title')\n      .append($(this)\n        .find('.views-field-edit-node a')\n        .css('float', 'right')\n        .css('font-size', '16px')\n        .css('line-height', '20px')\n        .css('font-weight', '400')\n        .css('color', 'steelblue')\n      );\n  });\n})\n</script>"
+            format: full_html
+          plugin_id: text
       empty: {  }
       relationships: {  }
       arguments: {  }
