@@ -12,7 +12,7 @@ global-styling:
       css/datacaveats.css: {}
 
 global-scripts:
-  version: 1
+  version: 1.0.1
   js:
     https://www.gstatic.com/charts/loader.js: { type: external, minified: false }
     https://unpkg.com/babel-polyfill/dist/polyfill.min.js: { type: external, minified: true }
