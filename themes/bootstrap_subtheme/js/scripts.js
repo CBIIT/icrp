@@ -2,6 +2,7 @@
   Drupal.behaviors.icrpBehavior = {
     attach: function (context, settings) {
       $("#edit-keys").attr("placeholder", "Search Website");
+      $('#search-block-form [type="submit"]').css('width', '50px');      
       $("#views-bootstrap-sideshow-block-1 > div.carousel-inner > div.item").click(function(e) {
           console.info("You clicked on Caption - item");
           $.redirectCarousel(e);
