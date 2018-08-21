@@ -13,6 +13,9 @@ use PDO;
 class PageController extends ControllerBase {
 
     function uploadCompleteness(): array {
+
+        \Drupal::service('page_cache_kill_switch')->trigger();
+
         $rows = $this->getConnection()
             ->query('SET NOCOUNT ON; EXECUTE GetDataUploadCompletenessDetails')
             ->fetchAll();
