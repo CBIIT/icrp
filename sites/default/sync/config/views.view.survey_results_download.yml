@@ -374,7 +374,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
-          label: 'Reasons for visit'
+          label: 'Reasons for Visit'
           exclude: false
           alter:
             alter_text: false

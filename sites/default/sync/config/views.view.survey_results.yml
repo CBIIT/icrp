@@ -7,12 +7,8 @@ dependencies:
     - user.role.manager
     - webform.webform.icrp_website_survey
   module:
-    - csv_serialization
-    - rest
-    - serialization
     - user
     - views_bootstrap
-    - views_data_export
     - webform
     - webform_views
 id: survey_results
@@ -374,7 +370,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
-          label: 'Reasons for visit2'
+          label: 'Reasons for Visit'
           exclude: false
           alter:
             alter_text: true
