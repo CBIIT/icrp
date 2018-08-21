@@ -20,6 +20,7 @@ global-scripts:
     https://unpkg.com/bootbox/bootbox.min.js: { type: external, minified: true }
     js/init_globals.js: {}
     js/scripts.js: {}
+    js/survey.js: {}
   dependencies:
     - core/jquery
     - core/jquery.ui
