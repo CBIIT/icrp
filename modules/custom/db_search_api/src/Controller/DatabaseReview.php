@@ -52,6 +52,7 @@ class DatabaseReview {
   */
   public static function reviewSearchResults(PDO $pdo, array $parameters): array {
 
+    $search_id = null;
     $parameters['sort_column'] = self::SORT_COLUMN_MAP[$parameters['sort_column']];
     $output_parameters = [
       'search_id' => [
