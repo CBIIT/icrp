@@ -129,4 +129,4 @@ function () {
   })
 
 
-})(window.jQuery, Drupal, drupalSettings)
+})(jQuery, Drupal, drupalSettings)
