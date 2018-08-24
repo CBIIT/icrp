@@ -11,6 +11,10 @@
     </div>
 </div>
 
+<p>
+    This page gives you an estimate of how complete portfolio data is for any given calendar year to assist you in analysis using data from the ICRP site. Green indicates that the portfolio is complete, Yellow is partially complete, and Grey indicates that the organization has not submitted data for that year (either because it was not a member of ICRP, or was not in existence at that point). For example, if an organization submits data for a new fiscal year running 1 October 2016 – 30 September 2017 to add to previous years’ data, following upload, calendar year 2016 would be marked as complete, and 2017 as partial. The indicator is based on the annual average numbers of projects and is updated after each new data upload.
+</p>
+
 <div class="table-responsive">
     <table id="upload-completeness" class="dataTable table table-bordered table-striped table-narrow table-nowrap table-condensed">
         <thead>
@@ -32,9 +36,9 @@
                             <span title="{{ value == 1 ? 'Partial Upload' : value == 2 ? 'Upload Completed' : 'No Data'}}">
                                 <img src="{{ base_path }}/src/Assets/images/{{ value == 1 ? 'yellow' : value == 2 ? 'green' : 'gray'}}-dot.svg" />
                             </span>
-                        {% else %}  
+                        {% else %}
                             {{ value }}
-                        {% endif %}                       
+                        {% endif %}
                     </td>
                 {% endfor %}
                 </tr>
