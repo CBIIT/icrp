@@ -9,7 +9,8 @@ import {
   transition
 } from '@angular/animations';
 
-import { Observable } from 'rxjs';
+import { Observable, of, timer } from 'rxjs';
+import { delay } from 'rxjs/operators';
 
 @Component({
   selector: 'icrp-review-page',
@@ -180,7 +181,7 @@ export class ReviewPageComponent {
 
     for (let key of types) {
 
-      let loadingTrue$ = Observable.timer(250)
+      let loadingTrue$ = timer(250)
         .subscribe(e => this.analytics[key] = []);
 
       this.reviewService.getAnalytics({
@@ -197,7 +198,7 @@ export class ReviewPageComponent {
 
   getSearchResults(parameters, updateAnalytics = false) {
 
-    let loadingTrue$ = Observable.timer(100)
+    let loadingTrue$ = timer(100)
       .subscribe(e => this.loading = true);
 
     this.reviewService.getSearchResults(parameters)

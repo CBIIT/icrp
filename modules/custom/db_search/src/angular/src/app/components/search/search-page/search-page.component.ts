@@ -2,7 +2,8 @@ import { Component, OnInit, Output, Input, ViewChild, AfterViewInit } from '@ang
 import { SharedService } from '../../../services/shared.service';
 import { SearchService } from '../../../services/search.service';
 import { StoreService } from '../../../services/store.service';
-import { Observable } from 'rxjs';
+import { Observable, of, timer } from 'rxjs';
+import { delay, map } from 'rxjs/operators';
 
 import { parseQuery, range, asLabelValuePair, deepCopy, getSearchID, removeEmptyProperties } from './search-page.functions';
 import { FormBuilder, FormGroup } from '@angular/forms';
@@ -103,12 +104,13 @@ export class SearchPageComponent implements AfterViewInit {
   updateFields() {
     let storedFields = this.storeService.get('fields');
     if (storedFields) {
-      return Observable.of(true)
-        .delay(0)
-        .map(e => {
+      return of(true).pipe(
+        delay(0),
+        map(e => {
           this.fields = storedFields;
           this.searchForm.setFields(storedFields);
-        });
+        })
+      );
     }
 
     else {
@@ -166,9 +168,9 @@ export class SearchPageComponent implements AfterViewInit {
     ];
 
     for (let field of storedFields) {
-      Observable.of(true)
-        .delay(0)
-        .subscribe(e => {
+      of(true).pipe(
+        delay(0)
+      ).subscribe(e => {
           this.state[field] = this.storeService.get(field);
 
           switch(field) {
@@ -177,9 +179,9 @@ export class SearchPageComponent implements AfterViewInit {
               break;
 
             case 'lastBudgetYear':
-              Observable.of(this.state.lastBudgetYear.toString())
-                .delay(0)
-                .subscribe(year => this.chartsPanel.form.controls.conversion_year.patchValue(year));
+              of(this.state.lastBudgetYear.toString()).pipe(
+                delay(0)
+              ).subscribe(year => this.chartsPanel.form.controls.conversion_year.patchValue(year));
               break;
 
             case 'searchID':
@@ -189,9 +191,9 @@ export class SearchPageComponent implements AfterViewInit {
       });
     }
 
-    Observable.of(false)
-      .delay(100)
-      .subscribe(e => this.state.loading = e)
+    of(false).pipe(
+      delay(100)
+    ).subscribe(e => this.state.loading = e)
   }
 
   performSavedSearch(searchID) {
@@ -270,7 +272,7 @@ export class SearchPageComponent implements AfterViewInit {
 
     for (let key of types) {
 
-      let loadingTrue$ = Observable.timer(250)
+      let loadingTrue$ = timer(250)
         .subscribe(e => this.state.analytics[key] = []);
 
       if (year == null) {
@@ -303,7 +305,7 @@ export class SearchPageComponent implements AfterViewInit {
 
     params.search_id = this.state.searchID;
 
-    let loadingTrue$ = Observable.timer(500)
+    let loadingTrue$ = timer(500)
       .subscribe(e => this.state.loading = true);
 
     this.searchService.getSortedPaginatedResults(params)

@@ -123,7 +123,8 @@ export class PieChart {
             .each(e => e)
             .attr('d', arc)
             .style('fill', d =>
-                empty || !parseFloat(data[d.index].data[primaryKey].toString()) ? '#ddd' : color(d.index.toString()))
+                (empty || !parseFloat(data[d.index].data[primaryKey].toString()) || (d.index === data.length - 1 && data.length > 40))
+                    ? '#e4e4e4' : color(d.index.toString()))
     }
 
     /**

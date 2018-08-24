@@ -1,6 +1,6 @@
 import { Http } from '@angular/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 
@@ -40,7 +40,7 @@ export class SharedService {
     }
 
     else {
-      Observable.of(false)
+      of(false)
         .subscribe(response => this.set('authenticated', response));
     }
   }

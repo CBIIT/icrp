@@ -28,7 +28,6 @@ import { StoreService } from './services/store.service';
 import { TooltipModule, PaginationModule, ModalModule, AlertModule, BsDropdownModule, ButtonsModule } from 'ngx-bootstrap';
 
 import { SummaryPanelComponent } from './components/shared/summary-panel/summary-panel.component';
-import { IconComponent } from './components/ui-components/icon/icon.component';
 import { ChartsPanelComponent } from './components/shared/charts-panel/charts-panel.component';
 import { ReviewSummaryPanelComponent } from './components/review/review-summary-panel/review-summary-panel.component';
 import { ReviewUploadsTableComponent } from './components/review/review-uploads-table/review-uploads-table.component';
@@ -56,7 +55,6 @@ import { DataUploadCompletenessComponent } from './components/shared/data-upload
     PanelComponent,
     UiChartComponent,
     SummaryPanelComponent,
-    IconComponent,
     ChartsPanelComponent,
     ReviewSummaryPanelComponent,
     ReviewUploadsTableComponent,

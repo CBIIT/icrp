@@ -4,15 +4,15 @@
     <a *ngIf="authenticated" href="/upload-completeness">Data Completeness: </a>
   </b>
   <div class="display-flex overflow-hidden" title="Yellow: Projects Partially Uploaded, Green: Projects Completely Uploaded">
-    
-    <button 
+
+    <button
       (click)="scrollarea.scrollTo({left: scrollarea.scrollLeft - 120, behavior: 'smooth'})"
       class="custom-button flex-shrink-0">
       &lt;
     </button>
-    
+
     <div class="flex-auto nowrap overflow-hidden" #scrollarea>
-      <div 
+      <div
         *ngFor="let entry of data"
         class="display-inline-block white text-center border-white"
         [ngClass]="{
@@ -24,8 +24,8 @@
         {{ entry.Year }}
       </div>
     </div>
-    
-    <button 
+
+    <button
       (click)="scrollarea.scrollTo({left: scrollarea.scrollLeft + 120, behavior: 'smooth'})"
       class="custom-button flex-shrink-0">
       &gt;
