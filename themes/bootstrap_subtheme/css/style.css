@@ -715,7 +715,7 @@ ul.icrp-terms-list li:before {
     font-weight:normal;
     font-size:30px;
 }
-.survey-results, #no-survey-results, .feed-icons {
+.survey-results, .feed-icons {
     display:none;
 }
 .survey-results-table > div:nth-child(2) {

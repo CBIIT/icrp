@@ -136,10 +136,7 @@
     console.log(survey_responses);
 
     if(parseInt(survey_responses) == 0) {
-      $('#no-survey-results').show();
       $('#survey-download-btn').addClass('disabled');
-    } else {
-      $('#no-survey-results').hide();
     }
     setTimeout(function (){
       $('.survey-results').slideDown('slow');

@@ -68,32 +68,55 @@ function isSurveyOpen() {
 
 }
 
-function surveyStatus() {
-  //Get open date to see if Survey is Open
-  $long_date_template = 'F j, Y g:i A';
-  $last_visit_text = '';
+function getSurveyStatus() {
 
-  $uid = \Drupal::currentUser()->id();
-  $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+    $message = "Survey not started yet"; //now < open
 
-  $last_visit_date_raw = $user->get('field_last_forum_visit')->value;
-  if($last_visit_date_raw !== NULL) {
-    $last_visit_timestamp = new DrupalDateTime($last_visit_date_raw);
-    // Update the timezone to the system default.
-    //$last_visit_timestamp->setTimezone(timezone_open(drupal_get_user_timezone()));
-    $last_visit_date = $last_visit_timestamp->format($long_date_template);
+    $config = \Drupal::config('webform.webform.icrp_website_survey');
 
-    //drupal_set_message("last_visit_timestamp");
-    //dpm($last_visit_date);
-    $last_visit_text = 'Last visited: '.$last_visit_date;
-  }
+    if(!isset($config)) {
+      return "ICRP Website Survey does not exist";
+    }
 
-  $current_datetime = new DrupalDateTime('now');
-  $datetime_storage = $current_datetime->format(DATETIME_DATETIME_STORAGE_FORMAT);
-  $user->set("field_last_forum_visit", $datetime_storage);
-  $user->save();
+    $now = new DrupalDateTime('now');
+    $open = (int) $config->get('open') == "null";
+    $open = !$open ? new DrupalDateTime($config->get('open')) : NULL;
+    $close = (int) $config->get('close') == "null";
+    $close = !$close ? new DrupalDateTime($config->get('close')) : NULL;
+    if(!is_null($open)) {
+      //$long_date_template = 'F j, Y g:i A e';
+      $long_date_template = 'F j, Y';
+      $open_time = new DrupalDateTime($config->get('open'), 'UTC');
+      //$open_time->setTimezone(new \DateTimeZone(drupal_get_user_timezone()));
+      // drupal_get_user_timezone());
+      //$open_time->prepareTimezone(drupal_get_user_timezone());
+      $open_timestamp = $open_time->format($long_date_template);
+      $message .= '  The survery is scheduled to open on '.$open_timestamp;
+    }
 
-  return $last_visit_text;
+    if(!is_null($open)  && is_null($close)) {
+      if($open->getTimestamp() < $now->getTimestamp()) {
+        $message = "$open_timestamp - Present";  // open < now  && close is NULL
+      }
+    }
+    if(!is_null($open)  && !is_null($close)) {
+      if($open->getTimestamp() < $now->getTimestamp() && $close->getTimestamp() > $now->getTimestamp()) {
+        $message = "$open_timestamp - Present";  // open < now < close
+      }
+    }
+    if(!is_null($close)) {
+      //drupal_set_message($now->format('F j, Y g:i A e'));
+      //drupal_set_message($close->format('F j, Y g:i A e'));
+      if($close->getTimestamp() < $now->getTimestamp()) {
+        $message = "Survey is now closed";  // close < now
+      }
+    }
+
+    if($config->get('status') == "closed") {
+      $message = "Survey is now closed";  // close < now
+    }
+
+    return $message;
 }
 
 function getSurveyPeriod() {
@@ -281,13 +304,14 @@ function getSurveyData($chartname) {
 function getSurveyResultsHTML() {
   //  Load and render a twig template
   $twig = \Drupal::service('twig');
-  $survey_period = getSurveyPeriod();
+  //$survey_period = getSurveyPeriod();
+  $survey_period = getSurveyStatus();
   
   $number_of_responses = getSurveyNumberResponses();
   $config = \Drupal::config('webform.webform.icrp_website_survey');
-  drupal_set_message($config->get('open'));  //DateTime String if scheduled
-  drupal_set_message($config->get('close'));  //DateTime String if scheduled
-  drupal_set_message($config->get('status'));  //'open', 'closed', 'scheduled'
+  //drupal_set_message($config->get('open'));  //DateTime String if scheduled
+  //drupal_set_message($config->get('close'));  //DateTime String if scheduled
+  //drupal_set_message($config->get('status'));  //'open', 'closed', 'scheduled'
 
 
   $reasons_data = getSurveyData('reasons');

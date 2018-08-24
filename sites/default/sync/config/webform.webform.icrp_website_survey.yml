@@ -7,7 +7,7 @@ dependencies:
 third_party_settings:
   honeypot:
     honeypot: true
-open: '2018-08-17T11:00:00'
+open: '2018-08-21T11:00:00'
 close: null
 weight: 0
 uid: 1
