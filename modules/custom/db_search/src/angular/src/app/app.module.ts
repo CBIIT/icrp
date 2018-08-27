@@ -24,7 +24,7 @@ import { SearchService } from './services/search.service';
 import { ReviewService } from './services/review.service';
 import { ExportService } from './services/export.service';
 
-import { TooltipModule, PaginationModule, ModalModule, AlertModule, BsDropdownModule, ButtonsModule } from 'ngx-bootstrap';
+import { TooltipModule, PaginationModule, ModalModule, AlertModule, BsDropdownModule, ButtonsModule, PopoverModule } from 'ngx-bootstrap';
 
 import { SummaryPanelComponent } from './components/shared/summary-panel/summary-panel.component';
 import { ChartsPanelComponent } from './components/shared/charts-panel/charts-panel.component';
@@ -79,6 +79,7 @@ import { DataUploadCompletenessComponent } from './components/shared/data-upload
     AlertModule.forRoot(),
     BsDropdownModule.forRoot(),
     ButtonsModule.forRoot(),
+    PopoverModule.forRoot(),
 
     SpinnerModule.forRoot(),
     SelectModule.forRoot(),

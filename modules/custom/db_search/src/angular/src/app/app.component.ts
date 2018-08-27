@@ -20,5 +20,6 @@ export class AppComponent {
     sharedService.set('apiRoot', el.getAttribute('data-api-root') || '');
     sharedService.set('componentType', el.getAttribute('data-component-type'));
     sharedService.set('userRoles', (el.getAttribute('data-user-roles') || '').split(','));
+    sharedService.set('authenticated', (el.getAttribute('data-user-roles').includes('authenticated')));
   }
 }

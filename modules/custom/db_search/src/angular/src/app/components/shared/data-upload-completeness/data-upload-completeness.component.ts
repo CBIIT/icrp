@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SearchService } from '../../../services/search.service';
 import { SharedService } from '../../../services/shared.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'icrp-data-upload-completeness',
@@ -10,7 +11,7 @@ import { SharedService } from '../../../services/shared.service';
 export class DataUploadCompletenessComponent implements OnInit {
 
   authenticated = true;
-  data = [];
+  data$: Observable<any[]>;
 
   constructor(
     private searchService: SearchService,
@@ -18,20 +19,7 @@ export class DataUploadCompletenessComponent implements OnInit {
   ){ }
 
   ngOnInit() {
-    if (window['drupalSettings']) {
-      this.authenticated = window['drupalSettings']['user']['roles'].includes('authenticated');
-    }
-
-    this.searchService.getDataUploadCompletenessSummary()
-      .subscribe(response => {
-        this.data = response
-          .map(e => {
-            for (let key in e)
-              e[key] = +e[key]
-            return e;
-          })
-          
-      });
+    this.authenticated = this.sharedService.get('authenticated');
+    this.data$ = this.searchService.getDataUploadCompletenessSummary();
   }
-
 }

@@ -1,52 +1,3 @@
-.data-upload-completeness {
-    max-width: 100%;
-    width: 100%;
-}
-
-.display-flex {
-    display: flex;
-}
-
-.display-inline-block {
-    display: inline-block;
-}
-
-.flex-shrink-0 {
-    flex-shrink: 0;
-}
-
-.flex-shrink-1 {
-    flex-shrink: 1;
-}
-
-.flex-grow-1 {
-    flex-grow: 1;
-}
-
-.flex-auto {
-    flex: 1 1 auto;
-}
-
-.items-center {
-    align-items: center;
-}
-
-.overflow-hidden {
-    overflow: hidden;
-}
-
-.white {
-    color: white;
-}
-
-.black {
-    color: #594300;
-}
-
-.border-white {
-    border: 1px solid white;
-}
-
 .bg-green {
     background-color: #2ECC71;
 }
@@ -56,32 +7,9 @@
 }
 
 .bg-grey {
-    background-color: grey;
+    background-color: #ccc;
 }
 
-.nowrap {
-    white-space: nowrap;
-}
-
-.margin-v5px {
-    margin-top: 5px;
-    margin-bottom: 5px; 
-}
-
-.padding-v5px {
-    padding-top: 5px;
-    padding-bottom: 5px; 
-}
-
-.padding-r5px {
-    padding-right: 5px;
-}
-
-.custom-button {
-    padding: 0 5px;
-    margin: 0;
-    background-color: white;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
+.w-400 {
+    width: 400px;
 }

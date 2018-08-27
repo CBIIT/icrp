@@ -9,9 +9,10 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DbSearchController {
 
-  public function database_search_content() {
+  public function search_database() {
     return [
-      '#theme' => 'database_search',
+      '#theme' => 'search_database',
+      '#user_roles' => \Drupal::currentUser()->getRoles(),
       '#attached' => [
         'library' => [
           'db_search/default'
@@ -20,24 +21,15 @@ class DbSearchController {
     ];
   }
 
-  public function data_upload_review_content() {
+  public function review_database() {
     return [
-      '#theme' => 'data_upload_review',
-      '#user_roles' => implode(',', self::getRoles()),
+      '#theme' => 'review_database',
+      '#user_roles' => \Drupal::currentUser()->getRoles(),
       '#attached' => [
         'library' => [
           'db_search/default'
         ],
       ],
     ];
-  }
-
-  public static function getRoles(): array {
-    $current_user = \Drupal::currentUser();
-    return $current_user->getRoles();
-  }
-
-  public static function authenticate() {
-    return new Response('authenticated');
   }
 }

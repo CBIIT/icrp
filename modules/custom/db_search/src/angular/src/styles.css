@@ -65,3 +65,8 @@
     -ms-user-select: none;        /* Internet Explorer/Edge */
     user-select: none;
   }
+
+  .large-tooltip .tooltip-inner {
+    text-align: left;
+    min-width: 700px;
+  }

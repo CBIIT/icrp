@@ -1,5 +1,5 @@
 name: ICRP Database Search/Review
-description: Allows users to search the ICRP Database at /database-search, and to review ICRP Data Uploads at /data-upload-review
+description: Allows users to search the ICRP Database at /search-database, and to review ICRP Data Uploads at /review-database
 package: ICRP Modules
 type: module
 version: 1.1

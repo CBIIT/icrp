@@ -1,24 +1,16 @@
-search_database:
-  path: '/database-search'
+db_search.search_database:
+  path: '/search-database'
   defaults:
-    _controller: '\Drupal\db_search\Controller\DbSearchController::database_search_content'
+    _controller: '\Drupal\db_search\Controller\DbSearchController::search_database'
     _title: 'Search ICRP Database'
   requirements:
     _permission: 'access content'
 
-data_upload_review:
+db_search.review_database:
   path: '/data-upload-review'
   defaults:
-    _controller: '\Drupal\db_search\Controller\DbSearchController::data_upload_review_content'
+    _controller: '\Drupal\db_search\Controller\DbSearchController::review_database'
     _title: 'Data Review Tool'
-  requirements:
-    _permission: 'access content'
-    _role: 'authenticated'
-
-authenticate:
-  path: '/api/database/authenticate'
-  defaults:
-    _controller: '\Drupal\db_search\Controller\DbSearchController::authenticate'
   requirements:
     _permission: 'access content'
     _role: 'authenticated'
@@ -29,7 +21,7 @@ authenticate:
 db_search.content:
   path: '/db_search'
   defaults:
-    _controller: '\Drupal\db_search\Controller\DbSearchController::database_search_content'
+    _controller: '\Drupal\db_search\Controller\DbSearchController::search_database'
     _title: 'Search ICRP Database'
   requirements:
     _permission: 'access content'
@@ -37,7 +29,7 @@ db_search.content:
 db_search.db_search_original:
   path: '/db'
   defaults:
-    _controller: '\Drupal\db_search\Controller\DbSearchController::database_search_content'
+    _controller: '\Drupal\db_search\Controller\DbSearchController::search_database'
     _title: 'Search ICRP Database'
   requirements:
     _permission: 'access content'

@@ -1,38 +1,40 @@
-<div class="display-flex margin-v5px items-center">
-  <b class="flex-shrink-0 padding-r5px">
-    <div *ngIf="!authenticated">Data Completeness: </div>
-    <a *ngIf="authenticated" href="/upload-completeness">Data Completeness: </a>
-  </b>
-  <div class="display-flex overflow-hidden" title="Yellow: Projects Partially Uploaded, Green: Projects Completely Uploaded">
+<a
+  class="b"
+  [href]="authenticated ? '/upload-completeness' : '#'"
+  [style.cursor]="authenticated ? 'pointer' : 'default'"
+  [tooltip]="dataCompleteness"
+  containerClass="large-tooltip">
+  Data Completeness
+</a>
 
-    <button
-      (click)="scrollarea.scrollTo({left: scrollarea.scrollLeft - 120, behavior: 'smooth'})"
-      class="custom-button flex-shrink-0">
-      &lt;
-    </button>
-
-    <div class="flex-auto nowrap overflow-hidden" #scrollarea>
-      <div
-        *ngFor="let entry of data"
-        class="display-inline-block white text-center border-white"
-        [ngClass]="{
-          'bg-gray': entry.Status == 0,
-          'bg-yellow': entry.Status == 1,
-          'bg-green': entry.Status == 2
-        }"
-        style="width: 60px;">
-        {{ entry.Year }}
-      </div>
-    </div>
-
-    <button
-      (click)="scrollarea.scrollTo({left: scrollarea.scrollLeft + 120, behavior: 'smooth'})"
-      class="custom-button flex-shrink-0">
-      &gt;
-    </button>
+<ng-template #dataCompleteness>
+  <p>An estimate of how complete the portfolio data is for any given calendar year. Green is complete, Yellow partially complete. As new datasets are added, this indicator is updated.</p>
+  <div class="mb3">
+    <span
+      *ngFor="let entry of data$ | async"
+      style="display: inline-block; width: 60px;"
+      class="ph2 pv1 white tc ba b--white"
+      title="{{ entry.Year }}: {{
+          entry.Status == 0 ? 'No Data' :
+          entry.Status == 1 ? 'Data Partially Uploaded' :
+          entry.Status == 2 ? 'Data Upload Complete' :
+          'Unknown Status'
+      }}"
+      [ngClass]="{
+        'bg-gray': entry.Status == 0,
+        'bg-yellow': entry.Status == 1,
+        'bg-green': entry.Status == 2
+      }">{{ entry.Year }}</span>
   </div>
 
-  <div class="flex-auto scrollbar-hidden nowrap">
+  <div class="flex items-center">
+    <svg width="20" height="20"><circle cx="10" cy="10" r="8" fill="#ccc"></circle></svg>
+    <span class="ml1 mr4">No Data</span>
 
+    <svg width="20" height="20"><circle cx="10" cy="10" r="8" fill="#F9BF3B"></circle></svg>
+    <span class="ml1 mr4">Data Partially Uploaded</span>
+
+    <svg width="20" height="20"><circle cx="10" cy="10" r="8" fill="#2ECC71"></circle></svg>
+    <span class="ml1 mr4">Data Upload Complete</span>
   </div>
-</div>
+</ng-template>

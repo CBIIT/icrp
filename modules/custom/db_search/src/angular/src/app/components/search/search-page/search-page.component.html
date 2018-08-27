@@ -1,7 +1,6 @@
 <ui-overlay [active]="state.loading && (!state.results || !state.results.length)" [fullscreen]="true">
   <ui-spinner></ui-spinner>
   <br>{{ loadingMessage }}
-
 </ui-overlay>
 
 
@@ -23,8 +22,6 @@
       [loading]="state.loading"
       >
     </icrp-search-summary-panel>
-
-    <icrp-data-upload-completeness></icrp-data-upload-completeness>
 
     <br>
 
@@ -52,9 +49,9 @@
       <div
         *ngIf="!state.loading"
         style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px;">
-        <div style="display: flex">
-          <div class="btn-group mr-5" dropdown>
-            <button dropdownToggle type="button" class="btn btn-default dropdown-toggle">
+        <div style="display: flex; align-items: flex-end; ">
+          <div class="btn-group mr-5"  dropdown>
+            <button dropdownToggle type="button" class="btn btn-default dropdown-toggle" style="margin-bottom: 5px">
               {{ tables[selectedTable] }} <span class="caret"></span>
             </button>
             <ul *dropdownMenu class="dropdown-menu" role="menu" style="font-size: 14px; margin-top: -5px;">
@@ -72,6 +69,7 @@
             *ngIf="state.results && state.results.length"
             [authenticated]="sharedService.get('authenticated')">
           </icrp-export-buttons-panel>
+          <icrp-data-upload-completeness class="ml2"  style="margin-bottom: 5px"></icrp-data-upload-completeness>
         </div>
 
         <a [href]="'/map/?sid=' + sharedService.get('searchID')">
