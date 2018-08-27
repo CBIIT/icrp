@@ -21,7 +21,7 @@ export class ExportService {
       url,
       {
         search: searchParams,
-        withCredentials: this.sharedService.get('is_production')
+        withCredentials: this.sharedService.get('isProduction')
       }
     ).map(response => response.text());
   }

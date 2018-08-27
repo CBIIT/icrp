@@ -2,7 +2,7 @@
 
 <icrp-summary-panel>
   <div left-header>
-    <span *ngIf="currentSponsor else loading" class="bold orange">
+    <span *ngIf="currentSponsor" class="bold orange">
       Data Upload for Funding Sponsor {{ currentSponsor && currentSponsor.sponsor_code }},
       Funding Years {{ currentSponsor && currentSponsor.funding_year }}
       {{ currentSponsor.type && '(' + currentSponsor.type + ')' }}

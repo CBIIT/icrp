@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { SearchService } from '../../../services/search.service';
-import { StoreService } from '../../../services/store.service';
 import { SharedService } from '../../../services/shared.service';
 
 /**
@@ -55,7 +54,6 @@ export class SearchFormComponent {
   constructor(
     private formBuilder: FormBuilder,
     private searchService: SearchService,
-    private storeService: StoreService,
     public sharedService: SharedService,
   ) {
     this.search = new EventEmitter<object>();
@@ -177,6 +175,5 @@ export class SearchFormComponent {
 
   clearForm() {
     this.form.reset();
-    this.storeService.clearAll();
   }
 }

@@ -1,7 +1,6 @@
 import { Component, OnInit, Output, Input, ViewChild, AfterViewInit } from '@angular/core';
 import { SharedService } from '../../../services/shared.service';
 import { SearchService } from '../../../services/search.service';
-import { StoreService } from '../../../services/store.service';
 import { Observable, of, timer } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 
@@ -54,21 +53,17 @@ export class SearchPageComponent implements AfterViewInit {
 
   constructor(
     private searchService: SearchService,
-    private storeService: StoreService,
     public sharedService: SharedService,
     private formBuilder: FormBuilder
   ) {
     this.resetAnalytics();
-    this.storeService.clearAll();
   }
 
   ngAfterViewInit() {
     this.state.searchID = getSearchID();
-    this.storeService.clearAll();
 
     this.updateFields()
       .subscribe(e => {
-          this.storeService.clearAll();
           this.loadingMessage = 'Fetching Data';
           this.retrieveInitialResults();
       });
@@ -102,24 +97,10 @@ export class SearchPageComponent implements AfterViewInit {
 
   // sets the fields of the search form
   updateFields() {
-    let storedFields = this.storeService.get('fields');
-    if (storedFields) {
-      return of(true).pipe(
-        delay(0),
-        map(e => {
-          this.fields = storedFields;
-          this.searchForm.setFields(storedFields);
-        })
-      );
-    }
-
-    else {
-      return this.searchService.getFields().map(fields => {
-        this.fields = fields;
-        this.searchForm.setFields(fields);
-        this.storeService.set('fields', fields);
-      });
-    }
+    return this.searchService.getFields().map(fields => {
+      this.fields = fields;
+      this.searchForm.setFields(fields);
+    });
   }
 
   isStoredStateValid() {
@@ -139,61 +120,7 @@ export class SearchPageComponent implements AfterViewInit {
     if (getSearchID())
       return false;
 
-    if (!this.storeService.exists('previouslyAuthenticated')
-    || (this.sharedService.get('authenticated') !== this.storeService.get('previouslyAuthenticated'))) {
-      return false;
-    }
-
-    for (let field of storedFields) {
-      if (!this.storeService.exists(field) || !this.storeService.get(field)) {
-        console.log('error retrieving: ', field);
-        return false;
-      }
-    }
-
     return true;
-  }
-
-  restoreState() {
-    let storedFields = [
-      'searchID',
-      'searchParameters',
-      'sortPaginateParameters',
-      'displayParameters',
-      'results',
-      'projectCount',
-      'relatedProjectCount',
-      'lastBudgetYear',
-      'analytics'
-    ];
-
-    for (let field of storedFields) {
-      of(true).pipe(
-        delay(0)
-      ).subscribe(e => {
-          this.state[field] = this.storeService.get(field);
-
-          switch(field) {
-            case 'searchParameters':
-              this.searchForm.setParameters(this.state[field], true);
-              break;
-
-            case 'lastBudgetYear':
-              of(this.state.lastBudgetYear.toString()).pipe(
-                delay(0)
-              ).subscribe(year => this.chartsPanel.form.controls.conversion_year.patchValue(year));
-              break;
-
-            case 'searchID':
-              this.sharedService.set('searchID', this.state.searchID);
-              break;
-          }
-      });
-    }
-
-    of(false).pipe(
-      delay(100)
-    ).subscribe(e => this.state.loading = e)
   }
 
   performSavedSearch(searchID) {
@@ -293,14 +220,12 @@ export class SearchPageComponent implements AfterViewInit {
 
         this.state.analytics[key] = response;
 
-        this.storeService.merge('analytics', this.state.analytics);
       });
     }
   }
 
   getSortedPaginatedResults(parameters, callback?) {
     let params = deepCopy(parameters);
-    this.storeService.set('sortPaginateParameters', parameters);
     this.sharedService.set('searchID', this.state.searchID);
 
     params.search_id = this.state.searchID;
@@ -344,13 +269,6 @@ export class SearchPageComponent implements AfterViewInit {
 
         this.sharedService.set('searchID', this.state.searchID);
 
-        this.storeService.set('previouslyAuthenticated', this.sharedService.get('authenticated'));
-        this.storeFields([
-          'searchID',
-          'searchParameters',
-          'displayParameters',
-          'results',
-        ]);
       });
   }
 
@@ -372,22 +290,10 @@ export class SearchPageComponent implements AfterViewInit {
           this.chartsPanel.form.controls.conversion_year.patchValue(this.state.lastBudgetYear.toString());
         }
 
-
-        this.storeFields([
-          'projectCount',
-          'relatedProjectCount',
-          'lastBudgetYear',
-        ]);
-
         return this.state;
       })
   }
 
-  storeFields(fields) {
-    for (let field of fields) {
-      this.storeService.set(field, this.state[field]);
-    }
-  }
 
 
   resetAnalytics() {

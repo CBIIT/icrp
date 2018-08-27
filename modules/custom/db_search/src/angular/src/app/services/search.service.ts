@@ -21,7 +21,7 @@ export class SearchService {
       url,
       {
         search: searchParams,
-        withCredentials: this.sharedService.get('is_production')
+        withCredentials: this.sharedService.get('isProduction')
       }
     ).map(response => response.json());
   }
@@ -71,12 +71,10 @@ export class SearchService {
   }
 
   applyProjectUrls(response) {
-    let results = response.results
-      .map(row => {
-        let copy = Object.assign({}, row);
-        copy.project_url = `/project/${copy.project_id}`;
-        return copy;
-      });
+    let results = response.results.map(row => ({
+      ...row,
+      project_url: `/project/${row.project_id}`
+    }));
 
     return {
       search_id: response.search_id,

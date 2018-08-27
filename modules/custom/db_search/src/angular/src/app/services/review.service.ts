@@ -22,7 +22,7 @@ export class ReviewService {
       url,
       {
         search: searchParams,
-        withCredentials: this.sharedService.get('is_production')
+        withCredentials: this.sharedService.get('isProduction')
       }
     ).map(response => response.json());
   }
@@ -32,22 +32,16 @@ export class ReviewService {
   }
 
   getSearchResults(parameters: object) {
-    return this.getRequest(`${this.apiRoot}/sort_paginate`, parameters)
-      .map(response => {
-
-        let data = response.results
-          .map(row => {
-            let copy = Object.assign({}, row);
-            copy.project_url = `/review/project/${copy.project_id}`;
-            return copy;
-          });
-
-        return {
+    return this
+      .getRequest(`${this.apiRoot}/sort_paginate`, parameters)
+      .map(response => ({
           search_id: response.search_id,
           results_count: response.results_count,
-          results: data,
-        };
-      });
+          results: response.results.map(row => ({
+            ...row,
+            project_url: `/review/project/${row.project_id}`
+          })),
+        }));
   }
 
 

@@ -23,7 +23,6 @@ import { SharedService } from './services/shared.service';
 import { SearchService } from './services/search.service';
 import { ReviewService } from './services/review.service';
 import { ExportService } from './services/export.service';
-import { StoreService } from './services/store.service';
 
 import { TooltipModule, PaginationModule, ModalModule, AlertModule, BsDropdownModule, ButtonsModule } from 'ngx-bootstrap';
 
@@ -90,7 +89,6 @@ import { DataUploadCompletenessComponent } from './components/shared/data-upload
     SearchService,
     ReviewService,
     ExportService,
-    StoreService,
   ],
   bootstrap: [AppComponent]
 })
