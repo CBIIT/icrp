@@ -2,7 +2,7 @@ global-styling:
   css:
     theme:
       https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/theme.min.css: {type: external, minified: true}
-      https://unpkg.com/tachyons/css/tachyons.min.css: {type: external, minified: true}
+      https://cdnjs.cloudflare.com/ajax/libs/tachyons/4.11.1/tachyons.min.css: {type: external, minified: true}
       # css/bootstrap-yeti-navbar.css: {}
       css/fullcalendar-overrides.css: {}
       css/style.css: {}
@@ -15,9 +15,9 @@ global-scripts:
   version: 1.0.1
   js:
     https://www.gstatic.com/charts/loader.js: { type: external, minified: false }
-    https://unpkg.com/babel-polyfill/dist/polyfill.min.js: { type: external, minified: true }
-    https://unpkg.com/jquery-match-height/dist/jquery.matchHeight.js: { type: external, minified: true }
-    https://unpkg.com/bootbox/bootbox.min.js: { type: external, minified: true }
+    https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js: { type: external, minified: true }
+    https://cdnjs.cloudflare.com/ajax/libs/jquery.matchHeight/0.7.2/jquery.matchHeight-min.js: { type: external, minified: true }
+    https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js: { type: external, minified: true }
     js/init_globals.js: {}
     js/scripts.js: {}
     js/survey.js: {}
