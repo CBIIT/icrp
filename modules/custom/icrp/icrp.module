@@ -44,7 +44,7 @@ function isSurveyOpen() {
     $config = \Drupal::config('webform.webform.icrp_website_survey');
 
     if(!isset($config)) {
-      return "ICRP Website Survey does not exist";
+      return "ICRP Website Survey does not exist.  ";
     }
 
     $now = new DrupalDateTime('now');
@@ -70,7 +70,7 @@ function isSurveyOpen() {
 
 function getSurveyStatus() {
 
-    $message = "Survey not started yet"; //now < open
+    $message = "Survey not started yet.  "; //now < open
 
     $config = \Drupal::config('webform.webform.icrp_website_survey');
 
@@ -91,7 +91,7 @@ function getSurveyStatus() {
       // drupal_get_user_timezone());
       //$open_time->prepareTimezone(drupal_get_user_timezone());
       $open_timestamp = $open_time->format($long_date_template);
-      $message .= '  The survery is scheduled to open on '.$open_timestamp;
+      $message .= '  The survey is scheduled to open on '.$open_timestamp.'.';
     }
 
     if(!is_null($open)  && is_null($close)) {
@@ -108,7 +108,7 @@ function getSurveyStatus() {
       //drupal_set_message($now->format('F j, Y g:i A e'));
       //drupal_set_message($close->format('F j, Y g:i A e'));
       if($close->getTimestamp() < $now->getTimestamp()) {
-        $message = "Survey is now closed";  // close < now
+        $message = "Survey is now closed.";  // close < now
       }
     }
 
