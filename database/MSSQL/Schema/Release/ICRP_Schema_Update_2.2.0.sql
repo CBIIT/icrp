@@ -24,7 +24,9 @@ GO
 /*************************************************/
 /******		UPDATE TABLE        			******/
 /*************************************************/
-
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE  object_id = OBJECT_ID(N'[dbo].[FundingOrg]') AND name = 'IsDataCompletenessExcluded')
+	ALTER TABLE FundingOrg ADD IsDataCompletenessExcluded bit NULL
+GO
 
 /*************************************************/
 /******					Data				******/
@@ -41,6 +43,11 @@ SELECT f.FundingOrgID, f.FundingOrgAbbrev, y.Year, getdate(), getdate()
 	FROM (SELECT DISTINCT FundingOrgID, Abbreviation AS FundingOrgAbbrev FROM FundingOrg) f
 	FULL OUTER JOIN (SELECT DISTINCT  CalendarYear AS Year FROM ProjectFundingExt) y ON 1=1
 ORDER BY f.FundingOrgAbbrev, y.Year
+
+UPDATE FundingOrg SET IsDataCompletenessExcluded = 0
+
+--UPDATE [DataUploadCompleteness] SET Status = 2 WHERE Year <=2013
+--UPDATE [DataUploadCompleteness] SET Status = 2 WHERE FundingOrgAbbrev = 'ACF' AND Year=2014
 
 /*************************************************/
 /******					Keys				******/

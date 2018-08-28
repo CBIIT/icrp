@@ -8244,7 +8244,9 @@ CREATE  PROCEDURE [dbo].[AddFundingOrg]
 	@Note [varchar](8000),
 	@Website [varchar](200) ,
 	@Longitude [decimal](9, 6),
-	@Latitude [decimal](9, 6)	
+	@Latitude [decimal](9, 6),
+	@IsDataCompletenessExcluded bit = 0
+
 AS   
 
 
@@ -8270,12 +8272,12 @@ BEGIN TRY
 		   RAISERROR ('This partner funding organization already exists.', 16, 1)	
 	END
 
-	INSERT INTO FundingOrg ([Name], Abbreviation, [Type],[Country], [Currency], [SponsorCode], 	[MemberType], [MemberStatus], [IsAnnualized],[Note], [Website],	[Latitude],	[Longitude],[CreatedDate], [UpdatedDate])
-	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	ISNULL(@IsAnnualized, 0), @Note, @Website, @Latitude, @Longitude, GETDATE(), GETDATE())
+	INSERT INTO FundingOrg ([Name], Abbreviation, [Type],[Country], [Currency], [SponsorCode], 	[MemberType], [MemberStatus], [IsAnnualized],[Note], [Website],	[Latitude],	[Longitude], [IsDataCompletenessExcluded], [CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	ISNULL(@IsAnnualized, 0), @Note, @Website, @Latitude, @Longitude, @IsDataCompletenessExcluded, GETDATE(), GETDATE())
 	
 	-- Also insert the new fundingorg into the icrp_dataload database
-	INSERT INTO icrp_dataload.dbo.FundingOrg ([Name], Abbreviation, [Type],[Country], [Currency], [SponsorCode], 	[MemberType], [MemberStatus], [IsAnnualized],[Note], [Website],	[Latitude],	[Longitude], [CreatedDate], [UpdatedDate])
-	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	ISNULL(@IsAnnualized, 0), @Note, @Website, @Latitude, @Longitude, GETDATE(), GETDATE())
+	INSERT INTO icrp_dataload.dbo.FundingOrg ([Name], Abbreviation, [Type],[Country], [Currency], [SponsorCode], 	[MemberType], [MemberStatus], [IsAnnualized],[Note], [Website],	[Latitude],	[Longitude], [IsDataCompletenessExcluded], [CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Abbreviation, @Type, @Country, @Currency, @SponsorCode, @MemberType, @MemberStatus,	ISNULL(@IsAnnualized, 0), @Note, @Website, @Latitude, @Longitude, @IsDataCompletenessExcluded, GETDATE(), GETDATE())
 	
 		-- Only Insert the new fundingorg into the PartnerOrg table if it's "associate"
 	IF @MemberType = 'Associate'
@@ -8327,7 +8329,8 @@ CREATE  PROCEDURE [dbo].[UpdateFundingOrg]
 	@Note [varchar](8000),
 	@Website [varchar](200) ,
 	@Longitude [decimal](9, 6),
-	@Latitude [decimal](9, 6)	
+	@Latitude [decimal](9, 6),
+	@IsDataCompletenessExcluded bit = 0
 AS   
 
 
@@ -8363,6 +8366,7 @@ BEGIN TRY
 		[Website] = @Website,		
 		[Longitude]  = @Longitude,
 		[Latitude] = @Latitude,
+		[IsDataCompletenessExcluded] = @IsDataCompletenessExcluded,
 		[UpdatedDate] = getdate()
 	WHERE FundingOrgID =  @FundingOrgID
 
@@ -8379,6 +8383,7 @@ BEGIN TRY
 		[Website] = @Website,		
 		[Longitude]  = @Longitude,
 		[Latitude] = @Latitude,
+		[IsDataCompletenessExcluded] = @IsDataCompletenessExcluded,
 		[UpdatedDate] = getdate()
 	WHERE SponsorCode = @SponsorCode AND Abbreviation = @OrgAbbrev
 		
@@ -8615,9 +8620,9 @@ BEGIN
 		WHEN Status IS NULL THEN 0 ELSE Status
 		END AS Status,   -- Status: 0=No Data Upload, 1=Partial Upload, 2=Completed
 	 c.UpdatedDate AS LastUpdatedDate
-	FROM [DataUploadCompleteness] c
+	FROM DataUploadCompleteness c
 		JOIN FUndingOrg f ON c.FundingOrgID = f.FundingOrgID
-	WHERE c.Year <= @CurrYear
+	WHERE c.Year <= @CurrYear AND f.MemberStatus = 'Current' AND f.IsDataCompletenessExcluded = 0
 	ORDER BY f.SponsorCode, c.FundingOrgAbbrev, c.Year
 
 END 
@@ -8637,14 +8642,19 @@ BEGIN
 	
 	DECLARE @CurrYear INT = Year(getdate())
 
+	SELECT FundingOrgAbbrev, Year, Status INTO #tmp 
+	FROM DataUploadCompleteness c
+		JOIN FundingOrg o ON c.FundingOrgID = o.FundingOrgID
+	WHERE o.MemberStatus = 'Current' AND o.IsDataCompletenessExcluded = 0	
+		
 	SELECT Year,
 		CASE 
-			WHEN MIN(Status) = 2 THEN 2 ELSE 1		
-			END AS Status   -- Status: retrun 1 (partial upload as long as there are any funding orgs have status not 2 (compltete)
-	FROM [DataUploadCompleteness] WHERE Year <= @CurrYear
+			WHEN MIN(ISNULL(Status,0)) = 2 THEN 2 ELSE 1		
+			END AS Status   -- Status: retrun 1 (partial upload as long as there are any funding orgs have status not 2 (compltete)	
+	FROM #tmp
+	WHERE Year <= @CurrYear
 	GROUP BY Year
-	ORDER BY Year DESC
-
+	ORDER BY Year
 END 
 
 GO
@@ -8672,6 +8682,7 @@ BEGIN
 			WHEN Year IN (SELECT * FROM dbo.ToIntTable(@PartialUploadYears)) THEN 1  -- PartialUploaded
 			ELSE 0  -- No Data
 		END 
+	WHERE  FundingOrgID =  @FundingOrgID
 
 END 
 
