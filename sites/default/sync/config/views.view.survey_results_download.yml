@@ -178,7 +178,7 @@ display:
           group_type: group
           admin_label: ''
           label: ''
-          exclude: false
+          exclude: true
           alter:
             alter_text: false
             text: ''
@@ -230,7 +230,7 @@ display:
           group_type: group
           admin_label: ''
           label: ''
-          exclude: false
+          exclude: true
           alter:
             alter_text: false
             text: ''
@@ -481,15 +481,15 @@ display:
           label: 'Reasons for Visit'
           exclude: false
           alter:
-            alter_text: false
-            text: ''
+            alter_text: true
+            text: "{% set reps = [] %}\n{% set res = webform_submission_value|raw %}\n{% set responses = res|split(',') %}\n{% for response in responses %}\n\t{% set response_mod = response|trim %}\n\t{% if response_mod == \"To use the database to obtain information about cancer research activity\" %}\n\t\t{% set short_response = \"Search cancer research activity\" %}\n\t{% elseif response_mod == \"To use the ICRP map to obtain information about cancer research activity and collaborations\" %}\n\t\t{% set short_response = \"ICRP map\" %}\n\t{% elseif response_mod == \"To obtain information for advocacy efforts\" %}\n\t\t{% set short_response = \"Advocacy efforts\" %}\n\t{% elseif response_mod == \"To obtain information for cancer research planning or strategy\" %}\n\t\t{% set short_response = \"Cancer research planning\" %}\n\t{% elseif response_mod == \"To obtain information about joining ICRP\" %}\n\t\t{% set short_response = \"Joining ICRP\" %}\n\t{% elseif response_mod == \"To find out more about ICRP annual meetings\" %}\n\t\t{% set short_response = \"ICRP annual meetings\" %}\n\t{% elseif response_mod == \"To access a document or report from the Library\" %}\n\t\t{% set short_response = \"Access documents from Library\" %}\n\t{% elseif response_mod == \"Other (please explain below)\" %}\n\t    {% set short_response = \"Other: (\" ~ webform_submission_value_7|raw ~\")\" %}\n\t{% else %}\n\t\t{% set short_response = \"Unknown\" %}\t\t\n\t{% endif %}\n    {% set reps = reps|merge([short_response]) %}\n{% endfor %}\n{% autoescape false %}{{ reps|join(', ') }}{% endautoescape %}\t"
             make_link: false
             path: ''
             absolute: false
             external: false
             replace_spaces: false
             path_case: none
-            trim_whitespace: false
+            trim_whitespace: true
             alt: ''
             rel: ''
             link_class: ''
@@ -533,8 +533,8 @@ display:
           label: Background
           exclude: false
           alter:
-            alter_text: false
-            text: ''
+            alter_text: true
+            text: "{% set reps = [] %}\n{% set res = webform_submission_value_1|raw %}\n{% set responses = res|split(',') %}\n{% for response in responses %}\n\t{% set response_mod = response|trim %}\n\t{% if response_mod == \"Other (please explain below)\" %}\n\t    {% set short_response = \"Other: (\" ~ webform_submission_value_6 ~\")\" %}\n\t{% else %}\n\t\t{% set short_response = response_mod %}\t\n\t{% endif %}\n    {% set reps = reps|merge([short_response]) %}\n{% endfor %}\n{% autoescape false %}{{ reps|join(', ') }}{% endautoescape %}"
             make_link: false
             path: ''
             absolute: false
@@ -585,8 +585,8 @@ display:
           label: Familiarity
           exclude: false
           alter:
-            alter_text: false
-            text: ''
+            alter_text: true
+            text: "{% set response_mod = webform_submission_value_2|slice(0, 4) %}\n{% if response_mod == \"Fami\" %}\n  Familiar\n{% elseif response_mod == \"Some\" %}\n  Somewhat familiar\n{% elseif response_mod == \"Not \" %}\n  Not familiar\n{% else %}\n  Unknown\n{% endif %}"
             make_link: false
             path: ''
             absolute: false
@@ -862,6 +862,10 @@ display:
         - cookie
       displays:
         default: '0'
+      pager:
+        type: none
+        options:
+          offset: 0
     cache_metadata:
       max-age: -1
       contexts:
