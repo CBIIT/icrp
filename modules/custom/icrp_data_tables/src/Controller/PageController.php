@@ -7,6 +7,8 @@
 
 namespace Drupal\icrp_data_tables\Controller;
 
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Drupal\Core\Controller\ControllerBase;
 use PDO;
 
@@ -19,7 +21,7 @@ class PageController extends ControllerBase {
         $rows = $this->getConnection()
             ->query('SET NOCOUNT ON; EXECUTE GetDataUploadCompletenessDetails')
             ->fetchAll();
-        
+
         $years = array_unique(array_column($rows, 'year'));
         rsort($years);
 
@@ -46,8 +48,9 @@ class PageController extends ControllerBase {
             $currentId = $row['fundingorgid'];
             if ($currentId != $previousId) {
                 $records[] = [
+                    'id' => $row['fundingorgid'],
                     'fundingOrganization' => $row['fundingorgabbrev'],
-                    'sponsorCode' => $row['sponsorcode']
+                    'sponsorCode' => $row['sponsorcode'],
                 ];
                 $previousId = $currentId;
             }
@@ -65,8 +68,28 @@ class PageController extends ControllerBase {
                 'library' => [
                     'icrp_data_tables/default'
                 ],
+                'drupalSettings' => [
+                    'fundingOrganizations' => $records,
+                    'isManager' => in_array('manager', \Drupal::currentUser()->getRoles()),
+                ],
             ],
         ];
+    }
+
+    public function updateUploadCompleteness(Request $request): JsonResponse {
+        try {
+            $parameters = json_decode($request->getContent(), true);
+            return new JsonResponse(
+                $this->getConnection()->prepare(
+                    'EXECUTE UpdateDataUploadCompleteness
+                        @FundingOrgId = :fundingOrgId,
+                        @CompletedYears = :completedYears,
+                        @PartialUploadYears = :partialUploadYears;'
+                )->execute($parameters)
+            );
+        } catch (\Exception $e) {
+            return new JsonResponse($e->getMessage(), 500);
+        }
     }
 
     function uploadStatus(): array {
@@ -86,7 +109,7 @@ class PageController extends ControllerBase {
     }
 
     function redirectToUploadStatus() {
-        return $this->redirect('uploadStatus');        
+        return $this->redirect('uploadStatus');
     }
 
     function cancerTypes(): array {
