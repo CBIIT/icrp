@@ -478,7 +478,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: "{% set res = webform_submission_value|raw %}\n{% set responses = res|split(',') %}\n\n<ul>\n    {% for response in responses %}\n    \t{% set response_mod = response|trim %}\n\t\t{% if response_mod == \"To use the database to obtain information about cancer research activity\" %}\n\t\t\t{% set short_response = \"Search cancer research activity\" %}\n\t\t{% elseif response_mod == \"To use the ICRP map to obtain information about cancer research activity and collaborations\" %}\n\t\t\t{% set short_response = \"ICRP map\" %}\n\t\t{% elseif response_mod == \"To obtain information for advocacy efforts\" %}\n\t\t\t{% set short_response = \"Advocacy efforts\" %}\n\n\t\t{% elseif response_mod == \"To obtain information for cancer research planning or strategy\" %}\n\t\t\t{% set short_response = \"Cancer research planning\" %}\n\n\t\t{% elseif response_mod == \"To obtain information about joining ICRP\" %}\n\t\t\t{% set short_response = \"Joining ICRP\" %}\n\n\t\t{% elseif response_mod == \"To find out more about ICRP annual meetings\" %}\n\t\t\t{% set short_response = \"ICRP annual meetings\" %}\n\n\t\t{% elseif response_mod == \"To access a document or report from the Library\" %}\n\t\t\t{% set short_response = \"Access documents from Library\" %}\n\t\t\n\t\t{% elseif response_mod == \"Other (please explain below)\" %}\n                     {% set short_response = \"Other: (\" ~ webform_submission_value_7 ~\")\" %}\n\n\t\t\n\t\t{% else %}\n\t\t\t{% set short_response = \"Unknown\" %}\n\t\t\n\t\t{% endif %}\n        <li>{{ short_response }}</li>\n    {% endfor %}\n</ul>"
+            text: "{% set res = webform_submission_value|raw %}\n{% set responses = res|split(',') %}\n\n<ul>\n    {% for response in responses %}\n    \t{% set response_mod = response|trim %}\n\t\t{% if response_mod == \"To use the database to obtain information about cancer research activity\" %}\n\t\t\t{% set short_response = \"Search cancer research activity\" %}\n\t\t{% elseif response_mod == \"To use the ICRP map to obtain information about cancer research activity and collaborations\" %}\n\t\t\t{% set short_response = \"ICRP map\" %}\n\t\t{% elseif response_mod == \"To obtain information for advocacy efforts\" %}\n\t\t\t{% set short_response = \"Advocacy efforts\" %}\n\n\t\t{% elseif response_mod == \"To obtain information for cancer research planning or strategy\" %}\n\t\t\t{% set short_response = \"Cancer research planning\" %}\n\n\t\t{% elseif response_mod == \"To obtain information about joining ICRP\" %}\n\t\t\t{% set short_response = \"Joining ICRP\" %}\n\n\t\t{% elseif response_mod == \"To find out more about ICRP annual meetings\" %}\n\t\t\t{% set short_response = \"ICRP annual meetings\" %}\n\n\t\t{% elseif response_mod == \"To access a document or report from the Library\" %}\n\t\t\t{% set short_response = \"Access documents from Library\" %}\n\t\t\n\t\t{% elseif response_mod == \"Other (please explain below)\" %}\n                     {% set short_response = \"Other: (\" ~ webform_submission_value_7 ~\")\" %}\n\n\t\t\n\t\t{% else %}\n\t\t\t{% set short_response = \"Unknown\" %}\n\t\t\n\t\t{% endif %}\n        <li>{% autoescape false %}{{ short_response }}{% endautoescape %}</li>\n    {% endfor %}\n</ul>"
             make_link: false
             path: ''
             absolute: false
@@ -530,7 +530,7 @@ display:
           exclude: false
           alter:
             alter_text: true
-            text: "{% set res = webform_submission_value_1|raw %}\n{% set responses = res|split(',') %}\n\n<ul>\n    {% for response in responses %}\n    \t{% set response_mod = response|trim %}\n\t\t{% if response_mod == \"Other (please explain below)\" %}\n                        {% set short_response = \"Other: (\" ~ webform_submission_value_6 ~\")\" %}\n\t\n\t\t{% else %}\n\t\t\t{% set short_response = response_mod %}\n\t\t\n\t\t{% endif %}\n        <li>{{ short_response }}</li>\n\n    {% endfor %}\n</ul>"
+            text: "{% set res = webform_submission_value_1|raw %}\n{% set responses = res|split(',') %}\n\n<ul>\n    {% for response in responses %}\n    \t{% set response_mod = response|trim %}\n\t\t{% if response_mod == \"Other (please explain below)\" %}\n                        {% set short_response = \"Other: (\" ~ webform_submission_value_6 ~\")\" %}\n\t\n\t\t{% else %}\n\t\t\t{% set short_response = response_mod %}\n\t\t\n\t\t{% endif %}\n        <li>{% autoescape false %}{{ short_response }}{% endautoescape %}</li>\n\n    {% endfor %}\n</ul>"
             make_link: false
             path: ''
             absolute: false
@@ -800,7 +800,7 @@ display:
           order: DESC
           exposed: false
           expose:
-            label: ''
+            label: Completed
           granularity: second
           entity_type: webform_submission
           entity_field: completed

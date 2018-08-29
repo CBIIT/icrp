@@ -100,6 +100,8 @@
         case "/events":
           $.getLastMeetingReport();
           break;
+        case "/survey":
+          $('.alert.alert-success.alert-dismissible').css('display', 'none');
         case "/survey-results":
           google.charts.load('current', {packages: ['corechart', 'bar']});
           google.charts.setOnLoadCallback($.surveyCharts);
