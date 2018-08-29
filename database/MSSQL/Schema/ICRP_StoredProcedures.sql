@@ -3468,7 +3468,7 @@ AS
 
 	SELECT FundingOrgID, fo.Name, fo.Abbreviation, fo.SponsorCode + ' - ' + fo.Name AS DisplayName, fo.Type, fo.MemberType, 
 			CASE WHEN p.Status = 'Former' THEN 'Former' ELSE fo.MemberStatus END AS MemberStatus, fo.Country, fo.Currency, fo.Website,
-			fo.SponsorCode, p.Name AS Partner, fo.IsAnnualized, fo.Note, fo.LastImportDate, fo.LastImportDesc, fo.Latitude, fo.Longitude
+			fo.SponsorCode, p.Name AS Partner, fo.IsAnnualized, fo.Note, fo.LastImportDate, fo.LastImportDesc, fo.Latitude, fo.Longitude, fo.IsDataCompletenessExcluded
 	FROM FundingOrg fo
 		JOIN Partner p ON fo.SponsorCode = p.SponsorCode	
 	WHERE (fo.MemberStatus<>'Merged') AND ((@type = 'funding') OR (@type = 'Search' AND fo.LastImportDate IS NOT NULL))
