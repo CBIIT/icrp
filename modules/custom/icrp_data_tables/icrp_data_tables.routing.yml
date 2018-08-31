@@ -1,4 +1,4 @@
-cancerTypes:
+icrp_data_tables.cancerTypes:
   path: '/cancer-type-list'
   defaults:
     _controller: '\Drupal\icrp_data_tables\Controller\PageController::cancerTypes'
@@ -6,8 +6,7 @@ cancerTypes:
   requirements:
     _access: 'TRUE'
 
-
-uploadStatus:
+icrp_data_tables.uploadStatus:
   path: '/upload-status'
   defaults:
     _controller: '\Drupal\icrp_data_tables\Controller\PageController::uploadStatus'
@@ -16,8 +15,7 @@ uploadStatus:
     _access: 'TRUE'
     _role: 'authenticated'
 
-    
-uploadCompleteness:
+icrp_data_tables.uploadCompleteness:
   path: '/upload-completeness'
   defaults:
     _controller: '\Drupal\icrp_data_tables\Controller\PageController::uploadCompleteness'
@@ -26,13 +24,18 @@ uploadCompleteness:
     _access: 'TRUE'
     _role: 'authenticated'
 
+icrp_data_tables.updateUploadCompleteness:
+  path: '/update-upload-completeness'
+  defaults:
+    _controller: '\Drupal\icrp_data_tables\Controller\PageController::updateUploadCompleteness'
+  requirements:
+    _access: 'TRUE'
+    _role: 'manager'
 
-redirectToUploadStatus:
+icrp_data_tables.redirectToUploadStatus:
   path: '/uploadStatusReport'
   defaults:
     _controller: '\Drupal\icrp_data_tables\Controller\PageController::redirectToUploadStatus'
   requirements:
     _access: 'TRUE'
     _role: 'authenticated'
-
-

@@ -12,3 +12,4 @@ default:
     src/Assets/js/main.js: {}
   dependencies:
     - core/jquery
+    - core/drupalSettings
