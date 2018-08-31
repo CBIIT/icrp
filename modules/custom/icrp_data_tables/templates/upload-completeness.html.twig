@@ -119,7 +119,7 @@
                                 <tr>
                                     {% for column in columns %}
                                         {% if column.key matches '/^\\d+$/' %}
-                                            <td data-column="{{ column.key }}" class="mw-80px ho" style="min-width: 100px">
+                                            <td data-column="{{ column.key }}" class="mw-80px hover-bg-near-white" style="min-width: 100px">
                                                 <label class="radio-underlined">
                                                     <input name="{{column.key}}" type="radio" value="2" class="upload-radio">
                                                     <span class="radio-underlined-label">
