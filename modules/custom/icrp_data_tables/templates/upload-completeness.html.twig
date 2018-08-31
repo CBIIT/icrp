@@ -11,6 +11,8 @@
     </div>
 </div>
 
+<div id="status"></div>
+
 <p>
     This page gives you an estimate of how complete portfolio data is for any given calendar year to assist you in analysis using data from the ICRP site. Green indicates that the portfolio is complete, Yellow is partially complete, and Grey indicates that the organization has not submitted data for that year (either because it was not a member of ICRP, or was not in existence at that point). For example, if an organization submits data for a new fiscal year running 1 October 2016 – 30 September 2017 to add to previous years’ data, following upload, calendar year 2016 would be marked as complete, and 2017 as partial. The indicator is based on the annual average numbers of projects and is updated after each new data upload.
 </p>
@@ -31,15 +33,14 @@
                     {% for column in columns %}
                         {% set key = column.key %}
                         {% set value = record[key] %}
-                        <td data-column="{{key}}">
+                        <td data-column="{{key}}" data-id="{{record.id}}">
                             {% if key == 'fundingOrganization' and 'manager' in user.getroles %}
                                 <a href="#" class="link" data-funding-organization-id="{{record.id}}">{{value}}
                                     <i class="fas fa-edit"></i>
                                 </a>
                             {% elseif key matches '/^\\d+$/' %}
-                                <span class="sr-only">{{value}}</span>
-                                <span title="{{ value == 1 ? 'Partial Upload' : value == 2 ? 'Upload Completed' : 'No Data'}}">
-                                    <img src="{{ base_path }}/src/Assets/images/{{ value == 1 ? 'yellow' : value == 2 ? 'green' : 'gray'}}-dot.svg"/>
+                                <span class="sr-only" data-value>{{value}}</span>
+                                <img src="{{ base_path }}/src/Assets/images/{{ value == 1 ? 'yellow' : value == 2 ? 'green' : 'gray'}}-dot.svg" title="{{value == 1 ? 'Partial Upload' :                                     value == 2 ? 'Upload Completed' : 'No Data'}}">
                                 </span>
                             {% else %}
                                 {{ value }}
@@ -52,25 +53,32 @@
     </table>
     <div class="d-flex flex-wrap">
         <span class="d-flex flex-inline align-items-center mr3">
-            <img src="{{ base_path }}/src/Assets/images/green-dot.svg"/>
+            <img class="mr1" src="{{ base_path }}/src/Assets/images/green-dot.svg"/>
             Upload Completed
         </span>
 
         <span class="d-flex flex-inline align-items-center mr3">
-            <img src="{{ base_path }}/src/Assets/images/yellow-dot.svg"/>
+            <img class="mr1" src="{{ base_path }}/src/Assets/images/yellow-dot.svg"/>
             Partial Upload
         </span>
 
         <span class="d-flex flex-inline align-items-center mr3">
-            <img src="{{ base_path }}/src/Assets/images/gray-dot.svg"/>
+            <img class="mr1" src="{{ base_path }}/src/Assets/images/gray-dot.svg"/>
             No Data
         </span>
     </div>
 </div>
 
+<div style="display: none" id="alert-template">
+    <div class="alert alert-dismissible fade in" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+        <span class="alert-content">Hello</span>
+    </div>
+</div>
+
 {% if 'manager' in user.getroles %}
     <div class="modal fade" id="edit-funding-organization-modal" tabindex="-1" role="dialog" aria-labelledby="edit-funding-organization-modal-label">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -78,6 +86,24 @@
                     <h4 class="modal-title" id="edit-funding-organization-modal-label"></h4>
                 </div>
                 <div class="modal-body">
+
+                    <div class="d-flex flex-wrap mb3">
+                        <span class="d-flex flex-inline align-items-center mr3">
+                            <img class="mr1" src="{{ base_path }}/src/Assets/images/green-dot.svg"/>
+                            Upload Completed
+                        </span>
+
+                        <span class="d-flex flex-inline align-items-center mr3">
+                            <img class="mr1" src="{{ base_path }}/src/Assets/images/yellow-dot.svg"/>
+                            Partial Upload
+                        </span>
+
+                        <span class="d-flex flex-inline align-items-center mr3">
+                            <img class="mr1" src="{{ base_path }}/src/Assets/images/gray-dot.svg"/>
+                            No Data
+                        </span>
+                    </div>
+
                     <form id="edit-funding-organization-form" class="table-responsive">
                         <table class="table table-bordered table-striped table-nowrap table-condensed ma0">
                             <thead>
@@ -93,17 +119,28 @@
                                 <tr>
                                     {% for column in columns %}
                                         {% if column.key matches '/^\\d+$/' %}
-                                            <td data-column="{{ column.key }}">
-                                                <label>
-                                                    <input name="{{column.key}}" type="radio" value="2">Completed
+                                            <td data-column="{{ column.key }}" class="mw-80px ho" style="min-width: 100px">
+                                                <label class="radio-underlined">
+                                                    <input name="{{column.key}}" type="radio" value="2" class="upload-radio">
+                                                    <span class="radio-underlined-label">
+                                                        <img src="{{ base_path }}/src/Assets/images/green-dot.svg"/>
+
+                                                    </span>
                                                 </label>
 
-                                                <label>
-                                                    <input name="{{column.key}}" type="radio" value="1">Partial
+                                                <label class="radio-underlined">
+                                                    <input name="{{column.key}}" type="radio" value="1" class="upload-radio">
+                                                    <span class="radio-underlined-label">
+                                                        <img src="{{ base_path }}/src/Assets/images/yellow-dot.svg"/>
+
+                                                    </span>
                                                 </label>
 
-                                                <label>
-                                                    <input name="{{column.key}}" type="radio" value="0">No Data
+                                                <label class="radio-underlined">
+                                                    <input name="{{column.key}}" type="radio" value="0" class="upload-radio">
+                                                    <span class="radio-underlined-label">
+                                                        <img src="{{ base_path }}/src/Assets/images/gray-dot.svg"/>
+                                                    </span>
                                                 </label>
                                             </td>
                                         {% endif %}

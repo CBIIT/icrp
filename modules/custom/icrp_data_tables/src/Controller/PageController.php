@@ -69,8 +69,9 @@ class PageController extends ControllerBase {
                     'icrp_data_tables/default'
                 ],
                 'drupalSettings' => [
-                    'fundingOrganizations' => $records,
+                    'basePath' => '/' . drupal_get_path('module', 'icrp_data_tables'),
                     'isManager' => in_array('manager', \Drupal::currentUser()->getRoles()),
+                    'fundingOrganizations' => $records,
                 ],
             ],
         ];
@@ -88,7 +89,8 @@ class PageController extends ControllerBase {
                 )->execute($parameters)
             );
         } catch (\Exception $e) {
-            return new JsonResponse($e->getMessage(), 500);
+            $message = preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage());
+            return new JsonResponse($message, 500);
         }
     }
 

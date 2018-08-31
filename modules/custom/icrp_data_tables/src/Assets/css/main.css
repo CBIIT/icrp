@@ -23,3 +23,30 @@
     position: relative;
     border: none;
 }
+
+.radio-underlined {
+    position: relative;
+    cursor: pointer;
+    display: inline-block;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.radio-underlined input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.radio-underlined input ~ .radio-underlined-label {
+    border: 4px solid transparent;
+    border-left: 0;
+    border-right: 0;
+    padding: 6px 2px;
+}
+
+.radio-underlined input:checked ~ .radio-underlined-label {
+    border-bottom: 4px solid steelblue;
+}
