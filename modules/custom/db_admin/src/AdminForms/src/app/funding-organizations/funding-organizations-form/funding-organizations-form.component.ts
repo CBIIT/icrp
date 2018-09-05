@@ -205,6 +205,8 @@ export class FundingOrganizationsFormComponent {
           isDataCompletenessExcluded: false,
         }, {emitEvent: false});
       }
+
+      controls.memberStatus.updateValueAndValidity();
     })
 
 
@@ -238,8 +240,9 @@ export class FundingOrganizationsFormComponent {
     }
 
     const formData = new FormData();
-    for (let key in this.form.getRawValue()) {
-        formData.append(key, this.form.value[key]);
+    const formValue = this.form.getRawValue();
+    for (let key in formValue) {
+        formData.append(key, formValue[key]);
     }
 
     const action = this.form.value.operationType.toLowerCase(); // 'add' or 'update'
