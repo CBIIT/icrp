@@ -177,8 +177,6 @@ export class FundingOrganizationsFormComponent {
         const record = this.fields.fundingOrganizations
           .find(fundingOrganization => fundingOrganization.fundingorgid === fundingOrganizationId);
 
-        console.log(record);
-
         this.form.patchValue({
           memberType: record.membertype,
           isPartner: /Partner/i.test(record.membertype),
@@ -219,9 +217,10 @@ export class FundingOrganizationsFormComponent {
         });
       } else {
         this.form.controls.isDataCompletenessExcluded.enable();
-        this.form.patchValue({
-          isDataCompletenessExcluded: false
-        })
+        if (this.form.value.operationType === 'Add')
+          this.form.patchValue({
+            isDataCompletenessExcluded: false
+          })
       }
     })
 
