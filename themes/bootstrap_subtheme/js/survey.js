@@ -74,7 +74,7 @@
         .attr('name', 'surveyFrame')
         .css('border', 'none')
         .css('width', '100%')
-        .css('min-height', '600px');
+        .css('min-height', '650px');
 
       var dialog = bootbox.dialog({
         className: 'icrp-survey-modal',
