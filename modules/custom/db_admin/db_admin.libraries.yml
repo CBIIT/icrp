@@ -3,19 +3,19 @@ funding_organizations:
   css:
     theme:
       https://unpkg.com/ngx-bootstrap/datepicker/bs-datepicker.css: {}
-      assets/funding-organizations/styles.bundle.css: {}
+      assets/funding-organizations/styles.css: {}
   js:
-    assets/funding-organizations/inline.bundle.js: {}
-    assets/funding-organizations/polyfills.bundle.js: {}
-    assets/funding-organizations/main.bundle.js: {}
+    assets/funding-organizations/runtime.js: {}
+    assets/funding-organizations/polyfills.js: {}
+    assets/funding-organizations/main.js: {}
 
 partners:
   version: 1.0.7
   css:
     theme:
       https://unpkg.com/ngx-bootstrap/datepicker/bs-datepicker.css: {}
-      assets/partners/styles.bundle.css: {}
+      assets/partners/styles.css: {}
   js:
-    assets/partners/inline.bundle.js: {}
-    assets/partners/polyfills.bundle.js: {}
-    assets/partners/main.bundle.js: {}
+    assets/partners/runtime.js: {}
+    assets/partners/polyfills.js: {}
+    assets/partners/main.js: {}

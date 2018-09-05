@@ -1,6 +1,6 @@
 import { Component, Input, ElementRef, ViewChild, forwardRef } from '@angular/core';
 import { ControlValueAccessor, FormGroup, FormBuilder, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators'
 import * as parse from 'url-parse';
 
@@ -156,7 +156,7 @@ export class WebsiteInputComponent implements ControlValueAccessor {
     );
 
     // update the current value whenever an input changes
-    Observable.combineLatest(
+    combineLatest(
       protocol$,
       resource$,
       (protocol, resource) =>

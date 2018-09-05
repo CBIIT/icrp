@@ -32,6 +32,7 @@ class AdminController extends ControllerBase {
   private static function emptyToNull() {
     return function($value) {
       switch($value) {
+        case 'undefined':
         case 'null':
         case '':
           return null;
@@ -204,4 +205,3 @@ class AdminController extends ControllerBase {
     }
   }
 }
-

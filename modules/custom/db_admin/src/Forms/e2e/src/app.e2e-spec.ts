@@ -1,6 +1,6 @@
 import { AppPage } from './app.po';
 
-describe('forms App', () => {
+describe('workspace-project App', () => {
   let page: AppPage;
 
   beforeEach(() => {
@@ -9,6 +9,6 @@ describe('forms App', () => {
 
   it('should display welcome message', () => {
     page.navigateTo();
-    expect(page.getParagraphText()).toEqual('Welcome to icrp!');
+    expect(page.getParagraphText()).toEqual('Welcome to AdminForms!');
   });
 });

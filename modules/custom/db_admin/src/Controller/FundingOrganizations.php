@@ -51,7 +51,8 @@ class FundingOrganizations {
         @Note = :note,
         @Website = :website,
         @Latitude = :latitude,
-        @Longitude = :longitude",
+        @Longitude = :longitude,
+        @IsDataCompletenessExcluded = :isDataCompletenessExcluded",
       $parameters)->execute();
   }
 
@@ -71,7 +72,8 @@ class FundingOrganizations {
         @Note = :note,
         @Website = :website,
         @Latitude = :latitude,
-        @Longitude = :longitude",
+        @Longitude = :longitude,
+        @IsDataCompletenessExcluded = :isDataCompletenessExcluded",
     $parameters)->execute();
   }
 }

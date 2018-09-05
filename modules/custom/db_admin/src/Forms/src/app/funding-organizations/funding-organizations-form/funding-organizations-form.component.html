@@ -214,7 +214,7 @@
         fxLayoutAlign="start center"
         class="m-0 font-weight-normal">
         <input
-          class="mr-1"
+          class="my-0 mr-1"
           type="checkbox"
           value="Partner"
           formControlName="isPartner">
@@ -239,7 +239,8 @@
       class="border px-4 py-3"
       fxLayout="row wrap"
       fxLayoutAlign="space-between center"
-      fxFlex="100">
+      fxFlex="100"
+      style="align-self: stretch;">
 
       <div
         [ngClass]="{
@@ -252,13 +253,13 @@
         class="">
         <label
           fxFlex="40"
-          fxFlex.lt-md="100"
+          fxFlex.lt-lg="100"
           class="m-0 font-weight-bold control-label asterisk">
           Organization Type
         </label>
         <select
           fxFlex="59"
-          fxFlex.lt-md="100"
+          fxFlex.lt-lg="100"
           class="form-control input-sm"
           id="type"
           formControlName="type">
@@ -295,7 +296,7 @@
         <input
           type="checkbox"
           id="isAnnualized"
-          class="mr-1"
+          class="my-0 mr-1"
           formControlName="isAnnualized">
         <label
           for="isAnnualized"
@@ -326,44 +327,65 @@
       fxLayoutAlign="start center"
       fxFlex="100">
 
-      <label
-        ngClass.lt-md="mb-2"
-        class="m-0 mr-4 font-weight-bold control-label">
-        Member Status
-      </label>
+      <div fxFlex="50" fxFlex.lt-md="100" fxLayout="row wrap">
+        <label
+          ngClass.lt-md="mb-2"
+          fxFlex.lt-lg="100"
+          class="m-0 mr-4 font-weight-bold control-label">
+          Member Status
+        </label>
 
-      <label
-        fxLayout
-        fxFlex="nogrow"
-        fxFlex.lt-md="100"
-        fxLayoutAlign="start center"
-        ngClass.lt-md="mb-2"
-        class="m-0 mr-4 font-weight-normal">
-        <input
-          class="mr-1"
-          type="radio"
-          value="Current"
-          formControlName="memberStatus">
-        Current
-      </label>
+        <label
+          fxLayout
+          fxFlex="nogrow"
+          fxFlex.lt-lg="100"
+          fxLayoutAlign="start center"
+          ngClass.lt-md="mb-2"
+          class="m-0 mr-4 font-weight-normal">
+          <input
+            class="mr-1"
+            type="radio"
+            value="Current"
+            formControlName="memberStatus">
+          Current
+        </label>
 
-      <label
-        fxLayout
-        fxFlex="nogrow"
-        fxFlex.lt-md="100"
-        fxLayoutAlign="start center"
-        ngClass.lt-md="mb-2"
-        class="m-0 mr-4 font-weight-normal">
-        <input
-          class="mr-1"
-          type="radio"
-          value="Former"
-          formControlName="memberStatus">
-        Former
-      </label>
+        <label
+          fxLayout
+          fxFlex="nogrow"
+          fxFlex.lt-lg="100"
+          fxLayoutAlign="start center"
+          ngClass.lt-md="mb-2"
+          class="m-0 mr-4 font-weight-normal">
+          <input
+            class="mr-1"
+            type="radio"
+            value="Former"
+            formControlName="memberStatus">
+          Former
+        </label>
+      </div>
+
+      <div fxFlex="50" fxFlex.lt-lg="100">
+        <label
+          fxFlex="nogrow"
+          fxFlex.lt-md="100"
+          fxLayoutAlign="start center"
+          ngClass.gt-md="pl-4"
+          ngClass.lt-lg="mb-2 mt-4"
+          class="m-0 font-weight-normal"
+          ngStyle.gt-md="border-left: 1px solid #ddd">
+          <input
+            type="checkbox"
+            class="my-0 mr-1"
+            id="isDataCompletenessExcluded"
+            formControlName="isDataCompletenessExcluded">
+            Exclude from Data Completeness
+        </label>
+      </div>
+
 
     </div>
-
   </div>
 
 
