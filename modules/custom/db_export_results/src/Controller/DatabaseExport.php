@@ -37,7 +37,8 @@ class DatabaseExport {
    * Ensure that the output directory exists
    */
   function __construct() {
-    $this->output_directory = \Drupal::config('exports')->get('search') ?? 'data/exports/search';
+
+    $this->output_directory = \Drupal::config('icrp-tmp')->get('exports') ?? 'data/tmp/exports';
 
     // create the output directory if it does not exist
     if (!file_exists($this->output_directory)) {

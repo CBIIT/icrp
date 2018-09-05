@@ -11,11 +11,11 @@ class ExcelBuilder {
     public static function export(string $filename, array $sheets = null) {
         if(!sheets) return;
 
-        $exportsFolder = 'data/exports';
+        $exportsFolder = \Drupal::config('icrp-tmp')->get('exports') ?? 'data/tmp/exports';
         $filePath = "$exportsFolder/$filename";
         if (!file_exists($exportsFolder))
           mkdir($exportsFolder, 0744, true);
-    
+
         $writer = WriterFactory::create(Type::XLSX);
         $writer->openToFile($filePath);
         $writer->setDefaultRowStyle(

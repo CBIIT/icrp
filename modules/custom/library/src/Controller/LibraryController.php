@@ -18,7 +18,7 @@ class LibraryController extends ControllerBase {
   function __construct() {
     \Drupal::service('page_cache_kill_switch')->trigger();
     // ensure the uploads folder exists
-    $uploads_folder = \Drupal::config('library')->get('uploads_folder') ?? 'data/library/uploads';
+    $uploads_folder = \Drupal::config('icrp-data')->get('library') ?? 'data/library/uploads';
     if (!file_exists($uploads_folder)) {
       mkdir("$uploads_folder/thumbs", 0744, true);
       $file = fopen("$uploads_folder/.htaccess", "w");
@@ -397,7 +397,7 @@ class LibraryController extends ControllerBase {
       $stmt->bindValue(":display",$upload->getClientOriginalName());
       if ($stmt->execute()) {
         $row = array_merge(array(),$stmt->fetchAll(PDO::FETCH_ASSOC))[0];
-        $uploads_folder = \Drupal::config('library')->get('uploads_folder') ?? 'data/library/uploads';
+        $uploads_folder = \Drupal::config('icrp-data')->get('library') ?? 'data/library/uploads';
         $upload->move($uploads_folder,$row['Filename']);
         if ($thumb) $thumb->move("$uploads_folder/thumbs",$row['ThumbnailFilename']);
         return new JsonResponse(array(
@@ -439,7 +439,7 @@ class LibraryController extends ControllerBase {
       $stmt->bindParam(":display",$params["display_name"]);
       if ($stmt->execute()) {
           $row = array_merge(array(),$stmt->fetchAll(PDO::FETCH_ASSOC))[0];
-          $uploads_folder = \Drupal::config('library')->get('uploads_folder') ?? 'data/library/uploads';
+          $uploads_folder = \Drupal::config('icrp-data')->get('library') ?? 'data/library/uploads';
           if ($upload) $upload->move($uploads_folder,$row['Filename']);
           if ($thumb) $thumb->move("$uploads_folder/thumbs",$row['ThumbnailFilename']);
           return self::getFolder($params["parent"]);
@@ -561,7 +561,7 @@ class LibraryController extends ControllerBase {
         }
         array_push($result,$row_output);
         try {
-          $uploads_folder = \Drupal::config('library')->get('uploads_folder') ?? 'data/library/uploads';
+          $uploads_folder = \Drupal::config('icrp-data')->get('library') ?? 'data/library/uploads';
           $zip->addFileFromPath($row_output['DisplayName'],join('/',array($uploads_folder,$row_output['Filename'])));
         } catch (\Zipstream\Exception\FileNotFoundException $e) { }
       }
@@ -618,7 +618,7 @@ class LibraryController extends ControllerBase {
 
   private function getFile($location) {
     try {
-      $uploads_folder = \Drupal::config('library')->get('uploads_folder') ?? 'data/library/uploads';
+      $uploads_folder = \Drupal::config('icrp-data')->get('library') ?? 'data/library/uploads';
       return new BinaryFileResponse(join('/',array($uploads_folder,$location)));
     } catch (\Exception $e) {
 //      drupal_set_message(t('The file was not found.'), 'error');

@@ -8,7 +8,7 @@ use Box\Spout\Writer\Style\StyleBuilder;
 
 class ExcelBuilder {
   public static function create(string $filename, array $sheets = null) {
-    $exportsFolder = \Drupal::config('exports')->get('map') ?? 'data/exports/map';
+    $exportsFolder = \Drupal::config('icrp-tmp')->get('exports') ?? 'data/tmp/exports';
 
     if (!file_exists($exportsFolder))
       mkdir($exportsFolder, 0744, true);

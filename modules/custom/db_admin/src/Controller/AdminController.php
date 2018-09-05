@@ -21,6 +21,13 @@ use Exception;
  */
 class AdminController extends ControllerBase {
 
+  function __construct() {
+    $partnerLogosFolder = \Drupal::config('icrp-data')->get('partner-logos') ?? 'data/uploads/partner-logos';
+    if (!file_exists($partnerLogosFolder))
+      mkdir($partnerLogosFolder, 0744, true);
+  }
+
+
   private static function createResponse($data = NULL, $status = 200) {
     return JsonResponse::create($data, $status, [
       'Access-Control-Allow-Headers' => 'origin, content-type, accept',
@@ -123,7 +130,8 @@ class AdminController extends ControllerBase {
 
       if ($uploadedFile) {
         $parameters['logoFile'] = $uploadedFile->getClientOriginalName();
-        $uploadedFile->move('data/uploads/partner-logos', $parameters['logoFile']);
+        $partnerLogosFolder = \Drupal::config('icrp-data')->get('partner-logos') ?? 'data/uploads/partner-logos';
+        $uploadedFile->move($partnerLogosFolder, $parameters['logoFile']);
       }
 
       $connection = PDOBuilder::getConnection();
@@ -146,7 +154,8 @@ class AdminController extends ControllerBase {
 
       if ($uploadedFile) {
         $parameters['logoFile'] = $uploadedFile->getClientOriginalName();
-        $uploadedFile->move('data/uploads/partner-logos', $parameters['logoFile']);
+        $partnerLogosFolder = \Drupal::config('icrp-data')->get('partner-logos') ?? 'data/uploads/partner-logos';
+        $uploadedFile->move($partnerLogosFolder, $parameters['logoFile']);
       }
 
       $connection = PDOBuilder::getConnection();
@@ -169,7 +178,8 @@ class AdminController extends ControllerBase {
 
       if ($uploadedFile) {
         $parameters['logoFile'] = $uploadedFile->getClientOriginalName();
-        $uploadedFile->move('data/uploads/partner-logos', $parameters['logoFile']);
+        $partnerLogosFolder = \Drupal::config('icrp-data')->get('partner-logos') ?? 'data/uploads/partner-logos';
+        $uploadedFile->move($partnerLogosFolder, $parameters['logoFile']);
       }
 
       $connection = PDOBuilder::getConnection();
@@ -190,7 +200,8 @@ class AdminController extends ControllerBase {
 
       if ($uploadedFile) {
         $parameters['logoFile'] = $uploadedFile->getClientOriginalName();
-        $uploadedFile->move('data/uploads/partner-logos', $parameters['logoFile']);
+        $partnerLogosFolder = \Drupal::config('icrp-data')->get('partner-logos') ?? 'data/uploads/partner-logos';
+        $uploadedFile->move($partnerLogosFolder, $parameters['logoFile']);
       }
 
       $connection = PDOBuilder::getConnection();

@@ -57,7 +57,7 @@ class DataUploadController extends ControllerBase {
   public static function loadProjects(Request $request): JSONResponse {
     $parameters = $request->request->all();
     $connection = PDOBuilder::getConnection('icrp_load_database');
-    $uploadsFolder = \Drupal::config('exports')->get('data_load') ?? 'data/uploads/data_load';
+    $uploadsFolder = \Drupal::config('icrp-tmp')->get('workbooks') ?? 'data/tmp/workbooks';
 
     if (!file_exists($uploadsFolder))
       mkdir($uploadsFolder, 0744, true);
