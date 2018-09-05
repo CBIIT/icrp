@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { FundingOrganizationsApiService } from '../../services/funding-organizations-api.service'
 import { HttpErrorResponse } from '@angular/common/http';
+import { controlNameBinding } from '@angular/forms/src/directives/reactive_directives/form_control_name';
 
 @Component({
   selector: 'icrp-funding-organizations-form',
@@ -206,6 +207,22 @@ export class FundingOrganizationsFormComponent {
       }
     })
 
+
+    controls.memberStatus.valueChanges.subscribe(memberStatus => {
+
+      if (memberStatus === 'Former') {
+        this.form.controls.isDataCompletenessExcluded.disable();
+        this.form.patchValue({
+          isDataCompletenessExcluded: true
+        });
+      } else {
+        this.form.controls.isDataCompletenessExcluded.enable();
+        this.form.patchValue({
+          isDataCompletenessExcluded: false
+        })
+      }
+    })
+
     controls.partnerId.updateValueAndValidity();
   }
 
@@ -221,7 +238,7 @@ export class FundingOrganizationsFormComponent {
     }
 
     const formData = new FormData();
-    for (let key in this.form.value) {
+    for (let key in this.form.getRawValue()) {
         formData.append(key, this.form.value[key]);
     }
 
