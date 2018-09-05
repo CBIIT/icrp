@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { FundingOrganizationsApiService } from '../../services/funding-organizations-api.service'
 import { HttpErrorResponse } from '@angular/common/http';
+import { controlNameBinding } from '@angular/forms/src/directives/reactive_directives/form_control_name';
 
 @Component({
   selector: 'icrp-funding-organizations-form',
@@ -25,6 +26,7 @@ export class FundingOrganizationsFormComponent {
       memberType: 'Associate',
       isPartner: false,
       memberStatus: 'Current',
+      isDataCompletenessExcluded: [false],
       name: [null, [Validators.required, Validators.maxLength(100)]],
       fundingOrganizationId: [null],
       type: [null, Validators.required],
@@ -110,6 +112,7 @@ export class FundingOrganizationsFormComponent {
         isPartner: false,
         memberType: 'Associate',
         isAnnualized: false,
+        isDataCompletenessExcluded: false,
       }, {emitEvent: false});
     });
 
@@ -174,8 +177,6 @@ export class FundingOrganizationsFormComponent {
         const record = this.fields.fundingOrganizations
           .find(fundingOrganization => fundingOrganization.fundingorgid === fundingOrganizationId);
 
-        console.log(record);
-
         this.form.patchValue({
           memberType: record.membertype,
           isPartner: /Partner/i.test(record.membertype),
@@ -189,7 +190,8 @@ export class FundingOrganizationsFormComponent {
           country: record.country,
           currency: record.currency,
           note: record.note,
-          isAnnualized: record.isannualized
+          isAnnualized: record.isannualized,
+          isDataCompletenessExcluded: record.isdatacompletenessexcluded,
         }, {emitEvent: false});
       } else {
         this.form.reset({
@@ -198,7 +200,27 @@ export class FundingOrganizationsFormComponent {
           memberStatus: 'Current',
           isAnnualized: false,
           isPartner: false,
+          isDataCompletenessExcluded: false,
         }, {emitEvent: false});
+      }
+
+      controls.memberStatus.updateValueAndValidity();
+    })
+
+
+    controls.memberStatus.valueChanges.subscribe(memberStatus => {
+
+      if (memberStatus === 'Former') {
+        this.form.controls.isDataCompletenessExcluded.disable();
+        this.form.patchValue({
+          isDataCompletenessExcluded: true
+        });
+      } else {
+        this.form.controls.isDataCompletenessExcluded.enable();
+        if (this.form.value.operationType === 'Add')
+          this.form.patchValue({
+            isDataCompletenessExcluded: false
+          })
       }
     })
 
@@ -217,8 +239,9 @@ export class FundingOrganizationsFormComponent {
     }
 
     const formData = new FormData();
-    for (let key in this.form.value) {
-        formData.append(key, this.form.value[key]);
+    const formValue = this.form.getRawValue();
+    for (let key in formValue) {
+        formData.append(key, formValue[key]);
     }
 
     const action = this.form.value.operationType.toLowerCase(); // 'add' or 'update'
