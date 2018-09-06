@@ -90,6 +90,7 @@ package-lock.json
 !/sites/default/files/user-guides
 
 /data/exports/*
+/data/tmp/*
 !/data/uploads/partner-logos
 
 /test.php
