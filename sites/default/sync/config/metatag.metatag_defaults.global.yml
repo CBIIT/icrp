@@ -7,8 +7,7 @@ _core:
 id: global
 label: Global
 tags:
-  abstract: 'cancer partnership research, researcher data database portfolio, CSO network, networking strategy, oncology, organization funder, funding, funded map mapping international global collaboration biomedical projects awards, applications statistics investment'
   description: 'ICRP is an alliance of cancer organizations working together to enhance global collaboration and strategic coordination of research'
-  keywords: 'cancer partnership research, researcher data database portfolio, CSO network, networking strategy, oncology, organization funder, funding, funded map mapping international global collaboration biomedical projects awards, applications statistics investment'
+  keywords: 'cancer partnership research researcher data database portfolio CSO network networking strategy oncology organization funder funding funded map mapping international global collaboration biomedical projects awards applications statistics investment'
   robots: 'index, follow'
   title: '[site:name] | [current-page:title]'
