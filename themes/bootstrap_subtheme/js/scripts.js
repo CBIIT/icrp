@@ -176,7 +176,10 @@
       vAxis: {
         minValue: 0
       },
-      legend: { position: 'top'}
+      pieSliceTextStyle: { color: 'black', fontName: 'Arial', fontSize: 14 }, 
+      backgroundColor: 'transparent',
+      legend: { textStyle: { color: 'black', fontName: 'Arial', fontSize: 14 } },
+      enableInteractivity: true       
     };
 
     var chart1 = new google.visualization.BarChart(document.getElementById('chart_reasons'));
