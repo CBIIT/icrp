@@ -156,12 +156,13 @@ $(function () {
             25, 50, 100, 150
         ],
         dom: "<'d-flex align-items-center flex-wrap justify-content-between'"
-            + "<li> p"
-            + "><'table-responsive't>",
+        + "<'d-flex align-items-center flex-wrap'<'mr-40 mv-5'f>>"
+        + "<'d-flex align-items-center flex-wrap'<'mr-40 mv-5'li><'mv-5'p>>"
+        + "><'table-responsive't>",
         autoWidth: false,
         language: {
             lengthMenu: 'Display _MENU_',
-            info: '<label style="margin-left: 5px">of _TOTAL_ funding organizations</label>',
+            info: '<label style="margin-left: 5px">of _TOTAL_ funding organization(s)</label>',
             infoFiltered: '',
             infoEmpty: '',
         },
