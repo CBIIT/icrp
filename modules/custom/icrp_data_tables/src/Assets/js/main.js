@@ -57,7 +57,8 @@ $(function () {
                 .modal('show');
 
             // set the title of the modal
-            $(modal).find('.modal-title').text(fundingOrg.fundingOrganization);
+            $(modal).find('.modal-title').text('Update Data Upload Completeness - '
+                + fundingOrg.fundingOrganization);
 
             // find each data column in the modal and populate its inputs with the correct value
             $(modal).find('table [data-column]').each(function() {

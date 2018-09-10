@@ -80,29 +80,16 @@
     <div class="modal fade" id="edit-funding-organization-modal" tabindex="-1" role="dialog" aria-labelledby="edit-funding-organization-modal-label">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-primary">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="edit-funding-organization-modal-label"></h4>
                 </div>
                 <div class="modal-body">
 
-                    <div class="d-flex flex-wrap mb3">
-                        <span class="d-flex flex-inline align-items-center mr3">
-                            <img class="mr1" src="{{ base_path }}/src/Assets/images/green-dot.svg"/>
-                            Upload Completed
-                        </span>
-
-                        <span class="d-flex flex-inline align-items-center mr3">
-                            <img class="mr1" src="{{ base_path }}/src/Assets/images/yellow-dot.svg"/>
-                            Partial Upload
-                        </span>
-
-                        <span class="d-flex flex-inline align-items-center mr3">
-                            <img class="mr1" src="{{ base_path }}/src/Assets/images/gray-dot.svg"/>
-                            No Data
-                        </span>
-                    </div>
+                    <p>
+                        Click on the color coded circle to update the Data Upload Completeness status for the calendar year(s) and Save.
+                    </p>
 
                     <form id="edit-funding-organization-form" class="table-responsive">
                         <table class="table table-bordered table-striped table-nowrap table-condensed ma0">
@@ -149,9 +136,28 @@
                             </tbody>
                         </table>
                     </form>
+
+                    <div class="d-flex flex-wrap mt1">
+                        <span class="d-flex flex-inline align-items-center mr3">
+                            <img class="mr1" src="{{ base_path }}/src/Assets/images/green-dot.svg"/>
+                            Upload Completed
+                        </span>
+
+                        <span class="d-flex flex-inline align-items-center mr3">
+                            <img class="mr1" src="{{ base_path }}/src/Assets/images/yellow-dot.svg"/>
+                            Partial Upload
+                        </span>
+
+                        <span class="d-flex flex-inline align-items-center mr3">
+                            <img class="mr1" src="{{ base_path }}/src/Assets/images/gray-dot.svg"/>
+                            No Data
+                        </span>
+                    </div>
+
+
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" data-submit="data-submit">Save changes</button>
                 </div>
             </div>
