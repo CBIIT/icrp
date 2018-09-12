@@ -1,40 +1,40 @@
-<a
-  class="b"
-  [href]="authenticated ? '/upload-completeness' : '#'"
-  [style.cursor]="authenticated ? 'pointer' : 'default'"
-  [tooltip]="dataCompleteness"
-  containerClass="large-tooltip">
-  Data Completeness
-</a>
+<div *ngIf="(data$ | async) as data">
+  <a class="b" [href]="authenticated ? '/upload-completeness' : '#'" [style.cursor]="authenticated ? 'pointer' : 'default'"
+    [tooltip]="dataCompleteness" containerClass="large-tooltip">
+    Data Completeness
+  </a>
 
-<ng-template #dataCompleteness>
-  <p>An estimate of how complete the portfolio data is for any given calendar year. Green is complete, Yellow partially complete. As new datasets are added, this indicator is updated.</p>
-  <div class="mb3">
-    <span
-      *ngFor="let entry of data$ | async"
-      style="display: inline-block; width: 60px;"
-      class="ph2 pv1 white tc ba b--white"
-      title="{{ entry.Year }}: {{
-          entry.Status == 0 ? 'No Data' :
+  <ng-template #dataCompleteness>
+    <p class="mt2">An estimate of how complete the portfolio data is for any given calendar year. Green is complete,
+      Yellow partially complete. As new datasets are added, this indicator is updated.</p>
+    <div class="mb3">
+      <span *ngFor="let entry of data" style="display: inline-block; width: 60px;" class="ph2 pv1 white tc ba b--white"
+        title="{{ entry.Year }}: {{
+          entry.Status == -1 ? 'No Data Available' :
+          entry.Status == 0 ? 'No Data Uploaded' :
           entry.Status == 1 ? 'Data Partially Uploaded' :
           entry.Status == 2 ? 'Data Upload Complete' :
           'Unknown Status'
       }}"
-      [ngClass]="{
+        [ngClass]="{
         'bg-gray': entry.Status == 0,
         'bg-yellow': entry.Status == 1,
         'bg-green': entry.Status == 2
-      }">{{ entry.Year }}</span>
-  </div>
+      }">{{
+        entry.Year }}</span>
+    </div>
 
-  <div class="flex items-center">
-    <svg width="20" height="20"><circle cx="10" cy="10" r="8" fill="#ccc"></circle></svg>
-    <span class="ml1 mr4">No Data</span>
+    <div class="mb2 flex items-center">
+      <svg width="20" height="20">
+        <circle cx="10" cy="10" r="8" fill="#F9BF3B"></circle>
+      </svg>
+      <span class="ml1 mr4">Data Partially Uploaded</span>
 
-    <svg width="20" height="20"><circle cx="10" cy="10" r="8" fill="#F9BF3B"></circle></svg>
-    <span class="ml1 mr4">Data Partially Uploaded</span>
+      <svg width="20" height="20">
+        <circle cx="10" cy="10" r="8" fill="#2ECC71"></circle>
+      </svg>
+      <span class="ml1 mr4">Data Upload Complete</span>
+    </div>
+  </ng-template>
 
-    <svg width="20" height="20"><circle cx="10" cy="10" r="8" fill="#2ECC71"></circle></svg>
-    <span class="ml1 mr4">Data Upload Complete</span>
-  </div>
-</ng-template>
+</div>
