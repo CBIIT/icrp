@@ -41,7 +41,8 @@ $(function () {
 
 
     if (drupalSettings.isManager) {
-        // allows a manager to update a funding organization's data upload status
+        // this data-attribute allows a manager to update a funding organization's data upload status
+        // by opening a modal when it is clicked
         $('[data-funding-organization-id]').click(function(e) {
             e.preventDefault();
 
@@ -88,10 +89,17 @@ $(function () {
                     return e.name;
                 });
 
+                var dataNotAvailableYears = fundingOrgStatus.filter(function(e) {
+                    return e.value == -1;
+                }).map(function(e) {
+                    return e.name;
+                });
+
                 var parameters = {
                     fundingOrgId: fundingOrgId,
                     completedYears: completedYears.join(','),
                     partialUploadYears: partialUploadYears.join(','),
+                    dataNotAvailableYears: dataNotAvailableYears.join(','),
                 };
 
                 // update upload completeness
@@ -105,18 +113,19 @@ $(function () {
                             // '1': green dot (partial upload)
                             // '2': yellow dot (completed upload)
                             var imagesPath = drupalSettings.basePath + '/src/Assets/images/';
-                            var imageAttributes = [
-                              {src: imagesPath + '/gray-dot.svg', title: 'No Data'},
-                              {src: imagesPath + '/yellow-dot.svg', title: 'Partial Upload'},
-                              {src: imagesPath + '/green-dot.svg', title: 'Upload Complete'},
-                            ];
+                            var imageAttributes = {
+                                '-1': {src: imagesPath + '/gray-dot.svg', title: 'No Data Available'},
+                                '0': {src: imagesPath + '/red-dot.svg', title: 'No Data Uploaded'},
+                                '1': {src: imagesPath + '/yellow-dot.svg', title: 'Partial Upload'},
+                                '2': {src: imagesPath + '/green-dot.svg', title: 'Upload Complete'},
+                            }
 
                             // status = { name: 'year of status', value: 'value of status (either 0,1,2)'}
                             fundingOrgStatus.forEach(function(status) {
                                 fundingOrg[status.name] = status.value;
 
                                 // get the source of the new status image
-                                var attributes = imageAttributes[+status.value];
+                                var attributes = imageAttributes[status.value];
 
                                 // find the image for the funding organization's year
                                 // and update its src attribute

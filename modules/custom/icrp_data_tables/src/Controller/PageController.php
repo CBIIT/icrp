@@ -85,7 +85,8 @@ class PageController extends ControllerBase {
                     'EXECUTE UpdateDataUploadCompleteness
                         @FundingOrgId = :fundingOrgId,
                         @CompletedYears = :completedYears,
-                        @PartialUploadYears = :partialUploadYears;'
+                        @PartialUploadYears = :partialUploadYears,
+                        @DataNotAvailable = :dataNotAvailableYears;'
                 )->execute($parameters)
             );
         } catch (\Exception $e) {

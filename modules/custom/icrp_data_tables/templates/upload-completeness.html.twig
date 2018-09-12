@@ -40,7 +40,7 @@
                                 </a>
                             {% elseif key matches '/^\\d+$/' %}
                                 <span class="sr-only" data-value>{{value}}</span>
-                                <img src="{{ base_path }}/src/Assets/images/{{ value == 1 ? 'yellow' : value == 2 ? 'green' : 'gray'}}-dot.svg" title="{{value == 1 ? 'Partial Upload' :                                     value == 2 ? 'Upload Completed' : 'No Data'}}">
+                                <img src="{{ base_path }}/src/Assets/images/{{ value == 0 ? 'red' : value == 1 ? 'yellow' : value == 2 ? 'green' : 'gray'}}-dot.svg" title="{{value == 0 ? 'No Data Uploaded' : value == 1 ? 'Partial Upload' : value == 2 ? 'Upload Completed' : 'No Data Available'}}">
                                 </span>
                             {% else %}
                                 {{ value }}
@@ -63,8 +63,13 @@
         </span>
 
         <span class="d-flex flex-inline align-items-center mr3">
+            <img class="mr1" src="{{ base_path }}/src/Assets/images/red-dot.svg"/>
+            No Data Uploaded
+        </span>
+
+        <span class="d-flex flex-inline align-items-center mr3">
             <img class="mr1" src="{{ base_path }}/src/Assets/images/gray-dot.svg"/>
-            No Data
+            No Data Available
         </span>
     </div>
 </div>
@@ -97,7 +102,7 @@
                                 <tr>
                                     {% for column in columns %}
                                         {% if column.key matches '/^\\d+$/' %}
-                                            <th>{{ column.label }}</th>
+                                            <th class="tc">{{ column.label }}</th>
                                         {% endif %}
                                     {% endfor %}
                                 </tr>
@@ -106,12 +111,11 @@
                                 <tr>
                                     {% for column in columns %}
                                         {% if column.key matches '/^\\d+$/' %}
-                                            <td data-column="{{ column.key }}" class="mw-80px hover-bg-near-white" style="min-width: 100px">
+                                            <td data-column="{{ column.key }}" class="tc hover-bg-near-white" style="min-width: 150px; border-right: 1px solid #eee;">
                                                 <label class="radio-underlined">
                                                     <input name="{{column.key}}" type="radio" value="2" class="upload-radio">
                                                     <span class="radio-underlined-label">
                                                         <img src="{{ base_path }}/src/Assets/images/green-dot.svg"/>
-
                                                     </span>
                                                 </label>
 
@@ -126,9 +130,17 @@
                                                 <label class="radio-underlined">
                                                     <input name="{{column.key}}" type="radio" value="0" class="upload-radio">
                                                     <span class="radio-underlined-label">
+                                                        <img src="{{ base_path }}/src/Assets/images/red-dot.svg"/>
+                                                    </span>
+                                                </label>
+
+                                                <label class="radio-underlined">
+                                                    <input name="{{column.key}}" type="radio" value="-1" class="upload-radio">
+                                                    <span class="radio-underlined-label">
                                                         <img src="{{ base_path }}/src/Assets/images/gray-dot.svg"/>
                                                     </span>
                                                 </label>
+
                                             </td>
                                         {% endif %}
                                     {% endfor %}
@@ -149,8 +161,13 @@
                         </span>
 
                         <span class="d-flex flex-inline align-items-center mr3">
+                            <img class="mr1" src="{{ base_path }}/src/Assets/images/red-dot.svg"/>
+                            No Data Uploaded
+                        </span>
+
+                        <span class="d-flex flex-inline align-items-center mr3">
                             <img class="mr1" src="{{ base_path }}/src/Assets/images/gray-dot.svg"/>
-                            No Data
+                            No Data Available
                         </span>
                     </div>
 
