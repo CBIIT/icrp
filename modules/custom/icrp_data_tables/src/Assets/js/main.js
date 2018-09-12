@@ -71,7 +71,8 @@ $(function () {
 
             // when we submit this modal's form, we should update the upload status
             // if successful, update the main table's images in-place to reflect the new status
-            $(modal).find('[data-submit]').click(function(e) {
+            $(modal).find('[data-submit]').off('click').click(function(e) {
+                console.log('clicked', e)
 
                 // contains name, value pairs for data upload years and their status
                 // eg: [{name: '2018', value: 2}, {name: '2017', value: 1}, ...]
