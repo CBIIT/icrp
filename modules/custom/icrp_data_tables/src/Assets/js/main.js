@@ -110,56 +110,57 @@ $(function () {
                 $.post('/update-upload-completeness', JSON.stringify(parameters))
                     .done(function(response) {
                         // a response of true means "success"
-                        if (response) {
+                        if (!response) return;
 
-                            // a key of '0' means we should use a gray dot (no data uploaded)
-                            // '1': green dot (partial upload)
-                            // '2': yellow dot (completed upload)
-                            var imagesPath = drupalSettings.basePath + '/src/Assets/images/';
-                            var imageAttributes = {
-                                '-1': {src: imagesPath + '/gray-dot.svg', title: 'No Data Available'},
-                                '0': {src: imagesPath + '/red-dot.svg', title: 'No Data Uploaded'},
-                                '1': {src: imagesPath + '/yellow-dot.svg', title: 'Partial Upload'},
-                                '2': {src: imagesPath + '/green-dot.svg', title: 'Upload Complete'},
-                            }
-
-                            // status = { name: 'year of status', value: 'value of status (either 0,1,2)'}
-                            fundingOrgStatus.forEach(function(status) {
-                                fundingOrg[status.name] = status.value;
-
-                                // get the source of the new status image
-                                var attributes = imageAttributes[status.value];
-
-                                // find the image for the funding organization's year
-                                // and update its src attribute
-                                var tableCell = $('#upload-completeness td').filter(function() {
-                                    return $(this).attr('data-id') == fundingOrgId
-                                        && $(this).attr('data-column') == status.name;
-                                });
-
-                                $(tableCell).find('img').attr(attributes);
-                                $(tableCell).find('[data-value]').text(status.value);
-                            });
-                            $(modal).modal('hide');
-
-                            var alert = $('#alert-template .alert').clone();
-                            alert.addClass('alert-success')
-                                .find('.alert-content')
-                                .html('The funding organization <b>' + fundingOrg.name + '</b> has been updated.');
-                            $('#status').html(alert);
+                        // this map determines which image to choose for each status
+                        // '-1' we should use a red dot (no data available)
+                        // '0': we should use a gray dot (no data uploaded)
+                        // '1': green dot (partial upload)
+                        // '2': yellow dot (completed upload)
+                        var imagesPath = drupalSettings.basePath + '/src/Assets/images/';
+                        var imageAttributes = {
+                            '-1': {src: imagesPath + '/gray-dot.svg', title: 'No Data Available'},
+                            '0': {src: imagesPath + '/red-dot.svg', title: 'No Data Uploaded'},
+                            '1': {src: imagesPath + '/yellow-dot.svg', title: 'Partial Upload'},
+                            '2': {src: imagesPath + '/green-dot.svg', title: 'Upload Complete'},
                         }
+
+
+                        // eg: status = { name: 'year of status', value: 'value of status (either 0,1,2)'}
+                        fundingOrgStatus.forEach(function(status) {
+                            fundingOrg[status.name] = status.value;
+
+                            // get the source of the new status image
+                            var attributes = imageAttributes[status.value];
+
+                            // find the image for the funding organization's year
+                            // and update its src attribute
+                            var tableCell = $('#upload-completeness td').filter(function() {
+                                return $(this).attr('data-id') == fundingOrgId
+                                    && $(this).attr('data-column') == status.name;
+                            });
+
+                            $(tableCell).find('img').attr(attributes);
+                            $(tableCell).find('[data-value]').text(status.value);
+                        });
+
+                        showAlert('alert-success', 'The funding organization <b>' + fundingOrg.name + '</b> has been updated.');
                     }).fail(function(error) {
                         console.log(error);
-                        // var errorResponse = JSON.parse(error.responseJSON);
+                        showAlert('alert-danger', 'The funding organization could not be updated: ' + (error.responseJSON || 'Unknown Error'));
+                    }).always(function() {
                         $(modal).modal('hide');
-                        var alert = $('#alert-template .alert').clone();
-                        alert.addClass('alert-danger')
-                            .find('.alert-content')
-                            .text('The funding organization could not be updated: ' + (error.responseJSON || 'Unknown Error'));
-                        $('#status').html(alert);
                     });
             })
         })
+
+        function showAlert(alertClass, content) {
+            var alert = $('#alert-template .alert').clone();
+            alert.addClass(alertClass)
+                .find('.alert-content')
+                .html(content);
+            $('#status').html(alert);
+        }
     }
 
     var table = $('#upload-completeness').DataTable({
