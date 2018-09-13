@@ -17,7 +17,7 @@
           'Unknown Status'
       }}"
         [ngClass]="{
-        'bg-gray': entry.Status == 0,
+        'bg-red': entry.Status == 0,
         'bg-yellow': entry.Status == 1,
         'bg-green': entry.Status == 2
       }">{{
@@ -26,14 +26,19 @@
 
     <div class="mb2 flex items-center">
       <svg width="20" height="20">
+        <circle cx="10" cy="10" r="8" fill="#2ECC71"></circle>
+      </svg>
+      <span class="ml1 mr4">Data Upload Complete</span>
+
+      <svg width="20" height="20">
         <circle cx="10" cy="10" r="8" fill="#F9BF3B"></circle>
       </svg>
       <span class="ml1 mr4">Data Partially Uploaded</span>
 
       <svg width="20" height="20">
-        <circle cx="10" cy="10" r="8" fill="#2ECC71"></circle>
+        <circle cx="10" cy="10" r="8" fill="#e08283"></circle>
       </svg>
-      <span class="ml1 mr4">Data Upload Complete</span>
+      <span class="ml1 mr4">No Data Uploaded</span>
     </div>
   </ng-template>
 

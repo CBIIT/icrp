@@ -10,6 +10,10 @@
     background-color: #ccc;
 }
 
+.bg-red {
+    background-color: #e08283;
+}
+
 .w-400 {
     width: 400px;
 }
