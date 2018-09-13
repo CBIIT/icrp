@@ -60,8 +60,8 @@ $(function () {
             // set the title of the modal
             $(modal).find('.modal-title').text(
                 'Update Data Upload Completeness' +
-                fundingOrg.name ? ' - ' + fundingOrg.name : '' +
-                fundingOrg.abbreviation ? ' (' + fundingOrg.abbreviation + ')' : ''
+                (fundingOrg.name ? ' - ' + fundingOrg.name : '') +
+                (fundingOrg.abbreviation ? ' (' + fundingOrg.abbreviation + ')' : '')
             );
 
             // find each data column in the modal and populate its inputs with the correct value
