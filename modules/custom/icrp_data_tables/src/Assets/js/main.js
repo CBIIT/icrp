@@ -125,7 +125,6 @@ $(function () {
                             '2': {src: imagesPath + '/green-dot.svg', title: 'Upload Complete'},
                         }
 
-
                         // eg: status = { name: 'year of status', value: 'value of status (either 0,1,2)'}
                         fundingOrgStatus.forEach(function(status) {
                             fundingOrg[status.name] = status.value;
