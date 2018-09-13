@@ -6893,6 +6893,26 @@ BEGIN TRY
 			
 	COMMIT TRANSACTION
 
+	-----------------------------------------------------------------
+	-- Insert Data Upload Completess status (= no data) for new Funding Org/Year
+	-----------------------------------------------------------------
+	SELECT f.FundingOrgID, f.FundingOrgAbbrev, y.Year INTO #fy
+	FROM (SELECT DISTINCT FundingOrgID FROM icrp_dataload.dbo.ProjectFunding WHERE DataUploadStatusID = 121) fid
+		JOIN (SELECT DISTINCT FundingOrgID, Abbreviation AS FundingOrgAbbrev FROM FundingOrg) f ON fid.FundingOrgID = f.FundingOrgID
+		FULL OUTER JOIN (SELECT DISTINCT  CalendarYear AS Year FROM ProjectFundingExt) y ON 1=1
+
+		select * from #fy order by year
+		
+	INSERT INTO icrp_data.dbo.[DataUploadCompleteness] (
+		[FundingOrgID]
+		,[FundingOrgAbbrev]  
+		,[Year]          
+		,[CreatedDate]
+		,[UpdatedDate])
+	SELECT f.FundingOrgID, f.FundingOrgAbbrev, f.Year, getdate(), getdate() FROM #fy f
+	LEFT JOIN icrp_data.dbo.DataUploadCompleteness d ON f.[FundingOrgID] = d.FundingOrgID AND f.year = d.Year
+	WHERE d.FundingOrgID IS NULL
+
 END TRY
 
 BEGIN CATCH
@@ -8614,15 +8634,15 @@ BEGIN
 	
 	DECLARE @CurrYear INT = Year(getdate())
 
-	SELECT c.FundingOrgID, c.FundingOrgAbbrev, f.SponsorCode, c.Year,
+	SELECT c.FundingOrgID, f.Name AS FundingOrgName, c.FundingOrgAbbrev, f.SponsorCode, c.Year,
 	CASE 
 		WHEN Year IS NULL THEN 0 
 		WHEN Status IS NULL THEN 0 ELSE Status
-		END AS Status,   -- Status: 0=No Data Upload, 1=Partial Upload, 2=Completed
+		END AS Status,   -- Status: -1=Data Not Available, 0=No Data Upload, 1=Partial Upload, 2=Completed
 	 c.UpdatedDate AS LastUpdatedDate
 	FROM DataUploadCompleteness c
 		JOIN FUndingOrg f ON c.FundingOrgID = f.FundingOrgID
-	WHERE c.Year <= @CurrYear AND f.MemberStatus = 'Current' AND f.IsDataCompletenessExcluded = 0
+	WHERE Year >=2000 AND Year <= @CurrYear AND f.MemberStatus = 'Current' AND f.IsDataCompletenessExcluded = 0
 	ORDER BY f.SponsorCode, c.FundingOrgAbbrev, c.Year
 
 END 
@@ -8645,14 +8665,16 @@ BEGIN
 	SELECT FundingOrgAbbrev, Year, Status INTO #tmp 
 	FROM DataUploadCompleteness c
 		JOIN FundingOrg o ON c.FundingOrgID = o.FundingOrgID
-	WHERE o.MemberStatus = 'Current' AND o.IsDataCompletenessExcluded = 0	
+	WHERE o.MemberStatus = 'Current' AND o.IsDataCompletenessExcluded = 0 AND Status <> -1 -- exclude Data N/A
 		
 	SELECT Year,
 		CASE 
-			WHEN MIN(ISNULL(Status,0)) = 2 THEN 2 ELSE 1		
+			--WHEN MAX(ISNULL(Status,0)) = 0 THEN 0  -- All funding orgs have no data	
+			WHEN MIN(ISNULL(Status,0)) = 2 THEN 2 -- i.e. all years have Data Complete 
+			ELSE 1		-- Partial Upload
 			END AS Status   -- Status: retrun 1 (partial upload as long as there are any funding orgs have status not 2 (compltete)	
 	FROM #tmp
-	WHERE Year <= @CurrYear
+	WHERE Year >=2000 AND Year <= @CurrYear 
 	GROUP BY Year
 	ORDER BY Year
 END 
@@ -8670,7 +8692,8 @@ CREATE PROCEDURE [dbo].[UpdateDataUploadCompleteness]
 
 @FundingOrgID INT,
 @CompletedYears varchar(1000),  --  ex/ '2017, 2015' to mark years 2017 and 2015 completed
-@PartialUploadYears varchar(1000)  --  ex/ '2018, 2016' to mark years 2018 and 2016 partially uploaded
+@PartialUploadYears varchar(1000),  --  ex/ '2018, 2016' to mark years 2018 and 2016 partially uploaded
+@DataNotAvailable varchar(1000) = NULL --  ex/ '2004, 2005' to mark years 2004 and 2005 Data Not Available
 
 AS  
 
@@ -8680,6 +8703,7 @@ BEGIN
 		CASE 
 			WHEN Year IN (SELECT * FROM dbo.ToIntTable(@CompletedYears)) THEN 2  -- Completed
 			WHEN Year IN (SELECT * FROM dbo.ToIntTable(@PartialUploadYears)) THEN 1  -- PartialUploaded
+			WHEN Year IN (SELECT * FROM dbo.ToIntTable(@DataNotAvailable)) THEN -1  -- Data Not Available
 			ELSE 0  -- No Data
 		END 
 	WHERE  FundingOrgID =  @FundingOrgID
@@ -8687,3 +8711,4 @@ BEGIN
 END 
 
 GO
+
