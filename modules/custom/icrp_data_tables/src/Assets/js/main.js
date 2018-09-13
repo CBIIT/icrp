@@ -167,13 +167,17 @@ $(function () {
         dom: "<'d-flex align-items-center flex-wrap justify-content-between'"
         + "<'d-flex align-items-center flex-wrap'<'mr-40 mv-5'f>>"
         + "<'d-flex align-items-center flex-wrap'<'mr-40 mv-5'li><'mv-5'p>>"
-        + "><'table-responsive't>",
+        + "><'table-responsive't>"
+        + "<'d-flex align-items-center justify-content-between flex-wrap'Cp>",
         autoWidth: false,
         language: {
             lengthMenu: 'Display _MENU_',
             info: '<label style="margin-left: 5px">of _TOTAL_ funding organization(s)</label>',
             infoFiltered: '',
             infoEmpty: '',
+        },
+        customDom: function(settings) {
+            return $('#legend');
         },
         aaSorting: [],
     });
