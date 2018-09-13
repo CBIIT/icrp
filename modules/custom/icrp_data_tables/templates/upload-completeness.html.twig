@@ -34,7 +34,7 @@
                         {% set key = column.key %}
                         {% set value = record[key] %}
                         <td data-column="{{key}}" data-id="{{record.id}}">
-                            {% if key == 'fundingOrganization' and 'manager' in user.getroles %}
+                            {% if key == 'abbreviation' and 'manager' in user.getroles %}
                                 <a href="#" class="link" data-funding-organization-id="{{record.id}}">{{value}}
                                     <i class="fas fa-edit"></i>
                                 </a>
@@ -88,7 +88,7 @@
                 <div class="modal-header bg-primary">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="edit-funding-organization-modal-label"></h4>
+                    <h4 class="modal-title text-overflow-ellipsis" id="edit-funding-organization-modal-label"></h4>
                 </div>
                 <div class="modal-body">
 

@@ -50,3 +50,9 @@
 .radio-underlined input:checked ~ .radio-underlined-label {
     border-bottom: 4px solid steelblue;
 }
+
+.text-overflow-ellipsis {
+    overflow-x: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

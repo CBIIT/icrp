@@ -27,7 +27,7 @@ class PageController extends ControllerBase {
 
         $columns = array_merge([
             [
-                'key' => 'fundingOrganization',
+                'key' => 'abbreviation',
                 'label' => 'Funding Organization',
             ],
 
@@ -49,8 +49,9 @@ class PageController extends ControllerBase {
             if ($currentId != $previousId) {
                 $records[] = [
                     'id' => $row['fundingorgid'],
-                    'fundingOrganization' => $row['fundingorgabbrev'],
                     'sponsorCode' => $row['sponsorcode'],
+                    'abbreviation' => $row['fundingorgabbrev'],
+                    'name' => $row['fundingorgname'],
                 ];
                 $previousId = $currentId;
             }

@@ -59,7 +59,7 @@ $(function () {
 
             // set the title of the modal
             $(modal).find('.modal-title').text('Update Data Upload Completeness - '
-                + fundingOrg.fundingOrganization);
+                + fundingOrg.name + ' (' + fundingOrg.abbreviation + ')');
 
             // find each data column in the modal and populate its inputs with the correct value
             $(modal).find('table [data-column]').each(function() {
@@ -72,7 +72,6 @@ $(function () {
             // when we submit this modal's form, we should update the upload status
             // if successful, update the main table's images in-place to reflect the new status
             $(modal).find('[data-submit]').off('click').click(function(e) {
-                console.log('clicked', e)
 
                 // contains name, value pairs for data upload years and their status
                 // eg: [{name: '2018', value: 2}, {name: '2017', value: 1}, ...]
@@ -143,7 +142,7 @@ $(function () {
                             var alert = $('#alert-template .alert').clone();
                             alert.addClass('alert-success')
                                 .find('.alert-content')
-                                .html('The funding organization <b>' + fundingOrg.fundingOrganization + '</b> has been updated.');
+                                .html('The funding organization <b>' + fundingOrg.name + '</b> has been updated.');
                             $('#status').html(alert);
                         }
                     }).fail(function(error) {
