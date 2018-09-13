@@ -58,8 +58,11 @@ $(function () {
                 .modal('show');
 
             // set the title of the modal
-            $(modal).find('.modal-title').text('Update Data Upload Completeness - '
-                + fundingOrg.name + ' (' + fundingOrg.abbreviation + ')');
+            $(modal).find('.modal-title').text(
+                'Update Data Upload Completeness' +
+                fundingOrg.name ? ' - ' + fundingOrg.name : '' +
+                fundingOrg.abbreviation ? ' (' + fundingOrg.abbreviation + ')' : ''
+            );
 
             // find each data column in the modal and populate its inputs with the correct value
             $(modal).find('table [data-column]').each(function() {
@@ -152,7 +155,7 @@ $(function () {
                         var alert = $('#alert-template .alert').clone();
                         alert.addClass('alert-danger')
                             .find('.alert-content')
-                            .text('The funding organization could not be updated: ' + error.responseJSON);
+                            .text('The funding organization could not be updated: ' + (error.responseJSON || 'Unknown Error'));
                         $('#status').html(alert);
                     });
             })
