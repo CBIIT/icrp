@@ -30,7 +30,7 @@
     "@angular/router": "^5.0.0",
     "classlist.js": "^1.1.20150312",
     "core-js": "^2.4.1",
-    "exceljs": "^0.7.1",
+    "exceljs": "^1.6.0",
     "file-saver": "^1.3.3",
     "ngx-bootstrap": "^2.0.0-beta.8",
     "octicons": "^7.0.1",
