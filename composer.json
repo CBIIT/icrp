@@ -150,7 +150,7 @@
             "@composer run drupal-scaffold"
         ],
         "post-update-cmd": [
-            "php -r \"copy('themes/bootstrap_subtheme/js/config/fullcalendar.fullcalendar.js', 'modules/fullcalendar/js/fullcalendar.fullcalendar.js');\"",
+            "php -r \"copy('themes/bootstrap_subtheme/js/config/fullcalendar.fullcalendar.js', 'modules/fullcalendar/assets/js/fullcalendar.fullcalendar.js');\"",
             "drush cr",
             "drush webform-libraries-download"
         ]       
