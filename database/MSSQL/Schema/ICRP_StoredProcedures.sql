@@ -8669,7 +8669,7 @@ BEGIN
 		
 	SELECT Year,
 		CASE 
-			--WHEN MAX(ISNULL(Status,0)) = 0 THEN 0  -- All funding orgs have no data	
+			WHEN MAX(ISNULL(Status,0)) = 0 THEN 0  -- All funding orgs have no data	
 			WHEN MIN(ISNULL(Status,0)) = 2 THEN 2 -- i.e. all years have Data Complete 
 			ELSE 1		-- Partial Upload
 			END AS Status   -- Status: retrun 1 (partial upload as long as there are any funding orgs have status not 2 (compltete)	
