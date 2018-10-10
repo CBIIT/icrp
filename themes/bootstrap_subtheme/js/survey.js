@@ -14,11 +14,11 @@
   var localStore = getStore(window.localStorage);
   var sessionStore = getStore(window.sessionStorage);
 
-  var surveyDisabled = localStore.get('surveyDisabled');
+  var surveyCanceled = localStore.get('surveyCanceled');
   var surveyTaken = localStore.get('surveyTaken');
   var surveyShown = sessionStore.get('surveyShown');
 
-  if (!surveyDisabled) {
+  if (!surveyCanceled) {
     $.get('/survey-status').done(function(response) {
       if (JSON.parse(response).isSurveyOpen)
         showSurvey();
@@ -122,10 +122,10 @@
           },
           buttons: {
             cancel: {
-              label: 'Cancel',
+              label: 'Never',
               className: 'btn-default',
               callback: function() {
-                localStore.set('surveyDisabled', true);
+                localStore.set('surveyCanceled', true);
                 $('#take-survey').hide();
               }
             },
