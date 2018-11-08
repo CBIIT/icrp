@@ -7806,6 +7806,7 @@ AS
 		LEFT JOIN lu_MapLayer p ON l.[ParentMapLayerID] = p.MapLayerID
 		LEFT JOIN (SELECT [ParentMapLayerID], count(*) AS ChildrenCount FROM lu_MapLayer GROUP BY [ParentMapLayerID]) g ON g.[ParentMapLayerID] = l.MapLayerID	
 	 ORDER BY p.MapLayerID, l.Name
+
 GO
 
 ----------------------------------------------------------------------------------------------------------
@@ -7831,7 +7832,7 @@ SELECT * FROM
 		SELECT MapLayerLegendID, LegendName, LegendColor, DisplayOrder FROM lu_MapLayerLegend WHERE MapLayerLegendID = 0
 	) l
 	ORDER BY DisplayOrder
-
+	
 GO
 
 ----------------------------------------------------------------------------------------------------------
@@ -7847,11 +7848,12 @@ IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetMa
 DROP PROCEDURE [dbo].GetMapLayerByCountry
 GO 
 
-CREATE PROCEDURE [dbo].GetMapLayerByCountry  
+CREATE PROCEDURE [dbo].[GetMapLayerByCountry]  
 	@MapLayerID	INT
 AS   
 
 	SELECT Country, MapLayerLegendID FROM CountryMapLayer WHERE MapLayerID = @MapLayerID	
+		
 		
 GO
 
