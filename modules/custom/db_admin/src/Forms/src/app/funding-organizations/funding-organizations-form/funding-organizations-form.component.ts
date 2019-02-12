@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { FundingOrganizationsApiService } from '../../services/funding-organizations-api.service'
 import { HttpErrorResponse } from '@angular/common/http';
-import { controlNameBinding } from '@angular/forms/src/directives/reactive_directives/form_control_name';
 
 @Component({
   selector: 'icrp-funding-organizations-form',
