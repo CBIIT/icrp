@@ -7782,6 +7782,34 @@ AS
 	
 GO
 
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetCancerStatisticsByCategory]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetCancerStatisticsByCategory]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetCancerStatisticsByCategory]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetCancerStatisticsByCategory] 
+@Category VARCHAR(50)   -- 'Incidence', 'Mortality'
+    
+AS   
+
+ SELECT ml.DisplayedName AS Category, ml.DataSource, c.Name, cml.Value 
+ FROM [CountryMapLayer] cml
+	JOIN lu_MapLayer ml on cml.MapLayerID = ml.MapLayerID
+	JOIN lu_MapLayer pl on ml.ParentMapLayerID = pl.MapLayerID
+	JOIN Country c ON cml.Country = c.Abbreviation
+WHERE SUBSTRING(pl.name, 8, LEN(pl.name)) = @Category AND cml.Value IS NOT NULL
+ORDER BY cml.Value DESC
+
+GO
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetMapLayers]    Script Date: 12/14/2016 4:21:47 PM ******/
