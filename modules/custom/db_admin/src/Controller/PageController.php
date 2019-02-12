@@ -34,4 +34,16 @@ class PageController extends ControllerBase {
       ],
     ];
   }
+
+  public static function institutions() {
+    return [
+      '#theme' => 'institutions',
+      '#attached' => [
+        'library' => [
+          'db_admin/institutions'
+        ],
+      ],
+    ];
+  }
+
 }
