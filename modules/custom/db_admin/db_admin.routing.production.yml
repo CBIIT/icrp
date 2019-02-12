@@ -86,6 +86,14 @@ api.admin.non-partners.update:
     _access: 'TRUE'
     _role: 'admin+manager'
 
+api.admin.institutions.fields:
+  path: /api/admin/institutions/fields
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::getInstitutionFields'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
 api.admin.institutions.add:
   path: /api/admin/institutions/add
   defaults:
@@ -94,7 +102,7 @@ api.admin.institutions.add:
     _access: 'TRUE'
     _role: 'admin+manager'
 
-api.admin.partners.update:
+api.admin.institutions.update:
   path: /api/admin/institutions/update
   defaults:
     _controller: '\Drupal\db_admin\Controller\AdminController::updateInstitution'
