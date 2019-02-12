@@ -216,6 +216,19 @@ class AdminController extends ControllerBase {
     }
   }
 
+  public static function getInstitutionFields() {
+    try {
+      $connection = PDOBuilder::getConnection();
+      $data = Institutions::getFields($connection);
+      return self::createResponse($data);
+    }
+
+    catch (Exception $e) {
+      $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
+      return self::createResponse($message, 500);
+    }
+  }
+
   public static function addInstitution(Request $request) {
     try {
       $parameters = array_map(self::emptyToNull(), $request->request->all());
