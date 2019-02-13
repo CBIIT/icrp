@@ -18,7 +18,8 @@ class Institutions {
           latitude,
           longitude,
           grid
-        from Institution'
+        from Institution
+        order by name'
        )->fetchAll(),
 
       'countries' => $pdo->query(
@@ -41,7 +42,6 @@ class Institutions {
       ];
   }
 
-
   public static function add(PDO $pdo, array $parameters): bool {
     return PDOBuilder::createPreparedStatement(
       $pdo,
@@ -53,7 +53,8 @@ class Institutions {
         @Postal = :postal,
         @Longitude = :longitude,
         @Latitude = :latitude,
-        @Grid = :grid;",
+        @GRID = :grid,
+        @Type = NULL;",
       $parameters
     )->execute();
   }
@@ -62,16 +63,38 @@ class Institutions {
     return PDOBuilder::createPreparedStatement(
       $pdo,
       "EXECUTE UpdateInstitution
-        @Id = :id,
+        @InstitutionID = :institutionId,
+        @Name = :name,
         @Country = :country,
         @City = :city,
         @State = :state,
         @Postal = :postal,
         @Longitude = :longitude,
         @Latitude = :latitude,
-        @Grid = :grid;",
+        @GRID = :grid,
+        @Type = NULL;",
       $parameters
     )->execute();
   }
+
+  public static function merge(PDO $pdo, array $parameters) {
+    $numAffectedPIs = PDOBuilder::executePreparedStatement(
+      $pdo,
+      "SET NOCOUNT ON; SELECT COUNT(*) FROM ProjectFundingInvestigator
+          WHERE institutionid = :deletedInstitutionId;",
+      $parameters
+    )->fetchColumn();
+
+    PDOBuilder::executePreparedStatement(
+      $pdo,
+      "EXECUTE MergeInstitutions
+        @InstitutionID_deleted = :deletedInstitutionId,
+        @InstitutionID_kept = :keptInstitutionId;",
+      $parameters
+    );
+
+    return $numAffectedPIs;
+  }
+
 
 }

@@ -256,4 +256,19 @@ class AdminController extends ControllerBase {
       return self::createResponse($message, 500);
     }
   }
+
+  public static function mergeInstitution(Request $request) {
+    try {
+      $parameters = array_map(self::emptyToNull(), $request->request->all());
+      $connection = PDOBuilder::getConnection();
+      $data = Institutions::merge($connection, $parameters);
+      return self::createResponse($data);
+    }
+
+    catch (Exception $e) {
+      $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
+      return self::createResponse($message, 500);
+    }
+  }
+
 }
