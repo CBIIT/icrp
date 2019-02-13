@@ -151,7 +151,7 @@ api.admin.institutions.deprecated:
     _role: 'admin+manager'
 
 api.admin.merge-institutions.deprecated:
-  path: /admin/MergeInstitutions
+  path: /MergeInstitutions
   defaults:
     _controller: '\Drupal\db_admin\Controller\PageController::mergeInstitutions'
   requirements:
