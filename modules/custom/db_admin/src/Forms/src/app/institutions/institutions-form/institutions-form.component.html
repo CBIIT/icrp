@@ -65,8 +65,10 @@
         typeaheadValueField="id"
         typeaheadWaitMs="200"
         (keyup)="updateForm('institutionId', null)"
+        (click)="institution.select()"
         (typeaheadOnSelect)="updateForm('institutionId', $event.item.id)"
-        placeholder="Search for an institution">
+        placeholder="Search for an institution"
+        #institution>
       <div
         *ngIf="(form.controls.name.dirty && form.controls.name?.errors?.required)"
         fxLayout

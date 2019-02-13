@@ -33,4 +33,13 @@ export class InstitutionsApiService {
       { withCredentials: environment.production }
     );
   }
+
+  merge(parameters: FormData) {
+    return this.http.post(
+      `${this.BASE_HREF}/merge`,
+      parameters,
+      { withCredentials: environment.production }
+    );
+  }
+
 }

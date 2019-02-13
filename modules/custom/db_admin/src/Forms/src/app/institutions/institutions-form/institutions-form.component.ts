@@ -36,7 +36,6 @@ export class InstitutionsFormComponent {
 
     this.api.fields().subscribe(response => {
       this.fields = response;
-      console.log(this.fields);
       this.initializeFormControls();
     }, (errorResponse: HttpErrorResponse) => {
       let error = errorResponse.error;
@@ -53,7 +52,6 @@ export class InstitutionsFormComponent {
   }
 
   updateForm(formControlName, value) {
-    console.log(formControlName, value);
     this.form.get(formControlName).patchValue(value);
   }
 
@@ -93,6 +91,8 @@ export class InstitutionsFormComponent {
       const institution = this.fields.institutions.find(e => e.id === value);
       this.form.patchValue({
         institutionId: institution.id,
+        name: institution.name,
+        country: institution.country,
         city: institution.city,
         state: institution.state,
         postal: institution.postal,
@@ -105,7 +105,6 @@ export class InstitutionsFormComponent {
 
   submit() {
     this.messages = [];
-    console.log('sub')
 
     for (let key in this.form.controls)
       this.form.controls[key].markAsDirty();
@@ -135,7 +134,6 @@ export class InstitutionsFormComponent {
         });
         this.api.fields().subscribe(response => {
           this.fields = response;
-          this.form.controls.partnerId.updateValueAndValidity();
         });
 
       }, errorResponse => {
