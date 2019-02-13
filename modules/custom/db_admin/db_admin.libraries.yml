@@ -29,3 +29,13 @@ institutions:
     assets/institutions/runtime.js: {}
     assets/institutions/polyfills.js: {}
     assets/institutions/main.js: {}
+
+merge_institutions:
+  version: 1.0.8
+  css:
+    theme:
+      assets/merge-institutions/styles.css: {}
+  js:
+    assets/merge-institutions/runtime.js: {}
+    assets/merge-institutions/polyfills.js: {}
+    assets/merge-institutions/main.js: {}
