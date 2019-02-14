@@ -78,23 +78,21 @@ class Institutions {
   }
 
   public static function merge(PDO $pdo, array $parameters) {
-    $numAffectedPIs = PDOBuilder::executePreparedStatement(
+    if ($parameters['keptInstitutionId'] == $parameters['deletedInstitutionId']) {
+      throw new \Exception('The institutions to be merged must be different from each other.');
+    }
+
+    return PDOBuilder::executePreparedStatement(
       $pdo,
-      "SET NOCOUNT ON; SELECT COUNT(*) FROM ProjectFundingInvestigator
-          WHERE institutionid = :deletedInstitutionId;",
+      "SET NOCOUNT ON;
+      DECLARE @resultsCount INT;
+      EXECUTE MergeInstitutions
+        @InstitutionID_deleted = :deletedInstitutionId,
+        @InstitutionID_kept = :keptInstitutionId,
+        @Count = @resultsCount OUTPUT;
+      SELECT @resultsCount;",
       $parameters
     )->fetchColumn();
-
-    PDOBuilder::executePreparedStatement(
-      $pdo,
-      "EXECUTE MergeInstitutions
-        @InstitutionID_deleted = :deletedInstitutionId,
-        @InstitutionID_kept = :keptInstitutionId;",
-      $parameters
-    );
-
-    return $numAffectedPIs;
   }
-
 
 }
