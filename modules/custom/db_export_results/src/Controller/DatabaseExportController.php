@@ -240,6 +240,10 @@ class DatabaseExportController extends ControllerBase {
           'title' => 'Cancer Mortality',
           'query' => $pdo->prepare('SET NOCOUNT ON; EXECUTE GetCancerStatisticsByCategory @Category = Mortality'),
         ],
+        [
+          'title' => 'Cancer Prevalence',
+          'query' => $pdo->prepare('SET NOCOUNT ON; EXECUTE GetCancerStatisticsByCategory @Category = Prevalence'),
+        ],
       ]);
     });
   }
