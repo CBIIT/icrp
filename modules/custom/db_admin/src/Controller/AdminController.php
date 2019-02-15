@@ -215,4 +215,60 @@ class AdminController extends ControllerBase {
       return self::createResponse($message, 500);
     }
   }
+
+  public static function getInstitutionFields() {
+    try {
+      $connection = PDOBuilder::getConnection();
+      $data = Institutions::getFields($connection);
+      return self::createResponse($data);
+    }
+
+    catch (Exception $e) {
+      $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
+      return self::createResponse($message, 500);
+    }
+  }
+
+  public static function addInstitution(Request $request) {
+    try {
+      $parameters = array_map(self::emptyToNull(), $request->request->all());
+      $connection = PDOBuilder::getConnection();
+      $data = Institutions::add($connection, $parameters);
+      return self::createResponse($data);
+    }
+
+    catch (Exception $e) {
+      $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
+      return self::createResponse($message, 500);
+    }
+  }
+
+  public static function updateInstitution(Request $request) {
+    try {
+      $parameters = array_map(self::emptyToNull(), $request->request->all());
+      $connection = PDOBuilder::getConnection();
+      $data = Institutions::update($connection, $parameters);
+      return self::createResponse($data);
+    }
+
+    catch (Exception $e) {
+      $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
+      return self::createResponse($message, 500);
+    }
+  }
+
+  public static function mergeInstitution(Request $request) {
+    try {
+      $parameters = array_map(self::emptyToNull(), $request->request->all());
+      $connection = PDOBuilder::getConnection();
+      $data = Institutions::merge($connection, $parameters);
+      return self::createResponse($data);
+    }
+
+    catch (Exception $e) {
+      $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
+      return self::createResponse($message, 500);
+    }
+  }
+
 }

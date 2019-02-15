@@ -10,5 +10,14 @@ function db_admin_theme($existing, $type, $theme, $path) {
     'partners' => [
       'variables' => [],
     ],
+
+    'institutions' => [
+      'variables' => [],
+    ],
+
+    'merge_institutions' => [
+      'variables' => [],
+    ],
+
   ];
 }

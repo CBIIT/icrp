@@ -34,4 +34,28 @@ class PageController extends ControllerBase {
       ],
     ];
   }
+
+  public static function institutions() {
+    return [
+      '#theme' => 'institutions',
+      '#attached' => [
+        'library' => [
+          'db_admin/institutions'
+        ],
+      ],
+    ];
+  }
+
+  public static function mergeInstitutions() {
+    return [
+      '#theme' => 'merge_institutions',
+      '#attached' => [
+        'library' => [
+          'db_admin/merge_institutions'
+        ],
+      ],
+    ];
+  }
+
+
 }

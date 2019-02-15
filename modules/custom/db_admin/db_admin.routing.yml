@@ -14,6 +14,22 @@ api.admin.funding-organizations:
     _access: 'TRUE'
     _role: 'admin+manager'
 
+api.admin.institutions:
+  path: /admin/institutions
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\PageController::institutions'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.merge-institutions:
+  path: /admin/merge-institutions
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\PageController::mergeInstitutions'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
 api.admin.funding-organizations.fields:
   path: /api/admin/funding-organizations/fields
   defaults:
@@ -78,6 +94,38 @@ api.admin.non-partners.update:
     _access: 'TRUE'
     _role: 'admin+manager'
 
+api.admin.institutions.fields:
+  path: /api/admin/institutions/fields
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::getInstitutionFields'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.institutions.add:
+  path: /api/admin/institutions/add
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::addInstitution'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.institutions.update:
+  path: /api/admin/institutions/update
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::updateInstitution'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.institutions.merge:
+  path: /api/admin/institutions/merge
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::mergeInstitution'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
 api.admin.partners.content.deprecated:
   path: /AddPartner
   defaults:
@@ -90,6 +138,22 @@ api.admin.funding-organizations.deprecated:
   path: /AddFundingOrg
   defaults:
     _controller: '\Drupal\db_admin\Controller\PageController::fundingOrganizations'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.institutions.deprecated:
+  path: /AddInstitution
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\PageController::institutions'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.merge-institutions.deprecated:
+  path: /MergeInstitutions
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\PageController::mergeInstitutions'
   requirements:
     _access: 'TRUE'
     _role: 'admin+manager'
