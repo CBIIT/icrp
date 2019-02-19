@@ -1,5 +1,7 @@
---drop table #site
---GO
+drop table #site
+go
+drop table #pfid
+GO
 
 -----------------------------------------
 -- Insert New Host Institutions
@@ -7,22 +9,21 @@
 PRINT '******************************************************************************'
 PRINT '***************************** Bulk Insert ************************************'
 PRINT '******************************************************************************'
-
+select * from cancertype
 --SET NOCOUNT ON;  
 --GO 
-CREATE TABLE #site (	
-	[ProjectID] [int] NOT NULL,
+CREATE TABLE #site (		
 	[ProjectFundingID] [int] NOT NULL,
 	[AltAwardCode] [varchar](50) NOT NULL,
-	[icrpcode] [varchar](500) NOT NULL,
-	[cancertype] [varchar](500) NOT NULL,
-	[rel] [varchar](500) NULL
+	[cancertype] [varchar](500) NOT NULL,	
+	[rel] float NULL,
+	[TotalRel] [int] NULL
 )
 
 GO
 
 BULK INSERT #site
-FROM 'C:\icrp\database\Cleanup\20180222\SiteRel.csv'
+FROM 'C:\icrp\database\Cleanup\FixNIH_CancerTypeNot100.csv'
 WITH
 (
 	FIRSTROW = 2,
@@ -32,29 +33,33 @@ WITH
 )
 GO  
 
-select top 5 * from #site
-select top 5 * from ProjectCancerType
-select top 5 * from CancerType
+-- data check
+select * from #site
 
---drop table #removecso
+select top 5 * from #site t
+left join CancerType ct on t.cancertype = ct.Name
+where t.cancertype is null
 
-select projectfundingid, count(*) as count, sum(CAST(rel AS float)) AS rel into #removesite from #site group by projectfundingid
-select * from #site  -- 73420
+select distinct projectfundingid into #pfid from #site
+select * from #pfid -- 9537
 
-select * from #removesite  -- 18146
-
--- ProjectCancerType
-select c.projectfundingid, count(*) as count from ProjectCancerType c
-join #removesite rem ON c.ProjectFundingID = rem.ProjectFundingID
-group by c.projectfundingid
+-- check total rel
+select pct.projectfundingid, sum(isnull(pct.Relevance,null)) 
+from ProjectCancerType pct
+join #pfid t on pct.ProjectFundingID = t.ProjectFundingID
+group by pct.ProjectFundingID
+order by sum(isnull(pct.Relevance,null)) desc
 
 begin transaction
-	delete ProjectCancerType where projectfundingid in (select projectfundingid from #removesite)
 
+	-- Delete existing project cancer types 
+	delete ProjectCancerType where projectfundingid in (select projectfundingid from #pfid)  -- 32078
+
+	-- Insert new project cancer types 
 	INSERT INTO ProjectCancerType 
 	SELECT s.[ProjectFundingID], ct.cancertypeid, s.[rel], 'S', getdate(), getdate(), 'S' 
 		FROM #site s
-		JOIN CancerType ct ON ct.ICRPCode = s.icrpcode
-
+		JOIN CancerType ct ON ct.Name = s.cancertype  --29243
+--rollback
 commit
 
