@@ -7,6 +7,7 @@
 
 namespace Drupal\db_map\Controller;
 
+use Drupal;
 use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -87,12 +88,12 @@ class MapController extends ControllerBase {
     $results = self::get_map_layers('icrp_database');
     return [
       '#theme' => 'db_map',
+      '#api_key' => \Drupal::config('google-maps')->get('api-key'),
       '#layers' => $results,
       '#attached' => [
         'library' => [
           'db_map/default'
         ],
-
         ## https://api.drupal.org/api/drupal/core%21lib%21Drupal%21Core%21Render%21HtmlResponseAttachmentsProcessor.php/function/HtmlResponseAttachmentsProcessor%3A%3AprocessAttachments/
         'http_header' => [
           ['Cache-Control', 'no-cache, max-age=0, must-revalidate, no-store'],
@@ -108,6 +109,7 @@ class MapController extends ControllerBase {
     $layers = self::get_map_layers('icrp_database');
     return [
       '#theme' => 'db_people_map',
+      '#api_key' => \Drupal::config('google-maps')->get('api-key'),
       '#funding_details' => $results['project_funding_details'],
       '#layers' => $layers,
       '#pi_count' => $results['pi_count'],
@@ -125,6 +127,7 @@ class MapController extends ControllerBase {
     $results = self::get_map_layers('icrp_database');
     return [
       '#theme' => 'db_layer_map',
+      '#api_key' => \Drupal::config('google-maps')->get('api-key'),
       '#layers' => $results,
       '#attached' => [
         'library' => [
