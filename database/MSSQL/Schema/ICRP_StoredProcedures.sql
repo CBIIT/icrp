@@ -1770,7 +1770,14 @@ AS
 	IF @Type = 'Count'
 	BEGIN	
 		
-		SELECT CASE IsChildhood WHEN 1 THEN 'Childhood Cancer: Yes' ELSE 'Childhood Cancer: No' END AS IsChildhood, COUNT(*) AS [Count], 0  AS USDAmount INTO #CountStats FROM #pf GROUP BY IsChildhood 
+		SELECT 
+			CASE IsChildhood 
+				WHEN 1 THEN 'Childhood Cancer: Yes' ELSE 'Childhood Cancer: No' 
+			END AS IsChildhood, 
+			COUNT(*) AS [Count], 0  AS USDAmount INTO #CountStats 
+		FROM #pf 
+		GROUP BY IsChildhood 
+
 		SELECT @ResultCount = SUM(Count) FROM #CountStats
 		SELECT * FROM #CountStats ORDER BY [Count] Desc
 			
@@ -1779,11 +1786,16 @@ AS
 	ELSE --  'Amount'
 	
 	BEGIN 
-
-		SELECT CASE IsChildhood WHEN 1 THEN 'Childhood Cancer: Yes' ELSE 'Childhood Cancer: No' END AS IsChildhood, 0 AS [Count], (SUM(f.Amount) * ISNULL(MAX(cr.ToCurrencyRate), 1)) AS USDAmount INTO #AmountStats 
-		FROM #pf f
+		SELECT 
+			CASE ct.IsCommonInChildren 
+				WHEN 1 THEN 'Common in Childhood Cancer: Yes' ELSE 'Common in Childhood Cancer: No' 
+			END AS IsChildhood, 0 AS [Count], 
+			(SUM(f.amount*(ISNULL(pct.relevance, 0)/100)) * ISNULL(MAX(cr.ToCurrencyRate), 1)) AS USDAmount INTO #AmountStats 
+		FROM #pf f	
+			JOIN ProjectCancerType pct ON f.ProjectFundingID = pct.ProjectFundingID
+			JOIN CancerType ct ON pct.CancerTypeID = ct.CancerTypeID	
 			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency			
-		GROUP BY IsChildhood 
+		GROUP BY ct.IsCommonInChildren
 
 		SELECT @ResultAmount = SUM([USDAmount]) FROM #AmountStats	
 		SELECT * FROM #AmountStats ORDER BY USDAmount Desc		
@@ -3519,7 +3531,9 @@ CREATE  PROCEDURE [dbo].[GetCancerTypeLookUp]
     
 AS   
 
-SELECT CancerTypeid, Name, ICRPCode, ICD10CodeInfo
+SELECT CancerTypeid, Name, ICRPCode, ICD10CodeInfo, CASE IsCommonInChildren
+WHEN 1 THEN 'y' ELSE 'n'
+END AS [Common in Children]
 FROM CancerType
 ORDER BY Name
 
@@ -3709,48 +3723,6 @@ DELETE searchCriteria
 WHERE  SearchCriteriaID IN (SELECT SearchCriteriaID FROM #old)
 
 GO
-
-
-
-/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-/****** Object:  StoredProcedure [dbo].[MergeInstitutions]    Script Date: 12/29/2016																								 ******/
-/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MergeInstitutions]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[MergeInstitutions]
-GO 
-
-CREATE PROCEDURE [dbo].[MergeInstitutions] 
-@InstitutionID_deleted INT,
-@InstitutionID_kept INT
-
-AS
-DECLARE @NewName varchar(250)
-DECLARE @NewCity varchar(50)
-DECLARE @OldName varchar(250)
-DECLARE @OldCity varchar(50)
-
--- Retrieve institution new/old name / city
-SELECT @NewName = Name, @NewCity = City FROM Institution WHERE InstitutionID= @InstitutionID_kept
-SELECT @OldName = Name, @OldCity = City FROM Institution WHERE InstitutionID= @InstitutionID_deleted
-
-IF (@NewName IS NULL) OR (@OldName IS NULL)
-BEGIN
-	PRINT CONCAT ('Either new or old Institution not found - [New: ', @NewName, ' / ', @NewCity, ']  [Old: ', @OldName, ' / ', @OldCity, ']')
-	RETURN
-END
-
--- add old institution into mapping table
-IF NOT EXISTS (SELECT 1 FROM InstitutionMapping WHERE OldCity = @OldCity AND OldName = @OldName) 
-	INSERT INTO InstitutionMapping ([NewName], [NewCity], [OldName], [OldCity]) VALUES (@NewName, @NewCity, @OldName, @OldCity)
-ELSE
-	UPDATE InstitutionMapping SET NewName = @NewName, NewCity = @NewCity WHERE OldCity = @OldCity AND OldName = @OldName
-
-UPDATE ProjectFundingInvestigator set institutionid = @InstitutionID_kept where institutionid = @InstitutionID_deleted 
-delete institution where institutionid = @InstitutionID_deleted
-
-GO
-
 
 
 /*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -7782,6 +7754,33 @@ AS
 	
 GO
 
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetCancerStatisticsByCategory]    Script Date: 12/14/2016 4:21:37 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetCancerStatisticsByCategory]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetCancerStatisticsByCategory]
+GO 
+
+CREATE  PROCEDURE [dbo].[GetCancerStatisticsByCategory] 
+@Category VARCHAR(50)   -- 'Incidence', 'Mortality', 'Prevalence'
+    
+AS   
+
+SELECT ml.DisplayedName AS Category, ml.DataSource, c.name AS Country, cml.Value 
+ FROM [CountryMapLayer] cml
+	JOIN lu_MapLayer ml on cml.MapLayerID = ml.MapLayerID	
+	LEFT JOIN lu_MapLayer pl on ml.ParentMapLayerID = pl.MapLayerID
+	LEFT JOIN Country c ON cml.Country = c.Abbreviation	
+WHERE (SUBSTRING(ISNULL(pl.name, ml.name), 8, LEN(ISNULL(pl.name, ml.name))) = @Category) AND cml.Value IS NOT NULL
+ORDER BY ml.DisplayedName ASC, cml.Value DESC
+
+GO
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[GetMapLayers]    Script Date: 12/14/2016 4:21:47 PM ******/
@@ -8444,6 +8443,206 @@ BEGIN CATCH
 END CATCH  
 
 GO
+
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[UpdateInstitution]								****************/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdateInstitution]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[UpdateInstitution]
+GO 
+
+CREATE  PROCEDURE [dbo].[UpdateInstitution]
+	@InstitutionID INT,
+	@Name [varchar](100),	
+	@Country [varchar](3),
+	@City [varchar](50),
+	@State [varchar](50),
+	@Postal [varchar](50),	
+	@Longitude [decimal](9, 6),
+	@Latitude [decimal](9, 6),
+	@GRID [varchar](250) = NULL,		
+	@Type [varchar](25) = NULL
+AS   
+
+
+BEGIN TRANSACTION;
+BEGIN TRY    	
+
+	-- Return error if the institution (Name+Country+City+State already exists)
+	IF EXISTS (SELECT 1 FROM institution WHERE InstitutionID <> @InstitutionID AND Name = @Name AND Country = @Country AND City=@City AND ISNULL(State, '') = ISNULL(@State, ''))
+	BEGIN
+		   RAISERROR ('Institution with this name and location already exists. Operation aborted.', 16, 1)
+	END
+		
+	UPDATE Institution SET [Name] = @Name,	
+		[Country] = @Country,
+		[City] = @City,
+		[State] = @State,
+		[Postal] = @Postal,		
+		[Longitude]  = @Longitude,
+		[Latitude] = @Latitude,
+		[Grid] = @GRID,
+		[Type] = @Type,
+		[UpdatedDate] = getdate()
+	WHERE InstitutionID =  @InstitutionID
+
+	-- Also update the icrp_dataload database
+	UPDATE icrp_dataload.dbo.Institution SET [Name] = @Name,	
+		[Country] = @Country,
+		[City] = @City,
+		[State] = @State,
+		[Postal] = @Postal,		
+		[Longitude]  = @Longitude,
+		[Latitude] = @Latitude,
+		[Grid] = @GRID,
+		[Type] = @Type,
+		[UpdatedDate] = getdate()
+	WHERE InstitutionID =  @InstitutionID   -- fix this
+	
+	COMMIT TRANSACTION
+
+END TRY
+
+BEGIN CATCH
+      -- IF @@trancount > 0 
+		ROLLBACK TRANSACTION
+      
+	  DECLARE @msg nvarchar(2048) = error_message()  
+      RAISERROR (@msg, 16, 1)
+	        
+END CATCH  
+
+GO
+
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[AddInstitution]		        						****************/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AddInstitution]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[AddInstitution]
+GO 
+
+CREATE  PROCEDURE [dbo].[AddInstitution]	
+	@Name [varchar](100),	
+	@Country [varchar](3),
+	@City [varchar](50),
+	@State [varchar](50),
+	@Postal [varchar](50),	
+	@Longitude [decimal](9, 6),
+	@Latitude [decimal](9, 6),
+	@GRID [varchar](250) = NULL,		
+	@Type [varchar](25) = NULL
+
+AS   
+
+BEGIN TRANSACTION;
+BEGIN TRY    	
+
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	-- Return error if the institution (Name+Country+City+State already exists)
+	IF EXISTS (SELECT 1 FROM institution WHERE Name = @Name AND Country = @Country AND City=@City AND ISNULL(State, '') = ISNULL(@State, ''))
+	BEGIN
+		   RAISERROR ('Institution with this name and location already exists. Operation aborted.', 16, 1)
+	END
+
+	-- Insert the new institution into the icrp_data database
+	INSERT INTO Institution ([Name], [Country], [City], [State], [Postal], [Longitude], [Latitude], [Grid], [Type], [UpdatedDate], [CreatedDate])
+	VALUES (@Name, @Country, @City, @State, @Postal, @Longitude, @Latitude, @GRID, @Type, GETDATE(), GETDATE())
+		
+	-- Also insert the new institution into the icrp_dataload database
+	INSERT INTO icrp_dataload.dbo.Institution ([Name], [Country], [City], [State], [Postal], [Longitude], [Latitude], [Grid], [Type], [UpdatedDate], [CreatedDate])
+	VALUES (@Name, @Country, @City, @State, @Postal, @Longitude, @Latitude, @GRID, @Type, GETDATE(), GETDATE())
+	
+	COMMIT TRANSACTION
+
+END TRY
+
+BEGIN CATCH
+      -- IF @@trancount > 0 
+		ROLLBACK TRANSACTION
+      
+	  DECLARE @msg nvarchar(2048) = error_message()  
+      RAISERROR (@msg, 16, 1)
+	        
+END CATCH  
+
+GO
+
+/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+/****** Object:  StoredProcedure [dbo].[MergeInstitutions]    Script Date: 12/29/2016																								 ******/
+/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MergeInstitutions]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[MergeInstitutions]
+GO 
+
+CREATE PROCEDURE [dbo].[MergeInstitutions] 
+@InstitutionID_deleted INT,
+@InstitutionID_kept INT,
+@Count INT OUTPUT
+
+AS
+
+DECLARE @NewName varchar(250)
+DECLARE @NewCity varchar(50)
+DECLARE @OldName varchar(250)
+DECLARE @OldCity varchar(50)
+
+-- Retrieve institution new/old name / city
+SELECT @NewName = Name, @NewCity = City FROM Institution WHERE InstitutionID= @InstitutionID_kept
+SELECT @OldName = Name, @OldCity = City FROM Institution WHERE InstitutionID= @InstitutionID_deleted
+
+BEGIN TRANSACTION;
+BEGIN TRY   	
+
+	-- Add old institution into institution mapping table
+	IF NOT EXISTS (SELECT 1 FROM InstitutionMapping WHERE OldCity = @OldCity AND OldName = @OldName) 
+		INSERT INTO InstitutionMapping ([NewName], [NewCity], [OldName], [OldCity]) VALUES (@NewName, @NewCity, @OldName, @OldCity)
+	ELSE
+		UPDATE InstitutionMapping SET NewName = @NewName, NewCity = @NewCity WHERE OldCity = @OldCity AND OldName = @OldName
+
+	-- Move PIs/collaborators to the new institution
+	UPDATE ProjectFundingInvestigator SET institutionid = @InstitutionID_kept WHERE institutionid = @InstitutionID_deleted 
+	
+	SELECT @COUNT = @@RowCount	
+
+	DELETE institution where institutionid = @InstitutionID_deleted
+	
+	COMMIT TRANSACTION
+
+END TRY
+
+BEGIN CATCH
+      -- IF @@trancount > 0 
+	  ROLLBACK TRANSACTION
+      
+	  DECLARE @msg nvarchar(2048) = error_message()  
+      RAISERROR (@msg, 16, 1)
+	        
+END CATCH  
+
+GO
+
 
 
 ----------------------------------------------------------------------------------------------------------
