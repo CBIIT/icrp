@@ -60,6 +60,54 @@ class DataUpload {
         'InternalUseOnly' => 'nvarchar(max)',
     ];
 
+    const MAX_COLUMN_LENGTHS = [
+        /* 'InternalId' => NULL,*/
+        /* 'AwardCode' => */ 50,
+        /* 'AwardStartDate' => */ 10,
+        /* 'AwardEndDate' => */ 10,
+        /* 'SourceId' => */ 150,
+        /* 'AltId' => */ 50,
+        /* 'NewAltId' => */ 50,
+        /* 'AwardTitle' => */ 1000,
+        /* 'Category' => */ 25,
+        /* 'AwardType' => */ 50,
+        /* 'Childhood' => */ 5,
+        /* 'BudgetStartDate' => */ 10,
+        /* 'BudgetEndDate' => */ 10,
+        /* 'CSOCodes' => */ 500,
+        /* 'CSORel' => */ 500,
+        /* 'SiteCodes' => */ 500,
+        /* 'SiteRel' => */ 500,
+        /* 'AwardFunding' => */ 20,
+        /* 'IsAnnualized' => */ 1,
+        /* 'FundingMechanismCode' => */ 30,
+        /* 'FundingMechanism' => */ 200,
+        /* 'FundingOrgAbbr' => */ 50,
+        /* 'FundingDiv' => */ 75,
+        /* 'FundingDivAbbr' => */ 50,
+        /* 'FundingContact' => */ 50,
+        /* 'PILastName' => */ 50,
+        /* 'PIFirstName' => */ 50,
+        /* 'SubmittedInstitution' => */ 250,
+        /* 'City' => */ 50,
+        /* 'State' => */ 50,
+        /* 'Country' => */ 3,
+        /* 'PostalZipCode' => */ 50,
+        /* 'InstitutionICRP' => */ 4000,
+        /* 'Latitute' => */ 20,
+        /* 'Longitute' => */ 20,
+        /* 'GRID' => */ 250,
+        /* 'TechAbstract' => */ NULL,
+        /* 'PublicAbstract' => */ NULL,
+        /* 'RelatedAwardCode' => */ 200,
+        /* 'RelationshipType' => */ 200,
+        /* 'ORCID' => */ 25,
+        /* 'OtherResearcherID' => */ NULL,
+        /* 'OtherResearcherIDType' => */ 1000,
+        /* 'InternalUseOnly' => */ NULL,
+    ];
+
+
 
     /**
      * Retrieves partner sponsor codes
@@ -235,6 +283,7 @@ class DataUpload {
                 throw new Exception('The input file does not contain the expected number of headers.');
             }
 
+
             // read each row into the table
             foreach($csv as $index => $row) {
 
@@ -271,6 +320,25 @@ class DataUpload {
                     ++$index;
                     error_log($e->getMessage());
                     $message = preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage());
+
+                    function toExcelColumn($n)
+                    {
+                        for($r = ""; $n >= 0; $n = intval($n / 26) - 1)
+                            $r = chr($n%26 + 0x41) . $r;
+                        return $r;
+                    }
+
+                    foreach(array_values($row) as $itemIndex => $item) {
+                        $itemLength = strlen($item);
+                        $maxLength = self::MAX_COLUMN_LENGTHS[$itemIndex];
+                        $columnName = array_keys($row)[$itemIndex];
+                        $excelColumn = toExcelColumn($itemIndex);
+
+                        if ($maxLength != NULL && $itemLength > $maxLength) {
+                            $message .= " The value for $columnName (column $excelColumn) exceeds $maxLength characters in length.";
+                        }
+                    }
+
                     throw new Exception("The input file contains an invalid row. Please check line ${index} (${message})");
                 }
             }
