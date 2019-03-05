@@ -522,9 +522,14 @@ function  getForumEmails($nid, $author_uid) {
       "field_subcommittee_evaluation",
       "field_subcommittee_partner_opera",
       "field_subcommittee_web_site",
+      "field_subcommittee_funding",
   );
   $table = "";
   $index = (int)$tid - 7;
+  //this is for the exception to the rule for subcommittee funding.
+  if($tid == 27) {
+    $index = 7;
+  }
   //drupal_set_message((string)$index);
   //drupal_set_message(print_r($index, true));
 
@@ -1351,6 +1356,9 @@ function icrp_preprocess_forums(&$variables) {
         break;
       case 13:
         $variables['tfontawesome_icon'] = 'fa-database';
+        break;
+      case 27:
+        $variables['tfontawesome_icon'] = 'fa-money';
         break;
     }
 
