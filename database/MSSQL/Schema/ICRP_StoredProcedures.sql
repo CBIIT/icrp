@@ -6693,7 +6693,7 @@ BEGIN TRY
 	FROM (SELECT * FROM icrp_data.dbo.DataUploadLog WHERE DataUploadStatusID = @DataUploadStatusID_Prod) p
 		JOIN (SELECT * FROM icrp_dataload.dbo.DataUploadLog WHERE DataUploadStatusID = @DataUploadStatusID_Stage) s ON 1=1
 	WHERE p.ProjectCount <> s.ProjectCount OR p.ProjectFundingCount <> s.ProjectFundingCount OR p.ProjectFundingInvestigatorCount <> s.ProjectFundingInvestigatorCount OR p.ProjectCSOCount <> s.ProjectCSOCount 
-		OR p.ProjectCancerTypeCount <> s.ProjectCancerTypeCount OR p.Project_ProjectTypeCount <> s.Project_ProjectTypeCount OR p.ProjectAbstractCount <> s.ProjectAbstractCount OR p.ProjectSearchCount <> s.ProjectSearchCount
+		OR p.ProjectCancerTypeCount <> s.ProjectCancerTypeCount OR p.Project_ProjectTypeCount <> s.Project_ProjectTypeCount OR p.ProjectSearchCount <> s.ProjectSearchCount
 		
 	IF EXISTS (select * FROM #mismatchUpdates)			
 	BEGIN		
