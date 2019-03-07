@@ -4,17 +4,22 @@
       <th>Sponsor Code</th>
       <th>Funding Years</th>
       <th>Type</th>
+      <th>Project Count</th>
       <th>Workbook Received Date</th>
+      <th>Upload to Stage Date</th>
       <th>Note</th>
       <th *ngIf="sharedService.get('userRoles').indexOf('manager') !== -1">Action</th>
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let row of uploads">
-      <td><a (click)="select.emit(row.data_upload_id)">{{ row.sponsor_code }}</a></td>
+      <td>{{ row.sponsor_code }}</td>
       <td>{{ row.funding_year }}</td>
       <td>{{ row.type }}</td>
+      <td><a (click)="select.emit(row.data_upload_id)">{{ row.project_count || 0 }}</a></td>
+
       <td>{{ row.received_date }}</td>
+      <td>{{ row.stage_upload_date }}</td>
       <td>{{ row.note }}</td>
       <td *ngIf="sharedService.get('userRoles').indexOf('manager') !== -1">
         <button class="btn btn-primary btn-xs" (click)="syncProd.emit(row.data_upload_id)">

@@ -65,12 +65,18 @@ export class ReviewPageComponent {
     project_counts_by_cancer_type: null,
     project_counts_by_type: null,
     project_counts_by_year: null,
+    project_counts_by_institution: null,
+    project_counts_by_childhood_cancer: null,
+    project_counts_by_funding_organization: null,
 
     project_funding_amounts_by_country: null,
     project_funding_amounts_by_cso_research_area: null,
     project_funding_amounts_by_cancer_type: null,
     project_funding_amounts_by_type: null,
     project_funding_amounts_by_year: null,
+    project_funding_amounts_by_institution: null,
+    project_funding_amounts_by_childhood_cancer: null,
+    project_funding_amounts_by_funding_organization: null,
   };
 
   fields: any = {};
@@ -269,6 +275,7 @@ export class ReviewPageComponent {
       });
   }
 
+
   resetAnalytics() {
     this.analytics = {
       project_counts_by_country: null,
@@ -276,12 +283,18 @@ export class ReviewPageComponent {
       project_counts_by_cancer_type: null,
       project_counts_by_type: null,
       project_counts_by_year: null,
+      project_counts_by_institution: null,
+      project_counts_by_childhood_cancer: null,
+      project_counts_by_funding_organization: null,
 
       project_funding_amounts_by_country: null,
       project_funding_amounts_by_cso_research_area: null,
       project_funding_amounts_by_cancer_type: null,
       project_funding_amounts_by_type: null,
       project_funding_amounts_by_year: null,
+      project_funding_amounts_by_institution: null,
+      project_funding_amounts_by_childhood_cancer: null,
+      project_funding_amounts_by_funding_organization: null,
     };
   }
 }
