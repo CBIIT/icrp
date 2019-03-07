@@ -15,6 +15,7 @@ dependencies:
     - field.field.user.user.field_subcommittee_annual_meetin
     - field.field.user.user.field_subcommittee_cso_coding
     - field.field.user.user.field_subcommittee_evaluation
+    - field.field.user.user.field_subcommittee_funding
     - field.field.user.user.field_subcommittee_membership
     - field.field.user.user.field_subcommittee_new
     - field.field.user.user.field_subcommittee_partner_news
@@ -95,6 +96,13 @@ content:
     weight: 2
     settings: {  }
     third_party_settings: {  }
+    region: content
+  field_subcommittee_funding:
+    weight: 12
+    settings:
+      display_label: true
+    third_party_settings: {  }
+    type: boolean_checkbox
     region: content
   field_subcommittee_partner_news:
     weight: 8

@@ -6,5 +6,6 @@ event_group_color:
   evaluations_and_analyses: OLIVEDRAB
   partner_operations: MEDIUMVIOLETRED
   website_and_database: INDIANRED
+  funding_opportunities: CRIMSON
 _core:
   default_config_hash: YhpQ_567STNeTlcvsyvHSAfEq89eReOCjgLA83bBC3k
