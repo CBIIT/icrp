@@ -888,6 +888,7 @@ function  getEventsEmails($nid, $author_uid) {
   //drupal_set_message("calendar_type: ".$event_group);
   $subCommittees = array(
       "Partner News and Announcements" => "field_subcommittee_partner_news",
+      "Funding Opportunities" => "field_subcommittee_funding",
       "Annual Meetings" => "field_subcommittee_annual_meetin",
       "Communications and Membership" => "field_subcommittee_membership",
       "CSO and Coding" => "field_subcommittee_cso_coding",
