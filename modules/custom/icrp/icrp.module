@@ -857,6 +857,7 @@ function getEventsDetails($nid, $entity) {
   $config = \Drupal::service('config.factory')->get('icrp.settings');
   $group_color = array(
       "Partner News and Announcements" => $config->get('event_group_color.partner_news_and_announcements'),
+      "Funding Opportunities" => $config->get('event_group_color.funding_opportunities'),
       "Annual Meetings" => $config->get('event_group_color.annual_meetings'),
       "Communications and Membership" => $config->get('event_group_color.communications_and_membership'),
       "CSO and Coding" => $config->get('event_group_color.cso_and_coding'),
