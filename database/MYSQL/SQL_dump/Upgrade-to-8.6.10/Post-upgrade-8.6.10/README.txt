@@ -1,0 +1,1 @@
+Use this composer.json and database-8.6.10.sql to initalize ICRP just after the upgrade.
