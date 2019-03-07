@@ -115,13 +115,15 @@ class DatabaseReview {
     if ($stmt->execute()) {
       while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         array_push($results, [
-          'data_upload_id' => $row['DataUploadID'],
-          'type'           => $row['Type'],
-          'sponsor_code'   => $row['SponsorCode'],
-          'funding_year'   => $row['FundingYear'],
-          'received_date'  => $row['ReceivedDate'],
-          'note'           => $row['Note'],
-          'counts'         => [],
+          'data_upload_id'    => $row['DataUploadID'],
+          'type'              => $row['Type'],
+          'sponsor_code'      => $row['SponsorCode'],
+          'funding_year'      => $row['FundingYear'],
+          'project_count'     => $row['ProjectFundingCount'],
+          'received_date'     => $row['ReceivedDate'],
+          'stage_upload_date' => $row['UploadToStageDate'],
+          'note'              => $row['Note'],
+          'counts'            => [],
         ]);
       }
     }
@@ -159,11 +161,11 @@ class DatabaseReview {
     try {
       $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE DataUpload_SyncProd @DataUploadID=:data_upload_id');
       $stmt->bindParam(':data_upload_id', $parameters['data_upload_id']);
-     if ($stmt->execute()) { 
+     if ($stmt->execute()) {
         return true;
       }
-      return false; 
-    } 
+      return false;
+    }
     catch(\PDOException $e) {
       error_log($e->getMessage());
       return false;
