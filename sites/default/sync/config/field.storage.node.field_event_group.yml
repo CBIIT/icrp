@@ -19,6 +19,9 @@ settings:
       value: 'Partner News and Announcements'
       label: 'Partner News and Announcements'
     -
+      value: 'Funding Opportunities'
+      label: 'Funding Opportunities'
+    -
       value: 'Annual Meetings'
       label: 'Annual Meetings'
     -

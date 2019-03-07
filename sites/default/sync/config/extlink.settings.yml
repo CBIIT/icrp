@@ -11,3 +11,6 @@ extlink_css_exclude: ''
 extlink_css_explicit: ''
 extlink_label: '(link is external)'
 extlink_mailto_label: '(link sends email)'
+extlink_target_no_override: false
+extlink_nofollow: false
+extlink_follow_no_override: false
