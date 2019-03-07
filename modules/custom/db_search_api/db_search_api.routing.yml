@@ -100,6 +100,7 @@ api.database.review.fields:
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
+    _role: 'authenticated'
 
 
 ## Get sorted and paginated search results
@@ -110,6 +111,7 @@ api.database.review.sort_paginate:
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
+    _role: 'authenticated'
 
 
 ## Get analytics for search results
@@ -130,6 +132,7 @@ api.database.review.sponsor_uploads:
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
+    _role: 'authenticated'
 
 
 ## Get the search summary for a particular search id
@@ -140,6 +143,7 @@ db_search_api.database.review.search_summary:
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
+    _role: 'authenticated'
 
 
 ## Get a results view for a particular search id
@@ -149,6 +153,7 @@ db_search_api.database.review.search_results_view:
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
+    _role: 'authenticated'
 
 ## Gets the data upload completeness summary
 db_search_api.database.review.data_upload_completeness_summary:
@@ -157,6 +162,7 @@ db_search_api.database.review.data_upload_completeness_summary:
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
+    _role: 'authenticated'
 
 
 
