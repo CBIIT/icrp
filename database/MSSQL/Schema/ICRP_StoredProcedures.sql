@@ -3686,10 +3686,11 @@ CREATE  PROCEDURE [dbo].[GetDataUploadInStaging]
 
 AS   
 
-SELECT DataUploadStatusID AS DataUploadID, [Type], [PartnerCode] AS SponsorCode, [FundingYear], [ReceivedDate], Note
-FROM DataUploadStatus
+SELECT us.DataUploadStatusID AS DataUploadID, us.[Type], us.[PartnerCode] AS SponsorCode, us.[FundingYear], ul.ProjectFundingCount, us.[ReceivedDate], us.UploadToStageDate, us.Note
+FROM DataUploadStatus us
+JOIN DataUploadLog ul ON us.DataUploadStatusID = ul.DataUploadStatusID
 WHERE Status = 'Staging' 
-ORDER BY [ReceivedDate] DESC
+ORDER BY UploadToStageDate
 
 GO
 
@@ -4143,7 +4144,7 @@ FROM Project p
 
 SELECT a.AwardCode, a.AltAwardCode, COUNT(*) AS ParentCount INTO #ParentCategory
 FROM #Category_New a
-LEFT JOIN (SELECT AwardCode, AltAwardCode FROM #Category_New WHERE Category = 'Parent') p ON a.AltAwardCode = p.AltAwardCode
+	JOIN (SELECT AwardCode, AltAwardCode FROM #Category_New WHERE Category = 'Parent') p ON a.AltAwardCode = p.AltAwardCode
 GROUP BY a.AwardCode, a.AltAwardCode
 
 
@@ -4951,7 +4952,7 @@ FROM Project p
 
 SELECT a.AwardCode, a.AltAwardCode, COUNT(*) AS ParentCount INTO #ParentCategory
 FROM #Category_New a
-LEFT JOIN (SELECT AwardCode, AltAwardCode FROM #Category_New WHERE Category = 'Parent') p ON a.AltAwardCode = p.AltAwardCode
+	JOIN (SELECT AwardCode, AltAwardCode FROM #Category_New WHERE Category = 'Parent') p ON a.AltAwardCode = p.AltAwardCode
 GROUP BY a.AwardCode, a.AltAwardCode
 
 -------------------------------------------------------------------
@@ -6692,7 +6693,7 @@ BEGIN TRY
 	FROM (SELECT * FROM icrp_data.dbo.DataUploadLog WHERE DataUploadStatusID = @DataUploadStatusID_Prod) p
 		JOIN (SELECT * FROM icrp_dataload.dbo.DataUploadLog WHERE DataUploadStatusID = @DataUploadStatusID_Stage) s ON 1=1
 	WHERE p.ProjectCount <> s.ProjectCount OR p.ProjectFundingCount <> s.ProjectFundingCount OR p.ProjectFundingInvestigatorCount <> s.ProjectFundingInvestigatorCount OR p.ProjectCSOCount <> s.ProjectCSOCount 
-		OR p.ProjectCancerTypeCount <> s.ProjectCancerTypeCount OR p.Project_ProjectTypeCount <> s.Project_ProjectTypeCount OR p.ProjectAbstractCount <> s.ProjectAbstractCount OR p.ProjectSearchCount <> s.ProjectSearchCount
+		OR p.ProjectCancerTypeCount <> s.ProjectCancerTypeCount OR p.Project_ProjectTypeCount <> s.Project_ProjectTypeCount OR p.ProjectSearchCount <> s.ProjectSearchCount
 		
 	IF EXISTS (select * FROM #mismatchUpdates)			
 	BEGIN		
@@ -8445,6 +8446,72 @@ END CATCH
 GO
 
 
+/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+/****** Object:  StoredProcedure [dbo].[MergeFundingOrgs]    Script Date: 02/21/2019     																							 ******/
+/*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MergeFundingOrgs]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[MergeFundingOrgs]
+GO 
+
+CREATE PROCEDURE [dbo].[MergeFundingOrgs] 
+@FundingOrgID_Old INT,
+@FundingOrgID_New INT,
+@Count INT OUTPUT
+
+AS
+
+
+BEGIN TRANSACTION;
+BEGIN TRY   
+	
+	DECLARE @FundingOrgName_Old VARCHAR(250)
+	DECLARE @FundingOrgName_New VARCHAR(250)
+
+	SELECT @FundingOrgName_Old = Name FROM FundingOrg WHERE FundingOrgID = @FundingOrgID_Old
+	SELECT @FundingOrgName_New = Name FROM FundingOrg WHERE FundingOrgID = @FundingOrgID_New
+	
+	IF EXISTS (SELECT MemberType FROM fundingorg where fundingorgid=@FundingOrgID_Old AND MemberType = 'Partner')
+		RAISERROR ('The merge operation cannot be performed on a Partner Funding Org. Operation aborted.', 16, 1)
+
+	-------------------------------------------------
+	-- Perform Merge on the icrp_data database
+	-------------------------------------------------
+	DELETE PartnerOrg where Name=@FundingOrgName_Old AND MemberType='Associate'  -- remove old associate funding org from partnerOrg
+	
+	UPDATE fundingorg SET MemberStatus = 'Merged', UpdatedDate=getdate() where fundingorgid=@FundingOrgID_Old
+
+	UPDATE projectfunding SET FundingOrgID =@FundingOrgID_New, UpdatedDate=getdate() where fundingorgid=@FundingOrgID_Old -- 26  -- move all projects to new fundingorg
+	
+	SELECT @COUNT = @@RowCount	
+
+	-------------------------------------------------
+	-- Perform Merge on the icrp_dataload database
+	-------------------------------------------------
+	SELECT @FundingOrgID_New = FundingOrgID FROM icrp_dataload.dbo.fundingorg WHERE Name = @FundingOrgName_New
+	SELECT @FundingOrgID_Old = FundingOrgID FROM icrp_dataload.dbo.fundingorg WHERE Name = @FundingOrgName_Old
+
+	DELETE icrp_dataload.dbo.PartnerOrg where Name=@FundingOrgName_Old AND MemberType='Associate' -- remove old org from partnerOrg
+	
+	UPDATE icrp_dataload.dbo.fundingorg SET MemberStatus = 'Merged', UpdatedDate=getdate() where fundingorgid=@FundingOrgID_Old
+	
+	UPDATE icrp_dataload.dbo.projectfunding SET FundingOrgID =@FundingOrgID_New, UpdatedDate=getdate() where fundingorgid=@FundingOrgID_Old -- 26  -- move all projects to new fundingorg
+
+	COMMIT TRANSACTION
+
+END TRY
+
+BEGIN CATCH
+      -- IF @@trancount > 0 
+	  ROLLBACK TRANSACTION
+      
+	  DECLARE @msg nvarchar(2048) = error_message()  
+      RAISERROR (@msg, 16, 1)
+	        
+END CATCH  
+
+GO
+
 
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[UpdateInstitution]								****************/
@@ -8597,8 +8664,8 @@ DROP PROCEDURE [dbo].[MergeInstitutions]
 GO 
 
 CREATE PROCEDURE [dbo].[MergeInstitutions] 
-@InstitutionID_deleted INT,
-@InstitutionID_kept INT,
+@InstitutionID_Old INT,
+@InstitutionID_New INT,
 @Count INT OUTPUT
 
 AS
@@ -8609,12 +8676,15 @@ DECLARE @OldName varchar(250)
 DECLARE @OldCity varchar(50)
 
 -- Retrieve institution new/old name / city
-SELECT @NewName = Name, @NewCity = City FROM Institution WHERE InstitutionID= @InstitutionID_kept
-SELECT @OldName = Name, @OldCity = City FROM Institution WHERE InstitutionID= @InstitutionID_deleted
+SELECT @NewName = Name, @NewCity = City FROM Institution WHERE InstitutionID= @InstitutionID_New
+SELECT @OldName = Name, @OldCity = City FROM Institution WHERE InstitutionID= @InstitutionID_Old
 
 BEGIN TRANSACTION;
 BEGIN TRY   	
 
+	-----------------------------------------------------
+	-- Perform Merge on the icrp_data database
+	-----------------------------------------------------
 	-- Add old institution into institution mapping table
 	IF NOT EXISTS (SELECT 1 FROM InstitutionMapping WHERE OldCity = @OldCity AND OldName = @OldName) 
 		INSERT INTO InstitutionMapping ([NewName], [NewCity], [OldName], [OldCity]) VALUES (@NewName, @NewCity, @OldName, @OldCity)
@@ -8622,11 +8692,27 @@ BEGIN TRY
 		UPDATE InstitutionMapping SET NewName = @NewName, NewCity = @NewCity WHERE OldCity = @OldCity AND OldName = @OldName
 
 	-- Move PIs/collaborators to the new institution
-	UPDATE ProjectFundingInvestigator SET institutionid = @InstitutionID_kept WHERE institutionid = @InstitutionID_deleted 
+	UPDATE ProjectFundingInvestigator SET institutionid = @InstitutionID_New, UpdatedDate=getdate() WHERE institutionid = @InstitutionID_Old 
 	
 	SELECT @COUNT = @@RowCount	
 
-	DELETE institution where institutionid = @InstitutionID_deleted
+	DELETE institution where institutionid = @InstitutionID_Old
+	
+	-----------------------------------------------------
+	-- Perform Merge on the icrp_dataload database
+	-----------------------------------------------------
+	-- Add old institution into institution mapping table
+	IF NOT EXISTS (SELECT 1 FROM icrp_dataload.dbo.InstitutionMapping WHERE OldCity = @OldCity AND OldName = @OldName) 
+		INSERT INTO icrp_dataload.dbo.InstitutionMapping ([NewName], [NewCity], [OldName], [OldCity]) VALUES (@NewName, @NewCity, @OldName, @OldCity)
+	ELSE
+		UPDATE icrp_dataload.dbo.InstitutionMapping SET NewName = @NewName, NewCity = @NewCity WHERE OldCity = @OldCity AND OldName = @OldName
+
+	-- Move PIs/collaborators to the new institution
+	SELECT @InstitutionID_New = InstitutionID FROM icrp_dataload.dbo.Institution WHERE Name = @NewName AND City = @NewCity
+	SELECT @InstitutionID_Old = InstitutionID FROM icrp_dataload.dbo.Institution WHERE Name = @OldName AND City = @OldCity
+	UPDATE icrp_dataload.dbo.ProjectFundingInvestigator SET institutionid = @InstitutionID_New, UpdatedDate=getdate() WHERE institutionid = @InstitutionID_Old 
+		
+	DELETE icrp_dataload.dbo.institution where institutionid = @InstitutionID_Old
 	
 	COMMIT TRANSACTION
 

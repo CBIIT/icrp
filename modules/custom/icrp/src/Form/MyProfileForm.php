@@ -75,6 +75,7 @@ x(del)         Internal Communications
          */
         $this->subCommittees = array(
             "field_subcommittee_partner_news",
+            "field_subcommittee_funding",
             "field_subcommittee_annual_meetin",
             "field_subcommittee_membership",
             "field_subcommittee_cso_coding",

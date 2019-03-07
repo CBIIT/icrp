@@ -26,7 +26,16 @@ See http://htmlcolorcodes.com/color-names/ for color names
   color: #fff;
   background-color: ROYALBLUE;
 }
-
+/* Added on March 6, 2019 */
+/* 12. Funding Opportunities (funding-opportunities) = CRIMSON */
+.fc-event-tid-funding-opportunities,
+.fc-event-tid-funding-opportunities .fc-event-skin,
+.fc-event-tid-funding-opportunities .fc-event-time,
+.fc-event-tid-funding-opportunities .fc-event-dot,
+.fc-event-tid-funding-opportunities a {
+  color: #fff;
+  background-color: CRIMSON;
+}
 /* 2. Annual Meetings (annual-meetings) = DARKCYAN */
 .fc-event-tid-annual-meetings,
 .fc-event-tid-annual-meetings .fc-event-skin,

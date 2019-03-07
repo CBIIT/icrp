@@ -310,6 +310,7 @@
       $("#edit-field-event-group option[value='Other']").remove();
     } else {
       $("#edit-field-event-group option[value='Partner News and Announcements']").remove();
+      $("#edit-field-event-group option[value='Funding Opportunities']").remove();
       $("#edit-field-event-group option[value='Annual Meetings']").remove();
       $("#edit-field-event-group option[value='Communications and Membership']").remove();
       $("#edit-field-event-group option[value='CSO and Coding']").remove();

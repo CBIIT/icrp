@@ -85,6 +85,8 @@
           {% set icon = "fa-globe" %}
         {% elseif child_id == 13 %}
           {% set icon = "fa-database" %}
+        {% elseif child_id == 27 %}
+          {% set icon = "fa-money" %}
         {% endif %}
 
   {% if icrp_debug %}
@@ -134,7 +136,13 @@
         {% if (forum.num_topics == 0) %}
           <span class="forum__last-reply" style="font-style:italic;">No Posts</span>
         {% else %}
-          {% set t = loop.index + 6 %}
+          {% if loop.index == 1 %}
+            {% set t = loop.index + 6 %}
+          {% elseif loop.index == 2 %}
+            {% set t = 27 %}
+          {% elseif loop.index > 2 %}
+            {% set t = loop.index + 5 %}
+          {% endif %}
           <div style="margin-bottom:10px;">{{ tforums[ t ].last_post | raw }}</div>
           <div class="forum__last-reply">{{ forum.last_reply|raw }}
             <span class="pull-right"><a href="/node/{{ tforums[ t ].nid }}#latest">View this post</a></span>
