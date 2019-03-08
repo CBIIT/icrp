@@ -1,12 +1,8 @@
-uuid: 66bc1fc1-c308-40b1-aa63-d1889dc5f2d8
 langcode: en
 status: scheduled
 dependencies:
   module:
     - honeypot
-third_party_settings:
-  honeypot:
-    honeypot: true
 open: '2018-09-21T11:00:00'
 close: '2019-02-08T12:40:00'
 weight: 0
@@ -26,6 +22,7 @@ settings:
   page: true
   page_submit_path: /survey
   page_confirm_path: ''
+  form_title: both
   form_submit_once: false
   form_exception_message: ''
   form_open_message: ''
@@ -33,6 +30,7 @@ settings:
   form_previous_submissions: true
   form_confidential: false
   form_confidential_message: ''
+  form_remote_addr: true
   form_convert_anonymous: false
   form_prepopulate: false
   form_prepopulate_source_entity: false
@@ -48,16 +46,26 @@ settings:
   form_submit_back: false
   form_autofocus: true
   form_details_toggle: false
-  form_login: false
-  form_login_message: ''
+  form_access_denied: default
+  form_access_denied_title: ''
+  form_access_denied_message: ''
+  form_access_denied_attributes: {  }
+  form_file_limit: ''
   submission_label: ''
   submission_log: true
+  submission_views: {  }
+  submission_views_replace: {  }
   submission_user_columns: {  }
   submission_user_duplicate: false
-  submission_login: false
-  submission_login_message: ''
+  submission_access_denied: default
+  submission_access_denied_title: ''
+  submission_access_denied_message: ''
+  submission_access_denied_attributes: {  }
   submission_exception_message: ''
   submission_locked_message: ''
+  submission_excluded_elements: {  }
+  submission_exclude_empty: false
+  submission_exclude_empty_checkbox: false
   previous_submission_message: ''
   previous_submissions_message: ''
   autofill: false
@@ -66,7 +74,9 @@ settings:
   wizard_progress_bar: true
   wizard_progress_pages: false
   wizard_progress_percentage: false
+  wizard_progress_link: false
   wizard_start_label: ''
+  wizard_preview_link: false
   wizard_confirmation: false
   wizard_confirmation_label: ''
   wizard_track: ''
@@ -96,9 +106,11 @@ settings:
   limit_total: null
   limit_total_interval: null
   limit_total_message: ''
+  limit_total_unique: false
   limit_user: null
   limit_user_interval: null
   limit_user_message: ''
+  limit_user_unique: false
   entity_limit_total: null
   entity_limit_total_interval: null
   entity_limit_user: null
@@ -108,8 +120,6 @@ settings:
   results_disabled: false
   results_disabled_ignore: false
   token_update: false
-  wizard_progress_link: false
-  wizard_preview_link: false
 access:
   create:
     roles:
@@ -153,4 +163,12 @@ access:
     roles: {  }
     users: {  }
     permissions: {  }
+  configuration:
+    roles: {  }
+    users: {  }
+    permissions: {  }
 handlers: {  }
+uuid: 66bc1fc1-c308-40b1-aa63-d1889dc5f2d8
+third_party_settings:
+  honeypot:
+    honeypot: true

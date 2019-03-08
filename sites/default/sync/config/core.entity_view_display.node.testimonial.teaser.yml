@@ -5,6 +5,8 @@ dependencies:
   config:
     - core.entity_view_mode.node.teaser
     - field.field.node.testimonial.body
+    - field.field.node.testimonial.field_media
+    - field.field.node.testimonial.field_source
     - node.type.testimonial
   module:
     - text
@@ -25,6 +27,8 @@ content:
   links:
     weight: 100
     region: content
+    settings: {  }
+    third_party_settings: {  }
 hidden:
   field_media: true
   field_source: true

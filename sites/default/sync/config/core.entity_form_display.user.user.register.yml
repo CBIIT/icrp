@@ -8,6 +8,7 @@ dependencies:
     - field.field.user.user.field_first_name
     - field.field.user.user.field_last_forum_visit
     - field.field.user.user.field_last_name
+    - field.field.user.user.field_library_access
     - field.field.user.user.field_membership_status
     - field.field.user.user.field_notify_new_events
     - field.field.user.user.field_notify_new_posts
@@ -15,6 +16,7 @@ dependencies:
     - field.field.user.user.field_subcommittee_annual_meetin
     - field.field.user.user.field_subcommittee_cso_coding
     - field.field.user.user.field_subcommittee_evaluation
+    - field.field.user.user.field_subcommittee_funding
     - field.field.user.user.field_subcommittee_membership
     - field.field.user.user.field_subcommittee_new
     - field.field.user.user.field_subcommittee_partner_news
@@ -64,12 +66,14 @@ hidden:
   contact: true
   field_can_upload_library_files: true
   field_last_forum_visit: true
+  field_library_access: true
   field_membership_status: true
   field_notify_new_events: true
   field_notify_new_posts: true
   field_subcommittee_annual_meetin: true
   field_subcommittee_cso_coding: true
   field_subcommittee_evaluation: true
+  field_subcommittee_funding: true
   field_subcommittee_membership: true
   field_subcommittee_new: true
   field_subcommittee_partner_news: true

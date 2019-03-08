@@ -10,6 +10,7 @@ dependencies:
     - node.type.forum
   module:
     - comment
+    - panelizer
     - user
 third_party_settings:
   panelizer:

@@ -10,6 +10,7 @@ dependencies:
     - node.type.slideshow
   module:
     - image
+    - panelizer
     - text
     - user
 third_party_settings:

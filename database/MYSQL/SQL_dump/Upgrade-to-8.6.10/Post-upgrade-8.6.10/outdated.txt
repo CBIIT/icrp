@@ -1,0 +1,6 @@
+drupal/console          1.0.1 ! 1.8.0 The Drupal CLI. A tool to generate boilerplate code, interact with and debug Drupal.
+drupal/console-core     1.0.1 ! 1.8.0 Drupal Console Core
+drupal/console-en       1.0.1 ! 1.8.0 Drupal Console English Language
+drupal/google_analytics 2.4.0 ~ 3.0.0 Allows your site to be tracked by Google Analytics by adding a Javascript tracking code to ...
+drupal/twig_tweak       1.9.0 ~ 2.1.0 A Twig extension with some useful functions and filters for Drupal development.
+drupal/views_bootstrap  3.1.0 ~ 4.1.0 Integrate the Bootstrap framework with Views.
