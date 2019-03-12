@@ -319,8 +319,9 @@ class DataUpload {
                 catch(PDOException $e) {
                     ++$index;
                     error_log($e->getMessage());
-                    $errorMessage = "The input file contains an invalid row. Please check line ${index}";
-                    $sqlError = preg_replace('/^SQLSTATE\[.*\]/', '', $e->getMessage());
+                    $errorMessage = "The input file contains an error on line ${index}";
+                    $sqlError = strtolower(preg_replace('/^SQLSTATE\[.*\]|\.$/', '', $e->getMessage()));
+
 
                     function toExcelColumn($n)
                     {
@@ -336,11 +337,11 @@ class DataUpload {
                         $excelColumn = toExcelColumn($itemIndex);
 
                         if ($maxLength != NULL && $itemLength > $maxLength) {
-                            $errorMessage .= ". The value for $columnName (column $excelColumn) exceeds $maxLength characters in length ";
+                            $errorMessage .= ". The value for $columnName (excel column $excelColumn) exceeds $maxLength characters in length ";
                         }
                     }
 
-                    throw new Exception("$errorMessage ($sqlError)");
+                    throw new Exception("$errorMessage ($sqlError).");
                 }
             }
 
