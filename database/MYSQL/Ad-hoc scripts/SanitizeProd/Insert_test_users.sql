@@ -1,31 +1,3 @@
--- MySQL dump 10.13  Distrib 5.6.35, for Linux (x86_64)
---
--- Host: icrp-drupal-test    Database: icrp
--- ------------------------------------------------------
---
--- Insert test users to table `users`
--- Insert test users to table `user__roles`
--- Insert test users to table `users_data`
--- Insert test users to table `user__user_picture`
--- Insert test users to table `users_roles`
--- Insert test users to table `users_field_data`
--- Insert test users to table `user__field_can_upload_library_files`
--- Insert test users to table `user__field_first_name`
--- Insert test users to table `user__field_last_name`
--- Insert test users to table `user__field_organization`
--- Insert test users to table `user__field_membership_status`
--- Insert test users to table `user__field_notify_new_events`
--- Insert test users to table `user__field_notify_new_posts`
--- Insert test users to table `user__field_subcommittee_annual_meetin`
--- Insert test users to table `user__field_subcommittee_cso_coding`
--- Insert test users to table `user__field_subcommittee_evaluation`
--- Insert test users to table `user__field_subcommittee_membership`
--- Insert test users to table `user__field_subcommittee_partner_news`
--- Insert test users to table `user__field_subcommittee_partner_opera`
--- Insert test users to table `user__field_subcommittee_web_site`
--- Insert test users tor table `user__field_subcommittee_new`
--- Insert test users to table `user__field_last_forum_visit`
---
 
 -- **********************************************************************************************************************
 -- Table `users`
@@ -102,6 +74,21 @@ UNLOCK TABLES;
 
 
 -- ******************************************************************************************************
+--  table .user__field_library_access`
+-- ******************************************************************************************************
+LOCK TABLES `user__field_library_access` WRITE;
+/*!40000 ALTER TABLE `user__field_library_access` DISABLE KEYS */;
+INSERT INTO `user__field_library_access` VALUES 
+    ('user',0,2,2,'en',0,'general'),
+    ('user',0,3,3,'en',0,'general'),
+    ('user',0,4,4,'en',0,'general'), 
+    ('user',0,2,2,'en',1,'finance'),
+	('user',0,2,2,'en',2,'operations and contracts');
+/*!40000 ALTER TABLE `user__field_library_access` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+-- ******************************************************************************************************
 --  table `user__field_first_name`
 -- ******************************************************************************************************
 LOCK TABLES `user__field_first_name` WRITE;
@@ -159,8 +146,8 @@ UNLOCK TABLES;
 LOCK TABLES `user__field_notify_new_events` WRITE;
 /*!40000 ALTER TABLE `user__field_notify_new_events` DISABLE KEYS */;
 INSERT INTO `user__field_notify_new_events` VALUES 
-    ('user',0,2,2,'en',0,0),
-    ('user',0,3,3,'en',0,0),
+    ('user',0,2,2,'en',0,1),
+    ('user',0,3,3,'en',0,1),
     ('user',0,4,4,'en',0,1);
 /*!40000 ALTER TABLE `user__field_notify_new_events` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -265,6 +252,19 @@ INSERT INTO `user__field_subcommittee_web_site` VALUES
     ('user',0,3,3,'en',0,1),
     ('user',0,4,4,'en',0,1);
 /*!40000 ALTER TABLE `user__field_subcommittee_web_site` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+-- ******************************************************************************************************
+--  table `user__field_subcommittee_funding`
+-- ******************************************************************************************************
+LOCK TABLES `user__field_subcommittee_web_site` WRITE;
+/*!40000 ALTER TABLE `user__field_subcommittee_funding` DISABLE KEYS */;
+INSERT INTO `user__field_subcommittee_funding` VALUES 
+    ('user',0,2,2,'en',0,1),
+    ('user',0,3,3,'en',0,1),
+    ('user',0,4,4,'en',0,1);
+/*!40000 ALTER TABLE `user__field_subcommittee_funding` ENABLE KEYS */;
 UNLOCK TABLES;
 
 
