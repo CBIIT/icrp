@@ -113,7 +113,8 @@
         "select2/select2": "^4.0",
         "webflo/drupal-finder": "^1.0.0",
         "webmozart/path-util": "^2.3",
-        "wikimedia/composer-merge-plugin": "~1.4"        
+        "wikimedia/composer-merge-plugin": "~1.4",
+        "twig/twig": "1.37.1"
     },
     "require-dev": {
         "behat/mink": "~1.7",
