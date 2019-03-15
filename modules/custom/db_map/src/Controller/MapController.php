@@ -105,6 +105,7 @@ class MapController extends ControllerBase {
 
 
   public static function getPeopleMap($funding_id): array {
+    \Drupal::service('page_cache_kill_switch')->trigger();
     $results = self::get_funding($funding_id, 'icrp_database');
     $layers = self::get_map_layers('icrp_database');
     return [
