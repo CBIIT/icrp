@@ -87,8 +87,8 @@ class Institutions {
       "SET NOCOUNT ON;
       DECLARE @resultsCount INT;
       EXECUTE MergeInstitutions
-        @InstitutionID_deleted = :deletedInstitutionId,
-        @InstitutionID_kept = :keptInstitutionId,
+        @InstitutionID_Old = :deletedInstitutionId,
+        @InstitutionID_New = :keptInstitutionId,
         @Count = @resultsCount OUTPUT;
       SELECT @resultsCount;",
       $parameters

@@ -8607,7 +8607,7 @@ DROP PROCEDURE [dbo].[AddInstitution]
 GO 
 
 CREATE  PROCEDURE [dbo].[AddInstitution]	
-	@Name [varchar](100),	
+	@Name [varchar](250),	
 	@Country [varchar](3),
 	@City [varchar](50),
 	@State [varchar](50),

@@ -53,7 +53,7 @@
         "drupal/colors": "1.x-dev",
         "drupal/console": "1.0.1",
         "drupal/content_access": "1.x-dev",
-        "drupal/core": "8.6.10",
+        "drupal/core": "8.6.11",
         "drupal/crop": "1.5",
         "drupal/ctools": "3.2",
         "drupal/ctools_block": "3.2",
@@ -113,7 +113,7 @@
         "select2/select2": "^4.0",
         "webflo/drupal-finder": "^1.0.0",
         "webmozart/path-util": "^2.3",
-        "wikimedia/composer-merge-plugin": "~1.4"
+        "wikimedia/composer-merge-plugin": "~1.4"        
     },
     "require-dev": {
         "behat/mink": "~1.7",
