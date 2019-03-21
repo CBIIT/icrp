@@ -77,18 +77,24 @@ display:
           summary: ''
           description: ''
           columns:
+            sid: sid
             webform_submission_value: webform_submission_value
             webform_submission_value_2: webform_submission_value_2
             webform_submission_value_3: webform_submission_value_3
             webform_submission_value_4: webform_submission_value_4
             completed: completed
-            contextual_links: contextual_links
-            webform_submission_value_1: webform_submission_value_1
-            sid: sid
             nothing: nothing
+            webform_submission_value_1: webform_submission_value_1
           info:
+            sid:
+              sortable: 0
+              default_sort_order: asc
+              align: ''
+              separator: ''
+              empty_column: 0
+              responsive: ''
             webform_submission_value:
-              sortable: 1
+              sortable: 0
               default_sort_order: asc
               align: ''
               separator: ''
@@ -122,7 +128,7 @@ display:
               separator: ''
               empty_column: 0
               responsive: ''
-            contextual_links:
+            nothing:
               sortable: 0
               default_sort_order: asc
               align: ''
@@ -136,21 +142,7 @@ display:
               separator: ''
               empty_column: 0
               responsive: ''
-            sid:
-              sortable: 0
-              default_sort_order: asc
-              align: ''
-              separator: ''
-              empty_column: 0
-              responsive: ''
-            nothing:
-              sortable: 0
-              default_sort_order: asc
-              align: ''
-              separator: ''
-              empty_column: 0
-              responsive: ''
-          default: webform_submission_value
+          default: sid
           empty_table: 0
           responsive: 0
           bootstrap_styles:
@@ -630,7 +622,7 @@ display:
               administrator: '0'
               manager: '0'
               partner: '0'
-            reduce: 0
+            reduce: false
           is_grouped: false
           group_info:
             label: ''
@@ -644,7 +636,19 @@ display:
             default_group_multiple: {  }
             group_items: {  }
           plugin_id: webform_submission_select_filter
-      sorts: {  }
+      sorts:
+        webform_submission_value:
+          id: webform_submission_value
+          table: webform_submission_field_icrp_partnership_applicaion_form_organization_name
+          field: webform_submission_value
+          relationship: none
+          group_type: group
+          admin_label: ''
+          order: DESC
+          exposed: false
+          expose:
+            label: ''
+          plugin_id: webform_submission_field_sort
       title: 'Partner Application Administration Tool'
       header: {  }
       footer: {  }
@@ -664,7 +668,7 @@ display:
       arguments: {  }
       display_extenders: {  }
     cache_metadata:
-      max-age: 0
+      max-age: -1
       contexts:
         - 'languages:language_content'
         - 'languages:language_interface'
@@ -682,7 +686,7 @@ display:
       path: partner-application-administration-tool
       exposed_block: false
     cache_metadata:
-      max-age: 0
+      max-age: -1
       contexts:
         - 'languages:language_content'
         - 'languages:language_interface'
