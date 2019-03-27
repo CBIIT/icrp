@@ -7779,7 +7779,8 @@ SELECT ml.DisplayedName AS Category, ml.DataSource, c.name AS Country, cml.Value
 	LEFT JOIN lu_MapLayer pl on ml.ParentMapLayerID = pl.MapLayerID
 	LEFT JOIN Country c ON cml.Country = c.Abbreviation	
 WHERE (SUBSTRING(ISNULL(pl.name, ml.name), 8, LEN(ISNULL(pl.name, ml.name))) = @Category) AND cml.Value IS NOT NULL
-ORDER BY ml.DisplayedName ASC, cml.Value DESC
+ORDER BY ml.DisplayedName ASC, CAST(cml.Value AS Decimal(18,2)) DESC
+
 
 GO
 
