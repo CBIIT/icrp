@@ -311,7 +311,7 @@ class DataUpload {
 
                     ## disregard strings that are empty or null
                     return in_array($value, ['', 'NULL'], true)
-                        ? NULL : iconv('', 'utf-8', $value);
+                        ? NULL : $value;
                 }, array_keys($row), array_values($row));
 
                 try {
