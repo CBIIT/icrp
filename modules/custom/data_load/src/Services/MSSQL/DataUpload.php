@@ -252,6 +252,8 @@ class DataUpload {
      */
     public static function loadProjects(PDO $connection, array $parameters, string $filePath = NULL): array {
         try {
+            error_reporting(E_ERROR | E_WARNING | E_PARSE);
+
             $locale = $parameters['locale'] ?? 'en-US';
             $columns = self::WORKBOOK_COLUMNS;
 
