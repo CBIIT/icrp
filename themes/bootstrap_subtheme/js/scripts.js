@@ -343,23 +343,28 @@
       $.ajax({
           url:  href,
           success: function( data ) {
-              //console.log("data returned")
-              //console.dir(data);
+              console.log("data returned")
+              console.dir(data);
               var roles = JSON.parse(data);
-              //console.dir(roles);
+              console.dir(roles);
               if(!$('#add-event-meeting').length && (($.inArray("administrator", roles)>=0) || ($.inArray("manager", roles)>=0))) {
                   $('div.view-full-calendar-meetings > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-event-meeting" style="margin-top:7px;font-weight:bold;"><a href="/node/add/events?calendar_type=Partner Meetings&destination=/calendar">+ Add Event</a></span>');
-                  $('div.view-full-calendar-external-events > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-external-event" style="margin-top:7px;font-weight:bold;"><a href="/node/add/events?calendar_type=External Events&destination=/calendar">+ Add Event</a></span>');
               }
+              //Always add this one.  This is for authenticated users who can see the calendar.
+              if(!$('#add-external-event').length) {
+                console.log("Are you here");
+                //setTimeout($.calendarExternalEvents, 1500);
+                $('div.view-full-calendar-external-events > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-external-event" style="margin-top:7px;font-weight:bold;"><a href="/node/add/events?calendar_type=External Events&destination=/calendar">+ Add Event</a></span>');
+              }
+
           }
        });
     }
 
-    if(!$('#add-external-event').length) {
-      //console.log("Are you here");
-      $('div.view-full-calendar-external-events > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-external-event" style="margin-top:7px;font-weight:bold;"><a href="/node/add/events?calendar_type=External Events&destination=/calendar">+ Add Event</a></span>');
-    }
 
+  }
+  $.calendarExternalEvents = function() {
+    $('div.view-full-calendar-external-events > div.view-content > div.fullcalendar > div.fc-toolbar > div.fc-right > .fc-listYear-button').before('<span id="add-external-event" style="margin-top:7px;font-weight:bold;"><a href="/node/add/events?calendar_type=External Events&destination=/calendar">+ Add Event</a></span>');
   }
 
   $.hideCommentStatus = function(e){
@@ -468,7 +473,7 @@
   }
 
   $.populateContactUsForm = function() {
-    //console.log("You are on the /contact-us page.");
+    console.log("You are on the /contact-us page.");
     var typeOfIssue =decodeURIComponent($.urlParam("type-of-issue"));
     if(typeOfIssue.length > 0 ) {
       $('#edit-type-of-issue').val(typeOfIssue);
