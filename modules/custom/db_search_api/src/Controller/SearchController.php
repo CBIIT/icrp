@@ -90,6 +90,10 @@ class SearchController extends ControllerBase {
     'project_funding_amounts_by_funding_organization',
   ];
 
+  const DEFAULT_GET_INFO_PARAMETERS = [
+    'institutions'              => '',
+  ];
+
 
   /**
    * Creates a new JSON response with CORS headers
@@ -269,6 +273,13 @@ class SearchController extends ControllerBase {
     $connection = PDOBuilder::getConnection('icrp_load_database');
     $parameters = self::array_merge_intersection($request->query->all(), ['data_upload_id' => -1]);
     $data = DatabaseReview::reviewSyncProd($connection, $parameters);
+    return self::createResponse($data);
+  }
+
+  public static function getInfo(Request $request){
+    $connection = PDOBuilder::getConnection();
+    $parameters = self::array_merge_intersection($request->query->all(), self::DEFAULT_GET_INFO_PARAMETERS);
+    $data = DatabaseSearch::getInfo($connection, $parameters);
     return self::createResponse($data);
   }
 }

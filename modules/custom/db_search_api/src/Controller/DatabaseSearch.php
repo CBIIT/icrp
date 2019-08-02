@@ -665,4 +665,26 @@ class DatabaseSearch {
 
     return $fields;
   }
+
+  public static function getInfo(PDO $pdo, array $parameters = []): array {
+    if($parameters['institutions'] == ''){
+      return $pdo
+      ->query('EXECUTE GetProjectsByInstitutions')
+      ->fetchAll();
+    }
+    
+    $stmt = PDOBuilder::createPreparedStatement(
+      $pdo,
+      'EXECUTE GetProjectsByInstitutions @institutions = :institutions',
+      $parameters
+    );
+
+    $results = [];
+    if ($stmt->execute()) {
+      return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    return $results;
+
+    
+  }
 }
