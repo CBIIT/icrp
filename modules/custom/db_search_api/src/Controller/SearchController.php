@@ -9,6 +9,8 @@ namespace Drupal\db_search_api\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Database\Database;
+use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Password\PasswordInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use PDO;
@@ -93,7 +95,6 @@ class SearchController extends ControllerBase {
   const DEFAULT_GET_INFO_PARAMETERS = [
     'institutions'              => '',
   ];
-
 
   /**
    * Creates a new JSON response with CORS headers
@@ -276,7 +277,18 @@ class SearchController extends ControllerBase {
     return self::createResponse($data);
   }
 
-  public static function getInfo(Request $request){
+  public function getInfo(Request $request){
+    $headers = getallheaders();
+    
+    //Authentication - if ever needed
+    /*
+    $username = $headers['DRUPAL_USER'];
+    $password = $headers['DRUPAL_PASSWORD'];
+    $userAuth = \Drupal::service('user.auth');
+    //return self::createResponse([$username, $password]); 
+    if (!($userAuth->authenticate($username, $password))){
+      return self::createResponse('503 FORBIDDEN. Please remember to authenticate!');
+    }*/
     $connection = PDOBuilder::getConnection();
     $parameters = self::array_merge_intersection($request->query->all(), self::DEFAULT_GET_INFO_PARAMETERS);
     $data = DatabaseSearch::getInfo($connection, $parameters);

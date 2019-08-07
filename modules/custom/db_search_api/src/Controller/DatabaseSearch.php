@@ -51,7 +51,6 @@ class DatabaseSearch {
     'award_code'                 => 'code',
   ];
 
-
   /**
   * Retrieves valid field values to be used as query parameters
   * @param PDO $pdo - The PDO connection object
@@ -667,6 +666,7 @@ class DatabaseSearch {
   }
 
   public static function getInfo(PDO $pdo, array $parameters = []): array {
+    //return ['true'];
     if($parameters['institutions'] == ''){
       return $pdo
       ->query('EXECUTE GetProjectsByInstitutions')
