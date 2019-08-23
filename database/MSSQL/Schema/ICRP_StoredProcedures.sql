@@ -4478,9 +4478,9 @@ BEGIN
  ELSE
  BEGIN
 	 INSERT INTO tmp_pcso SELECT @AltAwardCode, value FROM  dbo.ToStrTable(@csoList)
-	 INSERT INTO tmp_pcsorel SELECT @AltAwardCode, 
-	 CASE LTRIM(RTRIM(value))
-		 WHEN '' THEN 0.00 ELSE CAST(value AS decimal(18,2)) END  
+	 INSERT INTO tmp_pcsorel SELECT @AltAwardCode, 	
+	 CASE ISNUMERIC(LTRIM(RTRIM(value)))
+		 WHEN 0 THEN 0.00 ELSE CAST(value AS decimal(18,2)) END  
 	 FROM  dbo.ToStrTable(@csoRelList) 
 
 	 DBCC CHECKIDENT ('tmp_pcso', RESEED, 0) WITH NO_INFOMSGS
@@ -4652,9 +4652,9 @@ BEGIN
  ELSE
  BEGIN
 	 INSERT INTO tmp_psite SELECT @AltAwardCode, value FROM  dbo.ToStrTable(@siteList)
-	 INSERT INTO tmp_psiterel SELECT @AltAwardCode, 
-		CASE LTRIM(RTRIM(value))
-		 WHEN '' THEN 0.00 ELSE CAST(value AS decimal(18,2)) END  
+	 INSERT INTO tmp_psiterel SELECT @AltAwardCode, 		
+		CASE ISNUMERIC(LTRIM(RTRIM(value)))
+		 WHEN 0 THEN 0.00 ELSE CAST(value AS decimal(18,2)) END  
 	 FROM  dbo.ToStrTable(@siteRelList) 
  
 	 DBCC CHECKIDENT ('tmp_psite', RESEED, 0) WITH NO_INFOMSGS
@@ -4675,7 +4675,7 @@ SET @RuleID= 32
 select @RuleName = Category + ' - ' + Name from lu_DataUploadIntegrityCheckRules where lu_DataUploadIntegrityCheckRules_ID =@RuleID
 
 SELECT * INTO #invalidSite FROM tmp_psite s 
-	LEFT JOIN CancerType ct ON s.Code = ct.ICRPCode
+	LEFT JOIN CancerType ct ON CAST(s.Code AS VARCHAR(10))= CAST(ct.ICRPCode AS VARCHAR(10))
 WHERE ct.ICRPCode IS NULL
 
 IF EXISTS (select * FROM #invalidSite)
@@ -5114,8 +5114,8 @@ BEGIN
 	BEGIN 
 		INSERT INTO tmp_pcso SELECT @AltAwardCode, value FROM  dbo.ToStrTable(@csoList)
 		INSERT INTO tmp_pcsorel SELECT @AltAwardCode,
-		CASE LTRIM(RTRIM(value))
-		WHEN '' THEN 0.00 ELSE CAST(value AS decimal(18,2)) END  
+		CASE ISNUMERIC(LTRIM(RTRIM(value)))
+		  WHEN 0 THEN 0.00 ELSE CAST(value AS decimal(18,2)) END  
 		FROM  dbo.ToStrTable(@csoRelList) 
 
 		DBCC CHECKIDENT ('tmp_pcso', RESEED, 0) WITH NO_INFOMSGS
@@ -5241,8 +5241,8 @@ BEGIN
 	BEGIN
 		INSERT INTO tmp_psite SELECT @AltAwardCode, value FROM  dbo.ToStrTable(@siteList)
 		INSERT INTO tmp_psiterel SELECT @AltAwardCode,
-		CASE LTRIM(RTRIM(value))
-		WHEN '' THEN 0.00 ELSE CAST(value AS decimal(18,2)) END  
+		CASE ISNUMERIC(LTRIM(RTRIM(value)))
+		  WHEN 0 THEN 0.00 ELSE CAST(value AS decimal(18,2)) END 
 		FROM  dbo.ToStrTable(@siteRelList) 
  
 		DBCC CHECKIDENT ('tmp_psite', RESEED, 0) WITH NO_INFOMSGS
@@ -5266,7 +5266,7 @@ IF @RuleId = 32
 	SELECT DISTINCT u.AwardCode, u.AltID AS AltAwardCode, u.SiteCodes, u.SiteRel 
 	FROM tmp_psite s 
 		JOIN UploadWorkbook u ON s.AltAwardCode = u.AltID
-		LEFT JOIN CancerType ct ON s.Code = ct.ICRPCode
+		LEFT JOIN CancerType ct ON CAST(s.Code AS VARCHAR(10))= CAST(ct.ICRPCode AS VARCHAR(10))
 	WHERE ct.ICRPCode IS NULL
 
 -------------------------------------------------------------------
@@ -9000,3 +9000,90 @@ END
 
 GO
 
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetProjectsByInstitutions]    Script Date: 7/29/2019 4:21:47 PM ******/
+----------------------------------------------------------------------------------------------------------
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetProjectsByInstitutions]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetProjectsByInstitutions]
+GO 
+
+CREATE PROCEDURE [dbo].[GetProjectsByInstitutions]    
+@Institutions varchar(4000) = NULL   -- comma delimited string
+AS
+
+BEGIN
+
+	SELECT AwardCode, AltAwardCode, ProjectTitle, ProjectStartDate, ProjectEndDate, TechAbstract, PublicAbstract,
+		CASE IsPrincipalInvestigator
+		WHEN 1 THEN PI ELSE NULL
+		END AS PI,
+		CASE IsPrincipalInvestigator
+		WHEN 0 THEN PI ELSE NULL
+		END AS Collaborator,
+	Institution, [Institution CIty], [Institution Country], 
+	CSOCode, CancerSite, ORC_ID, FundingOrg, FundingOrgType
+	FROM
+	(select f.Title AS ProjectTitle, p.AwardCode, f.AltAwardCode, p.ProjectStartDate, p.ProjectEndDate, a.TechAbstract, a.PublicAbstract, 
+	CONCAT(pi.LastName, '. ', pi.FirstName) AS PI, pi.IsPrincipalInvestigator,
+	i.Name AS Institution, i.City AS 'Institution CIty', i.Country AS 'Institution Country', 
+	cso.CSOCode, ct.Name AS CancerSite, pi.ORC_ID, o.Name AS FundingOrg, o.Type AS FundingOrgType
+	from project p
+	join projectfunding f on p.projectid = f.projectid
+	join projectfundinginvestigator pi on f.ProjectFundingID = pi.ProjectFundingID
+	join Institution i ON pi.InstitutionID = i.InstitutionID
+	join FundingOrg o on f.fundingorgid = o.FundingOrgID
+	join ProjectCSO cso ON cso.ProjectFundingID = f.ProjectFundingID
+	join ProjectCancerType pct ON pct.ProjectFundingID = f.ProjectFundingID
+	join CancerType ct ON ct.CancerTypeID = pct.CancerTypeID
+	join ProjectAbstract a ON a.ProjectAbstractID = f.ProjectAbstractID
+	where i.name in(
+		'Fred Hutchinson Cancer Research Center', 
+		'Oregon Health & Science University',
+		'University of British Columbia', 
+		'University of Washington',
+		'British Columbia Cancer Research Centre',
+		'BC Cancer Agency', 
+		'BC Cancer Agency - Sindi Ahluwalia Hawkins Centre for the Southern Interior', 
+		'BC Cancer Agency - Fraser Valley Cancer Centre', 
+		'BC Cancer Agency - Vancouver Island Centre', 
+		'BC Cancer Agency - Abbotsford Centre', 
+		'BC Cancer Agency - Centre for the North')
+
+	UNION
+
+	select f.Title AS ProjectTitle, p.AwardCode, f.AltAwardCode, p.ProjectStartDate, p.ProjectEndDate, a.TechAbstract, a.PublicAbstract, 
+	CONCAT(pi.LastName, '. ', pi.FirstName) AS PI, pi.IsPrincipalInvestigator,
+	i.Name AS Institution, i.City AS 'Institution CIty', i.Country AS 'Institution Country', 
+	cso.CSOCode, ct.Name AS CancerSite, pi.ORC_ID, o.Name AS FundingOrg, o.Type AS FundingOrgType
+	from project p
+	join projectfunding f on p.projectid = f.projectid
+	join projectfundinginvestigator pi on f.ProjectFundingID = pi.ProjectFundingID
+	join Institution i ON pi.InstitutionID = i.InstitutionID
+	join FundingOrg o on f.fundingorgid = o.FundingOrgID
+	join ProjectCSO cso ON cso.ProjectFundingID = f.ProjectFundingID
+	join ProjectCancerType pct ON pct.ProjectFundingID = f.ProjectFundingID
+	join CancerType ct ON ct.CancerTypeID = pct.CancerTypeID
+	join ProjectAbstract a ON a.ProjectAbstractID = f.ProjectAbstractID
+	where i.name in(
+		'Fred Hutchinson Cancer Research Center', 
+		'Oregon Health & Science University',
+		'University of British Columbia', 
+		'University of Washington',
+		'British Columbia Cancer Research Centre',
+		'BC Cancer Agency', 
+		'BC Cancer Agency - Sindi Ahluwalia Hawkins Centre for the Southern Interior', 
+		'BC Cancer Agency - Fraser Valley Cancer Centre', 
+		'BC Cancer Agency - Vancouver Island Centre', 
+		'BC Cancer Agency - Abbotsford Centre', 
+		'BC Cancer Agency - Centre for the North')
+	 and pi.IsPrincipalInvestigator = 0) tmp
+	ORDER BY AwardCode, AltAwardCode, PI
+	END
+
+GO
