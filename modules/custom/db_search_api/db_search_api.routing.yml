@@ -180,7 +180,7 @@ db_search_api.database.review.sync_prod:
 
 
 db_search_api.database.getInfo:
-  path: '/api/database/getInfo'
+  path: '/api/database/projects'
   defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::getInfo'}
   methods: [ GET ]
   requirements:
