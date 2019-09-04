@@ -669,13 +669,13 @@ class DatabaseSearch {
     //return ['true'];
     if($parameters['institutions'] == ''){
       return $pdo
-      ->query('EXECUTE GetProjectsByInstitutions')
+      ->query('SET NOCOUNT ON; EXECUTE GetProjectsByInstitutions')
       ->fetchAll();
     }
     
     $stmt = PDOBuilder::createPreparedStatement(
       $pdo,
-      'EXECUTE GetProjectsByInstitutions @institutions = :institutions',
+      'SET NOCOUNT ON; EXECUTE GetProjectsByInstitutions @institutions = :institutions',
       $parameters
     );
 
