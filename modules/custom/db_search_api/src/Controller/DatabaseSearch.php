@@ -51,7 +51,6 @@ class DatabaseSearch {
     'award_code'                 => 'code',
   ];
 
-
   /**
   * Retrieves valid field values to be used as query parameters
   * @param PDO $pdo - The PDO connection object
@@ -664,5 +663,28 @@ class DatabaseSearch {
     }
 
     return $fields;
+  }
+
+  public static function getInfo(PDO $pdo, array $parameters = []): array {
+    //return ['true'];
+    if($parameters['institutions'] == ''){
+      return $pdo
+      ->query('SET NOCOUNT ON; EXECUTE GetProjectsByInstitutions')
+      ->fetchAll();
+    }
+    
+    $stmt = PDOBuilder::createPreparedStatement(
+      $pdo,
+      'SET NOCOUNT ON; EXECUTE GetProjectsByInstitutions @institutions = :institutions',
+      $parameters
+    );
+
+    $results = [];
+    if ($stmt->execute()) {
+      return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    return $results;
+
+    
   }
 }

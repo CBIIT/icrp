@@ -176,3 +176,12 @@ db_search_api.database.review.sync_prod:
   requirements:
     _access: 'TRUE'
     _role: 'manager'
+
+
+
+db_search_api.database.getInfo:
+  path: '/api/database/projects'
+  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::getInfo'}
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'
