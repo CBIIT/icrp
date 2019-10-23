@@ -2042,8 +2042,7 @@ function icrp_fullcalendar_options_info() {
 }
 
 function getDataCaveatsHTML() {
-  $html = '
- <h1>ICRP Data Caveats</h1>
+  $html = '<h1>ICRP Data Caveats</h1>
  
  <table class="caveats">
   <tbody>
@@ -2056,7 +2055,7 @@ function getDataCaveatsHTML() {
     </tr>
     <tr>
       <td class="partnerName">ACS</td>
-      <td>Dollar amounts found in the ICRP database are different than what is reported in the American Cancer Society\'s Annual Report. This is because the annual report has been audited. The dollar amounts spent on research reported in this document includes operating expenses of the Research Department. Additionally, the dollar amounts also exclude all grants that were cancelled after being awarded, but includes money that was returned from grants cancelled in the current year that were awarded in previous years. The dollar amounts reported in the database are unaudited and include grants awarded each fiscal year, exclusive of grants that cancelled before activation.</td>
+      <td>Dollar amounts found in the ICRP database are different than what is reported in the American Cancer Society's Annual Report. This is because the annual report has been audited. The dollar amounts spent on research reported in this document includes operating expenses of the Research Department. Additionally, the dollar amounts also exclude all grants that were cancelled after being awarded, but includes money that was returned from grants cancelled in the current year that were awarded in previous years. The dollar amounts reported in the database are unaudited and include grants awarded each fiscal year, exclusive of grants that cancelled before activation.</td>
     </tr>
     <tr>
       <td class="partnerName">CBCRP</td>
@@ -2074,14 +2073,34 @@ function getDataCaveatsHTML() {
     </tr>
     <tr>
       <td class="partnerName">NIH</td>
-      <td>i. Starting in FY2007 NCI reports funding supplements, etc., for each grant separately instead of including them in the main project, therefore the number of projects may differ significantly from those of previous years.<br />
-      <br />
-      ii. Projects with a cost of $0 include those that were a no-cost extension of the grant or when funding was provided by another NIH institute or center for that FY.<br />
-      <br />
-      iii. Projects with missing beginning/end dates include intramural projects that were funded for the entire FY and continue on into subsequent years.<br />
-      <br />
-      iv. NCI dollars in the ICRP database may not match dollars from other NCI-only databases. "Research Management Services" are not included in the ICRP database. These include technical and administrative services, including central administration, overall program direction, grant and contract administration, human resources, program coordination, and financial management.</td>
+      <td>
+        <ol style="list-style-type: lower-roman" >
+          <li>
+        NIH projects in NIH Reporter assigned to the Spend Category ‘cancer’ are included in the ICRP database from FY2005 onwards. A small number of projects are excluded if essential information is missing (primarily Project title, Institution). Previous years’ data were drawn from the NFRP and may be incomplete.
+          </li>
+
+          <li>
+          Starting in FY2007 NCI reports funding supplements, etc., for each grant separately instead of including them in the main project, therefore the number of projects may differ significantly from those of previous years.
+          </li>
+
+          <li>
+Projects with a cost of $0 include those that were a no-cost extension of the grant or when funding was provided by another NIH institute or center for that FY.
+          </li>
+            
+          <li>
+          NCI dollars in the ICRP database are drawn from NIH reporter and may not match dollars from other NCI-only databases. 
+          </li>
+          </ol>
+</td>
     </tr>
+    
+    <tr>
+      <td class="partnerName">Worldwide Cancer Research</td>
+      <td>
+Worldwide Cancer Research is unique in that the majority of our funding is awarded to researchers in countries outside the UK. Like many UK research charities, Worldwide Cancer Research only funds the direct costs of research. This creates significant problems in making quantitative comparisons between our funding and that provided by some of the other agencies in the ICRP, which fund both the direct and indirect costs (often called overheads) of research.       
+      </td>
+    </tr>
+    
   </tbody>
  </table>
  
@@ -2121,10 +2140,6 @@ function getDataCaveatsHTML() {
       <td class="partnerName">Scottish Government Health Directorates (UK)</td>
       <td>Scottish Government is committed to improve the health of the Scottish population and the Chief Scientist\'s Office (CSO) funds across a broad range of relevant disease areas. Overall, 75% of the CSO spend is committed to research infrastructure in NHSScotland. This and much other research expenditure is therefore outside the NCRI remit and, by extension, the ICRP dataset.</td>
     </tr>
-    <tr>
-      <td class="partnerName">Worldwide Cancer Research(UK)</td>
-      <td>Worldwide Cancer Research is unique in that the majority of our funding is awarded to researchers in countries outside the UK. Like many UK research charities, Worldwide Cancer Research only funds the direct costs of research. This creates significant problems in making quantitative comparisons between our funding and that provided by some of the other agencies in the ICRP, which fund both the direct and indirect costs (often called overheads) of research.</td>
-    </tr>
   </tbody>
  </table>
  
@@ -2146,7 +2161,8 @@ function getDataCaveatsHTML() {
   </tbody>
  </table>
  
- <p>&nbsp;</p>';
+ <p>&nbsp;</p>
+';
 
  return $html;
 }
