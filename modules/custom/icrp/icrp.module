@@ -2055,7 +2055,7 @@ function getDataCaveatsHTML() {
     </tr>
     <tr>
       <td class="partnerName">ACS</td>
-      <td>Dollar amounts found in the ICRP database are different than what is reported in the American Cancer Society's Annual Report. This is because the annual report has been audited. The dollar amounts spent on research reported in this document includes operating expenses of the Research Department. Additionally, the dollar amounts also exclude all grants that were cancelled after being awarded, but includes money that was returned from grants cancelled in the current year that were awarded in previous years. The dollar amounts reported in the database are unaudited and include grants awarded each fiscal year, exclusive of grants that cancelled before activation.</td>
+      <td>Dollar amounts found in the ICRP database are different than what is reported in the American Cancer Society\'s Annual Report. This is because the annual report has been audited. The dollar amounts spent on research reported in this document includes operating expenses of the Research Department. Additionally, the dollar amounts also exclude all grants that were cancelled after being awarded, but includes money that was returned from grants cancelled in the current year that were awarded in previous years. The dollar amounts reported in the database are unaudited and include grants awarded each fiscal year, exclusive of grants that cancelled before activation.</td>
     </tr>
     <tr>
       <td class="partnerName">CBCRP</td>
