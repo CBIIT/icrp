@@ -60,6 +60,7 @@ class PageController extends ControllerBase {
 
         return [
             '#theme' => 'icrp_partners',
+            '#apiKey' => \Drupal::config('google-maps')->get('api-key'),
             '#partners' => $partners,
             '#fundingOrganizations' => $fundingOrganizations,
             '#nonPartners' => $nonPartners,
