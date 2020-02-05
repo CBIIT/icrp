@@ -48,6 +48,7 @@
 /temp/
 /libraries/
 /components/
+/console
 
 /.csslintrc
 /.editorconfig
