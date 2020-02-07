@@ -1,0 +1,194 @@
+uuid: 4f7e2722-24cd-4eb6-bffc-08d1c251ca7c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.user.user.field_can_upload_library_files
+    - field.field.user.user.field_first_name
+    - field.field.user.user.field_last_forum_visit
+    - field.field.user.user.field_last_name
+    - field.field.user.user.field_library_access
+    - field.field.user.user.field_membership_status
+    - field.field.user.user.field_notify_new_events
+    - field.field.user.user.field_notify_new_posts
+    - field.field.user.user.field_organization
+    - field.field.user.user.field_subcommittee_annual_meetin
+    - field.field.user.user.field_subcommittee_cso_coding
+    - field.field.user.user.field_subcommittee_evaluation
+    - field.field.user.user.field_subcommittee_funding
+    - field.field.user.user.field_subcommittee_membership
+    - field.field.user.user.field_subcommittee_new
+    - field.field.user.user.field_subcommittee_partner_news
+    - field.field.user.user.field_subcommittee_partner_opera
+    - field.field.user.user.field_subcommittee_web_site
+    - field.field.user.user.user_picture
+    - image.style.thumbnail
+  module:
+    - datetime
+    - ds
+    - image
+    - options
+    - user
+third_party_settings:
+  ds:
+    layout:
+      id: bs_3col
+      path: modules/bootstrap_layouts/templates/3.0.0
+      library: ''
+      disable_css: false
+      entity_classes: all_classes
+      settings:
+        layout:
+          wrapper: div
+          classes:
+            - row
+            - clearfix
+          attributes: ''
+        regions:
+          left:
+            wrapper: div
+            classes:
+              - col-sm-2
+            attributes: ''
+          middle:
+            wrapper: div
+            classes:
+              - col-sm-8
+            attributes: ''
+          right:
+            wrapper: div
+            classes:
+              - col-sm-2
+            attributes: ''
+    regions:
+      left:
+        - member_for
+        - field_organization
+        - user_picture
+        - field_first_name
+        - field_last_name
+      middle:
+        - field_subcommittee_internal_comm
+_core:
+  default_config_hash: L2mtwGWH_7wDRCMIR4r_Iu_jmvQ10DV1L8ht8iNZ5qY
+id: user.user.default
+targetEntityType: user
+bundle: user
+mode: default
+content:
+  field_first_name:
+    weight: 3
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+    region: left
+  field_last_forum_visit:
+    weight: 8
+    label: above
+    settings:
+      format_type: medium
+      timezone_override: ''
+    third_party_settings: {  }
+    type: datetime_default
+    region: content
+  field_last_name:
+    weight: 4
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    type: string
+    region: left
+  field_library_access:
+    weight: 53
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    type: list_default
+    region: content
+  field_organization:
+    weight: 1
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    type: entity_reference_label
+    region: left
+  field_subcommittee_cso_coding:
+    weight: 6
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+  field_subcommittee_funding:
+    weight: 54
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+  field_subcommittee_membership:
+    weight: 7
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+  field_subcommittee_new:
+    weight: 52
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+  field_subcommittee_partner_news:
+    weight: 51
+    label: above
+    settings:
+      format: default
+      format_custom_false: ''
+      format_custom_true: ''
+    third_party_settings: {  }
+    type: boolean
+    region: content
+  masquerade:
+    weight: 50
+    region: content
+  member_for:
+    weight: 0
+    settings: {  }
+    third_party_settings: {  }
+    region: left
+  user_picture:
+    type: image
+    weight: 2
+    settings:
+      image_style: thumbnail
+      image_link: content
+    third_party_settings: {  }
+    label: hidden
+    region: left
+hidden:
+  field_can_upload_library_files: true
+  field_membership_status: true
+  field_notify_new_events: true
+  field_notify_new_posts: true
+  field_subcommittee_annual_meetin: true
+  field_subcommittee_evaluation: true
+  field_subcommittee_partner_opera: true
+  field_subcommittee_web_site: true

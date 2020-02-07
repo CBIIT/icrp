@@ -1,0 +1,61 @@
+uuid: ca03f09b-2aaa-4f31-80b3-c224bac86d6f
+langcode: en
+status: true
+dependencies:
+  module:
+    - field_permissions
+    - node
+    - options
+third_party_settings:
+  field_permissions:
+    permission_type: public
+id: node.field_event_group
+field_name: field_event_group
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: 'Partner News and Announcements'
+      label: 'Partner News and Announcements'
+    -
+      value: 'Funding Opportunities'
+      label: 'Funding Opportunities'
+    -
+      value: 'Annual Meetings'
+      label: 'Annual Meetings'
+    -
+      value: 'Communications and Membership'
+      label: 'Communications and Membership'
+    -
+      value: 'CSO and Coding'
+      label: 'CSO and Coding'
+    -
+      value: 'Evaluations and Analyses'
+      label: 'Evaluations and Analyses'
+    -
+      value: 'Partner Operations'
+      label: 'Partner Operations'
+    -
+      value: 'Website and Database'
+      label: 'Website and Database'
+    -
+      value: Conference/Meeting
+      label: Conference/Meeting
+    -
+      value: 'Twitter Promotional Event'
+      label: 'Twitter Promotional Event'
+    -
+      value: Webinar
+      label: Webinar
+    -
+      value: Other
+      label: Other
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

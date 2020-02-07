@@ -47,6 +47,7 @@
 /vendor/
 /temp/
 /libraries/
+!/libraries/fontawesome/
 /components/
 /console
 

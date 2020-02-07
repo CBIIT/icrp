@@ -1,0 +1,9 @@
+uuid: 1c537e47-356c-462d-b02e-6460ebbfdc89
+langcode: en
+status: true
+dependencies: {  }
+name: 'Page Specific Tags'
+vid: page_specific_tags
+description: 'Used to categorize nodes by which page they should appear on (eg: about-us)'
+hierarchy: 0
+weight: 0

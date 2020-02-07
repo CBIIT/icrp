@@ -1,0 +1,22 @@
+uuid: fe7dcf64-98f3-4add-ab7c-2ec987f67e9e
+langcode: en
+status: true
+dependencies:
+  module:
+    - field_permissions
+    - user
+third_party_settings:
+  field_permissions:
+    permission_type: private
+id: user.field_subcommittee_evaluation
+field_name: field_subcommittee_evaluation
+entity_type: user
+type: boolean
+settings: {  }
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

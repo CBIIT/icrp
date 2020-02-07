@@ -1,0 +1,13 @@
+uuid: 23677657-5b79-4a7d-959c-e120cc9f3270
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: 5rOnjIF_aDyGBmfXNhJnkPXxQMlem0CmVmggV-TF3Fg
+id: global
+label: Global
+tags:
+  description: 'ICRP is an alliance of cancer organizations working together to enhance global collaboration and strategic coordination of research'
+  keywords: 'cancer partnership research researcher data database portfolio CSO network networking strategy oncology organization funder funding funded map mapping international global collaboration biomedical projects awards applications statistics investment'
+  robots: 'index, follow'
+  title: '[site:name] | [current-page:title]'

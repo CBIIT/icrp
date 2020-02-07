@@ -1,0 +1,28 @@
+uuid: c4b4a113-a7bc-424a-904a-aeca7e293c5a
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - bootstrap_subtheme
+id: externalresources
+theme: bootstrap_subtheme
+region: footer
+weight: 0
+provider: null
+plugin: 'block_content:c8e14978-d9d3-41fc-81de-c2757eebe954'
+settings:
+  id: 'block_content:c8e14978-d9d3-41fc-81de-c2757eebe954'
+  label: 'External Resources'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /resources
+    negate: false
+    context_mapping: {  }

@@ -1,0 +1,19 @@
+uuid: 312f2d86-4fe6-4d01-9c28-d311569c101f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_source
+    - node.type.testimonial
+id: node.testimonial.field_source
+field_name: field_source
+entity_type: node
+bundle: testimonial
+label: 'Source (Name)'
+description: 'Enter the source for this testimonial'
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

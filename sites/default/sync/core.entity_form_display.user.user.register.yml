@@ -1,0 +1,86 @@
+uuid: 32e68810-c403-48c8-b1d9-46a903ea8258
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_form_mode.user.register
+    - field.field.user.user.field_can_upload_library_files
+    - field.field.user.user.field_first_name
+    - field.field.user.user.field_last_forum_visit
+    - field.field.user.user.field_last_name
+    - field.field.user.user.field_library_access
+    - field.field.user.user.field_membership_status
+    - field.field.user.user.field_notify_new_events
+    - field.field.user.user.field_notify_new_posts
+    - field.field.user.user.field_organization
+    - field.field.user.user.field_subcommittee_annual_meetin
+    - field.field.user.user.field_subcommittee_cso_coding
+    - field.field.user.user.field_subcommittee_evaluation
+    - field.field.user.user.field_subcommittee_funding
+    - field.field.user.user.field_subcommittee_membership
+    - field.field.user.user.field_subcommittee_new
+    - field.field.user.user.field_subcommittee_partner_news
+    - field.field.user.user.field_subcommittee_partner_opera
+    - field.field.user.user.field_subcommittee_web_site
+    - field.field.user.user.user_picture
+  module:
+    - user
+_core:
+  default_config_hash: LLAieeozVsoZDb-2PbFxRJpQqnKmpR7-4OoRJnduz-U
+id: user.user.register
+targetEntityType: user
+bundle: user
+mode: register
+content:
+  account:
+    weight: 3
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  field_first_name:
+    weight: 0
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
+  field_last_name:
+    weight: 1
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: string_textfield
+    region: content
+  field_organization:
+    weight: 2
+    settings:
+      match_operator: CONTAINS
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+    type: entity_reference_autocomplete
+    region: content
+hidden:
+  contact: true
+  field_can_upload_library_files: true
+  field_last_forum_visit: true
+  field_library_access: true
+  field_membership_status: true
+  field_notify_new_events: true
+  field_notify_new_posts: true
+  field_subcommittee_annual_meetin: true
+  field_subcommittee_cso_coding: true
+  field_subcommittee_evaluation: true
+  field_subcommittee_funding: true
+  field_subcommittee_membership: true
+  field_subcommittee_new: true
+  field_subcommittee_partner_news: true
+  field_subcommittee_partner_opera: true
+  field_subcommittee_web_site: true
+  google_analytics: true
+  language: true
+  path: true
+  timezone: true
+  user_picture: true

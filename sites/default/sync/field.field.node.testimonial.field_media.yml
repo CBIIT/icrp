@@ -1,0 +1,36 @@
+uuid: e705f2c9-a1f4-4be3-9a09-612c82b4819c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_media
+    - media.type.audio
+    - media.type.embedded_video
+    - media.type.file
+    - media.type.image
+    - media.type.video
+    - node.type.testimonial
+id: node.testimonial.field_media
+field_name: field_media
+entity_type: node
+bundle: testimonial
+label: Media
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:media'
+  handler_settings:
+    target_bundles:
+      audio: audio
+      embedded_video: embedded_video
+      file: file
+      image: image
+      video: video
+    sort:
+      field: _none
+    auto_create: false
+    auto_create_bundle: audio
+field_type: entity_reference

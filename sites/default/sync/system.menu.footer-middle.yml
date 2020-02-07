@@ -1,0 +1,8 @@
+uuid: 884253f0-ecac-4a76-bc7f-8568296c3554
+langcode: en
+status: true
+dependencies: {  }
+id: footer-middle
+label: 'Footer Middle'
+description: 'ICRP Footer Middle Menu'
+locked: false

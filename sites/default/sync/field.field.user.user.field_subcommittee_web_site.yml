@@ -1,0 +1,24 @@
+uuid: b7ace26e-8c15-4e41-9db9-60538c65ebfb
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_subcommittee_web_site
+  module:
+    - user
+id: user.user.field_subcommittee_web_site
+field_name: field_subcommittee_web_site
+entity_type: user
+bundle: user
+label: 'Website and Database'
+description: "Discussions about development of the ICRP partner website and database; and Website Committee meetings.\r\n"
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

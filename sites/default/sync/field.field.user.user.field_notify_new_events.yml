@@ -1,0 +1,24 @@
+uuid: 0add7121-e6df-43aa-a16f-df33a80aac91
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.user.field_notify_new_events
+  module:
+    - user
+id: user.user.field_notify_new_events
+field_name: field_notify_new_events
+entity_type: user
+bundle: user
+label: 'Notify me of new Events to ICRP Committees'
+description: 'Receive an e-mail when a new event is added to the ICRP Calendar.'
+required: false
+translatable: false
+default_value:
+  -
+    value: 1
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

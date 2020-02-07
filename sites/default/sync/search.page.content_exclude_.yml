@@ -1,0 +1,19 @@
+uuid: bf7b8baa-1ebe-4920-b535-a186bda47c69
+langcode: en
+status: true
+dependencies:
+  module:
+    - search_exclude
+id: content_exclude_
+label: 'Content (Exclude)'
+path: node
+weight: -10
+plugin: search_exclude_node_search
+configuration:
+  rankings: {  }
+  excluded_bundles:
+    article: article
+    events: events
+    organization: organization
+    page: page
+    slideshow: slideshow

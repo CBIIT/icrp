@@ -1,0 +1,25 @@
+uuid: a8c6148b-f676-4b89-9fbf-dd09814fb1e1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.media.field_media_video_embed_field
+    - media.type.embedded_video
+  module:
+    - video_embed_field
+id: media.embedded_video.field_media_video_embed_field
+field_name: field_media_video_embed_field
+entity_type: media
+bundle: embedded_video
+label: 'Video Url'
+description: "A video URL from another website, such as Youtube or Vimeo.\r\n"
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_providers:
+    vimeo: '0'
+    youtube: '0'
+    youtube_playlist: '0'
+field_type: video_embed_field

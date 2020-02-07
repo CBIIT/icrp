@@ -1,0 +1,17 @@
+uuid: 6b00c3ba-4b0f-4629-85d3-1431d54ad791
+langcode: en
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus: {  }
+    parent: ''
+name: 'Basic Node'
+type: basic_node
+description: 'A basic node which only contains the following fields: body, tags'
+help: ''
+new_revision: false
+preview_mode: 1
+display_submitted: false

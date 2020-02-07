@@ -1,0 +1,19 @@
+firstHour: true
+minTime: 1
+maxTime: 0
+slotMinutes: true
+defaultEventMinutes: true
+allDaySlot: 0
+weekends: 1
+lazyFetching: 1
+disableDragging: true
+disableResizing: true
+dragRevertDuration: 1
+dayClick: 0
+_core:
+  default_config_hash: V3dwhRAeNob90J0D9fVAWUavP-IKr5H8Qbdwy_N6o20
+scrollTime: 0
+slotDuration: 1
+defaultTimedEventDuration: 1
+'eventStartEditable ': 0
+eventDurationEditable: 0
