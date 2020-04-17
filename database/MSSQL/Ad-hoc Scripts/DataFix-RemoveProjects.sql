@@ -24,12 +24,12 @@ CREATE TABLE #delProjFunding (
 GO
 
 BULK INSERT #delProjFunding
-FROM 'C:\icrp\database\Cleanup\ICRP_NIH_Remove.csv'
+FROM 'C:\icrp\database\Cleanup\CCRA_ToDelete.csv'
 WITH
 (
 	FIRSTROW = 2,
 	--DATAFILETYPE ='widechar',  -- unicode format
-	FIELDTERMINATOR = '|',
+	FIELDTERMINATOR = ',',
 	ROWTERMINATOR = '\n'
 )
 GO  
@@ -41,6 +41,14 @@ select p.ProjectID, f.ProjectFundingID
 from project p
 LEFT join projectfunding f on p.projectID = f.projectID
 WHERE f.ProjectFundingID IS NULL
+
+select f.ProjectID, f.ProjectFundingID
+from projectfunding f
+RIGHT join #delProjFunding d on d.ProjectFundingID = f.ProjectFundingID
+
+select p.ProjectID, d.ProjectFundingID
+from project p
+RIGHT join #delProjFunding d on d.ProjectID = p.ProjectID
 
 BEGIN TRANSACTION
 
@@ -123,6 +131,8 @@ CREATE TABLE #srcid (
 )
 
 GO
+
+
 
 BULK INSERT #srcid
 FROM 'C:\icrp\database\Cleanup\ICRP_NIH_Update_SourceID.csv'

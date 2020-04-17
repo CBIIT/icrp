@@ -6870,12 +6870,10 @@ BEGIN TRY
 	-- Insert Data Upload Completess status (= no data) for new Funding Org/Year
 	-----------------------------------------------------------------
 	SELECT f.FundingOrgID, f.FundingOrgAbbrev, y.Year INTO #fy
-	FROM (SELECT DISTINCT FundingOrgID FROM icrp_dataload.dbo.ProjectFunding WHERE DataUploadStatusID = 121) fid
+	FROM (SELECT DISTINCT FundingOrgID FROM icrp_dataload.dbo.ProjectFunding WHERE DataUploadStatusID = @DataUploadStatusID_Prod) fid
 		JOIN (SELECT DISTINCT FundingOrgID, Abbreviation AS FundingOrgAbbrev FROM FundingOrg) f ON fid.FundingOrgID = f.FundingOrgID
 		FULL OUTER JOIN (SELECT DISTINCT  CalendarYear AS Year FROM ProjectFundingExt) y ON 1=1
 
-		select * from #fy order by year
-		
 	INSERT INTO icrp_data.dbo.[DataUploadCompleteness] (
 		[FundingOrgID]
 		,[FundingOrgAbbrev]  
@@ -6884,7 +6882,7 @@ BEGIN TRY
 		,[UpdatedDate])
 	SELECT f.FundingOrgID, f.FundingOrgAbbrev, f.Year, getdate(), getdate() FROM #fy f
 	LEFT JOIN icrp_data.dbo.DataUploadCompleteness d ON f.[FundingOrgID] = d.FundingOrgID AND f.year = d.Year
-	WHERE d.FundingOrgID IS NULL
+	WHERE d.FundingOrgID IS NULL and f.year >= 2000 and f.year <= year(getdate())
 
 END TRY
 
