@@ -94,7 +94,7 @@
             }
           }
 
-          fullcalendar.parseEvents(callback);
+          fullcalendar.parseEvents(settings.fullcalendar._events, callback);
 
           if (!fullcalendar.navigate) {
             // Add events from Google Calendar feeds.

@@ -42,6 +42,7 @@
         "cweagans/composer-patches": "^1.6",
         "drupal-composer/drupal-scaffold": "2.2",
         "drupal/admin_toolbar": "1.26",
+        "drupal/admin_toolbar_search": "^1.0",
         "drupal/admin_toolbar_tools": "1.26",
         "drupal/autologout": "1.0",
         "drupal/backup_migrate": "4.0",
@@ -78,8 +79,9 @@
         "drupal/field_permissions": "1.0-rc2",
         "drupal/focal_point": "1.0-beta6@beta",
         "drupal/fontawesome": "2.12",
-        "drupal/fullcalendar": "1.x-dev",
-        "drupal/fullcalendar_options": "1.x-dev",
+        "drupal/fullcalendar": "^1.0@alpha",
+        "drupal/fullcalendar_legend": "^1.0@alpha",
+        "drupal/fullcalendar_options": "^1.0@alpha",
         "drupal/google_analytics": "3.0.0",
         "drupal/honeypot": "1.29",
         "drupal/libraries": "3.x-dev",
@@ -101,7 +103,7 @@
         "drupal/user_import": "1.x-dev",
         "drupal/video_embed_field": "2.0",
         "drupal/views_bootstrap": "3.1",
-        "drupal/views_data_export": "^1.0",
+        "drupal/views_data_export": "^1.0@beta",
         "drupal/webform": "5.2-rc3@RC",
         "drupal/webform_ui": "5.2-rc3@RC",
         "drupal/webform_views": "5.0.0-alpha6",
@@ -154,6 +156,7 @@
         ],
         "post-update-cmd": [
             "php -r \"copy('themes/bootstrap_subtheme/js/config/fullcalendar.fullcalendar.js', 'modules/fullcalendar/assets/js/fullcalendar.fullcalendar.js');\"",
+            "php -r \"copy('themes/bootstrap_subtheme/js/config/fullcalendar.library.js', 'modules/fullcalendar/assets/js/fullcalendar.library.js');\"",
             "drush webform-libraries-download",
             "drush updatedb -y",
             "drush cr"
@@ -193,12 +196,7 @@
             "drupal/fullcalendar": {
                 "Patch to fix undefined index: module":
                 "https://www.drupal.org/files/issues/fullcalendar-notice_undefined_index_module_in_fullcalendar_legend_preprocess_block-2854562-2.patch"
-            },
-            "drupal/views_data_export":{
-                "Patch to fix views_data_export: Filename not applied when downloading cached export.":
-                "https://www.drupal.org/files/issues/views_data_export-wrong-filename-2887562-8.patch"
             }
         }
     }
 }
-
