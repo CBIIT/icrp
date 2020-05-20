@@ -157,7 +157,7 @@
         ],
         "post-update-cmd": [
             "php -r \"copy('themes/bootstrap_subtheme/js/config/fullcalendar.fullcalendar.js', 'modules/fullcalendar/assets/js/fullcalendar.fullcalendar.js');\"",
-            "php -r \"copy('themes/bootstrap_subtheme/js/config/fullcalendar.library.js', 'modules/fullcalendar/assets/js/fullcalendar.library.js');\""
+            "php -r \"copy('themes/bootstrap_subtheme/js/config/fullcalendar.library.js', 'modules/fullcalendar/assets/js/fullcalendar.library.js');\"",
             "drush webform-libraries-download",
             "drush updatedb -y",
             "drush cr"
