@@ -24,6 +24,7 @@ content:
       rows: 9
       placeholder: 'Enter Post message'
       summary_rows: 3
+      show_summary: false
     third_party_settings: {  }
     region: content
   comment_forum:

@@ -1,8 +1,0 @@
-uuid: 9d04db63-de9b-46a1-a30b-f626598833f8
-langcode: en
-status: true
-dependencies: {  }
-id: partner-menu
-label: 'Partner Menu'
-description: 'Menu for partners'
-locked: false

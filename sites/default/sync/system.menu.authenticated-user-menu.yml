@@ -1,8 +1,0 @@
-uuid: 6615d181-204c-466b-a104-51b2021c1701
-langcode: en
-status: true
-dependencies: {  }
-id: authenticated-user-menu
-label: 'Authenticated User Menu'
-description: 'Will allow authenticated users to view profile and logout'
-locked: false

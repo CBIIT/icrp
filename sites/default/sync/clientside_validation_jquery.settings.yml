@@ -1,2 +1,0 @@
-use_cdn: false
-cdn_base_url: 'https://cdn.jsdelivr.net/npm/jquery-validation@1.17.0/dist/'

@@ -157,7 +157,6 @@
         ],
         "post-update-cmd": [
             "php -r \"copy('themes/bootstrap_subtheme/js/config/fullcalendar.fullcalendar.js', 'modules/fullcalendar/assets/js/fullcalendar.fullcalendar.js');\"",
-            "php -r \"copy('themes/bootstrap_subtheme/js/config/fullcalendar.library.js', 'modules/fullcalendar/assets/js/fullcalendar.library.js');\"",
             "drush webform-libraries-download",
             "drush updatedb -y",
             "drush cr"
@@ -197,6 +196,10 @@
             "drupal/fullcalendar": {
                 "Patch to fix undefined index: module":
                 "https://www.drupal.org/files/issues/fullcalendar-notice_undefined_index_module_in_fullcalendar_legend_preprocess_block-2854562-2.patch"
+            },
+            "drupal/views_data_export":{
+                "Patch to fix views_data_export: Filename not applied when downloading cached export.":
+                "https://www.drupal.org/files/issues/views_data_export-wrong-filename-2887562-8.patch"
             }
         }
     }
