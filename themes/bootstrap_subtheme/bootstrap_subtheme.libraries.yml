@@ -29,6 +29,7 @@ global-scripts:
     js/init_globals.js: {}
     js/scripts.js: {}
     js/survey.js: {}
+    js/covid_survey.js: {}
     js/ext/fontawesome.all.5.0.9.js: {}
     js/ext/fontawesome.v4-shims.5.0.9.js: {}
     # /libraries/fontawesome/js/all.min.js: {}
