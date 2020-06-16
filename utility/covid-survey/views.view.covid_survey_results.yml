@@ -511,7 +511,7 @@ display:
           group_type: group
           admin_label: ''
           label: '3. Country'
-          exclude: false
+          exclude: true
           alter:
             alter_text: false
             text: ''
@@ -555,6 +555,55 @@ display:
           webform_multiple_value: true
           webform_multiple_delta: 0
           plugin_id: webform_submission_field
+        nothing:
+          id: nothing
+          table: views
+          field: nothing
+          relationship: none
+          group_type: group
+          admin_label: ''
+          label: '3. Country'
+          exclude: false
+          alter:
+            alter_text: true
+            text: "{% if webform_submission_value_2 == \"São Tomé and Príncipe\" %}\r\nSaint Thomas and Prince\r\n{% elseif webform_submission_value_2 == \"Curaçao\" %}\r\nCuracao\r\n{% elseif webform_submission_value_2 == \"Côte d’Ivoire\" %}\r\nIvory Coast\r\n{% elseif webform_submission_value_2 == \"Réunion\" %}\r\nReunion\r\n{% elseif webform_submission_value_2 == \"Saint Barthélemy\" %}\r\nSaint Barthelemy\r\n{% elseif webform_submission_value_2 == \"Åland Islands\" %}\r\nAland Islands\r\n{% else %}\r\n{{ webform_submission_value_2}}\r\n{% endif %}"
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: true
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: false
+          plugin_id: custom
         webform_submission_value_4:
           id: webform_submission_value_4
           table: webform_submission_field_covid_survey_organization_focus_4
