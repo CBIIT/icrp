@@ -1,14 +1,14 @@
 uuid: 246450d1-f219-4726-9325-3a56ed39df26
 langcode: en
-status: scheduled
+status: closed
 dependencies:
   module:
     - honeypot
 third_party_settings:
   honeypot:
     honeypot: true
-open: '2020-06-03T12:00:00'
-close: '2020-07-11T12:00:00'
+open: null
+close: null
 weight: 0
 uid: 1
 template: false
@@ -58,7 +58,9 @@ settings:
   submission_label: ''
   submission_log: true
   submission_views: {  }
-  submission_views_replace: {  }
+  submission_views_replace:
+    webform_routes: {  }
+    node_routes: {  }
   submission_user_columns: {  }
   submission_user_duplicate: false
   submission_access_denied: default
