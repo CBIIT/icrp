@@ -682,6 +682,7 @@ class LibraryController extends ControllerBase {
         'general' => 'General',
         'finance' => 'Finance',
         'operations_and_contracts' => 'Operations and Contracts',
+        'operations and contracts' => 'Operations and Contracts',
       ][$record['value']];
     }, $user->get('field_library_access')->getValue());
 
