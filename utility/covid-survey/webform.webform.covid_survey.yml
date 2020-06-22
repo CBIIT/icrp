@@ -1,0 +1,176 @@
+uuid: 246450d1-f219-4726-9325-3a56ed39df26
+langcode: en
+status: closed
+dependencies:
+  module:
+    - honeypot
+third_party_settings:
+  honeypot:
+    honeypot: true
+open: null
+close: null
+weight: 0
+uid: 1
+template: false
+archive: false
+id: covid_survey
+title: 'Covid Survey'
+description: 'Covid-19 Survey'
+category: ''
+elements: "intro:\n  '#type': webform_wizard_page\n  '#title': Intro\n  processed_text_title:\n    '#type': processed_text\n    '#wrapper_attributes':\n      class:\n        - well\n      style: 'background:LightSteelBlue'\n    '#text': \"<h4><strong><span lang=\\\"EN-GB\\\"><span><span>COVID-19: IMPACT ON CANCER RESEARCH FUNDING</span></span></span></strong></h4>\\r\\n\\r\\n\"\n    '#format': basic_html\n  processed_text_subtitle:\n    '#type': processed_text\n    '#text': '<h2>A survey for representatives of cancer research funding organizations</h2>'\n    '#format': basic_html\n  processed_text_intro:\n    '#type': processed_text\n    '#wrapper_attributes':\n      class:\n        - well\n    '#text': \"<p>Dear Colleague,<br />\\r\\n<p>\\r\\nICRP is interested in learning more about the potential impacts of COVID-19 on the cancer research funding landscape globally. We are hoping that this will enable us to better understand the challenges of the pandemic on the cancer research environment and help to advocate for needed responses to ensure the continued robustness of support for cancer research.</p>\\r\\n<p>\\r\\nWe understand that your organization may fund more than cancer research. If you can comment on cancer research funding specifically, please do so. If not, please respond about the overall impact on research funded by your organization.</p>\\r\\n<p>\\r\\nWe will publish the aggregated results of the survey, but will not release details of any individual response to the survey. Should you have any questions about this survey, please contact Dr Lynne Davies (<a href=\\\"mailto:operations@icrpartnership.org\\\">operations@icrpartnership.org</a>). Thank you.</p>\\r\\n\\r\\n\"\n    '#format': full_html\nyour_info:\n  '#type': webform_wizard_page\n  '#title': 'Your Info'\n  flexbox_01:\n    '#type': webform_flexbox\n    '#attributes':\n      class:\n        - well\n    name_1:\n      '#type': textfield\n      '#title': '1.  Your Name'\n      '#placeholder': Name\n      '#required': true\n    organization_2:\n      '#type': textfield\n      '#title': '2.  Your Organization Name'\n      '#placeholder': Organization\n      '#required': true\n    country_3:\n      '#type': select\n      '#title': '3.  Your Organization''s Country'\n      '#options': country_names\n      '#required': true\nfocus:\n  '#type': webform_wizard_page\n  '#title': Focus\n  flexbox_02:\n    '#type': webform_flexbox\n    '#attributes':\n      class:\n        - well\n    organization_focus_4:\n      '#type': webform_checkboxes_other\n      '#title': '4.  Organization focus'\n      '#options':\n        'Cancer research only': 'Cancer research only'\n        'Health research': 'Health research'\n        'Broad range of scientific research': 'Broad range of scientific research'\n      '#other__option_label': 'Other (please specify)'\n    types_of_cancer_research_funded_5:\n      '#type': webform_checkboxes_other\n      '#title': '5.  Type of cancer research funded'\n      '#options':\n        'All cancers': 'All cancers'\n        'Childhood cancer': 'Childhood cancer'\n      '#other__option_label': 'Other (please specify)'\n    type_of_organization_6:\n      '#type': webform_radios_other\n      '#title': '6.  Type of organization'\n      '#options':\n        Government: Government\n        Non-profit: Non-profit\n      '#other__option_label': 'Other (please specify)'\n    size_of_organization_7:\n      '#type': webform_radios_other\n      '#title': '7.  Size of organization'\n      '#options':\n        'Under 1000 employees': 'Under 1000 employees'\n        '1000-5000 employees': '1000-5000 employees'\n        'Over 5000 employees': 'Over 5000 employees'\n      '#other__option_label': 'Other (please specify)'\nincome:\n  '#type': webform_wizard_page\n  '#title': Income\n  flexbox_03:\n    '#type': webform_flexbox\n    '#attributes':\n      class:\n        - well\n    container_03a:\n      '#type': container\n      income_8:\n        '#type': radios\n        '#title': '8.  As a result of COVID-19 do you expect your organization’s <strong>income</strong> this year to:'\n        '#options':\n          Increase: Increase\n          'Stay the same': 'Stay the same'\n          Decrease: Decrease\n          'Do not know at present': 'Do not know at present'\n      income_comment_8:\n        '#type': textarea\n        '#title': 'If you are able to provide estimates of any increase or decrease in income, please do so here:'\n        '#rows': '2'\n    container_03b:\n      '#type': container\n      funding_9:\n        '#type': radios\n        '#title': '9.  As a result of COVID-19 do you expect your organization’s funding available for cancer research specifically, or research generally, this year to:'\n        '#options':\n          Increase: Increase\n          'Stay the same': 'Stay the same'\n          Decrease: Decrease\n          'Do not know at present': 'Do not know at present'\n      funding_comment_9:\n        '#type': textarea\n        '#title': 'If you are able to provide estimates of any increase or decrease in funding available for cancer research, please do so here:'\n        '#rows': '2'\nemergency:\n  '#type': webform_wizard_page\n  '#title': Emergency\n  flexbox_10:\n    '#type': webform_flexbox\n    '#attributes':\n      class:\n        - well\n    container_03c:\n      '#type': container\n      emergency_relief_funding_10:\n        '#type': radios\n        '#title': '10.  As a result of COVID-19 has your organization received any government emergency relief funding? '\n        '#options':\n          'No - there is no relief funding offered': 'No - there is no relief funding offered'\n          'No - relief funding was available but we did not apply': 'No - relief funding was available but we did not apply'\n          'Yes - relief funding is available and we have applied, but do not know the outcome': 'Yes - relief funding is available and we have applied, but do not know the outcome'\n          'Yes - relief funding was available and we applied, but were unsuccessful': 'Yes - relief funding was available and we applied, but were unsuccessful'\n          'Yes - we have received relief funding': 'Yes - we have received relief funding'\n          'Not known': 'Not known'\n    container_04a:\n      '#type': container\n      cuts_to_current_funding_11:\n        '#type': radios\n        '#title': '11.  Have you made any <strong>cuts</strong> to your current funding programs due to COVID-19?  '\n        '#options':\n          'Yes, already made cuts to funding available for new projects': 'Yes, already made cuts to funding available for new projects'\n          'Yes, already made cuts to funding for current projects': 'Yes, already made cuts to funding for current projects'\n          'Future cuts planned': 'Future cuts planned'\n          'No, none planned': 'No, none planned'\n          'Do not know at present': 'Do not know at present'\n      cuts_to_current_funding_comments_11:\n        '#type': textarea\n        '#title': 'Comments: please provide any further details if available'\n        '#rows': '2'\nfunding:\n  '#type': webform_wizard_page\n  '#title': Funding\n  flexbox_04:\n    '#type': webform_flexbox\n    '#attributes':\n      class:\n        - well\n    container_04b:\n      '#type': container\n      delayed_funding_12:\n        '#type': checkboxes\n        '#title': '12.  Have you <strong>delayed</strong> your planned or routine funding calls/calls for proposals?  (select all that apply)'\n        '#options':\n          'Yes - current/imminent funding calls delayed': 'Yes - current/imminent funding calls delayed'\n          'Yes - current funding call submission deadlines delayed': 'Yes - current funding call submission deadlines delayed'\n          'No': 'No'\n          'Not yet, but planning to delay': 'Not yet, but planning to delay'\n          'Do not know at present ': 'Do not know at present '\n      delayed_funding_comments_12:\n        '#type': textarea\n        '#title': 'Comments: please provide any further details if available'\n        '#rows': '2'\n    container_04c:\n      '#type': container\n      changes_to_funding_13:\n        '#type': checkboxes\n        '#title': '13.  Have you made any <strong>changes</strong> to your current funding programs or due to Covid-19?  (select all that apply):'\n        '#options':\n          'Yes, we have created a COVID-19 related funding stream': 'Yes, we have created a COVID-19 related funding stream'\n          'Yes, we have expanded/increased current funding programs': 'Yes, we have expanded/increased current funding programs'\n          'No, none planned': 'No, none planned'\n          'Future changes/COVID-19 related funding planned': 'Future changes/COVID-19 related funding planned'\n          'Do not know at present': 'Do not know at present'\n      changes_to_funding_comments_13:\n        '#type': textarea\n        '#title': 'Comments: please provide any further details if available'\n        '#rows': '2'\nchallenges:\n  '#type': webform_wizard_page\n  '#title': Challenges\n  flexbox_05:\n    '#type': webform_flexbox\n    '#attributes':\n      class:\n        - well\n    container_05a:\n      '#type': container\n      delayed_funding_approved_projects_14:\n        '#type': radios\n        '#title': '14.  Have you delayed funding <strong>approved</strong> projects/programs?'\n        '#options':\n          'Yes - activation or renewal of awards has been delayed': 'Yes - activation or renewal of awards has been delayed'\n          'No': 'No'\n          'Not yet, but planning to delay': 'Not yet, but planning to delay'\n          'Do not know at present': 'Do not know at present'\n      delayed_funding_approved_comments_14:\n        '#type': textarea\n        '#title': 'Comments: please provide any further details if available'\n        '#rows': '2'\n    container_05b:\n      '#type': container\n      experiencing_challenges_with_peer_review_15:\n        '#type': webform_checkboxes_other\n        '#title': \"15.\\tAre you experiencing challenges with peer review? (select all that apply)\"\n        '#options':\n          'Yes - reviewers are unavailable to participate due to other constraints/commitments': 'Yes - reviewers are unavailable to participate due to other constraints/commitments'\n          'Yes - review panels are unable to meet in person and virtual panels are unavailable/unsupported': 'Yes - review panels are unable to meet in person and virtual panels are unavailable/unsupported'\n          'Yes - review panels are being conducted virtually, but there are technical challenges and concerns with the quality of the review process': 'Yes - review panels are being conducted virtually, but there are technical challenges and concerns with the quality of the review process'\n          'No': 'No'\n          'Do not know at present': 'Do not know at present'\n        '#other__option_label': 'Other: please provide any further details if available'\n    container_05c:\n      '#type': container\n      novel_approaches_to_peer_review_16:\n        '#type': textarea\n        '#title': '16.  Where applicable, please comment on any novel approaches to peer review that your organization has implemented and the success of these approaches.'\n        '#rows': '2'\nchanges:\n  '#type': webform_wizard_page\n  '#title': Changes\n  flexbox_06:\n    '#type': webform_flexbox\n    '#attributes':\n      class:\n        - well\n    container_06a:\n      '#type': container\n      number_of_applications_17:\n        '#type': radios\n        '#title': '17.  Applications: have the number of applications (cancer research applications where possible) you receive (select one): '\n        '#options':\n          'Increase substantially': 'Increase substantially'\n          'Increased a little': 'Increased a little'\n          'Not changed': 'Not changed'\n          'Decreased a little': 'Decreased a little'\n          'Decreased substantially': 'Decreased substantially'\n          'Not applicable - there have been no funding calls during this time': 'Not applicable - there have been no funding calls during this time'\n          'Not known': 'Not known'\n      number_of_applications_comments_27:\n        '#type': textarea\n        '#title': 'Comments: please provide any further details if available'\n        '#rows': '2'\n    container_06b:\n      '#type': container\n      anticipate_changes_of_future_funding_18:\n        '#type': radios\n        '#title': '18.  Do you anticipate changes in the design of future funding opportunities to take into consideration career interruptions created by COVID-19? (for cancer research or all research as applicable)'\n        '#options':\n          'Yes': 'Yes'\n          'Under consideration': 'Under consideration'\n          'No': 'No'\n          Unknown: Unknown\naffected:\n  '#type': webform_wizard_page\n  '#title': Affected\n  container_7:\n    '#type': container\n    '#attributes':\n      class:\n        - 'well covid-table-19'\n    processed_text_19:\n      '#type': processed_text\n      '#text': \"<p>19.&nbsp; In what way and to what extent have ongoing research projects/programs supported by your organization been affected?</p>\\r\\n\\r\\n<hr />\"\n      '#format': full_html\n    programs_operation_at_less_than_100_19a:\n      '#type': radios\n      '#title': 'a)  research projects/programs operating at less than 100% capacity'\n      '#title_display': inline\n      '#options':\n        None: None\n        Some: Some\n        Many: Many\n        'Not applicable': 'Not applicable'\n        'Unknown at this time': 'Unknown at this time'\n      '#options_display': side_by_side\n    research_projects_delayed_19b:\n      '#type': radios\n      '#title': 'b)  research projects/programs delayed'\n      '#title_display': inline\n      '#options':\n        None: None\n        Some: Some\n        Many: Many\n        'Not applicable': 'Not applicable'\n        'Unknown at this time': 'Unknown at this time'\n      '#options_display': side_by_side\n    research_projects_entirely_suspended_19c:\n      '#type': radios\n      '#title': 'c)  research projects/programs entirely suspended'\n      '#title_display': inline\n      '#options':\n        None: None\n        Some: Some\n        Many: Many\n        'Not applicable': 'Not applicable'\n        'Unknown at this time': 'Unknown at this time'\n      '#options_display': side_by_side\n    clinical_trials_are_not_being_activated_19d:\n      '#type': radios\n      '#title': 'd)  clinical trials are not being activated'\n      '#title_display': inline\n      '#options':\n        None: None\n        Some: Some\n        Many: Many\n        'Not applicable': 'Not applicable'\n        'Unknown at this time': 'Unknown at this time'\n      '#options_display': side_by_side\n    clinical_trials_have_limited_enrolment_19e:\n      '#type': radios\n      '#title': 'e)  clinical trials have limited enrolment'\n      '#title_display': inline\n      '#options':\n        None: None\n        Some: Some\n        Many: Many\n        'Not applicable': 'Not applicable'\n        'Unknown at this time': 'Unknown at this time'\n      '#options_display': side_by_side\nimpact:\n  '#type': webform_wizard_page\n  '#title': Impact\n  container_08:\n    '#type': container\n    '#attributes':\n      class:\n        - 'well covid-table-20'\n    processed_text_20:\n      '#type': processed_text\n      '#text': \"<p>20. Operational impact: has your organization experienced operational problems such as (select all that apply)</p>\\r\\n\\r\\n<hr />\"\n      '#format': full_html\n    reduced_workforce_20a:\n      '#type': radios\n      '#title': 'a) Reduced workforce/lay-offs'\n      '#title_display': inline\n      '#options':\n        'No': 'No'\n        Anticipated: Anticipated\n        'Yes': 'Yes'\n        'Unknown at this time': 'Unknown at this time'\n      '#options_display': side_by_side\n    reduce_staff_salaries_hours_20b:\n      '#type': radios\n      '#title': \"b)\\tReduced staff salaries/hours\"\n      '#title_display': inline\n      '#options':\n        'No': 'No'\n        Anticipated: Anticipated\n        'Yes': 'Yes'\n        'Unknown at this time': 'Unknown at this time'\n      '#options_display': side_by_side\n    staff_redeployments_20c:\n      '#type': radios\n      '#title': 'c)  Staff re-deployments to address COVID-19'\n      '#title_display': inline\n      '#options':\n        'No': 'No'\n        Anticipated: Anticipated\n        'Yes': 'Yes'\n        'Unknown at this time': 'Unknown at this time'\n      '#options_display': side_by_side\n    technical_issues_with_remote_working_20d:\n      '#type': radios\n      '#title': 'd)  Technical/IT issues with remote working and/or virtual meetings'\n      '#title_display': inline\n      '#options':\n        'No': 'No'\n        Anticipated: Anticipated\n        'Yes': 'Yes'\n        'Unknown at this time': 'Unknown at this time'\n      '#options_display': side_by_side\n    challenges_managing_stakeholder_communications_20e:\n      '#type': radios\n      '#title': 'e)  Challenges managing stakeholder communications'\n      '#title_display': inline\n      '#options':\n        'No': 'No'\n        Anticipated: Anticipated\n        'Yes': 'Yes'\n        'Unknown at this time': 'Unknown at this time'\n      '#options_display': side_by_side\n    expense_to_make_workplace_safe_20f:\n      '#type': radios\n      '#title': 'f) Expense/time to make workplaces safe for staff'\n      '#title_display': inline\n      '#options':\n        'No': 'No'\n        Anticipated: Anticipated\n        'Yes': 'Yes'\n        'Unknown at this time': 'Unknown at this time'\n      '#options_display': side_by_side\n    operational_impact_comments_20:\n      '#type': textarea\n      '#title': 'Comments: please provide any further details if available'\n      '#rows': '2'\npositive_impact:\n  '#type': webform_wizard_page\n  '#title': 'Positive Impact'\n  flexbox_09:\n    '#type': webform_flexbox\n    '#attributes':\n      class:\n        - well\n    container_09a:\n      '#type': container\n      positive_impact_21:\n        '#type': webform_checkboxes_other\n        '#title': '21.  Positive impact: has your organization seen any positive developments during the COVID-19 pandemic? (select all that apply)'\n        '#options':\n          'Yes - reduced costs due to virtual meetings (instead of in-person)': 'Yes - reduced costs due to virtual meetings (instead of in-person)'\n          'Yes - home/flexible working options improved': 'Yes - home/flexible working options improved'\n          'Yes - expedited timelines from developing funding opportunities to research commencement ': 'Yes - expedited timelines from developing funding opportunities to research commencement '\n          'Yes - new collaborations initiated with other organizations': 'Yes - new collaborations initiated with other organizations'\n          'Yes - more government/public attention to the importance of research': 'Yes - more government/public attention to the importance of research'\n          'Yes - increased publications/outputs from research community': 'Yes - increased publications/outputs from research community'\n        '#other__option_label': 'Other (please specify)'\n      positive_impact_comments_21:\n        '#type': textarea\n        '#title': 'Comments: please provide any further details if available'\n        '#rows': '2'\nreceive_results:\n  '#type': webform_wizard_page\n  '#title': 'Receive Results'\n  container_09b:\n    '#type': container\n    '#attributes':\n      class:\n        - well\n    receive_results_email_22:\n      '#type': webform_radios_other\n      '#title': \"22.\\tWould you like to receive the results of the survey?\"\n      '#options':\n        'No': 'No'\n      '#other__option_label': 'Yes - please provide your email'\n      '#other__placeholder': email"
+css: "#webform_submission_covid_survey_add_form-ajax {\r\n  line-height:1.2\r\n}\r\n\r\ndiv.covid-table-19 .form-composite.webform-fieldset--title-inline legend {\r\n  width:250px;\r\n}\r\n\r\ndiv.covid-table-20 .form-composite.webform-fieldset--title-inline legend {\r\n  width:400px;\r\n}\r\n\r\n.fieldset-wrapper label.control-label {\r\n    font-weight: normal;\r\n}\r\n\r\n.covid-table-19 hr, .covid-table-20 hr {\r\n    margin-top: 5px;\r\n    margin-bottom: 1px;\r\n}\r\n\r\n.form-wrapper label, .form-wrapper label.label, .form-wrapper label.form-label, .form-wrapper label.control-label {\r\n\tfont-weight: normal;\r\n    white-space: normal;\r\n}\r\n\r\n.modal-body {\r\n   padding: 8px;\r\n}\r\n.main-container {\r\n    padding: 5px;\r\n}\r\n.progress-marker {\r\n    width: 24px;\r\n    height: 24px;\r\n}\r\n.webform-progress-tracker.progress-tracker {\r\n    margin-top: 10px;\r\n    margin-bottom: 10px;\r\n}\r\nbutton.button.btn {\r\n    padding: 4px 6px;\r\n}\r\n.form-wrapper p {\r\n    margin: 0 0 5px;\r\n}\r\n.form-wrapper .form-group {\r\n    margin-bottom: 5px;\r\n}\r\n.form-wrapper .form-composite legend {\r\n    font-weight: normal;\r\n}\r\n/* Required */\r\n.form-required::after {\r\ncontent: '';\r\nvertical-align: super;\r\ndisplay: inline-block;\r\nbackground-image: url(/core/misc/icons/ee0000/required.svg);\r\nbackground-repeat: no-repeat;\r\nbackground-size: 6px 6px;\r\nwidth: 6px;\r\nheight: 6px;\r\nmargin: 0 0.3em;\r\n}\r\n.form-wrapper .well {\r\n  padding: 5px;\r\n}\r\n.form-wrapper .form-composite.webform-fieldset--title-inline legend {\r\n    font-weight: normal;\r\n}\r\n.form-wrapper .form-composite.webform-fieldset--title-inline legend {\r\n    margin: 0px;\r\n}"
+javascript: ''
+settings:
+  ajax: true
+  ajax_scroll_top: form
+  page: true
+  page_submit_path: /covid-survey
+  page_confirm_path: ''
+  form_title: source_entity_webform
+  form_submit_once: false
+  form_exception_message: ''
+  form_open_message: ''
+  form_close_message: ''
+  form_previous_submissions: true
+  form_confidential: false
+  form_confidential_message: ''
+  form_remote_addr: true
+  form_convert_anonymous: false
+  form_prepopulate: false
+  form_prepopulate_source_entity: false
+  form_prepopulate_source_entity_required: false
+  form_prepopulate_source_entity_type: ''
+  form_reset: false
+  form_disable_autocomplete: false
+  form_novalidate: false
+  form_disable_inline_errors: false
+  form_required: false
+  form_unsaved: false
+  form_disable_back: false
+  form_submit_back: false
+  form_autofocus: true
+  form_details_toggle: false
+  form_access_denied: default
+  form_access_denied_title: ''
+  form_access_denied_message: ''
+  form_access_denied_attributes: {  }
+  form_file_limit: ''
+  submission_label: ''
+  submission_log: true
+  submission_views: {  }
+  submission_views_replace:
+    webform_routes: {  }
+    node_routes: {  }
+  submission_user_columns: {  }
+  submission_user_duplicate: false
+  submission_access_denied: default
+  submission_access_denied_title: ''
+  submission_access_denied_message: ''
+  submission_access_denied_attributes: {  }
+  submission_exception_message: ''
+  submission_locked_message: ''
+  submission_excluded_elements: {  }
+  submission_exclude_empty: false
+  submission_exclude_empty_checkbox: false
+  previous_submission_message: ''
+  previous_submissions_message: ''
+  autofill: false
+  autofill_message: ''
+  autofill_excluded_elements: {  }
+  wizard_progress_bar: true
+  wizard_progress_pages: false
+  wizard_progress_percentage: false
+  wizard_progress_link: false
+  wizard_start_label: ''
+  wizard_preview_link: false
+  wizard_confirmation: false
+  wizard_confirmation_label: ''
+  wizard_track: ''
+  preview: 0
+  preview_label: ''
+  preview_title: ''
+  preview_message: ''
+  preview_attributes: {  }
+  preview_excluded_elements: {  }
+  preview_exclude_empty: true
+  preview_exclude_empty_checkbox: false
+  draft: none
+  draft_multiple: false
+  draft_auto_save: false
+  draft_saved_message: ''
+  draft_loaded_message: ''
+  confirmation_type: url_message
+  confirmation_title: ''
+  confirmation_message: 'Thank you for Completing the ICRP Web Survey.'
+  confirmation_url: '<front>'
+  confirmation_attributes: {  }
+  confirmation_back: true
+  confirmation_back_label: ''
+  confirmation_back_attributes: {  }
+  confirmation_exclude_query: false
+  confirmation_exclude_token: false
+  limit_total: null
+  limit_total_interval: null
+  limit_total_message: ''
+  limit_total_unique: false
+  limit_user: null
+  limit_user_interval: null
+  limit_user_message: ''
+  limit_user_unique: false
+  entity_limit_total: null
+  entity_limit_total_interval: null
+  entity_limit_user: null
+  entity_limit_user_interval: null
+  purge: none
+  purge_days: null
+  results_disabled: false
+  results_disabled_ignore: false
+  token_update: false
+access:
+  create:
+    roles:
+      - anonymous
+      - authenticated
+    users: {  }
+    permissions: {  }
+  view_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  update_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  delete_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  purge_any:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  view_own:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  update_own:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  delete_own:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  administer:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  test:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+  configuration:
+    roles: {  }
+    users: {  }
+    permissions: {  }
+handlers: {  }

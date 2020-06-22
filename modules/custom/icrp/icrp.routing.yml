@@ -109,3 +109,12 @@ icrp.survey_status:
     _access: 'TRUE'
   options:
     no_cache: 'TRUE'
+icrp.covid_survey_status:
+  path: /covid-survey-status
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::getCovidSurveyConfig'
+  requirements:
+    _format: 'html'
+    _access: 'TRUE'
+  options:
+    no_cache: 'TRUE'

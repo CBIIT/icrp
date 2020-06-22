@@ -181,12 +181,22 @@ class IcrpController extends ControllerBase {
         );
     }
     public function getSurveyConfig() {
-        $status = isSurveyOpen();
+	    $webform = "webform.webform.icrp_website_survey";
+        $status = isSurveyOpen($webform);
         $data = json_encode(array('isSurveyOpen'=> $status), true);
         $response = new JsonResponse($data);
 
         return $response;
 
     }
+ 
+    function getCovidSurveyConfig() {
+	    $webform = "webform.webform.covid_survey";
+        $status = isSurveyOpen($webform);
+        $data = json_encode(array('isSurveyOpen'=> $status), true);
+        $response = new JsonResponse($data);
 
+        return $response;
+
+    }
 }
