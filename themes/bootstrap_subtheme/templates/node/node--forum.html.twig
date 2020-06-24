@@ -71,7 +71,8 @@
   <script>console.log({{ _context | json_encode | raw }});</script>
   {{ dump(user.roles) }}<br>
     logged_in: {{ logged_in ? 'true' : 'false'}}<br>
-
+  tforum_tid: {{ tforum_tid }}<br>
+  tforum_name: {{ tforum_name }}
 
 {% endif %}
 {% set manager = false %}
@@ -99,7 +100,7 @@
   ]
 %}
 
-{% if logged_in %}
+{% if logged_in or (logged_in == false and tforum_tid == "27") %}
 
   <article{{ attributes.addClass(classes) }}>
 
@@ -203,7 +204,9 @@
                   {% if tcomment_forum.status == "1" %}
                     <h6>Status: <span class="label label-pill label-danger"  title="This thread is closed for comment.">Closed</span></h6>
                   {% else %}
-                    <a cdata-drupal-link-system-path="node" class="btn btn-xs btn-success" href="/comment/reply/node/{{ tnid }}/comment_forum">Post Reply</a>
+                    {% if logged_in %}
+                      <a cdata-drupal-link-system-path="node" class="btn btn-xs btn-success" href="/comment/reply/node/{{ tnid }}/comment_forum">Post Reply</a>
+                    {% endif %}
                   {% endif %}
                 </td>
               </tr>
@@ -264,9 +267,9 @@
   <span aria-hidden="true" class="icon glyphicon glyphicon-log-in"></span>&nbsp;Log in to post new content in the forum.
   </a>
 
-{% endif %}
+{% endif %} 
 
 
 {% if icrp_debug %}
   <span class="icrp-debug">END of node--forum.html.twig</span><br>
-{% endif %}
+{% endif %} 

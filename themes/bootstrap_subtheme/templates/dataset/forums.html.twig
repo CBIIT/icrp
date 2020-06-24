@@ -41,7 +41,9 @@
 		{% if tid == '6' %} 
 				<span class="pull-right" style="font-size:small;">{{ last_forum_visit }}</span>
 		{% else %}
+			{% if logged_in %}
 				<a cdata-drupal-link-system-path="node/add/forum" data-drupal-link-query="{&quot;forum_id&quot;:&quot;{{ tid }}&quot;}" class="btn btn-xs btn-success" href="/node/add/forum?forum_id={{ tid }}">Add New Thread</a>
+			{% endif %}
 		{% endif %}
 			</td>
 		</tr>

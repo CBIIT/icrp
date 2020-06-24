@@ -58,13 +58,14 @@
 #}
 {% if icrp_debug %}
   <span class="icrp-debug">page--forum.html.twig</span><br>
+  theme_hook_suggestions[2]: {{ theme_hook_suggestions[2] }}<br>
 {% endif %}
 
-{#
+
 {% if icrp_debug %}
   <script>console.log({{ _context | json_encode | raw }});</script>
 {% endif %}
-#}
+
 
 {% set container = theme.settings.fluid_container ? 'container-fluid' : 'container' %}
 {# Navbar #}
@@ -167,7 +168,8 @@
         {# Content #}
         {% block content %}
           <a id="main-content"></a>
-          {% if logged_in %}
+          {# Removed logged_in to show for anonymous #}
+          {% if logged_in or (logged_in == false and (theme_hook_suggestions[2] == 'page__forum__6' or theme_hook_suggestions[2] == 'page__forum__27')) %}
 
             {% if theme_hook_suggestions[2] == 'page__forum__6' %}
               {% set forum_style = 'display:none;' %}
@@ -176,10 +178,11 @@
             <div id="main-forum-content">
               {{ page.content }}
             </div>
+          
           {% else %}
 
             <h2>ICRP Partnership Forum</h2>
-            {# Breadcrumbs #}
+            
             {% if breadcrumb %}
               {% block breadcrumb %}
                 {{ breadcrumb }}
@@ -191,7 +194,7 @@
             </a>
 
           {% endif %}
-
+          
         {% endblock %}
       </section>
 

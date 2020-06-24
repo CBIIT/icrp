@@ -39,10 +39,9 @@ use Drupal\comment\Entity\Comment;
  */
 
 /* Survey */
-function isSurveyOpen($webform) {
+function isSurveyOpen() {
     $isSurveyOpen = false;
-    //$config = \Drupal::config('webform.webform.icrp_website_survey');
-    $config = \Drupal::config($webform);
+    $config = \Drupal::config('webform.webform.icrp_website_survey');
 
     if(!isset($config)) {
       return "ICRP Website Survey does not exist.  ";
@@ -1562,10 +1561,10 @@ function icrp_preprocess_table(&$variables) {
     $sort_order = $variables['header'][0]['attributes']->storage()['aria-sort']->value();
   }
   // Change Last reply to Last Reply
-  //$last_reply_header = $variables['header'][2]['content']->getGeneratedLink();
-  //$variables['header'][2]['content']->setGeneratedLink(str_replace("Last reply", "Last Post", $last_reply_header));
+  $last_reply_header = $variables['header'][2]['content']->getGeneratedLink();
+  $variables['header'][2]['content']->setGeneratedLink(str_replace("Last reply", "Last Post", $last_reply_header));
 
-  //$variables['header'][0]['content']->setGeneratedLink(changeHeaderTitle("Thread", $forum_id, $sort_order));
+  $variables['header'][0]['content']->setGeneratedLink(changeHeaderTitle("Thread", $forum_id, $sort_order));
   //Customize Rows and Cells 
   foreach($variables['rows'] as $row_index => $row) {
     $thread_node_id = getNodeIdFromMarkup(substr($row['cells'][0]['content'][1]['#markup'], 0, 60));
@@ -1626,9 +1625,12 @@ function icrp_preprocess_node(&$variables) {
     $variables['title_suffix'] = '</span>';
   }
  //dump($variables);
+ 
   if($node->getType() != "forum") {
+    //drupal_set_message($node->getType()); 
     return;
   }
+ 
   //drupal_set_message("icrp_preprocess_node()");
   //drupal_set_message("Get owner uid of this thread.  If current user then allow them to edit/delete/close thread");
 
@@ -1758,6 +1760,15 @@ function getLastPostFromTopicID($tid) {
 
 function icrp_preprocess_forum_list(&$variables) {
   //drupal_set_message("Added chris to variables.  See if you can access in twig.");
+  $logged_in = \Drupal::currentUser()->isAuthenticated();
+  if(!$logged_in) {
+    //Anonymous users can access Funding Oppertunities only.  Remove all other forums.
+    foreach($variables['forums'] as $tid =>$term ) {
+      if($tid !=27) {
+        unset($variables['forums'][$tid]);
+      }
+    }
+  }
   foreach($variables['forums'] as $tid =>$term ) {
     //drupal_set_message("Term: $tid");
     //dpm($term);
@@ -1768,7 +1779,7 @@ function icrp_preprocess_forum_list(&$variables) {
     //$variables['tforums'][$tid]['last_post'] = "Hello";
   }
   //dpm($variables);
-  //kint($variables);
+  kint($variables);
   //drupal_set_message(print_r($variables, true));
 
 }
