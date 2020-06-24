@@ -1779,7 +1779,7 @@ function icrp_preprocess_forum_list(&$variables) {
     //$variables['tforums'][$tid]['last_post'] = "Hello";
   }
   //dpm($variables);
-  kint($variables);
+  //kint($variables);
   //drupal_set_message(print_r($variables, true));
 
 }
