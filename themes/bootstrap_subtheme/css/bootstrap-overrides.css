@@ -604,7 +604,7 @@ form.form-group {
 */
 
 /* Required */
-.control-label[for="edit-type-of-issue"]::after, .form-required::after {
+label[for="edit-type-of-issue"]::after, .form-required::after {
   content: '';
   vertical-align: super;
   display: inline-block;
@@ -621,4 +621,11 @@ form.form-group {
   width: 100%;
 }
 
+.form-inline .form-group {
+  display: inline-flex;
+}
 
+label[for='edit-webform-submission-value'] {
+  width: 140px;
+  margin-top:10px;
+}
