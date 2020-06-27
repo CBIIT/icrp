@@ -1,9 +1,6 @@
-uuid: 57fc3062-66ce-49da-974e-a6b70fa0cfb7
 langcode: en
 status: open
 dependencies: {  }
-_core:
-  default_config_hash: LasCJP-N2njGJZCeGeVp8mWjI36mX21SlCUXoc-NPN4
 open: null
 close: null
 weight: 0
@@ -14,19 +11,15 @@ id: contact
 title: 'Contact Us'
 description: 'Basic email contact form.'
 category: ''
-elements: "contact_us:\n  '#type': details\n  '#title': 'Contact Us'\n  '#open': true\n  '#attributes':\n    class:\n      - 'form--inline clearfix'\n  contact_us_container_1:\n    '#type': container\n    '#title': Message\n    '#open': 0\n    '#attributes':\n      class:\n        - clearfix\n      style: 'width:250px;'\n    type_of_issue:\n      '#type': select\n      '#title': 'Type of Issue'\n      '#title_display': before\n      '#options':\n        'User Account': 'User Account'\n        'Partner Application': 'Partner Application'\n        'Partnership Questions': 'Partnership Questions'\n        'Sign Up for Newsletter': 'Sign Up for Newsletter'\n        'Register for CSO Updates': 'Register for CSO Updates'\n        'CSO Question': 'CSO Question'\n        'Data Issue': 'Data Issue'\n        'Opt Out of Communications': 'Opt Out of Communications'\n        'Website Tech Support': 'Website Tech Support'\n        Other: Other\n      '#required': true\n      '#required_error': 'Why is this not required?'\n      '#states':\n        visible:\n          ':input[name=\"contact\"]':\n            value: 'Contact ICRP'\n      '#wrapper_attributes':\n        class:\n          - 'form--inline clearfix'\n      '#attributes':\n        class:\n          - 'col-sm-3 '\n        style: 'padding-left:20px;'\n  contact_us_container_3:\n    '#type': container\n    message:\n      '#type': textarea\n      '#title': Description\n      '#title_display': inline\n      '#size': 0\n      '#placeholder': 'Description of question, issue, or request.'\n      '#attributes':\n        rows: '8'\n        cols: '160'\n      '#required': true\n      '#test': 'Please ignore this email.'\n    contact_us_container_4:\n      '#type': container\n    name:\n      '#type': textfield\n      '#title': Name\n      '#title_display': inline\n      '#placeholder': Name\n      '#required': true\n      '#default_value': '[current-user:field_first_name] [current-user:field_last_name]'\n    email:\n      '#type': email\n      '#title': 'Your Email'\n      '#description': 'Your e-mail address'\n      '#default_value': '[current-user:mail]'\n      '#title_display': inline\n      '#placeholder': Email\n      '#required': true\n    organization:\n      '#type': textfield\n      '#title': Organization\n      '#description': 'Your organization.'\n      '#default_value': '[current-user:field_organization]'\n      '#title_display': inline\n      '#placeholder': Organization\n      '#required': true\n    phone_number:\n      '#type': textfield\n      '#title': 'Phone Number'\n      '#description': 'Enter your phone number'\n      '#title_display': inline\n      '#placeholder': 'Phone Number'\nmarkup:\n  '#type': webform_markup\n  '#markup': '<em>* At ICRP, we take your privacy seriously and will only use the information you submit to respond to your query or provide the service requested.</em>'\ncaptcha_secretkey12345_20200323:\n  '#type': captcha\n  '#captcha_type': recaptcha/reCAPTCHA\nactions:\n  '#type': webform_actions\n  '#title': 'Submit button(s)'\n  '#submit__label': 'Send message'"
+elements: "contact_us:\n  '#type': details\n  '#title': 'Contact Us'\n  '#open': true\n  '#attributes':\n    class:\n      - 'form--inline clearfix'\n  contact_us_container_1:\n    '#type': container\n    '#title': Message\n    '#open': 0\n    '#attributes':\n      class:\n        - clearfix\n      style: 'width:250px;'\n    type_of_issue:\n      '#type': select\n      '#title': 'Type of Issue'\n      '#title_display': before\n      '#wrapper_attributes':\n        class:\n          - 'form--inline clearfix'\n      '#attributes':\n        class:\n          - 'col-sm-3 '\n        style: 'padding-left:20px;'\n      '#options':\n        'User Account': 'User Account'\n        'Partner Application': 'Partner Application'\n        'Partnership Questions': 'Partnership Questions'\n        'Sign Up for Newsletter': 'Sign Up for Newsletter'\n        'Register for CSO Updates': 'Register for CSO Updates'\n        'CSO Question': 'CSO Question'\n        'Data Issue': 'Data Issue'\n        'Opt Out of Communications': 'Opt Out of Communications'\n        'Website Tech Support': 'Website Tech Support'\n        Other: Other\n      '#required': true\n      '#states':\n        visible:\n          ':input[name=\"contact\"]':\n            value: 'Contact ICRP'\n  contact_us_container_3:\n    '#type': container\n    message:\n      '#type': textarea\n      '#title': Description\n      '#title_display': inline\n      '#size': ''\n      '#placeholder': 'Description of question, issue, or request.'\n      '#attributes':\n        rows: '8'\n        cols: '160'\n      '#required': true\n      '#test': 'Please ignore this email.'\n    contact_us_container_4:\n      '#type': container\n    name:\n      '#type': textfield\n      '#title': Name\n      '#default_value': '[current-user:field_first_name] [current-user:field_last_name]'\n      '#title_display': inline\n      '#placeholder': Name\n      '#required': true\n    email:\n      '#type': email\n      '#title': 'Your Email'\n      '#description': 'Your e-mail address'\n      '#default_value': '[current-user:mail]'\n      '#title_display': inline\n      '#placeholder': Email\n      '#required': true\n    organization:\n      '#type': textfield\n      '#title': Organization\n      '#description': 'Your organization.'\n      '#default_value': '[current-user:field_organization]'\n      '#title_display': inline\n      '#placeholder': Organization\n      '#required': true\n    phone_number:\n      '#type': textfield\n      '#title': 'Phone Number'\n      '#description': 'Enter your phone number'\n      '#title_display': inline\n      '#placeholder': 'Phone Number'\nmarkup:\n  '#type': webform_markup\n  '#markup': '<em>* At ICRP, we take your privacy seriously and will only use the information you submit to respond to your query or provide the service requested.</em>'\nactions:\n  '#type': webform_actions\n  '#title': 'Submit button(s)'\n  '#submit__label': 'Send message'\n"
 css: "#edit-contact-us-container-1 .select-wrapper {\r\n    height:40px;\r\n}\r\n"
 javascript: ''
 settings:
-  ajax: true
+  ajax: false
   ajax_scroll_top: form
-  ajax_progress_type: ''
-  ajax_effect: ''
-  ajax_speed: null
   page: true
   page_submit_path: /contact-us
   page_confirm_path: ''
-  page_theme_name: ''
   form_title: both
   form_submit_once: false
   form_exception_message: ''
@@ -56,11 +49,6 @@ settings:
   form_access_denied_message: ''
   form_access_denied_attributes: {  }
   form_file_limit: ''
-  share: false
-  share_node: false
-  share_theme_name: ''
-  share_title: true
-  share_page_body_attributes: {  }
   submission_label: ''
   submission_log: false
   submission_views: {  }
@@ -85,18 +73,11 @@ settings:
   wizard_progress_pages: false
   wizard_progress_percentage: false
   wizard_progress_link: false
-  wizard_progress_states: false
-  wizard_auto_forward: true
   wizard_start_label: ''
   wizard_preview_link: false
   wizard_confirmation: true
   wizard_confirmation_label: ''
   wizard_track: ''
-  wizard_prev_button_label: ''
-  wizard_next_button_label: ''
-  wizard_toggle: false
-  wizard_toggle_show_label: ''
-  wizard_toggle_hide_label: ''
   preview: 0
   preview_label: ''
   preview_title: ''
@@ -110,8 +91,6 @@ settings:
   draft_auto_save: false
   draft_saved_message: ''
   draft_loaded_message: ''
-  draft_pending_single_message: ''
-  draft_pending_multiple_message: ''
   confirmation_type: url_message
   confirmation_title: ''
   confirmation_message: 'Thank you for contacting ICRP. We will respond to your query as soon as possible and you should receive a response within 3 days.'
@@ -122,7 +101,6 @@ settings:
   confirmation_back_attributes: {  }
   confirmation_exclude_query: false
   confirmation_exclude_token: false
-  confirmation_update: false
   limit_total: null
   limit_total_interval: null
   limit_total_message: ''
@@ -139,8 +117,6 @@ settings:
   purge_days: null
   results_disabled: false
   results_disabled_ignore: false
-  results_customize: false
-  token_view: false
   token_update: false
 access:
   create:
@@ -235,7 +211,6 @@ handlers:
       ignore_access: false
       exclude_empty: true
       exclude_empty_checkbox: false
-      exclude_attachments: false
       html: true
       attachments: false
       twig: false
@@ -245,7 +220,6 @@ handlers:
       sender_mail: ''
       sender_name: ''
       theme_name: ''
-      parameters: {  }
   email_notification:
     id: email
     label: 'Contact Us - to ICRP operation manager'
@@ -271,7 +245,6 @@ handlers:
       ignore_access: false
       exclude_empty: true
       exclude_empty_checkbox: false
-      exclude_attachments: false
       html: true
       attachments: false
       twig: false
@@ -281,5 +254,6 @@ handlers:
       sender_mail: ''
       sender_name: ''
       theme_name: ''
-      parameters: {  }
-variants: {  }
+uuid: 57fc3062-66ce-49da-974e-a6b70fa0cfb7
+_core:
+  default_config_hash: LasCJP-N2njGJZCeGeVp8mWjI36mX21SlCUXoc-NPN4

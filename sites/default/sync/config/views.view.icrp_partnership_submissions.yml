@@ -16,6 +16,7 @@ description: ''
 tag: ''
 base_table: webform_submission
 base_field: sid
+core: 8.x
 display:
   default:
     display_plugin: default
@@ -708,9 +709,6 @@ display:
           entity_type: webform_submission
           entity_field: webform_id
           plugin_id: bundle
-          expose:
-            operator_limit_selection: false
-            operator_list: {  }
       sorts: {  }
       title: 'ICRP Partnership Submissions'
       header: {  }

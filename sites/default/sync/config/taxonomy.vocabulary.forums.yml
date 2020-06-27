@@ -10,4 +10,5 @@ _core:
 name: Forums
 vid: forums
 description: 'Forum navigation vocabulary'
+hierarchy: 1
 weight: -10

@@ -5,4 +5,5 @@ dependencies: {  }
 name: 'Event Groups'
 vid: event_groups
 description: 'Taxonomy of Events by ICRP Group'
+hierarchy: 0
 weight: 0

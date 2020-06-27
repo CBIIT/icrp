@@ -24,7 +24,6 @@ content:
       rows: 9
       placeholder: ''
       summary_rows: 3
-      show_summary: false
     third_party_settings: {  }
     region: content
   field_calendar_type:
