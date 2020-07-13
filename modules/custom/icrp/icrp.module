@@ -1561,10 +1561,10 @@ function icrp_preprocess_table(&$variables) {
     $sort_order = $variables['header'][0]['attributes']->storage()['aria-sort']->value();
   }
   // Change Last reply to Last Reply
-  $last_reply_header = $variables['header'][2]['content']->getGeneratedLink();
-  $variables['header'][2]['content']->setGeneratedLink(str_replace("Last reply", "Last Post", $last_reply_header));
+//  $last_reply_header = $variables['header'][2]['content']->getGeneratedLink();
+//  $variables['header'][2]['content']->setGeneratedLink(str_replace("Last reply", "Last Post", $last_reply_header));
 
-  $variables['header'][0]['content']->setGeneratedLink(changeHeaderTitle("Thread", $forum_id, $sort_order));
+//  $variables['header'][0]['content']->setGeneratedLink(changeHeaderTitle("Thread", $forum_id, $sort_order));
   //Customize Rows and Cells 
   foreach($variables['rows'] as $row_index => $row) {
     $thread_node_id = getNodeIdFromMarkup(substr($row['cells'][0]['content'][1]['#markup'], 0, 60));
