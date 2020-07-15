@@ -179,4 +179,10 @@ span.submitted {
 .table-forum-topic thead tr th, .table-forum-topic thead tr td { background: #FFE599; font-weight: 700; border:none; padding: 11px; }
 #forum-topic-7 thead tr th, #forum-topic-7 thead tr td { background: #FFE599; font-weight: 700; border:none; padding: 11px; }
 */
+.funding-oppertunities-box {
+	border: 3px solid blue;
+	display: block;
+	width: 100%;
+}
+
 

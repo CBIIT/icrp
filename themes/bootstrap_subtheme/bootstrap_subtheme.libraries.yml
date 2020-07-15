@@ -30,6 +30,7 @@ global-scripts:
     js/scripts.js: {}
     js/survey.js: {}
     js/covid_survey.js: {}
+    https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit: { type: external }
     js/ext/fontawesome.all.5.0.9.js: {}
     js/ext/fontawesome.v4-shims.5.0.9.js: {}
     # /libraries/fontawesome/js/all.min.js: {}

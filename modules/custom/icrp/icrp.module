@@ -39,9 +39,10 @@ use Drupal\comment\Entity\Comment;
  */
 
 /* Survey */
-function isSurveyOpen() {
+function isSurveyOpen($webform) {
     $isSurveyOpen = false;
-    $config = \Drupal::config('webform.webform.icrp_website_survey');
+    //$config = \Drupal::config('webform.webform.icrp_website_survey');
+    $config = \Drupal::config($webform);
 
     if(!isset($config)) {
       return "ICRP Website Survey does not exist.  ";

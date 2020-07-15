@@ -77,6 +77,15 @@
 
 {% endif %}
 <!-- table.html.twig -->
+{# {% if not logged_in %} #}
+{% if not logged_in %}
+<div class="row">
+  <div class="col-md-9">
+    <h5 class="forum-topic-icon">Latest announcements</h5>
+    <div class="funding-oppertunities-box">
+{# {% endif %} #}
+{% endif %}
+
 <table {{ attributes }} class="table table-striped table-bordered table-condensed sticky-enabled table-forum-topic" style="margin-bottom:0px;width:100%;table-layout:fixed;border-collapase: collapse;">
   {% if caption %}
     <caption>{{ caption }}</caption>
@@ -178,6 +187,46 @@
     </tfoot>
   {% endif %}
 </table>
+{# {% if not logged_in %} #}
+{% if not logged_in %}
+      </div>
+    </div>
+  <div class="col-md-3">
+    <h5 class="forum-topic-icon">Funding announcements pages & feeds</h5>
+      <div class="funding-oppertunities-box">
+      {# {{ drupal_entity('block', 'fundingoppertunitiesmenu') }} #}
+      <ul>
+        <li>
+          <a src="https://www.cancer.org/research/we-fund-cancer-research/apply-research-grant.html">
+            American Cancer Society</a>
+        </li>
+        <li>
+          <a src="https://www.grants.gov.au/">
+            Cancer Australia
+          </a>
+        </li>
+        <li>
+          <a src="https://www.cancerresearchuk.org/funding-for-researchers/our-funding-schemes?items_per_page=60">
+            Cancer Research UK
+          </a>
+        </li>
+        <li>
+          <a src="https://cdmrp.army.mil/funding/reftable">CDMRP</a>
+        </li>
+        <li>CDMRP RSS feed:
+          <a src="https://cdmrp.army.mil/rss/funding_opportunities.xml">https://cdmrp.army.mil/rss/funding_opportunities.xml</a>
+        </li>
+        <li>
+          <a src="https://www.cancer.gov/grants-training">NCI</a>
+        </li>
+      </ul>
+
+      </div>
+  </div>
+</div>
+{# {% endif %} #}
+{% endif %}
+
 {% if icrp_debug %}
   <span class="icrp-debug">END table.html.twig</span><br>
 {% endif %}
