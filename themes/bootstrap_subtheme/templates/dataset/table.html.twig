@@ -81,7 +81,7 @@
 {% if not logged_in %}
 <div class="row">
   <div class="col-md-9">
-    <h5 class="forum-topic-icon">Latest announcements</h5>
+    <h5 class="forum-topic-icon funding-forum-title">Latest announcements</h5>
     <div class="funding-oppertunities-box">
 {# {% endif %} #}
 {% endif %}
@@ -192,7 +192,7 @@
       </div>
     </div>
   <div class="col-md-3">
-    <h5 class="forum-topic-icon">Funding announcements pages & feeds</h5>
+    <h5 class="forum-topic-icon funding-forum-title">Funding announcements pages & feeds</h5>
       <div class="funding-oppertunities-box">
       {# {{ drupal_entity('block', 'fundingoppertunitiesmenu') }} #}
       <ul>
@@ -215,13 +215,15 @@
         </li>
         <li>
           <a href="https://cdmrp.army.mil/rss/funding_opportunities.xml">CDMRP RSS feed</a>
-          <i style="color: #ffa500;" class="fas fa-rss" aria-hidden="true"></i>
+          <i style="color: #ea7819;" class="fas fa-rss" aria-hidden="true"></i>
         </li>
         <li>
           <a href="https://www.cancer.gov/grants-training">NCI</a>
         </li>
       </ul>
-
+        {{ drupal_entity('block_content', 'fundingoppertunitiesmenu') }}
+        {{ drupal_entity('block', 'fundingoppertunitiesmenu') }}
+        {{ drupal_block('system_branding_block') }}
       </div>
   </div>
 </div>
