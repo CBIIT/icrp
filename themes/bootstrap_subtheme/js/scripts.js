@@ -32,7 +32,7 @@
       if(url_path.substring(0, 6).toLowerCase() == '/forum' && !(url_path.substring(7, 8) == '6')) {
         url_path = '/forum';
       }
-      //alert(url_path);
+      alert(url_path);
       var source = decodeURIComponent($.urlParam("source"));
       if(source  == "Edit Event") {
           $.preprocessAddEvents();
@@ -85,7 +85,9 @@
           break;
         case "/forum":
           $.preprocessForum();
-          break;
+          alert("Watch what happens.")
+          $("#funding-opportunities-forum-container").matchHeight(true);
+        break;
         case "/node/add/forum":
           $.hideCommentStatus();
           break;
@@ -93,6 +95,11 @@
           //console.log("You are on the /become-a-partner page.");
           $("#become-a-partner-wells").matchHeight(true);
           break;
+        case "/forum/27":
+            console.log("You are on the /become-a-partner page.");
+            alert("Watch what happens.")
+            $("#funding-opportunities-forum-container").matchHeight(true);
+            break;          
         case "/calendar":
           $.preprocessCalendar();
           $.rememberTabs();

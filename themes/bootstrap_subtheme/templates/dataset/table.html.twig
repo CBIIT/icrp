@@ -79,10 +79,10 @@
 <!-- table.html.twig -->
 {# {% if not logged_in %} #}
 {% if not logged_in %}
-<div class="row">
+<div class="row" id="funding-opportunities-forum-container">
   <div class="col-md-9">
-    <h5 class="forum-topic-icon funding-forum-title">Latest announcements</h5>
-    <div class="funding-oppertunities-box">
+    <h5 class="forum-topic-icon funding-forum-title" data-match-height="opportunities-title-group">Latest announcements</h5>
+    <div class="funding-oppertunities-box" data-match-height="opportunities-group">
 {# {% endif %} #}
 {% endif %}
 
@@ -192,8 +192,8 @@
       </div>
     </div>
   <div class="col-md-3">
-    <h5 class="forum-topic-icon funding-forum-title">Funding announcements pages & feeds</h5>
-      <div class="funding-oppertunities-box">
+    <h5 class="forum-topic-icon funding-forum-title" data-match-height="opportunities-title-group">Funding announcements pages & feeds</h5>
+      <div class="funding-oppertunities-box" data-match-height="opportunities-group">
       {# {{ drupal_entity('block', 'fundingoppertunitiesmenu') }} #}
       <ul>
         <li>
