@@ -180,12 +180,11 @@ span.submitted {
 #forum-topic-7 thead tr th, #forum-topic-7 thead tr td { background: #FFE599; font-weight: 700; border:none; padding: 11px; }
 */
 .funding-oppertunities-box {
-	border: 3px solid blue;
+	border: 1px solid LightGray;
 	display: block;
 	width: 100%;
 }
 .funding-forum-title {
-	font-size: 17px;
+	font-size: 20px;
+	color:DimGray;
 }
-
-
