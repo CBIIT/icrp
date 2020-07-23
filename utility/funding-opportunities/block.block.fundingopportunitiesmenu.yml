@@ -1,0 +1,31 @@
+uuid: e74aaae1-a2f4-4b76-bda4-95b00f470d3d
+langcode: en
+status: true
+dependencies:
+  content:
+    - 'block_content:basic:0c68b73d-9eb4-48ef-ab3b-f05b0d1916a5'
+  module:
+    - block_content
+    - system
+  theme:
+    - bootstrap_subtheme
+id: fundingoppertunitiesmenu
+theme: bootstrap_subtheme
+region: footer
+weight: -18
+provider: null
+plugin: 'block_content:0c68b73d-9eb4-48ef-ab3b-f05b0d1916a5'
+settings:
+  id: 'block_content:0c68b73d-9eb4-48ef-ab3b-f05b0d1916a5'
+  label: 'Funding Oppertunities Menu'
+  provider: block_content
+  label_display: '0'
+  status: true
+  info: ''
+  view_mode: full
+visibility:
+  request_path:
+    id: request_path
+    pages: /forum/27
+    negate: false
+    context_mapping: {  }
