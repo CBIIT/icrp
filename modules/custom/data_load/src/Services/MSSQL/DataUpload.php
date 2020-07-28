@@ -397,8 +397,9 @@ class DataUpload {
                 $parameters
             );
 
+            $results = $stmt->fetchAll();
             self::calculateFundingAmounts($connection);
-            return $stmt->fetchAll();
+            return $results;
         }
 
         catch (PDOException $e) {
