@@ -68,6 +68,11 @@
 {{ icrp_debug ? 'Debug ON' : 'Debug OFF' }}<br>
 
 */#}
+<script type="text/javascript">
+    function googleTranslateElementInit() {
+    new google.translate.TranslateElement({pageLanguage: 'en', layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL}, 'google_translate_element');
+    }
+</script>
 
 {% set page_title %}
     {{ page['#title'] }}
@@ -111,7 +116,8 @@
                 {% if not navbar_attributes.hasClass('container') %}
             </div>
             {% endif %}
-        </header>
+           <div id="google_translate_element"></div>
+       </header>
     {% endblock %}
 {% endif %}
 

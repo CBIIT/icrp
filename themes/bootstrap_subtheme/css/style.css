@@ -892,3 +892,12 @@ ul.icrp-terms-list li:before {
     background-color: steelblue;
     color: white;
 }
+
+#google_translate_element {
+    display: inline-block; 
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    text-align: right;
+    margin: 5px 26px;
+}
