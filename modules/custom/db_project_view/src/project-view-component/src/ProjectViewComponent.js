@@ -177,7 +177,7 @@ class ProjectViewComponent extends Component {
   }
 
   componentDidUpdate() {
-    this.appendGoogleTranslateScript();
+    // this.appendGoogleTranslateScript();
   }
 
   appendGoogleTranslateScript() {
@@ -213,7 +213,7 @@ class ProjectViewComponent extends Component {
 
         <div className="relative">
           <h1 className="h1">{ this.props.title }</h1>
-          <div className="pull-right" id="google_translate_element" />
+          {/* <div className="pull-right" id="google_translate_element" /> */}
         </div>
 
         <div className="margin-top">

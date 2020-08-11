@@ -26,7 +26,6 @@ funding_view_resources:
   js:
     src/assets/js/main.fundingview.js: {}
     src/assets/js/scripts.js: {}
-    https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit: { type: external }
 
 funding_org_resources:
   version: 1.3.1
