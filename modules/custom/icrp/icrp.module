@@ -2446,7 +2446,7 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
     //dpm($url->getOptions());
     //dpm($url->getRouteParameters());
  
-    // drupal_set_message("Form ID: " . $form_id);
+    //drupal_set_message("Form ID: " . $form_id);
     //dpm($form);
     //dump($form['#attributes']['data-drupal-selector']);
     //dpm($form_state);
@@ -2476,6 +2476,21 @@ function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
       );
     }    
     switch ($current_form_id) {
+        case 'node_page_edit_form':
+          //drupal_set_message("Here is the form:");
+          //kint($form);
+          $uid = \Drupal::currentUser()->id();
+          $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+          if(!($user->hasRole('administrator'))) {
+            unset($form['actions']['delete']);
+            unset($form['revision_information']);
+            unset($form['revision_log']);
+            unset($form['revision']);
+            unset($form['actions']['preview']); //Remove Preview
+            unset($form['path']);
+            unset($form['#title']);
+          }
+          break;
         case 'block_content_basic_edit_form':
 
           $uid = \Drupal::currentUser()->id();

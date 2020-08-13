@@ -12,6 +12,7 @@
           setTimeout(function(){ $.redirectCarousel(e); }, 3000);
 
       });
+
       /*
       $(".nav-tabs > li > a").click(function(e) {
           console.info("You clicked on Tab. Whoa!");
@@ -20,6 +21,7 @@
           //$.redirectCarousel(e);
       });
       */
+
       $("#logout").click(function(e) {
           console.info("You clicked on logout.  Clear Session");
           sessionStorage.clear();
@@ -103,9 +105,14 @@
           break;
         case "/survey":
           $('.alert.alert-success.alert-dismissible').css('display', 'none');
+          break;
         case "/survey-results":
           google.charts.load('current', {packages: ['corechart', 'bar']});
           google.charts.setOnLoadCallback($.surveyCharts);
+          break;
+        case "/cso":
+          $.preprocessCSO();
+          break;
       }
     }
   }
@@ -331,6 +338,24 @@
       /* Remove required * from this field */
       $('#edit-field-event-date-range-0 > div.panel-heading > div.panel-title').removeClass('form-required');
   }
+  $.preprocessCSO = function(e) {
+    //console.log("CSO Page");
+    if(!$('#edit-cso-content').length) {
+      var href = "/user-roles";
+      $.ajax({
+          url:  href,
+          success: function( data ) {
+              console.log("data returned")
+              console.dir(data);
+              var roles = JSON.parse(data);
+              console.dir(roles);
+              if(!$('#edit-cso-content').length && (($.inArray("administrator", roles)>=0) || ($.inArray("manager", roles)>=0))) {
+                  $('#downloadPanel').before('<div id="edit-cso-content" style="float:right;"><a href="/node/12/edit?destination=/cso"><i class="fa fa-pencil-square-o" aria-hidden="true" style="color:#008cba;"></i>&nbsp;Edit CSO Content</a></div>');
+              }
+          }
+       });
+    }
+  }
 
   $.preprocessCalendar = function(e){
     $('.fc-listYear-button').text('Year');
@@ -386,10 +411,12 @@
     }
   }
 
+  /* Removed API call to update links for example.
+
   $.gotoCSOUrl = function(data, id) {
-    //console.info("gotoCSOUrl");
-    //console.info("id: "+id);
-    //console.dir(data);
+    console.info("gotoCSOUrl");
+    console.info("id: "+id);
+    console.dir(data);
     var url = data[id];
     //alert(url);
     if (typeof url === 'undefined' || url === null) {
@@ -418,11 +445,12 @@
   $.redirectCSOExample = function(e){
     e.preventDefault();
     var id = e.target.id;
-    //console.log("You click on the CSO Example");
-    //console.log(e.target.id);
-    //alert(id);
+    console.log("You click on the CSO Example");
+    console.log(e.target.id);
+    alert(id);
     $.getCSOLink(id);
   }
+  */
 
   $.imageRoute = function(title) {
     /*
