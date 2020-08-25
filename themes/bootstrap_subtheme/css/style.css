@@ -901,3 +901,6 @@ ul.icrp-terms-list li:before {
     text-align: right;
     margin: 5px 26px;
 }
+.goog-tooltip.skiptranslate {
+    display:none !important;
+}
