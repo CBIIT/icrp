@@ -213,7 +213,7 @@
             </tbody>
           </table>
   <!-- END Status Table -->
-          {% if tcomment_forum.status == "2" and tcomment_forum.comment_count == 0 %}
+          {% if tcomment_forum.status == "2" and tcomment_forum.comment_count == 0  and logged_in %}
             <hr>
             <div style="padding-left:20px;" title="Click on the Post Reply button to comment on this post."><em>There are no replies to this post.  Click the <strong>Post Reply</strong> button to comment on this thread.</em></div>
           {% endif %}
