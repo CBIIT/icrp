@@ -133,9 +133,11 @@
 
         <!--  Breadcrumb -->
         <ol class="breadcrumb">
-          <li>
-            <a href="/forum/6">ICRP Partnership Forum</a>
-          </li>
+          {% if logged_in %}
+            <li>
+              <a href="/forum/6">ICRP Partnership Forum</a>
+            </li>
+          {% endif %}
           {% if tforum_name is defined %}
           <li>
             <a href="/forum/{{ tforum_tid }}">{{ tforum_name }}</a>

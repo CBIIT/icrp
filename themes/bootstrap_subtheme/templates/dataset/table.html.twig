@@ -131,7 +131,11 @@
           {% else %} {# If not logged don't print column 2 replies #}
             {% if loop.index !=2 %} {# Remove Replies column for anonymous - (i.e. Funding Opportunities Forum #}
                 <{{ cell.tag }}{{ cell.attributes.addClass(cell_classes) }} {{ cell_style }}>
-                  {{- cell.content -}}
+                {% if loop.index == 1 %}
+                  Topic
+                {% elseif loop.index == 3 %}
+                  Funding Announcements
+                {% endif %}
                 </{{ cell.tag }}>
             {% endif %}
           {% endif %}
