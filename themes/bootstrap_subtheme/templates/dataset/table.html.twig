@@ -166,16 +166,17 @@
               {{- cell.content -}}
               </td>
               <td style="word-wrap:break-word;">
-              {{ cell.icrp_markup |raw }}
+              {{ cell.icrp_markup|raw  }}
             {% elseif loop.index == 2 and logged_in %}  {# Only print column 2 if logged in. #}
               {{ cell.icrp_markup |raw }}
             {% elseif loop.index == 3 %}
               {{ cell.icrp_markup |raw }}
-
-              {% if cell.reply_posts > 0 %}
-                <div style="margin-top:10px;">
-                    {{- cell.content -}}
-                </div>
+              {% if logged_in %}
+                {% if cell.reply_posts > 0 %}
+                  <div style="margin-top:10px;">
+                      {{- cell.content -}}
+                  </div>
+                {% endif %}
               {% endif %}
             {% endif %}
             {% if logged_in %} {# if logged in always print end tag #}

@@ -1475,6 +1475,7 @@ function firstThreadBody($nid) {
 
 function processForumData($cell, $cell_index, $row_index, &$variables, $thread_node_id) {
   //dpm($cell);
+  $logged_in = \Drupal::currentUser()->isAuthenticated();
   switch($cell_index) {
     case 0:
       //Column 0: Process Thread icon, Thread Name(link), and Summary
@@ -1482,8 +1483,19 @@ function processForumData($cell, $cell_index, $row_index, &$variables, $thread_n
       list($thread_title, $thread_summary) = getThreadNodeInfo($thread_node_id);
       /* Create output for this cell */
       $html = '<span>';
-      $html .= '  <div class="forum-thread-title"><a href="/node/'.$thread_node_id.'" hreflang="en">'.$thread_title.'</a></div>';
-      $html .= '<div class=".forum-thread-title">'.$thread_summary.'</div>';
+      $html .= '  <div class="forum-thread-title">';
+      // Remove link if not logged_in
+      if($logged_in) {
+        $html .= '<a href="/node/'.$thread_node_id.'" hreflang="en">'.$thread_title.'</a>';
+      } else {
+        $html .= '<bold>'.$thread_title.'</bold>';
+      }
+
+      $html .= '</div>';
+      //Add Summary for Logged in users only
+      if($logged_in) {
+        $html .= '<div class=".forum-thread-title">'.$thread_summary.'</div>';
+      }
       $html .= '</span>';
       $variables['rows'][$row_index]['cells'][$cell_index]['icrp_markup'] = $html;
 
@@ -1515,6 +1527,12 @@ function processForumData($cell, $cell_index, $row_index, &$variables, $thread_n
       } else {
         $html = '<div>';
         $html .= lastComment($thread_node_id);
+        $html .= '</div>';
+      }
+      //Over write if not logged_in.  This is for anonymous user view.
+      if(!$logged_in) {
+        $html = '<div>';
+        $html .= firstThreadBody($thread_node_id);
         $html .= '</div>';
       }
       $variables['rows'][$row_index]['cells'][$cell_index]['icrp_markup'] = $html;
