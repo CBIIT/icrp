@@ -407,7 +407,7 @@ class DataUpload {
     }
 
 
-    private static function calculateFundingAmounts(PDO $connection) {
+    public static function calculateFundingAmounts(PDO $connection) {
         try {
             $statement = $connection->prepare('
             INSERT INTO ProjectFundingExt(
