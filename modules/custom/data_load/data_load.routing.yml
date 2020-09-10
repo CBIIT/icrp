@@ -91,6 +91,14 @@ integrityCheckDetails:
     _access: 'TRUE'
     _role: 'admin+manager'
 
+calculateFundingAmounts:
+  path: '/DataUploadTool/calculateFundingAmounts'
+  defaults:
+    _controller:  '\Drupal\data_load\Controller\DataUploadController::calculateFundingAmounts'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
 ping:
   path: '/DataUploadTool/ping'
   defaults:

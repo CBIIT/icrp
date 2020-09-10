@@ -29,6 +29,7 @@ class DataUploadController extends ControllerBase {
     $status = 200;
     if (is_array($data) && array_key_exists('ERROR', $data)) {
       $data = $data['ERROR'];
+      error_log($data);
       $status = 400;
     }
 
@@ -175,6 +176,17 @@ class DataUploadController extends ControllerBase {
     return self::createResponse($data);
   }
 
+  /**
+   * Calculates funding amounts for newly uploaded funding projects
+   *
+   * @param Request $request
+   * @return JsonResponse
+   */
+  public static function calculateFundingAmounts(Request $request): JsonResponse {
+    $connection = PDOBuilder::getConnection('icrp_load_database');
+    $data = DataUpload::calculateFundingAmounts($connection, $parameters);
+    return self::createResponse($data);
+  }
 
   public static function ping() {
     return self::createResponse('ping you back!');
