@@ -71,4 +71,10 @@ export class DataUploadService {
     });
   }
 
+  calculateFundingAmounts() {
+    const endpoint = `${this.BASE_HREF}/DataUploadTool/calculateFundingAmounts`;
+    return this.http.get<any | any[]>(endpoint, {
+      withCredentials: window.location.hostname === window.location.host,
+    });
+  }  
 }

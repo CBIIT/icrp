@@ -53,7 +53,7 @@ export class ImportPageComponent {
    });
  }
 
- submit() {
+ async submit() {
 
   this.submitted = true;
   this.alerts = [];
@@ -68,38 +68,39 @@ export class ImportPageComponent {
     loading: true
   });
 
-  this.dataUpload.importProjects({
-    type: this.sharedData.get('uploadType'),
-    fundingYears: [
-      fundingYearStart.value,
-      fundingYearEnd.value,
-    ].join('-'),
-    importNotes: importNotes.value,
-    partnerCode: this.sharedData.get('sponsorCode'),
-    receivedDate: this.sharedData.get('submissionDate'),
-  }).subscribe(
-    response => {
-      this.alerts.push({
-        type: 'success',
-        message: 'The following records have been successfully imported to staging. Please use the <a href="/data-upload-review">Data Review Tool</a> to review the imported data.',
-      });
+  try {
+    await this.dataUpload.importProjects({
+      type: this.sharedData.get('uploadType'),
+      fundingYears: [
+        fundingYearStart.value,
+        fundingYearEnd.value,
+      ].join('-'),
+      importNotes: importNotes.value,
+      partnerCode: this.sharedData.get('sponsorCode'),
+      receivedDate: this.sharedData.get('submissionDate'),
+    }).toPromise();
 
-      this.sharedData.merge({
-        loading: false,
-      })
-    },
+    await this.dataUpload.calculateFundingAmounts().toPromise();
 
+    this.alerts.push({
+      type: 'success',
+      message: 'The following records have been successfully imported to staging. Please use the <a href="/data-upload-review">Data Review Tool</a> to review the imported data.',
+    });
+
+    this.sharedData.merge({
+      loading: false,
+    })
+  } catch (e) {
     // handle errors
-    ({error}) => {
-      this.alerts.push({
-        type: 'danger',
-        message: error,
-      });
+    this.alerts.push({
+      type: 'danger',
+      message: String(e),
+    });
 
-      this.sharedData.merge({
-        loading: false
-      });
-    }
-  )
+    this.sharedData.merge({
+      loading: false
+    });
+
+  }
  }
 }
