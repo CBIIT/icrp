@@ -409,12 +409,7 @@ class DataUpload {
 
     public static function calculateFundingAmounts(PDO $connection) {
         try {
-            $statement = $connection->prepare('
-            INSERT INTO ProjectFundingExt(
-                    ProjectFundingID,
-                    CalendarYear,
-                    CalendarAmount)
-            VALUES(:id, :year, :amount)');
+            $project_funding_data = [];
 
             foreach($connection->query('
                     SELECT ProjectId,
@@ -460,11 +455,28 @@ class DataUpload {
                 $years[$current_year] = array('year' => $current_year, 'amount' => $day_counter * $amount_per_day, 'days' => $day_counter);
 
                 foreach($years as $year_arr) {
-                    $statement->execute(array('id' => $projectFundingID, 'year' => $year_arr['year'], 'amount' => $year_arr['amount']));
+                    $project_funding_data[] = [
+                        'id' => $projectFundingID, 
+                        'year' => $year_arr['year'], 
+                        'amount' => $year_arr['amount']
+                    ];
                 }
 
                 $years = [];
             }
+
+            // insert into ProjectFundingExt AFTER iterating through entire dataset (cursor lock released)
+            $statement = $connection->prepare('
+            INSERT INTO ProjectFundingExt(
+                    ProjectFundingID,
+                    CalendarYear,
+                    CalendarAmount)
+            VALUES(:id, :year, :amount)');
+
+            foreach($project_funding_data as $data) {
+                $statement->execute($data);
+            }
+
             return ['SUCCESS' => true];
         }
         catch (PDOException $e) {
