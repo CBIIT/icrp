@@ -184,7 +184,7 @@ class DataUploadController extends ControllerBase {
    */
   public static function calculateFundingAmounts(Request $request): JsonResponse {
     $connection = PDOBuilder::getConnection('icrp_load_database');
-    $data = DataUpload::calculateFundingAmounts($connection, $parameters);
+    $data = DataUpload::calculateFundingAmounts($connection);
     return self::createResponse($data);
   }
 
