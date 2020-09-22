@@ -94,7 +94,7 @@
           break;
         case "/become-a-partner":
           //console.log("You are on the /become-a-partner page.");
-          $("#become-a-partner-wells").matchHeight(true);
+          //$("#become-a-partner-wells").matchHeight(true);
           break;
         case "/calendar":
           $.preprocessCalendar();

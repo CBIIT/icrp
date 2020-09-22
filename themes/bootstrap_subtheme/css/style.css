@@ -904,3 +904,69 @@ ul.icrp-terms-list li:before {
 .goog-tooltip.skiptranslate {
     display:none !important;
 }
+
+.flex-container-bap {
+    display: flex;
+    flex-direction: row;
+ 
+  }
+.flex-container-bap > div {
+  display: flex; 
+  width: 100%;
+}
+
+.flex-container-bap > div:first-child {
+    margin-right: 15px;
+}
+
+.flex-container-bap > div:nth-child(2) {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+.flex-container-bap > div:nth-child(3) {
+    margin-left: 15px;
+}
+  
+
+/* On screens that are 992px wide or less, the background color is blue */
+
+@media screen and (max-width: 992px) {
+  .flex-container-bap {
+    flex-flow: row;
+  }
+  
+  .flex-container-bap > div:first-child {
+    margin-right: 15px;
+  }
+
+  .flex-container-bap > div:nth-child(2) {
+    margin-left: 15px;
+    margin-right: 15px;
+  }
+  .flex-container-bap > div:nth-child(3) {
+    margin-left: 15px;
+  }
+  
+}
+
+
+/* On screens that are 600px wide or less, the background color is olive */
+@media screen and (max-width: 799px) {
+  .flex-container-bap {
+    flex-flow: row wrap;
+  }
+  
+  .flex-container-bap > div:first-child {
+    margin-right: 0px;
+  }
+
+  .flex-container-bap > div:nth-child(2) {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+  .flex-container-bap > div:nth-child(3) {
+    margin-left: 0px;
+  }
+
+}
+
