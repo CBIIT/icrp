@@ -33,7 +33,7 @@ export class ImportService {
         header: header,
         skipEmptyLines: true,
         step: results => {
-          let data = results.data[0];
+          let data: (object|Array<any>) = results.data;
 
           // parse as array
           if (Array.isArray(data)) {
