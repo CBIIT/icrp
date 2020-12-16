@@ -11,6 +11,7 @@ global-styling:
       css/style.css: {}
       css/bootstrap-overrides.css: {}
       css/bootstrap-3-cards.css: {}
+      css/bootstrap-utils.css: {}
       css/forum.css: {}
       css/datacaveats.css: {}
 
