@@ -35,7 +35,7 @@ class OrganizationNames {
       "EXECUTE UpdateFundingOrgName
         @FundingOrgID = :fundingOrgId,
         @Name = :name,
-        @Abbreviation = :abbreviation",
+        @Abbreviation = :abbreviation"
     );
     $stmt->bindValue(':fundingOrgId', $parameters['fundingOrgId']);
     $stmt->bindValue(':name', $parameters['name']);
@@ -48,7 +48,7 @@ class OrganizationNames {
       "EXECUTE UpdatePartnerOrgName
         @PartnerID = :partnerId,
         @Name = :name,
-        @SponsorCode = :sponsorCode",
+        @SponsorCode = :sponsorCode"
     );
     $stmt->bindValue(':partnerId', $parameters['partnerId']);
     $stmt->bindValue(':name', $parameters['name']);
