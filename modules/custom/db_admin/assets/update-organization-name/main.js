@@ -3,7 +3,7 @@
     var $form = $('#update-name-form');
     var formValues = getInitialFormValues();
     updateFormDisplay($form, formValues);
-    console.log(fields);
+    // console.log(fields);
 
     // on inputs, process changes to other form values
     $form.find('input, select').on('input', function (e) {
@@ -25,6 +25,7 @@
             formValues.newFundingOrgAbbreviation = '';
         }
 
+        // clear rest of form if organization type has changed
         if (name === 'organizationType') {
             formValues.partnerId = '';
             formValues.currentName = '';
@@ -34,42 +35,31 @@
             formValues.fundingOrganizations = [];
         }
 
-        // populate fields for partner-only selection
         if (name === 'partnerId') {
-            // partner is guaranteed to exist
-            var partner = fields.partners.filter(function (p) {
-                return +p.partnerid === +value;
-            })[0];
+            var partner = _(fields.partners).where({partnerid: +value})[0];
+            var fundingOrganizations = _(fields.fundingOrganizations).where({partner: partner.name});
 
             formValues.partner = partner;
             formValues.currentName = partner.name;
             formValues.sponsorCode = partner.sponsorcode;
-
-            // attempt to populate funding org as well, if applicable
-            var fundingOrganizations = fields.fundingOrganizations.filter(function (f) {
-                return f.partner === partner.name;
-            });
-
             formValues.fundingOrganizations = fundingOrganizations;
 
             if (fundingOrganizations.length) {
-                let fundingOrganization = fundingOrganizations[0];
+                var fundingOrganization = fundingOrganizations[0];
                 formValues.fundingOrganization = fundingOrganization;
                 formValues.fundingOrgId = fundingOrganization.fundingorgid;
                 formValues.abbreviation = fundingOrganization.abbreviation;
             } else {
+                formValues.fundingOrganization = null;
                 formValues.fundingOrgId = '';
                 formValues.abbreviation = '';
             }
         }
 
+        // update fundingOrgId and abbreviation when funding organization is changed
         else if (name === 'fundingOrgId') {
-            var fundingOrganization = fields.fundingOrganizations.filter(function (p) {
-                return +p.fundingorgid === +value;
-            })[0];
-
+            var fundingOrganization = _(fields.fundingOrganizations).findWhere({fundingorgid: +value});
             formValues.fundingOrganization = fundingOrganization;
-            formValues.fundingOrgId = fundingOrganization.fundingorgid;
             formValues.abbreviation = fundingOrganization.abbreviation;
         }
 
@@ -89,7 +79,6 @@
         );
 
         updateFormDisplay($form, formValues);
-
     });
 
     // on submission, call backend and reload form with updated organizations
@@ -128,17 +117,21 @@
 
                 showAlert({
                     type: 'success',
-                    message: '<strong>' + oldName + ' (' + oldAbbreviation + ')</strong> has been renamed to <strong>' +
-                        params.name + ' (' +
-                        (params.sponsorCode || params.abbreviation) +
-                        ')</strong>. ',
+                    message: _.template(
+                        '<strong><%= oldName %> (<%= oldAbbreviation %>)</strong>' +
+                        ' has been renamed to ' +
+                        '<strong><%= newName %> (<%= newAbbreviation %>)</strong>'
+                    )({
+                        oldName: oldName,
+                        oldAbbreviation: oldAbbreviation,
+                        newName: params.name,
+                        newAbbreviation: (params.sponsorCode || params.abbreviation)
+                    }),
                 });
-
-                formValues = getInitialFormValues();
-                updateFormDisplay($form, formValues);
 
                 // patch fields with updated values
                 $.getJSON('/api/admin/organization-name/fields').done(function(newFields) {
+                    formValues = getInitialFormValues();
                     fields = newFields;
                     updateFormDisplay($form, formValues, newFields);
                 })
@@ -195,25 +188,28 @@
             $('#fundingOrgId option[data-type="fundingOrganization"]').remove();
 
             newFields.partners.forEach(function(p) {
-                $('#partnerId').append($('<option />').attr('data-type', 'partner').val(p.partnerid).text(p.name))
+                $('#partnerId').append(
+                    $('<option />')
+                        .attr('data-type', 'partner')
+                        .val(p.partnerid)
+                        .text(p.name)
+                );
             });
             newFields.fundingOrganizations.forEach(function(f) {
-                $('#fundingOrgId').append($('<option />').attr('data-type', 'fundingOrganization').val(f.fundingorgid).text(f.name))
+                $('#fundingOrgId').append(
+                    $('<option />')
+                        .attr('data-type', 'fundingOrganization')
+                        .val(f.fundingorgid)
+                        .text(f.name)
+                );
             });
         }
 
         // show/hide funding organization options based on the current selection
         $('#fundingOrgId option').each(function () {
             var $this = $(this);
-            var showInput = formValues.fundingOrganizations.filter(function (f) {
-                return +f.fundingorgid === +$this.val();
-            }).length > 0;
-
-            if (showInput) {
-                $this.removeAttr('hidden');
-            } else {
-                $this.attr('hidden', true);
-            }
+            var showInput = !!_(formValues.fundingOrganizations).findWhere({fundingorgid: $this.val()});
+            $this.attr('hidden', showInput ? null : true);
         });
 
         // update placeholder if no funding organizations are available
@@ -221,16 +217,7 @@
             formValues.partnerId && formValues.fundingOrganizations.length === 0
                 ? 'No Available Funding Organizations'
                 : 'Select a Funding Organization'
-        )
-
-        // replicate formValue to inputs
-        $form.find('input, select').each(function () {
-            if (this.type === 'radio') {
-                this.checked = this.value === formValues[this.name];
-            } else {
-                this.value = formValues[this.name];
-            }
-        });
+        );
 
         // show and hide inputs based on organizationType
         var $partnerOnlyFields = $form.find('[data-type="partner-only"]');
@@ -244,12 +231,19 @@
             $fundingOrgOnlyFields.show();
         }
 
+        // replicate formValue to inputs
+        $form.find('input, select').each(function () {
+            if (this.type === 'radio') {
+                this.checked = this.value === formValues[this.name];
+            } else {
+                this.value = formValues[this.name];
+            }
+        });
+
         // enable/disable submit based on form validity
-        if (formValues.valid) {
-            $form.find('[type="submit"]').removeAttr('disabled');
-        } else {
-            $form.find('[type="submit"]').attr('disabled', true);
-        }
+        $form
+            .find('[type="submit"]')
+            .attr('disabled', formValues.valid ? null : true);
     }
 
 })(jQuery, drupalSettings);
