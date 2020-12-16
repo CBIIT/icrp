@@ -35,6 +35,17 @@ class PageController extends ControllerBase {
     ];
   }
 
+  public static function updateOrganizationName() {
+    return [
+      '#theme' => 'update_organization_name',
+      '#attached' => [
+        'library' => [
+          'db_admin/update_organization_name'
+        ],
+      ],
+    ];
+  }  
+
   public static function institutions() {
     return [
       '#theme' => 'institutions',

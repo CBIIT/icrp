@@ -54,6 +54,14 @@ api.admin.funding-organizations.update:
     _access: 'TRUE'
     _role: 'admin+manager'
 
+api.admin.funding-organizations.update-name:
+  path: /api/admin/funding-organizations/update-name
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::updateFundingOrganizationName'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
 api.admin.partners.fields:
   path: /api/admin/partners/fields
   defaults:
@@ -74,6 +82,14 @@ api.admin.partners.update:
   path: /api/admin/partners/update
   defaults:
     _controller: '\Drupal\db_admin\Controller\AdminController::updatePartner'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.partners.update-name:
+  path: /api/admin/partners/update-name
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::updatePartnerName'
   requirements:
     _access: 'TRUE'
     _role: 'admin+manager'
@@ -141,6 +157,14 @@ api.admin.funding-organizations.deprecated:
   requirements:
     _access: 'TRUE'
     _role: 'admin+manager'
+
+api.admin.update-organization-name.deprecated:
+  path: /UpdateOrgName
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\PageController::updateOrganizationName'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'  
 
 api.admin.institutions.deprecated:
   path: /AddInstitution

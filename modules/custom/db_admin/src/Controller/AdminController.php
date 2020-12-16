@@ -110,6 +110,34 @@ class AdminController extends ControllerBase {
     }
   }
 
+  public static function updateFundingOrganizationName(Request $request) {
+    try {
+      $connection = PDOBuilder::getConnection();
+      $parameters = array_map(self::emptyToNull(), $request->request->all());
+      $data = OrganizationNames::updateFundingOrganizationName($connection, $parameters);
+      return self::createResponse($data);
+    }
+
+    catch (Exception $e) {
+      $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
+      return self::createResponse($message, 500);
+    }
+  }
+
+  public static function updatePartnerName(Request $request) {
+    try {
+      $connection = PDOBuilder::getConnection();
+      $parameters = array_map(self::emptyToNull(), $request->request->all());
+      $data = OrganizationNames::updatePartnerName($connection, $parameters);
+      return self::createResponse($data);
+    }
+
+    catch (Exception $e) {
+      $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
+      return self::createResponse($message, 500);
+    }
+  }
+
   public static function getPartnerFields() {
     try {
       $connection = PDOBuilder::getConnection();
