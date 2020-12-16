@@ -110,6 +110,19 @@ class AdminController extends ControllerBase {
     }
   }
 
+  public static function getOrganizationNameFields() {
+    try {
+      $connection = PDOBuilder::getConnection();
+      $data = OrganizationNames::getFields($connection);
+      return self::createResponse($data);
+    }
+
+    catch (Exception $e) {
+      $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
+      return self::createResponse($message, 500);
+    }
+  }  
+
   public static function updateFundingOrganizationName(Request $request) {
     try {
       $connection = PDOBuilder::getConnection();
@@ -119,6 +132,7 @@ class AdminController extends ControllerBase {
     }
 
     catch (Exception $e) {
+      error_log($e->getMessage());
       $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
       return self::createResponse($message, 500);
     }
@@ -133,6 +147,7 @@ class AdminController extends ControllerBase {
     }
 
     catch (Exception $e) {
+      error_log($e->getMessage());
       $message = preg_replace('/^SQLSTATE\[.*\]:?/', '', $e->getMessage());
       return self::createResponse($message, 500);
     }

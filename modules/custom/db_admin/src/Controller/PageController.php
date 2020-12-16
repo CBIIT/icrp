@@ -36,9 +36,18 @@ class PageController extends ControllerBase {
   }
 
   public static function updateOrganizationName() {
+    $fields = OrganizationNames::getFields(PDOBuilder::getConnection());
     return [
       '#theme' => 'update_organization_name',
+      '#fields' => $fields,
       '#attached' => [
+        'drupalSettings' => [
+          'db_admin' => [
+            'update_organization_name' => [
+              'fields' => $fields
+            ],
+          ],
+        ],
         'library' => [
           'db_admin/update_organization_name'
         ],
