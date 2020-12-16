@@ -240,8 +240,11 @@ class ProjectViewComponent extends Component {
           </dd>
 
           <dt>Childhood Cancer</dt>
-          <dd>{ parseInt(project_details.is_childhood) === 0 ? "No" : parseInt(project_details.is_childhood) === 1 ? "Yes" : "N/A" }</dd>
-
+          <dd>{{
+            0: "No",
+            1: "Yes",
+            2: "Partially"
+          }[parseInt(project_details.is_childhood)] || "N/A"}</dd>
         </dl>
 
         <hr />
