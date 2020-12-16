@@ -1,3 +1,4 @@
-.custom-class-1 {
-    font-weight: 800;
+.required:after {
+    content: ' *';
+    color: red;
 }

@@ -12,7 +12,9 @@ function db_admin_theme($existing, $type, $theme, $path) {
     ],
 
     'update_organization_name' => [
-      'variables' => [],
+      'variables' => [
+        'fields' => []
+      ],
     ],
 
     'institutions' => [

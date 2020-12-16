@@ -38,6 +38,14 @@ api.admin.funding-organizations.fields:
     _access: 'TRUE'
     _role: 'admin+manager'
 
+api.admin.organizations-name.fields:
+  path: /api/admin/organization-name/fields
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::getOrganizationNameFields'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
 api.admin.funding-organizations.add:
   path: /api/admin/funding-organizations/add
   defaults:
