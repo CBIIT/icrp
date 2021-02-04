@@ -94,7 +94,7 @@ export class ImportPageComponent {
     // handle errors
     this.alerts.push({
       type: 'danger',
-      message: String(e),
+      message: String(e.error),
     });
 
     this.sharedData.merge({
