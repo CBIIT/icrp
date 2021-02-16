@@ -120,7 +120,7 @@
                                 <select name="fundingOrgId" id="fundingOrgId" class="form-control">
                                     <option value="" id="fundingOrgIdPlaceholder" hidden>Select a Funding Organization</option>
                                     {% for organization in fields.fundingOrganizations %}
-                                        <option value="{{organization.fundingorgid}}" data-type="fundingOrganization">
+                                        <option value="{{organization.fundingorgid}}" data-type="funding-org">
                                             {{organization.name}}
                                         </option>
                                     {% endfor %}

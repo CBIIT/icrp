@@ -181,13 +181,13 @@
     }
 
     // renders formValues to $form
-    function updateFormDisplay($form, formValues, newFields) {
+    function updateFormDisplay($form, formValues, options) {
 
-        if (newFields) {
+        if (options) {
             $('#partnerId option[data-type="partner"]').remove();
-            $('#fundingOrgId option[data-type="fundingOrganization"]').remove();
+            $('#fundingOrgId option[data-type="funding-org"]').remove();
 
-            newFields.partners.forEach(function(p) {
+            options.partners.forEach(function(p) {
                 $('#partnerId').append(
                     $('<option />')
                         .attr('data-type', 'partner')
@@ -195,10 +195,10 @@
                         .text(p.name)
                 );
             });
-            newFields.fundingOrganizations.forEach(function(f) {
+            options.fundingOrganizations.forEach(function(f) {
                 $('#fundingOrgId').append(
                     $('<option />')
-                        .attr('data-type', 'fundingOrganization')
+                        .attr('data-type', 'funding-org')
                         .val(f.fundingorgid)
                         .text(f.name)
                 );
@@ -208,8 +208,8 @@
         // show/hide funding organization options based on the current selection
         $('#fundingOrgId option').each(function () {
             var $this = $(this);
-            var showInput = !!_(formValues.fundingOrganizations).findWhere({fundingorgid: $this.val()});
-            $this.attr('hidden', showInput ? null : true);
+            var showOption = !!_(formValues.fundingOrganizations).findWhere({fundingorgid: +$this.val()});
+            $this.attr('hidden', showOption ? null : true);
         });
 
         // update placeholder if no funding organizations are available
