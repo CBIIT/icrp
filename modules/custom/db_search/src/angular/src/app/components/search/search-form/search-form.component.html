@@ -369,13 +369,12 @@
       >
     </ui-select>
 
-    <label class="form-label" for="is_childhood_cancer" tooltip="Select Yes to find projects that are wholly or partially relevant to childhood and adolescent cancers.">Childhood Cancer</label>
+    <label class="form-label" for="is_childhood_cancer" tooltip="Select ‘Yes' to find projects that are wholly relevant, ‘Partially Childhood’ to find projects with some relevance and ‘No’ to find projects unrelated to childhood or adolescent cancers.">Childhood Cancer</label>
     <ui-select
-      tooltip="Select Yes to find projects that are wholly or partially relevant to childhood and adolescent cancers."
+      tooltip="Select ‘Yes' to find projects that are wholly relevant, ‘Partially Childhood’ to find projects with some relevance and ‘No’ to find projects unrelated to childhood or adolescent cancers."
       placeholder="Select Childhood Cancer"
       [items]="fields.is_childhood_cancer"
       [formControl]="form.controls.is_childhood_cancer"
-      [limit]="1"
       (select)="updateDisplayParameters('is_childhood_cancer', $event)"
       >
     </ui-select>

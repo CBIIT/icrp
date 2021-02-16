@@ -4,8 +4,8 @@
       <div>{{item}}</div>
       <div (click)="removeSelectedItem(index)">&#x2715;</div>
     </div>
-    <div>
-      <input class="select-input default" type="text"
+    <div class="w-100">
+      <input class="select-input default w-100" type="text"
         (keydown)="handleKeyDownEvent($event)"
         (keyup)="handleKeyUpEvent($event)"
         (blur)="addValueToSelection()"
