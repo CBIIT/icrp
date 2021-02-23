@@ -114,7 +114,7 @@
         "fullcalendar/fullcalendar": "^3.5",
         "maennchen/zipstream-php": "^0.4.1",
         "mbostock/d3": "^3.5",
-        "phpmailer/phpmailer": "~5.2",
+        "phpmailer/phpmailer": "~6.1",
         "phpoffice/phpspreadsheet": "^1.2.0",
         "psr/log": "dev-master",
         "select2/select2": "^4.0",
