@@ -198,6 +198,10 @@
             "drupal/fullcalendar": {
                 "Patch to fix undefined index: module":
                 "https://www.drupal.org/files/issues/fullcalendar-notice_undefined_index_module_in_fullcalendar_legend_preprocess_block-2854562-2.patch"
+            },
+            "drupal/bootstrap": {
+                "Patch to fix unsupported operand types":
+                "https://www.drupal.org/files/issues/2019-02-04/3027569-23.patch"
             }
         }
     }
