@@ -34,7 +34,7 @@ CREATE PROCEDURE [dbo].[GetProjectsByCriteria]
 	@cancerTypeList varchar(1000) = NULL, 
 	@projectTypeList varchar(1000) = NULL,
 	@CSOList varchar(1000) = NULL,	
-	@IsChildhood bit = NULL,	
+	@ChildhoodCancerList varchar(1000) = NULL,	  -- 0: no childhood, 1: childhood, 2: partially childhood
 	@searchCriteriaID INT OUTPUT,  -- return the searchID	
 	@ResultCount INT OUTPUT  -- return the searchID	
 	
@@ -60,7 +60,10 @@ AS
 		
 	END
 	
-	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@awardCode IS NOT NULL) OR (@IsChildhood IS NOT NULL)
+
+	SELECT * INTO #childhoodcancer FROM dbo.ToIntTable(@ChildhoodCancerList)
+
+	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@awardCode IS NOT NULL) OR (@ChildhoodCancerList IS NOT NULL)
 	BEGIN	
 		SET @IsFiltered = 1	
 
@@ -72,8 +75,7 @@ AS
 				   ((@piFirstName IS NULL) OR (piFirstName like '%'+ @piFirstName +'%')) AND
 				   ((@piORCiD IS NULL) OR (piORCiD like '%'+ @piORCiD +'%')) AND
 				   ((@awardCode IS NULL) OR (AwardCode like '%'+ @awardCode +'%')) AND				   
-				   ((@IsChildhood IS NULL) OR (IsChildhood = @IsChildhood))
-				   
+				   ((@ChildhoodCancerList IS NULL) OR (IsChildhood IN (SELECT value from #childhoodcancer)))			   
 			)
 	END
 	
@@ -280,9 +282,9 @@ AS
 		FROM #baseProj	
 
 		INSERT INTO SearchCriteria ([termSearchType],[terms],[institution],[piLastName],[piFirstName],[piORCiD],[awardCode],
-			[yearList], [cityList],[stateList],[countryList],[regionList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [IsChildhood], [InvestigatorType])
+			[yearList], [cityList],[stateList],[countryList],[regionList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList], [InvestigatorType])
 			VALUES ( @termSearchType,@terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode,@yearList,@cityList,@stateList,@countryList,@regionList,
-				@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList, @FundingOrgTypeList,	@IsChildhood, @InvestigatorType)
+				@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList, @FundingOrgTypeList,	@ChildhoodCancerList, @InvestigatorType)
 									 
 		SELECT @searchCriteriaID = SCOPE_IDENTITY()		
 
@@ -1658,6 +1660,7 @@ AS
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL
 	
 	IF @SearchID = 0
 	BEGIN
@@ -1683,7 +1686,8 @@ AS
 				@stateList = stateList,
 				@regionList = regionList,
 				@FundingOrgTypeList = FundingOrgTypeList,
-				@fundingOrgList = fundingOrgList 
+				@fundingOrgList = fundingOrgList,
+				@childhoodcancerList = childhoodcancerList
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 		
 	END	
@@ -1691,13 +1695,14 @@ AS
 	-------------------------------------------------------------------		
 	--   Find all related projects (project funding records)
 	-------------------------------------------------------------------		
-	SELECT f.ProjectID, p.IsChildhood, f.ProjectFundingID, f.Amount, o.Currency INTO #pf 
+	SELECT f.ProjectID, f.IsChildhood, f.ProjectFundingID, f.Amount, o.Currency INTO #pf 
 	FROM #Result r
 		JOIN Project p ON r.ProjectID = p.ProjectID	
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID			
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 	WHERE 	((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
-			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))
+			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
+			((@childhoodcancerList IS NULL) OR (f.IsChildhood IN (SELECT VALUE AS type FROM dbo.ToStrTable(@childhoodcancerList))))
 	 
 	------------------------------------------------------------------------------
 	--   Exclude the project funding records outside of seach criteria
@@ -1772,7 +1777,9 @@ AS
 		
 		SELECT 
 			CASE IsChildhood 
-				WHEN 1 THEN 'Childhood Cancer: Yes' ELSE 'Childhood Cancer: No' 
+				WHEN 1 THEN 'Childhood Cancer: Yes' 
+				WHEN 2 THEN 'Childhood Cancer: Partially' 
+				ELSE 'Childhood Cancer: No'   -- value = 0
 			END AS IsChildhood, 
 			COUNT(*) AS [Count], 0  AS USDAmount INTO #CountStats 
 		FROM #pf 
@@ -1983,7 +1990,7 @@ CREATE PROCEDURE [dbo].[GetProjectDetail]
     @ProjectID INT    
 AS   
  -- Get the project's most recent funding - max ProjectID
-SELECT f.Title, mf.ProjectFundingID AS LastProjectFundingID, p.AwardCode, p.ProjectStartDate, p.ProjectEndDate, p.IsChildhood, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract, f.MechanismCode + ' - ' + f.MechanismTitle AS FundingMechanism 
+SELECT f.Title, mf.ProjectFundingID AS LastProjectFundingID, p.AwardCode, p.ProjectStartDate, p.ProjectEndDate, f.IsChildhood, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract, f.MechanismCode + ' - ' + f.MechanismTitle AS FundingMechanism 
 FROM Project p	
 	JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding GROUP BY ProjectID) mf ON p.ProjectID = mf.ProjectID
 	JOIN ProjectFunding f ON f.ProjectFundingID = mf.ProjectFundingID	
@@ -2204,8 +2211,12 @@ BEGIN
 		INSERT INTO @SearchCriteria SELECT '', SponsorCode + ' - ' + Name FROM FundingOrg WHERE FundingOrgID IN (SELECT * FROM dbo.ToIntTable(@filterList))
 	END
 
-	IF EXISTS (SELECT * FROM #criteria WHERE IsChildhood IS NOT NULL)
-		INSERT INTO @SearchCriteria SELECT 'Childhood Cancer:', CASE IsChildhood WHEN 1 THEN 'Yes' ELSE 'No' END FROM #criteria
+	SELECT @filterList= ChildhoodCancerList FROM #criteria
+	IF @filterList IS NOT NULL
+	BEGIN
+		INSERT INTO @SearchCriteria VALUES ('Chillhood Caner Type(s):', '')
+		INSERT INTO @SearchCriteria SELECT '', '' + ChildhoodCancerType FROM lu_ChildhoodCancer WHERE ChildhoodCancerID IN (SELECT * FROM dbo.ToIntTable(@filterList))
+	END
 
 	IF EXISTS (SELECT * FROM #criteria WHERE [InvestigatorType] IS NOT NULL)
 		INSERT INTO @SearchCriteria SELECT 'Investigator Search Type:', [InvestigatorType] FROM #criteria
@@ -2311,9 +2322,10 @@ AS
 	--  Get all related projects with dolloar amounts
 	-----------------------------------------------------------			 
 	SELECT DISTINCT p.ProjectID, f.ProjectFundingID, f.Title AS AwardTitle, CAST(NULL AS VARCHAR(100)) AS AwardType, p.AwardCode, f.Source_ID, f.AltAwardCode, f.Category AS FundingCategory,
-		CASE p.IsChildhood 
-		   WHEN 1 THEN 'Yes' 
-		   WHEN 0 THEN 'No' ELSE '' 
+		CASE f.IsChildhood 
+		   	WHEN 1 THEN 'Yes' 
+			WHEN 2 THEN 'Partially' 
+		   	WHEN 0 THEN 'No' ELSE '' 
 		END AS IsChildhood,  
 		p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, f.BudgetStartDate,  f.BudgetEndDate, CAST(f.Amount AS DECIMAL(18,2)) AS AwardAmount, 
 		CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END AS FundingIndicator, o.Currency,
@@ -2527,8 +2539,9 @@ AS
 	--  Get all related projects with dolloar amounts
 	-----------------------------------------------------------		
 	SELECT DISTINCT p.ProjectID, f.ProjectFundingID, f.Title AS AwardTitle, CAST(NULL AS VARCHAR(100)) AS AwardType, p.AwardCode, f.Source_ID, f.AltAwardCode, f.Category AS FundingCategory,
-		CASE p.IsChildhood 
+		CASE f.IsChildhood 
 		   WHEN 1 THEN 'Yes' 
+		   WHEN 2 THEN 'Partially' 
 		   WHEN 0 THEN 'No' ELSE '' 
 		END AS IsChildhood, 
 		p.ProjectStartDate AS AwardStartDate, p.ProjectEndDate AS AwardEndDate, f.BudgetStartDate,  f.BudgetEndDate, f.Amount AS AwardAmount, 
@@ -3764,12 +3777,12 @@ BEGIN TRY
 	DELETE ImportInstitutionStaging WHERE ImportInstitutionLogID = @ImportInstitutionLogID;
 
 	-- replace city with accent names
-	update #tmp_LoadInstitutions set city ='Montréal' where city='Montreal'
-	update #tmp_LoadInstitutions set city ='Québec' where city='Quebec'
-	update #tmp_LoadInstitutions set city ='Zürich' where city='Zurich'
-	update #tmp_LoadInstitutions set city ='Pierre-Bénite' where city='Pierre-Benite'
-	update #tmp_LoadInstitutions set city ='Umeå' where city='Umea'
-	update #tmp_LoadInstitutions set city ='Münster' where city='Munster'	
+	update #tmp_LoadInstitutions set city ='Montrï¿½al' where city='Montreal'
+	update #tmp_LoadInstitutions set city ='Quï¿½bec' where city='Quebec'
+	update #tmp_LoadInstitutions set city ='Zï¿½rich' where city='Zurich'
+	update #tmp_LoadInstitutions set city ='Pierre-Bï¿½nite' where city='Pierre-Benite'
+	update #tmp_LoadInstitutions set city ='Umeï¿½' where city='Umea'
+	update #tmp_LoadInstitutions set city ='Mï¿½nster' where city='Munster'	
 
 	UPDATE #tmp_LoadInstitutions set city = NULL where city='' OR city='NULL'
 	UPDATE #tmp_LoadInstitutions set State = NULL where State='' OR State='NULL'
@@ -3919,12 +3932,12 @@ BEGIN TRY
 	DELETE ImportCollaboratorStaging WHERE ImportCollaboratorLogID = @ImportCollaboratorLogID;
 
 	-- Replace city name with accent
-	update #tmp_LoadCollaborators set city ='Montréal' where city='Montreal'
-	update #tmp_LoadCollaborators set city ='Québec' where city='Quebec'
-	update #tmp_LoadCollaborators set city ='Zürich' where city='Zurich'
-	update #tmp_LoadCollaborators set city ='Pierre-Bénite' where city='Pierre-Benite'
-	update #tmp_LoadCollaborators set city ='Umeå' where city='Umea'
-	update #tmp_LoadCollaborators set city ='Münster' where city='Munster'	
+	update #tmp_LoadCollaborators set city ='Montrï¿½al' where city='Montreal'
+	update #tmp_LoadCollaborators set city ='Quï¿½bec' where city='Quebec'
+	update #tmp_LoadCollaborators set city ='Zï¿½rich' where city='Zurich'
+	update #tmp_LoadCollaborators set city ='Pierre-Bï¿½nite' where city='Pierre-Benite'
+	update #tmp_LoadCollaborators set city ='Umeï¿½' where city='Umea'
+	update #tmp_LoadCollaborators set city ='Mï¿½nster' where city='Munster'	
 
 	-- so we don't insert empty space into the table
 	update #tmp_LoadCollaborators set lastname = null where lastname=''	
@@ -5424,9 +5437,8 @@ GROUP BY u.AwardCode
 -----------------------------------
 -- Import base Projects
 -----------------------------------
-INSERT INTO Project (IsChildhood, AwardCode, ProjectStartDate, ProjectEndDate, DataUploadStatusID, CreatedDate, UpdatedDate)
-SELECT CASE ISNULL(Childhood, '') WHEN 'y' THEN 1 ELSE 0 END, 
-		AwardCode, AwardStartDate, AwardEndDate, @DataUploadStatusID_stage, getdate(), getdate()
+INSERT INTO Project (AwardCode, ProjectStartDate, ProjectEndDate, DataUploadStatusID, CreatedDate, UpdatedDate)
+SELECT AwardCode, AwardStartDate, AwardEndDate, @DataUploadStatusID_stage, getdate(), getdate()
 FROM #newParentProjects
 
 -----------------------------------
@@ -5461,11 +5473,15 @@ SET IDENTITY_INSERT ProjectAbstract OFF;  -- SET IDENTITY_INSERT to OFF.
 -- Import ProjectFunding 
 -----------------------------------
 INSERT INTO ProjectFunding ([Title],[ProjectID],[FundingOrgID],	[FundingDivisionID], [ProjectAbstractID], [DataUploadStatusID],	[Category], [AltAwardCode], [Source_ID], [MechanismCode], 
-	[MechanismTitle], [FundingContact], [IsAnnualized], [Amount], [BudgetStartDate], [BudgetEndDate], [CreatedDate], [UpdatedDate])
+	[MechanismTitle], [FundingContact], [IsAnnualized], [Amount], IsChildhood, [BudgetStartDate], [BudgetEndDate], [CreatedDate], [UpdatedDate])
 SELECT u.AwardTitle, p.ProjectID, o.FundingOrgID, d.FundingDivisionID, a.ID, @DataUploadStatusID_stage,
 	u.Category, u.AltId, u.SourceId, u.FundingMechanismCode, u.FundingMechanism, u.FundingContact, 
 	CASE ISNULL(u.IsAnnualized, '') WHEN 'A' THEN 1 ELSE 0 END AS IsAnnualized, 
 	u.AwardFunding, 
+	CASE ISNULL(Childhood, '') 
+		WHEN 'y' THEN 1 
+		WHEN 'p' THEN 2   -- partially
+		ELSE 0 END, 
 	u.BudgetStartDate, u.BudgetEndDate, getdate(), getdate()
 FROM UploadWorkBook u
 JOIN UploadAbstractTemp a ON u.AwardCode = a.AwardCode AND u.AltId = a.Altid
@@ -5911,11 +5927,11 @@ UPDATE UploadWorkbook SET techabstract = SUBSTRING(techabstract, 2, LEN(techabst
 where LEFT(techabstract, 1) = '"' AND RIGHT(techabstract, 1) = '"'
 
 -- replace city with accent names
-update UploadWorkbook set city ='Montréal' where city='Montreal'
-update UploadWorkbook set city ='Québec' where city='Quebec'
-update UploadWorkbook set city ='Zürich' where city='Zurich'
-update UploadWorkbook set city ='Pierre-Bénite' where city='Pierre-Benite'
-update UploadWorkbook set city ='Umeå' where city='Umea'
+update UploadWorkbook set city ='Montrï¿½al' where city='Montreal'
+update UploadWorkbook set city ='Quï¿½bec' where city='Quebec'
+update UploadWorkbook set city ='Zï¿½rich' where city='Zurich'
+update UploadWorkbook set city ='Pierre-Bï¿½nite' where city='Pierre-Benite'
+update UploadWorkbook set city ='Umeï¿½' where city='Umea'
 
 -----------------------------------
 -- Insert Data Upload Status
@@ -5951,9 +5967,7 @@ FROM UploadWorkbook u
 -------------------------------------------------------
 -- Update base Projects - Childhood, ProjectDates
 ------------------------------------------------------
-UPDATE Project SET IsChildhood = 
-	CASE ISNULL(Childhood, '') WHEN 'y' THEN 1 ELSE 0 END, 
-ProjectStartDate = u.AwardStartDate, ProjectEndDate = u.AwardEndDate, UpdatedDate = getdate(), DataUploadStatusID = @DataUploadStatusID_stage
+UPDATE Project SET ProjectStartDate = u.AwardStartDate, ProjectEndDate = u.AwardEndDate, UpdatedDate = getdate(), DataUploadStatusID = @DataUploadStatusID_stage
 FROM Project p
 	JOIN UploadWorkbook u ON p.AwardCode = u.AWardCode
 
@@ -5975,6 +5989,11 @@ UPDATE ProjectFunding SET AltAwardCode = CASE WHEN ISNULL(u.NewAltId, '') = '' T
 							IsAnnualized = 
 								CASE ISNULL(u.IsAnnualized, '') 
 								WHEN 'y' THEN 1 ELSE 0 END,
+							IsChildhood = 
+								CASE ISNULL(Childhood, '') 
+									WHEN 'y' THEN 1 
+									WHEN 'p' THEN 2 
+									ELSE 0 END,   -- 'n' - not childhood
 						 Amount  = u.AwardFunding, BudgetStartDate = u.BudgetStartDate, BudgetEndDate = u.BudgetEndDate, UpdatedDate = getdate(),
 						 DataUploadStatusID =  @DataUploadStatusID_stage
 FROM ProjectFunding f 	
@@ -6469,14 +6488,14 @@ BEGIN TRY
 	-- Import Project	
 	IF @Type = 'New'
 	BEGIN
-		INSERT INTO icrp_data.dbo.project ([IsChildhood], [AwardCode], [ProjectStartDate], [ProjectEndDate], [DataUploadStatusID], [CreatedDate], [UpdatedDate])
-		SELECT [IsChildhood],[AwardCode],[ProjectStartDate],[ProjectEndDate], @DataUploadStatusID_Prod, getdate(),getdate()
+		INSERT INTO icrp_data.dbo.project ([AwardCode], [ProjectStartDate], [ProjectEndDate], [DataUploadStatusID], [CreatedDate], [UpdatedDate])
+		SELECT [AwardCode],[ProjectStartDate],[ProjectEndDate], @DataUploadStatusID_Prod, getdate(),getdate()
 		FROM icrp_dataload.dbo.Project WHERE [DataUploadStatusID] = @DataUploadStatusID_Stage	
 	END
 	ELSE  -- Update base projects
 	BEGIN
 
-		UPDATE icrp_data.dbo.Project SET IsChildhood = lp.IsChildhood, ProjectStartDate= lp.ProjectStartDate, ProjectEndDate= lp.ProjectEndDate, DataUploadStatusID=@DataUploadStatusID_Prod, UpdatedDate = getdate()
+		UPDATE icrp_data.dbo.Project SET ProjectStartDate= lp.ProjectStartDate, ProjectEndDate= lp.ProjectEndDate, DataUploadStatusID=@DataUploadStatusID_Prod, UpdatedDate = getdate()
 		FROM icrp_data.dbo.Project p
 			JOIN icrp_dataload.dbo.Project lp ON p.AwardCode = lp.AwardCode
 		WHERE lp.DataUploadStatusID = @DataUploadStatusID_Stage
@@ -6537,11 +6556,11 @@ BEGIN TRY
 	-----------------------------------
 	IF @Type = 'New'
 	BEGIN
-		INSERT INTO icrp_data.dbo.projectfunding ([Title],[ProjectID],[FundingOrgID],	[FundingDivisionID],[ProjectAbstractID],[DataUploadStatusID],[Category],[AltAwardCode],[Source_ID],
-			[MechanismCode],[MechanismTitle],[FundingContact],[IsAnnualized],[Amount],[BudgetStartDate],[BudgetEndDate],[CreatedDate],[UpdatedDate])
+		INSERT INTO icrp_data.dbo.projectfunding ([Title],[ProjectID],[FundingOrgID], [FundingDivisionID],[ProjectAbstractID],[DataUploadStatusID],[Category],[AltAwardCode],[Source_ID],
+			[MechanismCode],[MechanismTitle],[FundingContact],[IsAnnualized],[Amount],[IsChildhood], [BudgetStartDate],[BudgetEndDate],[CreatedDate],[UpdatedDate])
 	
 		SELECT pf.[Title], newp.[ProjectID], prodo.[FundingOrgID], proddiv.[FundingDivisionID], a.ID, @DataUploadStatusID_Prod, pf.[Category], pf.[AltAwardCode], pf.[Source_ID],
-			pf.[MechanismCode],pf.[MechanismTitle],pf.[FundingContact],pf.[IsAnnualized],pf.[Amount],pf.[BudgetStartDate],pf.[BudgetEndDate],getdate(),getdate()	
+			pf.[MechanismCode],pf.[MechanismTitle],pf.[FundingContact],pf.[IsAnnualized],pf.[Amount], pf.[IsChildhood], pf.[BudgetStartDate],pf.[BudgetEndDate],getdate(),getdate()	
 	
 		FROM icrp_dataload.dbo.ProjectFunding pf 
 			JOIN icrp_dataload.dbo.Project p ON pf.projectid = p.ProjectID
@@ -6564,7 +6583,7 @@ BEGIN TRY
 	ELSE  -- Update 
 	BEGIN
 		UPDATE icrp_data.dbo.ProjectFunding SET Title = lf.Title,  AltAwardCode = lf.AltAwardCode, Category = lf.Category, Source_ID = lf.Source_ID, Amount = lf.Amount, BudgetStartDate = lf.BudgetStartDate, BudgetEndDate = lf.BudgetEndDate, 
-				IsAnnualized = lf.IsAnnualized, DataUploadStatusID=@DataUploadStatusID_Prod, UpdatedDate = getdate()
+				IsChildhood = lf.IsChildhood, IsAnnualized = lf.IsAnnualized, DataUploadStatusID=@DataUploadStatusID_Prod, UpdatedDate = getdate()
 		FROM icrp_data.dbo.ProjectFunding f
 			JOIN (SELECT * FROM icrp_dataload.dbo.ProjectFundingArchive WHERE DataUploadStatusID=@DataUploadStatusID_Stage) laf ON f.AltAwardCode = laf.AltAwardCode  -- use the archived AltAwardCode 
 			JOIN icrp_dataload.dbo.ProjectFunding lf ON laf.ProjectFundingID = lf.ProjectFundingID
@@ -8993,6 +9012,83 @@ BEGIN
 			ELSE 0  -- No Data
 		END 
 	WHERE  FundingOrgID =  @FundingOrgID
+
+END 
+
+GO
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[UpdateFundingOrgName]						      ****************/
+----------------------------------------------------------------------------------------------------------
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdateFundingOrgName]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[UpdateFundingOrgName]
+GO 
+
+CREATE PROCEDURE [dbo].[UpdateFundingOrgName]
+
+@FundingOrgID INT,
+@Name varchar(1000),  
+@Abbreviation varchar(15)
+
+AS  
+
+BEGIN
+	DECLARE @SponsorCode varchar(50)
+	SELECT @SponsorCode = SponsorCode FROM FundingOrg WHERE FundingOrgID = @FundingOrgID
+
+	-- Return error if the name or abbreviation already exist within the same sponsorcode
+	IF EXISTS (SELECT 1 FROM FundingOrg WHERE FundingOrgID <> @FundingOrgID AND SponsorCode = @SponsorCode AND (Name = @Name OR Abbreviation = @Abbreviation))
+	BEGIN
+		   RAISERROR ('Funding Org Name or Abbreviation already exists for this partner. Operation aborted.', 16, 1)
+	END
+
+	-- Also update partner if the Funding org is also a partner
+	-- TBD
+
+	-- Also update icrp_dataload
+	-- TBD
+	
+	UPDATE FundingOrg SET Name = @Name, Abbreviation = @Abbreviation, UpdatedDate = getdate()		
+	WHERE  FundingOrgID =  @FundingOrgID
+
+END 
+
+GO
+
+
+
+----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[UpdatePartnerName]						      ****************/
+----------------------------------------------------------------------------------------------------------
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdatePartnerOrgName]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[UpdatePartnerOrgName]
+GO 
+
+CREATE PROCEDURE [dbo].[UpdatePartnerOrgName]
+
+@PartnerID INT,
+@Name varchar(1000),  
+@SponsorCode varchar(50)
+
+AS  
+
+BEGIN
+
+	-- Return error if the name or abbreviation already exist within the same sponsorcode
+	IF EXISTS (SELECT 1 FROM Partner WHERE PartnerID <> @PartnerID AND (Name = @Name OR SponsorCode = @SponsorCode))
+	BEGIN
+		   RAISERROR ('Partner Name or Abbreviation already exists for this partner. Operation aborted.', 16, 1)
+	END
+
+	-- Also update Funding Org if the partner is also a Funding org
+	-- TBD
+
+	-- Also update icrp_dataload
+	-- TBD
+	
+	UPDATE Partner SET Name = @Name, SponsorCode = @SponsorCode, UpdatedDate = getdate()		
+	WHERE  PartnerID =  @PartnerID
 
 END 
 

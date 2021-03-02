@@ -884,6 +884,20 @@ CREATE TABLE [dbo].[lu_FundingOrgType](
 GO
 
 
+/****** Object:  Table [dbo].[lu_ChildhoodCancer]    Script Date: 4/21/2017 9:30:29 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[lu_ChildhoodCancer](
+	[ChildhoodCancerID] [int] NOT NULL,
+	[ChildhoodCancerType] [varchar](1) NOT NULL	
+ )
+
+GO
+
 
 
 /****** Object:  Table [dbo].[ProjectDetails]    Script Date: 1/10/2017 5:08:05 PM ******/
