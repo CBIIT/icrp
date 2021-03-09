@@ -601,6 +601,7 @@ AS
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL
 
 	IF @SearchID = 0  -- all projects
 	BEGIN
@@ -626,7 +627,8 @@ AS
 				@stateList = stateList,
 				@regionList = regionList,
 				@FundingOrgTypeList = FundingOrgTypeList,
-				@fundingOrgList = fundingOrgList 
+				@fundingOrgList = fundingOrgList,
+				@childhoodcancerList = childhoodcancerList 
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 	END
 		
@@ -654,7 +656,8 @@ AS
 			((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
 			((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))) AND
 			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
-			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))
+			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
+			((@childhoodcancerList IS NULL) OR (f.IsChildhood IN (SELECT VALUE AS type FROM dbo.ToStrTable(@childhoodcancerList))))
 
 	------------------------------------------------------------------------------
 	--   Exclude the project funding records outside of seach criteria
@@ -777,6 +780,7 @@ AS
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL
 
 	IF @SearchID = 0
 	BEGIN
@@ -801,7 +805,8 @@ AS
 				@stateList = stateList,
 				@regionList = regionList,
 				@FundingOrgTypeList = FundingOrgTypeList,
-				@fundingOrgList = fundingOrgList 
+				@fundingOrgList = fundingOrgList,
+				@childhoodcancerList = childhoodcancerList 
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID	
 
 	END	
@@ -817,7 +822,8 @@ AS
 		JOIN CSO c ON c.code = pc.csocode	
 	 WHERE	(@CSOlist IS NULL) OR (c.Code IN (SELECT VALUE AS CSOCode FROM dbo.ToStrTable(@CSOlist))) AND
 			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
-			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))
+			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
+			((@childhoodcancerList IS NULL) OR (f.IsChildhood IN (SELECT VALUE AS type FROM dbo.ToStrTable(@childhoodcancerList))))
 
 	------------------------------------------------------------------------------
 	--   Exclude the project funding records outside of seach criteria
@@ -950,6 +956,7 @@ AS
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL
 
 	IF @SearchID = 0
 	BEGIN
@@ -975,7 +982,8 @@ AS
 				@stateList = stateList,
 				@regionList = regionList,
 				@FundingOrgTypeList = FundingOrgTypeList,
-				@fundingOrgList = fundingOrgList 
+				@fundingOrgList = fundingOrgList,
+				@childhoodcancerList = childhoodcancerList 
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 
 	END
@@ -1005,7 +1013,8 @@ AS
 		JOIN CancerType ct ON ct.CancerTypeID = pc.CancerTypeID	
 	 WHERE	(@CancerTypelist IS NULL) OR (ct.CancerTypeID IN (SELECT CancerTypeID FROM #ctlist)) AND
 			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
-			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))
+			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
+			((@childhoodcancerList IS NULL) OR (f.IsChildhood IN (SELECT VALUE AS type FROM dbo.ToStrTable(@childhoodcancerList))))
 
 	------------------------------------------------------------------------------
 	--   Exclude the project funding records outside of seach criteria
@@ -1126,6 +1135,7 @@ AS
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL
 	
 	IF @SearchID = 0
 	BEGIN
@@ -1151,7 +1161,8 @@ AS
 				@stateList = stateList,
 				@regionList = regionList,
 				@FundingOrgTypeList = FundingOrgTypeList,
-				@fundingOrgList = fundingOrgList 
+				@fundingOrgList = fundingOrgList,
+				@childhoodcancerList = childhoodcancerList 
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 		
 	END		
@@ -1166,7 +1177,8 @@ AS
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 	WHERE (@ProjectTypeList IS NULL) OR (pt.ProjectType IN (SELECT VALUE AS ProjectTypeID FROM dbo.ToStrTable(@ProjectTypeList))) AND
 			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
-			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))
+			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
+			((@childhoodcancerList IS NULL) OR (f.IsChildhood IN (SELECT VALUE AS type FROM dbo.ToStrTable(@childhoodcancerList))))
 	 
 	------------------------------------------------------------------------------
 	--   Exclude the project funding records outside of seach criteria
@@ -1307,6 +1319,7 @@ AS
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL
 
 	IF @SearchID = 0  -- all projects
 	BEGIN
@@ -1332,7 +1345,8 @@ AS
 				@stateList = stateList,
 				@regionList = regionList,
 				@FundingOrgTypeList = FundingOrgTypeList,
-				@fundingOrgList = fundingOrgList 
+				@fundingOrgList = fundingOrgList,
+				@childhoodcancerList = childhoodcancerList 
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 	END	
 
@@ -1358,7 +1372,8 @@ AS
 			((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
 			((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))) AND
 			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
-			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))
+			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
+			((@childhoodcancerList IS NULL) OR (f.IsChildhood IN (SELECT VALUE AS type FROM dbo.ToStrTable(@childhoodcancerList))))
 
 	------------------------------------------------------------------------------
 	--   Exclude the project funding records outside of seach criteria
@@ -1484,6 +1499,7 @@ AS
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL
 
 	IF @SearchID = 0  -- all projects
 	BEGIN
@@ -1509,7 +1525,8 @@ AS
 				@stateList = stateList,
 				@regionList = regionList,
 				@FundingOrgTypeList = FundingOrgTypeList,
-				@fundingOrgList = fundingOrgList 
+				@fundingOrgList = fundingOrgList,
+				@childhoodcancerList = childhoodcancerList 
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 	END	
 
@@ -1535,7 +1552,8 @@ AS
 			((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
 			((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))) AND
 			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
-			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))
+			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
+			((@childhoodcancerList IS NULL) OR (f.IsChildhood IN (SELECT VALUE AS type FROM dbo.ToStrTable(@childhoodcancerList))))
 
 	------------------------------------------------------------------------------
 	--   Exclude the project funding records outside of seach criteria
@@ -1856,6 +1874,7 @@ AS
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL
 	
 	IF @SearchID = 0
 	BEGIN
@@ -1880,7 +1899,8 @@ AS
 				@stateList = stateList,
 				@regionList = regionList,
 				@FundingOrgTypeList = FundingOrgTypeList,
-				@fundingOrgList = fundingOrgList 
+				@fundingOrgList = fundingOrgList,
+				@childhoodcancerList = childhoodcancerList 
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 	END
 	
@@ -1896,7 +1916,8 @@ AS
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 	WHERE (@YearList IS NULL) OR (ext.CalendarYear IN (SELECT VALUE AS [CalendarYear] FROM dbo.ToStrTable(@YearList))) AND
 			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
-			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))
+			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
+			((@childhoodcancerList IS NULL) OR (f.IsChildhood IN (SELECT VALUE AS type FROM dbo.ToStrTable(@childhoodcancerList))))
 	 
 	------------------------------------------------------------------------------
 	--   Exclude the project funding records outside of seach criteria
@@ -7742,11 +7763,11 @@ AS
 	BEGIN	  
 
 		INSERT INTO SearchCriteria ([termSearchType],[terms],[piLastName],[piFirstName],[piORCiD],[awardCode],
-			[yearList], [stateList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [IsChildhood], 
+			[yearList], [stateList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList], 
 			[institution], [cityList], [countryList], [RegionList])
 
 			SELECT [termSearchType],[terms],[piLastName],[piFirstName],[piORCiD],[awardCode],
-				[yearList], [stateList], [fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [IsChildhood],
+				[yearList], [stateList], [fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList],
 
 				CASE
 				WHEN @InstitutionName IS NULL THEN [institution]
