@@ -9055,38 +9055,63 @@ CREATE PROCEDURE [dbo].[UpdateFundingOrgName]
 AS  
 
 BEGIN
-	DECLARE @SponsorCode varchar(50)
-	SELECT @SponsorCode = SponsorCode FROM FundingOrg WHERE FundingOrgID = @FundingOrgID
+	DECLARE @isPartner int = 0
+	DECLARE @Partner_ID  INT	
+	DECLARE @SponsorCode varchar(100)
+	DECLARE @OldFundingName varchar(100)
+
+	SELECT @SponsorCode = SponsorCode, @OldFundingName = Name FROM FundingOrg WHERE FundingOrgID = @FundingOrgID
+
+	IF EXISTS (SELECT 1 FROM FundingOrg WHERE FundingOrgID = @FundingOrgID AND MemberType = 'Partner')	
+	BEGIN				
+		SELECT @isPartner = 1, @Partner_ID = PartnerID from Partner where SponsorCode = @SponsorCode	
+	END		
 
 	-- Return error if the name or abbreviation already exist within the same sponsorcode
 	IF EXISTS (SELECT 1 FROM FundingOrg WHERE FundingOrgID <> @FundingOrgID AND SponsorCode = @SponsorCode AND (Name = @Name OR Abbreviation = @Abbreviation))
 	BEGIN
-		   RAISERROR ('Funding Org Name or Abbreviation already exists for this partner. Operation aborted.', 16, 1)
+		   RAISERROR ('The new Funding Org Name or Abbreviation already exists for this partner. Operation aborted.', 16, 1)
 	END
 
-	-- Also update partner if the Funding org is also a partner
-	-- TBD
-
-	-- Also update icrp_dataload
-	-- TBD
+	-- Call [UpdatePartnerName] SP to update Partner instead of  FundingOrg
+	IF @isPartner = 1
+	BEGIN	
+	 	exec [UpdatePartnerName] @Partner_ID, @Name, @Abbreviation
+		RETURN
+	END
 	
+	-- Update FundingOrg
 	UPDATE FundingOrg SET Name = @Name, Abbreviation = @Abbreviation, UpdatedDate = getdate()		
 	WHERE  FundingOrgID =  @FundingOrgID
+
+	-- Also update partnerOrg 
+	UPDATE PartnerOrg SET Name = @Name, UpdatedDate = getdate()		
+	WHERE  Name = @OldFundingName and SponsorCode = @SponsorCode
+
+	-- *******************************************
+	-- Also update icrp_dataload
+	-- *******************************************
+	-- Update FundingOrg
+	UPDATE icrp_dataload.dbo.FundingOrg SET Name = @Name, Abbreviation = @Abbreviation, UpdatedDate = getdate()		
+	WHERE  FundingOrgID =  @FundingOrgID
+
+	-- Also update partnerOrg 
+	UPDATE icrp_dataload.dbo.PartnerOrg SET Name = @Name, UpdatedDate = getdate()		
+	WHERE  Name = @OldFundingName and SponsorCode = @SponsorCode
 
 END 
 
 GO
 
 
-
 ----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[UpdatePartnerName]						      ****************/
 ----------------------------------------------------------------------------------------------------------
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdatePartnerOrgName]') AND type in (N'P', N'PC'))
-DROP PROCEDURE [dbo].[UpdatePartnerOrgName]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[UpdatePartnerName]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[UpdatePartnerName]
 GO 
 
-CREATE PROCEDURE [dbo].[UpdatePartnerOrgName]
+CREATE PROCEDURE [dbo].[UpdatePartnerName]
 
 @PartnerID INT,
 @Name varchar(1000),  
@@ -9096,24 +9121,60 @@ AS
 
 BEGIN
 
+	DECLARE @OldSponsorCode VARCHAR(50)
+
+	SELECT @OldSponsorCode = SponsorCode FROM Partner WHERE partnerID = @PartnerID
+
 	-- Return error if the name or abbreviation already exist within the same sponsorcode
 	IF EXISTS (SELECT 1 FROM Partner WHERE PartnerID <> @PartnerID AND (Name = @Name OR SponsorCode = @SponsorCode))
 	BEGIN
-		   RAISERROR ('Partner Name or Abbreviation already exists for this partner. Operation aborted.', 16, 1)
+		   RAISERROR ('Partner Name or SponsorCode already exists for this partner. Operation aborted.', 16, 1)
 	END
 
-	-- Also update Funding Org if the partner is also a Funding org
-	-- TBD
-
-	-- Also update icrp_dataload
-	-- TBD
-	
+	-- Update Partner Table 
 	UPDATE Partner SET Name = @Name, SponsorCode = @SponsorCode, UpdatedDate = getdate()		
 	WHERE  PartnerID =  @PartnerID
 
+	-- Update FundingOrg Table 
+	UPDATE FundingOrg SET Name = @Name, Abbreviation = @SponsorCode, UpdatedDate = getdate()		
+	WHERE  SponsorCode  =  @OldSponsorCode AND MemberType = 'Partner'
+
+	-- Update SponsorCode in the FundingOrg Table if sponsorcode is changed
+	IF (@SponsorCode <> @OldSponsorCode)
+	BEGIN
+		UPDATE FundingOrg SET SponsorCode = @SponsorCode, UpdatedDate = getdate()		
+		WHERE  SponsorCode  =  @OldSponsorCode
+	END
+
+	-- Update PartnerOrg Table (for User Refistration)  
+	UPDATE PartnerOrg SET Name = @Name, SponsorCode = @SponsorCode, UpdatedDate = getdate()		
+	WHERE  SponsorCode =  @OldSponsorCode AND MemberType= 'Partner'
+
+	-- *******************************************
+	-- Also update icrp_dataload
+	-- *******************************************
+	UPDATE icrp_dataload.dbo.Partner SET Name = @Name, SponsorCode = @SponsorCode, UpdatedDate = getdate()		
+	WHERE  PartnerID =  @PartnerID
+
+	-- Update FundingOrg Table 
+	UPDATE icrp_dataload.dbo.FundingOrg SET Name = @Name, Abbreviation = @SponsorCode, UpdatedDate = getdate()		
+	WHERE  SponsorCode  =  @OldSponsorCode AND MemberType = 'Partner'
+
+	-- Update SponsorCode in the FundingOrg Table if sponsorcode is changed
+	IF (@SponsorCode <> @OldSponsorCode)
+	BEGIN
+		UPDATE  icrp_dataload.dbo.FundingOrg SET SponsorCode = @SponsorCode, UpdatedDate = getdate()		
+		WHERE  SponsorCode  =  @OldSponsorCode
+	END
+
+	-- Update PartnerOrg Table (for User Refistration)  
+	UPDATE icrp_dataload.dbo.PartnerOrg SET Name = @Name, SponsorCode = @SponsorCode, UpdatedDate = getdate()		
+	WHERE  SponsorCode =  @OldSponsorCode
+	
 END 
 
 GO
+
 
 ----------------------------------------------------------------------------------------------------------
 /****** API Object:  StoredProcedure [dbo].[GetProjectsByInstitutions]    Script Date: 7/29/2019 4:21:47 PM ******/
