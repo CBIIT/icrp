@@ -45,7 +45,7 @@ class OrganizationNames {
 
   public static function updatePartnerName(PDO $pdo, array $parameters) {
     $stmt = $pdo->prepare(
-      "EXECUTE UpdatePartnerOrgName
+      "EXECUTE UpdatePartnerName 
         @PartnerID = :partnerId,
         @Name = :name,
         @SponsorCode = :sponsorCode"
