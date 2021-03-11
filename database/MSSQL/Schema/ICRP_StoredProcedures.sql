@@ -2235,7 +2235,7 @@ BEGIN
 	SELECT @filterList= ChildhoodCancerList FROM #criteria
 	IF @filterList IS NOT NULL
 	BEGIN
-		INSERT INTO @SearchCriteria VALUES ('Childhood Caner Type(s):', '')
+		INSERT INTO @SearchCriteria VALUES ('Childhood Cancer Type(s):', '')
 		INSERT INTO @SearchCriteria SELECT '', '' + ChildhoodCancerType FROM lu_ChildhoodCancer WHERE ChildhoodCancerID IN (SELECT * FROM dbo.ToIntTable(@filterList))
 	END
 
