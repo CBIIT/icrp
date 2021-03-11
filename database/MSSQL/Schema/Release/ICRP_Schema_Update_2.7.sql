@@ -47,7 +47,7 @@ join (SELECT searchCriteriaID, CAST(IsChildhood as varchar(10)) as ChildhoodCanc
 	
 INSERT INTO lu_ChildhoodCancer VALUES (0, 'Not Childhood')
 INSERT INTO lu_ChildhoodCancer VALUES (1, 'Childhood')
-INSERT INTO lu_ChildhoodCancer VALUES (2, 'Patrially Childhood')
+INSERT INTO lu_ChildhoodCancer VALUES (2, 'Partially Childhood')
 
 /*************************************************/
 /******		UPDATE TABLE        			******/

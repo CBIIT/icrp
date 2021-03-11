@@ -2235,7 +2235,7 @@ BEGIN
 	SELECT @filterList= ChildhoodCancerList FROM #criteria
 	IF @filterList IS NOT NULL
 	BEGIN
-		INSERT INTO @SearchCriteria VALUES ('Chillhood Caner Type(s):', '')
+		INSERT INTO @SearchCriteria VALUES ('Childhood Caner Type(s):', '')
 		INSERT INTO @SearchCriteria SELECT '', '' + ChildhoodCancerType FROM lu_ChildhoodCancer WHERE ChildhoodCancerID IN (SELECT * FROM dbo.ToIntTable(@filterList))
 	END
 
@@ -5417,6 +5417,8 @@ where LEFT(AwardTitle, 1) = '"' AND RIGHT(AwardTitle, 1) = '"'
 UPDATE UploadWorkbook SET techabstract = SUBSTRING(techabstract, 2, LEN(techabstract)-2)
 where LEFT(techabstract, 1) = '"' AND RIGHT(techabstract, 1) = '"'
 
+UPDATE UploadWorkbook SET techabstract = 'Abstract not yet available' WHERE ISNULL(techabstract, '') = ''
+
 -------------------------------------------------------------------------------------------
 -- Insert Missing  Institutions
 --------------------------------------------------------------------------------------------
@@ -5946,6 +5948,8 @@ where LEFT(AwardTitle, 1) = '"' AND RIGHT(AwardTitle, 1) = '"'
 
 UPDATE UploadWorkbook SET techabstract = SUBSTRING(techabstract, 2, LEN(techabstract)-2)
 where LEFT(techabstract, 1) = '"' AND RIGHT(techabstract, 1) = '"'
+
+UPDATE UploadWorkbook SET techabstract = 'Abstract not yet available' WHERE ISNULL(techabstract, '') = ''
 
 -- replace city with accent names
 update UploadWorkbook set city ='Montr�al' where city='Montreal'
@@ -7112,6 +7116,7 @@ AS
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL
 
 	DECLARE @result TABLE
 	(
@@ -7143,7 +7148,8 @@ AS
 				@stateList = stateList,
 				@regionList = regionList,
 				@FundingOrgTypeList = FundingOrgTypeList,
-				@fundingOrgList = fundingOrgList 
+				@fundingOrgList = fundingOrgList,
+				@childhoodcancerList = childhoodcancerList
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 
 	END
@@ -7172,7 +7178,8 @@ AS
 			((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
 			((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))) AND
 			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
-			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))	
+			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
+			((@childhoodcancerList IS NULL) OR (f.IsChildhood IN (SELECT VALUE AS ischildhood FROM dbo.ToIntTable(@childhoodcancerList))))
 
 	------------------------------------------------------------------------------
 	--   Further filter on other seach criteria - years, cso, cancertype
@@ -7267,6 +7274,7 @@ AS
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL
 
 	DECLARE @result TABLE
 	(
@@ -7297,7 +7305,8 @@ AS
 				@cityList = cityList,
 				@stateList = stateList,				
 				@FundingOrgTypeList = FundingOrgTypeList,
-				@fundingOrgList = fundingOrgList 
+				@fundingOrgList = fundingOrgList,
+				@childhoodcancerList = childhoodcancerList
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 
 	END
@@ -7326,7 +7335,8 @@ AS
 			((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
 			((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND			
 			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
-			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))	
+			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
+			((@childhoodcancerList IS NULL) OR (f.IsChildhood IN (SELECT VALUE AS ischildhood FROM dbo.ToIntTable(@childhoodcancerList))))
 
 	------------------------------------------------------------------------------
 	--   Further filter on other seach criteria - years, cso, cancertype
@@ -7418,6 +7428,7 @@ AS
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL	
 
 	DECLARE @result TABLE
 	(
@@ -7447,7 +7458,8 @@ AS
 				@cityList = cityList,
 				@stateList = stateList,				
 				@FundingOrgTypeList = FundingOrgTypeList,
-				@fundingOrgList = fundingOrgList 
+				@fundingOrgList = fundingOrgList,
+				@childhoodcancerList = childhoodcancerList
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 
 	END
@@ -7475,7 +7487,8 @@ AS
 			((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
 			((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND			
 			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
-			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))	
+			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
+			((@childhoodcancerList IS NULL) OR (f.IsChildhood IN (SELECT VALUE AS ischildhood FROM dbo.ToIntTable(@childhoodcancerList))))
 
 	------------------------------------------------------------------------------
 	--   Further filter on other seach criteria - years, cso, cancertype
@@ -7573,6 +7586,7 @@ DECLARE @ProjectIDs VARCHAR(max)
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL	
 
 	DECLARE @result TABLE
 	(
@@ -7600,7 +7614,8 @@ DECLARE @ProjectIDs VARCHAR(max)
 				@piFirstName = piFirstName,
 				@piORCiD = piORCiD,				
 				@FundingOrgTypeList = FundingOrgTypeList,
-				@fundingOrgList = fundingOrgList 
+				@fundingOrgList = fundingOrgList,
+				@childhoodcancerList = childhoodcancerList
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 
 	END
@@ -7626,7 +7641,8 @@ DECLARE @ProjectIDs VARCHAR(max)
 			((@piFirstName IS NULL) OR (people.FirstName like '%'+ @piFirstName +'%')) AND
 			((@piORCiD IS NULL) OR (people.ORC_ID like '%'+ @piORCiD +'%')) AND			
 			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
-			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))		
+			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
+			((@childhoodcancerList IS NULL) OR (f.IsChildhood IN (SELECT VALUE AS ischildhood FROM dbo.ToIntTable(@childhoodcancerList))))
 
 	------------------------------------------------------------------------------
 	--   Further filter on other seach criteria - years, cso, cancertype
