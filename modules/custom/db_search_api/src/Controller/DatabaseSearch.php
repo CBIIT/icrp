@@ -124,9 +124,9 @@ class DatabaseSearch {
 
     // provide parameters for is_childhood_cancer
     $fields['is_childhood_cancer'] = [
-      ['value' => 0, 'label' => 'Not Childhood Cancer'],
-      ['value' => 1, 'label' => 'Childhood Cancer'],
-      ['value' => 2, 'label' => 'Partially Childhood Cancer'],
+      ['value' => 0, 'label' => 'No'],
+      ['value' => 1, 'label' => 'Yes'],
+      ['value' => 2, 'label' => 'Partially Childhood'],
     ];
 
     return $fields;
