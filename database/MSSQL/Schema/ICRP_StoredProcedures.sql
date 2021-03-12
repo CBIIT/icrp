@@ -9155,16 +9155,19 @@ BEGIN
 	UPDATE FundingOrg SET Name = @Name, Abbreviation = @SponsorCode, UpdatedDate = getdate()		
 	WHERE  SponsorCode  =  @OldSponsorCode AND MemberType = 'Partner'
 
-	-- Update SponsorCode in the FundingOrg Table if sponsorcode is changed
+	-- Update PartnerOrg Table (for User Refistration)  
+	UPDATE PartnerOrg SET Name = @Name, SponsorCode = @SponsorCode, UpdatedDate = getdate()		
+	WHERE  SponsorCode =  @OldSponsorCode AND MemberType= 'Partner'
+
+	-- Update SponsorCode in both FundingOrg & PartnerOrg Table if sponsorcode is changed
 	IF (@SponsorCode <> @OldSponsorCode)
 	BEGIN
 		UPDATE FundingOrg SET SponsorCode = @SponsorCode, UpdatedDate = getdate()		
 		WHERE  SponsorCode  =  @OldSponsorCode
-	END
 
-	-- Update PartnerOrg Table (for User Refistration)  
-	UPDATE PartnerOrg SET Name = @Name, SponsorCode = @SponsorCode, UpdatedDate = getdate()		
-	WHERE  SponsorCode =  @OldSponsorCode AND MemberType= 'Partner'
+		UPDATE PartnerOrg SET SponsorCode = @SponsorCode, UpdatedDate = getdate()		
+		WHERE  SponsorCode  =  @OldSponsorCode
+	END
 
 	-- *******************************************
 	-- Also update icrp_dataload
@@ -9188,6 +9191,8 @@ BEGIN
 	WHERE  SponsorCode =  @OldSponsorCode
 	
 END 
+
+
 
 GO
 
