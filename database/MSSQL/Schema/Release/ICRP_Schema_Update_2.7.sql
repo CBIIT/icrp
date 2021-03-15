@@ -45,8 +45,8 @@ Update SearchCriteria set ChildhoodCancerList = s2.ChildhoodCancerList
 From SearchCriteria s
 join (SELECT searchCriteriaID, CAST(IsChildhood as varchar(10)) as ChildhoodCancerList FROM SearchCriteria) s2 on s.searchCriteriaID = s2.searchCriteriaID
 	
-INSERT INTO lu_ChildhoodCancer VALUES (0, 'Not Childhood')
-INSERT INTO lu_ChildhoodCancer VALUES (1, 'Childhood')
+INSERT INTO lu_ChildhoodCancer VALUES (0, 'No')
+INSERT INTO lu_ChildhoodCancer VALUES (1, 'Yes')
 INSERT INTO lu_ChildhoodCancer VALUES (2, 'Partially Childhood')
 
 /*************************************************/
