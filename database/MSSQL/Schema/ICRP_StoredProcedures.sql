@@ -724,11 +724,12 @@ AS
 	
 	BEGIN 
 
-		SELECT country, 0 AS [Count], (SUM(f.Amount) * ISNULL(MAX(cr.ToCurrencyRate), 1)) AS USDAmount INTO #AmountStats 
+		SELECT country, 0 AS [Count], SUM(USDAmount) AS USDAmount INTO #AmountStats FROM
+		(SELECT f.country, CAST((f.Amount * ISNULL(cr.ToCurrencyRate, 1)) AS Decimal(18,2)) AS USDAmount 
 		FROM #pf f
-			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency			
+			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency) t		
 		GROUP BY country 
-
+		
 		SELECT @ResultAmount = SUM([USDAmount]) FROM #AmountStats	
 		SELECT * FROM #AmountStats ORDER BY USDAmount Desc		
 			
@@ -820,7 +821,7 @@ AS
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
 		JOIN CSO c ON c.code = pc.csocode	
-	 WHERE	(@CSOlist IS NULL) OR (c.Code IN (SELECT VALUE AS CSOCode FROM dbo.ToStrTable(@CSOlist))) AND
+	 WHERE	((@CSOlist IS NULL) OR (c.Code IN (SELECT VALUE AS CSOCode FROM dbo.ToStrTable(@CSOlist)))) AND
 			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
 			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
 			((@childhoodcancerList IS NULL) OR (f.IsChildhood IN (SELECT VALUE AS type FROM dbo.ToStrTable(@childhoodcancerList))))
@@ -899,10 +900,12 @@ AS
 	
 	BEGIN 
 
-		SELECT categoryName, SUM(Relevance)/100 AS Relevance, (SUM(f.Amount) * ISNULL(MAX(cr.ToCurrencyRate), 1)) AS USDAmount INTO #AmountStats 
-		FROM #pf f
-			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency			
-		GROUP BY categoryName 
+		SELECT categoryName, SUM(Relevance) AS Relevance, SUM(USDAmount) AS USDAmount INTO #AmountStats 
+			FROM (SELECT categoryName, Relevance/100 AS Relevance, 
+				     ((Relevance/100) * f.Amount * ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount 
+			  FROM #pf f
+			  LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency) t
+		GROUP BY categoryName		
 
 		SELECT @ResultAmount = SUM([USDAmount]) FROM #AmountStats	
 		SELECT * FROM #AmountStats ORDER BY USDAmount Desc		
@@ -1011,7 +1014,7 @@ AS
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
 		JOIN CancerType ct ON ct.CancerTypeID = pc.CancerTypeID	
-	 WHERE	(@CancerTypelist IS NULL) OR (ct.CancerTypeID IN (SELECT CancerTypeID FROM #ctlist)) AND
+	 WHERE	((@CancerTypelist IS NULL) OR (ct.CancerTypeID IN (SELECT CancerTypeID FROM #ctlist))) AND
 			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
 			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
 			((@childhoodcancerList IS NULL) OR (f.IsChildhood IN (SELECT VALUE AS type FROM dbo.ToStrTable(@childhoodcancerList))))
@@ -1076,10 +1079,12 @@ AS
 	
 	BEGIN 
 
-		SELECT CancerType, SUM(Relevance)/100 AS Relevance, (SUM(f.Amount) * ISNULL(MAX(cr.ToCurrencyRate), 1)) AS USDAmount INTO #AmountStats 
-		FROM #pf f
-			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency			
-		GROUP BY CancerType 
+		SELECT CancerType, SUM(Relevance) AS Relevance, SUM(USDAmount) AS USDAmount INTO #AmountStats 
+			FROM (SELECT CancerType, Relevance/100 AS Relevance, 
+				     ((Relevance/100) * f.Amount * ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount 
+			  FROM #pf f
+			  LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency) t
+		GROUP BY CancerType	
 
 		SELECT @ResultAmount = SUM([USDAmount]) FROM #AmountStats	
 		SELECT * FROM #AmountStats ORDER BY USDAmount Desc		
@@ -1261,9 +1266,10 @@ AS
 	
 	BEGIN 
 
-		SELECT ProjectType, 0 AS [Count], (SUM(f.Amount) * ISNULL(MAX(cr.ToCurrencyRate), 1)) AS USDAmount INTO #AmountStats 
+		SELECT ProjectType, 0 AS [Count], SUM(USDAmount) AS USDAmount INTO #AmountStats  FROM
+		(SELECT f.ProjectType, (f.Amount * ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount
 		FROM #pf f
-			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency			
+			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency) t			
 		GROUP BY ProjectType 
 
 		SELECT @ResultAmount = SUM([USDAmount]) FROM #AmountStats	
@@ -1441,10 +1447,12 @@ AS
 	
 	BEGIN 
 
-		SELECT Institution, City, State, Country, 0 AS [Count], CAST((SUM(f.Amount) * ISNULL(MAX(cr.ToCurrencyRate), 1)) AS Decimal(18,2)) AS USDAmount INTO #AmountStats 
+		SELECT InstitutionID, Institution, City, State, Country, 0 AS [Count], SUM(USDAmount) AS USDAmount INTO #AmountStats FROM
+		(SELECT f.InstitutionID, f.Institution, f.City, f.State, f.Country, CAST(f.Amount * ISNULL(cr.ToCurrencyRate, 1) AS Decimal(18,2)) AS USDAmount 
 		FROM #pf f			
-			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency			
-		GROUP BY f.InstitutionID, f.Institution, City, State, Country
+			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency) t			
+		GROUP BY InstitutionID, Institution, City, State, Country
+
 
 		SELECT @ResultAmount = SUM([USDAmount]) FROM #AmountStats	
 		SELECT * FROM #AmountStats ORDER BY USDAmount Desc		
@@ -1811,16 +1819,15 @@ AS
 	ELSE --  'Amount'
 	
 	BEGIN 
-		SELECT 
-			CASE ct.IsCommonInChildren 
-				WHEN 1 THEN 'Common in Childhood Cancer: Yes' ELSE 'Common in Childhood Cancer: No' 
-			END AS IsChildhood, 0 AS [Count], 
-			(SUM(f.amount*(ISNULL(pct.relevance, 0)/100)) * ISNULL(MAX(cr.ToCurrencyRate), 1)) AS USDAmount INTO #AmountStats 
-		FROM #pf f	
-			JOIN ProjectCancerType pct ON f.ProjectFundingID = pct.ProjectFundingID
-			JOIN CancerType ct ON pct.CancerTypeID = ct.CancerTypeID	
-			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency			
-		GROUP BY ct.IsCommonInChildren
+		SELECT CASE IsChildhood
+				WHEN 1 THEN 'Childhood Cancer: Yes' 
+				WHEN 2 THEN 'Childhood Cancer: Partially' 
+				ELSE 'Childhood Cancer: No'   -- value = 0
+			END AS IsChildhood, 0 AS [Count], SUM(USDAmount) AS USDAmount INTO #AmountStats	FROM 
+		(SELECT f.IsChildhood, (f.amount * ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount 
+			FROM #pf f		
+			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=2020) cr ON cr.FromCurrency = f.Currency) t					
+		GROUP BY IsChildhood
 
 		SELECT @ResultAmount = SUM([USDAmount]) FROM #AmountStats	
 		SELECT * FROM #AmountStats ORDER BY USDAmount Desc		
@@ -2305,6 +2312,7 @@ AS
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL
 
 	IF @Year IS NULL
 		SELECT @Year = MAX(Year) FROM CurrencyRate	
@@ -2332,7 +2340,8 @@ AS
 				@stateList = stateList,
 				@regionList = regionList,
 				@FundingOrgTypeList = FundingOrgTypeList,
-				@fundingOrgList = fundingOrgList 
+				@fundingOrgList = fundingOrgList,
+				@childhoodcancerList = childhoodcancerList
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 
 	END
@@ -2377,7 +2386,10 @@ AS
 			((@CountryList IS NULL) OR (i.Country IN (SELECT VALUE AS Country FROM dbo.ToStrTable(@CountryList)))) AND
 			((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
 			((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
-			((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList))))
+			((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))) AND
+			((@childhoodcancerList IS NULL) OR (f.IsChildhood IN (SELECT VALUE AS type FROM dbo.ToStrTable(@childhoodcancerList))))
+
+
 
 	------------------------------------------------------------------------------
 	--   Exclude the project funding records outside of seach criteria
@@ -2525,6 +2537,7 @@ AS
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL
 
 	IF @SearchID = 0
 	BEGIN
@@ -2549,7 +2562,8 @@ AS
 			@stateList = stateList,
 			@regionList = regionList,
 			@FundingOrgTypeList = FundingOrgTypeList,
-			@fundingOrgList = fundingOrgList 
+			@fundingOrgList = fundingOrgList,
+			@childhoodcancerList = childhoodcancerList
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 
 	END		
@@ -2595,7 +2609,8 @@ AS
 			((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
 			((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))) AND
 			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
-			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))			
+			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
+			((@childhoodcancerList IS NULL) OR (f.IsChildhood IN (SELECT VALUE AS type FROM dbo.ToStrTable(@childhoodcancerList))))		
 
 	------------------------------------------------------------------------------
 	--   Exclude the project funding records outside of seach criteria
@@ -2798,6 +2813,7 @@ AS
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL
 
 
 	IF @Year IS NULL
@@ -2827,7 +2843,8 @@ AS
 				@stateList = stateList,
 				@regionList = regionList,
 				@FundingOrgTypeList = FundingOrgTypeList,
-				@fundingOrgList = fundingOrgList 
+				@fundingOrgList = fundingOrgList,
+				@childhoodcancerList = childhoodcancerList
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 
 	END	
@@ -2854,10 +2871,11 @@ AS
 		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
 		JOIN CancerType ct ON ct.CancerTypeID = pc.CancerTypeID	
 		JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pcso ON pcso.ProjectFundingID = f.ProjectFundingID		
-	 WHERE	(@CancerTypelist IS NULL) OR (ct.CancerTypeID IN (SELECT CancerTypeID FROM #ctlist)) AND
-			(@CSOlist IS NULL) OR (pcso.CSOCode IN (SELECT Value AS CSOCode FROM dbo.ToStrTable(@CSOlist))) AND
+	 WHERE	((@CancerTypelist IS NULL) OR (ct.CancerTypeID IN (SELECT CancerTypeID FROM #ctlist))) AND
+			((@CSOlist IS NULL) OR (pcso.CSOCode IN (SELECT Value AS CSOCode FROM dbo.ToStrTable(@CSOlist)))) AND
 			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
-			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList))))
+			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
+			((@childhoodcancerList IS NULL) OR (f.IsChildhood IN (SELECT VALUE AS type FROM dbo.ToStrTable(@childhoodcancerList))))	
 						
 	------------------------------------------------------------------------------
 	--   Exclude the project funding records outside of seach criteria
@@ -2994,6 +3012,7 @@ AS
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL
 
 	IF @SearchID = 0
 	BEGIN
@@ -3018,7 +3037,8 @@ AS
 			@stateList = stateList,
 			@regionList = regionList,
 			@FundingOrgTypeList = FundingOrgTypeList,
-			@fundingOrgList = fundingOrgList 
+			@fundingOrgList = fundingOrgList,
+			@childhoodcancerList = childhoodcancerList
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 	END
 
@@ -3031,7 +3051,7 @@ AS
 	INTO #pf 
 	FROM #base r
 		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID
-		
+	WHERE (@childhoodcancerList IS NULL) OR (f.isChildhood IN (SELECT VALUE AS isChildhood FROM dbo.ToIntTable(@childhoodcancerList)))	
 
 	------------------------------------------------------------------------------
 	--   Exclude the project funding records outside of seach criteria
@@ -3069,7 +3089,8 @@ AS
 					((@piORCiD IS NULL) OR (pi.ORC_ID like '%'+ @piORCiD +'%')) AND
 					((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
 					((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
-					((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))))	
+					((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList))))
+			)	
 
 	-----------------------------------------------------------		
 	--  Get project CSOs
@@ -3122,6 +3143,7 @@ AS
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL 
 
 	IF @SearchID = 0
 	BEGIN
@@ -3146,7 +3168,8 @@ AS
 			@stateList = stateList,
 			@regionList = regionList,
 			@FundingOrgTypeList = FundingOrgTypeList,
-			@fundingOrgList = fundingOrgList 
+			@fundingOrgList = fundingOrgList,
+			@childhoodcancerList = childhoodcancerList
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 	END
 
@@ -3159,8 +3182,8 @@ AS
 	INTO #pf 
 	FROM #base r
 		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID
-		
-
+	WHERE (@childhoodcancerList IS NULL) OR (f.isChildhood IN (SELECT VALUE AS isChildhood FROM dbo.ToIntTable(@childhoodcancerList)))
+	
 	------------------------------------------------------------------------------
 	--   Exclude the project funding records outside of seach criteria
 	------------------------------------------------------------------------------
@@ -3197,7 +3220,8 @@ AS
 					((@piORCiD IS NULL) OR (pi.ORC_ID like '%'+ @piORCiD +'%')) AND
 					((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
 					((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
-					((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))))	
+					((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList))))
+			)	
 							 
 	-----------------------------------------------------------		
 	--  Get project CancerTypes
@@ -3251,6 +3275,7 @@ AS
 	DECLARE @piORCiD varchar(50) = NULL
 	DECLARE @FundingOrgTypeList varchar(50) = NULL
 	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL	
 	
 	IF @SearchID = 0
 	BEGIN
@@ -3275,7 +3300,8 @@ AS
 			@stateList = stateList,
 			@regionList = regionList,
 			@FundingOrgTypeList = FundingOrgTypeList,
-			@fundingOrgList = fundingOrgList 
+			@fundingOrgList = fundingOrgList,
+			@childhoodcancerList = childhoodcancerList
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 
 	END
@@ -3285,7 +3311,7 @@ AS
 	-----------------------------------------------------------		
 	--  Get all project funding records
 	-----------------------------------------------------------			 
-	SELECT f.ProjectID, f.ProjectFundingID, f.AltAwardCode
+	SELECT f.ProjectID, f.ProjectFundingID, f.AltAwardCode, f.isChildhood
 	INTO #pf 
 	FROM #base r
 		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID
@@ -3330,7 +3356,8 @@ AS
 			((@piORCiD IS NULL) OR (pi.ORC_ID like '%'+ @piORCiD +'%')) AND
 			((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
 			((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
-			((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList))))
+			((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))) AND
+			((@childhoodcancerList IS NULL) OR (f.isChildhood IN (SELECT VALUE AS isChildhood FROM dbo.ToIntTable(@childhoodcancerList))))
 	ORDER BY f.ProjectID, f.ProjectFundingID
 
 GO
