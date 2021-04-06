@@ -1987,14 +1987,14 @@ AS
 	ELSE --  'Amount'
 	
 	BEGIN 
-
-		SELECT CalendarYear AS Year, 0 AS [Count], (SUM(f.CalendarAmount) * ISNULL(MAX(cr.ToCurrencyRate), 1)) AS USDAmount INTO #AmountStats 
+		
+		SELECT CalendarYear AS Year, 0 AS [Count], SUM(USDAmount) AS USDAmount INTO #AmountStats FROM
+		(SELECT f.CalendarYear, (f.CalendarAmount * ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount  
 		FROM #pf f
-			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency			
+			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency) t		
 		GROUP BY CalendarYear 
 
-		SELECT @ResultAmount = SUM([USDAmount]) FROM #AmountStats	
-		SELECT * FROM #AmountStats ORDER BY USDAmount Desc		
+		SELECT @ResultAmount = SUM([USDAmount]) FROM #AmountSt	
 			
 	END	
 
