@@ -1994,7 +1994,8 @@ AS
 			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency) t		
 		GROUP BY CalendarYear 
 
-		SELECT @ResultAmount = SUM([USDAmount]) FROM #AmountSt	
+		SELECT @ResultAmount = SUM([USDAmount]) FROM #AmountStats	
+		SELECT * FROM #AmountStats ORDER BY USDAmount Desc	
 			
 	END	
 
