@@ -205,7 +205,13 @@ class IcrpController extends ControllerBase {
     
     function getCountryIncomeBands() {
         $pdo = PDOBuilder::getConnection("icrp_database");
-        $sql = "SELECT CountryID, Abbreviation, Name, IncomeBand FROM Country";
+        $sql = "
+            SELECT 
+                CountryID as id,
+                RTRIM(Abbreviation) as abbreviation,
+                Name as name,
+                IncomeBand as incomeBand
+            from Country";
         $data = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
         $response = new JsonResponse($data);
         return $response;
