@@ -106,6 +106,6 @@ icrp.covid_survey_status:
 icrp.country_income_bands:
   path: '/api/country-income-bands'
   defaults:
-    _controller: '\Drupal\icrp\Controller\IcrpController::getSurveyResults'
+    _controller: '\Drupal\icrp\Controller\IcrpController::getCountryIncomeBands'
   requirements:
     _access: 'TRUE'
