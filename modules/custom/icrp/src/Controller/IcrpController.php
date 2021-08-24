@@ -9,7 +9,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\node\Entity\Node;
 use Symfony\Component\HttpFoundation\JsonResponse;
-namespace Drupal\db_search_api\Controller\PDOBuilder;
+use Drupal\db_search_api\Controller\PDOBuilder;
 
 class IcrpController extends ControllerBase {
 
