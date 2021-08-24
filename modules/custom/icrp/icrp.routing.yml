@@ -103,3 +103,9 @@ icrp.covid_survey_status:
     _access: 'TRUE'
   options:
     no_cache: 'TRUE'
+icrp.country_income_bands:
+  path: '/api/country-income-bands'
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::getSurveyResults'
+  requirements:
+    _access: 'TRUE'

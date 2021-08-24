@@ -9,6 +9,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\node\Entity\Node;
 use Symfony\Component\HttpFoundation\JsonResponse;
+namespace Drupal\db_search_api\Controller\PDOBuilder;
 
 class IcrpController extends ControllerBase {
 
@@ -198,5 +199,14 @@ class IcrpController extends ControllerBase {
 
         return $response;
 
+    }
+
+    
+    function getCountryIncomeBands() {
+        $pdo = PDOBuilder::getConnection("icrp_database");
+        $sql = "SELECT CountryID, Abbreviation, Name, IncomeBand FROM Country";
+        $data = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        $response = new JsonResponse($data);
+        return $response;
     }
 }
