@@ -204,14 +204,21 @@ class PartnerApplicationReviewForm extends FormBase
                 $data = $this->connection->query($sql);
                 //dump($data);
                 $results = $data->fetchAll(\PDO::FETCH_ASSOC);
+                $uri = "";
+                $filename = "";
                 foreach($results as $row) {
                     $uri = $row['uri'];
                     $uri = str_replace("public://", "/sites/default/files/", $uri);
                     $filename = $row['filename'];
                 }
                 $link = '<a target="_blank" href="'.$uri.'">'.$filename.'</a>';
+                /* In development and Stage some files may be missing so add [empty] if needed */
+                /* Production should never have missing files for submissions */
+                if(empty($uri) || empty($filename)) {
+                    $link = '{empty}';
+                }
+                //drupal_set_message($filename." uri:".$uri." fid:".$fid);
                 array_push($links, $link);
-
             } else {
                 array_push($links, "Not uploaded.");
             }
