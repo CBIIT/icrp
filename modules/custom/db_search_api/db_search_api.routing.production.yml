@@ -5,7 +5,7 @@
 api.database.search:
   path: /api/database/search
   defaults:
-    _controller: \Drupal\db_search_api\Controller\SearchController::getSearchResults
+    _controller: '\Drupal\db_search_api\Controller\SearchController::getSearchResults'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -26,7 +26,8 @@ api.database.sort_paginate:
 ## Sample request: /api/database/analytics?search_id=1&type=project_counts_by_country
 db_search_api.database.analytics:
   path: '/api/database/analytics'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::getAnalytics' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::getAnalytics'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -36,7 +37,8 @@ db_search_api.database.analytics:
 ## Sample request: /api/database/partners_analytics?search_id=1&type=project_funding_by_year&year=2000
 db_search_api.database.analytics_partners:
   path: '/api/database/analytics_partners'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::getAnalyticsForPartners' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::getAnalyticsForPartners'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -47,7 +49,8 @@ db_search_api.database.analytics_partners:
 ## Sample request: /api/database/search_parameters?search_id=1
 db_search_api.database.search_parameters:
   path: '/api/database/search_parameters'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::getSearchParameters' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::getSearchParameters'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -57,7 +60,8 @@ db_search_api.database.search_parameters:
 ## Sample request: /api/database/search_summary?search_id=1
 db_search_api.database.search_summary:
   path: '/api/database/search_summary'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::getSearchSummary' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::getSearchSummary'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -67,7 +71,8 @@ db_search_api.database.search_summary:
 ## Get possible form fields values
 api.database.fields:
   path: /api/database/fields
-  defaults: { _controller: \Drupal\db_search_api\Controller\SearchController::getFields }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::getFields'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -76,7 +81,8 @@ api.database.fields:
 ## Get the number of partners and funding organizations
 api.database.counts:
   path: /api/database/counts
-  defaults: { _controller: \Drupal\db_search_api\Controller\SearchController::getCounts }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::getCounts'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -95,7 +101,8 @@ api.database.counts:
 ## Get example funding organizations
 api.database.examples.cso:
   path: /api/database/examples/cso
-  defaults: { _controller: \Drupal\db_search_api\Controller\SearchController::getCsoExamples }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::getCsoExamples'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -110,7 +117,8 @@ api.database.examples.cso:
 ## Get possible form fields values
 api.database.review.fields:
   path: /api/database/review/fields
-  defaults: { _controller: \Drupal\db_search_api\Controller\SearchController::reviewFields }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::reviewFields'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -120,7 +128,8 @@ api.database.review.fields:
 ## Sample request: /api/database/review/sort_paginate?search_id=1&sort_column=pi_name&sort_direction=ascending&page_size=25&page_number=1
 api.database.review.sort_paginate:
   path: '/api/database/review/sort_paginate'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSearchResults' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSearchResults'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -130,7 +139,8 @@ api.database.review.sort_paginate:
 ## Sample request: /api/database/review/analytics?search_id=1&type=project_funding_by_year&year=2000
 api.database.review.analytics:
   path: '/api/database/review/analytics'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::reviewAnalytics' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::reviewAnalytics'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -140,7 +150,8 @@ api.database.review.analytics:
 ## Get sponsor uploads table
 api.database.review.sponsor_uploads:
   path: '/api/database/review/sponsor_uploads'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSponsorUploads' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSponsorUploads'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -150,7 +161,8 @@ api.database.review.sponsor_uploads:
 ## Sample request: /api/database/search_summary?search_id=1
 db_search_api.database.review.search_summary:
   path: '/api/database/review/search_summary'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSearchSummary' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSearchSummary'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -159,7 +171,8 @@ db_search_api.database.review.search_summary:
 ## Sample request: /api/database/sync_prod?data_upload_id=1
 db_search_api.database.review.sync_prod:
   path: '/api/database/review/sync_prod'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSyncProd' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSyncProd'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'

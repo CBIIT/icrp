@@ -28,7 +28,6 @@ icrp.partner_application_review:
     _title: 'Partner Application Review'
     _form: '\Drupal\icrp\Form\PartnerApplicationReviewForm'
   requirements:
-    _role: 'authenticated+admin'
     _role: 'authenticated+manager'
 
 icrp.events_json:

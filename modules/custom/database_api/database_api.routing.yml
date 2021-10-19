@@ -1,42 +1,49 @@
 api.latest.newsletter:
   path: /api/latest/newsletter
-  defaults: { _controller: \Drupal\database_api\Controller\ApiController::latestNewsletter }
+  defaults: 
+    _controller: '\Drupal\database_api\Controller\ApiController::latestNewsletter'
   requirements:
     _access: 'TRUE'
 
 api.latest.meeting-report:
   path: /api/latest/meeting-report
-  defaults: { _controller: \Drupal\database_api\Controller\ApiController::latestMeetingReport }
+  defaults: 
+    _controller: '\Drupal\database_api\Controller\ApiController::latestMeetingReport'
   requirements:
     _access: 'TRUE'
 
 api.counts.projects:
   path: /api/counts/projects
-  defaults: { _controller: \Drupal\database_api\Controller\ApiController::projectCounts }
+  defaults: 
+    _controller: '\Drupal\database_api\Controller\ApiController::projectCounts'
   requirements:
     _access: 'TRUE'
 
 api.counts.rounded-projects:
   path: /api/counts/rounded-projects
-  defaults: { _controller: \Drupal\database_api\Controller\ApiController::roundedProjectCounts }
+  defaults: 
+    _controller: '\Drupal\database_api\Controller\ApiController::roundedProjectCounts'
   requirements:
     _access: 'TRUE'
 
 api.counts.partners:
   path: /api/counts/partners
-  defaults: { _controller: \Drupal\database_api\Controller\ApiController::partnerCounts }
+  defaults: 
+    _controller: '\Drupal\database_api\Controller\ApiController::partnerCounts'
   requirements:
     _access: 'TRUE'
 
 api.counts.funding-organizations:
   path: /api/counts/funding-organizations
-  defaults: { _controller: \Drupal\database_api\Controller\ApiController::fundingOrganizationCounts }
+  defaults: 
+    _controller: '\Drupal\database_api\Controller\ApiController::fundingOrganizationCounts'
   requirements:
     _access: 'TRUE'
 
 api.examples.cso:
   path: /api/examples/cso
-  defaults: { _controller: \Drupal\database_api\Controller\ApiController::csoExamples }
+  defaults: 
+    _controller: '\Drupal\database_api\Controller\ApiController::csoExamples'
   requirements:
     _access: 'TRUE'
 

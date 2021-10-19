@@ -5,7 +5,7 @@
 api.database.search:
   path: /api/database/search
   defaults:
-    _controller: \Drupal\db_search_api\Controller\SearchController::getSearchResults
+    _controller: '\Drupal\db_search_api\Controller\SearchController::getSearchResults'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -26,7 +26,8 @@ api.database.sort_paginate:
 ## Sample request: /api/database/analytics?search_id=1&type=project_counts_by_country
 db_search_api.database.analytics:
   path: '/api/database/analytics'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::getAnalytics' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::getAnalytics'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -36,7 +37,8 @@ db_search_api.database.analytics:
 ## Sample request: /api/database/partners_analytics?search_id=1&type=project_funding_by_year&year=2000
 db_search_api.database.analytics_partners:
   path: '/api/database/analytics_partners'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::getAnalyticsForPartners' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::getAnalyticsForPartners'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -47,7 +49,8 @@ db_search_api.database.analytics_partners:
 ## Sample request: /api/database/search_parameters?search_id=1
 db_search_api.database.search_parameters:
   path: '/api/database/search_parameters'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::getSearchParameters' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::getSearchParameters'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -57,7 +60,8 @@ db_search_api.database.search_parameters:
 ## Sample request: /api/database/search_summary?search_id=1
 db_search_api.database.search_summary:
   path: '/api/database/search_summary'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::getSearchSummary' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::getSearchSummary'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -67,7 +71,8 @@ db_search_api.database.search_summary:
 ## Sample request: /api/database/search_results_view?search_id=1&year=2016&search_view=institution&view_type=count
 db_search_api.database.search_results_view:
   path: '/api/database/search_results_view'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::getSearchResultsView' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::getSearchResultsView'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -75,7 +80,8 @@ db_search_api.database.search_results_view:
 ## Gets the data upload completeness summary
 db_search_api.database.data_upload_completeness_summary:
   path: '/api/database/data_upload_completeness_summary'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::getDataUploadCompletenessSummary' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::getDataUploadCompletenessSummary'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -84,7 +90,8 @@ db_search_api.database.data_upload_completeness_summary:
 ## Get possible form fields values
 api.database.fields:
   path: /api/database/fields
-  defaults: { _controller: \Drupal\db_search_api\Controller\SearchController::getFields }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::getFields'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -96,7 +103,8 @@ api.database.fields:
 ## Get possible form fields values
 api.database.review.fields:
   path: /api/database/review/fields
-  defaults: { _controller: \Drupal\db_search_api\Controller\SearchController::reviewFields }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::reviewFields'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -107,7 +115,8 @@ api.database.review.fields:
 ## Sample request: /api/database/review/sort_paginate?search_id=1&sort_column=pi_name&sort_direction=ascending&page_size=25&page_number=1
 api.database.review.sort_paginate:
   path: '/api/database/review/sort_paginate'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSearchResults' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSearchResults'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -118,7 +127,8 @@ api.database.review.sort_paginate:
 ## Sample request: /api/database/review/analytics?search_id=1&type=project_funding_by_year&year=2000
 api.database.review.analytics:
   path: '/api/database/review/analytics'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::reviewAnalytics' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::reviewAnalytics'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -128,7 +138,8 @@ api.database.review.analytics:
 ## Get sponsor uploads table
 api.database.review.sponsor_uploads:
   path: '/api/database/review/sponsor_uploads'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSponsorUploads' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSponsorUploads'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -139,7 +150,8 @@ api.database.review.sponsor_uploads:
 ## Sample request: /api/database/search_summary?search_id=1
 db_search_api.database.review.search_summary:
   path: '/api/database/review/search_summary'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSearchSummary' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSearchSummary'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -149,7 +161,8 @@ db_search_api.database.review.search_summary:
 ## Get a results view for a particular search id
 db_search_api.database.review.search_results_view:
   path: '/api/database/review/search_results_view'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSearchResultsView' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSearchResultsView'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -158,7 +171,8 @@ db_search_api.database.review.search_results_view:
 ## Gets the data upload completeness summary
 db_search_api.database.review.data_upload_completeness_summary:
   path: '/api/database/review/data_upload_completeness_summary'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::reviewDataUploadCompletenessSummary' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::reviewDataUploadCompletenessSummary'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -171,7 +185,8 @@ db_search_api.database.review.data_upload_completeness_summary:
 ## Sample request: /api/database/sync_prod?data_upload_id=1
 db_search_api.database.review.sync_prod:
   path: '/api/database/review/sync_prod'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSyncProd' }
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSyncProd'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
@@ -181,7 +196,8 @@ db_search_api.database.review.sync_prod:
 
 db_search_api.database.getInfo:
   path: '/api/database/projects'
-  defaults: { _controller: '\Drupal\db_search_api\Controller\SearchController::getInfo'}
+  defaults: 
+    _controller: '\Drupal\db_search_api\Controller\SearchController::getInfo'
   methods: [ GET ]
   requirements:
     _access: 'TRUE'
