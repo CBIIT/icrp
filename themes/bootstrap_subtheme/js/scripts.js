@@ -215,12 +215,12 @@
       //console.log(transliterator_transliterate("Hex-Any/Java", $s));
 
       //var href = 'https://icrpartnership-dev.org/api/country-income-bands';
-      var href = '/sites/default/files/country-codes.json';
+      var href = '/api/country-income-bands';
       $.ajax({
           url:  href,
           success: function( data ) {
-              console.log("data returned")
-              console.dir(data);
+              //console.log("data returned")
+              //console.dir(data);
               reducedFeesProcessData(data);
 
               //var roles = JSON.parse(data);
@@ -228,9 +228,9 @@
 
           }
        });
-      console.log("Load rest service call");
-      console.log("Populate select");
-      console.log("Listen for select change.");
+      //console.log("Load rest service call");
+      //console.log("Populate select");
+      //console.log("Listen for select change.");
     }
   }
 
