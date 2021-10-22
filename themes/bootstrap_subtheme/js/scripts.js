@@ -113,6 +113,12 @@
         case "/cso":
           $.preprocessCSO();
           break;
+        case "/webform/icrp_partnership_applicaion_form/test":
+          $.reducedFees();
+          break;
+        case "/partner-application":
+          $.reducedFees();
+          break;
       }
     }
   }
@@ -134,6 +140,101 @@
     //$('#edit-field-show-end-date-value').parent().hide();
   }
 */
+  function partnershipApplicationAdjustForm(incomeBand) {
+    //If incomeBand is null then assume H or High
+    income_titles = {"H":"High Income", "MU":"Middle Upper Income", "ML":"Middle Lower Income", "L":"Lower Income"};
+    income_title = '';
+    if(!incomeBand) {
+      incomeBand = 'H';
+    }
+    if(incomeBand == "N/A") {
+      $income_title = '';
+    } else {
+      $.each(income_titles , function( key, value ) {
+        console.dir(key+" : "+value);
+        if(key == incomeBand) {
+          income_title = value;
+        }
+      });
+    }
+    //Save incomeBand on the application
+    $('#edit-income-band').text(income_title);
+    reducedFees = (incomeBand == 'MU' || incomeBand == 'ML' || incomeBand == 'L') ? true : false;
+    //alert(reducedFees);
+    //Change checkbox, table, description 
+    $('#edit-country--description').text('World Bank Income Band: '+income_title);
+    if(reducedFees) {
+      $('#edit-reduced-fees').prop('checked', true);
+      $('.max_fee').hide();
+      $('.reduced_fee').show();
+      $('#fee_description').text('Annual membership contribution ($US dollars) [LMIC/UMIC rate, free in year 1]');
+
+    } else {
+      $('#edit-reduced-fees').prop('checked', false);
+      $('.max_fee').show();
+      $('.reduced_fee').hide();
+      $('#fee_description').text('Annual membership contribution ($US dollars)');
+
+    }
+    //#edit-reduced-fees
+  }
+
+  function getIncomeBand(country_code, data) {
+    console.log('looking for....'+country_code);
+    for (var i = 0; i < data.length; i++){
+      console.log(i+") "+data[i]['abbreviation']+"     ...."+country_code);
+      if(data[i]['abbreviation'] == country_code) {
+
+        return data[i]['incomeBand'];
+      }
+    }
+    return 'N/A';
+  }
+  function reducedFeesProcessData(data) {
+    console.log("Setup listener for country-select");
+    $( "#edit-country-select" ).change(function() {
+      //Look up selection and get incomeBand
+      var country_code = $('#edit-country-select').val();
+      var incomeBand = getIncomeBand(country_code, data);
+      //alert( "abbreviation:"+country_code+", incomeBand:"+incomeBand);
+      console.log( "abbreviation:"+country_code+", incomeBand:"+incomeBand);
+      partnershipApplicationAdjustForm(incomeBand);
+    });
+  }
+
+  $.reducedFees = function() {
+
+    if ($("#edit-country-select").attr('reducedFee')) {
+      // reducedFees has already ran this session. Exit
+      return;
+    } else {
+      console.log("Hello reduced fees");
+
+      $("#edit-country-select").attr('reducedFee', 'activated');
+
+      //$s = "\u304A\u65E9\u3046\u3054\u3056\u3044\u307E\u3059";
+      //console.log(transliterator_transliterate("Hex-Any/Java", $s));
+
+      //var href = 'https://icrpartnership-dev.org/api/country-income-bands';
+      var href = '/sites/default/files/country-codes.json';
+      $.ajax({
+          url:  href,
+          success: function( data ) {
+              console.log("data returned")
+              console.dir(data);
+              reducedFeesProcessData(data);
+
+              //var roles = JSON.parse(data);
+              //console.dir(roles);
+
+          }
+       });
+      console.log("Load rest service call");
+      console.log("Populate select");
+      console.log("Listen for select change.");
+    }
+  }
+
   $.surveyCharts = function() {
     
     //Return if charts are already created

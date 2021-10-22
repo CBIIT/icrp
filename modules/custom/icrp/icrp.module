@@ -37,7 +37,35 @@ use Drupal\comment\Entity\Comment;
  *   7. #post_render
  *
  */
+/**
+ * Implements hook_webform_options_WEBFORM_OPTIONS_ID_alter().
+ */
+function icrp_webform_options_external_countries_alter(array &$options, array &$element) {
+  // Load cached options.
+  if ($cache = \Drupal::cache()->get('external_countries')) {
+    $options = $cache->data;
+    return;
+  }
 
+  // Get data as associative array from the external webservice.
+  //$external_countries_url = 'https://gist.githubusercontent.com/mshafrir/2646763/raw/8b0dbb93521f5d6889502305335104218454c2bf/states_hash.json';
+
+  $options = [];
+  $external_countries_url = 'sites/default/files/country-codes.json';
+  $external_json = json_decode(file_get_contents($external_countries_url), TRUE);
+  //drupal_set_message("We are about to decode");
+  //drupal_set_message(print_r($external_json, TRUE));
+  foreach ($external_json as $value) {
+    //drupal_set_message($value['abbreviation']." : ".$value['name']);
+    //array_push($options, array($value['abbreviation']=>$value['name']));
+    $options[$value['abbreviation']] = $value['name'];
+  }
+  //drupal_set_message(print_r($options, TRUE));
+
+  // Cache options so that we don't have to make continual requests
+  // to the external webservice.
+  \Drupal::cache()->set('external_countries', $options);
+}
 /* Survey */
 function isSurveyOpen($webform) {
     $isSurveyOpen = false;
