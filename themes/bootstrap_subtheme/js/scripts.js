@@ -142,10 +142,10 @@
 */
   function partnershipApplicationAdjustForm(incomeBand) {
     //If incomeBand is null then assume H or High
-    income_titles = {"H":"High Income", "MU":"Middle Upper Income", "ML":"Middle Lower Income", "L":"Lower Income"};
+    income_titles = {"H":"High Income", "MU":"Upper Middle Income", "ML":"Lower Middle Income", "L":"Lower Income"};
     income_title = '';
     if(!incomeBand) {
-      incomeBand = 'H';
+      incomeBand = 'No Data';
     }
     if(incomeBand == "N/A") {
       $income_title = '';
@@ -158,7 +158,7 @@
       });
     }
     //Save incomeBand on the application
-    $('#edit-income-band').text(income_title);
+    $('#edit-income-band').text(incomeBand);
     reducedFees = (incomeBand == 'MU' || incomeBand == 'ML' || incomeBand == 'L') ? true : false;
     //alert(reducedFees);
     //Change checkbox, table, description 
@@ -176,7 +176,6 @@
       $('#fee_description').text('Annual membership contribution ($US dollars)');
 
     }
-    //#edit-reduced-fees
   }
 
   function getIncomeBand(country_code, data) {
