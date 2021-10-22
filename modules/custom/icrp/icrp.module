@@ -50,6 +50,7 @@ function icrp_webform_options_external_countries_alter(array &$options, array &$
   // Get data as associative array from the external webservice.
   //$external_countries_url = 'https://gist.githubusercontent.com/mshafrir/2646763/raw/8b0dbb93521f5d6889502305335104218454c2bf/states_hash.json';
 
+  
   $options = [];
   $external_countries_url = 'api/country-income-bands';
   $external_json = json_decode(file_get_contents($external_countries_url), TRUE);
