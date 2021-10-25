@@ -1,6 +1,13 @@
 /**
  * Place your custom styles here.
  */
+ /* For ICRP Partnership Application Webform */
+ #edit-country--description {
+     font-style:italics;
+ }
+ .reduced_fee {
+     display:none;
+ }
 
 /* Fix Bootstrap Reading fonts */
 /* Suggested by Lee on 1/18/2017 */
