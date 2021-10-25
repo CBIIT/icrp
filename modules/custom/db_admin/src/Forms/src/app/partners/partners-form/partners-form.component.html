@@ -119,6 +119,7 @@
         class="m-0 mr-4 font-weight-bold asterisk"
         for="partnerApplicationId">
         Partner
+        <ng-container *ngIf="form.controls.operationType.value === 'Add'">Application</ng-container>
       </label>
 
       <select
@@ -312,7 +313,7 @@
     }"
     ngClass.lt-md="pr-0"
     fxLayout="column"
-    fxFlex="50"
+    [fxFlex]="form.controls.isNonPartner.value ? 50 : 30"
     fxFlex.lt-md="100"
     fxLayoutAlign="start start">
     <label
@@ -344,6 +345,97 @@
       *ngIf="form.controls.country.dirty && form.controls.country?.errors?.required"
       class="help-block mb-0">
       This field is required.
+    </div>
+  </div>
+
+  <div
+    *ngIf="!form.value.isNonPartner && form.value.operationType == 'Add'"
+    class="mb-4"
+    [ngClass]="{
+      'has-error': form.controls.applicationIncomeBand.dirty && form.controls.applicationIncomeBand.invalid,
+      'pr-4': true
+    }"
+    ngClass.lt-md="pr-0"
+    fxLayout="column"
+    fxFlex="20"
+    fxFlex.lt-md="100"
+    fxLayoutAlign="start start">
+    <label
+      for="applicationIncomeBand"
+      class="font-weight-bold control-label">
+      World Bank Income Band
+    </label>
+    <select
+      class="form-control input-sm"
+      id="applicationIncomeBand"
+      formControlName="applicationIncomeBand"
+      readonly>
+      <option
+        [ngValue]="null"
+        *ngIf="!fields.incomeBand"
+        hidden>
+        Loading...
+      </option>
+      <option
+        [ngValue]="null"
+        *ngIf="fields.incomeBand"
+        hidden>
+        No Data
+      </option>
+      <option *ngFor="let incomeBand of fields.incomeBand" [ngValue]="incomeBand.value">
+        {{ incomeBand.label }}
+      </option>
+    </select>
+    <div
+      *ngIf="form.controls.applicationIncomeBand.dirty && form.controls.applicationIncomeBand?.errors?.required"
+      class="help-block mb-0">
+      This field is required.
+    </div>
+    <div class="help-block mb-0">
+      At Date of Application
+    </div>
+  </div>
+
+  <div
+    *ngIf="!form.value.isNonPartner && form.value.operationType == 'Update'"
+    class="mb-4"
+    [ngClass]="{
+      'has-error': form.controls.currentIncomeBand.dirty && form.controls.currentIncomeBand.invalid,
+      'pr-4': true
+    }"
+    ngClass.lt-md="pr-0"
+    fxLayout="column"
+    fxFlex="20"
+    fxFlex.lt-md="100"
+    fxLayoutAlign="start start">
+    <label
+      for="currentIncomeBand"
+      class="font-weight-bold control-label">
+      World Bank Income Band
+    </label>
+    <select
+      class="form-control input-sm"
+      id="currentIncomeBand"
+      formControlName="currentIncomeBand"
+      readonly>
+      <option
+        [ngValue]="null"
+        *ngIf="!fields.incomeBand"
+        hidden>
+        Loading...
+      </option>
+      <option
+        [ngValue]="null"
+        *ngIf="fields.incomeBand"
+        hidden>
+        No Data
+      </option>
+      <option *ngFor="let incomeBand of fields.incomeBand" [ngValue]="incomeBand.value">
+        {{ incomeBand.label }}
+      </option>
+    </select>
+    <div class="help-block mb-0">
+      Income Band at Date of Application: {{ form.values.applicationIncomeBand }}
     </div>
   </div>
 

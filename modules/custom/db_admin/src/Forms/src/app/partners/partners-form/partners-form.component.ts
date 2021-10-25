@@ -116,6 +116,9 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
       status: 'Current',
 
       country: [null, Validators.required],
+      applicationIncomeBand: [null],
+      currentIncomeBand: [null],
+
       email: [null, [Validators.required, Validators.email]],
 
       description: [null, [Validators.required]],
@@ -271,6 +274,12 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
           'isAnnualized'
         );
 
+        if (operationType.value === 'Add') {
+          enabledControls.push('applicationIncomeBand');
+        } else if (operationType.value === 'Update') {
+          // enabledControls.push('currentIncomeBand');
+        }
+
         latitude.setValidators([Validators.required, Validators.min(-90), Validators.max(90)]);
         longitude.setValidators([Validators.required, Validators.min(-180), Validators.max(180)]);
         email.setValidators([Validators.required, Validators.email]);
@@ -355,6 +364,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
           status: record.status,
           description: record.description,
           country: record.country,
+          applicationIncomeBand: record.applicationincomeband,
           website: record.website,
           joinedDate: record.joindate,
           email: record.email,
@@ -390,6 +400,8 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
           sponsorCode: record.abbreviation,
           email: record.email,
           country: record.country,
+          applicationIncomeBand: null,
+          currentIncomeBand: null,
           longitude: record.longitude,
           latitude: record.latitude,
           website: record.website,
@@ -406,26 +418,26 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
       }
     })
 
+    controls.country.valueChanges.subscribe(value => {
+      const country = this.fields.countries
+        .find(country => country.abbreviation === value);
 
-    controls.country.valueChanges.subscribe(country => {
-      controls.country.valueChanges.subscribe(value => {
-        if (!controls.currency.enabled)
-          return;
+      controls.currentIncomeBand.setValue(country.incomeband);
+      controls.currentIncomeBand.markAsDirty();
 
-        const country = this.fields.countries
-          .find(country => country.abbreviation === value);
+      if (!controls.currency.enabled)
+        return;
 
-        if (country && this.fields.currencies
-          .map(currency => currency.code)
-          .includes(country.currency)) {
-          controls.currency.setValue(country.currency);
-        } else {
-          controls.currency.setValue(null);
-        }
+      if (country && this.fields.currencies
+        .map(currency => currency.code)
+        .includes(country.currency)) {
+        controls.currency.setValue(country.currency);
+      } else {
+        controls.currency.setValue(null);
+      }
 
-        controls.currency.markAsDirty();
-      });
-    })
+      controls.currency.markAsDirty();
+    });
 
     controls.isFundingOrganization.valueChanges.subscribe(isFundingOrganization => {
       const { type, currency } = controls;
