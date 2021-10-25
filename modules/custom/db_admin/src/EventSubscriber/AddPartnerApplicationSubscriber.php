@@ -56,27 +56,18 @@ class AddPartnerApplicationSubscriber implements EventSubscriberInterface {
       return false;
     }
 
-    // replace country name with country abbreviation
-    $countryStmt = PDOBuilder::getConnection()->prepare("
-      SELECT RTRIM(Abbreviation) FROM Country
-        WHERE name = ?
-        OR Abbreviation = ?
-    ");
-
-    $countryStmt->execute([$parameters['country'], $parameters['country']]);
-    $parameters['country'] = $countryStmt->fetchColumn() ?? $parameters['country'];
-
     $fields = [
-        ':name'     => $parameters['organization_name'],
-        ':country'  => $parameters['country'],
-        ':email'    => $parameters['email'],
-        ':mission'  => $parameters['description_of_the_organization'],
+        ':name'       => $parameters['organization_name'],
+        ':country'    => $parameters['country'],
+        ':email'      => $parameters['email'],
+        ':mission'    => $parameters['description_of_the_organization'],
+        ':incomeBand' => $parameters['income_band'],
     ];
 
     $stmt = PDOBuilder::getConnection()->prepare("
       INSERT INTO PartnerApplication
-                  (OrgName, OrgCountry, OrgEmail, MissionDesc,  Status)
-          VALUES  (:name,   :country,   :email,   :mission,     'NEW')
+                  (OrgName, OrgCountry, OrgEmail, MissionDesc,  IncomeBand,  Status)
+          VALUES  (:name,   :country,   :email,   :mission,     :incomeBand, 'NEW')
     ");
 
     return $stmt->execute($fields);

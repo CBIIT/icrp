@@ -440,6 +440,7 @@ class PartnerApplicationReviewForm extends FormBase
         ] + $this->getFormValues([
             'organization_name',
             'country',
+            'income_band',
             'email',
             'description_of_the_organization',
         ]);
