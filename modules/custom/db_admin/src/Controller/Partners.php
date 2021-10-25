@@ -13,7 +13,8 @@ class Partners {
             orgName as name,
             orgCountry as country,
             orgEmail as email,
-            missionDesc as description
+            missionDesc as description,
+            incomeBand as applicationIncomeBand,
           FROM PartnerApplication where status = 'NEW'
           ORDER BY name"
         )->fetchAll(),
@@ -30,10 +31,18 @@ class Partners {
           'SELECT
               RTRIM(abbreviation) as abbreviation,
               name,
-              currency
+              currency,
+              incomeBand
               FROM Country
               ORDER BY name'
         )->fetchAll(),
+
+      'incomeBands' => [
+        ['value' => 'H', 'label' => 'High Income'],
+        ['value' => 'MU', 'label' => 'Upper Middle Income'],
+        ['value' => 'ML', 'label' => 'Lower Middle Income'],
+        ['value' => 'L', 'label' => 'Low Income'],
+      ],
 
       'currencies' =>
         $pdo->query(
@@ -58,6 +67,7 @@ class Partners {
         @Email = :email,
         @IsDSASigned = :isDsaSigned,
         @Country = :country,
+        @ApplicationIncomeBand = :applicationIncomeBand,
         @Website = :website,
         @LogoFile = :logoFile,
         @Note = :note,
