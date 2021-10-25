@@ -14,7 +14,7 @@ class Partners {
             orgCountry as country,
             orgEmail as email,
             missionDesc as description,
-            incomeBand as applicationIncomeBand,
+            incomeBand as applicationIncomeBand
           FROM PartnerApplication where status = 'NEW'
           ORDER BY name"
         )->fetchAll(),

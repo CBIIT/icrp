@@ -334,6 +334,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         this.form.patchValue({
           country: record.country,
           description: record.description,
+          applicationIncomeBand: record.applicationincomeband,
           email: record.email,
           name: record.name
         })
