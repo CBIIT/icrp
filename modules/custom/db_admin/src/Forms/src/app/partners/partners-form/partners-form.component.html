@@ -325,7 +325,7 @@
       class="form-control input-sm"
       id="country"
       formControlName="country"
-      [readonly]="!form.value.isNonPartner && form.value.operationType == 'Add'">
+      [attr.readonly]="!form.value.isNonPartner && form.value.operationType == 'Add'">
       <option
         [ngValue]="null"
         *ngIf="!fields.countries"
