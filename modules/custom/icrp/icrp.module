@@ -1,5 +1,6 @@
 <?php
 
+use Drupal;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Form\FormStateInterface;
 use \Drupal\icrp\Importer\OrganizationRestClient;
@@ -23,6 +24,8 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\node\NodeInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\comment\Entity\Comment;
+use Drupal\db_search_api\Controller\PDOBuilder;
+use PDO;
 
 /*
  * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
@@ -37,7 +40,24 @@ use Drupal\comment\Entity\Comment;
  *   7. #post_render
  *
  */
+
+
 /**
+ * Retrieves a list of countries from a pdo connection
+ */
+function getCountryOptions($pdo) {
+  $sql = "
+    SELECT
+        CountryID as id,
+        RTRIM(Abbreviation) as abbreviation,
+        Name as name,
+        IncomeBand as incomeBand
+    from Country";
+
+ return $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);   
+}
+
+ /**
  * Implements hook_webform_options_WEBFORM_OPTIONS_ID_alter().
  */
 function icrp_webform_options_external_countries_alter(array &$options, array &$element) {
@@ -49,11 +69,15 @@ function icrp_webform_options_external_countries_alter(array &$options, array &$
 
   // Get data as associative array from the external webservice.
   //$external_countries_url = 'https://gist.githubusercontent.com/mshafrir/2646763/raw/8b0dbb93521f5d6889502305335104218454c2bf/states_hash.json';
-
   
   $options = [];
+
+  // Get country income bands from a local file if the file exists. Otherwise, use the database connection.
   $external_countries_url = 'api/country-income-bands';
-  $external_json = json_decode(file_get_contents($external_countries_url), TRUE);
+  $external_json = file_exists($external_countries_url)
+    ? json_decode(file_get_contents($external_countries_url), TRUE)
+    : getCountryOptions(PDOBuilder::getConnection("icrp_database"));
+
   foreach ($external_json as $value) {
     $options[$value['abbreviation']] = $value['name'];
   }
@@ -62,6 +86,7 @@ function icrp_webform_options_external_countries_alter(array &$options, array &$
   // to the external webservice.
   \Drupal::cache()->set('external_countries', $options);
 }
+
 /* Survey */
 function isSurveyOpen($webform) {
     $isSurveyOpen = false;
