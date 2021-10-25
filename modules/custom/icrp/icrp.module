@@ -73,7 +73,7 @@ function icrp_webform_options_external_countries_alter(array &$options, array &$
   $options = [];
 
   // Get country income bands from a local file if the file exists. Otherwise, use the database connection.
-  $external_countries_url = 'api/country-income-bands';
+  $external_countries_url = 'sites/default/files/country-codes.json';
   $external_json = file_exists($external_countries_url)
     ? json_decode(file_get_contents($external_countries_url), TRUE)
     : getCountryOptions(PDOBuilder::getConnection("icrp_database"));
