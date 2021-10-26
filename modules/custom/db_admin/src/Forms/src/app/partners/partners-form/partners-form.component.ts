@@ -1,5 +1,5 @@
 import { Component, TemplateRef, ElementRef, ViewChild } from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
 import { PartnersApiService } from '../../services/partners-api.service'
 import { HttpErrorResponse } from '@angular/common/http';
 import { NonPartnersApiService } from '../../services/non-partners-api.service';
@@ -116,8 +116,8 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
       status: 'Current',
 
       country: [null, Validators.required],
-      applicationIncomeBand: [null],
-      currentIncomeBand: [null],
+      applicationIncomeBand: new FormControl({value: null, disabled: true}),
+      currentIncomeBand: new FormControl({value: null, disabled: true}),
 
       email: [null, [Validators.required, Validators.email]],
 
@@ -426,10 +426,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
       const country = this.fields.countries
         .find(country => country.abbreviation === value);
 
-      controls.currentIncomeBand.enable();
-      controls.currentIncomeBand.setValue(country.incomeband);
-      controls.currentIncomeBand.markAsDirty();
-      controls.currentIncomeBand.disable();
+      controls.currentIncomeBand.setValue(country ? country.incomeband : null);
 
       if (!controls.currency.enabled)
         return;

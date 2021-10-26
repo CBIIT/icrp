@@ -432,7 +432,7 @@
         {{ incomeBand.label }}
       </option>
     </select>
-    <div class="help-block mb-0">
+    <div class="help-block mb-0" *ngIf="form.value.partnerId">
       At Date of Application: {{ form.controls.applicationIncomeBand.value || 'N/A' }}
     </div>
   </div>
