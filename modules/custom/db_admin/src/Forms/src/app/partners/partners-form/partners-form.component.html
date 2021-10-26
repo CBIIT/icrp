@@ -433,7 +433,7 @@
       </option>
     </select>
     <div class="help-block mb-0" *ngIf="form.value.partnerId">
-      At Date of Application: {{ form.controls.applicationIncomeBand.value || 'N/A' }}
+      At Date of Application: {{ formatIncomeBand(form.controls.applicationIncomeBand.value) }}
     </div>
   </div>
 

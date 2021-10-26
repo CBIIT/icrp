@@ -461,6 +461,14 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
 
   }
 
+  formatIncomeBand(incomeBandValue: string) {
+    if (!this.fields.incomeBands)
+      return 'N/A';
+
+    const incomeBand = this.fields.incomeBands.find(e => e.value === incomeBandValue);
+    return incomeBand ? incomeBand.label : 'N/A';
+  }
+
 
   submit() {
     this.messages = [];
