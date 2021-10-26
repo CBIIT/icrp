@@ -179,7 +179,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
       nonPartnerId.clearValidators();
       name.clearValidators();
 
-      if (isNonPartner) {
+      if (isNonPartner.value) {
         country.enable();
 
         if (operationType === 'Add') {
@@ -426,8 +426,10 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
       const country = this.fields.countries
         .find(country => country.abbreviation === value);
 
+      controls.currentIncomeBand.enable();
       controls.currentIncomeBand.setValue(country.incomeband);
       controls.currentIncomeBand.markAsDirty();
+      controls.currentIncomeBand.disable();
 
       if (!controls.currency.enabled)
         return;
