@@ -146,6 +146,7 @@ class PartnerApplicationReviewForm extends FormBase
             ["label" => 'Membership contribution tier', 'field' => 'tier_radio'],
             ["label" => 'Research Investment Budget', 'field' => 'tier_radio_budget_range'],
             ["label" => 'the preferred date for payment of annual membership contributions', 'field' => 'payment_radio'],
+            ["label" => 'World Bank Income Band', 'field' => 'income_band'],
             );
 
         $body = $this->addLabelsToBody($labels);

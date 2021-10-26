@@ -157,8 +157,10 @@
         }
       });
     }
-    //Save incomeBand on the application
-    $('#edit-income-band').text(incomeBand);
+    // Save incomeBand on the application
+    // $('#edit-income-band').text(incomeBand);
+    $('#edit-income-band').val(incomeBand);
+
     reducedFees = (incomeBand == 'MU' || incomeBand == 'ML' || incomeBand == 'L') ? true : false;
     //alert(reducedFees);
     //Change checkbox, table, description 
