@@ -172,7 +172,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
     const controls = this.form.controls;
 
     controls.operationType.valueChanges.subscribe(operationType => {
-      const { partnerId, partnerApplicationId, nonPartnerId, name, isNonPartner } = controls;
+      const { partnerId, partnerApplicationId, nonPartnerId, name, isNonPartner, country } = controls;
 
       partnerId.clearValidators();
       partnerApplicationId.clearValidators();
@@ -180,6 +180,8 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
       name.clearValidators();
 
       if (isNonPartner) {
+        country.enable();
+
         if (operationType === 'Add') {
           name.setValidators(Validators.required);
         }
@@ -192,10 +194,12 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
       else {
         if (operationType === 'Add') {
           partnerApplicationId.setValidators(Validators.required);
+          country.disable();
         }
 
         else if (operationType === 'Update') {
           partnerId.setValidators(Validators.required);
+          country.enable();
         }
       }
 
@@ -461,7 +465,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
 
   submit() {
     this.messages = [];
-    const formValue = this.form.value;
+    const formValue = this.form.getRawValue();
 
     for (let key in this.form.controls) {
       this.form.controls[key].markAsDirty();
