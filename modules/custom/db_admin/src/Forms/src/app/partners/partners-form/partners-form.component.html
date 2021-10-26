@@ -324,8 +324,7 @@
     <select
       class="form-control input-sm"
       id="country"
-      formControlName="country"
-      [attr.readonly]="!form.value.isNonPartner && form.value.operationType == 'Add'">
+      formControlName="country">
       <option
         [ngValue]="null"
         *ngIf="!fields.countries"
@@ -369,8 +368,7 @@
     <select
       class="form-control input-sm"
       id="applicationIncomeBand"
-      formControlName="applicationIncomeBand"
-      readonly>
+      formControlName="applicationIncomeBand">
       <option
         [ngValue]="null"
         *ngIf="!fields.incomeBands"
@@ -417,8 +415,7 @@
     <select
       class="form-control input-sm"
       id="currentIncomeBand"
-      formControlName="currentIncomeBand"
-      readonly>
+      formControlName="currentIncomeBand">
       <option
         [ngValue]="null"
         *ngIf="!fields.incomeBands"

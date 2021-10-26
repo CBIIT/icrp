@@ -227,7 +227,6 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
         'operationType',
         'isNonPartner',
         'name',
-        'country',
         'email',
         'description',
         'sponsorCode',
@@ -241,6 +240,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
 
       if (isNonPartner) {
         enabledControls.push(
+          'country',
           'nonPartnerId',
           'estimatedInvestment',
           'cancerOnly',
@@ -273,11 +273,9 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
           'currency',
           'isAnnualized'
         );
-
-        if (operationType.value === 'Add') {
-          enabledControls.push('applicationIncomeBand');
-        } else if (operationType.value === 'Update') {
-          // enabledControls.push('currentIncomeBand');
+        
+        if (operationType.value === 'Update') {
+          enabledControls.push('country');
         }
 
         latitude.setValidators([Validators.required, Validators.min(-90), Validators.max(90)]);
@@ -366,6 +364,7 @@ CREATE  PROCEDURE [dbo].[UpdateNonPartner]
           description: record.description,
           country: record.country,
           applicationIncomeBand: record.applicationincomeband,
+          currentIncomeBand: record.currincomeband,
           website: record.website,
           joinedDate: record.joindate,
           email: record.email,
