@@ -142,7 +142,7 @@
 */
   function partnershipApplicationAdjustForm(incomeBand) {
     //If incomeBand is null then assume H or High
-    income_titles = {"H":"High Income", "MU":"Upper Middle Income", "ML":"Lower Middle Income", "L":"Lower Income"};
+    income_titles = {"H":"High Income", "MU":"Upper Middle Income", "ML":"Lower Middle Income", "L":"Low Income"};
     income_title = '';
     if(!incomeBand) {
       incomeBand = 'No Data';
@@ -218,6 +218,7 @@
 
       //var href = 'https://icrpartnership-dev.org/api/country-income-bands';
       var href = '/api/country-income-bands';
+      //var href = '/sites/default/files/country-codes.json'
       $.ajax({
           url:  href,
           success: function( data ) {
