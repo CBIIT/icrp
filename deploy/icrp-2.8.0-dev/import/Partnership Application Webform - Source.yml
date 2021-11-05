@@ -63,6 +63,7 @@ organization_information:
         '#options': external_countries
         '#required': true
         '#flex': 2
+        '#wrapper_type': form_element
       zip_postal_code:
         '#type': textfield
         '#title': 'ZIP/Postal Code'
