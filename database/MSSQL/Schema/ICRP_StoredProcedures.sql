@@ -7960,9 +7960,11 @@ GO
 CREATE  PROCEDURE [dbo].[GetPartners]
 AS   
 
-	SELECT PartnerID, [Name],SponsorCode,Status,[Description],[Country],[Website],CAST([JoinedDate] AS DATE)AS JoinDate, email, IsDSASigned, latitude, longitude, LogoFile, Note
-	FROM [Partner]
-	ORDER BY SponsorCode
+	SELECT p.PartnerID, p.[Name],p.SponsorCode,p.Status,p.[Description],p.[Country],p.[ApplicationIncomeBand], i.[IncomeBand] AS CurrIncomeBand,
+			p.[Website],CAST(p.[JoinedDate] AS DATE)AS JoinDate, p.email, p.IsDSASigned, p.latitude, p.longitude, p.LogoFile, p.Note
+	FROM [Partner] p
+	JOIN (select Country, Value as IncomeBand from CountryMapLayer where maplayerid=4) i on p.Country = i.Country
+	ORDER BY p.SponsorCode
 
 GO
 
@@ -7993,6 +7995,26 @@ GO
 
 
 ----------------------------------------------------------------------------------------------------------
+/****** Object:  StoredProcedure [dbo].[GetPartner]    Script Date: 10/22/2021 ******/
+----------------------------------------------------------------------------------------------------------
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GetPartner]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[GetPartner]
+GO 
+
+CREATE  PROCEDURE [GetPartner]
+	@PartnerID INT
+AS   
+
+	SELECT p.[Name], p.[Description], p.[SponsorCode], p.[Email], p.[IsDSASigned], p.[Country], p.[Website], p.[LogoFile], p.[Note], 
+		p.[JoinedDate], p.[Longitude], p.[Latitude], p.[Status], p.[ApplicationIncomeBand], i.[IncomeBand] AS CurrIncomeBand
+	FROM Partner p
+	join (select Country, Value as IncomeBand from CountryMapLayer where maplayerid=4) i on p.Country = i.Country
+	WHERE PartnerID =  PartnerID
+
+GO
+
+
+----------------------------------------------------------------------------------------------------------
 /****** Object:  StoredProcedure [dbo].[AddPartner]    Script Date: 12/14/2016 4:21:37 PM ******/
 ----------------------------------------------------------------------------------------------------------
 SET ANSI_NULLS ON
@@ -8006,13 +8028,14 @@ IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[AddPa
 DROP PROCEDURE [dbo].[AddPartner]
 GO 
 
-CREATE  PROCEDURE [dbo].[AddPartner]	
+CREATE PROCEDURE [dbo].[AddPartner]	
 	@Name [varchar](100),
 	@Description [varchar](max),
 	@SponsorCode [varchar](50),
 	@Email [varchar](75),
 	@IsDSASigned [bit],
 	@Country [varchar](100),
+	@ApplicationIncomeBand [varchar](2),
 	@Website [varchar](200),
 	@LogoFile [varchar](100),
 	@Note [varchar](8000),
@@ -8033,8 +8056,8 @@ BEGIN TRY
 		   RAISERROR ('Sponsor Code already existed', 16, 1)
 	END
 
-	INSERT INTO Partner ([Name],[Description], [SponsorCode], [Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], Status, [CreatedDate], [UpdatedDate])
-	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, @Status, GETDATE(), GETDATE())
+	INSERT INTO Partner ([Name],[Description], [SponsorCode], [Email], [IsDSASigned], [Country], [ApplicationIncomeBand], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], Status, [CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @ApplicationIncomeBand, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, @Status, GETDATE(), GETDATE())
 
 	SELECT @PartnerID = SCOPE_IDENTITY()
 		
@@ -8047,8 +8070,8 @@ BEGIN TRY
 	SELECT @Name, @SponsorCode, 'Partner', 1 
 
 	-- Also Insert the newly inserted partner into the icrp_dataload database
-	INSERT INTO icrp_dataload.dbo.Partner ([Name], [Description],[SponsorCode],[Email], [IsDSASigned], [Country], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], Status, [CreatedDate], [UpdatedDate])
-	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, @Status, GETDATE(), GETDATE())
+	INSERT INTO icrp_dataload.dbo.Partner ([Name], [Description],[SponsorCode],[Email], [IsDSASigned], [Country], [ApplicationIncomeBand], [Website], [LogoFile], [Note], [JoinedDate], [Latitude], [Longitude], Status, [CreatedDate], [UpdatedDate])
+	VALUES (@Name, @Description, @SponsorCode, @Email, @IsDSASigned,@Country, @ApplicationIncomeBand, @Website,	@LogoFile, @Note,@JoinedDate, @Latitude, @Longitude, @Status, GETDATE(), GETDATE())
 	
 
 	COMMIT TRANSACTION
@@ -8062,7 +8085,7 @@ BEGIN CATCH
 	  DECLARE @msg nvarchar(2048) = error_message()  
       RAISERROR (@msg, 16, 1)
 	        
-END CATCH  
+END CATCH
 
 GO
 
