@@ -447,3 +447,21 @@ actions:
   '#type': webform_actions
   '#title': 'Submit button(s)'
   '#submit__label': 'Submit Partnership Application'
+contact_person:
+  '#type': contact
+  '#title': 'Contact Person (if different from Executive Director, Chairperson, President named above)'
+  '#default_value':
+    name: ''
+    position: ''
+    email: ''
+    phone: ''
+    address: ''
+    address_2: ''
+    city: ''
+    state_province: ''
+    postal_code: ''
+    country: ''
+  '#wrapper_attributes':
+    style: 'display:none;'
+  '#company__title': Position
+  '#state_province__title': State/Province/Territory
