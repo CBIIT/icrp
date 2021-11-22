@@ -303,6 +303,24 @@ research_investment_budget_information:
         </div>
         
       '#format': full_html
+  payment_container:
+    '#type': container
+    '#attributes':
+      class:
+        - 'container-inline clearfix'
+    payment_radio:
+      '#type': radios
+      '#title': 'Please select the preferred date for payment of annual membership contributions**'
+      '#description': 'Please select the preferred date for payment of annual membership contributions**:'
+      '#wrapper_attributes':
+        class:
+          - col-sm-6
+        style: 'display:none'
+      '#options':
+        '1 January': '1 January'
+        '1 July': '1 July'
+      '#options_display': side_by_side
+      '#required': false
   payment_date_footnote:
     '#type': markup
     '#markup': '(**Please note that your annual membership contribution tier is determined by the current annual research investment budget reported here.&nbsp; The currency exchange rate valid on the date of the membership application pack will be used to determine the US dollar value of your research investment budget.  For organizations in LICs, MICs or UMCs, a free trial year is offered.)'
