@@ -187,7 +187,7 @@ research_investment_budget_information:
             - 'form-group row'
         reporting_period:
           '#type': textfield
-          '#title': 'Reporting period (e.g. 2010)'
+          '#title': 'Reporting period (e.g. 2021)'
           '#wrapper_attributes':
             class:
               - '_col-9 form-group'
@@ -381,7 +381,7 @@ icrp_terms_conditions_of_membership:
     '#required': true
   terms_5:
     '#type': checkbox
-    '#title': 'Agrees to contribute financial support annually for the ICRP to provide administrative support for the partnership and portfolio analyses [*Free trail year for LMIC/UMICs]'
+    '#title': 'Agrees to contribute financial support annually for the ICRP to provide administrative support for the partnership and portfolio analyses [*Free trial year for LMIC/UMICs]'
     '#required': true
   terms_6:
     '#type': checkbox

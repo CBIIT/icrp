@@ -159,7 +159,7 @@
     }
     // Save incomeBand on the application
     // $('#edit-income-band').text(incomeBand);
-    $('#edit-income-band').val(incomeBand);
+    $('#edit-income-band').val(income_title);
 
     reducedFees = (incomeBand == 'MU' || incomeBand == 'ML' || incomeBand == 'L') ? true : false;
     //alert(reducedFees);
