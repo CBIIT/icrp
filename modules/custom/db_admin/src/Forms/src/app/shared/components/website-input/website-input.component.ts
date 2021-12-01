@@ -1,7 +1,5 @@
-import { Component, Input, ElementRef, ViewChild, forwardRef } from '@angular/core';
-import { ControlValueAccessor, FormGroup, FormBuilder, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Observable, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators'
+import { Component, Input, forwardRef } from '@angular/core';
+import { ControlValueAccessor, FormGroup, FormControl,  NG_VALUE_ACCESSOR } from '@angular/forms';
 import * as parse from 'url-parse';
 
 @Component({
@@ -22,7 +20,10 @@ export class WebsiteInputComponent implements ControlValueAccessor {
    * @type {FormGroup}
    * @memberof WebsiteInputComponent
    */
-  form: FormGroup;
+  form: FormGroup =  new FormGroup({
+    protocol: new FormControl("http:"),
+    resource: new FormControl("")
+  });
 
   /**
    * Contains allowed protocol identifiers
@@ -106,67 +107,37 @@ export class WebsiteInputComponent implements ControlValueAccessor {
    */
   private _value: string | null = null;
 
-  /**
-   * Creates an instance of WebsiteInputComponent.
-   * @param {FormBuilder} formBuilder Angular FormBuilder service
-   * @memberof WebsiteInputComponent
-   */
-  constructor(private formBuilder: FormBuilder) {
+  constructor() {
+    const protocolRegex = /^https?:\/\//;
 
-    this.form = formBuilder.group({
-      protocol: 'http:',
-      resource: '',
+    this.form.controls.resource.valueChanges.subscribe((value) => {
+      if (value.length) {
+        if (!protocolRegex.test(value)) value = `${this.form.value.protocol}//${value}`;
+        const protocol = value.match(protocolRegex)[0].replace(/\/{2}$/g, "");
+        const newValue = value.replace(protocolRegex, "");
+
+        this.form.patchValue(
+          {
+            protocol: protocol,
+            resource: newValue
+          },
+          { emitEvent: false }
+        );
+      } else {
+        this.form.patchValue(
+          { resource: "" },
+          { emitEvent: false }
+        );
+      }
     });
 
-    const { protocol, resource } = this.form.controls;
+    this.form.valueChanges.subscribe((value) => {
+      this.value = value.resource
+        ? `${value.protocol}//${value.resource}`
+        : null;
+    });
 
-    // initialize observables for input value changes
-    const protocol$ = protocol.valueChanges;
-
-    // if a website's url was pasted into the input,
-    // remove the protocol from the supplied url,
-    // set the protocol selector to the appropriate value,
-    // and set the input's value to the truncated url
-    const resource$ = resource.valueChanges.pipe(
-      map((value: string = '') => {
-        if (/^https?:\/\//.test(value)) {
-
-          let url = null;
-          let resource = value;
-
-          // eliminate any duplicate leading protocol strings
-          do {
-            url = parse(resource);
-            resource = `${url.host}${url.pathname}`;
-          } while (/^https?:$/.test(url.host))
-
-          // update the form controls to reflect the new value
-          // when valueChanges emits a new value, that value
-          // will be used instead of the current value
-          this.form.setValue({
-            protocol: url.protocol,
-            resource: resource
-          });
-
-          return resource;
-        } else {
-          return value;
-        }
-      }),
-    );
-
-    // update the current value whenever an input changes
-    combineLatest(
-      protocol$,
-      resource$,
-      (protocol, resource) =>
-        protocol && resource
-          ? `${protocol}//${resource}`
-          : null
-    ).subscribe(value => this.value = value)
-
-    protocol.updateValueAndValidity();
-    resource.updateValueAndValidity();
+    this.form.controls.resource.updateValueAndValidity();
   }
 
   /**
@@ -185,29 +156,19 @@ export class WebsiteInputComponent implements ControlValueAccessor {
    * @memberof WebsiteInputComponent
    */
   set value(value: string) {
-
     if (value) {
-      let url = parse(value);
-      let protocol = url.protocol || 'http:';
-      let resource = `${url.host}${url.pathname}${url.query}`;
-
-      this._value = resource
-        ? url.href : null;
-
-      this.form.patchValue(
-        {protocol, resource},
-        {emitEvent: false}
-      );
+      const url = parse(value);
+      this._value = url ? url.href : null;
     } else {
       this._value = null;
     }
-
+    
     this.onChange(this._value);
   }
 
   onChange(value: string) {
-    this.form.controls.protocol.updateValueAndValidity({emitEvent: false});
-    this.form.controls.resource.updateValueAndValidity({emitEvent: false});
+    this.form.controls.protocol.updateValueAndValidity({ emitEvent: false });
+    this.form.controls.resource.updateValueAndValidity({ emitEvent: false });
   }
 
   registerOnTouched() {}
@@ -218,14 +179,15 @@ export class WebsiteInputComponent implements ControlValueAccessor {
   // writes the current value to value property
   writeValue(value: string) {
     this.form.patchValue({
-      protocol: 'http:',
-      resource: value || ''
+      resource: value || ""
     });
   }
 
   setDisabledState(isDisabled: boolean) {
-    isDisabled
-      ? this.form.disable()
-      : this.form.enable();
+    if (isDisabled) {
+      this.form.disable();
+    } else {
+      this.form.enable();
+    }
   }
 }
