@@ -156,17 +156,23 @@ class PartnerApplicationReviewForm extends FormBase
         $section = "Contact Person";
         $labels = array(["label" => 'Name', 'field' => 'name'],
             ["label" => 'Position', 'field' => 'company'],  //Hack: Webform we have to use company field for position
-            ["label" => 'Phone', 'field' => 'phone'],
             ["label" => 'Email', 'field' => 'email'],
-            ["label" => 'Address 1', 'field' => 'address'],
-            ["label" => 'Address 2', 'field' => 'address_2'],
-            ["label" => 'City', 'field' => 'city'],
-            ["label" => 'State/Province/Territory', 'field' => 'state_province'],
-            ["label" => 'Country', 'field' => 'country'],
-            ["label" => 'ZIP/Postal Code', 'field' => 'postal_code'],
-            );
+            ["label" => 'Organization', 'field' => 'organization'],
+        );
+        $old_contact_labels = $this->addLabelsToBody($labels, 'property');
+        $labels = array(["label" => 'Name', 'field' => 'contact_name'],
+            ["label" => 'Position', 'field' => 'contact_position'],
+            ["label" => 'Email', 'field' => 'contact_email'],
+            ["label" => 'Organization', 'field' => 'contact_organization'],
+        );
 
-        $body = $this->addLabelsToBody($labels, 'property');
+        $new_contact_labels = $this->addLabelsToBody($labels);
+        //drupal_set_message("OLD Labels");
+        //drupal_set_message($old_contact_labels);
+        //drupal_set_message("NEW Labels");
+        //drupal_set_message($new_contact_labels);
+
+        $body = strcmp($this->getValue('contact_name'), "Variable not found") == 0 ? $old_contact_labels : $new_contact_labels;
         $this->displaySectionDetail($section, $body, $form, "closed");
 
         /* ICRP Terms & Conditions of membership */
@@ -289,7 +295,7 @@ class PartnerApplicationReviewForm extends FormBase
         $budget_ranges = ["Less than $5M", "$5M-$9M", "$10M-$24M", "$25M-$149M", "$150M-$250M", "$250M or over"];
         /* Get Application Value */
         foreach($this->results as $row) {
-            if($row['name'] == 'email' && $field == 'email') {
+            if(($row['name'] == 'email' && $field == 'email') || ($row['name'] == 'contact_email' && $field == 'contact_email')) {
                 return '<a href="mailto:'.$row['value'].'">'.$row['value'].'</a>';
             } elseif($row['name'] == 'tier_radio' && $field == 'tier_radio') {
                 return $roman[(int)$row['value']-1];
