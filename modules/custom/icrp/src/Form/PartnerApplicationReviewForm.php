@@ -293,6 +293,9 @@ class PartnerApplicationReviewForm extends FormBase
     private function getValue($field) {
         $roman = ['I', 'II', 'III', 'IV', 'V', 'VI'];
         $budget_ranges = ["Less than $5M", "$5M-$9M", "$10M-$24M", "$25M-$149M", "$150M-$250M", "$250M or over"];
+        //Lookup income_band code and change to Text Title
+        $income_titles = array("H"=>"High Income", "MU"=>"Upper Middle Income", "ML"=>"Lower Middle Income", "L"=>"Low Income");
+        //drupal_set_message(print_r($this->results, TRUE));
         /* Get Application Value */
         foreach($this->results as $row) {
             if(($row['name'] == 'email' && $field == 'email') || ($row['name'] == 'contact_email' && $field == 'contact_email')) {
@@ -301,12 +304,15 @@ class PartnerApplicationReviewForm extends FormBase
                 return $roman[(int)$row['value']-1];
             } elseif($row['name'] == 'tier_radio' && $field == 'tier_radio_budget_range') {
                 return $budget_ranges[(int)$row['value']-1];
+            } elseif($row['name'] == 'income_band' && $field == 'income_band') {
+                //drupal_set_message("income_band: ".$row['value']);
+                return in_array($row['value'], array('H', 'MU', 'ML', 'L')) ? $income_titles[$row['value']] : '';
             } elseif($row['name'] == $field) {
                 return $row['value'];
             }
 
         }
-        return "Variable not found";
+        return "";
     }
 
     private function getValueByProperty($field) {
