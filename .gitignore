@@ -96,3 +96,4 @@ package-lock.json
 
 /test.php
 node_modules
+.DS_Store
