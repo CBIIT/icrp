@@ -95,6 +95,7 @@ class Partners {
           'partnerId' => $partnerId,
           'memberType' => 'Partner',
           'memberStatus' => 'Current',
+          'isDataCompletenessExcluded' => false,
           'abbreviation' => $parameters['sponsorCode'],
         ])
       );
