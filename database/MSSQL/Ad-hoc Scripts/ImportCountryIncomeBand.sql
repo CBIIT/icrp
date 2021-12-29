@@ -38,14 +38,19 @@ Update #CountryIncomeBand SET IncomeBand = 'L' WHERE IncomeBand='Low income'
 select * from #CountryIncomeBand
 
 BEGIN Transaction
-UPDATE [CountryMapLayer] SET Value= tt.Incomeband
+
+Update [CountryMapLayer] set value= 'H', updateddate = getdate() where maplayerid=4 and country = 'AQ'
+Update [CountryMapLayer] set value= 'H', updateddate = getdate() where maplayerid=4 and country = 'BV'
+
+
+UPDATE [CountryMapLayer] SET c.Value= tt.Incomeband, c.updateddate = getdate() 
 FROM [CountryMapLayer] c
 JOIN (select m.Country, t.Incomeband from #CountryIncomeBand t
 Right JOIN (SELECT * FROM [icrp_data].[dbo].[CountryMapLayer] where maplayerid=4 and value is null) m
 ON m.country = t.Code) tt ON c.Country = tt.Country -- BV, AQ
 
 
-update country SET Incomeband = m.value
+update country SET Incomeband = m.value, c.updateddate = getdate() 
 from country c
 JOIN (SELECT * FROM [icrp_data].[dbo].[CountryMapLayer] where maplayerid=4) m on m.country = c.Abbreviation
 
