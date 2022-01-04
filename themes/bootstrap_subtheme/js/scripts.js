@@ -193,9 +193,9 @@
   }
   function reducedFeesProcessData(data) {
     //console.log("Setup listener for country-select");
-    $( "#edit-country-select" ).change(function() {
+    $('select[name="country"]').change(function() {
       //Look up selection and get incomeBand
-      var country_code = $('#edit-country-select').val();
+      var country_code = $('select[name="country"]').val();
       var incomeBand = getIncomeBand(country_code, data);
       //alert( "abbreviation:"+country_code+", incomeBand:"+incomeBand);
       //console.log( "abbreviation:"+country_code+", incomeBand:"+incomeBand);
@@ -205,19 +205,19 @@
 
   $.reducedFees = function() {
 
-    if ($("#edit-country-select").attr('reducedFee')) {
+    if ($('select[name="country"]').attr('reducedFee')) {
       // reducedFees has already ran this session. Exit
       return;
     } else {
       //console.log("Hello reduced fees");
 
-      $("#edit-country-select").attr('reducedFee', 'activated');
+      $('select[name="country"]').attr('reducedFee', 'activated');
 
       //$s = "\u304A\u65E9\u3046\u3054\u3056\u3044\u307E\u3059";
       //console.log(transliterator_transliterate("Hex-Any/Java", $s));
 
-      var href = '/api/country-income-bands';
-      //var href = '/sites/default/files/country-codes.json';
+      //var href = '/api/country-income-bands';
+      var href = '/sites/default/files/country-codes.json';
       console.log(href);
       $.ajax({
           url:  href,
