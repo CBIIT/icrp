@@ -216,8 +216,8 @@
       //$s = "\u304A\u65E9\u3046\u3054\u3056\u3044\u307E\u3059";
       //console.log(transliterator_transliterate("Hex-Any/Java", $s));
 
-      //var href = '/api/country-income-bands';
-      var href = '/sites/default/files/country-codes.json';
+      var href = '/api/country-income-bands';
+      //var href = '/sites/default/files/country-codes.json';
       console.log(href);
       $.ajax({
           url:  href,
