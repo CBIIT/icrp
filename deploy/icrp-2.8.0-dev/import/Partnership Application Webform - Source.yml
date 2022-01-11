@@ -56,7 +56,7 @@ organization_information:
         class:
           - 'container-inline clearfix'
       country:
-        '#type': select_other
+        '#type': select
         '#title': Country
         '#description': 'World Bank Income Band:'
         '#title_display': inline
@@ -95,10 +95,12 @@ organization_information:
         '#title_display': inline
         '#required': true
       email:
-        '#type': email_confirm
+        '#type': email
         '#title': Email
-        '#title_display': inline
+        '#title_display': before
         '#required': true
+        '#pattern': '^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$'
+        '#pattern_error': 'Email does not contain a valid email.'
         '#flexbox': '0'
   description_of_the_organization:
     '#type': textarea
@@ -340,10 +342,12 @@ contact_person_s_information:
       '#type': textfield
       '#title': Name
       '#title_display': before
-      '#size': 50
+      '#size': 60
     contact_email:
-      '#type': textfield
+      '#type': email
       '#title': Email
+      '#pattern': '^$|^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$'
+      '#pattern_error': 'Email does not contain a valid email.'
   container_right3:
     '#type': container
     '#attributes':

@@ -151,18 +151,18 @@
       $income_title = '';
     } else {
       $.each(income_titles , function( key, value ) {
-        console.dir(key+" : "+value);
+        //console.dir(key+" : "+value);
         if(key == incomeBand) {
           income_title = value;
         }
       });
     }
     // Save incomeBand on the application
-    // $('#edit-income-band').text(incomeBand);
-    $('#edit-income-band').val(income_title);
+    $('#edit-income-band').text(incomeBand);
+    $('#edit-income-band').attr('value', incomeBand);
 
     reducedFees = (incomeBand == 'MU' || incomeBand == 'ML' || incomeBand == 'L') ? true : false;
-    //alert(reducedFees);
+
     //Change checkbox, table, description 
     $('#edit-country--description').text('World Bank Income Band: '+income_title);
     if(reducedFees) {
@@ -181,9 +181,9 @@
   }
 
   function getIncomeBand(country_code, data) {
-    console.log('looking for....'+country_code);
+    //console.log('looking for....'+country_code);
     for (var i = 0; i < data.length; i++){
-      console.log(i+") "+data[i]['abbreviation']+"     ...."+country_code);
+      //console.log(i+") "+data[i]['abbreviation']+"     ...."+country_code);
       if(data[i]['abbreviation'] == country_code) {
 
         return data[i]['incomeBand'];
@@ -192,33 +192,33 @@
     return 'N/A';
   }
   function reducedFeesProcessData(data) {
-    console.log("Setup listener for country-select");
-    $( "#edit-country-select" ).change(function() {
+    //console.log("Setup listener for country-select");
+    $('select[name="country"]').change(function() {
       //Look up selection and get incomeBand
-      var country_code = $('#edit-country-select').val();
+      var country_code = $('select[name="country"]').val();
       var incomeBand = getIncomeBand(country_code, data);
       //alert( "abbreviation:"+country_code+", incomeBand:"+incomeBand);
-      console.log( "abbreviation:"+country_code+", incomeBand:"+incomeBand);
+      //console.log( "abbreviation:"+country_code+", incomeBand:"+incomeBand);
       partnershipApplicationAdjustForm(incomeBand);
     });
   }
 
   $.reducedFees = function() {
 
-    if ($("#edit-country-select").attr('reducedFee')) {
+    if ($('select[name="country"]').attr('reducedFee')) {
       // reducedFees has already ran this session. Exit
       return;
     } else {
-      console.log("Hello reduced fees");
+      //console.log("Hello reduced fees");
 
-      $("#edit-country-select").attr('reducedFee', 'activated');
+      $('select[name="country"]').attr('reducedFee', 'activated');
 
       //$s = "\u304A\u65E9\u3046\u3054\u3056\u3044\u307E\u3059";
       //console.log(transliterator_transliterate("Hex-Any/Java", $s));
 
-      //var href = 'https://icrpartnership-dev.org/api/country-income-bands';
       var href = '/api/country-income-bands';
-      //var href = '/sites/default/files/country-codes.json'
+      //var href = '/sites/default/files/country-codes.json';
+      console.log(href);
       $.ajax({
           url:  href,
           success: function( data ) {
