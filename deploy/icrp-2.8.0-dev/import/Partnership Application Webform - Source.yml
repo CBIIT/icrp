@@ -267,7 +267,7 @@ research_investment_budget_information:
         	          <td>VI</td>
         	          <td>$250M or over</td>
         	          <td class="max_fee">$25,000</td>
-        	          <td class="reduced_fee">$12,000</td>
+                    <td class="reduced_fee">$12,500</td>
         	      </tr>
         	          <tr class="even" data-drupal-selector="edit-tier-2">
         	          <td>V</td>
