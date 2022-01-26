@@ -70,7 +70,11 @@ RUN composer install
 
 COPY modules/custom/ modules/custom/
 
-COPY themes/boostrap_subtheme/ themes/boostrap_subtheme/
+COPY themes/bootstrap_subtheme/ themes/bootstrap_subtheme/
+
+COPY libraries/ libraries/
+
+ENV PATH "$PATH:/var/www/html/vendor/bin"
 
 EXPOSE 80
 EXPOSE 443
