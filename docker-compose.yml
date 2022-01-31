@@ -1,0 +1,10 @@
+services:
+  icrp:
+    build: 
+      context: "."
+      dockerfile: "docker/icrp.dockerfile"
+    ports:
+      - "8000:80"
+    volumes:
+      - "./sites/default:/var/www/html/sites/default"
+      - "./data:/var/www/html/data"
