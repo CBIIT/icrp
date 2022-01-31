@@ -2,6 +2,17 @@
 
 This repository contains the source code for the International Cancer Research Partnership website. 
 
+## Getting Started with Docker Compose
+
+In the current directory, run:
+
+```bash
+docker-compose build
+docker-compose up -d
+```
+
+If you have any services running on the host (eg: mysql), ensure that your settings.php database entries use `host.docker.internal` as the host.
+
 ## Prerequisites
 
 #### Required system packages (CentOS 6/7)
