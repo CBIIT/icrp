@@ -11,6 +11,12 @@ docker-compose build
 docker-compose up -d
 ```
 
+To use the alternative docker-compose-dev.yml for local development, run:
+```bash
+docker-compose -f docker-compose-dev.yml build
+docker-compose -f docker-compose-dev.yml up -d
+```
+
 If you have any services running on the host (eg: mysql), ensure that your settings.php database entries use `host.docker.internal` as the host.
 
 ## Prerequisites
