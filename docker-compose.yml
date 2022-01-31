@@ -8,3 +8,5 @@ services:
     volumes:
       - "./sites/default:/var/www/html/sites/default"
       - "./data:/var/www/html/data"
+    environment:
+      HOSTNAME: "localhost"
