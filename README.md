@@ -19,6 +19,12 @@ docker-compose -f docker-compose-dev.yml up -d
 
 If you have any services running on the host (eg: mysql), ensure that your settings.php database entries use `host.docker.internal` as the host.
 
+If database services are running behind a bastion host, use the following command to use ssh as a proxy:
+
+```bash
+ssh -i $PRIVATE_KEY -N -L $LOCAL_SERVICE_PORT:$REMOTE_SERVICE_HOST:$REMOTE_SERVICE_PORT $BASTION_USER@$BASTION_HOST
+```
+
 ## Prerequisites
 
 #### Required system packages (CentOS 6/7)
