@@ -49,10 +49,35 @@ ARG COMPOSER_VERSION=1.10.25
 RUN wget https://getcomposer.org/download/${COMPOSER_VERSION}/composer.phar -O /bin/composer \
  && chmod +x /bin/composer
 
+ARG UID=1000
+
+ARG GID=1000
+
+RUN groupadd --gid ${GID} icrp
+
+RUN useradd --uid ${UID} --gid ${GID} -s /bin/bash icrp
+
+RUN sed -i 's/User apache/User icrp/g' /etc/httpd/conf/httpd.conf
+
+RUN sed -i 's/Group apache/Group icrp/g' /etc/httpd/conf/httpd.conf 
+
+RUN sed -i 's/apache/icrp/g' /etc/php-fpm.d/www.conf
+
+RUN mkdir -p \
+    /run/httpd \
+    /run/php-fpm \
+ && chown -R icrp:icrp \
+    /run/httpd/ \
+    /run/php-fpm \
+    /var/www/html \
+    /var/log/httpd \
+    /var/log/php-fpm
+
+USER icrp
+
 WORKDIR /var/www/html
 
 RUN mkdir -p \
-    /run/php-fpm \
     modules/custom \
     sites/default \
     themes/boostrap_subtheme \
@@ -79,6 +104,11 @@ ENV PATH "$PATH:/var/www/html/vendor/bin"
 EXPOSE 80
 EXPOSE 443
 
-CMD rm -rf /run/httpd/* /tmp/httpd* \
+USER root
+
+CMD rm -rf \
+    /run/httpd/* \
+    /run/php-fpm/* \
+    /tmp/httpd* \
  && php-fpm -D \
- && exec /usr/sbin/apachectl -DFOREGROUND
+ && apachectl -DFOREGROUND
