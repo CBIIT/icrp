@@ -3,5 +3,6 @@ description: Allows users to export their search results at /api/database/export
 
 type: module
 core: 8.x
+core_version_requirement: ^8 || ^9
 
 package: ICRP Modules
