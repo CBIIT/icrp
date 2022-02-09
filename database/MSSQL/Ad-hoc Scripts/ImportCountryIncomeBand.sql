@@ -13,7 +13,7 @@ CREATE TABLE #CountryIncomeBand (
 GO
 
 BULK INSERT #CountryIncomeBand
-FROM 'D:\S3\import\WorldBankIncomeByCountry_Missing.csv'
+FROM 'D:\ICRP\database\DataImport\IncomeBand\WorldBankIncomeByCountry_Missing.csv'
 WITH
 (
 	FIRSTROW = 2,
@@ -42,21 +42,27 @@ BEGIN Transaction
 Update [CountryMapLayer] set value= 'H', updateddate = getdate() where maplayerid=4 and country = 'AQ'
 Update [CountryMapLayer] set value= 'H', updateddate = getdate() where maplayerid=4 and country = 'BV'
 
+--select * from [CountryMapLayer] where maplayerid=4 and value is null
 
-UPDATE [CountryMapLayer] SET c.Value= tt.Incomeband, c.updateddate = getdate() 
+-- Update only countries with missing income band
+UPDATE [CountryMapLayer] SET Value= tt.Incomeband, updateddate = getdate() 
 FROM [CountryMapLayer] c
 JOIN (select m.Country, t.Incomeband from #CountryIncomeBand t
-Right JOIN (SELECT * FROM [icrp_data].[dbo].[CountryMapLayer] where maplayerid=4 and value is null) m
-ON m.country = t.Code) tt ON c.Country = tt.Country -- BV, AQ
+      JOIN (SELECT * FROM [CountryMapLayer] where maplayerid=4 and value is null) m ON m.country = t.Code) tt
+ON c.Country = tt.Country
+WHERE maplayerid=4 and Value is null-- BV, AQ
 
 
-update country SET Incomeband = m.value, c.updateddate = getdate() 
+select * from country
+update country SET Incomeband = m.value
 from country c
 JOIN (SELECT * FROM [icrp_data].[dbo].[CountryMapLayer] where maplayerid=4) m on m.country = c.Abbreviation
 
-select * from country where Incomeband is null
+--select * from country where Incomeband is null
 
 commit
+
+rollback
 
 
 
