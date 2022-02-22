@@ -1,0 +1,11 @@
+services:
+  icrp:
+    build: 
+      context: "."
+      dockerfile: "docker/icrp.dockerfile"
+    ports:
+      - "8000:80"
+    volumes:
+      - ".:/var/www/html"
+    environment:
+      HOSTNAME: "localhost"

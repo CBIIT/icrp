@@ -2,6 +2,7 @@ name: CKEditor Plugins for ICRP
 type: module
 description: This module enables additional plugins for CKEditor
 core: 8.x
+core_version_requirement: ^8 || ^9
 package: ICRP Modules
 version: 0.1
 dependencies:

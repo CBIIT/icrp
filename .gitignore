@@ -66,6 +66,7 @@
 /robots.txt
 /sites/README.txt
 /sites/default/default.settings.php
+/sites/default/settings.php.bak
 /update.php
 /web.config
 .vscode
