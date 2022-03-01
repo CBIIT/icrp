@@ -10,6 +10,7 @@ RUN dnf -y update \
     libzip-devel \
     make \
     mod_fcgid \
+    mysql \
     nodejs \
     php \
     php-devel \
