@@ -1,0 +1,60 @@
+#layer-map-legend {
+  background-color: #f5f5f5;
+  margin-left: 26px;
+  padding: 10px;
+}
+
+#layer-map-legend > h3 {
+  margin: 0px 0px .5em;
+}
+
+#layer-map-legend > div {
+  margin: 5px 0px;
+}
+
+#layer-map-legend > div > span:first-child {
+  border: 1px solid #999;
+  cursor: pointer;
+  display: inline-block;
+  margin-right: 5px;
+  opacity: 0.7;
+  width: 3em;
+}
+
+#layer-map-legend > div > span.selected:first-child {
+  border-color: #000;
+}
+
+#layer-map-legend > *:last-child {
+  font-size: 1.3em;
+  padding-top: 5px;
+}
+
+#layer-map-select {
+  display: flex;
+  align-items: center;
+}
+
+#layer-map-select > span:first-child {
+  color: #FFF;
+  font-size: 20px;
+  padding-right: 0.5em;
+}
+
+#layer-map-select .bootstrap-select {
+  font-size: 14px;
+}
+
+#layer-map-select .bootstrap-select button.btn.dropdown-toggle {
+  padding: 4px;
+}
+
+#layer-map-select .dropdown-menu > li > a {
+  padding: 4px;
+  color: black;
+}
+
+#layer-map-select > div > button.btn.btn-default {
+  background-color: white;
+  color: black;
+}

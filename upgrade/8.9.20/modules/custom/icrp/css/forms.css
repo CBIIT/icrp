@@ -1,0 +1,10 @@
+/* Form Control for horizontal forms */
+.form-horizontal .control-label {
+    margin-bottom: 0;
+    padding-top: 7px;
+    text-align: right;
+}
+
+.my-profile-form {
+    padding-bottom:105px;
+}

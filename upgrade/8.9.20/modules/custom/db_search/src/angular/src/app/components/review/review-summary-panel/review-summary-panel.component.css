@@ -1,0 +1,17 @@
+.bold {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.orange {
+  color: orange;
+}
+
+.blue {
+  color: steelblue;
+}
+
+
+.vertical-padding {
+  padding: 10px 0;
+}

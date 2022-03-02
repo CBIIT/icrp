@@ -1,0 +1,131 @@
+<ui-overlay [active]="state.loading && (!state.results || !state.results.length)" [fullscreen]="true">
+  <ui-spinner></ui-spinner>
+  <br>{{ loadingMessage }}
+</ui-overlay>
+
+
+<div class="row">
+  <div class="col-sm-3">
+    <icrp-search-form #searchform
+      (search)="getSearchResults($event)"
+      >
+    </icrp-search-form>
+  </div>
+
+  <div class="col-sm-9">
+
+    <icrp-search-summary-panel
+      #summarypanel
+      [displayParameters]="state.displayParameters"
+      [projectCount]="state.projectCount"
+      [relatedProjectCount]="state.relatedProjectCount"
+      [loading]="state.loading"
+      >
+    </icrp-search-summary-panel>
+
+    <br>
+
+    <alert
+      *ngIf="state.expiredSearchID"
+      type="danger"
+      dismissible="true">
+      The saved search has expired. Search results are saved for 30 days, after which they will no longer be accessible.
+    </alert>
+
+    <div *ngIf="!state.loading && (!state.results || state.results.length === 0)">
+      No results found
+    </div>
+
+    <div *ngIf="state.loading || state.results && state.results.length > 0">
+      <icrp-charts-panel
+        #chartspanel
+        [analytics]="state.analytics"
+        [fields]="fields"
+        (requestChart)="this.getAnalytics(state.searchID, [$event.type], $event.year)">
+      </icrp-charts-panel>
+
+      <br>
+
+      <div
+        *ngIf="!state.loading"
+        style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2px;">
+        <div style="display: flex; align-items: flex-end; ">
+          <div class="btn-group mr-5"  dropdown>
+            <button dropdownToggle type="button" class="btn btn-default dropdown-toggle" style="margin-bottom: 5px">
+              {{ tables[selectedTable] }} <span class="caret"></span>
+            </button>
+            <ul *dropdownMenu class="dropdown-menu" role="menu" style="font-size: 14px; margin-top: -5px;">
+              <li role="menuitem">
+                <a class="dropdown-item" href="#" (click)="selectTable('projects')">{{ tables.projects }}</a>
+              </li>
+
+              <li role="menuitem">
+                <a class="dropdown-item" href="#"(click)="selectTable('institutions')">{{ tables.institutions }}</a>
+              </li>
+            </ul>
+          </div>
+
+          <icrp-export-buttons-panel
+            *ngIf="state.results && state.results.length"
+            [authenticated]="sharedService.get('authenticated')">
+          </icrp-export-buttons-panel>
+          <icrp-data-upload-completeness class="ml2"  style="margin-bottom: 5px"></icrp-data-upload-completeness>
+        </div>
+
+        <a [href]="'/map/?sid=' + sharedService.get('searchID')">
+          <strong><u>View ICRP Map</u></strong>
+        </a>
+      </div>
+
+      <div [style.display]="selectedTable == 'projects' ? 'block' : 'none'">
+        <icrp-results-table-panel
+          [loading]="state.loading"
+          [results]="state.results"
+          [numResults]="state.projectCount"
+          (sortPaginate)="getSortedPaginatedResults($event)">
+        </icrp-results-table-panel>
+      </div>
+
+      <div [style.display]="selectedTable == 'institutions' ? 'block' : 'none'">
+        <em *ngIf="!searchResultViews.institutions">Loading...</em>
+        <ui-local-table
+          *ngIf="searchResultViews?.institutions?.length > 0"
+          [headers]="[
+            {
+              value: 'Institution',
+              label: 'Institution',
+              sortDirection: 'none',
+              tooltip: 'Institution Name'
+            },
+            {
+              value: 'City',
+              label: 'City',
+              sortDirection: 'none',
+              tooltip: 'Institution City'
+            },
+            {
+              value: 'State',
+              label: 'State',
+              sortDirection: 'none',
+              tooltip: 'Institution State'
+            },
+            {
+              value: 'Country',
+              label: 'Country',
+              sortDirection: 'none',
+              tooltip: 'Institution Country'
+            },
+            {
+              value: 'Count',
+              label: 'PI Project Count',
+              sortDirection: 'none',
+              tooltip: 'Total PI Project Count'
+            }]"
+          [data]="searchResultViews.institutions"></ui-local-table>
+      </div>
+
+    </div>
+
+
+  </div>
+</div>

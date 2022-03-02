@@ -1,0 +1,49 @@
+funding_organizations:
+  version: 1.0.8
+  css:
+    theme:
+      https://unpkg.com/ngx-bootstrap/datepicker/bs-datepicker.css: {}
+      assets/funding-organizations/styles.css: {}
+  js:
+    assets/funding-organizations/runtime.js: {}
+    assets/funding-organizations/polyfills.js: {}
+    assets/funding-organizations/main.js: {}
+
+partners:
+  version: 1.0.8
+  css:
+    theme:
+      https://unpkg.com/ngx-bootstrap/datepicker/bs-datepicker.css: {}
+      assets/partners/styles.css: {}
+  js:
+    assets/partners/runtime.js: {}
+    assets/partners/polyfills.js: {}
+    assets/partners/main.js: {}
+
+update_organization_name:
+  version: 1.0.0
+  css:
+    theme:
+      assets/update-organization-name/styles.css: {}
+  js:
+    assets/update-organization-name/main.js: {}
+
+institutions:
+  version: 1.0.8
+  css:
+    theme:
+      assets/institutions/styles.css: {}
+  js:
+    assets/institutions/runtime.js: {}
+    assets/institutions/polyfills.js: {}
+    assets/institutions/main.js: {}
+
+merge_institutions:
+  version: 1.0.8
+  css:
+    theme:
+      assets/merge-institutions/styles.css: {}
+  js:
+    assets/merge-institutions/runtime.js: {}
+    assets/merge-institutions/polyfills.js: {}
+    assets/merge-institutions/main.js: {}

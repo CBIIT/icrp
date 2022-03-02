@@ -1,0 +1,32 @@
+{% set isPartner="false" %}
+{% for role in user.roles %}
+    {% if (role == "manager") or (role == "administrator") or (role == "partner") %}
+        {% set isPartner="true" %}
+    {% endif %}
+{% endfor %}
+
+<!-- Example: http://fontawesome.io/examples/ -->
+<div style="display: flex; align-items: center;">
+    <i style="color: #3371a8; width: 32px; height: 32px; margin: 0 4px 0 -4px;" class="fab fa-twitter-square"></i>
+    <a href="https://twitter.com/icrpartners1" target="_blank">
+        <span class="aside-title">Twitter</span>
+    </a>
+</div>
+
+{# Add class to twitter block base on if partner or not. ##}
+{# This allows Twitter size to use media query to adjust by screen width #}
+{% if isPartner == "true" %}
+  {% set class = 'twitter-partner' %}
+{% else %}
+  {% set class = 'twitter-anonymous' %}
+{% endif %}
+
+<p id="twitter-container" {{ attributes.addClass(class) }}>
+  <a class="twitter-timeline"
+      data-tweet-limit = "5"
+	  data-chrome="nofooter noborders noheader"
+	  href="https://twitter.com/icrpartners1"></a>
+  <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+</p>
+<hr />
+{{ drupal_entity('block', 'lastnewsletter') }}

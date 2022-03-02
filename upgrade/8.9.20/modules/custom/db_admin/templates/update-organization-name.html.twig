@@ -1,0 +1,188 @@
+<h1>Change Organization Name</h1>
+<form class="container" id="update-name-form">
+    <div class="form-group"> Select an organization to update. </div>
+    <div id="alerts-container">
+
+    </div>
+
+    <div class="border mb-4">   
+        <div class="row d-lg-flex align-items-center">
+            <div class="col-md-6">
+                <div class="px-4 py-3">
+                    <div class="row d-lg-flex align-items-center">
+                        <div class="col-md-4">
+                            <label class="control-label m-0">Organization Type</label>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="radio-inline">
+                                <input type="radio" name="organizationType" id="organizationTypePartner" value="partner" checked> 
+                                Partner
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" name="organizationType" id="organizationTypeFundingOrg" value="fundingOrg">
+                                Funding Org.
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="px-4 py-3">
+                    <div class="row d-lg-flex align-items-center">
+                        <div class="col-md-4">
+                            <label class="control-label m-0 required">Partner</label>
+                        </div>
+                        <div class="col-md-8">
+                            <select name="partnerId" id="partnerId" class="form-control">
+                                <option value="" hidden>Select a Partner</option>
+                                {% for partner in fields.partners %}
+                                    <option value="{{partner.partnerid}}" data-type="partner">{{partner.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div data-type="partner-only">
+        <div class="border mb-4">
+            <div class="row d-lg-flex align-items-center">
+                <div class="col-md-6">
+                    <div class="px-4 py-3">
+                        <div class="row d-lg-flex align-items-center">
+                            <div class="col-md-4">
+                                <label for="currentName" class="control-label m-0">Current Name</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input class="form-control" id="currentName" name="currentName" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="px-4 py-3">
+                        <div class="row d-lg-flex align-items-center">
+                            <div class="col-md-4">
+                                <label class="control-label m-0 required">Sponsor Code</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input class="form-control" id="sponsorCode" name="sponsorCode" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>    
+
+        <div class="border mb-4">
+            <div class="row d-lg-flex align-items-center">
+                <div class="col-md-6">
+                    <div class="px-4 py-3">
+                        <div class="row d-lg-flex align-items-center">
+                            <div class="col-md-4">
+                                <label for="newPartnerName" class="control-label m-0 required">New Name</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input class="form-control" id="newPartnerName" name="newPartnerName" placeholder="100 characters maximum" maxlength="100">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="px-4 py-3">
+                        <div class="row d-lg-flex align-items-center">
+                            <div class="col-md-4">
+                                <label class="control-label m-0 required">New Sponsor Code</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input class="form-control" id="newPartnerSponsorCode" name="newPartnerSponsorCode" placeholder="50 characters maximum" maxlength="50">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div data-type="funding-org-only" style="display: none">
+        <div class="border mb-4">
+            <div class="row d-lg-flex align-items-center">
+                <div class="col-md-6">
+                    <div class="px-4 py-3">
+                        <div class="row d-lg-flex align-items-center">
+                            <div class="col-md-4">
+                                <label for="fundingOrgId" class="control-label m-0">Funding Organization</label>
+                            </div>
+                            <div class="col-md-8">
+                                <select name="fundingOrgId" id="fundingOrgId" class="form-control">
+                                    <option value="" id="fundingOrgIdPlaceholder" hidden>Select a Funding Organization</option>
+                                    {% for organization in fields.fundingOrganizations %}
+                                        <option value="{{organization.fundingorgid}}" data-type="funding-org">
+                                            {{organization.name}}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="px-4 py-3">
+                        <div class="row d-lg-flex align-items-center">
+                            <div class="col-md-4">
+                                <label class="control-label m-0 required">Abbreviation</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input class="form-control" id="abbreviation" name="abbreviation" disabled>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>    
+
+        <div class="border mb-4">
+            <div class="row d-lg-flex align-items-center">
+                <div class="col-md-6">
+                    <div class="px-4 py-3">
+                        <div class="row d-lg-flex align-items-center">
+                            <div class="col-md-4">
+                                <label for="newFundingOrgName" class="control-label m-0 required">New Name</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input class="form-control" id="newFundingOrgName" name="newFundingOrgName" placeholder="100 characters maximum" maxlength="100">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="px-4 py-3">
+                        <div class="row d-lg-flex align-items-center">
+                            <div class="col-md-4">
+                                <label for="newFundingOrgAbbreviation" class="control-label m-0 required">New Abbreviation</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input class="form-control" id="newFundingOrgAbbreviation" name="newFundingOrgAbbreviation" placeholder="15 characters maximum" maxlength="15">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <button type="submit" class="btn btn-sm btn-primary mx-1" id="save" disabled>Save</button>
+        <button type="reset" class="btn btn-sm btn-secondary mx-1"  id="cancel">Cancel</button>
+    </div>
+
+</form>
+
+<script type="html-template" id="alert-template">
+    <div class="alert alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+    </div>
+</script>

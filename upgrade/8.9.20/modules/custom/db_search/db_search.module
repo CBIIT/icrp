@@ -1,0 +1,21 @@
+<?php
+
+function db_search_theme($existing, $type, $theme, $path) {
+  return [
+    'search_database' => [
+      'variables' => [
+        'api_root' => NULL,
+        'component_type' => NULL,
+        'user_roles' => NULL,
+      ],
+    ],
+
+    'review_database' => [
+      'variables' => [
+        'api_root' => NULL,
+        'component_type' => NULL,
+        'user_roles' => NULL,
+      ],
+    ],
+  ];
+}

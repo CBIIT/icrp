@@ -1,0 +1,416 @@
+<form [formGroup]="form">
+
+  <!-- Search Terms -->
+  <ui-panel title="Search Terms" [visible]="true">
+    <label class="sr-only" for="search_terms">Search Terms</label>
+    <input #searchterms
+      class="text input"
+      id="search_terms"
+      name="search_terms"
+      type="text"
+      placeholder="Enter search terms"
+      tooltip="Enter search terms"
+      [formControl]="form.controls.search_terms"
+      (change)="updateDisplayParameters('search_terms', [searchterms.value])"
+      >
+
+    <div>
+      <label
+        class="radio-label"
+        for="search_type_all"
+        placement="right"
+        tooltip="Return awards that contain all the words provided">
+        <input
+          class="radio-input"
+          type="radio"
+          id="search_type_all"
+          name="search_type"
+          value="all"
+          [formControl]="form.controls.search_type"
+          (change)="updateDisplayParameters('search_type', ['all'])"
+          >
+        All of the keywords
+      </label>
+    </div>
+
+    <div>
+      <label
+        class="radio-label"
+        for="search_type_none"
+        placement="right"
+        tooltip="Return awards that do not contain any of the words provided">
+        <input
+          class="radio-input"
+          type="radio"
+          id="search_type_none"
+          name="search_type"
+          value="none"
+          [formControl]="form.controls.search_type"
+          (change)="updateDisplayParameters('search_type', ['none'])"
+
+          >
+        None of the keywords
+      </label>
+    </div>
+
+    <div>
+      <label
+        class="radio-label"
+        for="search_type_any"
+        placement="right"
+        tooltip="Return awards that contain any of the words provided">
+        <input
+          class="radio-input"
+          type="radio"
+          id="search_type_any"
+          name="search_type"
+          value="any"
+          [formControl]="form.controls.search_type"
+          (change)="updateDisplayParameters('search_type', ['any'])"
+          >
+        Any of the keywords
+      </label>
+    </div>
+
+    <div>
+      <label
+        class="radio-label"
+        for="search_type_exact"
+        placement="right"
+        tooltip="Return awards that contain the exact phrase provided">
+        <input
+          class="radio-input"
+          type="radio"
+          id="search_type_exact"
+          name="search_type"
+          value="exact"
+          [formControl]="form.controls.search_type"
+          (change)="updateDisplayParameters('search_type', ['exact'])"
+          >
+        Exact phrase provided
+      </label>
+    </div>
+
+    <label class="form-label" for="years_active" tooltip="Awards active in the calendar year. Default view shows most recent 2 years, click below to select additional years.">Year Active</label>
+
+    <label
+      class="pull-right"
+      style="font-weight: normal"
+      tooltip="Search for projects with funding in future years. Note that future portfolios may be incomplete."
+      [style.display]="this.sharedService.get('authenticated') ? 'inline-block' : 'none'"
+    >
+      <input
+        class="radio-input"
+        type="checkbox"
+        id="include_future_years"
+        name="include_future_years"
+        [formControl]="form.controls.include_future_years"
+        (change)="this.setParameters({years: []})"
+      >
+      Include Future Years
+    </label>
+
+    <ui-select
+      tooltip="Awards active in the calendar year. Default view shows most recent 2 years, click below to select additional years."
+      placeholder="All Years Selected"
+      [items]="filterYears()"
+      [formControl]="form.controls.years"
+      (select)="updateDisplayParameters('years', $event)"
+      >
+    </ui-select>
+
+    <i style="color: #888; display: block; font-size: 12px; margin: 4px 2px;">Use this indicator to search for awards that are active during the time period you have selected.</i>
+
+    <label class="form-label" for="award_code" tooltip="Full or partial project award code">Project Award Code</label>
+    <input #awardcode
+      class="text input"
+      id="award_code"
+      type="text"
+      placeholder="Award Code"
+      tooltip="Full or partial project award code"
+      [formControl]="form.controls.award_code"
+      (change)="updateDisplayParameters('award_code', [awardcode.value])"
+      >
+  </ui-panel>
+
+
+
+  <!-- Institutions and Investigators -->
+  <ui-panel title="Institutions and Investigators">
+
+    <div class="inline-controls">
+      <label
+        class="radio-label"
+        for="investigator_type_all"
+        placement="top"
+        tooltip="PIs and Collaborators">
+        <input
+          class="radio-input"
+          type="radio"
+          id="investigator_type_all"
+          name="investigator_type"
+          [value]="null"
+          [formControl]="form.controls.investigator_type"
+          (change)="updateDisplayParameters('investigator_type', ['All'])">
+        All
+      </label>
+
+      <label
+        class="radio-label"
+        for="investigator_type_pi"
+        placement="top"
+        tooltip="Principal investigators only">
+        <input
+          class="radio-input"
+          type="radio"
+          id="investigator_type_pi"
+          name="investigator_type"
+          value="PI"
+          [formControl]="form.controls.investigator_type"
+          (change)="updateDisplayParameters('investigator_type', ['PI'])">
+        PIs only
+      </label>
+
+      <label
+        class="radio-label"
+        for="investigator_type_collaborators"
+        placement="top"
+        tooltip="Collaborators only">
+        <input
+          class="radio-input"
+          type="radio"
+          id="investigator_type_collaborators"
+          name="investigator_type"
+          value="Collab"
+          [formControl]="form.controls.investigator_type"
+          (change)="updateDisplayParameters('investigator_type', ['Collab'])">
+        Collaborators only
+      </label>
+    </div>
+
+
+
+    <label class="form-label" for="institution" tooltip="Full or partial institution name">Institution Name</label>
+    <input #institution
+      class="text input"
+      type="text"
+      id="institution"
+      placeholder="Full or partial name"
+      tooltip="Full or partial institution name"
+      [formControl]="form.controls.institution"
+      (change)="updateDisplayParameters('institution', [institution.value])">
+
+    <label class="form-label" for="pi_first_name" tooltip="Full or partial name of the PI or collaborator">PI or Collaborator</label>
+    <div class="row">
+      <div class="col-md-6">
+        <input #pifirstname
+          class="text input"
+          type="text"
+          id="pi_first_name"
+          placeholder="First name"
+          tooltip="Full or partial first name of the PI or collaborator"
+          [formControl]="form.controls.pi_first_name"
+          (change)="updateDisplayParameters('pi_first_name', [pifirstname.value])"
+          >
+      </div>
+
+      <div class="col-md-6" for="pi_last_name">
+        <input #pilastname
+          class="text input"
+          type="text"
+          id="pi_last_name"
+          placeholder="Last name"
+          tooltip="Full or partial last name of the PI or collaborator"
+          [formControl]="form.controls.pi_last_name"
+          (change)="updateDisplayParameters('pi_last_name', [pilastname.value])"
+          >
+      </div>
+    </div>
+
+    <label class="form-label" for="pi_orcid" tooltip="Full or partial ORCiD of the principal investigator">ORCiD ID</label>
+    <input #piorcid
+      class="text input"
+      type="text"
+      for="pi_orcid"
+      placeholder="nnnn-nnnn-nnnn-nnnn"
+      tooltip="Full or partial ORCiD of the principal investigator"
+      [formControl]="form.controls.pi_orcid"
+      (change)="updateDisplayParameters('pi_orcid', [piorcid.value])"
+      >
+
+    <label class="form-label" for="regions" tooltip="Select one or more regions">Region</label>
+    <ui-select
+      placeholder="Enter Regions"
+      tooltip="Select one or more regions"
+      [items]="fields.regions"
+      [formControl]="form.controls.regions"
+      (select)="clearLocations();"
+      >
+    </ui-select>
+
+    <label class="form-label" for="countries" tooltip="Select one or more countries">Country</label>
+    <ui-select
+      placeholder="Enter Countries"
+      tooltip="Select one or more countries"
+      [items]="fields.countries"
+      [formControl]="form.controls.countries"
+      (select)="clearLocations(); updateDisplayParameters('countries', $event)"
+      >
+    </ui-select>
+
+    <label class="form-label" for="states" tooltip="Select one or more states">State/Territory</label>
+    <ui-select
+      placeholder="Enter States/Territories"
+      tooltip="Select one or more states"
+      [formControl]="form.controls.states"
+      [items]="filterStates(fields.states, (form.controls['countries'] && form.controls['countries'].value) || [])"
+      [disable]="!form.controls['countries'].value || form.controls['countries'].value.length != 1"
+      (select)="updateDisplayParameters('states', $event)"
+      >
+    </ui-select>
+
+    <label class="form-label" for="cities" tooltip="Select one or more cities">City</label>
+    <ui-select
+      placeholder="Enter Cities"
+      tooltip="Select one or more cities"
+      [formControl]="form.controls.cities"
+      [items]="filterCities(fields.cities, (form.controls['states'] && form.controls['states'].value) || [], (form.controls['countries'] && form.controls['countries'].value) || [])"
+      [disable]="!form.controls['countries'].value || form.controls['countries'].value.length != 1"
+      (select)="updateDisplayParameters('cities', $event)"
+      >
+    </ui-select>
+  </ui-panel>
+
+
+  <ui-panel title="Funding Organizations">
+
+    <label class="form-label" for="funding_organization_type" tooltip="Select one or more funding organization types">Funding Organization Types</label>
+    <ui-select
+      tooltip="Select one or more funding organization types"
+      placeholder="Select types"
+      [items]="fields.funding_organization_types"
+      [formControl]="form.controls.funding_organization_types"
+      (select)="updateDisplayParameters('funding_organization_types', $event)"
+      >
+    </ui-select>
+
+
+    <label class="sr-only" for="funding_organizations">Funding Organizations</label>
+
+    <label style="margin-right: 5px;">Group by</label>
+
+    <label
+      class="radio-label"
+      for="funding_organization_group_type_country"
+      placement="top"
+      tooltip="Group funding organizations by country">
+      <input
+        class="radio-input"
+        type="radio"
+        id="funding_organization_group_type_country"
+        name="funding_organization_group_type"
+        [value]="null"
+        [formControl]="form.controls.funding_organization_group_type"
+        checked
+      >
+      Country
+    </label>
+
+    <label
+      class="radio-label"
+      for="funding_organization_group_type_sponsor_code"
+      placement="top"
+      tooltip="Group funding organizations by sponsor">
+      <input
+        class="radio-input"
+        type="radio"
+        id="funding_organization_group_type_sponsor_code"
+        name="funding_organization_group_type"
+        value="sponsor_code"
+        [formControl]="form.controls.funding_organization_group_type"
+      >
+      Sponsor
+    </label>
+
+    <div
+      *ngIf="fields.funding_organizations && form.controls.funding_organization_group_type.value == null"
+      class="multiselect"
+      tooltip="Select one or more funding organizations">
+      <ui-treeview
+        [root]="fields.funding_organizations[0]"
+        [formControl]="form.controls.funding_organizations"
+        (select)="updateDisplayParameters('funding_organizations', $event)"
+        >
+      </ui-treeview>
+    </div>
+    <div
+      *ngIf="fields.funding_organizations && form.controls.funding_organization_group_type.value == 'sponsor_code'"
+      class="multiselect"
+      tooltip="Select one or more funding organizations">
+      <ui-treeview
+        [root]="fields.funding_organizations_by_sponsor_code[0]"
+        [formControl]="form.controls.funding_organizations"
+        (select)="updateDisplayParameters('funding_organizations', $event)"
+        >
+      </ui-treeview>
+    </div>
+  </ui-panel>
+
+
+  <!-- Cancer and Project Type -->
+  <ui-panel title="Cancer and Project Type">
+    <label class="form-label" for="cancer_types" tooltip="Select one or more cancer types">Cancer Types</label>
+    <ui-select
+      tooltip="Select one or more cancer types"
+      placeholder="Select Cancer Types"
+      [items]="fields.cancer_types"
+      [formControl]="form.controls.cancer_types"
+      (select)="updateDisplayParameters('cancer_types', $event)"
+      >
+    </ui-select>
+
+    <label class="form-label" for="is_childhood_cancer" tooltip="Select ‘Yes' to find projects that are wholly relevant, ‘Partially Childhood’ to find projects with some relevance and ‘No’ to find projects unrelated to childhood or adolescent cancers.">Childhood Cancer</label>
+    <ui-select
+      tooltip="Select ‘Yes' to find projects that are wholly relevant, ‘Partially Childhood’ to find projects with some relevance and ‘No’ to find projects unrelated to childhood or adolescent cancers."
+      placeholder="Select Childhood Cancer"
+      [items]="fields.is_childhood_cancer"
+      [formControl]="form.controls.is_childhood_cancer"
+      (select)="updateDisplayParameters('is_childhood_cancer', $event)"
+      >
+    </ui-select>
+
+    <label class="form-label" for="project_types" tooltip="Select one or more project types">Project Types</label>
+    <ui-select
+      tooltip="Select one or more project types"
+      placeholder="Select Project Types"
+      [items]="fields.project_types"
+      [formControl]="form.controls.project_types"
+      (select)="updateDisplayParameters('project_types', $event)"
+      >
+    </ui-select>
+  </ui-panel>
+
+
+  <!-- Common Scientific Outline - Research Area -->
+  <ui-panel title="Common Scientific Outline - Research Area">
+    <label class="sr-only" for="cso_research_areas" tooltip="Select one or more CSO research areas">CSO - Research Areas</label>
+    <div
+      *ngIf="fields.cso_research_areas"
+      class="multiselect"
+      tooltip="Select one or more CSO research areas">
+      <ui-treeview
+        [root]="fields.cso_research_areas[0]"
+        [formControl]="form.controls.cso_research_areas"
+        (select)="updateDisplayParameters('cso_research_areas', $event)"
+        >
+      </ui-treeview>
+    </div>
+  </ui-panel>
+
+  <div class="text-right mv3">
+    <button class="btn btn-primary ml2" (click)="submit()">Search</button>
+    <button class="btn btn-default ml2" (click)="setDefaultParameters()">Reset</button>
+    <button class="btn btn-default ml2" (click)="clearForm()">Clear</button>
+  </div>
+
+</form>

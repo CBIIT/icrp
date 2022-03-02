@@ -1,0 +1,89 @@
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button class="navbar-toggle collapsed" data-target="#manager-navbar-collapse" data-toggle="collapse" type="button"><span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button><!--
+      <a class="navbar-brand" href="#">Brand</a>
+      --></div>
+
+        <div class="collapse navbar-collapse" id="manager-navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="/home" title="Welcome ICRP Partner">Welcome<span class="sr-only">(current)</span></a></li>
+                <li class="expanded dropdown"><a data-drupal-link-system-path="db_search" href="/db_search" title="Search and analyze the ICRP Database">Search and Analyze</a></li>
+                <li><a href="/map" title="ICRP Map">ICRP Map</a></li>
+                <li class="dropdown"><a aria-expanded="false" class="dropdown-toggle" data-toggle="dropdown" href="#" role="button">Data Resources </a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="/partners" title="List of ICRP Partners and Funding Organizations">ICRP Partners and Funding Organizations</a></li>
+                        <li><a href="/testimonials" title="Testimonials">Testimonials</a></li>
+                        <li class="divider">&nbsp;</li>
+                        <li><a href="/resources" title="External Resources">External Resources</a></li>
+                        <li class="divider">&nbsp;</li>
+                        <li><a href="/cso" title="Common Scientific Outline">Common Scientific Outline (CSO)</a></li>
+                        <li><a href="/ICRPDataCaveats" title="">ICRP Data Caveats</a></li>
+                        <li><a href="/sites/default/files/downloads/ICRPDataDictionary.pdf" target="_blank" title="">Data Dictionary</a></li>
+                        <li><a href="/export/lookup-table" title="">Export Lookup Table</a></li>
+
+                        <li class="divider">&nbsp;</li>
+                        <li><a href="/upload-status" title="">Data Upload Status Report</a></li>
+                        <li><a href="/upload-completeness" title="">Data Upload Completeness Report</a></li>
+                    </ul>
+                </li>
+                <li><a href="/forum/6" title="ICRP Forum">Forum</a></li>
+                <li><a href="/library" title="ICRP Library">Library</a></li>
+                <li class="dropdown"><a aria-expanded="false" class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" title="Calendar of ICRP Meetings and External Events">Calendar</a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="/calendar" title="Calendar of ICRP Meetings">Calendar</a></li>
+                        <li><a href="/events" title="ICRP Events">ICRP Events</a></li>
+                    </ul>
+            </ul>
+{% set isManager="false" %}
+{% for role in user.roles %}
+    {% if (role == "manager") or (role == "administrator") %}{% set isManager="true" %}{% endif %}
+{% endfor %}
+        {% if isManager=="true" %}
+
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown"><a aria-expanded="false" class="dropdown-toggle" data-toggle="dropdown" href="#" role="button">Admin</a>
+
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="/user-account-administration-tool" title="Review user accounts with ability to activate/block or change roles. ">User Account Administration Tool</a></li>
+                        <li><a href="/partner-application-administration-tool?webform_submission_value=Pending+Review" title="Review Partner Applications">Partner Application Administration Tool</a></li>
+
+                        <!-- Divider -->
+                        <li class="divider">&nbsp;</li>
+                        <li><a href="/AddPartner" title="Add / Edit ICRP partner">Add / Edit Partner</a></li>
+                        <li><a href="/AddFundingOrg" title="Add / Edit ICRP Funding Organization">Add / Edit Funding Organization</a></li>
+                        <li><a href="/UpdateOrgName" title="Change Organization Name">Change Organization Name</a></li>
+
+                        <!-- Divider -->
+                        <li class="divider">&nbsp;</li>
+                        <li><a href="/AddInstitution" title="Add / Edit Institution">Add / Edit Institution</a></li>
+                        <li><a href="/MergeInstitutions" title="Merge Institutions">Merge Institutions</a></li>
+
+                        <!-- Divider -->
+                        <li class="divider">&nbsp;</li>
+                        <li><a href="/ImportInstitutions" title="Import ICRP Institutions">Import Institutions</a></li>
+                        <li><a href="/ImportCollaborators" title="Import ICRP Collaborators">Import Collaborators</a></li>
+
+                        <!-- Divider -->
+                        <li class="divider">&nbsp;</li>
+                        <li><a href="/DataUploadTool" title="Partner Data Upload Tool">Partner Data Upload Tool</a></li>
+
+                        <!-- Divider -->
+                        <li class="divider">&nbsp;</li>
+			<!--
+                        <li><a href="/survey-results" title="View & Analyize Suvey Results.">Survey Results</a></li>
+			-->
+                        <li><a href="/covid-survey-results?_format=csv" title="Downlaod Suvey Results.">Download Covid-19 Survey Results</a></li>
+                        <li><a href="/block/21?destination=/home" title="Edit or Change the Site Updated Date.">Edit Site Updated Date</a></li>
+                    </ul>
+                </li>
+            </ul>
+
+            {% endif %}
+        </div>
+    </div>
+</nav>

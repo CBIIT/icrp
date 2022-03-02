@@ -1,0 +1,13 @@
+.button-panel {
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 5px;
+}
+
+.mr-5 {
+  margin-right: 5px;
+}
+
+.mr-10 {
+  margin-right: 10px;
+}

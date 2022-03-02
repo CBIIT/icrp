@@ -1,0 +1,87 @@
+<h1>Library</h1>
+<p>The ICRP publishes regular data analyses, newsletters and reports. Please use our library to find reports of interest to the cancer research community, news and announcements. Please note that you must have Adobe's Acrobat Reader to view many of these files. Get Adobe Acrobat Reader free by clicking <a href="https://get.adobe.com/reader/">here</a> . To receive the ICRP newsletter by email please <a href="/contact-us?type-of-issue=Sign%20Up%20for%20Newsletter">contact us.</a></p
+
+<div class="row">
+    <div class="col-md-3 well">
+        <form id="library-search" class="input-group">
+            <input id="keywords" name="keywords" type="text" class="form-control" placeholder="Keywords">
+            <span class="input-group-btn">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                </button>
+            </span>
+        </form>
+
+        <hr>
+
+        {% if isManager %}
+            <a href="#">Create Category</a>
+            <a href="#">Edit Category</a>
+        {% endif %}
+    </div>
+
+    <div class="col-md-9 bordered">
+        <strong id="files-pane-title"></strong>
+        <small class="text-grey">
+            Total Documents:
+            <span id="total-documents"></span>
+        </small>
+
+        {% if isManager %}
+            <a href="#">Upload New File</a>
+            <a href="#">Create Subcategory</a>
+            <a href="#">Archive All Files</a>
+            <a href="#">Download All</a>
+        {% elseif authenticated && canUploadFiles %}
+            <a href="#">Upload New File</a>
+            <a href="#">Download All</a>
+        {% elseif authenticated %}
+            <a href="#">Download All</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Template for edit library item form -->
+<template id="library-form-template">
+    <form>
+        <select name="parent-category"></select>
+        <input name="filename">
+        <input name="file" type="file">
+        <input name="thumbnail">
+        <input name="thumbnail-file" type="file">
+        <input name="description">
+        <input name="is-public" type="checkbox">
+        <input name="folderType" type="radio" value="General">
+        <input name="folderType" type="radio" value="Finance">
+        <input name="folderType" type="radio" value="Operations">
+        <button type="submit">Save</button>
+        <button name="cancel"></button>
+    </form>
+</template>
+
+<!-- Template for library item (ListView) -->
+<template id="library-listitem-template">
+    <div class="library-listitem">
+        <a class="item-title"></div>
+        {% if isManager %}
+            <a href="#" class="edit-file">Edit File<a>
+            <a href="#" class="archive-file">Archive File<a>
+            <a href="#" class="restore-file">Restore File<a>
+        {% endif %}
+    </div>
+</template>
+
+<!-- Template for library item (Thumbnail/IconView) -->
+<template id="library-item-template">
+    <div class="library-item">
+        <div class="item-title"></div>
+        <div class="row">
+            <div class="col-sm-4">
+                <img class="thumbnail" src="#placeholder">
+            </div>
+            <div class="col-sm-8">
+                <p class="item-description"></p>
+                <a class="item-download-link" href="#"></a>
+            </div>
+        </div>
+</template>

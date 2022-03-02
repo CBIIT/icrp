@@ -1,0 +1,72 @@
+/** Global css styles */
+
+.asterisk::after {
+  content: '*';
+  color: red;
+}
+
+.bordered {
+  border: 1px solid #ddd;
+}
+
+input[readonly] {
+  background-color: white !important;
+}
+
+.inline-block {
+  display: inline-block !important;
+}
+
+.padded {
+  padding: 15px;
+}
+
+.pl-5 {
+  padding-left: 5px;
+}
+
+.pr-5 {
+  padding-right: 5px;
+}
+
+.pagination {
+  margin: 2px 0;
+}
+
+.tab-content {
+  border: 1px solid #ddd;
+  border-top: none;
+  padding: 15px;
+}
+
+.vertical-margins {
+  margin: 5px 0;
+}
+
+.has-error table > tbody > tr > td:first-child {
+  color: red;
+}
+
+.rotate-45 {
+  transform: rotate(45deg);
+}
+
+.rotate-225 {
+  transform: rotate(225deg);
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+.nowrap {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -1,0 +1,110 @@
+icrp.form:
+  path: '/user-review/{uuid}'
+  defaults:
+    _title: 'User Review'
+    _form: '\Drupal\icrp\Form\UserReviewForm'
+  requirements:
+    _permission: 'access content'
+
+icrp.my_profile:
+  path: '/my-profile'
+  defaults:
+    _title: 'My Profile'
+    _form: '\Drupal\icrp\Form\MyProfileForm'
+  requirements:
+    _user_is_logged_in: 'TRUE'
+
+icrp.partner_application_admin_tool:
+  path: '/partner-application-administration-tool'
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::partnerApplicationAdministrationTool' 
+    _title: 'Partner Application Admin Tool'
+  requirements:
+    _permission: 'access content'
+
+icrp.partner_application_review:
+  path: '/partner-application-review/{sid}'
+  defaults:
+    _title: 'Partner Application Review'
+    _form: '\Drupal\icrp\Form\PartnerApplicationReviewForm'
+  requirements:
+    _role: 'authenticated+manager'
+
+icrp.events_json:
+  path: /events/{nid}
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::getNodeAsJson'
+  requirements:
+    _format: 'html'
+    _access: 'TRUE'
+
+icrp.node_permissions_json:
+  path: /node-permissions/{nid}
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::getNodePermissionsAsJson'
+  requirements:
+    _format: 'html'
+    _access: 'TRUE'
+
+icrp.events_modal:
+  path: /events/edit/node/{nid}
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::getNodeAsModal'
+  requirements:
+    _format: 'html'
+    _access: 'TRUE'
+
+icrp.user_roles:
+  path: /user-roles
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::getUserRoles'
+  requirements:
+    _format: 'html'
+    _access: 'TRUE'
+icrp.events:
+  path: /events
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::getEvents'
+  requirements:
+    _format: 'html'
+    _access: 'TRUE'
+icrp.resources:
+  path: /resources
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::getResources'
+  requirements:
+    _format: 'html'
+    _access: 'TRUE'
+icrp.survey_results:
+  path: /survey-results
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::getSurveyResults'
+  requirements:
+    _format: 'html'
+    _role: 'administrator+manager'
+  options:
+    no_cache: 'TRUE'
+icrp.survey_status:
+  path: /survey-status
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::getSurveyConfig'
+  requirements:
+    _format: 'html'
+    _access: 'TRUE'
+  options:
+    no_cache: 'TRUE'
+icrp.covid_survey_status:
+  path: /covid-survey-status
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::getCovidSurveyConfig'
+  requirements:
+    _format: 'html'
+    _access: 'TRUE'
+  options:
+    no_cache: 'TRUE'
+icrp.country_income_bands:
+  path: '/api/country-income-bands'
+  defaults:
+    _controller: '\Drupal\icrp\Controller\IcrpController::getCountryIncomeBands'
+  requirements:
+    _access: 'TRUE'

@@ -1,0 +1,979 @@
+/**
+ * Place your custom styles here.
+ */
+ /* For ICRP Partnership Application Webform */
+ #edit-country--description {
+     font-style:italics;
+ }
+ .reduced_fee {
+     display:none;
+ }
+
+/* Fix Bootstrap Reading fonts */
+/* Suggested by Lee on 1/18/2017 */
+
+html, body {
+    font-family: Roboto,Trebuchet MS,Arial,Verdana,Helvetica,sans-serif;
+    font-size: 15px;
+}
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    color: inherit;
+    font-family: Roboto,Trebuchet MS,Arial,Verdana,Helvetica,sans-serif;
+    font-weight: bold;
+    line-height: 1.1;
+}
+h1 {
+    /*color: rgb(226,164,42);*/
+    color: #E8BD6B;
+    font-size: 32px;
+    font-weight: normal;
+    margin-top: 0px;
+}
+.site-color {
+    color: #E8BD6B;
+}
+h2 {
+    margin-top: 0px;
+}
+/* Dialog Box*/
+table .event-table {
+    margin-bottom: 0px;
+}
+/* FAQ question */
+blockquote {
+    padding: 11px 22px;
+    margin: 0 0 22px;
+    font-size: 20px;
+    border-left: 1px solid #4582ec;
+}
+.event-table > thead > tr > th,
+.event-table > tbody > tr > th,
+.event-table > tfoot > tr > th,
+.event-table > thead > tr > td,
+.event-table > tbody > tr > td,
+.event-table > tfoot > tr > td {
+    border-top: 0px;
+}
+.event-table td:first-child {
+    font-weight: bold;
+}
+.event-table img {
+    display:block;
+    max-width: 100%;
+    height:auto;
+}
+
+#calendar-modal h4.modal-title > .fc-event-default {
+    font-size:18px;
+}
+#calendar-modal .modal-body {
+    padding: 20px 20px 0px 20px;
+}
+/* Events and Resources page */
+
+#events-and-resources-card {
+  /*width: 120px; */
+}
+#events-and-resources-card > .card-header {
+    padding: 0.25rem 0.75rem;
+    font-weight:bold;
+}
+#events-and-resources-card > .card-body {
+    padding: 0rem 0.75rem;
+}
+
+/* cellpadding */
+#last-meeting-report-table tr > td {
+  padding: 5px; 
+  vertical-align: top;
+}
+#last-meeting-report-table {
+    margin-bottom:10px;
+}
+
+#last-meeting-report-table tr:nth-child(2) > td {
+  text-align:center;
+  vertical-align: bottom;
+}
+
+#last-meeting-report-img {
+  width:150px;
+  float:left;  
+}
+#last-meeting-report-table {
+    font-size:15px;
+}
+fieldset[data-drupal-selector="edit-status"] > legend,
+fieldset[data-drupal-selector="edit-roles"] > legend,
+fieldset[data-drupal-selector="edit-library-access"] > legend {
+    float:left;
+    width:125px;
+    padding-top: 8px;
+    border: none;
+}
+
+#can-upload-library-files {
+    font-size: 1em;
+    font-weight: bold;
+    border: none;
+    margin: 0;
+    margin-right: 10px;
+}
+
+#can-upload-library-files-container {
+    padding-bottom: 20px;
+}
+
+.container-inline .radio label, .container-inline .checkbox label {
+    padding-right: 12px;
+    font-weight: normal;
+}
+
+#events-and-resources-1--content > div > div > div > .col-md-9 {
+    padding-left: 0px;
+}
+#events-and-resources-1--content > div > div > div > .col-md-3 {
+    padding: 0px;
+}
+#events-and-resources-card {
+    display:none;
+}
+#events-and-resources-1 > .panel-heading > .panel-title,
+#events-and-resources-2 > .panel-heading > .panel-title {
+    display:inline-block;
+}
+.events-edit-link {
+    float:right;
+    display: block;
+    margin: -10px -15px;
+    padding: 20px 25px;
+}
+
+#edit-container2 {
+    height:389.2px;
+}
+#edit-settings {
+    height: 100%;
+}
+
+/* Partner Application Review */
+
+#edit-status--wrapper > div > #edit-status {
+    display: inline-block;
+}
+
+
+/* Full Calendar */
+div.fullcalendar > div > div.fc-center > h2 {
+    color:#222222;
+}
+div.view-next-icrp-meeting-view > div.view-content > div.views-row > div.views-field.views-field-nothing {
+    font-size:18px;
+}
+
+div.view-next-icrp-meeting-view > div.view-content  > div.views-row > div.views-field.views-field-body {
+    margin-top:10px;
+    margin-bottom:5px;
+}
+div.views-field.views-field-nothing-1 {
+    padding-top: 10px;
+}
+/* Footer Nav (spacing) */
+.navbar-nav > li > a {
+    border: 1px solid transparent;
+    border-radius: 4px;
+    margin: 12.5px 6px;
+}
+.fa {
+    color: #3371a8;
+}
+.fa-inverse {
+    color: #fff;
+}
+
+div#views-bootstrap-frequently-asked-questions-page-1 > div.panel {
+    margin-bottom:21px;
+}
+/* Twig Tweak - drupal_block() fix */
+/* Show block in footer but hide it.  It is show elsewhere on the page. */
+footer > div > section#block-partnerhomewelcome,
+footer > div > section#block-partnerhomewelcomemanager,
+footer > div > section#block-partnerhomepartnercalendareditbutton,
+footer > div > section#block-partnerhomepartnercalendar,
+footer > div > section#block-partnerhomepartnermanagementeditbutton,
+footer > div > section#block-partnerhomepartnermanagement,
+footer > div > section#block-icrpsiteupdateddate,
+.region.region-footer > :not(:first-child) {
+  display:none;
+}
+
+section#block-partnerhomewelcome > div > div > h2,
+section#block-partnerhomewelcomemanager > div > div > h2 {
+    margin-top:25px;
+}
+
+div.webform-element > label.control-label {
+    display:none;
+}
+
+.carousel-inner > .item:hover, .carousel-inner > .item:focus {
+    color: #ffffff;
+    opacity: 0.9;
+    outline: 0 none;
+    text-decoration: none;
+    cursor:pointer;
+}
+
+.logo img {
+    margin-top:15px;
+}
+
+/* Membership Status - Expose Form*/
+
+#about-us-container .panel-title {
+    font-size:24px;
+    font-weight: bold;
+}
+#about-us-container .about-us-body {
+    padding: 20px;
+}
+#about-us-container h3 {
+    font-size:20px;
+}
+#about-us-2 dd {
+    display: list-item;list-style-type: disc;
+    margin-left:40px;
+}
+#about-us-3 dt {
+    margin-bottom:5px;
+}
+#form-membership-status  .select-wrapper {
+    display:inline-block;
+}
+div.main-container > div > section > div > div > div > ol {
+    list-style-type:none;
+}
+/* FAQ */
+#faq-detailed-question {
+    font-size:30px;
+    font-weight:bold;
+    margin:25px;
+}
+#faq-body {
+    font-size:18px;
+    margin:25px 50px 0px;
+}
+#organization-body {
+    font-size:30px;
+    font-weight:bold;
+    margin:25px;
+}
+body {
+    margin-top:0px;
+}
+
+/* Footer Nav */
+.nav-footer-middle > ul > li {
+    border-right: 1px solid #bbb;
+    height:25px;
+}
+
+.nav-footer-middle > ul > li:last-child {
+    border-right: none;
+}
+
+.nav-footer-middle > ul > li > a {
+
+    display: inline;
+}
+.nav-footer-middle > ul.nav.navbar-nav > li > a {
+    padding: 5px 2px;
+}
+.nav-footer-middle {
+    min-height:0px;
+    width:350px;
+    text-align: center;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.footer-date {
+    color: darkgrey;
+    font-size:12px;
+}
+.partner-content {
+    border:1px solid #dddddd;
+    border-top:0px;
+    padding:15px;
+}
+.partner-content > div.tab-pane {
+    min-height:400px;
+}
+
+/* CSO Page */
+/* Download block */
+#downloadPanel {
+    width: 210px;
+    float: right;
+    background-color:#FFF;
+    border: 1px solid #cccccc;
+    padding: 10px;
+    line-height: 15px;
+    margin-left: 0px;
+    margin-top: 15px;
+    margin-bottom: 50px;
+    color:#444444;
+    font-size: 12px;
+}
+#downloadTitleBar {
+    background-color:#f0f0f0;
+    font-weight: bold;
+    margin: -10px;
+    margin-bottom: 5px;
+    font-size: 12px;
+    padding:5px;
+    color:#333333;
+}
+#downloadTitleBar img {
+    vertical-align:middle;
+}
+#downloadPanel span {
+    margin-top: 0px;
+    font-size:80%;
+    float:right;
+    color:#555555;
+}
+#downloadPanel hr {
+    border-style:solid;
+    border-width:1px 0px 0px 0px;
+    border-color:#cccccc;
+    margin-top: 9px;
+    margin-bottom: 8px;
+}
+#downloadPanel a img {
+    border:none;
+    width:16px;
+    height:16px;
+    vertical-align:top;
+    margin-right:5px;
+}
+
+#downloadPanelRegisterButton {
+    margin-top: 20px;
+    margin-bottom: 0px;
+    margin-left: 50px;
+}
+/* END of CSO Page */
+
+/* Authenticated and Anonymous User Menu */
+#block-bootstrap-subtheme-account-menu {
+    float: right;
+    margin-right:18px;
+}
+#block-bootstrap-subtheme-account-menu > ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+#block-bootstrap-subtheme-account-menu > ul > li, #block-bootstrap-subtheme-account-menu > ul > a {
+    display: inline;
+    padding-right: 10px;
+}
+/* Search Well */
+.well.search-well {
+    float: right;
+    height: 60px;
+    background:white;
+    /* border:none; */
+    box-shadow: none;
+    /* From .navbar-toggle */
+    background-color: transparent;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 0;
+    float: right;
+    margin-bottom: 5.5px;
+    margin-right: 15px;
+    margin-top: 5.5px;
+    padding: 9px 10px;
+    position: relative;
+}
+.logo {
+    min-width: 933px;
+}
+/* Make .btn responsive */
+
+.btn-responsive {
+    white-space: normal !important;
+    word-wrap: break-word;
+}
+
+/* Well Classes */
+.bg-orange {
+    background-color:BlanchedAlmond;
+}
+.bg-blue {
+    background-color:LightSteelBlue;
+}
+.bg-grey {
+    background-color: #f5f5f5;
+}
+.bg-white {
+    background-color: White;
+}
+
+/* Carousel*/
+.carousel-caption {
+    background-color:#337AB7;
+    /* border: 1px solid; */
+    border-radius: 25px;
+    opacity: 0.7;
+}
+
+/* Search */
+.search-well {
+    background-color: #f8f8f8;
+    border:none;
+}
+/* Looks better fixes */
+/* Header */
+header {
+    margin-bottom:0px;
+    overflow:hidden;
+}
+
+.navbar-default {
+    margin-bottom:0px;
+    background-color: #f8f8f8;
+}
+.front-page a {
+    font-weight:bold;
+}
+#become-a-partner-wells h4, #become-a-partner-wells p {
+    margin-bottom:25px;
+}
+#become-a-partner-wells > div > div > p:last-child {
+    margin-bottom:10px;
+}
+/* h2 titles for contextual-region */
+.contextual-region > h2 {
+    color: black;
+    font-size:18px;
+}
+/* FAQ Add */
+#node-faq-form > div > div.layout-region-node-secondary {
+    display:none;
+    visability:hidden;
+}
+.layout-region-node-secondary {
+    display:none;
+}
+/* Adjust front page container */
+
+/* Home Page */
+
+h1 {
+    font-size: 32px;
+    font-weight: normal;
+}
+h2 {
+    font-size: 24px;
+    font-weight: normal;
+}
+body {
+  position: relative;
+}
+ul.nav-pills {
+  top: 20px;
+  position: absolute;
+}
+
+/* CSO Page */
+#cso-document-container {
+  height: 900px;
+  overflow: auto;
+  border: 2px solid #dddddd;
+  margin-top:15px;
+  margin-bottom:15px;
+}
+
+div#cso-document-container > div > h2 {
+    color:DarkBlue;
+    font-size:18px;
+    font-family: Georgia,"Times New Roman",Times,serif;
+}
+
+div#cso-document-container > div > h1 {
+    color:DarkBlue;
+    font-size:28px;
+    font-weight: bold;
+    font-family: Georgia,"Times New Roman",Times,serif;
+    margin-top:35px;
+}
+
+#cso-container > div > div > button {
+  width:210px;
+  margin-top:5px;
+}
+.nav-pills > li > a {
+    margin-right: 15px;
+}
+.btn-example {
+  /*background-color: LightGrey; */
+  margin-left: 5px;
+}
+/* Adjust label on Webforms */
+#edit-current-annual-operating-budget-container > div > label::before {
+    content: "(Optional)";
+    color: red;
+    padding-right:5px;
+}
+#edit-committee {
+    margin-top:20px;
+}
+
+/*  */
+
+._control-label-align-right {
+  text-align:right;
+}
+._row {
+  padding-top: 1.5rem;
+}
+
+._col-1 > label, ._col-2 > label, ._col-3 > label, ._col-4 > label, ._col-5 > label, ._col-6 > label, ._col-7 > label, ._col-8 > label, ._col-9 > label, ._col-10 > label, ._col-11 > label, ._col-12 > label, ._col-sm-1 > label, ._col-sm-2 > label, ._col-sm-3 > label, ._col-sm-4 > label, ._col-sm-5 > label, ._col-sm-6 > label, ._col-sm-7 > label, ._col-sm-8 > label, ._col-sm-9 > label, ._col-sm-10 > label, ._col-sm-11 > label, ._col-sm-12 > label {
+  position: relative;
+  min-height: 1px;
+  padding-right: 15px;
+  padding-left: 15px;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  margin-bottom: 0;  
+}
+._col-sm-2-for-label > label {
+  color:blue;
+  position: relative;
+  min-height: 1px;
+  padding-right: 15px;
+  padding-left: 15px;
+}
+._col-1 > label {
+  float: left;
+  width: 8.333333%;
+}
+
+._col-2 > label {
+  float: left;
+  width: 16.666667%;
+}
+
+._col-3 > label {
+  float: left;
+  width: 25%;
+}
+
+._col-4 > label {
+  float: left;
+  width: 33.333333%;
+}
+
+._col-5 > label {
+  float: left;
+  width: 41.666667%;
+}
+
+._col-6 > label {
+  float: left;
+  width: 50%;
+}
+
+._col-7 > label {
+  float: left;
+  width: 58.333333%;
+}
+
+._col-8 > label {
+  float: left;
+  width: 66.666667%;
+}
+
+._col-9 > label {
+  float: left;
+  width: 75%;
+}
+
+._col-10 > label {
+  float: left;
+  width: 83.333333%;
+}
+
+._col-11 > label {
+  float: left;
+  width: 91.666667%;
+}
+
+._col-12 > label {
+  float: left;
+  width: 100%;
+}
+
+/* Font Awesome icons on the front page */
+.fa-stack.fa-lg {
+    margin-bottom: 5px;
+}
+aside > div {
+    overflow:hidden;
+}
+.aside-title {
+    color: #3371a8;
+    font-size: 22px;
+}
+.newsletter-title{
+    padding:2px;
+    font-size:18px;
+    font-weight:bold;
+}
+.newsletter-image {
+    padding:15px;
+}
+#newsletter-description-container {
+    overflow:hidden;
+}
+.newsletter-description{
+    padding:5px;
+}
+.newsletter-image img {
+    box-shadow: 10px 10px 5px #888888;
+}
+
+/* Twitter Container */
+#twitter-container {
+    min-height:350px;
+    min-width:135px;
+    overflow-y:scroll;
+}
+.twitter-anonymous {
+}
+.twitter-partner {
+    height:160px;
+}
+.icrp-bootstrap-container:last-of-type {
+    margin-bottom:10px;
+}
+.icrp-bootstrap-container {
+    margin-top:10px;
+}
+.dl-horizontal dt {
+    white-space: normal;
+    width:550px;
+}
+.dl-horizontal dd {
+    white-space: normal;
+    margin-left: 560px;
+}
+.webform-header {
+    font-weight:bold;
+    margin-top:5px;
+}
+ul.icrp-terms-list {
+    margin:10px;
+    list-style:none;
+    padding: 0px;
+}
+ul.icrp-terms-list li:before {
+    content: '\2713';
+    margin: 0 1em;    /* any design */
+}
+
+/* Survey Reuslts */
+/*
+.survey > div > div > div > div {
+    border:1px solid black;
+    margin:10px;
+}
+*/
+.survey .row {
+    margin-left:25px;
+
+}
+.survey h3 {
+    font-size:16px;
+    text-align:center;
+}
+.survey .card {
+    margin:10px;
+    padding-left:10px;
+    padding-right:10px;
+}
+
+/* Suvey Results Completed Col */
+.view-survey-results table > thead > tr > th:nth-child(2) {
+    width:110px;
+}
+/* Suvey Results Reason for vist Col */
+.view-survey-results table > thead > tr > th:nth-child(3) {
+    width:270px;
+}
+/* Suvey Results Reason for vist Col */
+.view-survey-results table > thead > tr > th:nth-child(8) {
+    width:300px;
+}
+.survey-results-table > h2 {
+    font-weight:normal;
+    font-size:30px;
+}
+.survey-results, .feed-icons {
+    display:none;
+}
+.survey-results-table > div:nth-child(2) {
+    padding-bottom:10px;
+}
+.survey-chart-container {
+    padding-left:10px;
+ }
+/* First p showed up on Welcome Page */
+/*
+.field.field--name-body.field--type-text-with-summary.field--label-hidden.field--item > p {
+    height:0px;
+}
+*/
+
+/*==================================================
+=            Bootstrap 3 Media Queries             =
+==================================================*/
+
+/*==========  Mobile First Method  ==========*/
+
+/* Custom, iPhone Retina */
+@media only screen and (min-width : 320px) {
+    .main-container {
+        padding-left:15px;
+        padding-right:15px;
+    }
+    .newsletter-image img {
+        width:180px;
+    }
+    .twitter-anonymous {
+        height:400px;
+    }
+    .dl-horizontal dt {
+        width: 100%;
+        float: !important;
+    }
+    .dl-horizontal dd {
+        margin-left: 0px;
+
+    }
+}
+
+/* Extra Small Devices, Phones */
+@media only screen and (min-width : 480px) {
+    .main-container {
+        padding-left:15px;
+        padding-right:15px;
+    }
+    .nav-footer-middle > ul > li {
+        border-right: 0px;
+    }
+    #twitter-container {
+        margin: 0 -10px;
+    }
+    .newsletter-image img {
+        width:180px;
+    }
+    .twitter-anonymous {
+        height:500px;
+    }
+    #block-bootstrap-subtheme-account-menu {
+        margin-top:25px;
+    }
+    .dl-horizontal dt {
+        width: 100%;
+        float: !important;
+    }
+    .dl-horizontal dd {
+        margin-left: 0px;
+
+    }
+}
+
+/* Small Devices, Tablets */
+@media only screen and (min-width : 768px) {
+    .main-container {
+        padding-left:15px;
+        padding-right:15px;
+    }
+    .newsletter-image img {
+        width:120px;
+    }
+    .twitter-anonymous {
+        height:410px;
+    }
+    #block-bootstrap-subtheme-account-menu {
+        margin-top:5px;
+    }
+    .dl-horizontal dt {
+        width:374px;
+    }
+    .dl-horizontal dd {
+        margin-left: 394px;
+    }
+}
+
+/* Medium Devices, Desktops */
+@media only screen and (min-width : 992px) {
+    .main-container {
+        padding-left:0px;
+        padding-right:0px;
+    }
+    .newsletter-image img {
+        width:180px;
+    }
+    .twitter-anonymous {
+        height:365px;
+    }
+    #block-bootstrap-subtheme-account-menu {
+        margin-top:25px;
+    }
+    .dl-horizontal dt {
+        width:490px;
+    }
+    .dl-horizontal dd {
+        margin-left: 510px;
+    }
+}
+
+/* Large Devices, Wide Screens */
+@media only screen and (min-width : 1200px) {
+    .main-container {
+        padding-left:0px;
+        padding-right:0px;
+    }
+    .newsletter-image img {
+        width:180px;
+    }
+    .twitter-anonymous {
+        height:390px;
+    }
+    .dl-horizontal dt {
+        width:590px;
+    }
+    .dl-horizontal dd {
+        margin-left: 610px;
+    }
+}
+
+@media only screen and (min-width : 1450px) {
+    #navbar, .footer, .main-container {
+        width:1440px;
+        max-width:1440px;
+    }
+    .main-container {
+        padding-left:0px;
+        padding-right:0px;
+    }
+    .front-page-banner {
+        width:72%;
+    }
+    .newsletter-image img {
+        width:190px;
+    }
+    .twitter-anonymous {
+        height:475px;
+    }
+    .dl-horizontal dt {
+        width:590px;
+    }
+    .dl-horizontal dd {
+        margin-left: 610px;
+    }
+}
+
+
+.icrp-survey-modal .modal-content {
+    border: 4px solid steelblue;
+}
+
+
+.icrp-survey-modal .modal-header {
+    background-color: steelblue;
+    color: white;
+}
+
+#google_translate_element {
+    display: inline-block; 
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    text-align: right;
+    margin: 5px 26px;
+}
+.goog-tooltip.skiptranslate {
+    display:none !important;
+}
+
+.flex-container-bap {
+    display: flex;
+    flex-direction: row;
+ 
+  }
+.flex-container-bap > div {
+  display: flex; 
+  width: 100%;
+}
+
+.flex-container-bap > div:first-child {
+    margin-right: 15px;
+}
+
+.flex-container-bap > div:nth-child(2) {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+.flex-container-bap > div:nth-child(3) {
+    margin-left: 15px;
+}
+  
+
+/* On screens that are 992px wide or less, the background color is blue */
+
+@media screen and (max-width: 992px) {
+  .flex-container-bap {
+    flex-flow: row;
+  }
+  
+  .flex-container-bap > div:first-child {
+    margin-right: 15px;
+  }
+
+  .flex-container-bap > div:nth-child(2) {
+    margin-left: 15px;
+    margin-right: 15px;
+  }
+  .flex-container-bap > div:nth-child(3) {
+    margin-left: 15px;
+  }
+  
+}
+
+
+/* On screens that are 600px wide or less, the background color is olive */
+@media screen and (max-width: 799px) {
+  .flex-container-bap {
+    flex-flow: row wrap;
+  }
+  
+  .flex-container-bap > div:first-child {
+    margin-right: 0px;
+  }
+
+  .flex-container-bap > div:nth-child(2) {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+  .flex-container-bap > div:nth-child(3) {
+    margin-left: 0px;
+  }
+
+}
+

@@ -1,0 +1,20 @@
+drupal.fullcalendar_options_icrp.js:
+  js:
+    js/fullcalendar_options_icrp.fullcalendar.js: { }
+  dependencies:
+    - fullcalendar/drupal.fullcalendar
+
+icrp-corescripts:
+  version: 0.0.1
+  js:
+    js/icrp.js: {}
+  css:
+    css/forms.css: {}
+    theme:
+      css/forms.css: {}
+  dependencies:
+    - core/jquery
+    - core/drupal.ajax
+    - core/drupal
+    - core/drupalSettings
+    - core/jquery.once

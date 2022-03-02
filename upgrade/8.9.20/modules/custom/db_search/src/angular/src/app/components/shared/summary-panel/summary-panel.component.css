@@ -1,0 +1,28 @@
+ul {
+    display: block;
+    list-style-type: disc;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.title {
+  padding: 4px 6px;
+  border: 1px solid #ddd;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background: linear-gradient(#fff,#f2f2f2);
+  cursor: pointer;
+}
+
+.content {
+  padding: 0 10px;
+  border: 1px solid #ddd;
+  border-top: none;
+  box-shadow: 1px 1px 6px #eee;
+}
+
+
+
+.rotate-45 {
+  transform: rotate(45deg);
+}

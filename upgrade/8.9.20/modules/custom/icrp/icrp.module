@@ -1,0 +1,2352 @@
+<?php
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\taxonomy\Entity\Term;
+use Drupal\Core\Database\Query\AlterableInterface;
+use Drupal\Core\Mail\MailFormatHelper;
+
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormStateInterface;
+use \Drupal\icrp\Importer\OrganizationRestClient;
+use Drupal\views\Plugin\views\PluginBase;
+use Drupal\views\ViewExecutable;
+use Drupal\views\Views;
+use Drupal\Core\Mail\MailManagerInterface;
+use Drupal\Component\Utility\SafeMarkup;
+use Drupal\Component\Utility\Html;
+use Drupal\Core\Template;
+use Drupal\Core\Datetime\DrupalDateTime;
+
+use Drupal\Core\Datetime\Entity\DateFormat;
+use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
+use Drupal\Core\GeneratedLink;
+
+use Drupal\user\Entity\User;
+use Drupal\Core\Form\FormState;
+use Drupal\Core\Url;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+
+use Drupal\node\NodeInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\comment\Entity\Comment;
+use Drupal\db_search_api\Controller\PDOBuilder;
+
+/*
+ * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
+ * @25:58 minutes
+ * Overview of rendering flow
+ * 1. drupal_render()
+ *   2. #pre_render
+ *   3. _theme()
+ *     4. Theme suggestion hooks
+ *     5. Preprocess functions
+ *     6. Template is rendered
+ *   7. #post_render
+ *
+ */
+
+
+ \Drupal\core\Database\Database::getConnection();
+
+/**
+ * Retrieves a list of countries from a pdo connection
+ */
+function getCountryOptions($pdo) {
+  $sql = "
+    SELECT
+        CountryID as id,
+        RTRIM(Abbreviation) as abbreviation,
+        Name as name,
+        IncomeBand as incomeBand
+    from Country";
+
+ return $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);   
+}
+
+ /**
+ * Implements hook_webform_options_WEBFORM_OPTIONS_ID_alter().
+ */
+function icrp_webform_options_external_countries_alter(array &$options, array &$element) {
+  // Load cached options.
+  if ($cache = \Drupal::cache()->get('external_countries')) {
+    $options = $cache->data;
+    return;
+  }
+
+  // Get data as associative array from the external webservice.
+  //$external_countries_url = 'https://gist.githubusercontent.com/mshafrir/2646763/raw/8b0dbb93521f5d6889502305335104218454c2bf/states_hash.json';
+  
+  $options = [];
+
+  // Get country income bands from a local file if the file exists. Otherwise, use the database connection.
+  $external_countries_url = 'sites/default/files/country-codes.json';
+  $external_json = file_exists($external_countries_url)
+    ? json_decode(file_get_contents($external_countries_url), TRUE)
+    : getCountryOptions(PDOBuilder::getConnection("icrp_database"));
+
+  foreach ($external_json as $value) {
+    $options[$value['abbreviation']] = $value['name'];
+  }
+
+  // Cache options so that we don't have to make continual requests
+  // to the external webservice.
+  \Drupal::cache()->set('external_countries', $options);
+}
+
+/* Survey */
+function isSurveyOpen($webform) {
+    $isSurveyOpen = false;
+    //$config = \Drupal::config('webform.webform.icrp_website_survey');
+    $config = \Drupal::config($webform);
+
+    if(!isset($config)) {
+      return "ICRP Website Survey does not exist.  ";
+    }
+
+    $now = new DrupalDateTime('now');
+    $open = (int) $config->get('open') == "null";
+    $open = !$open ? new DrupalDateTime($config->get('open')) : NULL;
+    $close = (int) $config->get('close') == "null";
+    $close = !$close ? new DrupalDateTime($config->get('close')) : NULL;
+
+    if(!is_null($open)  && is_null($close)) {
+      if($open->getTimestamp() < $now->getTimestamp()) {
+        $isSurveyOpen = true;
+      }
+    }
+    if(!is_null($open)  && !is_null($close)) {
+      if($open->getTimestamp() < $now->getTimestamp() && $close->getTimestamp() > $now->getTimestamp()) {
+        $isSurveyOpen = true;
+      }
+    }
+
+    return $isSurveyOpen;
+
+}
+
+function getSurveyStatus() {
+
+    $message = "Survey not started yet.  "; //now < open
+
+    $config = \Drupal::config('webform.webform.icrp_website_survey');
+
+    if(!isset($config)) {
+      return "ICRP Website Survey does not exist";
+    }
+
+    $now = new DrupalDateTime('now');
+    $open = (int) $config->get('open') == "null";
+    $open = !$open ? new DrupalDateTime($config->get('open')) : NULL;
+    $close = (int) $config->get('close') == "null";
+    $close = !$close ? new DrupalDateTime($config->get('close')) : NULL;
+    if(!is_null($open)) {
+      //$long_date_template = 'F j, Y g:i A e';
+      $long_date_template = 'F j, Y';
+      $open_time = new DrupalDateTime($config->get('open'), 'UTC');
+      //$open_time->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+      // date_default_timezone_get());
+      //$open_time->prepareTimezone(date_default_timezone_get());
+      $open_timestamp = $open_time->format($long_date_template);
+      $message .= '  The survey is scheduled to open on '.$open_timestamp.'.';
+    }
+
+    if(!is_null($open)  && is_null($close)) {
+      if($open->getTimestamp() < $now->getTimestamp()) {
+        $message = "$open_timestamp - Present";  // open < now  && close is NULL
+      }
+    }
+    if(!is_null($open)  && !is_null($close)) {
+      if($open->getTimestamp() < $now->getTimestamp() && $close->getTimestamp() > $now->getTimestamp()) {
+        $message = "$open_timestamp - Present";  // open < now < close
+      }
+    }
+    if(!is_null($close)) {
+      //drupal_set_message($now->format('F j, Y g:i A e'));
+      //drupal_set_message($close->format('F j, Y g:i A e'));
+      if($close->getTimestamp() < $now->getTimestamp()) {
+        $message = "Survey is now closed.";  // close < now
+      }
+    }
+
+    if($config->get('status') == "closed") {
+      $message = "Survey is now closed";  // close < now
+    }
+
+    return $message;
+}
+
+function getSurveyPeriod() {
+  $first_date = "";
+  $first_date_short = "";
+  $last_date = "";
+
+  $query = "SELECT DATE_FORMAT(FROM_UNIXTIME(completed), '%M %e, %Y') AS 'first_date', DATE_FORMAT(FROM_UNIXTIME(completed), '%M %e') AS 'first_date_short' FROM webform_submission  where webform_id = 'icrp_website_survey' LIMIT 1;";
+
+  $result=\Drupal::database()->query($query);
+  $row = $result->fetchObject();
+
+  if(isset($row->first_date)) {
+    $first_date = $row->first_date;
+  }
+  if(isset($row->first_date_short)) {
+    $first_date_short = $row->first_date_short;
+  }
+
+  $query = "SELECT DATE_FORMAT(FROM_UNIXTIME(completed), '%M %e, %Y') AS 'last_date' FROM webform_submission  where webform_id = 'icrp_website_survey' order by completed desc LIMIT 1;";
+  $result = \Drupal::database()->query($query);
+  $row = $result->fetchObject();
+
+  if(isset($row->last_date)) {
+    $last_date = $row->last_date;
+  }
+  $response = "";
+  if($first_date == $last_date) {
+    $response = $last_date;
+  } else {
+    $response = $first_date_short." - ".$last_date;
+  }
+
+  return $response;
+}
+
+function getSurveyNumberResponses() {
+  $query = 'SELECT count(*) as count FROM webform_submission';
+  $query .= " where webform_id = 'icrp_website_survey'";
+
+  $result = \Drupal::database()->query($query);
+  $row = $result->fetchObject();
+
+  $response = 0;
+  if(isset($row->count)) {
+    $response = $row->count;
+  }
+ 
+  return $response;
+}
+
+function getWebformCount($webform_id, $name, $value) {
+ 
+  $query = "SELECT count(*) as count FROM webform_submission_data"; 
+  $query .= " where webform_id = '{$webform_id}'";
+  $query .= " and name = '{$name}'";
+  $query .= " and value = '{$value}';";
+
+  $result = \Drupal::database()->query($query);
+  $row = $result->fetchObject();
+
+  $response = 0;
+  if(isset($row->count)) {
+    $response = $row->count;
+  }
+ 
+  return $response;
+}
+
+function getSurveyData($chartname) {
+  $webform_id = "icrp_website_survey";
+  $response = "";
+
+  switch ($chartname) {
+    case 'reasons':
+      $name = "what_were_your_reasons_for_visiting_the_icrp_site_today";
+      $d1 = getWebformCount($webform_id, $name, 'To use the database to obtain information about cancer research activity');
+      $d2 = getWebformCount($webform_id, $name, 'To use the ICRP map to obtain information about cancer research activity and collaborations');
+      $d3 = getWebformCount($webform_id, $name, 'To obtain information for advocacy efforts');
+      $d4 = getWebformCount($webform_id, $name, 'To obtain information for cancer research planning or strategy');
+      $d5 = getWebformCount($webform_id, $name, 'To obtain information about joining ICRP');
+      $d6 = getWebformCount($webform_id, $name, 'To find out more about ICRP annual meetings');
+      $d7 = getWebformCount($webform_id, $name, 'To access a document or report from the Library');
+      $d8 = getWebformCount($webform_id, $name, 'Other (please explain below)');
+
+      $response = '["Answer", "Response"], ';
+      $response .= '["Search cancer research activity", '.$d1.'], ';
+      $response .= '["ICRP map", '.$d2.'], ';
+      $response .= '["Advocacy efforts", '.$d3.'], ';
+      $response .= '["Cancer research planning", '.$d4.'], ';
+      $response .= '["Joining ICRP", '.$d5.'], ';
+      $response .= '["ICRP annual meetings", '.$d6.'], ';
+      $response .= '["Access documents from Library", '.$d7.'], ';
+      $response .= '["Other", '.$d8.']';
+      break;
+    case 'background':
+      $name = 'which_of_the_following_best_describes_your_background';
+      $d1 = getWebformCount($webform_id, $name, 'Cancer / health researcher');
+      $d2 = getWebformCount($webform_id, $name, 'Cancer / health research funding organization');
+      $d3 = getWebformCount($webform_id, $name, 'Health / cancer policy');
+      $d4 = getWebformCount($webform_id, $name, 'Healthcare delivery');
+      $d5 = getWebformCount($webform_id, $name, 'Public health programs/education');
+      $d6 = getWebformCount($webform_id, $name, 'Advocacy');
+      $d7 = getWebformCount($webform_id, $name, 'Communications/journalism');
+      $d8 = getWebformCount($webform_id, $name, 'Student');
+      $d9 = getWebformCount($webform_id, $name, 'Other (please explain below)');
+      $response = '["Answer", "Response"], ';
+      $response .= '["Cancer / health researcher", '.$d1.'], ';
+      $response .= '["Cancer / health research funding organization", '.$d2.'], ';
+      $response .= '["Health / cancer policy", '.$d3.'], ';
+      $response .= '["Healthcare delivery", '.$d4.'], ';
+      $response .= '["Public health programs/education", '.$d5.'], ';
+      $response .= '["Advocacy", '.$d6.'], ';
+      $response .= '["Communications/journalism", '.$d7.'], ';
+      $response .= '["Student", '.$d8.'], ';
+      $response .= '["Other", '.$d9.']';
+      
+      break;
+    case 'familiarity':
+      $name = 'how_familiar_were_you_with_icrp_before_visiting_the_site_today';
+      $d1 = getWebformCount($webform_id, $name, 'Familiar - I am an ICRP partner representative or belong to an ICRP partner organization');
+      $d2 = getWebformCount($webform_id, $name, 'Somewhat familiar - I have heard of ICRP, but do not participate in the partnership');
+      $d3 = getWebformCount($webform_id, $name, 'Not familiar - I have never heard of ICRP before today');
+      $response = '["Answer", "Response"], ';
+      $response .= '["Familiar", '.$d1.'], ';
+      $response .= '["Somewhat familiar", '.$d2.'], ';
+      $response .= '["Not familiar", '.$d3.']';
+      break;
+    case 'region':
+      $name = 'region';
+      $d1 = getWebformCount($webform_id, $name, 'North America');
+      $d2 = getWebformCount($webform_id, $name, 'South America / Caribbean');
+      $d3 = getWebformCount($webform_id, $name, 'Europe');
+      $d4 = getWebformCount($webform_id, $name, 'Asia & Pacific');
+      $d5 = getWebformCount($webform_id, $name, 'Middle East');
+      $d6 = getWebformCount($webform_id, $name, 'Africa');
+      $d7 = getWebformCount($webform_id, $name, 'Australia / New Zealand');
+
+      $response = '["Answer", "Response"], ';
+      $response .= '["North America", '.$d1.'], ';
+      $response .= '["South America / Caribbean", '.$d2.'], ';
+      $response .= '["Europe", '.$d3.'], ';
+      $response .= '["Asia & Pacific", '.$d4.'], ';
+      $response .= '["Middle East", '.$d5.'], ';
+      $response .= '["Africa", '.$d6.'], ';
+      $response .= '["Australia / New Zealand", '.$d7.']';
+      break;
+    case 'helpful':
+      $name = 'did_you_find_what_you_were_looking_for_today';
+      $d1 = getWebformCount($webform_id, $name, 'Yes');
+      $count = getSurveyNumberResponses();
+      $d2 = $count - $d1;
+      $response = '["Answer", "Response"], ';
+      $response .= '["Yes", '.$d1.'], ';
+      $response .= '["No", '.$d2.'] ';
+      break;
+    case 'feedback':
+      $name = 'please_feel_free_to_share_any_additional_feedback_to_help_us_imp';
+      $d1 = getWebformCount($webform_id, $name, 'Cancer / health researcher');
+
+ 
+      $query = "SELECT count(*) as count_feedback FROM webform_submission_data "; 
+      $query .= " where webform_id = 'icrp_website_survey'"; 
+      $query .= " and name = 'please_feel_free_to_share_any_additional_feedback_to_help_us_imp'"; 
+      $query .= " and value <> '';"; 
+      $feedback = 0;
+      $result = \Drupal::database()->query($query);
+      $row = $result->fetchObject();
+      if(isset($row->count_feedback)) {
+        $feedback = $row->count_feedback;
+      }
+      $count = getSurveyNumberResponses();
+
+      $response = '["Answer", "Response"], ';
+      $response .= '["Feedback", '.$feedback.'], ';
+      $response .= '["No Response", '.($count - $feedback).'] ';
+
+      break;
+  }
+
+  return $response;
+}
+
+function getSurveyResultsHTML() {
+  //  Load and render a twig template
+  $twig = \Drupal::service('twig');
+  //$survey_period = getSurveyPeriod();
+  $survey_period = getSurveyStatus();
+  
+  $number_of_responses = getSurveyNumberResponses();
+  $config = \Drupal::config('webform.webform.icrp_website_survey');
+  //drupal_set_message($config->get('open'));  //DateTime String if scheduled
+  //drupal_set_message($config->get('close'));  //DateTime String if scheduled
+  //drupal_set_message($config->get('status'));  //'open', 'closed', 'scheduled'
+
+
+  $reasons_data = getSurveyData('reasons');
+  $background_data = getSurveyData('background');
+  $familiarity_data = getSurveyData('familiarity');
+  $region_data = getSurveyData('region');
+  $helpful_data = getSurveyData('helpful');
+  $feedback_data = getSurveyData('feedback');
+
+  $template = $twig->loadTemplate('modules/custom/icrp/templates/survey.results.html.twig');
+  $response = $template->render(['survey_period' => $survey_period, 
+    'number_of_responses' => $number_of_responses, 
+    'reasons_data' => $reasons_data,
+    'background_data' => $background_data,
+    'familiarity_data' => $familiarity_data,
+    'region_data' => $region_data,
+    'helpful_data' => $helpful_data,
+    'feedback_data' => $feedback_data]);
+
+  return $response;
+}
+/**
+ * Implements hook_mail_alter().
+ */
+function icrp_mail_alter(&$message) {
+  $message['params']['html'] = true;
+  // Drupal hardcodes all mail header as 'text/plain' so we need to set the
+  // header's 'Content-type' to HTML if the EmailWebformHandler's
+  // 'html' flag has been set.
+  // @see \Drupal\Core\Mail\MailManager::mail()
+  // @see \Drupal\webform\Plugin\WebformHandler\EmailWebformHandler::getMessage().
+  //drupal_set_message($message['id']);
+  if (strpos($message['id'], 'icrp_newForumPostMail') === 0) {
+      //Set format to html (i.e. WebformPhpMail extends PhpMail)
+      //PhpMail does not allow HTML emails but WebformPhpMail does allow.
+      $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
+  }
+  //drupal_set_message("icrp_mail_alter(message)");
+  //dpm($message);
+}
+
+function sendNewForumPostMail($email, $subject, $body) {
+
+    $mailManager = \Drupal::service('plugin.manager.mail');
+    $module = 'icrp';
+    $module = 'webform'; //Sset the webform mail plugin so that we can use html
+    $key = 'newForumPostMail'; // Replace with Your key
+
+    $to = $email;
+
+    $from_name = \Drupal::config('system.site')->get('name');
+    $from_email = \Drupal::config('system.site')->get('mail');
+    //$params['from_mail'] = "$from_name <{$from_email}>";
+    $params['from_name'] = "";
+    $params['from_mail'] = $from_email;
+
+    $params['subject'] = $subject;
+    $params['body'] = $body;
+
+    $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+    $send = true;
+
+    /*drupal_set_message("module: ".$module);
+    drupal_set_message("key: ".$key);
+    drupal_set_message("to: ".$to);
+    drupal_set_message("langcode: ".$langcode);
+    */
+    //drupal_set_message("body: ".$body);
+
+    $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
+    //drupal_set_message("result: ".(string)$result['result']);
+    //drupal_set_message("result array(): ".print_r($result, true));
+
+    if ($result['result'] != true) {
+        $message = t('New Forum Post - There was a problem sending your email notification to @email.', array('@email' => $to));
+    //    drupal_set_message($message, 'error');
+        \Drupal::logger('mail-log')->error($message);
+        return;
+    }
+
+    $message = t('New Forum Post - An email notification has been sent to @email ', array('@email' => $to));
+    \Drupal::logger('mail-log')->notice($message);
+
+}
+
+function sendNewEventsPostMail($email, $subject, $body) {
+
+    $mailManager = \Drupal::service('plugin.manager.mail');
+    $module = 'icrp';
+    $module = 'webform'; //Sset the webform mail plugin so that we can use html
+    $key = 'newForumPostMail'; // Replace with Your key
+
+    $to = $email;
+
+    $from_name = \Drupal::config('system.site')->get('name');
+    $from_email = \Drupal::config('system.site')->get('mail');
+    //$params['from_mail'] = "$from_name <{$from_email}>";
+    $params['from_name'] = "";
+    $params['from_mail'] = $from_email;
+
+    $params['subject'] = $subject;
+    $params['body'] = $body;
+
+    $langcode = \Drupal::languageManager()->getCurrentLanguage()->getId();
+    $send = true;
+
+    /*drupal_set_message("module: ".$module);
+    drupal_set_message("key: ".$key);
+    drupal_set_message("to: ".$to);
+    drupal_set_message("langcode: ".$langcode);
+    */
+    //drupal_set_message("body: ".$body);
+
+    $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, $send);
+    //drupal_set_message("result: ".(string)$result['result']);
+    //drupal_set_message("result array(): ".print_r($result, true));
+
+    if ($result['result'] != true) {
+        $message = t('New Events Post - There was a problem sending your email notification to @email.', array('@email' => $to));
+    //    drupal_set_message($message, 'error');
+        \Drupal::logger('mail-log')->error($message);
+        return;
+    }
+
+    $message = t('New Events Post - An email notification has been sent to @email ', array('@email' => $to));
+    \Drupal::logger('mail-log')->notice($message);
+
+}
+
+function getForumDetails($nid) {
+  //$nid of the main forum node
+  //$rid of reply id if available
+  //$to_uid is who the email goes to.
+  //drupal_set_message(__FUNCTION__);
+  $host = "https://" . \Drupal::request()->getHost();
+
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  //dpm($node);
+
+  $text_summary_max_length = 254;
+  $body =  $node->get('body')->value; 
+  $summary_raw =  $node->get('body')->summary; 
+  if($summary_raw == "") {
+    $fdetail['has_summary'] = false;
+    $summary = text_summary(rtrim(strip_tags($body)), NULL, $text_summary_max_length);
+    if(strlen(rtrim(strip_tags($body))) > $text_summary_max_length) {
+      $summary .= " ...";
+    }
+  } else {
+    $fdetail['has_summary'] = true;
+    $summary = text_summary($summary_raw, NULL,  $text_summary_max_length);
+    if(strlen($summary_raw) > $text_summary_max_length) {
+      $summary .= " ...";
+    }
+  }
+  //return array($node->getTitle(), "<b>".$summary."</b></br>Body: ".$body."</br>Summary Raw: ".$summary_raw);
+  //return array($node->getTitle(), $summary_raw);
+
+  $fdetail['thread_subject'] = $node->getTitle();
+  $fdetail['thread_summary_raw'] = $summary_raw;
+  $fdetail['thread_summary_or_trim_body'] = $summary;
+  $fdetail['thread_author'] = getUserFullName($node->getOwnerId());
+  $fdetail['thread_author_uid'] = $node->getOwnerId();
+  $fdetail['message'] = $body;
+  
+  $tid =  $node->get('taxonomy_forums')->target_id; 
+  $fdetail['forum_category'] = getTopicName($tid);
+
+  $fdetail['forum_url'] = $host."/user/login?destination=/forum/".$tid;
+  $fdetail['thread_url'] = $host."/user/login?destination=/node/".$nid."?page0";
+
+  return $fdetail;
+
+}
+
+function  getReplyDetails($cid) {
+  /** $cid = Comment Id
+  */
+  $query = "select ccb.comment_body_value, ces.last_comment_uid FROM comment_entity_statistics ces, comment__comment_body ccb ";
+  $query .= "where ces.cid =ccb.entity_id and ces.cid = ".$cid.";";
+  $result = \Drupal::database()->query($query);
+
+  $row = $result->fetchObject();
+  $comment = "<i>No replies</i>";
+
+  if(isset($row->comment_body_value)) {
+    $rdetails['message'] = $row->comment_body_value;
+  }
+  if(isset($row->last_comment_uid)) {
+    $rdetails['reply_author'] = getUserFullName($row->last_comment_uid);
+    $rdetails['reply_author_uid'] = $row->last_comment_uid;
+  }
+
+  return $rdetails;
+}
+
+function  getForumEmails($nid, $author_uid) {
+  //drupal_set_message(__FUNCTION__);
+
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  $tid =  $node->get('taxonomy_forums')->target_id; 
+  //drupal_set_message("tid: ".$tid);
+  $subCommittees = array(
+      "field_subcommittee_partner_news",
+      "field_subcommittee_annual_meetin",
+      "field_subcommittee_membership",
+      "field_subcommittee_cso_coding",
+      "field_subcommittee_evaluation",
+      "field_subcommittee_partner_opera",
+      "field_subcommittee_web_site",
+      "field_subcommittee_funding",
+  );
+  $table = "";
+  $index = (int)$tid - 7;
+  //this is for the exception to the rule for subcommittee funding.
+  if($tid == 27) {
+    $index = 7;
+  }
+  //drupal_set_message((string)$index);
+  //drupal_set_message(print_r($index, true));
+
+  if($index >= 0) {
+    $table = "user__".$subCommittees[$index];
+    $field = $subCommittees[$index]."_value";
+  } else {
+    \Drupal::messenger()->addError("Could not map field to table");
+  }
+  //drupal_set_message("Your table is ".$table);
+  $query = "select ufd.uid, ufd.mail, uffn.field_first_name_value, ufln.field_last_name_value, ufnnp.field_notify_new_posts_value, sub.".$field." ";  
+  $query .= "FROM users_field_data ufd, user__field_first_name uffn, user__field_last_name ufln, user__field_notify_new_posts ufnnp, ".$table." sub ";
+  $query .= "where ufd.status = 1 and ufd.uid = uffn.entity_id and ufd.uid = ufln.entity_id and ufd.uid = ufnnp.entity_id and ufd.uid = sub.entity_id ";
+  $query .= "and ufnnp.field_notify_new_posts_value = 1 ";
+  $query .= "and sub.".$field." = 1 ";
+  $query .= "and ufd.uid <> ".$author_uid." ";
+
+  //drupal_set_message($query);
+  //Get a list of names and e-mails.  Everybody that is an Active user and is subcribed to this forum and has notifications checked.
+  $result = \Drupal::database()->query($query);
+  $forum_members = [];
+  for ($count = 0; $row = $result->fetchObject(); $count++) {
+    $first_name = $row->field_first_name_value;
+    $last_name = $row->field_last_name_value;
+    $email = $row->mail;
+    $formated_email = $first_name." ".$last_name." <".$email.">";
+    $forum_members[] = array('first_name' => $first_name, 'formated_email' => $formated_email);
+  }
+  //drupal_set_message(print_r($forum_members, true));
+  //$variables['tforum_category'] = $row->name;
+  //$variables['tforum_description'] = $row->description__value;
+
+  //$forum_members = array(array('first_name' => 'Steve', 'formated_email' => 'Steve <steve@example.com>'));
+
+  return $forum_members;
+}
+
+
+function sendForumNotification($nid, $cid = "0") {
+  /**
+  * url example: http://localhost/node/621?page=0
+  */
+  \Drupal::logger('icrp')->notice('Send Forum Notification: nid='.$nid.' cid='.$cid) ;
+  $host = "https://" . \Drupal::request()->getHost();
+
+  $forum = getForumDetails($nid);
+  $display_summary = true;
+  if($cid == "0") {
+    //Prepare e-mail for an initial Thread post
+    //Add Subject to 
+    //if there is summary,  then summary on the top and full body below
+    //if there is no summary,  then just full body
+    $author_uid = $forum['thread_author_uid'];
+    $author = $forum['thread_author'];
+    $message = $forum['message'];
+    $display_summary = $forum['has_summary'];  //If it has_summary, 
+  } else {
+    $reply = getReplyDetails($cid);
+
+    $forum['thread_summary_or_trim_body'] = "Re: ".$forum['thread_summary_or_trim_body'];
+    $author_uid = $reply['reply_author_uid'];
+    $author = $reply['reply_author'];
+    $message = $reply['message'];
+  }
+
+  $message = relToAbs($message, $host);
+
+  $subject = "ICRP Forum: {$forum['thread_subject']}";
+  $emails = getForumEmails($nid, $author_uid);
+  foreach($emails as $key => $email) {
+    //$email = "Chris Kneisler <cpkneisler@gmail.com>";
+    $body = createForumEmailBody($email['first_name'], $subject, $author, $forum['forum_category'],  $forum['thread_subject'], $forum['thread_summary_or_trim_body'], $message, $forum['forum_url'], $forum['thread_url'], $display_summary, $host);
+    //drupal_set_message($body);
+    sendNewEventsPostMail($email['formated_email'], $subject, $body);
+  }
+  //Loop through users and send them an e-mail.
+}
+
+function replaceImgSrc($html, $host) {
+  $doc = new DOMDocument();
+  $doc->loadHTML($html);
+
+  $tags = $doc->getElementsByTagName('img');
+
+  foreach ($tags as $tag) {
+    $old_src = $tag->getAttribute('src');
+    $new_src_url = $host.$old_src;
+    $tag->setAttribute('src', $new_src_url);
+  }
+
+  return $doc->saveHTML();
+}
+
+function relToAbs($text, $base) {
+  //drupal_set_message("base: ".$base);
+  if (empty($base)) {
+    return $text;
+  }
+  // base url needs trailing /
+  $base =  rtrim($base, "/ ");
+
+  // Replace links
+  /*
+  $pattern = "/<a([^>]*) " .
+             "href=\"[^http|ftp|https|mailto]([^\"]*)\"/";
+  $replace = "<a\${1} href=\"" . $base . "\${2}\"";
+  $text = preg_replace($pattern, $replace, $text);
+  */
+  // Replace images
+  //drupal_set_message("TEXT BEFORE");
+  //drupal_set_message($text);
+  //$pattern = "/<img([^>]*) "."src=\"[^http|ftp|https]([^\"]*)\"/";
+  //$replace = "<img\${1} src=\"" . $base . "\${2}\"";
+  //$text = preg_replace($pattern, $replace, $text);
+  $text = replaceImgSrc($text, $base);
+  //drupal_set_message("Adding HOST to img");
+  //drupal_set_message($text);
+
+  //Add max-width:500px; to style
+  $pattern = "/<img /";
+  $replace = "<img style=\"max-width:500px;\" ";
+  $text = preg_replace($pattern, $replace, $text);
+  //drupal_set_message("Adding MAX-WIDTH");
+  //drupal_set_message($text);
+  return $text;
+}
+
+function createForumEmailBody($to, $subject, $author, $forum, $thread_subject, $thread_summary, $message, $forum_url, $thread_url, $display_summary, $host) {
+
+$no = "";
+
+$body = '
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>ICRP Forum Message</title>
+</head>
+
+<body>
+  <table style="margin-left:auto;margin-right:auto;width:600px;">
+    <tr>
+      <td>
+        <a target="_blank" href="'.$host.'"> <img width="200" height="40" style="margin-bottom:10px;margin-top:5px" src="'.$host.'/sites/default/files/icrp-logo.png"> </a>
+
+      </td>
+    </tr>
+    <tr>
+      <td style="border-top:25px solid #008cba;border-left:2px solid #008cba;border-right:2px solid #008cba;border-bottom:2px solid #008cba;background-color:white;padding:10px;">
+        <table style="font-family:Verdana,Arial;font-size:12px;padding:10px;width:100%">
+          <tr>
+            <td style="padding-bottom:10px;">Hi '.$to.',
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-bottom:10px;">
+              <em>ICRP Partner</em> <strong>'.$author.'</strong> just replied to a forum that you are following.
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-bottom:10px;">
+              <span style="font-weight:bold;font-size:14px;color:grey"> <a href="'.$forum_url.'" style="text-decoration: none !important;color:#DD9C28;">'.$forum.'</a> » <a href="'.$thread_url.'" style="text-decoration: none !important;color:#000;font-weight:normal;">'.$thread_subject.'</a> </span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-bottom:10px;">
+              <div style="background-color:#f5f5f5;padding:10px;margin:1em 0;">';
+            if($display_summary) {
+              $body .= '<div style="font-weight:bold;font-size:14px;color:#142830;margin-bottom:1em">'.$thread_summary.'</div>';
+            }
+
+              $body .=  '<div style="font-weight:normal;font-size:12px;margin-left:15px;margin-bottom:1em">'.$message.'</div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <a target="_blank" href="'.$thread_url.'">
+                <div style="background-color:#008cba;color:white;font-weight:bold;text-align:center;display:inline-block;padding:10px 15px;border-radius:10px;width:100px;height:18px;"> View Message </div>
+              </a>
+
+            </td>
+          </tr>
+        </table>
+      </td>
+
+    </tr>
+    <tr>
+      <td>
+        <p style="font-family:Verdana,Arial;font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new posts to ICRP Forums. If you wish to unsubscribe, log in to ICRP, navigate to <a target="_blank" href="'.$host.'/user/login?destination=/my-profile">My Profile</a> and unselect the <em>ICRP Committees and Forums</em> which you no longer want to receive. </p>
+      </td>
+    </tr>
+  </table>
+</body>
+
+</html>
+';
+  return $body;
+}
+
+  /*
+  // How to get entity->id() to node.
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($entity->id());
+  if($node->getType() == "events") {
+    precheckEventEmail($entity);
+  }
+  */
+
+
+function icrp_entity_presave(EntityInterface $entity) {
+  //drupal_set_message(__FUNCTION__);
+  //drupal_set_message("Bundle:".$entity->bundle());
+  //drupal_set_message($entity->get('field_calendar_type')->value);
+  //Only send emails for events that are Partner Meetings
+  if($entity->bundle() == "events" && $entity->get('field_calendar_type')->value == "Partner Meetings") {
+    if (isset($entity->original)) {
+      //This is an Update of an existing Event
+      //Check to see if date has changed
+      $date_range_original = $entity->original->get('field_event_date_range')->getString();
+      $date_range = $entity->get('field_event_date_range')->getString();
+      if($date_range != $date_range_original) {
+        //drupal_set_message("Date has CHANGED", "warning", TRUE);
+        //dpm($entity);
+        sendEventsNotification($entity->id(), 'update', $entity);
+      }
+    }
+  }
+}
+
+
+function sendEventsNotification($nid, $type, $entity="") {
+  //drupal_set_message(__FUNCTION__);
+  //drupal_set_message("Message Type:".$type);
+
+  \Drupal::logger('icrp')->notice('Send Event Notification: nid='.$nid);
+  $host = "https://" . \Drupal::request()->getHost();
+  $event = getEventsDetails($nid, $entity);
+  //dpm($event);
+  $message = $event['body'];
+  //drupal_set_message($host);
+  $message = relToAbs($message, $host);
+  //drupal_set_message("type: ".$type);
+
+  switch ($type) {
+    case 'create':
+      $subject = "ICRP Meeting (New) - {$event['event_title']}";
+      $intro = "The following ICRP partner meeting has been added to the calendar:";
+      break;
+    case 'update':
+      $subject = "ICRP Meeting Update - {$event['event_title']}";
+      $intro = "The following ICRP partner meeting date has changed:";
+      break;
+    case 'delete':
+      $subject = "ICRP Meeting Canceled - {$event['event_title']}";
+      $intro = 'The following ICRP partner meeting has been <span style="color:red">Canceled</span>:';
+      break;
+  }
+
+  $emails = getEventsEmails($nid, $event['author_uid']);
+
+  //drupal_set_message("Emails");
+  //dpm($emails);
+  foreach($emails as $key => $email) {
+    $event_start_date = new DrupalDateTime($event['date_start'], 'UTC');
+    $event_end_date = new DrupalDateTime($event['date_end'], 'UTC');
+    $event_start_date->setTimezone(new \DateTimeZone($email['timezone']));
+    $event_end_date->setTimezone(new \DateTimeZone($email['timezone']));
+    $date_range = "Unknown"; //Need to use timezone for each email.
+    //Same date
+    if($event_start_date->format('Y-m-d') == $event_end_date->format('Y-m-d')) {
+      $date_range = $event_start_date->format('l, F j, Y')." at ".$event_start_date->format('g:i A')." - ".$event_end_date->format('g:i A (T)');
+    }
+    //different date
+    if($event_start_date->format('Y-m-d') <> $event_end_date->format('Y-m-d')) {
+      $date_range = $event_start_date->format('l, F j, Y')." at ".$event_start_date->format('g:i A (T)')." - ".$event_end_date->format('l, F j, Y g:i A (T)');
+    }
+    //Same date/time
+    if($event_start_date->format('Y-m-d H:i') == $event_end_date->format('Y-m-d H:i')) {
+      $date_range = $event_start_date->format('l, F j, Y')." at ".$event_start_date->format('g:i A (T)');
+    }
+    if($type == 'update'){
+      $date_range = '<span style="color:green">Date Changed: </span>'.$date_range;
+    }
+    if($type == 'delete'){
+      $date_range = '<span style="color:red">Date Canceled: </span><strike>'.$date_range.'</strike>';
+    }
+    //drupal_set_message(t("date_range: ".$date_range), 'status', TRUE);
+    $body = createEventsEmailBody($email['first_name'], $subject, $event['event_title'], $date_range, $message, $event['event_type'], $event['location'], $event['calendar_url'], $host, $event['group_color'], $intro);
+    //drupal_set_message($body);
+    sendNewForumPostMail($email['formated_email'], $subject, $body);
+  }
+  //Loop through users and send them an e-mail.
+}
+
+function getEventsDetails($nid, $entity) {
+  //drupal_set_message(__FUNCTION__);
+  //$nid of the main forum node
+  //$rid of reply id if available
+  //$to_uid is who the email goes to.
+  //drupal_set_message(__FUNCTION__);
+
+  $host = "https://" . \Drupal::request()->getHost();
+
+  if(isset($entity) && $entity<>""){
+    //drupal_set_message("We got an update entity");
+    $node = $entity;
+  } else {
+    $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  }
+  $detail['event_title'] = $node->getTitle();
+  $detail['body'] = $node->get('body')->value;
+  $detail['date_range'] = $node->get('field_event_date_range')->getString();
+  $detail['date_start'] = $node->get('field_event_date_range')->value;
+  $detail['date_end'] = $node->get('field_event_date_range')->end_date->format(DateTimeItemInterface::DATETIME_STORAGE_FORMAT);
+  
+
+  $detail['location'] = $node->get('field_event_location')->value;
+  $detail['calendar_type'] = $node->get('field_calendar_type')->value;
+
+  $detail['author'] = getUserFullName($node->getOwnerId());
+  $detail['author_uid'] = $node->getOwnerId();
+  $detail['event_type'] = $node->get('field_event_group')->value;
+  //Get Group Color for this event
+  $event_group =  $node->get('field_event_group')->value; 
+  $config = \Drupal::service('config.factory')->get('icrp.settings');
+  $group_color = array(
+      "Partner News and Announcements" => $config->get('event_group_color.partner_news_and_announcements'),
+      "Funding Opportunities" => $config->get('event_group_color.funding_opportunities'),
+      "Annual Meetings" => $config->get('event_group_color.annual_meetings'),
+      "Communications and Membership" => $config->get('event_group_color.communications_and_membership'),
+      "CSO and Coding" => $config->get('event_group_color.cso_and_coding'),
+      "Evaluations and Analyses" => $config->get('event_group_color.evaluations_and_analyses'),
+      "Partner Operations" => $config->get('event_group_color.partner_operations'),
+      "Website and Database" => $config->get('event_group_color.website_and_database'),
+  );
+  if(isset($group_color[$event_group])) {
+    $detail['group_color'] = $group_color[$event_group];
+  } else {
+    \Drupal::messenger()->addWarning($event_group." not found.");
+    return $detail;
+  }
+
+  $event_date = substr($detail['date_range'], 0, 7);
+
+  $detail['calendar_url'] = $host."/user/login?destination=/calendar?default_date=".$event_date."&amp;open_tab=partner-meetings";
+  return $detail;
+
+}
+
+function  getEventsEmails($nid, $author_uid) {
+  //drupal_set_message(__FUNCTION__);
+
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  //dpm($node);
+
+  $event_group =  $node->get('field_event_group')->value; 
+  //drupal_set_message("calendar_type: ".$event_group);
+  $subCommittees = array(
+      "Partner News and Announcements" => "field_subcommittee_partner_news",
+      "Funding Opportunities" => "field_subcommittee_funding",
+      "Annual Meetings" => "field_subcommittee_annual_meetin",
+      "Communications and Membership" => "field_subcommittee_membership",
+      "CSO and Coding" => "field_subcommittee_cso_coding",
+      "Evaluations and Analyses" => "field_subcommittee_evaluation",
+      "Partner Operations" => "field_subcommittee_partner_opera",
+      "Website and Database" => "field_subcommittee_web_site",
+  );
+
+  $table = "";
+
+  if(isset($subCommittees[$event_group])) {
+    $table = "user__".$subCommittees[$event_group];
+    $field = $subCommittees[$event_group]."_value";
+  } else {
+    \Drupal::messenger()->addWarning(t($event_group." not found in subcommittees."));
+  }
+
+  $query = "select ufd.uid, ufd.mail, ufd.timezone, uffn.field_first_name_value, ufln.field_last_name_value, ufnne.field_notify_new_events_value, sub.".$field." ";  
+  $query .= "FROM users_field_data ufd, user__field_first_name uffn, user__field_last_name ufln, user__field_notify_new_events ufnne, ".$table." sub ";
+  $query .= "where ufd.status = 1 and ufd.uid = uffn.entity_id and ufd.uid = ufln.entity_id and ufd.uid = ufnne.entity_id and ufd.uid = sub.entity_id ";
+  $query .= "and ufnne.field_notify_new_events_value = 1 ";
+  $query .= "and sub.".$field." = 1 ";
+  $query .= "and ufd.uid <> ".$author_uid." ";
+
+  //drupal_set_message($query);
+  //dpm($query);
+
+  //Get a list of names and e-mails.  Everybody that is an Active user and is subcribed to this forum and has notifications checked.
+  $result = \Drupal::database()->query($query);
+  $forum_members = [];
+  for ($count = 0; $row = $result->fetchObject(); $count++) {
+    $first_name = $row->field_first_name_value;
+    $last_name = $row->field_last_name_value;
+    $email = $row->mail;
+    $timezone = $row->timezone;
+    $formated_email = $first_name." ".$last_name." <".$email.">";
+
+    $forum_members[] = array('first_name' => $first_name, 'formated_email' => $formated_email, 'timezone' => $timezone);
+  }
+  //drupal_set_message(print_r($forum_members, true));
+
+  //$variables['tforum_category'] = $row->name;
+  //$variables['tforum_description'] = $row->description__value;
+
+  //$forum_members = array(array('first_name' => 'Steve', 'formated_email' => 'Steve <steve@example.com>'));
+
+  return $forum_members;
+}
+
+function createEventsEmailBody($to, $subject, $event_title, $date_range, $message, $event_type, $location, $calendar_url, $host, $group_color, $intro) {
+
+$body = '
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>'.$subject.'</title>
+</head>
+
+<body>
+  <table style="margin-left:auto;margin-right:auto;width:600px;font-family:Verdana,Arial;font-size:12px;border-collapse:collapse;">
+    <tr>
+      <td>
+        <a target="_blank" href="'.$host.'"> <img width="200" height="40" style="margin-bottom:10px;margin-top:5px" src="'.$host.'/sites/default/files/icrp-logo.png"> </a>
+
+      </td>
+    </tr>
+    <tr style="background-color:'.$group_color.';color:white;">
+      <td style="border:2px solid '.$group_color.';padding:10px;">ICRP Committee: '.$event_type.'</td>
+    </tr>
+    <tr>
+      <td style="border:2px solid '.$group_color.';background-color:white;padding:10px;">
+        <table style="font-family:Verdana,Arial;font-size:12px;padding:10px;width:100%">
+          <tr>
+            <td style="padding-bottom:10px;">Hi '.$to.',
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-bottom:10px;">'.$intro.'
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <span style="font-size:20px;color:#853E0E;"><em>'.$event_title.'</em></span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-bottom:10px;">
+              '.$date_range.'
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-bottom:10px;">
+              <div style="background-color:#f5f5f5;padding:10px;margin:1em 0;">
+                <div style="font-weight:normal;font-size:12px;margin-left:15px;margin-bottom:1em">'.$message.'</div>
+              </div>
+            </td>
+          </tr>';
+          if(strlen($location) > 0) {
+              $body .= '
+                <tr>
+                  <td style="padding-bottom:10px;">
+                    <div>Location: '.$location.' (<a target="_blank" href="https://www.google.com/maps/place/'.$location.'">map</a>)</div>
+                  </td>
+                </tr>';
+          }
+          $body .= '
+          <tr>
+            <td>
+              <a target="_blank" href="'.$calendar_url.'">
+                <div style="background-color:#008cba;color:white;font-weight:bold;text-align:center;display:inline-block;padding:10px 15px;border-radius:10px;width:200px;height:18px;"> Partner Meeting Calendar </div>
+              </a>
+            </td>
+          </tr>
+        </table>
+      </td>
+
+    </tr>
+    <tr>
+      <td>
+        <p style="font-family:Verdana,Arial;font-size:11px;color:gray">You are receiving this email because you signed up for email notifications when there are new events coming soon. If you wish to unsubscribe, log in to ICRP, navigate to <a target="_blank" href="'.$host.'/user/login?destination=/my-profile">My Profile</a> and unselect the <em>Notify me of new Events to ICRP Committees<em> check box.</p>
+      </td>
+    </tr>
+  </table>
+</body>
+
+</html>
+';
+  return $body;
+}
+
+function icrp_node_predelete(Drupal\Core\Entity\EntityInterface $entity) {
+  if($entity->bundle() == "events" && $entity->get('field_calendar_type')->value == "Partner Meetings") {
+    sendEventsNotification($entity->id(), 'delete', $entity);
+  }
+}
+
+function icrp_node_insert(NodeInterface $node) {
+  //drupal_set_message("function: ".__FUNCTION__);
+  $nid = $node->id();
+  //drupal_set_message("node insert type: ".$node->getType());
+  //drupal_set_message($node->get('field_calendar_type')->value);
+  //Only send emails for events that are Partner Meetings
+  if($node->getType() == "events" && $node->get('field_calendar_type')->value == "Partner Meetings") {
+    //drupal_set_message("Node Insert");
+    //drupal_set_message("Type: ". $node->getType());
+    //drupal_set_message($node->getTitle());
+    //drupal_set_message($node->id());
+    sendEventsNotification($node->id(), 'create');
+
+  }
+  if($node->getType() == "forum") {
+    /*
+    drupal_set_message("Node Insert");
+    drupal_set_message("Type: ". $node->getType());
+    drupal_set_message($node->getTitle());
+    drupal_set_message($node->id());
+    */
+    sendForumNotification($nid);
+  }
+}
+
+function icrp_comment_insert(Comment $comment) {
+  //  drupal_set_message(__FUNCTION__);
+  $nid = $comment->getCommentedEntityId();
+  $cid = $comment->id();
+  //drupal_set_message("Here is your id: ".$cid);
+  sendForumNotification($nid, $cid);
+}
+
+function getTopicName($tid) {
+
+  $topic_name = "";
+
+  if(isset($tid)) {
+    $forum = Drupal\taxonomy\Entity\Term::load($tid);
+    if(isset($forum)){
+      $topic_name =  $forum->getName(); 
+    } else {
+      $topic_name =  "unknown"; 
+    }
+  }
+  return $topic_name;
+
+}
+function icrp_user_view($account, $view_mode, $langcode) {
+  //drupal_set_message("User view");
+  //$response = $event->getResponse();
+  //$response = new RedirectResponse('/home');
+  //return $response->send();  
+
+}
+
+/**
+ *  Implements hook_theme().
+ */
+function icrp_theme($existing, $type, $theme, $path) {
+  return [
+    'icrp_events' => [
+      'variables' => ['test_var' => NULL],
+    ],
+    'resources' => [
+      'variables' => ['test_var' => NULL],
+    ]
+  ];
+}
+
+function icrp_preprocess_forum_submitted(&$variables) {
+  //drupal_set_message("icrp_preprocess_forum_submitted");
+  //dpm($variables);
+  $variables['author'] = '';
+  if (isset($variables['topic']->uid)) {
+    $username = array('#theme' => 'username', '#account' => User::load($variables['topic']->uid));
+    $variables['author'] = \Drupal::service('renderer')->render($username);
+    //$elements['#type'] = 'markup';
+    //$elements['#markup'] = 'My Mark Up';
+    //$variables['author'] = drupal_render($elements);
+
+  }
+  $variables['time'] = isset($variables['topic']->created) ? \Drupal::service('date.formatter')->formatTimeDiffSince($variables['topic']->created) : '';
+}
+
+/**
+ * Implements hook_query_TAG_alter() for comment_filter tag.
+ *
+ * @see CommentStorage::loadThread().
+ */
+function icrp_query_comment_filter_alter(Drupal\Core\Database\Query\AlterableInterface $query) {
+  //drupal_set_message("icrp_query_comment_filter_alter");
+  //dpm($query);
+  //dpm($query->getMetaData('field_name'));
+
+  // Change comment order to DESC for 'comment' field.
+  if ($query->getMetaData('field_name') == 'comment_forum') {
+    /** @var \Drupal\Core\Database\Query\SelectInterface $query */
+    $order_by = &$query->getOrderBy();
+    // 'c.cid' is for flat comment lists.
+    if (isset($order_by['c.cid']) && $order_by['c.cid'] == 'ASC') {
+      $order_by['c.cid'] = 'DESC';
+    }
+    // 'torder' is for threated comment lists.
+    if (isset($order_by['torder']) && $order_by['torder'] == 'ASC') {
+      $order_by['torder'] = 'DESC';
+    }
+  }
+// Change comment order to DESC for 'comment' field.
+  if ($query->getMetaData('field_name') == 'field_comments') {
+
+    $order_by = &$query->getOrderBy();
+    $expressions = &$query->getExpressions();
+    // Sorting for threaded comments.
+    if (isset($order_by['torder']) && $order_by['torder'] == 'ASC') {
+      // Get rid of the expressions that prepare the threads for ASC ordering.
+      unset($expressions['torder']);
+      unset($order_by['torder']);
+      // Simply order by the thread field.
+      $order_by['c.thread'] = 'DESC';
+    } 
+  } 
+}
+function icrp_preprocess_page(&$variables) {
+  //drupal_set_message("icrp_preprocess_page");
+  //ICRP Partnership Forum
+
+  //dpm($variables);
+}
+
+function getOrg($target_id) {
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($target_id);
+  return $node->get('body')->value; 
+}
+function icrp_preprocess_events(&$variables) {
+  //drupal_set_message("icrp_preprocess_events");
+}
+function icrp_preprocess_comment(&$variables) {
+    //drupal_set_message("icrp_preprocess_comment");
+    //dpm($variables);
+    //$config->get('timezone.user.configurable');
+    //Get users Organization
+    //$variables['element']['#object'] is A comment
+    //$variables['element']['#object']->comment_body is A comment
+    //drupal_set_message("Comment Body");
+    $comment = $variables['elements']['#comment'];
+
+    //Get Comment id, date_created, user organization
+    $comment_uid = $comment->getOwnerId();
+    $tcreated_time = $comment->getCreatedTime();
+
+    //Set Date format
+    $long_date_template = 'F j, Y g:i A';
+    $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime(), date_default_timezone_get());
+
+    //dpm($created_time);
+    $variables['tcreated_time'] = $created_time->format($long_date_template);
+    $variables['ttimezone'] = date_default_timezone_get();
+
+    //Set Date format
+    $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($comment_uid);
+
+    $variables['torganization_target_id'] = $user->get('field_organization')->target_id;
+    $variables['torganization'] =  getOrg($variables['torganization_target_id']); 
+    //dpm($variables);
+}
+
+
+/*
+function icrp_preprocess_field(&$variables) {
+  if($variables['field_name'] == "comment_body") {
+    drupal_set_message("preprocess_field");
+    //$config->get('timezone.user.configurable');
+    //Get users Organization
+    //$variables['element']['#object'] is A comment
+    //$variables['element']['#object']->comment_body is A comment
+    drupal_set_message("Comment Body");
+    $comment = $variables['element']['#object'];
+    //Get Comment id, date_created, user organization
+    $comment_uid = $comment->getOwnerId();
+    $tcreated_time = $comment->getCreatedTime();
+    //Set Date format
+    $long_date_template = 'F j, Y g:i A';
+    $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime(), date_default_timezone_get());
+
+    //dpm($created_time);
+    $variables['tcreated_time'] = $created_time->format($long_date_template);
+    $variables['ttimezone'] = date_default_timezone_get();
+
+    //Set Date format
+    $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($comment_uid);
+
+    //dpm($user);
+    //user id table user
+    //field_organization_target_id = user__filed_organization
+
+    $field_organization_target_id = $user->get('field_organization')->target_id;
+    $variables['torganization_target_id'] = $field_organization_target_id; 
+    $node = \Drupal::entityTypeManager()->getStorage('node')->load($field_organization_target_id);
+    $variables['torganization'] =  $node->get('body')->value; 
+
+    //drupal_set_message("comment_uid: ".$comment_uid);
+    //dpm($variables);
+
+    //dpm("HEllo", "hello2", "hello3");
+    //dpm($variables);
+  }
+  $variables["gotone"]= "How are you?";
+  //dpm($variables);
+
+}
+*/
+
+function makeRandomString($max=6) {
+    $i = 0; //Reset the counter.
+    $possible_keys = " 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    $keys_length = strlen($possible_keys);
+    $str = ""; //Let's declare the string, to add later.
+    while($i<$max) {
+        $rand = mt_rand(1,$keys_length-1);
+        $str.= $possible_keys[$rand];
+        $i++;
+    }
+    return $str;
+}
+
+function icrp_preprocess_form(&$variables) {
+
+  //drupal_set_message("Here we go.  Do your work here.");
+  //dpm($variables);
+  //node-events-delete-form
+
+  if(isset($variables['element']['#form_id'])) {
+    $variables['telement_id'] = $variables['element']['#form_id'];
+  }
+  if(isset($variables['element']['#form_id']) && $variables['element']['#form_id'] == "node_forum_form") {
+
+    $form_id = $variables['element']['#form_id'];
+    //drupal_set_message('Form_id: '.$form_id);
+    $tid = \Drupal::request()->query->get('forum_id');
+    //drupal_set_message("$tid:");
+    //Look up Forum Category and Thread for this forum_id
+  
+    $query = "select name, description__value FROM taxonomy_term_field_data where tid = {$tid}; ";
+  
+    $result = \Drupal::database()->query($query);
+    $row = $result->fetchObject();
+    $variables['tforum_category'] = $row->name;
+    $variables['tforum_description'] = $row->description__value;
+  }
+  //dpm($variables);
+}
+/*
+function icrp_views_data_alter(array &$data) { 
+  drupal_set_message("icrp_views_data_alter");
+    $data['forum_index']['last_comment_timestamp'] = array(
+    'title' => t('Last comment time'),
+    'help' => t('Date and time of when the last comment was posted.'),
+    'field' => array(
+      'id' => 'comment_last_timestamp',
+    ),
+    'sort' => array(
+      'id' => 'date',
+    ),
+    'filter' => array(
+      'id' => 'date',
+    ),
+  );
+
+  dpm($data);
+}
+*/
+
+function last_forum_visit() {
+  
+  $long_date_template = 'F j, Y g:i A';
+  $last_visit_text = '';
+
+  $uid = \Drupal::currentUser()->id();
+  $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+
+  $last_visit_date_raw = $user->get('field_last_forum_visit')->value;
+  if($last_visit_date_raw !== NULL) {
+    $last_visit_timestamp = new DateTime($last_visit_date_raw);
+    // Update the timezone to the system default.
+    //$last_visit_timestamp->setTimezone(timezone_open(date_default_timezone_get()));
+    $last_visit_date = $last_visit_timestamp->format($long_date_template);
+
+    //drupal_set_message("last_visit_timestamp");
+    //dpm($last_visit_date);
+    $last_visit_text = 'Last visited: '.$last_visit_date;
+  }
+
+  $current_datetime = new DateTime('now');
+  $datetime_storage = $current_datetime->format(DateTimeItemInterface::DATETIME_STORAGE_FORMAT);
+  $user->set("field_last_forum_visit", $datetime_storage);
+  $user->save();
+
+  return $last_visit_text;
+}
+
+function icrp_preprocess_forums(&$variables) {
+  //dpm($variables);
+
+  if($variables['term']) {
+    $variables['tid'] = $variables['term']->id();
+    $variables['tname'] = $variables['term']->getName();
+    $variables['tdescription'] = $variables['term']->getDescription();
+    $variables['last_forum_visit'] = last_forum_visit();
+    switch($variables['tid']) {
+      case 7:
+        $variables['tfontawesome_icon'] = 'fa-newspaper-o';
+        break;
+      case 8:
+        $variables['tfontawesome_icon'] = 'fa-comments-o';
+        break;
+      case 9:
+        $variables['tfontawesome_icon'] = 'fa-group';
+        break;
+      case 10:
+        $variables['tfontawesome_icon'] = 'fa-file-code-o';
+        break;
+      case 11:
+        $variables['tfontawesome_icon'] = 'fa-dashboard';
+        break;
+      case 12:
+        $variables['tfontawesome_icon'] = 'fa-globe';
+        break;
+      case 13:
+        $variables['tfontawesome_icon'] = 'fa-database';
+        break;
+      case 27:
+        $variables['tfontawesome_icon'] = 'fa-money';
+        break;
+    }
+
+    //$variables['newname'] = $variables['term']->value('name');
+    //dpm($variables);
+  }
+}
+
+function icrp_preprocess_forum_icon(&$variables) {
+  //drupal_set_message("icrp_preprocess_forum_icon");
+  //dpm($variables);
+}
+
+function getNodeIdFromMarkup($html) {
+  //remove all non numeric numbers from $html to get the nodeId.  Weird but true
+  //Did not see node id anywere except inside #markup.
+  return preg_replace("/[^0-9,.]/", "", $html);;
+}
+
+function getThreadNodeInfo($thread_node_id) {
+  //drupal_set_message("getThreadNodeInfo");
+
+  $text_summary_max_length = 254;
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($thread_node_id);
+  //$summary = $node['#values']['body']['x-dfault'][0]['summary'];
+  //$summary =  $node->get('summary')->value; 
+  $body =  $node->get('body')->value; 
+  $summary_raw =  $node->get('body')->summary; 
+  
+  if($summary_raw == "") {
+    $summary = text_summary(rtrim(strip_tags($body)), NULL, $text_summary_max_length);
+    if(strlen(rtrim(strip_tags($body))) > $text_summary_max_length) {
+      $summary .= " ...";
+    }
+
+  } else {
+    $summary = text_summary($summary_raw, NULL,  $text_summary_max_length);
+
+  }
+  
+  //return array($node->getTitle(), "<b>".$summary."</b></br>Body: ".$body."</br>Summary Raw: ".$summary_raw);
+  return array($node->getTitle(), $summary);
+}
+function lastComment($node_id) {
+  $comment = "This is the last comment for ".$node_id;
+
+  $query = "select ccb.comment_body_value FROM comment_entity_statistics ces, comment__comment_body ccb ";
+  $query .= "where ces.cid = ccb.entity_id and ces.entity_id = {$node_id} ";
+  $query .= "order by ces.cid desc limit 1;";
+
+  $result = \Drupal::database()->query($query);
+  $row = $result->fetchObject();
+  $comment = "<i>No replies</i>";
+  if(isset($row->comment_body_value)) {
+    $comment = $row->comment_body_value;
+
+  }
+
+  return $comment;  
+}
+
+function getUserFullName($uid) {
+  $full_name = "";
+  if (isset($uid)) {
+    $user = User::load($uid);
+    $full_name = t($user->get('field_first_name')->value." ".$user->get('field_last_name')->value);
+  }
+
+  return $full_name;
+}
+
+function getName($uid, $created) {
+
+  $created_timestamp = DrupalDateTime::createFromTimestamp($created, date_default_timezone_get());
+   $variables['author'] = '';
+
+  if (isset($uid)) {
+    $user = User::load($uid);
+    $name = t($user->get('field_first_name')->value." ".$user->get('field_last_name')->value);
+    //$elements['#type'] = 'markup';
+    //$elements['#markup'] = 'My Mark Up';
+    //$variables['author'] = drupal_render($elements);
+
+  }
+
+  $time = isset($created) ? \Drupal::service('date.formatter')->formatTimeDiffSince($created) : '';
+ 
+  
+  //$date = $created_timestamp->format("D, F j, Y g:i A");
+  $date = $created_timestamp->format("Y-m-d h:i:s");
+
+    $html = '<div style="margin-top:10px;"><span class="submitted">By 
+  <span lang="" datatype="" property="schema:name" typeof="schema:Person" about="/user/'.$uid.'" href="/user/'.$uid.'" title="View user profile."><b>'.$name.'</b> </span>'.$time.' ago</span></div>';
+
+  return $html;
+
+}
+
+function firstThreadBody($nid) {
+  $query = "SELECT nfd.uid, nfd.created, nb.body_value FROM node_field_data nfd, node__body nb where nfd.nid = {$nid} and nfd.nid = nb.entity_id";
+  $result = \Drupal::database()->query($query);
+  $row = $result->fetchObject();
+  $comment = "<i>No replies</i>";
+  if(isset($row->body_value)) {
+    $comment = $row->body_value;
+    $name = getName($row->uid, $row->created);
+  }
+ $html = $comment.$name;
+  return $html;  
+}
+
+function processForumData($cell, $cell_index, $row_index, &$variables, $thread_node_id) {
+  //dpm($cell);
+  $logged_in = \Drupal::currentUser()->isAuthenticated();
+  switch($cell_index) {
+    case 0:
+      //Column 0: Process Thread icon, Thread Name(link), and Summary
+
+      list($thread_title, $thread_summary) = getThreadNodeInfo($thread_node_id);
+      /* Create output for this cell */
+      $html = '<span>';
+      $html .= '  <div class="forum-thread-title">';
+      // Remove link if not logged_in
+      if($logged_in) {
+        $html .= '<a href="/node/'.$thread_node_id.'" hreflang="en">'.$thread_title.'</a>';
+      } else {
+        $html .= '<bold>'.$thread_title.'</bold>';
+      }
+
+      $html .= '</div>';
+      //Add Summary for Logged in users only
+      if($logged_in) {
+        $html .= '<div class=".forum-thread-title">'.$thread_summary.'</div>';
+      }
+      $html .= '</span>';
+      $variables['rows'][$row_index]['cells'][$cell_index]['icrp_markup'] = $html;
+
+      break;
+    case 1:
+      //Column 1: Process Thread icon, Thread Name(link), and Summary
+      $replies = str_replace("<br />","", $cell['content'][0]['#markup']);
+      //$replies = str_replace("posts","replies", $replies);
+      //$replies = str_replace("post","reply", $replies);
+
+      $html = '<div style="text-align:center;padding-top:10px;">';
+      $html .= '<div><span class="forum__posts">';
+      $html .= $cell['content'][0]['#prefix'];
+      $html .= '</span></div>';
+      $html .= '<div style="text-align:center;padding-top:10px; white-space: nowrap;">'.$replies.'</div>';
+      $html .= '</div>';
+      $variables['rows'][$row_index]['cells'][$cell_index]['icrp_markup'] = $html;
+      break;
+    case 2:
+      //Column 2: Process Thread icon, Thread Name(link), and Summary
+      //$thread_node_id = getNodeIdFromMarkup(substr($cell['content'][1]['#markup'], 0, 60));
+      // Set #num_posts to cell reference so we can remove the /n
+      $variables['rows'][$row_index]['cells'][$cell_index]['reply_posts']  = $variables['rows'][$row_index]['cells'][0]['content'][0]['#num_posts'] ;
+      //$variables['rows'][$row_index]['cells'][$cell_index]['#reply_posts'] = $variables['rows'][$row_index]['cells']
+      if($variables['rows'][$row_index]['cells'][0]['content'][0]['#num_posts'] == "0") {
+        $html = '<div>';
+        $html .= firstThreadBody($thread_node_id);
+        $html .= '</div>';
+      } else {
+        $html = '<div>';
+        $html .= lastComment($thread_node_id);
+        $html .= '</div>';
+      }
+      //Over write if not logged_in.  This is for anonymous user view.
+      if(!$logged_in) {
+        $html = '<div>';
+        $html .= firstThreadBody($thread_node_id);
+        $html .= '</div>';
+      }
+      $variables['rows'][$row_index]['cells'][$cell_index]['icrp_markup'] = $html;
+      break;
+
+  }
+}
+
+function changeHeaderTitle($header_title, $forum_id, $sort_order) {
+
+  //Change header name but maintain dynamic sorting functionality
+  $generatedLink = '<a href="/forum/'.$forum_id.'?sort=asc&amp;order=Topic" title="sort by '.$header_title.'">'.$header_title.'</a>';
+  if($sort_order == "descending") {
+    $generatedLink = '
+      <a href="/forum/'.$forum_id.'?sort=asc&amp;order=Topic" title="sort by '.$header_title.'">'.$header_title.'
+        <span class="tablesort tablesort--asc"><span class="visually-hidden">Sort ascending</span></span>
+      </a>
+    ';
+  }
+  if($sort_order == "ascending") {
+    $generatedLink = '
+      <a href="/forum/'.$forum_id.'?sort=desc&amp;order=Topic" title="sort by '.$header_title.'">'.$header_title.'
+        <span class="tablesort tablesort--desc"><span class="visually-hidden">Sort descending</span></span>
+      </a>  
+    ';
+  }
+  return $generatedLink;
+}
+
+
+function icrp_preprocess_table(&$variables) {
+
+  // Exit if not id is not available.
+  if(!isset($variables['attributes']['id'])){
+    return;
+  }
+  // Exit if not preprocess for forum-topic
+  if(substr($variables['attributes']['id'], 0, 11) != 'forum-topic') {
+    return;
+  }
+  //Change the Header from Topic to Thread
+  $forum_id = substr($variables['attributes']['id'], 12);
+  $sort_order = "";
+  if(isset($variables['header'][0]['attributes']->storage()['aria-sort'])) {
+    $sort_order = $variables['header'][0]['attributes']->storage()['aria-sort']->value();
+  }
+  // Change Last reply to Last Reply
+//  $last_reply_header = $variables['header'][2]['content']->getGeneratedLink();
+//  $variables['header'][2]['content']->setGeneratedLink(str_replace("Last reply", "Last Post", $last_reply_header));
+
+//  $variables['header'][0]['content']->setGeneratedLink(changeHeaderTitle("Thread", $forum_id, $sort_order));
+  //Customize Rows and Cells 
+  foreach($variables['rows'] as $row_index => $row) {
+    $thread_node_id = getNodeIdFromMarkup(substr($row['cells'][0]['content'][1]['#markup'], 0, 60));
+    foreach($row['cells'] as $cell_index => $cell) {
+      processForumData($cell, $cell_index, $row_index, $variables, $thread_node_id);
+    }
+  }
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for block templates.
+ */
+function icrp_preprocess_block(&$variables) {
+  /*drupal_set_message("icrp_preprocess_block");
+  kint($variables['configuration']);
+
+  if ($variables['configuration']['provider'] == 'forum') {
+    $variables['attributes']['role'] = 'navigation';
+  }
+  */
+}
+
+function getForumTitle($forum_node_id) {
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($forum_node_id);
+  return $node->getTitle();
+}
+
+function icrp_preprocess_menu_local_action(&$variables) {
+  $link = $variables['element']['#link'];
+  $link += array(
+    'localized_options' => array(),
+  );
+  $link['localized_options']['attributes']['class'][] = 'button';
+  $link['localized_options']['attributes']['class'][] = 'button-action';
+  $link['localized_options']['set_active_class'] = TRUE;
+
+  $variables['link'] = array(
+    '#type' => 'link',
+    '#title' => $link['title'],
+    '#options' => $link['localized_options'],
+    '#url' => $link['url'],
+  );
+}
+
+function icrp_preprocess_node(&$variables) {
+  // Exit if node type is not a forum
+  $node = $variables['node'];
+  //drupal_set_message($node->getType()); 
+  //dump($node);
+  if($node->getType() == "events") {
+    $variables['smart_date_range'] = 'Improved smart date range';
+    $event_group = $node->get('field_event_group')->value;
+    $event_group = $node->get('field_event_group')->value;
+    $find = array(" ", "/");
+    $event_id = strtolower(str_replace($find, "-", $event_group));
+    $class = 'fc-event-tid-' . $event_id;
+    $variables['title_prefix'] = '<span class="fc-event-default '.$class.'">';
+    $variables['title_suffix'] = '</span>';
+  }
+ //dump($variables);
+ 
+  if($node->getType() != "forum") {
+    //drupal_set_message($node->getType()); 
+    return;
+  }
+ 
+  //drupal_set_message("icrp_preprocess_node()");
+  //drupal_set_message("Get owner uid of this thread.  If current user then allow them to edit/delete/close thread");
+
+  //dpm($node);
+
+  $variables['ttitle'] = $node->getTitle();
+  //drupal_set_message($variables['ttitle']);
+  $created_timestamp = DrupalDateTime::createFromTimestamp($node->getCreatedTime(), date_default_timezone_get());
+  //$last_visit_timestamp->setTimezone(timezone_open(date_default_timezone_get()));
+  $variables['tthread_created_time'] = $created_timestamp->format("D, F j, Y g:i A");
+  $variables['tstatus'] = $node->get('status')->value;
+  $variables['tnid'] = $node->get('nid')->value;
+  //drupal_set_message("nid: ".$variables['tnid']);
+  $tnode = \Drupal::entityTypeManager()->getStorage('node')->load($variables['tnid']);
+  //dpm($node2);
+  if(isset($tnode)){
+    //drupal_set_message("We got a node");
+    //dpm($node);
+    $variables['tbody'] =  $tnode->get('body')->value; 
+    $variables['tsummary'] =  $tnode->get('body')->summary; 
+
+    //drupal_set_message($variables['tbody']);
+    $variables['tcomment_forum']['comment_count'] =  $tnode->get('comment_forum')->comment_count; 
+    $variables['tcomment_forum']['status'] =  $tnode->get('comment_forum')->status; 
+    $variables['tforum_tid'] =  $tnode->get('taxonomy_forums')->target_id; 
+    if(isset($variables['tforum_tid'])) {
+      //drupal_set_message($variables['tforum_tid']);
+      $forum = Drupal\taxonomy\Entity\Term::load($variables['tforum_tid']);
+      if(isset($forum)){
+        $variables['tforum_name'] =  $forum->getName(); 
+      } else {
+        $variables['tforum_name'] =  "unknown"; 
+      }
+    }
+    //See if current user owns this tread
+
+    $owner = $node->getOwner();
+    $author_uid = $owner->id();
+
+    $current_uid = \Drupal::currentUser()->id();
+    if($author_uid == $current_uid) {
+      $variables['tthread_author'] = true;
+    } else {
+      $variables['tthread_author'] = false;
+    }
+    //Get Author name and Organization 
+    $variables['tthread_author_name'] =  getUserFullName($author_uid);
+
+    $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($author_uid);
+    $target_id = $user->get('field_organization')->target_id;
+    $variables['tthread_author_org'] = getOrg($target_id);
+
+  }
+}
+
+function icrp_preprocess_forums__topics(&$variables) {
+  //drupal_set_message("forums__topics");
+  //drupal_set_message($variables['forums']['topics']['#theme']);
+  //kint($variables['forums']);
+  //var_dump($variables);
+ }
+
+function getNodeBody($nid) {
+  $node = \Drupal::entityTypeManager()->getStorage('node')->load($nid);
+  return $node->get('body')->value; 
+}
+
+function getLastPostFromTopicID($tid) {
+    //Count number oc comments for this Thread
+    $query = "select count(*) as comment_count ";
+    $query .= "FROM taxonomy_index ti, comment_field_data cfd, comment__comment_body ccb ";
+    $query .= "where ti.nid = cfd.entity_id and cfd.cid = ccb.entity_id and ti.tid = {$tid}; ";
+    $result = \Drupal::database()->query($query);
+    $row = $result->fetchObject();
+    //return "Comment Count: ".$row->comment_count;
+ 
+
+  //
+  // If there are now only one topic, then return the Topic Body, else get the last reply.
+  //
+    //
+    // If Comment count is zero.  Return Thread Topic Title and Body instead. If available.
+    // Else get the last reply.
+    //
+    if($row->comment_count == 0) {
+      $query = "SELECT count(*) as count FROM taxonomy_index ti where ti.tid = {$tid} ";
+      //$query .= "order by ti.created desc limit 1; ";
+      $result = \Drupal::database()->query($query);
+      $row = $result->fetchObject();
+      if(isset($row->count)  && $row->count > 0) {
+        $query = "SELECT nid FROM taxonomy_index ti where ti.tid = {$tid} ";
+        $query .= "order by ti.created desc limit 1; ";
+        $result = \Drupal::database()->query($query);
+        $row = $result->fetchObject();
+        list($thread_title, $thread_summary) = getThreadNodeInfo($row->nid);
+        $comment = "<div><b>$thread_title</b></div><div>$thread_summary</div>"; 
+
+        return array($row->nid, $comment);
+      }
+    }
+
+
+  $query = "SELECT * FROM taxonomy_index ti where ti.tid = {$tid} order by ti.nid desc limit 1;";
+  $result = \Drupal::database()->query($query);
+  $row = $result->fetchObject();
+  $comment = "";
+  $nid = "unknown";
+  if(isset($row->nid)) {
+    //$comment = lastComment($row->nid);
+    $query = "select ti.nid, ccb.comment_body_value, cfd.name, cfd.uid, cfd.changed ";
+    $query .= "FROM taxonomy_index ti, comment_field_data cfd, comment__comment_body ccb ";
+    $query .= "where ti.nid = cfd.entity_id and cfd.cid = ccb.entity_id and ti.tid = {$tid} "; 
+    $query .= "order by cfd.changed desc; ";
+    $result = \Drupal::database()->query($query);
+    $row = $result->fetchObject();
+    if(isset($row->comment_body_value)) {
+      $comment = $row->comment_body_value."<div style='display:none;'> by <b>".$row->name."</b></div>";
+    }
+    if(isset($row->nid)) {
+      $nid = $row->nid;
+    }
+
+  }
+
+  return array($nid, $comment);
+}
+
+function icrp_preprocess_forum_list(&$variables) {
+  //drupal_set_message("Added chris to variables.  See if you can access in twig.");
+  $logged_in = \Drupal::currentUser()->isAuthenticated();
+  if(!$logged_in) {
+    //Anonymous users can access Funding Oppertunities only.  Remove all other forums.
+    foreach($variables['forums'] as $tid =>$term ) {
+      if($tid !=27) {
+        unset($variables['forums'][$tid]);
+      }
+    }
+  }
+  foreach($variables['forums'] as $tid =>$term ) {
+    //drupal_set_message("Term: $tid");
+    //dpm($term);
+    list($nid, $last_post) = getLastPostFromTopicID($tid);
+    $variables['tforums'][$tid]['last_post'] = $last_post;
+    $variables['tforums'][$tid]['nid'] = $nid;
+
+    //$variables['tforums'][$tid]['last_post'] = "Hello";
+  }
+  //dpm($variables);
+  //kint($variables);
+  //drupal_set_message(print_r($variables, true));
+
+}
+
+function icrp_template_preprocess_default_variables_alter(&$variables) {
+  $variables['icrp_debug'] = false;
+  //$variables['icrp_debug'] = true;
+  //$variables['is_admin'] = 'Dont know';
+  //drupal_set_message("We got something now");
+  //var_dump($variables);
+}
+
+function icrp_user_format_name_alter(&$name, $account) {
+  // Display the user's uid instead of name.
+  //drupal_set_message("user_format_name");
+  //dpm($name);
+  //dpm($account->id());
+  //$name = "Hello User";
+  $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($account->id());
+  if(isset($user)) {
+    $name = $user->get('field_first_name')->value." ".$user->get('field_last_name')->value;
+  }
+
+
+  //kint($account->get('field_first_name')->value);
+  /*
+  if ($account->id()) {
+    $name = t('User @uid', array('@uid' => $account->id()));
+  }
+  */
+}
+function icrp_mail($key, &$message, $params) {
+
+  // E-mail formatting will be exactly as below, so do not use indenting!
+ $options = array(
+    'langcode' => $message['langcode'],
+  );
+  switch ($key) {
+    case 'approvedPartnershipApplicationMail':
+
+        $body =
+"Dear Partner,
+
+We’re delighted to inform you that your application for membership of the ICRP has been approved. The Operations Manager will be in contact with you shortly and will send your new member’s pack.
+
+With kind regards,
+
+The ICRP team";
+          //drupal_set_message($body);
+          $message['from'] = \Drupal::config('system.site')->get('mail');
+          $message['subject'] = "ICRP Partnership Application - Completed";
+          $message['body'][] = Drupal\Core\Mail\MailFormatHelper::htmlToText($body);
+          break;
+    case 'newForumPostMail':
+
+          //drupal_set_message("Sending newForumPostMail");
+          //drupal_set_message("params");
+          //dpm($params);
+          //$message['from'] = \Drupal::config('system.site')->get('mail');
+          $message['subject'] = $params['subject'];
+          $message['body'][] = $params['body'];
+
+          // Set the header's 'From' to the 'from_mail' so that the webform's email from
+          // value is used instead of site's email address.
+          // See: \Drupal\Core\Mail\MailManager::mail.
+          if (!empty($params['from_mail'])) {
+            $message['from'] = $params['from_mail'];
+            $message['headers']['From'] = $params['from_mail'];
+            $message['headers']['Reply-to'] = $params['from_mail'];
+            $message['headers']['Return-Path'] = $params['from_mail'];
+          }
+
+          if (!empty($params['cc_mail'])) {
+            $message['headers']['Cc'] = $params['cc_mail'];
+          }
+          if (!empty($params['bcc_mail'])) {
+            $message['headers']['Bcc'] = $params['bcc_mail'];
+          }
+
+          /* Changing */
+          //$message['body'] = [];
+          //$message['body'][] = $newdata;
+          //dpm($message);
+          //drupal_set_message("BODY");
+          //drupal_set_message($message['body'][0]);
+          break;
+    }
+}
+
+
+function icrp_confirm_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+  //drupal_set_message("confirm_form");
+}
+/**
+ * Implements hook_form_alter().
+ */
+/*
+function icrp_hook_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+    $form['link'] = array('#markup' => l(t('Link text'),'node'));
+    switch ($form_id) {
+        case 'user-pass-reset':
+            $form['terms_of_use'] = array(
+                '#type' => 'checkbox',
+                '#title' => t("I agree with the website's terms and conditions."),
+                '#required' => TRUE,
+            );
+            break;
+        case 'user_login_block':
+            $form['link'] = array('#markup' => l(t('Link text'),'node'));
+            break;
+        case 'webform_submission_contact_form':
+            // Set Type of Issue default value
+            $form['elements']['contact_us']['contact_us_container_1']['type_of_issue']['#default_value'] = "Register for CSO Updates";
+
+            // Pre-load user information if available
+            $uid = \Drupal::currentUser()->id();
+            if($uid > 0 ) {
+                $user = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+                //kint($user);
+
+                $name = $user->get('field_first_name')->value . ' ' . $user->get('field_last_name')->value;
+                //drupal_set_message("Name: ". $name);
+                $form['elements']['contact_us']['contact_us_container_2']['contact_us_left']['name']['#value'] = $name;
+
+                $email = $user->get('mail')->value;
+                $form['elements']['contact_us']['contact_us_container_2']['contact_us_right']['email']['#value'] = $email ;
+            }
+            break;
+    }
+    if ($form_id == 'user_form_what') {
+        $form['#submit'][] = '_MODULE_goto';
+        $form['terms_of_use'] = array(
+            '#type' => 'checkbox',
+            '#title' => t("I agree with the website's terms and conditions."),
+            '#required' => TRUE,
+        );
+    }
+}
+*/
+
+function icrp_views_pre_render($view) {
+  // Scramble the order of the rows shown on this result page.
+  // Note that this could be done earlier, but not later in the view execution
+  // process.
+  //drupal_set_message("views_pre_render");
+  //drupal_set_message("shuffle rows");
+  //shuffle($view->result);
+  //kint($view);
+  /*
+  foreach($view->result as $key ){
+
+    $value = $key->_entity->getValue('field_name')->getValue(array(0=>'value'));
+    drupal_set_message("$value");
+  }
+  */
+}
+
+function icrp_views_query_alter($view, $query) {
+    //drupal_set_message('icrp_views_query_alter');
+    //dpm($view);
+
+    if($view->id() == 'partner_application_administration_tool_old'){
+        $definition = array(
+            'table' => 'webform_submission_data',
+            'field' => 'sid',
+            'left_table' => 'webform_submission',
+            'left_field' => 'sid',
+        );
+        $join = Views::pluginManager('join')->createInstance('standard', $definition);
+
+        $query->addRelationship('webform_submission_data', $join, 'webform_submission');
+
+        // ouptuts "LEFT JOIN {node__field_precise_date} node__field_precise_date ON node_field_data.nid = node__field_precise_date.entity_id AND (node__field_precise_date.deleted = '0' AND node__field_precise_date.langcode = node_field_data.langcode)"
+
+       // $date_format = $query->getDateFormat("node__field_precise_date.field_precise_date_value", "m")." = :value";
+        //$query->addWhereExpression(2, $date_format, [":value" => 12]); // Where 12 is the month I need.
+    }    
+    //\Drupal::logger('hook')->notice('icrp_views_query_alter()');
+    //drupal_set_message("views_query_alter");
+    //drupal_set_message("View ID: ".$view->id());
+    global $user;
+    if($view->id() == "partner_application_administration_tool_old") {
+      \Drupal::messenger()->addStatus("You are viewing the Partner Applications");
+    }
+    //kint($query);
+  // (Example assuming a view with an exposed filter on node title.)
+  // If the input for the title filter is a positive integer, filter against
+  // node ID instead of node title.
+  if ($view->id() == 'my_view' && is_numeric($view->exposed_raw_input['title']) && $view->exposed_raw_input['title'] > 0) {
+    // Traverse through the 'where' part of the query.
+    foreach ($query->where as &$condition_group) {
+      foreach ($condition_group['conditions'] as &$condition) {
+        // If this is the part of the query filtering on title, chang the
+        // condition to filter on node ID.
+        if ($condition['field'] == 'node.title') {
+          $condition = array(
+            'field' => 'node.nid',
+            'value' => $view->exposed_raw_input['title'],
+            'operator' => '=',
+          );
+        }
+      }
+    }
+  }
+}
+/**
+ * Implements hook_fullcalendar_classes().
+ *
+ * @param $node
+ *   An object representing the node.
+ *
+ * @return
+ *   A string suitable for use as a CSS class.
+ */
+function icrp_fullcalendar_classes($node) {
+  //drupal_set_message(__FUNCTION__);
+  //drupal_set_message("Wow it works");
+
+  $classes = array();
+  $event_group = $node->get('field_event_group')->value;
+  $find = array(" ", "/");
+  $event_id = strtolower(str_replace($find, "-", $event_group));
+
+  //drupal_set_message($event_group);
+  //drupal_set_message($event_id);
+  //dpm($node);
+
+  // Taxonomy Term IDs for coloring.
+  //foreach ($node->taxonomy as $term_id) {
+  $classes[] = 'fc-event-tid-' . $event_id;
+  //}
+
+  return implode(' ', $classes);
+
+}
+
+/**
+ * Implements hook_fullcalendar_editable().
+ */
+function icrp_fullcalendar_editable($entity, $view) {
+  \Drupal::messenger()->addStatus(__FUNCITON__);
+  //drupal_set_message("Is this calendar editable");
+  //drupal_set_message("Only editable by Admin or Manager");
+
+  // Here I could inspect the entity or the view to make an informed deciscion,
+  // but in this case I never want to have the event be editable.
+  return FALSE;
+}
+
+/**
+ * Implements hook_fullcalendar_api().
+ */
+function icrp_fullcalendar_api() {
+  \Drupal::messenger()->addStatus(__FUNCITON__);
+  return array(
+    'api' => fullcalendar_api_version(),
+  );
+}
+
+/**
+ * Implements hook_fullcalendar_options_info().
+ */
+function icrp_fullcalendar_options_info() {
+  \Drupal::messenger()->addStatus(__FUNCITON__);
+  return array(
+    'custom_module' => array(
+      'js' => TRUE,
+      'no_fieldset' => TRUE,
+      'weight' => 5,
+    ),
+  );
+}
+
+function icrp_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+    //$request = \Drupal::request();
+    //$url = Url::createFromRequest($request);
+    //dpm($url);
+    //dpm($url->getOptions());
+    //dpm($url->getRouteParameters());
+ 
+    //drupal_set_message("Form ID: " . $form_id);
+    //dpm($form);
+    //dump($form['#attributes']['data-drupal-selector']);
+    //dpm($form_state);
+    //kint(print_r($form, true));
+    //$form['form_id'] = $form_id;
+    $current_form_id = $form_id;
+    if($form_id == 'node_events_edit_form' || $form_id == 'node_events_form') {
+      $current_form_id = 'node_events_forms';
+    }
+    if($form_id == 'node_events_form') {
+      /*
+      $form['actions']['cancel'] = array(
+        '#type' => 'button',
+        '#prefix' => '<span class="form-actions form-wrapper" id="cancel_event">',
+        '#suffix' => '</span>',
+        '#value' => t('Cancel'),
+        '#weight' => 1000,
+        '#submit' => array('icrp_cancel_event_submit'),
+        '#limit_validation_errors' => array(),
+      );
+      */
+      $form['actions']['return'] = array(
+        '#type' => 'markup',
+        '#markup' => t('<a href="/calendar" class="btn btn-link" role="button">Cancel</a>'),
+        '#weight' => 2000,
+        '#limit_validation_errors' => array(),
+      );
+    }    
+    switch ($current_form_id) {
+        case 'node_page_edit_form':
+          //drupal_set_message("Here is the form:");
+          //kint($form);
+          $uid = \Drupal::currentUser()->id();
+          $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+          if(!($user->hasRole('administrator'))) {
+            unset($form['actions']['delete']);
+            unset($form['revision_information']);
+            unset($form['revision_log']);
+            unset($form['revision']);
+            unset($form['actions']['preview']); //Remove Preview
+            unset($form['path']);
+            unset($form['#title']);
+          }
+          break;
+        case 'block_content_basic_edit_form':
+
+          $uid = \Drupal::currentUser()->id();
+          $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+         if(!($user->hasRole('administrator'))) {
+            unset($form['actions']['delete']);
+            unset($form['revision_information']);
+            unset($form['revision_log']);
+            unset($form['revision']);
+          }
+          break;
+        case 'node_faq_form':
+            unset($form['actions']['preview']); //Remove Preview
+            $form['actions']['return'] = array(
+              '#type' => 'markup',
+              '#markup' => t('<a href="/faq" class="btn btn-link" role="button">Cancel</a>'),
+              '#weight' => 2000,
+              '#limit_validation_errors' => array(),
+            );
+            break;
+        case 'node_faq_edit_form':
+            unset($form['revision_information']); // Remove Revisions section from block edit page
+            unset($form['revision_log']); // Remove Revisions section from block edit page
+            unset($form['revision']); // Remove Revisions section from block edit page
+
+            unset($form['actions']['preview']); //Remove Preview
+
+            break;
+        case 'node_events_forms':
+            //dump($form_state);
+            //dump($form);
+            $uid = \Drupal::currentUser()->id();
+            $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+            /*
+            if(!($user->hasRole('manager') || $user->hasRole('administrator'))) {
+              unset($form['actions']['delete']);
+            }
+            */
+            unset($form['revision_information']); // Remove Revisions section from block edit page
+            unset($form['revision_log']); // Remove Revisions section from block edit page
+            unset($form['revision']); // Remove Revisions section from block edit page
+
+            unset($form['actions']['preview']); //Remove Preview
+            $form['title']['widget']['0']['#title'] = "Event Type";     // Set Block Edit heading
+            
+            $form['field_calendar_type']['#attributes']['style'] = "display:none;";
+            if($form_id == 'node_events_form') {
+              $form['actions']['submit']['#value'] = t('Add New Event');
+            }
+            /*
+            $form['actions']['cancel'] = array(
+                  '#type' => 'button',
+                  '#value' => t('Cancel')
+            );
+            */
+            /*
+            if (isset($form_state['post']['op']) && $form_state['post']['op'] == t('Cancel')) {
+              drupal_goto('/calendar');
+              //https://www.drupal.org/forum/support/post-installation/2007-04-05/add-a-cancel-button
+            }
+            */
+            //dump($form);
+            break;
+        case 'block_content_basic_edit_form':
+            if (strpos($form['info']['widget']['0']['value']['#default_value'],"Partner Home") !== false ||
+                strpos($form['info']['widget']['0']['value']['#default_value'],"ICRP Site Updated Date") !== false) {
+                if (strpos($form['info']['widget']['0']['value']['#default_value'],"Partner Home Partner Management") !== false) {
+                    $blockTitle = "Edit Project Management";
+                } else if(strpos($form['info']['widget']['0']['value']['#default_value'],"ICRP Site Updated Date") !== false) {
+                    $blockTitle = "Edit Site Updated Date";
+                } else if(strpos($form['info']['widget']['0']['value']['#default_value'],"Partner Home") !== false) {
+                    $blockTitle = "Edit " . substr($form['#title'],55);
+                } else {
+                    $blockTitle = "Edit block [" . $form['info']['widget']['0']['value']['#default_value'] . "]";
+                }
+                unset($form['revision_information']); // Remove Revisions section from block edit page
+                unset($form['actions']['delete']); // Remove Delete button from block edot page
+                unset($form['info']); // Remove ablity to edit block title
+
+                $form['body']['widget']['0']['#title'] = $blockTitle;     // Set Block Edit heading
+/*
+                $form['actions']['cancel'] = array(                       // Add Cancel button
+                    '#type'   => 'button',
+                    '#value'  => t('Cancel'),
+                    '#attributes' => array('onClick' => 'history.go(-1); return true;'),
+                    '#weight' => 100,
+                );
+*/
+            }
+
+            break;
+        case 'user_register_form':
+            //drupal_set_message("user_register_form");
+            OrganizationRestClient::populateOrganizations();
+            \Drupal::service('page_cache_kill_switch')->trigger();
+            break;
+        case 'node_forum_edit_form':
+            //dpm($form);
+            $uid = \Drupal::currentUser()->id();
+            $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($uid);
+            if(!($user->hasRole('manager') || $user->hasRole('administrator'))) {
+              unset($form['actions']['delete']);
+            }
+            unset($form['revision_information']); // Remove Revisions section from block edit page
+            unset($form['revision_log']); // Remove Revisions section from block edit page
+            unset($form['revision']); // Remove Revisions section from block edit page
+
+            break;
+        case 'node_forum_form':
+            $form['actions']['submit']['#value'] = t('Add New Thread');
+            break;
+        case 'node_events_delete_form':
+            $form['description']['#markup'] = new TranslatableMarkup("Are you sure you want to delete this event?");
+            break;
+        case 'node_forum_delete_form':
+            //node-forum-delete-form
+            $form['description']['#markup'] = new TranslatableMarkup("By deleting this post, you will also delete all replies. Are you sure you want to delete the entire thread?");
+            //unset($form['actions']['cancel']);
+            break;
+        case 'comment_comment_forum_delete_form':
+            $form['description']['#markup'] = new TranslatableMarkup("Are you sure you want to delete this reply?  This action cannot be undone.");
+            break;
+        case 'comment_comment_forum_form':
+            //$form['sticky']['#access'] = true;
+            $form['actions']['submit']['#value'] = t('Post Reply');
+            break;
+        case 'user_login_form':
+            //$form['link'] = array('#markup' => t("<div style=padding:20px;'><a href='/user/password'>Forgot Password?</a></div>"));
+            break;
+        case 'node_basic_node_add_form':
+        case 'node_basic_node_edit_form':
+        case 'node_testimonial_add_form':
+        case 'node_testimonial_edit_form':
+        case 'media_video_add_form':
+        case 'media_audio_add_form':
+        case 'media_file_add_form':
+        case 'media_image_add_form':
+        case 'media_embedded_video_add_form':
+        case 'media_video_edit_form':
+        case 'media_audio_edit_form':
+        case 'media_file_edit_form':
+        case 'media_image_edit_form':
+        case 'media_embedded_video_edit_form':
+          if (!in_array('administrator', \Drupal::currentUser()->getRoles())) {
+            unset($form['revision']);
+            unset($form['revision_information']);
+            unset($form['revision_log_message']);
+          }
+          break;
+      }
+}
+
+function icrp_field_widget_multivalue_form_alter(array &$elements, FormStateInterface $form_state, array $context) {
+
+  // Do not alter the default settings form.
+  if ($context['default']) {
+    return;
+  }
+
+  // Only act on entity reference fields that reference media.
+  $field_type = $context['items']->getFieldDefinition()->getType();
+  $target_type = $context['items']->getFieldDefinition()->getFieldStorageDefinition()->getSetting('target_type');
+  if ($field_type !== 'entity_reference' ||  $target_type !== 'media') {
+    return;
+  }
+//  kint($elements);
+
+}

@@ -1,0 +1,7 @@
+email.results:
+  path: '/api/database/email-results'
+  defaults: 
+    _controller: '\Drupal\db_email_results\Controller\EmailResultsController::emailResults'
+  methods: [ GET ]
+  requirements:
+    _access: 'TRUE'

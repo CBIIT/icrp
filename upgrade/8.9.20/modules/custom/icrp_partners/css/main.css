@@ -1,0 +1,44 @@
+/** Bootstrap Overrides */
+@media(max-width: 768px) {
+    .nav.nav-tabs {
+        margin-right: -2px;
+        border-bottom: none;
+    }
+    .nav-tabs > li {
+        display: block;
+        width: 100%;
+    }
+    .tab-content {
+        border-top: 1px solid #dddddd;
+    }
+}
+input[type="checkbox"] {
+    vertical-align: -1px;
+}
+.cursor-pointer {
+    cursor: pointer;
+}
+.mr-40 {
+    margin-right: 40px;
+}
+.mv-5 {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.noselect {
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -o-user-select: none;
+    user-select: none;
+}
+.tab-content {
+    padding: 15px;
+    border: 1px solid #dddddd;
+    border-top: none;
+}
+.table-responsive {
+    position: relative;
+    border: none;
+}

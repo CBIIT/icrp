@@ -1,0 +1,91 @@
+library.content:
+  path: '/library'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::content'
+    _title: 'Library'
+  requirements:
+    _permission: 'access content'
+
+library.initialize:
+  path: '/library/initialize'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::onLoad'
+  methods:  [GET]
+  requirements:
+    _permission: 'access content'
+
+library.search:
+  path: '/library/search'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::searchFiles'
+  methods:  [POST]
+  requirements:
+    _permission: 'access content'
+
+library.bulk:
+  path: '/library/bulk'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::bulkDownload'
+  methods:  [GET]
+  requirements:
+    _role: 'administrator+manager+partner'
+
+library.testQuery:
+  path: '/library/testQuery'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::testQuery'
+  methods: [GET]
+  requirements:
+    _permission: 'access content'
+    _role: 'administrator'
+
+library.folder.id:
+  path: '/library/folder/{id}'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::folderRest'
+  methods:  [GET, DELETE, PUT]
+  requirements:
+    _permission: 'access content'
+
+library.folder.post:
+  path: '/library/folder'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::postFolder'
+  methods:  [POST]
+  requirements:
+    _permission: 'access content'
+    _role: 'administrator+manager'
+
+icrp.library.file.download:
+  path: '/library/file/{id}/{name}'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::fileDownload'
+    name: ''
+  methods:  [GET]
+  requirements:
+    _permission: 'access content'
+    id: '[0-9]{1,7}'
+
+library.file.id:
+  path: '/library/file/{id}'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::fileRest'
+  methods:  [DELETE, PUT]
+  requirements:
+    _permission: 'access content'
+
+library.file.post:
+  path: '/library/file'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::postFile'
+  methods:  [POST]
+  requirements:
+    _permission: 'access content'
+
+library.file.thumb.id:
+  path: '/library/file/thumb/{file}'
+  defaults:
+    _controller: '\Drupal\library\Controller\LibraryController::thumbsDownload'
+  methods:  [GET]
+  requirements:
+    _permission: 'access content'

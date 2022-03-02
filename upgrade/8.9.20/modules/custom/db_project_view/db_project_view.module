@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * @file
+ * ICRP DB Project View module.
+ */
+
+
+function db_project_view_theme($existing, $type, $theme, $path) {
+  return array(
+    'db_project_view' => array(
+      'variables' => array(
+          'project_details' => NULL,
+          'project_funding_details' => NULL,
+          'cancer_types' => NULL,
+          'cso_research_areas' => NULL
+        ),
+    ),
+
+    'project_view_component' => array(
+      'variables' => array(
+          'project_id' => NULL,
+          'data_title' => NULL,
+          'data_source' => NULL,
+        ),
+    ),
+    'db_funding_view' => array(
+      'variables' => array(
+          'page_title' => NULL,
+          'funding_details' => NULL,
+          'collaborators' => NULL,
+          'cancer_types' => NULL,
+          'cso_research_areas' => NULL,
+          'project_id' => NULL,
+          'show_orcid' => NULL
+        ),
+    ),
+    'funding_org_view' => array (
+      'variables' => array (),
+    ),
+    'upload_status_report_view' => array (
+      'variables' => array (),
+    ),
+    'current_partners_view' => array (
+      'variables' => array (
+	      'current_partners' => NULL
+      ),
+    ),
+  );
+}

@@ -1,0 +1,99 @@
+<alert
+  *ngFor="let alert of alerts"
+  [dismissible]="true"
+  [type]="alert.type">
+  <div [innerHTML]="alert.message"></div>
+</alert>
+
+<div class="form-group">
+  Please provide the following information and click Import to import the data to staging.
+</div>
+
+<form
+  class="panel panel-default"
+  [formGroup]="form">
+  <div class="panel-heading">Data Upload Information</div>
+  <div class="panel-body">
+    <div
+      class="form-group"
+      [class.has-error]="(form.controls.fundingYearStart.dirty || form.controls.fundingYearEnd.dirty) && form.controls.fundingYearStart.invalid"
+      fxLayout
+      fxLayoutWrap
+      fxLayoutAlign="start center">
+
+      <label
+        class="control-label asterisk"
+        fxFlex="15%"
+        fxFlex.lt-md="100%">
+        Funding Year
+      </label>
+
+      <div
+        fxLayout
+        fxLayoutWrap
+        fxFlex="85%"
+        fxFlex.lt-md="100%"
+        fxLayoutGap="10px"
+        fxLayoutAlign="start center">
+
+        <input
+          type="number"
+          fxFlex="1 1 100px"
+          class="form-control input-sm"
+          formControlName="fundingYearStart"
+          [max]="form.controls.fundingYearEnd.value"
+        >
+        <span >-</span>
+        <input
+          type="number"
+          fxFlex="1 1 100px"
+          class="form-control input-sm"
+          formControlName="fundingYearEnd"
+        >
+
+      </div>
+
+      <div
+        class="help-block"
+        fxFlex="100%"
+        *ngIf="(form.controls.fundingYearStart.dirty || form.controls.fundingYearEnd.dirty) && form.controls.fundingYearStart.errors?.max">
+        The initial funding year must not exceed the ending year.
+      </div>
+    </div>
+
+    <div
+      class="form-group"
+      fxLayout
+      fxLayoutWrap
+      fxLayoutAlign="start start">
+
+      <label
+        class="control-label asterisk"
+        fxFlex="15%"
+        fxFlex.lt-md="100%">
+        Import Notes
+      </label>
+
+      <div
+        fxLayout
+        fxLayoutWrap
+        fxFlex="85%"
+        fxFlex.lt-md="100%">
+
+        <textarea
+          cols="70"
+          rows="4"
+          class="form-control input-sm"
+          placeholder="Enter import notes"
+          formControlName="importNotes">
+        </textarea>
+      </div>
+    </div>
+  </div>
+</form>
+<br>
+<div class="text-center form-group clearfix">
+  <button class="btn btn-default" (click)="previous.emit()">Previous</button>
+  <button class="btn btn-default" [disabled]="submitted || form.invalid" (click)="submit()">Import</button>
+  <button class="btn btn-default pull-right" (click)="cancel.emit()">Cancel</button>
+</div>

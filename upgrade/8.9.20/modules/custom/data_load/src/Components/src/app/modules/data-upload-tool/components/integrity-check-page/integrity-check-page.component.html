@@ -1,0 +1,256 @@
+<accordion>
+  <accordion-group [(isOpen)]="showRules">
+    <div accordion-heading>
+      Validation Rules
+      <span
+        class="pull-right"
+        [class.rotate-45]="showRules"
+        [class.rotate-225]="!showRules">
+        &#9700;
+      </span>
+    </div>
+
+    <form
+      class="form-group"
+      [formGroup]="form"
+      fxLayout
+      fxLayoutWrap
+      fxLayoutAlign="space-between stretch"
+      fxLayoutGap="10px">
+
+      <div
+        fxLayout
+        fxLayoutWrap
+        [ngClass.lt-md]="['panel', 'no-border']"
+        fxFlex="calc(25% - 10px)"
+        fxFlex.lt-lg="calc(50% - 10px)"
+        fxFlex.lt-md="100%"
+        fxLayoutAlign="space-between stretch">
+
+        <div fxFlex="100%" class="panel panel-default">
+          <div class="panel-heading">General</div>
+          <div class="panel-body">
+            <ng-container *ngFor="let rule of validationRules">
+              <div
+                class="checkbox"
+                *ngIf="rule.category === 'General'">
+              <label [class.disabled]="rule.isRequired === 1">
+                  <input
+                    type="checkbox"
+                    [name]="rule.id"
+                    [value]="rule.id"
+                    [title]="rule.name"
+                    [formControlName]="rule.id"
+                    >
+                  {{ rule.name }}
+              </label>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+
+        <div fxFlex="100%" class="panel panel-default">
+          <div class="panel-heading">Organization</div>
+          <div class="panel-body">
+            <ng-container *ngFor="let rule of validationRules">
+              <div
+                class="checkbox"
+                *ngIf="rule.category === 'Organization'">
+                <label [class.disabled]="rule.isRequired === 1">
+                  <input
+                    type="checkbox"
+                    [name]="rule.id"
+                    [value]="rule.id"
+                    [title]="rule.name"
+                    [formControlName]="rule.id"
+                    >
+                  {{ rule.name }}
+              </label>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+      <div
+        fxFlex="calc(25% - 10px)"
+        fxFlex.lt-lg="calc(50% - 10px)"
+        fxFlex.lt-md="100%"
+        class="panel panel-default">
+        <div class="panel-heading">Award</div>
+        <div class="panel-body">
+          <ng-container *ngFor="let rule of validationRules">
+            <div
+              class="checkbox"
+              *ngIf="rule.category === 'Award'">
+              <label [class.disabled]="rule.isRequired === 1">
+                <input
+                  type="checkbox"
+                  [name]="rule.id"
+                  [value]="rule.id"
+                  [title]="rule.name"
+                  [formControlName]="rule.id">
+                {{ rule.name }}
+             </label>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+
+      <div
+        fxFlex="calc(25% - 10px)"
+        fxFlex.lt-lg="calc(50% - 10px)"
+        fxFlex.lt-md="100%"
+        class="panel panel-default">
+        <div class="panel-heading">Cancer Type</div>
+        <div class="panel-body">
+          <ng-container *ngFor="let rule of validationRules">
+            <div
+              class="checkbox"
+              *ngIf="rule.category === 'Cancer Type'">
+              <label [class.disabled]="rule.isRequired === 1">
+                <input
+                  type="checkbox"
+                  [name]="rule.id"
+                  [value]="rule.id"
+                  [title]="rule.name"
+                  [formControlName]="rule.id"
+                  >
+                {{ rule.name }}
+             </label>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+
+      <div
+        fxFlex="calc(25% - 10px)"
+        fxFlex.lt-lg="calc(50% - 10px)"
+        fxFlex.lt-md="100%"
+        class="panel panel-default">
+        <div class="panel-heading">CSO</div>
+        <div class="panel-body">
+          <ng-container *ngFor="let rule of validationRules">
+            <div
+              class="checkbox"
+              *ngIf="rule.category === 'CSO'">
+              <label [class.disabled]="rule.isRequired === 1">
+                <input
+                  type="checkbox"
+                  [name]="rule.id"
+                  [value]="rule.id"
+                  [title]="rule.name"
+                  [formControlName]="rule.id"
+                  >
+                {{ rule.name }}
+             </label>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- needed for proper spacing -->
+      <div></div>
+    </form>
+
+    <div class="text-center form-group">
+      <button
+        class="btn btn-default"
+        (click)="submit()">
+        Perform Check
+      </button>
+    </div>
+  </accordion-group>
+
+  <accordion-group
+    [(isOpen)]="showSummary"
+    [isDisabled]="summary?.length === 0">
+
+    <div accordion-heading>
+      Data Integrity Check Summary
+      <span
+        class="pull-right"
+        [class.rotate-45]="showSummary"
+        [class.rotate-225]="!showSummary">
+        &#9700;
+      </span>
+    </div>
+
+    <table class="two-columns">
+      <tr *ngFor="let row of summary">
+        <td>{{ row.Description }}</td>
+        <td>{{ row.Count }}</td>
+      </tr>
+    </table>
+  </accordion-group>
+
+  <accordion-group
+    [(isOpen)]="showResults"
+    [isDisabled]="results?.length === 0">
+    <div accordion-heading>
+      Data Integrity Check Results
+      <span
+        class="pull-right"
+        [class.rotate-45]="showResults"
+        [class.rotate-225]="!showResults">
+        &#9700;
+      </span>
+    </div>
+
+    <table class="two-columns">
+      <tr *ngFor="let row of results; let i = index;" >
+
+        <td>{{ row.Description }}</td>
+        <td style="position: relative">
+          <span class="text-success" *ngIf="row.Count === 0">
+            Pass
+          </span>
+
+          <a
+            href="#"
+            class="text-danger"
+            *ngIf="row.Count > 0"
+            (click)="getIntegrityCheckDetails(row.ID, row.Description, staticModal)"
+            >
+            <u>{{ row.Count }} Failed</u>
+          </a>
+
+          <button
+            *ngIf="i === 0 && !integrityCheckValid"
+            class="btn btn-default"
+            style="position: absolute; right: 5px; top: 5px;"
+            (click)="export()">
+            Export Error Records
+          </button>
+
+        </td>
+      </tr>
+    </table>
+  </accordion-group>
+</accordion>
+
+
+<div class="modal fade" bsModal #staticModal="bs-modal" [config]="{backdrop: 'static'}"
+    tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">Integrity Check Details</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="staticModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          {{ description }}
+        </div>
+        <ui-table
+          [headers]="detailHeaders"
+          [data]="details">
+        </ui-table>
+      </div>
+    </div>
+  </div>
+</div>

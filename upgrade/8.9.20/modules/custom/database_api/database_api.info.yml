@@ -1,0 +1,7 @@
+name: ICRP Database Information API
+description: Provides an api for retrieving information from the icrp database
+package: ICRP Modules
+type: module
+version: 0.2
+core: 8.x
+core_version_requirement: ">=8"

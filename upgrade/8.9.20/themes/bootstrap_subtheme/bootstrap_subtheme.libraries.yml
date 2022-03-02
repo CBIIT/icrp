@@ -1,0 +1,42 @@
+global-styling:
+  css:
+    theme:
+      css/ext/bootstrap.yeti.3.3.7.css: {}
+      # https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/theme.min.css: {type: external, minified: true}
+      css/ext/theme.1.12.1.min.css: {}
+      # https://cdnjs.cloudflare.com/ajax/libs/tachyons/4.11.1/tachyons.min.css: {type: external, minified: true}
+      css/ext/tachyons.4.11.1.min.css: {}
+      # css/bootstrap-yeti-navbar.css: {} * Do not use *
+      css/fullcalendar-overrides.css: {}
+      css/style.css: {}
+      css/bootstrap-overrides.css: {}
+      css/bootstrap-3-cards.css: {}
+      css/bootstrap-utils.css: {}
+      css/forum.css: {}
+      css/datacaveats.css: {}
+
+global-scripts:
+  version: 1.0.2
+  js:
+    js/ext/bootstrap.3.3.7.min.js: {}
+    # https://www.gstatic.com/charts/loader.js: { type: external, minified: false }
+    js/ext/loader.js: {}
+    # https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.26.0/polyfill.min.js: { type: external, minified: true }
+    js/ext/polyfill.6.26.0.min.js: {}
+    # https://cdnjs.cloudflare.com/ajax/libs/jquery.matchHeight/0.7.2/jquery.matchHeight-min.js: { type: external, minified: true }
+    js/ext/jquery.matchHeight.0.7.2.min.js: {}
+    # https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js: { type: external, minified: true }
+    js/ext/bootbox.4.4.0.min.js: {}
+    js/init_globals.js: {}
+    js/scripts.js: {}
+    js/survey.js: {}
+    js/covid_survey.js: {}
+    https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit: { type: external }
+    js/ext/fontawesome.all.5.0.9.js: {}
+    js/ext/fontawesome.v4-shims.5.0.9.js: {}
+    # /libraries/fontawesome/js/all.min.js: {}
+    # /libraries/fontawesome/js/v4-shims.min.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.ui
+    - core/jquery.ui.dialog

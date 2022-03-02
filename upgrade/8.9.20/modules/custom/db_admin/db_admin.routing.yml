@@ -1,0 +1,199 @@
+api.admin.partners:
+  path: /admin/partners
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\PageController::partners'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.funding-organizations:
+  path: /admin/funding-organizations
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\PageController::fundingOrganizations'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.institutions:
+  path: /admin/institutions
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\PageController::institutions'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.merge-institutions:
+  path: /admin/merge-institutions
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\PageController::mergeInstitutions'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.funding-organizations.fields:
+  path: /api/admin/funding-organizations/fields
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::getFundingOrganizationFields'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.organizations-name.fields:
+  path: /api/admin/organization-name/fields
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::getOrganizationNameFields'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.funding-organizations.add:
+  path: /api/admin/funding-organizations/add
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::addFundingOrganization'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.funding-organizations.update:
+  path: /api/admin/funding-organizations/update
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::updateFundingOrganization'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.funding-organizations.update-name:
+  path: /api/admin/funding-organizations/update-name
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::updateFundingOrganizationName'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.partners.fields:
+  path: /api/admin/partners/fields
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::getPartnerFields'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.partners.add:
+  path: /api/admin/partners/add
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::addPartner'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.partners.update:
+  path: /api/admin/partners/update
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::updatePartner'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.partners.update-name:
+  path: /api/admin/partners/update-name
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::updatePartnerName'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.non-partners.add:
+  path: /api/admin/non-partners/add
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::addNonPartner'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.non-partners.update:
+  path: /api/admin/non-partners/update
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::updateNonPartner'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.institutions.fields:
+  path: /api/admin/institutions/fields
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::getInstitutionFields'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.institutions.add:
+  path: /api/admin/institutions/add
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::addInstitution'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.institutions.update:
+  path: /api/admin/institutions/update
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::updateInstitution'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.institutions.merge:
+  path: /api/admin/institutions/merge
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\AdminController::mergeInstitution'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.partners.content.deprecated:
+  path: /AddPartner
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\PageController::partners'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.funding-organizations.deprecated:
+  path: /AddFundingOrg
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\PageController::fundingOrganizations'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.update-organization-name.deprecated:
+  path: /UpdateOrgName
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\PageController::updateOrganizationName'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'  
+
+api.admin.institutions.deprecated:
+  path: /AddInstitution
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\PageController::institutions'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+api.admin.merge-institutions.deprecated:
+  path: /MergeInstitutions
+  defaults:
+    _controller: '\Drupal\db_admin\Controller\PageController::mergeInstitutions'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'
+
+test_event:
+  path: /api/admin/test-event
+  defaults:
+    _controller: 'Drupal\db_admin\Controller\AdminController::dispatchSampleEvent'
+  requirements:
+    _access: 'TRUE'
+    _role: 'admin+manager'

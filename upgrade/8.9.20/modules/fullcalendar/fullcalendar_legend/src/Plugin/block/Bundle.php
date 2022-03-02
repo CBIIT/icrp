@@ -1,0 +1,45 @@
+<?php
+
+/**
+ * @file
+ * Contains \Drupal\fullcalendar_legend\Plugin\Block\Bundle.
+ */
+
+namespace Drupal\fullcalendar_legend\Plugin\Block;
+
+/**
+ * TODO
+ *
+ * @Plugin(
+ *   id = "fullcalendar_legend_bundle",
+ *   subject = @Translation("Fullcalendar Legend: Bundle"),
+ *   module = "fullcalendar_legend"
+ * )
+ */
+class Bundle extends FullcalendarLegendBase {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function buildLegend(array $fields) {
+    $types = [];
+
+    foreach ($fields as $field_name => $field) {
+      foreach ($field['bundles'] as $entity_type => $bundles) {
+        $bundle_info = \Drupal::service('entity_type.bundle.info')->getAllBundleInfo();
+
+        foreach ($bundles as $bundle) {
+          if (!isset($types[$bundle])) {
+            $types[$bundle]['entity_type'] = $entity_type;
+            $types[$bundle]['field_name'] = $field_name;
+            $types[$bundle]['bundle'] = $bundle;
+            $types[$bundle]['label'] = $bundle_info[$bundle]['label'];
+          }
+        }
+      }
+    }
+
+    return $types;
+  }
+
+}

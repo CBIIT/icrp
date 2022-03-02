@@ -1,0 +1,13 @@
+<div style="position: absolute">
+<ui-overlay [active]="loading" [fullscreen]="true">
+  <ui-spinner></ui-spinner>
+  <br>Fetching Data Export
+</ui-overlay>
+</div>
+
+<button class="btn btn-default btn-xs" (click)="export()">
+  <div class="flex">
+      <i class="fas fa-download"></i>
+      <span>{{ label }}</span>
+  </div>
+</button>

@@ -1,0 +1,7 @@
+name: ICRP Database Admin Pages
+description: Provides pages for administering the ICRP Database
+package: ICRP Modules
+type: module
+version: 0.3
+core: 8.x
+core_version_requirement: ">=8"

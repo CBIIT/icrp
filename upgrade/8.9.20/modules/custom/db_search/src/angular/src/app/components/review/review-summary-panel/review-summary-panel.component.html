@@ -1,0 +1,39 @@
+
+
+<icrp-summary-panel>
+  <div left-header>
+    <span *ngIf="currentSponsor" class="bold orange">
+      Data Upload for Funding Sponsor {{ currentSponsor && currentSponsor.sponsor_code }},
+      Funding Years {{ currentSponsor && currentSponsor.funding_year }}
+      {{ currentSponsor.type && '(' + currentSponsor.type + ')' }}
+    </span>
+  </div>
+  <div right-header class="bold blue" >
+    <div *ngIf="projectCount">
+      <span tooltip="Parent projects">
+        Total Base Projects: {{ projectCount.toLocaleString() }}
+      </span>
+
+      <span *ngIf="relatedProjectCount" tooltip="Including linked sub-projects or supplements">
+        / Total Projects: {{ relatedProjectCount.toLocaleString() }}
+      </span>
+    </div>
+  </div>
+  <div *ngIf="currentSponsor" class="vertical-padding">
+
+    <span [ngSwitch]="currentSponsor.type">
+      <label *ngSwitchCase="'NEW'">
+        Summary counts of new projects and associated records loaded to ICRP staging
+      </label>
+      <label *ngSwitchCase="'UPDATE'">
+        Summary counts of existing projects and associated records updated in ICRP staging
+      </label>
+    </span>
+
+    <ul>
+      <li *ngFor="let key of keys">
+        {{ mapKeys[key] }}: {{ currentSponsor.counts[key] }}
+      </li>
+    </ul>
+  </div>
+</icrp-summary-panel>

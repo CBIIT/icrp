@@ -1,0 +1,172 @@
+
+/* FullCalendar Event Groups*/
+/*
+See http://htmlcolorcodes.com/color-names/ for color names
+* ICRP Meetings
+1. Partner News and Announcements (partner-news-and-announcements) = ROYALBLUE
+2. Annual Meetings (annual-meetings) = DARKCYAN
+3. Communications and Membership (communications-and-membership) = TURQUOISE
+4. CSO and Coding (cso-and-coding) = DARKORANGE
+5. Evaluations and Analyses (evaluations-and-analyses) = OLIVEDRAB
+6. Partner Operations (partner-operations) = MEDIUMVIOLETRED
+7. Website and Database (website-and-database) = INDIANRED
+* External Events
+8. Conference/Meeting (conference-meeting) = ROYALBLUE
+9. Twiter Promotional Event (twitter-promotional) = CRIMSON
+10. Webinar (webinar) =  DARKCYAN
+11. Other (other) = MEDIUMVIOLETRED
+
+*/
+/* 1. Partner News and Announcements (partner-news-and-announcements) = ROYALBLUE */
+.fc-event-tid-partner-news-and-announcements,
+.fc-event-tid-partner-news-and-announcements .fc-event-skin,
+.fc-event-tid-partner-news-and-announcements .fc-event-time,
+.fc-event-tid-partner-news-and-announcements .fc-event-dot,
+.fc-event-tid-partner-news-and-announcements a {
+  color: #fff;
+  background-color: ROYALBLUE;
+}
+/* Added on March 6, 2019 */
+/* 12. Funding Opportunities (funding-opportunities) = CRIMSON */
+.fc-event-tid-funding-opportunities,
+.fc-event-tid-funding-opportunities .fc-event-skin,
+.fc-event-tid-funding-opportunities .fc-event-time,
+.fc-event-tid-funding-opportunities .fc-event-dot,
+.fc-event-tid-funding-opportunities a {
+  color: #fff;
+  background-color: CRIMSON;
+}
+/* 2. Annual Meetings (annual-meetings) = DARKCYAN */
+.fc-event-tid-annual-meetings,
+.fc-event-tid-annual-meetings .fc-event-skin,
+.fc-event-tid-annual-meetings .fc-event-time,
+.fc-event-tid-annual-meetings .fc-event-dot,
+.fc-event-tid-annual-meetings a {
+  color: #fff;
+  background-color: DARKCYAN;
+}
+
+/* 3. Communications and Membership (communications-and-membership) = TURQUOISE */
+.fc-event-tid-communications-and-membership,
+.fc-event-tid-communications-and-membership .fc-event-skin,
+.fc-event-tid-communications-and-membership .fc-event-time,
+.fc-event-tid-communications-and-membership .fc-event-dot,
+.fc-event-tid-communications-and-membership a {
+  color: #fff;
+  background-color: TURQUOISE;
+}
+
+/* 4. CSO and Coding (cso-and-coding) = DARKCYAN */
+.fc-event-tid-cso-and-coding,
+.fc-event-tid-cso-and-coding .fc-event-skin,
+.fc-event-tid-cso-and-coding .fc-event-time,
+.fc-event-tid-cso-and-coding .fc-event-dot,
+.fc-event-tid-cso-and-coding a {
+  color: #fff;
+  background-color: DARKORANGE;
+}
+
+/* 5. Evaluations and Analyses (evaluations-and-analyses) = OLIVEDRAB */
+.fc-event-tid-evaluations-and-analyses,
+.fc-event-tid-evaluations-and-analyses .fc-event-skin,
+.fc-event-tid-evaluations-and-analyses .fc-event-time,
+.fc-event-tid-evaluations-and-analyses .fc-event-dot,
+.fc-event-tid-evaluations-and-analyses a {
+  color: #fff;
+  background-color: OLIVEDRAB;
+}
+
+/* 6. Partner Operations (partner-operations) = MEDIUMVIOLETRED */
+.fc-event-tid-partner-operations,
+.fc-event-tid-partner-operations .fc-event-skin,
+.fc-event-tid-partner-operations .fc-event-time,
+.fc-event-tid-partner-operations .fc-event-dot,
+.fc-event-tid-partner-operations a {
+  color: #fff;
+  background-color: MEDIUMVIOLETRED;
+}
+
+/* 7. Website and Database (website-and-database) = INDIANRED */
+.fc-event-tid-website-and-database,
+.fc-event-tid-website-and-database .fc-event-skin,
+.fc-event-tid-website-and-database .fc-event-time,
+.fc-event-tid-website-and-database .fc-event-dot,
+.fc-event-tid-website-and-database a {
+  color: #fff;
+  background-color: INDIANRED;
+}
+
+/* 8. Conference/Meeting (conference-meeting) = ROYALBLUE */
+.fc-event-tid-conference-meeting,
+.fc-event-tid-conference-meeting .fc-event-skin,
+.fc-event-tid-conference-meeting .fc-event-time,
+.fc-event-tid-conference-meeting .fc-event-dot,
+.fc-event-tid-conference-meeting a {
+  color: #fff;
+  background-color: ROYALBLUE;
+}
+
+/* 9. Twiter Promotional Event (twitter-promotional) = CRIMSON */
+.fc-event-tid-twitter-promotional,
+.fc-event-tid-twitter-promotional .fc-event-skin,
+.fc-event-tid-twitter-promotional .fc-event-time,
+.fc-event-tid-twitter-promotional .fc-event-dot,
+.fc-event-tid-twitter-promotional a {
+  color: #fff;
+  background-color: CRIMSON;
+}
+
+/* 10. Webinar (webinar) =  DARKCYAN */
+.fc-event-tid-webinar,
+.fc-event-tid-webinar .fc-event-skin,
+.fc-event-tid-webinar .fc-event-time,
+.fc-event-tid-webinar .fc-event-dot,
+.fc-event-tid-webinar a {
+  color: #fff;
+  background-color: DARKCYAN;
+}
+
+/* 11. Other (other) = MEDIUMVIOLETRED */
+
+.fc-event-tid-other,
+.fc-event-tid-other .fc-event-skin,
+.fc-event-tid-other .fc-event-time,
+.fc-event-tid-other .fc-event-dot,
+.fc-event-tid-other a {
+  color: #fff;
+  background-color: MEDIUMVIOLETRED;
+}
+.fc-event-tid-annual-meetings > .fc-list-item-time {
+  color:black;
+}
+
+/* Override Year (list) view on the calendar */
+.fc-event-tid-annual-meetings > .fc-list-item-time {
+  color:black;
+}
+.fc-list-item .fc-event-default .events {
+  background-color: white;
+}
+.fc-list-item-time .fc-widget-content {
+  color: black;
+}
+tr.fc-list-item {
+  background-color:white;
+}
+tr.fc-list-item > .fc-list-item-time {
+  color:black;
+}
+.fc-event-default, 
+.fc-event-default .fc-event-skin, 
+.fc-event-default .fc-event-time, 
+.fc-event-default a {
+  border-color: black; 
+  border-style: solid;
+  border-radius: 3px;
+  border-width: 0px;
+  padding:4px 6px;
+}
+tr.fc-list-item > td {
+    border-width: 0px 0 0;
+    padding: 8px 14px;
+}

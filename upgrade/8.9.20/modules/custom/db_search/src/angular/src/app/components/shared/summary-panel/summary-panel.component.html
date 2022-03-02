@@ -1,0 +1,19 @@
+
+<div class="title clearfix" (click)="toggleEnabled && showSummary = !showSummary;">
+  <span class="pull-left" style="margin-right: 6px">
+    <div class="rotate-45" [innerHTML]="'\u25E5'" *ngIf="!showSummary" ></div>
+    <div class="rotate-45" [innerHTML]="'\u25E2'" *ngIf="showSummary" ></div>
+  </span>
+
+  <span class="pull-left">
+    <ng-content select="[left-header]"></ng-content>
+  </span>
+
+  <div class="pull-right">
+    <ng-content select="[right-header]"></ng-content>
+  </div>
+</div>
+
+<div class="content" *ngIf="showSummary">
+  <ng-content></ng-content>
+</div>

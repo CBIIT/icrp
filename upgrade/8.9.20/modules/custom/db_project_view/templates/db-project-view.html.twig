@@ -1,0 +1,118 @@
+{% spaceless %}
+{% autoescape true %}
+
+<div class="native-font">
+
+{% if project_details %}
+<h3 class="title margin-right">View Project Details</h3>
+<h4 class="h4 grey">{{ project_details.project_title | raw }}</h4>
+<hr class="less-margins">
+
+<dl class="dl-horizontal margin-bottom margin-top">
+  <dt>Award Code</dt>
+  <dd>{{ project_details.award_code | default('N/A')}}</dd>
+
+  <dt>Project Dates</dt>
+  <dd>
+    {% if project_details.project_start_date or project_details.project_end_date %}
+      {{ project_details.project_start_date | default('N/A') | raw }}
+      to {{ project_details.project_end_date | default('N/A') | raw }}
+    {% else %}
+      <i>N/A</i>
+    {% endif %}
+  <dt>Childhood Cancer</dt>
+  <dd>{{ parseInt(project_details.is_childhood) === 0 ? "No" : parseInt(project_details.is_childhood) === 1 ? "Yes" : "N/A" }}</dd>
+</dl>
+
+<h5 class="h5 margin-top" style="margin-top: 20px">Award Funding</h4>
+<div class="table-responsive margin-top">
+  <table class="project-funding-details">
+    <thead>
+      <tr>
+        <th class="limited-width">Title</th>
+        <th>Category</th> 
+        <th>Funding Org.</th>
+        <th>Alt Award Code</th>
+        <th>Award Funding Period</th>
+        <th>PI Name</th>
+        <th>Collabos.</th>
+        <th class="limited-width">Institution</th>
+        <th>Location</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in project_funding_details %}
+        <tr>
+          <td class="limited-width">
+            <a href="/project/funding-details/{{ row.project_funding_id }}" target="_blank">
+              {{ row.project_title | default('N/A') | raw }}
+            </a>
+          </td>
+          <td>{{ row.award_type | default('N/A') | raw }}</td>
+
+          <td>{{ row.funding_organization | default('N/A') | raw }}</td>
+          <td>{{ row.alt_award_code | default('N/A') | raw }}</td>
+          <td>
+            {% if row.budget_start_date or row.budget_end_date %}
+              {{ row.budget_start_date | default('N/A') | raw }}
+              to {{ row.budget_end_date | default('N/A') | raw }}
+            {% else %}
+              <i>N/A</i>
+            {% endif %}
+          </td>
+          
+          <td>{{ row.pi_last_name ~ ', ' ~ row.pi_first_name }}</td>
+          <td></td>
+          <td class="limited-width">{{ row.institution | default('N/A') | raw }}</td>
+          <td>{{ (row.city ? row.city ~ ', ') ~
+                 (row.state ? row.state ~ ', ') ~
+                  row.country }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if project_details.technical_abstract %}
+<h4>Technical Abstract</h4>
+<div>{{ project_details.technical_abstract | raw }}</div>
+<hr>
+{% endif %}
+
+{% if project_details.public_abstract %}
+<h4>Public Abstract</h4>
+<div>{{ project_details.public_abstract | raw }}</div>
+<hr>
+{% endif %}
+
+<h5 class="h5">Cancer Types</h5>
+<ul>
+  {% for row in cancer_types %}
+  <li>
+    {% if row.cancer_type_url %}
+      <a href="{{ row.cancer_type_url }}" target="_blank">{{ row.cancer_type }}</a>
+    {% else %}
+      {{ row.cancer_type }}
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+
+<h5 class="h5">Common Scientific Outline (CSO) Research Areas</h5>
+<ul>
+  {% for row in cso_research_areas %}
+  <li>
+    <b>{{ row.cso_code }} {{ row.cso_category }} </b> {{ row.cso_short_name }}
+  </li>
+  {% endfor %}
+</ul>
+
+
+{% else %}
+  <i>No project information found</i>
+{% endif %}
+
+</div>
+
+{% endautoescape %}
+{% endspaceless %}

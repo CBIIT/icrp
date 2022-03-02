@@ -1,0 +1,80 @@
+{#
+/**
+ * @file
+ * Theme override to display a forum.
+ *
+ * May contain forum containers as well as forum topics.
+ *
+ * Available variables:
+ * - forums: The forums to display (as processed by forum-list.html.twig).
+ * - topics: The topics to display.
+ * - topics_pager: The topics pager.
+ * - forums_defined: A flag to indicate that the forums are configured.
+ *
+ * @see template_preprocess_forums()
+ */
+#}
+{% if icrp_debug %}
+	<span class="icrp-debug">forums.html.twig</span><br>
+	Container or not<br>
+	 <script>console.info("forums.html.twig");</script>
+	<script>console.log({{ _context | json_encode | raw }});</script>
+	{% for column in header %}
+		{{ column.data }}<br>
+	{% endfor %}
+{% endif %}
+
+{% set isManager="false" %}
+{% for role in user.roles %}
+	{% if (role == "manager") or (role == "administrator") %}{% set isManager="true" %}{% endif %}
+{% endfor %}
+
+{% if tid == '6' %} 
+	<h1>{{ tname }}</h1>
+{% else %}
+	<h1> <i class="fa {{ tfontawesome_icon }} fa-fw forum-topic-icon" title="New Posts available"></i> {{ tname }}
+		{% if logged_in and isManager=="true" and tid==27 %}
+			<span style="float:right;font-size: 14px;"><a href="/block/33?destination=/forum/27"><i class="fa fa-pencil-square-o" aria-hidden="true" style="color:#008cba;"></i>&nbsp;Edit Funding Announcement Feeds</a></span>
+		{% endif %}
+	</h1>
+{% endif %}
+{% if logged_in %}
+<div id="new-forum-breadcrumb"></div>
+{% endif %}
+<table style="width:100%;margin-bottom:5px;font-size:15px;">
+	<tbody>
+		<tr style="min-height:30px;">
+			<td style="padding:3px;">
+				{% if logged_in %}
+					{{ tdescription|raw }}
+				{% else %}
+					<p>
+						Our partners' latest funding opportunities are advertised below – the most recent opportunity is at the top of the list. Please scroll down for further opportunities and note that deadlines are included in the text of the post. Click on the links in the funding announcement section at the right to find general information about funding schemes offered by each of our partner organizations.
+					</p>
+				{% endif %}
+			</td>
+			<td style="text-align:right;vertical-align:bottom;white-space:nowrap;">
+		{% if tid == '6' %} 
+				<span class="pull-right" style="font-size:small;">{{ last_forum_visit }}</span>
+		{% else %}
+			{% if logged_in %}
+				<a cdata-drupal-link-system-path="node/add/forum" data-drupal-link-query="{&quot;forum_id&quot;:&quot;{{ tid }}&quot;}" class="btn btn-xs btn-success" href="/node/add/forum?forum_id={{ tid }}">Add New Thread</a>
+			{% endif %}
+		{% endif %}
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+<div>
+{{ attach_library('classy/forum') }}
+{% if forums_defined %}
+  <div class="forum">
+    {{ forums }}
+    {{ topics }}
+    {{ topics_pager }}
+  </div>
+{% endif %}
+
+</div>
+

@@ -1,0 +1,59 @@
+{#
+/**
+ * @file
+ * Theme override for a 'form' element.
+ *
+ * Available variables
+ * - attributes: A list of HTML attributes for the wrapper element.
+ * - children: The child elements of the form.
+ *
+ * @see template_preprocess_form()
+ */
+#}
+
+{# Add form-horizontal to a form #}
+{% if attributes.id == "views-exposed-form-user-account-administration-tool-page-1" %}
+    <form class="form-inline" id="form-membership-status">
+        <div class="form-group">
+            {{ children }}
+        </div>
+    </form>
+{% elseif attributes.id == "comment-form"  %}
+    <div class ="container">
+      <div class = "row">
+        <div class="col-12 well">
+            <form {{ attributes }}>
+                {{ children }}
+            </form>
+        </div>
+      </div>
+    </div>
+{% elseif attributes.id == "node-forum-form"  %}
+    <h2>Add New Thread</h2>
+    <div><b>Forum Category:</b>&nbsp;{{ tforum_category }}</div>
+    <div style="padding-bottom:10px;"><b>Description:</b>&nbsp;{{ tforum_description|striptags('<em>')|raw }}</div>
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="well">
+                <form {{ attributes }}>
+                    {{ children }}
+                </form>
+            </div>
+        </div>
+    </div>
+{% elseif attributes.id == "node-events-form"  %}
+    <h2>Add New Event</h2>
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <div class="well">
+                <form {{ attributes }}>
+                    {{ children }}
+                </form>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <form {{ attributes }}>
+        {{ children }}
+    </form>
+{% endif %}

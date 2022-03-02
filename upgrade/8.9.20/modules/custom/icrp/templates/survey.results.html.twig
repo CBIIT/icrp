@@ -1,0 +1,69 @@
+<h1>ICRP Website Survey Results</h1>
+
+<div class="survey-results">
+	<div><b>Survey Period:</b>  {{ survey_period }}</div>
+	<div><b>Number of Responses:</b>  <span id="survey-responses" data-responses="{{ number_of_responses }}">{{ number_of_responses }}</span></div>
+</div>
+<div class="container-fluid survey survey-results">
+	<div class="row">
+		<div class="pull-left">
+			<div class="card">
+			  <div class="card-body">
+			    <h3 class="card-title">Reasons for Visit</h3>
+			 	<div id="chart_reasons" data-table="{{ reasons_data }}"></div>
+			  </div>
+			</div>
+		</div>
+		<div class="pull-left">
+			<div class="card">
+			  <div class="card-body">
+			    <h3 class="card-title">Background</h3>
+				<div id="chart_background" data-table="{{ background_data }}"></div>
+			  </div>
+			</div>
+		</div>
+		<div class="pull-left">
+			<div class="card">
+			  <div class="card-body">
+			    <h3 class="card-title">Familiarity</h3>
+				<div id="chart_familiarity" data-table="{{ familiarity_data }}"></div>
+			  </div>
+			</div>
+		</div>
+		<div class="pull-left">
+			<div class="card">
+			  <div class="card-body">
+			    <h3 class="card-title">Region</h3>
+				<div id="chart_region" data-table="{{ region_data }}"></div>
+			  </div>
+			</div>
+		</div>
+		<div class="pull-left">
+			<div class="card">
+			  <div class="card-body">
+			    <h3 class="card-title">Helpful?</h3>
+			 	<div id="chart_helpful" data-table="{{ helpful_data }}"></div>
+			  </div>
+			</div>
+		</div>
+		<div class="pull-left">
+			<div class="card">
+			  <div class="card-body">
+			    <h3 class="card-title">Feedback</h3>
+			 	<div id="chart_feedback" data-table="{{ feedback_data }}"></div>
+			  </div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<hr>
+
+<div class="survey-results-table">
+	<div class="pull-left site-color"><h2>Individual Responses</h2></div>
+	<div class="pull-right" style="padding-bottom:15px;">
+		<a id="survey-download-btn" class="btn btn-default" href="/survey-download-results?_format=csv"><i class="fas fa-download"></i> Export</a>
+	</div>
+</div>
+<div class="clearfix"></div>
+

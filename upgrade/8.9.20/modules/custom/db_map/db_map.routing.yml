@@ -1,0 +1,66 @@
+map:
+  path: '/map'
+  defaults:
+    _controller: '\Drupal\db_map\Controller\MapController::getContent'
+    _title: 'Project Map'
+  requirements:
+    _access: 'TRUE'
+
+
+getLocations:
+  path: '/map/getLocations'
+  defaults:
+    _controller: '\Drupal\db_map\Controller\MapController::getLocations'
+  requirements:
+    _access: 'TRUE'
+
+
+getSearchParameters:
+  path: '/map/getSearchParameters'
+  defaults:
+    _controller: '\Drupal\db_map\Controller\MapController::getSearchParameters'
+  requirements:
+    _access: 'TRUE'
+
+
+getNewSearchId:
+  path: '/map/getNewSearchId'
+  defaults:
+    _controller: '\Drupal\db_map\Controller\MapController::getNewSearchId'
+  requirements:
+    _access: 'TRUE'
+
+
+getExcelExport:
+  path: '/map/getExcelExport/{prefix}'
+  defaults:
+    _controller: '\Drupal\db_map\Controller\MapController::getExcelExport'
+    prefix: 'Map_Export'
+  requirements:
+    _access: 'TRUE'
+
+    
+getPeopleMap:
+  path: '/map/people/{funding_id}'
+  defaults:
+    _controller: '\Drupal\db_map\Controller\MapController::getPeopleMap'
+  requirements:
+    _permission: 'access content'
+    funding_id: '[0-9]{1,9}'
+
+
+getLayers:
+  path: '/map/layer'
+  defaults:
+    _controller: '\Drupal\db_map\Controller\MapController::getLayers'
+  requirements:
+    _permission: 'access content'
+
+
+getLayerMap:
+  path: '/map/layer/data/{layer_id}'
+  defaults:
+    _controller: '\Drupal\db_map\Controller\MapController::getLayerMap'
+  requirements:
+    _permission: 'access content'
+    layer_id: '[0-9]{1,9}'
