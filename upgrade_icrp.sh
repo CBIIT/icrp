@@ -34,7 +34,16 @@ cp -r /tmp/icrp/upgrade/8.9.20/themes themes/
 #upgrade to 8.9.20
 composer update
 
-#upgrade to 9.3.6
+#Install Modules
+drush pm-enable fullcalendar upgrade_status upgrade_rector -y
+
+#update drupal to latest 10
+composer require drush/drush:^10
+
+
+#upgrade to 9.3.7
+composer require drupal/core:9.3.7 --no-update
+composer update
 #cp /tmp/icrp/composer.json .
 #composer update
 
