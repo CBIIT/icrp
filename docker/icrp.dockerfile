@@ -10,6 +10,7 @@ RUN dnf -y update \
     libzip-devel \
     make \
     mod_fcgid \
+    mysql \
     nodejs \
     php \
     php-devel \
@@ -92,6 +93,8 @@ COPY utility/ utility/
 COPY composer.json composer.lock ./
 
 RUN composer install
+
+COPY sites/ sites/
 
 COPY modules/custom/ modules/custom/
 
