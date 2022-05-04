@@ -92,6 +92,8 @@ COPY docker/httpd-custom.conf /etc/httpd/conf.d/
 
 COPY docker/php-custom.ini /etc/php.d/
 
+COPY docker/postfix-main.cf /etc/postfix/main.cf
+
 COPY utility/ utility/
 
 COPY composer.json composer.lock ./
