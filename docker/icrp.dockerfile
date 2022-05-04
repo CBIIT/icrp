@@ -5,6 +5,7 @@ RUN dnf -y update \
  && dnf -y module enable php:7.4 \
  && dnf -y install \
     curl \
+    cyrus-sasl-plain \
     git \
     httpd \
     libzip-devel \
