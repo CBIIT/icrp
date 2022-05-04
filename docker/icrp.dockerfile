@@ -24,6 +24,8 @@ RUN dnf -y update \
     php-pdo \
     php-pear \
     php-xml \
+    postfix \
+    sendmail \
     unzip \
     wget \
     which \
@@ -37,6 +39,8 @@ RUN dnf -y update \
     msodbcsql17 \
     unixODBC-devel \
  && dnf clean all
+
+RUN alternatives --set mta /usr/sbin/sendmail.postfix
 
 RUN pecl install \
     pdo_sqlsrv \
@@ -113,5 +117,6 @@ CMD rm -rf \
     /run/httpd/* \
     /run/php-fpm/* \
     /tmp/httpd* \
+ && postfix start \
  && php-fpm -D \
  && apachectl -DFOREGROUND
