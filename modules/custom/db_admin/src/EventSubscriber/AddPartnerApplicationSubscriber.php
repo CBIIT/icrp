@@ -2,7 +2,7 @@
 
 namespace Drupal\db_admin\EventSubscriber;
 
-use Drupal\db_admin\Helpers\PDOBuilder;
+use Drupal\db_admin\Controller\PDOBuilder;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
