@@ -5324,6 +5324,9 @@
                         "status": "covered",
                         "message": "Covered by Drupal's security advisory policy"
                     }
+                },
+                "patches_applied": {
+                    "Patch to fix CAPTCHA validation error: unknown CAPTCHA session ID": "https://www.drupal.org/files/issues/2019-11-15/3035883-29-workaround.patch"
                 }
             },
             "notification-url": "https://packages.drupal.org/8/downloads",
