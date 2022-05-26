@@ -13,6 +13,7 @@ RUN dnf -y update \
     mod_fcgid \
     mysql \
     nodejs \
+    patch \
     php \
     php-devel \
     php-fpm \
