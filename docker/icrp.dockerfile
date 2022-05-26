@@ -5,6 +5,7 @@ RUN dnf -y update \
  && dnf -y module enable php:7.4 \
  && dnf -y install \
     curl \
+    cyrus-sasl-plain \
     git \
     httpd \
     libzip-devel \
@@ -24,6 +25,8 @@ RUN dnf -y update \
     php-pdo \
     php-pear \
     php-xml \
+    postfix \
+    sendmail \
     unzip \
     wget \
     which \
@@ -37,6 +40,8 @@ RUN dnf -y update \
     msodbcsql17 \
     unixODBC-devel \
  && dnf clean all
+
+RUN alternatives --set mta /usr/sbin/sendmail.postfix
 
 RUN pecl install \
     pdo_sqlsrv \
@@ -88,11 +93,15 @@ COPY docker/httpd-custom.conf /etc/httpd/conf.d/
 
 COPY docker/php-custom.ini /etc/php.d/
 
+COPY docker/postfix-main.cf /etc/postfix/main.cf
+
 COPY utility/ utility/
 
 COPY composer.json composer.lock ./
 
 RUN composer install
+
+COPY sites/ sites/
 
 COPY modules/custom/ modules/custom/
 
@@ -111,5 +120,6 @@ CMD rm -rf \
     /run/httpd/* \
     /run/php-fpm/* \
     /tmp/httpd* \
+ && postfix start \
  && php-fpm -D \
  && apachectl -DFOREGROUND

@@ -206,6 +206,10 @@
             "drupal/bootstrap": {
                 "Patch to fix unsupported operand types":
                 "https://www.drupal.org/files/issues/2019-02-04/3027569-23.patch"
+            },
+            "drupal/recaptcha": {
+                "Patch to fix CAPTCHA validation error: unknown CAPTCHA session ID": 
+                "https://www.drupal.org/files/issues/2019-11-15/3035883-29-workaround.patch"
             }
         }
     }
