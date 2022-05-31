@@ -97,3 +97,6 @@ package-lock.json
 /test.php
 node_modules
 .DS_Store
+/phpinfo.php
+/mssql_data
+/mysql_data
