@@ -1,0 +1,489 @@
+application_form:
+  '#type': container
+  application_intro:
+    '#type': markup
+    '#display_on': both
+    '#markup': |
+      <h2>ICRP Partnership Application Form</h2>
+      Thank you for your interest in becoming part of the International Cancer Research Partnership.&nbsp; Please complete this application and upload the supplementary information requested below. &nbsp;If you would like to download a copy of this form to review before applying online please click <a href="/sites/default/files/downloads/MembershipApplication.pdf" target="_blank">here</a>.
+      
+organization_information:
+  '#type': details
+  '#title': 'Organization Information'
+  '#open': true
+  container_left:
+    '#type': container
+    '#attributes':
+      class:
+        - 'form--inline clearfix'
+        - col-sm-6
+    organization_name:
+      '#type': textfield
+      '#title': 'Organization''s Name'
+      '#title_display': inline
+      '#size': 25
+      '#required': true
+    organization_address_1:
+      '#type': textfield
+      '#title': 'Organization''s Address 1'
+      '#title_display': inline
+      '#size': 50
+      '#required': true
+    organization_address_2:
+      '#type': textfield
+      '#title': 'Organization''s Address 2'
+      '#title_display': inline
+      '#size': 50
+    city:
+      '#type': textfield
+      '#title': City
+      '#title_display': inline
+      '#size': 50
+      '#required': true
+    state_province_territory:
+      '#type': select_other
+      '#title': State/Province/Territory
+      '#options': state_province_names
+    income_band:
+      '#type': textfield
+      '#title': 'Income Band'
+      '#title_display': none
+      '#attributes':
+        style: 'display:none;'
+    fb2:
+      '#type': flexbox
+      '#attributes':
+        class:
+          - 'container-inline clearfix'
+      country:
+        '#type': select
+        '#title': Country
+        '#description': 'World Bank Income Band:'
+        '#title_display': inline
+        '#options': external_countries
+        '#required': true
+        '#flex': 2
+        '#wrapper_type': form_element
+      zip_postal_code:
+        '#type': textfield
+        '#title': 'ZIP/Postal Code'
+        '#title_display': inline
+        '#size': 8
+        '#required': true
+  container_right:
+    '#type': container
+    '#attributes':
+      class:
+        - 'form--inline clearfix'
+        - col-sm-6
+    executive_contact:
+      '#type': fieldset
+      '#title': 'Executive Director/President/Chairperson'
+      name:
+        '#type': textfield
+        '#title': Name
+        '#required': true
+      position:
+        '#type': textfield
+        '#title': Position
+        '#title_display': inline
+        '#size': 50
+        '#required': true
+      telephone_number:
+        '#type': textfield
+        '#title': 'Telephone number'
+        '#title_display': inline
+        '#required': true
+      email:
+        '#type': email
+        '#title': Email
+        '#title_display': before
+        '#required': true
+        '#pattern': '^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$'
+        '#pattern_error': 'Email does not contain a valid email.'
+        '#flexbox': '0'
+  description_of_the_organization:
+    '#type': textarea
+    '#title': 'Description of the organization and its mission (this will be used as a description on our website list of partners)'
+    '#title_display': before
+    '#rows': 2
+    '#required': true
+  brief_description_of_research:
+    '#type': textarea
+    '#title': 'Brief description of research profile (disease-specific vs. entire research continuum portfolio)'
+    '#title_display': before
+    '#rows': 2
+    '#required': true
+  year_initiated_container:
+    '#type': container
+    '#attributes':
+      class:
+        - 'form--inline clearfix'
+        - 'form-group row'
+      style: 'padding-top:15px;'
+    year_initiated:
+      '#type': textfield
+      '#title': 'Year when initiated research program'
+      '#wrapper_attributes':
+        class:
+          - '_col-3 form-group'
+      '#attributes':
+        style: 'width:100px;'
+      '#required': true
+research_investment_budget_information:
+  '#type': details
+  '#title': 'Research Investment Budget Information'
+  research_container:
+    '#type': container
+    '#attributes':
+      class:
+        - clearfix
+    container_left2:
+      '#type': container
+      '#attributes':
+        class:
+          - 'form--inline clearfix'
+          - col-sm-6
+      current_annual_research_investment_budget_container:
+        '#type': container
+        '#attributes':
+          class:
+            - 'form--inline clearfix'
+            - 'form-group row'
+        current_annual_research_investment_budget:
+          '#type': textfield
+          '#title': 'Current annual research investment budget'
+          '#title_display': inline
+          '#wrapper_attributes':
+            class:
+              - '_col-9 form-group'
+          '#attributes':
+            style: 'width:100px;'
+          '#required': true
+      current_annual_operating_budget_container:
+        '#type': container
+        '#attributes':
+          class:
+            - 'form--inline clearfix'
+            - 'form-group row'
+        current_annual_operating_budget:
+          '#type': textfield
+          '#title': 'Current annual operating budget'
+          '#title_display': inline
+          '#wrapper_attributes':
+            class:
+              - '_col-9 form-group'
+          '#attributes':
+            style: 'width:100px;'
+    container_right2:
+      '#type': container
+      '#attributes':
+        class:
+          - 'form--inline clearfix'
+          - col-sm-6
+      reporting_period_container:
+        '#type': container
+        '#attributes':
+          class:
+            - 'form--inline clearfix'
+            - 'form-group row'
+        reporting_period:
+          '#type': textfield
+          '#title': 'Reporting period (e.g. 2021)'
+          '#wrapper_attributes':
+            class:
+              - '_col-9 form-group'
+          '#attributes':
+            style: 'width:100px;'
+          '#required': true
+      number_of_projects_funded_per_annum_container:
+        '#type': container
+        '#attributes':
+          class:
+            - 'form--inline clearfix'
+            - 'form-group row'
+        number_of_projects_funded_per_annum:
+          '#type': textfield
+          '#title': 'Approximate number of projects funded per annum'
+          '#wrapper_attributes':
+            class:
+              - '_col-9 form-group'
+          '#attributes':
+            style: 'width:100px;'
+          '#required': true
+  research_footer_container:
+    '#type': container
+    '#attributes':
+      class:
+        - clearfix
+    research_footer:
+      '#type': markup
+      '#markup': '*If your organization&#39;s current annual operating budget differs significantly from its annual research investment, you may wish to provide a short explanatory paragraph in your supplemetary information e.g. if you provide a large amount of funding for cancer care/policy that would not be eligible for inclusion in the ICRP database.'
+  tier_container:
+    '#type': container
+    '#attributes':
+      class:
+        - 'container-inline clearfix'
+    tier_radio:
+      '#type': radios
+      '#title': 'Please tick/check your membership contribution Tier**'
+      '#description': 'Please check your membership contribution Tier based on the criteria listed in the table below.'
+      '#wrapper_attributes':
+        class:
+          - col-sm-6
+      '#options':
+        1: 'Tier I'
+        2: 'Tier II'
+        3: 'Tier III'
+        4: 'Tier IV'
+        5: 'Tier V'
+        6: 'Tier VI'
+      '#options_display': side_by_side
+      '#required': true
+    reduced_fees:
+      '#type': checkbox
+      '#title': 'Organizations in LICs, MICs or UMCs are entitled to a free trial year and a 50% reduction in fees in subsequent years if they choose to continue membership.'
+      '#disabled': true
+  tier_table_container:
+    '#type': container
+    '#attributes':
+      class:
+        - clearfix
+    table_tier:
+      '#type': processed_text
+      '#text': |
+        <div id="edit-tier-table-container" data-drupal-selector="edit-tier-table-container" class="clearfix form-group js-form-wrapper form-wrapper">
+        <div class="table-responsive">
+        	<table data-striping="1" id="edit-tiers" data-drupal-selector="edit-tiers" class="container-inline clearfix table table-condensed js-form-wrapper responsive-enabled table table-hover table-striped">
+              <thead>
+        	      <tr>
+        			<th>Tiers</th>
+        			<th>Research investment budget ($US dollars)</th>
+        			<th id="fee_description">Annual membership contribution ($US dollars)</th>
+        	      </tr>
+              </thead>
+              <tbody>
+        	          <tr class="odd" data-drupal-selector="edit-tier-1">
+        	          <td>VI</td>
+        	          <td>$250M or over</td>
+        	          <td class="max_fee">$25,000</td>
+                    <td class="reduced_fee">$12,500</td>
+        	      </tr>
+        	          <tr class="even" data-drupal-selector="edit-tier-2">
+        	          <td>V</td>
+        	          <td>$150M-$250M</td>
+        	          <td class="max_fee">$12,000</td>
+        	          <td class="reduced_fee">$6,000</td>
+        	      </tr>
+        	          <tr class="odd" data-drupal-selector="edit-tier-3">
+        	          <td>IV</td>
+        	          <td>$25M-$149M</td>
+        	          <td class="max_fee">$8,000</td>
+        	          <td class="reduced_fee">$4,000</td>
+        	      </tr>
+        	          <tr class="even" data-drupal-selector="edit-tier-4">
+        	          <td>III</td>
+        	          <td>$10M-$24M</td>
+        	          <td class="max_fee">$5,000</td>
+        	          <td class="reduced_fee">$2,500</td>
+        	      </tr>
+        	          <tr class="odd" data-drupal-selector="edit-tier-5">
+        	          <td>II</td>
+        	          <td>$5M-$9M</td>
+        	          <td class="max_fee">$2,000</td>
+        	          <td class="reduced_fee">$1,000</td>
+        	      </tr>
+        	          <tr class="even" data-drupal-selector="edit-tier-6">
+        	          <td>I</td>
+        	          <td>Less than $5M</td>
+        	          <td class="max_fee">$500</td>
+        	          <td class="reduced_fee">$250</td>
+        	      </tr>
+        	</tbody>
+            </table>
+          </div>
+        </div>
+        
+      '#format': full_html
+  payment_container:
+    '#type': container
+    '#attributes':
+      class:
+        - 'container-inline clearfix'
+    payment_radio:
+      '#type': radios
+      '#title': 'Please select the preferred date for payment of annual membership contributions**'
+      '#description': 'Please select the preferred date for payment of annual membership contributions**:'
+      '#wrapper_attributes':
+        class:
+          - col-sm-6
+        style: 'display:none'
+      '#options':
+        '1 January': '1 January'
+        '1 July': '1 July'
+      '#options_display': side_by_side
+      '#required': false
+  payment_date_footnote:
+    '#type': markup
+    '#markup': '(**Please note that your annual membership contribution tier is determined by the current annual research investment budget reported here.&nbsp; The currency exchange rate valid on the date of the membership application pack will be used to determine the US dollar value of your research investment budget.  For organizations in LICs, MICs or UMCs, a free trial year is offered.)'
+contact_person_s_information:
+  '#type': details
+  '#title': 'Contact Person''s Information'
+  contact_person_intro:
+    '#type': markup
+    '#markup': 'Please Note that this individual will be expected to be an active member of the ICR partnership.&nbsp; Active participation will include monthly teleconferences, membership of an ICRP sub-committee (e.g. research outcomes, data analysis, web development), management of your organization&#39;s submission to the ICRP database and participation in portfolio analyses.'
+  container_left3:
+    '#type': container
+    '#attributes':
+      class:
+        - 'container-inline clearfix'
+        - col-sm-6
+    contact_name:
+      '#type': textfield
+      '#title': Name
+      '#title_display': before
+      '#size': 60
+    contact_email:
+      '#type': email
+      '#title': Email
+      '#pattern': '^$|^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$'
+      '#pattern_error': 'Email does not contain a valid email.'
+  container_right3:
+    '#type': container
+    '#attributes':
+      class:
+        - 'container-inline clearfix'
+        - col-sm-6
+    contact_position:
+      '#type': textfield
+      '#title': Position
+    contact_organization:
+      '#type': textfield
+      '#title': Organization
+icrp_terms_conditions_of_membership:
+  '#type': details
+  '#title': 'ICRP Terms & Conditions of membership'
+  icrp_terms:
+    '#type': processed_text
+    '#text': '<p><strong>Please confirm your organization''s eligibility for membership and acceptance of ICRP''s terms</strong></p>'
+    '#format': basic_html
+  terms_1:
+    '#type': checkbox
+    '#title': 'Has a scientific peer review system'
+    '#required': true
+  terms_2:
+    '#type': checkbox
+    '#title': 'Agrees to the ICR Partners'' mission statement'
+    '#required': true
+  terms_3:
+    '#type': checkbox
+    '#title': 'Agrees to establish and maintain a system for coding research portfolios to CSO and disease-site codes or use the ICRP Coding Service'
+    '#required': true
+  terms_4:
+    '#type': checkbox
+    '#title': 'Agrees to post its research portfolio annually on the ICRP website, which entails submission of research portfolio datasets to a US database'
+    '#required': true
+  terms_5:
+    '#type': checkbox
+    '#title': 'Agrees to contribute financial support annually for the ICRP to provide administrative support for the partnership and portfolio analyses [*Free trial year for LMIC/UMICs]'
+    '#required': true
+  terms_6:
+    '#type': checkbox
+    '#title': 'Agrees to sustain membership for a minimum of 3 years, or to use the free trial year if my organization is in a LMIC/UMIC.'
+    '#required': true
+  terms_7:
+    '#type': checkbox
+    '#title': 'Agrees to abide by the Policies & Procedures of the ICRP'
+    '#required': true
+  terms_8:
+    '#type': checkbox
+    '#title': 'Has nominated a contact who will participate actively in the ICRP'
+    '#required': true
+supplementary_information:
+  '#type': details
+  '#title': 'Supplementary Information'
+  supplementary_intro:
+    '#type': processed_text
+    '#text': |
+      <p><strong>In addition to this application form, please provide electronic copies (e.g. pdf) of:</strong></p>
+      
+      <ol>
+      	<li><em>A letter from your organizations's Executive Director/President/Chairperson indicating commitment to the ICR Partners' Policies and Procedures, a statement of willingness to contribute financially (through the annual membership contributions) or to request a free trial year’s membership, and to contribute in kind (e.g. contribution of contact person's time)</em><sup>1</sup></li>
+      </ol>
+      
+    '#format': full_html
+  statement_of_willingness:
+    '#type': managed_file
+    '#title': statement_of_willingness
+    '#title_display': invisible
+    '#uri_scheme': public
+    '#max_filesize': '10'
+    '#required': true
+  peer_review_intro:
+    '#type': processed_text
+    '#text': |
+      <ol start="2">
+      	<li>Documentation summarizing your organization's peer review process, including evidence of an open, competitive process for applications who meet established criteria.</li>
+      </ol>
+      
+    '#format': basic_html
+  peer_review_process:
+    '#type': managed_file
+    '#title': peer_review_process
+    '#title_display': invisible
+    '#uri_scheme': public
+    '#max_filesize': '10'
+    '#required': true
+  supplementary_foot:
+    '#type': processed_text
+    '#text': |
+      <p>For details, refer to our <a href="/sites/default/files/downloads/ICRP_PoliciesProcedures.pdf" target="_blank">Policies</a> (PDF - 391KB)</p>
+      
+    '#format': full_html
+footer_info:
+  '#type': container
+  '#attributes':
+    class:
+      - 'bg-blue well'
+    style: 'background-color:'
+  contact_info:
+    '#type': processed_text
+    '#text': |
+      <p><strong>For further information, please contact:<br />
+      Dr. Lynne Davies (Operations Manager)<br />
+      Tel: + 44(0) 788 959 9948<br />
+      E-mail: <a href="mailto:operations@icrpartnership.org">operations@icrpartnership.org</a></strong></p>
+      
+    '#format': basic_html
+application_status:
+  '#type': select
+  '#title': 'Application Status'
+  '#default_value': 'Pending Review'
+  '#wrapper_attributes':
+    style: 'display:none'
+  '#options':
+    'Pending Review': 'Pending Review'
+    Completed: Completed
+    Archived: Archived
+actions:
+  '#type': webform_actions
+  '#title': 'Submit button(s)'
+  '#submit__label': 'Submit Partnership Application'
+contact_person:
+  '#type': contact
+  '#title': 'Contact Person (if different from Executive Director, Chairperson, President named above)'
+  '#default_value':
+    name: ''
+    position: ''
+    email: ''
+    phone: ''
+    address: ''
+    address_2: ''
+    city: ''
+    state_province: ''
+    postal_code: ''
+    country: ''
+  '#wrapper_attributes':
+    style: 'display:none;'
+  '#company__title': Position
+  '#state_province__title': State/Province/Territory
