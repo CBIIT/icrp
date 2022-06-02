@@ -1,15 +1,13 @@
 #!/usr/bin/env bash
 # Upgrade Drupal from to 8.9.x to 9.3.x
 
-cd /tmp
-git clone https://github.com/CBIIT/icrp icrp
+#cd /tmp
+#git clone https://github.com/CBIIT/icrp icrp
+#cd icrp
+#git checkout icrp-3.0.0-dev-refresh
 
-git checkout icrp-3.0.0-dev
-cd /var/www/html
-
-#git branch --set-upstream-to=origin/icrp-3.0.0-dev-d8.9.20
-#git config pull.rebase false
-#git pull
+#cd /var/www/html
+#cp /tmp/icrp/upgrade_icrp.sh .
 
 #mkdir -p /tmp/modules/fullcalendar
 #cp -pr modules/fullcalendar/ /tmp/modules/fullcalendar/
@@ -20,15 +18,18 @@ grep -v variable_del modules/user_import/user_import.install > tmpfile && mv tmp
 
 # Uninstall specific modules.  Most are not used and caused upgrade problems.  
 drush pm-uninstall fullcalendar_options, fullcalendar_legend, colors, entity_notification, recovery_pass, search_kint, kint, examples, plugin_type_example content_access security_review faq user_import partnership_import webform_location_geocomplete webform_toggles libraries -y
-#rm -rf modules/user_import
-#rm -rf modules/elasticsearch
+rm -rf modules/custom/user_import
+rm -rf modules/custom/elasticsearch
+rm -rf modules/custom/faq
 
+echo ""
 mv composer.json composer-8.9.1.json
 cp /tmp/icrp/upgrade/8.9.20/composer.json .
+#cp /tmp/icrp/upgrade/8.9.20/composer.json .
 mv themes themes-old
 mv modules/custom modules-custom-old
 
-cp -r upgrade/8.9.20/modules/custom modules
+cp -r /tmp/icrp/upgrade/8.9.20/modules/custom modules/
 cp -r /tmp/icrp/upgrade/8.9.20/themes themes/ 
 
 #upgrade to 8.9.20
@@ -41,12 +42,19 @@ drush pm-enable fullcalendar upgrade_status upgrade_rector -y
 composer require drush/drush:^10
 
 
-#upgrade to 9.3.7
-composer require drupal/core:9.3.7 --no-update
+#upgrade to 9.3.15
+composer require drupal/core:9.3.15 --no-update
 composer update
 #cp /tmp/icrp/composer.json .
 #composer update
 
 
+#composer outdated "drupal/*"
+#drupal/core                 8.9.20       9.3.7       Drupal is an open source content management platform powering millions of websites and...
+#drupal/editor_advanced_link 1.9.0        2.0.0       Add title, target etc. attributes to Text Editor's link dialog if the text format allo...
+#drupal/linkit               5.0.0-beta13 6.0.0-beta3 Linkit - Enriched linking experience
+#drupal/metatag              1.16.0       1.19.0      Manage meta tags for all entities.
+#drupal/twig_tweak           2.9.0        3.1.3       A Twig extension with some useful functions and filters for Drupal development.
+#drupal/views_bootstrap      3.9.0        4.3.0       Integrate the Bootstrap framework with Views.
 
 
