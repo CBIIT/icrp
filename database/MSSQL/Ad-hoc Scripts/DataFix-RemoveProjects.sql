@@ -80,6 +80,45 @@ join #delProjFunding dp on ext.ProjectFundingID = dp.ProjectFundingID
 
 --select * from #projAbst
 
+
+-- archive to be deleted project funding records
+INSERT INTO ProjectFundingArchive ( [ProjectFundingID]
+      ,[FundingOrgID]
+      ,[FundingDivisionID]
+      ,[ProjectAbstractID]
+      ,[Title]
+      ,[Category]
+      ,[AltAwardCode]
+      ,[Source_ID]
+      ,[MechanismCode]
+      ,[MechanismTitle]
+      ,[FundingContact]
+      ,[IsAnnualized]
+      ,[Amount]
+      ,[BudgetStartDate]
+      ,[BudgetEndDate]
+      ,[DataUploadStatusID]
+      ,[ArchivedDate])-- SELECT * FROM 
+	SELECT f.[ProjectFundingID]
+      ,f.[FundingOrgID]
+      ,f.[FundingDivisionID]
+      ,f.[ProjectAbstractID]
+      ,f.[Title]
+      ,f.[Category]
+      ,f.[AltAwardCode]
+      ,f.[Source_ID]
+      ,f.[MechanismCode]
+      ,f.[MechanismTitle]
+      ,f.[FundingContact]
+      ,f.[IsAnnualized]
+      ,f.[Amount]
+      ,f.[BudgetStartDate]
+      ,f.[BudgetEndDate]
+      ,f.[DataUploadStatusID]
+      ,getdate() 
+from projectfunding f
+join #delProjFunding dp on f.ProjectFundingID = dp.ProjectFundingID
+
 -- delete projectfunding
 delete projectfunding 
 from projectfunding f

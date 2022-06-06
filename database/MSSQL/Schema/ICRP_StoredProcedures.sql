@@ -304,10 +304,10 @@ AS
 	SELECT base.ProjectID, base.AwardCode, f.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName,
 	 pi.ORC_ID AS piORCiD, i.Name AS institution, f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort
 	FROM #baseProj base
-		JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding GROUP BY ProjectID) maxf ON base.ProjectID = maxf.ProjectID
-		JOIN ProjectFunding f ON maxf.ProjectFundingID = f.ProjectFundingID
+		JOIN (SELECT ProjectID, MIN(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding GROUP BY ProjectID) basef ON base.ProjectID = basef.ProjectID
+		JOIN ProjectFunding f ON basef.ProjectFundingID = f.ProjectFundingID
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
-		JOIN (SELECT * FROM ProjectFundingInvestigator  WHERE IsPrincipalInvestigator = 1) pi ON pi.ProjectFundingID = maxf.ProjectFundingID
+		JOIN (SELECT * FROM ProjectFundingInvestigator  WHERE IsPrincipalInvestigator = 1) pi ON pi.ProjectFundingID = basef.ProjectFundingID
 		JOIN Institution i ON pi.InstitutionID = i.InstitutionID
 	ORDER BY 
 		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'ASC ' THEN f.Title  END ASC, --title ASC
@@ -384,12 +384,12 @@ AS
 	-- Sort and Pagination
 	--   Note: Return only base projects and projects' most recent funding
 	--------------------------------------------------------------------
-	SELECT r.ProjectID, p.AwardCode, maxf.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
+	SELECT r.ProjectID, p.AwardCode, minf.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
 		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort 
 	FROM #base r
 		JOIN Project p ON r.ProjectID = p.ProjectID
-		JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f GROUP BY ProjectID) maxf ON r.ProjectID = maxf.ProjectID
-		JOIN ProjectFunding f ON maxf.ProjectFundingID = f.projectFundingID
+		JOIN (SELECT ProjectID, MIN(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f GROUP BY ProjectID) minf ON r.ProjectID = minf.ProjectID
+		JOIN ProjectFunding f ON minf.ProjectFundingID = f.projectFundingID
 		JOIN  (SELECT * FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON f.projectFundingID = pi.projectFundingID
 		JOIN Institution i ON i.InstitutionID = pi.InstitutionID
 		JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
@@ -453,7 +453,7 @@ AS
 	------------------------------------------------------
 	-- Get all imported projects/projectfunding by DataUploadStatusID
 	------------------------------------------------------	
-	SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID INTO #base FROM #import GROUP BY ProjectID 
+	SELECT ProjectID, MIN(ProjectFundingID) AS ProjectFundingID INTO #base FROM #import GROUP BY ProjectID 
 	SELECT @ResultCount = COUNT(*) FROM #base	
 
 	----------------------------------
@@ -2018,10 +2018,10 @@ GO
 CREATE PROCEDURE [dbo].[GetProjectDetail]
     @ProjectID INT    
 AS   
- -- Get the project's most recent funding - max ProjectID
+ -- Get the project's earlist funding - min ProjectFundingID
 SELECT f.Title, mf.ProjectFundingID AS LastProjectFundingID, p.AwardCode, p.ProjectStartDate, p.ProjectEndDate, f.IsChildhood, a.TechAbstract AS TechAbstract, a.PublicAbstract AS PublicAbstract, f.MechanismCode + ' - ' + f.MechanismTitle AS FundingMechanism 
 FROM Project p	
-	JOIN (SELECT ProjectID, MAX(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding GROUP BY ProjectID) mf ON p.ProjectID = mf.ProjectID
+	JOIN (SELECT ProjectID, MIN(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding GROUP BY ProjectID) mf ON p.ProjectID = mf.ProjectID
 	JOIN ProjectFunding f ON f.ProjectFundingID = mf.ProjectFundingID	
 	LEFT JOIN ProjectAbstract a ON f.ProjectAbstractID = a.ProjectAbstractID
 WHERE p.ProjectID = @ProjectID
@@ -6635,9 +6635,11 @@ BEGIN TRY
 	END
 	ELSE  -- Update 
 	BEGIN
-		UPDATE icrp_data.dbo.ProjectFunding SET Title = lf.Title,  AltAwardCode = lf.AltAwardCode, Category = lf.Category, Source_ID = lf.Source_ID, Amount = lf.Amount, BudgetStartDate = lf.BudgetStartDate, BudgetEndDate = lf.BudgetEndDate, 
+		UPDATE icrp_data.dbo.ProjectFunding SET Title = lf.Title,  AltAwardCode = lf.AltAwardCode, Category = lf.Category, Source_ID = lf.Source_ID, 
+		       [MechanismCode] = lf.[MechanismCode], [MechanismTitle] = lf.[MechanismTitle], Amount = lf.Amount, BudgetStartDate = lf.BudgetStartDate, BudgetEndDate = lf.BudgetEndDate, 
 				IsChildhood = lf.IsChildhood, IsAnnualized = lf.IsAnnualized, DataUploadStatusID=@DataUploadStatusID_Prod, UpdatedDate = getdate()
 		FROM icrp_data.dbo.ProjectFunding f
+
 			JOIN (SELECT * FROM icrp_dataload.dbo.ProjectFundingArchive WHERE DataUploadStatusID=@DataUploadStatusID_Stage) laf ON f.AltAwardCode = laf.AltAwardCode  -- use the archived AltAwardCode 
 			JOIN icrp_dataload.dbo.ProjectFunding lf ON laf.ProjectFundingID = lf.ProjectFundingID
 		WHERE lf.DataUploadStatusID = @DataUploadStatusID_Stage
