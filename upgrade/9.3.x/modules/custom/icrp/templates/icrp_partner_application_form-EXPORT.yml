@@ -78,13 +78,18 @@ elements: |-
         '#options': external_countries
         '#required': true
         '#flex': 2
-        '#wrapper_type': fieldset
+        '#wrapper_type': field_set
       zip_postal_code:
         '#type': textfield
         '#title': 'ZIP/Postal Code'
         '#title_display': before
         '#size': 8
         '#required': true
+    fb2:
+      '#type': webform_flexbox
+      '#attributes':
+        class:
+          - 'container-inline clearfix'
     container_right:
       '#type': container
       '#attributes':
@@ -133,6 +138,11 @@ elements: |-
       '#type': container
       '#attributes':
         style: 'padding-top:15px;'
+      '#format_attributes':
+        class:
+          - 'form--inline clearfix'
+          - form-group
+          - row
       year_initiated:
         '#type': textfield
         '#title': 'Year when initiated research program'
@@ -162,7 +172,7 @@ elements: |-
           '#attributes':
             class:
               - 'form--inline clearfix'
-              - 'form-group row'
+              - row
           current_annual_research_investment_budget:
             '#type': textfield
             '#title': 'Current annual research investment budget'
@@ -498,7 +508,7 @@ elements: |-
       style: 'display:none;'
     '#company__title': Position
     '#state_province__title': State/Province/Territory
-css: "label.error {\r\n  color: red;\r\n  font-weight: normal;\r\n}\r\n\r\n.my-wrap > label {\r\n  color:blue;\r\n  position: relative;\r\n  min-height: 1px;\r\n  padding-right: 15px;\r\n  padding-left: 15px;\r\n}\r\ntable, th, td {\r\n   border: 1px solid black;\r\n}\r\n#edit-tiers > thead > tr {\r\n  background-color:LightSteelBlue;;\r\n}\r\nth, td {\r\n    padding: 15px;\r\n    text-align: center;\r\n}\r\n.form-text .form-control, #edit-organization-name, #edit-name, #edit-position, #edit-organization-address-1, #edit-organization-address-2, #edit-city, #edit-state-province-territory-select, #edit-telephone-number, #edit-email-mail-1, #edit-email-mail-2 {\r\n  display: block;\r\n  width: 100%;\r\n}\r\n#edit-country-select {\r\n  display: block;\r\n}\r\n\r\n.form-item--error-message.alert.alert-danger.alert-sm\r\n\r\nUnknown macro: {    \r\n  display\r\n}"
+css: ".form--inline .form-item {\r\n  float: none;\r\n}\r\n\r\nlabel.error {\r\n  color: red;\r\n  font-weight: normal;\r\n}\r\n\r\n.my-wrap > label {\r\n  color:blue;\r\n  position: relative;\r\n  min-height: 1px;\r\n  padding-right: 15px;\r\n  padding-left: 15px;\r\n}\r\ntable, th, td {\r\n   border: 1px solid black;\r\n}\r\n#edit-tiers > thead > tr {\r\n  background-color:LightSteelBlue;;\r\n}\r\nth, td {\r\n    padding: 15px;\r\n    text-align: center;\r\n}\r\n.form-text .form-control, #edit-organization-name, #edit-name, #edit-position, #edit-organization-address-1, #edit-organization-address-2, #edit-city, #edit-state-province-territory-select, #edit-telephone-number, #edit-email-mail-1, #edit-email-mail-2 {\r\n  display: block;\r\n  width: 100%;\r\n}\r\n#edit-country-select {\r\n  display: block;\r\n}\r\n\r\n.form-item--error-message.alert.alert-danger.alert-sm\r\n\r\nUnknown macro: {    \r\n  display\r\n}"
 javascript: "(function ($) {\r\n    Drupal.behaviors.myModuleBehavior = {\r\n        attach: function (context, settings) {\r\n        \t//$('h2').css('color', 'red');\r\n        \tconsole.log(\"ready\");\r\n          \r\n         \t$('.tier').change(function() {\r\n              var e = $(this);\r\n              $('.tier').attr('checked', false);\r\n              $(e).attr('checked', true);\r\n    \t\t});         \r\n        }\r\n    }\r\n})(jQuery);"
 settings:
   ajax: false
