@@ -1,0 +1,33 @@
+.form--inline .form-item {
+  float: none;
+}
+
+label.error {
+  color: red;
+  font-weight: normal;
+}
+
+.my-wrap > label {
+  color:blue;
+  position: relative;
+  min-height: 1px;
+  padding-right: 15px;
+  padding-left: 15px;
+}
+table, th, td {
+   border: 1px solid black;
+}
+#edit-tiers > thead > tr {
+  background-color:LightSteelBlue;;
+}
+th, td {
+    padding: 15px;
+    text-align: center;
+}
+.form-text .form-control, #edit-organization-name, #edit-name, #edit-position, #edit-organization-address-1, #edit-organization-address-2, #edit-city, #edit-state-province-territory-select, #edit-telephone-number, #edit-email-mail-1, #edit-email-mail-2 {
+  display: block;
+  width: 100%;
+}
+#edit-country-select {
+  display: block;
+}

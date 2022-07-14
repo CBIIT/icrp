@@ -42,9 +42,26 @@ drush pm-enable fullcalendar upgrade_status upgrade_rector -y
 composer require drush/drush:^10
 
 
-#upgrade to 9.3.15
-composer require drupal/core:9.3.15 --no-update
+#upgrade to 9.4
+echo "Upgrade to Drupal 9.4.x"
+composer require drupal/core:^9.4 --no-update
 composer update
+
+#echo "*** Upgrading composer to version 2"
+#composer self-update --2
+
+echo "*** Upgrade modules for php 8.1 compatible"
+echo "composer require phpoffice/phpspreadsheet:^1 maennchen/zipstream-php:^2 markbaker/complex:^3 markbaker/matrix:^3"
+composer require phpoffice/phpspreadsheet:^1 maennchen/zipstream-php:^2 markbaker/complex:^3 markbaker/matrix:^3
+
+echo "*** composer why-not php:8.1"
+composer why-not php:8.1
+
+echo "***************************"
+echo "*** ICRP Upgrade complete *"
+echo "***************************"
+echo ""
+
 #cp /tmp/icrp/composer.json .
 #composer update
 
