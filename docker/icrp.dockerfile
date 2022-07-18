@@ -38,7 +38,7 @@ RUN dnf -y update \
     unixODBC-utf16 \
     unixODBC-utf16-devel \
  && ACCEPT_EULA=Y dnf -y install \
-    msodbcsql17 \
+    msodbcsql18 \
     unixODBC-devel \
  && dnf clean all
 
