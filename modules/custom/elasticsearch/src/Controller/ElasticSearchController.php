@@ -18,6 +18,25 @@ class LibraryController extends ControllerBase {
     ];
   }
 
+  public static function get_dsn($cfg): string {
+    $dsn = [
+      'Server' => "$cfg[host],$cfg[port]",
+      'Database' => $cfg['database'],
+    ];
+
+    if ($cfg['options']) {
+      $dsn += $cfg['options'];
+    }
+
+    $dsnString = join(';', array_map(
+      fn($k, $v) => "$k=$v", 
+      array_keys($cfg['dsn']), 
+      array_values($cfg['dsn'])
+    ));
+
+    return "$cfg[driver]:$dsnString";
+  }
+
   /**
    * Returns a PDO connection to a database
    * @param $cfg - An associative array containing connection parameters 
@@ -50,7 +69,7 @@ class LibraryController extends ControllerBase {
     ];
     // create new PDO object
     return new PDO(
-      $cfg['dsn'],
+      self::get_dsn($cfg),
       $cfg['username'],
       $cfg['password'],
       $cfg['options']

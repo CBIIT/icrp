@@ -5,6 +5,26 @@ use Drupal;
 use PDO;
 
 class Database {
+
+  public static function getDsn($cfg): string {
+    $dsn = [
+      'Server' => "$cfg[host],$cfg[port]",
+      'Database' => $cfg['database'],
+    ];
+
+    if ($cfg['options']) {
+      $dsn += $cfg['options'];
+    }
+
+    $dsnString = join(';', array_map(
+      fn($k, $v) => "$k=$v", 
+      array_keys($cfg['dsn']), 
+      array_values($cfg['dsn'])
+    ));
+
+    return "$cfg[driver]:$dsnString";
+  }
+
   /**
    * Returns a PDO connection to a database
    * @param string $database - The drupal configuration key for the database to query
@@ -29,12 +49,7 @@ class Database {
     $cfg = Drupal::config($database)->get();
 
     return new PDO(
-      vsprintf('%s:Server=%s,%s;Database=%s', [
-        $cfg['driver'],
-        $cfg['host'],
-        $cfg['port'],
-        $cfg['database'],
-      ]),
+      self::getDsn($cfg),
       $cfg['username'],
       $cfg['password'],
       [
