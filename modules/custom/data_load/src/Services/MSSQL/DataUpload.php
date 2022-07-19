@@ -259,10 +259,7 @@ class DataUpload {
 
             // create a temp table for the records
             self::createTable($connection, 'UploadWorkBook', $columns);
-
-            // create a PDOStatment for inserting records into the workbook
             unset($columns['InternalId']);
-            $stmt = self::getInsertStmt($connection, 'UploadWorkBook', $columns);
 
             $csv = Reader::createFromPath($filePath)
                 ->setHeaderOffset(0);
@@ -315,6 +312,10 @@ class DataUpload {
                 }, array_keys($row), array_values($row));
 
                 try {
+                    // create a PDOStatment for inserting records into the workbook
+                    // normally, this should be only created once - however, there is
+                    // a regression in pdo_sqlsrv 5.10.0 which causes a right truncation error
+                    $stmt = self::getInsertStmt($connection, 'UploadWorkBook', $columns);
                     $stmt->execute($values);
                 }
 
