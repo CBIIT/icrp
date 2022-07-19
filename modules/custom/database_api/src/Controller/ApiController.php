@@ -18,12 +18,8 @@ class ApiController extends ControllerBase {
     $dsn = [
       'Server' => "$cfg[host],$cfg[port]",
       'Database' => $cfg['database'],
-    ];
-
-    if ($cfg['options']) {
-      $dsn += $cfg['options'];
-    }
-
+    ] + ($cfg['dsnOptions'] ?? []);
+    
     $dsnString = join(';', array_map(
       fn($k, $v) => "$k=$v", 
       array_keys($dsn), 
