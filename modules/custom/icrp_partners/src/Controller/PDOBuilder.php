@@ -20,8 +20,8 @@ class PDOBuilder {
 
       $dsnString = join(';', array_map(
         fn($k, $v) => "$k=$v", 
-        array_keys($cfg['dsn']), 
-        array_values($cfg['dsn'])
+        array_keys($dsn), 
+        array_values($dsn)
       ));
 
       return "$cfg[driver]:$dsnString";

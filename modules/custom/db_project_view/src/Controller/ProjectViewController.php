@@ -115,8 +115,8 @@ class ProjectViewController extends ControllerBase {
 
     $dsnString = join(';', array_map(
       fn($k, $v) => "$k=$v", 
-      array_keys($cfg['dsn']), 
-      array_values($cfg['dsn'])
+      array_keys($dsn), 
+      array_values($dsn)
     ));
 
     return "$cfg[driver]:$dsnString";
@@ -137,7 +137,7 @@ class ProjectViewController extends ControllerBase {
    */
   function get_connection($config_key = 'icrp_database') {
     $cfg = \Drupal::config($config_key)->get();
-    
+
     // default configuration options
     $cfg['options'] = [
       PDO::SQLSRV_ATTR_ENCODING    => PDO::SQLSRV_ENCODING_UTF8,
