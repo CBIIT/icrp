@@ -132,12 +132,23 @@ class PageController extends ControllerBase {
         ];
     }
 
+    static function getDsn($cfg): string {
+        $dsn = [
+          'Server' => "$cfg[host],$cfg[port]",
+          'Database' => $cfg['database'],
+        ] + ($cfg['dsnOptions'] ?? []);
+    
+        $dsnString = join(';', array_map(
+          fn($k, $v) => "$k=$v", 
+          array_keys($dsn), 
+          array_values($dsn)
+        ));
+    
+        return "$cfg[driver]:$dsnString";
+    }
+
     function getConnection(string $database = 'icrp_database') {
         $cfg = \Drupal::config($database)->get();
-
-        $cfg['dsn'] = $cfg['driver'] .
-            ":Server=$cfg[host],$cfg[port]" .
-            ";Database=$cfg[database]";
 
         $cfg['options'] = [
             PDO::SQLSRV_ATTR_ENCODING               => PDO::SQLSRV_ENCODING_UTF8,
@@ -148,7 +159,7 @@ class PageController extends ControllerBase {
         ];
 
         return new PDO(
-            $cfg['dsn'],
+            self::getDsn($cfg),
             $cfg['username'],
             $cfg['password'],
             $cfg['options']

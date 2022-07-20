@@ -7,6 +7,21 @@ use PDOStatement;
 
 class PDOBuilder {
 
+  public static function getDsn($cfg): string {
+    $dsn = [
+      'Server' => "$cfg[host],$cfg[port]",
+      'Database' => $cfg['database'],
+    ] + ($cfg['dsnOptions'] ?? []);
+
+    $dsnString = join(';', array_map(
+      fn($k, $v) => "$k=$v", 
+      array_keys($dsn), 
+      array_values($dsn)
+    ));
+
+    return "$cfg[driver]:$dsnString";
+  }
+
   /**
    * Returns a PDO connection to a database
    * @param string $database - The drupal configuration key for the database to query
@@ -31,12 +46,7 @@ class PDOBuilder {
     $cfg = Drupal::config($database)->get();
 
     return new PDO(
-      vsprintf('%s:Server=%s,%s;Database=%s', [
-        $cfg['driver'],
-        $cfg['host'],
-        $cfg['port'],
-        $cfg['database'],
-      ]),
+      self::getDsn($cfg),
       $cfg['username'],
       $cfg['password'],
       [
