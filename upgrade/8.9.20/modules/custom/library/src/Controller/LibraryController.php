@@ -697,6 +697,21 @@ class LibraryController extends ControllerBase {
     return \Drupal\user\Entity\User::load($id);
   }
 
+  static function get_dsn($cfg): string {
+    $dsn = [
+      'Server' => "$cfg[host],$cfg[port]",
+      'Database' => $cfg['database'],
+    ] + ($cfg['dsnOptions'] ?? []);
+
+    $dsnString = join(';', array_map(
+      fn($k, $v) => "$k=$v", 
+      array_keys($dsn), 
+      array_values($dsn)
+    ));
+
+    return "$cfg[driver]:$dsnString";
+}
+
   /**
    * Returns a PDO connection to a database
    * @param $cfg - An associative array containing connection parameters
@@ -709,17 +724,8 @@ class LibraryController extends ControllerBase {
    * @return A PDO connection
    * @throws PDOException
    */
-  private function get_connection() {
-    $cfg = [];
-    $icrp_database = \Drupal::config('icrp_database');
-    foreach(['driver', 'host', 'port', 'database', 'username', 'password'] as $key) {
-       $cfg[$key] = $icrp_database->get($key);
-    }
-    // connection string
-    $cfg['dsn'] =
-      $cfg['driver'] .
-      ":Server={$cfg['host']},{$cfg['port']}" .
-      ";Database={$cfg['database']};ConnectionPooling=0";
+  static function get_connection() {
+    $cfg = \Drupal::config('icrp_database')->get();
     // default configuration options
     $cfg['options'] = [
       PDO::SQLSRV_ATTR_ENCODING    => PDO::SQLSRV_ENCODING_UTF8,
@@ -729,7 +735,7 @@ class LibraryController extends ControllerBase {
     ];
     // create new PDO object
     return new PDO(
-      $cfg['dsn'],
+      self::get_dsn($cfg),
       $cfg['username'],
       $cfg['password'],
       $cfg['options']
