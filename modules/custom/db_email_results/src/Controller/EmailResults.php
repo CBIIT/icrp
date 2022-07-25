@@ -6,8 +6,6 @@
 
 namespace Drupal\db_email_results\Controller;
 
-require_once 'class.phpmailer.php';
-require_once 'class.smtp.php';
 use Drupal;
 use PHPMailer;
 use PDO;
