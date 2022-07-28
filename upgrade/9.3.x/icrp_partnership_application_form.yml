@@ -43,6 +43,12 @@ organization_information:
       '#type': select_other
       '#title': State/Province/Territory
       '#options': state_province_names
+    zip_postal_code:
+      '#type': textfield
+      '#title': 'ZIP/Postal Code'
+      '#title_display': before
+      '#size': 8
+      '#required': true
     income_band:
       '#type': textfield
       '#title': 'Income Band'
@@ -58,12 +64,6 @@ organization_information:
       '#required': true
       '#flex': 2
       '#wrapper_type': fieldset
-    zip_postal_code:
-      '#type': textfield
-      '#title': 'ZIP/Postal Code'
-      '#title_display': before
-      '#size': 8
-      '#required': true
   container_right:
     '#type': container
     '#attributes':

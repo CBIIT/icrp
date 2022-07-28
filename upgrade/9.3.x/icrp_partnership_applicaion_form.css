@@ -1,7 +1,3 @@
-.form--inline .form-item {
-  float: none;
-}
-
 label.error {
   color: red;
   font-weight: normal;
