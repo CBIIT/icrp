@@ -2,6 +2,6 @@ name: ICRP Partners and Funding Organizations
 description: Enables users to view and export ICRP partners and funding organizations, available at "/partners"
 package: ICRP Modules
 type: module
-version: 0.1
+version: 0.2
 core: 8.x
-core_version_requirement: ^8 || ^9
+core_version_requirement: ">=8"

@@ -105,42 +105,48 @@ class OrganizationRestClient {
         $node->save();
     }
 
-  /**
-   * Returns a PDO connection to a database
-   * @param $cfg - An associative array containing connection parameters 
-   *   driver:    DB Driver
-   *   server:    Server Name
-   *   database:  Database
-   *   user:      Username
-   *   password:  Password
-   *
-   * @return A PDO connection
-   * @throws PDOException
-   */
-  private static function get_connection($database_name='icrp_database') {
-    $cfg = [];
-    $icrp_database = \Drupal::config($database_name);
-    foreach(['driver', 'host', 'port', 'database', 'username', 'password'] as $key) {
-       $cfg[$key] = $icrp_database->get($key);
+    public static function get_dsn($cfg): string {
+        $dsn = [
+          'Server' => "$cfg[host],$cfg[port]",
+          'Database' => $cfg['database'],
+        ]+ ($cfg['dsnOptions'] ?? []);
+    
+        $dsnString = join(';', array_map(
+          fn($k, $v) => "$k=$v", 
+          array_keys($dsn), 
+          array_values($dsn)
+        ));
+    
+        return "$cfg[driver]:$dsnString";
     }
-    // connection string
-    $cfg['dsn'] =
-      $cfg['driver'] .
-      ":Server={$cfg['host']},{$cfg['port']}" .
-      ";Database={$cfg['database']};ConnectionPooling=0";
-    // default configuration options
-    $cfg['options'] = [
-      PDO::SQLSRV_ATTR_ENCODING    => PDO::SQLSRV_ENCODING_UTF8,
-      PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-      PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-  //  PDO::ATTR_EMULATE_PREPARES   => false,
-    ];
-    // create new PDO object
-    return new PDO(
-      $cfg['dsn'],
-      $cfg['username'],
-      $cfg['password'],
-      $cfg['options']
-    );
-  }
+
+    /**
+     * Returns a PDO connection to a database
+     * @param $cfg - An associative array containing connection parameters 
+     *   driver:    DB Driver
+     *   server:    Server Name
+     *   database:  Database
+     *   user:      Username
+     *   password:  Password
+     *
+     * @return A PDO connection
+     * @throws PDOException
+     */
+    private static function get_connection($database_name='icrp_database') {
+        $cfg = \Drupal::config($database_name)->get();
+        // default configuration options
+        $cfg['options'] = [
+            PDO::SQLSRV_ATTR_ENCODING    => PDO::SQLSRV_ENCODING_UTF8,
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        //  PDO::ATTR_EMULATE_PREPARES   => false,
+        ];
+        // create new PDO object
+        return new PDO(
+            self::get_dsn($cfg),
+            $cfg['username'],
+            $cfg['password'],
+            $cfg['options']
+        );
+    }
 }

@@ -32,16 +32,16 @@ class DataUpload {
         'SiteCodes' => 'varchar(500)',
         'SiteRel' => 'varchar(500)',
         'AwardFunding' => 'decimal(16,2)',
-        'IsAnnualized' => 'varchar(1)',
+        'IsAnnualized' => 'varchar(1)', // Annualized
         'FundingMechanismCode' => 'varchar(30)',
         'FundingMechanism' => 'varchar(200)',
-        'FundingOrgAbbr' => 'varchar(50)',
+        'FundingOrgAbbr' => 'varchar(50)', // FundingOrg
         'FundingDiv' => 'varchar(75)',
         'FundingDivAbbr' => 'varchar(50)',
         'FundingContact' => 'varchar(50)',
         'PILastName' => 'varchar(50)',
         'PIFirstName' => 'varchar(50)',
-        'SubmittedInstitution' => 'varchar(250)',
+        'SubmittedInstitution' => 'varchar(250)', // Institution
         'City' => 'varchar(50)',
         'State' => 'varchar(50)',
         'Country' => 'varchar(3)',
@@ -51,13 +51,13 @@ class DataUpload {
         'Longitute' => 'decimal(9,6)',
         'GRID' => 'varchar(250)',
         'TechAbstract' => 'nvarchar(max)',
-        'PublicAbstract' => 'nvarchar(max)',
+        'PublicAbstract' => 'nvarchar(max)', // LayAbstract
         'RelatedAwardCode' => 'varchar(200)',
         'RelationshipType' => 'varchar(200)',
         'ORCID' => 'varchar(25)',
         'OtherResearcherID' => 'int',
         'OtherResearcherIDType' => 'varchar(1000)',
-        'InternalUseOnly' => 'nvarchar(max)',
+        'InternalUseOnly' => 'nvarchar(max)', // Internal Use Only
     ];
 
     const MAX_COLUMN_LENGTHS = [
@@ -259,10 +259,7 @@ class DataUpload {
 
             // create a temp table for the records
             self::createTable($connection, 'UploadWorkBook', $columns);
-
-            // create a PDOStatment for inserting records into the workbook
             unset($columns['InternalId']);
-            $stmt = self::getInsertStmt($connection, 'UploadWorkBook', $columns);
 
             $csv = Reader::createFromPath($filePath)
                 ->setHeaderOffset(0);
@@ -315,6 +312,10 @@ class DataUpload {
                 }, array_keys($row), array_values($row));
 
                 try {
+                    // create a PDOStatment for inserting records into the workbook
+                    // normally, this should be only created once - however, there is
+                    // a regression in pdo_sqlsrv 5.10.0 which causes a right truncation error
+                    $stmt = self::getInsertStmt($connection, 'UploadWorkBook', $columns);
                     $stmt->execute($values);
                 }
 
