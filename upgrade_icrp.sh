@@ -28,6 +28,7 @@ cp /tmp/icrp/upgrade/8.9.20/composer.json .
 #cp /tmp/icrp/upgrade/8.9.20/composer.json .
 mv themes themes-old
 mv modules/custom modules-custom-old
+rm -rf modules-custom-old
 
 cp -r /tmp/icrp/upgrade/8.9.20/modules/custom modules/
 cp -r /tmp/icrp/upgrade/8.9.20/themes themes/ 
