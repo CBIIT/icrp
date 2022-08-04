@@ -1,6 +1,7 @@
 core: 8.x
 type: theme
 base theme: bootstrap
+core_version_requirement: ">=8"
 
 name: 'ICRP Bootstrap Sub-Theme (CDN)'
 description: 'This is the ICRP Bootstrap Subtheme'
@@ -22,8 +23,3 @@ regions:
 libraries:
   - 'bootstrap_subtheme/global-styling'
   - 'bootstrap_subtheme/global-scripts'
-
-libraries-override:
-  drupal/fullcalendar:
-    js:
-      js/fullcalendar.fullcalendar.js: js/fullcalendar.fullcalendar.js

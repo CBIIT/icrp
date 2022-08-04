@@ -164,14 +164,7 @@
     reducedFees = (incomeBand == 'MU' || incomeBand == 'ML' || incomeBand == 'L') ? true : false;
 
     //Change checkbox, table, description 
-    var descriptionElement = $('#edit-country--description');
-    if (!descriptionElement.length) {
-      // create country description element if it does not exist
-      descriptionElement = $('<div id="edit-country--description" class="webform-element-description form-group">').text('World Bank Income Band:')
-      $('.form-item-country').append($('<div class="description help-block">').append(descriptionElement));
-    }
-
-    descriptionElement.text('World Bank Income Band: '+income_title);
+    $('#edit-country--description').text('World Bank Income Band: '+income_title);
     if(reducedFees) {
       $('#edit-reduced-fees').prop('checked', true);
       $('.max_fee').hide();

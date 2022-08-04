@@ -24,14 +24,18 @@ rm -rf modules/custom/faq
 
 echo ""
 mv composer.json composer-8.9.1.json
+
+echo "cp /tmp/icrp/upgrade/8.9.20/composer.json ."
 cp /tmp/icrp/upgrade/8.9.20/composer.json .
-#cp /tmp/icrp/upgrade/8.9.20/composer.json .
 mv themes themes-old
 mv modules/custom modules-custom-old
 rm -rf modules-custom-old
+rm -rf modules/contrib/fullcalendar
 
-cp -r /tmp/icrp/upgrade/8.9.20/modules/custom modules/
-cp -r /tmp/icrp/upgrade/8.9.20/themes themes/ 
+
+cp -r /tmp/icrp/modules/custom modules/
+cp -r /tmp/icrp/modules/contrib/fullcalendar modules/contrib/fullcalendar
+cp -r /tmp/icrp/upgrade/themes themes/ 
 
 #upgrade to 8.9.20
 composer update
