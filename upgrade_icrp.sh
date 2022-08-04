@@ -32,10 +32,9 @@ mv modules/custom modules-custom-old
 rm -rf modules-custom-old
 rm -rf modules/contrib/fullcalendar
 
-
 cp -r /tmp/icrp/modules/custom modules/
 cp -r /tmp/icrp/modules/contrib/fullcalendar modules/contrib/fullcalendar
-cp -r /tmp/icrp/upgrade/themes themes/ 
+cp -r /tmp/icrp/upgrade/themes themes/
 
 #upgrade to 8.9.20
 composer update
@@ -45,7 +44,6 @@ drush pm-enable fullcalendar upgrade_status upgrade_rector -y
 
 #update drupal to latest 10
 composer require drush/drush:^10
-
 
 #upgrade to 9.4
 echo "Upgrade to Drupal 9.4.x"
