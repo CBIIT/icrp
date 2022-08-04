@@ -1,5 +1,0 @@
-partnership_import_admin_upload:
-  route_name: partnership_import.admin_upload
-  title: 'Import Partnership'
-  appears_on:
-    - entity.user.collection

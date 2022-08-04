@@ -1,6 +1,0 @@
-library.content:
-  path: '/elasticsearch'
-  defaults:
-    _controller: '\Drupal\elasticsearch\Controller\ElasticSearchController::content'
-  requirements:
-    _permission: 'access content'
