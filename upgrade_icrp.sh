@@ -17,10 +17,9 @@ echo "Remove errors from user_import uninstall"
 grep -v variable_del modules/user_import/user_import.install > tmpfile && mv tmpfile modules/user_import/user_import.install
 
 # Uninstall specific modules.  Most are not used and caused upgrade problems.  
-drush pm-uninstall fullcalendar_options, fullcalendar_legend, colors, entity_notification, recovery_pass, search_kint, kint, examples, plugin_type_example content_access security_review faq user_import partnership_import webform_location_geocomplete webform_toggles libraries -y
+drush pm-uninstall fullcalendar_options, fullcalendar_legend, colors, entity_notification, recovery_pass, search_kint, kint, examples, plugin_type_example content_access security_review user_import partnership_import webform_location_geocomplete webform_toggles libraries -y
 rm -rf modules/custom/user_import
 rm -rf modules/custom/elasticsearch
-rm -rf modules/custom/faq
 
 echo ""
 mv composer.json composer-8.9.1.json
@@ -34,7 +33,7 @@ rm -rf modules/contrib/fullcalendar
 
 cp -r /tmp/icrp/modules/custom modules/
 cp -r /tmp/icrp/modules/contrib/fullcalendar modules/contrib/fullcalendar
-cp -r /tmp/icrp/upgrade/themes themes/
+cp -r /tmp/icrp/themes ./
 
 #upgrade to 8.9.20
 composer update
@@ -49,6 +48,9 @@ composer require drush/drush:^10
 echo "Upgrade to Drupal 9.4.x"
 composer require drupal/core:^9.4 --no-update
 composer update
+#Remove permission error on tippy-bundle
+#This should be done in composer post install
+chmod 755 /var/www/html/libraries/tippyjs/6.x/tippy-bundle.umd.min.js
 
 #echo "*** Upgrading composer to version 2"
 #composer self-update --2
@@ -60,21 +62,11 @@ composer require phpoffice/phpspreadsheet:^1 maennchen/zipstream-php:^2 markbake
 echo "*** composer why-not php:8.1"
 composer why-not php:8.1
 
+echo "drush cr"
+drush cr
+
 echo "***************************"
 echo "*** ICRP Upgrade complete *"
 echo "***************************"
-echo ""
-
-#cp /tmp/icrp/composer.json .
-#composer update
-
-
-#composer outdated "drupal/*"
-#drupal/core                 8.9.20       9.3.7       Drupal is an open source content management platform powering millions of websites and...
-#drupal/editor_advanced_link 1.9.0        2.0.0       Add title, target etc. attributes to Text Editor's link dialog if the text format allo...
-#drupal/linkit               5.0.0-beta13 6.0.0-beta3 Linkit - Enriched linking experience
-#drupal/metatag              1.16.0       1.19.0      Manage meta tags for all entities.
-#drupal/twig_tweak           2.9.0        3.1.3       A Twig extension with some useful functions and filters for Drupal development.
-#drupal/views_bootstrap      3.9.0        4.3.0       Integrate the Bootstrap framework with Views.
-
-
+echo "save composer.json and composer.lock file"
+echo "Use composer install from here on out."
