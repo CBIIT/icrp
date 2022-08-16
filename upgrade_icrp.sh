@@ -58,6 +58,8 @@ chmod 755 /var/www/html/libraries/tippyjs/6.x/tippy-bundle.umd.min.js
 echo "*** Upgrade modules for php 8.1 compatible"
 echo "composer require phpoffice/phpspreadsheet:^1 maennchen/zipstream-php:^2 markbaker/complex:^3 markbaker/matrix:^3"
 composer require phpoffice/phpspreadsheet:^1 maennchen/zipstream-php:^2 markbaker/complex:^3 markbaker/matrix:^3
+echo "composer require drupal/views_bootstrap:~5.3.0"
+composer require "drupal/views_bootstrap:~5.3.0"
 
 echo "*** composer why-not php:8.1"
 composer why-not php:8.1

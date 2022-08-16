@@ -153,7 +153,8 @@
         "post-update-cmd": [
             "drush webform-libraries-download",
             "drush updatedb -y",
-            "drush cr"
+            "drush cr",
+            "chmod 755 /var/www/html/libraries/tippyjs/6.x/tippy-bundle.umd.min.js"
         ]       
     },
     "extra": {
