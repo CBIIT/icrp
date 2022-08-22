@@ -6,10 +6,10 @@
             "type": "composer",
             "url": "https://packages.drupal.org/8"
         },
-        "fullcalendar_fullcalendar": {
-            "type": "package",
+        "arshaw_fullcalendar": {
+        "type": "package",
             "package": {
-                "name": "fullcalendar/fullcalendar",
+                "name": "arshaw/fullcalendar",
                 "version": "3.9.0",
                 "type": "drupal-library",
                 "dist": {
@@ -20,12 +20,11 @@
         }
     },
     "require": {
-        "composer/installers": "^1.9",
-        "drupal/core-composer-scaffold": "^9.4",
-        "drupal/core-project-message": "^9.4",
-        "drupal/core-recommended": "^9.4",
+        "composer-plugin-api": "*",
         "arshaw/fullcalendar": "3.9.0",
+        "composer/installers": "^1.9",
         "cweagans/composer-patches": "^1.6",
+        "doctrine/reflection": "^1.2",
         "drupal/admin_toolbar": "^3.0.3",
         "drupal/admin_toolbar_tools": "^3.0.3",
         "drupal/advanced_help_hint": "^1.0@RC",
@@ -40,6 +39,9 @@
         "drupal/console": "1.9.8",
         "drupal/console-core": "1.9.7",
         "drupal/console-en": "1.9.7",
+        "drupal/core-composer-scaffold": "^9.4",
+        "drupal/core-project-message": "^9.4",
+        "drupal/core-recommended": "^9.4",
         "drupal/crop": "^2.1",
         "drupal/csv_serialization": "^2.0.0",
         "drupal/ctools": "^3.7.0",
@@ -89,24 +91,18 @@
         "drush/drush": "^8",
         "fullcalendar/fullcalendar": "3.9.0",
         "league/csv": "^9.1",
-        "maennchen/zipstream-php": "^0.4.1",
+        "maennchen/zipstream-php": "^2.1",
         "mbostock/d3": "^3.5",
         "palantirnet/drupal-rector": "^0.12.0",
-        "phpmailer/phpmailer": "~5.2",
-        "phpoffice/phpspreadsheet": "^1.2.0",
+        "phpmailer/phpmailer": "^6.6",
+        "phpoffice/phpspreadsheet": "^1.24",
         "phpstan/phpstan": "^1.4",
         "psr/log": "^1",
+        "robloach/component-installer": "*",
         "select2/select2": "^4.0",
         "symfony/css-selector": "~3.0",
         "webflo/drupal-finder": "^1.0.0",
-        "wikimedia/composer-merge-plugin": "~1.4"
-    },
-    "require-dev": {
-        "behat/mink": "~1.7",
-        "behat/mink-goutte-driver": "~1.2",
-        "jcalderonzumba/gastonjs": "~1.0.2",
-        "jcalderonzumba/mink-phantomjs-driver": "~0.3.1",
-        "mikey179/vfsstream": "~1.2"
+        "wikimedia/composer-merge-plugin": "*"
     },
     "conflict": {
         "drupal/drupal": "*"
@@ -116,7 +112,12 @@
             "composer/installers": true,
             "drupal/core-composer-scaffold": true,
             "drupal/core-project-message": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "oomphinc/composer-installers-extender": true,
+            "drupal/console-extend-plugin": true,
+            "cweagans/composer-patches": true,
+            "wikimedia/composer-merge-plugin": true,
+            "robloach/component-installer": true
         },
         "sort-packages": true,
         "discard-changes" : true
@@ -134,8 +135,7 @@
             "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
         ],
         "post-install-cmd": [
-            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles",
-            "@composer run drupal-scaffold"
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
         ],
         "post-update-cmd": [
             "drush webform-libraries-download",
