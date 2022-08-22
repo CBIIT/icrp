@@ -28,6 +28,7 @@ echo "cp /tmp/icrp/upgrade/8.9.20/composer.json ."
 cp /tmp/icrp/upgrade/8.9.20/composer.json .
 mv themes themes-old
 mv modules/custom modules-custom-old
+rm -rf themes-old
 rm -rf modules-custom-old
 rm -rf modules/contrib/fullcalendar
 
@@ -52,14 +53,14 @@ composer update
 #This should be done in composer post install
 chmod 755 /var/www/html/libraries/tippyjs/6.x/tippy-bundle.umd.min.js
 
-#echo "*** Upgrading composer to version 2"
-#composer self-update --2
-
 echo "*** Upgrade modules for php 8.1 compatible"
 echo "composer require phpoffice/phpspreadsheet:^1 maennchen/zipstream-php:^2 markbaker/complex:^3 markbaker/matrix:^3"
 composer require phpoffice/phpspreadsheet:^1 maennchen/zipstream-php:^2 markbaker/complex:^3 markbaker/matrix:^3
 echo "composer require drupal/views_bootstrap:~5.3.0"
 composer require "drupal/views_bootstrap:~5.3.0"
+
+#echo "*** Upgrading composer to version 2"
+#composer self-update --2
 
 echo "*** composer why-not php:8.1"
 composer why-not php:8.1
