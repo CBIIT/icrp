@@ -21,20 +21,27 @@ drush pm-uninstall fullcalendar_options, fullcalendar_legend, colors, entity_not
 rm -rf modules/custom/user_import
 rm -rf modules/custom/elasticsearch
 
-echo ""
+echo "Move old composer.json"
 mv composer.json composer-8.9.1.json
 
 echo "cp /tmp/icrp/upgrade/8.9.20/composer.json ."
 cp /tmp/icrp/upgrade/8.9.20/composer.json .
+
+#Move thems and modules out of the way
 mv themes themes-old
 mv modules/custom modules-custom-old
-rm -rf themes-old
-rm -rf modules-custom-old
-rm -rf modules/contrib/fullcalendar
 
 cp -r /tmp/icrp/modules/custom modules/
 cp -r /tmp/icrp/modules/contrib/fullcalendar modules/contrib/fullcalendar
 cp -r /tmp/icrp/themes ./
+
+#Move themes bootstrap back to original
+mv themes-old/bootstrap themes/.
+
+#Remove old files
+rm -rf themes-old
+rm -rf modules-custom-old
+rm -rf modules/contrib/fullcalendar
 
 #upgrade to 8.9.20
 echo "*** Composer upgrade to 8.9.20"
@@ -77,10 +84,14 @@ composer self-update --1
 echo "*** composer why-not php:8.1"
 composer why-not php:8.1
 
+echo "composer upgrade to version 2"
 composer self-update --2
+
+echo "***Clean Up"
+rm composer-8.9.1.json
 
 echo "***************************"
 echo "*** ICRP Upgrade complete *"
 echo "***************************"
 echo "save composer.json and composer.lock file"
-echo "Use composer install from here on out."
+echo "Use 'composer install' from here on out."
