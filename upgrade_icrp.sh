@@ -77,7 +77,7 @@ echo "Move final composer.json to root directory"
 cp /tmp/icrp/upgrade/9.4.x/composer.9.4.5-final.json ./composer.json
 cp /tmp/icrp/upgrade/9.4.x/composer.9.4.5-final.lock ./composer.lock
 
-composer install
+composer update
 
 composer self-update --1
 
