@@ -37,6 +37,7 @@ cp -r /tmp/icrp/modules/contrib/fullcalendar modules/contrib/fullcalendar
 cp -r /tmp/icrp/themes ./
 
 #upgrade to 8.9.20
+echo "*** Composer upgrade to 8.9.20"
 composer update
 
 #Install Modules
@@ -59,14 +60,24 @@ composer require phpoffice/phpspreadsheet:^1 maennchen/zipstream-php:^2 markbake
 echo "composer require drupal/views_bootstrap:~5.3.0"
 composer require "drupal/views_bootstrap:~5.3.0"
 
-#echo "*** Upgrading composer to version 2"
-#composer self-update --2
+echo "drush cr"
+drush cr
+
+echo "*** Upgrading composer to version 2"
+composer self-update --2
+
+echo "Move final composer.json to root directory"
+cp /tmp/icrp/upgrade/9.4.x/composer.9.4.5-final.json ./composer.json
+cp /tmp/icrp/upgrade/9.4.x/composer.9.4.5-final.lock ./composer.lock
+
+composer install
+
+composer self-update --1
 
 echo "*** composer why-not php:8.1"
 composer why-not php:8.1
 
-echo "drush cr"
-drush cr
+composer self-update --2
 
 echo "***************************"
 echo "*** ICRP Upgrade complete *"
