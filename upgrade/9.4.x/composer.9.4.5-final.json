@@ -7,14 +7,14 @@
             "url": "https://packages.drupal.org/8"
         },
         "arshaw_fullcalendar": {
-        "type": "package",
+            "type": "package",
             "package": {
                 "name": "arshaw/fullcalendar",
                 "version": "3.9.0",
                 "type": "drupal-library",
                 "dist": {
                     "url": "https://github.com/fullcalendar/fullcalendar/archive/v3.9.0.zip",
-                    "type": "zip"
+                "type": "zip"
                 }
             }
         }
@@ -168,6 +168,12 @@
             "drush/contrib/{$name}": [
                 "type:drupal-drush"
             ]
+        },
+        "patches": {
+            "drupal/fullcalendar": {
+                "Patch to fix FullCalendar theme error.":
+		"https://www.drupal.org/files/issues/2021-06-04/3215841-5.patch"
+            }
         },
         "drupal-core-project-message": {
             "include-keys": ["homepage", "support"],
