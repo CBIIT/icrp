@@ -1,6 +1,0 @@
-{
-    "name": "icrp/db_map",
-    "require": {
-        "box/spout": "^2.7"
-    }
-}

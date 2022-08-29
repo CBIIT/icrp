@@ -1,7 +1,0 @@
-name: ICRP
-type: module
-description: 'ICRP Drupal 8 module.'
-package: ICRP Modules
-version: 1.1
-core: '8.x'
-core_version_requirement: ">=8" 

@@ -1,6 +1,0 @@
-services:
-  add_partner_application_subscriber:
-    class: '\Drupal\db_admin\EventSubscriber\AddPartnerApplicationSubscriber'
-    tags:
-      - { name: 'event_subscriber'}
-
