@@ -15,6 +15,12 @@
     color: red;
     font-size: 13px;
 }
+.control-label, 
+.form-group-row, 
+.form-group-row .form-group {
+    margin-bottom: 0;
+}
+
 
 /* Fix Bootstrap Reading fonts */
 /* Suggested by Lee on 1/18/2017 */
