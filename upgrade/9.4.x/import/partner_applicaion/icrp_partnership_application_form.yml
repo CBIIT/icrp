@@ -14,61 +14,64 @@ organization_information:
     '#type': container
     '#attributes':
       class:
-        - 'form--inline clearfix'
         - col-sm-6
     organization_name:
       '#type': textfield
       '#title': 'Organization''s Name'
-      '#title_display': inline
       '#size': 25
       '#required': true
     organization_address_1:
       '#type': textfield
       '#title': 'Organization''s Address 1'
-      '#title_display': inline
       '#size': 50
       '#required': true
     organization_address_2:
       '#type': textfield
       '#title': 'Organization''s Address 2'
-      '#title_display': inline
       '#size': 50
     city:
       '#type': textfield
       '#title': City
-      '#title_display': inline
       '#size': 50
       '#required': true
-    state_province_territory:
-      '#type': select_other
-      '#title': State/Province/Territory
-      '#options': state_province_names
-    zip_postal_code:
-      '#type': textfield
-      '#title': 'ZIP/Postal Code'
-      '#title_display': before
-      '#size': 8
-      '#required': true
-    income_band:
-      '#type': textfield
-      '#title': 'Income Band'
-      '#title_display': none
+    container_state_zip_code:
+      '#type': container
       '#attributes':
-        style: 'display:none;'
+        class:
+          - row
+          - form-group-row
+      container_state_province_territory:
+        '#type': container
+        '#attributes':
+          class:
+            - col-md-8
+        state_province_territory:
+          '#type': select_other
+          '#title': State/Province/Territory
+          '#options': state_province_names
+      container_zip_postal_code:
+        '#type': container
+        '#attributes':
+          class:
+            - col-md-4
+        zip_postal_code:
+          '#type': textfield
+          '#title': 'ZIP/Postal Code'
+          '#size': 8
+          '#required': true
+    income_band:
+      '#type': hidden
+      '#title': 'Income Band'
     country:
       '#type': select
       '#title': Country
       '#description': 'World Bank Income Band:'
-      '#title_display': before
       '#options': external_countries
       '#required': true
-      '#flex': 2
-      '#wrapper_type': fieldset
   container_right:
     '#type': container
     '#attributes':
       class:
-        - 'form--inline clearfix'
         - col-sm-6
     executive_contact:
       '#type': fieldset
@@ -80,48 +83,41 @@ organization_information:
       position:
         '#type': textfield
         '#title': Position
-        '#title_display': inline
         '#size': 50
         '#required': true
       telephone_number:
         '#type': textfield
         '#title': 'Telephone number'
-        '#title_display': inline
         '#required': true
       email:
         '#type': email
         '#title': Email
-        '#title_display': before
         '#required': true
         '#pattern': '^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$'
         '#pattern_error': 'Email does not contain a valid email.'
-        '#flexbox': '0'
-  description_of_the_organization:
-    '#type': textarea
-    '#title': 'Description of the organization and its mission (this will be used as a description on our website list of partners)'
-    '#title_display': before
-    '#rows': 2
-    '#required': true
-  brief_description_of_research:
-    '#type': textarea
-    '#title': 'Brief description of research profile (disease-specific vs. entire research continuum portfolio)'
-    '#title_display': before
-    '#rows': 2
-    '#required': true
-  year_initiated:
-    '#type': textfield
-    '#title': 'Year when initiated research program'
-    '#title_display': inline
-    '#required': true
-    '#attributes':
-      style: 'width:100px;'
-  year_initiated_container:
+  container_bottom:
     '#type': container
     '#attributes':
       class:
-        - 'form--inline clearfix'
-        - 'form-group row'
-      style: 'padding-top:15px;'
+        - col-sm-12
+    description_of_the_organization:
+      '#type': textarea
+      '#title': 'Description of the organization and its mission (this will be used as a description on our website list of partners)'
+      '#rows': 2
+      '#required': true
+    brief_description_of_research:
+      '#type': textarea
+      '#title': 'Brief description of research profile (disease-specific vs. entire research continuum portfolio)'
+      '#rows': 2
+      '#required': true
+    year_initiated:
+      '#type': textfield
+      '#title': 'Year when initiated research program'
+      '#title_display': inline
+      '#required': true
+      '#size': 4
+    year_initiated_container:
+      '#type': container
 research_investment_budget_information:
   '#type': details
   '#title': 'Research Investment Budget Information'
@@ -129,19 +125,14 @@ research_investment_budget_information:
     '#type': container
     '#attributes':
       class:
-        - clearfix
+        - row
     container_left2:
       '#type': container
       '#attributes':
         class:
-          - 'form--inline clearfix'
           - col-sm-6
       current_annual_research_investment_budget_container:
         '#type': container
-        '#attributes':
-          class:
-            - 'form--inline clearfix'
-            - 'form-group row'
         current_annual_research_investment_budget:
           '#type': textfield
           '#title': 'Current annual research investment budget'
@@ -149,42 +140,37 @@ research_investment_budget_information:
           '#required': true
           '#wrapper_attributes':
             class:
-              - _col-9
-              - form-group
+              - col-md-10
+              - d-flex
+              - flex-wrap
+              - align-items-center
+              - justify-content-between
           '#attributes':
-            style: 'width:100px;'
-          '#label_attributes':
-            style: 'white-space:nowrap;'
+            style:
+              - 'width: 100px'
       current_annual_operating_budget_container:
         '#type': container
-        '#attributes':
-          class:
-            - 'form--inline clearfix'
-            - 'form-group row'
         current_annual_operating_budget:
           '#type': textfield
           '#title': 'Current annual operating budget'
           '#title_display': inline
           '#wrapper_attributes':
             class:
-              - _col-9
-              - form-group
+              - col-md-10
+              - d-flex
+              - flex-wrap
+              - align-items-center
+              - justify-content-between
           '#attributes':
-            style: 'width:100px;'
-          '#label_attributes':
-            style: 'white-space:nowrap;'
+            style:
+              - 'width: 100px'
     container_right2:
       '#type': container
       '#attributes':
         class:
-          - 'form--inline clearfix'
           - col-sm-6
       reporting_period_container:
         '#type': container
-        '#attributes':
-          class:
-            - 'form--inline clearfix'
-            - 'form-group row'
         reporting_period:
           '#type': textfield
           '#title': 'Reporting period (e.g. 2021)'
@@ -192,29 +178,30 @@ research_investment_budget_information:
           '#required': true
           '#wrapper_attributes':
             class:
-              - form-group
+              - col-md-10
+              - d-flex
+              - flex-wrap
+              - align-items-center
+              - justify-content-between
           '#attributes':
-            style: 'width:100px;'
-          '#label_attributes':
-            style: 'white-space:nowrap;'
+            style:
+              - 'width: 100px'
       number_of_projects_funded_per_annum_container:
         '#type': container
-        '#attributes':
-          class:
-            - 'form--inline clearfix'
-            - 'form-group row'
         number_of_projects_funded_per_annum:
           '#type': textfield
           '#title': 'Approximate number of projects funded per annum'
           '#required': true
           '#wrapper_attributes':
             class:
-              - _col-9
-              - form-group
+              - col-md-10
+              - d-flex
+              - flex-wrap
+              - align-items-center
+              - justify-content-between
           '#attributes':
-            style: 'width:100px;'
-          '#label_attributes':
-            style: 'white-space:nowrap;'
+            style:
+              - 'width: 100px'
   research_footer_container:
     '#type': container
     '#attributes':
@@ -263,7 +250,7 @@ research_investment_budget_information:
         	      <tr>
         			<th>Tiers</th>
         			<th>Research investment budget ($US dollars)</th>
-        			<th id="fee_description">Annual membership contribution ($US dollars)</th>
+        			<th>Annual membership contribution ($US dollars) <span class="reduced_fee">($US dollars) [LMIC/UMIC rate, free in year 1]</span></th>
         	      </tr>
               </thead>
               <tbody>
@@ -338,12 +325,10 @@ contact_person_s_information:
     '#type': container
     '#attributes':
       class:
-        - 'container-inline clearfix'
         - col-sm-6
     contact_name:
       '#type': textfield
       '#title': Name
-      '#title_display': before
       '#size': 60
     contact_email:
       '#type': email
@@ -354,7 +339,6 @@ contact_person_s_information:
     '#type': container
     '#attributes':
       class:
-        - 'container-inline clearfix'
         - col-sm-6
     contact_position:
       '#type': textfield
