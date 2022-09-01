@@ -74,8 +74,8 @@ echo "*** Upgrading composer to version 2"
 composer self-update --2
 
 echo "Move final composer.json to root directory"
-cp /tmp/icrp/upgrade/9.4.x/composer.9.4.5-final.json ./composer.json
-cp /tmp/icrp/upgrade/9.4.x/composer.9.4.5-final.lock ./composer.lock
+cp /tmp/icrp/composer.json ./composer.json
+cp /tmp/icrp/composer.lock ./composer.lock
 
 composer update
 
