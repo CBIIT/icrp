@@ -15,9 +15,7 @@
     color: red;
     font-size: 13px;
 }
-.control-label, 
-.form-group-row, 
-.form-group-row .form-group {
+.control-label {
     margin-bottom: 0;
 }
 
