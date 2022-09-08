@@ -92,40 +92,8 @@ function () {
   // 'modal-size'="small|large"
   $('[window-dialog]').click(function(event) {
     event.preventDefault();
-
-    // set min-height to a reasonable default
-    var minHeight = Math.max(340, window.innerHeight * 0.3);
-    var maxHeight = window.innerHeight * 0.8;
-
-    var modalSize = this.getAttribute('modal-size') || '';
-
-    // create an iframe with default styling
-    var $iframe = $('<iframe/>')
-      .attr('src', this.href)
-      .css('width', '100%')
-      .css('min-height', minHeight + 'px')
-      .css('border', 'none');
-
-    var iframe = $iframe.get(0);
-    
-    // set the height of the iframe when it is loaded
-    iframe.onload = function() {
-      var height = Math.min(maxHeight, iframe.contentWindow.document.body.scrollHeight);
-      iframe.height = Math.max(minHeight, height) + 'px';
-    }
-
-    $.each(this.attributes, function(i, attr) {
-      if (/^iframe-/.test(attr.name))
-        $iframe.attr(
-          attr.name.replace(/^iframe-/, ''), 
-          attr.value
-        );
-    });
-
-    var dialog = bootbox.dialog({
-      message: $iframe,
-      size: modalSize,
-    });
+    window.open(this.href, 'newwindow', 'width=600, height=400');
+    return false;
   })
 
 
