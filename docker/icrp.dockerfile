@@ -51,7 +51,7 @@ RUN pecl install \
 
 # RUN setsebool -P httpd_can_network_connect_db 1
 
-ARG COMPOSER_VERSION=1.10.25
+ARG COMPOSER_VERSION=2.4.1
 
 RUN wget https://getcomposer.org/download/${COMPOSER_VERSION}/composer.phar -O /bin/composer \
  && chmod +x /bin/composer
@@ -79,8 +79,6 @@ RUN mkdir -p \
     /var/www/html \
     /var/log/httpd \
     /var/log/php-fpm
-
-USER icrp
 
 WORKDIR /var/www/html
 
@@ -115,12 +113,11 @@ ENV PATH "$PATH:/var/www/html/vendor/bin"
 EXPOSE 80
 EXPOSE 443
 
-USER root
-
 CMD rm -rf \
     /run/httpd/* \
     /run/php-fpm/* \
     /tmp/httpd* \
+ && chown -R icrp:icrp /var/www/html/ \
  && postfix start \
  && php-fpm -D \
  && apachectl -DFOREGROUND
