@@ -2,7 +2,7 @@ FROM ${BASE_IMAGE:-quay.io/centos/centos:stream8}
 
 RUN dnf -y update \
  && dnf -y module enable nodejs:16 \
- && dnf -y module enable php:7.4 \
+ && dnf -y module enable php:8.0 \
  && dnf -y install \
     curl \
     cyrus-sasl-plain \
