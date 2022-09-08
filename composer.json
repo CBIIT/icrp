@@ -146,7 +146,7 @@
     "extra": {
         "drupal-scaffold": {
             "locations": {
-                "web-root": "/"
+                "web-root": "./"
             }
         },
         "installer-paths": {
