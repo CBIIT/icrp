@@ -93,7 +93,7 @@ rm composer-8.9.1.json
 echo "Set permissions on files"
 if id "icrp" &>/dev/null; then
   chown -R icrp:icrp /var/www/html
-else
+fi
 
 echo "***************************"
 echo "*** ICRP Upgrade complete *"
