@@ -122,11 +122,6 @@
         "sort-packages": true,
         "discard-changes" : true
     },
-    "autoload": {
-        "classmap": [
-            "utility/php/ScriptHandler.php"
-        ]
-    },
     "scripts": {
         "pre-install-cmd": [
             "DrupalProject\\composer\\ScriptHandler::checkComposerVersion"
