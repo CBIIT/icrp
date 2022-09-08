@@ -117,7 +117,7 @@ CMD rm -rf \
     /run/httpd/* \
     /run/php-fpm/* \
     /tmp/httpd* \
- && chown -R icrp:icrp /var/www/html/ \
+ && chown -R icrp:icrp /var/www/html/ || true \
  && postfix start \
  && php-fpm -D \
  && apachectl -DFOREGROUND
