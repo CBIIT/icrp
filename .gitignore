@@ -48,6 +48,7 @@
 /temp/
 /libraries/
 !/libraries/fontawesome/
+!/libraries/fullcalendar/
 /components/
 /console
 
