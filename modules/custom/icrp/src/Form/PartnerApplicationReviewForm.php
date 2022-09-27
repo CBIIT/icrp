@@ -480,7 +480,7 @@ class PartnerApplicationReviewForm extends FormBase
 
         return array_reduce(
             $submission_data,
-            function($accumulator = [], $row) {
+            function($accumulator = [], $row=[]) {
                 $accumulator[$row['name']] = $row['value'];
                 return $accumulator;
             }
