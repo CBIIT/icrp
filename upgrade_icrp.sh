@@ -32,7 +32,7 @@ mv themes themes-old
 mv modules/custom modules-custom-old
 
 cp -r /tmp/icrp/modules/custom modules/
-cp -r /tmp/icrp/modules/contrib/fullcalendar modules/contrib/fullcalendar
+#cp -r /tmp/icrp/modules/contrib/fullcalendar modules/contrib/fullcalendar
 cp -r /tmp/icrp/themes ./
 
 #Move themes bootstrap back to original
@@ -43,12 +43,16 @@ rm -rf themes-old
 rm -rf modules-custom-old
 rm -rf modules/contrib/fullcalendar
 
+#Add libraries/fullcalendar
+rm -rf libraries/fullcalendar
+cp -rp /tmp/icrp/libraries/fullcalendar libraries/.
+
 #upgrade to 8.9.20
 echo "*** Composer upgrade to 8.9.20"
 composer update
 
 #Install Modules
-drush pm-enable fullcalendar upgrade_status upgrade_rector -y
+drush pm-enable fullcalendar upgrade_status upgrade_rector redirect_after_login -y
 
 #update drupal to latest 10
 composer require drush/drush:^10
@@ -70,22 +74,23 @@ composer require "drupal/views_bootstrap:~5.3.0"
 echo "drush cr"
 drush cr
 
-echo "*** Upgrading composer to version 2"
-composer self-update --2
+#echo "*** Upgrading composer to version 2"
+#composer self-update --2
 
 echo "Move final composer.json to root directory"
 cp /tmp/icrp/composer.json ./composer.json
 cp /tmp/icrp/composer.lock ./composer.lock
 
-composer update
+#composer update
+composer install
 
-composer self-update --1
+#composer self-update --1
 
 echo "*** composer why-not php:8.1"
 composer why-not php:8.1
 
 echo "composer upgrade to version 2"
-composer self-update --2
+#composer self-update --2
 
 echo "***Clean Up"
 rm composer-8.9.1.json
