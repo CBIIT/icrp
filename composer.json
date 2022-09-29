@@ -171,8 +171,11 @@
         "patches": {
             "drupal/fullcalendar": {
                 "Patch to fix FullCalendar theme error.":
-		"https://www.drupal.org/files/issues/2021-06-04/3215841-5.patch"
-            }
+                "https://www.drupal.org/files/issues/2021-06-04/3215841-5.patch"
+            },
+            "drupal/redirect_after_login": {
+                "Fixed redirect after login - Issue 3214949 - 107":
+                "https://www.drupal.org/files/issues/2022-07-26/redirect_after_login-3214949-107.patch"
         },
         "drupal-core-project-message": {
             "include-keys": ["homepage", "support"],
