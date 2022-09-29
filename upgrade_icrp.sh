@@ -75,22 +75,26 @@ echo "drush cr"
 drush cr
 
 #echo "*** Upgrading composer to version 2"
-#composer self-update --2
+composer self-update --2
 
 echo "Move final composer.json to root directory"
 cp /tmp/icrp/composer.json ./composer.json
 cp /tmp/icrp/composer.lock ./composer.lock
 
-#composer update
-composer install
+composer update
+#composer install
 
-#composer self-update --1
+#Add libraries/fullcalendar
+rm -rf libraries/fullcalendar
+cp -rp /tmp/icrp/libraries/fullcalendar libraries/.
+
+composer self-update --1
 
 echo "*** composer why-not php:8.1"
 composer why-not php:8.1
 
 echo "composer upgrade to version 2"
-#composer self-update --2
+composer self-update --2
 
 echo "***Clean Up"
 rm composer-8.9.1.json
