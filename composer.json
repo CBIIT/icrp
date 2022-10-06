@@ -22,6 +22,7 @@
     "require": {
         "composer-plugin-api": "*",
         "arshaw/fullcalendar": "3.9.0",
+        "box/spout": "^3.3",
         "composer/installers": "^1.9",
         "cweagans/composer-patches": "^1.6",
         "doctrine/reflection": "^1.2",
@@ -171,11 +172,13 @@
         "patches": {
             "drupal/fullcalendar": {
                 "Patch to fix FullCalendar theme error.":
-                "https://www.drupal.org/files/issues/2021-06-04/3215841-5.patch"
+		"https://www.drupal.org/files/issues/2021-06-04/3215841-5.patch"
             },
             "drupal/redirect_after_login": {
-                "Fixed redirect after login - Issue 3214949 - 107":
-                "https://www.drupal.org/files/issues/2022-07-26/redirect_after_login-3214949-107.patch"
+	       "Fixed redirect":
+               "https://www.drupal.org/files/issues/2022-07-26/redirect_after_login-3214949-107.patch"
+	    }
+           
         },
         "drupal-core-project-message": {
             "include-keys": ["homepage", "support"],
@@ -198,4 +201,3 @@
         }
     }
 }
-
