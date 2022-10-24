@@ -1,6 +1,11 @@
 <?php
 
-use Drupal;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\taxonomy\Entity\Term;
+use Drupal\Core\Database\Query\AlterableInterface;
+use Drupal\Core\Mail\MailFormatHelper;
+
+
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Form\FormStateInterface;
 use \Drupal\icrp\Importer\OrganizationRestClient;
@@ -12,6 +17,9 @@ use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Template;
 use Drupal\Core\Datetime\DrupalDateTime;
+
+use Drupal\Core\Datetime\Entity\DateFormat;
+use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Drupal\Core\GeneratedLink;
 
 use Drupal\user\Entity\User;
@@ -25,7 +33,6 @@ use Drupal\node\NodeInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\comment\Entity\Comment;
 use Drupal\db_search_api\Controller\PDOBuilder;
-use PDO;
 
 /*
  * source: https://www.youtube.com/watch?v=L5x3WqTZPGk
@@ -41,6 +48,8 @@ use PDO;
  *
  */
 
+
+ \Drupal\core\Database\Database::getConnection();
 
 /**
  * Retrieves a list of countries from a pdo connection
@@ -137,9 +146,9 @@ function getSurveyStatus() {
       //$long_date_template = 'F j, Y g:i A e';
       $long_date_template = 'F j, Y';
       $open_time = new DrupalDateTime($config->get('open'), 'UTC');
-      //$open_time->setTimezone(new \DateTimeZone(drupal_get_user_timezone()));
-      // drupal_get_user_timezone());
-      //$open_time->prepareTimezone(drupal_get_user_timezone());
+      //$open_time->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+      // date_default_timezone_get());
+      //$open_time->prepareTimezone(date_default_timezone_get());
       $open_timestamp = $open_time->format($long_date_template);
       $message .= '  The survey is scheduled to open on '.$open_timestamp.'.';
     }
@@ -176,7 +185,7 @@ function getSurveyPeriod() {
 
   $query = "SELECT DATE_FORMAT(FROM_UNIXTIME(completed), '%M %e, %Y') AS 'first_date', DATE_FORMAT(FROM_UNIXTIME(completed), '%M %e') AS 'first_date_short' FROM webform_submission  where webform_id = 'icrp_website_survey' LIMIT 1;";
 
-  $result=db_query($query);
+  $result=\Drupal::database()->query($query);
   $row = $result->fetchObject();
 
   if(isset($row->first_date)) {
@@ -187,8 +196,7 @@ function getSurveyPeriod() {
   }
 
   $query = "SELECT DATE_FORMAT(FROM_UNIXTIME(completed), '%M %e, %Y') AS 'last_date' FROM webform_submission  where webform_id = 'icrp_website_survey' order by completed desc LIMIT 1;";
-
-  $result=db_query($query);
+  $result = \Drupal::database()->query($query);
   $row = $result->fetchObject();
 
   if(isset($row->last_date)) {
@@ -208,7 +216,7 @@ function getSurveyNumberResponses() {
   $query = 'SELECT count(*) as count FROM webform_submission';
   $query .= " where webform_id = 'icrp_website_survey'";
 
-  $result=db_query($query);
+  $result = \Drupal::database()->query($query);
   $row = $result->fetchObject();
 
   $response = 0;
@@ -226,7 +234,7 @@ function getWebformCount($webform_id, $name, $value) {
   $query .= " and name = '{$name}'";
   $query .= " and value = '{$value}';";
 
-  $result=db_query($query);
+  $result = \Drupal::database()->query($query);
   $row = $result->fetchObject();
 
   $response = 0;
@@ -334,7 +342,7 @@ function getSurveyData($chartname) {
       $query .= " and name = 'please_feel_free_to_share_any_additional_feedback_to_help_us_imp'"; 
       $query .= " and value <> '';"; 
       $feedback = 0;
-      $result=db_query($query);
+      $result = \Drupal::database()->query($query);
       $row = $result->fetchObject();
       if(isset($row->count_feedback)) {
         $feedback = $row->count_feedback;
@@ -542,7 +550,7 @@ function  getReplyDetails($cid) {
   */
   $query = "select ccb.comment_body_value, ces.last_comment_uid FROM comment_entity_statistics ces, comment__comment_body ccb ";
   $query .= "where ces.cid =ccb.entity_id and ces.cid = ".$cid.";";
-  $result=db_query($query);
+  $result = \Drupal::database()->query($query);
 
   $row = $result->fetchObject();
   $comment = "<i>No replies</i>";
@@ -587,7 +595,7 @@ function  getForumEmails($nid, $author_uid) {
     $table = "user__".$subCommittees[$index];
     $field = $subCommittees[$index]."_value";
   } else {
-    drupal_set_message("Could not map field to table", "error");
+    \Drupal::messenger()->addError("Could not map field to table");
   }
   //drupal_set_message("Your table is ".$table);
   $query = "select ufd.uid, ufd.mail, uffn.field_first_name_value, ufln.field_last_name_value, ufnnp.field_notify_new_posts_value, sub.".$field." ";  
@@ -599,7 +607,7 @@ function  getForumEmails($nid, $author_uid) {
 
   //drupal_set_message($query);
   //Get a list of names and e-mails.  Everybody that is an Active user and is subcribed to this forum and has notifications checked.
-  $result = db_query($query);
+  $result = \Drupal::database()->query($query);
   $forum_members = [];
   for ($count = 0; $row = $result->fetchObject(); $count++) {
     $first_name = $row->field_first_name_value;
@@ -790,7 +798,7 @@ $body = '
   */
 
 
-function icrp_entity_presave(Drupal\Core\Entity\EntityInterface $entity) {
+function icrp_entity_presave(EntityInterface $entity) {
   //drupal_set_message(__FUNCTION__);
   //drupal_set_message("Bundle:".$entity->bundle());
   //drupal_set_message($entity->get('field_calendar_type')->value);
@@ -894,7 +902,8 @@ function getEventsDetails($nid, $entity) {
   $detail['body'] = $node->get('body')->value;
   $detail['date_range'] = $node->get('field_event_date_range')->getString();
   $detail['date_start'] = $node->get('field_event_date_range')->value;
-  $detail['date_end'] = $node->get('field_event_date_range')->end_date->format(DATETIME_DATETIME_STORAGE_FORMAT);;
+  $detail['date_end'] = $node->get('field_event_date_range')->end_date->format(DateTimeItemInterface::DATETIME_STORAGE_FORMAT);
+  
 
   $detail['location'] = $node->get('field_event_location')->value;
   $detail['calendar_type'] = $node->get('field_calendar_type')->value;
@@ -918,7 +927,7 @@ function getEventsDetails($nid, $entity) {
   if(isset($group_color[$event_group])) {
     $detail['group_color'] = $group_color[$event_group];
   } else {
-    drupal_set_message($event_group." not found.", 'warning');
+    \Drupal::messenger()->addWarning($event_group." not found.");
     return $detail;
   }
 
@@ -954,7 +963,7 @@ function  getEventsEmails($nid, $author_uid) {
     $table = "user__".$subCommittees[$event_group];
     $field = $subCommittees[$event_group]."_value";
   } else {
-    drupal_set_message(t($event_group." not found in subcommittees."), 'warning', FALSE);
+    \Drupal::messenger()->addWarning(t($event_group." not found in subcommittees."));
   }
 
   $query = "select ufd.uid, ufd.mail, ufd.timezone, uffn.field_first_name_value, ufln.field_last_name_value, ufnne.field_notify_new_events_value, sub.".$field." ";  
@@ -968,7 +977,7 @@ function  getEventsEmails($nid, $author_uid) {
   //dpm($query);
 
   //Get a list of names and e-mails.  Everybody that is an Active user and is subcribed to this forum and has notifications checked.
-  $result = db_query($query);
+  $result = \Drupal::database()->query($query);
   $forum_members = [];
   for ($count = 0; $row = $result->fetchObject(); $count++) {
     $first_name = $row->field_first_name_value;
@@ -1154,7 +1163,7 @@ function icrp_preprocess_forum_submitted(&$variables) {
   $variables['author'] = '';
   if (isset($variables['topic']->uid)) {
     $username = array('#theme' => 'username', '#account' => User::load($variables['topic']->uid));
-    $variables['author'] = drupal_render($username);
+    $variables['author'] = \Drupal::service('renderer')->render($username);
     //$elements['#type'] = 'markup';
     //$elements['#markup'] = 'My Mark Up';
     //$variables['author'] = drupal_render($elements);
@@ -1213,7 +1222,7 @@ function getOrg($target_id) {
   return $node->get('body')->value; 
 }
 function icrp_preprocess_events(&$variables) {
-  drupal_set_message("icrp_preprocess_events");
+  //drupal_set_message("icrp_preprocess_events");
 }
 function icrp_preprocess_comment(&$variables) {
     //drupal_set_message("icrp_preprocess_comment");
@@ -1228,15 +1237,14 @@ function icrp_preprocess_comment(&$variables) {
     //Get Comment id, date_created, user organization
     $comment_uid = $comment->getOwnerId();
     $tcreated_time = $comment->getCreatedTime();
+
     //Set Date format
     $long_date_template = 'F j, Y g:i A';
-    //$created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime() , drupal_get_user_timezone());
-    //$created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime(), drupal_get_user_timezone());
-    $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime(), drupal_get_user_timezone());
+    $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime(), date_default_timezone_get());
 
     //dpm($created_time);
     $variables['tcreated_time'] = $created_time->format($long_date_template);
-    $variables['ttimezone'] = drupal_get_user_timezone();
+    $variables['ttimezone'] = date_default_timezone_get();
 
     //Set Date format
     $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($comment_uid);
@@ -1262,11 +1270,11 @@ function icrp_preprocess_field(&$variables) {
     $tcreated_time = $comment->getCreatedTime();
     //Set Date format
     $long_date_template = 'F j, Y g:i A';
-    $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime(), drupal_get_user_timezone());
+    $created_time = DrupalDateTime::createFromTimestamp($comment->getCreatedTime(), date_default_timezone_get());
 
     //dpm($created_time);
     $variables['tcreated_time'] = $created_time->format($long_date_template);
-    $variables['ttimezone'] = drupal_get_user_timezone();
+    $variables['ttimezone'] = date_default_timezone_get();
 
     //Set Date format
     $user = \Drupal::service('entity_type.manager')->getStorage('user')->load($comment_uid);
@@ -1324,7 +1332,7 @@ function icrp_preprocess_form(&$variables) {
   
     $query = "select name, description__value FROM taxonomy_term_field_data where tid = {$tid}; ";
   
-    $result = db_query($query);
+    $result = \Drupal::database()->query($query);
     $row = $result->fetchObject();
     $variables['tforum_category'] = $row->name;
     $variables['tforum_description'] = $row->description__value;
@@ -1353,6 +1361,7 @@ function icrp_views_data_alter(array &$data) {
 */
 
 function last_forum_visit() {
+  
   $long_date_template = 'F j, Y g:i A';
   $last_visit_text = '';
 
@@ -1361,9 +1370,9 @@ function last_forum_visit() {
 
   $last_visit_date_raw = $user->get('field_last_forum_visit')->value;
   if($last_visit_date_raw !== NULL) {
-    $last_visit_timestamp = new DrupalDateTime($last_visit_date_raw);
+    $last_visit_timestamp = new DateTime($last_visit_date_raw);
     // Update the timezone to the system default.
-    //$last_visit_timestamp->setTimezone(timezone_open(drupal_get_user_timezone()));
+    //$last_visit_timestamp->setTimezone(timezone_open(date_default_timezone_get()));
     $last_visit_date = $last_visit_timestamp->format($long_date_template);
 
     //drupal_set_message("last_visit_timestamp");
@@ -1371,8 +1380,8 @@ function last_forum_visit() {
     $last_visit_text = 'Last visited: '.$last_visit_date;
   }
 
-  $current_datetime = new DrupalDateTime('now');
-  $datetime_storage = $current_datetime->format(DATETIME_DATETIME_STORAGE_FORMAT);
+  $current_datetime = new DateTime('now');
+  $datetime_storage = $current_datetime->format(DateTimeItemInterface::DATETIME_STORAGE_FORMAT);
   $user->set("field_last_forum_visit", $datetime_storage);
   $user->save();
 
@@ -1461,7 +1470,7 @@ function lastComment($node_id) {
   $query .= "where ces.cid = ccb.entity_id and ces.entity_id = {$node_id} ";
   $query .= "order by ces.cid desc limit 1;";
 
-  $result=db_query($query);
+  $result = \Drupal::database()->query($query);
   $row = $result->fetchObject();
   $comment = "<i>No replies</i>";
   if(isset($row->comment_body_value)) {
@@ -1484,7 +1493,7 @@ function getUserFullName($uid) {
 
 function getName($uid, $created) {
 
-  $created_timestamp = DrupalDateTime::createFromTimestamp($created, drupal_get_user_timezone());
+  $created_timestamp = DrupalDateTime::createFromTimestamp($created, date_default_timezone_get());
    $variables['author'] = '';
 
   if (isset($uid)) {
@@ -1511,7 +1520,7 @@ function getName($uid, $created) {
 
 function firstThreadBody($nid) {
   $query = "SELECT nfd.uid, nfd.created, nb.body_value FROM node_field_data nfd, node__body nb where nfd.nid = {$nid} and nfd.nid = nb.entity_id";
-  $result=db_query($query);
+  $result = \Drupal::database()->query($query);
   $row = $result->fetchObject();
   $comment = "<i>No replies</i>";
   if(isset($row->body_value)) {
@@ -1706,8 +1715,8 @@ function icrp_preprocess_node(&$variables) {
 
   $variables['ttitle'] = $node->getTitle();
   //drupal_set_message($variables['ttitle']);
-  $created_timestamp = DrupalDateTime::createFromTimestamp($node->getCreatedTime(), drupal_get_user_timezone());
-  //$last_visit_timestamp->setTimezone(timezone_open(drupal_get_user_timezone()));
+  $created_timestamp = DrupalDateTime::createFromTimestamp($node->getCreatedTime(), date_default_timezone_get());
+  //$last_visit_timestamp->setTimezone(timezone_open(date_default_timezone_get()));
   $variables['tthread_created_time'] = $created_timestamp->format("D, F j, Y g:i A");
   $variables['tstatus'] = $node->get('status')->value;
   $variables['tnid'] = $node->get('nid')->value;
@@ -1771,7 +1780,7 @@ function getLastPostFromTopicID($tid) {
     $query = "select count(*) as comment_count ";
     $query .= "FROM taxonomy_index ti, comment_field_data cfd, comment__comment_body ccb ";
     $query .= "where ti.nid = cfd.entity_id and cfd.cid = ccb.entity_id and ti.tid = {$tid}; ";
-    $result=db_query($query);
+    $result = \Drupal::database()->query($query);
     $row = $result->fetchObject();
     //return "Comment Count: ".$row->comment_count;
  
@@ -1786,12 +1795,12 @@ function getLastPostFromTopicID($tid) {
     if($row->comment_count == 0) {
       $query = "SELECT count(*) as count FROM taxonomy_index ti where ti.tid = {$tid} ";
       //$query .= "order by ti.created desc limit 1; ";
-      $result=db_query($query);
+      $result = \Drupal::database()->query($query);
       $row = $result->fetchObject();
       if(isset($row->count)  && $row->count > 0) {
         $query = "SELECT nid FROM taxonomy_index ti where ti.tid = {$tid} ";
         $query .= "order by ti.created desc limit 1; ";
-        $result=db_query($query);
+        $result = \Drupal::database()->query($query);
         $row = $result->fetchObject();
         list($thread_title, $thread_summary) = getThreadNodeInfo($row->nid);
         $comment = "<div><b>$thread_title</b></div><div>$thread_summary</div>"; 
@@ -1802,7 +1811,7 @@ function getLastPostFromTopicID($tid) {
 
 
   $query = "SELECT * FROM taxonomy_index ti where ti.tid = {$tid} order by ti.nid desc limit 1;";
-  $result=db_query($query);
+  $result = \Drupal::database()->query($query);
   $row = $result->fetchObject();
   $comment = "";
   $nid = "unknown";
@@ -1812,7 +1821,7 @@ function getLastPostFromTopicID($tid) {
     $query .= "FROM taxonomy_index ti, comment_field_data cfd, comment__comment_body ccb ";
     $query .= "where ti.nid = cfd.entity_id and cfd.cid = ccb.entity_id and ti.tid = {$tid} "; 
     $query .= "order by cfd.changed desc; ";
-    $result=db_query($query);
+    $result = \Drupal::database()->query($query);
     $row = $result->fetchObject();
     if(isset($row->comment_body_value)) {
       $comment = $row->comment_body_value."<div style='display:none;'> by <b>".$row->name."</b></div>";
@@ -1939,7 +1948,7 @@ The ICRP team";
 
 
 function icrp_confirm_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
-  drupal_set_message("confirm_form");
+  //drupal_set_message("confirm_form");
 }
 /**
  * Implements hook_form_alter().
@@ -2030,7 +2039,7 @@ function icrp_views_query_alter($view, $query) {
     //drupal_set_message("View ID: ".$view->id());
     global $user;
     if($view->id() == "partner_application_administration_tool_old") {
-        drupal_set_message("You are viewing the Partner Applications");
+      \Drupal::messenger()->addStatus("You are viewing the Partner Applications");
     }
     //kint($query);
   // (Example assuming a view with an exposed filter on node title.)
@@ -2088,7 +2097,7 @@ function icrp_fullcalendar_classes($node) {
  * Implements hook_fullcalendar_editable().
  */
 function icrp_fullcalendar_editable($entity, $view) {
-  drupal_set_message(__FUNCTION__);
+  \Drupal::messenger()->addStatus(__FUNCITON__);
   //drupal_set_message("Is this calendar editable");
   //drupal_set_message("Only editable by Admin or Manager");
 
@@ -2101,7 +2110,7 @@ function icrp_fullcalendar_editable($entity, $view) {
  * Implements hook_fullcalendar_api().
  */
 function icrp_fullcalendar_api() {
-  drupal_set_message(__FUNCTION__);
+  \Drupal::messenger()->addStatus(__FUNCITON__);
   return array(
     'api' => fullcalendar_api_version(),
   );
@@ -2111,7 +2120,7 @@ function icrp_fullcalendar_api() {
  * Implements hook_fullcalendar_options_info().
  */
 function icrp_fullcalendar_options_info() {
-  drupal_set_message(__FUNCTION__);
+  \Drupal::messenger()->addStatus(__FUNCITON__);
   return array(
     'custom_module' => array(
       'js' => TRUE,

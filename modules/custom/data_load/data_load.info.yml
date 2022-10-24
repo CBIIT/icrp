@@ -2,5 +2,6 @@ name: ICRP Data Upload Module
 description: Enables managers to upload projects and associated data to the ICRP database
 package: ICRP Modules
 type: module
-version: 1.2
+version: 1.3
 core: 8.x
+core_version_requirement: ">=8" 

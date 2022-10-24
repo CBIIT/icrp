@@ -103,6 +103,21 @@ class ProjectViewController extends ControllerBase {
 
   ];
 
+  public static function get_dsn($cfg): string {
+    $dsn = [
+      'Server' => "$cfg[host],$cfg[port]",
+      'Database' => $cfg['database'],
+    ] + ($cfg['dsnOptions'] ?? []);  
+
+    $dsnString = join(';', array_map(
+      fn($k, $v) => "$k=$v", 
+      array_keys($dsn), 
+      array_values($dsn)
+    ));
+
+    return "$cfg[driver]:$dsnString";
+  }
+
 
   /**
    * Returns a PDO connection to a database
@@ -117,18 +132,7 @@ class ProjectViewController extends ControllerBase {
    * @throws PDOException
    */
   function get_connection($config_key = 'icrp_database') {
-
-    $cfg = [];
-    $icrp_database = \Drupal::config($config_key);
-    foreach(['driver', 'host', 'port', 'database', 'username', 'password'] as $key) {
-       $cfg[$key] = $icrp_database->get($key);
-    }
-
-    // connection string
-    $cfg['dsn'] =
-      $cfg['driver'] .
-      ":Server={$cfg['host']},{$cfg['port']}" .
-      ";Database={$cfg['database']}";
+    $cfg = \Drupal::config($config_key)->get();
 
     // default configuration options
     $cfg['options'] = [
@@ -140,7 +144,7 @@ class ProjectViewController extends ControllerBase {
 
     // create new PDO object
     return new PDO(
-      $cfg['dsn'],
+      self::get_dsn($cfg),
       $cfg['username'],
       $cfg['password'],
       $cfg['options']

@@ -28,18 +28,23 @@ class DataLoadController {
         return $response;
     }
 
-    static function getConnection() {
-        $cfg=[];
-        $icrp_dataload_db = \Drupal::config('icrp_load_database');
-        foreach(['driver', 'host', 'port', 'database', 'username', 'password'] as $key) {
-            $cfg[$key] = $icrp_dataload_db->get($key);
-        }
+    static function getDsn($cfg): string {
+        $dsn = [
+            'Server' => "$cfg[host],$cfg[port]",
+            'Database' => $cfg['database'],
+        ] + ($cfg['dsnOptions'] ?? []);
 
-        // connection string
-        $cfg['dsn'] =
-        $cfg['driver'] .
-        ":Server={$cfg['host']},{$cfg['port']}" .
-        ";Database={$cfg['database']}";
+        $dsnString = join(';', array_map(
+            fn($k, $v) => "$k=$v", 
+            array_keys($dsn), 
+            array_values($dsn)
+        ));
+
+        return "$cfg[driver]:$dsnString";
+    }
+
+    static function getConnection() {
+        $cfg = \Drupal::config('icrp_load_database')->get();
 
         // default configuration options
         switch ($cfg['driver']) {
@@ -61,7 +66,7 @@ class DataLoadController {
 
         // create new PDO object
         return new PDO(
-        $cfg['dsn'],
+        self::getDsn($cfg),
         $cfg['username'],
         $cfg['password'],
         $cfg['options']

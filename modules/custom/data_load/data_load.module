@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/vendor/autoload.php';
+require_once "vendor/league/csv/autoload.php";
 
 // \Symfony\Component\Debug\ErrorHandler::register();
 // \Symfony\Component\Debug\ExceptionHandler::register();

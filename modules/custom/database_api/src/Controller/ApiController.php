@@ -14,6 +14,22 @@ class ApiController extends ControllerBase {
     $this->pdo = $this->getConnection();
   }
 
+  static function getDsn($cfg): string {
+    $dsn = [
+      'Server' => "$cfg[host],$cfg[port]",
+      'Database' => $cfg['database'],
+    ] + ($cfg['dsnOptions'] ?? []);
+    
+    $dsnString = join(';', array_map(
+      fn($k, $v) => "$k=$v", 
+      array_keys($dsn), 
+      array_values($dsn)
+    ));
+
+    return "$cfg[driver]:$dsnString";
+  }
+  
+
   /**
    * Returns a PDO connection to a database
    * @param string $database - The drupal configuration key for the database to query
@@ -38,12 +54,7 @@ class ApiController extends ControllerBase {
     $cfg = Drupal::config($database)->get();
 
     return new PDO(
-      vsprintf('%s:Server=%s,%s;Database=%s', [
-        $cfg['driver'],
-        $cfg['host'],
-        $cfg['port'],
-        $cfg['database'],
-      ]),
+      self::getDsn($cfg),
       $cfg['username'],
       $cfg['password'],
       [
@@ -116,7 +127,7 @@ class ApiController extends ControllerBase {
       'EXECUTE GetCSOLookup'
     )->fetchAll();
 
-    $examples = array_reduce($records, function($fields = [], $row) {
+    $examples = array_reduce($records, function($fields = [], $row=[]) {
       $key_format = 'cso-%s-%s-ex%s';
       $value_format = '/project/funding-details/%s';
 

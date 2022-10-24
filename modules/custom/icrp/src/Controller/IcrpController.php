@@ -22,7 +22,6 @@ class IcrpController extends ControllerBase {
     }
 
     public function userEdit() {
-        drupal_set_message("User Edit was hit");
         return array(
             '#markup' => editContent(),
         );
@@ -75,7 +74,7 @@ class IcrpController extends ControllerBase {
     public function getNodeAsJson($nid) {
         //dump($nid);
         $node = Node::load($nid);
-        $view = node_view($node,'full');
+        $view = \Drupal::entityTypeManager()->getViewBuilder('node')->view($node,'full');
         //dump($view);
         $html = render($view);
         $response = new JsonResponse($html);
@@ -104,8 +103,10 @@ class IcrpController extends ControllerBase {
             $roles[] = "partner";
         }
         $isOwner = false;
+        \Drupal\core\Database\Database::getConnection();
         $query = "SELECT count(*) as count FROM node_field_data where nid = $nid and uid = $uid;";
-        $result = db_query($query);
+        $result = \Drupal::database()->query($query);
+
         $row = $result->fetchObject();
         if(isset($row->count) && $row->count == 1) {
             $isOwner = true;
@@ -127,7 +128,7 @@ class IcrpController extends ControllerBase {
     public function getNodeAsModal($nid) {
         //dump($nid);
         $node = Node::load($nid);
-        $view = node_view($node, 'teaser');
+        $view = \Drupal::entityTypeManager()->getViewBuilder('node')->view($node, 'teaser');
         $html = render($view);
         $response = new AjaxResponse();
         $response->addCommand(new OpenModalDialogCommand(t('Modal Title'), $html));

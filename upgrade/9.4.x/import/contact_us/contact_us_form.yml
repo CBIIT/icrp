@@ -1,0 +1,94 @@
+contact_us:
+  '#type': details
+  '#title': 'Contact Us'
+  '#open': true
+  '#attributes':
+    class:
+      - 'form--inline clearfix'
+  contact_us_container_1:
+    '#type': container
+    '#title': Message
+    '#open': 0
+    '#attributes':
+      class:
+        - clearfix
+      style: 'width:250px;'
+    type_of_issue:
+      '#type': select
+      '#title': 'Type of Issue'
+      '#description': 'Select an option'
+      '#title_display': before
+      '#options':
+        'User Account': 'User Account'
+        'Partner Application': 'Partner Application'
+        'Partnership Questions': 'Partnership Questions'
+        'Sign Up for Newsletter': 'Sign Up for Newsletter'
+        'Register for CSO Updates': 'Register for CSO Updates'
+        'CSO Question': 'CSO Question'
+        'Data Issue': 'Data Issue'
+        'Opt Out of Communications': 'Opt Out of Communications'
+        'Website Tech Support': 'Website Tech Support'
+        Other: Other
+      '#required': true
+      '#wrapper_attributes':
+        class:
+          - 'form--inline clearfix'
+      '#attributes':
+        class:
+          - col-sm-3
+          - ''
+        style: 'padding-left:20px;'
+  contact_us_container_3:
+    '#type': container
+    message:
+      '#type': textarea
+      '#title': Description
+      '#title_display': inline
+      '#size': 0
+      '#placeholder': 'Description of question, issue, or request.'
+      '#attributes':
+        rows: '8'
+        cols: '160'
+      '#required': true
+      '#test': 'Please ignore this email.'
+    contact_us_container_4:
+      '#type': container
+    name:
+      '#type': textfield
+      '#title': Name
+      '#description': 'Your name'
+      '#title_display': inline
+      '#placeholder': Name
+      '#required': true
+    email:
+      '#type': email
+      '#title': 'Your Email'
+      '#description': 'Your e-mail address'
+      '#default_value': '[current-user:mail]'
+      '#title_display': inline
+      '#placeholder': Email
+      '#required': true
+    organization:
+      '#type': textfield
+      '#title': Organization
+      '#description': 'Your organization.'
+      '#default_value': '[current-user:field_organization]'
+      '#title_display': inline
+      '#placeholder': Organization
+      '#required': true
+    phone_number:
+      '#type': textfield
+      '#title': 'Phone Number'
+      '#description': 'Enter your phone number'
+      '#title_display': inline
+      '#placeholder': 'Phone Number'
+markup:
+  '#type': markup
+  '#markup': '<em>* At ICRP, we take your privacy seriously and will only use the information you submit to respond to your query or provide the service requested.</em>'
+captcha_secretkey12345_20200323:
+  '#type': captcha
+  '#captcha_type': recaptcha/reCAPTCHA
+actions:
+  '#type': webform_actions
+  '#title': 'Submit button(s)'
+  '#submit__label': 'Send message'

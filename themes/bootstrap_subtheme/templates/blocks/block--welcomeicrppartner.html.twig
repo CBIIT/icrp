@@ -22,29 +22,30 @@
 	<div id="welcome" class="tab-pane fade in active">
 	{# Old Code.  Rewrote to use partnerhomewelcome for both
 		{% if isManager=="true" %}
-			{{ drupal_block('partnerhomewelcomemanagereditbutton') }}
-			{{ drupal_block('partnerhomewelcomemanager') }}
+			{{ drupal_entity('block', 'bartik_powered') }}
+			{{ drupal_entity('block', 'partnerhomewelcomemanagereditbutton') }}
+			{{ drupal_entity('block', 'partnerhomewelcomemanager') }}
 		{% else %}
-			{{ drupal_block('partnerhomewelcome') }}
+			{{ drupal_entity('block', 'partnerhomewelcome') }}
 		{% endif %}
 		#}
-		{{ drupal_block('partnerhomewelcome') }}
+		{{ drupal_entity('block', 'partnerhomewelcome') }}
 		{% if isManager=="true" %}
-			{{ drupal_block('partnerhomewelcomemanager') }}
+			{{ drupal_entity('block', 'partnerhomewelcomemanager') }}
 		{% endif %}
 
 	</div>
 
 	<div id="partner-calendar" class="tab-pane fade">
 		{% if isManager=="true" %}
-			{{ drupal_block('partnerhomepartnercalendareditbutton') }}
+			{{ drupal_entity('block', 'partnerhomepartnercalendareditbutton') }}
 		{% endif %}
-		{{ drupal_block('partnerhomepartnercalendar') }}
+		{{ drupal_entity('block', 'partnerhomepartnercalendar') }}
 	</div>
 	<div id="partner-management" class="tab-pane fade">
 		{% if isManager=="true" %}
-			{{ drupal_block('partnerhomepartnermanagementeditbutton') }}
+			{{ drupal_entity('block', 'partnerhomepartnermanagementeditbutton') }}
 		{% endif %}
-		{{ drupal_block('partnerhomepartnermanagement') }}
+		{{ drupal_entity('block', 'partnerhomepartnermanagement') }}
 	</div>
 </div>

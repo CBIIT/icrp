@@ -174,7 +174,7 @@ function system_user_timezone(&$form, FormStateInterface $form_state) {
         $form['container']['name']['timezone'] = array(
             '#type' => 'select',
             '#title' => t('Time zone'),
-            '#default_value' => drupal_get_user_timezone(),
+            '#default_value' => date_default_timezone_get(),
             '#description' => t('Select the desired local time and time zone. Dates and times throughout this site will be displayed using this time zone.'),
             '#required' => TRUE,
             '#options' => system_time_zones(),
@@ -426,7 +426,8 @@ function system_user_timezone(&$form, FormStateInterface $form_state) {
             $this->entityManager->set($field, $form_values[$field]);
         }
         if (strlen($form_state->getValue('password_new')) > 0) {
-            drupal_set_message("Your new password has been saved.");
+            \Drupal::messenger()->addStatus("Your new password has been saved.");
+
             //drupal_set_message("NEW PASSWORD: ".$form_state->getValue('password_new'));
             $this->entityManager->setPassword($form_state->getValue('password_new'));
         }
@@ -436,7 +437,7 @@ function system_user_timezone(&$form, FormStateInterface $form_state) {
            drupal_set_message($key . ': ' . $value);
         }
         */
-        drupal_set_message("Your profile changes have been saved.");
+        \Drupal::messenger()->addStatus("Your profile changes have been saved.");
 
     }
 

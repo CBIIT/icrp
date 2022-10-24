@@ -23,7 +23,6 @@ function bootstrap_subtheme_suggestions_block_alter(array &$suggestions, array $
     // print $block_id . '<br/>';
 
     /* Add classes based on the block id. */
-    drupal_set_message("Hello");
     switch ($block_id) {
         /* Account Menu block */
         case 'account_menu':

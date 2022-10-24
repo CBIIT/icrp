@@ -9,6 +9,17 @@
      display:none;
  }
 
+.form-item--error-message {
+    display: block !important;
+    font-weight: 300;
+    color: red;
+    font-size: 13px;
+}
+.control-label {
+    margin-bottom: 0;
+}
+
+
 /* Fix Bootstrap Reading fonts */
 /* Suggested by Lee on 1/18/2017 */
 
@@ -194,7 +205,7 @@ div.views-field.views-field-nothing-1 {
 div#views-bootstrap-frequently-asked-questions-page-1 > div.panel {
     margin-bottom:21px;
 }
-/* Twig Tweak - drupal_block() fix */
+/* Twig Tweak - drupal_entity() fix */
 /* Show block in footer but hide it.  It is show elsewhere on the page. */
 footer > div > section#block-partnerhomewelcome,
 footer > div > section#block-partnerhomewelcomemanager,

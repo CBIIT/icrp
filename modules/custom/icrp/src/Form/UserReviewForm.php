@@ -4,6 +4,8 @@
  * Contains \Drupal\icrp\Form\UserReviewForm.
  */
 namespace Drupal\icrp\Form;
+use Drupal\node\Entity\Node;
+use Drupal\user\Entity\User;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
@@ -29,7 +31,7 @@ class UserReviewForm extends FormBase
         $current_uri = \Drupal::request()->getRequestUri();
         $uri_parts = explode("/", $current_uri);
         $uuid = $uri_parts[2];
-        $entity = \Drupal::entityManager()->loadEntityByUuid('user', $uuid);
+        $entity = \Drupal::service('entity.repository')->loadEntityByUuid('user', $uuid);       
 
         /* Load User Data */
         $uid = (int)$entity->id();
@@ -43,7 +45,7 @@ class UserReviewForm extends FormBase
 
         $field_organization_nid = $field_organization->getValue()[0]["target_id"];
         //drupal_set_message("Organization nid: ".$field_organization->getValue()[0]["target_id"]);
-        $node = \Drupal\node\Entity\Node::load($field_organization_nid);
+        $node = Node::load($field_organization_nid);
         $title_field = $node->get('title');
         $organization_title = $title_field->value;
 
@@ -242,7 +244,7 @@ class UserReviewForm extends FormBase
         $current_uri = \Drupal::request()->getRequestUri();
         $uri_parts = explode("/", $current_uri);
         $uuid = $uri_parts[2];
-        $entity = \Drupal::entityManager()->loadEntityByUuid('user', $uuid);
+        $entity = \Drupal::service('entity.repository')->loadEntityByUuid('user', $uuid);
 
         /* Load User Data */
         $uid = (int)$entity->id();
@@ -277,13 +279,14 @@ class UserReviewForm extends FormBase
         $user->save();
 
         // $this->bulkFieldUpdate();
-        drupal_set_message("User account for ".$user->getDisplayName()."  has been saved and is currently ".strtolower($membership_status).".");
+        \Drupal::messenger()->addStatus("User account for ".$user->getDisplayName()."  has been saved and is currently ".strtolower($membership_status).".");
+
     }
 
     // ensure all users have "General" access
     function bulkFieldUpdate() {
         $uids = \Drupal::entityQuery('user')->execute();
-        $users = \Drupal\user\Entity\User::loadMultiple($uids);
+        $users = User::loadMultiple($uids);
 
         foreach($users as $user) {
             $field_library_access = $user->get('field_library_access');

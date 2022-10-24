@@ -5,6 +5,7 @@
  */
 namespace Drupal\icrp\Form;
 
+use Drupal\Component\Utility\Random;
 use Drupal\Core\Database\Driver\mysql\Connection;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
@@ -253,7 +254,7 @@ class PartnerApplicationReviewForm extends FormBase
 
     private function displaySectionDetail($title, $body, array &$form, $panel_state="collpased") {
 
-        $random = new \Drupal\Component\Utility\Random();
+        $random = new Random();
         $uid = $random->name();
         // Make a new container on the form
         $markup = $this->bootstrapContatainer($title, $body, $panel_state);
@@ -331,7 +332,7 @@ class PartnerApplicationReviewForm extends FormBase
 
     private function bootstrapContatainer($title, $body, $panel_state="collapsed") {
         //drupal_set_message("bootstrapContatainer: ".$title);
-        $random = new \Drupal\Component\Utility\Random();
+        $random = new Random();
         $uid = $random->name();
         $panel_state = ($panel_state=="collapsed") ? "collapsed" : "";
         //drupal_set_message("panel_state: ".$panel_state);
@@ -417,7 +418,7 @@ class PartnerApplicationReviewForm extends FormBase
         */
         if ($result['result'] != true) {
             $message = t('There was a problem sending your email notification to @email.', array('@email' => $to));
-            drupal_set_message($message, 'error');
+            \Drupal::messenger()->addError($message);
             \Drupal::logger('mail-log')->error($message);
             return;
         }
@@ -445,7 +446,7 @@ class PartnerApplicationReviewForm extends FormBase
             $message = "Application  for ".$this->getValue('organization_name')." is now archived.";
         }
 
-        drupal_set_message(t($message));
+        \Drupal::messenger()->addStatus(t($message));
 
         $partial_form_values = [
             'id' => $this->sid,
@@ -479,7 +480,7 @@ class PartnerApplicationReviewForm extends FormBase
 
         return array_reduce(
             $submission_data,
-            function($accumulator = [], $row) {
+            function($accumulator = [], $row=[]) {
                 $accumulator[$row['name']] = $row['value'];
                 return $accumulator;
             }

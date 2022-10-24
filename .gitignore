@@ -48,6 +48,7 @@
 /temp/
 /libraries/
 !/libraries/fontawesome/
+!/libraries/fullcalendar/
 /components/
 /console
 
@@ -66,6 +67,7 @@
 /robots.txt
 /sites/README.txt
 /sites/default/default.settings.php
+/sites/default/settings.php.bak
 /update.php
 /web.config
 .vscode
@@ -97,3 +99,6 @@ package-lock.json
 /test.php
 node_modules
 .DS_Store
+/phpinfo.php
+/mssql_data
+/mysql_data

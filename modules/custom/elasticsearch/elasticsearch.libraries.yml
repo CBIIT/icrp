@@ -1,9 +1,0 @@
-resources:
-  version: 1.0
-  css:
-    theme:
-      src/assets/css/index.css: {}
-  js:
-    src/assets/js/index.js: {}
-  dependencies:
-    - core/jquery
