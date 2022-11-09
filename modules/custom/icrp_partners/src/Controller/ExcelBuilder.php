@@ -2,33 +2,48 @@
 
 namespace Drupal\icrp_partners\Controller;
 
-use Box\Spout\Writer\WriterFactory;
-use Box\Spout\Common\Type;
-use Box\Spout\Writer\Style\StyleBuilder;
+use Drupal;
+use PDO;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-class ExcelBuilder {
-    public static function export(string $filename, array $sheets = null) {
-        if(!sheets) return;
-        $writer = WriterFactory::create(Type::XLSX);
-        $writer->openToBrowser($filename);
-        $writer->setDefaultRowStyle(
-            (new StyleBuilder())
-            ->setShouldWrapText(false)
-            ->build()
-        );
+class ExcelBuilder
+{
+    public static function export(string $filename, array $sheets = null)
+    {
+        $exportsFolder = Drupal::config('icrp-tmp')->get('exports') ?? 'data/tmp/exports';
 
-        // write sheet data to each sheet
-        foreach ($sheets as $index => $sheet) {
-            $title = substr($sheet['title'], 0, 31);
-            $writer->getCurrentSheet()->setName($title);
-            $writer->addRows($sheet['rows']);
+        if (!file_exists($exportsFolder))
+            mkdir($exportsFolder, 0744, true);
 
-            if ($index < count($sheets) - 1)
-                $writer->addNewSheetAndMakeItCurrent();
+        $filePath = "$exportsFolder/$filename";
+
+        if ($sheets) {
+            $spreadsheet = new Spreadsheet();
+            $worksheet = $spreadsheet->getActiveSheet();
+
+            // write sheet data to each sheet
+            foreach ($sheets as $index => $sheetData) {
+                $title = substr($sheetData['title'], 0, 31);
+                $data = $sheetData['rows'];
+
+                $worksheet->setTitle($title);
+                $worksheet->fromArray($data);
+
+                if ($index < count($sheets) - 1) {
+                    $worksheet = $spreadsheet->createSheet();
+                }
+            }
+
+            $xlsx = new Xlsx($spreadsheet);
+            $xlsx->save($filePath);
+            return $filePath;
         }
-
-        $writer->close();
+        return ['ERROR' => 'No data specified.'];
     }
+
+
 
     /**
      * Sample array of sheets:
@@ -43,68 +58,75 @@ class ExcelBuilder {
      *
      *
      */
-    public static function exportQueries(string $filename, array $sheets) {
-        if(!sheets) return;
+    public static function exportQueries(string $filename, array $sheets)
+    {
+        if (!$sheets)
+            return;
+        $time = -microtime(TRUE);
+        $spreadsheet = new Spreadsheet();
+        $worksheet = $spreadsheet->getActiveSheet();
 
-        $writer = WriterFactory::create(Type::XLSX);
-        $writer->openToBrowser($filename);
-        $writer->setDefaultRowStyle(
-            (new StyleBuilder())
-            ->setShouldWrapText(false)
-            ->build()
-        );
+        foreach ($sheets as $index => $sheet) {
 
-        foreach($sheets as $index => $sheet) {
             $title = substr($sheet['title'], 0, 31);
-            $writer->getCurrentSheet()->setName($title);
             $query = $sheet['query'];
             $columns = $sheet['columns'] ?? [];
-            $filter = $sheet['filter'] ?? null;
-
+            $data = [];
             $query->execute();
 
             if (empty($columns)) {
-                while ($row = $query->fetch(PDO::FETCH_NUM)) {
-                    if (is_callable($filter) && !$filter($row))
-                        continue;
-                    $writer->addRow($row);
+
+                foreach (range(0, $query->columnCount() - 1) as $i) {
+                    $meta = $query->getColumnMeta($i);
+                    $columns[] = $meta['name'];
                 }
-            }
+                $data[] = $columns;
 
-            else {
-                $headers = array_map(function($column) {
-                    return is_array($column)
-                        ? $column['name']
-                        : $column;
-                }, array_values($columns));
+                while ($row = $query->fetch(PDO::FETCH_NUM)) {
+                    $data[] = $row;
+                }
+            } else {
+                $headers = array_map(
+                    function ($column) {
+                        return is_array($column)
+                            ? $column['name']
+                            : $column;
+                    },
+                    array_values($columns)
+                );
 
-                $writer->addRow($headers);
+                $data[] = $headers;
                 $columnDefs = array_keys($columns);
 
                 foreach ($query as $row) {
-                    if (is_callable($filter) && !$filter($row))
-                        continue;
-
                     $rowValues = [];
-                    foreach($columns as $columnKey => $columnDef) {
+                    foreach ($columns as $columnKey => $columnDef) {
                         if (is_array($columnDef)) {
                             $formatter = $columnDef['formatter'];
                             $rowValues[] = $formatter($row[$columnKey], $row);
-                        }
-
-                        else {
+                        } else {
                             $rowValues[] = $row[$columnKey];
                         }
                     }
 
-                    $writer->addRow($rowValues);
+                    $data[] = $rowValues;
                 }
             }
 
-            if ($index < count($sheets) - 1)
-                $writer->addNewSheetAndMakeItCurrent();
+            $worksheet->setTitle($title);
+            $worksheet->fromArray($data);
+
+            if ($index < count($sheets) - 1) {
+                $worksheet = $spreadsheet->createSheet();
+            }
         }
 
-        $writer->close();
+        $time += microtime(TRUE);
+        error_log("$filename created in $time seconds");
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename);
+        $writer->save('php://output');
     }
 }
