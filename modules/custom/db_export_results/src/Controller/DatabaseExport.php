@@ -874,23 +874,19 @@ class DatabaseExport {
           $worksheet = $spreadsheet->createSheet();
         }
       }
-
-      $xlsx = new Xlsx($spreadsheet);
-      $xlsx->save($filepath);
-      return $filepath;      
     }
 
-    function addSheetToWorkbook($writer, $sheet_name, $data) {
-      $writer->addNewSheetAndMakeItCurrent();
-      $writer->getCurrentSheet()->setName($sheet_name);
-      $writer->addRows($data);
+    function addSheetToWorkbook($spreadsheet, $sheet_name, $data) {
+      $worksheet = $spreadsheet->createSheet();
+      $worksheet->setTitle($sheet_name);
+      $worksheet->fromArray($data);
     }
 
     // if a data upload id was not specified, add a sheet containing search criteria
     // otherwise, do not include search criteria and instead use data review criteria
     $data_upload_id === NULL
-      ? addSheetToWorkbook($writer, 'Search Criteria', $this->getSearchCriteria($pdo, $search_id))
-      : addSheetToWorkbook($writer, 'Data Upload Review', $this->getDataReviewCriteria($pdo, $data_upload_id));
+      ? addSheetToWorkbook($spreadsheet, 'Search Criteria', $this->getSearchCriteria($pdo, $search_id))
+      : addSheetToWorkbook($spreadsheet, 'Data Upload Review', $this->getDataReviewCriteria($pdo, $data_upload_id));
 
     // Add currency rate and year to last workbook entry
     if (in_array($workbook_key, [
@@ -900,10 +896,11 @@ class DatabaseExport {
       self::EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET,
       self::EXPORT_CSO_CANCER_TYPES,
     ])) {
-      $writer->addRow(['Currency Conversion Year:', "$year"]);
+      addSheetToWorkbook($spreadsheet, 'Currency Conversion Year', [['Year', $year]]);
     }
 
-    $writer->close();
+    $xlsx = new Xlsx($spreadsheet);
+    $xlsx->save($filepath);
     return $paths['uri'];
   }
 
