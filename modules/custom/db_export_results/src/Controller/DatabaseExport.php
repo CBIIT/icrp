@@ -6,10 +6,6 @@ use DateTime;
 use PDO;
 use PDOStatement;
 
-use Box\Spout\Writer\WriterFactory;
-use Box\Spout\Common\Type;
-use Box\Spout\Writer\Style\StyleBuilder;
-
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Chart\Chart;
@@ -762,20 +758,17 @@ class DatabaseExport {
   ): string {
 
     $paths = $this->buildOutputPaths($filename);
-    $writer = WriterFactory::create(Type::XLSX);
-    $writer->openToFile($paths['filepath']);
-    $writer->setDefaultRowStyle(
-      (new StyleBuilder())
-        ->setShouldWrapText(false)
-        ->build()
-    );
+    $filepath = $paths['filepath'];
 
+    $spreadsheet = new Spreadsheet();
     $sheet_definitions = $this->EXPORT_MAP[$workbook_key];
     $sheet_definition_keys = array_keys($sheet_definitions);
     $last_key = end($sheet_definition_keys);
+    $worksheet = $spreadsheet->getActiveSheet();
 
     // loop through each sheet's definition
     foreach($sheet_definitions as $sheet_name => $sheet_definition) {
+      $sheet_data = [];
 
       // determine the query for the current sheet
       $sheet_query = $sheet_definition['query'];
@@ -786,9 +779,6 @@ class DatabaseExport {
       $column_formatter = $sheet_definition['column_formatter'] ?? null;
 
       $record_formatter = $sheet_definition['record_formatter'] ?? null;
-
-      // set the name of the current sheet
-      $writer->getCurrentSheet()->setName($sheet_name);
 
       // set up query parameters
       $parameters = [
@@ -830,7 +820,7 @@ class DatabaseExport {
         }
 
         // add headers to the current sheet
-        $writer->addRow($column_names);
+        $sheet_data[] = $column_names;
 
         // iterate over each of the rows in the results
         // if we are using all table columns, we may insert each row without processing it
@@ -841,7 +831,7 @@ class DatabaseExport {
           // the number of checks when no $record_formatter is specified
           if (is_callable($record_formatter)) {
             while ($row = $results->fetch(PDO::FETCH_NUM)) {
-              $writer->addRow(
+              $sheet_data[] = (
                 array_map(function($value) use ($record_formatter) {
                   return $record_formatter(substr($value, 0, 32767));
                 }, $row)
@@ -850,7 +840,7 @@ class DatabaseExport {
           // this case should have identical performance to the original implementation
           } else {
             while ($row = $results->fetch(PDO::FETCH_NUM)) {
-              $writer->addRow(
+              $sheet_data[] = (
                 array_map(function($value) {
                   return substr($value, 0, 32767);
                 }, $row)
@@ -863,7 +853,7 @@ class DatabaseExport {
         else {
           $columns = array_keys($sheet_columns);
           while ($row = $results->fetch(PDO::FETCH_ASSOC)) {
-            $writer->addRow(
+            $sheet_data[] = (
               array_map(function($column) use ($row, $record_formatter) {
                 if (array_key_exists($column, $row)) {
                   $value = substr($row[$column], 0, 32767);
@@ -876,26 +866,27 @@ class DatabaseExport {
             );
           }
         }
+        
+        $worksheet->setTitle($sheet_name);
+        $worksheet->fromArray($sheet_data);
 
-        // after writing all rows for the current query,
-        // create a new sheet (if there are any sheets left)
         if ($sheet_name !== $last_key) {
-          $writer->addNewSheetAndMakeItCurrent();
+          $worksheet = $spreadsheet->createSheet();
         }
       }
     }
 
-    function addSheetToWorkbook($writer, $sheet_name, $data) {
-      $writer->addNewSheetAndMakeItCurrent();
-      $writer->getCurrentSheet()->setName($sheet_name);
-      $writer->addRows($data);
+    function addSheetToWorkbook($spreadsheet, $sheet_name, $data) {
+      $worksheet = $spreadsheet->createSheet();
+      $worksheet->setTitle($sheet_name);
+      $worksheet->fromArray($data);
     }
 
     // if a data upload id was not specified, add a sheet containing search criteria
     // otherwise, do not include search criteria and instead use data review criteria
     $data_upload_id === NULL
-      ? addSheetToWorkbook($writer, 'Search Criteria', $this->getSearchCriteria($pdo, $search_id))
-      : addSheetToWorkbook($writer, 'Data Upload Review', $this->getDataReviewCriteria($pdo, $data_upload_id));
+      ? addSheetToWorkbook($spreadsheet, 'Search Criteria', $this->getSearchCriteria($pdo, $search_id))
+      : addSheetToWorkbook($spreadsheet, 'Data Upload Review', $this->getDataReviewCriteria($pdo, $data_upload_id));
 
     // Add currency rate and year to last workbook entry
     if (in_array($workbook_key, [
@@ -905,10 +896,16 @@ class DatabaseExport {
       self::EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET,
       self::EXPORT_CSO_CANCER_TYPES,
     ])) {
-      $writer->addRow(['Currency Conversion Year:', "$year"]);
+      $lastSheetIndex = $spreadsheet->getSheetCount() - 1;
+      $worksheet = $spreadsheet->getSheet($lastSheetIndex);
+      $row = $worksheet->getHighestRow() + 1;
+      $worksheet->insertNewRowBefore($row);
+      $worksheet->setCellValue('A'.$row, 'Currency Conversion Year:');
+      $worksheet->setCellValue('B'.$row, $year);
     }
 
-    $writer->close();
+    $xlsx = new Xlsx($spreadsheet);
+    $xlsx->save($filepath);
     return $paths['uri'];
   }
 
