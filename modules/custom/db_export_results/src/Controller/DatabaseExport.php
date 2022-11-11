@@ -896,7 +896,12 @@ class DatabaseExport {
       self::EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET,
       self::EXPORT_CSO_CANCER_TYPES,
     ])) {
-      addSheetToWorkbook($spreadsheet, 'Currency Conversion Year', [['Year', $year]]);
+      $lastSheetIndex = $spreadsheet->getSheetCount() - 1;
+      $worksheet = $spreadsheet->getSheet($lastSheetIndex);
+      $row = $worksheet->getHighestRow() + 1;
+      $worksheet->insertNewRowBefore($row);
+      $worksheet->setCellValue('A'.$row, 'Currency Conversion Year:');
+      $worksheet->setCellValue('B'.$row, $year);
     }
 
     $xlsx = new Xlsx($spreadsheet);
