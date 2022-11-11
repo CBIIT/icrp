@@ -2,42 +2,42 @@
 
 namespace Drupal\data_load\Services;
 
-use Box\Spout\Writer\WriterFactory;
-use Box\Spout\Common\Type;
-use Box\Spout\Writer\Style\StyleBuilder;
+use Drupal;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ExcelBuilder {
-  public static function create(string $filename, array $sheets = null) {
+  public static function create(string $filename, array $sheets = null)
+  {
+      $exportsFolder = Drupal::config('icrp-tmp')->get('exports') ?? 'data/tmp/exports';
 
-    $exportsFolder = \Drupal::config('icrp-tmp')->get('exports') ?? 'data/tmp/exports';
+      if (!file_exists($exportsFolder))
+          mkdir($exportsFolder, 0744, true);
 
-    if (!file_exists($exportsFolder))
-      mkdir($exportsFolder, 0744, true);
+      $filePath = "$exportsFolder/$filename";
 
-    $filePath = "$exportsFolder/$filename";
+      if ($sheets) {
+          $spreadsheet = new Spreadsheet();
+          $worksheet = $spreadsheet->getActiveSheet();
 
-    if ($sheets) {
-      $writer = WriterFactory::create(Type::XLSX);
-      $writer->openToFile($filePath);
-      $writer->setDefaultRowStyle(
-        (new StyleBuilder())
-          ->setShouldWrapText(false)
-          ->build()
-      );
+          // write sheet data to each sheet
+          foreach ($sheets as $index => $sheetData) {
+              $title = substr($sheetData['title'], 0, 31);
+              $data = $sheetData['rows'];
 
-      // write sheet data to each sheet
-      foreach ($sheets as $index => $sheet) {
-        $title = substr($sheet['title'], 0, 31);
-        $writer->getCurrentSheet()->setName($title);
-        $writer->addRows($sheet['rows']);
+              $worksheet->setTitle($title);
+              $worksheet->fromArray($data);
 
-        if ($index < count($sheets) - 1)
-          $writer->addNewSheetAndMakeItCurrent();
+              if ($index < count($sheets) - 1) {
+                  $worksheet = $spreadsheet->createSheet();
+              }
+          }
+
+          $xlsx = new Xlsx($spreadsheet);
+          $xlsx->save($filePath);
+          return $filePath;
       }
-
-      $writer->close();
-      return $filePath;
-    }
-    return ['ERROR' => 'No data specified.'];
-  }
+      return ['ERROR' => 'No data specified.'];
+  }  
 }
