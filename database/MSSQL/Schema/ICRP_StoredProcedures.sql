@@ -38,6 +38,7 @@ CREATE PROCEDURE [dbo].[GetProjectsByCriteria]
 	@searchCriteriaID INT OUTPUT,  -- return the searchID	
 	@ResultCount INT OUTPUT  -- return the searchID	
 	
+	
 AS   
 	DECLARE @IsFiltered bit = 0
 	
@@ -261,8 +262,24 @@ AS
 	DECLARE @TotalRelatedProjectCount INT
 	DECLARE @LastBudgetYear INT
 
-	SELECT DISTINCT ProjectID, AwardCode INTO #baseProj FROM #projFunding	
+	--SELECT DISTINCT ProjectID, AwardCode INTO #baseProj FROM #projFunding	
 	
+	-- Find out the base project: if Category = parent, otherwise the first projectfunding inserted
+	SELECT DISTINCT ProjectID, AwardCode, 99999 AS ProjectFundingID		
+	INTO #baseProj 
+	FROM #projFunding
+
+	update #baseProj
+	SET ProjectFundingID =
+		CASE p.projectfundingID 
+			WHEN NULL THEN f.ProjectFundingID
+			ELSE p.ProjectFundingID
+		END
+	from #baseProj b
+	JOIN  (SELECT projectid, projectfundingID FROM #projFunding WHERE Category='parent') p ON b.ProjectID = p.ProjectID
+	JOIN  (SELECT ProjectID, MIN(projectfundingID) AS projectfundingID FROM projectfunding GROUP BY ProjectID) f ON b.ProjectID = f.ProjectID
+	
+
 	SELECT @ResultCount=COUNT(*) FROM #baseProj	
 	SELECT @TotalRelatedProjectCount=COUNT(*) FROM (SELECT DISTINCT ProjectFundingID FROM #projFunding) u	
 	SELECT @LastBudgetYear=DATEPART(year, MAX(BudgetEndDate)) FROM #projFunding	
@@ -301,13 +318,13 @@ AS
 	-- Sort and Pagination
 	--   Note: Return only base projects and projects' most recent funding
 	--------------------------------------------------------------------vvvv
-	SELECT base.ProjectID, base.AwardCode, f.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName,
+	SELECT base.ProjectID, base.AwardCode, base.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName,
 	 pi.ORC_ID AS piORCiD, i.Name AS institution, f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort
 	FROM #baseProj base
-		JOIN (SELECT ProjectID, MIN(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding GROUP BY ProjectID) basef ON base.ProjectID = basef.ProjectID
-		JOIN ProjectFunding f ON basef.ProjectFundingID = f.ProjectFundingID
+		JOIN (SELECT ProjectID, MIN(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding GROUP BY ProjectID) maxf ON base.ProjectID = maxf.ProjectID
+		JOIN ProjectFunding f ON base.ProjectFundingID = f.ProjectFundingID
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
-		JOIN (SELECT * FROM ProjectFundingInvestigator  WHERE IsPrincipalInvestigator = 1) pi ON pi.ProjectFundingID = basef.ProjectFundingID
+		JOIN (SELECT * FROM ProjectFundingInvestigator  WHERE IsPrincipalInvestigator = 1) pi ON pi.ProjectFundingID = base.ProjectFundingID
 		JOIN Institution i ON pi.InstitutionID = i.InstitutionID
 	ORDER BY 
 		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'ASC ' THEN f.Title  END ASC, --title ASC
@@ -333,7 +350,9 @@ AS
 		CASE WHEN @PageNumber IS NULL THEN 999999999 ELSE ISNULL(@PageSize,50)
 		END ROWS ONLY
 
+
 GO
+
 
 
 ----------------------------------------------------------------------------------------------------------
