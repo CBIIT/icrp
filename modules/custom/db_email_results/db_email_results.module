@@ -7,7 +7,7 @@
 
 function db_email_results_mail($key, &$message, $params) {
   $message['subject'] = $params['subject'];
-  $message['body'][] = $params['body'];
+  $message['body'][] = \Drupal\Core\Mail\MailFormatHelper::htmlToText($params['body']);
 }
 
 ?>
