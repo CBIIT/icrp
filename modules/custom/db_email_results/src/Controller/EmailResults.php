@@ -68,7 +68,7 @@ class EmailResults {
     ]);
 
     foreach($recipient_addresses as $recipient_address) {
-      $result = $mail_manager->mail(
+      $message = $mail_manager->mail(
         'db_email_results',
         'email_search_results',
         $recipient_address,
@@ -81,7 +81,7 @@ class EmailResults {
         true
       );
 
-      if (!$result['result'] != true) {
+      if (!$message['send']) {
         return [
           'success' => false,
           'error'   => "Could not send message to $recipient_address",
