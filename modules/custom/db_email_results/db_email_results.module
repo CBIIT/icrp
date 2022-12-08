@@ -2,8 +2,12 @@
 
 /**
  * @file
- * ICRP DB Project View module.
+ * ICRP DB Email Results module.
  */
 
+function db_email_results_mail($key, &$message, $params) {
+  $message['subject'] = $params['subject'];
+  $message['body'][] = $params['body'];
+}
 
 ?>
