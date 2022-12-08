@@ -252,17 +252,19 @@
     padding: 5px 1em;
     text-align: center;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 #library-display .frame.preview .item img {
     display: block;
     float: left;
-    height: 200px;
+    height: 240px;
     margin: 0px 10px 10px;
-    width: 150px;
+    width: 160px;
 }
 #library-display .frame.preview .item p {
     margin-bottom: 2em;
-    max-height: 10em;
+    max-height: 200px;
     overflow: auto;
 }
 #library-display .frame.preview .item div {
