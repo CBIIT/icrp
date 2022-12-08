@@ -26,12 +26,15 @@ class EmailResults {
    */
   private static function createMessage(array $properties): string {
     return "
-      $properties[sender_name] wants to share their ICRP search results. <br /><br />
-      Please review their search results on the ICRP website: <br />
-      <a href='$properties[search_results_url]'>$properties[search_results_url]</a><br />
-      Message from <a href='mailto:$properties[sender_address]'>$properties[sender_address]: </a><br />
-      $properties[personal_message] <br /><br />
-      The search results will be available for 30 days.
+$properties[sender_name] wants to share their ICRP search results.
+
+Please review their search results on the ICRP website:
+$properties[search_results_url]
+
+Message from $properties[sender_address]:
+$properties[personal_message]
+
+The search results will be available for 30 days.
     ";
   }
 
