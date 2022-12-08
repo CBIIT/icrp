@@ -7,8 +7,6 @@
 namespace Drupal\db_email_results\Controller;
 
 use Drupal;
-use PHPMailer;
-use PDO;
 use PDOException;
 
 class EmailResults {
@@ -38,49 +36,6 @@ class EmailResults {
   }
 
   /**
-   * createEmail
-   *
-   * @param array $properties An array containing the required properties for this email
-   *  $properties = [
-   *    'config' => [
-   *      'email_host'        => (string) The SMTP server
-   *      'email_username'    => (string) SMTP username
-   *      'email_password'    => (string) SMTP password
-   *      'email_port'        => (number) TCP port to connect to
-   *    ]
-   *    'sender_address'    => (string) The sender's email address
-   *    'recipient_address' => (string) The recipient's email address
-   *    'subject'           => (string) The subject of the email
-   *    'body'              => (string) The body of the email
-   *    'attachments'       => (array)  Filepaths for email attachments
-   *  ]
-   *
-   * @return PHPMailer The generated PHPMailer object
-   */
-  private static function createEmail(array $properties): PHPMailer {
-    $mail = new PHPMailer();
-    $mail->isSMTP();
-    $mail->Host       = $properties['config']['email_host'];
-    $mail->Username   = $properties['config']['email_username'];
-    $mail->Password   = $properties['config']['email_password'];
-    $mail->Port       = $properties['config']['email_port'];
-    $mail->SMTPAuth   = true;
-    $mail->SMTPSecure = 'ssl';
-
-    $mail->isHTML(true);
-    $mail->setFrom($properties['sender_address']);
-    $mail->addAddress($properties['recipient_address']);
-    $mail->Subject    = $properties['subject'];
-    $mail->Body       = $properties['body'];
-
-    foreach($properties['attachments'] as $attachment) {
-      $mail->addAttachment($attachment);
-    }
-
-    return $mail;
-  }
-
-  /**
    * sendEmail
    *
    * @param array $properties An array containing the required properties for this email
@@ -100,6 +55,9 @@ class EmailResults {
    *   ]
    */
   public static function sendEmail(array $properties): array {
+    $mail_manager = Drupal::service('plugin.manager.mail');
+    $sender = Drupal::config('system.site')->get('mail');
+    $langcode = Drupal::languageManager()->getCurrentLanguage()->getId();
     $recipient_addresses = explode(',', $properties['recipient_addresses']);
     $subject = $properties['sender_name'] . ' wants to share their ICRP search results';
     $body = self::createMessage([
@@ -110,19 +68,23 @@ class EmailResults {
     ]);
 
     foreach($recipient_addresses as $recipient_address) {
-      $email = self::createEmail([
-        'config'            => Drupal::config('icrp_email')->get(),
-        'sender_address'    => $properties['sender_address'],
-        'recipient_address' => $recipient_address,
-        'subject'           => $subject,
-        'body'              => $body,
-        'attachments'       => array_filter($properties['attachments'], 'file_exists'),
-      ]);
+      $result = $mail_manager->mail(
+        'db_email_results',
+        'email_search_results',
+        $recipient_address,
+        $langcode,
+        [
+          'subject' => $subject,
+          'body' => $body,
+        ],
+        $sender,
+        true
+      );
 
-      if(!$email->send()) {
+      if (!$result['result'] != true) {
         return [
           'success' => false,
-          'error'   => $email->ErrorInfo,
+          'error'   => "Could not send message to $recipient_address",
         ];
       }
     }
