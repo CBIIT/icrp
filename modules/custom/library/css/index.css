@@ -251,7 +251,7 @@
     margin: 0px 0px 10px;
     padding: 5px 1em;
     text-align: center;
-    white-space: nowrap;
+    /* white-space: nowrap; */
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -457,6 +457,7 @@
     }
     #library-display .frame.preview .item {
         width: 32em;
+        height: 300px;
     }
 }
 @media (max-width: 479px) {
