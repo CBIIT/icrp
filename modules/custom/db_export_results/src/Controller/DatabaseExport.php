@@ -668,7 +668,7 @@ class DatabaseExport {
             $dataSeriesValues        // plotValues
         );
 
-        $series->setPlotDirection(DataSeries::DIRECTION_COL);
+        // $series->setPlotDirection(DataSeries::DIRECTION_COL);
 
         $layout = (new Layout())
           ->setShowVal(TRUE);
@@ -690,7 +690,7 @@ class DatabaseExport {
           $legend, // legend
           $plotArea, // plotArea
           true, // plotVisibleOnly
-          0, // displayBlanksAs
+          DataSeries::EMPTY_AS_GAP, // displayBlanksAs
           $xAxisLabel, // xAxisLabel
           $yAxisLabel  // yAxisLabel
         );
@@ -946,34 +946,4 @@ class DatabaseExport {
     return $data;
   }
 
-  function writeArrayToWorksheet($data, &$sheet) {
-    for ($row = 0; $row < count($data); $row ++) {
-      for ($column = 0; $column < count($data[$row]); $column ++) {
-        $sheet->setCellValueByColumnAndRow($column, $row + 1, $data[$row][$column]);
-      }
-    }
-
-    return $sheet;
-  }
-
-  function addArrayAsWorksheet($data, $sheet_title, $filepath) {
-    $excel = \PHPExcel_IOFactory::createReader('Excel2007')->load($filepath);
-    $sheet = $excel->createSheet();
-    $sheet->setTitle($sheet_title);
-    $sheet = $this->writeArrayToWorksheet($data, $sheet);
-
-    $writer = \PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
-    $writer->setIncludeCharts(true);
-    $writer->save($filepath);
-  }
-
-  function addSearchCriteria($pdo, $filepath, int $search_id) {
-    $data = self::getSearchCriteria($pdo, $search_id);
-    $this->addArrayAsWorksheet($data, 'Search Criteria', $filepath);
-  }
-
-  function addDataReviewCriteria($pdo, $filepath, int $data_upload_id) {
-    $data = self::getDataReviewCriteria($pdo, $data_upload_id);
-    $this->addArrayAsWorksheet($data, 'Data Upload Review', $filepath);
-  }
 }
