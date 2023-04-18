@@ -3796,7 +3796,8 @@ AS
 SELECT c.SearchCriteriaID INTO #old 
 FROM searchresult r
 	join searchCriteria c ON r.SearchCriteriaID = c.SearchCriteriaID
-WHERE (c.SearchCriteriaID <> 0) AND (ISNULL(IsEmailSent, 0) = 0 OR DATEDIFF(DAY, c.SearchDate, getdate()) > 30)  -- only keep results for 30 days
+WHERE (c.SearchCriteriaID NOT IN (0, 47881, 47884)) AND  -- SearchID 0 is the default search criteria; others are used by CGH website - DO NOT DELETE!
+	  (ISNULL(IsEmailSent, 0) = 0 OR DATEDIFF(DAY, c.SearchDate, getdate()) > 30)  -- only keep results for 30 days
 
 DELETE searchresult
 WHERE  SearchCriteriaID IN (SELECT SearchCriteriaID FROM #old)
