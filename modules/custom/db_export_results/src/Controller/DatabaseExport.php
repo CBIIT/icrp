@@ -59,7 +59,7 @@ class DatabaseExport {
         'Search Results' => [
           'query' => 'EXECUTE GetProjectExportsBySearchID         @SearchID=:search_id, @includeAbstract=0, @SiteURL=:site_url, @Year = :year',
           'columns' =>  [
-            'ProjectID'            => 'ICRP Project ID',
+            'ICRPProjectID'        => 'ICRP Project ID',
             'ICRPProjectFundingID' => 'ICRP Project Funding ID',
             'AltAwardCode'         => 'Alt. Award Code',
             'AwardTitle'           => 'Project Title',
