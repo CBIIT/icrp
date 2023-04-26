@@ -8,6 +8,8 @@ RUN dnf -y update \
     cyrus-sasl-plain \
     git \
     httpd \
+    libtool-ltdl \
+    libtool-ltdl-devel \
     libzip-devel \
     make \
     mod_fcgid \
@@ -44,7 +46,8 @@ RUN dnf -y update \
 
 RUN alternatives --set mta /usr/sbin/sendmail.postfix
 
-RUN pecl install \
+RUN pecl channel-update pecl.php.net \
+ && pecl install \
     pdo_sqlsrv \
     sqlsrv \
     zip
