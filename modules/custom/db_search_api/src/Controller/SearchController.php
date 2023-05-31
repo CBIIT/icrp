@@ -54,6 +54,7 @@ class SearchController extends ControllerBase {
     'countries'                  => NULL,
     'states'                     => NULL,
     'cities'                     => NULL,
+    'income_groups'              => NULL,
     'funding_organization_types' => NULL,
     'funding_organizations'      => NULL,
     'cancer_types'               => NULL,

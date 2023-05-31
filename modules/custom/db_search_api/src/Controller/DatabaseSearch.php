@@ -32,6 +32,7 @@ class DatabaseSearch {
     'countries'                  => 'CountryList',
     'states'                     => 'StateList',
     'cities'                     => 'CityList',
+    'income_groups'              => 'incomeGroupList',
     'funding_organization_types' => 'FundingOrgTypeList',
     'funding_organizations'      => 'FundingOrgList',
     'is_childhood_cancer'        => 'ChildhoodCancerList',
@@ -129,6 +130,14 @@ class DatabaseSearch {
       ['value' => 2, 'label' => 'Partially Childhood'],
     ];
 
+    $fields['income_groups'] = [
+      ['value' => 'H', 'label' => 'High Income (H)'],
+      ['value' => 'MU', 'label' => 'Upper Middle Income (MU)'],
+      ['value' => 'ML', 'label' => 'Lower Middle Income (ML)'],
+      ['value' => 'L', 'label' => 'Low Income (L)'],
+      ['value' => 'NC', 'label' => 'Not classified'],
+    ];
+
     return $fields;
   }
 
@@ -170,6 +179,7 @@ class DatabaseSearch {
       'countries'                    => split($results['CountryList']),
       'states'                       => split($results['StateList']),
       'cities'                       => split($results['CityList']),
+      'income_groups'                => split($results['incomeGroupList']),
       'funding_organizations'        => split($results['FundingOrgList']),
       'funding_organization_types'   => split($results['FundingOrgTypeList']),
       'is_childhood_cancer'          => split($results['ChildhoodCancerList']),
@@ -470,6 +480,7 @@ class DatabaseSearch {
         @countryList          = :countries,
         @stateList            = :states,
         @cityList             = :cities,
+        @incomeGroupList      = :income_groups,
         @FundingOrgTypeList   = :funding_organization_types,
         @fundingOrgList       = :funding_organizations,
         @cancerTypeList       = :cancer_types,
