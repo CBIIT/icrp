@@ -179,7 +179,7 @@ class DatabaseSearch {
       'countries'                    => split($results['CountryList']),
       'states'                       => split($results['StateList']),
       'cities'                       => split($results['CityList']),
-      'income_groups'                => split($results['incomeGroupList']),
+      'income_groups'                => split($results['IncomeGroupList']),
       'funding_organizations'        => split($results['FundingOrgList']),
       'funding_organization_types'   => split($results['FundingOrgTypeList']),
       'is_childhood_cancer'          => split($results['ChildhoodCancerList']),
