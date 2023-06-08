@@ -135,7 +135,7 @@ class DatabaseSearch {
       ['value' => 'MU', 'label' => 'Upper Middle Income (MU)'],
       ['value' => 'ML', 'label' => 'Lower Middle Income (ML)'],
       ['value' => 'L', 'label' => 'Low Income (L)'],
-      ['value' => 'NC', 'label' => 'Not classified'],
+      ['value' => 'NC', 'label' => 'Not classified (NC)'],
     ];
 
     return $fields;
