@@ -29,6 +29,7 @@ CREATE PROCEDURE [dbo].[GetProjectsByCriteria]
 	@stateList varchar(1000) = NULL,
 	@countryList varchar(1000) = NULL,
 	@regionList varchar(100) = NULL,
+	@incomeGroupList varchar(1000) = NULL,
 	@FundingOrgTypeList varchar(50) = NULL,
 	@fundingOrgList varchar(1000) = NULL, 
 	@cancerTypeList varchar(1000) = NULL, 
@@ -114,6 +115,19 @@ AS
 		DELETE FROM #projFunding 
 		WHERE ProjectFundingID NOT IN 			
 			(SELECT ProjectFundingID FROM #projFunding WHERE [Country] IN (SELECT * FROM dbo.ToStrTable(@countryList)))				
+	END
+	
+	-------------------------------------------------------------------------
+	-- Exclude the projects which income groups do NOT meet the criteria
+	-------------------------------------------------------------------------
+	IF @incomeGroupList  IS NOT NULL
+	BEGIN
+		SET @IsFiltered = 1	
+
+		DELETE FROM #projFunding 
+		WHERE ProjectFundingID NOT IN 			
+			(SELECT ProjectFundingID FROM #projFunding pf JOIN 
+			 CountryMapLayer cm ON pf.country = cm.Country WHERE cm.value IN (SELECT * FROM dbo.ToStrTable(@incomeGroupList)))				
 	END
 	
 	-------------------------------------------------------------------------
@@ -299,8 +313,8 @@ AS
 		FROM #baseProj	
 
 		INSERT INTO SearchCriteria ([termSearchType],[terms],[institution],[piLastName],[piFirstName],[piORCiD],[awardCode],
-			[yearList], [cityList],[stateList],[countryList],[regionList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList], [InvestigatorType])
-			VALUES ( @termSearchType,@terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode,@yearList,@cityList,@stateList,@countryList,@regionList,
+			[yearList], [cityList],[stateList],[countryList],[incomeGroupList],[regionList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList], [InvestigatorType])
+			VALUES ( @termSearchType,@terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode,@yearList,@cityList,@stateList,@countryList,@incomeGroupList,@regionList,
 				@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList, @FundingOrgTypeList,	@ChildhoodCancerList, @InvestigatorType)
 									 
 		SELECT @searchCriteriaID = SCOPE_IDENTITY()		
@@ -607,6 +621,7 @@ AS
 
 	DECLARE @ProjectIDs VARCHAR(max) 	
 	DECLARE @CountryList VARCHAR(1000) = NULL
+	DECLARE @IncomeGroupList VARCHAR(1000) = NULL
 	DECLARE @cityList varchar(1000) = NULL 
 	DECLARE @stateList varchar(1000) = NULL	
 	DECLARE @regionList varchar(100) = NULL	
@@ -635,6 +650,7 @@ AS
 		-- get search criteria to filter project funding records
 		SELECT @YearList = YearList,
 				@CountryList = CountryList,
+				@IncomeGroupList = IncomeGroupList,
 				@CSOlist = CSOlist,
 				@CancerTypelist = CancerTypelist,
 				@InvestigatorType = InvestigatorType,
@@ -661,11 +677,13 @@ AS
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
-		JOIN Institution i ON i.InstitutionID = people.InstitutionID		
+		JOIN Institution i ON i.InstitutionID = people.InstitutionID	
+		JOIN CountryMapLayer cm ON i.country = cm.Country
 		JOIN (SELECT InstitutionID, projectFundingID FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON f.projectFundingID = pi.projectFundingID	  -- find PI country		
 		JOIN Institution pii ON pi.InstitutionID = pii.InstitutionID		-- get PI country
 		JOIN Country c ON c.Abbreviation = i.Country
 	 WHERE  ((@CountryList IS NULL) OR (i.[Country] IN (SELECT VALUE AS Country FROM dbo.ToStrTable(@countryList)))) AND
+			((@IncomeGroupList IS NULL) OR (cm.[VALUE] IN (SELECT VALUE AS IncomeBand FROM dbo.ToStrTable(@IncomeGroupList)))) AND
 			((@InvestigatorType IS NULL) OR (@InvestigatorType = 'PI' AND people.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND ISNULL(people.IsPrincipalInvestigator, 0) = 0)) AND   -- Search only PI, Collaborators or all
 			((@institution IS NULL) OR (i.Name like '%'+ @institution +'%')) AND			
 			((@piLastName IS NULL) OR (people.LastName like '%'+ @piLastName +'%')) AND 
@@ -787,6 +805,7 @@ AS
 
 	DECLARE @ProjectIDs VARCHAR(max)	
 	DECLARE @CountryList VARCHAR(1000) = NULL
+	DECLARE @IncomeGroupList VARCHAR(1000) = NULL
 	DECLARE @cityList varchar(1000) = NULL 
 	DECLARE @stateList varchar(1000) = NULL	
 	DECLARE @regionList varchar(100) = NULL	
@@ -814,6 +833,7 @@ AS
 		
 			SELECT @YearList = YearList,
 				@CountryList = CountryList,
+				@IncomeGroupList = IncomeGroupList,
 				@CSOlist = CSOlist,
 				@CancerTypelist = CancerTypelist,
 				@InvestigatorType = InvestigatorType,
@@ -892,6 +912,7 @@ AS
 			(SELECT DISTINCT f.ProjectFundingID FROM  #pf f
 				JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
 				JOIN Institution i ON pi.InstitutionID = i.InstitutionID	
+				JOIN CountryMapLayer cm ON i.country = cm.Country
 				JOIN Country c ON i.Country = c.Abbreviation							
 			WHERE	((@institution IS NULL) OR (i.Name like '%'+ @institution +'%')) AND
 					((@InvestigatorType IS NULL) OR (@InvestigatorType = 'PI' AND pi.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND ISNULL(pi.IsPrincipalInvestigator, 0) = 0)) AND   -- Search only PI, Collaborators or all
@@ -899,6 +920,7 @@ AS
 					((@piFirstName IS NULL) OR (pi.FirstName like '%'+ @piFirstName +'%')) AND
 					((@piORCiD IS NULL) OR (pi.ORC_ID like '%'+ @piORCiD +'%')) AND
 					((@CountryList IS NULL) OR (i.Country IN (SELECT VALUE AS Country FROM dbo.ToStrTable(@CountryList)))) AND
+					((@IncomeGroupList IS NULL) OR (cm.[VALUE] IN (SELECT VALUE AS IncomeBand FROM dbo.ToStrTable(@IncomeGroupList)))) AND
 					((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
 					((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
 					((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))))
@@ -965,6 +987,7 @@ AS
 
 	DECLARE @ProjectIDs VARCHAR(max) 	
 	DECLARE @CountryList VARCHAR(1000) = NULL
+	DECLARE @IncomeGroupList VARCHAR(1000) = NULL
 	DECLARE @cityList varchar(1000) = NULL 
 	DECLARE @stateList varchar(1000) = NULL	
 	DECLARE @regionList varchar(100) = NULL	
@@ -993,6 +1016,7 @@ AS
 		
 			SELECT @YearList = YearList,
 				@CountryList = CountryList,
+				@IncomeGroupList = IncomeGroupList,
 				@CSOlist = CSOlist,
 				@CancerTypelist = CancerTypelist,
 				@InvestigatorType = InvestigatorType,
@@ -1070,7 +1094,8 @@ AS
 		DELETE #pf WHERE ProjectFundingID NOT IN
 			(SELECT DISTINCT f.ProjectFundingID FROM  #pf f
 				JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
-				JOIN Institution i ON pi.InstitutionID = i.InstitutionID	
+				JOIN Institution i ON pi.InstitutionID = i.InstitutionID
+				JOIN CountryMapLayer cm ON i.country = cm.Country	
 				JOIN Country c ON i.Country = c.Abbreviation							
 			WHERE	((@institution IS NULL) OR (i.Name like '%'+ @institution +'%')) AND
 					((@InvestigatorType IS NULL) OR (@InvestigatorType = 'PI' AND pi.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND ISNULL(pi.IsPrincipalInvestigator, 0) = 0)) AND   -- Search only PI, Collaborators or all
@@ -1078,6 +1103,7 @@ AS
 					((@piFirstName IS NULL) OR (pi.FirstName like '%'+ @piFirstName +'%')) AND
 					((@piORCiD IS NULL) OR (pi.ORC_ID like '%'+ @piORCiD +'%')) AND
 					((@CountryList IS NULL) OR (i.Country IN (SELECT VALUE AS Country FROM dbo.ToStrTable(@CountryList)))) AND
+					((@IncomeGroupList IS NULL) OR (cm.[VALUE] IN (SELECT VALUE AS IncomeBand FROM dbo.ToStrTable(@IncomeGroupList)))) AND
 					((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
 					((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
 					((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))))
@@ -1146,6 +1172,7 @@ AS
 	DECLARE @ProjectIDs VARCHAR(max) 
 	DECLARE @ProjectTypeList VARCHAR(1000) = NULL
 	DECLARE @CountryList VARCHAR(1000) = NULL
+	DECLARE @IncomeGroupList VARCHAR(1000) = NULL
 	DECLARE @cityList varchar(1000) = NULL 
 	DECLARE @stateList varchar(1000) = NULL	
 	DECLARE @regionList varchar(100) = NULL	
@@ -1174,6 +1201,7 @@ AS
 		SELECT @ProjectTypeList = ProjectTypeList,
 				@YearList = YearList,
 				@CountryList = CountryList,
+				@IncomeGroupList = IncomeGroupList,
 				@CSOlist = CSOlist,
 				@CancerTypelist = CancerTypelist,
 				@InvestigatorType = InvestigatorType,
@@ -1258,6 +1286,7 @@ AS
 			(SELECT DISTINCT f.ProjectFundingID FROM  #pf f
 				JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
 				JOIN Institution i ON pi.InstitutionID = i.InstitutionID	
+				JOIN CountryMapLayer cm ON i.country = cm.Country
 				JOIN Country c ON i.Country = c.Abbreviation							
 			WHERE	((@institution IS NULL) OR (i.Name like '%'+ @institution +'%')) AND
 					((@InvestigatorType IS NULL) OR (@InvestigatorType = 'PI' AND pi.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND ISNULL(pi.IsPrincipalInvestigator, 0) = 0)) AND   -- Search only PI, Collaborators or all
@@ -1265,6 +1294,7 @@ AS
 					((@piFirstName IS NULL) OR (pi.FirstName like '%'+ @piFirstName +'%')) AND
 					((@piORCiD IS NULL) OR (pi.ORC_ID like '%'+ @piORCiD +'%')) AND
 					((@CountryList IS NULL) OR (i.Country IN (SELECT VALUE AS Country FROM dbo.ToStrTable(@CountryList)))) AND
+					((@IncomeGroupList IS NULL) OR (cm.[VALUE] IN (SELECT VALUE AS IncomeBand FROM dbo.ToStrTable(@IncomeGroupList)))) AND
 					((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
 					((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
 					((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))))
@@ -1331,6 +1361,7 @@ AS
 
 	DECLARE @ProjectIDs VARCHAR(max) 	
 	DECLARE @CountryList VARCHAR(1000) = NULL
+	DECLARE @IncomeGroupList VARCHAR(1000) = NULL
 	DECLARE @cityList varchar(1000) = NULL 
 	DECLARE @stateList varchar(1000) = NULL	
 	DECLARE @regionList varchar(100) = NULL	
@@ -1359,6 +1390,7 @@ AS
 		-- get search criteria to filter project funding records
 		SELECT @YearList = YearList,
 				@CountryList = CountryList,
+				@IncomeGroupList = IncomeGroupList,
 				@CSOlist = CSOlist,
 				@CancerTypelist = CancerTypelist,
 				@InvestigatorType = InvestigatorType,
@@ -1384,10 +1416,12 @@ AS
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID		
+		JOIN CountryMapLayer cm ON i.country = cm.Country
 		JOIN (SELECT InstitutionID, projectFundingID FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON f.projectFundingID = pi.projectFundingID	  -- find PI country		
 		JOIN Institution pii ON pi.InstitutionID = pii.InstitutionID		-- get PI country
 		JOIN Country c ON c.Abbreviation = i.Country
 	 WHERE  ((@CountryList IS NULL) OR (i.[Country] IN (SELECT VALUE AS Country FROM dbo.ToStrTable(@countryList)))) AND
+	 		((@IncomeGroupList IS NULL) OR (cm.[VALUE] IN (SELECT VALUE AS IncomeBand FROM dbo.ToStrTable(@IncomeGroupList)))) AND
 			((@InvestigatorType IS NULL) OR (@InvestigatorType = 'PI' AND people.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND ISNULL(people.IsPrincipalInvestigator, 0) = 0)) AND   -- Search only PI, Collaborators or all
 			((@institution IS NULL) OR (i.Name like '%'+ @institution +'%')) AND			
 			((@piLastName IS NULL) OR (people.LastName like '%'+ @piLastName +'%')) AND 
@@ -1513,6 +1547,7 @@ AS
 
 	DECLARE @ProjectIDs VARCHAR(max) 	
 	DECLARE @CountryList VARCHAR(1000) = NULL
+	DECLARE @IncomeGroupList VARCHAR(1000) = NULL
 	DECLARE @cityList varchar(1000) = NULL 
 	DECLARE @stateList varchar(1000) = NULL	
 	DECLARE @regionList varchar(100) = NULL	
@@ -1541,6 +1576,7 @@ AS
 		-- get search criteria to filter project funding records
 		SELECT @YearList = YearList,
 				@CountryList = CountryList,
+				@incomeGroupList = IncomeGroupList,
 				@CSOlist = CSOlist,
 				@CancerTypelist = CancerTypelist,
 				@InvestigatorType = InvestigatorType,
@@ -1565,13 +1601,15 @@ AS
 		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
-		JOIN Institution i ON i.InstitutionID = people.InstitutionID		
+		JOIN Institution i ON i.InstitutionID = people.InstitutionID
+		JOIN CountryMapLayer cm ON i.country = cm.Country		
 		JOIN (SELECT InstitutionID, projectFundingID FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON f.projectFundingID = pi.projectFundingID	  -- find PI country		
 		JOIN Institution pii ON pi.InstitutionID = pii.InstitutionID		-- get PI country
 		JOIN Country c ON c.Abbreviation = i.Country
 	 WHERE  ((@CountryList IS NULL) OR (i.[Country] IN (SELECT VALUE AS Country FROM dbo.ToStrTable(@countryList)))) AND
 			((@InvestigatorType IS NULL) OR (@InvestigatorType = 'PI' AND people.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND ISNULL(people.IsPrincipalInvestigator, 0) = 0)) AND   -- Search only PI, Collaborators or all
-			((@institution IS NULL) OR (i.Name like '%'+ @institution +'%')) AND			
+			((@institution IS NULL) OR (i.Name like '%'+ @institution +'%')) AND
+			((@IncomeGroupList IS NULL) OR (cm.[VALUE] IN (SELECT VALUE AS IncomeBand FROM dbo.ToStrTable(@IncomeGroupList)))) AND			
 			((@piLastName IS NULL) OR (people.LastName like '%'+ @piLastName +'%')) AND 
 			((@piFirstName IS NULL) OR (people.FirstName like '%'+ @piFirstName +'%')) AND
 			((@piORCiD IS NULL) OR (people.ORC_ID like '%'+ @piORCiD +'%')) AND
@@ -1692,6 +1730,7 @@ AS
 	DECLARE @ProjectIDs VARCHAR(max) 
 	DECLARE @ProjectTypeList VARCHAR(1000) = NULL
 	DECLARE @CountryList VARCHAR(1000) = NULL
+	DECLARE @IncomeGroupList VARCHAR(1000) = NULL
 	DECLARE @cityList varchar(1000) = NULL 
 	DECLARE @stateList varchar(1000) = NULL	
 	DECLARE @regionList varchar(100) = NULL	
@@ -1720,6 +1759,7 @@ AS
 		SELECT @ProjectTypeList = ProjectTypeList,
 				@YearList = YearList,
 				@CountryList = CountryList,
+				@IncomeGroupList = IncomeGroupList,
 				@CSOlist = CSOlist,
 				@CancerTypelist = CancerTypelist,
 				@InvestigatorType = InvestigatorType,
@@ -1802,7 +1842,8 @@ AS
 		DELETE #pf WHERE ProjectFundingID NOT IN
 			(SELECT DISTINCT f.ProjectFundingID FROM  #pf f
 				JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
-				JOIN Institution i ON pi.InstitutionID = i.InstitutionID	
+				JOIN Institution i ON pi.InstitutionID = i.InstitutionID
+				JOIN CountryMapLayer cm ON i.country = cm.Country	
 				JOIN Country c ON i.Country = c.Abbreviation							
 			WHERE	((@institution IS NULL) OR (i.Name like '%'+ @institution +'%')) AND
 					((@InvestigatorType IS NULL) OR (@InvestigatorType = 'PI' AND pi.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND ISNULL(pi.IsPrincipalInvestigator, 0) = 0)) AND   -- Search only PI, Collaborators or all
@@ -1810,6 +1851,7 @@ AS
 					((@piFirstName IS NULL) OR (pi.FirstName like '%'+ @piFirstName +'%')) AND
 					((@piORCiD IS NULL) OR (pi.ORC_ID like '%'+ @piORCiD +'%')) AND
 					((@CountryList IS NULL) OR (i.Country IN (SELECT VALUE AS Country FROM dbo.ToStrTable(@CountryList)))) AND
+					((@IncomeGroupList IS NULL) OR (cm.[VALUE] IN (SELECT VALUE AS IncomeBand FROM dbo.ToStrTable(@IncomeGroupList)))) AND
 					((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
 					((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
 					((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))))
@@ -1887,6 +1929,7 @@ AS
 
 	DECLARE @ProjectIDs VARCHAR(max) 
 	DECLARE @CountryList VARCHAR(1000) = NULL
+	DECLARE @IncomeGroupList VARCHAR(1000) = NULL
 	DECLARE @cityList varchar(1000) = NULL 
 	DECLARE @stateList varchar(1000) = NULL	
 	DECLARE @regionList varchar(100) = NULL	
@@ -1914,6 +1957,7 @@ AS
 
 		SELECT 	@YearList = YearList,
 				@CountryList = CountryList,
+				@incomeGroupList = IncomeGroupList,
 				@CSOlist = CSOlist,
 				@CancerTypelist = CancerTypelist,
 				@InvestigatorType = InvestigatorType,
@@ -1979,7 +2023,8 @@ AS
 		DELETE #pf WHERE ProjectFundingID NOT IN
 			(SELECT DISTINCT f.ProjectFundingID FROM  #pf f
 				JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
-				JOIN Institution i ON pi.InstitutionID = i.InstitutionID	
+				JOIN Institution i ON pi.InstitutionID = i.InstitutionID
+				JOIN CountryMapLayer cm ON i.country = cm.Country	
 				JOIN Country c ON i.Country = c.Abbreviation							
 			WHERE	((@institution IS NULL) OR (i.Name like '%'+ @institution +'%')) AND
 					((@InvestigatorType IS NULL) OR (@InvestigatorType = 'PI' AND pi.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND ISNULL(pi.IsPrincipalInvestigator, 0) = 0)) AND   -- Search only PI, Collaborators or all
@@ -1987,6 +2032,7 @@ AS
 					((@piFirstName IS NULL) OR (pi.FirstName like '%'+ @piFirstName +'%')) AND
 					((@piORCiD IS NULL) OR (pi.ORC_ID like '%'+ @piORCiD +'%')) AND
 					((@CountryList IS NULL) OR (i.Country IN (SELECT VALUE AS Country FROM dbo.ToStrTable(@CountryList)))) AND
+					((@IncomeGroupList IS NULL) OR (cm.[VALUE] IN (SELECT VALUE AS IncomeBand FROM dbo.ToStrTable(@IncomeGroupList)))) AND
 					((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
 					((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
 					((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))))
@@ -2241,6 +2287,9 @@ BEGIN
 	IF EXISTS (SELECT * FROM #criteria WHERE CountryList IS NOT NULL)
 		INSERT INTO @SearchCriteria SELECT 'Country(ies):', CountryList FROM #criteria
 
+	IF EXISTS (SELECT * FROM #criteria WHERE IncomeGroupList IS NOT NULL)
+		INSERT INTO @SearchCriteria SELECT 'Income Group(s):', IncomeGroupList FROM #criteria
+
 	SELECT @filterList= RegionList FROM #criteria
 	IF @filterList IS NOT NULL
 	BEGIN
@@ -2319,6 +2368,7 @@ AS
 
 	DECLARE @ProjectIDs VARCHAR(max) 
 	DECLARE @CountryList VARCHAR(1000) = NULL
+	DECLARE @IncomeGroupList VARCHAR(1000) = NULL
 	DECLARE @cityList varchar(1000) = NULL 
 	DECLARE @stateList varchar(1000) = NULL	
 	DECLARE @regionList varchar(100) = NULL	
@@ -2349,6 +2399,7 @@ AS
 		
 		SELECT 	@YearList = YearList,
 				@CountryList = CountryList,
+				@incomeGroupList = IncomeGroupList,
 				@CSOlist = CSOlist,
 				@CancerTypelist = CancerTypelist,
 				@InvestigatorType = InvestigatorType,
@@ -2391,6 +2442,7 @@ AS
 		JOIN ProjectFundingInvestigator people ON people.ProjectFundingID = f.ProjectFundingID		
 		JOIN (SELECT * FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON pi.ProjectFundingID = f.ProjectFundingID	
 		JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+		JOIN CountryMapLayer cm ON i.country = cm.Country
 		JOIN Country c ON c.Abbreviation = i.Country
 		JOIN lu_Region l ON c.RegionID = l.RegionID
 		JOIN ProjectAbstract a ON a.ProjectAbstractID = f.ProjectAbstractID
@@ -2404,6 +2456,7 @@ AS
 			((@piFirstName IS NULL) OR (pi.FirstName like '%'+ @piFirstName +'%')) AND
 			((@piORCiD IS NULL) OR (pi.ORC_ID like '%'+ @piORCiD +'%')) AND
 			((@CountryList IS NULL) OR (i.Country IN (SELECT VALUE AS Country FROM dbo.ToStrTable(@CountryList)))) AND
+			((@IncomeGroupList IS NULL) OR (cm.[VALUE] IN (SELECT VALUE AS IncomeBand FROM dbo.ToStrTable(@IncomeGroupList)))) AND
 			((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
 			((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
 			((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))) AND
@@ -2544,6 +2597,7 @@ AS
 	DECLARE @ProjectIDs VARCHAR(max) 
 
 	DECLARE @CountryList VARCHAR(1000) = NULL
+	DECLARE @IncomeGroupList VARCHAR(1000) = NULL
 	DECLARE @cityList varchar(1000) = NULL 
 	DECLARE @stateList varchar(1000) = NULL	
 	DECLARE @regionList varchar(100) = NULL	
@@ -2571,6 +2625,7 @@ AS
 
 		SELECT 	@YearList = YearList,
 			@CountryList = CountryList,
+			@incomeGroupList = IncomeGroupList,
 			@CSOlist = CSOlist,
 			@CancerTypelist = CancerTypelist,
 			@InvestigatorType = InvestigatorType,
@@ -2612,6 +2667,7 @@ AS
 		JOIN ProjectFundingInvestigator people ON f.ProjectFundingID = people.ProjectFundingID		
 		-- pi or collaboratos institutions
 		JOIN Institution i ON people.InstitutionID = i.InstitutionID  
+		JOIN CountryMapLayer cm ON i.country = cm.Country
 		JOIN Country c ON c.Abbreviation = i.Country		
 		-- pi institutions
 		JOIN (SELECT * FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON pi.ProjectFundingID = f.ProjectFundingID
@@ -2625,6 +2681,7 @@ AS
 			((@piFirstName IS NULL) OR (people.FirstName like '%'+ @piFirstName +'%')) AND
 			((@piORCiD IS NULL) OR (people.ORC_ID like '%'+ @piORCiD +'%')) AND
 			((@CountryList IS NULL) OR (i.Country IN (SELECT VALUE AS CountryCode FROM dbo.ToStrTable(@CountryList)))) AND
+			((@IncomeGroupList IS NULL) OR (cm.[VALUE] IN (SELECT VALUE AS IncomeBand FROM dbo.ToStrTable(@IncomeGroupList)))) AND
 			((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
 			((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
 			((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))) AND
@@ -2820,6 +2877,7 @@ AS
 
 	DECLARE @ProjectIDs VARCHAR(max) 	
 	DECLARE @CountryList VARCHAR(1000) = NULL
+	DECLARE @IncomeGroupList VARCHAR(1000) = NULL
 	DECLARE @cityList varchar(1000) = NULL 
 	DECLARE @stateList varchar(1000) = NULL	
 	DECLARE @regionList varchar(100) = NULL	
@@ -2852,6 +2910,7 @@ AS
 		
 			SELECT @YearList = YearList,
 				@CountryList = CountryList,
+				@incomeGroupList = IncomeGroupList,
 				@CSOlist = CSOlist,
 				@CancerTypelist = CancerTypelist,
 				@InvestigatorType = InvestigatorType,
@@ -2921,7 +2980,8 @@ AS
 		DELETE #pf WHERE ProjectFundingID NOT IN
 			(SELECT DISTINCT f.ProjectFundingID FROM  #pf f
 				JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
-				JOIN Institution i ON pi.InstitutionID = i.InstitutionID	
+				JOIN Institution i ON pi.InstitutionID = i.InstitutionID
+				JOIN CountryMapLayer cm ON i.country = cm.Country
 				JOIN Country c ON i.Country = c.Abbreviation							
 			WHERE	((@institution IS NULL) OR (i.Name like '%'+ @institution +'%')) AND
 					((@InvestigatorType IS NULL) OR (@InvestigatorType = 'PI' AND pi.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND ISNULL(pi.IsPrincipalInvestigator, 0) = 0)) AND   -- Search only PI, Collaborators or all
@@ -2929,6 +2989,7 @@ AS
 					((@piFirstName IS NULL) OR (pi.FirstName like '%'+ @piFirstName +'%')) AND
 					((@piORCiD IS NULL) OR (pi.ORC_ID like '%'+ @piORCiD +'%')) AND
 					((@CountryList IS NULL) OR (i.Country IN (SELECT VALUE AS Country FROM dbo.ToStrTable(@CountryList)))) AND
+					((@IncomeGroupList IS NULL) OR (cm.[VALUE] IN (SELECT VALUE AS IncomeBand FROM dbo.ToStrTable(@IncomeGroupList)))) AND
 					((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
 					((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
 					((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))))
@@ -3019,6 +3080,7 @@ AS
 	DECLARE @ProjectIDs VARCHAR(max) 
 
 	DECLARE @CountryList VARCHAR(1000) = NULL
+	DECLARE @IncomeGroupList VARCHAR(1000) = NULL
 	DECLARE @cityList varchar(1000) = NULL 
 	DECLARE @stateList varchar(1000) = NULL	
 	DECLARE @regionList varchar(100) = NULL	
@@ -3046,6 +3108,7 @@ AS
 
 		SELECT 	@YearList = YearList,
 			@CountryList = CountryList,
+			@incomeGroupList = IncomeGroupList,
 			@CSOlist = CSOlist,
 			@CancerTypelist = CancerTypelist,
 			@InvestigatorType = InvestigatorType,
@@ -3096,11 +3159,12 @@ AS
 				JOIN CancerType ct ON ct.CancerTypeID = pc.CancerTypeID		
 			WHERE ct.CancerTypeID IN (SELECT VALUE AS CancerTypeID FROM dbo.ToStrTable(@CancerTypelist)))
 
-	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@InvestigatorType IS NOT NULL) OR (@cityList IS NOT NULL) OR (@stateList IS NOT NULL) OR (@regionList IS NOT NULL)
+	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@InvestigatorType IS NOT NULL) OR (@cityList IS NOT NULL) OR (@stateList IS NOT NULL) OR (@regionList IS NOT NULL) OR (@CountryList IS NOT NULL) OR (@incomeGroupList IS NOT NULL)
 		DELETE #pf WHERE ProjectFundingID NOT IN
 			(SELECT DISTINCT f.ProjectFundingID FROM  #pf f
 				JOIN ProjectFundingInvestigator pi ON f.ProjectFundingID = pi.projectFundingID
 				JOIN Institution i ON pi.InstitutionID = i.InstitutionID
+				JOIN CountryMapLayer cm ON i.country = cm.Country
 				JOIN Country c ON i.Country = c.Abbreviation				
 			WHERE	((@institution IS NULL) OR (i.Name like '%'+ @institution +'%')) AND
 					((@InvestigatorType IS NULL) OR (@InvestigatorType = 'PI' AND pi.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND ISNULL(pi.IsPrincipalInvestigator, 0) = 0)) AND   -- Search only PI, Collaborators or all
@@ -3109,6 +3173,8 @@ AS
 					((@piORCiD IS NULL) OR (pi.ORC_ID like '%'+ @piORCiD +'%')) AND
 					((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
 					((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
+					((@countryList IS NULL) OR (i.Country IN (SELECT VALUE AS Country FROM dbo.ToStrTable(@CountryList))))  AND
+					((@IncomeGroupList IS NULL) OR (cm.[VALUE] IN (SELECT VALUE AS IncomeBand FROM dbo.ToStrTable(@IncomeGroupList)))) AND
 					((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList))))
 			)	
 
@@ -3150,6 +3216,7 @@ AS
 	DECLARE @ProjectIDs VARCHAR(max) 
 
 	DECLARE @CountryList VARCHAR(1000) = NULL
+	DECLARE @IncomeGroupList VARCHAR(1000) = NULL
 	DECLARE @cityList varchar(1000) = NULL 
 	DECLARE @stateList varchar(1000) = NULL	
 	DECLARE @regionList varchar(100) = NULL	
@@ -3177,6 +3244,7 @@ AS
 
 		SELECT 	@YearList = YearList,
 			@CountryList = CountryList,
+			@incomeGroupList = IncomeGroupList,
 			@CSOlist = CSOlist,
 			@CancerTypelist = CancerTypelist,
 			@InvestigatorType = InvestigatorType,
@@ -3227,11 +3295,12 @@ AS
 				JOIN CancerType ct ON ct.CancerTypeID = pc.CancerTypeID		
 			WHERE ct.CancerTypeID IN (SELECT VALUE AS CancerTypeID FROM dbo.ToStrTable(@CancerTypelist)))
 
-	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@InvestigatorType IS NOT NULL) OR (@cityList IS NOT NULL) OR (@stateList IS NOT NULL) OR (@regionList IS NOT NULL)
+	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@InvestigatorType IS NOT NULL) OR (@cityList IS NOT NULL) OR (@stateList IS NOT NULL) OR (@regionList IS NOT NULL) OR (@CountryList IS NOT NULL) OR (@incomeGroupList IS NOT NULL)
 		DELETE #pf WHERE ProjectFundingID NOT IN
 			(SELECT DISTINCT f.ProjectFundingID FROM  #pf f
 				JOIN ProjectFundingInvestigator pi ON f.ProjectFundingID = pi.projectFundingID
 				JOIN Institution i ON pi.InstitutionID = i.InstitutionID
+				JOIN CountryMapLayer cm ON i.country = cm.Country
 				JOIN Country c ON i.Country = c.Abbreviation				
 			WHERE	((@institution IS NULL) OR (i.Name like '%'+ @institution +'%')) AND
 					((@InvestigatorType IS NULL) OR (@InvestigatorType = 'PI' AND pi.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND ISNULL(pi.IsPrincipalInvestigator, 0) = 0)) AND   -- Search only PI, Collaborators or all
@@ -3240,6 +3309,7 @@ AS
 					((@piORCiD IS NULL) OR (pi.ORC_ID like '%'+ @piORCiD +'%')) AND
 					((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
 					((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
+					((@IncomeGroupList IS NULL) OR (cm.[VALUE] IN (SELECT VALUE AS IncomeBand FROM dbo.ToStrTable(@IncomeGroupList)))) AND
 					((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList))))
 			)	
 							 
@@ -7153,6 +7223,7 @@ AS
 
 	DECLARE @ProjectIDs VARCHAR(max) 	
 	DECLARE @CountryList VARCHAR(1000) = NULL
+	DECLARE @IncomeGroupList VARCHAR(1000) = NULL
 	DECLARE @cityList varchar(1000) = NULL 
 	DECLARE @stateList varchar(1000) = NULL	
 	DECLARE @regionList varchar(100) = NULL	
@@ -7187,6 +7258,7 @@ AS
 		-- get search criteria to filter project funding records
 		SELECT @YearList = YearList,
 				@CountryList = CountryList,
+				@incomeGroupList =IncomeGroupList,
 				@CSOlist = CSOlist,
 				@CancerTypelist = CancerTypelist,
 				@InvestigatorType = InvestigatorType,
@@ -7215,10 +7287,12 @@ AS
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID		
+		JOIN CountryMapLayer cm ON i.country = cm.Country
 		JOIN (SELECT InstitutionID, projectFundingID FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON f.projectFundingID = pi.projectFundingID	  -- find PI country		
 		JOIN Institution pii ON pi.InstitutionID = pii.InstitutionID		-- get PI country
 		JOIN Country c ON c.Abbreviation = i.Country
 	 WHERE  ((@CountryList IS NULL) OR (i.[Country] IN (SELECT VALUE AS Country FROM dbo.ToStrTable(@countryList)))) AND
+	 		((@IncomeGroupList IS NULL) OR (cm.[VALUE] IN (SELECT VALUE AS IncomeBand FROM dbo.ToStrTable(@IncomeGroupList)))) AND
 			((@InvestigatorType IS NULL) OR (@InvestigatorType = 'PI' AND people.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND ISNULL(people.IsPrincipalInvestigator, 0) = 0)) AND   -- Search only PI, Collaborators or all
 			((@institution IS NULL) OR (i.Name like '%'+ @institution +'%')) AND			
 			((@piLastName IS NULL) OR (people.LastName like '%'+ @piLastName +'%')) AND 
@@ -7312,6 +7386,7 @@ AS
 
 	DECLARE @ProjectIDs VARCHAR(max) 	
 	DECLARE @CountryList VARCHAR(1000) = NULL
+	DECLARE @IncomeGroupList VARCHAR(1000) = NULL
 	DECLARE @cityList varchar(1000) = NULL 
 	DECLARE @stateList varchar(1000) = NULL		
 	DECLARE @Yearlist VARCHAR(1000) = NULL
@@ -7345,6 +7420,7 @@ AS
 		-- get search criteria to filter project funding records
 		SELECT @YearList = YearList,
 				@CountryList = CountryList,
+				@IncomeGroupList = IncomeGroupList,
 				@CSOlist = CSOlist,
 				@CancerTypelist = CancerTypelist,
 				@InvestigatorType = InvestigatorType,
@@ -7372,11 +7448,13 @@ AS
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID		
+		JOIN CountryMapLayer cm ON i.country = cm.Country
 		JOIN (SELECT InstitutionID, projectFundingID FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON f.projectFundingID = pi.projectFundingID	  -- find PI country		
 		JOIN Institution pii ON pi.InstitutionID = pii.InstitutionID		-- get PI country
 		JOIN Country c ON c.Abbreviation = i.Country
 	 WHERE (c.RegionID = @RegionID) AND
 			((@CountryList IS NULL) OR (i.[Country] IN (SELECT VALUE AS Country FROM dbo.ToStrTable(@countryList)))) AND
+			((@IncomeGroupList IS NULL) OR (cm.[VALUE] IN (SELECT VALUE AS IncomeBand FROM dbo.ToStrTable(@IncomeGroupList)))) AND
 			((@InvestigatorType IS NULL) OR (@InvestigatorType = 'PI' AND people.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND ISNULL(people.IsPrincipalInvestigator, 0) = 0)) AND   -- Search only PI, Collaborators or all
 			((@institution IS NULL) OR (i.Name like '%'+ @institution +'%')) AND			
 			((@piLastName IS NULL) OR (people.LastName like '%'+ @piLastName +'%')) AND 
@@ -7829,11 +7907,11 @@ AS
 	BEGIN	  
 
 		INSERT INTO SearchCriteria ([termSearchType],[terms],[piLastName],[piFirstName],[piORCiD],[awardCode],
-			[yearList], [stateList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList], 
+			[yearList], [stateList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList], [incomeGroupList],
 			[institution], [cityList], [countryList], [RegionList])
 
 			SELECT [termSearchType],[terms],[piLastName],[piFirstName],[piORCiD],[awardCode],
-				[yearList], [stateList], [fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList],
+				[yearList], [stateList], [fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList], [incomeGroupList],
 
 				CASE
 				WHEN @InstitutionName IS NULL THEN [institution]
