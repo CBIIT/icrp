@@ -597,6 +597,7 @@ CREATE TABLE [dbo].[SearchCriteria](
 	[CityList] [varchar](1000) NULL,
 	[StateList] [varchar](1000) NULL,
 	[CountryList] [varchar](1000) NULL,
+	[IncomeGroupList] [varchar](1000) NULL,
 	[FundingOrgTypeList] VARCHAR(250) NULL,
 	[FundingOrgList] [varchar](1000) NULL,
 	[CancerTypeList] [varchar](1000) NULL,
