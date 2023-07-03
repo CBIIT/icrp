@@ -282,17 +282,29 @@ AS
 	SELECT DISTINCT ProjectID, AwardCode, 99999 AS ProjectFundingID		
 	INTO #baseProj 
 	FROM #projFunding
+	
+-- 	update #baseProj
+-- 	SET ProjectFundingID =
+-- 		CASE p.projectfundingID
+-- 			WHEN NULL THEN f.ProjectFundingID
+-- 			ELSE p.ProjectFundingID
+-- 		END
+-- 	from #baseProj b
+-- 	JOIN  (SELECT projectid, projectfundingID FROM #projFunding WHERE Category='parent') p ON b.ProjectID = p.ProjectID
+-- 	JOIN  (SELECT ProjectID, MIN(projectfundingID) AS projectfundingID FROM projectfunding GROUP BY ProjectID) f ON b.ProjectID = f.ProjectID
 
+--  This update needs to be split into two steps, since there are funding organizations containing 0 parent projects (meaning the join will return 0 records)
+    -- set the project funding id to the first funding id in the projects table
 	update #baseProj
-	SET ProjectFundingID =
-		CASE p.projectfundingID 
-			WHEN NULL THEN f.ProjectFundingID
-			ELSE p.ProjectFundingID
-		END
+	SET ProjectFundingID = f.ProjectFundingID
+	from #baseProj b
+	JOIN  (SELECT ProjectID, MIN(projectfundingID) AS projectfundingID FROM projectfunding GROUP BY ProjectID) f ON b.ProjectID = f.ProjectID
+
+    -- if a parent project exists, overwrite the project funding id
+    update #baseProj
+	SET ProjectFundingID = p.ProjectFundingID
 	from #baseProj b
 	JOIN  (SELECT projectid, projectfundingID FROM #projFunding WHERE Category='parent') p ON b.ProjectID = p.ProjectID
-	JOIN  (SELECT ProjectID, MIN(projectfundingID) AS projectfundingID FROM projectfunding GROUP BY ProjectID) f ON b.ProjectID = f.ProjectID
-	
 
 	SELECT @ResultCount=COUNT(*) FROM #baseProj	
 	SELECT @TotalRelatedProjectCount=COUNT(*) FROM (SELECT DISTINCT ProjectFundingID FROM #projFunding) u	
@@ -2122,7 +2134,7 @@ FROM Project p
 	JOIN FundingOrg o ON o.FundingOrgID = pf.FundingOrgID
 	LEFT JOIN (SELECT ProjectFundingID, COUNT(*) AS [Count] FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 0 GROUP BY ProjectFundingID) co ON pf.ProjectFundingID = co.ProjectFundingID  -- Collaborators
 WHERE p.ProjectID = @ProjectID
-ORDER BY pf.BudgetStartDate DESC, pf.AltAwardCode DESC
+ORDER BY pf.BudgetStartDate ASC, pf.AltAwardCode ASC
 
 GO
 
