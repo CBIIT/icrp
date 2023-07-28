@@ -279,6 +279,17 @@
       (select)="updateDisplayParameters('cities', $event)"
       >
     </ui-select>
+
+
+    <label class="form-label" for="income_groups" tooltip="Select one or more income groups">World Bank Income Groups</label>
+    <ui-select
+      placeholder="Enter Income Groups"
+      tooltip="Select one or more income groups"
+      [formControl]="form.controls.income_groups"
+      [items]="fields.income_groups"
+      (select)="updateDisplayParameters('income_groups', $event)"
+      >
+    </ui-select>    
   </ui-panel>
 
 

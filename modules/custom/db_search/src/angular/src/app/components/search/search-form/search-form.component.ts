@@ -31,6 +31,7 @@ export class SearchFormComponent {
     countries: [],
     states: [],
     cities: [],
+    income_groups: [],
 
     funding_organizations: [],
     funding_organizations_by_sponsor_code: [],
@@ -75,6 +76,7 @@ export class SearchFormComponent {
       countries: [''],
       states: [''],
       cities: [''],
+      income_groups: [''],
 
       funding_organizations: [''],
       funding_organization_group_type: [null],
