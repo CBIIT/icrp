@@ -50,10 +50,14 @@
           //$.preprocessCloneEndDateCheckbox();
           break;
         case "/":
-          //var sectionHeight = $('[role="main"] section').height();
-          //var twitterHeight = $('#twitter-container').height();
-          //var newsletterHeight = $('#newsletter-container').height();
-          if($('#welcome').length) {
+          $.getNewsletter();
+          var sectionHeight = $('[role="main"] section').height();
+          var twitterHeight = $('#twitter-container').height();
+          var newsletterHeight = $('#newsletter-container').height();
+          console.log("sectionHeight"+sectionHeight);
+          console.log("twitterHeight: "+twitterHeight);
+          console.log("newsletterHeight: "+newsletterHeight);
+        //  if($('#welcome').length) {
             $.tweekHomePage();
             var timeout = 100;
             var inTimeOut = false;
@@ -75,9 +79,10 @@
                 }
               }
             });
-          } else {
-            $.getNewsletter();
-          }
+          //} else {
+console.log("getNewsletter");
+            //$.getNewsletter();
+          //}
           break;
         case "/partner-application-administration-tool":
           $.partnerApplicationAdminTable();

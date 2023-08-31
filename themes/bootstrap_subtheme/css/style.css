@@ -853,7 +853,33 @@ ul.icrp-terms-list li:before {
         margin-left: 510px;
     }
 }
-
+/* Social Media Links */
+#social-media-links {
+    float: right;
+    margin: 5px 330px;
+    display: inline-block;
+    vertical-align: middle;
+    width: 145px;
+}
+#social-media-links > span {
+    font-weight:bold;
+    padding-right:10px;
+    position:relative;
+    bottom:-3px;
+    font-size: 10pt;
+}
+#social-media-links > a > img {
+    height:20px;
+    width: auto;
+    padding-right:10;
+}
+#social-media-links > a > img:first-child {
+  padding-right:5px;
+}
+#social-media-links > a:nth-child(2) {
+  width: 25px;
+}
+ 
 /* Large Devices, Wide Screens */
 @media only screen and (min-width : 1200px) {
     .main-container {
@@ -915,7 +941,6 @@ ul.icrp-terms-list li:before {
     display: inline-block; 
     position: absolute;
     right: 0;
-    bottom: 0;
     text-align: right;
     margin: 5px 26px;
 }
