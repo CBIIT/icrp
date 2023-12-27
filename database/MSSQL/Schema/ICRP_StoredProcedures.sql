@@ -4390,7 +4390,9 @@ BEGIN
 
 	INSERT INTO @DupAltID SELECT 'Workbook' AS Source, Altid AS AltAwardCode, Count(*) FROM UploadWorkBook GROUP BY Altid HAVING COUNT(*) > 1
 	INSERT INTO @DupAltID SELECT 'ICRP' AS Source, AltAwardCode, 1 FROM ProjectFunding f
-	JOIN UploadWorkBook u ON f.AltAwardCode = u.AltID
+	JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
+	JOIN UploadWorkBook u ON f.AltAwardCode = u.AltID and u.FundingDivAbbr = o.Abbreviation
+
 
 	IF EXISTS (SELECT * FROM @DupAltID)
 		INSERT INTO @DataUploadReport SELECT @RuleID, 'Rule', @RuleName, COUNT(*) FROM @DupAltID
@@ -6580,7 +6582,7 @@ IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DataUp
 DROP PROCEDURE [dbo].[DataUpload_SyncProd] 
 GO 
 
-CREATE PROCEDURE [dbo].[DataUpload_SyncProd]    
+CREATE PROCEDURE [dbo].[DataUpload_SyncProd]
 
 @DataUploadID INT
 
@@ -6763,7 +6765,7 @@ BEGIN TRY
 			JOIN icrp_data.dbo.projectfunding f ON f.AltAwardCode =  lf.AltAwardCode  
 			JOIN icrp_dataload.dbo.Institution i ON pi.institutionID = i.institutionID
 			LEFT JOIN icrp_data.dbo.Institution newi ON newi.Name = i.Name AND newi.City = i.City
-		WHERE lf.[DataUploadStatusID] = @DataUploadStatusID_Stage
+		WHERE lf.[DataUploadStatusID] = @DataUploadStatusID_Stage and f.[DataUploadStatusID] = @DataUploadStatusID_Prod
 	END
 	ELSE  -- Update 
 	BEGIN
@@ -6776,7 +6778,7 @@ BEGIN TRY
 			JOIN (SELECT * FROM icrp_dataload.dbo.ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) lpi ON lf.ProjectFundingID = lpi.ProjectFundingID  -- only update PI
 			JOIN icrp_dataload.dbo.Institution li ON li.InstitutionID = lpi.InstitutionID
 			LEFT JOIN icrp_data.dbo.Institution i ON i.Name = li.Name AND i.City = li.City
-		WHERE pi.IsPrincipalInvestigator=1 AND lf.[DataUploadStatusID] = @DataUploadStatusID_Stage
+		WHERE pi.IsPrincipalInvestigator=1 AND lf.[DataUploadStatusID] = @DataUploadStatusID_Stage and f.[DataUploadStatusID] = @DataUploadStatusID_Prod
 
 	END
 			
@@ -6820,7 +6822,7 @@ BEGIN TRY
 	FROM icrp_dataload.dbo.ProjectCSO cso
 		JOIN icrp_dataload.dbo.projectfunding lf ON cso.ProjectFundingID =  lf.ProjectFundingID  
 		JOIN icrp_data.dbo.projectfunding f ON f.AltAwardCode =  lf.AltAwardCode  
-	WHERE lf.[DataUploadStatusID] = @DataUploadStatusID_Stage
+	WHERE lf.[DataUploadStatusID] = @DataUploadStatusID_Stage and f.[DataUploadStatusID] = @DataUploadStatusID_Prod
 	
 	SELECT @Count = @@ROWCOUNT
 	UPDATE icrp_data.dbo.DataUploadLog SET ProjectCSOCount = @Count WHERE DataUploadLogID = @DataUploadLogID
@@ -6833,7 +6835,7 @@ BEGIN TRY
 		FROM icrp_dataload.dbo.ProjectCancerType lct
 			JOIN icrp_dataload.dbo.projectfunding lf ON lct.ProjectFundingID =  lf.ProjectFundingID  
 			JOIN icrp_data.dbo.projectfunding f ON f.AltAwardCode =  lf.AltAwardCode  
-		WHERE lf.[DataUploadStatusID] = @DataUploadStatusID_Stage
+		WHERE lf.[DataUploadStatusID] = @DataUploadStatusID_Stage and f.[DataUploadStatusID] = @DataUploadStatusID_Prod
 
 	SELECT @Count = @@ROWCOUNT
 	UPDATE icrp_data.dbo.DataUploadLog SET ProjectCancerTypeCount = @Count WHERE DataUploadLogID = @DataUploadLogID
@@ -6846,7 +6848,7 @@ BEGIN TRY
 	FROM icrp_dataload.dbo.Project_ProjectType pt
 		JOIN icrp_dataload.dbo.Project lp ON pt.ProjectID = lp.ProjectID
 		JOIN (SELECT * FROM icrp_data.dbo.Project WHERE DataUploadStatusID = @DataUploadStatusID_Prod) p ON lp.AwardCode = p.AwardCode	
-	WHERE lp.[DataUploadStatusID] = @DataUploadStatusID_Stage
+	WHERE lp.[DataUploadStatusID] = @DataUploadStatusID_Stage 
 
 	SELECT @Count = @@ROWCOUNT
 	UPDATE icrp_data.dbo.DataUploadLog SET Project_ProjectTypeCount = @Count WHERE DataUploadLogID = @DataUploadLogID
@@ -6859,7 +6861,7 @@ BEGIN TRY
 	FROM icrp_dataload.dbo.ProjectFundingExt ex
 		JOIN icrp_dataload.dbo.projectfunding pf ON ex.ProjectFundingID =  pf.ProjectFundingID  
 		JOIN icrp_data.dbo.projectfunding new ON new.AltAwardCode =  pf.AltAwardCode  
-	WHERE pf.[DataUploadStatusID] = @DataUploadStatusID_Stage
+	WHERE pf.[DataUploadStatusID] = @DataUploadStatusID_Stage and new.[DataUploadStatusID] = @DataUploadStatusID_Prod
 
 	----------------------------------------------------
 	-- Post Import Checking
@@ -7069,8 +7071,7 @@ BEGIN CATCH
 	  DECLARE @msg nvarchar(2048) = error_message()  
       RAISERROR (@msg, 16, 1)
 	        
-END CATCH  
-
+END CATCH
 
 GO
 
@@ -9200,55 +9201,20 @@ CREATE PROCEDURE [dbo].[UpdateDataUploadCompleteness]
 @PartialUploadYears varchar(1000),  --  ex/ '2018, 2016' to mark years 2018 and 2016 partially uploaded
 @DataNotAvailable varchar(1000) = NULL --  ex/ '2004, 2005' to mark years 2004 and 2005 Data Not Available
 
-AS
-    
-BEGIN TRANSACTION;
-BEGIN TRY
+AS  
 
-    -- Retrieve FundingOrgAbbrev for the given FundingOrgID
-    DECLARE @FundingOrgAbbrev VARCHAR(15)
-    SELECT @FundingOrgAbbrev = Abbreviation FROM FundingOrg WHERE FundingOrgID = @FundingOrgID
-
-    -- Combine all years into a single table
-    DECLARE @AllYears TABLE (Year INT)
-    INSERT INTO @AllYears
-    SELECT * FROM dbo.ToIntTable(
-        COALESCE(@CompletedYears, '') + ',' +
-        COALESCE(@PartialUploadYears, '') + ',' +
-        COALESCE(@DataNotAvailable, '')
-    ) where Value != 0 -- exclude 0-values generated by dbo.ToIntTable for empty entries
-
-    -- Insert new records for years that do not exist with a default status of 0
-    INSERT INTO DataUploadCompleteness (FundingOrgID, FundingOrgAbbrev, Year, Status, CreatedDate, UpdatedDate)
-    SELECT @FundingOrgID, @FundingOrgAbbrev, ay.Year, 0, GETDATE(), GETDATE()
-    FROM @AllYears ay
-    WHERE NOT EXISTS (
-        SELECT 1 FROM DataUploadCompleteness duc
-        WHERE duc.FundingOrgID = @FundingOrgID AND duc.Year = ay.Year
-    )
-
-    -- Update DataUploadCompleteness Status
-	UPDATE DataUploadCompleteness SET Status =
-		CASE
+BEGIN
+	
+	UPDATE DataUploadCompleteness SET Status = 
+		CASE 
 			WHEN Year IN (SELECT * FROM dbo.ToIntTable(@CompletedYears)) THEN 2  -- Completed
 			WHEN Year IN (SELECT * FROM dbo.ToIntTable(@PartialUploadYears)) THEN 1  -- PartialUploaded
 			WHEN Year IN (SELECT * FROM dbo.ToIntTable(@DataNotAvailable)) THEN -1  -- Data Not Available
 			ELSE 0  -- No Data
-		END
+		END 
 	WHERE  FundingOrgID =  @FundingOrgID
 
-	COMMIT TRANSACTION
-
-END TRY
-
-BEGIN CATCH
-      -- IF @@trancount > 0
-		ROLLBACK TRANSACTION
-
-	  DECLARE @msg nvarchar(2048) = error_message()
-      RAISERROR (@msg, 16, 1)
-
-END CATCH
+END 
 
 GO
 
