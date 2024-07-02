@@ -119,4 +119,4 @@ CMD rm -rf \
    && chown -R icrp:icrp /var/www/html/ || true \
    && postfix start \
    && php-fpm -D \
-   && apachectl -DFOREGROUND
+   && httpd -D FOREGROUND
