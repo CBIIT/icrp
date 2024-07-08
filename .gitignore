@@ -16,7 +16,10 @@
 
 # Ignore configuration files that may contain sensitive information.
 /sites/*/settings*.php
+/sites/default/settings.php
 /sites/*/services*.yml
+/sites/settings*.php
+/sites/default/settings*.yml
 
 # Ignore paths that contain user-generated content.
 /sites/*/files
@@ -102,3 +105,4 @@ node_modules
 /phpinfo.php
 /mssql_data
 /mysql_data
+
