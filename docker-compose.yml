@@ -23,10 +23,12 @@ services:
     cap_add:
       - SYS_NICE
   mssql:
-    image: mcr.microsoft.com/mssql/server:2019-latest
+    image: mcr.microsoft.com/azure-sql-edge:latest
     ports:
       - "1433:1433"
     environment:
       ACCEPT_EULA: "Y"
       SA_PASSWORD: "icrp-1234"
+    mem_limit: 6G
+    cpus: 4.0
     
