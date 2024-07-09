@@ -278,6 +278,14 @@ class SearchController extends ControllerBase {
     return self::createResponse($data);
   }
 
+
+  public static function reviewDeleteImport(Request $request) {
+    $connection = PDOBuilder::getConnection('icrp_load_database');
+    $parameters = self::array_merge_intersection($request->query->all(), ['data_upload_id' => -1]);
+    $data = DatabaseReview::reviewDeleteImport($connection, $parameters);
+    return self::createResponse($data);
+  }
+
   public function getInfo(Request $request){
     $headers = getallheaders();
     

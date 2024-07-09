@@ -26,7 +26,8 @@
   <icrp-review-uploads-table
     [uploads]="sponsorUploadsTable"
     (select)="selectUploadID($event)"
-    (syncProd)="syncProd($event)">
+    (syncProd)="syncProd($event)"
+    (deleteImport)="deleteImport($event)">
   </icrp-review-uploads-table>
 
   <icrp-review-summary-panel

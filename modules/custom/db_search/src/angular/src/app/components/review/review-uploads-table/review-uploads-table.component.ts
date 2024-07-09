@@ -11,6 +11,7 @@ export class ReviewUploadsTableComponent {
   @Input() uploads: any[] = [];
   @Output() select: EventEmitter<any> = new EventEmitter<any>();
   @Output() syncProd: EventEmitter<any> = new EventEmitter<any>();
+  @Output() deleteImport: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(
     private reviewService: ReviewService,

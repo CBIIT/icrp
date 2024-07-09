@@ -275,6 +275,24 @@ export class ReviewPageComponent {
       });
   }
 
+  deleteImport(uploadID: number) {
+    this.loading = true;
+    this.showAlert = false;
+    this.success = true;
+
+    this.reviewService.deleteImport({data_upload_id: uploadID})
+      .subscribe(response => {
+        console.log(response);
+
+        this.success = response;
+        this.showAlert = true;
+        this.loading = false;
+
+        // retrieve initial data upload results
+        this.getSponsorUploads();
+      });
+  }
+
 
   resetAnalytics() {
     this.analytics = {

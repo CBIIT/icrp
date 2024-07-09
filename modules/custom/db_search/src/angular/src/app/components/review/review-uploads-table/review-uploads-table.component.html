@@ -26,6 +26,13 @@
           Update Prod
         </button>
       </td>
+
+      <td *ngIf="sharedService.get('userRoles').indexOf('manager') !== -1">
+        <button class="btn btn-primary btn-xs" (click)="deleteImport.emit(row.data_upload_id)">
+          Delete Upload
+        </button>
+      </td>
+
     </tr>
   </tbody>
 </table>
