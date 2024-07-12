@@ -180,8 +180,8 @@ class DatabaseReview {
   */
   public static function reviewDeleteImport(PDO $pdo, array $parameters) {
     try {
-      $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE DataUpload_DeleteDataImportFromStaging @DataUploadID=:data_upload_id');
-      $stmt->bindParam(':data_upload_id', $parameters['data_upload_id']);
+      $stmt = $pdo->prepare('SET NOCOUNT ON; EXECUTE DataUpload_DeleteDataImportFromStaging @DataUploadStatusID=:dataUploadStatusID');
+      $stmt->bindParam(':dataUploadStatusID', $parameters['data_upload_id']);
      if ($stmt->execute()) {
         return true;
       }
