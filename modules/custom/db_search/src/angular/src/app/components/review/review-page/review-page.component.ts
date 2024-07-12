@@ -285,7 +285,7 @@ export class ReviewPageComponent {
         console.log(response);
 
         this.success = response;
-        this.showAlert = true;
+        this.showAlert = false;
         this.loading = false;
 
         // retrieve initial data upload results

@@ -17,6 +17,16 @@
   </alert>
 </div>
 
+<div *ngIf="showAlertDelete" [ngSwitch]="success">
+  <alert *ngSwitchCase="true" type="success" dismissible="true">
+   The selected partner data book has been successfully deleted from staging database.
+  </alert>
+
+  <alert *ngSwitchCase="false" [type]="danger" dismissible="true">
+    Internal error. The operation is aborted.
+  </alert>
+</div>
+
 <div *ngIf="sponsorUploadsTable && sponsorUploadsTable.length > 0">
 
   <div class="form-group">
