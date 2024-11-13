@@ -7235,7 +7235,8 @@ CREATE PROCEDURE [dbo].[DataUpload_DeleteDataImportFromStaging]
 @DataUploadStatusID INT
   
 AS
-
+BEGIN
+SET NOCOUNT ON;
 BEGIN TRANSACTION
 
 BEGIN TRY     
@@ -7300,6 +7301,8 @@ BEGIN CATCH
       RAISERROR (@msg, 16, 1)
 	        
 END CATCH  
+END
+GO
 
 
 

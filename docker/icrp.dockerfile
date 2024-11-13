@@ -31,6 +31,7 @@ RUN dnf -y update \
    unzip \
    wget \
    which \
+   ca-certificates \
    && touch /etc/php.d/90-pecl-modules.ini \
    && pear config-set php_ini /etc/php.d/90-pecl-modules.ini \
    && curl https://packages.microsoft.com/config/rhel/8/prod.repo > /etc/yum.repos.d/mssql-release.repo \
@@ -41,6 +42,10 @@ RUN dnf -y update \
    msodbcsql18 \
    unixODBC-devel \
    && dnf clean all
+
+# Download the latest CA certificates
+RUN wget https://curl.haxx.se/ca/cacert.pem -O /etc/ssl/certs/cacert.pem
+
 
 RUN alternatives --set mta /usr/sbin/sendmail.postfix
 

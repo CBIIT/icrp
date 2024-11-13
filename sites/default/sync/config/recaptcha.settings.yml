@@ -5,7 +5,7 @@ use_globally: false
 widget:
   theme: light
   type: image
-  size: ''
+  size: ""
   tabindex: 0
   noscript: false
 _core:

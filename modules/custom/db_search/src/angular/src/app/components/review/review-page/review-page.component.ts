@@ -129,6 +129,7 @@ export class ReviewPageComponent {
 
   success: boolean = false;
   showAlert: boolean = false;
+  showAlertDelete: boolean = false;
 
   loadingMessage = 'Update in Progress...';
 
@@ -277,7 +278,7 @@ export class ReviewPageComponent {
 
   deleteImport(uploadID: number) {
     this.loading = true;
-    this.showAlert = false;
+    this.showAlertDelete = false;
     this.success = true;
 
     this.reviewService.deleteImport({data_upload_id: uploadID})
@@ -285,7 +286,7 @@ export class ReviewPageComponent {
         console.log(response);
 
         this.success = response;
-        this.showAlert = false;
+        this.showAlertDelete = true;
         this.loading = false;
 
         // retrieve initial data upload results
