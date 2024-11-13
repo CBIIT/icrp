@@ -29,7 +29,5 @@ services:
     environment:
       ACCEPT_EULA: "Y"
       SA_PASSWORD: "icrp-1234"
-    mem_limit: 6G
-    cpus: 4.0
-    privileged: true
+ 
     
