@@ -23,7 +23,7 @@
       <td>{{ row.note }}</td>
       <td *ngIf="sharedService.get('userRoles').indexOf('manager') !== -1">
        
-          <button class="btn btn-primary btn-xs" (click)="syncProd.emit(row.data_upload_id)" style="margin-right: 10px; margin-bottom: 10px;">
+          <button class="btn btn-primary btn-xs" (click)="syncProd.emit(row.data_upload_id)" style="margin-right: 10px; margin-bottom: 1px;">
             Update Prod
           </button>
           
