@@ -1,3 +1,9 @@
 a {
   cursor: pointer;
 }
+
+.uploads-button-container {
+  display: flex;
+  gap: 10px; /* Adjust the value as needed */
+  flex-wrap: nowrap; /* Prevent wrapping */
+}
