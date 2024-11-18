@@ -22,15 +22,15 @@
       <td>{{ row.stage_upload_date }}</td>
       <td>{{ row.note }}</td>
       <td *ngIf="sharedService.get('userRoles').indexOf('manager') !== -1">
-        <div class="uploads-button-container">
-          <button class="btn btn-primary btn-xs" (click)="syncProd.emit(row.data_upload_id)">
+       
+          <button class="btn btn-primary btn-xs" (click)="syncProd.emit(row.data_upload_id)" style="margin-right: 10px;">
             Update Prod
           </button>
           
-          <button class="btn btn-primary btn-xs" (click)="confirmDelete(row.data_upload_id)">
+          <button class="btn btn-primary btn-xs" (click)="confirmDelete(row.data_upload_id)" >
             Delete Upload
           </button>
-        </div>
+        
       </td>
     </tr>
   </tbody>
