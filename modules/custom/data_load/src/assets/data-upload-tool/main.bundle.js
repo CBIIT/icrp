@@ -61846,7 +61846,11 @@ webpackJsonp(
         })(),
         dl = (function () {
           function e(e) {
-            (this.http = e), (this.BASE_HREF = "http://localhost:8000");
+            {
+              (this.http = e),
+                (this.BASE_HREF =
+                  window.location.protocol + "//" + window.location.hostname);
+            }
           }
           return (
             (e.prototype.toFormData = function (e) {
