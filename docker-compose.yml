@@ -23,7 +23,7 @@ services:
     cap_add:
       - SYS_NICE
   mssql:
-    image: mcr.microsoft.com/azure-sql-edge:latest
+    image: mcr.microsoft.com/mssql/server:latest
     ports:
       - "1433:1433"
     environment:
