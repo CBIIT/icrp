@@ -219,11 +219,11 @@ BEGIN
         pf.ProjectFundingID,
         pf.ProjectID,
         pf.Title,
-        i.Name AS Institution,
+        i.Name AS Institution, -- Verify if 'Name' is the correct column for Institution
         pi.LastName AS piLastName,
         pi.FirstName AS piFirstName,
         pi.ORC_ID AS piORCiD,
-        pf.AwardCode,
+        pf.AltAwardCode, -- Verify if 'AwardCode' exists in ProjectFunding
         pf.BudgetEndDate,
         pf.IsChildhood,
         i.City,
@@ -236,9 +236,9 @@ BEGIN
         pt.ProjectType,
         cso.CSOCode
     FROM ProjectFunding pf
-    INNER JOIN Institution i ON pf.InstitutionID = i.InstitutionID
+    INNER JOIN Institution i ON pf.FundingOrgID = i.InstitutionID -- Verify if 'InstitutionID' exists in ProjectFunding and Institution
     INNER JOIN ProjectFundingInvestigator pi ON pf.ProjectFundingID = pi.ProjectFundingID AND pi.IsPrincipalInvestigator = 1
-    LEFT JOIN Country c ON i.Country = c.Abbreviation
+    LEFT JOIN Country c ON i.Country = c.Abbreviation -- Verify if 'Abbreviation' is the correct column in Country
     LEFT JOIN FundingOrg o ON pf.FundingOrgID = o.FundingOrgID
     LEFT JOIN ProjectCancerType ct ON pf.ProjectFundingID = ct.ProjectFundingID
     LEFT JOIN Project_ProjectType pt ON pf.ProjectID = pt.ProjectID
@@ -249,13 +249,13 @@ BEGIN
         AND (@piLastName IS NULL OR pi.LastName LIKE '%' + @piLastName + '%')
         AND (@piFirstName IS NULL OR pi.FirstName LIKE '%' + @piFirstName + '%')
         AND (@piORCiD IS NULL OR pi.ORC_ID LIKE '%' + @piORCiD + '%')
-        AND (@awardCode IS NULL OR pf.AwardCode LIKE '%' + @awardCode + '%')
+        AND (@awardCode IS NULL OR pf.AltAwardCode LIKE '%' + @awardCode + '%')
         AND (@yearList IS NULL OR YEAR(pf.BudgetEndDate) IN (SELECT VALUE FROM dbo.ToIntTable(@yearList)))
         AND (@cityList IS NULL OR i.City IN (SELECT VALUE FROM dbo.ToStrTable(@cityList)))
         AND (@stateList IS NULL OR i.State IN (SELECT VALUE FROM dbo.ToStrTable(@stateList)))
         AND (@countryList IS NULL OR i.Country IN (SELECT VALUE FROM dbo.ToStrTable(@countryList)))
         AND (@regionList IS NULL OR c.RegionID IN (SELECT VALUE FROM dbo.ToIntTable(@regionList)))
-        AND (@incomeGroupList IS NULL OR c.IncomeGroup IN (SELECT VALUE FROM dbo.ToStrTable(@incomeGroupList)))
+        AND (@incomeGroupList IS NULL OR c.IncomeBand IN (SELECT VALUE FROM dbo.ToStrTable(@incomeGroupList))) -- Verify if 'IncomeGroup' exists in Country
         AND (@FundingOrgTypeList IS NULL OR o.Type IN (SELECT VALUE FROM dbo.ToStrTable(@FundingOrgTypeList)))
         AND (@fundingOrgList IS NULL OR o.FundingOrgID IN (SELECT VALUE FROM dbo.ToIntTable(@fundingOrgList)))
         AND (@cancerTypeList IS NULL OR ct.CancerTypeID IN (SELECT VALUE FROM dbo.ToIntTable(@cancerTypeList)))

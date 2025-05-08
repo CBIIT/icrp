@@ -462,7 +462,7 @@ class DatabaseSearch {
 
     $query_defaults = 'SET NOCOUNT ON; ';
     $query_string = '
-      EXECUTE GetProjectsByCriteria
+      EXECUTE GetProjectsByCriteria3
         @PageSize             = :page_size,
         @PageNumber           = :page_number,
         @SortCol              = :sort_column,
