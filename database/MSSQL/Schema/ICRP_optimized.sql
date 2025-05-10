@@ -1,3 +1,146 @@
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE PROCEDURE [dbo].[GetProjectsByCriteria3]    
+    @PageSize INT = 50,
+    @PageNumber INT = 1,
+    @SortCol VARCHAR(50) = 'title',
+    @SortDirection VARCHAR(4) = 'ASC',
+    @termSearchType VARCHAR(25) = NULL,
+    @terms VARCHAR(4000) = NULL,
+    @InvestigatorType VARCHAR(250) = NULL,
+    @institution VARCHAR(250) = NULL,
+    @piLastName VARCHAR(50) = NULL,
+    @piFirstName VARCHAR(50) = NULL,
+    @piORCiD VARCHAR(50) = NULL,
+    @awardCode VARCHAR(50) = NULL,
+    @yearList VARCHAR(1000) = NULL,
+    @cityList VARCHAR(1000) = NULL,
+    @stateList VARCHAR(1000) = NULL,
+    @countryList VARCHAR(1000) = NULL,
+    @regionList VARCHAR(100) = NULL,
+    @incomeGroupList VARCHAR(1000) = NULL,
+    @FundingOrgTypeList VARCHAR(50) = NULL,
+    @fundingOrgList VARCHAR(1000) = NULL,
+    @cancerTypeList VARCHAR(1000) = NULL,
+    @projectTypeList VARCHAR(1000) = NULL,
+    @CSOList VARCHAR(1000) = NULL,
+    @ChildhoodCancerList VARCHAR(1000) = NULL,
+    @searchCriteriaID INT OUTPUT,
+    @ResultCount INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Declare temporary table with adjusted column lengths
+    CREATE TABLE #projFunding (
+        ProjectFundingID INT PRIMARY KEY,
+        ProjectID INT,
+        Title NVARCHAR(1000), -- Adjusted length
+        Institution NVARCHAR(1000), -- Adjusted length
+        piLastName NVARCHAR(100),
+        piFirstName NVARCHAR(100),
+        piORCiD NVARCHAR(100),
+        AwardCode NVARCHAR(100),
+        BudgetEndDate DATE,
+        IsChildhood INT,
+        City NVARCHAR(100),
+        State NVARCHAR(100),
+        Country NVARCHAR(100),
+        RegionID INT,
+        FundingOrgType NVARCHAR(100),
+        FundingOrgID INT,
+        CancerTypeID INT,
+        ProjectType NVARCHAR(100),
+        CSOCode NVARCHAR(100)
+    );
+
+    -- Insert data into #projFunding with necessary filters
+    INSERT INTO #projFunding (ProjectFundingID, ProjectID, Title, Institution, piLastName, piFirstName, piORCiD, AwardCode, BudgetEndDate, IsChildhood, City, State, Country, RegionID, FundingOrgType, FundingOrgID, CancerTypeID, ProjectType, CSOCode)
+    SELECT 
+        pf.ProjectFundingID,
+        pf.ProjectID,
+        MAX(ISNULL(LEFT(pf.Title, 1000), '')) AS Title, -- Truncate and handle NULLs
+        MAX(ISNULL(LEFT(i.Name, 1000), '')) AS Institution, -- Truncate and handle NULLs
+        MAX(ISNULL(pi.LastName, '')) AS piLastName,
+        MAX(ISNULL(pi.FirstName, '')) AS piFirstName,
+        MAX(ISNULL(pi.ORC_ID, '')) AS piORCiD,
+        MAX(ISNULL(pf.AltAwardCode, '')) AS AwardCode,
+        MAX(pf.BudgetEndDate) AS BudgetEndDate,
+        MAX(pf.IsChildhood) AS IsChildhood,
+        MAX(ISNULL(i.City, '')) AS City,
+        MAX(ISNULL(i.State, '')) AS State,
+        MAX(ISNULL(i.Country, '')) AS Country,
+        MAX(c.RegionID) AS RegionID,
+        MAX(ISNULL(o.Type, '')) AS FundingOrgType,
+        MAX(o.FundingOrgID) AS FundingOrgID,
+        MAX(ct.CancerTypeID) AS CancerTypeID,
+        MAX(ISNULL(pt.ProjectType, '')) AS ProjectType,
+        MAX(ISNULL(cso.CSOCode, '')) AS CSOCode
+    FROM ProjectFunding pf
+    INNER JOIN Institution i ON pf.FundingOrgID = i.InstitutionID
+    INNER JOIN ProjectFundingInvestigator pi ON pf.ProjectFundingID = pi.ProjectFundingID AND pi.IsPrincipalInvestigator = 1
+    LEFT JOIN Country c ON i.Country = c.Abbreviation
+    LEFT JOIN FundingOrg o ON pf.FundingOrgID = o.FundingOrgID
+    LEFT JOIN ProjectCancerType ct ON pf.ProjectFundingID = ct.ProjectFundingID
+    LEFT JOIN Project_ProjectType pt ON pf.ProjectID = pt.ProjectID
+    LEFT JOIN ProjectCSO cso ON pf.ProjectFundingID = cso.ProjectFundingID
+    WHERE 
+        (@InvestigatorType IS NULL OR (@InvestigatorType = 'PI' AND pi.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND pi.IsPrincipalInvestigator = 0))
+        AND (@institution IS NULL OR i.Name LIKE '%' + @institution + '%')
+        AND (@piLastName IS NULL OR pi.LastName LIKE '%' + @piLastName + '%')
+        AND (@piFirstName IS NULL OR pi.FirstName LIKE '%' + @piFirstName + '%')
+        AND (@piORCiD IS NULL OR pi.ORC_ID LIKE '%' + @piORCiD + '%')
+        AND (@awardCode IS NULL OR pf.AltAwardCode LIKE '%' + @awardCode + '%')
+        AND (@yearList IS NULL OR YEAR(pf.BudgetEndDate) IN (SELECT VALUE FROM dbo.ToIntTable(@yearList)))
+        AND (@cityList IS NULL OR i.City IN (SELECT VALUE FROM dbo.ToStrTable(@cityList)))
+        AND (@stateList IS NULL OR i.State IN (SELECT VALUE FROM dbo.ToStrTable(@stateList)))
+        AND (@countryList IS NULL OR i.Country IN (SELECT VALUE FROM dbo.ToStrTable(@countryList)))
+        AND (@regionList IS NULL OR c.RegionID IN (SELECT VALUE FROM dbo.ToIntTable(@regionList)))
+        AND (@incomeGroupList IS NULL OR c.IncomeBand IN (SELECT VALUE FROM dbo.ToStrTable(@incomeGroupList)))
+        AND (@FundingOrgTypeList IS NULL OR o.Type IN (SELECT VALUE FROM dbo.ToStrTable(@FundingOrgTypeList)))
+        AND (@fundingOrgList IS NULL OR o.FundingOrgID IN (SELECT VALUE FROM dbo.ToIntTable(@fundingOrgList)))
+        AND (@cancerTypeList IS NULL OR ct.CancerTypeID IN (SELECT VALUE FROM dbo.ToIntTable(@cancerTypeList)))
+        AND (@projectTypeList IS NULL OR pt.ProjectType IN (SELECT VALUE FROM dbo.ToStrTable(@projectTypeList)))
+        AND (@CSOList IS NULL OR cso.CSOCode IN (SELECT VALUE FROM dbo.ToStrTable(@CSOList)))
+        AND (@ChildhoodCancerList IS NULL OR pf.IsChildhood IN (SELECT VALUE FROM dbo.ToIntTable(@ChildhoodCancerList)))
+    GROUP BY pf.ProjectFundingID, pf.ProjectID;
+
+    -- Pagination and Sorting
+    SELECT 
+        ProjectID,
+        Title,
+        Institution,
+        piLastName,
+        piFirstName,
+        piORCiD,
+        AwardCode,
+        BudgetEndDate,
+        IsChildhood,
+        City,
+        State,
+        Country,
+        RegionID,
+        FundingOrgType,
+        FundingOrgID
+    FROM #projFunding
+    ORDER BY 
+        CASE WHEN @SortCol = 'title' AND @SortDirection = 'ASC' THEN Title END ASC,
+        CASE WHEN @SortCol = 'title' AND @SortDirection = 'DESC' THEN Title END DESC
+    OFFSET (@PageNumber - 1) * @PageSize ROWS
+    FETCH NEXT @PageSize ROWS ONLY;
+
+    -- Cleanup
+    DROP TABLE #projFunding;
+END;
+
+---Explicit Temporary Table Creation: Avoided SELECT INTO for better control and indexing.
+---Filtered Data Early: Applied filters directly in the INSERT INTO statement to reduce unnecessary data processing.
+----Simplified Sorting: Removed redundant CASE statements in ORDER BY.
+----Indexed Columns: Ensure indexes exist on columns used in WHERE and JOIN clauses.
+----Pagination: Used OFFSET and FETCH NEXT for efficient pagination.
+
 
 SET ANSI_NULLS ON
 GO
@@ -190,110 +333,146 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Declare temporary tables explicitly
+    -- Explicitly create the #projFunding table
     CREATE TABLE #projFunding (
         ProjectFundingID INT PRIMARY KEY,
         ProjectID INT,
-        Title NVARCHAR(255),
-        Institution NVARCHAR(255),
-        piLastName NVARCHAR(50),
-        piFirstName NVARCHAR(50),
-        piORCiD NVARCHAR(50),
-        AwardCode NVARCHAR(50),
+        Title NVARCHAR(1000),
+        Institution NVARCHAR(1000),
+        piLastName NVARCHAR(100),
+        piFirstName NVARCHAR(100),
+        piORCiD NVARCHAR(100),
+        AwardCode NVARCHAR(100),
         BudgetEndDate DATE,
         IsChildhood INT,
         City NVARCHAR(100),
         State NVARCHAR(100),
         Country NVARCHAR(100),
         RegionID INT,
-        FundingOrgType NVARCHAR(50),
+        FundingOrgType NVARCHAR(100),
         FundingOrgID INT,
         CancerTypeID INT,
-        ProjectType NVARCHAR(50),
-        CSOCode NVARCHAR(50)
+        ProjectType NVARCHAR(100),
+        CSOCode NVARCHAR(100)
     );
 
-    -- Insert data into #projFunding with necessary filters
+    -- Use ROW_NUMBER() to eliminate duplicates
+    WITH RankedData AS (
+        SELECT 
+            pf.ProjectFundingID,
+            pf.ProjectID,
+            ISNULL(LEFT(pf.Title, 1000), '') AS Title,
+            ISNULL(LEFT(i.Name, 1000), '') AS Institution,
+            ISNULL(pi.LastName, '') AS piLastName,
+            ISNULL(pi.FirstName, '') AS piFirstName,
+            ISNULL(pi.ORC_ID, '') AS piORCiD,
+            ISNULL(pf.AltAwardCode, '') AS AwardCode,
+            pf.BudgetEndDate,
+            pf.IsChildhood,
+            ISNULL(i.City, '') AS City,
+            ISNULL(i.State, '') AS State,
+            ISNULL(i.Country, '') AS Country,
+            c.RegionID,
+            ISNULL(o.Type, '') AS FundingOrgType,
+            o.FundingOrgID,
+            ct.CancerTypeID,
+            ISNULL(pt.ProjectType, '') AS ProjectType,
+            ISNULL(cso.CSOCode, '') AS CSOCode,
+            ROW_NUMBER() OVER (PARTITION BY pf.ProjectFundingID ORDER BY pf.ProjectFundingID) AS RowNum
+        FROM ProjectFunding pf
+        INNER JOIN Institution i ON pf.FundingOrgID = i.InstitutionID
+        INNER JOIN ProjectFundingInvestigator pi ON pf.ProjectFundingID = pi.ProjectFundingID AND pi.IsPrincipalInvestigator = 1
+        LEFT JOIN Country c ON i.Country = c.Abbreviation
+        LEFT JOIN FundingOrg o ON pf.FundingOrgID = o.FundingOrgID
+        LEFT JOIN ProjectCancerType ct ON pf.ProjectFundingID = ct.ProjectFundingID
+        LEFT JOIN Project_ProjectType pt ON pf.ProjectID = pt.ProjectID
+        LEFT JOIN ProjectCSO cso ON pf.ProjectFundingID = cso.ProjectFundingID
+        WHERE 
+            (@InvestigatorType IS NULL OR (@InvestigatorType = 'PI' AND pi.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND pi.IsPrincipalInvestigator = 0))
+            AND (@institution IS NULL OR i.Name LIKE '%' + @institution + '%')
+            AND (@piLastName IS NULL OR pi.LastName LIKE '%' + @piLastName + '%')
+            AND (@piFirstName IS NULL OR pi.FirstName LIKE '%' + @piFirstName + '%')
+            AND (@piORCiD IS NULL OR pi.ORC_ID LIKE '%' + @piORCiD + '%')
+            AND (@awardCode IS NULL OR pf.AltAwardCode LIKE '%' + @awardCode + '%')
+            AND (@yearList IS NULL OR YEAR(pf.BudgetEndDate) IN (SELECT VALUE FROM dbo.ToIntTable(@yearList)))
+            AND (@cityList IS NULL OR i.City IN (SELECT VALUE FROM dbo.ToStrTable(@cityList)))
+            AND (@stateList IS NULL OR i.State IN (SELECT VALUE FROM dbo.ToStrTable(@stateList)))
+            AND (@countryList IS NULL OR i.Country IN (SELECT VALUE FROM dbo.ToStrTable(@countryList)))
+            AND (@regionList IS NULL OR c.RegionID IN (SELECT VALUE FROM dbo.ToIntTable(@regionList)))
+            AND (@incomeGroupList IS NULL OR c.IncomeBand IN (SELECT VALUE FROM dbo.ToStrTable(@incomeGroupList)))
+            AND (@FundingOrgTypeList IS NULL OR o.Type IN (SELECT VALUE FROM dbo.ToStrTable(@FundingOrgTypeList)))
+            AND (@fundingOrgList IS NULL OR o.FundingOrgID IN (SELECT VALUE FROM dbo.ToIntTable(@fundingOrgList)))
+            AND (@cancerTypeList IS NULL OR ct.CancerTypeID IN (SELECT VALUE FROM dbo.ToIntTable(@cancerTypeList)))
+            AND (@projectTypeList IS NULL OR pt.ProjectType IN (SELECT VALUE FROM dbo.ToStrTable(@projectTypeList)))
+            AND (@CSOList IS NULL OR cso.CSOCode IN (SELECT VALUE FROM dbo.ToStrTable(@CSOList)))
+            AND (@ChildhoodCancerList IS NULL OR pf.IsChildhood IN (SELECT VALUE FROM dbo.ToIntTable(@ChildhoodCancerList)))
+    )
     INSERT INTO #projFunding (ProjectFundingID, ProjectID, Title, Institution, piLastName, piFirstName, piORCiD, AwardCode, BudgetEndDate, IsChildhood, City, State, Country, RegionID, FundingOrgType, FundingOrgID, CancerTypeID, ProjectType, CSOCode)
     SELECT 
-        pf.ProjectFundingID,
-        pf.ProjectID,
-        pf.Title,
-        i.Name AS Institution, -- Verify if 'Name' is the correct column for Institution
-        pi.LastName AS piLastName,
-        pi.FirstName AS piFirstName,
-        pi.ORC_ID AS piORCiD,
-        pf.AltAwardCode, -- Verify if 'AwardCode' exists in ProjectFunding
-        pf.BudgetEndDate,
-        pf.IsChildhood,
-        i.City,
-        i.State,
-        i.Country,
-        c.RegionID,
-        o.Type AS FundingOrgType,
-        o.FundingOrgID,
-        ct.CancerTypeID,
-        pt.ProjectType,
-        cso.CSOCode
-    FROM ProjectFunding pf
-    INNER JOIN Institution i ON pf.FundingOrgID = i.InstitutionID -- Verify if 'InstitutionID' exists in ProjectFunding and Institution
-    INNER JOIN ProjectFundingInvestigator pi ON pf.ProjectFundingID = pi.ProjectFundingID AND pi.IsPrincipalInvestigator = 1
-    LEFT JOIN Country c ON i.Country = c.Abbreviation -- Verify if 'Abbreviation' is the correct column in Country
-    LEFT JOIN FundingOrg o ON pf.FundingOrgID = o.FundingOrgID
-    LEFT JOIN ProjectCancerType ct ON pf.ProjectFundingID = ct.ProjectFundingID
-    LEFT JOIN Project_ProjectType pt ON pf.ProjectID = pt.ProjectID
-    LEFT JOIN ProjectCSO cso ON pf.ProjectFundingID = cso.ProjectFundingID
-    WHERE 
-        (@InvestigatorType IS NULL OR (@InvestigatorType = 'PI' AND pi.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND pi.IsPrincipalInvestigator = 0))
-        AND (@institution IS NULL OR i.Name LIKE '%' + @institution + '%')
-        AND (@piLastName IS NULL OR pi.LastName LIKE '%' + @piLastName + '%')
-        AND (@piFirstName IS NULL OR pi.FirstName LIKE '%' + @piFirstName + '%')
-        AND (@piORCiD IS NULL OR pi.ORC_ID LIKE '%' + @piORCiD + '%')
-        AND (@awardCode IS NULL OR pf.AltAwardCode LIKE '%' + @awardCode + '%')
-        AND (@yearList IS NULL OR YEAR(pf.BudgetEndDate) IN (SELECT VALUE FROM dbo.ToIntTable(@yearList)))
-        AND (@cityList IS NULL OR i.City IN (SELECT VALUE FROM dbo.ToStrTable(@cityList)))
-        AND (@stateList IS NULL OR i.State IN (SELECT VALUE FROM dbo.ToStrTable(@stateList)))
-        AND (@countryList IS NULL OR i.Country IN (SELECT VALUE FROM dbo.ToStrTable(@countryList)))
-        AND (@regionList IS NULL OR c.RegionID IN (SELECT VALUE FROM dbo.ToIntTable(@regionList)))
-        AND (@incomeGroupList IS NULL OR c.IncomeBand IN (SELECT VALUE FROM dbo.ToStrTable(@incomeGroupList))) -- Verify if 'IncomeGroup' exists in Country
-        AND (@FundingOrgTypeList IS NULL OR o.Type IN (SELECT VALUE FROM dbo.ToStrTable(@FundingOrgTypeList)))
-        AND (@fundingOrgList IS NULL OR o.FundingOrgID IN (SELECT VALUE FROM dbo.ToIntTable(@fundingOrgList)))
-        AND (@cancerTypeList IS NULL OR ct.CancerTypeID IN (SELECT VALUE FROM dbo.ToIntTable(@cancerTypeList)))
-        AND (@projectTypeList IS NULL OR pt.ProjectType IN (SELECT VALUE FROM dbo.ToStrTable(@projectTypeList)))
-        AND (@CSOList IS NULL OR cso.CSOCode IN (SELECT VALUE FROM dbo.ToStrTable(@CSOList)))
-        AND (@ChildhoodCancerList IS NULL OR pf.IsChildhood IN (SELECT VALUE FROM dbo.ToIntTable(@ChildhoodCancerList)));
+        ProjectFundingID, ProjectID, Title, Institution, piLastName, piFirstName, piORCiD, AwardCode, BudgetEndDate, IsChildhood, City, State, Country, RegionID, FundingOrgType, FundingOrgID, CancerTypeID, ProjectType, CSOCode
+    FROM RankedData
+    WHERE RowNum = 1; -- Only insert the first row for each ProjectFundingID
+
+
+	----------------------------------	
+	DECLARE @TotalRelatedProjectCount INT
+	DECLARE @LastBudgetYear INT
+    -- Create #baseProj table
+    CREATE TABLE #baseProj (
+        ProjectID INT PRIMARY KEY,
+        ProjectFundingID INT
+    );
+
+
+    -- Populate #baseProj with distinct ProjectIDs
+    INSERT INTO #baseProj (ProjectID)
+    SELECT DISTINCT ProjectID FROM #projFunding;
+
+    -- Update #baseProj with the minimum ProjectFundingID for each ProjectID
+    UPDATE #baseProj
+    SET ProjectFundingID = f.ProjectFundingID
+    FROM #baseProj b
+    JOIN (SELECT ProjectID, MIN(ProjectFundingID) AS ProjectFundingID FROM #projFunding GROUP BY ProjectID) f 
+        ON b.ProjectID = f.ProjectID;
+
+    -- Overwrite ProjectFundingID if a parent project exists
+    UPDATE #baseProj
+    SET ProjectFundingID = p.ProjectFundingID
+    FROM #baseProj b
+    JOIN (SELECT ProjectID, ProjectFundingID FROM #projFunding WHERE Category = 'parent') p 
+        ON b.ProjectID = p.ProjectID;
 
     -- Pagination and Sorting
     SELECT 
-        ProjectID,
-        Title,
-        Institution,
-        piLastName,
-        piFirstName,
-        piORCiD,
-        AwardCode,
-        BudgetEndDate,
-        IsChildhood,
-        City,
-        State,
-        Country,
-        RegionID,
-        FundingOrgType,
-        FundingOrgID
-    FROM #projFunding
+        b.ProjectID,
+        pf.Title,
+        pf.Institution,
+        pf.piLastName,
+        pf.piFirstName,
+        pf.piORCiD,
+        pf.AwardCode,
+        pf.BudgetEndDate,
+        pf.IsChildhood,
+        pf.City,
+        pf.State,
+        pf.Country,
+        pf.RegionID,
+        pf.FundingOrgType,
+        pf.FundingOrgID
+    FROM #baseProj b
+    JOIN #projFunding pf ON b.ProjectFundingID = pf.ProjectFundingID
     ORDER BY 
-        CASE WHEN @SortCol = 'title' AND @SortDirection = 'ASC' THEN Title END ASC,
-        CASE WHEN @SortCol = 'title' AND @SortDirection = 'DESC' THEN Title END DESC
+        CASE WHEN @SortCol = 'title' AND @SortDirection = 'ASC' THEN pf.Title END ASC,
+        CASE WHEN @SortCol = 'title' AND @SortDirection = 'DESC' THEN pf.Title END DESC
     OFFSET (@PageNumber - 1) * @PageSize ROWS
     FETCH NEXT @PageSize ROWS ONLY;
 
+    -- Output variables
+    SELECT @ResultCount = COUNT(*) FROM #baseProj;
+    SELECT @TotalRelatedProjectCount = COUNT(DISTINCT ProjectFundingID) FROM #projFunding;
+    SELECT @LastBudgetYear = DATEPART(YEAR, MAX(BudgetEndDate)) FROM #projFunding;
+
     -- Cleanup
     DROP TABLE #projFunding;
+    DROP TABLE #baseProj;
 END;
-
----Explicit Temporary Table Creation: Avoided SELECT INTO for better control and indexing.
----Filtered Data Early: Applied filters directly in the INSERT INTO statement to reduce unnecessary data processing.
-----Simplified Sorting: Removed redundant CASE statements in ORDER BY.
-----Indexed Columns: Ensure indexes exist on columns used in WHERE and JOIN clauses.
-----Pagination: Used OFFSET and FETCH NEXT for efficient pagination.
-
