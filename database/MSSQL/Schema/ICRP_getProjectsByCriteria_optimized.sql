@@ -163,11 +163,16 @@ END;
         SELECT @searchCriteriaID = SCOPE_IDENTITY();
 
         INSERT INTO SearchResult (SearchCriteriaID, Results,ResultCount, TotalRelatedProjectCount, LastBudgetYear, IsEmailSent) VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, @TotalRelatedProjectCount, @LastBudgetYear, 0)	
+        INSERT INTO SearchResultProject (SearchCriteriaID, ProjectID)
+        SELECT 0 AS SearchCriteriaID, ProjectID
+        FROM #FilteredProjects;
     END
     ELSE
 	BEGIN
 		UPDATE SearchResult SET Results = NULL,ResultCount=@ResultCount, TotalRelatedProjectCount=@TotalRelatedProjectCount, LastBudgetYear=@LastBudgetYear, IsEmailSent=0 WHERE SearchCriteriaID =0
-	END
+           -- Insert ProjectIDs into SearchResultProject for SearchCriteriaID = 0
+      
+    END
 
     -- Pagination and Sorting
     SELECT 
@@ -192,21 +197,31 @@ END;
     JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
     JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = p.ProjectFundingID AND pi.IsPrincipalInvestigator = 1
     JOIN Institution i ON pi.InstitutionID = i.InstitutionID
-    ORDER BY 
-        CASE 
-            WHEN @SortCol = 'title' THEN f.Title
-            WHEN @SortCol = 'code' THEN p.AwardCode
-            WHEN @SortCol = 'pi' THEN pi.LastName
-            WHEN @SortCol = 'inst' THEN i.Name
-            WHEN @SortCol = 'city' THEN i.City
-            WHEN @SortCol = 'state' THEN i.State
-            WHEN @SortCol = 'country' THEN i.Country
-            WHEN @SortCol = 'FO' THEN o.Abbreviation
-        END 
-        OFFSET (@PageNumber - 1) * @PageSize ROWS FETCH NEXT @PageSize ROWS ONLY;
+ORDER BY 
+    CASE 
+        WHEN @SortCol = 'title' AND @SortDirection = 'ASC' THEN f.Title
+        WHEN @SortCol = 'code' AND @SortDirection = 'ASC' THEN p.AwardCode
+        WHEN @SortCol = 'pi' AND @SortDirection = 'ASC' THEN pi.LastName
+        WHEN @SortCol = 'inst' AND @SortDirection = 'ASC' THEN i.Name
+        WHEN @SortCol = 'city' AND @SortDirection = 'ASC' THEN i.City
+        WHEN @SortCol = 'state' AND @SortDirection = 'ASC' THEN i.State
+        WHEN @SortCol = 'country' AND @SortDirection = 'ASC' THEN i.Country
+        WHEN @SortCol = 'FO' AND @SortDirection = 'ASC' THEN o.Abbreviation
+    END ASC,
+    CASE 
+        WHEN @SortCol = 'title' AND @SortDirection = 'DESC' THEN f.Title
+        WHEN @SortCol = 'code' AND @SortDirection = 'DESC' THEN p.AwardCode
+        WHEN @SortCol = 'pi' AND @SortDirection = 'DESC' THEN pi.LastName
+        WHEN @SortCol = 'inst' AND @SortDirection = 'DESC' THEN i.Name
+        WHEN @SortCol = 'city' AND @SortDirection = 'DESC' THEN i.City
+        WHEN @SortCol = 'state' AND @SortDirection = 'DESC' THEN i.State
+        WHEN @SortCol = 'country' AND @SortDirection = 'DESC' THEN i.Country
+        WHEN @SortCol = 'FO' AND @SortDirection = 'DESC' THEN o.Abbreviation
+    END DESC
+OFFSET (@PageNumber - 1) * @PageSize ROWS FETCH NEXT @PageSize ROWS ONLY;
 
 -- Select distinct rows from the temporary table
--- Select distinct rows from the temporary table
+
 ;WITH RankedProjects AS (
     SELECT *,
         ROW_NUMBER() OVER (
@@ -238,3 +253,14 @@ ORDER BY Title ASC;
     DROP TABLE #FilteredProjects;
     DROP TABLE #finalresult;
 END;
+
+
+--------------------------
+CREATE TABLE SearchResultProject
+(
+    SearchCriteriaID INT,
+    ProjectID INT
+);
+
+CREATE INDEX IX_SearchResultProject_SearchCriteriaID_ProjectID
+ON SearchResultProject (SearchCriteriaID, ProjectID);
