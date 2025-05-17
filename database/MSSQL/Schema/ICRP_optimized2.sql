@@ -168,6 +168,11 @@ GO
 
 ---------------------------------------------------------------
 
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
 CREATE PROCEDURE [dbo].[GetProjectCountryStatsBySearchID]   
     @SearchID INT,
     @Year INT,	
@@ -179,22 +184,24 @@ BEGIN
     SET NOCOUNT ON;
 
     ------------------------------------------------------
-    -- Temporary Table for Filtered Projects
-    ------------------------------------------------------
-    CREATE TABLE #FilteredProjects (
-        ProjectFundingID INT NOT NULL,
-        country NVARCHAR(255),
-        Amount DECIMAL(18, 2),
-        Currency NVARCHAR(10)
-    );
-
-    ------------------------------------------------------
-    -- Retrieve Search Criteria
+    -- Declare Variables for Search Criteria
     ------------------------------------------------------
     DECLARE @CountryList VARCHAR(1000) = NULL;
     DECLARE @IncomeGroupList VARCHAR(1000) = NULL;
     DECLARE @YearList VARCHAR(1000) = NULL;
     DECLARE @FundingOrgList VARCHAR(1000) = NULL;
+    DECLARE @cityList VARCHAR(1000) = NULL;
+    DECLARE @stateList VARCHAR(1000) = NULL;
+    DECLARE @regionList VARCHAR(100) = NULL;
+    DECLARE @CSOlist VARCHAR(1000) = NULL;
+    DECLARE @CancerTypelist VARCHAR(1000) = NULL;
+    DECLARE @InvestigatorType VARCHAR(250) = NULL;
+    DECLARE @institution VARCHAR(250) = NULL;
+    DECLARE @piLastName VARCHAR(50) = NULL;
+    DECLARE @piFirstName VARCHAR(50) = NULL;
+    DECLARE @piORCiD VARCHAR(50) = NULL;
+    DECLARE @FundingOrgTypeList VARCHAR(50) = NULL;
+    DECLARE @childhoodcancerList VARCHAR(1000) = NULL;
 
     IF @SearchID <> 0
     BEGIN
@@ -202,84 +209,122 @@ BEGIN
             @YearList = YearList,
             @CountryList = CountryList,
             @IncomeGroupList = IncomeGroupList,
-            @FundingOrgList = FundingOrgList
+            @FundingOrgList = FundingOrgList,
+            @cityList = cityList,
+            @stateList = stateList,
+            @regionList = regionList,
+            @CSOlist = CSOlist,
+            @CancerTypelist = CancerTypelist,
+            @InvestigatorType = InvestigatorType,
+            @institution = institution,
+            @piLastName = piLastName,
+            @piFirstName = piFirstName,
+            @piORCiD = piORCiD,
+            @FundingOrgTypeList = FundingOrgTypeList,
+            @childhoodcancerList = childhoodcancerList
         FROM SearchCriteria WHERE SearchCriteriaID = @SearchID;
     END;
 
     ------------------------------------------------------
-    -- Filter Projects Using SearchResultProject
+    -- Table Variable for Filtered Projects
     ------------------------------------------------------
-    INSERT INTO #FilteredProjects (ProjectFundingID, country, Amount, Currency)
-    SELECT 
-        f.ProjectFundingID,
-        pii.country,
-        f.Amount,
-        o.Currency
-    FROM SearchResultProject srp
-    INNER JOIN ProjectFunding f ON srp.ProjectID = f.ProjectID
-    INNER JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
-    INNER JOIN ProjectFundingInvestigator pi ON f.ProjectFundingID = pi.ProjectFundingID
-    INNER JOIN Institution pii ON pi.InstitutionID = pii.InstitutionID
-    WHERE 
-        srp.SearchCriteriaID = @SearchID
-        AND (@CountryList IS NULL OR pii.country IN (SELECT VALUE FROM dbo.ToStrTable(@CountryList)))
-        AND (@IncomeGroupList IS NULL OR pii.country IN (SELECT VALUE FROM dbo.ToStrTable(@IncomeGroupList)))
-        AND (@FundingOrgList IS NULL OR o.FundingOrgID IN (SELECT VALUE FROM dbo.ToStrTable(@FundingOrgList)));
+    DECLARE @FilteredProjects TABLE (
+        ProjectFundingID INT NOT NULL,
+        Country NVARCHAR(255),
+        Amount DECIMAL(18, 2),
+        Currency NVARCHAR(10)
+    );
 
-    ------------------------------------------------------
-    -- Apply Year Filter
-    ------------------------------------------------------
-    IF @YearList IS NOT NULL
-    BEGIN
-        DELETE FROM #FilteredProjects
-        WHERE ProjectFundingID NOT IN (
-            SELECT DISTINCT f.ProjectFundingID
-            FROM #FilteredProjects f
-            INNER JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID
-            WHERE ext.CalendarYear IN (SELECT VALUE FROM dbo.ToStrTable(@YearList))
-        );
-    END;
+    -- Filter Projects Based on Criteria
+-- Filter Projects Based on Criteria
+INSERT INTO @FilteredProjects (ProjectFundingID, Country, Amount, Currency)
+SELECT DISTINCT 
+    f.ProjectFundingID,
+    pii.Country,
+    f.Amount,
+    o.Currency
+    FROM SearchResultProject srp
+INNER JOIN ProjectFunding f ON srp.ProjectID = f.ProjectID
+INNER JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
+INNER JOIN ProjectFundingInvestigator people ON f.ProjectFundingID = people.ProjectFundingID -- Find PI and collaborators
+INNER JOIN Institution i ON i.InstitutionID = people.InstitutionID
+INNER JOIN CountryMapLayer cm ON i.Country = cm.Country
+INNER JOIN (
+    SELECT InstitutionID, ProjectFundingID 
+    FROM ProjectFundingInvestigator 
+    WHERE IsPrincipalInvestigator = 1
+) pi ON f.ProjectFundingID = pi.ProjectFundingID -- Find PI country
+INNER JOIN Institution pii ON pi.InstitutionID = pii.InstitutionID -- Get PI country
+INNER JOIN Country c ON c.Abbreviation = i.Country
+WHERE 
+    (@CountryList IS NULL OR i.Country IN (SELECT [Value] FROM dbo.ToStrTable(@CountryList)))
+    AND (@IncomeGroupList IS NULL OR cm.[Value] IN (SELECT [Value] FROM dbo.ToStrTable(@IncomeGroupList)))
+    AND (@InvestigatorType IS NULL OR 
+        (@InvestigatorType = 'PI' AND people.IsPrincipalInvestigator = 1) OR 
+        (@InvestigatorType = 'Collab' AND ISNULL(people.IsPrincipalInvestigator, 0) = 0)) -- Search only PI, collaborators, or all
+    AND (@institution IS NULL OR i.Name LIKE '%' + @institution + '%')
+    AND (@piLastName IS NULL OR people.LastName LIKE '%' + @piLastName + '%')
+    AND (@piFirstName IS NULL OR people.FirstName LIKE '%' + @piFirstName + '%')
+    AND (@piORCiD IS NULL OR people.ORC_ID LIKE '%' + @piORCiD + '%')
+    AND (@cityList IS NULL OR i.City IN (SELECT [Value] FROM dbo.ToStrTable(@cityList)))
+    AND (@stateList IS NULL OR i.State IN (SELECT [Value] FROM dbo.ToStrTable(@stateList)))
+    AND (@regionList IS NULL OR c.RegionID IN (SELECT [Value] FROM dbo.ToStrTable(@regionList)))
+    AND (@fundingOrgList IS NULL OR o.FundingOrgID IN (SELECT [Value] FROM dbo.ToStrTable(@fundingOrgList)))
+    AND (@FundingOrgTypeList IS NULL OR o.Type IN (SELECT [Value] FROM dbo.ToStrTable(@FundingOrgTypeList)))
+    AND (@childhoodcancerList IS NULL OR f.IsChildhood IN (SELECT [Value] FROM dbo.ToStrTable(@childhoodcancerList)))
+    AND (@YearList IS NULL OR EXISTS (
+        SELECT 1
+        FROM ProjectFundingExt ext
+        WHERE f.ProjectFundingID = ext.ProjectFundingID
+          AND ext.CalendarYear IN (SELECT [Value] FROM dbo.ToStrTable(@YearList))
+    ));
 
     ------------------------------------------------------
     -- Calculate Country Stats
     ------------------------------------------------------
     IF @Type = 'Count'
     BEGIN
-        SELECT 
-            country,
-            COUNT(DISTINCT ProjectFundingID) AS [Count],
-            0 AS USDAmount
-        INTO #CountStats
-        FROM #FilteredProjects
-        GROUP BY country;
+        DECLARE @CountStats TABLE (
+            country NVARCHAR(255),
+            Count INT,
+            USDAmount DECIMAL(18, 2)
+        );
 
-        SELECT @ResultCount = SUM([Count]) FROM #CountStats;
-        SELECT * FROM #CountStats ORDER BY [Count] DESC;
+        INSERT INTO @CountStats (Country, Count, USDAmount)
+        SELECT 
+            Country,
+            COUNT(DISTINCT CONCAT(ProjectFundingID, Country, Amount, Currency)) AS [Count],
+            0 AS USDAmount
+        FROM @FilteredProjects
+        GROUP BY Country;
+
+        SELECT @ResultCount = SUM([Count]) FROM @CountStats;
+        SELECT * FROM @CountStats ORDER BY [Count] DESC;
     END
     ELSE -- 'Amount'
     BEGIN
+        DECLARE @AmountStats TABLE (
+            country NVARCHAR(255),
+            Count INT,
+            USDAmount DECIMAL(18, 2)
+        );
+
+        INSERT INTO @AmountStats (Country, Count, USDAmount)
         SELECT 
-            country,
+            Country,
             0 AS [Count],
             SUM(CAST((Amount * ISNULL(cr.ToCurrencyRate, 1)) AS DECIMAL(18, 2))) AS USDAmount
-        INTO #AmountStats
-        FROM #FilteredProjects f
+        FROM @FilteredProjects f
         LEFT JOIN CurrencyRate cr ON cr.FromCurrency = f.Currency AND cr.ToCurrency = 'USD' AND cr.Year = @Year
-        GROUP BY country;
+        GROUP BY Country;
 
-        SELECT @ResultAmount = SUM(USDAmount) FROM #AmountStats;
-        SELECT * FROM #AmountStats ORDER BY USDAmount DESC;
+        SELECT @ResultAmount = SUM(USDAmount) FROM @AmountStats;
+        SELECT * FROM @AmountStats ORDER BY USDAmount DESC;
     END;
 
-    ------------------------------------------------------
-    -- Cleanup
-    ------------------------------------------------------
-    DROP TABLE #FilteredProjects;
-
-    IF OBJECT_ID('tempdb..#CountStats') IS NOT NULL DROP TABLE #CountStats;
-    IF OBJECT_ID('tempdb..#AmountStats') IS NOT NULL DROP TABLE #AmountStats;
 END;
 GO
+
 
 -----------------------------------------------------------------
 
@@ -393,7 +438,7 @@ BEGIN
             LEFT JOIN CurrencyRate cr ON cr.FromCurrency = f.Currency AND cr.ToCurrency = 'USD' AND cr.Year = @Year
         ) t
         GROUP BY CancerType;
-
+      
         SELECT @ResultAmount = SUM(USDAmount) FROM #AmountStats;
         SELECT * FROM #AmountStats ORDER BY USDAmount DESC;
     END;
