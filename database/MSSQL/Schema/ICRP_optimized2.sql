@@ -74,7 +74,7 @@ BEGIN
     FROM SearchResultProject srp
     INNER JOIN ProjectFunding f ON srp.ProjectID = f.ProjectID
     INNER JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
-    INNER JOIN ProjectCSO pc ON f.ProjectFundingID = pc.ProjectFundingID
+   INNER JOIN (SELECT * FROM ProjectCSO WHERE ISNULL(Relevance, 0) <> 0) pc ON f.ProjectFundingID = pc.ProjectFundingID
     INNER JOIN CSO c ON pc.CSOCode = c.Code
     WHERE 
         srp.SearchCriteriaID = @SearchID
@@ -102,16 +102,58 @@ BEGIN
             INNER JOIN #CancerTypeMapping ctm ON pct.CancerTypeID = ctm.CancerTypeID OR pct.CancerTypeID = ctm.RelatedCancerTypeID
         );
     END;
+-- Add after Year filter section
+IF @YearList IS NOT NULL
+BEGIN
+    CREATE TABLE #YearlyAmounts (
+        ProjectFundingID INT,
+        CalendarAmount DECIMAL(18,2)
+    );
 
-    IF @YearList IS NOT NULL
+    INSERT INTO #YearlyAmounts (ProjectFundingID, CalendarAmount)
+    SELECT 
+        ext.ProjectFundingID,
+        SUM(ext.CalendarAmount)
+    FROM 
+        ProjectFundingExt ext
+    WHERE 
+        ext.CalendarYear IN (SELECT VALUE FROM dbo.ToStrTable(@YearList))
+        AND ext.ProjectFundingID IN (SELECT ProjectFundingID FROM #FilteredProjects)
+    GROUP BY ext.ProjectFundingID;
+
+    -- Update the Amount in #FilteredProjects to reflect calendar-based filtered amount
+    UPDATE f
+    SET f.Amount = y.CalendarAmount
+    FROM #FilteredProjects f
+    INNER JOIN #YearlyAmounts y ON f.ProjectFundingID = y.ProjectFundingID;
+
+    DROP TABLE #YearlyAmounts;
+END;
+
+       -- Add missing investigator and institution filters
+    IF (@Institution IS NOT NULL) OR (@PILastName IS NOT NULL) OR (@PIFirstName IS NOT NULL) OR (@PIORCiD IS NOT NULL) OR (@InvestigatorType IS NOT NULL) OR (@CountryList IS NOT NULL) OR (@CityList IS NOT NULL) OR (@StateList IS NOT NULL) OR (@RegionList IS NOT NULL)
     BEGIN
-        -- Filter by year
         DELETE FROM #FilteredProjects
         WHERE ProjectFundingID NOT IN (
             SELECT DISTINCT f.ProjectFundingID
             FROM #FilteredProjects f
-            INNER JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID
-            WHERE ext.CalendarYear IN (SELECT VALUE FROM dbo.ToStrTable(@YearList))
+            INNER JOIN ProjectFundingInvestigator pi ON f.ProjectFundingID = pi.ProjectFundingID
+            INNER JOIN Institution i ON pi.InstitutionID = i.InstitutionID
+            INNER JOIN CountryMapLayer cm ON i.Country = cm.Country
+            INNER JOIN Country c ON i.Country = c.Abbreviation
+            WHERE 
+                ((@Institution IS NULL) OR (i.Name LIKE '%' + @Institution + '%')) AND
+                ((@InvestigatorType IS NULL) OR 
+                    (@InvestigatorType = 'PI' AND pi.IsPrincipalInvestigator = 1) OR 
+                    (@InvestigatorType = 'Collab' AND ISNULL(pi.IsPrincipalInvestigator, 0) = 0)) AND
+                ((@PILastName IS NULL) OR (pi.LastName LIKE '%' + @PILastName + '%')) AND
+                ((@PIFirstName IS NULL) OR (pi.FirstName LIKE '%' + @PIFirstName + '%')) AND
+                ((@PIORCiD IS NULL) OR (pi.ORC_ID LIKE '%' + @PIORCiD + '%')) AND
+                ((@CountryList IS NULL) OR (i.Country IN (SELECT VALUE FROM dbo.ToStrTable(@CountryList)))) AND
+                ((@IncomeGroupList IS NULL) OR (cm.[VALUE] IN (SELECT VALUE FROM dbo.ToStrTable(@IncomeGroupList)))) AND
+                ((@CityList IS NULL) OR (i.City IN (SELECT VALUE FROM dbo.ToStrTable(@CityList)))) AND
+                ((@StateList IS NULL) OR (i.State IN (SELECT VALUE FROM dbo.ToStrTable(@StateList)))) AND
+                ((@RegionList IS NULL) OR (c.RegionID IN (SELECT VALUE FROM dbo.ToStrTable(@RegionList))))
         );
     END;
 
@@ -257,6 +299,7 @@ INNER JOIN (
 INNER JOIN Institution pii ON pi.InstitutionID = pii.InstitutionID -- Get PI country
 INNER JOIN Country c ON c.Abbreviation = i.Country
 WHERE 
+srp.SearchCriteriaID = @SearchID and 
     (@CountryList IS NULL OR i.Country IN (SELECT [Value] FROM dbo.ToStrTable(@CountryList)))
     AND (@IncomeGroupList IS NULL OR cm.[Value] IN (SELECT [Value] FROM dbo.ToStrTable(@IncomeGroupList)))
     AND (@InvestigatorType IS NULL OR 
