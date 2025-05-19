@@ -1,18 +1,19 @@
 
-
-ALTER  PROCEDURE [dbo].[GetProjectCountryStatsBySearchID]   
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE dbo.GetProjectCountryStatsBySearchID
     @SearchID INT,
-    @Year INT,	
+    @Year INT,
     @Type VARCHAR(25) = 'Count',  -- 'Count' or 'Amount'
-    @ResultCount INT OUTPUT,  
-    @ResultAmount FLOAT OUTPUT  
+    @ResultCount INT OUTPUT,
+    @ResultAmount FLOAT OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    ------------------------------------------------------
     -- Declare Variables for Search Criteria
-    ------------------------------------------------------
     DECLARE @CountryList VARCHAR(1000) = NULL;
     DECLARE @IncomeGroupList VARCHAR(1000) = NULL;
     DECLARE @YearList VARCHAR(1000) = NULL;
@@ -53,137 +54,105 @@ BEGIN
     END;
 
     ------------------------------------------------------
-    -- Table Variable for Filtered Projects
+    -- Materialize Filtered Projects into Table Variable
     ------------------------------------------------------
     DECLARE @FilteredProjects TABLE (
-        ProjectFundingID INT NOT NULL,
+        ProjectFundingID INT,
         Country NVARCHAR(255),
         Amount DECIMAL(18, 2),
         Currency NVARCHAR(10)
     );
 
-    -- Filter Projects Based on Criteria
--- Filter Projects Based on Criteria
-INSERT INTO @FilteredProjects (ProjectFundingID, Country, Amount, Currency)
-SELECT DISTINCT 
-    f.ProjectFundingID,
-    pii.Country,
-    f.Amount,
-    o.Currency
+    INSERT INTO @FilteredProjects (ProjectFundingID, Country, Amount, Currency)
+    SELECT DISTINCT
+        f.ProjectFundingID,
+        pii.Country,
+        f.Amount,
+        o.Currency
     FROM SearchResultProject srp
-INNER JOIN ProjectFunding f ON srp.ProjectID = f.ProjectID
-INNER JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
-INNER JOIN ProjectFundingInvestigator people ON f.ProjectFundingID = people.ProjectFundingID -- Find PI and collaborators
-INNER JOIN Institution i ON i.InstitutionID = people.InstitutionID
-INNER JOIN CountryMapLayer cm ON i.Country = cm.Country
-INNER JOIN (
-    SELECT InstitutionID, ProjectFundingID 
-    FROM ProjectFundingInvestigator 
-    WHERE IsPrincipalInvestigator = 1
-) pi ON f.ProjectFundingID = pi.ProjectFundingID -- Find PI country
-INNER JOIN Institution pii ON pi.InstitutionID = pii.InstitutionID -- Get PI country
-INNER JOIN Country c ON c.Abbreviation = i.Country
-WHERE 
-    srp.SearchCriteriaID = @SearchID and 
-    (@CountryList IS NULL OR i.Country IN (SELECT [Value] FROM dbo.ToStrTable(@CountryList)))
-    AND (@IncomeGroupList IS NULL OR cm.[Value] IN (SELECT [Value] FROM dbo.ToStrTable(@IncomeGroupList)))
-    AND (@InvestigatorType IS NULL OR 
-        (@InvestigatorType = 'PI' AND people.IsPrincipalInvestigator = 1) OR 
-        (@InvestigatorType = 'Collab' AND ISNULL(people.IsPrincipalInvestigator, 0) = 0)) -- Search only PI, collaborators, or all
-    AND (@institution IS NULL OR i.Name LIKE '%' + @institution + '%')
-    AND (@piLastName IS NULL OR people.LastName LIKE '%' + @piLastName + '%')
-    AND (@piFirstName IS NULL OR people.FirstName LIKE '%' + @piFirstName + '%')
-    AND (@piORCiD IS NULL OR people.ORC_ID LIKE '%' + @piORCiD + '%')
-    AND (@cityList IS NULL OR i.City IN (SELECT [Value] FROM dbo.ToStrTable(@cityList)))
-    AND (@stateList IS NULL OR i.State IN (SELECT [Value] FROM dbo.ToStrTable(@stateList)))
-    AND (@regionList IS NULL OR c.RegionID IN (SELECT [Value] FROM dbo.ToStrTable(@regionList)))
-    AND (@fundingOrgList IS NULL OR o.FundingOrgID IN (SELECT [Value] FROM dbo.ToStrTable(@fundingOrgList)))
-    AND (@FundingOrgTypeList IS NULL OR o.Type IN (SELECT [Value] FROM dbo.ToStrTable(@FundingOrgTypeList)))
-    AND (@childhoodcancerList IS NULL OR f.IsChildhood IN (SELECT [Value] FROM dbo.ToStrTable(@childhoodcancerList)))
-    AND (@YearList IS NULL OR EXISTS (
-        SELECT 1
-        FROM ProjectFundingExt ext
-        WHERE f.ProjectFundingID = ext.ProjectFundingID
-          AND ext.CalendarYear IN (SELECT [Value] FROM dbo.ToStrTable(@YearList))
-    ));
+    INNER JOIN ProjectFunding f ON srp.ProjectID = f.ProjectID
+    INNER JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
+    INNER JOIN ProjectFundingInvestigator people ON f.ProjectFundingID = people.ProjectFundingID
+    INNER JOIN Institution i ON i.InstitutionID = people.InstitutionID
+    INNER JOIN CountryMapLayer cm ON i.Country = cm.Country
+    INNER JOIN (
+        SELECT InstitutionID, ProjectFundingID 
+        FROM ProjectFundingInvestigator 
+        WHERE IsPrincipalInvestigator = 1
+    ) pi ON f.ProjectFundingID = pi.ProjectFundingID
+    INNER JOIN Institution pii ON pi.InstitutionID = pii.InstitutionID
+    INNER JOIN Country c ON c.Abbreviation = i.Country
+    WHERE
+        srp.SearchCriteriaID = @SearchID
+        AND (@CountryList IS NULL OR i.Country IN (SELECT [Value] FROM dbo.ToStrTable(@CountryList)))
+        AND (@IncomeGroupList IS NULL OR cm.[Value] IN (SELECT [Value] FROM dbo.ToStrTable(@IncomeGroupList)))
+        AND (@InvestigatorType IS NULL OR 
+            (@InvestigatorType = 'PI' AND people.IsPrincipalInvestigator = 1) OR 
+            (@InvestigatorType = 'Collab' AND ISNULL(people.IsPrincipalInvestigator, 0) = 0))
+        AND (@institution IS NULL OR i.Name LIKE '%' + @institution + '%')
+        AND (@piLastName IS NULL OR people.LastName LIKE '%' + @piLastName + '%')
+        AND (@piFirstName IS NULL OR people.FirstName LIKE '%' + @piFirstName + '%')
+        AND (@piORCiD IS NULL OR people.ORC_ID LIKE '%' + @piORCiD + '%')
+        AND (@cityList IS NULL OR i.City IN (SELECT [Value] FROM dbo.ToStrTable(@cityList)))
+        AND (@stateList IS NULL OR i.State IN (SELECT [Value] FROM dbo.ToStrTable(@stateList)))
+        AND (@regionList IS NULL OR c.RegionID IN (SELECT [Value] FROM dbo.ToStrTable(@regionList)))
+        AND (@fundingOrgList IS NULL OR o.FundingOrgID IN (SELECT [Value] FROM dbo.ToStrTable(@fundingOrgList)))
+        AND (@FundingOrgTypeList IS NULL OR o.Type IN (SELECT [Value] FROM dbo.ToStrTable(@FundingOrgTypeList)))
+        AND (@childhoodcancerList IS NULL OR f.IsChildhood IN (SELECT [Value] FROM dbo.ToStrTable(@childhoodcancerList)))
+        AND (@YearList IS NULL OR EXISTS (
+            SELECT 1
+            FROM ProjectFundingExt ext
+            WHERE f.ProjectFundingID = ext.ProjectFundingID
+              AND ext.CalendarYear IN (SELECT [Value] FROM dbo.ToStrTable(@YearList))
+        ));
 
-IF @YearList IS NOT NULL AND @Type != 'Count'
-BEGIN
-    -- Convert @YearList to a usable CTE
-    WITH YearList AS (
-        SELECT [Value] AS Year
-        FROM dbo.ToStrTable(@YearList)
-    ),
-    
-    -- Filter ProjectFundingExt by year
-    FilteredProjectFundingExt AS (
-        SELECT ProjectFundingID, CalendarAmount
-        FROM ProjectFundingExt
-        WHERE CalendarYear IN (SELECT Year FROM YearList)
-    ),
-
-    -- Aggregate CalendarAmount for each ProjectFundingID
-    TmpCalAmt AS (
-        SELECT 
-            f.ProjectFundingID,
-            SUM(ext.CalendarAmount) AS Amount
-        FROM @FilteredProjects f
-        INNER JOIN FilteredProjectFundingExt ext 
-            ON f.ProjectFundingID = ext.ProjectFundingID
-        GROUP BY f.ProjectFundingID
-    )
-
-    -- Update the Amount in @FilteredProjects
-    UPDATE fp
-    SET fp.Amount = ISNULL(tca.Amount, 0)
-    FROM @FilteredProjects fp
-    INNER JOIN TmpCalAmt tca 
-        ON fp.ProjectFundingID = tca.ProjectFundingID;
-END;
+    -- Adjust Amount by Year if needed
+    IF @YearList IS NOT NULL AND @Type != 'Count'
+    BEGIN
+        ;WITH FilteredProjectFundingExt AS (
+            SELECT ProjectFundingID, SUM(CalendarAmount) AS Amount
+            FROM ProjectFundingExt
+            WHERE CalendarYear IN (SELECT [Value] FROM dbo.ToStrTable(@YearList))
+            GROUP BY ProjectFundingID
+        )
+        UPDATE fp
+        SET fp.Amount = ext.Amount
+        FROM @FilteredProjects fp
+        JOIN FilteredProjectFundingExt ext ON fp.ProjectFundingID = ext.ProjectFundingID;
+    END;
 
     ------------------------------------------------------
-    -- Calculate Country Stats
+    -- Calculate Results
     ------------------------------------------------------
     IF @Type = 'Count'
     BEGIN
-        DECLARE @CountStats TABLE (
-            country NVARCHAR(255),
-            Count INT,
-            USDAmount DECIMAL(18, 2)
-        );
-
-        INSERT INTO @CountStats (Country, Count, USDAmount)
         SELECT 
             Country,
-            COUNT(DISTINCT CONCAT(ProjectFundingID, Country, Amount, Currency)) AS [Count],
-            0 AS USDAmount
+            COUNT(*) AS [Count],
+            0.0 AS USDAmount
+        INTO #CountStats
         FROM @FilteredProjects
         GROUP BY Country;
 
-        SELECT @ResultCount = SUM([Count]) FROM @CountStats;
-        SELECT * FROM @CountStats ORDER BY [Count] DESC;
+        SELECT @ResultCount = SUM([Count]) FROM #CountStats;
+        SELECT * FROM #CountStats ORDER BY [Count] DESC;
+        DROP TABLE #CountStats;
     END
-    ELSE -- 'Amount'
+    ELSE
     BEGIN
-        DECLARE @AmountStats TABLE (
-            country NVARCHAR(255),
-            Count INT,
-            USDAmount DECIMAL(18, 2)
-        );
-
-        INSERT INTO @AmountStats (Country, Count, USDAmount)
         SELECT 
-            Country,
+            f.Country,
             0 AS [Count],
-            SUM(CAST((Amount * ISNULL(cr.ToCurrencyRate, 1)) AS DECIMAL(18, 2))) AS USDAmount
+            SUM(CAST((f.Amount * ISNULL(cr.ToCurrencyRate, 1)) AS DECIMAL(18, 2))) AS USDAmount
+        INTO #AmountStats
         FROM @FilteredProjects f
         LEFT JOIN CurrencyRate cr ON cr.FromCurrency = f.Currency AND cr.ToCurrency = 'USD' AND cr.Year = @Year
-        GROUP BY Country;
+        GROUP BY f.Country;
 
-        SELECT @ResultAmount = SUM(USDAmount) FROM @AmountStats;
-        SELECT * FROM @AmountStats ORDER BY USDAmount DESC;
-    END;
-
+        SELECT @ResultAmount = SUM(USDAmount) FROM #AmountStats;
+        SELECT * FROM #AmountStats ORDER BY USDAmount DESC;
+        DROP TABLE #AmountStats;
+    END
 END;
 GO
 
@@ -802,5 +771,276 @@ BEGIN
 
     IF OBJECT_ID('tempdb..#CountStats') IS NOT NULL DROP TABLE #CountStats;
     IF OBJECT_ID('tempdb..#AmountStats') IS NOT NULL DROP TABLE #AmountStats;
+END;
+GO
+
+
+-------------------------------------------------------
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+GO
+ALTER PROCEDURE [dbo].[GetProjectExportsBySearchIDOpt]
+    @SearchID INT,
+    @IncludeAbstract INT = 0,
+    @SiteURL VARCHAR(250) = 'https://www.icrpartnership.org/project/',
+    @Year SMALLINT = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Table variable to hold project funding
+    DECLARE @ProjectFunding TABLE (
+        ProjectID INT,
+        ProjectFundingID INT,
+        AwardTitle VARCHAR(255),
+        AwardType VARCHAR(255),
+        AwardCode VARCHAR(50),
+        Source_ID VARCHAR(50),
+        AltAwardCode VARCHAR(50),
+        FundingCategory VARCHAR(100),
+        IsChildhood VARCHAR(50),
+        AwardStartDate DATE,
+        AwardEndDate DATE,
+        BudgetStartDate DATE,
+        BudgetEndDate DATE,
+        AwardAmount DECIMAL(18, 2),
+        FundingIndicator CHAR(1),
+        Currency VARCHAR(10),
+        FundingMechanism VARCHAR(255),
+        FundingMechanismCode VARCHAR(50),
+        SponsorCode VARCHAR(50),
+        FundingOrg VARCHAR(255),
+        FundingOrgType VARCHAR(50),
+        FundingDiv VARCHAR(255),
+        FundingDivAbbr VARCHAR(50),
+        FundingContact VARCHAR(255),
+        PiLastName VARCHAR(255),
+        PiFirstName VARCHAR(255),
+        PiORCID VARCHAR(50),
+        Institution VARCHAR(255),
+        City VARCHAR(255),
+        State VARCHAR(255),
+        Country VARCHAR(255),
+        Region VARCHAR(255),
+        ICRPURL VARCHAR(255),
+        TechAbstract TEXT
+    );
+
+    -- Declare variables
+    DECLARE @PivotColumns NVARCHAR(MAX);
+    DECLARE @SQLQuery NVARCHAR(MAX);
+
+    DECLARE 
+        @CountryList VARCHAR(1000) = NULL,
+        @IncomeGroupList VARCHAR(1000) = NULL,
+        @CityList VARCHAR(1000) = NULL,
+        @StateList VARCHAR(1000) = NULL,
+        @RegionList VARCHAR(100) = NULL,
+        @YearList VARCHAR(1000) = NULL,
+        @CSOList VARCHAR(1000) = NULL,
+        @CancerTypeList VARCHAR(1000) = NULL,
+        @InvestigatorType VARCHAR(250) = NULL,
+        @Institution VARCHAR(250) = NULL,
+        @PiLastName VARCHAR(50) = NULL,
+        @PiFirstName VARCHAR(50) = NULL,
+        @PiORCID VARCHAR(50) = NULL,
+        @FundingOrgTypeList VARCHAR(50) = NULL,
+        @FundingOrgList VARCHAR(1000) = NULL,
+        @ChildhoodCancerList VARCHAR(1000) = NULL;
+
+    -- Load base data
+    INSERT INTO @ProjectFunding
+    SELECT DISTINCT
+        p.ProjectID,
+        f.ProjectFundingID,
+        LEFT(f.Title, 255),
+        NULL,
+        LEFT(p.AwardCode, 50),
+        LEFT(f.Source_ID, 50),
+        LEFT(f.AltAwardCode, 50),
+        LEFT(f.Category, 100),
+        CASE f.IsChildhood
+            WHEN 1 THEN 'Yes'
+            WHEN 2 THEN 'Partially'
+            WHEN 0 THEN 'No'
+            ELSE ''
+        END,
+        p.ProjectStartDate,
+        p.ProjectEndDate,
+        f.BudgetStartDate,
+        f.BudgetEndDate,
+        CAST(f.Amount AS DECIMAL(18, 2)),
+        CASE f.IsAnnualized WHEN 1 THEN 'A' ELSE 'L' END,
+        LEFT(o.Currency, 10),
+        LEFT(f.MechanismTitle, 255),
+        LEFT(f.MechanismCode, 50),
+        LEFT(o.SponsorCode, 50),
+        LEFT(o.Name, 255),
+        LEFT(o.Type, 50),
+        LEFT(d.Name, 255),
+        LEFT(d.Abbreviation, 50),
+        LEFT(f.FundingContact, 255),
+        LEFT(pi.LastName, 255),
+        LEFT(pi.FirstName, 255),
+        LEFT(pi.ORC_ID, 50),
+        LEFT(i.Name, 255),
+        LEFT(i.City, 255),
+        LEFT(i.State, 255),
+        LEFT(i.Country, 255),
+        LEFT(l.Name, 255),
+        LEFT(@SiteURL + CAST(p.ProjectID AS VARCHAR(10)), 255),
+        LEFT(a.TechAbstract, 8000)
+    FROM SearchResultProject srp
+    JOIN Project p ON srp.ProjectID = p.ProjectID
+    JOIN ProjectFunding f ON p.ProjectID = f.ProjectID
+    JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
+    JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID
+    JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+    JOIN CountryMapLayer cm ON i.Country = cm.Country
+    JOIN Country c ON c.Abbreviation = i.Country
+    JOIN lu_Region l ON c.RegionID = l.RegionID
+    LEFT JOIN ProjectAbstract a ON a.ProjectAbstractID = f.ProjectAbstractID
+    LEFT JOIN FundingDivision d ON d.FundingDivisionID = f.FundingDivisionID
+    WHERE 
+        srp.SearchCriteriaID = @SearchID
+        AND (@FundingOrgList IS NULL OR o.FundingOrgID IN (SELECT VALUE FROM dbo.ToStrTable(@FundingOrgList)))
+        AND (@FundingOrgTypeList IS NULL OR o.Type IN (SELECT VALUE FROM dbo.ToStrTable(@FundingOrgTypeList)))
+        AND (@Institution IS NULL OR i.Name LIKE '%' + @Institution + '%')
+        AND (@InvestigatorType IS NULL OR (@InvestigatorType = 'PI' AND pi.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND pi.IsPrincipalInvestigator = 0))
+        AND (@PiLastName IS NULL OR pi.LastName LIKE '%' + @PiLastName + '%')
+        AND (@PiFirstName IS NULL OR pi.FirstName LIKE '%' + @PiFirstName + '%')
+        AND (@PiORCID IS NULL OR pi.ORC_ID LIKE '%' + @PiORCID + '%')
+        AND (@CountryList IS NULL OR i.Country IN (SELECT VALUE FROM dbo.ToStrTable(@CountryList)))
+        AND (@IncomeGroupList IS NULL OR cm.VALUE IN (SELECT VALUE FROM dbo.ToStrTable(@IncomeGroupList)))
+        AND (@CityList IS NULL OR i.City IN (SELECT VALUE FROM dbo.ToStrTable(@CityList)))
+        AND (@StateList IS NULL OR i.State IN (SELECT VALUE FROM dbo.ToStrTable(@StateList)))
+        AND (@RegionList IS NULL OR c.RegionID IN (SELECT VALUE FROM dbo.ToStrTable(@RegionList)))
+        AND (@ChildhoodCancerList IS NULL OR f.IsChildhood IN (SELECT VALUE FROM dbo.ToStrTable(@ChildhoodCancerList)));
+
+    -- Filter by Year
+    IF @YearList IS NOT NULL
+    BEGIN
+        DELETE FROM @ProjectFunding
+        WHERE ProjectFundingID NOT IN (
+            SELECT f.ProjectFundingID
+            FROM @ProjectFunding f
+            JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID
+            WHERE ext.CalendarYear IN (SELECT VALUE FROM dbo.ToStrTable(@YearList))
+        );
+    END
+
+    -- Filter by CSO
+    IF @CSOList IS NOT NULL
+    BEGIN
+        DELETE FROM @ProjectFunding
+        WHERE ProjectFundingID NOT IN (
+            SELECT f.ProjectFundingID
+            FROM @ProjectFunding f
+            JOIN ProjectCSO pc ON f.ProjectFundingID = pc.ProjectFundingID
+            WHERE pc.CSOCode IN (SELECT VALUE FROM dbo.ToStrTable(@CSOList))
+        );
+    END
+
+    -- Filter by Cancer Type
+    IF @CancerTypeList IS NOT NULL
+    BEGIN
+        DELETE FROM @ProjectFunding
+        WHERE ProjectFundingID NOT IN (
+            SELECT f.ProjectFundingID
+            FROM @ProjectFunding f
+            JOIN ProjectCancerType pc ON f.ProjectFundingID = pc.ProjectFundingID
+            WHERE pc.CancerTypeID IN (
+                SELECT CancerTypeID FROM dbo.ToIntTable(@CancerTypeList)
+            )
+        );
+    END
+
+    -- Move data to temp table so dynamic SQL can use it
+    SELECT * INTO #TempFunding FROM @ProjectFunding;
+
+        -- Update AwardType after loading into temp table
+    UPDATE #TempFunding
+    SET AwardType = aw.AwardTypes
+    FROM #TempFunding t
+    JOIN (
+        SELECT DISTINCT ProjectID,
+            STUFF((
+                SELECT ', ' + ProjectType
+                FROM Project_ProjectType pt2
+                WHERE pt2.ProjectID = pt.ProjectID
+                FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)')
+            , 1, 1, '') AS AwardTypes
+        FROM Project_ProjectType pt
+    ) aw ON t.ProjectID = aw.ProjectID;
+
+
+    -- Get dynamic pivot column list
+    SELECT @PivotColumns = STRING_AGG(QUOTENAME(CalendarYear), ',')
+    FROM (
+        SELECT DISTINCT ext.CalendarYear
+        FROM ProjectFundingExt ext
+        JOIN #TempFunding pf ON pf.ProjectFundingID = ext.ProjectFundingID
+    ) AS Years;
+
+    -- Build dynamic pivot query
+    SET @SQLQuery = '
+    SELECT * FROM (
+        SELECT 
+            pf.ProjectID,
+            pf.ProjectFundingID,
+            pf.AwardTitle,
+            pf.AwardType,
+            pf.AwardCode,
+            pf.Source_ID,
+            pf.AltAwardCode,
+            pf.FundingCategory,
+            pf.IsChildhood,
+            pf.AwardStartDate,
+            pf.AwardEndDate,
+            pf.BudgetStartDate,
+            pf.BudgetEndDate,
+            pf.AwardAmount,
+            pf.FundingIndicator,
+            pf.Currency,
+            pf.FundingMechanism,
+            pf.FundingMechanismCode,
+            pf.SponsorCode,
+            pf.FundingOrg,
+            pf.FundingOrgType,
+            pf.FundingDiv,
+            pf.FundingDivAbbr,
+            pf.FundingContact,
+            pf.PiLastName,
+            pf.PiFirstName,
+            pf.PiORCID,
+            pf.Institution,
+            pf.City,
+            pf.State,
+            pf.Country,
+            pf.Region,
+            pf.ICRPURL' + 
+            CASE WHEN @IncludeAbstract = 1 THEN ', pf.TechAbstract' ELSE '' END + ',
+            ext.CalendarYear,
+            CAST(ext.CalendarAmount * ISNULL(cr.ToCurrencyRate, 1) AS DECIMAL(18,2)) AS CalendarAmount
+        FROM #TempFunding pf
+        JOIN ProjectFundingExt ext ON pf.ProjectFundingID = ext.ProjectFundingID
+        LEFT JOIN CurrencyRate cr ON cr.FromCurrency = pf.Currency 
+            AND cr.ToCurrency = ''USD'' 
+            AND cr.Year = ' + CAST(@Year AS VARCHAR(4)) + '
+    ) AS SourceTable
+    PIVOT (
+        SUM(CalendarAmount)
+        FOR CalendarYear IN (' + @PivotColumns + ')
+    ) AS PivotTable;
+    ';
+
+    -- Execute the final pivoted query
+    EXEC sp_executesql @SQLQuery;
+
+    -- Clean up
+    DROP TABLE #TempFunding;
 END;
 GO
