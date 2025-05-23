@@ -1,4 +1,9 @@
-CREATE PROCEDURE [dbo].[GetProjectsByCriteria]    
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER PROCEDURE [dbo].[GetProjectsByCriteria]    
     @PageSize INT = 50, 
     @PageNumber INT = 1, 
     @SortCol VARCHAR(50) = 'title', 
@@ -34,7 +39,27 @@ BEGIN
     DECLARE @TotalRelatedProjectCount INT
 	DECLARE @LastBudgetYear INT
 
+    -- Always create #ctlist
+    IF OBJECT_ID('tempdb..#ctlist') IS NOT NULL DROP TABLE #ctlist;
+    CREATE TABLE #ctlist (CancerTypeID INT);
 
+ IF @cancerTypeList IS NOT NULL
+BEGIN
+    -- include all related cancertype IDs if search by roll-up cancer type 
+    SELECT l.CancerTypeID, r.CancerTypeID AS RelatedCancerTypeID INTO #ct 
+        FROM (SELECT VALUE AS CancerTypeID FROM dbo.ToIntTable(@cancerTypeList)) l
+        LEFT JOIN CancerTypeRollUp r ON l.cancertypeid = r.CancerTyperollupID;
+
+    INSERT INTO #ctlist (CancerTypeID)
+    SELECT DISTINCT cancertypeid FROM
+    (
+        SELECT cancertypeid FROM #ct
+        UNION
+        SELECT Relatedcancertypeid AS cancertypeid FROM #ct WHERE Relatedcancertypeid IS NOT NULL
+    ) ct;
+
+    DROP TABLE #ct;
+END
 -- Check if any filtering criteria are applied
 IF @yearList IS NOT NULL OR
    @institution IS NOT NULL OR
@@ -98,21 +123,14 @@ END;
             AND (@FundingOrgTypeList IS NULL OR FundingOrgType IN (SELECT value FROM dbo.ToStrTable(@FundingOrgTypeList)))
             -- Funding Org Filter
             AND (@fundingOrgList IS NULL OR FundingOrgID IN (SELECT value FROM dbo.ToIntTable(@fundingOrgList)))
-            -- Cancer Type Filter
-            AND (@cancerTypeList IS NULL OR ProjectFundingID IN (
-                SELECT DISTINCT ProjectFundingID
-                FROM ProjectCancerType
-                WHERE CancerTypeID IN (
-                    SELECT DISTINCT CancerTypeID
-                    FROM (
-                        SELECT CancerTypeID FROM dbo.ToIntTable(@cancerTypeList)
-                        UNION
-                        SELECT CancerTypeID 
-                        FROM CancerTypeRollUp 
-                        WHERE CancerTyperollupID IN (SELECT value FROM dbo.ToIntTable(@cancerTypeList))
-                    ) AS CancerTypes
+            -- Cancer Type Filter (with roll-up logic)
+            AND (
+                @cancerTypeList IS NULL OR ProjectFundingID IN (
+                    SELECT DISTINCT ProjectFundingID
+                    FROM ProjectCancerType
+                    WHERE CancerTypeID IN (SELECT CancerTypeID FROM #ctlist)
                 )
-            ))
+            )
             -- Project Type Filter
             AND (@projectTypeList IS NULL OR ProjectID IN (
                 SELECT ProjectID 
@@ -163,9 +181,7 @@ END;
         SELECT @searchCriteriaID = SCOPE_IDENTITY();
 
         INSERT INTO SearchResult (SearchCriteriaID, Results,ResultCount, TotalRelatedProjectCount, LastBudgetYear, IsEmailSent) VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, @TotalRelatedProjectCount, @LastBudgetYear, 0)	
-        INSERT INTO SearchResultProject (SearchCriteriaID, ProjectID)
-        SELECT 0 AS SearchCriteriaID, ProjectID
-        FROM #FilteredProjects;
+        INSERT INTO SearchResultProject (SearchCriteriaID, ProjectID) SELECT @searchCriteriaID AS SearchCriteriaID, ProjectID FROM #FilteredProjects;
     END
     ELSE
 	BEGIN
@@ -250,40 +266,9 @@ FROM RankedProjects
 WHERE rn = 1
 ORDER BY Title ASC;  
 
-    DROP TABLE #FilteredProjects;
+  DROP TABLE #FilteredProjects;
     DROP TABLE #finalresult;
+    IF OBJECT_ID('tempdb..#ct') IS NOT NULL DROP TABLE #ct;
+    IF OBJECT_ID('tempdb..#ctlist') IS NOT NULL DROP TABLE #ctlist;
 END;
-
-
---------------------------
-CREATE TABLE SearchResultProject
-(
-    SearchCriteriaID INT,
-    ProjectID INT
-);
-
-CREATE INDEX IX_SearchResultProject_SearchCriteriaID_ProjectID
-ON SearchResultProject (SearchCriteriaID, ProjectID);
-
-CREATE TABLE SearchResultProject
-(
-    SearchCriteriaID INT,
-    ProjectID INT,
-    CreatedDate DATETIME NOT NULL DEFAULT GETDATE()
-);
-
-CREATE INDEX IX_SearchResultProject_SearchCriteriaID_ProjectID
-ON SearchResultProject (SearchCriteriaID, ProjectID);
-
-CREATE INDEX IX_SearchResultProject_CreatedDate
-ON SearchResultProject (CreatedDate);
----------------------------
-CREATE TRIGGER trg_DeleteOldSearchResults
-ON SearchResultProject
-AFTER INSERT
-AS
-BEGIN
-    -- Delete rows older than 10 days
-    DELETE FROM SearchResultProject
-    WHERE CreatedDate < DATEADD(DAY, -2, GETDATE());
-END;
+GO
