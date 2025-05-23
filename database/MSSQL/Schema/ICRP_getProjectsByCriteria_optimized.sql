@@ -264,3 +264,26 @@ CREATE TABLE SearchResultProject
 
 CREATE INDEX IX_SearchResultProject_SearchCriteriaID_ProjectID
 ON SearchResultProject (SearchCriteriaID, ProjectID);
+
+CREATE TABLE SearchResultProject
+(
+    SearchCriteriaID INT,
+    ProjectID INT,
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE()
+);
+
+CREATE INDEX IX_SearchResultProject_SearchCriteriaID_ProjectID
+ON SearchResultProject (SearchCriteriaID, ProjectID);
+
+CREATE INDEX IX_SearchResultProject_CreatedDate
+ON SearchResultProject (CreatedDate);
+---------------------------
+CREATE TRIGGER trg_DeleteOldSearchResults
+ON SearchResultProject
+AFTER INSERT
+AS
+BEGIN
+    -- Delete rows older than 10 days
+    DELETE FROM SearchResultProject
+    WHERE CreatedDate < DATEADD(DAY, -2, GETDATE());
+END;
