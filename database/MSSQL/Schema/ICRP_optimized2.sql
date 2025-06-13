@@ -611,3 +611,188 @@ BEGIN
     IF OBJECT_ID('tempdb..#AmountStats') IS NOT NULL DROP TABLE #AmountStats;
 END;
 GO
+
+
+------------------------------------------------------
+
+USE [icrp_data]
+GO
+/****** Object:  StoredProcedure [dbo].[GetProjectTypeStatsBySearchID]    Script Date: 5/30/2025 2:56:01 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER PROCEDURE [dbo].[GetProjectTypeStatsBySearchID]   
+    @SearchID INT,
+	@Year INT,	
+	@Type varchar(25) = 'Count',  -- 'Count' or 'Amount'	
+	@ResultCount INT OUTPUT,  -- return the searchID
+	@ResultAmount float OUTPUT  -- return the searchID	
+
+AS   
+
+  	------------------------------------------------------
+	-- Get saved search results by searchID
+	------------------------------------------------------	
+	CREATE TABLE #Result (
+		ProjectID INT NOT NULL
+	)
+
+	DECLARE @ProjectIDs VARCHAR(max) 
+	DECLARE @ProjectTypeList VARCHAR(1000) = NULL
+	DECLARE @CountryList VARCHAR(1000) = NULL
+	DECLARE @IncomeGroupList VARCHAR(1000) = NULL
+	DECLARE @cityList varchar(1000) = NULL 
+	DECLARE @stateList varchar(1000) = NULL	
+	DECLARE @regionList varchar(100) = NULL	
+	DECLARE @Yearlist VARCHAR(1000) = NULL
+	DECLARE @CSOlist VARCHAR(1000) = NULL
+	DECLARE @CancerTypelist VARCHAR(1000) = NULL
+	DECLARE @InvestigatorType varchar(250) = NULL
+	DECLARE @institution varchar(250) = NULL
+	DECLARE @piLastName varchar(50) = NULL
+	DECLARE @piFirstName varchar(50) = NULL
+	DECLARE @piORCiD varchar(50) = NULL
+	DECLARE @FundingOrgTypeList varchar(50) = NULL
+	DECLARE @fundingOrgList varchar(1000) = NULL
+	DECLARE @childhoodcancerList varchar(1000) = NULL
+	
+	IF @SearchID = 0
+	BEGIN
+		INSERT INTO #Result SELECT ProjectID From Project		
+	END
+	ELSE
+	BEGIN
+		SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
+		
+		INSERT INTO #Result SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+		
+		SELECT @ProjectTypeList = ProjectTypeList,
+				@YearList = YearList,
+				@CountryList = CountryList,
+				@IncomeGroupList = IncomeGroupList,
+				@CSOlist = CSOlist,
+				@CancerTypelist = CancerTypelist,
+				@InvestigatorType = InvestigatorType,
+				@institution = institution,
+				@piLastName = piLastName,
+				@piFirstName = piFirstName,
+				@piORCiD = piORCiD,
+				@cityList = cityList,
+				@stateList = stateList,
+				@regionList = regionList,
+				@FundingOrgTypeList = FundingOrgTypeList,
+				@fundingOrgList = fundingOrgList,
+				@childhoodcancerList = childhoodcancerList 
+		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
+		
+	END		
+
+	----------------------------------		
+	--   Find all related projects 
+	----------------------------------
+	SELECT f.ProjectID, f.ProjectFundingID, pt.ProjectType, f.Amount, o.Currency INTO #pf 
+	FROM #Result r		
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
+		JOIN Project_ProjectType pt ON r.ProjectID = pt.ProjectID
+		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
+	WHERE (@ProjectTypeList IS NULL) OR (pt.ProjectType IN (SELECT VALUE AS ProjectTypeID FROM dbo.ToStrTable(@ProjectTypeList))) AND
+			((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
+			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
+			((@childhoodcancerList IS NULL) OR (f.IsChildhood IN (SELECT VALUE AS type FROM dbo.ToStrTable(@childhoodcancerList))))
+	 
+	------------------------------------------------------------------------------
+	--   Exclude the project funding records outside of seach criteria
+	------------------------------------------------------------------------------
+	IF @CSOList IS NOT NULL
+		DELETE #pf WHERE ProjectFundingID NOT IN
+			(SELECT f.ProjectFundingID FROM  #pf f
+				JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
+				JOIN CSO c ON c.code = pc.csocode	
+				WHERE pc.CSOCode IN (SELECT VALUE AS CSOCode FROM dbo.ToStrTable(@CSOList)))
+		
+	IF @CancerTypelist IS NOT NULL
+	BEGIN
+		-- include all related cancertype IDs if search by roll-up cancer type 
+		SELECT l.CancerTypeID, r.CancerTypeID AS RelatedCancerTypeID INTO #ct 
+			FROM (SELECT VALUE AS CancerTypeID FROM dbo.ToIntTable(@cancerTypeList)) l
+			LEFT JOIN CancerTypeRollUp r ON l.cancertypeid = r.CancerTyperollupID
+
+		SELECT DISTINCT cancertypeid INTO #ctlist FROM
+		(
+			SELECT cancertypeid FROM #ct
+			UNION
+			SELECT Relatedcancertypeid AS cancertypeid FROM #ct WHERE Relatedcancertypeid IS NOT NULL
+		) ct
+
+		DELETE #pf WHERE ProjectFundingID NOT IN
+			(SELECT f.ProjectFundingID FROM  #pf f
+				JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
+				JOIN CancerType ct ON ct.CancerTypeID = pc.CancerTypeID		
+			WHERE ct.CancerTypeID IN (SELECT CancerTypeID FROM #ctlist))
+	END
+
+	IF @YearList IS NOT NULL
+		BEGIN
+		-- Find total calendar amount 
+		SELECT f.ProjectFundingID, sum(ext.CalendarAmount) as amount into #tmpCalAmt
+		FROM (SELECT DISTINCT ProjectFundingID FROM #pf) f
+			JOIN ProjectFundingExt ext ON f.ProjectFundingID = ext.ProjectFundingID	
+		WHERE ext.CalendarYear IN (SELECT VALUE AS Year FROM dbo.ToStrTable(@Yearlist))
+		group by f.ProjectFundingID		
+
+		DELETE #pf 
+		WHERE ProjectFundingID NOT IN (SELECT ProjectFundingID FROM  #tmpCalAmt)
+
+		UPDATE #pf SET Amount = ISNULL(cal.amount,0)
+		FROM #pf f
+		JOIN #tmpCalAmt cal ON f.ProjectFundingID = cal.ProjectFundingID
+	END
+
+
+	IF (@institution IS NOT NULL) OR (@piLastName IS NOT NULL) OR (@piFirstName IS NOT NULL) OR (@piORCiD IS NOT NULL) OR (@InvestigatorType IS NOT NULL) OR (@CountryList IS NOT NULL) OR (@cityList IS NOT NULL) OR (@stateList IS NOT NULL) OR (@regionList IS NOT NULL)
+		DELETE #pf WHERE ProjectFundingID NOT IN
+			(SELECT DISTINCT f.ProjectFundingID FROM  #pf f
+				JOIN ProjectFundingInvestigator pi ON f.projectFundingID = pi.projectFundingID
+				JOIN Institution i ON pi.InstitutionID = i.InstitutionID	
+				JOIN CountryMapLayer cm ON i.country = cm.Country
+				JOIN Country c ON i.Country = c.Abbreviation							
+			WHERE	((@institution IS NULL) OR (i.Name like '%'+ @institution +'%')) AND
+					((@InvestigatorType IS NULL) OR (@InvestigatorType = 'PI' AND pi.IsPrincipalInvestigator = 1) OR (@InvestigatorType = 'Collab' AND ISNULL(pi.IsPrincipalInvestigator, 0) = 0)) AND   -- Search only PI, Collaborators or all
+					((@piLastName IS NULL) OR (pi.LastName like '%'+ @piLastName +'%')) AND 
+					((@piFirstName IS NULL) OR (pi.FirstName like '%'+ @piFirstName +'%')) AND
+					((@piORCiD IS NULL) OR (pi.ORC_ID like '%'+ @piORCiD +'%')) AND
+					((@CountryList IS NULL) OR (i.Country IN (SELECT VALUE AS Country FROM dbo.ToStrTable(@CountryList)))) AND
+					((@IncomeGroupList IS NULL) OR (cm.[VALUE] IN (SELECT VALUE AS IncomeBand FROM dbo.ToStrTable(@IncomeGroupList)))) AND
+					((@cityList IS NULL) OR (i.City IN (SELECT VALUE AS City FROM dbo.ToStrTable(@cityList)))) AND
+					((@stateList IS NULL) OR (i.State IN (SELECT VALUE AS State FROM dbo.ToStrTable(@stateList))))  AND
+					((@regionList IS NULL) OR (c.RegionID IN (SELECT VALUE AS RegionID FROM dbo.ToStrTable(@regionList)))))
+
+	------------------------------------------------------------------------------
+	--   Get ProjectType/AwardType Stats
+	------------------------------------------------------------------------------
+	IF @Type = 'Count'
+	BEGIN	
+		
+		SELECT ProjectType, COUNT(*) AS [Count], 0  AS USDAmount INTO #CountStats FROM #pf GROUP BY ProjectType 
+		SELECT @ResultCount = SUM(Count) FROM #CountStats
+		SELECT * FROM #CountStats ORDER BY [Count] Desc
+			
+	END
+	
+	ELSE --  'Amount'
+	
+	BEGIN 
+
+		SELECT ProjectType, 0 AS [Count], SUM(USDAmount) AS USDAmount INTO #AmountStats  FROM
+		(SELECT f.ProjectType, (f.Amount * ISNULL(cr.ToCurrencyRate, 1)) AS USDAmount
+		FROM #pf f
+			LEFT JOIN (SELECT * FROM CurrencyRate WHERE ToCurrency = 'USD' AND Year=@Year) cr ON cr.FromCurrency = f.Currency) t			
+		GROUP BY ProjectType 
+
+		SELECT @ResultAmount = SUM([USDAmount]) FROM #AmountStats	
+		SELECT * FROM #AmountStats ORDER BY USDAmount Desc		
+			
+	END	
+	
