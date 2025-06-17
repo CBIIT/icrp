@@ -10,6 +10,8 @@
 --GetProjectCountryStatsBySearchID
 --GetProjectCancerTypeStatsBySearchID
 
+--AddNewSearchBySearchID
+
 ---------------------------------------------------------
 SET ANSI_NULLS ON
 GO

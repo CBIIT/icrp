@@ -46,7 +46,6 @@ RUN dnf -y update \
 # Download the latest CA certificates
 RUN wget https://curl.haxx.se/ca/cacert.pem -O /etc/ssl/certs/cacert.pem
 
-
 RUN alternatives --set mta /usr/sbin/sendmail.postfix
 
 RUN pecl channel-update pecl.php.net \
@@ -54,6 +53,10 @@ RUN pecl channel-update pecl.php.net \
    pdo_sqlsrv \
    sqlsrv \
    zip
+
+# Download ddog and install
+RUN wget https://github.com/DataDog/dd-trace-php/releases/latest/download/datadog-setup.php -O /tmp/datadog-setup.php
+RUN php /tmp/datadog-setup.php --php-bin=all --enable-appsec --enable-profiling
 
 # RUN setsebool -P httpd_can_network_connect_db 1
 

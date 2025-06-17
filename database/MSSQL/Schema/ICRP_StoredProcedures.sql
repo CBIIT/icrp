@@ -690,7 +690,7 @@ AS
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID	
-		JOIN CountryMapLayer cm ON i.country = cm.Country
+		JOIN CountryMapLayer cm ON i.country = cm.Country AND cm.MapLayerID = 4
 		JOIN (SELECT InstitutionID, projectFundingID FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON f.projectFundingID = pi.projectFundingID	  -- find PI country		
 		JOIN Institution pii ON pi.InstitutionID = pii.InstitutionID		-- get PI country
 		JOIN Country c ON c.Abbreviation = i.Country
