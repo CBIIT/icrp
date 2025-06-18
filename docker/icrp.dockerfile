@@ -77,7 +77,10 @@ RUN sed -i 's/User apache/User icrp/g' /etc/httpd/conf/httpd.conf
 
 RUN sed -i 's/Group apache/Group icrp/g' /etc/httpd/conf/httpd.conf 
 
-RUN sed -i 's/apache/icrp/g' /etc/php-fpm.d/www.conf
+RUN sed -i 's/apache/icrp/g' /etc/php-fpm.d/www.conf \
+   && echo "env[DD_SERVICE]=\$DD_SERVICE" >> /etc/php-fpm.d/www.conf \
+   && echo "env[DD_ENV]=\$DD_ENV" >> /etc/php-fpm.d/www.conf \
+   && echo "env[DD_VERSION]=\$DD_VERSION" >> /etc/php-fpm.d/www.conf
 
 RUN mkdir -p \
    /run/httpd \
