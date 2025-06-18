@@ -948,6 +948,15 @@ ul.icrp-terms-list li:before {
     display:none !important;
 }
 
+/* Style the Google Translate dropdown */
+.goog-te-gadget .goog-te-combo {
+  margin: 4px 0;
+  width: 120px !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+
 .flex-container-bap {
     display: flex;
     flex-direction: row;
