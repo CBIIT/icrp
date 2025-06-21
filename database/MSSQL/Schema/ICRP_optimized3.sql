@@ -1,5 +1,5 @@
 --GetProjectExportsBySearchID
---GetProjectsBySearchID
+--GetProjectsBySearchID (for sorting)
 --GetProjectCSOsBySearchID
 --GetProjectCancerTypesBySearchID
 --GetProjectCollaboratorsBysearchID
@@ -13,6 +13,9 @@
 --AddNewSearchBySearchID
 
 ---------------------------------------------------------
+USE [icrp_data]
+GO
+/****** Object:  StoredProcedure [dbo].[GetProjectExportsBySearchID]    Script Date: 6/20/2025 6:08:39 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -260,13 +263,13 @@ JOIN (
     -- Cleanup
     DROP TABLE IF EXISTS #base, #pf;
 END;
-GO
 
 ----------------------------------------------------------
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
+
 
 ALTER PROCEDURE [dbo].[GetProjectsBySearchID]
     @PageSize int = 50, -- return all by default
@@ -306,7 +309,8 @@ AS
 	-- Sort and Pagination
 	--   Note: Return only base projects and projects' most recent funding
 	--------------------------------------------------------------------
-	SELECT r.ProjectID, p.AwardCode, minf.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
+	SELECT r.ProjectID, p.AwardCode, minf.projectfundingID AS LastProjectFundingID, 
+    	LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(f.Title, CHAR(9), ''), CHAR(13), ''), CHAR(10), ''))) AS Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
 		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort 
 	FROM #base r
 		JOIN Project p ON r.ProjectID = p.ProjectID
@@ -316,7 +320,7 @@ AS
 		JOIN Institution i ON i.InstitutionID = pi.InstitutionID
 		JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
 	ORDER BY 
-		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'ASC ' THEN f.Title  END ASC, --title ASC
+		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'ASC ' THEN  LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(f.Title, CHAR(9), ''), CHAR(13), ''), CHAR(10), ''))) END ASC, --title ASC
 		CASE WHEN @SortCol = 'code ' AND @SortDirection = 'ASC' THEN p.AwardCode  END ASC,
 		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'ASC' THEN pi.LastName  END ASC,
 		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'ASC' THEN pi.FirstName  END ASC,
@@ -325,7 +329,7 @@ AS
 		CASE WHEN @SortCol = 'state ' AND @SortDirection = 'ASC' THEN i.State  END ASC,
 		CASE WHEN @SortCol = 'country' AND @SortDirection = 'ASC' THEN i.Country  END ASC,
 		CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'ASC' THEN o.Abbreviation  END ASC,
-		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'DESC' THEN f.Title  END DESC,
+		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'DESC' THEN  LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(f.Title, CHAR(9), ''), CHAR(13), ''), CHAR(10), '')))  END DESC,
 		CASE WHEN @SortCol = 'code ' AND @SortDirection = 'DESC' THEN p.AwardCode  END DESC,
 		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'DESC' THEN pi.LastName  END DESC,
 		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'DESC' THEN pi.FirstName  END DESC,
@@ -340,6 +344,7 @@ AS
 		END ROWS ONLY
     											  
 GO
+
 ----------------------------------------------------------
 
 SET ANSI_NULLS ON
