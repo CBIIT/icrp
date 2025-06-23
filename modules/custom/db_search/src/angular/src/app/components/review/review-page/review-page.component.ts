@@ -117,6 +117,12 @@ export class ReviewPageComponent {
       tooltip: 'Funding Organization of Award (abbreviated name shown)',
     },
 
+     {
+      label: 'Funding Org. Name',
+      key: 'ffunding_org_name',
+      tooltip: 'Funding Organization of Award',
+    },
+
     {
       label: 'Award Code',
       key: 'award_code',

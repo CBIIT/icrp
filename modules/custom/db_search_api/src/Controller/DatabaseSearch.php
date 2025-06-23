@@ -506,6 +506,7 @@ class DatabaseSearch {
           'institution'           => $row['institution'],
           'country'               => $row['country'],
           'funding_organization'  => $row['FundingOrgShort'],
+           'funding_org_name'      => $row['FundingOrg'],
           'award_code'            => $row['AwardCode'],
         ];
       }
@@ -557,6 +558,7 @@ class DatabaseSearch {
           'institution'           => $row['institution'],
           'country'               => $row['country'],
           'funding_organization'  => $row['FundingOrgShort'],
+          'funding_org_name'      => $row['FundingOrg'],
           'award_code'            => $row['AwardCode'],
         ]);
       }

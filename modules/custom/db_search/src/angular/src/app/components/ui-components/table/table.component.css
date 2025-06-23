@@ -46,7 +46,11 @@ th {
   width: 120px;
   max-width: 120px;
 }
-
+.table > thead > tr > th:nth-child(7),
+.table > tbody > tr > td:nth-child(7) {
+  width: 100px;
+  max-width: 100px;
+}
 
 .rotate-45 {
   transform: rotate(45deg);
