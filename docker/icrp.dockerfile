@@ -32,6 +32,13 @@ RUN dnf -y update \
    wget \
    which \
    ca-certificates \
+   gcc \
+   gcc-c++ \
+   autoconf \
+   automake \
+   libtool \
+   make \
+   unixODBC-devel \
    && touch /etc/php.d/90-pecl-modules.ini \
    && pear config-set php_ini /etc/php.d/90-pecl-modules.ini \
    && curl https://packages.microsoft.com/config/rhel/8/prod.repo > /etc/yum.repos.d/mssql-release.repo \

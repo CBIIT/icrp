@@ -43,8 +43,8 @@ th {
 
 .table > thead > tr > th:nth-child(6),
 .table > tbody > tr > td:nth-child(6) {
-  width: 120px;
-  max-width: 120px;
+  width: 150px;
+  max-width: 150px;
 }
 .table > thead > tr > th:nth-child(7),
 .table > tbody > tr > td:nth-child(7) {

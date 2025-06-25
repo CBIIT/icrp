@@ -12,6 +12,12 @@
 
 --AddNewSearchBySearchID
 
+--   QA: "ICRP_Newsletter_September2023.8230.jpg"
+
+UPDATE [icrp_data].[dbo].[Library]
+SET ThumbnailFilename = '7430.jpg'
+WHERE LibraryID = '8261'
+
 ---------------------------------------------------------
 USE [icrp_data]
 GO
