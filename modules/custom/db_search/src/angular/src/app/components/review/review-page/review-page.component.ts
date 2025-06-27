@@ -110,6 +110,11 @@ export class ReviewPageComponent {
       key: 'country',
       tooltip: 'PI Institution Country',
     },
+    {
+      label: 'Country',
+      key: 'country_name',
+      tooltip: 'PI Institution Country Name',
+    },
 
     {
       label: 'Funding Org.',
@@ -119,7 +124,7 @@ export class ReviewPageComponent {
 
      {
       label: 'Funding Org. Name',
-      key: 'ffunding_org_name',
+      key: 'funding_org_name',
       tooltip: 'Funding Organization of Award',
     },
 
