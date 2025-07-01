@@ -253,7 +253,7 @@ JOIN (
             pf.City,
             pf.State,
             pf.Country,
-             c.Name AS CountryName,  
+            c.Name AS CountryName,  
             pf.Region,
             pf.ICRPURL' +
             CASE WHEN @IncludeAbstract = 1 THEN ', pf.TechAbstract' ELSE '' END + ' as icrpURL,
