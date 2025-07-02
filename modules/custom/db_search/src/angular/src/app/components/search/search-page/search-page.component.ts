@@ -23,6 +23,7 @@ export class SearchPageComponent implements AfterViewInit {
 
   loadingMessage = 'Loading Page';
   radioModel = 'Projects';
+  useBaseQuery: boolean = false;
 
   state = {
     loading: true,
@@ -176,7 +177,16 @@ export class SearchPageComponent implements AfterViewInit {
     return this.searchService.getSearchParameters({search_id: searchID})
   }
 
-  getAnalytics(id, types = [], year = null) {
+  onToggleBaseQuery() {
+  // Re-fetch analytics or update charts as needed
+  if (this.state.searchID) {
+    this.getAnalytics(this.state.searchID, [], null, this.useBaseQuery);
+  }
+}
+
+
+  getAnalytics(id, types = [], year = null, useBaseQuery: boolean = false) {
+      const use_base_query = useBaseQuery ? '1' : '0';
     // if (!types || types.length === 0)
     //   types = this.sharedService.get('authenticated')
     //     ? Object.keys(this.state.analytics)

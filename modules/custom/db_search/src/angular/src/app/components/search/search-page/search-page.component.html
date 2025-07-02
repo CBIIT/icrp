@@ -35,7 +35,16 @@
     <div *ngIf="!state.loading && (!state.results || state.results.length === 0)">
       No results found
     </div>
-
+<!-- Place this above or below <icrp-charts-panel> as you prefer -->
+<div class="toggle-switch" style="margin-bottom: 15px;">
+  <label>
+    <input type="checkbox" [(ngModel)]="useBaseQuery" (change)="onToggleBaseQuery()" />
+    <span class="slider"></span>
+    <span class="toggle-label">
+      {{ useBaseQuery ? 'Show All Projects by PI Country' : 'Show Base Projects by Country' }}
+    </span>
+  </label>
+</div>
     <div *ngIf="state.loading || state.results && state.results.length > 0">
       <icrp-charts-panel
         #chartspanel

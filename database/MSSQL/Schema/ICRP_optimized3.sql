@@ -1432,6 +1432,9 @@ GO
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
+GOSET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
 GO
 ALTER PROCEDURE [dbo].[GetProjectCancerTypeStatsBySearchID]
     @SearchID INT,	
@@ -1593,7 +1596,12 @@ BEGIN
               AND c.RegionID IN (SELECT VALUE FROM dbo.ToStrTable(@regionList))
         )
       );
-
+    ;WITH Deduped AS (
+    SELECT *,
+            ROW_NUMBER() OVER (PARTITION BY ProjectFundingID ORDER BY (SELECT 0)) AS rn
+    FROM #pf
+    )
+    DELETE FROM Deduped WHERE rn > 1;
     -- Adjust Amount by Year if needed
     IF @YearList IS NOT NULL AND @Type != 'Count'
     BEGIN
