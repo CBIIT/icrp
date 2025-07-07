@@ -228,9 +228,15 @@ class DatabaseSearch {
     $pdo->setAttribute(PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE, true);
     // $pdo->setAttribute(PDO::SQLSRV_ATTR_ENCODING, PDO::SQLSRV_ENCODING_SYSTEM);
 
+    $use_base_query = isset($parameters['use_base_query']) 
+      ? $parameters['use_base_query'] === 'true'
+      : false;
+
     // define queries to be performed for each type
     $queries = [
-      'project_counts_by_country'                         => 'EXECUTE GetProjectCountryStatsBySearchID          @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
+      'project_counts_by_country'                         => $use_base_query
+        ? 'EXECUTE GetProjectCountryStatsBySearchID          @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count'
+        : 'EXECUTE GetProjectCountryStatsBySearchIDBase      @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
       'project_counts_by_cso_research_area'               => 'EXECUTE GetProjectCSOStatsBySearchID              @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
       'project_counts_by_cancer_type'                     => 'EXECUTE GetProjectCancerTypeStatsBySearchID       @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
       'project_counts_by_type'                            => 'EXECUTE GetProjectTypeStatsBySearchID             @SearchID = :search_id, @Year = :year, @ResultCount = :results_count, @ResultAmount = :results_amount, @Type = Count',
@@ -436,6 +442,8 @@ class DatabaseSearch {
       $key = 'results_amount';
 
     $output[$key] = floatval($output_parameters[$key]['value']);
+
+    $output['use_base_query'] = $use_base_query;
 
     return $output;
   }
