@@ -22,7 +22,6 @@ icrp_data_tables.uploadCompleteness:
     _title: 'Data Upload Completeness Report'
   requirements:
     _access: 'TRUE'
-    _role: 'authenticated'
 
 icrp_data_tables.updateUploadCompleteness:
   path: '/update-upload-completeness'

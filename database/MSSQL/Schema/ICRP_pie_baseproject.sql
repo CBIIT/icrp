@@ -701,7 +701,7 @@ SELECT
 INTO #ProjectWithType
 FROM RankedProjects
 WHERE rn = 1;
-select count(*) from #baseProjectIDs
+
 	IF @Type = 'Count'
 	BEGIN	
 		
