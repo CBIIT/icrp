@@ -188,35 +188,38 @@ export class SearchPageComponent implements AfterViewInit {
 
   getAnalytics(id, types = [], year = null, useBaseQuery: boolean = true) {
    
-    // if (!types || types.length === 0)
-    //   types = this.sharedService.get('authenticated')
-    //     ? Object.keys(this.state.analytics)
-    //     : [
-    //       'project_counts_by_country',
-    //       'project_counts_by_cso_research_area',
-    //       'project_counts_by_cancer_type',
-    //       'project_counts_by_type',
-    //     ];
+    if (!types || types.length === 0)
+      types = this.sharedService.get('authenticated')
+        ? Object.keys(this.state.analytics)
+        : [
+          'project_counts_by_country',
+          'project_counts_by_cso_research_area',
+          'project_counts_by_cancer_type',
+          'project_counts_by_type',
+          'project_counts_by_institution',
+          'project_counts_by_childhood_cancer',
+          'project_counts_by_funding_organization',
+        ];
 
 
-    if (!types || types.length === 0) {
-      types = [
-        'project_counts_by_country',
-        'project_counts_by_cso_research_area',
-        'project_counts_by_cancer_type',
-        'project_counts_by_type',
-        'project_counts_by_institution',
-        'project_counts_by_childhood_cancer',
-        'project_counts_by_funding_organization',
-        // 'project_funding_amounts_by_country',
-        // 'project_funding_amounts_by_cso_research_area',
-        // 'project_funding_amounts_by_cancer_type',
-        // 'project_funding_amounts_by_type',
-        // 'project_funding_amounts_by_institution',
-        // 'project_funding_amounts_by_childhood_cancer',
-        // 'project_funding_amounts_by_funding_organization',
-      ];
-    }
+    // if (!types || types.length === 0) {
+    //   types = [
+    //     'project_counts_by_country',
+    //     'project_counts_by_cso_research_area',
+    //     'project_counts_by_cancer_type',
+    //     'project_counts_by_type',
+    //     'project_counts_by_institution',
+    //     'project_counts_by_childhood_cancer',
+    //     'project_counts_by_funding_organization',
+    //     // 'project_funding_amounts_by_country',
+    //     // 'project_funding_amounts_by_cso_research_area',
+    //     // 'project_funding_amounts_by_cancer_type',
+    //     // 'project_funding_amounts_by_type',
+    //     // 'project_funding_amounts_by_institution',
+    //     // 'project_funding_amounts_by_childhood_cancer',
+    //     // 'project_funding_amounts_by_funding_organization',
+    //   ];
+    // }
 
     for (let key of types) {
 

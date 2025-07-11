@@ -228,9 +228,25 @@ class DatabaseSearch {
     $pdo->setAttribute(PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE, true);
     // $pdo->setAttribute(PDO::SQLSRV_ATTR_ENCODING, PDO::SQLSRV_ENCODING_SYSTEM);
 
-    $use_base_query = isset($parameters['use_base_query']) 
-      ? $parameters['use_base_query'] === 'true'
-      : false;
+    $type = $parameters['type'];
+    // If a 'metric' parameter is provided, force the type to match
+    if (isset($parameters['metric'])) {
+      $metric = strtolower($parameters['metric']);
+      if ($metric === 'amount' && strpos($type, 'project_counts_by_') === 0) {
+        $type = str_replace('project_counts_by_', 'project_funding_amounts_by_', $type);
+      } else if ($metric === 'count' && strpos($type, 'project_funding_amounts_by_') === 0) {
+        $type = str_replace('project_funding_amounts_by_', 'project_counts_by_', $type);
+      }
+    }
+
+    // Use explicit base_project param if present, fallback to use_base_query for backward compatibility
+    if (isset($parameters['base_project'])) {
+      $use_base_query = filter_var($parameters['base_project'], FILTER_VALIDATE_BOOLEAN);
+    } else {
+      $use_base_query = isset($parameters['use_base_query']) 
+        ? $parameters['use_base_query'] === 'true'
+        : false;
+    }
 
     // define queries to be performed for each type
     $queries = [
@@ -417,8 +433,6 @@ class DatabaseSearch {
         ],
       ],
     ];
-
-    $type = $parameters['type'];
 
     // select which query to perform
     if (!array_key_exists($type, $queries)) return [];
