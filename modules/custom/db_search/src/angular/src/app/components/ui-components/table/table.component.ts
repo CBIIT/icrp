@@ -68,14 +68,28 @@ export class TableComponent implements OnChanges {
     });
   }
 
+  getTotalPages(): number {
+    return Math.ceil(this.numResults / this.pageSize) || 1;
+  }
+
   setPageSize(size) {
-    this.pageSize = size;
-    this.pageNumber = 1;
+    this.pageSize = +size;
+    // If current page is out of range, set to last page
+    const totalPages = this.getTotalPages();
+    if (this.pageNumber > totalPages) {
+      this.pageNumber = totalPages;
+    }
+    // If pageNumber is not set, default to 1
+    if (!this.pageNumber || this.pageNumber < 1) {
+      this.pageNumber = 1;
+    }
+    this.pagingModel = this.pageNumber;
     this.emitPagination();
   }
 
   setCurrentPage(event) {
     this.pageNumber = event.page;
+    this.pagingModel = this.pageNumber;
     this.emitPagination();
   }
 
