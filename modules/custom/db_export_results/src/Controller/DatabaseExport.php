@@ -915,10 +915,14 @@ class DatabaseExport {
   }
 
   function getSearchCriteria($pdo, int $search_id) {
+    $isAuthenticated = \Drupal::currentUser()->isAuthenticated();
+    $userGuideUrl = $isAuthenticated
+      ? "{$this->getUrlBase()}/library/file/7298/ICRPUserGuide_Partner.pdf"
+      : "{$this->getUrlBase()}/library/file/7297/ICRPUserGuide_Public.pdf";
     $data = [
       ['International Cancer Research Partnership', $this->getUrlBase()],
       ['Created: ', $this->getTimestamp()],
-      ['ICRP User Guide:', "{$this->getUrlBase()}/library/file/7297/ICRP Website User Guide_Public.pdf"],
+      ['ICRP User Guide:', $userGuideUrl],
       ['Search Criteria: '],
     ];
 
