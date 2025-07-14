@@ -918,6 +918,7 @@ class DatabaseExport {
     $data = [
       ['International Cancer Research Partnership', $this->getUrlBase()],
       ['Created: ', $this->getTimestamp()],
+      ['ICRP User Guide:', "{$this->getUrlBase()}/library/file/7297/ICRP Website User Guide_Public.pdf"],
       ['Search Criteria: '],
     ];
 
