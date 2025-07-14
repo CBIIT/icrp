@@ -4,19 +4,11 @@
 --GetProjectCancerTypesBySearchID
 --GetProjectCollaboratorsBysearchID
 
-
---GetProjectTypeStatsBySearchID
---GetProjectCSOStatsBySearchID
---GetProjectCountryStatsBySearchID
---GetProjectCancerTypeStatsBySearchID
-
 --AddNewSearchBySearchID
 
 --   QA: "ICRP_Newsletter_September2023.8230.jpg"
 
-UPDATE [icrp_data].[dbo].[Library]
-SET ThumbnailFilename = '7430.jpg'
-WHERE LibraryID = '8261'
+--UPDATE [icrp_data].[dbo].[Library] SET ThumbnailFilename = '7430.jpg' WHERE LibraryID = '8261'
 
 ---------------------------------------------------------
 USE [icrp_data]
@@ -1420,4 +1412,111 @@ BEGIN
     DROP TABLE #pf;
 	DROP TABLE #Result;
 END
+GO
+
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER PROCEDURE [dbo].[AddNewSearchBySearchID]  
+@SearchID INT,
+@RegionID INT = NULL,
+@Country VARCHAR(3) = NULL,
+@City VARCHAR(50) = NULL,
+@InstitutionID INT = NULL,
+@searchCriteriaID INT OUTPUT,  -- return the searchID	
+@ResultCount INT OUTPUT  -- return the searchID		
+AS   
+
+	DECLARE @project TABLE
+	(
+		ProjectID INT
+
+	)
+		
+	IF @SearchID = 0  -- No filters. Return all projects 
+	BEGIN
+		INSERT INTO @project SELECT ProjectID FROM Project 
+	END
+	ELSE  -- filtered projects (based on searchID)
+	BEGIN
+		DECLARE @ProjectIDs VARCHAR(max) 	
+		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID					
+		
+		INSERT INTO @project SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
+	END
+
+	-- Further drill down - Filter on Region, Country or City
+	SELECT p.ProjectID, pf.Projectfundingid, pf.BudgetEndDate INTO #Proj
+		FROM @project p
+			JOIN ProjectFunding pf ON pf.ProjectID = p.ProjectID
+			JOIN ProjectFundingInvestigator pi ON pf.ProjectFundingID = pi.ProjectFundingID  -- only get pi			
+			JOIN Institution i ON pi.InstitutionID = i.InstitutionID
+			JOIN Country c ON i.Country = c.Abbreviation			
+		
+	----------------------------------
+	-- Save search criteria
+	----------------------------------	
+	DECLARE @ProjectIDList VARCHAR(max) = '' 	
+	DECLARE @TotalRelatedProjectCount INT
+	DECLARE @LastBudgetYear INT
+
+	-- SELECT @TotalRelatedProjectCount=COUNT(*) FROM (SELECT DISTINCT Projectfundingid FROM #Proj) pf
+    SELECT @TotalRelatedProjectCount = TotalRelatedProjectCount FROM SearchResult WHERE SearchCriteriaID = @SearchID;
+    
+	SELECT DISTINCT ProjectID INTO #baseProj FROM #proj	
+	SELECT @ResultCount=COUNT(*) FROM #baseProj	
+	SELECT @LastBudgetYear=DATEPART(year, MAX(BudgetEndDate)) FROM #proj
+
+
+	SELECT @ProjectIDList = @ProjectIDList + 
+           ISNULL(CASE WHEN LEN(@ProjectIDList) = 0 THEN '' ELSE ',' END + CONVERT( VarChar(20), ProjectID), '')
+	FROM #baseProj	
+
+	DECLARE @InstitutionName VARCHAR(250)
+	IF @InstitutionID IS NOT NULL
+		SELECT @InstitutionName = Name FROM Institution WHERE InstitutionID = @InstitutionID
+
+	IF @SearchID=0
+	BEGIN
+	INSERT INTO SearchCriteria ([cityList],[countryList],[RegionList], [institution])
+		SELECT @City, @Country,@RegionID, @InstitutionName		
+	END
+	ELSE
+	BEGIN	  
+
+		INSERT INTO SearchCriteria ([termSearchType],[terms],[piLastName],[piFirstName],[piORCiD],[awardCode],
+			[yearList], [stateList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList], [incomeGroupList],
+			[institution], [cityList], [countryList], [RegionList])
+
+			SELECT [termSearchType],[terms],[piLastName],[piFirstName],[piORCiD],[awardCode],
+				[yearList], [stateList], [fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList], [incomeGroupList],
+
+				CASE
+				WHEN @InstitutionName IS NULL THEN [institution]
+				ELSE @InstitutionName END,				
+				
+				CASE
+				WHEN @City IS NULL THEN [cityList]
+				ELSE @City END,
+				
+				CASE
+				WHEN @Country IS NULL THEN [countryList]
+				ELSE @Country END,
+
+				CASE
+				WHEN @RegionID IS NULL THEN [RegionList]
+				ELSE @RegionID END		
+				
+			FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
+	END									 
+	SELECT @searchCriteriaID = SCOPE_IDENTITY()		
+		
+	INSERT INTO SearchResult (SearchCriteriaID, Results,ResultCount, TotalRelatedProjectCount, LastBudgetYear, IsEmailSent) VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, @TotalRelatedProjectCount, @LastBudgetYear, 0)	
+	-- Insert one row per ProjectID into SearchResultProject
+    INSERT INTO SearchResultProject (SearchCriteriaID, ProjectID)
+        SELECT @searchCriteriaID, [VALUE]
+        FROM dbo.ToIntTable(@ProjectIDList);
 GO
