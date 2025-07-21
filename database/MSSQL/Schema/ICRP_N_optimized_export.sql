@@ -5,7 +5,7 @@
 --GetProjectCollaboratorsBysearchID
 
 --AddNewSearchBySearchID
-
+--GetProjectsBySearchID (update country name)
 --   QA: "ICRP_Newsletter_September2023.8230.jpg"
 
 --UPDATE [icrp_data].[dbo].[Library] SET ThumbnailFilename = '7430.jpg' WHERE LibraryID = '8261'
@@ -70,13 +70,23 @@ BEGIN
     WHERE SearchCriteriaID = @SearchID;
 
     -- Filter projects based on SearchID
-    ;WITH FilteredSearchResult AS (
-        SELECT DISTINCT srp.ProjectID
-        FROM SearchResultProject srp
-        WHERE srp.SearchCriteriaID = @SearchID
-    )
-    SELECT ProjectID INTO #base
-    FROM FilteredSearchResult;
+    CREATE TABLE #base (ProjectID INT);
+
+    IF @SearchID = 0
+    BEGIN
+        INSERT INTO #base SELECT ProjectID FROM Project
+    END
+    ELSE
+    BEGIN
+        ;WITH FilteredSearchResult AS (
+            SELECT DISTINCT srp.ProjectID
+            FROM SearchResultProject srp
+            WHERE srp.SearchCriteriaID = @SearchID
+        )
+        INSERT INTO #base
+        SELECT ProjectID
+        FROM FilteredSearchResult
+    END
 
     -- Retrieve project funding details
     SELECT DISTINCT 
@@ -267,86 +277,6 @@ JOIN (
 END;
 
 ----------------------------------------------------------
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-ALTER PROCEDURE [dbo].[GetProjectsBySearchID]
-    @PageSize int = 50, -- return all by default
-	@PageNumber int = 1, -- return all results by default; otherwise pass in the page number
-	@SortCol varchar(50) = 'title', -- Ex: 'title', 'pi', 'code', 'inst', 'FO',....
-	@SortDirection varchar(4) = 'ASC',  -- 'ASC' or 'DESC'
-    @SearchID INT,
-	@ResultCount INT OUTPUT  -- return the searchID		
-AS   
-
-	------------------------------------------------------
-	-- Get saved search results by searchID
-	------------------------------------------------------	
-	DECLARE @Result TABLE (
-		ProjectID INT NOT NULL
-	)
-
-    -- Insert distinct ProjectID values into the table variable
-    INSERT INTO @Result (ProjectID)
-    SELECT DISTINCT srp.ProjectID
-    FROM SearchResultProject srp
-    WHERE srp.SearchCriteriaID = @SearchID;
-
-	DECLARE @ProjectIDs VARCHAR(max) 
-	IF @SearchID = 0
-	BEGIN
-		SELECT @ResultCount = COUNT(*) FROM @Result
-	END
-	ELSE
-	BEGIN
-		SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
-	END
-
-	SELECT ProjectID INTO #base FROM @Result
-
-	--------------------------------------------------------------------
-	-- Sort and Pagination
-	--   Note: Return only base projects and projects' most recent funding
-	--------------------------------------------------------------------
-	SELECT r.ProjectID, p.AwardCode, minf.projectfundingID AS LastProjectFundingID, 
-    	LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(f.Title, CHAR(9), ''), CHAR(13), ''), CHAR(10), ''))) AS Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
-		f.Amount, i.City, i.State, i.country, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort 
-	FROM #base r
-		JOIN Project p ON r.ProjectID = p.ProjectID
-		JOIN (SELECT ProjectID, MIN(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f GROUP BY ProjectID) minf ON r.ProjectID = minf.ProjectID
-		JOIN ProjectFunding f ON minf.ProjectFundingID = f.projectFundingID
-		JOIN  (SELECT * FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON f.projectFundingID = pi.projectFundingID
-		JOIN Institution i ON i.InstitutionID = pi.InstitutionID
-		JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
-	ORDER BY 
-		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'ASC ' THEN  LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(f.Title, CHAR(9), ''), CHAR(13), ''), CHAR(10), ''))) END ASC, --title ASC
-		CASE WHEN @SortCol = 'code ' AND @SortDirection = 'ASC' THEN p.AwardCode  END ASC,
-		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'ASC' THEN pi.LastName  END ASC,
-		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'ASC' THEN pi.FirstName  END ASC,
-		CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'ASC' THEN i.Name  END ASC,
-		CASE WHEN @SortCol = 'city ' AND @SortDirection = 'ASC' THEN i.City  END ASC,
-		CASE WHEN @SortCol = 'state ' AND @SortDirection = 'ASC' THEN i.State  END ASC,
-		CASE WHEN @SortCol = 'country' AND @SortDirection = 'ASC' THEN i.Country  END ASC,
-		CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'ASC' THEN o.Abbreviation  END ASC,
-		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'DESC' THEN  LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(f.Title, CHAR(9), ''), CHAR(13), ''), CHAR(10), '')))  END DESC,
-		CASE WHEN @SortCol = 'code ' AND @SortDirection = 'DESC' THEN p.AwardCode  END DESC,
-		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'DESC' THEN pi.LastName  END DESC,
-		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'DESC' THEN pi.FirstName  END DESC,
-		CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'DESC' THEN i.Name END DESC,
-		CASE WHEN @SortCol = 'city ' AND @SortDirection = 'DESC' THEN i.City  END DESC,
-		CASE WHEN @SortCol = 'state ' AND @SortDirection = 'DESC' THEN i.State  END DESC,
-		CASE WHEN @SortCol = 'country' AND @SortDirection = 'DESC' THEN i.Country  END DESC,
-		CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'DESC' THEN o.Abbreviation  END DESC
-	OFFSET ISNULL(@PageSize,50) * (ISNULL(@PageNumber, 1) - 1) ROWS
-	FETCH NEXT 
-		CASE WHEN @PageNumber IS NULL THEN 999999999 ELSE ISNULL(@PageSize,50)
-		END ROWS ONLY
-    											  
-GO
-
 ----------------------------------------------------------
 
 SET ANSI_NULLS ON
@@ -361,13 +291,22 @@ AS
 	-- Get saved search results by searchID
 	------------------------------------------------------	
       -- Filter projects based on SearchID
-    ;WITH FilteredSearchResult AS (
-        SELECT DISTINCT srp.ProjectID
-        FROM SearchResultProject srp
-        WHERE srp.SearchCriteriaID = @SearchID
-    )
-    SELECT ProjectID INTO #base
-    FROM FilteredSearchResult;
+    CREATE TABLE #base (ProjectID INT);
+    IF @SearchID = 0
+    BEGIN
+        INSERT INTO #base SELECT ProjectID FROM Project
+    END
+    ELSE
+    BEGIN
+        ;WITH FilteredSearchResult AS (
+            SELECT DISTINCT srp.ProjectID
+            FROM SearchResultProject srp
+            WHERE srp.SearchCriteriaID = @SearchID
+        )
+        INSERT INTO #base
+        SELECT ProjectID
+        FROM FilteredSearchResult
+    END
 
 	DECLARE @ProjectIDs VARCHAR(max) 
 
@@ -391,7 +330,6 @@ AS
 	
 	BEGIN
 		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
-		
 		
 
 		SELECT 	@YearList = YearList,
@@ -507,13 +445,22 @@ AS
 	DECLARE @fundingOrgList varchar(1000) = NULL
 	DECLARE @childhoodcancerList varchar(1000) = NULL 
       -- Filter projects based on SearchID
-    ;WITH FilteredSearchResult AS (
-        SELECT DISTINCT srp.ProjectID
-        FROM SearchResultProject srp
-        WHERE srp.SearchCriteriaID = @SearchID
-    )
-    SELECT ProjectID INTO #base
-    FROM FilteredSearchResult;
+    CREATE TABLE #base (ProjectID INT);
+    IF @SearchID = 0
+    BEGIN
+        INSERT INTO #base SELECT ProjectID FROM Project
+    END
+    ELSE
+    BEGIN
+        ;WITH FilteredSearchResult AS (
+            SELECT DISTINCT srp.ProjectID
+            FROM SearchResultProject srp
+            WHERE srp.SearchCriteriaID = @SearchID
+        )
+        INSERT INTO #base
+        SELECT ProjectID
+        FROM FilteredSearchResult
+    END
 	
 	BEGIN
 		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
@@ -631,13 +578,22 @@ AS
 	DECLARE @childhoodcancerList varchar(1000) = NULL	
 	
           -- Filter projects based on SearchID
-    ;WITH FilteredSearchResult AS (
-        SELECT DISTINCT srp.ProjectID
-        FROM SearchResultProject srp
-        WHERE srp.SearchCriteriaID = @SearchID
-    )
-    SELECT ProjectID INTO #base
-    FROM FilteredSearchResult;
+    CREATE TABLE #base (ProjectID INT);
+    IF @SearchID = 0
+    BEGIN
+        INSERT INTO #base SELECT ProjectID FROM Project
+    END
+    ELSE
+    BEGIN
+        ;WITH FilteredSearchResult AS (
+            SELECT DISTINCT srp.ProjectID
+            FROM SearchResultProject srp
+            WHERE srp.SearchCriteriaID = @SearchID
+        )
+        INSERT INTO #base
+        SELECT ProjectID
+        FROM FilteredSearchResult
+    END
 	
 	BEGIN
 		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
@@ -659,9 +615,7 @@ AS
 			@fundingOrgList = fundingOrgList,
 			@childhoodcancerList = childhoodcancerList
 		FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
-
 	END
-	
 
 
 	-----------------------------------------------------------		
@@ -1436,17 +1390,23 @@ AS
 
 	)
 		
-	IF @SearchID = 0  -- No filters. Return all projects 
-	BEGIN
-		INSERT INTO @project SELECT ProjectID FROM Project 
-	END
-	ELSE  -- filtered projects (based on searchID)
-	BEGIN
-		DECLARE @ProjectIDs VARCHAR(max) 	
-		SELECT @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID					
-		
-		INSERT INTO @project SELECT [VALUE] AS ProjectID FROM dbo.ToIntTable(@ProjectIDs)
-	END
+
+    IF @SearchID = 0
+    BEGIN
+        INSERT INTO @project SELECT ProjectID FROM Project
+    END
+    ELSE
+    BEGIN
+        ;WITH FilteredSearchResult AS (
+            SELECT DISTINCT srp.ProjectID
+            FROM SearchResultProject srp
+            WHERE srp.SearchCriteriaID = @SearchID
+        )
+        INSERT INTO @project
+        SELECT ProjectID
+        FROM FilteredSearchResult
+    END
+
 
 	-- Further drill down - Filter on Region, Country or City
 	SELECT p.ProjectID, pf.Projectfundingid, pf.BudgetEndDate INTO #Proj
@@ -1520,3 +1480,88 @@ AS
         SELECT @searchCriteriaID, [VALUE]
         FROM dbo.ToIntTable(@ProjectIDList);
 GO
+
+------------------------------------------------------
+------------------------------------------------------
+USE [icrp_data]
+GO
+/****** Object:  StoredProcedure [dbo].[GetProjectsBySearchID]    Script Date: 7/14/2025 8:01:18 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER PROCEDURE [dbo].[GetProjectsBySearchID]
+    @PageSize int = 50, -- return all by default
+	@PageNumber int = 1, -- return all results by default; otherwise pass in the page number
+	@SortCol varchar(50) = 'title', -- Ex: 'title', 'pi', 'code', 'inst', 'FO',....
+	@SortDirection varchar(4) = 'ASC',  -- 'ASC' or 'DESC'
+    @SearchID INT,
+	@ResultCount INT OUTPUT  -- return the searchID		
+AS   
+
+	------------------------------------------------------
+	-- Get saved search results by searchID
+	------------------------------------------------------	
+	DECLARE @Result TABLE (
+		ProjectID INT NOT NULL
+	)
+
+    -- Insert distinct ProjectID values into the table variable
+    INSERT INTO @Result (ProjectID)
+    SELECT DISTINCT srp.ProjectID
+    FROM SearchResultProject srp
+    WHERE srp.SearchCriteriaID = @SearchID;
+
+	DECLARE @ProjectIDs VARCHAR(max) 
+	IF @SearchID = 0
+	BEGIN
+        INSERT INTO @Result SELECT DISTINCT ProjectID From Project
+		SELECT @ResultCount = COUNT(*) FROM @Result
+	END
+	ELSE
+	BEGIN
+		SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
+	END
+
+	SELECT ProjectID INTO #base FROM @Result
+
+	--------------------------------------------------------------------
+	-- Sort and Pagination
+	--   Note: Return only base projects and projects' most recent funding
+	--------------------------------------------------------------------
+	SELECT r.ProjectID, p.AwardCode, minf.projectfundingID AS LastProjectFundingID, LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(f.Title, CHAR(9), ''), CHAR(13), ''), CHAR(10), ''))) AS Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName, pi.ORC_ID AS piORCiD, i.Name AS institution, 
+		f.Amount, i.City, i.State, i.country, c.name as CountryName, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort 
+	FROM #base r
+		JOIN Project p ON r.ProjectID = p.ProjectID
+		JOIN (SELECT ProjectID, MIN(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f GROUP BY ProjectID) minf ON r.ProjectID = minf.ProjectID
+		JOIN ProjectFunding f ON minf.ProjectFundingID = f.projectFundingID
+		JOIN  (SELECT * FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON f.projectFundingID = pi.projectFundingID
+		JOIN Institution i ON i.InstitutionID = pi.InstitutionID
+		JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
+				 JOIN Country c on c.Abbreviation = i.Country
+	ORDER BY 
+		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'ASC ' THEN  LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(f.Title, CHAR(9), ''), CHAR(13), ''), CHAR(10), ''))) END ASC,
+		CASE WHEN @SortCol = 'code ' AND @SortDirection = 'ASC' THEN p.AwardCode  END ASC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'ASC' THEN pi.LastName  END ASC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'ASC' THEN pi.FirstName  END ASC,
+		CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'ASC' THEN i.Name  END ASC,
+		CASE WHEN @SortCol = 'city ' AND @SortDirection = 'ASC' THEN i.City  END ASC,
+		CASE WHEN @SortCol = 'state ' AND @SortDirection = 'ASC' THEN i.State  END ASC,
+		CASE WHEN @SortCol = 'country' AND @SortDirection = 'ASC' THEN i.Country  END ASC,
+		CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'ASC' THEN o.Abbreviation  END ASC,
+		CASE WHEN @SortCol = 'title ' AND @SortDirection = 'DESC' THEN  LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(f.Title, CHAR(9), ''), CHAR(13), ''), CHAR(10), '')))  END DESC, 
+		CASE WHEN @SortCol = 'code ' AND @SortDirection = 'DESC' THEN p.AwardCode  END DESC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'DESC' THEN pi.LastName  END DESC,
+		CASE WHEN @SortCol = 'pi ' AND @SortDirection = 'DESC' THEN pi.FirstName  END DESC,
+		CASE WHEN @SortCol = 'Inst ' AND @SortDirection = 'DESC' THEN i.Name END DESC,
+		CASE WHEN @SortCol = 'city ' AND @SortDirection = 'DESC' THEN i.City  END DESC,
+		CASE WHEN @SortCol = 'state ' AND @SortDirection = 'DESC' THEN i.State  END DESC,
+		CASE WHEN @SortCol = 'country' AND @SortDirection = 'DESC' THEN i.Country  END DESC,
+		CASE WHEN @SortCol = 'FO ' AND @SortDirection = 'DESC' THEN o.Abbreviation  END DESC
+	OFFSET ISNULL(@PageSize,50) * (ISNULL(@PageNumber, 1) - 1) ROWS
+	FETCH NEXT 
+		CASE WHEN @PageNumber IS NULL THEN 999999999 ELSE ISNULL(@PageSize,50)
+		END ROWS ONLY
+
+
