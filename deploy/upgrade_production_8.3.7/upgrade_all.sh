@@ -44,6 +44,10 @@ tmp/utility/upgrade_production_8.3.7/upgrade_modules.sh icrp
 sudo su - (or exit from drupal user)
 sudo chmod -R 755 icrp/sites icrp/themes icrp/modules icrp/libraries
 sudo chmod -R 744 icrp/composer.json
+#STEP 6: Rebuild Drupal caches (run as drupal user)
+echo "Rebuilding Drupal caches..."
+sudo su drupal -c 'cd /local/drupal/icrp && if command -v drush >/dev/null 2>&1; then drush cr || drush cache-rebuild; else echo "Drush not found" >&2; fi'
+
 #clean up
 rm -rf icrp-old tmp
 echo "Upgrade Complete"
