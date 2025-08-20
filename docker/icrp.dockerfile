@@ -117,6 +117,9 @@ COPY composer.json composer.lock ./
 
 RUN composer install
 
+# Overlay patched redirect_after_login.module (null guard fix)
+COPY deploy/overrides/modules/redirect_after_login/redirect_after_login.module modules/redirect_after_login/redirect_after_login.module
+
 COPY sites/ sites/
 
 COPY modules/custom/ modules/custom/
