@@ -12,7 +12,7 @@ resources:
 
 jstree:
   remote: https://cdnjs.com/libraries/jstree
-  version: 3.3.3
+  version: 3.3.17
   license:
     name: MIT
     url: https://github.com/ded/domready/blob/v1.0.8/LICENSE
