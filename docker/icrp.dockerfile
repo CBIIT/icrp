@@ -108,6 +108,7 @@ RUN mkdir -p \
    utility
 
 COPY docker/httpd-custom.conf /etc/httpd/conf.d/
+COPY docker/disable-compression.conf /etc/httpd/conf.d/
 
 COPY docker/php-custom.ini /etc/php.d/
 
