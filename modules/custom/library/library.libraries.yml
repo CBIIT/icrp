@@ -18,10 +18,10 @@ jstree:
     url: https://github.com/ded/domready/blob/v1.0.8/LICENSE
     gpl-compatible: true
   js:
-    https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.3/jstree.min.js: { minified: true }
+    https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.17/jstree.min.js: { minified: true }
   css:
     theme:
-      https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.3/themes/default/style.min.css: { minified: true }
+      https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.17/themes/default/style.min.css: { minified: true }
 
 bootstrap3-dialog:
   remote: http://nakupanda.github.io/bootstrap3-dialog

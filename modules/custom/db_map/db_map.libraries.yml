@@ -23,7 +23,7 @@ map.people:
       src/assets/css/dataTables.bootstrap.css: {}
   js:
     https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js: {}
-    https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/js/jquery.dataTables.min.js: {}
+    https://cdn.datatables.net/2.3.3/js/dataTables.min.js: {}
     src/assets/js/dataTables.ext.js: {}
     src/assets/js/dataTables.resizableColumns.js: {}
     src/assets/db_people_map.js: {}
