@@ -1,4 +1,4 @@
-ettROM public.ecr.aws/amazonlinux/amazonlinux:2023
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023
 
 RUN dnf -y update \
    && dnf -y install \
