@@ -1,4 +1,4 @@
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023
+ettROM public.ecr.aws/amazonlinux/amazonlinux:2023
 
 RUN dnf -y update \
    && dnf -y install \
@@ -119,7 +119,6 @@ COPY docker/php-custom.ini /etc/php.d/
 COPY docker/postfix-main.cf /etc/postfix/main.cf
 COPY sites/ sites/
 
-COPY settings.php /var/www/html/sites/default 
 COPY composer.json ./
 RUN rm -rf vendor/
 RUN composer update --no-ansi --no-dev --no-scripts 
