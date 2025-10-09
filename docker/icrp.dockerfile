@@ -14,24 +14,23 @@ RUN dnf -y update \
    dovecot-mysql \
    nodejs \
    patch \
-   php8.3 \
-   php8.3-devel \
-   php8.3-fpm \
-   php8.3-gd \
-   php8.3-intl \
-   php8.3-mbstring \
-   php8.3-mysqlnd \
-   php8.3-opcache \
+   php8.1 \
+   php-devel \
+   php-fpm \
+   php-gd \
+   php-intl \
+   php-json \
+   php-mbstring \
+   php-mysqlnd \
+   php-opcache \
+   php-pdo \
    php-pear \
-   php8.3-pdo \
-   php8.3-xml \
-   php8.3-zip \
+   php-xml \
    postfix \
    sendmail \
    unzip \
    wget \
    which \
-   vim \
    ca-certificates \
    gcc \
    gcc-c++ \
@@ -41,6 +40,7 @@ RUN dnf -y update \
    make \
    unixODBC-devel \
    && touch /etc/php.d/90-pecl-modules.ini \
+   && pear config-set php_ini /etc/php.d/90-pecl-modules.ini \
    && curl https://packages.microsoft.com/config/rhel/8/prod.repo > /etc/yum.repos.d/mssql-release.repo \
    && dnf -y remove \
    unixODBC-utf16 \
@@ -60,10 +60,6 @@ RUN pecl channel-update pecl.php.net \
    pdo_sqlsrv \
    sqlsrv \
    zip
-
-# FIX: Explicitly ensure the SQL Server drivers are loaded for PHP 8.3 CLI (Drush)
-RUN echo "extension=sqlsrv.so" >> /etc/php.d/90-pecl-modules.ini \
-   && echo "extension=pdo_sqlsrv.so" >> /etc/php.d/90-pecl-modules.ini
 
 # Download ddog and install
 RUN wget https://github.com/DataDog/dd-trace-php/releases/latest/download/datadog-setup.php -O /tmp/datadog-setup.php
@@ -108,7 +104,7 @@ WORKDIR /var/www/html
 RUN mkdir -p \
    modules/custom \
    sites/default \
-   themes/bootstrap_subtheme \
+   themes/boostrap_subtheme \
    utility
 
 COPY docker/httpd-custom.conf /etc/httpd/conf.d/
@@ -117,16 +113,15 @@ COPY docker/disable-compression.conf /etc/httpd/conf.d/
 COPY docker/php-custom.ini /etc/php.d/
 
 COPY docker/postfix-main.cf /etc/postfix/main.cf
-COPY sites/ sites/
 
-COPY settings.php /var/www/html/sites/default 
-COPY composer.json ./
-RUN rm -rf vendor/
-RUN composer update --no-ansi --no-dev --no-scripts 
+COPY composer.json composer.lock ./
+
+RUN composer install
 
 # Overlay patched redirect_after_login.module (null guard fix)
 COPY deploy/overrides/modules/redirect_after_login/redirect_after_login.module modules/redirect_after_login/redirect_after_login.module
 
+COPY sites/ sites/
 
 COPY modules/custom/ modules/custom/
 
@@ -134,9 +129,17 @@ COPY themes/bootstrap_subtheme/ themes/bootstrap_subtheme/
 
 COPY libraries/ libraries/
 
-ENV PATH="$PATH:/var/www/html/vendor/bin"
+ENV PATH "$PATH:/var/www/html/vendor/bin"
 
 
 EXPOSE 80
 EXPOSE 443
-CMD ["/bin/bash", "-c", "rm -rf /run/httpd/* /run/php-fpm/* /tmp/httpd* && chown -R icrp:icrp /var/www/html/ || true && postfix start && php-fpm -D && httpd -D FOREGROUND"]
+
+CMD rm -rf \
+   /run/httpd/* \
+   /run/php-fpm/* \
+   /tmp/httpd* \
+   && chown -R icrp:icrp /var/www/html/ || true \
+   && postfix start \
+   && php-fpm -D \
+   && httpd -D FOREGROUND
