@@ -120,7 +120,6 @@ COPY docker/postfix-main.cf /etc/postfix/main.cf
 COPY sites/ sites/
 
 COPY settings.php /var/www/html/sites/default 
-COPY cache-buster.txt ./
 COPY composer.json ./
 RUN rm -rf vendor/
 RUN composer update --no-ansi --no-dev --no-scripts 
