@@ -31,7 +31,6 @@ RUN dnf -y update \
    unzip \
    wget \
    which \
-   vim \
    ca-certificates \
    gcc \
    gcc-c++ \
