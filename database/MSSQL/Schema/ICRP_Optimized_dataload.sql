@@ -1,12 +1,26 @@
 USE [icrp_dataload]
 GO
 
+-- Drop indexes if they exist
+IF EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_SearchResultProject_CreatedDate' AND object_id = OBJECT_ID('SearchResultProject'))
+    DROP INDEX IX_SearchResultProject_CreatedDate ON SearchResultProject;
+
+IF EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_SearchResultProject_SearchCriteriaID_ProjectID' AND object_id = OBJECT_ID('SearchResultProject'))
+    DROP INDEX IX_SearchResultProject_SearchCriteriaID_ProjectID ON SearchResultProject;
+
+-- Drop table if it exists
+IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[SearchResultProject]') AND type in (N'U'))
+    DROP TABLE [dbo].[SearchResultProject];
+
+-- Create the table
 CREATE TABLE SearchResultProject
 (
    SearchCriteriaID INT,
     ProjectID INT,
     CreatedDate DATETIME NOT NULL DEFAULT GETDATE()
 );
+
+-- Create indexes
 CREATE INDEX IX_SearchResultProject_SearchCriteriaID_ProjectID
 ON SearchResultProject (SearchCriteriaID, ProjectID);
 
