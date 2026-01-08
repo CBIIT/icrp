@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Zipstream\ZipStream;
 
 class LibraryController extends ControllerBase {
+  protected string $uploadsFolder;
 
   function __construct() {
     \Drupal::service('page_cache_kill_switch')->trigger();
@@ -26,7 +27,8 @@ class LibraryController extends ControllerBase {
       fclose($file);
     }
 
-    $this->$uploads_folder = $uploads_folder;
+    $this->uploadsFolder = $uploads_folder;
+
   }
 
   public function testQuery() {

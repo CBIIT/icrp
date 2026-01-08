@@ -1440,46 +1440,84 @@ function getNodeIdFromMarkup($html) {
 }
 
 function getThreadNodeInfo($thread_node_id) {
-  //drupal_set_message("getThreadNodeInfo");
-
   $text_summary_max_length = 254;
-  $node = \Drupal::entityTypeManager()->getStorage('node')->load($thread_node_id);
-  //$summary = $node['#values']['body']['x-dfault'][0]['summary'];
-  //$summary =  $node->get('summary')->value; 
-  $body =  $node->get('body')->value; 
-  $summary_raw =  $node->get('body')->summary; 
-  
-  if($summary_raw == "") {
-    $summary = text_summary(rtrim(strip_tags($body)), NULL, $text_summary_max_length);
-    if(strlen(rtrim(strip_tags($body))) > $text_summary_max_length) {
-      $summary .= " ...";
+
+  if (empty($thread_node_id) || !is_numeric($thread_node_id)) {
+    return ['(Missing thread)', ''];
+  }
+
+  $node = \Drupal::entityTypeManager()
+    ->getStorage('node')
+    ->load($thread_node_id);
+
+  // 🔴 CRITICAL GUARD
+  if (!$node) {
+    return ['(Deleted thread)', ''];
+  }
+
+  // Ensure body field exists
+  if (!$node->hasField('body')) {
+    return [$node->getTitle(), ''];
+  }
+
+  $body = $node->get('body')->value ?? '';
+  $summary_raw = $node->get('body')->summary ?? '';
+
+  if ($summary_raw === '') {
+    $summary = text_summary(
+      rtrim(strip_tags($body)),
+      NULL,
+      $text_summary_max_length
+    );
+
+    if (strlen(strip_tags($body)) > $text_summary_max_length) {
+      $summary .= ' ...';
     }
-
-  } else {
-    $summary = text_summary($summary_raw, NULL,  $text_summary_max_length);
-
   }
-  
-  //return array($node->getTitle(), "<b>".$summary."</b></br>Body: ".$body."</br>Summary Raw: ".$summary_raw);
-  return array($node->getTitle(), $summary);
+  else {
+    $summary = text_summary(
+      $summary_raw,
+      NULL,
+      $text_summary_max_length
+    );
+  }
+
+  return [
+    $node->getTitle(),
+    $summary,
+  ];
 }
+
 function lastComment($node_id) {
-  $comment = "This is the last comment for ".$node_id;
 
-  $query = "select ccb.comment_body_value FROM comment_entity_statistics ces, comment__comment_body ccb ";
-  $query .= "where ces.cid = ccb.entity_id and ces.entity_id = {$node_id} ";
-  $query .= "order by ces.cid desc limit 1;";
-
-  $result = \Drupal::database()->query($query);
-  $row = $result->fetchObject();
-  $comment = "<i>No replies</i>";
-  if(isset($row->comment_body_value)) {
-    $comment = $row->comment_body_value;
-
+  // 🔴 HARD GUARD — REQUIRED
+  if (empty($node_id) || !is_numeric($node_id)) {
+    return '<i>No replies</i>';
   }
 
-  return $comment;  
+  $query = "
+    SELECT ccb.comment_body_value
+    FROM comment_entity_statistics ces
+    INNER JOIN comment__comment_body ccb
+      ON ccb.entity_id = ces.cid
+    WHERE ces.entity_id = :nid
+    ORDER BY ces.cid DESC
+    LIMIT 1
+  ";
+
+  $result = \Drupal::database()->query($query, [
+    ':nid' => (int) $node_id,
+  ]);
+
+  $row = $result->fetchObject();
+
+  if (!$row || empty($row->comment_body_value)) {
+    return '<i>No replies</i>';
+  }
+
+  return $row->comment_body_value;
 }
+
 
 function getUserFullName($uid) {
   $full_name = "";
@@ -1519,17 +1557,35 @@ function getName($uid, $created) {
 }
 
 function firstThreadBody($nid) {
-  $query = "SELECT nfd.uid, nfd.created, nb.body_value FROM node_field_data nfd, node__body nb where nfd.nid = {$nid} and nfd.nid = nb.entity_id";
-  $result = \Drupal::database()->query($query);
-  $row = $result->fetchObject();
-  $comment = "<i>No replies</i>";
-  if(isset($row->body_value)) {
-    $comment = $row->body_value;
-    $name = getName($row->uid, $row->created);
+
+  // 🔴 HARD GUARD — REQUIRED
+  if (empty($nid) || !is_numeric($nid)) {
+    return '<i>No posts</i>';
   }
- $html = $comment.$name;
-  return $html;  
+
+  $query = "
+    SELECT nfd.uid, nfd.created, nb.body_value
+    FROM node_field_data nfd
+    INNER JOIN node__body nb ON nb.entity_id = nfd.nid
+    WHERE nfd.nid = :nid
+    LIMIT 1
+  ";
+
+  $result = \Drupal::database()->query($query, [
+    ':nid' => (int) $nid,
+  ]);
+
+  $row = $result->fetchObject();
+
+  if (!$row || empty($row->body_value)) {
+    return '<i>No posts</i>';
+  }
+
+  $name = getName($row->uid, $row->created);
+
+  return $row->body_value . $name;
 }
+
 
 function processForumData($cell, $cell_index, $row_index, &$variables, $thread_node_id) {
   //dpm($cell);
@@ -1643,12 +1699,32 @@ function icrp_preprocess_table(&$variables) {
 
 //  $variables['header'][0]['content']->setGeneratedLink(changeHeaderTitle("Thread", $forum_id, $sort_order));
   //Customize Rows and Cells 
-  foreach($variables['rows'] as $row_index => $row) {
-    $thread_node_id = getNodeIdFromMarkup(substr($row['cells'][0]['content'][1]['#markup'], 0, 60));
-    foreach($row['cells'] as $cell_index => $cell) {
-      processForumData($cell, $cell_index, $row_index, $variables, $thread_node_id);
+foreach ($variables['rows'] as $row_index => $row) {
+
+  // Default to NULL — downstream code is now safe
+  $thread_node_id = NULL;
+
+  // Safely extract node ID from render array
+  if (
+    isset($row['cells'][0]['content']) &&
+    is_array($row['cells'][0]['content'])
+  ) {
+    foreach ($row['cells'][0]['content'] as $content_item) {
+      if (is_array($content_item) && isset($content_item['#markup'])) {
+        $thread_node_id = getNodeIdFromMarkup(
+          substr($content_item['#markup'], 0, 100)
+        );
+        break;
+      }
     }
   }
+
+  // Process cells (processForumData already guards against NULL IDs)
+  foreach ($row['cells'] as $cell_index => $cell) {
+    processForumData($cell, $cell_index, $row_index, $variables, $thread_node_id);
+  }
+}
+
 }
 
 /**
