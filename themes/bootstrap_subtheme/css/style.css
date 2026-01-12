@@ -916,7 +916,7 @@ ul.icrp-terms-list li:before {
 
 	.user-logged-in .navbar-inverse {
 		margin-left: 14px !important;
-	}
+	}  
 
 	.col-sm-12 {
 		padding-left: 0px;
@@ -1459,7 +1459,7 @@ ul.icrp-terms-list li:before {
 }
 
 .col-sm-12 {
-	margin: 0px !important;
+	margin: auto !important;
 	margin-top: 10px;
 }
 
@@ -1809,3 +1809,19 @@ th {
 #library {
 	padding: 0px;
 }
+
+.main-content .col-sm-12{
+    margin:auto !important;
+}
+
+.page-user-login #content > div {
+    width:500px;
+    margin:auto;
+}
+
+	.user-logged-in .main-content{
+		margin:auto !important;
+        width:100% !important;
+        padding-left:15px;
+        margin:0px !important;
+	}  
