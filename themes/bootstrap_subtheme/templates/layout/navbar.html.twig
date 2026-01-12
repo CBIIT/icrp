@@ -1,0 +1,43 @@
+{# templates/layout/navbar.html.twig #}
+
+{% set container = theme.settings.fluid_container ? 'container-fluid' : 'container' %}
+
+{% if page.navigation or page.navigation_collapsible %}
+  {% set navbar_classes = [
+    'navbar',
+    theme.settings.navbar_inverse ? 'navbar-inverse' : 'navbar-default',
+    theme.settings.navbar_position
+  ] %}
+
+<header class="site-header" role="banner">
+
+  <div class="site-header-inner container">
+
+    <div class="site-branding">
+      {{ page.navigation }}
+    </div>
+
+    <div class="site-utility">
+      {{ page.navigation_collapsible }}
+    </div>
+
+    <div class="site-social">
+      <span>Follow Us</span>
+      <a href="https://www.linkedin.com/company/international-cancer-research-partnership/">
+        <img src="/sites/default/files/icons/linkedin.png" alt="LinkedIn">
+      </a>
+      <a href="https://twitter.com/icrpartners1">
+        <img src="/sites/default/files/icons/twitter-blue.png" alt="Twitter">
+      </a>
+    </div>
+
+    <div class="site-translate">
+      <div id="google_translate_element"></div>
+    </div>
+
+  </div>
+
+</header>
+
+{% endif %}
+

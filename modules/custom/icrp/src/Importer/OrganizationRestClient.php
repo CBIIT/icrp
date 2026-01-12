@@ -64,10 +64,15 @@ class OrganizationRestClient {
         $sql = "SELECT field_organization_id_value, entity_id FROM node__field_organization_id;";
         \Drupal\core\Database\Database::getConnection();
         $current_organization_ids = \Drupal::database()->query($sql)->fetchAllAssoc('field_organization_id_value',PDO::FETCH_ASSOC);
+	$query = \Drupal::entityQuery('node')
+  		->accessCheck(FALSE)
+  		->condition('type', 'organization')
+  		->condition(
+    		'field_organization_id',
+    		array_map([self::class, 'mapEntityID'], $organizations),
+    			'NOT IN'
+  	);
 
-        $query = \Drupal::entityQuery('node')
-                   ->condition('type', 'organization', '=')
-                   ->condition('field_organization_id', array_map('self::mapEntityID',$organizations), 'NOT IN');
         $non_extant_org_ids = array_values($query->execute());
         foreach ($organizations as $key=>$organization) {
             if (array_key_exists($organization['ID'],$current_organization_ids)) {
