@@ -1881,7 +1881,7 @@ th {
 .webform-submission-form input[type="radio"] {
 	margin-top:0px !important;
 	position: relative;
-	left:20px;
+	left:0px;
 	top:15px;
 }
 
