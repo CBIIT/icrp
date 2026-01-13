@@ -1825,3 +1825,154 @@ th {
         padding-left:15px;
         margin:0px !important;
 	}  
+
+	
+
+.webform-submission-form input[type="radio"],
+.webform-submission-form input[type="checkbox"] {
+  appearance: auto;
+  -webkit-appearance: auto;
+  -moz-appearance: auto;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+}
+
+/* Each option: checkbox/radio LEFT, text RIGHT */
+.webform-submission-form .form-item--checkbox,
+.webform-submission-form .form-item--radio {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* Align input with first line of text */
+.webform-submission-form .form-item--checkbox input,
+.webform-submission-form .form-item--radio input {
+  margin-top: 3px;
+  flex: 0 0 auto;
+}
+
+/* Label behaves like normal text */
+.webform-submission-form .form-item--checkbox label,
+.webform-submission-form .form-item--radio label {
+  margin: 0;
+  font-weight: normal;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+/* Stack checkbox groups vertically (like your screenshot) */
+.webform-submission-form .form-checkboxes,
+.webform-submission-form .form-radios {
+  display: block;
+}
+.webform-submission-form input[type="checkbox"] {
+	margin-top:10px !important;
+	position: relative;
+	top:15px;
+}
+
+.webform-submission-form input[type="radio"] {
+	margin-top:0px !important;
+	position: relative;
+	left:20px;
+	top:15px;
+}
+
+
+.webform-submission-form label {
+	position: relative;
+	left:23px;
+}
+	details {
+		margin:0px;
+		display:block
+	}
+
+
+	.webform-submission-form .col-sm-1, 
+	.webform-submission-form .col-sm-2, 
+	.webform-submission-form .col-sm-3, 
+	.webform-submission-form .col-sm-4, 
+	.webform-submission-form .col-sm-5, 
+	.webform-submission-form .col-sm-6, 
+	.webform-submission-form .col-sm-7, 
+	.webform-submission-form .col-sm-8, 
+	.webform-submission-form .col-sm-9, 
+	.webform-submission-form .col-sm-10, 
+	.webform-submission-form .col-sm-11, 
+	.webform-submission-form .col-sm-12 
+ {
+    float: none;
+    padding:0px !important;margin:0px !important;
+  }
+  
+  .webform-submission-form details {
+  	border:1px solid #dddddd;
+  	margin-bottom:30px;
+  }
+  
+  .webform-submission-form summary {
+  	padding:20px;
+  	background-color:#F5F5F5;
+  }
+
+  
+#edit-container-right {
+  	border:1px solid #dddddd;	
+  	padding:0px !important;
+	margin:0px !important;
+	vertical-align: top;
+	margin-top:20px !important
+	
+}
+
+
+#edit-container-right fieldset{
+    padding:0px !important;margin:0px !important;
+
+}
+#edit-container-right fieldset legend{
+	background-color:#F5F5F5;
+	padding:30px;
+}
+
+#edit-container-right .fieldset-wrapper {
+	padding:20px;
+}
+
+#edit-container-left {
+		padding-right:20px !important;
+		width:48% !important
+
+}
+
+  .webform-submission-form .details-wrapper {
+  	padding:20px;
+	vertical-align: top;
+  }
+
+
+    .webform-submission-form .details-wrapper .col-sm-6{
+  	display:inline-block !important
+  }
+
+    .webform-submission-form label {
+  	margin-right:30px;
+	padding:0px !important;
+	left: 16px !important
+  }
+  
+  #edit-research-container .col-sm-6 {
+  	width:55%;
+  }
+
+  .col-sm-3.form-select {
+	min-width:200px;
+}
