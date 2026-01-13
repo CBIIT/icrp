@@ -1930,7 +1930,6 @@ th {
 	margin:0px !important;
 	vertical-align: top;
 	margin-top:20px !important
-	
 }
 
 
@@ -1975,4 +1974,12 @@ th {
 
   .col-sm-3.form-select {
 	min-width:200px;
+}
+
+.navbar-inverse {
+	background-color:#008CBA;
+	border-color:#008CBA;
+}
+.navbar-inverse .navbar-nav>li>a {
+	color:#FFFFFF;
 }

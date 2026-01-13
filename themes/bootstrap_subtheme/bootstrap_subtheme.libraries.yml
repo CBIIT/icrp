@@ -1,8 +1,8 @@
 global-styling:
   css:
     theme:
-      #css/ext/bootstrap.min.css: {}
-      css/ext/bootstrap.yeti.3.3.7.css: {}
+      css/ext/bootstrap.min.css: {}
+      #css/ext/bootstrap.yeti.3.3.7.css: {}
       # https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/theme.min.css: {type: external, minified: true}
       css/ext/theme.1.12.1.min.css: {}
       # https://cdnjs.cloudflare.com/ajax/libs/tachyons/4.11.1/tachyons.min.css: {type: external, minified: true}
@@ -20,7 +20,9 @@ global-scripts:
   version: 1.0.2
   js:
     #js/ext/bootstrap.bundle.min.js: {}
-    js/ext/bootstrap.3.3.7.min.js: {}
+    #js/ext/bootstrap.3.3.7.min.js: {}
+    js/ext/bootstrap.min.js: {}
+
     js/carousel-fix.js: {}
     #js/bootstrap3-carousel-guard.js: {}
     # https://www.gstatic.com/charts/loader.js: { type: external, minified: false }
