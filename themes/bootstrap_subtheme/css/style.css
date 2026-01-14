@@ -1084,7 +1084,6 @@ ul.icrp-terms-list li:before {
 		margin-left: 510px;
 	}
 
-
 }
 
 /* Social Media Links */
@@ -1888,6 +1887,7 @@ th {
 
 .webform-submission-form label {
 	position: relative;
+	display: inline !important;
 	left:23px;
 }
 	details {
@@ -1965,7 +1965,7 @@ th {
     .webform-submission-form label {
   	margin-right:30px;
 	padding:0px !important;
-	left: 16px !important
+	left: 0px !important
   }
   
   #edit-research-container .col-sm-6 {
@@ -1982,4 +1982,45 @@ th {
 }
 .navbar-inverse .navbar-nav>li>a {
 	color:#FFFFFF;
+}
+
+#webform-submission-icrp-partnership-applicaion-form-add-form .col-md-1, 
+#webform-submission-icrp-partnership-applicaion-form-add-form .col-md-10, 
+#webform-submission-icrp-partnership-applicaion-form-add-form .col-md-11, 
+#webform-submission-icrp-partnership-applicaion-form-add-form .col-md-12, 
+#webform-submission-icrp-partnership-applicaion-form-add-form .col-md-2, 
+#webform-submission-icrp-partnership-applicaion-form-add-form .col-md-3, 
+#webform-submission-icrp-partnership-applicaion-form-add-form .col-md-4, 
+#webform-submission-icrp-partnership-applicaion-form-add-form .col-md-5, 
+#webform-submission-icrp-partnership-applicaion-form-add-form .col-md-6, 
+#webform-submission-icrp-partnership-applicaion-form-add-form .col-md-7, 
+#webform-submission-icrp-partnership-applicaion-form-add-form .col-md-8, 
+#webform-submission-icrp-partnership-applicaion-form-add-form .col-md-9	{
+	float:none !important;
+}
+
+#edit-application-form label	{
+	display:inline !important;
+}
+
+#edit-state-province-territory > legend {
+	display:none !important;
+}
+
+#edit-state-province-territory  {
+	padding-top:10px !important;
+}
+
+.webform-submission-icrp-partnership-applicaion-form-form .radio label {
+	padding-left:15px !important;
+}
+
+
+.webform-submission-icrp-partnership-applicaion-form-form .webform-type-checkbox label {
+	padding-left:20px !important;
+	top:-5px !important;
+}
+
+#edit-container-state-zip-code {
+	margin-bottom:1px !important
 }
