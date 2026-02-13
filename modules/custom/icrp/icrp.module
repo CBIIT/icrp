@@ -1312,33 +1312,42 @@ function makeRandomString($max=6) {
     }
     return $str;
 }
+function icrp_preprocess_form(array &$variables) {
 
-function icrp_preprocess_form(&$variables) {
-
-  //drupal_set_message("Here we go.  Do your work here.");
-  //dpm($variables);
-  //node-events-delete-form
-
-  if(isset($variables['element']['#form_id'])) {
+  // Store form ID if present.
+  if (!empty($variables['element']['#form_id'])) {
     $variables['telement_id'] = $variables['element']['#form_id'];
   }
-  if(isset($variables['element']['#form_id']) && $variables['element']['#form_id'] == "node_forum_form") {
 
-    $form_id = $variables['element']['#form_id'];
-    //drupal_set_message('Form_id: '.$form_id);
-    $tid = \Drupal::request()->query->get('forum_id');
-    //drupal_set_message("$tid:");
-    //Look up Forum Category and Thread for this forum_id
-  
-    $query = "select name, description__value FROM taxonomy_term_field_data where tid = {$tid}; ";
-  
-    $result = \Drupal::database()->query($query);
-    $row = $result->fetchObject();
-    $variables['tforum_category'] = $row->name;
-    $variables['tforum_description'] = $row->description__value;
+  // Only apply to the forum node form.
+  if (empty($variables['element']['#form_id']) || $variables['element']['#form_id'] !== 'node_forum_form') {
+    return;
   }
-  //dpm($variables);
+
+  // Get forum_id from query string.
+  $tid = \Drupal::request()->query->get('forum_id');
+
+  // If missing or invalid, don't run query.
+  if (empty($tid) || !is_numeric($tid)) {
+    return;
+  }
+
+  $tid = (int) $tid;
+
+  // Use parameterized query (safe).
+  $query = "SELECT name, description__value
+            FROM taxonomy_term_field_data
+            WHERE tid = :tid";
+
+  $row = \Drupal::database()->query($query, [':tid' => $tid])->fetchObject();
+
+  if ($row) {
+    $variables['tforum_category'] = $row->name ?? '';
+    $variables['tforum_description'] = $row->description__value ?? '';
+  }
 }
+
+
 /*
 function icrp_views_data_alter(array &$data) { 
   drupal_set_message("icrp_views_data_alter");
@@ -1676,57 +1685,37 @@ function changeHeaderTitle($header_title, $forum_id, $sort_order) {
   return $generatedLink;
 }
 
-
 function icrp_preprocess_table(&$variables) {
 
-  // Exit if not id is not available.
-  if(!isset($variables['attributes']['id'])){
+  if (!isset($variables['attributes']['id'])) {
     return;
   }
-  // Exit if not preprocess for forum-topic
-  if(substr($variables['attributes']['id'], 0, 11) != 'forum-topic') {
+  $table_id = $variables['attributes']['id'];
+  if (substr($table_id, 0, 11) != 'forum-topic') {
     return;
   }
-  //Change the Header from Topic to Thread
-  $forum_id = substr($variables['attributes']['id'], 12);
-  $sort_order = "";
-  if(isset($variables['header'][0]['attributes']->storage()['aria-sort'])) {
-    $sort_order = $variables['header'][0]['attributes']->storage()['aria-sort']->value();
+
+  // Get forum tid from table id e.g. "forum-topic-27"
+  $tid = (int) substr($table_id, 12);
+  if (!$tid) {
+    return;
   }
-  // Change Last reply to Last Reply
-//  $last_reply_header = $variables['header'][2]['content']->getGeneratedLink();
-//  $variables['header'][2]['content']->setGeneratedLink(str_replace("Last reply", "Last Post", $last_reply_header));
 
-//  $variables['header'][0]['content']->setGeneratedLink(changeHeaderTitle("Thread", $forum_id, $sort_order));
-  //Customize Rows and Cells 
-foreach ($variables['rows'] as $row_index => $row) {
+  // Query node IDs for this forum in the same order Drupal renders them
+  $query = \Drupal::database()->select('forum_index', 'fi')
+    ->fields('fi', ['nid'])
+    ->condition('fi.tid', $tid)
+    ->orderBy('fi.sticky', 'DESC')
+    ->orderBy('fi.last_comment_timestamp', 'DESC');
+  $nids = $query->execute()->fetchCol();
 
-  // Default to NULL — downstream code is now safe
-  $thread_node_id = NULL;
-
-  // Safely extract node ID from render array
-  if (
-    isset($row['cells'][0]['content']) &&
-    is_array($row['cells'][0]['content'])
-  ) {
-    foreach ($row['cells'][0]['content'] as $content_item) {
-      if (is_array($content_item) && isset($content_item['#markup'])) {
-        $thread_node_id = getNodeIdFromMarkup(
-          substr($content_item['#markup'], 0, 100)
-        );
-        break;
-      }
+  foreach ($variables['rows'] as $row_index => $row) {
+    $thread_node_id = $nids[$row_index] ?? NULL;
+    foreach ($row['cells'] as $cell_index => $cell) {
+      processForumData($cell, $cell_index, $row_index, $variables, $thread_node_id);
     }
   }
-
-  // Process cells (processForumData already guards against NULL IDs)
-  foreach ($row['cells'] as $cell_index => $cell) {
-    processForumData($cell, $cell_index, $row_index, $variables, $thread_node_id);
-  }
 }
-
-}
-
 /**
  * Implements hook_preprocess_HOOK() for block templates.
  */

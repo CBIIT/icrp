@@ -1,59 +1,104 @@
 <?php
-/**
- * @file
- * Bootstrap sub-theme.
- *
- * Place your custom PHP code in this file.
- */
-/**
- * Implements hook_theme_suggestions_HOOK_alter() for block templates.
- */
-//drupal_set_message("Hello bootstrap sub-theme");
-
-//drupal_set_message("So how often does this happen?");
-//kint("Hello");
-
 use Drupal\Core\Url;
+use Drupal\Core\Link;
+
+function bootstrap_subtheme_preprocess_forum_topic(array &$variables) {
+  $debug = [];
+  foreach ($variables as $key => $val) {
+    try {
+      if (is_null($val)) {
+        $debug[$key] = 'NULL';
+      } elseif (is_bool($val)) {
+        $debug[$key] = $val ? 'TRUE' : 'FALSE';
+      } elseif (is_scalar($val)) {
+        $debug[$key] = $val;
+      } elseif (is_array($val)) {
+        $debug[$key] = 'ARRAY keys: ' . implode(', ', array_keys($val));
+      } elseif (is_object($val)) {
+        $class = get_class($val);
+        if (method_exists($val, '__toString')) {
+          $debug[$key] = $class . ': ' . (string) $val;
+        } else {
+          $debug[$key] = 'OBJECT: ' . $class;
+        }
+      }
+    } catch (\Exception $e) {
+      $debug[$key] = 'ERROR: ' . $e->getMessage();
+    }
+  }
+  file_put_contents('/tmp/forum_topic_vars.txt', print_r($debug, TRUE));
+
+  if (!empty($variables['topic'])) {
+    $topic_debug = [];
+    foreach ((array)$variables['topic'] as $k => $v) {
+      $topic_debug[$k] = is_scalar($v) ? $v : (is_array($v) ? 'array' : (is_object($v) ? get_class($v) : 'other'));
+    }
+    file_put_contents('/tmp/forum_topic_object.txt', print_r($topic_debug, TRUE));
+  }
+}
+
+function bootstrap_subtheme_theme_registry_alter(array &$registry) {
+  $theme_path = \Drupal::service('extension.path.resolver')
+    ->getPath('theme', 'bootstrap_subtheme');
+
+  foreach (['forums', 'forum_list', 'forum_topic', 'forum_submitted', 'forum_icon'] as $hook) {
+    if (isset($registry[$hook])) {
+      $registry[$hook]['path'] = $theme_path . '/templates/forum';
+      $registry[$hook]['template'] = str_replace('_', '-', $hook);
+    }
+  }
+}
 
 function bootstrap_subtheme_suggestions_block_alter(array &$suggestions, array $variables) {
-
-    $block_id = $variables['elements']['#id'];
-    kint($block_id);
-    /* Uncomment the line below to see variables you can use to target a block */
-    // print $block_id . '<br/>';
-
-    /* Add classes based on the block id. */
-    switch ($block_id) {
-        /* Account Menu block */
-        case 'account_menu':
-            $suggestions[] = 'block__fancy';
-            break;
-    }
+  $block_id = $variables['elements']['#id'];
+  switch ($block_id) {
+    case 'account_menu':
+      $suggestions[] = 'block__fancy';
+      break;
+  }
 }
 
 function bootstrap_subtheme_page_attachments_alter(array &$page) {
-    $page['#attached']['drupalSettings']['user']['roles'] = \Drupal::currentUser()->getRoles();
+  $page['#attached']['drupalSettings']['user']['roles'] = \Drupal::currentUser()->getRoles();
 }
 
 function bootstrap_subtheme_preprocess_node(array &$variables) {
-    $variables['user_roles'] = \Drupal::currentUser()->getRoles();
-    // kint($variables);
-}
-
-function bootstrap_subtheme_theme_suggestions_entity_add_list_alter(array &$suggestions, array $variables) {
-    //kint($variables);
+  $variables['user_roles'] = \Drupal::currentUser()->getRoles();
 }
 
 function bootstrap_subtheme_preprocess_media_reference_help(&$variables) {
-    $variables['media_add_help'] = t(
-        'Create your media on the <a href=":add_page" target="_blank" window-dialog>media add page</a>,
-        then add it by name to the field below.', 
-        [':add_page' => '/media/add']
-    );
+  $variables['media_add_help'] = t(
+    'Create your media on the <a href=":add_page" target="_blank" window-dialog>media add page</a>, then add it by name to the field below.',
+    [':add_page' => '/media/add']
+  );
+  $variables['media_list_link'] = t(
+    'See the <a href=":list_url" target="_blank" window-dialog="true" modal-size="large">media list</a> to help locate media.',
+    [':list_url' => Url::fromRoute('entity.media.collection')->toString()]
+  );
+}
 
-    $variables['media_list_link'] = t(
-        'See the <a href=":list_url" target="_blank" window-dialog="true" modal-size="large">media list</a>
-        to help locate media.', 
-        [':list_url' => Url::fromRoute('entity.media.collection')->toString()]
-    );
+function bootstrap_subtheme_preprocess_table(array &$variables) {
+  // Only act on the forum topic table
+  $classes = isset($variables['attributes']['class']) ? (array)$variables['attributes']['class'] : [];
+  if (!in_array('forum-topic-list', $classes)) {
+    return;
+  }
+
+  if (empty($variables['rows'])) {
+    return;
+  }
+
+  foreach ($variables['rows'] as &$row) {
+    if (empty($row['cells'])) continue;
+
+    foreach ($row['cells'] as $index => &$cell) {
+      // Cell 0 = Topic title (strip the link, just show text for anon)
+      // Cell 1 = Replies
+      // Cell 2 = Last reply
+
+      // Get the rendered content and stash it as icrp_markup
+      $cell['icrp_markup'] = $cell['content'] ?? '';
+      $cell['reply_posts'] = 0;
+    }
+  }
 }

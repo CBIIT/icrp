@@ -21,5 +21,9 @@ regions:
   page_bottom: 'Page bottom'
 
 libraries:
-  - 'bootstrap_subtheme/global-styling'
-  - 'bootstrap_subtheme/global-scripts'
+  - bootstrap_subtheme/global-styling
+  - bootstrap_subtheme/global-scripts
+
+libraries-extend:
+  classy/forum: {}
+
