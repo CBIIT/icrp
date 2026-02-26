@@ -21,67 +21,53 @@ class DataUploadController extends ControllerBase {
 
   /**
    * Creates a JSON response with CORS headers from the given data
-   *
-   * @param [type] $data
-   * @return void
    */
-  private static function createResponse($data = NULL) {
+  private static function createResponse($data = NULL): JsonResponse {
     $status = 200;
+
     if (is_array($data) && array_key_exists('ERROR', $data)) {
       $data = $data['ERROR'];
       error_log($data);
       $status = 400;
     }
 
-    $response = JsonResponse::create($data, $status, [
+    // ✅ FIX: JsonResponse::create() → new JsonResponse()
+    $response = new JsonResponse($data, $status, [
       'Access-Control-Allow-Headers' => 'origin, content-type, accept',
       'Access-Control-Allow-Origin'  => '*',
       'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS',
     ]);
 
     // pretty-print response json
-    $response->setEncodingOptions($response->getEncodingOptions() | JSON_PRETTY_PRINT);
+    $response->setEncodingOptions(
+      $response->getEncodingOptions() | JSON_PRETTY_PRINT
+    );
 
     return $response;
   }
 
-
   /**
    * Loads data into the tmp table so it can be validated
-   * Expects the following form data keys:
-   *   locale: 'en-us' or 'en-gb'
-   *   file: uploaded file
-   *
-   * @param Request $request
-   * @return JSONResponse
    */
-  public static function loadProjects(Request $request): JSONResponse {
+  public static function loadProjects(Request $request): JsonResponse {
     $parameters = $request->request->all();
     $connection = PDOBuilder::getConnection('icrp_load_database');
     $uploadsFolder = \Drupal::config('icrp-tmp')->get('workbooks') ?? 'data/tmp/workbooks';
 
-    if (!file_exists($uploadsFolder))
+    if (!file_exists($uploadsFolder)) {
       mkdir($uploadsFolder, 0744, true);
+    }
 
     $file = $request->files->get('file')->move($uploadsFolder, uniqid() . '.csv');
     $data = DataUpload::loadProjects($connection, $parameters, $file->getRealPath());
+
     return self::createResponse($data);
   }
 
-
   /**
-   * Retrieves sorted and paginated rows from the uploaded workbook
-   * Expects a json object with the followiing schema:
-   * {
-   *   page: The page to retrieve
-   *   sortDirection: 'ASC' or 'DESC'
-   *   sortColumn: The column to sort by
-   * }
-   *
-   * @param Request $request
-   * @return JSONResponse
+   * Retrieves sorted and paginated rows
    */
-  public static function getProjects(Request $request): JSONResponse {
+  public static function getProjects(Request $request): JsonResponse {
     $parameters = json_decode($request->getContent(), true);
     $connection = PDOBuilder::getConnection('icrp_load_database');
 
@@ -89,20 +75,8 @@ class DataUploadController extends ControllerBase {
     return self::createResponse($data);
   }
 
-
   /**
-   * Imports projects from the data_load database
-   * Expects a json object with the following schema:
-   * {
-   *   partnerCode: A partner code (from getSponsorCodes)
-   *   fundingYears: The year range as a string (eg: '2016 - 2017')
-   *   importNotes: Import notes (optional)
-   *   receivedDate: The date this import was received ('YYYY-MM-DD')
-   *   type: The type of import ('UPDATE' or 'NEW')
-   * }
-   *
-   * @param Request $request
-   * @return JsonResponse
+   * Imports projects
    */
   public static function importProjects(Request $request): JsonResponse {
     $parameters = json_decode($request->getContent(), true);
@@ -112,41 +86,28 @@ class DataUploadController extends ControllerBase {
     return self::createResponse($data);
   }
 
-
   /**
-   * Retrieves data validation rules for the integrity check
-   *
-   * @return JSONResponse
+   * Retrieves validation rules
    */
-  public static function getValidationRules(): JSONResponse {
+  public static function getValidationRules(): JsonResponse {
     $connection = PDOBuilder::getConnection('icrp_load_database');
     $data = DataUpload::getValidationRules($connection);
+
     return self::createResponse($data);
   }
-
 
   /**
    * Retrieves partner sponsor codes
-   *
-   * @return JSONResponse
    */
-  public static function getPartners(): JSONResponse {
+  public static function getPartners(): JsonResponse {
     $connection = PDOBuilder::getConnection('icrp_load_database');
     $data = DataUpload::getPartners($connection);
+
     return self::createResponse($data);
   }
 
-
   /**
-   * Executes an integrity check for a specific partner
-   * Expects a json object with the following schema:
-   * {
-   *   type: 'UPDATE' or 'NEW'
-   *   partnerCode: a valid sponsor code
-   * }
-   *
-   * @param Request $request
-   * @return JsonResponse
+   * Executes integrity check
    */
   public static function integrityCheck(Request $request): JsonResponse {
     $parameters = json_decode($request->getContent(), true);
@@ -156,17 +117,8 @@ class DataUploadController extends ControllerBase {
     return self::createResponse($data);
   }
 
-
   /**
-   * Retrieves integrity check details for a specific rule
-   * Expects a json object with the following schema:
-   * {
-   *   ruleId: The rule id (from 'getValidationRules')
-   *   partnerCode: a valid sponsor code
-   * }
-   *
-   * @param Request $request
-   * @return JsonResponse
+   * Retrieves integrity check details
    */
   public static function integrityCheckDetails(Request $request): JsonResponse {
     $parameters = json_decode($request->getContent(), true);
@@ -177,18 +129,17 @@ class DataUploadController extends ControllerBase {
   }
 
   /**
-   * Calculates funding amounts for newly uploaded funding projects
-   *
-   * @param Request $request
-   * @return JsonResponse
+   * Calculates funding amounts
    */
   public static function calculateFundingAmounts(Request $request): JsonResponse {
     $connection = PDOBuilder::getConnection('icrp_load_database');
     $data = DataUpload::calculateFundingAmounts($connection);
+
     return self::createResponse($data);
   }
 
-  public static function ping() {
+  public static function ping(): JsonResponse {
     return self::createResponse('ping you back!');
   }
+
 }
