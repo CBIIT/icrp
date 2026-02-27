@@ -10,6 +10,10 @@ GO
 SET QUOTED_IDENTIFIER ON
 GO
 
+IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DataUpload_DeleteDataImportFromStaging]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[DataUpload_DeleteDataImportFromStaging]
+GO
+
 CREATE PROCEDURE [dbo].[DataUpload_DeleteDataImportFromStaging] 
 
 @DataUploadStatusID INT
