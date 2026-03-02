@@ -517,6 +517,10 @@ AS
 
 	INSERT INTO SearchResult (SearchCriteriaID, Results,ResultCount, TotalRelatedProjectCount, LastBudgetYear, IsEmailSent) VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, @TotalRelatedProjectCount, @LastBudgetYear, 0)	
 
+	INSERT INTO SearchResultProject (SearchCriteriaID, ProjectID)
+	SELECT @searchCriteriaID, ProjectID
+	FROM #base
+
 	--------------------------------------------------------------------	
 	-- Sort and Pagination
 	--   Note: Return only base projects and projects' most recent funding
