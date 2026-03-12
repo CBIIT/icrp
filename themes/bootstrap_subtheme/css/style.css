@@ -2028,3 +2028,11 @@ th {
 .row {
   display: block !important;
 }
+
+[type=checkbox],[type=radio] {
+    display:inline !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    height: auto !important;
+    width: auto !important;
+}
