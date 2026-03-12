@@ -2024,3 +2024,7 @@ th {
 #edit-container-state-zip-code {
 	margin-bottom:1px !important
 }
+
+.row {
+  display: block !important;
+}
