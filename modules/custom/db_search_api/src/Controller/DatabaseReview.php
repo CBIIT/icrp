@@ -80,27 +80,23 @@ class DatabaseReview {
 
     $results = [];
     if ($stmt->execute()) {
-      while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        array_push($results, [
-          'project_id'            => $row['ProjectID'],
-          'project_title'         => $row['Title'],
-          'pi_name'               => implode(', ', array_filter([$row['piLastName'], $row['piFirstName']])),
-          'institution'           => $row['institution'],
-          'country'               => $row['country'],
-          'country_name'          => $row['CountryName'],
-          'funding_organization'  => $row['FundingOrgShort'],
-          'funding_org_name'      => $row['FundingOrg'],
-          'award_code'            => $row['AwardCode'],
-        ]);
-      }
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $results[] = [
+        'project_id'           => $row['ProjectID'] ?? '',
+        'project_title'        => $row['Title'] ?? '',
+        'pi_name'              => implode(', ', array_filter([
+            $row['piLastName'] ?? '',
+            $row['piFirstName'] ?? ''
+        ])),
+        'institution'          => $row['institution'] ?? '',
+        'country'              => $row['country'] ?? '',
+        'country_name'         => $row['CountryName'] ?? '',
+        'funding_organization' => $row['FundingOrgShort'] ?? '',
+        'funding_org_name'     => $row['FundingOrg'] ?? '',
+        'award_code'           => $row['AwardCode'] ?? '',
+        ];
     }
-
-    return [
-      'data_upload_id'    => $parameters['data_upload_id'],
-      'search_id'         => $output_parameters['search_id']['value'],
-      'results'           => $results,
-    ];
-  }
+    }
 
 
 
