@@ -97,7 +97,12 @@ class DatabaseReview {
         ];
     }
     }
-
+    return [
+      'data_upload_id'    => $parameters['data_upload_id'],
+      'search_id'         => $output_parameters['search_id']['value'],
+      'results'           => $results,
+    ];
+  }
 
 
   /**
