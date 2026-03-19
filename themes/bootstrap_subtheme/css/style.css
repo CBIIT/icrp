@@ -902,7 +902,12 @@ ul.icrp-terms-list li:before {
 		object-fit: cover;
 		/* prevents distortion if a height is imposed */
 	}
-
+        .user-logged-in .main-content{
+        width:100% !important;
+                margin:auto !important;
+        padding-left:15px;
+        margin:0px !important;
+        }
 	.main-content {
 		margin-right: 10px;
 	}
@@ -988,6 +993,12 @@ ul.icrp-terms-list li:before {
 
 /* Small Devices, Tablets */
 @media only screen and (min-width : 768px) {
+	        .user-logged-in .main-content{
+        width: 75% !important;
+                margin:auto !important;
+        padding-left:15px;
+        margin:0px !important;
+        }
 	#content>div.row>div {
 		margin-left: 0px;
 	}
@@ -1689,7 +1700,12 @@ div>div>div.field__item>div:nth-child(2) {
    Medium screens (tablets+)
    =============================== */
 @media (min-width: 768px) {
-
+        .user-logged-in .main-content{
+        width:75%% !important;
+                margin:auto !important;
+        padding-left:15px;
+        margin:0px !important;
+        }
 	.site-header-inner {
 		padding: 0;
 		display: grid;
@@ -1818,14 +1834,6 @@ th {
     margin:auto;
 }
 
-	.user-logged-in .main-content{
-		margin:auto !important;
-        width:100% !important;
-        padding-left:15px;
-        margin:0px !important;
-	}  
-
-	
 
 .webform-submission-form input[type="radio"],
 .webform-submission-form input[type="checkbox"] {
@@ -2036,3 +2044,4 @@ th {
     height: auto !important;
     width: auto !important;
 }
+
