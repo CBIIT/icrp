@@ -2045,3 +2045,10 @@ th {
     width: auto !important;
 }
 
+#edit-settings .checkbox input[type=checkbox],
+#edit-settings .checkbox-inline input[type=checkbox],
+#edit-settings .radio input[type=radio],
+#edit-settings .radio-inline input[type=radio] {
+        margin-left:0px !important;
+}
+
