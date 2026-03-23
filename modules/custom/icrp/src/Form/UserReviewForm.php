@@ -3,7 +3,6 @@
 namespace Drupal\icrp\Form;
 
 use Drupal\node\Entity\Node;
-use Drupal\user\Entity\User;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -30,57 +29,63 @@ class UserReviewForm extends FormBase {
       throw new NotFoundHttpException('User not found.');
     }
 
-    /* Load User Data */
-    $uid = (int) $entity->id();
-    $user = \Drupal::entityTypeManager()->getStorage('user')->load($uid);
+    /* Load User */
+    $user = \Drupal::entityTypeManager()->getStorage('user')->load($entity->id());
 
     if (!$user) {
       throw new NotFoundHttpException('User could not be loaded.');
     }
 
-    $field_first_name = $user->get('field_first_name');
-    $field_last_name = $user->get('field_last_name');
+    /* Basic fields */
+    $field_first_name = $user->get('field_first_name')->value ?? '';
+    $field_last_name = $user->get('field_last_name')->value ?? '';
+    $email = $user->getEmail();
 
     /* Organization */
-    $field_organization = $user->get("field_organization");
     $organization_title = '';
+    $field_organization = $user->get('field_organization');
 
-    $field_organization_nid = $field_organization->target_id ?? NULL;
-    if ($field_organization_nid) {
-      $node = Node::load($field_organization_nid);
-      if ($node) {
-        $organization_title = $node->label();
+    if (!$field_organization->isEmpty()) {
+      $nid = $field_organization->target_id;
+
+      if (!empty($nid)) {
+        $node = Node::load($nid);
+        if ($node) {
+          $organization_title = $node->label();
+        }
       }
     }
 
-    $field_membership_status = $user->get('field_membership_status');
-
-    /* Email */
-    $email = $user->getEmail();
+    /* Membership status */
+    $field_membership_status = $user->get('field_membership_status')->value ?? '';
 
     /* Upload permission */
-    $field_can_upload_library_files = $user->get("field_can_upload_library_files");
-    $can_upload_library_files = $field_can_upload_library_files->value ?? 0;
+    $can_upload_library_files = $user->get("field_can_upload_library_files")->value ?? 0;
 
-    /* Library access */
+    /* Library access (FIXED) */
     $field_library_access = $user->get("field_library_access");
-    $library_access = array_map(function($record) {
-      return $record['value'];
-    }, $field_library_access->getValue());
+    $library_access = [];
+
+    if (!$field_library_access->isEmpty()) {
+      foreach ($field_library_access->getValue() as $record) {
+        if (!empty($record['value'])) {
+          $library_access[$record['value']] = $record['value'];
+        }
+      }
+    }
 
     /* Status */
-    $field_status = $user->get("status");
-    $status = $field_status->value ?? 0;
+    $status = $user->get("status")->value ?? 0;
 
-    if (($field_membership_status->value ?? '') == "Registering") {
+    if ($field_membership_status === "Registering") {
       $status = -1;
     }
 
-    /* Roles */
+    /* Roles (FIXED) */
     $roles = [];
     foreach (["manager", "partner"] as $role) {
       if ($user->hasRole($role)) {
-        $roles[] = $role;
+        $roles[$role] = $role;
       }
     }
 
@@ -101,14 +106,14 @@ class UserReviewForm extends FormBase {
     $form['container']['name']['first_name'] = [
       '#type' => 'textfield',
       '#title' => $this->t('First Name:'),
-      '#default_value' => $field_first_name->value ?? '',
+      '#default_value' => $field_first_name,
       '#disabled' => TRUE,
     ];
 
     $form['container']['name']['last_name'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Last Name:'),
-      '#default_value' => $field_last_name->value ?? '',
+      '#default_value' => $field_last_name,
       '#disabled' => TRUE,
     ];
 
