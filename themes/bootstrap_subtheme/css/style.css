@@ -993,7 +993,7 @@ ul.icrp-terms-list li:before {
 
 /* Small Devices, Tablets */
 @media only screen and (min-width : 768px) {
-	        .user-logged-in .main-content{
+	        .user-logged-in .homepage .main-content{
         width: 75% !important;
                 margin:auto !important;
         padding-left:15px;
@@ -1700,7 +1700,7 @@ div>div>div.field__item>div:nth-child(2) {
    Medium screens (tablets+)
    =============================== */
 @media (min-width: 768px) {
-        .user-logged-in .main-content{
+        .user-logged-in .homepage .main-content{
         width:75%% !important;
                 margin:auto !important;
         padding-left:15px;
