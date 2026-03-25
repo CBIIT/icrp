@@ -1,5 +1,5 @@
 parameters:
-    session.storage.options: { gc_probability: 1, gc_divisor: 100, gc_maxlifetime: 200000, cookie_lifetime: 2000000 }
+    session.storage.options: { gc_probability: 1, gc_divisor: 100, gc_maxlifetime: 200000, cookie_lifetime: 2000000, cookie_samesite: Lax }
     twig.config: { debug: true, auto_reload: true, cache: true }
     #twig.config: { debug: false, auto_reload: false, cache: true }
     renderer.config: { required_cache_contexts: ['languages:language_interface', theme, user.permissions], auto_placeholder_conditions: { max-age: 0, contexts: [session, user], tags: {  } } }
