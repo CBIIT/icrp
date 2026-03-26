@@ -2052,3 +2052,75 @@ th {
         margin-left:0px !important;
 }
 
+#edit-container2 label{
+	font-weight:normal !important;
+}
+#edit-status .form-item {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 20px;
+}#edit-status .form-item {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+#edit-roles {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+#edit-roles .form-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#edit-roles input[type="checkbox"] {
+  top: 0;
+}
+
+#edit-library-access {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+#edit-library-access .form-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#edit-library-access input[type="checkbox"] {
+  top: 0;
+}
+
+.form-item-upload-files {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#edit-container2 .form-item-upload-files label {
+  order: 1;
+  font-weight:bold !important;
+}
+
+.form-item-upload-files input[type="checkbox"] {
+  order: 2;
+  top: 0;
+}
+
+.fieldset-legend {
+	font-weight:bold;
+}
+
+#edit-actions {
+	padding-top:10px;
+}
+
+
+
