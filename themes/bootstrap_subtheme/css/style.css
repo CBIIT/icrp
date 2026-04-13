@@ -2122,5 +2122,12 @@ th {
 	padding-top:10px;
 }
 
+table.table-bordered th a {
+	color:#1d8bc3;
+}
+
+table.table-bordered th a:hover {
+	color:#1d8bc3;
+}
 
 
