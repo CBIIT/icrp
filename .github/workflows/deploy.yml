@@ -96,6 +96,7 @@ jobs:
               "commands": [
                 "set -e",
                 "aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}",
+                "docker image prune -f",
                 "docker pull ${{ env.ICRP_IMAGE_LATEST }}",
                 "docker stop ${{ env.APP }} || true",
                 "docker rm ${{ env.APP }} || true",
