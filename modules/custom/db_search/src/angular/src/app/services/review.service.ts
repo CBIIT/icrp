@@ -5,6 +5,9 @@ import { Observable } from 'rxjs';
 
 @Injectable()
 export class ReviewService {
+  deleteStage(arg0: { data_upload_id: number; }) {
+    throw new Error('Method not implemented.');
+  }
 
   apiRoot: string;
 
@@ -61,6 +64,9 @@ export class ReviewService {
   syncProd(parameters: object) {
     return this.getRequest(`${this.apiRoot}/sync_prod`, parameters)
   }
-
+  
+  deleteImport(parameters: object) {
+    return this.getRequest(`${this.apiRoot}/delete_import`, parameters)
+  }
 
 }

@@ -13,6 +13,7 @@ use Symfony\Component\EventDispatcher\GenericEvent;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
+
 use PDO;
 use Exception;
 
@@ -28,12 +29,16 @@ class AdminController extends ControllerBase {
   }
 
 
-  private static function createResponse($data = NULL, $status = 200) {
-    return JsonResponse::create($data, $status, [
-      'Access-Control-Allow-Headers' => 'origin, content-type, accept',
-      'Access-Control-Allow-Origin'  => '*',
-      'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS',
-    ]);
+  private static function createResponse($data = NULL, $status = 200): JsonResponse {
+      $response = new JsonResponse($data, $status, [
+          'Access-Control-Allow-Headers' => 'origin, content-type, accept',
+          'Access-Control-Allow-Origin'  => '*',
+          'Access-Control-Allow-Methods' => 'GET, POST, OPTIONS',
+      ]);
+  
+      $response->setEncodingOptions(JSON_PRETTY_PRINT);
+  
+      return $response;
   }
 
   private static function emptyToNull() {

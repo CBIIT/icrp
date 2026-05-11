@@ -67,16 +67,24 @@ class MapController extends ControllerBase {
    * @param any $data
    * @return JSONResponse
    */
-  private static function createResponse($data): JsonResponse {
-    return JsonResponse::create(
-      $data,
-      (is_array($data) && isset($data['ERROR'])) ? 400 : 200, [
-      'Access-Control-Allow-Headers' => 'origin, content-type, accept',
-      'Access-Control-Allow-Origin'  => '*',
-      'Access-Control-Allow-Methods' => 'GET, POST',
-    // ensure that the response contains formatted json
-    ])->setEncodingOptions((new JsonResponse())->getEncodingOptions() | JSON_PRETTY_PRINT);
-  }
+private static function createResponse($data): JsonResponse {
+    $status = (is_array($data) && isset($data['ERROR'])) ? 400 : 200;
+
+    $response = new JsonResponse(
+        $data,
+        $status,
+        [
+            'Access-Control-Allow-Headers' => 'origin, content-type, accept',
+            'Access-Control-Allow-Origin'  => '*',
+            'Access-Control-Allow-Methods' => 'GET, POST',
+        ]
+    );
+
+    // Enable pretty print
+    $response->setEncodingOptions(JSON_PRETTY_PRINT);
+
+    return $response;
+}
 
 
   /**

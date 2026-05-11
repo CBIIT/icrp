@@ -56,6 +56,12 @@ export class ResultsTablePanelComponent {
       tooltip: 'PI Institution Country',
       width: 100,
     },
+  {
+      label: 'Country',
+      key: 'country_name',
+      tooltip: 'PI Institution Country',
+      width: 100,
+    },
 
     {
       label: 'Funding Org.',
@@ -63,7 +69,12 @@ export class ResultsTablePanelComponent {
       tooltip: 'Funding Organization of Award (abbreviated name shown)',
       width: 100,
     },
-
+   {
+      label: 'Funding Org. Name',
+      key: 'funding_org_name',
+      tooltip: 'Funding Organization of Award',
+       width: 200,
+    },
     {
       label: 'Award Code',
       key: 'award_code',

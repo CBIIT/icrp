@@ -11,6 +11,14 @@ export class ReviewUploadsTableComponent {
   @Input() uploads: any[] = [];
   @Output() select: EventEmitter<any> = new EventEmitter<any>();
   @Output() syncProd: EventEmitter<any> = new EventEmitter<any>();
+  @Output() deleteImport: EventEmitter<any> = new EventEmitter<any>();
+
+  confirmDelete(dataUploadId: number): void {
+    const confirmed = confirm('Are you sure you want to delete this upload?');
+    if (confirmed) {
+      this.deleteImport.emit(dataUploadId);
+    }
+  }
 
   constructor(
     private reviewService: ReviewService,

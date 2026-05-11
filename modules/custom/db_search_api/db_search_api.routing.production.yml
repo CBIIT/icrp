@@ -6,87 +6,78 @@ api.database.search:
   path: /api/database/search
   defaults:
     _controller: '\Drupal\db_search_api\Controller\SearchController::getSearchResults'
-  methods: [ GET ]
+  methods: [GET]
   requirements:
-    _access: 'TRUE'
-
+    _access: "TRUE"
 
 ## Get sorted and paginated search results
 ## Sample request: /api/database/sort_paginate?search_id=1&sort_column=pi_name&sort_direction=ascending&page_size=25&page_number=1
 api.database.sort_paginate:
-  path: '/api/database/sort_paginate'
+  path: "/api/database/sort_paginate"
   defaults:
     _controller: '\Drupal\db_search_api\Controller\SearchController::getSortedPaginatedResults'
-  methods: [ GET ]
+  methods: [GET]
   requirements:
-    _access: 'TRUE'
-
+    _access: "TRUE"
 
 ## Get analytics for search results
 ## Sample request: /api/database/analytics?search_id=1&type=project_counts_by_country
 db_search_api.database.analytics:
-  path: '/api/database/analytics'
-  defaults: 
+  path: "/api/database/analytics"
+  defaults:
     _controller: '\Drupal\db_search_api\Controller\SearchController::getAnalytics'
-  methods: [ GET ]
+  methods: [GET]
   requirements:
-    _access: 'TRUE'
-
+    _access: "TRUE"
 
 ## Get analytics for search results (for partners)
 ## Sample request: /api/database/partners_analytics?search_id=1&type=project_funding_by_year&year=2000
 db_search_api.database.analytics_partners:
-  path: '/api/database/analytics_partners'
-  defaults: 
+  path: "/api/database/analytics_partners"
+  defaults:
     _controller: '\Drupal\db_search_api\Controller\SearchController::getAnalyticsForPartners'
-  methods: [ GET ]
+  methods: [GET]
   requirements:
-    _access: 'TRUE'
-    _role: 'authenticated'
-
+    _access: "TRUE"
+    _role: "authenticated"
 
 ## Get search parameters for a particular search id
 ## Sample request: /api/database/search_parameters?search_id=1
 db_search_api.database.search_parameters:
-  path: '/api/database/search_parameters'
-  defaults: 
+  path: "/api/database/search_parameters"
+  defaults:
     _controller: '\Drupal\db_search_api\Controller\SearchController::getSearchParameters'
-  methods: [ GET ]
+  methods: [GET]
   requirements:
-    _access: 'TRUE'
-
+    _access: "TRUE"
 
 ## Get the search summary for a particular search id
 ## Sample request: /api/database/search_summary?search_id=1
 db_search_api.database.search_summary:
-  path: '/api/database/search_summary'
-  defaults: 
+  path: "/api/database/search_summary"
+  defaults:
     _controller: '\Drupal\db_search_api\Controller\SearchController::getSearchSummary'
-  methods: [ GET ]
+  methods: [GET]
   requirements:
-    _access: 'TRUE'
-
-
+    _access: "TRUE"
 
 ## Get possible form fields values
 api.database.fields:
   path: /api/database/fields
-  defaults: 
+  defaults:
     _controller: '\Drupal\db_search_api\Controller\SearchController::getFields'
-  methods: [ GET ]
+  methods: [GET]
   requirements:
-    _access: 'TRUE'
-
+    _access: "TRUE"
 
 ## Get the number of partners and funding organizations
 api.database.counts:
   path: /api/database/counts
-  defaults: 
+  defaults:
     _controller: '\Drupal\db_search_api\Controller\SearchController::getCounts'
-  methods: [ GET ]
+  methods: [GET]
   requirements:
-    _access: 'TRUE'
-
+    _access: "TRUE"
 
 ## Get example funding organizations
 ## api.database.examples:
@@ -96,84 +87,84 @@ api.database.counts:
 ##   requirements:
 ##     _access: 'TRUE'
 
-
-
 ## Get example funding organizations
 api.database.examples.cso:
   path: /api/database/examples/cso
-  defaults: 
+  defaults:
     _controller: '\Drupal\db_search_api\Controller\SearchController::getCsoExamples'
-  methods: [ GET ]
+  methods: [GET]
   requirements:
-    _access: 'TRUE'
-
-
-
-
+    _access: "TRUE"
 
 ## Routes for Data Upload Review Tool
-
 
 ## Get possible form fields values
 api.database.review.fields:
   path: /api/database/review/fields
-  defaults: 
+  defaults:
     _controller: '\Drupal\db_search_api\Controller\SearchController::reviewFields'
-  methods: [ GET ]
+  methods: [GET]
   requirements:
-    _access: 'TRUE'
-
+    _access: "TRUE"
 
 ## Get sorted and paginated search results
 ## Sample request: /api/database/review/sort_paginate?search_id=1&sort_column=pi_name&sort_direction=ascending&page_size=25&page_number=1
 api.database.review.sort_paginate:
-  path: '/api/database/review/sort_paginate'
-  defaults: 
+  path: "/api/database/review/sort_paginate"
+  defaults:
     _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSearchResults'
-  methods: [ GET ]
+  methods: [GET]
   requirements:
-    _access: 'TRUE'
-
+    _access: "TRUE"
 
 ## Get analytics for search results
 ## Sample request: /api/database/review/analytics?search_id=1&type=project_funding_by_year&year=2000
 api.database.review.analytics:
-  path: '/api/database/review/analytics'
-  defaults: 
+  path: "/api/database/review/analytics"
+  defaults:
     _controller: '\Drupal\db_search_api\Controller\SearchController::reviewAnalytics'
-  methods: [ GET ]
+  methods: [GET]
   requirements:
-    _access: 'TRUE'
-    _role: 'authenticated'
-
+    _access: "TRUE"
+    _role: "authenticated"
 
 ## Get sponsor uploads table
 api.database.review.sponsor_uploads:
-  path: '/api/database/review/sponsor_uploads'
-  defaults: 
+  path: "/api/database/review/sponsor_uploads"
+  defaults:
     _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSponsorUploads'
-  methods: [ GET ]
+  methods: [GET]
   requirements:
-    _access: 'TRUE'
-
+    _access: "TRUE"
 
 ## Get the search summary for a particular search id
 ## Sample request: /api/database/search_summary?search_id=1
 db_search_api.database.review.search_summary:
-  path: '/api/database/review/search_summary'
-  defaults: 
+  path: "/api/database/review/search_summary"
+  defaults:
     _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSearchSummary'
-  methods: [ GET ]
+  methods: [GET]
   requirements:
-    _access: 'TRUE'
+    _access: "TRUE"
 
 ## Syncs prod for a particular data upload id
 ## Sample request: /api/database/sync_prod?data_upload_id=1
 db_search_api.database.review.sync_prod:
-  path: '/api/database/review/sync_prod'
-  defaults: 
+  path: "/api/database/review/sync_prod"
+  defaults:
     _controller: '\Drupal\db_search_api\Controller\SearchController::reviewSyncProd'
-  methods: [ GET ]
+  methods: [GET]
   requirements:
-    _access: 'TRUE'
-    _role: 'manager'
+    _access: "TRUE"
+    _role: "manager"
+
+## delete import for a particular data upload id on stage
+## Sample request: /api/database/delete_import?data_upload_id=1
+db_search_api.database.review.delete_import:
+  path: "/api/database/review/delete_import"
+  defaults:
+    _controller: '\Drupal\db_search_api\Controller\SearchController::reviewDeleteImport'
+  methods: [GET]
+  requirements:
+    _access: "TRUE"
+    _role: "manager"

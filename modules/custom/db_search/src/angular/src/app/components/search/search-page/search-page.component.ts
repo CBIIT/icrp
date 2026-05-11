@@ -23,6 +23,7 @@ export class SearchPageComponent implements AfterViewInit {
 
   loadingMessage = 'Loading Page';
   radioModel = 'Projects';
+  useBaseQuery: boolean = true;
 
   state = {
     loading: true,
@@ -176,26 +177,49 @@ export class SearchPageComponent implements AfterViewInit {
     return this.searchService.getSearchParameters({search_id: searchID})
   }
 
-  getAnalytics(id, types = [], year = null) {
-    // if (!types || types.length === 0)
-    //   types = this.sharedService.get('authenticated')
-    //     ? Object.keys(this.state.analytics)
-    //     : [
-    //       'project_counts_by_country',
-    //       'project_counts_by_cso_research_area',
-    //       'project_counts_by_cancer_type',
-    //       'project_counts_by_type',
-    //     ];
+  onToggleBaseQuery() {
+    console.log('useBaseQuery value is:', this.useBaseQuery);
+  // Re-fetch analytics or update charts as needed
+  if (this.state.searchID) {
+    this.getAnalytics(this.state.searchID, [], null, this.useBaseQuery);
+  }
+}
 
 
-    if (!types || types.length === 0) {
-      types = [
-        'project_counts_by_country',
-        'project_counts_by_cso_research_area',
-        'project_counts_by_cancer_type',
-        'project_counts_by_type',
-      ];
-    }
+  getAnalytics(id, types = [], year = null, useBaseQuery: boolean = true) {
+   
+    if (!types || types.length === 0)
+      types = this.sharedService.get('authenticated')
+        ? Object.keys(this.state.analytics)
+        : [
+          'project_counts_by_country',
+          'project_counts_by_cso_research_area',
+          'project_counts_by_cancer_type',
+          'project_counts_by_type',
+          'project_counts_by_institution',
+          'project_counts_by_childhood_cancer',
+          'project_counts_by_funding_organization',
+        ];
+
+
+    // if (!types || types.length === 0) {
+    //   types = [
+    //     'project_counts_by_country',
+    //     'project_counts_by_cso_research_area',
+    //     'project_counts_by_cancer_type',
+    //     'project_counts_by_type',
+    //     'project_counts_by_institution',
+    //     'project_counts_by_childhood_cancer',
+    //     'project_counts_by_funding_organization',
+    //     // 'project_funding_amounts_by_country',
+    //     // 'project_funding_amounts_by_cso_research_area',
+    //     // 'project_funding_amounts_by_cancer_type',
+    //     // 'project_funding_amounts_by_type',
+    //     // 'project_funding_amounts_by_institution',
+    //     // 'project_funding_amounts_by_childhood_cancer',
+    //     // 'project_funding_amounts_by_funding_organization',
+    //   ];
+    // }
 
     for (let key of types) {
 
@@ -210,6 +234,7 @@ export class SearchPageComponent implements AfterViewInit {
         search_id: id,
         type: key,
         year: year,
+        use_base_query: useBaseQuery,
       })
       .subscribe(response => {
         loadingTrue$.unsubscribe();

@@ -64,13 +64,16 @@ class PageController extends ControllerBase {
             '#theme' => 'upload_completeness',
             '#records' => $records,
             '#columns' => $columns,
-            '#base_path' => '/' . drupal_get_path('module', 'icrp_data_tables'),
+            '#base_path' => '/' . \Drupal::service('extension.list.module')->getPath('icrp_data_tables'),
+          
+            //'#base_path' => '/' . drupal_get_path('module', 'icrp_data_tables'),
             '#attached' => [
                 'library' => [
                     'icrp_data_tables/default'
                 ],
                 'drupalSettings' => [
-                    'basePath' => '/' . drupal_get_path('module', 'icrp_data_tables'),
+                    'basePath' => '/' . \Drupal::service('extension.list.module')->getPath('icrp_data_tables'),
+                    //'basePath' => '/' . drupal_get_path('module', 'icrp_data_tables'),
                     'isManager' => in_array('manager', \Drupal::currentUser()->getRoles()),
                     'fundingOrganizations' => $records,
                 ],

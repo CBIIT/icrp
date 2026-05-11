@@ -14,16 +14,14 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use PDO;
 
 class DatabaseExportController extends ControllerBase {
-
-  private static function createResponse($data) {
-    $response = new Response($data, 200, [
-      'Access-Control-Allow-Headers' => 'origin, content-type, accept',
-      'Access-Control-Allow-Origin'  => '*',
-      'Access-Control-Allow-Methods' => 'GET,POST',
-    ]);
-  
-    return $response;
-  }
+private static function createResponse($data) {
+  $response = new Response($data, 200, [
+    'Access-Control-Allow-Headers' => 'origin, content-type, accept',
+    'Access-Control-Allow-Origin'  => '*',
+    'Access-Control-Allow-Methods' => 'GET,POST',
+  ]);
+  return $response;
+}
 
   private static function getExportUri(
     PDO $pdo,

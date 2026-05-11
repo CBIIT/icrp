@@ -28,6 +28,17 @@ class DatabaseExport {
   public const EXPORT_GRAPHS_PUBLIC                           = 'EXPORT_GRAPHS_PUBLIC';
   public const EXPORT_GRAPHS_PARTNERS                         = 'EXPORT_GRAPHS_PARTNERS';
 
+  private string $output_directory;
+  private array $EXPORT_MAP;
+
+  private static function truncateCellValue($value): string {
+    if ($value === null) {
+      return '';
+    }
+
+    return substr((string) $value, 0, 32767);
+  }
+
 
   /**
    * Ensure that the output directory exists
@@ -69,8 +80,10 @@ class DatabaseExport {
             'City'                 => 'City',
             'State'                => 'State',
             'Country'              => 'Country',
+            'CountryName'          => 'Country Name',
             'Region'               => 'Region',
             'FundingOrg'           => 'Funding Organization',
+            'FundingOrgAbbr'       => 'Funding Org. Abbr.',
             'AwardCode'            => 'Award Code',
             'icrpURL'              => 'View in ICRP',
           ],
@@ -643,8 +656,8 @@ class DatabaseExport {
         $num_rows = count($rows) - 1;
 
         $dataSeriesLabels = [
-          new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, "'${sheet_name}'" . '!$A$1', NULL, 1),
-          new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, "'${sheet_name}'" . '!$B$1', NULL, 1),
+          new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, "'{$sheet_name}'" . '!$A$1', NULL, 1),
+          new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, "'{$sheet_name}'" . '!$B$1', NULL, 1),
         ];
 
         $xAxisTickValues = [
@@ -752,9 +765,9 @@ class DatabaseExport {
    */
   function exportResults(
     PDO $pdo,
-    int $search_id = NULL,
-    int $data_upload_id = NULL,
-    int $year = NULL,
+    ?int $search_id = NULL,
+    ?int $data_upload_id = NULL,
+    ?int $year = NULL,
     string $workbook_key = '',
     string $filename = '',
     string $url_path_prefix = ''
@@ -836,7 +849,7 @@ class DatabaseExport {
             while ($row = $results->fetch(PDO::FETCH_NUM)) {
               $sheet_data[] = (
                 array_map(function($value) use ($record_formatter) {
-                  return $record_formatter(substr($value, 0, 32767));
+                  return $record_formatter(self::truncateCellValue($value));
                 }, $row)
               );
             }
@@ -845,7 +858,7 @@ class DatabaseExport {
             while ($row = $results->fetch(PDO::FETCH_NUM)) {
               $sheet_data[] = (
                 array_map(function($value) {
-                  return substr($value, 0, 32767);
+                  return self::truncateCellValue($value);
                 }, $row)
               );
             }
@@ -859,7 +872,7 @@ class DatabaseExport {
             $sheet_data[] = (
               array_map(function($column) use ($row, $record_formatter) {
                 if (array_key_exists($column, $row)) {
-                  $value = substr($row[$column], 0, 32767);
+                  $value = self::truncateCellValue($row[$column]);
                   return is_callable($record_formatter)
                     ? $record_formatter($value)
                     : $value;
@@ -913,9 +926,14 @@ class DatabaseExport {
   }
 
   function getSearchCriteria($pdo, int $search_id) {
+    $isAuthenticated = \Drupal::currentUser()->isAuthenticated();
+    $userGuideUrl = $isAuthenticated
+      ? "{$this->getUrlBase()}/library/file/7298/ICRPUserGuide_Partner.pdf"
+      : "{$this->getUrlBase()}/library/file/7297/ICRPUserGuide_Public.pdf";
     $data = [
       ['International Cancer Research Partnership', $this->getUrlBase()],
       ['Created: ', $this->getTimestamp()],
+      ['ICRP User Guide:', $userGuideUrl],
       ['Search Criteria: '],
     ];
 

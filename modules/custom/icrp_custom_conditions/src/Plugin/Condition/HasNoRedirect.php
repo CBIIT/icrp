@@ -2,29 +2,34 @@
 
 namespace Drupal\icrp_custom_conditions\Plugin\Condition;
 
-use Drupal\rules\Core\RulesConditionBase;
+use Drupal\Core\Condition\ConditionPluginBase;
 
 /**
- * Provides a 'Data comparison' condition.
+ * Provides a 'Has No Redirect' condition.
  *
  * @Condition(
  *   id = "icrp_has_no_redirect",
  *   label = @Translation("Has No Redirect"),
  *   category = @Translation("ICRP")
  * )
- *
- * @todo: Add access callback information from Drupal 7.
- * @todo: Find a way to port rules_condition_data_is_operator_options() from Drupal 7.
  */
-class HasNoRedirect extends RulesConditionBase {
+class HasNoRedirect extends ConditionPluginBase {
 
   /**
-   * Check for Redirect.
+   * Evaluates the condition.
    *
    * @return bool
-   *   Return true if the 'destination' query parameter exists.
+   *   TRUE when there is no destination query parameter.
    */
-  protected function doEvaluate() {
-      return !\Drupal::request()->query->has('destination');
+  public function evaluate() {
+    return !\Drupal::request()->query->has('destination');
   }
+
+  /**
+   * Summary shown in block UI.
+   */
+  public function summary() {
+    return $this->t('Checks whether the destination query parameter is absent.');
+  }
+
 }

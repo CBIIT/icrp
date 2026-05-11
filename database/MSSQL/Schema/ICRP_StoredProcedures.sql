@@ -517,6 +517,10 @@ AS
 
 	INSERT INTO SearchResult (SearchCriteriaID, Results,ResultCount, TotalRelatedProjectCount, LastBudgetYear, IsEmailSent) VALUES ( @searchCriteriaID, @ProjectIDList, @ResultCount, @TotalRelatedProjectCount, @LastBudgetYear, 0)	
 
+	INSERT INTO SearchResultProject (SearchCriteriaID, ProjectID)
+	SELECT @searchCriteriaID, ProjectID
+	FROM #base
+
 	--------------------------------------------------------------------	
 	-- Sort and Pagination
 	--   Note: Return only base projects and projects' most recent funding
@@ -690,7 +694,7 @@ AS
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID	
-		JOIN CountryMapLayer cm ON i.country = cm.Country
+		JOIN CountryMapLayer cm ON i.country = cm.Country AND cm.MapLayerID = 4
 		JOIN (SELECT InstitutionID, projectFundingID FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON f.projectFundingID = pi.projectFundingID	  -- find PI country		
 		JOIN Institution pii ON pi.InstitutionID = pii.InstitutionID		-- get PI country
 		JOIN Country c ON c.Abbreviation = i.Country
@@ -7235,7 +7239,8 @@ CREATE PROCEDURE [dbo].[DataUpload_DeleteDataImportFromStaging]
 @DataUploadStatusID INT
   
 AS
-
+BEGIN
+SET NOCOUNT ON;
 BEGIN TRANSACTION
 
 BEGIN TRY     
@@ -7300,6 +7305,8 @@ BEGIN CATCH
       RAISERROR (@msg, 16, 1)
 	        
 END CATCH  
+END
+GO
 
 
 

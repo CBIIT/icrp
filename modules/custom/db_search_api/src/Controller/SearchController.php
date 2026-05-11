@@ -13,6 +13,7 @@ use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Password\PasswordInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+
 use PDO;
 
 /**
@@ -103,17 +104,21 @@ class SearchController extends ControllerBase {
    * @param any $data
    * @return JSONResponse
    */
-  private static function createResponse($data): JSONResponse {
-    $response = JsonResponse::create($data, 200, [
+  private static function createResponse($data): JsonResponse {
+  $response = new JsonResponse(
+    $data,
+    200,
+    [
       'Access-Control-Allow-Headers' => 'origin, content-type, accept',
       'Access-Control-Allow-Origin'  => '*',
       'Access-Control-Allow-Methods' => 'GET',
-    ]);
+    ]
+  );
 
-    // ensure that the response contains formatted json
-    $response->setEncodingOptions($response->getEncodingOptions() | JSON_PRETTY_PRINT);
+  // Ensure that the response contains formatted JSON
+  $response->setEncodingOptions($response->getEncodingOptions() | JSON_PRETTY_PRINT);
 
-    return $response;
+  return $response;
   }
 
 
@@ -275,6 +280,14 @@ class SearchController extends ControllerBase {
     $connection = PDOBuilder::getConnection('icrp_load_database');
     $parameters = self::array_merge_intersection($request->query->all(), ['data_upload_id' => -1]);
     $data = DatabaseReview::reviewSyncProd($connection, $parameters);
+    return self::createResponse($data);
+  }
+
+
+  public static function reviewDeleteImport(Request $request) {
+    $connection = PDOBuilder::getConnection('icrp_load_database');
+    $parameters = self::array_merge_intersection($request->query->all(), ['data_upload_id' => -1]);
+    $data = DatabaseReview::reviewDeleteImport($connection, $parameters);
     return self::createResponse($data);
   }
 

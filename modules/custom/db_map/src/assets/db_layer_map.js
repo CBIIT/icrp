@@ -68,18 +68,26 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
     var infowindow = drupalSettings.db_map.layer.infowindow,
         old = drupalSettings.db_map.layer.currLayer,
         val = this.value;
+
     if (infowindow.getMap() !== null || typeof infowindow.getMap() !== 'undefined') {
       infowindow.close();
     }
     if (old === val) return;
+
     if (val === "") {
       drupalSettings.db_map.layer.reset();
     } else {
+      // Use drupalSettings.path.baseUrl to build the correct full path
+      var baseUrl = drupalSettings.path.baseUrl || '/';
+      var url = baseUrl + 'map/layer/data/' + val;
+
       $.get({
-        url: '/map/layer/data/'+val
+        url: url
       }).done(function(resp) {
         drupalSettings.db_map.layer.updateLegend(resp.legend);
         drupalSettings.db_map.layer.updateLayers(resp.country);
+      }).fail(function(jqXHR, textStatus, errorThrown) {
+        console.error('Failed to load layer data:', textStatus, errorThrown);
       });
     }
     drupalSettings.db_map.layer.currLayer = val;

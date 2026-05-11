@@ -110,11 +110,22 @@ export class ReviewPageComponent {
       key: 'country',
       tooltip: 'PI Institution Country',
     },
+    {
+      label: 'Country',
+      key: 'country_name',
+      tooltip: 'PI Institution Country Name',
+    },
 
     {
       label: 'Funding Org.',
       key: 'funding_organization',
       tooltip: 'Funding Organization of Award (abbreviated name shown)',
+    },
+
+     {
+      label: 'Funding Org. Name',
+      key: 'funding_org_name',
+      tooltip: 'Funding Organization of Award',
     },
 
     {
@@ -129,6 +140,7 @@ export class ReviewPageComponent {
 
   success: boolean = false;
   showAlert: boolean = false;
+  showAlertDelete: boolean = false;
 
   loadingMessage = 'Update in Progress...';
 
@@ -268,6 +280,24 @@ export class ReviewPageComponent {
 
         this.success = response;
         this.showAlert = true;
+        this.loading = false;
+
+        // retrieve initial data upload results
+        this.getSponsorUploads();
+      });
+  }
+
+  deleteImport(uploadID: number) {
+    this.loading = true;
+    this.showAlertDelete = false;
+    this.success = true;
+
+    this.reviewService.deleteImport({data_upload_id: uploadID})
+      .subscribe(response => {
+        console.log(response);
+
+        this.success = response;
+        this.showAlertDelete = true;
         this.loading = false;
 
         // retrieve initial data upload results
