@@ -1,4 +1,6 @@
 /****** Object:  StoredProcedure [dbo].[GetProjectAwardStatsBySearchIDBase]    Script Date: 8/14/2025 1:45:00 PM ******/
+USE [icrp_data]
+GO	
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
