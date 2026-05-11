@@ -119,9 +119,8 @@ COPY docker/php-custom.ini /etc/php.d/
 COPY docker/postfix-main.cf /etc/postfix/main.cf
 COPY sites/ sites/
 
-COPY composer.json ./
-RUN rm -rf vendor/
-RUN composer update --no-ansi --no-dev --no-scripts 
+COPY composer.json composer.lock ./
+RUN composer install --no-ansi --no-dev --no-scripts
 
 # Overlay patched redirect_after_login.module (null guard fix)
 COPY deploy/overrides/modules/redirect_after_login/redirect_after_login.module modules/redirect_after_login/redirect_after_login.module
@@ -138,4 +137,4 @@ ENV PATH="$PATH:/var/www/html/vendor/bin"
 
 EXPOSE 80
 EXPOSE 443
-CMD ["/bin/bash", "-c", "rm -rf /run/httpd/* /run/php-fpm/* /tmp/httpd* && chown -R icrp:icrp /var/www/html/ || true && postfix start && php-fpm -D && httpd -D FOREGROUND"]
+CMD ["/bin/bash", "-c", "rm -rf /run/httpd/* /run/php-fpm/* /tmp/httpd* && chown -R icrp:icrp /var/www/html/ || true && postmap /etc/postfix/sasl_passwd && postfix start && php-fpm -D && httpd -D FOREGROUND"]

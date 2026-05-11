@@ -1,0 +1,23 @@
+services:
+  icrp:
+    image: ${ICRP_IMAGE_LATEST}
+    container_name: icrp
+    ports:
+      - "80:80"
+    volumes:
+      - /local/content/docker_apps/icrp/config/settings.php:/var/www/html/sites/default/settings.php:ro
+      - /local/content/docker_apps/icrp/config/sasl_passwd:/etc/postfix/sasl_passwd:ro
+      - /local/content/docker_apps/icrp/config/sync:/var/www/html/sites/default/sync:rw
+      - /local/content/docker_apps/icrp/files:/var/www/html/sites/default/files:rw
+      - /local/content/docker_apps/icrp/data:/var/www/html/data:rw
+      - /local/content/docker_apps/icrp/logs:/var/log/php-fpm:rw
+      - /local/content/docker_apps/icrp/apache_logs:/var/log/httpd:rw
+    environment:
+      - DD_SERVICE=icrp
+      - DD_ENV=${TIER}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

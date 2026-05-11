@@ -1,0 +1,176 @@
+name: Deploy
+
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      tier:
+        description: "Deployment Tier"
+        required: true
+        default: "dev"
+        type: choice
+        options:
+          - dev
+          - qa
+          - stage
+          - prod
+
+jobs:
+  Deploy:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.tier }}
+    env:
+      APP: icrp
+      ECR_REPO: icrp/development
+      TZ: America/New_York
+      AWS_REGION: us-east-1
+      APP_HOST_ROOT: /local/content/docker_apps/icrp
+      DOCKER_COMPOSE_TEMPLATE_PATH: docker/docker-compose.deploy.yml
+      TIER: ${{ inputs.tier }}
+      CICD_ROLE_ARN: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/ec2-role-icrp-${{ inputs.tier }}-role
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.CICD_ROLE_ARN }}
+          role-session-name: ${{ env.TIER }}-${{ env.APP }}-deploy-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set dynamic environment variables
+        run: |
+          TIMESTAMP=$(date +"%Y%m%d%H%M%S")
+          REPO=${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO
+          echo "ECR_REGISTRY=${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.$AWS_REGION.amazonaws.com" >> $GITHUB_ENV
+          echo "ICRP_IMAGE=$REPO:${{ github.ref_name }}-$TIMESTAMP" >> $GITHUB_ENV
+          echo "ICRP_IMAGE_LATEST=$REPO:${{ github.ref_name }}-latest" >> $GITHUB_ENV
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create and use a new builder instance
+        run: docker buildx create --name mybuilder --use
+
+      - name: Build and push icrp image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/icrp.dockerfile
+          push: true
+          tags: |
+            ${{ env.ICRP_IMAGE }}
+            ${{ env.ICRP_IMAGE_LATEST }}
+          cache-from: type=registry,ref=${{ env.ICRP_IMAGE_LATEST }}
+          cache-to: type=inline
+
+      - name: Prepare docker-compose file
+        id: compose
+        run: |
+          envsubst < $DOCKER_COMPOSE_TEMPLATE_PATH > docker-compose-rendered.yml
+
+          echo "Rendered docker-compose.yml:"
+          cat docker-compose-rendered.yml
+
+          COMPOSE_BASE64=$(base64 -w 0 docker-compose-rendered.yml 2>/dev/null || base64 docker-compose-rendered.yml)
+          echo "compose_base64=$COMPOSE_BASE64" >> $GITHUB_OUTPUT
+
+      - name: Get EC2 instance ID
+        id: get-instance
+        run: |
+          INSTANCE_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=${{ vars.EC2_INSTANCE_NAME }}" \
+                      "Name=instance-state-name,Values=running" \
+            --query "Reservations[0].Instances[0].InstanceId" \
+            --output text)
+
+          if [ "$INSTANCE_ID" == "None" ] || [ -z "$INSTANCE_ID" ]; then
+            echo "Error: Could not find running EC2 instance with name ${{ vars.EC2_INSTANCE_NAME }}"
+            exit 1
+          fi
+
+          echo "instance_id=$INSTANCE_ID" >> $GITHUB_OUTPUT
+
+      - name: Deploy to EC2 via SSM
+        run: |
+          cat > commands.json << 'EOF'
+          {
+            "Parameters": {
+              "commands": [
+                "set -e",
+                "cd ${{ env.APP_HOST_ROOT }}",
+                "aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}",
+                "echo '${{ steps.compose.outputs.compose_base64 }}' | base64 -d > docker-compose.yml",
+                "echo 'Generated docker-compose.yml:'; cat docker-compose.yml",
+                "docker compose pull --quiet",
+                "docker ps --filter name=${{ env.APP }} -q | xargs -r docker stop || true",
+                "docker compose down --remove-orphans || true",
+                "docker ps -a --filter name=${{ env.APP }} -q | xargs -r docker rm -f || true",
+                "sleep 3",
+                "docker compose up -d"
+              ]
+            }
+          }
+          EOF
+
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "${{ steps.get-instance.outputs.instance_id }}" \
+            --document-name "AWS-RunShellScript" \
+            --cli-input-json file://commands.json \
+            --query "Command.CommandId" \
+            --output text)
+
+          echo "SSM Command ID: $COMMAND_ID"
+
+          for i in {1..60}; do
+            STATUS=$(aws ssm get-command-invocation \
+              --command-id "$COMMAND_ID" \
+              --instance-id "${{ steps.get-instance.outputs.instance_id }}" \
+              --query "Status" \
+              --output text)
+
+            if [[ "$STATUS" == "Success" ]]; then
+              echo "Deployment successful!"
+              break
+            elif [[ "$STATUS" =~ ^(Failed|Cancelled|TimedOut)$ ]]; then
+              echo "Deployment failed with status: $STATUS"
+              aws ssm get-command-invocation \
+                --command-id "$COMMAND_ID" \
+                --instance-id "${{ steps.get-instance.outputs.instance_id }}" \
+                --query "StandardOutputContent" \
+                --output text
+              aws ssm get-command-invocation \
+                --command-id "$COMMAND_ID" \
+                --instance-id "${{ steps.get-instance.outputs.instance_id }}" \
+                --query "StandardErrorContent" \
+                --output text
+              exit 1
+            fi
+
+            sleep 5
+          done
+
+          aws ssm get-command-invocation \
+            --command-id "$COMMAND_ID" \
+            --instance-id "${{ steps.get-instance.outputs.instance_id }}" \
+            --query "StandardOutputContent" \
+            --output text
+
+      - name: Deployment summary
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tier:** ${{ env.TIER }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image:** ${{ env.ICRP_IMAGE }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Instance:** ${{ steps.get-instance.outputs.instance_id }}" >> $GITHUB_STEP_SUMMARY
