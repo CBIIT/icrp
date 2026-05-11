@@ -112,12 +112,12 @@ jobs:
                 "aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}",
                 "echo '${{ steps.compose.outputs.compose_base64 }}' | base64 -d > docker-compose.yml",
                 "echo 'Generated docker-compose.yml:'; cat docker-compose.yml",
-                "docker compose pull",
+                "docker-compose pull",
                 "docker ps --filter name=${{ env.APP }} -q | xargs -r docker stop || true",
-                "docker compose down --remove-orphans || true",
+                "docker-compose down --remove-orphans || true",
                 "docker ps -a --filter name=${{ env.APP }} -q | xargs -r docker rm -f || true",
                 "sleep 3",
-                "docker compose up -d"
+                "docker-compose up -d"
               ]
             }
           }
