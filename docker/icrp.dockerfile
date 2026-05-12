@@ -137,4 +137,4 @@ ENV PATH="$PATH:/var/www/html/vendor/bin"
 
 EXPOSE 80
 EXPOSE 443
-CMD ["/bin/bash", "-c", "rm -rf /run/httpd/* /run/php-fpm/* /tmp/httpd* && chown -R icrp:icrp /var/www/html/ || true && postmap /etc/postfix/sasl_passwd && postfix start && php-fpm -D && httpd -D FOREGROUND"]
+CMD ["/bin/bash", "-c", "rm -rf /run/httpd/* /run/php-fpm/* /tmp/httpd* && chown -R icrp:icrp /var/www/html/ || true && postfix start && php-fpm -D && httpd -D FOREGROUND"]
