@@ -28,8 +28,6 @@ jobs:
       ECR_REPO: icrp/development
       TZ: America/New_York
       AWS_REGION: us-east-1
-      APP_HOST_ROOT: /local/content/docker_apps/icrp
-      DOCKER_COMPOSE_TEMPLATE_PATH: docker/docker-compose.deploy.yml
       TIER: ${{ inputs.tier }}
       CICD_ROLE_ARN: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/ec2-role-icrp-${{ inputs.tier }}-role
 
@@ -74,17 +72,6 @@ jobs:
           cache-from: type=registry,ref=${{ env.ICRP_IMAGE_LATEST }}
           cache-to: type=inline
 
-      - name: Prepare docker-compose file
-        id: compose
-        run: |
-          envsubst < $DOCKER_COMPOSE_TEMPLATE_PATH > docker-compose-rendered.yml
-
-          echo "Rendered docker-compose.yml:"
-          cat docker-compose-rendered.yml
-
-          COMPOSE_BASE64=$(base64 -w 0 docker-compose-rendered.yml 2>/dev/null || base64 docker-compose-rendered.yml)
-          echo "compose_base64=$COMPOSE_BASE64" >> $GITHUB_OUTPUT
-
       - name: Get EC2 instance ID
         id: get-instance
         run: |
@@ -108,16 +95,13 @@ jobs:
             "Parameters": {
               "commands": [
                 "set -e",
-                "cd ${{ env.APP_HOST_ROOT }}",
                 "aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REGISTRY }}",
-                "echo '${{ steps.compose.outputs.compose_base64 }}' | base64 -d > docker-compose.yml",
-                "echo 'Generated docker-compose.yml:'; cat docker-compose.yml",
-                "docker compose pull --quiet",
-                "docker ps --filter name=${{ env.APP }} -q | xargs -r docker stop || true",
-                "docker compose down --remove-orphans || true",
-                "docker ps -a --filter name=${{ env.APP }} -q | xargs -r docker rm -f || true",
+                "docker image prune -f",
+                "docker pull ${{ env.ICRP_IMAGE_LATEST }}",
+                "docker stop ${{ env.APP }} || true",
+                "docker rm ${{ env.APP }} || true",
                 "sleep 3",
-                "docker compose up -d"
+                "docker run -d --name ${{ env.APP }} --restart unless-stopped -p 80:80 -v /local/content/docker_apps/icrp/config/settings.php:/var/www/html/sites/default/settings.php:ro -v /local/content/docker_apps/icrp/config/sasl_passwd:/etc/postfix/sasl_passwd:ro -v /local/content/docker_apps/icrp/config/sync:/var/www/html/sites/default/sync:rw -v /local/content/docker_apps/icrp/files:/var/www/html/sites/default/files:rw -v /local/content/docker_apps/icrp/data:/var/www/html/data:rw -v /local/content/docker_apps/icrp/logs:/var/log/php-fpm:rw -v /local/content/docker_apps/icrp/apache_logs:/var/log/httpd:rw -e DD_SERVICE=${{ env.APP }} -e DD_ENV=${{ env.TIER }} ${{ env.ICRP_IMAGE_LATEST }}"
               ]
             }
           }
