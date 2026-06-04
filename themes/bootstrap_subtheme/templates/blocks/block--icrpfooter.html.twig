@@ -32,11 +32,13 @@
         <div class="col-sm-4">
             <div class="text-center visible-xs" style="line-height: 1;">
                 <span class="footer-date">Site Updated: {{ drupal_entity('block', 'icrpsiteupdateddate')|render|striptags|trim|replace({'Body': ''})|trim }}</span><br>
-                <span class="footer-date">Version: 4.0.0</span>
+                <span class="footer-date">Site Release Date: {{ drupal_entity('block', 'bootstrap_subtheme_icrpsitereleasedate')|render|striptags|trim|replace({'Body': ''})|trim }}</span><br>
+                <span class="footer-date">Site Release Version: {{ drupal_entity('block', 'bootstrap_subtheme_icrpsitereleaseversion')|render|striptags|trim|replace({'Body': ''})|trim }}</span>
             </div>
             <div class="text-right hidden-xs" style="line-height: 1;">
                 <span class="footer-date">Site Updated: {{ drupal_entity('block', 'icrpsiteupdateddate')|render|striptags|trim|replace({'Body': ''})|trim }}</span><br>
-                <span class="footer-date">Version: 4.0.0</span>
+                <span class="footer-date">Site Release Date: {{ drupal_entity('block', 'bootstrap_subtheme_icrpsitereleasedate')|render|striptags|trim|replace({'Body': ''})|trim }}</span><br>
+                <span class="footer-date">Site Release Version: {{ drupal_entity('block', 'bootstrap_subtheme_icrpsitereleaseversion')|render|striptags|trim|replace({'Body': ''})|trim }}</span>
             </div>
         </div>
     </div>
