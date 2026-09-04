@@ -441,7 +441,7 @@ console.log("getNewsletter");
       var calendar_type = decodeURIComponent($.urlParam("calendar_type"));
       $('#edit-field-calendar-type').val(calendar_type);
       if(!$('#calendar-title').length) {
-        $('<h4 id="calendar-title">'+calendar_type+' Calendar</h4>').insertBefore("div.well");
+        $('<h4 id="calendar-title"></h4>').text(calendar_type + ' Calendar').insertBefore("div.well");
       }
       /* Remove required * from this field */
       $('#edit-field-event-date-range-0 > div.panel-heading > div.panel-title').removeClass('form-required');
@@ -634,7 +634,7 @@ console.log("getNewsletter");
     }
   }
   $.urlParam = function(name){
-    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    var results = new RegExp('[?&]' + name + '=([^&#]*)').exec(window.location.href);
     var return_val;
     if(results == null) {
       return_val = "";

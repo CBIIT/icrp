@@ -167,7 +167,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
   updateLegend: function(legend) {
     drupalSettings.db_map.layer.legend = legend;
 
-    var legendContent = '<h4>'+$('#layer-map-select option:selected').attr('title')+'</h4>'
+    var legendContent = $('<h4></h4>').text($('#layer-map-select option:selected').attr('title'))
     var legendHTML = $('#layer-map-legend')
       .empty()
       .removeClass('hide')

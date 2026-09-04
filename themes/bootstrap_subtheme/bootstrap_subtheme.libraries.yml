@@ -20,7 +20,6 @@ global-scripts:
   version: 1.0.2
   js:
     #js/ext/bootstrap.bundle.min.js: {}
-    #js/ext/bootstrap.3.3.7.min.js: {}
     js/ext/bootstrap.min.js: {}
 
     js/carousel-fix.js: {}
