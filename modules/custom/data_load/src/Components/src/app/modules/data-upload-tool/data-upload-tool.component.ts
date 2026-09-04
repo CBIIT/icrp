@@ -1,5 +1,5 @@
-import { Component, ViewChild } from '@angular/core';
-import { TabsetComponent } from 'ngx-bootstrap';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
+import { TabsetComponent } from 'ngx-bootstrap/tabs';
 import { SharedDataService } from '../../services/shared-data.service';
 import { DataUploadService } from '../../services/data-upload.service';
 import { ImportPageComponent } from './components/import-page/import-page.component';
@@ -7,6 +7,7 @@ import { IntegrityCheckPageComponent } from './components/integrity-check-page/i
 import { UploadPageComponent } from './components/upload-page/upload-page.component';
 
 @Component({
+  standalone: false,
   selector: 'icrp-data-upload-tool',
   templateUrl: './data-upload-tool.component.html',
   styleUrls: ['./data-upload-tool.component.css']
@@ -27,15 +28,20 @@ export class DataUploadToolComponent {
 
   constructor(
     private dataUploadService: DataUploadService,
-    private sharedDataService: SharedDataService) {
+    private sharedDataService: SharedDataService,
+    private cdr: ChangeDetectorRef) {
     this.sharedDataService.events.subscribe(data => {
       this.loading = data.loading || false;
       this.workbookValid = data.workbookValid || false;
       this.integrityCheckValid = data.integrityCheckValid || false;
 
 
-      this.tabset.tabs[1].disabled = !data.workbookValid;
-      this.tabset.tabs[2].disabled = !data.integrityCheckValid;
+      if (this.tabset) {
+        this.tabset.tabs[1].disabled = !data.workbookValid;
+        this.tabset.tabs[2].disabled = !data.integrityCheckValid;
+      }
+
+      this.cdr.markForCheck();
 
 
     });

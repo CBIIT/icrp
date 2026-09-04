@@ -11,9 +11,6 @@ import { IconComponent } from './icon.component';
   ],
   exports: [
     IconComponent,
-  ],
-  entryComponents: [
-    IconComponent,
   ]
 })
 export class IconModule { }

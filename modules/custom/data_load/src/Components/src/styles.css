@@ -70,3 +70,110 @@ input[readonly] {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/**
+ * Plain-CSS flexbox rules replacing the discontinued @angular/flex-layout library.
+ * The templates keep their fxLayout / fxLayoutWrap / fxLayoutAlign / fxLayoutGap /
+ * fxFlex attributes (now plain, inert HTML attributes); these attribute selectors
+ * reproduce the layout the library used to apply for the values used in this app.
+ * Breakpoints match flex-layout's: lt-sm < 600px, lt-md < 960px, lt-lg < 1280px.
+ */
+
+[fxLayout] {
+  display: flex;
+  flex-direction: row;
+  box-sizing: border-box;
+}
+
+[fxLayoutWrap] {
+  flex-wrap: wrap;
+}
+
+[fxLayoutGap="10px"] {
+  gap: 10px;
+}
+
+[fxLayoutGap="15px"] {
+  gap: 15px;
+}
+
+[fxLayoutAlign="start center"] {
+  justify-content: flex-start;
+  align-items: center;
+}
+
+[fxLayoutAlign="start start"] {
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+[fxLayoutAlign="space-between center"] {
+  justify-content: space-between;
+  align-items: center;
+}
+
+[fxLayoutAlign="space-between stretch"] {
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+[fxLayoutAlign="end center"] {
+  justify-content: flex-end;
+  align-items: center;
+}
+
+[fxFlex] {
+  box-sizing: border-box;
+  flex: 1 1 100%;
+}
+
+[fxFlex="15%"] { max-width: 15%; }
+[fxFlex="16.5%"] { max-width: 16.5%; }
+[fxFlex="calc(25% - 10px)"] { max-width: calc(25% - 10px); }
+[fxFlex="26.666%"] { max-width: 26.666%; }
+[fxFlex="33%"] { max-width: 33%; }
+[fxFlex="40%"] { max-width: 40%; }
+[fxFlex="49.5%"] { max-width: 49.5%; }
+[fxFlex="60%"] { max-width: 60%; }
+[fxFlex="73.333%"] { max-width: 73.333%; }
+[fxFlex="85%"] { max-width: 85%; }
+[fxFlex="100%"] { max-width: 100%; }
+[fxFlex="1 1 100px"] { flex: 1 1 100px; }
+
+@media (max-width: 1279.98px) {
+  [fxFlex\.lt-lg="40%"] { max-width: 40%; }
+  [fxFlex\.lt-lg="calc(50% - 10px)"] { max-width: calc(50% - 10px); }
+  [fxFlex\.lt-lg="60%"] { max-width: 60%; }
+  [fxFlex\.lt-lg="100%"] { max-width: 100%; }
+
+  [fxLayoutAlign\.lt-lg="center center"] {
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+@media (max-width: 959.98px) {
+  [fxFlex\.lt-md="100%"] { max-width: 100%; }
+
+  [fxLayout\.lt-md="column"] {
+    flex-direction: column;
+  }
+
+  [fxLayoutAlign\.lt-md="center space-between"] {
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* replaces [ngClass.lt-md]="['panel', 'no-border']" */
+  .fx-lt-md-panel {
+    margin-bottom: 20px;
+    background-color: #fff;
+    border: none;
+    box-shadow: none;
+    border-radius: 4px;
+  }
+}
+
+@media (max-width: 599.98px) {
+  [fxFlex\.lt-sm="100%"] { max-width: 100%; }
+}

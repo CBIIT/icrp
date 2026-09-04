@@ -12,13 +12,10 @@ import { SpinnerConfig } from './spinner.config';
   ],
   exports: [
     SpinnerComponent
-  ],
-  entryComponents: [
-    SpinnerComponent
   ]
 })
 export class SpinnerModule {
-  public static forRoot(): ModuleWithProviders {
+  public static forRoot(): ModuleWithProviders<SpinnerModule> {
     return {
       ngModule: SpinnerModule,
       providers: [

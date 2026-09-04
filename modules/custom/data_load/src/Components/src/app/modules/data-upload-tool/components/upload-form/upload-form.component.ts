@@ -1,15 +1,16 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { ChangeDetectorRef, Component, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { DateValidators } from '../../../../validators/date-validator/date-validator';
 import { FileValidators } from '../../../../validators/file-validator/file-validator';
 import { DataUploadService } from '../../../../services/data-upload.service';
 
-import { defineLocale } from 'ngx-bootstrap/bs-moment';
-import { enGb } from 'ngx-bootstrap/locale';
-defineLocale('en-GB', enGb);
+import { defineLocale } from 'ngx-bootstrap/chronos';
+import { enGbLocale } from 'ngx-bootstrap/locale';
+defineLocale('en-gb', enGbLocale);
 
 @Component({
+  standalone: false,
   selector: 'data-upload-form',
   templateUrl: './upload-form.component.html',
   styleUrls: ['./upload-form.component.css']
@@ -35,7 +36,8 @@ export class UploadFormComponent {
 
   constructor(
     private formBuilder: FormBuilder,
-    private dataUpload: DataUploadService) {
+    private dataUpload: DataUploadService,
+    private cdr: ChangeDetectorRef) {
     this.form = this.formBuilder.group({
       uploadType: ['NEW'],
       submissionDate: [null, [
@@ -51,7 +53,10 @@ export class UploadFormComponent {
     });
 
     dataUpload.getPartners()
-      .subscribe(response => this.sponsorCodes = response);
+      .subscribe(response => {
+        this.sponsorCodes = response;
+        this.cdr.markForCheck();
+      });
   }
 
   submit() {

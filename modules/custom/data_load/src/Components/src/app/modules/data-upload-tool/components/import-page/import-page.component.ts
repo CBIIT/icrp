@@ -1,9 +1,11 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { ChangeDetectorRef, Component, Output, EventEmitter } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 import { SharedDataService } from '../../../../services/shared-data.service';
 import { DataUploadService } from '../../../../services/data-upload.service';
 
 @Component({
+  standalone: false,
   selector: 'data-import-page',
   templateUrl: './import-page.component.html',
   styleUrls: ['./import-page.component.css']
@@ -25,7 +27,8 @@ export class ImportPageComponent {
   constructor(
     private formBuilder: FormBuilder,
     private sharedData: SharedDataService,
-    private dataUpload: DataUploadService
+    private dataUpload: DataUploadService,
+    private cdr: ChangeDetectorRef
   ) {
     this.form = formBuilder.group({
       fundingYearStart: [2016, Validators.required],
@@ -69,7 +72,7 @@ export class ImportPageComponent {
   });
 
   try {
-    await this.dataUpload.importProjects({
+    await firstValueFrom(this.dataUpload.importProjects({
       type: this.sharedData.get('uploadType'),
       fundingYears: [
         fundingYearStart.value,
@@ -78,9 +81,9 @@ export class ImportPageComponent {
       importNotes: importNotes.value,
       partnerCode: this.sharedData.get('sponsorCode'),
       receivedDate: this.sharedData.get('submissionDate'),
-    }).toPromise();
+    }));
 
-    await this.dataUpload.calculateFundingAmounts().toPromise();
+    await firstValueFrom(this.dataUpload.calculateFundingAmounts());
 
     this.alerts.push({
       type: 'success',
@@ -90,6 +93,8 @@ export class ImportPageComponent {
     this.sharedData.merge({
       loading: false,
     })
+
+    this.cdr.markForCheck();
   } catch (e) {
     // handle errors
     this.alerts.push({
@@ -101,6 +106,7 @@ export class ImportPageComponent {
       loading: false
     });
 
+    this.cdr.markForCheck();
   }
  }
 }

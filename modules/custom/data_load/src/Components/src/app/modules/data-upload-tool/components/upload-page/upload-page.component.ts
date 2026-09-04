@@ -1,10 +1,9 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { ChangeDetectorRef, Component, Output, EventEmitter } from '@angular/core';
 import { DataUploadService } from '../../../../services/data-upload.service';
 import { SharedDataService } from '../../../../services/shared-data.service';
-import { Observable } from 'rxjs/Observable';
-import { } from 'rxjs/operators';
 
 @Component({
+  standalone: false,
   selector: 'data-upload-page',
   templateUrl: './upload-page.component.html',
   styleUrls: ['./upload-page.component.css']
@@ -12,7 +11,8 @@ import { } from 'rxjs/operators';
 export class UploadPageComponent {
   constructor(
     private dataUpload: DataUploadService,
-    private sharedData: SharedDataService
+    private sharedData: SharedDataService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   @Output() reset: EventEmitter<any> = new EventEmitter();
@@ -55,6 +55,8 @@ export class UploadPageComponent {
           workbookValid: true,
           loading: false,
         })
+
+        this.cdr.markForCheck();
       },
 
       // handle errors
@@ -65,6 +67,7 @@ export class UploadPageComponent {
         });
 
         this.sharedData.set('loading', false);
+        this.cdr.markForCheck();
       }
     )
   }
@@ -75,6 +78,7 @@ export class UploadPageComponent {
       .subscribe(response => {
         this.sharedData.set('loading', false);
         this.projects = response;
+        this.cdr.markForCheck();
       });
   }
 

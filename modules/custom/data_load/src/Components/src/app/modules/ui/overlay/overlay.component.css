@@ -70,3 +70,17 @@
     from { opacity: 0; }
     to   { opacity: 1; }
 }
+
+/* Replaces the previous @angular/animations "isActive" trigger */
+.overlay-host {
+  display: none;
+  opacity: 0;
+  z-index: -9999;
+  transition: opacity 50ms ease-out;
+}
+
+.overlay-host.overlay-active {
+  display: flex;
+  opacity: 1;
+  z-index: 9999;
+}

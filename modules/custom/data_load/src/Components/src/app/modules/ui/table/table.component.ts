@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild, ElementRef, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, ViewChild, ElementRef, AfterViewInit, OnChanges, SimpleChanges } from '@angular/core';
 import { enableResizableColumns, disableResizableColumns } from './ResizableColumns';
 
 interface Header {
@@ -9,11 +9,12 @@ interface Header {
 
 
 @Component({
+  standalone: false,
   selector: 'ui-table',
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.css']
 })
-export class TableComponent implements OnChanges {
+export class TableComponent implements OnChanges, AfterViewInit {
 
   @Input()
   pageSizes = [25, 50, 100, 150, 200, 250, 300];
@@ -83,6 +84,18 @@ export class TableComponent implements OnChanges {
 
     if (changes.data && changes.data.currentValue) {
       this._data = [...changes.data.currentValue];
+    }
+
+    this.refreshResizableColumns();
+  }
+
+  ngAfterViewInit() {
+    this.refreshResizableColumns();
+  }
+
+  refreshResizableColumns() {
+    if (!this.tableRef) {
+      return;
     }
 
     let table: HTMLTableElement = this.tableRef.nativeElement;

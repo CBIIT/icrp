@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { saveAs } from 'file-saver';
-import { Workbook } from 'exceljs/dist/es5/exceljs.browser';
+import { Workbook } from 'exceljs';
 
 export interface Sheet {
   title: string;
@@ -16,7 +16,7 @@ export class ExportService {
       .addWorksheet(sheet.title)
       .addRows(sheet.rows));
 
-    const buffer = await workbook.xlsx.writeBuffer({base64: true});
+    const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {type: 'application/octet-stream'});
 
     saveAs(blob, filename);

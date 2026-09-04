@@ -1,13 +1,13 @@
-import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, TemplateRef, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
-import { BsModalService } from 'ngx-bootstrap/modal';
-import { BsModalRef } from 'ngx-bootstrap/modal/bs-modal-ref.service';
+import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
 import { DataUploadService } from '../../../../services/data-upload.service';
 import { SharedDataService } from '../../../../services/shared-data.service';
 import { ExportService } from '../../../../services/export.service';
-import { share } from 'rxjs/operators/share';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
+  standalone: false,
   selector: 'data-integrity-check-page',
   templateUrl: './integrity-check-page.component.html',
   styleUrls: ['./integrity-check-page.component.css'],
@@ -52,16 +52,21 @@ export class IntegrityCheckPageComponent {
     private dataUpload: DataUploadService,
     private sharedData: SharedDataService,
     private modalService: BsModalService,
-    private exportService: ExportService
+    private exportService: ExportService,
+    private cdr: ChangeDetectorRef
   ) {
     this.form = this.formBuilder.group({});
     this.sharedData.events.subscribe(data => {
       this.uploadType = data.uploadType || 'New';
       this.updateValidationRules();
+      this.cdr.markForCheck();
     });
 
     this.dataUpload.getValidationRules()
-      .subscribe(response => this._validationRules = response)
+      .subscribe(response => {
+        this._validationRules = response;
+        this.cdr.markForCheck();
+      })
   }
 
   updateValidationRules() {
@@ -120,6 +125,7 @@ export class IntegrityCheckPageComponent {
         integrityCheckValid: this.integrityCheckValid,
         loading: false,
       })
+      this.cdr.markForCheck();
     })
   }
 
@@ -141,6 +147,7 @@ export class IntegrityCheckPageComponent {
       if (this.details && this.details.length > 0)
         this.detailHeaders = Object.keys(this.details[0]);
 
+      this.cdr.markForCheck();
       modal.show();
     })
   }
@@ -167,11 +174,11 @@ export class IntegrityCheckPageComponent {
     const sheets = await Promise.all(rules.map(async rule => await ({
       title: rule.Description.substring(0, 31),
       rows: [[rule.Description]].concat(flattenRows(
-        await this.dataUpload.integrityCheckDetails({
+        await firstValueFrom(this.dataUpload.integrityCheckDetails({
           partnerCode: sponsorCode,
           ruleId: rule.ID,
           type: this.uploadType,
-        }).toPromise())
+        })))
       )
     })));
     

@@ -2,6 +2,7 @@ import { Component, Input, ViewChild, ElementRef, AfterViewInit } from '@angular
 import * as octicons from 'octicons';
 
 @Component({
+  standalone: false,
   selector: 'ui-icon',
   templateUrl: './icon.component.html',
   styleUrls: ['./icon.component.css']
@@ -30,6 +31,10 @@ export class IconComponent implements AfterViewInit {
   }
 
   setSvgPath() {
+    if (!this.container) {
+      return;
+    }
+
     this.container.nativeElement.innerHTML = `
       <svg
         class="octicon"
