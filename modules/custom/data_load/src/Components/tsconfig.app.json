@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/app",
+    "types": []
+  },
+  "files": [
+    "src/data-upload-tool.ts",
+    "src/import-collaborators.ts",
+    "src/import-institutions.ts"
+  ],
+  "include": ["src/**/*.d.ts"]
+}

@@ -1,4 +1,4 @@
-import { Component, OnChanges, ElementRef, ViewChild, Input, Output, SimpleChanges, EventEmitter, AfterViewChecked } from '@angular/core';
+import { Component, OnChanges, ElementRef, ViewChild, Input, Output, SimpleChanges, EventEmitter, AfterViewInit } from '@angular/core';
 import { enableResizableColumns, disableResizableColumns } from './ResizableColumns';
 
 interface RequestParameters {
@@ -16,11 +16,12 @@ interface Header {
 
 
 @Component({
+  standalone: false,
   selector: 'ui-remote-data-table',
   templateUrl: './remote-data-table.component.html',
   styleUrls: ['./remote-data-table.component.css']
 })
-export class RemoteDataTableComponent implements OnChanges {
+export class RemoteDataTableComponent implements OnChanges, AfterViewInit {
 
   @Input() count: number = 0;
 
@@ -95,11 +96,23 @@ export class RemoteDataTableComponent implements OnChanges {
       this.page = 1;
     }
 
+    this.refreshResizableColumns();
+  }
+
+  ngAfterViewInit() {
+    this.refreshResizableColumns();
+  }
+
+  refreshResizableColumns() {
+    if (!this.tableRef) {
+      return;
+    }
+
     let table: HTMLTableElement = this.tableRef.nativeElement;
     disableResizableColumns(table);
     setTimeout(() => enableResizableColumns(table, {
       preserveWidth: true
-    }), 0);    
+    }), 0);
   }
 
 }

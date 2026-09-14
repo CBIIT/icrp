@@ -1,8 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
-import { FlexLayoutModule } from '@angular/flex-layout';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 import { DataUploadToolComponent } from './data-upload-tool.component';
 import { FileValueAccessorModule } from '../../directives/file-value-accessor/file-value-accessor.module';
@@ -11,11 +10,11 @@ import { SharedDataService } from '../../services/shared-data.service';
 import { DataUploadService } from '../../services/data-upload.service';
 import { ExportService } from '../../services/export.service';
 
-import { AccordionModule } from 'ngx-bootstrap';
-import { AlertModule } from 'ngx-bootstrap';
-import { BsDatepickerModule } from 'ngx-bootstrap';
-import { TabsModule } from 'ngx-bootstrap';
-import { ModalModule } from 'ngx-bootstrap';
+import { AccordionModule } from 'ngx-bootstrap/accordion';
+import { AlertModule } from 'ngx-bootstrap/alert';
+import { BsDatepickerModule } from 'ngx-bootstrap/datepicker';
+import { TabsModule } from 'ngx-bootstrap/tabs';
+import { ModalModule } from 'ngx-bootstrap/modal';
 
 
 import { OverlayModule } from '../ui/overlay';
@@ -38,17 +37,15 @@ import { UploadFormComponent } from './components/upload-form/upload-form.compon
   ],
   imports: [
     BrowserModule,
-    HttpClientModule,
     ReactiveFormsModule,
-    FlexLayoutModule,
     FileValueAccessorModule,
 
-    AccordionModule.forRoot(),
-    AlertModule.forRoot(),
-    BsDatepickerModule.forRoot(),
-    ModalModule.forRoot(),
-    TabsModule.forRoot(),
-    
+    AccordionModule,
+    AlertModule,
+    BsDatepickerModule,
+    ModalModule,
+    TabsModule,
+
     SpinnerModule.forRoot(),
     OverlayModule,
     IconModule,
@@ -56,6 +53,7 @@ import { UploadFormComponent } from './components/upload-form/upload-form.compon
     RemoteDataTableModule,
   ],
   providers: [
+    provideHttpClient(withInterceptorsFromDi()),
     DataUploadService,
     ExportService,
     SharedDataService,
