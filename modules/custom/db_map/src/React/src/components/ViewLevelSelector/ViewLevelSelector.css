@@ -3,7 +3,7 @@
 }
 
 .bg-chevron {
-  color: #F89406;
+  color: #285C89;
   font-weight: 500;
   font-size: 16px;
   padding: 2px 8px 2px 16px;
@@ -70,7 +70,12 @@ span:nth-child(3) > .bg-chevron:after {
 span:last-child > .bg-chevron {
   padding: 2px 8px 2px 18px;
   background-color: #fff;
-  color: #F89406;
+  color: #000;
+}
+
+/* "All Regions" when it is the only breadcrumb (top level) */
+span:first-child:last-child > .bg-chevron {
+  color: #285C89;
 }
 
 span:last-child > .bg-chevron:after {
