@@ -9,7 +9,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
     map.data.loadGeoJson('/modules/custom/db_map/src/assets/countries.json');
     drupalSettings.db_map.layer.reset();
     map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push($('<div id="layer-map-legend" class="hide"/>')[0]);
-    layerSelect = $('<select id="select-layer"></select>').on('change',drupalSettings.db_map.layer.onSelect);
+    layerSelect = $('<select id="select-layer" aria-label="Select layer"></select>').on('change',drupalSettings.db_map.layer.onSelect);
     layerSelect.append('<option value="">(None)</option>');
 
     var orderedLayers = [];
@@ -167,7 +167,7 @@ drupalSettings.db_map.layer = $.extend(drupalSettings.db_map.layer||{},{
   updateLegend: function(legend) {
     drupalSettings.db_map.layer.legend = legend;
 
-    var legendContent = $('<h4></h4>').text($('#layer-map-select option:selected').attr('title'))
+    var legendContent = '<h4>'+$('#layer-map-select option:selected').attr('title')+'</h4>'
     var legendHTML = $('#layer-map-legend')
       .empty()
       .removeClass('hide')

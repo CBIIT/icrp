@@ -3,6 +3,20 @@
     attach: function (context, settings) {
       $("#edit-keys").attr("placeholder", "Search Website");
       $('#search-block-form [type="submit"]').css('width', '50px');      
+      // Bootstrap 3 incorrectly adds aria-expanded to accordion panels.
+      // aria-expanded should remain on the controlling button only.
+      var $collapsePanels = $('.panel-group .collapse', context);
+
+      $collapsePanels.removeAttr('aria-expanded');
+
+      $collapsePanels
+        .off('.icrpCollapseAriaFix')
+        .on(
+          'shown.bs.collapse.icrpCollapseAriaFix hidden.bs.collapse.icrpCollapseAriaFix',
+          function () {
+            $(this).removeAttr('aria-expanded');
+          }
+        );      
       $("#views-bootstrap-sideshow-block-1 > div.carousel-inner > div.item").click(function(e) {
           console.info("You clicked on Caption - item");
           $.redirectCarousel(e);
@@ -441,7 +455,7 @@ console.log("getNewsletter");
       var calendar_type = decodeURIComponent($.urlParam("calendar_type"));
       $('#edit-field-calendar-type').val(calendar_type);
       if(!$('#calendar-title').length) {
-        $('<h4 id="calendar-title"></h4>').text(calendar_type + ' Calendar').insertBefore("div.well");
+        $('<h4 id="calendar-title">'+calendar_type+' Calendar</h4>').insertBefore("div.well");
       }
       /* Remove required * from this field */
       $('#edit-field-event-date-range-0 > div.panel-heading > div.panel-title').removeClass('form-required');
@@ -634,7 +648,7 @@ console.log("getNewsletter");
     }
   }
   $.urlParam = function(name){
-    var results = new RegExp('[?&]' + name + '=([^&#]*)').exec(window.location.href);
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
     var return_val;
     if(results == null) {
       return_val = "";
