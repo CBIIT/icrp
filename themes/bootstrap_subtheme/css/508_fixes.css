@@ -112,9 +112,9 @@ h1,
 h2,
 #library-display span,
 .search-type,
-.search-name,
+.search-name
 {
-	color:#295C89;
+	color: #295C89;
 }
 
 a {
