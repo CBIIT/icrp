@@ -1,0 +1,142 @@
+.navbar-inverse .navbar-nav>li>a {
+	font-weight:normal;
+	text-decoration: none;
+}
+
+
+.navbar-inverse .navbar-nav>li>a:hover{
+	font-weight:normal;
+}
+
+.navbar-inverse .navbar-nav > li:hover {
+  background-color: #224D72 !important;
+}
+
+
+
+
+.navbar-inverse {
+    background-color: #295C89;
+    border-color: #005E7A;
+}
+
+.select-label.default {
+	color:#000;
+}
+
+input::placeholder {
+  color: #000 !important;
+  -webkit-text-fill-color: #000 !important;
+  opacity: 1 !important;
+}
+
+input {
+  opacity: 1;
+}
+
+div.select-dropdown-item.default.noselect.ng-star-inserted.selected {
+	color:#000;
+}
+
+
+.ui-panel-header {
+	color:#000 !important;
+}
+
+input.select-input,
+input.text,
+#institution {
+  color: #000 !important;
+  -webkit-text-fill-color: #000 !important;
+  opacity: 1 !important;
+}
+
+input::placeholder {
+  color: #000 !important;
+  -webkit-text-fill-color: #000 !important;
+  opacity: 1 !important;
+}
+
+ui-treeview label + span {
+  color: #000 !important;
+}
+
+.ui-panel-content > i {
+  color: #000 !important;
+}
+.btn-info {
+	background-color:#285C89;
+}
+
+.btn-info:hover {
+	background-color:#224D72;
+}
+
+
+.bg-blue {
+	background-color:#285C89 !important;
+}
+
+.bg-blue {
+	color:#fff;
+}
+.bg-blue a {
+	color:#fff;
+}
+
+
+.bg-blue a.btn-primary {
+		color:#fff !important;
+		text-decoration: none;
+}
+
+
+
+.bg-blue a.btn-primary:visited {
+		color:#fff !important;
+}
+.gray {
+	color:#000;
+}
+
+span.submitted {
+	color:#000;
+}
+
+a, 
+a:hover,
+.aside-title,
+.callback-link,
+.footer-date,
+h1,
+h2,
+#library-display span,
+.search-type,
+.search-name,
+{
+	color:#295C89;
+}
+
+a {
+	text-decoration: underline;
+}
+
+.dropdown-menu li a {
+	text-decoration: none;
+}
+.dark-gray {
+	color:#fff;
+}
+
+th.orgCategory  {
+	color:#fff !important;	
+}
+
+a.fc-daygrid-day-number {
+	color:#295C89 !important;
+}
+
+
+.fc-daygrid-day-top {
+	opacity:1 !important;
+}

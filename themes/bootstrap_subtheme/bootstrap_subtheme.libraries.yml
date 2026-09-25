@@ -15,6 +15,7 @@ global-styling:
       css/bootstrap-utils.css: {}
       css/forum.css: {}
       css/datacaveats.css: {}
+      css/508_fixes.css: {}
 
 global-scripts:
   version: 1.0.2
