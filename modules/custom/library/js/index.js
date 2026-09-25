@@ -601,7 +601,7 @@ jQuery(function() {
                             '<div class="item-wrapper'+(isArchived?' archived':'')+'">'+
                                 '<div class="item">'+
                                     '<h5 title="' + title + '">'+title+'</h5>'+
-                                    '<img src="'+thumb+'"/>'+
+                                    '<img src="'+thumb+'" alt="' + title + '" />'+
                                     '<p>'+description+'</p>'+
                                     '<div><a href="'+path+'file/'+id+'/'+file+'" target="_blank">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
                                 '</div>'+
