@@ -16,12 +16,21 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
 
 <div class="visible-xs text-right form-group">
     <a href="/partners/export" class="btn btn-default btn-sm">
-        <i class="fa fa-download"></i>
+        <i class="fa fa-download" aria-hidden="true"></i>
         Export
     </a>
 </div>
 
-<ul class="nav nav-tabs" id="partner-nav">
+<div class="pull-right hidden-xs">
+    <a href="/partners{{ logged_in ? '/authenticated' : '' }}/export"
+       class="btn btn-default btn-sm">
+        <i class="fa fa-download" aria-hidden="true"></i>
+        Export
+    </a>
+</div>
+
+<ul class="nav nav-tabs" id="partner-nav" role="tablist"
+    aria-label="Partners and funding organizations">
     <li role="presentation" class="active">
         <a href="#map" aria-controls="map" role="tab" data-toggle="tab">
             Map
@@ -30,32 +39,29 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
 
     <li role="presentation">
         <a href="#partners" aria-controls="partners" role="tab" data-toggle="tab">
-            <i style="color: steelblue" class="fas fa-map-marker-alt"></i>
+            <i style="color: steelblue" class="fas fa-map-marker-alt"
+               aria-hidden="true"></i>
             List of Partners
         </a>
     </li>
 
     <li role="presentation">
-        <a href="#funding-organizations" aria-controls="funding-organizations" role="tab" data-toggle="tab">
-            <i style="color: orange" class="fas fa-map-marker-alt"></i>
+        <a href="#funding-organizations" aria-controls="funding-organizations"
+           role="tab" data-toggle="tab">
+            <i style="color: orange" class="fas fa-map-marker-alt"
+               aria-hidden="true"></i>
             List of Funding Organizations
         </a>
     </li>
 
     {% if logged_in %}
     <li role="presentation">
-        <a href="#non-partners" aria-controls="non-partners" role="tab" data-toggle="tab">
+        <a href="#non-partners" aria-controls="non-partners"
+           role="tab" data-toggle="tab">
             List of Non-Partners
         </a>
     </li>
     {% endif %}
-
-    <li role="presentation" class="pull-right hidden-xs" style="margin: 0;">
-        <a href="/partners{{ logged_in ? '/authenticated' : '' }}/export" class="btn btn-default btn-sm" style="margin-right: 0">
-            <i class="fa fa-download"></i>
-            Export
-        </a>
-    </li>
 </ul>
 
 <div class="tab-content">
@@ -63,7 +69,7 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
         {# <iframe height="600" src="https://www.google.com/maps/d/u/0/embed?mid=1h2KiS71C4FDBVmIOJu35yzcz7gM&z=2" width="100%" style="border: 1px solid #ddd;"></iframe> #}
         <div class="d-flex flex-wrap justify-content-between align-items-end mv-5">
             <div>
-                <b>Partner</b>
+                <label for="select-partner" style="margin-bottom: 0;">Partner</label>
                 <select id="select-partner" class="form-control form-control-sm" style="display: inline-block; width: 400px; margin-right: 10px;">
                     <option value="">(All Partners)</option>
                     {% for partner in partners %}
@@ -388,7 +394,7 @@ Some funding organizations have joined ICRP as part of a consortium. They enjoy 
                         <td title="{{ record.contactperson }}">{{ record.contactperson }}</td>
                         <td title="{{ record.position }}">{{ record.position }}</td>
                         <td title="{{ record.canceronly ? 'YES' : 'NO' }}" style="padding-left: 10px">{{ record.canceronly ? '☑' : '☐' }}</td>
-                        <td title="{{ record.researchfunder ? 'YES' : 'NO' }}" style="padding-left: 10px"   >{{ record.researchfunder ? '☑' : '☐' }}</td>
+                        <td title="{{ record.researchfunder ? 'YES' : 'NO' }}" style="padding-left: 10px">{{ record.researchfunder ? '☑' : '☐' }}</td>
                         <td title="{{ record.note }}">
                             {{ record.note | raw [:200] }}
                             {% if record.note | length > 200 %}
@@ -413,4 +419,3 @@ window.mapData = {
 </script>
 
 {# <pre>{{ dump() }}</pre> #}
-
