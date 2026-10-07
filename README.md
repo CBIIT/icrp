@@ -2,6 +2,19 @@
 
 This repository contains the source code for the International Cancer Research Partnership website. 
 
+## JavaScript DOM regression tests
+
+From the repository root, run `python3 -m http.server 8000 --bind 127.0.0.1`
+and open <http://127.0.0.1:8000/test/unit/js/dom-rendering.html> in a browser.
+The page loads the actual map and theme scripts with the repository's bundled
+jQuery; no npm dependencies or Drupal database are required. All 24 tests should
+pass, covering literal map/calendar titles (including markup and entities),
+legend interactions, repeated calendar initialization, and query parsing.
+
+After deploying changes to Drupal libraries or their JavaScript, rebuild the
+Drupal cache (`drush cr`) so updated library definitions and asset versions take
+effect, and verify the JavaScript served by the affected pages.
+
 ## Getting Started with Docker Compose
 
 In the current directory, run:

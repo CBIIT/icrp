@@ -18,7 +18,7 @@ global-styling:
       css/508_fixes.css: {}
 
 global-scripts:
-  version: 1.0.2
+  version: 1.0.3
   js:
     #js/ext/bootstrap.bundle.min.js: {}
     js/ext/bootstrap.min.js: {}
@@ -34,7 +34,7 @@ global-scripts:
     # https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js: { type: external, minified: true }
     js/ext/bootbox.4.4.0.min.js: {}
     js/init_globals.js: {}
-    js/scripts.js: {}
+    js/script.js: {}
     js/survey.js: {}
     js/covid_survey.js: {}
     https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit: { type: external }
