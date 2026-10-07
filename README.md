@@ -14,6 +14,9 @@ legend interactions, repeated calendar initialization, and query parsing.
 After deploying changes to Drupal libraries or their JavaScript, rebuild the
 Drupal cache (`drush cr`) so updated library definitions and asset versions take
 effect, and verify the JavaScript served by the affected pages.
+The DEV deployment workflow waits for the container's HTTP endpoint and runs
+the cache rebuild as the `icrp` user; either failure fails deployment. This
+automatic cache rebuild is limited to the `dev` tier.
 
 ## Getting Started with Docker Compose
 
