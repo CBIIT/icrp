@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>ICRP DOM rendering regression tests</title>
+</head>
+<body>
+  <h1>ICRP DOM rendering regression tests</h1>
+  <pre id="results">Running...</pre>
+  <div id="fixture"></div>
+  <script src="../../../libraries/fullcalendar/lib/jquery.min.js"></script>
+  <script>
+    window.Drupal = { behaviors: {} };
+    window.drupalSettings = {};
+    window.db_layer_map = { layers: [] };
+  </script>
+  <script src="../../../modules/custom/db_map/src/assets/db_layer_map.js"></script>
+  <script src="../../../themes/bootstrap_subtheme/js/script.js"></script>
+  <script>
+    (function ($) {
+      'use strict';
+
+      var results = [];
+      var failures = 0;
+      var originalURL = window.location.href;
+      var layer = drupalSettings.db_map.layer;
+
+      function assert(condition, message) {
+        if (!condition) throw new Error(message);
+      }
+
+      function test(name, run) {
+        $('#fixture').empty();
+        try {
+          run();
+          results.push('PASS: ' + name);
+        } catch (error) {
+          failures++;
+          results.push('FAIL: ' + name + ': ' + error.message);
+        } finally {
+          window.history.replaceState(null, '', originalURL);
+        }
+      }
+
+      function setQuery(query) {
+        window.history.replaceState(null, '', window.location.pathname + query);
+      }
+
+      var titles = [
+        'Partner Meetings',
+        'External Events',
+        'Research & Funding < 10 > 2 "quoted" \'single\'',
+        '<img src="/missing-regression-image" onerror="document.body.dataset.injected=1">',
+        '<em data-injected="true">Not markup</em>',
+        '&lt;b&gt;Not an entity&lt;/b&gt;',
+        ''
+      ];
+
+      titles.forEach(function (title) {
+        test('map legend renders literal text: ' + JSON.stringify(title), function () {
+          $('#fixture').append(
+            $('<div id="layer-map-select"><select><option selected>Layer</option></select></div>')
+              .find('option').attr('title', title).end(),
+            '<div id="layer-map-legend" class="hide"><h4>Old title</h4></div>'
+          );
+          var legend = [
+            { MapLayerLegendID: 1, LegendColor: '#123456', LegendName: 'Low & <em>literal</em>' },
+            { MapLayerLegendID: 2, LegendColor: '#abcdef', LegendName: 'High' }
+          ];
+          layer.updateLegend(legend);
+          var heading = $('#layer-map-legend > h4');
+          assert(heading.length === 1, 'exactly one heading replaces the old heading');
+          assert(heading.text() === title, 'title must be preserved literally');
+          assert(heading.children().length === 0, 'title must not create elements');
+          assert(!$('#layer-map-legend').hasClass('hide'), 'legend is visible');
+          assert(layer.legend === legend, 'legend data is retained');
+          assert($('#layer-map-legend > div').length === 3, 'two rows and info link remain');
+          assert($('#layer-map-legend span.selected').length === 2, 'both colors start selected');
+          assert($('#layer-map-legend [data-legend-id="1"]').css('background-color') === 'rgb(18, 52, 86)', 'color is retained');
+          assert($('#layer-map-legend > div:first > span:last').text() === legend[0].LegendName, 'legend label stays literal');
+          assert($('#layer-map-legend a').text() === 'See More Info', 'info link is retained');
+        });
+
+        test('calendar renders literal URL text: ' + JSON.stringify(title), function () {
+          setQuery('?calendar_type=' + encodeURIComponent(title) + '&destination=/calendar');
+          $('#fixture').append(
+            '<input id="edit-field-calendar-type">',
+            '<div class="well"></div>',
+            '<div id="edit-field-event-date-range-0"><div class="panel-heading"><div class="panel-title form-required">Dates</div></div></div>'
+          );
+          $.preprocessAddTitle();
+          $.preprocessAddTitle();
+          var heading = $('#calendar-title');
+          assert(heading.length === 1, 'repeated preprocessing must not duplicate title');
+          assert(heading.text() === title + ' Calendar', 'decoded title is preserved literally');
+          assert(heading.children().length === 0, 'title must not create elements');
+          assert(heading.next().hasClass('well'), 'heading remains before the well');
+          assert($('#edit-field-calendar-type').val() === title, 'calendar form value is retained');
+          assert(!$('#edit-field-event-date-range-0 .panel-title').hasClass('form-required'), 'required marker is removed');
+        });
+      });
+
+      [
+        ['?calendar_type=Partner%20Meetings&destination=/calendar', 'calendar_type', 'Partner%20Meetings'],
+        ['?destination=/calendar&calendar_type=External%20Events#tab', 'calendar_type', 'External%20Events'],
+        ['?calendar_type=&destination=/calendar', 'calendar_type', ''],
+        ['?destination=/calendar', 'calendar_type', ''],
+        ['?calendar_type=first&calendar_type=second', 'calendar_type', 'first'],
+        ['?calendar_type=A%26B%23C%3FD%2BE', 'calendar_type', 'A%26B%23C%3FD%2BE'],
+        ['?calendar_type=Partner+Meetings', 'calendar_type', 'Partner+Meetings'],
+        ['?type-of-issue=Data%20question', 'type-of-issue', 'Data%20question'],
+        ['', 'calendar_type', '']
+      ].forEach(function (example) {
+        test('query parameter parsing: ' + example[0], function () {
+          setQuery(example[0]);
+          assert($.urlParam(example[1]) === example[2], 'raw query value is unchanged');
+        });
+      });
+
+      test('map selection and info handlers remain connected', function () {
+        $('#fixture').append(
+          '<div id="layer-map-select"><select><option selected title="Funding">Layer</option></select></div>',
+          '<div id="layer-map-legend"></div>'
+        );
+        var originalUpdateLayers = layer.updateLayers;
+        var originalShowMoreInfo = layer.showMoreInfo;
+        var updates = 0;
+        var infoClicks = 0;
+        layer.updateLayers = function () { updates++; };
+        layer.showMoreInfo = function (event) { event.preventDefault(); infoClicks++; };
+        try {
+          layer.updateLegend([
+            { MapLayerLegendID: 1, LegendColor: '#123456', LegendName: 'Low' },
+            { MapLayerLegendID: 2, LegendColor: '#abcdef', LegendName: 'High' }
+          ]);
+          $('#layer-map-legend [data-legend-id="1"]').trigger('click');
+          assert(updates === 1, 'color click updates the map');
+          assert($('#layer-map-legend span.selected').length === 1, 'color click filters the legend');
+          $('#layer-map-legend a').trigger('click');
+          assert(infoClicks === 1, 'info link invokes the existing handler');
+        } finally {
+          layer.updateLayers = originalUpdateLayers;
+          layer.showMoreInfo = originalShowMoreInfo;
+        }
+      });
+
+      $('#fixture').empty();
+      $('#results').text(results.join('\n') + '\n\n' + results.length + ' tests, ' + failures + ' failures');
+      document.body.dataset.testFailures = String(failures);
+    })(window.jQuery);
+  </script>
+</body>
+</html>
