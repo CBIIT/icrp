@@ -140,3 +140,7 @@ a.fc-daygrid-day-number {
 .fc-daygrid-day-top {
 	opacity:1 !important;
 }
+
+table.table-bordered th a {
+	color:#295C89 !important;
+}
