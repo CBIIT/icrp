@@ -33,7 +33,7 @@
                             <label class="control-label m-0 required">Partner</label>
                         </div>
                         <div class="col-md-8">
-                            <select name="partnerId" id="partnerId" class="form-control">
+                            <select name="partnerId" id="partnerId" aria-label="Partner" class="form-control">
                                 <option value="" hidden>Select a Partner</option>
                                 {% for partner in fields.partners %}
                                     <option value="{{partner.partnerid}}" data-type="partner">{{partner.name}}</option>
@@ -69,7 +69,7 @@
                                 <label class="control-label m-0 required">Sponsor Code</label>
                             </div>
                             <div class="col-md-8">
-                                <input class="form-control" id="sponsorCode" name="sponsorCode" disabled>
+                                <input class="form-control" id="sponsorCode" name="sponsorCode" aria-label="Sponsor Code" disabled>
                             </div>
                         </div>
                     </div>
