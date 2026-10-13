@@ -17,6 +17,11 @@ global-styling:
       css/datacaveats.css: {}
       css/508_fixes.css: {}
 
+adobe-analytics:
+  header: true
+  js:
+    https://assets.adobedtm.com/6a4249cd0a2c/785de09de161/launch-70d67a6a40a8.min.js: { type: external, attributes: { async: true } }
+
 global-scripts:
   version: 1.0.3
   js:

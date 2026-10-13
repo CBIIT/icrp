@@ -21,6 +21,7 @@ regions:
   page_bottom: 'Page bottom'
 
 libraries:
+  - bootstrap_subtheme/adobe-analytics
   - bootstrap_subtheme/global-styling
   - bootstrap_subtheme/global-scripts
 
