@@ -111,6 +111,7 @@
     </label>
 
     <ui-select
+      inputId="years_active"
       tooltip="Awards active in the calendar year. Default view shows most recent 2 years, click below to select additional years."
       placeholder="All Years Selected"
       [items]="filterYears()"
@@ -214,7 +215,8 @@
           >
       </div>
 
-      <div class="col-md-6" for="pi_last_name">
+      <div class="col-md-6">
+        <label class="sr-only" for="pi_last_name">PI or Collaborator Last Name</label>
         <input #pilastname
           class="text input"
           type="text"
@@ -231,7 +233,7 @@
     <input #piorcid
       class="text input"
       type="text"
-      for="pi_orcid"
+      id="pi_orcid"
       placeholder="nnnn-nnnn-nnnn-nnnn"
       tooltip="Full or partial ORCiD of the principal investigator"
       [formControl]="form.controls.pi_orcid"
@@ -240,6 +242,7 @@
 
     <label class="form-label" for="regions" tooltip="Select one or more regions">Region</label>
     <ui-select
+      inputId="regions"
       placeholder="Enter Regions"
       tooltip="Select one or more regions"
       [items]="fields.regions"
@@ -250,6 +253,7 @@
 
     <label class="form-label" for="countries" tooltip="Select one or more countries">Country</label>
     <ui-select
+      inputId="countries"
       placeholder="Enter Countries"
       tooltip="Select one or more countries"
       [items]="fields.countries"
@@ -260,6 +264,7 @@
 
     <label class="form-label" for="states" tooltip="Select one or more states">State/Territory</label>
     <ui-select
+      inputId="states"
       placeholder="Enter States/Territories"
       tooltip="Select one or more states"
       [formControl]="form.controls.states"
@@ -271,6 +276,7 @@
 
     <label class="form-label" for="cities" tooltip="Select one or more cities">City</label>
     <ui-select
+      inputId="cities"
       placeholder="Enter Cities"
       tooltip="Select one or more cities"
       [formControl]="form.controls.cities"
@@ -283,6 +289,7 @@
 
     <label class="form-label" for="income_groups" tooltip="Select one or more income groups">World Bank Income Groups</label>
     <ui-select
+      inputId="income_groups"
       placeholder="Enter Income Groups"
       tooltip="Select one or more income groups"
       [formControl]="form.controls.income_groups"
@@ -297,6 +304,7 @@
 
     <label class="form-label" for="funding_organization_type" tooltip="Select one or more funding organization types">Funding Organization Types</label>
     <ui-select
+      inputId="funding_organization_type"
       tooltip="Select one or more funding organization types"
       placeholder="Select types"
       [items]="fields.funding_organization_types"
@@ -372,6 +380,7 @@
   <ui-panel title="Cancer and Project Type">
     <label class="form-label" for="cancer_types" tooltip="Select one or more cancer types">Cancer Types</label>
     <ui-select
+      inputId="cancer_types"
       tooltip="Select one or more cancer types"
       placeholder="Select Cancer Types"
       [items]="fields.cancer_types"
@@ -382,6 +391,7 @@
 
     <label class="form-label" for="is_childhood_cancer" tooltip="Select ‘Yes' to find projects that are wholly relevant, ‘Partially Childhood’ to find projects with some relevance and ‘No’ to find projects unrelated to childhood or adolescent cancers.">Childhood Cancer</label>
     <ui-select
+      inputId="is_childhood_cancer"
       tooltip="Select ‘Yes' to find projects that are wholly relevant, ‘Partially Childhood’ to find projects with some relevance and ‘No’ to find projects unrelated to childhood or adolescent cancers."
       placeholder="Select Childhood Cancer"
       [items]="fields.is_childhood_cancer"
@@ -392,6 +402,7 @@
 
     <label class="form-label" for="project_types" tooltip="Select one or more project types">Project Types</label>
     <ui-select
+      inputId="project_types"
       tooltip="Select one or more project types"
       placeholder="Select Project Types"
       [items]="fields.project_types"
