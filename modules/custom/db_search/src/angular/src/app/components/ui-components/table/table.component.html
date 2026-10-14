@@ -55,7 +55,7 @@
 
   <div class="pull-right pagination">
     Show
-    <select #p (change)="setPageSize(p.value)">
+    <select #p aria-label="Results per page" (change)="setPageSize(p.value)">
       <option *ngFor="let size of pageSizes" [value]="size">{{size}}</option>
     </select>
     entries of {{ numResults | number }}

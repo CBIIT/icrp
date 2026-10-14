@@ -12,7 +12,17 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Use Node.js 16 for this legacy Angular CLI workspace. From this directory, run
+`npm run build` to write the production artifacts to `../../assets/`, not `dist/`.
+Commit rebuilt assets with source changes, bump the version in
+`../../db_search.libraries.yml`, and rebuild Drupal caches (`drush cr`) after
+deployment.
+
+Search labels must remain associated with the inner native inputs of
+`ui-select`, including when selected values remove the placeholder or a
+location filter switches between disabled and enabled inputs. Verify both
+states, the ORCiD and last-name fields, chart currency rates, and results-per-page
+controls after rebuilding.
 
 ## Running unit tests
 
