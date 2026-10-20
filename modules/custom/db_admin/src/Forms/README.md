@@ -12,15 +12,17 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 ## Build
 
-Use Node.js 16 for this legacy Angular CLI workspace. From this directory, run
+From this directory, run
 `npm run build -- --project partners` or
 `npm run build -- --project fundingOrganizations` for the corresponding form.
 Production artifacts are written to `../../assets/partners/` and
 `../../assets/funding-organizations/`, not `dist/`.
 
-Commit rebuilt assets with template changes. Bump the affected library version
-in `../../db_admin.libraries.yml` and rebuild Drupal caches (`drush cr`) after
-deployment so the updated controls and labels reach the browser.
+For NCIATWP-11502, rebuilding and publishing the bundles is deferred to a separate
+change; source edits alone do not update the served UI. When publishing rebuilt
+assets, bump the affected library version in `../../db_admin.libraries.yml` and
+rebuild Drupal caches (`drush cr`) after deployment so the updated controls and
+labels reach the browser.
 
 ## Running unit tests
 

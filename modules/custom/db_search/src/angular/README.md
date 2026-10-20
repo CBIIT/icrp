@@ -12,11 +12,14 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 ## Build
 
-Use Node.js 16 for this legacy Angular CLI workspace. From this directory, run
+From this directory, run
 `npm run build` to write the production artifacts to `../../assets/`, not `dist/`.
-Commit rebuilt assets with source changes, bump the version in
-`../../db_search.libraries.yml`, and rebuild Drupal caches (`drush cr`) after
-deployment.
+The existing Docker build entry point is `../build.sh`, run from `..`.
+
+For NCIATWP-11502, rebuilding and publishing the bundles is deferred to a separate
+change; source edits alone do not update the served UI. When publishing rebuilt
+assets, bump the version in `../../db_search.libraries.yml` and rebuild Drupal
+caches (`drush cr`) after deployment.
 
 Search labels must remain associated with the inner native inputs of
 `ui-select`, including when selected values remove the placeholder or a

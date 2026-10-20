@@ -314,8 +314,6 @@
     </ui-select>
 
 
-    <label class="sr-only" for="funding_organizations">Funding Organizations</label>
-
     <label style="margin-right: 5px;">Group by</label>
 
     <label
@@ -354,7 +352,10 @@
     <div
       *ngIf="fields.funding_organizations && form.controls.funding_organization_group_type.value == null"
       class="multiselect"
+      role="group"
+      aria-labelledby="funding_organizations_country_label"
       tooltip="Select one or more funding organizations">
+      <span class="sr-only" id="funding_organizations_country_label">Funding Organizations</span>
       <ui-treeview
         [root]="fields.funding_organizations[0]"
         [formControl]="form.controls.funding_organizations"
@@ -365,7 +366,10 @@
     <div
       *ngIf="fields.funding_organizations && form.controls.funding_organization_group_type.value == 'sponsor_code'"
       class="multiselect"
+      role="group"
+      aria-labelledby="funding_organizations_sponsor_label"
       tooltip="Select one or more funding organizations">
+      <span class="sr-only" id="funding_organizations_sponsor_label">Funding Organizations</span>
       <ui-treeview
         [root]="fields.funding_organizations_by_sponsor_code[0]"
         [formControl]="form.controls.funding_organizations"
@@ -415,11 +419,13 @@
 
   <!-- Common Scientific Outline - Research Area -->
   <ui-panel title="Common Scientific Outline - Research Area">
-    <label class="sr-only" for="cso_research_areas" tooltip="Select one or more CSO research areas">CSO - Research Areas</label>
     <div
       *ngIf="fields.cso_research_areas"
       class="multiselect"
+      role="group"
+      aria-labelledby="cso_research_areas_label"
       tooltip="Select one or more CSO research areas">
+      <span class="sr-only" id="cso_research_areas_label">CSO Research Areas</span>
       <ui-treeview
         [root]="fields.cso_research_areas[0]"
         [formControl]="form.controls.cso_research_areas"
