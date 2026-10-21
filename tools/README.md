@@ -118,3 +118,10 @@ inspection are not authenticated DEV or auditory screen-reader evidence.
 These commands neither deploy nor authorize real data writes. Record outstanding
 manager checks explicitly, bump only the affected Drupal library versions and
 clear Drupal caches after the separately approved deployment.
+
+For safe local coverage of the committed bundles, see
+[the Chrome fixture guide](../test/unit/js/README.bundle-accessibility.md).
+From the repository root, with Node >=22, Chrome and the upload workspace
+dependencies installed, run `node test/unit/js/run-bundle-accessibility.mjs --xlsx`.
+The synthetic XLSX case verifies the existing CSV-only validation rejects XLSX
+and previews its CSV conversion using a mocked response; it is not an import.
