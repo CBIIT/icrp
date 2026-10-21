@@ -42,8 +42,8 @@ Both commands write production artifacts to `../../assets/`, not `dist/`.
 Drupal serves these committed files; deployment does not run Angular builds.
 Commit the generated assets and bump `../../db_search.libraries.yml` when shipping
 a change, then rebuild Drupal caches (`drush cr`) after deployment. The
-NCIATWP-11502 bundle follow-up carries the source-only prerequisite from
-[PR #68](https://github.com/CBIIT/icrp/pull/68); that PR should merge first.
+NCIATWP-11502 bundle rebuild uses the source fixes merged into `dev` via
+[PR #68](https://github.com/CBIIT/icrp/pull/68).
 
 For the clean-install hash comparison and the other two workspace commands, see
 [the bundle build guide](../../../../../tools/README.md).

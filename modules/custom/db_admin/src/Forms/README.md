@@ -40,8 +40,8 @@ These commands intentionally do not rebuild `institutions` or `mergeInstitutions
 Drupal serves committed assets; deployment does not rebuild them. When publishing
 rebuilt assets, bump the affected library version in `../../db_admin.libraries.yml`
 and rebuild Drupal caches (`drush cr`) after deployment. The NCIATWP-11502 bundle
-follow-up carries the source-only prerequisite from
-[PR #68](https://github.com/CBIIT/icrp/pull/68); that PR should merge first.
+rebuild uses the source fixes merged into `dev` via
+[PR #68](https://github.com/CBIIT/icrp/pull/68).
 
 See [the bundle build guide](../../../../../tools/README.md) for the clean-install
 hash comparison.

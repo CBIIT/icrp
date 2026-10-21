@@ -79,11 +79,13 @@ as an intentional dependency change, then repeat the clean-install check.
 
 ## Provenance and release verification
 
-The NCIATWP-11502 follow-up is based on `dev` at
+The NCIATWP-11502 follow-up was created from `dev` at
 `eb9e68dd4881613e411234176327537c3ef48c08`, carrying the cumulative source-only
 change from [PR #68](https://github.com/CBIIT/icrp/pull/68) through
 `2ca877420af11515e0566f11b97655079c2dcfda` as a separate prerequisite commit.
-Merge #68 first. The source overlap remains until `dev` contains that prerequisite.
+PR #68 is now merged into `dev` at `8495e78f0a3128ae1d94ec35c269bf6945023b72`.
+This branch includes that merge, and the bundle rebuild uses those merged source
+fixes; no source prerequisite remains pending.
 The upload-wizard follow-on is not included.
 
 The previous committed bundles embed Angular 6.1.10, 7.2.16 and 22.1.5,

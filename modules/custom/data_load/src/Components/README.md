@@ -62,7 +62,7 @@ definitions).
 The built artifacts are checked in and deployment does not rebuild them. After
 source changes, rebuild the affected applications, commit their generated assets,
 bump the corresponding `../../data_load.libraries.yml` versions, and run `drush cr`
-after deployment. The NCIATWP-11502 follow-up carries the source-only prerequisite
-from [PR #68](https://github.com/CBIIT/icrp/pull/68); that PR should merge first.
+after deployment. The NCIATWP-11502 bundle rebuild uses the source fixes merged
+into `dev` via [PR #68](https://github.com/CBIIT/icrp/pull/68).
 See [the bundle build guide](../../../../../tools/README.md) for clean-install
 hash comparisons and verification limits.
