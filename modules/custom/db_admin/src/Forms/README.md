@@ -12,7 +12,17 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+From this directory, run
+`npm run build -- --project partners` or
+`npm run build -- --project fundingOrganizations` for the corresponding form.
+Production artifacts are written to `../../assets/partners/` and
+`../../assets/funding-organizations/`, not `dist/`.
+
+For NCIATWP-11502, rebuilding and publishing the bundles is deferred to a separate
+change; source edits alone do not update the served UI. When publishing rebuilt
+assets, bump the affected library version in `../../db_admin.libraries.yml` and
+rebuild Drupal caches (`drush cr`) after deployment so the updated controls and
+labels reach the browser.
 
 ## Running unit tests
 
