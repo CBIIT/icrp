@@ -1,0 +1,5 @@
+**
+!tools/check-frontend-toolchain.cjs
+!modules/custom/db_search/src/angular/**
+**/node_modules
+**/.angular
