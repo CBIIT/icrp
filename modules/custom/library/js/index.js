@@ -197,7 +197,7 @@ jQuery(function() {
         },
         'getParameterByName': function(name, url) {
             if (!url) url = window.location.href;
-            name = name.replace(/[\[\]]/g, "\\$&");
+            name = name.replace(/[[\]\\]/g, "\\$&");
             var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
                 results = regex.exec(url);
             if (!results) return null;
@@ -542,7 +542,7 @@ jQuery(function() {
                 tree.deselect_all();
                 $('#library-display .display-header').addClass('search');
                 $('#library-display .display-header .search-type').html("Keywords Search:");
-                $('#library-display .display-header .search-name').html(val);
+                $('#library-display .display-header .search-name').text(val);
                 functions.writeDisplay(response,role==="public");
             });
         },
@@ -601,7 +601,7 @@ jQuery(function() {
                             '<div class="item-wrapper'+(isArchived?' archived':'')+'">'+
                                 '<div class="item">'+
                                     '<h5 title="' + title + '">'+title+'</h5>'+
-                                    '<img src="'+thumb+'"/>'+
+                                    '<img src="'+thumb+'" alt="' + title + '" />'+
                                     '<p>'+description+'</p>'+
                                     '<div><a href="'+path+'file/'+id+'/'+file+'" target="_blank">Download '+file.substr(file.lastIndexOf('.')+1).toUpperCase()+'</a></div>'+
                                 '</div>'+

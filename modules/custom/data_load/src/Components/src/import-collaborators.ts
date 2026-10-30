@@ -1,12 +1,6 @@
-import { enableProdMode } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { platformBrowser } from '@angular/platform-browser';
 
 import { ImportCollaboratorsModule } from './app/modules/import-collaborators/import-collaborators.module';
-import { environment } from './environments/environment';
 
-if (environment.production) {
-  enableProdMode();
-}
-
-platformBrowserDynamic().bootstrapModule(ImportCollaboratorsModule)
+platformBrowser().bootstrapModule(ImportCollaboratorsModule)
   .catch(err => console.log(err));

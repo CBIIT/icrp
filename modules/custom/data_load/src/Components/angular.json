@@ -1,0 +1,241 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "data-upload-tool": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "icrp",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "outputPath": {
+              "base": "../assets/data-upload-tool",
+              "browser": ""
+            },
+            "index": "src/index.html",
+            "browser": "src/data-upload-tool.ts",
+            "polyfills": [],
+            "tsConfig": "tsconfig.app.json",
+            "assets": [
+              {
+                "glob": "favicon.ico",
+                "input": "src",
+                "output": "."
+              }
+            ],
+            "styles": [
+              "src/styles.css",
+              "node_modules/ngx-bootstrap/datepicker/bs-datepicker.css"
+            ],
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "exceljs",
+              "file-saver",
+              "papaparse",
+              "octicons"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "none",
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "4mb",
+                  "maximumError": "6mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "8kb",
+                  "maximumError": "16kb"
+                }
+              ]
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": {
+            "port": 4200
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "data-upload-tool:build:production"
+            },
+            "development": {
+              "buildTarget": "data-upload-tool:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    },
+    "import-institutions": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "icrp",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "outputPath": {
+              "base": "../assets/import-institutions",
+              "browser": ""
+            },
+            "index": "src/index.html",
+            "browser": "src/import-institutions.ts",
+            "polyfills": [],
+            "tsConfig": "tsconfig.app.json",
+            "assets": [
+              {
+                "glob": "favicon.ico",
+                "input": "src",
+                "output": "."
+              }
+            ],
+            "styles": [
+              "src/styles.css",
+              "node_modules/ngx-bootstrap/datepicker/bs-datepicker.css"
+            ],
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "exceljs",
+              "file-saver",
+              "papaparse",
+              "octicons"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "none",
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "4mb",
+                  "maximumError": "6mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "8kb",
+                  "maximumError": "16kb"
+                }
+              ]
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": {
+            "port": 4201
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "import-institutions:build:production"
+            },
+            "development": {
+              "buildTarget": "import-institutions:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    },
+    "import-collaborators": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "icrp",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "outputPath": {
+              "base": "../assets/import-collaborators",
+              "browser": ""
+            },
+            "index": "src/index.html",
+            "browser": "src/import-collaborators.ts",
+            "polyfills": [],
+            "tsConfig": "tsconfig.app.json",
+            "assets": [
+              {
+                "glob": "favicon.ico",
+                "input": "src",
+                "output": "."
+              }
+            ],
+            "styles": [
+              "src/styles.css",
+              "node_modules/ngx-bootstrap/datepicker/bs-datepicker.css"
+            ],
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "exceljs",
+              "file-saver",
+              "papaparse",
+              "octicons"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "none",
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "4mb",
+                  "maximumError": "6mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "8kb",
+                  "maximumError": "16kb"
+                }
+              ]
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "options": {
+            "port": 4202
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "import-collaborators:build:production"
+            },
+            "development": {
+              "buildTarget": "import-collaborators:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    }
+  },
+  "cli": {
+    "analytics": false
+  }
+}

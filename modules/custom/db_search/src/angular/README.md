@@ -12,7 +12,47 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Use **Node.js 12.22.12 and npm 6.14.16** (bundled with that Node release).
+From this directory, with [nvm](https://github.com/nvm-sh/nvm) loaded:
+
+```sh
+nvm install
+nvm use
+node --version # v12.22.12
+npm --version  # 6.14.16
+npm ci --no-audit --no-fund
+npm run build
+```
+
+The install and build lifecycle guards reject a different Node or npm version.
+Use `npm ci`, not `npm install`, to preserve the committed dependency resolution.
+Do not disable lifecycle scripts. Angular is pinned to **6.1.10**, CLI to **6.1.5**,
+and the builder to **0.7.5**. This is an isolated legacy build toolchain, not a
+supported server runtime; Node 12 and these Angular packages are end-of-life.
+On Apple Silicon, Node 12 requires the x64 distribution and Rosetta, or use Docker.
+Legacy dependencies can emit engine/deprecation warnings; the root versions are
+enforced separately so those declarations do not require unrelated upgrades.
+
+Alternatively, from the repository root, `sh modules/custom/db_search/src/build.sh`
+builds with digest-pinned `node:12.22.12-bullseye-slim` on `linux/amd64` and `npm ci`.
+Docker must be running. The Docker context excludes everything except this
+workspace and the toolchain guard; it does not copy host `node_modules`.
+
+Both commands write production artifacts to `../../assets/`, not `dist/`.
+Drupal serves these committed files; deployment does not run Angular builds.
+Commit the generated assets and bump `../../db_search.libraries.yml` when shipping
+a change, then rebuild Drupal caches (`drush cr`) after deployment. The
+NCIATWP-11502 bundle rebuild uses the source fixes merged into `dev` via
+[PR #68](https://github.com/CBIIT/icrp/pull/68).
+
+For the clean-install hash comparison and the other two workspace commands, see
+[the bundle build guide](../../../../../tools/README.md).
+
+Search labels must remain associated with the inner native inputs of
+`ui-select`, including when selected values remove the placeholder or a
+location filter switches between disabled and enabled inputs. Verify both
+states, the ORCiD and last-name fields, chart currency rates, and results-per-page
+controls after rebuilding.
 
 ## Running unit tests
 

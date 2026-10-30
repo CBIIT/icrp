@@ -1,7 +1,8 @@
-import { Component, Input, AfterViewInit, OnChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, AfterViewInit, OnChanges } from '@angular/core';
 import { SpinnerConfig } from './spinner.config';
 
 @Component({
+  standalone: false,
   selector: 'ui-spinner',
   templateUrl: './spinner.component.html',
   styleUrls: ['./spinner.component.css']
@@ -21,7 +22,7 @@ export class SpinnerComponent implements OnChanges, AfterViewInit {
   arc: string;
 
   /** Set default property values */
-  public constructor(config: SpinnerConfig) {
+  public constructor(config: SpinnerConfig, private cdr: ChangeDetectorRef) {
     Object.assign(this, config);
   }
 
@@ -30,6 +31,7 @@ export class SpinnerComponent implements OnChanges, AfterViewInit {
       let edgeWidth = 10;
       let radius = this.size/2 - this.size/edgeWidth;
       this.arc = `M ${this.size/2} ${this.size/edgeWidth} a ${radius} ${radius} 0 0 1 ${radius} ${radius}`;
+      this.cdr.markForCheck();
     }, 0);
   }
 

@@ -1,5 +1,5 @@
 
-  <div [@isActive]="active.toString()">
+  <div class="overlay-host" [class.overlay-active]="active">
 
     <div [class]="fullscreen ? 'loading-overlay-fullscreen': 'loading-overlay'">
       <div style="text-align: center">

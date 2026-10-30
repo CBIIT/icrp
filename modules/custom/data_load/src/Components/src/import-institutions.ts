@@ -1,12 +1,6 @@
-import { enableProdMode } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { platformBrowser } from '@angular/platform-browser';
 
 import { ImportInstitutionsModule } from './app/modules/import-institutions/import-institutions.module';
-import { environment } from './environments/environment';
 
-if (environment.production) {
-  enableProdMode();
-}
-
-platformBrowserDynamic().bootstrapModule(ImportInstitutionsModule)
+platformBrowser().bootstrapModule(ImportInstitutionsModule)
   .catch(err => console.log(err));

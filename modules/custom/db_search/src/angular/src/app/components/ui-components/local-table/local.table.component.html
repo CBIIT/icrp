@@ -52,7 +52,7 @@
 
   <div class="pagination">
     Show
-    <select #p (change)="pageSize = p.value; pageNumber = 1;">
+    <select #p aria-label="Results per page" (change)="pageSize = p.value; pageNumber = 1;">
       <option *ngFor="let size of pageSizes" [value]="size">
         {{size}}
       </option>

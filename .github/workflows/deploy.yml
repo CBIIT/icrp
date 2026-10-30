@@ -101,7 +101,8 @@ jobs:
                 "docker stop ${{ env.APP }} || true",
                 "docker rm ${{ env.APP }} || true",
                 "sleep 3",
-                "docker run -d --name ${{ env.APP }} --restart unless-stopped -p 80:80 -v /local/content/docker_apps/icrp/config/settings.php:/var/www/html/sites/default/settings.php:ro -v /local/content/docker_apps/icrp/config/sasl_passwd:/etc/postfix/sasl_passwd:ro -v /local/content/docker_apps/icrp/config/sync:/var/www/html/sites/default/sync:rw -v /local/content/docker_apps/icrp/files:/var/www/html/sites/default/files:rw -v /local/content/docker_apps/icrp/data:/var/www/html/data:rw -v /local/content/docker_apps/icrp/logs:/var/log/php-fpm:rw -v /local/content/docker_apps/icrp/apache_logs:/var/log/httpd:rw -e DD_SERVICE=${{ env.APP }} -e DD_ENV=${{ env.TIER }} ${{ env.ICRP_IMAGE_LATEST }}"
+                "docker run -d --name ${{ env.APP }} --restart unless-stopped -p 80:80 -v /local/content/docker_apps/icrp/config/settings.php:/var/www/html/sites/default/settings.php:ro -v /local/content/docker_apps/icrp/config/sasl_passwd:/etc/postfix/sasl_passwd:ro -v /local/content/docker_apps/icrp/config/sync:/var/www/html/sites/default/sync:rw -v /local/content/docker_apps/icrp/files:/var/www/html/sites/default/files:rw -v /local/content/docker_apps/icrp/data:/var/www/html/data:rw -v /local/content/docker_apps/icrp/logs:/var/log/php-fpm:rw -v /local/content/docker_apps/icrp/apache_logs:/var/log/httpd:rw -e DD_SERVICE=${{ env.APP }} -e DD_ENV=${{ env.TIER }} ${{ env.ICRP_IMAGE_LATEST }}",
+                "if [ '${{ env.TIER }}' = 'dev' ]; then docker exec ${{ env.APP }} curl --fail --silent --show-error --connect-timeout 5 --max-time 30 --retry 30 --retry-delay 2 --retry-connrefused --retry-max-time 90 --header 'Host: icrpartnership-dev.org' --output /dev/null http://localhost/; docker exec --user icrp --workdir /var/www/html ${{ env.APP }} /var/www/html/vendor/bin/drush --uri=https://icrpartnership-dev.org cr; fi"
               ]
             }
           }
@@ -143,6 +144,11 @@ jobs:
 
             sleep 5
           done
+
+          if [ "$STATUS" != "Success" ]; then
+            echo "Deployment did not complete within the polling window: $STATUS"
+            exit 1
+          fi
 
           aws ssm get-command-invocation \
             --command-id "$COMMAND_ID" \

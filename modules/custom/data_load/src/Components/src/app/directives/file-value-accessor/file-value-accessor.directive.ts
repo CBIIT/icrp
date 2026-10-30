@@ -2,6 +2,7 @@ import { Directive, HostListener, ElementRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 
 @Directive({
+  standalone: false,
   selector: 'input[type=file]',
   host: {
     '(change)': 'onChange($event.target.files)',

@@ -15,12 +15,17 @@ global-styling:
       css/bootstrap-utils.css: {}
       css/forum.css: {}
       css/datacaveats.css: {}
+      css/508_fixes.css: {}
+
+adobe-analytics:
+  header: true
+  js:
+    https://assets.adobedtm.com/6a4249cd0a2c/785de09de161/launch-70d67a6a40a8.min.js: { type: external, attributes: { async: true } }
 
 global-scripts:
-  version: 1.0.2
+  version: 1.0.3
   js:
     #js/ext/bootstrap.bundle.min.js: {}
-    #js/ext/bootstrap.3.3.7.min.js: {}
     js/ext/bootstrap.min.js: {}
 
     js/carousel-fix.js: {}
@@ -34,7 +39,7 @@ global-scripts:
     # https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js: { type: external, minified: true }
     js/ext/bootbox.4.4.0.min.js: {}
     js/init_globals.js: {}
-    js/scripts.js: {}
+    js/script.js: {}
     js/survey.js: {}
     js/covid_survey.js: {}
     https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit: { type: external }
