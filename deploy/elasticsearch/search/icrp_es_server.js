@@ -4,6 +4,7 @@ var app = express()
 
 app.get('/get', function (req, res) {
   if ( req.query.search_method == 'get') {
+  	res.set('Content-Type', 'text/plain');
   	res.send('Hello World!' + req.query.search_terms + ":" + req.query.search_method);
   }else {
      	var search_instance = new ICRP_Search(req.query.search_method,req.query.search_terms);

@@ -22,8 +22,9 @@
       'disabled': (form.controls.display_type.value === 'project_counts'),
       'inline-block': true
     }">
-      Use Currency Rates From
+      <span id="currency-rates-label">Use Currency Rates From</span>
       <select
+        aria-labelledby="currency-rates-label"
         (change)="updateFundingCharts()"
         [formControl]="form.controls.conversion_year"
       >
@@ -222,5 +223,4 @@
   </div>
 
 </div>
-
 

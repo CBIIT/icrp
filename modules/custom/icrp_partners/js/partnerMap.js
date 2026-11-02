@@ -194,7 +194,7 @@
                             .get(0)
                     });
 
-                    var marker = createMarker('steelblue', position, 1, map);
+                    var marker = createMarker('steelblue', position, 1, map, item.name);
                     marker.addListener('click', function() {
                     for (var i = 0; i < infoWindows.length; i ++)
                         infoWindows[i].close();
@@ -256,7 +256,7 @@
                             .get(0)
                     });
 
-                    var marker = createMarker('orange', position, -1, map);
+                    var marker = createMarker('orange', position, -1, map, item.name);
                     marker.addListener('click', function() {
                         for (var i = 0; i < infoWindows.length; i ++)
                             infoWindows[i].close();
@@ -271,10 +271,11 @@
         });
     }
 
-    function createMarker(color, position, zIndex, map) {
+    function createMarker(color, position, zIndex, map, title) {
         return new google.maps.Marker({
             position: position,
             map: map,
+            title: title,
             icon: {
                 url: '/modules/custom/icrp_partners/images/marker.' + color + '.svg',
                 origin: {x: 6, y: 16},

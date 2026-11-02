@@ -132,6 +132,7 @@
       fxFlex.lt-md="100"
       fxLayoutAlign="space-between center">
       <label
+        [attr.for]="form.value.operationType === 'Add' || form.value.isPartner ? 'name' : 'fundingOrganizationId'"
         fxFlex="30"
         fxFlex.lt-md="100"
         class="m-0 font-weight-bold control-label asterisk">
@@ -139,6 +140,7 @@
       </label>
       <input
         *ngIf="form.value.operationType === 'Add' || form.value.isPartner"
+        id="name"
         fxFlex="69"
         fxFlex.lt-md="100"
         class="form-control input-sm"
@@ -148,6 +150,7 @@
         placeholder="100 characters maximum">
       <select
         *ngIf="form.value.operationType === 'Update' && !form.value.isPartner"
+        id="fundingOrganizationId"
         fxFlex="69"
         fxFlex.lt-md="100"
         class="form-control input-sm"
@@ -180,12 +183,14 @@
       fxFlex.lt-md="100"
       fxLayoutAlign="start center">
       <label
+        for="abbreviation"
         fxFlex="28"
         fxFlex.lt-md="100"
         class="m-0 font-weight-bold control-label asterisk">
         Abbreviation
       </label>
       <input
+        id="abbreviation"
         fxFlex="71"
         fxFlex.lt-md="100"
         class="form-control input-sm"
@@ -252,6 +257,7 @@
         fxLayoutAlign="start center"
         class="">
         <label
+          for="type"
           fxFlex="40"
           fxFlex.lt-lg="100"
           class="m-0 font-weight-bold control-label asterisk">
@@ -417,6 +423,7 @@
         ngClass.lt-md="mb-3"
         max="90"
         min="-90"
+        aria-label="Latitude"
         formControlName="latitude"
         placeholder="Enter latitude (eg: 32.30642)">
 
@@ -427,6 +434,7 @@
         class="form-control input-sm"
         max="180"
         min="-180"
+        aria-label="Longitude"
         formControlName="longitude"
         placeholder="Enter longitude (eg: -122.61458)">
     </div>
@@ -466,6 +474,7 @@
     fxFlex.lt-md="100"
     fxLayoutAlign="start fill">
     <label
+      for="website"
       class="font-weight-bold control-label">
       Website
     </label>
@@ -591,10 +600,12 @@
     fxFlex="100"
     fxLayoutAlign="start start">
     <label
+      for="note"
       class="font-weight-bold">
       Note
     </label>
     <textarea
+      id="note"
       rows="5"
       class="form-control input-sm"
       maxlength="1000"

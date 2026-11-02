@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FileValidators } from '../../validators/file-validator/file-validator';
 import { ImportService, ParseResult, ParseError } from '../../services/import.service';
 import { ExportService } from '../../services/export.service';
 
 @Component({
+  standalone: false,
   selector: 'icrp-import-collaborators',
   templateUrl: './import-collaborators.component.html',
   styleUrls: ['./import-collaborators.component.css'],
@@ -43,6 +44,7 @@ export class ImportCollaboratorsComponent {
     private formBuilder: FormBuilder,
     private importService: ImportService,
     private exportService: ExportService,
+    private cdr: ChangeDetectorRef,
   ) {
     this.form = formBuilder.group({
       file: ['', [
@@ -59,8 +61,9 @@ export class ImportCollaboratorsComponent {
     this.alerts = [];
     this.loading = true;
     const csv = await this.importService
-      .parseCSV(this.form.controls.file.value[0], false) as ParseResult;
+      .parseCSV(this.form.controls.file.value[0], false) as ParseResult<any>;
     this.loading = false;
+    this.cdr.markForCheck();
 
     if (csv.data.length > 0 && csv.data[0].length === this.EXPECTED_COLUMNS) {
       csv.data.shift();
@@ -72,6 +75,7 @@ export class ImportCollaboratorsComponent {
         return record;
       });
       this.importDisabled = false;
+      this.cdr.markForCheck();
     }
 
     else {
@@ -80,6 +84,7 @@ export class ImportCollaboratorsComponent {
         type: 'danger',
         content: 'The input file does not contain the expected number of columns.'
       });
+      this.cdr.markForCheck();
     }
 
   }
@@ -126,6 +131,8 @@ export class ImportCollaboratorsComponent {
             content: `${this.records.length.toLocaleString()} collaborator(s) have been successfully imported.`
           });
         }
+
+        this.cdr.markForCheck();
       },
 
       ({error}) => {
@@ -135,6 +142,7 @@ export class ImportCollaboratorsComponent {
           type: 'danger',
           content: error,
         });
+        this.cdr.markForCheck();
       },
     );
   }

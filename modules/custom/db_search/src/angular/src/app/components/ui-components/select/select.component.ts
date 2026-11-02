@@ -37,6 +37,8 @@ export class SelectComponent {
   /** Placeholder text */
   @Input() placeholder: string;
 
+  @Input() inputId: string;
+
   /** Control evaluation of this component */
   @Input() disable: boolean;
 

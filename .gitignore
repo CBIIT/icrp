@@ -94,6 +94,9 @@ settings.local.php
 
 !/libraries/.gitkeep
 package-lock.json
+!/modules/custom/db_search/src/angular/package-lock.json
+!/modules/custom/db_admin/src/Forms/package-lock.json
+!/modules/custom/data_load/src/Components/package-lock.json
 !/sites/default/files/user-guides
 
 /data/exports/*
@@ -106,4 +109,3 @@ node_modules
 /phpinfo.php
 /mssql_data
 /mysql_data
-

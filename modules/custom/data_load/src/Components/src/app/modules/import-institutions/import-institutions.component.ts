@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FileValidators } from '../../validators/file-validator/file-validator';
 import { ImportService, ParseResult, ParseError } from '../../services/import.service';
 import { ExportService } from '../../services/export.service';
 
 @Component({
+  standalone: false,
   selector: 'icrp-import-institutions',
   templateUrl: './import-institutions.component.html',
   styleUrls: ['./import-institutions.component.css'],
@@ -39,6 +40,7 @@ export class ImportInstitutionsComponent  {
     private formBuilder: FormBuilder,
     private importService: ImportService,
     private exportService: ExportService,
+    private cdr: ChangeDetectorRef,
   ) {
     this.form = formBuilder.group({
       file: ['', [
@@ -55,8 +57,9 @@ export class ImportInstitutionsComponent  {
     this.alerts = [];
     this.loading = true;
     const csv = await this.importService
-      .parseCSV(this.form.controls.file.value[0], false) as ParseResult;
+      .parseCSV(this.form.controls.file.value[0], false) as ParseResult<any>;
     this.loading = false;
+    this.cdr.markForCheck();
 
     if (csv.data.length > 0 && csv.data[0].length === this.EXPECTED_COLUMNS) {
       csv.data.shift();
@@ -68,6 +71,7 @@ export class ImportInstitutionsComponent  {
         return record;
       });
       this.importDisabled = false;
+      this.cdr.markForCheck();
     }
 
     else {
@@ -76,6 +80,7 @@ export class ImportInstitutionsComponent  {
         type: 'danger',
         content: 'The input file does not contain the expected number of columns.'
       });
+      this.cdr.markForCheck();
     }
 
   }

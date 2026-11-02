@@ -1,6 +1,7 @@
 <input
   *ngIf="disable"
   class="select-input-disabled default"
+  [attr.id]="inputId"
   [placeholder]="placeholder"
   type="text"
   disabled #input>
@@ -13,6 +14,7 @@
     </div>
     <div class="w-100">
       <input class="select-input default w-100" type="text"
+        [attr.id]="inputId"
         (blur)="applyValue()"
         (keydown)="handleKeydownEvent($event)"
         (keyup)="handleKeyupEvent($event)"
@@ -32,4 +34,3 @@
       #el></div>
   </div>
 </div>
-

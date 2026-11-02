@@ -117,7 +117,7 @@
         class="control-label"
         ngClass.lt-md="mb-2"
         class="m-0 mr-4 font-weight-bold asterisk"
-        for="partnerApplicationId">
+        [attr.for]="form.controls.operationType.value === 'Add' ? 'partnerApplicationId' : 'partnerId'">
         Partner
         <ng-container *ngIf="form.controls.operationType.value === 'Add'">Application</ng-container>
       </label>
@@ -245,6 +245,7 @@
         fxFlex.lt-md="100"
         class="control-label"
         ngClass.lt-md="mb-2"
+        [attr.for]="form.value.operationType === 'Add' ? 'name' : 'nonPartnerId'"
         class="m-0 mr-4 font-weight-bold asterisk">
         Non-Partner
       </label>
@@ -450,10 +451,12 @@
     fxLayoutAlign="start start">
     <label
       [ngClass]="{'asterisk': !form.value.isNonPartner}"
+      for="email"
       class="font-weight-bold control-label">
       Email
     </label>
     <input
+      id="email"
       class="form-control input-sm"
       formControlName="email"
       placeholder="Enter email">
@@ -482,10 +485,12 @@
     fxFlex="100"
     fxLayoutAlign="start start">
     <label
+      for="description"
       class="font-weight-bold asterisk">
       Description
     </label>
     <textarea
+      id="description"
       rows="5"
       class="form-control input-sm"
       formControlName="description"
@@ -513,10 +518,12 @@
     fxFlex.lt-md="100"
     fxLayoutAlign="start start">
     <label
+      for="sponsorCode"
       class="font-weight-bold control-label asterisk">
       Sponsor Code
     </label>
     <input
+      id="sponsorCode"
       class="form-control input-sm"
       maxlength="50"
       formControlName="sponsorCode"
@@ -542,6 +549,7 @@
     fxFlex.lt-md="100"
     fxLayoutAlign="start fill">
     <label
+      for="website"
       class="font-weight-bold control-label">
       Website
     </label>
@@ -592,6 +600,7 @@
         ngClass.lt-md="mb-3"
         max="90"
         min="-90"
+        aria-label="Latitude"
         formControlName="latitude"
         placeholder="Enter latitude (eg: 32.30642)">
 
@@ -602,6 +611,7 @@
         class="form-control input-sm"
         max="180"
         min="-180"
+        aria-label="Longitude"
         formControlName="longitude"
         placeholder="Enter longitude (eg: -122.61458)">
     </div>
@@ -641,12 +651,14 @@
     fxFlex.lt-md="100"
     fxLayoutAlign="start fill">
     <label
+      for="logoFile"
       class="font-weight-bold control-label">
       Logo File
     </label>
 
     <div fxLayout>
       <input
+        id="logoFile"
         class="form-control input-sm border-right-0 bg-light-grey"
         readonly
         placeholder="Select logo file (jpg, png, or gif)"
@@ -654,7 +666,7 @@
       <label
         class="btn btn-default btn-sm"
         for="logoFileInput">
-        Browse...
+        Browse...<span class="sr-only"> for logo file</span>
       </label>
       <input
         type="file"
@@ -681,10 +693,12 @@
     fxFlex="100"
     fxLayoutAlign="start start">
     <label
+      for="note"
       class="font-weight-bold">
       Note
     </label>
     <textarea
+      id="note"
       rows="5"
       class="form-control input-sm"
       formControlName="note"
@@ -795,6 +809,7 @@
       fxFlex.lt-md="100"
       fxLayoutAlign="space-between center">
       <label
+        for="contactPerson"
         fxFlex="30"
         fxFlex.lt-md="100"
         ngClass.lt-md="mb-2"
@@ -803,6 +818,7 @@
       </label>
 
       <input
+        id="contactPerson"
         fxFlex="65"
         class="form-control input-sm"
         formControlName="contactPerson"
@@ -823,6 +839,7 @@
       fxFlex.lt-md="100"
       fxLayoutAlign="space-between center">
       <label
+        for="position"
         fxFlex="30"
         fxFlex.lt-md="100"
         ngClass.lt-md="mb-2"
@@ -831,6 +848,7 @@
       </label>
 
       <input
+        id="position"
         fxFlex="65"
         class="form-control input-sm"
         formControlName="position"
@@ -875,6 +893,7 @@
       fxFlex.lt-md="100"
       fxLayoutAlign="space-between center">
       <label
+        for="joinedDate"
         fxFlex="20"
         fxFlex.lt-md="100"
         ngClass.lt-md="mb-2"
@@ -883,6 +902,7 @@
       </label>
 
       <input
+        id="joinedDate"
         fxFlex="75"
         fxFlex.lt-md="100"
         class="form-control input-sm bg-light-grey"
@@ -954,6 +974,7 @@
       fxFlex.lt-md="100"
       fxLayoutAlign="space-between center">
       <label
+        for="type"
         fxFlex="30"
         fxFlex.lt-md="100"
         ngClass.lt-md="mb-2"
@@ -994,6 +1015,7 @@
       fxFlex.lt-md="100"
       fxLayoutAlign="space-between center">
       <label
+        for="currency"
         fxFlex="30"
         fxFlex.lt-md="100"
         ngClass.lt-md="mb-2"

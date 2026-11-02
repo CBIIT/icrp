@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' blob: data:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' blob:; form-action 'none'; object-src 'none'">
+  <title>NCIATWP-11502 generated bundle regression fixture</title>
+  <link rel="stylesheet" href="/themes/bootstrap_subtheme/css/ext/bootstrap.min.css">
+  <link rel="stylesheet" href="/themes/bootstrap_subtheme/css/508_fixes.css">
+</head>
+<body>
+  <main class="container">
+    <h1>NCIATWP-11502 generated bundle regression fixture</h1>
+    <p>Synthetic local data only: not DEV, authenticated integration, or auditory screen-reader evidence.</p>
+    <pre id="fixture-status">Loading...</pre>
+    <div id="fixture"></div>
+  </main>
+  <script>
+    // Run with: node test/unit/js/run-bundle-accessibility.mjs
+    // All API responses, including saves and CSV loading, are intercepted in memory.
+    // Unlisted requests (including import, sync_prod, delete_import and email) fail closed.
+    (async function () {
+      'use strict';
+      const app = new URLSearchParams(location.search).get('app');
+      const configs = {
+        partners: ['icrp-partners-form', '/modules/custom/db_admin/assets/partners/'],
+        funding: ['icrp-funding-organizations-form', '/modules/custom/db_admin/assets/funding-organizations/'],
+        upload: ['icrp-data-upload-tool', '/modules/custom/data_load/src/assets/data-upload-tool/'],
+        search: ['icrp-root', '/modules/custom/db_search/assets/'],
+        review: ['icrp-root', '/modules/custom/db_search/assets/']
+      };
+      const config = configs[app];
+      if (!config || !['127.0.0.1', 'localhost'].includes(location.hostname)) {
+        throw new Error('Use the local runner with app=partners, funding, upload, search, or review');
+      }
+      const fixture = window.fixture = {
+        ready: false, requests: [], errors: [], assertions: [], scenarios: {},
+        limitations: [
+          'Synthetic responses do not validate backend persistence, CSV parsing, workbook integrity or exported file contents.',
+          'Chrome accessibility-tree names are not an auditory screen-reader test or a complete keyboard audit.',
+          'No live DEV login, real writes, imports, email, production synchronization or deletion.'
+        ]
+      };
+      const status = document.getElementById('fixture-status');
+      window.addEventListener('error', event => fixture.errors.push(event.message));
+      window.addEventListener('unhandledrejection', event => fixture.errors.push(String(event.reason)));
+      const year = new Date().getFullYear();
+      const partner = {
+        partnerid: 1, name: 'Fixture partner', status: 'Current', sponsorcode: 'FIXTURE',
+        country: 'US', joindate: '2025-01-01', latitude: 40, longitude: -75, isdsasigned: 1,
+        email: 'fixture@example.invalid', description: 'Synthetic partner', website: '',
+        applicationincomeband: 'H', currincomeband: 'H'
+      };
+      const adminFields = {
+        partners: [partner],
+        partnerApplications: [{
+          partnerapplicationid: 2, name: 'Fixture application', country: 'United States',
+          description: 'Synthetic application', email: 'fixture@example.invalid', applicationincomeband: 'H'
+        }],
+        nonPartners: [{
+          ...partner, nonpartnerid: 3, name: 'Fixture prospective partner', abbreviation: 'PROSPECT',
+          estimatedinvest: '100 USD', contactperson: 'Fixture Contact', position: 'Test'
+        }],
+        fundingOrganizations: [{
+          ...partner, fundingorgid: 4, name: 'Fixture funding organization', abbreviation: 'FUND',
+          membertype: 'Associate', memberstatus: 'Current', type: 'Government',
+          currency: 'USD', isannualized: 0, isdatacompletenessexcluded: false
+        }],
+        countries: [{abbreviation: 'US', name: 'United States', currency: 'USD', incomeband: 'H'}],
+        currencies: [{code: 'USD'}],
+        incomeBands: [{value: 'H', label: 'High income'}]
+      };
+      const tree = (label, child, value) => [{
+        value: 'all', label, showChildren: true,
+        children: [{value, label: child, showChildren: true}]
+      }];
+      const fields = {
+        years: [year + 1, year, year - 1].map(value => ({value, label: String(value)})),
+        conversion_years: [year, year - 1].map(value => ({value, label: String(value)})),
+        regions: [{value: 'North America', label: 'North America'}],
+        countries: [{value: 'US', label: 'United States'}],
+        states: [{value: 'PA', label: 'Pennsylvania', group_1: 'US'}],
+        cities: [{value: 'Philadelphia', label: 'Philadelphia', group_1: 'PA', group_2: 'US'}],
+        income_groups: [{value: 'H', label: 'High income'}],
+        funding_organization_types: [{value: 'Government', label: 'Government'}],
+        funding_organizations: tree('All countries', 'Fixture funding organization', '4'),
+        funding_organizations_by_sponsor_code: tree('All sponsors', 'Fixture funding organization', '4'),
+        cancer_types: [{value: '1', label: 'Fixture cancer type'}],
+        is_childhood_cancer: [{value: 'Yes', label: 'Yes'}],
+        project_types: [{value: '1', label: 'Fixture project type'}],
+        cso_research_areas: tree('All research areas', 'Fixture CSO biology', '1')
+      };
+      const result = {
+        search_id: '11502', results_count: 125, search_parameters: [],
+        results: [{
+          project_id: 1, project_title: 'Synthetic accessibility project', pi_name: 'Fixture Investigator',
+          institution: 'Fixture institution', country: 'US', country_name: 'United States',
+          funding_organization: 'FIXTURE', funding_org_name: 'Fixture funding organization', award_code: 'FIX-1'
+        }]
+      };
+      const routes = new Map();
+      const route = (method, path, response) => routes.set(method + ' ' + path, response);
+      for (const name of ['partners', 'funding-organizations']) {
+        route('GET', `/api/admin/${name}/fields`, adminFields);
+      }
+      for (const name of ['partners', 'non-partners', 'funding-organizations']) {
+        for (const action of ['add', 'update']) route('POST', `/api/admin/${name}/${action}`, {success: true});
+      }
+      route('GET', '/DataUploadTool/getPartners', ['FIXTURE']);
+      route('GET', '/DataUploadTool/getValidationRules', []);
+      route('POST', '/DataUploadTool/loadProjects', {
+        count: 1, projects: [{AwardCode: 'FIX-1', Title: 'Synthetic CSV project', Funding: 100}]
+      });
+      for (const prefix of ['/api/database', '/api/database/review']) {
+        route('GET', prefix + '/fields', fields);
+        route('GET', prefix + '/sort_paginate', result);
+        route('GET', prefix + '/search_summary', {
+          project_count: 125, related_project_count: 2, last_budget_year: year
+        });
+        for (const suffix of ['', '/single', '/abstracts', '/abstracts/single', '/cso_cancer_types', '/graphs']) {
+          route('GET', prefix + '/export/partners/search_results' + suffix, '#synthetic-export');
+        }
+      }
+      route('GET', '/api/database/search', result);
+      route('GET', '/api/database/data_upload_completeness_summary', []);
+      route('GET', '/api/database/review/sponsor_uploads', [1, 2].map(id => ({
+        data_upload_id: id, sponsor_code: `FIXTURE-${id}`, funding_year: String(year),
+        type: 'NEW', project_count: 125, received_date: '2025-01-01', stage_upload_date: '2025-01-02',
+        note: 'Synthetic only',
+        counts: {
+          project_count: 125, project_funding_count: 125, project_funding_investigator_count: 125,
+          project_cso_count: 125, project_cancer_type_count: 125, project_type_count: 125, project_abstract_count: 125
+        }
+      })));
+      const analytics = {results: [
+        {label: String(year - 1), data: {project_count: 1, relevance: 1, funding_amount: 100}},
+        {label: String(year), data: {project_count: 2, relevance: 2, funding_amount: 200}}
+      ]};
+      route('GET', '/api/database/analytics_partners', analytics);
+      route('GET', '/api/database/review/analytics', analytics);
+
+      function intercept(method, value) {
+        const url = new URL(value, location.href);
+        method = method.toUpperCase();
+        // The upload service omits the port; intercept that URL without ever connecting to it.
+        const local = url.origin === location.origin ||
+          (url.origin === `${location.protocol}//${location.hostname}` && url.pathname.startsWith('/DataUploadTool/'));
+        const key = method + ' ' + url.pathname;
+        if (!local || !routes.has(key)) {
+          const message = 'Blocked unstubbed request: ' + method + ' ' + url.href;
+          fixture.errors.push(message);
+          throw new Error(message);
+        }
+        const request = {method, path: url.pathname, query: Object.fromEntries(url.searchParams), body: null};
+        fixture.requests.push(request);
+        const response = routes.get(key);
+        return {request, text: typeof response === 'string' ? response : JSON.stringify(response)};
+      }
+      function bodyValue(body) {
+        if (!(body instanceof FormData)) return body || null;
+        return Object.fromEntries([...body].map(([key, value]) => [
+          key, value instanceof File ? {name: value.name, size: value.size, type: value.type} : value
+        ]));
+      }
+      const originalOpen = XMLHttpRequest.prototype.open;
+      const originalSend = XMLHttpRequest.prototype.send;
+      XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+        const response = intercept(method, url);
+        this.fixtureRequest = response.request;
+        const blobURL = URL.createObjectURL(new Blob([response.text], {type: 'application/json'}));
+        this.addEventListener('loadend', () => URL.revokeObjectURL(blobURL), {once: true});
+        return originalOpen.call(this, 'GET', blobURL, ...rest);
+      };
+      XMLHttpRequest.prototype.send = function (body) {
+        this.fixtureRequest.body = bodyValue(body);
+        return originalSend.call(this, null);
+      };
+      window.fetch = function (input, options = {}) {
+        const response = intercept(options.method || input.method || 'GET', typeof input === 'string' ? input : input.url);
+        response.request.body = bodyValue(options.body);
+        return Promise.resolve(new Response(response.text, {status: 200, headers: {'Content-Type': 'application/json'}}));
+      };
+      const root = document.createElement(config[0]);
+      if (['search', 'review'].includes(app)) {
+        root.setAttribute('data-component-type', app);
+        root.setAttribute('data-user-roles', 'authenticated,manager');
+      }
+      document.getElementById('fixture').appendChild(root);
+      const css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = config[1] + 'styles.css';
+      document.head.appendChild(css);
+      async function script(url, module = false) {
+        await new Promise((resolve, reject) => {
+          const el = document.createElement('script');
+          el.src = url;
+          if (module) el.type = 'module';
+          el.onload = resolve;
+          el.onerror = () => reject(new Error('Script failed: ' + url));
+          document.head.appendChild(el);
+        });
+      }
+      if (['search', 'review'].includes(app)) await script('/__fixture__/d3.min.js');
+      for (const file of app === 'upload' ? ['main.js'] : ['runtime.js', 'polyfills.js', 'main.js']) {
+        await script(config[1] + file, app === 'upload');
+      }
+      const pause = (ms = 40) => new Promise(resolve => setTimeout(resolve, ms));
+      async function until(predicate, description) {
+        const deadline = Date.now() + 5000;
+        while (!predicate()) {
+          if (Date.now() > deadline) throw new Error('Timed out: ' + description);
+          await pause();
+        }
+      }
+      function assert(condition, message) {
+        if (!condition) throw new Error(message);
+        fixture.assertions.push(message);
+      }
+      const expectedVersion = {partners: '7.2.16', funding: '7.2.16', upload: '22.1.5', search: '6.1.10', review: '6.1.10'}[app];
+      await until(() => root.hasAttribute('ng-version'), 'Angular bootstrap');
+      fixture.angularVersion = root.getAttribute('ng-version');
+      assert(fixture.angularVersion === expectedVersion, 'Generated bundle bootstraps Angular ' + expectedVersion);
+      if (['search', 'review'].includes(app)) assert(window.d3.version === '4.10.2', 'Charts use production D3 4.10.2');
+      fixture.scenarios['request isolation'] = async () => {
+        for (const [method, url] of [
+          ['POST', '/DataUploadTool/importProjects'],
+          ['GET', '/api/database/review/sync_prod'],
+          ['GET', '/api/database/review/delete_import'],
+          ['GET', '/api/database/not-stubbed'],
+          ['GET', 'https://example.invalid/api/database/fields']
+        ]) {
+          const before = fixture.errors.length;
+          let blocked = false;
+          try { new XMLHttpRequest().open(method, url); } catch (error) {
+            blocked = error.message.startsWith('Blocked unstubbed request:');
+          }
+          assert(blocked && fixture.errors.length === before + 1, method + ' ' + url + ' blocked before network');
+          fixture.errors.pop();
+        }
+        return [];
+      };
+      function element(selector) {
+        const el = root.querySelector(selector);
+        if (!el) throw new Error('Missing control: ' + selector);
+        return el;
+      }
+      function nameOf(el) {
+        return (el.getAttribute('aria-label') ||
+          (el.getAttribute('aria-labelledby') || '').split(/\s+/).filter(Boolean)
+            .map(id => document.getElementById(id)?.textContent || '').join(' ') ||
+          [...el.labels || []].map(label => label.textContent).join(' ')).replace(/\s+/g, ' ').trim();
+      }
+      function label(selector, expected) {
+        const el = element(selector);
+        assert(nameOf(el) === expected, `${selector} label is "${expected}" (got "${nameOf(el)}")`);
+        if (el.id) assert(document.querySelectorAll('#' + CSS.escape(el.id)).length === 1, `${el.id} is unique`);
+      }
+      function controls() {
+        return [...root.querySelectorAll('input:not([type=hidden]),select,textarea')].map(el => ({
+          id: el.id, tag: el.tagName, type: el.type, control: el.getAttribute('formcontrolname'),
+          disabled: el.disabled, visible: !!el.getClientRects().length, name: nameOf(el)
+        }));
+      }
+      function allNamed() {
+        const unnamed = controls().filter(control => !control.name);
+        assert(!unnamed.length, 'Every rendered form control has an explicit label: ' + JSON.stringify(unnamed));
+      }
+      async function click(selector) {
+        const el = element(selector);
+        assert(!el.disabled, selector + ' is enabled');
+        el.click();
+        await pause();
+      }
+      async function input(selector, value) {
+        const el = element(selector);
+        assert(!el.disabled, selector + ' is enabled');
+        el.value = String(value);
+        el.dispatchEvent(new Event('input', {bubbles: true}));
+        el.dispatchEvent(new Event('change', {bubbles: true}));
+        await pause();
+      }
+      async function select(selector, text) {
+        const el = element(selector);
+        const option = [...el.options].find(option => option.textContent.trim() === text);
+        assert(!!option, selector + ' offers ' + text);
+        await input(selector, option.value);
+      }
+      async function button(text, container = root) {
+        const el = [...container.querySelectorAll('button')].find(el => el.textContent.trim() === text);
+        if (!el) throw new Error('Missing button: ' + text);
+        assert(!el.disabled, text + ' button is enabled');
+        el.click();
+        await pause();
+      }
+      function lastRequest(path) {
+        return fixture.requests.filter(request => request.path === path).at(-1);
+      }
+      async function save(path, expected) {
+        const before = fixture.requests.length;
+        await button('Save');
+        await until(() => fixture.requests.slice(before).some(request => request.path === path), 'synthetic save ' + path);
+        const request = lastRequest(path);
+        assert(request.method === 'POST', path + ' uses POST (intercepted, never sent)');
+        for (const [key, value] of Object.entries(expected)) {
+          assert(request.body[key] === value, path + ' payload ' + key + '=' + value);
+        }
+        await until(() => root.querySelector('.alert-success'), 'save success response');
+      }
+      async function coordinates() {
+        label('[formcontrolname=latitude]', 'Latitude');
+        label('[formcontrolname=longitude]', 'Longitude');
+        await input('[formcontrolname=latitude]', 41);
+        await input('[formcontrolname=longitude]', -76);
+      }
+      async function datepicker(selector) {
+        await click(selector);
+        const day = 'bs-datepicker-container .bs-datepicker-body td span:not(.is-other-month):not(.disabled)';
+        await until(() => document.querySelector(day), 'datepicker');
+        document.querySelector(day).click();
+        await pause();
+      }
+      const coordinateAX = [{role: 'spinbutton', name: 'Latitude'}, {role: 'spinbutton', name: 'Longitude'}];
+      if (app === 'partners' || app === 'funding') {
+        fixture.limitations.push('Map Coordinates has named individual inputs, but no fieldset/legend or named group.');
+      }
+      if (app === 'partners') {
+        await until(() => root.querySelector('#partnerApplicationId option')?.textContent.includes('Select'), 'partner fields');
+        fixture.scenarios['partner add'] = async () => {
+          label('#partnerApplicationId', 'Partner Application');
+          allNamed();
+          await select('#partnerApplicationId', 'Fixture application');
+          await input('#sponsorCode', 'FIXTURE-ADD');
+          await coordinates();
+          await datepicker('#joinedDate');
+          await click('[formcontrolname=isFundingOrganization]');
+          label('#type', 'Organization Type');
+          label('#currency', 'Currency');
+          await select('#type', 'Government');
+          await select('#currency', 'USD');
+          await click('[formcontrolname=isFundingOrganization]');
+          await save('/api/admin/partners/add', {name: 'Fixture application', sponsorCode: 'FIXTURE-ADD', latitude: '41', longitude: '-76', isFundingOrganization: 'false'});
+          return coordinateAX;
+        };
+        fixture.scenarios['partner update'] = async () => {
+          await click('#operationTypeUpdate');
+          label('#partnerId', 'Partner');
+          await select('#partnerId', 'Fixture partner');
+          assert(element('#sponsorCode').value === 'FIXTURE', 'Partner selection populates existing sponsor code');
+          await coordinates();
+          allNamed();
+          await save('/api/admin/partners/update', {partnerId: '1', latitude: '41', longitude: '-76'});
+          return coordinateAX;
+        };
+        fixture.scenarios['non-partner add'] = async () => {
+          await click('#operationTypeAdd');
+          await click('#isNonPartner');
+          label('#name', 'Non-Partner');
+          await input('#name', 'Synthetic new prospect');
+          await input('#description', 'Synthetic prospect only');
+          await input('#sponsorCode', 'PROSPECT-ADD');
+          await select('#country', 'United States');
+          await input('#estimatedInvestment', '100 USD');
+          await coordinates();
+          allNamed();
+          await save('/api/admin/non-partners/add', {name: 'Synthetic new prospect', isNonPartner: 'true', latitude: '41', longitude: '-76'});
+          return coordinateAX;
+        };
+        fixture.scenarios['non-partner update'] = async () => {
+          if (!element('#isNonPartner').checked) await click('#isNonPartner');
+          await click('#operationTypeUpdate');
+          label('#nonPartnerId', 'Non-Partner');
+          await select('#nonPartnerId', 'Fixture prospective partner');
+          assert(element('#estimatedInvestment').value === '100 USD', 'Non-partner selection populates investment');
+          await coordinates();
+          allNamed();
+          await save('/api/admin/non-partners/update', {nonPartnerId: '3', isNonPartner: 'true', latitude: '41', longitude: '-76'});
+          return coordinateAX;
+        };
+      }
+      if (app === 'funding') {
+        await until(() => root.querySelector('#partnerId') && !element('#partnerId').disabled, 'funding fields');
+        fixture.scenarios['funding add'] = async () => {
+          assert(element('#name').disabled, 'Funding fields start disabled without a partner');
+          await select('#partnerId', 'Fixture partner');
+          label('#name', 'Organization Name');
+          await input('#name', 'Synthetic new funder');
+          await input('#abbreviation', 'SYNTH');
+          await select('#type', 'Government');
+          await select('#country', 'United States');
+          assert(element('#currency').selectedOptions[0].textContent.trim() === 'USD', 'Country selects currency');
+          await coordinates();
+          allNamed();
+          await save('/api/admin/funding-organizations/add', {partnerId: '1', name: 'Synthetic new funder', latitude: '41', longitude: '-76'});
+          return coordinateAX;
+        };
+        fixture.scenarios['funding update'] = async () => {
+          await click('#operationTypeUpdate');
+          await select('#partnerId', 'Fixture partner');
+          label('#fundingOrganizationId', 'Organization Name');
+          await select('#fundingOrganizationId', 'Fixture funding organization');
+          assert(element('#abbreviation').value === 'FUND', 'Funding record populates abbreviation');
+          await coordinates();
+          allNamed();
+          await save('/api/admin/funding-organizations/update', {fundingOrganizationId: '4', latitude: '41', longitude: '-76'});
+          return coordinateAX;
+        };
+        fixture.scenarios['partner-organization conditional label'] = async () => {
+          await click('#operationTypeAdd');
+          await select('#partnerId', 'Fixture partner');
+          await click('[formcontrolname=isPartner]');
+          label('#name', 'Organization Name');
+          assert(element('#name').readOnly && element('#name').value === partner.name, 'Partner organization name is populated and readonly');
+          await click('#operationTypeUpdate');
+          await select('#partnerId', 'Fixture partner');
+          await select('#fundingOrganizationId', 'Fixture funding organization');
+          await click('[formcontrolname=isPartner]');
+          label('#name', 'Organization Name');
+          assert(!root.querySelector('#fundingOrganizationId'), 'Update partner organization replaces select with labelled input');
+          allNamed();
+          return [{role: 'textbox', name: 'Organization Name'}, ...coordinateAX];
+        };
+      }
+      if (app === 'upload') {
+        await until(() => root.querySelector('#sponsorCode')?.options.length > 1, 'upload partner list');
+        if (new URLSearchParams(location.search).has('xlsx')) {
+          fixture.scenarios['XLSX selection rejects unsupported workbook'] = async () => {
+            assert(!!fixture.workbook?.base64, 'Runner supplies a real synthetic XLSX generated by existing ExcelJS');
+            await select('#sponsorCode', 'FIXTURE');
+            await datepicker('#submissionDate');
+            assert(element('#workbookFile').accept === '.csv', 'Current upload bundle advertises CSV, not XLSX');
+            const before = fixture.requests.length;
+            const transfer = new DataTransfer();
+            const bytes = Uint8Array.from(atob(fixture.workbook.base64), character => character.charCodeAt(0));
+            transfer.items.add(new File([bytes], 'synthetic-workbook.xlsx', {
+              type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            }));
+            element('#workbookFile').files = transfer.files;
+            element('#workbookFile').dispatchEvent(new Event('change', {bubbles: true}));
+            await pause();
+            assert(element('#workbookFile').files[0].name === 'synthetic-workbook.xlsx', 'Synthetic XLSX is selected in the native file input');
+            assert(element('#workbookFile').classList.contains('ng-invalid'), 'Angular validation rejects the XLSX extension');
+            assert([...root.querySelectorAll('button')].find(el => el.textContent.trim() === 'Load').disabled,
+              'Load remains disabled for XLSX despite otherwise complete form');
+            assert(fixture.requests.length === before, 'Selecting XLSX does not send an API request');
+            await button('Reset', element('data-upload-form'));
+            fixture.limitations.push('The current upload bundle accepts CSV only. Synthetic XLSX selection is rejected; only its ExcelJS-derived CSV is previewed using the mocked response.');
+            return [{role: 'button', name: 'Workbook File (.csv)'}];
+          };
+        }
+        fixture.scenarios['upload labels and sample CSV'] = async () => {
+          for (const [id, name] of Object.entries({
+            uploadTypeNew: 'New', uploadTypeUpdate: 'Update', submissionDate: 'Submission Date',
+            csvDateFormat: 'CSV Date Format', sponsorCode: 'Sponsor Code', workbookFile: 'Workbook File (.csv)'
+          })) label('#' + id, name);
+          assert([...root.querySelectorAll('button')].find(el => el.textContent.trim() === 'Load').disabled, 'Incomplete upload cannot load');
+          await click('#uploadTypeUpdate');
+          await click('#uploadTypeNew');
+          await select('#sponsorCode', 'FIXTURE');
+          await select('#csvDateFormat', 'United Kingdom (dd/mm/yyyy)');
+          await datepicker('#submissionDate');
+          const transfer = new DataTransfer();
+          const csv = fixture.workbook?.csv || 'AwardCode,Title,Funding\nFIX-1,Synthetic CSV project,100\n';
+          transfer.items.add(new File([csv], 'synthetic-workbook.csv', {type: 'text/csv'}));
+          element('#workbookFile').files = transfer.files;
+          element('#workbookFile').dispatchEvent(new Event('change', {bubbles: true}));
+          await pause();
+          await button('Load');
+          await until(() => root.textContent.includes('Synthetic CSV project'), 'synthetic workbook preview');
+          const request = lastRequest('/DataUploadTool/loadProjects');
+          assert(request.method === 'POST' && request.body.file.name === 'synthetic-workbook.csv', 'Sample CSV file reaches intercepted load request');
+          assert(request.body.file.size > 0 && request.body.locale === 'en-GB', 'CSV bytes and selected locale are in load payload');
+          assert(!fixture.requests.some(request => /importProjects|integrityCheck/.test(request.path)), 'No import or integrity-check operation is performed');
+          assert(element('#sponsorCode').disabled &&
+            [...root.querySelectorAll('button')].find(el => el.textContent.trim() === 'Load').disabled,
+            'Successful synthetic load disables sponsor selection and repeated Load');
+          if (!element('#workbookFile').disabled) {
+            fixture.limitations.push('Existing upload file value accessor does not disable the native file input after Load; the Load button is disabled.');
+          }
+          await button('Reset', element('data-upload-form'));
+          assert(!element('#workbookFile').disabled && !root.textContent.includes('Synthetic CSV project'), 'Reset unlocks controls and clears preview');
+          return [
+            {role: 'radio', name: 'New'}, {role: 'radio', name: 'Update'},
+            {role: 'textbox', name: 'Submission Date'}, {role: 'combobox', name: 'CSV Date Format'},
+            {role: 'combobox', name: 'Sponsor Code'}, {role: 'button', name: 'Workbook File (.csv)'}
+          ];
+        };
+      }
+      async function searchSelect(id, text) {
+        const el = element('#' + id);
+        el.focus();
+        el.value = text;
+        el.dispatchEvent(new KeyboardEvent('keyup', {key: text.at(-1), bubbles: true}));
+        await pause();
+        el.dispatchEvent(new Event('blur'));
+        await pause();
+        assert(el.closest('ui-select').querySelector('.select-label')?.textContent.includes(text), id + ' selected ' + text);
+      }
+      async function exports(prefix) {
+        const options = [
+          ['Projects (Multi-Sheets)', ''], ['Projects (Single-Sheet)', '/single'],
+          ['Projects with Abstracts (Multi-Sheets)', '/abstracts'],
+          ['Projects with Abstracts (Single-Sheet)', '/abstracts/single'],
+          ['Project Cancer Types/CSO', '/cso_cancer_types'], ['All Graphs', '/graphs']
+        ];
+        for (const [name, suffix] of options) {
+          await button('Export', element('icrp-export-buttons-panel'));
+          const link = [...element('icrp-export-buttons-panel').querySelectorAll('a')].find(el => el.textContent.trim() === name);
+          assert(!!link && !!link.getClientRects().length, name + ' export is displayed');
+          link.click();
+          await until(() => lastRequest(prefix + suffix), name + ' intercepted export');
+          const request = lastRequest(prefix + suffix);
+          assert(request.query.search_id === '11502', name + ' uses current search ID');
+          assert(request.query.year === String(year - 1), name + ' uses selected currency year');
+          if (app === 'review') assert(request.query.data_upload_id === '2', name + ' uses selected review upload');
+          await pause();
+        }
+      }
+      async function chartAndPaging() {
+        label('select[aria-labelledby=currency-rates-label]', 'Use Currency Rates From');
+        assert(element('select[aria-labelledby=currency-rates-label]').disabled, 'Currency year disabled for Project Counts');
+        await click('input[value=award_amounts]');
+        await until(() => !element('select[aria-labelledby=currency-rates-label]').disabled, 'award currency enabled');
+        await select('select[aria-labelledby=currency-rates-label]', String(year - 1));
+        const path = app === 'review' ? '/api/database/review/analytics' : '/api/database/analytics_partners';
+        await until(() => fixture.requests.some(request => request.path === path &&
+          request.query.year === String(year - 1) && request.query.type.startsWith('project_funding_amounts')), 'award analytics year');
+        assert(fixture.requests.some(request => request.path === path &&
+          request.query.year === String(year - 1) && request.query.type === 'project_funding_amounts_by_country'), 'Award chart request carries selected year');
+        await until(() => root.querySelector('ui-chart svg path'), 'real D3 chart rendering');
+        assert(!!root.querySelector('ui-chart svg path'), 'Current bundle renders chart SVG with real D3');
+        label('select[aria-label="Results per page"]', 'Results per page');
+        const size = element('select[aria-label="Results per page"]');
+        const other = [...size.options].find(option => option.value !== size.value);
+        await select('select[aria-label="Results per page"]', other.textContent.trim());
+        const paging = app === 'review' ? '/api/database/review/sort_paginate' : '/api/database/sort_paginate';
+        await until(() => lastRequest(paging)?.query.page_size === other.value, 'pagination size');
+        assert(lastRequest(paging).query.page_size === other.value, 'Page-size control changes sort/paginate request');
+      }
+      if (['search', 'review'].includes(app)) {
+        await until(() => root.textContent.includes('Synthetic accessibility project'), 'initial search results');
+      }
+      if (app === 'search') {
+        fixture.limitations.push('Tree filters are named groups of checkboxes, not ARIA tree widgets; expand/collapse keyboard behavior is not repaired here.');
+        fixture.scenarios['search labels and conditional inputs'] = async () => {
+          for (const header of root.querySelectorAll('ui-panel:not(:first-child) .ui-panel-header')) header.click();
+          await pause(250);
+          for (const [id, name] of Object.entries({
+            years_active: 'Year Active', pi_last_name: 'PI or Collaborator Last Name', pi_orcid: 'ORCiD ID',
+            regions: 'Region', countries: 'Country', states: 'State/Territory', cities: 'City',
+            income_groups: 'World Bank Income Groups', funding_organization_type: 'Funding Organization Types',
+            cancer_types: 'Cancer Types', is_childhood_cancer: 'Childhood Cancer', project_types: 'Project Types'
+          })) label('#' + id, name);
+          assert(element('#states').disabled && element('#cities').disabled, 'Location inputs begin disabled');
+          await searchSelect('countries', 'United States');
+          assert(!element('#states').disabled && !element('#cities').disabled, 'Selecting one country enables location inputs');
+          label('#states', 'State/Territory');
+          label('#cities', 'City');
+          return [{role: 'textbox', name: 'Year Active'}, {role: 'textbox', name: 'State/Territory'}, {role: 'textbox', name: 'ORCiD ID'}];
+        };
+        fixture.scenarios['future years and named tree filters'] = async () => {
+          label('#include_future_years', 'Include Future Years');
+          const yearsInput = element('#years_active');
+          yearsInput.focus();
+          yearsInput.dispatchEvent(new KeyboardEvent('keyup', {key: 'ArrowDown', keyCode: 40, bubbles: true}));
+          await pause();
+          assert(!yearsInput.closest('ui-select').textContent.includes(String(year + 1)), 'Future year absent when unchecked');
+          await click('#include_future_years');
+          await searchSelect('years_active', String(year + 1));
+          await click('[aria-labelledby=funding_organizations_country_label] input[value="4"]');
+          await click('[aria-labelledby=cso_research_areas_label] input[value="1"]');
+          for (const [selector, expected] of [
+            ['[aria-labelledby=funding_organizations_country_label]', 'Funding Organizations'],
+            ['[aria-labelledby=cso_research_areas_label]', 'CSO Research Areas']
+          ]) {
+            label(selector, expected);
+            assert(element(selector).getAttribute('role') === 'group', expected + ' exposes a named group');
+            assert(element(selector + ' input:checked'), expected + ' has a selected checkbox');
+          }
+          await button('Search', element('icrp-search-form'));
+          await until(() => lastRequest('/api/database/search')?.query.include_future_years === 'true', 'future-year search');
+          const query = lastRequest('/api/database/search').query;
+          assert(query.years.split(',').includes(String(year + 1)), 'Search request includes selected future year');
+          assert(query.funding_organizations === '4' && query.cso_research_areas === '1', 'Search request includes both tree selections');
+          return [
+            {role: 'checkbox', name: 'Include Future Years'}, {role: 'group', name: 'Funding Organizations'},
+            {role: 'group', name: 'CSO Research Areas'},
+            {role: 'checkbox', name: 'Fixture funding organization', checked: true, group: 'Funding Organizations'},
+            {role: 'checkbox', name: 'Fixture CSO biology', checked: true, group: 'CSO Research Areas'}
+          ];
+        };
+        fixture.scenarios['sponsor tree regrouping'] = async () => {
+          await click('#funding_organization_group_type_sponsor_code');
+          label('[aria-labelledby=funding_organizations_sponsor_label]', 'Funding Organizations');
+          assert(!root.querySelector('[aria-labelledby=funding_organizations_country_label]'), 'Regrouping removes inactive country tree');
+          assert(element('[aria-labelledby=funding_organizations_sponsor_label] input[value="4"]').checked, 'Tree selection survives sponsor regrouping');
+          return [{role: 'group', name: 'Funding Organizations'}, {role: 'group', name: 'CSO Research Areas'}];
+        };
+      }
+      if (app === 'review') {
+        fixture.scenarios['review upload selection'] = async () => {
+          const rows = root.querySelectorAll('icrp-review-uploads-table tbody tr');
+          assert(rows.length === 2, 'Review renders two synthetic pending uploads');
+          rows[1].querySelector('a').click();
+          await until(() => lastRequest('/api/database/review/sort_paginate')?.query.data_upload_id === '2', 'review selection');
+          assert(element('icrp-review-summary-panel').textContent.includes('FIXTURE-2'), 'Review summary follows selected upload');
+          assert(!fixture.requests.some(request => /sync_prod|delete_import/.test(request.path)), 'Review does not synchronize or delete');
+          return [];
+        };
+      }
+      if (['search', 'review'].includes(app)) {
+        fixture.scenarios['award currency and pagination'] = async () => {
+          await chartAndPaging();
+          return [{role: 'combobox', name: 'Use Currency Rates From'}, {role: 'combobox', name: 'Results per page'}];
+        };
+        fixture.scenarios['all six export options'] = async () => {
+          await exports(app === 'review' ? '/api/database/review/export/partners/search_results' : '/api/database/export/partners/search_results');
+          return [];
+        };
+      }
+      fixture.run = async name => {
+        const start = fixture.assertions.length;
+        const expectedAX = await fixture.scenarios[name]();
+        assert(fixture.errors.length === 0, 'No unhandled application errors or unstubbed API requests');
+        status.textContent = 'PASS: ' + name;
+        return {name, angularVersion: fixture.angularVersion, assertions: fixture.assertions.slice(start), controls: controls(), expectedAX};
+      };
+      fixture.ready = true;
+      status.textContent = app + ': ready for local regression runner';
+    })().catch(error => {
+      window.fixtureFatal = error.stack || String(error);
+      document.getElementById('fixture-status').textContent = window.fixtureFatal;
+    });
+  </script>
+</body>
+</html>

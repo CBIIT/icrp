@@ -1,11 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { parse } from 'papaparse';
+import { HttpClient } from '@angular/common/http';
+import { parse, ParseError, ParseResult } from 'papaparse';
 
-type ParseError = PapaParse.ParseError;
-type ParseResult = PapaParse.ParseResult;
-
-export { ParseError, ParseResult }
+export type { ParseError, ParseResult }
 
 @Injectable()
 export class ImportService {
@@ -14,9 +11,9 @@ export class ImportService {
 
   constructor(private http: HttpClient) { }
 
-  parseCSV(file: File, header: boolean = false): Promise<ParseResult | ParseError> {
+  parseCSV(file: File, header: boolean = false): Promise<ParseResult<any> | ParseError> {
 
-    let parseResults: ParseResult = {
+    let parseResults: ParseResult<any> = {
       data: [],
       errors: [],
       meta: {
@@ -25,6 +22,7 @@ export class ImportService {
         aborted: false,
         fields: [],
         truncated: false,
+        cursor: 0,
       }
     };
 
@@ -33,7 +31,7 @@ export class ImportService {
         header: header,
         skipEmptyLines: true,
         step: results => {
-          let data: (object|Array<any>) = results.data;
+          let data: (object|Array<any>) = results.data as (object|Array<any>);
 
           // parse as array
           if (Array.isArray(data)) {
@@ -54,7 +52,7 @@ export class ImportService {
           parseResults.errors = {
             ...parseResults.errors,
             ...results.errors
-          };
+          } as any;
         },
         complete: () => resolve(parseResults),
         error: () => reject,
