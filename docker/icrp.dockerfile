@@ -53,6 +53,11 @@ RUN dnf -y update \
 # Download the latest CA certificates
 RUN wget https://curl.haxx.se/ca/cacert.pem -O /etc/ssl/certs/cacert.pem
 
+# Amazon RDS CA bundle for TLS connections to MySQL
+RUN wget -q https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem \
+      -O /etc/pki/tls/certs/rds-global-bundle.pem \
+   && chmod 644 /etc/pki/tls/certs/rds-global-bundle.pem
+
 RUN alternatives --set mta /usr/sbin/sendmail.postfix
 
 RUN pecl channel-update pecl.php.net \
