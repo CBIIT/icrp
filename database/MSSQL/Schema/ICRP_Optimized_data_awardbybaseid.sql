@@ -51,7 +51,7 @@ BEGIN
 
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO #Result SELECT ProjectID FROM Project;
+		INSERT INTO #Result SELECT ProjectID FROM vwActiveProjects;
 	END
 	ELSE
 	BEGIN
@@ -85,7 +85,7 @@ BEGIN
 	SELECT f.ProjectID, f.ProjectFundingID, ext.CalendarYear, ext.CalendarAmount, o.Currency
 	INTO #pf
 	FROM #proj r
-	JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
+	JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1
 	JOIN ProjectFundingExt ext ON ext.ProjectFundingID = f.ProjectFundingID
 	JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
 	WHERE ((@YearList IS NULL) OR (ext.CalendarYear IN (SELECT VALUE AS [CalendarYear] FROM dbo.ToStrTable(@YearList))))

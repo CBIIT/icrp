@@ -85,7 +85,7 @@ class ApiController extends ControllerBase {
 
   function projectCounts() {
     $counts = $this->pdo->query(
-      'SELECT COUNT(*) from Project'
+      'SELECT COUNT(*) FROM vwActiveProjects'  // Active projects only (NCIATWP-11792)
     )->fetchColumn();
 
     return new JsonResponse($counts);
@@ -109,7 +109,7 @@ class ApiController extends ControllerBase {
 
   function roundedProjectCounts() {
     $counts = $this->pdo->query(
-      'SELECT COUNT(*) from Project'
+      'SELECT COUNT(*) FROM vwActiveProjects'  // Active projects only (NCIATWP-11792)
     )->fetchColumn();
 
     $roundedCounts = round($counts - 500, -3);
