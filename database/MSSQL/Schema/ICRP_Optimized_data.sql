@@ -102,7 +102,9 @@ AS
 	----------------------------------
 	-- Get all Projects 
 	----------------------------------
-	SELECT * INTO #projFunding  FROM vwProjectFundings   -- All project funding records including PI and collaborator
+	SELECT v.* INTO #projFunding  FROM vwProjectFundings v   -- All project funding records including PI and collaborator
+		JOIN Project ap ON ap.ProjectID = v.ProjectID AND ap.IsActive = 1   -- Active projects and sub-projects only (NCIATWP-11792)
+		JOIN ProjectFunding af ON af.ProjectFundingID = v.ProjectFundingID AND af.IsActive = 1
 	
 	-------------------------------------------------------------------------
 	-- Exclude the projects which funding institutions and PI do NOT meet the criteria
@@ -351,7 +353,7 @@ AS
 	update #baseProj
 	SET ProjectFundingID = f.ProjectFundingID
 	from #baseProj b
-	JOIN  (SELECT ProjectID, MIN(projectfundingID) AS projectfundingID FROM projectfunding GROUP BY ProjectID) f ON b.ProjectID = f.ProjectID
+	JOIN  (SELECT ProjectID, MIN(projectfundingID) AS projectfundingID FROM projectfunding WHERE IsActive = 1 GROUP BY ProjectID) f ON b.ProjectID = f.ProjectID
 
     -- if a parent project exists, overwrite the project funding id
     update #baseProj
@@ -401,7 +403,7 @@ AS
 	SELECT base.ProjectID, base.AwardCode, base.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName,
 	 pi.ORC_ID AS piORCiD, i.Name AS institution, f.Amount, i.City, i.State, i.country,  c.name as CountryName, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort
 	FROM #baseProj base
-		JOIN (SELECT ProjectID, MIN(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding GROUP BY ProjectID) maxf ON base.ProjectID = maxf.ProjectID
+		JOIN (SELECT ProjectID, MIN(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding WHERE IsActive = 1 GROUP BY ProjectID) maxf ON base.ProjectID = maxf.ProjectID
 		JOIN ProjectFunding f ON base.ProjectFundingID = f.ProjectFundingID
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
 		JOIN (SELECT * FROM ProjectFundingInvestigator  WHERE IsPrincipalInvestigator = 1) pi ON pi.ProjectFundingID = base.ProjectFundingID
@@ -500,7 +502,7 @@ BEGIN
     CREATE TABLE #base (ProjectID INT);
     IF @SearchID = 0
     BEGIN
-        INSERT INTO #base SELECT ProjectID FROM Project
+        INSERT INTO #base SELECT ProjectID FROM vwActiveProjects
     END
     ELSE
     BEGIN
@@ -558,7 +560,7 @@ BEGIN
     INTO #pf
     FROM #base r
     JOIN Project p ON r.ProjectID = p.ProjectID
-    JOIN ProjectFunding f ON p.ProjectID = f.ProjectID
+    JOIN ProjectFunding f ON p.ProjectID = f.ProjectID AND f.IsActive = 1
     JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
     JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID AND pi.IsPrincipalInvestigator = 1
     JOIN Institution i ON i.InstitutionID = pi.InstitutionID
@@ -735,12 +737,15 @@ AS
 	DECLARE @ProjectIDs VARCHAR(max) 
 	IF @SearchID = 0
 	BEGIN
-        INSERT INTO @Result SELECT DISTINCT ProjectID From Project
+        INSERT INTO @Result SELECT DISTINCT ProjectID From vwActiveProjects
 		SELECT @ResultCount = COUNT(*) FROM @Result
 	END
 	ELSE
 	BEGIN
 		SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
+		-- count only projects that are still visible (a status change may have hidden some since this search was saved)
+		IF EXISTS (SELECT 1 FROM @Result)
+			SELECT @ResultCount = COUNT(*) FROM @Result r JOIN vwActiveProjects a ON a.ProjectID = r.ProjectID
 	END
 
 	SELECT ProjectID INTO #base FROM @Result
@@ -753,7 +758,7 @@ AS
 		f.Amount, i.City, i.State, i.country, c.name as CountryName, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort 
 	FROM #base r
 		JOIN Project p ON r.ProjectID = p.ProjectID
-		JOIN (SELECT ProjectID, MIN(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f GROUP BY ProjectID) minf ON r.ProjectID = minf.ProjectID
+		JOIN (SELECT ProjectID, MIN(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f WHERE IsActive = 1 GROUP BY ProjectID) minf ON r.ProjectID = minf.ProjectID
 		JOIN ProjectFunding f ON minf.ProjectFundingID = f.projectFundingID
 		JOIN  (SELECT * FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON f.projectFundingID = pi.projectFundingID
 		JOIN Institution i ON i.InstitutionID = pi.InstitutionID
@@ -806,7 +811,7 @@ AS
 	  CREATE TABLE #base (ProjectID INT);
    IF @SearchID = 0
     BEGIN
-        INSERT INTO #base SELECT ProjectID FROM Project
+        INSERT INTO #base SELECT ProjectID FROM vwActiveProjects
     END
     ELSE
     BEGIN
@@ -871,7 +876,7 @@ AS
 	SELECT f.ProjectID, f.ProjectFundingID, f.AltAwardCode
 	INTO #pf 
 	FROM #base r
-		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID
+		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID AND f.IsActive = 1
 	WHERE (@childhoodcancerList IS NULL) OR (f.isChildhood IN (SELECT VALUE AS isChildhood FROM dbo.ToIntTable(@childhoodcancerList)))	
 
 	------------------------------------------------------------------------------
@@ -968,7 +973,7 @@ AS
 CREATE TABLE #base (ProjectID INT);
    IF @SearchID = 0
     BEGIN
-        INSERT INTO #base SELECT ProjectID FROM Project
+        INSERT INTO #base SELECT ProjectID FROM vwActiveProjects
     END
     ELSE
     BEGIN
@@ -1011,7 +1016,7 @@ CREATE TABLE #base (ProjectID INT);
 	SELECT f.ProjectID, f.ProjectFundingID, f.AltAwardCode
 	INTO #pf 
 	FROM #base r
-		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID
+		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID AND f.IsActive = 1
 	WHERE (@childhoodcancerList IS NULL) OR (f.isChildhood IN (SELECT VALUE AS isChildhood FROM dbo.ToIntTable(@childhoodcancerList)))
 	
 	------------------------------------------------------------------------------
@@ -1107,7 +1112,7 @@ AS
 CREATE TABLE #base (ProjectID INT);
    IF @SearchID = 0
     BEGIN
-        INSERT INTO #base SELECT ProjectID FROM Project
+        INSERT INTO #base SELECT ProjectID FROM vwActiveProjects
     END
     ELSE
     BEGIN
@@ -1152,7 +1157,7 @@ CREATE TABLE #base (ProjectID INT);
 	SELECT f.ProjectID, f.ProjectFundingID, f.AltAwardCode, f.isChildhood
 	INTO #pf 
 	FROM #base r
-		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID
+		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID AND f.IsActive = 1
 		
 	------------------------------------------------------------------------------
 	--   Exclude the project funding records outside of seach criteria
@@ -1225,7 +1230,7 @@ AS
 		
     IF @SearchID = 0
     BEGIN
-        INSERT INTO @project SELECT ProjectID FROM Project
+        INSERT INTO @project SELECT ProjectID FROM vwActiveProjects
     END
     ELSE
     BEGIN
@@ -1243,7 +1248,7 @@ AS
 	-- Further drill down - Filter on Region, Country or City
 	SELECT p.ProjectID, pf.Projectfundingid, pf.BudgetEndDate INTO #Proj
 		FROM @project p
-			JOIN ProjectFunding pf ON pf.ProjectID = p.ProjectID
+			JOIN ProjectFunding pf ON pf.ProjectID = p.ProjectID AND pf.IsActive = 1
 			JOIN ProjectFundingInvestigator pi ON pf.ProjectFundingID = pi.ProjectFundingID  -- only get pi			
 			JOIN Institution i ON pi.InstitutionID = i.InstitutionID
 			JOIN Country c ON i.Country = c.Abbreviation			
@@ -1365,7 +1370,7 @@ AS
 
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO #Result SELECT ProjectID From Project
+		INSERT INTO #Result SELECT ProjectID From vwActiveProjects
 	
 	END
 	ELSE
@@ -1411,7 +1416,7 @@ AS
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, ct.Name AS CancerType, pc.Relevance, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
 		JOIN CancerType ct ON ct.CancerTypeID = pc.CancerTypeID	
@@ -1547,7 +1552,7 @@ AS
 
 	IF @SearchID = 0  -- all projects
 	BEGIN
-		INSERT INTO #Result SELECT ProjectID From Project		
+		INSERT INTO #Result SELECT ProjectID From vwActiveProjects		
 	END
 	ELSE  -- with filters by searchID
 	BEGIN
@@ -1580,7 +1585,7 @@ AS
 	----------------------------------
 	SELECT DISTINCT f.ProjectID, f.ProjectFundingID, f.Amount, pii.Country, o.Currency INTO #pf 
 	FROM #proj r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID	
@@ -1732,7 +1737,7 @@ AS
 	
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO #Result SELECT ProjectID From Project		
+		INSERT INTO #Result SELECT ProjectID From vwActiveProjects		
 	END
 	ELSE
 	BEGIN
@@ -1765,7 +1770,7 @@ AS
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, pt.ProjectType, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
 		JOIN Project_ProjectType pt ON r.ProjectID = pt.ProjectID
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 	WHERE (@ProjectTypeList IS NULL) OR (pt.ProjectType IN (SELECT VALUE AS ProjectTypeID FROM dbo.ToStrTable(@ProjectTypeList))) AND
@@ -1921,7 +1926,7 @@ AS
 
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO #Result SELECT ProjectID From Project		
+		INSERT INTO #Result SELECT ProjectID From vwActiveProjects		
 	END
 	ELSE
 	BEGIN
@@ -1954,7 +1959,7 @@ AS
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, c.categoryName, pc.Relevance, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
 		JOIN CSO c ON c.code = pc.csocode	
@@ -2107,7 +2112,7 @@ AS
 	
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO #Result SELECT ProjectID From Project		
+		INSERT INTO #Result SELECT ProjectID From vwActiveProjects		
 	END
 	ELSE
 	BEGIN
@@ -2141,7 +2146,7 @@ AS
 	SELECT f.ProjectID, f.IsChildhood, f.ProjectFundingID, f.Amount, o.Currency INTO #pf 
 	FROM #Result r
 		JOIN Project p ON r.ProjectID = p.ProjectID	
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID			
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1			
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 	WHERE 	((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
 			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
@@ -2306,7 +2311,7 @@ AS
 
 	IF @SearchID = 0  -- all projects
 	BEGIN
-		INSERT INTO #Result SELECT ProjectID From Project		
+		INSERT INTO #Result SELECT ProjectID From vwActiveProjects		
 	END
 	ELSE  -- with filters by searchID
 	BEGIN
@@ -2337,7 +2342,7 @@ AS
 	----------------------------------
 	SELECT DISTINCT f.ProjectID, f.ProjectFundingID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgAbbrv, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID
@@ -2488,7 +2493,7 @@ AS
 
 	IF @SearchID = 0  -- all projects
 	BEGIN
-		INSERT INTO #Result SELECT ProjectID From Project		
+		INSERT INTO #Result SELECT ProjectID From vwActiveProjects		
 	END
 	ELSE  -- with filters by searchID
 	BEGIN
@@ -2519,7 +2524,7 @@ AS
 	----------------------------------
 	SELECT DISTINCT f.ProjectID, f.ProjectFundingID, pii.InstitutionID, pii.Name AS Institution, pii.City, pii.state, pii.Country, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID		
@@ -2673,7 +2678,7 @@ AS
 
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO #Result SELECT ProjectID From Project
+		INSERT INTO #Result SELECT ProjectID From vwActiveProjects
 	
 	END
 	ELSE
@@ -2719,7 +2724,7 @@ AS
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, ct.Name AS CancerType, pc.Relevance, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
 		JOIN CancerType ct ON ct.CancerTypeID = pc.CancerTypeID	
@@ -2888,7 +2893,7 @@ AS
 
 	IF @SearchID = 0  -- all projects
 	BEGIN
-		INSERT INTO #Result SELECT ProjectID From Project		
+		INSERT INTO #Result SELECT ProjectID From vwActiveProjects		
 	END
 	ELSE  -- with filters by searchID
 	BEGIN
@@ -2921,7 +2926,7 @@ AS
 	----------------------------------
 	SELECT DISTINCT f.ProjectID, f.ProjectFundingID, f.Amount, pii.Country, o.Currency INTO #pf 
 	FROM #proj r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID	
@@ -3103,7 +3108,7 @@ AS
 	
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO #Result SELECT ProjectID From Project		
+		INSERT INTO #Result SELECT ProjectID From vwActiveProjects		
 	END
 	ELSE
 	BEGIN
@@ -3136,7 +3141,7 @@ AS
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, pt.ProjectType, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
 		JOIN Project_ProjectType pt ON r.ProjectID = pt.ProjectID
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 	WHERE (@ProjectTypeList IS NULL) OR (pt.ProjectType IN (SELECT VALUE AS ProjectTypeID FROM dbo.ToStrTable(@ProjectTypeList))) AND
@@ -3323,7 +3328,7 @@ BEGIN
 
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO #Result SELECT ProjectID FROM Project;
+		INSERT INTO #Result SELECT ProjectID FROM vwActiveProjects;
 	END
 	ELSE
 	BEGIN
@@ -3357,7 +3362,7 @@ BEGIN
 	SELECT f.ProjectID, f.ProjectFundingID, ext.CalendarYear, ext.CalendarAmount, o.Currency
 	INTO #pf
 	FROM #proj r
-	JOIN ProjectFunding f ON r.ProjectID = f.ProjectID
+	JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1
 	JOIN ProjectFundingExt ext ON ext.ProjectFundingID = f.ProjectFundingID
 	JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
 	WHERE ((@YearList IS NULL) OR (ext.CalendarYear IN (SELECT VALUE AS [CalendarYear] FROM dbo.ToStrTable(@YearList))))
@@ -3526,7 +3531,7 @@ AS
 
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO #Result SELECT ProjectID From Project		
+		INSERT INTO #Result SELECT ProjectID From vwActiveProjects		
 	END
 	ELSE
 	BEGIN
@@ -3559,7 +3564,7 @@ AS
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, c.categoryName, pc.Relevance, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
 		JOIN CSO c ON c.code = pc.csocode	
@@ -3745,7 +3750,7 @@ AS
 	
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO #Result SELECT ProjectID From Project		
+		INSERT INTO #Result SELECT ProjectID From vwActiveProjects		
 	END
 	ELSE
 	BEGIN
@@ -3779,7 +3784,7 @@ AS
 	SELECT f.ProjectID, f.IsChildhood, f.ProjectFundingID, f.Amount, o.Currency INTO #pf 
 	FROM #Result r
 		JOIN Project p ON r.ProjectID = p.ProjectID	
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID			
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1			
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 	WHERE 	((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
 			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
@@ -3976,7 +3981,7 @@ AS
 
 	IF @SearchID = 0  -- all projects
 	BEGIN
-		INSERT INTO #Result SELECT ProjectID From Project		
+		INSERT INTO #Result SELECT ProjectID From vwActiveProjects		
 	END
 	ELSE  -- with filters by searchID
 	BEGIN
@@ -4007,7 +4012,7 @@ AS
 	----------------------------------
 	SELECT DISTINCT f.ProjectID, f.ProjectFundingID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgAbbrv, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID
@@ -4193,7 +4198,7 @@ AS
 
 	IF @SearchID = 0  -- all projects
 	BEGIN
-		INSERT INTO #Result SELECT ProjectID From Project		
+		INSERT INTO #Result SELECT ProjectID From vwActiveProjects		
 	END
 	ELSE  -- with filters by searchID
 	BEGIN
@@ -4224,7 +4229,7 @@ AS
 	----------------------------------
 	SELECT DISTINCT f.ProjectID, f.ProjectFundingID, pii.InstitutionID, pii.Name AS Institution, pii.City, pii.state, pii.Country, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID		

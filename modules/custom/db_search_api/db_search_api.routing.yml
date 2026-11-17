@@ -193,3 +193,27 @@ db_search_api.database.getInfo:
   methods: [GET]
   requirements:
     _access: "TRUE"
+
+## Sets base/parent projects and all their sub-projects Active or Inactive (ICRP Managers only)
+## Sample request: POST /api/database/project_status  {"project_ids": [101, 102], "active": false}
+## Requires the X-CSRF-Token header (GET /session/token)
+db_search_api.database.project_status:
+  path: "/api/database/project_status"
+  defaults:
+    _controller: '\Drupal\db_search_api\Controller\ProjectStatusController::setProjectStatus'
+  methods: [POST]
+  requirements:
+    _role: "manager"
+    _csrf_request_header_token: "TRUE"
+
+## Sets individual sub-projects Active or Inactive (ICRP Managers only)
+## Sample request: POST /api/database/project_funding_status  {"project_funding_ids": [5001], "active": true}
+## Requires the X-CSRF-Token header (GET /session/token)
+db_search_api.database.project_funding_status:
+  path: "/api/database/project_funding_status"
+  defaults:
+    _controller: '\Drupal\db_search_api\Controller\ProjectStatusController::setProjectFundingStatus'
+  methods: [POST]
+  requirements:
+    _role: "manager"
+    _csrf_request_header_token: "TRUE"
