@@ -7366,7 +7366,7 @@ AS
 	-- No filters. Return all counts - total related projects = 168423
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO @result SELECT ProjectID FROM Project
+		INSERT INTO @result SELECT ProjectID FROM vwActiveProjects
 	END
 	ELSE  -- filtered results (based on searchID)
 	BEGIN		
@@ -7402,7 +7402,7 @@ AS
 	----------------------------------
 	SELECT DISTINCT c.RegionID, c.Abbreviation AS Country, i.City, f.ProjectFundingID, people.IsPrincipalInvestigator INTO #pf 
 	FROM #base b		
-		JOIN ProjectFunding f ON b.ProjectID = f.ProjectID	
+		JOIN ProjectFunding f ON b.ProjectID = f.ProjectID AND f.IsActive = 1	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID		
@@ -7528,7 +7528,7 @@ AS
 	-- No filters. Return all counts - total related projects = 168423
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO @result SELECT ProjectID FROM Project
+		INSERT INTO @result SELECT ProjectID FROM vwActiveProjects
 	END
 	ELSE  -- filtered results (based on searchID)
 	BEGIN		
@@ -7563,7 +7563,7 @@ AS
 	----------------------------------
 	SELECT DISTINCT c.RegionID, c.Abbreviation AS Country, i.City, f.ProjectFundingID, people.IsPrincipalInvestigator INTO #pf 
 	FROM #base b		
-		JOIN ProjectFunding f ON b.ProjectID = f.ProjectID	
+		JOIN ProjectFunding f ON b.ProjectID = f.ProjectID AND f.IsActive = 1	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID		
@@ -7685,7 +7685,7 @@ AS
 	-- No filters. Return all counts - total related projects = 168423
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO @result SELECT ProjectID FROM Project
+		INSERT INTO @result SELECT ProjectID FROM vwActiveProjects
 	END
 	ELSE  -- filtered results (based on searchID)
 	BEGIN		
@@ -7718,7 +7718,7 @@ AS
 	----------------------------------
 	SELECT DISTINCT f.ProjectFundingID, c.RegionID, c.Abbreviation AS Country, i.City, i.State, people.IsPrincipalInvestigator INTO #pf 
 	FROM #base b		
-		JOIN ProjectFunding f ON b.ProjectID = f.ProjectID	
+		JOIN ProjectFunding f ON b.ProjectID = f.ProjectID AND f.IsActive = 1	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID		
@@ -7843,7 +7843,7 @@ DECLARE @ProjectIDs VARCHAR(max)
 	-- No filters. Return all counts - total related projects = 168423
 	IF @SearchID = 0
 	BEGIN
-		INSERT INTO @result SELECT ProjectID FROM Project
+		INSERT INTO @result SELECT ProjectID FROM vwActiveProjects
 	END
 	ELSE  -- filtered results (based on searchID)
 	BEGIN		
@@ -7874,7 +7874,7 @@ DECLARE @ProjectIDs VARCHAR(max)
 	----------------------------------		
 	SELECT DISTINCT i.InstitutionID, i.Name AS Institution, i.City, f.ProjectFundingID, people.IsPrincipalInvestigator INTO #pf 
 	FROM #base b		
-		JOIN ProjectFunding f ON b.ProjectID = f.ProjectID	
+		JOIN ProjectFunding f ON b.ProjectID = f.ProjectID AND f.IsActive = 1	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID		
