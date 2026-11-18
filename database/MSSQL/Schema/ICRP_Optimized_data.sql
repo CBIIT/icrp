@@ -89,12 +89,15 @@ CREATE PROCEDURE [dbo].[GetProjectsByCriteria]
 	@projectTypeList varchar(1000) = NULL,
 	@CSOList varchar(1000) = NULL,	
 	@ChildhoodCancerList varchar(1000) = NULL,	  -- 0: no childhood, 1: childhood, 2: partially childhood
+@ProjectStatus varchar(10) = 'Active',  -- NCIATWP-11796: 'Active' (default) or 'Inactive'; PHP sends 'Inactive' only for ICRP Managers
 	@searchCriteriaID INT OUTPUT,  -- return the searchID	
 	@ResultCount INT OUTPUT  -- return the searchID	
 	
 	
 AS   
 	DECLARE @IsFiltered bit = 0
+	DECLARE @isActive BIT = CASE WHEN @ProjectStatus = 'Inactive' THEN 0 ELSE 1 END  -- NCIATWP-11796
+	IF @isActive = 0 SET @IsFiltered = 1  -- an Inactive search is always saved as its own search, never as the default (row 0)
 	
 	IF @InvestigatorType = 'All'
 		SELECT @InvestigatorType = NULL
@@ -103,8 +106,8 @@ AS
 	-- Get all Projects 
 	----------------------------------
 	SELECT v.* INTO #projFunding  FROM vwProjectFundings v   -- All project funding records including PI and collaborator
-		JOIN Project ap ON ap.ProjectID = v.ProjectID AND ap.IsActive = 1   -- Active projects and sub-projects only (NCIATWP-11792)
-		JOIN ProjectFunding af ON af.ProjectFundingID = v.ProjectFundingID AND af.IsActive = 1
+		JOIN Project ap ON ap.ProjectID = v.ProjectID AND ap.IsActive = @isActive   -- the search mode: active (NCIATWP-11792) or, for Managers, inactive (NCIATWP-11796)
+		JOIN ProjectFunding af ON af.ProjectFundingID = v.ProjectFundingID AND af.IsActive = @isActive
 	
 	-------------------------------------------------------------------------
 	-- Exclude the projects which funding institutions and PI do NOT meet the criteria
@@ -353,7 +356,7 @@ AS
 	update #baseProj
 	SET ProjectFundingID = f.ProjectFundingID
 	from #baseProj b
-	JOIN  (SELECT ProjectID, MIN(projectfundingID) AS projectfundingID FROM projectfunding WHERE IsActive = 1 GROUP BY ProjectID) f ON b.ProjectID = f.ProjectID
+	JOIN  (SELECT ProjectID, MIN(projectfundingID) AS projectfundingID FROM projectfunding WHERE IsActive = @isActive GROUP BY ProjectID) f ON b.ProjectID = f.ProjectID
 
     -- if a parent project exists, overwrite the project funding id
     update #baseProj
@@ -380,9 +383,9 @@ AS
 		FROM #baseProj	
 
 		INSERT INTO SearchCriteria ([termSearchType],[terms],[institution],[piLastName],[piFirstName],[piORCiD],[awardCode],
-			[yearList], [cityList],[stateList],[countryList],[incomeGroupList],[regionList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList], [InvestigatorType])
+			[yearList], [cityList],[stateList],[countryList],[incomeGroupList],[regionList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList], [InvestigatorType], [ProjectStatus])
 			VALUES ( @termSearchType,@terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode,@yearList,@cityList,@stateList,@countryList,@incomeGroupList,@regionList,
-				@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList, @FundingOrgTypeList,	@ChildhoodCancerList, @InvestigatorType)
+				@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList, @FundingOrgTypeList,	@ChildhoodCancerList, @InvestigatorType, CASE WHEN @isActive = 0 THEN 'Inactive' END)
 									 
 		SELECT @searchCriteriaID = SCOPE_IDENTITY()		
 
@@ -403,7 +406,7 @@ AS
 	SELECT base.ProjectID, base.AwardCode, base.projectfundingID AS LastProjectFundingID, f.Title, pi.LastName AS piLastName, pi.FirstName AS piFirstName,
 	 pi.ORC_ID AS piORCiD, i.Name AS institution, f.Amount, i.City, i.State, i.country,  c.name as CountryName, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort
 	FROM #baseProj base
-		JOIN (SELECT ProjectID, MIN(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding WHERE IsActive = 1 GROUP BY ProjectID) maxf ON base.ProjectID = maxf.ProjectID
+		JOIN (SELECT ProjectID, MIN(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding WHERE IsActive = @isActive GROUP BY ProjectID) maxf ON base.ProjectID = maxf.ProjectID
 		JOIN ProjectFunding f ON base.ProjectFundingID = f.ProjectFundingID
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
 		JOIN (SELECT * FROM ProjectFundingInvestigator  WHERE IsPrincipalInvestigator = 1) pi ON pi.ProjectFundingID = base.ProjectFundingID
@@ -453,6 +456,7 @@ CREATE PROCEDURE [dbo].[GetProjectExportsBySearchID]
     @SiteURL VARCHAR(250) = 'https://www.icrpartnership.org/project/',
     @Year SMALLINT = NULL
 AS
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 BEGIN
     SET NOCOUNT ON;
 
@@ -560,7 +564,7 @@ BEGIN
     INTO #pf
     FROM #base r
     JOIN Project p ON r.ProjectID = p.ProjectID
-    JOIN ProjectFunding f ON p.ProjectID = f.ProjectID AND f.IsActive = 1
+    JOIN ProjectFunding f ON p.ProjectID = f.ProjectID AND f.IsActive = @isActive
     JOIN FundingOrg o ON o.FundingOrgID = f.FundingOrgID
     JOIN ProjectFundingInvestigator pi ON pi.ProjectFundingID = f.ProjectFundingID AND pi.IsPrincipalInvestigator = 1
     JOIN Institution i ON i.InstitutionID = pi.InstitutionID
@@ -720,6 +724,7 @@ CREATE PROCEDURE [dbo].[GetProjectsBySearchID]
     @SearchID INT,
 	@ResultCount INT OUTPUT  -- return the searchID		
 AS   
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 
 	------------------------------------------------------
 	-- Get saved search results by searchID
@@ -745,7 +750,7 @@ AS
 		SELECT @ResultCount=ResultCount, @ProjectIDs = Results FROM SearchResult WHERE SearchCriteriaID = @SearchID		
 		-- count only projects that are still visible (a status change may have hidden some since this search was saved)
 		IF EXISTS (SELECT 1 FROM @Result)
-			SELECT @ResultCount = COUNT(*) FROM @Result r JOIN vwActiveProjects a ON a.ProjectID = r.ProjectID
+			SELECT @ResultCount = COUNT(*) FROM @Result r JOIN (SELECT ProjectID FROM vwActiveProjects WHERE @isActive = 1 UNION ALL SELECT ProjectID FROM Project WHERE @isActive = 0 AND IsActive = 0) a ON a.ProjectID = r.ProjectID
 	END
 
 	SELECT ProjectID INTO #base FROM @Result
@@ -758,7 +763,7 @@ AS
 		f.Amount, i.City, i.State, i.country, c.name as CountryName, o.FundingOrgID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgShort 
 	FROM #base r
 		JOIN Project p ON r.ProjectID = p.ProjectID
-		JOIN (SELECT ProjectID, MIN(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f WHERE IsActive = 1 GROUP BY ProjectID) minf ON r.ProjectID = minf.ProjectID
+		JOIN (SELECT ProjectID, MIN(ProjectFundingID) AS ProjectFundingID FROM ProjectFunding f WHERE IsActive = @isActive GROUP BY ProjectID) minf ON r.ProjectID = minf.ProjectID
 		JOIN ProjectFunding f ON minf.ProjectFundingID = f.projectFundingID
 		JOIN  (SELECT * FROM ProjectFundingInvestigator WHERE IsPrincipalInvestigator = 1) pi ON f.projectFundingID = pi.projectFundingID
 		JOIN Institution i ON i.InstitutionID = pi.InstitutionID
@@ -804,6 +809,7 @@ GO
 CREATE PROCEDURE [dbo].[GetProjectCSOsBySearchID]
       @SearchID INT
 AS   
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
@@ -876,7 +882,7 @@ AS
 	SELECT f.ProjectID, f.ProjectFundingID, f.AltAwardCode
 	INTO #pf 
 	FROM #base r
-		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID AND f.IsActive = 1
+		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID AND f.IsActive = @isActive
 	WHERE (@childhoodcancerList IS NULL) OR (f.isChildhood IN (SELECT VALUE AS isChildhood FROM dbo.ToIntTable(@childhoodcancerList)))	
 
 	------------------------------------------------------------------------------
@@ -947,6 +953,7 @@ CREATE PROCEDURE [dbo].[GetProjectCancerTypesBySearchID]
      @SearchID INT	
 	 
 AS  
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 	------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
@@ -1016,7 +1023,7 @@ CREATE TABLE #base (ProjectID INT);
 	SELECT f.ProjectID, f.ProjectFundingID, f.AltAwardCode
 	INTO #pf 
 	FROM #base r
-		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID AND f.IsActive = 1
+		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID AND f.IsActive = @isActive
 	WHERE (@childhoodcancerList IS NULL) OR (f.isChildhood IN (SELECT VALUE AS isChildhood FROM dbo.ToIntTable(@childhoodcancerList)))
 	
 	------------------------------------------------------------------------------
@@ -1085,6 +1092,7 @@ GO
 CREATE PROCEDURE [dbo].[GetProjectCollaboratorsBysearchID]   
     @SearchID INT
 AS   
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
   ------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
@@ -1157,7 +1165,7 @@ CREATE TABLE #base (ProjectID INT);
 	SELECT f.ProjectID, f.ProjectFundingID, f.AltAwardCode, f.isChildhood
 	INTO #pf 
 	FROM #base r
-		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID AND f.IsActive = 1
+		JOIN ProjectFunding f ON f.ProjectID = r.ProjectID AND f.IsActive = @isActive
 		
 	------------------------------------------------------------------------------
 	--   Exclude the project funding records outside of seach criteria
@@ -1225,6 +1233,7 @@ CREATE PROCEDURE [dbo].[AddNewSearchBySearchID]
 @searchCriteriaID INT OUTPUT,  -- return the searchID	
 @ResultCount INT OUTPUT  -- return the searchID		
 AS   
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 	DECLARE @project TABLE
 	(ProjectID INT)
 		
@@ -1248,7 +1257,7 @@ AS
 	-- Further drill down - Filter on Region, Country or City
 	SELECT p.ProjectID, pf.Projectfundingid, pf.BudgetEndDate INTO #Proj
 		FROM @project p
-			JOIN ProjectFunding pf ON pf.ProjectID = p.ProjectID AND pf.IsActive = 1
+			JOIN ProjectFunding pf ON pf.ProjectID = p.ProjectID AND pf.IsActive = @isActive
 			JOIN ProjectFundingInvestigator pi ON pf.ProjectFundingID = pi.ProjectFundingID  -- only get pi			
 			JOIN Institution i ON pi.InstitutionID = i.InstitutionID
 			JOIN Country c ON i.Country = c.Abbreviation			
@@ -1287,7 +1296,7 @@ AS
 
 		INSERT INTO SearchCriteria ([termSearchType],[terms],[piLastName],[piFirstName],[piORCiD],[awardCode],
 			[yearList], [stateList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList], [incomeGroupList],
-			[institution], [cityList], [countryList], [RegionList])
+			[institution], [cityList], [countryList], [RegionList], [ProjectStatus])
 
 			SELECT [termSearchType],[terms],[piLastName],[piFirstName],[piORCiD],[awardCode],
 				[yearList], [stateList], [fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList], [incomeGroupList],
@@ -1306,7 +1315,8 @@ AS
 
 				CASE
 				WHEN @RegionID IS NULL THEN [RegionList]
-				ELSE @RegionID END		
+				ELSE @RegionID END,
+				[ProjectStatus]  -- NCIATWP-11796: keep the source search's Active/Inactive mode		
 				
 			FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 	END									 
@@ -1337,6 +1347,7 @@ CREATE PROCEDURE [dbo].[GetProjectCancerTypeStatsBySearchID]
 	@ResultAmount float OUTPUT  -- return the total amounts
 
 AS   
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 
     ;WITH FilteredSearchResult AS (
         SELECT DISTINCT srp.ProjectID
@@ -1416,7 +1427,7 @@ AS
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, ct.Name AS CancerType, pc.Relevance, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = @isActive	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
 		JOIN CancerType ct ON ct.CancerTypeID = pc.CancerTypeID	
@@ -1520,6 +1531,7 @@ CREATE PROCEDURE [dbo].[GetProjectCountryStatsBySearchID]
 	@ResultAmount float OUTPUT  -- return the searchID	
 
 AS   
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 
 	------------------------------------------------------
 	-- Get saved search results by searchID
@@ -1585,7 +1597,7 @@ AS
 	----------------------------------
 	SELECT DISTINCT f.ProjectID, f.ProjectFundingID, f.Amount, pii.Country, o.Currency INTO #pf 
 	FROM #proj r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = @isActive	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID	
@@ -1704,6 +1716,7 @@ CREATE PROCEDURE [dbo].[GetProjectTypeStatsBySearchID]
 	@ResultAmount float OUTPUT  -- return the searchID	
 
 AS   
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 
   	------------------------------------------------------
 	-- Get saved search results by searchID
@@ -1770,7 +1783,7 @@ AS
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, pt.ProjectType, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = @isActive	
 		JOIN Project_ProjectType pt ON r.ProjectID = pt.ProjectID
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 	WHERE (@ProjectTypeList IS NULL) OR (pt.ProjectType IN (SELECT VALUE AS ProjectTypeID FROM dbo.ToStrTable(@ProjectTypeList))) AND
@@ -1893,6 +1906,7 @@ CREATE PROCEDURE [dbo].[GetProjectCSOStatsBySearchID]
     @ResultAmount FLOAT OUTPUT  
 
 AS  
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
   ------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
@@ -1959,7 +1973,7 @@ AS
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, c.categoryName, pc.Relevance, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = @isActive	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
 		JOIN CSO c ON c.code = pc.csocode	
@@ -2077,6 +2091,7 @@ CREATE PROCEDURE [dbo].[GetProjectChildhoodCancerStatsBySearchID]
 	@ResultAmount float OUTPUT  -- return the searchID	
 
 AS   
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 
   	------------------------------------------------------
 	-- Get saved search results by searchID
@@ -2146,7 +2161,7 @@ AS
 	SELECT f.ProjectID, f.IsChildhood, f.ProjectFundingID, f.Amount, o.Currency INTO #pf 
 	FROM #Result r
 		JOIN Project p ON r.ProjectID = p.ProjectID	
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1			
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = @isActive			
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 	WHERE 	((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
 			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
@@ -2279,6 +2294,7 @@ CREATE PROCEDURE [dbo].[GetProjectFundingOrgStatsBySearchID]
 	@ResultAmount float OUTPUT  -- return the searchID	
 
 AS   
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 
 	------------------------------------------------------
 	-- Get saved search results by searchID
@@ -2342,7 +2358,7 @@ AS
 	----------------------------------
 	SELECT DISTINCT f.ProjectID, f.ProjectFundingID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgAbbrv, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = @isActive	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID
@@ -2461,6 +2477,7 @@ CREATE PROCEDURE [dbo].[GetProjectInstitutionStatsBySearchID]
 	@ResultAmount float OUTPUT  -- return the searchID	
 
 AS   
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 	
 	------------------------------------------------------
 	-- Get saved search results by searchID
@@ -2524,7 +2541,7 @@ AS
 	----------------------------------
 	SELECT DISTINCT f.ProjectID, f.ProjectFundingID, pii.InstitutionID, pii.Name AS Institution, pii.City, pii.state, pii.Country, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = @isActive	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID		
@@ -2645,6 +2662,7 @@ CREATE PROCEDURE [dbo].[GetProjectCancerTypeStatsBySearchIDBase]
 	@ResultAmount float OUTPUT  -- return the total amounts
 
 AS   
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 
     ;WITH FilteredSearchResult AS (
         SELECT DISTINCT srp.ProjectID
@@ -2724,7 +2742,7 @@ AS
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, ct.Name AS CancerType, pc.Relevance, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = @isActive	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN (SELECT * FROM ProjectCancerType WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
 		JOIN CancerType ct ON ct.CancerTypeID = pc.CancerTypeID	
@@ -2861,6 +2879,7 @@ CREATE PROCEDURE [dbo].[GetProjectCountryStatsBySearchIDBase]
 	@ResultAmount float OUTPUT  -- return the searchID	
 
 AS   
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 
 	------------------------------------------------------
 	-- Get saved search results by searchID
@@ -2926,7 +2945,7 @@ AS
 	----------------------------------
 	SELECT DISTINCT f.ProjectID, f.ProjectFundingID, f.Amount, pii.Country, o.Currency INTO #pf 
 	FROM #proj r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = @isActive	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID	
@@ -3075,6 +3094,7 @@ CREATE PROCEDURE [dbo].[GetProjectTypeStatsBySearchIDBase]
 	@ResultAmount float OUTPUT  -- return the searchID	
 
 AS   
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 
   	------------------------------------------------------
 	-- Get saved search results by searchID
@@ -3141,7 +3161,7 @@ AS
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, pt.ProjectType, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = @isActive	
 		JOIN Project_ProjectType pt ON r.ProjectID = pt.ProjectID
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 	WHERE (@ProjectTypeList IS NULL) OR (pt.ProjectType IN (SELECT VALUE AS ProjectTypeID FROM dbo.ToStrTable(@ProjectTypeList))) AND
@@ -3294,6 +3314,7 @@ CREATE PROCEDURE [dbo].[GetProjectAwardStatsBySearchIDBase]
 	@ResultCount INT OUTPUT,
 	@ResultAmount float OUTPUT
 AS
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 BEGIN
 	SET NOCOUNT ON;
 
@@ -3362,7 +3383,7 @@ BEGIN
 	SELECT f.ProjectID, f.ProjectFundingID, ext.CalendarYear, ext.CalendarAmount, o.Currency
 	INTO #pf
 	FROM #proj r
-	JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1
+	JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = @isActive
 	JOIN ProjectFundingExt ext ON ext.ProjectFundingID = f.ProjectFundingID
 	JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
 	WHERE ((@YearList IS NULL) OR (ext.CalendarYear IN (SELECT VALUE AS [CalendarYear] FROM dbo.ToStrTable(@YearList))))
@@ -3498,6 +3519,7 @@ CREATE PROCEDURE [dbo].[GetProjectCSOStatsBySearchIDBase]
     @ResultAmount FLOAT OUTPUT  
 
 AS  
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
   ------------------------------------------------------
 	-- Get saved search results by searchID
 	------------------------------------------------------	
@@ -3564,7 +3586,7 @@ AS
 	----------------------------------
 	SELECT f.ProjectID, f.ProjectFundingID, c.categoryName, pc.Relevance, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = @isActive	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN (SELECT * FROM ProjectCSO WHERE isnull(Relevance,0) <> 0) pc ON f.projectFundingID = pc.projectFundingID
 		JOIN CSO c ON c.code = pc.csocode	
@@ -3715,6 +3737,7 @@ CREATE PROCEDURE [dbo].[GetProjectChildhoodCancerStatsBySearchIDBase]
 	@ResultAmount float OUTPUT  -- return the searchID	
 
 AS   
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 
   	------------------------------------------------------
 	-- Get saved search results by searchID
@@ -3784,7 +3807,7 @@ AS
 	SELECT f.ProjectID, f.IsChildhood, f.ProjectFundingID, f.Amount, o.Currency INTO #pf 
 	FROM #Result r
 		JOIN Project p ON r.ProjectID = p.ProjectID	
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1			
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = @isActive			
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 	WHERE 	((@fundingOrgList IS NULL) OR (o.FundingOrgID IN (SELECT VALUE AS OrgID FROM dbo.ToStrTable(@fundingOrgList)))) AND
 			((@FundingOrgTypeList IS NULL) OR (o.Type IN (SELECT VALUE AS type FROM dbo.ToStrTable(@FundingOrgTypeList)))) AND
@@ -3949,6 +3972,7 @@ CREATE PROCEDURE [dbo].[GetProjectFundingOrgStatsBySearchIDBase]
 	@ResultAmount float OUTPUT  -- return the searchID	
 
 AS   
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 
 	------------------------------------------------------
 	-- Get saved search results by searchID
@@ -4012,7 +4036,7 @@ AS
 	----------------------------------
 	SELECT DISTINCT f.ProjectID, f.ProjectFundingID, o.Name AS FundingOrg, o.Abbreviation AS FundingOrgAbbrv, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = @isActive	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID
@@ -4166,6 +4190,7 @@ CREATE PROCEDURE [dbo].[GetProjectInstitutionStatsBySearchIDBase]
 	@ResultAmount float OUTPUT  -- return the searchID	
 
 AS   
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 	
 	------------------------------------------------------
 	-- Get saved search results by searchID
@@ -4229,7 +4254,7 @@ AS
 	----------------------------------
 	SELECT DISTINCT f.ProjectID, f.ProjectFundingID, pii.InstitutionID, pii.Name AS Institution, pii.City, pii.state, pii.Country, f.Amount, o.Currency INTO #pf 
 	FROM #Result r		
-		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1	
+		JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = @isActive	
 		JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID		
 		JOIN ProjectFundingInvestigator people ON f.projectFundingID = people.projectFundingID	  -- find pi and collaborators
 		JOIN Institution i ON i.InstitutionID = people.InstitutionID		

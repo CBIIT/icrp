@@ -13,6 +13,7 @@ use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Password\PasswordInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Drupal\db_search_api\ProjectStatusAccess;
 
 use PDO;
 
@@ -44,6 +45,7 @@ class SearchController extends ControllerBase {
     'sort_direction'             => 'asc',
     'search_terms'               => NULL,
     'search_type'                => NULL,
+    'project_status'             => ProjectStatusAccess::ACTIVE,  // NCIATWP-11796: honored only for ICRP Managers
     'years'                      => NULL,
     'institution'                => NULL,
     'investigator_type'          => NULL,
@@ -145,6 +147,8 @@ class SearchController extends ControllerBase {
 
   public static function getSearchResults(Request $request) {
     $parameters = self::array_merge_intersection($request->query->all(), self::DEFAULT_SEARCH_PARAMETERS);
+    // NCIATWP-11796: only a Manager can search for inactive projects; everyone else always gets Active
+    $parameters['project_status'] = ProjectStatusAccess::resolveSearchMode($parameters['project_status']);
     $data = DatabaseSearch::getSearchResults(PDOBuilder::getConnection(), $parameters);
     return self::createResponse($data);
   }
@@ -152,6 +156,9 @@ class SearchController extends ControllerBase {
 
   public static function getSortedPaginatedResults(Request $request) {
     $parameters = self::array_merge_intersection($request->query->all(), self::DEFAULT_SORT_PAGINATE_PARAMETERS);
+    if (!ProjectStatusAccess::canViewSearch(PDOBuilder::getConnection(), $parameters['search_id'])) {
+      return ProjectStatusAccess::forbiddenResponse();  // NCIATWP-11796
+    }
     $data = DatabaseSearch::getSortedPaginatedResults(PDOBuilder::getConnection(), $parameters);
     return self::createResponse($data);
   }
@@ -159,6 +166,10 @@ class SearchController extends ControllerBase {
 
   public static function getAnalytics(Request $request) {
     $parameters = $request->query->all();
+
+    if (!ProjectStatusAccess::canViewSearch(PDOBuilder::getConnection(), $parameters['search_id'] ?? 0)) {
+      return ProjectStatusAccess::forbiddenResponse();  // NCIATWP-11796
+    }
 
     $data = in_array($parameters['type'], self::PUBLIC_ANALYTICS_TYPES)
       ? DatabaseSearch::getAnalytics(PDOBuilder::getConnection(), $parameters)
@@ -171,6 +182,10 @@ class SearchController extends ControllerBase {
   public static function getAnalyticsForPartners(Request $request) {
     $parameters = $request->query->all();
 
+    if (!ProjectStatusAccess::canViewSearch(PDOBuilder::getConnection(), $parameters['search_id'] ?? 0)) {
+      return ProjectStatusAccess::forbiddenResponse();  // NCIATWP-11796
+    }
+
     $data = in_array($parameters['type'], self::PARTNER_ANALYTICS_TYPES)
       ? DatabaseSearch::getAnalytics(PDOBuilder::getConnection(), $parameters)
       : [];
@@ -182,6 +197,9 @@ class SearchController extends ControllerBase {
   public static function getSearchParameters(Request $request) {
     $connection = PDOBuilder::getConnection('icrp_database');
     $parameters = self::array_merge_intersection($request->query->all(), ['search_id' => -1]);
+    if (!ProjectStatusAccess::canViewSearch($connection, $parameters['search_id'])) {
+      return ProjectStatusAccess::forbiddenResponse();  // NCIATWP-11796
+    }
     $data = DatabaseSearch::getSearchParameters($connection, $parameters);
     return self::createResponse($data);
   }
@@ -190,6 +208,9 @@ class SearchController extends ControllerBase {
   public static function getSearchSummary(Request $request) {
     $connection = PDOBuilder::getConnection('icrp_database');
     $parameters = self::array_merge_intersection($request->query->all(), ['search_id' => -1]);
+    if (!ProjectStatusAccess::canViewSearch($connection, $parameters['search_id'])) {
+      return ProjectStatusAccess::forbiddenResponse();  // NCIATWP-11796
+    }
     $data = DatabaseSearch::getSearchSummary($connection, $parameters);
     return self::createResponse($data);
   }
@@ -202,6 +223,9 @@ class SearchController extends ControllerBase {
       'view_type' => NULL,
       'year' => NULL
     ]);
+    if (!ProjectStatusAccess::canViewSearch($connection, $parameters['search_id'])) {
+      return ProjectStatusAccess::forbiddenResponse();  // NCIATWP-11796
+    }
     $data = DatabaseSearch::getSearchResultsView($connection, $parameters);
     return self::createResponse($data);
   }

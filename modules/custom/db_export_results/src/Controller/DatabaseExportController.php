@@ -11,6 +11,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Drupal\db_search_api\ProjectStatusAccess;
 use PDO;
 
 class DatabaseExportController extends ControllerBase {
@@ -56,6 +57,9 @@ private static function createResponse($data) {
   function exportSearchResults(Request $request) {
     $pdo = Database::getConnection();
     $search_id = $request->query->get('search_id', NULL);
+    if (!ProjectStatusAccess::canViewSearch($pdo, $search_id)) {
+      return new Response('This search is not available.', 403);  // NCIATWP-11796
+    }
     $year = intval($request->query->get('year', NULL));
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_PUBLIC, intval($search_id), NULL, $year);
@@ -65,6 +69,9 @@ private static function createResponse($data) {
   function exportSearchResultsForPartners(Request $request) {
     $pdo = Database::getConnection();
     $search_id = $request->query->get('search_id', NULL);
+    if (!ProjectStatusAccess::canViewSearch($pdo, $search_id)) {
+      return new Response('This search is not available.', 403);  // NCIATWP-11796
+    }
     $year = intval($request->query->get('year', NULL));
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_PARTNERS, intval($search_id), NULL,  $year);
@@ -74,6 +81,9 @@ private static function createResponse($data) {
   function exportSearchResultsInSingleSheet(Request $request) {
     $pdo = Database::getConnection();
     $search_id = $request->query->get('search_id', NULL);
+    if (!ProjectStatusAccess::canViewSearch($pdo, $search_id)) {
+      return new Response('This search is not available.', 403);  // NCIATWP-11796
+    }
     $year = intval($request->query->get('year', NULL));
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_AS_SINGLE_SHEET, intval($search_id), NULL, $year);
@@ -83,6 +93,9 @@ private static function createResponse($data) {
   function exportAbstracts(Request $request) {
     $pdo = Database::getConnection();
     $search_id = $request->query->get('search_id', NULL);
+    if (!ProjectStatusAccess::canViewSearch($pdo, $search_id)) {
+      return new Response('This search is not available.', 403);  // NCIATWP-11796
+    }
     $year = intval($request->query->get('year', NULL));
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_WITH_ABSTRACTS, intval($search_id), NULL, $year);
@@ -92,6 +105,9 @@ private static function createResponse($data) {
   function exportAbstractsInSingleSheet(Request $request) {
     $pdo = Database::getConnection();
     $search_id = $request->query->get('search_id', NULL);
+    if (!ProjectStatusAccess::canViewSearch($pdo, $search_id)) {
+      return new Response('This search is not available.', 403);  // NCIATWP-11796
+    }
     $year = intval($request->query->get('year', NULL));
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_RESULTS_WITH_ABSTRACTS_AS_SINGLE_SHEET, intval($search_id), NULL, $year);
@@ -101,6 +117,9 @@ private static function createResponse($data) {
   function exportCsoCancerTypes(Request $request) {
     $pdo = Database::getConnection();
     $search_id = $request->query->get('search_id', NULL);
+    if (!ProjectStatusAccess::canViewSearch($pdo, $search_id)) {
+      return new Response('This search is not available.', 403);  // NCIATWP-11796
+    }
     $year = intval($request->query->get('year', NULL));
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_CSO_CANCER_TYPES, intval($search_id), NULL, $year);
@@ -110,6 +129,9 @@ private static function createResponse($data) {
   function exportGraphs(Request $request) {
     $pdo = Database::getConnection();
     $search_id = $request->query->get('search_id', NULL);
+    if (!ProjectStatusAccess::canViewSearch($pdo, $search_id)) {
+      return new Response('This search is not available.', 403);  // NCIATWP-11796
+    }
     $year = intval($request->query->get('year', NULL));
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PUBLIC, intval($search_id), NULL, $year);
@@ -119,6 +141,9 @@ private static function createResponse($data) {
   function exportGraphsForPartners(Request $request) {
     $pdo = Database::getConnection();
     $search_id = $request->query->get('search_id', NULL);
+    if (!ProjectStatusAccess::canViewSearch($pdo, $search_id)) {
+      return new Response('This search is not available.', 403);  // NCIATWP-11796
+    }
     $year = intval($request->query->get('year', NULL));
 
     $uri = self::getExportUri($pdo, DatabaseExport::EXPORT_GRAPHS_PARTNERS, intval($search_id), NULL, $year);

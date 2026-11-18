@@ -186,6 +186,7 @@ class DatabaseSearch {
       'cancer_types'                 => split($results['CancerTypeList']),
       'project_types'                => split($results['ProjectTypeList']),
       'cso_research_areas'           => split($results['CSOList']),
+      'project_status'               => ($results['ProjectStatus'] ?? NULL) === 'Inactive' ? 'inactive' : NULL,  // NCIATWP-11796
     ]) : [];
   }
 
@@ -554,6 +555,7 @@ class DatabaseSearch {
         @projectTypeList      = :project_types,
         @ChildhoodCancerList  = :is_childhood_cancer,
         @CSOList              = :cso_research_areas,
+        @ProjectStatus        = :project_status,
         @searchCriteriaID     = :search_id,
         @ResultCount          = NULL';
 

@@ -5,4 +5,5 @@ type: module
 version: 0.3
 core: 8.x
 core_version_requirement: ">=8"
-
+dependencies:
+  - db_search_api:db_search_api

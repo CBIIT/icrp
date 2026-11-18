@@ -1,5 +1,46 @@
 <form [formGroup]="form">
 
+  <!-- NCIATWP-11796: Active or Inactive projects, shown to ICRP Managers only -->
+  <ui-panel *ngIf="isManager" title="Project Status" [visible]="true">
+    <div>
+      <label
+        class="radio-label"
+        for="project_status_active"
+        placement="right"
+        tooltip="Search active projects (the projects all users can see)">
+        <input
+          class="radio-input"
+          type="radio"
+          id="project_status_active"
+          name="project_status"
+          value="active"
+          [formControl]="form.controls.project_status"
+          (change)="updateDisplayParameters('project_status', ['Active'])"
+          >
+        Active projects
+      </label>
+    </div>
+
+    <div>
+      <label
+        class="radio-label"
+        for="project_status_inactive"
+        placement="right"
+        tooltip="Search inactive projects (hidden from all users except ICRP Managers)">
+        <input
+          class="radio-input"
+          type="radio"
+          id="project_status_inactive"
+          name="project_status"
+          value="inactive"
+          [formControl]="form.controls.project_status"
+          (change)="updateDisplayParameters('project_status', ['Inactive'])"
+          >
+        Inactive projects
+      </label>
+    </div>
+  </ui-panel>
+
   <!-- Search Terms -->
   <ui-panel title="Search Terms" [visible]="true">
     <label class="sr-only" for="search_terms">Search Terms</label>

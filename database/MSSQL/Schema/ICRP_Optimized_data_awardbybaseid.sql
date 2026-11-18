@@ -17,6 +17,7 @@ CREATE PROCEDURE [dbo].[GetProjectAwardStatsBySearchIDBase]
 	@ResultCount INT OUTPUT,
 	@ResultAmount float OUTPUT
 AS
+	DECLARE @isActive BIT = CASE WHEN EXISTS (SELECT 1 FROM SearchCriteria WHERE SearchCriteriaID = @SearchID AND ProjectStatus = 'Inactive') THEN 0 ELSE 1 END  -- NCIATWP-11796: this search's mode (Inactive only for Manager searches)
 BEGIN
 	SET NOCOUNT ON;
 
@@ -85,7 +86,7 @@ BEGIN
 	SELECT f.ProjectID, f.ProjectFundingID, ext.CalendarYear, ext.CalendarAmount, o.Currency
 	INTO #pf
 	FROM #proj r
-	JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = 1
+	JOIN ProjectFunding f ON r.ProjectID = f.ProjectID AND f.IsActive = @isActive
 	JOIN ProjectFundingExt ext ON ext.ProjectFundingID = f.ProjectFundingID
 	JOIN FundingOrg o ON f.FundingOrgID = o.FundingOrgID
 	WHERE ((@YearList IS NULL) OR (ext.CalendarYear IN (SELECT VALUE AS [CalendarYear] FROM dbo.ToStrTable(@YearList))))

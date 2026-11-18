@@ -52,12 +52,16 @@ export class SearchFormComponent {
   defaultParameters: any = {};
   displayParameters: any = {};
 
+  // NCIATWP-11796: only ICRP Managers see the Active/Inactive control (the server enforces it too)
+  isManager: boolean = false;
+
   constructor(
     private formBuilder: FormBuilder,
     private searchService: SearchService,
     public sharedService: SharedService,
   ) {
     this.search = new EventEmitter<object>();
+    this.isManager = (this.sharedService.get('userRoles') || []).map(role => role.trim()).indexOf('manager') > -1;
 
     this.form = formBuilder.group({
       search_terms: [''],
@@ -85,6 +89,7 @@ export class SearchFormComponent {
       is_childhood_cancer: [''],
       project_types: [''],
       cso_research_areas: [''],
+      project_status: ['active'],  // NCIATWP-11796: 'active' (default) or 'inactive', Managers only
     });
   }
 
@@ -119,7 +124,7 @@ export class SearchFormComponent {
 
   setParameters(parameters, clearForm: boolean = false) {
     if (clearForm) {
-      this.form.reset();
+      this.form.reset({ project_status: 'active' });
     }
 
     for (let key in parameters) {
@@ -176,6 +181,6 @@ export class SearchFormComponent {
   }
 
   clearForm() {
-    this.form.reset();
+    this.form.reset({ project_status: 'active' });
   }
 }
