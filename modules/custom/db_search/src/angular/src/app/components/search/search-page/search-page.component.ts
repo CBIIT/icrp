@@ -66,12 +66,13 @@ export class SearchPageComponent implements AfterViewInit {
     this.isManager = (this.sharedService.get('userRoles') || []).map(role => role.trim()).indexOf('manager') > -1;
   }
 
-  // NCIATWP-11800: Managers can inactivate projects from an Active search
+  // Managers can inactivate projects from an Active search (NCIATWP-11800)
+  // and re-activate them from an Inactive search (NCIATWP-11795)
   get statusAction(): string {
     if (!this.isManager) {
       return null;
     }
-    return this.state.searchParameters['project_status'] === 'inactive' ? null : 'inactivate';
+    return this.state.searchParameters['project_status'] === 'inactive' ? 'reactivate' : 'inactivate';
   }
 
   // Show the outcome and re-run the search so the changed projects drop out of the list, counts and charts

@@ -2,7 +2,8 @@ import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from
 import { SearchService } from '../../../services/search.service';
 
 /**
- * ICRP Manager bulk status changes from the Project List (NCIATWP-11800).
+ * ICRP Manager bulk status changes from the Project List: inactivate (NCIATWP-11800)
+ * and re-activate (NCIATWP-11795).
  * Texts follow the story's acceptance criteria.
  */
 export const STATUS_ACTIONS = {
@@ -14,6 +15,14 @@ export const STATUS_ACTIONS = {
     confirmation: 'Please confirm you would like to inactivate all selected projects and their sub-projects if any.',
     done: 'The following Projects (and their sub-projects if applicable) were flagged as Inactive and therefore removed from public display on the ICRP site: ',
   },
+  reactivate: {
+    active: true,
+    columnLabel: 'Re-activate?',
+    buttonLabel: 'Re-activate',
+    subProjectWarning: 'All sub-projects of the selected base projects will also be re-activated. Navigate to the Project Summary page to make necessary adjustments in their statuses.\n\nSelected projects with sub-projects: ',
+    confirmation: 'Please confirm you would like to re-activate all selected projects and their sub-projects if any.',
+    done: 'The following Projects (and their sub-projects if applicable) were flagged as Active and therefore are now available to the public to view on the ICRP site: ',
+  },
 };
 
 @Component({
@@ -23,7 +32,8 @@ export const STATUS_ACTIONS = {
 })
 export class ResultsTablePanelComponent implements OnChanges {
 
-  // NCIATWP-11800: 'inactivate' shows the selection column and button (ICRP Managers only; the server checks the role)
+  // 'inactivate' (NCIATWP-11800) or 'reactivate' (NCIATWP-11795) shows the selection column and button
+  // (ICRP Managers only; the server checks the role)
   @Input()
   statusAction: string = null;
 
