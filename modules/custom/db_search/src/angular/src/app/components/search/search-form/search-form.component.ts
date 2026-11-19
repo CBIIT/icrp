@@ -90,6 +90,7 @@ export class SearchFormComponent {
       project_types: [''],
       cso_research_areas: [''],
       project_status: ['active'],  // NCIATWP-11796: 'active' (default) or 'inactive', Managers only
+      project_funding_ids: [''],  // NCIATWP-11892: ProjectFundingIDs, Managers only
     });
   }
 
@@ -128,6 +129,10 @@ export class SearchFormComponent {
     }
 
     for (let key in parameters) {
+      // NCIATWP-11892: the Manager-only fields stay empty for everyone else (the server ignores them anyway)
+      if (!this.isManager && (key === 'project_status' || key === 'project_funding_ids')) {
+        continue;
+      }
       setTimeout(e => this.form.controls[key].patchValue(parameters[key]), 0)
     }
   }

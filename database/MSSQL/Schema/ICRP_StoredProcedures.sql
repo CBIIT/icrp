@@ -2280,6 +2280,8 @@ BEGIN
 	SELECT * INTO #criteria FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 	IF EXISTS (SELECT * FROM #criteria WHERE ProjectStatus = 'Inactive')  -- NCIATWP-11796: Manager search for inactive projects
 		INSERT INTO @SearchCriteria SELECT 'Project Status:', 'Inactive' FROM #criteria
+	IF EXISTS (SELECT * FROM #criteria WHERE ProjectFundingIDList IS NOT NULL)  -- NCIATWP-11892
+		INSERT INTO @SearchCriteria SELECT 'Funding ID(s):', LEFT(ProjectFundingIDList, 250) FROM #criteria
 
 	IF EXISTS (SELECT * FROM #criteria WHERE TermSearchType IS NOT NULL)
 		INSERT INTO @SearchCriteria SELECT 'Term Search Type:', TermSearchType FROM #criteria

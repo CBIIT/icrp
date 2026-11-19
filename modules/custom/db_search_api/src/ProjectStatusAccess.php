@@ -72,6 +72,38 @@ class ProjectStatusAccess {
   }
 
   /**
+   * Cleans a list of IDs typed by a Manager (NCIATWP-11892): keeps whole
+   * numbers only, removes duplicates and returns them comma-separated, or NULL
+   * when there are none. Accepts commas, spaces or line breaks between IDs.
+   *
+   * @param mixed $raw
+   *   The text from the request.
+   * @param int $max
+   *   Most IDs kept.
+   */
+  public static function sanitizeIdList($raw, int $max = 1000): ?string {
+    if (!is_string($raw) || trim($raw) === '') {
+      return NULL;
+    }
+    preg_match_all('/\d+/', $raw, $matches);
+    $kept = [];
+    $length = 0;
+    foreach (array_unique($matches[0]) as $digits) {
+      $id = ltrim($digits, '0');
+      // Whole numbers that fit SQL Server's INT, and a list that fits the 4000-character column
+      if ($id === '' || strlen($id) > 10 || (int) $id > 2147483647) {
+        continue;
+      }
+      if (count($kept) >= $max || $length + strlen($id) + 1 > 4000) {
+        break;
+      }
+      $kept[] = $id;
+      $length += strlen($id) + 1;
+    }
+    return $kept ? implode(',', $kept) : NULL;
+  }
+
+  /**
    * The response for a non-manager asking for a Manager's inactive search.
    */
   public static function forbiddenResponse(): JsonResponse {

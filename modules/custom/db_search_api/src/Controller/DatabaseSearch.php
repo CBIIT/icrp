@@ -8,6 +8,7 @@ namespace Drupal\db_search_api\Controller;
 
 use PDO;
 use PDOStatement;
+use Drupal\db_search_api\ProjectStatusAccess;
 
 /**
  * Static functions for db_search_api routes.
@@ -187,6 +188,7 @@ class DatabaseSearch {
       'project_types'                => split($results['ProjectTypeList']),
       'cso_research_areas'           => split($results['CSOList']),
       'project_status'               => ($results['ProjectStatus'] ?? NULL) === 'Inactive' ? 'inactive' : NULL,  // NCIATWP-11796
+      'project_funding_ids'          => $results['ProjectFundingIDList'] ?? NULL,  // NCIATWP-11892
     ]) : [];
   }
 
@@ -556,6 +558,7 @@ class DatabaseSearch {
         @ChildhoodCancerList  = :is_childhood_cancer,
         @CSOList              = :cso_research_areas,
         @ProjectStatus        = :project_status,
+        @projectFundingIDList = :project_funding_ids,
         @searchCriteriaID     = :search_id,
         @ResultCount          = NULL';
 
@@ -578,6 +581,8 @@ class DatabaseSearch {
           'funding_organization'  => $row['FundingOrgShort'] ?? '',
           'funding_org_name'      => $row['FundingOrg'] ?? '',
           'award_code'            => $row['AwardCode'] ?? '',
+          // NCIATWP-11892: the row's ProjectFundingID, sent to ICRP Managers only
+          'project_funding_id'    => ProjectStatusAccess::isManager() ? ($row['LastProjectFundingID'] ?? '') : NULL,
         ];
       }
     }
@@ -631,6 +636,8 @@ class DatabaseSearch {
           'funding_organization'  => $row['FundingOrgShort'] ?? '',
           'funding_org_name'      => $row['FundingOrg'] ?? '',
           'award_code'            => $row['AwardCode'] ?? '',
+          // NCIATWP-11892: the row's ProjectFundingID, sent to ICRP Managers only
+          'project_funding_id'    => ProjectStatusAccess::isManager() ? ($row['LastProjectFundingID'] ?? '') : NULL,
         ];
       }
     }

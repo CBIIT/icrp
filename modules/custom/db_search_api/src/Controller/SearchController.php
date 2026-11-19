@@ -46,6 +46,7 @@ class SearchController extends ControllerBase {
     'search_terms'               => NULL,
     'search_type'                => NULL,
     'project_status'             => ProjectStatusAccess::ACTIVE,  // NCIATWP-11796: honored only for ICRP Managers
+    'project_funding_ids'        => NULL,  // NCIATWP-11892: ProjectFundingIDs, honored only for ICRP Managers
     'years'                      => NULL,
     'institution'                => NULL,
     'investigator_type'          => NULL,
@@ -149,6 +150,10 @@ class SearchController extends ControllerBase {
     $parameters = self::array_merge_intersection($request->query->all(), self::DEFAULT_SEARCH_PARAMETERS);
     // NCIATWP-11796: only a Manager can search for inactive projects; everyone else always gets Active
     $parameters['project_status'] = ProjectStatusAccess::resolveSearchMode($parameters['project_status']);
+    // NCIATWP-11892: only a Manager can search by ProjectFundingID
+    $parameters['project_funding_ids'] = ProjectStatusAccess::isManager()
+      ? ProjectStatusAccess::sanitizeIdList($parameters['project_funding_ids'])
+      : NULL;
     $data = DatabaseSearch::getSearchResults(PDOBuilder::getConnection(), $parameters);
     return self::createResponse($data);
   }

@@ -40,6 +40,9 @@ export class SearchPageComponent implements AfterViewInit {
     unavailableSearchID: false,  // NCIATWP-11796: a Manager's Inactive search opened by someone else
   }
 
+  // NCIATWP-11892: only ICRP Managers get the Manager-only tools and columns (the server checks the role too)
+  isManager: boolean = false;
+
   tables = {
     projects: 'Projects',
     institutions: 'PI Institutions'
@@ -59,6 +62,7 @@ export class SearchPageComponent implements AfterViewInit {
     private formBuilder: FormBuilder
   ) {
     this.resetAnalytics();
+    this.isManager = (this.sharedService.get('userRoles') || []).map(role => role.trim()).indexOf('manager') > -1;
   }
 
   ngAfterViewInit() {

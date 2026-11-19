@@ -6,6 +6,7 @@ interface Header {
   key: string;
   sort?: 'asc' | 'desc' | null | undefined;
   tooltip?: string
+  sortable?: boolean  // false: clicking the header doesn't sort
 }
 
 @Component({
@@ -45,6 +46,9 @@ export class TableComponent implements OnChanges {
   constructor() { }
 
   toggleSort(header: Header) {
+    if (header.sortable === false) {
+      return;
+    }
 
     let toggledSort: 'asc' | 'desc' = header.sort === 'asc'
       ? 'desc'

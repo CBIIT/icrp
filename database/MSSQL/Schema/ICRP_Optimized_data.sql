@@ -90,6 +90,7 @@ CREATE PROCEDURE [dbo].[GetProjectsByCriteria]
 	@CSOList varchar(1000) = NULL,	
 	@ChildhoodCancerList varchar(1000) = NULL,	  -- 0: no childhood, 1: childhood, 2: partially childhood
 @ProjectStatus varchar(10) = 'Active',  -- NCIATWP-11796: 'Active' (default) or 'Inactive'; PHP sends 'Inactive' only for ICRP Managers
+@projectFundingIDList varchar(4000) = NULL,  -- NCIATWP-11892: comma-separated ProjectFundingIDs (ICRP Managers only)
 	@searchCriteriaID INT OUTPUT,  -- return the searchID	
 	@ResultCount INT OUTPUT  -- return the searchID	
 	
@@ -108,6 +109,13 @@ AS
 	SELECT v.* INTO #projFunding  FROM vwProjectFundings v   -- All project funding records including PI and collaborator
 		JOIN Project ap ON ap.ProjectID = v.ProjectID AND ap.IsActive = @isActive   -- the search mode: active (NCIATWP-11792) or, for Managers, inactive (NCIATWP-11796)
 		JOIN ProjectFunding af ON af.ProjectFundingID = v.ProjectFundingID AND af.IsActive = @isActive
+
+	-- NCIATWP-11892: Manager search by one or more ProjectFundingIDs
+	IF @projectFundingIDList IS NOT NULL
+	BEGIN
+		SET @IsFiltered = 1
+		DELETE FROM #projFunding WHERE ProjectFundingID NOT IN (SELECT [VALUE] FROM dbo.ToIntTable(@projectFundingIDList))
+	END
 	
 	-------------------------------------------------------------------------
 	-- Exclude the projects which funding institutions and PI do NOT meet the criteria
@@ -383,9 +391,9 @@ AS
 		FROM #baseProj	
 
 		INSERT INTO SearchCriteria ([termSearchType],[terms],[institution],[piLastName],[piFirstName],[piORCiD],[awardCode],
-			[yearList], [cityList],[stateList],[countryList],[incomeGroupList],[regionList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList], [InvestigatorType], [ProjectStatus])
+			[yearList], [cityList],[stateList],[countryList],[incomeGroupList],[regionList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList], [InvestigatorType], [ProjectStatus], [ProjectFundingIDList])
 			VALUES ( @termSearchType,@terms,@institution,@piLastName,@piFirstName,@piORCiD,@awardCode,@yearList,@cityList,@stateList,@countryList,@incomeGroupList,@regionList,
-				@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList, @FundingOrgTypeList,	@ChildhoodCancerList, @InvestigatorType, CASE WHEN @isActive = 0 THEN 'Inactive' END)
+				@fundingOrgList,@cancerTypeList,@projectTypeList,@CSOList, @FundingOrgTypeList,	@ChildhoodCancerList, @InvestigatorType, CASE WHEN @isActive = 0 THEN 'Inactive' END, @projectFundingIDList)
 									 
 		SELECT @searchCriteriaID = SCOPE_IDENTITY()		
 
@@ -1296,7 +1304,7 @@ AS
 
 		INSERT INTO SearchCriteria ([termSearchType],[terms],[piLastName],[piFirstName],[piORCiD],[awardCode],
 			[yearList], [stateList],[fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList], [incomeGroupList],
-			[institution], [cityList], [countryList], [RegionList], [ProjectStatus])
+			[institution], [cityList], [countryList], [RegionList], [ProjectStatus], [ProjectFundingIDList])
 
 			SELECT [termSearchType],[terms],[piLastName],[piFirstName],[piORCiD],[awardCode],
 				[yearList], [stateList], [fundingOrgList],[cancerTypeList],[projectTypeList],[CSOList], [FundingOrgTypeList], [ChildhoodCancerList], [incomeGroupList],
@@ -1316,7 +1324,8 @@ AS
 				CASE
 				WHEN @RegionID IS NULL THEN [RegionList]
 				ELSE @RegionID END,
-				[ProjectStatus]  -- NCIATWP-11796: keep the source search's Active/Inactive mode		
+				[ProjectStatus],  -- NCIATWP-11796: keep the source search's Active/Inactive mode
+				[ProjectFundingIDList]  -- NCIATWP-11892		
 				
 			FROM SearchCriteria WHERE SearchCriteriaID = @SearchID
 	END									 

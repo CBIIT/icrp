@@ -101,6 +101,7 @@
           [loading]="state.loading"
           [results]="state.results"
           [numResults]="state.projectCount"
+          [showFundingId]="isManager"
           (sortPaginate)="getSortedPaginatedResults($event)">
         </icrp-results-table-panel>
       </div>

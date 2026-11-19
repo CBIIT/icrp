@@ -83,6 +83,24 @@ export class ResultsTablePanelComponent {
     },
   ];
 
+  // NCIATWP-11892: ICRP Managers also see each row's ProjectFundingID (the server sends it only to Managers)
+  @Input()
+  showFundingId: boolean = false;
+
+  fundingIdHeader = {
+    label: 'Funding ID',
+    key: 'project_funding_id',
+    tooltip: 'ICRP ProjectFundingID of the sub-project shown in this row (ICRP Managers only)',
+    width: 100,
+    sortable: false,
+  };
+
+  headersWithFundingId: any[] = (this.headers as any[]).concat([this.fundingIdHeader]);
+
+  get tableHeaders(): any[] {
+    return this.showFundingId ? this.headersWithFundingId : this.headers;
+  }
+
   sortPaginate(parameters) {
     this.sortPaginateParameters = Object.assign(
       this.sortPaginateParameters,

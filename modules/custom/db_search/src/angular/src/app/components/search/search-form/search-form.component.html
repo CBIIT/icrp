@@ -1,7 +1,7 @@
 <form [formGroup]="form">
 
   <!-- NCIATWP-11796: Active or Inactive projects, shown to ICRP Managers only -->
-  <ui-panel *ngIf="isManager" title="Project Status" [visible]="true">
+  <ui-panel *ngIf="isManager" title="Manager Search" [visible]="true">
     <div>
       <label
         class="radio-label"
@@ -39,6 +39,18 @@
         Inactive projects
       </label>
     </div>
+
+    <!-- NCIATWP-11892: search by ICRP ProjectFundingID -->
+    <label class="form-label" for="project_funding_ids" tooltip="One or more ICRP ProjectFundingIDs, separated by commas or spaces">Funding IDs</label>
+    <input #fundingids
+      class="text input"
+      id="project_funding_ids"
+      name="project_funding_ids"
+      type="text"
+      placeholder="e.g. 343, 349"
+      [formControl]="form.controls.project_funding_ids"
+      (change)="updateDisplayParameters('project_funding_ids', [fundingids.value])"
+      >
   </ui-panel>
 
   <!-- Search Terms -->
