@@ -37,6 +37,7 @@ export class SearchPageComponent implements AfterViewInit {
     lastBudgetYear: 0,
     analytics: {},
     expiredSearchID: false,
+    unavailableSearchID: false,  // NCIATWP-11796: a Manager's Inactive search opened by someone else
   }
 
   tables = {
@@ -157,10 +158,14 @@ export class SearchPageComponent implements AfterViewInit {
           this.searchForm.setParameters(parameters);
           this.getSortedPaginatedResults({ search_id: searchID }, () => {
             this.getSearchSummary(true)
-              .subscribe(e => this.chartsPanel.updateCharts(searchID));
+              .subscribe(e => this.chartsPanel && this.chartsPanel.updateCharts(searchID));
           });
         }
 
+      }, error => {
+        // NCIATWP-11796: the server refuses a Manager's Inactive search to everyone else (403)
+        this.state.unavailableSearchID = true;
+        this.performDefaultSearch();
       });
   }
 
@@ -290,7 +295,7 @@ export class SearchPageComponent implements AfterViewInit {
         this.state.loading = false;
 
         this.getSearchSummary(true)
-          .subscribe(e => this.chartsPanel.updateCharts(this.state.searchID));
+          .subscribe(e => this.chartsPanel && this.chartsPanel.updateCharts(this.state.searchID));
 
         this.sharedService.set('searchID', this.state.searchID);
 
@@ -312,7 +317,10 @@ export class SearchPageComponent implements AfterViewInit {
             ? budgetYear
             : validYears[0];
 
-          this.chartsPanel.form.controls.conversion_year.patchValue(this.state.lastBudgetYear.toString());
+          // the charts panel isn't drawn when a search finds nothing (e.g. an Inactive search with no inactive projects)
+          if (this.chartsPanel) {
+            this.chartsPanel.form.controls.conversion_year.patchValue(this.state.lastBudgetYear.toString());
+          }
         }
 
         return this.state;

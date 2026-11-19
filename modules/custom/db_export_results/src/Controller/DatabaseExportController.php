@@ -47,6 +47,12 @@ private static function createResponse($data) {
       ? '/review'
       : '';
 
+    // NCIATWP-11796: export files are served by URL and named after the search ID, so give a Manager's Inactive
+    // search an unguessable file name (search IDs are sequential). Review exports read icrp_dataload and are skipped.
+    if ($data_upload_id == NULL && ProjectStatusAccess::isInactiveSearch($pdo, $search_id)) {
+      $filename = preg_replace('/\.xlsx$/', '_' . bin2hex(random_bytes(16)) . '.xlsx', $filename);
+    }
+
     return in_array($workbook_key, [DatabaseExport::EXPORT_GRAPHS_PUBLIC, DatabaseExport::EXPORT_GRAPHS_PARTNERS])
       ? (new DatabaseExport())
           ->exportGraphs($pdo, $search_id, $data_upload_id, $year, $workbook_key, $filename)

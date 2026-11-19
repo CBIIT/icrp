@@ -12,6 +12,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use PDO;
+use Drupal\db_search_api\ProjectStatusAccess;
 
 /**
  * Controller routines for db_map routes.
@@ -176,6 +177,9 @@ private static function createResponse($data): JsonResponse {
         'city' => '',
       ]
     );
+    if (!ProjectStatusAccess::canViewSearch($connection, $parameters['searchId'])) {
+      return ProjectStatusAccess::forbiddenResponse();  // NCIATWP-11796
+    }
     $data = MappingTool::getLocations($connection, $parameters);
     return self::createResponse($data);
   }
@@ -190,6 +194,9 @@ private static function createResponse($data): JsonResponse {
   public static function getSearchParameters(Request $request): JSONResponse {
     $connection = PDOBuilder::getConnection('icrp_database');
     $parameters = self::array_merge_intersection($request->query->all(), ['searchId' => 0]);
+    if (!ProjectStatusAccess::canViewSearch($connection, $parameters['searchId'])) {
+      return ProjectStatusAccess::forbiddenResponse();  // NCIATWP-11796
+    }
     $data = MappingTool::getSearchParameters($connection, $parameters);
     return self::createResponse($data);
   }
@@ -211,6 +218,9 @@ private static function createResponse($data): JsonResponse {
       'city' => NULL,
       'institution' => NULL,
     ]);
+    if (!ProjectStatusAccess::canViewSearch($connection, $parameters['searchId'])) {
+      return ProjectStatusAccess::forbiddenResponse();  // NCIATWP-11796
+    }
     $data = MappingTool::getNewSearchId($connection, $parameters);
     return self::createResponse($data);
   }

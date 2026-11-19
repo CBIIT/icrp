@@ -49,14 +49,26 @@ class ProjectStatusAccess {
    *   The saved search ID; 0 or less is the default (unfiltered, active) search.
    */
   public static function canViewSearch(PDO $pdo, $search_id): bool {
+    return self::isManager() || !self::isInactiveSearch($pdo, $search_id);
+  }
+
+  /**
+   * Whether a saved search was built in Inactive mode (a Manager's search).
+   *
+   * @param \PDO $pdo
+   *   A connection to icrp_data (not icrp_dataload, which has no such column).
+   * @param mixed $search_id
+   *   The saved search ID.
+   */
+  public static function isInactiveSearch(PDO $pdo, $search_id): bool {
     $search_id = intval($search_id);
-    if ($search_id <= 0 || self::isManager()) {
-      return TRUE;
+    if ($search_id <= 0) {
+      return FALSE;
     }
     $stmt = $pdo->prepare('SELECT ProjectStatus FROM SearchCriteria WHERE SearchCriteriaID = :search_id');
     $stmt->bindValue(':search_id', $search_id, PDO::PARAM_INT);
     $stmt->execute();
-    return $stmt->fetchColumn() !== self::INACTIVE;
+    return $stmt->fetchColumn() === self::INACTIVE;
   }
 
   /**

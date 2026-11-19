@@ -156,10 +156,11 @@ class SearchController extends ControllerBase {
 
   public static function getSortedPaginatedResults(Request $request) {
     $parameters = self::array_merge_intersection($request->query->all(), self::DEFAULT_SORT_PAGINATE_PARAMETERS);
-    if (!ProjectStatusAccess::canViewSearch(PDOBuilder::getConnection(), $parameters['search_id'])) {
+    $pdo = PDOBuilder::getConnection();
+    if (!ProjectStatusAccess::canViewSearch($pdo, $parameters['search_id'])) {
       return ProjectStatusAccess::forbiddenResponse();  // NCIATWP-11796
     }
-    $data = DatabaseSearch::getSortedPaginatedResults(PDOBuilder::getConnection(), $parameters);
+    $data = DatabaseSearch::getSortedPaginatedResults($pdo, $parameters);
     return self::createResponse($data);
   }
 
@@ -167,12 +168,13 @@ class SearchController extends ControllerBase {
   public static function getAnalytics(Request $request) {
     $parameters = $request->query->all();
 
-    if (!ProjectStatusAccess::canViewSearch(PDOBuilder::getConnection(), $parameters['search_id'] ?? 0)) {
+    $pdo = PDOBuilder::getConnection();
+    if (!ProjectStatusAccess::canViewSearch($pdo, $parameters['search_id'] ?? 0)) {
       return ProjectStatusAccess::forbiddenResponse();  // NCIATWP-11796
     }
 
     $data = in_array($parameters['type'], self::PUBLIC_ANALYTICS_TYPES)
-      ? DatabaseSearch::getAnalytics(PDOBuilder::getConnection(), $parameters)
+      ? DatabaseSearch::getAnalytics($pdo, $parameters)
       : [];
 
     return self::createResponse($data);
@@ -182,12 +184,13 @@ class SearchController extends ControllerBase {
   public static function getAnalyticsForPartners(Request $request) {
     $parameters = $request->query->all();
 
-    if (!ProjectStatusAccess::canViewSearch(PDOBuilder::getConnection(), $parameters['search_id'] ?? 0)) {
+    $pdo = PDOBuilder::getConnection();
+    if (!ProjectStatusAccess::canViewSearch($pdo, $parameters['search_id'] ?? 0)) {
       return ProjectStatusAccess::forbiddenResponse();  // NCIATWP-11796
     }
 
     $data = in_array($parameters['type'], self::PARTNER_ANALYTICS_TYPES)
-      ? DatabaseSearch::getAnalytics(PDOBuilder::getConnection(), $parameters)
+      ? DatabaseSearch::getAnalytics($pdo, $parameters)
       : [];
 
     return self::createResponse($data);

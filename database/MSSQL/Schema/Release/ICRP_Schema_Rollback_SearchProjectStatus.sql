@@ -2,7 +2,8 @@
 /******  Rollback for NCIATWP-11796 (ICRP_Schema_Update_SearchProjectStatus.sql)       ******/
 /******  icrp_data only.                                                              ******/
 /*******************************************************************************************/
--- FIRST restore the previous versions of the procedures that read SearchCriteria.ProjectStatus (the NCIATWP-11792
+-- FIRST roll back the PHP (db_search_api ProjectStatusAccess and its callers read this column, so every non-manager
+-- request with a search ID would fail once it is gone). THEN restore the previous versions of the procedures that read SearchCriteria.ProjectStatus (the NCIATWP-11792
 -- versions of the Search procedures, GetProjectsByCriteria, AddNewSearchBySearchID and GetSearchCriteriaBySearchID);
 -- otherwise they stop compiling once the column is gone. Saved Manager searches for inactive projects then behave as
 -- ordinary (Active) searches.
