@@ -1,4 +1,19 @@
 <div style="position: relative" *ngIf="results && results.length">
+  <!-- NCIATWP-11800: ICRP Manager bulk status change -->
+  <div *ngIf="action" style="display: flex; align-items: center; margin-bottom: 5px">
+    <button
+      type="button"
+      class="btn btn-primary btn-sm"
+      style="margin-right: 10px"
+      [disabled]="!selectedIds.length || statusBusy"
+      (click)="changeStatus()">
+      {{ action.buttonLabel }}
+    </button>
+    <span *ngIf="selectedIds.length" style="margin-right: 10px">{{ selectedIds.length }} selected</span>
+    <a *ngIf="selectedIds.length" href="#" style="margin-right: 10px" (click)="$event.preventDefault(); clearSelection()">Clear selection</a>
+    <span *ngIf="statusError" class="text-danger">{{ statusError }}</span>
+  </div>
+
   <ui-overlay [active]="loading">
     <ui-spinner></ui-spinner>
     <br>Fetching Data
@@ -11,6 +26,11 @@
     [loading]="loading"
     (sort)="sortPaginate($event)"
     (paginate)="sortPaginate($event)"
+    [selectable]="!!action"
+    [selectLabel]="action?.columnLabel"
+    selectKey="project_id"
+    [selected]="selected"
+    (rowSelect)="onRowSelect($event)"
     >
   </ui-table>
 </div>

@@ -1,4 +1,4 @@
-import { Http, URLSearchParams } from '@angular/http';
+import { Http, URLSearchParams, Headers } from '@angular/http';
 import { Injectable } from '@angular/core';
 import { SharedService } from './shared.service';
 
@@ -24,6 +24,26 @@ export class SearchService {
         withCredentials: this.sharedService.get('isProduction')
       }
     ).map(response => response.json());
+  }
+
+  // NCIATWP-11800: ICRP Manager bulk status change (the server checks the manager role and the CSRF token)
+  getProjectStatusPreview(projectIds: number[]): Promise<any[]> {
+    return this.getRequest(`${this.apiRoot}/project_status/preview`, { project_ids: projectIds.join(',') }).toPromise();
+  }
+
+  setProjectStatus(projectIds: number[], active: boolean): Promise<any> {
+    const root = this.sharedService.get('apiRoot') || '';
+    const withCredentials = this.sharedService.get('isProduction');
+    return this.http.get(`${root}/session/token`, { withCredentials: withCredentials }).toPromise()
+      .then(tokenResponse => this.http.post(
+        `${this.apiRoot}/project_status`,
+        JSON.stringify({ project_ids: projectIds, active: active }),
+        {
+          headers: new Headers({ 'Content-Type': 'application/json', 'X-CSRF-Token': tokenResponse.text() }),
+          withCredentials: withCredentials
+        }
+      ).toPromise())
+      .then(response => response.json());
   }
 
   getDefaultParameters() {

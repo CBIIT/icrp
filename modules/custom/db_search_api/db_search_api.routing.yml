@@ -194,6 +194,16 @@ db_search_api.database.getInfo:
   requirements:
     _access: "TRUE"
 
+## Award code, sub-project count and status of projects before a bulk change (ICRP Managers only, NCIATWP-11800)
+## Sample request: GET /api/database/project_status/preview?project_ids=101,102
+db_search_api.database.project_status_preview:
+  path: "/api/database/project_status/preview"
+  defaults:
+    _controller: '\Drupal\db_search_api\Controller\ProjectStatusController::previewProjects'
+  methods: [GET]
+  requirements:
+    _role: "manager"
+
 ## Sets base/parent projects and all their sub-projects Active or Inactive (ICRP Managers only)
 ## Sample request: POST /api/database/project_status  {"project_ids": [101, 102], "active": false}
 ## Requires the X-CSRF-Token header (GET /session/token)

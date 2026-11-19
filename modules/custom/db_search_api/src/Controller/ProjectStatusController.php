@@ -22,6 +22,10 @@ use PDO;
  *   POST /api/database/project_funding_status  {"project_funding_ids": [5001], "active": true}
  *
  * Response (JSON): {"projects_updated": 2, "sub_projects_updated": 7}
+ *
+ * Before a bulk change the Search page asks for a preview (NCIATWP-11800):
+ *   GET /api/database/project_status/preview?project_ids=101,102
+ *   -> [{"project_id": 101, "award_code": "CA1", "sub_projects": 3, "is_active": true}, ...]
  */
 class ProjectStatusController extends ControllerBase {
 
@@ -91,6 +95,51 @@ class ProjectStatusController extends ControllerBase {
       'projects_updated' => (int) ($row['ProjectsUpdated'] ?? 0),
       'sub_projects_updated' => (int) ($row['SubProjectsUpdated'] ?? 0),
     ]);
+  }
+
+  /**
+   * Award code, sub-project count and status of each selected project, so the
+   * Search page can warn before changing projects that have sub-projects.
+   */
+  public static function previewProjects(Request $request): JsonResponse {
+    $raw = (string) $request->query->get('project_ids', '');
+    if (!preg_match('/^\d+(,\d+)*$/', $raw)) {
+      return self::error("'project_ids' must be a comma-separated list of positive whole numbers.");
+    }
+    $ids = array_values(array_unique(array_map('intval', explode(',', $raw))));
+    if (count($ids) > self::MAX_IDS) {
+      return self::error("Send at most " . self::MAX_IDS . " IDs per request.");
+    }
+    if (in_array(0, $ids, TRUE)) {
+      return self::error("'project_ids' may only contain positive whole numbers.");
+    }
+
+    try {
+      $pdo = PDOBuilder::getConnection('icrp_database');
+      $stmt = $pdo->prepare("SET NOCOUNT ON;
+        SELECT p.ProjectID, p.AwardCode, p.IsActive, COUNT(f.ProjectFundingID) AS SubProjects
+        FROM Project p
+          LEFT JOIN ProjectFunding f ON f.ProjectID = p.ProjectID
+        WHERE p.ProjectID IN (SELECT [VALUE] FROM dbo.ToIntTable(:ids))
+        GROUP BY p.ProjectID, p.AwardCode, p.IsActive
+        ORDER BY p.AwardCode");
+      $stmt->bindValue(':ids', implode(',', $ids), PDO::PARAM_STR);
+      $stmt->execute();
+      $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    catch (\PDOException $e) {
+      error_log("Project status preview failed: " . $e->getMessage());
+      return new JsonResponse(['error' => 'The projects could not be read.'], 500);
+    }
+
+    return new JsonResponse(array_map(function ($row) {
+      return [
+        'project_id' => (int) $row['ProjectID'],
+        'award_code' => $row['AwardCode'],
+        'sub_projects' => (int) $row['SubProjects'],
+        'is_active' => (bool) $row['IsActive'],
+      ];
+    }, $rows));
   }
 
   private static function error(string $message): JsonResponse {

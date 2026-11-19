@@ -38,6 +38,7 @@ export class SearchPageComponent implements AfterViewInit {
     analytics: {},
     expiredSearchID: false,
     unavailableSearchID: false,  // NCIATWP-11796: a Manager's Inactive search opened by someone else
+    statusMessage: null,  // NCIATWP-11800: result of a Manager's status change
   }
 
   // NCIATWP-11892: only ICRP Managers get the Manager-only tools and columns (the server checks the role too)
@@ -63,6 +64,20 @@ export class SearchPageComponent implements AfterViewInit {
   ) {
     this.resetAnalytics();
     this.isManager = (this.sharedService.get('userRoles') || []).map(role => role.trim()).indexOf('manager') > -1;
+  }
+
+  // NCIATWP-11800: Managers can inactivate projects from an Active search
+  get statusAction(): string {
+    if (!this.isManager) {
+      return null;
+    }
+    return this.state.searchParameters['project_status'] === 'inactive' ? null : 'inactivate';
+  }
+
+  // Show the outcome and re-run the search so the changed projects drop out of the list, counts and charts
+  onStatusChanged(event: { message: string }) {
+    this.getSearchResults({ parameters: this.state.searchParameters });
+    this.state.statusMessage = event.message;
   }
 
   ngAfterViewInit() {
@@ -139,6 +154,7 @@ export class SearchPageComponent implements AfterViewInit {
 
         else {
           let parameters = removeEmptyProperties(response);
+          this.state.searchParameters = parameters;  // NCIATWP-11800: the reopened search's mode decides the Manager tools
           if (parameters['years']) {
             let currentYear = new Date().getFullYear();
             let isAuthenticated = this.sharedService.get('authenticated');
@@ -283,6 +299,7 @@ export class SearchPageComponent implements AfterViewInit {
   getSearchResults(event: any) {
     this.resetAnalytics();
     this.state.loading = true;
+    this.state.statusMessage = null;
     this.state.searchParameters = this.filterSearchParameters(deepCopy(event.parameters));
 
     for(let key in this.searchResultViews) {

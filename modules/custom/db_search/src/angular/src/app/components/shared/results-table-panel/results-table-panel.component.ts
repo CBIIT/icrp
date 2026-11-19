@@ -1,11 +1,127 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { SearchService } from '../../../services/search.service';
+
+/**
+ * ICRP Manager bulk status changes from the Project List (NCIATWP-11800).
+ * Texts follow the story's acceptance criteria.
+ */
+export const STATUS_ACTIONS = {
+  inactivate: {
+    active: false,
+    columnLabel: 'Inactivate?',
+    buttonLabel: 'Inactivate',
+    subProjectWarning: 'Inactivating these projects will also inactivate their sub-projects. Are you sure you want to proceed?\n\nSelected projects with sub-projects: ',
+    confirmation: 'Please confirm you would like to inactivate all selected projects and their sub-projects if any.',
+    done: 'The following Projects (and their sub-projects if applicable) were flagged as Inactive and therefore removed from public display on the ICRP site: ',
+  },
+};
 
 @Component({
   selector: 'icrp-results-table-panel',
   templateUrl: './results-table-panel.component.html',
   styleUrls: ['./results-table-panel.component.css']
 })
-export class ResultsTablePanelComponent {
+export class ResultsTablePanelComponent implements OnChanges {
+
+  // NCIATWP-11800: 'inactivate' shows the selection column and button (ICRP Managers only; the server checks the role)
+  @Input()
+  statusAction: string = null;
+
+  // Selections are cleared when a new search is shown
+  @Input()
+  searchId: any = null;
+
+  @Output('statusChanged')
+  statusChangedEmitter: EventEmitter<any> = new EventEmitter<any>();
+
+  selected: { [projectId: string]: string } = {};  // project ID -> award code
+
+  // Most projects changed in one action (keeps the preview request short; the server accepts 1000)
+  readonly maxSelected = 500;
+  statusBusy: boolean = false;
+  statusError: string = null;
+
+  constructor(private searchService: SearchService) { }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['statusAction'] || changes['searchId']) {
+      this.clearSelection();
+    }
+  }
+
+  get action() {
+    return this.statusAction ? STATUS_ACTIONS[this.statusAction] : null;
+  }
+
+  get selectedIds(): number[] {
+    return Object.keys(this.selected).map(id => +id);
+  }
+
+  onRowSelect(event: { row: any, checked: boolean }) {
+    if (event.checked) {
+      this.selected[event.row.project_id] = event.row.award_code;
+    } else {
+      delete this.selected[event.row.project_id];
+    }
+  }
+
+  clearSelection() {
+    this.selected = {};
+    this.statusError = null;
+  }
+
+  // Award codes for a dialog, shortened when many projects are selected
+  listAwardCodes(codes: string[]): string {
+    const shown = 25;
+    return codes.length > shown
+      ? codes.slice(0, shown).join(', ') + ` and ${codes.length - shown} more`
+      : codes.join(', ');
+  }
+
+  // Warn about sub-projects, ask for confirmation, change the status, then report the projects changed
+  changeStatus() {
+    const action = this.action;
+    const ids = this.selectedIds;
+    if (!action || !ids.length || this.statusBusy) {
+      return;
+    }
+    if (ids.length > this.maxSelected) {
+      this.statusError = `Select at most ${this.maxSelected} projects at a time.`;
+      return;
+    }
+    this.statusBusy = true;
+    this.statusError = null;
+    this.searchService.getProjectStatusPreview(ids)
+      .then(previewed => {
+        // Skip projects already in the target state (e.g. changed by another Manager since the list loaded)
+        const projects = previewed.filter(p => p.is_active !== action.active);
+        if (!projects.length) {
+          this.statusError = 'The selected projects already have this status.';
+          return null;
+        }
+        const withSubProjects = projects.filter(p => p.sub_projects > 1).map(p => p.award_code);
+        if (withSubProjects.length && !window.confirm(action.subProjectWarning + this.listAwardCodes(withSubProjects))) {
+          return null;
+        }
+        if (!window.confirm(action.confirmation + '\n\n' + this.listAwardCodes(projects.map(p => p.award_code)))) {
+          return null;
+        }
+        return this.searchService.setProjectStatus(projects.map(p => p.project_id), action.active)
+          .then(() => projects.map(p => p.award_code));
+      })
+      .then(awardCodes => {
+        this.statusBusy = false;
+        if (awardCodes) {
+          this.clearSelection();
+          this.statusChangedEmitter.emit({ message: action.done + awardCodes.join(', ') });
+        }
+      })
+      .catch(error => {
+        this.statusBusy = false;
+        this.statusError = 'The status could not be changed. Please try again.';
+        console.error(error);
+      });
+  }
 
   @Input()
   results: any[] = [];

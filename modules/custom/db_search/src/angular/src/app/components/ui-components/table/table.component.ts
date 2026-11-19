@@ -37,6 +37,22 @@ export class TableComponent implements OnChanges {
   @Output()
   paginate: EventEmitter<any> = new EventEmitter<any>();
 
+  // Optional selection column (NCIATWP-11800): a checkbox in each row, keyed by row[selectKey]
+  @Input()
+  selectable: boolean = false;
+
+  @Input()
+  selectLabel: string = 'Select?';
+
+  @Input()
+  selectKey: string = 'project_id';
+
+  @Input()
+  selected: { [key: string]: any } = {};
+
+  @Output()
+  rowSelect: EventEmitter<{ row: any, checked: boolean }> = new EventEmitter<{ row: any, checked: boolean }>();
+
   @ViewChild('table') table;
 
   pageSize = this.pageSizes[0];
@@ -63,6 +79,10 @@ export class TableComponent implements OnChanges {
       sort_column: header.key,
       sort_direction: header.sort
     })
+  }
+
+  toggleSelect(row: any, checked: boolean) {
+    this.rowSelect.emit({ row: row, checked: checked });
   }
 
   emitPagination() {
