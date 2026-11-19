@@ -1,5 +1,5 @@
 default:
-  version: 1.0.10
+  version: 1.0.11
   css:
     theme:
       assets/styles.css: {}
