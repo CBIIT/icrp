@@ -12,7 +12,6 @@ RUN dnf -y update \
    mod_fcgid \
    dovecot \
    dovecot-mysql \
-   nodejs \
    patch \
    php8.3 \
    php8.3-devel \
